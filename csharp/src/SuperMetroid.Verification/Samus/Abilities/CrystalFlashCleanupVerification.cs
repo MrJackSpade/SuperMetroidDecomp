@@ -25,13 +25,13 @@ using SuperMetroid.Core.Progression;
 /// <summary>Checks Crystal Flash activation, contact, visibility, resource drain, and movement cleanup in production runtime.</summary>
 internal static class CrystalFlashCleanupVerification
 {
-    /// <summary>Runs successful, refill-assisted, and insufficient-ammo Crystal Flash routes.</summary>
-    internal static void VerifyCrystalFlashRuntime()
-    {
-        Suite(nameof(VerifyCrystalFlashRuntimeRoute), () => VerifyCrystalFlashRuntimeRoute(capacity: 11, refill: false));
-        Suite(nameof(VerifyCrystalFlashRuntimeRoute), () => VerifyCrystalFlashRuntimeRoute(capacity: 10, refill: true));
-        Suite(nameof(VerifyCrystalFlashRuntimeRoute), () => VerifyCrystalFlashRuntimeRoute(capacity: 10, refill: false));
-    }
+    /// <summary>The successful, refill-assisted and insufficient-ammo Crystal Flash routes, each a suite of its own.</summary>
+    internal static FullRunSuitesVerification.RegisteredSuite[] CrystalFlashRuntimeSuites() =>
+    [
+        new($"{nameof(VerifyCrystalFlashRuntimeRoute)}Successful", () => VerifyCrystalFlashRuntimeRoute(capacity: 11, refill: false)),
+        new($"{nameof(VerifyCrystalFlashRuntimeRoute)}Refilled", () => VerifyCrystalFlashRuntimeRoute(capacity: 10, refill: true)),
+        new($"{nameof(VerifyCrystalFlashRuntimeRoute)}Insufficient", () => VerifyCrystalFlashRuntimeRoute(capacity: 10, refill: false)),
+    ];
 
     /// <summary>Steps a controlled Landing Site route from Power Bomb placement through activation or rejection and post-flash movement.</summary>
     private static void VerifyCrystalFlashRuntimeRoute(ushort capacity, bool refill)
@@ -177,7 +177,8 @@ internal static class CrystalFlashCleanupVerification
     [VerificationCommand("--crystal-flash-runtime")]
     internal static int CrystalFlashRuntimeCommand()
     {
-        Suite(nameof(VerifyCrystalFlashRuntime), () => VerifyCrystalFlashRuntime());
+        foreach (FullRunSuitesVerification.RegisteredSuite suite in CrystalFlashRuntimeSuites())
+            Suite(suite.Name, suite.Body);
         return 0;
     }
 }

@@ -79,7 +79,6 @@ using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireArenaVisualsVer
 using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireBodyCollisionDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireMeltingDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireTongueCollisionDefinitionsVerification;
-using static SuperMetroid.Verification.Samus.Abilities.CrystalFlashCleanupVerification;
 using static SuperMetroid.Verification.Samus.Movement.DamageBoostJumpInitializerVerification;
 using static SuperMetroid.Verification.Runtime.DebuggerStateLayoutVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorAlignmentVerification;
@@ -609,7 +608,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifySamusExtraDisplacement), () => VerifySamusExtraDisplacement()),
         new(nameof(VerifySamusStoredShineAndShinespark), () => VerifySamusStoredShineAndShinespark()),
         new(nameof(VerifySamusCrystalFlash), () => VerifySamusCrystalFlash()),
-        new(nameof(VerifyCrystalFlashRuntime), () => VerifyCrystalFlashRuntime()),
+        .. SuperMetroid.Verification.Samus.Abilities.CrystalFlashCleanupVerification.CrystalFlashRuntimeSuites(),
         new(nameof(VerifySamusXray), () => VerifySamusXray()),
         new(nameof(VerifySamusDeathSequence), () => VerifySamusDeathSequence()),
         new(nameof(VerifyMotherBrainBeamWindow), () => VerifyMotherBrainBeamWindow()),

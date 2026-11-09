@@ -154,6 +154,13 @@ internal static class InstalledFixtures
     /// <summary>The installation's stock enemy, boss and area artwork, loaded once per process.</summary>
     internal static InstalledEnemyArtwork EnemyArtwork => enemyArtwork.Value;
 
+    /// <summary>The installation's complete game artwork as the game binds it, loaded once per process and only read.</summary>
+    private static readonly Lazy<SuperMetroid.Core.Frontend.GameArtwork> gameArtwork =
+        Shared<SuperMetroid.Core.Frontend.GameArtwork>("game artwork", () => InstalledGameBindings.Artwork(RepositoryInstallation.Installation));
+
+    /// <summary>The installation's complete game artwork as the game binds it, loaded once per process and only read.</summary>
+    internal static SuperMetroid.Core.Frontend.GameArtwork GameArtwork => gameArtwork.Value;
+
     /// <summary>
     /// Whether <paramref name="tiles"/> is the shared installed enemy artwork's own catalog, which holds the stock content
     /// as loaded; asking does not load it.

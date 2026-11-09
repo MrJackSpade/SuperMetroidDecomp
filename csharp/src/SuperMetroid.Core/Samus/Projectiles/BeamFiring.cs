@@ -159,7 +159,7 @@ internal sealed class BeamFiring
                 // here, on the alpha pass that advances the counter to sixteen.
                 if (_charge.FlareCounter == BeamChargeDefinitions.ChargeSoundStartCounter)
                 {
-                    return new(null, Library1Sound.ChargingBeam, Priority: SoundRequestPriority.High);
+                    return new(null, SamusSound.ChargingBeam, Priority: SoundRequestPriority.High);
                 }
             }
             else if (_combos.TryActivateCombo(samus, sharedProjectiles, out SoundEffectId? comboSound))
@@ -210,7 +210,7 @@ internal sealed class BeamFiring
 
         return _charge.PreviousBeamChargeCounter >=
             BeamChargeDefinitions.ChargeSoundStartCounter
-            ? new(null, Library1Sound.Silence, Priority: SoundRequestPriority.Essential)
+            ? new(null, SamusSound.Silence, Priority: SoundRequestPriority.Essential)
             : new(null, null, null);
     }
 
@@ -484,8 +484,7 @@ internal sealed class BeamFiring
             ? SamusProjectileFrameBehavior.SuperMissile
             : SamusProjectileFrameBehavior.Missile;
 
-        // Retail constants embedded beside the producer: missile sound library-one
-        // effect three and ten-frame shared cooldown. A Select press made while Item Cancel
+        // The missile sound and the ten-frame shared cooldown. A Select press made while Item Cancel
         // is held records a one-shot auto-cancel index; a successful missile consumes that
         // request before the ordinary empty-ammo fallback. Murder Beam uses this exact path
         // to begin charging safely while the missile cooldown suppresses its unsafe initial

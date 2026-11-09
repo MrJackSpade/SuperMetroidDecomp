@@ -105,7 +105,7 @@ internal static class BombTorizoHandVerification
         AssertEqual(1, roomObjects.BombTorizoHand.MusicRequests.Count,
             "terminal hand pass queues one music command");
         AssertEqual(
-            new DelayedMusicRequest(MusicRequest.SelectTrack(6), MusicQueueDelay.Shortest),
+            new DelayedMusicRequest(MusicRequest.SelectTrack(MusicTrack.SecondSetSong), MusicQueueDelay.Shortest),
             roomObjects.BombTorizoHand.MusicRequests[0],
             "terminal hand music request");
 

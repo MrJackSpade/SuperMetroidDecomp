@@ -10,7 +10,7 @@ internal static class MaridiaElevatubeObjectDefinitionsConstants
     /// <summary><c>$84:B8F0</c>: sixteen-frame delay and one-block draw.</summary>
     internal const ushort AnimationScript = RoomObjectAnimationScriptsConstants.MaridiaElevatube;
     /// <summary><c>$84:B8F6</c>: library-two elevatube sound operand.</summary>
-    internal static readonly SoundEffectId SoundId = Library2Sound.Elevatube;
+    internal static readonly SoundEffectId SoundId = EnemySound.Elevatube;
     /// <summary>Supplies the delay, draw pointer, sound command, and deletion word at their native instruction addresses.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {

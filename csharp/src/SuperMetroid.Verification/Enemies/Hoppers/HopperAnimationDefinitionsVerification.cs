@@ -69,7 +69,7 @@ internal static class HopperAnimationDefinitionsVerification
                 EnemyInstructionRunner.ShownFrames(slot, 2), $"hopper airborne pose {context}");
             AssertTrue(slot.Processing.HasAny(EnemyProcessing.OffScreen),
                 $"hopper jumping program {context} enables off-screen processing");
-            AssertEqual(variant is 0 or 1 ? Library2Sound.SidehopperJump : null, enemies.Audio.PublishedSoundFrom(EnemySoundSource.Hoppers),
+            AssertEqual(variant is 0 or 1 ? EnemySound.SidehopperJump : null, enemies.Audio.PublishedSoundFrom(EnemySoundSource.Hoppers),
                 $"hopper jumping sound {context}");
 
             HoppersBehavior.LandHopper(slot, state);
@@ -82,7 +82,7 @@ internal static class HopperAnimationDefinitionsVerification
             AssertTrue(!slot.Processing.HasAny(EnemyProcessing.OffScreen),
                 $"hopper landed program {context} disables off-screen processing");
             AssertTrue(state.ReadyToHop, $"hopper landed program {context} publishes ready-to-hop");
-            AssertEqual(variant is 0 or 1 ? Library2Sound.SidehopperLanding : null, enemies.Audio.PublishedSoundFrom(EnemySoundSource.Hoppers),
+            AssertEqual(variant is 0 or 1 ? EnemySound.SidehopperLanding : null, enemies.Audio.PublishedSoundFrom(EnemySoundSource.Hoppers),
                 $"hopper landed sound {context}");
         }
 
@@ -113,7 +113,7 @@ internal static class HopperAnimationDefinitionsVerification
         slot.SetSpawnSettings(new HopperSpawnSettings(HopperMounting.Floor));
         enemies.HoppersBehavior.InitializeHopper(slot);
         EnemyInstructionRunner.ShownFrames(slot, 1);
-        AssertEqual((SoundEffectId?)Library2Sound.SidehopperLanding, enemies.Audio.PublishedSoundFrom(EnemySoundSource.Hoppers),
+        AssertEqual((SoundEffectId?)EnemySound.SidehopperLanding, enemies.Audio.PublishedSoundFrom(EnemySoundSource.Hoppers),
             "Tourian Sidehopper shares the large-Sidehopper landed program");
     }
 

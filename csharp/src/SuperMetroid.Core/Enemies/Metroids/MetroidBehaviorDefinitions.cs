@@ -3,12 +3,12 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 /// <summary>Compiled fixed behavior definitions for ordinary Metroids.</summary>
 internal static class MetroidBehaviorDefinitions
 {
-    /// <summary>Library-two cry 80, selected by random slots 0 and 3.</summary>
-    private static readonly SoundEffectId FirstCry = Library2Sound.MetroidDrain;
-    /// <summary>Library-two cry 88, selected by random slots 1, 4 and 6.</summary>
-    private static readonly SoundEffectId SecondCry = Library2Sound.ShotMochtroid;
-    /// <summary>Library-two cry 90, selected by random slots 2, 5 and 7.</summary>
-    private static readonly SoundEffectId ThirdCry = Library2Sound.ShotMetroid;
+    /// <summary>The first cry, selected by random slots 0 and 3.</summary>
+    private static readonly SoundEffectId FirstCry = EnemySound.MetroidDrain;
+    /// <summary>The second cry, selected by random slots 1, 4 and 6.</summary>
+    private static readonly SoundEffectId SecondCry = EnemySound.ShotMochtroid;
+    /// <summary>The third cry, selected by random slots 2, 5 and 7.</summary>
+    private static readonly SoundEffectId ThirdCry = EnemySound.ShotMetroid;
 
     /// <summary>
     /// Four successive two-pixel cardinal displacements, right, up, left and

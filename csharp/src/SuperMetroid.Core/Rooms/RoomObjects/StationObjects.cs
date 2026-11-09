@@ -125,7 +125,7 @@ internal sealed class StationObjects : IRoomObjectFamilySource
         station.AnimationFrame = 0;
         station.SaveAnimationLoopsRemaining = SaveStationAnimationDefinitions.SaveAnimationLoops;
         // The accepted route queues the saving sound right after centring Samus.
-        _pendingSavingSound = _sounds.CreateSoundRequest(Library1Sound.Saving, Priority: SoundRequestPriority.Normal);
+        _pendingSavingSound = _sounds.CreateSoundRequest(SamusSound.Saving, Priority: SoundRequestPriority.Normal);
         DrawSaveStationFrame(level, activation.BlockIndex, station);
         return true;
     }
@@ -755,7 +755,7 @@ internal sealed class StationObjects : IRoomObjectFamilySource
                 station.OperationPhase = StationOperationPhase.Extending;
                 station.OperationTimer = StationAccessMovementFrames;
                 operationStartedThisPass = true;
-                _sounds.Queue(Library2Sound.StationEngaged, Priority: SoundRequestPriority.Normal);
+                _sounds.Queue(EnemySound.StationEngaged, Priority: SoundRequestPriority.Normal);
                 DrawStationAccess(level, station, pose: StationAccessPose.Retracted);
             }
         }
@@ -788,7 +788,7 @@ internal sealed class StationObjects : IRoomObjectFamilySource
                         station.OperationTimer = StationAccessMovementFrames;
                         break;
                     case StationOperationPhase.PostActivationHold:
-                        _sounds.Queue(Library2Sound.StationDisengaged, Priority: SoundRequestPriority.Normal);
+                        _sounds.Queue(EnemySound.StationDisengaged, Priority: SoundRequestPriority.Normal);
                         station.OperationPhase = StationOperationPhase.Retracting;
                         station.OperationTimer = StationAccessMovementFrames;
                         break;

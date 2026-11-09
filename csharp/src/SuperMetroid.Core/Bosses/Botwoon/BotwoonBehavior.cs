@@ -730,10 +730,10 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             head.Presence = head.Presence.With(EnemyPresence.Deleted);
             state.BossBitSet = true;
             _room.Services.Bosses.SetDefeated(BossBits.AreaMiniBoss);
-            // The death sequence invokes the shortest-delay request for track three only after the complete 192-frame
+            // The death sequence invokes the shortest-delay request for the elevator song only after the complete 192-frame
             // wall-explosion phase, not when health first reaches zero.
             _audio.RequestMusicAtUpdateEnd(EnemyMusicSource.Botwoon, new DelayedMusicRequest(
-                MusicRequest.SelectTrack(3),
+                MusicRequest.SelectTrack(MusicTrack.Elevator),
                 MusicQueueDelay.Shortest));
             return;
         }

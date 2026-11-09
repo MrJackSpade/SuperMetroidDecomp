@@ -135,7 +135,7 @@ internal static class ReserveAutoFrontendVerification
                 digitImages.Add(frame % 10, onesPixels);
             AssertEqual(frame + 1, samus.Health, "full automatic refill progression");
             AssertEqual(frame < 30, samus.HealthWarning.IsActive, "warning switches off exactly at health 31");
-            bool Has(int command) => Enumerable.Range(0, positions[2]).Any(i => queues[2, i] == SoundEffectCommands.Decode(SoundEffectLibrary.Library3, command));
+            bool Has(int command) => Enumerable.Range(0, positions[2]).Any(i => queues[2, i] == SoundEffectCommands.Decode(SoundEffectLibrary.Room, command));
             AssertEqual(frame == 0, Has(2), "warning start issued only once through real frontend");
             AssertEqual(frame == 30, Has(1), "warning stop issued on 30-to-31 refill crossing");
         }
@@ -164,7 +164,7 @@ internal static class ReserveAutoFrontendVerification
         samus.Control.Unlock();
         audio.Reset(); game.StepCaptured(0);
         AssertTrue(samus.HealthWarning.IsActive, "ordinary gameplay acquires critical warning after unlock");
-        AssertTrue(Enumerable.Range(0, positions[2]).Any(i => queues[2, i] == SoundEffectCommands.Decode(SoundEffectLibrary.Library3, 2)), "ordinary gameplay publishes actual warning command");
+        AssertTrue(Enumerable.Range(0, positions[2]).Any(i => queues[2, i] == SoundEffectCommands.Decode(SoundEffectLibrary.Room, 2)), "ordinary gameplay publishes actual warning command");
         runtime.RoomLoader.InitializePostCeresZebesRoom();
         // The Zebes handoff installs a fresh Samus that carries over only the inventory.
         samus = runtime.Player.Samus;
@@ -178,7 +178,7 @@ internal static class ReserveAutoFrontendVerification
         audio.Reset(); game.StepCaptured(0);
         AssertTrue(samus.Control.Mode.Beta == SamusBetaHandler.Gunship && samus.HealthWarning.IsActive,
             "gunship entry handler checks low health despite locked input");
-        AssertTrue(Enumerable.Range(0, positions[2]).Any(i => queues[2, i] == SoundEffectCommands.Decode(SoundEffectLibrary.Library3, 2)), "gunship handler publishes warning audio");
+        AssertTrue(Enumerable.Range(0, positions[2]).Any(i => queues[2, i] == SoundEffectCommands.Decode(SoundEffectLibrary.Room, 2)), "gunship handler publishes warning audio");
         Console.WriteLine("Automatic reserve frontend: nonfinal freeze and same-frame completion movement pass.");
     }
 

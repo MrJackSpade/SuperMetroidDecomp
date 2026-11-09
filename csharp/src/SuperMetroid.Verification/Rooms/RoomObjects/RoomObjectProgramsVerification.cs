@@ -86,11 +86,11 @@ internal static class RoomObjectProgramsVerification
         switch (InstructionAt<RoomObjectInstruction>(cartridge, cursor))
         {
             case RoomObjectInstruction.QueueSoundLibrary2Maximum3:
-                cue = new ScriptedRoomObjectCue.QueueSoundLibrary2Maximum3(Sound: SoundEffectCommands.Decode(SoundEffectLibrary.Library2, ReadOperandByte(cartridge, cursor + 2)));
+                cue = new ScriptedRoomObjectCue.QueueSound(Sound: SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)), Priority: SoundRequestPriority.Low);
                 length = 3;
                 return true;
             case RoomObjectInstruction.QueueSoundLibrary2Maximum6:
-                cue = new ScriptedRoomObjectCue.QueueSoundLibrary2Maximum6(Sound: SoundEffectCommands.Decode(SoundEffectLibrary.Library2, ReadOperandByte(cartridge, cursor + 2)));
+                cue = new ScriptedRoomObjectCue.QueueSound(Sound: SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)), Priority: SoundRequestPriority.Normal);
                 length = 3;
                 return true;
             case RoomObjectInstruction.InstallFrameBehavior:
@@ -187,15 +187,15 @@ internal static class RoomObjectProgramsVerification
         switch (InstructionAt<RoomObjectInstruction>(cartridge, cursor))
         {
             case RoomObjectInstruction.QueueSoundLibrary2Maximum1Direct:
-                cue = new(BlockReactionObjectCueKind.QueueSoundLibrary2Maximum1, SoundEffectCommands.Decode(SoundEffectLibrary.Library2, ReadOperandByte(cartridge, cursor + 2)));
+                cue = new(BlockReactionObjectCueKind.QueueSoundWhenIdle, SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)));
                 length = 3;
                 return true;
             case RoomObjectInstruction.QueueSoundLibrary2Maximum3:
-                cue = new(BlockReactionObjectCueKind.QueueSoundLibrary2Maximum3, SoundEffectCommands.Decode(SoundEffectLibrary.Library2, ReadOperandByte(cartridge, cursor + 2)));
+                cue = new(BlockReactionObjectCueKind.QueueSoundAtLowPriority, SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)));
                 length = 3;
                 return true;
             case RoomObjectInstruction.QueueSoundLibrary2Maximum6:
-                cue = new(BlockReactionObjectCueKind.QueueSoundLibrary2Maximum6, SoundEffectCommands.Decode(SoundEffectLibrary.Library2, ReadOperandByte(cartridge, cursor + 2)));
+                cue = new(BlockReactionObjectCueKind.QueueSoundAtNormalPriority, SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)));
                 length = 3;
                 return true;
             case RoomObjectInstruction.SetObjectBtsToOne:
@@ -283,7 +283,7 @@ internal static class RoomObjectProgramsVerification
         length = 3;
         if (InstructionAt<RoomObjectInstruction>(cartridge, cursor) != RoomObjectInstruction.QueueSoundLibrary2Maximum1Direct)
             return false;
-        AssertEqual(SpeedBoosterBlockObjectProgramDefinitions.BreakSoundId, SoundEffectCommands.Decode(SoundEffectLibrary.Library2, ReadOperandByte(cartridge, cursor + 2)), "speed block break sound");
+        AssertEqual(SpeedBoosterBlockObjectProgramDefinitions.BreakSoundId, SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)), "speed block break sound");
         AssertEqual(SoundRequestPriority.WhenIdle, SpeedBoosterBlockObjectProgramDefinitions.BreakSoundPriority, "speed block break sound priority");
         return true;
     }
@@ -416,7 +416,7 @@ internal static class RoomObjectProgramsVerification
             AssertEqual(EnemyProjectileNativeWords.Kinds.Word(RoomEnemyProjectileKind.DownwardGateMoving), operand, "downward gate moving projectile");
         if (cue == DownwardGateCue.QueueMovementSound)
         {
-            AssertEqual(DownwardGateDefinitions.MovementSound, SoundEffectCommands.Decode(SoundEffectLibrary.Library3, ReadOperandByte(cartridge, cursor + 2)), "downward gate movement sound");
+            AssertEqual(DownwardGateDefinitions.MovementSound, SoundEffectCommands.Decode(SoundEffectLibrary.Room, ReadOperandByte(cartridge, cursor + 2)), "downward gate movement sound");
             AssertEqual(SoundRequestPriority.Normal, DownwardGateObjectProgramDefinitions.MovementSoundPriority, "downward gate movement sound priority");
         }
         return true;
@@ -785,7 +785,7 @@ internal static class RoomObjectProgramsVerification
                 length = 4;
                 return true;
             case RoomObjectInstruction.QueueSoundLibrary2Maximum6:
-                AssertEqual(EyeDoorObjectProgramDefinitions.HitSound, SoundEffectCommands.Decode(SoundEffectLibrary.Library2, ReadOperandByte(cartridge, cursor + 2)), $"{at}: hit sound");
+                AssertEqual(EyeDoorObjectProgramDefinitions.HitSound, SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)), $"{at}: hit sound");
                 cue = EyeDoorObjectCue.QueueHitSound;
                 length = 3;
                 return true;
@@ -950,7 +950,7 @@ internal static class RoomObjectProgramsVerification
             AssertEqual(SamusEaterObjectDefinitionsConstants.HoldFrameBehavior, cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "plant hold pre-instruction");
         if (cue == SamusEaterCue.QueueChewSound)
         {
-            AssertEqual(SamusEaterObjectDefinitions.ChewSound, SoundEffectCommands.Decode(SoundEffectLibrary.Library2, ReadOperandByte(cartridge, cursor + 2)), "plant chew sound");
+            AssertEqual(SamusEaterObjectDefinitions.ChewSound, SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)), "plant chew sound");
             AssertEqual(SoundRequestPriority.Normal, SamusEaterObjectProgramDefinitions.ChewSoundPriority, "plant chew sound priority");
         }
         return true;
@@ -1039,7 +1039,7 @@ internal static class RoomObjectProgramsVerification
                 AssertEqual(RoomObjectFrameBehaviorNativeWords.NoobTube.Word(NoobTubeObjectFrameBehavior.WakeOnAcceptedInput), Operand(2), "n00b tube input wake");
                 break;
             case NoobTubeCue.QueueBreakSound:
-                AssertEqual(NoobTubeObjectDefinitions.BreakSound, SoundEffectCommands.Decode(SoundEffectLibrary.Library2, ReadOperandByte(cartridge, cursor + 2)), "n00b tube break sound");
+                AssertEqual(NoobTubeObjectDefinitions.BreakSound, SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)), "n00b tube break sound");
                 AssertEqual(SoundRequestPriority.Normal, NoobTubeObjectProgramDefinitions.BreakSoundPriority, "n00b tube break sound priority");
                 break;
             case NoobTubeCue.SetBrokenEvent:

@@ -59,7 +59,7 @@ internal static class SaveStationSoundVerification
                 messageFrame = frame;
             for (int index = 0; index < audio.SoundWritePositions[0]; index++)
             {
-                if (audio.SoundQueues[0, index] == Library1Sound.Saving)
+                if (audio.SoundQueues[0, index] == SamusSound.Saving)
                     soundFrame = frame;
             }
         }

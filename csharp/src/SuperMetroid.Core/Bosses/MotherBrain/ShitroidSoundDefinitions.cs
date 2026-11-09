@@ -4,14 +4,14 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class ShitroidSoundDefinitions
 {
     /// <summary>The remorse cry before the Shitroid leaves.</summary>
-    internal static SoundEffectId RemorseCry { get; } = Library2Sound.BabyMetroidRemorse;
+    internal static SoundEffectId RemorseCry { get; } = EnemySound.BabyMetroidRemorse;
 
     /// <summary>The cry as the Shitroid flies away from Samus.</summary>
-    internal static SoundEffectId FlyAwayCry { get; } = Library2Sound.BabyMetroidGuilt;
+    internal static SoundEffectId FlyAwayCry { get; } = EnemySound.BabyMetroidGuilt;
 
     /// <summary>The cry while draining at the slow palette pace.</summary>
-    internal static SoundEffectId DrainCry { get; } = Library2Sound.BabyMetroidCry;
+    internal static SoundEffectId DrainCry { get; } = EnemySound.BabyMetroidCry;
 
     /// <summary>The cry while draining at the quick palette pace.</summary>
-    internal static SoundEffectId QuickDrainCry { get; } = Library2Sound.BabyMetroidDrain;
+    internal static SoundEffectId QuickDrainCry { get; } = EnemySound.BabyMetroidDrain;
 }

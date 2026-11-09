@@ -25,7 +25,7 @@ internal static class HopperAnimationsVerification
                     switch (instruction.Operands[index])
                     {
                         case 'V':
-                            AssertEqual((SoundEffectId?)SoundEffectCommands.Decode(SoundEffectLibrary.Library2, operands[index]), cue.Sound,
+                            AssertEqual((SoundEffectId?)SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, operands[index]), cue.Sound,
                                 $"{at}: library-two sound");
                             break;
                         default:

@@ -31,7 +31,7 @@ internal sealed class DoorGamePhases(FrontendSession session)
         session.GameplayRuntime.DoorTransition.DrawDoorTransitionActors(enemyProjectiles: DoorTransitionEnemyProjectiles.Held, session.GameplayRuntime.Room.LoadedScope);
         CollectDoorSoundWaitAudioRequests(session.GameplayRuntime);
         // The door runs Samus's door-entry command, then queues
-        // library-two's silence so movement/charge loops terminate rather than leaking
+        // the enemy library's silence so movement/charge loops terminate rather than leaking
         // into the next room.
         SamusState doorSamus = session.GameplayRuntime.Player.Samus
             ?? throw new InvalidOperationException("Door transition requires live Samus state.");
@@ -42,17 +42,17 @@ internal sealed class DoorGamePhases(FrontendSession session)
         if (doorMovementType is
             SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
         {
-            session.audio.QueueSound(Library1Sound.SpinJumpEnd,
+            session.audio.QueueSound(SamusSound.SpinJumpEnd,
                 priority: SoundRequestPriority.Essential, soundSuppressed: doorSoundsSuppressed);
         }
         // The door's spin-sound check tests the shot binding; the action latch holds it as X.
         else if ((session.GameplayRuntime.Controller1.Current & ControllerButton.X) == ControllerButton.None &&
             session.GameplayRuntime.BeamCharge.FlareCounter < 16)
         {
-            session.audio.QueueSound(Library1Sound.Silence,
+            session.audio.QueueSound(SamusSound.Silence,
                 priority: SoundRequestPriority.Essential, soundSuppressed: doorSoundsSuppressed);
         }
-        session.audio.QueueSound(Library2Sound.Silence,
+        session.audio.QueueSound(EnemySound.Silence,
             priority: SoundRequestPriority.Essential, soundSuppressed: doorSoundsSuppressed);
         // The door's music step follows both entry cancellation commands, not precedes them.
         session.audio.DoorTransitionSoundsDisabled = true;

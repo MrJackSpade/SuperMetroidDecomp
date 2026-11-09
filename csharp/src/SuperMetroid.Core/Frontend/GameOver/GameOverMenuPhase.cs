@@ -15,6 +15,6 @@ public enum GameOverMenuPhase
     FadeOutToContinue,
     /// <summary>Step seven: fades the accepted No answer to black and publishes <see cref="GameOverMenuState.TitleRequested"/> for the outer soft reset.</summary>
     FadeOutToTitle,
-    /// <summary>The menu's first step: fades out (already black after the death black-out), cancels library-three sounds, and waits out one update before configuring the menu graphics.</summary>
+    /// <summary>The menu's first step: fades out (already black after the death black-out), cancels room-library sounds, and waits out one update before configuring the menu graphics.</summary>
     ConfigureGraphics,
 }

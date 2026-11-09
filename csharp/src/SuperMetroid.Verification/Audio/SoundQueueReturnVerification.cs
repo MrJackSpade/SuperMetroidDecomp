@@ -23,9 +23,9 @@ internal static class SoundQueueReturnVerification
             var queue = AudioQueues.Standalone();
             queue.AdvanceFrame(default);
             for (int index = 0; index < occupancy; index++)
-                queue.QueueSound(Library3Sound.CrocomireAcidDamage, SoundRequestPriority.Essential);
+                queue.QueueSound(RoomSound.CrocomireAcidDamage, SoundRequestPriority.Essential);
             SoundQueueAdmission actual = queue.QueueSound(
-                Library3Sound.SpeedBooster, SoundRequestPriority.Normal, suppressed);
+                RoomSound.SpeedBooster, SoundRequestPriority.Normal, suppressed);
             // The recorded accumulator holds the occupancy in its high byte and the request in its low byte when the
             // threshold admits the request, and the two swapped when it rejects it; the check now asserts the outcome
             // that word encodes instead of the word itself.
@@ -43,25 +43,25 @@ internal static class SoundQueueReturnVerification
             SoundEffectId? acknowledgement = null;
             for (int frame = 0; frame < 256; frame++)
             {
-                foreach (var command in queue.AdvanceFrame(new SoundAcknowledgements<SoundEffectLibrary, SoundEffectId>([SoundEffectLibrary.Library3], _ => SoundAcknowledgement<SoundEffectId>.Of(acknowledgement))))
+                foreach (var command in queue.AdvanceFrame(new SoundAcknowledgements<SoundEffectLibrary, SoundEffectId>([SoundEffectLibrary.Room], _ => SoundAcknowledgement<SoundEffectId>.Of(acknowledgement))))
                 {
-                    if (command == new AudioRequest.ClearSoundRequest(SoundEffectLibrary.Library3)) acknowledgement = null;
-                    else if (command == new AudioRequest.RequestSound(Library3Sound.CrocomireAcidDamage))
+                    if (command == new AudioRequest.ClearSoundRequest(SoundEffectLibrary.Room)) acknowledgement = null;
+                    else if (command == new AudioRequest.RequestSound(RoomSound.CrocomireAcidDamage))
                     {
-                        acknowledgement = Library3Sound.CrocomireAcidDamage;
-                        sounds.Add(Library3Sound.CrocomireAcidDamage);
+                        acknowledgement = RoomSound.CrocomireAcidDamage;
+                        sounds.Add(RoomSound.CrocomireAcidDamage);
                     }
-                    else if (command == new AudioRequest.RequestSound(Library3Sound.SpeedBooster))
+                    else if (command == new AudioRequest.RequestSound(RoomSound.SpeedBooster))
                     {
-                        acknowledgement = Library3Sound.SpeedBooster;
-                        sounds.Add(Library3Sound.SpeedBooster);
+                        acknowledgement = RoomSound.SpeedBooster;
+                        sounds.Add(RoomSound.SpeedBooster);
                     }
                     else throw new InvalidDataException($"Unexpected sound-queue port command: {command}");
                 }
             }
             AssertEqual(expectedCount, sounds.Count, $"native queue write count {row}");
-            AssertEqual(expectedNewSound == SoundEffectCommands.Command(Library3Sound.SpeedBooster) ? 1 : 0,
-                sounds.Count(sound => sound == Library3Sound.SpeedBooster),
+            AssertEqual(expectedNewSound == SoundEffectCommands.Command(RoomSound.SpeedBooster) ? 1 : 0,
+                sounds.Count(sound => sound == RoomSound.SpeedBooster),
                 $"native queue accepted sound {row}");
         }
     }

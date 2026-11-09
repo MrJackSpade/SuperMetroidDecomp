@@ -119,7 +119,7 @@ internal sealed class EnemyProjectileEngine
 
     /// <summary>Requests the dud sound a rejected Samus shot makes.</summary>
     internal void RequestDudSound() =>
-        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.EnemyProjectileDud, Library1Sound.DudShot, priority: SoundRequestPriority.Low);
+        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.EnemyProjectileDud, SamusSound.DudShot, priority: SoundRequestPriority.Low);
 
     /// <summary>
     /// Tests enemy projectiles against Samus's projectiles and handles each hit.
@@ -987,7 +987,7 @@ internal sealed class EnemyProjectileEngine
                 Position16<RoomPixels> impact = context.Projectile.Position.Whole;
                 context.Projectile.Clear();
                 SpawnRoomGraphicsDustExplosion(impact, MiscDustAnimation.SmallDustCloud);
-                _audio.QueueEnemySound(Library2Sound.CeresTileFall, priority: SoundRequestPriority.Normal);
+                _audio.QueueEnemySound(EnemySound.CeresTileFall, priority: SoundRequestPriority.Normal);
             }
         }, EnemyProjectileFrameBehavior.CeresTileFall);
     }

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Audio;
 /// </summary>
 /// <param name="Voices">Voices the effect plays on.</param>
 /// <param name="Priority">The library priority after the effect starts.</param>
-/// <param name="LowHealthMode">The effect on library 3's low-health mode.</param>
+/// <param name="LowHealthMode">The effect on the room library's low-health mode.</param>
 /// <param name="IgnoresPriority">Whether the request is accepted while a high-priority sound plays.</param>
 /// <param name="IgnoresLowHealthMode">Whether the request is accepted while low-health mode is active.</param>
 [IndependentFlag("independent exemptions a clip carries: from the priority rule and from low-health mode")]

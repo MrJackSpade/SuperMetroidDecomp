@@ -7,7 +7,7 @@ internal static class HibashiDefinitions
 
 
     /// <summary>The fire-spit sound, queued when an eruption begins.</summary>
-    internal static readonly SoundEffectId EruptionSoundEffect = Library2Sound.FireSpit;
+    internal static readonly SoundEffectId EruptionSoundEffect = EnemySound.FireSpit;
 
     /// <summary>
     /// The 22 eruption Y offsets and collision half-heights: the pillar rises five pixels a frame,

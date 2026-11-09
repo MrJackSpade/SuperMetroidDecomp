@@ -737,7 +737,7 @@ internal sealed class EnemyCollision
         // actor, but only a newly frozen actor queues audio. Lethal-Ice substitution
         // reaches this helper only with an initially zero clock.
         if (enemy.FrozenTimer == 0)
-            _audio.QueueEnemySound(Library3Sound.EnemyFrozen, priority: SoundRequestPriority.Low);
+            _audio.QueueEnemySound(RoomSound.EnemyFrozen, priority: SoundRequestPriority.Low);
         enemy.FrozenTimer = samus?.LiquidPhysics.AreaIndex == AreaId.Norfair
             ? 300
             : 400;
@@ -920,7 +920,7 @@ internal sealed class EnemyCollision
         enemy.Health = damage >= enemy.Health
             ? 0
             : enemy.Health - damage;
-        _audio.QueueEnemySound(Library2Sound.ContactKill, priority: SoundRequestPriority.WhenIdle);
+        _audio.QueueEnemySound(EnemySound.ContactKill, priority: SoundRequestPriority.WhenIdle);
         if (enemy.Health != 0)
             return;
 

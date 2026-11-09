@@ -10,8 +10,8 @@ internal abstract record NinjaSpacePirateCue
     {
     }
 
-    /// <summary>Plays the operand's library-two sound.</summary>
-    /// <param name="Sound">For a sound cue: the library-two sound it plays.</param>
+    /// <summary>Plays the operand's enemy-library sound.</summary>
+    /// <param name="Sound">For a sound cue: the enemy-library sound it plays.</param>
     internal sealed record PlaySound(SoundEffectId? Sound) : NinjaSpacePirateCue;
 
     /// <summary>Sets the function main AI runs next.</summary>

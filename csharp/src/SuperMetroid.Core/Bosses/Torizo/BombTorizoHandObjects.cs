@@ -90,10 +90,10 @@ internal sealed class BombTorizoHandObjects
                 slot.BlockIndex / _bombTorizoHandRoomWidth)));
 
     /// <summary>
-    /// Despite its name, always queues gameplay track six with the shared eight-frame delay.
+    /// Queues the loaded set's second song with the shared eight-frame delay.
     /// </summary>
     internal void QueueMusic() =>
-        _musicRequests.Add(new DelayedMusicRequest(MusicRequest.SelectTrack(6), MusicQueueDelay.Shortest));
+        _musicRequests.Add(new DelayedMusicRequest(MusicRequest.SelectTrack(MusicTrack.SecondSetSong), MusicQueueDelay.Shortest));
 
     /// <summary>Room width in blocks used to turn the hand's linear PLM block index into fragment spawn coordinates.</summary>
     private int _bombTorizoHandRoomWidth;

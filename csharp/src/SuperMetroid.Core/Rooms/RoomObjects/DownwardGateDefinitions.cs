@@ -10,9 +10,9 @@ internal static class DownwardGateDefinitions
     /// <summary>The block behaviour written to every block in the closed gate column: the shot-block collision probe.</summary>
     public static readonly RoomBlockBehavior ClosedGateBehavior = RoomBlockBehavior.Reacting(ShotBlockReactionDefinitions.CollisionProbe);
     /// <summary>The sound queued for a rejected non-blue gate trigger shot.</summary>
-    public static readonly SoundEffectId RejectedShotSound = Library2Sound.DudShotOnDoor;
+    public static readonly SoundEffectId RejectedShotSound = EnemySound.DudShotOnDoor;
     /// <summary>The sound the gate's movement plays.</summary>
-    public static readonly SoundEffectId MovementSound = Library3Sound.GateMoving;
+    public static readonly SoundEffectId MovementSound = RoomSound.GateMoving;
 
     /// <summary>The gate projectile's accumulated travel, in 8.8 pixels, at which it advances one block: sixteen pixels.</summary>
     public const int OneBlockDistance = 16 * 256;

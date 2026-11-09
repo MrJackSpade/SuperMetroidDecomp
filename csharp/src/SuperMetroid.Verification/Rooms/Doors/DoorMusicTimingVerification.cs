@@ -57,10 +57,10 @@ internal static class DoorMusicTimingVerification
         game.GameState = SuperMetroidGameState.HitDoorBlock;
         var audio = game.Session.audio;
         audio.AdvanceFrame(default);
-        audio.QueueRoomMusic(new RoomMusic(MusicDataSet.LowerCrateria, RoomMusicTrack.Plays(5)));
+        audio.QueueRoomMusic(new RoomMusic(MusicDataSet.LowerCrateria, RoomMusicTrack.Plays(MusicTrack.FirstSetSong)));
         for (int frame = 0; frame < 40; frame++) audio.AdvanceFrame(default);
         AssertEqual(MusicDataSet.LowerCrateria, audio.DataSet, "source music data is active");
-        AssertEqual(new MusicTrack(5), audio.PlayingTrack, "source track is active");
+        AssertEqual(MusicTrack.FirstSetSong, audio.PlayingTrack, "source track is active");
         int trackFrame = -1, musicWaitFrame = -1, uploadFrame = -1;
         for (int frame = 0; frame < 400; frame++)
         {
@@ -72,7 +72,7 @@ internal static class DoorMusicTimingVerification
             foreach (var audioEvent in game.AudioEventsForVerification)
             {
                 if (audioEvent is AudioEvent.ChangeMusicDataSet) uploadFrame = frame;
-                if (audioEvent == new AudioEvent.SelectMusicTrack(new MusicTrack(5)))
+                if (audioEvent == new AudioEvent.SelectMusicTrack(MusicTrack.FirstSetSong))
                 {
                     Console.WriteLine($"Destination music at frame {frame}, phase {phase}, music wait frame {musicWaitFrame}.");
                     AssertTrue(musicWaitFrame >= 0, "destination track must not start before door scrolling finishes");
@@ -86,7 +86,7 @@ internal static class DoorMusicTimingVerification
         AssertEqual(uploadFrame + 9, trackFrame, "track queued after upload is acquired on the next prologue, then waits eight dispatches");
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "music transition resumes gameplay");
         AssertEqual(MusicDataSet.EmptyCrateria, audio.DataSet, "destination music data set is active");
-        audio.QueueRoomMusicTrack(new RoomMusic(MusicDataSet.EmptyCrateria, RoomMusicTrack.Plays(5)));
+        audio.QueueRoomMusicTrack(new RoomMusic(MusicDataSet.EmptyCrateria, RoomMusicTrack.Plays(MusicTrack.FirstSetSong)));
         AssertTrue(!audio.HasQueuedMusic, "unchanged data set and track queues nothing");
         audio.QueueRoomMusicTrack(RoomMusic.Inherited);
         AssertTrue(!audio.HasQueuedMusic, "an inherited room track preserves the playing music");

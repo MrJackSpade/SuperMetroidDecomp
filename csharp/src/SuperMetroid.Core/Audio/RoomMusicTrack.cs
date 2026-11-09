@@ -19,15 +19,14 @@ public abstract record RoomMusicTrack
     public sealed record Play(MusicTrack Track) : RoomMusicTrack;
 
     /// <summary>
-    /// Silences the music, queued on every entry: the original stored this choice as a track number with its high bit
-    /// set, which never equalled the playing track, so the stop is always queued.
+    /// Silences the music, queued on every entry: the choice never equals the playing song, so the stop is always
+    /// queued.
     /// </summary>
     public sealed record Silence : RoomMusicTrack;
 
     /// <summary>
     /// The music request that carries out the choice when it is queued: its track, or a stop. Room loading never queues
-    /// an inherited track; a saved game queues the room's choice directly, and an inherited track stops the music there,
-    /// as the original's zero track number did.
+    /// an inherited track; a saved game queues the room's choice directly, and an inherited track stops the music there.
     /// </summary>
     internal MusicRequest Request => this is Play play ? new MusicRequest.PlayTrack(play.Track) : MusicRequest.Stop;
 
@@ -37,7 +36,7 @@ public abstract record RoomMusicTrack
     /// <summary>The choice that silences the music.</summary>
     public static RoomMusicTrack Silenced { get; } = new Silence();
 
-    /// <summary>The choice that plays track <paramref name="track"/> of the loaded data set.</summary>
-    /// <param name="track">The track's number, 1 through <see cref="MusicTrack.LastNumber"/>.</param>
-    public static RoomMusicTrack Plays(int track) => new Play(new MusicTrack(track));
+    /// <summary>The choice that plays <paramref name="track"/> of the loaded data set.</summary>
+    /// <param name="track">The song the room plays.</param>
+    public static RoomMusicTrack Plays(MusicTrack track) => new Play(track);
 }

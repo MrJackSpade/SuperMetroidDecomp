@@ -149,7 +149,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                 // black; the menu blanks it and waits out one update before configuring itself.
                 if (brightness != 0)
                     throw new InvalidOperationException("Game-over menu must begin from a black screen.");
-                audio.QueueSound(Library3Sound.Silence, priority: GameOverMenuDefinitions.MaximumQueuedSounds);
+                audio.QueueSound(RoomSound.Silence, priority: GameOverMenuDefinitions.MaximumQueuedSounds);
                 ResumesAfterFrameWait = true;
                 break;
 
@@ -170,7 +170,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                 if (!audio.HasQueuedMusic)
                 {
                     audio.QueueMusic(
-                        MusicRequest.SelectTrack(GameOverMenuDefinitions.MusicTrack));
+                        MusicRequest.SelectTrack(GameOverMenuDefinitions.MenuSong));
                     Phase = GameOverMenuPhase.FadeIn;
                 }
                 break;
@@ -187,7 +187,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                 if ((pressed & (ControllerButton.Select | ControllerButton.Up | ControllerButton.Down)) != ControllerButton.None)
                 {
                     audio.QueueSound(
-                        Library1Sound.MenuCursor,
+                        SamusSound.MenuCursor,
                         priority: GameOverMenuDefinitions.MaximumQueuedSounds);
                     SelectedItem = SelectedItem == YesNoChoice.Yes ? YesNoChoice.No : YesNoChoice.Yes;
                 }

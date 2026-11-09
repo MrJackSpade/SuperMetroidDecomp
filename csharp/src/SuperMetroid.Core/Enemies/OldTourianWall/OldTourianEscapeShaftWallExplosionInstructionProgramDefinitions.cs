@@ -24,7 +24,7 @@ internal static class OldTourianEscapeShaftWallExplosionInstructionProgramDefini
     internal static EnemyProjectileScatter Scatter => new(XRange: new(0, 3), YRange: new(0, 4), Center: new(0, 0));
 
     /// <summary>The sound each burst's explosion makes.</summary>
-    internal static SoundEffectId ExplosionSound => Library2Sound.SmallExplosion;
+    internal static SoundEffectId ExplosionSound => EnemySound.SmallExplosion;
     /// <summary>The priority of each burst's explosion sound.</summary>
     internal static readonly SoundRequestPriority ExplosionSoundPriority = SoundRequestPriority.Normal;
 

@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.Hoppers;
 /// <summary>What a cue of the Sidehoppers' and Dessgeegas' programs does: one per instruction its lists use.</summary>
 internal enum HopperCueKind
 {
-    /// <summary>Queues the library-two sound in its operand.</summary>
+    /// <summary>Queues the enemy-library sound in its operand.</summary>
     PlaySound,
     /// <summary>Keeps processing the enemy while it is off screen.</summary>
     ProcessOffScreen,

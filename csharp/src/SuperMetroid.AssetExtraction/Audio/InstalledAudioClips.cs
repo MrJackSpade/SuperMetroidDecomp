@@ -7,8 +7,9 @@ namespace SuperMetroid.AssetExtraction.Audio;
 
 /// <summary>
 /// Reads the installed pre-rendered audio clips (#1305, #1410) into the game's <see cref="ClipAudioLibrary"/>. The clip
-/// manifest, <c>audio-clips.json</c>, names each sound by its library and request number, the cartridge's numbering;
-/// this reader decodes them into the game's sounds, and the exporter encodes them back, so the file keeps its format.
+/// manifest, <c>audio-clips.json</c>, names each song by its data set and its part in it, and each sound by its library
+/// and request number, the cartridge's numbering of the sounds; this reader decodes the request numbers into the game's
+/// sounds, and the exporter encodes them back, so the file keeps its format.
 /// Loading checks the manifest's format, contained paths and every file's size; each clip's SHA-256 is checked as
 /// <see cref="InstalledClipFiles"/> reads it.
 /// </summary>

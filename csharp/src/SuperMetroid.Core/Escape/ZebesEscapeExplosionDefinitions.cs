@@ -6,9 +6,9 @@ namespace SuperMetroid.Core.Escape;
 internal static class ZebesEscapeExplosionDefinitions
 {
     /// <summary>The small-explosion choice's sound, from <c>ExplosionSoundEffects</c>.</summary>
-    private static readonly SoundEffectId SmallExplosionSound = Library2Sound.SmallExplosion;
+    private static readonly SoundEffectId SmallExplosionSound = EnemySound.SmallExplosion;
     /// <summary>The smoke choice's sound, from <c>ExplosionSoundEffects</c>.</summary>
-    private static readonly SoundEffectId SmokeSound = Library2Sound.BigExplosion;
+    private static readonly SoundEffectId SmokeSound = EnemySound.BigExplosion;
 
     /// <summary>
     /// The low-three-bit choices, in index order: two small explosions, one small dust

@@ -47,7 +47,7 @@ public sealed class MapPaletteAnimation
         ? MapSpriteShades.Highlight(frame)
         : MapSpriteShades.Drawn(screen, MapSpriteColouring.Highlighted));
 
-    /// <summary>Advances to the next highlight frame when its hold ends; true requests library-three MapPaletteLoop.</summary>
+    /// <summary>Advances to the next highlight frame when its hold ends; true requests room-library MapPaletteLoop.</summary>
     /// <exception cref="InvalidOperationException">The installed cycle is not bound.</exception>
     public bool Step()
     {

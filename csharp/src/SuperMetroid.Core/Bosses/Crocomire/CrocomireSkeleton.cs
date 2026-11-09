@@ -61,7 +61,7 @@ internal sealed class CrocomireSkeleton
         if (samus is null || CoordinateAxis.Difference(samus.Position.X.Whole, 640) >= 0)
             return;
 
-        _access.RequestCrocomireMusic(MusicRequest.SelectTrack(5), MusicQueueDelay.Shortest);
+        _access.RequestCrocomireMusic(MusicRequest.SelectTrack(MusicTrack.FirstSetSong), MusicQueueDelay.Shortest);
         _room.Services.RoomScroll.Write(3, RoomScrollState.RedBoundary);
         _room.Services.RoomScroll.Write(4, RoomScrollState.Blue);
         _access.PublishCrocomireObject(new Position16<RoomBlocks>(48, 3), CrocomireArenaMutation.CreateInvisibleWall);
@@ -235,7 +235,7 @@ internal sealed class CrocomireSkeleton
     /// <summary>Marks Crocomire's boss encounter complete and releases the death-scene presentation.</summary>
     internal void CompleteCrocomireBoss(CrocomireEnemyState state)
     {
-        _access.RequestCrocomireMusic(MusicRequest.SelectTrack(6), MusicQueueDelay.Shortest);
+        _access.RequestCrocomireMusic(MusicRequest.SelectTrack(MusicTrack.SecondSetSong), MusicQueueDelay.Shortest);
         _zebetiteBehavior.CameraDistance = CameraDistanceMode.NormalTracking;
         _room.Services.Bosses.SetDefeated(BossBits.AreaMiniBoss);
         _access.RequireCrocomireDeath().BossBitSet = true;

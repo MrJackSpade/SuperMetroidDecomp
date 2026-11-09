@@ -16,7 +16,7 @@ internal static class SamusEaterObjectDefinitions
         new(SamusEaterProgram.CeilingBite, Ceiling: true);
 
     /// <summary>The chew sound.</summary>
-    public static readonly SoundEffectId ChewSound = Library2Sound.PlantChewing;
+    public static readonly SoundEffectId ChewSound = EnemySound.PlantChewing;
 
     /// <summary>The invincibility bit the hold ORs into Samus's invincibility timer each frame.</summary>
     public const int HeldInvincibilityBit = 1 << 4;

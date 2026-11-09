@@ -77,7 +77,7 @@ internal static class BossRoomObjectProgramsVerification
                 length = 3;
                 if (InstructionAt<RoomObjectInstruction>(cartridge, cursor) != RoomObjectInstruction.QueueSoundLibrary2Maximum6)
                     return false;
-                AssertEqual(SporeSpawnCeilingObjectProgramDefinitions.CrumbleSoundId, SoundEffectCommands.Decode(SoundEffectLibrary.Library2, ReadOperandByte(cartridge, cursor + 2)), "Spore Spawn ceiling sound");
+                AssertEqual(SporeSpawnCeilingObjectProgramDefinitions.CrumbleSoundId, SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)), "Spore Spawn ceiling sound");
                 AssertEqual(SoundRequestPriority.Normal, SporeSpawnCeilingObjectProgramDefinitions.CrumbleSoundPriority, "Spore Spawn ceiling sound priority");
                 return true;
             }, "Spore Spawn ceiling");
@@ -388,7 +388,7 @@ internal static class BossRoomObjectProgramsVerification
         if (InstructionAt<RoomObjectInstruction>(cartridge, cursor) == RoomObjectInstruction.QueueSoundLibrary2Maximum6)
         {
             AssertEqual(BotwoonWallObjectProgramDefinitions.CrumbleSound,
-                SoundEffectCommands.Decode(SoundEffectLibrary.Library2, ReadOperandByte(cartridge, cursor + 2)),
+                SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)),
                 "Botwoon wall crumble sound");
             AssertEqual(SoundRequestPriority.Normal, BotwoonWallObjectProgramDefinitions.CrumbleSoundPriority, "Botwoon wall crumble sound priority");
             cue = BotwoonWallCue.QueueCrumbleSound;

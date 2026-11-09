@@ -5,7 +5,7 @@ internal enum BotwoonWallCue
 {
     /// <summary>Sets the room's first two scroll cells blue.</summary>
     SetScrollsBlue,
-    /// <summary>Queues the row's crumble sound, library two sound ten, at most six queued.</summary>
+    /// <summary>Queues the row's crumble sound, at most six queued.</summary>
     QueueCrumbleSound,
     /// <summary>Moves the PLM's origin down one block, to the next row.</summary>
     MoveDownOneBlock,

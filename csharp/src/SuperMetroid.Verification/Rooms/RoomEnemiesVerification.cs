@@ -181,7 +181,7 @@ internal static void VerifyRoomEnemyLoading()
 
     RoomEnemyDefinition definition = slot.Definition;
     // The import decodes the +$0E cry byte to its library-two sound rather than retaining the word.
-    AssertEqual<SoundEffectId?>(Library2Sound.ShotRio, definition.HurtSoundEffect, "definition hurt cry offset $0E");
+    AssertEqual<SoundEffectId?>(EnemySound.ShotRio, definition.HurtSoundEffect, "definition hurt cry offset $0E");
     AssertEqual(GrappleAiRoutine.Cancel, definition.GrappleAi, "definition grapple AI offset $1A");
     AssertTrue(definition.PowerBombReaction is { } powerBomb && powerBomb != EnemyReaction.Ignore,
         "definition power-bomb reaction offset $28 names a reacting routine");
@@ -626,7 +626,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     ripper.FrozenTimer = 0;
     ripper.InvincibilityTimer = 0;
     ripper.AiStates = EnemyAiStates.None;
-    SoundEffectId expectedHurtCry = Library2Sound.ShotRipper;
+    SoundEffectId expectedHurtCry = EnemySound.ShotRipper;
     AssertEqual<SoundEffectId?>(expectedHurtCry, ripper.Definition.HurtSoundEffect, "Ripper header cry decodes to the Ripper hit sound");
     int criesBefore = enemies.Audio.SoundRequests.Count(request =>
         request.SoundEffect == expectedHurtCry && request.Priority.Requests == 3);
@@ -931,7 +931,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     AssertTrue(!ridley.Contact.HasAny(EnemyContact.IgnoresSamus),
         "Ceres Ridley becomes tangible after body fade");
     AssertTrue(enemies.Audio.MusicRequests.Contains(new DelayedMusicRequest(
-            MusicRequest.SelectTrack(5),
+            MusicRequest.SelectTrack(MusicTrack.FirstSetSong),
             MusicQueueDelay.Shortest)),
         "Ceres Ridley final body fade queues battle/escape track five");
 
@@ -949,7 +949,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     {
         enemies.StepFrame(new RoomEnemyFrame { FrameCounter = enemies.StandaloneFrameCounter, Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         observedRoarSound |= enemies.Audio.SoundRequests.Contains(
-            new SoundRequest(Library2Sound.RidleyRoar, Priority: SoundRequestPriority.Normal));
+            new SoundRequest(EnemySound.RidleyRoar, Priority: SoundRequestPriority.Normal));
         battleEntryFrames++;
     }
     AssertEqual((ushort)RidleyAiFunction.CeresHovering, (ushort)state.Function,
@@ -1133,7 +1133,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         "Ceres Ridley retreat copies BG palette-two colors");
 
     AssertTrue(enemies.Audio.SoundRequests.Contains(
-            new SoundRequest(Library2Sound.CeresRidleyGetaway, Priority: SoundRequestPriority.Normal)),
+            new SoundRequest(EnemySound.CeresRidleyGetaway, Priority: SoundRequestPriority.Normal)),
         "handoff frame's first Mode-7 getaway entry requests the departure sound");
     void GetawayFrame()
     {

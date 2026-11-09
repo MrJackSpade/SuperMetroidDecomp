@@ -257,7 +257,7 @@ internal sealed class CeresRidleyBabyScene
                 // calling GenerateRandomNumber; a set bit jumps silently.
                 if (state.BabyVerticalVelocity.IsZero && RidleyRandomDefinitions.CeresBabySilentJump.IsSetIn(_room.Random.Read()))
                     return cryOrGoTo.Target;
-                _audio.QueueEnemySound(Library3Sound.CeresBabyMetroidCry, priority: SoundRequestPriority.Normal);
+                _audio.QueueEnemySound(RoomSound.CeresBabyMetroidCry, priority: SoundRequestPriority.Normal);
                 return null;
             case CeresBabyCue.UpdateColors updateColors:
                 state.Colours.Sprites.Lay(RidleyShades.Baby(updateColors.Shade));

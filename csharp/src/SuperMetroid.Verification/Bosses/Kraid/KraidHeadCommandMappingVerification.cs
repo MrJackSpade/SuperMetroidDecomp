@@ -62,7 +62,7 @@ internal static class KraidHeadCommandMappingVerification
                         _ => throw new InvalidDataException($"{at}: unknown native head command ${record.Opcode:X4}."),
                     };
                     AssertEqual(cue, cueStep.Cue, $"{at} cry");
-                    AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Library2, (byte)record.Sound), sound,
+                    AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, (byte)record.Sound), sound,
                         $"{at} cry sound: the import decodes the native byte to the definition's sound");
                 }
 

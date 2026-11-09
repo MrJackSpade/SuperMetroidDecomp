@@ -280,8 +280,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         WallSpacePirateEnemyState state,
         HorizontalDirection direction)
     {
-        // The laser initializer queues sound 103 for every successful allocation. The later wall-jump cue
-        // independently queues sound 102; both are observable, distinct library-two requests.
+        // The laser initializer queues the laser sound for every successful allocation. The later wall-jump cue
+        // independently queues the wall-jump sound; both are observable, distinct requests.
         if (_walkingSpacePirateBehavior.SpawnSpacePirateLaser(slot, direction == HorizontalDirection.Right, WallPirateLaserMuzzleYOffset))
         {
             state.SpawnedLaserCount++;

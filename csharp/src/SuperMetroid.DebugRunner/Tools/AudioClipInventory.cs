@@ -56,7 +56,7 @@ internal static class AudioClipInventory
         {
             AudioClipExporter.SoundEffectKey key = effectKeys[index];
             AudioSoundEffectMetadata effect = catalog.SoundLibraries
-                .Single(library => library.Library == SoundEffectLibraries.ToQueueIndex(key.Library) + 1)
+                .Single(library => library.Library == SoundLibraryNumbers.Number(key.Library))
                 .Effects.Single(candidate => candidate.Command == key.Command);
             AudioBank bank = key.Context ?? AudioAssetCatalogDefinitions.Common.AudioSet;
             string[] missing = [.. effect.ChannelPrograms

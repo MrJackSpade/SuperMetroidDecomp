@@ -122,7 +122,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (_room.Services.RoomObjects.HasActiveHeader(RoomObjectHeaderId.BombTorizoHand))
                     return;
 
-                RequestBombTorizoMusic(MusicRequest.SelectTrack(6));
+                RequestBombTorizoMusic(MusicRequest.SelectTrack(MusicTrack.SecondSetSong));
                 torizo.Contact = torizo.Contact.Without(EnemyContact.SolidToSamus);
                 TorizoBody.StartTorizoBodyProgram(torizo, state, AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoAnimations.AfterSleep(state.BodyProgram.Program)));
                 state.AwakeningReleased = true;
@@ -190,7 +190,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             yBase: state.IsGolden ? 288 : 96,
             yScatter: EnemyDropScatterDefinitions.ArenaBandVerticalScatter);
         state.ItemDropRequested = true;
-        RequestBombTorizoMusic(MusicRequest.SelectTrack(3));
+        RequestBombTorizoMusic(MusicRequest.SelectTrack(MusicTrack.Elevator));
     }
 
     /// <summary>Replaces Torizo's posture bits, keeping parameter 1's low thirteen bits.</summary>
@@ -310,7 +310,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.StartBombTorizoFight }:
-                RequestBombTorizoMusic(MusicRequest.SelectTrack(5));
+                RequestBombTorizoMusic(MusicRequest.SelectTrack(MusicTrack.FirstSetSong));
                 // The fight starts the belly's glow, a palette-FX object that ends once the statue dies.
                 _frameResults.TorizoBellyGlow = PaletteFxObject.BombTorizoBelly;
                 return null;
@@ -452,11 +452,11 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.PlayShotSound }:
-                PlayTorizoSound(Library2Sound.ShotTorizo);
+                PlayTorizoSound(EnemySound.ShotTorizo);
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.PlayFootstepSound }:
-                PlayTorizoSound(Library2Sound.ChozoFootsteps);
+                PlayTorizoSound(EnemySound.ChozoFootsteps);
                 return null;
 
             case TorizoCue.Branch { Kind: TorizoBranchKind.GoToIfAirborne } branch:
@@ -467,7 +467,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.StartGoldenTorizoFight }:
-                RequestBombTorizoMusic(MusicRequest.SelectTrack(5));
+                RequestBombTorizoMusic(MusicRequest.SelectTrack(MusicTrack.FirstSetSong));
                 torizo.Radius = new(18, 48);
                 _frameResults.TorizoBellyGlow = PaletteFxObject.GoldenTorizoBelly;
                 return null;
@@ -499,15 +499,15 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.PlayEggReleasedSound }:
-                PlayTorizoSound(Library2Sound.CacatacSpikes);
+                PlayTorizoSound(EnemySound.CacatacSpikes);
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.PlayLaserSound }:
-                PlayTorizoSound(Library2Sound.Laser);
+                PlayTorizoSound(EnemySound.Laser);
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.PlaySonicBoomSound }:
-                PlayTorizoSound(Library2Sound.TorizoSonicBoom);
+                PlayTorizoSound(EnemySound.TorizoSonicBoom);
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.SpawnSuperMissile }:

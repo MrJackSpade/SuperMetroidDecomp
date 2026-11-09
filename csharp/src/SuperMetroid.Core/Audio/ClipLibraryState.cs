@@ -19,7 +19,7 @@ internal sealed class ClipLibraryState
     /// <summary>Whether the library holds a high-priority sound, which admits only requests exempt from priority; otherwise any request replaces the sound.</summary>
     internal bool HighPriority { get; private set; }
 
-    /// <summary>Whether library 3 is in low-health mode, which rejects every request except those exempt from it.</summary>
+    /// <summary>Whether the room library is in low-health mode, which rejects every request except those exempt from it.</summary>
     internal bool InLowHealthMode { get; private set; }
 
     /// <summary>Per layer, the sound position before which a clip-set switch has interrupted it; zero when audible.</summary>

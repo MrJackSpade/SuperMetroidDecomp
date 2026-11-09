@@ -232,7 +232,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         return true;
     }
 
-    /// <summary>Ports the library-two sound countdown shared by every live bug state.</summary>
+    /// <summary>Ports the enemy-library sound countdown shared by every live bug state.</summary>
     private void StepKagoBugSound(RoomEnemyProjectileSlot projectile)
     {
         KagoBugState bug = projectile.StateOf<KagoBugState>();

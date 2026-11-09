@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="Damage">Contact-damage value before Samus damage-reduction rules.</param>
 /// <param name="Radius">Horizontal and vertical collision half-extents in room pixels.</param>
 /// <param name="HurtFlashFrames">The frames the enemy flashes when hurt, before any weapon's longer flash.</param>
-/// <param name="HurtSoundEffect">The library-two cry the enemy makes when a shot hurts it, or none.</param>
+/// <param name="HurtSoundEffect">The enemy-library cry the enemy makes when a shot hurts it, or none.</param>
 /// <param name="Boss">The boss a room containing this enemy holds, or null when the enemy is no boss.</param>
 /// <param name="InitializationAi">Whether initialization runs the species' routine or nothing.</param>
 /// <param name="MainAi">Whether the ordinary AI is the species' routine or nothing.</param>

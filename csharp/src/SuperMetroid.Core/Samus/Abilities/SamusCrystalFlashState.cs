@@ -105,7 +105,7 @@ public sealed class SamusCrystalFlashState
     /// <summary>Set when the raise finishes and the bubble's two per-line window effects start.</summary>
     public bool BubbleEffectRequested { get; private set; }
 
-    /// <summary>Set when the raising handler queues sound-library-three effect one.</summary>
+    /// <summary>Set when the raising handler queues the activation sound.</summary>
     public bool ActivationSoundRequested { get; private set; }
 
     /// <summary>

@@ -164,7 +164,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
                 ? state.FacingRight ? FuneNamiheProgram.FuneActiveRight : FuneNamiheProgram.FuneActiveLeft
                 : state.FacingRight ? FuneNamiheProgram.FuneIdleRight : FuneNamiheProgram.FuneIdleLeft;
 
-    /// <summary>Publishes the shared library-two spit cue for the outer enemy audio queue.</summary>
+    /// <summary>Publishes the shared enemy-library spit cue for the outer enemy audio queue.</summary>
     private void QueueFuneNamiheSpitSound() =>
         _audio.RequestSoundAtUpdateEnd(EnemySoundSource.FuneNamihe, FuneNamiheDefinitions.SpitSoundEffect, priority: SoundRequestPriority.Normal);
 

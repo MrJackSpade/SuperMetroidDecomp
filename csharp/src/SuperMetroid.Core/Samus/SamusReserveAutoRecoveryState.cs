@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus;
 /// <remarks>
 /// This is an outer game-state owner, not an inventory convenience. It locks Samus, leaves
 /// ordinary main gameplay running under the global time freeze, transfers one
-/// energy unit per frame, and publishes the library-three refill sound on
+/// energy unit per frame, and publishes the room-library refill sound on
 /// every eighth frame of the frame counter.
 /// </remarks>
 public sealed class SamusReserveAutoRecoveryState

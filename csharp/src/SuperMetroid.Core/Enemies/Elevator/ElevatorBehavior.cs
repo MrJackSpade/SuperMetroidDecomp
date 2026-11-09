@@ -19,7 +19,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
 
     /// <summary>Provides the active room bus used when departure sets up Samus's elevator pose.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Queues the separate library-one and library-three departure sounds.</summary>
+    /// <summary>Queues the separate Samus-library and room-library departure sounds.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>The enemy pass's results, which the elevator writes.</summary>
@@ -212,8 +212,8 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
 
         // Leaving the room issues both calls in this order before changing Samus's pose. Keeping
         // them as two requests matters because each sound library plays independently.
-        _audio.QueueEnemySound(EnemySoundEffectDefinitions.ElevatorDepartureSoundLibrary3, priority: SoundRequestPriority.Normal);
-        _audio.QueueEnemySound(EnemySoundEffectDefinitions.ElevatorDepartureSoundLibrary1, priority: SoundRequestPriority.Normal);
+        _audio.QueueEnemySound(EnemySoundEffectDefinitions.ElevatorDepartureSound, priority: SoundRequestPriority.Normal);
+        _audio.QueueEnemySound(EnemySoundEffectDefinitions.ElevatorDepartureSpinEndSound, priority: SoundRequestPriority.Normal);
         SamusPoseMetadata.SetupForElevator(samus);
         samusProjectiles?.Reset();
         _frameResults.ElevatorClearedProjectileData = true;
@@ -267,7 +267,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
 
         ElevatorStatus = ElevatorActorStatus.Inactive;
         ElevatorFlags = ElevatorJourneyFlag.None;
-        _audio.QueueEnemySound(EnemySoundEffectDefinitions.ElevatorArrivalSoundLibrary3, priority: SoundRequestPriority.Normal);
+        _audio.QueueEnemySound(EnemySoundEffectDefinitions.ElevatorArrivalSound, priority: SoundRequestPriority.Normal);
         slot.Position = slot.Position.WithWholeY(state.RestingHeight.Y);
         samus.Control.Unlock();
         PinSamusToElevator(slot, samus);

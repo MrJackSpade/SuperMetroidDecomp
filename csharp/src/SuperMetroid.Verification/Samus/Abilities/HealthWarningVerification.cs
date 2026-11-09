@@ -21,12 +21,12 @@ internal static class HealthWarningVerification
             audio.Reset();
             warning.Update((ushort)sample.First, audio);
             AssertEqual(sample.Second == 0 ? 0 : 1, positions[2], "warning queues only threshold transitions");
-            if (sample.Second != 0) AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Library3, sample.Second), queues[2, 0], "warning native start/stop ID");
+            if (sample.Second != 0) AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Room, sample.Second), queues[2, 0], "warning native start/stop ID");
         }
         foreach (bool suppressed in new[] { false, true })
         {
             audio.Reset();
-            if (!suppressed) for (int i = 0; i < 6; i++) audio.QueueSound(Library3Sound.Silence, SoundRequestPriority.Normal);
+            if (!suppressed) for (int i = 0; i < 6; i++) audio.QueueSound(RoomSound.Silence, SoundRequestPriority.Normal);
             warning.Update(30, audio, suppressed);
             AssertTrue(warning.IsActive, "rejected start still sets native latch");
             AssertEqual(suppressed ? 0 : 6, positions[2], "rejected start does not add a command");

@@ -164,7 +164,7 @@ internal static void VerifySamusPowerBeamProjectiles()
 
         AssertEqual(0, beforeShot.FiredSlot(projectiles), $"power beam direction {direction} allocates slot zero");
         AssertEqual(
-            (SoundEffectId?)Library1Sound.UnchargedPowerBeam,
+            (SoundEffectId?)SamusSound.UnchargedPowerBeam,
             result.QueuedSoundEffect,
             $"power beam direction {direction} queues ROM sound");
         AssertEqual(1, projectiles.SlotTable.ProjectileCounter,
@@ -219,7 +219,7 @@ internal static void VerifySamusPowerBeamProjectiles()
             $"beam combination {beamType} indexes uncharged cooldown");
         AssertEqual(
             (SoundEffectId?)SoundEffectCommands.Decode(
-                SoundEffectLibrary.Library1,
+                SoundEffectLibrary.Samus,
                 nativeUnchargedSounds[beamType]),
             combinedResult.QueuedSoundEffect,
             $"beam combination {beamType} indexes uncharged sound");
@@ -316,7 +316,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         else if (frame == 15)
         {
             AssertEqual(
-                (SoundEffectId?)Library1Sound.ChargingBeam,
+                (SoundEffectId?)SamusSound.ChargingBeam,
                 chargeFrame.QueuedSoundEffect,
                 "charge counter sixteen queues the cartridge startup sound");
             AssertEqual<SoundRequestPriority?>(SoundRequestPriority.High, chargeFrame.QueuedSoundMaximum,
@@ -368,7 +368,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     SamusProjectileFrameResult rejectedRelease = rejectedReleaseProjectiles.StepFrame(new SamusTerrain { Level = air }, rejectedReleaseSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), rejectedReleaseBombs);
     AssertEqual(null, beforeRejectedRelease.FiredSlot(rejectedReleaseProjectiles),
         "cooldown gate rejects charged-audio release fixture");
-    AssertEqual((SoundEffectId?)Library1Sound.Silence,
+    AssertEqual((SoundEffectId?)SamusSound.Silence,
         rejectedRelease.QueuedSoundEffect,
         "rejected post-sound charge release queues cartridge cancellation");
     AssertEqual<SoundRequestPriority?>(SoundRequestPriority.Essential, rejectedRelease.QueuedSoundMaximum,
@@ -497,7 +497,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertTrue(chargedSlot.Type.IsChargedBeam,
         "charged release fires a charged beam");
     AssertEqual(
-        (SoundEffectId?)Library1Sound.ChargedPowerBeam,
+        (SoundEffectId?)SamusSound.ChargedPowerBeam,
         chargedRelease.QueuedSoundEffect,
         "charged power beam queues ROM sound");
     AssertEqual(0x001e, chargeBombs.CooldownTimer.RawValue,
@@ -622,7 +622,7 @@ internal static void VerifySamusPowerBeamProjectiles()
             $"charged beam combination {beamType} indexes charged cooldown");
         AssertEqual(
             (SoundEffectId?)SoundEffectCommands.Decode(
-                SoundEffectLibrary.Library1,
+                SoundEffectLibrary.Samus,
                 nativeChargedSounds[beamType]),
             combinedChargedRelease.QueuedSoundEffect,
             $"charged beam combination {beamType} indexes charged sound");
@@ -660,7 +660,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(21, hyperBombs.CooldownTimer.RawValue, "Hyper Beam installs literal cooldown 21");
     AssertEqual(
         (SoundEffectId?)SoundEffectCommands.Decode(
-            SoundEffectLibrary.Library1, nativeChargedSounds[8]),
+            SoundEffectLibrary.Samus, nativeChargedSounds[8]),
         hyperResult.QueuedSoundEffect,
         "Hyper Beam indexes charged sound entry eight");
     AssertEqual(0x8014, hyperProjectiles.Charge.ChargedShotGlowTimer.RawValue,
@@ -1025,7 +1025,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     SamusProjectileSlot missile = missileProjectiles.Slots[0];
     AssertEqual(0, beforeMissile.FiredSlot(missileProjectiles), "missile fresh press allocates slot zero");
     AssertEqual(
-        (SoundEffectId?)Library1Sound.Missile,
+        (SoundEffectId?)SamusSound.Missile,
         missileFired.QueuedSoundEffect,
         "missile producer queues library-one effect three");
     AssertEqual(2, missileSamus.Missiles, "missile producer consumes exactly one ammo");
@@ -1288,7 +1288,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertTrue(residentDoorObjects.TryNotifyColoredDoorHit(residentDoorBlock, SamusProjectileType.None),
         "resident red door receives power-beam family for native rejection");
     residentDoorObjects.Step(residentDoorLevel);
-    AssertTrue(residentDoorObjects.Sounds.SoundRequests.Contains(new SoundRequest(Library2Sound.DudShotOnDoor, SoundRequestPriority.Normal)),
+    AssertTrue(residentDoorObjects.Sounds.SoundRequests.Contains(new SoundRequest(EnemySound.DudShotOnDoor, SoundRequestPriority.Normal)),
         "wrong colored-door weapon queues native dud sound");
     AssertEqual(0, residentDoorObjects.ColoredDoors.Single().HitCounter,
         "wrong colored-door weapon does not advance threshold counter");
@@ -1362,7 +1362,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertTrue(greyDoorObjects.TryNotifyColoredDoorHit(greyDoorBlock, SamusProjectileType.None),
         "shared BTS $44 collision publishes power-beam hit to grey door");
     greyDoorObjects.Step(greyDoorLevel, enemyDeaths: 1, enemyDeathQuota: 2);
-    AssertTrue(greyDoorObjects.Sounds.SoundRequests.Contains(new SoundRequest(Library2Sound.DudShotOnDoor, SoundRequestPriority.Normal)),
+    AssertTrue(greyDoorObjects.Sounds.SoundRequests.Contains(new SoundRequest(EnemySound.DudShotOnDoor, SoundRequestPriority.Normal)),
         "locked enemy-quota grey door consumes shot with native dud sound");
     AssertTrue(!greyDoorSystem.HasEvent(EventNumber.ZebesAwake),
         "below-quota grey door does not publish Zebes-awake event");
@@ -1386,7 +1386,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         "post-unlock shot selects cartridge opening list");
     AssertTrue(greyDoorSystem.HasOpenedDoorBit(greyDoorPersistedArgument),
         "grey-door one-hit instruction persists sanitized room argument");
-    AssertTrue(greyDoorObjects.Sounds.SoundRequests.Contains(new SoundRequest(Library3Sound.DoorOpened, SoundRequestPriority.Normal)),
+    AssertTrue(greyDoorObjects.Sounds.SoundRequests.Contains(new SoundRequest(RoomSound.DoorOpened, SoundRequestPriority.Normal)),
         "grey-door opening stream queues native library-three sound seven");
 
     var reloadedGreyWords = new RoomTerrainBlock[16 * 16];
@@ -1468,7 +1468,7 @@ internal static void VerifySamusPowerBeamProjectiles()
 
     blueDoorObjects.Step(blueDoor);
     AssertTrue(blueDoorObjects.Sounds.SoundRequests.Any(request =>
-            request == new SoundRequest(Library3Sound.DoorOpened, SoundRequestPriority.Normal)),
+            request == new SoundRequest(RoomSound.DoorOpened, SoundRequestPriority.Normal)),
         "blue-door list queues library-three opening sound seven");
     for (int frame = 1; frame < 19; frame++)
         blueDoorObjects.Step(blueDoor);
@@ -1501,7 +1501,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     SamusProjectileSlot superLink = superProjectiles.Slots[1];
     AssertEqual(0, beforeSuper.FiredSlot(superProjectiles), "super fresh press allocates owner slot zero");
     AssertEqual(
-        (SoundEffectId?)Library1Sound.SuperMissile,
+        (SoundEffectId?)SamusSound.SuperMissile,
         superFired.QueuedSoundEffect,
         "super producer queues library-one effect four");
     AssertEqual(2, superSamus.SuperMissiles,

@@ -159,7 +159,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             case ShitroidAiFunction.EntranceDelay:
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
-                    RequestShitroidMusic(MusicRequest.SelectTrack(5));
+                    RequestShitroidMusic(MusicRequest.SelectTrack(MusicTrack.FirstSetSong));
                     state.Function = ShitroidAiFunction.FlyToSidehopper;
                     goto case ShitroidAiFunction.FlyToSidehopper;
                 }
@@ -470,7 +470,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             samus.MetroidAttachmentPalette = SamusMetroidAttachmentPalette.Inactive;
             samus.Drained.LetFall(samus);
             state.CryEnabled = false;
-            RequestShitroidMusic(MusicRequest.SelectTrack(7));
+            RequestShitroidMusic(MusicRequest.SelectTrack(MusicTrack.ThirdSetSong));
             return;
         }
 

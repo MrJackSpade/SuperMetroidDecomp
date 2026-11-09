@@ -158,7 +158,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         if (step.PhaseBefore == BabyMetroidCutscenePhase.HealSamusToFullHealth &&
             target.Health >= MotherBrainHealthSounds.MinimumEnergy &&
             (_frameContext.RandomEnemyCounter & MotherBrainHealthSounds.EnemyClockMask) == 0)
-            _audio.QueueEnemySound(Library3Sound.IncrementalEnergy, priority: SoundRequestPriority.Low);
+            _audio.QueueEnemySound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Low);
 
         // The Baby's drain step writes the body enemy's animation script from this later Baby slot.
         // The reusable sequence retains the requested list, but the physical body already
@@ -200,7 +200,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     {
         if (step.FatalBlowStarted)
         {
-            _audio.QueueEnemySound(Library3Sound.BabyMetroidDeath, priority: SoundRequestPriority.Normal);
+            _audio.QueueEnemySound(RoomSound.BabyMetroidDeath, priority: SoundRequestPriority.Normal);
             _motherBrainEncounter.Colours.Room.Lay(MotherBrainShades.LightsOut);
             _motherBrainEncounter.RequestMusic(MusicRequest.Stop, MusicQueueDelay.Shortest);
         }

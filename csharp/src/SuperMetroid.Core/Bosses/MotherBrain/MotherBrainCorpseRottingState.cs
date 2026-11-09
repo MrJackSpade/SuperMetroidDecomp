@@ -56,7 +56,7 @@ public sealed class MotherBrainCorpseRottingState
                         16),
                     Animation: MiscDustAnimation.CorpseDustCloud,
                     SoundEffectQueued: (mainEnemyExecutionCounter & 7) == 0,
-                    SoundEffect: Library2Sound.LiquidDamage));
+                    SoundEffect: EnemySound.LiquidDamage));
             });
 
         // The last row's fall returns before the corpse's rows are shown again, so the last step is never shown; every

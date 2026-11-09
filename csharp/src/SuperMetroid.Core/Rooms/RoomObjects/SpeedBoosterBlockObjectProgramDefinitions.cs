@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 internal static class SpeedBoosterBlockObjectProgramDefinitions
 {
-    /// <summary>The break sound, library 2.</summary>
-    internal static readonly SoundEffectId BreakSoundId = Library2Sound.ContactBlockBreak;
+    /// <summary>The break sound.</summary>
+    internal static readonly SoundEffectId BreakSoundId = EnemySound.ContactBlockBreak;
     /// <summary>The break sound's request priority.</summary>
     internal static readonly SoundRequestPriority BreakSoundPriority = SoundRequestPriority.WhenIdle;
     /// <summary>How long each crumble image shows on Brinstar's slow blocks.</summary>

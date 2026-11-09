@@ -53,10 +53,10 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The speed an unpowered robot starts falling at: one pixel per update.</summary>
     private static readonly SignedSixteenSixteen WorkRobotInitialFallVelocity = SignedSixteenSixteen.FromParts(1, 0);
 
-    /// <summary>Library-two sound queued by a robot footstep.</summary>
+    /// <summary>Enemy-library sound queued by a robot footstep.</summary>
     private static readonly SoundEffectId WorkRobotFootstepSound =
         EnemySoundEffectDefinitions.WorkRobotFootstepSound;
-    /// <summary>Library-two sound queued by a robot laser.</summary>
+    /// <summary>Enemy-library sound queued by a robot laser.</summary>
     private static readonly SoundEffectId WorkRobotLaserSound =
         EnemySoundEffectDefinitions.WorkRobotLaserSound;
     /// <summary>Pixels advanced by one robot walk instruction.</summary>

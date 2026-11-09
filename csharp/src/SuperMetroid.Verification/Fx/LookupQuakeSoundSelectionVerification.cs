@@ -25,9 +25,9 @@ internal static class LookupQuakeSoundSelectionVerification
             AssertEqual(1, state.SoundRequests.Count, "Each original selection emits exactly one rumble");
             var sound = state.SoundRequests[0];
             int originalIndex = index == count ? 0 : index;
-            AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Library2, ReadVerificationWord(rom, 0x88b256 + 4 * originalIndex)),
+            AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadVerificationWord(rom, 0x88b256 + 4 * originalIndex)),
                 sound.SoundEffect, "Original sound, decoded by the import, including terminator restart");
-            AssertEqual(SoundEffectLibrary.Library2, sound.SoundEffect.Library, "Earthquake sounds are library-two sounds");
+            AssertEqual(SoundEffectLibrary.Enemies, sound.SoundEffect.Library, "Earthquake sounds are library-two sounds");
             AssertEqual(SoundRequestPriority.Normal, sound.Priority, "Earthquake sounds are requested at normal priority");
             AssertEqual(originalIndex + 1, state.EarthquakeSoundSequenceIndex, "Next chronological index after selection");
         }

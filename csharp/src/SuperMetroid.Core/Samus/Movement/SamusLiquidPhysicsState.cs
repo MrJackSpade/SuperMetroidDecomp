@@ -344,7 +344,7 @@ public sealed class SamusLiquidPhysicsState
             samus.AnimationFrameBuffer = 3;
             if (enteredWater)
             {
-                QueueSound(Library2Sound.SplashIn, priority: SoundRequestPriority.Normal);
+                QueueSound(EnemySound.SplashIn, priority: SoundRequestPriority.Normal);
                 SpawnWaterSplash(samus, movementType, bottom);
             }
 
@@ -390,7 +390,7 @@ public sealed class SamusLiquidPhysicsState
                 : SamusLiquidDamageDefinitions.Acid;
             AccumulatePeriodicDamage(damageRate.SubDamage, damageRate.WholeDamage);
             if ((frameCounter & 7) == 0 && samus.Health >= 71)
-                QueueSound(Library3Sound.IncrementalEnergy, priority: SoundRequestPriority.Low);
+                QueueSound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Low);
 
             // Both lava and acid now share the delay-two submerged path.
             LiquidPhysicsType = SamusLiquidMedium.LavaOrAcid;
@@ -409,10 +409,10 @@ public sealed class SamusLiquidPhysicsState
         LiquidPhysicsType = SamusLiquidMedium.Air;
         if (exitedWater)
         {
-            QueueSound(Library2Sound.SplashOut, priority: SoundRequestPriority.Normal);
+            QueueSound(EnemySound.SplashOut, priority: SoundRequestPriority.Normal);
             if (!gravitySuit && movementType is
                 SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
-                QueueSound(Library1Sound.ResumedSpinJump, priority: SoundRequestPriority.Normal);
+                QueueSound(SamusSound.ResumedSpinJump, priority: SoundRequestPriority.Normal);
             SpawnWaterSplash(samus, movementType, bottom);
             TrySpawnAirBubbles(
                 samus,
@@ -443,8 +443,8 @@ public sealed class SamusLiquidPhysicsState
         {
             QueueSound(previousPose is SamusPoseId.ScrewAttackRightPose or
                     SamusPoseId.ScrewAttackLeftPose
-                        ? Library1Sound.ScrewAttackEnd
-                        : Library1Sound.SpinJumpEnd,
+                        ? SamusSound.ScrewAttackEnd
+                        : SamusSound.SpinJumpEnd,
                 priority: SoundRequestPriority.Normal);
         }
 
@@ -458,8 +458,8 @@ public sealed class SamusLiquidPhysicsState
         if (!CinematicFunctionActive)
         {
             QueueSound(hardLanding
-                    ? Library3Sound.HardLanding
-                    : Library3Sound.Landing,
+                    ? RoomSound.HardLanding
+                    : RoomSound.Landing,
                 priority: SoundRequestPriority.Normal);
         }
 
@@ -705,7 +705,7 @@ public sealed class SamusLiquidPhysicsState
             2, SamusAtmosphericEffectType.Bubbles, animationFrame: 0, animationTimer: 3,
             new(samus.Position.X.Whole, CoordinateAxis.Wrap(top + 6)));
         int sample = random.Generate();
-        QueueSound(SamusBreathBubbleDefinitions.LowSound.IsSetIn(sample) ? Library2Sound.LowBubbles : Library2Sound.HighBubbles, priority: SoundRequestPriority.Normal);
+        QueueSound(SamusBreathBubbleDefinitions.LowSound.IsSetIn(sample) ? EnemySound.LowBubbles : EnemySound.HighBubbles, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Starts the four-slot lava spray while Samus's top is above the surface and the previous spray has cleared.</summary>
@@ -740,7 +740,7 @@ public sealed class SamusLiquidPhysicsState
         }
 
         if ((frameCounter & 1) == 0)
-            QueueSound(Library2Sound.LiquidDamage, priority: SoundRequestPriority.Normal);
+            QueueSound(EnemySound.LiquidDamage, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Emits room-dependent wet or boosted footstep art at running contact frames and applies the game's sound suppression.</summary>
@@ -792,7 +792,7 @@ public sealed class SamusLiquidPhysicsState
             !SamusInputSnapshot.HoldsShine(samus) &&
             !samus.HorizontalSpeed.SpeedBoostCounter.IsAtFullStage)
         {
-            QueueSound(Library3Sound.Footsteps, priority: SoundRequestPriority.Normal);
+            QueueSound(RoomSound.Footsteps, priority: SoundRequestPriority.Normal);
         }
     }
 

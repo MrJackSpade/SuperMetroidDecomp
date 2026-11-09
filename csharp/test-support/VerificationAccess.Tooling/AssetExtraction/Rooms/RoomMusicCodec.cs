@@ -11,9 +11,9 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// A zero data index keeps the loaded data set (<c>$82:E071</c> skips it); any other index names the data set the
 /// catalog maps it to. A zero track keeps the playing track (<c>$82:E0E1</c> returns at once); track <c>$80</c> silences
 /// the music, because the music handler keeps only the low seven bits of the queued byte, and a track number with its
-/// high bit set never equals the playing one; any other byte is a track of the data set. A track byte above <c>$80</c>,
-/// which would play its low seven bits, and an index that names no data set appear in no retail room state, so they fail
-/// here rather than reach the game.
+/// high bit set never equals the playing one; any other byte is a song's track number (<see cref="MusicTrackNumbers"/>).
+/// A track byte above <c>$80</c>, which would play its low seven bits, a track number no song has, and an index that
+/// names no data set appear in no retail room state, so they fail here rather than reach the game.
 /// </remarks>
 internal static class RoomMusicCodec
 {
@@ -34,7 +34,7 @@ internal static class RoomMusicCodec
         {
             0 => RoomMusicTrack.Inherited,
             SilencedTrack => RoomMusicTrack.Silenced,
-            < SilencedTrack => RoomMusicTrack.Plays(track),
+            < SilencedTrack => RoomMusicTrack.Plays(MusicTrackNumbers.Decode(track)),
             _ => throw new InvalidDataException(
                 $"Room music track ${track:X2} is not one the retail room states hold; only $00 through $80 are."),
         };

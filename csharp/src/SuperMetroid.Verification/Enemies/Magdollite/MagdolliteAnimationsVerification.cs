@@ -26,7 +26,7 @@ internal static class MagdolliteAnimationsVerification
                 {
                     'V' => cue.Sound ?? throw new InvalidOperationException($"{at}: the sound cue carries no sound."),
                     _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
-                }, SoundEffectCommands.Decode(SoundEffectLibrary.Library2, operands[index]), $"{at}: operand {index}");
+                }, SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, operands[index]), $"{at}: operand {index}");
             });
         Console.WriteLine($"  Magdollite programs: {Entries.Length} programs ({steps} steps) match bank $A8.");
     }

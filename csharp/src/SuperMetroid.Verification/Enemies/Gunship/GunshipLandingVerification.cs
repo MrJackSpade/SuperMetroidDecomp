@@ -77,7 +77,7 @@ internal static class GunshipLandingVerification
             enemies.StepFrame(new RoomEnemyFrame { FrameCounter = enemies.StandaloneFrameCounter, Camera = new(0x0400, cameraY), TimeIsFrozen = false, Samus = samus });
             frames++;
             observedEngineSound |= enemies.Audio.SoundRequests.Contains(
-                new SoundRequest(Library2Sound.GunshipHover, Priority: SoundRequestPriority.Normal));
+                new SoundRequest(EnemySound.GunshipHover, Priority: SoundRequestPriority.Normal));
 
             if (GunshipPartState.Of(top).Function == GunshipFunction.DescendAfterCeres)
             {
@@ -118,7 +118,7 @@ internal static class GunshipLandingVerification
                     samus.ApplyPreviousPositionWrites(checkpoint),
                     "landing writes SamusPreviousXPosition with Samus X");
                 AssertTrue(enemies.Audio.SoundRequests.Contains(new SoundRequest(
-                        Library3Sound.GunshipPadOpening, Priority: SoundRequestPriority.Normal)),
+                        RoomSound.GunshipPadOpening, Priority: SoundRequestPriority.Normal)),
                     "landing requests the gunship landing sound");
                 // EnemyMain starts the pad-opening program, then this same slot's ordinary
                 // instruction phase shows its first timed frame before StepFrame returns.
@@ -147,7 +147,7 @@ internal static class GunshipLandingVerification
         AssertEqual(0x0440, samus.Position.Y.Whole, "gunship raises Samus to deck standing Y");
 
         var openingSound = new SoundRequest(
-            Library3Sound.GunshipPadOpening, Priority: SoundRequestPriority.Normal);
+            RoomSound.GunshipPadOpening, Priority: SoundRequestPriority.Normal);
         enemies.StepFrame(new RoomEnemyFrame { FrameCounter = enemies.StandaloneFrameCounter, Camera = new(0x0400, 0x0400), TimeIsFrozen = false, Samus = samus });
         AssertTrue(!enemies.Audio.SoundRequests.Contains(openingSound),
             "idle ship does not publish an entrance sound without Down");

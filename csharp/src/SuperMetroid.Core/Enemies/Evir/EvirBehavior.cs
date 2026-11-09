@@ -63,7 +63,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Margin beyond each camera edge that starts projectile regeneration.</summary>
     private const int EvirFarOffscreenDistance = 256;
 
-    /// <summary>The library-two sound the spit plays when it is launched or regenerates.</summary>
+    /// <summary>The enemy-library sound the spit plays when it is launched or regenerates.</summary>
     private static readonly SoundEffectId EvirSpitSound =
         EnemySoundEffectDefinitions.EvirSpitSound;
 

@@ -124,7 +124,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
                 slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);
                 return null;
             case CeresDoorCueKind.PlayOpeningSound:
-                _audio.QueueEnemySound(Library3Sound.CeresDoorOpening, priority: SoundRequestPriority.Normal);
+                _audio.QueueEnemySound(RoomSound.CeresDoorOpening, priority: SoundRequestPriority.Normal);
                 return null;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(CeresDoorCueKind)} {cue.Kind}.");
@@ -279,7 +279,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
 
         // The explosion sound is requested even when the finite enemy-projectile pool was full and
         // could not allocate the visual effect.
-        _audio.QueueEnemySound(Library2Sound.BigExplosion, priority: SoundRequestPriority.Normal);
+        _audio.QueueEnemySound(EnemySound.BigExplosion, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>

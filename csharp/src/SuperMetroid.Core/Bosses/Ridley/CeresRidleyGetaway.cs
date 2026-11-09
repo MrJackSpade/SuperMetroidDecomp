@@ -110,7 +110,7 @@ internal sealed class CeresRidleyGetaway
         // The getaway requests the departure sound on its first frame only. Tying the request to the
         // frame preserves the same one-shot behavior after saves/replays and pauses.
         if (frameIndex == 0)
-            _audio.QueueEnemySound(Library2Sound.CeresRidleyGetaway, priority: SoundRequestPriority.Normal);
+            _audio.QueueEnemySound(EnemySound.CeresRidleyGetaway, priority: SoundRequestPriority.Normal);
 
         // At frame 104, Samus's grab handler replaces Samus's movement/hack handlers so the
         // rotating boss image cannot overlap her from the following frame onward.
@@ -227,10 +227,10 @@ internal sealed class CeresRidleyGetaway
                     // translation, so the newly uploaded letter tiles existed but no
                     // tilemap entries ever referenced them on screen.
                     DrawCeresEmergencyText();
-                    // The warning setup also queues music track seven after installing the final
+                    // The warning setup also queues the set's third song after installing the final
                     // static warning tilemap page. The frontend consumes this typed request
                     // through the same queue used by every other music producer.
-                    _audio.RequestRidleyMusic(MusicRequest.SelectTrack(7));
+                    _audio.RequestRidleyMusic(MusicRequest.SelectTrack(MusicTrack.ThirdSetSong));
                     state.CeresSelfDestructPhase = CeresSelfDestructPhase.HoldingTitle;
                     state.CeresEscapeTextDelayTimer = 128;
                 }

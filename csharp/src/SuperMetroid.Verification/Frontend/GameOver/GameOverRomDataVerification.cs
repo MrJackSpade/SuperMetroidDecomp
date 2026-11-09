@@ -77,7 +77,7 @@ internal static class GameOverRomDataVerification
                         "game-over reference cry starts with LDA immediate");
                     StepBaby();
                     // Library-three slot zero holds index zero's CancelAll request.
-                    AssertEqual((SoundEffectId?)SoundEffectCommands.Decode(SoundEffectLibrary.Library3, (byte)rom.ReadCartridgeWordFixedBank(0x820000 | (ushort)(command + 1))), queues[2, cries + 1],
+                    AssertEqual((SoundEffectId?)SoundEffectCommands.Decode(SoundEffectLibrary.Room, (byte)rom.ReadCartridgeWordFixedBank(0x820000 | (ushort)(command + 1))), queues[2, cries + 1],
                         "game-over cry queues the exact native library-three effect");
                     cries++;
                     next += 2;

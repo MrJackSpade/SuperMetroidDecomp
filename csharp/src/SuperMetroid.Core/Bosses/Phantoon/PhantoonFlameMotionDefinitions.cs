@@ -24,7 +24,7 @@ internal static class PhantoonFlameMotionDefinitions
     /// <summary>Spiral pre-instruction: clockwise angle increase per frame.</summary>
     internal const int SpiralAngleStep = 2;
     /// <summary>Sound requested when rain starts falling and when it hits terrain.</summary>
-    internal static SoundEffectId RainFallSound => Library3Sound.PhantoonFlame;
+    internal static SoundEffectId RainFallSound => RoomSound.PhantoonFlame;
     /// <summary>The rain sound's request priority.</summary>
     internal static readonly SoundRequestPriority RainSoundPriority = SoundRequestPriority.Normal;
 }

@@ -43,7 +43,7 @@ internal sealed class GameplayAudioFramePublication(AudioQueues audio)
         // Consume the request so the next frontend frame cannot replay the old flag.
         if (!selectionPublished && runtime.Hud.ConsumeSelectionSoundRequest())
         {
-            audio.QueueSound(Library1Sound.HudWeaponSelect, SoundRequestPriority.Normal,
+            audio.QueueSound(SamusSound.HudWeaponSelect, SoundRequestPriority.Normal,
                 soundSuppressed: runtime.Hud.SelectionSoundSuppressedThisFrame);
             selectionPublished = true;
         }
@@ -55,12 +55,12 @@ internal sealed class GameplayAudioFramePublication(AudioQueues audio)
         }
     }
 
-    /// <summary>Requests the Speed Booster echo at normal priority, returning what library three's queue did with it.</summary>
+    /// <summary>Requests the Speed Booster echo at normal priority, returning what the room library's queue did with it.</summary>
     public SoundQueueAdmission QueueEcho(SuperMetroidRuntime runtime)
     {
         PublishPrefix(runtime);
         return audio.QueueSound(
-            Library3Sound.SpeedBooster, SoundRequestPriority.Normal,
+            RoomSound.SpeedBooster, SoundRequestPriority.Normal,
             soundSuppressed: runtime.AttractDemo.IsAttractDemo || runtime.PowerBombExplosionSuppressesSounds);
     }
 

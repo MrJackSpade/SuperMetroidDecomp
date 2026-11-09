@@ -466,12 +466,12 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     /// <summary>Queues the cursor sound within the menu sound limit.</summary>
     private void QueueMoveSound() =>
         audio?.QueueSound(
-            Library1Sound.MenuCursor,
+            SamusSound.MenuCursor,
             priority: GameOptionsDefinitions.MaximumQueuedMenuSounds);
 
     /// <summary>Queues the confirmation sound within the menu sound limit.</summary>
     private void QueueSelectSound() =>
         audio?.QueueSound(
-            Library1Sound.MenuConfirm,
+            SamusSound.MenuConfirm,
             priority: GameOptionsDefinitions.MaximumQueuedMenuSounds);
 }

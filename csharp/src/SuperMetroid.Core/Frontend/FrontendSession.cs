@@ -73,10 +73,10 @@ internal sealed class FrontendSession
     /// <summary>
     /// When each sound library accepts the game's requests and what it acknowledges: one clock for the session's whole
     /// lifetime, so its requests and request-check phase carry across menus and gameplay runtimes. It serves the libraries
-    /// in queue order, and library one reports a music load.
+    /// in queue order, and the Samus library reports a music load.
     /// </summary>
     internal readonly SoundAcceptanceClock<SoundEffectLibrary, SoundEffectId> soundClock =
-        new(SoundEffectLibraries.InQueueOrder, SoundEffectLibrary.Library1);
+        new(SoundEffectLibraries.InQueueOrder, SoundEffectLibrary.Samus);
     /// <summary>The audio advance on <see cref="soundClock"/> and clip playback, advanced at the end of every update.</summary>
     internal readonly AudioSession audioSession;
     /// <summary>The frontend screen showing now: the one menu or cinematic the current state runs, or none.</summary>
@@ -267,18 +267,18 @@ internal sealed class FrontendSession
         // publication generation below. It has explicit consume semantics so its one-shot
         // request remains audible without making stale enemy/PLM lists eligible again.
         if (runtime?.MessageBoxes.ConsumeMessageBoxSelectionSoundRequest() == true)
-            audio.QueueSound(Library1Sound.MenuCursor, priority: SoundRequestPriority.Normal);
+            audio.QueueSound(SamusSound.MenuCursor, priority: SoundRequestPriority.Normal);
         if (runtime?.MessageBox.ConsumeSavingSoundRequest() == true)
-            audio.QueueSound(Library1Sound.Saving, priority: SoundRequestPriority.Normal);
+            audio.QueueSound(SamusSound.Saving, priority: SoundRequestPriority.Normal);
         if (runtime?.MessageBoxes.ConsumeGunshipExitSoundRequest() == true)
-            audio.QueueSound(Library3Sound.GunshipPadOpening, priority: SoundRequestPriority.Normal);
+            audio.QueueSound(RoomSound.GunshipPadOpening, priority: SoundRequestPriority.Normal);
         // An accepted save station resumes from the message close boundary too.
         if (runtime?.Room.Scope?.RoomObjects.Stations.ConsumeSavingSoundRequest() is { } saving)
             audio.QueueSound(saving);
         // Suit setup resumes from the message close boundary, outside normal gameplay
         // publication generations. Consume once so updates without gameplay cannot repeat it.
         if (runtime?.SuitPickup.ConsumeTransformationSoundRequest() == true)
-            audio.QueueSound(Library2Sound.SuitAcquired, priority: SoundRequestPriority.Normal,
+            audio.QueueSound(EnemySound.SuitAcquired, priority: SoundRequestPriority.Normal,
                 soundSuppressed: runtime.SuitPickup.TransformationSoundSuppressed);
 
         // Frontend states sometimes run updates without running gameplay.
@@ -304,31 +304,31 @@ internal sealed class FrontendSession
             // These state machines predate the shared SoundRequest list. Consume their
             // one-shot publications here, retaining the exact library and MaxN entry.
             if (samus.HorizontalSpeed.ConsumeEchoSoundRequest())
-                audio.QueueSound(Library3Sound.SpeedBooster, priority: SoundRequestPriority.Normal);
+                audio.QueueSound(RoomSound.SpeedBooster, priority: SoundRequestPriority.Normal);
             if (samus.Shinespark.ConsumeStoredShineWarningSoundRequest())
-                audio.QueueSound(Library3Sound.StoredShinespark, SoundRequestPriority.High,
+                audio.QueueSound(RoomSound.StoredShinespark, SoundRequestPriority.High,
                     soundSuppressed: samus.Shinespark.StoredShineWarningSoundSuppressed);
             if (samus.Shinespark.ConsumeChargeCancellationSoundRequest())
-                audio.QueueSound(Library1Sound.Silence, SoundRequestPriority.High,
+                audio.QueueSound(SamusSound.Silence, SoundRequestPriority.High,
                     soundSuppressed: samus.Shinespark.ChargeCancellationSoundSuppressed);
             if (samus.Shinespark.ConsumeLaunchSoundRequest())
-                audio.QueueSound(Library3Sound.Shinespark, SoundRequestPriority.High,
+                audio.QueueSound(RoomSound.Shinespark, SoundRequestPriority.High,
                     soundSuppressed: samus.Shinespark.LaunchSoundSuppressed);
             if (samus.Shinespark.ConsumeCrashSoundRequest())
             {
-                audio.QueueSound(Library1Sound.SamusDamaged, SoundRequestPriority.Normal,
+                audio.QueueSound(SamusSound.SamusDamaged, SoundRequestPriority.Normal,
                     soundSuppressed: samus.Shinespark.CrashSoundSuppressed);
-                audio.QueueSound(Library3Sound.ShinesparkEnd, SoundRequestPriority.Normal,
+                audio.QueueSound(RoomSound.ShinesparkEnd, SoundRequestPriority.Normal,
                     soundSuppressed: samus.Shinespark.CrashSoundSuppressed);
             }
             if (samus.CrystalFlash.ConsumeActivationSoundRequest())
-                audio.QueueSound(Library3Sound.Silence, priority: SoundRequestPriority.Essential);
+                audio.QueueSound(RoomSound.Silence, priority: SoundRequestPriority.Essential);
             if (samus.Xray.ConsumeActivationSoundRequest())
-                audio.QueueSound(Library1Sound.XrayStart, priority: SoundRequestPriority.Normal);
+                audio.QueueSound(SamusSound.XrayStart, priority: SoundRequestPriority.Normal);
             if (samus.Xray.ConsumeDeactivationSoundRequest())
-                audio.QueueSound(Library1Sound.XrayEnd, priority: SoundRequestPriority.Normal);
+                audio.QueueSound(SamusSound.XrayEnd, priority: SoundRequestPriority.Normal);
             if (samus.DeathSequence.ConsumeSpinJumpSoundRequest())
-                audio.QueueSound(Library1Sound.SpinJumpEnd, priority: SoundRequestPriority.Normal);
+                audio.QueueSound(SamusSound.SpinJumpEnd, priority: SoundRequestPriority.Normal);
         }
 
         if (runtime.Room.LoadedScope.Projectiles.LastFrameResult.QueuedSoundEffect is { } projectileSound)
@@ -528,15 +528,15 @@ internal sealed class FrontendSession
             RoomStateSettings loadedState = runtime.Room.ActiveRoom?.State
                 ?? throw new InvalidOperationException(
                     "Saved-game appearance started without an active room state.");
-            // Samus's appearance starts appearance track one after 14 frames and, on its fifth
+            // Samus's appearance starts her fanfare after 14 frames and, on its fifth
             // call, schedules the room track 360 frames later. Mark this room state as
             // already handled so the generic room-change collector cannot overwrite the
             // fanfare with an immediate track request.
             // Loading from file select still has the title's music data set loaded.
             // Preserve the appearance track sequence, but switch to the room's data set first
-            // just as ordinary room loading does; track numbers alone belong to a data set.
+            // just as ordinary room loading does; a set's own songs belong to that data set.
             audio.QueueRoomMusicData(loadedState.Music.DataSet);
-            audio.ScheduleMusic(MusicRequest.SelectTrack(1), MusicQueueDelay.AtLeastShortest(14));
+            audio.ScheduleMusic(MusicRequest.SelectTrack(MusicTrack.SamusFanfare), MusicQueueDelay.AtLeastShortest(14));
             audio.ScheduleMusic(
                 loadedState.Music.Track.Request,
                 MusicQueueDelay.AtLeastShortest(360 + 5));

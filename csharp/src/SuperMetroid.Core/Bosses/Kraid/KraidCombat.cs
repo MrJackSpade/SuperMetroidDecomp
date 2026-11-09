@@ -109,7 +109,7 @@ internal sealed class KraidCombat
     /// Ports Kraid arm helper <c>SpawnExplosionProjectile</c>, called by the
     /// arm hitbox callback. Super Missiles select the big dust animation;
     /// beams, missiles, and normal bombs select the dud animation. The effect uses the
-    /// shared room-graphics projectile allocator and queues the sound-library-one explosion effect.
+    /// shared room-graphics projectile allocator and queues the Samus-library explosion effect.
     /// </summary>
     private void SpawnKraidArmShotExplosion(
         SamusProjectileType projectileType,
@@ -122,7 +122,7 @@ internal sealed class KraidCombat
             ? MiscDustAnimation.BigExplosion
             : MiscDustAnimation.DudShotTinyExplosion;
         _projectiles.SpawnRoomGraphicsDustExplosion(position, animationIndex);
-        _audio.QueueEnemySound(Library1Sound.DudShot, priority: SoundRequestPriority.Normal);
+        _audio.QueueEnemySound(SamusSound.DudShot, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>
@@ -187,7 +187,7 @@ internal sealed class KraidCombat
                     RoomSpriteObjectSlot? dud = _spriteObjects.SpawnRoomSpriteObject(
                         shot.Position, RoomSpriteObjectKind.EnemyProjectileDud, graphics: default);
                     bounds.LeaveAfterDud(dud?.SlotIndex, shot.Position, KraidContactDefinitions.ShotLeftBoundAfterDud);
-                    _audio.QueueEnemySound(Library1Sound.DudShot, priority: SoundRequestPriority.Low);
+                    _audio.QueueEnemySound(SamusSound.DudShot, priority: SoundRequestPriority.Low);
                 }
                 shots.MarkCollision(index);
                 mouthHits++;

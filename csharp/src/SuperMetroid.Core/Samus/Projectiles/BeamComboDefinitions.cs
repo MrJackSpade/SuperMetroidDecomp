@@ -14,7 +14,7 @@ public static class BeamComboDefinitions
     /// <summary>The Wave special beam attack's per-update acceleration: a quarter of a pixel per update.</summary>
     public static readonly SignedEightEight WaveAcceleration = SignedEightEight.FromSignedRaw(64);
     /// <summary>The sound of a Wave particle's removal.</summary>
-    public static readonly SoundEffectId WaveRemovalSound = Library1Sound.WaveSpecialAttackEnd;
+    public static readonly SoundEffectId WaveRemovalSound = SamusSound.WaveSpecialAttackEnd;
     /// <summary>The Wave special beam attack: the sound of the oscillator's pulse.</summary>
-    public static readonly SoundEffectId WavePulseSound = Library1Sound.WaveSpecialAttack;
+    public static readonly SoundEffectId WavePulseSound = SamusSound.WaveSpecialAttack;
 }

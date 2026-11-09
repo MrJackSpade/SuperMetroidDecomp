@@ -71,7 +71,7 @@ internal static class AudioClipExporter
         return [.. from library in catalog.SoundLibraries
                    from effect in library.Effects
                    from context in contexts
-                   select new SoundEffectKey(context, LibraryOf(library.Library), effect.Command)];
+                   select new SoundEffectKey(context, SoundLibraryNumbers.Decode(library.Library), effect.Command)];
     }
 
     /// <summary>Renders the given tracks and effects into <paramref name="audioDirectory"/> and writes the manifest.</summary>
@@ -135,7 +135,7 @@ internal static class AudioClipExporter
         return new MusicClipEntry(
             AudioAssetCatalogDefinitions.Get(key.Bank).DataSet
                 ?? throw new InvalidDataException($"{key.Bank} holds no music data set, so it has no tracks to export."),
-            key.Track,
+            MusicTrackNumbers.Decode(key.Track),
             Write(root, MusicDirectory, files, pcm),
             track.Shape == MusicTrackShape.Loops ? track.Arrivals[0] - start : null,
             segments);
@@ -156,7 +156,7 @@ internal static class AudioClipExporter
     {
         int libraryIndex = SoundEffectLibraries.ToQueueIndex(key.Library);
         AudioSoundEffectMetadata effect = catalog.SoundLibraries
-            .Single(library => library.Library == libraryIndex + 1)
+            .Single(library => library.Library == SoundLibraryNumbers.Number(key.Library))
             .Effects.Single(candidate => candidate.Command == key.Command);
         AudioBank bank = key.Context ?? AudioAssetCatalogDefinitions.Common.AudioSet;
         string[] missing = [.. effect.ChannelPrograms
@@ -250,8 +250,4 @@ internal static class AudioClipExporter
         })).Value;
     }
 
-    /// <summary>The library identity of the manifest's one-based library number.</summary>
-    private static SoundEffectLibrary LibraryOf(int library) => library >= 1 && library <= SoundEffectLibraries.Count
-        ? SoundEffectLibraries.FromQueueIndex(library - 1)
-        : throw new InvalidDataException($"Unknown sound library {library}.");
 }

@@ -92,7 +92,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.Function = RioEnemyFunction.Diving;
 
                 // CheckIfEnemyIsOnScreen returns zero for an on-screen origin. The
-                // branch consequently queues sound 101 only for the visible attack start.
+                // branch consequently queues the cry only for the visible attack start.
                 if (!EnemyProcessingWindow.EnemyWithNormalSpritesIsOffScreen(slot, camera))
                     _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Rio, EnemySoundEffectDefinitions.RioDiveSound, priority: SoundRequestPriority.Normal);
                 return;

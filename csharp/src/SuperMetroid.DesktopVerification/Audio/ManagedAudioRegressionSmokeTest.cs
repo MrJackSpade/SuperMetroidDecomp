@@ -66,22 +66,22 @@ public static class ManagedAudioRegressionSmokeTest
 
         RunSoundScenario(
             "library-1-power-beam",
-            [Library1Sound.UnchargedPowerBeam],
+            [SamusSound.UnchargedPowerBeam],
             tally);
         RunSoundScenario(
             "library-2-door",
-            [Library2Sound.DudShotOnDoor],
+            [EnemySound.DudShotOnDoor],
             tally);
         RunSoundScenario(
             "library-3-cinematic",
-            [Library3Sound.BabyMetroidCry1],
+            [RoomSound.BabyMetroidCry1],
             tally);
         RunSoundScenario(
             "three-library-overlap-and-cancel",
             [
-                Library1Sound.UnchargedPowerBeam,
-                Library2Sound.DudShotOnDoor,
-                Library3Sound.BabyMetroidCry1,
+                SamusSound.UnchargedPowerBeam,
+                EnemySound.DudShotOnDoor,
+                RoomSound.BabyMetroidCry1,
             ],
             tally,
             cancelHalfway: true);
@@ -124,7 +124,7 @@ public static class ManagedAudioRegressionSmokeTest
                 [
                     new AudioRequest.ChangeMusicDataSet(null),
                     new AudioRequest.ChangeMusicDataSet(bank.DataSet),
-                    AudioRequest.ForTrack(new MusicTrack(1)),
+                    AudioRequest.ForTrack(MusicTrack.SamusFanfare),
                 ]
                 : Array.Empty<AudioRequest>();
             HashFrame(name, engine, commands, tally);
@@ -150,9 +150,9 @@ public static class ManagedAudioRegressionSmokeTest
             }
             if (cancelHalfway && frame == ShortScenarioFrames / 2)
             {
-                commands.Add(new AudioRequest.RequestSound(Library1Sound.Silence));
-                commands.Add(new AudioRequest.RequestSound(Library2Sound.Silence));
-                commands.Add(new AudioRequest.RequestSound(Library3Sound.Silence));
+                commands.Add(new AudioRequest.RequestSound(SamusSound.Silence));
+                commands.Add(new AudioRequest.RequestSound(EnemySound.Silence));
+                commands.Add(new AudioRequest.RequestSound(RoomSound.Silence));
             }
             HashFrame(name, engine, commands, tally);
         }
@@ -173,7 +173,7 @@ public static class ManagedAudioRegressionSmokeTest
             {
                 commands.Add(new AudioRequest.ChangeMusicDataSet(null));
                 commands.Add(new AudioRequest.ChangeMusicDataSet(first.DataSet));
-                commands.Add(AudioRequest.ForTrack(new MusicTrack(1)));
+                commands.Add(AudioRequest.ForTrack(MusicTrack.SamusFanfare));
             }
             else if (frame == 120)
             {
@@ -182,7 +182,7 @@ public static class ManagedAudioRegressionSmokeTest
             else if (frame == 150)
             {
                 commands.Add(new AudioRequest.ChangeMusicDataSet(second.DataSet));
-                commands.Add(AudioRequest.ForTrack(new MusicTrack(1)));
+                commands.Add(AudioRequest.ForTrack(MusicTrack.SamusFanfare));
             }
             else if (frame == 270)
             {
@@ -195,11 +195,11 @@ public static class ManagedAudioRegressionSmokeTest
             }
             else if (frame == 390)
             {
-                commands.Add(AudioRequest.ForTrack(new MusicTrack(2)));
+                commands.Add(AudioRequest.ForTrack(MusicTrack.ItemFanfare));
             }
             else if (frame == 510)
             {
-                commands.Add(AudioRequest.ForTrack(new MusicTrack(1)));
+                commands.Add(AudioRequest.ForTrack(MusicTrack.SamusFanfare));
             }
             HashFrame(
                 "music-lifecycle", engine, commands, tally);

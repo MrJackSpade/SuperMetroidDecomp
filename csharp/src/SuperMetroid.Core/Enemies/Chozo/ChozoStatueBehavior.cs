@@ -28,7 +28,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyTerrain _terrain;
     /// <summary>Allocates the Wrecked Ship statue's spike-footstep projectile.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Queues library-two footstep and walking sounds from instructions.</summary>
+    /// <summary>Queues enemy-library footstep and walking sounds from instructions.</summary>
     private readonly EnemyAudioQueue _audio;
     /// <summary>Receives statue-authored effect overlay motion writes.</summary>
     private readonly EnemyRoomFx _roomFx;
@@ -58,10 +58,10 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Library-two sound queued as the statue grabs Samus.</summary>
+    /// <summary>Enemy-library sound queued as the statue grabs Samus.</summary>
     private static readonly SoundEffectId ChozoGrabsSamusSound =
         EnemySoundEffectDefinitions.ChozoGrabsSamusSound;
-    /// <summary>Library-two sound queued by the walking statue's footsteps.</summary>
+    /// <summary>Enemy-library sound queued by the walking statue's footsteps.</summary>
     private static readonly SoundEffectId ChozoFootstepsSound =
         EnemySoundEffectDefinitions.ChozoFootstepsSound;
 

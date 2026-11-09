@@ -9,17 +9,17 @@ public static class MaridiaRoomStateDefinitions
 
     /// <summary>The Glass Tunnel Save room's state.</summary>
     public static RoomStateSettings GlassTunnelSave { get; } =
-        new(nameof(GlassTunnelSave), RoomLevelDefinitions.WarehouseSave, 25, new RoomMusic(MusicDataSet.RedBrinstar, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.GlassTunnelSave, RoomEnemyPopulationDefinitions.GlassTunnelSave, Enemies.RoomEnemyGraphicsSetDefinitions.GlassTunnelSave, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(0, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.GlassTunnelSave, null, RoomSetupCallback.BossRoomReturnB);
+        new(nameof(GlassTunnelSave), RoomLevelDefinitions.WarehouseSave, 25, new RoomMusic(MusicDataSet.RedBrinstar, RoomMusicTrack.Plays(MusicTrack.FirstSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.GlassTunnelSave, RoomEnemyPopulationDefinitions.GlassTunnelSave, Enemies.RoomEnemyGraphicsSetDefinitions.GlassTunnelSave, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(0, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.GlassTunnelSave, null, RoomSetupCallback.BossRoomReturnB);
 
 
     /// <summary>The Glass Tunnel room's state 0.</summary>
     public static RoomStateSettings GlassTunnelDefault { get; } =
-        new(nameof(GlassTunnelDefault), RoomLevelDefinitions.GlassTunnelDefault, 11, new RoomMusic(MusicDataSet.RedBrinstar, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.GlassTunnel, RoomEnemyPopulationDefinitions.GlassTunnel, Enemies.RoomEnemyGraphicsSetDefinitions.GlassTunnel, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(0, 192), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GlassTunnel, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.GlassTunnel, null, RoomSetupCallback.BossRoomReturnB);
+        new(nameof(GlassTunnelDefault), RoomLevelDefinitions.GlassTunnelDefault, 11, new RoomMusic(MusicDataSet.RedBrinstar, RoomMusicTrack.Plays(MusicTrack.FirstSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.GlassTunnel, RoomEnemyPopulationDefinitions.GlassTunnel, Enemies.RoomEnemyGraphicsSetDefinitions.GlassTunnel, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(0, 192), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GlassTunnel, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.GlassTunnel, null, RoomSetupCallback.BossRoomReturnB);
 
 
     /// <summary>The Glass Tunnel room's state 1.</summary>
     public static RoomStateSettings GlassTunnelWhenMaridiaNoobTubeBroken { get; } =
-        new(nameof(GlassTunnelWhenMaridiaNoobTubeBroken), RoomLevelDefinitions.GlassTunnelWhenMaridiaNoobTubeBroken, 11, new RoomMusic(MusicDataSet.RedBrinstar, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.GlassTunnel, RoomEnemyPopulationDefinitions.GlassTunnel, Enemies.RoomEnemyGraphicsSetDefinitions.GlassTunnel, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(0, 192), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GlassTunnel, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.GlassTunnel, null, RoomSetupCallback.BossRoomReturnB);
+        new(nameof(GlassTunnelWhenMaridiaNoobTubeBroken), RoomLevelDefinitions.GlassTunnelWhenMaridiaNoobTubeBroken, 11, new RoomMusic(MusicDataSet.RedBrinstar, RoomMusicTrack.Plays(MusicTrack.FirstSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.GlassTunnel, RoomEnemyPopulationDefinitions.GlassTunnel, Enemies.RoomEnemyGraphicsSetDefinitions.GlassTunnel, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(0, 192), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GlassTunnel, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.GlassTunnel, null, RoomSetupCallback.BossRoomReturnB);
 
 
     /// <summary>The West Tunnel room's state.</summary>
@@ -29,12 +29,12 @@ public static class MaridiaRoomStateDefinitions
 
     /// <summary>The East Tunnel room's state.</summary>
     public static RoomStateSettings EastTunnel { get; } =
-        new(nameof(EastTunnel), RoomLevelDefinitions.EastTunnel, 11, new RoomMusic(MusicDataSet.RedBrinstar, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.EastTunnel, RoomEnemyPopulationDefinitions.EastTunnel, Enemies.RoomEnemyGraphicsSetDefinitions.EastTunnel, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(0, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.EastTunnel, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.EastTunnel, null, RoomSetupCallback.BossRoomReturnB);
+        new(nameof(EastTunnel), RoomLevelDefinitions.EastTunnel, 11, new RoomMusic(MusicDataSet.RedBrinstar, RoomMusicTrack.Plays(MusicTrack.FirstSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.EastTunnel, RoomEnemyPopulationDefinitions.EastTunnel, Enemies.RoomEnemyGraphicsSetDefinitions.EastTunnel, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(0, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.EastTunnel, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.EastTunnel, null, RoomSetupCallback.BossRoomReturnB);
 
 
     /// <summary>The Main Street room's state.</summary>
     public static RoomStateSettings MainStreet { get; } =
-        new(nameof(MainStreet), RoomLevelDefinitions.MainStreet, 11, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(6)), SuperMetroid.Core.Fx.RoomFxDefinitions.MainStreet, RoomEnemyPopulationDefinitions.MainStreet, Enemies.RoomEnemyGraphicsSetDefinitions.MainStreet, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(192, 192), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.MainStreet, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.MainStreet, null, RoomSetupCallback.BossRoomReturnB);
+        new(nameof(MainStreet), RoomLevelDefinitions.MainStreet, 11, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(MusicTrack.SecondSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.MainStreet, RoomEnemyPopulationDefinitions.MainStreet, Enemies.RoomEnemyGraphicsSetDefinitions.MainStreet, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(192, 192), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.MainStreet, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.MainStreet, null, RoomSetupCallback.BossRoomReturnB);
 
 
     /// <summary>The Fish Tank room's state.</summary>
@@ -49,7 +49,7 @@ public static class MaridiaRoomStateDefinitions
 
     /// <summary>The Crab Tunnel room's state.</summary>
     public static RoomStateSettings CrabTunnel { get; } =
-        new(nameof(CrabTunnel), RoomLevelDefinitions.CrabTunnel, 11, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(6)), SuperMetroid.Core.Fx.RoomFxDefinitions.CrabTunnel, RoomEnemyPopulationDefinitions.CrabTunnel, Enemies.RoomEnemyGraphicsSetDefinitions.CrabTunnel, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.CrabTunnel, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.CrabTunnel, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.MaridiaBBrownWall, RoomSetupCallback.BossRoomReturnB);
+        new(nameof(CrabTunnel), RoomLevelDefinitions.CrabTunnel, 11, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(MusicTrack.SecondSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.CrabTunnel, RoomEnemyPopulationDefinitions.CrabTunnel, Enemies.RoomEnemyGraphicsSetDefinitions.CrabTunnel, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.CrabTunnel, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.CrabTunnel, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.MaridiaBBrownWall, RoomSetupCallback.BossRoomReturnB);
 
 
     /// <summary>The Mt Everest room's state.</summary>
@@ -59,7 +59,7 @@ public static class MaridiaRoomStateDefinitions
 
     /// <summary>The Red Fish room's state.</summary>
     public static RoomStateSettings RedFish { get; } =
-        new(nameof(RedFish), RoomLevelDefinitions.RedFish, 11, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(6)), SuperMetroid.Core.Fx.RoomFxDefinitions.RedFish, RoomEnemyPopulationDefinitions.RedFish, Enemies.RoomEnemyGraphicsSetDefinitions.RedFish, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(0, 192), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.RedFish, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.RedFish, null, RoomSetupCallback.BossRoomReturnB);
+        new(nameof(RedFish), RoomLevelDefinitions.RedFish, 11, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(MusicTrack.SecondSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.RedFish, RoomEnemyPopulationDefinitions.RedFish, Enemies.RoomEnemyGraphicsSetDefinitions.RedFish, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(0, 192), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.RedFish, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.RedFish, null, RoomSetupCallback.BossRoomReturnB);
 
 
     /// <summary>The Watering Hole room's state.</summary>
@@ -74,7 +74,7 @@ public static class MaridiaRoomStateDefinitions
 
     /// <summary>The Crab Shaft room's state.</summary>
     public static RoomStateSettings CrabShaft { get; } =
-        new(nameof(CrabShaft), RoomLevelDefinitions.CrabShaft, 11, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(6)), SuperMetroid.Core.Fx.RoomFxDefinitions.CrabShaft, RoomEnemyPopulationDefinitions.CrabShaft, Enemies.RoomEnemyGraphicsSetDefinitions.CrabShaft, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(0, 192), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.CrabShaft, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.CrabShaft, null, RoomSetupCallback.BossRoomReturnB);
+        new(nameof(CrabShaft), RoomLevelDefinitions.CrabShaft, 11, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(MusicTrack.SecondSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.CrabShaft, RoomEnemyPopulationDefinitions.CrabShaft, Enemies.RoomEnemyGraphicsSetDefinitions.CrabShaft, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(0, 192), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.CrabShaft, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.CrabShaft, null, RoomSetupCallback.BossRoomReturnB);
 
 
     /// <summary>The Pseudo Plasma Spark room's state.</summary>
@@ -84,7 +84,7 @@ public static class MaridiaRoomStateDefinitions
 
     /// <summary>The Crab Hole room's state.</summary>
     public static RoomStateSettings CrabHole { get; } =
-        new(nameof(CrabHole), RoomLevelDefinitions.CrabHole, 11, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.CrabHole, RoomEnemyPopulationDefinitions.CrabHole, Enemies.RoomEnemyGraphicsSetDefinitions.CrabHole, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(0, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.CrabHole, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.CrabHole, null, RoomSetupCallback.BossRoomReturnB);
+        new(nameof(CrabHole), RoomLevelDefinitions.CrabHole, 11, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(MusicTrack.FirstSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.CrabHole, RoomEnemyPopulationDefinitions.CrabHole, Enemies.RoomEnemyGraphicsSetDefinitions.CrabHole, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(0, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.CrabHole, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.CrabHole, null, RoomSetupCallback.BossRoomReturnB);
 
 
     /// <summary>The West Sand Hall Tunnel room's state.</summary>
@@ -109,17 +109,17 @@ public static class MaridiaRoomStateDefinitions
 
     /// <summary>The Maridia Elev room's state.</summary>
     public static RoomStateSettings MaridiaElev { get; } =
-        new(nameof(MaridiaElev), RoomLevelDefinitions.MaridiaElev, 11, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.MaridiaElev, RoomEnemyPopulationDefinitions.MaridiaElev, Enemies.RoomEnemyGraphicsSetDefinitions.MaridiaElev, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(0, 192), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.MaridiaElev, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.MaridiaElev, null, RoomSetupCallback.BossRoomReturnB);
+        new(nameof(MaridiaElev), RoomLevelDefinitions.MaridiaElev, 11, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(MusicTrack.FirstSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.MaridiaElev, RoomEnemyPopulationDefinitions.MaridiaElev, Enemies.RoomEnemyGraphicsSetDefinitions.MaridiaElev, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(0, 192), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.MaridiaElev, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.MaridiaElev, null, RoomSetupCallback.BossRoomReturnB);
 
 
     /// <summary>The Plasma Spark room's state.</summary>
     public static RoomStateSettings PlasmaSpark { get; } =
-        new(nameof(PlasmaSpark), RoomLevelDefinitions.PlasmaSpark, 11, new RoomMusic(null, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.PlasmaSpark, RoomEnemyPopulationDefinitions.PlasmaSpark, Enemies.RoomEnemyGraphicsSetDefinitions.PlasmaSpark, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(224, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.PlasmaSpark, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.PlasmaSpark, null, RoomSetupCallback.BossRoomReturnB);
+        new(nameof(PlasmaSpark), RoomLevelDefinitions.PlasmaSpark, 11, new RoomMusic(null, RoomMusicTrack.Plays(MusicTrack.FirstSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.PlasmaSpark, RoomEnemyPopulationDefinitions.PlasmaSpark, Enemies.RoomEnemyGraphicsSetDefinitions.PlasmaSpark, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(224, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.PlasmaSpark, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.PlasmaSpark, null, RoomSetupCallback.BossRoomReturnB);
 
 
     /// <summary>The Kassiuz room's state.</summary>
     public static RoomStateSettings Kassiuz { get; } =
-        new(nameof(Kassiuz), RoomLevelDefinitions.Kassiuz, 11, new RoomMusic(null, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.Kassiuz, RoomEnemyPopulationDefinitions.Kassiuz, Enemies.RoomEnemyGraphicsSetDefinitions.Kassiuz, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(0, 192), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Kassiuz, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Kassiuz, null, RoomSetupCallback.BossRoomReturnB);
+        new(nameof(Kassiuz), RoomLevelDefinitions.Kassiuz, 11, new RoomMusic(null, RoomMusicTrack.Plays(MusicTrack.FirstSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.Kassiuz, RoomEnemyPopulationDefinitions.Kassiuz, Enemies.RoomEnemyGraphicsSetDefinitions.Kassiuz, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(0, 192), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Kassiuz, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Kassiuz, null, RoomSetupCallback.BossRoomReturnB);
 
 
     /// <summary>The Maridia Map room's state.</summary>
@@ -129,7 +129,7 @@ public static class MaridiaRoomStateDefinitions
 
     /// <summary>The Forgotten Highway Save room's state.</summary>
     public static RoomStateSettings ForgottenHighwaySave { get; } =
-        new(nameof(ForgottenHighwaySave), RoomLevelDefinitions.WarehouseSave, 25, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.ForgottenHighwaySave, RoomEnemyPopulationDefinitions.ForgottenHighwaySave, Enemies.RoomEnemyGraphicsSetDefinitions.ForgottenHighwaySave, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(0, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.ForgottenHighwaySave, null, RoomSetupCallback.None);
+        new(nameof(ForgottenHighwaySave), RoomLevelDefinitions.WarehouseSave, 25, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(MusicTrack.FirstSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.ForgottenHighwaySave, RoomEnemyPopulationDefinitions.ForgottenHighwaySave, Enemies.RoomEnemyGraphicsSetDefinitions.ForgottenHighwaySave, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(0, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.ForgottenHighwaySave, null, RoomSetupCallback.None);
 
 
     /// <summary>The Toilet room's state.</summary>
@@ -179,7 +179,7 @@ public static class MaridiaRoomStateDefinitions
 
     /// <summary>The Aqueduct room's state.</summary>
     public static RoomStateSettings Aqueduct { get; } =
-        new(nameof(Aqueduct), RoomLevelDefinitions.Aqueduct, 12, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.Aqueduct, RoomEnemyPopulationDefinitions.Aqueduct, Enemies.RoomEnemyGraphicsSetDefinitions.Aqueduct, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(192, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Aqueduct, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Aqueduct, null, RoomSetupCallback.BossRoomReturnC);
+        new(nameof(Aqueduct), RoomLevelDefinitions.Aqueduct, 12, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(MusicTrack.FirstSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.Aqueduct, RoomEnemyPopulationDefinitions.Aqueduct, Enemies.RoomEnemyGraphicsSetDefinitions.Aqueduct, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(192, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Aqueduct, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Aqueduct, null, RoomSetupCallback.BossRoomReturnC);
 
 
     /// <summary>The Butterfly room's state.</summary>
@@ -189,7 +189,7 @@ public static class MaridiaRoomStateDefinitions
 
     /// <summary>The Botwoon Hallway room's state.</summary>
     public static RoomStateSettings BotwoonHallway { get; } =
-        new(nameof(BotwoonHallway), RoomLevelDefinitions.BotwoonHallway, 12, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.BotwoonHallway, RoomEnemyPopulationDefinitions.BotwoonHallway, Enemies.RoomEnemyGraphicsSetDefinitions.BotwoonHallway, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(192, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.BotwoonHallway, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.BotwoonHallway, null, RoomSetupCallback.BossRoomReturnC);
+        new(nameof(BotwoonHallway), RoomLevelDefinitions.BotwoonHallway, 12, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(MusicTrack.FirstSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.BotwoonHallway, RoomEnemyPopulationDefinitions.BotwoonHallway, Enemies.RoomEnemyGraphicsSetDefinitions.BotwoonHallway, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(192, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.BotwoonHallway, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.BotwoonHallway, null, RoomSetupCallback.BossRoomReturnC);
 
 
     /// <summary>The Pants room's state.</summary>
@@ -219,7 +219,7 @@ public static class MaridiaRoomStateDefinitions
 
     /// <summary>The Aqueduct Save room's state.</summary>
     public static RoomStateSettings AqueductSave { get; } =
-        new(nameof(AqueductSave), RoomLevelDefinitions.CrateriaSave, 25, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.AqueductSave, RoomEnemyPopulationDefinitions.AqueductSave, Enemies.RoomEnemyGraphicsSetDefinitions.AqueductSave, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(0, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.AqueductSave, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.AqueductSave, null, RoomSetupCallback.BossRoomReturnC);
+        new(nameof(AqueductSave), RoomLevelDefinitions.CrateriaSave, 25, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(MusicTrack.FirstSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.AqueductSave, RoomEnemyPopulationDefinitions.AqueductSave, Enemies.RoomEnemyGraphicsSetDefinitions.AqueductSave, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(0, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.AqueductSave, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.AqueductSave, null, RoomSetupCallback.BossRoomReturnC);
 
 
     /// <summary>The The Precious room's state 0.</summary>
@@ -229,17 +229,17 @@ public static class MaridiaRoomStateDefinitions
 
     /// <summary>The The Precious room's state 1.</summary>
     public static RoomStateSettings ThePreciousWhenAreaBossDead { get; } =
-        new(nameof(ThePreciousWhenAreaBossDead), RoomLevelDefinitions.ThePrecious, 12, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.ThePrecious, RoomEnemyPopulationDefinitions.ThePrecious, Enemies.RoomEnemyGraphicsSetDefinitions.ThePrecious, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(0, 192), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.ThePrecious, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.ThePrecious, null, RoomSetupCallback.BossRoomReturnC);
+        new(nameof(ThePreciousWhenAreaBossDead), RoomLevelDefinitions.ThePrecious, 12, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(MusicTrack.FirstSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.ThePrecious, RoomEnemyPopulationDefinitions.ThePrecious, Enemies.RoomEnemyGraphicsSetDefinitions.ThePrecious, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(0, 192), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.ThePrecious, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.ThePrecious, null, RoomSetupCallback.BossRoomReturnC);
 
 
     /// <summary>The Botwoon E Tank room's state.</summary>
     public static RoomStateSettings BotwoonETank { get; } =
-        new(nameof(BotwoonETank), RoomLevelDefinitions.BotwoonETank, 12, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.BotwoonETank, RoomEnemyPopulationDefinitions.BotwoonETank, Enemies.RoomEnemyGraphicsSetDefinitions.BotwoonETank, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(192, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.BotwoonETank, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.BotwoonETank, null, RoomSetupCallback.BossRoomReturnC);
+        new(nameof(BotwoonETank), RoomLevelDefinitions.BotwoonETank, 12, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(MusicTrack.FirstSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.BotwoonETank, RoomEnemyPopulationDefinitions.BotwoonETank, Enemies.RoomEnemyGraphicsSetDefinitions.BotwoonETank, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(192, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.BotwoonETank, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.BotwoonETank, null, RoomSetupCallback.BossRoomReturnC);
 
 
     /// <summary>The Draygon Save room's state.</summary>
     public static RoomStateSettings DraygonSave { get; } =
-        new(nameof(DraygonSave), RoomLevelDefinitions.FrogSave, 25, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.DraygonSave, RoomEnemyPopulationDefinitions.DraygonSave, Enemies.RoomEnemyGraphicsSetDefinitions.DraygonSave, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(0, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.DraygonSave, null, RoomSetupCallback.BossRoomReturnC);
+        new(nameof(DraygonSave), RoomLevelDefinitions.FrogSave, 25, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(MusicTrack.FirstSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.DraygonSave, RoomEnemyPopulationDefinitions.DraygonSave, Enemies.RoomEnemyGraphicsSetDefinitions.DraygonSave, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(0, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.DraygonSave, null, RoomSetupCallback.BossRoomReturnC);
 
 
     /// <summary>The Maridia Missile Refill room's state.</summary>
@@ -274,17 +274,17 @@ public static class MaridiaRoomStateDefinitions
 
     /// <summary>The Botwoon room's state 0.</summary>
     public static RoomStateSettings BotwoonDefault { get; } =
-        new(nameof(BotwoonDefault), RoomLevelDefinitions.Botwoon, 12, new RoomMusic(MusicDataSet.MiniBossFight, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.Botwoon, RoomEnemyPopulationDefinitions.Botwoon, Enemies.RoomEnemyGraphicsSetDefinitions.Botwoon, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(0, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Botwoon, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Botwoon, null, RoomSetupCallback.ReturnBeforeDraygonSetup);
+        new(nameof(BotwoonDefault), RoomLevelDefinitions.Botwoon, 12, new RoomMusic(MusicDataSet.MiniBossFight, RoomMusicTrack.Plays(MusicTrack.FirstSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.Botwoon, RoomEnemyPopulationDefinitions.Botwoon, Enemies.RoomEnemyGraphicsSetDefinitions.Botwoon, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(0, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Botwoon, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Botwoon, null, RoomSetupCallback.ReturnBeforeDraygonSetup);
 
 
     /// <summary>The Botwoon room's state 1.</summary>
     public static RoomStateSettings BotwoonWhenAreaMiniBossDead { get; } =
-        new(nameof(BotwoonWhenAreaMiniBossDead), RoomLevelDefinitions.Botwoon, 12, new RoomMusic(null, RoomMusicTrack.Plays(3)), SuperMetroid.Core.Fx.RoomFxDefinitions.Botwoon, RoomEnemyPopulationDefinitions.Botwoon, Enemies.RoomEnemyGraphicsSetDefinitions.Botwoon, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(0, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Botwoon, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Botwoon, null, RoomSetupCallback.ReturnBeforeDraygonSetup);
+        new(nameof(BotwoonWhenAreaMiniBossDead), RoomLevelDefinitions.Botwoon, 12, new RoomMusic(null, RoomMusicTrack.Plays(MusicTrack.Elevator)), SuperMetroid.Core.Fx.RoomFxDefinitions.Botwoon, RoomEnemyPopulationDefinitions.Botwoon, Enemies.RoomEnemyGraphicsSetDefinitions.Botwoon, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(0, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Botwoon, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Botwoon, null, RoomSetupCallback.ReturnBeforeDraygonSetup);
 
 
     /// <summary>The Space Jump room's state.</summary>
     public static RoomStateSettings SpaceJump { get; } =
-        new(nameof(SpaceJump), RoomLevelDefinitions.SpaceJump, 12, new RoomMusic(null, RoomMusicTrack.Plays(3)), SuperMetroid.Core.Fx.RoomFxDefinitions.SpaceJump, RoomEnemyPopulationDefinitions.SpaceJump, Enemies.RoomEnemyGraphicsSetDefinitions.SpaceJump, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(0, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.SpaceJump, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.SpaceJump, null, RoomSetupCallback.ReturnBeforeDraygonSetup);
+        new(nameof(SpaceJump), RoomLevelDefinitions.SpaceJump, 12, new RoomMusic(null, RoomMusicTrack.Plays(MusicTrack.Elevator)), SuperMetroid.Core.Fx.RoomFxDefinitions.SpaceJump, RoomEnemyPopulationDefinitions.SpaceJump, Enemies.RoomEnemyGraphicsSetDefinitions.SpaceJump, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(0, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.SpaceJump, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.SpaceJump, null, RoomSetupCallback.ReturnBeforeDraygonSetup);
 
 
     /// <summary>The Maridia Energy Refill room's state.</summary>
@@ -304,10 +304,10 @@ public static class MaridiaRoomStateDefinitions
 
     /// <summary>The Draygon room's state 0.</summary>
     public static RoomStateSettings DraygonDefault { get; } =
-        new(nameof(DraygonDefault), RoomLevelDefinitions.Draygon, 28, new RoomMusic(MusicDataSet.BossFight1, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.Draygon, RoomEnemyPopulationDefinitions.DraygonDefault, Enemies.RoomEnemyGraphicsSetDefinitions.DraygonDefault, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(1, 1), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Draygon, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Draygon, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.DraygonDefault, RoomSetupCallback.SetPausingCodeForDraygon);
+        new(nameof(DraygonDefault), RoomLevelDefinitions.Draygon, 28, new RoomMusic(MusicDataSet.BossFight1, RoomMusicTrack.Plays(MusicTrack.FirstSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.Draygon, RoomEnemyPopulationDefinitions.DraygonDefault, Enemies.RoomEnemyGraphicsSetDefinitions.DraygonDefault, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(1, 1), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Draygon, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Draygon, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.DraygonDefault, RoomSetupCallback.SetPausingCodeForDraygon);
 
 
     /// <summary>The Draygon room's state 1.</summary>
     public static RoomStateSettings DraygonWhenAreaBossDead { get; } =
-        new(nameof(DraygonWhenAreaBossDead), RoomLevelDefinitions.Draygon, 28, new RoomMusic(null, RoomMusicTrack.Plays(3)), SuperMetroid.Core.Fx.RoomFxDefinitions.Draygon, RoomEnemyPopulationDefinitions.DraygonWhenAreaBossDeadOrMotherBrainWhenMainAreaBossDead, Enemies.RoomEnemyGraphicsSetDefinitions.Draygon1MotherBrain2, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(1, 1), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Draygon, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Draygon, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.DraygonOrPhantoonWhenAreaBossDead, RoomSetupCallback.SetPausingCodeForDraygon);
+        new(nameof(DraygonWhenAreaBossDead), RoomLevelDefinitions.Draygon, 28, new RoomMusic(null, RoomMusicTrack.Plays(MusicTrack.Elevator)), SuperMetroid.Core.Fx.RoomFxDefinitions.Draygon, RoomEnemyPopulationDefinitions.DraygonWhenAreaBossDeadOrMotherBrainWhenMainAreaBossDead, Enemies.RoomEnemyGraphicsSetDefinitions.Draygon1MotherBrain2, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(1, 1), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Draygon, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Draygon, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.DraygonOrPhantoonWhenAreaBossDead, RoomSetupCallback.SetPausingCodeForDraygon);
 }

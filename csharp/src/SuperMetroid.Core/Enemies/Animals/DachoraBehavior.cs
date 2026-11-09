@@ -66,22 +66,22 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Scripted room X where Dachora begins its stored-shine demonstration.</summary>
     private const int DachoraShinesparkX = 1152;
 
-    /// <summary>Library-two sound queued when Samus wakes the tutorial Dachora.</summary>
+    /// <summary>Enemy-library sound queued when Samus wakes the tutorial Dachora.</summary>
     private static readonly SoundEffectId DachoraActivationSound =
         EnemySoundEffectDefinitions.DachoraActivationSound;
-    /// <summary>Library-two sound queued at the scripted wall turn.</summary>
+    /// <summary>Enemy-library sound queued at the scripted wall turn.</summary>
     private static readonly SoundEffectId DachoraWallImpactSound =
         EnemySoundEffectDefinitions.DachoraWallImpactSound;
-    /// <summary>Library-two sound queued while Dachora stores its shinespark.</summary>
+    /// <summary>Enemy-library sound queued while Dachora stores its shinespark.</summary>
     private static readonly SoundEffectId DachoraChargeSound =
         EnemySoundEffectDefinitions.DachoraChargeSound;
-    /// <summary>Library-two sound accompanying Dachora's Speed Booster run.</summary>
+    /// <summary>Enemy-library sound accompanying Dachora's Speed Booster run.</summary>
     private static readonly SoundEffectId DachoraSpeedBoosterSound =
         EnemySoundEffectDefinitions.DachoraSpeedBoosterSound;
-    /// <summary>Library-two sound queued when Dachora launches upward.</summary>
+    /// <summary>Enemy-library sound queued when Dachora launches upward.</summary>
     private static readonly SoundEffectId DachoraLaunchSound =
         EnemySoundEffectDefinitions.DachoraLaunchSound;
-    /// <summary>Library-two sound queued on Dachora's ceiling contact.</summary>
+    /// <summary>Enemy-library sound queued on Dachora's ceiling contact.</summary>
     private static readonly SoundEffectId DachoraCeilingImpactSound =
         EnemySoundEffectDefinitions.DachoraCeilingImpactSound;
 

@@ -27,9 +27,9 @@ internal static class CeresDestructionSceneDefinitions
     internal static class Music
     {
         /// <summary>The station's destruction track when Samus has escaped.</summary>
-        internal const int CeresTrack = 7;
+        internal const MusicTrack CeresTrack = MusicTrack.ThirdSetSong;
         /// <summary>The station's destruction track when Samus is still aboard.</summary>
-        internal const int CeresWithSamusTrack = 8;
+        internal const MusicTrack CeresWithSamusTrack = MusicTrack.FourthSetSong;
         /// <summary>The queue delay the destruction track is requested with.</summary>
         internal const int QueueDelay = 14;
     }

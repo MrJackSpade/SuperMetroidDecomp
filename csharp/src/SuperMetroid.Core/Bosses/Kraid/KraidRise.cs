@@ -337,7 +337,7 @@ internal sealed class KraidRise
                 state.BodyState.Function = KraidAiFunction.RaiseRocksEvery16Frames;
                 state.BodyState.RisingRockTimer = 120;
                 _earthquake.EarthquakeTimer = WrappingCountdown.Start(496);
-                _access.RequestKraidMusic(MusicRequest.SelectTrack(5));
+                _access.RequestKraidMusic(MusicRequest.SelectTrack(MusicTrack.FirstSetSong));
                 return;
 
             case KraidAiFunction.RaiseRocksEvery16Frames:

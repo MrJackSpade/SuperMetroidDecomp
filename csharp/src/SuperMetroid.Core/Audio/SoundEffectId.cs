@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>
-/// One sound effect the game plays: a member of <see cref="Library1Sound"/>, <see cref="Library2Sound"/> or
-/// <see cref="Library3Sound"/>, together with the library whose voice queue plays it.
+/// One sound effect the game plays: a member of <see cref="SamusSound"/>, <see cref="EnemySound"/> or
+/// <see cref="RoomSound"/>, together with the library whose voice queue plays it.
 /// </summary>
 /// <remarks>
 /// The library is part of the identity because it decides which queue a request waits in and which sounds interrupt one
@@ -11,43 +11,43 @@ namespace SuperMetroid.Core.Audio;
 /// </remarks>
 public readonly record struct SoundEffectId
 {
-    /// <summary>The library-one sound when <see cref="Library"/> is library one.</summary>
-    private readonly Library1Sound library1;
-    /// <summary>The library-two sound when <see cref="Library"/> is library two.</summary>
-    private readonly Library2Sound library2;
-    /// <summary>The library-three sound when <see cref="Library"/> is library three.</summary>
-    private readonly Library3Sound library3;
+    /// <summary>Samus's sound when <see cref="Library"/> is Samus's library.</summary>
+    private readonly SamusSound samus;
+    /// <summary>The enemies' sound when <see cref="Library"/> is the enemies' library.</summary>
+    private readonly EnemySound enemies;
+    /// <summary>The room's sound when <see cref="Library"/> is the room's library.</summary>
+    private readonly RoomSound room;
 
     /// <summary>Records one library's sound; the other libraries' fields keep their defaults.</summary>
-    private SoundEffectId(SoundEffectLibrary library, Library1Sound library1, Library2Sound library2, Library3Sound library3)
+    private SoundEffectId(SoundEffectLibrary library, SamusSound samus, EnemySound enemies, RoomSound room)
     {
         Library = library;
-        this.library1 = library1;
-        this.library2 = library2;
-        this.library3 = library3;
+        this.samus = samus;
+        this.enemies = enemies;
+        this.room = room;
     }
 
     /// <summary>The library whose voice queue plays the sound.</summary>
     public SoundEffectLibrary Library { get; }
 
-    /// <summary>A library-one sound.</summary>
-    public static implicit operator SoundEffectId(Library1Sound sound) =>
-        new(SoundEffectLibrary.Library1, sound, default, default);
+    /// <summary>A sound of Samus's library.</summary>
+    public static implicit operator SoundEffectId(SamusSound sound) =>
+        new(SoundEffectLibrary.Samus, sound, default, default);
 
-    /// <summary>A library-two sound.</summary>
-    public static implicit operator SoundEffectId(Library2Sound sound) =>
-        new(SoundEffectLibrary.Library2, default, sound, default);
+    /// <summary>A sound of the enemies' library.</summary>
+    public static implicit operator SoundEffectId(EnemySound sound) =>
+        new(SoundEffectLibrary.Enemies, default, sound, default);
 
-    /// <summary>A library-three sound.</summary>
-    public static implicit operator SoundEffectId(Library3Sound sound) =>
-        new(SoundEffectLibrary.Library3, default, default, sound);
+    /// <summary>A sound of the room's library.</summary>
+    public static implicit operator SoundEffectId(RoomSound sound) =>
+        new(SoundEffectLibrary.Room, default, default, sound);
 
     /// <inheritdoc />
     public override string ToString() => Library switch
     {
-        SoundEffectLibrary.Library1 => $"{nameof(Library1Sound)}.{library1}",
-        SoundEffectLibrary.Library2 => $"{nameof(Library2Sound)}.{library2}",
-        SoundEffectLibrary.Library3 => $"{nameof(Library3Sound)}.{library3}",
+        SoundEffectLibrary.Samus => $"{nameof(SamusSound)}.{samus}",
+        SoundEffectLibrary.Enemies => $"{nameof(EnemySound)}.{enemies}",
+        SoundEffectLibrary.Room => $"{nameof(RoomSound)}.{room}",
         _ => throw new InvalidOperationException("The default sound identity names no sound."),
     };
 }

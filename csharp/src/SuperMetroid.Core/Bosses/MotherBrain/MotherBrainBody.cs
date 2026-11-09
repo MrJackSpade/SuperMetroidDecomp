@@ -136,7 +136,7 @@ internal sealed class MotherBrainBody
                 // enemy slots can keep drawing replaced tile art.
                 _roomActors.TerminateRinkas();
                 state.Form = MotherBrainForm.FakeDeath;
-                _motherBrainEncounter.RequestMusic(MusicRequest.SelectTrack(6), MusicQueueDelay.Shortest);
+                _motherBrainEncounter.RequestMusic(MusicRequest.SelectTrack(MusicTrack.SecondSetSong), MusicQueueDelay.Shortest);
 
                 // Sealing the wall creates both dust puffs before its
                 // two identical hardcoded PLMs. Requests remain ordered because the PLM
@@ -429,7 +429,7 @@ internal sealed class MotherBrainBody
         // Form three additionally makes the footstep sound. Phase two normally never
         // reaches that branch, but retaining it here makes the shared gait opcode complete.
         if (_motherBrainEncounter.MotherBrain?.Form == MotherBrainForm.DrainedByBabyMetroid)
-            _motherBrainEncounter.RequestCueSound(Library3Sound.MotherBrainFootstep);
+            _motherBrainEncounter.RequestCueSound(RoomSound.MotherBrainFootstep);
     }
 
     /// <summary>Places her body layer for the current motion; the displayed frame publishes it with her body (#1356).</summary>

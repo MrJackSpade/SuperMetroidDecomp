@@ -166,7 +166,7 @@ internal sealed class NorfairRidleyDeath
             yBase: 320,
             yScatter: EnemyDropScatterDefinitions.ArenaBandVerticalScatter);
         RidleyDeathDropRequested = true;
-        _audio.RequestRidleyMusic(MusicRequest.SelectTrack(3));
+        _audio.RequestRidleyMusic(MusicRequest.SelectTrack(MusicTrack.Elevator));
         body.Presence = body.Presence.With(EnemyPresence.Deleted);
         state.Function = RidleyAiFunction.NorfairDeathComplete;
     }

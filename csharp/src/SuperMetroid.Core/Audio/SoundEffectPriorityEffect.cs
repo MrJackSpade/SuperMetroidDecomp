@@ -9,6 +9,6 @@ public enum SoundEffectPriorityEffect
     /// <summary>The library becomes high priority: ordinary requests are rejected until the sound ends.</summary>
     High,
 
-    /// <summary>The library keeps its current priority (library 3's low-health beep).</summary>
+    /// <summary>The library keeps its current priority (the room library's low-health beep).</summary>
     Unchanged,
 }

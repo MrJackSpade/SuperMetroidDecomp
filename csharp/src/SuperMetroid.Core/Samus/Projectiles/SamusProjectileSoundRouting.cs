@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>Which sound each projectile event plays.</summary>
 public static class SamusProjectileSoundRouting
 {
-    /// <summary>The library-one sound a shot of <paramref name="combination"/> fires with, or none.</summary>
+    /// <summary>The Samus-library sound a shot of <paramref name="combination"/> fires with, or none.</summary>
     public static SoundEffectId? Resolve(bool charged, SamusBeamCombination combination) => combination switch
     {
         SamusBeamCombination.Power or SamusBeamCombination.Wave or SamusBeamCombination.Ice or

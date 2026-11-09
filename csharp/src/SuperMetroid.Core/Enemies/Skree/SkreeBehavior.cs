@@ -74,10 +74,10 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.RequestedInstructionIndex = SkreeMetareeAnimationPhase.Diving;
                 InstallRequestedSkreeInstruction(slot, state);
                 state.Function = SkreeEnemyFunction.Diving;
-                // The dive queues library-two sound 91 on the exact frame the wind-up
+                // The dive queues its dive sound on the exact frame the wind-up
                 // instruction releases the dive. Publishing it as a frame event retains
                 // the game's timing without coupling enemy AI to a particular audio backend.
-                _audio.QueueEnemySound(Library2Sound.SkreeDive, priority: SoundRequestPriority.Normal);
+                _audio.QueueEnemySound(EnemySound.SkreeDive, priority: SoundRequestPriority.Normal);
                 return;
 
             case SkreeEnemyFunction.Diving:
@@ -112,7 +112,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
             slot.Timer = WrappingCountdown.Start(0);
             state.Function = SkreeEnemyFunction.Burrowing;
             // The floor collision has its own distinct impact/burrow request.
-            _audio.QueueEnemySound(Library2Sound.SkreeBurrow, priority: SoundRequestPriority.Normal);
+            _audio.QueueEnemySound(EnemySound.SkreeBurrow, priority: SoundRequestPriority.Normal);
             return;
         }
 

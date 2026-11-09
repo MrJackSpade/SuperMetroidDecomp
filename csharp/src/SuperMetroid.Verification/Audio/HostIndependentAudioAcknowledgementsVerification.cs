@@ -61,7 +61,7 @@ internal static class HostIndependentAudioAcknowledgementsVerification
         // The first frame carries the reset upload, as a booted session's does.
         StepAll();
         foreach (SuperMetroidGame game in sessions)
-            game.AudioForVerification.QueueSound(Library2Sound.DudShotOnDoor, SoundRequestPriority.Normal);
+            game.AudioForVerification.QueueSound(EnemySound.DudShotOnDoor, SoundRequestPriority.Normal);
         StepAll();
         foreach (SuperMetroidGame game in sessions)
             AssertEqual(SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.Phase.AwaitingAcceptance,

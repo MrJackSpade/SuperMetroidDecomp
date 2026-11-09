@@ -23,7 +23,7 @@ public sealed class SamusShinesparkState
     private SamusPowerBombExplosionState? _audioPowerBomb;
     /// <summary>The session's held beam charge and flare, canceled when spark windup begins.</summary>
     private BeamChargeState? _charge;
-    /// <summary>One-frame library-one sound request from canceling a sufficiently charged flare.</summary>
+    /// <summary>One-frame Samus-library sound request from canceling a sufficiently charged flare.</summary>
     private bool _chargeCancellationSoundRequested;
 
     /// <summary>
@@ -133,8 +133,8 @@ public sealed class SamusShinesparkState
     }
 
     /// <summary>
-    /// Consumes crash setup, which requests two sounds at normal priority: one in library one and one in
-    /// library three.
+    /// Consumes crash setup, which requests two sounds at normal priority: one in the Samus library and one in
+    /// the room library.
     /// </summary>
     public bool ConsumeCrashSoundRequest()
     {

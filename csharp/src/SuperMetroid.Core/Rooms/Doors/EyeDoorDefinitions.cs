@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Rooms.Doors;
 internal static class EyeDoorDefinitions
 {
     /// <summary>The sound the eye's shot makes.</summary>
-    public static readonly SoundEffectId ProjectileSound = Library2Sound.AcidSpit;
+    public static readonly SoundEffectId ProjectileSound = EnemySound.AcidSpit;
 
     /// <summary>The sound of a shot the eye shrugs off.</summary>
-    public static readonly SoundEffectId RejectedShotSound = Library2Sound.DudShotOnDoor;
+    public static readonly SoundEffectId RejectedShotSound = EnemySound.DudShotOnDoor;
 
     /// <summary>The collision of the live eye: a shootable block.</summary>
     public const RoomCollisionType EyeCollision = RoomCollisionType.ShootableBlock;

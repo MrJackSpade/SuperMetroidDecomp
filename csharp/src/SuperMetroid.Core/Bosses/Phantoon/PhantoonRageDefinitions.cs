@@ -13,8 +13,8 @@ internal static class PhantoonRageDefinitions
     internal const int WaveCount = 8;
     /// <summary>AI calls separating successive waves.</summary>
     internal const int WaveInterval = 128;
-    /// <summary>Library-three sound emitted once after each complete wave.</summary>
-    internal static SoundEffectId WaveSound => Library3Sound.PhantoonSuperMissiled;
+    /// <summary>Room-library sound emitted once after each complete wave.</summary>
+    internal static SoundEffectId WaveSound => RoomSound.PhantoonSuperMissiled;
     /// <summary>The wave sound's request priority.</summary>
     internal static readonly SoundRequestPriority WaveSoundPriority = SoundRequestPriority.Normal;
 }

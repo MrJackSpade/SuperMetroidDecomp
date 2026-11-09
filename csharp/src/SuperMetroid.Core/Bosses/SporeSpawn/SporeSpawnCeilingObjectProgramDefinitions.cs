@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// </summary>
 internal static class SporeSpawnCeilingObjectProgramDefinitions
 {
-    /// <summary>The crumble sound, library 2.</summary>
-    internal static readonly SoundEffectId CrumbleSoundId = Library2Sound.BlockCrumble;
+    /// <summary>The crumble sound.</summary>
+    internal static readonly SoundEffectId CrumbleSoundId = EnemySound.BlockCrumble;
     /// <summary>The crumble sound's request priority.</summary>
     internal static readonly SoundRequestPriority CrumbleSoundPriority = SoundRequestPriority.Normal;
     /// <summary>How long each image shows.</summary>

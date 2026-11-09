@@ -56,7 +56,7 @@ internal static class TourianStatueProjectileNativeListAddresses
             switch (cue)
             {
                 case TourianStatueProjectileCue.Command { Kind: TourianStatueProjectileCueKind.PlayReleaseSound }:
-                    VerificationAssertions.AssertEqual<SoundEffectId>(Library2Sound.TourianStatueParticle, SoundEffectCommands.Decode(SoundEffectLibrary.Library2, operands[0]),
+                    VerificationAssertions.AssertEqual<SoundEffectId>(EnemySound.TourianStatueParticle, SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, operands[0]),
                         $"{at}: the import decodes the native sound byte to the release sound");
                     break;
                 case TourianStatueProjectileCue.MoveDown moveDown:

@@ -9,10 +9,10 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// </summary>
 internal static class BlueDoorObjectProgramDefinitions
 {
-    /// <summary>The library-3 door-opening sound.</summary>
-    internal static readonly SoundEffectId OpenSound = Library3Sound.DoorOpened;
-    /// <summary>The library-3 door-closing sound.</summary>
-    internal static readonly SoundEffectId CloseSound = Library3Sound.DoorClosed;
+    /// <summary>The room-library door-opening sound.</summary>
+    internal static readonly SoundEffectId OpenSound = RoomSound.DoorOpened;
+    /// <summary>The room-library door-closing sound.</summary>
+    internal static readonly SoundEffectId CloseSound = RoomSound.DoorClosed;
     /// <summary>The door sounds' request priority.</summary>
     internal static readonly SoundRequestPriority SoundPriority = SoundRequestPriority.Normal;
     /// <summary>How long each opening image shows before the last.</summary>

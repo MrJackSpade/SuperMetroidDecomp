@@ -21,6 +21,9 @@ public sealed record AudioClipManifest(
     IReadOnlyList<InstalledSoundEffectClip> SoundEffects,
     IReadOnlyList<UnrenderableSoundEffect> Unrenderable)
 {
-    /// <summary>The manifest schema this build reads and writes.</summary>
-    public const int CurrentFormatVersion = 1;
+    /// <summary>
+    /// The manifest schema this build reads and writes. Version 2 (#1553) names each song by its part in its data set
+    /// and each sound's library by name, where version 1 held the cartridge's track and library numbering.
+    /// </summary>
+    public const int CurrentFormatVersion = 2;
 }

@@ -769,7 +769,7 @@ internal static class RoomFxRetailInventoryVerification
             // Lava's ambient sound ($88:B421, #1269) shares the request list; this checks the
             // earthquake cadence only.
             AssertEqual(expectedRequests, runtime.RoomFxOverlay.SoundRequests.Count(request =>
-                    request.SoundEffect == Library2Sound.Lavaquake),
+                    request.SoundEffect == EnemySound.Lavaquake),
                 $"room $02/$28 earthquake sound cadence frame {frame}");
         }
 
@@ -796,7 +796,7 @@ internal static class RoomFxRetailInventoryVerification
         AssertEqual(1, runtime.RoomFxOverlay.SoundRequests.Count,
             "room $02/$28 first wait frame emits one earthquake sound");
         SoundRequest sound = runtime.RoomFxOverlay.SoundRequests[0];
-        AssertEqual(Library2Sound.Lavaquake, sound.SoundEffect,
+        AssertEqual(EnemySound.Lavaquake, sound.SoundEffect,
             "room $02/$28 earthquake sound identity");
         AssertEqual(SoundRequestPriority.Normal, sound.Priority,
             "room $02/$28 earthquake sound priority");
@@ -831,7 +831,7 @@ internal static class RoomFxRetailInventoryVerification
 
         int appliedFrames = 2;
         int EarthquakeSounds() => runtime.RoomFxOverlay.SoundRequests.Count(request =>
-            request.SoundEffect == Library2Sound.Lavaquake);
+            request.SoundEffect == EnemySound.Lavaquake);
         int emittedSounds = 1 + EarthquakeSounds();
         int firstMovementFrame = -1;
         int targetFrame = -1;

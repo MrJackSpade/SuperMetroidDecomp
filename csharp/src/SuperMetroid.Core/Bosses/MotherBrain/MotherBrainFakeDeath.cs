@@ -106,7 +106,7 @@ internal sealed class MotherBrainFakeDeath
         int sampledRandom = _room.Random.Read();
         MiscDustAnimation animation = sampledRandom < 16384 ? MiscDustAnimation.Smoke : MiscDustAnimation.SmallExplosion;
         _projectiles.SpawnRoomGraphicsDustExplosion(explosion, animation);
-        _motherBrainEncounter.RequestBodySound(Library2Sound.SmallExplosion);
+        _motherBrainEncounter.RequestBodySound(EnemySound.SmallExplosion);
     }
 
     /// <summary>Schedules glass and tube collapse phases with their authored waits.</summary>
@@ -398,7 +398,7 @@ internal sealed class MotherBrainFakeDeath
         tube.Presence = tube.Presence.With(EnemyPresence.Deleted);
         _projectiles.SpawnRoomGraphicsDustExplosion(position, MiscDustAnimation.SmallExplosion);
         if (_motherBrainEncounter.MotherBrain is not null)
-            _motherBrainEncounter.RequestBodySound(Library2Sound.SmallExplosion);
+            _motherBrainEncounter.RequestBodySound(EnemySound.SmallExplosion);
     }
 
     /// <summary>Queues the background room rows revealed by the tube collapse.</summary>

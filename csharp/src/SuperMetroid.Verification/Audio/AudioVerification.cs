@@ -38,7 +38,7 @@ internal static class AudioVerification
         // #1410: the requests are asserted by kind and identity instead of by their cartridge queue words.
         AssertEqual<MusicRequest>(new MusicRequest.ChangeDataSet(MusicDataSet.MotherBrain), MusicRequest.LoadDataSet(MusicDataSet.MotherBrain),
             "a data set change names its data set");
-        AssertEqual<MusicRequest>(new MusicRequest.PlayTrack(new MusicTrack(5)), MusicRequest.SelectTrack(5),
+        AssertEqual<MusicRequest>(new MusicRequest.PlayTrack(MusicTrack.FirstSetSong), MusicRequest.SelectTrack(MusicTrack.FirstSetSong),
             "a track request names its track");
         AssertTrue(MusicRequest.Stop is MusicRequest.StopMusic, "the stop request");
         AssertEqual(MusicRequest.Stop, MusicRequest.SelectTrackOrStop(null), "no track stops the music");
@@ -46,9 +46,10 @@ internal static class AudioVerification
             "music delay applies native minimum");
         AssertEqual(0x0168, MusicQueueDelay.AtLeastShortest(0x0168).Updates,
             "music delay preserves longer countdown");
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => MusicRequest.SelectTrack(0),
-            "zero track must use explicit stop command");
+        // #1553: a track is a name, so the stop has no track number; the import codec rejects a number no song has.
+        AssertThrows<InvalidDataException>(
+            () => MusicTrackNumbers.Decode(0),
+            "a track number no song has fails at import");
         AssertThrows<InvalidDataException>(
             () => MusicQueueDelay.FromEffectiveUpdates(7),
             "invalid effective music delay fails loudly");
@@ -77,7 +78,7 @@ internal static class AudioVerification
 
         var audio = AudioQueues.Standalone();
         audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.TitleSequence));
-        audio.QueueMusic(MusicRequest.SelectTrack(5));
+        audio.QueueMusic(MusicRequest.SelectTrack(MusicTrack.FirstSetSong));
 
         IReadOnlyList<AudioRequest> reset =
             audio.AdvanceFrame(default);
@@ -87,7 +88,7 @@ internal static class AudioVerification
             reset[0],
             "power-on loads only the shared sounds");
         AssertEqual(new AudioRequest.StopMusic(), reset[1], "reset music port");
-        AssertEqual(new AudioRequest.ClearSoundRequest(SoundEffectLibrary.Library2), reset[2], "reset withdraws library two's request");
+        AssertEqual(new AudioRequest.ClearSoundRequest(SoundEffectLibrary.Enemies), reset[2], "reset withdraws library two's request");
 
         for (int delayFrame = 0; delayFrame < 7; delayFrame++)
             AssertEqual(0, audio.AdvanceFrame(default).Count, $"music upload delay {delayFrame}");
@@ -108,7 +109,7 @@ internal static class AudioVerification
         {
             foreach (AudioRequest command in audio.AdvanceFrame(default))
             {
-                if (command == AudioRequest.ForTrack(new MusicTrack(5)))
+                if (command == AudioRequest.ForTrack(MusicTrack.FirstSetSong))
                     trackCall = call;
             }
         }
@@ -117,7 +118,7 @@ internal static class AudioVerification
         // Every permanent item uses the same $84:8BDD -> $82:E118 sequence. Seed a stale
         // request to prove queue clearing, then observe track two, the 360-frame fanfare
         // hold/silence, and restoration of the room track that was live at acquisition.
-        audio.QueueMusic(MusicRequest.SelectTrack(7));
+        audio.QueueMusic(MusicRequest.SelectTrack(MusicTrack.ThirdSetSong));
         audio.QueuePermanentItemFanfare();
         var permanentItemPortWrites = new List<int>();
         for (int frame = 0; frame < 384; frame++)
@@ -125,7 +126,7 @@ internal static class AudioVerification
             foreach (AudioRequest command in audio.AdvanceFrame(default))
             {
                 if (command is AudioRequest.PlayMusicTrack play)
-                    permanentItemPortWrites.Add(play.Track.Number);
+                    permanentItemPortWrites.Add(MusicTrackNumbers.Number(play.Track));
                 else if (command is AudioRequest.StopMusic)
                     permanentItemPortWrites.Add(0);
             }
@@ -139,26 +140,28 @@ internal static class AudioVerification
         // `$82:E071/$E0D5` return on each zero field; zero is not a stop command.
         var inheritedRoomMusic = AudioQueues.Standalone();
         inheritedRoomMusic.AdvanceFrame(default);
-        inheritedRoomMusic.QueueMusic(MusicRequest.SelectTrack(7));
+        inheritedRoomMusic.QueueMusic(MusicRequest.SelectTrack(MusicTrack.ThirdSetSong));
         // The first handler call copies the newly queued entry into the active timer;
         // the following eight calls count down the native delay and emit the port write.
         for (int frame = 0; frame < 9; frame++)
             inheritedRoomMusic.AdvanceFrame(default);
-        AssertEqual(new MusicTrack(7), inheritedRoomMusic.PlayingTrack,
+        AssertEqual(MusicTrack.ThirdSetSong, inheritedRoomMusic.PlayingTrack,
             "escape track is live before zero-music room transition");
         inheritedRoomMusic.QueueRoomMusic(RoomMusic.Inherited);
         AssertTrue(!inheritedRoomMusic.HasQueuedMusic,
             "inherited room music preserves the Ceres escape track");
-        AssertEqual(new MusicTrack(7), inheritedRoomMusic.PlayingTrack,
+        AssertEqual(MusicTrack.ThirdSetSong, inheritedRoomMusic.PlayingTrack,
             "an inherited room track does not silence escape music");
 
         // RoomState_CeresRidley_0 ($8F:E0C7) contains music ($24,$80). $82:E0D5 queues a nonzero track byte verbatim and
         // the music handler keeps its low seven bits, so $80 is an explicit stop, unlike track zero (inherit). #1410: the
-        // room-state import decodes the byte once into the room's track choice; every byte the retail data can hold is
-        // decoded and queued here, and every byte above $80, which no retail room state holds, fails at import.
+        // room-state import decodes the byte once into the room's track choice; every byte that names a choice is
+        // decoded and queued here, and every other byte (above $80, or a track number no song has, #1553), which no
+        // retail room state holds, fails at import.
+        int[] songNumbers = [.. Enum.GetValues<MusicTrack>().Select(MusicTrackNumbers.Number)];
         for (int roomTrack = 0; roomTrack <= byte.MaxValue; roomTrack++)
         {
-            if (roomTrack > 0x80)
+            if (roomTrack is not (0 or 0x80) && !songNumbers.Contains(roomTrack))
             {
                 AssertThrows<InvalidDataException>(() => RoomMusicCodec.Decode(0, (byte)roomTrack),
                     $"room track ${roomTrack:X2} is not one retail room states hold");
@@ -174,7 +177,7 @@ internal static class AudioVerification
             if (roomTrack == 0)
                 AssertEqual(0, portWrites.Count, "room byte zero inherits rather than queues stop");
             else
-                AssertSequenceEqual(new[] { AudioRequest.ForTrack((roomTrack & 0x7f) == 0 ? null : new MusicTrack(roomTrack & 0x7f)) }, portWrites,
+                AssertSequenceEqual(new[] { AudioRequest.ForTrack(roomTrack == 0x80 ? null : MusicTrackNumbers.Decode(roomTrack)) }, portWrites,
                     $"native room track ${roomTrack:X2} dispatches its low seven bits");
         }
 
@@ -183,10 +186,10 @@ internal static class AudioVerification
         // bank/track pair, so the latter track must be resent after bank six uploads.
         var postCeresLandingMusic = AudioQueues.Standalone();
         postCeresLandingMusic.AdvanceFrame(default);
-        postCeresLandingMusic.QueueMusic(MusicRequest.SelectTrack(5));
+        postCeresLandingMusic.QueueMusic(MusicRequest.SelectTrack(MusicTrack.FirstSetSong));
         for (int frame = 0; frame < 9; frame++)
             postCeresLandingMusic.AdvanceFrame(default);
-        postCeresLandingMusic.QueueRoomMusic(new RoomMusic(MusicDataSet.EmptyCrateria, RoomMusicTrack.Plays(5)));
+        postCeresLandingMusic.QueueRoomMusic(new RoomMusic(MusicDataSet.EmptyCrateria, RoomMusicTrack.Plays(MusicTrack.FirstSetSong)));
         var postCeresMusicCommands = new List<AudioRequest>();
         for (int frame = 0; frame < 40; frame++)
             postCeresMusicCommands.AddRange(postCeresLandingMusic.AdvanceFrame(default));
@@ -196,21 +199,21 @@ internal static class AudioVerification
             "Landing Site changes the post-Ceres SPC data bank");
         AssertTrue(
             postCeresMusicCommands.Any(command =>
-                command == AudioRequest.ForTrack(new MusicTrack(5))),
+                command == AudioRequest.ForTrack(MusicTrack.FirstSetSong)),
             "Landing Site restarts same-numbered track after SPC data-bank change");
 
         var sfx = AudioQueues.Standalone();
         sfx.AdvanceFrame(default); // consume reset upload/port writes
-        sfx.QueueSound(Library2Sound.DudShotOnDoor, priority: SoundRequestPriority.Normal);
+        sfx.QueueSound(EnemySound.DudShotOnDoor, priority: SoundRequestPriority.Normal);
         IReadOnlyList<AudioRequest> request = sfx.AdvanceFrame(default);
-        AssertEqual(new AudioRequest.RequestSound(Library2Sound.DudShotOnDoor), request.Single(), "SFX request write");
+        AssertEqual(new AudioRequest.RequestSound(EnemySound.DudShotOnDoor), request.Single(), "SFX request write");
         AssertEqual(
             0,
-            sfx.AdvanceFrame(new SoundAcknowledgements<SoundEffectLibrary, SoundEffectId>([SoundEffectLibrary.Library2], _ => SoundAcknowledgement<SoundEffectId>.Of(Library2Sound.DudShotOnDoor))).Count,
+            sfx.AdvanceFrame(new SoundAcknowledgements<SoundEffectLibrary, SoundEffectId>([SoundEffectLibrary.Enemies], _ => SoundAcknowledgement<SoundEffectId>.Of(EnemySound.DudShotOnDoor))).Count,
             "SFX acknowledgement enters two-frame clear delay");
         AssertEqual(0, sfx.AdvanceFrame(default).Count, "SFX clear delay frame one");
         AssertEqual(
-            new AudioRequest.ClearSoundRequest(SoundEffectLibrary.Library2),
+            new AudioRequest.ClearSoundRequest(SoundEffectLibrary.Enemies),
             sfx.AdvanceFrame(default).Single(),
             "SFX request clear");
 
@@ -221,18 +224,17 @@ internal static class AudioVerification
             cancellation.AdvanceFrame(default);
         AssertEqual(SoundEffectLibraries.Count, cancelWrites.Count,
             "sound cancellation writes every native SFX library");
-        AssertTrue(cancelWrites.Contains(new AudioRequest.RequestSound(Library1Sound.Silence)),
-            "sound cancellation queues library one's silence");
+        AssertTrue(cancelWrites.Contains(new AudioRequest.RequestSound(SamusSound.Silence)),
+            "sound cancellation queues Samus's library's silence");
 
-        // Library numbers are an exclusive cartridge domain: only queues one through
-        // three exist. A forged enum value must fail at the public queue boundary rather
-        // than indexing some unrelated host collection or silently selecting a queue.
+        // Library numbers are an exclusive cartridge domain known only to the import codec (#1553): only libraries one
+        // through three exist, and any other number fails there rather than selecting a queue.
         AssertEqual(
-            SoundEffectLibrary.Library3,
-            SoundEffectLibraries.FromCartridge(3, "audio verifier"),
+            SoundEffectLibrary.Room,
+            SoundLibraryNumbers.Decode(3),
             "cartridge SFX library decoding");
         AssertThrows<InvalidDataException>(
-            () => SoundEffectLibraries.FromCartridge(0, "audio verifier"),
+            () => SoundLibraryNumbers.Decode(0),
             "zero is not a cartridge SFX library");
         // The same request number in two libraries denotes two different sounds: a sound's
         // identity carries its library, and the import decodes each library's numbering on
@@ -240,17 +242,17 @@ internal static class AudioVerification
         // an identity; the default identity, which names no sound, cannot select a queue.
         // (This used to assert that an unknown number stayed representable; sounds no longer
         // carry numbers, so it asserts the decode boundary instead.)
-        AssertTrue(SoundEffectCommands.Decode(SoundEffectLibrary.Library1, 0x02) != SoundEffectCommands.Decode(SoundEffectLibrary.Library2, 0x02),
+        AssertTrue(SoundEffectCommands.Decode(SoundEffectLibrary.Samus, 0x02) != SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, 0x02),
             "library-relative equal numbers decode to distinct sounds");
-        AssertEqual<SoundEffectId>(Library1Sound.Silence, SoundEffectCommands.Decode(SoundEffectLibrary.Library1, 0x02),
+        AssertEqual<SoundEffectId>(SamusSound.Silence, SoundEffectCommands.Decode(SoundEffectLibrary.Samus, 0x02),
             "library one's request two is its silence");
-        AssertEqual<SoundEffectId>(Library2Sound.SmallEnergyPickup, SoundEffectCommands.Decode(SoundEffectLibrary.Library2, 0x01),
+        AssertEqual<SoundEffectId>(EnemySound.SmallEnergyPickup, SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, 0x01),
             "library two's request one is the small energy pickup");
         AssertThrows<InvalidDataException>(
-            () => SoundEffectCommands.Decode(SoundEffectLibrary.Library1, 0xfe),
+            () => SoundEffectCommands.Decode(SoundEffectLibrary.Samus, 0xfe),
             "a request number no library-one sound has fails at import");
         AssertThrows<InvalidDataException>(
-            () => SoundEffectCommands.DecodeOptional(SoundEffectLibrary.Library1, 0x0100),
+            () => SoundEffectCommands.DecodeOptional(SoundEffectLibrary.Samus, 0x0100),
             "word-sized sound values outside a request byte fail loudly");
         AssertTrue(
             MetadataShape.DeclaresMethod(typeof(AudioQueues), nameof(AudioQueues.QueueSound), [typeof(SoundEffectId), typeof(SoundRequestPriority), typeof(bool)]),
@@ -261,13 +263,13 @@ internal static class AudioVerification
         AssertThrows<ArgumentOutOfRangeException>(
             () => sfx.QueueSound(default, priority: SoundRequestPriority.WhenIdle),
             "default sound identity cannot silently select a queue");
-        AssertEqual<SoundEffectId>(Library1Sound.MenuCursor,
-            SoundEffectCommands.Decode(SoundEffectLibrary.Library1, 0x37),
+        AssertEqual<SoundEffectId>(SamusSound.MenuCursor,
+            SoundEffectCommands.Decode(SoundEffectLibrary.Samus, 0x37),
             "the import decodes library one's request $37 to the menu cursor");
-        AssertEqual<SoundEffectId>(Library2Sound.DudShotOnDoor,
-            SoundEffectCommands.Decode(SoundEffectLibrary.Library2, 0x57),
+        AssertEqual<SoundEffectId>(EnemySound.DudShotOnDoor,
+            SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, 0x57),
             "the import decodes library two's request $57 to the door's dud-shot sound");
-        AssertEqual(0x57, SoundEffectCommands.Command(Library2Sound.DudShotOnDoor),
+        AssertEqual(0x57, SoundEffectCommands.Command(EnemySound.DudShotOnDoor),
             "the door's dud-shot sound encodes back to library two's request $57");
 
         // Verify the upload reader follows contiguous ROM pointer arithmetic across a

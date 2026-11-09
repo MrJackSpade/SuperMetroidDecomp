@@ -209,7 +209,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             MiscDustAnimation.CorpseDustCloud);
         state.DustSpawnCount++;
         if ((_frameContext.RandomEnemyCounter & 7) == 0)
-            _audio.RequestSoundAtUpdateEnd(EnemySoundSource.DeadTorizo, Library2Sound.LiquidDamage, priority: SoundRequestPriority.Normal);
+            _audio.RequestSoundAtUpdateEnd(EnemySoundSource.DeadTorizo, EnemySound.LiquidDamage, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>

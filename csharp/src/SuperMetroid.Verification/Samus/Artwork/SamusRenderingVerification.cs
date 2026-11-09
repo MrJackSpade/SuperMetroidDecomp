@@ -762,7 +762,7 @@ internal static void VerifySamusHurtFlashPalette()
         {
             AssertEqual(soundsBefore + 1, samus.LiquidPhysics.SoundRequests.Count,
                 "hurt call two publishes impact SFX");
-            AssertEqual(new SoundRequest(Library1Sound.SamusDamaged, SoundRequestPriority.Normal),
+            AssertEqual(new SoundRequest(SamusSound.SamusDamaged, SoundRequestPriority.Normal),
                 samus.LiquidPhysics.SoundRequests[^1],
                 "hurt impact uses library one sound $35 maximum six");
         }
@@ -805,7 +805,7 @@ internal static void VerifySamusHurtFlashPalette()
         samusColours, spinning, controllerInput: 0);
     AssertEqual(1, spinning.LiquidPhysics.SoundRequests.Count,
         "counter forty restores Screw Attack sound");
-    AssertEqual(new SoundRequest(Library1Sound.ScrewAttack, SoundRequestPriority.High),
+    AssertEqual(new SoundRequest(SamusSound.ScrewAttack, SoundRequestPriority.High),
         spinning.LiquidPhysics.SoundRequests[^1],
         "Screw Attack recovery uses library one maximum nine");
 
@@ -828,7 +828,7 @@ internal static void VerifySamusHurtFlashPalette()
         "post-draw handler queues held charging sound");
     AssertEqual(ResumeChargingBeamSoundLatch.Clear, charging.ResumeChargingBeamSound,
         "post-draw handler clears charging recovery flag");
-    AssertEqual(new SoundRequest(Library1Sound.ResumeChargingBeam, SoundRequestPriority.High),
+    AssertEqual(new SoundRequest(SamusSound.ResumeChargingBeam, SoundRequestPriority.High),
         charging.LiquidPhysics.SoundRequests[^1],
         "charging recovery queues library one sound $41 maximum nine");
 
@@ -840,7 +840,7 @@ internal static void VerifySamusHurtFlashPalette()
         samusColours, grapple, controllerInput: 0);
     AssertEqual(1, grapple.LiquidPhysics.SoundRequests.Count,
         "counter forty restores pre-cancel grapple sound");
-    AssertEqual(new SoundRequest(Library1Sound.Grappling, SoundRequestPriority.High),
+    AssertEqual(new SoundRequest(SamusSound.Grappling, SoundRequestPriority.High),
         grapple.LiquidPhysics.SoundRequests[^1],
         "grapple recovery uses library one sound six maximum nine");
 

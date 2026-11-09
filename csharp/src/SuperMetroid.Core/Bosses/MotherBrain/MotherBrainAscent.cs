@@ -155,7 +155,7 @@ internal sealed class MotherBrainAscent
         state.Body.Presence = state.Body.Presence.Without(EnemyPresence.Hidden);
         state.Body.Position = state.Body.Position.WithWhole(new(59, 279));
         MotherBrainBody.PlaceMotherBrainBodyLayer(state, Position16<BackgroundPixels>.Wrapped(-27, -217));
-        _motherBrainEncounter.RequestMusic(MusicRequest.SelectTrack(5), MusicQueueDelay.Shortest);
+        _motherBrainEncounter.RequestMusic(MusicRequest.SelectTrack(MusicTrack.FirstSetSong), MusicQueueDelay.Shortest);
         _earthquake.EarthquakeType = 2;
         _earthquake.EarthquakeTimer = WrappingCountdown.Start(256);
         state.NeckAngleDelta = 80;

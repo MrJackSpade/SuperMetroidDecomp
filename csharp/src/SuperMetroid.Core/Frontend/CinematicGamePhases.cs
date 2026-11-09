@@ -107,9 +107,9 @@ internal sealed class CinematicGamePhases(FrontendSession session)
         session.Runtime.FadeOut.End();
         session.Runtime.EnemySession.CeresStatus = CeresEscapeStatus.RidleyNotEscaped;
         session.Runtime.EscapeTimer.ClearStatus();
-        session.audio.QueueSound(Library1Sound.Silence, priority: SoundRequestPriority.Essential);
-        session.audio.QueueSound(Library2Sound.Silence, priority: SoundRequestPriority.Essential);
-        session.audio.QueueSound(Library3Sound.Silence, priority: SoundRequestPriority.Essential);
+        session.audio.QueueSound(SamusSound.Silence, priority: SoundRequestPriority.Essential);
+        session.audio.QueueSound(EnemySound.Silence, priority: SoundRequestPriority.Essential);
+        session.audio.QueueSound(RoomSound.Silence, priority: SoundRequestPriority.Essential);
         session.display.PublishBlack();
         if (session.Runtime.System.HasEvent(EventNumber.ZebesTimebombSet))
         {

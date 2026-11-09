@@ -353,7 +353,7 @@ internal sealed class CollectibleObjects : IRoomObjectFamilySource
                 item.Phase = CollectiblePhase.ShotBlockReveal;
                 item.AnimationIndex = 0;
                 DrawCollectible(level, slot, CollectibleObjectDraws.ShotRevealFrame(0));
-                _sounds.Queue(Library2Sound.BlockCrumble, SoundRequestPriority.Normal);
+                _sounds.Queue(EnemySound.BlockCrumble, SoundRequestPriority.Normal);
                 item.Timer = 4;
                 return true;
 

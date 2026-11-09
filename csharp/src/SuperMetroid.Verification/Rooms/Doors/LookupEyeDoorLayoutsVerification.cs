@@ -54,7 +54,8 @@ internal static class LookupEyeDoorLayoutsVerification
             var views = new List<RoomObjectShotBlockDrawDefinitions.DrawList> {direct,exported[index]};
             if (pointer != 0x9bf7)
             {
-                AssertTrue(RoomObjectEyeDoorVisualFiles.TryGetByVisualId(RoomObjectEyeDoorVisualFiles.VisualId(NativeObjectDraws.At<EyeDoorDraws.Draw>(pointer)),out var named),"Eye door reverse layout");
+                string id = RoomObjectEyeDoorVisualFiles.VisualId(NativeObjectDraws.At<EyeDoorDraws.Draw>(pointer));
+                AssertTrue(RoomObjectEyeDoorVisualFiles.TryGet(RoomObjectEyeDoorVisualFiles.Family.Ids.Single(pair => pair.Value == id).Key,out var named),"Eye door reverse layout");
                 views.Add(named);
             }
             ushort header = ReadSamusEaterObjectWord(rom,0x840000 | pointer);

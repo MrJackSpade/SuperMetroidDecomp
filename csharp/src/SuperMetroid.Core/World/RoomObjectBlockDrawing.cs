@@ -231,23 +231,23 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         }
         if (ColoredDoorCaps.TryDescribe(draw, out var coloredDoor))
         {
+            RoomObjectFrameImage cap = Installed(ColoredDoorVisuals, "colored-door").Image(draw);
             for (int cell = 0; cell < 4; cell++)
-            {
-                RoomTerrainBlock physical = coloredDoor.BlockAt(cell);
-                DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(coloredDoor.Vertical ? 0 : cell, coloredDoor.Vertical ? cell : 0), physical, Installed(ColoredDoorVisuals, "colored-door").GetAppearance(draw, cell));
-            }
+                DrawImageCell(level, draw, origin, cap, new Offset16<RoomBlocks>(coloredDoor.Vertical ? 0 : cell, coloredDoor.Vertical ? cell : 0), coloredDoor.BlockAt(cell).Collision);
             return;
         }
         if (GreyDoorCaps.TryDescribe(draw, out var greyDoor))
         {
+            RoomObjectFrameImage cap = Installed(GreyDoorVisuals, "grey-door").Image(draw);
             for (int cell = 0; cell < 4; cell++)
-                DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(greyDoor.Vertical ? 0 : cell, greyDoor.Vertical ? cell : 0), greyDoor.BlockAt(cell), Installed(GreyDoorVisuals, "grey-door").GetAppearance(draw, cell));
+                DrawImageCell(level, draw, origin, cap, new Offset16<RoomBlocks>(greyDoor.Vertical ? 0 : cell, greyDoor.Vertical ? cell : 0), greyDoor.BlockAt(cell).Collision);
             return;
         }
         if (EyeDoorDraws.TryDescribe(draw, out var eyeDoor))
         {
+            RoomObjectFrameImage part = Installed(EyeDoorVisuals, "eye-door").Image(draw);
             for (int cell = 0; cell < eyeDoor.BlockCount; cell++)
-                DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(eyeDoor.Vertical ? 0 : cell, eyeDoor.Vertical ? cell : 0), eyeDoor.BlockAt(cell), Installed(EyeDoorVisuals, "eye-door").GetAppearance(draw, cell));
+                DrawImageCell(level, draw, origin, part, new Offset16<RoomBlocks>(eyeDoor.Vertical ? 0 : cell, eyeDoor.Vertical ? cell : 0), eyeDoor.BlockAt(cell).Collision);
             return;
         }
         if (MotherBrainGlassDraws.TryDescribe(draw, out var motherBrainGlass))

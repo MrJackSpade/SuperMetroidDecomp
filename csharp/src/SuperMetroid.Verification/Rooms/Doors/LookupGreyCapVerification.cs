@@ -42,10 +42,7 @@ internal static class LookupGreyCapVerification
                 }
             }
             foreach (string id in new[] { "CLEAR-LEFT", "grey-left-frame-4", "", "unknown" })
-            {
-                AssertTrue(!RoomObjectGreyDoorVisualFiles.TryGetByVisualId(id, out var missing), "Grey cap ordinal ID domain");
-                AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), missing, "Grey cap missing ID output");
-            }
+                AssertTrue(!RoomObjectGreyDoorVisualFiles.Family.Ids.Values.Contains(id, StringComparer.Ordinal), "Grey cap ordinal ID domain");
         }
         for (int index = 0; index < pointers.Length; index++)
         {
@@ -56,8 +53,8 @@ internal static class LookupGreyCapVerification
             {
                 AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(exported[index].Draw), "Grey cap original order");
                 AssertEqual(ids[index], RoomObjectGreyDoorVisualFiles.VisualId(NativeObjectDraws.At<GreyDoorCaps.Draw>(pointer)), "Grey cap published ID");
-                AssertTrue(RoomObjectGreyDoorVisualFiles.TryGetByVisualId(ids[index], out var byId), "Grey cap reverse ID");
-                AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(byId.Draw), "Grey cap ID identity");
+                RoomObjectDraw byId = RoomObjectGreyDoorVisualFiles.Family.Ids.Single(pair => pair.Value == ids[index]).Key;
+                AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(byId), "Grey cap ID identity");
                 AssertRunHeader(ReadSamusEaterObjectWord(rom, 0x840000 | pointer), dto.Runs.Span[0].Direction, 4, "Grey cap native geometry");
                 AssertEqual((ushort)0, ReadSamusEaterObjectWord(rom, 0x840000 | (pointer + 10)), "Grey cap native final offset");
                 foreach (var frame in new[] {dto,exported[index],byId})

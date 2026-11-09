@@ -37,11 +37,7 @@ internal static class EyeDoorObjectDrawDefinitionsVerification
         Suite(nameof(VerifyEyeDoorLayoutVisuals), () => VerifyEyeDoorLayoutVisuals(rom));
         RoomObjectShotBlockDrawDefinitions.DrawList[] lists =
             RoomObjectEyeDoorVisualFiles.All.OrderBy(list => RoomObjectDrawAddressCodec.Of(list.Draw)).ToArray();
-        RoomObjectVisualEntry[] entries = RoomObjectEyeDoorVisualFiles.Editable.Select(draw =>
-            new RoomObjectVisualEntry(
-                RoomObjectEyeDoorVisualFiles.VisualId(draw.Draw),
-                draw.Runs.Span[0].Blocks.Span
-                    .SelectToArray(block => block.Appearance))).ToArray();
+        RoomObjectShotBlockDrawDefinitions.DrawList[] entries = RoomObjectEyeDoorVisualFiles.Editable.ToArray();
         AssertEqual(24, lists.Length,
             "mirrored eye, middle and bottom components include both four-block opening clears");
         AssertEqual(23, entries.Length, "the mirrored clear preserves the existing authored visual identities");

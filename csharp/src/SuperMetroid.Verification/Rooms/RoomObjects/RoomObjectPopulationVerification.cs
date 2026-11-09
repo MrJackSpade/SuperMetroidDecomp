@@ -532,14 +532,14 @@ internal static class RoomObjectPopulationVerification
         const int blockY = 4;
 
         SeedObjectProgramWords(bus, unchecked((ushort)(RoomObjectNativeWords.Word(RoomObjectHeaderId.WreckedShipAttic) + 2)),
-            RoomObjectNativeListAddresses.WreckedShipAtticEntries[0].Entry);
+            RoomObjectNativeListAddresses.WreckedShipAtticList);
         SuperMetroidAddressSpace? rom = File.Exists("Super Metroid.smc")
             ? SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")
             : null;
         if (rom is not null)
             RoomObjectProgramsVerification.VerifyWreckedShipAtticPrograms(rom);
         for (int index = 0; index < 3; index++)
-            SeedObjectProgramWords(bus, checked((ushort)(RoomObjectNativeListAddresses.WreckedShipAtticEntries[0].Entry + index * 2)), 0xdead);
+            SeedObjectProgramWords(bus, checked((ushort)(RoomObjectNativeListAddresses.WreckedShipAtticList + index * 2)), 0xdead);
         SeedRoomObjectPopulation(bus, population,
         [
             0x05, 0xbb, blockX, blockY, 0x34, 0x12,
@@ -557,16 +557,11 @@ internal static class RoomObjectPopulationVerification
         RoomObjectSlotSnapshot loaded = roomObjects.PopulationSlots.Single();
         AssertEqual(0, loaded.ProcessingPosition,
             "Wrecked Ship attic actor takes the first free slot in processing order");
-        AssertTrue(loaded.Animation is WreckedShipAtticObjectAnimation, "Wrecked Ship attic actor starts its typed program");
-        AssertEqual(RoomObjectFrameBehaviorDefinitions.SpawnDefault, loaded.FrameBehavior,
-            "Wrecked Ship attic callback is not installed before its first handler pass");
+        AssertTrue(loaded.Behaviour is WreckedShipAtticObject, "Wrecked Ship attic actor is its typed object");
 
         roomObjects.Step(level);
-        RoomObjectSlotSnapshot sleeping = roomObjects.PopulationSlots.Single();
-        AssertEqual(WreckedShipAtticObjectRomData.NoOpCallback, sleeping.FrameBehavior,
-            "Wrecked Ship attic list installs exact BAFA pre-instruction");
-        AssertTrue(sleeping.Animation is WreckedShipAtticObjectAnimation { Cursor.Position: 1 },
-            "Wrecked Ship attic actor sleeps permanently on its program's sleep");
+        AssertTrue(roomObjects.PopulationSlots.Single().Behaviour is WreckedShipAtticObject,
+            "Wrecked Ship attic actor holds its place after its first update");
         roomObjects.Step(level);
         AssertEqual(1, roomObjects.SlotTable.ActiveCount,
             "inert attic callback leaves its resident actor alive");

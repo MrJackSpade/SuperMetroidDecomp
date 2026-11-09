@@ -6,17 +6,9 @@ using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Areas.WreckedShip;
 
-/// <summary>Wrecked Ship treadmill and Maridia elevatube PLMs: the conveyor rows they write and step.</summary>
-internal sealed class WreckedShipTreadmillObjects : IRoomObjectFamilySource
+/// <summary>The Wrecked Ship entrance treadmill and the Maridia elevatube: their spawns and the belt row a treadmill runs.</summary>
+internal sealed class WreckedShipTreadmillObjects
 {
-    /// <summary>Registers the WreckedShipTreadmill family's step.</summary>
-    public void AddObjectFamilies(RoomObjectFamilyTable table)
-    {
-        Ensure.NotNull(table);
-        table.Add(RoomObjectFamily.WreckedShipTreadmill, static (slot, context) =>
-            TryStepWreckedShipTreadmill(context.Level, slot) ? RoomObjectStepOutcome.Consumed : RoomObjectStepOutcome.Shared);
-    }
-
     /// <summary>PLM slot pool used for treadmill and elevatube allocation.</summary>
     private readonly RoomObjectSlotTable _slotTable;
 
@@ -26,10 +18,9 @@ internal sealed class WreckedShipTreadmillObjects : IRoomObjectFamilySource
         _slotTable = slotTable;
     }
     /// <summary>
-    /// Spawns one of the two treadmill PLMs at room block (4,9), then runs its
-    /// shared setup synchronously by replacing the following 56 blocks with
-    /// blank air. The first ordinary PLM pass later either installs treadmill collision
-    /// when Phantoon is dead or deletes the actor without doing so.
+    /// Spawns one of the two treadmills at room block (4,9), then runs its shared setup at once by replacing the following
+    /// 56 blocks with blank air. The treadmill's first update runs the belt when Phantoon is dead, and it then leaves the
+    /// room either way.
     /// </summary>
     /// <returns>False only when all forty PLM slots are occupied.</returns>
     public bool TrySpawnWreckedShipEntranceTreadmill(
@@ -58,10 +49,7 @@ internal sealed class WreckedShipTreadmillObjects : IRoomObjectFamilySource
 
         slot.Header = header;
         slot.BlockIndex = origin;
-        slot.FrameHold = 1;
-        slot.Family = new WreckedShipTreadmillObjectState(
-            direction,
-            areaBossDefeated);
+        slot.Become(new WreckedShipTreadmillObject(direction, areaBossDefeated));
 
         // The setup writes blank air and deliberately leaves the blocks' behaviour alone.
         for (int offset = 0; offset < WreckedShipTreadmillBlockDefinitions.BlockCount; offset++)
@@ -91,40 +79,23 @@ internal sealed class WreckedShipTreadmillObjects : IRoomObjectFamilySource
         return true;
     }
 
-    /// <summary>Consumes the first-pass boss test for one treadmill PLM.</summary>
-    internal static bool TryStepWreckedShipTreadmill(
-        RoomLevelData level,
-        RoomObjectSlot slot)
+    /// <summary>Turns the treadmill's row, from <paramref name="origin"/>, into a running belt pushing in <paramref name="direction"/>.</summary>
+    internal static void RunBelt(RoomLevelData level, int origin, WreckedShipTreadmillDirection direction)
     {
-        if (slot.Family is not WreckedShipTreadmillObjectState state)
-            return false;
+        Ensure.NotNull(level);
+        EnsureHorizontalRangeFits(level, origin, WreckedShipTreadmillBlockDefinitions.BlockCount);
+        bool rightwards = direction == WreckedShipTreadmillDirection.Rightwards;
 
-        if (state.AreaBossDefeated)
+        // Both directions write the same row. The blank appearance is unchanged; only the special-air kind and the
+        // direction behaviour become active.
+        for (int offset = 0; offset < WreckedShipTreadmillBlockDefinitions.BlockCount; offset++)
         {
-            EnsureHorizontalRangeFits(
-                level,
-                slot.BlockIndex,
-                WreckedShipTreadmillBlockDefinitions.BlockCount);
-            bool rightwards = state.Direction == WreckedShipTreadmillDirection.Rightwards;
-
-            // Both direction cues call the shared row writer. The blank appearance is
-            // unchanged; only the special-air kind and the direction behaviour become active.
-            for (int offset = 0; offset < WreckedShipTreadmillBlockDefinitions.BlockCount; offset++)
-            {
-                int blockIndex = slot.BlockIndex + offset;
-                level.SetTerrain(
-                    blockIndex,
-                    WreckedShipTreadmillBlockDefinitions.ActiveTreadmillBlock);
-                level.SetBehavior(blockIndex, rightwards
-                    ? WreckedShipTreadmillBlockDefinitions.RightwardsBehavior
-                    : WreckedShipTreadmillBlockDefinitions.LeftwardsBehavior);
-            }
+            int blockIndex = origin + offset;
+            level.SetTerrain(blockIndex, WreckedShipTreadmillBlockDefinitions.ActiveTreadmillBlock);
+            level.SetBehavior(blockIndex, rightwards
+                ? WreckedShipTreadmillBlockDefinitions.RightwardsBehavior
+                : WreckedShipTreadmillBlockDefinitions.LeftwardsBehavior);
         }
-
-        // Both branches end by deleting the PLM during this same handler pass.
-        slot.Delete();
-        slot.Family = null;
-        return true;
     }
 
     /// <summary>Rejects a treadmill row that would wrap into the next room block row.</summary>

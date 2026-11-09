@@ -167,10 +167,7 @@ internal static class RoomObjectNativeListAddresses
     ];
 
     /// <summary>The Wrecked Ship attic's list (<c>InstList_PLM_WreckedShipAttic</c>, $84:BAFF).</summary>
-    internal static IReadOnlyList<NativeProgramEntry<WreckedShipAtticProgram>> WreckedShipAtticEntries { get; } =
-    [
-        new NativeProgramEntry<WreckedShipAtticProgram>(WreckedShipAtticProgram.Attic, 0xbaff),
-    ];
+    internal const ushort WreckedShipAtticList = 0xbaff;
 
     /// <summary>The lavaquake list's length in words: three install-and-sleep phases.</summary>
     internal const int SpeedBoosterEscapeWordCount = 9;

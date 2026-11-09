@@ -197,10 +197,9 @@ internal sealed class RoomObjectPopulationLoader
 
         if (header == RoomObjectHeaderId.WreckedShipAttic)
         {
-            // The no-op setup deliberately performs no state mutation. Keeping an explicit
-            // branch matters: the actor must still consume its slot and run its
-            // program instead of being mistaken for an unknown header.
-            slot.StartAnimation(new WreckedShipAtticObjectAnimation());
+            // The no-op setup changes nothing. Keeping an explicit branch matters: the object must still hold its
+            // place instead of being mistaken for an unknown header.
+            slot.Become(new WreckedShipAtticObject());
             return true;
         }
 

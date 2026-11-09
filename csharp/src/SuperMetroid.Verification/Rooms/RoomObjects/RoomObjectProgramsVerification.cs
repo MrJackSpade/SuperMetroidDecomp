@@ -396,21 +396,17 @@ internal static class RoomObjectProgramsVerification
         Console.WriteLine($"  Tourian access changes: {frames} typed frames match bank $84.");
     }
 
-    /// <summary>The Wrecked Ship attic's program equals its native list.</summary>
+    /// <summary>
+    /// The Wrecked Ship attic's native list does what <see cref="WreckedShipAtticObject"/> does (#1554): it installs a
+    /// routine that changes nothing and sleeps for good, so the object only holds its place.
+    /// </summary>
     internal static void VerifyWreckedShipAtticPrograms(ISnesAddressSpace rom)
     {
-        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), WreckedShipAtticObjectProgramDefinitions.Programs, WreckedShipAtticEntries,
-            draw => throw new InvalidOperationException($"The attic program never draws; got {draw}."),
-            (IImportCartridgeSource cartridge, ushort cursor, out WreckedShipAtticCue cue, out int length) =>
-            {
-                cue = WreckedShipAtticCue.InstallInertFrameBehavior;
-                length = 4;
-                if (InstructionAt<RoomObjectInstruction>(cartridge, cursor) != RoomObjectInstruction.InstallFrameBehavior)
-                    return false;
-                AssertEqual(WreckedShipAtticObjectRomData.NoOpCallback, cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "attic pre-instruction");
-                return true;
-            }, "Wrecked Ship attic");
-        Console.WriteLine($"  Wrecked Ship attic program: {steps} typed steps match bank $84.");
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        AssertEqual(RoomObjectInstruction.InstallFrameBehavior, InstructionAt<RoomObjectInstruction>(cartridge, WreckedShipAtticList), "attic installs its routine");
+        AssertEqual(WreckedShipAtticObjectRomData.NoOpCallback, cartridge.ReadCartridgeWord(ProgramBank | (WreckedShipAtticList + 2)), "attic pre-instruction");
+        AssertEqual(RoomObjectInstruction.Sleep, InstructionAt<RoomObjectInstruction>(cartridge, WreckedShipAtticList + 4), "attic sleeps for good");
+        Console.WriteLine("  Wrecked Ship attic list: installs its inert routine and sleeps, as its typed object holds its place.");
     }
 
     /// <summary>The blue caps' programs equal their native lists.</summary>

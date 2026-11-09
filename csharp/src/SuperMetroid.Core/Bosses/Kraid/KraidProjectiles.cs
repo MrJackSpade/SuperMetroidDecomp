@@ -71,7 +71,7 @@ internal sealed class KraidProjectiles
         // A fingernail is set up at rest with its horizontal fraction primed: the room's first setup starts it at rest, and
         // a respawn follows the kill that stopped it (KilledFingernailStops).
         nailPart.NailVelocity = FixedVector<RoomPixels>.FromWords(0, 40, 0, 0);
-        nail.Properties = nail.Properties.With(EnemyProperties.Invisible);
+        nail.Presence = nail.Presence.With(EnemyPresence.Hidden);
         nail.FrameHold = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
         _access.SetKraidPartProgram(nail, KraidPartProgram.NailLoop);
         nail.Frame = EnemyFrameId.KraidNail0;
@@ -149,7 +149,7 @@ internal sealed class KraidProjectiles
     /// <summary>Checks lint contact against Samus without altering the body phase.</summary>
     private void ResolveKraidLintContact(RoomEnemySlot lint, SamusState samus)
     {
-        if (lint.Properties.HasAny(EnemyProperties.IgnoreSamusCollision) || !samus.InvincibilityTimer.IsZero)
+        if (lint.Contact.HasAny(EnemyContact.IgnoresSamus) || !samus.InvincibilityTimer.IsZero)
             return;
         int edge = CoordinateAxis.Wrap(lint.Position.X.Whole + KraidContactDefinitions.LintLeadingEdge);
         if (CoordinateAxis.AsSigned(samus.Position.X.Whole + samus.Kinematics.Radius.X - edge) < 0 ||
@@ -164,7 +164,7 @@ internal sealed class KraidProjectiles
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeX(
             Math.Min(push, KraidContactDefinitions.LintPush));
         _collision.ResolveNormalEnemyTouch(lint, samus);
-        lint.Properties = lint.Properties.With(EnemyProperties.IgnoreSamusCollision);
+        lint.Contact = lint.Contact.With(EnemyContact.IgnoresSamus);
     }
 
     /// <summary>Dispatches a nail's active flight or rebound function.</summary>
@@ -173,8 +173,7 @@ internal sealed class KraidProjectiles
         KraidEnemyState state = _access.RequireKraidState(nail);
         if (_parts.Body.Health == 0)
         {
-            nail.Properties = nail.Properties.With(
-                EnemyProperties.Deleted | EnemyProperties.Invisible);
+            nail.Presence = nail.Presence.With(EnemyPresence.Deleted | EnemyPresence.Hidden);
             return;
         }
 
@@ -193,8 +192,8 @@ internal sealed class KraidProjectiles
                 if (CoordinateAxis.Difference(_parts.TopLint.Position.X.Whole, 256) >= 0)
                 {
                     _parts.NailStateOf(state, nail).Function = part.NextFunction;
-                    nail.Properties = nail.Properties.Without(
-                        EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
+                    nail.Contact = nail.Contact.Without(EnemyContact.IgnoresSamus);
+                    nail.Presence = nail.Presence.Without(EnemyPresence.Hidden);
                 }
                 return;
 
@@ -277,8 +276,8 @@ internal sealed class KraidProjectiles
         part.NailVelocity = KraidNailLaunch.FromSiblingVelocity(
             KilledFingernailStops.SiblingSpeed(siblingPart.NailVelocity.Y.WholePixels, stopped: 0, siblingKilled));
         part.NailLaunched = true;
-        nail.Properties = nail.Properties.Without(
-            EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
+        nail.Contact = nail.Contact.Without(EnemyContact.IgnoresSamus);
+        nail.Presence = nail.Presence.Without(EnemyPresence.Hidden);
         nail.FrameHold = WrappingCountdown.Start(1);
         _access.SetKraidPartProgram(nail, KraidPartProgram.NailLoop);
         part.Function = KraidAiFunction.FingernailFire;
@@ -297,8 +296,8 @@ internal sealed class KraidProjectiles
         part.NailVelocity = FixedVector<RoomPixels>.FromWords(1, 0, 0, 0);
         part.Function = KraidAiFunction.FingernailWaitForLint;
         part.NextFunction = KraidAiFunction.FingernailFire;
-        nail.Properties = nail.Properties.With(
-            EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
+        nail.Contact = nail.Contact.With(EnemyContact.IgnoresSamus);
+        nail.Presence = nail.Presence.With(EnemyPresence.Hidden);
     }
 
     /// <summary>Advances nail position and terrain response for one enemy update.</summary>
@@ -431,8 +430,8 @@ internal sealed class KraidProjectiles
     /// <summary>Starts a lint projectile from the attached part.</summary>
     private void ProduceKraidLint(RoomEnemySlot lint)
     {
-        lint.Properties = lint.Properties.Without(
-            EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
+        lint.Contact = lint.Contact.Without(EnemyContact.IgnoresSamus);
+        lint.Presence = lint.Presence.Without(EnemyPresence.Hidden);
         lint.Position = lint.Position.WithWrappedWholeX(
             _access.LintState(lint).LintXOffset + _parts.Body.Position.X.Whole - _access.LintState(lint).LintTravel);
         _access.LintState(lint).LintTravel++;
@@ -463,10 +462,10 @@ internal sealed class KraidProjectiles
     {
         AddSignedKraidHorizontalDisplacement(lint, KraidPlatformMovement.FiringDisplacement);
         if (CoordinateAxis.Difference(lint.Position.X.Whole, 56) < 0)
-            lint.Properties = lint.Properties.With(EnemyProperties.IgnoreSamusCollision);
+            lint.Contact = lint.Contact.With(EnemyContact.IgnoresSamus);
         if (CoordinateAxis.Difference(lint.Position.X.Whole, 32) < 0)
         {
-            lint.Properties = lint.Properties.With(EnemyProperties.Invisible);
+            lint.Presence = lint.Presence.With(EnemyPresence.Hidden);
             part.Function = KraidAiFunction.AlignPartToKraid;
             part.FunctionTimer = 300;
             part.NextFunction = KraidAiFunction.LintProduce;

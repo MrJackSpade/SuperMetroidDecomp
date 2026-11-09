@@ -27,13 +27,15 @@ internal static class MotherBrainBodyHitboxesVerification
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         RoomEnemySlot body = state.Body;
         RoomEnemySlot head = state.Head;
-        AssertTrue(body.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap),
+        AssertTrue(body.DrawsExtendedFrames,
             "the body is an extended-spritemap enemy");
 
         // The movie's frame: walking body at ($3E,$90) on root $A174 with phase-three
         // properties $3800 (tangible); the head well clear.
         state.Form = MotherBrainForm.ThirdPhase;
-        body.Properties = SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Decode(0x3800);
+        body.Contact = EnemyContact.BlocksPlasmaBeam;
+        body.Processing = EnemyProcessing.OffScreen | EnemyProcessing.AnimationScript;
+        body.Presence = EnemyPresence.None;
         body.Position = body.Position.WithWhole(new(0x003e, 0x0090));
         body.SpritemapPointer = 0xa174;
         head.Position = head.Position.WithWhole(new(0x0058, 0x0021));

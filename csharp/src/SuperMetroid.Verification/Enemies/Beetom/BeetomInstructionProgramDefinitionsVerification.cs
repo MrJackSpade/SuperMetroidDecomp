@@ -49,12 +49,12 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         AssertEqual(AnimationProgramCursor<BeetomProgram>.Start(BeetomProgram.CrawlingLeft), state.Program,
             "real Beetom initializer installs the left crawl");
         RunBeetomLoop(processArguments, slot, state, BeetomProgram.CrawlingLeftLoop, callsThroughGoto: 5);
-        AssertTrue(!slot.Properties.HasAny(EnemyProperties.ProcessOffScreen), "left crawl stops off-screen processing");
+        AssertTrue(!slot.Processing.HasAny(EnemyProcessing.OffScreen), "left crawl stops off-screen processing");
 
         BeetomBehavior.StartBeetomCrawling(slot, state, HorizontalDirection.Right);
         AssertEqual(AnimationProgramCursor<BeetomProgram>.Start(BeetomProgram.CrawlingRight), state.Program, "right crawl is installed");
         RunBeetomLoop(processArguments, slot, state, BeetomProgram.CrawlingRightLoop, callsThroughGoto: 5);
-        AssertTrue(!slot.Properties.HasAny(EnemyProperties.ProcessOffScreen), "right crawl stops off-screen processing");
+        AssertTrue(!slot.Processing.HasAny(EnemyProcessing.OffScreen), "right crawl stops off-screen processing");
 
         foreach ((bool left, BeetomProgram hop) in new[] { new BeetomInstructionProgramDefinitionsVerifyBeetomInstructionProgramDefinitionsCase(true, BeetomProgram.HopLeft), new BeetomInstructionProgramDefinitionsVerifyBeetomInstructionProgramDefinitionsCase(false, BeetomProgram.HopRight) })
         {
@@ -65,7 +65,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
             RunBeetomCalls(processArguments, slot, 2);
             AssertEqual(held, state.Program, $"{hop} holds its last pose");
             AssertEqual(BeetomAnimationsConstants.Spritemaps(hop).Last(), slot.SpritemapPointer, $"{hop} ends on its last pose");
-            AssertTrue(slot.Properties.HasAny(EnemyProperties.ProcessOffScreen), $"{hop} starts off-screen processing");
+            AssertTrue(slot.Processing.HasAny(EnemyProcessing.OffScreen), $"{hop} starts off-screen processing");
         }
 
         foreach ((bool left, BeetomProgram drain, BeetomProgram loop) in new[]

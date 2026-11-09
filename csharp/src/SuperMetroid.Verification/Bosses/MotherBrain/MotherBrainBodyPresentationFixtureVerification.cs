@@ -55,8 +55,8 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         internal void SetFrame(ushort frame, bool fresh)
         {
             Body.SpritemapPointer = frame;
-            Body.ExtraProperties = EnemyExtraProperties.UsesExtendedSpritemap |
-                (fresh ? EnemyExtraProperties.NewInstructionFrame : EnemyExtraProperties.None);
+            Body.DrawsExtendedFrames = true;
+            Body.NewInstructionFrame = fresh;
         }
 
         /// <summary>Starts a body program at its next one-tick dispatch.</summary>

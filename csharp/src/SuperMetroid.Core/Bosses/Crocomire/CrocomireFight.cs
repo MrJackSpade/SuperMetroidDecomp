@@ -67,10 +67,7 @@ internal sealed class CrocomireFight
         {
             // The dead-room state keeps only Crocomire's skeleton display actor. Property
             // mask and these radii/coordinates are literal writes.
-            slot.Properties = slot.Properties.Replace(
-                EnemyProperties.SolidToSamus |
-                    EnemyProperties.IgnoreSamusCollision,
-                EnemyProperties.IgnoreSamusCollision);
+            slot.Contact = slot.Contact.Replace(EnemyContact.SolidToSamus | EnemyContact.IgnoresSamus, EnemyContact.IgnoresSamus);
             state.DeathPhase = CrocomireDeathPhase.DefeatedRoomAdvance;
             CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.Dead);
             slot.Position = slot.Position.WithWhole(new(576, 144));
@@ -91,8 +88,7 @@ internal sealed class CrocomireFight
         // On the living branch only.
         _zebetiteBehavior.CameraDistance = CameraDistanceMode.BossTracking;
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.Initial);
-        slot.ExtraProperties = slot.ExtraProperties.With(
-            EnemyExtraProperties.UsesExtendedSpritemap);
+        slot.DrawsExtendedFrames = true;
         _room.Services.RoomScroll.Write(0, RoomScrollState.RedBoundary);
         _room.Services.RoomScroll.Write(1, RoomScrollState.RedBoundary);
 
@@ -105,11 +101,8 @@ internal sealed class CrocomireFight
     {
         if (_room.Services.Bosses.IsDefeated(BossBits.AreaMiniBoss))
         {
-            slot.Properties = slot.Properties.Replace(
-                EnemyProperties.RunsAnimationScript |
-                    EnemyProperties.Deleted |
-                    EnemyProperties.Invisible,
-                EnemyProperties.Deleted | EnemyProperties.Invisible);
+            slot.Processing = slot.Processing.Without(EnemyProcessing.AnimationScript);
+            slot.Presence = slot.Presence.With(EnemyPresence.Deleted | EnemyPresence.Hidden);
             return;
         }
 
@@ -117,7 +110,7 @@ internal sealed class CrocomireFight
             throw new InvalidOperationException("Crocomire's tongue initialized before its body.");
         state.Tongue = slot;
         CrocomireBodyLayer.StartCrocomireTongueProgram(state, CrocomireTongueProgram.Fight, WrappingCountdown.Start(1));
-        slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.UsesExtendedSpritemap);
+        slot.DrawsExtendedFrames = true;
         var tongueState = new CrocomireTongueState { BodyXOffset = CrocomireBehavior.CrocomireTongueBodyXOffset };
         slot.SetSpeciesState(tongueState);
         slot.Shading = state.Body.Shading;
@@ -154,7 +147,7 @@ internal sealed class CrocomireFight
         tongue.FrameHold = frameHold.Remaining;
         if (!frameHold.IsZero)
         {
-            tongue.ExtraProperties = tongue.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
+            tongue.NewInstructionFrame = false;
             return;
         }
 
@@ -169,7 +162,7 @@ internal sealed class CrocomireFight
             throw new InvalidOperationException($"Crocomire's tongue program ended an update with {advance}.");
         tongue.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
         tongue.Frame = CrocomireTongueFrameDefinitions.ShownFrames.Of(shown.Frame);
-        tongue.ExtraProperties = tongue.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
+        tongue.NewInstructionFrame = true;
     }
 
     /// <summary>
@@ -184,7 +177,7 @@ internal sealed class CrocomireFight
         body.FrameHold = frameHold.Remaining;
         if (!frameHold.IsZero)
         {
-            body.ExtraProperties = body.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
+            body.NewInstructionFrame = false;
             return;
         }
 
@@ -206,7 +199,7 @@ internal sealed class CrocomireFight
         body.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
         state.BodyFrame = shown.Frame;
         body.Frame = CrocomireBodyFrameSpritemaps.ShownFrames.Of(shown.Frame);
-        body.ExtraProperties = body.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
+        body.NewInstructionFrame = true;
     }
 
     /// <summary>

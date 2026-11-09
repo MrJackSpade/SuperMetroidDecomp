@@ -75,7 +75,8 @@ internal static class KraidReportedCollisionsVerification
             {
                 var nail = runtime.Enemies.SlotTable.Slots[index];
                 nail.Position = nail.Position.WithWhole(new(100, 400));
-                nail.Properties = nail.Properties.Without(EnemyProperties.IgnoreSamusCollision | EnemyProperties.Deleted | EnemyProperties.Invisible);
+                nail.Contact = nail.Contact.Without(EnemyContact.IgnoresSamus);
+                nail.Presence = nail.Presence.Without(EnemyPresence.Deleted | EnemyPresence.Hidden);
                 ResetSamus(100, 400);
                 int damage = nail.Definition.Damage;
                 var interactive = (List<RoomEnemySlot>)runtime.Enemies.ProcessingWindow.InteractiveEnemies;
@@ -90,13 +91,13 @@ internal static class KraidReportedCollisionsVerification
         {
             var lint = runtime.Enemies.SlotTable.Slots[2];
             lint.Position = lint.Position.WithWhole(new(126, 400));
-            lint.Properties = lint.Properties.Without(EnemyProperties.IgnoreSamusCollision);
+            lint.Contact = lint.Contact.Without(EnemyContact.IgnoresSamus);
             runtime.Enemies.KraidBehavior.Parts.LintStateOf(state, lint).Function = KraidAiFunction.LintInactive;
             ResetSamus(100, 400);
             runtime.Enemies.KraidBehavior.Projectiles.RunKraidLintMain(lint, samus);
             AssertEqual((ushort)(999 - lint.Definition.Damage), samus.Health, "Lint leading edge damages Samus");
             AssertEqual(-25, samus.Kinematics.ExtraDisplacement.X.WholePixels, "Native complement-based lint push");
-            AssertEqual(true, lint.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "Lint becomes intangible after contact");
+            AssertEqual(true, lint.Contact.HasAny(EnemyContact.IgnoresSamus), "Lint becomes intangible after contact");
         });
         Check("First closed head after rising", () =>
         {

@@ -206,7 +206,7 @@ internal static class DraygonAnimationsVerification
             string at = $"Draygon dying update {update}";
             AssertEqual(native.Timer, arms.FrameHold.RawValue, $"{at}: timer");
             AssertEqual(native.Spritemap, arms.SpritemapPointer, $"{at}: frame");
-            AssertEqual(native.NewFrame, arms.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame), $"{at}: new-frame flag");
+            AssertEqual(native.NewFrame, arms.NewInstructionFrame, $"{at}: new-frame flag");
             AssertEqual(native.Counter, arms.Timer.RawValue, $"{at}: loop counter");
             DraygonCue[] cues = [.. callbacks.Where(callback => !SelectsHudSplit(callback.Word)).Select(callback => CueOf(callback.Word, callback.Operands))];
             AssertEqual(cues.OfType<DraygonCue.QueueSound>().LastOrDefault(sound => sound.Sound.Library == SoundEffectLibrary.Library2)?.Sound,
@@ -222,7 +222,7 @@ internal static class DraygonAnimationsVerification
             }
         }
         AssertTrue(paralysed, "the dying sequence reaches the paralysis");
-        AssertTrue(state.Body.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "the dying sequence makes the body intangible");
+        AssertTrue(state.Body.Contact.HasAny(EnemyContact.IgnoresSamus), "the dying sequence makes the body intangible");
     }
 
     /// <summary>

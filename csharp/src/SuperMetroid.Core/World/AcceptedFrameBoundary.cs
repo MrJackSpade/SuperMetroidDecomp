@@ -196,7 +196,7 @@ internal sealed class AcceptedFrameBoundary
             Displays?.BossBody,
             Displays?.KraidBodyPlacement,
             Displays?.Draygon is { } draygon
-                ? new DraygonBodyPlacement(draygon.Body.Position.Whole, draygon.BodyLayerPlacement, draygon.Body.Properties.HasAny(EnemyProperties.Deleted))
+                ? new DraygonBodyPlacement(draygon.Body.Position.Whole, draygon.BodyLayerPlacement, draygon.Body.Presence.HasAny(EnemyPresence.Deleted))
                 : null,
             Displays?.CrocomireBodyPlacement,
             motherBrain is { PlacesBodyLayer: true } or { DeathHidesBodyLayer: true }

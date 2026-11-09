@@ -156,7 +156,7 @@ internal sealed class DraygonParts
         part.FrameHold = frameHold.Remaining;
         if (!frameHold.IsZero)
         {
-            part.ExtraProperties = part.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
+            part.NewInstructionFrame = false;
             return;
         }
 
@@ -171,7 +171,7 @@ internal sealed class DraygonParts
                 state.SetCursor(part, cursor);
                 part.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
                 part.Frame = DraygonFrameDefinitions.ShownFrames.Of(shown.Frame);
-                part.ExtraProperties = part.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
+                part.NewInstructionFrame = true;
                 return;
             case AnimationProgramAdvance<DraygonFrame>.Wait waiting:
                 state.SetCursor(part, cursor);
@@ -183,7 +183,7 @@ internal sealed class DraygonParts
                 return;
             case AnimationProgramAdvance<DraygonFrame>.Stop:
                 // The stop deletes the part and leaves its instruction pointer unwritten.
-                part.Properties = part.Properties.With(EnemyProperties.Deleted);
+                part.Presence = part.Presence.With(EnemyPresence.Deleted);
                 return;
             default:
                 throw new InvalidOperationException($"Undefined animation program advance {advance}.");
@@ -230,7 +230,7 @@ internal sealed class DraygonParts
                 StartDraygonProgram(RequirePart(state.Arms), DraygonProgram.Sleep);
                 return null;
             case DraygonCue.SetBodyIntangible:
-                state.Body.Properties = state.Body.Properties.With(EnemyProperties.IgnoreSamusCollision);
+                state.Body.Contact = state.Body.Contact.With(EnemyContact.IgnoresSamus);
                 return null;
             case DraygonCue.SetBodyFunction bodyFunction:
                 state.Function = bodyFunction.Function;

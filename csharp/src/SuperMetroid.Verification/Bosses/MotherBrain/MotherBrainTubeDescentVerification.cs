@@ -35,17 +35,17 @@ internal static class MotherBrainTubeDescentVerification
             AssertEqual(expectedY, tube.Position.Y.Whole, $"Tube native acceleration at frame {frame}");
             AssertEqual((ushort)expectedPosition, tube.Position.Y.Fraction, "Tube retains fractional motion");
             AssertEqual(expectedHead, state.Head.Position.Y.Whole, $"Brain follows tube every frame ({frame})");
-            AssertEqual(expectedY >= 244, tube.Properties.HasAny(EnemyProperties.Invisible),
+            AssertEqual(expectedY >= 244, tube.Presence.HasAny(EnemyPresence.Hidden),
                 "Tube hiding threshold does not gate head descent");
             if (expectedY < 244 && state.Head.Position.Y.Whole > previousHeadY) movingFramesBeforeHide++;
             if (expectedY >= 244 && expectedHead < 196) hiddenFramesBeforeLanding++;
             previousHeadY = state.Head.Position.Y.Whole;
             if (expectedHead == 196) break;
-            AssertTrue(!tube.Properties.HasAny(EnemyProperties.Deleted), "Tube remains alive before landing");
+            AssertTrue(!tube.Presence.HasAny(EnemyPresence.Deleted), "Tube remains alive before landing");
         }
         AssertTrue(frame < 200 && movingFramesBeforeHide > 20 && hiddenFramesBeforeLanding > 0,
             "Trajectory includes continuous descent both before hiding and before landing");
-        AssertTrue(tube.Properties.HasAny(EnemyProperties.Deleted), "Landing deletes the main tube");
+        AssertTrue(tube.Presence.HasAny(EnemyPresence.Deleted), "Landing deletes the main tube");
         AssertEqual(MotherBrainBodyFunction.FakeDeathAscentDrawRows2And3, state.Function, "Landing starts room rebuild");
         AssertEqual((ushort)0x20, enemies.Earthquake.EarthquakeTimer.RawValue, "Landing retains native earthquake duration");
         Console.WriteLine($"Mother Brain tube descent: {frame + 1} exact trajectory frames, hide threshold and landing passed.");

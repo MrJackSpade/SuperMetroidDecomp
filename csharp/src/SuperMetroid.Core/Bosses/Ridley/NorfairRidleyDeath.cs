@@ -127,7 +127,7 @@ internal sealed class NorfairRidleyDeath
     {
         SpawnSmallExplosionNearNorfairRidley(body, state);
         state.MovementAnimationEnabled = false;
-        body.Properties = body.Properties.With(EnemyProperties.Invisible);
+        body.Presence = body.Presence.With(EnemyPresence.Hidden);
         state.Function = RidleyAiFunction.NorfairDeathWait;
         state.FunctionTimer = 32;
     }
@@ -167,7 +167,7 @@ internal sealed class NorfairRidleyDeath
             yScatter: EnemyDropScatterDefinitions.ArenaBandVerticalScatter);
         RidleyDeathDropRequested = true;
         _audio.RequestRidleyMusic(MusicRequest.SelectTrack(3));
-        body.Properties = body.Properties.With(EnemyProperties.Deleted);
+        body.Presence = body.Presence.With(EnemyPresence.Deleted);
         state.Function = RidleyAiFunction.NorfairDeathComplete;
     }
 
@@ -210,11 +210,10 @@ internal sealed class NorfairRidleyDeath
             RoomEnemyPopulationRecord population = new(
                 EnemyDefinitionId.RidleyExplosion,
                 Position: Position16<RoomPixels>.Zero,
-                Properties:
-                    EnemyProperties.RunsAnimationScript |
-                    EnemyProperties.ProcessOffScreen |
-                    EnemyProperties.IgnoreSamusCollision,
-                ExtraProperties: EnemyExtraProperties.None,
+                Contact: EnemyContact.IgnoresSamus,
+                Processing: EnemyProcessing.AnimationScript | EnemyProcessing.OffScreen,
+                Presence: EnemyPresence.None,
+                DrawsExtendedFrames: false,
                 SpawnSettings: new RidleyExplosionSpawnSettings(part));
             // The explosion's initialization AI starts each part from the still-live shared Ridley joints.
             if (_dispatch.SpawnEnemy(population) is null)
@@ -274,9 +273,9 @@ internal sealed class NorfairRidleyDeath
     internal void RunNorfairRidleyExplosionMain(RoomEnemySlot fragment)
     {
         if ((fragment.FrameCounter & 1) != 0)
-            fragment.Properties = fragment.Properties.With(EnemyProperties.Invisible);
+            fragment.Presence = fragment.Presence.With(EnemyPresence.Hidden);
         else
-            fragment.Properties = fragment.Properties.Without(EnemyProperties.Invisible);
+            fragment.Presence = fragment.Presence.Without(EnemyPresence.Hidden);
         fragment.FrameCounter &= 1;
 
         RidleyExplosionFragmentState fragmentState = fragment.SpeciesState<RidleyExplosionFragmentState>()

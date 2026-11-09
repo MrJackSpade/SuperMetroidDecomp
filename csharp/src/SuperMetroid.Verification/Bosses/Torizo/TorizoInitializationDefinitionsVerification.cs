@@ -22,7 +22,7 @@ internal static class TorizoInitializationDefinitionsVerification
                 CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeAnimationScripts + variant * 2), CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakePropertyMasks + variant * 2),
                 CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeXRadii + variant * 2), CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeYRadii + variant * 2)];
             var compiled = variant == 0 ? TorizoInitializationDefinitions.Bomb : TorizoInitializationDefinitions.Golden;
-            ushort[] actual = [compiled.Position.X, compiled.Position.Y, TorizoNativeListAddresses.Entry(compiled.Program), checked((ushort)EnemyPropertyWordCodec.Encode(compiled.PropertyMask)), compiled.Radius.X, compiled.Radius.Y];
+            ushort[] actual = [compiled.Position.X, compiled.Position.Y, TorizoNativeListAddresses.Entry(compiled.Program), checked((ushort)EnemyPropertyWordCodec.EncodePropertyWord(new EnemyPropertyState(EnemyContact.None, compiled.Processing, EnemyPresence.None, DrawsExtendedFrames: false, NewInstructionFrame: false))), compiled.Radius.X, compiled.Radius.Y];
             AssertTrue(native.SequenceEqual(actual), "Every Torizo initialization record word matches ROM");
 
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
@@ -33,11 +33,17 @@ internal static class TorizoInitializationDefinitionsVerification
             var actor = enemies.SlotTable.Slots[0];
             actor.Bind(variant == 0 ? EnemyDefinitionId.BombTorizo : EnemyDefinitionId.GoldenTorizo, actor.Definition);
             // Every combination of engine properties (#1472: the property word's low byte is species settings, not
-            // an engine property), with the additional properties the complement names.
+            // an engine property), with both additional properties varying across the combinations.
             for (int properties = 0; properties <= ushort.MaxValue; properties += 256)
             {
-                actor.Properties = SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Decode(properties);
-                actor.ExtraProperties = SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.ExtraFlagsOf((ushort)~properties);
+                EnemyPropertyState population = EnemyPropertyWordCodec.Decode(properties, 0);
+                bool populationDrawsExtendedFrames = population.Contact.HasAny(EnemyContact.BlocksPlasmaBeam);
+                bool populationNewInstructionFrame = !population.Contact.HasAny(EnemyContact.SolidToSamus);
+                actor.Contact = population.Contact;
+                actor.Processing = population.Processing;
+                actor.Presence = population.Presence;
+                actor.DrawsExtendedFrames = populationDrawsExtendedFrames;
+                actor.NewInstructionFrame = populationNewInstructionFrame;
                 actor.Radius = new(0xffff, 0xffff);
                 actor.Position = new(new(0xffff, 0x1234), new(0xffff, 0xabcd));
                 actor.Health = 0x3456;
@@ -51,10 +57,14 @@ internal static class TorizoInitializationDefinitionsVerification
                     ?? throw new InvalidOperationException("Verification requires the initialized Torizo state.");
                 AssertEqual(native[2], TorizoNativeListAddresses.Entry(started.BodyProgram.Program), "Real Torizo initial program selection");
                 AssertEqual(AnimationProgramCursor<TorizoBodyProgram>.Start(started.BodyProgram.Program), started.BodyProgram, "Real Torizo starts its initial program");
-                AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EngineFlagsOf(properties | native[3]), actor.Properties, "All population properties preserved by native OR");
+                EnemyPropertyState initialized = EnemyPropertyWordCodec.Decode(properties | native[3], 0);
+                AssertEqual(initialized.Contact, actor.Contact, "All population contact preserved by native OR");
+                AssertEqual(initialized.Processing, actor.Processing, "All population processing preserved by native OR");
+                AssertEqual(initialized.Presence, actor.Presence, "All population presence preserved by native OR");
                 AssertEqual(native[4], actor.Radius.X, "Real Torizo X hitbox radius");
                 AssertEqual(native[5], actor.Radius.Y, "Real Torizo Y hitbox radius");
-                AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.ExtraFlagsOf((ushort)~properties) | EnemyExtraProperties.UsesExtendedSpritemap, actor.ExtraProperties, "Extended map flag preserves population extra properties");
+                AssertTrue(actor.DrawsExtendedFrames, "Torizo initialization draws extended frames");
+                AssertEqual(populationNewInstructionFrame, actor.NewInstructionFrame, "Extended map flag preserves the population's new-frame property");
                 AssertEqual((ushort)0x1234, actor.Position.X.Fraction, "Torizo initialization preserves X fraction");
                 AssertEqual((ushort)0xabcd, actor.Position.Y.Fraction, "Torizo initialization preserves Y fraction");
                 AssertEqual(0x3456, actor.Health, "Torizo initialization preserves population health");
@@ -67,11 +77,15 @@ internal static class TorizoInitializationDefinitionsVerification
                 AssertEqual((ushort)0x100, state.Velocity.Y.RawValue, "Initial falling velocity");
             }
             defeated = true;
-            actor.Properties = EnemyProperties.BlocksPlasmaBeam | EnemyProperties.IgnoreSamusCollision;
+            actor.Contact = EnemyContact.BlocksPlasmaBeam | EnemyContact.IgnoresSamus;
+            actor.Processing = EnemyProcessing.None;
+            actor.Presence = EnemyPresence.None;
             actor.Position = actor.Position.WithWhole(new(0x1111, 0x2222));
             actor.FrameHold = WrappingCountdown.Start(0x3333);
             initialize(actor);
-            AssertEqual(EnemyProperties.BlocksPlasmaBeam | EnemyProperties.IgnoreSamusCollision | EnemyProperties.Deleted, actor.Properties, "Defeated Torizo is deleted before initialization writes");
+            AssertEqual(EnemyContact.BlocksPlasmaBeam | EnemyContact.IgnoresSamus, actor.Contact, "Defeated Torizo keeps its contact");
+            AssertEqual(EnemyProcessing.None, actor.Processing, "Defeated Torizo gains no processing");
+            AssertEqual(EnemyPresence.Deleted, actor.Presence, "Defeated Torizo is deleted before initialization writes");
             AssertEqual((ushort)0x1111, actor.Position.X.Whole, "Defeated Torizo preserves X");
             AssertEqual((ushort)0x2222, actor.Position.Y.Whole, "Defeated Torizo preserves Y");
             AssertEqual((ushort)0x3333, actor.FrameHold.RawValue, "Defeated Torizo leaves its animation untouched");

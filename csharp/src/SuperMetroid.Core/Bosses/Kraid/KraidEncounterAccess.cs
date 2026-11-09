@@ -34,18 +34,16 @@ internal sealed class KraidEncounterAccess
     internal void RequestKraidMusic(MusicRequest request) =>
         _audio.RequestMusicAtUpdateEnd(EnemyMusicSource.Kraid, new DelayedMusicRequest(request, MusicQueueDelay.Shortest));
 
-    /// <summary>Marks a Kraid part dead: preserves its upper flags while installing the dead properties.</summary>
-    internal static void MarkKraidPartDead(RoomEnemySlot slot) =>
-        slot.Properties = slot.Properties.Replace(
-            EnemyProperties.SolidToSamus |
-                EnemyProperties.RunsAnimationScript |
-                EnemyProperties.ProcessOffScreen |
-                EnemyProperties.IgnoreSamusCollision |
-                EnemyProperties.Deleted |
-                EnemyProperties.Invisible,
-            EnemyProperties.IgnoreSamusCollision |
-                EnemyProperties.Deleted |
-                EnemyProperties.Invisible);
+    /// <summary>
+    /// Marks a Kraid part dead: it stops being solid, ignores Samus, stops its animation and off-screen processing,
+    /// and is hidden and deleted; its other properties are kept.
+    /// </summary>
+    internal static void MarkKraidPartDead(RoomEnemySlot slot)
+    {
+        slot.Contact = slot.Contact.Replace(EnemyContact.SolidToSamus | EnemyContact.IgnoresSamus, EnemyContact.IgnoresSamus);
+        slot.Processing = slot.Processing.Without(EnemyProcessing.AnimationScript | EnemyProcessing.OffScreen);
+        slot.Presence = slot.Presence.With(EnemyPresence.Deleted | EnemyPresence.Hidden);
+    }
 
     /// <summary>Installs <paramref name="program"/> as the part's program, as a list-pointer store does; the caller sets the timer.</summary>
     internal void SetKraidPartProgram(RoomEnemySlot part, KraidPartProgram program) =>

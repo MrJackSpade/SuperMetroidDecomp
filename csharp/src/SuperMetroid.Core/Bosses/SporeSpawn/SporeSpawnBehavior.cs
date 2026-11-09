@@ -141,7 +141,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.LoadedAsDefeated)
         {
             state.BodyProgram = AnimationProgramCursor<SporeSpawnBodyProgram>.Start(SporeSpawnBodyProgram.InitialDead);
-            body.Properties = body.Properties.With(EnemyProperties.SolidToSamus);
+            body.Contact = body.Contact.With(EnemyContact.SolidToSamus);
             UpdateSporeSpawnStalks(state);
             PublishSporeSpawnObject(SporeSpawnCeilingMutation.Clear);
             return;
@@ -524,7 +524,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         body.FlashTimer = 0;
         body.AiStates = EnemyAiStates.None;
         // The intangible property removes the dead body from the interactive-enemy list.
-        body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
+        body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
 
         // The clear walks the projectile slots downward from 13 to 0.
         // Slots 14..17 are the stalk and deliberately survive for the death animation.
@@ -559,9 +559,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             case SporeSpawnCue.Command { Kind: SporeSpawnCueKind.Harden }:
                 body.Position = body.Position.WithWhole(new(SporeSpawnDeathCenterX, SporeSpawnDeathCenterY));
-                body.Properties = body.Properties
-                    .With(EnemyProperties.SolidToSamus | EnemyProperties.RunsAnimationScript)
-                    .Without(EnemyProperties.IgnoreSamusCollision);
+                body.Contact = body.Contact.Replace(EnemyContact.IgnoresSamus, EnemyContact.SolidToSamus);
+                body.Processing = body.Processing.With(EnemyProcessing.AnimationScript);
                 return;
             case SporeSpawnCue.QueueSound queueSound:
                 RequestSporeSpawnSound(queueSound.Sound ?? throw new InvalidDataException("A Spore Spawn sound cue carries no sound."));

@@ -210,11 +210,9 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.PhantoonBody, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.ExtraProperties = slot.ExtraProperties.With(
-            EnemyExtraProperties.UsesExtendedSpritemap);
+        slot.DrawsExtendedFrames = true;
         if (newInstructionFrame)
-            slot.ExtraProperties = slot.ExtraProperties.With(
-                EnemyExtraProperties.NewInstructionFrame);
+            slot.NewInstructionFrame = true;
         slot.SpritemapPointer = pointer;
         slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
         enemies.Drawing.DrawLayersAsOam(new OamBuffer(), new(0, 0), 0, 0);

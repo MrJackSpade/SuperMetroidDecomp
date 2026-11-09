@@ -82,7 +82,7 @@ internal static class DachoraMotionStateVerification
             enemies.DachoraBehavior.RunDachoraMainAi(slot, frame);
 
             AssertEqual(expected, state.EchoLifetime, $"echo lifetime {lifetime} counts down without wrapping");
-            AssertEqual(invisible, slot.Properties.HasAny(EnemyProperties.Invisible), $"echo lifetime {lifetime} visibility");
+            AssertEqual(invisible, slot.Presence.HasAny(EnemyPresence.Hidden), $"echo lifetime {lifetime} visibility");
         }
         Console.WriteLine("  Dachora echo lifetime: counts down to zero and stays there, hiding the echo.");
     }

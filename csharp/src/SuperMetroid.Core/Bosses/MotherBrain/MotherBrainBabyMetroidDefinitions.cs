@@ -17,5 +17,6 @@ internal static class MotherBrainBabyMetroidDefinitions
     /// </summary>
     internal static readonly RoomEnemyPopulationRecord SpawnPopulation =
         new(EnemyDefinitionId.BabyMetroidCutscene, new(384, 64),
-            EnemyProperties.RunsAnimationScript | EnemyProperties.ProcessOffScreen, EnemyExtraProperties.None, EnemySpawnSettings.None);
+            EnemyContact.None, EnemyProcessing.AnimationScript | EnemyProcessing.OffScreen, EnemyPresence.None,
+            DrawsExtendedFrames: false, EnemySpawnSettings.None);
 }

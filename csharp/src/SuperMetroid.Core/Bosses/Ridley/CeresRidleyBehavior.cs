@@ -257,7 +257,7 @@ internal sealed class CeresRidleyBehavior
                 // this point because the rotating view owns his departure; hide the ordinary actor so
                 // it cannot remain parked over that separately scoped presentation seam.
                 state.Function = RidleyAiFunction.CeresInactive;
-                slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
+                slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
                 _ridleyEncounter.CeresStatus = CeresEscapeStatus.RidleyEscaped;
                 CeresRidleyGetaway.SetupCeresRidleyGetawayFloor(state);
                 break;

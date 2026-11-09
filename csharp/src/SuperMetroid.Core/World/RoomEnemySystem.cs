@@ -931,7 +931,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
             // not this clock. Remember the entry value: the call that reaches zero
             // still skips collision, and a new AI-owned timer must not lose a tick.
             bool invincibleAtEntry = slot.InvincibilityTimer != 0;
-            if (!slot.Properties.HasAny(EnemyProperties.IgnoreSamusCollision) && invincibleAtEntry)
+            if (!slot.Contact.HasAny(EnemyContact.IgnoresSamus) && invincibleAtEntry)
                 slot.InvincibilityTimer--;
             // EnemyMain checks contact against the pre-movement actor, not the position
             // just moved into by AI. A rising support temporarily overlaps its rider until
@@ -1026,7 +1026,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                     // incorrectly advanced a Metroid's body animation while its frozen
                     // callback still owned the two composited outer sprite objects.
                     if ((slot.AiStates & EnemyAiStates.Frozen) == EnemyAiStates.None &&
-                        slot.Properties.HasAny(EnemyProperties.RunsAnimationScript))
+                        slot.Processing.HasAny(EnemyProcessing.AnimationScript))
                         EnemyInstructionInterpreter.RunsAnimationScript(
                             slot,
                             frame.Samus,
@@ -1040,9 +1040,9 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
             // The two hide-drawing properties suppress drawing, while the always-queue extra property can
             // force an otherwise off-screen actor into the queue. Gunship uses the normal
             // radius-aware visibility test.
-            bool visible = slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap) ||
+            bool visible = slot.DrawsExtendedFrames ||
                 !EnemyProcessingWindow.EnemyWithNormalSpritesIsOffScreen(slot, frame.Camera);
-            if (visible && !slot.Properties.HasAny(EnemyProperties.Invisible | EnemyProperties.Deleted))
+            if (visible && !slot.Presence.HasAny(EnemyPresence.Hidden | EnemyPresence.Deleted))
                 Drawing.Enqueue(slot.Layer, slot);
 
             // EnemyMain performs this after the enemy has been admitted to its draw queue.
@@ -1070,7 +1070,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                 slot.Position.Whole,
                 new(slot.Radius.X, slot.Radius.Y),
                 // A frozen enemy blocks Samus whatever its properties say.
-                slot.FrozenTimer != 0 || slot.Properties.HasAny(EnemyProperties.SolidToSamus)));
+                slot.FrozenTimer != 0 || slot.Contact.HasAny(EnemyContact.SolidToSamus)));
         }
         FrameContext.AdvanceRandomEnemyCounter();
         frame.Samus?.Kinematics.ClearSolidEnemyCollisions();

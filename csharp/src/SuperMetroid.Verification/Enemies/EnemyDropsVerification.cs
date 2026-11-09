@@ -63,7 +63,9 @@ internal static class EnemyDropsVerification
         enemy.Radius = new(8, 8);
         enemy.Health = 1;
         enemy.Frame = EnemyFrameId.SkulteraSwimLeft0;
-        enemy.Properties = (EnemyProperties.RespawnIfKilled);
+        enemy.Contact = EnemyContact.None;
+        enemy.Processing = EnemyProcessing.None;
+        enemy.Presence = EnemyPresence.RespawnsIfKilled;
         var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
         var samusColours = new SamusColours();
         fixture.System.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = fixture.Level, SamusProjectiles = projectiles, SamusColours = samusColours, ResolveSamusContactBeforeAi = true });
@@ -339,7 +341,9 @@ internal static class EnemyDropsVerification
         enemy.Bind((EnemyDefinitionId)enemyHeader, enemy.Definition);
         enemy.Position = enemy.Position.WithWhole(new(321, 123));
         enemy.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;
-        enemy.Properties = (EnemyProperties.RespawnIfKilled);
+        enemy.Contact = EnemyContact.None;
+        enemy.Processing = EnemyProcessing.None;
+        enemy.Presence = EnemyPresence.RespawnsIfKilled;
 
         // A Fireflea with health nine proves health above four selects the small explosion.
         fixture.System.DeathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: EnemyDeathExplosions.ForLeftoverNumber(9));

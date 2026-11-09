@@ -112,7 +112,7 @@ internal sealed class MotherBrainCombat
         // the next projectile pass consumes the marker, removing a Super Missile's pair too.
         projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(
             projectile.SlotIndex,
-            head.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
+            head.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||
                 !projectileType.BeamCombination.HasPlasma);
         // The head's shot AI lets only missiles and Super Missiles reach the glass.
         if (family is not (SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile))
@@ -168,7 +168,7 @@ internal sealed class MotherBrainCombat
         // The walker marked the projectile before dispatching this callback.
         projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(
             projectile.SlotIndex,
-            head.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
+            head.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||
                 !projectileType.BeamCombination.HasPlasma);
 
         // The reaction step reads its eight-row reaction table at the family's row wrapped to eight

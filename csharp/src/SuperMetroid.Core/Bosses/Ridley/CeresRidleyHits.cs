@@ -43,10 +43,7 @@ internal sealed class CeresRidleyHits
 
         RoomEnemySlot slot = _ridleyEncounter.Parts.Body;
         if (slot.DefinitionId != EnemyDefinitionId.RidleyCeres ||
-            slot.Properties.HasAny(
-                EnemyProperties.Invisible |
-                EnemyProperties.Deleted |
-                EnemyProperties.IgnoreSamusCollision))
+            slot.Presence.HasAny(EnemyPresence.Hidden | EnemyPresence.Deleted) || slot.Contact.HasAny(EnemyContact.IgnoresSamus))
         {
             return 0;
         }
@@ -169,10 +166,7 @@ internal sealed class CeresRidleyHits
         }
 
         if (slot.Frame is null ||
-            slot.Properties.HasAny(
-                EnemyProperties.Invisible |
-                EnemyProperties.Deleted |
-                EnemyProperties.IgnoreSamusCollision))
+            slot.Presence.HasAny(EnemyPresence.Hidden | EnemyPresence.Deleted) || slot.Contact.HasAny(EnemyContact.IgnoresSamus))
         {
             return false;
         }

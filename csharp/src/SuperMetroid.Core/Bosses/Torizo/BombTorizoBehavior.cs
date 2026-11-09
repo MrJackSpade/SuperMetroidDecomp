@@ -118,12 +118,12 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 // The awakening check scans all forty PLM slots for the hand-trigger PLM. A supplied PLM owner is
                 // authoritative; standalone enemy audits omit it and therefore model the
                 // already-collected item/removed hand trigger.
-                torizo.Properties = torizo.Properties.With(EnemyProperties.SolidToSamus);
+                torizo.Contact = torizo.Contact.With(EnemyContact.SolidToSamus);
                 if (_room.Services.RoomObjects.HasActiveHeader(RoomObjectHeaderId.BombTorizoHand))
                     return;
 
                 RequestBombTorizoMusic(MusicRequest.SelectTrack(6));
-                torizo.Properties = torizo.Properties.Without(EnemyProperties.SolidToSamus);
+                torizo.Contact = torizo.Contact.Without(EnemyContact.SolidToSamus);
                 TorizoBody.StartTorizoBodyProgram(torizo, state, AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoAnimations.AfterSleep(state.BodyProgram.Program)));
                 state.AwakeningReleased = true;
                 return;
@@ -285,11 +285,11 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.MakeVisible }:
-                torizo.Properties = torizo.Properties.Without(EnemyProperties.Invisible);
+                torizo.Presence = torizo.Presence.Without(EnemyPresence.Hidden);
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.MakeInvisible }:
-                torizo.Properties = torizo.Properties.With(EnemyProperties.Invisible);
+                torizo.Presence = torizo.Presence.With(EnemyPresence.Hidden);
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.FadeToBlack }:

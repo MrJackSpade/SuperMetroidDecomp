@@ -239,7 +239,7 @@ internal sealed class DraygonSwoops
         if (CoordinateAxis.AsSigned(body.Position.Y.Whole) >= 0)
             return;
 
-        body.Properties = body.Properties.Without(EnemyProperties.IgnoreSamusCollision);
+        body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
         state.Function = DraygonAiFunction.SwoopRightSetup;
         state.SwoopEntry = 0;
         body.Position = body.Position.WithWhole(state.LeftSideReset);

@@ -34,7 +34,7 @@ internal static class EnemyInstructionRunner
         for (int update = 0; update < updates; update++)
         {
             Process(arguments);
-            if (slot.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame))
+            if (slot.NewInstructionFrame)
                 shown.Add($"{update}:{slot.SpritemapPointer:X4}");
         }
         return string.Join(",", shown);

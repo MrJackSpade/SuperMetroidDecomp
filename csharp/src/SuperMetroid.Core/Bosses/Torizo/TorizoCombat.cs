@@ -128,7 +128,7 @@ internal sealed class TorizoCombat
         // The normal Torizo shot reaction makes the actor intangible when
         // entering the death stream. This removes the dying actor from Samus contact and
         // solid-enemy collision while its flashing/invisible instruction frames continue.
-        torizo.Properties = torizo.Properties.With(EnemyProperties.IgnoreSamusCollision);
+        torizo.Contact = torizo.Contact.With(EnemyContact.IgnoresSamus);
     }
 
     /// <summary>Latches <paramref name="flags"/>.</summary>

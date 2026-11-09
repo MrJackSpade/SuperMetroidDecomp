@@ -26,7 +26,9 @@ internal static class EtecoonFanfareVerification
             slot.Health = slot.Definition.Health;
             slot.Radius = new(slot.Definition.Radius.X, slot.Definition.Radius.Y);
             slot.Position = slot.Position.WithWhole(new((ushort)(0x25f + index * 16), 0xb98));
-            slot.Properties = SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Decode(0x0c00);
+            slot.Contact = EnemyContact.IgnoresSamus;
+            slot.Processing = EnemyProcessing.OffScreen;
+            slot.Presence = EnemyPresence.None;
             slot.SetSpawnParameter2(EnemyDefinitionId.Etecoon, (ushort)index);
             EtecoonBehavior.InitializeEtecoon(slot);
         }

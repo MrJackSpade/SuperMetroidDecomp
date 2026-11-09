@@ -37,7 +37,7 @@ internal sealed class RoomMainRoutines
     {
         if (_room.ActiveRoom?.State.MainCallback != RoomMainCallback.CrocomireRoomShaking ||
             room.Enemies.RoomMainHooks.Crocomire is not { } boss ||
-            boss.Body.Properties.HasAny(EnemyProperties.Invisible) ||
+            boss.Body.Presence.HasAny(EnemyPresence.Hidden) ||
             boss.DeathPhase != CrocomireDeathPhase.RumbleHiddenWall)
             return;
 

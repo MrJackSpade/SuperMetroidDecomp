@@ -56,7 +56,7 @@ internal sealed class TorizoMovement
         // independent from save-memory layout and avoiding a room-number special case.
         if (_room.Services.Bosses.IsDefeated(BossBits.AreaTorizo))
         {
-            torizo.Properties = torizo.Properties.With(EnemyProperties.Deleted);
+            torizo.Presence = torizo.Presence.With(EnemyPresence.Deleted);
             state.BossBitSet = true;
             return;
         }
@@ -65,9 +65,8 @@ internal sealed class TorizoMovement
             ? TorizoInitializationDefinitions.Golden : TorizoInitializationDefinitions.Bomb;
         torizo.Position = torizo.Position.WithWhole(definition.Position);
         state.BodyProgram = AnimationProgramCursor<TorizoBodyProgram>.Start(definition.Program);
-        torizo.Properties = torizo.Properties.With(definition.PropertyMask);
-        torizo.ExtraProperties = torizo.ExtraProperties.With(
-            EnemyExtraProperties.UsesExtendedSpritemap);
+        torizo.Processing = torizo.Processing.With(definition.Processing);
+        torizo.DrawsExtendedFrames = true;
         torizo.Radius = definition.Radius;
         torizo.FrameHold = WrappingCountdown.Start(1);
         torizo.Timer = WrappingCountdown.Start(0);

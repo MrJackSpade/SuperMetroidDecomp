@@ -51,7 +51,7 @@ internal sealed class CrocomireBridgeCollapse
         CrocomireBridgeCollapseStarted = true;
         state.DeathPhase = CrocomireDeathPhase.CrumbleBridgeAndSink;
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.BridgeCollapsed);
-        body.Properties = body.Properties.With(EnemyProperties.SolidToSamus);
+        body.Contact = body.Contact.With(EnemyContact.SolidToSamus);
         state.StartVerticalMotion(EightEight.FromWhole(CrocomireBehavior.SinkStartingAccelerationWhole));
         body.Radius = body.Radius.WithY(16);
         _access.RequestCrocomireSound(CrocomireSoundDefinitions.BridgeCollapse);
@@ -66,7 +66,7 @@ internal sealed class CrocomireBridgeCollapse
         {
             // The sleep is installed behind the maximum timer, so it is reached only after 32767 updates.
             CrocomireBodyLayer.StartCrocomireTongueProgram(state, CrocomireTongueProgram.Sleep, WrappingCountdown.Start(32767));
-            tongue.Properties = tongue.Properties.With(EnemyProperties.Invisible);
+            tongue.Presence = tongue.Presence.With(EnemyPresence.Hidden);
         }
     }
 
@@ -226,8 +226,7 @@ internal sealed class CrocomireBridgeCollapse
         }
 
         HideCrocomireSunkenBody();
-        body.ExtraProperties = body.ExtraProperties.Without(
-            EnemyExtraProperties.NewInstructionFrame);
+        body.NewInstructionFrame = false;
 
         // The acceleration's fraction carries into its whole part before the whole part is clamped, and the
         // speed's into its whole part before that is clamped: each clamp keeps the fraction it carried from.
@@ -312,7 +311,7 @@ internal sealed class CrocomireBridgeCollapse
         _room.Services.RoomScroll.Write(4, RoomScrollState.Blue);
         _room.Services.RoomScroll.Write(5, RoomScrollState.Blue);
         if (state.Tongue is { } tongue)
-            tongue.Properties = tongue.Properties.With(EnemyProperties.Deleted);
+            tongue.Presence = tongue.Presence.With(EnemyPresence.Deleted);
         _access.PublishCrocomireObject(new Position16<RoomBlocks>(78, 3), CrocomireArenaMutation.ClearInvisibleWall);
         _zebetiteBehavior.CameraDistance = CameraDistanceMode.NormalTracking;
         _access.RequireCrocomireDeath().SkeletonBaringElapsed = 0;

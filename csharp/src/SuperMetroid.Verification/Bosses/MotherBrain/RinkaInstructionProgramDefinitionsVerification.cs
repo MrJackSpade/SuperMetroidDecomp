@@ -31,17 +31,17 @@ internal static class RinkaInstructionProgramDefinitionsVerification
         (RoomEnemySystem ordinarySystem, RoomEnemySlot ordinary) = RunRinkaProgram(RinkaProgram.Ordinary, special: false);
         AssertEqual(RinkaEnemyFunction.AimDelay, (ordinarySystem.RinkaStates[0] ?? throw new InvalidOperationException("Verification requires ordinarySystem.RinkaStates[0].")).Function,
             "ordinary Rinka fire callback selects aim-delay AI");
-        AssertTrue(!ordinary.Properties.HasAny(EnemyProperties.Invisible),
+        AssertTrue(!ordinary.Presence.HasAny(EnemyPresence.Hidden),
             "ordinary Rinka fire callback makes the actor visible");
-        AssertTrue(!ordinary.Properties.HasAny(EnemyProperties.ProcessOffScreen),
+        AssertTrue(!ordinary.Processing.HasAny(EnemyProcessing.OffScreen),
             "ordinary Rinka program does not enable off-screen processing");
 
         (RoomEnemySystem specialSystem, RoomEnemySlot special) = RunRinkaProgram(RinkaProgram.Special, special: true);
         AssertEqual(RinkaEnemyFunction.AimDelay, (specialSystem.RinkaStates[0] ?? throw new InvalidOperationException("Verification requires specialSystem.RinkaStates[0].")).Function,
             "special Rinka fire callback selects aim-delay AI");
-        AssertTrue(!special.Properties.HasAny(EnemyProperties.Invisible),
+        AssertTrue(!special.Presence.HasAny(EnemyPresence.Hidden),
             "special Rinka fire callback makes the actor visible");
-        AssertTrue(special.Properties.HasAny(EnemyProperties.ProcessOffScreen),
+        AssertTrue(special.Processing.HasAny(EnemyProcessing.OffScreen),
             "special Rinka setup retains off-screen processing after firing");
 
         Suite(nameof(RinkaAnimationsVerification.VerifyRinkaAnimations), () => RinkaAnimationsVerification.VerifyRinkaAnimations(rom));

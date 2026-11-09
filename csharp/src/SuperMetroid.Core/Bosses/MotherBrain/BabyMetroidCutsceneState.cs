@@ -43,8 +43,14 @@ public sealed class BabyMetroidCutsceneState
     public BabyMetroidCutscenePhase Phase { get; internal set; } =
         BabyMetroidCutscenePhase.Inactive;
 
-    /// <summary>Enemy properties after initialization adds the hide-drawing and processing properties.</summary>
-    public EnemyProperties Properties { get; private set; }
+    /// <summary>How the actor meets Samus and her shots, after initialization makes it block the Plasma Beam.</summary>
+    public EnemyContact Contact { get; private set; }
+
+    /// <summary>What the room's enemy passes run for the actor, after initialization starts its animation script.</summary>
+    public EnemyProcessing Processing { get; private set; }
+
+    /// <summary>Whether the actor is drawn and still occupies its slot.</summary>
+    public EnemyPresence Presence { get; private set; }
 
     /// <summary>
     /// Whether the onion-ring hit flash shows the shared white palette this update instead of
@@ -156,7 +162,7 @@ public sealed class BabyMetroidCutsceneState
     public BabyMetroidSamusRainbowPhase SamusRainbowPhase { get; private set; }
 
     /// <summary>True after the deleted enemy property marks the cutscene actor deleted.</summary>
-    public bool IsDeleted => Properties.HasAny(EnemyProperties.Deleted);
+    public bool IsDeleted => Presence.HasAny(EnemyPresence.Deleted);
 
     /// <summary>
     /// Initializes the Baby. The population record supplies its properties; initialization
@@ -167,12 +173,13 @@ public sealed class BabyMetroidCutsceneState
     /// </summary>
     public void Initialize(
         FixedPosition<RoomPixels> previousOccupant,
-        EnemyProperties? populationProperties = null)
+        EnemyContact populationContact = EnemyContact.None,
+        EnemyProcessing populationProcessing = EnemyProcessing.AnimationScript | EnemyProcessing.OffScreen,
+        EnemyPresence populationPresence = EnemyPresence.None)
     {
-        Properties = (populationProperties ??
-            (EnemyProperties.RunsAnimationScript | EnemyProperties.ProcessOffScreen)).With(
-            EnemyProperties.BlocksPlasmaBeam |
-            EnemyProperties.RunsAnimationScript);
+        Contact = populationContact.With(EnemyContact.BlocksPlasmaBeam);
+        Processing = populationProcessing.With(EnemyProcessing.AnimationScript);
+        Presence = populationPresence;
         HitFlashPaletteShown = false;
         SetProgram(MotherBrainBabyProgram.Initial);
         CrySoundEnabled = true;
@@ -633,7 +640,7 @@ public sealed class BabyMetroidCutsceneState
                 {
                     // Completion does not write palette index seven. It hides the actor,
                     // starts readying Mother Brain's attacks again, and waits through 128..0 before its first update.
-                    Properties = Properties.With(EnemyProperties.Invisible);
+                    Presence = Presence.With(EnemyPresence.Hidden);
                     Phase = BabyMetroidCutscenePhase.ReadyMotherBrainAttacksAgain;
                     FunctionTimer = 128;
                 }
@@ -641,9 +648,9 @@ public sealed class BabyMetroidCutsceneState
                 {
                     deathExplosion = StepDeathExplosion();
                     // The flicker step clears invisibility on odd enemy frames and sets it on even.
-                    Properties = (enemyFrameCounter & 1) != 0
-                        ? Properties.Without(EnemyProperties.Invisible)
-                        : Properties.With(EnemyProperties.Invisible);
+                    Presence = (enemyFrameCounter & 1) != 0
+                        ? Presence.Without(EnemyPresence.Hidden)
+                        : Presence.With(EnemyPresence.Hidden);
                 }
                 break;
 
@@ -691,7 +698,7 @@ public sealed class BabyMetroidCutsceneState
                 motherBrain.BeginPhase3RecoveryFromBabyCutscene();
                 samus.Drained.DisableRainbowAndStartStandingAnimation(samus);
                 samus.Drained.EnableHyperBeam(samus);
-                Properties = Properties.With(EnemyProperties.Deleted);
+                Presence = Presence.With(EnemyPresence.Deleted);
                 break;
             }
 

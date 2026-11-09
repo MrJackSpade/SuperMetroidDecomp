@@ -64,7 +64,7 @@ internal sealed class MotherBrainBody
         tube.FrameHold = frameHold.Remaining;
         if (!frameHold.IsZero)
         {
-            tube.ExtraProperties = tube.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
+            tube.NewInstructionFrame = false;
             return;
         }
 
@@ -80,7 +80,7 @@ internal sealed class MotherBrainBody
             case AnimationProgramAdvance<MotherBrainTubeFrame>.Show shown:
                 tube.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
                 tube.Frame = MotherBrainVisualDefinitions.TubeFrames.Of(shown.Frame);
-                tube.ExtraProperties = tube.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
+                tube.NewInstructionFrame = true;
                 return;
             case AnimationProgramAdvance<MotherBrainTubeFrame>.Hold:
                 // The script's sleep: the timer wraps from zero and the pose stays.
@@ -94,10 +94,8 @@ internal sealed class MotherBrainBody
     internal void InitializeMotherBrainBody(RoomEnemySlot body)
     {
         body.FrameHold = WrappingCountdown.Start(1);
-        body.Properties = body.Properties.With(
-            EnemyProperties.BlocksPlasmaBeam |
-            EnemyProperties.IgnoreSamusCollision |
-            EnemyProperties.Invisible);
+        body.Contact = body.Contact.With(EnemyContact.BlocksPlasmaBeam | EnemyContact.IgnoresSamus);
+        body.Presence = body.Presence.With(EnemyPresence.Hidden);
         body.Shading = EnemyShades.HurtFlashLook;
 
         _motherBrainEncounter.MotherBrain = new MotherBrainEnemyState(body)
@@ -170,7 +168,7 @@ internal sealed class MotherBrainBody
         slot.FrameHold = frameHold.Remaining;
         if (!frameHold.IsZero)
         {
-            slot.ExtraProperties = slot.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
+            slot.NewInstructionFrame = false;
             return;
         }
 
@@ -192,7 +190,7 @@ internal sealed class MotherBrainBody
             case AnimationProgramAdvance<MotherBrainBodyFrame>.Show shown:
                 slot.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
                 slot.Frame = MotherBrainBodyVisualDefinitions.ShownFrames.Of(shown.Frame);
-                slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
+                slot.NewInstructionFrame = true;
                 return;
             case AnimationProgramAdvance<MotherBrainBodyFrame>.Hold:
                 // The script's sleep: the timer wraps from zero and the last frame stays.

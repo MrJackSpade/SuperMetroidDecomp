@@ -89,9 +89,9 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
             RunFrames(enemies, head, 80);
             AssertTrue(!state.AnimationBusy,
                 $"Magdollite {direction} submerge releases animation wait");
-            AssertTrue(!enemies.SlotTable.Slots[1].Properties.HasAny(EnemyProperties.Invisible),
+            AssertTrue(!enemies.SlotTable.Slots[1].Presence.HasAny(EnemyPresence.Hidden),
                 $"Magdollite {direction} submerge reveals pillar");
-            AssertTrue(!enemies.SlotTable.Slots[2].Properties.HasAny(EnemyProperties.Invisible),
+            AssertTrue(!enemies.SlotTable.Slots[2].Presence.HasAny(EnemyPresence.Hidden),
                 $"Magdollite {direction} submerge reveals hand");
         }
 
@@ -99,17 +99,15 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
         {
             (RoomEnemySystem enemies, RoomEnemySlot head, MagdolliteEnemyState state) =
                 CreateSystem(MagdollitePart.Head);
-            enemies.SlotTable.Slots[1].Properties =
-                enemies.SlotTable.Slots[1].Properties.Without(EnemyProperties.Invisible);
-            enemies.SlotTable.Slots[2].Properties =
-                enemies.SlotTable.Slots[2].Properties.Without(EnemyProperties.Invisible);
+            enemies.SlotTable.Slots[1].Presence = enemies.SlotTable.Slots[1].Presence.Without(EnemyPresence.Hidden);
+            enemies.SlotTable.Slots[2].Presence = enemies.SlotTable.Slots[2].Presence.Without(EnemyPresence.Hidden);
             Install(head, state, program);
             RunFrames(enemies, head, 80);
             AssertTrue(!state.AnimationBusy,
                 $"Magdollite {direction} emerge releases animation wait");
-            AssertTrue(enemies.SlotTable.Slots[1].Properties.HasAny(EnemyProperties.Invisible),
+            AssertTrue(enemies.SlotTable.Slots[1].Presence.HasAny(EnemyPresence.Hidden),
                 $"Magdollite {direction} emerge hides pillar");
-            AssertTrue(enemies.SlotTable.Slots[2].Properties.HasAny(EnemyProperties.Invisible),
+            AssertTrue(enemies.SlotTable.Slots[2].Presence.HasAny(EnemyPresence.Hidden),
                 $"Magdollite {direction} emerge hides hand");
         }
 

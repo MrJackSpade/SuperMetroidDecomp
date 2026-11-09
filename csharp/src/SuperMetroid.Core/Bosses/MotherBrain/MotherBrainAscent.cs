@@ -58,10 +58,8 @@ internal sealed class MotherBrainAscent
         // Both records become tangible before the suspense pause, but remain invisible for
         // their separate reasons: the body waits for its leg tiles, while the head's hide-drawing
         // bit deliberately selects the custom articulated draw hook.
-        state.Body.Properties =
-            state.Body.Properties.Without(EnemyProperties.IgnoreSamusCollision);
-        state.Head.Properties =
-            state.Head.Properties.Without(EnemyProperties.IgnoreSamusCollision);
+        state.Body.Contact = state.Body.Contact.Without(EnemyContact.IgnoresSamus);
+        state.Head.Contact = state.Head.Contact.Without(EnemyContact.IgnoresSamus);
         state.Head.Health = 18000;
         state.Function = MotherBrainBodyFunction.FakeDeathAscentPauseForSuspense;
         state.FunctionTimer = 128;
@@ -94,7 +92,7 @@ internal sealed class MotherBrainAscent
         // appear over the floor. The renderer consumes this
         // typed lifetime rather than pretending it is a body-visibility flag.
         state.RisingFloorClipActive = true;
-        state.Head.Properties = state.Head.Properties.With(EnemyProperties.Invisible);
+        state.Head.Presence = state.Head.Presence.With(EnemyPresence.Hidden);
         MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.Initial);
         state.Function = MotherBrainBodyFunction.FakeDeathAscentReadyStandingBody;
         state.FunctionTimer = 256;
@@ -154,7 +152,7 @@ internal sealed class MotherBrainAscent
     {
         MotherBrainEncounterAccess.SetMotherBrainBodyProgram(state, MotherBrainBodyProgram.Crouched);
         state.Head.FrameHold = WrappingCountdown.Start(1);
-        state.Body.Properties = state.Body.Properties.Without(EnemyProperties.Invisible);
+        state.Body.Presence = state.Body.Presence.Without(EnemyPresence.Hidden);
         state.Body.Position = state.Body.Position.WithWhole(new(59, 279));
         MotherBrainBody.PlaceMotherBrainBodyLayer(state, Position16<BackgroundPixels>.Wrapped(-27, -217));
         _motherBrainEncounter.RequestMusic(MusicRequest.SelectTrack(5), MusicQueueDelay.Shortest);

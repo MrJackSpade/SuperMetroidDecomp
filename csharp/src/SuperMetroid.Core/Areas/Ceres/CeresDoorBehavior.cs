@@ -105,23 +105,23 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
             case CeresDoorCueKind.GoToIfRidleyNotEscaped:
                 return _ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped ? null : cue.Target;
             case CeresDoorCueKind.MakeIntangible:
-                slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
+                slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
                 return null;
             case CeresDoorCueKind.MakeTangible:
-                slot.Properties = slot.Properties.Without(EnemyProperties.IgnoreSamusCollision);
+                slot.Contact = slot.Contact.Without(EnemyContact.IgnoresSamus);
                 return null;
             case CeresDoorCueKind.HandDrawingToRidley:
                 slot.RequireSpeciesState<CeresDoorEnemyState>().HandsDrawingToRidley = true;
                 return null;
             case CeresDoorCueKind.MakeInvisible:
-                slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
+                slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
                 return null;
             case CeresDoorCueKind.MakeVisibleAndTakeDrawingBack:
                 slot.RequireSpeciesState<CeresDoorEnemyState>().HandsDrawingToRidley = false;
-                slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
+                slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);
                 return null;
             case CeresDoorCueKind.MakeVisible:
-                slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
+                slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);
                 return null;
             case CeresDoorCueKind.PlayOpeningSound:
                 _audio.QueueEnemySound(Library3Sound.CeresDoorOpening, priority: SoundRequestPriority.Normal);
@@ -247,7 +247,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
             // The 49th call underflows zero to -1. The door hides, returns
             // it to the perpetual elevator-animation function, and publishes its destruction so the
             // room's turning-floor controller begins the rotation after Ridley's escape.
-            slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
+            slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
             state.Function = CeresDoorFunction.ElevatorAnimation;
             if (_ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped)
                 _ridleyEncounter.CeresStatus = CeresEscapeStatus.ElevatorDoorDestroyed;

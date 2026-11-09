@@ -85,8 +85,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // from piercing the actor. The upstream C symbol calls the processing bit DisableSamusColl,
         // but the executable scheduler also consumes that same bit for instructions, so
         // the translated property enum retains the directly observed scheduler meaning.
-        slot.Properties = slot.Properties.With(
-            EnemyProperties.BlocksPlasmaBeam | EnemyProperties.RunsAnimationScript);
+        slot.Contact = slot.Contact.With(EnemyContact.BlocksPlasmaBeam);
+        slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 
@@ -102,8 +102,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             // The intangible property removes the actor from ordinary interaction and the hide-drawing property suppresses
             // drawing. Keep the former raw: although it is traditionally called "tangible", the
             // collision walkers explicitly reject actors that have it.
-            slot.Properties = slot.Properties.With(
-                EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
+            slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
+            slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
             state.Function = ShitroidAiFunction.Dormant;
         }
         state.ReactsToSamus = false;
@@ -317,8 +317,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                     state.Velocity = default;
                     // The leave step clears instruction processing and invisibility as Shitroid
                     // reaches the off-screen destination, leaving a dormant non-drawn actor.
-                    slot.Properties = slot.Properties.Without(
-                        EnemyProperties.RunsAnimationScript | EnemyProperties.Invisible);
+                    slot.Processing = slot.Processing.Without(EnemyProcessing.AnimationScript);
+                    slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);
                     state.Function = ShitroidAiFunction.Dormant;
                 }
                 return;
@@ -811,7 +811,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.FrameHold = frameHold.Remaining;
         if (!frameHold.IsZero)
         {
-            slot.ExtraProperties = slot.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
+            slot.NewInstructionFrame = false;
             return;
         }
 
@@ -825,7 +825,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidOperationException($"The Shitroid's programs have no {advance} step.");
         slot.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
         slot.Frame = BabyMetroidVisualDefinitions.ShownFrames.Of(shown.Frame);
-        slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
+        slot.NewInstructionFrame = true;
     }
 
     /// <summary>Carries out one cue of a Shitroid program.</summary>

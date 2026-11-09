@@ -66,7 +66,7 @@ internal static class BossDisplayBindingsResourcesVerification
             AssertEqual(PhantoonPartFrameSpritemapsConstants.Spritemap(AssertIs<AnimationProgramStep<PhantoonPartProgram, PhantoonPartFrame, PhantoonPartCue>.ShowStep>(steps[index], "pose step").Frame), tentacles.Actor.SpritemapPointer, "exact physical pose sequence");
             AssertEqual((ushort)(duration - frame % duration), tentacles.Actor.FrameHold.RawValue, "exact native hold/goto clock");
             bool fresh = frame % duration == 0;
-            AssertEqual(fresh, tentacles.Actor.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame), "exact new-frame schedule");
+            AssertEqual(fresh, tentacles.Actor.NewInstructionFrame, "exact new-frame schedule");
             if (fresh) transitions++;
         }
         Console.WriteLine($"PASS boss clocks: {frames} production animation steps/{transitions} exact native frame admissions.");

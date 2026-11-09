@@ -176,7 +176,7 @@ internal static class LookupStream5Verification
                     AssertEqual(y, particle.Position.Y.Whole, "Actual produced native Y including 16-bit wrap");
                     AssertTrue(particle.Animation is MiscDustProjectileAnimation started && started.Cursor.Program == program, "RNG changes animation only");
                 }
-                AssertEqual(call == 49, slot.Properties.HasAny(EnemyProperties.Invisible), "Hide only at destruction expiry");
+                AssertEqual(call == 49, slot.Presence.HasAny(EnemyPresence.Hidden), "Hide only at destruction expiry");
             }
             AssertEqual(CeresEscapeStatus.ElevatorDoorDestroyed, system.RidleyEncounter.CeresStatus, "Actual rotation handoff after last anchor");
             AssertTrue(system.Audio.SoundRequests.Any(request => request.SoundEffect == Library2Sound.BigExplosion), "Emission sound preserved");
@@ -376,7 +376,7 @@ internal static class LookupStream5Verification
             open(state);
             ushort duration = ReadVerificationWord(rom, 0xa7cd41 + bucket * 2);
             AssertEqual(duration, state.BodyState.FunctionTimer, "Native selected vulnerability duration");
-            AssertTrue(!body.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "Eye opening enables collision");
+            AssertTrue(!body.Contact.HasAny(EnemyContact.IgnoresSamus), "Eye opening enables collision");
             state.TentaclesState.SwoopRequested = shot;
             state.TentaclesState.RoundDamage = 37;
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(new(192, 96)) };
@@ -389,7 +389,7 @@ internal static class LookupStream5Verification
                 {
                     AssertEqual((ushort)(duration - elapsed), state.BodyState.FunctionTimer, "One exact countdown decrement per actor call");
                     AssertEqual(PhantoonAiFunction.EyeTracksSamus, state.BodyState.Function, "No early exposure transition");
-                    AssertTrue(!body.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "Exposure remains collidable before expiry");
+                    AssertTrue(!body.Contact.HasAny(EnemyContact.IgnoresSamus), "Exposure remains collidable before expiry");
                     AssertEqual(37, state.TentaclesState.RoundDamage, "Round damage remains until expiration");
                 }
             }
@@ -405,7 +405,7 @@ internal static class LookupStream5Verification
                 AssertEqual(PhantoonAiFunction.NoOperation, state.BodyState.Function, "Unhit expiration hands off to eye close");
                 AssertEqual(PhantoonPartProgram.InvulnerableBody, state.PartProgram(body).Program, "Native invulnerable body handoff");
                 AssertEqual(PhantoonPartProgram.EyeCloseAndPickNewPattern, state.PartProgram(eye).Program, "Native close/reselect eye handoff");
-                AssertTrue(body.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "Expiration removes open-eye collision");
+                AssertTrue(body.Contact.HasAny(EnemyContact.IgnoresSamus), "Expiration removes open-eye collision");
                 AssertEqual(true, state.BodyState.FlameRainRequested, "Unhit expiration requests next rain branch");
             }
         }

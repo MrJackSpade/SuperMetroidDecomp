@@ -54,12 +54,12 @@ internal static class SparkMovementDefinitionsVerification
         }
         (RoomEnemySystem onSystem, RoomEnemySlot on, SparkEnemyState onState) = Start(SparkProgram.FlickerOn, intangible: true);
         EnemyInstructionRunner.ShownFrames(on, 1);
-        AssertTrue(!on.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "Spark flicker-on makes the actor tangible before its first flash");
+        AssertTrue(!on.Contact.HasAny(EnemyContact.IgnoresSamus), "Spark flicker-on makes the actor tangible before its first flash");
         EnemyInstructionRunner.ShownFrames(on, 40);
         AssertEqual(SparkProgram.Active, onState.Program?.Program, "Spark flicker-on runs into the active loop");
         (RoomEnemySystem outSystem, RoomEnemySlot off, SparkEnemyState offState) = Start(SparkProgram.FlickerOut, intangible: false);
         EnemyInstructionRunner.ShownFrames(off, 40);
-        AssertTrue(off.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "Spark flicker-out makes the actor intangible");
+        AssertTrue(off.Contact.HasAny(EnemyContact.IgnoresSamus), "Spark flicker-out makes the actor intangible");
         AssertEqual(SparkProgram.FlickerOut, offState.Program?.Program, "Spark flicker-out holds");
         Console.WriteLine("  Spark: three native selections, the unauthored-state rejection, both loops and both flickers with their collision cues pass.");
     }
@@ -77,7 +77,9 @@ internal static class SparkMovementDefinitionsVerification
         SparkEnemyState state = enemies.SparkStates[0] ?? throw new InvalidOperationException("Spark has no state.");
         state.Program = AnimationProgramCursor<SparkProgram>.Start(program);
         slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Properties = intangible ? EnemyProperties.IgnoreSamusCollision : EnemyProperties.None;
+        slot.Contact = intangible ? EnemyContact.IgnoresSamus : EnemyContact.None;
+        slot.Processing = EnemyProcessing.None;
+        slot.Presence = EnemyPresence.None;
         return new SparkMovementDefinitionsStartResult(enemies, slot, state);
     }
 

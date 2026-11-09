@@ -49,15 +49,15 @@ internal sealed class RidleyInteractions
         {
             if (RidleyCollision.IsOutsideInteractionWindow(body.Position.Whole, camera))
             {
-                body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
+                body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
                 return;
             }
-            body.Properties = body.Properties.Without(EnemyProperties.IgnoreSamusCollision);
+            body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
         }
         if (state.IntangibilityTimer != 0)
         {
             if (--state.IntangibilityTimer == 0)
-                body.Properties = body.Properties.Without(EnemyProperties.IgnoreSamusCollision);
+                body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
         }
     }
 

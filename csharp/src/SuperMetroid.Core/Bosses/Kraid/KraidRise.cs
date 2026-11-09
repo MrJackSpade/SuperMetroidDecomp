@@ -89,7 +89,7 @@ internal sealed class KraidRise
         state.HurtFrameTimer = 0;
 
         body.Position = body.Position.WithWhole(new(176, 592));
-        body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
+        body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
         state.BodyState.Function = KraidAiFunction.RestrictSamusToFirstScreen;
         state.BodyState.FunctionTimer = 300;
         state.BodyState.HeadTimer = 64;
@@ -167,8 +167,7 @@ internal sealed class KraidRise
 
             case KraidAiFunction.GrowBringBodyInFront:
                 BringKraidBodyInFront(state);
-                _parts.Arm.Properties = _parts.Arm.Properties.Without(
-                    EnemyProperties.IgnoreSamusCollision);
+                _parts.Arm.Contact = _parts.Arm.Contact.Without(EnemyContact.IgnoresSamus);
                 state.BodyState.Function = KraidAiFunction.GrowShowLowerBodyInFront;
                 state.ShowBody();
                 return;

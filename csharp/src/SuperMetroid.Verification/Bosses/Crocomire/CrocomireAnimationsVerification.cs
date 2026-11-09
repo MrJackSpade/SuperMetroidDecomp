@@ -154,7 +154,7 @@ internal static class CrocomireAnimationsVerification
             string at = $"Crocomire skeleton collapse update {update}";
             AssertEqual(native.Timer, state.Body.FrameHold.RawValue, $"{at}: timer");
             AssertEqual(native.Spritemap, state.Body.SpritemapPointer, $"{at}: frame");
-            AssertEqual(native.NewFrame, state.Body.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame), $"{at}: new-frame flag");
+            AssertEqual(native.NewFrame, state.Body.NewInstructionFrame, $"{at}: new-frame flag");
             AssertEqual(callbacks.Select(BodySound).LastOrDefault(sound => sound is not null), enemies.Audio.PublishedSoundFrom(EnemySoundSource.Crocomire),
                 $"{at}: sound");
             AssertEqual(HasReached(native, CrocomireBodyProgram.SkeletonStable), state.BodyResidentProgram >= CrocomireBodyProgram.SkeletonStable,
@@ -232,7 +232,7 @@ internal static class CrocomireAnimationsVerification
                 AssertEqual(0, callbacks.Count, $"{at}: the tongue lists have no callbacks");
                 AssertEqual(native.Timer, tongue.FrameHold.RawValue, $"{at}: timer");
                 AssertEqual(native.Spritemap, tongue.SpritemapPointer, $"{at}: frame");
-                AssertEqual(native.NewFrame, tongue.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame), $"{at}: new-frame flag");
+                AssertEqual(native.NewFrame, tongue.NewInstructionFrame, $"{at}: new-frame flag");
             }
         }
         Console.WriteLine("  Crocomire tongue programs: fight, sleep and melting match bank $A4 every update.");

@@ -1530,25 +1530,34 @@ internal static class LookupStream2Verification
                 AssertEqual(position % 2 == 1 ? WreckedShipGhostFlickerVisibility.Shown : WreckedShipGhostFlickerVisibility.Unchanged,
                     steps[position].Visibility, "Ghost original flicker visibility");
             }
-            slot.Properties = (EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen);
+            slot.Contact = EnemyContact.None;
+            slot.Processing = EnemyProcessing.OffScreen;
+            slot.Presence = EnemyPresence.Hidden;
             state.PhaseTimer = 1;
             state.NextFlickerStep = position;
             flicker(slot, state);
             AssertEqual(ended ? 0 : original, state.PhaseTimer, "Ghost actual next interval");
             AssertEqual(ended ? steps.Count : position + 1, state.NextFlickerStep, "Ghost actual next step");
             bool remainsInvisible = ended || position % 2 == 0;
-            AssertEqual(EnemyProperties.ProcessOffScreen | (remainsInvisible ? EnemyProperties.Invisible : EnemyProperties.None), slot.Properties, "Ghost actual visibility preserves unrelated flags");
+            AssertEqual(EnemyContact.None, slot.Contact, "Ghost actual visibility preserves unrelated contact");
+            AssertEqual(EnemyProcessing.OffScreen, slot.Processing, "Ghost actual visibility preserves unrelated processing");
+            AssertEqual(remainsInvisible ? EnemyPresence.Hidden : EnemyPresence.None, slot.Presence, "Ghost actual visibility");
         }
         state.PhaseTimer = 2;
         state.NextFlickerStep = 0;
-        slot.Properties = (EnemyProperties.Invisible);
+        slot.Contact = EnemyContact.None;
+        slot.Processing = EnemyProcessing.None;
+        slot.Presence = EnemyPresence.Hidden;
         flicker(slot, state);
         AssertEqual(1, state.PhaseTimer, "Ghost interval countdown");
         AssertEqual(0, state.NextFlickerStep, "Ghost no early interval advance");
-        AssertEqual(EnemyProperties.Invisible, slot.Properties, "Ghost no early visibility change");
+        AssertEqual(EnemyContact.None, slot.Contact, "Ghost no early contact change");
+        AssertEqual(EnemyProcessing.None, slot.Processing, "Ghost no early processing change");
+        AssertEqual(EnemyPresence.Hidden, slot.Presence, "Ghost no early visibility change");
         state.PhaseTimer = 0;
         flicker(slot, state);
-        AssertEqual(0, SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(slot.Properties), "Ghost terminal next call clears invisibility");
+        AssertTrue(slot.Contact == EnemyContact.None && slot.Processing == EnemyProcessing.None && slot.Presence == EnemyPresence.None,
+            "Ghost terminal next call clears invisibility");
         state.SpawnColumn = 3;
         state.SpawnRow = 0;
         AssertThrows<InvalidDataException>(() => spawn(slot, state, Position16<RoomPixels>.Zero), "Ghost out-of-range spawn class remains rejected");

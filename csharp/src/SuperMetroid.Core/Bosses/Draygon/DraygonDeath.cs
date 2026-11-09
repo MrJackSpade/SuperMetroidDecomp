@@ -59,9 +59,14 @@ internal sealed class DraygonDeath
         state.BurialWait = DraygonBehavior.DraygonDeathWaitFramesUs;
         _parts.StartDraygonProgram(body, DraygonProgram.Sleep);
 
-        EnemyProperties deletedPartProperties = body.Properties.With(EnemyProperties.Deleted);
-        state.Tail.Properties = deletedPartProperties;
-        state.Arms.Properties = deletedPartProperties;
+        // The tail and arms take the body's properties, deleted.
+        EnemyPresence deletedPartPresence = body.Presence.With(EnemyPresence.Deleted);
+        state.Tail.Contact = body.Contact;
+        state.Tail.Processing = body.Processing;
+        state.Tail.Presence = deletedPartPresence;
+        state.Arms.Contact = body.Contact;
+        state.Arms.Processing = body.Processing;
+        state.Arms.Presence = deletedPartPresence;
         RoomEnemySlot eye = state.Eye;
         _parts.StartDraygonProgram(
             eye,
@@ -109,9 +114,11 @@ internal sealed class DraygonDeath
             xScatter: EnemyDropScatterDefinitions.WideArenaHorizontalScatter,
             yBase: 352,
             yScatter: EnemyDropScatterDefinitions.ArenaBandVerticalScatter);
-        EnemyProperties deletedProperties = body.Properties.With(EnemyProperties.Deleted);
-        body.Properties = deletedProperties;
-        state.Eye.Properties = deletedProperties;
+        // The body is deleted, and the eye takes the body's properties.
+        body.Presence = body.Presence.With(EnemyPresence.Deleted);
+        state.Eye.Contact = body.Contact;
+        state.Eye.Processing = body.Processing;
+        state.Eye.Presence = body.Presence;
         if (!state.BossDefeatPersisted)
         {
             _room.Services.Bosses.SetDefeated(BossBits.AreaBoss);

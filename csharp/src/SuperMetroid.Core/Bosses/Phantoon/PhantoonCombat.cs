@@ -149,9 +149,8 @@ internal sealed class PhantoonCombat
         if (body.DefinitionId != EnemyDefinitionId.PhantoonBody ||
             CommonEnemyEmptyFrames.DrawsNothing(body.Frame) ||
             body.InvincibilityTimer != 0 ||
-            body.Properties.HasAny(
-                EnemyProperties.Deleted |
-                EnemyProperties.IgnoreSamusCollision))
+            body.Presence.HasAny(EnemyPresence.Deleted) ||
+            body.Contact.HasAny(EnemyContact.IgnoresSamus))
         {
             return 0;
         }
@@ -170,7 +169,7 @@ internal sealed class PhantoonCombat
                 SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion)
                 continue;
 
-            if (!body.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap))
+            if (!body.DrawsExtendedFrames)
             {
                 throw new InvalidDataException(
                     "Phantoon lost the extended-spritemap property required by his hitboxes.");
@@ -201,7 +200,7 @@ internal sealed class PhantoonCombat
             {
                 projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(
                     projectile.SlotIndex,
-                    body.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
+                    body.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||
                         !projectile.Type.HasAnyBeam(SamusBeamFlags.Plasma));
                 return 1;
             }
@@ -217,7 +216,7 @@ internal sealed class PhantoonCombat
             // the projectile pre-instruction owns the following-frame deletion, while
             // penetrating Plasma retains its type, direction, and instruction stream.
             projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(projectile.SlotIndex,
-                body.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
+                body.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||
                 !projectileType.HasAnyBeam(SamusBeamFlags.Plasma));
 
             int healthBefore = body.Health;
@@ -273,7 +272,7 @@ internal sealed class PhantoonCombat
         {
             _audio.RequestPhantoonCombatSound(PhantoonSoundDefinitions.ShotCry);
             state.TentaclesState.RearmHurtFlash();
-            body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
+            body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
             BeginPhantoonDeathSequence(state);
             return;
         }
@@ -347,7 +346,7 @@ internal sealed class PhantoonCombat
         state.Translucent = true;
         PhantoonPresentation.InstallPhantoonProgram(state, body, PhantoonPartProgram.InvulnerableBody);
         PhantoonPresentation.InstallPhantoonProgram(state, eye, PhantoonPartProgram.EyeClose);
-        body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
+        body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
         state.EyeState.FadeComplete = false;
         state.TentaclesState.RearmHurtFlash();
     }

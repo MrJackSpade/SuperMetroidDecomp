@@ -49,13 +49,13 @@ internal sealed class CeresRidleyFlight
         // Ceres Ridley's initialization clears the shared boss tilemap workspace, disables the minimap, and
         // marks the room explored. Those consumers are not yet represented by RoomEnemySystem;
         // every actor-owned write that follows is retained below.
-        slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.UsesExtendedSpritemap);
+        slot.DrawsExtendedFrames = true;
 
         // Two property bits are proven by the initializer, but the first has not yet
         // been given a cross-enemy semantic name. Preserve it raw; the intangible bit already has the
         // verified IgnoreSamusCollision identity used by the scheduler.
-        slot.Properties = slot.Properties.With(EnemyProperties.BlocksPlasmaBeam);
-        slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
+        slot.Contact = slot.Contact.With(EnemyContact.BlocksPlasmaBeam);
+        slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
         slot.Position = slot.Position.WithWhole(new(186, 169));
         _ridleyEncounter.CeresStatus = CeresEscapeStatus.RidleyNotEscaped;
 
@@ -594,11 +594,10 @@ internal sealed class CeresRidleyFlight
         RoomEnemyPopulationRecord population = new(
             EnemyDefinitionId.CeresDoor,
             Position: position,
-            Properties:
-                EnemyProperties.RunsAnimationScript |
-                EnemyProperties.ProcessOffScreen |
-                EnemyProperties.Invisible,
-            ExtraProperties: EnemyExtraProperties.None,
+            Contact: EnemyContact.None,
+            Processing: EnemyProcessing.AnimationScript | EnemyProcessing.OffScreen,
+            Presence: EnemyPresence.Hidden,
+            DrawsExtendedFrames: false,
             SpawnSettings: new CeresDoorSpawnSettings(variant));
         _dispatch.InitializeSlotFromDefinition(wall, population, definition);
         _dispatch.RunInitializationAi(wall, EnemySpawnSurroundings.None);

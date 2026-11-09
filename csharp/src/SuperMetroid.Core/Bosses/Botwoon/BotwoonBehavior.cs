@@ -96,7 +96,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_room.Services.Bosses.IsDefeated(BossBits.AreaMiniBoss))
         {
             _frameResults.BotwoonWall = BotwoonWallMutation.Clear;
-            head.Properties = head.Properties.With(EnemyProperties.Deleted);
+            head.Presence = head.Presence.With(EnemyPresence.Deleted);
             state.WallCrumbleRequested = true;
             state.BossBitSet = true;
             return;
@@ -124,7 +124,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.QuarterHealth = head.Health >> 2;
         state.PreviousHealth = head.Health;
         // The initializer makes the head intangible: it starts hidden in its hole, out of every collision pass.
-        head.Properties = head.Properties.With(EnemyProperties.IgnoreSamusCollision);
+        head.Contact = head.Contact.With(EnemyContact.IgnoresSamus);
 
         for (int history = 0; history < 4; history++)
         {
@@ -232,7 +232,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             state.HeadFunction = BotwoonHeadFunction.AimAtSamus;
             state.AttackTimer = 48;
             // The spit step makes the spitting head tangible again.
-            head.Properties = head.Properties.Without(EnemyProperties.IgnoreSamusCollision);
+            head.Contact = head.Contact.Without(EnemyContact.IgnoresSamus);
         }
     }
 
@@ -541,14 +541,14 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 head.Layer = EnemyDrawLayer.Of(7);
                 // The head becomes intangible while it travels inside the wall.
-                head.Properties = head.Properties.With(EnemyProperties.IgnoreSamusCollision);
+                head.Contact = head.Contact.With(EnemyContact.IgnoresSamus);
                 program = BotwoonHeadProgram.Hidden;
             }
             else
             {
                 head.Layer = EnemyDrawLayer.Of(2);
                 // Collision is restored once the head is outside.
-                head.Properties = head.Properties.Without(EnemyProperties.IgnoreSamusCollision);
+                head.Contact = head.Contact.Without(EnemyContact.IgnoresSamus);
                 program = BotwoonHeadProgram.MovingToward(EnemyMath.CalculateBearing(moved));
             }
             InstallBotwoonHeadProgram(head, state, program);
@@ -609,7 +609,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         head.FrameHold = frameHold.Remaining;
         if (!frameHold.IsZero)
         {
-            head.ExtraProperties = head.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
+            head.NewInstructionFrame = false;
             return;
         }
 
@@ -624,7 +624,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidOperationException($"Botwoon's head program ended an update with {advance}.");
         head.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
         head.Frame = BotwoonVisualDefinitions.HeadFrames.Of(shown.Frame);
-        head.ExtraProperties = head.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
+        head.NewInstructionFrame = true;
     }
 
     /// <summary>Applies frame cues for facing radius, spit audio, or the volley trigger.</summary>
@@ -691,8 +691,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = BotwoonEnemyFunction.WaitForBody;
         _projectiles.SpawnRoomGraphicsDustExplosion(head.Position.Whole, MiscDustAnimation.BigExplosion);
         RequestBotwoonSound(BotwoonSoundDefinitions.Explosion);
-        head.Properties = head.Properties.With(
-            EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
+        head.Contact = head.Contact.With(EnemyContact.IgnoresSamus);
+        head.Presence = head.Presence.With(EnemyPresence.Hidden);
     }
 
     /// <summary>Requests the crumble PLM and sixteen RNG-positioned drops before wall explosions.</summary>
@@ -727,7 +727,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (state.WallExplosionFrame >= BotwoonWallExplosionDuration)
         {
-            head.Properties = head.Properties.With(EnemyProperties.Deleted);
+            head.Presence = head.Presence.With(EnemyPresence.Deleted);
             state.BossBitSet = true;
             _room.Services.Bosses.SetDefeated(BossBits.AreaMiniBoss);
             // The death sequence invokes the shortest-delay request for track three only after the complete 192-frame
@@ -782,7 +782,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The dying head becomes intangible: it leaves the
         // projectile, bomb and touch passes, so a later hit cannot interrupt its fall.
-        head.Properties = head.Properties.With(EnemyProperties.IgnoreSamusCollision);
+        head.Contact = head.Contact.With(EnemyContact.IgnoresSamus);
     }
 
     /// <summary>Applies the angle table's signed X/Y displacement to the head.</summary>

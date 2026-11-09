@@ -62,8 +62,8 @@ internal sealed class MotherBrainHead
         // head-slot cursor starts there): its dummy frame is the head's collision hitbox.
         // The visible brain runs a separate program.
         head.FrameHold = WrappingCountdown.Start(1);
-        head.Properties = head.Properties.With(
-            EnemyProperties.BlocksPlasmaBeam | EnemyProperties.Invisible);
+        head.Contact = head.Contact.With(EnemyContact.BlocksPlasmaBeam);
+        head.Presence = head.Presence.With(EnemyPresence.Hidden);
         state.Head = head;
         MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.Initial);
     }
@@ -77,7 +77,7 @@ internal sealed class MotherBrainHead
         // intentionally invisible head dispatches the shared brain function and replaces it.
         state.DrawBrain = false;
         state.DrawNeck = false;
-        if (!head.Properties.HasAny(EnemyProperties.Invisible))
+        if (!head.Presence.HasAny(EnemyPresence.Hidden))
             return;
 
         switch (state.BrainFunction)
@@ -136,7 +136,7 @@ internal sealed class MotherBrainHead
                 (head.FlashTimer % 2 != 0) ? EnemyShades.HurtFlashLook : state.Colours.OwnShading),
             camera);
 
-        if (!state.DrawNeck || state.Body.Properties.HasAny(EnemyProperties.Invisible))
+        if (!state.DrawNeck || state.Body.Presence.HasAny(EnemyPresence.Hidden))
             return;
 
         // The neck draw emits the joint nearest the brain first and the body-side joint

@@ -290,7 +290,7 @@ internal sealed class KraidCombat
         // The intangible property disables the ordinary touch list while the private death state owns body movement
         // and breakup effects. The fingernails are left out: they delete themselves once his health reads zero.
         foreach (RoomEnemySlot part in _parts.AllButNails)
-            part.Properties = part.Properties.With(EnemyProperties.IgnoreSamusCollision);
+            part.Contact = part.Contact.With(EnemyContact.IgnoresSamus);
     }
 
     /// <summary>Checks the body hitbox and applies contact damage to Samus.</summary>

@@ -26,7 +26,7 @@ internal static class DeadTorizoCollisionVerification
             slot.Radius = new(16, 32);
             enemies.DeadTorizoBehavior.InitializeDeadTorizo(slot);
             Require(IsInteractive(), "The intact corpse must initially be interactive.");
-            Require(slot.Properties.HasAny(EnemyProperties.SolidToSamus),
+            Require(slot.Contact.HasAny(EnemyContact.SolidToSamus),
                 "Native initial solidity must be retained.");
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
             samus.Kinematics.Position = samus.Kinematics.Position.WithWhole(new(90, 100));
@@ -53,7 +53,7 @@ internal static class DeadTorizoCollisionVerification
                     enemies.DeadTorizoBehavior.RunDeadTorizoMain(slot, null);
                     break;
             }
-            Require(slot.Properties.HasAny(EnemyProperties.IgnoreSamusCollision),
+            Require(slot.Contact.HasAny(EnemyContact.IgnoresSamus),
                 $"{trigger}: rotting must set the native ignore-collision bit.");
             Require(!IsInteractive(), $"{trigger}: rotting corpse must leave the interaction list.");
             samus.Kinematics.Position = samus.Kinematics.Position.WithWholeX(90);
@@ -72,7 +72,7 @@ internal static class DeadTorizoCollisionVerification
                 return enemies.ProcessingWindow.InteractiveEnemies.Contains(slot);
             }
             SolidEnemyCollisionResult Probe() => SamusSolidEnemyCollision.Probe(samus.Kinematics,
-                IsInteractive() ? [new SolidEnemyCollisionBody(slot.SlotIndex, slot.Position.Whole, new(slot.Radius.X, slot.Radius.Y), slot.FrozenTimer != 0 || slot.Properties.HasAny(EnemyProperties.SolidToSamus))] : [],
+                IsInteractive() ? [new SolidEnemyCollisionBody(slot.SlotIndex, slot.Position.Whole, new(slot.Radius.X, slot.Radius.Y), slot.FrozenTimer != 0 || slot.Contact.HasAny(EnemyContact.SolidToSamus))] : [],
                 SamusCollisionDirection.Right, 16, 0);
         }
         Console.WriteLine("Dead Torizo: contact, shot, power bomb and delayed solid contact release collision correctly.");

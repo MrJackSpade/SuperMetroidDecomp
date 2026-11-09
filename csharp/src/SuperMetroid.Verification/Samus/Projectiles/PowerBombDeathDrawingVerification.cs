@@ -49,7 +49,9 @@ internal static class PowerBombDeathDrawingVerification
             actor.Health = lethal ? (ushort)1 : (ushort)1000;
             actor.Position = actor.Position.WithWhole(new(128, 128));
             actor.Radius = new(actor.Definition.Radius.X, actor.Definition.Radius.Y);
-            actor.Properties = respawns ? EnemyProperties.RespawnIfKilled : EnemyProperties.None;
+            actor.Contact = EnemyContact.None;
+            actor.Processing = EnemyProcessing.None;
+            actor.Presence = respawns ? EnemyPresence.RespawnsIfKilled : EnemyPresence.None;
             actor.Frame = EnemyDefinitionFrameDefinitions.Frames[header]
                 .First(frame => spritemaps.TryGetDisplay(frame, out EnemySpritemapParts parts) && parts.Count != 0);
 

@@ -31,10 +31,10 @@ internal static class PoseDispatchDefinitionsVerification
             ISnesAddressSpace source = forbidden;
             samus.Pose = SamusPoseNumbering.FromNumber(pose);
             byte aim = rom.ReadCartridgeByte(address + 3);
-            AssertEqual(SamusPoseRecordCodecTooling.DecodeAim(aim), SamusPoseMetadata.ReadAim(samus), "Live aim answers what the native aim byte reads as, restrictions included, without authored ROM reads");
-            AssertEqual(SamusPoseRecordCodecTooling.DecodeAim(aim), SamusPoseMetadata.ReadAim(SamusPoseNumbering.FromNumber(pose)), "Prospective aim answers what the native aim byte reads as, adjacent indexes included");
-            AssertEqual(SamusPoseRecordCodecTooling.DecodeFacing(facing), SamusPoseMetadata.ReadFacingDirection(samus), "Live pose facing answers what the native facing byte reads as");
-            AssertEqual(SamusPoseRecordCodecTooling.DecodeFacing(facing), SamusPoseMetadata.ReadFacingDirection(SamusPoseNumbering.FromNumber(pose)), "Prospective pose facing answers what the native facing byte reads as");
+            AssertEqual(SamusPoseRecordDecoding.DecodeAim(aim), SamusPoseMetadata.ReadAim(samus), "Live aim answers what the native aim byte reads as, restrictions included, without authored ROM reads");
+            AssertEqual(SamusPoseRecordDecoding.DecodeAim(aim), SamusPoseMetadata.ReadAim(SamusPoseNumbering.FromNumber(pose)), "Prospective aim answers what the native aim byte reads as, adjacent indexes included");
+            AssertEqual(SamusPoseRecordDecoding.DecodeFacing(facing), SamusPoseMetadata.ReadFacingDirection(samus), "Live pose facing answers what the native facing byte reads as");
+            AssertEqual(SamusPoseRecordDecoding.DecodeFacing(facing), SamusPoseMetadata.ReadFacingDirection(SamusPoseNumbering.FromNumber(pose)), "Prospective pose facing answers what the native facing byte reads as");
             AssertEqual(facing, SamusPoseRecordCodecTooling.FacingByte(SamusPoseNumbering.FromNumber(pose)), "Pose-record codec writes the native facing byte");
             AssertEqual(fallback, SamusPoseNumbers.Number(SamusPoseMetadata.ReadNoInputFallbackPose(samus)), "No-input fallback retains native pose or sentinel");
             if (movement < SamusMovementTypeNumbers.Count)

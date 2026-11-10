@@ -48,10 +48,22 @@ internal sealed class RoomColourEffect
     /// <summary>The repeats the effect's counted step has left.</summary>
     internal WrappingCountdown Repeats { get; set; }
 
-    /// <summary>Whether the effect has ended; its system drops it at the end of the update.</summary>
+    /// <summary>
+    /// The record the effect shows now (#1597): the last its program reached, held for that record's duration and until
+    /// its next one; none before its first.
+    /// </summary>
+    internal PaletteFxFrame? Record { get; set; }
+
+    /// <summary>Whether the effect has ended; its system drops it from the turns at the end of the update.</summary>
     internal bool Ended { get; private set; }
 
-    /// <summary>Ends the effect: it takes no further part in this update or any later one.</summary>
+    /// <summary>
+    /// Whether the effect ended by running its program to the end (#1597): it has settled on its final record, which it
+    /// keeps showing as the look its program finishes on. An effect its condition ends has not settled and shows nothing.
+    /// </summary>
+    internal bool Settled { get; private set; }
+
+    /// <summary>Ends the effect: it takes no further part in this update or any later one, and shows nothing.</summary>
     internal void End() => Ended = true;
 
     /// <summary>Restarts the effect at the start of <paramref name="program"/>, due to step on this turn.</summary>
@@ -101,9 +113,11 @@ internal sealed class RoomColourEffect
         {
             case AnimationProgramAdvance<PaletteFxFrame>.Show shown:
                 UpdatesUntilNextStep = shown.Duration;
+                Record = shown.Frame;
                 return shown.Frame;
             case AnimationProgramAdvance<PaletteFxFrame>.Stop:
                 End();
+                Settled = true;
                 return null;
             case AnimationProgramAdvance<PaletteFxFrame>.Wait or AnimationProgramAdvance<PaletteFxFrame>.Hold:
                 throw new InvalidOperationException($"Colour effect {Effect}'s program {step.Program} reached a {advance}, which no colour effect's program has.");

@@ -18,7 +18,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new MagdolliteEntity(this, slot, common);
 
-    /// <summary>Supplies the room artwork used by the shared palette hook.</summary>
+    /// <summary>Supplies the room's apex overreads.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Allocates the lava shots emitted by the overlay's program.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -34,7 +34,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Receives the species' end-of-update sound requests.</summary>
     private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Connects the Magdollite AI, projectile, combat and palette services.</summary>
+    /// <summary>Connects the Magdollite AI, projectile, combat and glow services.</summary>
     internal MagdolliteBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemySlotTable slotTable, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops, EnemyAudioQueue audio)
     {
         _audio = audio;
@@ -45,17 +45,21 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         _deathsAndDrops = deathsAndDrops;
     }
 
-    /// <summary>Eight-frame countdown for the singleton graphics-drawn palette hook.</summary>
-    internal int MagdollitePaletteAnimationTimer { get; set; }
-    /// <summary>The palette cycle's current frame, 0 through <see cref="MagdollitePaletteDefinitions.FrameCount"/> minus one; each step advances it around the cycle.</summary>
-    internal int MagdollitePaletteFrame { get; set; }
+    /// <summary>The updates each frame of the room's lava glow holds for.</summary>
+    private const int GlowFrameUpdates = 8;
+
+    /// <summary>Updates left before the room's lava glow steps to its next frame.</summary>
+    internal int GlowStepCountdown { get; private set; }
     /// <summary>
-    /// The glow every Magdollite in the room shows (#1512): its standard colours until the cycle first steps, then the
-    /// glow frame it stepped to last.
+    /// The frame of the room's lava glow every Magdollite shows, 0 through <see cref="MagdolliteShades.GlowFrames"/>
+    /// minus one; each step advances it around the cycle.
     /// </summary>
-    internal PictureShading MagdolliteGlow { get; private set; } = PictureShading.Standard;
-    /// <summary>Whether any Magdollite initializer installed the room's palette hook.</summary>
-    internal bool MagdollitePaletteAnimationInstalled { get; set; }
+    internal int GlowFrame { get; private set; }
+    /// <summary>Whether a Magdollite has started the room's lava glow; until one has, the glow does not step.</summary>
+    private bool _glowStarted;
+
+    /// <summary>The lava glow every Magdollite in the room, and the lava they throw, shows now (#1512).</summary>
+    internal PictureShading Glow => PictureShading.Shaded(MagdolliteShades.Glow(GlowFrame));
 
     /// <summary>Initializes the Magdollite.</summary>
     internal void InitializeMagdollite(RoomEnemySlot slot, SamusState? samus)
@@ -91,14 +95,21 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         state.DownwardVelocity = speed;
         state.UpwardVelocity = SignedSixteenSixteen.Zero - speed;
 
-        // Every one of the three initializers installs the same global graphics-drawn hook.
-        // Retail's last Magdollite record therefore resets this clock to eight and selects
-        // its sprite palette. Model the resulting singleton hook, not nine independent cycles. Every Magdollite part shows the
-        // glow; the game's hook recolours the last record's palette, which other enemies sharing it also showed (#1512).
-        MagdollitePaletteAnimationInstalled = true;
-        slot.Shading = MagdolliteGlow;
-        MagdollitePaletteAnimationTimer = 8;
-        MagdollitePaletteFrame = 0;
+        // The room has one lava glow, not one per part: each part's initialization restarts it, so the last part placed
+        // sets its phase.
+        RestartGlow();
+    }
+
+    /// <summary>
+    /// Restarts the room's lava glow at its first frame, which every Magdollite and its lava show at once, holding it
+    /// for <see cref="GlowFrameUpdates"/> updates.
+    /// </summary>
+    internal void RestartGlow()
+    {
+        _glowStarted = true;
+        GlowStepCountdown = GlowFrameUpdates;
+        GlowFrame = 0;
+        ShowGlow();
     }
 
     /// <summary>Starts the head in its Samus-facing idle list, retaining the initializer's reversed marker convention until the first tick.</summary>
@@ -515,22 +526,36 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         _ => throw new InvalidOperationException($"Undefined {nameof(MagdollitePart)} {part}."),
     };
 
-    /// <summary>Runs the global graphics-drawn palette hook.</summary>
-    internal void StepMagdollitePaletteAnimation()
+    /// <summary>
+    /// Counts down the room's lava glow once a Magdollite has started it, after the enemies' update; when the frame's
+    /// time is up the glow steps to its next frame.
+    /// </summary>
+    internal void StepGlow()
     {
-        if (!MagdollitePaletteAnimationInstalled)
+        if (!_glowStarted)
             return;
 
-        if (--MagdollitePaletteAnimationTimer != 0)
+        if (--GlowStepCountdown != 0)
             return;
 
-        MagdollitePaletteAnimationTimer = 8;
-        MagdollitePaletteFrame = (MagdollitePaletteFrame + 1) % MagdollitePaletteDefinitions.FrameCount;
-        MagdolliteGlow = PictureShading.Shaded(MagdolliteShades.Glow(MagdollitePaletteFrame));
+        GlowStepCountdown = GlowFrameUpdates;
+        GlowFrame = (GlowFrame + 1) % MagdolliteShades.GlowFrames;
+        ShowGlow();
+    }
+
+    /// <summary>Shows the glow's current frame on every Magdollite part in the room and on the lava they have thrown.</summary>
+    private void ShowGlow()
+    {
+        PictureShading glow = Glow;
         foreach (RoomEnemySlot part in _slotTable.Slots)
         {
             if (part.DefinitionId == EnemyDefinitionId.Magdollite)
-                part.Shading = MagdolliteGlow;
+                part.Shading = glow;
+        }
+        foreach (EnemyProjectile lava in _projectiles.EnemyProjectiles)
+        {
+            if (lava.Kind == RoomEnemyProjectileKind.LavaThrownByMagdollite)
+                lava.Graphics = lava.Graphics.In(glow);
         }
     }
 

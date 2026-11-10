@@ -32,7 +32,7 @@ internal static class MagdolliteShadeContentVerification
         // The sheet's own colours, laid out by the palette index each was composed as (#1544); a colour of the row none of
         // its pixels shows is not one of its colours, and nothing shows it.
         RgbColor[] standard = InstalledPictureColoursConstants.ComposedColours(image);
-        for (int frame = 0; frame < MagdollitePaletteDefinitions.FrameCount; frame++)
+        for (int frame = 0; frame < MagdolliteShades.GlowFrames; frame++)
         {
             RgbColor[] inks = InstalledPictureColoursConstants.ByComposedIndex(image,
                 PictureShading.Shaded(MagdolliteShades.Glow(frame)).InkColours(image));
@@ -56,7 +56,7 @@ internal static class MagdolliteShadeContentVerification
                 }
             }
         }
-        Console.WriteLine($"Magdollite shade content: {MagdollitePaletteDefinitions.FrameCount} glow shades in {set.Name}'s row {row} match the cartridge.");
+        Console.WriteLine($"Magdollite shade content: {MagdolliteShades.GlowFrames} glow shades in {set.Name}'s row {row} match the cartridge.");
     }
 
     /// <summary>Runs the focused Magdollite shade-content comparison.</summary>

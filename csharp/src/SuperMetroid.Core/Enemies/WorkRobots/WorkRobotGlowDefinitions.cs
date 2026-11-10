@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 /// The cadence of the Work Robot's glow. The colours each step shows are the import's shades (#1512); this catalog
 /// owns how many steps the glow has and how long each shows.
 /// </summary>
-internal static class WorkRobotPaletteTimingDefinitions
+internal static class WorkRobotGlowDefinitions
 {
     /// <summary>Number of steps in the glow's cycle; after the last it starts again at the first.</summary>
     public const int StepCount = 6;

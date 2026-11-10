@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Magdollite.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Enemies.Magdollite;
@@ -34,7 +35,7 @@ public sealed class MagdollitePaletteCycle
     /// <exception cref="ArgumentOutOfRangeException">The frame or color index is outside 0..3.</exception>
     public RgbColor Resolve(int frame, int color)
     {
-        if ((uint)frame >= MagdollitePaletteDefinitions.FrameCount)
+        if ((uint)frame >= MagdolliteShades.GlowFrames)
             throw new ArgumentOutOfRangeException(nameof(frame));
         if ((uint)color >= colors.Length)
             throw new ArgumentOutOfRangeException(nameof(color));

@@ -35,7 +35,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         var state = new FirefleaEnemyState(slot);
         slot.SetSpeciesState(state);
-        state.Program = AnimationProgramCursor<FirefleaProgram>.Start(FirefleaProgram.Loop);
+        state.Playback = new(FirefleaAnimations.StartingWith(FirefleaProgram.Loop), AnimationPlace.StartOfAnimation);
 
         FirefleaSpawnSettings settings = slot.SpawnSettings<FirefleaSpawnSettings>();
         state.Speeds = new EnemyLinearSpeedRow(settings.Speed, SignedSixteenSixteen.Zero - settings.Speed);
@@ -149,8 +149,9 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Fireflea's typed animation.</summary>
     internal static void AdvanceFirefleaTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, FirefleaAnimations.Programs, FirefleaFrameDefinitions.ShownFrames.Of,
-            static (FirefleaEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
+        EnemyProgramAnimation.Advance(slot, FirefleaAnimations.Segments, FirefleaFrameDefinitions.ShownFrames.Of,
+            static (FirefleaEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            static (_, cue) => throw new InvalidOperationException($"A cue-free Fireflea animation raised {cue}."));
 
     /// <summary>Ports Fireflea's main AI.</summary>
     internal static void RunFirefleaMainAi(RoomEnemySlot slot, IEnemyAiFrame _)

@@ -9,9 +9,9 @@ namespace SuperMetroid.Core.Enemies.Fireflea;
 /// </summary>
 internal static class FirefleaAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<FirefleaProgram, FirefleaFrame, NoAnimationCue> Programs { get; } = new(
-        new Dictionary<FirefleaProgram, AnimationProgramStep<FirefleaProgram, FirefleaFrame, NoAnimationCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<FirefleaProgram, FirefleaFrame, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<FirefleaProgram, AnimationBeat<FirefleaFrame, NoAnimationCue>[]>
     {
         [P.Loop] =
         [
@@ -67,14 +67,18 @@ internal static class FirefleaAnimations
             Show(4, 1),
             Show(5, 2),
             Show(4, 1),
-            GoTo(P.Loop),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<FirefleaProgram, Animation<FirefleaProgram>> StartingAt { get; } = new Dictionary<FirefleaProgram, Animation<FirefleaProgram>>
+    {
+        [P.Loop] = new([new(P.Loop, 0, 52, 1)], AnimationEnd.LoopsFrom(0)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<FirefleaProgram> StartingWith(FirefleaProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<FirefleaProgram, FirefleaFrame, NoAnimationCue> Show(int pose, int duration) => AnimationProgramStep<FirefleaProgram, FirefleaFrame, NoAnimationCue>.Show(new(pose), duration);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<FirefleaProgram, FirefleaFrame, NoAnimationCue> GoTo(FirefleaProgram program) => AnimationProgramStep<FirefleaProgram, FirefleaFrame, NoAnimationCue>.GoTo(program);
-
+    private static AnimationBeat<FirefleaFrame, NoAnimationCue> Show(int pose, int duration) => new AnimationBeat<FirefleaFrame, NoAnimationCue>.Frame(new(pose), duration);
 }

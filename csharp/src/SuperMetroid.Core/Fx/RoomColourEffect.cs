@@ -4,8 +4,8 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// One colour effect running in a room or on a screen (#1554): the glow, flash, fade or shimmer it shows, its turn in
-/// the update, the colours it shows its records in, the condition it watches, the step its program stands at, the
+/// One colour effect running in a room or on a screen (#1554): the glow, flash, fade or shimmer it shows, the colours it
+/// shows its records in, the condition it watches, the step its program stands at, the
 /// updates left until that step, and the repeats its counted steps have left. Its authored steps are
 /// <see cref="PaletteFxAnimations"/>; the <see cref="RoomPaletteFxSystem"/> that started it gives it its turn.
 /// </summary>
@@ -13,12 +13,10 @@ internal sealed class RoomColourEffect
 {
     /// <summary>Starts <paramref name="effect"/> at the start of <paramref name="program"/>, due to step on its first turn.</summary>
     /// <param name="effect">What the effect shows.</param>
-    /// <param name="turn">Its turn in each update (<see cref="ColourEffectTurnOrder"/>).</param>
     /// <param name="program">The program it starts.</param>
-    internal RoomColourEffect(PaletteFxObject effect, int turn, PaletteFxProgram program)
+    internal RoomColourEffect(PaletteFxObject effect, PaletteFxProgram program)
     {
         Effect = effect;
-        Turn = turn;
         Step = AnimationProgramCursor<PaletteFxProgram>.Start(program);
         UpdatesUntilNextStep = 1;
         Repeats = WrappingCountdown.Start(0);
@@ -26,9 +24,6 @@ internal sealed class RoomColourEffect
 
     /// <summary>What the effect shows.</summary>
     internal PaletteFxObject Effect { get; }
-
-    /// <summary>The effect's turn in each update: effects take their turns from the lowest up (<see cref="ColourEffectTurnOrder"/>).</summary>
-    internal int Turn { get; }
 
     /// <summary>The colours the effect shows its records in; none until its program names them.</summary>
     internal PaletteFxColours? Colours { get; set; }

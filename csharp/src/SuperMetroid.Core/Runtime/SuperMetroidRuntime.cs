@@ -587,7 +587,7 @@ internal sealed class SuperMetroidRuntime
         // begins on the following frame. Debug scripts that grant Hyper Beam before their
         // first StepFrame get the same handler-first behavior immediately.
         // The room's colour effects take their turns first (ColourEffectTurnOrder): room FX starts first,
-        // and Hyper Beam's effect, which starts later, takes the next free turn after them.
+        // and Hyper Beam's effect, which starts later, takes its turn after them.
         // Running the room's effects before the separately owned Hyper Beam effect keeps that
         // order.
         // Door destination drawing borrows this frame path, but the door's destination

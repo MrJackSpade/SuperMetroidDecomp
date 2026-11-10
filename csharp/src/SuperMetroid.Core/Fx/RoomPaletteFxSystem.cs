@@ -17,8 +17,8 @@ namespace SuperMetroid.Core.Fx;
 /// active FX record starts. Landing Site is one of them: its lightning flashes the scrolling-sky horizon's colours.
 /// </para>
 /// <para>
-/// The effects take their turns in the order <see cref="ColourEffectTurnOrder"/> gives them, which Samus's heat shimmer
-/// (<see cref="PaletteFxObject.SamusInHeat"/>) and effects sharing colours observe.
+/// The effects take their turns in the order they started (<see cref="ColourEffectTurnOrder"/>), which Samus's heat
+/// shimmer (<see cref="PaletteFxObject.SamusInHeat"/>) observes. Any number of effects run at once.
 /// </para>
 /// </remarks>
 [RoomLifetime]
@@ -27,8 +27,8 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     /// <summary>The running effects, in turn order (<see cref="ColourEffectTurnOrder"/>).</summary>
     internal readonly List<RoomColourEffect> effects = [];
     /// <summary>
-    /// The effects whose programs ran to their end (#1597), in the order they settled: each keeps showing the final record
-    /// it settled on, without taking a turn, until an effect showing the same colours settles after it or the room ends.
+    /// The effects whose programs ran to their end (#1597), in the order they settled: each keeps its final look on its
+    /// colours, without taking a turn, until an effect showing the same colours settles after it or the room ends.
     /// </summary>
     private readonly List<RoomColourEffect> settled = [];
     /// <summary>The records Samus's suit groups showed during the current update, in order (#1512).</summary>
@@ -64,7 +64,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     /// Starts an effect outside the room's FX record: Samus's load appearance, a Torizo's belly, a statue's grey-out, the
     /// escape's flashes or a screen's effects. It must start: the start is rejected loudly when it does not.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The effect did not start: every turn is held or its start skips it.</exception>
+    /// <exception cref="InvalidOperationException">The effect did not start: its start skips it.</exception>
     public void Start(
         PaletteFxObject effect,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
@@ -138,7 +138,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Gives each running effect its turn, from the lowest turn up: it checks its condition, counts down, and when its
+    /// Gives each running effect its turn, in the order they started: it checks its condition, counts down, and when its
     /// next step is due runs its steps to the next record, which goes to <paramref name="show"/>. Effects that end are
     /// dropped from the turns once every turn has run; one that settled keeps its final record shown.
     /// </summary>
@@ -168,7 +168,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
         effects.RemoveAll(effect => effect.Ended);
     }
 
-    /// <summary>Starts <paramref name="effect"/> on the turn its start takes, unless every turn is held or its start skips it.</summary>
+    /// <summary>Starts <paramref name="effect"/> after the running effects, unless its start skips it.</summary>
     /// <returns>Whether the effect started.</returns>
     /// <exception cref="InvalidOperationException">The effect names a start of no defined kind.</exception>
     private bool TryStart(
@@ -176,9 +176,6 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
         bool areaMiniBossDefeated)
     {
-        if (ColourEffectTurnOrder.TurnForStart(effects, running => running.Turn) is not { } turn)
-            return false;
-
         RoomPaletteFxDefinition definition = RoomPaletteFxSelection.Get(effect);
         PaletteFxProgram program;
         switch (definition.Start)
@@ -199,7 +196,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
                 throw new InvalidOperationException($"Colour effect {effect} has undefined start {definition.Start}.");
         }
 
-        ColourEffectTurnOrder.Join(effects, new RoomColourEffect(effect, turn, program), running => running.Turn);
+        ColourEffectTurnOrder.Join(effects, new RoomColourEffect(effect, program));
         return true;
     }
 
@@ -316,28 +313,32 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     internal IReadOnlyList<ShownPaletteFxRecord> EnemyShown => enemyShown;
 
     /// <summary>
-    /// The record <paramref name="colours"/> shows now (#1512, #1597): that of the running effect showing them, or once
-    /// none does, the final record of the effect that settled in them; null while no effect shows them.
+    /// The record <paramref name="colours"/> shows now (#1512, #1597, #1598): the record laid last on them, in the order
+    /// <see cref="Shown"/> lays the looks; null while no effect shows them.
     /// </summary>
     internal PaletteFxFrame? RecordOf(PaletteFxColours colours)
     {
+        PaletteFxFrame? last = null;
         foreach (ShownPaletteFxRecord shown in ShownRecords())
         {
             if (shown.Colours == colours)
-                return shown.Record;
+                last = shown.Record;
         }
-        return null;
+        return last;
     }
 
-    /// <summary>The record each colour group shows now, the settled effects' first and then the running ones' in turn order (#1597).</summary>
+    /// <summary>
+    /// The looks the colour groups show now, in the order they are laid (#1597, #1598): the settled effects' final records,
+    /// then the running effects' records in turn order. A look laid later lies over an earlier one on the colours it writes.
+    /// </summary>
     internal IReadOnlyList<ShownPaletteFxRecord> Shown => ShownRecords();
 
     /// <summary>Whether a running effect animates <paramref name="colours"/> (#1597).</summary>
     internal bool Animates(PaletteFxColours colours) => effects.Exists(effect => !effect.Ended && effect.Colours == colours);
 
     /// <summary>
-    /// Lays the shade of the record each of the room's colour groups shows now over the room's pictures (#1512, #1597):
-    /// the settled effects' final records, then the running effects' records in turn order.
+    /// Lays the shade of each look the room's colour groups show now over the room's pictures (#1512, #1597), in the order
+    /// <see cref="Shown"/> gives them: the settled effects' final records, then the running effects' records in turn order.
     /// </summary>
     public void ShadeGameplay(GameplayShadingBuilder frame)
     {
@@ -350,28 +351,23 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     }
 
     /// <summary>
-    /// The record each colour group shows now (#1597): each settled effect's final record in the order they settled, unless
-    /// a running effect shows its colours, then each running effect's record in turn order. An effect its condition ended
-    /// shows nothing, and no effect's record outlasts it.
+    /// The looks the colour groups show now (#1597, #1598): each settled effect's final record in the order they settled,
+    /// then each running effect's record in turn order. An effect its condition ended shows nothing, and no effect's
+    /// record outlasts it.
     /// </summary>
     private List<ShownPaletteFxRecord> ShownRecords()
     {
-        var running = new List<ShownPaletteFxRecord>();
-        foreach (RoomColourEffect effect in effects)
-        {
-            if (effect.Ended || effect.Colours is not { } colours || effect.Record is not { } record)
-                continue;
-            // Of two running effects showing the same colours, the later turn's record shows (ColourEffectTurnOrder).
-            running.RemoveAll(other => other.Colours == colours);
-            running.Add(new ShownPaletteFxRecord(colours, record));
-        }
-        var shown = new List<ShownPaletteFxRecord>(settled.Count + running.Count);
+        var shown = new List<ShownPaletteFxRecord>(settled.Count + effects.Count);
         foreach (RoomColourEffect effect in settled)
         {
-            if (effect.Colours is { } colours && effect.Record is { } record && !running.Exists(other => other.Colours == colours))
+            if (effect.Colours is { } colours && effect.Record is { } record)
                 shown.Add(new ShownPaletteFxRecord(colours, record));
         }
-        shown.AddRange(running);
+        foreach (RoomColourEffect effect in effects)
+        {
+            if (!effect.Ended && effect.Colours is { } colours && effect.Record is { } record)
+                shown.Add(new ShownPaletteFxRecord(colours, record));
+        }
         return shown;
     }
 

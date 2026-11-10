@@ -89,13 +89,13 @@ internal static class NativeSnapshotImport
         }
 
         // Each live native object becomes a running colour effect. The handler visits its objects from the last down, so
-        // the object in native position p takes turn (count - 1 - p) (ColourEffectTurnOrder); the effects the
-        // room load started are replaced by the recorded ones.
+        // the effects join in that order and take their turns in it (ColourEffectTurnOrder); the effects the room load
+        // started are replaced by the recorded ones.
         var importedEffects = runtime.RoomPaletteFx.effects;
         importedEffects.Clear();
-        for (int turn = 0; turn < NativeSnapshotMemory.PaletteFxObjectCount; turn++)
+        for (int visit = 0; visit < NativeSnapshotMemory.PaletteFxObjectCount; visit++)
         {
-            int slot = NativeSnapshotMemory.PaletteFxObjectCount - 1 - turn;
+            int slot = NativeSnapshotMemory.PaletteFxObjectCount - 1 - visit;
             ushort id = W(NativeSnapshotMemory.PaletteFxId + slot * 2);
             if (id == 0)
                 continue;
@@ -103,7 +103,7 @@ internal static class NativeSnapshotImport
             // A live object resumes its typed program where the recorded native pointer stands.
             SuperMetroid.Core.Programs.AnimationProgramCursor<PaletteFxProgram> step = PaletteFxNativeProgramOracle.CursorAt(
                 SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W(NativeSnapshotMemory.PaletteFxInstruction + slot * 2));
-            var imported = new RoomColourEffect(effect, turn, step.Program)
+            var imported = new RoomColourEffect(effect, step.Program)
             {
                 Step = step,
                 // The native colour index names the colours the object animates: of the colour groups its programs name,
@@ -117,7 +117,7 @@ internal static class NativeSnapshotImport
                 UpdatesUntilNextStep = W(NativeSnapshotMemory.PaletteFxFrameHold + slot * 2),
                 Repeats = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.PaletteFxTimer + slot * 2)),
             };
-            importedEffects.Add(imported);
+            ColourEffectTurnOrder.Join(importedEffects, imported);
         }
         runtime.PaletteFxSession.PublishedHeatPhase = new SuperMetroid.Core.Fx.PaletteFx.HeatPhase(W(NativeSnapshotMemory.HeatPalettePhase));
         runtime.PaletteFxSession.ShimmerHeatPhase = new SuperMetroid.Core.Fx.PaletteFx.HeatPhase(W(NativeSnapshotMemory.PreviousHeatPalettePhase));
@@ -382,7 +382,7 @@ internal static class NativeSnapshotImport
     /// <exception cref="InvalidOperationException">A live object's record lies in colours no gameplay picture shows.</exception>
     private static void ImportShownPaletteFxRecords(SuperMetroidRuntime runtime)
     {
-        // Native slot order is the reverse of turn order.
+        // Native slot order is the reverse of the order the effects take their turns in.
         foreach (RoomColourEffect effect in Enumerable.Reverse(runtime.RoomPaletteFx.effects))
         {
             if (effect.Colours is not { } colours || LastShownRecord(effect.Step) is not { } record)

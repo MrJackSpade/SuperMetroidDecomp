@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Text.Json;
@@ -20,7 +19,6 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
-using SuperMetroid.AssetExtraction.Fx.Artwork;
 namespace SuperMetroid.Verification.Samus.Palettes;
 
 /// <summary>Checks installed full-body palette cycles and shade components against the retail color tables.</summary>

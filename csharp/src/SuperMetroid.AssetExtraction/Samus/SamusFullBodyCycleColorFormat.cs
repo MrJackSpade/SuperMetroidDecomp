@@ -1,8 +1,6 @@
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Palettes;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
-using SuperMetroid.AssetExtraction.Fx.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 

@@ -27,7 +27,7 @@ internal static class PaletteFxRoomLook
         ArgumentNullException.ThrowIfNull(cgram);
         List<SheetShade> made = [];
         foreach (PaletteFxColours group in PaletteFxRoomColourDefinitions.RoomColours)
-            if (fx.RecordOf(group) is { } record)
+            if (fx.FrameOf(group) is { } record)
                 made.Add(PaletteFxRoomShades.Shade(group, record, colours));
         PictureShading shading = GameplayShadingProbe.ShadingOf(fx, GameplayPictures.Room, made.Select(shade => shade.Shade));
         foreach (PictureShade shade in shading.Shades)
@@ -49,7 +49,7 @@ internal static class PaletteFxRoomLook
         LayRoomShades(fx, cgram, colours);
         foreach (PaletteFxColours group in Enum.GetValues<PaletteFxColours>())
         {
-            if (PaletteFxRoomColourDefinitions.RoomColours.Contains(group) || fx.RecordOf(group) is not { } record)
+            if (PaletteFxRoomColourDefinitions.RoomColours.Contains(group) || fx.FrameOf(group) is not { } record)
                 continue;
             LayShade(cgram, group, record, colours);
         }

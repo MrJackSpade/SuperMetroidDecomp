@@ -51,8 +51,17 @@ internal static class EndingColourOwners
         foreach (EndingFlash flash in Enum.GetValues<EndingFlash>())
             Add(EndingShades.Flashed(flash), Required(EndingColourOwnerDefinitions.Flashes, flash));
         Add(EndingShades.LogoCrossfade(0), EndingColourOwnerDefinitions.LogoCrossfade);
+        // A colour group's shades form one family per animation that shows in it (#1598).
+        ShownPaletteFxFrame[] shownFrames = PaletteFxShownFrames.ShownBy(Enum.GetValues<PaletteFxObject>());
         foreach (KeyValuePair<PaletteFxColours, EndingEffectOwners> group in EndingColourOwnerDefinitions.PaletteFx)
-            Add(PaletteFxShades.Of(group.Key, new PaletteFxFrame(0)), group.Value);
+        {
+            PaletteFxProgram[] animations = [.. shownFrames.Where(shown => shown.Colours == group.Key)
+                .Select(shown => shown.Frame.Animation).Distinct()];
+            if (animations.Length == 0)
+                throw new InvalidDataException($"The ending lists what {group.Key} is authored for, which no colour effect shows.");
+            foreach (PaletteFxProgram animation in animations)
+                Add(PaletteFxShades.Of(group.Key, new PaletteFxFrame(animation, 0)), group.Value);
+        }
         return listed.ToFrozenDictionary(StringComparer.Ordinal);
 
         // Lists what the family of `shade` is authored for.

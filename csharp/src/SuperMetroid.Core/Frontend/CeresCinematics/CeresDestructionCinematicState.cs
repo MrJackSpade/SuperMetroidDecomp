@@ -832,11 +832,11 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     }
 
     /// <summary>
-    /// The shading of the gunship's floor (#1512, #1544, #1597): the shade of the record the gunship engine's flicker
+    /// The shading of the gunship's floor (#1512, #1544, #1597): the shade of the frame the gunship engine's flicker
     /// program shows, which recolours the engine's colour, or the floor's standard colours while no program has shown one.
     /// </summary>
-    internal PictureShading EngineShading => PaletteFx?.RecordOf(PaletteFxColours.CutsceneGunshipEngine) is { } record
-        ? PictureShading.Shaded(PaletteFxShades.Of(PaletteFxColours.CutsceneGunshipEngine, record))
+    internal PictureShading EngineShading => PaletteFx?.FrameOf(PaletteFxColours.CutsceneGunshipEngine) is { } frame
+        ? PictureShading.Shaded(PaletteFxShades.Of(PaletteFxColours.CutsceneGunshipEngine, frame))
         : PictureShading.Standard;
 
     /// <summary>Captures the active station blast's added colour as a render layer, over the whole screen.</summary>

@@ -366,49 +366,48 @@ internal static class NativeSnapshotImport
         // beams whose colours the cartridge loaded (#1512), under which her palette-FX records are then laid.
         SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(runtime.Player.Colours, samus.EquippedItems);
         SamusProjectileSystem.LoadBeamPalette(runtime.Player.Colours, samus.EquippedBeams);
-        ImportShownPaletteFxRecords(runtime);
+        ImportShownPaletteFxFrames(runtime);
         if (game.GameState == SuperMetroidGameState.Paused)
             ImportNativePauseMenu(game, runtime, W, memory);
         return new ImportNativeSnapshotResult(bus, runtime, samus, game);
     }
 
     /// <summary>
-    /// Restores the colour record each live palette-FX object shows, in native slot order, as its handler pass showed it
-    /// (#1512, #1597): the effect holds the record, which the room's pictures shade with; a record of Samus's suit groups
+    /// Restores the frame each live palette-FX object shows, in native slot order, as its handler pass showed it
+    /// (#1512, #1597): the effect holds the frame, which the room's pictures shade with; a frame of Samus's suit groups
     /// is laid over her suit and one of an enemy's groups is shown over its owner's colours, as the runtime does after the
-    /// pass. Native colour memory already holds those records at the checkpoint, while the imported slots only resume
-    /// their programs, which show their next record later.
+    /// pass. Native colour memory already holds those frames' records at the checkpoint, while the imported slots only
+    /// resume their programs, which show their next frame later.
     /// </summary>
-    /// <exception cref="InvalidOperationException">A live object's record lies in colours no gameplay picture shows.</exception>
-    private static void ImportShownPaletteFxRecords(SuperMetroidRuntime runtime)
+    /// <exception cref="InvalidOperationException">A live object's frame lies in colours no gameplay picture shows.</exception>
+    private static void ImportShownPaletteFxFrames(SuperMetroidRuntime runtime)
     {
         // Native slot order is the reverse of the order the effects take their turns in.
         foreach (RoomColourEffect effect in Enumerable.Reverse(runtime.RoomPaletteFx.effects))
         {
-            if (effect.Colours is not { } colours || LastShownRecord(effect.Step) is not { } record)
+            if (effect.Colours is not { } colours || LastShownFrame(effect.Step) is not { } frame)
                 continue;
-            effect.Record = record;
+            effect.Frame = frame;
             if (PaletteFxRoomColourDefinitions.RoomColours.Contains(colours))
                 continue;
             if (PaletteFxSamusColourDefinitions.SuitColours.Contains(colours))
-                runtime.Player.Colours.LayOverSuit(PaletteFxShades.Of(colours, record));
+                runtime.Player.Colours.LayOverSuit(PaletteFxShades.Of(colours, frame));
             else if (PaletteFxEnemyColourDefinitions.EnemyColours.Contains(colours))
-                runtime.Enemies.PaletteFxShows.Show(colours, record);
+                runtime.Enemies.PaletteFxShows.Show(colours, frame);
             else
                 throw new InvalidOperationException($"Imported colour effect {effect.Effect} showed {colours}, which no gameplay picture shows.");
         }
     }
 
     /// <summary>
-    /// The record a palette-FX program showed last before <paramref name="cursor"/>: the nearest show step before the step
+    /// The frame a palette-FX program showed last before <paramref name="cursor"/>: the nearest show step before the step
     /// it resumes at. The native instruction pointer rests after the record it last showed (a loop's jump runs only when
     /// the object next advances). A list whose last record runs on into the next list leaves the pointer at that list's
-    /// entry, so a cursor at a program's entry showed the last record of the program falling into it (each Norfair heat
-    /// phase falls into the next). A cursor with no show step before it, in its program or any falling into it, has shown
-    /// no record yet: null.
+    /// entry, so a cursor at a program's entry showed the last frame of the program falling into it. A cursor with no show
+    /// step before it, in its program or any falling into it, has shown no frame yet: null.
     /// </summary>
     /// <exception cref="InvalidDataException">More than one program falls into the same program.</exception>
-    private static PaletteFxFrame? LastShownRecord(SuperMetroid.Core.Programs.AnimationProgramCursor<PaletteFxProgram> cursor)
+    private static PaletteFxFrame? LastShownFrame(SuperMetroid.Core.Programs.AnimationProgramCursor<PaletteFxProgram> cursor)
     {
         PaletteFxProgram program = cursor.Program;
         int end = cursor.Position;
@@ -417,8 +416,8 @@ internal static class NativeSnapshotImport
             var steps = PaletteFxAnimations.Programs.Steps(program);
             for (int position = Math.Min(end, steps.Count) - 1; position >= 0; position--)
             {
-                if (steps[position] is SuperMetroid.Core.Programs.AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.ShowStep shown)
-                    return shown.Frame;
+                if (steps[position] is SuperMetroid.Core.Programs.AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.ShowStep shown)
+                    return new PaletteFxFrame(program, shown.Frame);
             }
             if (ProgramFallingInto(program) is not { } previous)
                 return null;
@@ -432,7 +431,7 @@ internal static class NativeSnapshotImport
     private static PaletteFxProgram? ProgramFallingInto(PaletteFxProgram program)
     {
         PaletteFxProgram[] falling = [.. PaletteFxNativeListAddresses.Entries.Select(entry => entry.Program).Where(candidate =>
-            PaletteFxAnimations.Programs.Steps(candidate) is [.., SuperMetroid.Core.Programs.AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.FallIntoStep fall]
+            PaletteFxAnimations.Programs.Steps(candidate) is [.., SuperMetroid.Core.Programs.AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.FallIntoStep fall]
             && fall.Target == program)];
         return falling.Length switch
         {

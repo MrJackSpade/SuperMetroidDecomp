@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
 namespace SuperMetroid.AssetExtraction.Fx;
@@ -7,10 +6,10 @@ namespace SuperMetroid.AssetExtraction.Fx;
 internal static class PaletteFxRecordSources
 {
     /// <summary>Each record's timer-word address, by record.</summary>
-    internal static readonly Dictionary<PaletteFxFrame, ushort> Addresses = PaletteFxRecordSourceDefinitions.ByAddress.ToDictionary(pair => pair.Value, pair => pair.Key);
+    internal static readonly Dictionary<PaletteFxRecord, ushort> Addresses = PaletteFxRecordSourceDefinitions.ByAddress.ToDictionary(pair => pair.Value, pair => pair.Key);
 
-    /// <summary>The bank-$8D address of <paramref name="frame"/>'s timer word.</summary>
-    internal static ushort Address(PaletteFxFrame frame) => Addresses[frame];
+    /// <summary>The bank-$8D address of <paramref name="record"/>'s timer word.</summary>
+    internal static ushort Address(PaletteFxRecord record) => Addresses[record];
 
     /// <summary>
     /// The bank-$8D address of the colour word <paramref name="key"/> names: after the record's timer word, counting each
@@ -18,9 +17,9 @@ internal static class PaletteFxRecordSources
     /// </summary>
     internal static ushort ColorAddress(PaletteFxColorKey key)
     {
-        int word = Address(key.Frame) + sizeof(ushort);
+        int word = Address(key.Record) + sizeof(ushort);
         int ordinal = 0;
-        foreach (PaletteFxRecordPart part in PaletteFxRecordDefinitions.Layout(key.Frame))
+        foreach (PaletteFxRecordPart part in PaletteFxRecordDefinitions.Layout(key.Record))
         {
             if (part.Skip)
             {

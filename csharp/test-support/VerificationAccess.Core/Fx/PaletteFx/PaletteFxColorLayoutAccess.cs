@@ -10,8 +10,8 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// </summary>
 internal static class PaletteFxColorLayoutAccess
 {
-    /// <summary>The bank-$8D address of <paramref name="frame"/>'s timer word.</summary>
-    internal static ushort RecordAddress(PaletteFxFrame frame) => PaletteFxRecordSources.Address(frame);
+    /// <summary>The bank-$8D address of <paramref name="record"/>'s timer word.</summary>
+    internal static ushort RecordAddress(PaletteFxRecord record) => PaletteFxRecordSources.Address(record);
 
     /// <summary>The bank-$8D address of the colour word <paramref name="key"/> names.</summary>
     internal static ushort ColorAddress(PaletteFxColorKey key) => PaletteFxRecordSources.ColorAddress(key);

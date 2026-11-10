@@ -3,11 +3,13 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>
-/// The shades the import pre-colours pictures in for the palette-FX records (#1512): one per colour group and record the
-/// group shows, which colours the pictures of that group show while the record is the group's last.
+/// The shades the import pre-colours pictures in for the colour effects' frames (#1512, #1598): one per colour group and
+/// frame the group shows, which colours the pictures of that group show while the frame is the group's last. Each of an
+/// animation's frames in one colour group is a step of one shade effect, named for the group and the animation.
 /// </summary>
 public static class PaletteFxShades
 {
-    /// <summary>The shade of <paramref name="colours"/> showing <paramref name="record"/>.</summary>
-    public static PictureShade Of(PaletteFxColours colours, PaletteFxFrame record) => new($"palette-fx-{colours}", record.Record);
+    /// <summary>The shade of <paramref name="colours"/> showing <paramref name="frame"/>.</summary>
+    public static PictureShade Of(PaletteFxColours colours, PaletteFxFrame frame) =>
+        new($"palette-fx-{colours}-{frame.Animation}", frame.Frame);
 }

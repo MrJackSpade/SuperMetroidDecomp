@@ -4,8 +4,8 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// One colour effect running in a room or on a screen (#1554): the glow, flash, fade or shimmer it shows, the colours it
-/// shows its records in, the condition it watches, the step its program stands at, the
+/// One colour effect running in a room or on a screen (#1554, #1598): the glow, flash, fade or shimmer it shows, the
+/// colours it shows its frames in, the condition it watches, the step its program stands at, the
 /// updates left until that step, and the repeats its counted steps have left. Its authored steps are
 /// <see cref="PaletteFxAnimations"/>; the <see cref="RoomPaletteFxSystem"/> that started it gives it its turn.
 /// </summary>
@@ -25,7 +25,7 @@ internal sealed class RoomColourEffect
     /// <summary>What the effect shows.</summary>
     internal PaletteFxObject Effect { get; }
 
-    /// <summary>The colours the effect shows its records in; none until its program names them.</summary>
+    /// <summary>The colours the effect shows its frames in; none until its program names them.</summary>
     internal PaletteFxColours? Colours { get; set; }
 
     /// <summary>The condition the effect checks at the start of its turn; none until its program names one.</summary>
@@ -35,7 +35,7 @@ internal sealed class RoomColourEffect
     internal AnimationProgramCursor<PaletteFxProgram> Step { get; set; }
 
     /// <summary>
-    /// Updates until the effect runs its next step. It counts down before it is compared with zero; every record lasts at
+    /// Updates until the effect runs its next step. It counts down before it is compared with zero; every frame lasts at
     /// least one update and a started or restarted effect stands at one, so a running effect never counts down from zero.
     /// </summary>
     internal int UpdatesUntilNextStep { get; set; }
@@ -44,16 +44,16 @@ internal sealed class RoomColourEffect
     internal WrappingCountdown Repeats { get; set; }
 
     /// <summary>
-    /// The record the effect shows now (#1597): the last its program reached, held for that record's duration and until
-    /// its next one; none before its first.
+    /// The frame the effect shows now (#1597, #1598): the last its programs reached, held for that frame's duration and
+    /// until its next one; none before its first.
     /// </summary>
-    internal PaletteFxFrame? Record { get; set; }
+    internal PaletteFxFrame? Frame { get; set; }
 
     /// <summary>Whether the effect has ended; its system drops it from the turns at the end of the update.</summary>
     internal bool Ended { get; private set; }
 
     /// <summary>
-    /// Whether the effect ended by running its program to the end (#1597): it has settled on its final record, which it
+    /// Whether the effect ended by running its program to the end (#1597): it has settled on its final frame, which it
     /// keeps showing as the look its program finishes on. An effect its condition ends has not settled and shows nothing.
     /// </summary>
     internal bool Settled { get; private set; }
@@ -72,18 +72,18 @@ internal sealed class RoomColourEffect
     internal bool CountDown() => --UpdatesUntilNextStep == 0;
 
     /// <summary>
-    /// Runs the effect's steps until it shows its next record, which it then holds for that record's duration, or ends.
+    /// Runs the effect's steps until it shows its next frame, which it then holds for that frame's duration, or ends.
     /// It takes the colours and conditions its steps name itself and hands every other step, a heat phase or a sound, to
     /// <paramref name="carryOut"/>.
     /// </summary>
-    /// <returns>The record shown, or null when the effect ended.</returns>
+    /// <returns>The frame shown, of the program that showed it, or null when the effect ended.</returns>
     /// <exception cref="InvalidOperationException">The program waits or holds, which no colour effect's program does.</exception>
     internal PaletteFxFrame? Advance(Action<PaletteFxCue> carryOut)
     {
         Ensure.NotNull(carryOut);
         AnimationProgramCursor<PaletteFxProgram> step = Step;
         WrappingCountdown repeats = Repeats;
-        AnimationProgramAdvance<PaletteFxFrame> advance = PaletteFxAnimations.Programs.Advance(ref step, ref repeats,
+        AnimationProgramAdvance<int> advance = PaletteFxAnimations.Programs.Advance(ref step, ref repeats,
             (cue, _) =>
             {
                 switch (cue)
@@ -106,15 +106,16 @@ internal sealed class RoomColourEffect
         Repeats = repeats;
         switch (advance)
         {
-            case AnimationProgramAdvance<PaletteFxFrame>.Show shown:
+            case AnimationProgramAdvance<int>.Show shown:
+                // A show runs on to the next step of its own program, so the cursor names the program that showed it.
                 UpdatesUntilNextStep = shown.Duration;
-                Record = shown.Frame;
-                return shown.Frame;
-            case AnimationProgramAdvance<PaletteFxFrame>.Stop:
+                Frame = new PaletteFxFrame(step.Program, shown.Frame);
+                return Frame;
+            case AnimationProgramAdvance<int>.Stop:
                 End();
                 Settled = true;
                 return null;
-            case AnimationProgramAdvance<PaletteFxFrame>.Wait or AnimationProgramAdvance<PaletteFxFrame>.Hold:
+            case AnimationProgramAdvance<int>.Wait or AnimationProgramAdvance<int>.Hold:
                 throw new InvalidOperationException($"Colour effect {Effect}'s program {step.Program} reached a {advance}, which no colour effect's program has.");
             default:
                 throw new InvalidOperationException($"Undefined animation program advance {advance}.");

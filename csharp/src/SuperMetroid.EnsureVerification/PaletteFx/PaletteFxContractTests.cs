@@ -34,11 +34,10 @@ internal static class PaletteFxContractTests
         var fx = new RoomPaletteFxSystem(fxSession);
         fx.Start(PaletteFxObject.CutsceneGunshipEngineFlicker, 0);
         fx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
-        IReadOnlyList<ShownPaletteFxRecord> shown = fx.Shown;
-        PaletteFxFrame first = PaletteFxAnimations.Programs.Steps(PaletteFxProgram.CutsceneGunshipEngineFlicker1)
-            .OfType<AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.ShowStep>().First().Frame;
-        if (shown.Count != 1 || shown[0] != new ShownPaletteFxRecord(PaletteFxColours.CutsceneGunshipEngine, first)
-            || fx.RecordOf(PaletteFxColours.CutsceneGunshipEngine) != first || fx.ActiveCount != 1)
+        IReadOnlyList<ShownPaletteFxFrame> shown = fx.Shown;
+        var first = new PaletteFxFrame(PaletteFxProgram.CutsceneGunshipEngineFlicker1, 0);
+        if (shown.Count != 1 || shown[0] != new ShownPaletteFxFrame(PaletteFxColours.CutsceneGunshipEngine, first)
+            || fx.FrameOf(PaletteFxColours.CutsceneGunshipEngine) != first || fx.ActiveCount != 1)
             throw new InvalidOperationException("The first screen step did not show the gunship engine's first record.");
         Console.WriteLine("#1512: two compiler contracts, the colourless step shape and the screen step pass; no gameplay search.");
     }

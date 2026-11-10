@@ -27,5 +27,5 @@ internal static class PaletteFxScreenShades
     internal static IReadOnlyList<SheetShade> Of(IEnumerable<PaletteFxObject> objects, PaletteFxColours group, InkRange inks,
         IPaletteFxColorSource colours) =>
         [.. PaletteFxRecordShades.ShownBy(objects).Where(entry => entry.Colours == group)
-            .Select(entry => PaletteFxRecordShades.Shade(group, entry.Record, inks, colours))];
+            .Select(entry => PaletteFxRecordShades.Shade(group, entry.Frame, inks, colours))];
 }

@@ -1647,7 +1647,7 @@ internal static class PaletteFxInstructionCodesVerification
     {
         var cgram = new SnesCgram();
         PaletteFxColours[] groups = Enum.GetValues<PaletteFxColours>();
-        PaletteFxFrame?[] before = [.. groups.Select(fx.RecordOf)];
+        PaletteFxFrame?[] before = [.. groups.Select(fx.FrameOf)];
         fx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
         foreach ((PaletteFxColours group, PaletteFxFrame record) in fx.Shown)
         {
@@ -1672,11 +1672,11 @@ internal static class PaletteFxInstructionCodesVerification
     private static void StepShowing(RoomPaletteFxSystem fx, SuperMetroid.AssetExtraction.Fx.Artwork.IPaletteFxColorSource colours, SnesCgram cgram)
     {
         PaletteFxColours[] groups = Enum.GetValues<PaletteFxColours>();
-        PaletteFxFrame?[] before = [.. groups.Select(fx.RecordOf)];
+        PaletteFxFrame?[] before = [.. groups.Select(fx.FrameOf)];
         fx.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
         for (int index = 0; index < groups.Length; index++)
         {
-            if (fx.RecordOf(groups[index]) is { } record && record != before[index])
+            if (fx.FrameOf(groups[index]) is { } record && record != before[index])
                 PaletteFxRoomLook.LayRecord(cgram, groups[index], record, colours);
         }
     }

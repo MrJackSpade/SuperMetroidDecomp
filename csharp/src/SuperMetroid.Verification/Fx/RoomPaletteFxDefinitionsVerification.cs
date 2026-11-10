@@ -193,8 +193,8 @@ internal static class RoomPaletteFxDefinitionsVerification
         AssertTrue(shown.SequenceEqual([PaletteFxColours.TitleLogo, PaletteFxColours.TitleScreenDisplays,
                 PaletteFxColours.BabyMetroidTubeLight, PaletteFxColours.NintendoCopyright]),
             "the settled logo lies first, then the running effects' records in the order they started");
-        AssertEqual<PaletteFxFrame?>(PaletteFxColorFrames.Of(PaletteFxProgram.CommonFadeInLogo, colorsPerFrame: 1).Frame(0),
-            system.RecordOf(PaletteFxColours.NintendoCopyright), "the copyright shows its first record on its first turn");
+        AssertEqual<PaletteFxFrame?>(new PaletteFxFrame(PaletteFxProgram.CommonFadeInLogo, 0),
+            system.FrameOf(PaletteFxColours.NintendoCopyright), "the copyright shows its first frame on its first turn");
 
         // No cap holds the effects back (#1598): a ninth effect starts like the first.
         var many = new RoomPaletteFxSystem(new PaletteFxSessionState());

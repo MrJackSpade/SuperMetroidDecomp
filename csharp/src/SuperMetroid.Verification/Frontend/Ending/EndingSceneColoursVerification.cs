@@ -48,7 +48,7 @@ internal static class EndingSceneColoursVerification
         colours.PaletteFx.Start(EndingPaletteFxDefinitions.GunshipEmergence, 0);
         colours.PaletteFx.StepScreen(Screen);
         PictureShade gunshipRecord = PaletteFxShades.Of(PaletteFxColours.GunshipEmergingFromExplosion,
-            colours.PaletteFx.RecordOf(PaletteFxColours.GunshipEmergingFromExplosion)
+            colours.PaletteFx.FrameOf(PaletteFxColours.GunshipEmergingFromExplosion)
             ?? throw new InvalidOperationException("The gunship's emergence showed no record on its first step."));
         AssertTrue(colours.Shades.SequenceEqual([.. restoredScene, gunshipRecord]), "a running palette effect shows the record it holds");
         AssertThrows<InvalidOperationException>(() => colours.Load(EndingColourLoad.FinalGunship, null),
@@ -71,10 +71,10 @@ internal static class EndingSceneColoursVerification
         actors.PaletteFx.Start(EndingPaletteFxDefinitions.GunshipEmergence, 0);
         actors.PaletteFx.StepScreen(Screen);
         PictureShade planetFadeOut = PaletteFxShades.Of(PaletteFxColours.ZoomedOutExplodingZebes,
-            actors.PaletteFx.RecordOf(PaletteFxColours.ZoomedOutExplodingZebes)
+            actors.PaletteFx.FrameOf(PaletteFxColours.ZoomedOutExplodingZebes)
             ?? throw new InvalidOperationException("The planet's fade-out showed no record on its first step."));
         PictureShade actorsGunship = PaletteFxShades.Of(PaletteFxColours.GunshipEmergingFromExplosion,
-            actors.PaletteFx.RecordOf(PaletteFxColours.GunshipEmergingFromExplosion)
+            actors.PaletteFx.FrameOf(PaletteFxColours.GunshipEmergingFromExplosion)
             ?? throw new InvalidOperationException("The gunship's emergence showed no record on its first step."));
         PictureShade pod = EndingShades.Drawn(EndingSpriteColouring.AnimalEscape);
         PictureShade planet = EndingShades.Drawn(EndingSpriteColouring.ExplodingPlanet);

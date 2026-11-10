@@ -11,8 +11,11 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// <summary>Reads an installed sprite sheet's frame manifest and cuts its frames from the sheet image (#1502).</summary>
 public static class SpriteSheetFile
 {
-    /// <summary>The manifest schema revision this reader reads.</summary>
-    public const int Version = 11;
+    /// <summary>
+    /// The manifest schema revision this reader reads: 12 names each colour effect's shades by its colour group and
+    /// animation and each step by the frame's place in that animation (#1598).
+    /// </summary>
+    public const int Version = 12;
 
     /// <summary>
     /// Camel-case manifest fields; unknown fields are rejected. The import writes manifests with the same settings, unindented:

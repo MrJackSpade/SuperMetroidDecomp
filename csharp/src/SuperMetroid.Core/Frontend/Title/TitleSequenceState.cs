@@ -368,9 +368,9 @@ public sealed class TitleSequenceState : IFrontendScreen
         get
         {
             PictureShading shading = PictureShading.Standard;
-            if (consolePaletteFx.RecordOf(PaletteFxColours.BabyMetroidTubeLight) is { } tube)
+            if (consolePaletteFx.FrameOf(PaletteFxColours.BabyMetroidTubeLight) is { } tube)
                 shading = shading.With(PaletteFxShades.Of(PaletteFxColours.BabyMetroidTubeLight, tube));
-            if (consolePaletteFx.RecordOf(PaletteFxColours.TitleScreenDisplays) is { } displays)
+            if (consolePaletteFx.FrameOf(PaletteFxColours.TitleScreenDisplays) is { } displays)
                 shading = shading.With(PaletteFxShades.Of(PaletteFxColours.TitleScreenDisplays, displays));
             return shading;
         }

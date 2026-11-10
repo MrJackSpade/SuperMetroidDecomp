@@ -27,14 +27,14 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     /// <summary>The running effects, in turn order (<see cref="ColourEffectTurnOrder"/>).</summary>
     internal readonly List<RoomColourEffect> effects = [];
     /// <summary>
-    /// The effects whose programs ran to their end (#1597), in the order they settled: each keeps its final look on its
+    /// The effects whose programs ran to their end (#1597), in the order they settled: each keeps its final frame on its
     /// colours, without taking a turn, until an effect showing the same colours settles after it or the room ends.
     /// </summary>
     private readonly List<RoomColourEffect> settled = [];
-    /// <summary>The records Samus's suit groups showed during the current update, in order (#1512).</summary>
-    private readonly List<ShownPaletteFxRecord> suitShown = [];
-    /// <summary>The records the enemies' groups showed during the current update, in order (#1512).</summary>
-    private readonly List<ShownPaletteFxRecord> enemyShown = [];
+    /// <summary>The frames Samus's suit groups showed during the current update, in order (#1512).</summary>
+    private readonly List<ShownPaletteFxFrame> suitShown = [];
+    /// <summary>The frames the enemies' groups showed during the current update, in order (#1512).</summary>
+    private readonly List<ShownPaletteFxFrame> enemyShown = [];
     /// <summary>Momentary sound publications cleared at the start of each update.</summary>
     private readonly List<SoundRequest> soundRequests = [];
     /// <summary>Live Power Bomb state used to suppress colour-effect sound requests.</summary>
@@ -113,34 +113,34 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
 
     /// <summary>Runs one update of the colour effects during gameplay, each in its turn.</summary>
     /// <remarks>
-    /// No colour is written (#1512, #1597): each effect shows the record it holds now, which the room's pictures take as a
-    /// shade, and the records of Samus's and the enemies' groups are handed to their owners through
-    /// <see cref="SuitShown"/> and <see cref="EnemyShown"/>, whose colourings the import pre-colours per record.
+    /// No colour is written (#1512, #1597): each effect shows the frame it holds now, which the room's pictures take as a
+    /// shade, and the frames of Samus's and the enemies' groups are handed to their owners through
+    /// <see cref="SuitShown"/> and <see cref="EnemyShown"/>, whose colourings the import pre-colours per frame.
     /// </remarks>
     /// <param name="conditions">The update's conditions the effects watch.</param>
     /// <param name="powerBomb">The live Power Bomb, which suppresses colour-effect sounds while it is active.</param>
-    /// <exception cref="InvalidOperationException">A record is shown in colours no gameplay picture shows.</exception>
+    /// <exception cref="InvalidOperationException">A frame is shown in colours no gameplay picture shows.</exception>
     public void Step(PaletteFxConditions conditions, IActivePowerBomb? powerBomb = null)
     {
         audioPowerBomb = powerBomb;
-        RunTurns(conditions, ShowPaletteRecord);
+        RunTurns(conditions, ShowGameplayFrame);
     }
 
     /// <summary>
-    /// Runs one update of a frontend screen's colour effects (#1512, #1597): each effect shows the record it holds now,
+    /// Runs one update of a frontend screen's colour effects (#1512, #1597): each effect shows the frame it holds now,
     /// which the screen shades its pictures with, and no owner's colours are written.
     /// </summary>
-    /// <exception cref="InvalidOperationException">A record is shown in colours no frontend screen shows.</exception>
+    /// <exception cref="InvalidOperationException">A frame is shown in colours no frontend screen shows.</exception>
     internal void StepScreen(PaletteFxConditions conditions)
     {
         audioPowerBomb = null;
-        RunTurns(conditions, ShowScreenRecord);
+        RunTurns(conditions, ShowScreenFrame);
     }
 
     /// <summary>
     /// Gives each running effect its turn, in the order they started: it checks its condition, counts down, and when its
-    /// next step is due runs its steps to the next record, which goes to <paramref name="show"/>. Effects that end are
-    /// dropped from the turns once every turn has run; one that settled keeps its final record shown.
+    /// next step is due runs its steps to the next frame, which goes to <paramref name="show"/>. Effects that end are
+    /// dropped from the turns once every turn has run; one that settled keeps its final frame shown.
     /// </summary>
     private void RunTurns(PaletteFxConditions conditions, Action<RoomColourEffect, PaletteFxFrame> show)
     {
@@ -288,112 +288,112 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Checks one timed colour record a frontend screen's effect shows (#1512). A program names its colours before its
-    /// first record, so a record shown before that is a defect in the program.
+    /// Checks one frame a frontend screen's effect shows (#1512). A program names its colours before its first frame, so a
+    /// frame shown before that is a defect in the program.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The record is shown before its colours are named, or in colours no screen shows.</exception>
-    private static void ShowScreenRecord(RoomColourEffect effect, PaletteFxFrame frame)
+    /// <exception cref="InvalidOperationException">The frame is shown before its colours are named, or in colours no screen shows.</exception>
+    private static void ShowScreenFrame(RoomColourEffect effect, PaletteFxFrame frame)
     {
         PaletteFxColours animated = effect.Colours ?? throw new InvalidOperationException(
-            $"Colour effect {effect.Effect} showed record {frame.Record} before its program named the colours it animates.");
+            $"Colour effect {effect.Effect} showed {frame} before its program named the colours it animates.");
         if (!PaletteFxScreenColourDefinitions.FrontendScreenGroups.Contains(animated))
             throw new InvalidOperationException($"Colour effect {effect.Effect} showed {animated}, which no frontend screen shows.");
     }
 
     /// <summary>
-    /// The records Samus's suit groups showed during the last update, in order (#1512): she lays the shade of each over
-    /// her suit, as each record overwrote her suit's colours then.
+    /// The frames Samus's suit groups showed during the last update, in order (#1512): she lays the shade of each over
+    /// her suit, as each frame overwrote her suit's colours then.
     /// </summary>
-    internal IReadOnlyList<ShownPaletteFxRecord> SuitShown => suitShown;
+    internal IReadOnlyList<ShownPaletteFxFrame> SuitShown => suitShown;
 
     /// <summary>
-    /// The records the enemies' groups showed during the last update, in order (#1512): each enemy lays the shade of
-    /// each over its draws, as each record overwrote its colours then.
+    /// The frames the enemies' groups showed during the last update, in order (#1512): each enemy lays the shade of
+    /// each over its draws, as each frame overwrote its colours then.
     /// </summary>
-    internal IReadOnlyList<ShownPaletteFxRecord> EnemyShown => enemyShown;
+    internal IReadOnlyList<ShownPaletteFxFrame> EnemyShown => enemyShown;
 
     /// <summary>
-    /// The record <paramref name="colours"/> shows now (#1512, #1597, #1598): the record laid last on them, in the order
+    /// The frame <paramref name="colours"/> show now (#1512, #1597, #1598): the frame laid last on them, in the order
     /// <see cref="Shown"/> lays the looks; null while no effect shows them.
     /// </summary>
-    internal PaletteFxFrame? RecordOf(PaletteFxColours colours)
+    internal PaletteFxFrame? FrameOf(PaletteFxColours colours)
     {
         PaletteFxFrame? last = null;
-        foreach (ShownPaletteFxRecord shown in ShownRecords())
+        foreach (ShownPaletteFxFrame shown in ShownFrames())
         {
             if (shown.Colours == colours)
-                last = shown.Record;
+                last = shown.Frame;
         }
         return last;
     }
 
     /// <summary>
-    /// The looks the colour groups show now, in the order they are laid (#1597, #1598): the settled effects' final records,
-    /// then the running effects' records in turn order. A look laid later lies over an earlier one on the colours it writes.
+    /// The looks the colour groups show now, in the order they are laid (#1597, #1598): the settled effects' final frames,
+    /// then the running effects' frames in turn order. A look laid later lies over an earlier one on the colours it writes.
     /// </summary>
-    internal IReadOnlyList<ShownPaletteFxRecord> Shown => ShownRecords();
+    internal IReadOnlyList<ShownPaletteFxFrame> Shown => ShownFrames();
 
     /// <summary>Whether a running effect animates <paramref name="colours"/> (#1597).</summary>
     internal bool Animates(PaletteFxColours colours) => effects.Exists(effect => !effect.Ended && effect.Colours == colours);
 
     /// <summary>
     /// Lays the shade of each look the room's colour groups show now over the room's pictures (#1512, #1597), in the order
-    /// <see cref="Shown"/> gives them: the settled effects' final records, then the running effects' records in turn order.
+    /// <see cref="Shown"/> gives them: the settled effects' final frames, then the running effects' frames in turn order.
     /// </summary>
     public void ShadeGameplay(GameplayShadingBuilder frame)
     {
         Ensure.NotNull(frame);
-        foreach ((PaletteFxColours colours, PaletteFxFrame record) in ShownRecords())
+        foreach ((PaletteFxColours colours, PaletteFxFrame shown) in ShownFrames())
         {
             if (PaletteFxRoomColourDefinitions.RoomColours.Contains(colours))
-                frame.Shade(GameplayPictures.Room, PaletteFxShades.Of(colours, record));
+                frame.Shade(GameplayPictures.Room, PaletteFxShades.Of(colours, shown));
         }
     }
 
     /// <summary>
-    /// The looks the colour groups show now (#1597, #1598): each settled effect's final record in the order they settled,
-    /// then each running effect's record in turn order. An effect its condition ended shows nothing, and no effect's
-    /// record outlasts it.
+    /// The looks the colour groups show now (#1597, #1598): each settled effect's final frame in the order they settled,
+    /// then each running effect's frame in turn order. An effect its condition ended shows nothing, and no effect's frame
+    /// outlasts it.
     /// </summary>
-    private List<ShownPaletteFxRecord> ShownRecords()
+    private List<ShownPaletteFxFrame> ShownFrames()
     {
-        var shown = new List<ShownPaletteFxRecord>(settled.Count + effects.Count);
+        var shown = new List<ShownPaletteFxFrame>(settled.Count + effects.Count);
         foreach (RoomColourEffect effect in settled)
         {
-            if (effect.Colours is { } colours && effect.Record is { } record)
-                shown.Add(new ShownPaletteFxRecord(colours, record));
+            if (effect.Colours is { } colours && effect.Frame is { } frame)
+                shown.Add(new ShownPaletteFxFrame(colours, frame));
         }
         foreach (RoomColourEffect effect in effects)
         {
-            if (!effect.Ended && effect.Colours is { } colours && effect.Record is { } record)
-                shown.Add(new ShownPaletteFxRecord(colours, record));
+            if (!effect.Ended && effect.Colours is { } colours && effect.Frame is { } frame)
+                shown.Add(new ShownPaletteFxFrame(colours, frame));
         }
         return shown;
     }
 
     /// <summary>
-    /// Shows one timed colour record in the colours the effect shows during gameplay (#1512, #1597): the effect holds
-    /// the record, which the room's pictures take as a shade, and a record of Samus's or an enemy's group is also kept
-    /// for that owner, which lays its shade over its own draws. A program names its colours before its first record, so
-    /// a record shown before that is a defect in the program.
+    /// Shows one frame in the colours the effect shows during gameplay (#1512, #1597): the effect holds the frame, which
+    /// the room's pictures take as a shade, and a frame of Samus's or an enemy's group is also kept for that owner, which
+    /// lays its shade over its own draws. A program names its colours before its first frame, so a frame shown before
+    /// that is a defect in the program.
     /// </summary>
     /// <exception cref="InvalidOperationException">
-    /// The record is shown before its colours are named, or in colours no room picture, Samus nor enemy shows.
+    /// The frame is shown before its colours are named, or in colours no room picture, Samus nor enemy shows.
     /// </exception>
-    private void ShowPaletteRecord(RoomColourEffect effect, PaletteFxFrame frame)
+    private void ShowGameplayFrame(RoomColourEffect effect, PaletteFxFrame frame)
     {
         PaletteFxColours animated = effect.Colours ?? throw new InvalidOperationException(
-            $"Colour effect {effect.Effect} showed record {frame.Record} before its program named the colours it animates.");
+            $"Colour effect {effect.Effect} showed {frame} before its program named the colours it animates.");
         if (PaletteFxRoomColourDefinitions.RoomColours.Contains(animated))
             return;
         if (PaletteFxSamusColourDefinitions.SuitColours.Contains(animated))
         {
-            suitShown.Add(new ShownPaletteFxRecord(animated, frame));
+            suitShown.Add(new ShownPaletteFxFrame(animated, frame));
             return;
         }
         if (PaletteFxEnemyColourDefinitions.EnemyColours.Contains(animated))
         {
-            enemyShown.Add(new ShownPaletteFxRecord(animated, frame));
+            enemyShown.Add(new ShownPaletteFxFrame(animated, frame));
             return;
         }
         throw new InvalidOperationException($"Colour effect {effect.Effect} showed {animated}, which no gameplay picture shows.");

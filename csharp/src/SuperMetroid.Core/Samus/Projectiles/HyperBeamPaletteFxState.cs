@@ -24,11 +24,6 @@ public sealed class HyperBeamPaletteFxState
     /// <summary>Where the Hyper Beam palette program resumes.</summary>
     internal AnimationProgramCursor<PaletteFxProgram> Cursor { get => cursor; private set => cursor = value; }
 
-    /// <summary>The cycle's ten records in the order <see cref="PaletteFxProgram.HyperBeam1"/> shows them; a record's place is its colour frame.</summary>
-    private static readonly int[] CycleRecords = [.. PaletteFxAnimations.Programs.Steps(PaletteFxProgram.HyperBeam1)
-        .OfType<AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.ShowStep>()
-        .Select(step => step.Frame.Record)];
-
     /// <summary>True after controller function three has spawned the object.</summary>
     public bool IsActive { get; private set; }
 
@@ -91,16 +86,18 @@ public sealed class HyperBeamPaletteFxState
         }
 
         WrappingCountdown unusedCounter = default;
-        AnimationProgramAdvance<PaletteFxFrame> advance = PaletteFxAnimations.Programs.Advance(ref cursor, ref unusedCounter,
+        AnimationProgramAdvance<int> advance = PaletteFxAnimations.Programs.Advance(ref cursor, ref unusedCounter,
             (cue, _) => cue == new PaletteFxCue.SetColours(ProgramColours)
                 ? null
                 : throw new InvalidDataException($"The Hyper Beam palette program published {cue}, which its object does not carry out."));
-        if (advance is not AnimationProgramAdvance<PaletteFxFrame>.Show shown)
-            throw new InvalidDataException($"The Hyper Beam palette program reached a {advance}; its cycle only shows records.");
-        int frameIndex = Array.IndexOf(CycleRecords, shown.Frame.Record);
-        if (frameIndex < 0)
-            throw new InvalidDataException($"The Hyper Beam palette program showed record {shown.Frame.Record}, outside its cycle.");
-        // The cycle's goto returns to its first record: showing it again completes a cycle.
+        if (advance is not AnimationProgramAdvance<int>.Show shown)
+            throw new InvalidDataException($"The Hyper Beam palette program reached a {advance}; its cycle only shows frames.");
+        // A show runs on to the next step of its own program, so the cursor names the program that showed the frame; the
+        // cycle's frames are the beams' cycle colourings in order.
+        if (cursor.Program != PaletteFxProgram.HyperBeam1)
+            throw new InvalidDataException($"The Hyper Beam palette program showed frame {shown.Frame} of {cursor.Program}, outside its cycle.");
+        int frameIndex = shown.Frame;
+        // The cycle's goto returns to its first frame: showing it again completes a cycle.
         if (frameIndex == 0 && CurrentFrameIndex is not null)
             CompletedCycles++;
 

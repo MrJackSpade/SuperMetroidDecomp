@@ -106,19 +106,18 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         _collision.ResolveNormalEnemyTouch(slot, samus);
 
-        // With ordinary contact, the game still holds the surviving health.
-        // EnemyDeath clamps values above four to the small explosion. Queue that real
+        // The touch kills the Fireflea whatever it left, in the explosion FirefleaTouchDeathExplosion names. Queue that
         // death program before clearing the actor so its artwork and sound can run.
         if (slot.DefinitionId != EnemyDefinitionId.None)
-            _deathsAndDrops.StartGenericEnemyDeath(slot, deathAnimation: EnemyDeathExplosions.ForLeftoverNumber(slot.Health));
+            _deathsAndDrops.StartGenericEnemyDeath(slot, deathAnimation: EnemyDeathExplosions.ForLeftoverNumber(
+                FirefleaTouchDeathExplosion.AuthoredExplosionAfterSurvivedTouch(slot.Health)));
         else
         {
-            // Common attacking contact already ran EnemyDeath, which returns A = 0
-            // (or the respawn placeholder's header after installing it); the Fireflea's touch reaction then runs EnemyDeath
-            // again on the cleared slot. Both values select the small explosion. It spawns at
-            // (0,0) with the slot's current header (zero, or the placeholder), clears any
-            // placeholder, and counts a second kill.
-            _deathsAndDrops.StartGenericEnemyDeath(slot, deathAnimation: EnemyDeathExplosion.Small);
+            // Common attacking contact already ran the death; the Fireflea's touch reaction runs it again on the cleared
+            // slot. It spawns at (0,0) with the slot's current header (zero, or the placeholder), clears any placeholder,
+            // and counts a second kill.
+            _deathsAndDrops.StartGenericEnemyDeath(slot, deathAnimation: EnemyDeathExplosions.ForLeftoverNumber(
+                FirefleaTouchDeathExplosion.AuthoredExplosionAfterKillingTouch));
         }
         AdvanceFirefleaDarkness();
     }

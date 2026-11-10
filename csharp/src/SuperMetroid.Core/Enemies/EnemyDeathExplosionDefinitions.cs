@@ -33,8 +33,8 @@ internal static class EnemyDeathExplosionDefinitions
     internal static readonly RandomSampleField NarrowSpriteVerticalScatter = new(8, 5);
 
     /// <summary>
-    /// The explosion a Fireflea's contact death starts for each remaining health from zero: the explosions in their
-    /// authored order.
+    /// The explosion a death started with a leftover number starts for each number from zero: the explosions in their
+    /// authored order (<see cref="EnemyDeathExplosions.ForLeftoverNumber"/>).
     /// </summary>
     internal static readonly EnemyDeathExplosion[] ByLeftoverNumber =
     [

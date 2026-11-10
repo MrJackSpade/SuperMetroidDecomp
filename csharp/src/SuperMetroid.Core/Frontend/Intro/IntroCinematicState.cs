@@ -61,7 +61,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Draws <paramref name="family"/>'s frames from the intro sheet.</summary>
     private CinematicSpriteSheet IntroSprites(CinematicSpriteFamily family) =>
         new((spriteSheets ?? throw new InvalidOperationException("Intro sprites require the installed sprite sheets."))
-            .Get(SpriteSheetId.IntroSprites), family, paletteFader.ActorShading);
+            .Get(SpriteSheetId.IntroSprites), family, crossfade.ActorShading);
 
     /// <summary>The intro's projectile sheet, which the flashbacks' projectiles, bombs and trails draw from.</summary>
     private ProjectileSheets? projectileSheets;
@@ -147,10 +147,10 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Applies the selected Japanese subtitle treatment to narration pages.</summary>
     private readonly IntroJapaneseSubtitles subtitles;
     /// <summary>
-    /// The levels of the colours the current text or scene crossfade moves (#1512); every colour shows at full until the
-    /// first crossfade, and each crossfade starts a new fader.
+    /// The current crossfade between the narration and a flashback scene (#1512, #1597); every scene shows at full until
+    /// the first crossfade.
     /// </summary>
-    private CinematicPaletteFader paletteFader = new();
+    private IntroCrossfade crossfade = new();
     /// <summary>Samus gameplay state shared by the Mother Brain and SR388 flashbacks.</summary>
     internal SamusState? CurrentFlashbackSamus { get; private set; }
     /// <summary>Samus in the Mother Brain flashback, which exists while the flashback runs.</summary>
@@ -619,14 +619,12 @@ public sealed class IntroCinematicState : IFrontendScreen
         // Samus is processed, and drawn ahead of the cinematic objects.
         flashbackSamusDisplay = IntroSamusDisplay.SamusFirst;
 
-        // The scene setup replaces the target palette with the intro palettes, decomposes every
-        // component, clears only the incoming gameplay ranges, and immediately composes.
-        paletteFader = new CinematicPaletteFader();
-        ClearPaletteSpans(IntroCinematicDefinitions.Palette.Narration);
+        // The scene setup starts the crossfade from the narration into the flashback, which starts black.
+        crossfade = new IntroCrossfade(IntroCrossfadeScene.Narration, IntroCrossfadeScene.Flashback);
 
         // The sprite setup stored 127 in both cinematic_var13 and (through sprite object
         // object's setup) cinematic_var4. The crossfade tests the old counter, then decrements it.
-        crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Palette.CrossfadeInitialCounter);
+        crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Crossfade.InitialCounter);
         Phase = IntroCinematicPhase.MotherBrainCrossfade;
     }
 
@@ -635,10 +633,9 @@ public sealed class IntroCinematicState : IFrontendScreen
     {
         // The crossfade updates only when the pre-decrement counter is divisible by four.
         // Values 124..0 therefore yield exactly 32 component updates.
-        if (crossfadeCounter.IsOnMultipleOf(IntroCinematicDefinitions.Palette.CrossfadeStepFrames))
+        if (crossfadeCounter.IsOnMultipleOf(IntroCinematicDefinitions.Crossfade.StepFrames))
         {
-            FadeOutPaletteSpans(IntroCinematicDefinitions.Palette.Gameplay);
-            FadeInPaletteSpans(IntroCinematicDefinitions.Palette.Narration);
+            crossfade.Step();
         }
 
         crossfadeCounter = crossfadeCounter.Decrement().Remaining;
@@ -657,9 +654,8 @@ public sealed class IntroCinematicState : IFrontendScreen
         // Page two spawns its narration object, selects the reverse gameplay-to-
         // text palette routine, and restores the already allocated caret object.
         Objects.StartEnglishPageTwo();
-        paletteFader = new CinematicPaletteFader();
-        ClearPaletteSpans(IntroCinematicDefinitions.Palette.GameplayClear);
-        crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Palette.CrossfadeInitialCounter);
+        crossfade = new IntroCrossfade(IntroCrossfadeScene.Flashback, IntroCrossfadeScene.Narration);
+        crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Crossfade.InitialCounter);
         Phase = IntroCinematicPhase.PageTwoCrossfade;
     }
 
@@ -674,10 +670,9 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Fades gameplay and projectile ranges out while restoring portrait and text ranges.</summary>
     private void StepReverseGameplayToTextCrossfade(IntroCinematicPhase completedPhase)
     {
-        if (crossfadeCounter.IsOnMultipleOf(IntroCinematicDefinitions.Palette.CrossfadeStepFrames))
+        if (crossfadeCounter.IsOnMultipleOf(IntroCinematicDefinitions.Crossfade.StepFrames))
         {
-            FadeInPaletteSpans(IntroCinematicDefinitions.Palette.GameplayClear);
-            FadeOutPaletteSpans(IntroCinematicDefinitions.Palette.Narration);
+            crossfade.Step();
         }
 
         crossfadeCounter = crossfadeCounter.Decrement().Remaining;
@@ -707,19 +702,17 @@ public sealed class IntroCinematicState : IFrontendScreen
         CurrentFlashbackLevel = null;
         flashbackProjectiles.Reset();
 
-        paletteFader = new CinematicPaletteFader();
-        ClearPaletteSpans(IntroCinematicDefinitions.Palette.Narration);
-        crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Palette.CrossfadeInitialCounter);
+        crossfade = new IntroCrossfade(IntroCrossfadeScene.Narration, IntroCrossfadeScene.Flashback);
+        crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Crossfade.InitialCounter);
         Phase = IntroCinematicPhase.BabyDiscoveryCrossfade;
     }
 
     /// <summary>Reuses the text-to-gameplay fade before showing the SR388 discovery room alone.</summary>
     internal void StepBabyDiscoveryCrossfade()
     {
-        if (crossfadeCounter.IsOnMultipleOf(IntroCinematicDefinitions.Palette.CrossfadeStepFrames))
+        if (crossfadeCounter.IsOnMultipleOf(IntroCinematicDefinitions.Crossfade.StepFrames))
         {
-            FadeOutPaletteSpans(IntroCinematicDefinitions.Palette.Gameplay);
-            FadeInPaletteSpans(IntroCinematicDefinitions.Palette.Narration);
+            crossfade.Step();
         }
 
         crossfadeCounter = crossfadeCounter.Decrement().Remaining;
@@ -739,9 +732,8 @@ public sealed class IntroCinematicState : IFrontendScreen
         // spawns its narration object and enters the same gameplay-to-text palette
         // routine used after Mother Brain. The SR388 actors continue running beneath it.
         Objects.StartEnglishPageThree();
-        paletteFader = new CinematicPaletteFader();
-        ClearPaletteSpans(IntroCinematicDefinitions.Palette.GameplayClear);
-        crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Palette.CrossfadeInitialCounter);
+        crossfade = new IntroCrossfade(IntroCrossfadeScene.Flashback, IntroCrossfadeScene.Narration);
+        crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Crossfade.InitialCounter);
         Phase = IntroCinematicPhase.PageThreeCrossfade;
     }
 
@@ -766,13 +758,12 @@ public sealed class IntroCinematicState : IFrontendScreen
         CurrentScientistCutscene = IntroScientistCutsceneState.CreateDelivery();
         CurrentBabyDiscovery = null;
 
-        paletteFader = new CinematicPaletteFader();
-        ClearPaletteSpans(IntroCinematicDefinitions.Palette.Discovery);
+        crossfade = new IntroCrossfade(IntroCrossfadeScene.Narration, IntroCrossfadeScene.Laboratory);
 
         // The intro alternates two adjacent counters. Page-three setup left
         // the cinematic function's counter at 127; this setup writes the separate intro counter.
-        crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Palette.CrossfadeInitialCounter);
-        introCrossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Palette.CrossfadeInitialCounter);
+        crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Crossfade.InitialCounter);
+        introCrossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Crossfade.InitialCounter);
         Phase = IntroCinematicPhase.BabyMetroidDeliveryCrossfade;
     }
 
@@ -787,10 +778,9 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Advances the text-to-laboratory palette spans using the cinematic-function countdown.</summary>
     private void StepTextToScientistCrossfade(IntroCinematicPhase completedPhase)
     {
-        if (crossfadeCounter.IsOnMultipleOf(IntroCinematicDefinitions.Palette.CrossfadeStepFrames))
+        if (crossfadeCounter.IsOnMultipleOf(IntroCinematicDefinitions.Crossfade.StepFrames))
         {
-            FadeOutPaletteSpans(IntroCinematicDefinitions.Palette.Gameplay);
-            FadeInPaletteSpans(IntroCinematicDefinitions.Palette.Discovery);
+            crossfade.Step();
         }
 
         crossfadeCounter = crossfadeCounter.Decrement().Remaining;
@@ -808,9 +798,8 @@ public sealed class IntroCinematicState : IFrontendScreen
         // cinematic-function counter, while the reverse routine deliberately consumes the
         // still-127 intro crossfade counter set by the delivery scene.
         Objects.StartEnglishPageFour();
-        paletteFader = new CinematicPaletteFader();
-        ClearPaletteSpans(IntroCinematicDefinitions.Palette.GameplayClear);
-        crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Palette.CrossfadeInitialCounter);
+        crossfade = new IntroCrossfade(IntroCrossfadeScene.Laboratory, IntroCrossfadeScene.Narration);
+        crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Crossfade.InitialCounter);
         Phase = IntroCinematicPhase.PageFourCrossfade;
     }
 
@@ -825,10 +814,9 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Advances the laboratory-to-text palette ranges using the retained intro countdown.</summary>
     private void StepScientistToTextCrossfade(IntroCinematicPhase completedPhase)
     {
-        if (introCrossfadeCounter.IsOnMultipleOf(4))
+        if (introCrossfadeCounter.IsOnMultipleOf(IntroCinematicDefinitions.Crossfade.StepFrames))
         {
-            FadeInPaletteSpans(IntroCinematicDefinitions.Palette.GameplayClear);
-            FadeOutPaletteSpans(IntroCinematicDefinitions.Palette.Discovery);
+            crossfade.Step();
         }
 
         introCrossfadeCounter = introCrossfadeCounter.Decrement().Remaining;
@@ -844,10 +832,9 @@ public sealed class IntroCinematicState : IFrontendScreen
         // The examination setup shows the examination page, starts the page at Y=-24, and spawns the examined baby.
         // Its setup is otherwise the same two-counter scientist crossfade as delivery.
         CurrentScientistCutscene = IntroScientistCutsceneState.CreateExamination();
-        paletteFader = new CinematicPaletteFader();
-        ClearPaletteSpans(IntroCinematicDefinitions.Palette.Discovery);
-        crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Palette.CrossfadeInitialCounter);
-        introCrossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Palette.CrossfadeInitialCounter);
+        crossfade = new IntroCrossfade(IntroCrossfadeScene.Narration, IntroCrossfadeScene.Laboratory);
+        crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Crossfade.InitialCounter);
+        introCrossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Crossfade.InitialCounter);
         Phase = IntroCinematicPhase.BabyMetroidExaminationCrossfade;
     }
 
@@ -859,9 +846,8 @@ public sealed class IntroCinematicState : IFrontendScreen
     private void SetupPageFiveCrossfade()
     {
         Objects.StartEnglishPageFive();
-        paletteFader = new CinematicPaletteFader();
-        ClearPaletteSpans(IntroCinematicDefinitions.Palette.GameplayClear);
-        crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Palette.CrossfadeInitialCounter);
+        crossfade = new IntroCrossfade(IntroCrossfadeScene.Laboratory, IntroCrossfadeScene.Narration);
+        crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Crossfade.InitialCounter);
         Phase = IntroCinematicPhase.PageFiveCrossfade;
     }
 
@@ -874,7 +860,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     {
         // Page five's setup seeds the intro crossfade counter. English falls straight through into
         // page six; Japanese text selects page six as the next dispatch's cinematic function.
-        introCrossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Palette.CrossfadeInitialCounter);
+        introCrossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Crossfade.InitialCounter);
         if (subtitles.Enabled)
             Phase = IntroCinematicPhase.StartPageSix;
         else
@@ -1108,7 +1094,7 @@ level, samus, frameCounter);
             IntroSprites(CinematicSpriteFamily.IntroMotherBrain).Draw(
                 motherBrainPose, objectSprites,
                 IntroMotherBrainSpriteState.Position.ToSpritePosition(),
-                FlashbackMotherBrain.Shading(paletteFader.ActorShading(IntroMotherBrainSpriteState.Colouring)));
+                FlashbackMotherBrain.Shading(crossfade.ActorShading(IntroMotherBrainSpriteState.Colouring)));
         }
         objectSprites.FinishFrame();
         foreach (SpriteDraw draw in objectSprites.Draws)
@@ -1219,24 +1205,6 @@ level, samus, frameCounter);
     /// <summary>Clears the narration's text rows.</summary>
     private void ClearVisibleNarrationText() => narrationText.ClearText();
 
-    /// <summary>Clears the selected colours before an incoming scene begins crossfading.</summary>
-    private void ClearPaletteSpans(IntroFadeColours colours)
-    {
-        paletteFader.Clear(colours);
-    }
-
-    /// <summary>Raises the selected colours one level toward their installed colours for the incoming scene.</summary>
-    private void FadeInPaletteSpans(IntroFadeColours colours)
-    {
-        paletteFader.FadeIn(colours);
-    }
-
-    /// <summary>Lowers the selected colours one level during a scene-to-text or text-to-scene fade.</summary>
-    private void FadeOutPaletteSpans(IntroFadeColours colours)
-    {
-        paletteFader.FadeOut(colours);
-    }
-
 
     /// <summary>Prepares the current display once and owns all inputs needed by a detached renderer.</summary>
     internal LayeredScene CaptureTranslatedRenderSnapshot()
@@ -1250,7 +1218,7 @@ level, samus, frameCounter);
             IntroCinematicPhase.MotherBrainFlashback or IntroCinematicPhase.PageTwoCrossfade)
         {
             sprites = PrepareMotherBrainSprites();
-            room = Plane(IntroScenePictures.PagePlane(SceneSheets, IntroScenePage.MotherBrainRoom, paletteFader.SceneShading),
+            room = Plane(IntroScenePictures.PagePlane(SceneSheets, IntroScenePage.MotherBrainRoom, crossfade.SceneShading),
                 (CurrentFlashbackMotherBrain?.Background ??
                     new Position16<RoomPixels>(0, GameplayFlashbackVerticalScroll)).AsPlaneOffset());
         }
@@ -1258,7 +1226,7 @@ level, samus, frameCounter);
             IntroCinematicPhase.BabyDiscovery or IntroCinematicPhase.PageThreeCrossfade)
         {
             sprites = PrepareBabyDiscoverySprites();
-            room = Plane(IntroScenePictures.PagePlane(SceneSheets, IntroScenePage.BabyDiscoveryRoom, paletteFader.SceneShading), new(0, GameplayFlashbackVerticalScroll));
+            room = Plane(IntroScenePictures.PagePlane(SceneSheets, IntroScenePage.BabyDiscoveryRoom, crossfade.SceneShading), new(0, GameplayFlashbackVerticalScroll));
         }
         else if (Phase is IntroCinematicPhase.BabyMetroidDeliveryCrossfade or
             IntroCinematicPhase.BabyMetroidDelivery or IntroCinematicPhase.PageFourCrossfade or
@@ -1266,23 +1234,23 @@ level, samus, frameCounter);
             IntroCinematicPhase.BabyMetroidExamination or IntroCinematicPhase.PageFiveCrossfade)
         {
             sprites = PrepareScientistSprites();
-            room = Plane(IntroScenePictures.PagePlane(SceneSheets, IntroScenePages.Laboratory(ScientistCutscene.Scene), paletteFader.SceneShading), ScientistCutscene.Background.AsPlaneOffset());
+            room = Plane(IntroScenePictures.PagePlane(SceneSheets, IntroScenePages.Laboratory(ScientistCutscene.Scene), crossfade.SceneShading), ScientistCutscene.Background.AsPlaneOffset());
         }
         else if (CurrentObjects is null)
         {
             // The first card is opaque and unscrolled and shows no sprites; later text is transparent
             // and cropped one tile down. Do not conflate those two display setups.
             return new(new FramePaint(Backdrop),
-                new DisplayLayer[] { new PicturedPlaneLayer(IntroNarrationPictures.FirstCardPlane(SceneSheets, paletteFader.SceneShading), default) { ShowsClearPixelColours = true } },
+                new DisplayLayer[] { new PicturedPlaneLayer(IntroNarrationPictures.FirstCardPlane(SceneSheets, crossfade.SceneShading), default) { ShowsClearPixelColours = true } },
                 Brightness.Level);
         }
         else
         {
             sprites = PrepareIllustratedPageSprites();
-            room = Plane(IntroScenePictures.PortraitPlane(SceneSheets, CurrentObjects.EyeFrame, paletteFader.SceneShading), new(0, GameplayFlashbackVerticalScroll));
+            room = Plane(IntroScenePictures.PortraitPlane(SceneSheets, CurrentObjects.EyeFrame, crossfade.SceneShading), new(0, GameplayFlashbackVerticalScroll));
         }
 
-        var text = new PicturedPlaneLayer(IntroNarrationPictures.PagesPlane(SceneSheets, narrationText, paletteFader.SceneShading, paletteFader.NarrationShading), default);
+        var text = new PicturedPlaneLayer(IntroNarrationPictures.PagesPlane(SceneSheets, narrationText, crossfade.SceneShading, crossfade.NarrationShading), default);
         // Back to front (#1514): the page's room, the flashback's actors over it, and the narration over both. Each picture
         // and sprite is drawn whole at its layer's place; the per-tile and per-sprite-part priority tiers that once
         // interleaved them are a presentation quirk the port does not keep.
@@ -1303,8 +1271,8 @@ level, samus, frameCounter);
         {
             RgbColor installed = (CharacterArtwork ?? throw new InvalidOperationException(
                 "Opening cinematic rendering requires installed artwork.")).Backdrop;
-            int level = paletteFader.NarrationLevel;
-            return level == CinematicPaletteFader.Levels ? installed : new ColourLevel(level, CinematicPaletteFader.Levels).Apply(installed);
+            int level = crossfade.LevelOf(IntroCrossfadeScene.Narration);
+            return level == IntroCrossfade.Levels ? installed : new ColourLevel(level, IntroCrossfade.Levels).Apply(installed);
         }
     }
 
@@ -1316,10 +1284,10 @@ level, samus, frameCounter);
     private ImmutableArray<SpriteDraw> FlashbackDraws(ImmutableArray<SpriteDraw> draws)
     {
         ImmutableArray<SpriteDraw> shaded = flashbackSamusColours.ShadeOwnDraws(draws);
-        int level = paletteFader.LevelOf(IntroSpriteFade.Samus);
-        if (level == CinematicPaletteFader.Levels)
+        int level = crossfade.LevelOf(IntroCrossfadeScene.Narration);
+        if (level == IntroCrossfade.Levels)
             return shaded;
-        var beamLevel = new ColourLevel(level, CinematicPaletteFader.Levels);
+        var beamLevel = new ColourLevel(level, IntroCrossfade.Levels);
         var faded = ImmutableArray.CreateBuilder<SpriteDraw>(shaded.Length);
         foreach (SpriteDraw draw in shaded)
         {

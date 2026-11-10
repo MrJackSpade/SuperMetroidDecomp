@@ -815,7 +815,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyCeresExplosionDefinitions), () => VerifyCeresExplosionDefinitions()),
         new(nameof(VerifyCeresFlightActorDefinitions), () => VerifyCeresFlightActorDefinitions()),
         new(nameof(VerifyCeresDestructionActorDefinitions), () => VerifyCeresDestructionActorDefinitions()),
-        new(nameof(VerifyCinematicPaletteFader), () => VerifyCinematicPaletteFader()),
+        new(nameof(VerifyIntroCrossfade), () => VerifyIntroCrossfade()),
         new(nameof(VerifyPowerBombColorMathWindow), () => VerifyPowerBombColorMathWindow()),
         new(nameof(VerifyChainsawFiring), () => VerifyChainsawFiring()),
         new(nameof(VerifySpacetimeBeam), () => VerifySpacetimeBeam()),

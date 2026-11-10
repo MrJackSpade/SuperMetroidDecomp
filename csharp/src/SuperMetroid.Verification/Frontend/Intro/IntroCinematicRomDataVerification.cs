@@ -48,10 +48,7 @@ internal static class IntroCinematicRomDataVerification
                 IntroCinematicArtworkConstants.ObjectCharacterBytes <= SnesVram.ByteCount,
             "intro object DMA fits VRAM");
 
-        AssertIntroPaletteSpans(IntroCinematicDefinitions.Palette.Gameplay, "gameplay");
-        AssertIntroPaletteSpans(IntroCinematicDefinitions.Palette.GameplayClear, "gameplay clear");
-        AssertIntroPaletteSpans(IntroCinematicDefinitions.Palette.Narration, "narration");
-        AssertIntroPaletteSpans(IntroCinematicDefinitions.Palette.Discovery, "discovery");
+        AssertIntroCrossfadeScenes();
         AssertEqual(SoundEffectLibrary.Enemies,
             IntroCinematicDefinitions.Objects.EggHatch.Library,
             "egg hatch sound library");
@@ -132,26 +129,24 @@ internal static class IntroCinematicRomDataVerification
     private static byte CinematicCodePointerCatalogRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>
-    /// Checks that a cinematic fade moves some colour group, and that the import places each group it moves as a nonempty
-    /// run among the opening's background or sprite colours, which its fade shades recolour (#1512).
+    /// Checks that the import places each crossfaded scene's colours as nonempty runs among the opening's background and
+    /// sprite colours, which its crossfade shades recolour, and that no two scenes hold the same colour (#1512, #1597).
     /// </summary>
-    private static void AssertIntroPaletteSpans(
-        IntroFadeColours groups,
-        string context)
+    private static void AssertIntroCrossfadeScenes()
     {
-        AssertTrue(groups.Backgrounds.Length + groups.Sprites.Length != 0, $"intro {context} colour group list is nonempty");
         const int ownerColours = ImageColourGroup.Count * ImageColourGroup.Colours;
-        foreach (IntroBackgroundFade group in groups.Backgrounds)
+        var backgrounds = new HashSet<int>();
+        var sprites = new HashSet<int>();
+        foreach (IntroCrossfadeScene scene in Enum.GetValues<IntroCrossfadeScene>())
         {
-            int[] inks = [.. IntroSheetInks.Background(group)];
-            AssertTrue(inks.Length > 0 && inks.All(ink => ink is >= 0 and < ownerColours),
-                $"intro {context} background group {group} is nonempty and inside the opening's colours");
-        }
-        foreach (IntroSpriteFade group in groups.Sprites)
-        {
-            int[] inks = [.. IntroSheetInks.Sprite(group)];
-            AssertTrue(inks.Length > 0 && inks.All(ink => ink is >= 0 and < ownerColours),
-                $"intro {context} sprite group {group} is nonempty and inside the opening's colours");
+            int[] background = [.. IntroSheetInks.Background(scene)];
+            AssertTrue(background.Length > 0 && background.All(ink => ink is >= 0 and < ownerColours),
+                $"intro {scene} background colours are nonempty and inside the opening's colours");
+            AssertTrue(background.All(backgrounds.Add), $"intro {scene} holds no background colour another scene holds");
+            int[] sprite = [.. IntroSheetInks.Sprite(scene)];
+            AssertTrue(sprite.Length > 0 && sprite.All(ink => ink is >= 0 and < ownerColours),
+                $"intro {scene} sprite colours are nonempty and inside the opening's colours");
+            AssertTrue(sprite.All(sprites.Add), $"intro {scene} holds no sprite colour another scene holds");
         }
     }
 }

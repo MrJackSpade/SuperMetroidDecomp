@@ -27,10 +27,11 @@ internal sealed class RoomEarthquake
     private bool _continuous;
 
     /// <summary>
-    /// The shake the earthquake shows while it runs: the one its last producer gave it, or none in a room no producer has
-    /// shaken yet.
+    /// The shake the earthquake shows while it runs: the one its last producer gave it, or
+    /// <see cref="RoomEarthquakeDefinitions.UnshakenRoomShake"/> in a room no producer has shaken yet, which the Zebes
+    /// escape's continuous shaking shows until a producer gives one.
     /// </summary>
-    public EarthquakeShake? Shake { get; private set; }
+    public EarthquakeShake Shake { get; private set; } = RoomEarthquakeDefinitions.UnshakenRoomShake;
 
     /// <summary>Whether the room is shaking: it has frames left or shakes continuously.</summary>
     public bool IsShaking => _continuous || !_remaining.IsZero;
@@ -72,11 +73,8 @@ internal sealed class RoomEarthquake
     /// ending a continuous shake.
     /// </summary>
     /// <param name="frames">The frames to shake, 0 through 65535; zero stops the earthquake.</param>
-    /// <exception cref="InvalidOperationException">No producer has given the room a shake to run.</exception>
     internal void RunFor(int frames)
     {
-        if (frames != 0 && Shake is null)
-            throw new InvalidOperationException("The room's earthquake was run on before any producer gave it a shake.");
         _remaining = WrappingCountdown.Start(frames);
         _continuous = false;
     }
@@ -111,16 +109,12 @@ internal sealed class RoomEarthquake
     /// </summary>
     private bool ShowsOppositeSide => _remaining.IsInAlternatePhase(RoomEarthquakeDefinitions.StepsPerShakeSide);
 
-    /// <summary>The shake of a shaking room.</summary>
-    private EarthquakeShake RunningShake => Shake ?? throw new InvalidOperationException(
-        "The room shakes with no shake given by any producer.");
-
     /// <summary>The room-shake offset for projectiles, evaluated at each projectile draw pass before the earthquake's frame step.</summary>
     internal Offset16<RoomPixels> GetEnemyProjectileShake(bool timeIsFrozen)
     {
         if (!IsShaking || timeIsFrozen)
             return default;
-        RoomShakeDefinition definition = RunningShake.Displacement;
+        RoomShakeDefinition definition = Shake.Displacement;
         return ShowsOppositeSide
             ? -definition.Projectile
             : definition.Projectile;
@@ -138,7 +132,7 @@ internal sealed class RoomEarthquake
         if (!IsShaking || timeIsFrozen)
             return false;
 
-        EarthquakeShake shake = RunningShake;
+        EarthquakeShake shake = Shake;
         RoomShakeDefinition definition = shake.Displacement;
         Offset16<RoomPixels> foreground = definition.Foreground;
         Offset16<BackgroundPixels> background = definition.Background;

@@ -17,6 +17,14 @@ public static class RoomEarthquakeDefinitions
     /// </summary>
     public const int SustainedShakeFrames = 32;
 
+    /// <summary>
+    /// The light side-to-side shake of the foreground alone that a room no producer has shaken yet shows when it is made
+    /// to shake: the Zebes escape's continuous shaking before its rumbles give a shake. It is the shake a new game
+    /// starts with.
+    /// </summary>
+    public static readonly EarthquakeShake UnshakenRoomShake =
+        new(EarthquakeStrength.Light, EarthquakeDirection.Horizontal, EarthquakeReach.Foreground);
+
     /// <summary>The medium side-to-side earthquake, enemies included, every active lava or acid rise sustains.</summary>
     public static readonly EarthquakeShake RisingLiquidShake =
         new(EarthquakeStrength.Medium, EarthquakeDirection.Horizontal, EarthquakeReach.ForegroundBackgroundAndEnemies);

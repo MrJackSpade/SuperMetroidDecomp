@@ -5,6 +5,7 @@ using SuperMetroid.AssetExtraction.Fx.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Progression;
 
@@ -32,9 +33,18 @@ public static class SceneColourFiles
 
     /// <summary>
     /// The stock tint the Ceres haze of <paramref name="color"/> fades in to: its channel at the last amplitude the fade
-    /// writes before it stops.
+    /// writes before it stops. The import records it in the scene colours; the game reads only the installed tint (#1596).
     /// </summary>
-    public static RgbColor StockCeresHaze(CeresHazeColor color) => CeresHazeTints.Stock.For(color == CeresHazeColor.Red);
+    public static RgbColor StockCeresHaze(CeresHazeColor color)
+    {
+        const int finalAmplitude = CeresHazeDefinitions.FadeSteps - 1;
+        return color switch
+        {
+            CeresHazeColor.Blue => new FadeLevelColour(0, 0, finalAmplitude).ToColour(),
+            CeresHazeColor.Red => new FadeLevelColour(finalAmplitude, 0, 0).ToColour(),
+            _ => throw new ArgumentOutOfRangeException(nameof(color), color, "The Ceres haze is blue or red."),
+        };
+    }
 
     /// <summary>The scene colours the screens' extracted colours show, as the document's bytes.</summary>
     /// <param name="title">The title's extracted colours, whose first colour is its backdrop.</param>

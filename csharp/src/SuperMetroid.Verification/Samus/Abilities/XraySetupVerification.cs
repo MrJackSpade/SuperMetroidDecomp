@@ -68,10 +68,11 @@ internal static class XraySetupVerification
         // The reveal the room gives now: the foreground it shows, its terrain reveals and its overlays (#1514).
         RevealedBlock?[] Expected()
         {
-            RevealedBlock?[] built = XrayRevealMap.Build(level, scroll.ForegroundPosition, room.AreaIndex,
-                runtime.Xray.XrayRevealVisuals);
+            var visuals = runtime.Xray.XrayRevealVisuals
+                ?? throw new InvalidOperationException("Verification requires the runtime's installed X-ray reveals.");
+            RevealedBlock?[] built = XrayRevealMap.Build(level, scroll.ForegroundPosition, room.AreaIndex, visuals);
             XrayRevealOverlays.Apply(level, built, runtime.RoomObjects.CollectibleObjects.Collectibles, runtime.System,
-                room.State.XrayOverlay, scroll.ForegroundPosition, runtime.Xray.XrayRevealVisuals);
+                room.State.XrayOverlay, scroll.ForegroundPosition, visuals);
             return built;
         }
         XrayRevealPlane Shown() => runtime.Display.Latched.XrayReveal ?? throw new InvalidOperationException("X-ray setup's reveal is not displayed.");

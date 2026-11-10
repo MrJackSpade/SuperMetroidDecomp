@@ -12,6 +12,7 @@ using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Samus.Abilities;
 
@@ -68,8 +69,10 @@ internal static class XrayInputVerification
         var horizontal = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         var horizontalPixels = DisplayRendering.Render(horizontal);
         var probe = runtime.Room.LoadedLevelData.GetObjectCollisionBlockByIndex(7 * runtime.Room.LoadedLevelData.Size.X + 12);
-        AssertEqual(255, (XrayRevealTable.Find(probe.CollisionType, probe.Behavior) ?? throw new InvalidOperationException("Verification requires XrayRevealTable.Find(probe.CollisionType, probe.Behavior).")).TopLeft,
-            "native air definition replaces decorative wall art with the blank metatile");
+        InstalledXrayReveals installedReveals = runtime.Xray.XrayRevealVisuals
+            ?? throw new InvalidOperationException("Verification requires the runtime's installed X-ray reveals.");
+        AssertEqual(255, (installedReveals.Apply(probe.CollisionType, probe.Behavior) ?? throw new InvalidOperationException("Verification requires an X-ray reveal for the probed air block.")).TopLeft,
+            "the installed air reveal replaces decorative wall art with the blank metatile");
         var ordinaryPixels = DisplayRendering.Render(GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()));
         int revealedAirPixel = 120 * 256 + 200;
         AssertTrue(ordinaryPixels[revealedAirPixel] != new RgbaPixel(24, 24, 24, 255), "fixture starts with visible decorative wall art");

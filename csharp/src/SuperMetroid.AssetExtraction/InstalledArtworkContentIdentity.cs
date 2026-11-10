@@ -265,9 +265,7 @@ internal static class InstalledArtworkContentIdentity
                 content.Append("bottom left", visual.BottomLeft);
                 content.Append("bottom right", visual.BottomRight);
             }
-            content.Append("has overlays", reveals.Overlays is null ? 0 : 1);
-            if (reveals.Overlays is not null)
-                content.Append("overlays", Convert.FromHexString(reveals.Overlays.ContentIdentity));
+            content.Append("overlays", Convert.FromHexString(reveals.Overlays.ContentIdentity));
         });
     }
 

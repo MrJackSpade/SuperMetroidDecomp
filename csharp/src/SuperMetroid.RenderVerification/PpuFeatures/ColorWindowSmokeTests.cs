@@ -43,8 +43,12 @@ internal static class ColorWindowSmokeTests
             Check(new ColourAddWindowLayer(window, colour, sample % 2 == 0 ? null
                 : new LineColourSteps(random.Next(224), 1 + random.Next(16), 1 + random.Next(15), random.Next(-1, 2))));
         }
-        Check(GameplayEffectCapture.CaptureCeresHaze(false));
-        Check(GameplayEffectCapture.CaptureCeresHaze(true));
+        // The haze in the tints the import installs (#1596).
+        var hazeTints = new SuperMetroid.Core.Fx.Artwork.CeresHazeTints(
+            SuperMetroid.AssetExtraction.Frontend.Map.SceneColourFiles.StockCeresHazeBlue,
+            SuperMetroid.AssetExtraction.Frontend.Map.SceneColourFiles.StockCeresHazeRed);
+        Check(GameplayEffectCapture.CaptureCeresHaze(hazeTints, false));
+        Check(GameplayEffectCapture.CaptureCeresHaze(hazeTints, true));
         foreach (ushort height in new ushort[] { 32, 64 })
         foreach (int first in new[] { 0, 32, 223, 224 })
         foreach (BlendOperation operation in Enum.GetValues<BlendOperation>())

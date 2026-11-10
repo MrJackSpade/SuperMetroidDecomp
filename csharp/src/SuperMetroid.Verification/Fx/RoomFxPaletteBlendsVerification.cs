@@ -105,11 +105,12 @@ internal static class RoomFxPaletteBlendsVerification
             "the import records the stock Ceres blue tint");
         AssertEqual(PaletteRgb5.From(SceneColourFiles.StockCeresHazeRed), stock.CeresHazeAfterRidleyDies,
             "the import records the stock Ceres escape tint");
-        // Each haze over a black screen, as the display renderer draws its line 120 (#1468).
-        RgbaPixel stockLine = HazeLine(GameplayEffectCapture.CaptureCeresHaze(false));
+        // Each haze over a black screen in the installed tints, as the display renderer draws its line 120 (#1468, #1596).
+        var installedTints = new CeresHazeTints(stock.CeresHazeWhileRidleyLives.ToRgbColor(), stock.CeresHazeAfterRidleyDies.ToRgbColor());
+        RgbaPixel stockLine = HazeLine(GameplayEffectCapture.CaptureCeresHaze(installedTints, false));
         AssertEqual(new RgbaPixel(0, 0, 66, 255), stockLine,
             "stock Ceres blue haze retains its native scanline-eight fixed color");
-        AssertEqual(new RgbaPixel(66, 0, 0, 255), HazeLine(GameplayEffectCapture.CaptureCeresHaze(true)),
+        AssertEqual(new RgbaPixel(66, 0, 0, 255), HazeLine(GameplayEffectCapture.CaptureCeresHaze(installedTints, true)),
             "stock Ceres escape haze retains the matching red fixed color");
         AssertThrows<InvalidDataException>(() => SceneColourFiles.Read(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(
             stock with { CeresHazeWhileRidleyLives = stock.CeresHazeWhileRidleyLives with { Green = 32 } }, ArtworkJson.Options),

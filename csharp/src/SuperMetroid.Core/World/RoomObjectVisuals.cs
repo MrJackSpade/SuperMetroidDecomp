@@ -11,7 +11,8 @@ using SuperMetroid.Core.Areas.Tourian.Artwork;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// Visual state of the room's shot-reactive room-object blocks.
+/// The installed pictures of the room's room-object blocks, one catalog per family. A family's draw requires its catalog:
+/// drawing with none bound fails, as there is no compiled copy of the pictures to show instead (#1557, #1596).
 /// </summary>
 [ArchitectureReview("context-bag", "The installed room-object visual catalogs a host binds; every member is immutable artwork data, not a service.")]
 internal sealed class RoomObjectVisuals
@@ -67,31 +68,25 @@ internal sealed class RoomObjectVisuals
     /// <summary>Tourian access-floor art; physical level words stay compiled.</summary>
     public RoomObjectTourianAccessVisuals? RoomObjectTourianAccessVisuals { get; set; }
 
-    /// <summary>Gets or replaces Speed Booster block reveal artwork; compiled level words still determine collision and breakability.</summary>
-    /// <remarks>The catalog is shared by reference. Null uses the physical draw word's original visual fields.</remarks>
+    /// <summary>The installed picture of the Speed Booster block reveal; compiled terrain still determines collision and breakability.</summary>
     public InstalledRoomObjectSpeedBoosterVisuals? RoomObjectSpeedBoosterVisuals { get; set; }
 
-    /// <summary>Gets or replaces Maridia elevatube artwork for the shared elevatube draw, selected by room-object ownership rather than borrowing Kraid's appearance.</summary>
-    /// <remarks>The catalog is shared by reference. Null preserves the physical word's original appearance; tube collision and motion remain compiled.</remarks>
+    /// <summary>The installed picture of the Maridia elevatube for the draw it shares with Kraid's room, selected by room-object ownership; tube collision and motion remain compiled.</summary>
     public InstalledRoomObjectMaridiaElevatubeVisuals? RoomObjectMaridiaElevatubeVisuals { get; set; }
 
-    /// <summary>Gets or replaces artwork for the two-by-two Spore Spawn ceiling clear/crumble draws, without changing their physical words or sequence timing.</summary>
-    /// <remarks>The catalog is shared by reference. Null retains each physical draw word's original visual fields.</remarks>
+    /// <summary>The installed pictures of the two-by-two Spore Spawn ceiling clear/crumble draws; their terrain and sequence timing stay compiled.</summary>
     public InstalledRoomObjectSporeSpawnCeilingVisuals? RoomObjectSporeSpawnCeilingVisuals { get; set; }
 
-    /// <summary>Replaceable plant tiles; the three-run collision layout stays compiled.</summary>
+    /// <summary>The installed pictures of the Samus eater plant; the three-run collision layout stays compiled.</summary>
     public InstalledRoomObjectSamusEaterVisuals? RoomObjectSamusEaterVisuals { get; set; }
 
-    /// <summary>Gets or replaces appearance for the nine-block vertical Botwoon wall clear; its compiled air-block collision remains unchanged.</summary>
-    /// <remarks>The catalog is shared by reference. Null uses the physical clear words' original visual fields.</remarks>
+    /// <summary>The installed picture of the nine-block vertical Botwoon wall clear; its compiled air-block collision remains unchanged.</summary>
     public InstalledRoomObjectBotwoonWallVisuals? RoomObjectBotwoonWallVisuals { get; set; }
 
-    /// <summary>Gets or replaces Kraid ceiling/spike room-object artwork, distinct from the boss's private body maps and from elevatube owners of the shared elevatube draw.</summary>
-    /// <remarks>The catalog is shared by reference. Null retains physical draw appearance; block collision and mutation timing remain compiled.</remarks>
+    /// <summary>The installed pictures of Kraid's ceiling and spike frames, distinct from the boss's private body maps and from elevatube owners of the shared draw; block collision and mutation timing remain compiled.</summary>
     public InstalledRoomObjectKraidVisuals? RoomObjectKraidVisuals { get; set; }
 
-    /// <summary>Gets or replaces Crocomire arena bridge-clear/crumble and invisible-wall artwork; compiled draw runs still own block placement and collision.</summary>
-    /// <remarks>The catalog is shared by reference. Null retains each physical draw word's original visual fields.</remarks>
+    /// <summary>The installed pictures of Crocomire's bridge-clear, crumble and invisible-wall frames; compiled draw runs still own block placement and collision.</summary>
     public InstalledRoomObjectCrocomireVisuals? RoomObjectCrocomireVisuals { get; set; }
 
     /// <summary>The installed pictures of Mother Brain's fake-death room wall, door, mural rows, fill rows and tube clears; geometry, collision and timing stay with the draws.</summary>

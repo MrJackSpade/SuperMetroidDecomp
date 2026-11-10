@@ -35,14 +35,8 @@ internal static class XrayOverlaysVerification
                     new(new(3, 1), RoomBlockAppearance.Of(4, BlockMirroring.Horizontal | BlockMirroring.Vertical)),
                 }),
             });
-        var entries = new List<XrayRevealVisualDefinition>();
-        foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
-        for (int bts = 0; bts <= byte.MaxValue; bts++)
-            if (XrayRevealTable.Find(type, RoomBlockBehaviorCodec.Decode(bts)) is { } definition &&
-                InstalledXrayReveals.IsDrawable(definition.Command))
-                entries.Add(new(type, RoomBlockBehaviorCodec.Decode(bts).Reaction, new(definition.TopLeft, definition.TopRight,
-                    definition.BottomLeft, definition.BottomRight)));
-        var visuals = new InstalledXrayReveals(entries, overlays);
+        // The terrain reveals' blocks play no part in the overlays.
+        var visuals = new InstalledXrayReveals(XrayRevealFixtures.EveryDrawable(_ => new XrayRevealVisualBlocks(0, 0, 0, 0)), overlays);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(new RoomTerrainBlock[1024], new RoomBlockBehavior[1024], new RoomBlockAppearance[1024]), RoomLevelData.NothingBeyondGrid());
         var system = new SharedGameState(new SharedRandom());
         var items = new[]

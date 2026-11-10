@@ -10,10 +10,13 @@ public static class XrayRevealExtensions
     /// Returns the replacement metatile, or null to retain copied foreground art. Unlike collision,
     /// X-ray extensions reveal only a terminal scroll-trigger block, not arbitrary linked terrain.
     /// </summary>
-    public static int? Resolve(RoomLevelData level, int blockIndex,
-        InstalledXrayReveals? visuals = null)
+    /// <param name="level">The room whose extension chain is followed.</param>
+    /// <param name="blockIndex">The extension block the chain starts at.</param>
+    /// <param name="visuals">The installed reveal blocks, which a terminal special-air block shows.</param>
+    public static int? Resolve(RoomLevelData level, int blockIndex, InstalledXrayReveals visuals)
     {
         Ensure.NotNull(level);
+        Ensure.NotNull(visuals);
         RoomCollisionBlock block = level.GetObjectCollisionBlockByIndex(blockIndex);
         if (block.CollisionType is not (RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension))
             throw new ArgumentException("X-ray extension traversal requires an extension block.", nameof(blockIndex));
@@ -51,10 +54,7 @@ public static class XrayRevealExtensions
                 continue;
             }
             if (block.CollisionType != RoomCollisionType.SpecialAir) return null;
-            XrayRevealDefinition? reveal = visuals is not null
-                ? visuals.Apply(block.CollisionType, block.Behavior)
-                : XrayRevealTable.Find(block.CollisionType, block.Behavior);
-            return reveal?.TopLeft;
+            return visuals.Apply(block.CollisionType, block.Behavior)?.TopLeft;
         }
     }
 

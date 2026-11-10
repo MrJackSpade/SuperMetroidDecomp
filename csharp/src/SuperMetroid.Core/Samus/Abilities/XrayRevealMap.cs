@@ -23,12 +23,13 @@ public static class XrayRevealMap
     /// nothing.
     /// </param>
     /// <param name="area">The room's area; only Brinstar shows Brinstar-only reveals.</param>
-    /// <param name="visuals">Installed reveal art, or null for the stock table.</param>
+    /// <param name="visuals">The installed reveal blocks.</param>
     /// <returns>The revealed blocks, row by row, <see cref="XrayRevealArea.Columns"/> to a row; null beyond the room.</returns>
     public static RevealedBlock?[] Build(RoomLevelData level, Position16<RoomPixels> foregroundPosition,
-        AreaId area, InstalledXrayReveals? visuals = null)
+        AreaId area, InstalledXrayReveals visuals)
     {
         Ensure.NotNull(level);
+        Ensure.NotNull(visuals);
         RoomBlockCells foreground = level.ForegroundPlane.Cells;
         var result = new RevealedBlock?[XrayRevealArea.BlockCount];
         for (int row = 0; row < XrayRevealArea.Rows; row++)
@@ -73,9 +74,7 @@ public static class XrayRevealMap
         XrayRevealDefinition? Lookup(int index)
         {
             RoomCollisionBlock block = level.GetObjectCollisionBlockByIndex(index);
-            return visuals is not null
-                ? visuals.Apply(block.CollisionType, block.Behavior)
-                : XrayRevealTable.Find(block.CollisionType, block.Behavior);
+            return visuals.Apply(block.CollisionType, block.Behavior);
         }
         // The foreground block the revealed block lies over, mirrored as the level mirrors it.
         RevealedBlock? Copied(int col, int row)

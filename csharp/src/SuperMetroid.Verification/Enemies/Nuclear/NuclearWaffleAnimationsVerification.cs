@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.Nuclear.NuclearWaffleNativeListAddresses;
 using SuperMetroid.Core.Enemies.Nuclear;
@@ -6,16 +7,17 @@ using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Enemies.Nuclear;
 
-/// <summary>#641: Nuclear Waffle's typed programs, each matched step by step to its native bank-$A6 list.</summary>
+/// <summary>#641: Nuclear Waffle's typed animations (#1600), each segment matched to its native bank-$A6 list and each animation to the lists' control flow.</summary>
 internal static class NuclearWaffleAnimationsVerification
 {
-    /// <summary>Every program matches its native list.</summary>
+    /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifyNuclearWaffleAnimations(SuperMetroidAddressSpace rom)
     {
-        int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, NuclearWaffleAnimations.Programs,
-            NuclearWaffleFrameToolingDefinitions.Spritemap,
-            word => null,
-            (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions."));
-        Console.WriteLine($"  Nuclear Waffle programs: {Entries.Length} programs ({steps} steps) match bank $A6.");
+        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
+            NuclearWaffleAnimations.Segments, NuclearWaffleAnimations.StartingAt, NuclearWaffleFrameToolingDefinitions.Spritemap,
+            new NativeEnemyCueRules<NoAnimationCue>(
+                word => null,
+                (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions.")));
+        Console.WriteLine($"  Nuclear Waffle animations: {Entries.Length} segments ({beats} beats) and {NuclearWaffleAnimations.StartingAt.Count} animations match bank $A6.");
     }
 }

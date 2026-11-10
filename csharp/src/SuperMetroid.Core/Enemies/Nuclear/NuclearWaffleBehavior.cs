@@ -38,7 +38,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new NuclearWaffleEnemyState();
         slot.SetSpeciesState(state);
 
-        state.Program = AnimationProgramCursor<NuclearWaffleProgram>.Start(NuclearWaffleProgram.BodyLoop);
+        state.Playback = new(NuclearWaffleAnimations.StartingWith(NuclearWaffleProgram.BodyLoop), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 
@@ -330,9 +330,10 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         NuclearWaffleEnemyState state = slot.SpeciesState<NuclearWaffleEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Nuclear Waffle state.");
-        AnimationProgramCursor<NuclearWaffleProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, NuclearWaffleAnimations.Programs, ref cursor, NuclearWaffleFrameDefinitions.ShownFrames.Of);
-        state.Program = cursor;
+        AnimationPlayback<NuclearWaffleProgram> playback = state.Playback;
+        EnemyProgramAnimation.Play(slot, NuclearWaffleAnimations.Segments, ref playback, NuclearWaffleFrameDefinitions.ShownFrames.Of,
+            static cue => throw new InvalidOperationException($"Nuclear Waffle's cue-free animation raised {cue}."));
+        state.Playback = playback;
     }
 
     /// <summary>Ports NuclearWaffle's main AI.</summary>

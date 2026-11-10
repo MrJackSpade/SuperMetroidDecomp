@@ -19,14 +19,14 @@ namespace SuperMetroid.Core.Compatibility;
 public static class ColourEffectTurnOrder
 {
     /// <summary>The turns there are: at most this many effects run at once.</summary>
-    public const int TurnCount = 8;
+    internal const int TurnCount = 8;
 
     /// <summary>The turn an effect starting now takes: the lowest turn no running effect holds.</summary>
     /// <typeparam name="TEffect">A running effect.</typeparam>
     /// <param name="running">The running effects.</param>
     /// <param name="turnOf">The turn a running effect holds.</param>
     /// <returns>The turn, or null while every turn is held, so the start is ignored.</returns>
-    public static int? TurnForStart<TEffect>(List<TEffect> running, Func<TEffect, int> turnOf)
+    internal static int? TurnForStart<TEffect>(List<TEffect> running, Func<TEffect, int> turnOf)
     {
         Ensure.NotNull(running);
         Ensure.NotNull(turnOf);
@@ -41,9 +41,9 @@ public static class ColourEffectTurnOrder
     /// <summary>Adds <paramref name="started"/> to <paramref name="running"/>, which stays in turn order, lowest first.</summary>
     /// <typeparam name="TEffect">A running effect.</typeparam>
     /// <param name="running">The running effects, in turn order.</param>
-    /// <param name="started">The effect that started on the turn <see cref="TurnForStart"/> gave it.</param>
+    /// <param name="started">The effect that started on the turn <see cref="TurnForStart{TEffect}"/> gave it.</param>
     /// <param name="turnOf">The turn a running effect holds.</param>
-    public static void Join<TEffect>(List<TEffect> running, TEffect started, Func<TEffect, int> turnOf)
+    internal static void Join<TEffect>(List<TEffect> running, TEffect started, Func<TEffect, int> turnOf)
     {
         Ensure.NotNull(running);
         Ensure.NotNull(turnOf);

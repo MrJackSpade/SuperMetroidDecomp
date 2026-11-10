@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 internal static class SamusUnreachablePoseDefinitions
 {
     /// <summary>
-    /// The unreachable poses, in the game's numbering: the running-aimed-straight-up records, whose tables pair the
+    /// The unreachable poses: the running-aimed-straight-up records, whose tables pair the
     /// standing aim-up top and tops facing other ways with running legs and which nothing writes; the glitch-ball and
     /// instant morphing transitions, the compact airborne records, the grapple airborne records, the Draygon grab and the
     /// compact and Draygon-held transitions. These keep their records because their programs are laid out after reachable

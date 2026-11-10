@@ -2,6 +2,7 @@ using System.Buffers.Binary;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.TestSupport.MovieReplay;
 
 /// <summary>Derives Samus arm-cannon and body draw records from native Ridley movie checkpoints.</summary>

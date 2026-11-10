@@ -1,6 +1,8 @@
-namespace SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Poses;
 
-/// <summary>The game's pose numbering, data only; <see cref="SamusPoseNumbering"/> is its one reader.</summary>
+namespace SuperMetroid.AssetExtraction.Samus;
+
+/// <summary>The cartridge's pose numbering, data only; <see cref="SamusPoseNumbering"/> is its one reader.</summary>
 internal static class SamusPoseNumberDefinitions
 {
     /// <summary>

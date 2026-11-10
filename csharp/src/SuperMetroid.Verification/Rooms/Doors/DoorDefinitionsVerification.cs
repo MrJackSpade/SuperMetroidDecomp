@@ -32,7 +32,7 @@ internal static class DoorDefinitionsVerification
         IReadOnlyList<DoorListEntry> landingDoors = RoomDoorListDefinitions.ByRoom[RoomHeaderDefinitions.LandingSite];
         var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes([RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Air)], [RoomBlockBehavior.None], [RoomBlockAppearance.Of(0)]), RoomLevelData.NothingBeyondGrid(), doors: landingDoors);
         DoorDefinition resolved = (level.ResolveDoorCollision(
-            behavior: RoomBlockBehavior.None, samusPose: (SamusPoseNumbering.FromNumber((0))).ForRoomCollision()).Door ?? throw new InvalidOperationException("Verification requires level.ResolveDoorCollision( NewDoorNoReadAddressSpace(), behavior: 0.ForRoomCollision(), samusPose: 0).Door."));
+            behavior: RoomBlockBehavior.None, samusPose: SamusPoseId.ForwardFacingPowerSuitPose.ForRoomCollision()).Door ?? throw new InvalidOperationException("Verification requires level.ResolveDoorCollision( NewDoorNoReadAddressSpace(), behavior: 0.ForRoomCollision(), samusPose: 0).Door."));
         AssertEqual(landingDoors[0].Door, resolved,
             "production collision resolves compiled BTS index without a bus read");
         AssertEqual(resolved, level.PendingDoorTransition,

@@ -1,14 +1,16 @@
-namespace SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Samus.Poses;
+
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
 /// The cartridge's pose numbering: pose <c>n</c> is the <c>n</c>th record of the 253-record pose tables, and the
-/// three numbers past them read adjacent code. Core keeps the numbers only where an installed table is laid out by
-/// them: the installed Samus artwork holding one entry per numbered record. Pose families are named in the pose
-/// metadata (#1517) and the animation programs name their transition poses by identity (#1473). A record no gameplay
-/// path gives Samus has no pose, so its number names none. This is the one place a number becomes its pose; the import
-/// alone turns a pose back into its number.
+/// three numbers past them read adjacent code. Only the import knows these numbers (#1595): it reads and lays out the
+/// cartridge's pose tables by them and installs every table keyed by the pose's name, so gameplay never sees a number.
+/// A record no gameplay path gives Samus has no pose, so its number names none. This is the one place a number becomes
+/// its pose; <see cref="SamusPoseNumbers"/> turns a pose back into its number.
 /// </summary>
-[EncodingOwner("pose numbers of the installed Samus pose tables")]
+[EncodingOwner("pose numbers of the cartridge's Samus pose tables")]
 internal static class SamusPoseNumbering
 {
     /// <summary>The number of records in the cartridge's pose tables, including the records of poses no path reaches.</summary>

@@ -10,15 +10,14 @@ namespace SuperMetroid.Core.Enemies.Boyon;
 /// </summary>
 internal static class BoyonAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<BoyonProgram, BoyonFrame, BoyonCue> Programs { get; } = new(
-        new Dictionary<BoyonProgram, AnimationProgramStep<BoyonProgram, BoyonFrame, BoyonCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<BoyonProgram, BoyonFrame, BoyonCue> Segments { get; } = new(
+        new Dictionary<BoyonProgram, AnimationBeat<BoyonFrame, BoyonCue>[]>
     {
         [P.Idle] =
         [
             Cue(new(K.StopProcessingOffScreen)),
             Cue(new(K.Return)),
-            FallInto(P.IdleLoop),
         ],
         [P.IdleLoop] =
         [
@@ -26,13 +25,11 @@ internal static class BoyonAnimations
             Show(1, 10),
             Show(2, 10),
             Show(1, 10),
-            GoTo(P.IdleLoop),
         ],
         [P.Bouncing] =
         [
             Cue(new(K.ProcessOffScreen)),
             Cue(new(K.StartBounce)),
-            FallInto(P.BouncingLoop),
         ],
         [P.BouncingLoop] =
         [
@@ -42,20 +39,24 @@ internal static class BoyonAnimations
             Show(6, 5),
             Show(5, 5),
             Show(4, 5),
-            GoTo(P.BouncingLoop),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<BoyonProgram, Animation<BoyonProgram>> StartingAt { get; } = new Dictionary<BoyonProgram, Animation<BoyonProgram>>
+    {
+        [P.Idle] = new([new(P.Idle, 0, 2, 1), new(P.IdleLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.IdleLoop] = new([new(P.IdleLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Bouncing] = new([new(P.Bouncing, 0, 2, 1), new(P.BouncingLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.BouncingLoop] = new([new(P.BouncingLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<BoyonProgram> StartingWith(BoyonProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<BoyonProgram, BoyonFrame, BoyonCue> Show(int pose, int duration) => AnimationProgramStep<BoyonProgram, BoyonFrame, BoyonCue>.Show(new(pose), duration);
+    private static AnimationBeat<BoyonFrame, BoyonCue> Show(int pose, int duration) => new AnimationBeat<BoyonFrame, BoyonCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<BoyonProgram, BoyonFrame, BoyonCue> Cue(BoyonCue cue) => AnimationProgramStep<BoyonProgram, BoyonFrame, BoyonCue>.Publish(cue);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<BoyonProgram, BoyonFrame, BoyonCue> GoTo(BoyonProgram program) => AnimationProgramStep<BoyonProgram, BoyonFrame, BoyonCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<BoyonProgram, BoyonFrame, BoyonCue> FallInto(BoyonProgram program) => AnimationProgramStep<BoyonProgram, BoyonFrame, BoyonCue>.FallInto(program);
-
+    private static AnimationBeat<BoyonFrame, BoyonCue> Cue(BoyonCue cue) => new AnimationBeat<BoyonFrame, BoyonCue>.Event(cue);
 }

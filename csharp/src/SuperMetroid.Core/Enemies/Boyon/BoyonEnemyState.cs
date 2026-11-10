@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Enemies.Boyon;
 /// <summary>The state of a Boyon, with its six parallel extended words.</summary>
 public sealed class BoyonEnemyState
 {
-    /// <summary>Where the animation resumes.</summary>
-    internal AnimationProgramCursor<BoyonProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<BoyonProgram> Playback { get; set; }
 
     /// <summary>
     /// The multiplier its bounce curve is scaled by, from its spawn settings. The multiply takes it whole, so a

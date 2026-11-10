@@ -12,8 +12,8 @@ internal sealed class GameLoadingWait
     internal GameLoadingCompletion Completion { get; private set; }
 
     /// <summary>
-    /// True when the next update continues the load's wait rather than starting a new update of the loading phase, so
-    /// the per-update random advance is absent.
+    /// True while the load waits out frames of the display: the next update continues that wait instead of starting a new
+    /// update of the loading phase (<see cref="DisplayFrameWaitContinuation"/>).
     /// </summary>
     internal bool Resumes => WaitsRemaining > 0;
 

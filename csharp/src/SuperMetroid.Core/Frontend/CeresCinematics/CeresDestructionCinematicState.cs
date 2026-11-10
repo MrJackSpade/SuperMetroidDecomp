@@ -162,10 +162,10 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     }
 
     /// <summary>
-    /// True when the next update continues the scene's opening wait, rather
-    /// than starting a new update of the cinematic.
+    /// True while the scene's opening step waits out frames of the display: the next update finishes that wait instead of
+    /// starting a new update of the cinematic (<see cref="DisplayFrameWaitContinuation"/>).
     /// </summary>
-    internal bool ResumesAfterFrameWait =>
+    internal bool IsWaitingOutDisplayFrame =>
         initialFrameWaits is > 0 and <= CeresDestructionSceneDefinitions.InitialFrameWaits;
 
     /// <summary>Binds the installed station-blast colors when the game is bound to its installed content.</summary>

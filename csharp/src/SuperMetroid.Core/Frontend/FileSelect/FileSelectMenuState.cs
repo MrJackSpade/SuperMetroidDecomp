@@ -111,10 +111,10 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     public bool ClearedSaveThisFrame { get; private set; }
 
     /// <summary>
-    /// True when the next update continues a step that waits out a frame of the display
-    /// rather than starting a new update of the menu, so the per-update random advance is absent.
+    /// True while the menu's current step waits out a frame of the display: the next update finishes that step instead
+    /// of starting a new update of the menu (<see cref="DisplayFrameWaitContinuation"/>).
     /// </summary>
-    internal bool ResumesAfterFrameWait => Phase is
+    internal bool IsWaitingOutDisplayFrame => Phase is
         FileSelectPhase.EnterBlankScreenAfterFrameWait or FileSelectPhase.InitializeMainAfterFrameWait;
     /// <summary>Advances one menu frame from a raw controller word.</summary>
     public void Step(ControllerButton controllerInput)

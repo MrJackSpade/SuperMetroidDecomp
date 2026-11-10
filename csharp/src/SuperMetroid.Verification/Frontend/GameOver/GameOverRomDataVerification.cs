@@ -44,9 +44,9 @@ internal static class GameOverRomDataVerification
         void StepBaby()
         {
             babyMenu.Step(0);
-            if (babyMenu.ResumesAfterFrameWait)
+            if (babyMenu.IsWaitingOutDisplayFrame)
             {
-                babyMenu.ResumesAfterFrameWait = false;
+                babyMenu.IsWaitingOutDisplayFrame = false;
                 babyMenu.Phase = GameOverMenuPhase.FadeIn;
             }
         }

@@ -166,13 +166,13 @@ public sealed class SuperMetroidGame
         bool messageWasActive = Session.Runtime?.MessageBox.IsActive == true;
         bool doorAudioDispatch = phaseAudio is GamePhaseAudio.DoorTransition or GamePhaseAudio.DoorTransitionSoundsDisabled;
         DoorTransitionPhase startingDoorPhase = Session.doorTransition.Phase;
-        // An update that continues a phase's step waiting out a frame of the display runs
+        // An update that finishes a phase's step waiting out a frame of the display runs
         // neither the update's music processing nor its sound processing.
-        bool resumesFrameWait = NextUpdateResumesFrameWait;
+        bool runsAudioProcessing = DisplayFrameWaitContinuation.RunsAudioProcessing(PhaseIsWaitingOutDisplayFrame);
         // Music processing runs before any phase, so a phase that waits on HasQueuedMusic
         // sees this update's queue; sound processing runs after the phase returns. A
         // message box's updates run only the box's own audio processing (below).
-        bool prologueMusicDispatch = !resumesFrameWait && !messageWasActive &&
+        bool prologueMusicDispatch = runsAudioProcessing && !messageWasActive &&
             (!doorAudioDispatch || phaseAudio != GamePhaseAudio.DoorTransitionSoundsDisabled ||
              startingDoorPhase is not (DoorTransitionPhase.WaitForDoorOpeningScroll or DoorTransitionPhase.FinishDoorLoading));
         IReadOnlyList<AudioRequest> prologueMusicRequests = prologueMusicDispatch
@@ -200,7 +200,7 @@ public sealed class SuperMetroidGame
         if (!messageWasActive && Session.Runtime?.MessageBox.IsActive == true)
             Session.audio.QueueCancelSoundEffects();
         bool musicHandler = false;
-        int soundHandlers = !resumesFrameWait && (!doorAudioDispatch ||
+        int soundHandlers = runsAudioProcessing && (!doorAudioDispatch ||
             startingDoorPhase is not (DoorTransitionPhase.LoadMoreThingsAndOpenDoor or DoorTransitionPhase.WaitForDoorOpeningScroll))
             ? 1 : 0;
         if (messageWasActive)
@@ -247,22 +247,22 @@ public sealed class SuperMetroidGame
                 step: (controllerInput, _) => MenuPhases.DispatchGameOptionsMenu(controllerInput),
                 name: () => Session.ActiveOptions.Phase.ToString()),
             new GamePhase(SuperMetroidGameState.FileSelectMenus,
-                DispatchRandomStep.AdvanceUnlessResumingWait,
+                DispatchRandomStep.Advance,
                 step: (controllerInput, _) => MenuPhases.DispatchFileSelectMenus(controllerInput),
                 name: () => Session.ActiveFileSelect.Phase.ToString(),
-                resumesFrameWait: () => Session.ScreenAs<FileSelectMenuState>()?.ResumesAfterFrameWait == true),
+                waitingOutDisplayFrame: () => Session.ScreenAs<FileSelectMenuState>()?.IsWaitingOutDisplayFrame == true),
             // The map's final update latched its load request, blanked the display and waits
             // out one frame; the next update continues that step.
             new GamePhase(SuperMetroidGameState.FileSelectMap,
-                DispatchRandomStep.AdvanceUnlessResumingWait,
+                DispatchRandomStep.Advance,
                 step: (controllerInput, _) => MenuPhases.DispatchFileSelectMap(controllerInput),
                 name: () => Session.ScreenAs<FileSelectMapMenuState>()?.Phase.ToString() ?? "Preparing saved-game map",
-                resumesFrameWait: () => Session.ScreenAs<FileSelectMapMenuState>()?.LoadRequested == true),
+                waitingOutDisplayFrame: () => Session.ScreenAs<FileSelectMapMenuState>()?.LoadRequested == true),
             new GamePhase(SuperMetroidGameState.LoadingGameData,
-                DispatchRandomStep.AdvanceUnlessResumingWait,
+                DispatchRandomStep.Advance,
                 step: (controllerInput, _) => LoadingPhases.DispatchLoadingGameData(controllerInput),
                 name: () => $"Loading Landing Site ({Session.GameLoading.WaitsRemaining} updates)",
-                resumesFrameWait: () => Session.ResumesGameLoadingWait),
+                waitingOutDisplayFrame: () => Session.ResumesGameLoadingWait),
             new GamePhase(SuperMetroidGameState.MainGameplayFadeIn,
                 DispatchRandomStep.RuntimeOwned,
                 step: (controllerInput, gameplayAudio) => LoadingPhases.DispatchMainGameplayFadeIn(controllerInput, gameplayAudio),
@@ -352,10 +352,10 @@ public sealed class SuperMetroidGame
                 name: () => nameof(SuperMetroidGameState.DeathFinalBlackOut)),
             // The game-over menu's first two steps each wait out a frame of the display.
             new GamePhase(SuperMetroidGameState.GameOverMenu,
-                DispatchRandomStep.AdvanceUnlessResumingWait,
+                DispatchRandomStep.Advance,
                 step: (controllerInput, _) => MenuPhases.DispatchGameOverMenu(controllerInput),
                 name: () => nameof(SuperMetroidGameState.GameOverMenu),
-                resumesFrameWait: () => Session.ScreenAs<GameOverMenuState>()?.ResumesAfterFrameWait == true),
+                waitingOutDisplayFrame: () => Session.ScreenAs<GameOverMenuState>()?.IsWaitingOutDisplayFrame == true),
             new GamePhase(SuperMetroidGameState.ReserveTanksAuto,
                 DispatchRandomStep.RuntimeOwned,
                 step: (controllerInput, gameplayAudio) => GameplayPhases.DispatchReserveTanksAuto(controllerInput, gameplayAudio),
@@ -365,10 +365,10 @@ public sealed class SuperMetroidGame
                 step: (controllerInput, _) => CinematicPhases.DispatchIntroCinematic(controllerInput),
                 name: () => Session.ActiveIntro.Phase.ToString()),
             new GamePhase(SuperMetroidGameState.SetUpNewGame,
-                DispatchRandomStep.AdvanceUnlessResumingWait,
+                DispatchRandomStep.Advance,
                 step: (controllerInput, _) => LoadingPhases.DispatchSetUpNewGame(controllerInput),
                 name: () => Session.LoadingExistingSave ? "Loading saved game" : "Loading fresh Ceres game",
-                resumesFrameWait: () => Session.ResumesGameLoadingWait),
+                waitingOutDisplayFrame: () => Session.ResumesGameLoadingWait),
             new GamePhase(SuperMetroidGameState.MadeItToCeresElevator,
                 DispatchRandomStep.RuntimeOwned,
                 step: (controllerInput, gameplayAudio) => GameplayPhases.DispatchMadeItToCeresElevator(controllerInput, gameplayAudio),
@@ -379,10 +379,10 @@ public sealed class SuperMetroidGame
                 name: () => $"Ceres blackout (brightness {Session.ceresDeparture.Brightness})"),
             // The Ceres destruction cinematics share the intro's cinematic phase and its random advance.
             new GamePhase(SuperMetroidGameState.CeresGoesBoom,
-                DispatchRandomStep.AdvanceUnlessResumingWait,
+                DispatchRandomStep.Advance,
                 step: (controllerInput, _) => CinematicPhases.DispatchCeresGoesBoom(controllerInput),
                 name: () => $"Ceres destruction: {Session.ScreenAs<CeresDestructionCinematicState>()?.Phase}",
-                resumesFrameWait: () => Session.ScreenAs<CeresDestructionCinematicState>()?.ResumesAfterFrameWait == true),
+                waitingOutDisplayFrame: () => Session.ScreenAs<CeresDestructionCinematicState>()?.IsWaitingOutDisplayFrame == true),
             new GamePhase(SuperMetroidGameState.TimeUp,
                 DispatchRandomStep.RuntimeOwned,
                 step: (controllerInput, gameplayAudio) => GameplayPhases.DispatchTimeUp(controllerInput, gameplayAudio),
@@ -393,10 +393,10 @@ public sealed class SuperMetroidGame
                 step: (controllerInput, _) => CinematicPhases.DispatchWhitingOutFromTimeUp(controllerInput),
                 name: () => nameof(SuperMetroidGameState.WhitingOutFromTimeUp)),
             new GamePhase(SuperMetroidGameState.CeresGoesBoomWithSamus,
-                DispatchRandomStep.AdvanceUnlessResumingWait,
+                DispatchRandomStep.Advance,
                 step: (controllerInput, _) => CinematicPhases.DispatchCeresGoesBoomWithSamus(controllerInput),
                 name: () => nameof(SuperMetroidGameState.CeresGoesBoomWithSamus),
-                resumesFrameWait: () => Session.ScreenAs<CeresDestructionCinematicState>()?.ResumesAfterFrameWait == true),
+                waitingOutDisplayFrame: () => Session.ScreenAs<CeresDestructionCinematicState>()?.IsWaitingOutDisplayFrame == true),
             new GamePhase(SuperMetroidGameState.SamusEscapesFromZebes,
                 DispatchRandomStep.RuntimeOwned,
                 step: (controllerInput, gameplayAudio) => GameplayPhases.DispatchSamusEscapesFromZebes(controllerInput, gameplayAudio),
@@ -404,10 +404,10 @@ public sealed class SuperMetroidGame
             // The ending runs after the random advance, except while its setup waits out
             // frames of the display.
             new GamePhase(SuperMetroidGameState.EndingAndCredits,
-                DispatchRandomStep.AdvanceUnlessResumingWait,
+                DispatchRandomStep.Advance,
                 step: (_, _) => CinematicPhases.DispatchEndingAndCredits(),
                 name: () => $"Ending: {Session.ScreenAs<EndingCreditsState>()?.Stage.Phase}",
-                resumesFrameWait: () => Session.ScreenAs<EndingCreditsState>()?.ResumesAfterFrameWait == true),
+                waitingOutDisplayFrame: () => Session.ScreenAs<EndingCreditsState>()?.IsWaitingOutDisplayFrame == true),
             new GamePhase(SuperMetroidGameState.LoadingDemo,
                 DispatchRandomStep.RuntimeOwned,
                 step: (controllerInput, gameplayAudio) => AttractPhases.DispatchAttractDemo(controllerInput, gameplayAudio),
@@ -505,10 +505,10 @@ public sealed class SuperMetroidGame
     }
 
     /// <summary>
-    /// True when the next update continues a phase's step that waits out a frame of the display, instead of
-    /// starting a new update of the phase. Such an update makes no per-update random advance.
+    /// True when the current phase's step is waiting out a frame of the display, so the next update finishes it instead
+    /// of starting a new update of the phase (<see cref="DisplayFrameWaitContinuation"/>).
     /// </summary>
-    internal bool NextUpdateResumesFrameWait => Phases.Of(Session.GameState).ResumesFrameWait;
+    internal bool PhaseIsWaitingOutDisplayFrame => Phases.Of(Session.GameState).IsWaitingOutDisplayFrame;
 
     /// <summary>
     /// Advances the random generator once per update through the title, file selection and
@@ -533,12 +533,9 @@ public sealed class SuperMetroidGame
                 // The per-line effects still run on the update before the pause screen; lava swaps the live random bytes.
                 Session.GameplayRuntime.DoorTransition.AdvanceEffectsAndRandom(Session.GameplayRuntime.Room.LoadedScope.RoomObjects, Session.GameplayRuntime.Room.LoadedScope);
                 break;
-            case DispatchRandomStep.AdvanceUnlessResumingWait:
-                if (!NextUpdateResumesFrameWait)
-                    Session.Random.Generate();
-                break;
             case DispatchRandomStep.Advance:
-                Session.Random.Generate();
+                if (DisplayFrameWaitContinuation.DrawsRandom(PhaseIsWaitingOutDisplayFrame))
+                    Session.Random.Generate();
                 break;
             case DispatchRandomStep.RuntimeOwned:
                 break;
@@ -546,6 +543,6 @@ public sealed class SuperMetroidGame
                 throw new InvalidOperationException($"Undefined {nameof(DispatchRandomStep)} {Phases.Of(Session.GameState).RandomStep}.");
         }
         // Gameplay advances the generator itself after its per-line effects. Do not
-        // advance here for gameplay updates or for an update that continues a waiting step.
+        // advance here for gameplay updates or for an update that finishes a waiting step.
     }
 }

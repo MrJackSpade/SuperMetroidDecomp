@@ -79,10 +79,10 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     public GameOverMenuPhase Phase { get; internal set; }
 
     /// <summary>
-    /// True when the current menu step waits out a frame of the display (after blanking or
-    /// unblanking); the next update finishes that step instead of starting a new update of the menu.
+    /// True while the current menu step waits out a frame of the display (after blanking or unblanking): the next update
+    /// finishes that step instead of starting a new update of the menu (<see cref="DisplayFrameWaitContinuation"/>).
     /// </summary>
-    public bool ResumesAfterFrameWait { get; internal set; }
+    public bool IsWaitingOutDisplayFrame { get; internal set; }
 
     /// <summary>Sticky request raised when the accepted Yes answer has faded fully to black; the outer dispatcher opens file-select map view rather than reloading the save inside this scene.</summary>
     public bool ContinueRequested { get; private set; }
@@ -116,11 +116,11 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     public void Step(ControllerButton controllerInput)
     {
         controller.Latch(controllerInput);
-        if (ResumesAfterFrameWait)
+        if (IsWaitingOutDisplayFrame)
         {
             // Both waits are the last call of their index; the remainder only configures
             // presentation and advances the index.
-            ResumesAfterFrameWait = false;
+            IsWaitingOutDisplayFrame = false;
             Phase = Phase switch
             {
                 GameOverMenuPhase.ConfigureGraphics => GameOverMenuPhase.Initialize,
@@ -149,7 +149,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                 if (brightness != 0)
                     throw new InvalidOperationException("Game-over menu must begin from a black screen.");
                 audio.QueueSound(RoomSound.Silence, priority: GameOverMenuDefinitions.MaximumQueuedSounds);
-                ResumesAfterFrameWait = true;
+                IsWaitingOutDisplayFrame = true;
                 break;
 
             case GameOverMenuPhase.Initialize:
@@ -161,7 +161,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                 SelectedItem = YesNoChoice.Yes;
                 brightness = 0;
                 // Unblank, then wait out one update before advancing the step.
-                ResumesAfterFrameWait = true;
+                IsWaitingOutDisplayFrame = true;
                 break;
 
             case GameOverMenuPhase.WaitForInitialMusic:

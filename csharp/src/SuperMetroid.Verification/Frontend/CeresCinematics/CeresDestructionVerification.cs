@@ -88,10 +88,10 @@ internal static void VerifyCeresDestructionCinematic()
     for (int wait = 0; wait < CeresDestructionSceneDefinitions.InitialFrameWaits; wait++)
     {
         state.Step();
-        AssertTrue(state.ResumesAfterFrameWait, "Ceres initializer resumes after each of its NMI waits");
+        AssertTrue(state.IsWaitingOutDisplayFrame, "Ceres initializer resumes after each of its NMI waits");
     }
     state.Step();
-    AssertTrue(!state.ResumesAfterFrameWait, "Ceres initializer returns to the main loop after setup");
+    AssertTrue(!state.IsWaitingOutDisplayFrame, "Ceres initializer returns to the main loop after setup");
     AssertEqual(CeresDestructionPhase.WaitForMusicQueue, state.Phase,
         "Ceres destruction initial music-queue phase");
     AssertEqual((byte)0x22, state.ReadMode7MapByte(0x0000),

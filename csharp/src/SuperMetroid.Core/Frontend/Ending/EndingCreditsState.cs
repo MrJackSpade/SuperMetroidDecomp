@@ -106,10 +106,10 @@ internal sealed class EndingCreditsState : IFrontendScreen
         Stage.Phase = EndingCreditsPhase.SetupEscapeFromZebes;
     }
     /// <summary>
-    /// True when the next call continues the setup's wait rather than starting
-    /// a new update of the ending, so it makes no per-update random advance.
+    /// True while the ending's setup waits out frames of the display: the next update finishes that wait instead of
+    /// starting a new update of the ending (<see cref="DisplayFrameWaitContinuation"/>).
     /// </summary>
-    internal bool ResumesAfterFrameWait =>
+    internal bool IsWaitingOutDisplayFrame =>
         Stage.Phase == EndingCreditsPhase.SetupEscapeFromZebes && setupFrameWaits > 0;
 
     /// <summary>Runs one update of the ending and credits.</summary>

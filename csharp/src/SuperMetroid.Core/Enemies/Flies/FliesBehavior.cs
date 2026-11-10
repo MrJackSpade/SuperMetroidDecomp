@@ -35,7 +35,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
             Function = FlyEnemyFunction.ClockwiseCircle,
         };
         slot.SetSpeciesState(state);
-        state.Program = AnimationProgramCursor<FlyProgram>.Start(FlyProgram.Flight);
+        state.Playback = new(FlyAnimations.StartingWith(FlyProgram.Flight), AnimationPlace.StartOfAnimation);
         slot.Frame = EnemyFrameId.Empty;
         slot.FrameHold = WrappingCountdown.Start(1);
     }
@@ -162,9 +162,10 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EnemyProgramAnimation.Expire(slot))
             return;
         FlyEnemyState state = slot.RequireSpeciesState<FlyEnemyState>();
-        AnimationProgramCursor<FlyProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, FlyAnimations.Programs, ref cursor, FlyFrameDefinitions.ShownFrames.Of);
-        state.Program = cursor;
+        AnimationPlayback<FlyProgram> playback = state.Playback;
+        EnemyProgramAnimation.Play(slot, FlyAnimations.Segments, ref playback, FlyFrameDefinitions.ShownFrames.Of,
+            static cue => throw new InvalidOperationException($"A cue-free fly animation raised {cue}."));
+        state.Playback = playback;
     }
 
     /// <summary>Ports Flies's main AI.</summary>

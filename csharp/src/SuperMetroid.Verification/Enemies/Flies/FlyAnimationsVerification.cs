@@ -6,16 +6,17 @@ using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Enemies.Flies;
 
-/// <summary>#641: the Mellow, Mella and Memu typed programs, each matched step by step to its native bank-$A2 list.</summary>
+/// <summary>#641, #1600: the Mellow, Mella and Memu typed animations, each segment matched to its native bank-$A2 list and each animation to the lists' control flow.</summary>
 internal static class FlyAnimationsVerification
 {
-    /// <summary>Every program matches its native list.</summary>
+    /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifyFlyAnimations(SuperMetroidAddressSpace rom)
     {
-        int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, FlyAnimations.Programs,
-            FlyFrameToolingDefinitions.Spritemap,
-            word => null,
-            (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions."));
-        Console.WriteLine($"  fly-family programs: {Entries.Length} programs ({steps} steps) match bank $A2.");
+        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
+            FlyAnimations.Segments, FlyAnimations.StartingAt, FlyFrameToolingDefinitions.Spritemap,
+            new NativeEnemyCueRules<NoAnimationCue>(
+                word => null,
+                (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions.")));
+        Console.WriteLine($"  fly-family animations: {Entries.Length} segments ({beats} beats) and {FlyAnimations.StartingAt.Count} animations match bank $A2.");
     }
 }

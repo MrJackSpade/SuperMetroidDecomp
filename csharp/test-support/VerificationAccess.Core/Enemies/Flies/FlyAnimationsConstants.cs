@@ -8,7 +8,7 @@ internal static class FlyAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params FlyProgram[] programs) =>
-        programs.SelectMany(program => FlyAnimations.Programs.Steps(program))
-            .OfType<AnimationProgramStep<FlyProgram, FlyFrame, NoAnimationCue>.ShowStep>()
-            .Select(step => FlyFrameToolingDefinitions.Spritemap(step.Frame));
+        programs.SelectMany(program => FlyAnimations.Segments.Beats(program))
+            .OfType<AnimationBeat<FlyFrame, NoAnimationCue>.Frame>()
+            .Select(frame => FlyFrameToolingDefinitions.Spritemap(frame.Shown));
 }

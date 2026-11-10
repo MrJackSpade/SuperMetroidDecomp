@@ -35,7 +35,7 @@ internal static class GrappleQuantityRangesVerification
         Console.WriteLine("Grapple flare stage: each connected-beam draw moves the flare on.");
     }
 
-    /// <summary>Checks that rope length and endpoint frame accept their range limits and reject the values beyond them.</summary>
+    /// <summary>Checks that rope length, endpoint frame and rope animation accept their range limits and reject the values beyond them.</summary>
     internal static void VerifyGrappleQuantityRanges()
     {
         var grapple = new SamusGrappleState { RopeLength = GrappleBeamDefinitions.Physics.LongestRopeLength, PointAnimationFrame = byte.MaxValue };
@@ -47,7 +47,12 @@ internal static class GrappleQuantityRangesVerification
         AssertThrows<ArgumentOutOfRangeException>(() => { grapple.PointAnimationFrame = -1; }, "endpoint frame rejects a negative frame");
         AssertThrows<ArgumentOutOfRangeException>(() => { grapple.PointAnimationFrame = byte.MaxValue + 1; },
             "endpoint frame rejects a frame no restored state holds");
-        Console.WriteLine("Grapple quantity ranges: rope length and endpoint frame keep their stated ranges.");
+        AssertThrows<ArgumentOutOfRangeException>(() => { grapple.RopeAnimationTimer = 0; }, "rope animation rejects a finished wait");
+        AssertThrows<ArgumentOutOfRangeException>(() => { grapple.RopeAnimationTimer = GrappleBeamDefinitions.Rendering.FirstSegmentAnimationDelay + 1; },
+            "rope animation rejects a wait longer than a fresh beam's");
+        AssertThrows<ArgumentOutOfRangeException>(() => { grapple.RopeAnimationPhase = GrappleBeamDefinitions.Rendering.SegmentAnimationFrameCount; },
+            "rope animation rejects a phase past its cycle");
+        Console.WriteLine("Grapple quantity ranges: rope length, endpoint frame and rope animation keep their stated ranges.");
     }
 
     /// <summary>Runs the grapple flare stage and quantity range checks.</summary>

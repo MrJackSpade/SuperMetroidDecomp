@@ -706,8 +706,8 @@ firingLevel, cancelledSamus, controllerInput: 0);
         "post-Samus grapple tile pass moves the flare on");
 
     // Fifty pixels yields six body pieces because $94:AFBA uses (length / 8) before drawing
-    // the endpoint. Instruction slots descend 15..10, so GrappleFunc_AF87's phases are
-    // $24,$23,$22,$21,$24,$23 rather than one shared guessed animation tile.
+    // the endpoint. The rope's one animation phase runs its pattern back along the chain from
+    // the muzzle, so the pictures are $24,$23,$22,$21,$24,$23 rather than one picture repeated.
     AssertEqual(28, (grappleOam.LastFinalizedSpriteCount * 4), "six grapple segments plus endpoint OAM bytes");
     int[] expectedTiles = [0x24, 0x23, 0x22, 0x21, 0x24, 0x23];
     for (int segment = 0; segment < expectedTiles.Length; segment++)

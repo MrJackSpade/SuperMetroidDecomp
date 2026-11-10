@@ -1,17 +1,18 @@
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>
-/// Which of the three rope character sets the grapple's angle selects. Each half turn of 32 sectors is reflected about
-/// its midpoint, and the sectors from its ends take three, eight and five sector widths.
+/// How steeply the grapple rope runs, which picks the pictures it is drawn with. A rope's angle repeats its pictures
+/// every half turn, and each half turn mirrors about level: a rope within three sixty-fourths of a turn of upright is
+/// drawn vertical, one within five of level horizontal, and one between diagonal.
 /// </summary>
 public enum GrappleRopeOrientation
 {
-    /// <summary>The five sectors either side of the half turn's midpoint.</summary>
+    /// <summary>A rope within five sixty-fourths of a turn of level.</summary>
     Horizontal,
 
-    /// <summary>The eight sectors between the vertical and horizontal ones.</summary>
+    /// <summary>A rope in the eight sixty-fourths of a turn between the vertical and horizontal ones.</summary>
     Diagonal,
 
-    /// <summary>The three sectors at each end of the half turn.</summary>
+    /// <summary>A rope within three sixty-fourths of a turn of upright.</summary>
     Vertical,
 }

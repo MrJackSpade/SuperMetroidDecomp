@@ -197,21 +197,27 @@ public sealed class SamusGrappleState
     }
 
     /// <summary>
-    /// Sixteen rope segment timers. A connected rope draws slots 15 downward; retaining
-    /// all sixteen makes shortening and lengthening the rope resume the original slot state.
+    /// Rope draws left before the rope's pictures step on: a fresh beam waits
+    /// <see cref="GrappleBeamDefinitions.Rendering.FirstSegmentAnimationDelay"/> draws for its first step and
+    /// <see cref="GrappleBeamDefinitions.Rendering.SegmentAnimationDelay"/> for each after it. Each draw that shows rope
+    /// counts one off and restarts the wait on the draw that reaches none, so other values are rejected.
     /// </summary>
-    public WrappingCountdown[] SegmentAnimationTimers { get; } = new WrappingCountdown[16];
+    public int RopeAnimationTimer
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(1, GrappleBeamDefinitions.Rendering.FirstSegmentAnimationDelay, value);
+    } = GrappleBeamDefinitions.Rendering.FirstSegmentAnimationDelay;
 
     /// <summary>
-    /// Readable four-tile animation phases of the sixteen rope slots.
-    /// Values zero through three are added to the first rope tile only when drawn.
+    /// The rope's one animation phase: how many times its pictures have stepped on since the beam fired, counted round
+    /// its cycle of <see cref="GrappleBeamDefinitions.Rendering.SegmentAnimationFrameCount"/> pictures. The segment at
+    /// the muzzle shows the cycle's last picture moved on by the phase, and each segment further along the rope the
+    /// picture before its neighbour's, so the pattern runs out along the rope as the phase steps. Other values are
+    /// rejected.
     /// </summary>
-    public int[] SegmentAnimationFrames { get; } = new int[16];
-
-    /// <summary>
-    /// Host-readable marker for the rope draw's special first timer expiry. The original stores
-    /// the distinction implicitly in each segment's program position; this flag keeps the C# state
-    /// honest without exposing raw program positions as mutable gameplay data.
-    /// </summary>
-    public bool[] SegmentAnimationStarted { get; } = new bool[16];
+    public int RopeAnimationPhase
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, GrappleBeamDefinitions.Rendering.SegmentAnimationFrameCount - 1, value);
+    }
 }

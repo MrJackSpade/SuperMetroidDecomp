@@ -26,12 +26,12 @@ internal static class GrappleSpriteArtworkVerification
             AssertEqual(new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), GrappleSpriteExtractor.SegmentAttributeAddress(i))).ToSinglePart(),
                 catalog.Segment(i), "Extracted segment attributes match timed native record");
         // The installed grapple sheet composes each frame from the installed appearances, which match the cartridge above:
-        // the endpoint as one small OBJ, and each rope segment with the rope direction's flips ORed into its own.
+        // the endpoint as one small OBJ centred on its origin, and each rope segment likewise, with the rope direction's flips ORed into its own.
         SpriteSheetSources composed = GrappleSheetComposer.Sources(SamusSheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory));
         Dictionary<string, SpriteFrame> frames = composed.Frames.ToDictionary(frame => frame.Name, frame => frame.Frame, StringComparer.Ordinal);
         int cases = 0;
         for (int point = 0; point < GrappleSheetComposer.EndpointFrameCount; point++, cases++)
-            AssertEqual(SpritePartFrames.SmallObject(catalog.Endpoint, 0).Parts.Single(),
+            AssertEqual(SpritePartFrames.CentredSmallObject(catalog.Endpoint, 0).Parts.Single(),
                 frames[GrappleSheets.EndpointFrame(point)].Parts.Single(), $"Grapple endpoint frame {point} is the native endpoint OBJ");
         foreach (GrappleRopeOrientation orientation in Enum.GetValues<GrappleRopeOrientation>())
         for (int segment = 0; segment < GrappleSpriteDefinitions.SegmentFrameCount; segment++)
@@ -40,7 +40,7 @@ internal static class GrappleSpriteArtworkVerification
             TileFlip flips = ((mirror & SpriteMirror.Horizontal) != 0 ? TileFlip.Horizontal : TileFlip.None) |
                 ((mirror & SpriteMirror.Vertical) != 0 ? TileFlip.Vertical : TileFlip.None);
             SpritePart appearance = catalog.Segment(segment);
-            AssertEqual(SpritePartFrames.SmallObject(appearance with { Flip = appearance.Flip | flips }, 0).Parts.Single(),
+            AssertEqual(SpritePartFrames.CentredSmallObject(appearance with { Flip = appearance.Flip | flips }, 0).Parts.Single(),
                 frames[GrappleSheets.RopeFrame(orientation, segment, mirror)].Parts.Single(),
                 $"Grapple rope {orientation} frame {segment} mirrored {mirror} is the native segment OBJ with the rope's flips");
             cases++;

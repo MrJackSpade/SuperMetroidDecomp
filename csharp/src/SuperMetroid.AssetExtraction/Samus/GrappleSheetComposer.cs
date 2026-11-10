@@ -9,7 +9,8 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <summary>
 /// Composes the grapple sheet (#1392) from the installed stock artwork: the endpoint in each animation frame over the
 /// characters that frame uploads, and every rope segment frame in each orientation and rope-direction mirroring over
-/// the orientation's characters, coloured as a room load leaves the sprite rows.
+/// the orientation's characters, coloured as a room load leaves the sprite rows. Each picture is centred on its frame's
+/// origin, since the beam places its endpoint and every rope picture by its centre (#1588).
 /// </summary>
 internal static class GrappleSheetComposer
 {
@@ -46,7 +47,7 @@ internal static class GrappleSheetComposer
             throw new InvalidDataException($"The grapple endpoint names rope character ${endpoint.Character:X3}, which its orientation selects.");
         for (int point = 0; point < EndpointFrameCount; point++)
         {
-            frames.Add(new(GrappleSheets.EndpointFrame(point), SpritePartFrames.SmallObject(endpoint, 0),
+            frames.Add(new(GrappleSheets.EndpointFrame(point), SpritePartFrames.CentredSmallObject(endpoint, 0),
                 tiles.OnStandardObjects(inputs.StandardObjects, point, GrappleRopeOrientation.Horizontal)));
         }
         foreach (GrappleRopeOrientation orientation in Enum.GetValues<GrappleRopeOrientation>())
@@ -63,7 +64,7 @@ internal static class GrappleSheetComposer
                     TileFlip flips = ((mirror & SpriteMirror.Horizontal) != 0 ? TileFlip.Horizontal : TileFlip.None) |
                         ((mirror & SpriteMirror.Vertical) != 0 ? TileFlip.Vertical : TileFlip.None);
                     frames.Add(new(GrappleSheets.RopeFrame(orientation, segment, mirror),
-                        SpritePartFrames.SmallObject(appearance with { Flip = appearance.Flip | flips }, 0), page));
+                        SpritePartFrames.CentredSmallObject(appearance with { Flip = appearance.Flip | flips }, 0), page));
                 }
             }
         }

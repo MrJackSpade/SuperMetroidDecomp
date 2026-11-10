@@ -38,8 +38,8 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
     private const int FrameDependentHeaderBytes = 4;
     /// <summary>The bytes of one animation frame's displacement: signed X, then signed Y.</summary>
     private const int DisplacementBytes = 2;
-    /// <summary>Pose descriptor offsets that differ from the native pose table.</summary>
-    internal readonly Dictionary<int, int> poseDescriptors = new();
+    /// <summary>Pose descriptor offsets that differ from the stock pose table.</summary>
+    internal readonly Dictionary<SamusPoseId, int> poseDescriptors = new();
     /// <summary>Descriptor bytes retained when an edit or independent value cannot be derived.</summary>
     internal readonly Dictionary<int, byte> drawingData = new();
     /// <summary>Per-direction cover appearances that differ from the stock orientation rules.</summary>
@@ -52,13 +52,13 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
     private readonly SamusSpritemapSources? bodyGeometry;
 
     /// <summary>Separates authored edits from native descriptor, placement, and tile-selection rules.</summary>
-    private SamusArmCannonSourceArtwork(int[] poseDescriptors, byte[] drawingData,
+    private SamusArmCannonSourceArtwork(IReadOnlyDictionary<SamusPoseId, int> poseDescriptors, byte[] drawingData,
         SpritePart[] attributes, int[][] coverTiles, RoomCharacterAtlas tiles,
         SamusSpritemapSources? bodyGeometry = null)
         : base(Placements(poseDescriptors, drawingData))
     {
         this.bodyGeometry = bodyGeometry;
-        for (int pose = 0; pose < poseDescriptors.Length; pose++)
+        foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses)
             if (poseDescriptors[pose] != SamusArmCannonArtworkFormat.StockPoseDescriptor(pose))
                 this.poseDescriptors.Add(pose, poseDescriptors[pose]);
         for (int index = 0; index < drawingData.Length; index++)
@@ -94,14 +94,11 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
     /// the byte after the drawing mode the direction of every later animation frame, then the drawing mode, then one
     /// signed X and Y displacement per animation frame. Poses sharing a descriptor share its placement.
     /// </summary>
-    private static Dictionary<SamusPoseId, SamusArmCannonPlacement> Placements(int[] poseDescriptors, byte[] drawingData)
+    private static Dictionary<SamusPoseId, SamusArmCannonPlacement> Placements(IReadOnlyDictionary<SamusPoseId, int> poseDescriptors, byte[] drawingData)
     {
-        if (poseDescriptors.Length != SamusBodySources.PoseCount)
-            throw new InvalidDataException("Arm-cannon placements must cover every pose.");
+        RequireEveryRecordedPose(poseDescriptors);
         var placements = new Dictionary<int, SamusArmCannonPlacement>();
-        // A record no pose names is never drawn (#1517).
-        return Enumerable.Range(0, poseDescriptors.Length).Where(SamusPoseNumbering.NamesPose)
-            .ToDictionary(SamusPoseNumbering.FromNumber, pose => Placement(poseDescriptors[pose]));
+        return SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose, pose => Placement(poseDescriptors[pose]));
 
         SamusArmCannonPlacement Placement(int descriptor)
         {
@@ -124,7 +121,7 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
 
     /// <summary>Rebinds cover coordinates to installed Samus body compositions while preserving selected edits.</summary>
     internal SamusArmCannonSourceArtwork WithBodyGeometry(SamusSpritemapSources body) => new(
-        Enumerable.Range(0, SamusBodySources.PoseCount).Select(PoseDescriptor).ToArray(),
+        SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose, PoseDescriptor),
         Enumerable.Range(0, SamusArmCannonArtworkFormat.DrawingDataByteCount).Select(ReadDrawingByte).ToArray(),
         Enumerable.Range(0, SamusDrawingDefinitions.ArmCannon.DirectionCount).Select(CoverAppearance).ToArray(),
         Enumerable.Range(0, SamusDrawingDefinitions.ArmCannon.DirectionCount).Select(direction =>
@@ -132,9 +129,9 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
         tiles, Ensure.NotNull(body));
 
     /// <summary>SHA-256 of selected cannon placement, cover appearances, tile selectors and characters.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("samus-arm-cannon-v3", content =>
+    public string ContentIdentity => SelectedPresentationHash.Create("samus-arm-cannon-v4", content =>
     {
-        for (int pose = 0; pose < SamusBodySources.PoseCount; pose++) content.Append("pose descriptor", PoseDescriptor(pose));
+        foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses) content.Append("pose descriptor", PoseDescriptor(pose));
         Span<byte> selectedDrawing = stackalloc byte[SamusArmCannonArtworkFormat.DrawingDataByteCount];
         for (int index = 0; index < selectedDrawing.Length; index++)
             selectedDrawing[index] = ReadDrawingByte(index);
@@ -149,7 +146,7 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
 
     /// <summary>Validated JSON placement tables before their separately loaded tile PNG is attached.</summary>
     /// <remarks>Placement and PNG admission remain distinct so installation identifies the failing file.</remarks>
-    internal sealed record DescriptorTables(int[] PoseDescriptors, byte[] DrawingData,
+    internal sealed record DescriptorTables(IReadOnlyDictionary<SamusPoseId, int> PoseDescriptors, byte[] DrawingData,
         SpritePart[] Attributes, int[][] CoverTiles);
 
     /// <summary>Combines validated descriptor tables with the installed indexed tile sheet.</summary>
@@ -163,7 +160,6 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
         document = JsonAssetDocument.Read<SamusArmCannonArtworkDocument>(json, Options, "arm-cannon artwork");
         if (document.Version != SamusArmCannonArtworkFormat.Version ||
             document.PoseDescriptors is null ||
-            document.PoseDescriptors.Length != SamusBodySources.PoseCount ||
             document.DrawingData is null ||
             document.DrawingData.Length != SamusArmCannonArtworkFormat.DrawingDataByteCount ||
             document.CoverAppearances is null ||
@@ -171,8 +167,9 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
             !CoverTileShape.HasRows(document.CoverTiles))
             throw new InvalidDataException("Arm-cannon artwork has an invalid version or table geometry.");
 
-        int[] descriptors = [.. document.PoseDescriptors];
-        foreach (int descriptor in descriptors)
+        RequireEveryRecordedPose(document.PoseDescriptors);
+        Dictionary<SamusPoseId, int> descriptors = document.PoseDescriptors.ToDictionary();
+        foreach (int descriptor in descriptors.Values)
             if (descriptor < 0 || descriptor + 2 >= SamusArmCannonArtworkFormat.DrawingDataByteCount)
                 throw new InvalidDataException(
                     $"Arm-cannon pose descriptor {descriptor} lies outside drawing data.");
@@ -202,13 +199,18 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
         return json;
     }
 
-    /// <summary>Gets where pose 0–252's drawing descriptor begins within the drawing data, using an independent supplied edit or the stock pose-table mapping.</summary>
-    public int PoseDescriptor(int pose)
-    {
-        if ((uint)pose >= SamusBodySources.PoseCount)
-            throw new ArgumentOutOfRangeException(nameof(pose));
-        return poseDescriptors.TryGetValue(pose, out int selected) ? selected
+    /// <summary>Gets where <paramref name="pose"/>'s drawing descriptor begins within the drawing data, using an independent supplied edit or the stock pose-table mapping.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The pose has no record in the pose tables.</exception>
+    public int PoseDescriptor(SamusPoseId pose) =>
+        poseDescriptors.TryGetValue(pose, out int selected) ? selected
             : SamusArmCannonArtworkFormat.StockPoseDescriptor(pose);
+
+    /// <summary>Requires <paramref name="poseDescriptors"/> to hold a descriptor for exactly the poses with records.</summary>
+    /// <exception cref="InvalidDataException">A pose with a record has no descriptor, or a pose without one has.</exception>
+    private static void RequireEveryRecordedPose(IReadOnlyDictionary<SamusPoseId, int> poseDescriptors)
+    {
+        if (!SamusPoseNumbers.CoversRecordedPoses(poseDescriptors))
+            throw new InvalidDataException("Arm-cannon placements must cover exactly the poses with records.");
     }
 
     /// <summary>Resolves the installed descriptor byte <paramref name="offset"/> bytes into the drawing data, preferring edits over stock selector/mode bytes and derived body-relative or reflected coordinate bytes.</summary>

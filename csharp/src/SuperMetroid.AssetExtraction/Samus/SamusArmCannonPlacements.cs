@@ -355,7 +355,7 @@ internal static class SamusArmCannonPlacements
         // No second descriptor-position or pose-selection table is introduced.
         for (int candidate = 0; candidate < SamusBodySources.PoseCount; candidate++)
         {
-            int descriptorStart = SamusArmCannonArtworkFormat.StockPoseDescriptor(candidate);
+            int descriptorStart = SamusArmCannonArtworkFormat.StockRecordDescriptor(candidate);
             if (descriptorStart > position || descriptorStart <= start) continue;
             start = descriptorStart;
             owner = candidate;

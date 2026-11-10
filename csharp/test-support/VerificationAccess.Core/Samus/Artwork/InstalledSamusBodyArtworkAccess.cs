@@ -20,8 +20,8 @@ internal static class InstalledSamusBodyArtworkAccess
         /// <summary>Each lower-body definition group's first record.</summary>
         internal ReadOnlySpan<int> BottomSetStarts => self.Source.BottomSetStarts;
 
-        /// <summary>Each pose's first frame selector.</summary>
-        internal ReadOnlySpan<int> PoseFirstFrames => self.Source.PoseFirstFrames;
+        /// <summary>Each pose with a record's first frame selector.</summary>
+        internal IReadOnlyDictionary<SamusPoseId, int> PoseFirstFrames => self.Source.PoseFirstFrames;
 
         /// <summary>The contiguous frame-selector interval.</summary>
         internal ReadOnlySpan<SamusBodyFrameSelection> Frames => self.Source.Frames;
@@ -45,9 +45,9 @@ internal static class InstalledSamusBodyArtworkAccess
         /// <exception cref="InvalidDataException">The pose has no record, or the selector is outside the table.</exception>
         internal SamusBodyFrameSelection Selection(SamusPoseId pose, int animationFrame)
         {
-            if (!SamusPoseNumbers.HasRecord(pose))
+            if (!self.Source.PoseFirstFrames.TryGetValue(pose, out int firstFrame))
                 throw new InvalidDataException($"Pose {pose} has no authored Samus body frame list.");
-            int index = self.Source.PoseFirstFrames[SamusPoseNumbers.Number(pose)] + animationFrame;
+            int index = firstFrame + animationFrame;
             return (uint)index < SamusBodySources.FrameCount
                 ? self.Source.Frames[index]
                 : throw new InvalidDataException($"Samus frame {index} is outside extracted visual selectors.");

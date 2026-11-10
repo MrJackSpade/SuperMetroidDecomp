@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
 
@@ -24,7 +25,7 @@ public static class SamusArmCannonArtworkFiles
         WriteIndented = true,
     };
 
-    /// <summary>Exports 253 pose selectors, bounded bank-$90 drawing descriptors, ten direction styles/tile lists, and twelve cannon-cover characters.</summary>
+    /// <summary>Exports each pose's selector by the pose's name, bounded bank-$90 drawing descriptors, ten direction styles/tile lists, and twelve cannon-cover characters.</summary>
     /// <param name="bus">Non-null import-capable cartridge source for cover placement/OBJ attributes and bank-$9A character pixels.</param>
     /// <param name="directory">Artwork directory, created if absent; existing placement JSON, 96-by-8 indexed PNG, and companion manifest are overwritten.</param>
     /// <param name="sourceCartridgeSha256">Caller-supplied provenance hash recorded verbatim.</param>
@@ -38,9 +39,10 @@ public static class SamusArmCannonArtworkFiles
         Ensure.NotNull(bus);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         Directory.CreateDirectory(directory);
-        int[] descriptors = Enumerable.Range(0, SamusBodySources.PoseCount)
-            .Select(pose => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                SamusSourceDefinitions.PoseDrawingDataPointers.Value + pose * 2) - SamusSourceDefinitions.ArmCannonDrawingData).ToArray();
+        // The pose table is read by the cartridge's pose numbers and installed by pose name (#1595).
+        Dictionary<SamusPoseId, int> descriptors = SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose,
+            pose => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                SamusSourceDefinitions.PoseDrawingDataPointers.Value + SamusPoseNumbers.Number(pose) * 2) - SamusSourceDefinitions.ArmCannonDrawingData);
         int[] drawingData = Enumerable.Range(0, SamusArmCannonArtworkFormat.DrawingDataByteCount)
             .Select(index => (int)bus.ReadCartridgeByte(SamusSourceDefinitions.MovementBank.Value |
                 (SamusSourceDefinitions.ArmCannonDrawingData + index))).ToArray();

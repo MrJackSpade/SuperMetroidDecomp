@@ -27,8 +27,10 @@ public static class SamusBodyArtworkFiles
     /// Revision nine holds each pose's placement and its frames' own placements instead of the cartridge's offset tables
     /// (#1517). Revision ten installs with the body sheet that pictures the glitch balls, their knockbacks, the
     /// Draygon-held ball and its stand-up, which the Baby's Hyper Beam freeze and rainbow stop can install (#1535).
+    /// Revision eleven keys each pose's frame list and half-table bases by the pose's name rather than its place in the
+    /// cartridge's pose tables, and installs none for the records no pose names (#1595).
     /// </summary>
-    private const int FormatVersion = 10;
+    private const int FormatVersion = 11;
     /// <summary>Each split-DMA definition occupies eight 8x8 tiles across its PNG row.</summary>
     private const int TileWidth = 64;
     /// <summary>Two tile rows reserve sixteen graphics tiles for one DMA definition.</summary>
@@ -66,7 +68,9 @@ public static class SamusBodyArtworkFiles
             SamusBodySources.PoseCount);
         int[] topSetStarts = [.. topPointers.Select(pointer => BodyRecord(pointer))];
         int[] bottomSetStarts = [.. bottomPointers.Select(pointer => BodyRecord(pointer))];
-        int[] poseFirstFrames = [.. posePointers.Select(pointer => BodyFrame(pointer))];
+        // The pose tables are read by the cartridge's pose numbers and installed by pose name (#1595).
+        Dictionary<SamusPoseId, int> poseFirstFrames = SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose,
+            pose => BodyFrame(posePointers[SamusPoseNumbers.Number(pose)]));
         int[] graphicsYOffsets = Enumerable.Range(0, SamusBodySources.PoseCount)
             .Select(pose => (int)unchecked((sbyte)bus.ReadCartridgeByte(
                 SamusSourceDefinitions.PoseDefinitions.Value +
@@ -84,10 +88,10 @@ public static class SamusBodyArtworkFiles
         var hashes = new Dictionary<string, string>(StringComparer.Ordinal);
         DefinitionEntry[][] top = ExtractHalf(bus, directory, topPointers, allPointers, true, hashes);
         DefinitionEntry[][] bottom = ExtractHalf(bus, directory, bottomPointers, allPointers, false, hashes);
-        ushort[] spritemapTopBases = ReadPointers(bus,
-            SamusSourceDefinitions.SpritemapTopBases.Value, SamusBodySources.PoseCount);
-        ushort[] spritemapBottomBases = ReadPointers(bus,
-            SamusSourceDefinitions.SpritemapBottomBases.Value, SamusBodySources.PoseCount);
+        Dictionary<SamusPoseId, int> spritemapTopBases = ByPose(ReadPointers(bus,
+            SamusSourceDefinitions.SpritemapTopBases.Value, SamusBodySources.PoseCount));
+        Dictionary<SamusPoseId, int> spritemapBottomBases = ByPose(ReadPointers(bus,
+            SamusSourceDefinitions.SpritemapBottomBases.Value, SamusBodySources.PoseCount));
         ushort[] spritemapPointers = ReadPointers(bus,
             SamusSourceDefinitions.SpritemapPointers.Value, SamusSpritemapSources.EntryCount);
         // Compositions install in record order, so a composition's identity is its place among the referenced records.
@@ -260,13 +264,20 @@ public static class SamusBodyArtworkFiles
             manifest.SpritemapEntries is null || manifest.Spritemaps is null ||
             manifest.Hashes is null || manifest.Top.Length != SamusBodySources.TopSetCount ||
             manifest.Bottom.Length != SamusBodySources.BottomSetCount ||
-            manifest.Placements.Count != Enumerable.Range(0, SamusBodySources.PoseCount).Count(SamusPoseNumbering.NamesPose) ||
+            !SamusPoseNumbers.CoversRecordedPoses(manifest.Placements) ||
+            !SamusPoseNumbers.CoversRecordedPoses(manifest.PoseFirstFrames) ||
+            !SamusPoseNumbers.CoversRecordedPoses(manifest.SpritemapTopBases) ||
+            !SamusPoseNumbers.CoversRecordedPoses(manifest.SpritemapBottomBases) ||
             manifest.Placements.Values.Any(placement => placement is null) ||
             manifest.Top.Any(set => set is null || set.Length == 0 || set.Any(entry => entry is null)) ||
             manifest.Bottom.Any(set => set is null || set.Length == 0 || set.Any(entry => entry is null)) ||
             manifest.Spritemaps.Any(entry => entry is null || entry.Any(part => part is null)))
             throw new InvalidDataException("Samus body manifest does not match this installation.");
     }
+
+    /// <summary>The entry of <paramref name="table"/>, laid out by the cartridge's pose numbers, for each pose with a record.</summary>
+    private static Dictionary<SamusPoseId, int> ByPose(ushort[] table) =>
+        SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose, pose => (int)table[SamusPoseNumbers.Number(pose)]);
 
     /// <summary>Reads a contiguous little-endian pointer table from the cartridge.</summary>
     private static ushort[] ReadPointers(ISnesAddressSpace bus, int start, int count) =>
@@ -311,11 +322,11 @@ public static class SamusBodyArtworkFiles
     /// hashes. Verification edits an installed manifest by these members' names (#1510).
     /// </summary>
     internal sealed record Manifest(int Version, string SourceCartridgeSha256,
-        int[] TopSetStarts, int[] BottomSetStarts, int[] PoseFirstFrames,
+        int[] TopSetStarts, int[] BottomSetStarts, Dictionary<SamusPoseId, int> PoseFirstFrames,
         Dictionary<SamusPoseId, SamusBodyPosePlacement> Placements,
         SamusBodyFrameSelection[] Frames, DefinitionEntry[][] Top,
-        DefinitionEntry[][] Bottom, ushort[] SpritemapTopBases,
-        ushort[] SpritemapBottomBases, int?[] SpritemapEntries,
+        DefinitionEntry[][] Bottom, Dictionary<SamusPoseId, int> SpritemapTopBases,
+        Dictionary<SamusPoseId, int> SpritemapBottomBases, int?[] SpritemapEntries,
         SpriteVisualPart[][] Spritemaps,
         Dictionary<string, string> Hashes);
 

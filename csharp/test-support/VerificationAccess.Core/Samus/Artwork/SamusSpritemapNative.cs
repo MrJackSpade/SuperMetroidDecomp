@@ -3,9 +3,16 @@ using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Core.Samus.Artwork;
 
-/// <summary>Verification's reading of the cartridge's bank-$92 spritemap pointer table as installed compositions.</summary>
+/// <summary>Verification's reading of the cartridge's bank-$92 spritemap tables as installed compositions and bases.</summary>
 internal static class SamusSpritemapNative
 {
+    /// <summary>
+    /// Each pose with a record's first table entry, from a cartridge base table <paramref name="table"/> laid out by the
+    /// cartridge's pose numbers.
+    /// </summary>
+    internal static Dictionary<SamusPoseId, int> Bases(IReadOnlyList<ushort> table) =>
+        SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose, pose => (int)table[SamusPoseNumbers.Number(pose)]);
+
     /// <summary>The records <paramref name="pointers"/> reference, in record order: the installed composition list.</summary>
     internal static ushort[] Compositions(ushort[] pointers) => [.. pointers.Distinct().Where(pointer => pointer != 0).Order()];
 
@@ -38,7 +45,7 @@ internal static class SamusSpritemapNative
     {
         if (half == SamusBodyHalf.Bottom && index == 0)
             return null;
-        IEnumerable<SamusPoseId> candidates = [pose, .. Enumerable.Range(0, SamusBodySources.PoseCount).Where(SamusPoseNumbering.NamesPose).Select(SamusPoseNumbering.FromNumber)
+        IEnumerable<SamusPoseId> candidates = [pose, .. SamusPoseNumbers.RecordedPoses
             .OrderByDescending(other => spritemaps.EntryIndex(new SamusBodyHalfFrame(other, half, 0)))];
         foreach (SamusPoseId candidate in candidates)
         {

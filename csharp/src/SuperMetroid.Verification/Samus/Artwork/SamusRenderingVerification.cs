@@ -477,7 +477,7 @@ internal static void VerifySamusArmCannon()
     string directory = RepositoryInstallation.Installation.SamusBodyDirectory;
     var document = RequiredJson.Parse(File.ReadAllText(
         Path.Combine(directory, SamusArmCannonArtworkFormat.JsonFileName)));
-    document.Required("poseDescriptors")[1] = 0;
+    document.Required("poseDescriptors")[nameof(SamusPoseId.FacingRightNormalPose)] = 0;
     int[] drawing = [2, 2, 7, 0xfd, 9, 0xfb];
     for (int index = 0; index < drawing.Length; index++)
         document.Required("drawingData")[index] = drawing[index];

@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
@@ -33,7 +34,7 @@ internal static class WreckedShipGhostShadeContentVerification
         AssertEqual(new RgbColor(148, 148, 0), fade.Shown[0], "the next brightening carries blue out of the colour");
         AssertEqual(new RgbColor(255, 0, 0), fade.Shown[10], "a colour whose red is full is not brightened");
 
-        RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetLists.All.First(candidate =>
+        RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetLists.DrawnUnder.First(candidate =>
             RoomEnemyGraphicsSetLists.MembersOf(candidate).Records.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.Coven));
         int first = new GraphicsSetRows(RoomEnemyGraphicsSetLists.MembersOf(set), EnemyGraphicsSetPaletteRowDefinitions.Rows).RowOf(EnemyDefinitionId.Coven) * LoadedSetColours.RowColours;
         SpriteImage image = InstalledFixtures.EnemySheets.For(set, EnemyDefinitionId.Coven).Image;

@@ -18,11 +18,10 @@ internal static class InstalledSheetsHoldPicturesVerification
     {
         var sheets = new List<LabelledSheet>();
         sheets.AddRange(SpriteSheetDefinitions.Sheets.Select(sheet => new LabelledSheet($"sprite sheet {sheet}", InstalledFixtures.SpriteSheets.Get(sheet))));
-        sheets.AddRange(InstalledFixtures.EnemySheets.sheets.OrderBy(entry => entry.Key.Set, StringComparer.Ordinal).ThenBy(entry => entry.Key.Enemy)
-            .Select(entry => new LabelledSheet($"enemy sheet {entry.Key.Set} {entry.Key.Enemy}", entry.Value)));
-        sheets.AddRange(InstalledFixtures.EnemySheets.spawned.OrderBy(entry => entry.Key.Set, StringComparer.Ordinal)
-            .ThenBy(entry => entry.Key.Owner.ToString(), StringComparer.Ordinal)
-            .SelectMany(entry => entry.Value.Sheets.Select(sheet => new LabelledSheet($"spawned-object sheet {entry.Key.Set} {entry.Key.Owner}", sheet))));
+        sheets.AddRange(InstalledFixtures.EnemySheets.variants.OrderBy(entry => entry.Key, StringComparer.Ordinal)
+            .Select(entry => new LabelledSheet($"enemy variant {entry.Key}", entry.Value.Sheet)));
+        sheets.AddRange(InstalledFixtures.EnemySheets.spawnedVariants.OrderBy(entry => entry.Key, StringComparer.Ordinal)
+            .SelectMany(entry => entry.Value.Sheet.Sheets.Select(sheet => new LabelledSheet($"spawned-object variant {entry.Key}", sheet))));
         sheets.AddRange(Enum.GetValues<BossBodyOwner>()
             .Select(owner => new LabelledSheet($"boss body sheet {owner}", InstalledFixtures.BossBodySheets.Of(owner).Sheet)));
         string[] empty = [.. sheets.Where(sheet => sheet.Sheet.frames.Count == 0)

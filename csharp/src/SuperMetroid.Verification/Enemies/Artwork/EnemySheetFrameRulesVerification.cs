@@ -15,14 +15,14 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 /// </summary>
 internal static class EnemySheetFrameRulesVerification
 {
-    /// <summary>Every installed enemy sheet, each with its graphics set and enemy, in a stable order.</summary>
-    private static IEnumerable<KeyValuePair<EnemySheetKey, SpriteSheet>> Sheets =>
-        InstalledFixtures.EnemySheets.sheets.OrderBy(entry => entry.Key.Set, StringComparer.Ordinal).ThenBy(entry => entry.Key.Enemy);
+    /// <summary>Every installed enemy variant, by name, in a stable order.</summary>
+    private static IEnumerable<KeyValuePair<string, EnemyArtworkVariant<SpriteSheet>>> Sheets =>
+        InstalledFixtures.EnemySheets.variants.OrderBy(entry => entry.Key, StringComparer.Ordinal);
 
     /// <summary>Checks every installed enemy sheet's frames against the sheet pixel rules.</summary>
     internal static void VerifyEnemySheetInks() =>
         SheetInkRules.Assert("enemy", RepositoryInstallation.Installation.EnemySheetDirectory,
-            [.. Sheets.Select(entry => new LabelledSheet($"{entry.Key.Set} {entry.Key.Enemy}", entry.Value))]);
+            [.. Sheets.Select(entry => new LabelledSheet(entry.Key, entry.Value.Sheet))]);
 
     /// <summary>Runs the installed enemy sheets' pixel rules.</summary>
     [VerificationCommand("--enemy-sheet-frame-rules")]

@@ -225,22 +225,22 @@ internal static class UploadedPictureChecks
     /// <returns>The frames the encounter's looks change.</returns>
     internal static int AssertFramesFollowLooks(RoomEnemyGraphicsSetDefinition set, EncounterArtwork encounter, string message, bool requireFrames = true)
     {
-        InstalledEnemySheets sheets = InstalledFixtures.EnemySheets;
+        PopulationArtwork artwork = InstalledFixtures.EnemySheets.Under(set);
         int frames = 0;
-        foreach ((EnemySheetKey key, IReadOnlyDictionary<string, EncounterArtwork[]> changed) in sheets.changingEncounters.Where(entry => entry.Key.Set == set.Name))
+        foreach ((EnemyDefinitionId enemy, EnemyArtworkVariant<SpriteSheet> variant) in artwork.enemies.Where(entry => entry.Value.changingEncounters.Count > 0))
         {
-            SpriteSheet sheet = sheets.For(set, key.Enemy);
-            frames += AssertSheetFollowsLooks(set, encounter, sheet.Frame, changed,
-                picture => sheet.FrameNames.Contains(picture) || sheet.BlankFrameNames.Contains(picture), sheet.ShowsNothing, $"{message}: {key.Enemy}");
+            SpriteSheet sheet = variant.Sheet;
+            frames += AssertSheetFollowsLooks(set, encounter, sheet.Frame, variant.changingEncounters,
+                picture => sheet.FrameNames.Contains(picture) || sheet.BlankFrameNames.Contains(picture), sheet.ShowsNothing, $"{message}: {enemy}");
         }
         var checkedSheets = new HashSet<SpawnedObjectSheet>(ReferenceEqualityComparer.Instance);
-        foreach ((SpawnedObjectSheetKey key, IReadOnlyDictionary<string, EncounterArtwork[]> changed) in sheets.spawnedChangingEncounters.Where(entry => entry.Key.Set == set.Name))
+        foreach ((SpawnedObjectOwner owner, EnemyArtworkVariant<SpawnedObjectSheet> variant) in artwork.spawned.Where(entry => entry.Value.changingEncounters.Count > 0))
         {
-            // Owners sharing one set's spawned-object pictures are checked once.
-            SpawnedObjectSheet sheet = sheets.Spawned(set, key.Owner);
+            // Owners sharing one variant's spawned-object pictures are checked once.
+            SpawnedObjectSheet sheet = variant.Sheet;
             if (checkedSheets.Add(sheet))
-                frames += AssertSheetFollowsLooks(set, encounter, sheet.Frame, changed,
-                    picture => sheet.frames.ContainsKey(picture) || sheet.empty.Contains(picture), sheet.ShowsNothing, $"{message}: {key.Owner}'s spawned objects");
+                frames += AssertSheetFollowsLooks(set, encounter, sheet.Frame, variant.changingEncounters,
+                    picture => sheet.frames.ContainsKey(picture) || sheet.empty.Contains(picture), sheet.ShowsNothing, $"{message}: {owner}'s spawned objects");
         }
         if (requireFrames)
             AssertTrue(frames > 0, $"{message}: {encounter}'s looks change frames of {set.Name}'s sheets");

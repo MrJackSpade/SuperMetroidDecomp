@@ -12,25 +12,25 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>
-/// Checks #1560: a room whose population is empty loads no enemy graphics set, so it draws its spawned objects under the
-/// session-start set, whatever set its state names. Every projectile the room's own data spawns, such as the smoke The
-/// Precious's eye door blows when a missile hits it, is pictured on that set's shared sheet.
+/// Checks #1560 and #1599: a room whose population is empty loads no enemy artwork, so it draws its spawned objects in
+/// their standard variants, the session start's, whatever set its state names. Every projectile the room's own data
+/// spawns, such as the smoke The Precious's eye door blows when a missile hits it, is pictured on the standard shared
+/// variant's sheets.
 /// </summary>
 internal static class EmptyRoomSpawnedPicturesVerification
 {
-    /// <summary>Draws every projectile frame the common spawners of each empty-population room spawn, under the session-start set.</summary>
+    /// <summary>Draws every projectile frame the common spawners of each empty-population room spawn, in the standard variants.</summary>
     internal static void VerifyEmptyRoomSpawnedPictures()
     {
-        // A fresh graphics set holds the session-start set: the room load loads none for an empty population.
-        var graphics = new EnemyGraphicsSet();
-        VerificationAssertions.AssertEqual(RoomEnemyGraphicsSetDefinitions.SessionStart, graphics.LoadedSet,
-            "a room that loads no set draws under the session-start set");
         var session = new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), InstalledFixtures.EnemyOverreads, InstalledFixtures.BossAndIntroOverreads, new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint())
         {
             FrameDisplays = InstalledFixtures.EnemyTiles.ExtendedFrames?.Displays,
             Sheets = InstalledFixtures.EnemySheets,
         };
-        var presentation = new EnemyPresentation(new EnemyRoomBinding(session, CompiledRoomEnemyDefinitions.Instance, services: null), graphics);
+        // A fresh presentation draws the standard artwork: the room load draws none of an empty population's.
+        var presentation = new EnemyPresentation(new EnemyRoomBinding(session, CompiledRoomEnemyDefinitions.Instance, services: null));
+        VerificationAssertions.AssertTrue(presentation.DrawnPopulation is null && ReferenceEquals(presentation.Artwork, InstalledFixtures.EnemySheets.Standard),
+            "a room that has placed no enemies draws the standard artwork");
         SpriteGraphics shared = SpriteGraphics.SharedIn(PictureShading.Standard);
 
         var frames = new HashSet<EnemyProjectileFrameId>();
@@ -50,11 +50,11 @@ internal static class EmptyRoomSpawnedPicturesVerification
         sprites.BeginFrame();
         foreach (EnemyProjectileFrameId frame in frames)
         {
-            // Fails loudly, naming the set and the sheets, when the session-start set pictures no such frame.
+            // Fails loudly, naming the sheets, when the standard shared variant pictures no such frame.
             presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.EnemyProjectile), EnemySheetDefinitions.ProjectileFrameName(frame),
                 new Position16<ScreenPixels>(128, 128), shared);
         }
         sprites.FinalizeFrame();
-        Console.WriteLine($"  Empty rooms: {frames.Count} projectile frames that {rooms} empty-population room states spawn resolve under the session-start set.");
+        Console.WriteLine($"  Empty rooms: {frames.Count} projectile frames that {rooms} empty-population room states spawn resolve in the standard variants.");
     }
 }

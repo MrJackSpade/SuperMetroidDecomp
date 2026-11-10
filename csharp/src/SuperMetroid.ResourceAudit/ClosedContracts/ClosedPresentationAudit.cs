@@ -72,7 +72,7 @@ internal sealed class ClosedPresentationAudit
             {
                 // Additional partial metadata declarations could mutate the private
                 // native arrays used to derive installation keys and DMA lengths.
-                valid = new[] { typeof(SuperMetroid.Core.Enemies.RoomEnemyGraphicsSetDefinitions).FullName,
+                valid = new[] { typeof(SuperMetroid.AssetExtraction.Enemies.RoomEnemyGraphicsSetDefinitions).FullName,
                         typeof(SuperMetroid.Core.Enemies.RoomEnemyDefinitionCatalog).FullName, typeof(EnemyTileSourceDefinitions).FullName }
                         .All(type => compilation.GetTypeByMetadataName((type ?? throw new InvalidOperationException("Verification requires type."))) is { } dependency &&
                             dependency.DeclaringSyntaxReferences.All(declaration => contract.Sources.Any(source =>

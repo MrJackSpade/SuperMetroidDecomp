@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Harness;
@@ -29,16 +30,19 @@ internal static class CompletedFramesOwnArtworkVerification
             string[] frames = [.. drawing.Frames.SelectMany(frame => new[] { EnemySheetDefinitions.FrameName(frame), EnemySheetDefinitions.EncounterFrameName(frame),
                     EnemySheetDefinitions.SpriteObjectFrameName(frame) })
                 .Concat(drawing.Projectiles.Select(EnemySheetDefinitions.ProjectileFrameName))];
-            foreach ((EnemySheetKey key, SpriteSheet sheet) in sheets.sheets)
+            foreach ((RoomEnemyGraphicsSetDefinition set, PopulationArtwork artwork) in sheets.BySet.Where(entry => Plays(entry.Key.Name, drawing.Encounter)))
             {
-                if (Plays(key.Set, drawing.Encounter))
-                    checkedFrames += Check($"{key.Set} {key.Enemy}", [.. sheet.FrameNames, .. sheet.BlankFrameNames], frames, drawing.Looks[0], findings);
-            }
-            // A set's spawned-object pictures are on its own sheet and the common sheets (#1513).
-            foreach ((SpawnedObjectSheetKey key, SpawnedObjectSheet sheet) in sheets.spawned)
-            {
-                if (Plays(key.Set, drawing.Encounter))
-                    checkedFrames += Check($"{key.Set} spawned {key.Owner}", [.. sheet.frames.Keys, .. sheet.empty], frames, drawing.Looks[0], findings);
+                foreach ((EnemyDefinitionId enemy, EnemyArtworkVariant<SpriteSheet> variant) in artwork.enemies)
+                {
+                    checkedFrames += Check($"{set.Name} {enemy} ({variant.Name})", [.. variant.Sheet.FrameNames, .. variant.Sheet.BlankFrameNames], frames,
+                        drawing.Looks[0], findings);
+                }
+                // A variant's spawned-object pictures are on its own sheet and the common sheets (#1513).
+                foreach ((SpawnedObjectOwner owner, EnemyArtworkVariant<SpawnedObjectSheet> variant) in artwork.spawned)
+                {
+                    checkedFrames += Check($"{set.Name} spawned {owner} ({variant.Name})", [.. variant.Sheet.frames.Keys, .. variant.Sheet.empty], frames,
+                        drawing.Looks[0], findings);
+                }
             }
         }
         AssertTrue(checkedFrames > 0, "some sheet holds a frame whose artwork is its look's own");

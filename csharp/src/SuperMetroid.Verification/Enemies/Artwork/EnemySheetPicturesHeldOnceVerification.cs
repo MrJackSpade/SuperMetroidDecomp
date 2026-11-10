@@ -24,11 +24,10 @@ internal static class EnemySheetPicturesHeldOnceVerification
     internal static void VerifyEnemySheetPicturesHeldOnce()
     {
         var sheets = new List<LabelledSheet>();
-        sheets.AddRange(InstalledFixtures.EnemySheets.sheets.OrderBy(entry => entry.Key.Set, StringComparer.Ordinal).ThenBy(entry => entry.Key.Enemy)
-            .Select(entry => new LabelledSheet($"{entry.Key.Set} {entry.Key.Enemy}", entry.Value)));
-        sheets.AddRange(InstalledFixtures.EnemySheets.spawned.OrderBy(entry => entry.Key.Set, StringComparer.Ordinal)
-            .ThenBy(entry => entry.Key.Owner.ToString(), StringComparer.Ordinal)
-            .SelectMany(entry => entry.Value.Sheets.Select(sheet => new LabelledSheet($"{entry.Key.Set} spawned {entry.Key.Owner}", sheet))));
+        sheets.AddRange(InstalledFixtures.EnemySheets.variants.OrderBy(entry => entry.Key, StringComparer.Ordinal)
+            .Select(entry => new LabelledSheet(entry.Key, entry.Value.Sheet)));
+        sheets.AddRange(InstalledFixtures.EnemySheets.spawnedVariants.OrderBy(entry => entry.Key, StringComparer.Ordinal)
+            .SelectMany(entry => entry.Value.Sheet.Sheets.Select(sheet => new LabelledSheet($"spawned {entry.Key}", sheet))));
         AssertTrue(sheets.Count > 0, "the installation holds enemy sheets");
         string directory = RepositoryInstallation.Installation.EnemySheetDirectory;
         LabelledSheet[][] images = [.. sheets.GroupBy(sheet => sheet.Sheet.Image).Select(users => users.ToArray())];

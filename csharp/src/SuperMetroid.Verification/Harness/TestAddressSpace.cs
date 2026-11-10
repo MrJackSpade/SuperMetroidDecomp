@@ -115,11 +115,20 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
         throw new InvalidDataException($"Fixture population ${pointer:X4} is unterminated.");
     }
 
-    /// <summary>An empty graphics set for a fixture whose empty population never loads one.</summary>
-    public static RoomEnemyGraphicsSetDefinition UnusedGraphicsSet { get; } = new("unused fixture graphics set");
+    /// <summary>
+    /// Reads the population at <paramref name="pointer"/>, as <see cref="ReadEnemyPopulation(ushort)"/> does, and records that
+    /// it draws under the graphics set at <paramref name="graphicsSetPointer"/> (#1599), as a room header naming both would:
+    /// the import's knowledge of the set, which the population's artwork is composed from.
+    /// </summary>
+    public RoomEnemyPopulationDefinition ReadEnemyPopulation(ushort pointer, ushort graphicsSetPointer)
+    {
+        RoomEnemyPopulationDefinition population = ReadEnemyPopulation(pointer);
+        SuperMetroid.TestSupport.RepositoryInstallation.Verification.FixturePopulationSets.Record(population, ReadEnemyGraphicsSet(graphicsSetPointer));
+        return population;
+    }
 
     /// <summary>Reads up to four enemy graphics headers through the native terminator.</summary>
-    public RoomEnemyGraphicsSetDefinition ReadEnemyGraphicsSet(ushort pointer)
+    private RoomEnemyGraphicsSetDefinition ReadEnemyGraphicsSet(ushort pointer)
     {
         int cursor = RoomEnemyRomLayout.TilesetBank | pointer;
         var records = new List<RoomEnemyGraphicsSetMember>();

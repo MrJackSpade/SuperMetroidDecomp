@@ -31,7 +31,7 @@ internal static class SpawnedArtHeldOnceVerification
     internal static void VerifySpawnedArtHeldOnce()
     {
         string directory = RepositoryInstallation.Installation.EnemySheetDirectory;
-        SpriteSheet[] sheets = [.. InstalledFixtures.EnemySheets.spawned.Values.SelectMany(SheetsOf)
+        SpriteSheet[] sheets = [.. InstalledFixtures.EnemySheets.spawnedVariants.Values.Select(variant => variant.Sheet).SelectMany(SheetsOf)
             .Distinct<SpriteSheet>(ReferenceEqualityComparer.Instance).OrderBy(sheet => sheet.Image.Name, StringComparer.Ordinal)];
         AssertTrue(sheets.Length > 0, "the installation holds spawned-object sheets");
         var pictures = new HeldPicture[sheets.Length][];
@@ -53,7 +53,7 @@ internal static class SpawnedArtHeldOnceVerification
         Console.WriteLine($"Spawned art held once: {holders.Count} distinct frame pictures of {sheets.Length} installed spawned-object sheets are each held by one sheet.");
     }
 
-    /// <summary>The installed sheets a set's spawned-object pictures for one owner are on: its own sheet and the common sheets.</summary>
+    /// <summary>The installed sheets a variant's spawned-object pictures for one owner are on: its own sheet and the common sheets.</summary>
     private static SpriteSheet[] SheetsOf(SpawnedObjectSheet spawned) => [.. spawned.Sheets];
 
     /// <summary>Each pictured frame of <paramref name="sheet"/> with the fingerprint of everything a draw of it shows.</summary>

@@ -40,7 +40,7 @@ internal static class EnemyDefinitionsVerification
             }
 
             int graphicsAddress = RoomEnemyRomLayout.TilesetBank |
-                RoomEnemyGraphicsSetDefinitions.PointerOf(state.EnemyGraphicsSet);
+                RoomEnemyGraphicsSetDefinitions.PointerOf(RoomEnemyGraphicsSetLists.Of(state));
             for (int slot = 0; slot < 4; slot++)
             {
                 ushort pointerWord = ReadVerificationWord(bus, graphicsAddress);

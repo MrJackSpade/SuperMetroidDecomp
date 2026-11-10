@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Enemies;
 using System.Collections.Immutable;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Areas.Ceres;
@@ -40,7 +41,7 @@ internal static class CeresRidleyPicturesVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.CeresRidley);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        RoomEnemyGraphicsSetDefinition set = runtime.Enemies.GraphicsSet.LoadedSet;
+        RoomEnemyGraphicsSetDefinition set = runtime.Enemies.GraphicsSet;
         AssertEqual(0, UploadedPictureChecks.AssertFramesFollowLooks(set, EncounterArtwork.CeresEscape, "Ceres Ridley's getaway", requireFrames: false),
             "no frame is drawn in Ceres Ridley's escape warning look");
         runtime.EnemySession.Looks.Show(CeresEscapeReadyingDefinitions.WarningLook);
@@ -105,7 +106,7 @@ internal static class CeresRidleyPicturesVerification
         RoomOverlayPictures shown = runtime.Display.Latched.Rooms?.ForegroundText
             ?? throw new InvalidOperationException("The displayed frame shows no warning over BG1.");
         BgTilePicture?[] shownCells = TwoScreenTilemapCells.Lay(shown.Pictures);
-        ReadOnlySpan<byte> page = EnemySheetFixtures.LivePage(runtime.Enemies.GraphicsSet.LoadedSet, UploadedPictureChecks.Shown(runtime)).Characters;
+        ReadOnlySpan<byte> page = EnemySheetFixtures.LivePage(runtime.Enemies.GraphicsSet, UploadedPictureChecks.Shown(runtime)).Characters;
         int written = 0;
         for (int index = 0; index < TwoScreenTilemapCells.Count; index++)
         {

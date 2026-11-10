@@ -86,7 +86,8 @@ internal static class CrocomireBodyVisualsVerification
             CrocomireBg2FrameDefinitions.Frames.Length,
             "forty-two Crocomire body roots have a BG2 half");
 
-        EnemyGraphicsSet crocomireSet = CrocomireSet(stock);
+        // The graphics set Crocomire's room loads, which gives the tile base and colours his room draws him at.
+        RoomEnemyGraphicsSetDefinition crocomireSet = SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.Crocomire);
         int tileBase = crocomireSet.TileBaseOf(EnemyDefinitionId.Crocomire);
         int indexesRow = crocomireSet.DrawRow(EnemyDefinitionId.Crocomire);
         foreach (ushort pointer in CrocomireBodyVisualDefinitionsConstants.Frames)
@@ -184,7 +185,7 @@ internal static class CrocomireBodyVisualsVerification
             slot.Bind(EnemyDefinitionId.Crocomire, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
             // He draws as his room draws him: at his tile base and in his palette there.
-            enemies.GraphicsSet.LoadGraphicsSet(SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.Crocomire));
+            enemies.DrawUnder(SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.Crocomire));
             slot.Shading = PictureShading.Standard;
             slot.DrawsExtendedFrames = true;
             if (newFrame)
@@ -194,14 +195,6 @@ internal static class CrocomireBodyVisualsVerification
             var oam = new OamBuffer();
             enemies.Drawing.DrawLayersAsOam(oam, new(0, 0), 0, 0);
             return new DrawNativeResult(oam, BossBodyCanvasFixtures.AsVram(image, BossBodyOwner.Crocomire, art.Bosses, EnemyBg2FrameLayoutConstants.VramBase, vram.Bytes.Length));
-        }
-
-        // The graphics set Crocomire's room loads, which gives the tile base and colours his room draws him at.
-        static EnemyGraphicsSet CrocomireSet(InstalledEnemyArtwork art)
-        {
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses };
-            enemies.GraphicsSet.LoadGraphicsSet(SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.Crocomire));
-            return enemies.GraphicsSet;
         }
     }
 }

@@ -20,7 +20,7 @@ internal static class FrozenMetroidShellVerification
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork };
         // The shell draws as a Metroid room loads it: at the Metroid's tile base and in its palette.
-        enemies.GraphicsSet.LoadGraphicsSet(SpawnedObjectFixtures.SetLoading(EnemyDefinitionId.Metroid));
+        enemies.DrawUnder(SpawnedObjectFixtures.SetLoading(EnemyDefinitionId.Metroid));
         int tileBase = enemies.GraphicsSet.TileBaseOf(EnemyDefinitionId.Metroid);
         var slot = enemies.SlotTable.Slots[0];
         slot.Position = slot.Position.WithWhole(new(120, 100));

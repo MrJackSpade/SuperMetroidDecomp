@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Enemies;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
@@ -42,8 +43,9 @@ internal static class GunshipLiftoffPicturesVerification
         RoomEnemySlot bottom = runtime.Enemies.SlotTable.Slots[top.SlotIndex + 1];
         AssertEqual(EnemyDefinitionId.ShipBottomEntrance, bottom.DefinitionId, "the ship's bottom follows its top");
         var camera = new Position16<RoomPixels>(unchecked((ushort)(top.Position.X.Whole - 128)), unchecked((ushort)(top.Position.Y.Whole - 112)));
-        IEnemySheetSource sheets = runtime.EnemySession.Sheets ?? throw new InvalidOperationException("The runtime loads the enemy sheets.");
-        RoomEnemyGraphicsSetDefinition set = runtime.Enemies.GraphicsSet.LoadedSet;
+        // The runtime draws the ship in the variants its room's population places it in.
+        PopulationArtwork artwork = runtime.Enemies.Presentation.Artwork;
+        RoomEnemyGraphicsSetDefinition set = runtime.Enemies.GraphicsSet;
 
         int pictured = 0;
         foreach (EncounterLook look in new[] { EncounterLook.Loaded(EncounterArtwork.Gunship), GunshipTakeoffDefinitions.TakeoffLook })
@@ -62,12 +64,13 @@ internal static class GunshipLiftoffPicturesVerification
             {
                 EnemyFrameId frame = part.Frame ?? throw new InvalidOperationException($"The ship's {part.DefinitionId} shows a frame.");
                 string name = EnemySheetDefinitions.FrameName(frame);
-                IReadOnlyList<EncounterArtwork> changing = sheets.ChangingEncounters(set, part.DefinitionId, name);
+                EnemyArtworkVariant<SpriteSheet> variant = artwork.Enemy(part.DefinitionId);
+                IReadOnlyList<EncounterArtwork> changing = variant.ChangingEncounters(name);
                 if (changing.Count > 0)
                     pictured++;
                 var source = new SpriteSource(SpriteSourceKind.Enemy, part.SlotIndex);
                 ImmutableArray<SpriteDraw> drawn = [.. sprites.Draws.Where(draw => draw.Source == source)];
-                UploadedPictureChecks.AssertDrawnPicture(sheets.For(set, part.DefinitionId).Frame,
+                UploadedPictureChecks.AssertDrawnPicture(variant.Sheet.Frame,
                     UploadedPictureChecks.ExpectedPicture(name, changing, reached), drawn,
                     $"in {look} the ship's {part.DefinitionId}");
 

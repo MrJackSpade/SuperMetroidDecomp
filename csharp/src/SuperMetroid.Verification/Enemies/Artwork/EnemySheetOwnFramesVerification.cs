@@ -51,12 +51,11 @@ internal static class EnemySheetOwnFramesVerification
     internal static void VerifyEnemySheetOwnFrames()
     {
         InstalledEnemySheets installed = InstalledFixtures.EnemySheets;
-        // Each enemy's installed sheets in a stable order, gathered once for every family, and the frames each distinct sheet
-        // holds, which the graphics sets sharing it would otherwise spell out again.
-        Dictionary<EnemyDefinitionId, List<KeyValuePair<EnemySheetKey, SpriteSheet>>> sheetsOf = installed.sheets
-            .OrderBy(entry => entry.Key.Set, StringComparer.Ordinal).ThenBy(entry => entry.Key.Enemy)
-            .GroupBy(entry => entry.Key.Enemy)
-            .ToDictionary(group => group.Key, group => group.ToList());
+        // Each enemy's installed variants in a stable order, gathered once for every family, and the frames each distinct sheet
+        // holds, which the variants sharing it would otherwise spell out again.
+        Dictionary<EnemyDefinitionId, List<EnemyArtworkVariant<SpriteSheet>>> sheetsOf = installed.EnemyVariants
+            .GroupBy(entry => entry.Key)
+            .ToDictionary(group => group.Key, group => group.Select(entry => entry.Value).ToList());
         var heldBy = new Dictionary<SpriteSheet, HashSet<string>>();
         var failures = new List<string>();
         int sheets = 0;
@@ -66,15 +65,16 @@ internal static class EnemySheetOwnFramesVerification
             foreach ((EnemyDefinitionId enemy, IReadOnlySet<EnemyFrameId> own) in family.Own)
             {
                 EnemyFrameId[] foreign = [.. family.Tables.Where(frame => !own.Contains(frame)).Order()];
-                foreach ((EnemySheetKey key, SpriteSheet sheet) in sheetsOf.GetValueOrDefault(enemy, []))
+                foreach (EnemyArtworkVariant<SpriteSheet> variant in sheetsOf.GetValueOrDefault(enemy, []))
                 {
+                    SpriteSheet sheet = variant.Sheet;
                     familySheets++;
                     if (!heldBy.TryGetValue(sheet, out HashSet<string>? held))
                         heldBy.Add(sheet, held = [.. sheet.frames.Keys.Concat(sheet.blanks).Select(picture => picture.Split('|')[0])]);
                     foreach (EnemyFrameId frame in foreign)
                     {
                         if (held.Contains(EnemySheetDefinitions.FrameName(frame)))
-                            failures.Add($"{family.Name}: {key.Set} {key.Enemy} ({sheet.Image.Name}) holds {frame}, which no program or state of {key.Enemy} shows");
+                            failures.Add($"{family.Name}: {variant.Name} ({sheet.Image.Name}) holds {frame}, which no program or state of {enemy} shows");
                     }
                 }
             }

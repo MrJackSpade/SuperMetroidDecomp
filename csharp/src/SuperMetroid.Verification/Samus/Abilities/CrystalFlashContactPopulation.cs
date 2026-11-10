@@ -14,27 +14,22 @@ internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, Pos
     public RoomEnemyDefinition ReadEnemyDefinition(EnemyDefinitionId pointer) =>
         RoomEnemyHeaders.Get(pointer);
 
-    /// <summary>Places one stationary Ripper at Samus's contact position for the damage frame.</summary>
+    /// <summary>
+    /// Places one stationary Ripper at Samus's contact position for the damage frame, drawn under a retail set that loads a
+    /// Ripper first, as this fixture's did, so it draws in a variant the installation composes (#1435, #1599).
+    /// </summary>
     public RoomEnemyPopulationDefinition ReadEnemyPopulation(ushort pointer)
     {
         if (pointer != CrystalFlashContactDefinitions.Pointer)
             throw new ArgumentOutOfRangeException(nameof(pointer));
-        return new RoomEnemyPopulationDefinition("Crystal Flash contact Ripper",
+        var population = new RoomEnemyPopulationDefinition("Crystal Flash contact Ripper",
         [
             SuperMetroid.AssetExtraction.Enemies.RoomEnemyPopulationRecordCodec.Decode(CrystalFlashContactDefinitions.RipperHeader,
                 position.X, position.Y, 0, CrystalFlashContactDefinitions.Properties, 0, 0, 0),
         ], 0);
-    }
-
-    /// <summary>
-    /// Draws the constructed Ripper under a retail set that loads a Ripper first, as this fixture's did, so it draws from
-    /// sheets the installation composes (#1435).
-    /// </summary>
-    public static RoomEnemyGraphicsSetDefinition ReadEnemyGraphicsSet(ushort pointer)
-    {
-        if (pointer != CrystalFlashContactDefinitions.Pointer)
-            throw new ArgumentOutOfRangeException(nameof(pointer));
-        return RoomEnemyGraphicsSetDefinitions.RedTower;
+        SuperMetroid.TestSupport.RepositoryInstallation.Verification.FixturePopulationSets.Record(population,
+            SuperMetroid.AssetExtraction.Enemies.RoomEnemyGraphicsSetDefinitions.RedTower);
+        return population;
     }
 
     /// <summary>Uses the compiled falling-tube placement; this fixture constructs none.</summary>

@@ -67,7 +67,7 @@ internal static class SpriteColouringAccess
     /// <summary>Rows of an enemy's colours.</summary>
     extension(RoomEnemySlot self)
     {
-        /// <summary>The row the slot's draws select under <paramref name="enemies"/>' loaded graphics set.</summary>
+        /// <summary>The row the slot's draws select under the graphics set <paramref name="enemies"/>' room draws under.</summary>
         internal int PaletteRowIn(RoomEnemySystem enemies) =>
             RowSelectedBy(self.Shading, enemies.GraphicsSet.DrawRow(self.DefinitionId));
 
@@ -80,7 +80,7 @@ internal static class SpriteColouringAccess
     extension(SpriteGraphics self)
     {
         /// <summary>
-        /// The row the graphics' draws select under <paramref name="enemies"/>' loaded graphics set: their sheet's, the row
+        /// The row the graphics' draws select under the graphics set <paramref name="enemies"/>' room draws under: their sheet's, the row
         /// of their spawner, or the common row for the shared sheet and a spawner drawing from character zero, unless a
         /// selection shade names another.
         /// </summary>
@@ -90,11 +90,11 @@ internal static class SpriteColouringAccess
         internal int FixedPaletteRow => RowSelectedBy(self.Shading, EnemySheetRowDefinitions.Common);
     }
 
-    /// <summary>Rows of a loaded graphics set's members.</summary>
-    extension(EnemyGraphicsSet self)
+    /// <summary>Rows of a graphics set's members.</summary>
+    extension(RoomEnemyGraphicsSetDefinition self)
     {
         /// <summary>The row <paramref name="enemy"/>'s sheets are coloured in under the set.</summary>
-        internal int DrawRow(EnemyDefinitionId enemy) => new GraphicsSetRows(SuperMetroid.TestSupport.RepositoryInstallation.Verification.FixtureGraphicsSetMembers.MembersOf(self.LoadedSet), EnemyGraphicsSetPaletteRowDefinitions.Rows).RowOf(enemy);
+        internal int DrawRow(EnemyDefinitionId enemy) => new GraphicsSetRows(SuperMetroid.TestSupport.RepositoryInstallation.Verification.FixtureGraphicsSetMembers.MembersOf(self), EnemyGraphicsSetPaletteRowDefinitions.Rows).RowOf(enemy);
 
         /// <summary>
         /// The row the objects of <paramref name="owner"/> are coloured in under the set: the common row for the shared sheet,

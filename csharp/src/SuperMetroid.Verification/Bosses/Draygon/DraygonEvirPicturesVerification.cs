@@ -43,13 +43,13 @@ internal static class DraygonEvirPicturesVerification
         RoomSpriteObject evir = runtime.Enemies.SpriteObjects.SpawnRoomSpriteObject(EvirPosition,
             RoomSpriteObjectKind.DraygonIntroEvir, SpriteGraphics.SharedIn(SuperMetroid.Core.Bosses.Draygon.DraygonColours.Evirs));
 
-        RoomEnemyGraphicsSetDefinition set = runtime.Enemies.GraphicsSet.LoadedSet;
+        RoomEnemyGraphicsSetDefinition set = runtime.Enemies.GraphicsSet;
         SpawnedObjectOwner owner = evir.Graphics.Owner;
         string frame = EnemySheetDefinitions.SpriteObjectFrameName(RoomSpriteObjectVisualDefinitions.ShownFrames.Of(evir.Frame));
-        // The runtime draws from the sheets it loaded with its installation.
-        IEnemySheetSource sheets = runtime.EnemySession.Sheets ?? throw new InvalidOperationException("The runtime loads the enemy sheets.");
-        AssertEqual(0, sheets.SpawnedChangingEncounters(set, owner, frame).Count, $"no look gameplay shows changes the Evir's frame {frame}");
-        SpawnedObjectSheet sheet = sheets.Spawned(set, owner);
+        // The runtime draws from the artwork it loaded with its installation for the room's population.
+        EnemyArtworkVariant<SpawnedObjectSheet> variant = runtime.Enemies.Presentation.Artwork.Spawned(owner);
+        AssertEqual(0, variant.ChangingEncounters(frame).Count, $"no look gameplay shows changes the Evir's frame {frame}");
+        SpawnedObjectSheet sheet = variant.Sheet;
         AssertTrue(sheet.frames.ContainsKey(frame), $"the spawned objects' sheets hold the Evir's finished picture under its frame's name {frame}");
         UploadedPictureChecks.AssertDrawnPicture(sheet.Frame, frame, AssertDrawnLikeParts(runtime, set, evir, "as it spawns"),
             "an Evir shows its finished picture of the Evirs' tiles");

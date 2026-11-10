@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

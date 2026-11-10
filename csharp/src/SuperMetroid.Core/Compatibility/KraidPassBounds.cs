@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
 /// The bounds Kraid's mouth pass and body pass test each projectile against, as the previous hit in the same pass left
-/// them (#1476). Each pass places Kraid's mouth rectangle once, then tests the projectiles from the last slot down; a
+/// them (#1476). Each pass places Kraid's mouth rectangle once, then tests the projectiles <see cref="KraidShotPassReach"/> names, in its order; a
 /// hit leaves its own values over the bounds, and every later projectile in that pass is tested against those leftovers
 /// with wrapped signed comparisons:
 /// <list type="bullet">

@@ -109,9 +109,9 @@ internal static class RoomEnemySystemAccess
             if (kraid is null || body.DefinitionId != EnemyDefinitionId.Kraid ||
                 body.Presence.HasAny(EnemyPresence.Deleted))
                 return 0;
-            var shots = new KraidBehavior.KraidShotSlots(projectiles, sharedProjectiles);
-            return self.KraidBehavior.Combat.ResolveKraidMouthProjectileHits(body, kraid, shots) +
-                self.KraidBehavior.Combat.ResolveKraidBodyProjectileHits(body, kraid, shots);
+            IReadOnlyList<KraidBehavior.KraidPassProjectile> tested = KraidBehavior.TestedByShotPasses(projectiles, sharedProjectiles);
+            return self.KraidBehavior.Combat.ResolveKraidMouthProjectileHits(body, kraid, tested) +
+                self.KraidBehavior.Combat.ResolveKraidBodyProjectileHits(body, kraid, tested);
         }
 
         /// <summary>Botwoon's live state while its room is loaded.</summary>

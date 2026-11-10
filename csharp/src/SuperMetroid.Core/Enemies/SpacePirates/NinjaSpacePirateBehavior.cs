@@ -81,7 +81,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         NinjaSpacePirateProgram initial = startsAtLeft
             ? NinjaSpacePirateProgram.InitialFacingRight
             : NinjaSpacePirateProgram.InitialFacingLeft;
-        state.Program = AnimationProgramCursor<NinjaSpacePirateProgram>.Start(initial);
+        state.Playback = new(NinjaSpacePirateAnimations.StartingWith(initial), AnimationPlace.StartOfAnimation);
         state.ActiveProgram = initial;
 
         // The post distance describes the requested distance between posts. The setup
@@ -631,7 +631,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         NinjaSpacePirateEnemyState state,
         NinjaSpacePirateProgram program)
     {
-        state.Program = AnimationProgramCursor<NinjaSpacePirateProgram>.Start(program);
+        state.Playback = new(NinjaSpacePirateAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
     }
 
@@ -659,9 +659,11 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
 
     /// <summary>Advances the ninja Space Pirate's typed animation.</summary>
     internal void AdvanceNinjaSpacePirateTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>
-        EnemyProgramAnimation.Advance(slot, NinjaSpacePirateAnimations.Programs, NinjaSpacePirateFrameDefinitions.ShownFrames.Of,
-            static (NinjaSpacePirateEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
-            (state, cue, _) => ApplyNinjaSpacePirateCue(slot, cue, context.Samus));
+        EnemyProgramAnimation.Advance(slot, NinjaSpacePirateAnimations.Segments, NinjaSpacePirateFrameDefinitions.ShownFrames.Of,
+            static (NinjaSpacePirateEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            (state, cue) => ApplyNinjaSpacePirateCue(slot, cue, context.Samus) is { } continuesAt
+                ? new AnimationContinuation<NinjaSpacePirateProgram>(NinjaSpacePirateAnimations.StartingWith(continuesAt), AnimationPlace.StartOfAnimation)
+                : null);
 
 
     /// <summary>Accepts gold ninja extended-hitbox bomb overlaps without damage or generic death.</summary>

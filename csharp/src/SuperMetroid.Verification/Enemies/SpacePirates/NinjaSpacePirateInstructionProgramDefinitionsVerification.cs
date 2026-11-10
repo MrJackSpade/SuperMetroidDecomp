@@ -83,8 +83,8 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
         foreach (NinjaSpacePirateProgram program in programs)
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, SamusState samus) = CreateSystem();
-            (enemies.NinjaSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires the initialized ninja state.")).Program =
-                AnimationProgramCursor<NinjaSpacePirateProgram>.Start(program);
+            (enemies.NinjaSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires the initialized ninja state.")).Playback =
+                new(NinjaSpacePirateAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             slot.FrameHold = WrappingCountdown.Start(1);
             RunFrames(enemies, slot, samus, 140);
         }
@@ -194,8 +194,8 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
         void VerifyClawAttack(NinjaSpacePirateProgram program, int expectedFirstXOffset)
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, SamusState samus) = CreateSystem();
-            (enemies.NinjaSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires the initialized ninja state.")).Program =
-                AnimationProgramCursor<NinjaSpacePirateProgram>.Start(program);
+            (enemies.NinjaSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires the initialized ninja state.")).Playback =
+                new(NinjaSpacePirateAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             slot.FrameHold = WrappingCountdown.Start(1);
             RunFrames(enemies, slot, samus, 40);
             NinjaSpacePirateEnemyState state = (enemies.NinjaSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NinjaSpacePirateStates[0]."));
@@ -212,8 +212,8 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
         void VerifyDive(NinjaSpacePirateProgram program, NinjaSpacePirateFunction function)
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, SamusState samus) = CreateSystem();
-            (enemies.NinjaSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires the initialized ninja state.")).Program =
-                AnimationProgramCursor<NinjaSpacePirateProgram>.Start(program);
+            (enemies.NinjaSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires the initialized ninja state.")).Playback =
+                new(NinjaSpacePirateAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             slot.FrameHold = WrappingCountdown.Start(1);
             RunFrames(enemies, slot, samus, 3);
             AssertEqual(function, (enemies.NinjaSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NinjaSpacePirateStates[0].")).Function,

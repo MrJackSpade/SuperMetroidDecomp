@@ -334,7 +334,7 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(WalkingSpacePirateAnimations), "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/WalkingSpacePirateAnimations.cs");
         RequireTypedFrames(WallSpacePirateAnimations.Programs, WallSpacePirateFrameToolingDefinitions.Spritemap, WallSpacePirateFrameToolingDefinitions.Bank,
             nameof(WallSpacePirateAnimations), "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/WallSpacePirateAnimations.cs");
-        RequireTypedFrames(NinjaSpacePirateAnimations.Programs, NinjaSpacePirateFrameToolingDefinitions.Spritemap, NinjaSpacePirateFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(NinjaSpacePirateAnimations.Segments, NinjaSpacePirateFrameToolingDefinitions.Spritemap, NinjaSpacePirateFrameToolingDefinitions.Bank,
             nameof(NinjaSpacePirateAnimations), "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/NinjaSpacePirateAnimations.cs");
         int headPoses = Enum.GetValues<KraidHeadProgram>().Sum(program =>
             KraidHeadAnimations.Programs.Steps(program).Count(step => step is AnimationProgramStep<KraidHeadProgram, KraidHeadFrame, KraidHeadCue>.ShowStep));

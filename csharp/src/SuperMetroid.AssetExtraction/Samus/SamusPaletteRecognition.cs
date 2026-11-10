@@ -5,22 +5,11 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
-/// Compares Samus's supplied beam, Crystal Flash and hurt colours with their calculated paint and keeps only the colours
-/// the calculation does not reproduce, the form the game resolves those colours from.
+/// Compares Samus's supplied Crystal Flash and hurt colours with their calculated paint and keeps only the colours the
+/// calculation does not reproduce, the form the game resolves those colours from.
 /// </summary>
 internal static class SamusPaletteRecognition
 {
-    /// <summary>Stores independently edited beam colors while deriving unchanged words from stock paint.</summary>
-    internal static InstalledBeamPalettes Beams(RgbColor[][] selections)
-    {
-        var palettes = new Dictionary<TableColourPlace, RgbColor>();
-        for (int index = 0; index < selections.Length; index++)
-            for (int color = 0; color < BeamPaletteDefinitions.ColorCount; color++)
-                if (selections[index][color] != BeamPaint.Color(SamusBeamCombinationTableOrder.FromTableIndex(index), color))
-                    palettes.Add(new TableColourPlace(index, color), selections[index][color]);
-        return new(palettes);
-    }
-
     /// <summary>
     /// Discards stock Crystal Flash body frames only after checking every supplied color, and keeps only the bubble
     /// samples the rotating ramp does not reproduce, the independently painted stock white among them.

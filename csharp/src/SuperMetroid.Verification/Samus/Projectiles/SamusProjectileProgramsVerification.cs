@@ -12,8 +12,9 @@ namespace SuperMetroid.Verification.Samus.Projectiles;
 
 /// <summary>
 /// #1301: the Samus projectiles' typed programs, each matched step by step to its bank-$93 list: every timed record's
-/// duration, address, spritemap, radii and animation frame, every goto, fall-through and delete, the native address
-/// each step stands for, the word before each list, and every projectile header's list fields.
+/// duration, address, radii and animation frame, every goto, fall-through and delete, the native address each step
+/// stands for, the word before each list, and every projectile header's list fields. What each record pictures is
+/// installed, and <see cref="ProjectileFrameBindingsVerification"/> checks the import's bindings against each record.
 /// </summary>
 internal static class SamusProjectileProgramsVerification
 {
@@ -53,7 +54,6 @@ internal static class SamusProjectileProgramsVerification
                     AssertEqual(new SamusProjectileFrame(program, shown++), show.Frame, $"{at}: the program's next record");
                     SamusProjectileRecord record = SamusProjectileRecordDefinitions.Get(show.Frame);
                     AssertEqual(cursor, SamusProjectileProgramAddresses.RecordAddress(show.Frame), $"{at}: record address");
-                    AssertEqual(Word(cursor + 2), record.Spritemap, $"{at}: spritemap");
                     ushort radii = Word(cursor + 4);
                     AssertEqual(new Extent16<RoomPixels>(LittleEndianBytes.LowByte(radii), LittleEndianBytes.HighByte(radii)), record.Radius, $"{at}: radii");
                     AssertEqual(Word(cursor + 6), record.AnimationFrame, $"{at}: animation frame");

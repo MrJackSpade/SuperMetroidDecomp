@@ -8,32 +8,16 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <summary>The installed beam characters by combination, with the beam palettes; the projectile sheets are composed from them.</summary>
 public sealed class BeamTileCatalog : IInstalledArtworkContent
 {
-    /// <summary>Selected 256-byte beam atlases, with native aliases sharing matching tile pixels.</summary>
-    internal readonly BeamTileAtlas[] sheets;
+    /// <summary>Every combination's installed 256-byte beam atlas, by artwork ordinal.</summary>
+    private readonly BeamTileAtlas[] sheets;
     /// <summary>Gets the optional installed beam and grapple palette catalog paired with these tile sheets.</summary>
     public InstalledBeamPalettes? Palettes { get; }
     /// <summary>Gets the optional installed fixed-color cycle used by the Hyper Beam visual effect.</summary>
     public HyperBeamFxColours? HyperBeamFxColors { get; }
-    /// <summary>Establishes primary-sheet pixel sharing before whole-sheet combination aliases.</summary>
+    /// <summary>Keeps every combination's installed atlas, each read as installed.</summary>
     internal BeamTileCatalog(BeamTileAtlas[] sheets, InstalledBeamPalettes? palettes,
         HyperBeamFxColours? hyperBeamFxColors)
     {
-        // Establish the five primary sheets before their combination aliases. Immutable
-        // references share only matching pixels; separately supplied edits remain isolated.
-        for (int index = 0; index < BeamTileAtlasDefinitions.SelectionCount; index++)
-        {
-            SamusBeamCombination selection = SamusBeamCombinationTableOrder.FromTableIndex(index);
-            if (BeamTileAtlasDefinitions.CanonicalSelection(selection) != selection) continue;
-            if (BeamTileAtlasDefinitions.SharedTileSourceSelection(selection) is SamusBeamCombination source)
-                sheets[index] = sheets[index].SharePixelsFrom(sheets[source.TableIndex], sharing: BeamTileSharing.SharedTiles);
-        }
-        for (int index = 0; index < BeamTileAtlasDefinitions.SelectionCount; index++)
-        {
-            SamusBeamCombination selection = SamusBeamCombinationTableOrder.FromTableIndex(index);
-            SamusBeamCombination source = BeamTileAtlasDefinitions.CanonicalSelection(selection);
-            if (source != selection)
-                sheets[index] = sheets[index].SharePixelsFrom(sheets[source.TableIndex], sharing: BeamTileSharing.WholeSheet);
-        }
         this.sheets = sheets;
         Palettes = palettes;
         HyperBeamFxColors = hyperBeamFxColors;

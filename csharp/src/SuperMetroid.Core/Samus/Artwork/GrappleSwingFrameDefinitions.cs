@@ -5,6 +5,4 @@ public static class GrappleSwingFrameDefinitions
 {
     /// <summary>Grapple swing art has 32 orientation frames per facing.</summary>
     public const int FrameCount = 32;
-    /// <summary>The angle selector rounds to the nearest eight-angle frame, wrapping at 32.</summary>
-    public static int FrameForAngle(TrigonometryAngle angle) => ((angle.RawValue + 4) >> 3) & (FrameCount - 1);
 }

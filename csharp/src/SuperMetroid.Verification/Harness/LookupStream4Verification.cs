@@ -1344,8 +1344,6 @@ internal static class LookupStream4Verification
     {
         byte[] source = BeamPaletteExtractor.Extract(rom);
         var stock = BeamPaletteFile.Read(new MemoryStream(source));
-        var stored = stock.palettes;
-        AssertEqual(0, stored.Count, "Every stock beam color calculates with zero overrides");
         var artwork = BeamTileCatalog.Load(BeamTileExtractor.Extract(rom), stock);
         for (int selection = 0; selection < 12; selection++)
         {
@@ -1358,8 +1356,8 @@ internal static class LookupStream4Verification
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + color * 2)), shown[color], "Beam paint preserves native selected rows");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.Colours(SamusBeamCombinationTableOrder.FromTableIndex(invalid)), "Calculated beam colors preserve selection bounds");
-        Console.WriteLine("Beam paint:192 native selected words,zero stock overrides and12 actual masked-selection producers pass.");
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.Colours(SamusBeamCombinationTableOrder.FromTableIndex(invalid)), "Installed beam colors preserve selection bounds");
+        Console.WriteLine("Beam paint:192 native selected words and12 actual masked-selection producers pass.");
     }
 
     /// <summary>Checks Ridley movement policy constants and branch data against the cartridge.</summary>
@@ -2459,82 +2457,27 @@ internal static class LookupStream4Verification
         Console.WriteLine("Ridley ordered spawning: native twelve-call order, exact RNG assignment, partial/full pool exhaustion and one-shot retry behavior pass.");
     }
 
-    /// <summary>Checks beam tile geometry and installed VRAM words against native layouts.</summary>
+    /// <summary>Checks the installed beam tiles and their VRAM words against the native uploads.</summary>
     internal static void VerifyLookupStream4BeamTileGeometry(ISnesAddressSpace rom)
     {
-        int diagonalX = CartridgeImportSource.Require(rom).ReadCartridgeWord(0x93D110) & 0x1FF;
-        if (diagonalX >= 0x100) diagonalX -= 0x200;
-        AssertEqual(diagonalX, SpazerCompositionGeometryDefinitions.DiagonalFirstPairOriginX, "shared diagonal origin matches original component");
-        AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x93D112)), SpazerCompositionGeometryDefinitions.DiagonalFirstPairOriginY, "shared diagonal Y remains exact source input");
-        AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x93D6EE)), SpazerCompositionGeometryDefinitions.HorizontalStripOriginY, "horizontal strip centers the native small OBJ");
-        AssertEqual(0x32, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x93D113) & 0x1FF, "first H-flipped diagonal component is raw tile2");
-        AssertEqual(0x31, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x93D118) & 0x1FF, "second H-flipped diagonal component is raw tile1");
-        AssertEqual(0x4000, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x93D113) & 0x4000, "diagonal first component horizontal flip");
-        AssertEqual(0x4000, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x93D118) & 0x4000, "diagonal second component horizontal flip");
-        AssertEqual(16, SpazerCompositionGeometryDefinitions.DiagonalStripWidth, "two adjacent small cells form the strip width");
-        AssertEqual(2, BeamTileAtlasDefinitions.SpazerRibbonThickness, "required horizontal artwork thickness stays explicit");
         var files = BeamTileExtractor.Extract(rom);
         var palettes = BeamPaletteFile.Read(new MemoryStream(BeamPaletteExtractor.Extract(rom)));
         var catalog = BeamTileCatalog.Load(files, palettes);
-        int derivedTotal = 0;
-        int runtimeBasisTotal = 0;
-        var compiled = catalog.sheets;
         for (int selection = 0; selection < 12; selection++)
         {
             int sourceAddress = 0x9a0000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x90c3b1 + selection * 2));
             byte[] native = Enumerable.Range(0, 256).Select(offset => rom.ReadCartridgeByte(sourceAddress + offset)).ToArray();
             byte[] png = files[BeamTileAtlasDefinitions.FileName(SamusBeamCombinationTableOrder.FromTableIndex(selection))];
             var atlas = BeamTileAtlas.Load(new MemoryStream(png), SamusBeamCombinationTableOrder.FromTableIndex(selection));
-            var stored = atlas.pixels;
-            int expectedBasis = selection switch { 0 => 224, 2 => 288, 1 or 3 => 400, >= 4 and <= 7 => 181, _ => 299 };
-            AssertEqual(expectedBasis, stored.Count, "Beam sheet stores exactly its required pixel basis with no stock derived fallbacks");
-            for (int pixel = 0; pixel < 512; pixel++)
-            {
-                bool derived = BeamTileAtlasDefinitions.TryDerivedPixelSource(SamusBeamCombinationTableOrder.FromTableIndex(selection), pixel, out int sourcePixel);
-                if (selection is >= 4 and <= 7 && pixel % 64 / 8 is 1 or 2)
-                    AssertEqual(pixel is not (9 or 74 or 139 or 140 or 399), derived,
-                        "Spazer diagonal geometry and texture retain exactly five original ink seeds");
-                bool ink = BeamTileAtlasDefinitions.TryStockPlasmaInk(SamusBeamCombinationTableOrder.FromTableIndex(selection), pixel, out int selectedInk);
-                AssertEqual((selection & 8) != 0 && pixel is 192 or 193 or 195 or 256 or 257, ink,
-                    "Only the five independently reviewed original Plasma seed positions have retained pen values");
-                AssertEqual(!derived && !ink, stored.ContainsKey(pixel), "Every calculated stock pixel is absent from stored basis");
-                if (derived || ink)
-                {
-                    derivedTotal++;
-                    AssertEqual(ReadPixel(native, pixel), ink ? selectedInk : sourcePixel < 0 ? (byte)0 : ReadPixel(native, sourcePixel),
-                        "Direct transpose, quarter-turn or transparency equals independently decoded native pixels");
-                }
-            }
-            int canonical = BeamTileAtlasDefinitions.CanonicalSelection(SamusBeamCombinationTableOrder.FromTableIndex(selection)).TableIndex;
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x90c3b1 + canonical * 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord((0x90c3b1 + selection * 2)), "Canonical beam family matches original native source-pointer identity");
-            var compiledPixels = compiled[selection].pixels;
-            int expectedRuntimeBasis = selection switch { 0 => 224, 1 => 272, 2 => 288, 4 => 10, 8 => 299, _ => 0 };
-            AssertEqual(expectedRuntimeBasis, compiledPixels.Count, "Runtime catalog stores only independent primary-family artwork pixels");
-            runtimeBasisTotal += compiledPixels.Count;
-            int sharedSelection = BeamTileAtlasDefinitions.SharedTileSourceSelection(SamusBeamCombinationTableOrder.FromTableIndex(selection))?.TableIndex ?? -1;
-            byte[] sharedNative = sharedSelection < 0 ? [] : Enumerable.Range(0, 256)
-                .Select(offset => rom.ReadCartridgeByte((0x9a0000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x90c3b1 + sharedSelection * 2))) + offset)).ToArray();
-            for (int pixel = 0; pixel < 512; pixel++)
-            {
-                bool shared = BeamTileAtlasDefinitions.IsSharedTilePixel(SamusBeamCombinationTableOrder.FromTableIndex(selection), pixel);
-                bool geometry = BeamTileAtlasDefinitions.TryDerivedPixelSource(SamusBeamCombinationTableOrder.FromTableIndex(selection), pixel, out _) ||
-                    BeamTileAtlasDefinitions.TryStockPlasmaInk(SamusBeamCombinationTableOrder.FromTableIndex(selection), pixel, out _);
-                AssertEqual(selection == canonical && !shared && !geometry, compiledPixels.ContainsKey(pixel),
-                    "No shared-source, rotation or blank stock pixel is hidden in runtime storage");
-                if (shared)
-                    AssertEqual(ReadPixel(native, pixel), ReadPixel(sharedNative, pixel), "Shared tile relationship matches both independent original ROM sheets");
-            }
-            AssertTrue(native.SequenceEqual(atlas.Characters.Span), "Calculated DMA view matches all256 original bytes per beam selection");
+            AssertTrue(native.SequenceEqual(atlas.Characters.Span), "Installed DMA view matches all256 original bytes per beam selection");
             var directVram = new SnesVram();
             atlas.LoadTo(directVram);
-            AssertTrue(native.SequenceEqual(directVram.Bytes.Slice(0x6300 * 2, 256)), "Actual direct beam upload uses calculated native bytes");
+            AssertTrue(native.SequenceEqual(directVram.Bytes.Slice(0x6300 * 2, 256)), "Actual direct beam upload uses the installed native bytes");
             VerifyQueued(catalog, selection, native);
         }
-        AssertEqual(1093, runtimeBasisTotal, "Runtime native artwork basis excludes exactly the derived row and tile relationships");
-        AssertEqual(2912, derivedTotal, "Twelve standalone selections calculate exactly2912 orientation, row-pattern, blank and approved pen occurrences");
         foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => BeamTileAtlas.Load(new MemoryStream(), SamusBeamCombinationTableOrder.FromTableIndex(invalid)), "Beam atlas rejects unsupported selection before decoding PNG");
-        Console.WriteLine("Beam geometry: twelve native256-byte uploads,5046 calculated/shared pixels,5 narrowly retained pen roles and1093 required basis pixels; exact stock storage and the bound projectile page pass.");
+        Console.WriteLine("Beam tiles: twelve native256-byte uploads and the bound projectile page pass.");
 
         // The projectile page the selection binds shows the calculated characters where `$90:AC8D`'s DMA put them
         // (native immediates: $0100 bytes at VMADD $6300), and leaves the characters around them alone.
@@ -2547,14 +2490,6 @@ internal static class LookupStream4Verification
             AssertTrue(expected.SequenceEqual(page.Slice(first * SpriteArtwork.CharacterByteCount, expected.Length).ToArray()),
                 "The bound page shows the current calculated pixels at native destination6300 without cartridge reads");
             AssertEqual((byte)0, page[first * SpriteArtwork.CharacterByteCount - 1], "Beam characters leave the preceding character alone");
-        }
-
-        static byte ReadPixel(byte[] native, int pixel)
-        {
-            int tile = pixel % 64 / 8, x = pixel % 8, y = pixel / 64, result = 0;
-            for (int plane = 0; plane < 4; plane++)
-                result |= ((native[tile * 32 + plane / 2 * 16 + y * 2 + plane % 2] >> (7 - x)) & 1) << plane;
-            return (byte)result;
         }
     }
 

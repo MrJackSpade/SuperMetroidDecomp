@@ -72,11 +72,11 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>The session's unauthored Speed Booster cadence, bound into the flashback Samus.</summary>
     public required UnauthoredBoostCadence UnauthoredBoostCadence { get; init; }
 
-    /// <summary>Host-owned frame artwork for the Mother Brain flashback projectile slots.</summary>
+    /// <summary>Host-owned frame artwork for the Mother Brain flashback's projectile and bomb slots.</summary>
     public InstalledProjectileFrameBindings? ProjectileFrameBindings
     {
         get => flashbackProjectiles.Animation.FrameBindings;
-        set => flashbackProjectiles.Animation.FrameBindings = value;
+        set => flashbackProjectiles.Animation.FrameBindings = flashbackBombProjectiles.FrameBindings = value;
     }
 
     /// <summary>Installed background, object, and palette content for the intro scenes.</summary>

@@ -3,19 +3,31 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>
-/// Visual composition selection for every timed projectile record. Durations,
-/// trail values, radii, damage, and instruction control flow are compiled separately.
+/// The composition every timed projectile record draws, as installed (#1596). Durations, trail values, radii, damage and
+/// instruction control flow are gameplay, held apart from this picture binding.
 /// </summary>
 public sealed class InstalledProjectileFrameBindings
 {
-    /// <summary>Only frame bindings that differ from the records' stock compositions, by record.</summary>
-    internal readonly Dictionary<SamusProjectileFrame, ProjectileSpriteId> sprites;
+    /// <summary>The composition each timed record draws, for every record.</summary>
+    private readonly Dictionary<SamusProjectileFrame, ProjectileSpriteId> sprites;
 
-    /// <summary>Retains the override lookup the import pipeline validated, detached from editable JSON.</summary>
-    internal InstalledProjectileFrameBindings(Dictionary<SamusProjectileFrame, ProjectileSpriteId> sprites) => this.sprites = sprites;
+    /// <summary>Takes the composition of every timed record, as the import pipeline validated it.</summary>
+    /// <param name="sprites">The composition each record draws; it must bind every record and nothing else.</param>
+    /// <exception cref="ArgumentException">A record is unbound, or a binding names no record.</exception>
+    internal InstalledProjectileFrameBindings(Dictionary<SamusProjectileFrame, ProjectileSpriteId> sprites)
+    {
+        Ensure.NotNull(sprites);
+        int records = 0;
+        foreach ((SamusProjectileProgram program, SamusProjectileRecord[] shown) in SamusProjectileRecordDefinitions.ByProgram)
+            for (int show = 0; show < shown.Length; show++, records++)
+                if (!sprites.ContainsKey(new SamusProjectileFrame(program, show)))
+                    throw new ArgumentException($"Timed projectile record {program} {show} has no installed composition.", nameof(sprites));
+        if (sprites.Count != records)
+            throw new ArgumentException($"{sprites.Count - records} installed compositions bind no timed projectile record.", nameof(sprites));
+        this.sprites = sprites;
+    }
 
-    /// <summary>Returns the composition one timed projectile record draws: an installed override or the record's stock composition.</summary>
+    /// <summary>Returns the composition one timed projectile record draws.</summary>
     /// <param name="frame">The timed record.</param>
-    internal ProjectileSpriteId Resolve(SamusProjectileFrame frame) =>
-        sprites.TryGetValue(frame, out ProjectileSpriteId sprite) ? sprite : SamusProjectileRecordDefinitions.Get(frame).Sprite;
+    internal ProjectileSpriteId Resolve(SamusProjectileFrame frame) => sprites[frame];
 }

@@ -8,17 +8,15 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <summary>Immutable Grapple visual attributes; cadence, placement, geometry and physics are not editable here.</summary>
 public sealed class InstalledGrappleSprites
 {
-    /// <summary>Independent rope appearances, absent when all four frames match calculated stock.</summary>
-    internal readonly SpritePart[]? segments;
-    /// <summary>Selected single-piece endpoint appearance used by both connected and unconnected drawing paths; native $94:B13D/$B17D supplies character $20, palette 5 and priority 3.</summary>
+    /// <summary>The installed appearance of each of the rope's four timed frames (#1596).</summary>
+    private readonly SpritePart[] segments;
+    /// <summary>Selected single-piece endpoint appearance used by both connected and unconnected drawing paths.</summary>
     public SpritePart Endpoint { get; }
-    /// <summary>Retains the selected endpoint and only the rope frame styles that depart from stock.</summary>
+    /// <summary>Keeps the installed endpoint and every rope frame's installed appearance.</summary>
     private InstalledGrappleSprites(SpritePart endpoint, SpritePart[] segments)
     {
         Endpoint = endpoint;
-        for (int frame = 0; frame < segments.Length; frame++)
-            if (segments[frame] != GrappleSpriteDefinitions.StockSegment(frame))
-            { this.segments = segments; return; }
+        this.segments = segments;
     }
     /// <summary>Resolves one rope animation frame's selected appearance without advancing any segment's independent gameplay timer.</summary>
     /// <param name="frame">Zero-based frame 0..3 in native $94:B18B..B19A record order.</param>
@@ -26,7 +24,7 @@ public sealed class InstalledGrappleSprites
     /// <exception cref="InvalidDataException"><paramref name="frame"/> is outside the four segment appearances.</exception>
     public SpritePart Segment(int frame)
         => (uint)frame < GrappleSpriteDefinitions.SegmentFrameCount
-            ? segments is null ? GrappleSpriteDefinitions.StockSegment(frame) : segments[frame]
+            ? segments[frame]
             : throw new InvalidDataException($"Invalid Grapple visual frame {frame}.");
 
     /// <summary>Strict camel-case JSON settings shared by grapple sprite import and export.</summary>
@@ -37,7 +35,7 @@ public sealed class InstalledGrappleSprites
         WriteIndented = true,
     };
 
-    /// <summary>Validates endpoint and four rope appearances, preserving authored differences from stock.</summary>
+    /// <summary>Validates the endpoint and four rope appearances and keeps each as installed.</summary>
     /// <param name="json">Case-sensitive UTF-8 JSON read from its current position; the caller retains ownership of the stream.</param>
     /// <returns>An immutable appearance catalog that does not retain mutable document arrays or control rope geometry, cadence or physics.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>

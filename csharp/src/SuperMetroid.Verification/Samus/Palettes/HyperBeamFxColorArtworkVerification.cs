@@ -18,10 +18,10 @@ using SuperMetroid.AssetExtraction.Fx.Artwork;
 
 namespace SuperMetroid.Verification.Samus.Palettes;
 
-/// <summary>Checks extracted Hyper Beam palette artwork against native CGRAM frames, reconstruction rules and malformed JSON.</summary>
+/// <summary>Checks extracted Hyper Beam palette artwork against native CGRAM frames and malformed JSON.</summary>
 internal static class HyperBeamFxColorArtworkVerification
 {
-    /// <summary>Compares all ten native timed frames with the installed shades the ROM-free palette loop names, then verifies shared-channel reconstruction, input ownership and malformed document rejection.</summary>
+    /// <summary>Compares all ten native timed frames with the installed shades the ROM-free palette loop names, then verifies malformed document rejection.</summary>
     internal static void VerifyHyperBeamFxColorArtwork(ISnesAddressSpace bus)
     {
         byte[] json = HyperBeamFxColorExtractor.Extract(bus);
@@ -32,131 +32,6 @@ internal static class HyperBeamFxColorArtworkVerification
         AssertEqual(HyperBeamPaletteFxColorDefinitions.ColorsPerFrame,
             HyperBeamFxColorFormat.ColorsPerFrame, "Extracted Hyper Beam color count matches compiled control");
 
-        var stored = catalog.colors;
-        AssertEqual(2, stored.Count, "Shared endpoint extrema remove eight whole inputs");
-        var endpointInputs = catalog.endpointInputs;
-        AssertEqual(8, endpointInputs.Count, "Eight endpoint colors keep only independent channels");
-        int endpointComponentCount = 0;
-        foreach (var entry in endpointInputs)
-        {
-            int frame = entry.Key / 8, color = entry.Key % 8;
-            HyperBeamFxColorFormat.TrySharedEndpoint(frame, color, RgbColor.FromWord(checked(ReadVerificationWord(bus, 0x8dd906))),
-                RgbColor.FromWord(checked(ReadVerificationWord(bus, 0x8dd90c))), out RgbColor basis, out int independentMask);
-            AssertEqual(ReadVerificationWord(bus, 0x8dd906 + 20 * frame + 2 * color), entry.Value.Apply(basis), "Original endpoint shared extrema");
-            for (int channel = 0; channel < 3; channel++)
-            {
-                int? fieldValue = entry.Value.Component(channel);
-                AssertEqual((independentMask & 1 << channel) != 0, fieldValue.HasValue, "Only independent original endpoint channels are stored");
-                if (fieldValue.HasValue) endpointComponentCount++;
-            }
-        }
-        AssertEqual(14, endpointComponentCount, "Fourteen endpoint components replace twenty-four");
-        for (int mask = 0; mask < 8; mask++)
-        {
-            var zero = new LoadingPaletteInputView.Channels(new RgbColor(0, 0, 0), new RgbColor(0, 0, 0), mask);
-            for (int channel = 0; channel < 3; channel++)
-                AssertEqual((mask & 1 << channel) != 0, zero.Component(channel) is not null,
-                    "Independent zero channels are kept as inputs");
-            for (int rgb = 0; rgb < 32768; rgb++)
-            {
-                ushort basis = (ushort)(32767 - rgb);
-                AssertEqual((ushort)rgb, new LoadingPaletteInputView.Channels(RgbColor.FromWord(checked((ushort)rgb)), RgbColor.FromWord(checked(basis)), mask).Apply(RgbColor.FromWord(checked(basis))), "Complete RGB5 capture for every independent channel mask");
-            }
-        }
-        int neutralIntensity = catalog.neutralIntensity;
-        AssertEqual(ReadVerificationWord(bus, 0x8dd906) & 31, neutralIntensity, "Original neutral intensity");
-        object neutralOverrides = catalog.neutralOverrides;
-        foreach (var field in MetadataShape.Fields(typeof(LoadingPaletteInputView.Channels), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
-            AssertTrue(field.GetValue(neutralOverrides) is null, "No duplicate original neutral channels are stored");
-        for (int intensity = 0; intensity < 32; intensity++)
-            AssertEqual((ushort)(intensity * 1057), HyperBeamFxColorFormat.Neutral(intensity), "Complete neutral RGB5 domain");
-        foreach (int invalidIntensity in new[] { int.MinValue, -1, 32, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => HyperBeamFxColorFormat.Neutral(invalidIntensity), "Neutral intensity bounds");
-        var shadeInputs = catalog.shadeInputs;
-        AssertEqual(4, shadeInputs.Count, "Four middle colors have differing components");
-        int shadeComponentCount = 0;
-        foreach (var entry in shadeInputs)
-        {
-            int frame = entry.Key / 8, color = entry.Key % 8;
-            ushort native = ReadVerificationWord(bus, 0x8dd906 + 20 * frame + 2 * color);
-            ushort first = ReadVerificationWord(bus, 0x8dd906 + 20 * frame + 2 * (color - 1));
-            ushort second = ReadVerificationWord(bus, 0x8dd906 + 20 * frame + 2 * (color + 1));
-            for (int channel = 0; channel < 3; channel++)
-            {
-                int shift = 5 * channel;
-                int expected = (int)Math.Ceiling(((first >> shift & 31) + (second >> shift & 31)) / 2.0);
-                int? differing = (native >> shift & 31) == expected ? null : native >> shift & 31;
-                int? actual = entry.Value.Component(channel);
-                AssertEqual(differing, actual, "Only originally differing middle-shade channels are stored");
-                if (actual.HasValue) shadeComponentCount++;
-            }
-        }
-        AssertEqual(6, shadeComponentCount, "Six differing middle-shade components remain under review");
-        var pairedInputs = catalog.pairedInputs;
-        AssertEqual(7, pairedInputs.Count, "Hue endpoint transforms remove two paired inputs");
-        int pairedComponentCount = 0;
-        foreach (var entry in pairedInputs)
-        {
-            int frame = entry.Key / 8, color = entry.Key % 8;
-            ushort original = ReadVerificationWord(bus, 0x8dd906 + 20 * frame + 2 * color);
-            ushort whiteSource = ReadVerificationWord(bus, 0x8dd906), redSource = ReadVerificationWord(bus, 0x8dd90c);
-            int sharedRed = frame == 0 ? whiteSource & 31 : redSource & 31;
-            int sharedGreen = frame == 4 ? redSource & 31 : redSource >> 5 & 31;
-            AssertEqual(original, entry.Value.Resolve(frame == 0, sharedRed, sharedGreen), "Original paired endpoint shared-intensity reconstruction");
-            foreach (var field in MetadataShape.Fields(typeof(InstalledHyperBeamFxColors.PairedChannels), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
-                if (field.GetValue(entry.Value) is not null) pairedComponentCount++;
-            AssertTrue(entry.Value.blue is null,
-                "No original duplicate blue channel is stored");
-        }
-        AssertEqual(7, pairedComponentCount, "Seven varying paired components remain; duplicate extrema are calculated");
-        for (int rgb = 0; rgb < 32768; rgb++)
-        foreach (bool redHue in new[] { false, true })
-        {
-            AssertEqual((ushort)rgb, new InstalledHyperBeamFxColors.PairedChannels(RgbColor.FromWord(checked((ushort)rgb)), redHue).Resolve(redHue),
-                "Complete RGB5 endpoint inputs preserve their blue channels");
-            int redComponent = rgb & 31, greenComponent = rgb >> 5 & 31;
-            AssertEqual((ushort)rgb, new InstalledHyperBeamFxColors.PairedChannels(RgbColor.FromWord(checked((ushort)rgb)), redHue, redComponent, greenComponent)
-                .Resolve(redHue, redComponent, greenComponent), "All RGB5 shared extrema preserve supplied colors");
-        }
-        for (int color = 4; color < 8; color++)
-            AssertEqual(ReadVerificationWord(bus, 0x8dd906 + 40 + color * 2),
-                HyperBeamHues.YellowFromGreen(RgbColor.FromWord(checked(ReadVerificationWord(bus, 0x8dd906 + 80 + color * 2)))),
-                "Every original yellow highlight derives from its green hue");
-        for (int ink = 4; ink <= 7; ink++)
-            AssertEqual(ReadVerificationWord(bus, 0x8dd906 + 2 * ink),
-                HyperBeamFxColorFormat.RedHighlight(RgbColor.FromWord(checked(ReadVerificationWord(bus, 0x8dd90c))), RgbColor.FromWord(checked(ReadVerificationWord(bus, 0x8dd906))), ink),
-                "Every original red highlight is a fifth-step white blend");
-        // Each first endpoint's pairs and weights run on one worker; the highlight blend is pure.
-        ParallelSweep.For(0, 32768, first =>
-        {
-            for (int second = 0; second < 32; second++)
-            for (int ink = 4; ink <= 7; ink++)
-            {
-                double whiteWeight = (8 - ink) / 5.0;
-                int expected = 0;
-                for (int shift = 0; shift < 15; shift += 5)
-                    expected |= (int)Math.Round((first >> shift & 31) * (1 - whiteWeight) + second * whiteWeight) << shift;
-                AssertEqual((ushort)expected, HyperBeamFxColorFormat.RedHighlight(RgbColor.FromWord(checked((ushort)first)), RgbColor.FromWord((ushort)(second * 1057)), ink),
-                    "All RGB5 first endpoints and independent channel pairs for every highlight weight");
-            }
-        });
-        foreach (int invalidInk in new[] { int.MinValue, -1, 0, 1, 2, 3, 8, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => HyperBeamFxColorFormat.RedHighlight(new RgbColor(0, 0, 0), new RgbColor(0, 0, 0), invalidInk), "Highlight ink bounds");
-        foreach (var shade in new[] { new VerifyHyperBeamFxColorArtworkCase(Frame:0, Ink:2), new VerifyHyperBeamFxColorArtworkCase(Frame:4, Ink:5), new VerifyHyperBeamFxColorArtworkCase(Frame:8, Ink:2), new VerifyHyperBeamFxColorArtworkCase(Frame:8, Ink:5) })
-            AssertEqual(ReadVerificationWord(bus, 0x8dd906 + 20 * shade.Frame + 2 * shade.Ink),
-                HyperBeamHues.HueMidpoint(
-                    RgbColor.FromWord(checked(ReadVerificationWord(bus, 0x8dd906 + 20 * shade.Frame + 2 * (shade.Ink - 1)))),
-                    RgbColor.FromWord(checked(ReadVerificationWord(bus, 0x8dd906 + 20 * shade.Frame + 2 * (shade.Ink + 1))))),
-                "Every original within-hue shade midpoint");
-        ushort nativeRedEndpoint = ReadVerificationWord(bus, 0x8dd90c);
-        AssertEqual(ReadVerificationWord(bus, 0x8dd964), HyperBeamFxColorFormat.GreenFromRed(RgbColor.FromWord(checked(nativeRedEndpoint))), "Original saturated green endpoint");
-        AssertEqual(ReadVerificationWord(bus, 0x8dd9a8), HyperBeamHues.MagentaFromRed(RgbColor.FromWord(checked(nativeRedEndpoint))), "Original saturated magenta endpoint");
-        for (int rgb = 0; rgb < 32768; rgb++)
-        {
-            int redComponent = rgb % 32, greenComponent = rgb / 32 % 32, blueComponent = rgb / 1024;
-            AssertEqual((ushort)(greenComponent + 32 * redComponent + 1024 * blueComponent), HyperBeamFxColorFormat.GreenFromRed(RgbColor.FromWord(checked((ushort)rgb))), "Complete RGB5 red-to-green domain");
-            AssertEqual((ushort)(redComponent + 32 * greenComponent + 1024 * redComponent), HyperBeamHues.MagentaFromRed(RgbColor.FromWord(checked((ushort)rgb))), "Complete RGB5 red-to-magenta domain");
-        }
         // The Hyper Beam lays a cycle frame's shade over her beams; the import pre-colours each frame's shade from the
         // installed cycle, whose colours each step compares with the cartridge's frame.
         var extracted = new HyperBeamPaletteFxState();
@@ -187,19 +62,6 @@ internal static class HyperBeamFxColorArtworkVerification
 
         foreach (int invalidFrame in new[] { -1, 10, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => colours.Frame(invalidFrame), "FX frame bounds");
-        for (int frame = 0; frame < 10; frame++)
-        for (int color = 0; color < 8; color++)
-        {
-            bool middleShade = (frame & 1) == 0 && color == 2 || frame is 4 or 6 or 8 && color == 5;
-            bool transformedEndpoint = frame == 4 && color == 7 || frame == 8 && color == 1;
-            bool pairedOwner = !middleShade && !transformedEndpoint && (frame == 0 && color == 3 || frame == 4 && color >= 4 || frame == 8 && color != 0);
-            AssertEqual(pairedOwner, pairedInputs.ContainsKey(frame * 8 + color), "Original paired endpoint ownership");
-            bool sharedEndpoint = frame == 0 && color == 1 || frame == 2 && color is 1 or 3 ||
-                frame == 4 && color is 1 or 3 || frame == 6 && color is 1 or 3 or 4;
-            AssertEqual(sharedEndpoint, endpointInputs.ContainsKey(frame * 8 + color), "Shared endpoint ownership");
-            AssertEqual((frame & 1) == 0 && color != 0 && !(frame == 2 && color >= 4) && !pairedOwner && !middleShade && !transformedEndpoint && !sharedEndpoint && !(frame == 0 && color >= 4), stored.ContainsKey(new TableColourPlace(frame, color)),
-                "Original FX input ownership");
-        }
         string source = Encoding.UTF8.GetString(json);
         AssertThrows<InvalidDataException>(() => HyperBeamFxColorFile.Read(
             new MemoryStream(Encoding.UTF8.GetBytes(source.Insert(1, "\"version\":1,")))),
@@ -216,7 +78,7 @@ internal static class HyperBeamFxColorArtworkVerification
         invalid = JsonNode.Parse(json);
         (invalid ?? throw new InvalidOperationException("Verification requires invalid.")).Required("frames").Required(0).Required(0)["damage"] = 1;
         Reject(invalid, "Gameplay property in Hyper Beam FX artwork rejected");
-        Console.WriteLine("Hyper Beam FX colors: 80 ROM words, all ten timed frames and loop, full-CGRAM parity, ROM-free live cycle, input ownership and strict JSON pass.");
+        Console.WriteLine("Hyper Beam FX colors: 80 ROM words, all ten timed frames and loop, full-CGRAM parity, ROM-free live cycle and strict JSON pass.");
 
         static void Reject(JsonNode document, string message) => AssertThrows<InvalidDataException>(
             () => HyperBeamFxColorFile.Read(

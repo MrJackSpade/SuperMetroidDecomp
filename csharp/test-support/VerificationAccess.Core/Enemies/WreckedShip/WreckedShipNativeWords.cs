@@ -12,7 +12,7 @@ internal static class WreckedShipNativeWords
     internal static readonly NativeWordIdentities<WreckedShipGhostAiFunction> WreckedShipGhostAiFunctions = new(new Dictionary<WreckedShipGhostAiFunction, ushort>
     {
         [WreckedShipGhostAiFunction.BrighteningAndFlickering] = 0x9b42,
-        [WreckedShipGhostAiFunction.FadingToGhostPalette] = 0x9bad,
+        [WreckedShipGhostAiFunction.FadingToGhostColours] = 0x9bad,
         [WreckedShipGhostAiFunction.WaitingForWhiteFade] = 0x9c69,
         [WreckedShipGhostAiFunction.BobbingWhileVisible] = 0x9c8a,
         [WreckedShipGhostAiFunction.InitialInvisibleDelay] = 0x9d13,

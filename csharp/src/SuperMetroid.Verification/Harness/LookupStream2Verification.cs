@@ -169,7 +169,7 @@ internal static class LookupStream2Verification
         slot.Shading = PictureShading.Standard;
         var state = new WreckedShipGhostEnemyState { PhaseTimer = 2 };
         Action<RoomEnemySlot, WreckedShipGhostEnemyState> brightening = WreckedShipGhostBehavior.RunWreckedShipGhostBrightening;
-        Func<RoomEnemySlot, WreckedShipGhostEnemyState, int> fade = WreckedShipGhostBehavior.StepWreckedShipGhostPaletteTowardTarget;
+        Func<RoomEnemySlot, WreckedShipGhostEnemyState, int> fade = WreckedShipGhostBehavior.StepWreckedShipGhostFadeTowardTarget;
         Dictionary<PictureShade, RgbColor[]> installedSteps = EnemySheetShades.GhostFadeSteps().ToDictionary(step => step.Shade, step => step.Colours);
         var native = new ushort[16];
         for (int color = 0; color < native.Length; color++)
@@ -184,13 +184,13 @@ internal static class LookupStream2Verification
         for (int call = 1; call <= 31; call++)
         {
             brightening(slot, state);
-            AssertTrue(state.Function != WreckedShipGhostAiFunction.FadingToGhostPalette, $"White flash call {call} still brightens");
+            AssertTrue(state.Function != WreckedShipGhostAiFunction.FadingToGhostColours, $"White flash call {call} still brightens");
             AssertEqual(PictureShading.Shaded(new PictureShade(WreckedShipGhostShades.BrighteningEffect, call)), slot.Shading,
                 $"White flash call {call} shows its brightening step's shade");
         }
         AssertTrue(state.Fade.Shown.ToArray().All(colour => colour == RgbColor.White), "White flash reaches white in every colour");
         brightening(slot, state);
-        AssertEqual(WreckedShipGhostAiFunction.FadingToGhostPalette, state.Function, "White flash installs native target palette phase");
+        AssertEqual(WreckedShipGhostAiFunction.FadingToGhostColours, state.Function, "White flash installs native target palette phase");
         AssertTrue(state.Fade.Target.SequenceEqual(ToColors(native)), "Actual target buffer includes unused sprite slots");
         for (int tick = 1; tick <= 32; tick++)
         {

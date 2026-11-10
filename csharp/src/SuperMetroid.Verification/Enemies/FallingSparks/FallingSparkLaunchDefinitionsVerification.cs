@@ -22,7 +22,7 @@ internal static class FallingSparkLaunchDefinitionsVerification
         int advances = 0;
         enemies.VerificationServices().NextRandom = () => { advances++; return random; };
         Action<RoomEnemySlot> spawn = enemies.FallingSparksBehavior.SpawnFallingSpark;
-        Action<RoomEnemyProjectileSlot> move = FallingSparksBehavior.AddFallingSparkHorizontalVelocity;
+        Action<EnemyProjectile> move = FallingSparksBehavior.AddFallingSparkHorizontalVelocity;
         var source = enemies.SlotTable.Slots[0];
         var projectile = enemies.Projectiles.EnemyProjectiles[^1];
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -34,7 +34,7 @@ internal static class FallingSparkLaunchDefinitionsVerification
             var compiled = FallingSparkLaunches.FromRandom(random, () => unauthored);
             AssertEqual(whole, compiled.UnsignedWholePixels, "Every RNG word preserves native spark whole velocity");
             AssertEqual(fraction, compiled.Fraction, "Every RNG word preserves native spark fractional velocity");
-            projectile.Clear();
+            projectile.Delete();
             projectile.Velocity = new(new SignedEightEight(0xffff), new SignedEightEight(0xffff));
             source.Position = new(new((ushort)raw, (ushort)raw), new((ushort)(ushort.MaxValue - raw), (ushort)(ushort.MaxValue - raw)));
             advances = 0;

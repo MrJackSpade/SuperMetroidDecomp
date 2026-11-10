@@ -63,7 +63,7 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
         {
             RoomEnemySystem enemies = NewSystem();
             enemies.MotherBrainBehavior.FakeDeath.SpawnMotherBrainTopTube(item.Kind, new Position16<RoomPixels>(item.X, item.Y));
-            RoomEnemyProjectileSlot tube = enemies.Projectiles.EnemyProjectiles.Single(
+            EnemyProjectile tube = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == item.Kind);
             AssertEqual(item.Program, NativePointer(tube),
                 $"real {item.Kind} producer selects its named pose");
@@ -79,7 +79,7 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
 
         RoomEnemySystem shotSystem = NewSystem();
         shotSystem.MotherBrainBehavior.FakeDeath.SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopRightTube, new Position16<RoomPixels>(152, 47));
-        RoomEnemyProjectileSlot shot = shotSystem.Projectiles.EnemyProjectiles.Single(
+        EnemyProjectile shot = shotSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainTopRightTube);
         shot.StartAnimation(EnemyProjectileDeleteAnimation.Instance);
         RunForcedTick(shotSystem, shot);
@@ -99,7 +99,7 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
             "four real producers, terminal sleeps, shared deletion, and four native " +
             "sprite compositions pass with zero live operand reads.");
 
-        ushort NativePointer(RoomEnemyProjectileSlot projectile) =>
+        ushort NativePointer(EnemyProjectile projectile) =>
             nativePointers(projectile.Animation ?? throw new InvalidOperationException("A ceiling tube runs a typed animation."))
                 ?? throw new InvalidOperationException("The ceiling tube runs another family's animation.");
 
@@ -111,7 +111,7 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
             return enemies;
         }
 
-        void RunForcedTick(RoomEnemySystem enemies, RoomEnemyProjectileSlot projectile)
+        void RunForcedTick(RoomEnemySystem enemies, EnemyProjectile projectile)
         {
             projectile.FrameHold = WrappingCountdown.Start(1);
             enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), Position16<RoomPixels>.Zero);

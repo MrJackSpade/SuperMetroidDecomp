@@ -50,7 +50,7 @@ internal sealed class DraygonTurrets
         if (state.DisabledCannons.Contains(target.Cannon))
             return;
 
-        RoomEnemyProjectileSlot? turret = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? turret = _projectiles.AllocateEnemyProjectile();
         if (turret is null)
             return;
 

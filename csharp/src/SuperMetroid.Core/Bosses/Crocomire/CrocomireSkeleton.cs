@@ -150,8 +150,8 @@ internal sealed class CrocomireSkeleton
         state.Colours.ShowSkeletonArm();
         body.Shading = state.Colours.OverSprites(EnemyShades.HurtFlashLook);
 
-        foreach (RoomEnemyProjectileSlot projectile in _projectiles.EnemyProjectiles)
-            projectile.Clear();
+        foreach (EnemyProjectile projectile in _projectiles.EnemyProjectiles)
+            projectile.Delete();
         SpawnCrocomireSpikeWallPieces();
         _access.RequestCrocomireSound(CrocomireSoundDefinitions.SpikeWallBreak);
         state.DeathPhase = state.DeathPhase.Next();
@@ -286,7 +286,7 @@ internal sealed class CrocomireSkeleton
 
         for (int count = 0; count < CrocomireSpikeMotionDefinitions.PieceCount; count++)
         {
-            RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+            EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
             if (projectile is null)
                 return;
 

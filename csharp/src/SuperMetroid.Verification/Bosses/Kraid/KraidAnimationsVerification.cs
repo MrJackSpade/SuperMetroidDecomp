@@ -168,7 +168,7 @@ internal static class KraidAnimationsVerification
             (RoomEnemySystem enemies, _, _, _) = NewKraid();
             enemies.VerificationServices().ReadRandom = () => 32;
             AssertTrue(enemies.KraidBehavior.Head.SpawnKraidSpitRock(NewRockSource()), "the real spit producer allocates a rock");
-            RoomEnemyProjectileSlot rock = enemies.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.KraidSpitRock);
+            EnemyProjectile rock = enemies.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.KraidSpitRock);
             rock.StartAnimation(new KraidRockAnimation(program));
             var native = new NativeEnemyProjectileListReader(entry, rock.FrameHold.RawValue);
             for (int update = 0; update < 40 && !native.Deleted; update++)
@@ -225,7 +225,7 @@ internal static class KraidAnimationsVerification
                      new VerifyRockProducersCase(RoomEnemyProjectileKind.KagoBug, KraidRockProgram.SharedPose),
                  })
         {
-            RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles.Single(item => item.Kind == kind);
+            EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles.Single(item => item.Kind == kind);
             AssertTrue(projectile.Animation is KraidRockAnimation started && started.Program == program, $"{kind} starts the {program} program");
         }
     }

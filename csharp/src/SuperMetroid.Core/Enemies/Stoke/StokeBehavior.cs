@@ -217,7 +217,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal void SpawnStokeProjectile(RoomEnemySlot stoke, StokeDirection direction)
     {
-        RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
 
@@ -233,7 +233,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the projectile's per-frame behaviour: the projectile flies sideways at its speed until it leaves the view.</summary>
     internal static void RunStokeProjectileFrameBehavior(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         Position16<RoomPixels> camera)
     {
         projectile.Position = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta());

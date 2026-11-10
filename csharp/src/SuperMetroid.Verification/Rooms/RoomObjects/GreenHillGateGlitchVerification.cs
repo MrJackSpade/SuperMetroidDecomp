@@ -88,7 +88,7 @@ internal static class GreenHillGateGlitchVerification
         runtime.StepFrame(0);
         gate = runtime.RoomObjects.PopulationSlots.Single(slot =>
             slot.HeaderPointer == RoomObjectHeaderId.DownwardGate);
-        RoomEnemyProjectileSlot gateActor = runtime.Enemies.Projectiles.EnemyProjectiles.Single(projectile =>
+        EnemyProjectile gateActor = runtime.Enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.IsActive &&
             projectile.Kind == RoomEnemyProjectileKind.DownwardGateClosed);
         ushort closedGateY = gateActor.Position.Y.Whole;

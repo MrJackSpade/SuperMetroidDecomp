@@ -50,7 +50,7 @@ internal static class TourianStatueUnlockDefinitionsVerification
 
             Position16<RoomPixels> expected =
                 TourianStatueNativeWords.Eye(parameter).Position;
-            RoomEnemyProjectileSlot projectile =
+            EnemyProjectile projectile =
                 enemies.Projectiles.EnemyProjectiles.Single(candidate => candidate.IsActive);
             AssertEqual(expected.X, projectile.Position.X.Whole,
                 $"production Tourian unlock X {parameter}/{soul}");

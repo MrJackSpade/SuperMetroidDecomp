@@ -21,11 +21,11 @@ internal static class PuromiArcPositionVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Pillar);
 
-        RoomEnemyProjectileSlot[] bodies = runtime.Enemies.Projectiles.EnemyProjectiles
+        EnemyProjectile[] bodies = runtime.Enemies.Projectiles.EnemyProjectiles
             .Where(projectile => projectile.Kind == RoomEnemyProjectileKind.NuclearWaffleBody)
             .ToArray();
         AssertEqual(8, bodies.Length, "the Pillar room spawns one Puromi's eight body projectiles");
-        foreach (RoomEnemyProjectileSlot body in bodies)
+        foreach (EnemyProjectile body in bodies)
             AssertEqual(nativeBodyY, body.Position.Y.Whole, "Puromi body projectile spawn Y");
         Console.WriteLine("Puromi arc position: the arc uses the negative eight-bit sine, matching native spawn Y.");
     }

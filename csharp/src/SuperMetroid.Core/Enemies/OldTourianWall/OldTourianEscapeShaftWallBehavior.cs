@@ -32,7 +32,7 @@ internal sealed class OldTourianEscapeShaftWallBehavior
     public void SpawnOldTourianEscapeShaftWallExplosion()
     {
         _room.EnsureLoaded();
-        RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return; // Spawning fails when all eighteen projectile slots are live.
 
@@ -52,7 +52,7 @@ internal sealed class OldTourianEscapeShaftWallBehavior
         table.AddCue<OldTourianWallExplosionCue>((context, cue) => ApplyWallExplosionCue(context.Projectile, cue));
 
     /// <summary>Carries out one command of the wall explosion's program.</summary>
-    private void ApplyWallExplosionCue(RoomEnemyProjectileSlot projectile, OldTourianWallExplosionCue cue)
+    private void ApplyWallExplosionCue(EnemyProjectile projectile, OldTourianWallExplosionCue cue)
     {
         switch (cue)
         {
@@ -68,7 +68,7 @@ internal sealed class OldTourianEscapeShaftWallBehavior
                     OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.ExplosionSoundPriority);
                 break;
             case OldTourianWallExplosionCue.Delete:
-                projectile.Clear();
+                projectile.Delete();
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(OldTourianWallExplosionCue)} {cue}.");

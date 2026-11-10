@@ -1288,7 +1288,7 @@ internal static class RoomObjectPopulationVerification
             ProjectileSpritemaps = EnemyProjectileSpritemapDocuments.Load(new MemoryStream(
                 EnemyProjectileSpritemapDocuments.Write(artworkDocument))) });
 
-        RoomEnemyProjectileSlot electricity = enemies.Projectiles.EnemyProjectiles.Single(
+        EnemyProjectile electricity = enemies.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.SaveStationElectricity);
         AssertEqual(0x0130, electricity.Position.X.Whole,
             "save electricity starts one block right of the station PLM");

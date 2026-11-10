@@ -32,24 +32,24 @@ internal static class MagdolliteLavaBehaviorVerification
         enemies.MagdolliteBehavior.SpawnMagdolliteLava(source, throwsRight: true);
         foreach ((ushort direction, MagdolliteLavaProgram program) in new VerifyMagdolliteLavaBehaviorCase[] { new VerifyMagdolliteLavaBehaviorCase(0, MagdolliteLavaProgram.Left), new VerifyMagdolliteLavaBehaviorCase(1, MagdolliteLavaProgram.Right) })
         {
-            RoomEnemyProjectileSlot lava = Find(direction);
+            EnemyProjectile lava = Find(direction);
             AssertTrue(lava.Animation is MagdolliteLavaAnimation animation && animation.Cursor.Program == program, $"direction {direction} starts {program}");
             (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, lava, MagdolliteLavaNativeListAddresses.Entry(program), 6, program.ToString());
             AssertTrue(!deleted, $"{program} holds its frame");
         }
 
-        RoomEnemyProjectileSlot shot = Find(0);
+        EnemyProjectile shot = Find(0);
         shot.StartAnimation(new MagdolliteLavaAnimation(MagdolliteLavaProgram.Shot));
         (bool removed, int updates) = NativeEnemyProjectileParity.Compare(cartridge, enemies, shot, MagdolliteLavaNativeListAddresses.Entry(MagdolliteLavaProgram.Shot), 4, "shot lava");
         AssertTrue(removed && updates == 1, "the shot program deletes the lava on its first pass");
         // $86:DFEA allocates its pickup at the shot lava's position.
-        RoomEnemyProjectileSlot drop = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.EnemyDeathPickup);
+        EnemyProjectile drop = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.EnemyDeathPickup);
         AssertEqual(source.Position.X.Whole, drop.Position.X.Whole, "the drop keeps the lava's X");
         AssertEqual(unchecked((ushort)(source.Position.Y.Whole + 2)), drop.Position.Y.Whole, "the drop keeps the lava's Y");
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the lava's native list bytes");
         Console.WriteLine("  Magdollite lava behavior: both facings hold their frames and the shot program drops and deletes as natively.");
 
-        RoomEnemyProjectileSlot Find(ushort direction) => enemies.Projectiles.EnemyProjectiles.Single(
+        EnemyProjectile Find(ushort direction) => enemies.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.LavaThrownByMagdollite &&
                 (projectile.Velocity.X.SignedRawValue > 0) == (direction != 0));
     }

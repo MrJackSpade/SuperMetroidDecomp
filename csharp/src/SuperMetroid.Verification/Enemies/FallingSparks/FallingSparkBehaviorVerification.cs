@@ -27,7 +27,7 @@ internal static class FallingSparkBehaviorVerification
         RoomEnemySlot source = enemies.SlotTable.Slots[0];
         source.Position = source.Position.WithWhole(new(288, 96));
         enemies.FallingSparksBehavior.SpawnFallingSpark(source);
-        RoomEnemyProjectileSlot spark = enemies.Projectiles.EnemyProjectiles.Single(candidate => candidate.Kind == RoomEnemyProjectileKind.FallingSpark);
+        EnemyProjectile spark = enemies.Projectiles.EnemyProjectiles.Single(candidate => candidate.Kind == RoomEnemyProjectileKind.FallingSpark);
         AssertEqual(FallingSparkProgram.Falling, ProgramOf(spark), "a spawned spark starts its falling program");
         (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, spark, Entry(FallingSparkProgram.Falling), 30, "falling spark flight");
         AssertTrue(!deleted, "the falling program loops until the floor");
@@ -46,7 +46,7 @@ internal static class FallingSparkBehaviorVerification
         NativeEnemyProjectileProgramOracle.EntryOf(FallingSparkNativeListAddresses.Entries, program);
 
     /// <summary>The typed program <paramref name="projectile"/> runs.</summary>
-    private static FallingSparkProgram ProgramOf(RoomEnemyProjectileSlot projectile) =>
+    private static FallingSparkProgram ProgramOf(EnemyProjectile projectile) =>
         projectile.Animation is FallingSparkAnimation animation ? animation.Cursor.Program
             : throw new InvalidOperationException("The spark runs no typed program.");
 

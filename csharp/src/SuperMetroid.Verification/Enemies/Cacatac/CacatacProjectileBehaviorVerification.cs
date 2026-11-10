@@ -23,7 +23,7 @@ internal static class CacatacProjectileBehaviorVerification
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             var source = new RoomEnemySlot(0, EnemySlotFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)) };
             enemies.CacatacBehavior.SpawnCacatacSpike(source, direction);
-            RoomEnemyProjectileSlot spike = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.CacatacSpike);
+            EnemyProjectile spike = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.CacatacSpike);
             CacatacProjectileProgram program = CacatacSpikes.Program(direction);
             AssertTrue(spike.Animation is CacatacProjectileAnimation animation && animation.Cursor.Program == program, $"a {direction} spike starts {program}");
             (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, spike, CacatacProjectileNativeListAddresses.Entry(program), 8, direction.ToString());

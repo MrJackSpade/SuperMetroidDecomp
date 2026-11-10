@@ -14,7 +14,7 @@ internal static class KagoBugProjectileCueRules
         [NativeEnemyProjectileInstruction.KagoBugStartJumpInstruction] = KagoBugProjectileCueKind.StartJump,
         [NativeEnemyProjectileInstruction.KagoBugStartIdleInstruction] = KagoBugProjectileCueKind.StartIdle,
         [NativeEnemyProjectileInstruction.KagoBugSpawnDropInstruction] = KagoBugProjectileCueKind.SpawnDrop,
-        [NativeEnemyProjectileInstruction.KagoBugUsePaletteZeroInstruction] = KagoBugProjectileCueKind.UsePaletteZero,
+        [NativeEnemyProjectileInstruction.KagoBugUsePaletteZeroInstruction] = KagoBugProjectileCueKind.DrawFromSharedSheet,
     };
 
     /// <summary>The oracle rules for the bugs' programs.</summary>

@@ -174,7 +174,7 @@ internal static class SporeSpawnAnimationsVerification
         {
             RoomEnemySystem enemies = NewProjectileSystem();
             enemies.SporeSpawnBehavior.SpawnSporeSpawnSpore(new(128, 256));
-            RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.SporeSpawnSpore);
+            EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.SporeSpawnSpore);
             AssertTrue(projectile.Animation is SporeSpawnProjectileAnimation started &&
                 started.Cursor == AnimationProgramCursor<SporeSpawnProjectileProgram>.Start(SporeSpawnProjectileProgram.Spore),
                 "the real spore producer starts the falling-spore program");

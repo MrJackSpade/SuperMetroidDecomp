@@ -47,7 +47,7 @@ internal static class KraidRockLaunchDefinitionsVerification
         {
             random = (ushort)raw;
             ushort expected = Word(EnemyRomTablePointers.Kraid.RockXVelocityWords + (raw & 14));
-            rock.Clear();
+            rock.Delete();
             rock.Position = rock.Position.WithFractionY(0xffff).WithFractionX(0xffff);
             body.Position = body.Position.WithWhole(new((ushort)raw, (ushort)(ushort.MaxValue - raw)));
             reads = 0;

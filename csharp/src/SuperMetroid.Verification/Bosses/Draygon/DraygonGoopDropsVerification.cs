@@ -48,7 +48,7 @@ internal static class DraygonGoopDropsVerification
             "critical-energy drop becomes a live rendered pickup in the same handler pass");
         AssertEqual(120, pickup.Position.X.Whole, "drop uses destroyed goop world X");
         AssertEqual(240, pickup.Position.Y.Whole, "drop uses destroyed goop world Y");
-        AssertEqual(goop.SlotIndex - 1, pickup.SlotIndex,
+        AssertEqual(goop.Place - 1, pickup.Place,
             "drop allocation occurs before parent deletion in the descending shared pool");
         enemies.StepEnemyProjectiles(runtime.Room.LoadedLevelData, runtime.Player.Samus);
         AssertEqual(1, enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.DropDefinitionId == EnemyDefinitionId.DraygonEye),

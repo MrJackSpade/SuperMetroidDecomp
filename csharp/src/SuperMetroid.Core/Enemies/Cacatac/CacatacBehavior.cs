@@ -195,7 +195,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         // Rejects an odd or out-of-table direction before allocating, as the selector check does.
         CacatacProjectileProgram program = CacatacSpikes.Program(direction);
 
-        RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
 
@@ -213,7 +213,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     /// once outside the view.
     /// </summary>
     internal static void RunCacatacSpikeFrameBehavior(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         Position16<RoomPixels> camera)
     {
         projectile.Position = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta());
@@ -226,7 +226,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     /// bottom edge remains alive; only strictly outside coordinates delete the projectile.
     /// </summary>
     internal static void DeleteEnemyProjectileIfOutsideInclusiveViewport(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         Position16<RoomPixels> camera)
     {
         int right = CoordinateAxis.Wrap(camera.X + 256);
@@ -236,6 +236,6 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
             CoordinateAxis.Difference(projectile.Position.Y.Whole, camera.Y) < 0 ||
             CoordinateAxis.Difference(bottom, projectile.Position.Y.Whole) < 0;
         if (outside)
-            projectile.Clear();
+            projectile.Delete();
     }
 }

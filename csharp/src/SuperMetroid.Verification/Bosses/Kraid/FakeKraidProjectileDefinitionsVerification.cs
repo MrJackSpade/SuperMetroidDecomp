@@ -46,9 +46,9 @@ internal static class FakeKraidProjectileDefinitionsVerification
             AssertEqual(2, state.SpawnedSpitCount,
                 $"Fake Kraid {(movingRight ? "right" : "left")} spit count");
 
-            RoomEnemyProjectileSlot[] spawned = enemies.Projectiles.EnemyProjectiles
+            EnemyProjectile[] spawned = enemies.Projectiles.EnemyProjectiles
                 .Where(projectile => projectile.IsActive)
-                .OrderByDescending(projectile => projectile.SlotIndex)
+                .OrderByDescending(projectile => projectile.Place)
                 .ToArray();
             AssertEqual(2, spawned.Length,
                 $"Fake Kraid {(movingRight ? "right" : "left")} physical spit actors");
@@ -81,7 +81,7 @@ internal static class FakeKraidProjectileDefinitionsVerification
             var state = new FakeKraidEnemyState() { FacingDelta = facingDelta };
             bool spawned = enemies.FakeKraidBehavior.SpawnFakeKraidSpike(source, state, row);
             AssertTrue(spawned, $"Fake Kraid spike row {row} allocated");
-            RoomEnemyProjectileSlot spike = enemies.Projectiles.EnemyProjectiles.Single(
+            EnemyProjectile spike = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.IsActive);
             RoomEnemyProjectileKind expectedKind = facingDelta < 0
                 ? RoomEnemyProjectileKind.FakeKraidSpikeLeft

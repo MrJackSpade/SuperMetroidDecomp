@@ -711,7 +711,7 @@ internal sealed class PhantoonPatterns
     /// <exception cref="ArgumentException"><paramref name="type"/> is the rain producer.</exception>
     internal bool SpawnPhantoonDestroyableFlame(RoomEnemySlot body, PhantoonFlameSpawnType type, int index)
     {
-        RoomEnemyProjectileSlot? flame = AllocateDestroyableFlame(body);
+        EnemyProjectile? flame = AllocateDestroyableFlame(body);
         if (flame is null)
             return false;
         switch (type)
@@ -764,7 +764,7 @@ internal sealed class PhantoonPatterns
     /// <param name="fallDelay">The updates the flame waits before it falls.</param>
     internal bool SpawnPhantoonRainFlame(RoomEnemySlot body, int column, int fallDelay)
     {
-        RoomEnemyProjectileSlot? flame = AllocateDestroyableFlame(body);
+        EnemyProjectile? flame = AllocateDestroyableFlame(body);
         if (flame is null)
             return false;
         flame.State = new PhantoonRainFlameState(fallDelay);
@@ -777,9 +777,9 @@ internal sealed class PhantoonPatterns
 
     /// <summary>Allocates a destroyable flame and gives it the idle program and a still, whole-pixel start.</summary>
     /// <returns>The flame, or null when every enemy projectile slot is in use.</returns>
-    private RoomEnemyProjectileSlot? AllocateDestroyableFlame(RoomEnemySlot body)
+    private EnemyProjectile? AllocateDestroyableFlame(RoomEnemySlot body)
     {
-        RoomEnemyProjectileSlot? flame = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? flame = _projectiles.AllocateEnemyProjectile();
         if (flame is null)
             return null;
 

@@ -136,7 +136,7 @@ internal static class EnemyRomTablePointersVerification
             };
             system.BombTorizoBehavior.BindFixtureState(torizo, facingRight ? 0x8000 : 0, isGolden: true);
             system.BombTorizoBehavior.Attacks.SpawnGoldenTorizoSuperMissile(torizo);
-            RoomEnemyProjectileSlot projectile = system.Projectiles.EnemyProjectiles.Single(
+            EnemyProjectile projectile = system.Projectiles.EnemyProjectiles.Single(
                 candidate => candidate.IsActive);
             AssertEqual(
                 facingRight ? TorizoProjectileProgram.SuperMissileRightInitial : TorizoProjectileProgram.SuperMissileLeftInitial,

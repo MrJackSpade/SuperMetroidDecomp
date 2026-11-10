@@ -42,7 +42,7 @@ internal static class PhantoonDeathExplosionsVerification
             for (int frame = 0; passes < 3; frame++)
             {
                 AssertTrue(frame < 1024, "Death schedule reaches native handoff");
-                if (!full) foreach (var projectile in enemies.Projectiles.EnemyProjectiles) projectile.Clear();
+                if (!full) foreach (var projectile in enemies.Projectiles.EnemyProjectiles) projectile.Delete();
                 bool due = --timer <= 0;
                 int current = index;
                 byte type = rom.ReadCartridgeByte(0xa7da1f + current * 4);

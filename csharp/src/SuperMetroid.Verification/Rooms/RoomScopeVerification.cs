@@ -40,7 +40,7 @@ internal static class RoomScopeVerification
         source.Enemies.RoomStatus.EnemyDoorTransitionActive = true;
         source.Enemies.Elevator.ElevatorDoorTransitionActive = true;
         runtime.EnemySession.CeresStatus = CeresEscapeStatus.RidleyEscaped;
-        RoomEnemyProjectileSlot sourceProjectile = source.Enemies.Projectiles.EnemyProjectiles[3];
+        EnemyProjectile sourceProjectile = source.Enemies.Projectiles.EnemyProjectiles[3];
         sourceProjectile.Position = FixedPosition<RoomPixels>.FromStoredParts(0x0140, 0x1234, 0x0090, 0x5678);
         sourceProjectile.Velocity = new EightEightVector<RoomPixels>(0x0200, unchecked((short)0xFE00));
         SamusProjectileSlot sourceShot = source.Projectiles.SlotTable.Slots[2];
@@ -109,7 +109,7 @@ internal static class RoomScopeVerification
             "the door-transition gates carry into the destination's enemies");
         VerificationAssertions.AssertEqual(CeresEscapeStatus.RidleyEscaped, destination.Enemies.Ceres.CeresStatus,
             "Ceres's escape progress survives the load on the enemy session");
-        RoomEnemyProjectileSlot destinationProjectile = destination.Enemies.Projectiles.EnemyProjectiles[3];
+        EnemyProjectile destinationProjectile = destination.Enemies.Projectiles.EnemyProjectiles[3];
         VerificationAssertions.AssertEqual(FixedPosition<RoomPixels>.FromStoredParts(0x0140, 0, 0x0090, 0), destinationProjectile.Position,
             "an enemy projectile slot's whole coordinates survive the load; its fractions clear");
         VerificationAssertions.AssertEqual(sourceProjectile.Velocity, destinationProjectile.Velocity,

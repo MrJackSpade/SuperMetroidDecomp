@@ -913,7 +913,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal void SpawnKiHunterAcidSpit(RoomEnemySlot body, bool movingRight)
     {
-        RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
 
@@ -939,7 +939,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// then installs the falling mover.
     /// </summary>
     internal static void StartKiHunterAcidMovement(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         HorizontalDirection direction)
     {
         projectile.FrameBehavior = KiHunterAcidMovingFrameBehavior;
@@ -952,7 +952,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// collision swaps to the game splash list; a wall collision only zeros X speed.
     /// </summary>
     internal static void RunKiHunterAcidMovement(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         RoomLevelData level)
     {
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical))

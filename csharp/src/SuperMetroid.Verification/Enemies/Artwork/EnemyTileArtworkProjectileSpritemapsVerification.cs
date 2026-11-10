@@ -546,7 +546,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             enemy.Bind(spawner, CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(spawner));
             enemy.Shading = PictureShading.Standard;
             spawn(enemy);
-            foreach (RoomEnemyProjectileSlot particle in enemies.Projectiles.EnemyProjectiles
+            foreach (EnemyProjectile particle in enemies.Projectiles.EnemyProjectiles
                          .Where(particle => particle.IsActive))
             {
                 particle.FrameHold = WrappingCountdown.Start(1);
@@ -666,7 +666,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         // The frame drawn from the loaded set's sheets under the spawner's graphics.
         static OamBuffer DrawSpawnerFrame(RoomEnemySystem enemies, ushort presentationKey, SpriteGraphics graphics)
         {
-            RoomEnemyProjectileSlot slot = enemies.Projectiles.EnemyProjectiles[0];
+            EnemyProjectile slot = enemies.Projectiles.EnemyProjectiles[0];
             slot.Kind = RoomEnemyProjectileKind.MiscDustExplosion;
             slot.Position = slot.Position.WithWhole(new(128, 96));
             slot.Graphics = graphics;
@@ -706,7 +706,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         static RoomEnemySystem PresentedSystem(InstalledEnemyArtwork artwork, ushort presentationKey, RoomEnemyProjectileKind kind)
         {
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
-            RoomEnemyProjectileSlot slot = enemies.Projectiles.EnemyProjectiles[0];
+            EnemyProjectile slot = enemies.Projectiles.EnemyProjectiles[0];
             slot.Kind = kind;
             slot.Position = slot.Position.WithWhole(new(128, 96));
             // As the typed runner does when it shows the program frame the key installs.
@@ -729,7 +729,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             ISnesAddressSpace source)
         {
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
-            RoomEnemyProjectileSlot slot = enemies.Projectiles.EnemyProjectiles[0];
+            EnemyProjectile slot = enemies.Projectiles.EnemyProjectiles[0];
             slot.Kind = RoomEnemyProjectileKind.NoobTubeShard;
             slot.State = new NoobTubeDebrisState(column: 128);
             slot.Position = slot.Position.WithWhole(new(128, 96));

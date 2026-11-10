@@ -31,7 +31,7 @@ internal static class ProjectileContactPhaseVerification
             level.SetTerrain(y * level.Size.X + x, y == 16 ? RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock) : default);
         foreach (var actor in runtime.Enemies.SlotTable.Slots)
             actor.Presence = actor.Presence.With(EnemyPresence.Deleted);
-        foreach (var actor in runtime.Enemies.Projectiles.EnemyProjectiles) actor.Clear();
+        foreach (var actor in runtime.Enemies.Projectiles.EnemyProjectiles) actor.Delete();
         runtime.InitializeDebugGroundedSamus(128, 235, 16);
         var samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();

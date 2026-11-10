@@ -121,11 +121,11 @@ public sealed class BotwoonEnemyState
     public int? SavedHoleRingIndex { get; internal set; }
 
     /// <summary>Thirteen actors, indexed by spawn argument 0,2,...24 divided by two.</summary>
-    public RoomEnemyProjectileSlot?[] BodySegments { get; } =
-        new RoomEnemyProjectileSlot?[13];
+    public EnemyProjectile?[] BodySegments { get; } =
+        new EnemyProjectile?[13];
 
     /// <summary>The spawned body segment at <paramref name="index"/>; body movement runs only after all thirteen spawn.</summary>
-    internal RoomEnemyProjectileSlot Segment(int index) => BodySegments[index] ??
+    internal EnemyProjectile Segment(int index) => BodySegments[index] ??
         throw new InvalidOperationException($"Botwoon body segment {index} has not spawned or lost its projectile slot.");
 
     /// <summary>

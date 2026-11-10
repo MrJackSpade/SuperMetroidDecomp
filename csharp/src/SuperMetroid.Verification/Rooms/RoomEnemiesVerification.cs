@@ -334,7 +334,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0));
     enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(new SnesVram())));
 
-    RoomEnemyProjectileSlot eyeShot = enemies.Projectiles.EnemyProjectiles[17];
+    EnemyProjectile eyeShot = enemies.Projectiles.EnemyProjectiles[17];
     eyeShot.Kind = RoomEnemyProjectileKind.EyeDoorProjectile;
     eyeShot.Position = eyeShot.Position.WithWhole(new(0x01b5, 0x0180));
     eyeShot.BlocksSamusProjectiles = true;
@@ -643,7 +643,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     AssertEqual(0, ripper.Health, "Ripper Super Missile vulnerability reaches zero health");
     AssertEqual(EnemyDefinitionId.None, ripper.DefinitionId,
         "Ripper generic death clears its common enemy record immediately");
-    RoomEnemyProjectileSlot ripperDeath = enemies.Projectiles.EnemyProjectiles[17];
+    EnemyProjectile ripperDeath = enemies.Projectiles.EnemyProjectiles[17];
     AssertEqual(RoomEnemyProjectileKind.EnemyDeathExplosion, ripperDeath.Kind,
         "Ripper zero health allocates the shared F345 death actor");
     AssertEqual(definitionPointer, ripperDeath.DropDefinitionId,

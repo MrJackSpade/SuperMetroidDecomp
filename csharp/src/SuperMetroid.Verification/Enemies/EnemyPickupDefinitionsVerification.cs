@@ -26,7 +26,7 @@ internal static class EnemyPickupDefinitionsVerification
         for (int index = 1; index <= 5; index++)
         {
             EnemyPickupKind kind = EnemyPickupNativeWords.Selectors.Decode(index, "enemy pickup selector");
-            var projectile = new RoomEnemyProjectileSlot(index)
+            var projectile = new EnemyProjectile(index, default)
             {
                 FrameHold = WrappingCountdown.Start(0xffff),
                 FrameBehavior = EnemyProjectileFrameBehavior.Stationary,

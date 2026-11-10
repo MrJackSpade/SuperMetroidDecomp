@@ -142,7 +142,7 @@ internal static class DownwardGateObjectsVerification
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0));
         enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(0x9600), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(new SnesVram())) { Level = level, Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) });
         enemies.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(request, level.Size.X);
-        RoomEnemyProjectileSlot actor = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
+        EnemyProjectile actor = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
         AssertEqual(RoomEnemyProjectileKind.DownwardGateClosed, actor.Kind,
             "bank-$86 pool owns the closed gate actor");
         AssertEqual(gateBlockIndex, actor.StateOf<DownwardGateState>().RoomObjectBlockIndex,
@@ -212,7 +212,7 @@ internal static class DownwardGateObjectsVerification
         enemies.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(close, level.Size.X);
         for (int frame = 0; frame < 80; frame++)
             enemies.StepEnemyProjectiles(level, samus: null);
-        RoomEnemyProjectileSlot closedActor = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
+        EnemyProjectile closedActor = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
         AssertEqual((ushort)96, closedActor.Position.Y.Whole,
             "moving gate travels four tiles down and remains parked closed");
     }

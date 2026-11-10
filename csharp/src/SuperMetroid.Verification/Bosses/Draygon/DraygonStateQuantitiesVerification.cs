@@ -36,7 +36,7 @@ internal static class DraygonStateQuantitiesVerification
     {
         (RoomEnemySystem enemies, _) = NewDraygon();
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { XSpeedDivisor = 1 };
-        RoomEnemyProjectileSlot goop = AttachedGoop(enemies, lifetime: 2);
+        EnemyProjectile goop = AttachedGoop(enemies, lifetime: 2);
         enemies.DraygonBehavior.Goop.RunAttachedDraygonGoop(goop, samus);
         AssertTrue(goop.IsActive, "an attached goop with lifetime two holds for its first update");
         AssertEqual(1, goop.StateOf<DraygonGoopAttachedState>().Lifetime, "the first update leaves one update of lifetime");
@@ -46,9 +46,9 @@ internal static class DraygonStateQuantitiesVerification
     }
 
     /// <summary>Puts an attached Draygon goop with the given lifetime in the last projectile slot.</summary>
-    private static RoomEnemyProjectileSlot AttachedGoop(RoomEnemySystem enemies, int lifetime)
+    private static EnemyProjectile AttachedGoop(RoomEnemySystem enemies, int lifetime)
     {
-        RoomEnemyProjectileSlot goop = enemies.Projectiles.EnemyProjectiles[^1];
+        EnemyProjectile goop = enemies.Projectiles.EnemyProjectiles[^1];
         goop.Kind = RoomEnemyProjectileKind.DraygonGoop;
         goop.FrameBehavior = EnemyProjectileFrameBehavior.DraygonGoopStuckToSamus;
         goop.State = new DraygonGoopAttachedState(stackPosition: 1) { Lifetime = lifetime };

@@ -26,7 +26,7 @@ internal static class EnemyDropChanceDefinitionsVerification
         };
         // The fixture's population is empty; drop selection reads the chances it is given.
         EnemyDropFixture fixture = CreateEnemyDropFixture(samus, randomValues: [1], CompiledRoomEnemyDefinitions.Instance);
-        var projectile = new RoomEnemyProjectileSlot(1);
+        var projectile = new EnemyProjectile(1, default);
         for (int table = 0; table < EnemyHeaderTableDefinitions.DropChancesCount; table++)
         {
             int word = EnemyHeaderTableDefinitions.FirstDropChances + table * EnemyHeaderTableDefinitions.DropChancesSize;

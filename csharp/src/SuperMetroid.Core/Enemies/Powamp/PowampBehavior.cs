@@ -583,7 +583,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         // eighteen-slot pool from the last slot downward on every iteration.
         for (int direction = 7; direction >= 0; direction--)
         {
-            RoomEnemyProjectileSlot? spike = _projectiles.AllocateEnemyProjectile();
+            EnemyProjectile? spike = _projectiles.AllocateEnemyProjectile();
             if (spike is null)
                 return null;
 
@@ -598,14 +598,14 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             spike.Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole);
             spike.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
             spike.State = new PowampSpikeState(direction);
-            lastSpikePlace = spike.SlotIndex;
+            lastSpikePlace = spike.Place;
         }
         return lastSpikePlace;
     }
 
     /// <summary>Runs the Powamp spike's per-frame behaviour.</summary>
     internal static void RunPowampSpikeFrameBehavior(
-        RoomEnemyProjectileSlot spike,
+        EnemyProjectile spike,
         RoomLevelData level)
     {
         int direction = spike.StateOf<PowampSpikeState>().Direction;
@@ -624,7 +624,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Marks a spike for its deletion list after its movement phase ends.</summary>
-    internal static void BeginPowampSpikeDeletion(RoomEnemyProjectileSlot spike)
+    internal static void BeginPowampSpikeDeletion(EnemyProjectile spike)
     {
         // The program deletes the spike as its first command; starting it at timer one lets the
         // instruction pass carry that out later in this same frame.

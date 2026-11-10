@@ -37,7 +37,7 @@ internal static class MotherBrainDoorFragmentDefinitionsVerification
 
             MotherBrainDoorFragmentDefinition definition =
                 MotherBrainDoorFragments.ForParameter(parameter);
-            RoomEnemyProjectileSlot fragment =
+            EnemyProjectile fragment =
                 enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
             AssertEqual(RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment, fragment.Kind,
                 $"production Mother Brain door fragment kind {parameter}");

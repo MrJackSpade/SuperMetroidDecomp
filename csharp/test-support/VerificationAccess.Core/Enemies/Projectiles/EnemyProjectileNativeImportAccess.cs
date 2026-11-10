@@ -11,7 +11,7 @@ internal static class EnemyProjectileNativeImportAccess
     /// Shows the recorded frame at bank-$86 operand <paramref name="operandAddress"/>: the installed program frame when
     /// the operand names one, otherwise the composition frame drawing the bank-$8D spritemap the cartridge selects there.
     /// </summary>
-    internal static void ShowNativeOperand(RoomEnemyProjectileSlot projectile, ushort operandAddress) =>
+    internal static void ShowNativeOperand(EnemyProjectile projectile, ushort operandAddress) =>
         projectile.Frame = EnemyProjectileProgramFrameOperands.Contains(operandAddress)
             ? EnemyProjectileProgramFrameOperands.Frame(operandAddress)
             : EnemyProjectileSlotFrameAccess.CompositionAt(

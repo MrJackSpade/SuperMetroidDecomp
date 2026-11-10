@@ -293,14 +293,14 @@ internal static void VerifyTypedNativeWords()
         "a countdown start must fit the native word");
     AssertThrows<ArgumentOutOfRangeException>(() => WrappingCountdown.Start(-1), "a countdown start cannot be negative");
 
-    LowHalfCountdownStep laneToZero = WrappingCounter.DecrementLowHalf(0x1201);
+    LowHalfCountdownStep laneToZero = WrappingCountdown.FromRaw(0x1201).DecrementEightBitCount();
     AssertEqual((ushort)0x1200, laneToZero.Remaining.RawValue, "8-bit low-byte DEC keeps the high byte");
     AssertTrue(laneToZero.IsZero && !laneToZero.IsNegative, "8-bit low-byte DEC reports byte-width zero");
-    LowHalfCountdownStep laneWrapped = WrappingCounter.DecrementLowHalf(0x3400);
+    LowHalfCountdownStep laneWrapped = WrappingCountdown.FromRaw(0x3400).DecrementEightBitCount();
     AssertEqual((ushort)0x34ff, laneWrapped.Remaining.RawValue, "8-bit low-byte DEC wraps without borrowing from the high byte");
     AssertTrue(laneWrapped.IsNegative && !laneWrapped.IsZero && laneWrapped.IsZeroOrNegative,
         "8-bit low-byte DEC reports byte-width negative");
-    LowHalfCountdownStep laneHighBitOnly = WrappingCounter.DecrementLowHalf(0x8003);
+    LowHalfCountdownStep laneHighBitOnly = WrappingCountdown.FromRaw(0x8003).DecrementEightBitCount();
     AssertTrue(laneHighBitOnly.IsNonNegative && laneHighBitOnly.Low == 2,
         "8-bit low-byte DEC ignores the high byte's sign bit");
 

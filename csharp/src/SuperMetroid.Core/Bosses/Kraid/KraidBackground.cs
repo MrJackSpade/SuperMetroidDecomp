@@ -60,7 +60,7 @@ internal sealed class KraidBackground
     /// <summary>Emits a ceiling rock at the scripted horizontal position when a slot is free.</summary>
     internal bool SpawnKraidCeilingRock(int xPosition)
     {
-        RoomEnemyProjectileSlot? rock = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? rock = _projectiles.AllocateEnemyProjectile();
         if (rock is null)
             return false;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(

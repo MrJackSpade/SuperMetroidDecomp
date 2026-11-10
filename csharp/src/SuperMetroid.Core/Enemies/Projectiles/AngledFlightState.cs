@@ -32,7 +32,7 @@ internal sealed class AngledFlightState(TrigonometryAngle heading, UnsignedSixte
     /// Moves <paramref name="projectile"/> one update along the heading: each part moves the projectile back along its
     /// axis when the heading's quadrant points that way and forward otherwise, wrapping around the coordinate range.
     /// </summary>
-    internal void Advance(RoomEnemyProjectileSlot projectile)
+    internal void Advance(EnemyProjectile projectile)
     {
         FixedCoordinate x = projectile.Position.X;
         projectile.Position = projectile.Position.WithX(EnemyMath.CosineIsNegative(Heading)

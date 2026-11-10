@@ -24,9 +24,9 @@ internal static class DownwardGateProjectileBehaviorVerification
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, DownwardGateProjectileNativeListAddresses.Extent, "downward gate");
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyProjectileSlot gate = enemies.Projectiles.EnemyProjectiles[0];
+        EnemyProjectile gate = enemies.Projectiles.EnemyProjectiles[0];
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(gate, RoomEnemyProjectileKind.DownwardGateMoving,
-            SuperMetroid.Core.Enemies.SpriteGraphics.Emptied);
+            SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard);
         AssertTrue(gate.Animation is DownwardGateProjectileAnimation { Cursor.Program: DownwardGateProjectileProgram.Moving }, "the moving gate starts its program");
         // The gate's spawn gives it its state; this fixture initializes the projectile directly, so it gives it here.
         gate.State = new DownwardGateState(0);

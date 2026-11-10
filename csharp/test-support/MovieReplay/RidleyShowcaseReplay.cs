@@ -801,8 +801,8 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             if (game.GameState == SuperMetroidGameState.MainGameplay)
             foreach (var projectile in runtime.Enemies.Projectiles.EnemyProjectiles)
             {
-                int index = projectile.SlotIndex * 2;
-                string owner = $"Enemy projectile {projectile.SlotIndex}";
+                int index = projectile.Place * 2;
+                string owner = $"Enemy projectile {projectile.Place}";
                 Check(owner + " identity", EnemyProjectileNativeWords.Kinds.Word(projectile.Kind), NativeSnapshotMemory.EnemyProjectileId + index);
                 if (!projectile.IsActive || W(NativeSnapshotMemory.EnemyProjectileId + index) == 0) continue;
                 Check(owner + " X", projectile.Position.X.Whole, NativeSnapshotMemory.EnemyProjectileX + index);
@@ -864,7 +864,11 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     case RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnLeft:
                     case RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp:
                     case RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown:
-                        Check(owner + " remaining afterburns", checked((ushort)projectile.RemainingAfterburns), NativeSnapshotMemory.EnemyProjectileVariableE + index);
+                        // The native chain count is a byte stepped past zero by the afterburn that ends the chain, which
+                        // leaves it at $FF; the port's count of afterburns left stays at zero.
+                        int nativeRemainingAfterburns = W(NativeSnapshotMemory.EnemyProjectileVariableE + index);
+                        CheckValue(owner + " remaining afterburns", projectile.RemainingAfterburns,
+                            nativeRemainingAfterburns == 0xff ? 0 : nativeRemainingAfterburns);
                         Check(owner + " next afterburn kind", EnemyProjectileNativeWords.Kinds.Word(projectile.NextAfterburnKind), NativeSnapshotMemory.EnemyProjectileVariableF + index);
                         break;
                     case RoomEnemyProjectileKind.MiscDustExplosion:

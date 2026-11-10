@@ -37,11 +37,11 @@ internal static class DragonFireballBehaviorVerification
         enemies.DragonBehavior.SpawnDragonFireball(body, state);
         state.FacingLeft = false;
         enemies.DragonBehavior.SpawnDragonFireball(body, state);
-        RoomEnemyProjectileSlot left = enemies.Projectiles.EnemyProjectiles.Single(
+        EnemyProjectile left = enemies.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.DragonFireball && projectile.Velocity.X.SignedRawValue < 0);
-        RoomEnemyProjectileSlot right = enemies.Projectiles.EnemyProjectiles.Single(
+        EnemyProjectile right = enemies.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.DragonFireball && projectile.Velocity.X.SignedRawValue >= 0);
-        foreach ((RoomEnemyProjectileSlot fireball, DragonFireballProgram rising, DragonFireballProgram falling) in new[]
+        foreach ((EnemyProjectile fireball, DragonFireballProgram rising, DragonFireballProgram falling) in new[]
                  {
                      new VerifyDragonFireballBehaviorCase(left, DragonFireballProgram.RisingLeft, DragonFireballProgram.FallingLeft),
                      new VerifyDragonFireballBehaviorCase(right, DragonFireballProgram.RisingRight, DragonFireballProgram.FallingRight),
@@ -70,7 +70,7 @@ internal static class DragonFireballBehaviorVerification
         NativeEnemyProjectileProgramOracle.EntryOf(DragonFireballNativeListAddresses.Entries, program);
 
     /// <summary>The typed program <paramref name="projectile"/> runs.</summary>
-    private static DragonFireballProgram ProgramOf(RoomEnemyProjectileSlot projectile) =>
+    private static DragonFireballProgram ProgramOf(EnemyProjectile projectile) =>
         projectile.Animation is DragonFireballAnimation animation ? animation.Cursor.Program
             : throw new InvalidOperationException("The fireball runs no typed program.");
 

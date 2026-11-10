@@ -34,7 +34,7 @@ internal static class CompiledProjectileMathVerification
         var rio = new Func<byte, int>(angle => RioBehavior.ReadRioSignedSineCosineSample(new TrigonometryAngle(angle)).RawValue);
         var shaktool = new Func<int, int>(index => ShaktoolBehavior.ReadShaktoolCommonSineSample(index).RawValue);
         var phantoon = new Func<ushort, ushort, int>((angle, radius) => PhantoonCombat.ReadPhantoonFlameComponent(new TrigonometryAngle(unchecked((byte)angle)), radius));
-        var arc = new Action<RoomEnemyProjectileSlot, int>(NoobTubeBehavior.MoveNoobTubeProjectileHorizontallyAlongArc);
+        var arc = new Action<EnemyProjectile, int>(NoobTubeBehavior.MoveNoobTubeProjectileHorizontallyAlongArc);
         var crocomire = new Func<byte, EightEightVector<RoomPixels>>(bearing => CrocomireCombat.CalculateCrocomireProjectileVelocity(new Bearing(bearing)));
         var echo = new Func<RotationAngle, int, Offset16<RoomPixels>>(SamusShinesparkState.ProjectileSinLookup);
 
@@ -97,7 +97,7 @@ internal static class CompiledProjectileMathVerification
         // Native $86:D843/$D89F OR bit seven into an even byte offset; this is not
         // equivalent to adding a quarter-turn. Check every sway phase, both step
         // sizes, carry/borrow, low subpixel preservation and the swing's wrap.
-        var projectile = new RoomEnemyProjectileSlot(0);
+        var projectile = new EnemyProjectile(0, default);
         foreach (ushort step in new ushort[] { 2, 4 })
         foreach (uint initial in new uint[] { 0, 0x0080ff37, 0xfffffff1 })
         for (int phase = 0; phase < 512; phase++)

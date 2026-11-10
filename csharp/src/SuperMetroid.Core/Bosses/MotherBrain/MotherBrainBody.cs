@@ -363,7 +363,7 @@ internal sealed class MotherBrainBody
         MotherBrainEnemyState state,
         SamusState samus)
     {
-        RoomEnemyProjectileSlot? beam = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? beam = _projectiles.AllocateEnemyProjectile();
         if (beam is null)
             return;
 
@@ -458,7 +458,7 @@ internal sealed class MotherBrainBody
         if (parameter is < 0 or >= 12)
             throw new ArgumentOutOfRangeException(nameof(parameter));
 
-        RoomEnemyProjectileSlot? turret = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? turret = _projectiles.AllocateEnemyProjectile();
         if (turret is null)
             return;
 

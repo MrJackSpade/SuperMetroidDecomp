@@ -3,42 +3,65 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// One of the eighteen fixed enemy-projectile slots.
-/// Positions retain separate subpositions in 65536ths because a fireball's signed 8.8 velocity
-/// is added to that fraction's 256ths by the original movement helpers.
+/// One enemy projectile, created fresh in a free enemy-projectile place each time one is spawned (#1590). It holds its
+/// own state: nothing an earlier projectile in its place held reaches it, except the whole position and velocity that
+/// projectile left there (<see cref="EnemyProjectileHandOver"/>), which a spawn that does not set them starts from.
+/// Until a room spawns into a place, the place holds a projectile that is already gone, standing where the room before
+/// left that place's projectile.
 /// </summary>
-public sealed class RoomEnemyProjectileSlot
+public sealed class EnemyProjectile
 {
-    /// <summary>Assigns the fixed pool index used to find the projectile slot.</summary>
-    internal RoomEnemyProjectileSlot(int slotIndex) => SlotIndex = slotIndex;
+    /// <summary>
+    /// Starts a projectile in <paramref name="place"/> from what the place's previous projectile left there: its whole
+    /// position and its velocity. Everything else starts afresh, and the projectile is gone until its spawner gives it a kind.
+    /// </summary>
+    /// <param name="place">The zero-based enemy-projectile place the projectile takes.</param>
+    /// <param name="left">What the place's previous projectile left there.</param>
+    internal EnemyProjectile(int place, EnemyProjectileHandOver left)
+    {
+        Place = Ensure.BetweenInclusive(0, EnemyProjectileEngine.PlaceCount - 1, place);
+        Position = FixedPosition<RoomPixels>.FromWhole(left.Position);
+        Velocity = left.Velocity;
+        Vacate();
+    }
 
-    /// <summary>Gets the slot's position in the pool, zero through seventeen.</summary>
-    public int SlotIndex { get; }
-    /// <summary>Gets the definition identity occupying the slot; zero releases the slot without clearing its other words.</summary>
+    /// <summary>
+    /// The enemy-projectile place the projectile was spawned into, zero for the last place spawns search. Gameplay reads
+    /// it only where the place decides what happens: an explosion in the first place leaves no pickup
+    /// (<see cref="FirstPlaceExplosionLeavesNoPickup"/>) and Botwoon's dying segments fall by place
+    /// (<see cref="BotwoonSegmentFallDelay"/>).
+    /// </summary>
+    public int Place { get; }
+    /// <summary>What the projectile is, or <see cref="RoomEnemyProjectileKind.None"/> once it is gone or has freed its place.</summary>
     public RoomEnemyProjectileKind Kind { get; internal set; }
-    /// <summary>Gets whether the slot has a nonzero definition identity and participates in projectile passes.</summary>
+    /// <summary>Gets whether the projectile holds its place and takes part in the projectile passes.</summary>
     public bool IsActive => Kind != RoomEnemyProjectileKind.None;
     /// <summary>
-    /// Gets the 16.16 position: whole pixels wrapped to 0 through 65535 plus fractions in 65536ths, to
-    /// whose 256ths signed 8.8 motion adds. Room pixels for every family except the few
-    /// frame behaviours that deliberately keep screen-relative positions here.
+    /// Where the projectile is, in whole room pixels and fractions of a pixel, to which its motion adds in 256ths of a
+    /// pixel. Room pixels for every family except the few frame behaviours that deliberately keep screen-relative
+    /// positions here.
     /// </summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
-    /// <summary>Gets the signed 8.8 velocity the shared movement helpers and the families that move by it apply.</summary>
+    /// <summary>How far the projectile moves each update, in 256ths of a pixel, for the shared movement helpers and the families that move by it.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
-    /// <summary>The typed program the projectile plays (#641), or null for a free slot.</summary>
+    /// <summary>
+    /// What the projectile leaves in its place for the next projectile spawned there: its whole position and velocity
+    /// as they stand when that spawn takes the place (<see cref="EnemyProjectileHandOver"/>).
+    /// </summary>
+    internal EnemyProjectileHandOver LeftInPlace => new(Position.Whole, Velocity);
+    /// <summary>The typed program the projectile plays (#641), or null when it plays none.</summary>
     internal EnemyProjectileAnimation? Animation { get; private set; }
-    /// <summary>Gets the draw-instruction countdown; allocation starts it at one so the initial list runs on its first reached pass.</summary>
+    /// <summary>Gets the countdown to the program's next frame; a spawn starts it at one so the program's first frame shows on its first pass.</summary>
     public WrappingCountdown FrameHold { get; internal set; }
-    /// <summary>The frame the projectile shows: the blank frame from allocation until its program shows one, none once freed.</summary>
+    /// <summary>The frame the projectile shows: the blank frame from its spawn until its program shows one, none once it is gone.</summary>
     public EnemyProjectileFrameId? Frame { get; internal set; }
     /// <summary>How the projectile moves itself on each pass, before its program advances.</summary>
     internal EnemyProjectileFrameBehavior FrameBehavior { get; set; }
-    /// <summary>Gets the sheet characters and colours the projectile draws with, as its spawner supplied them.</summary>
-    public SpriteGraphics Graphics { get; internal set; } = SpriteGraphics.Emptied;
-    /// <summary>Gets the collision half-extents in pixels, decoded from the definition's packed radii.</summary>
+    /// <summary>Gets the sheet and shading the projectile draws with, as its spawner supplied them.</summary>
+    public SpriteGraphics Graphics { get; internal set; }
+    /// <summary>Gets the collision half-extents in pixels, from the projectile's definition.</summary>
     public Extent16<RoomPixels> Radius { get; internal set; }
-    /// <summary>Gets the contact-damage value decoded from the properties word, before Samus's suit reduction.</summary>
+    /// <summary>Gets the contact damage from the projectile's definition, before Samus's suit reduction.</summary>
     public int Damage
     {
         get;
@@ -60,11 +83,14 @@ public sealed class RoomEnemyProjectileSlot
     /// repeat-while-counting step counts it down. This is not the frame hold, and only those steps change it.
     /// </summary>
     public WrappingCountdown LoopCountdown { get; internal set; }
-    /// <summary>Gets Ridley's afterburn-chain counter; continuation decrements only its low byte and stops on signed underflow.</summary>
+    /// <summary>
+    /// How many more afterburns of Ridley's fireball or Mother Brain's bomb this one's chain spawns after it: each
+    /// directional afterburn hands its successor one fewer, and one that has none left spawns no successor.
+    /// </summary>
     public int RemainingAfterburns
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, WrappingCounter.LargestCount, value);
+        internal set => field = Ensure.AtLeastZero(value);
     }
     /// <summary>The kind of the next directional afterburn the chain spawns.</summary>
     internal RoomEnemyProjectileKind NextAfterburnKind { get; set; }
@@ -76,7 +102,7 @@ public sealed class RoomEnemyProjectileSlot
     /// <exception cref="InvalidOperationException">The projectile holds no state, or another family's.</exception>
     internal TState StateOf<TState>() where TState : EnemyProjectileState =>
         State as TState ?? throw new InvalidOperationException(
-            $"Enemy projectile slot {SlotIndex} ({Kind}) holds {State?.GetType().Name ?? "no state"}, not {typeof(TState).Name}.");
+            $"Enemy projectile {Kind} in place {Place} holds {State?.GetType().Name ?? "no state"}, not {typeof(TState).Name}.");
 
     /// <summary>Gets whether this actor participates in damaging Samus-contact checks, independently of persistence and shot-blocking properties.</summary>
     public bool CanDamageSamus { get; internal set; }
@@ -85,9 +111,9 @@ public sealed class RoomEnemyProjectileSlot
     /// <summary>Samus's shots test this actor for collision.</summary>
     public bool BlocksSamusProjectiles { get; internal set; }
     /// <summary>
-    /// Enemy-projectile initializer flag: run the actor's shot list, act as an indestructible dud, or skip the
-    /// collision scan altogether. This is deliberately separate from <see cref="BlocksSamusProjectiles"/>: Kago enables that property only
-    /// after its bug has moved far enough from the source shell, while still running its shot list.
+    /// How Samus's shots that reach the projectile act on it: they run its shot list, meet an indestructible dud, or are
+    /// not tested at all. This is deliberately separate from <see cref="BlocksSamusProjectiles"/>: Kago enables that
+    /// property only after its bug has moved far enough from the source shell, while still running its shot list.
     /// </summary>
     public EnemyProjectileCollisionOption CollisionOption { get; internal set; }
     /// <summary>The enemy a death explosion or its drop came from, and whether the explosion rebuilds it when it ends.</summary>
@@ -114,24 +140,33 @@ public sealed class RoomEnemyProjectileSlot
     internal void InstallAnimation(EnemyProjectileAnimation animation) => Animation = Ensure.NotNull(animation);
 
     /// <summary>
-    /// Clears only the projectile's identity: frees the slot but leaves every other word,
-    /// so a routine that keeps running after the store still moves the released slot.
+    /// Frees the projectile's place without ending the projectile, for a power-bombed Draygon shot
+    /// (<see cref="PowerBombedDraygonShotFinishesItsUpdate"/>): a later spawn may take the place, while the update that
+    /// freed it goes on with the projectile, which keeps its program, state and properties.
     /// </summary>
-    internal void ReleaseIdentityOnly() => Kind = RoomEnemyProjectileKind.None;
+    internal void FreePlace() => Kind = RoomEnemyProjectileKind.None;
 
-    /// <summary>Prepares a freed slot for reuse while retaining whole coordinates and velocity as allocation does.</summary>
-    internal void Clear()
+    /// <summary>
+    /// Ends the projectile: it frees its place, shows and runs nothing more, and keeps none of its family's state. Its
+    /// whole position and velocity stay where it left them, for the next projectile spawned into its place
+    /// (<see cref="EnemyProjectileHandOver"/>).
+    /// </summary>
+    internal void Delete()
+    {
+        Position = Position.WithFractionX(0).WithFractionY(0);
+        Vacate();
+    }
+
+    /// <summary>Sets everything but the position and velocity to what a projectile holds before its spawner sets it up.</summary>
+    private void Vacate()
     {
         Kind = RoomEnemyProjectileKind.None;
-        // Deletion releases identity only. Spawning clears fractions,
-        // but leaves whole coordinates and velocities for the family initializer.
-        Position = Position.WithFractionX(0).WithFractionY(0);
         FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
         Frame = null;
         FrameHold = WrappingCountdown.Start(0);
         Animation = null;
         Radius = Extent16<RoomPixels>.Zero;
-        Graphics = SpriteGraphics.Emptied;
+        Graphics = SpriteGraphics.SharedStandard;
         Damage = InvincibilityFrames = 0;
         LoopCountdown = WrappingCountdown.Start(0);
         Depth = EnemyProjectileDepth.BehindSamus;

@@ -114,14 +114,14 @@ internal sealed class PhantoonCombat
             () => new PhantoonFlameAnimation(PhantoonFlameProgram.DestroyableIdle));
         table.AddCue<PhantoonFlameCue>((context, cue) =>
         {
-            RoomEnemyProjectileSlot projectile = context.Projectile;
+            EnemyProjectile projectile = context.Projectile;
             switch (cue)
             {
                 case PhantoonFlameCue.SpawnDrop:
                     RequestPhantoonFlameDrop(projectile);
                     return;
                 case PhantoonFlameCue.Delete:
-                    projectile.Clear();
+                    projectile.Delete();
                     return;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(PhantoonFlameCue)} {cue}.");
@@ -368,7 +368,7 @@ internal sealed class PhantoonCombat
     }
 
     /// <summary>Holds an intro flame until its delayed orbit begins.</summary>
-    internal void RunPhantoonStartingFlameWaiting(RoomEnemyProjectileSlot flame)
+    internal void RunPhantoonStartingFlameWaiting(EnemyProjectile flame)
     {
         PhantoonEnemyState? state = Phantoon;
         if (state is null || !state.BodyState.StartingFlamesActive)
@@ -380,11 +380,11 @@ internal sealed class PhantoonCombat
     }
 
     /// <summary>Advances an intro flame around Phantoon's body.</summary>
-    internal void RunPhantoonStartingFlameOrbit(RoomEnemyProjectileSlot flame)
+    internal void RunPhantoonStartingFlameOrbit(EnemyProjectile flame)
     {
         if (Phantoon is not { } state)
         {
-            flame.Clear();
+            flame.Delete();
             return;
         }
 
@@ -416,7 +416,7 @@ internal sealed class PhantoonCombat
 
     /// <summary>Moves a casual flame downward before floor contact.</summary>
     internal static void RunPhantoonCasualFlameFalling(
-        RoomEnemyProjectileSlot flame,
+        EnemyProjectile flame,
         RoomLevelData level)
     {
         flame.Velocity = flame.Velocity.WithY(flame.Velocity.Y + PhantoonFlameMotionDefinitions.FlameGravity);
@@ -435,7 +435,7 @@ internal sealed class PhantoonCombat
 
     /// <summary>Holds the flame briefly at the floor after impact.</summary>
     internal static void RunPhantoonCasualFlameImpactPause(
-        RoomEnemyProjectileSlot flame,
+        EnemyProjectile flame,
         int frameCounter)
     {
         PhantoonCasualFlameState casual = flame.StateOf<PhantoonCasualFlameState>();
@@ -455,7 +455,7 @@ internal sealed class PhantoonCombat
 
     /// <summary>Advances the flame's post-impact bounce motion.</summary>
     internal static void RunPhantoonCasualFlameBouncing(
-        RoomEnemyProjectileSlot flame,
+        EnemyProjectile flame,
         RoomLevelData level)
     {
         flame.Velocity = flame.Velocity.WithY(flame.Velocity.Y + PhantoonFlameMotionDefinitions.FlameGravity);
@@ -477,7 +477,7 @@ internal sealed class PhantoonCombat
     }
 
     /// <summary>Installs the resting phase after a flame's bounce ends.</summary>
-    private static void RestPhantoonCasualFlame(RoomEnemyProjectileSlot flame)
+    private static void RestPhantoonCasualFlame(EnemyProjectile flame)
     {
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.CasualResting));
         flame.FrameHold = WrappingCountdown.Start(1);
@@ -485,11 +485,11 @@ internal sealed class PhantoonCombat
     }
 
     /// <summary>Advances a rage-phase flame through its authored movement.</summary>
-    internal void RunPhantoonEnragedFlame(RoomEnemyProjectileSlot flame)
+    internal void RunPhantoonEnragedFlame(EnemyProjectile flame)
     {
         if (Phantoon is not { } state)
         {
-            flame.Clear();
+            flame.Delete();
             return;
         }
 
@@ -506,7 +506,7 @@ internal sealed class PhantoonCombat
 
     /// <summary>Updates a delayed rain flame as it enters and falls through the room.</summary>
     internal void RunPhantoonRainFlame(
-        RoomEnemyProjectileSlot flame,
+        EnemyProjectile flame,
         RoomLevelData level)
     {
         PhantoonRainFlameState rain = flame.StateOf<PhantoonRainFlameState>();
@@ -531,11 +531,11 @@ internal sealed class PhantoonCombat
     }
 
     /// <summary>Moves a spiral flame around Phantoon's body.</summary>
-    internal void RunPhantoonSpiralFlame(RoomEnemyProjectileSlot flame)
+    internal void RunPhantoonSpiralFlame(EnemyProjectile flame)
     {
         if (Phantoon is not { } state)
         {
-            flame.Clear();
+            flame.Delete();
             return;
         }
 
@@ -552,7 +552,7 @@ internal sealed class PhantoonCombat
 
     /// <summary>Converts an orbit phase into a world-space flame position around the body.</summary>
     internal static void PositionPhantoonFlameAroundBody(
-        RoomEnemyProjectileSlot flame,
+        EnemyProjectile flame,
         RoomEnemySlot body,
         TrigonometryAngle angle,
         int radius)
@@ -578,7 +578,7 @@ internal sealed class PhantoonCombat
     }
 
     /// <summary>Switches a flame to its delete program after leaving the room bounds.</summary>
-    private static void DeletePhantoonFlameOutsideRoom(RoomEnemyProjectileSlot flame)
+    private static void DeletePhantoonFlameOutsideRoom(EnemyProjectile flame)
     {
         if (CoordinateAxis.AsSigned(flame.Position.X.Whole) < 0 || flame.Position.X.Whole >= 256 ||
             CoordinateAxis.AsSigned(flame.Position.Y.Whole) < 0 || flame.Position.Y.Whole >= 256)
@@ -594,7 +594,7 @@ internal sealed class PhantoonCombat
     /// translated pickup owner is still an outer subsystem, so publish the same semantic
     /// request with the header-derived item table rather than silently discarding the drop.
     /// </summary>
-    internal void RequestPhantoonFlameDrop(RoomEnemyProjectileSlot flame)
+    internal void RequestPhantoonFlameDrop(EnemyProjectile flame)
     {
         if (flame.Kind != RoomEnemyProjectileKind.PhantoonDestroyableFlame)
         {

@@ -32,7 +32,7 @@ internal static class GunshipDustDefinitionsVerification
             AssertEqual(instruction, GunshipDustNativeListAddresses.Entry(definition.Program), "All native dust instruction selections");
             for (int origin = 0; origin <= ushort.MaxValue; origin++)
             {
-                slot.Clear();
+                slot.Delete();
                 // Every world X and Y, including independent positive/negative wrap,
                 // enters the actual allocator/header initializer with stale slot values.
                 samus.Position = samus.Position.WithWhole(new((ushort)origin, (ushort)(ushort.MaxValue - origin)));

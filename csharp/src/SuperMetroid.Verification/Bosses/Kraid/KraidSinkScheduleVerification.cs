@@ -74,7 +74,7 @@ internal static class KraidSinkScheduleVerification
         var requests = enemies.BossFrameResults.KraidObjects;
         foreach (var entry in callbacks.DistinctBy(entry => entry.Value))
         {
-            foreach (var occupied in enemies.Projectiles.EnemyProjectiles) occupied.Clear();
+            foreach (var occupied in enemies.Projectiles.EnemyProjectiles) occupied.Delete();
             requests.Clear();
             state.SinkTableEventCount = 0;
             enemies.SlotTable.Slots[0].Position = enemies.SlotTable.Slots[0].Position.WithWholeY(entry.Key);
@@ -123,7 +123,7 @@ internal static class KraidSinkScheduleVerification
         var body = enemies.SlotTable.Slots[0];
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
-            foreach (var occupied in enemies.Projectiles.EnemyProjectiles) occupied.Clear();
+            foreach (var occupied in enemies.Projectiles.EnemyProjectiles) occupied.Delete();
             requests.Clear();
             state.SinkTableEventCount = 0;
             body.Position = body.Position.WithWholeY((ushort)raw);

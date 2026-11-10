@@ -26,9 +26,9 @@ internal static class ShaktoolProjectileBehaviorVerification
                      new VerifyShaktoolProjectileBehaviorCase(RoomEnemyProjectileKind.ShaktoolAttackBackCircle, ShaktoolProjectileProgram.Back),
                  })
         {
-            RoomEnemyProjectileSlot circle = enemies.Projectiles.EnemyProjectiles[0];
-            circle.Clear();
-            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(circle, kind, SuperMetroid.Core.Enemies.SpriteGraphics.Emptied);
+            EnemyProjectile circle = enemies.Projectiles.EnemyProjectiles[0];
+            circle.Delete();
+            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(circle, kind, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard);
             AssertTrue(circle.Animation is ShaktoolProjectileAnimation animation && animation.Cursor.Program == program, $"{kind} starts {program}");
             (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, circle, ShaktoolProjectileNativeListAddresses.Entry(program), 300, kind.ToString());
             AssertTrue(!deleted, $"{kind} loops on its final pose");

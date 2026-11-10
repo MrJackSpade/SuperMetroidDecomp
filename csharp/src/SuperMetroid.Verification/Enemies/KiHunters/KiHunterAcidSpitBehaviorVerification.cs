@@ -31,9 +31,9 @@ internal static class KiHunterAcidSpitBehaviorVerification
         };
         enemies.KiHunterBehavior.SpawnKiHunterAcidSpit(body, false);
         enemies.KiHunterBehavior.SpawnKiHunterAcidSpit(body, true);
-        RoomEnemyProjectileSlot left = Find(RoomEnemyProjectileKind.KiHunterAcidSpitLeft);
-        RoomEnemyProjectileSlot right = Find(RoomEnemyProjectileKind.KiHunterAcidSpitRight);
-        foreach ((RoomEnemyProjectileSlot spit, KiHunterAcidSpitProgram program) in new[] { new VerifyKiHunterAcidSpitBehaviorCase(left, KiHunterAcidSpitProgram.Left), new VerifyKiHunterAcidSpitBehaviorCase(right, KiHunterAcidSpitProgram.Right) })
+        EnemyProjectile left = Find(RoomEnemyProjectileKind.KiHunterAcidSpitLeft);
+        EnemyProjectile right = Find(RoomEnemyProjectileKind.KiHunterAcidSpitRight);
+        foreach ((EnemyProjectile spit, KiHunterAcidSpitProgram program) in new[] { new VerifyKiHunterAcidSpitBehaviorCase(left, KiHunterAcidSpitProgram.Left), new VerifyKiHunterAcidSpitBehaviorCase(right, KiHunterAcidSpitProgram.Right) })
         {
             AssertEqual(program, ProgramOf(spit), $"the {spit.Kind} spit starts its launch program");
             (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, spit, Entry(program), 60, $"{spit.Kind} launch");
@@ -51,7 +51,7 @@ internal static class KiHunterAcidSpitBehaviorVerification
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the acid's native list bytes");
         Console.WriteLine($"  Ki-Hunter acid behavior: both launches and the {updates}-update splash match their native lists.");
 
-        RoomEnemyProjectileSlot Find(RoomEnemyProjectileKind kind) =>
+        EnemyProjectile Find(RoomEnemyProjectileKind kind) =>
             enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == kind);
     }
 
@@ -60,7 +60,7 @@ internal static class KiHunterAcidSpitBehaviorVerification
         NativeEnemyProjectileProgramOracle.EntryOf(KiHunterAcidSpitNativeListAddresses.Entries, program);
 
     /// <summary>The typed program <paramref name="projectile"/> runs.</summary>
-    private static KiHunterAcidSpitProgram ProgramOf(RoomEnemyProjectileSlot projectile) =>
+    private static KiHunterAcidSpitProgram ProgramOf(EnemyProjectile projectile) =>
         projectile.Animation is KiHunterAcidSpitAnimation animation ? animation.Cursor.Program
             : throw new InvalidOperationException("The spit runs no typed program.");
 

@@ -35,12 +35,12 @@ internal static class SkreeMetareeParticleBehaviorVerification
                      new VerifySkreeMetareeParticleBehaviorCase(slot => enemies.Projectiles.SpawnMetalParticleBurst(slot, SuperMetroid.Core.Enemies.Metaree.MetareeParticleDefinitions.Burst), SkreeMetareeParticleProgram.Metaree),
                  })
         {
-            foreach (RoomEnemyProjectileSlot stale in enemies.Projectiles.EnemyProjectiles)
-                stale.Clear();
+            foreach (EnemyProjectile stale in enemies.Projectiles.EnemyProjectiles)
+                stale.Delete();
             spawn(source);
-            RoomEnemyProjectileSlot[] particles = [.. enemies.Projectiles.EnemyProjectiles.Where(projectile => projectile.IsActive)];
+            EnemyProjectile[] particles = [.. enemies.Projectiles.EnemyProjectiles.Where(projectile => projectile.IsActive)];
             AssertEqual(4, particles.Length, $"the {program} burst spawns four particles");
-            foreach (RoomEnemyProjectileSlot particle in particles)
+            foreach (EnemyProjectile particle in particles)
             {
                 AssertTrue(particle.Animation is SkreeMetareeParticleAnimation animation && animation.Cursor.Program == program,
                     $"the {particle.Kind} particle starts the {program} program");

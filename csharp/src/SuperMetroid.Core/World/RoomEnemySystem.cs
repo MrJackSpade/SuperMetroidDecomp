@@ -823,22 +823,10 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// Starts each enemy projectile place from the whole position and velocity the room this one replaces left
     /// (<see cref="RoomHandOver"/>), before the population loads.
     /// </summary>
-    internal void TakeOverFrom(RoomHandOver handOver)
-    {
-        Ensure.NotNull(handOver);
-        IReadOnlyList<RoomEnemyProjectileSlot> places = Projectiles.EnemyProjectiles;
-        for (int index = 0; index < places.Count; index++)
-        {
-            EnemyProjectileHandOver left = handOver.EnemyProjectile(index);
-            places[index].Position = FixedPosition<RoomPixels>.FromWhole(left.Position);
-            places[index].Velocity = left.Velocity;
-        }
-    }
+    internal void TakeOverFrom(RoomHandOver handOver) => Projectiles.TakeOverFrom(handOver);
 
     /// <summary>Leaves each enemy projectile place's whole position and velocity for the room that replaces this one (<see cref="RoomHandOver"/>).</summary>
-    internal void HandOverTo(RoomHandOver handOver) =>
-        Ensure.NotNull(handOver).LeaveEnemyProjectiles(
-            Projectiles.EnemyProjectiles.Select(place => new EnemyProjectileHandOver(place.Position.Whole, place.Velocity)));
+    internal void HandOverTo(RoomHandOver handOver) => Projectiles.HandOverTo(handOver);
 
     /// <summary>
     /// Re-asserts the door-transition gates over the loaded room: the population initialized with them clear, and the

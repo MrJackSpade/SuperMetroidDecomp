@@ -21,7 +21,7 @@ internal static class ImportedSpritemapsVerification
     /// keep a blank spritemap and name the image by instruction operand; the cartridge's spritemap
     /// for such a frame is the word stored at that operand in bank $86.
     /// </summary>
-    internal static ushort NativeEnemyProjectileSpritemap(ISnesAddressSpace bus, RoomEnemyProjectileSlot projectile) =>
+    internal static ushort NativeEnemyProjectileSpritemap(ISnesAddressSpace bus, EnemyProjectile projectile) =>
         projectile.PresentationOperandAddress != 0
             ? SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 0x860000 | projectile.PresentationOperandAddress)
@@ -37,7 +37,7 @@ internal static class ImportedSpritemapsVerification
 
     /// <summary>Compares the executed projectile frame's installed OAM with its native selector and spritemap.</summary>
     internal static void VerifyExecutedProjectileFrame(ISnesAddressSpace rom,
-        RoomEnemyProjectileSlot projectile, EnemyProjectileSpritemapCatalog artwork,
+        EnemyProjectile projectile, EnemyProjectileSpritemapCatalog artwork,
         HashSet<ushort> executedOperands, ushort? expectedOperand = null)
     {
         if (!projectile.IsActive || projectile.FrameHold.IsZero) return;

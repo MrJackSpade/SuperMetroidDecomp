@@ -574,7 +574,7 @@ internal sealed class CrocomireFight
     /// <summary>Spawns one of Crocomire's fight projectiles.</summary>
     internal void SpawnCrocomireProjectile(RoomEnemySlot body, int spawnParameter)
     {
-        RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
 

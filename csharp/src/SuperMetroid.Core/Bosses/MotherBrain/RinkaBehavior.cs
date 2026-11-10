@@ -540,10 +540,9 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         bool respawns = slot.Presence.HasAny(EnemyPresence.RespawnsIfKilled);
         RoomEnemySpawnSnapshot survivingSpawnSnapshot = slot.Spawn;
 
-        // The shared spawn helper initially carries the dying enemy's graphics word, but
-        // the death explosion's initializer immediately replaces the projectile's graphics with zero. Pool
-        // exhaustion genuinely loses both the effect and the only future respawn instruction.
-        RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+        // The death explosion draws from the room's shared sheet in its standard colours. When every place is held,
+        // the spawn is lost, and with it both the effect and the only future respawn instruction.
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is not null)
         {
             MotherBrainProjectileStarts.Initialize(
@@ -569,7 +568,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the strict 256x256 camera cull for dust/explosion actors.</summary>
     internal static void CullMiscDustOutsideCamera(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         Position16<RoomPixels> camera)
     {
         // The cull compares the position against camera + 256 and culls when not below it, so
@@ -579,7 +578,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
             CoordinateAxis.Difference(projectile.Position.Y.Whole, camera.Y) < 0 ||
             CoordinateAxis.Difference(projectile.Position.Y.Whole, (camera.Y + 256)) >= 0)
         {
-            projectile.Clear();
+            projectile.Delete();
         }
     }
 

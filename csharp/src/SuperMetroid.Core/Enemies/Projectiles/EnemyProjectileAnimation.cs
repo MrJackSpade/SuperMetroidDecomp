@@ -13,7 +13,7 @@ internal abstract class EnemyProjectileAnimation
     /// </summary>
     internal void Advance(EnemyProjectileCueContext context, EnemyProjectileHandlerTable handlers)
     {
-        RoomEnemyProjectileSlot projectile = context.Projectile;
+        EnemyProjectile projectile = context.Projectile;
         CountdownStep frameStep = projectile.FrameHold.Decrement();
         projectile.FrameHold = frameStep.Remaining;
         if (!frameStep.IsZero)

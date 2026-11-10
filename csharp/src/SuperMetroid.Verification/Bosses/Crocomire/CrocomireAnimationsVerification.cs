@@ -248,28 +248,28 @@ internal static class CrocomireAnimationsVerification
 
         (RoomEnemySystem mouthSystem, CrocomireEnemyState mouthState) = NewCrocomire();
         mouthSystem.CrocomireBehavior.Fight.SpawnCrocomireProjectile(mouthState.Body, 2);
-        RoomEnemyProjectileSlot mouth = mouthSystem.Projectiles.EnemyProjectiles.Single(
+        EnemyProjectile mouth = mouthSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.CrocomireProjectile);
         CompareProjectile(cartridge, mouthSystem, mouth, RoomEnemyProjectileKind.CrocomireProjectile, shot: false, "mouth");
 
         (RoomEnemySystem bridgeSystem, _) = NewCrocomire();
         bridgeSystem.CrocomireBehavior.BridgeCollapse.SpawnNextCrocomireBridgeFragment();
-        RoomEnemyProjectileSlot bridge = bridgeSystem.Projectiles.EnemyProjectiles.Single(
+        EnemyProjectile bridge = bridgeSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.CrocomireBridgeCrumbling);
         CompareProjectile(cartridge, bridgeSystem, bridge, RoomEnemyProjectileKind.CrocomireBridgeCrumbling, shot: false, "bridge");
 
         (RoomEnemySystem spikeSystem, _) = NewCrocomire();
         spikeSystem.CrocomireBehavior.Skeleton.SpawnCrocomireSpikeWallPieces();
-        RoomEnemyProjectileSlot[] spikes = [.. spikeSystem.Projectiles.EnemyProjectiles.Where(
+        EnemyProjectile[] spikes = [.. spikeSystem.Projectiles.EnemyProjectiles.Where(
             projectile => projectile.Kind == RoomEnemyProjectileKind.CrocomireSpikeWallPieces)];
         AssertEqual(8, spikes.Length, "the spike wall breaks into eight pieces");
-        foreach (RoomEnemyProjectileSlot spike in spikes)
+        foreach (EnemyProjectile spike in spikes)
             CompareProjectile(cartridge, spikeSystem, spike, RoomEnemyProjectileKind.CrocomireSpikeWallPieces, shot: false, "spike");
 
         (RoomEnemySystem shotSystem, CrocomireEnemyState shotState) = NewCrocomire();
         shotSystem.DeathsAndDrops.BindSamus(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Health = 99, MaxHealth = 99 });
         shotSystem.CrocomireBehavior.Fight.SpawnCrocomireProjectile(shotState.Body, 2);
-        RoomEnemyProjectileSlot exploding = shotSystem.Projectiles.EnemyProjectiles.Single(
+        EnemyProjectile exploding = shotSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.CrocomireProjectile);
         exploding.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileFrameKind.Shot));
         CompareProjectile(cartridge, shotSystem, exploding, RoomEnemyProjectileKind.CrocomireProjectile, shot: true, "shot");
@@ -289,7 +289,7 @@ internal static class CrocomireAnimationsVerification
     private const int InitialListOffset = 4;
 
     /// <summary>Runs a typed projectile beside the native list of its kind for fifty updates and compares every observable.</summary>
-    private static void CompareProjectile(IImportCartridgeSource cartridge, RoomEnemySystem enemies, RoomEnemyProjectileSlot projectile,
+    private static void CompareProjectile(IImportCartridgeSource cartridge, RoomEnemySystem enemies, EnemyProjectile projectile,
         RoomEnemyProjectileKind kind, bool shot, string label)
     {
         AssertTrue(projectile.Animation is CrocomireProjectileAnimation, $"Crocomire {label} runs a typed program");

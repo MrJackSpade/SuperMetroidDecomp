@@ -21,7 +21,7 @@ internal static class VerticalOffScreenDeletionVerification
 
         static void Confirm(ushort y, bool kept, string label)
         {
-            var projectile = new RoomEnemyProjectileSlot(0)
+            var projectile = new EnemyProjectile(0, default)
             {
                 Kind = RoomEnemyProjectileKind.NoobTubeShard,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0, y)),

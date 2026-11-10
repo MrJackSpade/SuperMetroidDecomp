@@ -45,7 +45,7 @@ internal static class OldTourianEscapeShaftWallVerification
         samus.Position = samus.Position.WithWhole(new(0x00f1, 0x088b));
         runtime.StepFrame(0);
         AssertEqual(1, Explosions(), "Samus below and right of ($F0,$820) blows the wall");
-        RoomEnemyProjectileSlot explosion = runtime.Enemies.Projectiles.EnemyProjectiles.First(projectile =>
+        EnemyProjectile explosion = runtime.Enemies.Projectiles.EnemyProjectiles.First(projectile =>
             projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion);
         AssertEqual(0x0110, explosion.Position.X.Whole, "the explosion is centred on the wall's X");
         AssertEqual(0x0888, explosion.Position.Y.Whole, "the explosion is centred on the wall's Y");

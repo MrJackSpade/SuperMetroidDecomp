@@ -516,7 +516,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state)
     {
-        SpriteGraphics graphics = SpriteGraphics.Emptied;
+        SpriteGraphics graphics = SpriteGraphics.SharedStandard;
         if (_spriteObjects.SpawnRoomSpriteObject(
                 new(CoordinateAxis.Wrap(slot.Position.X.Whole - 8), CoordinateAxis.Wrap(slot.Position.Y.Whole + 28)),
                 RoomSpriteObjectKind.NinjaPirateLandingDust,
@@ -546,7 +546,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         bool throwsRight,
         Offset16<RoomPixels> spawnOffset)
     {
-        RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
 
@@ -565,7 +565,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
 
     /// <summary>Flies a claw thrown toward <paramref name="thrown"/> out and back, with exact camera culling.</summary>
     private static void FlyNinjaPirateClaw(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         Position16<RoomPixels> camera,
         HorizontalDirection thrown)
     {
@@ -593,7 +593,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             CoordinateAxis.Difference(projectile.Position.Y.Whole, camera.Y) < 0 ||
             CoordinateAxis.Difference(projectile.Position.Y.Whole, bottom) >= 0;
         if (offScreen)
-            projectile.Clear();
+            projectile.Delete();
     }
 
     /// <summary>

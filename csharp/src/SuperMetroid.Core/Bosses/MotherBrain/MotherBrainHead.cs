@@ -354,7 +354,7 @@ internal sealed class MotherBrainHead
         // the bomb's definition. The source header remains the head record, so the shared
         // initializer obtains Mother Brain's authored contact damage and
         // her parameter-one speed flag without any encounter-specific substitute.
-        RoomEnemyProjectileSlot? laser = _roomActors.SpawnPirateLaser(
+        EnemyProjectile? laser = _roomActors.SpawnPirateLaser(
             head,
             head.Position.Whole + new Offset16<RoomPixels>(16, 4),
             direction: HorizontalDirection.Right);
@@ -397,7 +397,7 @@ internal sealed class MotherBrainHead
         MotherBrainEnemyState state,
         int afterburnCount)
     {
-        RoomEnemyProjectileSlot? bomb = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? bomb = _projectiles.AllocateEnemyProjectile();
         if (bomb is null)
             return;
 
@@ -422,7 +422,7 @@ internal sealed class MotherBrainHead
         MotherBrainEnemyState state,
         TrigonometryAngle angle)
     {
-        RoomEnemyProjectileSlot? ring = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? ring = _projectiles.AllocateEnemyProjectile();
         if (ring is null)
             return;
 
@@ -452,7 +452,7 @@ internal sealed class MotherBrainHead
             parameter = 0;
         state.DroolProjectileParameter = parameter;
 
-        RoomEnemyProjectileSlot? drool = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? drool = _projectiles.AllocateEnemyProjectile();
         if (drool is null)
             return;
 
@@ -470,7 +470,7 @@ internal sealed class MotherBrainHead
     /// <summary>Runs the head's big purple breath step and the breath's initializer.</summary>
     private void SpawnMotherBrainPurpleBreathBig(MotherBrainEnemyState state)
     {
-        RoomEnemyProjectileSlot? breath = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? breath = _projectiles.AllocateEnemyProjectile();
         if (breath is null)
             return;
 
@@ -485,7 +485,7 @@ internal sealed class MotherBrainHead
     /// <summary>Runs the small-breath spawn and the breath's initializer.</summary>
     private void SpawnMotherBrainPurpleBreathSmall(MotherBrainEnemyState state)
     {
-        RoomEnemyProjectileSlot? breath = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? breath = _projectiles.AllocateEnemyProjectile();
         if (breath is null)
             return;
 
@@ -501,7 +501,7 @@ internal sealed class MotherBrainHead
     /// <summary>Runs the rainbow charging projectile's spawn, including the initializer's same-call pin.</summary>
     internal void SpawnMotherBrainRainbowChargingProjectile()
     {
-        RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
 
@@ -511,7 +511,6 @@ internal sealed class MotherBrainHead
             graphics: default);
         projectile.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
         projectile.Position = projectile.Position.WithFractionX(0).WithFractionY(0);
-        projectile.Graphics = default;
         _projectileAttacks.RunMotherBrainRainbowChargingFrameBehavior(projectile);
     }
 }

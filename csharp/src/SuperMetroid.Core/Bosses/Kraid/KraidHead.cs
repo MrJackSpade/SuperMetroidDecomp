@@ -256,7 +256,7 @@ internal sealed class KraidHead
     /// <summary>Emits a mouth rock when a projectile slot is available.</summary>
     internal bool SpawnKraidSpitRock(RoomEnemySlot body)
     {
-        RoomEnemyProjectileSlot? rock = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? rock = _projectiles.AllocateEnemyProjectile();
         if (rock is null)
             return false;
 

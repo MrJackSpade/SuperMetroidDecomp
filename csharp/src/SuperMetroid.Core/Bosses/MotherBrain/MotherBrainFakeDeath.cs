@@ -245,7 +245,7 @@ internal sealed class MotherBrainFakeDeath
         RoomEnemyProjectileKind kind,
         Position16<RoomPixels> position)
     {
-        RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
 

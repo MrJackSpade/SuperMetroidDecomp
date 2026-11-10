@@ -19,7 +19,7 @@ internal static class NativeEnemyProjectileParity
     /// <paramref name="updates"/> updates or until the list deletes it; returns whether it did and the updates compared.
     /// </summary>
     internal static CompareResult Compare(IImportCartridgeSource cartridge, RoomEnemySystem enemies,
-        RoomEnemyProjectileSlot projectile, ushort entry, int updates, string label)
+        EnemyProjectile projectile, ushort entry, int updates, string label)
     {
         var native = new NativeEnemyProjectileListReader(entry, projectile.FrameHold.RawValue);
         int update = 0;

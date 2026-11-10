@@ -28,7 +28,7 @@ public sealed class RoomSpriteObjectSlot
     public FixedPosition<RoomPixels> Position { get; internal set; }
 
     /// <summary>The sheet characters and colours the object draws with.</summary>
-    public SpriteGraphics Graphics { get; internal set; } = SpriteGraphics.Emptied;
+    public SpriteGraphics Graphics { get; internal set; } = SpriteGraphics.SharedStandard;
 
     /// <summary>Where the object's program resumes, or null for a free slot.</summary>
     internal AnimationProgramCursor<RoomSpriteObjectProgram>? Cursor { get; set; }
@@ -47,7 +47,7 @@ public sealed class RoomSpriteObjectSlot
     {
         Kind = RoomSpriteObjectKind.None;
         Position = FixedPosition<RoomPixels>.Zero;
-        Graphics = SpriteGraphics.Emptied;
+        Graphics = SpriteGraphics.SharedStandard;
         Cursor = null;
         Timer = default;
         Frame = default;

@@ -24,7 +24,7 @@ internal sealed class MotherBrainRoomActors(
     public void TerminateRinkas() => rinkas.RequestTermination();
 
     /// <inheritdoc/>
-    public RoomEnemyProjectileSlot? SpawnPirateLaser(RoomEnemySlot source, Position16<RoomPixels> muzzle, HorizontalDirection direction) =>
+    public EnemyProjectile? SpawnPirateLaser(RoomEnemySlot source, Position16<RoomPixels> muzzle, HorizontalDirection direction) =>
         // Mother Brain's head authors no slow laser in its first parameter.
         pirates.SpawnPirateMotherBrainLaser(source, muzzle, direction == HorizontalDirection.Right, PirateLaserSpeed.Fast);
 

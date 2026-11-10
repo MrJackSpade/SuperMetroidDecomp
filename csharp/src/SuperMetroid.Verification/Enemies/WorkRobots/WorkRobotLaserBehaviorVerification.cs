@@ -34,9 +34,9 @@ internal static class WorkRobotLaserBehaviorVerification
             state.LaserVelocity = new(xVelocity, 0);
             enemies.WorkRobotBehavior.SpawnWorkRobotLaser(robot, state, definition, Position16<RoomPixels>.Zero);
         }
-        RoomEnemyProjectileSlot[] lasers = [.. enemies.Projectiles.EnemyProjectiles.Where(projectile => projectile.Animation is WorkRobotLaserAnimation)];
+        EnemyProjectile[] lasers = [.. enemies.Projectiles.EnemyProjectiles.Where(projectile => projectile.Animation is WorkRobotLaserAnimation)];
         AssertEqual(5, lasers.Length, "all five laser definitions start the typed program");
-        foreach (RoomEnemyProjectileSlot laser in lasers)
+        foreach (EnemyProjectile laser in lasers)
         {
             AssertTrue(laser.Animation is WorkRobotLaserAnimation { Cursor.Program: WorkRobotLaserProgram.Initial }, $"the {laser.Kind} laser starts its prefix");
             (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, laser,

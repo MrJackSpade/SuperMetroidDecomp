@@ -29,7 +29,7 @@ internal static class EnemyDeathProjectileBehaviorVerification
             RoomEnemySlot enemy = variant.System.SlotTable.Slots[0];
             enemy.Bind(EnemyDefinitionId.Sciser, enemy.Definition);
             variant.System.DeathsAndDrops.StartGenericEnemyDeath(enemy, animation);
-            RoomEnemyProjectileSlot explosion = variant.System.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
+            EnemyProjectile explosion = variant.System.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
             AssertEqual(EnemyDeathExplosions.Program(animation), ProgramOf(explosion), $"death variant {animation} starts its program");
         }
 
@@ -42,7 +42,7 @@ internal static class EnemyDeathProjectileBehaviorVerification
         killed.Bind((EnemyDefinitionId)enemyHeader, killed.Definition);
         killed.Position = killed.Position.WithWhole(new(320, 120));
         fixture.System.DeathsAndDrops.StartGenericEnemyDeath(killed, deathAnimation: EnemyDeathExplosion.Small);
-        RoomEnemyProjectileSlot dying = fixture.System.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
+        EnemyProjectile dying = fixture.System.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
         int updates = 0;
         while (ProgramOf(dying) == EnemyDeathProjectileProgram.SmallExplosion)
         {

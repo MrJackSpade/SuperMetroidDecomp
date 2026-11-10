@@ -50,7 +50,7 @@ internal static class MotherBrainTurretDefinitionsVerification
             enemies.VerificationServices().NextRandom = () => 0;
             enemies.MotherBrainBehavior.Body.SpawnMotherBrainTurret(parameter);
 
-            RoomEnemyProjectileSlot turret =
+            EnemyProjectile turret =
                 enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
             MotherBrainTurretDirectionDefinition directionDefinition =
                 MotherBrainTurrets.ForDirection(definition.InitialDirection);
@@ -77,7 +77,7 @@ internal static class MotherBrainTurretDefinitionsVerification
             for (byte current = (byte)MotherBrainTurretDefinitions.Ring.PositionOf(definition.FirstAllowedDirection);
                 current <= MotherBrainTurretDefinitions.Ring.PositionOf(definition.LastAllowedDirection); current++)
             {
-                var rotation = new RoomEnemyProjectileSlot(0)
+                var rotation = new EnemyProjectile(0, default)
                 {
                     State = new MotherBrainTurretState(parameter, current) { RotationStep = delta },
                 };
@@ -125,14 +125,14 @@ internal static class MotherBrainTurretDefinitionsVerification
                 $"Mother Brain turret bullet Y velocity {direction}");
 
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            var turret = new RoomEnemyProjectileSlot(0)
+            var turret = new EnemyProjectile(0, default)
             {
                 Position = new(new(0x0400, 0), new(0x0200, 0)),
                 State = new MotherBrainTurretState(0, direction),
             };
             enemies.MotherBrainBehavior.Projectiles.SpawnMotherBrainTurretBullet(turret);
 
-            RoomEnemyProjectileSlot bullet =
+            EnemyProjectile bullet =
                 enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
             AssertEqual(RoomEnemyProjectileKind.MotherBrainRoomTurretBullet, bullet.Kind,
                 $"production Mother Brain turret bullet kind {direction}");

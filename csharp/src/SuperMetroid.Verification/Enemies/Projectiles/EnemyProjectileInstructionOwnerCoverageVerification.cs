@@ -36,7 +36,7 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
             definitionCount++;
             // Every translated kind has a definition; the catalog rejects any other.
             _ = EnemyProjectileKinds.Get(kind);
-            var projectile = new RoomEnemyProjectileSlot(0)
+            var projectile = new EnemyProjectile(0, default)
             {
                 Kind = kind,
             };

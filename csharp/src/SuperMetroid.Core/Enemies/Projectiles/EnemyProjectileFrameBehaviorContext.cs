@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// <summary>Everything a frame behaviour receives for one projectile in one projectile pass.</summary>
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 internal readonly record struct EnemyProjectileFrameBehaviorContext(
-    RoomEnemyProjectileSlot Projectile,
+    EnemyProjectile Projectile,
     RoomLevelData Level,
     SamusState? Samus,
     Position16<RoomPixels> Camera,

@@ -104,7 +104,7 @@ internal sealed class PhantoonOpening
     /// <param name="directionIndex">The flame's orbit direction, 0 through 255; its eighth turns wrap within the orbit.</param>
     internal bool SpawnPhantoonStartingFlame(RoomEnemySlot body, int directionIndex)
     {
-        RoomEnemyProjectileSlot? flame = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? flame = _projectiles.AllocateEnemyProjectile();
         if (flame is null)
             return false;
 

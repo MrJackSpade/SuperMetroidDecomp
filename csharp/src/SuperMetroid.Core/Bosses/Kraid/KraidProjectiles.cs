@@ -131,14 +131,14 @@ internal sealed class KraidProjectiles
             () => new KraidRockAnimation(KraidRockProgram.SpitRockShot));
         table.AddCue<KraidRockCue>((context, cue) =>
         {
-            RoomEnemyProjectileSlot projectile = context.Projectile;
+            EnemyProjectile projectile = context.Projectile;
             switch (cue)
             {
-                case KraidRockCue.UsePaletteZero:
+                case KraidRockCue.DrawFromSharedSheetFromNextPass:
                     projectile.FrameBehavior = EnemyProjectileFrameBehavior.KraidShotRockRecolor;
                     return;
                 case KraidRockCue.Delete:
-                    projectile.Clear();
+                    projectile.Delete();
                     return;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(KraidRockCue)} {cue}.");
@@ -494,13 +494,13 @@ internal sealed class KraidProjectiles
 
     /// <summary>Updates a spit rock's flight and removes it at its boundary.</summary>
     internal static void RunKraidRockFrameBehavior(
-        RoomEnemyProjectileSlot rock,
+        EnemyProjectile rock,
         RoomLevelData level)
     {
         if (EnemyProjectileEngine.MoveProjectileAxis(rock, level, axis: Axis.Horizontal) ||
             EnemyProjectileEngine.MoveProjectileAxis(rock, level, axis: Axis.Vertical))
         {
-            rock.Clear();
+            rock.Delete();
             return;
         }
 
@@ -513,12 +513,12 @@ internal sealed class KraidProjectiles
 
     /// <summary>Updates a falling ceiling rock and its contact with room terrain.</summary>
     internal static void RunKraidCeilingRockFrameBehavior(
-        RoomEnemyProjectileSlot rock,
+        EnemyProjectile rock,
         RoomLevelData level)
     {
         if (EnemyProjectileEngine.MoveProjectileAxis(rock, level, axis: Axis.Vertical))
         {
-            rock.Clear();
+            rock.Delete();
             return;
         }
         rock.Velocity = rock.Velocity.WithY(
@@ -546,7 +546,7 @@ internal sealed class KraidProjectiles
     {
         table.AddFrameBehavior(context =>
         {
-            context.Projectile.Graphics = default;
+            context.Projectile.Graphics = SpriteGraphics.SharedStandard;
         }, EnemyProjectileFrameBehavior.KraidShotRockRecolor);
     }
 }

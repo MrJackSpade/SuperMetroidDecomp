@@ -262,7 +262,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     private void FinishZebetiteDeath(RoomEnemySlot slot)
     {
         RoomEnemySpawnSnapshot survivingSpawn = slot.Spawn;
-        RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is not null)
         {
             MotherBrainProjectileStarts.Initialize(

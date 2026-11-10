@@ -61,7 +61,7 @@ internal static class SuperMissileDeathAnimationVerification
         runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(runtime.Projectiles, runtime.BombProjectiles, samus,
             onlyEnemy: enemy);
 
-        RoomEnemyProjectileSlot explosion = runtime.Enemies.Projectiles.EnemyProjectiles
+        EnemyProjectile explosion = runtime.Enemies.Projectiles.EnemyProjectiles
             .Single(projectile => projectile.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion);
         return ProgramOf(explosion);
     }

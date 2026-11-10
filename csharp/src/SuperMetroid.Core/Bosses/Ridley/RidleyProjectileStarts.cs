@@ -18,7 +18,7 @@ internal static class RidleyProjectileStarts
 
     /// <summary>Initializes <paramref name="projectile"/> from its definition and starts the program its kind names.</summary>
     /// <exception cref="KeyNotFoundException">The kind is not an afterburn centre.</exception>
-    internal static void Initialize(RoomEnemyProjectileSlot projectile, RoomEnemyProjectileKind kind, SpriteGraphics graphics)
+    internal static void Initialize(EnemyProjectile projectile, RoomEnemyProjectileKind kind, SpriteGraphics graphics)
     {
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphics);
         projectile.StartAnimation(InitialPrograms[kind]());

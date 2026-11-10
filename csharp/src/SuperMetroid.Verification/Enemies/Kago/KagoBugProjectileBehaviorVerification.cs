@@ -23,7 +23,7 @@ internal static class KagoBugProjectileBehaviorVerification
             enemies.VerificationServices().ReadRandom = () => 1;
             // The shell releases the bug with the typed state its cues keep: the source shell and its countdowns.
             AssertTrue(enemies.KagoBehavior.SpawnKagoBug(new RoomEnemySlot(0, EnemySlotFixtures.Registry)), "the real Kago producer allocates its bug");
-            RoomEnemyProjectileSlot bug = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.KagoBug);
+            EnemyProjectile bug = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.KagoBug);
             bug.StartAnimation(new KagoBugProjectileAnimation(program));
             (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, bug, KagoBugProjectileNativeListAddresses.Entry(program), 40, program.ToString());
             AssertTrue(!deleted, $"{program} keeps the bug");

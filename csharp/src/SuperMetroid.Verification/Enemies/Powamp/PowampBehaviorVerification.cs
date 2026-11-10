@@ -14,7 +14,7 @@ using SuperMetroid.Core.World;
 internal static class PowampBehaviorVerification
 {
     /// <summary>
-    /// The real initializers start the balloon deflated and the body on its slow pulse. At every step of the balloon's
+    /// The real initializers start the balloon deflated and the body on its slow pulse. At every place of the balloon's
     /// animations, the phase the AI reads matches the native pointer it stands for: that sequence's first list plus four
     /// bytes per shown pose.
     /// </summary>
@@ -31,22 +31,45 @@ internal static class PowampBehaviorVerification
         body.Bind(body.DefinitionId, default(RoomEnemyDefinition));
         body.SetSpawnSettings(new PowampSpawnSettings(PowampPart.Body, GrappleTravelDistance: 0));
         enemies.PowampBehavior.InitializePowamp(body);
-        AssertEqual(AnimationProgramCursor<PowampProgram>.Start(PowampProgram.BalloonDeflated), balloon.RequireSpeciesState<PowampEnemyState>().Program,
+        AssertEqual(new AnimationPlayback<PowampProgram>(PowampAnimations.StartingWith(PowampProgram.BalloonDeflated), AnimationPlace.StartOfAnimation), balloon.RequireSpeciesState<PowampEnemyState>().Playback,
             "the balloon starts deflated");
-        AssertEqual(AnimationProgramCursor<PowampProgram>.Start(PowampProgram.BodySlow), body.RequireSpeciesState<PowampEnemyState>().Program,
+        AssertEqual(new AnimationPlayback<PowampProgram>(PowampAnimations.StartingWith(PowampProgram.BodySlow), AnimationPlace.StartOfAnimation), body.RequireSpeciesState<PowampEnemyState>().Playback,
             "the body starts on its slow pulse");
 
-        Dictionary<PowampProgram, ushort[]> steps = NativeEnemyProgramOracle.StepAddresses(CartridgeImportSource.Require(rom), PowampNativeListAddresses.Bank,
-            PowampNativeListAddresses.Entries, PowampAnimations.Programs, PowampFrameToolingDefinitions.Spritemap, _ => null,
-            (word, _, _, at) => throw new InvalidDataException($"{at}: the Powamp lists use no owner instruction ${word:X4}."));
-        foreach (PowampProgram program in new[] { PowampProgram.BalloonInflate0, PowampProgram.BalloonInflate1, PowampProgram.BalloonStartSinking, PowampProgram.BalloonDeflated })
-        for (int position = 0; position < steps[program].Length; position++)
+        // The ROM oracle holds every balloon beat to a four-byte native frame record, so the native pointer at a place
+        // is its segment's entry plus four bytes per beat passed, the list's closing control at its end included; the
+        // native record there is the pose's own.
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        foreach (PowampProgram start in new[] { PowampProgram.BalloonInflate0, PowampProgram.BalloonInflate1, PowampProgram.BalloonStartSinking, PowampProgram.BalloonDeflated })
         {
-            (bool sinking, int shown) = PowampBehavior.PowampBalloonPhase(new AnimationProgramCursor<PowampProgram>(program, position));
-            ushort sequence = NativeEnemyProgramOracle.EntryOf(PowampNativeListAddresses.Entries, sinking ? PowampProgram.BalloonStartSinking : PowampProgram.BalloonInflate0);
-            AssertEqual(steps[program][position], (ushort)(sequence + 4 * shown), $"Powamp balloon {program} step {position} phase");
+            Animation<PowampProgram> animation = PowampAnimations.StartingWith(start);
+            AssertBalloonPhase(cartridge, new(animation, AnimationPlace.StartOfAnimation), start, 0, $"Powamp balloon {start} before it starts");
+            for (int phase = 0; phase < animation.Phases.Count; phase++)
+            for (int beat = 0; beat <= animation.Phases[phase].BeatCount; beat++)
+            {
+                AssertBalloonPhase(cartridge, new(animation, new AnimationPlace(phase, beat)), animation.Phases[phase].Segment, animation.Phases[phase].FirstBeat + beat,
+                    $"Powamp balloon {start} phase {phase} beat {beat}");
+            }
         }
         Console.WriteLine("  Powamp behavior: both initial animations and every balloon step's native phase pass.");
+    }
+
+    /// <summary>
+    /// The balloon phase the AI reads at <paramref name="playback"/> stands for the native pointer <paramref name="passed"/>
+    /// four-byte records into <paramref name="segment"/>'s list, where the native record is the pose's own.
+    /// </summary>
+    private static void AssertBalloonPhase(IImportCartridgeSource cartridge, AnimationPlayback<PowampProgram> playback, PowampProgram segment, int passed, string context)
+    {
+        (bool sinking, int shown) = PowampBehavior.PowampBalloonPhase(playback);
+        ushort sequence = NativeEnemyProgramOracle.EntryOf(PowampNativeListAddresses.Entries, sinking ? PowampProgram.BalloonStartSinking : PowampProgram.BalloonInflate0);
+        ushort pointer = (ushort)(NativeEnemyProgramOracle.EntryOf(PowampNativeListAddresses.Entries, segment) + 4 * passed);
+        AssertEqual(pointer, (ushort)(sequence + 4 * shown), context);
+        IReadOnlyList<AnimationBeat<PowampFrame, NoAnimationCue>> beats = PowampAnimations.Segments.Beats(segment);
+        if (passed < beats.Count)
+        {
+            AssertEqual(AssertIs<AnimationBeat<PowampFrame, NoAnimationCue>.Frame>(beats[passed], context).Duration,
+                (int)cartridge.ReadCartridgeWord((PowampNativeListAddresses.Bank << 16) | pointer), $"{context}: native pose record");
+        }
     }
 
     /// <summary>Runs the Powamp behavior check and its program oracle against the local retail cartridge.</summary>

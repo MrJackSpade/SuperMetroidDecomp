@@ -276,7 +276,7 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(SkulteraAnimations), "csharp/src/SuperMetroid.Core/Enemies/Skultera/SkulteraAnimations.cs");
         RequireTypedFrames(BoyonAnimations.Programs, BoyonFrameToolingDefinitions.Spritemap, BoyonFrameToolingDefinitions.Bank,
             nameof(BoyonAnimations), "csharp/src/SuperMetroid.Core/Enemies/Boyon/BoyonAnimations.cs");
-        RequireTypedFrames(PowampAnimations.Programs, PowampFrameToolingDefinitions.Spritemap, PowampFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(PowampAnimations.Segments, PowampFrameToolingDefinitions.Spritemap, PowampFrameToolingDefinitions.Bank,
             nameof(PowampAnimations), "csharp/src/SuperMetroid.Core/Enemies/Powamp/PowampAnimations.cs");
         RequireTypedFrames(SparkAnimations.Programs, SparkFrameToolingDefinitions.Spritemap, SparkFrameToolingDefinitions.Bank,
             nameof(SparkAnimations), "csharp/src/SuperMetroid.Core/Enemies/Sparks/SparkAnimations.cs");

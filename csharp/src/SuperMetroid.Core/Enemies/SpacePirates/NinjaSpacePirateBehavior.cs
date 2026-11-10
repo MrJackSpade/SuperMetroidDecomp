@@ -226,7 +226,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         TryNinjaPirateClawAttack(slot, state, samus);
     }
 
-    /// <summary>Flinches only for the highest occupied Samus projectile when it is close on both axes.</summary>
+    /// <summary>Flinches when the one shot the flinch tests (<see cref="PirateFlinchFromHighestShot"/>) is close on both axes.</summary>
     private static bool TryNinjaPirateProjectileFlinch(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
@@ -236,19 +236,9 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         if (samusProjectiles is null)
             return false;
 
-        // The projectile check selects only the highest occupied Samus projectile slot. If that one is
-        // far away, it returns immediately instead of searching a lower slot that is closer.
-        SamusProjectile? projectile = null;
-        for (int index = Math.Min(4, samusProjectiles.Slots.Count - 1); index >= 0; index--)
-        {
-            // The check selects by nonzero projectile type, not by the projectile's
-            // animation. This includes the invisible zero-animation Murder Beam.
-            if (samusProjectiles.Slots[index].HasEnemyCollisionPayload)
-            {
-                projectile = samusProjectiles.Slots[index];
-                break;
-            }
-        }
+        // A ninja pirate reacts to a beam or missile by its kind, not its picture, so the invisible Murder Beam counts.
+        SamusProjectile? projectile = PirateFlinchFromHighestShot.Shot(
+            samusProjectiles.Slots, shot => shot.HasEnemyCollisionPayload);
         if (projectile is null ||
             CoordinateAxis.Distance(projectile.Position.X.Whole, slot.Position.X.Whole) >=
                 NinjaPirateFlinchDistance ||

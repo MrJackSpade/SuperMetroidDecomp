@@ -246,7 +246,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             WalkingSpacePirateProgram.LookingFacingRight);
     }
 
-    /// <summary>Runs the walking Space Pirate's flinch trigger.</summary>
+    /// <summary>Flinches when the one shot the flinch tests (<see cref="PirateFlinchFromHighestShot"/>) is close on both axes.</summary>
     private static void TryTriggerWalkingSpacePirateFlinch(
         RoomEnemySlot slot,
         WalkingSpacePirateEnemyState state,
@@ -256,22 +256,12 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         if (projectiles is null)
             return;
 
-        SamusProjectile? firstAllocated = null;
-        for (int index = SamusProjectileSystem.SlotCount - 1; index >= 0; index--)
-        {
-            // Code tests the projectile type, not the program. More importantly,
-            // it stops at the first occupied high-index slot even when that shot is far
-            // away; it never searches lower slots for a closer projectile.
-            if (!projectiles.Slots[index].Type.IsNone)
-            {
-                firstAllocated = projectiles.Slots[index];
-                break;
-            }
-        }
-        if (firstAllocated is null ||
-            CoordinateAxis.Distance(firstAllocated.Position.X.Whole, slot.Position.X.Whole) >=
+        // A walking pirate reacts to any shot by its kind, not its picture.
+        SamusProjectile? shot = PirateFlinchFromHighestShot.Shot(projectiles.Slots, projectile => !projectile.Type.IsNone);
+        if (shot is null ||
+            CoordinateAxis.Distance(shot.Position.X.Whole, slot.Position.X.Whole) >=
                 WalkingPirateFlinchBoxPixels ||
-            CoordinateAxis.Distance(firstAllocated.Position.Y.Whole, slot.Position.Y.Whole) >=
+            CoordinateAxis.Distance(shot.Position.Y.Whole, slot.Position.Y.Whole) >=
                 WalkingPirateFlinchBoxPixels)
         {
             return;

@@ -99,9 +99,6 @@ internal sealed class ProjectileSlotTable
         }
     }
 
-    /// <summary>The trail slots by ordinal.</summary>
-    internal IReadOnlyList<SamusProjectileTrailSlot> TrailSlots => _trailSlots;
-
     /// <summary>The trail slots in update order, highest ordinal first; a new trail takes the first free one.</summary>
     internal IEnumerable<SamusProjectileTrailSlot> TrailsInUpdateOrder
     {

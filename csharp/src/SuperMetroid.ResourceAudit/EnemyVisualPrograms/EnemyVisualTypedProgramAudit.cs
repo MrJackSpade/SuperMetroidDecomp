@@ -310,7 +310,7 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(DachoraAnimations), "csharp/src/SuperMetroid.Core/Enemies/Animals/DachoraAnimations.cs");
         RequireSegmentFrames(EtecoonAnimations.Segments, EtecoonFrameToolingDefinitions.Spritemap, EtecoonFrameToolingDefinitions.Bank,
             nameof(EtecoonAnimations), "csharp/src/SuperMetroid.Core/Enemies/Animals/EtecoonAnimations.cs");
-        RequireTypedFrames(HibashiAnimations.Programs, HibashiFrameToolingDefinitions.Spritemap, HibashiFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(HibashiAnimations.Segments, HibashiFrameToolingDefinitions.Spritemap, HibashiFrameToolingDefinitions.Bank,
             nameof(HibashiAnimations), "csharp/src/SuperMetroid.Core/Enemies/Hibashi/HibashiAnimations.cs");
         RequireTypedFrames(TourianEntranceStatueAnimations.Programs, frame => EnemyFrameCartridgeLookupTooling.Word(TourianEntranceStatueFrameDefinitions.ShownFrames.Of(frame)), TourianEntranceStatueFrameToolingDefinitions.Bank,
             nameof(TourianEntranceStatueAnimations), "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianEntranceStatueAnimations.cs");

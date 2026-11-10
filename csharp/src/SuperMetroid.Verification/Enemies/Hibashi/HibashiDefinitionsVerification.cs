@@ -130,14 +130,14 @@ internal static class HibashiDefinitionsVerification
             "Hibashi finished program disables collision actor");
         HibashiEnemyState graphicsState = programSystem.HibashiStates[0] ?? throw new InvalidOperationException("The Hibashi graphics part has no state.");
         HibashiEnemyState hitboxState = programSystem.HibashiStates[1] ?? throw new InvalidOperationException("The Hibashi hitbox part has no state.");
-        AnimationProgramCursor<HibashiProgram> graphicsAsleep = graphicsState.Program;
-        AnimationProgramCursor<HibashiProgram> hitboxAsleep = hitboxState.Program;
+        AnimationPlayback<HibashiProgram> graphicsAsleep = graphicsState.Playback;
+        AnimationPlayback<HibashiProgram> hitboxAsleep = hitboxState.Playback;
         EnemyInstructionRunner.Process(graphicsArguments);
         EnemyInstructionRunner.Process(hitboxArguments);
-        AssertEqual(graphicsAsleep, graphicsState.Program, "Hibashi graphics program sleeps after finishing");
-        AssertEqual(hitboxAsleep, hitboxState.Program, "Hibashi hitbox program sleeps on its one pose");
-        AssertEqual(HibashiProgram.Graphics, graphicsState.Program.Program, "Hibashi graphics part runs the eruption");
-        AssertEqual(HibashiProgram.Hitbox, hitboxState.Program.Program, "Hibashi hitbox part runs the collision-part animation");
+        AssertEqual(graphicsAsleep, graphicsState.Playback, "Hibashi graphics program sleeps after finishing");
+        AssertEqual(hitboxAsleep, hitboxState.Playback, "Hibashi hitbox program sleeps on its one pose");
+        AssertEqual(HibashiProgram.Graphics, graphicsState.Playback.Animation.Phases[graphicsState.Playback.Place.Phase].Segment, "Hibashi graphics part runs the eruption");
+        AssertEqual(HibashiProgram.Hitbox, hitboxState.Playback.Animation.Phases[hitboxState.Playback.Place.Phase].Segment, "Hibashi hitbox part runs the collision-part animation");
         Suite(nameof(HibashiAnimationsVerification.VerifyHibashiAnimations), () => HibashiAnimationsVerification.VerifyHibashiAnimations(rom));
 
         Console.WriteLine(

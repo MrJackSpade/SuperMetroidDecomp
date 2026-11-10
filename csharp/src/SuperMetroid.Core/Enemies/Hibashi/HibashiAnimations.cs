@@ -10,9 +10,9 @@ namespace SuperMetroid.Core.Enemies.Hibashi;
 /// </summary>
 internal static class HibashiAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<HibashiProgram, HibashiFrame, HibashiCue> Programs { get; } = new(
-        new Dictionary<HibashiProgram, AnimationProgramStep<HibashiProgram, HibashiFrame, HibashiCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<HibashiProgram, HibashiFrame, HibashiCue> Segments { get; } = new(
+        new Dictionary<HibashiProgram, AnimationBeat<HibashiFrame, HibashiCue>[]>
     {
         [P.Graphics] =
         [
@@ -63,22 +63,26 @@ internal static class HibashiAnimations
             Cue(new(K.ActivityFrame, Value: 21)),
             Show(22, 4),
             Cue(new(K.FinishActivity)),
-            Hold,
         ],
         [P.Hitbox] =
         [
             Show(0, 2),
-            Hold,
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<HibashiProgram, Animation<HibashiProgram>> StartingAt { get; } = new Dictionary<HibashiProgram, Animation<HibashiProgram>>
+    {
+        [P.Graphics] = new([new(P.Graphics, 0, 47, 1)], AnimationEnd.Holds),
+        [P.Hitbox] = new([new(P.Hitbox, 0, 1, 1)], AnimationEnd.Holds),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<HibashiProgram> StartingWith(HibashiProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<HibashiProgram, HibashiFrame, HibashiCue> Show(int pose, int duration) => AnimationProgramStep<HibashiProgram, HibashiFrame, HibashiCue>.Show(new(pose), duration);
+    private static AnimationBeat<HibashiFrame, HibashiCue> Show(int pose, int duration) => new AnimationBeat<HibashiFrame, HibashiCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<HibashiProgram, HibashiFrame, HibashiCue> Cue(HibashiCue cue) => AnimationProgramStep<HibashiProgram, HibashiFrame, HibashiCue>.Publish(cue);
-
-    /// <summary>Holds the last frame, as the sleep does.</summary>
-    private static AnimationProgramStep<HibashiProgram, HibashiFrame, HibashiCue> Hold => AnimationProgramStep<HibashiProgram, HibashiFrame, HibashiCue>.Hold;
-
+    private static AnimationBeat<HibashiFrame, HibashiCue> Cue(HibashiCue cue) => new AnimationBeat<HibashiFrame, HibashiCue>.Event(cue);
 }

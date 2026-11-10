@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Programs;
-using P = SuperMetroid.Core.Enemies.Hibashi.HibashiProgram;
 using SuperMetroid.Core.Enemies.Hibashi.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Hibashi;
@@ -9,7 +8,7 @@ internal static class HibashiAnimationsTooling
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params HibashiProgram[] programs) =>
-        programs.SelectMany(program => HibashiAnimations.Programs.Steps(program))
-            .OfType<AnimationProgramStep<P, HibashiFrame, HibashiCue>.ShowStep>()
-            .Select(step => HibashiFrameToolingDefinitions.Spritemap(step.Frame));
+        programs.SelectMany(program => HibashiAnimations.Segments.Beats(program))
+            .OfType<AnimationBeat<HibashiFrame, HibashiCue>.Frame>()
+            .Select(frame => HibashiFrameToolingDefinitions.Spritemap(frame.Shown));
 }

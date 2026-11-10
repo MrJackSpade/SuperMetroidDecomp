@@ -420,15 +420,16 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts a selected pose or hop animation with a one-tick instruction countdown.</summary>
     private static void SetPuyoProgram(RoomEnemySlot slot, PuyoEnemyState state, PuyoProgram program)
     {
-        state.Program = AnimationProgramCursor<PuyoProgram>.Start(program);
+        state.Playback = new(PuyoAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Advances Puyo's typed animation.</summary>
     internal static void AdvancePuyoTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, PuyoAnimations.Programs, PuyoFrameDefinitions.ShownFrames.Of,
-            static (PuyoEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
+        EnemyProgramAnimation.Advance(slot, PuyoAnimations.Segments, PuyoFrameDefinitions.ShownFrames.Of,
+            static (PuyoEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            static (_, cue) => throw new InvalidOperationException($"Puyo's cue-free animation raised {cue}."));
 
     /// <summary>Ports Puyo's main AI.</summary>
     internal void RunPuyoMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)

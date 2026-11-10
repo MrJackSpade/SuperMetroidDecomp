@@ -284,7 +284,7 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(MetroidAnimations), "csharp/src/SuperMetroid.Core/Enemies/Metroids/MetroidAnimations.cs");
         RequireSegmentFrames(MaridiaLargeSnailAnimations.Segments, MaridiaLargeSnailFrameToolingDefinitions.Spritemap, MaridiaLargeSnailFrameToolingDefinitions.Bank,
             nameof(MaridiaLargeSnailAnimations), "csharp/src/SuperMetroid.Core/Enemies/MaridiaSnails/MaridiaLargeSnailAnimations.cs");
-        RequireTypedFrames(PuyoAnimations.Programs, PuyoFrameToolingDefinitions.Spritemap, PuyoFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(PuyoAnimations.Segments, PuyoFrameToolingDefinitions.Spritemap, PuyoFrameToolingDefinitions.Bank,
             nameof(PuyoAnimations), "csharp/src/SuperMetroid.Core/Enemies/Puyo/PuyoAnimations.cs");
         RequireTypedFrames(RinkaAnimations.Programs, RinkaFrameToolingDefinitions.Spritemap, RinkaFrameToolingDefinitions.Bank,
             nameof(RinkaAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/RinkaAnimations.cs");

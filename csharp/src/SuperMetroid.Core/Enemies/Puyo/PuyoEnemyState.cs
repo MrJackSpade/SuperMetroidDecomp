@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Enemies.Puyo;
 /// <summary>The state of one Puyo.</summary>
 public sealed class PuyoEnemyState
 {
-    /// <summary>Where the typed animation (#641) resumes.</summary>
-    internal AnimationProgramCursor<PuyoProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<PuyoProgram> Playback { get; set; }
 
     /// <summary>
     /// Unsigned 8.8 index whose whole part chooses a row of the shared quadratic speed table, from 0 through 32767:

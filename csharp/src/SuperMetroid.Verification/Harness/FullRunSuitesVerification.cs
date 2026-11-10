@@ -17,6 +17,7 @@ using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidVictimVerif
 using static SuperMetroid.Verification.Bosses.MotherBrain.ZebetiteShotShareVerification;
 using static SuperMetroid.Verification.Enemies.EnemyOccupantStatesVerification;
 using static SuperMetroid.Verification.Enemies.KilledEnemyCompatibilityVerification;
+using static SuperMetroid.Verification.Enemies.Puyo.PuyoCeilingTurnVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidFatalBlowShakeVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidHeadTargetVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidInheritedFractionsVerification;
@@ -858,6 +859,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyZebetiteShotShare), () => VerifyZebetiteShotShare()),
         new(nameof(VerifyEnemyOccupantStates), () => VerifyEnemyOccupantStates()),
         new(nameof(VerifyKilledEnemyCompatibility), () => VerifyKilledEnemyCompatibility()),
+        new(nameof(VerifyPuyoCeilingTurn), () => VerifyPuyoCeilingTurn()),
         new(nameof(VerifyJumpNoXMovement), () => VerifyJumpNoXMovement()),
         new(nameof(VerifySaveConfirmationCadence), () => VerifySaveConfirmationCadence()),
         new(nameof(VerifyTourianStatueXrayFreeze), () => VerifyTourianStatueXrayFreeze()),

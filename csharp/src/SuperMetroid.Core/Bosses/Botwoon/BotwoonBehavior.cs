@@ -103,7 +103,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // Segments spawn from the one behind the head down to the tail. The projectile allocator hands out slots in
-        // its own order, so a segment's death delay follows its projectile slot while its body spacing follows its
+        // its own order, so a segment's death delay follows its projectile place while its body spacing follows its
         // segment index; both orders are kept.
         for (int segmentIndex = state.BodySegments.Length - 1; segmentIndex >= 0; segmentIndex--)
             SpawnBotwoonBodySegment(head, state, segmentIndex);
@@ -919,7 +919,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             "A live Botwoon body segment has no owning head state.");
         int segmentIndex = Array.IndexOf(state.BodySegments, segment);
         if (segmentIndex < 0)
-            throw new InvalidOperationException($"Projectile slot {segment.Place} is not one of Botwoon's body segments.");
+            throw new InvalidOperationException($"The enemy projectile in place {segment.Place} is not one of Botwoon's body segments.");
         BotwoonBodyFunction function = state.SegmentFunctions[segmentIndex];
         if (state.BodyDeathStarted && function == BotwoonBodyFunction.Main)
         {

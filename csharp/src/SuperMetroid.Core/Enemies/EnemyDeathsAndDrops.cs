@@ -475,7 +475,7 @@ internal sealed class EnemyDeathsAndDrops
             case EnemyPickupKind.NoDrop:
             default:
                 throw new InvalidDataException(
-                    $"Enemy pickup slot {projectile.Place} holds no restorable pickup ({kind}).");
+                    $"The enemy pickup in place {projectile.Place} holds no restorable pickup ({kind}).");
         }
 
         MakeEnemyPickupDormant(projectile);

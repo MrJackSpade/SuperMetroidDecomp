@@ -989,12 +989,13 @@ internal sealed class RoomLoader
         // The destination's enemies load with the door-transition gates clear; their projectile places start from what
         // the outgoing room's left (RoomHandOver).
         // Each enemy system gets its own compatibility services: the sweep and the slots start with no earlier kill or
-        // occupant.
+        // occupant, and a Puyo's ceiling turn starts from what loading the beams' colours above left.
         var compatibility = new RoomEnemyCompatibility
         {
             PowerBombRadius = new PowerBombRadiusAfterKill(),
             BullInheritance = new SlotInheritance<BullEnemyState>(EnemySlotOrder.Capacity),
             BeetomInheritance = new SlotInheritance<BeetomEnemyState>(EnemySlotOrder.Capacity),
+            PuyoCeilingTurn = new PuyoCeilingTurnFromLastDraw(),
         };
         var enemies = new RoomEnemySystem(_enemySession, compatibility, CompiledRoomEnemyDefinitions.Instance, areaServices,
             _bossArtwork);

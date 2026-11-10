@@ -892,6 +892,9 @@ internal sealed class SuperMetroidRuntime
     {
         // The HUD's three rows are rewritten during the update; they become visible at the next frame boundary,
         // which latches the HUD's images (AcceptedFrameBoundary, HudState.Shown).
+        // Every gameplay update redraws the HUD after its draw pass, which sets what a Puyo's ceiling strike in the
+        // next update reads.
+        Room.LoadedScope.Enemies.PuyoCeilingTurn.HudRedrawn();
         if (Hud.IsInitialized)
         {
             // The loan exists only so firing logic does not observe zero and

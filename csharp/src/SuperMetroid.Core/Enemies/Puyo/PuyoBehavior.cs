@@ -29,12 +29,15 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyRoomBinding _room;
     /// <summary>Resolves the room collisions that reverse, land or drop an airborne Puyo.</summary>
     private readonly EnemyTerrain _terrain;
+    /// <summary>Whether a rising Puyo that strikes a ceiling turns back on its next hop.</summary>
+    private readonly PuyoCeilingTurnFromLastDraw _ceilingTurn;
 
-    /// <summary>Binds Puyo hop decisions to room randomness and terrain collision.</summary>
-    internal PuyoBehavior(EnemyRoomBinding room, EnemyTerrain terrain)
+    /// <summary>Binds Puyo hop decisions to room randomness, terrain collision and the ceiling strike's turn.</summary>
+    internal PuyoBehavior(EnemyRoomBinding room, EnemyTerrain terrain, PuyoCeilingTurnFromLastDraw ceilingTurn)
     {
         _room = room;
         _terrain = terrain;
+        _ceilingTurn = ceilingTurn;
     }
 
     /// <summary>Upper bound applied to the airborne speed-table index.</summary>
@@ -314,12 +317,9 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (!state.Falling)
             {
-                // The landing copies a stale shared scratch word into the invert flag.
-                // During gameplay the HUD update leaves
-                // that word nonzero every frame, so the flag is set. Door transitions can leave
-                // other values before the first HUD pass of a room; those are treated as
-                // nonzero too, by decision, rather than modelling every scratch writer.
-                state.InvertDirection = true;
+                // Striking a ceiling while rising starts the drop; whether the next hop turns back is what the room's
+                // last draw and HUD redraw left (PuyoCeilingTurnFromLastDraw): always in an ordinary gameplay update.
+                state.InvertDirection = _ceilingTurn.TurnsBack;
                 state.InvertedDirection = Opposite(state.Direction);
                 state.HopType = PuyoHopType.Dropping;
                 state.AirborneFunction = PuyoAirborneFunction.Dropping;

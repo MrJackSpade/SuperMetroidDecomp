@@ -26,4 +26,7 @@ internal sealed record EnemyDrawListDependencies
 
     /// <summary>Room.</summary>
     public required EnemyRoomBinding Room { get; init; }
+
+    /// <summary>Told of each enemy the draw pass draws, which a Puyo's later ceiling strike reads.</summary>
+    public required PuyoCeilingTurnFromLastDraw PuyoCeilingTurn { get; init; }
 }

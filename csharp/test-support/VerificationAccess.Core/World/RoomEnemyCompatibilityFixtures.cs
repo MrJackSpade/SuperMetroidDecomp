@@ -13,5 +13,6 @@ internal static class RoomEnemyCompatibilityFixtures
         PowerBombRadius = new PowerBombRadiusAfterKill(),
         BullInheritance = new SlotInheritance<BullEnemyState>(EnemySlotOrder.Capacity),
         BeetomInheritance = new SlotInheritance<BeetomEnemyState>(EnemySlotOrder.Capacity),
+        PuyoCeilingTurn = new PuyoCeilingTurnFromLastDraw(),
     };
 }

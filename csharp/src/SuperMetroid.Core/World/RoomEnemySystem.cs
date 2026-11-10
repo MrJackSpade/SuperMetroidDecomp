@@ -478,6 +478,12 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// <summary>The room's sprite objects.</summary>
     internal RoomSpriteObjects SpriteObjects { get; }
 
+    /// <summary>
+    /// Whether a Puyo striking a ceiling turns back: told of the room's draws, the charge flare's and the HUD's redraws,
+    /// and read by the Puyos.
+    /// </summary>
+    internal PuyoCeilingTurnFromLastDraw PuyoCeilingTurn { get; }
+
     /// <summary>The <see cref="EnemyProjectileEngine"/> owner of this RoomEnemySystem.</summary>
     internal EnemyProjectileEngine Projectiles { get; }
 
@@ -628,7 +634,8 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         PopulationLoader = new EnemyPopulationLoader(Room, RoomStatus, SlotTable, Dispatch);
         RidleyEncounter = new RidleyEncounter(SlotTable, session);
         Earthquake = new RoomEarthquake();
-        SpriteObjects = new RoomSpriteObjects(Presentation, new SpriteObjectPlaces());
+        PuyoCeilingTurn = compatibility.PuyoCeilingTurn;
+        SpriteObjects = new RoomSpriteObjects(Presentation, new SpriteObjectPlaces(), PuyoCeilingTurn);
         Projectiles = new EnemyProjectileEngine(Room, Presentation, SpriteObjects, Earthquake, Audio);
         Projectiles.AddHandlerSource(this);
         GunshipBehavior = new GunshipBehavior(Audio, Projectiles, Room, SlotTable, FrameResults);
@@ -667,7 +674,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         RinkaBehavior = new RinkaBehavior(Collision, FrameContext, Projectiles, DeathsAndDrops);
         CeresRidleyBehavior = new CeresRidleyBehavior(new CeresRidleyBehaviorDependencies { FrameResults = BossFrameResults, Dispatch = Dispatch, Room = Room, Earthquake = Earthquake, Audio = Audio, SlotTable = SlotTable, Presentation = BossPresentation, Collision = Collision, RidleyEncounter = RidleyEncounter, RidleyTail = RidleyTail, RoomStatus = RoomStatus });
         RidleyBehavior = new RidleyBehavior(new RidleyBehaviorDependencies { Dispatch = Dispatch, Room = Room, Earthquake = Earthquake, Audio = Audio, Presentation = BossPresentation, DeathsAndDrops = DeathsAndDrops, RidleyEncounter = RidleyEncounter, RidleyTail = RidleyTail, CeresRidleyBehavior = CeresRidleyBehavior, RidleyProjectiles = RidleyProjectiles, RoomStatus = RoomStatus, RoomFx = RoomFx  });
-        PuyoBehavior = new PuyoBehavior(Room, Terrain);
+        PuyoBehavior = new PuyoBehavior(Room, Terrain, PuyoCeilingTurn);
         PrePhantoonRoomBehavior = new PrePhantoonRoomBehavior(Room, Projectiles);
         PowampBehavior = new PowampBehavior(Terrain, Projectiles, SlotTable, Collision, DeathsAndDrops);
         PolypBehavior = new PolypBehavior(Room, Projectiles);
@@ -725,7 +732,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         BoulderBehavior = new BoulderBehavior(Terrain, Projectiles, Audio);
         BotwoonBehavior = new BotwoonBehavior(new BotwoonBehaviorDependencies { Audio = Audio, Room = Room, Projectiles = Projectiles, SpriteObjects = SpriteObjects, Presentation = Presentation, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults , BossArtwork = BossArtworkBinding });
         Instructions = new EnemyInstructionInterpreter(Presentation);
-        Drawing = new EnemyDrawList(new EnemyDrawListDependencies { DeadTorizoBehavior = DeadTorizoBehavior, FrameContext = FrameContext, Instructions = Instructions, MotherBrainBehavior = MotherBrainBehavior, Presentation = Presentation, Room = Room });
+        Drawing = new EnemyDrawList(new EnemyDrawListDependencies { DeadTorizoBehavior = DeadTorizoBehavior, FrameContext = FrameContext, Instructions = Instructions, MotherBrainBehavior = MotherBrainBehavior, Presentation = Presentation, Room = Room, PuyoCeilingTurn = PuyoCeilingTurn });
         BombTorizoBehavior = new BombTorizoBehavior(new BombTorizoBehaviorDependencies { Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults });
         BlueBrinstarFaceBlockBehavior = new BlueBrinstarFaceBlockBehavior(SlotTable, ElevatorBehavior);
         BeetomBehavior = new BeetomBehavior(Room, Terrain, Audio, FrameContext, Collision, compatibility.BeetomInheritance);

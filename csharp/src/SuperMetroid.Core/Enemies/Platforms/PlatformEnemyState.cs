@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Enemies.Platforms;
 /// </summary>
 public sealed class PlatformEnemyState
 {
-    /// <summary>Where the typed animation (#641) resumes.</summary>
-    internal AnimationProgramCursor<PlatformProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<PlatformProgram> Playback { get; set; }
 
     /// <summary>
     /// The height a depressed platform rises back to, one pixel below its population position; only Y is meaningful.

@@ -74,12 +74,12 @@ internal static class PlatformInstructionProgramDefinitionsVerification
                 : testCase.Direction == PlatformHorizontalMovement.Left
                     ? PlatformProgram.TripperStillMovingLeft
                     : PlatformProgram.TripperStillMovingRight;
-            AssertEqual(AnimationProgramCursor<PlatformProgram>.Start(expectedInitial), state.Program,
+            AssertEqual(new AnimationPlayback<PlatformProgram>(PlatformAnimations.StartingWith(expectedInitial), AnimationPlace.StartOfAnimation), state.Playback,
                 $"real {(testCase.IsKamer ? "Kamer" : "Tripper")} initializer " +
                 $"selects {testCase.Direction} still program");
 
             (testCase.IsMoving ? installMoving : installStill)(slot, (state));
-            AssertEqual(AnimationProgramCursor<PlatformProgram>.Start(testCase.Program), state.Program,
+            AssertEqual(new AnimationPlayback<PlatformProgram>(PlatformAnimations.StartingWith(testCase.Program), AnimationPlace.StartOfAnimation), state.Playback,
                 $"production platform installer selects {testCase.Program}");
 
             // The direction cue runs with the first pose; four more updates show the rest of the four-pose loop and
@@ -89,9 +89,9 @@ internal static class PlatformInstructionProgramDefinitionsVerification
                 : PlatformHorizontalMovement.Left;
             ExecutePlatformProgram(slot, callCount: 1);
             AssertEqual(testCase.Direction, state.XMovement, $"platform program {testCase.Program} publishes direction");
-            AnimationProgramCursor<PlatformProgram>? firstPose = state.Program;
+            AnimationPlayback<PlatformProgram>? firstPose = state.Playback;
             ExecutePlatformProgram(slot, callCount: 4);
-            AssertEqual(firstPose, state.Program, $"platform program {testCase.Program} loops through four poses");
+            AssertEqual(firstPose, state.Playback, $"platform program {testCase.Program} loops through four poses");
         }
 
         Suite(nameof(VerifyPlatformVisualPointers), () => VerifyPlatformVisualPointers(rom));

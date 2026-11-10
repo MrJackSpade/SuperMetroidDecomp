@@ -74,8 +74,8 @@ internal static class EnemySheetComposer
         }, encoder => encoder.Dispose());
         SharedSpawnedSheets shared = SpawnedObjectSheetSharing.Share(spawnedLayouts);
         var names = new SheetNames();
-        var variants = new VariantNames<EnemyVariantDocument>();
-        var spawnedVariants = new VariantNames<SpawnedObjectSheetDocument>();
+        var variants = new VariantNames<EnemyVariantDocument>(document => JsonSerializer.Serialize(document));
+        var spawnedVariants = new VariantNames<SpawnedObjectSheetDocument>(document => JsonSerializer.Serialize(document));
         var setArtwork = new Dictionary<string, PopulationArtworkDocument>(StringComparer.Ordinal);
         // The session start's variants are named first, as each owner's standard variant.
         foreach (LaidGraphicsSet set in laidSets.OrderBy(set => set.Name == RoomEnemyGraphicsSetDefinitions.SessionStart.Name ? 0 : 1))
@@ -208,7 +208,8 @@ internal static class EnemySheetComposer
     /// next ordinal.
     /// </summary>
     /// <typeparam name="TDocument">How the manifest spells a variant.</typeparam>
-    private sealed class VariantNames<TDocument>
+    /// <param name="spelling">How the manifest spells a document; two variants are the same exactly when they spell alike.</param>
+    private sealed class VariantNames<TDocument>(Func<TDocument, string> spelling)
     {
         /// <summary>The name of the variant with each identity: its owner and how the manifest spells it.</summary>
         private readonly Dictionary<string, string> named = new(StringComparer.Ordinal);
@@ -226,7 +227,7 @@ internal static class EnemySheetComposer
         /// <exception cref="ArgumentException">The owner has two standard variants.</exception>
         internal string Of(string owner, TDocument document, bool standard)
         {
-            string identity = $"{owner}\n{JsonSerializer.Serialize(document)}";
+            string identity = $"{owner}\n{spelling(document)}";
             if (named.TryGetValue(identity, out string? known))
                 return known;
             string name;

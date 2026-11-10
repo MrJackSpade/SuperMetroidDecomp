@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.World.RoomStates;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.World.RoomStates;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
@@ -64,12 +63,6 @@ internal static class RoomEnemyGraphicsSetLists
     /// </summary>
     internal static RoomEnemyGraphicsSetDefinition DrawnUnderIn(RoomStateSettings state) =>
         Ensure.NotNull(state).EnemyPopulation.Records.IsEmpty ? RoomEnemyGraphicsSetDefinitions.SessionStart : Of(state);
-
-    /// <summary>The graphics set retail population <paramref name="population"/> draws under.</summary>
-    /// <exception cref="InvalidDataException">No retail room state places the population's enemies.</exception>
-    internal static RoomEnemyGraphicsSetDefinition DrawnUnderBy(RoomEnemyPopulationDefinition population) =>
-        PopulationSets.TryGetValue(Ensure.NotNull(population).Name, out RoomEnemyGraphicsSetDefinition? set) ? set
-            : throw new InvalidDataException($"No retail room state places population {population.Name}.");
 
     /// <summary>The set each population <paramref name="states"/> place enemies with draws under, by population name.</summary>
     /// <exception cref="InvalidDataException">Two states place one population under different sets.</exception>

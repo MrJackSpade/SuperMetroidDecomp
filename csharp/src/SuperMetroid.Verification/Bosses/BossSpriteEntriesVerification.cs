@@ -38,14 +38,14 @@ internal static class BossSpriteEntriesVerification
         enemies.DeadTorizoBehavior.InitializeDeadTorizo(enemies.SlotTable.Slots[0]);
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
-        enemies.DeadTorizoBehavior.DrawDeadTorizoHook(sprites, DeadTorizoCamera);
+        enemies.DeadTorizoBehavior.DrawDeadTorizoSandHeap(sprites, DeadTorizoCamera);
         sprites.FinalizeFrame();
         // The hook draws one picture per layer of its frame, each for what the rotting rows it reads show.
         SuperMetroid.Core.Enemies.Artwork.SpawnedObjectSheet hookPictures =InstalledFixtures.EnemySheets.Spawned(SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.CorpseTorizo), SpawnedObjectOwner.Shared);
         AssertTrue(sprites.Draws.Length > 0, "Dead Torizo's hook draws");
         foreach (SpriteDraw corpse in sprites.Draws)
         {
-            AssertEqual(new SpriteSource(SpriteSourceKind.DeadTorizoHook), corpse.Source, "Dead Torizo's hook names its source");
+            AssertEqual(new SpriteSource(SpriteSourceKind.DeadTorizoSandHeap), corpse.Source, "Dead Torizo's hook names its source");
             AssertTrue(corpse is ImageSpriteDraw hook && hookPictures.Sheets.Any(sheet => sheet.Image == hook.Image.Sheet),
                 "Dead Torizo's hook draws from its set's character-zero pictures");
             AssertEqual(new Position16<ScreenPixels>(unchecked((ushort)(296 - DeadTorizoCamera.X)), unchecked((ushort)(187 - DeadTorizoCamera.Y))), corpse.Origin,

@@ -26,7 +26,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Spawns dust when individual corpse rows finish rotting.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Draws the fixed corpse hook using installed spritemap parts.</summary>
+    /// <summary>Draws the corpse's sand heap from its installed frame.</summary>
     private readonly EnemyPresentation _presentation;
 
     /// <summary>Receives the species' end-of-update sound requests.</summary>
@@ -228,7 +228,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     internal CorpseRotRows ShownDeadTorizoRows(RoomEnemySlot slot) => RequireDeadTorizoState(slot).Rows.Shown;
 
     /// <summary>
-    /// The sand rows <paramref name="state"/>'s hook shows (#1539): only the rows its heap has formed into, as the corpse's
+    /// The sand rows <paramref name="state"/>'s sand heap shows (#1539): only the rows its heap has formed into, as the corpse's
     /// own rot calls form it. Every fifteenth rot call one more line of sand falls, from the heap's last row up, until
     /// fifteen have fallen; the intact corpse has none.
     /// </summary>
@@ -240,17 +240,17 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs the post-enemy ordinary-spritemap hook, publishing its frame as the encounter's own (#1392), showing its sand
-    /// heap as the corpse's own rot has formed it (#1539).
+    /// Draws the corpse's sand heap after the enemy queue, publishing its frame as the encounter's own (#1392), with the
+    /// rows the corpse's own rot has formed (#1539).
     /// </summary>
-    internal void DrawDeadTorizoHook(SpriteFrameBuffer sprites, Position16<RoomPixels> camera)
+    internal void DrawDeadTorizoSandHeap(SpriteFrameBuffer sprites, Position16<RoomPixels> camera)
     {
         if (DeadTorizo is not { } state)
             return;
 
-        // The hook is published wherever it lies; the display clips it to the view (#1541).
+        // The heap is published wherever it lies; the display clips it to the view (#1541).
         int screenY = CoordinateAxis.Wrap(187 - camera.Y);
-        _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.DeadTorizoHook), DeadTorizoArtworkDefinitions.HookFrame,
+        _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.DeadTorizoSandHeap), DeadTorizoArtworkDefinitions.SandHeapFrame,
             new Position16<ScreenPixels>(CoordinateAxis.Wrap(296 - camera.X), screenY), PictureShading.Standard, rows: ShownSand(state));
     }
 

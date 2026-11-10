@@ -41,7 +41,7 @@ internal static class EncounterFrameDefinitions
         new Dictionary<EnemyDefinitionId, IReadOnlyList<EnemyFrameId>>
         {
             [EnemyDefinitionId.Ridley] = RidleySupplements,
-            [EnemyDefinitionId.CorpseTorizo] = [DeadTorizoArtworkDefinitions.HookFrame],
+            [EnemyDefinitionId.CorpseTorizo] = [DeadTorizoArtworkDefinitions.SandHeapFrame],
             [EnemyDefinitionId.RidleyCeres] =
             [
                 .. RidleySupplements,

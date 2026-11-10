@@ -10,18 +10,18 @@ namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// The enemies' draw phase: the per-layer queues the enemy pass fills, the common
-/// draw-palette selection, and the ordinary, extended and supplemental sprite output with the boss body frames it draws.
+/// draw-shading selection, and the ordinary, extended and supplemental sprite output with the boss body frames it draws.
 /// </summary>
 [RoomLifetime]
 internal sealed class EnemyDrawList
 {
-    /// <summary>Runs the Dead Torizo draw hook after the layer-five ordinary queue.</summary>
+    /// <summary>Draws the dead Torizo's sand heap after the layer-five ordinary queue.</summary>
     private readonly DeadTorizoBehavior _deadTorizoBehavior;
-    /// <summary>Supplies the shared enemy frame counter used for hit-flash palette phases.</summary>
+    /// <summary>Supplies the shared enemy frame counter that phases the hit flash.</summary>
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Draws an extended enemy's boss body frame before drawing its visual parts.</summary>
     private readonly EnemyInstructionInterpreter _instructions;
-    /// <summary>Runs Mother Brain's draw hook on its authored layer-five pass.</summary>
+    /// <summary>Draws Mother Brain's late parts on her authored layer-five pass.</summary>
     private readonly MotherBrainBehavior _motherBrainBehavior;
     /// <summary>Emits ordinary enemy frames to the frame's sprites.</summary>
     private readonly EnemyPresentation _presentation;
@@ -139,10 +139,10 @@ internal sealed class EnemyDrawList
 
     /// <summary>
     /// Publishes the draws <see cref="AdvanceLayers"/> prepared for the same layer range, in queue order, as
-    /// whole-frame entries over the gameplay sprite page. An occupant's supplemental sprites and the layer-five boss hooks
-    /// still write sprites between them, in the game's order.
+    /// whole-frame entries over the gameplay sprite page. An occupant's supplemental sprites and the layer-five late
+    /// draws still write sprites between them, in the game's order.
     /// </summary>
-    /// <param name="sprites">The frame's sprite description; the occupant and boss hooks write its sprites.</param>
+    /// <param name="sprites">The frame's sprite description; the occupants and the late draws write its sprites.</param>
     /// <param name="camera">Camera position (viewport top-left) in whole room pixels.</param>
     /// <param name="firstLayer">First draw layer, inclusively; the range <see cref="AdvanceLayers"/> prepared.</param>
     /// <param name="lastLayer">Last draw layer, inclusively; the range <see cref="AdvanceLayers"/> prepared.</param>
@@ -181,14 +181,13 @@ internal sealed class EnemyDrawList
                     });
             }
 
-            // The enemies' graphics-drawn hook runs after the complete ordinary enemy queue. Mother
-            // Brain installs it from its hidden head record, but the hook itself belongs to
-            // the record's authored layer-five pass and therefore must not run in both of
-            // the frontend's disjoint low/high-priority layer ranges.
+            // Mother Brain's late parts and the dead Torizo's sand heap are drawn after the complete ordinary enemy
+            // queue, on the authored layer-five pass only, so they are not drawn in both of the frontend's disjoint
+            // low- and high-priority layer ranges.
             if (layer == 5)
             {
                 _motherBrainBehavior.Head.DrawMotherBrainHook(sprites, camera);
-                _deadTorizoBehavior.DrawDeadTorizoHook(sprites, camera);
+                _deadTorizoBehavior.DrawDeadTorizoSandHeap(sprites, camera);
             }
         }
     }
@@ -206,7 +205,7 @@ internal sealed class EnemyDrawList
         Position16<ScreenPixels> Origin, PictureShading Shading, EnemyFrameId Frame, bool Pictured);
 
     /// <summary>
-    /// Ports the palette selection, immediately before
+    /// Selects the shading an enemy is drawn in, immediately before
     /// the draw emits either an ordinary or extended enemy spritemap.
     /// </summary>
     /// <remarks>

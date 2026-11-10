@@ -37,8 +37,8 @@ public enum SpriteSourceKind
     RoomSpriteObject,
     /// <summary>A Ceres elevator arrival actor; the instance is 0 for the moving pad and 1 for the platform.</summary>
     CeresElevatorArrival,
-    /// <summary>Dead Torizo's post-enemy frame, drawn by its graphics hook.</summary>
-    DeadTorizoHook,
+    /// <summary>Dead Torizo's sand heap, drawn after the enemy queue.</summary>
+    DeadTorizoSandHeap,
     /// <summary>A Ridley tail segment; the instance is the segment, 0 at the base through 6 at the tip.</summary>
     RidleyTail,
     /// <summary>Ridley's wings.</summary>

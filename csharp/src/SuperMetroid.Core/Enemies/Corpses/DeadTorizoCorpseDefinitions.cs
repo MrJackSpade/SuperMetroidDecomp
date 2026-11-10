@@ -6,7 +6,7 @@ internal static class DeadTorizoCorpseDefinitions
     /// <summary>The corpse's height in pixel rows, each of which its rot schedule drops.</summary>
     internal const int RowCount = 96;
 
-    /// <summary>The pixel rows of the sand heap the corpse's hook shows.</summary>
+    /// <summary>The pixel rows of the corpse's sand heap.</summary>
     internal const int SandRowCount = 16;
 
     /// <summary>The lines of sand that fall, one row each, from the heap's last row up.</summary>

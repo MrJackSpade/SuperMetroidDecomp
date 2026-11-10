@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
 /// The members one enemy graphics set loads, in record order (#1527): the enemies whose sheets the import composes for
-/// the rooms that name the set. The game knows a set only by its name (<see cref="RoomEnemyGraphicsSetDefinition"/>).
+/// the rooms that name the set (<see cref="RoomEnemyGraphicsSetDefinition"/>). The game knows no set (#1599).
 /// </summary>
 /// <param name="name">The set's name.</param>
 /// <param name="records">The set's ordered members.</param>

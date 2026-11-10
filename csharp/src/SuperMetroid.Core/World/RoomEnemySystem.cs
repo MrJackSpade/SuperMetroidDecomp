@@ -116,9 +116,6 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// <summary>The <see cref="EnemyProcessingWindow"/> owner of this RoomEnemySystem.</summary>
     internal EnemyProcessingWindow ProcessingWindow { get; }
 
-    /// <summary>The room's enemy graphics set.</summary>
-    internal EnemyGraphicsSet GraphicsSet { get; }
-
     /// <summary>Puts populations into slots and runs their AI.</summary>
     internal EnemySlotDispatch Dispatch { get; }
 
@@ -623,8 +620,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         RoomFx = new EnemyRoomFx();
         RoomStatus = new EnemyRoomStatus(session);
         FrameContext = new EnemyFrameContext(session);
-        GraphicsSet = new EnemyGraphicsSet();
-        Presentation = new EnemyPresentation(Room, GraphicsSet);
+        Presentation = new EnemyPresentation(Room);
         BossPresentation = new BossPresentation(Presentation, BossArtworkBinding);
         SlotTable = new EnemySlotTable();
         Audio = new EnemyAudioQueue();
@@ -862,7 +858,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     public bool IsLoaded => Room.IsLoaded;
 
     /// <summary>
-    /// Loads the room's enemies: their graphics set, their population and each one's initialization.
+    /// Loads the room's enemies: the artwork their population draws from, their population and each one's initialization.
     /// </summary>
     public void Load(IRoomEnemyLoad request)
     {
@@ -885,12 +881,11 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         RinkaBehavior.SetRinkaCamera(request.Camera);
         ShuttersBehavior.BeginShutterFrame(request.Camera);
 
-        // Enemy loading does not even inspect the room's enemy set when the population
-        // is empty. This is observable: an empty room must not overwrite
-        // the room's colours or enemy artwork merely because its state happens to retain a non-empty enemy set.
+        // A room that places no enemies keeps drawing its spawned objects from the standard artwork (#1599): an empty
+        // population loads no enemy artwork, so the objects such a room shows appear in their standard variants.
         RoomEnemyPopulationDefinition population = request.Population;
         if (!population.Records.IsEmpty)
-            GraphicsSet.LoadGraphicsSet(request.GraphicsSet);
+            Presentation.DrawPopulation(population);
         PopulationLoader.LoadPopulation(
             definitions,
             population,

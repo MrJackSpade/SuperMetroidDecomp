@@ -4,8 +4,8 @@ using SuperMetroid.Core.Samus.Grapple;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Enemy definitions used by runtime-created actors but not selected by any retail room population or graphics-set
-/// list. They hold the same immutable gameplay fields as ordinary room definitions.
+/// Enemy definitions used by runtime-created actors but not selected by any retail room population or the
+/// enemy artwork rooms load. They hold the same immutable gameplay fields as ordinary room definitions.
 /// </summary>
 internal static class RoomEnemyAuxiliaryDefinitionCatalog
 {

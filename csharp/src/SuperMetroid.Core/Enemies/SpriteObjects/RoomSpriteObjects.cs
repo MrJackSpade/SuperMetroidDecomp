@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Enemies.SpriteObjects;
 [RoomLifetime]
 internal sealed class RoomSpriteObjects
 {
-    /// <summary>Publishes the objects from the loaded graphics set's sheets.</summary>
+    /// <summary>Publishes the objects from the room's enemy artwork.</summary>
     private readonly EnemyPresentation _presentation;
 
     /// <summary>The places the objects take, which Kraid's mouth pass reads after a dud flash.</summary>

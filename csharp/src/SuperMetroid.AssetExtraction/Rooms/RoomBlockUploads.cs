@@ -282,7 +282,7 @@ internal static class RoomBlockUploads
     /// <exception cref="InvalidDataException">An enemy's tiles are not installed.</exception>
     private static IEnumerable<BgCharacterUpload> ObjectPageUploads(RoomBlockSheetInputs inputs, RoomStateSettings state)
     {
-        IReadOnlyList<GraphicsSetMemberCharacters> members = GraphicsSetCharacterLayout.Of(RoomEnemyGraphicsSetLists.MembersOf(state.EnemyGraphicsSet)).Members;
+        IReadOnlyList<GraphicsSetMemberCharacters> members = GraphicsSetCharacterLayout.Of(RoomEnemyGraphicsSetLists.MembersOf(RoomEnemyGraphicsSetLists.Of(state))).Members;
         for (int member = 0; member < members.Count; member++)
         {
             ReadOnlyMemory<byte> tiles = inputs.Objects.Enemies.TilesOf(members[member].DefinitionId);
@@ -299,7 +299,7 @@ internal static class RoomBlockUploads
     /// </summary>
     private static IEnumerable<AppearanceOption> EncounterLookOptions(RoomBlockSheetInputs inputs, RoomStateSettings state)
     {
-        foreach (ComposedEncounter encounter in EncounterLookUploads.Of(RoomEnemyGraphicsSetLists.MembersOf(state.EnemyGraphicsSet)))
+        foreach (ComposedEncounter encounter in EncounterLookUploads.Of(RoomEnemyGraphicsSetLists.MembersOf(RoomEnemyGraphicsSetLists.Of(state))))
         {
             if (EncounterLookUploads.ShownAs(encounter) is not EncounterArtwork shownAs)
                 continue;

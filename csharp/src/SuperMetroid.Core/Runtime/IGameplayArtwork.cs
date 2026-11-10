@@ -145,7 +145,7 @@ internal interface IGameplayArtwork
     /// <summary>The pre-coloured sprite sheets drawn families select their frames from.</summary>
     InstalledSpriteSheets? SpriteSheets { get; }
 
-    /// <summary>The pre-coloured enemy sheets, by the room graphics set that loads each enemy.</summary>
+    /// <summary>The pre-coloured enemy artwork: each variant of each enemy, and the variants each population draws (#1599).</summary>
     InstalledEnemySheets? EnemySheets { get; }
 
     /// <summary>The installed extended enemy frames' display bindings, drawn with the enemy sheets.</summary>

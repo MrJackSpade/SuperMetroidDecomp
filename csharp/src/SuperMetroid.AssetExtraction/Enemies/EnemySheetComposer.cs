@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using System.Text.Json;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.Core;
@@ -28,12 +29,14 @@ internal static class EnemySheetComposer
 
 
     /// <summary>
-    /// Every graphics set's sheets, each distinct sheet once. Every sheet is laid out first, and sheets whose layouts
-    /// share an identity paint alike, so each distinct layout is painted and encoded once, in parallel, each worker on
-    /// its own reused canvas (#1490). The spawned-object sheets' common art is then held once (#1513): each distinct
-    /// spawned-object layout keeps the pictures particular to it, and a picture several hold is held on a common sheet of its
-    /// colouring (<see cref="SpawnedObjectSheetSharing"/>). The sheets are then named in set order: a sheet that has the
-    /// same files as an earlier one takes its name, as composing and comparing every sheet in turn would.
+    /// Every variant of the enemies rooms draw and of their spawned objects (#1599), each distinct sheet once. Each graphics
+    /// set rooms draw under is decoded once, as its rooms load it, and every sheet it composes is laid out first; sheets
+    /// whose layouts share an identity paint alike, so each distinct layout is painted and encoded once, in parallel, each
+    /// worker on its own reused canvas (#1490). The spawned-object sheets' common art is then held once (#1513): each
+    /// distinct spawned-object layout keeps the pictures particular to it, and a picture several hold is held on a common
+    /// sheet of its colouring (<see cref="SpawnedObjectSheetSharing"/>). The sheets and variants are then named in set
+    /// order, the session start's first, whose variants are the standard ones: a sheet or variant the same as an earlier one
+    /// takes its name. Each population is then named the variants of the set its rooms draw under.
     /// </summary>
     internal static EnemySheetComposition Compose(EnemySheetInputs inputs)
     {
@@ -71,38 +74,30 @@ internal static class EnemySheetComposer
         }, encoder => encoder.Dispose());
         SharedSpawnedSheets shared = SpawnedObjectSheetSharing.Share(spawnedLayouts);
         var names = new SheetNames();
-        var sets = new Dictionary<string, Dictionary<string, string>>(StringComparer.Ordinal);
-        var spawned = new Dictionary<string, Dictionary<string, SpawnedObjectSheetDocument>>(StringComparer.Ordinal);
-        var lookChanges = new Dictionary<string, Dictionary<string, Dictionary<string, Dictionary<string, string[]>>>>(StringComparer.Ordinal);
-        var spawnedLookChanges = new Dictionary<string, Dictionary<string, Dictionary<string, Dictionary<string, string[]>>>>(StringComparer.Ordinal);
-        var corpsePictures = new Dictionary<string, Dictionary<string, Dictionary<string, CorpsePictureDocument>>>(StringComparer.Ordinal);
-        var spawnedCorpsePictures = new Dictionary<string, Dictionary<string, Dictionary<string, CorpsePictureDocument>>>(StringComparer.Ordinal);
-        foreach (LaidGraphicsSet set in laidSets)
+        var variants = new VariantNames<EnemyVariantDocument>();
+        var spawnedVariants = new VariantNames<SpawnedObjectSheetDocument>();
+        var setArtwork = new Dictionary<string, PopulationArtworkDocument>(StringComparer.Ordinal);
+        // The session start's variants are named first, as each owner's standard variant.
+        foreach (LaidGraphicsSet set in laidSets.OrderBy(set => set.Name == RoomEnemyGraphicsSetDefinitions.SessionStart.Name ? 0 : 1))
         {
-            var members = new Dictionary<string, string>(StringComparer.Ordinal);
-            var memberLookChanges = new Dictionary<string, Dictionary<string, Dictionary<string, string[]>>>(StringComparer.Ordinal);
-            var memberCorpsePictures = new Dictionary<string, Dictionary<string, CorpsePictureDocument>>(StringComparer.Ordinal);
+            bool standard = set.Name == RoomEnemyGraphicsSetDefinitions.SessionStart.Name;
+            var enemies = new Dictionary<string, string>(StringComparer.Ordinal);
             foreach (LaidEnemySheet sheet in set.Enemies)
             {
-                EnemyDefinitionId enemy = sheet.Enemy;
-                string name = names.Of(encoded[sheet.Layout], enemy.ToString());
+                string enemy = sheet.Enemy.ToString();
+                string variant = variants.Of(enemy, new EnemyVariantDocument
+                {
+                    Enemy = enemy,
+                    Sheet = names.Of(encoded[sheet.Layout], enemy),
+                    LookChanges = sheet.LookChanges.Count > 0 ? Document(sheet.LookChanges) : null,
+                    CorpsePictures = sheet.CorpsePictures.Count > 0 ? Document(sheet.CorpsePictures) : null,
+                }, standard);
                 // A set that lists an enemy twice loads it once into each record's row; both must show alike.
-                if (members.TryGetValue(enemy.ToString(), out string? listed) && listed != name)
-                    throw new InvalidDataException($"Enemy graphics set {set.Name} colours {enemy} two ways.");
-                members[enemy.ToString()] = name;
-                if (sheet.LookChanges.Count > 0)
-                    memberLookChanges[enemy.ToString()] = Document(sheet.LookChanges);
-                if (sheet.CorpsePictures.Count > 0)
-                    memberCorpsePictures[enemy.ToString()] = Document(sheet.CorpsePictures);
+                if (enemies.TryGetValue(enemy, out string? listed) && listed != variant)
+                    throw new InvalidDataException($"Enemy graphics set {set.Name} colours {sheet.Enemy} two ways.");
+                enemies[enemy] = variant;
             }
-            sets.Add(set.Name, members);
-            if (memberLookChanges.Count > 0)
-                lookChanges.Add(set.Name, memberLookChanges);
-            if (memberCorpsePictures.Count > 0)
-                corpsePictures.Add(set.Name, memberCorpsePictures);
-            var bases = new Dictionary<string, SpawnedObjectSheetDocument>(StringComparer.Ordinal);
-            var baseLookChanges = new Dictionary<string, Dictionary<string, Dictionary<string, string[]>>>(StringComparer.Ordinal);
-            var baseCorpsePictures = new Dictionary<string, Dictionary<string, CorpsePictureDocument>>(StringComparer.Ordinal);
+            var owners = new Dictionary<string, string>(StringComparer.Ordinal);
             foreach (LaidSpawnedSheet sheet in set.Spawned)
             {
                 SpawnedObjectSheetPlan plan = sheet.Plan;
@@ -118,39 +113,36 @@ internal static class EnemySheetComposer
                         commonPictures.Add(commonName, held = []);
                     held.Add(picture);
                 }
+                string variant = spawnedVariants.Of(SpawnedObjectOwnerNames.Name(plan.Owner), new SpawnedObjectSheetDocument
+                {
+                    Sheet = own,
+                    CommonPictures = commonPictures,
+                    FrameSources = share.Sources.Count == 0 ? null
+                        : share.Sources.OrderBy(source => source.Key, StringComparer.Ordinal)
+                            .ToDictionary(source => source.Key, source => source.Value, StringComparer.Ordinal),
+                    Palette = plan.Palette,
+                    Owner = SpawnedObjectOwnerNames.Name(plan.Owner),
+                    Spawners = [.. plan.Spawners.Select(enemy => enemy.ToString())],
+                    SharedSpawners = [.. plan.SharedSpawners.Select(enemy => enemy.ToString())],
+                    Common = [.. plan.Common.Select(common => common.Spawner)],
+                    Empty = [.. sheet.Empty.Order(StringComparer.Ordinal)],
+                    LookChanges = sheet.LookChanges.Count > 0 ? Document(sheet.LookChanges) : null,
+                    CorpsePictures = sheet.CorpsePictures.Count > 0 ? Document(sheet.CorpsePictures) : null,
+                }, standard);
                 // Every owner the game names the sheet by finds it under its own name.
                 foreach (string owner in plan.AlsoOwnedBy.Prepend(plan.Owner).Select(SpawnedObjectOwnerNames.Name))
-                {
-                    bases.Add(owner, new SpawnedObjectSheetDocument
-                    {
-                        Sheet = own,
-                        CommonPictures = commonPictures,
-                        FrameSources = share.Sources.Count == 0 ? null
-                            : share.Sources.OrderBy(source => source.Key, StringComparer.Ordinal)
-                                .ToDictionary(source => source.Key, source => source.Value, StringComparer.Ordinal),
-                        Palette = plan.Palette,
-                        Owner = SpawnedObjectOwnerNames.Name(plan.Owner),
-                        Spawners = [.. plan.Spawners.Select(enemy => enemy.ToString())],
-                        SharedSpawners = [.. plan.SharedSpawners.Select(enemy => enemy.ToString())],
-                        Common = [.. plan.Common.Select(common => common.Spawner)],
-                        Empty = [.. sheet.Empty.Order(StringComparer.Ordinal)],
-                    });
-                    if (sheet.LookChanges.Count > 0)
-                        baseLookChanges[owner] = Document(sheet.LookChanges);
-                    if (sheet.CorpsePictures.Count > 0)
-                        baseCorpsePictures[owner] = Document(sheet.CorpsePictures);
-                }
+                    owners.Add(owner, variant);
             }
-            spawned.Add(set.Name, bases);
-            if (baseLookChanges.Count > 0)
-                spawnedLookChanges.Add(set.Name, baseLookChanges);
-            if (baseCorpsePictures.Count > 0)
-                spawnedCorpsePictures.Add(set.Name, baseCorpsePictures);
+            setArtwork.Add(set.Name, new PopulationArtworkDocument { Enemies = enemies, Spawned = owners });
         }
         return new EnemySheetComposition(names.Sheets, new EnemySheetManifestDocument
         {
-            Version = EnemySheetFiles.ManifestVersion, Sets = sets, Spawned = spawned, LookChanges = lookChanges,
-            SpawnedLookChanges = spawnedLookChanges, CorpsePictures = corpsePictures, SpawnedCorpsePictures = spawnedCorpsePictures,
+            Version = EnemySheetFiles.ManifestVersion,
+            Variants = variants.Documents,
+            SpawnedVariants = spawnedVariants.Documents,
+            Standard = setArtwork[RoomEnemyGraphicsSetDefinitions.SessionStart.Name],
+            Populations = RoomEnemyGraphicsSetLists.PopulationSets.ToDictionary(population => population.Key,
+                population => setArtwork[population.Value.Name], StringComparer.Ordinal),
         });
     }
 
@@ -209,6 +201,48 @@ internal static class EnemySheetComposer
     /// <param name="Empty">The frames' finished pictures that show nothing.</param>
     private sealed record LaidSpawnedSheet(SpawnedObjectSheetPlan Plan, int Layout, IReadOnlyDictionary<string, IReadOnlyList<FrameLookChange>> LookChanges,
         IReadOnlyDictionary<string, CorpsePicturePlacement> CorpsePictures, IReadOnlySet<string> Empty);
+
+    /// <summary>
+    /// Names the distinct variants of each owner in the order they are first asked for (#1599): a variant the same as an
+    /// earlier one takes its name; otherwise the session start's is its owner's standard variant, and any other its owner's
+    /// next ordinal.
+    /// </summary>
+    /// <typeparam name="TDocument">How the manifest spells a variant.</typeparam>
+    private sealed class VariantNames<TDocument>
+    {
+        /// <summary>The name of the variant with each identity: its owner and how the manifest spells it.</summary>
+        private readonly Dictionary<string, string> named = new(StringComparer.Ordinal);
+
+        /// <summary>How many ordinal variants each owner has been given.</summary>
+        private readonly Dictionary<string, int> ordinals = new(StringComparer.Ordinal);
+
+        /// <summary>Each distinct variant by name, in the order they were named.</summary>
+        internal Dictionary<string, TDocument> Documents { get; } = new(StringComparer.Ordinal);
+
+        /// <summary>
+        /// The name of <paramref name="owner"/>'s variant <paramref name="document"/> spells: its standard variant when
+        /// <paramref name="standard"/> names it for the session start's set.
+        /// </summary>
+        /// <exception cref="ArgumentException">The owner has two standard variants.</exception>
+        internal string Of(string owner, TDocument document, bool standard)
+        {
+            string identity = $"{owner}\n{JsonSerializer.Serialize(document)}";
+            if (named.TryGetValue(identity, out string? known))
+                return known;
+            string name;
+            if (standard)
+                name = $"{owner}.Standard";
+            else
+            {
+                int ordinal = ordinals.GetValueOrDefault(owner);
+                ordinals[owner] = ordinal + 1;
+                name = $"{owner}.{ordinal}";
+            }
+            Documents.Add(name, document);
+            named.Add(identity, name);
+            return name;
+        }
+    }
 
     /// <summary>
     /// Names the distinct sheets in the order they are first asked for: a sheet whose files are the same as an earlier
@@ -384,8 +418,7 @@ internal static class EnemySheetComposer
     /// whatever set its state names (#1560).
     /// </summary>
     private static RoomStateSettings[] StatesOf(RoomEnemyGraphicsSetDefinition set) =>
-        [.. RoomStateDefinitions.All.Where(state =>
-            (state.EnemyPopulation.Records.IsEmpty ? RoomEnemyGraphicsSetDefinitions.SessionStart : state.EnemyGraphicsSet).Name == set.Name)];
+        [.. RoomStateDefinitions.All.Where(state => RoomEnemyGraphicsSetLists.DrawnUnderIn(state) == set)];
 
     /// <summary>
     /// The encounters played under graphics set <paramref name="set"/> (#1538): each its members play, with what each of their

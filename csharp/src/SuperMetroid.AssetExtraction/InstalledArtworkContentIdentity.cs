@@ -4,6 +4,7 @@ using System.Globalization;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Frontend.CeresCinematics;
@@ -27,30 +28,27 @@ internal static class InstalledArtworkContentIdentity
     /// <summary>The installed content identity of a <see cref="InstalledEnemySheets"/>.</summary>
     extension(InstalledEnemySheets installed)
     {
-        /// <summary>SHA-256 of every distinct sheet and each set's choice of them.</summary>
+        /// <summary>SHA-256 of every variant, its sheets, and each population's choice of them (#1599).</summary>
         public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledEnemySheets), content =>
         {
-            foreach ((EnemySheetKey key, SpriteSheet sheet) in installed.sheets.OrderBy(entry => entry.Key.Set, StringComparer.Ordinal)
-                         .ThenBy(entry => entry.Key.Enemy))
+            foreach ((string name, EnemyArtworkVariant<SpriteSheet> variant) in installed.variants.OrderBy(entry => entry.Key, StringComparer.Ordinal))
             {
-                content.Append("set", System.Text.Encoding.UTF8.GetBytes(key.Set));
-                content.Append("enemy", System.Text.Encoding.UTF8.GetBytes(key.Enemy.ToString()));
-                sheet.AppendIdentity(content);
+                content.AppendName("variant", name);
+                variant.Sheet.AppendIdentity(content);
+                AppendChanges(content, variant);
             }
-            // Each spawned-object sheet once, own and common alike, then the sheet each set's owner draws each picture from (#1513).
-            foreach (SpriteSheet sheet in installed.spawned.Values.SelectMany(spawned => spawned.Sheets).Distinct<SpriteSheet>(ReferenceEqualityComparer.Instance)
+            // Each spawned-object sheet once, own and common alike, then the sheet each variant draws each picture from (#1513).
+            foreach (SpriteSheet sheet in installed.spawnedVariants.Values.SelectMany(variant => variant.Sheet.Sheets).Distinct<SpriteSheet>(ReferenceEqualityComparer.Instance)
                          .OrderBy(sheet => sheet.Image.Name, StringComparer.Ordinal))
                 sheet.AppendIdentity(content);
-            foreach ((SpawnedObjectSheetKey key, SpawnedObjectSheet spawned) in installed.spawned.OrderBy(entry => entry.Key.Set, StringComparer.Ordinal)
-                         .ThenBy(entry => SuperMetroid.AssetExtraction.Enemies.SpawnedObjectOwnerNames.Name(entry.Key.Owner), StringComparer.Ordinal))
+            foreach ((string name, EnemyArtworkVariant<SpawnedObjectSheet> variant) in installed.spawnedVariants.OrderBy(entry => entry.Key, StringComparer.Ordinal))
             {
-                content.Append("spawned-set", System.Text.Encoding.UTF8.GetBytes(key.Set));
-                content.Append("owner", System.Text.Encoding.UTF8.GetBytes(SuperMetroid.AssetExtraction.Enemies.SpawnedObjectOwnerNames.Name(key.Owner)));
-                foreach ((string picture, SpriteSheetFrame frame) in spawned.frames.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+                content.AppendName("spawned-variant", name);
+                foreach ((string picture, SpriteSheetFrame frame) in variant.Sheet.frames.OrderBy(entry => entry.Key, StringComparer.Ordinal))
                 {
                     content.AppendName("picture", picture);
                     content.AppendName("held on", frame.Sheet.Name);
-                    // Where the set composed a picture held once from, where that differs from its sheet's record (#1544).
+                    // Where the variant composed a picture held once from, where that differs from its sheet's record (#1544).
                     if (InstalledPictureColours.FrameSourceOf(frame) is { } source)
                     {
                         content.Append("composed palette bits", source.PaletteBits);
@@ -58,15 +56,13 @@ internal static class InstalledArtworkContentIdentity
                         content.Append("composed as", System.Runtime.InteropServices.MemoryMarshal.AsBytes(source.Inks.AsSpan()));
                     }
                 }
-                foreach (string picture in spawned.empty.Order(StringComparer.Ordinal))
+                foreach (string picture in variant.Sheet.empty.Order(StringComparer.Ordinal))
                     content.AppendName("shows nothing", picture);
+                AppendChanges(content, variant);
             }
-            AppendPictures(content, "look-changes", installed.changingEncounters.Select(entry => new PictureOwner(entry.Key.Set, entry.Key.Enemy.ToString(), entry.Value)));
-            AppendPictures(content, "spawned-look-changes", installed.spawnedChangingEncounters.Select(entry => new PictureOwner(entry.Key.Set,
-                SuperMetroid.AssetExtraction.Enemies.SpawnedObjectOwnerNames.Name(entry.Key.Owner), entry.Value)));
-            AppendCorpsePictures(content, "corpse-pictures", installed.corpsePictures.Select(entry => new CorpsePictureOwner(entry.Key.Set, entry.Key.Enemy.ToString(), entry.Value)));
-            AppendCorpsePictures(content, "spawned-corpse-pictures", installed.spawnedCorpsePictures.Select(entry => new CorpsePictureOwner(entry.Key.Set,
-                SuperMetroid.AssetExtraction.Enemies.SpawnedObjectOwnerNames.Name(entry.Key.Owner), entry.Value)));
+            AppendArtwork(content, "standard", installed.Standard);
+            foreach ((string population, PopulationArtwork artwork) in installed.populations.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+                AppendArtwork(content, population, artwork);
         });
     }
 
@@ -355,46 +351,36 @@ internal static class InstalledArtworkContentIdentity
             content.AppendColors("backdrops", [backdrops.Escape, backdrops.Explosion, backdrops.Credits, backdrops.PostCredits]));
     }
 
-    /// <summary>Appends each sheet's frames that show a rotting corpse and where the corpse lies in each (#1539), in a stable order.</summary>
-    private static void AppendCorpsePictures(SelectedPresentationHash content, string label, IEnumerable<CorpsePictureOwner> owners)
+    /// <summary>
+    /// Appends the frames of <paramref name="variant"/>'s sheet encounters' looks change and the encounters that change each
+    /// (#1538), and its pictures that show a rotting corpse and where the corpse lies in each (#1539), in a stable order.
+    /// </summary>
+    private static void AppendChanges<TSheet>(SelectedPresentationHash content, EnemyArtworkVariant<TSheet> variant)
+        where TSheet : class
     {
-        foreach (CorpsePictureOwner owner in owners.OrderBy(owner => owner.Set, StringComparer.Ordinal).ThenBy(owner => owner.Owner, StringComparer.Ordinal))
+        foreach ((string frame, EncounterArtwork[] encounters) in variant.changingEncounters.OrderBy(entry => entry.Key, StringComparer.Ordinal))
         {
-            content.Append(label, System.Text.Encoding.UTF8.GetBytes($"{owner.Set}/{owner.Owner}"));
-            foreach ((string frame, CorpsePicturePlacement placement) in owner.Frames.OrderBy(entry => entry.Key, StringComparer.Ordinal))
-            {
-                content.Append("corpse-frame", System.Text.Encoding.UTF8.GetBytes(
-                    $"{frame}@{placement.Top.ToString(CultureInfo.InvariantCulture)}"));
-            }
+            content.Append("frame", System.Text.Encoding.UTF8.GetBytes(frame));
+            foreach (EncounterArtwork encounter in encounters)
+                content.Append("encounter", System.Text.Encoding.UTF8.GetBytes(encounter.ToString()));
+        }
+        foreach ((string picture, CorpsePicturePlacement placement) in variant.corpsePictures.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        {
+            content.Append("corpse-frame", System.Text.Encoding.UTF8.GetBytes(
+                $"{picture}@{placement.Top.ToString(CultureInfo.InvariantCulture)}"));
         }
     }
 
-    /// <summary>One sheet's frames that show a rotting corpse.</summary>
-    /// <param name="Set">The graphics set's name.</param>
-    /// <param name="Owner">The enemy's name, or the spawned objects' owner.</param>
-    /// <param name="Frames">The frames and where the corpse lies in each.</param>
-    private sealed record CorpsePictureOwner(string Set, string Owner, IReadOnlyDictionary<string, CorpsePicturePlacement> Frames);
-
-    /// <summary>Appends each sheet's frames encounters' looks change and the encounters that change each (#1538), in a stable order.</summary>
-    private static void AppendPictures(SelectedPresentationHash content, string label, IEnumerable<PictureOwner> owners)
+    /// <summary>Appends the variant <paramref name="artwork"/>, the artwork of <paramref name="population"/>, draws each enemy and owner in.</summary>
+    private static void AppendArtwork(SelectedPresentationHash content, string population, PopulationArtwork artwork)
     {
-        foreach (PictureOwner owner in owners.OrderBy(owner => owner.Set, StringComparer.Ordinal).ThenBy(owner => owner.Owner, StringComparer.Ordinal))
-        {
-            content.Append(label, System.Text.Encoding.UTF8.GetBytes($"{owner.Set}/{owner.Owner}"));
-            foreach ((string frame, EncounterArtwork[] encounters) in owner.Frames.OrderBy(entry => entry.Key, StringComparer.Ordinal))
-            {
-                content.Append("frame", System.Text.Encoding.UTF8.GetBytes(frame));
-                foreach (EncounterArtwork encounter in encounters)
-                    content.Append("encounter", System.Text.Encoding.UTF8.GetBytes(encounter.ToString()));
-            }
-        }
+        content.AppendName("population", population);
+        foreach ((EnemyDefinitionId enemy, EnemyArtworkVariant<SpriteSheet> variant) in artwork.enemies.OrderBy(entry => entry.Key))
+            content.AppendName($"enemy {enemy}", variant.Name);
+        foreach ((SpawnedObjectOwner owner, EnemyArtworkVariant<SpawnedObjectSheet> variant) in artwork.spawned
+                     .OrderBy(entry => SuperMetroid.AssetExtraction.Enemies.SpawnedObjectOwnerNames.Name(entry.Key), StringComparer.Ordinal))
+            content.AppendName($"owner {SuperMetroid.AssetExtraction.Enemies.SpawnedObjectOwnerNames.Name(owner)}", variant.Name);
     }
-
-    /// <summary>One sheet's frames encounters' looks change.</summary>
-    /// <param name="Set">The graphics set's name.</param>
-    /// <param name="Owner">The enemy's name, or the spawned objects' owner.</param>
-    /// <param name="Frames">The frames and the encounters whose looks change each.</param>
-    private sealed record PictureOwner(string Set, string Owner, IReadOnlyDictionary<string, EncounterArtwork[]> Frames);
 
     /// <summary>Appends the tokens of <paramref name="inputs"/> to a content identity.</summary>
     private static void AppendInputs(SelectedPresentationHash content, ImmutableArray<AppearanceInput> inputs)

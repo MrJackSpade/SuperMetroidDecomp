@@ -77,7 +77,7 @@ internal sealed class EnemyProjectileEngine
 
     /// <summary>Supplies room RNG and artwork for projectile effects.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Publishes projectiles from the loaded graphics set's sheets.</summary>
+    /// <summary>Publishes projectiles from the room's enemy artwork.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Owns dust and explosion sprites separate from the projectile places.</summary>
     private readonly RoomSpriteObjects _spriteObjects;

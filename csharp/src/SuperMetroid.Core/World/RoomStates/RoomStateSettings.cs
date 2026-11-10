@@ -14,7 +14,6 @@ public sealed record RoomStateSettings(
     RoomMusic Music,
     SuperMetroid.Core.Fx.RoomFxHeader? Fx,
     Enemies.RoomEnemyPopulationDefinition EnemyPopulation,
-    Enemies.RoomEnemyGraphicsSetDefinition EnemyGraphicsSet,
     SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes BackgroundScrollModes,
     SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinition Scroll,
     SuperMetroid.Core.Rooms.Xray.XrayRoomOverlayDefinition? XrayOverlay,

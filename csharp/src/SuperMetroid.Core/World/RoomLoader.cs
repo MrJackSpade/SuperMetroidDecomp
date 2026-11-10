@@ -1004,7 +1004,6 @@ internal sealed class RoomLoader
         projectiles.Earthquakes.BindRoomEarthquake(enemies.Earthquake);
         enemies.Load(new RoomEnemyLoadRequest(
             room.State.EnemyPopulation,
-            room.State.EnemyGraphicsSet,
             scope.Appearance)
         {
             Level = assets.LevelData,

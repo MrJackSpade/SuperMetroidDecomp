@@ -17,15 +17,26 @@ internal sealed class EnemyPresentation
     /// <summary>Room artwork binding used to resolve enemy display compositions.</summary>
     private readonly EnemyRoomBinding _room;
 
-    /// <summary>The room's loaded graphics set, which names each enemy's installed sheet.</summary>
-    private readonly EnemyGraphicsSet _graphicsSet;
-
-    /// <summary>Binds enemy presentation to its room's installed artwork catalog and loaded graphics set.</summary>
-    internal EnemyPresentation(EnemyRoomBinding room, EnemyGraphicsSet graphicsSet)
+    /// <summary>Binds enemy presentation to its room's installed artwork catalog.</summary>
+    internal EnemyPresentation(EnemyRoomBinding room)
     {
         _room = room;
-        _graphicsSet = graphicsSet;
     }
+
+    /// <summary>
+    /// The population whose artwork the room's enemies and the objects they spawn draw from (#1599): the one the room's
+    /// load placed, or none for a room that has placed no enemies, which draws from the standard artwork.
+    /// </summary>
+    internal RoomEnemyPopulationDefinition? DrawnPopulation { get; private set; }
+
+    /// <summary>
+    /// Room load: the room's enemies and the objects they spawn draw from <paramref name="population"/>'s artwork from now
+    /// on, each enemy in the variant the population places it in.
+    /// </summary>
+    internal void DrawPopulation(RoomEnemyPopulationDefinition population) => DrawnPopulation = Ensure.NotNull(population);
+
+    /// <summary>The artwork the room draws from: its population's, or the standard artwork while it has placed no enemies.</summary>
+    internal PopulationArtwork Artwork => DrawnPopulation is { } population ? Sheets.For(population) : Sheets.Standard;
 
     /// <summary>What gameplay shows over the room's load (#1466), as Kraid's rise shows his backdrop.</summary>
     internal RoomAppearance Appearance
@@ -77,10 +88,10 @@ internal sealed class EnemyPresentation
     public SharedFadeStepCount FadeStepCount => _room.Session.FadeStepCount;
 
     /// <summary>
-    /// Publishes one frame of the enemy <paramref name="draw"/> shows from its installed sheet (#1392): the sheet its room's
-    /// graphics set names, pre-coloured in the colours the set loads for the enemy, under the shading the draw names
-    /// (#1512), such as a hit flash or a glow's frame. A frame that shows a rotting corpse is drawn whole through the
-    /// corpse's own rows as its rot leaves them (#1539).
+    /// Publishes one frame of the enemy <paramref name="draw"/> shows from its installed sheet (#1392): the sheet of the
+    /// variant the room's population places the enemy in (#1599), pre-coloured in that variant's colours, under the
+    /// shading the draw names (#1512), such as a hit flash or a glow's frame. A frame that shows a rotting corpse is drawn
+    /// whole through the corpse's own rows as its rot leaves them (#1539).
     /// </summary>
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="source">The actor shown.</param>
@@ -89,8 +100,9 @@ internal sealed class EnemyPresentation
     {
         (EnemyDefinitionId enemy, string frame, Position16<ScreenPixels> origin) = draw;
         PictureShading shading = draw.Shading ?? PictureShading.Standard;
-        SpriteSheet sheet = Sheets.For(LoadedSet, enemy);
-        string picture = Picture(frame, Sheets.ChangingEncounters(LoadedSet, enemy, frame));
+        EnemyArtworkVariant<SpriteSheet> variant = Artwork.Enemy(enemy);
+        SpriteSheet sheet = variant.Sheet;
+        string picture = Picture(frame, variant.ChangingEncounters(frame));
         // A finished picture that shows nothing draws nothing (#1538).
         if (sheet.ShowsNothing(picture))
             return;
@@ -98,14 +110,14 @@ internal sealed class EnemyPresentation
         sprites.Add(new ImageSpriteDraw(source, image, origin, SpriteMirror.None)
         {
             Shading = shading,
-            CorpseRot = CorpseRot(Sheets.CorpsePlacement(LoadedSet, enemy, picture), draw.RotRows, image),
+            CorpseRot = CorpseRot(variant.CorpsePlacement(picture), draw.RotRows, image),
         });
     }
 
     /// <summary>
-    /// Publishes one spawned object's frame from the loaded graphics set's pictures of the owner its graphics name (#1392,
-    /// #1513), the set's own sheet or the common sheet holding the picture, under the shading the object carries (#1512),
-    /// through a rotting corpse's own <paramref name="rows"/> when the frame shows the corpse (#1539).
+    /// Publishes one spawned object's frame from the room's variant of the pictures of the owner its graphics name (#1392,
+    /// #1513, #1599), the variant's own sheet or the common sheet holding the picture, under the shading the object carries
+    /// (#1512), through a rotting corpse's own <paramref name="rows"/> when the frame shows the corpse (#1539).
     /// </summary>
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="source">The object shown.</param>
@@ -114,14 +126,14 @@ internal sealed class EnemyPresentation
     /// <param name="graphics">Whose spawned-object sheet the object draws from, and the shading it shows its picture in.</param>
     /// <param name="rows">The rows of the rotting corpse the frame shows, as its rot has left them; none for one that shows none.</param>
     /// <exception cref="InvalidDataException">
-    /// The set has no pictures for that owner, or none of its sheets holds the picture.
+    /// The room draws no pictures for that owner, or none of its variant's sheets holds the picture.
     /// </exception>
     internal void PublishSpawnedFrame(SpriteFrameBuffer sprites, SpriteSource source, string frame, Position16<ScreenPixels> origin,
         SpriteGraphics graphics, CorpseRotRows? rows = null)
     {
-        SpawnedObjectOwner owner = graphics.Owner;
-        SpawnedObjectSheet sheet = Sheets.Spawned(LoadedSet, owner);
-        string picture = Picture(frame, Sheets.SpawnedChangingEncounters(LoadedSet, owner, frame));
+        EnemyArtworkVariant<SpawnedObjectSheet> variant = Artwork.Spawned(graphics.Owner);
+        SpawnedObjectSheet sheet = variant.Sheet;
+        string picture = Picture(frame, variant.ChangingEncounters(frame));
         // A finished picture that shows nothing draws nothing (#1538).
         if (sheet.ShowsNothing(picture))
             return;
@@ -129,7 +141,7 @@ internal sealed class EnemyPresentation
         sprites.Add(new ImageSpriteDraw(source, image, origin, SpriteMirror.None)
         {
             Shading = graphics.Shading,
-            CorpseRot = CorpseRot(Sheets.SpawnedCorpsePlacement(LoadedSet, owner, picture), rows, image),
+            CorpseRot = CorpseRot(variant.CorpsePlacement(picture), rows, image),
         });
     }
 
@@ -150,8 +162,8 @@ internal sealed class EnemyPresentation
         EncounterLook.PictureName(frame, encounters.Select(Looks.Current));
 
     /// <summary>
-    /// Publishes a frame an encounter draws itself, outside the enemy list (#1392): from its graphics set's shared
-    /// spawned-object sheet.
+    /// Publishes a frame an encounter draws itself, outside the enemy list (#1392): from the room's variant of the shared
+    /// spawned-object pictures (#1599).
     /// </summary>
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="source">The actor shown.</param>
@@ -164,19 +176,15 @@ internal sealed class EnemyPresentation
         PublishSpawnedFrame(sprites, source, EnemySheetDefinitions.EncounterFrameName(frame), origin, SpriteGraphics.SharedIn(shading), rows);
 
     /// <summary>
-    /// The installed picture of <paramref name="enemy"/>'s <paramref name="frame"/> in the sheet the room's graphics set
-    /// names (#1545), for a scene that shows it as scenery of its own rather than as the enemy's draw.
+    /// The installed picture of <paramref name="enemy"/>'s <paramref name="frame"/> in the sheet of the variant the room's
+    /// population places it in (#1545, #1599), for a scene that shows it as scenery of its own rather than as the enemy's draw.
     /// </summary>
     /// <param name="enemy">The enemy whose sheet holds the picture.</param>
     /// <param name="frame">The frame pictured.</param>
     internal SpriteSheetFrame SheetPicture(EnemyDefinitionId enemy, EnemyFrameId frame) =>
-        Sheets.For(LoadedSet, enemy).Frame(EnemySheetDefinitions.FrameName(frame));
+        Artwork.Enemy(enemy).Sheet.Frame(EnemySheetDefinitions.FrameName(frame));
 
     /// <summary>The installed enemy sheets.</summary>
     private IEnemySheetSource Sheets => _room.Session.Sheets ?? throw new InvalidOperationException(
         "Enemy drawing requires the installed enemy sheets.");
-
-    /// <summary>The graphics set the room draws under.</summary>
-    private RoomEnemyGraphicsSetDefinition LoadedSet => _graphicsSet.LoadedSet;
-
 }

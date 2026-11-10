@@ -3,87 +3,78 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
-/// The installed pre-coloured enemy sheets (#1392), by the room graphics set that loads an enemy and the enemy: the
-/// sheet shows the enemy's frames in the colours its colour set holds once that graphics set has loaded. Each set also has,
-/// for each owner of the objects it spawns (enemy projectiles and room sprite objects), the pictures it draws them from: its
-/// shared owner's and each spawner's, on the set's own sheet where they are particular to it and on a common sheet where
-/// many sets draw them alike, each common picture held once (#1513).
+/// The installed pre-coloured enemy artwork (#1392, #1599): every variant of each enemy and of each owner's spawned
+/// objects, by the variant's name, and the variants each retail population's enemies draw in, by the population's name. A
+/// variant shows its enemy's frames in its own colours; the spawned-object variants hold each common picture once, on a
+/// common sheet every variant drawing it reads (#1513).
 /// </summary>
 public sealed class InstalledEnemySheets : IEnemySheetSource
 {
-    /// <summary>Each set's sheet for each of its enemies.</summary>
-    internal readonly Dictionary<EnemySheetKey, SpriteSheet> sheets;
+    /// <summary>Every enemy variant, by name.</summary>
+    internal readonly Dictionary<string, EnemyArtworkVariant<SpriteSheet>> variants;
 
-    /// <summary>Each set's spawned-object pictures for each owner.</summary>
-    internal readonly Dictionary<SpawnedObjectSheetKey, SpawnedObjectSheet> spawned;
+    /// <summary>Every spawned-object variant, by name.</summary>
+    internal readonly Dictionary<string, EnemyArtworkVariant<SpawnedObjectSheet>> spawnedVariants;
 
-    /// <summary>Each set's enemy sheets' frames encounters' looks change, and the encounters that change each (#1538).</summary>
-    internal readonly Dictionary<EnemySheetKey, IReadOnlyDictionary<string, EncounterArtwork[]>> changingEncounters;
-
-    /// <summary>The same for each set's spawned-object sheets.</summary>
-    internal readonly Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, EncounterArtwork[]>> spawnedChangingEncounters;
-
-    /// <summary>Each set's enemy sheets' pictures that show a rotting corpse, and where the corpse lies in each (#1539).</summary>
-    internal readonly Dictionary<EnemySheetKey, IReadOnlyDictionary<string, CorpsePicturePlacement>> corpsePictures;
-
-    /// <summary>The same for each set's spawned-object sheets.</summary>
-    internal readonly Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, CorpsePicturePlacement>> spawnedCorpsePictures;
+    /// <summary>The artwork each retail population draws from, by the population's name.</summary>
+    internal readonly Dictionary<string, PopulationArtwork> populations;
 
     /// <summary>
-    /// The sheets by graphics set name and enemy, and the spawned-object sheets by set name and owner, with the encounters
-    /// whose looks change each of their frames and where a rotting corpse lies in each of their pictures that shows one.
+    /// The installed variants by name, the standard artwork and each population's artwork, each drawing only installed variants.
     /// </summary>
-    public InstalledEnemySheets(EnemySheetGroup<EnemySheetKey, SpriteSheet> enemies,
-        EnemySheetGroup<SpawnedObjectSheetKey, SpawnedObjectSheet> spawnedObjects)
+    /// <param name="variants">Every enemy variant, by name.</param>
+    /// <param name="spawnedVariants">Every spawned-object variant, by name.</param>
+    /// <param name="standard">The artwork a room that places no enemies draws from.</param>
+    /// <param name="populations">The artwork each retail population draws from, by the population's name.</param>
+    /// <exception cref="InvalidDataException">A variant is filed under another name, or an artwork draws a variant that is not installed.</exception>
+    public InstalledEnemySheets(IReadOnlyDictionary<string, EnemyArtworkVariant<SpriteSheet>> variants,
+        IReadOnlyDictionary<string, EnemyArtworkVariant<SpawnedObjectSheet>> spawnedVariants, PopulationArtwork standard,
+        IReadOnlyDictionary<string, PopulationArtwork> populations)
     {
-        Ensure.NotNull(enemies);
-        Ensure.NotNull(spawnedObjects);
-        var (sheets, changingEncounters, corpsePictures) = enemies;
-        var (spawned, spawnedChangingEncounters, spawnedCorpsePictures) = spawnedObjects;
-        this.sheets = new Dictionary<EnemySheetKey, SpriteSheet>(Ensure.NotNull(sheets));
-        this.spawned = new Dictionary<SpawnedObjectSheetKey, SpawnedObjectSheet>(Ensure.NotNull(spawned));
-        this.changingEncounters = new Dictionary<EnemySheetKey, IReadOnlyDictionary<string, EncounterArtwork[]>>(Ensure.NotNull(changingEncounters));
-        this.spawnedChangingEncounters = new Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, EncounterArtwork[]>>(
-            Ensure.NotNull(spawnedChangingEncounters));
-        this.corpsePictures = new Dictionary<EnemySheetKey, IReadOnlyDictionary<string, CorpsePicturePlacement>>(Ensure.NotNull(corpsePictures));
-        this.spawnedCorpsePictures = new Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, CorpsePicturePlacement>>(Ensure.NotNull(spawnedCorpsePictures));
+        this.variants = new Dictionary<string, EnemyArtworkVariant<SpriteSheet>>(Ensure.NotNull(variants), StringComparer.Ordinal);
+        this.spawnedVariants = new Dictionary<string, EnemyArtworkVariant<SpawnedObjectSheet>>(Ensure.NotNull(spawnedVariants), StringComparer.Ordinal);
+        Standard = Ensure.NotNull(standard);
+        this.populations = new Dictionary<string, PopulationArtwork>(Ensure.NotNull(populations), StringComparer.Ordinal);
+        RequireFiledByName(this.variants);
+        RequireFiledByName(this.spawnedVariants);
+        foreach ((string name, PopulationArtwork artwork) in this.populations.Prepend(new KeyValuePair<string, PopulationArtwork>("standard", Standard)))
+        {
+            RequireInstalled(name, artwork.enemies, this.variants);
+            RequireInstalled(name, artwork.spawned, this.spawnedVariants);
+        }
+    }
+
+    /// <summary>Checks that each of <paramref name="installed"/> is filed under its own name.</summary>
+    /// <exception cref="InvalidDataException">A variant is filed under another name.</exception>
+    private static void RequireFiledByName<TSheet>(Dictionary<string, EnemyArtworkVariant<TSheet>> installed)
+        where TSheet : class
+    {
+        foreach ((string name, EnemyArtworkVariant<TSheet> variant) in installed)
+        {
+            if (name != variant.Name)
+                throw new InvalidDataException($"Enemy artwork variant {variant.Name} is installed as {name}.");
+        }
+    }
+
+    /// <summary>Checks that every one of <paramref name="drawn"/>, the variants population <paramref name="population"/> draws, is one of <paramref name="installed"/>.</summary>
+    /// <exception cref="InvalidDataException">The population draws a variant that is not installed.</exception>
+    private static void RequireInstalled<TKey, TSheet>(string population, Dictionary<TKey, EnemyArtworkVariant<TSheet>> drawn,
+        Dictionary<string, EnemyArtworkVariant<TSheet>> installed)
+        where TKey : notnull
+        where TSheet : class
+    {
+        foreach (EnemyArtworkVariant<TSheet> variant in drawn.Values)
+        {
+            if (!installed.TryGetValue(variant.Name, out EnemyArtworkVariant<TSheet>? held) || !ReferenceEquals(held, variant))
+                throw new InvalidDataException($"Population {population} draws enemy artwork variant {variant.Name}, which is not installed.");
+        }
     }
 
     /// <inheritdoc/>
-    public CorpsePicturePlacement? CorpsePlacement(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string picture) =>
-        corpsePictures.TryGetValue(new EnemySheetKey(Ensure.NotNull(set).Name, enemy), out IReadOnlyDictionary<string, CorpsePicturePlacement>? pictures)
-            && pictures.TryGetValue(picture, out CorpsePicturePlacement? placement) ? placement : null;
+    public PopulationArtwork Standard { get; }
 
     /// <inheritdoc/>
-    public CorpsePicturePlacement? SpawnedCorpsePlacement(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner, string picture) =>
-        spawnedCorpsePictures.TryGetValue(new SpawnedObjectSheetKey(Ensure.NotNull(set).Name, owner), out IReadOnlyDictionary<string, CorpsePicturePlacement>? pictures)
-            && pictures.TryGetValue(picture, out CorpsePicturePlacement? placement) ? placement : null;
-
-    /// <inheritdoc/>
-    public IReadOnlyList<EncounterArtwork> ChangingEncounters(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string frame) =>
-        changingEncounters.TryGetValue(new EnemySheetKey(Ensure.NotNull(set).Name, enemy), out IReadOnlyDictionary<string, EncounterArtwork[]>? frames)
-            && frames.TryGetValue(frame, out EncounterArtwork[]? changing) ? changing : [];
-
-    /// <inheritdoc/>
-    public IReadOnlyList<EncounterArtwork> SpawnedChangingEncounters(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner, string frame) =>
-        spawnedChangingEncounters.TryGetValue(new SpawnedObjectSheetKey(Ensure.NotNull(set).Name, owner), out IReadOnlyDictionary<string, EncounterArtwork[]>? frames)
-            && frames.TryGetValue(frame, out EncounterArtwork[]? changing) ? changing : [];
-
-    /// <inheritdoc/>
-    public SpriteSheet For(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy) => For(Ensure.NotNull(set).Name, enemy);
-
-    /// <summary>The sheet of <paramref name="enemy"/> as graphics set <paramref name="set"/> loads it.</summary>
-    /// <exception cref="InvalidDataException">The set does not load that enemy.</exception>
-    public SpriteSheet For(string set, EnemyDefinitionId enemy) =>
-        sheets.TryGetValue(new EnemySheetKey(set, enemy), out SpriteSheet? sheet) ? sheet
-            : throw new InvalidDataException($"Enemy graphics set {set} installs no sheet for {enemy}.");
-
-    /// <inheritdoc/>
-    public SpawnedObjectSheet Spawned(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner) => Spawned(Ensure.NotNull(set).Name, owner);
-
-    /// <summary>The sheet graphics set <paramref name="set"/> draws the objects <paramref name="owner"/> owns from.</summary>
-    /// <exception cref="InvalidDataException">The set installs no sheet for that owner.</exception>
-    public SpawnedObjectSheet Spawned(string set, SpawnedObjectOwner owner) =>
-        spawned.TryGetValue(new SpawnedObjectSheetKey(set, owner), out SpawnedObjectSheet? sheet) ? sheet
-            : throw new InvalidDataException($"Enemy graphics set {set} installs no spawned-object sheet for {owner}.");
+    public PopulationArtwork For(RoomEnemyPopulationDefinition population) =>
+        populations.TryGetValue(Ensure.NotNull(population).Name, out PopulationArtwork? artwork) ? artwork
+            : throw new InvalidDataException($"No enemy artwork is installed for population {population.Name}.");
 }

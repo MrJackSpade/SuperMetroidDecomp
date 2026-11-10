@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <c>FirePowampSpikesIn8Directions</c> leaves the last spawned spike's pool offset (twice its place) in the accumulator,
 /// which the shot reaction passes to <c>EnemyDeath</c> as its death animation; <c>EnemyDeath</c> takes zero through four
 /// as its explosions in their authored order and any other number as the first. When allocation fails the routine leaves
-/// the body's graphics there instead, a number past every explosion for Powamp's only retail graphics set (#1512).
+/// the body's graphics there instead, a number past every explosion for Powamp's only retail variant (#1512).
 /// </remarks>
 [CompatibilityService("a Powamp shot dead explodes with the explosion its last burst spike's place in the projectile pool selects")]
 public static class PowampBurstExplosion

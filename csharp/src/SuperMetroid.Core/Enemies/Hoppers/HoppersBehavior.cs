@@ -346,7 +346,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         HopperEnemyState state,
         HopperProgram program)
     {
-        state.Program = AnimationProgramCursor<HopperProgram>.Start(program);
+        state.Playback = new(HopperAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
@@ -363,9 +363,11 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EnemyProgramAnimation.Expire(slot))
             return;
         HopperEnemyState state = slot.RequireSpeciesState<HopperEnemyState>();
-        AnimationProgramCursor<HopperProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, HopperAnimations.Programs, ref cursor, HopperFrameDefinitions.ShownFrames.Of,
-            (cue, _) => ApplyHopperCue(slot, state, cue));
-        state.Program = cursor;
+        AnimationPlayback<HopperProgram> playback = state.Playback;
+        EnemyProgramAnimation.Play(slot, HopperAnimations.Segments, ref playback, HopperFrameDefinitions.ShownFrames.Of,
+            cue => ApplyHopperCue(slot, state, cue) is { } target
+                ? new AnimationContinuation<HopperProgram>(HopperAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                : null);
+        state.Playback = playback;
     }
 }

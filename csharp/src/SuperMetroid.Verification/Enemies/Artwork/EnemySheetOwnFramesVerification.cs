@@ -112,7 +112,7 @@ internal static class EnemySheetOwnFramesVerification
             EnemyDefinitionId.Dessgeega, EnemyDefinitionId.DessgeegaLarge,
         ];
         return new("Sidehopper and Dessgeega", TableFrames(HopperFrameDefinitions.ShownFrames),
-            hoppers.ToDictionary<EnemyDefinitionId, EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>(definition => definition, definition => Reach(HopperAnimations.Programs, HopperFrameDefinitions.ShownFrames,
+            hoppers.ToDictionary<EnemyDefinitionId, EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>(definition => definition, definition => Reach(HopperAnimations.Segments, HopperAnimations.StartingAt, HopperFrameDefinitions.ShownFrames,
                 HopperAnimationDefinitions.Programs
                     .Where(entry => entry.Key.Variant == CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(definition).VariantIndex)
                     .Select(entry => entry.Value))));

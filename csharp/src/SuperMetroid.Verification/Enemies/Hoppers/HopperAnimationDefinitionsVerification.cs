@@ -59,11 +59,11 @@ internal static class HopperAnimationDefinitionsVerification
             HopperEnemyState state = enemies.HopperStates[0] ?? throw new InvalidOperationException("Verification requires enemies.HopperStates[0].");
             HopperProgram landed = HopperPrograms.Program(variant, upsideDown ? HopperSurface.Ceiling : HopperSurface.Floor, HopperPhase.Landed);
             HopperProgram jumping = HopperPrograms.Program(variant, upsideDown ? HopperSurface.Ceiling : HopperSurface.Floor, HopperPhase.Jumping);
-            AssertEqual(AnimationProgramCursor<HopperProgram>.Start(landed), state.Program, $"hopper initial landed program {context}");
+            AssertEqual(new AnimationPlayback<HopperProgram>(HopperAnimations.StartingWith(landed), AnimationPlace.StartOfAnimation), state.Playback, $"hopper initial landed program {context}");
 
             state.XVelocity = 3;
             HoppersBehavior.StartHopperJump(slot, state, upsideDown ? HopperSurface.Ceiling : HopperSurface.Floor, HopperHopDirection.Forward);
-            AssertEqual(AnimationProgramCursor<HopperProgram>.Start(jumping), state.Program, $"hopper jumping program {context}");
+            AssertEqual(new AnimationPlayback<HopperProgram>(HopperAnimations.StartingWith(jumping), AnimationPlace.StartOfAnimation), state.Playback, $"hopper jumping program {context}");
             ushort airborne = HopperAnimationsConstants.Spritemaps(jumping).Single();
             AssertEqual(EnemyInstructionRunner.ExpectedFrames([airborne, airborne], [1, 1]),
                 EnemyInstructionRunner.ShownFrames(slot, 2), $"hopper airborne pose {context}");
@@ -73,7 +73,7 @@ internal static class HopperAnimationDefinitionsVerification
                 $"hopper jumping sound {context}");
 
             HoppersBehavior.LandHopper(slot, state);
-            AssertEqual(AnimationProgramCursor<HopperProgram>.Start(landed), state.Program, $"hopper landed handoff {context}");
+            AssertEqual(new AnimationPlayback<HopperProgram>(HopperAnimations.StartingWith(landed), AnimationPlace.StartOfAnimation), state.Playback, $"hopper landed handoff {context}");
             int[] holds = [2, 5, 2, 3];
             AssertEqual(EnemyInstructionRunner.ExpectedFrames(HopperAnimationsConstants.Spritemaps(landed), holds),
                 EnemyInstructionRunner.ShownFrames(slot, holds.Sum()), $"hopper landing poses {context}");

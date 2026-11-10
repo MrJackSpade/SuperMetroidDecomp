@@ -248,7 +248,7 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(DeadTourianAnimations), "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadTourianAnimations.cs");
         RequireSegmentFrames(DeadTorizoAnimations.Segments, DeadTorizoFrameToolingDefinitions.Spritemap, DeadTorizoFrameToolingDefinitions.Bank,
             nameof(DeadTorizoAnimations), "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadTorizoAnimations.cs");
-        RequireTypedFrames(HopperAnimations.Programs, HopperFrameToolingDefinitions.Spritemap, HopperFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(HopperAnimations.Segments, HopperFrameToolingDefinitions.Spritemap, HopperFrameToolingDefinitions.Bank,
             nameof(HopperAnimations), "csharp/src/SuperMetroid.Core/Enemies/Hoppers/HopperAnimations.cs");
         RequireSegmentFrames(MultiviolaAnimations.Segments, MultiviolaFrameToolingDefinitions.Spritemap, MultiviolaFrameToolingDefinitions.Bank,
             nameof(MultiviolaAnimations), "csharp/src/SuperMetroid.Core/Enemies/Crawlers/MultiviolaAnimations.cs");

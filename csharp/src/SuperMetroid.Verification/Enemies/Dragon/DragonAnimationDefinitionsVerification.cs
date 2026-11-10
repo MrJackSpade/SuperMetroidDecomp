@@ -164,8 +164,8 @@ internal static class DragonAnimationDefinitionsVerification
             $"{context} requested selector");
         AssertEqual(expected, state.InstalledAnimation,
             $"{context} installed selector");
-        AssertEqual(AnimationProgramCursor<DragonProgram>.Start(DragonPhases.Program(expected)),
-            state.Program,
+        AssertEqual(new AnimationPlayback<DragonProgram>(DragonAnimations.StartingWith(DragonPhases.Program(expected)), AnimationPlace.StartOfAnimation),
+            state.Playback,
             $"{context} animation");
         AssertEqual(expectedFrameHold, slot.FrameHold.RawValue,
             $"{context} instruction timer");

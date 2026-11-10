@@ -10,31 +10,27 @@ namespace SuperMetroid.Core.Enemies.Dragon;
 /// </summary>
 internal static class DragonAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<DragonProgram, DragonFrame, DragonCue> Programs { get; } = new(
-        new Dictionary<DragonProgram, AnimationProgramStep<DragonProgram, DragonFrame, DragonCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<DragonProgram, DragonFrame, DragonCue> Segments { get; } = new(
+        new Dictionary<DragonProgram, AnimationBeat<DragonFrame, DragonCue>[]>
     {
         [P.IdleFacingLeft] =
         [
             Show(0, 1),
-            Hold,
         ],
         [P.WingsFacingLeft] =
         [
             Show(4, 5),
             Show(5, 5),
-            GoTo(P.WingsFacingLeft),
         ],
         [P.IdleFacingRight] =
         [
             Show(6, 1),
-            Hold,
         ],
         [P.WingsFacingRight] =
         [
             Show(10, 5),
             Show(11, 5),
-            GoTo(P.WingsFacingRight),
         ],
         [P.AttackingFacingLeft] =
         [
@@ -44,7 +40,6 @@ internal static class DragonAnimations
             Show(2, 3),
             Show(1, 1),
             Cue(new(K.FinishAttack)),
-            Hold,
         ],
         [P.AttackingFacingRight] =
         [
@@ -54,20 +49,26 @@ internal static class DragonAnimations
             Show(8, 3),
             Show(7, 1),
             Cue(new(K.FinishAttack)),
-            Hold,
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<DragonProgram, Animation<DragonProgram>> StartingAt { get; } = new Dictionary<DragonProgram, Animation<DragonProgram>>
+    {
+        [P.IdleFacingLeft] = new([new(P.IdleFacingLeft, 0, 1, 1)], AnimationEnd.Holds),
+        [P.WingsFacingLeft] = new([new(P.WingsFacingLeft, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.IdleFacingRight] = new([new(P.IdleFacingRight, 0, 1, 1)], AnimationEnd.Holds),
+        [P.WingsFacingRight] = new([new(P.WingsFacingRight, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.AttackingFacingLeft] = new([new(P.AttackingFacingLeft, 0, 6, 1)], AnimationEnd.Holds),
+        [P.AttackingFacingRight] = new([new(P.AttackingFacingRight, 0, 6, 1)], AnimationEnd.Holds),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<DragonProgram> StartingWith(DragonProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<DragonProgram, DragonFrame, DragonCue> Show(int pose, int duration) => AnimationProgramStep<DragonProgram, DragonFrame, DragonCue>.Show(new(pose), duration);
+    private static AnimationBeat<DragonFrame, DragonCue> Show(int pose, int duration) => new AnimationBeat<DragonFrame, DragonCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<DragonProgram, DragonFrame, DragonCue> Cue(DragonCue cue) => AnimationProgramStep<DragonProgram, DragonFrame, DragonCue>.Publish(cue);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<DragonProgram, DragonFrame, DragonCue> GoTo(DragonProgram program) => AnimationProgramStep<DragonProgram, DragonFrame, DragonCue>.GoTo(program);
-
-    /// <summary>Holds the last frame, as the sleep does.</summary>
-    private static AnimationProgramStep<DragonProgram, DragonFrame, DragonCue> Hold => AnimationProgramStep<DragonProgram, DragonFrame, DragonCue>.Hold;
-
+    private static AnimationBeat<DragonFrame, DragonCue> Cue(DragonCue cue) => new AnimationBeat<DragonFrame, DragonCue>.Event(cue);
 }

@@ -262,7 +262,7 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(CacatacAnimations), "csharp/src/SuperMetroid.Core/Enemies/Cacatac/CacatacAnimations.cs");
         RequireTypedFrames(BlueBrinstarFaceBlockAnimations.Programs, BlueBrinstarFaceBlockFrameToolingDefinitions.Spritemap, BlueBrinstarFaceBlockFrameToolingDefinitions.Bank,
             nameof(BlueBrinstarFaceBlockAnimations), "csharp/src/SuperMetroid.Core/Enemies/FaceBlocks/BlueBrinstarFaceBlockAnimations.cs");
-        RequireTypedFrames(DragonAnimations.Programs, DragonFrameToolingDefinitions.Spritemap, DragonFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(DragonAnimations.Segments, DragonFrameToolingDefinitions.Spritemap, DragonFrameToolingDefinitions.Bank,
             nameof(DragonAnimations), "csharp/src/SuperMetroid.Core/Enemies/Dragon/DragonAnimations.cs");
         RequireSegmentFrames(CrawlerAnimations.Segments, CrawlerFrameToolingDefinitions.Spritemap, CrawlerFrameToolingDefinitions.Bank,
             nameof(CrawlerAnimations), "csharp/src/SuperMetroid.Core/Enemies/Crawlers/CrawlerAnimations.cs");

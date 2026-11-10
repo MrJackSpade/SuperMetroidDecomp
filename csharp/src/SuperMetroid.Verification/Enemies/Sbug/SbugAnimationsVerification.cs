@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.Sbug.SbugNativeListAddresses;
 using SuperMetroid.Core.Enemies.Sbug;
@@ -6,16 +7,17 @@ using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Enemies.Sbug;
 
-/// <summary>#641: Sbug's typed programs, each matched step by step to its native bank-$A3 list.</summary>
+/// <summary>#641: Sbug's typed animations (#1600), each segment matched to its native bank-$A3 list and each animation to the lists' control flow.</summary>
 internal static class SbugAnimationsVerification
 {
-    /// <summary>Every program matches its native list.</summary>
+    /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifySbugAnimations(SuperMetroidAddressSpace rom)
     {
-        int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, SbugAnimations.Programs,
-            SbugFrameToolingDefinitions.Spritemap,
-            word => null,
-            (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions."));
-        Console.WriteLine($"  Sbug programs: {Entries.Length} programs ({steps} steps) match bank $A3.");
+        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
+            SbugAnimations.Segments, SbugAnimations.StartingAt, SbugFrameToolingDefinitions.Spritemap,
+            new NativeEnemyCueRules<NoAnimationCue>(
+                word => null,
+                (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions.")));
+        Console.WriteLine($"  Sbug animations: {Entries.Length} segments ({beats} beats) and {SbugAnimations.StartingAt.Count} animations match bank $A3.");
     }
 }

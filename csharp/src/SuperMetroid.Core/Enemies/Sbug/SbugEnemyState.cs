@@ -83,6 +83,6 @@ public sealed class SbugEnemyState
     /// <summary>The loop already started, or none before the first direction is selected.</summary>
     internal SbugProgram? InstalledProgram { get; set; }
 
-    /// <summary>Where the animation resumes.</summary>
-    internal AnimationProgramCursor<SbugProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<SbugProgram> Playback { get; set; }
 }

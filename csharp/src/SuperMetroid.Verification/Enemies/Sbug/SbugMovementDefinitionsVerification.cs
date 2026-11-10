@@ -60,12 +60,12 @@ internal static class SbugMovementDefinitionsVerification
             SbugEnemyState state = (enemies.SbugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.SbugStates[0]."));
             AssertEqual(SbugMovementDefinitions.FacingsCounterClockwise.At(selector), state.ForwardFacing,
                 $"Sbug production facing {selector}");
-            AssertEqual(AnimationProgramCursor<SbugProgram>.Start(SbugMovement.FacingProgram(state.ForwardFacing)), state.Program,
+            AssertEqual(new AnimationPlayback<SbugProgram>(SbugAnimations.StartingWith(SbugMovement.FacingProgram(state.ForwardFacing)), AnimationPlace.StartOfAnimation), state.Playback,
                 $"Sbug production facing animation {selector}");
-            AssertEqual(native, NativeEnemyProgramOracle.EntryOf(SbugNativeListAddresses.Entries, state.Program.Program),
+            AssertEqual(native, NativeEnemyProgramOracle.EntryOf(SbugNativeListAddresses.Entries, state.Playback.Animation.Phases[0].Segment),
                 $"Sbug production facing list {selector}");
             // Each loop shows its four frames five updates apiece, then its goto shows the first again.
-            ushort[] loop = SbugAnimationsConstants.Spritemaps(state.Program.Program).ToArray();
+            ushort[] loop = SbugAnimationsConstants.Spritemaps(state.Playback.Animation.Phases[0].Segment).ToArray();
             AssertEqual(EnemyInstructionRunner.ExpectedFrames([.. loop, loop[0]], [5, 5, 5, 5, 5]),
                 EnemyInstructionRunner.ShownFrames(slot, 21), $"Sbug facing loop {selector}");
         }
@@ -125,7 +125,7 @@ internal static class SbugMovementDefinitionsVerification
         state.StraightMovementTimer = WrappingCountdown.Start(512);
         enemies.SbugBehavior.RunSbugMain(slot, samus, null);
         AssertEqual(SbugFacing.UpRight, state.CustomFacing, "the reversal folds down-right into up-right");
-        AssertEqual(AnimationProgramCursor<SbugProgram>.Start(SbugMovement.FacingProgram(SbugFacing.UpRight)), state.Program,
+        AssertEqual(new AnimationPlayback<SbugProgram>(SbugAnimations.StartingWith(SbugMovement.FacingProgram(SbugFacing.UpRight)), AnimationPlace.StartOfAnimation), state.Playback,
             "the folded facing installs its loop");
         Console.WriteLine("  Sbug custom heading: turns carry into the heading word and a reversal folds the facing.");
     }

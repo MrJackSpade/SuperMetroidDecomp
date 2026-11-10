@@ -9,9 +9,9 @@ namespace SuperMetroid.Core.Enemies.Sbug;
 /// </summary>
 internal static class SbugAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<SbugProgram, SbugFrame, NoAnimationCue> Programs { get; } = new(
-        new Dictionary<SbugProgram, AnimationProgramStep<SbugProgram, SbugFrame, NoAnimationCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<SbugProgram, SbugFrame, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<SbugProgram, AnimationBeat<SbugFrame, NoAnimationCue>[]>
     {
         [P.Right] =
         [
@@ -19,7 +19,6 @@ internal static class SbugAnimations
             Show(1, 5),
             Show(0, 5),
             Show(2, 5),
-            GoTo(P.Right),
         ],
         [P.UpRight] =
         [
@@ -27,7 +26,6 @@ internal static class SbugAnimations
             Show(4, 5),
             Show(3, 5),
             Show(5, 5),
-            GoTo(P.UpRight),
         ],
         [P.Up] =
         [
@@ -35,7 +33,6 @@ internal static class SbugAnimations
             Show(7, 5),
             Show(6, 5),
             Show(8, 5),
-            GoTo(P.Up),
         ],
         [P.UpLeft] =
         [
@@ -43,7 +40,6 @@ internal static class SbugAnimations
             Show(10, 5),
             Show(9, 5),
             Show(11, 5),
-            GoTo(P.UpLeft),
         ],
         [P.Left] =
         [
@@ -51,7 +47,6 @@ internal static class SbugAnimations
             Show(13, 5),
             Show(12, 5),
             Show(14, 5),
-            GoTo(P.Left),
         ],
         [P.DownLeft] =
         [
@@ -59,7 +54,6 @@ internal static class SbugAnimations
             Show(16, 5),
             Show(15, 5),
             Show(17, 5),
-            GoTo(P.DownLeft),
         ],
         [P.Down] =
         [
@@ -67,7 +61,6 @@ internal static class SbugAnimations
             Show(19, 5),
             Show(18, 5),
             Show(20, 5),
-            GoTo(P.Down),
         ],
         [P.DownRight] =
         [
@@ -75,14 +68,25 @@ internal static class SbugAnimations
             Show(22, 5),
             Show(21, 5),
             Show(23, 5),
-            GoTo(P.DownRight),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<SbugProgram, Animation<SbugProgram>> StartingAt { get; } = new Dictionary<SbugProgram, Animation<SbugProgram>>
+    {
+        [P.Right] = new([new(P.Right, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.UpRight] = new([new(P.UpRight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Up] = new([new(P.Up, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.UpLeft] = new([new(P.UpLeft, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Left] = new([new(P.Left, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.DownLeft] = new([new(P.DownLeft, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Down] = new([new(P.Down, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.DownRight] = new([new(P.DownRight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<SbugProgram> StartingWith(SbugProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<SbugProgram, SbugFrame, NoAnimationCue> Show(int pose, int duration) => AnimationProgramStep<SbugProgram, SbugFrame, NoAnimationCue>.Show(new(pose), duration);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<SbugProgram, SbugFrame, NoAnimationCue> GoTo(SbugProgram program) => AnimationProgramStep<SbugProgram, SbugFrame, NoAnimationCue>.GoTo(program);
-
+    private static AnimationBeat<SbugFrame, NoAnimationCue> Show(int pose, int duration) => new AnimationBeat<SbugFrame, NoAnimationCue>.Frame(new(pose), duration);
 }

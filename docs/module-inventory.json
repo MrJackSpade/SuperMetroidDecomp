@@ -282,7 +282,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Programs",
       "role": "production",
-      "files": 13,
+      "files": 14,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Compatibility"
@@ -840,7 +840,7 @@
     {
       "module": "csharp/test-support/MovieReplay",
       "role": "verification-support",
-      "files": 145,
+      "files": 146,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -64493,8 +64493,7 @@
         "SuperMetroid.Core"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.Core",
-        "csharp/src/SuperMetroid.Core/Compatibility"
+        "csharp/src/SuperMetroid.Core"
       ]
     },
     {
@@ -64542,6 +64541,16 @@
     },
     {
       "path": "csharp/src/SuperMetroid.Core/Programs/AnimationPlace.cs",
+      "module": "csharp/src/SuperMetroid.Core/Programs",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Programs",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Programs/AnimationPlayback.cs",
       "module": "csharp/src/SuperMetroid.Core/Programs",
       "role": "production",
       "namespace": "SuperMetroid.Core.Programs",
@@ -128162,6 +128171,22 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
+        "csharp/test-support/Assertions"
+      ]
+    },
+    {
+      "path": "csharp/test-support/MovieReplay/NativeEnemyAnimationOracle.cs",
+      "module": "csharp/test-support/MovieReplay",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.TestSupport.MovieReplay",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Programs",
         "csharp/test-support/Assertions"
       ]
     },

@@ -104088,6 +104088,19 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.Core.Programs.AnimationBeat\u003CTFrame, TEvent\u003E.Pause",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Programs/AnimationBeat.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Programs.AnimationContinuation\u003CTSegment\u003E",
       "kind": "record struct",
       "scope": "product",
@@ -104102,6 +104115,19 @@
     },
     {
       "type": "SuperMetroid.Core.Programs.AnimationEnd",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Programs/AnimationEnd.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Programs.AnimationEnd.Hold",
       "kind": "record",
       "scope": "product",
       "assemblies": [
@@ -104161,6 +104187,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Programs/AnimationPlace.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Programs.AnimationPlayback\u003CTSegment\u003E",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Programs/AnimationPlayback.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -104427,6 +104466,32 @@
     },
     {
       "type": "SuperMetroid.Core.Programs.AnimationShown\u003CTSegment, TFrame\u003E.Frame",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Programs/AnimationShown.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Programs.AnimationShown\u003CTSegment, TFrame\u003E.Held",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Programs/AnimationShown.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Programs.AnimationShown\u003CTSegment, TFrame\u003E.Paused",
       "kind": "record",
       "scope": "product",
       "assemblies": [
@@ -140147,6 +140212,48 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.TestSupport.MovieReplay.NativeEnemyAnimationOracle",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/MovieReplay/NativeEnemyAnimationOracle.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.MovieReplay.NativeEnemyControl\u003CTSegment\u003E",
+      "kind": "record",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/MovieReplay/NativeEnemyAnimationOracle.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.MovieReplay.NativeEnemyControlKind",
+      "kind": "enum",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/MovieReplay/NativeEnemyAnimationOracle.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.TestSupport.MovieReplay.NativeEnemyCueRules\u003CTCue\u003E",
       "kind": "record",
       "scope": "test",
@@ -140173,6 +140280,20 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.MovieReplay.NativeEnemyList\u003CTSegment\u003E",
+      "kind": "record",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/MovieReplay/NativeEnemyAnimationOracle.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.TestSupport.MovieReplay.NativeEnemyListDefinitions",

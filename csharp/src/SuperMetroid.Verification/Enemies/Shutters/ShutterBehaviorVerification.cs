@@ -30,35 +30,35 @@ internal static class ShutterBehaviorVerification
                     GrowthSpeed: SignedSixteenSixteen.FromSixteenthsOfPixel(17)));
                 ShuttersBehavior.InitializeGrowingShutter(slot);
             },
-            enemies => enemies.SlotTable.Slots[0].EntityState<ShuttersEntity, GrowingShutterEnemyState>()?.Program);
+            enemies => enemies.SlotTable.Slots[0].EntityState<ShuttersEntity, GrowingShutterEnemyState>()?.Playback);
         foreach (EnemyDefinitionId definition in new[] { EnemyDefinitionId.ShutterShootable, EnemyDefinitionId.ShutterDestroyable })
         {
             VerifyPose(definition, ShutterProgram.FortyPixels,
                 (enemies, slot) => ShuttersBehavior.InitializeVerticalShutter(slot),
-                enemies => enemies.SlotTable.Slots[0].EntityState<ShuttersEntity, VerticalShutterEnemyState>()?.Program);
+                enemies => enemies.SlotTable.Slots[0].EntityState<ShuttersEntity, VerticalShutterEnemyState>()?.Playback);
         }
         VerifyPose(EnemyDefinitionId.ShutterHorizShootable, ShutterProgram.Horizontal,
             (enemies, slot) => ShuttersBehavior.InitializeHorizontalShutter(slot),
-            enemies => enemies.SlotTable.Slots[0].EntityState<ShuttersEntity, HorizontalShutterEnemyState>()?.Program);
+            enemies => enemies.SlotTable.Slots[0].EntityState<ShuttersEntity, HorizontalShutterEnemyState>()?.Playback);
 
         RoomEnemySystem kamerSystem = NewSystem();
         RoomEnemySlot kamer = NewSlot(kamerSystem, EnemyDefinitionId.Kamer);
         kamer.Bind(EnemyDefinitionId.Kamer, kamer.Definition);
         ShuttersBehavior.InitializeVerticalShutter(kamer);
-        AssertEqual(AnimationProgramCursor<ShutterProgram>.Start(ShutterProgram.KamerPlatform),
-            kamerSystem.SlotTable.Slots[0].EntityState<ShuttersEntity, VerticalShutterEnemyState>()?.Program, "Kamer vertical platform starts its loop");
-        AssertEqual(EnemyInstructionRunner.ExpectedLoop(ShutterAnimations.Programs, ShutterProgram.KamerPlatform, ShutterFrameToolingDefinitions.Spritemap),
-            EnemyInstructionRunner.ShownFrames(kamer, EnemyInstructionRunner.LoopUpdates(ShutterAnimations.Programs, ShutterProgram.KamerPlatform)),
+        AssertEqual(new AnimationPlayback<ShutterProgram>(ShutterAnimations.StartingWith(ShutterProgram.KamerPlatform), AnimationPlace.StartOfAnimation),
+            kamerSystem.SlotTable.Slots[0].EntityState<ShuttersEntity, VerticalShutterEnemyState>()?.Playback, "Kamer vertical platform starts its loop");
+        AssertEqual(EnemyInstructionRunner.ExpectedLoop(ShutterAnimations.Segments, ShutterProgram.KamerPlatform, ShutterFrameToolingDefinitions.Spritemap),
+            EnemyInstructionRunner.ShownFrames(kamer, EnemyInstructionRunner.LoopUpdates(ShutterAnimations.Segments, ShutterProgram.KamerPlatform)),
             "Kamer platform loop and its goto");
         Console.WriteLine("  Shutter behavior: every shutter starts its pose and Kamer runs its platform loop.");
 
         void VerifyPose(EnemyDefinitionId definition, ShutterProgram program, Action<RoomEnemySystem, RoomEnemySlot> initialize,
-            Func<RoomEnemySystem, AnimationProgramCursor<ShutterProgram>?> cursor)
+            Func<RoomEnemySystem, AnimationPlayback<ShutterProgram>?> playback)
         {
             RoomEnemySystem enemies = NewSystem();
             RoomEnemySlot slot = NewSlot(enemies, definition);
             initialize(enemies, slot);
-            AssertEqual(AnimationProgramCursor<ShutterProgram>.Start(program), cursor(enemies), $"shutter {definition} initial animation");
+            AssertEqual(new AnimationPlayback<ShutterProgram>(ShutterAnimations.StartingWith(program), AnimationPlace.StartOfAnimation), playback(enemies), $"shutter {definition} initial animation");
             ushort pose = ShutterAnimationsConstants.Spritemaps(program).Single();
             AssertEqual(EnemyInstructionRunner.ExpectedFrames([pose, pose], [1, 1]),
                 EnemyInstructionRunner.ShownFrames(slot, 3), $"shutter {definition} shows and holds its pose");

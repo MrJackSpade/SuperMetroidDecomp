@@ -22,8 +22,8 @@ public sealed class GrowingShutterEnemyState
     /// <summary>Creates the state for a room-owned shutter slot.</summary>
     internal GrowingShutterEnemyState(RoomEnemySlot slot) => _slot = slot;
 
-    /// <summary>Where the animation resumes.</summary>
-    internal AnimationProgramCursor<ShutterProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<ShutterProgram> Playback { get; set; }
 
     /// <summary>
     /// The dispatcher behaviour; initialization selects a wait function and activation replaces it with a growth

@@ -270,7 +270,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         ShutterProgram program,
         int yRadius)
     {
-        state.Program = AnimationProgramCursor<ShutterProgram>.Start(program);
+        state.Playback = new(ShutterAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         slot.Radius = slot.Radius.WithY(yRadius);
@@ -533,7 +533,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Restarts the stationary shutter pose after movement or reaction.</summary>
     private static void InstallHorizontalShutterProgram(RoomEnemySlot slot, HorizontalShutterEnemyState state)
     {
-        state.Program = AnimationProgramCursor<ShutterProgram>.Start(ShutterProgram.Horizontal);
+        state.Playback = new(ShutterAnimations.StartingWith(ShutterProgram.Horizontal), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
@@ -617,15 +617,21 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
+    /// <summary>Plays a shutter's cue-free animation on to its next frame after its frame expired.</summary>
+    private static AnimationPlayback<ShutterProgram> PlayShutterAnimation(RoomEnemySlot slot, AnimationPlayback<ShutterProgram> playback)
+    {
+        EnemyProgramAnimation.Play(slot, ShutterAnimations.Segments, ref playback, ShutterFrameDefinitions.ShownFrames.Of,
+            static cue => throw new InvalidOperationException($"A shutter's cue-free animation raised {cue}."));
+        return playback;
+    }
+
     /// <summary>Advances ShutterGrowing's typed animation.</summary>
     internal static void AdvanceShutterGrowingTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
         GrowingShutterEnemyState state = slot.RequireSpeciesState<GrowingShutterEnemyState>();
-        AnimationProgramCursor<ShutterProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, ShutterAnimations.Programs, ref cursor, ShutterFrameDefinitions.ShownFrames.Of);
-        state.Program = cursor;
+        state.Playback = PlayShutterAnimation(slot, state.Playback);
     }
 
     /// <summary>Advances ShutterShootable's typed animation.</summary>
@@ -634,9 +640,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EnemyProgramAnimation.Expire(slot))
             return;
         VerticalShutterEnemyState state = slot.RequireSpeciesState<VerticalShutterEnemyState>();
-        AnimationProgramCursor<ShutterProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, ShutterAnimations.Programs, ref cursor, ShutterFrameDefinitions.ShownFrames.Of);
-        state.Program = cursor;
+        state.Playback = PlayShutterAnimation(slot, state.Playback);
     }
 
     /// <summary>Advances ShutterHorizShootable's typed animation.</summary>
@@ -645,9 +649,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EnemyProgramAnimation.Expire(slot))
             return;
         HorizontalShutterEnemyState state = slot.RequireSpeciesState<HorizontalShutterEnemyState>();
-        AnimationProgramCursor<ShutterProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, ShutterAnimations.Programs, ref cursor, ShutterFrameDefinitions.ShownFrames.Of);
-        state.Program = cursor;
+        state.Playback = PlayShutterAnimation(slot, state.Playback);
     }
 
     /// <summary>Ports ShutterGrowing's main AI.</summary>
@@ -1027,7 +1029,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Restarts a vertical shutter's selected animation.</summary>
     private static void InstallVerticalShutterProgram(RoomEnemySlot slot, VerticalShutterEnemyState state, ShutterProgram program)
     {
-        state.Program = AnimationProgramCursor<ShutterProgram>.Start(program);
+        state.Playback = new(ShutterAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }

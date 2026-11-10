@@ -30,6 +30,12 @@ public sealed class SamusBombProjectileSlot
     /// <summary>What the slot holds; <see cref="SamusProjectileType.None"/> marks an empty slot.</summary>
     public SamusProjectileType Type { get; internal set; }
 
+    /// <summary>
+    /// The beam combination whose pictures the bomb and its explosion show (#1586): the beams Samus had equipped when
+    /// she placed it, whatever she equips while it burns.
+    /// </summary>
+    public SamusBeamCombination PicturedBeams { get; internal set; }
+
     /// <summary>Whether a placed bomb's explosion has reacted with the five-block cross of terrain around it; it does so once.</summary>
     public bool HasReactedToTerrain { get; internal set; }
 
@@ -72,6 +78,7 @@ public sealed class SamusBombProjectileSlot
         Position = FixedPosition<RoomPixels>.Zero;
         IsSpent = false;
         Type = SamusProjectileType.None;
+        PicturedBeams = SamusBeamCombination.Power;
         HasReactedToTerrain = false;
         Damage = 0;
         Cursor = null;

@@ -4,15 +4,15 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>
-/// The installed projectile sheets a context draws from: in gameplay the sheet of the loaded beam combination, in the
-/// intro's flashbacks the intro's own sheet, which shows the power beam.
+/// The installed projectile sheets a context draws from: in gameplay the sheet of the beam combination each draw is
+/// pictured with (#1586), in the intro's flashbacks the intro's own sheet, which holds the power beam's pictures.
 /// </summary>
 public sealed class ProjectileSheets
 {
     /// <summary>Every installed sheet.</summary>
     private readonly InstalledSpriteSheets sheets;
 
-    /// <summary>The context's sheet for a loaded beam combination.</summary>
+    /// <summary>The context's sheet for the beam combination a draw is pictured with.</summary>
     private readonly Func<SamusBeamCombination, SpriteSheetId> sheetFor;
 
     /// <summary>Binds the installed sheets for one context.</summary>
@@ -22,19 +22,16 @@ public sealed class ProjectileSheets
         this.sheetFor = sheetFor;
     }
 
-    /// <summary>The gameplay context, drawing from the loaded beam combination's sheet.</summary>
+    /// <summary>The gameplay context, drawing from the sheet of the beam combination each draw is pictured with.</summary>
     public static ProjectileSheets Gameplay(InstalledSpriteSheets sheets) => new(sheets, ProjectileSheetFrames.For);
 
-    /// <summary>The intro's flashback context, drawing from the intro's sheet.</summary>
-    public static ProjectileSheets IntroFlashbacks(InstalledSpriteSheets sheets) => new(sheets, IntroSheet);
+    /// <summary>
+    /// The intro's flashback context, drawing from the intro's sheet whatever beams its flashback Samus fires with: the
+    /// intro's own artwork holds only the power beam's pictures.
+    /// </summary>
+    public static ProjectileSheets IntroFlashbacks(InstalledSpriteSheets sheets) => new(sheets, _ => SpriteSheetId.IntroProjectiles);
 
-    /// <summary>The sheet drawn while <paramref name="loadedBeams"/> are the loaded beams.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The beams' combination has no sheet.</exception>
-    /// <exception cref="InvalidOperationException">The intro's flashbacks load a beam other than the power beam.</exception>
-    public SpriteSheet For(SamusBeamFlags loadedBeams) => sheets.Get(sheetFor(SamusBeamCombinations.Of(loadedBeams)));
-
-    /// <summary>The intro's sheet, which shows only the power beam its flashbacks load.</summary>
-    private static SpriteSheetId IntroSheet(SamusBeamCombination beams) => beams == SamusBeamCombination.Power
-        ? SpriteSheetId.IntroProjectiles
-        : throw new InvalidOperationException($"The intro's flashbacks draw only the power beam, not {beams}.");
+    /// <summary>The sheet a draw pictured with <paramref name="beams"/> shows.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The combination has no gameplay sheet.</exception>
+    public SpriteSheet For(SamusBeamCombination beams) => sheets.Get(sheetFor(beams));
 }

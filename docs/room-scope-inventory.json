@@ -257,7 +257,7 @@
   {
    "file": "Rooms/RoomLoader.cs",
    "body": "LoadRoom",
-   "step": "Artwork.UpdateBeamTilesAndPalette",
+   "step": "SamusProjectileSystem.LoadBeamPalette",
    "classification": "room",
    "evidence": "the entering beam before enemy init ($82:E4CC)",
    "reads": [

@@ -9,11 +9,6 @@ namespace SuperMetroid.Core.World;
 /// <summary>The collaborators a <see cref="RoomObjectFramePhase"/> is constructed with, built once by the owner that creates it (#621).</summary>
 internal sealed record RoomObjectFramePhaseDependencies
 {
-    /// <summary>Artwork.</summary>
-    public required RuntimeArtwork Artwork { get; init; }
-
-
-
     /// <summary>Controller1.</summary>
     public required ControllerInputState Controller1 { get; init; }
 

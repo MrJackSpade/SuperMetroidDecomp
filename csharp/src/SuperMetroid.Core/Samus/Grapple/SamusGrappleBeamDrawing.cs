@@ -1,4 +1,5 @@
 ﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -93,11 +94,10 @@ public static class SamusGrappleBeamDrawing
         // shared main flare only; charge-spark direction offsets do not apply.
         int tableIndex = CoordinateAxis.Wrap(
             grapple.FlareAnimationFrame + SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteDefinitions.MainFlareSelectorOffset);
-        // Flare compositions name standard sprite-sheet characters that no beam or trail upload covers,
-        // so the loaded beams' projectile sheet shows them as the standard page does.
+        // The flare is Samus's own, so it shows the sheet of the beams she has equipped (#1586).
         if (!SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteSelection.Contains(tableIndex))
             throw new InvalidDataException($"Unknown charge-flare sprite selector {tableIndex}.");
-        SpriteSheetFrame image = objects.Sheet.Frame(SuperMetroid.Core.Samus.Artwork.ProjectileSheetFrames.FlareFrame(
+        SpriteSheetFrame image = objects.SheetOf(SamusBeamCombinations.Of(samus.EquippedBeams)).Frame(SuperMetroid.Core.Samus.Artwork.ProjectileSheetFrames.FlareFrame(
             SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteSelection.Selectors[tableIndex]));
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleFlare), image,
             Position16<ScreenPixels>.Of(screenX, screenY), SpriteMirror.None));

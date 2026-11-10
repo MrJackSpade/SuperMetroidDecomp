@@ -76,7 +76,7 @@ internal static class MoatFirstEntryVerification
                 _ = pause.Render();
                 AssertTrue(runtime.Vram.Bytes.SequenceEqual(gameplayBeforePause),
                     "pause graphics do not mutate gameplay VRAM");
-                runtime.SamusPhases.UpdateGameplayBeamTilesAndPalette(samus.EquippedBeams);
+                runtime.SamusPhases.ShowEquippedBeamColours(samus.EquippedBeams);
                 runtime.FrameBoundary.BeginAcceptedFrame(0);
             }
             runtime.Room.LoadedLevelData.ResolveDoorCollision(behavior, samus.Pose.ForRoomCollision(), true);

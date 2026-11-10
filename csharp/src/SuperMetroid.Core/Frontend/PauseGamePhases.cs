@@ -82,19 +82,16 @@ internal sealed class PauseGamePhases(FrontendSession session)
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.RestoringGameplayFromPause"/>.</summary>
     internal void DispatchRestoringGameplayFromPause(ControllerButton controllerInput)
     {
-        // Unpausing restores gameplay's layers, beam tiles, colours,
+        // Unpausing restores gameplay's layers, colours,
         // hooks, per-line effects and animated tiles on a blank display. Pause graphics live in a
         // separate display image here, so discarding it restores the untouched runtime
         // image without a host-authored reconstruction.
         SamusState resumedSamus = session.GameplayRuntime.Player.Samus ??
             throw new InvalidOperationException(
                 "Pause teardown requires live Samus equipment state.");
-        // The equipment screen's category button response mutates the live equipped word,
-        // but projectile character data and colours are cached display resources. State
-        // Unpausing reapplies the beam's tiles and colours before its frame; omitting that handoff
-        // made the new damage/type word immediate while art stayed stale until the
-        // next room load happened to invoke the same routine.
-        session.GameplayRuntime.SamusPhases.UpdateGameplayBeamTilesAndPalette(resumedSamus.EquippedBeams);
+        // The equipment screen's category button response changes the equipped beams. Unpausing shows the newly
+        // equipped beams' colours before its frame; the projectiles fired from then on show the beams' own pictures (#1586).
+        session.GameplayRuntime.SamusPhases.ShowEquippedBeamColours(resumedSamus.EquippedBeams);
         resumedSamus.ReconcilePauseBallEquipment();
         // The unpause teardown also reconciles equipment-dependent momentum.
         // Keep the speed pair until the next gameplay frame, as the game does.

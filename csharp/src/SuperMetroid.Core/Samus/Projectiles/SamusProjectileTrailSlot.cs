@@ -21,10 +21,16 @@ public sealed class SamusProjectileTrailSlot
     /// <summary>Right-side trail animation state.</summary>
     public SamusProjectileTrailSide Right { get; }
 
+    /// <summary>
+    /// The beam combination whose pictures both sides show (#1586): that of the projectile that last left the trail.
+    /// </summary>
+    public SuperMetroid.Core.Progression.SamusBeamCombination PicturedBeams { get; internal set; }
+
     /// <summary>Clears both independent trail streams when the allocation slot is reset.</summary>
     internal void ClearFields()
     {
         Left.ClearFields();
         Right.ClearFields();
+        PicturedBeams = SuperMetroid.Core.Progression.SamusBeamCombination.Power;
     }
 }

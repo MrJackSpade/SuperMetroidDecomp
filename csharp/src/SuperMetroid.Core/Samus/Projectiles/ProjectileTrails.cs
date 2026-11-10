@@ -64,6 +64,7 @@ internal sealed class ProjectileTrails
         if (trail is null)
             return;
 
+        trail.PicturedBeams = projectile.PicturedBeams;
         trail.Left.FrameHold = 1;
         trail.Right.FrameHold = 1;
         trail.Left.Cursor = new ProjectileTrailCursor(programs.Left, 0);
@@ -168,7 +169,7 @@ internal sealed class ProjectileTrails
         int screenY = CoordinateAxis.Wrap(side.DisplayedPosition.Y - cameraPosition.Y);
 
         // A side allocated over an earlier trail keeps showing that trail's last pose until its own first one.
-        SpriteSheetFrame image = objects.Sheet.Frame(side.ShownPose is { } pose
+        SpriteSheetFrame image = objects.SheetOf(pair.PicturedBeams).Frame(side.ShownPose is { } pose
             ? ProjectileSheetFrames.TrailFrame(pose) : ProjectileSheetDefinitions.UnshownTrailFrame);
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusProjectileTrail, slotIndex * 2 + (direction == HorizontalDirection.Left ? 0 : 1)),
             image, Position16<ScreenPixels>.Of(screenX, screenY), SpriteMirror.None));

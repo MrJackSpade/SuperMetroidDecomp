@@ -27,8 +27,6 @@ internal sealed class EnemyFramePhase
     private readonly GameplayTimeFreeze _freeze;
     /// <summary>Supplies frame counters consumed by enemy AI and animation.</summary>
     private readonly FrameClock _clock;
-    /// <summary>Reloads the beam artwork when the Baby's recovery enables the Hyper Beam during the enemy pass.</summary>
-    private readonly RuntimeArtwork _artwork;
     /// <summary>Receives Ceres Ridley's immediate Baby and door sprites before queued enemy layers.</summary>
     private readonly SpriteFrameBuffer _sprites;
     /// <summary>Exposes Samus's pose, motion, and collision handoffs around the enemy pass.</summary>
@@ -40,7 +38,6 @@ internal sealed class EnemyFramePhase
     /// <summary>Binds gameplay owners that exchange state at the enemy pass's frame boundary.</summary>
     internal EnemyFramePhase(EnemyFramePhaseDependencies dependencies)
     {
-        _artwork = dependencies.Artwork;
         _backgroundScroll = dependencies.BackgroundScroll;
         _controller1 = dependencies.Controller1;
         _display = dependencies.Display;
@@ -90,10 +87,10 @@ internal sealed class EnemyFramePhase
             bool hyperBeamBefore = _player.Samus?.HyperBeamEnabled == true;
             EnemyFrameResult result = room.Enemies.StepFrame(new RoomEnemyFrame { Camera = _room.Camera.PixelPosition, TimeIsFrozen = _freeze.TimeIsFrozen, Samus = _player.Samus, SamusColours = _player.Colours, NewlyPressedControllerInput = _controller1.NewlyPressed, Level = _room.LevelData, ControllerInput = _controller1.Current, SamusProjectiles = room.Projectiles, ShortCounter = _clock.ShortCounter, TurningFloor = _display.ActiveTurningFloor, SharedProjectiles = room.BombProjectiles, ResolveSamusContactBeforeAi = true, CollisionObjects = room.RoomObjects.BreakableTerrain, FrameCounter = _clock.Counter, ProcessingListPrepared = processingList == EnemyProcessingList.Prepared, SamusPreviousPositionCheckpoint = samusPreviousPositionCheckpoint });
             _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(result.RoomEffects, room.RoomObjects, room.FxOverlay, room.PaletteFx, room.Enemies);
-            // The Baby's recovery equips the Hyper Beam and loads its beam artwork in the same enemy pass, as an item
-            // pickup does (#1561): Samus's shots then show the loaded Plasma-Wave combination's pictures whatever was loaded before.
+            // The Baby's recovery equips the Hyper Beam and shows its beams' colours in the same enemy pass, as an item
+            // pickup does (#1561); its shots show the equipped Plasma-Wave combination's pictures (#1586).
             if (!hyperBeamBefore && _player.Samus is { HyperBeamEnabled: true } hyperBeamSamus)
-                _artwork.UpdateBeamTilesAndPalette(_player.Colours, hyperBeamSamus.EquippedBeams);
+                SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.LoadBeamPalette(_player.Colours, hyperBeamSamus.EquippedBeams);
             if (result.Elevator == ElevatorFrameEvent.DepartureStarted)
             {
                 // Making Samus face forward clears all pending pose requests after alpha

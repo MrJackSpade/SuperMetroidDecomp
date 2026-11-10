@@ -111,20 +111,21 @@ internal static class ProjectileCompositionsVerification
         // Each projectile sheet holds only the compositions its beam combination's projectiles show (#1513): a composition
         // draws from the sheet of a combination showing it, and one no combination shows is on no gameplay sheet and drawn
         // by no projectile.
-        foreach (ushort id in ProjectileSpriteDefinitions.NativePointers.Where(id => ArtworkShowing(id) is not null))
+        ProjectileDrawArtwork artwork = InstalledFixtures.ProjectileArtwork();
+        foreach (ushort id in ProjectileSpriteDefinitions.NativePointers.Where(id => CombinationShowing(id) is not null))
         foreach (ushort coordinate in new ushort[] { 0, 100, 223, 255, 256, 303, 304, 0xffcf, 0xffd0 })
         foreach (ushort type in new ushort[] { 0, 0x10, 0x100, 0x200, 0x300, 0x500, 0x700, 0x800 })
         {
-            ProjectileDrawArtwork artwork = ArtworkShowing(id) ?? throw new InvalidOperationException($"No beam combination's sheet holds composition ${id:X4}.");
+            SamusBeamCombination pictured = CombinationShowing(id) ?? throw new InvalidOperationException($"No beam combination's sheet holds composition ${id:X4}.");
             var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
             var bombs = new SamusBombProjectileSystem();
             var shot = shots.Slots[0];
             shot.Cursor = ProjectileFixtureCursors.Active; shot.SpritemapPointer = id;
-            shot.Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type); shot.Position = shot.Position.WithWhole(new(coordinate, coordinate));
+            shot.Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type); shot.PicturedBeams = pictured; shot.Position = shot.Position.WithWhole(new(coordinate, coordinate));
             shot.Damage = 123; shot.Radius = shot.Radius.WithX(7).WithY(9);
             var bomb = bombs.Slots[0];
             bomb.Cursor = ProjectileFixtureCursors.Active; bomb.SpritemapPointer = id;
-            bomb.Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type); bomb.Position = bomb.Position.WithWhole(new(coordinate, coordinate));
+            bomb.Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type); bomb.PicturedBeams = pictured; bomb.Position = bomb.Position.WithWhole(new(coordinate, coordinate));
             bomb.BombTimer = WrappingCountdown.Start(1);
             foreach (ushort parity in new ushort[] { 0, 1, 2, 3 })
             {
@@ -156,16 +157,16 @@ internal static class ProjectileCompositionsVerification
         }
         Console.WriteLine($"Projectile composition owners: {comparisons} stock OAM comparisons with every ROM access forbidden.");
 
-        // The draw artwork of the first beam combination whose installed sheet holds the composition at bank-$93 address
-        // pointer, pictured or as showing nothing; none when no combination's sheet holds it.
-        static ProjectileDrawArtwork? ArtworkShowing(ushort pointer)
+        // The first beam combination whose installed sheet holds the composition at bank-$93 address pointer, pictured or
+        // as showing nothing, which the drawn shot and bomb are pictured with; none when no combination's sheet holds it.
+        static SamusBeamCombination? CombinationShowing(ushort pointer)
         {
             string frame = ProjectileSheetFrames.ProjectileFrame(ProjectileSpriteNative.Projectile(pointer));
             foreach ((SamusBeamCombination combination, SpriteSheetId sheetId) in ProjectileSheetDefinitions.Sheets)
             {
                 SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(sheetId);
                 if (sheet.frames.ContainsKey(frame) || sheet.blanks.Contains(frame))
-                    return InstalledFixtures.ProjectileArtwork(combination.Components);
+                    return combination;
             }
             return null;
         }

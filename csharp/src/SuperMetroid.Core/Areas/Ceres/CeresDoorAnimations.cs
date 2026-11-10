@@ -10,9 +10,9 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// </summary>
 internal static class CeresDoorAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<CeresDoorProgram, CeresDoorFrame, CeresDoorCue> Programs { get; } = new(
-        new Dictionary<CeresDoorProgram, AnimationProgramStep<CeresDoorProgram, CeresDoorFrame, CeresDoorCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<CeresDoorProgram, CeresDoorFrame, CeresDoorCue> Segments { get; } = new(
+        new Dictionary<CeresDoorProgram, AnimationBeat<CeresDoorFrame, CeresDoorCue>[]>
     {
         [P.RidleyRoomFacingRight] =
         [
@@ -28,14 +28,12 @@ internal static class CeresDoorAnimations
             Cue(new(K.HandDrawingToRidley)),
             Show(6, 1),
             Cue(new(K.MakeInvisible)),
-            FallInto(P.RidleyRoomFacingRightWait),
         ],
         [P.RidleyRoomFacingRightWait] =
         [
             Show(6, 2),
             Cue(new(K.GoToIfAreaBossAlive, Target: P.RidleyRoomFacingRightWait)),
             Cue(new(K.MakeVisibleAndTakeDrawingBack)),
-            GoTo(P.ClosedFacingRight),
         ],
         [P.NormalFacingRight] =
         [
@@ -43,13 +41,11 @@ internal static class CeresDoorAnimations
             Cue(new(K.MakeInvisible)),
             Show(6, 2),
             Cue(new(K.GoToIfSamusDistant, Target: P.ClosedFacingRight)),
-            FallInto(P.OpenFacingRight),
         ],
         [P.OpenFacingRight] =
         [
             Show(10, 2),
             Cue(new(K.GoToIfSamusDistant, Target: P.CloseFacingRight)),
-            GoTo(P.OpenFacingRight),
         ],
         [P.CloseFacingRight] =
         [
@@ -59,13 +55,11 @@ internal static class CeresDoorAnimations
             Show(9, 5),
             Show(8, 5),
             Show(7, 5),
-            FallInto(P.ClosedFacingRight),
         ],
         [P.ClosedFacingRight] =
         [
             Cue(new(K.MakeTangible)),
             Cue(new(K.MakeVisible)),
-            FallInto(P.ClosedFacingRightWait),
         ],
         [P.ClosedFacingRightWait] =
         [
@@ -78,7 +72,6 @@ internal static class CeresDoorAnimations
             Show(10, 5),
             Cue(new(K.MakeIntangible)),
             Cue(new(K.MakeInvisible)),
-            GoTo(P.OpenFacingRight),
         ],
         [P.NormalFacingLeft] =
         [
@@ -86,13 +79,11 @@ internal static class CeresDoorAnimations
             Cue(new(K.MakeInvisible)),
             Show(6, 2),
             Cue(new(K.GoToIfSamusDistant, Target: P.ClosedFacingLeft)),
-            FallInto(P.OpenFacingLeft),
         ],
         [P.OpenFacingLeft] =
         [
             Show(1, 2),
             Cue(new(K.GoToIfSamusDistant, Target: P.CloseFacingLeft)),
-            GoTo(P.OpenFacingLeft),
         ],
         [P.CloseFacingLeft] =
         [
@@ -102,13 +93,11 @@ internal static class CeresDoorAnimations
             Show(4, 5),
             Show(3, 5),
             Show(2, 5),
-            FallInto(P.ClosedFacingLeft),
         ],
         [P.ClosedFacingLeft] =
         [
             Cue(new(K.MakeTangible)),
             Cue(new(K.MakeVisible)),
-            FallInto(P.ClosedFacingLeftWait),
         ],
         [P.ClosedFacingLeftWait] =
         [
@@ -121,62 +110,74 @@ internal static class CeresDoorAnimations
             Show(5, 5),
             Cue(new(K.MakeIntangible)),
             Cue(new(K.MakeInvisible)),
-            GoTo(P.OpenFacingLeft),
         ],
         [P.RotatingElevatorPreExplosionOverlay] =
         [
             Cue(new(K.MakeIntangible)),
-            FallInto(P.RotatingElevatorPreExplosionOverlayLoop),
         ],
         [P.RotatingElevatorPreExplosionOverlayLoop] =
         [
             Show(0, 1),
-            GoTo(P.RotatingElevatorPreExplosionOverlayLoop),
         ],
         [P.RotatingElevatorInvisibleWall] =
         [
             Cue(new(K.GoToIfRidleyNotEscaped, Target: P.NormalFacingLeft)),
             Cue(new(K.MakeTangible)),
             Cue(new(K.MakeInvisible)),
-            FallInto(P.RotatingElevatorInvisibleWallLoop),
         ],
         [P.RotatingElevatorInvisibleWallLoop] =
         [
             Show(1, 1),
-            GoTo(P.RotatingElevatorInvisibleWallLoop),
         ],
         [P.RidleyEscapeFloorLeftWall] =
         [
             Cue(new(K.MakeIntangible)),
-            FallInto(P.RidleyEscapeFloorLeftWallLoop),
         ],
         [P.RidleyEscapeFloorLeftWallLoop] =
         [
             Show(11, 1),
-            GoTo(P.RidleyEscapeFloorLeftWallLoop),
         ],
         [P.RidleyEscapeFloorRightWall] =
         [
             Cue(new(K.MakeIntangible)),
-            FallInto(P.RidleyEscapeFloorRightWallLoop),
         ],
         [P.RidleyEscapeFloorRightWallLoop] =
         [
             Show(12, 1),
-            GoTo(P.RidleyEscapeFloorRightWallLoop),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<CeresDoorProgram, Animation<CeresDoorProgram>> StartingAt { get; } = new Dictionary<CeresDoorProgram, Animation<CeresDoorProgram>>
+    {
+        [P.RidleyRoomFacingRight] = new([new(P.RidleyRoomFacingRight, 0, 12, 1), new(P.RidleyRoomFacingRightWait, 0, 3, 1), new(P.ClosedFacingRight, 0, 2, 1), new(P.ClosedFacingRightWait, 0, 9, 1), new(P.OpenFacingRight, 0, 2, 1)], AnimationEnd.LoopsFrom(4)),
+        [P.RidleyRoomFacingRightWait] = new([new(P.RidleyRoomFacingRightWait, 0, 3, 1), new(P.ClosedFacingRight, 0, 2, 1), new(P.ClosedFacingRightWait, 0, 9, 1), new(P.OpenFacingRight, 0, 2, 1)], AnimationEnd.LoopsFrom(3)),
+        [P.NormalFacingRight] = new([new(P.NormalFacingRight, 0, 4, 1), new(P.OpenFacingRight, 0, 2, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.OpenFacingRight] = new([new(P.OpenFacingRight, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.CloseFacingRight] = new([new(P.CloseFacingRight, 0, 6, 1), new(P.ClosedFacingRight, 0, 2, 1), new(P.ClosedFacingRightWait, 0, 9, 1), new(P.OpenFacingRight, 0, 2, 1)], AnimationEnd.LoopsFrom(3)),
+        [P.ClosedFacingRight] = new([new(P.ClosedFacingRight, 0, 2, 1), new(P.ClosedFacingRightWait, 0, 9, 1), new(P.OpenFacingRight, 0, 2, 1)], AnimationEnd.LoopsFrom(2)),
+        [P.ClosedFacingRightWait] = new([new(P.ClosedFacingRightWait, 0, 9, 1), new(P.OpenFacingRight, 0, 2, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.NormalFacingLeft] = new([new(P.NormalFacingLeft, 0, 4, 1), new(P.OpenFacingLeft, 0, 2, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.OpenFacingLeft] = new([new(P.OpenFacingLeft, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.CloseFacingLeft] = new([new(P.CloseFacingLeft, 0, 6, 1), new(P.ClosedFacingLeft, 0, 2, 1), new(P.ClosedFacingLeftWait, 0, 9, 1), new(P.OpenFacingLeft, 0, 2, 1)], AnimationEnd.LoopsFrom(3)),
+        [P.ClosedFacingLeft] = new([new(P.ClosedFacingLeft, 0, 2, 1), new(P.ClosedFacingLeftWait, 0, 9, 1), new(P.OpenFacingLeft, 0, 2, 1)], AnimationEnd.LoopsFrom(2)),
+        [P.ClosedFacingLeftWait] = new([new(P.ClosedFacingLeftWait, 0, 9, 1), new(P.OpenFacingLeft, 0, 2, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.RotatingElevatorPreExplosionOverlay] = new([new(P.RotatingElevatorPreExplosionOverlay, 0, 1, 1), new(P.RotatingElevatorPreExplosionOverlayLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.RotatingElevatorPreExplosionOverlayLoop] = new([new(P.RotatingElevatorPreExplosionOverlayLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.RotatingElevatorInvisibleWall] = new([new(P.RotatingElevatorInvisibleWall, 0, 3, 1), new(P.RotatingElevatorInvisibleWallLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.RotatingElevatorInvisibleWallLoop] = new([new(P.RotatingElevatorInvisibleWallLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.RidleyEscapeFloorLeftWall] = new([new(P.RidleyEscapeFloorLeftWall, 0, 1, 1), new(P.RidleyEscapeFloorLeftWallLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.RidleyEscapeFloorLeftWallLoop] = new([new(P.RidleyEscapeFloorLeftWallLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.RidleyEscapeFloorRightWall] = new([new(P.RidleyEscapeFloorRightWall, 0, 1, 1), new(P.RidleyEscapeFloorRightWallLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.RidleyEscapeFloorRightWallLoop] = new([new(P.RidleyEscapeFloorRightWallLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<CeresDoorProgram> StartingWith(CeresDoorProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<CeresDoorProgram, CeresDoorFrame, CeresDoorCue> Show(int pose, int duration) => AnimationProgramStep<CeresDoorProgram, CeresDoorFrame, CeresDoorCue>.Show(new(pose), duration);
+    private static AnimationBeat<CeresDoorFrame, CeresDoorCue> Show(int pose, int duration) => new AnimationBeat<CeresDoorFrame, CeresDoorCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<CeresDoorProgram, CeresDoorFrame, CeresDoorCue> Cue(CeresDoorCue cue) => AnimationProgramStep<CeresDoorProgram, CeresDoorFrame, CeresDoorCue>.Publish(cue);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<CeresDoorProgram, CeresDoorFrame, CeresDoorCue> GoTo(CeresDoorProgram program) => AnimationProgramStep<CeresDoorProgram, CeresDoorFrame, CeresDoorCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<CeresDoorProgram, CeresDoorFrame, CeresDoorCue> FallInto(CeresDoorProgram program) => AnimationProgramStep<CeresDoorProgram, CeresDoorFrame, CeresDoorCue>.FallInto(program);
-
+    private static AnimationBeat<CeresDoorFrame, CeresDoorCue> Cue(CeresDoorCue cue) => new AnimationBeat<CeresDoorFrame, CeresDoorCue>.Event(cue);
 }

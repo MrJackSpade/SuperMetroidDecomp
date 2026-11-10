@@ -9,13 +9,12 @@ namespace SuperMetroid.Verification.Areas.Ceres;
 /// <summary>#1290: the Ceres steam vents' typed programs, each matched step by step to its native bank-$A6 list.</summary>
 internal static class CeresSteamAnimationsVerification
 {
-    /// <summary>Every program matches its native list.</summary>
+    /// <summary>Every segment matches its native list and every animation the lists' control flow.</summary>
     internal static void VerifyCeresSteamAnimations(SuperMetroidAddressSpace rom)
     {
-        int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, CeresSteamAnimations.Programs,
+        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, CeresSteamAnimations.Segments, CeresSteamAnimations.StartingAt,
             CeresSteamFrameDefinitionsConstants.Spritemap,
-            word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
-            (word, operands, cue, at) =>
+            new NativeEnemyCueRules<CeresSteamCue>(word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null, (word, operands, cue, at) =>
             {
                 var instruction = Instructions[word];
                 instruction.Check(cue, at);
@@ -26,7 +25,7 @@ internal static class CeresSteamAnimationsVerification
                     'A' => NativeEnemyProgramOracle.EntryOf(Entries, AssertIs<CeresSteamCue.CountDownToActivation>(cue, $"{at}: cue").Alternate),
                     _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                 }, $"{at}: operand {index}");
-            });
-        Console.WriteLine($"  Ceres steam programs: {Entries.Length} programs ({steps} steps) match bank $A6.");
+            }));
+        Console.WriteLine($"  Ceres steam animations: {Entries.Length} segments ({beats} beats) match bank $A6.");
     }
 }

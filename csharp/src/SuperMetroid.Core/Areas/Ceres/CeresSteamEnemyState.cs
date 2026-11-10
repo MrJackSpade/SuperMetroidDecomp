@@ -11,6 +11,6 @@ internal sealed class CeresSteamEnemyState
     /// <summary>The staggered updates before the vent first appears, counted down by its program.</summary>
     public WrappingCountdown ActivationDelay { get; internal set; }
 
-    /// <summary>Where the vent's typed program resumes, set when the vent initializes.</summary>
-    internal AnimationProgramCursor<CeresSteamProgram> Program { get; set; }
+    /// <summary>The vent's animation and where it stands in it (#1600), set when the vent initializes.</summary>
+    internal AnimationPlayback<CeresSteamProgram> Playback { get; set; }
 }

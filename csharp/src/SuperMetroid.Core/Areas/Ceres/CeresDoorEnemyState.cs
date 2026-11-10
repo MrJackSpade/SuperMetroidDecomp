@@ -8,8 +8,8 @@ internal sealed class CeresDoorEnemyState
     /// <summary>The main-AI function.</summary>
     public CeresDoorFunction? Function { get; internal set; }
 
-    /// <summary>Where the door's typed program resumes, set when the door initializes.</summary>
-    internal AnimationProgramCursor<CeresDoorProgram> Program { get; set; }
+    /// <summary>The door's animation and where it stands in it (#1600), set when the door initializes.</summary>
+    internal AnimationPlayback<CeresDoorProgram> Playback { get; set; }
 
     /// <summary>
     /// Whether the door's program has handed its drawing to Ridley's scene and not yet taken it back.

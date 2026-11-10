@@ -10,16 +10,29 @@ namespace SuperMetroid.Core.Areas.Ceres;
 internal static class CeresFallingDebrisAnimations
 {
     /// <summary>Both tile programs.</summary>
-    internal static AnimationProgramSet<CeresFallingDebrisProgram, CeresFallingDebrisProgram, NoAnimationCue> Programs { get; } = new(
-        new Dictionary<CeresFallingDebrisProgram, AnimationProgramStep<CeresFallingDebrisProgram, CeresFallingDebrisProgram, NoAnimationCue>[]>
+    internal static AnimationSegments<CeresFallingDebrisProgram, CeresFallingDebrisProgram, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<CeresFallingDebrisProgram, AnimationBeat<CeresFallingDebrisProgram, NoAnimationCue>[]>
     {
-        [P.Light] = [Show(P.Light, 1), Hold],
-        [P.Dark] = [Show(P.Dark, 1), Hold],
+        [P.Light] =
+        [
+            Show(P.Light, 1),
+        ],
+        [P.Dark] =
+        [
+            Show(P.Dark, 1),
+        ],
     });
 
-    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<CeresFallingDebrisProgram, CeresFallingDebrisProgram, NoAnimationCue> Show(CeresFallingDebrisProgram frame, int duration) => AnimationProgramStep<CeresFallingDebrisProgram, CeresFallingDebrisProgram, NoAnimationCue>.Show(frame, duration);
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<CeresFallingDebrisProgram, Animation<CeresFallingDebrisProgram>> StartingAt { get; } = new Dictionary<CeresFallingDebrisProgram, Animation<CeresFallingDebrisProgram>>
+    {
+        [P.Light] = new([new(P.Light, 0, 1, 1)], AnimationEnd.Holds),
+        [P.Dark] = new([new(P.Dark, 0, 1, 1)], AnimationEnd.Holds),
+    };
 
-    /// <summary>Holds the last frame.</summary>
-    private static AnimationProgramStep<CeresFallingDebrisProgram, CeresFallingDebrisProgram, NoAnimationCue> Hold => AnimationProgramStep<CeresFallingDebrisProgram, CeresFallingDebrisProgram, NoAnimationCue>.Hold;
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<CeresFallingDebrisProgram> StartingWith(CeresFallingDebrisProgram segment) => StartingAt[segment];
+
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<CeresFallingDebrisProgram, NoAnimationCue> Show(CeresFallingDebrisProgram frame, int duration) => new AnimationBeat<CeresFallingDebrisProgram, NoAnimationCue>.Frame(frame, duration);
 }

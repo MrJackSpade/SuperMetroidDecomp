@@ -159,7 +159,8 @@ internal static class CeresElevatorArrivalVerification
 
         foreach ((CeresElevatorArrivalProgram program, ushort entry) in CeresElevatorArrivalNativeListAddresses.Entries)
         {
-            var steps = CeresElevatorArrivalAnimations.Programs.Steps(program);
+            IReadOnlyList<AnimationBeat<CeresElevatorArrivalPose, NoAnimationCue>> beats = CeresElevatorArrivalAnimations.Segments.Beats(program);
+            Animation<CeresElevatorArrivalProgram> animation = CeresElevatorArrivalAnimations.StartingWith(program);
             ushort cursor = entry;
             int index = 0;
             while (true)
@@ -167,26 +168,31 @@ internal static class CeresElevatorArrivalVerification
                 int address = CeresElevatorArrivalDefinitions.BankBase | cursor;
                 ushort word = cartridge.ReadCartridgeWord(address);
                 ushort operand = cartridge.ReadCartridgeWord(address + 2);
-                var step = steps[index++];
                 string at = $"Ceres elevator {program} at $86:{cursor:X4}";
                 if (word == CeresElevatorArrivalDefinitions.DeleteOpcode)
                 {
-                    VerificationAssertions.AssertTrue(step is AnimationProgramStep<CeresElevatorArrivalProgram, CeresElevatorArrivalPose, NoAnimationCue>.StopStep, $"{at}: delete");
+                    VerificationAssertions.AssertEqual(AnimationEnd.Stops, animation.End, $"{at}: delete");
                     break;
                 }
                 if (word == CeresElevatorArrivalDefinitions.GotoOpcode)
                 {
-                    var goTo = VerificationAssertions.AssertIs<AnimationProgramStep<CeresElevatorArrivalProgram, CeresElevatorArrivalPose, NoAnimationCue>.GoToStep>(step, $"{at}: goto");
+                    // Each arrival list jumps back to its own start: the animation loops its one phase.
                     VerificationAssertions.AssertEqual(operand,
-                        NativeEnemyProgramOracle.EntryOf(CeresElevatorArrivalNativeListAddresses.Entries, goTo.Target), $"{at}: goto target");
+                        NativeEnemyProgramOracle.EntryOf(CeresElevatorArrivalNativeListAddresses.Entries, program), $"{at}: goto target");
+                    VerificationAssertions.AssertEqual(AnimationEnd.LoopsFrom(0), animation.End, $"{at}: goto");
                     break;
                 }
-                var show = VerificationAssertions.AssertIs<AnimationProgramStep<CeresElevatorArrivalProgram, CeresElevatorArrivalPose, NoAnimationCue>.ShowStep>(step, $"{at}: frame");
-                VerificationAssertions.AssertEqual(word, show.Duration, $"{at}: duration");
-                VerificationAssertions.AssertEqual(operand, EnemyProjectileCompositionSources.Spritemap(CeresElevatorArrivalAnimations.Frame(show.Frame)), $"{at}: spritemap");
+                VerificationAssertions.AssertTrue(index < beats.Count, $"{at}: {program} has a beat for the native frame");
+                var frame = VerificationAssertions.AssertIs<AnimationBeat<CeresElevatorArrivalPose, NoAnimationCue>.Frame>(beats[index++], $"{at}: frame");
+                VerificationAssertions.AssertEqual(word, frame.Duration, $"{at}: duration");
+                VerificationAssertions.AssertEqual(operand, EnemyProjectileCompositionSources.Spritemap(CeresElevatorArrivalAnimations.Frame(frame.Shown)), $"{at}: spritemap");
                 cursor = unchecked((ushort)(cursor + 4));
             }
-            VerificationAssertions.AssertEqual(steps.Count, index, $"Ceres elevator {program} ends where its native list does");
+            VerificationAssertions.AssertEqual(beats.Count, index, $"Ceres elevator {program} ends where its native list does");
+            VerificationAssertions.AssertTrue(animation.Phases.SequenceEqual(index == 0
+                    ? Array.Empty<AnimationPhase<CeresElevatorArrivalProgram>>()
+                    : new[] { new AnimationPhase<CeresElevatorArrivalProgram>(program, 0, index, 1) }),
+                $"Ceres elevator {program} plays its list once per pass");
         }
     }
 

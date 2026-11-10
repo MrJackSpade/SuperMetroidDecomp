@@ -28,16 +28,18 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         _collision = collision;
     }
 
-    /// <summary>Runs a vent's typed program where the enemy instruction interpreter would.</summary>
+    /// <summary>Plays a vent's typed animation where the enemy instruction interpreter would run its list.</summary>
     internal static void AdvanceCeresSteamAnimation(RoomEnemySlot slot)
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
         CeresSteamEnemyState state = slot.RequireSpeciesState<CeresSteamEnemyState>();
-        AnimationProgramCursor<CeresSteamProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, CeresSteamAnimations.Programs, ref cursor, CeresSteamFrameDefinitions.ShownFrames.Of,
-            (cue, _) => ApplyCeresSteamCue(slot, cue));
-        state.Program = cursor;
+        AnimationPlayback<CeresSteamProgram> playback = state.Playback;
+        EnemyProgramAnimation.Play(slot, CeresSteamAnimations.Segments, ref playback, CeresSteamFrameDefinitions.ShownFrames.Of,
+            cue => ApplyCeresSteamCue(slot, cue) is { } target
+                ? new AnimationContinuation<CeresSteamProgram>(CeresSteamAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                : null);
+        state.Playback = playback;
     }
 
     /// <summary>Carries out one cue of a vent's program, returning the program a branch continues at, or null to run on.</summary>
@@ -91,7 +93,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         var state = new CeresSteamEnemyState
         {
             ActivationDelay = WrappingCountdown.Start(_room.Random.Next(CeresSteamDefinitions.ActivationDelay) + 1),
-            Program = AnimationProgramCursor<CeresSteamProgram>.Start(initialization.Program),
+            Playback = new AnimationPlayback<CeresSteamProgram>(CeresSteamAnimations.StartingWith(initialization.Program), AnimationPlace.StartOfAnimation),
         };
         slot.SetSpeciesState(state);
 

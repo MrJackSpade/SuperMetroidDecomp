@@ -41827,19 +41827,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Artwork.LaidShades",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Artwork/LaidShades.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.BossFrameResultBuilder",
       "kind": "class",
       "scope": "product",
@@ -73953,19 +73940,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Magdollite.MagdollitePaletteDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdollitePaletteDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.Magdollite.MagdollitePart",
       "kind": "enum",
       "scope": "product",
@@ -83786,6 +83760,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotGlowDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotGlowDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotLaser",
       "kind": "enum",
       "scope": "product",
@@ -83890,19 +83877,6 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotPaletteTimingDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotPaletteTimingDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotPaletteTimingDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
@@ -83919,7 +83893,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotPaletteTimingDefinitionsConstants.extension(SuperMetroid.Core.Enemies.WorkRobots.WorkRobotPaletteTimingDefinitions)",
+      "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotPaletteTimingDefinitionsConstants.extension(SuperMetroid.Core.Enemies.WorkRobots.WorkRobotGlowDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -87194,6 +87168,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingRestoredEffects",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingRestoredEffects.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingScenery",
       "kind": "enum",
       "scope": "product",
@@ -90451,19 +90438,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Intro.CinematicPaletteFader",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Intro/CinematicPaletteFader.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Frontend.Intro.CinematicSpriteAnimations",
       "kind": "static class",
       "scope": "product",
@@ -90835,19 +90809,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Intro.IntroBackgroundFade",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroBackgroundFade.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Frontend.Intro.IntroCeresFlightPhase",
       "kind": "enum",
       "scope": "product",
@@ -90981,6 +90942,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.Intro.IntroCinematicDefinitions.Crossfade",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroCinematicDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.Intro.IntroCinematicDefinitions.Fade",
       "kind": "static class",
       "scope": "product",
@@ -91021,19 +90995,6 @@
     },
     {
       "type": "SuperMetroid.Core.Frontend.Intro.IntroCinematicDefinitions.Objects",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroCinematicDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Intro.IntroCinematicDefinitions.Palette",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
@@ -91184,6 +91145,32 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Intro.IntroCrossfade",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroCrossfade.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Intro.IntroCrossfadeScene",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroCrossfadeScene.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Intro.IntroDiscoverySprite",
@@ -91471,19 +91458,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Intro.IntroFadeColours",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroFadeColours.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Intro.IntroJapaneseBlankGlyph",
@@ -92003,19 +91977,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Intro.IntroSpriteFade",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroSpriteFade.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Frontend.Intro.IntroTextCell",
       "kind": "record struct",
       "scope": "product",
@@ -92530,6 +92491,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.Map.MapHighlightAnimation",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Map/MapHighlightAnimation.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.Map.MapLandmarkDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -92567,19 +92541,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Map.MapPaletteAnimation",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Map/MapPaletteAnimation.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Map.MapSaveMarkerDefinitions",
@@ -98377,19 +98338,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxShown",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxShown.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxSoundPriorities",

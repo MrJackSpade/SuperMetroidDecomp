@@ -80,14 +80,14 @@ internal sealed class EnemyProjectileEngine
     /// <summary>Publishes projectiles from the loaded graphics set's sheets.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Owns dust and explosion sprites separate from the projectile places.</summary>
-    private readonly RoomSpriteObjectPool _spriteObjects;
+    private readonly RoomSpriteObjects _spriteObjects;
     /// <summary>Publishes room quake effects requested by projectile instructions.</summary>
     private readonly RoomEarthquake _earthquake;
     /// <summary>Queues species projectile sounds under queue limits.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Connects the physical pool to room sprites, earthquakes and audio.</summary>
-    internal EnemyProjectileEngine(EnemyRoomBinding room, EnemyPresentation presentation, RoomSpriteObjectPool spriteObjects,
+    internal EnemyProjectileEngine(EnemyRoomBinding room, EnemyPresentation presentation, RoomSpriteObjects spriteObjects,
         RoomEarthquake earthquake, EnemyAudioQueue audio)
     {
         _room = room;
@@ -724,7 +724,7 @@ internal sealed class EnemyProjectileEngine
     /// Runs the death actor's two explosion cues. Both consume one object-number operand and one
     /// random sample; <paramref name="xScatter"/> and <paramref name="yScatter"/> read that sample's fields that offset X and Y
     /// around the death actor, before both are centred back by <paramref name="center"/>.
-    /// Sprite objects own a separate finite pool, so these decorations never
+    /// Sprite objects are separate from enemy projectiles, so these decorations never
     /// consume one of the eighteen enemy-projectile places.
     /// </summary>
     internal void SpawnRandomEnemyDeathSprite(

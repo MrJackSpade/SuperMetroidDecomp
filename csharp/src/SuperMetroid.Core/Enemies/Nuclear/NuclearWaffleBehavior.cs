@@ -19,13 +19,13 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Allocates the four collidable links in the articulated body.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Allocates visual body links and turn overlays.</summary>
-    private readonly RoomSpriteObjectPool _spriteObjects;
+    private readonly RoomSpriteObjects _spriteObjects;
 
     /// <summary>Receives the species' end-of-update sound requests.</summary>
     private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Captures the projectile and sprite pools used for body links.</summary>
-    internal NuclearWaffleBehavior(EnemyProjectileEngine projectiles, RoomSpriteObjectPool spriteObjects, EnemyAudioQueue audio)
+    /// <summary>Captures the enemy projectiles and sprite objects used for body links.</summary>
+    internal NuclearWaffleBehavior(EnemyProjectileEngine projectiles, RoomSpriteObjects spriteObjects, EnemyAudioQueue audio)
     {
         _audio = audio;
         _projectiles = projectiles;
@@ -172,13 +172,10 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         for (int segmentIndex = 0; segmentIndex < state.SpriteSegments.Length; segmentIndex++)
         {
-            RoomSpriteObjectSlot? segment = _spriteObjects.SpawnRoomSpriteObject(
+            state.SpriteSegments[segmentIndex] = _spriteObjects.SpawnRoomSpriteObject(
                 slot.Position.Whole,
                 RoomSpriteObjectKind.NuclearWaffleBody,
                 state.GraphicsAttributes);
-            if (segment is null)
-                throw new InvalidOperationException("Nuclear Waffle exhausted the sprite-object pool during room load.");
-            state.SpriteSegments[segmentIndex] = segment;
         }
     }
 
@@ -220,7 +217,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         for (int index = 0; index < state.SpriteSegments.Length; index++)
         {
             angle -= state.SegmentSpacing;
-            RoomSpriteObjectSlot segment = state.SpriteSegments[index]
+            RoomSpriteObject segment = state.SpriteSegments[index]
                 ?? throw new InvalidOperationException("Nuclear Waffle sprite-object link was not allocated.");
             NuclearWaffleOrientation orientation = GetNuclearWaffleOrientation(state, angle);
             if (orientation.State != state.SpriteOrientationStates[index])

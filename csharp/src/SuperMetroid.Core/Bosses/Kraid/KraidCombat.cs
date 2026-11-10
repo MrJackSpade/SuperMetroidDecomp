@@ -16,8 +16,8 @@ internal sealed class KraidCombat
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Queues Kraid's encounter sound effects.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Spawns room sprite objects for Kraid's visual effects.</summary>
-    private readonly RoomSpriteObjectPool _spriteObjects;
+    /// <summary>Spawns room sprite objects for Kraid's visual effects, and gives the place a dud flash took.</summary>
+    private readonly RoomSpriteObjects _spriteObjects;
     /// <summary>Kraid's eight parts in his room, in the order they run.</summary>
     private readonly KraidParts _parts;
     /// <summary>Checks mouth, body, and part collisions against Samus and shots.</summary>
@@ -26,7 +26,7 @@ internal sealed class KraidCombat
     private readonly KraidEncounterAccess _access;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal KraidCombat(EnemyProjectileEngine projectiles, EnemyAudioQueue audio, RoomSpriteObjectPool spriteObjects, KraidParts parts, EnemyCollision collision, KraidEncounterAccess access)
+    internal KraidCombat(EnemyProjectileEngine projectiles, EnemyAudioQueue audio, RoomSpriteObjects spriteObjects, KraidParts parts, EnemyCollision collision, KraidEncounterAccess access)
     {
         _projectiles = projectiles;
         _audio = audio;
@@ -184,9 +184,9 @@ internal sealed class KraidCombat
                 }
                 else
                 {
-                    RoomSpriteObjectSlot? dud = _spriteObjects.SpawnRoomSpriteObject(
+                    RoomSpriteObject dud = _spriteObjects.SpawnRoomSpriteObject(
                         shot.Position, RoomSpriteObjectKind.EnemyProjectileDud, graphics: default);
-                    bounds.LeaveAfterDud(dud?.SlotIndex, shot.Position, KraidContactDefinitions.ShotLeftBoundAfterDud);
+                    bounds.LeaveAfterDud(_spriteObjects.PlaceOf(dud), shot.Position, KraidContactDefinitions.ShotLeftBoundAfterDud);
                     _audio.QueueEnemySound(SamusSound.DudShot, priority: SoundRequestPriority.Low);
                 }
                 shots.MarkCollision(index);

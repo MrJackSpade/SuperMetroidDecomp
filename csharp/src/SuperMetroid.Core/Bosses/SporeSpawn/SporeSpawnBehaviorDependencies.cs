@@ -17,7 +17,7 @@ internal sealed record SporeSpawnBehaviorDependencies
     public required EnemyProjectileEngine Projectiles { get; init; }
 
     /// <summary>Sprite objects.</summary>
-    public required RoomSpriteObjectPool SpriteObjects { get; init; }
+    public required RoomSpriteObjects SpriteObjects { get; init; }
 
     /// <summary>Presentation.</summary>
     public required EnemyPresentation Presentation { get; init; }

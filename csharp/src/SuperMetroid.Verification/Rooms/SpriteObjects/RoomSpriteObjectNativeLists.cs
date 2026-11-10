@@ -67,6 +67,9 @@ internal static class RoomSpriteObjectNativeLists
         /// <summary>Whether the object is live.</summary>
         internal bool IsActive => Pointer != 0;
 
+        /// <summary>Whether the list has reached its go-back-four-bytes hold, which shows the same record for good.</summary>
+        internal bool Holds { get; private set; }
+
         /// <summary>Runs one handler call.</summary>
         internal void Step()
         {
@@ -97,6 +100,7 @@ internal static class RoomSpriteObjectNativeLists
                 case GoBack4Bytes:
                     Pointer = unchecked((ushort)(Pointer - 4));
                     Timer = 0x7fff;
+                    Holds = true;
                     return;
                 case Delete:
                     Pointer = Timer = Spritemap = 0;

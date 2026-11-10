@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// with wrapped signed comparisons:
 /// <list type="bullet">
 /// <item>a damaging mouth hit leaves the bottom <see cref="KraidMouthHitBound"/> gives and a top far above the room;</item>
-/// <item>a mouth hit that does no damage leaves twice the slot number of the dud flash it spawns as the bottom, or the
-/// projectile's X when no flash slot was free, the projectile's Y as the top, and a fixed left bound;</item>
+/// <item>a mouth hit that does no damage leaves twice the place its dud flash takes (<see cref="SpriteObjectPlaces"/>) as
+/// the bottom, or the projectile's X when the flash took no place, the projectile's Y as the top, and a fixed left bound;</item>
 /// <item>a body hit leaves the projectile's X as the bottom and its Y as the top;</item>
 /// <item>testing a projectile that lies below the bottom against the body's contour leaves the projectile's right edge
 /// as the bottom, whether or not it hits.</item>
@@ -24,8 +24,8 @@ namespace SuperMetroid.Core.Compatibility;
 [CompatibilityService("a later projectile in the same Kraid collision pass is tested against the bounds the previous hit left behind")]
 public struct KraidPassBounds
 {
-    /// <summary>The bottom a mouth hit that does no damage leaves per slot number of its dud flash.</summary>
-    private const int BottomPerDudFlashSlot = 2;
+    /// <summary>The bottom a mouth hit that does no damage leaves per place its dud flash takes.</summary>
+    private const int BottomPerDudFlashPlace = 2;
 
     /// <summary>The upper vertical bound, as a wrapped room coordinate.</summary>
     private int _top;
@@ -74,12 +74,12 @@ public struct KraidPassBounds
     }
 
     /// <summary>Leaves the bounds a mouth hit that does no damage leaves.</summary>
-    /// <param name="dudFlashSlot">The slot of the dud flash the hit spawned, or null when no slot was free.</param>
+    /// <param name="dudFlashPlace">The place the dud flash the hit spawned took, or null when it took none.</param>
     /// <param name="shot">The projectile's position in room pixels.</param>
     /// <param name="left">The fixed left bound the flash leaves.</param>
-    public void LeaveAfterDud(int? dudFlashSlot, Position16<RoomPixels> shot, int left)
+    public void LeaveAfterDud(int? dudFlashPlace, Position16<RoomPixels> shot, int left)
     {
-        Bottom = dudFlashSlot is { } slot ? Ensure.AtLeastZero(slot) * BottomPerDudFlashSlot : shot.X;
+        Bottom = dudFlashPlace is { } place ? Ensure.AtLeastZero(place) * BottomPerDudFlashPlace : shot.X;
         _top = shot.Y;
         _left = Wrap(left);
     }

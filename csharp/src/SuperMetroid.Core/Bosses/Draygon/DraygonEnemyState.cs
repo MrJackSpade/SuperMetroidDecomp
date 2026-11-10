@@ -112,9 +112,6 @@ public sealed class DraygonEnemyState
     /// <summary>Long facing word: zero left, one right.</summary>
     public bool FacingRight { get; internal set; }
 
-    /// <summary>Number of breath-bubble projectiles admitted during a swoop.</summary>
-    public int BreathBubblesSpawned { get; internal set; }
-
     /// <summary>
     /// Phase of the goop pass's vertical bob, in 256ths of a turn: zero when a pass starts and one unit further each
     /// movement update, wrapping around the turn, which the bob depends on. The body's height is 384 plus the cosine
@@ -172,22 +169,10 @@ public sealed class DraygonEnemyState
     /// </summary>
     public int? HealthPaletteBand { get; internal set; }
 
-    /// <summary>Number of random body-list explosions admitted during the fatal animation.</summary>
-    public int DeathAnimationObjectsSpawned { get; internal set; }
-
-    /// <summary>Number of fixed-cadence smoke objects requested below the burial line.</summary>
-    public int DeathSmokeObjectsSpawned { get; internal set; }
-
-    /// <summary>True after the six table-positioned burial Evirs replace the shared pool.</summary>
-    public bool DeathEvirsSpawned { get; internal set; }
-
     /// <summary>True after the terminal burial routine scatters sixteen physical pickups using the body's drop definition.</summary>
     public bool ItemDropRequested { get; internal set; }
     /// <summary>True after terminal burial invokes the persistent area-boss-defeated callback; prevents repeating that persistence write.</summary>
     public bool BossDefeatPersisted { get; internal set; }
-
-    /// <summary>Number of intro Evir projectiles admitted to the shared pool.</summary>
-    public int IntroEvirsSpawned { get; internal set; }
 
     /// <summary>Number of exact 64-frame turret-selection RNG draws observed.</summary>
     public int TurretCadenceChecks { get; internal set; }

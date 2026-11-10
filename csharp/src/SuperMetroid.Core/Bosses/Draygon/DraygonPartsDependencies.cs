@@ -20,7 +20,7 @@ internal sealed record DraygonPartsDependencies
     public required RoomEarthquake Earthquake { get; init; }
 
     /// <summary>Spawns the parts' sprite objects.</summary>
-    public required RoomSpriteObjectPool SpriteObjects { get; init; }
+    public required RoomSpriteObjects SpriteObjects { get; init; }
 
     /// <summary>The enemy presentation the parts write their colours and layers to.</summary>
     public required EnemyPresentation Presentation { get; init; }

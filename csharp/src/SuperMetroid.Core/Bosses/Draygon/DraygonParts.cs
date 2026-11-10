@@ -24,7 +24,7 @@ internal sealed class DraygonParts
     /// <summary>Publishes the room shaking caused by Draygon's attacks and death.</summary>
     private readonly RoomEarthquake _earthquake;
     /// <summary>Allocates breath bubbles, death smoke, and burial Evir sprites.</summary>
-    private readonly RoomSpriteObjectPool _spriteObjects;
+    private readonly RoomSpriteObjects _spriteObjects;
     /// <summary>Updates the body and eye palette bands used by Draygon's presentation.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Supplies frame timing for the body and linked-part AI callbacks.</summary>
@@ -316,13 +316,10 @@ internal sealed class DraygonParts
     {
         int random = _room.Random.Generate();
         Offset16<RoomPixels> scatter = new(DraygonRandomDefinitions.DyingScatterX.Of(random) - 64, DraygonRandomDefinitions.DyingScatterY.Of(random) - 64);
-        if (_spriteObjects.SpawnRoomSpriteObject(
-                state.Body.Position.Whole + scatter,
-                kind,
-                graphics: default) is not null)
-        {
-            state.DeathAnimationObjectsSpawned++;
-        }
+        _spriteObjects.SpawnRoomSpriteObject(
+            state.Body.Position.Whole + scatter,
+            kind,
+            graphics: default);
     }
 
     /// <summary>Applies the tail whip's hit to grabbed Samus, including suit damage.</summary>

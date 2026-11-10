@@ -12,14 +12,14 @@ internal sealed class DraygonDeath
     /// <summary>Provides the active room bus, random source, and persistent boss state.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Allocates breath bubbles, death smoke, and burial Evir sprites.</summary>
-    private readonly RoomSpriteObjectPool _spriteObjects;
+    private readonly RoomSpriteObjects _spriteObjects;
     /// <summary>Applies common death and drop behavior after Draygon's special sequence.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
     /// <summary>Draygon's body, eye and tail: their setup, programs and cues.</summary>
     private readonly DraygonParts _parts;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal DraygonDeath(EnemyRoomBinding room, RoomSpriteObjectPool spriteObjects, EnemyDeathsAndDrops deathsAndDrops, DraygonParts parts)
+    internal DraygonDeath(EnemyRoomBinding room, RoomSpriteObjects spriteObjects, EnemyDeathsAndDrops deathsAndDrops, DraygonParts parts)
     {
         _room = room;
         _spriteObjects = spriteObjects;
@@ -125,7 +125,7 @@ internal sealed class DraygonDeath
             state.BossDefeatPersisted = true;
         }
         state.ItemDropRequested = true;
-        ClearRoomSpriteObjectPool();
+        _spriteObjects.EndAll();
     }
 
     /// <summary>Consumes room RNG and spawns smoke at the dying body every eighth frame.</summary>
@@ -136,14 +136,13 @@ internal sealed class DraygonDeath
 
         int random = _room.Random.Generate();
         Position16<RoomPixels> smoke = new(DraygonRandomDefinitions.DeathSmokeX.Of(random) + 192, DraygonRandomDefinitions.DeathSmokeY.Of(random) + 400);
-        if (_spriteObjects.SpawnRoomSpriteObject(smoke, RoomSpriteObjectKind.DustCloud, graphics: default) is not null)
-            state.DeathSmokeObjectsSpawned++;
+        _spriteObjects.SpawnRoomSpriteObject(smoke, RoomSpriteObjectKind.DustCloud, graphics: default);
     }
 
-    /// <summary>Clears the room sprite pool and spawns six burial Evirs, each carrying the burial entry that moves it.</summary>
+    /// <summary>Ends every room sprite object and spawns six burial Evirs, each carrying the burial entry that moves it.</summary>
     private void SpawnDraygonDeathEvirs(DraygonEnemyState state)
     {
-        ClearRoomSpriteObjectPool();
+        _spriteObjects.EndAll();
 
         // The two loops share one descending position-table index: three left-facing objects followed by three
         // right-facing objects.
@@ -151,8 +150,6 @@ internal sealed class DraygonDeath
             SpawnDraygonDeathEvir(state, entry, RoomSpriteObjectKind.DraygonIntroEvir);
         for (int entry = 2; entry >= 0; entry--)
             SpawnDraygonDeathEvir(state, entry, RoomSpriteObjectKind.DraygonDeathEvirFacingRight);
-
-        state.DeathEvirsSpawned = true;
     }
 
     /// <summary>
@@ -163,15 +160,10 @@ internal sealed class DraygonDeath
         Ensure.NotNull(state);
         DraygonBurialEvirDefinition definition =
             DraygonBurialEvirs.ForEntry(entry);
-        RoomSpriteObjectSlot? sprite = _spriteObjects.SpawnRoomSpriteObject(
+        RoomSpriteObject sprite = _spriteObjects.SpawnRoomSpriteObject(
             definition.Initial,
             kind,
             graphics: SpriteGraphics.SharedIn(DraygonColours.Evirs));
-        if (sprite is null)
-        {
-            throw new InvalidOperationException(
-                "Draygon cleared the sprite-object pool but could not allocate a burial Evir.");
-        }
         state.BurialEvirs.Add(new DraygonBurialEvir(sprite, entry));
     }
 
@@ -180,7 +172,7 @@ internal sealed class DraygonDeath
     {
         foreach (DraygonBurialEvir evir in Ensure.NotNull(state).BurialEvirs)
         {
-            RoomSpriteObjectSlot sprite = evir.Sprite;
+            RoomSpriteObject sprite = evir.Sprite;
             if (!sprite.IsActive || sprite.Kind is not (
                     RoomSpriteObjectKind.DraygonIntroEvir or
                     RoomSpriteObjectKind.DraygonDeathEvirFacingRight))
@@ -208,12 +200,5 @@ internal sealed class DraygonDeath
             body.Position.Y,
             yMagnitude,
             subtract: EnemyMath.SineIsNegative(movementAngle)));
-    }
-
-    /// <summary>Releases room sprite slots before allocating the ordered burial Evir set.</summary>
-    private void ClearRoomSpriteObjectPool()
-    {
-        foreach (RoomSpriteObjectSlot sprite in _spriteObjects.Slots)
-            sprite.Clear();
     }
 }

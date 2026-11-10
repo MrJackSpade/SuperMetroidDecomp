@@ -475,8 +475,8 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// <summary>Species owners visited during room load and each enemy frame.</summary>
     private readonly IEnemySpecies[] _species;
 
-    /// <summary>The <see cref="RoomSpriteObjectPool"/> owner of this RoomEnemySystem.</summary>
-    internal RoomSpriteObjectPool SpriteObjects { get; }
+    /// <summary>The room's sprite objects.</summary>
+    internal RoomSpriteObjects SpriteObjects { get; }
 
     /// <summary>The <see cref="EnemyProjectileEngine"/> owner of this RoomEnemySystem.</summary>
     internal EnemyProjectileEngine Projectiles { get; }
@@ -628,7 +628,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         PopulationLoader = new EnemyPopulationLoader(Room, RoomStatus, SlotTable, Dispatch);
         RidleyEncounter = new RidleyEncounter(SlotTable, session);
         Earthquake = new RoomEarthquake();
-        SpriteObjects = new RoomSpriteObjectPool(Presentation);
+        SpriteObjects = new RoomSpriteObjects(Presentation, new SpriteObjectPlaces());
         Projectiles = new EnemyProjectileEngine(Room, Presentation, SpriteObjects, Earthquake, Audio);
         Projectiles.AddHandlerSource(this);
         GunshipBehavior = new GunshipBehavior(Audio, Projectiles, Room, SlotTable, FrameResults);

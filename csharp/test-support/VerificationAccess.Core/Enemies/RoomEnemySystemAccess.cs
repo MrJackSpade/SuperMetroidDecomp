@@ -219,8 +219,8 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<FirefleaEnemyState?> FirefleaStates =>
             [.. self.SlotTable.Slots.Select(slot => slot.EntityState<FirefleaEntity, FirefleaEnemyState>())];
 
-        /// <summary>All 32 physical bank-$B4 slots, including inactive ones.</summary>
-        internal IReadOnlyList<RoomSpriteObjectSlot> RoomSpriteObjects => self.SpriteObjects.Slots;
+        /// <summary>The room's live sprite objects, in spawn order.</summary>
+        internal IReadOnlyList<RoomSpriteObject> RoomSpriteObjects => [.. self.SpriteObjects.Live];
 
         /// <summary>The live Spore Spawn extension, or null outside its room.</summary>
         internal SporeSpawnEnemyState? SporeSpawn => self.SporeSpawnBehavior.SporeSpawn;

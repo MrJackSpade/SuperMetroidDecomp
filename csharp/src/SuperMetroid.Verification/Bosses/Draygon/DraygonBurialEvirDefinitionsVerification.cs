@@ -55,8 +55,8 @@ internal static class DraygonBurialEvirDefinitionsVerification
                 ? RoomSpriteObjectKind.DraygonIntroEvir
                 : RoomSpriteObjectKind.DraygonDeathEvirFacingRight;
             enemies.DraygonBehavior.Death.SpawnDraygonDeathEvir(draygon, entry, kind);
-            // The n-th Evir spawned takes the n-th slot in the pool's processing order.
-            RoomSpriteObjectSlot sprite = enemies.SpriteObjects.InProcessingOrder.ElementAt(5 - entry);
+            // The n-th Evir spawned is the n-th live sprite object.
+            RoomSpriteObject sprite = enemies.RoomSpriteObjects[5 - entry];
             DraygonBurialEvirDefinition definition =
                 DraygonBurialEvirs.ForEntry(entry);
             AssertTrue(sprite.IsActive, $"Draygon burial Evir {entry} active after spawn");
@@ -75,8 +75,8 @@ internal static class DraygonBurialEvirDefinitionsVerification
         DraygonDeath.MoveDraygonDeathEvirs(draygon);
         for (int entry = 5; entry >= 0; entry--)
         {
-            // The n-th Evir spawned takes the n-th slot in the pool's processing order.
-            RoomSpriteObjectSlot sprite = enemies.SpriteObjects.InProcessingOrder.ElementAt(5 - entry);
+            // The n-th Evir spawned is the n-th live sprite object.
+            RoomSpriteObject sprite = enemies.RoomSpriteObjects[5 - entry];
             DraygonBurialEvirDefinition definition =
                 DraygonBurialEvirs.ForEntry(entry);
             (ushort expectedX, ushort expectedXSub) = AddDraygonBurialSubspeed(

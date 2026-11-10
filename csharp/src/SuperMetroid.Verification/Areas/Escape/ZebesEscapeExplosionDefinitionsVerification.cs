@@ -36,7 +36,7 @@ internal static class ZebesEscapeExplosionDefinitionsVerification
             int selectedIndex = choice < 8 ? choice : inherited;
             ZebesEscapeExplosionDefinition expected =
                 ZebesEscapeExplosions.ForIndex(selectedIndex);
-            RoomSpriteObjectSlot sprite = enemies.RoomSpriteObjects.Single(slot => slot.IsActive);
+            RoomSpriteObject sprite = enemies.RoomSpriteObjects.Single(slot => slot.IsActive);
             AssertEqual(expected.SpriteKind, sprite.Kind,
                 $"production escape sprite choice {choice}, inherited {inherited}");
             AssertEqual(0x1234, sprite.Position.X.Whole,

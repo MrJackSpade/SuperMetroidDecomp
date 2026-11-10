@@ -103,8 +103,9 @@ internal static class EnemyEffectsFixtureVerification
         AssertAnimationValues(expected.Enemies, actual.Enemies, context);
         for (int slot = 0; slot < expected.Enemies.SlotTable.Slots.Count; slot++)
             AssertAnimationValues(expected.Enemies.SlotTable.Slots[slot], actual.Enemies.SlotTable.Slots[slot], context);
-        for (int slot = 0; slot < expected.Enemies.RoomSpriteObjects.Count; slot++)
-            AssertAnimationValues(expected.Enemies.RoomSpriteObjects[slot], actual.Enemies.RoomSpriteObjects[slot], context);
+        AssertEqual(expected.Enemies.RoomSpriteObjects.Count, actual.Enemies.RoomSpriteObjects.Count, context + " live sprite objects");
+        for (int spawned = 0; spawned < expected.Enemies.RoomSpriteObjects.Count; spawned++)
+            AssertAnimationValues(expected.Enemies.RoomSpriteObjects[spawned], actual.Enemies.RoomSpriteObjects[spawned], context);
         for (int band = 0; band < CrocomireMeltingDefinitions.SecondPassBandCount; band++)
             AssertEqual(expected.MeltBand(band), actual.MeltBand(band), context + " band " + band + " picture");
         AssertEqual(expected.Effect.MeltDistortion, actual.Effect.MeltDistortion, context + " melt stretch");

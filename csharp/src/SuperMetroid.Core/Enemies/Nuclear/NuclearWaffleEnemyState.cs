@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 
 /// <summary>
 /// The state of the Nuclear Waffle, with its projectile and sprite-object links. The seven articulated body links
-/// alternate between the two shared pools, exactly as the original actor does.
+/// alternate between enemy projectiles and sprite objects, exactly as the original actor does.
 /// </summary>
 public sealed class NuclearWaffleEnemyState
 {
@@ -75,8 +75,8 @@ public sealed class NuclearWaffleEnemyState
         new EnemyProjectile?[4];
 
     /// <summary>Three persistent, cosmetic links interleaved with the projectiles.</summary>
-    public RoomSpriteObjectSlot?[] SpriteSegments { get; } =
-        new RoomSpriteObjectSlot?[3];
+    public RoomSpriteObject?[] SpriteSegments { get; } =
+        new RoomSpriteObject?[3];
 
     /// <summary>Last threshold state for each damaging link; a state change spawns its joint-turn effect.</summary>
     internal NuclearWaffleTurnState[] ProjectileOrientationStates { get; } = new NuclearWaffleTurnState[4];

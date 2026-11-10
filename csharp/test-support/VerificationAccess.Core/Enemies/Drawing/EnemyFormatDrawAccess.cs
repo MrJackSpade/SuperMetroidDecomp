@@ -46,7 +46,7 @@ internal static class EnemyFormatDrawAccess
     }
 
     /// <summary>Draws room sprite objects into an OAM image.</summary>
-    extension(RoomSpriteObjectPool pool)
+    extension(RoomSpriteObjects pool)
     {
         /// <summary>Publishes the room sprite objects, appending their OAM image to <paramref name="oam"/>.</summary>
         internal void DrawRoomSpriteObjectsAsOam(OamBuffer oam, Position16<RoomPixels> camera) =>

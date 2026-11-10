@@ -16,7 +16,7 @@ internal sealed class DraygonGrab
     /// <summary>Provides the active room bus, random source, and persistent boss state.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Allocates breath bubbles, death smoke, and burial Evir sprites.</summary>
-    private readonly RoomSpriteObjectPool _spriteObjects;
+    private readonly RoomSpriteObjects _spriteObjects;
     /// <summary>Restricts camera scrolling while Draygon controls the arena.</summary>
     private readonly SamusScrollCap _scrollCap;
     /// <summary>Draygon's body, eye and tail: their setup, programs and cues.</summary>
@@ -25,7 +25,7 @@ internal sealed class DraygonGrab
     private readonly DraygonTurrets _turrets;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal DraygonGrab(BossFrameResultBuilder frameResults, EnemyRoomBinding room, RoomSpriteObjectPool spriteObjects, SamusScrollCap scrollCap, DraygonParts parts, DraygonTurrets turrets)
+    internal DraygonGrab(BossFrameResultBuilder frameResults, EnemyRoomBinding room, RoomSpriteObjects spriteObjects, SamusScrollCap scrollCap, DraygonParts parts, DraygonTurrets turrets)
     {
         _frameResults = frameResults;
         _room = room;

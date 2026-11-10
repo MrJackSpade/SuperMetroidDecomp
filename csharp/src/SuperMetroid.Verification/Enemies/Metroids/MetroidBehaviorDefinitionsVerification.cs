@@ -57,8 +57,8 @@ internal static class MetroidBehaviorDefinitionsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x0001, 0xffff)),
             };
             var state = new MetroidEnemyState(
-                new RoomSpriteObjectSlot(0),
-                new RoomSpriteObjectSlot(1))
+                new RoomSpriteObject(RoomSpriteObjectKind.MetroidOuterBodyA, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard),
+                new RoomSpriteObject(RoomSpriteObjectKind.MetroidOuterBodyB, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard))
             {
                 EscapeTimer = timer,
                 Function = MetroidAiFunction.PowerBombEscape,
@@ -99,7 +99,7 @@ internal static class MetroidBehaviorDefinitionsVerification
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
             slot.FrameHold = WrappingCountdown.Start(1);
             // Start at the chasing loop's random-cry cue, after its twenty pulse poses.
-            enemies.SlotTable.Slots[0].SetSpeciesState(new MetroidEnemyState(new RoomSpriteObjectSlot(0), new RoomSpriteObjectSlot(1))
+            enemies.SlotTable.Slots[0].SetSpeciesState(new MetroidEnemyState(new RoomSpriteObject(RoomSpriteObjectKind.MetroidOuterBodyA, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard), new RoomSpriteObject(RoomSpriteObjectKind.MetroidOuterBodyB, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard))
             {
                 Program = new AnimationProgramCursor<MetroidProgram>(MetroidProgram.ChasingSamus,
                     MetroidAnimations.Programs.Steps(MetroidProgram.ChasingSamus).ToList().FindIndex(step => step is AnimationProgramStep<MetroidProgram, MetroidFrame, MetroidCue>.CueStep)),

@@ -65,8 +65,6 @@ public sealed class NinjaSpacePirateEnemyState
 
     /// <summary>Gets the host diagnostic count of claw projectiles requested by this actor.</summary>
     public int SpawnedClawCount { get; internal set; }
-    /// <summary>Gets the host diagnostic count of landing-dust effects requested by this actor.</summary>
-    public int LandingDustCount { get; internal set; }
 
     /// <summary>
     /// Changes <see cref="Speed"/> by <paramref name="delta"/> 1/256-pixel units, wrapping past 65535 as the game's

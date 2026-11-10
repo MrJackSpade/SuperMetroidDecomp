@@ -1108,7 +1108,7 @@ level, samus, frameCounter);
             IntroSprites(CinematicSpriteFamily.IntroMotherBrain).Draw(
                 motherBrainPose, objectSprites,
                 IntroMotherBrainSpriteState.Position.ToSpritePosition(),
-                FlashbackMotherBrain.Shading(paletteFader.ActorShading(IntroMotherBrainSpriteState.Colouring)), originIsOnScreen: true);
+                FlashbackMotherBrain.Shading(paletteFader.ActorShading(IntroMotherBrainSpriteState.Colouring)));
         }
         objectSprites.FinishFrame();
         foreach (SpriteDraw draw in objectSprites.Draws)

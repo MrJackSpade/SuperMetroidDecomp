@@ -22,17 +22,20 @@ namespace SuperMetroid.Verification.Frontend.Intro;
 /// <summary>Checks installed intro Rinka sprites and flashback pixels against native artwork and palette overrides.</summary>
 internal static class IntroRinkaSpriteArtworkVerification
 {
-    /// <summary>Draws a live intro actor from cartridge spritemap data with native origin clipping.</summary>
+    /// <summary>
+    /// Draws a live intro actor from cartridge spritemap data as the native dispatcher does: it admits only signed origin
+    /// rows -128 through 382, and draws an origin at or past row 256 through the off-screen loader.
+    /// </summary>
     internal static void DrawImportedCinematicActor(ISnesAddressSpace bus, OamBuffer oam, IntroDiscoverySprite actor)
     {
         ushort spritemap = CinematicSpritePoseSpritemaps.Of(actor.Pose);
         if (!actor.IsActive || spritemap == 0) return;
         ushort y = actor.WholePosition.Y;
-        if (unchecked((ushort)(y + CinematicSpriteDrawDefinitions.OriginYBias)) >= CinematicSpriteDrawDefinitions.BiasedOriginYLimit) return;
+        if (unchecked((ushort)(y + 128)) >= 511) return;
         DrawImportedSpritemap(bus, oam,
             ((int)new SnesAddress(            IntroCinematicSourceDefinitions.SpritemapBank, spritemap)),
             new(actor.WholePosition.X, y), SnesObjAttributeWord.Create(0, IntroDrawnShadeChecks.InstalledRow(actor.Colouring), 0).PaletteBits,
-            originIsOnScreen: y < CinematicSpriteDrawDefinitions.OnScreenOriginYLimit);
+            originIsOnScreen: y < 256);
     }
     /// <summary>Compares installed Rinka OAM with native art, live actors included, without rereading cartridge maps.</summary>
     internal static void VerifyIntroRinkaSpriteArtwork(SuperMetroidAddressSpace bus,
@@ -46,7 +49,7 @@ internal static class IntroRinkaSpriteArtworkVerification
             foreach (ushort y in new ushort[] { 0x0048, 0xfff8 })
             {
                 bool onScreen =
-                    y < CinematicSpriteDrawDefinitions.OnScreenOriginYLimit;
+                    (short)y >= 0;
                 int source = (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank,
                     CinematicSpritemapSources.Of(definition.Pose));
                 var native = new OamBuffer();
@@ -58,8 +61,7 @@ internal static class IntroRinkaSpriteArtworkVerification
                 native.FinalizeFrame();
                 var installed = ScreenSpritesFixtures.Blank();
                 installed.BeginFrame();
-                CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(stock).RinkaSprites).Draw(definition.Pose, installed, new(x, y), palette,
-                    onScreen);
+                CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(stock).RinkaSprites).Draw(definition.Pose, installed, new(x, y), palette);
                 installed.FinalizeFrame();
                 AssertTrue(installed.ImageEquals(native) &&
                         installed.LastFinalizedSpriteCount == native.LastFinalizedSpriteCount,

@@ -36,7 +36,7 @@ internal static class IntroDiscoveryActorSpriteArtworkVerification
             foreach (ushort y in new ushort[] { 0x0048, 0xfff8 })
             {
                 bool onScreen =
-                    y < CinematicSpriteDrawDefinitions.OnScreenOriginYLimit;
+                    (short)y >= 0;
                 int source = (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank,
                     CinematicSpritemapSources.Of(definition.Pose));
                 var native = new OamBuffer();
@@ -49,7 +49,7 @@ internal static class IntroDiscoveryActorSpriteArtworkVerification
                 var installed = ScreenSpritesFixtures.Blank();
                 installed.BeginFrame();
                 CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(stock).DiscoveryActorSprites).Draw(definition.Pose, installed, new(x, y),
-                    palette, onScreen);
+                    palette);
                 installed.FinalizeFrame();
                 AssertTrue(installed.ImageEquals(native) &&
                         installed.LastFinalizedSpriteCount == native.LastFinalizedSpriteCount,

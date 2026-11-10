@@ -18,12 +18,12 @@ internal sealed class TypedTextSpriteSheet(SpriteSheet sheet, CinematicSpriteFam
     internal static string GlyphFrameName(CinematicSpriteFamily family, CinematicSpriteProgram text, int glyph) => $"{family}.{text}.Glyph{glyph}";
 
     /// <inheritdoc/>
-    public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<SpritePixels> origin, PictureShade drawn, bool originIsOnScreen)
+    public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<SpritePixels> origin, PictureShade drawn)
     {
         Ensure.NotNull(objects);
         if (Ensure.NotNull(texts).Find(pose) is not { } step)
         {
-            new CinematicSpriteSheet(sheet, family, shading).Draw(pose, objects, origin, drawn, originIsOnScreen);
+            new CinematicSpriteSheet(sheet, family, shading).Draw(pose, objects, origin, drawn);
             return;
         }
         PictureShading shown = Ensure.NotNull(shading)(drawn);
@@ -31,7 +31,7 @@ internal sealed class TypedTextSpriteSheet(SpriteSheet sheet, CinematicSpriteFam
         {
             string name = GlyphFrameName(family, step.Text, glyph);
             if (!Ensure.NotNull(sheet).ShowsNothing(name))
-                objects.AddImage(sheet.Frame(name), origin, side: originIsOnScreen ? SpriteOrigin.OnScreen : SpriteOrigin.OffScreen, shading: shown);
+                objects.AddImage(sheet.Frame(name), origin, shading: shown);
         }
     }
 }

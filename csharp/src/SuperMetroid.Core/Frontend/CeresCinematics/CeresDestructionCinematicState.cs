@@ -535,7 +535,10 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         var actor = new IntroDiscoverySprite(
             definition.Position,
             CeresShades.Drawn(definition.Colouring),
-            definition.Program);
+            definition.Program)
+        {
+            HorizontalLoopWidth = definition.WrapX ? CeresDestructionSceneDefinitions.WorldWidth : null,
+        };
         actor.InstallFrameBehavior(definition.ActiveFrameBehavior);
         return actor;
     }

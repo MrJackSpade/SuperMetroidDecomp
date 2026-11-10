@@ -43,10 +43,10 @@ internal static class AttractDemoSceneVerification
         WriteRomWord(rom, 0x91c000, 5);
         WriteRomWord(rom, 0x91c002, ControllerWordCodec.ToJoypadWord(ControllerButton.Left));
         WriteRomWord(rom, 0x91c004, 0);
-        WriteRomWord(rom, DemoInputRomData.BankBase | DemoInputNativeListAddresses.Entry(DemoInputProgram.AttractDelete),
+        WriteRomWord(rom, DemoInputRomData.BankBase | DemoInputNativeListAddresses.Entry(DemoInputRecordingId.AttractDelete),
             (ushort)DemoInputInstruction.Delete);
-        WriteRomWord(rom, DemoInputRomData.BankBase | DemoInputNativeListAddresses.Entry(DemoInputProgram.AttractDiagonalShinesparkContinuation), 7);
-        WriteRomWord(rom, (DemoInputRomData.BankBase | DemoInputNativeListAddresses.Entry(DemoInputProgram.AttractDiagonalShinesparkContinuation)) + 2,
+        WriteRomWord(rom, DemoInputRomData.BankBase | DemoInputNativeListAddresses.Entry(DemoInputRecordingId.AttractDiagonalShinesparkContinuation), 7);
+        WriteRomWord(rom, (DemoInputRomData.BankBase | DemoInputNativeListAddresses.Entry(DemoInputRecordingId.AttractDiagonalShinesparkContinuation)) + 2,
             ControllerWordCodec.ToJoypadWord(ControllerButton.Right));
         var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
         var expected = new AttractDemoScene(RoomHeaderDefinitions.LandingSite, CrateriaDoorDefinitions.Parlor1, new(0x100, 0x200), new(-46, 0x40),

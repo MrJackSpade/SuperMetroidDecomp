@@ -44,7 +44,7 @@ public sealed class AttractDemoInput
         {
             case AttractDemoInputWatch.TitleLeaving:
                 if (gameState == SuperMetroidGameState.RoutingAfterDemo)
-                    Script.SwitchTo(DemoInputProgram.AttractDelete);
+                    Script.SwitchTo(DemoInputRecordingId.AttractDelete);
                 break;
             case AttractDemoInputWatch.ShinesparkRelease:
                 // The release's condition does not match the shinespark the recording shows: it tests the Draygon grab.
@@ -52,7 +52,7 @@ public sealed class AttractDemoInput
                 if (movementType != SamusMovementType.DraygonHeld)
                 {
                     Watch = AttractDemoInputWatch.TitleLeaving;
-                    Script.SwitchTo(DemoInputProgram.AttractDiagonalShinesparkContinuation);
+                    Script.SwitchTo(DemoInputRecordingId.AttractDiagonalShinesparkContinuation);
                 }
                 break;
             default:

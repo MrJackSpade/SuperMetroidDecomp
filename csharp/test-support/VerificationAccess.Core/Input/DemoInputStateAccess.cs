@@ -7,6 +7,6 @@ internal static class DemoInputStateAccess
     extension(DemoInputState self)
     {
         /// <summary>Whether the object still runs a program.</summary>
-        public bool IsActive => self.Cursor is not null;
+        public bool IsActive => self.Position is not null;
     }
 }

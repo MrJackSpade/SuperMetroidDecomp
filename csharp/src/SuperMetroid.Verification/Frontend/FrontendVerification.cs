@@ -468,7 +468,7 @@ internal static void VerifyDemoInputObject()
     var demo = new DemoInputState();
     demo.Clear();
     demo.Enable();
-    demo.Load(DemoInputProgram.IntroMotherBrainFlashback);
+    demo.Load(DemoInputRecordingId.IntroMotherBrainFlashback);
 
     // The first six records at $91:8694. The two one-frame X edges are separated by held-X
     // records; normal projectile cooldown/motion code, not this program, decides each shot.
@@ -498,7 +498,7 @@ internal static void VerifyDemoInputObject()
     }
 
     AssertEqual(231, elapsed, "old Mother Brain demo-input duration");
-    AssertEqual(DemoInputRomDataIntroMotherBrain.NextRecord, DemoInputNativeListAddresses.Address(demo.Cursor),
+    AssertEqual(DemoInputRomDataIntroMotherBrain.NextRecord, DemoInputNativeListAddresses.Address(demo.Position),
         "old Mother Brain next record pointer");
     // Loading a record and publishing its first visible frame happen in the same handler
     // call. Consequently the last of its 70 visible frames leaves timer one; the following

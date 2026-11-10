@@ -24,7 +24,7 @@ internal static class IntroBabyActorDefinitionsVerification
         var compiledInput = new DemoInputState();
         compiledInput.Clear();
         compiledInput.Enable();
-        compiledInput.Load(DemoInputProgram.IntroBabyDiscoveryRunningLeft);
+        compiledInput.Load(DemoInputRecordingId.IntroBabyDiscoveryRunningLeft);
         ushort NativeInputWord(ushort pointer) =>
             LittleEndianBytes.Word(IntroBabyActorDefinitionsRomByte(retail, DemoInputRomData.BankBase | pointer), IntroBabyActorDefinitionsRomByte(retail, DemoInputRomData.BankBase | unchecked((ushort)(pointer + 1))));
         var cartridgeInput = new NativeDemoInputReference(NativeInputWord);
@@ -91,7 +91,7 @@ internal static class IntroBabyActorDefinitionsVerification
         {
             discovery.Step((ushort)frame, introCrossfadeTimer: 0x007f);
             reference.Step((ushort)frame, introCrossfadeTimer: 0x007f);
-            AssertEqual(nativeDemo.Cursor, demo.Cursor,
+            AssertEqual(nativeDemo.Position, demo.Position,
                 $"SR388 demo list cursor at frame {frame} matches ROM-backed controller");
             AssertEqual(nativeDemo.FrameHold.RawValue, demo.FrameHold.RawValue,
                 $"SR388 demo countdown at frame {frame} matches ROM-backed controller");

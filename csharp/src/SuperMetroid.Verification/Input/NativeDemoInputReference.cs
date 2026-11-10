@@ -149,15 +149,15 @@ internal sealed class NativeDemoInputReference(Func<ushort, ushort> readWord)
     /// </summary>
     internal string Snapshot() =>
         $"{Enabled}/{FrameBehaviorPointer}/{InstructionPointer}/{FrameHold.RawValue}/" +
-        $"{Timer.RawValue}/{Held}/{NewlyPressed}/{PreviousHeld}/{PreviousNewlyPressed}/{PublishedPreviousHeld}/{PublishedPreviousNewlyPressed}";
+        $"{Held}/{NewlyPressed}/{PreviousHeld}/{PreviousNewlyPressed}/{PublishedPreviousHeld}/{PublishedPreviousNewlyPressed}";
 
     /// <summary>
     /// A typed playback's words: what its owner watches for as <paramref name="frameBehavior"/>, the native pre-instruction
     /// word it stands for, its cursor as the native instruction pointer and its buttons as joypad words.
     /// </summary>
     internal static string Of(DemoInputState state, ushort frameBehavior) =>
-        $"{state.Enabled}/{frameBehavior}/{DemoInputNativeListAddresses.Address(state.Cursor)}/" +
-        $"{state.FrameHold.RawValue}/{state.Timer.RawValue}/{ControllerWordCodec.ToJoypadWord(state.Held)}/{ControllerWordCodec.ToJoypadWord(state.NewlyPressed)}/{ControllerWordCodec.ToJoypadWord(state.PreviousHeld)}/" +
+        $"{state.Enabled}/{frameBehavior}/{DemoInputNativeListAddresses.Address(state.Position)}/" +
+        $"{state.FrameHold.RawValue}/{ControllerWordCodec.ToJoypadWord(state.Held)}/{ControllerWordCodec.ToJoypadWord(state.NewlyPressed)}/{ControllerWordCodec.ToJoypadWord(state.PreviousHeld)}/" +
         $"{ControllerWordCodec.ToJoypadWord(state.PreviousNewlyPressed)}/{ControllerWordCodec.ToJoypadWord(state.PublishedPreviousHeld)}/{ControllerWordCodec.ToJoypadWord(state.PublishedPreviousNewlyPressed)}";
 
     /// <summary>A pre-instruction for an object whose owner runs none: only the return-only routines may be installed.</summary>

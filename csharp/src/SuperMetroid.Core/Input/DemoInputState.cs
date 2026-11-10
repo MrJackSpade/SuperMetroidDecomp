@@ -1,9 +1,7 @@
-using SuperMetroid.Core.Programs;
-
 namespace SuperMetroid.Core.Input;
 
 /// <summary>
-/// A demo's recorded-input playback, running a typed <see cref="DemoInputProgram"/> (#1300).
+/// A demo's recorded-input playback, playing a <see cref="DemoRecording"/> (#1300, #1600).
 /// </summary>
 /// <remarks>
 /// The playback holds only the recording: where it is, how long the current input lasts and the controller words it
@@ -18,16 +16,13 @@ public sealed class DemoInputState
     public bool Enabled { get; private set; }
 
     /// <summary>Where the recording resumes; null once the recording has ended.</summary>
-    internal AnimationProgramCursor<DemoInputProgram>? Cursor { get; private set; }
+    internal DemoPlaybackPosition? Position { get; private set; }
 
     /// <summary>Whether the next <see cref="Step"/> plays the recording: the playback runs and its recording has not ended.</summary>
-    public bool IsPlaying => Enabled && Cursor is not null;
+    public bool IsPlaying => Enabled && Position is not null;
 
     /// <summary>Frames remaining in the active input record, wrapping at sixteen bits.</summary>
     public WrappingCountdown FrameHold { get; private set; }
-
-    /// <summary>General loop timer of the demo's loop steps; no demo program counts it.</summary>
-    public WrappingCountdown Timer { get; private set; }
 
     /// <summary>Controller word currently replacing player-held input.</summary>
     public ControllerButton Held { get; private set; }
@@ -53,9 +48,8 @@ public sealed class DemoInputState
     public void Clear()
     {
         Enabled = false;
-        Cursor = null;
+        Position = null;
         FrameHold = WrappingCountdown.Start(0);
-        Timer = WrappingCountdown.Start(0);
         Held = 0;
         NewlyPressed = 0;
         PreviousHeld = 0;
@@ -70,25 +64,24 @@ public sealed class DemoInputState
     /// <summary>Stops the playback without discarding its loaded recording.</summary>
     public void Disable() => Enabled = false;
 
-    /// <summary>Loads <paramref name="program"/>, with its first record due on the next step.</summary>
-    public void Load(DemoInputProgram program)
+    /// <summary>Loads <paramref name="recording"/>, with its first input due on the next step.</summary>
+    public void Load(DemoInputRecordingId recording)
     {
-        Cursor = AnimationProgramCursor<DemoInputProgram>.Start(program);
+        Position = DemoPlaybackPosition.Start(recording);
         FrameHold = WrappingCountdown.Start(1);
-        Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>
-    /// Switches the playback to <paramref name="program"/>, whose first record is due after <paramref name="frameHold"/>
+    /// Switches the playback to <paramref name="recording"/>, whose first input is due after <paramref name="frameHold"/>
     /// steps, as an owner's watch does before a step.
     /// </summary>
     /// <remarks>
     /// The recording and its countdown change together, so a switch never publishes the new recording with the old
     /// countdown for one step, a state the game cannot expose.
     /// </remarks>
-    public void SwitchTo(DemoInputProgram program, int frameHold = 1)
+    public void SwitchTo(DemoInputRecordingId recording, int frameHold = 1)
     {
-        Cursor = AnimationProgramCursor<DemoInputProgram>.Start(program);
+        Position = DemoPlaybackPosition.Start(recording);
         FrameHold = WrappingCountdown.FromRaw(frameHold);
     }
 
@@ -99,7 +92,7 @@ public sealed class DemoInputState
     public void Step(Action<DemoInputCue> cue)
     {
         Ensure.NotNull(cue);
-        if (!Enabled || Cursor is not { } cursor)
+        if (!Enabled || Position is not { } position)
             return;
 
         // The countdown wraps below zero to 65535. In particular, a zero duration wraps and lasts
@@ -108,32 +101,7 @@ public sealed class DemoInputState
         CountdownStep frameHold = FrameHold.Decrement();
         FrameHold = frameHold.Remaining;
         if (frameHold.IsZero)
-        {
-            WrappingCountdown timer = Timer;
-            AnimationProgramAdvance<DemoInputFrame> advance = DemoInputAnimations.Programs.Advance(ref cursor, ref timer,
-                (published, _) =>
-                {
-                    cue(published);
-                    return null;
-                });
-            Timer = timer;
-            switch (advance)
-            {
-                case AnimationProgramAdvance<DemoInputFrame>.Show shown:
-                    FrameHold = WrappingCountdown.FromRaw(shown.Duration);
-                    Held = shown.Frame.Held;
-                    NewlyPressed = shown.Frame.NewlyPressed;
-                    Cursor = cursor;
-                    break;
-                case AnimationProgramAdvance<DemoInputFrame>.Stop:
-                    Cursor = null;
-                    Held = 0;
-                    NewlyPressed = 0;
-                    break;
-                default:
-                    throw new InvalidOperationException($"Demo-input program {cursor.Program} ended its advance with {advance}.");
-            }
-        }
+            PlayNextInput(position, cue);
 
         // Publishing hands the old demo words to the drawing-input history before it
         // replaces the live joypad words and remembers the newly produced pair.
@@ -141,5 +109,46 @@ public sealed class DemoInputState
         PublishedPreviousNewlyPressed = PreviousNewlyPressed;
         PreviousHeld = Held;
         PreviousNewlyPressed = NewlyPressed;
+    }
+
+    /// <summary>
+    /// Plays the input <paramref name="position"/> names, or ends the recording as it says once its inputs have run out:
+    /// a loop plays its loop input at once, and a signal reaches the owner in <paramref name="cue"/> before the input ends.
+    /// </summary>
+    private void PlayNextInput(DemoPlaybackPosition position, Action<DemoInputCue> cue)
+    {
+        DemoRecording recording = DemoInputRecordings.Of(position.Recording);
+        if (position.NextRecord >= recording.Records.Count)
+        {
+            switch (recording.End)
+            {
+                case DemoRecordingEnd.Loop loop:
+                    position = position with { NextRecord = loop.Record };
+                    break;
+                case DemoRecordingEnd.Signal signal:
+                    cue(signal.Cue);
+                    EndInput();
+                    return;
+                case DemoRecordingEnd.Stop:
+                    EndInput();
+                    return;
+                default:
+                    throw new InvalidOperationException($"Demo recording {position.Recording} has undefined end {recording.End}.");
+            }
+        }
+
+        DemoInputRecord input = recording.Records[position.NextRecord];
+        FrameHold = WrappingCountdown.FromRaw(input.Duration);
+        Held = input.Held;
+        NewlyPressed = input.NewlyPressed;
+        Position = position with { NextRecord = position.NextRecord + 1 };
+    }
+
+    /// <summary>Ends the demo's input: the recording is done and its controller words clear.</summary>
+    private void EndInput()
+    {
+        Position = null;
+        Held = 0;
+        NewlyPressed = 0;
     }
 }

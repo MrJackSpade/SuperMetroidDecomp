@@ -12,7 +12,7 @@ namespace SuperMetroid.Verification.Runtime.Attract;
 internal static class AttractInputFixtureVerification
 {
     /// <summary>Interprets cartridge or synthetic demo words as the independent reference input stream.</summary>
-    /// <remarks>Production playback runs <c>DemoInputAnimations</c> through <c>StepStock</c>.</remarks>
+    /// <remarks>Production playback plays <c>DemoInputRecordings</c> through <c>StepStock</c>.</remarks>
     internal sealed class ReferenceAttractInput
     {
         /// <summary>The reference object, including independently authored held and new inputs.</summary>
@@ -43,12 +43,12 @@ internal static class AttractInputFixtureVerification
                 break;
             case NativeDemoFrameBehavior.AttractCheckLeave:
                 if (gameState == SuperMetroidGameState.RoutingAfterDemo)
-                    state.Redirect(pointer, DemoInputNativeListAddresses.Entry(DemoInputProgram.AttractDelete));
+                    state.Redirect(pointer, DemoInputNativeListAddresses.Entry(DemoInputRecordingId.AttractDelete));
                 break;
             case NativeDemoFrameBehavior.AttractShinespark:
                 if (movementType != SamusMovementType.DraygonHeld)
                     state.Redirect((ushort)NativeDemoFrameBehavior.AttractCheckLeave,
-                        DemoInputNativeListAddresses.Entry(DemoInputProgram.AttractDiagonalShinesparkContinuation));
+                        DemoInputNativeListAddresses.Entry(DemoInputRecordingId.AttractDiagonalShinesparkContinuation));
                 break;
             case NativeDemoFrameBehavior.IntroBabyRunningLeft:
             case NativeDemoFrameBehavior.IntroBabyStopAndLook:

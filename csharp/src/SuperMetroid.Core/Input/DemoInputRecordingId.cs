@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Input;
 
-/// <summary>The demo-input objects' programs (#1300), one per list an object, redirect or loop enters.</summary>
-public enum DemoInputProgram
+/// <summary>The demos' recordings (#1300, #1600), one per recorded input a demo or its owner starts.</summary>
+public enum DemoInputRecordingId
 {
     /// <summary>The AdvancedGrappleBeam title demonstration's input.</summary>
     AttractAdvancedGrappleBeam,
@@ -57,12 +57,8 @@ public enum DemoInputProgram
     IntroBabyDiscoveryEnd,
     /// <summary>The intro Baby-discovery input that runs Samus left.</summary>
     IntroBabyDiscoveryRunningLeft,
-    /// <summary>The loop that keeps Samus running left in the intro Baby discovery.</summary>
-    IntroBabyDiscoveryRunningLeftLoop,
     /// <summary>The intro Baby-discovery input that stops Samus and has her look.</summary>
     IntroBabyDiscoveryStopAndLook,
-    /// <summary>The loop that holds Samus still and looking in the intro Baby discovery.</summary>
-    IntroBabyDiscoveryStopAndLookLoop,
     /// <summary>The intro Mother Brain flashback's input.</summary>
     IntroMotherBrainFlashback,
 }

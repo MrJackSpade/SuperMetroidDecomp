@@ -6,4 +6,4 @@ namespace SuperMetroid.Verification.Input;
 /// <param name="Header">The header.</param>
 /// <param name="FrameBehavior">The native pre-instruction word the typed owner's first watch stands for.</param>
 /// <param name="Program">The program the object starts.</param>
-internal readonly record struct Object(ushort Header, ushort FrameBehavior, DemoInputProgram Program);
+internal readonly record struct Object(ushort Header, ushort FrameBehavior, DemoInputRecordingId Program);

@@ -68,7 +68,7 @@ internal sealed class IntroBabyDiscoveryState
 
         demo.Clear();
         demo.Enable();
-        demo.Load(DemoInputProgram.IntroBabyDiscoveryRunningLeft);
+        demo.Load(DemoInputRecordingId.IntroBabyDiscoveryRunningLeft);
     }
 
     /// <summary>Samus' scene state, carried from the earlier intro when supplied.</summary>
@@ -190,7 +190,7 @@ internal sealed class IntroBabyDiscoveryState
                 if (Samus.Position.X.Whole < 178)
                 {
                     DemoPhase = IntroBabyDiscoveryDemoPhase.StoppedAndLooking;
-                    demo.SwitchTo(DemoInputProgram.IntroBabyDiscoveryStopAndLook);
+                    demo.SwitchTo(DemoInputRecordingId.IntroBabyDiscoveryStopAndLook);
                 }
                 return;
 
@@ -198,7 +198,7 @@ internal sealed class IntroBabyDiscoveryState
                 if (introCrossfadeTimer == 0)
                 {
                     DemoPhase = IntroBabyDiscoveryDemoPhase.Ending;
-                    demo.SwitchTo(DemoInputProgram.IntroBabyDiscoveryEnd);
+                    demo.SwitchTo(DemoInputRecordingId.IntroBabyDiscoveryEnd);
                 }
                 return;
 

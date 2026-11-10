@@ -310,7 +310,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             // code. The shot is marked, not converted into an explosion, and the corpse never loses health.
             BeforeSuperMissileQuake = (in EnemyShotContext c) =>
             {
-                c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
+                c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
                 TriggerDeadTorizoRotting(c.Enemy);
                 return true;
             },

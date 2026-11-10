@@ -9,8 +9,8 @@ internal static class SamusProjectileSlotNative
         /// <summary>The bank-$93 instruction pointer the cursor stands for; zero marks the slot inactive.</summary>
         internal int InstructionPointer => SamusProjectileProgramAddresses.Address(slot.Cursor);
 
-        /// <summary>Where the native snapshot's per-slot word arrays hold this slot: twice its ordinal.</summary>
-        internal int SlotTableOffset => slot.SlotIndex * sizeof(ushort);
+        /// <summary>Where the native snapshot's per-slot word arrays hold this projectile's place: twice its ordinal.</summary>
+        internal int SlotTableOffset => slot.Place * sizeof(ushort);
     }
 
     /// <summary>Exposes the native program address a bomb slot's cursor stands for to verification.</summary>

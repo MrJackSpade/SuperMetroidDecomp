@@ -199,7 +199,7 @@ internal sealed class PhantoonCombat
                     PhantoonAiFunction.Dead or PhantoonAiFunction.NoOperation)
             {
                 projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(
-                    projectile.SlotIndex,
+                    projectile,
                     body.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||
                         !projectile.Type.HasAnyBeam(SamusBeamFlags.Plasma));
                 return 1;
@@ -215,7 +215,7 @@ internal sealed class PhantoonCombat
             // That callback's damage helper does not convert it into an explosion:
             // the projectile's frame behaviour owns the following-frame deletion, while
             // penetrating Plasma retains its type, direction, and animation.
-            projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(projectile.SlotIndex,
+            projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(projectile,
                 body.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||
                 !projectileType.HasAnyBeam(SamusBeamFlags.Plasma));
 

@@ -349,16 +349,19 @@ internal sealed class ProjectileMotion
         BeamFiring.InitializeDirectionalVelocity(samus.ProjectileInheritance, slot, ignitionSpeed);
     }
 
-    /// <summary>Allocates the invisible collision link at ignition and records its slot in the owner; with no free slot the owner keeps the link it named.</summary>
+    /// <summary>
+    /// Creates the invisible collision link at ignition in the lowest free place and records its place in the owner; with
+    /// no free place the owner keeps the link it named (<see cref="UnlinkedSuperMissileLink"/>).
+    /// </summary>
     internal void SpawnSuperMissileLink(
         SamusState samus,
         SamusProjectile owner)
     {
-        SamusProjectile? link = _slotTable.Slots.FirstOrDefault(candidate => !candidate.IsOccupied);
-        if (link is null)
+        int place = _slotTable.FindFreeSlotIndex();
+        if (place < 0)
             return;
 
-        link.ClearFields();
+        SamusProjectile link = _slotTable.OccupyAtRest(place);
         link.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile);
         link.PicturedBeams = owner.PicturedBeams;
         link.Direction = owner.Direction;
@@ -374,9 +377,10 @@ internal sealed class ProjectileMotion
         link.Cursor = SamusProjectilePrograms.Start(SamusProjectileHeaders.Program(header, 0));
         link.FrameHold = WrappingCountdown.Start(1);
         link.FrameBehavior = SamusProjectileFrameBehavior.SuperMissileLink;
+        link.SuperMissileLinkPlace = UnlinkedSuperMissileLink.Place;
 
-        owner.SuperMissileLinkSlot = link.SlotIndex;
-        _slotTable.ProjectileCounter = WrappingCounter.IncrementCount(_slotTable.ProjectileCounter);
+        owner.SuperMissileLinkPlace = link.Place;
+        _slotTable.ProjectileCounter++;
     }
 
     /// <summary>Keeps an ordinary link stationary or clears the whole Super Missile family on its deletion signal.</summary>
@@ -398,9 +402,9 @@ internal sealed class ProjectileMotion
         SamusBombProjectileSystem sharedProjectiles,
         ISamusRoomObjects? roomObjects)
     {
-        if (owner.MissileIgnition != SamusMissileIgnition.Ignited || owner.SuperMissileLinkSlot is not { } linkIndex)
+        if (owner.MissileIgnition != SamusMissileIgnition.Ignited || owner.SuperMissileLinkPlace is not { } linkPlace)
             return;
-        SamusProjectile link = _slotTable.Slots[linkIndex];
+        SamusProjectile link = _slotTable.Slots[linkPlace];
         if (!link.IsActive)
             return;
 

@@ -79,7 +79,7 @@ internal sealed class KraidCombat
                         $"shot AI {c.HitboxShotAi?.ToString() ?? "(unnamed)"}.");
                 }
 
-                c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
+                c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
                 if (c.HitboxShotAi == EnemyReaction.KraidArmShot)
                     SpawnKraidArmShotExplosion(c.ProjectileType, c.Projectile.Position.Whole);
                 return true;

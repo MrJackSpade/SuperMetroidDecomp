@@ -3,8 +3,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// <summary>
 /// Where a Metroid that is shot or bombed recoils from (#1542): Samus's first ordinary projectile, whichever projectile
 /// or bomb hit it. A free Metroid hit by a shot or a bomb flies away from that projectile's position at an eighth of
-/// their distance per update, so the push follows the oldest shot still in its place, or the place's last position
-/// once that shot is gone, not the projectile that struck.
+/// their distance per update, so the push follows the projectile in Samus's first shot place, or the room's origin once
+/// no projectile holds it (an ended projectile reads as at rest there), not the projectile that struck.
 /// </summary>
 /// <remarks>
 /// Consulted once per hit, by the Metroid's shot and bomb reactions after the collision prelude, before its recoil

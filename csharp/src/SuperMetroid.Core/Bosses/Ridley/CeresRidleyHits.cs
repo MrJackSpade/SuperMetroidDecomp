@@ -58,7 +58,7 @@ internal sealed class CeresRidleyHits
             {
                 continue;
             }
-            if (!projectiles.EnemyImpacts.TryStartEnemyImpact(sharedProjectiles, projectile.SlotIndex))
+            if (!projectiles.EnemyImpacts.TryStartEnemyImpact(sharedProjectiles, projectile))
                 continue;
 
             ResolveCeresRidleyShotAfterCollision(slot);

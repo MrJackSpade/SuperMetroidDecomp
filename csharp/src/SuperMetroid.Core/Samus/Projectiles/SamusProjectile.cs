@@ -3,40 +3,51 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>One of Samus's five ordinary projectile slots: a beam, missile, special-attack particle, echo or explosion.</summary>
+/// <summary>
+/// One of Samus's ordinary projectiles: a beam, missile, special-attack particle, echo or explosion. Each is created
+/// fresh when it takes its place in Samus's shot pool (<see cref="ProjectileSlotTable.Occupy"/>), keeps its own state,
+/// and ends when it is deleted, replaced, or Samus's shots are cleared. Nothing it holds reaches the next projectile in
+/// its place; the one value gameplay carries from place to place, the horizontal sub-pixel position, is
+/// <see cref="LeftMuzzleSubpixelCarry"/>'s. A place no projectile holds reads as the projectile that last ended there,
+/// or one never fired: no type, no damage, at rest at the room's origin.
+/// </summary>
 public sealed class SamusProjectile
 {
-    /// <summary>Creates the slot at its position in the projectile table.</summary>
-    internal SamusProjectile(int slotIndex) => SlotIndex = slotIndex;
+    /// <summary>Creates a projectile, not yet fired, in <paramref name="place"/> of the shot pool.</summary>
+    internal SamusProjectile(int place) => Place = place;
 
-    /// <summary>The slot's ordinal in the projectile table, 0 through 4.</summary>
-    [IntegerQuantity("ordinal of the slot in the projectile table")]
-    public int SlotIndex { get; }
+    /// <summary>
+    /// The projectile's place in the shot pool, 0 through 4. Gameplay reads the place: shots take the lowest free one and
+    /// update and draw from the highest down, a special attack's particles take the first four, the crash echoes the
+    /// last two, and a Super Missile names its link's place (<see cref="ProjectileSlotTable"/>).
+    /// </summary>
+    [IntegerQuantity("ordinal of the projectile's place in Samus's shot pool")]
+    public int Place { get; }
 
-    /// <summary>The damage of the projectile holding the slot; zero while the slot is free.</summary>
+    /// <summary>The damage the projectile deals; zero before it is fired and once it ends.</summary>
     private int _damage;
 
     /// <summary>
-    /// Whether a projectile holds the slot: from the update a projectile takes it with its damage until the slot is
-    /// cleared. The firing routines and the Super Missile's link take the lowest slot no projectile holds.
+    /// Whether the projectile holds its place: from the update it takes the place with its damage until it ends. The
+    /// firing routines and the Super Missile's link take the lowest place no projectile holds.
     /// </summary>
     public bool IsOccupied { get; private set; }
 
     /// <summary>
-    /// The damage the projectile holding the slot deals, 1 through 65535, or zero while the slot is free. Every
-    /// projectile takes its slot with its damage, so setting it marks the slot occupied.
+    /// The damage the projectile deals, one or more, or zero before it is fired and once it ends. Every projectile takes
+    /// its place with its damage, so setting it marks the place held.
     /// </summary>
     public int Damage
     {
         get => _damage;
         internal set
         {
-            _damage = Ensure.BetweenInclusive(1, ushort.MaxValue, value);
+            _damage = Ensure.BetweenInclusive(1, int.MaxValue, value);
             IsOccupied = true;
         }
     }
 
-    /// <summary>What the slot holds; <see cref="SamusProjectileType.None"/> marks an empty slot.</summary>
+    /// <summary>What the projectile is; <see cref="SamusProjectileType.None"/> before it is fired and once it ends.</summary>
     public SamusProjectileType Type { get; internal set; }
 
     /// <summary>
@@ -63,18 +74,12 @@ public sealed class SamusProjectile
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
     /// <summary>Collision half-extents in pixels.</summary>
     public Extent16<RoomPixels> Radius { get; internal set; }
-    /// <summary>Where the slot's projectile program resumes; null marks the slot inactive for animation.</summary>
+    /// <summary>Where the projectile's program resumes; null while it has none to animate.</summary>
     internal AnimationProgramCursor<SamusProjectileProgram>? Cursor { get; set; }
     /// <summary>Updates remaining before the current projectile instruction advances.</summary>
     public WrappingCountdown FrameHold { get; internal set; }
     /// <summary>The composition the projectile shows, selected by the timed-frame interpreter or installed frame binding; none before its first frame.</summary>
     public ProjectileSpriteId? Sprite { get; internal set; }
-    /// <summary>The animation frame the projectile's current record shows, zero or more.</summary>
-    public int AnimationFrame
-    {
-        get;
-        internal set => field = Ensure.AtLeastZero(value);
-    }
     /// <summary>Countdown controlling projectile-trail emission.</summary>
     public WrappingCountdown TrailTimer { get; internal set; }
 
@@ -82,11 +87,11 @@ public sealed class SamusProjectile
     public SamusMissileIgnition MissileIgnition { get; internal set; }
 
     /// <summary>
-    /// The slot an ignited Super Missile moves as its invisible collision link, or null when it names none. An unlinked
-    /// Super Missile names slot zero: a missile that ignites with no free slot, or is reflected before igniting, treats
-    /// slot zero as its link, as the game does. A reflection leaves it naming none until it re-ignites.
+    /// The place whose projectile an ignited Super Missile moves as its invisible collision link, or null when it names
+    /// none. A Super Missile, its link among them, names <see cref="UnlinkedSuperMissileLink.Place"/> from the update it
+    /// is created until it ignites with a link of its own; a reflection leaves it naming none until it re-ignites.
     /// </summary>
-    public int? SuperMissileLinkSlot { get; internal set; }
+    public int? SuperMissileLinkPlace { get; internal set; }
 
     /// <summary>The orbit angle of an Ice, Plasma or Spazer special-attack particle.</summary>
     public TrigonometryAngle ComboAngle { get; internal set; }
@@ -112,33 +117,38 @@ public sealed class SamusProjectile
     /// <summary>The signed angle step, in table units, a Spazer special-attack particle turns by each update.</summary>
     public int SpazerAngleStep { get; internal set; }
 
-    /// <summary>The expanding radius, in pixels, of a Shinespark crash echo that holds the slot.</summary>
+    /// <summary>The phase of a Spazer special-attack particle, set when the attack starts.</summary>
+    public SpazerComboPhase SpazerPhase { get; internal set; }
+
+    /// <summary>The expanding radius, in pixels, of a Shinespark crash echo.</summary>
     public int EchoRadius { get; internal set => field = Ensure.AtLeastZero(value); }
 
     /// <summary>The departure angle of a Shinespark crash echo, to the angle table's whole steps.</summary>
     public TrigonometryAngle EchoAngle { get; internal set; }
 
-    /// <summary>The Power Bomb fuse the glitched Chainsaw beam runs over its shot.</summary>
+    /// <summary>The Power Bomb fuse the glitched Chainsaw beam runs over its shot, from zero.</summary>
     public WrappingCountdown ChainsawPowerBombFuse { get; internal set; }
 
-    /// <summary>The Spazer special attack's particle phase; it survives slot reuse.</summary>
-    public SpazerComboPhase AuxiliaryPhase { get; internal set; }
-    /// <summary>The slot's projectile frame behaviour.</summary>
+    /// <summary>The projectile's frame behaviour.</summary>
     public SamusProjectileFrameBehavior FrameBehavior { get; internal set; }
 
-    /// <summary>A live projectile program marks the slot allocated and drawable.</summary>
+    /// <summary>A live projectile program marks the projectile drawable and updated.</summary>
     public bool IsActive => Cursor is not null;
 
     /// <summary>
-    /// Enemy collision admits a beam, missile, or Super Missile even when the slot has no program to animate. This
+    /// Enemy collision admits a beam, missile, or Super Missile even when it has no program to animate. This
     /// distinction is observable for the left-facing Murder Beam, whose type and damage remain live while it has none.
     /// </summary>
     public bool HasEnemyCollisionPayload => !Type.IsNone && Type.Family.IsBeamOrMissile;
 
-    /// <summary>Clears the per-projectile state deletion clears; trail and Spazer phase state survive reuse.</summary>
-    internal void ClearFields()
+    /// <summary>
+    /// Ends the projectile: it no longer holds its place, and it reads as no projectile, at rest at the room's origin, to
+    /// whatever still holds it and to anything that reads its place before the next projectile takes it.
+    /// </summary>
+    internal void End()
     {
-        Vacate();
+        _damage = 0;
+        IsOccupied = false;
         Type = SamusProjectileType.None;
         PicturedBeams = SamusBeamCombination.Power;
         Direction = default;
@@ -149,54 +159,19 @@ public sealed class SamusProjectile
         Cursor = null;
         FrameHold = WrappingCountdown.Start(0);
         Sprite = null;
-        AnimationFrame = 0;
-        ClearKindState();
-        FrameBehavior = SamusProjectileFrameBehavior.None;
-    }
-
-    /// <summary>
-    /// The per-slot state an elevator ride or a full projectile reset clears. Unlike deletion it keeps the sub-pixel position, which a later beam
-    /// fired left from the slot reads at its muzzle check, the animation frame and the Spazer phase, which every Spazer
-    /// special attack sets before reading.
-    /// </summary>
-    internal void ClearForProjectileDataReset()
-    {
         TrailTimer = WrappingCountdown.Start(0);
-        Position = Position.WithWhole(Position16<RoomPixels>.Zero);
-        Direction = default;
-        IsSpent = false;
-        Velocity = default(EightEightVector<RoomPixels>);
-        Radius = Extent16<RoomPixels>.Zero;
-        Type = SamusProjectileType.None;
-        PicturedBeams = SamusBeamCombination.Power;
-        Vacate();
-        Cursor = null;
-        FrameHold = WrappingCountdown.Start(0);
-        ClearKindState();
-        Sprite = null;
-        FrameBehavior = SamusProjectileFrameBehavior.None;
-    }
-
-    /// <summary>Frees the slot: no projectile holds it, and it carries no damage.</summary>
-    private void Vacate()
-    {
-        _damage = 0;
-        IsOccupied = false;
-    }
-
-    /// <summary>Clears the state each projectile kind keeps: missile ignition and link, particle angles and speeds, the Chainsaw fuse.</summary>
-    private void ClearKindState()
-    {
         MissileIgnition = SamusMissileIgnition.Pending;
-        SuperMissileLinkSlot = 0;
+        SuperMissileLinkPlace = null;
         ComboAngle = default;
         WaveComboVerticalSpeed = default;
         ComboOrbitRadius = 0;
         ComboLifetime = 0;
         PlasmaPhase = PlasmaRingPhase.Expanding;
         SpazerAngleStep = 0;
+        SpazerPhase = SpazerComboPhase.Circling;
         EchoRadius = 0;
         EchoAngle = default;
         ChainsawPowerBombFuse = WrappingCountdown.Start(0);
+        FrameBehavior = SamusProjectileFrameBehavior.None;
     }
 }

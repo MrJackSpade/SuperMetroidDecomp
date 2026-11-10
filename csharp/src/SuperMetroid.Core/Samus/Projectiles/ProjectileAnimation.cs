@@ -14,7 +14,7 @@ internal sealed class ProjectileAnimation
 {
     /// <summary>Owns charge-flare frame and countdown arrays advanced by the interpreter.</summary>
     private readonly BeamChargeState _charge;
-    /// <summary>Owns the active projectile count reduced when a delete instruction clears a slot.</summary>
+    /// <summary>Owns the shot count reduced when a delete instruction ends a projectile.</summary>
     private readonly ProjectileSlotTable _slotTable;
     /// <summary>The delays a flare frame wrapping below the flare's programs reads.</summary>
     private readonly ChargeFlareDelaysBelowPrograms _flareDelaysBelow;
@@ -44,16 +44,15 @@ internal sealed class ProjectileAnimation
         slot.FrameHold = WrappingCountdown.FromRaw(duration);
         slot.Sprite = FrameBindings?.Resolve(frame) ?? record.Sprite;
         slot.Radius = record.Radius;
-        slot.AnimationFrame = record.AnimationFrame;
         slot.Cursor = cursor;
         return false;
     }
 
 
-    /// <summary>Clears a projectile slot and decrements the shared active count without underflow.</summary>
+    /// <summary>Deletes a projectile, ending it, and decrements the shot count, which stays at zero.</summary>
     internal void ClearProjectile(SamusProjectile slot)
     {
-        slot.ClearFields();
+        Ensure.NotNull(slot).End();
         _slotTable.ProjectileCounter = _slotTable.ProjectileCounter == 0
             ? 0
             : _slotTable.ProjectileCounter - 1;

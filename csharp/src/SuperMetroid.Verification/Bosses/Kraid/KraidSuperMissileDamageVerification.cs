@@ -65,7 +65,7 @@ internal static class KraidSuperMissileDamageVerification
             if(body.Health!=oldHealth || frame%8==0)
             {
                 Console.WriteLine($"frame={frame} hp={body.Health} ammo={samus.SuperMissiles} samus={samus.Position.X.Whole},{samus.Position.Y.Whole} samusHp={samus.Health} pose={samus.Pose} mouth={state.DisplayedHeadFrame?.InvulnerableShape}");
-                foreach(var shot in runtime.Projectiles.Slots.Where(p=>p.IsActive))Console.WriteLine($" shot={shot.SlotIndex} type={shot.Type} damage={shot.Damage} x={shot.Position.X.Whole} y={shot.Position.Y.Whole} r={shot.Radius.X},{shot.Radius.Y} pre={shot.FrameBehavior}");
+                foreach(var shot in runtime.Projectiles.Slots.Where(p=>p.IsActive))Console.WriteLine($" shot={shot.Place} type={shot.Type} damage={shot.Damage} x={shot.Position.X.Whole} y={shot.Position.Y.Whole} r={shot.Radius.X},{shot.Radius.Y} pre={shot.FrameBehavior}");
             }
             if (frame is 8 or 32)
             {

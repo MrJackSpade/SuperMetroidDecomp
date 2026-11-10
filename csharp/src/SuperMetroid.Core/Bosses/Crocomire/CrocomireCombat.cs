@@ -102,7 +102,7 @@ internal sealed class CrocomireCombat
                     return false;
                 if (!c.UsesExtendedHitboxes)
                     throw new InvalidDataException("Crocomire components require extended-spritemap collision.");
-                c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
+                c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
                 ResolveCrocomireHitboxShot(c.Projectile.Type, c.Projectile.Position.Whole, c.HitboxShotAi);
                 return true;
             },

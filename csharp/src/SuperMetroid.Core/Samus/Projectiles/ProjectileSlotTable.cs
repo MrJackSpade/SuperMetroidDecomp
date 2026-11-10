@@ -1,34 +1,101 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Samus's ordinary projectile slots, the trail slots and the projectile counter.</summary>
+/// <summary>Samus's shot pool: the places her ordinary projectiles take, the trail slots and the shot count.</summary>
 /// <remarks>
-/// Slot order: Samus has <see cref="SamusProjectileSystem.SlotCount"/> shot slots and
-/// <see cref="SamusProjectileSystem.TrailSlotCount"/> trail slots, each with a fixed ordinal. A shot takes the lowest
-/// free ordinal; the projectile update, collision and drawing run in update order, from the highest ordinal down. A trail
-/// takes the first free trail slot in update order. Some projectile behaviour names slots by ordinal (the Spazer
-/// combination's paired particles, an unlinked Super Missile's slot zero), so the ordinal is part of a shot's identity.
+/// Place order: Samus has <see cref="SamusProjectileSystem.SlotCount"/> shot places and
+/// <see cref="SamusProjectileSystem.TrailSlotCount"/> trail slots. A shot takes the lowest place no projectile holds; the
+/// projectile update and drawing run in update order, from the highest place down, and enemy collision from the lowest
+/// up. Gameplay names some places: a special attack's particles take the first four, pairing a Spazer particle with the
+/// one two places from it; the crash echoes take the last two; an unlinked Super Missile names the first
+/// (<see cref="UnlinkedSuperMissileLink"/>); and some enemies react to the first place's projectile or to the highest
+/// one. A trail takes the first free trail slot in update order.
 /// </remarks>
 internal sealed class ProjectileSlotTable
 {
-    /// <summary>The shot slots by ordinal; their occupancy does not replace the projectile counter.</summary>
-    private readonly SamusProjectile[] _slots =
-        Enumerable.Range(0, SamusProjectileSystem.SlotCount).Select(index => new SamusProjectile(index)).ToArray();
-    /// <summary>The trail slots by ordinal, independent of the shot slots.</summary>
+    /// <summary>Each place's projectile, live or the last one that ended there; occupancy does not replace the shot count.</summary>
+    private readonly SamusProjectile[] _places =
+        Enumerable.Range(0, SamusProjectileSystem.SlotCount).Select(place => new SamusProjectile(place)).ToArray();
+    /// <summary>The trail slots by ordinal, independent of the shot places.</summary>
     private readonly SamusProjectileTrailSlot[] _trailSlots =
         Enumerable.Range(0, SamusProjectileSystem.TrailSlotCount).Select(index => new SamusProjectileTrailSlot(index)).ToArray();
 
-    /// <summary>The shot slots by ordinal.</summary>
-    internal IReadOnlyList<SamusProjectile> Slots => _slots;
-    /// <summary>The lowest shot slot no projectile holds, which the firing routines take, or -1 when all are held.</summary>
-    internal int FindFreeSlotIndex() => Array.FindIndex(_slots, slot => !slot.IsOccupied);
+    /// <summary>Starts an empty pool whose places hand their sub-pixel positions on through <paramref name="muzzleCarry"/>.</summary>
+    internal ProjectileSlotTable(LeftMuzzleSubpixelCarry muzzleCarry) => MuzzleCarry = Ensure.NotNull(muzzleCarry);
 
-    /// <summary>The shot slots in update order, highest ordinal first.</summary>
+    /// <summary>The horizontal sub-pixel position each place hands its next projectile.</summary>
+    internal LeftMuzzleSubpixelCarry MuzzleCarry { get; }
+
+    /// <summary>Each place's projectile, in place order.</summary>
+    internal IReadOnlyList<SamusProjectile> Slots => _places;
+    /// <summary>The lowest place no projectile holds, which the firing routines and the Super Missile's link take, or -1 when all are held.</summary>
+    internal int FindFreeSlotIndex() => Array.FindIndex(_places, projectile => !projectile.IsOccupied);
+
+    /// <summary>
+    /// Creates the new projectile of <paramref name="place"/>, ending the one there. It starts at the room's origin with
+    /// the horizontal sub-pixel position the place hands on: the replaced projectile's when it still held the place,
+    /// otherwise what the place kept (<see cref="LeftMuzzleSubpixelCarry"/>).
+    /// </summary>
+    /// <param name="place">The zero-based shot place.</param>
+    /// <returns>The new projectile, holding no damage until its setup gives it some.</returns>
+    internal SamusProjectile Occupy(int place)
+    {
+        SamusProjectile replaced = _places[place];
+        int kept = MuzzleCarry.Start(place);
+        int fraction = replaced.IsOccupied ? replaced.Position.X.Fraction : kept;
+        SamusProjectile projectile = OccupyAtRest(place);
+        projectile.Position = projectile.Position.WithFractionX(fraction);
+        return projectile;
+    }
+
+    /// <summary>
+    /// Creates the new projectile of <paramref name="place"/> at rest at the room's origin, ending the one there; the
+    /// place keeps no sub-pixel position for it. The Super Missile's link starts so.
+    /// </summary>
+    /// <param name="place">The zero-based shot place.</param>
+    /// <returns>The new projectile, holding no damage until its setup gives it some.</returns>
+    internal SamusProjectile OccupyAtRest(int place)
+    {
+        _ = MuzzleCarry.Start(place);
+        _places[place].End();
+        var projectile = new SamusProjectile(place);
+        _places[place] = projectile;
+        return projectile;
+    }
+
+    /// <summary>
+    /// Clears Samus's shots all at once: each place a projectile holds keeps that projectile's horizontal sub-pixel
+    /// position for its next one, every projectile ends and every trail is cleared.
+    /// </summary>
+    internal void ClearAll()
+    {
+        foreach (SamusProjectile projectile in _places)
+        {
+            if (projectile.IsOccupied)
+                MuzzleCarry.Keep(projectile.Place, projectile.Position.X.Fraction);
+            projectile.End();
+        }
+        foreach (SamusProjectileTrailSlot trail in _trailSlots)
+            trail.ClearFields();
+    }
+
+    /// <summary>
+    /// The horizontal sub-pixel position <paramref name="place"/> would keep if Samus's shots were cleared now: its
+    /// projectile's while one holds it, otherwise what it already keeps.
+    /// </summary>
+    /// <param name="place">The zero-based shot place.</param>
+    internal int SubpixelKeptOnClear(int place)
+    {
+        SamusProjectile projectile = _places[place];
+        return projectile.IsOccupied ? projectile.Position.X.Fraction : MuzzleCarry.Kept(place);
+    }
+
+    /// <summary>Each place's projectile in update order, highest place first.</summary>
     internal IEnumerable<SamusProjectile> InUpdateOrder
     {
         get
         {
-            for (int ordinal = _slots.Length - 1; ordinal >= 0; ordinal--)
-                yield return _slots[ordinal];
+            for (int place = _places.Length - 1; place >= 0; place--)
+                yield return _places[place];
         }
     }
 
@@ -45,10 +112,14 @@ internal sealed class ProjectileSlotTable
         }
     }
 
-    /// <summary>How many shots Samus has out by the firing routines' count; kept separately from the free-slot search.</summary>
+    /// <summary>
+    /// How many shots Samus has out by the firing routines' count, zero or more; kept separately from the free-place
+    /// search, so the two can disagree (a special attack sets it to four whatever its fifth place holds), and a deletion
+    /// at zero leaves it at zero.
+    /// </summary>
     public int ProjectileCounter
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.AtLeastZero(value);
     }
 }

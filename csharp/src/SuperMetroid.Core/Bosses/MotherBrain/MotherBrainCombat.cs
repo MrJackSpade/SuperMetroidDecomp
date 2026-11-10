@@ -58,7 +58,7 @@ internal sealed class MotherBrainCombat
                         $"frame {c.Enemy.Frame}; only the dud-shot callback is ported.");
                 }
                 // The common collision prelude still owns Super-Missile quake first.
-                c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
+                c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
                 _projectiles.CreateEnemyProjectileDudShot(c.Projectile);
                 return true;
             },
@@ -111,7 +111,7 @@ internal sealed class MotherBrainCombat
         // The walker has marked every overlapping family before this callback;
         // the next projectile pass consumes the marker, removing a Super Missile's pair too.
         projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(
-            projectile.SlotIndex,
+            projectile,
             head.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||
                 !projectileType.BeamCombination.HasPlasma);
         // The head's shot AI lets only missiles and Super Missiles reach the glass.
@@ -167,7 +167,7 @@ internal sealed class MotherBrainCombat
     {
         // The walker marked the projectile before dispatching this callback.
         projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(
-            projectile.SlotIndex,
+            projectile,
             head.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||
                 !projectileType.BeamCombination.HasPlasma);
 

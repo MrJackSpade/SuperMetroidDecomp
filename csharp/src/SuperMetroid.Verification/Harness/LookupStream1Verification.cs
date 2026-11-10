@@ -2069,7 +2069,7 @@ internal static class LookupStream1Verification
             AssertEqual(sprite, slot.SpritemapPointer, "Installed artwork selection");
             AssertEqual(LookupStream1ProjectileRadiusLayoutRomByte(rom, 0x930000 | (pointer + 4)), slot.Radius.X, "Actual X radius");
             AssertEqual(LookupStream1ProjectileRadiusLayoutRomByte(rom, 0x930000 | (pointer + 5)), slot.Radius.Y, "Actual Y radius");
-            AssertEqual(Word(0x930000 | (pointer + 6)), slot.AnimationFrame, "Actual trail phase unchanged");
+            AssertEqual(Word(0x930000 | (pointer + 6)), ProjectileTrails.GetTrailAnimationFrame(slot, InstalledFixtures.SamusOverreads.Projectiles.TrailStarts), "Actual trail phase unchanged");
             AssertEqual(unchecked((ushort)(pointer + 8)), slot.InstructionPointer, "Actual record progression unchanged");
             interpreted++;
             if (duration == 0) continue; // Existing bomb contract excludes zero-duration timed records.
@@ -2189,14 +2189,11 @@ internal static class LookupStream1Verification
                     deletions++; finished = true; break;
                 }
                 AssertEqual(new VerifyLookupStream1ProjectileProgramsCase(timer, pointer, sprite, x, y, trail),
-                    new VerifyLookupStream1ProjectileProgramsCase(slot.FrameHold.RawValue, slot.InstructionPointer, slot.SpritemapPointer, slot.Radius.X, slot.Radius.Y, slot.AnimationFrame),
+                    new VerifyLookupStream1ProjectileProgramsCase(slot.FrameHold.RawValue, slot.InstructionPointer, slot.SpritemapPointer, slot.Radius.X, slot.Radius.Y, ProjectileTrails.GetTrailAnimationFrame(slot, InstalledFixtures.SamusOverreads.Projectiles.TrailStarts)),
                     "Every scheduled projectile exposure/physical envelope/trail phase matches native");
                 AssertEqual(new LookupStream1VerifyLookupStream1ProjectileProgramsCase(timer, pointer, sprite, x, y),
                     new LookupStream1VerifyLookupStream1ProjectileProgramsCase(bomb.FrameHold.RawValue, bomb.InstructionPointer, bomb.SpritemapPointer, bomb.Radius.X, bomb.Radius.Y),
                     "Every scheduled bomb exposure/physical envelope matches native");
-                slot.AnimationFrame = 0xbeef;
-                AssertEqual(trail, ProjectileTrails.GetTrailAnimationFrame(slot, InstalledFixtures.SamusOverreads.Projectiles.TrailStarts), "Actual trail consumer reads prior record, not next phase or cached frame");
-                slot.AnimationFrame = trail;
                 if (looped) { loops++; finished = true; break; }
             }
             AssertTrue(finished, "Complete native startup and first loop or terminal deletion confirmed");

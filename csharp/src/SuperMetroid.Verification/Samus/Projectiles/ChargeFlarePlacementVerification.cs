@@ -46,7 +46,7 @@ internal static class ChargeFlarePlacementVerification
             SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose,
             SamusPoseId.MovingRightNormalPose, SamusPoseId.MovingLeftNormalPose
         })
-        for (byte direction = 0; direction < ChargeFlarePlacementDefinitions.StandingDirectionCount; direction++)
+        for (int row = 0; row < SamusProjectileDirectionCodec.Count + SamusProjectileDirectionCodec.TurningPlacementOrder.Count; row++)
         foreach (ushort coordinate in new ushort[] { 0, 100, 255, ushort.MaxValue })
         foreach (TurningFloorTransform? transform in new TurningFloorTransform?[] { null, new(0.0666, new Position16<RoomPixels>(128, 112)) })
         for (int component = 0; component < 3; component++)
@@ -57,7 +57,8 @@ internal static class ChargeFlarePlacementVerification
             int record = SamusSourceDefinitions.PoseDefinitions.Value + SamusPoseNumbers.Number(pose) * 8;
             bool running = bus.ReadCartridgeByte(record + 1) == SamusMovementTypeNativeWords.Byte(SamusMovementType.Running);
             // The turning placements follow the standing rows only; no running pose selects past the named directions.
-            if (running && direction >= ChargeFlarePlacementDefinitions.DirectionCount)
+            SamusFlareAim aim = SamusProjectileDirectionCodec.FlareAimAtRow(row);
+            if (running && aim.Turning is not null)
                 continue;
             bool facingLeft = bus.ReadCartridgeByte(record) == 4;
             byte yOffset = bus.ReadCartridgeByte(record + 4);
@@ -67,8 +68,8 @@ internal static class ChargeFlarePlacementVerification
             short Word(int address) => unchecked((short)CartridgeImportSource.Require(bus).ReadCartridgeWord(address));
             var world = new Position16<RoomPixels>(coordinate, coordinate);
             var point = transform is { } selectedTransform ? selectedTransform.Transform(world) : world;
-            ushort x = unchecked((ushort)(point.X + Word(xTable + direction * 2)));
-            ushort y = unchecked((ushort)(point.Y + Word(yTable + direction * 2) - yOffset));
+            ushort x = unchecked((ushort)(point.X + Word(xTable + row * 2)));
+            ushort y = unchecked((ushort)(point.Y + Word(yTable + row * 2) - yOffset));
             ushort selector = (ushort)(component == 0 ? 0 : facingLeft ? (component == 1 ? 42 : 48) : (component == 1 ? 30 : 36));
             // The flare is published wherever it lies and the display clips it (#1541): one the cartridge culls by its Y
             // high byte publishes the parts the cartridge draws for it on the screen.
@@ -76,7 +77,7 @@ internal static class ChargeFlarePlacementVerification
             DrawImportedFlareSpritemap(bus, native, selector, new(x, onScreen ? y : (byte)y));
             OamBuffer actual = SpriteFrameBuffer.DrawnOam(frame => drawMetadata(frame, samus, Position16<RoomPixels>.Zero, component, transform,
                 new ChargeFlareArtwork { Placement = stock, Objects = objects },
-                new ChargeFlarePose { Direction = direction, Running = running, PoseYOffset = yOffset, FacingLeft = facingLeft }));
+                new ChargeFlarePose { Aim = aim, Running = running, PoseYOffset = yOffset, FacingLeft = facingLeft }));
             // The draw depth replaces each part's priority tier (#1514); everything else must match the cartridge.
             AssertEqual(native.NextByteOffset / 4, actual.LastFinalizedSpriteCount, "Flare placement publishes every native part");
             if (!onScreen)
@@ -84,7 +85,7 @@ internal static class ChargeFlarePlacementVerification
                 cases++;
                 continue;
             }
-            AssertTrue(SuperMetroid.Verification.Harness.OamPriorityComparison.ImagesEqualApartFromPriority(native, actual), $"Flare placement stock preserves native OAM for running, facing, overread directions and Mode7: {pose} direction {direction} at {coordinate}, floor {transform is not null}, component {component} ({native.FirstDifference(actual)})");
+            AssertTrue(SuperMetroid.Verification.Harness.OamPriorityComparison.ImagesEqualApartFromPriority(native, actual), $"Flare placement stock preserves native OAM for running, facing, overread directions and Mode7: {pose} flare at {aim} at {coordinate}, floor {transform is not null}, component {component} ({native.FirstDifference(actual)})");
             cases++;
         }
         // A charged turning pose draws its flare from the turn row its restriction's low four bits select, where the
@@ -99,7 +100,7 @@ internal static class ChargeFlarePlacementVerification
             PrepareRetailSamusFixture(samus);
             int record = SamusSourceDefinitions.PoseDefinitions.Value + SamusPoseNumbers.Number(pose) * 8;
             int turnRow = bus.ReadCartridgeByte(record + 3) & 15;
-            AssertTrue(turnRow >= ChargeFlarePlacementDefinitions.DirectionCount, $"{pose} selects a turn row");
+            AssertTrue(SamusProjectileDirectionCodec.FlareAimAtRow(turnRow).Turning is not null, $"{pose} selects a turn row");
             bool facingLeft = bus.ReadCartridgeByte(record) == 4;
             byte yOffset = bus.ReadCartridgeByte(record + 4);
             short Word(int address) => unchecked((short)CartridgeImportSource.Require(bus).ReadCartridgeWord(address));
@@ -114,19 +115,20 @@ internal static class ChargeFlarePlacementVerification
             AssertTrue(SuperMetroid.Verification.Harness.OamPriorityComparison.ImagesEqualApartFromPriority(native, actual), $"charged {pose} draws flare component {component} at its turn row's cartridge placement apart from the priority tier the draw depth replaces (#1514) ({native.FirstDifference(actual)})");
         }
         // The flare draw places by the low four bits of the pose's shot direction, except for no-firing poses. Every pose
-        // selects a named direction or, turning, a turning placement, so a selection past the turning placements standing,
-        // or past the named directions running, is rejected rather than read from the rows that follow the tables (#1500).
-        for (int direction = ChargeFlarePlacementDefinitions.DirectionCount; direction < 16; direction++)
+        // selects a named direction or, turning, a turning placement, so a row past the turning placements is no placement,
+        // and a turning placement running is rejected rather than read from the rows that follow the tables (#1500).
+        for (int row = SamusProjectileDirectionCodec.Count + SamusProjectileDirectionCodec.TurningPlacementOrder.Count; row < 16; row++)
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(true, direction), $"running flare selection {direction} past the named directions is rejected");
-            if (direction >= ChargeFlarePlacementDefinitions.StandingDirectionCount)
-                AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(false, direction), $"standing flare selection {direction} past the turning placements is rejected");
+            int past = row;
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusProjectileDirectionCodec.FlareAimAtRow(past), $"flare row {row} past the turning placements names no placement");
         }
+        foreach (SamusTurningAim turning in Enum.GetValues<SamusTurningAim>())
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(true, SamusFlareAim.WhileTurning(turning)), $"running flare turning {turning} is rejected");
         AssertTrue(Enumerable.Range(0, byte.MaxValue + 1).Where(SamusPoseNumbering.NamesPose)
             .Select(number => SamusPoseMetadata.ReadAim(SamusPoseNumbering.FromNumber(number)).Flare)
             .OfType<SamusFlareAim>()
-            .All(flare => ChargeFlarePlacements.Selection(flare) < ChargeFlarePlacementDefinitions.StandingDirectionCount),
-            "no pose's shot direction selects past the turning placements");
+            .All(flare => ChargeFlarePlacements.Placements(ChargeFlareSource.Beam).Contains(new ChargeFlarePlacement(false, flare))),
+            "every pose's flare aim is a standing beam flare placement");
         var subject = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
         PrepareRetailSamusFixture(subject);
         byte[] beforeSamus = GraphDigest(subject, InstalledFixtures.BoundContent), beforeSystem = GraphDigest(system, InstalledFixtures.BoundContent);
@@ -146,10 +148,11 @@ internal static class ChargeFlarePlacementVerification
             AssertTrue(original.LastFinalizedSpriteCount > 0, "Public normal/Hyper flare producer emits visible components");
         }
         var document = RequiredJson.Parse(json);
-        document.Required("offsets").AsObject().Remove(ChargeFlarePlacementFile.Key(false, 0));
+        string firstKey = ChargeFlarePlacementFile.Key(new ChargeFlarePlacement(false, SamusFlareAim.AtMuzzle(SamusProjectileDirection.UpFacingRight)));
+        document.Required("offsets").AsObject().Remove(firstKey);
         AssertThrows<InvalidDataException>(() => Load(document), "Missing flare placement rejected");
         document = JsonNode.Parse(json);
-        (document ?? throw new InvalidOperationException("Verification requires document.")).Required("offsets").Required(ChargeFlarePlacementFile.Key(false, 0))["x"] = 32768;
+        (document ?? throw new InvalidOperationException("Verification requires document.")).Required("offsets").Required(firstKey)["x"] = 32768;
         AssertThrows<InvalidDataException>(() => Load(document), "Out-of-range flare position rejected");
         document = JsonNode.Parse(json); (document ?? throw new InvalidOperationException("Verification requires document."))["damage"] = 1;
         AssertThrows<InvalidDataException>(() => Load(document), "Flare placement cannot contain mechanics fields");

@@ -61,8 +61,6 @@ public static class GrappleBeamDefinitions
         public const int PoseChangeAutoFireFrames = 10;
         /// <summary>Firing uses a six-pixel graphics Y offset for moving Draygon-held poses.</summary>
         public const int DraygonMovingGraphicsYOffset = 6;
-        /// <summary>Number of direction records represented by every firing table.</summary>
-        public const int DirectionCount = 10;
     }
 
     /// <summary>How the rope is drawn: a chain of rope pictures from the muzzle toward the anchor, animated as one.</summary>

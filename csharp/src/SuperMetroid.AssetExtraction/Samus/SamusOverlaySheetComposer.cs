@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -17,7 +18,7 @@ internal static class SamusOverlaySheetComposer
 
     /// <summary>Every frame the sheet holds.</summary>
     internal static IEnumerable<string> Frames =>
-        Enumerable.Range(0, SamusDrawingDefinitions.ArmCannon.DirectionCount)
+        SamusProjectileDirectionCodec.InAimOrder
             .SelectMany(direction => Enumerable.Range(FirstCoverFrame, LastCoverFrame - FirstCoverFrame + 1)
                 .Select(frame => SamusOverlaySheetDefinitions.ArmCannonFrame(direction, frame)));
 
@@ -30,14 +31,15 @@ internal static class SamusOverlaySheetComposer
         Ensure.NotNull(inputs);
         Ensure.NotNull(cannon);
         var frames = new List<SheetFrameSource>();
-        for (int direction = 0; direction < SamusDrawingDefinitions.ArmCannon.DirectionCount; direction++)
+        foreach (SamusProjectileDirection direction in SamusProjectileDirectionCodec.InAimOrder)
         {
             // `$90:C7DF` uploads the frame's cover to the character the direction's attributes name.
-            SpritePart cover = cannon.CoverAppearance(direction);
+            int row = direction.ToAimIndex();
+            SpritePart cover = cannon.CoverAppearance(row);
             for (int frame = FirstCoverFrame; frame <= LastCoverFrame; frame++)
             {
                 frames.Add(new(SamusOverlaySheetDefinitions.ArmCannonFrame(direction, frame),
-                    SpritePartFrames.SmallObject(cover, cover.Character), cannon.CoverTile(direction, frame)));
+                    SpritePartFrames.SmallObject(cover, cover.Character), cannon.CoverTile(row, frame)));
             }
         }
         return new SpriteSheetSources(frames, inputs.SuitedColours(), ObjectSelectionCodec.GameplaySizes, Shades: inputs.Shades);

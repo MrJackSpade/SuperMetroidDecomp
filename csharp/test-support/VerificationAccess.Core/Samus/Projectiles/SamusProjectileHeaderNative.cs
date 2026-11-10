@@ -118,9 +118,21 @@ internal static class SamusProjectileHeaderNative
     /// <summary>Header programs by bank-$93 address.</summary>
     extension(SamusProjectileHeaders)
     {
-        /// <summary>The program the header at bank-$93 <paramref name="header"/>'s list field <paramref name="direction"/> selects.</summary>
-        internal static SamusProjectileProgram Program(ushort header, int direction) =>
-            SamusProjectileHeaders.Program(At(0x930000 | header)
-                ?? throw new InvalidDataException($"$93:{header:X4} is not a Samus projectile header."), direction);
+        /// <summary>The program the header at bank-$93 <paramref name="header"/>'s list field <paramref name="field"/> selects.</summary>
+        internal static SamusProjectileProgram ProgramAtField(ushort header, int field) =>
+            SamusProjectileHeaders.ProgramAtField(At(0x930000 | header)
+                ?? throw new InvalidDataException($"$93:{header:X4} is not a Samus projectile header."), field);
+
+        /// <summary>
+        /// The program <paramref name="header"/>'s list field <paramref name="field"/> selects: a directional header holds
+        /// one field per direction, at its aim index; a header that starts one program whatever its direction holds only
+        /// the first.
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">The header keeps no such field.</exception>
+        internal static SamusProjectileProgram ProgramAtField(SamusProjectileHeader header, int field) =>
+            SamusProjectileHeaderDefinitions.DirectionalPrograms.ContainsKey(header)
+                ? SamusProjectileHeaders.Program(header, SamusProjectileDirectionCodec.FromAimIndex(field))
+                : field == 0 ? SamusProjectileHeaders.SoleProgram(header)
+                : throw new ArgumentOutOfRangeException(nameof(field), field, $"{header} keeps only its first list field.");
     }
 }

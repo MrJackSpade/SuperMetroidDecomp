@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Samus.Projectiles;
+
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>
@@ -6,6 +8,6 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// </summary>
 public static class SamusOverlaySheetDefinitions
 {
-    /// <summary>The arm cannon's cover in direction <paramref name="direction"/> at cover frame <paramref name="frame"/>.</summary>
-    public static string ArmCannonFrame(int direction, int frame) => $"ArmCannon.{direction}.{frame}";
+    /// <summary>The arm cannon's cover aimed in <paramref name="direction"/> at cover frame <paramref name="frame"/>.</summary>
+    public static string ArmCannonFrame(SamusProjectileDirection direction, int frame) => $"ArmCannon.{direction}.{frame}";
 }

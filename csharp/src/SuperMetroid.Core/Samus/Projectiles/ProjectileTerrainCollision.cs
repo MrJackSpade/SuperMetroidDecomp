@@ -525,15 +525,17 @@ internal sealed class ProjectileTerrainCollision
     {
         // Killing the beam moves the explosion anchor to the leading edge before the explosion
         // replaces the animation. Diagonals adjust both axes in their respective signs.
-        int direction = slot.Direction.ToAimIndex();
-        if (direction is 1 or 2 or 3)
+        SamusProjectileDirection direction = slot.Direction;
+        if (direction is SamusProjectileDirection.UpRight or SamusProjectileDirection.Right or SamusProjectileDirection.DownRight)
             slot.Position += new Offset16<RoomPixels>(slot.Radius.X, 0);
-        else if (direction is 6 or 7 or 8)
+        else if (direction is SamusProjectileDirection.DownLeft or SamusProjectileDirection.Left or SamusProjectileDirection.UpLeft)
             slot.Position -= new Offset16<RoomPixels>(slot.Radius.X, 0);
 
-        if (direction is 0 or 1 or 8 or 9)
+        if (direction is SamusProjectileDirection.UpFacingRight or SamusProjectileDirection.UpRight or
+            SamusProjectileDirection.UpLeft or SamusProjectileDirection.UpFacingLeft)
             slot.Position -= new Offset16<RoomPixels>(0, slot.Radius.Y);
-        else if (direction is 3 or 4 or 5 or 6)
+        else if (direction is SamusProjectileDirection.DownRight or SamusProjectileDirection.DownFacingRight or
+            SamusProjectileDirection.DownFacingLeft or SamusProjectileDirection.DownLeft)
             slot.Position += new Offset16<RoomPixels>(0, slot.Radius.Y);
 
         slot.Type = slot.Type.AsFamily(SamusProjectileFamily.BeamExplosion);

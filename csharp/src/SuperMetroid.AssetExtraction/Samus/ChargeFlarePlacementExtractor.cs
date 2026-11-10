@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
-/// <summary>Extracts the native visual offsets of the ten named aiming directions and the standing turning placements.</summary>
+/// <summary>Extracts the native visual offsets of the ten aiming directions and the standing turning placements.</summary>
 public static class ChargeFlarePlacementExtractor
 {
     /// <summary>JSON resource filename for beam-charge flare drawing offsets; editing these signed pixel placements does not change physical projectile origins or charge timing.</summary>
@@ -16,15 +16,15 @@ public static class ChargeFlarePlacementExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         var offsets = new Dictionary<string, ChargeFlareOffset>();
-        foreach (bool running in new[] { false, true })
-        for (int direction = 0; direction < (running ? ChargeFlarePlacementDefinitions.DirectionCount : ChargeFlarePlacementDefinitions.StandingDirectionCount); direction++)
+        foreach (ChargeFlarePlacement placement in ChargeFlarePlacements.Placements(ChargeFlareSource.Beam))
         {
-            int x = running ? SamusSourceDefinitions.ChargeFlareRunningXOffsets.Value : SamusSourceDefinitions.ChargeFlareDefaultXOffsets.Value;
-            int y = running ? SamusSourceDefinitions.ChargeFlareRunningYOffsets.Value : SamusSourceDefinitions.ChargeFlareDefaultYOffsets.Value;
-            offsets.Add(ChargeFlarePlacementFile.Key(running, direction), new()
+            int x = placement.Running ? SamusSourceDefinitions.ChargeFlareRunningXOffsets.Value : SamusSourceDefinitions.ChargeFlareDefaultXOffsets.Value;
+            int y = placement.Running ? SamusSourceDefinitions.ChargeFlareRunningYOffsets.Value : SamusSourceDefinitions.ChargeFlareDefaultYOffsets.Value;
+            int row = SamusProjectileDirectionCodec.FlarePlacementRow(placement.Aim);
+            offsets.Add(ChargeFlarePlacementFile.Key(placement), new()
             {
-                X = unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), x + direction * 2)),
-                Y = unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), y + direction * 2)),
+                X = unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), x + row * 2)),
+                Y = unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), y + row * 2)),
             });
         }
         return ChargeFlarePlacementFile.Write(new() { Version = ChargeFlarePlacementFile.Version, Offsets = offsets });

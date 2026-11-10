@@ -204,8 +204,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         bull.FrameHold = WrappingCountdown.Start(1);
         bull.Timer = WrappingCountdown.Start(0);
         state.Program = AnimationProgramCursor<BullProgram>.Start(BullProgram.Shot);
-        int direction = projectileDirection.ToAimIndex();
-        state.Angle = BullMotion.ShotAngle(direction);
+        state.Angle = BullMotion.ShotAngle(projectileDirection);
         state.Acceleration = 256;
         state.Speed = 1536;
         state.Function = BullEnemyFunction.Decelerating;

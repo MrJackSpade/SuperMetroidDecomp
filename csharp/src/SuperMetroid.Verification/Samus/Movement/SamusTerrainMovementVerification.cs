@@ -1810,7 +1810,7 @@ internal static void VerifySamusRanIntoWall()
     for (byte direction = 0; direction < selectedByShotDirection.Length; direction++)
     {
         SamusPoseId sourcePose = nativePosesByShotDirection[direction];
-        AssertEqual(SamusPoseAim.Aiming(SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirectionCodec.FromAimIndex(direction)), SamusPoseMetadata.ReadAim(sourcePose),
+        AssertEqual(SamusPoseAim.Aiming(SuperMetroid.AssetExtraction.Samus.SamusProjectileDirectionCodec.FromAimIndex(direction)), SamusPoseMetadata.ReadAim(sourcePose),
             $"ran-into-wall fixture pose ${(int)SamusPoseNumbers.Number(sourcePose):X2} aim");
         AssertEqual(
             selectedByShotDirection[direction],

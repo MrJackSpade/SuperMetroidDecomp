@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
@@ -31,13 +32,13 @@ internal static class GrappleFlarePlacementVerification
         byte[] json = GrappleFlarePlacementExtractor.Extract(rom);
         var stock = ChargeFlarePlacementFile.LoadGrapple(new MemoryStream(json));
         foreach (bool running in new[] { false, true })
-        for (int direction = 0; direction < ChargeFlarePlacementDefinitions.DirectionCount; direction++)
+        foreach (SamusProjectileDirection direction in SamusProjectileDirectionCodec.InAimOrder)
         {
-            var offset = stock.Resolve(running, direction);
+            var offset = stock.Resolve(running, SamusFlareAim.AtMuzzle(direction));
             int x = running ? SamusSourceDefinitions.GrappleRunningFlareX.Value : SamusSourceDefinitions.GrappleDefaultFlareX.Value;
             int y = running ? SamusSourceDefinitions.GrappleRunningFlareY.Value : SamusSourceDefinitions.GrappleDefaultFlareY.Value;
-            AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), x + direction * 2)), offset.X, "Extracted Grapple flare X including adjacent rows");
-            AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), y + direction * 2)), offset.Y, "Extracted Grapple flare Y including adjacent rows");
+            AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), x + direction.ToAimIndex() * 2)), offset.X, "Extracted Grapple flare X including adjacent rows");
+            AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), y + direction.ToAimIndex() * 2)), offset.Y, "Extracted Grapple flare Y including adjacent rows");
         }
         var refresh = new Action<SamusState, SamusGrappleState>(SamusGrappleBeamDrawing.RefreshFiringDrawOrigins);
         Func<SamusState, SamusGrappleState, Position16<RoomPixels>, GrappleAnchorKind, GrappleMovementResult> connect = SamusGrappleMovement.ConnectAcceptedFiring;

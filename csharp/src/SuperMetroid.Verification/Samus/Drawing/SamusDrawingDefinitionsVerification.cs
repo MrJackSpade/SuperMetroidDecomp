@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Samus.Movement.SamusMovementDefinitionsVerification;
 using SuperMetroid.Core.Samus.Drawing;
@@ -67,10 +68,10 @@ internal static class SamusDrawingDefinitionsVerification
         TouchRange(bus, SamusSourceDefinitions.PoseDrawingDataPointers.Value,
             poseCount * sizeof(ushort), "arm-cannon pose drawing pointers");
         TouchRange(bus, SamusSourceDefinitions.ArmCannonSpriteAttributes.Value,
-            SamusDrawingDefinitions.ArmCannon.DirectionCount * sizeof(ushort),
+            SamusProjectileDirectionCodec.Count * sizeof(ushort),
             "arm-cannon sprite attributes");
         TouchRange(bus, SamusSourceDefinitions.TileListPointers.Value,
-            SamusDrawingDefinitions.ArmCannon.DirectionCount * sizeof(ushort),
+            SamusProjectileDirectionCodec.Count * sizeof(ushort),
             "arm-cannon tile-list pointers");
 
         Console.WriteLine(

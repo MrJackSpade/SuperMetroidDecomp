@@ -1155,7 +1155,7 @@ public static class SamusGrappleMovement
     {
         var offset = (grapple.FlarePlacement ?? throw new InvalidOperationException(
             "Grapple flare requires installed placement definitions."))
-            .Resolve(running, direction.ToAimIndex());
+            .Resolve(running, SamusFlareAim.AtMuzzle(direction));
         return new Offset16<RoomPixels>(offset.X, offset.Y);
     }
 

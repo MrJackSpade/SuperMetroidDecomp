@@ -8,54 +8,46 @@ public sealed class ChargeFlarePlacements
 {
     /// <summary>Import-selected source kind; placement values themselves cannot distinguish Grapple from beam art.</summary>
     private readonly ChargeFlareSource source;
-    /// <summary>Only authored offsets differing from the selected stock source definitions, by <see cref="Slot"/>.</summary>
-    internal readonly Dictionary<int, Offset16<RoomPixels>> offsets = new();
+    /// <summary>Only authored offsets differing from the selected stock source definitions, by placement.</summary>
+    internal readonly Dictionary<ChargeFlarePlacement, Offset16<RoomPixels>> offsets = new();
     /// <summary>Copies the changed visual offsets the import pipeline validated, keeping the beam or Grapple stock offsets for the rest.</summary>
-    internal ChargeFlarePlacements(IReadOnlyDictionary<int, Offset16<RoomPixels>> supplied, ChargeFlareSource source)
+    /// <exception cref="ArgumentOutOfRangeException">A supplied placement is not one the source holds.</exception>
+    internal ChargeFlarePlacements(IReadOnlyDictionary<ChargeFlarePlacement, Offset16<RoomPixels>> supplied, ChargeFlareSource source)
     {
         this.source = source;
-        foreach ((int slot, Offset16<RoomPixels> offset) in supplied)
-            if (offset != CalculatedOffset(slot >= ChargeFlarePlacementDefinitions.StandingDirectionCount,
-                slot % ChargeFlarePlacementDefinitions.StandingDirectionCount)) offsets.Add(slot, offset);
+        foreach ((ChargeFlarePlacement placement, Offset16<RoomPixels> offset) in supplied)
+            if (offset != CalculatedOffset(placement)) offsets.Add(placement, offset);
     }
-    /// <summary>Resolves an independently editable visual muzzle offset for the requested movement mode and direction, using the beam or Grapple source contract selected at import.</summary>
+    /// <summary>Resolves an independently editable visual muzzle offset for the requested movement mode and flare aim, using the beam or Grapple source contract selected at import.</summary>
     /// <param name="running">True for running placement; false for the standing/default row.</param>
-    /// <param name="direction">
-    /// A named aiming direction, 0..9, or for the standing beam flare a turning placement, 10..12. No pose selects a row
-    /// past them, so other selections are rejected (#1500).
+    /// <param name="aim">
+    /// The muzzle the flare is placed at or, for the standing beam flare, the turning placement. No pose places a running
+    /// or Grapple flare while turning, so those placements are rejected (#1500).
     /// </param>
     /// <returns>The signed whole-pixel placement offset, without camera or pose-graphics Y adjustments.</returns>
-    public Offset16<RoomPixels> Resolve(bool running, int direction)
+    /// <exception cref="ArgumentOutOfRangeException">The source holds no such placement.</exception>
+    internal Offset16<RoomPixels> Resolve(bool running, SamusFlareAim aim)
     {
-        if ((uint)direction >= DirectionsFor(source, running)) throw new ArgumentOutOfRangeException(nameof(direction));
-        return offsets.TryGetValue(Slot(running, direction), out var supplied)
-            ? supplied : CalculatedOffset(running, direction);
+        var placement = new ChargeFlarePlacement(running, aim);
+        Offset16<RoomPixels> calculated = CalculatedOffset(placement);
+        return offsets.TryGetValue(placement, out var supplied) ? supplied : calculated;
     }
     /// <summary>Gets the fallback from the beam or Grapple definitions chosen at import.</summary>
-    private Offset16<RoomPixels> CalculatedOffset(bool running, int direction) => source == ChargeFlareSource.Grapple
-        ? ChargeFlarePlacementOffsets.GrappleOffset(running, direction)
-        : ChargeFlarePlacementOffsets.BeamOffset(running, direction);
+    private Offset16<RoomPixels> CalculatedOffset(ChargeFlarePlacement placement) => source == ChargeFlareSource.Grapple
+        ? ChargeFlarePlacementOffsets.GrappleOffset(placement.Running, placement.Aim)
+        : ChargeFlarePlacementOffsets.BeamOffset(placement.Running, placement.Aim);
 
     /// <summary>
-    /// How many directions a movement mode places the flare for: the ten named aiming directions, and for the standing
-    /// beam flare its turning placements too; Grapple never fires while turning.
+    /// Every placement <paramref name="source"/> holds: each direction's muzzle in both movement modes, and for the
+    /// standing beam flare each turning placement too; Grapple never fires while turning.
     /// </summary>
-    internal static int DirectionsFor(ChargeFlareSource source, bool running) => source == ChargeFlareSource.Grapple || running
-        ? ChargeFlarePlacementDefinitions.DirectionCount
-        : ChargeFlarePlacementDefinitions.StandingDirectionCount;
-
-    /// <summary>
-    /// The placement selection a pose's flare aim takes: its muzzle's aim, 0 through 9, or, while turning, the turning
-    /// placement of the aim the turn holds, after the ten muzzles.
-    /// </summary>
-    /// <exception cref="ArgumentException">The flare aim names neither a muzzle nor a turn.</exception>
-    internal static int Selection(SamusFlareAim flare) =>
-        flare.Muzzle is { } muzzle ? muzzle.ToAimIndex()
-        : flare.Turning is { } turning
-            ? ChargeFlarePlacementDefinitions.DirectionCount + Array.IndexOf(ChargeFlarePlacementDefinitions.TurningPlacements, turning)
-            : throw new ArgumentException("A flare is placed at a muzzle or while turning.", nameof(flare));
-
-    /// <summary>Where a movement mode's direction is kept: the standing directions first, then the running ones.</summary>
-    internal static int Slot(bool running, int direction) =>
-        (running ? ChargeFlarePlacementDefinitions.StandingDirectionCount : 0) + direction;
+    internal static IEnumerable<ChargeFlarePlacement> Placements(ChargeFlareSource source)
+    {
+        foreach (bool running in (bool[])[false, true])
+            foreach (SamusProjectileDirection direction in Enum.GetValues<SamusProjectileDirection>())
+                yield return new(running, SamusFlareAim.AtMuzzle(direction));
+        if (source == ChargeFlareSource.Beam)
+            foreach (SamusTurningAim turning in Enum.GetValues<SamusTurningAim>())
+                yield return new(false, SamusFlareAim.WhileTurning(turning));
+    }
 }

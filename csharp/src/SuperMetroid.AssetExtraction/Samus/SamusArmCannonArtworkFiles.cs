@@ -46,11 +46,11 @@ public static class SamusArmCannonArtworkFiles
         int[] drawingData = Enumerable.Range(0, SamusArmCannonArtworkFormat.DrawingDataByteCount)
             .Select(index => (int)bus.ReadCartridgeByte(SamusSourceDefinitions.MovementBank.Value |
                 (SamusSourceDefinitions.ArmCannonDrawingData + index))).ToArray();
-        SpriteVisualPart[] appearances = Enumerable.Range(0, SamusDrawingDefinitions.ArmCannon.DirectionCount)
+        SpriteVisualPart[] appearances = Enumerable.Range(0, SamusProjectileDirectionCodec.Count)
             .Select(direction => SpriteVisualPart.FromSpritePart(new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(
                 CartridgeImportSource.Require(bus), SamusSourceDefinitions.ArmCannonSpriteAttributes.Value + direction * 2)).ToSinglePart(),
                 SpriteArtwork.CharactersPerRow)).ToArray();
-        int[][] coverTiles = Enumerable.Range(0, SamusDrawingDefinitions.ArmCannon.DirectionCount)
+        int[][] coverTiles = Enumerable.Range(0, SamusProjectileDirectionCodec.Count)
             .Select(direction =>
             {
                 int list = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),

@@ -4,28 +4,26 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 public static class CrocomireVolley
 {
     /// <summary>
-    /// Whether a shot's spawn parameter selects the volley's tenth shot, whose gradient is read past the nine authored
-    /// ones from the installed <see cref="CrocomireTenthShotGradient"/>. The fight emits only 2, 4, ..., 18.
+    /// Whether <paramref name="shot"/> is the volley's last, which reads its gradient past the authored ones from the
+    /// installed <see cref="CrocomireTenthShotGradient"/>.
     /// </summary>
-    /// <param name="parameter">The shot's spawn parameter.</param>
-    public static bool IsTenthShot(int parameter) => parameter / 2 == CrocomireProjectileDefinitions.AuthoredShotCount;
+    /// <param name="shot">The shot's place in the volley, 1 through <see cref="CrocomireProjectileDefinitions.VolleyShotCount"/>.</param>
+    public static bool IsLastShot(int shot) => shot == CrocomireProjectileDefinitions.VolleyShotCount;
 
     /// <summary>
-    /// The authored gradient a shot's spawn parameter selects: the parameter halved indexes the volley, whose first nine
-    /// shots cycle through <see cref="CrocomireProjectileDefinitions.GradientCycle"/>.
+    /// The authored gradient the volley's <paramref name="shot"/> is fired along: each shot reads the gradient its place in
+    /// the volley names, so the shots before the last cycle through
+    /// <see cref="CrocomireProjectileDefinitions.GradientCycle"/> from its second gradient.
     /// </summary>
-    /// <param name="parameter">The shot's spawn parameter.</param>
-    /// <exception cref="InvalidDataException">The parameter selects the tenth shot or a later one.</exception>
-    public static int AuthoredGradient(int parameter)
+    /// <param name="shot">The shot's place in the volley, 1 through <see cref="CrocomireProjectileDefinitions.VolleyShotCount"/>.</param>
+    /// <exception cref="InvalidDataException">The shot is the last, or the volley has no such shot.</exception>
+    public static int AuthoredGradient(int shot)
     {
-        int shot = parameter / 2;
-        if (shot < CrocomireProjectileDefinitions.AuthoredShotCount)
-            return CrocomireProjectileDefinitions.GradientCycle[shot % CrocomireProjectileDefinitions.GradientCycle.Length];
-        if (shot == CrocomireProjectileDefinitions.AuthoredShotCount)
-            throw new InvalidDataException("Crocomire's tenth shot reads its gradient past the authored nine.");
-
-        // Rejected, not read: the spit attack counts its shots up by two from zero and stops once the count reaches
-        // eighteen, so no shot is spawned with a later parameter.
-        throw new InvalidDataException($"Crocomire gradient selector {parameter} is outside the volley, which ends at its tenth shot.");
+        if (shot is < 1 or > CrocomireProjectileDefinitions.VolleyShotCount)
+            throw new InvalidDataException(
+                $"Crocomire's volley has no shot {shot}; it spits shots 1 through {CrocomireProjectileDefinitions.VolleyShotCount}.");
+        if (IsLastShot(shot))
+            throw new InvalidDataException("Crocomire's last shot reads its gradient past the authored ones.");
+        return CrocomireProjectileDefinitions.GradientCycle[shot % CrocomireProjectileDefinitions.GradientCycle.Length];
     }
 }

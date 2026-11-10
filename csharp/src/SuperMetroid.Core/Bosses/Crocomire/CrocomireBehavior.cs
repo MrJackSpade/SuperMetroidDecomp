@@ -68,8 +68,6 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The tongue's horizontal offset from the body, in pixels, set when the tongue initializes.</summary>
     internal const int CrocomireTongueBodyXOffset = 23;
-    /// <summary>The projectile attack's last spawn parameter: its ninth shot, after which Crocomire steps forward.</summary>
-    internal const int LastProjectileSpawnParameter = 18;
 
     /// <summary>Acceleration the sink adds each frame, in 1/256 pixel per frame per frame: three and a half pixels.</summary>
     internal const int SinkAccelerationIncrement = 896;

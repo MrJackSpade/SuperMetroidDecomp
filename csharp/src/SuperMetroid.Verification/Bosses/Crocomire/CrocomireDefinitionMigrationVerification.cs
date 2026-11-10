@@ -24,16 +24,16 @@ internal static class CrocomireDefinitionMigrationVerification
         AssertEqual(0xada600, CrocomireSourceDefinitions.SkeletonChunk(0), "first skeleton chunk source");
         AssertEqual(0xada600 + 5 * 0x200, CrocomireSourceDefinitions.SkeletonChunk(5), "last skeleton chunk source");
 
-        // The volley's authored gradients, for every selector the table covers.
-        for (int parameter = 0; parameter < 18; parameter++)
+        // The volley's authored gradients, for every shot before the last.
+        for (int shot = 1; shot < CrocomireProjectileDefinitions.VolleyShotCount; shot++)
         {
-            int expected = (parameter >> 1) switch
+            int expected = shot switch
             {
-                0 or 3 or 6 => -16,
+                3 or 6 => -16,
                 1 or 4 or 7 => 0,
                 _ => 32,
             };
-            AssertEqual(expected, CrocomireVolley.AuthoredGradient(parameter), $"volley gradient for selector {parameter}");
+            AssertEqual(expected, CrocomireVolley.AuthoredGradient(shot), $"volley gradient for shot {shot}");
         }
         AssertEqual(4, CrocomireProjectileDefinitions.VelocityMultiplier, "volley velocity factor");
 

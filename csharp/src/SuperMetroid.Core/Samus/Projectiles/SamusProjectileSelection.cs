@@ -22,7 +22,7 @@ internal static class SamusProjectileSelection
     internal static SamusProjectileProgram? BeamShotProgram(SamusBeamCombination beams, bool charged, SamusProjectileDirection direction) =>
         IsMurderBeam(beams, charged)
             ? MurderBeamPrograms.Program(direction)
-            : SamusProjectileHeaders.Program(BeamShot(beams, charged), direction.ToAimIndex());
+            : SamusProjectileHeaders.Program(BeamShot(beams, charged), direction);
 
     /// <summary>Whether a shot of <paramref name="beams"/>, charged when <paramref name="charged"/>, is the Murder Beam's.</summary>
     internal static bool IsMurderBeam(SamusBeamCombination beams, bool charged) => charged && beams == MurderBeam;

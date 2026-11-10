@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Samus.Drawing;
 
-/// <summary>Cartridge values and helpers of <see cref="SamusDrawingDefinitions"/> that only verification reads.</summary>
+/// <summary>Cartridge values and helpers of Samus's drawing that only verification reads.</summary>
 internal static class SamusDrawingDefinitionsBanksConstants
 {
         /// <summary>Bank containing spritemaps and Samus DMA definitions.</summary>

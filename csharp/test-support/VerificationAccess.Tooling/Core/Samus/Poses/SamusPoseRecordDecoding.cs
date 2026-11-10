@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Samus.Poses;
@@ -43,19 +44,7 @@ internal static class SamusPoseRecordDecoding
     internal static SamusProjectileDirection? DirectionOfAimByte(int aimByte) =>
         aimByte is >= 0 and < SamusProjectileDirectionCodec.Count ? SamusProjectileDirectionCodec.FromAimIndex(aimByte) : null;
 
-    /// <summary>The flare placement an aim byte's low four bits select.</summary>
-    private static SamusFlareAim DecodeFlare(int selection) =>
-        DirectionOfAimByte(selection) is { } muzzle ? SamusFlareAim.AtMuzzle(muzzle)
-        : selection - SamusProjectileDirectionCodec.Count is >= 0 and < 3
-            ? SamusFlareAim.WhileTurning(TurningAim(selection - SamusProjectileDirectionCodec.Count))
-            : throw new ArgumentOutOfRangeException(nameof(selection), selection, "No flare placement follows the turning placements.");
-
-    /// <summary>The turning aim at <paramref name="index"/> in placement order: up, neutral, down.</summary>
-    private static SamusTurningAim TurningAim(int index) => index switch
-    {
-        0 => SamusTurningAim.Up,
-        1 => SamusTurningAim.Neutral,
-        2 => SamusTurningAim.Down,
-        _ => throw new ArgumentOutOfRangeException(nameof(index), index, "Three turning aims."),
-    };
+    /// <summary>The flare placement an aim byte's low four bits select: the flare origin table row they name.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The bits select past the turning placements.</exception>
+    private static SamusFlareAim DecodeFlare(int selection) => SamusProjectileDirectionCodec.FlareAimAtRow(selection);
 }

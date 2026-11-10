@@ -381,7 +381,7 @@ internal sealed class BeamFiring
         const SamusBeamCombination hyperBeamType = SamusBeamCombination.Plasma;
         SamusProjectileHeader header = SamusProjectileSelection.BeamShot(hyperBeamType, charged: true);
         slot.Damage = SamusProjectileDamage.Read(header);
-        SamusProjectileProgram program = SamusProjectileHeaders.Program(header, slot.Direction.ToAimIndex());
+        SamusProjectileProgram program = SamusProjectileHeaders.Program(header, slot.Direction);
         slot.Cursor = SamusProjectilePrograms.Start(program);
         slot.Radius = SamusProjectilePrograms.InitialRadius(program);
         slot.FrameHold = WrappingCountdown.Start(1);
@@ -474,7 +474,7 @@ internal sealed class BeamFiring
         // The selected HUD item chose the missile family above; the family selects the header.
         SamusProjectileHeader header = SamusProjectileSelection.NonBeam(slot.Type.Family);
         slot.Damage = SamusProjectileDamage.Read(header);
-        SamusProjectileProgram program = SamusProjectileHeaders.Program(header, slot.Direction.ToAimIndex());
+        SamusProjectileProgram program = SamusProjectileHeaders.Program(header, slot.Direction);
         slot.Cursor = SamusProjectilePrograms.Start(program);
         slot.Radius = SamusProjectilePrograms.InitialRadius(program);
         slot.FrameHold = WrappingCountdown.Start(1);
@@ -527,8 +527,8 @@ internal sealed class BeamFiring
         UnauthoredBeamFiring<SamusBeamCombination> unauthoredFiring)
     {
         Ensure.NotNull(unauthoredFiring);
-        int direction = slot.Direction.ToAimIndex();
-        bool diagonal = direction is 1 or 3 or 6 or 8;
+        bool diagonal = slot.Direction is SamusProjectileDirection.UpRight or SamusProjectileDirection.DownRight or
+            SamusProjectileDirection.DownLeft or SamusProjectileDirection.UpLeft;
         SamusBeamCombination beams = slot.Type.BeamCombination;
         SignedEightEight authoredSpeed = diagonal ? SamusProjectileMotionDefinitions.DiagonalSpeed : SamusProjectileMotionDefinitions.CardinalSpeed;
         // An unauthored combination's speed is its table's 8.8 word, which the launch adds as a wrapping velocity.

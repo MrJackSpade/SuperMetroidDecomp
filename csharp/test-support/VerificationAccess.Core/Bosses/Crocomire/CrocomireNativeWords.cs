@@ -166,7 +166,8 @@ internal static class CrocomireNativeWords
         {
             state.StepCounter = wordD;
             state.ReactionTimer = wordE;
-            state.ProjectileCounter = wordF;
+            state.ShotsSpat = wordF % 2 == 0 ? wordF / 2
+                : throw new InvalidDataException($"Crocomire's projectile counter {wordF} counts its shots by two and is never odd.");
             return;
         }
 

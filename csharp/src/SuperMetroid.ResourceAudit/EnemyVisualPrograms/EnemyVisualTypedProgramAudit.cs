@@ -270,7 +270,7 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(MorphBallEyeAnimations), "csharp/src/SuperMetroid.Core/Enemies/MorphBallEye/MorphBallEyeAnimations.cs");
         RequireSegmentFrames(SkreeMetareeAnimations.Segments, SkreeMetareeFrameToolingDefinitions.Spritemap, SkreeMetareeFrameToolingDefinitions.Bank,
             nameof(SkreeMetareeAnimations), "csharp/src/SuperMetroid.Core/Enemies/Skree/SkreeMetareeAnimations.cs");
-        RequireTypedFrames(MochtroidAnimations.Programs, MochtroidFrameToolingDefinitions.Spritemap, MochtroidFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(MochtroidAnimations.Segments, MochtroidFrameToolingDefinitions.Spritemap, MochtroidFrameToolingDefinitions.Bank,
             nameof(MochtroidAnimations), "csharp/src/SuperMetroid.Core/Enemies/Metroids/MochtroidAnimations.cs");
         RequireTypedFrames(SkulteraAnimations.Programs, SkulteraFrameToolingDefinitions.Spritemap, SkulteraFrameToolingDefinitions.Bank,
             nameof(SkulteraAnimations), "csharp/src/SuperMetroid.Core/Enemies/Skultera/SkulteraAnimations.cs");
@@ -280,7 +280,7 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(PowampAnimations), "csharp/src/SuperMetroid.Core/Enemies/Powamp/PowampAnimations.cs");
         RequireTypedFrames(SparkAnimations.Programs, SparkFrameToolingDefinitions.Spritemap, SparkFrameToolingDefinitions.Bank,
             nameof(SparkAnimations), "csharp/src/SuperMetroid.Core/Enemies/Sparks/SparkAnimations.cs");
-        RequireTypedFrames(MetroidAnimations.Programs, MetroidFrameToolingDefinitions.Spritemap, MetroidFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(MetroidAnimations.Segments, MetroidFrameToolingDefinitions.Spritemap, MetroidFrameToolingDefinitions.Bank,
             nameof(MetroidAnimations), "csharp/src/SuperMetroid.Core/Enemies/Metroids/MetroidAnimations.cs");
         RequireSegmentFrames(MaridiaLargeSnailAnimations.Segments, MaridiaLargeSnailFrameToolingDefinitions.Spritemap, MaridiaLargeSnailFrameToolingDefinitions.Bank,
             nameof(MaridiaLargeSnailAnimations), "csharp/src/SuperMetroid.Core/Enemies/MaridiaSnails/MaridiaLargeSnailAnimations.cs");

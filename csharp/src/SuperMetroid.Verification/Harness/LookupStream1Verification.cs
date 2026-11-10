@@ -328,7 +328,7 @@ internal static class LookupStream1Verification
             slot.FrameHold = WrappingCountdown.Start(1);
             enemies.SlotTable.Slots[0].SetSpeciesState(new MetroidEnemyState(new RoomSpriteObject(RoomSpriteObjectKind.MetroidOuterBodyA, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard), new RoomSpriteObject(RoomSpriteObjectKind.MetroidOuterBodyB, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard))
             {
-                Program = AnimationProgramCursor<MetroidProgram>.Start(chasing ? MetroidProgram.ChasingSamus : MetroidProgram.DrainingSamus),
+                Playback = new(MetroidAnimations.StartingWith(chasing ? MetroidProgram.ChasingSamus : MetroidProgram.DrainingSamus), AnimationPlace.StartOfAnimation),
             });
             object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
             for (int record = 0; record < records; record++)

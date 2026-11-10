@@ -10,9 +10,9 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 /// </summary>
 internal static class MetroidAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<MetroidProgram, MetroidFrame, MetroidCue> Programs { get; } = new(
-        new Dictionary<MetroidProgram, AnimationProgramStep<MetroidProgram, MetroidFrame, MetroidCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<MetroidProgram, MetroidFrame, MetroidCue> Segments { get; } = new(
+        new Dictionary<MetroidProgram, AnimationBeat<MetroidFrame, MetroidCue>[]>
     {
         [P.ChasingSamus] =
         [
@@ -37,7 +37,6 @@ internal static class MetroidAnimations
             Show(3, 10),
             Show(1, 16),
             Cue(new(K.PlayRandomCry)),
-            GoTo(P.ChasingSamus),
         ],
         [P.DrainingSamus] =
         [
@@ -47,17 +46,22 @@ internal static class MetroidAnimations
             Show(3, 10),
             Show(1, 16),
             Cue(new(K.PlayDrainingSound)),
-            GoTo(P.DrainingSamus),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<MetroidProgram, Animation<MetroidProgram>> StartingAt { get; } = new Dictionary<MetroidProgram, Animation<MetroidProgram>>
+    {
+        [P.ChasingSamus] = new([new(P.ChasingSamus, 0, 21, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.DrainingSamus] = new([new(P.DrainingSamus, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<MetroidProgram> StartingWith(MetroidProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<MetroidProgram, MetroidFrame, MetroidCue> Show(int pose, int duration) => AnimationProgramStep<MetroidProgram, MetroidFrame, MetroidCue>.Show(new(pose), duration);
+    private static AnimationBeat<MetroidFrame, MetroidCue> Show(int pose, int duration) => new AnimationBeat<MetroidFrame, MetroidCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<MetroidProgram, MetroidFrame, MetroidCue> Cue(MetroidCue cue) => AnimationProgramStep<MetroidProgram, MetroidFrame, MetroidCue>.Publish(cue);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<MetroidProgram, MetroidFrame, MetroidCue> GoTo(MetroidProgram program) => AnimationProgramStep<MetroidProgram, MetroidFrame, MetroidCue>.GoTo(program);
-
+    private static AnimationBeat<MetroidFrame, MetroidCue> Cue(MetroidCue cue) => new AnimationBeat<MetroidFrame, MetroidCue>.Event(cue);
 }

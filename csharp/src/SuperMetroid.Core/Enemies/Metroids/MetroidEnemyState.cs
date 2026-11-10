@@ -17,8 +17,8 @@ public sealed class MetroidEnemyState
         OuterBodyB = outerBodyB;
     }
 
-    /// <summary>Where the animation resumes.</summary>
-    internal AnimationProgramCursor<MetroidProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<MetroidProgram> Playback { get; set; }
 
     /// <summary>Signed 16.16 velocity in pixels per movement update, positive right and down.</summary>
     public FixedVector<RoomPixels> Velocity { get; internal set; }

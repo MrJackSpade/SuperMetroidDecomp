@@ -19,8 +19,8 @@ public sealed class MochtroidEnemyState
     /// <summary>Parallel word used by the animation change detector: the installed animation, or none for the cleared word.</summary>
     internal MochtroidProgram? InstalledProgram { get; set; }
 
-    /// <summary>Where the animation resumes.</summary>
-    internal AnimationProgramCursor<MochtroidProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<MochtroidProgram> Playback { get; set; }
 
     /// <summary>
     /// Attached updates counted since the last contact damage, 0 through 65535: contact damage occurs once the count,

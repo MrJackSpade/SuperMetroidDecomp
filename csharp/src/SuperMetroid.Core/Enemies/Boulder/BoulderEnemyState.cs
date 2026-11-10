@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Enemies.Boulder;
 /// <summary>The state of a Boulder, with its otherwise anonymous words.</summary>
 public sealed class BoulderEnemyState
 {
-    /// <summary>Where the animation resumes.</summary>
-    internal AnimationProgramCursor<BoulderProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<BoulderProgram> Playback { get; set; }
 
     /// <summary>Current indirect AI target.</summary>
     public BoulderAiFunction? Function { get; internal set; }

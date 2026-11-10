@@ -8,7 +8,7 @@ internal static class BoulderAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params BoulderProgram[] programs) =>
-        programs.SelectMany(program => BoulderAnimations.Programs.Steps(program))
-            .OfType<AnimationProgramStep<BoulderProgram, BoulderFrame, NoAnimationCue>.ShowStep>()
-            .Select(step => BoulderFrameToolingDefinitions.Spritemap(step.Frame));
+        programs.SelectMany(program => BoulderAnimations.Segments.Beats(program))
+            .OfType<AnimationBeat<BoulderFrame, NoAnimationCue>.Frame>()
+            .Select(frame => BoulderFrameToolingDefinitions.Spritemap(frame.Shown));
 }

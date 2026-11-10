@@ -9,9 +9,9 @@ namespace SuperMetroid.Core.Enemies.Boulder;
 /// </summary>
 internal static class BoulderAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<BoulderProgram, BoulderFrame, NoAnimationCue> Programs { get; } = new(
-        new Dictionary<BoulderProgram, AnimationProgramStep<BoulderProgram, BoulderFrame, NoAnimationCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<BoulderProgram, BoulderFrame, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<BoulderProgram, AnimationBeat<BoulderFrame, NoAnimationCue>[]>
     {
         [P.Left] =
         [
@@ -23,7 +23,6 @@ internal static class BoulderAnimations
             Show(5, 8),
             Show(6, 8),
             Show(7, 8),
-            GoTo(P.Left),
         ],
         [P.Right] =
         [
@@ -35,14 +34,19 @@ internal static class BoulderAnimations
             Show(3, 8),
             Show(2, 8),
             Show(1, 8),
-            GoTo(P.Right),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<BoulderProgram, Animation<BoulderProgram>> StartingAt { get; } = new Dictionary<BoulderProgram, Animation<BoulderProgram>>
+    {
+        [P.Left] = new([new(P.Left, 0, 8, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Right] = new([new(P.Right, 0, 8, 1)], AnimationEnd.LoopsFrom(0)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<BoulderProgram> StartingWith(BoulderProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<BoulderProgram, BoulderFrame, NoAnimationCue> Show(int pose, int duration) => AnimationProgramStep<BoulderProgram, BoulderFrame, NoAnimationCue>.Show(new(pose), duration);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<BoulderProgram, BoulderFrame, NoAnimationCue> GoTo(BoulderProgram program) => AnimationProgramStep<BoulderProgram, BoulderFrame, NoAnimationCue>.GoTo(program);
-
+    private static AnimationBeat<BoulderFrame, NoAnimationCue> Show(int pose, int duration) => new AnimationBeat<BoulderFrame, NoAnimationCue>.Frame(new(pose), duration);
 }

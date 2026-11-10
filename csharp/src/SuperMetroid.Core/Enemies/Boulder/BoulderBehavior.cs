@@ -96,11 +96,11 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case BoulderRoll.Right:
                 horizontalReach = -horizontalReach;
-                state.Program = AnimationProgramCursor<BoulderProgram>.Start(BoulderProgram.Right);
+                state.Playback = new(BoulderAnimations.StartingWith(BoulderProgram.Right), AnimationPlace.StartOfAnimation);
                 break;
             case BoulderRoll.Left:
             case BoulderRoll.LeftBreakingOnImpact:
-                state.Program = AnimationProgramCursor<BoulderProgram>.Start(BoulderProgram.Left);
+                state.Playback = new(BoulderAnimations.StartingWith(BoulderProgram.Left), AnimationPlace.StartOfAnimation);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(BoulderRoll)} {settings.Roll}.");
@@ -306,8 +306,9 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Boulder's typed animation.</summary>
     internal static void AdvanceBoulderTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, BoulderAnimations.Programs, BoulderFrameDefinitions.ShownFrames.Of,
-            static (BoulderEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
+        EnemyProgramAnimation.Advance(slot, BoulderAnimations.Segments, BoulderFrameDefinitions.ShownFrames.Of,
+            static (BoulderEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            static (_, cue) => throw new InvalidOperationException($"A cue-free Boulder animation raised {cue}."));
 
     /// <summary>Ports Boulder's main AI.</summary>
     internal void RunBoulderMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)

@@ -59906,6 +59906,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Compatibility.SpriteObjectPlaces",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/SpriteObjectPlaces.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Compatibility.StoredExploredMaps\u003CTArea\u003E",
       "kind": "class",
       "scope": "product",
@@ -67755,7 +67768,7 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Drawing.EnemyFormatDrawAccess.extension(SuperMetroid.Core.Enemies.SpriteObjects.RoomSpriteObjectPool)",
+      "type": "SuperMetroid.Core.Enemies.Drawing.EnemyFormatDrawAccess.extension(SuperMetroid.Core.Enemies.SpriteObjects.RoomSpriteObjects)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -83486,6 +83499,99 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.SpriteObjects.RoomSpriteObject",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/SpriteObjects/RoomSpriteObject.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.SpriteObjects.RoomSpriteObjectAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/SpriteObjects/RoomSpriteObjectAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.SpriteObjects.RoomSpriteObjectAccess.extension(SuperMetroid.Core.Enemies.SpriteObjects.RoomSpriteObject)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/SpriteObjects/RoomSpriteObjectAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.SpriteObjects.RoomSpriteObjectAccess.extension(SuperMetroid.Core.Enemies.SpriteObjects.RoomSpriteObjectDefinitions)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/SpriteObjects/RoomSpriteObjectAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.SpriteObjects.RoomSpriteObjectAccess.extension(SuperMetroid.Core.Enemies.SpriteObjects.RoomSpriteObjectVisualDefinitions)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/SpriteObjects/RoomSpriteObjectAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.SpriteObjects.RoomSpriteObjectAccess.extension(SuperMetroid.Core.Enemies.SpriteObjects.RoomSpriteObjects)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/SpriteObjects/RoomSpriteObjectAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.SpriteObjects.RoomSpriteObjectAnimations",
       "kind": "static class",
       "scope": "product",
@@ -83554,19 +83660,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.SpriteObjects.RoomSpriteObjectPool",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/SpriteObjects/RoomSpriteObjectPool.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.SpriteObjects.RoomSpriteObjectProgram",
       "kind": "enum",
       "scope": "product",
@@ -83596,83 +83689,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.SpriteObjects.RoomSpriteObjectSlot",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/SpriteObjects/RoomSpriteObjectSlot.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.SpriteObjects.RoomSpriteObjectSlotAccess",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/SpriteObjects/RoomSpriteObjectSlotAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.SpriteObjects.RoomSpriteObjectSlotAccess.extension(SuperMetroid.Core.Enemies.SpriteObjects.RoomSpriteObjectDefinitions)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/SpriteObjects/RoomSpriteObjectSlotAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.SpriteObjects.RoomSpriteObjectSlotAccess.extension(SuperMetroid.Core.Enemies.SpriteObjects.RoomSpriteObjectSlot)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/SpriteObjects/RoomSpriteObjectSlotAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.SpriteObjects.RoomSpriteObjectSlotAccess.extension(SuperMetroid.Core.Enemies.SpriteObjects.RoomSpriteObjectVisualDefinitions)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/SpriteObjects/RoomSpriteObjectSlotAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.SpriteObjects.RoomSpriteObjectVisualDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -83700,6 +83716,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.SpriteObjects.RoomSpriteObjects",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/SpriteObjects/RoomSpriteObjects.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Stoke.Artwork.StokeFrameDefinitions",
@@ -168733,6 +168762,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Verification.Rooms.SpriteObjects.SpriteObjectPlacesVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Rooms/SpriteObjects/SpriteObjectPlacesVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Verification.Rooms.TilemapJsonContractsEnvironmentVerification",

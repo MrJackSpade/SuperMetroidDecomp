@@ -89,8 +89,8 @@ internal static class SamusHudDefinitionsVerification
             byte movement = rom.ReadCartridgeByte(SamusSourceDefinitions.PoseDefinitions.Value + SamusPoseNumbers.Number(pose) * 8 + 1);
             metadataPose = SamusPoseId.FacingRightNormalPose;
             samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)), EquippedBeams = SamusBeamFlags.Charge };
-            var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
-            var bombs = new SamusBombProjectileSystem();
+            var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = InstalledFixtures.Projectiles.FrameBindings } };
+            var bombs = new SamusBombProjectileSystem { FrameBindings = InstalledFixtures.Projectiles.FrameBindings };
             for (int frame = 0; frame < 10; frame++)
                 shots.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = 0 }, new(0, 0), bombs);
             AssertEqual(10, shots.Charge.FlareCounter, "Fixture charge earned through real producer");

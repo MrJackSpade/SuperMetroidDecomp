@@ -58,7 +58,7 @@ internal static class ProjectileSpriteNative
     ];
 
     /// <summary>The bank-$93 address of <paramref name="sprite"/>.</summary>
-    internal static ushort Address(ProjectileSpriteId sprite) => sprite.Group >= ProjectileSpriteGroup.FlareMain
+    internal static ushort Address(ProjectileSpriteId sprite) => ChargeFlareSpriteDefinitions.All.Contains(sprite)
         ? FlareAddresses[Place(ChargeFlareSpriteDefinitions.All, sprite)]
         : ProjectileAddresses[Place(ProjectileSpriteDefinitions.All, sprite)];
 
@@ -100,13 +100,6 @@ internal static class ProjectileSpriteNative
         /// <summary>Every timed record's bank-$93 address, in address order.</summary>
         internal static IReadOnlyList<ushort> TimedRecordAddresses =>
             [.. SamusProjectileRecordOrder.Frames.Select(SamusProjectileProgramAddresses.RecordAddress).Order()];
-    }
-
-    /// <summary>A timed record's stock composition by address.</summary>
-    extension(SamusProjectileRecord record)
-    {
-        /// <summary>The bank-$93 address of the record's stock composition.</summary>
-        internal int Spritemap => Address(record.Sprite);
     }
 
     /// <summary>Binding keys by record address.</summary>

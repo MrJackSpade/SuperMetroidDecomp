@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Artwork;
 
-/// <summary>A family of Samus projectile or charge-flare compositions; the projectile families follow the game's storage order.</summary>
+/// <summary>A family of Samus projectile or charge-flare compositions, named in installed composition and binding files.</summary>
 public enum ProjectileSpriteGroup
 {
     /// <summary>The empty composition an invisible projectile draws.</summary>

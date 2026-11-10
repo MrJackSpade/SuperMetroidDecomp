@@ -1652,14 +1652,11 @@ internal static class LookupStream2Verification
     {
         byte[] json = ProjectileFrameBindingExtractor.Extract(rom);
         var stock = ProjectileFrameBindingFile.Load(new MemoryStream(json));
-        var remaining = (System.Collections.IDictionary)stock.sprites;
-        AssertEqual(0, remaining.Count, "Every stock selector operand calculates; independent selection policies remain required");
         foreach (ushort pointer in SamusProjectileRecordDefinitions.TimedRecordAddresses)
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), stock.Resolve(pointer), "Every installed selector retains its exact native target");
         for (int direction = 0; direction < 8; direction++)
         {
             ushort pointer = (ushort)(0x86db + direction * 12);
-            AssertTrue(!remaining.Contains(pointer), "Stock compass selector is absent from stored residuals");
             var shot = new SamusProjectile(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), FrameHold = WrappingCountdown.Start(1) };
             var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = stock } };
             _ = system.Animation.RunProjectileInstructionHandler(shot);
@@ -1681,16 +1678,9 @@ internal static class LookupStream2Verification
                 >= 0x9097 and <= 0x909f or
                 >= 0x91cb and <= 0x91d3 or
                 >= 0x92d3 and <= 0x92db)
-            {
-                AssertTrue(!remaining.Contains(pointer), "Reversed axial end-pair operands calculate while parity policy remains required");
                 checkedAxialEndPairs++;
-            }
             if (pointer is >= 0x8bfb and < 0x8c4f)
-            {
-                AssertTrue(!remaining.Contains(pointer), "Capped sweep operands calculate while plateau policy remains required");
                 checkedCappedSweep++;
-            }
-            AssertTrue(!remaining.Contains(pointer), "Calculated Wave/Ice selector is absent from stored residuals");
             var shot = new SamusProjectile(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), FrameHold = WrappingCountdown.Start(1) };
             var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = stock } };
             _ = system.Animation.RunProjectileInstructionHandler(shot);
@@ -1713,7 +1703,7 @@ internal static class LookupStream2Verification
         AssertEqual(14, checkedBombs, "Both normal/fast PowerBomb and Bomb visual cycles");
         AssertThrows<InvalidDataException>(() => stock.Resolve(0x87c3), "Wave self-jump is not accepted as a timed record");
         AssertThrows<InvalidDataException>(() => stock.Resolve(0x86dc), "Program interior is not accepted as a timed record");
-        Console.WriteLine($"Stream2 Power bindings: {SamusProjectileRecordDefinitions.TimedRecordAddresses.Count} calculated beam/effect selectors and native operands, zero stored stock operands and actual handler paths pass.");
+        Console.WriteLine($"Stream2 Power bindings: {SamusProjectileRecordDefinitions.TimedRecordAddresses.Count} installed beam/effect selectors and native operands and actual handler paths pass.");
     }
 
     /// <summary>Checks Golden Torizo foot extended frames and OAM geometry.</summary>

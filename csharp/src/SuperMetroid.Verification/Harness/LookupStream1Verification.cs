@@ -1051,42 +1051,34 @@ internal static class LookupStream1Verification
         byte[] json = ChargeFlarePlacementExtractor.Extract(rom);
         var stock = ChargeFlarePlacementFile.Load(new MemoryStream(json));
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-        AssertEqual(0, stock.offsets.Count, "Beam flare stock has zero stored fallback origins");
         foreach (ChargeFlarePlacement placement in ChargeFlarePlacements.Placements(ChargeFlareSource.Beam))
         {
             int row = SamusProjectileDirectionCodec.FlarePlacementRow(placement.Aim);
             var expected = new ChargeFlareOffset { X = Word((placement.Running ? 0x90c1dc : 0x90c1a8) + 2 * row),
                 Y = Word((placement.Running ? 0x90c1f0 : 0x90c1c2) + 2 * row) };
-            AssertEqual(expected.Offset, ChargeFlarePlacementOffsets.BeamOffset(placement.Running, placement.Aim), "Named flare default and turning placement match direct native coordinates");
             AssertEqual(expected.Offset, stock.Resolve(placement.Running, placement.Aim), "Installed flare default matches native");
         }
         AssertEqual(23, ChargeFlarePlacements.Placements(ChargeFlareSource.Beam).Count(),
             "The beam flare is placed at ten muzzles in each movement mode and three turning placements standing");
         var grappleDocument = RequiredJson.Deserialize<ChargeFlarePlacementDocument>(GrappleFlarePlacementExtractor.Extract(rom), options);
         var grapple = ChargeFlarePlacementFile.LoadGrapple(new MemoryStream(ChargeFlarePlacementFile.WriteGrapple(grappleDocument)));
-        AssertEqual(0, grapple.offsets.Count, "Grapple stock has zero stored fallback origins");
         foreach (ChargeFlarePlacement placement in ChargeFlarePlacements.Placements(ChargeFlareSource.Grapple))
         {
             int row = SamusProjectileDirectionCodec.FlarePlacementRow(placement.Aim);
             var expected = new ChargeFlareOffset { X = Word((placement.Running ? 0x9bc19a : 0x9bc14a) + row * 2),
                 Y = Word((placement.Running ? 0x9bc1ae : 0x9bc15e) + row * 2) };
-            AssertEqual(expected.Offset, ChargeFlarePlacementOffsets.GrappleOffset(placement.Running, placement.Aim), "Grapple direct defaults preserve the native words");
             AssertEqual(expected.Offset, grapple.Resolve(placement.Running, placement.Aim), "Installed Grapple defaults match native");
         }
         AssertEqual(20, ChargeFlarePlacements.Placements(ChargeFlareSource.Grapple).Count(), "The Grapple flare is placed at ten muzzles in each movement mode");
         // A flare aim naming neither a muzzle nor a turn is no placement.
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(false, default), "Flare placement catalog bounds");
         AssertThrows<ArgumentOutOfRangeException>(() => grapple.Resolve(true, default), "Grapple catalog bounds");
-        AssertThrows<ArgumentOutOfRangeException>(() => ChargeFlarePlacementOffsets.GrappleOffset(false, default), "Grapple calculated bounds");
-        AssertThrows<ArgumentOutOfRangeException>(() => ChargeFlarePlacementOffsets.BeamOffset(true, default), "Flare calculated bounds");
         // No pose places a flare while turning running, or a Grapple flare while turning (#1500).
         foreach (SamusTurningAim turning in Enum.GetValues<SamusTurningAim>())
         {
             SamusFlareAim aim = SamusFlareAim.WhileTurning(turning);
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(true, aim), "Running flare placement rejects turning placements");
-            AssertThrows<ArgumentOutOfRangeException>(() => ChargeFlarePlacementOffsets.BeamOffset(true, aim), "Running flare calculated placement rejects turning placements");
             AssertThrows<ArgumentOutOfRangeException>(() => grapple.Resolve(false, aim), "Grapple flare placement has no turning placements");
-            AssertThrows<ArgumentOutOfRangeException>(() => ChargeFlarePlacementOffsets.GrappleOffset(false, aim), "Grapple calculated placement has no turning placements");
         }
         var compositions = ChargeFlareSprites.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(rom)));
         var body = CreateSamusIdentityFixture();

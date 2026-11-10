@@ -17,9 +17,9 @@ public static class ProjectileFrameBindingFile
         return Load(json);
     }
 
-    /// <summary>Validates every timed-record visual assignment and compiles only bindings that differ from the reviewed stock composition selection.</summary>
+    /// <summary>Validates every timed record's visual assignment and binds each record to the composition its document names.</summary>
     /// <param name="json">UTF-8 JSON source consumed from its current position and left open.</param>
-    /// <returns>Compiled visual bindings detached from the document dictionary, with no duration, radius, trail, or damage overrides.</returns>
+    /// <returns>The composition of every timed record, detached from the document dictionary; durations, radii, trails and damage are gameplay and not installed here.</returns>
     /// <exception cref="InvalidDataException">The JSON contains duplicate or unknown properties, an unsupported version, an incomplete record set, or a composition outside the required set.</exception>
     public static InstalledProjectileFrameBindings Load(Stream json)
     {
@@ -36,8 +36,7 @@ public static class ProjectileFrameBindingFile
             if (!document.Frames.TryGetValue(key, out string? spriteName) || spriteName is null ||
                 !named.TryGetValue(spriteName, out ProjectileSpriteId sprite))
                 throw new InvalidDataException($"Projectile frame {key} has no legal sprite identity.");
-            if (sprite != SamusProjectileRecordDefinitions.Get(record).Sprite)
-                compiled.Add(record, sprite);
+            compiled.Add(record, sprite);
         }
         return new(compiled);
     }

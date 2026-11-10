@@ -42,7 +42,8 @@ internal sealed class ProjectileAnimation
         }
         SamusProjectileRecord record = SamusProjectileRecordDefinitions.Get(frame);
         slot.FrameHold = WrappingCountdown.FromRaw(duration);
-        slot.Sprite = FrameBindings?.Resolve(frame) ?? record.Sprite;
+        slot.Sprite = (FrameBindings ?? throw new InvalidOperationException(
+            "Samus's projectiles show their records' installed compositions, which are not bound.")).Resolve(frame);
         slot.Radius = record.Radius;
         slot.Cursor = cursor;
         return false;
@@ -181,6 +182,6 @@ internal sealed class ProjectileAnimation
         SamusState samus) =>
         SamusNormalSuitPalette.Load(colours, samus.EquippedItems);
 
-    /// <summary>Installed timed-frame sprite choices; null retains the game diagnostic path.</summary>
+    /// <summary>The installed composition each timed record draws, which a projectile's records need bound.</summary>
     public SuperMetroid.Core.Samus.Artwork.InstalledProjectileFrameBindings? FrameBindings { get; set; }
 }

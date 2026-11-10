@@ -91,7 +91,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.StepCounter = 0;
         state.SpawnPosition = slot.Position.Whole;
         slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
-        state.Program = AnimationProgramCursor<AlcoonProgram>.Start(AlcoonProgram.WalkingLeft);
+        state.Playback = new(AlcoonAnimations.StartingWith(AlcoonProgram.WalkingLeft), AnimationPlace.StartOfAnimation);
         state.Function = AlcoonEnemyFunction.WaitingForSamus;
         SetupAlcoonJumpMovement(state);
 
@@ -343,7 +343,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Switches Alcoon's animation so its first step runs on the next update.</summary>
     private static void InstallAlcoonInstruction(RoomEnemySlot slot, AlcoonEnemyState state, AlcoonProgram program)
     {
-        state.Program = AnimationProgramCursor<AlcoonProgram>.Start(program);
+        state.Playback = new(AlcoonAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
     }
 
@@ -407,9 +407,11 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Alcoon's typed animation.</summary>
     internal void AdvanceAlcoonTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>
-        EnemyProgramAnimation.Advance(slot, AlcoonAnimations.Programs, AlcoonFrameDefinitions.ShownFrames.Of,
-            static (AlcoonEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
-            (state, cue, _) => ApplyAlcoonCue(slot, state, context.Level, cue));
+        EnemyProgramAnimation.Advance(slot, AlcoonAnimations.Segments, AlcoonFrameDefinitions.ShownFrames.Of,
+            static (AlcoonEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            (state, cue) => ApplyAlcoonCue(slot, state, context.Level, cue) is { } walk
+                ? new AnimationContinuation<AlcoonProgram>(AlcoonAnimations.StartingWith(walk), AnimationPlace.StartOfAnimation)
+                : null);
 
     /// <summary>Initial horizontal fireball speed in 8.8 units.</summary>
     private static readonly SignedEightEight AlcoonFireballGraphicsHorizontalSpeed = SignedEightEight.FromSignedRaw(1024);

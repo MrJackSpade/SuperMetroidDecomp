@@ -26,13 +26,13 @@ internal static class BullBehaviorVerification
         slot.SetSpawnWords(EnemyDefinitionId.Bull, words => words);
         enemies.BullBehavior.InitializeBull(slot);
         BullEnemyState state = enemies.BullStates[0] ?? throw new InvalidDataException("Bull initializer did not publish typed state.");
-        AssertEqual(AnimationProgramCursor<BullProgram>.Start(BullProgram.Normal), state.Program, "Bull initializer animation");
-        AssertEqual(EnemyInstructionRunner.ExpectedLoop(BullAnimations.Programs, BullProgram.Normal, BullFrameToolingDefinitions.Spritemap),
-            EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(BullAnimations.Programs, BullProgram.Normal)),
+        AssertEqual(new AnimationPlayback<BullProgram>(BullAnimations.StartingWith(BullProgram.Normal), AnimationPlace.StartOfAnimation), state.Playback, "Bull initializer animation");
+        AssertEqual(EnemyInstructionRunner.ExpectedLoop(BullAnimations.Segments, BullProgram.Normal, BullFrameToolingDefinitions.Spritemap),
+            EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(BullAnimations.Segments, BullProgram.Normal)),
             "Bull normal loop");
 
         BullBehavior.ResolveBullImmuneShot(slot, state, SamusProjectileDirection.Right);
-        AssertEqual(AnimationProgramCursor<BullProgram>.Start(BullProgram.Shot), state.Program, "Bull immune-shot animation");
+        AssertEqual(new AnimationPlayback<BullProgram>(BullAnimations.StartingWith(BullProgram.Shot), AnimationPlace.StartOfAnimation), state.Playback, "Bull immune-shot animation");
         ushort[] shot = BullAnimationsConstants.Spritemaps(BullProgram.ShotLoop).ToArray();
         ushort[] expected = [.. Enumerable.Repeat(shot, 5).SelectMany(frames => frames), BullAnimationsConstants.Spritemaps(BullProgram.Normal).First()];
         AssertEqual(EnemyInstructionRunner.ExpectedFrames(expected, Enumerable.Repeat(3, expected.Length)),

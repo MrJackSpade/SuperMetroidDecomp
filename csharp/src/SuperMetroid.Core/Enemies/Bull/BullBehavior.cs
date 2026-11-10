@@ -34,7 +34,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
 
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
-        state.Program = AnimationProgramCursor<BullProgram>.Start(BullProgram.Normal);
+        state.Playback = new(BullAnimations.StartingWith(BullProgram.Normal), AnimationPlace.StartOfAnimation);
 
         BullSpawnSettings settings = slot.SpawnSettings<BullSpawnSettings>();
         BullSpeedIntervals intervals = settings.Intervals;
@@ -203,7 +203,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
 
         bull.FrameHold = WrappingCountdown.Start(1);
         bull.Timer = WrappingCountdown.Start(0);
-        state.Program = AnimationProgramCursor<BullProgram>.Start(BullProgram.Shot);
+        state.Playback = new(BullAnimations.StartingWith(BullProgram.Shot), AnimationPlace.StartOfAnimation);
         state.Angle = BullMotion.ShotAngle(projectileDirection);
         state.Acceleration = 256;
         state.Speed = 1536;
@@ -214,8 +214,9 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs Bull's normal and immune-shot animations as typed programs (#641).</summary>
     internal static void AdvanceBullAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, BullAnimations.Programs, BullFrameDefinitions.ShownFrames.Of,
-            static (BullEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
+        EnemyProgramAnimation.Advance(slot, BullAnimations.Segments, BullFrameDefinitions.ShownFrames.Of,
+            static (BullEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            static (_, cue) => throw new InvalidOperationException($"A cue-free Bull animation raised {cue}."));
 
     /// <summary>
     /// Applies Bull's immune-hit recoil after common bomb damage handling. Only a hit that leaves the Bull's health alone

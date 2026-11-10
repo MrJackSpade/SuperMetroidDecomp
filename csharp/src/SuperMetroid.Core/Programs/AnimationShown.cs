@@ -22,6 +22,17 @@ internal abstract record AnimationShown<TSegment, TFrame>
     /// <param name="Duration">The updates it shows for.</param>
     internal sealed record Frame(TSegment Segment, int FrameInSegment, TFrame Shown, int Duration) : AnimationShown<TSegment, TFrame>;
 
+    /// <summary>The animation pauses for <paramref name="Duration"/> updates, showing no new frame.</summary>
+    /// <param name="Duration">The updates the pause lasts.</param>
+    internal sealed record Paused(int Duration) : AnimationShown<TSegment, TFrame>;
+
+    /// <summary>The animation rests on its last frame until its owner plays another.</summary>
+    internal sealed record Held : AnimationShown<TSegment, TFrame>
+    {
+        /// <summary>The one held outcome.</summary>
+        internal static Held Instance { get; } = new();
+    }
+
     /// <summary>The animation has ended.</summary>
     internal sealed record Ended : AnimationShown<TSegment, TFrame>
     {

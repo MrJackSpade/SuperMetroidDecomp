@@ -43,18 +43,38 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
     /// <summary>
     /// Plays <paramref name="animation"/> on from <paramref name="place"/> to its next frame, raising each event it passes
     /// in <paramref name="raise"/>: a phase plays its run as many times as it says, the next phase follows, and past the last
-    /// the animation stops or loops as it ends. On return <paramref name="place"/> is where the next play resumes.
+    /// the animation stops, loops or holds as it ends. On return <paramref name="place"/> is where the next play resumes.
     /// </summary>
     /// <exception cref="InvalidOperationException">The animation passes every beat without showing a frame.</exception>
     internal AnimationShown<TSegment, TFrame> PlayToNextFrame(Animation<TSegment> animation, ref AnimationPlace place, Action<TEvent> raise)
     {
-        Ensure.NotNull(animation);
         Ensure.NotNull(raise);
-        if (animation.Phases.Count == 0)
-            return AnimationShown<TSegment, TFrame>.Ended.Instance;
-        int limit = animation.Phases.Sum(phase => phase.BeatCount + 1) + 1;
+        Animation<TSegment> playing = Ensure.NotNull(animation);
+        return PlayToNextFrame(ref playing, ref place, raised =>
+        {
+            raise(raised);
+            return null;
+        });
+    }
+
+    /// <summary>
+    /// Plays <paramref name="animation"/> on from <paramref name="place"/> as
+    /// <see cref="PlayToNextFrame(Animation{TSegment}, ref AnimationPlace, Action{TEvent})"/> does, but the owner's reaction
+    /// to an event may continue the play elsewhere: in the animation and at the place <paramref name="react"/> returns, at
+    /// once, as the owner's state changes on that event. On return <paramref name="animation"/> and
+    /// <paramref name="place"/> are where the next play resumes.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The animation passes every beat without showing a frame.</exception>
+    internal AnimationShown<TSegment, TFrame> PlayToNextFrame(
+        ref Animation<TSegment> animation, ref AnimationPlace place, Func<TEvent, AnimationContinuation<TSegment>?> react)
+    {
+        Ensure.NotNull(animation);
+        Ensure.NotNull(react);
+        int limit = beats.Values.Sum(segment => segment.Length + 1) + 1;
         for (int visited = 0; visited < limit; visited++)
         {
+            if (animation.Phases.Count == 0)
+                return AnimationShown<TSegment, TFrame>.Ended.Instance;
             AnimationPhase<TSegment> phase = animation.Phases[place.Phase];
             if (place.Beat < phase.BeatCount)
             {
@@ -64,8 +84,14 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
                 {
                     case AnimationBeat<TFrame, TEvent>.Frame frame:
                         return new AnimationShown<TSegment, TFrame>.Frame(phase.Segment, frameNumbers[phase.Segment][beat], frame.Shown, frame.Duration);
+                    case AnimationBeat<TFrame, TEvent>.Pause pause:
+                        return new AnimationShown<TSegment, TFrame>.Paused(pause.Duration);
                     case AnimationBeat<TFrame, TEvent>.Event raised:
-                        raise(raised.Raised);
+                        if (react(raised.Raised) is { } continuation)
+                        {
+                            animation = continuation.Animation;
+                            place = continuation.Place;
+                        }
                         continue;
                     default:
                         throw new InvalidOperationException($"Undefined beat in segment {phase.Segment}.");
@@ -85,6 +111,8 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
             {
                 case AnimationEnd.Stop:
                     return AnimationShown<TSegment, TFrame>.Ended.Instance;
+                case AnimationEnd.Hold:
+                    return AnimationShown<TSegment, TFrame>.Held.Instance;
                 case AnimationEnd.Loop loop:
                     place = AnimationPlace.StartOf(loop.Phase, animation.Phases[loop.Phase].Plays);
                     continue;

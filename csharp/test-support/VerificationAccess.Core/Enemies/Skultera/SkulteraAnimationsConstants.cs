@@ -8,7 +8,7 @@ internal static class SkulteraAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params SkulteraProgram[] programs) =>
-        programs.SelectMany(program => SkulteraAnimations.Programs.Steps(program))
-            .OfType<AnimationProgramStep<SkulteraProgram, SkulteraFrame, SkulteraCue>.ShowStep>()
-            .Select(step => SkulteraFrameToolingDefinitions.Spritemap(step.Frame));
+        programs.SelectMany(program => SkulteraAnimations.Segments.Beats(program))
+            .OfType<AnimationBeat<SkulteraFrame, SkulteraCue>.Frame>()
+            .Select(frame => SkulteraFrameToolingDefinitions.Spritemap(frame.Shown));
 }

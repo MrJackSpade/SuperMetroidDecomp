@@ -25,7 +25,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of Skultera's animations.</summary>
-    private static SkulteraProgram? ApplySkulteraCue(RoomEnemySlot slot, SkulteraEnemyState state, SkulteraCue cue)
+    private static void ApplySkulteraCue(RoomEnemySlot slot, SkulteraEnemyState state, SkulteraCue cue)
     {
         switch (cue.Kind)
         {
@@ -46,7 +46,6 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
             default:
                 throw new InvalidOperationException($"Undefined {nameof(SkulteraCueKind)} {cue.Kind}.");
         }
-        return null;
     }
 
 
@@ -59,9 +58,9 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         // The placement names the way it starts swimming and the speed it swims at either way.
         SkulteraSpawnSettings settings = slot.SpawnSettings<SkulteraSpawnSettings>();
         bool startsLeft = settings.StartDirection == HorizontalDirection.Left;
-        state.Program = AnimationProgramCursor<SkulteraProgram>.Start(startsLeft
+        state.Playback = new(SkulteraAnimations.StartingWith(startsLeft
             ? SkulteraProgram.SwimmingLeft
-            : SkulteraProgram.SwimmingRight);
+            : SkulteraProgram.SwimmingRight), AnimationPlace.StartOfAnimation);
         state.Function = startsLeft
             ? SkulteraEnemyFunction.SwimmingLeft
             : SkulteraEnemyFunction.SwimmingRight;
@@ -159,9 +158,9 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
             : SkulteraEnemyFunction.TurningLeft;
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
-        state.Program = AnimationProgramCursor<SkulteraProgram>.Start(currentlyMovingLeft
+        state.Playback = new(SkulteraAnimations.StartingWith(currentlyMovingLeft
             ? SkulteraProgram.TurningRight
-            : SkulteraProgram.TurningLeft);
+            : SkulteraProgram.TurningLeft), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Runs the mirrored turn completion functions.</summary>
@@ -180,9 +179,9 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.AngleDelta = -state.AngleDelta;
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
-        state.Program = AnimationProgramCursor<SkulteraProgram>.Start(direction == HorizontalDirection.Left
+        state.Playback = new(SkulteraAnimations.StartingWith(direction == HorizontalDirection.Left
             ? SkulteraProgram.SwimmingLeft
-            : SkulteraProgram.SwimmingRight);
+            : SkulteraProgram.SwimmingRight), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Ports Skultera's main AI.</summary>
@@ -193,7 +192,11 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Skultera's typed animation.</summary>
     internal static void AdvanceSkulteraTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, SkulteraAnimations.Programs, SkulteraFrameDefinitions.ShownFrames.Of,
-            static (SkulteraEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
-            (state, cue, _) => ApplySkulteraCue(slot, state, cue));
+        EnemyProgramAnimation.Advance(slot, SkulteraAnimations.Segments, SkulteraFrameDefinitions.ShownFrames.Of,
+            static (SkulteraEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            (state, cue) =>
+            {
+                ApplySkulteraCue(slot, state, cue);
+                return null;
+            });
 }

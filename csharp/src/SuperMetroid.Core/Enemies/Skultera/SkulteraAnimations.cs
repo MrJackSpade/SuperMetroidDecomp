@@ -10,21 +10,19 @@ namespace SuperMetroid.Core.Enemies.Skultera;
 /// </summary>
 internal static class SkulteraAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<SkulteraProgram, SkulteraFrame, SkulteraCue> Programs { get; } = new(
-        new Dictionary<SkulteraProgram, AnimationProgramStep<SkulteraProgram, SkulteraFrame, SkulteraCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<SkulteraProgram, SkulteraFrame, SkulteraCue> Segments { get; } = new(
+        new Dictionary<SkulteraProgram, AnimationBeat<SkulteraFrame, SkulteraCue>[]>
     {
         [P.SwimmingLeft] =
         [
             Cue(new(K.DrawBelowScenery)),
-            FallInto(P.SwimmingLeftLoop),
         ],
         [P.SwimmingLeftLoop] =
         [
             Show(0, 14),
             Show(1, 14),
             Show(2, 14),
-            GoTo(P.SwimmingLeftLoop),
         ],
         [P.TurningRight] =
         [
@@ -37,19 +35,16 @@ internal static class SkulteraAnimations
             Show(9, 10),
             Show(10, 13),
             Cue(new(K.FinishTurn)),
-            Hold,
         ],
         [P.SwimmingRight] =
         [
             Cue(new(K.DrawAboveScenery)),
-            FallInto(P.SwimmingRightLoop),
         ],
         [P.SwimmingRightLoop] =
         [
             Show(11, 14),
             Show(12, 14),
             Show(13, 14),
-            GoTo(P.SwimmingRightLoop),
         ],
         [P.TurningLeft] =
         [
@@ -62,23 +57,26 @@ internal static class SkulteraAnimations
             Show(20, 10),
             Show(21, 13),
             Cue(new(K.FinishTurn)),
-            Hold,
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<SkulteraProgram, Animation<SkulteraProgram>> StartingAt { get; } = new Dictionary<SkulteraProgram, Animation<SkulteraProgram>>
+    {
+        [P.SwimmingLeft] = new([new(P.SwimmingLeft, 0, 1, 1), new(P.SwimmingLeftLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.SwimmingLeftLoop] = new([new(P.SwimmingLeftLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.TurningRight] = new([new(P.TurningRight, 0, 9, 1)], AnimationEnd.Holds),
+        [P.SwimmingRight] = new([new(P.SwimmingRight, 0, 1, 1), new(P.SwimmingRightLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.SwimmingRightLoop] = new([new(P.SwimmingRightLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.TurningLeft] = new([new(P.TurningLeft, 0, 9, 1)], AnimationEnd.Holds),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<SkulteraProgram> StartingWith(SkulteraProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<SkulteraProgram, SkulteraFrame, SkulteraCue> Show(int pose, int duration) => AnimationProgramStep<SkulteraProgram, SkulteraFrame, SkulteraCue>.Show(new(pose), duration);
+    private static AnimationBeat<SkulteraFrame, SkulteraCue> Show(int pose, int duration) => new AnimationBeat<SkulteraFrame, SkulteraCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<SkulteraProgram, SkulteraFrame, SkulteraCue> Cue(SkulteraCue cue) => AnimationProgramStep<SkulteraProgram, SkulteraFrame, SkulteraCue>.Publish(cue);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<SkulteraProgram, SkulteraFrame, SkulteraCue> GoTo(SkulteraProgram program) => AnimationProgramStep<SkulteraProgram, SkulteraFrame, SkulteraCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<SkulteraProgram, SkulteraFrame, SkulteraCue> FallInto(SkulteraProgram program) => AnimationProgramStep<SkulteraProgram, SkulteraFrame, SkulteraCue>.FallInto(program);
-
-    /// <summary>Holds the last frame, as the sleep does.</summary>
-    private static AnimationProgramStep<SkulteraProgram, SkulteraFrame, SkulteraCue> Hold => AnimationProgramStep<SkulteraProgram, SkulteraFrame, SkulteraCue>.Hold;
-
+    private static AnimationBeat<SkulteraFrame, SkulteraCue> Cue(SkulteraCue cue) => new AnimationBeat<SkulteraFrame, SkulteraCue>.Event(cue);
 }

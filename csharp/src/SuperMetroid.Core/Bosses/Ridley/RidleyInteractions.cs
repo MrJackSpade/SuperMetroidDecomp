@@ -29,7 +29,7 @@ internal sealed class RidleyInteractions
         // Norfair's health thresholds here, but use the installed palette so
         // editing that one asset updates both encounters consistently.
         int band = state.HealthStage - 1;
-        state.Colours.Sprites.Lay(RidleyShades.Health(band));
+        state.Colours.ShowHealth(band);
     }
 
     /// <summary>

@@ -94,13 +94,8 @@ internal sealed class CeresRidleyFlight
         // Ceres Ridley's initialization ends by queuing music zero (stop).
         _audio.RequestRoomEnemyStartMusic(MusicRequest.Stop);
 
-        // The target colours install the Ceres door and Baby
-        // Metroid container palettes. This runtime exposes the final target directly in
-        // the live colours, matching the established Ceres-door palette seam.
-        _ridleyEncounter.Ridley.Colours.Sprites.Lay(RidleyShades.CeresStart);
-
-        // The loop clears Ridley's sprite colours one through fifteen, which the eye and body fades then reveal.
-        _ridleyEncounter.Ridley.Colours.Sprites.Lay(RidleyShades.CeresHidden);
+        // He arrives with the door's, container's and Baby's colours, his own hidden in black for his eye and body fades.
+        _ridleyEncounter.Ridley.Colours.ShowCeresArrival();
     }
 
     /// <summary>Applies the crossing-frame -16 then +20 velocity changes before shared Ridley motion.</summary>
@@ -394,8 +389,7 @@ internal sealed class CeresRidleyFlight
 
         // The retreat recolours the chamber: its walls and its first tiles. The original game also copied the first tiles'
         // colours into Ridley's own sprite colours; the port's sprites keep their own colours (#1544).
-        state.Colours.Room.Lay(RidleyShades.RetreatRoom);
-        state.Colours.Room.Lay(RidleyShades.RetreatShared);
+        state.Colours.ShowRetreat();
     }
 
     /// <summary>The retrieval steering target relative to the falling Baby.</summary>

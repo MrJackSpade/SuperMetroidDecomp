@@ -507,7 +507,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             state.RoomFlashTimer = 0;
         }
         state.RoomFlashTimer++;
-        state.Colours.Room.Lay(MotherBrainShades.Flash(frame));
+        state.Colours.ShowRoomFlash(frame);
     }
 
     /// <summary>Dispatches the phase-two ascent without collapsing same-frame fallthroughs.</summary>

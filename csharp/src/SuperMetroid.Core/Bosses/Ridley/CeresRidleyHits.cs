@@ -132,7 +132,7 @@ internal sealed class CeresRidleyHits
         int band = state.HitCounter < 70
             ? CeresRidleyPaletteDefinitions.HealthMidBand
             : CeresRidleyPaletteDefinitions.HealthLateBand;
-        state.Colours.Sprites.Lay(RidleyShades.Health(band));
+        state.Colours.ShowHealth(band);
     }
 
     /// <summary>Routes exploding normal bombs to Ceres Ridley's shot counter after common overlap.</summary>

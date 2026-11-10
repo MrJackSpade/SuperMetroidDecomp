@@ -26,7 +26,7 @@ internal static class MotherBrainLook
         Of(MotherBrainSheetShades.HealthBackground(health), MotherBrainSheetShades.HealthSprites(health), MotherBrainShades.Health(band), seed);
 
     /// <summary>
-    /// <paramref name="colours"/> with the shades <paramref name="state"/>'s encounter laid over them: those over her
+    /// <paramref name="colours"/> with the shades <paramref name="state"/>'s encounter shows over them: those over her
     /// room and her body layer, then those over her own sprites and the Baby, as the import pre-colours them from
     /// <paramref name="maps"/> and <paramref name="bosses"/>.
     /// </summary>
@@ -36,13 +36,13 @@ internal static class MotherBrainLook
         IReadOnlyList<SheetShade> room = MotherBrainSheetShades.Room(maps);
         IReadOnlyList<SheetShade> body = MotherBrainSheetShades.BodyLayer(maps, bosses);
         IReadOnlyList<SheetShade> sprites = MotherBrainSheetShades.Sprites(maps, bosses);
-        foreach (PictureShade shade in state.Colours.Room.Laid)
+        foreach (PictureShade shade in state.Colours.RoomShading.Shades)
             BossShadeColours.Lay(colours, room, shade, BossShadeColours.Room);
-        foreach (PictureShade shade in state.Colours.BodyLayer.Laid)
+        foreach (PictureShade shade in state.Colours.BodyLayerShading.Shades)
             BossShadeColours.Lay(colours, body, shade, BossShadeColours.Room);
-        foreach (PictureShade shade in state.Colours.Own.Laid)
+        foreach (PictureShade shade in state.Colours.OwnShading.Shades)
             BossShadeColours.Lay(colours, sprites, shade, BossShadeColours.Sprites);
-        foreach (PictureShade shade in state.Colours.Baby.Laid)
+        foreach (PictureShade shade in state.Colours.BabyShading.Shades)
             BossShadeColours.Lay(colours, sprites, shade, BossShadeColours.Sprites);
         return colours;
     }

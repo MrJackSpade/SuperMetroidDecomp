@@ -42,7 +42,7 @@ internal sealed class MotherBrainAscent
     {
         // The ascent installs colors 1..15 of the attack and back-leg palettes. Color zero
         // belongs to the room backdrop and must remain untouched.
-        state.Colours.Own.Lay(MotherBrainShades.PhaseTwo);
+        state.Colours.ShowPhaseTwo();
         state.EnableUnpauseHook = true;
         state.Function = MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Brain;
         // The transition reveals her body, its frame as her body last showed it, replacing the room's pipe background

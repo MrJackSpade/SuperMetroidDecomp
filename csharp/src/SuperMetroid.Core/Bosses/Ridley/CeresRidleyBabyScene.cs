@@ -260,7 +260,7 @@ internal sealed class CeresRidleyBabyScene
                 _audio.QueueEnemySound(RoomSound.CeresBabyMetroidCry, priority: SoundRequestPriority.Normal);
                 return null;
             case CeresBabyCue.UpdateColors updateColors:
-                state.Colours.Sprites.Lay(RidleyShades.Baby(updateColors.Shade));
+                state.Colours.ShowBaby(updateColors.Shade);
                 return null;
             case CeresBabyCue.GoToIfMoving goToIfMoving:
                 return !state.BabyVerticalVelocity.IsZero ? goToIfMoving.Target : null;

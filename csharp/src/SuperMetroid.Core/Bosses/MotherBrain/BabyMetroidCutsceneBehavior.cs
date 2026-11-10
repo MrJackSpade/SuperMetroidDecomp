@@ -112,7 +112,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 
     /// <summary>Lays the Baby's start colours, which leave the transparent entry untouched.</summary>
     internal void LoadBabyMetroidCutsceneInitialPalette() =>
-        _motherBrainEncounter.Colours.Baby.Lay(MotherBrainShades.BabyArrives);
+        _motherBrainEncounter.Colours.ShowBabyArrived();
 
     /// <summary>Advances the later Baby slot, publishes cries/healing, and writes body and Baby list changes for their next ordered enemy turns.</summary>
     internal void RunMotherBrainBabyMetroidMain(
@@ -201,7 +201,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         if (step.FatalBlowStarted)
         {
             _audio.QueueEnemySound(RoomSound.BabyMetroidDeath, priority: SoundRequestPriority.Normal);
-            _motherBrainEncounter.Colours.Room.Lay(MotherBrainShades.LightsOut);
+            _motherBrainEncounter.Colours.ShowLightsOut();
             _motherBrainEncounter.RequestMusic(MusicRequest.Stop, MusicQueueDelay.Shortest);
         }
         if (step.SamusThemeStarted)
@@ -239,7 +239,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     {
         if ((uint)frame >= MotherBrainRoomColorDefinitions.RecoveryLightsFrames)
             throw new InvalidDataException($"Mother Brain room-light recovery frame {frame} is not authored.");
-        _motherBrainEncounter.Colours.Room.Lay(MotherBrainShades.RecoveryLights(frame));
+        _motherBrainEncounter.Colours.ShowLightsRecovering(frame);
     }
 
     /// <summary>Shows the Baby's black-fade shade <paramref name="shade"/> (1..6) from its installed colours.</summary>
@@ -248,7 +248,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     {
         if (shade is < 1 or > BabyMetroidCutsceneColorDefinitions.FadeFrameCount)
             throw new ArgumentOutOfRangeException(nameof(shade), shade, "The Baby's fade has six shades.");
-        _motherBrainEncounter.Colours.Baby.Lay(MotherBrainShades.BabyFade(shade));
+        _motherBrainEncounter.Colours.ShowBabyFade(shade);
     }
 
     /// <summary>Ports BabyMetroidCutscene's main AI.</summary>

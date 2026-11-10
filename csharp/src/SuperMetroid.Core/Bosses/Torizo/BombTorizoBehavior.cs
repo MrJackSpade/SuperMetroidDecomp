@@ -58,16 +58,13 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The room effects the bosses request this update, where the fight's start asks for the belly's glow.</summary>
     private readonly BossFrameResultBuilder _frameResults;
 
-    /// <summary>
-    /// Shows the belly glow's <paramref name="record"/> over the Torizo's belly (#1512): the palette-FX handler wrote the
-    /// record over the colours it glows in, after the statue's own colour writes so far.
-    /// </summary>
+    /// <summary>Shows step <paramref name="step"/> of the Torizo's belly glow over his belly (#1512, #1597).</summary>
     /// <exception cref="InvalidOperationException">No Torizo is loaded to glow.</exception>
-    internal void ShowBellyGlow(PaletteFxFrame record)
+    internal void ShowBellyGlow(PaletteFxFrame step)
     {
         TorizoEnemyState state = Access.TorizoState
-            ?? throw new InvalidOperationException("The Torizo belly glow shows a record while no Torizo is loaded.");
-        state.Colours.ShowBelly(record);
+            ?? throw new InvalidOperationException("The Torizo belly glow shows a step while no Torizo is loaded.");
+        state.Colours.ShowBellyGlow(step);
         state.Slot.Shading = state.Colours.Shading;
     }
 

@@ -72,7 +72,7 @@ internal sealed class MotherBrainFakeDeath
                 // Fake-death fade replaces colors 145..147 only. Copying a convenient
                 // whole palette would visibly alter unrelated room art and is not what
                 // the fake-death fade does.
-                state.Colours.Own.Lay(MotherBrainShades.FakeDeathToGrey(step));
+                state.Colours.ShowFakeDeathToGrey(step);
             }
         }
 
@@ -87,7 +87,7 @@ internal sealed class MotherBrainFakeDeath
     {
         state.RoomFlashFrame = null;
         state.RoomFlashTimer = 0;
-        state.Colours.Room.Lay(MotherBrainShades.FinalRoom);
+        state.Colours.ShowRoomGrey();
     }
 
     /// <summary>Emits timed explosions while the first-phase body appears to die.</summary>
@@ -535,7 +535,7 @@ internal sealed class MotherBrainFakeDeath
         if (paletteStep < MotherBrainFakeDeathPaletteDefinitions.FrameCount)
         {
             // Fake-death restoration changes only brain sprite colors one through three.
-            state.Colours.Own.Lay(MotherBrainShades.FakeDeathFromGrey(paletteStep));
+            state.Colours.ShowFakeDeathFromGrey(paletteStep);
             return;
         }
 

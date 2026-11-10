@@ -188,7 +188,7 @@ internal sealed class CeresRidleyGetaway
         int zoomStep = UnsignedEightEight.Whole(zoom);
         if (zoomStep < CeresRidleyPaletteDefinitions.GetawayZoomStepCount)
         {
-            Ensure.NotNull(state).Colours.Room.Lay(RidleyShades.FloorZoom(zoomStep));
+            Ensure.NotNull(state).Colours.ShowFloorZoom(zoomStep);
             return;
         }
         throw new InvalidOperationException(
@@ -355,6 +355,6 @@ internal sealed class CeresRidleyGetaway
             return;
 
         state.CeresEscapePaletteFrame = (state.CeresEscapePaletteFrame + 1) % 16;
-        state.Colours.Warning.Lay(RidleyShades.Alarm(state.CeresEscapePaletteFrame));
+        state.Colours.ShowAlarm(state.CeresEscapePaletteFrame);
     }
 }

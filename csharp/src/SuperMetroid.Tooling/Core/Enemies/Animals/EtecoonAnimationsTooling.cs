@@ -1,5 +1,4 @@
-﻿using P = SuperMetroid.Core.Enemies.Animals.EtecoonProgram;
-using SuperMetroid.Core.Enemies.Animals.Artwork;
+﻿using SuperMetroid.Core.Enemies.Animals.Artwork;
 using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Enemies.Animals;
@@ -9,7 +8,7 @@ internal static class EtecoonAnimationsTooling
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params EtecoonProgram[] programs) =>
-        programs.SelectMany(program => EtecoonAnimations.Programs.Steps(program))
-            .OfType<AnimationProgramStep<P, EtecoonFrame, NoAnimationCue>.ShowStep>()
-            .Select(step => EtecoonFrameToolingDefinitions.Spritemap(step.Frame));
+        programs.SelectMany(program => EtecoonAnimations.Segments.Beats(program))
+            .OfType<AnimationBeat<EtecoonFrame, NoAnimationCue>.Frame>()
+            .Select(frame => EtecoonFrameToolingDefinitions.Spritemap(frame.Shown));
 }

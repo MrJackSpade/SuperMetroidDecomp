@@ -9,9 +9,9 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// </summary>
 internal static class DachoraAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<DachoraProgram, DachoraFrame, NoAnimationCue> Programs { get; } = new(
-        new Dictionary<DachoraProgram, AnimationProgramStep<DachoraProgram, DachoraFrame, NoAnimationCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<DachoraProgram, DachoraFrame, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<DachoraProgram, AnimationBeat<DachoraFrame, NoAnimationCue>[]>
     {
         [P.RunningLeft] =
         [
@@ -21,7 +21,6 @@ internal static class DachoraAnimations
             Show(3, 5),
             Show(4, 5),
             Show(5, 5),
-            GoTo(P.RunningLeft),
         ],
         [P.RunningLeftFast] =
         [
@@ -31,7 +30,6 @@ internal static class DachoraAnimations
             Show(3, 3),
             Show(4, 3),
             Show(5, 3),
-            GoTo(P.RunningLeftFast),
         ],
         [P.RunningLeftVeryFast] =
         [
@@ -41,7 +39,6 @@ internal static class DachoraAnimations
             Show(3, 1),
             Show(4, 1),
             Show(5, 1),
-            GoTo(P.RunningLeftVeryFast),
         ],
         [P.IdleLeft] =
         [
@@ -56,7 +53,6 @@ internal static class DachoraAnimations
             Show(13, 7),
             Show(12, 7),
             Show(10, 10),
-            GoTo(P.IdleLeft),
         ],
         [P.BlinkLeft] =
         [
@@ -69,17 +65,14 @@ internal static class DachoraAnimations
             Show(7, 10),
             Show(8, 5),
             Show(9, 11),
-            GoTo(P.BlinkLeft),
         ],
         [P.EchoLeft] =
         [
             Show(6, 10),
-            GoTo(P.EchoLeft),
         ],
         [P.FallingLeft] =
         [
             Show(4, 5),
-            GoTo(P.FallingLeft),
         ],
         [P.RunningRight] =
         [
@@ -89,7 +82,6 @@ internal static class DachoraAnimations
             Show(17, 5),
             Show(18, 5),
             Show(19, 5),
-            GoTo(P.RunningRight),
         ],
         [P.RunningRightFast] =
         [
@@ -99,7 +91,6 @@ internal static class DachoraAnimations
             Show(17, 3),
             Show(18, 3),
             Show(19, 3),
-            GoTo(P.RunningRightFast),
         ],
         [P.RunningRightVeryFast] =
         [
@@ -109,7 +100,6 @@ internal static class DachoraAnimations
             Show(17, 1),
             Show(18, 1),
             Show(19, 1),
-            GoTo(P.RunningRightVeryFast),
         ],
         [P.IdleRight] =
         [
@@ -124,7 +114,6 @@ internal static class DachoraAnimations
             Show(28, 7),
             Show(27, 7),
             Show(25, 10),
-            GoTo(P.IdleRight),
         ],
         [P.BlinkRight] =
         [
@@ -137,24 +126,43 @@ internal static class DachoraAnimations
             Show(22, 10),
             Show(23, 5),
             Show(24, 11),
-            GoTo(P.BlinkRight),
         ],
         [P.ChargeRight] =
         [
             Show(20, 1),
-            Hold,
         ],
         [P.EchoRight] =
         [
             Show(21, 10),
-            GoTo(P.EchoRight),
         ],
         [P.FallingRight] =
         [
             Show(18, 5),
-            GoTo(P.FallingRight),
         ],
     });
+
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<DachoraProgram, Animation<DachoraProgram>> StartingAt { get; } = new Dictionary<DachoraProgram, Animation<DachoraProgram>>
+    {
+        [P.RunningLeft] = new([new(P.RunningLeft, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.RunningLeftFast] = new([new(P.RunningLeftFast, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.RunningLeftVeryFast] = new([new(P.RunningLeftVeryFast, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.IdleLeft] = new([new(P.IdleLeft, 0, 11, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.BlinkLeft] = new([new(P.BlinkLeft, 0, 9, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.EchoLeft] = new([new(P.EchoLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.FallingLeft] = new([new(P.FallingLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.RunningRight] = new([new(P.RunningRight, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.RunningRightFast] = new([new(P.RunningRightFast, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.RunningRightVeryFast] = new([new(P.RunningRightVeryFast, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.IdleRight] = new([new(P.IdleRight, 0, 11, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.BlinkRight] = new([new(P.BlinkRight, 0, 9, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ChargeRight] = new([new(P.ChargeRight, 0, 1, 1)], AnimationEnd.Holds),
+        [P.EchoRight] = new([new(P.EchoRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.FallingRight] = new([new(P.FallingRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<DachoraProgram> StartingWith(DachoraProgram segment) => StartingAt[segment];
 
     /// <summary>The program a sleeping list resumes into when its owner steps the list past the sleep.</summary>
     internal static DachoraProgram AfterSleep(DachoraProgram program) => program switch
@@ -178,12 +186,5 @@ internal static class DachoraAnimations
     };
 
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<DachoraProgram, DachoraFrame, NoAnimationCue> Show(int pose, int duration) => AnimationProgramStep<DachoraProgram, DachoraFrame, NoAnimationCue>.Show(new(pose), duration);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<DachoraProgram, DachoraFrame, NoAnimationCue> GoTo(DachoraProgram program) => AnimationProgramStep<DachoraProgram, DachoraFrame, NoAnimationCue>.GoTo(program);
-
-    /// <summary>Holds the last frame, as the sleep does.</summary>
-    private static AnimationProgramStep<DachoraProgram, DachoraFrame, NoAnimationCue> Hold => AnimationProgramStep<DachoraProgram, DachoraFrame, NoAnimationCue>.Hold;
-
+    private static AnimationBeat<DachoraFrame, NoAnimationCue> Show(int pose, int duration) => new AnimationBeat<DachoraFrame, NoAnimationCue>.Frame(new(pose), duration);
 }

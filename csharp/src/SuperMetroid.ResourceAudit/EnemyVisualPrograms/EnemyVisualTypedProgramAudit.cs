@@ -306,9 +306,9 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(AlcoonAnimations), "csharp/src/SuperMetroid.Core/Enemies/Alcoon/AlcoonAnimations.cs");
         RequireTypedFrames(FuneNamiheAnimations.Programs, FuneNamiheFrameToolingDefinitions.Spritemap, FuneNamiheFrameToolingDefinitions.Bank,
             nameof(FuneNamiheAnimations), "csharp/src/SuperMetroid.Core/Enemies/FuneNamihe/FuneNamiheAnimations.cs");
-        RequireTypedFrames(DachoraAnimations.Programs, DachoraFrameToolingDefinitions.Spritemap, DachoraFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(DachoraAnimations.Segments, DachoraFrameToolingDefinitions.Spritemap, DachoraFrameToolingDefinitions.Bank,
             nameof(DachoraAnimations), "csharp/src/SuperMetroid.Core/Enemies/Animals/DachoraAnimations.cs");
-        RequireTypedFrames(EtecoonAnimations.Programs, EtecoonFrameToolingDefinitions.Spritemap, EtecoonFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(EtecoonAnimations.Segments, EtecoonFrameToolingDefinitions.Spritemap, EtecoonFrameToolingDefinitions.Bank,
             nameof(EtecoonAnimations), "csharp/src/SuperMetroid.Core/Enemies/Animals/EtecoonAnimations.cs");
         RequireTypedFrames(HibashiAnimations.Programs, HibashiFrameToolingDefinitions.Spritemap, HibashiFrameToolingDefinitions.Bank,
             nameof(HibashiAnimations), "csharp/src/SuperMetroid.Core/Enemies/Hibashi/HibashiAnimations.cs");

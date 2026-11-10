@@ -71,7 +71,7 @@ internal static class EscapeEtecoonDefinitionsVerification
                 $"production escape Etecoon selector {parameter} Y");
             AssertEqual(expected.FrameBehavior, state.FrameBehavior,
                 $"production escape Etecoon selector {parameter} pre-instruction");
-            AssertEqual(AnimationProgramCursor<EscapeEtecoonProgram>.Start(expected.Program), state.Program,
+            AssertEqual(new AnimationPlayback<EscapeEtecoonProgram>(EscapeEtecoonAnimations.StartingWith(expected.Program), AnimationPlace.StartOfAnimation), state.Playback,
                 $"production escape Etecoon selector {parameter} program");
             AssertEqual(expected.Velocity, state.Velocity,
                 $"production escape Etecoon selector {parameter} speed");
@@ -113,12 +113,12 @@ internal static class EscapeEtecoonDefinitionsVerification
         ];
         foreach (EscapeEtecoonProgram program in programs)
         {
-            state.Program = AnimationProgramCursor<EscapeEtecoonProgram>.Start(program);
+            state.Playback = new(EscapeEtecoonAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             RunForcedEscapeEtecoonUpdates(etecoon, 7, shown);
         }
 
         ushort xBeforeGratitude = etecoon.Position.X.Whole;
-        state.Program = AnimationProgramCursor<EscapeEtecoonProgram>.Start(EscapeEtecoonProgram.ExpressGratitudeThenEscape);
+        state.Playback = new(EscapeEtecoonAnimations.StartingWith(EscapeEtecoonProgram.ExpressGratitudeThenEscape), AnimationPlace.StartOfAnimation);
         RunForcedEscapeEtecoonUpdates(etecoon, 40, shown);
         AssertTrue(unchecked((short)(etecoon.Position.X.Whole - xBeforeGratitude)) < 0,
             "escape Etecoon gratitude program applies its repeated left displacement");

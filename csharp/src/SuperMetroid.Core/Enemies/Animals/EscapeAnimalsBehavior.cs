@@ -70,7 +70,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
             EscapeEtecoons.Initialization(slot.SpawnSettings<EscapeEtecoonSpawnSettings>().Role);
         slot.Position = slot.Position.WithWhole(initialization.Position);
         state.FrameBehavior = initialization.FrameBehavior;
-        state.Program = AnimationProgramCursor<EscapeEtecoonProgram>.Start(initialization.Program);
+        state.Playback = new(EscapeEtecoonAnimations.StartingWith(initialization.Program), AnimationPlace.StartOfAnimation);
         state.Velocity = initialization.Velocity;
     }
 
@@ -114,7 +114,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
                 // existing frame hold intact, so the new animation begins on the same
                 // update boundary the game observes.
                 if (HasCrittersEscaped())
-                    state.Program = AnimationProgramCursor<EscapeEtecoonProgram>.Start(EscapeEtecoonProgram.ExpressGratitudeThenEscape);
+                    state.Playback = new(EscapeEtecoonAnimations.StartingWith(EscapeEtecoonProgram.ExpressGratitudeThenEscape), AnimationPlace.StartOfAnimation);
                 return;
 
             case EscapeEtecoonFrameBehavior.WalkAndFall:
@@ -145,11 +145,11 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             slot.FrameHold = WrappingCountdown.Start(1);
             state.Velocity = state.Velocity.ReversedX();
-            state.Program = AnimationProgramCursor<EscapeEtecoonProgram>.Start(HasCrittersEscaped()
+            state.Playback = new(EscapeEtecoonAnimations.StartingWith(HasCrittersEscaped()
                 ? EscapeEtecoonProgram.RunningForEscape
                 : state.Velocity.X.IsNegative
                     ? EscapeEtecoonProgram.RunningLeftLowTide
-                    : EscapeEtecoonProgram.RunningRightLowTide);
+                    : EscapeEtecoonProgram.RunningRightLowTide), AnimationPlace.StartOfAnimation);
         }
 
         // The vertical mover is called even after horizontal collision, and its carry result is
@@ -166,10 +166,12 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (slot.DefinitionId == EnemyDefinitionId.EtecoonEscape)
         {
             EscapeEtecoonEnemyState state = slot.RequireSpeciesState<EscapeEtecoonEnemyState>();
-            AnimationProgramCursor<EscapeEtecoonProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, EscapeEtecoonAnimations.Programs, ref cursor, EscapeEtecoonFrameDefinitions.ShownFrames.Of,
-                (cue, _) => ApplyEscapeEtecoonCue(slot, state, samus, cue));
-            state.Program = cursor;
+            AnimationPlayback<EscapeEtecoonProgram> playback = state.Playback;
+            EnemyProgramAnimation.Play(slot, EscapeEtecoonAnimations.Segments, ref playback, EscapeEtecoonFrameDefinitions.ShownFrames.Of,
+                cue => ApplyEscapeEtecoonCue(slot, state, samus, cue) is { } target
+                    ? new AnimationContinuation<EscapeEtecoonProgram>(EscapeEtecoonAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                    : null);
+            state.Playback = playback;
             return;
         }
         EscapeDachoraEnemyState dachora = slot.RequireSpeciesState<EscapeDachoraEnemyState>();

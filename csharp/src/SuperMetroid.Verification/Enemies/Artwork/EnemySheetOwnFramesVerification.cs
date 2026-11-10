@@ -123,8 +123,8 @@ internal static class EnemySheetOwnFramesVerification
         TableFrames(EscapeEtecoonFrameDefinitions.ShownFrames).Union(TableFrames(EscapeDachoraFrameDefinitions.ShownFrames)).ToHashSet(),
         new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
         {
-            [EnemyDefinitionId.EtecoonEscape] = Reach(EscapeEtecoonAnimations.Programs, EscapeEtecoonFrameDefinitions.ShownFrames,
-                Enum.GetValues<EscapeEtecoonProgram>()),
+            [EnemyDefinitionId.EtecoonEscape] = Reach(EscapeEtecoonAnimations.Segments, EscapeEtecoonAnimations.StartingAt, EscapeEtecoonFrameDefinitions.ShownFrames,
+                EscapeEtecoonAnimations.StartingAt.Keys),
             [EnemyDefinitionId.DachoraEscape] = Reach(EscapeDachoraAnimations.Programs, EscapeDachoraFrameDefinitions.ShownFrames,
                 Enum.GetValues<EscapeDachoraProgram>()),
         });

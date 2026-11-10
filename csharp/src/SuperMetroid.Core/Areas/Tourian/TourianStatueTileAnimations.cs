@@ -6,23 +6,22 @@ using F = SuperMetroid.Core.Fx.Artwork.TourianStatueTilePicture;
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>
-/// The typed programs a Tourian boss statue's animated tiles run.
+/// The typed animations a Tourian boss statue's animated tiles play (#1600).
 /// All four statues share the layout; only the first idle frame's duration differs, and every other operand is read
-/// from the statue's <see cref="TourianStatueAnimationDefinition"/> when a cue runs. The Tourian program
-/// lookup check matches each statue's programs step by step with its list.
+/// from the statue's <see cref="TourianStatueAnimationDefinition"/> when an event is reached. The Tourian program
+/// lookup check matches each statue's segments beat by beat, and its animations with the control flow, of its list.
 /// </summary>
 internal static class TourianStatueTileAnimations
 {
-    /// <summary>Builds one statue's programs, whose first idle frame lasts <paramref name="firstFrameDuration"/> updates.</summary>
-    internal static AnimationProgramSet<P, F, TourianStatueTileCue> Create(int firstFrameDuration) => new(
-        new Dictionary<P, AnimationProgramStep<P, F, TourianStatueTileCue>[]>
+    /// <summary>Builds one statue's segments, whose first idle frame lasts <paramref name="firstFrameDuration"/> updates.</summary>
+    internal static AnimationSegments<P, F, TourianStatueTileCue> SegmentsFor(int firstFrameDuration) => new(
+        new Dictionary<P, AnimationBeat<F, TourianStatueTileCue>[]>
         {
             [P.Entry] =
             [
                 Cue(new(K.MarkAnimating)),
                 Cue(new(K.GoToIfGrey, Target: P.AlreadyGrey)),
                 Show(F.OscillationFirst, firstFrameDuration),
-                FallInto(P.Oscillate),
             ],
             [P.Oscillate] =
             [
@@ -32,7 +31,6 @@ internal static class TourianStatueTileAnimations
                 Show(F.OscillationFirst, 16),
                 Cue(new(K.GoToIfBossDefeated, Target: P.Release)),
                 Cue(new(K.ClearAnimating)),
-                GoTo(P.Oscillate),
             ],
             [P.Release] =
             [
@@ -48,32 +46,34 @@ internal static class TourianStatueTileAnimations
                 Show(F.Released, 128),
                 Cue(new(K.SetGreyEvent)),
                 Cue(new(K.FinishRelease)),
-                Stop,
             ],
             [P.AlreadyGrey] =
             [
                 Cue(new(K.FinishRelease)),
                 Cue(new(K.ApplyGreyColors)),
-                Stop,
             ],
         });
 
-    /// <summary>Ends the program and deletes the statue's animated-tile object.</summary>
-    private static AnimationProgramStep<P, F, TourianStatueTileCue> Stop => AnimationProgramStep<P, F, TourianStatueTileCue>.Stop;
+    /// <summary>
+    /// The animation that starts at each segment: the entry runs on into the oscillation, which loops; a release and the
+    /// already-grey finish end the statue's animation, deleting its animated-tile object.
+    /// </summary>
+    internal static IReadOnlyDictionary<P, Animation<P>> StartingAt { get; } = new Dictionary<P, Animation<P>>
+    {
+        [P.Entry] = new([new(P.Entry, 0, 3, 1), new(P.Oscillate, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.Oscillate] = new([new(P.Oscillate, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Release] = new([new(P.Release, 0, 12, 1)], AnimationEnd.Stops),
+        [P.AlreadyGrey] = new([new(P.AlreadyGrey, 0, 2, 1)], AnimationEnd.Stops),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<P> StartingWith(P segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="picture"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<P, F, TourianStatueTileCue> Show(F picture, int duration) =>
-        AnimationProgramStep<P, F, TourianStatueTileCue>.Show(picture, duration);
+    private static AnimationBeat<F, TourianStatueTileCue> Show(F picture, int duration) =>
+        new AnimationBeat<F, TourianStatueTileCue>.Frame(picture, duration);
 
-    /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<P, F, TourianStatueTileCue> Cue(TourianStatueTileCue cue) =>
-        AnimationProgramStep<P, F, TourianStatueTileCue>.Publish(cue);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<P, F, TourianStatueTileCue> GoTo(P program) =>
-        AnimationProgramStep<P, F, TourianStatueTileCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<P, F, TourianStatueTileCue> FallInto(P program) =>
-        AnimationProgramStep<P, F, TourianStatueTileCue>.FallInto(program);
+    /// <summary>Raises <paramref name="cue"/>.</summary>
+    private static AnimationBeat<F, TourianStatueTileCue> Cue(TourianStatueTileCue cue) =>
+        new AnimationBeat<F, TourianStatueTileCue>.Event(cue);
 }

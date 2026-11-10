@@ -10,17 +10,17 @@ using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Fx.PaletteFx;
-using Step = SuperMetroid.Core.Programs.AnimationProgramStep<
-    SuperMetroid.Core.Areas.Tourian.TourianStatueTileProgram,
+using SuperMetroid.Core.Programs;
+using Beat = SuperMetroid.Core.Programs.AnimationBeat<
     SuperMetroid.Core.Fx.Artwork.TourianStatueTilePicture,
     SuperMetroid.Core.Areas.Tourian.TourianStatueTileCue>;
 
 namespace SuperMetroid.Verification.Areas.Tourian;
 
 /// <summary>
-/// The ROM oracle for the Tourian statues' typed animated-tile programs: walks each statue's native bank-$87 list
-/// beside its typed programs and requires every frame's duration and picture, every branch target and every
-/// instruction's operand to match.
+/// The ROM oracle for the Tourian statues' typed animated-tile animations (#1600): walks each statue's native bank-$87
+/// list beside its typed segments and requires every frame's duration and picture, every branch target and every
+/// instruction's operand to match, and every animation to follow the list's jumps, runs on and deletes.
 /// </summary>
 internal static class LookupTourianProgramVerification
 {
@@ -40,39 +40,47 @@ internal static class LookupTourianProgramVerification
         [SuperMetroid.Core.Areas.Tourian.Artwork.TourianStatueShades.DraygonGrey] = 6 * 16,
     };
 
-    /// <summary>Compares every statue's typed programs with its native list.</summary>
+    /// <summary>Compares every statue's typed segments and animations with its native list.</summary>
     internal static void VerifyTourianStatueProgramMappings(ISnesAddressSpace rom)
     {
-        int steps = 0;
+        int beats = 0;
         foreach (ushort header in OriginalTourianObjects)
-            steps += CompareTourianStatuePrograms(rom, header, Resolve(header));
-        Console.WriteLine($"  Tourian statue programs: {OriginalTourianObjects.Length} statues ({steps} steps) match bank $87.");
+            beats += CompareTourianStatuePrograms(rom, header, Resolve(header));
+        Console.WriteLine($"  Tourian statue animations: {OriginalTourianObjects.Length} statues ({beats} beats) match bank $87.");
     }
 
-    /// <summary>Decodes one statue's native list into its expected typed programs, compares them, and returns the step count.</summary>
+    /// <summary>
+    /// Decodes one statue's native list into its expected segments and their control flow, compares them with the typed
+    /// segments and animations, and returns the beat count.
+    /// </summary>
     private static int CompareTourianStatuePrograms(
         ISnesAddressSpace rom, ushort header, TourianStatueAnimationDefinition definition)
     {
         var instructions = OriginalTourianInstructions(rom, header).ToList();
         Dictionary<ushort, TourianStatueTileProgram> labels = ProgramLabels(rom, instructions);
-        var expected = new Dictionary<TourianStatueTileProgram, List<Step>>();
-        List<Step>? current = null;
+        var expected = new Dictionary<TourianStatueTileProgram, List<Beat>>();
+        // The list each segment's list continues at when it jumps or runs on, or null where it deletes.
+        var continues = new Dictionary<TourianStatueTileProgram, TourianStatueTileProgram?>();
+        List<Beat>? current = null;
+        TourianStatueTileProgram currentLabel = default;
         int frames = 0;
         foreach (var instruction in instructions)
         {
             string at = $"{definition.Statue} statue at $87:{instruction.Cursor:X4}";
             if (labels.TryGetValue(instruction.Cursor, out TourianStatueTileProgram label))
             {
-                // A program that has not jumped or stopped runs on into the next authored one.
-                current?.Add(Step.FallInto(label));
+                // A list that has not jumped or deleted runs on into the next authored one.
+                if (current is not null)
+                    continues.Add(currentLabel, label);
                 current = [];
+                currentLabel = label;
                 expected.Add(label, current);
             }
-            List<Step> steps = current ?? throw new InvalidOperationException($"{at}: instruction after a program end has no label.");
+            List<Beat> steps = current ?? throw new InvalidOperationException($"{at}: instruction after a program end has no label.");
             ushort operand = Word(rom, instruction.Cursor + 2);
             if (instruction.Width == 4 && !Enum.IsDefined((AnimatedTileInstruction)instruction.Code))
             {
-                steps.Add(Step.Show(Picture(definition, operand, at), instruction.Code));
+                steps.Add(new Beat.Frame(Picture(definition, operand, at), instruction.Code));
                 frames++;
                 continue;
             }
@@ -147,11 +155,11 @@ internal static class LookupTourianProgramVerification
                     steps.Add(Cue(TourianStatueTileCueKind.ApplyGreyColors));
                     break;
                 case AnimatedTileInstruction.Goto:
-                    steps.Add(Step.GoTo(Label(labels, operand, at)));
+                    continues.Add(currentLabel, Label(labels, operand, at));
                     current = null;
                     break;
                 case AnimatedTileInstruction.Delete:
-                    steps.Add(Step.Stop);
+                    continues.Add(currentLabel, null);
                     current = null;
                     break;
                 case AnimatedTileInstruction.WaitUntilAreaBossIsDead:
@@ -165,14 +173,43 @@ internal static class LookupTourianProgramVerification
 
         int compared = 0;
         AssertEqual(Enum.GetValues<TourianStatueTileProgram>().Length, expected.Count,
-            $"{definition.Statue} statue: every typed program is a native list entry");
-        foreach ((TourianStatueTileProgram program, List<Step> native) in expected)
+            $"{definition.Statue} statue: every typed segment is a native list entry");
+        AnimationSegments<TourianStatueTileProgram, TourianStatueTilePicture, TourianStatueTileCue> segments =
+            TourianStatueTileAnimations.SegmentsFor(definition.FirstFrameDuration);
+        foreach (KeyValuePair<TourianStatueTileProgram, List<Beat>> native in expected)
         {
-            IReadOnlyList<Step> typed = TourianStatueTileAnimations.Create(definition.FirstFrameDuration).Steps(program);
-            AssertEqual(native.Count, typed.Count, $"{definition.Statue} statue {program}: step count");
-            for (int index = 0; index < native.Count; index++)
-                AssertEqual(native[index], typed[index], $"{definition.Statue} statue {program}: step {index}");
-            compared += native.Count;
+            IReadOnlyList<Beat> typed = segments.Beats(native.Key);
+            AssertEqual(native.Value.Count, typed.Count, $"{definition.Statue} statue {native.Key}: beat count");
+            for (int index = 0; index < native.Value.Count; index++)
+                AssertEqual(native.Value[index], typed[index], $"{definition.Statue} statue {native.Key}: beat {index}");
+            compared += native.Value.Count;
+        }
+        foreach (TourianStatueTileProgram start in Enum.GetValues<TourianStatueTileProgram>())
+        {
+            Animation<TourianStatueTileProgram> typed = TourianStatueTileAnimations.StartingWith(start);
+            var phases = new List<AnimationPhase<TourianStatueTileProgram>>();
+            var entered = new Dictionary<TourianStatueTileProgram, int> { [start] = 0 };
+            TourianStatueTileProgram segment = start;
+            AnimationEnd end;
+            while (true)
+            {
+                if (expected[segment].Count > 0)
+                    phases.Add(new(segment, 0, expected[segment].Count, 1));
+                if (continues[segment] is not { } next)
+                {
+                    end = AnimationEnd.Stops;
+                    break;
+                }
+                if (entered.TryGetValue(next, out int loop))
+                {
+                    end = AnimationEnd.LoopsFrom(loop);
+                    break;
+                }
+                entered[next] = phases.Count;
+                segment = next;
+            }
+            AssertTrue(typed.Phases.SequenceEqual(phases), $"{definition.Statue} statue {start}: phases follow the native list");
+            AssertEqual(end, typed.End, $"{definition.Statue} statue {start}: end follows the native list");
         }
         return compared;
     }
@@ -216,9 +253,9 @@ internal static class LookupTourianProgramVerification
         return matches[0];
     }
 
-    /// <summary>A cue step of <paramref name="kind"/>, continuing at <paramref name="target"/> when it branches.</summary>
-    private static Step Cue(TourianStatueTileCueKind kind, TourianStatueTileProgram target = default) =>
-        Step.Publish(new TourianStatueTileCue(kind, target));
+    /// <summary>An event beat of <paramref name="kind"/>, continuing at <paramref name="target"/> when it branches.</summary>
+    private static Beat Cue(TourianStatueTileCueKind kind, TourianStatueTileProgram target = default) =>
+        new Beat.Event(new TourianStatueTileCue(kind, target));
 
     /// <summary>The bank-$87 word at <paramref name="cursor"/>.</summary>
     private static ushort Word(ISnesAddressSpace rom, int cursor) =>

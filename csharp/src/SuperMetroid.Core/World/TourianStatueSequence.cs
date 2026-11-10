@@ -57,37 +57,37 @@ public sealed class TourianStatueSequence
         Begin(Ensure.NotNull(roomObjects));
     }
 
-    /// <summary>One spawned statue animation's definition, program position, and frame timer.</summary>
+    /// <summary>One spawned statue animation's definition, animation playback, and frame timer.</summary>
     internal sealed class TileObject(TourianStatueAnimationDefinition definition)
     {
-        /// <summary>The statue's animation and the operands its program's cues act on.</summary>
+        /// <summary>The statue's animation and the operands its events act on.</summary>
         public TourianStatueAnimationDefinition Definition { get; } = definition;
-        /// <summary>The statue's typed animated-tile programs, built once for its first-frame duration.</summary>
-        public AnimationProgramSet<TourianStatueTileProgram, TourianStatueTilePicture, TourianStatueTileCue> Program { get; } =
-            TourianStatueTileAnimations.Create(definition.FirstFrameDuration);
-        /// <summary>Where the statue's typed program resumes; null once the program has stopped and the object is deleted.</summary>
-        public AnimationProgramCursor<TourianStatueTileProgram>? Cursor { get; private set; } =
-            AnimationProgramCursor<TourianStatueTileProgram>.Start(TourianStatueTileProgram.Entry);
+        /// <summary>The statue's typed animated-tile segments, built once for its first-frame duration.</summary>
+        public AnimationSegments<TourianStatueTileProgram, TourianStatueTilePicture, TourianStatueTileCue> Segments { get; } =
+            TourianStatueTileAnimations.SegmentsFor(definition.FirstFrameDuration);
+        /// <summary>The statue's animation and where it stands in it; null once the animation has ended and the object is deleted.</summary>
+        public AnimationPlayback<TourianStatueTileProgram>? Playback { get; private set; } =
+            new AnimationPlayback<TourianStatueTileProgram>(TourianStatueTileAnimations.StartingWith(TourianStatueTileProgram.Entry), AnimationPlace.StartOfAnimation);
         /// <summary>Remaining duration of the current tile frame.</summary>
         public int Timer { get; private set; } = 1;
 
-        /// <summary>Counts a live statue's frame down one tick and reports whether the frame has expired; a stopped statue never counts.</summary>
+        /// <summary>Counts a live statue's frame down one tick and reports whether the frame has expired; an ended statue never counts.</summary>
         internal bool CountDown()
         {
-            if (Cursor is null)
+            if (Playback is null)
                 return false;
             return --Timer == 0;
         }
 
-        /// <summary>Resumes the program at <paramref name="cursor"/> after showing a picture for <paramref name="duration"/> ticks.</summary>
-        internal void Show(AnimationProgramCursor<TourianStatueTileProgram> cursor, int duration)
+        /// <summary>Resumes the animation at <paramref name="playback"/> after showing a picture for <paramref name="duration"/> ticks.</summary>
+        internal void Show(AnimationPlayback<TourianStatueTileProgram> playback, int duration)
         {
-            Cursor = cursor;
+            Playback = playback;
             Timer = duration;
         }
 
-        /// <summary>Ends the program, deleting the object.</summary>
-        internal void Stop() => Cursor = null;
+        /// <summary>Ends the animation, deleting the object.</summary>
+        internal void Stop() => Playback = null;
     }
     /// <summary>Kraid, Phantoon, Draygon, then Ridley order matches slot traversal and busy-bit ownership.</summary>
     internal readonly List<TileObject> objects = [];
@@ -171,7 +171,7 @@ public sealed class TourianStatueSequence
 
     /// <summary>
     /// Runs the animated tiles in spawn order: each live statue counts its frame down and, when it expires,
-    /// advances its typed program to the next shown picture, running the program's cues on the way.
+    /// plays its typed animation on to the next shown picture, carrying out the animation's events on the way.
     /// </summary>
     public void StepTiles()
     {
@@ -179,34 +179,36 @@ public sealed class TourianStatueSequence
         if (_assists.Current.TourianStatuesOpen) return;
         foreach (TileObject tile in objects)
         {
-            if (!tile.CountDown() || tile.Cursor is not { } cursor) continue;
-            // The statue programs load no loop counter; the program set still takes one.
-            WrappingCountdown loopCounter = WrappingCountdown.Start(0);
+            if (!tile.CountDown() || tile.Playback is not { } playback) continue;
+            // The statue animations play no counted phase; the play still takes a repeat counter.
+            WrappingCountdown repeats = WrappingCountdown.Start(0);
             TourianStatueAnimationDefinition definition = tile.Definition;
-            AnimationProgramAdvance<TourianStatueTilePicture> advance = tile.Program.AdvanceTo(
-                ref cursor, ref loopCounter, (cue, _) => RunCue(definition, cue));
-            switch (advance)
+            Animation<TourianStatueTileProgram> animation = playback.Animation;
+            AnimationPlace place = playback.Place;
+            AnimationShown<TourianStatueTileProgram, TourianStatueTilePicture> shown = tile.Segments.PlayToNextFrame(
+                ref animation, ref place, ref repeats, cue => RunCue(definition, cue));
+            switch (shown)
             {
-                case AnimationProgramAdvance<TourianStatueTilePicture>.Show shown:
-                    tile.Show(cursor, shown.Duration);
-                    _room.LoadedScope.ArtworkFrames.Select(definition.Picture(shown.Frame));
+                case AnimationShown<TourianStatueTileProgram, TourianStatueTilePicture>.Frame frame:
+                    tile.Show(new AnimationPlayback<TourianStatueTileProgram>(animation, place), frame.Duration);
+                    _room.LoadedScope.ArtworkFrames.Select(definition.Picture(frame.Shown));
                     break;
-                case AnimationProgramAdvance<TourianStatueTilePicture>.Stop:
+                case AnimationShown<TourianStatueTileProgram, TourianStatueTilePicture>.Ended:
                     tile.Stop();
                     break;
                 default:
                     throw new InvalidOperationException(
-                        $"Tourian statue {definition.Statue} program ended an advance with unauthored {advance}.");
+                        $"Tourian statue {definition.Statue} animation ended a play with unauthored {shown}.");
             }
         }
 
-        // Runs one cue with the statue's operands; a branching cue whose condition holds returns where the program continues.
-        AnimationProgramCursor<TourianStatueTileProgram>? RunCue(
+        // Carries out one event with the statue's operands; a branching event whose condition holds returns where the play continues.
+        AnimationContinuation<TourianStatueTileProgram>? RunCue(
             TourianStatueAnimationDefinition definition, TourianStatueTileCue cue)
         {
             ITourianStatueActors statue = _enemies.TourianStatue;
-            AnimationProgramCursor<TourianStatueTileProgram> branch =
-                AnimationProgramCursor<TourianStatueTileProgram>.Start(cue.Target);
+            var branch = new AnimationContinuation<TourianStatueTileProgram>(
+                TourianStatueTileAnimations.StartingWith(cue.Target), AnimationPlace.StartOfAnimation);
             switch (cue.Kind)
             {
                 case TourianStatueTileCueKind.MarkAnimating:

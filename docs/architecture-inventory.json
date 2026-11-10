@@ -154087,6 +154087,32 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Verification.Enemies.EnemyTerrainBlockScanVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/EnemyTerrainBlockScanVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.EnemyTerrainScanBlock",
+      "kind": "record",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/EnemyTerrainScanBlock.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Verification.Enemies.EnemyTrigonometryVerification",
       "kind": "static class",
       "scope": "test",

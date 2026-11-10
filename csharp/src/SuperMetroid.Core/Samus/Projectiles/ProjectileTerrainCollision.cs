@@ -647,10 +647,10 @@ internal sealed class ProjectileTerrainCollision
         // starts 4095 tiles forward while the center remains inside the room.
         // The block reaction dispatcher bounds the resulting allocation
         // offset, not the horizontal extent of this individual tile span.
-        int firstBlock = BlockScanCycle.RowStart(targetY >> 4, level.Size.X) + (left >> 4);
+        var firstBlock = Position16<RoomBlocks>.Of(left >> 4, targetY >> 4);
         for (int step = 0; step <= span; step++)
         {
-            int index = BlockScanCycle.BlockAlongRows(firstBlock, step);
+            int index = BlockScanCycle.BlockAlongRows(firstBlock, level.Size.X, step);
             if (index < level.Size.X * level.Size.Y)
             {
                 RunShotReaction(level, slot, level.GetCollisionBlock(new(CoordinateAxis.Wrap(index % level.Size.X), CoordinateAxis.Wrap(index / level.Size.X))), roomObjects,

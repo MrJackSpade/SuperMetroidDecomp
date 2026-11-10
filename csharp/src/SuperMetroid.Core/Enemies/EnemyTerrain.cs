@@ -60,9 +60,8 @@ internal sealed class EnemyTerrain
         int topPixel = CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y);
         int bottomPixel = CoordinateAxis.Wrap(slot.Position.Y.Whole + slot.Radius.Y - 1);
         int spanMinusOne = CoordinateAxis.Wrap(bottomPixel - RoomGridConversions.BlockStart(topPixel)) >> 4;
-        // The short multiplier forms the top row's place within 256 rows times the width, the target
-        // column is added unbounded, and each scanned row adds the width again.
-        int firstIndex = MultiplierRow(topPixel >> 4) * level.Size.X + (targetEdge >> 4);
+        // The scan walks down the target column from the top row, as the block scan cycle counts it.
+        var firstBlock = Position16<RoomBlocks>.Of(targetEdge >> 4, topPixel >> 4);
         bool collided = false;
         for (int scanIndex = 0; scanIndex <= spanMinusOne; scanIndex++)
         {
@@ -70,7 +69,7 @@ internal sealed class EnemyTerrain
             if (EnemyHorizontalProbeIsSolid(
                     level,
                     slot,
-                    EnemyMoverBlockIndex(firstIndex + scanIndex * level.Size.X),
+                    BlockScanCycle.BlockDownRows(firstBlock, level.Size.X, scanIndex),
                     targetEdge,
                     remaining,
                     spanMinusOne,
@@ -125,14 +124,13 @@ internal sealed class EnemyTerrain
         int leftPixel = CoordinateAxis.Wrap(slot.Position.X.Whole - slot.Radius.X);
         int rightPixel = CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - 1);
         int spanMinusOne = CoordinateAxis.Wrap(rightPixel - RoomGridConversions.BlockStart(leftPixel)) >> 4;
-        // The target row's place within 256 rows times the width plus the left column, then each
-        // scanned column steps to the next block index.
-        int firstIndex = MultiplierRow(targetEdge >> 4) * level.Size.X + (leftPixel >> 4);
+        // The scan walks along the target row from the left column, as the block scan cycle counts it.
+        var firstBlock = Position16<RoomBlocks>.Of(leftPixel >> 4, targetEdge >> 4);
         bool collided = false;
         for (int scanIndex = 0; scanIndex <= spanMinusOne; scanIndex++)
         {
             int remaining = spanMinusOne - scanIndex;
-            if (EnemyVerticalProbeIsSolid(level, slot, EnemyMoverBlockIndex(firstIndex + scanIndex), new EnemyVerticalProbe { TargetCenter = new(slot.Position.X.Whole, targetCenter), TargetEdge = new(slot.Position.X.Whole, targetEdge), MovingUp = movingUp, Remaining = remaining, SpanMinusOne = spanMinusOne }))
+            if (EnemyVerticalProbeIsSolid(level, slot, BlockScanCycle.BlockAlongRows(firstBlock, level.Size.X, scanIndex), new EnemyVerticalProbe { TargetCenter = new(slot.Position.X.Whole, targetCenter), TargetEdge = new(slot.Position.X.Whole, targetEdge), MovingUp = movingUp, Remaining = remaining, SpanMinusOne = spanMinusOne }))
             {
                 collided = true;
                 break;
@@ -328,26 +326,11 @@ internal sealed class EnemyTerrain
         };
     }
 
-    /// <summary>The rows the movers' row multiplier distinguishes: a row past them continues from the first.</summary>
-    private const int MultiplierRowSpan = 256;
-
-    /// <summary>The blocks the movers' level-data index reaches before continuing from the first.</summary>
-    private const int MoverBlockSpan = 32768;
-
-    /// <summary>The place of block row <paramref name="row"/>, zero or more, within the multiplier's 256 rows.</summary>
-    private static int MultiplierRow(int row) => Ensure.AtLeastZero(row) % MultiplierRowSpan;
-
     /// <summary>
-    /// The block the movers read for block index <paramref name="index"/>, zero or more: their level-data index
-    /// continues from the first block after 32,768 blocks.
-    /// </summary>
-    private static int EnemyMoverBlockIndex(int index) => Ensure.AtLeastZero(index) % MoverBlockSpan;
-
-    /// <summary>
-    /// Reads a block for the movers, which never bound the index to the authored
+    /// Reads a block for the movers, which never bound the block their scan reaches to the authored
     /// room: past the room plane they read the blocks beyond the room (see
     /// <see cref="RoomLevelData.GetBlockBeyondRoom"/>). Extension links are followed
-    /// as the reaction dispatcher repeats them.
+    /// as the reaction dispatcher repeats them, each counted by <see cref="BlockScanCycle.LinkedBlock"/>.
     /// </summary>
     private static RoomCollisionBlock ResolveEnemyMoverBlock(RoomLevelData level, int startBlock)
     {
@@ -376,7 +359,7 @@ internal sealed class EnemyTerrain
             };
             if (offset == 0)
                 return block;
-            blockIndex = EnemyMoverBlockIndex(blockIndex + offset);
+            blockIndex = BlockScanCycle.LinkedBlock(blockIndex, offset);
         }
 
         throw new InvalidDataException(

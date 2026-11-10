@@ -125,25 +125,6 @@ internal sealed class RuntimeArtwork
     /// <summary>The projectile sheets Samus's projectiles, bombs, charge flare and trails draw from.</summary>
     public SuperMetroid.Core.Samus.Artwork.ProjectileSheets? ProjectileSheets { get; private set; }
 
-
-    /// <summary>
-    /// The equipped beams whose characters the last beam artwork update loaded. The
-    /// projectile sheets show this beam's characters until the next update, even when code changes the equipment in
-    /// between: the Golden Torizo code grants beams during room initialization, after the entering beam was loaded.
-    /// </summary>
-    public SuperMetroid.Core.Progression.SamusBeamFlags LoadedBeams { get; private set; }
-
-    /// <summary>
-    /// Updates the beam artwork: latches the beam whose characters the projectile sheets
-    /// show and loads its palette.
-    /// </summary>
-    internal void UpdateBeamTilesAndPalette(SamusColours colours, SuperMetroid.Core.Progression.SamusBeamFlags equippedBeams)
-    {
-        LoadedBeams = equippedBeams;
-        SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.LoadBeamPalette(colours, equippedBeams);
-    }
-
-
     /// <summary>The pre-coloured block pictures of each tileset (#1392).</summary>
     public InstalledRoomArtwork? RoomBlockSheets { get; set; }
 

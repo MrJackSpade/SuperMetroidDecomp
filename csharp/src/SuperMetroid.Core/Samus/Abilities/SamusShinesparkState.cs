@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Movement;
@@ -876,11 +877,11 @@ false);
             if (CoordinateAxis.Difference(projectileCounter, 4) < 0)
             {
                 FirstReleasedCrashEchoSlot.Initialize(departureAngles.First, samus.Position.Whole);
-                projectiles?.Shinespark.InitializeShinesparkEcho(3, departureAngles.First);
+                projectiles?.Shinespark.InitializeShinesparkEcho(3, departureAngles.First, SamusBeamCombinations.Of(samus.EquippedBeams));
             }
 
             SecondReleasedCrashEchoSlot.Initialize(departureAngles.Second, samus.Position.Whole);
-            projectiles?.Shinespark.InitializeShinesparkEcho(4, departureAngles.Second);
+            projectiles?.Shinespark.InitializeShinesparkEcho(4, departureAngles.Second, SamusBeamCombinations.Of(samus.EquippedBeams));
         }
 
         ShineTimer = 1;

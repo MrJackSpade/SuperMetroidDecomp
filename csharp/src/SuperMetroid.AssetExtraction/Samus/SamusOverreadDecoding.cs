@@ -146,7 +146,7 @@ internal static class SamusOverreadDecoding
             {
                 if (SamusBeamCallbacks.Resolve(charged, beams).Translated != SamusProjectileFrameBehavior.SpacetimePaletteCopyTail)
                     continue;
-                foreach (SamusProjectileProgram program in LoadedBeamProjectilePrograms.BeamShotPrograms(beams, charged))
+                foreach (SamusProjectileProgram program in EquippedBeamProjectilePrograms.BeamShotPrograms(beams, charged))
                 {
                     if (programs.Add(program))
                         pending.Enqueue(program);

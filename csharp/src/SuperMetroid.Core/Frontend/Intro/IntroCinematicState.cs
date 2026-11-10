@@ -1090,8 +1090,8 @@ level, samus, frameCounter);
         if (flashbackSamusDisplay != IntroSamusDisplay.Hidden)
         {
             FlashbackSamus.Presentation.Draw(FlashbackSamus, sprites, cameraPosition: Position16<RoomPixels>.Zero, frameCounter);
-            // The flashback's artwork holds the power beam's characters whatever beam its Samus fires.
-            var projectileArtwork = new ProjectileDrawArtwork(projectileSheets, EquippedBeams: 0);
+            // The flashback's artwork holds the power beam's pictures whatever beam its Samus fires.
+            var projectileArtwork = new ProjectileDrawArtwork(projectileSheets);
             flashbackProjectiles.DrawLiveProjectiles(sprites, Position16<RoomPixels>.Zero, frameCounter, projectileArtwork);
             flashbackProjectiles.AdvanceTrails(timeIsFrozen: false);
             flashbackProjectiles.DrawTrails(sprites, Position16<RoomPixels>.Zero, projectileArtwork);

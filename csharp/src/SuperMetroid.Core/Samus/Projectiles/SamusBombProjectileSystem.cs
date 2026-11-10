@@ -301,11 +301,11 @@ public sealed class SamusBombProjectileSystem
             int screenY = CoordinateAxis.Wrap(slot.Position.Y.Whole - cameraPosition.Y);
 
             ProjectileSpriteId sprite = slot.Sprite ?? throw new InvalidOperationException("A drawn bomb shows a composition.");
-            // The empty composition draws nothing, and so does a composition the loaded combination's sheet holds as
-            // showing nothing (#1513).
+            // The empty composition draws nothing, and so does a composition the sheet of the beams the bomb is pictured
+            // with holds as showing nothing (#1513, #1586).
             if (sprite.DrawsNothing)
                 continue;
-            SpriteSheet sheet = artwork.Sheet;
+            SpriteSheet sheet = artwork.SheetOf(slot.PicturedBeams);
             string frame = ProjectileSheetFrames.ProjectileFrame(sprite);
             if (sheet.ShowsNothing(frame))
                 continue;
@@ -427,6 +427,7 @@ public sealed class SamusBombProjectileSystem
         SamusBombProjectileSlot slot = _slots[slotIndex];
         slot.ClearFields();
         slot.Type = placingPowerBomb ? PowerBombType : NormalBombType;
+        slot.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
         slot.Position = slot.Position.WithWhole(samus.Position.Whole);
         slot.BombTimer = WrappingCountdown.Start(MorphBallBombDefinitions.InitialBombTimer);
         InitializeBomb(slot);
@@ -500,6 +501,7 @@ public sealed class SamusBombProjectileSystem
             SamusBombProjectileSlot slot = _slots[index];
             slot.ClearFields();
             slot.Type = NormalBombType;
+            slot.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
             slot.IsBombSpread = true;
             slot.Position = slot.Position.WithWhole(samus.Position.Whole);
             InitializeBomb(slot);

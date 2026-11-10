@@ -21,12 +21,16 @@ internal sealed class ShinesparkEchoProjectile
     /// The crash's end allocates fixed slots without clearing their unrelated parallel words.
     /// Echo drawing storage remains in Samus independently of this projectile owner.
     /// </summary>
-    internal void InitializeShinesparkEcho(int index, RotationAngle angle)
+    /// <param name="index">The fixed slot, three or four.</param>
+    /// <param name="angle">The echo's departure angle.</param>
+    /// <param name="picturedBeams">The beams Samus has equipped as the crash ends, whose pictures the echo shows.</param>
+    internal void InitializeShinesparkEcho(int index, RotationAngle angle, SamusBeamCombination picturedBeams)
     {
         if (index is not (3 or 4)) throw new ArgumentOutOfRangeException(nameof(index));
         var slot = _slotTable.Slots[index];
         _slotTable.ProjectileCounter = WrappingCounter.IncrementCount(_slotTable.ProjectileCounter);
         slot.Type = SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho);
+        slot.PicturedBeams = picturedBeams;
         BeamCombos.InitializeComboData(slot, BeamComboData.Echo);
         slot.FrameBehavior = SamusProjectileFrameBehavior.ShinesparkEcho;
         slot.EchoAngle = angle.ToTrigonometryAngle();

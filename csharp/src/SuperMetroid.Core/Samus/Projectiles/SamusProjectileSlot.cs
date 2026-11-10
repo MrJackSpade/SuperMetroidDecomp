@@ -39,6 +39,15 @@ public sealed class SamusProjectileSlot
     /// <summary>What the slot holds; <see cref="SamusProjectileType.None"/> marks an empty slot.</summary>
     public SamusProjectileType Type { get; internal set; }
 
+    /// <summary>
+    /// The beam combination whose pictures the projectile shows (#1586): the beams Samus had equipped when she fired it,
+    /// set off its special attack or released its echo. It stays through every later change to the projectile, its
+    /// explosion, an enemy's reflection and the Super Missile's link alike, and through any later change to her
+    /// equipment. A Hyper Beam shot is pictured with the Wave and Plasma beams the Hyper Beam equips although it is a
+    /// charged Plasma shot, and a missile with the beams beside it although it carries none.
+    /// </summary>
+    public SamusBeamCombination PicturedBeams { get; internal set; }
+
     /// <summary>The direction the projectile was fired or reflected in.</summary>
     public SamusProjectileDirection Direction { get; internal set; }
 
@@ -131,6 +140,7 @@ public sealed class SamusProjectileSlot
     {
         Vacate();
         Type = SamusProjectileType.None;
+        PicturedBeams = SamusBeamCombination.Power;
         Direction = default;
         IsSpent = false;
         Position = FixedPosition<RoomPixels>.Zero;
@@ -158,6 +168,7 @@ public sealed class SamusProjectileSlot
         Velocity = default(EightEightVector<RoomPixels>);
         Radius = Extent16<RoomPixels>.Zero;
         Type = SamusProjectileType.None;
+        PicturedBeams = SamusBeamCombination.Power;
         Vacate();
         Cursor = null;
         FrameHold = WrappingCountdown.Start(0);

@@ -360,6 +360,7 @@ internal sealed class ProjectileMotion
 
         link.ClearFields();
         link.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile);
+        link.PicturedBeams = owner.PicturedBeams;
         link.Direction = owner.Direction;
         link.IsSpent = owner.IsSpent;
         link.Position = link.Position.WithWhole(owner.Position.Whole);

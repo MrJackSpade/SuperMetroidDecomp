@@ -981,9 +981,10 @@ internal sealed class RoomLoader
             roomObjects.DoorObjects.TrySpawnDoorClosingObject(assets.LevelData, door, _system);
         }
 
-        // Loading updates the entering beam before it initializes enemies. Golden Torizo's code mutates
-        // equipment during initialization; its grant must not retroactively select the beam loaded for this room.
-        _artwork.UpdateBeamTilesAndPalette(_player.Colours, _player.Samus?.EquippedBeams ?? 0);
+        // Loading shows the entering beams' colours before it initializes enemies. Golden Torizo's code changes the
+        // equipment during initialization and leaves those colours shown; the shots fired after it show the granted
+        // beams' own pictures (#1586).
+        SamusProjectileSystem.LoadBeamPalette(_player.Colours, _player.Samus?.EquippedBeams ?? 0);
 
         // The destination's enemies load with the door-transition gates clear; their projectile places start from what
         // the outgoing room's left (RoomHandOver).

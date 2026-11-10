@@ -53,8 +53,8 @@ internal sealed class GameplayActorDrawing
         _room = dependencies.Room;
     }
 
-    /// <summary>What Samus's projectile, bomb, flare and trail draws show: the sheet of the beam last loaded.</summary>
-    private ProjectileDrawArtwork ProjectileArtwork => new(_artwork.ProjectileSheets, _artwork.LoadedBeams);
+    /// <summary>What Samus's projectile, bomb, flare and trail draws show: each the sheet of its own beams (#1586).</summary>
+    private ProjectileDrawArtwork ProjectileArtwork => new(_artwork.ProjectileSheets);
     /// <summary>Shared enemy-layer/Samus/projectile drawing, independently of movement.</summary>
     internal void DrawGameplayActors(RoomScope room, SamusDrawOwner owner, SamusPaletteEffects paletteEffects = SamusPaletteEffects.Advance)
     {

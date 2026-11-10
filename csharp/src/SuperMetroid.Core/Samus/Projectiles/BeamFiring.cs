@@ -276,6 +276,7 @@ internal sealed class BeamFiring
         InitializePosition(samus, slot);
         slot.TrailTimer = WrappingCountdown.Start(4);
         slot.Type = SamusProjectileType.Beam(SamusBeamCombinations.Of(samus.EquippedBeams), charged);
+        slot.PicturedBeams = slot.Type.BeamCombination;
         ProjectileInvincibilityTimer = 10;
 
         // The combination selects one projectile, not four independent animation layers
@@ -374,11 +375,12 @@ internal sealed class BeamFiring
         InitializePosition(samus, slot);
         ProjectileInvincibilityTimer = 10;
 
-        // The Hyper Beam is a charged Plasma beam for its projectile data and art even though
-        // acquisition equips Wave and Plasma tiles and palette. It first reads the charged
+        // The Hyper Beam is a charged Plasma beam for its projectile data and animation even though
+        // acquisition equips Wave and Plasma, whose pictures its shots show. It first reads the charged
         // Plasma entry; Hyper's setup then deliberately replaces its damage with 1000 before the
         // first instruction record executes.
         slot.Type = SamusProjectileType.Beam(SamusBeamCombination.Plasma, charged: true);
+        slot.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
         const SamusBeamCombination hyperBeamType = SamusBeamCombination.Plasma;
         SamusProjectileHeader header = SamusProjectileSelection.BeamShot(hyperBeamType, charged: true);
         slot.Damage = SamusProjectileDamage.Read(header);
@@ -464,6 +466,7 @@ internal sealed class BeamFiring
             samus.Missiles = SamusQuantity.DecrementWrapping(samus.Missiles);
         slot.TrailTimer = WrappingCountdown.Start(4);
         slot.Type = SamusProjectileType.Of(isSuperMissile ? SamusProjectileFamily.SuperMissile : SamusProjectileFamily.Missile);
+        slot.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
         slot.MissileIgnition = SamusMissileIgnition.Pending;
         slot.SuperMissileLinkSlot = 0;
 

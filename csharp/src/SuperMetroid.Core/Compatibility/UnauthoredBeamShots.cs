@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <remarks>
 /// A rule with no state, held by the projectile selection catalog. Consulted whenever such a beam's shot takes its damage
 /// and animation: when it is fired, uncharged or charged, when an enemy reflects it, and when the installation lists the
-/// animations a loaded combination's shots can run. Evidence: the fire routines index the selector table by the
+/// animations an equipped combination's shots can run. Evidence: the fire routines index the selector table by the
 /// four-bit combination, so combinations twelve through fifteen read the four entries after the twelve they author; the
 /// selection check compares each such entry with the original selectors.
 /// </remarks>

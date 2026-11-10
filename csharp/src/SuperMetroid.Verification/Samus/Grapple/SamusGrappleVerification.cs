@@ -673,9 +673,10 @@ firingLevel, cancelledSamus, controllerInput: 0);
     AssertEqual(2, samus.Grapple.FlareAnimationTimer.RawValue,
         "first grapple flare performs decrement-before-test");
     var grappleFlare = (ImageSpriteDraw)grappleFlareOamFrame.Draws.Single();
-    AssertEqual(InstalledFixtures.SpriteSheets.Get(SpriteSheetId.ProjectilesPower).Frame(ProjectileSheetFrames.FlareFrame(
+    AssertEqual(InstalledFixtures.SpriteSheets.Get(ProjectileSheetFrames.For(SuperMetroid.Core.Progression.SamusBeamCombinations.Of(samus.EquippedBeams)))
+            .Frame(ProjectileSheetFrames.FlareFrame(
             ChargeFlareSpriteSelection.Selectors[16 + ChargeFlareSpriteDefinitions.MainFlareSelectorOffset])), grappleFlare.Image,
-        "grapple flare shows main flare frame sixteen from the loaded beams' projectile sheet");
+        "grapple flare shows main flare frame sixteen from the sheet of the beams she has equipped");
     AssertEqual(new Position16<ScreenPixels>(98, 103), grappleFlare.Origin, "grapple flare is placed at the flare origin");
 
     // Selector provenance is now compiled even without installed artwork. The

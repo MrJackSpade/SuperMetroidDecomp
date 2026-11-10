@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.World;
 /// </summary>
 internal sealed class SamusFramePhases
 {
-    /// <summary>Supplies installed beam tiles and palettes for pause teardown and grapple selection.</summary>
+    /// <summary>Supplies Samus's installed death steps.</summary>
     private readonly RuntimeArtwork _artwork;
     /// <summary>Opens the attract demo's Samus input window and selects the demo's new-input word.</summary>
     private readonly IAttractSamusInput _attractDemo;
@@ -59,12 +59,11 @@ internal sealed class SamusFramePhases
     }
 
     /// <summary>
-    /// Updates the beam artwork for the live beams supplied by pause teardown.
-    /// Unpausing performs this restore while the screen is dark, so the first resumed gameplay frame uses the newly
-    /// equipped combination.
+    /// Shows the colours of the beams pause teardown supplies. Unpausing does this while the screen is dark, so the
+    /// first resumed gameplay frame shows the newly equipped combination's colours.
     /// </summary>
-    internal void UpdateGameplayBeamTilesAndPalette(SuperMetroid.Core.Progression.SamusBeamFlags equippedBeams) =>
-        _artwork.UpdateBeamTilesAndPalette(_player.Colours, equippedBeams);
+    internal void ShowEquippedBeamColours(SamusBeamFlags equippedBeams) =>
+        SamusProjectileSystem.LoadBeamPalette(_player.Colours, equippedBeams);
 
     /// <summary>
     /// The grapple beam's step, reached from the HUD-selection dispatch of

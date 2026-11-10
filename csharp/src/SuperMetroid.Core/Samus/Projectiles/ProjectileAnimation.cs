@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Assets;
@@ -71,11 +72,11 @@ internal sealed class ProjectileAnimation
         // Every placement is published wherever it lies; the display clips it to the view (#1541).
 
         ProjectileSpriteId sprite = slot.Sprite ?? throw new InvalidOperationException("A drawn projectile shows a composition.");
-        // The empty composition an invisible projectile shows draws nothing, and so does a composition the loaded
-        // combination's sheet holds as showing nothing (#1513).
+        // The empty composition an invisible projectile shows draws nothing, and so does a composition the sheet of the
+        // beams it is pictured with holds as showing nothing (#1513, #1586).
         if (sprite.DrawsNothing)
             return;
-        SpriteSheet sheet = artwork.Sheet;
+        SpriteSheet sheet = artwork.SheetOf(slot.PicturedBeams);
         string frame = ProjectileSheetFrames.ProjectileFrame(sprite);
         if (sheet.ShowsNothing(frame))
             return;
@@ -162,7 +163,8 @@ internal sealed class ProjectileAnimation
         // gameplay effect, so the port draws nothing for it (#1275, Mother Brain glitch movie).
         if (!SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteSelection.Contains(tableIndex))
             return;
-        SpriteSheetFrame image = artwork.Objects.Sheet.Frame(ProjectileSheetFrames.FlareFrame(
+        // The flare is Samus's own charge, so it shows the sheet of the beams she has equipped (#1586).
+        SpriteSheetFrame image = artwork.Objects.SheetOf(SamusBeamCombinations.Of(samus.EquippedBeams)).Frame(ProjectileSheetFrames.FlareFrame(
             SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteSelection.Selectors[tableIndex]));
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusChargeFlare, component), image,
             Position16<ScreenPixels>.Of(screenX, screenY), SpriteMirror.None));

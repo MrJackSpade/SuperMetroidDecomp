@@ -150,9 +150,9 @@ public sealed class SamusProjectileSystem
     public SamusProjectileFrameResult LastFrameResult { get; private set; }
 
     /// <summary>
-    /// Executes the palette half of the beam graphics update for the equipped beams: the beams show the
-    /// shade of the combination they select (#1512). Its characters are not copied: the installed projectile sheets are
-    /// composed over every beam combination's characters, and pre-coloured in every combination's shade.
+    /// Shows the equipped beams' colours: the beams show the shade of the combination they select (#1512). No pictures
+    /// change: each projectile shows the sheet of the beams it is pictured with (#1586), and the installed sheets are
+    /// pre-coloured in every combination's shade.
     /// </summary>
     public static void LoadBeamPalette(SamusColours colours, SuperMetroid.Core.Progression.SamusBeamFlags equippedBeams) =>
         LoadBeamPalette(colours, SamusBeamCombinations.Of(equippedBeams));

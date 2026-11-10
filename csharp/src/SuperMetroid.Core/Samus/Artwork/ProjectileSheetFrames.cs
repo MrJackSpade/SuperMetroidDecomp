@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// <summary>Which sheet and frames each projectile beam combination draws from.</summary>
 public static class ProjectileSheetFrames
 {
-    /// <summary>The gameplay sheet drawn while <paramref name="beams"/> is the loaded beam combination.</summary>
+    /// <summary>The gameplay sheet of a draw pictured with <paramref name="beams"/> (#1586).</summary>
     /// <exception cref="ArgumentOutOfRangeException">The combination has no sheet.</exception>
     public static SpriteSheetId For(SamusBeamCombination beams) =>
         Sheets.TryGetValue(beams, out SpriteSheetId value) ? value : throw new ArgumentOutOfRangeException(nameof(beams), beams, "Undefined beam combination.");

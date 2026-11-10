@@ -11,13 +11,14 @@ namespace SuperMetroid.Verification.Samus.Projectiles;
 
 /// <summary>
 /// Checks #1559: an enemy reflecting a beam echo (a Shinespark crash's echo or the Spazer special attack's trail)
-/// restarts it as the uncharged beam shot its type names, whatever combination is loaded, so every loaded combination's
-/// projectile sheet holds every picture of that shot's lists. The 13% movie's Metal Pirate turned a Shinespark echo into
-/// a Plasma-Wave shot under the Power Beam.
+/// restarts it as the uncharged beam shot its type names, whatever combination was equipped when the echo was released,
+/// and the shot keeps the pictures of those beams (#1586), so every combination's projectile sheet holds every picture of
+/// that shot's lists. The 13% movie's Metal Pirate turned a Shinespark echo released under the Power Beam into a
+/// Plasma-Wave shot.
 /// </summary>
 internal static class ReflectedEchoPicturesVerification
 {
-    /// <summary>Resolves every frame of every reflected echo's lists on every loaded combination's sheet.</summary>
+    /// <summary>Resolves every frame of every reflected echo's lists on every combination's sheet.</summary>
     internal static void VerifyReflectedEchoPictures()
     {
         InstalledProjectileFrameBindings bindings = InstalledFixtures.Projectiles.FrameBindings;
@@ -40,9 +41,9 @@ internal static class ReflectedEchoPicturesVerification
         }
         VerificationAssertions.AssertTrue(frames.Contains("Projectile.PlasmaWave.20"),
             "a reflected Shinespark echo shows the Plasma-Wave shot's pictures");
-        foreach (SamusBeamCombination loaded in ProjectileSheetComposer.Combinations)
+        foreach (SamusBeamCombination released in ProjectileSheetComposer.Combinations)
         {
-            SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(ProjectileSheetFrames.For(loaded));
+            SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(ProjectileSheetFrames.For(released));
             foreach (string frame in frames)
             {
                 // Both fail loudly, naming the sheet, when it holds no such frame.
@@ -50,7 +51,7 @@ internal static class ReflectedEchoPicturesVerification
                     _ = sheet.Frame(frame);
             }
         }
-        Console.WriteLine($"  Reflected echoes: {frames.Count} shot pictures resolve on all {ProjectileSheetComposer.Combinations.Count} loaded combinations' sheets.");
+        Console.WriteLine($"  Reflected echoes: {frames.Count} shot pictures resolve on all {ProjectileSheetComposer.Combinations.Count} combinations' sheets.");
     }
 
     /// <summary>Every frame <paramref name="start"/> and the lists it continues into show.</summary>

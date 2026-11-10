@@ -69,6 +69,7 @@ internal sealed class BeamCombos
             {
                 var slot = _slotTable.Slots[i];
                 slot.Type = SamusProjectileType.Beam(beam, charged: true);
+                slot.PicturedBeams = beam;
                 slot.Direction = kind == SamusComboKind.Spazer ? SamusProjectileDirection.DownFacingLeft : SamusProjectileDirection.UpFacingRight;
                 slot.IsSpent = false;
                 slot.FrameBehavior = kind switch

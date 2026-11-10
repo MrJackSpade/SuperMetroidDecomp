@@ -16,8 +16,6 @@ namespace SuperMetroid.Core.World;
 /// </summary>
 internal sealed class RoomObjectFramePhase
 {
-    /// <summary>Installed beam artwork staged when a collected beam changes projectile graphics.</summary>
-    private readonly RuntimeArtwork _artwork;
     /// <summary>Current and newly pressed buttons passed to room-object and message handlers.</summary>
     private readonly ControllerInputState _controller1;
     /// <summary>Applies gate projectiles requested during the room-object pass.</summary>
@@ -39,7 +37,6 @@ internal sealed class RoomObjectFramePhase
     /// <summary>Binds the shared room-object handler to live runtime state and its presentation effects.</summary>
     internal RoomObjectFramePhase(RoomObjectFramePhaseDependencies dependencies)
     {
-        _artwork = dependencies.Artwork;
         _controller1 = dependencies.Controller1;
         _enemyRoomEffects = dependencies.EnemyRoomEffects;
         _freeze = dependencies.Freeze;
@@ -113,8 +110,8 @@ internal sealed class RoomObjectFramePhase
             RunObjectHandlerCore(_controller1.NewlyPressed, roomObjects, bombProjectiles, room);
 
             // Item room objects publish acquisition only after their trigger and
-            // handler pass. Apply the hardware-facing consequences at that same seam:
-            // beam combinations replace the projectile character/palette staging, and
+            // handler pass. Apply their colour consequences at that same seam:
+            // beam pickups show the newly equipped combination's colours, and
             // suit changes defer their visible palette reveal until stage
             // three after the message. Resource tanks and other equipment bits are
             // consumed directly by the HUD/movement owners.
@@ -127,7 +124,7 @@ internal sealed class RoomObjectFramePhase
                     InWorldCollectibleKind.SpazerBeam or
                     InWorldCollectibleKind.PlasmaBeam)
                 {
-                    _artwork.UpdateBeamTilesAndPalette(_player.Colours, samus.EquippedBeams);
+                    SamusProjectileSystem.LoadBeamPalette(_player.Colours, samus.EquippedBeams);
                 }
                 else if (pickup.Kind is
                          InWorldCollectibleKind.VariaSuit or

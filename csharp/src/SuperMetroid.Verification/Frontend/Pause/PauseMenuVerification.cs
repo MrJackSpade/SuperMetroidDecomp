@@ -184,7 +184,7 @@ internal static class PauseMenuVerification
 
         // Re-enter the equipment page with only Wave collected so the pause code itself
         // performs the mutation under test. The runtime handoff then consumes that same
-        // Samus word and the accepted NMI must expose Wave art immediately.
+        // Samus word and must show the Wave beam's colours immediately.
         samus.CollectedBeams = SamusBeamFlags.Wave;
         samus.EquippedBeams = 0;
         var beamPause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(28, 1), GameplayHud = retainedHud, MapPresentation = presentation, SpriteSheets = MenuSheetFixtures.For(presentation) });
@@ -197,11 +197,8 @@ internal static class PauseMenuVerification
             "pause toggle immediately mutates live Wave equipment word");
 
         var resumeRuntime = CreateRetailRuntimeFixture();
-        resumeRuntime.SamusPhases.UpdateGameplayBeamTilesAndPalette(samus.EquippedBeams);
+        resumeRuntime.SamusPhases.ShowEquippedBeamColours(samus.EquippedBeams);
         resumeRuntime.FrameBoundary.BeginAcceptedFrame(controller1Input: 0);
-        // The newly equipped Wave beam selects the Wave projectile sheet (#1342); no characters are uploaded.
-        AssertEqual(SamusBeamFlags.Wave, resumeRuntime.Artwork.LoadedBeams,
-            "unpause latches the newly equipped Wave beam whose projectile sheet is drawn");
         // Her beams' colours are a shade the import pre-colours her sheets in (#1512): unpausing names the Wave shade.
         AssertEqual(SamusShades.Beam(SamusBeamCombinations.Of(SamusBeamFlags.Wave)), resumeRuntime.Player.Colours.Beams,
             "unpause immediately shows the newly equipped Wave beam's shade");

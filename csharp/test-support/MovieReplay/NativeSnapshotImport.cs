@@ -228,8 +228,10 @@ internal static class NativeSnapshotImport
         samus.MorphBallBounceState = SamusSnapshotWords.DecodeBallBounce(W(NativeSnapshotMemory.MorphBallBounceState));
         samus.BombJumpRequest = SuperMetroid.TestSupport.VerificationImporters.SamusBombJumpRequestImport.FromNative(W(NativeSnapshotMemory.BombJumpDirection));
 
+        // The checkpoint's trails show the pictures of the beams equipped there, which its projectile graphics hold (#1586).
         foreach (var trail in runtime.Projectiles.TrailSlots)
         {
+            trail.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
             trail.Left.FrameHold = W(NativeSnapshotMemory.TrailLeftFrameHold + trail.SlotTableOffset);
             trail.Right.FrameHold = W(NativeSnapshotMemory.TrailRightFrameHold + trail.SlotTableOffset);
             trail.Left.InstructionPointer = W(NativeSnapshotMemory.TrailLeftInstructionPointer + trail.SlotTableOffset);
@@ -363,7 +365,7 @@ internal static class NativeSnapshotImport
         // The room load showed the colours of the Samus the Ceres start made; the imported equipment names the suit and
         // beams whose colours the cartridge loaded (#1512), under which her palette-FX records are then laid.
         SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(runtime.Player.Colours, samus.EquippedItems);
-        runtime.Artwork.UpdateBeamTilesAndPalette(runtime.Player.Colours, samus.EquippedBeams);
+        SamusProjectileSystem.LoadBeamPalette(runtime.Player.Colours, samus.EquippedBeams);
         ImportShownPaletteFxRecords(runtime);
         if (game.GameState == SuperMetroidGameState.Paused)
             ImportNativePauseMenu(game, runtime, W, memory);

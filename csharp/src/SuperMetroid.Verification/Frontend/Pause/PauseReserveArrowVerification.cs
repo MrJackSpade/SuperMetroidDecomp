@@ -65,7 +65,7 @@ internal static class PauseReserveArrowVerification
             var capture = pause.CaptureRenderSnapshot();
             byte[] captureVram = pause.ShownVram();
             var tiles = captureVram.ToArray();
-            // The arrow's colours are the shade its latched state names (#1512), shown over the pause colours.
+            // The arrow's colours are the shade its current state names (#1512, #1597), shown over the pause colours.
             RgbColor[] colors = PauseShownColours.Of(pause);
             // Independent native AE01/AE46 walk: eight vertical words followed
             // by two horizontal words. Only the three palette bits may change.
@@ -83,12 +83,12 @@ internal static class PauseReserveArrowVerification
         }
     }
 
-    /// <summary>Runs reserve-arrow visual and rebind-latch checks.</summary>
+    /// <summary>Runs reserve-arrow visual and rebind checks.</summary>
     [VerificationCommand("--pause-reserve-arrow")]
     internal static int PauseReserveArrowCommand()
     {
         Suite(nameof(VerifyPauseReserveArrow), () => VerifyPauseReserveArrow());
-        Suite(nameof(VerifyPauseReserveArrowRebindKeepsLatch), () => VerifyPauseReserveArrowRebindKeepsLatch());
+        Suite(nameof(VerifyPauseReserveArrowRebindKeepsPicture), () => VerifyPauseReserveArrowRebindKeepsPicture());
         return 0;
     }
 }

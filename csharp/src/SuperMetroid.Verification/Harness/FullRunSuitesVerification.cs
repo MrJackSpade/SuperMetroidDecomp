@@ -519,7 +519,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyReserveAutoFrontend), () => VerifyReserveAutoFrontend()),
         new(nameof(VerifyPauseReserveManual), () => VerifyPauseReserveManual()),
         new(nameof(VerifyPauseReserveArrow), () => VerifyPauseReserveArrow()),
-        new(nameof(VerifyPauseReserveArrowRebindKeepsLatch), () => VerifyPauseReserveArrowRebindKeepsLatch()),
+        new(nameof(VerifyPauseReserveArrowRebindKeepsPicture), () => VerifyPauseReserveArrowRebindKeepsPicture()),
         new(nameof(VerifyReserveRowToggleMatchesCartridgeRoutine), () => VerifyReserveRowToggleMatchesCartridgeRoutine()),
         new(nameof(VerifyReserveRowToggleThroughPauseScreen), () => VerifyReserveRowToggleThroughPauseScreen()),
         new(nameof(VerifyPauseReserveTanks), () => VerifyPauseReserveTanks()),

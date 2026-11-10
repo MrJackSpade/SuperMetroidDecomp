@@ -6,21 +6,22 @@ using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Enemies.Sparks;
 
-/// <summary>#641: the Wrecked Ship Spark's typed programs, each matched step by step to its native bank-$A8 list.</summary>
+/// <summary>#641: the Wrecked Ship Spark's typed animations (#1600), each segment matched to its native bank-$A8 list and each animation to the lists' control flow.</summary>
 internal static class SparkAnimationsVerification
 {
-    /// <summary>Every program matches its native list.</summary>
+    /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifySparkAnimations(SuperMetroidAddressSpace rom)
     {
-        int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, SparkAnimations.Programs,
-            SparkFrameToolingDefinitions.Spritemap,
-            word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
-            (word, operands, cue, at) =>
-            {
-                var instruction = Instructions[word];
-                AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
-                AssertEqual(0, operands.Length, $"{at}: operands");
-            });
-        Console.WriteLine($"  Spark programs: {Entries.Length} programs ({steps} steps) match bank $A8.");
+        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
+            SparkAnimations.Segments, SparkAnimations.StartingAt, SparkFrameToolingDefinitions.Spritemap,
+            new NativeEnemyCueRules<SparkCue>(
+                word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
+                (word, operands, cue, at) =>
+                {
+                    var instruction = Instructions[word];
+                    AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
+                    AssertEqual(0, operands.Length, $"{at}: operands");
+                }));
+        Console.WriteLine($"  Spark animations: {Entries.Length} segments ({beats} beats) and {SparkAnimations.StartingAt.Count} animations match bank $A8.");
     }
 }

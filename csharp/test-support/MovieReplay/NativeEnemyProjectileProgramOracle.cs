@@ -190,6 +190,7 @@ internal static class NativeEnemyProjectileProgramOracle
     /// The installed artwork key of a flicker frame's reflected pose, or null for a frame without one; required when
     /// <paramref name="rules"/> name flicker commands.
     /// </param>
+    /// <param name="startsWithClearedCounter">The counted lists the family's owners start directly, with a cleared counter.</param>
     internal static int CompareAll<TSegment, TFrame, TEvent>(
         IImportCartridgeSource cartridge,
         NativeProgramEntry<TSegment>[] entries,
@@ -197,19 +198,20 @@ internal static class NativeEnemyProjectileProgramOracle
         IReadOnlyDictionary<TSegment, Animation<TSegment>> startingAt,
         Func<TFrame, ushort> presentationKey,
         NativeEnemyProjectileCueRules<TEvent> rules,
-        Func<TFrame, ushort?>? reflectedPresentationKey = null)
+        Func<TFrame, ushort?>? reflectedPresentationKey = null,
+        IReadOnlySet<TSegment>? startsWithClearedCounter = null)
         where TSegment : struct, Enum
         where TFrame : struct
         where TEvent : notnull
     {
         Dictionary<TSegment, NativeEnemyList<TSegment>> lists = Lists(cartridge, entries, segments, presentationKey, rules, reflectedPresentationKey);
-        NativeEnemyAnimationOracle.CompareAnimations(lists, startingAt);
+        NativeEnemyAnimationOracle.CompareAnimations(lists, startingAt, startsWithClearedCounter);
         return lists.Values.Sum(list => list.BeatAddresses.Length);
     }
 
     /// <summary>
     /// Reads every typed segment's native bank-$86 list, comparing its beats with the segment's as
-    /// <see cref="CompareAll{TSegment, TFrame, TEvent}(IImportCartridgeSource, NativeProgramEntry{TSegment}[], AnimationSegments{TSegment, TFrame, TEvent}, IReadOnlyDictionary{TSegment, Animation{TSegment}}, Func{TFrame, ushort}, NativeEnemyProjectileCueRules{TEvent}, Func{TFrame, ushort?}?)"/>
+    /// <see cref="CompareAll{TSegment, TFrame, TEvent}(IImportCartridgeSource, NativeProgramEntry{TSegment}[], AnimationSegments{TSegment, TFrame, TEvent}, IReadOnlyDictionary{TSegment, Animation{TSegment}}, Func{TFrame, ushort}, NativeEnemyProjectileCueRules{TEvent}, Func{TFrame, ushort?}?, IReadOnlySet{TSegment}?)"/>
     /// does: each beat's native address, and each control instruction with its address and the beat it follows.
     /// </summary>
     internal static Dictionary<TSegment, NativeEnemyList<TSegment>> Lists<TSegment, TFrame, TEvent>(

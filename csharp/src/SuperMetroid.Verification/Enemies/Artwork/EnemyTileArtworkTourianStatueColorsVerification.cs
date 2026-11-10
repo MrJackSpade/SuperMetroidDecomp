@@ -85,7 +85,8 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
                 $"Tourian statue entry parameter {parameter} shows the native statue colours");
             AssertEqual(ReadReferenceWord(0xaad810 + parameter),
                 NativeEnemyProgramOracle.EntryOf(TourianEntranceStatueNativeListAddresses.Entries,
-                    installed.SlotTable.Slots[0].RequireSpeciesState<TourianEntranceStatueState>().Program.Program),
+                    TourianEntranceStatueAnimations.StartingAt.Single(pair => ReferenceEquals(pair.Value,
+                        installed.SlotTable.Slots[0].RequireSpeciesState<TourianEntranceStatueState>().Playback.Animation)).Key),
                 $"Tourian statue entry parameter {parameter} keeps instruction selection");
             AssertEqual(parameter == 0 ? 3 : 0,
                 installed.Projectiles.EnemyProjectiles.Count(x => x.IsActive),

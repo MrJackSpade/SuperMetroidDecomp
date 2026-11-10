@@ -2,6 +2,7 @@ using SuperMetroid.TestSupport.Assertions;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Compatibility;
 
 namespace SuperMetroid.TestSupport.MovieReplay;
 
@@ -75,10 +76,13 @@ internal static class NativeEnemyAnimationOracle
 
     /// <summary>
     /// Checks that every typed animation plays the phases the native lists' control flow plays from its first segment,
-    /// and that no animation starts in a counted body.
+    /// and that no animation starts in a counted body other than those of <paramref name="startsWithClearedCounter"/>:
+    /// counted lists an owner starts directly, with the counter its spawn cleared. The first play of such a list counts
+    /// that zero down, wrapping it, so the list plays once and then the longest count more times.
     /// </summary>
     internal static void CompareAnimations<TSegment>(
-        IReadOnlyDictionary<TSegment, NativeEnemyList<TSegment>> lists, IReadOnlyDictionary<TSegment, Animation<TSegment>> startingAt)
+        IReadOnlyDictionary<TSegment, NativeEnemyList<TSegment>> lists, IReadOnlyDictionary<TSegment, Animation<TSegment>> startingAt,
+        IReadOnlySet<TSegment>? startsWithClearedCounter = null)
         where TSegment : struct, Enum
     {
         Ensure.NotNull(lists);
@@ -87,6 +91,17 @@ internal static class NativeEnemyAnimationOracle
             .Where(control => control.Kind == NativeEnemyControlKind.Repeat).Select(control => control.Target!.Value)];
         foreach (TSegment start in Enum.GetValues<TSegment>())
         {
+            if (startsWithClearedCounter?.Contains(start) == true)
+            {
+                VerificationAssertions.AssertTrue(bodies.Contains(start), $"{start}, started with a cleared counter, is a counted body");
+                (List<AnimationPhase<TSegment>> counted, AnimationEnd countedEnd) = Linearize(lists, start, WrappingCountdown.LongestStart);
+                List<AnimationPhase<TSegment>> wrapped = [counted[0] with { Plays = 1 }, .. counted];
+                AnimationEnd wrappedEnd = countedEnd is AnimationEnd.Loop loop ? AnimationEnd.LoopsFrom(loop.Phase + 1) : countedEnd;
+                VerificationAssertions.AssertTrue(startingAt.TryGetValue(start, out Animation<TSegment>? started), $"an animation starts at {start}");
+                VerificationAssertions.AssertTrue(started!.Phases.SequenceEqual(wrapped), $"{start}'s phases follow its native lists from a cleared counter");
+                VerificationAssertions.AssertEqual(wrappedEnd, started.End, $"{start}'s end follows its native lists");
+                continue;
+            }
             if (bodies.Contains(start))
             {
                 VerificationAssertions.AssertTrue(!startingAt.ContainsKey(start), $"no animation starts in counted body {start}");
@@ -194,15 +209,18 @@ internal static class NativeEnemyAnimationOracle
         throw new InvalidDataException($"Native {typeof(TSegment).Name} instruction pointer ${nativePointer:X4} stands at {found}, which no typed animation plays.");
     }
 
-    /// <summary>The phases and end the native lists play from <paramref name="start"/>, by the typed animations' rules.</summary>
+    /// <summary>
+    /// The phases and end the native lists play from <paramref name="start"/>, by the typed animations' rules, the first
+    /// list's run playing <paramref name="firstPlays"/> times.
+    /// </summary>
     private static (List<AnimationPhase<TSegment>> Phases, AnimationEnd End) Linearize<TSegment>(
-        IReadOnlyDictionary<TSegment, NativeEnemyList<TSegment>> lists, TSegment start)
+        IReadOnlyDictionary<TSegment, NativeEnemyList<TSegment>> lists, TSegment start, int firstPlays = 1)
         where TSegment : struct, Enum
     {
         var phases = new List<AnimationPhase<TSegment>>();
         var entered = new Dictionary<TSegment, int> { [start] = 0 };
         TSegment segment = start;
-        int runStart = 0, plays = 1;
+        int runStart = 0, plays = firstPlays;
         int? pending = null;
         for (int guard = 0; guard < 100000; guard++)
         {

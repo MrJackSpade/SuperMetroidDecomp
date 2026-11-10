@@ -15,14 +15,16 @@ internal sealed class NativeEnemyProjectileAnimationFamily<TSegment, TFrame, TEv
     IReadOnlyDictionary<TSegment, Animation<TSegment>> startingAt,
     Func<TFrame, ushort> presentationKey,
     NativeEnemyProjectileCueRules<TEvent> rules,
-    Func<TFrame, ushort?>? reflectedPresentationKey) : NativeEnemyProjectileFamily
+    Func<TFrame, ushort?>? reflectedPresentationKey,
+    IReadOnlySet<TSegment>? startsWithClearedCounter) : NativeEnemyProjectileFamily
     where TSegment : struct, Enum
     where TFrame : struct
     where TEvent : notnull
 {
     /// <inheritdoc/>
     internal override int CompareAll(IImportCartridgeSource cartridge) =>
-        NativeEnemyProjectileProgramOracle.CompareAll(cartridge, entries, segments, startingAt, presentationKey, rules, reflectedPresentationKey);
+        NativeEnemyProjectileProgramOracle.CompareAll(cartridge, entries, segments, startingAt, presentationKey, rules, reflectedPresentationKey,
+            startsWithClearedCounter);
 
     /// <inheritdoc/>
     internal override Func<EnemyProjectileAnimation, ushort?> NativePointers(IImportCartridgeSource cartridge)

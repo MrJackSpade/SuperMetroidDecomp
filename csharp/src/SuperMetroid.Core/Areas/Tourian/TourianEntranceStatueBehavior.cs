@@ -139,7 +139,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         TourianEntranceStatueProgram part = statue.Spawn.Population.SpawnSettingsOf<TourianEntranceStatueSpawnSettings>().Statue;
         statue.FrameHold = WrappingCountdown.Start(1);
         statue.Timer = WrappingCountdown.Start(0);
-        statue.SetSpeciesState(new TourianEntranceStatueState(AnimationProgramCursor<TourianEntranceStatueProgram>.Start(part)));
+        statue.SetSpeciesState(new TourianEntranceStatueState(new AnimationPlayback<TourianEntranceStatueProgram>(TourianEntranceStatueAnimations.StartingWith(part), AnimationPlace.StartOfAnimation)));
 
         // Only the first of the three enemy records creates the fixed screen actors. The
         // allocator searches from the last slot down, so this exact call order gives the
@@ -210,8 +210,9 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         if (!EnemyProgramAnimation.Expire(slot))
             return;
         TourianEntranceStatueState state = slot.RequireSpeciesState<TourianEntranceStatueState>();
-        AnimationProgramCursor<TourianEntranceStatueProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, TourianEntranceStatueAnimations.Programs, ref cursor, TourianEntranceStatueFrameDefinitions.ShownFrames.Of);
-        state.Program = cursor;
+        AnimationPlayback<TourianEntranceStatueProgram> playback = state.Playback;
+        EnemyProgramAnimation.Play(slot, TourianEntranceStatueAnimations.Segments, ref playback, TourianEntranceStatueFrameDefinitions.ShownFrames.Of,
+            static cue => throw new InvalidOperationException($"A Tourian entrance statue animation raised {cue}, though its lists raise no events."));
+        state.Playback = playback;
     }
 }

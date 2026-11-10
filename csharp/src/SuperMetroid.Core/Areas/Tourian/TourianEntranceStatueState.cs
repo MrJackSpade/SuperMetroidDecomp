@@ -5,9 +5,9 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// One Tourian entrance statue's own state (#1476). Its setup starts the animation every time, so nothing it holds is
 /// inherited from an earlier occupant of its slot.
 /// </summary>
-/// <param name="program">Where the statue's animation starts.</param>
-internal sealed class TourianEntranceStatueState(AnimationProgramCursor<TourianEntranceStatueProgram> program)
+/// <param name="playback">The statue's animation, before its first play.</param>
+internal sealed class TourianEntranceStatueState(AnimationPlayback<TourianEntranceStatueProgram> playback)
 {
-    /// <summary>Where the statue's typed animation resumes (#641).</summary>
-    internal AnimationProgramCursor<TourianEntranceStatueProgram> Program { get; set; } = program;
+    /// <summary>The statue's animation and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<TourianEntranceStatueProgram> Playback { get; set; } = playback;
 }

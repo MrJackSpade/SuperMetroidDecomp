@@ -19,6 +19,6 @@ public enum ShinesparkPhase
     Crash,
     /// <summary>The crash after the echoes finish circling; despite the member name, this phase waits 30 updates after the orbit contracts rather than continuing circular motion.</summary>
     CrashEchoCircle,
-    /// <summary>The crash's end; releases crash echoes into fixed projectile slots three/four as capacity permits, expires spark state, and publishes the standing-pose completion request.</summary>
+    /// <summary>The crash's end; releases its echoes on Samus's shots as her shot count leaves room, expires spark state, and publishes the standing-pose completion request.</summary>
     CrashFinish,
 }

@@ -12,7 +12,7 @@ namespace SuperMetroid.Verification.Samus.Movement;
 /// </summary>
 internal static class SpeedBoosterWordRangeVerification
 {
-    /// <summary>Exercises the cadence borrow, the counter's range, the crash residue in the echo index and the two widened quantities' ranges.</summary>
+    /// <summary>Exercises the cadence borrow, the counter's range, the echo index's alternation and departure, and the two widened quantities' ranges.</summary>
     internal static void VerifySpeedBoosterWordRange()
     {
         // A cadence countdown at zero borrows from the stage: stage two, cadence zero becomes stage one, cadence 255,
@@ -56,19 +56,17 @@ internal static class SpeedBoosterWordRangeVerification
         AssertThrows<ArgumentOutOfRangeException>(() => range.DecelerationMultiplier = byte.MaxValue + 1,
             "the multiplier never holds more than eight bits");
 
-        // An unfinished crash leaves its orbit stage and radius in the echo cursor. The next boost
-        // capture writes the second slot first, and the step past it returns the cursor to the first slot.
-        SpeedEchoCursor crashResidue = SpeedEchoCursor.CrashOrbit(SuperMetroid.Core.Samus.Abilities.ShinesparkCrashOrbitStage.Contracting, 16);
+        // A full boost captures into the first slot, then the second, and the step past it returns the cursor to the first.
         var boosted = new SamusHorizontalSpeedState
         {
             SpeedBoostCounter = SamusSpeedBoostCounter.AtFullStage,
         };
-        boosted.SetShinesparkCrashEchoState(crashResidue, Position16<RoomPixels>.Zero, Position16<RoomPixels>.Zero);
-        AssertTrue(!boosted.SpeedEchoesDeparting, "the crash residue is not the departure state");
+        AssertTrue(!boosted.SpeedEchoesDeparting, "a Samus who has not boosted is not departing");
         AssertTrue(boosted.CaptureSpeedEchoPosition(0, new(40, 50)), "a full boost captures on a fourth frame");
-        AssertEqual(new Position16<RoomPixels>(40, 50), boosted.SecondSpeedEchoPosition,
-            "a nonzero residue captures into the second slot");
-        AssertEqual(Position16<RoomPixels>.Zero, boosted.FirstSpeedEchoPosition, "the first slot is untouched");
+        AssertEqual(new Position16<RoomPixels>(40, 50), boosted.FirstSpeedEchoPosition, "the first capture fills the first slot");
+        AssertEqual(SpeedEchoCursor.SecondSlot, boosted.SpeedEchoIndex, "the first capture moves the cursor to the second slot");
+        AssertTrue(boosted.CaptureSpeedEchoPosition(4, new(44, 50)), "the next fourth frame captures again");
+        AssertEqual(new Position16<RoomPixels>(44, 50), boosted.SecondSpeedEchoPosition, "the second capture fills the second slot");
         AssertEqual(SpeedEchoCursor.FirstSlot, boosted.SpeedEchoIndex, "stepping past the second slot returns the cursor to the first");
 
         // Cancellation publishes the departure index, which stops capture.

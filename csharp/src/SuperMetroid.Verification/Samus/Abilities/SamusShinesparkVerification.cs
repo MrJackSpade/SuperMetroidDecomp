@@ -37,6 +37,10 @@ static void SeedStoredShinePalettes(TestAddressSpace bus)
     WriteTestWord(bus, SamusSourceDefinitions.PowerSuitPalette.Value, 0x0321);
 }
 
+/// <summary>A fresh shot pool for a spark fixture, whose count admits the crash's echoes and whose shots carry them.</summary>
+static SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem Shots() =>
+    new(new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), InstalledFixtures.SamusOverreads);
+
 /// <summary>Checks shine storage and palette selection through launch, movement, collision, crash, echoes, and return to standing.</summary>
 internal static void VerifySamusStoredShineAndShinespark()
 {
@@ -175,7 +179,7 @@ internal static void VerifySamusStoredShineAndShinespark()
         directional.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x2800);
         uint directionalXBefore = directional.Kinematics.Position.X.RawValue;
         uint directionalYBefore = directional.Kinematics.Position.Y.RawValue;
-        directional.Shinespark.Step(new SamusTerrain { Level = directionLevel }, directional, new ShinesparkFrame { FrameCounter = 0 });
+        directional.Shinespark.Step(new SamusTerrain { Level = directionLevel }, directional, new ShinesparkFrame { FrameCounter = 0, Projectiles = Shots() });
         AssertEqual(expectedPhase, directional.Shinespark.Phase,
             $"pose ${(int)SamusPoseNumbers.Number(targetPose):X2} installs expected shinespark handler");
         AssertEqual(expectsHorizontal, directional.Kinematics.Position.X.RawValue != directionalXBefore,
@@ -216,7 +220,7 @@ internal static void VerifySamusStoredShineAndShinespark()
     externallyReversedSpark.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x2800);
     externallyReversedSpark.Kinematics.ExtraDisplacement = externallyReversedSpark.Kinematics.ExtraDisplacement.WithWholeY(8).WithFractionY(0);
     uint reversedSparkYBefore = externallyReversedSpark.Kinematics.Position.Y.RawValue;
-    externallyReversedSpark.Shinespark.Step(new SamusTerrain { Level = directionLevel }, externallyReversedSpark, new ShinesparkFrame { FrameCounter = 0 });
+    externallyReversedSpark.Shinespark.Step(new SamusTerrain { Level = directionLevel }, externallyReversedSpark, new ShinesparkFrame { FrameCounter = 0, Projectiles = Shots() });
     AssertEqual(0x0000d800, unchecked((int)(externallyReversedSpark.Kinematics.Position.Y.RawValue - reversedSparkYBefore)),
         "positive external Y reverses vertical shinespark after native speed negation");
     AssertEqual(160, externallyReversedSpark.Position.Y.Whole,
@@ -226,10 +230,10 @@ internal static void VerifySamusStoredShineAndShinespark()
 
     for (ushort frame = 0; frame < 29; frame++)
     {
-        ShinesparkMovementResult waiting = shine.Shinespark.Step(new SamusTerrain { Level = empty }, shine, new ShinesparkFrame { FrameCounter = frame });
+        ShinesparkMovementResult waiting = shine.Shinespark.Step(new SamusTerrain { Level = empty }, shine, new ShinesparkFrame { FrameCounter = frame, Projectiles = Shots() });
         AssertTrue(!waiting.WindupTimedOut, $"windup frame {frame} remains stationary");
     }
-    ShinesparkMovementResult timeout = shine.Shinespark.Step(new SamusTerrain { Level = empty }, shine, new ShinesparkFrame { FrameCounter = 29 });
+    ShinesparkMovementResult timeout = shine.Shinespark.Step(new SamusTerrain { Level = empty }, shine, new ShinesparkFrame { FrameCounter = 29, Projectiles = Shots() });
     AssertTrue(timeout.WindupTimedOut, "thirtieth windup frame launches vertically");
     AssertEqual(SamusPoseId.ShinesparkVerticalRightPose, shine.Pose,
         "windup timeout selects right-metadata vertical pose");
@@ -260,7 +264,7 @@ internal static void VerifySamusStoredShineAndShinespark()
         invincible.Shinespark.TryStoreFromSpeedBooster(SamusSpeedBoostCounter.AtFullStage);
         invincible.Shinespark.BeginWindup(invincible);
         invincible.Shinespark.BeginDirectionalLaunch(invincible, targetPose);
-        invincible.Shinespark.Step(new SamusTerrain { Level = directionLevel }, invincible, new ShinesparkFrame { FrameCounter = 0, SamusCannotDie = true });
+        invincible.Shinespark.Step(new SamusTerrain { Level = directionLevel }, invincible, new ShinesparkFrame { FrameCounter = 0, SamusCannotDie = true, Projectiles = Shots() });
         AssertTrue(invincible.Shinespark.Phase is not ShinesparkPhase.Crash,
             $"invincible pose {(int)SamusPoseNumbers.Number(targetPose):X2} continues at {energy} energy");
         AssertTrue(invincible.Position.X.Whole != 160 || invincible.Position.Y.Whole != 160,
@@ -272,7 +276,8 @@ internal static void VerifySamusStoredShineAndShinespark()
     }
 
     // Use a fresh state so horizontal arithmetic begins from exactly CFFA's writes.
-    var horizontal = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+    var horizontalCompatibility = SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus();
+    var horizontal = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), horizontalCompatibility, new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
     {
         Pose = SamusPoseId.ShinesparkWindupRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
@@ -285,10 +290,11 @@ internal static void VerifySamusStoredShineAndShinespark()
     horizontal.Shinespark.BeginDirectionalLaunch(
         horizontal, SamusPoseId.ShinesparkHorizontalRightPose);
     horizontal.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x2800);
+    var horizontalShots = Shots();
     var shineBombObjects = RoomObjectFixtures.Unbound();
 
     uint firstYBefore = horizontal.Kinematics.Position.Y.RawValue;
-    horizontal.Shinespark.Step(new SamusTerrain { Level = empty, RoomObjects = shineBombObjects }, horizontal, new ShinesparkFrame { FrameCounter = 4 });
+    horizontal.Shinespark.Step(new SamusTerrain { Level = empty, RoomObjects = shineBombObjects }, horizontal, new ShinesparkFrame { FrameCounter = 4, Projectiles = horizontalShots });
     AssertTrue(horizontal.Shinespark.Phase == ShinesparkPhase.Horizontal &&
         horizontal.Kinematics.Position.Y.RawValue == firstYBefore,
         "horizontal spark uses only block X movement without colliding");
@@ -310,7 +316,7 @@ internal static void VerifySamusStoredShineAndShinespark()
         "active spark publishes contact damage two");
 
     uint lowEnergyXBefore = horizontal.Kinematics.Position.X.RawValue;
-    horizontal.Shinespark.Step(new SamusTerrain { Level = empty }, horizontal, new ShinesparkFrame { FrameCounter = 5 });
+    horizontal.Shinespark.Step(new SamusTerrain { Level = empty }, horizontal, new ShinesparkFrame { FrameCounter = 5, Projectiles = horizontalShots });
     AssertTrue(horizontal.Kinematics.Position.X.RawValue != lowEnergyXBefore && horizontal.Health == 29,
         "29-energy frame moves then enters crash without another drain");
     AssertEqual(ShinesparkPhase.Crash, horizontal.Shinespark.Phase,
@@ -324,17 +330,17 @@ internal static void VerifySamusStoredShineAndShinespark()
 
     ushort crashCenterX = horizontal.Position.X.Whole;
     ushort crashCenterY = horizontal.Position.Y.Whole;
-    ShinesparkMovementResult firstCrash = horizontal.Shinespark.Step(new SamusTerrain { Level = empty }, horizontal, new ShinesparkFrame { FrameCounter = 6 });
+    ShinesparkMovementResult firstCrash = horizontal.Shinespark.Step(new SamusTerrain { Level = empty }, horizontal, new ShinesparkFrame { FrameCounter = 6, Projectiles = horizontalShots });
     AssertEqual(4, horizontal.Shinespark.CrashRadius,
         "crash orbit expands by four");
     AssertEqual(unchecked((ushort)(crashCenterX - 2)),
-        horizontal.HorizontalSpeed.FirstSpeedEchoPosition!.Value.X,
+        horizontal.Shinespark.FirstOrbitingCopy.X,
         "right-facing first crash echo folds into negative X half");
     AssertEqual(unchecked((ushort)(crashCenterY - 2)),
-        horizontal.HorizontalSpeed.FirstSpeedEchoPosition!.Value.Y,
+        horizontal.Shinespark.FirstOrbitingCopy.Y,
         "right-facing first crash echo folds into negative Y half");
     AssertEqual(unchecked((ushort)(crashCenterX + 2)),
-        horizontal.HorizontalSpeed.SecondSpeedEchoPosition!.Value.X,
+        horizontal.Shinespark.SecondOrbitingCopy.X,
         "opposite crash echo uses positive X half");
     AssertTrue(!firstCrash.CrashSequenceFinished,
         "first crash orbit frame cannot finish sequence");
@@ -342,17 +348,17 @@ internal static void VerifySamusStoredShineAndShinespark()
     // Four expansion calls, 32 separation calls, and four contraction calls comprise the
     // exact `$90:D383-$D3CC` orbit. One was consumed above, so 39 remain.
     StepFrames(39, frame =>
-        horizontal.Shinespark.Step(new SamusTerrain { Level = empty }, horizontal, new ShinesparkFrame { FrameCounter = unchecked((ushort)(7 + frame)) }));
+        horizontal.Shinespark.Step(new SamusTerrain { Level = empty }, horizontal, new ShinesparkFrame { FrameCounter = unchecked((ushort)(7 + frame)), Projectiles = horizontalShots }));
     AssertEqual(ShinesparkPhase.CrashEchoCircle, horizontal.Shinespark.Phase,
         "crash orbit contracts into echo-circle hold");
     AssertEqual(30, horizontal.Shinespark.StartStopTimer,
         "echo circle begins at 30 frames");
 
     StepFrames(30, frame =>
-        horizontal.Shinespark.Step(new SamusTerrain { Level = empty }, horizontal, new ShinesparkFrame { FrameCounter = unchecked((ushort)(46 + frame)) }));
+        horizontal.Shinespark.Step(new SamusTerrain { Level = empty }, horizontal, new ShinesparkFrame { FrameCounter = unchecked((ushort)(46 + frame)), Projectiles = horizontalShots }));
     AssertEqual(ShinesparkPhase.CrashFinish, horizontal.Shinespark.Phase,
         "thirtieth echo-circle frame installs finish handler");
-    ShinesparkMovementResult finished = horizontal.Shinespark.Step(new SamusTerrain { Level = empty }, horizontal, new ShinesparkFrame { FrameCounter = 76 });
+    ShinesparkMovementResult finished = horizontal.Shinespark.Step(new SamusTerrain { Level = empty }, horizontal, new ShinesparkFrame { FrameCounter = 76, Projectiles = horizontalShots });
     AssertTrue(finished.CrashSequenceFinished, "finish handler publishes completion");
     AssertEqual(SamusPoseId.ShinesparkHorizontalRightPose, horizontal.Pose,
         "crash finish retains old pose until the post-animation transition");
@@ -364,35 +370,42 @@ internal static void VerifySamusStoredShineAndShinespark()
         "right-facing crash finish returns through standing pose one");
 
     // `$90:D40D` sampled horizontal-right crash pose `$C9`, so its literal pair is
-    // angle $00/$80. Both fixed projectile slots begin centered at radius 64 and do not
+    // angle $00/$80. Both echoes' shots begin centered at radius zero and do not
     // execute `$90:D4D2` until the following alpha projectile pass.
     AssertEqual(2, horizontal.Shinespark.ReleasedCrashEchoCount,
         "empty projectile capacity admits both departing crash echoes");
-    AssertEqual(0x00, horizontal.Shinespark.FirstReleasedCrashEchoAngle.ToTrigonometryAngle().RawValue,
+    AssertTrue(ReferenceEquals(horizontalShots.Slots[3], horizontal.Shinespark.FirstReleasedEcho.Shot) &&
+        ReferenceEquals(horizontalShots.Slots[4], horizontal.Shinespark.SecondReleasedEcho.Shot),
+        "the echoes take the shot pool's last two places, the first echo the one before the last");
+    AssertEqual(0x00, horizontal.Shinespark.FirstReleasedEcho.Shot!.EchoAngle.RawValue,
         "horizontal-right first departing echo uses ROM table angle zero");
-    AssertEqual(0x80, horizontal.Shinespark.SecondReleasedCrashEchoAngle.ToTrigonometryAngle().RawValue,
+    AssertEqual(0x80, horizontal.Shinespark.SecondReleasedEcho.Shot!.EchoAngle.RawValue,
         "horizontal-right second departing echo uses opposite ROM table angle $80");
-    AssertEqual(0, horizontal.Shinespark.FirstReleasedCrashEchoRadius,
+    AssertEqual(0, horizontal.Shinespark.FirstReleasedEcho.Shot!.EchoRadius,
         "departing projectile radius starts at zero, separate from drawing speed");
-    AssertEqual(crashCenterX, horizontal.Shinespark.FirstReleasedCrashEcho.Position.X,
+    AssertEqual(crashCenterX, horizontal.Shinespark.FirstReleasedEcho.ShownPosition!.Value.X,
         "departing echo does not move in its spawn frame");
+    AssertEqual(crashCenterY, horizontalCompatibility.CrashOrbitTravel.Travel,
+        "a released first echo leaves Samus's height as the next orbit's travel");
 
-    horizontal.Shinespark.StepReleasedCrashEchoProjectiles(
-        bus, horizontal,
+    horizontalShots.StepReleasedCrashEchoProjectiles(
+        horizontal,
         cameraPosition: new(unchecked((ushort)(crashCenterX - 128)), 0));
-    AssertEqual(8, horizontal.Shinespark.FirstReleasedCrashEchoRadius,
+    AssertEqual(8, horizontal.Shinespark.FirstReleasedEcho.Shot!.EchoRadius,
         "speed-echo pre-instruction expands radius by eight");
     AssertEqual(crashCenterX,
-        horizontal.Shinespark.FirstReleasedCrashEcho.Position.X,
+        horizontal.Shinespark.FirstReleasedEcho.ShownPosition!.Value.X,
         "angle-zero departing echo has zero X component");
     AssertEqual(unchecked((ushort)(horizontal.Position.Y.Whole - 8)),
-        horizontal.Shinespark.FirstReleasedCrashEcho.Position.Y,
+        horizontal.Shinespark.FirstReleasedEcho.ShownPosition!.Value.Y,
         "angle-zero departing echo uses negative cosine-table Y component");
+    AssertEqual(horizontal.Shinespark.FirstReleasedEcho.ShownPosition!.Value.Y, horizontalCompatibility.CrashOrbitTravel.Travel,
+        "the first echo leaves its height as the next orbit's travel");
     AssertEqual(crashCenterX,
-        horizontal.Shinespark.SecondReleasedCrashEcho.Position.X,
+        horizontal.Shinespark.SecondReleasedEcho.ShownPosition!.Value.X,
         "angle-$80 departing echo has zero X component");
     AssertEqual(unchecked((ushort)(horizontal.Position.Y.Whole + 8)),
-        horizontal.Shinespark.SecondReleasedCrashEcho.Position.Y,
+        horizontal.Shinespark.SecondReleasedEcho.ShownPosition!.Value.Y,
         "angle-$80 departing echo uses positive cosine-table Y component");
 
     // These are vertical rays, recentered on the aligned standing body rather
@@ -400,27 +413,31 @@ internal static void VerifySamusStoredShineAndShinespark()
     // Verify each exact admission boundary rather than only eventual disappearance.
     for (int radius = 16; radius <= 168; radius += 8)
     {
-        horizontal.Shinespark.StepReleasedCrashEchoProjectiles(
-            bus, horizontal,
+        horizontalShots.StepReleasedCrashEchoProjectiles(
+            horizontal,
             cameraPosition: new(unchecked((ushort)(crashCenterX - 128)), 0));
         AssertEqual(horizontal.Position.Y.Whole - radius >= 0,
-            horizontal.Shinespark.FirstReleasedCrashEcho.Active,
+            horizontal.Shinespark.FirstReleasedEcho.ShownPosition is not null,
             "upward echo remains active through row zero");
         AssertEqual(horizontal.Position.Y.Whole + radius < 256,
-            horizontal.Shinespark.SecondReleasedCrashEcho.Active,
+            horizontal.Shinespark.SecondReleasedEcho.ShownPosition is not null,
             "downward echo clears on reaching row 256");
     }
     AssertEqual(0, horizontal.Shinespark.ReleasedCrashEchoCount,
         "departing crash echoes delete themselves outside the 256-pixel viewport");
+    AssertEqual(0, horizontalCompatibility.CrashOrbitTravel.Travel, "a first echo that leaves the screen leaves no travel");
+    AssertEqual(0, horizontalShots.SlotTable.ProjectileCounter, "each echo that leaves the screen clears its shot");
 
     // Repeat only the state-machine spine for native projectile-capacity edges. A count of
-    // four suppresses fixed slot three but still allocates slot four; five suppresses both.
+    // four releases only the second echo; five releases neither.
     static SamusState FinishAtProjectileCount(
-        TestAddressSpace fixtureBus,
         RoomLevelData fixtureLevel,
-        ushort projectileCounter)
+        int projectileCounter,
+        SuperMetroid.Core.Samus.SamusCompatibility compatibility)
     {
-        var fixture = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+        var fixtureShots = Shots();
+        fixtureShots.SlotTable.ProjectileCounter = projectileCounter;
+        var fixture = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), compatibility, new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
         {
             Pose = SamusPoseId.ShinesparkWindupRightPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
@@ -433,38 +450,37 @@ internal static void VerifySamusStoredShineAndShinespark()
         fixture.Shinespark.BeginDirectionalLaunch(
             fixture, SamusPoseId.ShinesparkHorizontalRightPose);
         fixture.Kinematics.YAcceleration = default;
-        fixture.Shinespark.Step(new SamusTerrain { Level = fixtureLevel }, fixture, new ShinesparkFrame { FrameCounter = 0, ProjectileCounter = projectileCounter });
+        fixture.Shinespark.Step(new SamusTerrain { Level = fixtureLevel }, fixture, new ShinesparkFrame { FrameCounter = 0, Projectiles = fixtureShots });
         for (ushort frame = 1; frame <= 71; frame++)
         {
-            fixture.Shinespark.Step(new SamusTerrain { Level = fixtureLevel }, fixture, new ShinesparkFrame { FrameCounter = frame, ProjectileCounter = projectileCounter });
+            fixture.Shinespark.Step(new SamusTerrain { Level = fixtureLevel }, fixture, new ShinesparkFrame { FrameCounter = frame, Projectiles = fixtureShots });
         }
         return fixture;
     }
 
-    SamusState countFour = FinishAtProjectileCount(bus, directionLevel, 4);
+    var countFourCompatibility = SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus();
+    SamusState countFour = FinishAtProjectileCount(directionLevel, 4, countFourCompatibility);
     AssertEqual(1, countFour.Shinespark.ReleasedCrashEchoCount,
-        "projectile count four admits only fixed crash-echo slot four");
-    AssertEqual(128, countFour.Shinespark.CrashAngularTravel,
-        "capacity-four finish retains the angular-travel word because slot three was not allocated");
-    AssertEqual(countFour.Shinespark.CrashAngularTravel,
-        countFour.Shinespark.FirstReleasedCrashEcho.Position.Y,
-        "inactive first echo Y and crash travel expose the same native word");
-    AssertTrue(!countFour.Shinespark.FirstReleasedCrashEcho.Active &&
-        countFour.Shinespark.SecondReleasedCrashEcho.Active,
-        "capacity-four branch preserves native fixed-slot selection");
-    SamusState countFive = FinishAtProjectileCount(bus, directionLevel, 5);
+        "projectile count four admits only the second crash echo");
+    AssertEqual(128, countFourCompatibility.CrashOrbitTravel.Travel,
+        "a finish that releases no first echo leaves the travel its orbit ended on");
+    AssertTrue(countFour.Shinespark.FirstReleasedEcho.ShownPosition is null &&
+        countFour.Shinespark.SecondReleasedEcho.ShownPosition is not null,
+        "a count of four releases the second echo alone");
+    var countFiveCompatibility = SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus();
+    SamusState countFive = FinishAtProjectileCount(directionLevel, 5, countFiveCompatibility);
     AssertEqual(0, countFive.Shinespark.ReleasedCrashEchoCount,
         "projectile count five suppresses both departing crash echoes");
-    AssertEqual(128, countFive.Shinespark.CrashAngularTravel,
-        "capacity-five finish does not clear retained crash travel");
+    AssertEqual(128, countFiveCompatibility.CrashOrbitTravel.Travel,
+        "a finish that releases no echo does not clear the crash travel");
 
     Console.WriteLine("  Shinespark: storage, palette, launch, motion, bomb blocks, crash orbit/circle, departing echoes, and standing return agree.");
 }
 
     /// <summary>
     /// Checks that the crash orbit's angular travel and a departing echo's radius wrap past 65535 to zero. The travel
-    /// is seeded through the slot-three echo coordinate it shares, as a preceding echo leaves it, and both values then
-    /// advance only through the production crash and echo handlers.
+    /// is seeded as a preceding first echo leaves its height, and both values then advance only through the production
+    /// crash and echo handlers.
     /// </summary>
     internal static void VerifyCrashTravelAndEchoRadiusWrap()
     {
@@ -472,7 +488,8 @@ internal static void VerifySamusStoredShineAndShinespark()
         const int height = 24;
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height),
             new RoomLevelPlanes(new RoomTerrainBlock[width * height], new RoomBlockBehavior[width * height], new RoomBlockAppearance[width * height]), RoomLevelData.NothingBeyondGrid());
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+        var compatibility = SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus();
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), compatibility, new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
         {
             Pose = SamusPoseId.ShinesparkWindupRightPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
@@ -480,28 +497,28 @@ internal static void VerifySamusStoredShineAndShinespark()
         };
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
+        var shots = Shots();
         samus.Shinespark.TryStoreFromSpeedBooster(SamusSpeedBoostCounter.AtFullStage);
         samus.Shinespark.BeginWindup(samus);
         samus.Shinespark.BeginDirectionalLaunch(samus, SamusPoseId.ShinesparkHorizontalRightPose);
         samus.Kinematics.YAcceleration = default;
 
         // Four short of the largest travel, so the first orbiting call wraps it to zero.
-        int seededTravel = SamusShinesparkState.LargestCrashAngularTravel - 3;
-        samus.Shinespark.FirstReleasedCrashEchoSlot.Position = new Position16<RoomPixels>(0, checked((ushort)seededTravel));
+        int seededTravel = SuperMetroid.Core.Compatibility.CrashOrbitTravelCarryover.LargestTravel - 3;
+        compatibility.CrashOrbitTravel.LeaveEchoHeight(seededTravel);
         int nmiFrame = 0;
-        void StepSpark() => samus.Shinespark.Step(new SamusTerrain { Level = level }, samus, new ShinesparkFrame { FrameCounter = nmiFrame++ });
+        void StepSpark() => samus.Shinespark.Step(new SamusTerrain { Level = level }, samus, new ShinesparkFrame { FrameCounter = nmiFrame++, Projectiles = shots });
 
         StepSpark();
         AssertEqual(ShinesparkPhase.Crash, samus.Shinespark.Phase, "below the sustaining energy the spark installs the crash handler");
-        AssertEqual(seededTravel, samus.Shinespark.CrashAngularTravel, "crash entry keeps the travel a preceding echo left");
+        AssertEqual(seededTravel, compatibility.CrashOrbitTravel.Travel, "crash entry keeps the travel a preceding echo left");
         for (int call = 1; call <= 4; call++)
             StepSpark();
         AssertEqual(16, samus.Shinespark.CrashRadius, "four expanding calls reach radius sixteen");
         AssertEqual(ShinesparkCrashOrbitStage.Orbiting, samus.Shinespark.CrashOrbitStage, "radius sixteen starts the orbit");
 
         StepSpark();
-        AssertEqual(0, samus.Shinespark.CrashAngularTravel, "the first orbiting call wraps the travel past 65535 to zero");
-        AssertEqual((ushort)0, samus.Shinespark.FirstReleasedCrashEcho.Position.Y, "the shared echo coordinate holds the wrapped travel");
+        AssertEqual(0, compatibility.CrashOrbitTravel.Travel, "the first orbiting call wraps the travel past 65535 to zero");
         // From zero the travel climbs four per call; 124 still orbits and 128 starts contracting.
         for (int call = 2; call <= 32; call++)
         {
@@ -509,17 +526,19 @@ internal static void VerifySamusStoredShineAndShinespark()
             AssertEqual(ShinesparkCrashOrbitStage.Orbiting, samus.Shinespark.CrashOrbitStage, $"orbiting call {call} keeps orbiting below 128");
         }
         StepSpark();
-        AssertEqual(128, samus.Shinespark.CrashAngularTravel, "the wrapped travel climbs back to 128");
+        AssertEqual(128, compatibility.CrashOrbitTravel.Travel, "the wrapped travel climbs back to 128");
         AssertEqual(ShinesparkCrashOrbitStage.Contracting, samus.Shinespark.CrashOrbitStage, "travel 128 starts contracting");
 
         // A departing echo seven short of the largest radius wraps to zero on its next expansion and is drawn on Samus.
-        var echo = new SamusShinesparkState.ReleasedEchoSlot();
-        echo.Initialize(RotationAngle.Zero, samus.Position.Whole);
-        echo.Radius = SamusShinesparkState.ReleasedEchoSlot.LargestRadius - 7;
-        AssertTrue(SamusShinesparkState.StepReleasedCrashEcho(samus, new Position16<RoomPixels>(0, 0), echo),
-            "a wrapped echo stays inside the viewport");
-        AssertEqual(0, echo.Radius, "a departing echo's radius wraps past 65535 to zero");
-        AssertEqual(samus.Position.Whole, echo.Position, "a zero radius places the echo on Samus");
+        AssertTrue(shots.Shinespark.ReleaseCrashEchoes(samus.Shinespark.FirstReleasedEcho, samus.Shinespark.SecondReleasedEcho,
+                new ShinesparkDepartureAngles(RotationAngle.Zero, RotationAngle.HalfTurn), SuperMetroid.Core.Progression.SamusBeamCombination.Power, samus.Position.Whole),
+            "an empty shot pool releases both echoes");
+        SuperMetroid.Core.Samus.Projectiles.SamusProjectileSlot echoShot = samus.Shinespark.FirstReleasedEcho.Shot!;
+        echoShot.EchoRadius = SamusShinesparkState.LargestEchoRadius - 7;
+        shots.Shinespark.StepShinesparkEcho(samus, echoShot, new Position16<RoomPixels>(0, 0));
+        AssertTrue(samus.Shinespark.FirstReleasedEcho.ShownPosition is not null, "a wrapped echo stays inside the viewport");
+        AssertEqual(0, echoShot.EchoRadius, "a departing echo's radius wraps past 65535 to zero");
+        AssertEqual(samus.Position.Whole, samus.Shinespark.FirstReleasedEcho.ShownPosition!.Value, "a zero radius places the echo on Samus");
         Console.WriteLine("Shinespark crash wraps: angular travel and departing echo radius wrap past 65535 to zero.");
     }
 

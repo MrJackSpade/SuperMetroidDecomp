@@ -376,22 +376,6 @@ internal static class CoreAccess
         ];
     }
 
-    /// <summary>Observes the two released crash echoes' travel angles and first echo radius.</summary>
-    extension(SamusShinesparkState self)
-    {
-        /// <summary>Angular-travel word of departing crash-echo projectile slot three.</summary>
-        internal RotationAngle FirstReleasedCrashEchoAngle =>
-            self.FirstReleasedCrashEchoSlot.Angle;
-
-        /// <summary>Angular-travel word of departing crash-echo projectile slot four.</summary>
-        internal RotationAngle SecondReleasedCrashEchoAngle =>
-            self.SecondReleasedCrashEchoSlot.Angle;
-
-        /// <summary>Departing radius (projectile X velocity) of crash-echo projectile slot three.</summary>
-        internal int FirstReleasedCrashEchoRadius =>
-            self.FirstReleasedCrashEchoSlot.Radius;
-    }
-
     /// <summary>Lists active PLM block positions and collectible phases and artwork in slot order.</summary>
     extension(RoomObjectSystem self)
     {

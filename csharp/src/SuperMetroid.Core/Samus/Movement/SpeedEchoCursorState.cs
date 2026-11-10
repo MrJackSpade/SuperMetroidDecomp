@@ -11,7 +11,4 @@ public enum SpeedEchoCursorState
 
     /// <summary>The echoes are departing toward Samus.</summary>
     Departing,
-
-    /// <summary>An unfinished shinespark crash's orbit stage and radius.</summary>
-    CrashOrbit,
 }

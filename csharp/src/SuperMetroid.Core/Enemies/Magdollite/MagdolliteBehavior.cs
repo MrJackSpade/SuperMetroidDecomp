@@ -497,7 +497,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (state.DesiredProgram == state.InstalledProgram)
             return;
-        state.Program = AnimationProgramCursor<MagdolliteProgram>.Start(state.DesiredProgram);
+        state.Playback = new(MagdolliteAnimations.StartingWith(state.DesiredProgram), AnimationPlace.StartOfAnimation);
         state.InstalledProgram = state.DesiredProgram;
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
@@ -746,9 +746,11 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Magdollite's typed animation.</summary>
     internal void AdvanceMagdolliteTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>
-        EnemyProgramAnimation.Advance(slot, MagdolliteAnimations.Programs, MagdolliteFrameDefinitions.ShownFrames.Of,
-            static (MagdolliteEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
-            (state, cue, _) => ApplyMagdolliteCue(slot, cue, context.Camera));
+        EnemyProgramAnimation.Advance(slot, MagdolliteAnimations.Segments, MagdolliteFrameDefinitions.ShownFrames.Of,
+            static (MagdolliteEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            (state, cue) => ApplyMagdolliteCue(slot, cue, context.Camera) is { } target
+                ? new AnimationContinuation<MagdolliteProgram>(MagdolliteAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                : null);
 
     /// <summary>Propagates common power-bomb death and freezing effects to following composite records.</summary>
     internal void AddMagdollitePowerBombReactions(EnemySharedReactions table)

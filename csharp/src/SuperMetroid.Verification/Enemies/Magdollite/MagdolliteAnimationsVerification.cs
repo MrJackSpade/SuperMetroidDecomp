@@ -7,27 +7,28 @@ using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Enemies.Magdollite;
 
-/// <summary>#641: the Magdollite's typed programs, each matched step by step to its native bank-$A8 list.</summary>
+/// <summary>#641, #1600: the Magdollite's typed animations, each segment matched to its native bank-$A8 list and each animation to the lists' control flow.</summary>
 internal static class MagdolliteAnimationsVerification
 {
-    /// <summary>Every program matches its native list.</summary>
+    /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifyMagdolliteAnimations(SuperMetroidAddressSpace rom)
     {
-        int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, MagdolliteAnimations.Programs,
-            MagdolliteFrameToolingDefinitions.Spritemap,
-            word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
-            (word, operands, cue, at) =>
-            {
-                var instruction = Instructions[word];
-                AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
-                // A sound operand is checked by decoding the native byte to the cue's sound.
-                for (int index = 0; index < operands.Length; index++)
-                    AssertEqual<SoundEffectId>(instruction.Operands[index] switch
+        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
+            MagdolliteAnimations.Segments, MagdolliteAnimations.StartingAt, MagdolliteFrameToolingDefinitions.Spritemap,
+            new NativeEnemyCueRules<MagdolliteCue>(
+                word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
+                (word, operands, cue, at) =>
                 {
-                    'V' => cue.Sound ?? throw new InvalidOperationException($"{at}: the sound cue carries no sound."),
-                    _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
-                }, SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, operands[index]), $"{at}: operand {index}");
-            });
-        Console.WriteLine($"  Magdollite programs: {Entries.Length} programs ({steps} steps) match bank $A8.");
+                    var instruction = Instructions[word];
+                    AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
+                    // A sound operand is checked by decoding the native byte to the cue's sound.
+                    for (int index = 0; index < operands.Length; index++)
+                        AssertEqual<SoundEffectId>(instruction.Operands[index] switch
+                    {
+                        'V' => cue.Sound ?? throw new InvalidOperationException($"{at}: the sound cue carries no sound."),
+                        _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
+                    }, SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, operands[index]), $"{at}: operand {index}");
+                }));
+        Console.WriteLine($"  Magdollite animations: {Entries.Length} segments ({beats} beats) and {MagdolliteAnimations.StartingAt.Count} animations match bank $A8.");
     }
 }

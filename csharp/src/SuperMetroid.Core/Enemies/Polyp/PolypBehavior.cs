@@ -43,7 +43,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = WrappingCountdown.Start(0);
         var state = new PolypEnemyState
         {
-            Program = AnimationProgramCursor<PolypProgram>.Start(PolypProgram.Stationary),
+            Playback = new(PolypAnimations.StartingWith(PolypProgram.Stationary), AnimationPlace.StartOfAnimation),
             Function = PolypEnemyFunction.WaitingForSamus,
             CooldownTimer = 0,
         };
@@ -128,8 +128,9 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Polyp's typed animation.</summary>
     internal static void AdvancePolypTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, PolypAnimations.Programs, PolypFrameDefinitions.ShownFrames.Of,
-            static (PolypEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
+        EnemyProgramAnimation.Advance(slot, PolypAnimations.Segments, PolypFrameDefinitions.ShownFrames.Of,
+            static (PolypEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            static (_, cue) => throw new InvalidOperationException($"The Polyp's cue-free animation raised {cue}."));
 
     /// <summary>Ports Polyp's main AI.</summary>
     internal void RunPolypMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)

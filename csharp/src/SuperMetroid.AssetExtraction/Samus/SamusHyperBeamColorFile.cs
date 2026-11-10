@@ -8,9 +8,9 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <summary>Reads and writes the installed Samus Hyper Beam colour document.</summary>
 public static class SamusHyperBeamColorFile
 {
-    /// <summary>Validates and compiles the ten full-body Hyper Beam RGB5 rows, preserving independently supplied color edits while leaving palette-cycle timing to Samus's native handler.</summary>
+    /// <summary>Validates the ten full-body Hyper Beam RGB5 rows and keeps every colour as installed, leaving palette-cycle timing to gameplay.</summary>
     /// <param name="json">UTF-8 JSON source consumed from its current position and left open.</param>
-    /// <returns>Compiled packed-color catalog detached from the document arrays, with shared hue/shade relationships resolved on demand.</returns>
+    /// <returns>The complete installed cycle, detached from the document arrays.</returns>
     /// <exception cref="ArgumentNullException">The source stream is null.</exception>
     /// <exception cref="InvalidDataException">The JSON contains duplicate or unknown properties, an unsupported version, dimensions other than ten rows of sixteen colors, null colors, or channels outside 0..31.</exception>
     public static InstalledSamusHyperBeamColors Read(Stream json)

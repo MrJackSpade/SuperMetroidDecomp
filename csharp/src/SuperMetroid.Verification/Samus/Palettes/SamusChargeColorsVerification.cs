@@ -144,20 +144,6 @@ internal static class SamusChargeColorsVerification
         var samusColours = new SamusColours();
         for (int family = 0; family < 2; family++)
         {
-            var input = family == 0 ? catalog.chargedBeam : catalog.pseudoScrew;
-            var stored = input.colors;
-            AssertEqual(family == 0 ? 25 : 24, stored.Count, "Charge catalog stores each native phase input once");
-            var tintInputs = input.fadeInputs;
-            AssertEqual(family == 0 ? 0 : 2, tintInputs.Count, "Only Power/Varia pseudo-Screw ink2 need tint input overrides");
-            if (family != 0)
-            {
-                foreach (var entry in tintInputs)
-                {
-                    AssertTrue(entry.Key is 2 or 98, "Pseudo-Screw tint input belongs to Power/Varia ink2");
-                    foreach (var field in MetadataShape.Fields(typeof(LoadingPaletteInputView.Channels), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
-                        AssertEqual(field.Name == "blue", field.GetValue(entry.Value) is not null, "Only differing blue channel remains stored");
-                }
-            }
             for (int suit = 0; suit < 3; suit++)
             {
                 int table = family == 0 ? SamusSourceDefinitions.BeamChargePointers.Value : SamusSourceDefinitions.PseudoScrewPointers.Value;
@@ -165,9 +151,6 @@ internal static class SamusChargeColorsVerification
                 for (int phase = 0; phase < 6; phase++)
                 {
                     ushort pointer = Word(0x910000 | (list + phase * 2));
-                    int firstPhase = 0;
-                    while (Word(0x910000 | (list + firstPhase * 2)) != pointer) firstPhase++;
-                    AssertEqual(firstPhase, SamusChargeColorFormat.CanonicalPhase(family != 0, phase), "Canonical phase matches first native pointer identity");
                     bool found = family == 0
                         ? SamusChargePaletteDefinitions.TryChargedBeam((ushort)(suit * 2), (ushort)(phase * 2), out ushort compiled)
                         : SamusChargePaletteDefinitions.TryPseudoScrew((ushort)(suit * 2), (ushort)(phase * 2), out compiled);
@@ -181,7 +164,6 @@ internal static class SamusChargeColorsVerification
                         ushort native = Word(0x9b0000 | (pointer + color * 2));
                         expected[family, suit, phase, color] = native;
                         AssertEqual(native, colours.ResolveCharge(family != 0, suit, phase, color), "Native charge color");
-                        AssertEqual((family == 0 ? phase == 0 : phase == 3) && (suit == 0 || native != expected[family, 0, phase, color]), stored.ContainsKey(new TableColourPlace((suit * 6 + phase), color)), "Only canonical phase owns stock input");
                     }
                     for (int color = 0; color < 16; color++)
                         AssertEqual(expected[family, suit, phase, color], shownSuit[color], "Charge shade shows its sixteen native colors");
@@ -209,131 +191,13 @@ internal static class SamusChargeColorsVerification
         var selectors = Enumerable.Range(0, SamusDeathExplosionTimingDefinitions.RecordCount)
             .Select(index => (ushort)rom.ReadCartridgeByte(SamusSourceDefinitions.DeathExplosionTimingAndPaletteIndices.Value + 2 * index + 1)).ToArray();
         var death = new InstalledSamusDeathPalettes(ToColors(deathSuited), ToColors(deathSuitless), ToColors(whiteout), selectors);
-        foreach (var inputs in new[] { death.suitedFadeInputs, death.suitlessFadeInputs })
-            AssertEqual(0, inputs.Count, "Original death shades need no correction inputs");
-        foreach (var (stored, count) in new[] { new VerifySamusChargeColorPhasesCase(death.suited.Count, 25), new VerifySamusChargeColorPhasesCase(death.suitless.Count, 3), new VerifySamusChargeColorPhasesCase(death.explosionPaletteIndices.Count, 0) })
-            AssertEqual(count, stored, "Only independent death rows remain stored");
-        var deathTintInputs = death.tintShadeInputs;
-        AssertEqual(3, deathTintInputs.Count, "Two interior intensities and dark-endpoint red/blue remain supplied");
-        foreach (var entry in deathTintInputs)
-        {
-            AssertTrue(entry.Key is 7 or 9 or 10, "Only the tint endpoint and two interior inks have inputs");
-            foreach (var field in MetadataShape.Fields(typeof(LoadingPaletteInputView.Channels), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
-                AssertEqual(field.Name == "blue" || entry.Key == 10 && field.Name == "red",
-                    field.GetValue(entry.Value) is not null, "Only independent native tint channels remain stored");
-        }
-        for (int brightGreen = 0; brightGreen < 32; brightGreen++)
-        for (int brightBlue = 0; brightBlue < 32; brightBlue++)
-        for (int darkBlue = 0; darkBlue < 32; darkBlue++)
-        {
-            ushort bright = (ushort)(brightGreen << 5 | brightBlue << 10);
-            ushort dark = (ushort)(31 - darkBlue | darkBlue << 10);
-            bool valid = InstalledSamusDeathPalettes.TrySuitlessTintEndpoint(RgbColor.FromWord(checked(bright)), RgbColor.FromWord(checked(dark)), out RgbColor result);
-            int expectedGreen = brightGreen - (brightBlue - darkBlue);
-            AssertEqual(expectedGreen is >= 0 and <= 31, valid, "Complete endpoint balance bounds");
-            if (valid)
-            {
-                AssertEqual(dark & 0x7c1f, result.ToWord() & 0x7c1f, "Endpoint keeps independent red/blue");
-                AssertEqual(brightGreen - brightBlue, (result.ToWord() >> 5 & 31) - (result.ToWord() >> 10), "Endpoint preserves green-blue balance");
-            }
-            else AssertEqual(0, result, "Unrepresentable endpoint is not clamped or wrapped");
-        }
-        foreach (ushort invalid in new ushort[] { 0x8000, 0xffff })
-        {
-            AssertThrows<ArgumentOutOfRangeException>(() => InstalledSamusDeathPalettes.TrySuitlessTintEndpoint(RgbColor.FromWord(checked(invalid)), new RgbColor(0, 0, 0), out _), "Invalid bright tint endpoint");
-            AssertThrows<ArgumentOutOfRangeException>(() => InstalledSamusDeathPalettes.TrySuitlessTintEndpoint(new RgbColor(0, 0, 0), RgbColor.FromWord(checked(invalid)), out _), "Invalid dark tint endpoint");
-        }
-        var deathWarmInputs = death.warmShadeInputs;
-        AssertEqual(1, deathWarmInputs.Count, "Only warm dark-endpoint components remain stored");
-        foreach (var field in MetadataShape.Fields(typeof(LoadingPaletteInputView.Channels), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
-            AssertEqual(field.Name != "blue", field.GetValue(deathWarmInputs[4]) is not null, "Warm endpoint stores only independent red/green");
-        for (int blue = 0; blue < 32; blue++)
-        for (int redGreen = 0; redGreen < 1024; redGreen++)
-        {
-            RgbColor actual = InstalledSamusDeathPalettes.SuitlessWarmEndpoint(RgbColor.FromWord(checked((ushort)(blue << 10))), RgbColor.FromWord(checked((ushort)(redGreen | (31 - blue) << 10))));
-            AssertEqual(blue, actual.ToWord() >> 10, "Warm endpoint takes bright blue");
-            AssertEqual(redGreen, actual.ToWord() & 1023, "Warm endpoint preserves dark red/green");
-        }
-        foreach (ushort invalid in new ushort[] { 0x8000, 0xffff })
-        {
-            AssertThrows<ArgumentOutOfRangeException>(() => InstalledSamusDeathPalettes.SuitlessWarmEndpoint(RgbColor.FromWord(checked(invalid)), new RgbColor(0, 0, 0)), "Invalid bright warm endpoint");
-            AssertThrows<ArgumentOutOfRangeException>(() => InstalledSamusDeathPalettes.SuitlessWarmEndpoint(new RgbColor(0, 0, 0), RgbColor.FromWord(checked(invalid))), "Invalid dark warm endpoint");
-        }
-        for (int first = 0; first < 32; first++)
-        for (int last = 0; last < 32; last++)
-        for (int channel = 0; channel < 3; channel++)
-            AssertEqual((ushort)((int)decimal.Floor((first + last) / 2m) << (channel * 5)),
-                InstalledSamusDeathPalettes.SuitlessTintMidpoint(RgbColor.FromWord(checked((ushort)(first << (channel * 5)))), RgbColor.FromWord(checked((ushort)(last << (channel * 5))))),
-                "Suitless tint midpoint floors each independent RGB5 channel");
-        foreach (ushort invalid in new ushort[] { 0x8000, 0xffff })
-        {
-            AssertThrows<ArgumentOutOfRangeException>(() => InstalledSamusDeathPalettes.SuitlessTintMidpoint(RgbColor.FromWord(checked(invalid)), new RgbColor(0, 0, 0)), "Invalid midpoint first endpoint");
-            AssertThrows<ArgumentOutOfRangeException>(() => InstalledSamusDeathPalettes.SuitlessTintMidpoint(new RgbColor(0, 0, 0), RgbColor.FromWord(checked(invalid))), "Invalid midpoint last endpoint");
-        }
-        foreach (int ink in new[] { 7, 8, 9 })
-        {
-            AssertTrue(!InstalledSamusDeathPalettes.TrySuitlessTintShade(RgbColor.FromWord(0x001f), RgbColor.FromWord(0x001f), 31, ink, out _), "Tint red overflow remains explicit input");
-            AssertTrue(!InstalledSamusDeathPalettes.TrySuitlessTintShade(RgbColor.FromWord(0x7c00), RgbColor.FromWord(0x7c00), 0, ink, out _), "Tint red/green underflow remains explicit input");
-        }
-        foreach (int invalid in new[] { -1, 6, 10, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => InstalledSamusDeathPalettes.TrySuitlessTintShade(new RgbColor(0, 0, 0), new RgbColor(0, 0, 0), 0, invalid, out _), "Invalid tint ink");
-        foreach (int invalid in new[] { -1, 32, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => InstalledSamusDeathPalettes.TrySuitlessTintShade(new RgbColor(0, 0, 0), new RgbColor(0, 0, 0), invalid, 7, out _), "Invalid tint blue");
-        foreach (ushort invalid in new ushort[] { 0x8000, 0xffff })
-        {
-            AssertThrows<ArgumentOutOfRangeException>(() => InstalledSamusDeathPalettes.TrySuitlessTintShade(RgbColor.FromWord(checked(invalid)), new RgbColor(0, 0, 0), 0, 7, out _), "Invalid tint first endpoint");
-            AssertThrows<ArgumentOutOfRangeException>(() => InstalledSamusDeathPalettes.TrySuitlessTintShade(new RgbColor(0, 0, 0), RgbColor.FromWord(checked(invalid)), 0, 7, out _), "Invalid tint last endpoint");
-        }
-        var neutralInputs = death.neutralInputs;
-        AssertEqual(2, neutralInputs.Count, "Only gray peak and final neutral intensities remain");
-        foreach (var entry in neutralInputs)
-        {
-            AssertTrue(entry.Key is 11 or 144, "Only native gray roots store shared intensity inputs");
-            foreach (var field in MetadataShape.Fields(typeof(LoadingPaletteInputView.Channels), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
-                AssertEqual(field.Name == "red", field.GetValue(entry.Value) is not null, "Neutral stock inputs store one intensity only");
-        }
-        for (int peak = 0; peak < 32; peak++)
-        for (int color = 11; color < 16; color++)
-            AssertEqual((int)decimal.Ceiling(peak * ((16 - color) / 5m)),
-                InstalledSamusDeathPalettes.SuitlessGrayIntensity(peak, color), "Complete suitless gray intensity domain");
-        foreach (int invalid in new[] { -1, 32, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => InstalledSamusDeathPalettes.SuitlessGrayIntensity(invalid, 11), "Invalid gray peak");
-        foreach (int invalid in new[] { -1, 0, 10, 16, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => InstalledSamusDeathPalettes.SuitlessGrayIntensity(19, invalid), "Invalid gray ink");
-        for (int first = 0; first < 32; first++)
-        for (int last = 0; last < 32; last++)
-        for (int color = 2; color <= 3; color++)
-        {
-            // Complemented/swapped channel pairs exercise independent RGB packing.
-            ushort a = (ushort)(first | (31 - first) << 5 | last << 10);
-            ushort b = (ushort)(last | (31 - last) << 5 | first << 10);
-            RgbColor actual = InstalledSamusDeathPalettes.SuitlessWarmShade(RgbColor.FromWord(checked(a)), RgbColor.FromWord(checked(b)), color);
-            for (int channel = 0; channel < 3; channel++)
-            {
-                int start = a >> (5 * channel) & 31, end = b >> (5 * channel) & 31;
-                int expectedChannel = (int)decimal.Floor(((decimal)start * (4 - color) + (decimal)end * (color - 1)) / 3);
-                AssertEqual(expectedChannel, actual.ToWord() >> (5 * channel) & 31, "All suitless warm-ramp channel endpoints");
-            }
-        }
-        foreach (int invalid in new[] { -1, 0, 1, 4, 16, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => InstalledSamusDeathPalettes.SuitlessWarmShade(new RgbColor(0, 0, 0), new RgbColor(0, 0, 0), invalid), "Invalid warm shade ink");
-        foreach (ushort invalid in new ushort[] { 0x8000, 0xffff })
-        {
-            AssertThrows<ArgumentOutOfRangeException>(() => InstalledSamusDeathPalettes.SuitlessWarmShade(RgbColor.FromWord(checked(invalid)), new RgbColor(0, 0, 0), 2), "Invalid warm start");
-            AssertThrows<ArgumentOutOfRangeException>(() => InstalledSamusDeathPalettes.SuitlessWarmShade(new RgbColor(0, 0, 0), RgbColor.FromWord(checked(invalid)), 2), "Invalid warm end");
-        }
-        var whiteoutInput = death.whiteout;
-        var whiteoutOverrides = whiteoutInput.inputs;
-        AssertEqual(0, whiteoutOverrides.Count, "Native whiteout has no interpolation or neutral-channel corrections");
         for (int index = 0; index < whiteout.Length; index++)
         {
             AssertEqual(whiteout[index], death.WhiteoutColor(index), "Every original whiteout RGB word");
-            AssertEqual(whiteout[index], InstalledSamusDeathPalettes.DefaultWhiteoutColor(index), "Calculated two-rate whiteout matches original ROM");
         }
         foreach (int invalid in new[] { -1, 22, int.MinValue, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => death.WhiteoutColor(invalid), "Invalid whiteout selector");
-            AssertThrows<ArgumentOutOfRangeException>(() => InstalledSamusDeathPalettes.DefaultWhiteoutColor(invalid), "Invalid calculated whiteout selector");
         }
         // The stock death palette view returns every supplied colour, whiteout shade and selector, serializes its rows
         // as they were supplied, and copies its inputs.
@@ -363,21 +227,6 @@ internal static class SamusChargeColorsVerification
             suited[0][0][0] ^= 1;
             AssertEqual(before, stockDeath.SuitedColor(0, 0, 0), "Death catalog copies inputs instead of retaining caller arrays");
         }
-        for (int rgb = 0; rgb <= 0x7fff; rgb++)
-        for (int shade = 0; shade < 8; shade++)
-        {
-            RgbColor actual = SamusPaletteFade.EighthTowardWhite(RgbColor.FromWord(checked((ushort)rgb)), shade);
-            for (int channel = 0; channel < 3; channel++)
-            {
-                int basis = rgb >> (channel * 5) & 31;
-                int interpolated = (int)decimal.Floor(basis + (31 - basis) * (shade / 8m));
-                AssertEqual(interpolated, actual.ToWord() >> (channel * 5) & 31, "Complete RGB5 eighth whitening arithmetic");
-            }
-        }
-        foreach (int invalid in new[] { -1, 8, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusPaletteFade.EighthTowardWhite(new RgbColor(0, 0, 0), invalid), "Invalid fade shade");
-        foreach (ushort invalid in new ushort[] { 0x8000, 0xffff })
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusPaletteFade.EighthTowardWhite(RgbColor.FromWord(checked(invalid)), 0), "Invalid fade RGB5");
         foreach (int invalid in new[] { -1, 9, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => death.ExplosionPaletteIndex(invalid), "Invalid explosion frame");
         foreach (int invalid in new[] { -1, 10, int.MinValue, int.MaxValue })
@@ -392,16 +241,9 @@ internal static class SamusChargeColorsVerification
             AssertThrows<ArgumentOutOfRangeException>(() => death.SuitedColor(0, 0, invalid), "Invalid suited color");
             AssertThrows<ArgumentOutOfRangeException>(() => death.SuitlessColor(0, invalid), "Invalid suitless color");
         }
-        foreach (int invalid in new[] { -1, 3, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusChargeColorFormat.PseudoScrewBrightColor(invalid, 1, new RgbColor(0, 0, 0)), "Invalid pseudo tint suit");
-        foreach (int invalid in new[] { -1, 0, 16, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusChargeColorFormat.PseudoScrewBrightColor(0, invalid, new RgbColor(0, 0, 0)), "Invalid pseudo tint ink");
-        foreach (ushort invalid in new ushort[] { 0x8000, 0xffff })
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusChargeColorFormat.PseudoScrewBrightColor(0, 1, RgbColor.FromWord(checked(invalid))), "Invalid pseudo tint RGB5");
         foreach (bool pseudo in new[] { false, true })
         foreach (int invalid in new[] { -1, 6, int.MinValue, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusChargeColorFormat.CanonicalPhase(pseudo, invalid), "Invalid phase rejected");
             AssertThrows<ArgumentOutOfRangeException>(() => colours.ResolveCharge(pseudo, 0, invalid, 0), "Invalid charge phase rejected");
         }
         foreach (int invalid in new[] { -1, 3, int.MinValue, int.MaxValue })

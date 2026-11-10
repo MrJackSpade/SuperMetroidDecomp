@@ -10,7 +10,7 @@ public static class SamusChargeColorFile
 {
     /// <summary>Loads version-1 <c>samus-charge-colors.json</c>, validating three suits with six phases each, ten Hyper-shot frames, sixteen colors per row, and RGB5 channels from 0 through 31.</summary>
     /// <param name="json">Caller-owned JSON stream consumed from its current position and left open; unknown and duplicate properties are rejected.</param>
-    /// <returns>Compiled selected colors, sharing stock repeated phases and calculated fades only when supplied values agree.</returns>
+    /// <returns>Every installed charge, pseudo-Screw and Hyper-shot colour, kept as installed.</returns>
     public static InstalledSamusChargeColors Read(Stream json)
     {
         Ensure.NotNull(json);
@@ -46,10 +46,8 @@ public static class SamusChargeColorFile
         return result;
     }
 
-    /// <summary>Uses the same palette algorithms for the reverse Hyper-shot playback view.</summary>
-    /// <remarks>Original91D82B..D83D and91D99E..D9B0 contain the same
-    /// ten pointers. Shot playback decrements its table offset from20 to2,
-    /// reversing the full-body cycle. Inputs remain asset-local: edits to the
+    /// <summary>Reads the reverse Hyper-shot playback view into full-body cycle order.</summary>
+    /// <remarks>Shot playback reverses the full-body cycle. Inputs remain asset-local: edits to the
     /// shot asset do not alter the separately supplied full-body cycle.</remarks>
     private static InstalledSamusHyperBeamColors CompileHyper(PaletteRgb5[][]? source)
     {

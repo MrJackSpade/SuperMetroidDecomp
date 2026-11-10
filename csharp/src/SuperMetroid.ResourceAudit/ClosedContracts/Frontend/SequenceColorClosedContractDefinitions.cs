@@ -35,8 +35,6 @@ internal static class SequenceColorClosedContractDefinitions
         new("SuperMetroid.AssetExtraction.Samus.Artwork.InstalledSamusDeathPalettes", "samus-death-complete-cloned-color-sequences",
             ["SuitedColor", "SuitlessColor", "WhiteoutColor", "ExplosionPaletteIndex"],
             [new("csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/InstalledSamusDeathPalettes.cs"),
-             new("csharp/src/SuperMetroid.AssetExtraction/Fx/Artwork/LoadingPaletteInputView.cs"),
-             new("csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/SamusPaletteFade.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/SamusColourSets.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Palettes/SamusPaletteDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Palettes/SamusFullBodyCyclePalettes.cs"),

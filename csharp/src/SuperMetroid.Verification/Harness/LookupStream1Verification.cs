@@ -890,7 +890,7 @@ internal static class LookupStream1Verification
 
     /// <summary>Reads native Samus top and bottom OAM base words.</summary>
     private static byte LookupStream1BodyOamBasesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-    /// <summary>Checks calculated intro and hurt palettes and the stock colours.</summary>
+    /// <summary>Checks the installed intro and hurt palettes keep the stock colours.</summary>
     internal static void VerifyLookupStream1HurtBlend(ISnesAddressSpace rom)
     {
         ushort[] native = Enumerable.Range(0, 32).Select(index =>
@@ -898,26 +898,13 @@ internal static class LookupStream1Verification
         PaletteRgb5 Color(ushort word) => new() { Red = word & 31, Green = (word >> 5) & 31, Blue = (word >> 10) & 31 };
         InstalledSamusHurtColors Create(ushort[] supplied) => SamusHurtColorFile.Read(new MemoryStream(SamusHurtColorFile.Write(
             new SamusHurtColorDocument { Version = 1, Hurt = supplied.Take(16).Select(Color).ToArray(), Intro = supplied.Skip(16).Select(Color).ToArray() })));
-        Dictionary<int, int> Levels(InstalledSamusHurtColors catalog) => catalog.introLevels;
         var stock = Create(native);
-        AssertEqual(0, stock.introOverrides.Count + stock.hurtOverrides.Count, "Zero stock channel/blend fallbacks");
-        AssertEqual(0, Levels(stock).Count, "Zero stock shade samples survive");
-        AssertTrue(stock.hurtZero is null &&
-            stock.introZero is null, "No stock transparent-word fallback");
-        AssertEqual(native[0], SamusHurtColorDefinitions.HurtTransparentWord, "Native transparent black");
-        AssertEqual(native[16], SamusHurtColorDefinitions.IntroTransparentWord, "Native reviewed transparent identity");
-        for (int index = 1; index < 16; index++)
-        {
-            AssertEqual((byte)(native[index + 16] & 31), SamusHurtColorLevels.DefaultIntroLevel(index), "Direct calculated shade level equals native");
-            AssertEqual(native[index + 16], SamusHurtColorLevels.IntroFromLevel((byte)(native[index + 16] & 31)), "Direct native intro channel relation");
-            AssertEqual(native[index], SamusHurtColorLevels.HurtFromIntro(RgbColor.FromWord(checked(native[index + 16]))), "Direct native hurt white blend");
-        }
         for (int index = 0; index < 32; index++)
             AssertEqual(native[index], stock.Resolve(index < 16 ? SamusHurtColorVariant.Hurt : SamusHurtColorVariant.Intro, index % 16), "Stock color matches native");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve((SamusHurtColorVariant)2, 0), "Variant rejection preserved");
         foreach (int index in new[] { -1, 16 })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(SamusHurtColorVariant.Intro, index), "Color bounds preserved");
-        Console.WriteLine("Hurt/intro:32 native colors,30 direct relations,zero stock shade samples and zero stock overrides pass.");
+        Console.WriteLine("Hurt/intro:32 native colors kept as installed and the variant and colour bounds pass.");
     }
 
     /// <summary>Reads native intro and hurt RGB5 palette words.</summary>
@@ -1917,7 +1904,7 @@ internal static class LookupStream1Verification
     /// <summary>Reads escape typewriter glyph and presentation bytes.</summary>
     private static byte LookupStream1EscapeTextRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Checks Samus visor color extraction and channel relationships.</summary>
+    /// <summary>Checks Samus visor color extraction keeps the native colours.</summary>
     internal static void VerifyLookupStream1VisorColors(ISnesAddressSpace rom)
     {
         var document = RequiredJson.Deserialize<SamusVisorColorDocument>(
@@ -1925,23 +1912,16 @@ internal static class LookupStream1Verification
         InstalledSamusVisorColors Load(SamusVisorColorDocument value) =>
             SamusVisorColorFile.Read(new MemoryStream(SamusVisorColorFile.Write(value)));
         var stock = Load(document);
-        Dictionary<TableColourPlace, RgbColor> Stored(InstalledSamusVisorColors value) => value.colors;
         ushort Native(int index)
         {
             int address = SamusSourceDefinitions.VisorColors.Value + index * 2;
             return LittleEndianBytes.Word(LookupStream1VisorColorsRomByte(rom, address), LookupStream1VisorColorsRomByte(rom, address + 1));
         }
-        AssertEqual(0, Stored(stock).Count, "visor stock stores no sampled fallback colors");
-        AssertEqual(Native(0), SamusVisorColorDefinitions.WideningStart, "visor required widening basis");
-        AssertEqual(Native(3), SamusVisorColorDefinitions.FullBeamStart, "visor required full-beam basis");
-        for (int channel = 0; channel < 3; channel++)
-            AssertEqual(SamusVisorColorDefinitions.DarkeningStep,
-                ((Native(3) >> (channel * 5)) & 31) - ((Native(4) >> (channel * 5)) & 31), "visor required darkening basis");
         for (int index = 0; index < SamusVisorColorFormat.ColorCount; index++)
-            AssertEqual(Native(index), SamusVisorColorSteps.Color(index), $"visor direct native default {index}");
+            AssertEqual(Native(index), stock.Resolve(index), $"visor native colour {index} is kept as installed");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(-1), "visor rejects negative index");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(6), "visor rejects next index");
-        Console.WriteLine("Visor: six direct native defaults, exact two-color/step basis and zero stock overrides pass.");
+        Console.WriteLine("Visor: six native colours kept as installed and the index bounds pass.");
     }
 
     /// <summary>Reads native Samus visor color words.</summary>

@@ -15,9 +15,9 @@ public static class SamusVisorColorFile
     /// <summary>JSON resource filename containing the six editable visor RGB5 colors.</summary>
     public const string FileName = "samus-visor-colors.json";
 
-    /// <summary>Validates the six RGB5 visor colors and compiles independent edits relative to the reviewed $9B:A3C0 widening/cycling definitions.</summary>
+    /// <summary>Validates the six RGB5 visor colors and keeps every one as installed.</summary>
     /// <param name="json">UTF-8 JSON source consumed from its current position and left open.</param>
-    /// <returns>Compiled visor colors detached from the document array, without changing X-ray or room-cycle timing.</returns>
+    /// <returns>The installed visor colors detached from the document array, without changing X-ray or room-cycle timing.</returns>
     /// <exception cref="ArgumentNullException">The source stream is null.</exception>
     /// <exception cref="InvalidDataException">The JSON contains duplicate or unknown properties, an unsupported version, a length other than six, null colors, or RGB5 channels outside 0..31.</exception>
     public static InstalledSamusVisorColors Read(Stream json)
@@ -29,15 +29,14 @@ public static class SamusVisorColorFile
             document.Colors is null || document.Colors.Length != SamusVisorColorFormat.ColorCount)
             throw new InvalidDataException("Samus visor colors require the supported version and six RGB5 colors.");
 
-        var compiled = new Dictionary<TableColourPlace, RgbColor>();
+        var compiled = new RgbColor[document.Colors.Length];
         for (int index = 0; index < document.Colors.Length; index++)
         {
             PaletteRgb5? color = document.Colors[index];
             if (color is null || (uint)color.Red > 31 ||
                 (uint)color.Green > 31 || (uint)color.Blue > 31)
                 throw new InvalidDataException($"Samus visor color {index} requires RGB components from zero through 31.");
-            RgbColor packed = color.ToRgbColor();
-            if (packed != SamusVisorColorSteps.Color(index)) compiled.Add(new TableColourPlace(0, index), packed);
+            compiled[index] = color.ToRgbColor();
         }
         return new(compiled);
     }

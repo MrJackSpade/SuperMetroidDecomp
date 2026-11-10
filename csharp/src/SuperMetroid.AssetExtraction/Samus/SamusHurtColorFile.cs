@@ -15,9 +15,9 @@ public static class SamusHurtColorFile
     /// <summary>Installed resource filename loaded by the area-map presentation catalog for hurt-flash and cinematic restoration artwork.</summary>
     public const string FileName = "samus-hurt-colors.json";
 
-    /// <summary>Compiles the installed hurt and cinematic palettes into independent color edits and calculated native shade relationships.</summary>
+    /// <summary>Reads the installed hurt and cinematic palettes, keeping every colour as installed.</summary>
     /// <param name="json">UTF-8 JSON input, consumed from its current position and left open.</param>
-    /// <returns>A catalog with private compiled color state, independent of the input document's arrays.</returns>
+    /// <returns>Both complete colour sets, independent of the input document's arrays.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
     /// <exception cref="InvalidDataException">The JSON is malformed, null, has duplicate or unknown properties, uses an unsupported version, or does not supply two sixteen-color palettes with RGB channels from zero through 31.</exception>
     public static InstalledSamusHurtColors Read(Stream json)
@@ -27,7 +27,7 @@ public static class SamusHurtColorFile
         document = JsonAssetDocument.Read<SamusHurtColorDocument>(json, ArtworkJson.Options, "Samus hurt color");
         if (document.Version != Version)
             throw new InvalidDataException("Samus hurt colors require the supported version.");
-        return SamusPaletteRecognition.Hurt(Compile(document.Hurt, "hurt"), Compile(document.Intro, "intro"));
+        return new InstalledSamusHurtColors(Compile(document.Hurt, "hurt"), Compile(document.Intro, "intro"));
     }
 
     /// <summary>Serializes a palette document as indented, camel-case UTF-8 JSON.</summary>

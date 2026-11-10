@@ -393,8 +393,7 @@ internal static class SamusSourceDefinitions
     /// <c>floor((b*(8-f)+31*f)/8)</c>. Direct comparison found
     /// zero mismatches across all 128 words. Pointer index zero
     /// selects frame zero and indices two through eight select
-    /// frames one through seven. Issue1165 implements this shared fade in
-    /// SamusPaletteFade for both charge and death. Base-input review remains separate.
+    /// frames one through seven. The installed charge and death colours keep every row as installed (#1596).
     ///
     /// Issue #895 / #625: all 128 Varia Suit BGR555 words in
     /// eight death/beam-charge rows at <c>$9B:9920..9A1F</c>

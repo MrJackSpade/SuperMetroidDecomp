@@ -39,16 +39,18 @@ internal static class SamusSuitColorsVerification
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(cartridge.Rom)), "Normal suit sharing oracle revision");
         byte[] extracted = SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(cartridge);
         InstalledSamusSuitColors colors = SamusSuitColorFile.Read(new MemoryStream(extracted));
-        foreach (var (differences, source) in new[] { new VerifyNormalSuitCatalogBoundaryCase(colors.varia, 0x9b9520), new VerifyNormalSuitCatalogBoundaryCase(colors.gravity, 0x9b9800) })
+        foreach (SamusSuit suit in Enum.GetValues<SamusSuit>())
         {
-            AssertEqual(4, differences.Count, "Only four differing native colors per secondary suit remain stored");
-            for (int color = 0; color < 16; color++)
+            int source = suit switch
             {
-                ushort powerColor = ReadVerificationWord(cartridge, 0x9b9400 + 2 * color);
-                ushort suitColor = ReadVerificationWord(cartridge, source + 2 * color);
-                AssertEqual(powerColor != suitColor, differences.TryGetValue(new TableColourPlace(0, color), out RgbColor stored), "Every native shared/different slot is independently classified");
-                if (powerColor != suitColor) AssertEqual(RgbColor.FromWordIgnoringTopBit(suitColor), stored, "Differing native word is preserved");
-            }
+                SamusSuit.Power => 0x9b9400,
+                SamusSuit.Varia => 0x9b9520,
+                SamusSuit.Gravity => 0x9b9800,
+                _ => throw new InvalidOperationException($"Unknown suit {suit}."),
+            };
+            for (int color = 0; color < 16; color++)
+                AssertEqual(RgbColor.FromWordIgnoringTopBit(ReadVerificationWord(cartridge, source + 2 * color)), colors.Resolve(suit, color),
+                    "Every native suit word is kept as installed");
         }
         // A suit outside the three the cartridge shows is rejected, as the 0/2/4 table offsets were.
         AssertThrows<ArgumentOutOfRangeException>(() => colors.Resolve((SamusSuit)Enum.GetValues<SamusSuit>().Length, 0), "Undefined suit");

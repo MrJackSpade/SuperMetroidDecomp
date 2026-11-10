@@ -18,4 +18,10 @@ internal sealed class RoomEnemyCompatibility
 
     /// <summary>The Beetom a new Beetom inherits its untouched values from, per slot.</summary>
     public required SlotInheritance<BeetomEnemyState> BeetomInheritance { get; init; }
+
+    /// <summary>
+    /// Whether a Puyo striking a ceiling turns back, from what the room's draws and HUD redraws left since its load; a new
+    /// one holds what the room's load leaves.
+    /// </summary>
+    public required PuyoCeilingTurnFromLastDraw PuyoCeilingTurn { get; init; }
 }

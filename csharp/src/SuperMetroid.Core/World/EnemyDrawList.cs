@@ -27,7 +27,8 @@ internal sealed class EnemyDrawList
     private readonly EnemyPresentation _presentation;
     /// <summary>Supplies installed extended frames and validates active room ownership.</summary>
     private readonly EnemyRoomBinding _room;
-
+    /// <summary>Told of each queued enemy the draw pass reaches, which a Puyo's later ceiling strike reads.</summary>
+    private readonly PuyoCeilingTurnFromLastDraw _puyoCeilingTurn;
 
     /// <summary>Retains the behavior and presentation owners used by the enemy phase's draw pass.</summary>
     internal EnemyDrawList(EnemyDrawListDependencies dependencies)
@@ -38,6 +39,7 @@ internal sealed class EnemyDrawList
         _motherBrainBehavior = dependencies.MotherBrainBehavior;
         _presentation = dependencies.Presentation;
         _room = dependencies.Room;
+        _puyoCeilingTurn = dependencies.PuyoCeilingTurn;
     }
     /// <summary>The enemies queued on each of the eight drawing layers, each queue in <see cref="EnemySlotOrder"/>.</summary>
     internal readonly List<RoomEnemySlot>[] DrawQueues =
@@ -78,6 +80,9 @@ internal sealed class EnemyDrawList
         {
             foreach (RoomEnemySlot slot in DrawQueues[layer])
             {
+                // The draw of every queued enemy, a cleared or reserved one too, leaves the value a Puyo's ceiling
+                // strike reads clear.
+                _puyoCeilingTurn.EnemyDrawn();
                 // Power-bomb damage runs after queue construction and can clear a
                 // queued actor or replace it with the inert respawn reservation.
                 // Neither lifecycle state owns a display composition.

@@ -25,11 +25,18 @@ internal sealed class RoomSpriteObjects
     /// <summary>The place each object in <see cref="_objects"/> took, for those that took one.</summary>
     private readonly Dictionary<RoomSpriteObject, int> _takenPlaces = [];
 
-    /// <summary>Connects decorative sprite objects to the room's presentation bindings and their places.</summary>
-    internal RoomSpriteObjects(EnemyPresentation presentation, SpriteObjectPlaces places)
+    /// <summary>Told of each object the draw reaches, which a Puyo's later ceiling strike reads.</summary>
+    private readonly PuyoCeilingTurnFromLastDraw _puyoCeilingTurn;
+
+    /// <summary>
+    /// Connects decorative sprite objects to the room's presentation bindings, their places and what a Puyo's ceiling
+    /// strike reads of their draws.
+    /// </summary>
+    internal RoomSpriteObjects(EnemyPresentation presentation, SpriteObjectPlaces places, PuyoCeilingTurnFromLastDraw puyoCeilingTurn)
     {
         _presentation = presentation;
         _places = places;
+        _puyoCeilingTurn = puyoCeilingTurn;
     }
 
     /// <summary>The live objects, in the order they spawned.</summary>
@@ -92,6 +99,11 @@ internal sealed class RoomSpriteObjects
         {
             // Every placement is published wherever it lies; the display clips it to the view (#1520, #1541).
             Position16<ScreenPixels> screen = spawned.Position.Whole.ToScreen(camera);
+            // Whether this draw reaches the value a Puyo's ceiling strike reads depends on where the object lies
+            // relative to the view, which the service decides.
+            _puyoCeilingTurn.SpriteObjectDrawn(
+                CoordinateAxis.Difference(spawned.Position.Whole.X, camera.X),
+                CoordinateAxis.Difference(spawned.Position.Whole.Y, camera.Y));
 
             EnemyFrameId shown = RoomSpriteObjectVisualDefinitions.ShownFrames.Of(spawned.Frame);
             _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.RoomSpriteObject, instance++),

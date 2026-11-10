@@ -39,8 +39,8 @@ internal static class InterfacePresentationContractChecks
             using SuperMetroid.AssetExtraction.Fx.PaletteFx;
             class InterfaceConsumer {
                 void Inspect(IIntroCinematicSpritePresentation sprites, IPaletteFxColorSource colors, SuperMetroid.Core.Frontend.Intro.CinematicSpritePose pose, PaletteFxColorKey key, SuperMetroid.Core.Assets.ScreenSprites oam) {
-                    sprites.Draw(pose, oam, default, IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors), true);
-                    sprites.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(26), oam, default, IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors), true);
+                    sprites.Draw(pose, oam, default, IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors));
+                    sprites.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(26), oam, default, IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors));
                     colors.TryReadColor(key, out _);
                 }
             }
@@ -65,7 +65,7 @@ internal static class InterfacePresentationContractChecks
         Require(after.Classifications.Count == 2 && after.UnresolvedCount == 1 && after.Consumers.Count == 3,
             "reviewed interface operations qualify but an unowned cinematic frame remains a finding" + " (" + after.Describe() + ")");
         foreach (string extra in new[] {
-            "class OtherSprite : SuperMetroid.Core.Frontend.Intro.Artwork.IIntroCinematicSpritePresentation { public void Draw(SuperMetroid.Core.Frontend.Intro.CinematicSpritePose pose, SuperMetroid.Core.Assets.ScreenSprites objects, SuperMetroid.Core.Spatial.Position16<SuperMetroid.Core.Spatial.SpritePixels> origin, ushort paletteBits, bool originIsOnScreen) {} }",
+            "class OtherSprite : SuperMetroid.Core.Frontend.Intro.Artwork.IIntroCinematicSpritePresentation { public void Draw(SuperMetroid.Core.Frontend.Intro.CinematicSpritePose pose, SuperMetroid.Core.Assets.ScreenSprites objects, SuperMetroid.Core.Spatial.Position16<SuperMetroid.Core.Spatial.SpritePixels> origin, ushort paletteBits) {} }",
             "class OtherColors : SuperMetroid.AssetExtraction.Fx.Artwork.IPaletteFxColorSource { public bool TryReadColor(SuperMetroid.AssetExtraction.Fx.PaletteFx.PaletteFxColorKey key, out SuperMetroid.Core.Assets.RgbColor color) { color = default; return false; } }" })
         {
             AuditReport revoked = Inspect(Compile(trees.Append(CSharpSyntaxTree.ParseText(extra, path: "fixture-unreviewed-interface-owner.cs"))), true);

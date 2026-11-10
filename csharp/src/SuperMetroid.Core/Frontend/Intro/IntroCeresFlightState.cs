@@ -272,7 +272,10 @@ internal sealed class IntroCeresFlightState
         var actor = new IntroDiscoverySprite(
             definition.Position,
             CeresShades.Drawn(definition.Colouring),
-            definition.Program);
+            definition.Program)
+        {
+            HorizontalLoopWidth = definition.WrapX ? CeresDestructionSceneDefinitions.WorldWidth : null,
+        };
         actor.InstallFrameBehavior(definition.ActiveFrameBehavior);
         return actor;
     }
@@ -384,7 +387,7 @@ internal sealed class IntroCeresFlightState
         // The wrapping star field adds only the delta's fraction, with nothing in the whole pixel: a leftward delta,
         // whose fraction is the rest of a pixel, carries the actor right instead.
         FixedCoordinate x = IntroCinematicMotion.AddFraction(actor.Position.X, SignedSixteenSixteen.FromRaw(horizontalDelta).Fraction);
-        actor.Position = actor.Position.WithX(x.WithWhole(CoordinateAxis.Wrap(x.Whole % 512)));
+        actor.Position = actor.Position.WithX(x.WithWhole(CoordinateAxis.Wrap(x.Whole % CeresDestructionSceneDefinitions.WorldWidth)));
     }
 
     /// <summary>Applies signed 16.16 horizontal motion without the front-star wrap.</summary>

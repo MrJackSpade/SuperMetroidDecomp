@@ -55,7 +55,7 @@ internal static class CeresDestructionArtworkVerification
             foreach (ushort y in new ushort[] { 0x0048, 0xfff8 })
             {
                 bool onScreen =
-                    y < CinematicSpriteDrawDefinitions.OnScreenOriginYLimit;
+                    (short)y >= 0;
                 int source = (int)new SnesAddress(
                     IntroCinematicSourceDefinitions.SpritemapBank, CinematicSpritemapSources.Of(frame.Pose));
                 var nativeOam = new OamBuffer();
@@ -68,7 +68,7 @@ internal static class CeresDestructionArtworkVerification
                 var installedOam = ScreenSpritesFixtures.Blank();
                 installedOam.BeginFrame();
                 CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(stock).CeresDestructionSprites).Draw(frame.Pose, installedOam,
-                    new(120, y), CeresShades.Drawn(CeresSpriteColouring.SpaceObjects), onScreen);
+                    new(120, y), CeresShades.Drawn(CeresSpriteColouring.SpaceObjects));
                 installedOam.FinalizeFrame();
                 AssertTrue(installedOam.ImageEquals(nativeOam) &&
                         installedOam.LastFinalizedSpriteCount == nativeOam.LastFinalizedSpriteCount,

@@ -565,14 +565,20 @@ internal static void VerifySamusArmCannon()
             coverTile.Characters.SequenceEqual(nativeCover.Span),
         "the bound cover character is the installed tile the native $9A:9E00 upload names");
 
-    // Odd invincibility frames and an off-screen coordinate both publish no cover draw.
+    // Odd invincibility frames publish no cover draw; an off-screen cover is still published, for the display to clip (#1587).
     samus.InvincibilityTimer = WrappingCountdown.Start(1);
     OamBuffer flickerOam = SpriteFrameBuffer.DrawnOam(frame => cannon.Draw(frame, samus, new(0x0400, 0), frameCounter: 1));
     AssertEqual(0, flickerOam.LastFinalizedSpriteCount, "odd invincibility frame suppresses the cover draw");
 
     samus.InvincibilityTimer = WrappingCountdown.Start(0);
-    OamBuffer clippedOam = SpriteFrameBuffer.DrawnOam(frame => cannon.Draw(frame, samus, cameraPosition: new(0x0500, 0), frameCounter: 0));
-    AssertEqual(0, clippedOam.LastFinalizedSpriteCount, "off-screen cover publishes no draw");
+    var offScreenFrame = new SpriteFrameBuffer();
+    offScreenFrame.BeginFrame();
+    cannon.Draw(offScreenFrame, samus, cameraPosition: new(0x0500, 0), frameCounter: 0);
+    offScreenFrame.FinalizeFrame();
+    AssertEqual(1, offScreenFrame.Draws.Length, "off-screen cover is still published");
+    AssertEqual(CoordinateAxis.AsSigned(coverFrame.Draws[0].Origin.X) - 256, CoordinateAxis.AsSigned(offScreenFrame.Draws[0].Origin.X),
+        "off-screen cover lies a screen left of the view, where the camera's extra 256 pixels place it");
+    AssertEqual(coverFrame.Draws[0].Origin.Y, offScreenFrame.Draws[0].Origin.Y, "off-screen cover keeps its row");
 
     // Closing mirrors opening but starts from synthetic frame four. The same stable-sample
     // call decrements immediately to three, followed by two, one, and invisible zero.

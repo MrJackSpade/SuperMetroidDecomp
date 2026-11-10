@@ -28,7 +28,7 @@ internal static class EndingRewardSpriteArtworkVerification
             foreach (ushort y in new ushort[] { 0x0048, 0xfff8 })
             {
                 bool onScreen =
-                    y < CinematicSpriteDrawDefinitions.OnScreenOriginYLimit;
+                    (short)y >= 0;
                 int source = (int)new SnesAddress(
                     IntroCinematicSourceDefinitions.SpritemapBank, CinematicSpritemapSources.Of(frame.Pose));
                 var nativeOam = new OamBuffer();
@@ -41,7 +41,7 @@ internal static class EndingRewardSpriteArtworkVerification
                 var installedOam = ScreenSpritesFixtures.Blank();
                 installedOam.BeginFrame();
                 CinematicSheetFixtures.Drawer(EndingObjectSourceArtwork.Of(stock).RewardSprites).Draw(frame.Pose, installedOam,
-                    new(120, y), EndingShades.Drawn(EndingSpriteColouring.ShootingStars), onScreen);
+                    new(120, y), EndingShades.Drawn(EndingSpriteColouring.ShootingStars));
                 installedOam.FinalizeFrame();
                 AssertTrue(nativeOam.ImageEquals(installedOam) &&
                         nativeOam.LastFinalizedSpriteCount == installedOam.LastFinalizedSpriteCount,

@@ -902,7 +902,7 @@ internal static class LookupStream5Verification
             var actualOam = ScreenSpritesFixtures.Blank();
             var expectedOam = new OamBuffer();
             actualOam.BeginFrame(); expectedOam.BeginFrame();
-            CinematicSheetFixtures.Drawer(catalog).Draw(pose, actualOam, new(128, 112), CeresShades.Drawn(CeresSpriteColouring.SpaceObjects), true);
+            CinematicSheetFixtures.Drawer(catalog).Draw(pose, actualOam, new(128, 112), CeresShades.Drawn(CeresSpriteColouring.SpaceObjects));
             expected.DrawOnScreen(expectedOam, new(128, 112), 0x0800);
             actualOam.FinishFrame(); expectedOam.FinalizeFrame();
             AssertEqual(expectedOam.LastFinalizedSpriteCount, actualOam.LastFinalizedSpriteCount, "Star OAM count/order");

@@ -648,10 +648,15 @@ internal static class EnemySpritemapArtworkVerification
                 $"Mother Brain private draw uses installed {frame.Name} with native OAM");
         }
 
-        OamBuffer aboveScreen = DrawInstalledMotherBrainFrame(
-            stock, 0xa586, new(0x0140, 0x000f));
-        AssertEqual(0, aboveScreen.NextByteOffset,
-            "Mother Brain private draw still culls a head above the viewport");
+        // A head whose origin lies a row above the view is still published, a row above the screen, for the display to
+        // clip (#1587).
+        var aboveScreen = new SpriteFrameBuffer();
+        aboveScreen.BeginFrame();
+        PublishInstalledMotherBrainFrame(stock, 0xa586, new(0x0140, 0x000f), aboveScreen);
+        aboveScreen.FinalizeFrame();
+        AssertEqual(1, aboveScreen.Draws.Length, "Mother Brain private draw publishes a head above the viewport");
+        AssertEqual(-1, CoordinateAxis.AsSigned(aboveScreen.Draws[0].Origin.Y),
+            "Mother Brain private draw publishes a head above the viewport at its row above the screen");
     }
 
     /// <summary>Mother Brain's room's graphics set, which gives the tile base and colours it loads her head with.</summary>
@@ -667,16 +672,24 @@ internal static class EnemySpritemapArtworkVerification
         InstalledEnemyArtwork art, ushort pointer,
         Position16<RoomPixels> world)
     {
+        var oam = new OamBuffer();
+        oam.AppendDrawn(sprites => PublishInstalledMotherBrainFrame(art, pointer, world, sprites));
+        return oam;
+    }
+
+    /// <summary>Publishes one Mother Brain world frame through the installed private renderer, under a camera at (256, 16).</summary>
+    private static void PublishInstalledMotherBrainFrame(
+        InstalledEnemyArtwork art, ushort pointer,
+        Position16<RoomPixels> world, SpriteFrameBuffer sprites)
+    {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses };
         // She draws from the sheet her room's set composes from this artwork, at the indexes it loads her with.
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.MotherBrainHead);
-        var oam = new OamBuffer();
         EnemyFrameId frame = RoomEnemySlotFrameAccess.FrameAt(MotherBrainVisualToolingDefinitions.Bank, pointer)
             ?? throw new InvalidOperationException("A Mother Brain draw shows a frame.");
-        oam.AppendDrawn(sprites => enemies.MotherBrainBehavior.Head.DrawMotherBrainWorldSpritemap(sprites,
+        enemies.MotherBrainBehavior.Head.DrawMotherBrainWorldSpritemap(sprites,
             new SpriteSource(SpriteSourceKind.MotherBrainBrain), new MotherBrainWorldFrame(frame, world, PictureShading.Standard),
-            new Position16<RoomPixels>(0x0100, 0x0010)));
-        return oam;
+            new Position16<RoomPixels>(0x0100, 0x0010));
     }
 
     /// <summary>Rejects native visual-data reads for the enemy frame under inspection.</summary>

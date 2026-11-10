@@ -237,12 +237,9 @@ public static class SamusGrappleBeamDrawing
                 }
             }
 
+            // Every segment is published wherever it lies, off the screen included; the display clips it (#1587).
             int screenX = FixedCoordinate.WholeOf(screenXFixed);
             int screenY = FixedCoordinate.WholeOf(screenYFixed);
-            // The game ticks this slot before the visibility check, then abandons
-            // the remaining rope slots entirely at the first off-screen segment.
-            if ((screenX | screenY) >= GrappleBeamDefinitions.Rendering.ViewportExtent)
-                break;
             // The rope draw's direction flips are ORed into the segment's own; the sheet holds each combination.
             SpriteSheetFrame image = installed.Frame(SuperMetroid.Core.Samus.Artwork.GrappleSheets.RopeFrame(
                 orientation, grapple.SegmentAnimationFrames[instructionSlot], mirror));

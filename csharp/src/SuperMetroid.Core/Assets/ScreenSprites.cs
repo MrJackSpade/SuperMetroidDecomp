@@ -5,18 +5,13 @@ namespace SuperMetroid.Core.Assets;
 
 /// <summary>
 /// A frontend screen's sprite entries (#1358, #1392): each placed pre-coloured frame becomes a whole-frame draw, in
-/// emission order, frontmost first. Screens publish these draws instead of writing sprite records. Frames land where the
-/// game places them: an X of 0 through 511 and a Y of 0 through 255, read by the spritemap loader the origin selects. A frame is always drawn
-/// whole, as its one pre-assembled image; a crowded screen never cuts a frame short (#1513). The placed frames are the screen's state, and the draws are made from them.
+/// emission order, frontmost first. Screens publish these draws instead of writing sprite records. Every frame is published
+/// where the screen places it, its origin read as signed screen pixels, and the display clips whatever lies off the screen
+/// (#1587). A frame is always drawn whole, as its one pre-assembled image; a crowded screen never cuts a frame short (#1513).
+/// The placed frames are the screen's state, and the draws are made from them.
 /// </summary>
 public sealed class ScreenSprites
 {
-    /// <summary>The values a frame's Y takes, 0 through 255.</summary>
-    private const int YRange = 256;
-
-    /// <summary>The values of the nine-bit X.</summary>
-    private const int XRange = 512;
-
     /// <summary>The frames placed since <see cref="BeginFrame"/>, in emission order.</summary>
     private readonly List<ScreenObject> placed = [];
 
@@ -40,48 +35,22 @@ public sealed class ScreenSprites
     }
 
     /// <summary>
-    /// Places a whole pre-coloured frame at <paramref name="origin"/> (#1392); an empty frame places nothing. The loader's
-    /// vertical-wrap hiding hides only parts an image clips, so the frame needs none.
+    /// Places a whole pre-coloured frame at <paramref name="origin"/> (#1392); an empty frame places nothing. The frame is
+    /// published wherever its origin lies, on the screen or off it, and the display clips it (#1587).
     /// </summary>
     /// <param name="frame">The frame placed.</param>
-    /// <param name="origin">Where the frame's origin lands.</param>
+    /// <param name="origin">Where the frame's origin lands, each coordinate read as signed screen pixels.</param>
     /// <param name="shading">
     /// The shades and colour effects the screen shows the frame in (#1512); <see cref="PictureShading.Standard"/> where
     /// the screen shows no effect on it.
     /// </param>
-    /// <param name="side">
-    /// Which spritemap loader draws the frame: on screen, the origin's low Y byte lies on or below the
-    /// screen; off screen, it lies above it.
-    /// </param>
-    public void AddImage(SpriteSheetFrame frame, Position16<SpritePixels> origin, PictureShading shading,
-        SpriteOrigin side = SpriteOrigin.OnScreen)
+    public void AddImage(SpriteSheetFrame frame, Position16<SpritePixels> origin, PictureShading shading)
     {
         Ensure.NotNull(frame);
         Ensure.NotNull(shading);
         if (frame.IsEmpty)
             return;
-        placed.Add(new ScreenObject(origin, frame, side, shading));
-    }
-
-    /// <summary>
-    /// Places a pre-coloured frame written straight to the sprite list (#1392), with no spritemap loader: the frame lands
-    /// at <paramref name="position"/>, and a Y below the screen wraps above it as the screen wraps it.
-    /// </summary>
-    /// <param name="frame">The frame.</param>
-    /// <param name="position">Where the frame lands.</param>
-    /// <param name="shading">
-    /// The shades and colour effects the screen shows the frame in (#1512); <see cref="PictureShading.Standard"/> where
-    /// the screen shows no effect on it.
-    /// </param>
-    public void AddObjectImage(SpriteSheetFrame frame, Position16<SpritePixels> position, PictureShading shading)
-    {
-        Ensure.NotNull(frame);
-        Ensure.NotNull(shading);
-        if (frame.IsEmpty)
-            return;
-        // An object's Y wraps above the screen exactly where the off-screen loader reads an origin.
-        placed.Add(new ScreenObject(position, frame,
-            LineWithinBand(position.Y) >= ScreenGeometry.ScreenHeightPixels ? SpriteOrigin.OffScreen : SpriteOrigin.OnScreen, shading));
+        placed.Add(new ScreenObject(origin, frame, shading));
     }
 
     /// <summary>The finished frame's placed frames as draws.</summary>
@@ -93,29 +62,12 @@ public sealed class ScreenSprites
         return result;
     }
 
-    /// <summary>
-    /// The line an object's Y names within the screen's band of <see cref="YRange"/> lines: the loaders place an
-    /// object by that line alone, so a Y past the band's end continues from its start.
-    /// </summary>
-    /// <param name="y">The object's Y, 0 through 65535.</param>
-    private static int LineWithinBand(int y) => Ensure.BetweenInclusive(0, ushort.MaxValue, y) % YRange;
-
-    /// <summary>The draw of <paramref name="placedObject"/>'s frame, its X in signed screen pixels: the upper half lies left of the screen.</summary>
-    private static ImageSpriteDraw Draw(ScreenObject placedObject, int index)
-    {
-        int nineBitX = placedObject.Position.X & (XRange - 1);
-        int screenX = nineBitX >= XRange / 2 ? nineBitX - XRange : nineBitX;
-        // The loaders read only the origin's low Y byte: the on-screen loader places it on or below the screen, so a
-        // frame just below the bottom still shows the parts that reach up into it, and the off-screen loader above it.
-        int imageY = LineWithinBand(placedObject.Position.Y) - (placedObject.Side == SpriteOrigin.OffScreen ? YRange : 0);
-        return new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.FrontendObjects, index), placedObject.Image,
-            new Position16<ScreenPixels>(CoordinateAxis.Wrap(screenX), CoordinateAxis.Wrap(imageY)), SpriteMirror.None)
+    /// <summary>The draw of <paramref name="placedObject"/>'s frame at its origin, in screen pixels.</summary>
+    private static ImageSpriteDraw Draw(ScreenObject placedObject, int index) =>
+        new(new SpriteSource(SpriteSourceKind.FrontendObjects, index), placedObject.Image,
+            new Position16<ScreenPixels>(placedObject.Position.X, placedObject.Position.Y), SpriteMirror.None)
             { Shading = placedObject.Shading };
-    }
 
-    /// <summary>
-    /// One placed frame at its position (an X of 0 through 511, a Y of 0 through 255), with the loader that reads its
-    /// origin and the shading the screen shows it in (#1512).
-    /// </summary>
-    private readonly record struct ScreenObject(Position16<SpritePixels> Position, SpriteSheetFrame Image, SpriteOrigin Side, PictureShading Shading);
+    /// <summary>One placed frame at its origin, with the shading the screen shows it in (#1512).</summary>
+    private readonly record struct ScreenObject(Position16<SpritePixels> Position, SpriteSheetFrame Image, PictureShading Shading);
 }

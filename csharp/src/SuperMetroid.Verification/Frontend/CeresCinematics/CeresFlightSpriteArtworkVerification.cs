@@ -29,7 +29,7 @@ internal static class CeresFlightSpriteArtworkVerification
             foreach (ushort y in new ushort[] { 0x0048, 0xfff8 })
             {
                 bool onScreen =
-                    y < CinematicSpriteDrawDefinitions.OnScreenOriginYLimit;
+                    (short)y >= 0;
                 int source = (int)new SnesAddress(
                     IntroCinematicSourceDefinitions.SpritemapBank, CinematicSpritemapSources.Of(frame.Pose));
                 var native = new OamBuffer();
@@ -41,7 +41,7 @@ internal static class CeresFlightSpriteArtworkVerification
                 native.FinalizeFrame();
                 var installed = ScreenSpritesFixtures.Blank();
                 installed.BeginFrame();
-                CinematicSheetFixtures.Drawer(CeresFlightCharacters.Of(stock).Sprites).Draw(frame.Pose, installed, new(120, y), CeresShades.Drawn(CeresSpriteColouring.SpaceObjects), onScreen);
+                CinematicSheetFixtures.Drawer(CeresFlightCharacters.Of(stock).Sprites).Draw(frame.Pose, installed, new(120, y), CeresShades.Drawn(CeresSpriteColouring.SpaceObjects));
                 installed.FinalizeFrame();
                 AssertTrue(installed.ImageEquals(native) &&
                         installed.LastFinalizedSpriteCount == native.LastFinalizedSpriteCount,

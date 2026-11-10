@@ -162,7 +162,17 @@ internal sealed class IntroDiscoverySprite
             $"Cinematic sprite program {CurrentProgram} published {cue.Kind} with no owner to carry it out."))(cue.Kind);
     }
 
-    /// <summary>Draws the current frame at the whole position minus <paramref name="scroll"/>.</summary>
+    /// <summary>
+    /// The width, in pixels, of the horizontal loop the actor's own motion carries it around, or null for an actor that
+    /// travels no loop. A looping actor's position wraps within the loop, and the half of the loop past its middle lies
+    /// left of the screen, where the actor comes round into view again.
+    /// </summary>
+    internal int? HorizontalLoopWidth { get; init; }
+
+    /// <summary>
+    /// Draws the current frame at the whole position minus <paramref name="scroll"/>, wherever that lies: the display clips
+    /// a frame off the screen (#1587).
+    /// </summary>
     public void Draw(ScreenSprites objects, Offset16<ScreenPixels> scroll = default,
         IIntroCinematicSpritePresentation? installedArt = null)
     {
@@ -170,16 +180,13 @@ internal sealed class IntroDiscoverySprite
         if (!IsActive || Pose is not { } pose || pose == CinematicSpritePose.Blank)
             return;
         Position16<ScreenPixels> origin = Position.Whole - scroll;
-        int y = origin.Y;
-        if (CoordinateAxis.Wrap(y + CinematicSpriteDrawDefinitions.OriginYBias) >=
-            CinematicSpriteDrawDefinitions.BiasedOriginYLimit)
-            return;
-        // A negative origin still has visible component tiles, but their low-byte Y
-        // arithmetic needs the opposite clipping branch to prevent bottom-edge wrap.
-        bool originIsOnScreen =
-            y < CinematicSpriteDrawDefinitions.OnScreenOriginYLimit;
+        if (HorizontalLoopWidth is int loop)
+        {
+            int alongLoop = origin.X % loop;
+            origin = origin.WithX(CoordinateAxis.Wrap(alongLoop < loop / 2 ? alongLoop : alongLoop - loop));
+        }
         (installedArt ?? throw new InvalidOperationException(
             "Cinematic sprites require installed artwork."))
-            .Draw(pose, objects, origin.ToSpritePosition(), Colouring, originIsOnScreen);
+            .Draw(pose, objects, origin.ToSpritePosition(), Colouring);
     }
 }

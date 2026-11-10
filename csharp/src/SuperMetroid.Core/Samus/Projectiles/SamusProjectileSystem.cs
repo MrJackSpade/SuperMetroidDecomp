@@ -624,7 +624,7 @@ public sealed class SamusProjectileSystem
             }
 
             // Unlike the bomb/explosion pass, the game's live projectile drawing does not
-            // cull by world X. The sprite keeps the nine-bit X and the screen clips it.
+            // cull by world X. The sprite is published wherever it lies and the display clips it.
             // This also preserves sprite ordering/capacity when a combo orbits offscreen.
             if (slot.Sprite is not null)
                 ProjectileAnimation.DrawSlot(sprites, new SpriteSource(SpriteSourceKind.SamusProjectile, slot.SlotIndex),

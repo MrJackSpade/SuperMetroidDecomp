@@ -17,9 +17,9 @@ namespace SuperMetroid.Verification.Frontend;
 internal static class CinematicScreenPublicationVerification
 {
     /// <summary>
-    /// OBSEL's size selection gives a screen's objects their sizes, and raw small objects land exactly where direct OAM
-    /// stores place them, a Y below the screen wrapping above it. The object index's wrap after the 128th object is not
-    /// replicated (#1513), so fewer objects are stored.
+    /// OBSEL's size selection gives a screen's objects their sizes, and raw small objects are published exactly where they
+    /// are placed: a Y below the screen stays below it for the display to clip, where OAM's eight-bit Y wrapped it above
+    /// (#1587). The object index's wrap after the 128th object is not replicated (#1513), so fewer objects are stored.
     /// </summary>
     internal static void VerifyObjectSizesAndRawObjects()
     {
@@ -33,25 +33,33 @@ internal static class CinematicScreenPublicationVerification
         AssertEqual(clouds.Large, sized.Parts[0].Size, "a large part is composed at the selection's large size");
         AssertEqual(clouds.Small, sized.Parts[1].Size, "a small part is composed at the selection's small size");
 
-        // The ending's stars are written straight to OAM, some below the screen so that they wrap above it.
+        // The ending's stars are written straight to OAM. Each is published where it is placed, those below the screen
+        // included, for the display to clip (#1587); the stars on the screen stand for the records their stores write.
         SpriteSheetFrame star = InstalledFixtures.SpriteSheets.Get(SpriteSheetId.EndingShootingSprites)
             .Frame(EndingShootingStarFrames.SheetFrameName(EndingShootingStarDefinitions.FullStarFrame));
         var raw = ScreenSpritesFixtures.Blank();
         var oam = new OamBuffer();
         raw.BeginFrame();
         oam.BeginFrame();
+        var positions = new List<Position16<SpritePixels>>();
         for (int index = 0; index < 40; index++)
         {
             var position = new Position16<SpritePixels>((ushort)(index * 3 % 512), (ushort)(index * 7 % 256));
-            raw.AddObjectImage(star, position, PictureShading.Standard);
+            positions.Add(position);
+            raw.AddImage(star, position, PictureShading.Standard);
             oam.AddRawSmallSprite(position, SnesObjAttributeWord.From(SuperMetroid.AssetExtraction.Frontend.Ending.EndingShootingStarParts.Appearance(EndingShootingStarDefinitions.FullStarFrame)));
         }
         raw.FinishFrame();
         oam.FinalizeFrame();
         AssertEqual(oam.LastFinalizedSpriteCount, raw.Draws.Length, "each raw small object is one entry, as each direct OAM store is");
         for (int index = 0; index < raw.Draws.Length; index++)
-            AssertEqual(oam.GetEntry(index), raw.GetEntry(index), $"raw object {index} stands for the record its store writes");
-        Console.WriteLine("  Screen sprites: OBSEL size pairs and raw objects match OAM.");
+        {
+            AssertEqual(new Position16<ScreenPixels>(positions[index].X, positions[index].Y), raw.Draws[index].Origin,
+                $"raw object {index} is published where it is placed");
+            if (positions[index].Y < FrontendFrame.Height)
+                AssertEqual(oam.GetEntry(index), raw.GetEntry(index), $"raw object {index} on the screen stands for the record its store writes");
+        }
+        Console.WriteLine("  Screen sprites: OBSEL size pairs match, and raw objects are published where they are placed and match OAM on the screen.");
     }
 
     /// <summary>

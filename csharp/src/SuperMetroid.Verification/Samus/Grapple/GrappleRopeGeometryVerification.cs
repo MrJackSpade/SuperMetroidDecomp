@@ -39,17 +39,16 @@ internal static class GrappleRopeGeometryVerification
             int dx = (short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa0b443 + angle * 2) * 2048;
             int dy = (short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa0b3c3 + angle * 2) * 2048;
             int x = unchecked(SixteenSixteen.FromWhole(origin - 4)), y = 124 << 16;
+            // Every segment the native accumulator visits is published, those off the screen included, for the display to
+            // clip (#1587). The OAM a segment stands for keeps its position's low byte on each axis.
             var expected = new List<GrappleRopeGeometryExpected>();
-            int visited = 0;
             if ((short)length >= 0)
             {
                 int count = Math.Max(1, (length / 8) & 15);
                 for (int segment = 0; segment < count; segment++)
                 {
-                    visited++;
                     ushort sx = FixedCoordinate.WholeOf(x), sy = FixedCoordinate.WholeOf(y);
-                    if (LittleEndianBytes.HighByte(unchecked((ushort)(sx | sy))) != 0) break;
-                    expected.Add(new GrappleRopeGeometryExpected((byte)sx, (byte)sy));
+                    expected.Add(new GrappleRopeGeometryExpected(unchecked((byte)sx), unchecked((byte)sy)));
                     x = unchecked(x + dx); y = unchecked(y + dy);
                 }
             }
@@ -58,16 +57,16 @@ internal static class GrappleRopeGeometryVerification
             OamBuffer oam = oamFrame.FinalizeAsOam();
             string context = $"direction {direction}, origin {origin}, length {length}";
             int endpointCount = (short)length < 0 ? 0 : 1;
-            AssertEqual((expected.Count + endpointCount) * 4, (oam.LastFinalizedSpriteCount * 4), "Native rope culling/count: " + context);
+            AssertEqual((expected.Count + endpointCount) * 4, (oam.LastFinalizedSpriteCount * 4), "Every visited rope segment is published: " + context);
             for (int i = 0; i < expected.Count; i++)
             {
                 AssertEqual(expected[i].X, oam.LowTable[i * 4], "Native fractional rope X: " + context);
                 AssertEqual(expected[i].Y, oam.LowTable[i * 4 + 1], "Native fractional rope Y: " + context);
             }
             for (int slot = 0; slot < 16; slot++)
-                AssertEqual((ushort)(slot >= 16 - visited ? 5 : 1), grapple.SegmentAnimationTimers[slot].RawValue, "Native rope ticks only visited slots: " + context);
+                AssertEqual((ushort)(slot >= 16 - expected.Count ? 5 : 1), grapple.SegmentAnimationTimers[slot].RawValue, "Rope ticks only visited slots: " + context);
         }
-        Console.WriteLine("Grapple rope geometry: 42 diagonal, viewport-edge, short/wrapped-count and signed-length cases match native positions and visited timers.");
+        Console.WriteLine("Grapple rope geometry: 42 diagonal, viewport-edge, short/wrapped-count and signed-length cases publish every visited segment at its native position and tick its slot's timer.");
     }
 
     /// <summary>Runs the focused Grapple rope geometry check against the retail ROM.</summary>

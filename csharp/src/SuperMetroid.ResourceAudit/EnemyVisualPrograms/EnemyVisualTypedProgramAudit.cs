@@ -332,7 +332,7 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(FakeKraidAnimations), "csharp/src/SuperMetroid.Core/Bosses/Kraid/FakeKraidAnimations.cs");
         RequireSegmentFrames(WalkingSpacePirateAnimations.Segments, WalkingSpacePirateFrameToolingDefinitions.Spritemap, WalkingSpacePirateFrameToolingDefinitions.Bank,
             nameof(WalkingSpacePirateAnimations), "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/WalkingSpacePirateAnimations.cs");
-        RequireTypedFrames(WallSpacePirateAnimations.Programs, WallSpacePirateFrameToolingDefinitions.Spritemap, WallSpacePirateFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(WallSpacePirateAnimations.Segments, WallSpacePirateFrameToolingDefinitions.Spritemap, WallSpacePirateFrameToolingDefinitions.Bank,
             nameof(WallSpacePirateAnimations), "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/WallSpacePirateAnimations.cs");
         RequireSegmentFrames(NinjaSpacePirateAnimations.Segments, NinjaSpacePirateFrameToolingDefinitions.Spritemap, NinjaSpacePirateFrameToolingDefinitions.Bank,
             nameof(NinjaSpacePirateAnimations), "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/NinjaSpacePirateAnimations.cs");

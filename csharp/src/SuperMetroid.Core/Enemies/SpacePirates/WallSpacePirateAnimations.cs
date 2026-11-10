@@ -10,9 +10,9 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// </summary>
 internal static class WallSpacePirateAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<WallSpacePirateProgram, WallSpacePirateFrame, WallSpacePirateCue> Programs { get; } = new(
-        new Dictionary<WallSpacePirateProgram, AnimationProgramStep<WallSpacePirateProgram, WallSpacePirateFrame, WallSpacePirateCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<WallSpacePirateProgram, WallSpacePirateFrame, WallSpacePirateCue> Segments { get; } = new(
+        new Dictionary<WallSpacePirateProgram, AnimationBeat<WallSpacePirateFrame, WallSpacePirateCue>[]>
     {
         [P.FireAndJumpLeft] =
         [
@@ -26,19 +26,15 @@ internal static class WallSpacePirateAnimations
             Cue(new WallSpacePirateCue.Command(K.PlayAttackSound)),
             Show(16, 10),
             Show(17, 1),
-            Hold,
         ],
         [P.LandedOnLeftWall] =
         [
             Cue(new WallSpacePirateCue.SetFunction(Function: WallSpacePirateFunction.ClimbingLeftWall)),
             Show(16, 10),
-            FallInto(P.MovingUpLeftWall),
         ],
         [P.MovingUpLeftWall] =
         [
             Cue(new WallSpacePirateCue.SetFunction(Function: WallSpacePirateFunction.ClimbingLeftWall)),
-            SetCounter(4),
-            FallInto(P.MovingUpLeftWallLoop),
         ],
         [P.MovingUpLeftWallLoop] =
         [
@@ -57,15 +53,11 @@ internal static class WallSpacePirateAnimations
             Show(2, 5),
             Cue(new WallSpacePirateCue.ClimbLeftWall(ClimbPixels: -3)),
             Show(1, 8),
-            RepeatWhileCounting(P.MovingUpLeftWallLoop),
             Cue(new WallSpacePirateCue.Command(K.ChooseLeftWallDirection)),
-            Hold,
         ],
         [P.MovingDownLeftWall] =
         [
             Cue(new WallSpacePirateCue.SetFunction(Function: WallSpacePirateFunction.ClimbingLeftWall)),
-            SetCounter(4),
-            FallInto(P.MovingDownLeftWallLoop),
         ],
         [P.MovingDownLeftWallLoop] =
         [
@@ -84,9 +76,7 @@ internal static class WallSpacePirateAnimations
             Show(2, 5),
             Cue(new WallSpacePirateCue.ClimbLeftWall(ClimbPixels: 3)),
             Show(1, 8),
-            RepeatWhileCounting(P.MovingDownLeftWallLoop),
             Cue(new WallSpacePirateCue.Command(K.ChooseLeftWallDirection)),
-            Hold,
         ],
         [P.FireAndJumpRight] =
         [
@@ -100,19 +90,15 @@ internal static class WallSpacePirateAnimations
             Cue(new WallSpacePirateCue.Command(K.PlayAttackSound)),
             Show(7, 10),
             Show(8, 1),
-            Hold,
         ],
         [P.LandedOnRightWall] =
         [
             Cue(new WallSpacePirateCue.SetFunction(Function: WallSpacePirateFunction.ClimbingRightWall)),
             Show(7, 10),
-            FallInto(P.MovingDownRightWall),
         ],
         [P.MovingDownRightWall] =
         [
             Cue(new WallSpacePirateCue.SetFunction(Function: WallSpacePirateFunction.ClimbingRightWall)),
-            SetCounter(4),
-            FallInto(P.MovingDownRightWallLoop),
         ],
         [P.MovingDownRightWallLoop] =
         [
@@ -131,15 +117,11 @@ internal static class WallSpacePirateAnimations
             Show(11, 5),
             Cue(new WallSpacePirateCue.ClimbRightWall(ClimbPixels: 3)),
             Show(10, 8),
-            RepeatWhileCounting(P.MovingDownRightWallLoop),
             Cue(new WallSpacePirateCue.Command(K.ChooseRightWallDirection)),
-            Hold,
         ],
         [P.MovingUpRightWall] =
         [
             Cue(new WallSpacePirateCue.SetFunction(Function: WallSpacePirateFunction.ClimbingRightWall)),
-            SetCounter(4),
-            FallInto(P.MovingUpRightWallLoop),
         ],
         [P.MovingUpRightWallLoop] =
         [
@@ -158,31 +140,32 @@ internal static class WallSpacePirateAnimations
             Show(11, 5),
             Cue(new WallSpacePirateCue.ClimbRightWall(ClimbPixels: -3)),
             Show(10, 8),
-            RepeatWhileCounting(P.MovingUpRightWallLoop),
             Cue(new WallSpacePirateCue.Command(K.ChooseRightWallDirection)),
-            Hold,
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<WallSpacePirateProgram, Animation<WallSpacePirateProgram>> StartingAt { get; } = new Dictionary<WallSpacePirateProgram, Animation<WallSpacePirateProgram>>
+    {
+        [P.FireAndJumpLeft] = new([new(P.FireAndJumpLeft, 0, 10, 1)], AnimationEnd.Holds),
+        [P.LandedOnLeftWall] = new([new(P.LandedOnLeftWall, 0, 2, 1), new(P.MovingUpLeftWall, 0, 1, 1), new(P.MovingUpLeftWallLoop, 0, 15, 4), new(P.MovingUpLeftWallLoop, 15, 1, 1)], AnimationEnd.Holds),
+        [P.MovingUpLeftWall] = new([new(P.MovingUpLeftWall, 0, 1, 1), new(P.MovingUpLeftWallLoop, 0, 15, 4), new(P.MovingUpLeftWallLoop, 15, 1, 1)], AnimationEnd.Holds),
+        [P.MovingDownLeftWall] = new([new(P.MovingDownLeftWall, 0, 1, 1), new(P.MovingDownLeftWallLoop, 0, 15, 4), new(P.MovingDownLeftWallLoop, 15, 1, 1)], AnimationEnd.Holds),
+        [P.FireAndJumpRight] = new([new(P.FireAndJumpRight, 0, 10, 1)], AnimationEnd.Holds),
+        [P.LandedOnRightWall] = new([new(P.LandedOnRightWall, 0, 2, 1), new(P.MovingDownRightWall, 0, 1, 1), new(P.MovingDownRightWallLoop, 0, 15, 4), new(P.MovingDownRightWallLoop, 15, 1, 1)], AnimationEnd.Holds),
+        [P.MovingDownRightWall] = new([new(P.MovingDownRightWall, 0, 1, 1), new(P.MovingDownRightWallLoop, 0, 15, 4), new(P.MovingDownRightWallLoop, 15, 1, 1)], AnimationEnd.Holds),
+        [P.MovingUpRightWall] = new([new(P.MovingUpRightWall, 0, 1, 1), new(P.MovingUpRightWallLoop, 0, 15, 4), new(P.MovingUpRightWallLoop, 15, 1, 1)], AnimationEnd.Holds),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<WallSpacePirateProgram> StartingWith(WallSpacePirateProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<WallSpacePirateProgram, WallSpacePirateFrame, WallSpacePirateCue> Show(int pose, int duration) => AnimationProgramStep<WallSpacePirateProgram, WallSpacePirateFrame, WallSpacePirateCue>.Show(new(pose), duration);
+    private static AnimationBeat<WallSpacePirateFrame, WallSpacePirateCue> Show(int pose, int duration) => new AnimationBeat<WallSpacePirateFrame, WallSpacePirateCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<WallSpacePirateProgram, WallSpacePirateFrame, WallSpacePirateCue> Cue(WallSpacePirateCue cue) => AnimationProgramStep<WallSpacePirateProgram, WallSpacePirateFrame, WallSpacePirateCue>.Publish(cue);
-
-    /// <summary>Loads the loop counter with <paramref name="count"/>.</summary>
-    private static AnimationProgramStep<WallSpacePirateProgram, WallSpacePirateFrame, WallSpacePirateCue> SetCounter(int count) => AnimationProgramStep<WallSpacePirateProgram, WallSpacePirateFrame, WallSpacePirateCue>.SetCounter(count);
-
-    /// <summary>Repeats from <paramref name="program"/> while the loop counter counts down.</summary>
-    private static AnimationProgramStep<WallSpacePirateProgram, WallSpacePirateFrame, WallSpacePirateCue> RepeatWhileCounting(WallSpacePirateProgram program) => AnimationProgramStep<WallSpacePirateProgram, WallSpacePirateFrame, WallSpacePirateCue>.RepeatWhileCounting(program);
+    private static AnimationBeat<WallSpacePirateFrame, WallSpacePirateCue> Cue(WallSpacePirateCue cue) => new AnimationBeat<WallSpacePirateFrame, WallSpacePirateCue>.Event(cue);
 
     /// <summary>Waits <paramref name="updates"/> updates on the current frame.</summary>
-    private static AnimationProgramStep<WallSpacePirateProgram, WallSpacePirateFrame, WallSpacePirateCue> Wait(int updates) => AnimationProgramStep<WallSpacePirateProgram, WallSpacePirateFrame, WallSpacePirateCue>.Wait(updates);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<WallSpacePirateProgram, WallSpacePirateFrame, WallSpacePirateCue> FallInto(WallSpacePirateProgram program) => AnimationProgramStep<WallSpacePirateProgram, WallSpacePirateFrame, WallSpacePirateCue>.FallInto(program);
-
-    /// <summary>Holds the last frame, as the sleep does.</summary>
-    private static AnimationProgramStep<WallSpacePirateProgram, WallSpacePirateFrame, WallSpacePirateCue> Hold => AnimationProgramStep<WallSpacePirateProgram, WallSpacePirateFrame, WallSpacePirateCue>.Hold;
-
+    private static AnimationBeat<WallSpacePirateFrame, WallSpacePirateCue> Wait(int updates) => new AnimationBeat<WallSpacePirateFrame, WallSpacePirateCue>.Pause(updates);
 }

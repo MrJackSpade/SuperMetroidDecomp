@@ -68,9 +68,9 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         bool startsOnRight = (flags & WallSpacePirateOptions.StartsOnRightWall) != WallSpacePirateOptions.None;
         bool slowJump = (flags & WallSpacePirateOptions.SlowJumpAndLaser) != WallSpacePirateOptions.None;
 
-        state.Program = AnimationProgramCursor<WallSpacePirateProgram>.Start(startsOnRight
+        state.Playback = new(WallSpacePirateAnimations.StartingWith(startsOnRight
             ? WallSpacePirateProgram.MovingDownRightWall
-            : WallSpacePirateProgram.MovingDownLeftWall);
+            : WallSpacePirateProgram.MovingDownLeftWall), AnimationPlace.StartOfAnimation);
         state.Function = startsOnRight
             ? WallSpacePirateFunction.ClimbingRightWall
             : WallSpacePirateFunction.ClimbingLeftWall;
@@ -198,7 +198,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         WallSpacePirateEnemyState state,
         WallSpacePirateProgram program)
     {
-        state.Program = AnimationProgramCursor<WallSpacePirateProgram>.Start(program);
+        state.Playback = new(WallSpacePirateAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
     }
 
@@ -341,9 +341,11 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
 
     /// <summary>Advances the wall Space Pirate's typed animation.</summary>
     internal void AdvanceWallSpacePirateTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>
-        EnemyProgramAnimation.Advance(slot, WallSpacePirateAnimations.Programs, WallSpacePirateFrameDefinitions.ShownFrames.Of,
-            static (WallSpacePirateEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
-            (state, cue, _) => ApplyWallSpacePirateCue(slot, cue, context.Level));
+        EnemyProgramAnimation.Advance(slot, WallSpacePirateAnimations.Segments, WallSpacePirateFrameDefinitions.ShownFrames.Of,
+            static (WallSpacePirateEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            (state, cue) => ApplyWallSpacePirateCue(slot, cue, context.Level) is { } continuesAt
+                ? new AnimationContinuation<WallSpacePirateProgram>(WallSpacePirateAnimations.StartingWith(continuesAt), AnimationPlace.StartOfAnimation)
+                : null);
 
     /// <summary>Applies the ordinary Pirate power-bomb callback across wall, walking, and Ninja variants.</summary>
     internal static void AddWallSpacePiratePowerBombReactions(EnemySharedReactions table)

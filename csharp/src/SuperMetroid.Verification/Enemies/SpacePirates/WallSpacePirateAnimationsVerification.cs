@@ -6,14 +6,15 @@ using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Enemies.SpacePirates;
 
-/// <summary>#641: the wall Space Pirates' typed programs, each matched step by step to its native bank-$B2 list.</summary>
+/// <summary>#641: the wall Space Pirates' typed animations (#1600), each segment matched to its native bank-$B2 list and each animation to the lists' control flow.</summary>
 internal static class WallSpacePirateAnimationsVerification
 {
-    /// <summary>Every program matches its native list.</summary>
+    /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifyWallSpacePirateAnimations(SuperMetroidAddressSpace rom)
     {
-        int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, WallSpacePirateAnimations.Programs,
-            WallSpacePirateFrameToolingDefinitions.Spritemap, new NativeEnemyCueRules<WallSpacePirateCue>(
+        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
+            WallSpacePirateAnimations.Segments, WallSpacePirateAnimations.StartingAt, WallSpacePirateFrameToolingDefinitions.Spritemap,
+            new NativeEnemyCueRules<WallSpacePirateCue>(
             word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
             (word, operands, cue, at) =>
             {
@@ -28,6 +29,6 @@ internal static class WallSpacePirateAnimationsVerification
                 }, $"{at}: operand {index}");
             },
             cue => cue is WallSpacePirateCue.Command { Kind: WallSpacePirateCueKind.ChooseLeftWallDirection } or WallSpacePirateCue.Command { Kind: WallSpacePirateCueKind.ChooseRightWallDirection }));
-        Console.WriteLine($"  Wall Space Pirate programs: {Entries.Length} programs ({steps} steps) match bank $B2.");
+        Console.WriteLine($"  Wall Space Pirate animations: {Entries.Length} segments ({beats} beats) and {WallSpacePirateAnimations.StartingAt.Count} animations match bank $B2.");
     }
 }

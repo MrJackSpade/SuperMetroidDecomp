@@ -22,7 +22,7 @@ internal static class BossAndIntroOverreadDecoding
             BossAndIntroOverreadFormat.Version,
             KraidNailPastLedges(cartridge),
             CartridgeWordReads.SignedWord(cartridge.ReadCartridgeWord(
-                BossAndIntroOverreadSourceDefinitions.CrocomireVolleyGradients + CrocomireProjectileDefinitions.AuthoredShotCount * sizeof(ushort))),
+                BossAndIntroOverreadSourceDefinitions.CrocomireVolleyGradients + CrocomireProjectileDefinitions.VolleyShotCount * sizeof(ushort))),
             ShellFragmentFallPastCurve(cartridge));
     }
 

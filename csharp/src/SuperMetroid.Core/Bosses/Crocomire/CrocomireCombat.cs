@@ -288,13 +288,12 @@ internal sealed class CrocomireCombat
         // The setup performs one horizontal collision move and deliberately ignores carry.
         EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal);
 
-        // Spawn parameters are 2,4,...,18. The last selects the tenth gradient, one past the
-        // nine-word table, which the installed service holds; do not clamp the final shot to
-        // the last authored gradient. The angle starts at up, not right: Y uses negative cosine.
-        int parameter = projectile.StateOf<CrocomireProjectileState>().VolleyParameter;
-        int gradient = CrocomireVolley.IsTenthShot(parameter)
+        // The last shot reads the gradient after the authored ones, which the installed service holds; do not clamp
+        // it to the last authored gradient. The angle starts at up, not right: Y uses negative cosine.
+        int shot = projectile.StateOf<CrocomireProjectileState>().Shot;
+        int gradient = CrocomireVolley.IsLastShot(shot)
             ? _access.TenthShotGradient.Gradient
-            : CrocomireVolley.AuthoredGradient(parameter);
+            : CrocomireVolley.AuthoredGradient(shot);
         projectile.Velocity = CalculateCrocomireProjectileVelocity(EnemyMath.CalculateBearing(new(-64, gradient)));
         projectile.FrameBehavior =
             EnemyProjectileFrameBehavior.CrocomireShotFlight;

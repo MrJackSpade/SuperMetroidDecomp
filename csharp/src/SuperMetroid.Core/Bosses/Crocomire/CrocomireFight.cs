@@ -232,7 +232,7 @@ internal sealed class CrocomireFight
                 if ((_access.ReadCrocomireRandom() & 4095) < 1024)
                 {
                     state.FightFunction = CrocomireFightFunction.ProjectileAttack;
-                    state.ProjectileCounter = 0;
+                    state.ShotsSpat = 0;
                     return CrocomireBodyProgram.ProjectileAttack;
                 }
                 return null;
@@ -359,10 +359,10 @@ internal sealed class CrocomireFight
                     state.FightFunction = CrocomireFightFunction.SteppingBack;
                     return CrocomireBodyProgram.StepBack;
                 }
-                if (state.ProjectileCounter < CrocomireBehavior.LastProjectileSpawnParameter)
+                if (state.ShotsSpat < CrocomireProjectileDefinitions.VolleyShotCount)
                 {
-                    state.ProjectileCounter += 2;
-                    SpawnCrocomireProjectile(state.Body, state.ProjectileCounter);
+                    state.ShotsSpat++;
+                    SpawnCrocomireProjectile(state.Body, state.ShotsSpat);
                     _access.RequestCrocomireSound(CrocomireSoundDefinitions.ProjectileSpit);
                     return null;
                 }
@@ -571,8 +571,8 @@ internal sealed class CrocomireFight
             throw new InvalidOperationException("Crocomire movement requires room level data.");
     }
 
-    /// <summary>Spawns one of Crocomire's fight projectiles.</summary>
-    internal void SpawnCrocomireProjectile(RoomEnemySlot body, int spawnParameter)
+    /// <summary>Spawns one of Crocomire's fight projectiles, the volley's <paramref name="shot"/>.</summary>
+    internal void SpawnCrocomireProjectile(RoomEnemySlot body, int shot)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -586,6 +586,6 @@ internal sealed class CrocomireFight
         projectile.Velocity = new(SignedEightEight.FromSignedRaw(-512), new SignedEightEight(1));
         projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(body.Position.X.Whole - 32), CoordinateAxis.Wrap(body.Position.Y.Whole - 16)));
         projectile.Position = projectile.Position.WithFractionX(0).WithFractionY(0);
-        projectile.State = new CrocomireProjectileState(spawnParameter);
+        projectile.State = new CrocomireProjectileState(shot);
     }
 }

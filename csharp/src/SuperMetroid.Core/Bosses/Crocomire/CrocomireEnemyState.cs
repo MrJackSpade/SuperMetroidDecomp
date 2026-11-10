@@ -117,10 +117,10 @@ public sealed class CrocomireEnemyState
     public int VerticalSpeed { get; internal set; }
 
     /// <summary>
-    /// During the projectile attack: the even spawn parameter, cleared when the attack starts and advanced by two
-    /// through eighteen.
+    /// During the projectile attack: how many of the volley's shots Crocomire has spat, cleared when the attack starts and
+    /// counted up to <see cref="CrocomireProjectileDefinitions.VolleyShotCount"/>.
     /// </summary>
-    public int ProjectileCounter { get; internal set; }
+    public int ShotsSpat { get; internal set; }
 
     /// <summary>
     /// In the unused claw attack: the fight function restored when the claws stop. The original game parks it in the

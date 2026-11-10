@@ -12,8 +12,9 @@ public static class CrocomireProjectileDefinitions
     public static ImmutableArray<short> GradientCycle { get; } = [-16, 0, 32];
 
     /// <summary>
-    /// The shots the authored gradient table covers. The volley's last shot reads the gradient after them, which the
-    /// installed <see cref="CrocomireTenthShotGradient"/> holds (#1500).
+    /// The shots the projectile attack spits before Crocomire steps forward. Each reads the gradient its place in the
+    /// volley names from the authored ones, which name nine places counting from none, so the last shot reads the
+    /// gradient after them, which the installed <see cref="CrocomireTenthShotGradient"/> holds (#1500).
     /// </summary>
-    public const int AuthoredShotCount = 9;
+    public const int VolleyShotCount = 9;
 }

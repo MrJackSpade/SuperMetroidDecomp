@@ -334,7 +334,6 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     /// The record <paramref name="colours"/> shows now (#1512, #1597): that of the running effect showing them, or once
     /// none does, the final record of the effect that settled in them; null while no effect shows them.
     /// </summary>
-    /// <exception cref="InvalidOperationException">Two running effects show the colours.</exception>
     internal PaletteFxFrame? RecordOf(PaletteFxColours colours)
     {
         foreach (ShownPaletteFxRecord shown in ShownRecords())
@@ -349,7 +348,6 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     /// Lays the shade of the record each of the room's colour groups shows now over the room's pictures (#1512, #1597):
     /// the settled effects' final records, then the running effects' records in turn order.
     /// </summary>
-    /// <exception cref="InvalidOperationException">Two running effects show the same colours.</exception>
     public void ShadeGameplay(GameplayShadingBuilder frame)
     {
         Ensure.NotNull(frame);
@@ -365,7 +363,6 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     /// a running effect shows its colours, then each running effect's record in turn order. An effect its condition ended
     /// shows nothing, and no effect's record outlasts it.
     /// </summary>
-    /// <exception cref="InvalidOperationException">Two running effects show the same colours.</exception>
     private List<ShownPaletteFxRecord> ShownRecords()
     {
         var running = new List<ShownPaletteFxRecord>();
@@ -373,8 +370,8 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
         {
             if (effect.Ended || effect.Colours is not { } colours || effect.Record is not { } record)
                 continue;
-            if (running.Exists(other => other.Colours == colours))
-                throw new InvalidOperationException($"Two running colour effects show {colours}; each colour group has one effect at a time.");
+            // Of two running effects showing the same colours, the later turn's record shows (ColourEffectTurnOrder).
+            running.RemoveAll(other => other.Colours == colours);
             running.Add(new ShownPaletteFxRecord(colours, record));
         }
         var shown = new List<ShownPaletteFxRecord>(settled.Count + running.Count);

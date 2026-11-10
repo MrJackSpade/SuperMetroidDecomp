@@ -39,7 +39,7 @@ internal static class ProjectileFrameBindingsVerification
                 Cursor = SamusProjectileProgramAddresses.CursorAt(unchecked((ushort)(pointer + 8))),
                 FrameHold = WrappingCountdown.FromRaw(Word(0)), SpritemapPointer = Word(2),
                 Radius = new(CpuBusRegionRead.Read(rom, record + 4), CpuBusRegionRead.Read(rom, record + 5)),
-                AnimationFrame = Word(6), Damage = 30,
+                Damage = 30,
             };
             var nativeBomb = new SamusBombProjectileSlot(0)
             {

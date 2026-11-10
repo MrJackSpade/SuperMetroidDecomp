@@ -52,6 +52,8 @@ internal static class KraidRockLaunchDefinitionsVerification
             body.Position = body.Position.WithWhole(new((ushort)raw, (ushort)(ushort.MaxValue - raw)));
             reads = 0;
             AssertTrue(spawn(body), "Kraid rock allocation succeeds");
+            // A spawn creates a new projectile in the place, which the place now holds (#1590).
+            rock = enemies.Projectiles.EnemyProjectiles[^1];
             AssertEqual(1, reads, "Kraid rock reads current RNG once");
             AssertEqual(RoomEnemyProjectileKind.KraidSpitRock, rock.Kind, "Native reverse allocation slot");
             AssertEqual(expected, rock.Velocity.X.RawValue, "Native selected speed reaches actual projectile");

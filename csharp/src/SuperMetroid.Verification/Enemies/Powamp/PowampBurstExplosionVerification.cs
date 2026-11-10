@@ -36,11 +36,12 @@ internal static class PowampBurstExplosionVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
         };
         AssertEqual<int?>(1, enemies.PowampBehavior.SpawnPowampSpikeBurst(body), "the burst's last spike takes the second place");
-        AssertEqual(8, pool.Count(slot => slot.Kind == RoomEnemyProjectileKind.PowampSpike), "the burst fires all eight spikes");
+        // Each spike is a new projectile in its place, so the places are read again after the burst (#1590).
+        AssertEqual(8, enemies.Projectiles.EnemyProjectiles.Count(slot => slot.Kind == RoomEnemyProjectileKind.PowampSpike), "the burst fires all eight spikes");
 
-        foreach (EnemyProjectile slot in pool)
+        foreach (EnemyProjectile slot in enemies.Projectiles.EnemyProjectiles)
             slot.Delete();
-        foreach (EnemyProjectile occupied in pool.Where(slot => slot.Place > 4))
+        foreach (EnemyProjectile occupied in enemies.Projectiles.EnemyProjectiles.Where(slot => slot.Place > 4))
             occupied.Kind = RoomEnemyProjectileKind.MiscDustExplosion;
         AssertEqual<int?>(null, enemies.PowampBehavior.SpawnPowampSpikeBurst(body), "a burst finding the pool full before its eighth spike reports none");
         Console.WriteLine("  Powamp burst explosion: the last spike's pool place selects the explosion; a full pool selects the small one.");

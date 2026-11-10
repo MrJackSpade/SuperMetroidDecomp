@@ -788,7 +788,10 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                         projectile.SuperMissileLinkPlace != SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeMissileLinkSlot(recordedVariable)))
                         mismatches.Add($"{owner} missile ignition: native={recordedVariable:X4} port={projectile.MissileIgnition}/{projectile.SuperMissileLinkPlace}");
                 }
-                Check(owner + " TrailTimer", unchecked(projectile.TrailTimer.RawValue), NativeSnapshotMemory.ProjectileTrailTimer + index);
+                // A Super Missile's link never sets or reads its trail timer, on the cartridge or here; the cartridge's word is
+                // whatever the place's previous projectile left, which a fresh link does not inherit (#1590).
+                if (projectile.FrameBehavior != SamusProjectileFrameBehavior.SuperMissileLink)
+                    Check(owner + " TrailTimer", unchecked(projectile.TrailTimer.RawValue), NativeSnapshotMemory.ProjectileTrailTimer + index);
                 // No Spazer phase is compared: only a Spazer special attack's particles have one, they set it before
                 // reading it, and the callback mapping above rejects them in this movie.
                 Check(owner + " Spritemap", unchecked((ushort)projectile.SpritemapPointer), NativeSnapshotMemory.ProjectileSpritemap + index);

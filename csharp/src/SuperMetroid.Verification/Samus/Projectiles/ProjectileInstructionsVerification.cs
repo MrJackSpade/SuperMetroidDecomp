@@ -110,10 +110,8 @@ internal static class ProjectileInstructionsVerification
             foreach (ushort timer in new ushort[] { 0, 1, 2, ushort.MaxValue })
             {
                 trailSlot.FrameHold = WrappingCountdown.FromRaw(timer);
-                trailSlot.AnimationFrame = 0xbeef;
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x930000 | (entry - 2)), trailFrame(trailSlot), "Trail owner consumes the previous list word regardless of timer or cached frame");
                 AssertEqual(timer, trailSlot.FrameHold.RawValue, "Trail frame lookup leaves timer unchanged");
-                AssertEqual(0xbeef, trailSlot.AnimationFrame, "Trail lookup must not substitute or alter the cached frame");
             }
         }
 
@@ -152,7 +150,7 @@ internal static class ProjectileInstructionsVerification
                     AssertTrue(bomb.Type.IsNone, "Delete clears bomb occupancy");
                     break;
                 }
-                AssertEqual(new VerifyLookupStream1ProjectileProgramsCase(timer, pointer, sprite, x, y, trail), new VerifyLookupStream1ProjectileProgramsCase(slot.FrameHold.RawValue, slot.InstructionPointer, slot.SpritemapPointer, slot.Radius.X, slot.Radius.Y, slot.AnimationFrame), "Exact projectile frame matches ROM interpreter");
+                AssertEqual(new VerifyLookupStream1ProjectileProgramsCase(timer, pointer, sprite, x, y, trail), new VerifyLookupStream1ProjectileProgramsCase(slot.FrameHold.RawValue, slot.InstructionPointer, slot.SpritemapPointer, slot.Radius.X, slot.Radius.Y, ProjectileTrails.GetTrailAnimationFrame(slot, InstalledFixtures.SamusOverreads.Projectiles.TrailStarts)), "Exact projectile frame matches ROM interpreter");
                 AssertEqual(new LookupStream1VerifyLookupStream1ProjectileProgramsCase(timer, pointer, sprite, x, y), new LookupStream1VerifyLookupStream1ProjectileProgramsCase(bomb.FrameHold.RawValue, bomb.InstructionPointer, bomb.SpritemapPointer, bomb.Radius.X, bomb.Radius.Y), "Exact bomb frame matches ROM interpreter");
             }
         }

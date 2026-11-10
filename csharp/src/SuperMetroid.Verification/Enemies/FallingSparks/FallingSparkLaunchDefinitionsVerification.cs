@@ -39,6 +39,8 @@ internal static class FallingSparkLaunchDefinitionsVerification
             source.Position = new(new((ushort)raw, (ushort)raw), new((ushort)(ushort.MaxValue - raw), (ushort)(ushort.MaxValue - raw)));
             advances = 0;
             spawn(source);
+            // A spawn creates a new projectile in the place, which the place now holds (#1590).
+            projectile = enemies.Projectiles.EnemyProjectiles[^1];
             AssertEqual(1, advances, "Successful spark spawn advances RNG once");
             AssertEqual(RoomEnemyProjectileKind.FallingSpark, projectile.Kind, "Reverse allocator owns last free slot");
             AssertEqual(source.Position.X.Whole, projectile.Position.X.Whole, "Spark copies source X");

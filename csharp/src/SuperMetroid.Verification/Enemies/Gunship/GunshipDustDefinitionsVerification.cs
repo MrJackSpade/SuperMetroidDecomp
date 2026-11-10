@@ -39,6 +39,8 @@ internal static class GunshipDustDefinitionsVerification
                 slot.Position = slot.Position.WithFractionY(0xffff).WithFractionX(0xffff);
                 slot.Velocity = new(new SignedEightEight(0x1234), new SignedEightEight(0x1234));
                 spawn(definition, samus);
+                // A spawn creates a new projectile in the place, which the place now holds (#1590).
+                slot = enemies.Projectiles.EnemyProjectiles[^1];
                 AssertEqual(RoomEnemyProjectileKind.GunshipLiftoffDustCloud, slot.Kind, "Native reverse allocation chooses last free slot");
                 AssertEqual(unchecked((ushort)(samus.Position.X.Whole + dx)), slot.Position.X.Whole, "Actual dust signed X placement and wrap");
                 AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + Word(0x86a2c5))), slot.Position.Y.Whole, "Actual dust Y placement and wrap");

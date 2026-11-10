@@ -591,13 +591,14 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     var sharedProjectiles = CreateBombFixture();
     SeedRipperProjectileDataPointers(bus);
 
-    static void ArmProjectile(
-        SamusProjectile projectile,
+    // Each armed shot is a fresh projectile in place 0, as every firing creates one (#1590).
+    static SamusProjectile ArmProjectile(
+        SamusProjectileSystem pool,
         RoomEnemySlot target,
         ushort type,
         ushort damage)
     {
-        projectile.ClearFields();
+        SamusProjectile projectile = pool.SlotTable.Occupy(0);
         projectile.Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type);
         projectile.Damage = damage;
         projectile.Direction = SamusProjectileDirection.Right;
@@ -605,15 +606,15 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         projectile.Radius = new(4, 4);
         projectile.Cursor = ProjectileFixtureCursors.Active;
         projectile.FrameHold = WrappingCountdown.Start(1);
+        return projectile;
     }
 
-    SamusProjectile shot = projectiles.Slots[0];
-    ArmProjectile(shot, ripper, type: 0x8000, damage: 20);
+    SamusProjectile shot = ArmProjectile(projectiles, ripper, type: 0x8000, damage: 20);
     AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(projectiles, sharedProjectiles),
         "Ripper ineffective power-beam collision");
     AssertEqual(200, ripper.Health, "Ripper power-beam immunity comes from ROM vulnerability");
 
-    ArmProjectile(shot, ripper, type: 0x8002, damage: 20);
+    shot = ArmProjectile(projectiles, ripper, type: 0x8002, damage: 20);
     AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(projectiles, sharedProjectiles),
         "Ripper Ice Beam collision");
     AssertEqual(400, ripper.FrozenTimer, "Ripper Ice vulnerability freezes actor");
@@ -633,7 +634,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         request.SoundEffect == expectedHurtCry && request.Priority.Requests == 3);
     for (int hit = 0; hit < 2; hit++)
     {
-        ArmProjectile(shot, ripper, type: 0x0200, damage: 100);
+        shot = ArmProjectile(projectiles, ripper, type: 0x0200, damage: 100);
         AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(projectiles, sharedProjectiles),
             $"Ripper Super Missile hit {hit + 1}");
         AssertEqual(criesBefore + hit + 1, enemies.Audio.SoundRequests.Count(request =>

@@ -1344,8 +1344,6 @@ internal static class LookupStream4Verification
     {
         byte[] source = BeamPaletteExtractor.Extract(rom);
         var stock = BeamPaletteFile.Read(new MemoryStream(source));
-        var stored = stock.palettes;
-        AssertEqual(0, stored.Count, "Every stock beam color calculates with zero overrides");
         var artwork = BeamTileCatalog.Load(BeamTileExtractor.Extract(rom), stock);
         for (int selection = 0; selection < 12; selection++)
         {
@@ -1358,8 +1356,8 @@ internal static class LookupStream4Verification
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + color * 2)), shown[color], "Beam paint preserves native selected rows");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.Colours(SamusBeamCombinationTableOrder.FromTableIndex(invalid)), "Calculated beam colors preserve selection bounds");
-        Console.WriteLine("Beam paint:192 native selected words,zero stock overrides and12 actual masked-selection producers pass.");
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.Colours(SamusBeamCombinationTableOrder.FromTableIndex(invalid)), "Installed beam colors preserve selection bounds");
+        Console.WriteLine("Beam paint:192 native selected words and12 actual masked-selection producers pass.");
     }
 
     /// <summary>Checks Ridley movement policy constants and branch data against the cartridge.</summary>

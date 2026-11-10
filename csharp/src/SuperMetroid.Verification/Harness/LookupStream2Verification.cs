@@ -1094,8 +1094,6 @@ internal static class LookupStream2Verification
     {
         byte[] json = ProjectileTrailExtractor.Extract(rom);
         var stock = InstalledProjectileTrails.Load(new MemoryStream(json));
-        var edits = stock.suppliedAttributes;
-        AssertEqual(0, edits.Count, "Stock trail appearance stores no repeated frame attributes");
         foreach (ProjectileTrailFrame frame in ProjectileTrailVisualDefinitions.Frames)
         {
             // The appearance has no packed word: the native attribute word is decoded by the import pipeline's codec and

@@ -76,7 +76,7 @@ public static class BeamPaletteFile
                 compiled[selection][i] = color.ToRgbColor();
             }
         }
-        return SamusPaletteRecognition.Beams(compiled);
+        return new InstalledBeamPalettes(compiled);
     }
 
     /// <summary>Serializes a beam-palette document as indented camel-case UTF-8 JSON.</summary>

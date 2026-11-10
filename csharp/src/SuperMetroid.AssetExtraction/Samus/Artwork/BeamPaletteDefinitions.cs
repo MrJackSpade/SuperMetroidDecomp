@@ -4,9 +4,8 @@ namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 /// <summary>Presentation geometry for the sixteen colors the beam palette load writes.</summary>
 /// <remarks>
 /// Each of the twelve beam combinations selects one of five beam materials (Power, Ice, Wave, Plasma, Spazer), and the
-/// load writes that material's sixteen colours. The selected material paint is owned by BeamPaintDefinitions; its exact
-/// channel composition calculates every stock colour and preserves independent replacements. How the stock colours are
-/// imported is the import pipeline's (BeamPaletteFile). Investigation: #625 / #901.
+/// load writes that material's sixteen colours. Every combination's sixteen colours are installed and read as installed
+/// (BeamPaletteFile, #1596). Investigation: #625 / #901.
 /// </remarks>
 public static class BeamPaletteDefinitions
 {

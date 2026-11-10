@@ -8,31 +8,12 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <summary>Immutable single-piece appearance keyed by native trail frame; no timing or movement fields.</summary>
 public sealed class InstalledProjectileTrails
 {
-    /// <summary>Only authored appearances differing from the shared native tile progressions.</summary>
-    internal readonly Dictionary<SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame, SpritePart> suppliedAttributes = [];
-    /// <summary>Copies the frame appearances that differ from the shared native tile progressions.</summary>
-    private InstalledProjectileTrails(Dictionary<SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame, SpritePart> attributes)
-    {
-        for (int index = 0; index < ProjectileTrailVisualDefinitions.FrameCount; index++)
-        {
-            var frame = ProjectileTrailVisualDefinitions.Frames[index];
-            if (attributes[frame] != DefaultAttributes(index)) suppliedAttributes.Add(frame, attributes[frame]);
-        }
-    }
+    /// <summary>The installed appearance of every trail frame (#1596).</summary>
+    private readonly Dictionary<SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame, SpritePart> attributes;
+    /// <summary>Takes the validated appearance of every trail frame.</summary>
+    private InstalledProjectileTrails(Dictionary<SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame, SpritePart> attributes) =>
+        this.attributes = attributes;
 
-    /// <summary>
-    /// Shared character progression, palette and priority. Ice's independently chosen pose boundaries
-    /// at records4,8,16 remain pending source payload; no timing derivation is claimed.
-    /// </summary>
-    private static SpritePart DefaultAttributes(int index)
-    {
-        bool ice = index < 34;
-        int phase = ice ? index % 17 : (index - 34) % 4;
-        if (ice) phase = phase < 4 ? 0 : phase < 8 ? 1 : phase < 16 ? 2 : 3;
-        int firstTile = ice ? ProjectileTrailGlyphDefinitions.IceFirstTile
-            : index < 38 ? ProjectileTrailGlyphDefinitions.WaveFirstTile : ProjectileTrailGlyphDefinitions.MissileFirstTile;
-        return SpritePart.Single(firstTile + phase, ice ? 6 : 5, 2);
-    }
     /// <summary>Uses stable camel-case output and rejects unknown appearance properties.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
@@ -44,15 +25,10 @@ public sealed class InstalledProjectileTrails
     /// <param name="frame">The trail frame, among the 42 left/right ice, wave and missile poses.</param>
     /// <returns>The character, palette, priority and mirroring.</returns>
     /// <exception cref="InvalidDataException"><paramref name="frame"/> is not a trail frame.</exception>
-    public SpritePart Resolve(SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame frame)
-    {
-        if (suppliedAttributes.ContainsKey(frame)) return suppliedAttributes[frame];
-        for (int index = 0; index < ProjectileTrailVisualDefinitions.FrameCount; index++)
-            if (ProjectileTrailVisualDefinitions.Frames[index] == frame) return DefaultAttributes(index);
-        throw new InvalidDataException($"Missing trail frame {frame}.");
-    }
+    public SpritePart Resolve(SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame frame) =>
+        attributes.TryGetValue(frame, out SpritePart appearance) ? appearance : throw new InvalidDataException($"Missing trail frame {frame}.");
 
-    /// <summary>Validates every native trail-frame appearance, retaining only differences from the default appearances.</summary>
+    /// <summary>Validates every native trail-frame appearance and keeps each one as installed.</summary>
     /// <param name="json">Case-sensitive UTF-8 JSON read from its current position; the caller retains ownership of the stream.</param>
     /// <returns>An immutable appearance catalog that does not retain the document's mutable frame dictionary.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>

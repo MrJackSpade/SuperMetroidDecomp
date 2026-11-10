@@ -38,7 +38,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of Stoke's animations.</summary>
-    private StokeProgram? ApplyStokeCue(RoomEnemySlot slot, StokeEnemyState state, StokeCue cue)
+    private void ApplyStokeCue(RoomEnemySlot slot, StokeEnemyState state, StokeCue cue)
     {
         switch (cue.Kind)
         {
@@ -54,7 +54,6 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
             default:
                 throw new InvalidOperationException($"Undefined {nameof(StokeCueKind)} {cue.Kind}.");
         }
-        return null;
     }
 
     /// <summary>Two-pixel downward probe used to test for a solid floor without moving Stoke.</summary>
@@ -177,7 +176,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Switches the active animation so its first step runs on the next instruction tick.</summary>
     private static void SetStokeProgram(RoomEnemySlot slot, StokeEnemyState state, StokeProgram program)
     {
-        state.Program = AnimationProgramCursor<StokeProgram>.Start(program);
+        state.Playback = new(StokeAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
@@ -207,9 +206,13 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Stoke's typed animation.</summary>
     internal void AdvanceStokeTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, StokeAnimations.Programs, StokeFrameDefinitions.ShownFrames.Of,
-            static (StokeEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
-            (state, cue, _) => ApplyStokeCue(slot, state, cue));
+        EnemyProgramAnimation.Advance(slot, StokeAnimations.Segments, StokeFrameDefinitions.ShownFrames.Of,
+            static (StokeEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            (state, cue) =>
+            {
+                ApplyStokeCue(slot, state, cue);
+                return null;
+            });
 
     /// <summary>
     /// Spawns a Stoke projectile and initializes it:

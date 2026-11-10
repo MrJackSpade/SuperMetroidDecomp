@@ -41288,19 +41288,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Assets.SpriteOrigin",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Assets/SpriteOrigin.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Assets.SpriteScreenPart",
       "kind": "record struct",
       "scope": "test",
@@ -91030,19 +91017,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Intro.CinematicSpriteDrawDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Intro/CinematicSpriteDrawDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Intro.CinematicSpriteFrameBehavior",

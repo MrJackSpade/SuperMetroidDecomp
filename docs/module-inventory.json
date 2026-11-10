@@ -87,7 +87,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Assets",
       "role": "production",
-      "files": 50,
+      "files": 49,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Spatial"
@@ -168,7 +168,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Frontend",
       "role": "production",
-      "files": 444,
+      "files": 443,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Areas",
@@ -27484,16 +27484,6 @@
     },
     {
       "path": "csharp/src/SuperMetroid.Core/Assets/SpriteMirror.cs",
-      "module": "csharp/src/SuperMetroid.Core/Assets",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Assets",
-      "layer": "Foundation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Assets/SpriteOrigin.cs",
       "module": "csharp/src/SuperMetroid.Core/Assets",
       "role": "production",
       "namespace": "SuperMetroid.Core.Assets",
@@ -60030,16 +60020,6 @@
     },
     {
       "path": "csharp/src/SuperMetroid.Core/Frontend/Intro/CinematicSpriteCueKind.cs",
-      "module": "csharp/src/SuperMetroid.Core/Frontend",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Frontend.Intro",
-      "layer": "Frontend",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Frontend/Intro/CinematicSpriteDrawDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Frontend",
       "role": "production",
       "namespace": "SuperMetroid.Core.Frontend.Intro",

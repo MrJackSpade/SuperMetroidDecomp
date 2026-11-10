@@ -23,14 +23,4 @@ public static class PauseSelectorAnchors
     public static string Anchor(PauseEquipmentCategory category, int item) =>
         Ensure.Listed(AnchorNames, new PauseEquipmentSlot(category, item));
 
-    /// <summary>Projects the selector lists from category columns and eight-pixel rows.</summary>
-    /// <remarks>Suit/misc leaves two extra rows between Gravity and Morph Ball.
-    /// Both stock coordinates include the draw routine's one-pixel bias, removed here.</remarks>
-    public static Position16<SpritePixels> StockAnchor(PauseEquipmentCategory category, int item)
-    {
-        _ = Anchor(category, item);
-        Position16<ScreenPixels> origin = Ensure.Listed(CategoryOrigins, category);
-        int gap = category == PauseEquipmentCategory.Suits && item >= SuitsLowerGroupFirstItem ? SuitsLowerGroupGap : 0;
-        return new(origin.X - DrawBias, origin.Y + gap + item * ItemRowStride - DrawBias);
-    }
 }

@@ -11,13 +11,13 @@ internal sealed class MenuMissileAnimation
 
     /// <summary>
     /// Counts one update down and, when the frame's duration expires, advances to the next frame for
-    /// <paramref name="frameDuration"/> updates, or the authored duration when no presentation supplies one.
+    /// <paramref name="frameDuration"/> updates: the installed presentation's duration, its only source (#1596).
     /// </summary>
-    internal void Step(int? frameDuration)
+    internal void Step(int frameDuration)
     {
         if (--Timer != 0)
             return;
         Frame = (Frame + 1) % MenuMissileAnimationDefinitions.FrameCount;
-        Timer = frameDuration ?? MenuMissileAnimationDefinitions.FrameDuration;
+        Timer = frameDuration;
     }
 }

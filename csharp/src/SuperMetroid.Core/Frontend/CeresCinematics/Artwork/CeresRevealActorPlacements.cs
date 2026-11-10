@@ -2,42 +2,30 @@
 namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 /// <summary>
-/// Editable initial screen positions for the six Ceres-to-Zebes reveal actors.
-/// Their animation scripts, slide acceleration, deletion, and phase handoffs
+/// The installed initial screen positions of the six Ceres-to-Zebes reveal actors, as the player left them; the
+/// installation is their only source (#1596). Their animation scripts, slide acceleration, deletion, and phase handoffs
 /// remain in compiled game mechanics.
 /// </summary>
 public sealed class CeresRevealActorPlacements
 {
-    /// <summary>Explicit authored positions, or null when all six actors use their compiled stock placements.</summary>
-    internal readonly CeresRevealActorPlacement[]? placements;
+    /// <summary>The installed placements, in spawn order.</summary>
+    internal readonly CeresRevealActorPlacement[] placements;
 
-    /// <summary>Collapses an all-stock layout to the stock placement lookup while retaining edited actor positions.</summary>
+    /// <summary>Keeps the complete installed layout.</summary>
+    /// <param name="placements">The six placements, in spawn order.</param>
+    /// <exception cref="InvalidDataException">The layout does not hold exactly the six actors.</exception>
     internal CeresRevealActorPlacements(CeresRevealActorPlacement[] placements)
     {
-        bool stock = true;
-        for (int index = 0; index < placements.Length; index++)
-            stock &= placements[index] == DefaultPlacement(index);
-        this.placements = stock ? null : placements;
+        Ensure.NotNull(placements);
+        if (placements.Length != CeresDestructionActorDefinitions.ZebesActorCount)
+            throw new InvalidDataException("The Zebes reveal requires exactly six ordered actor placements.");
+        this.placements = [.. placements];
     }
 
-    /// <summary>Returns the selected initial placement for one actor in the Zebes-reveal spawn order.</summary>
+    /// <summary>The installed initial placement of one actor in the Zebes-reveal spawn order.</summary>
     /// <param name="actorIndex">Index 0..5: planet, upper-left stars, upper-right stars, lower-left stars, lower-right stars, then Planet Zebes title.</param>
     /// <returns>Named screen-pixel placement used when creating the actor, without changing its program or motion policy.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The actor index is outside 0..5.</exception>
-    public CeresRevealActorPlacement this[int actorIndex]
-    {
-        get
-        {
-            if ((uint)actorIndex >= CeresDestructionActorDefinitions.ZebesActorCount)
-                throw new ArgumentOutOfRangeException(nameof(actorIndex));
-            return placements is null ? DefaultPlacement(actorIndex) : placements[actorIndex];
-        }
-    }
-
-    /// <summary>Resolves the named actor's initializer placement without a second stock lookup.</summary>
-    private static CeresRevealActorPlacement DefaultPlacement(int index)
-    {
-        var actor = CeresDestructionActors.ZebesActor(index);
-        return new() { Id = CeresDestructionActors.ZebesPlacementId(index), X = actor.Position.X, Y = actor.Position.Y };
-    }
+    public CeresRevealActorPlacement this[int actorIndex] =>
+        (uint)actorIndex < (uint)placements.Length ? placements[actorIndex] : throw new ArgumentOutOfRangeException(nameof(actorIndex));
 }

@@ -125,7 +125,8 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         ControllerButton pressed = controller.NewlyPressed;
 
         if (!IsEntryPhase)
-            missile.Step(mapPresentation?.FileSelect.CursorFrameDuration);
+            missile.Step((mapPresentation ?? throw new InvalidOperationException(
+                "File select requires installed menu presentation assets.")).FileSelect.CursorFrameDuration);
         switch (Phase)
         {
             case FileSelectPhase.EnterBlankScreen:
@@ -279,7 +280,8 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     {
         if (helmetAnimationTimer == 0 || --helmetAnimationTimer != 0)
             return;
-        helmetAnimationTimer = mapPresentation?.FileSelect.HelmetFrameDuration ?? FileSelectHelmetAnimation.FrameDuration;
+        helmetAnimationTimer = (mapPresentation ?? throw new InvalidOperationException(
+            "File select requires installed menu presentation assets.")).FileSelect.HelmetFrameDuration;
         int next = HelmetAnimationFrame + 1;
         if (next >= FileSelectHelmetAnimation.FrameCount)
         {

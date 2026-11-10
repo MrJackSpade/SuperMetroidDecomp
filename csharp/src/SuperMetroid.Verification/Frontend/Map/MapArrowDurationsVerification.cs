@@ -29,7 +29,6 @@ internal static class MapArrowDurationsVerification
                 AssertTrue(count <= 14, "original bounded arrow program");
             }
             AssertEqual(count, visual.PhaseCount, "original sentinel sets phase count");
-            AssertEqual(0, visual.StoredDurationCount, "stock duration table eliminated");
             foreach (int invalid in new[] { int.MinValue, -1, count, 256, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => visual.Duration(invalid), "duration array boundary preserved");
         }

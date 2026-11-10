@@ -246,18 +246,11 @@ internal sealed class IntroCeresFlightState
         // These five slots are the exact spawn order. Their visual animations
         // remain authored scripts; the compiled definitions supply callback identity,
         // initializer results and the physical motion applied by StepRearViewActors.
+        // Each actor starts at its installed placement (#1596).
+        CeresFlightActorPlacements layout = actorLayout ?? throw new InvalidOperationException(
+            "The Ceres approach's rear view requires the installed actor placements.");
         RearViewActors = Enumerable.Range(0, CeresFlightActorDefinitions.RearViewActorCount)
-            .Select(index =>
-            {
-                CeresFlightActorDefinition definition =
-                    CeresFlightActors.RearViewActor(index);
-                if (actorLayout is { } layout)
-                {
-                    CeresFlightActorPlacement placement = layout[index];
-                    definition = definition with { Position = placement.Position };
-                }
-                return CreateActor(definition);
-            })
+            .Select(index => CreateActor(CeresFlightActors.RearViewActor(index) with { Position = layout[index].Position }))
             .ToArray();
 
         // The flash adds the fixed colour to the rear view, sprites, and backdrop. It begins at

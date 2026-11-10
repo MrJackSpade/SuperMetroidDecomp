@@ -139,7 +139,8 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         // Only indexes three, four, five and seven draw the selection missile.
         if (Phase is GameOverMenuPhase.FadeIn or GameOverMenuPhase.Main or
             GameOverMenuPhase.FadeOutToContinue or GameOverMenuPhase.FadeOutToTitle)
-            missile.Step(mapPresentation?.GameOver.CursorFrameDuration);
+            missile.Step((mapPresentation ?? throw new InvalidOperationException(
+                "Game over requires installed menu presentation assets.")).GameOver.CursorFrameDuration);
 
         switch (Phase)
         {

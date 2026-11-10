@@ -1,46 +1,48 @@
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Menus;
 
 namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 
 /// <summary>
-/// Equipment-selector anchors, visual animation and timing; selection rules stay compiled. Each phase selects a frame of
-/// the installed pause sheet by name; the frames' compositions belong to the import pipeline that reads the installed
-/// presentation (#1463).
+/// The installed equipment-selector anchors, visual animation and timing; selection rules stay compiled. The installation
+/// is the anchors' and timing's only source (#1596). Each phase selects a frame of the installed pause sheet by name; the
+/// frames' compositions belong to the import pipeline that reads the installed presentation (#1463).
 /// </summary>
 public abstract class PauseSelectorPresentation
 {
-    /// <summary>Only anchors differing from compiled stock coordinates.</summary>
-    internal readonly Dictionary<string, AnchorOverride> anchorOverrides;
+    /// <summary>The installed anchor of each equipment control, by its stable anchor name.</summary>
+    internal readonly Dictionary<string, Position16<SpritePixels>> anchors;
     /// <summary>Category frame sequences sharing their base frame unless a phase overrides it.</summary>
     internal readonly PhaseFrames reserve, beam, equipment;
-    /// <summary>Authored durations differing from the stock phase timing rule.</summary>
-    internal readonly Dictionary<int, int>? durationOverrides;
+    /// <summary>The installed dwell of each animation phase, in ticks.</summary>
+    internal readonly int[] durations;
     /// <summary>Dwell time before the selector enters its cyclic animation.</summary>
     public int InitialDurationTicks { get; }
     /// <summary>Number of phases used to wrap the live selector counter.</summary>
-    public int PhaseCount { get; }
-    /// <summary>Retains only authored anchor, frame, and timing differences.</summary>
+    public int PhaseCount => durations.Length;
+    /// <summary>Keeps the complete installed anchors, frame sequences and timing.</summary>
     /// <param name="parts">The validated selector anchors, frame sequences and timing.</param>
     internal PauseSelectorPresentation(PauseSelectorParts parts)
-    { Ensure.NotNull(parts); this.anchorOverrides = parts.AnchorOverrides; this.reserve = parts.Reserve; this.beam = parts.Beam; this.equipment = parts.Equipment; PhaseCount = parts.PhaseCount; this.durationOverrides = parts.DurationOverrides; InitialDurationTicks = parts.InitialDuration; }
-    /// <summary>Applies a named screen-pixel override to the category and item's compiled stock anchor.</summary>
+    {
+        Ensure.NotNull(parts);
+        anchors = new Dictionary<string, Position16<SpritePixels>>(parts.Anchors, StringComparer.Ordinal);
+        reserve = parts.Reserve;
+        beam = parts.Beam;
+        equipment = parts.Equipment;
+        durations = [.. parts.Durations];
+        InitialDurationTicks = parts.InitialDuration;
+    }
+    /// <summary>The installed screen-pixel anchor of the category's item.</summary>
+    /// <exception cref="InvalidDataException">The installation has no anchor for the item.</exception>
     public Position16<SpritePixels> Anchor(PauseEquipmentCategory category, int item)
     {
         string name = PauseSelectorAnchors.Anchor(category, item);
-        var basis = PauseSelectorAnchors.StockAnchor(category, item);
-        return anchorOverrides.TryGetValue(name, out var value) ? new(value.X ?? basis.X, value.Y ?? basis.Y) : basis;
+        return anchors.TryGetValue(name, out Position16<SpritePixels> anchor) ? anchor
+            : throw new InvalidDataException($"The installed pause selector has no anchor {name}.");
     }
     /// <summary>Wraps a nonnegative animation phase into the authored phase count.</summary>
     public int NormalizePhase(int phase) => phase >= 0 ? phase % PhaseCount : throw new ArgumentOutOfRangeException(nameof(phase));
-    /// <summary>Calculates the shared dwell rule after cyclic phase normalization.</summary>
-    public int Duration(int phase)
-    {
-        int normalized = NormalizePhase(phase);
-        return durationOverrides is not null && durationOverrides.TryGetValue(normalized, out int duration)
-            ? duration : MenuSelectorTiming.Duration(normalized);
-    }
+    /// <summary>The installed dwell of a phase after cyclic phase normalization.</summary>
+    public int Duration(int phase) => durations[NormalizePhase(phase)];
     /// <summary>
     /// Draws the selected category's normalized selector frame of the pause sheet at the item's anchor, in the selector's
     /// own colours (#1544).
@@ -76,8 +78,8 @@ public abstract class PauseSelectorPresentation
     /// <summary>Validated selector parts passed into the compact installed representation.</summary>
     internal sealed record PauseSelectorParts
     {
-        /// <summary>Named X and Y differences from compiled stock selector anchors.</summary>
-        public required Dictionary<string, AnchorOverride> AnchorOverrides { get; init; }
+        /// <summary>The installed anchor of each equipment control, by its stable anchor name.</summary>
+        public required IReadOnlyDictionary<string, Position16<SpritePixels>> Anchors { get; init; }
 
         /// <summary>Reserve category frame sequence.</summary>
         public required PhaseFrames Reserve { get; init; }
@@ -88,11 +90,8 @@ public abstract class PauseSelectorPresentation
         /// <summary>Shared suit and boot category frame sequence.</summary>
         public required PhaseFrames Equipment { get; init; }
 
-        /// <summary>Cycle length used when normalizing the live phase.</summary>
-        public required int PhaseCount { get; init; }
-
-        /// <summary>Phases whose dwell times differ from the stock menu timing.</summary>
-        public required Dictionary<int, int>? DurationOverrides { get; init; }
+        /// <summary>Each animation phase's dwell in ticks, in phase order; its length is the cycle length.</summary>
+        public required IReadOnlyList<int> Durations { get; init; }
 
         /// <summary>Delay before the first selector animation phase.</summary>
         public required int InitialDuration { get; init; }

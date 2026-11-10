@@ -1439,7 +1439,7 @@ internal static class LookupStream5Verification
             CeresFlightActorLayoutFile.Write(encoded, new() { Version = 1, Actors = values });
             encoded.Position = 0;
             var layout = CeresFlightActorLayoutFile.Read(encoded);
-            return new LookupStream5Load<CeresFlightActorPlacement>(layout.placements, index => layout[index], layout.ContentIdentity);
+            return new LookupStream5Load<CeresFlightActorPlacement>(index => layout[index], layout.ContentIdentity);
         }, value => new LookupStream5Field(value.Id, value.X, value.Y));
         var reveal = Enumerable.Range(0, 6).Select(index =>
         {
@@ -1454,7 +1454,7 @@ internal static class LookupStream5Verification
             CeresRevealActorLayoutFile.Write(encoded, new() { Version = 1, Actors = values });
             encoded.Position = 0;
             var layout = CeresRevealActorLayoutFile.Read(encoded);
-            return new LookupStream5Load<CeresRevealActorPlacement>(layout.placements, index => layout[index], layout.ContentIdentity);
+            return new LookupStream5Load<CeresRevealActorPlacement>(index => layout[index], layout.ContentIdentity);
         }, value => new LookupStream5Field(value.Id, value.X, value.Y));
         var destruction = Enumerable.Range(0, 3).Select(index =>
         {
@@ -1468,9 +1468,9 @@ internal static class LookupStream5Verification
             CeresDestructionActorLayoutFile.Write(encoded, new() { Version = 1, Actors = values });
             encoded.Position = 0;
             var layout = CeresDestructionActorLayoutFile.Read(encoded);
-            return new LookupStream5Load<CeresDestructionActorPlacement>(layout.placements, index => layout[index], layout.ContentIdentity);
+            return new LookupStream5Load<CeresDestructionActorPlacement>(index => layout[index], layout.ContentIdentity);
         }, value => new LookupStream5Field(value.Id, value.X, value.Y));
-        Console.WriteLine("Ceres layouts: all14 original actor placements/28 coordinate operands, no stored stock rows, complete identity preservation and bounds pass.");
+        Console.WriteLine("Ceres layouts: all14 original actor placements/28 coordinate operands, complete identity preservation and bounds pass.");
 
         // Each layout's identity keeps the layout name it was installed under; #1452 renamed the types to the placements
         // they hold and kept those names.
@@ -1479,7 +1479,6 @@ internal static class LookupStream5Verification
             Func<T, LookupStream5Field> fields)
         {
             var stock = load(original);
-            AssertTrue(stock.Placements is null, "Ceres stock placements select semantic actor dispatch");
             Verify(stock, original);
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Read(-1), "Ceres layout lower bound");
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Read(original.Length), "Ceres layout upper bound");

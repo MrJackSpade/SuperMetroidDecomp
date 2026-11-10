@@ -608,7 +608,7 @@ internal static class LookupStream3Verification
         foreach (var (field, geometry) in new VerifyStream3OptionsGeometryCase[]
         {
             new VerifyStream3OptionsGeometryCase("controllerLabelAnchors", loaded.controllerLabelAnchors), new VerifyStream3OptionsGeometryCase("languageRegions", loaded.languageRegions),
-            new VerifyStream3OptionsGeometryCase("specialToggles", loaded.specialToggles), new VerifyStream3OptionsGeometryCase("headingAnchors", loaded.headingAnchors), new VerifyStream3OptionsGeometryCase("cursorAnchors", loaded.cursorAnchors),
+            new VerifyStream3OptionsGeometryCase("specialToggles", loaded.specialToggles),
         })
             AssertTrue(geometry is null, "stock options geometry calculates " + field);
         for (int action = 0; action < 7; action++)

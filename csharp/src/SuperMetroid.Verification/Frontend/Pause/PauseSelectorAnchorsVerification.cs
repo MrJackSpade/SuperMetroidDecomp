@@ -13,7 +13,7 @@ namespace SuperMetroid.Verification.Frontend.Pause;
 /// <summary>Checks pause selector identities, native anchor geometry, and coordinate admission.</summary>
 internal static class PauseSelectorAnchorsVerification
 {
-    /// <summary>Compares original selector names and coordinates with compiled stock and checks identity bounds.</summary>
+    /// <summary>Compares original selector names and installed coordinates with the cartridge and checks identity bounds.</summary>
     internal static void VerifyPauseSelectorAnchors(ISnesAddressSpace rom)
     {
         // Original names from the preconversion definition table, kept only as the oracle.
@@ -46,17 +46,13 @@ internal static class PauseSelectorAnchorsVerification
         byte[] bytes = PauseSelectorExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<PauseSelectorDocument>(bytes, ArtworkJson.Options);
         var stock = PauseSelectorSourcePresentation.Load(new MemoryStream(bytes));
-        AssertEqual(0, stock.StoredAnchorComponentCount, "stock selector stores no coordinate table");
         Suite(nameof(VerifyPauseSelectorAnchorField), () => VerifyPauseSelectorAnchorField(rom, document, stock, horizontal: true));
         Suite(nameof(VerifyPauseSelectorAnchorField), () => VerifyPauseSelectorAnchorField(rom, document, stock, horizontal: false));
         foreach (PauseEquipmentCategory category in new[] { (PauseEquipmentCategory)4, (PauseEquipmentCategory)byte.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Anchor(category, 0), "unsupported selector category");
         foreach (PauseEquipmentCategory category in Enum.GetValues<PauseEquipmentCategory>())
         foreach (int item in new[] { int.MinValue, -1, names[(int)category].Length, 256, int.MaxValue })
-        {
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Anchor(category, item), "unsupported selector item");
-            AssertThrows<ArgumentOutOfRangeException>(() => PauseSelectorAnchors.StockAnchor(category, item), "geometry guards item before arithmetic");
-        }
     }
 
     /// <summary>Rejects omitted, substituted, case-changed, and extra pause label keys.</summary>
@@ -97,9 +93,7 @@ internal static class PauseSelectorAnchorsVerification
         {
             int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c18e + (int)anchor.Category * 2);
             int original = ReadVerificationWord(rom, pointer + anchor.Item * 4 + (horizontal ? 0 : 2)) - 1;
-            var basis = PauseSelectorAnchors.StockAnchor(anchor.Category, anchor.Item);
             var point = stock.Anchor(anchor.Category, anchor.Item);
-            AssertEqual(original, horizontal ? basis.X : basis.Y, "native selector geometry field");
             AssertEqual(original, horizontal ? point.X : point.Y, "native installed selector coordinate field");
         }
         foreach (int invalid in new[] { -1, horizontal ? 256 : 224 })

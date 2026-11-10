@@ -33,7 +33,6 @@ internal static class TextAndMapClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Frontend/Map/MapSpriteNames.cs")]),
         new("SuperMetroid.Core.Frontend.Map.Artwork.MapArrowPresentation", "map-arrow-complete-direction-domain", ["Get"],
             [new("csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/MapArrowPresentation.cs"),
-             new("csharp/src/SuperMetroid.Core/Frontend/Menus/MenuSelectorTiming.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Map/MapArrowDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Map/MapArrowSprites.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Map/MapScrollControls.cs"),

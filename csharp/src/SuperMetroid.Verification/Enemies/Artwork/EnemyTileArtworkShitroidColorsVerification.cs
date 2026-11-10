@@ -73,10 +73,10 @@ internal static class EnemyTileArtworkShitroidColorsVerification
         CheckLiveTarget(ShitroidColorTarget.Shitroid, 0xa0);
         for (int frame = 0; frame < ShitroidColorDefinitions.NormalFrameCount; frame++)
         {
-            state.PalettePhase = (frame + 7) % 8;
+            state.MembranePulsePhase = (frame + 7) % 8;
             state.PaletteTimer = 0;
-            enemies.ShitroidBehavior.StepShitroidNormalPalette(state);
-            AssertEqual(frame, state.PalettePhase, $"Shitroid normal frame {frame} advances to the next palette phase");
+            enemies.ShitroidBehavior.StepShitroidMembranePulse(state);
+            AssertEqual(frame, state.MembranePulsePhase, $"Shitroid normal frame {frame} advances to the next palette phase");
             AssertEqual(state.PaletteDelay, state.PaletteTimer, $"Shitroid normal frame {frame} reloads the palette timer");
             AssertEqual(ShitroidShades.InTargetColours.With(ShitroidShades.Membrane(frame)), slot.Shading,
                 $"live Shitroid draws its membrane at normal frame {frame}");

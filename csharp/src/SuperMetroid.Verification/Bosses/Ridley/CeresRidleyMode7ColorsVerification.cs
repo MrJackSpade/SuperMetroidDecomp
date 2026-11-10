@@ -54,7 +54,7 @@ internal static class CeresRidleyMode7ColorsVerification
 
         var guard = NewCeresRidleyMode7ColorReadGuard(rom, forbidden);
         var ridley = new RidleyEnemyState();
-        Action<ushort> select = selectedZoom => CeresRidleyGetaway.UpdateCeresRidleyFloorPalette(ridley, selectedZoom);
+        Action<ushort> select = selectedZoom => CeresRidleyGetaway.UpdateCeresRidleyFloorZoomColours(ridley, selectedZoom);
         var visited = new HashSet<int>();
         for (int index = 0; index < 112; index++)
         {

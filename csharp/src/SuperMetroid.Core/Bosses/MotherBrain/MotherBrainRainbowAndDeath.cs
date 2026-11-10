@@ -73,7 +73,6 @@ internal sealed class MotherBrainRainbowAndDeath
         {
             // Her brain is detached: it keeps the colours it shows, and only the corpse's fade changes them (#1544).
             state.Colours.DetachBrain();
-            state.BrainPaletteHandlingEnabled = false;
             state.DroolGenerationEnabled = false;
         }
         bool bodyFade = step.PhaseBefore == MotherBrainBodyFunction.ThirdPhaseDeathFadeOutBody ||
@@ -85,7 +84,7 @@ internal sealed class MotherBrainRainbowAndDeath
             state.Body.Presence = state.DeathHidesBodyLayer
                 ? state.Body.Presence.With(EnemyPresence.Hidden)
                 : state.Body.Presence.Without(EnemyPresence.Hidden);
-            if (step.PaletteRequested)
+            if (step.ColoursRequested)
                 state.Colours.ShowDeathFade(sequence.State.GreyTransitionCounter - 1);
         }
         if (sequence.ThirdPhaseDeath.BodyClearRequested && !state.DeathBodyLayerCleared)
@@ -104,7 +103,7 @@ internal sealed class MotherBrainRainbowAndDeath
             state.BrainFunction = MotherBrainBrainFunction.SetupBrainToBeDrawn;
             state.Head.Position = state.Head.Position.WithWhole(sequence.State.BrainPosition);
         }
-        if (step.PhaseBefore == MotherBrainBodyFunction.ThirdPhaseDeathFadeToGrey && step.PaletteRequested)
+        if (step.PhaseBefore == MotherBrainBodyFunction.ThirdPhaseDeathFadeToGrey && step.ColoursRequested)
             state.Colours.ShowCorpseFade(sequence.State.GreyTransitionCounter - 1);
         foreach (var dust in step.CorpseDustRequests)
         {
@@ -297,14 +296,13 @@ internal sealed class MotherBrainRainbowAndDeath
         if (step is not { } current)
             return;
 
-        state.RainbowBeamPaletteRequested = current.PaletteRequested;
         if (current.PhaseBefore == MotherBrainBodyFunction.SecondPhaseFinishSamusOffFireFinalBeam &&
             current.PhaseAfter == MotherBrainBodyFunction.SecondPhaseFinalRainbowBeamHolding)
             state.NextRainbowFrame = 0;
-        ApplyMotherBrainRainbowPalette(state, current);
+        ApplyMotherBrainBeamColours(state, current);
         // The brain-slot handler runs after body AI. Its health handler is enabled during revival,
         // but the health palette waits until the corpse-state value reaches final-combat state 2.
-        if (sequence.State.HealthBasedPaletteHandlingEnabled && sequence.State.Phase2CorpseState == MotherBrainPhase2CorpseState.Revived)
+        if (sequence.State.HealthColoursEnabled && sequence.State.Phase2CorpseState == MotherBrainPhase2CorpseState.Revived)
             state.Colours.ShowHealth(MotherBrainHealthPalette.Band(state.Head.Health));
         ApplyLiveMotherBrainDeath(state, sequence, current);
         if (current.SoundQueued)
@@ -376,13 +374,13 @@ internal sealed class MotherBrainRainbowAndDeath
         projectile.Position = projectile.Position.WithWhole(samusBeforeMovement + request.Offset);
     }
 
-    /// <summary>Runs the rainbow palette step at the body-frame cadence, then its three literal copies.</summary>
-    private static void ApplyMotherBrainRainbowPalette(MotherBrainEnemyState state,
+    /// <summary>Shows the step her beam's colours, the drain or the revival reach this update, the rainbow at the body-frame cadence.</summary>
+    private static void ApplyMotherBrainBeamColours(MotherBrainEnemyState state,
         MotherBrainRainbowBeamAttackStepResult step)
     {
         bool draining = step.PhaseBefore == MotherBrainBodyFunction.SecondPhaseDrainedByBabyTransitionToGrey;
         bool reviving = step.PhaseBefore == MotherBrainBodyFunction.SecondPhaseReviveTransitionFromGrey;
-        if ((draining || reviving) && step.PaletteRequested)
+        if ((draining || reviving) && step.ColoursRequested)
         {
             // The sequence increments before publishing this request. Her revival shows over the drain's last grey
             // step, which it leaves showing in two of her colours.
@@ -413,7 +411,7 @@ internal sealed class MotherBrainRainbowAndDeath
             MotherBrainBodyFunction.SecondPhaseRainbowFinishFiring or
             MotherBrainBodyFunction.SecondPhaseDrainedByBabyRegainBalance or
             MotherBrainBodyFunction.SecondPhaseDrainedByBabyFiringRainbowBeam;
-        if (!rainbowPhase || !step.PaletteRequested || (state.Body.FrameCounter & 2) == 0)
+        if (!rainbowPhase || !step.ColoursRequested || (state.Body.FrameCounter & 2) == 0)
             return;
 
         int frame = state.NextRainbowFrame;

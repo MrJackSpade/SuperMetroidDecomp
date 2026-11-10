@@ -42,7 +42,7 @@ internal static class TorizoPaletteShakeVerification
         for (int frame = 0; frame < 96; frame++)
         {
             if (frame < 64 && frame % 4 == 0)
-                Execute(TorizoCueKind.AdvancePaletteFade);
+                Execute(TorizoCueKind.AdvanceColourFade);
             int timerBeforeShake = enemies.Earthquake.RemainingFrames;
             var shake = enemies.HandleRoomShaking(false);
             // An accepted shake frame is exactly one that consumes an earthquake-timer tick.
@@ -63,14 +63,14 @@ internal static class TorizoPaletteShakeVerification
         AssertEqual(beforeBlack, state.Colours.Shading, "Black target setup does not black out the current colours");
         // The running fade's counter stands at one: thirteen more steps move the colours and the fourteenth settles them.
         for (int call = 0; call < 14; call++)
-            Execute(TorizoCueKind.AdvancePaletteFade);
+            Execute(TorizoCueKind.AdvanceColourFade);
         AssertEqual(PictureShading.Shaded(TorizoShades.Shared).With(TorizoShades.Body(new TorizoLook(TorizoLookKind.Black))),
             state.Colours.Shading, "The completed fade settles the body and belly in black");
         AssertTrue(!enemies.Earthquake.IsShaking, "Completed fade does not create an earthquake");
 
         Execute(TorizoCueKind.FadeToNormalColors);
-        Execute(TorizoCueKind.AdvancePaletteFade);
-        Execute(TorizoCueKind.AdvancePaletteFade);
+        Execute(TorizoCueKind.AdvanceColourFade);
+        Execute(TorizoCueKind.AdvanceColourFade);
         // Save mid-fade: the fade's start, target and step must survive, not restart. They are the statue's colours, which
         // are saved on their own: the whole statue state reaches the enemy system's graph through its body slot.
         using var saved = new MemoryStream();
@@ -81,7 +81,7 @@ internal static class TorizoPaletteShakeVerification
 
         // A hurt colouring written mid-fade restarts the fade from it at the counter value it stands at (#1512).
         state.Colours.Show(new TorizoLook(TorizoLookKind.White));
-        Execute(TorizoCueKind.AdvancePaletteFade);
+        Execute(TorizoCueKind.AdvanceColourFade);
         PictureShade fromWhite = TorizoShades.Fading(new TorizoLook(TorizoLookKind.White), new TorizoLook(TorizoLookKind.Normal), 2, 2);
         AssertEqual(PictureShading.Shaded(TorizoShades.Shared).With(fromWhite), state.Colours.Shading,
             "The fade restarts from the hurt flash's white at the counter value it stands at");

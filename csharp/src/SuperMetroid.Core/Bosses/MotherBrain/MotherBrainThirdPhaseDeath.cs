@@ -294,9 +294,8 @@ internal sealed class MotherBrainThirdPhaseDeath
             _state.UpperNeckMovement = MotherBrainNeckMovement.None;
             _state.DroolGenerationEnabled = false;
             _state.DisableSmallPurpleBreathGeneration();
-            _state.BrainPaletteHandlingEnabled = false;
-            _state.HealthBasedPaletteHandlingEnabled = false;
-            requests.PaletteRequested = true;
+            _state.HealthColoursEnabled = false;
+            requests.ColoursRequested = true;
             // Disabling the brain's effects clears the death-explosion counters before the fade-out explosions.
             DeathExplosionIntervalTimer = 0;
             DeathAndEscapeExplosionIndex = 0;
@@ -341,7 +340,7 @@ internal sealed class MotherBrainThirdPhaseDeath
             _state.FunctionTimer = 16;
             int paletteIndex = _state.GreyTransitionCounter;
             _state.GreyTransitionCounter++;
-            requests.PaletteRequested |= paletteIndex < 16;
+            requests.ColoursRequested |= paletteIndex < 16;
             if (paletteIndex >= 16)
             {
                 BodyClearRequested = true;
@@ -452,7 +451,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         {
             int paletteIndex = _state.GreyTransitionCounter;
             _state.GreyTransitionCounter++;
-            requests.PaletteRequested = paletteIndex < 8;
+            requests.ColoursRequested = paletteIndex < 8;
             if (paletteIndex < 8)
             {
                 _state.FunctionTimer = 16;

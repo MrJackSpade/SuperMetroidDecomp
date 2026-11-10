@@ -131,7 +131,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         DispatchShitroidState(slot, state, samus, sharedProjectiles);
         DeadTorizoBehavior.MoveWithEightEightVelocity(slot, state.Velocity);
         if (_zebetiteBehavior.PaletteChangeNumber == 0)
-            StepShitroidNormalPalette(state);
+            StepShitroidMembranePulse(state);
     }
 
     /// <summary>Advances entrance, feeding, Samus chase and drain, remorse, or exit cutscene states.</summary>
@@ -714,8 +714,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Function = ShitroidAiFunction.BeginExit;
     }
 
-    /// <summary>Advances the eight-phase membrane colors and paces cries when the Zebetite palette allows it.</summary>
-    internal void StepShitroidNormalPalette(ShitroidEnemyState state)
+    /// <summary>Advances the eight-phase membrane colors and paces cries when the Zebetites' pulse allows it.</summary>
+    internal void StepShitroidMembranePulse(ShitroidEnemyState state)
     {
         if (state.PaletteTimer != 0)
         {
@@ -723,8 +723,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        int phase = (state.PalettePhase + 1) % 8;
-        state.PalettePhase = phase;
+        int phase = (state.MembranePulsePhase + 1) % 8;
+        state.MembranePulsePhase = phase;
         state.PaletteTimer = state.PaletteDelay;
         if (phase == 5 && state.CryEnabled)
         {

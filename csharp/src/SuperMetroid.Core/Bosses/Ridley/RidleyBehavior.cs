@@ -93,7 +93,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 NorfairRidleyCombat.UpdateNorfairRidleyGrabbedSamus(slot, state, samus);
         }
 
-        RidleyInteractions.UpdateNorfairRidleyHealthPalette(slot, state);
+        RidleyInteractions.UpdateNorfairRidleyHealthBand(slot, state);
     }
 
     /// <summary>Dispatches the current Norfair intro, flight, swoop, pogo, grab, or death state.</summary>
@@ -467,7 +467,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         if (samusProjectiles is not null && state.MovementAnimationEnabled)
             _ridleyTail.ResolveRidleyTailProjectileHits(body, state, samusProjectiles);
         CeresRidleyHits.UpdateRidleyHurtFlashPalettes(body, state, body.FrameCounter);
-        RidleyInteractions.UpdateNorfairRidleyHealthPalette(body, state);
+        RidleyInteractions.UpdateNorfairRidleyHealthBand(body, state);
 
         state.HurtMovementClamp = Math.Min(8, state.HurtMovementClamp + 1);
         if (state.GrabState != RidleyGrabState.Released && state.HurtMovementClamp >= 8 && samus is not null)

@@ -88,7 +88,7 @@ internal static class TorizoEncounterPrograms
             Wait(2),
             Cue(new TorizoCue.Command(K.MakeInvisible)),
             Wait(2),
-            Cue(new TorizoCue.Command(K.AdvancePaletteFade)),
+            Cue(new TorizoCue.Command(K.AdvanceColourFade)),
             RepeatWhileCounting(P.DeathSequence2),
             Wait(64),
             Cue(new TorizoCue.Command(K.FinishDeath)),
@@ -147,7 +147,7 @@ internal static class TorizoEncounterPrograms
         [P.BombTorizoInitial2] =
         [
             Show(50, 4),
-            Cue(new TorizoCue.Command(K.AdvancePaletteFade)),
+            Cue(new TorizoCue.Command(K.AdvanceColourFade)),
             RepeatWhileCounting(P.BombTorizoInitial2),
             Cue(new TorizoCue.Command(K.NoOperation)),
             Cue(new TorizoCue.Command(K.UnlockAnimation)),

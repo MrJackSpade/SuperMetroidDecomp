@@ -92,7 +92,6 @@ internal static class NativeSnapshotMotherBrainImport
             W(MotherBrainMemory.UpperNeckMovementIndex), "Mother Brain upper neck movement index");
         state.StandingBodyReadyingElapsed = DecodeLegTilePage(W(MotherBrainMemory.SpriteTileTransferEntry));
         state.GrayTransitionCounter = W(MotherBrainMemory.GreyTransitionCounter);
-        state.BrainPaletteHandlingEnabled = W(MotherBrainMemory.BrainPaletteHandling) != 0;
         state.DroolGenerationEnabled = W(MotherBrainMemory.DroolGeneration) != 0;
         state.DroolProjectileParameter = W(MotherBrainMemory.DroolProjectileParameter);
         state.SmallPurpleBreathGenerationEnabled = W(MotherBrainMemory.SmallPurpleBreathGeneration) != 0;
@@ -206,8 +205,7 @@ internal static class NativeSnapshotMotherBrainImport
         sequence.RainbowAttack.SoundQueueCount = CoordinateAxis.AsSigned(W(MotherBrainMemory.RainbowBeamSoundQueueCount));
         sequence.State.RainbowBeamSoundPlaying = W(MotherBrainMemory.RainbowBeamSoundPlaying) != 0;
         sequence.State.BrainMainShakeTimer = W(MotherBrainMemory.BrainMainShakeTimer);
-        sequence.State.BrainPaletteHandlingEnabled = W(MotherBrainMemory.BrainPaletteHandling) != 0;
-        sequence.State.HealthBasedPaletteHandlingEnabled = W(MotherBrainMemory.HealthBasedPaletteHandling) != 0;
+        sequence.State.HealthColoursEnabled = W(MotherBrainMemory.HealthBasedPaletteHandling) != 0;
         sequence.State.DroolGenerationEnabled = W(MotherBrainMemory.DroolGeneration) != 0;
         sequence.State.SmallPurpleBreathGenerationEnabled = W(MotherBrainMemory.SmallPurpleBreathGeneration) != 0;
         sequence.State.GreyTransitionCounter = W(MotherBrainMemory.GreyTransitionCounter);

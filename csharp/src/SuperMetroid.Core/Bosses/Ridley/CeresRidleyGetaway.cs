@@ -143,7 +143,7 @@ internal sealed class CeresRidleyGetaway
             state.FloorOffset.X - frame.Velocity.X,
             state.FloorOffset.Y + frame.Velocity.Y);
 
-        UpdateCeresRidleyFloorPalette(state, zoom);
+        UpdateCeresRidleyFloorZoomColours(state, zoom);
         state.FloorAngle = state.FloorAngle.AddRaw(48);
 
         // The Baby capsule advances on every fourth frame of the frame counter using 0,1,2,1. The transfer
@@ -181,7 +181,7 @@ internal sealed class CeresRidleyGetaway
     /// <summary>Selects the zoom-dependent fifteen-color Ceres getaway palette without replacing transparent color zero.</summary>
     /// <param name="state">The getaway's Ridley, whose room colours show the floor.</param>
     /// <param name="zoom">The floor's zoom, 0 through 65535.</param>
-    internal static void UpdateCeresRidleyFloorPalette(RidleyEnemyState state, int zoom)
+    internal static void UpdateCeresRidleyFloorZoomColours(RidleyEnemyState state, int zoom)
     {
         // The floor's zoom-level colours use this wrapped expression.
         // There are fifteen colors; palette entry zero remains the shared transparent color.
@@ -237,7 +237,7 @@ internal sealed class CeresRidleyGetaway
                 return;
 
             case CeresSelfDestructPhase.HoldingTitle:
-                UpdateCeresSelfDestructPalette(state, _ridleyEncounter.Parts.Body.FrameCounter);
+                UpdateCeresSelfDestructAlarm(state, _ridleyEncounter.Parts.Body.FrameCounter);
                 if (--state.CeresEscapeTextDelayTimer != 0)
                     return;
 
@@ -254,7 +254,7 @@ internal sealed class CeresRidleyGetaway
                 return;
 
             case CeresSelfDestructPhase.JapaneseSubtitle:
-                UpdateCeresSelfDestructPalette(state, _ridleyEncounter.Parts.Body.FrameCounter);
+                UpdateCeresSelfDestructAlarm(state, _ridleyEncounter.Parts.Body.FrameCounter);
                 if (--state.CeresEscapeTextDelayTimer == 0)
                 {
                     state.CeresSelfDestructPhase = CeresSelfDestructPhase.TypingWarning;
@@ -271,13 +271,13 @@ internal sealed class CeresRidleyGetaway
                 return;
 
             case CeresSelfDestructPhase.TypingWarning:
-                UpdateCeresSelfDestructPalette(state, _ridleyEncounter.Parts.Body.FrameCounter);
+                UpdateCeresSelfDestructAlarm(state, _ridleyEncounter.Parts.Body.FrameCounter);
                 if (StepCeresEscapeTypewriter(state))
                     state.CeresSelfDestructPhase = CeresSelfDestructPhase.Finishing;
                 return;
 
             case CeresSelfDestructPhase.Finishing:
-                UpdateCeresSelfDestructPalette(state, _ridleyEncounter.Parts.Body.FrameCounter);
+                UpdateCeresSelfDestructAlarm(state, _ridleyEncounter.Parts.Body.FrameCounter);
                 state.Velocity = new EightEightVector<RoomPixels>(0, 0);
                 state.Function = RidleyAiFunction.CeresSelfDestructPaletteOnly;
                 _ridleyEncounter.CeresStatus = CeresEscapeStatus.SelfDestructStarted;
@@ -349,12 +349,12 @@ internal sealed class CeresRidleyGetaway
     }
 
     /// <summary>Steps the three-colour alarm cycle of the warning's EMERGENCY title every fourth frame.</summary>
-    internal static void UpdateCeresSelfDestructPalette(RidleyEnemyState state, int frameCounter)
+    internal static void UpdateCeresSelfDestructAlarm(RidleyEnemyState state, int frameCounter)
     {
         if ((frameCounter & 3) != 0)
             return;
 
-        state.CeresEscapePaletteFrame = (state.CeresEscapePaletteFrame + 1) % 16;
-        state.Colours.ShowAlarm(state.CeresEscapePaletteFrame);
+        state.SelfDestructAlarmStep = (state.SelfDestructAlarmStep + 1) % 16;
+        state.Colours.ShowAlarm(state.SelfDestructAlarmStep);
     }
 }

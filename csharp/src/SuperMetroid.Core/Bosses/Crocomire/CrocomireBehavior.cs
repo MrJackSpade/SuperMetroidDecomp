@@ -113,7 +113,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         Fight.HandleCrocomireInvisibleWall(slot, state, samus);
-        Combat.ApplyCrocomireHurtPalette(slot);
+        Combat.ApplyCrocomireHurtFlash(slot);
     }
 
     /// <summary>Number of dust puffs emitted across the bridge-collapse path.</summary>

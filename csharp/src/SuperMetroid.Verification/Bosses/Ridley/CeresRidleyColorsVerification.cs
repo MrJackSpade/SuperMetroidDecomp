@@ -87,7 +87,7 @@ internal static class CeresRidleyColorsVerification
 
         Action<RidleyEnemyState> eyeTick = CeresRidleyFades.TickCeresRidleyEyeFade;
         Action<RoomEnemySlot, RidleyEnemyState> bodyTick = enemies.CeresRidleyBehavior.Fades.TickCeresRidleyBodyFade;
-        Action<RidleyEnemyState> healthTick = CeresRidleyHits.UpdateCeresRidleyHealthPalette;
+        Action<RidleyEnemyState> healthTick = CeresRidleyHits.UpdateCeresRidleyHealthBand;
         var state = new RidleyEnemyState { Function = RidleyAiFunction.FadeInEyes };
         for (ushort step = 0; step < CeresRidleyEyeFadeDefinitions.PaletteStepCount; step++)
         {
@@ -160,8 +160,8 @@ internal static class CeresRidleyColorsVerification
         {
             // Compare every callback, including the three skipped frame counters
             // between each alarm color upload.
-            var nativeTick = new Action<RidleyEnemyState, int>(CeresRidleyGetaway.UpdateCeresSelfDestructPalette);
-            var stockTick = new Action<RidleyEnemyState, int>(CeresRidleyGetaway.UpdateCeresSelfDestructPalette);
+            var nativeTick = new Action<RidleyEnemyState, int>(CeresRidleyGetaway.UpdateCeresSelfDestructAlarm);
+            var stockTick = new Action<RidleyEnemyState, int>(CeresRidleyGetaway.UpdateCeresSelfDestructAlarm);
             var nativeState = new RidleyEnemyState();
             var stockState = new RidleyEnemyState();
             for (ushort frame = 0; frame < CeresRidleyColorFormat.AlarmStepCount * 4; frame++)
@@ -170,13 +170,13 @@ internal static class CeresRidleyColorsVerification
                 stockTick(stockState, frame);
                 RgbColor[] nativeCgram = RidleyLaidColours.Ceres(nativeState, original);
                 RgbColor[] stockCgram = RidleyLaidColours.Ceres(stockState, original);
-                AssertEqual(nativeState.CeresEscapePaletteFrame, stockState.CeresEscapePaletteFrame,
+                AssertEqual(nativeState.SelfDestructAlarmStep, stockState.SelfDestructAlarmStep,
                     $"stock Ceres alarm frame {frame} selection");
                 for (int color = 0; color < SnesCgram.ColorCount; color++)
                     AssertEqual(nativeCgram[color], stockCgram[color],
                         $"stock Ceres alarm frame {frame} CGRAM {color}");
             }
-            AssertEqual(0, stockState.CeresEscapePaletteFrame,
+            AssertEqual(0, stockState.SelfDestructAlarmStep,
                 "Ceres alarm frame sixteen wraps to zero");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "installed Ceres alarm never reads its source color rows");
@@ -189,8 +189,8 @@ internal static class CeresRidleyColorsVerification
             // parity; the guarded installed path proves no copied ROM colors are read.
             var nativeEnemy = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             var stockEnemy = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            var nativeTick = new Action<RoomEnemySlot, RidleyEnemyState>(RidleyInteractions.UpdateNorfairRidleyHealthPalette);
-            var stockTick = new Action<RoomEnemySlot, RidleyEnemyState>(RidleyInteractions.UpdateNorfairRidleyHealthPalette);
+            var nativeTick = new Action<RoomEnemySlot, RidleyEnemyState>(RidleyInteractions.UpdateNorfairRidleyHealthBand);
+            var stockTick = new Action<RoomEnemySlot, RidleyEnemyState>(RidleyInteractions.UpdateNorfairRidleyHealthBand);
             RoomEnemySlot nativeSlot = nativeEnemy.SlotTable.Slots[0];
             RoomEnemySlot stockSlot = stockEnemy.SlotTable.Slots[0];
             var nativeState = new RidleyEnemyState();

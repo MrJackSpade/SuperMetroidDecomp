@@ -60,8 +60,6 @@ internal static class MotherBrainMemory
     public const int EnableUnpauseHook = 0x7844;
     /// <summary>$7E:784A: bomb counter.</summary>
     public const int BombCounter = 0x784a;
-    /// <summary>$7E:7860: brain palette handling enable flag.</summary>
-    public const int BrainPaletteHandling = 0x7860;
     /// <summary>$7E:7864: drool projectile generation enable flag.</summary>
     public const int DroolGeneration = 0x7864;
     /// <summary>$7E:7866: parameter used when spawning drool projectiles.</summary>

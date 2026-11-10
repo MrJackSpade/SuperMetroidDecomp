@@ -75,10 +75,9 @@ internal sealed class MotherBrainRevivalPhases
             // with no copy. The existing result flag exposes each real copy cadence.
             int paletteIndex = _state.GreyTransitionCounter;
             _state.GreyTransitionCounter++;
-            requests.PaletteRequested = paletteIndex < 8;
+            requests.ColoursRequested = paletteIndex < 8;
             if (paletteIndex >= 8)
             {
-                _state.BrainPaletteHandlingEnabled = true;
                 _state.Phase = MotherBrainBodyFunction.SecondPhaseReviveWakeUp;
                 return true;
             }
@@ -142,7 +141,7 @@ internal sealed class MotherBrainRevivalPhases
             if (reachedWalkTarget)
             {
                 _state.Phase2CorpseState = MotherBrainPhase2CorpseState.Revived;
-                _state.HealthBasedPaletteHandlingEnabled = true;
+                _state.HealthColoursEnabled = true;
                 _state.Phase = MotherBrainBodyFunction.SecondPhaseRevivePrepareNeckForBabyDeath;
             }
         }

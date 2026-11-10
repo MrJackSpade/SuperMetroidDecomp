@@ -84,7 +84,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual(EnemyContact.BlocksPlasmaBeam, baby.Contact, "Baby population/init contact OR");
     AssertEqual(EnemyProcessing.AnimationScript | EnemyProcessing.OffScreen, baby.Processing, "Baby population/init processing OR");
     AssertEqual(EnemyPresence.None, baby.Presence, "Baby population/init presence OR");
-    AssertEqual(false, baby.HitFlashPaletteShown, "Baby cutscene shows its own palette, not the hit flash");
+    AssertEqual(false, baby.HurtFlashShown, "Baby cutscene shows its own palette, not the hit flash");
     // The Baby keeps no graphics: its sheet pictures its frames where its tile rows are transferred, and its parts carry
     // their own palette rows (#1422, #1513).
     AssertEqual(MotherBrainBabyProgram.Initial, baby.Program, "Baby initial program");

@@ -34,7 +34,7 @@ internal sealed class CrocomireCombat
     }
 
     /// <summary>Ports Crocomire's eight-color body hurt flash.</summary>
-    internal void ApplyCrocomireHurtPalette(RoomEnemySlot body)
+    internal void ApplyCrocomireHurtFlash(RoomEnemySlot body)
     {
         bool white = body.FlashTimer != 0 && (_frameContext.RandomEnemyCounter & 2) != 0;
         // His body shows its fight colours or the white flash as the import's shades of them (#1512).

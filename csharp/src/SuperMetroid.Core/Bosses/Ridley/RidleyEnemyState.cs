@@ -204,6 +204,6 @@ public sealed class RidleyEnemyState
     public int CeresEscapeTextDelayTimer { get; internal set; }
     /// <summary>Gets the installed Ceres warning typewriter state, created after the initial delay when presentation data is available.</summary>
     public EscapeTypewriterState? CeresEscapeTypewriter { get; internal set; }
-    /// <summary>Gets the sixteen-phase Ceres self-destruct alarm-palette frame, zero through fifteen, returning to zero after fifteen.</summary>
-    public int CeresEscapePaletteFrame { get; internal set; }
+    /// <summary>Gets the step the Ceres self-destruct warning's sixteen-step alarm shows, zero through fifteen, returning to zero after fifteen.</summary>
+    public int SelfDestructAlarmStep { get; internal set; }
 }

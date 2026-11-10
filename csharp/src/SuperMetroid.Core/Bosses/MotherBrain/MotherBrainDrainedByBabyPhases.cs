@@ -76,7 +76,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     /// </summary>
     internal bool RunSecondPhaseDrainedByBabyRegainBalance(MotherBrainRainbowBeamStepRequests requests)
     {
-        requests.PaletteRequested = true;
+        requests.ColoursRequested = true;
         if (--_state.FunctionTimer < 0)
         {
             // The regain-balance step contains an apparent missing store: it loads one and then
@@ -104,7 +104,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
         // fabricating a body-side countdown that does not exist in this routine.
         if (_state.BrainMainShakeTimer == 0)
             _state.BrainMainShakeTimer = 50;
-        requests.PaletteRequested = true;
+        requests.ColoursRequested = true;
         requests.BodyWalkRequested = StepPainfulWalking();
 
         // The outer function updates delay and neck delta after *every* nested call.
@@ -119,7 +119,6 @@ internal sealed class MotherBrainDrainedByBabyPhases
         if (PainfulWalkingStage == 6)
         {
             _state.RainbowBeamSoundPlaying = false;
-            _state.BrainPaletteHandlingEnabled = false;
             _state.Phase = MotherBrainBodyFunction.SecondPhaseDrainedByBabyRainbowBeamRunOut;
             requests.SoundQueued = true; // The rainbow-drain sound stops as the beam runs out.
         }
@@ -218,7 +217,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
             // the ninth (index-eight) probe as completion without copying colours.
             int paletteIndex = _state.GreyTransitionCounter;
             _state.GreyTransitionCounter++;
-            requests.PaletteRequested = paletteIndex < 8;
+            requests.ColoursRequested = paletteIndex < 8;
             if (paletteIndex >= 8)
             {
                 _state.BrainHealth = 36000;

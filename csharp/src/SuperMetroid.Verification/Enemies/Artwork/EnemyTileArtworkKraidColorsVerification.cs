@@ -389,7 +389,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
             {
                 state.HurtFrame = consumer == KraidPaletteConsumer.HealthFlash
                     ? (ushort)1 : (ushort)0;
-                new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.Head.UpdateKraidHealthPalettes)(body, state);
+                new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.Head.UpdateKraidHealthColours)(body, state);
                 int band = state.Colours.Band ?? throw new InvalidOperationException("Kraid's health update names no band.");
                 AssertEqual(PictureShading.Shaded(KraidShades.Health(band)), body.Shading, $"Kraid's body slot draws in band {band}");
                 // His body shows the band's shade over its sixth tile colours, his parts over their sprite row.

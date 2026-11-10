@@ -23,8 +23,8 @@ public sealed class ShitroidEnemyState
     /// <summary>Signed 8.8 velocity: X, Y.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
-    /// <summary>Membrane palette-cycle phase, 0 through 7: each advance moves to the next of the eight phases.</summary>
-    public int PalettePhase { get; internal set; }
+    /// <summary>The phase of the membrane's pulse, 0 through 7: each advance moves to the next of the eight phases.</summary>
+    public int MembranePulsePhase { get; internal set; }
 
     /// <summary>
     /// Updates left before the membrane palette advances to its next phase; each update decrements it until zero, and

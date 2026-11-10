@@ -100,7 +100,7 @@ internal sealed class DraygonCombat
         // A hurt update shows his material colours with his band, or their white flash, as the import's shades (#1512).
         state.Colours.ShowHurt(whiteFrame);
         if (!whiteFrame)
-            state.Colours.ShowBand(RequireHealthPaletteBand(state));
+            state.Colours.ShowBand(RequireHealthBand(state));
         state.ShadeSprites();
 
         // Grapple-connected flag bit zero is the retail electrocution channel. It is
@@ -132,7 +132,7 @@ internal sealed class DraygonCombat
         DraygonEnemyState state = RequireCompleteDraygonState(body);
         if (body.Health != 0)
         {
-            UpdateDraygonHealthPalette(state);
+            UpdateDraygonHealthBand(state);
             return;
         }
 
@@ -173,24 +173,24 @@ internal sealed class DraygonCombat
     }
 
     /// <summary>Changes Draygon's health color band only when the health threshold changes.</summary>
-    internal static void UpdateDraygonHealthPalette(DraygonEnemyState state)
+    internal static void UpdateDraygonHealthBand(DraygonEnemyState state)
     {
         int band = DraygonHealthPalette.BandForHealth(state.Body.Health);
 
-        if (band == state.HealthPaletteBand)
+        if (band == state.HealthBand)
             return;
-        state.HealthPaletteBand = band;
-        CopyDraygonHealthColors(state);
+        state.HealthBand = band;
+        ShowDraygonHealthBand(state);
     }
 
     /// <summary>The installed health band; code reads it only after initialization installs one.</summary>
-    private static int RequireHealthPaletteBand(DraygonEnemyState state) => state.HealthPaletteBand
+    private static int RequireHealthBand(DraygonEnemyState state) => state.HealthBand
         ?? throw new InvalidOperationException("Draygon has no installed health palette band.");
 
-    /// <summary>Copies the selected installed health palette band into the live colours.</summary>
-    internal static void CopyDraygonHealthColors(DraygonEnemyState state)
+    /// <summary>Shows his selected health band's colours.</summary>
+    internal static void ShowDraygonHealthBand(DraygonEnemyState state)
     {
-        state.Colours.ShowBand(RequireHealthPaletteBand(state));
+        state.Colours.ShowBand(RequireHealthBand(state));
     }
 
     /// <summary>Registers Draygon's shot response, including acceleration and special death exemption.</summary>

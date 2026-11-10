@@ -45,9 +45,6 @@ internal sealed class MotherBrainLateFightState
     /// <summary>Main brain-shake timer seeded to fifty by the rainbow step when clear.</summary>
     public int BrainMainShakeTimer { get; internal set; }
 
-    /// <summary>Brain-palette handling flag cleared when the rainbow beam expires.</summary>
-    public bool BrainPaletteHandlingEnabled { get; internal set; } = true;
-
     /// <summary>Drool generation flag cleared as Mother Brain enters low-power mode.</summary>
     public bool DroolGenerationEnabled { get; internal set; } = true;
 
@@ -69,11 +66,10 @@ internal sealed class MotherBrainLateFightState
     }
 
     /// <summary>
-    /// Mother Brain health-based body-palette flag. Revival writes one only after
-    /// the walk to X 80 has really completed; it is not synonymous with the separate
-    /// brain-slot palette handler above.
+    /// Whether Mother Brain's whole body shows her health band's colours. Revival enables it only after
+    /// the walk to X 80 has really completed, and disabling her brain's effects as she dies ends it.
     /// </summary>
-    public bool HealthBasedPaletteHandlingEnabled { get; internal set; }
+    public bool HealthColoursEnabled { get; internal set; }
 
     /// <summary>Palette-transition record index.</summary>
     public int GreyTransitionCounter { get; internal set; }

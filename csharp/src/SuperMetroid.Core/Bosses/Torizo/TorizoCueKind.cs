@@ -17,8 +17,8 @@ internal enum TorizoCueKind
     FadeToBlack,
     /// <summary>Sets the boss bit, queues the elevator music and spawns the drops.</summary>
     FinishDeath,
-    /// <summary>Advances the gradual palette fade.</summary>
-    AdvancePaletteFade,
+    /// <summary>Advances the gradual colour fade.</summary>
+    AdvanceColourFade,
     /// <summary>Starts the palette fade to the normal colors.</summary>
     FadeToNormalColors,
     /// <summary>Starts Bomb Torizo's fight music and belly palette effect.</summary>

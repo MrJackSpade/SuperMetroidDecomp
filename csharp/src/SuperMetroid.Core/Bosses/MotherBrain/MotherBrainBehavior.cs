@@ -90,7 +90,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         // The body main advances the independent room-palette animation script before it
         // dispatches the body function. Keeping that order is visible on the exact frame
         // the fake-death flash begins and later when the main tube stops the loop.
-        RunMotherBrainRoomPalette(state);
+        RunMotherBrainRoomFlash(state);
         RunMotherBrainBodyFunction(state, samus, sharedProjectiles);
         // Every body function returns through the common contact tail. The first-phase
         // function also has its own authored contact call; retain both sites.
@@ -495,7 +495,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Runs Mother Brain's room flash: each of its fourteen frames stays two updates, the timer counting
     /// up from one, and the last loops to the first.
     /// </summary>
-    internal static void RunMotherBrainRoomPalette(MotherBrainEnemyState state)
+    internal static void RunMotherBrainRoomFlash(MotherBrainEnemyState state)
     {
         if (state.RoomFlashFrame is not int frame)
             return;
@@ -687,10 +687,4 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Six authored drool spawn offsets from the brain's center.</summary>
     internal static readonly Offset16<RoomPixels>[] MotherBrainDroolOffsets =
         [new(6, 20), new(14, 18), new(8, 23), new(10, 19), new(11, 25), new(12, 18)];
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        _motherBrainEncounter.MotherBrain?.BeginFrame();
-    }
 }

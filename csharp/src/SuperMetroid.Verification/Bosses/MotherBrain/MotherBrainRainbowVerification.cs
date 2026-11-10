@@ -186,7 +186,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
     AssertEqual(0x00eb, samus.Position.X.Whole, "actor sequence moves Samus to hardcoded wall");
     AssertEqual(MotherBrainBodyFunction.SecondPhaseRainbowOneFrameDelay, attack.State.Phase,
         "wall carry installs one-frame-delay function");
-    AssertTrue(wall.SoundQueued && wall.PaletteRequested,
+    AssertTrue(wall.SoundQueued && wall.ColoursRequested,
         "wall function runs sound and bit-one palette cadence");
     AssertEqual(0x0380, attack.RainbowAttack.AngularWidth, "wall function widens before aiming");
     AssertTrue(wall.Explosion is { Offset: { X: 6, Y: 2 } },

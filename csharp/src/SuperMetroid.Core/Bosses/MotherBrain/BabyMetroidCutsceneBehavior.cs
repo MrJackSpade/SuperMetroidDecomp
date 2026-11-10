@@ -107,11 +107,11 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 
         // The writer receives colour index 241 and count 15. Color zero is deliberately
         // skipped in the source, preserving the room's transparent backdrop entry.
-        LoadBabyMetroidCutsceneInitialPalette();
+        ShowBabyMetroidArrival();
     }
 
     /// <summary>Lays the Baby's start colours, which leave the transparent entry untouched.</summary>
-    internal void LoadBabyMetroidCutsceneInitialPalette() =>
+    internal void ShowBabyMetroidArrival() =>
         _motherBrainEncounter.Colours.ShowBabyArrived();
 
     /// <summary>Advances the later Baby slot, publishes cries/healing, and writes body and Baby list changes for their next ordered enemy turns.</summary>
@@ -191,7 +191,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         slot.Contact = baby.Contact;
         slot.Processing = baby.Processing;
         slot.Presence = baby.Presence;
-        slot.Shading = baby.HitFlashPaletteShown ? EnemyShades.HurtFlashLook : colours.BabyShading;
+        slot.Shading = baby.HurtFlashShown ? EnemyShades.HurtFlashLook : colours.BabyShading;
         slot.Health = baby.Health;
     }
 
@@ -227,7 +227,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         }
 
         if (step.BabyFadeShade is int shade)
-            LoadBabyMetroidCutsceneFadePalette(shade);
+            ShowBabyMetroidFade(shade);
 
         if (step.RecoveryLightsFrame is int lightsFrame)
             LoadMotherBrainRecoveryLights(lightsFrame);
@@ -244,7 +244,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 
     /// <summary>Shows the Baby's black-fade shade <paramref name="shade"/> (1..6) from its installed colours.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The shade is not one of the six authored images.</exception>
-    internal void LoadBabyMetroidCutsceneFadePalette(int shade)
+    internal void ShowBabyMetroidFade(int shade)
     {
         if (shade is < 1 or > BabyMetroidCutsceneColorDefinitions.FadeFrameCount)
             throw new ArgumentOutOfRangeException(nameof(shade), shade, "The Baby's fade has six shades.");

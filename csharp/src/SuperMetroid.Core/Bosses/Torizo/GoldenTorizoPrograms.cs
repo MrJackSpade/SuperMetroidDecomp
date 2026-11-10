@@ -79,7 +79,7 @@ internal static class GoldenTorizoPrograms
         [P.GoldenInitial3] =
         [
             Show(50, 4),
-            Cue(new TorizoCue.Command(K.AdvancePaletteFade)),
+            Cue(new TorizoCue.Command(K.AdvanceColourFade)),
             RepeatWhileCounting(P.GoldenInitial3),
             Cue(new TorizoCue.Command(K.NoOperation)),
             Cue(new TorizoCue.Command(K.UnlockAnimation)),

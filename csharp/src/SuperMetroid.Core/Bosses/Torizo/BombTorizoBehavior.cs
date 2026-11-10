@@ -297,7 +297,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 FinishBombTorizoDeath(state);
                 return null;
 
-            case TorizoCue.Command { Kind: TorizoCueKind.AdvancePaletteFade }:
+            case TorizoCue.Command { Kind: TorizoCueKind.AdvanceColourFade }:
                 state.Colours.Step(_presentation.FadeStepCount);
                 torizo.Shading = state.Colours.Shading;
                 return null;

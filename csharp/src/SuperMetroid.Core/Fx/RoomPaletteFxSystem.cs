@@ -39,8 +39,6 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     private readonly List<SoundRequest> soundRequests = [];
     /// <summary>Live Power Bomb state used to suppress colour-effect sound requests.</summary>
     private IActivePowerBomb? audioPowerBomb;
-    /// <summary>Momentary music publications cleared at the start of each update.</summary>
-    private readonly List<DelayedMusicRequest> musicRequests = [];
     /// <summary>Whether the effects run at all and the heat phases, which outlive each room's effects.</summary>
     private readonly PaletteFxSessionState _session;
 
@@ -53,9 +51,6 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
 
     /// <summary>Sound calls the colour effects published during the current update.</summary>
     public IReadOnlyList<SoundRequest> SoundRequests => soundRequests;
-
-    /// <summary>Music calls the colour effects published during the current update.</summary>
-    public IReadOnlyList<DelayedMusicRequest> MusicRequests => musicRequests;
 
     /// <summary>Whether <paramref name="effect"/> is running.</summary>
     public bool IsRunning(PaletteFxObject effect) => effects.Exists(running => running.Effect == effect);
@@ -146,7 +141,6 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     {
         // Each update owns a new publication window: requests are momentary calls into the shared queues.
         soundRequests.Clear();
-        musicRequests.Clear();
         suitShown.Clear();
         enemyShown.Clear();
 

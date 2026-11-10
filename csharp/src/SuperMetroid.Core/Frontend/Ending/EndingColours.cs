@@ -3,6 +3,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
@@ -20,6 +21,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// ends the effects whose colours it restores (<see cref="EndingColourOwnerDefinitions.Restores"/>), so no shade depends
 /// on which was shown last.
 /// </remarks>
+[RoomScopeBoundary("The ending's colours own the ending's palette FX for the cinematic's lifetime; no gameplay room is loaded during it.")]
 internal sealed class EndingColours
 {
     /// <summary>The running scene's whole screen of colours, or none before the first scene.</summary>

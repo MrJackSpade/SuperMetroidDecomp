@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Enemies.Magdollite.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Core.Enemies.Magdollite;
 
 namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 

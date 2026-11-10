@@ -13,7 +13,6 @@ using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Enemies.Corpses.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.FaceBlocks.Artwork;
-using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.Core.Enemies.Magdollite.Artwork;
 using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 using SuperMetroid.Core.Enemies.WorkRobots;

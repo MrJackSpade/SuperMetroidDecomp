@@ -2,7 +2,6 @@ using SuperMetroid.Core.Enemies.Magdollite.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;

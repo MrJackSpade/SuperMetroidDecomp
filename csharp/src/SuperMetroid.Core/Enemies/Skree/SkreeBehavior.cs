@@ -4,7 +4,6 @@ using SuperMetroid.Core.Enemies.Skree.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Enemies.Skree;
 

@@ -1,6 +1,5 @@
 ﻿using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 

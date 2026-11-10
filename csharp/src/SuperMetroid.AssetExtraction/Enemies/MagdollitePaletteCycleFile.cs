@@ -3,7 +3,6 @@ using System.Text.Json;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;

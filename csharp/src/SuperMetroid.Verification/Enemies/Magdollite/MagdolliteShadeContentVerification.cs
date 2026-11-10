@@ -5,7 +5,6 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.Core.Enemies.Magdollite.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Harness;

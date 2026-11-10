@@ -617,263 +617,83 @@ public static class PaletteFxAnimations
             Show(298, 8),
             GoTo(P.GoldenTorizoBelly1),
         ],
-        [P.SamusInHeatPowerSuitStep0] =
+        [P.SamusInHeatPowerSuit] =
         [
             Cue(new PaletteFxCue.Watch(ColourEffectCondition.BurnsSamusInHeat.Instance)),
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.HeatSuitGlow)),
-            FallInto(P.SamusInHeatPowerSuitStep1),
+            FallInto(P.SamusInHeatPowerSuitPulse),
         ],
-        [P.SamusInHeatPowerSuitStep1] =
+        [P.SamusInHeatPowerSuitPulse] =
         [
             Show(299, 16),
-            FallInto(P.SamusInHeatPowerSuitStep2),
-        ],
-        [P.SamusInHeatPowerSuitStep2] =
-        [
             Show(300, 4),
-            FallInto(P.SamusInHeatPowerSuitStep3),
-        ],
-        [P.SamusInHeatPowerSuitStep3] =
-        [
             Show(301, 4),
-            FallInto(P.SamusInHeatPowerSuitStep4),
-        ],
-        [P.SamusInHeatPowerSuitStep4] =
-        [
             Show(302, 5),
-            FallInto(P.SamusInHeatPowerSuitStep5),
-        ],
-        [P.SamusInHeatPowerSuitStep5] =
-        [
             Show(303, 6),
-            FallInto(P.SamusInHeatPowerSuitStep6),
-        ],
-        [P.SamusInHeatPowerSuitStep6] =
-        [
             Show(304, 7),
-            FallInto(P.SamusInHeatPowerSuitStep7),
-        ],
-        [P.SamusInHeatPowerSuitStep7] =
-        [
             Show(305, 8),
-            FallInto(P.SamusInHeatPowerSuitStep8),
-        ],
-        [P.SamusInHeatPowerSuitStep8] =
-        [
             Show(306, 8),
-            FallInto(P.SamusInHeatPowerSuitStep9),
-        ],
-        [P.SamusInHeatPowerSuitStep9] =
-        [
             Show(307, 8),
-            FallInto(P.SamusInHeatPowerSuitStep10),
-        ],
-        [P.SamusInHeatPowerSuitStep10] =
-        [
             Show(308, 8),
-            FallInto(P.SamusInHeatPowerSuitStep11),
-        ],
-        [P.SamusInHeatPowerSuitStep11] =
-        [
             Show(309, 7),
-            FallInto(P.SamusInHeatPowerSuitStep12),
-        ],
-        [P.SamusInHeatPowerSuitStep12] =
-        [
             Show(310, 6),
-            FallInto(P.SamusInHeatPowerSuitStep13),
-        ],
-        [P.SamusInHeatPowerSuitStep13] =
-        [
             Show(311, 5),
-            FallInto(P.SamusInHeatPowerSuitStep14),
-        ],
-        [P.SamusInHeatPowerSuitStep14] =
-        [
             Show(312, 4),
-            FallInto(P.SamusInHeatPowerSuitStep15),
-        ],
-        [P.SamusInHeatPowerSuitStep15] =
-        [
             Show(313, 4),
-            FallInto(P.SamusInHeatPowerSuit10),
-        ],
-        [P.SamusInHeatPowerSuit10] =
-        [
             Show(314, 3),
-            GoTo(P.SamusInHeatPowerSuitStep1),
+            GoTo(P.SamusInHeatPowerSuitPulse),
         ],
-        [P.SamusInHeatVariaSuitStep0] =
+        [P.SamusInHeatVariaSuit] =
         [
             Cue(new PaletteFxCue.Watch(ColourEffectCondition.BurnsSamusInHeat.Instance)),
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.HeatSuitGlow)),
-            FallInto(P.SamusInHeatVariaSuitStep2),
+            FallInto(P.SamusInHeatVariaSuitPulse),
         ],
-        [P.SamusInHeatVariaSuitStep2] =
+        [P.SamusInHeatVariaSuitPulse] =
         [
             Show(315, 16),
-            FallInto(P.SamusInHeatVariaSuitStep3),
-        ],
-        [P.SamusInHeatVariaSuitStep3] =
-        [
             Show(316, 4),
-            FallInto(P.SamusInHeatVariaSuitStep4),
-        ],
-        [P.SamusInHeatVariaSuitStep4] =
-        [
             Show(317, 4),
-            FallInto(P.SamusInHeatVariaSuitStep5),
-        ],
-        [P.SamusInHeatVariaSuitStep5] =
-        [
             Show(318, 5),
-            FallInto(P.SamusInHeatVariaSuitStep6),
-        ],
-        [P.SamusInHeatVariaSuitStep6] =
-        [
             Show(319, 6),
-            FallInto(P.SamusInHeatVariaSuitStep7),
-        ],
-        [P.SamusInHeatVariaSuitStep7] =
-        [
             Show(320, 7),
-            FallInto(P.SamusInHeatVariaSuitStep8),
-        ],
-        [P.SamusInHeatVariaSuitStep8] =
-        [
             Show(321, 8),
-            FallInto(P.SamusInHeatVariaSuitStep9),
-        ],
-        [P.SamusInHeatVariaSuitStep9] =
-        [
             Show(322, 8),
-            FallInto(P.SamusInHeatVariaSuitStep10),
-        ],
-        [P.SamusInHeatVariaSuitStep10] =
-        [
             Show(323, 8),
-            FallInto(P.SamusInHeatVariaSuitStep11),
-        ],
-        [P.SamusInHeatVariaSuitStep11] =
-        [
             Show(324, 8),
-            FallInto(P.SamusInHeatVariaSuitStep12),
-        ],
-        [P.SamusInHeatVariaSuitStep12] =
-        [
             Show(325, 7),
-            FallInto(P.SamusInHeatVariaSuitStep13),
-        ],
-        [P.SamusInHeatVariaSuitStep13] =
-        [
             Show(326, 6),
-            FallInto(P.SamusInHeatVariaSuitStep14),
-        ],
-        [P.SamusInHeatVariaSuitStep14] =
-        [
             Show(327, 5),
-            FallInto(P.SamusInHeatVariaSuitStep15),
-        ],
-        [P.SamusInHeatVariaSuitStep15] =
-        [
             Show(328, 4),
-            FallInto(P.SamusInHeatVariaSuit10),
-        ],
-        [P.SamusInHeatVariaSuit10] =
-        [
             Show(329, 4),
-            FallInto(P.SamusInHeatVariaSuit11),
-        ],
-        [P.SamusInHeatVariaSuit11] =
-        [
             Show(330, 16),
-            GoTo(P.SamusInHeatVariaSuitStep2),
+            GoTo(P.SamusInHeatVariaSuitPulse),
         ],
-        [P.SamusInHeatGravitySuitStep0] =
+        [P.SamusInHeatGravitySuit] =
         [
             Cue(new PaletteFxCue.Watch(ColourEffectCondition.BurnsSamusInHeat.Instance)),
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.HeatSuitGlow)),
-            FallInto(P.SamusInHeatGravitySuitStep2),
+            FallInto(P.SamusInHeatGravitySuitPulse),
         ],
-        [P.SamusInHeatGravitySuitStep2] =
+        [P.SamusInHeatGravitySuitPulse] =
         [
             Show(331, 16),
-            FallInto(P.SamusInHeatGravitySuitStep3),
-        ],
-        [P.SamusInHeatGravitySuitStep3] =
-        [
             Show(332, 4),
-            FallInto(P.SamusInHeatGravitySuitStep4),
-        ],
-        [P.SamusInHeatGravitySuitStep4] =
-        [
             Show(333, 4),
-            FallInto(P.SamusInHeatGravitySuitStep5),
-        ],
-        [P.SamusInHeatGravitySuitStep5] =
-        [
             Show(334, 5),
-            FallInto(P.SamusInHeatGravitySuitStep6),
-        ],
-        [P.SamusInHeatGravitySuitStep6] =
-        [
             Show(335, 6),
-            FallInto(P.SamusInHeatGravitySuitStep7),
-        ],
-        [P.SamusInHeatGravitySuitStep7] =
-        [
             Show(336, 7),
-            FallInto(P.SamusInHeatGravitySuitStep8),
-        ],
-        [P.SamusInHeatGravitySuitStep8] =
-        [
             Show(337, 8),
-            FallInto(P.SamusInHeatGravitySuitStep9),
-        ],
-        [P.SamusInHeatGravitySuitStep9] =
-        [
             Show(338, 8),
-            FallInto(P.SamusInHeatGravitySuitStep10),
-        ],
-        [P.SamusInHeatGravitySuitStep10] =
-        [
             Show(339, 8),
-            FallInto(P.SamusInHeatGravitySuitStep11),
-        ],
-        [P.SamusInHeatGravitySuitStep11] =
-        [
             Show(340, 8),
-            FallInto(P.SamusInHeatGravitySuitStep12),
-        ],
-        [P.SamusInHeatGravitySuitStep12] =
-        [
             Show(341, 7),
-            FallInto(P.SamusInHeatGravitySuitStep13),
-        ],
-        [P.SamusInHeatGravitySuitStep13] =
-        [
             Show(342, 6),
-            FallInto(P.SamusInHeatGravitySuitStep14),
-        ],
-        [P.SamusInHeatGravitySuitStep14] =
-        [
             Show(343, 5),
-            FallInto(P.SamusInHeatGravitySuitStep15),
-        ],
-        [P.SamusInHeatGravitySuitStep15] =
-        [
             Show(344, 4),
-            FallInto(P.SamusInHeatGravitySuit10),
-        ],
-        [P.SamusInHeatGravitySuit10] =
-        [
             Show(345, 4),
-            FallInto(P.SamusInHeatGravitySuit11),
-        ],
-        [P.SamusInHeatGravitySuit11] =
-        [
             Show(346, 16),
-            GoTo(P.SamusInHeatGravitySuitStep2),
+            GoTo(P.SamusInHeatGravitySuitPulse),
         ],
         [P.WreckedShipGreenLights] =
         [
@@ -1060,37 +880,37 @@ public static class PaletteFxAnimations
         ],
         [P.NorfairForegroundAndHeatPhaseCycle] =
         [
-            Cue(new PaletteFxCue.SetHeatPaletteIndex(HeatPhase: 0)),
+            Cue(new PaletteFxCue.PublishHeatPhase(new HeatPhase(0))),
             Show(434, 16),
-            Cue(new PaletteFxCue.SetHeatPaletteIndex(HeatPhase: 1)),
+            Cue(new PaletteFxCue.PublishHeatPhase(new HeatPhase(1))),
             Show(435, 4),
-            Cue(new PaletteFxCue.SetHeatPaletteIndex(HeatPhase: 2)),
+            Cue(new PaletteFxCue.PublishHeatPhase(new HeatPhase(2))),
             Show(436, 4),
-            Cue(new PaletteFxCue.SetHeatPaletteIndex(HeatPhase: 3)),
+            Cue(new PaletteFxCue.PublishHeatPhase(new HeatPhase(3))),
             Show(437, 5),
-            Cue(new PaletteFxCue.SetHeatPaletteIndex(HeatPhase: 4)),
+            Cue(new PaletteFxCue.PublishHeatPhase(new HeatPhase(4))),
             Show(438, 6),
-            Cue(new PaletteFxCue.SetHeatPaletteIndex(HeatPhase: 5)),
+            Cue(new PaletteFxCue.PublishHeatPhase(new HeatPhase(5))),
             Show(439, 7),
-            Cue(new PaletteFxCue.SetHeatPaletteIndex(HeatPhase: 6)),
+            Cue(new PaletteFxCue.PublishHeatPhase(new HeatPhase(6))),
             Show(440, 8),
-            Cue(new PaletteFxCue.SetHeatPaletteIndex(HeatPhase: 7)),
+            Cue(new PaletteFxCue.PublishHeatPhase(new HeatPhase(7))),
             Show(441, 8),
-            Cue(new PaletteFxCue.SetHeatPaletteIndex(HeatPhase: 8)),
+            Cue(new PaletteFxCue.PublishHeatPhase(new HeatPhase(8))),
             Show(442, 8),
-            Cue(new PaletteFxCue.SetHeatPaletteIndex(HeatPhase: 9)),
+            Cue(new PaletteFxCue.PublishHeatPhase(new HeatPhase(9))),
             Show(443, 8),
-            Cue(new PaletteFxCue.SetHeatPaletteIndex(HeatPhase: 10)),
+            Cue(new PaletteFxCue.PublishHeatPhase(new HeatPhase(10))),
             Show(444, 7),
-            Cue(new PaletteFxCue.SetHeatPaletteIndex(HeatPhase: 11)),
+            Cue(new PaletteFxCue.PublishHeatPhase(new HeatPhase(11))),
             Show(445, 6),
-            Cue(new PaletteFxCue.SetHeatPaletteIndex(HeatPhase: 12)),
+            Cue(new PaletteFxCue.PublishHeatPhase(new HeatPhase(12))),
             Show(446, 5),
-            Cue(new PaletteFxCue.SetHeatPaletteIndex(HeatPhase: 13)),
+            Cue(new PaletteFxCue.PublishHeatPhase(new HeatPhase(13))),
             Show(447, 4),
-            Cue(new PaletteFxCue.SetHeatPaletteIndex(HeatPhase: 14)),
+            Cue(new PaletteFxCue.PublishHeatPhase(new HeatPhase(14))),
             Show(448, 4),
-            Cue(new PaletteFxCue.SetHeatPaletteIndex(HeatPhase: 15)),
+            Cue(new PaletteFxCue.PublishHeatPhase(new HeatPhase(15))),
             Show(449, 16),
             GoTo(P.NorfairForegroundAndHeatPhaseCycle),
         ],

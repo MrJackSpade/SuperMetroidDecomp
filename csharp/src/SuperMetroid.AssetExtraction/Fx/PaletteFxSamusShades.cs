@@ -23,12 +23,8 @@ internal static class PaletteFxSamusShades
         [PaletteFxColours.SamusLoadingSuit] = 0,
     }.ToImmutableDictionary();
 
-    /// <summary>Every heat program of every suit, its starting program and each phase's (#1512).</summary>
-    private static readonly PaletteFxProgram[] HeatPrograms =
-    [
-        PaletteFxProgram.SamusInHeatPowerSuitStep0, PaletteFxProgram.SamusInHeatVariaSuitStep0, PaletteFxProgram.SamusInHeatGravitySuitStep0,
-        .. PaletteFxHeatPrograms.PowerPrograms, .. PaletteFxHeatPrograms.VariaPrograms, .. PaletteFxHeatPrograms.GravityPrograms,
-    ];
+    /// <summary>Every suit's heat shimmer start, which runs on into the suit's whole heat pulse (#1512, #1598).</summary>
+    private static readonly PaletteFxProgram[] HeatPrograms = [.. Enum.GetValues<PaletteFxHeatSuit>().Select(PaletteFxHeatPrograms.Start)];
 
     /// <summary>The objects whose programs recolour her suit: the heat glow and her three suits' loading.</summary>
     private static readonly ImmutableArray<PaletteFxObject> SuitObjects =

@@ -35,8 +35,8 @@ internal static class RoomScopeVerification
         previous.Speed = FixedVector<RoomPixels>.FromStoredParts(2, 0x8000, 0xFFFF, 0x4000);
         previous.FinishSamusScrolling(FixedPosition<RoomPixels>.FromStoredParts(0x0300, 0x1111, 0x0400, 0x2222));
         source.Projectiles.Charge.FlareCounter = 30;
-        const int heatPhase = 3;
-        runtime.PaletteFxSession.SamusInHeatPaletteIndex = heatPhase;
+        var heatPhase = new SuperMetroid.Core.Fx.PaletteFx.HeatPhase(3);
+        runtime.PaletteFxSession.PublishedHeatPhase = heatPhase;
         source.Enemies.Earthquake.Start(NativeEarthquakeTypes.Shake(5), 4);
         source.Enemies.RoomStatus.EnemyDoorTransitionActive = true;
         source.Enemies.Elevator.ElevatorDoorTransitionActive = true;
@@ -99,7 +99,7 @@ internal static class RoomScopeVerification
         VerificationAssertions.AssertTrue(ReferenceEquals(source.FxOverlay.Fireflea, destination.FxOverlay.Fireflea) &&
             ReferenceEquals(runtime.RoomFx.Fireflea, destination.FxOverlay.Fireflea),
             "the Fireflea state is the session's, shared by both rooms");
-        VerificationAssertions.AssertEqual(heatPhase, runtime.PaletteFxSession.SamusInHeatPaletteIndex,
+        VerificationAssertions.AssertEqual(heatPhase, runtime.PaletteFxSession.PublishedHeatPhase,
             "the palette-FX heat phase survives the load on the session");
         VerificationAssertions.AssertTrue(!ReferenceEquals(source.Enemies, destination.Enemies) &&
             !ReferenceEquals(source.Enemies.SlotTable, destination.Enemies.SlotTable),

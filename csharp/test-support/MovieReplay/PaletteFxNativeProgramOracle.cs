@@ -113,7 +113,7 @@ internal static class PaletteFxNativeProgramOracle
                 case PaletteFxInstruction.ClearFrameBehavior:
                     throw new InvalidDataException($"{at}: the native list clears its pre-instruction, which no colour effect's program does.");
                 case PaletteFxInstruction.SetPaletteFxIndex:
-                    AssertCue(step, new PaletteFxCue.SetHeatPaletteIndex(HeatPhase: operandByte), at);
+                    AssertCue(step, new PaletteFxCue.PublishHeatPhase(new HeatPhase(operandByte)), at);
                     cursor = unchecked((ushort)(cursor + 3));
                     continue;
                 case PaletteFxInstruction.QueueSfx2:

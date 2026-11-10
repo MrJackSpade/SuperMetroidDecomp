@@ -128,108 +128,27 @@ public enum PaletteFxProgram
     GoldenTorizoBelly0,
     /// <summary>The Golden Torizo belly program, step 1.</summary>
     GoldenTorizoBelly1,
-    /// <summary>The Samus in heat Power suit program, step 0.</summary>
-    SamusInHeatPowerSuitStep0,
-    /// <summary>The Samus in heat Power suit program, step 1.</summary>
-    SamusInHeatPowerSuitStep1,
-    /// <summary>The Samus in heat Power suit program, step 2.</summary>
-    SamusInHeatPowerSuitStep2,
-    /// <summary>The Samus in heat Power suit program, step 3.</summary>
-    SamusInHeatPowerSuitStep3,
-    /// <summary>The Samus in heat Power suit program, step 4.</summary>
-    SamusInHeatPowerSuitStep4,
-    /// <summary>The Samus in heat Power suit program, step 5.</summary>
-    SamusInHeatPowerSuitStep5,
-    /// <summary>The Samus in heat Power suit program, step 6.</summary>
-    SamusInHeatPowerSuitStep6,
-    /// <summary>The Samus in heat Power suit program, step 7.</summary>
-    SamusInHeatPowerSuitStep7,
-    /// <summary>The Samus in heat Power suit program, step 8.</summary>
-    SamusInHeatPowerSuitStep8,
-    /// <summary>The Samus in heat Power suit program, step 9.</summary>
-    SamusInHeatPowerSuitStep9,
-    /// <summary>The Samus in heat Power suit program, step A.</summary>
-    SamusInHeatPowerSuitStep10,
-    /// <summary>The Samus in heat Power suit program, step B.</summary>
-    SamusInHeatPowerSuitStep11,
-    /// <summary>The Samus in heat Power suit program, step C.</summary>
-    SamusInHeatPowerSuitStep12,
-    /// <summary>The Samus in heat Power suit program, step D.</summary>
-    SamusInHeatPowerSuitStep13,
-    /// <summary>The Samus in heat Power suit program, step E.</summary>
-    SamusInHeatPowerSuitStep14,
-    /// <summary>The Samus in heat Power suit program, step F.</summary>
-    SamusInHeatPowerSuitStep15,
-    /// <summary>The Samus in heat Power suit program, step 10.</summary>
-    SamusInHeatPowerSuit10,
-    /// <summary>The Samus in heat Varia suit program, step 0.</summary>
-    SamusInHeatVariaSuitStep0,
-    /// <summary>The Samus in heat Varia suit program, step 2.</summary>
-    SamusInHeatVariaSuitStep2,
-    /// <summary>The Samus in heat Varia suit program, step 3.</summary>
-    SamusInHeatVariaSuitStep3,
-    /// <summary>The Samus in heat Varia suit program, step 4.</summary>
-    SamusInHeatVariaSuitStep4,
-    /// <summary>The Samus in heat Varia suit program, step 5.</summary>
-    SamusInHeatVariaSuitStep5,
-    /// <summary>The Samus in heat Varia suit program, step 6.</summary>
-    SamusInHeatVariaSuitStep6,
-    /// <summary>The Samus in heat Varia suit program, step 7.</summary>
-    SamusInHeatVariaSuitStep7,
-    /// <summary>The Samus in heat Varia suit program, step 8.</summary>
-    SamusInHeatVariaSuitStep8,
-    /// <summary>The Samus in heat Varia suit program, step 9.</summary>
-    SamusInHeatVariaSuitStep9,
-    /// <summary>The Samus in heat Varia suit program, step A.</summary>
-    SamusInHeatVariaSuitStep10,
-    /// <summary>The Samus in heat Varia suit program, step B.</summary>
-    SamusInHeatVariaSuitStep11,
-    /// <summary>The Samus in heat Varia suit program, step C.</summary>
-    SamusInHeatVariaSuitStep12,
-    /// <summary>The Samus in heat Varia suit program, step D.</summary>
-    SamusInHeatVariaSuitStep13,
-    /// <summary>The Samus in heat Varia suit program, step E.</summary>
-    SamusInHeatVariaSuitStep14,
-    /// <summary>The Samus in heat Varia suit program, step F.</summary>
-    SamusInHeatVariaSuitStep15,
-    /// <summary>The Samus in heat Varia suit program, step 10.</summary>
-    SamusInHeatVariaSuit10,
-    /// <summary>The Samus in heat Varia suit program, step 11.</summary>
-    SamusInHeatVariaSuit11,
-    /// <summary>The Samus in heat Gravity suit program, step 0.</summary>
-    SamusInHeatGravitySuitStep0,
-    /// <summary>The Samus in heat Gravity suit program, step 2.</summary>
-    SamusInHeatGravitySuitStep2,
-    /// <summary>The Samus in heat Gravity suit program, step 3.</summary>
-    SamusInHeatGravitySuitStep3,
-    /// <summary>The Samus in heat Gravity suit program, step 4.</summary>
-    SamusInHeatGravitySuitStep4,
-    /// <summary>The Samus in heat Gravity suit program, step 5.</summary>
-    SamusInHeatGravitySuitStep5,
-    /// <summary>The Samus in heat Gravity suit program, step 6.</summary>
-    SamusInHeatGravitySuitStep6,
-    /// <summary>The Samus in heat Gravity suit program, step 7.</summary>
-    SamusInHeatGravitySuitStep7,
-    /// <summary>The Samus in heat Gravity suit program, step 8.</summary>
-    SamusInHeatGravitySuitStep8,
-    /// <summary>The Samus in heat Gravity suit program, step 9.</summary>
-    SamusInHeatGravitySuitStep9,
-    /// <summary>The Samus in heat Gravity suit program, step A.</summary>
-    SamusInHeatGravitySuitStep10,
-    /// <summary>The Samus in heat Gravity suit program, step B.</summary>
-    SamusInHeatGravitySuitStep11,
-    /// <summary>The Samus in heat Gravity suit program, step C.</summary>
-    SamusInHeatGravitySuitStep12,
-    /// <summary>The Samus in heat Gravity suit program, step D.</summary>
-    SamusInHeatGravitySuitStep13,
-    /// <summary>The Samus in heat Gravity suit program, step E.</summary>
-    SamusInHeatGravitySuitStep14,
-    /// <summary>The Samus in heat Gravity suit program, step F.</summary>
-    SamusInHeatGravitySuitStep15,
-    /// <summary>The Samus in heat Gravity suit program, step 10.</summary>
-    SamusInHeatGravitySuit10,
-    /// <summary>The Samus in heat Gravity suit program, step 11.</summary>
-    SamusInHeatGravitySuit11,
+    /// <summary>Samus's heat shimmer in the Power Suit: watches the heat, names her suit's colours, then runs its pulse.</summary>
+    SamusInHeatPowerSuit,
+    /// <summary>
+    /// The Power Suit's heat pulse: one frame for each <see cref="HeatPhase"/>, in phase order, then round again. The
+    /// shimmer restarts at the frame of the phase the heated room's glow publishes.
+    /// </summary>
+    SamusInHeatPowerSuitPulse,
+    /// <summary>Samus's heat shimmer in the Varia Suit: watches the heat, names her suit's colours, then runs its pulse.</summary>
+    SamusInHeatVariaSuit,
+    /// <summary>
+    /// The Varia Suit's heat pulse: one frame for each <see cref="HeatPhase"/>, in phase order, then round again. The
+    /// shimmer restarts at the frame of the phase the heated room's glow publishes.
+    /// </summary>
+    SamusInHeatVariaSuitPulse,
+    /// <summary>Samus's heat shimmer in the Gravity Suit: watches the heat, names her suit's colours, then runs its pulse.</summary>
+    SamusInHeatGravitySuit,
+    /// <summary>
+    /// The Gravity Suit's heat pulse: one frame for each <see cref="HeatPhase"/>, in phase order, then round again. The
+    /// shimmer restarts at the frame of the phase the heated room's glow publishes.
+    /// </summary>
+    SamusInHeatGravitySuitPulse,
     /// <summary>The Wrecked Ship's green lights: names their colours, then runs their cycle.</summary>
     WreckedShipGreenLights,
     /// <summary>The Wrecked Ship's green lights' repeating pulse.</summary>

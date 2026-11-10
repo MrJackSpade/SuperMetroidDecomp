@@ -119,8 +119,8 @@ internal static class NativeSnapshotImport
             };
             importedEffects.Add(imported);
         }
-        runtime.PaletteFxSession.SamusInHeatPaletteIndex = W(NativeSnapshotMemory.HeatPalettePhase);
-        runtime.PaletteFxSession.PreviousSamusInHeatPaletteIndex = W(NativeSnapshotMemory.PreviousHeatPalettePhase);
+        runtime.PaletteFxSession.PublishedHeatPhase = new SuperMetroid.Core.Fx.PaletteFx.HeatPhase(W(NativeSnapshotMemory.HeatPalettePhase));
+        runtime.PaletteFxSession.ShimmerHeatPhase = new SuperMetroid.Core.Fx.PaletteFx.HeatPhase(W(NativeSnapshotMemory.PreviousHeatPalettePhase));
         ushort[] hudWords = [.. Enumerable.Range(0, HudStateConstants.MutableTileCount).Select(index => W(NativeSnapshotMemory.HudTilemap + index * 2))];
         HudItem highlightedHudItem = SaveSlotNumbering.SavedHudItem(W(NativeSnapshotMemory.PreviousHudSelection));
         // Each recorded scroll byte becomes the cell the camera reads it as.

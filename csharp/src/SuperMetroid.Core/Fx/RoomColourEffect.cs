@@ -66,10 +66,10 @@ internal sealed class RoomColourEffect
     /// <summary>Ends the effect: it takes no further part in this update or any later one, and shows nothing.</summary>
     internal void End() => Ended = true;
 
-    /// <summary>Restarts the effect at the start of <paramref name="program"/>, due to step on this turn.</summary>
-    internal void Restart(PaletteFxProgram program)
+    /// <summary>Restarts the effect at <paramref name="step"/> of its programs, due to step on this turn.</summary>
+    internal void Restart(AnimationProgramCursor<PaletteFxProgram> step)
     {
-        Step = AnimationProgramCursor<PaletteFxProgram>.Start(program);
+        Step = step;
         UpdatesUntilNextStep = 1;
     }
 
@@ -99,7 +99,7 @@ internal sealed class RoomColourEffect
                     case PaletteFxCue.Watch watch:
                         Condition = watch.Condition;
                         break;
-                    case PaletteFxCue.SetHeatPaletteIndex or PaletteFxCue.QueueSound:
+                    case PaletteFxCue.PublishHeatPhase or PaletteFxCue.QueueSound:
                         carryOut(cue);
                         break;
                     default:

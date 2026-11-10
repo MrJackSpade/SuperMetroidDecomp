@@ -3,6 +3,7 @@ using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Fx;
 
@@ -220,7 +221,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
                 return;
             case ColourEffectCondition.RestartsWhileSamusIsHigh high:
                 if (conditions.SamusY < high.Height)
-                    effect.Restart(high.Restart);
+                    effect.Restart(AnimationProgramCursor<PaletteFxProgram>.Start(high.Restart));
                 return;
             case ColourEffectCondition.BurnsSamusInHeat:
                 BurnSamusInHeat(effect, conditions.EquippedItems, conditions.Samus, conditions.FrameCounter);
@@ -258,13 +259,13 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
             }
         }
 
-        if (_session.SamusInHeatPaletteIndex == _session.PreviousSamusInHeatPaletteIndex)
+        if (_session.PublishedHeatPhase == _session.ShimmerHeatPhase)
             return;
 
-        _session.PreviousSamusInHeatPaletteIndex = _session.SamusInHeatPaletteIndex;
+        _session.ShimmerHeatPhase = _session.PublishedHeatPhase;
         effect.Restart(PaletteFxHeatPrograms.Phase(
             PaletteFxHeatPrograms.SuitFor(equippedItems),
-            _session.SamusInHeatPaletteIndex));
+            _session.PublishedHeatPhase));
     }
 
     /// <summary>Carries out a step of <paramref name="effect"/>'s program that reaches beyond it: a heat phase or a sound.</summary>
@@ -274,8 +275,8 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     {
         switch (cue)
         {
-            case PaletteFxCue.SetHeatPaletteIndex setHeatPaletteIndex:
-                _session.SamusInHeatPaletteIndex = setHeatPaletteIndex.HeatPhase;
+            case PaletteFxCue.PublishHeatPhase publishHeatPhase:
+                _session.PublishedHeatPhase = publishHeatPhase.Phase;
                 return;
             case PaletteFxCue.QueueSound queueSound:
                 soundRequests.Add(new SoundRequest(

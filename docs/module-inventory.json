@@ -262,11 +262,10 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Input",
       "role": "production",
-      "files": 10,
+      "files": 13,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
-        "csharp/src/SuperMetroid.Core/Compatibility",
-        "csharp/src/SuperMetroid.Core/Programs"
+        "csharp/src/SuperMetroid.Core/Compatibility"
       ]
     },
     {
@@ -721,7 +720,7 @@
     {
       "module": "csharp/src/SuperMetroid.Verification",
       "role": "verification",
-      "files": 2145,
+      "files": 2146,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -64122,19 +64121,6 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Input/DemoInputAnimations.cs",
-      "module": "csharp/src/SuperMetroid.Core/Input",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Input",
-      "layer": "Foundation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Programs"
-      ]
-    },
-    {
       "path": "csharp/src/SuperMetroid.Core/Input/DemoInputCue.cs",
       "module": "csharp/src/SuperMetroid.Core/Input",
       "role": "production",
@@ -64145,7 +64131,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Input/DemoInputFrame.cs",
+      "path": "csharp/src/SuperMetroid.Core/Input/DemoInputRecord.cs",
       "module": "csharp/src/SuperMetroid.Core/Input",
       "role": "production",
       "namespace": "SuperMetroid.Core.Input",
@@ -64155,7 +64141,17 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Input/DemoInputProgram.cs",
+      "path": "csharp/src/SuperMetroid.Core/Input/DemoInputRecordingId.cs",
+      "module": "csharp/src/SuperMetroid.Core/Input",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Input",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Input/DemoInputRecordings.cs",
       "module": "csharp/src/SuperMetroid.Core/Input",
       "role": "production",
       "namespace": "SuperMetroid.Core.Input",
@@ -64175,8 +64171,43 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
-        "csharp/src/SuperMetroid.Core/Compatibility",
-        "csharp/src/SuperMetroid.Core/Programs"
+        "csharp/src/SuperMetroid.Core/Compatibility"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Input/DemoPlaybackPosition.cs",
+      "module": "csharp/src/SuperMetroid.Core/Input",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Input",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Input/DemoRecording.cs",
+      "module": "csharp/src/SuperMetroid.Core/Input",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Input",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Input/DemoRecordingEnd.cs",
+      "module": "csharp/src/SuperMetroid.Core/Input",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Input",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core"
       ]
     },
     {
@@ -117409,12 +117440,23 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Frontend",
         "csharp/src/SuperMetroid.Core/Input",
-        "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Core/Runtime"
       ]
     },
     {
       "path": "csharp/src/SuperMetroid.Verification/Input/DemoInputNativeListAddressesEntry.cs",
+      "module": "csharp/src/SuperMetroid.Verification",
+      "role": "verification",
+      "namespace": "SuperMetroid.Verification.Input",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Input"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Verification/Input/DemoInputNativeLoopEntry.cs",
       "module": "csharp/src/SuperMetroid.Verification",
       "role": "verification",
       "namespace": "SuperMetroid.Verification.Input",
@@ -117436,7 +117478,6 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Input",
-        "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Diagnostics",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/Assertions",

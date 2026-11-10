@@ -103407,19 +103407,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Input.DemoInputAnimations",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Input/DemoInputAnimations.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Input.DemoInputCue",
       "kind": "enum",
       "scope": "product",
@@ -103433,30 +103420,43 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Input.DemoInputFrame",
+      "type": "SuperMetroid.Core.Input.DemoInputRecord",
       "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Input/DemoInputFrame.cs"
+        "csharp/src/SuperMetroid.Core/Input/DemoInputRecord.cs"
       ],
       "partial": "none",
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Input.DemoInputProgram",
+      "type": "SuperMetroid.Core.Input.DemoInputRecordingId",
       "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Input/DemoInputProgram.cs"
+        "csharp/src/SuperMetroid.Core/Input/DemoInputRecordingId.cs"
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Input.DemoInputRecordings",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Input/DemoInputRecordings.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Input.DemoInputRomData",
@@ -103582,6 +103582,84 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Input.DemoPlaybackPosition",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Input/DemoPlaybackPosition.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Input.DemoRecording",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Input/DemoRecording.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Input.DemoRecordingEnd",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Input/DemoRecordingEnd.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Input.DemoRecordingEnd.Loop",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Input/DemoRecordingEnd.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Input.DemoRecordingEnd.Signal",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Input/DemoRecordingEnd.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Input.DemoRecordingEnd.Stop",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Input/DemoRecordingEnd.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.IntegerQuantityAttribute",
@@ -165234,6 +165312,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Input/DemoInputNativeListAddressesEntry.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Verification.Input.DemoInputNativeLoopEntry",
+      "kind": "record struct",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Input/DemoInputNativeLoopEntry.cs"
       ],
       "partial": "none",
       "disposition": "value"

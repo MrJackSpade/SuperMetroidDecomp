@@ -9,10 +9,10 @@ internal enum DispatchRandomStep
     /// <summary>The per-line effects run first (lava swaps the generator's live bytes), then the generator advances.</summary>
     NonGameplayLineEffectsThenAdvance,
 
-    /// <summary>The generator advances unless the update resumes the dispatch inside its own frame wait.</summary>
-    AdvanceUnlessResumingWait,
-
-    /// <summary>The generator advances once before the dispatch.</summary>
+    /// <summary>
+    /// The generator advances once before the dispatch, except on an update that finishes a step waiting out a frame of
+    /// the display (<see cref="DisplayFrameWaitContinuation"/>).
+    /// </summary>
     Advance,
 
     /// <summary>The gameplay runtime advances it itself, or the state does not advance it.</summary>

@@ -13,7 +13,7 @@ internal sealed class RoomColourEffect
 {
     /// <summary>Starts <paramref name="effect"/> at the start of <paramref name="program"/>, due to step on its first turn.</summary>
     /// <param name="effect">What the effect shows.</param>
-    /// <param name="turn">Its turn in each update (<see cref="RoomPaletteFxSystem"/>).</param>
+    /// <param name="turn">Its turn in each update (<see cref="ColourEffectTurnOrder"/>).</param>
     /// <param name="program">The program it starts.</param>
     internal RoomColourEffect(PaletteFxObject effect, int turn, PaletteFxProgram program)
     {
@@ -27,7 +27,7 @@ internal sealed class RoomColourEffect
     /// <summary>What the effect shows.</summary>
     internal PaletteFxObject Effect { get; }
 
-    /// <summary>The effect's turn in each update: effects take their turns from the lowest up.</summary>
+    /// <summary>The effect's turn in each update: effects take their turns from the lowest up (<see cref="ColourEffectTurnOrder"/>).</summary>
     internal int Turn { get; }
 
     /// <summary>The colours the effect shows its records in; none until its program names them.</summary>

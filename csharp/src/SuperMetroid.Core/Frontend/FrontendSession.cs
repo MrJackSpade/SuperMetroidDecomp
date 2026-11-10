@@ -606,8 +606,8 @@ internal sealed class FrontendSession
     /// <summary>Selects what the game-data load loads.</summary>
     internal void RouteGameDataLoad(GameDataLoadRoute route) => LoadingRoute = route;
     /// <summary>
-    /// True when the next update continues the load's wait rather
-    /// than starting a new update of the loading phase, so the per-update random advance is absent.
+    /// True while the load waits out frames of the display: the next update continues that wait instead of starting a new
+    /// update of the loading phase (<see cref="DisplayFrameWaitContinuation"/>).
     /// </summary>
     internal bool ResumesGameLoadingWait => GameLoading.Resumes;
     /// <summary>The downward elevator's wait before destination loading resumes.</summary>

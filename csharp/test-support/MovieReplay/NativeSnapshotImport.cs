@@ -89,7 +89,7 @@ internal static class NativeSnapshotImport
         }
 
         // Each live native object becomes a running colour effect. The handler visits its objects from the last down, so
-        // the object in native position p takes turn (count - 1 - p) (RoomPaletteFxSystem's turn order); the effects the
+        // the object in native position p takes turn (count - 1 - p) (ColourEffectTurnOrder); the effects the
         // room load started are replaced by the recorded ones.
         var importedEffects = runtime.RoomPaletteFx.effects;
         importedEffects.Clear();

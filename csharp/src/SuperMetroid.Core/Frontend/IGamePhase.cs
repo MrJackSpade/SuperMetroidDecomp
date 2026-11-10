@@ -19,8 +19,11 @@ internal interface IGamePhase
     /// <summary>The state's current status for hosts and diagnostics.</summary>
     string Name { get; }
 
-    /// <summary>True when the next update continues this state's step that waits out a frame of the display, instead of starting a new update.</summary>
-    bool ResumesFrameWait { get; }
+    /// <summary>
+    /// True when this state's current step is waiting out a frame of the display, so the next update finishes it instead of
+    /// starting a new update (<see cref="DisplayFrameWaitContinuation"/>).
+    /// </summary>
+    bool IsWaitingOutDisplayFrame { get; }
 
     /// <summary>Runs one dispatch of the state.</summary>
     void Step(ControllerButton controllerInput, GameplayAudioFramePublication gameplayAudio);

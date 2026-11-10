@@ -56,7 +56,8 @@ internal static class GenericSpriteArtworkVerification
             SuperMetroid.AssetExtraction.Frontend.Title.TitleSpriteExtractor.MapSprites(reference);
         foreach (TitleSpriteFrame frame in document.Sprites)
         foreach (ushort x in new ushort[] { 0, 255, ushort.MaxValue })
-        foreach (ushort y in new ushort[] { 0, 1, 223, 255, ushort.MaxValue })
+        // Origins on the screen's lines; a part below the last line no longer comes round at the top (#1587).
+        foreach (ushort y in new ushort[] { 0, 1, 223 })
         {
             // The colouring the title draws the composition in, whose sprite set the cartridge oracle takes as its palette
             // bits; the sheet pictures each composition only as it is drawn (#1513).

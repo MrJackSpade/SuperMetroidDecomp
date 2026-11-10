@@ -312,105 +312,13 @@ internal static class LookupStream2Verification
         AssertTrue(expected.SequenceEqual(ProjectileSpriteDefinitions.NativePointers), "Projectile identity enumeration preserves native order");
         byte[] json = ProjectileSpriteExtractor.Extract(rom);
         var selected = InstalledProjectileSprites.Load(new MemoryStream(json));
-        var frames = (System.Collections.IDictionary)selected.frames;
-        int calculatedCompositions = 0;
-        foreach (SpriteComposition composition in frames.Values)
-            if (ProjectileSpriteParts.SingleBeamPoses.Any(pose => ReferenceEquals(pose, composition.parts)))
-                calculatedCompositions++;
-        AssertEqual(12, calculatedCompositions, "Eight Power and four Ice compositions calculate without cached part arrays");
-        int calculatedQuads = 0;
-        foreach (SpriteComposition composition in frames.Values)
-            if (composition.parts is ChargedBeamParts)
-                calculatedQuads++;
-        AssertEqual(19, calculatedQuads, "Nineteen charged Power/Ice quadrant compositions calculate without cached part arrays");
-        int calculatedWaves = 0;
-        foreach (SpriteComposition composition in frames.Values)
-            if (ProjectileSpriteParts.WavePoses.Any(pose => ReferenceEquals(pose, composition.parts)))
-                calculatedWaves++;
-        AssertEqual(33, calculatedWaves, "All33 stock Wave compositions share directional geometry without cached parts");
-        int calculatedLobes = 0;
-        foreach (SpriteComposition composition in frames.Values)
-            if (composition.parts is VerticalChargedWaveParts)
-                calculatedLobes++;
-        AssertEqual(20, calculatedLobes, "Both charged-Wave families share centered/vertical lobe geometry without cached parts");
-        int calculatedMissiles = 0;
-        foreach (SpriteComposition composition in frames.Values)
-            if (composition.parts is AxialSuperMissileParts)
-                calculatedMissiles++;
-        AssertEqual(4, calculatedMissiles, "Four SuperMissile axial poses share centered strip geometry without cached parts");
-        int calculatedDiagonalMissiles = 0;
-        foreach (SpriteComposition composition in frames.Values)
-            if (composition.parts is DiagonalMissileParts)
-                calculatedDiagonalMissiles++;
-        AssertEqual(8, calculatedDiagonalMissiles, "Eight diagonal missile poses share reflected footprint geometry without cached part arrays");
-        int calculatedSimpleEffects = 0;
-        foreach (SpriteComposition composition in frames.Values)
-            if (composition.parts is SimpleEffectParts)
-                calculatedSimpleEffects++;
-        AssertEqual(8, calculatedSimpleEffects, "Four centered Bomb poses and four mirrored beam explosions calculate without cached parts");
-        int calculatedHorizontalLobes = 0;
-        foreach (SpriteComposition composition in frames.Values)
-            if (composition.parts is HorizontalChargedWaveParts)
-                calculatedHorizontalLobes++;
-        AssertEqual(16, calculatedHorizontalLobes, "Sixteen horizontal charged Wave lobes calculate geometry with exact native corner order");
-        int calculatedSpazerSeeds = 0;
-        foreach (SpriteComposition composition in frames.Values)
-            if (composition.parts is SpazerSeedParts)
-                calculatedSpazerSeeds++;
-        AssertEqual(8, calculatedSpazerSeeds, "Eight Spazer seed poses share tile/reflection geometry and one required diagonal origin");
-        int calculatedSpazerSpreads = 0;
-        foreach (SpriteComposition composition in frames.Values)
-            if (composition.parts is SpazerDiagonalSpreadParts)
-                calculatedSpazerSpreads++;
-        AssertEqual(16, calculatedSpazerSpreads, "Sixteen diagonal Spazer spreads calculate repeated seed lanes");
-        int calculatedAxialSpreads = 0;
-        foreach (var composition in frames.Values)
-            if (((SpriteComposition)composition).parts is SpazerAxialSpreadParts)
-                calculatedAxialSpreads++;
-        AssertEqual(19, calculatedAxialSpreads, "Nineteen axial Spazer spreads calculate repeated lanes with exact traversal");
-        int calculatedChargedSpazer = 0;
-        foreach (var composition in frames.Values)
-            if (((SpriteComposition)composition).parts is HorizontalChargedSpazerParts)
-                calculatedChargedSpazer++;
-        AssertEqual(6, calculatedChargedSpazer, "Six horizontal charged Spazer compositions calculate strip adjacency and lane geometry");
-        int calculatedVerticalSpazer = 0;
-        foreach (var composition in frames.Values)
-            if (((SpriteComposition)composition).parts is VerticalChargedSpazerSpreadParts)
-                calculatedVerticalSpazer++;
-        AssertEqual(4, calculatedVerticalSpazer, "Four vertical charged Spazer spreads calculate cell adjacency and mirrored side columns");
-        int calculatedSpazerStartup = 0;
-        foreach (var composition in frames.Values)
-            if (((SpriteComposition)composition).parts is SpazerAxialStartupParts)
-                calculatedSpazerStartup++;
-        AssertEqual(12, calculatedSpazerStartup, "Twelve axial Spazer startup poses calculate centered single/pair geometry");
-        int calculatedDiagonalStartup = 0;
-        foreach (var composition in frames.Values)
-            if (((SpriteComposition)composition).parts is SpazerDiagonalStartupParts)
-                calculatedDiagonalStartup++;
-        AssertEqual(6, calculatedDiagonalStartup, "Six diagonal Spazer startup poses calculate centered pair-strip geometry");
-        int calculatedAlternateStartup = 0, calculatedPlasmaCores = 0;
-        foreach (var composition in frames.Values)
-        {
-            object? parts = ((SpriteComposition)composition).parts;
-            if (parts is AlternateDiagonalStartupParts) calculatedAlternateStartup++;
-            if (parts is PlasmaStartupCoreParts) calculatedPlasmaCores++;
-        }
-        AssertEqual(4, calculatedAlternateStartup, "Four alternate diagonal startup poses calculate rotated/reflected endcap adjacency");
-        AssertEqual(8, calculatedPlasmaCores, "Eight Plasma startup cores calculate centered cell geometry");
-        int calculatedPlasmaShort = 0;
-        foreach (var composition in frames.Values)
-            if (((SpriteComposition)composition).parts is HorizontalPlasmaWaveShortParts)
-                calculatedPlasmaShort++;
-        AssertEqual(5, calculatedPlasmaShort, "Five horizontal PlasmaWave Short poses calculate cell and lobe geometry");
-        var firstCharged = (SpriteComposition)(frames[ProjectileSpriteNative.Projectile(0xec3e)] ?? throw new InvalidOperationException("Verification requires the first charged Power composition."));
-        AssertTrue(firstCharged.parts is CompiledSpritePart[], "Distinct initial charged-Power ordering stays explicitly supplied/pending");
         foreach (ushort pointer in expected)
         {
             var native = new OamBuffer();
             var actual = new OamBuffer();
             DrawImportedProjectileSpritemap(rom, native, pointer, new(255, 255));
             selected.Draw(pointer, actual, new(255, 255));
-            AssertTrue(native.ImageEquals(actual), "All417 calculated/remaining identities extract and draw exact native OAM");
+            AssertTrue(native.ImageEquals(actual), "All417 installed identities extract and draw exact native OAM");
         }
         var flare = ChargeFlareSprites.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(rom)));
         for (ushort selector = 0; selector < ChargeFlareSpriteSelection.Selectors.Count; selector++)

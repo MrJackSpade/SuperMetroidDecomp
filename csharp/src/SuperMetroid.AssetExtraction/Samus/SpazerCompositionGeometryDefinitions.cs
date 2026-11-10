@@ -1,13 +1,6 @@
-using SuperMetroid.Core.Spatial;
-
 namespace SuperMetroid.AssetExtraction.Samus;
 
-/// <summary>Shared native Spazer composition coordinates for sprite geometry and tile rasterization.</summary>
-/// <remarks>
-/// Diagonal origins remain required source inputs under InstalledProjectileSprites.frames
-/// in issue1165. Sharing them does not derive or exempt them. Tile-mask consumers must
-/// not independently infer these origins from the same mask they generate with them.
-/// </remarks>
+/// <summary>Native Spazer composition coordinates the beam tile rasterization places its strips by.</summary>
 internal static class SpazerCompositionGeometryDefinitions
 {
     /// <summary>$93:D10E/D6EA/D842 use small8x8 OBJ cells in the ordinary gameplay size mode.</summary>
@@ -24,18 +17,4 @@ internal static class SpazerCompositionGeometryDefinitions
 
     /// <summary>$93:D6EE/D846: horizontal tile30 has Y=-4, centering its8px cell on the projectile. Painted rows3/4 have pixel centers-0.5/+0.5.</summary>
     internal const int HorizontalStripOriginY = -TileSize / 2;
-
-    /// <summary>$93:D10E..D842: how each seed direction mirrors its cells.</summary>
-    internal static readonly IReadOnlyDictionary<SpazerSeedDirection, TileFlip> SeedFlips =
-        new Dictionary<SpazerSeedDirection, TileFlip>
-        {
-            [SpazerSeedDirection.UpRight] = TileFlip.Horizontal,
-            [SpazerSeedDirection.DownRight] = TileFlip.Horizontal | TileFlip.Vertical,
-            [SpazerSeedDirection.DownLeft] = TileFlip.Vertical,
-            [SpazerSeedDirection.UpLeft] = TileFlip.None,
-            [SpazerSeedDirection.Down] = TileFlip.Vertical,
-            [SpazerSeedDirection.Left] = TileFlip.None,
-            [SpazerSeedDirection.Up] = TileFlip.None,
-            [SpazerSeedDirection.Right] = TileFlip.Horizontal,
-        };
 }

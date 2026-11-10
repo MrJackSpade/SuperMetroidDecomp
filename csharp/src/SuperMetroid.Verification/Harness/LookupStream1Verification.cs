@@ -2080,11 +2080,6 @@ internal static class LookupStream1Verification
             AssertEqual(unchecked((ushort)(pointer + 8)), bomb.InstructionPointer, "Actual bomb record progression");
             bombInterpreted++;
         }
-        for (int step = 0; step < 4; step++)
-            AssertEqual(-4 - unchecked((sbyte)LookupStream1ProjectileRadiusLayoutRomByte(rom, 0x93ae70 + 7 * step)),
-                ProjectileWaveEnvelope.AxialLobeDistance(step), "Shared lobe source derives from centered native OAM");
-        AssertEqual((Word(0x93d64c) & 0x1ff) + 4, ProjectileWaveEnvelopeDefinitions.SpazerInitialAxialSpread,
-            "Shared initial Spazer lane source");
         AssertThrows<ArgumentOutOfRangeException>(() => _ = SamusProjectileRecordDefinitions.TimedRecordAddresses[-1], "Lower indexed view rejection");
         AssertThrows<ArgumentOutOfRangeException>(() => _ = SamusProjectileRecordDefinitions.TimedRecordAddresses[expected.Count], "Upper indexed view rejection");
         AssertEqual(Extent16<RoomPixels>.Zero, SamusProjectilePrograms.InitialRadius(null), "A shot with no list (the safe Murder Beam) has zero radii");

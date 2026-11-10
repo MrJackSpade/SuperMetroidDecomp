@@ -42,7 +42,9 @@ internal static class GrappleSheetComposer
         Ensure.NotNull(inputs);
         GrappleTileAtlas tiles = inputs.Projectiles.GrappleTiles;
         var frames = new List<SheetFrameSource>();
-        SpritePart endpoint = tiles.Sprites?.Endpoint ?? GrappleSpriteDefinitions.StockEndpoint;
+        InstalledGrappleSprites sprites = tiles.Sprites
+            ?? throw new InvalidDataException("The grapple sheet is composed from the installed grapple sprites, which were not loaded.");
+        SpritePart endpoint = sprites.Endpoint;
         if (endpoint.Character is >= FirstRopeCharacter and <= LastRopeCharacter)
             throw new InvalidDataException($"The grapple endpoint names rope character ${endpoint.Character:X3}, which its orientation selects.");
         for (int point = 0; point < EndpointFrameCount; point++)
@@ -55,7 +57,7 @@ internal static class GrappleSheetComposer
             SpriteArtwork page = tiles.OnStandardObjects(inputs.StandardObjects, 0, orientation);
             for (int segment = 0; segment < GrappleSpriteDefinitions.SegmentFrameCount; segment++)
             {
-                SpritePart appearance = tiles.Sprites?.Segment(segment) ?? GrappleSpriteDefinitions.StockSegment(segment);
+                SpritePart appearance = sprites.Segment(segment);
                 if (appearance.Character == EndpointCharacter)
                     throw new InvalidDataException($"Grapple rope segment {segment} names the endpoint's character, which its animation selects.");
                 foreach (SpriteMirror mirror in RopeMirrors)

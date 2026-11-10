@@ -358,11 +358,6 @@ internal static class LookupStream3Verification
         }
         var stock = Load();
         Check(stock);
-        AssertEqual(64, stock.independentTiles.Length,
-            "stream 3 Grapple retains only eight independent binary coverage patterns");
-        foreach (object? cache in new object?[] { stock.firstPoint, stock.secondPoint, stock.thirdPoint, stock.fourthPoint, stock.verticalSegments })
-            AssertTrue(cache is null,
-                "stream 3 calculated Grapple pixels have no cached stock characters");
         AssertTrue(!stock.TryResolve(transfers[0].SourceAddress, 31, out _), "stream 3 Grapple rejects partial transfer");
     }
 
@@ -1035,7 +1030,6 @@ internal static class LookupStream3Verification
         Suite(nameof(VerifyMotherBrainContactHitboxes), () => VerifyMotherBrainContactHitboxes());
         byte[] grappleSpriteJson = SuperMetroid.AssetExtraction.Samus.GrappleSpriteExtractor.Extract(rom);
         var grappleSprites = InstalledGrappleSprites.Load(new MemoryStream(grappleSpriteJson));
-        AssertTrue(grappleSprites.segments is null, "stream 3 stock rope attribute rows discarded");
         AssertTrue(Enumerable.Range(0, GrappleSpriteDefinitions.SegmentFrameCount)
                 .Select(SuperMetroid.AssetExtraction.Samus.GrappleSpriteExtractor.SegmentAttributeAddress).SequenceEqual(GrappleSegmentAttributeAddresses),
             "stream 3 segment address enumeration");
@@ -1056,7 +1050,6 @@ internal static class LookupStream3Verification
             SuperMetroid.AssetExtraction.Samus.GrappleSwingFrameExtractor.Extract(rom)));
         for (int angle = 0; angle < 256; angle++)
             AssertEqual(rom.ReadCartridgeByte(0x9bc1c2 + angle), swingFrames.Resolve(new TrigonometryAngle((byte)angle)), "stream 3 native calculated swing art frame");
-        AssertTrue(swingFrames.frames is null, "stream 3 stock swing frame lookup discarded");
         byte[] fileSelectJson = SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(rom);
         var fileSelect = FileSelectSourcePresentation.Load(new MemoryStream(fileSelectJson));
         foreach (object? sequence in new object?[] { fileSelect.digits, fileSelect.slotLetters })

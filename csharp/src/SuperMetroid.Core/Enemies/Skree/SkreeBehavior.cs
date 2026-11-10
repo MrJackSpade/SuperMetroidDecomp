@@ -126,7 +126,6 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (--state.BurrowTimer == 0)
         {
-            slot.Shading = EnemyShades.InProjectileLook;
             slot.Presence = slot.Presence.With(EnemyPresence.Deleted);
             return;
         }

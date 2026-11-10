@@ -177,12 +177,11 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
                 : -MetareeHorizontalDiveSpeed));
     }
 
-    /// <summary>Moves down one pixel per burrow frame, emits debris at timer eight, then shows the enemy projectile colours and deletes the actor.</summary>
+    /// <summary>Moves down one pixel per burrow frame, emits debris at timer eight, then deletes the actor.</summary>
     private void RunMetareeBurrow(RoomEnemySlot slot, MetareeEnemyState state)
     {
         if (--state.BurrowTimer == 0)
         {
-            slot.Shading = EnemyShades.InProjectileLook;
             slot.Presence = slot.Presence.With(EnemyPresence.Deleted);
             return;
         }

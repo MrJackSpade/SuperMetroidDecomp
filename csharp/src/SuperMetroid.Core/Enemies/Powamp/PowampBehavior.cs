@@ -337,7 +337,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         // the projectile pool selects.
         balloon.Slot.Health = 0;
         balloon.Slot.Presence = balloon.Slot.Presence.With(EnemyPresence.Deleted);
-        int? lastSpikePlace = SpawnPowampSpikeBurst(body);
+        int? lastSpikePlace = SpawnPowampSpikeBurst(body, body.Shading);
         _deathsAndDrops.StartGenericEnemyDeath(body,
             EnemyDeathExplosions.ForLeftoverNumber(PowampBurstExplosion.AuthoredExplosionAfter(lastSpikePlace)));
     }
@@ -345,15 +345,15 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Resolves the body-only private tail of a Powamp's touch.</summary>
     private void ResolvePowampTouch(RoomEnemySlot body, SamusState samus)
     {
-        PictureShading originalShading = body.Shading;
+        // The spikes take the body's colours from before the touch, which may change them.
+        PictureShading lookBeforeTouch = body.Shading;
         _collision.ResolveNormalEnemyTouch(body, samus);
         if (body.Health != 0)
             return;
 
         PowampBalloon balloon = RequirePowampBalloon(body);
         balloon.Slot.Presence = balloon.Slot.Presence.With(EnemyPresence.Deleted);
-        body.Shading = originalShading;
-        SpawnPowampSpikeBurst(body);
+        SpawnPowampSpikeBurst(body, lookBeforeTouch);
         body.Shading = EnemyShades.InProjectileLook;
     }
 
@@ -571,12 +571,14 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
                     ResolvePowampTouch(context.Slot, context.Samus);
             });
     }
-    /// <summary>Fires the Powamp's spikes in eight directions.</summary>
+    /// <summary>Fires the Powamp's spikes in eight directions, drawn in <paramref name="look"/>.</summary>
+    /// <param name="body">The Powamp firing them.</param>
+    /// <param name="look">The colours the spikes are drawn in.</param>
     /// <returns>
     /// The projectile pool place of the last spike the burst fired, which selects a shot Powamp's explosion
     /// (<see cref="PowampBurstExplosion"/>), or null when the pool was full before all eight had fired.
     /// </returns>
-    internal int? SpawnPowampSpikeBurst(RoomEnemySlot body)
+    internal int? SpawnPowampSpikeBurst(RoomEnemySlot body, PictureShading look)
     {
         int? lastSpikePlace = null;
         // The spike loop counts from seven down to zero. Allocation independently searches the
@@ -594,7 +596,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 spike,
                 RoomEnemyProjectileKind.PowampSpike,
-                SpriteGraphics.SpawnedBy(body));
+                SpriteGraphics.SpawnedBy(body).In(look));
             spike.Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole);
             spike.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
             spike.State = new PowampSpikeState(direction);

@@ -904,9 +904,9 @@ internal static class PaletteFxInstructionCodesVerification
             }
             if (frame == 16)
             {
-                AssertEqual(1, paletteFxSession.SamusInHeatPaletteIndex,
+                AssertEqual(new HeatPhase(1), paletteFxSession.PublishedHeatPhase,
                     "$F785 publishes its second heat phase on its own slot pass");
-                AssertEqual(0, paletteFxSession.PreviousSamusInHeatPaletteIndex,
+                AssertEqual(HeatPhase.First, paletteFxSession.ShimmerHeatPhase,
                     "shared heat owner has not consumed the later slot's phase in the same frame");
             }
         }
@@ -915,7 +915,7 @@ internal static class PaletteFxInstructionCodesVerification
             "retail Norfair heat owner carries quarter-units into whole damage");
         AssertEqual(0x4000, samus.LiquidPhysics.PendingPeriodicDamage.Fraction,
             "retail Norfair heat owner retains exact 16.16 fractional carry");
-        AssertEqual(1, paletteFxSession.PreviousSamusInHeatPaletteIndex,
+        AssertEqual(new HeatPhase(1), paletteFxSession.ShimmerHeatPhase,
             "shared heat owner consumes $F785 phase on following frame");
         AssertEqual(2, damageSoundCount,
             "retail Norfair heat owner publishes on frame-eight boundaries");
@@ -1647,7 +1647,7 @@ internal static class PaletteFxInstructionCodesVerification
     {
         var cgram = new SnesCgram();
         PaletteFxColours[] groups = Enum.GetValues<PaletteFxColours>();
-        PaletteFxFrame?[] before = [.. groups.Select(fx.RecordOf)];
+        PaletteFxFrame?[] before = [.. groups.Select(fx.FrameOf)];
         fx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
         foreach ((PaletteFxColours group, PaletteFxFrame record) in fx.Shown)
         {
@@ -1672,11 +1672,11 @@ internal static class PaletteFxInstructionCodesVerification
     private static void StepShowing(RoomPaletteFxSystem fx, SuperMetroid.AssetExtraction.Fx.Artwork.IPaletteFxColorSource colours, SnesCgram cgram)
     {
         PaletteFxColours[] groups = Enum.GetValues<PaletteFxColours>();
-        PaletteFxFrame?[] before = [.. groups.Select(fx.RecordOf)];
+        PaletteFxFrame?[] before = [.. groups.Select(fx.FrameOf)];
         fx.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
         for (int index = 0; index < groups.Length; index++)
         {
-            if (fx.RecordOf(groups[index]) is { } record && record != before[index])
+            if (fx.FrameOf(groups[index]) is { } record && record != before[index])
                 PaletteFxRoomLook.LayRecord(cgram, groups[index], record, colours);
         }
     }

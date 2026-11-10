@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Fx;
+using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
 
@@ -55,7 +56,7 @@ internal static class PaletteFxNativeProgramOracle
             var step = steps[index];
             if (cursor != entry && byEntry.TryGetValue(cursor, out PaletteFxProgram next))
             {
-                var fallInto = VerificationAssertions.AssertIs<AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.FallIntoStep>(step, $"{at}: runs on into the next authored list");
+                var fallInto = VerificationAssertions.AssertIs<AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.FallIntoStep>(step, $"{at}: runs on into the next authored list");
                 VerificationAssertions.AssertEqual(next, fallInto.Target, $"{at}: fall-through target");
                 VerificationAssertions.AssertEqual(steps.Count, index + 1, $"{at}: the fall-through ends the program");
                 return addresses;
@@ -63,10 +64,12 @@ internal static class PaletteFxNativeProgramOracle
             ushort word = Word(cursor);
             if (word < PaletteFxListWords.CommandWord)
             {
-                var show = VerificationAssertions.AssertIs<AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.ShowStep>(step, $"{at}: timed record");
+                var show = VerificationAssertions.AssertIs<AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.ShowStep>(step, $"{at}: timed record");
                 VerificationAssertions.AssertEqual(word, show.Duration, $"{at}: duration");
-                VerificationAssertions.AssertEqual(cursor, PaletteFxColorLayoutAccess.RecordAddress(show.Frame), $"{at}: record address");
-                cursor = CompareLayout(cursor, PaletteFxRecordDefinitions.Layout(show.Frame), at);
+                // The frame's record, numbered by the programs' order of frames, lies where the native list shows it (#1598).
+                PaletteFxRecord record = PaletteFxRecord.Of(new PaletteFxFrame(program, show.Frame));
+                VerificationAssertions.AssertEqual(cursor, PaletteFxColorLayoutAccess.RecordAddress(record), $"{at}: record address");
+                cursor = CompareLayout(cursor, PaletteFxRecordDefinitions.Layout(record), at);
                 continue;
             }
             PaletteFxInstruction instruction = (PaletteFxInstruction)word;
@@ -75,23 +78,23 @@ internal static class PaletteFxNativeProgramOracle
             switch (instruction)
             {
                 case PaletteFxInstruction.Goto:
-                    var goTo = VerificationAssertions.AssertIs<AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.GoToStep>(step, $"{at}: goto");
+                    var goTo = VerificationAssertions.AssertIs<AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.GoToStep>(step, $"{at}: goto");
                     VerificationAssertions.AssertEqual(byEntry[PastDeletedInspection(operandWord)], goTo.Target, $"{at}: goto target");
                     VerificationAssertions.AssertEqual(steps.Count, index + 1, $"{at}: the goto ends the program");
                     return addresses;
                 case PaletteFxInstruction.Delete:
-                    VerificationAssertions.AssertTrue(step is AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.StopStep, $"{at}: delete");
+                    VerificationAssertions.AssertTrue(step is AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.StopStep, $"{at}: delete");
                     VerificationAssertions.AssertEqual(steps.Count, index + 1, $"{at}: the delete ends the program");
                     return addresses;
                 case PaletteFxInstruction.DecrementTimerAndGoto:
-                    var repeat = VerificationAssertions.AssertIs<AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.RepeatWhileCountingStep>(step, $"{at}: counted repeat");
+                    var repeat = VerificationAssertions.AssertIs<AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.RepeatWhileCountingStep>(step, $"{at}: counted repeat");
                     VerificationAssertions.AssertEqual(byEntry[PastDeletedInspection(operandWord)], repeat.Target, $"{at}: repeat target");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case PaletteFxInstruction.SetTimer:
                     // The native command writes only the timer's low byte; its high byte is zero from spawn and every
                     // counted loop runs it down to zero, so the typed counter set is the same.
-                    var setCounter = VerificationAssertions.AssertIs<AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.SetCounterStep>(step, $"{at}: timer");
+                    var setCounter = VerificationAssertions.AssertIs<AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.SetCounterStep>(step, $"{at}: timer");
                     VerificationAssertions.AssertEqual(operandByte, setCounter.Count, $"{at}: timer count");
                     cursor = unchecked((ushort)(cursor + 3));
                     continue;
@@ -99,7 +102,7 @@ internal static class PaletteFxNativeProgramOracle
                     // The native operand is a CGRAM byte index; the typed cue names the colour group, which must be
                     // placed where the operand starts.
                     VerificationAssertions.AssertTrue(operandWord % sizeof(ushort) == 0, $"{at}: colour byte index is word-aligned");
-                    var colourCue = VerificationAssertions.AssertIs<AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.CueStep>(step, $"{at}: command");
+                    var colourCue = VerificationAssertions.AssertIs<AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.CueStep>(step, $"{at}: command");
                     var setColours = VerificationAssertions.AssertIs<PaletteFxCue.SetColours>(colourCue.Cue, $"{at}: colours cue");
                     VerificationAssertions.AssertEqual(operandWord / sizeof(ushort), setColours.Target.CartridgeColour,
                         $"{at}: {setColours.Target} starts at the native colour");
@@ -113,7 +116,7 @@ internal static class PaletteFxNativeProgramOracle
                 case PaletteFxInstruction.ClearFrameBehavior:
                     throw new InvalidDataException($"{at}: the native list clears its pre-instruction, which no colour effect's program does.");
                 case PaletteFxInstruction.SetPaletteFxIndex:
-                    AssertCue(step, new PaletteFxCue.SetHeatPaletteIndex(HeatPhase: operandByte), at);
+                    AssertCue(step, new PaletteFxCue.PublishHeatPhase(new HeatPhase(operandByte)), at);
                     cursor = unchecked((ushort)(cursor + 3));
                     continue;
                 case PaletteFxInstruction.QueueSfx2:
@@ -194,9 +197,9 @@ internal static class PaletteFxNativeProgramOracle
     }
 
     /// <summary>Checks that <paramref name="step"/> publishes <paramref name="expected"/>.</summary>
-    private static void AssertCue(AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue> step, PaletteFxCue expected, string at)
+    private static void AssertCue(AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue> step, PaletteFxCue expected, string at)
     {
-        var cueStep = VerificationAssertions.AssertIs<AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.CueStep>(step, $"{at}: command");
+        var cueStep = VerificationAssertions.AssertIs<AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.CueStep>(step, $"{at}: command");
         VerificationAssertions.AssertEqual(expected, cueStep.Cue, $"{at}: cue");
     }
 }

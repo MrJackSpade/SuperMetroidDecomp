@@ -21,11 +21,11 @@ internal static class PaletteFxColorAddressAccess
         var keys = new Dictionary<ushort, PaletteFxColorKey>();
         for (int record = 0; record < PaletteFxRecordSourcesConstants.RecordCount; record++)
         {
-            var frame = new PaletteFxFrame(record);
-            int colors = PaletteFxRecordDefinitions.Layout(frame).Where(part => !part.Skip).Sum(part => part.Count);
+            var shown = new PaletteFxRecord(record);
+            int colors = PaletteFxRecordDefinitions.Layout(shown).Where(part => !part.Skip).Sum(part => part.Count);
             for (int color = 0; color < colors; color++)
             {
-                var key = new PaletteFxColorKey(frame, color);
+                var key = new PaletteFxColorKey(shown, color);
                 keys.Add(PaletteFxRecordSources.ColorAddress(key), key);
             }
         }

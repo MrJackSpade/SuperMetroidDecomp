@@ -1,10 +1,9 @@
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>
-/// The import's palette write layout of the palette-FX programs (#1298, #1526): each <see cref="PaletteFxFrame"/>
-/// record's runs of written colours and skipped colour entries, which the import reads to locate each record's colours
+/// The import's palette write layout of the palette-FX programs (#1298, #1526): each <see cref="PaletteFxRecord"/>'s runs of written colours and skipped colour entries, which the import reads to locate each record's colours
 /// and to lay its shade over the inks its group recolours. The import keys the installed colours by
 /// <see cref="SuperMetroid.AssetExtraction.Fx.PaletteFx.PaletteFxColorKey"/>; the game sees only their shades (#1583). The palette-FX program checks compare each layout with the original records.
 /// </summary>
@@ -684,6 +683,6 @@ internal static class PaletteFxRecordDefinitions
         [new(false, 5)],
     ];
 
-    /// <summary>How <paramref name="frame"/> writes its colours.</summary>
-    internal static IReadOnlyList<PaletteFxRecordPart> Layout(PaletteFxFrame frame) => Layouts[RecordLayouts[frame.Record]];
+    /// <summary>How <paramref name="record"/> writes its colours.</summary>
+    internal static IReadOnlyList<PaletteFxRecordPart> Layout(PaletteFxRecord record) => Layouts[RecordLayouts[record.Record]];
 }

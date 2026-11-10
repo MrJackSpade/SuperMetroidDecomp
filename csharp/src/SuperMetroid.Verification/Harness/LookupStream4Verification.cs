@@ -263,7 +263,7 @@ internal static class LookupStream4Verification
                 var rows = program.Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight
                     ? document.BabyMetroidTubeLight : document.FlickeringDisplays;
                 int frame = tick / program.FrameDuration % program.FrameCount;
-                PaletteFxFrame record = fx.RecordOf(program.Colours)
+                PaletteFxFrame record = fx.FrameOf(program.Colours)
                     ?? throw new InvalidOperationException($"{program.Colours} shows no record on tick {tick}.");
                 RgbColor[] shown = PaletteFxRecordShades.Shade(program.Colours, record, new InkRange(0, int.MaxValue), selected).Colours;
                 for (int index = 0; index < program.ColorsPerFrame; index++)

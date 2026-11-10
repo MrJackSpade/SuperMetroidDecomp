@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.Fx;
@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 internal static class PaletteFxRecordSourceDefinitions
 {
     /// <summary>Each record, by the bank-$8D address of its timer word; its colour words follow it.</summary>
-    internal static IReadOnlyDictionary<ushort, PaletteFxFrame> ByAddress { get; } = new Dictionary<ushort, PaletteFxFrame>
+    internal static IReadOnlyDictionary<ushort, PaletteFxRecord> ByAddress { get; } = new Dictionary<ushort, PaletteFxRecord>
     {
         [0xc69a] = new(0),
         [0xc6bc] = new(1),

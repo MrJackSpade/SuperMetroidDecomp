@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Runtime;
 internal sealed class GameplayAudioFramePublication(AudioQueues audio)
 {
     /// <summary>Per-producer cursors prevent replaying requests when prefix publication runs more than once.</summary>
-    private int roomSounds, paletteSounds, paletteMusic, liquidSounds;
+    private int roomSounds, paletteSounds, liquidSounds;
     /// <summary>Prevents a HUD selection request from being queued twice in the same frontend step.</summary>
     private bool selectionPublished;
 
@@ -30,12 +30,6 @@ internal sealed class GameplayAudioFramePublication(AudioQueues audio)
         {
             var request = palette[paletteSounds++];
             audio.QueueSound(request);
-        }
-        var music = runtime.Room.LoadedScope.PaletteFx.MusicRequests;
-        while (paletteMusic < music.Count)
-        {
-            var request = music[paletteMusic++];
-            audio.ScheduleMusic(request.Request, request.Delay);
         }
         if (runtime.Player.Samus is not { } samus)
             return;

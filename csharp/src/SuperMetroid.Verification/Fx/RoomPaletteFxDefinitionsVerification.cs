@@ -131,7 +131,7 @@ internal static class RoomPaletteFxDefinitionsVerification
             "with fixed metadata reads forbidden.");
     }
 
-    /// <summary>Checks each definition's started effect: its identity, first turn, countdown, condition and initial program.</summary>
+    /// <summary>Checks each definition's started effect: its identity, countdown, condition and initial program.</summary>
     internal static void VerifyPaletteFxDispatchSpawns(IEnumerable<ushort> pointers)
     {
         foreach (ushort pointer in pointers)
@@ -142,8 +142,6 @@ internal static class RoomPaletteFxDefinitionsVerification
             system.Start(pointer, equippedItems: 0);
             RoomColourEffect effect = ActiveColourEffect(system);
             AssertEqual(pointer, effect.Id, $"${pointer:X4} production ID");
-            // The first effect started takes the first turn, the native handler's highest object.
-            AssertEqual(0, effect.Turn, $"${pointer:X4} production turn");
             AssertEqual(1, effect.UpdatesUntilNextStep,
                 $"${pointer:X4} production countdown");
             // Every native start installs a pre-instruction that does nothing, the intro's included: no condition.
@@ -159,9 +157,9 @@ internal static class RoomPaletteFxDefinitionsVerification
     }
 
     /// <summary>
-    /// Checks the colour effects' turn order (#1554): effects take turns in the order they started, an effect started
-    /// after another ended takes the ended effect's turn and so shows before the effects started after it, and a start
-    /// while all eight turns are held is rejected.
+    /// Checks the colour effects' turn order (#1554, #1598): effects take turns in the order they started, an effect that
+    /// ends leaves the turns, an effect started later joins after every running effect, and any number of effects run at
+    /// once.
     /// </summary>
     internal static void VerifyColourEffectTurnOrder()
     {
@@ -170,7 +168,9 @@ internal static class RoomPaletteFxDefinitionsVerification
         system.Start(PaletteFxObject.TitleScreenFlickeringDisplays, 0);
         system.Start(PaletteFxObject.FadeInSuperMetroidTitleLogo, 0);
         system.Start(PaletteFxObject.TitleScreenBabyMetroidTubeLight, 0);
-        AssertTrue(system.effects.Select(effect => effect.Turn).SequenceEqual([0, 1, 2]), "effects take turns in start order");
+        AssertTrue(system.effects.Select(effect => effect.Effect).SequenceEqual(
+            [PaletteFxObject.TitleScreenFlickeringDisplays, PaletteFxObject.FadeInSuperMetroidTitleLogo, PaletteFxObject.TitleScreenBabyMetroidTubeLight]),
+            "effects take turns in start order");
 
         // The title logo's fade ends by itself; the loops keep running.
         int updates = 0;
@@ -179,27 +179,28 @@ internal static class RoomPaletteFxDefinitionsVerification
             AssertTrue(++updates <= 64, "the title logo's fade ends");
             system.StepScreen(conditions);
         }
-        AssertTrue(system.effects.Select(effect => effect.Turn).SequenceEqual([0, 2]), "an ended effect leaves its turn free");
+        AssertTrue(system.effects.Select(effect => effect.Effect).SequenceEqual(
+            [PaletteFxObject.TitleScreenFlickeringDisplays, PaletteFxObject.TitleScreenBabyMetroidTubeLight]),
+            "an ended effect leaves the turns");
 
         system.Start(PaletteFxObject.FadeInNintendoCopyright, 0);
         AssertTrue(system.effects.Select(effect => effect.Effect).SequenceEqual(
-            [PaletteFxObject.TitleScreenFlickeringDisplays, PaletteFxObject.FadeInNintendoCopyright, PaletteFxObject.TitleScreenBabyMetroidTubeLight]),
-            "a later start takes the lowest free turn");
+            [PaletteFxObject.TitleScreenFlickeringDisplays, PaletteFxObject.TitleScreenBabyMetroidTubeLight, PaletteFxObject.FadeInNintendoCopyright]),
+            "a later start joins after every running effect");
         system.StepScreen(conditions);
         PaletteFxColours[] shown = [.. system.Shown.Select(record => record.Colours)];
         // The title logo's fade ran to its end, so its final look lies under every running effect (#1597).
         AssertTrue(shown.SequenceEqual([PaletteFxColours.TitleLogo, PaletteFxColours.TitleScreenDisplays,
-                PaletteFxColours.NintendoCopyright, PaletteFxColours.BabyMetroidTubeLight]),
-            "the settled logo lies first, then the copyright's first record shows after the displays' turn and before the tube light's");
-        AssertEqual<PaletteFxFrame?>(PaletteFxColorFrames.Of(PaletteFxProgram.CommonFadeInLogo, colorsPerFrame: 1).Frame(0),
-            system.RecordOf(PaletteFxColours.NintendoCopyright), "the copyright shows its first record on its first turn");
+                PaletteFxColours.BabyMetroidTubeLight, PaletteFxColours.NintendoCopyright]),
+            "the settled logo lies first, then the running effects' records in the order they started");
+        AssertEqual<PaletteFxFrame?>(new PaletteFxFrame(PaletteFxProgram.CommonFadeInLogo, 0),
+            system.FrameOf(PaletteFxColours.NintendoCopyright), "the copyright shows its first frame on its first turn");
 
-        var full = new RoomPaletteFxSystem(new PaletteFxSessionState());
-        for (int turn = 0; turn < 8; turn++)
-            full.Start(PaletteFxObject.TitleScreenFlickeringDisplays, 0);
-        AssertThrows<InvalidOperationException>(() => full.Start(PaletteFxObject.TitleScreenFlickeringDisplays, 0),
-            "a start while all eight turns are held does not start");
-        AssertEqual(8, full.effects.Count, "eight effects run at most");
+        // No cap holds the effects back (#1598): a ninth effect starts like the first.
+        var many = new RoomPaletteFxSystem(new PaletteFxSessionState());
+        for (int started = 0; started < 9; started++)
+            many.Start(PaletteFxObject.TitleScreenFlickeringDisplays, 0);
+        AssertEqual(9, many.effects.Count, "any number of effects run at once");
     }
 
     /// <summary>Enumerates native fixed-size definition records within one bank-$8D range.</summary>

@@ -25,9 +25,9 @@ internal static class EndingSpaceBackdropColours
         for (int frame = 0; frame < frames.FrameCount; frame++)
         {
             PaletteFxColorKey first = frames.Color(frame, 0);
-            backdrops.Add(first.Frame, colours.TryReadColor(first, out RgbColor backdrop)
+            backdrops.Add(first.Record.Frame, colours.TryReadColor(first, out RgbColor backdrop)
                 ? backdrop
-                : throw new InvalidDataException($"Palette-FX record {first.Frame.Record}'s first colour has no installed definition."));
+                : throw new InvalidDataException($"Palette-FX record {first.Record.Record}'s first colour has no installed definition."));
         }
         return new EndingSpaceBackdrops(backdrops);
     }

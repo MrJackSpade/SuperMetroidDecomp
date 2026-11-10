@@ -86,7 +86,7 @@ internal static class RoomPaletteFxPresentationVerification
             PaletteFxRoomLook.LayShownShades(installed, installedCgram, presentation);
             AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 $"installed Norfair palette equals native output on frame {frame}");
-            AssertEqual(nativeSession.SamusInHeatPaletteIndex, installedSession.SamusInHeatPaletteIndex,
+            AssertEqual(nativeSession.PublishedHeatPhase, installedSession.PublishedHeatPhase,
                 $"installed Norfair heat phase equals native output on frame {frame}");
         }
         AssertEqual(0, guarded.ForbiddenReadAttempts,

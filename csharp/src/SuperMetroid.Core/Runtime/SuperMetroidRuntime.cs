@@ -587,7 +587,7 @@ internal sealed class SuperMetroidRuntime
         // begins on the following frame. Debug scripts that grant Hyper Beam before their
         // first StepFrame get the same handler-first behavior immediately.
         // The room's colour effects take their turns first (ColourEffectTurnOrder): room FX starts first,
-        // and Hyper Beam's effect, which starts later, takes the next free turn after them.
+        // and Hyper Beam's effect, which starts later, takes its turn after them.
         // Running the room's effects before the separately owned Hyper Beam effect keeps that
         // order.
         // Door destination drawing borrows this frame path, but the door's destination
@@ -598,12 +598,12 @@ internal sealed class SuperMetroidRuntime
         {
             Room.LoadedScope.PaletteFx.Step(new PaletteFxConditions { SamusY = Player.Samus?.Position.Y.Whole ?? 0, EquippedItems = Player.Samus?.EquippedItems ?? 0, TorizoIsDead = Room.LoadedScope.Enemies.SlotTable.Slots.Count == 0 || Room.LoadedScope.Enemies.SlotTable.Slots[0].Health == 0, AreaMiniBossDefeated = Room.ActiveRoom is { } paletteRoom &&
                     System.HasAnyBossBits(paletteRoom.AreaIndex, BossBits.AreaMiniBoss), Samus = Player.Samus?.RoomView, FrameCounter = Clock.Counter }, Room.LoadedScope.BombProjectiles.PowerBombExplosion.Activity);
-            // Her heat glow and her suit's loading show over her suit as the records that wrote it (#1512).
-            foreach ((PaletteFxColours colours, PaletteFxFrame record) in Room.LoadedScope.PaletteFx.SuitShown)
-                Player.Colours.LayOverSuit(PaletteFxShades.Of(colours, record));
-            // The enemies' groups show over their owners' own colours as the records that wrote them (#1512).
-            foreach ((PaletteFxColours colours, PaletteFxFrame record) in Room.LoadedScope.PaletteFx.EnemyShown)
-                Room.LoadedScope.Enemies.PaletteFxShows.Show(colours, record);
+            // Her heat glow and her suit's loading show over her suit as the frames that wrote it (#1512).
+            foreach ((PaletteFxColours colours, PaletteFxFrame frame) in Room.LoadedScope.PaletteFx.SuitShown)
+                Player.Colours.LayOverSuit(PaletteFxShades.Of(colours, frame));
+            // The enemies' groups show over their owners' own colours as the frames that wrote them (#1512).
+            foreach ((PaletteFxColours colours, PaletteFxFrame frame) in Room.LoadedScope.PaletteFx.EnemyShown)
+                Room.LoadedScope.Enemies.PaletteFxShows.Show(colours, frame);
         }
         // Hyper Beam's palette object lives in the same pool and handler.
         if (Room.LoadedScope.PaletteFx.HandlerEnabled)

@@ -113,28 +113,28 @@ internal static class PaletteFxColoursPositions
         {
             if (!seen.Add(program))
                 continue;
-            foreach (AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue> step in PaletteFxAnimations.Programs.Steps(program))
+            foreach (AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue> step in PaletteFxAnimations.Programs.Steps(program))
             {
                 switch (step)
                 {
-                    case AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.CueStep { Cue: PaletteFxCue.SetColours setColours }:
+                    case AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.CueStep { Cue: PaletteFxCue.SetColours setColours }:
                         yield return setColours.Target;
                         break;
-                    case AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.FallIntoStep fallInto:
+                    case AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.FallIntoStep fallInto:
                         pending.Push(fallInto.Target);
                         break;
-                    case AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.GoToStep goTo:
+                    case AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.GoToStep goTo:
                         pending.Push(goTo.Target);
                         break;
-                    case AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.RepeatWhileCountingStep repeat:
+                    case AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.RepeatWhileCountingStep repeat:
                         pending.Push(repeat.Target);
                         break;
-                    case AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.CueStep
-                        or AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.ShowStep
-                        or AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.WaitStep
-                        or AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.SetCounterStep
-                        or AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.HoldStep
-                        or AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.StopStep:
+                    case AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.CueStep
+                        or AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.ShowStep
+                        or AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.WaitStep
+                        or AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.SetCounterStep
+                        or AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.HoldStep
+                        or AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.StopStep:
                         break;
                     default:
                         throw new InvalidOperationException($"Undefined animation program step {step}.");

@@ -114,10 +114,10 @@ internal sealed class EndingColours
         RgbColor backdrop = sceneBackdrop;
         if (FlashBackdrop(EndingFlash.SilhouetteBackdrop) is { } silhouette)
             backdrop = silhouette;
-        if (PaletteFx.RecordOf(EndingPaletteFxDefinitions.SpaceColours) is { } record)
+        if (PaletteFx.FrameOf(EndingPaletteFxDefinitions.SpaceColours) is { } frame)
         {
             backdrop = (space ?? throw new InvalidOperationException(
-                "The ending's explosion requires the installed backdrops of the space behind the exploding planet.")).Of(record);
+                "The ending's explosion requires the installed backdrops of the space behind the exploding planet.")).Of(frame);
         }
         if (FlashBackdrop(EndingFlash.ExplosionWhiteout) is { } whiteout)
             backdrop = whiteout;
@@ -151,10 +151,10 @@ internal sealed class EndingColours
             }
             if (logoCrossfadeStep is { } step)
                 shades.Add(EndingShades.LogoCrossfade(step));
-            foreach ((PaletteFxColours colours, PaletteFxFrame record) in PaletteFx.Shown)
+            foreach ((PaletteFxColours colours, PaletteFxFrame frame) in PaletteFx.Shown)
             {
                 if (!restoredPaletteFx.Contains(colours))
-                    shades.Add(PaletteFxShades.Of(colours, record));
+                    shades.Add(PaletteFxShades.Of(colours, frame));
             }
             return shades;
         }

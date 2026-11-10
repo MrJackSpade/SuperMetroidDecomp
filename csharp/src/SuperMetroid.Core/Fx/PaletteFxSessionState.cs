@@ -1,7 +1,9 @@
+using SuperMetroid.Core.Fx.PaletteFx;
+
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// The colour-effect state room loading never clears: whether the effects run, and the Norfair heat phases. Each room's
+/// The colour-effect state room loading never clears: whether the effects run, and the heat phases. Each room's
 /// <see cref="RoomPaletteFxSystem"/> reads and writes them here.
 /// </summary>
 public sealed class PaletteFxSessionState
@@ -13,14 +15,13 @@ public sealed class PaletteFxSessionState
     public bool HandlerEnabled { get; private set; } = true;
 
     /// <summary>
-    /// The heat phase the Norfair glow published, which Samus's heat shimmer, taking its turn before the glow, follows on
-    /// the next update. Only compared for equality and used to select a heat program, so it is held as a plain phase
-    /// number.
+    /// The heat phase the heated room's glow published last, which Samus's heat shimmer, taking its turn before the glow,
+    /// follows on the next update.
     /// </summary>
-    internal int SamusInHeatPaletteIndex { get; set; }
+    internal HeatPhase PublishedHeatPhase { get; set; } = HeatPhase.First;
 
     /// <summary>The heat phase Samus's heat shimmer last restarted on; it restarts only when the published phase differs.</summary>
-    internal int PreviousSamusInHeatPaletteIndex { get; set; }
+    internal HeatPhase ShimmerHeatPhase { get; set; } = HeatPhase.First;
 
     /// <summary>Stops the colour effects from running.</summary>
     public void DisableHandler() => HandlerEnabled = false;

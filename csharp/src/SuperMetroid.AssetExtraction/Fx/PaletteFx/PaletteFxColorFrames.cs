@@ -14,8 +14,8 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 public readonly record struct PaletteFxColorFrames(int FirstRecord, int FrameCount, int ColorsPerFrame)
 {
     /// <summary>
-    /// The frames <paramref name="program"/> shows, read from its steps: the consecutive records it shows, through cues,
-    /// counters and counted repeats and on into each program it falls into, until it jumps, holds or stops.
+    /// The frames <paramref name="program"/> shows, read from its steps: the consecutive records its frames show, through
+    /// cues, counters and counted repeats and on into each program it falls into, until it jumps, holds or stops.
     /// </summary>
     /// <param name="program">The program whose first show is the family's first frame.</param>
     /// <param name="colorsPerFrame">The colours each frame writes.</param>
@@ -26,25 +26,25 @@ public readonly record struct PaletteFxColorFrames(int FirstRecord, int FrameCou
         while (current is { } running)
         {
             current = null;
-            foreach (AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue> step in PaletteFxAnimations.Programs.Steps(running))
+            foreach (AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue> step in PaletteFxAnimations.Programs.Steps(running))
             {
                 switch (step)
                 {
-                    case AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.ShowStep show when first < 0:
-                        first = show.Frame.Record;
+                    case AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.ShowStep show when first < 0:
+                        first = PaletteFxRecord.Of(new PaletteFxFrame(running, show.Frame)).Record;
                         count = 1;
                         break;
-                    case AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.ShowStep show when show.Frame.Record == first + count:
+                    case AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.ShowStep show when PaletteFxRecord.Of(new PaletteFxFrame(running, show.Frame)).Record == first + count:
                         count++;
                         break;
-                    case AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.ShowStep show:
-                        throw new InvalidOperationException($"Palette-FX program {program} shows record {show.Frame.Record} out of order.");
-                    case AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.FallIntoStep fallInto:
+                    case AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.ShowStep show:
+                        throw new InvalidOperationException($"Palette-FX program {program} shows {new PaletteFxFrame(running, show.Frame)} out of order.");
+                    case AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.FallIntoStep fallInto:
                         current = fallInto.Target;
                         break;
-                    case AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.CueStep or AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.WaitStep or AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.SetCounterStep or AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.RepeatWhileCountingStep:
+                    case AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.CueStep or AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.WaitStep or AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.SetCounterStep or AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.RepeatWhileCountingStep:
                         break;
-                    case AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.GoToStep or AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.HoldStep or AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.StopStep:
+                    case AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.GoToStep or AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.HoldStep or AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.StopStep:
                         return Found(program, first, count, colorsPerFrame);
                     default:
                         throw new InvalidOperationException($"Undefined animation program step {step}.");
@@ -61,7 +61,7 @@ public readonly record struct PaletteFxColorFrames(int FirstRecord, int FrameCou
             : new(first, count, colorsPerFrame);
 
     /// <summary>The record shown as frame <paramref name="frame"/>.</summary>
-    public PaletteFxFrame Frame(int frame) => (uint)frame < FrameCount
+    public PaletteFxRecord Frame(int frame) => (uint)frame < FrameCount
         ? new(FirstRecord + frame)
         : throw new ArgumentOutOfRangeException(nameof(frame));
 
@@ -73,7 +73,7 @@ public readonly record struct PaletteFxColorFrames(int FirstRecord, int FrameCou
     /// <summary>The frame and colour of <paramref name="key"/> when it belongs to this family.</summary>
     public bool TryLocate(PaletteFxColorKey key, out int frame, out int color)
     {
-        frame = key.Frame.Record - FirstRecord;
+        frame = key.Record.Record - FirstRecord;
         color = key.Color;
         if ((uint)frame < FrameCount && (uint)color < ColorsPerFrame)
             return true;

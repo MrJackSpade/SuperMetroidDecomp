@@ -23,11 +23,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// of thousands of frames to an owner that waits for zero.
 /// </para>
 /// <para>
-/// <b>Eight-bit count.</b> Some owners keep a small count in the lower eight bits of the countdown (<see cref="EightBitCount"/>)
-/// and test, reload or clear only that count, leaving the rest of the countdown as it was; Samus's beam and bomb cooldown
-/// is the main example, its upper half set by one firing path and its lower half tested by another.
-/// </para>
-/// <para>
 /// <b>Frame point.</b> The countdown has none of its own: its owner advances it once per call of the owner's update (an
 /// enemy's AI, a projectile's pre-instruction, a frontend phase's update) and tests the step there.
 /// </para>
@@ -70,15 +65,6 @@ public readonly record struct WrappingCountdown
     /// run past zero reads as the large count it wrapped to.
     /// </summary>
     public int RemainingFrames => count;
-
-    /// <summary>
-    /// The small count an owner keeps in the lower eight bits of the countdown (0 through 255). Owners that keep such a
-    /// count test, reload or clear only it and leave the rest of the countdown as it was.
-    /// </summary>
-    public byte EightBitCount => unchecked((byte)count);
-
-    /// <summary>The countdown with its eight-bit count replaced by <paramref name="eightBitCount"/> and the rest kept.</summary>
-    public WrappingCountdown WithEightBitCount(byte eightBitCount) => new((ushort)(count - EightBitCount + eightBitCount));
 
     /// <summary>Whether the countdown has no frames left.</summary>
     public bool IsZero => count == 0;
@@ -147,13 +133,6 @@ public readonly record struct WrappingCountdown
 
     /// <summary>Takes one frame away from a countdown that has frames left; a countdown at zero stays at zero.</summary>
     public WrappingCountdown DecrementToZero() => count == 0 ? this : new((ushort)(count - 1));
-
-    /// <summary>
-    /// Takes one away from the <see cref="EightBitCount"/> alone: it wraps from 0 to 255 and the rest of the countdown is
-    /// kept. The step's tests describe the eight-bit count.
-    /// </summary>
-    public LowHalfCountdownStep DecrementEightBitCount() =>
-        new(WithEightBitCount(unchecked((byte)(EightBitCount - 1))));
 
     /// <summary>
     /// Adds <paramref name="frames"/> to the countdown (a negative count takes frames away): a sum past 65535 restarts

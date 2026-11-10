@@ -77,9 +77,6 @@ public sealed class SamusPowerBombExplosionState
     /// </summary>
     public bool IsActive { get; private set; }
 
-    /// <summary>Afterglow fade timer; its zero initialization underflows to permit the first afterglow step.</summary>
-    private WrappingCountdown _afterglowTimer;
-
     /// <summary>
     /// Afterglow steps left, 32 when the final white-explosion frame primes them; each step consumes one, and the
     /// step that reaches zero ends the explosion instead of fading the colors. It is only stepped while positive.
@@ -121,7 +118,6 @@ public sealed class SamusPowerBombExplosionState
         RenderedPhase = PowerBombExplosionPhase.Inactive;
         RenderedPreExplosionRadius = PowerBombRadius.Zero;
         RenderedExplosionRadius = PowerBombRadius.Zero;
-        _afterglowTimer = WrappingCountdown.Start(0);
         _afterglowStepsRemaining = 0;
         _crystalFlashAfterglowStepsRemaining = 0;
         FixedColor = RgbColor.Black;
@@ -149,7 +145,6 @@ public sealed class SamusPowerBombExplosionState
         RenderedPreExplosionRadius = PowerBombRadius.Zero;
         RenderedExplosionRadius = PowerBombRadius.Zero;
         FixedColor = RgbColor.Black;
-        _afterglowTimer = WrappingCountdown.Start(0);
         _afterglowStepsRemaining = 0;
         _crystalFlashAfterglowStepsRemaining = 0;
     }
@@ -231,7 +226,6 @@ public sealed class SamusPowerBombExplosionState
         RenderedPreExplosionRadius = PowerBombRadius.Zero;
         RenderedExplosionRadius = PowerBombRadius.Zero;
         FixedColor = RgbColor.Black;
-        _afterglowTimer = WrappingCountdown.Start(0);
         _afterglowStepsRemaining = 0;
         _crystalFlashAfterglowStepsRemaining = 0;
     }
@@ -357,20 +351,19 @@ public sealed class SamusPowerBombExplosionState
         if (!finishedShapes)
             return;
 
-        // The white explosion primes D=32 and timer=0. The list then installs the afterglow
-        // frame behaviour; it performs the first decrement on the following frame.
+        // The white explosion primes 32 afterglow steps. The list then installs the afterglow
+        // frame behaviour; it fades the first step on the following frame.
         _afterglowStepsRemaining = 32;
-        _afterglowTimer = WrappingCountdown.Start(0);
         Phase = PowerBombExplosionPhase.Afterglow;
     }
 
-    /// <summary>Fades the three fixed-color components on timer underflow and ends the effect after the last step.</summary>
+    /// <summary>
+    /// Fades the three fixed-color components one step every update and ends the effect after the last step. The delay
+    /// the game keeps between steps never holds one back: the afterglow starts it at zero, so it runs past zero on the
+    /// first update, and each step's reload of its count leaves it run past zero.
+    /// </summary>
     private bool StepAfterglow()
     {
-        _afterglowTimer = _afterglowTimer.Decrement().Remaining;
-        if (!_afterglowTimer.IsNegative)
-            return false;
-
         // A count reaching one advances the program without one final color decrement.
         ConsumeAfterglowStep();
         if (_afterglowStepsRemaining == 0)
@@ -390,8 +383,6 @@ public sealed class SamusPowerBombExplosionState
         }
 
         FixedColor = FixedColor.FadeLevels.Map((_, channel) => channel == 0 ? 0 : channel - 1).ToColour();
-
-        ReloadAfterglowTimerLowCount();
         return false;
     }
 
@@ -412,9 +403,7 @@ public sealed class SamusPowerBombExplosionState
             return;
         }
 
-        // The waiting effect clears the afterglow timer before installing the afterglow step. As with
-        // the ordinary afterglow, zero underflows on its first active frame behaviour.
-        _afterglowTimer = WrappingCountdown.Start(0);
+        // As with the ordinary afterglow, the Crystal Flash afterglow fades a step on every active frame behaviour.
         _crystalFlashAfterglowStepsRemaining =
             PowerBombExplosionAfterglow.CrystalFlashAfterglowSteps(RenderedExplosionRadius.RawValue);
         Phase = PowerBombExplosionPhase.CrystalFlashAfterglow;
@@ -423,19 +412,13 @@ public sealed class SamusPowerBombExplosionState
     /// <summary>Fades Crystal Flash for its compiled lifetime, then clears the shared Power Bomb state.</summary>
     private bool StepCrystalFlashAfterglow()
     {
-        _afterglowTimer = _afterglowTimer.Decrement().Remaining;
-        if (!_afterglowTimer.IsNegative)
-            return false;
-
-        // Crystal Flash's afterglow wakes once the stock components reach zero. The compiled operand
-        // tracks the same number of decrements; editable colors only affect the fade
-        // displayed inside the retained final window. The byte reload still preserves
-        // the underflowed high byte, so every following call remains signed-negative.
+        // Crystal Flash's afterglow wakes once the stock components reach zero, fading a step every update as the
+        // ordinary afterglow does. The compiled operand tracks the same number of steps; editable colors only affect
+        // the fade displayed inside the retained final window.
         if (_crystalFlashAfterglowStepsRemaining != 0)
         {
             _crystalFlashAfterglowStepsRemaining--;
             FixedColor = FixedColor.FadeLevels.Map((_, channel) => channel == 0 ? 0 : channel - 1).ToColour();
-            ReloadAfterglowTimerLowCount();
             return false;
         }
 
@@ -469,14 +452,6 @@ public sealed class SamusPowerBombExplosionState
             throw new InvalidOperationException(
                 $"Power Bomb afterglow stepped with {_afterglowStepsRemaining} steps remaining; the phase ends when the count reaches zero.");
         _afterglowStepsRemaining--;
-    }
-
-    /// <summary>Reloads only the timer's count modulo 256, retaining the underflowed multiples of 256 as the game's partial store does.</summary>
-    private void ReloadAfterglowTimerLowCount()
-    {
-        // Both afterglows reload only the timer's count modulo 256.
-        // The decrement turned zero into 65535; retaining the multiples of 256 is observable.
-        _afterglowTimer = _afterglowTimer.WithEightBitCount(PowerBombExplosionDefinitions.AfterglowTimerReload);
     }
 
     /// <summary>Loads the installed fixed-color triplet for a sequence and radius-derived index.</summary>

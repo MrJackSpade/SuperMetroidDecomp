@@ -14,10 +14,17 @@ namespace SuperMetroid.Core.Frontend;
 public sealed class ScreenFade
 {
     /// <summary>
-    /// Dispatches skipped between brightness steps. The slow cinematic fades also count its low byte down beside an
-    /// unchanged high byte, so it keeps the exact countdown word.
+    /// Dispatches skipped between brightness steps. The slow cinematic fades count it down themselves, from at most
+    /// <see cref="LongestSlowDelay"/>.
     /// </summary>
     public WrappingCountdown Delay { get; private set; }
+
+    /// <summary>
+    /// The longest delay a slow cinematic fade counts. The game counts a slow fade's delay as a small count that runs
+    /// past zero below zero; every slow fade starts from a delay and counter of two, well inside the range in which that
+    /// count and the countdown agree.
+    /// </summary>
+    public const int LongestSlowDelay = 127;
 
     /// <summary>
     /// Dispatches remaining before the next brightness step: a wrapping countdown whose sign after the decrement
@@ -65,9 +72,8 @@ public sealed class ScreenFade
     /// true when this call reached full brightness.
     /// </summary>
     /// <remarks>
-    /// Unlike the gameplay fades, these count down the lower half of the delay, 0 through 255, and reload it
-    /// from the counter, stepping when the decrement reaches zero or wraps negative. Equal seeds
-    /// of N therefore step on the Nth call and every N calls after it.
+    /// Unlike the gameplay fades, these count the delay down and reload it from the counter, stepping when the
+    /// decrement reaches zero or runs past it. Equal seeds of N therefore step on the Nth call and every N calls after it.
     /// </remarks>
     public bool AdvanceSlowFadeIn(ref ScreenBrightness brightness)
     {
@@ -107,22 +113,25 @@ public sealed class ScreenFade
         return false;
     }
 
-    /// <summary>Decrements the delay's low byte: true while the decremented byte stays positive.</summary>
+    /// <summary>Counts the slow delay down: true while the decremented delay stays positive.</summary>
+    /// <exception cref="InvalidOperationException">The delay is longer than <see cref="LongestSlowDelay"/>.</exception>
     private bool ConsumeSlowDelay()
     {
-        LowHalfCountdownStep step = Delay.DecrementEightBitCount();
+        if (!Delay.IsNegative && Delay.IsAtLeast(LongestSlowDelay + 1))
+            throw new InvalidOperationException($"A slow fade counts a delay of at most {LongestSlowDelay} dispatches, not {Delay}.");
+        CountdownStep step = Delay.Decrement();
         Delay = step.Remaining;
         return !step.IsZeroOrNegative;
     }
 
-    /// <summary>Reloads the delay's low byte from the counter.</summary>
-    private void ReloadSlowDelay() => Delay = Delay.WithEightBitCount(Counter.EightBitCount);
+    /// <summary>Reloads the slow delay from the counter.</summary>
+    private void ReloadSlowDelay() => Delay = Counter;
 
     /// <summary>Clears the delay and counter on reaching the fade's end.</summary>
     private void ClearSlowTiming()
     {
-        Delay = Delay.WithEightBitCount(0);
-        Counter = Counter.WithEightBitCount(0);
+        Delay = WrappingCountdown.Start(0);
+        Counter = WrappingCountdown.Start(0);
     }
 
     /// <summary>Counts the delay down, wrapping below zero; returns true when this dispatch only counts down.</summary>

@@ -46,6 +46,4 @@ public static class PowerBombExplosionDefinitions
     /// select a color. Crystal Flash reaches only the first four yellow colour steps.
     /// </summary>
     internal const int CrystalFlashColorRadiusShift = 11;
-    /// <summary>Byte reloaded by ordinary and Crystal Flash afterglow handlers.</summary>
-    public const int AfterglowTimerReload = 3;
 }

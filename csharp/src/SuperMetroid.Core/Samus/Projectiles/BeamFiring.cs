@@ -230,7 +230,7 @@ internal sealed class BeamFiring
         // frame and the beam cooldown supplies the rate limit; charged releases reach
         // the same gate once.
         if (_slotTable.ProjectileCounter >= SamusProjectileSystem.SlotCount ||
-            sharedProjectiles.CooldownTimer.EightBitCount != 0)
+            !sharedProjectiles.CooldownTimer.IsZero)
         {
             return new BeamShot(null, null);
         }
@@ -345,7 +345,7 @@ internal sealed class BeamFiring
         // Allocation is shared with normal beams: five counted shots and a running cooldown reject firing before any
         // projectile is created.
         if (_slotTable.ProjectileCounter >= SamusProjectileSystem.SlotCount ||
-            sharedProjectiles.CooldownTimer.EightBitCount != 0)
+            !sharedProjectiles.CooldownTimer.IsZero)
         {
             return new BeamShot(null, null);
         }
@@ -434,7 +434,7 @@ internal sealed class BeamFiring
         int ammo = isSuperMissile ? samus.SuperMissiles : samus.Missiles;
         int admissionLimit = isSuperMissile ? SuperMissileDefinitions.AdmissionLimit : SamusProjectileSystem.SlotCount;
         if (_slotTable.ProjectileCounter >= admissionLimit ||
-            sharedProjectiles.CooldownTimer.EightBitCount != 0)
+            !sharedProjectiles.CooldownTimer.IsZero)
         {
             return new BeamShot(null, null);
         }

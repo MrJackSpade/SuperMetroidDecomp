@@ -24,8 +24,12 @@ internal static class ScreenSpritesFixtures
 
     /// <summary>
     /// The OAM records <paramref name="sprites"/>'s finished draws stand for, finalized: each frame's composition parts,
-    /// placed from its origin by the spritemap loader that origin selects (an origin above the screen is the off-screen
-    /// loader's), so the OAM matches the cartridge's byte for byte.
+    /// placed from its origin by the spritemap loader that origin selects, so the OAM matches the cartridge's byte for byte.
+    /// A draw's origin is its signed screen position (#1587). Only an origin on the screen's band of
+    /// <see cref="OnScreenLoaderBand"/> lines is read by the on-screen loader; one above the screen, or at or below the
+    /// band's last line, is read by the off-screen loader, as the cartridge's cinematic sprite draw dispatches it: it chooses
+    /// the loader by the origin's sixteen-bit Y and passes only its low byte. An origin below the band is therefore never
+    /// read by the on-screen loader, whose low-byte arithmetic would bring it round to the top of the screen.
     /// </summary>
     internal static OamBuffer ToOam(ScreenSprites sprites)
     {
@@ -36,20 +40,24 @@ internal static class ScreenSpritesFixtures
             CharacterSpriteDraw character = SuperMetroid.TestSupport.RepositoryInstallation.Verification.SheetFrameSources.CharacterDraw(draw);
             ScreenObjectSizes sizes = SuperMetroid.TestSupport.RepositoryInstallation.Verification.SheetFrameSources.ObjectSizes(draw);
             var origin = new Position16<SpritePixels>(unchecked((ushort)(character.Origin.X & 0x1ff)), unchecked((ushort)(character.Origin.Y & 0xff)));
+            bool onScreenLoader = (short)character.Origin.Y is >= 0 and < OnScreenLoaderBand;
             foreach (SpriteFramePart part in character.Frame.Parts)
             {
                 var attributes = SnesObjAttributeWord.Create(part.Character, part.Palette ?? character.Palette, part.Priority ?? character.Priority, part.Flip);
                 SnesSpritemapXWord x = SnesSpritemapXWord.Create(part.Offset.X, part.Size == sizes.Large);
                 SnesSpritemapYByte y = SnesSpritemapYByte.Create(part.Offset.Y);
-                if ((short)character.Origin.Y < 0)
-                    oam.AddOffScreenSpritePart(x, y, attributes, origin);
-                else
+                if (onScreenLoader)
                     oam.AddOnScreenSpritePart(x, y, attributes, origin);
+                else
+                    oam.AddOffScreenSpritePart(x, y, attributes, origin);
             }
         }
         oam.FinalizeFrame();
         return oam;
     }
+
+    /// <summary>The lines from the top of the screen whose origins the on-screen loader reads: those its low Y byte names.</summary>
+    private const int OnScreenLoaderBand = 256;
 
     /// <summary>One-part frames already composed, by spritemap words.</summary>
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<PartKey, SpriteSheetFrame> partFrames = new();

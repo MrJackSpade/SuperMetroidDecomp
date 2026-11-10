@@ -27,7 +27,7 @@ internal static class ProjectileTrailDefinitionsVerification
                 continue;
             spawned++;
             var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
-            var projectile = new SamusProjectileSlot(0)
+            var projectile = new SamusProjectile(0)
             {
                 Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(selection),
                 Cursor = SamusProjectileProgramAddresses.CursorAt(0x86e3),
@@ -44,7 +44,7 @@ internal static class ProjectileTrailDefinitionsVerification
             AssertEqual(96, trail.Left.Position.X, "Selector extraction leaves origin offset unchanged");
         }
         var echoProjectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
-        var echo = new SamusProjectileSlot(0)
+        var echo = new SamusProjectile(0)
         {
             Type = SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho),
             Cursor = SamusProjectileProgramAddresses.CursorAt(0x86e3),

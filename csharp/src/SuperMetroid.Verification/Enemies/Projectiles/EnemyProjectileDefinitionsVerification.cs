@@ -130,7 +130,7 @@ internal static class EnemyProjectileDefinitionsVerification
             projectile.BlocksSamusProjectiles = true;
             projectile.CollisionOption = EnemyProjectileCollisionOption.RunShotList;
             var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
-            SamusProjectileSlot shot = shots.Slots[0];
+            SamusProjectile shot = shots.Slots[0];
             shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false);
             shot.Damage = 1;
             shot.Direction = SamusProjectileDirection.Right;

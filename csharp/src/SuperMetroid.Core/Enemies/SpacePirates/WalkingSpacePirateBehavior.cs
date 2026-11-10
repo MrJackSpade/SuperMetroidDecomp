@@ -256,7 +256,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         if (projectiles is null)
             return;
 
-        SamusProjectileSlot? firstAllocated = null;
+        SamusProjectile? firstAllocated = null;
         for (int index = SamusProjectileSystem.SlotCount - 1; index >= 0; index--)
         {
             // Code tests the projectile type, not the program. More importantly,
@@ -530,7 +530,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             // selected callback runs. Normal hits get the equivalent lifecycle transition from TryStartEnemyImpact;
             // rejected and reflected hits return before that shared host path. The plasma-blocking enemy property also
             // forces the mark.
-            c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
+            c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
         }
         if (pirateAction == PirateHitboxShotActions.PirateHitboxShotAction.Ignore)
         {
@@ -555,7 +555,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             c.Projectile.Direction = reflected;
             c.Projectile.IsSpent = false;
             c.Projectiles.EnemyImpacts.ReflectFromEnemy(c.Samus ?? throw new InvalidOperationException("A reflected beam reinherits Samus's movement and requires her."),
-                c.Projectile.SlotIndex);
+                c.Projectile);
             RequestSpacePirateSound(EnemySoundEffectDefinitions.WalkingPirateReflectSound);
             return true;
         }

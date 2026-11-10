@@ -374,8 +374,6 @@ internal static class NativeSnapshotMemory
     public const int ProjectileVariable = 0x0c7c;
     /// <summary>$0C90: ordinary projectile TrailTimer, word-strided per slot.</summary>
     public const int ProjectileTrailTimer = 0x0c90;
-    /// <summary>$0CA4: ordinary projectile AuxiliaryPhase, word-strided per slot.</summary>
-    public const int ProjectileAuxiliaryPhase = 0x0ca4;
     /// <summary>$0CB8: ordinary projectile Spritemap, word-strided per slot.</summary>
     public const int ProjectileSpritemap = 0x0cb8;
     /// <summary>$1962: lava_acid_y_pos, the collision/damage surface.</summary>

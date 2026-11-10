@@ -14,7 +14,7 @@ public sealed class ShinesparkCrashEcho
     private Position16<RoomPixels> _position;
 
     /// <summary>The shot that carries the echo, or none before the echo first departs and after Samus's shots are cleared.</summary>
-    internal SamusProjectileSlot? Shot { get; private set; }
+    internal SamusProjectile? Shot { get; private set; }
 
     /// <summary>Where the echo is shown, or none once no shot carries it.</summary>
     public Position16<RoomPixels>? ShownPosition =>
@@ -22,12 +22,12 @@ public sealed class ShinesparkCrashEcho
 
     /// <summary>Whether <paramref name="shot"/> is the shot that carries this echo.</summary>
     /// <param name="shot">A shot running the echo's update.</param>
-    internal bool IsCarriedBy(SamusProjectileSlot shot) => ReferenceEquals(Shot, shot);
+    internal bool IsCarriedBy(SamusProjectile shot) => ReferenceEquals(Shot, shot);
 
     /// <summary>The echo departs on <paramref name="shot"/> from where the crash finished.</summary>
     /// <param name="shot">The shot that now carries the echo.</param>
     /// <param name="crashPosition">Samus's position as the crash finishes.</param>
-    internal void Depart(SamusProjectileSlot shot, Position16<RoomPixels> crashPosition)
+    internal void Depart(SamusProjectile shot, Position16<RoomPixels> crashPosition)
     {
         Shot = Ensure.NotNull(shot);
         _position = crashPosition;

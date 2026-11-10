@@ -76,7 +76,7 @@ internal static class BeamCallbackTablesVerification
                 $"charged={charged} beam {beamType:X1} fires");
             // The fixture starts with every ordinary slot empty, so the fired shot is the
             // lowest live slot after the release frame.
-            SamusProjectileSlot fired = projectiles.Slots.First(slot => slot.IsActive);
+            SamusProjectile fired = projectiles.Slots.First(slot => slot.IsActive);
             SamusBeamCallbackDefinition expected =
                 SamusBeamCallbacks.Resolve(charged, SamusBeamCombinationTableOrder.FromTableIndex(beamType));
             AssertEqual(

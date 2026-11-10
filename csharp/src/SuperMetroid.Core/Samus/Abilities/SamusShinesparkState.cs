@@ -892,7 +892,7 @@ false,             CrashSequenceFinished: true);
     /// <param name="shot">The shot carrying one of the crash's released echoes.</param>
     /// <returns>Whether the echo is still on the screen; its shot is cleared otherwise.</returns>
     /// <exception cref="InvalidOperationException">The shot carries neither of the crash's released echoes.</exception>
-    internal bool StepReleasedEcho(SamusState samus, Position16<RoomPixels> cameraPosition, SamusProjectileSlot shot)
+    internal bool StepReleasedEcho(SamusState samus, Position16<RoomPixels> cameraPosition, SamusProjectile shot)
     {
         ShinesparkCrashEcho echo = FirstReleasedEcho.IsCarriedBy(shot) ? FirstReleasedEcho
             : SecondReleasedEcho.IsCarriedBy(shot) ? SecondReleasedEcho

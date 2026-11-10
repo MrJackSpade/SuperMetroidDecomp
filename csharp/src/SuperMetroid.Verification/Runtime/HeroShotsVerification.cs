@@ -68,6 +68,8 @@ internal static class HeroShotsVerification
                 shared.StepFrame(new SamusTerrain { Level = room }, samus, input, input);
                 SamusProjectileSlotObservation beforeStep = projectiles.ObserveSlots();
                 projectiles.StepFrame(new SamusTerrain { Level = room }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new(cameraX, cameraY), shared);
+                // A shot fired this pass is a new projectile in the place.
+                shot = projectiles.Slots[0];
                 if (native is not null)
                 {
                     ushort[] expected = native[new HeroShotsNative(vertical ? 1 : 0, cameraMode, frame)];

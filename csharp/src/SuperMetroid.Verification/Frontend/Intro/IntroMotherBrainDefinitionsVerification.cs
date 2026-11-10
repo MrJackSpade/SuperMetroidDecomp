@@ -168,7 +168,7 @@ internal static class IntroMotherBrainDefinitionsVerification
             Animation = { FrameBindings = InstalledFixtures.Projectiles.FrameBindings },
         };
         var bombs = new SamusBombProjectileSystem();
-        SamusProjectileSlot missile = shots.Slots[0];
+        SamusProjectile missile = shots.Slots[0];
         for (int hit = 1; hit <= 5; hit++)
         {
             missile.Type = SamusProjectileType.Of(SamusProjectileFamily.Missile);

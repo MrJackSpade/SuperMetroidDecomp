@@ -24,7 +24,7 @@ internal static class WaveDoorBandsVerification
             behaviors[target] = (left ? RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Right)) : RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Left)));
             var level = CreateRoom(new(16, 32), words, behaviors);
             var roomObjects = RoomObjectFixtures.Unbound();
-            var shot = new SamusProjectileSlot(0)
+            var shot = new SamusProjectile(0)
             {
                 Position = new(new(72, 0), new(y, 0)), Radius = new(1, 0),
                 Velocity = new((short)(left ? -1 : 1), 0), Type = SamusProjectileType.Beam(SamusBeamCombinations.Of(SamusBeamFlags.Wave), charged: false),

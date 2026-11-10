@@ -11,7 +11,7 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 internal static class SamusProjectileVelocityWords
 {
     /// <summary>The native X velocity word of <paramref name="slot"/>.</summary>
-    internal static ushort X(SamusProjectileSlot slot)
+    internal static ushort X(SamusProjectile slot)
     {
         if (slot.FrameBehavior is SamusProjectileFrameBehavior.IceComboOutward or SamusProjectileFrameBehavior.PlasmaCombo or
             SamusProjectileFrameBehavior.SpazerCombo or SamusProjectileFrameBehavior.SpazerComboFalling)
@@ -22,7 +22,7 @@ internal static class SamusProjectileVelocityWords
     }
 
     /// <summary>The native Y velocity word of <paramref name="slot"/>.</summary>
-    internal static ushort Y(SamusProjectileSlot slot)
+    internal static ushort Y(SamusProjectile slot)
     {
         if (slot.FrameBehavior is SamusProjectileFrameBehavior.IceCombo or SamusProjectileFrameBehavior.IceComboOutward or
             SamusProjectileFrameBehavior.WaveCombo)

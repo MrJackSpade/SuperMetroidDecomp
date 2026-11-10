@@ -51,7 +51,7 @@ internal static class RidleyShotHealthStageVerification
         runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(ridley.Position.Whole);
         foreach (int index in new[] { 0, 1 })
         {
-            SamusProjectileSlot shot = runtime.Projectiles.Slots[index];
+            SamusProjectile shot = runtime.Projectiles.Slots[index];
             shot.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile); shot.Damage = 300; shot.Direction = SamusProjectileDirection.Right;
             shot.Position = shot.Position.WithWhole(new(0x00c5, 0x0164));
             shot.Radius = new(8, 8);

@@ -117,7 +117,7 @@ internal sealed class LowPercentIntroReplayChecks : IConvertedMovieChecks
             case 2050:
                 // $90:EB02 cleared the run's movement records, so the missile inherits nothing.
                 var slots = intro.flashbackProjectiles;
-                SamusProjectileSlot missile = slots.SlotTable.Slots[0];
+                SamusProjectile missile = slots.SlotTable.Slots[0];
                 VerificationAssertions.AssertEqual(unchecked((short)0xff00), missile.Velocity.X.SignedRawValue, "update 2050 third missile launch velocity");
                 VerificationAssertions.AssertEqual((ushort)0x0088, missile.Position.X.Whole, "update 2050 third missile X");
                 break;

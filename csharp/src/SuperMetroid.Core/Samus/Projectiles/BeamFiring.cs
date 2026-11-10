@@ -18,7 +18,7 @@ internal sealed class BeamFiring
     private readonly BeamChargeState _charge;
     /// <summary>Handles the special beam attack after the charge counter reaches 120.</summary>
     private readonly BeamCombos _combos;
-    /// <summary>Owns the five counted projectile slots and their counter.</summary>
+    /// <summary>Owns the five shot places, which a fired projectile takes, and the shot count.</summary>
     private readonly ProjectileSlotTable _slotTable;
     /// <summary>Runs initial muzzle collision against room terrain and room objects.</summary>
     private readonly ProjectileTerrainCollision _terrainCollision;
@@ -238,21 +238,16 @@ internal sealed class BeamFiring
         // Allocation writes one before allocating storage. A corrupt counter/free-slot
         // disagreement is therefore intentionally observable rather than silently repaired.
         sharedProjectiles.SetSharedCooldown(1);
-        _slotTable.ProjectileCounter = WrappingCounter.IncrementCount(_slotTable.ProjectileCounter);
+        _slotTable.ProjectileCounter++;
 
         int slotIndex = _slotTable.FindFreeSlotIndex();
         if (slotIndex < 0)
         {
             // Consistent state cannot arrive here. Match the producer's defensive rollback
             // so an inconsistent count does not stay permanently above five.
-            _slotTable.ProjectileCounter = WrappingCounter.DecrementCount(_slotTable.ProjectileCounter);
+            _slotTable.ProjectileCounter--;
             return new BeamShot(null, null);
         }
-
-        // The fire routines overwrite only the words they initialize. Words such as the
-        // subpixels keep the slot's previous occupant until velocity setup, so the left
-        // muzzle check's -1 speed can carry back into the same whole pixel.
-        SamusProjectileSlot slot = _slotTable.Slots[slotIndex];
 
         SamusProjectileDirection? direction = samus.PendingTransitionShot is { } transitionShot
             ? transitionShot.Aim
@@ -267,12 +262,14 @@ internal sealed class BeamFiring
             if (samus.PendingTransitionShot is not null)
                 throw new InvalidOperationException(
                     "A transition shot names no aim; no retail transition hands one over.");
-            _slotTable.ProjectileCounter = WrappingCounter.DecrementCount(_slotTable.ProjectileCounter);
+            _slotTable.ProjectileCounter--;
             return new BeamShot(null, null);
         }
 
+        // The shot starts from the horizontal sub-pixel position its place hands on (LeftMuzzleSubpixelCarry): the left
+        // muzzle check's -1 speed can carry it back into the same whole pixel before the velocity setup clears it.
+        SamusProjectile slot = _slotTable.Occupy(slotIndex);
         slot.Direction = aim;
-        slot.IsSpent = false;
         InitializePosition(samus, slot);
         slot.TrailTimer = WrappingCountdown.Start(4);
         slot.Type = SamusProjectileType.Beam(SamusBeamCombinations.Of(samus.EquippedBeams), charged);
@@ -345,8 +342,8 @@ internal sealed class BeamFiring
         SamusBombProjectileSystem sharedProjectiles,
         ISamusRoomObjects? roomObjects)
     {
-        // Allocation is shared with normal beams: five counted ordinary slots and a nonzero
-        // low cooldown byte reject firing before any slot fields are touched.
+        // Allocation is shared with normal beams: five counted shots and a running cooldown reject firing before any
+        // projectile is created.
         if (_slotTable.ProjectileCounter >= SamusProjectileSystem.SlotCount ||
             sharedProjectiles.CooldownTimer.EightBitCount != 0)
         {
@@ -354,23 +351,23 @@ internal sealed class BeamFiring
         }
 
         sharedProjectiles.SetSharedCooldown(1);
-        _slotTable.ProjectileCounter = WrappingCounter.IncrementCount(_slotTable.ProjectileCounter);
+        _slotTable.ProjectileCounter++;
         int slotIndex = _slotTable.FindFreeSlotIndex();
         if (slotIndex < 0)
         {
-            _slotTable.ProjectileCounter = WrappingCounter.DecrementCount(_slotTable.ProjectileCounter);
+            _slotTable.ProjectileCounter--;
             return new BeamShot(null, null);
         }
 
-        // As for ordinary beams, the slot keeps its previous occupant's uninitialized words.
-        SamusProjectileSlot slot = _slotTable.Slots[slotIndex];
         if (SamusPoseMetadata.ReadAimDirection(samus) is not { } aim)
         {
-            _slotTable.ProjectileCounter = WrappingCounter.DecrementCount(_slotTable.ProjectileCounter);
+            _slotTable.ProjectileCounter--;
             return new BeamShot(null, null);
         }
+
+        // As for ordinary beams, the shot starts from the sub-pixel position its place hands on (LeftMuzzleSubpixelCarry).
+        SamusProjectile slot = _slotTable.Occupy(slotIndex);
         slot.Direction = aim;
-        slot.IsSpent = false;
 
         InitializePosition(samus, slot);
         ProjectileInvincibilityTimer = 10;
@@ -450,15 +447,13 @@ internal sealed class BeamFiring
         if (slotIndex < 0)
             return new BeamShot(null, null);
 
-        // As for beams, the slot keeps its previous occupant's uninitialized words.
-        SamusProjectileSlot slot = _slotTable.Slots[slotIndex];
         if (SamusPoseMetadata.ReadAimDirection(samus) is not { } aim)
             return new BeamShot(null, null);
+        SamusProjectile slot = _slotTable.Occupy(slotIndex);
         slot.Direction = aim;
-        slot.IsSpent = false;
 
         InitializePosition(samus, slot);
-        _slotTable.ProjectileCounter = WrappingCounter.IncrementCount(_slotTable.ProjectileCounter);
+        _slotTable.ProjectileCounter++;
         ProjectileInvincibilityTimer = 20;
         if (isSuperMissile)
             samus.SuperMissiles = SamusQuantity.DecrementWrapping(samus.SuperMissiles);
@@ -468,7 +463,8 @@ internal sealed class BeamFiring
         slot.Type = SamusProjectileType.Of(isSuperMissile ? SamusProjectileFamily.SuperMissile : SamusProjectileFamily.Missile);
         slot.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
         slot.MissileIgnition = SamusMissileIgnition.Pending;
-        slot.SuperMissileLinkSlot = 0;
+        if (isSuperMissile)
+            slot.SuperMissileLinkPlace = UnlinkedSuperMissileLink.Place;
 
         // The producer first calls the generic velocity initializer with base speed zero.
         // Ignition replaces that zero with one pixel per update during this same frame's alpha pass;
@@ -507,7 +503,7 @@ internal sealed class BeamFiring
     /// <summary>Places the muzzle using pose height and the running or ordinary directional origin table.</summary>
     internal static void InitializePosition(
         SamusState samus,
-        SamusProjectileSlot slot)
+        SamusProjectile slot)
     {
         int poseYOffset = SamusPoseProjectileOrigins.ReadYOffset(samus.Pose);
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
@@ -527,7 +523,7 @@ internal sealed class BeamFiring
     /// </summary>
     internal static void InitializePowerBeamVelocity(
         ProjectileLaunchInheritance inheritance,
-        SamusProjectileSlot slot,
+        SamusProjectile slot,
         UnauthoredBeamFiring<SamusBeamCombination> unauthoredFiring)
     {
         Ensure.NotNull(unauthoredFiring);
@@ -544,7 +540,7 @@ internal sealed class BeamFiring
     /// <summary>Clears projectile position fractions and combines base speed with Samus' inherited motion.</summary>
     internal static void InitializeDirectionalVelocity(
         ProjectileLaunchInheritance inheritance,
-        SamusProjectileSlot slot,
+        SamusProjectile slot,
         SignedEightEight baseSpeed)
     {
         slot.Position = slot.Position.WithFractionX(0).WithFractionY(0);

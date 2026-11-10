@@ -36,12 +36,23 @@ public sealed class SamusBombProjectileSystem
     /// <summary>A placed Power Bomb.</summary>
     public static SamusProjectileType PowerBombType => SamusProjectileType.Of(SamusProjectileFamily.PowerBomb);
 
-    /// <summary>The bomb slots by ordinal.</summary>
+    /// <summary>Each bomb place's bomb, live or the last one that ended there, in place order.</summary>
     private readonly SamusBombProjectileSlot[] _slots =
         Enumerable.Range(0, SlotCount).Select(index => new SamusBombProjectileSlot(index)).ToArray();
 
-    /// <summary>The bomb slots by ordinal.</summary>
+    /// <summary>Each bomb place's bomb, live or the last one that ended there, in place order.</summary>
     public IReadOnlyList<SamusBombProjectileSlot> Slots => _slots;
+
+    /// <summary>Creates the new bomb of place <paramref name="index"/>, ending the one there.</summary>
+    /// <param name="index">The zero-based bomb place.</param>
+    /// <returns>The new bomb, at rest at the room's origin with nothing set.</returns>
+    private SamusBombProjectileSlot Occupy(int index)
+    {
+        _slots[index].End();
+        var bomb = new SamusBombProjectileSlot(index);
+        _slots[index] = bomb;
+        return bomb;
+    }
 
     /// <summary>
     /// Samus's first bomb: the bomb with the lowest ordinal, which a bomb placed while none is out takes and a bomb
@@ -319,7 +330,7 @@ public sealed class SamusBombProjectileSystem
     public void Reset()
     {
         foreach (SamusBombProjectileSlot slot in _slots)
-            slot.ClearFields();
+            slot.End();
         BombCounter = 0;
         CooldownTimer = WrappingCountdown.Start(0);
         PowerBombExplosion.Reset();
@@ -424,8 +435,7 @@ public sealed class SamusBombProjectileSystem
         }
 
         int slotIndex = FindFreeBombSlot();
-        SamusBombProjectileSlot slot = _slots[slotIndex];
-        slot.ClearFields();
+        SamusBombProjectileSlot slot = Occupy(slotIndex);
         slot.Type = placingPowerBomb ? PowerBombType : NormalBombType;
         slot.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
         slot.Position = slot.Position.WithWhole(samus.Position.Whole);
@@ -498,8 +508,7 @@ public sealed class SamusBombProjectileSystem
             samus.BombSpreadChargeTimeoutCounter / MorphBallBombDefinitions.DownChargeUpdatesPerLaunchPixel;
         for (int index = 0; index < SlotCount; index++)
         {
-            SamusBombProjectileSlot slot = _slots[index];
-            slot.ClearFields();
+            SamusBombProjectileSlot slot = Occupy(index);
             slot.Type = NormalBombType;
             slot.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
             slot.IsBombSpread = true;
@@ -1106,11 +1115,11 @@ public sealed class SamusBombProjectileSystem
         return publishedDirection;
     }
 
-    /// <summary>Clears a bomb slot and decrements the bomb count, clamping a signed underflow to zero.</summary>
+    /// <summary>Deletes a bomb, ending it, and decrements the bomb count, clamping a signed underflow to zero.</summary>
     private void ClearProjectile(SamusBombProjectileSlot slot)
     {
         bool wasActive = slot.IsActive;
-        slot.ClearFields();
+        slot.End();
         if (!wasActive)
             return;
 

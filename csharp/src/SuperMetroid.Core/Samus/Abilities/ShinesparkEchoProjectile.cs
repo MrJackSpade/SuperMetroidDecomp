@@ -7,7 +7,8 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <remarks>
 /// The echoes take the shot pool's last two places, the first echo the place before the last and the second the last,
 /// whatever shots those places hold. The place matters to the game: shots update, meet enemies and draw in place order,
-/// an echo replaces the shot it lands on, and only the first echo's height carries into the next crash's orbit
+/// an echo replaces the shot it lands on and stands where that shot was until its first update
+/// (<see cref="ReleasedEchoStartsAtReplacedShot"/>), and only the first echo's height carries into the next crash's orbit
 /// (<see cref="CrashOrbitTravelCarryover"/>).
 /// </remarks>
 internal sealed class ShinesparkEchoProjectile
@@ -25,16 +26,16 @@ internal sealed class ShinesparkEchoProjectile
     }
 
     /// <summary>The place the first echo takes: the one before the last.</summary>
-    private SamusProjectileSlot FirstEchoPlace => _slotTable.Slots[SamusProjectileSystem.SlotCount - 2];
+    private const int FirstEchoPlace = SamusProjectileSystem.SlotCount - 2;
 
     /// <summary>The place the second echo takes: the last.</summary>
-    private SamusProjectileSlot SecondEchoPlace => _slotTable.Slots[SamusProjectileSystem.SlotCount - 1];
+    private const int SecondEchoPlace = SamusProjectileSystem.SlotCount - 1;
 
     /// <summary>
     /// Releases a finishing crash's echoes as far as Samus's shot count leaves room: the second echo while the count
     /// is below the pool's size, and the first only while it is below that by two, so both are released, only the
-    /// second, or neither. The count is compared as its signed difference from each bound, and each released echo adds
-    /// one to it. An echo that is not released leaves its place and its last shot as they are.
+    /// second, or neither. Each released echo adds one to the count. An echo that is not released leaves its place and
+    /// its last shot as they are.
     /// </summary>
     /// <param name="first">The crash's first echo.</param>
     /// <param name="second">The crash's second echo.</param>
@@ -46,32 +47,39 @@ internal sealed class ShinesparkEchoProjectile
         ShinesparkDepartureAngles angles, SamusBeamCombination picturedBeams, Position16<RoomPixels> crashPosition)
     {
         int shots = _slotTable.ProjectileCounter;
-        if (CoordinateAxis.Difference(shots, SamusProjectileSystem.SlotCount) >= 0)
+        if (shots >= SamusProjectileSystem.SlotCount)
             return false;
 
-        bool firstDeparts = CoordinateAxis.Difference(shots, SamusProjectileSystem.SlotCount - 1) < 0;
+        bool firstDeparts = shots < SamusProjectileSystem.SlotCount - 1;
         if (firstDeparts)
             first.Depart(Launch(FirstEchoPlace, angles.First, picturedBeams), crashPosition);
         second.Depart(Launch(SecondEchoPlace, angles.Second, picturedBeams), crashPosition);
         return firstDeparts;
     }
 
-    /// <summary>Turns <paramref name="place"/> into a departing echo's shot at radius zero and counts it.</summary>
-    private SamusProjectileSlot Launch(SamusProjectileSlot place, RotationAngle angle, SamusBeamCombination picturedBeams)
+    /// <summary>
+    /// Creates a departing echo's shot at radius zero in <paramref name="place"/>, replacing whatever shot holds it, and
+    /// counts it.
+    /// </summary>
+    private SamusProjectile Launch(int place, RotationAngle angle, SamusBeamCombination picturedBeams)
     {
-        _slotTable.ProjectileCounter = WrappingCounter.IncrementCount(_slotTable.ProjectileCounter);
-        place.Type = SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho);
-        place.PicturedBeams = picturedBeams;
-        BeamCombos.InitializeComboData(place, BeamComboData.Echo);
-        place.FrameBehavior = SamusProjectileFrameBehavior.ShinesparkEcho;
-        place.EchoAngle = angle.ToTrigonometryAngle();
-        place.EchoRadius = 0;
-        return place;
+        _slotTable.ProjectileCounter++;
+        SamusProjectile replaced = _slotTable.Slots[place];
+        Position16<RoomPixels> start = ReleasedEchoStartsAtReplacedShot.Start(
+            replaced.IsOccupied ? replaced.Position.Whole : null);
+        SamusProjectile echo = _slotTable.Occupy(place);
+        echo.Position = echo.Position.WithWhole(start);
+        echo.Type = SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho);
+        echo.PicturedBeams = picturedBeams;
+        BeamCombos.InitializeComboData(echo, BeamComboData.Echo);
+        echo.FrameBehavior = SamusProjectileFrameBehavior.ShinesparkEcho;
+        echo.EchoAngle = angle.ToTrigonometryAngle();
+        return echo;
     }
 
     /// <summary>Runs one update of the echo <paramref name="slot"/> carries, clearing the shot once the echo leaves the screen.</summary>
     internal void StepShinesparkEcho(SamusState samus,
-        SamusProjectileSlot slot, Position16<RoomPixels> camera)
+        SamusProjectile slot, Position16<RoomPixels> camera)
     {
         if (slot.FrameBehavior != SamusProjectileFrameBehavior.ShinesparkEcho)
             throw new InvalidOperationException("Departing echo no longer owns this projectile slot.");

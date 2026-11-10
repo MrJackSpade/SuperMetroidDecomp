@@ -493,7 +493,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             // corpse palette has fully transformed. Even then it starts rotting without vulnerability damage or impact.
             BeforeSuperMissileQuake = (in EnemyShotContext c) =>
             {
-                c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
+                c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
                 ResolveDeadSidehopperShot(c.Enemy);
                 return true;
             },

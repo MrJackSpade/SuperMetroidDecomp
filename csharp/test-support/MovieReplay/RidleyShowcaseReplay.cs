@@ -728,7 +728,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             foreach (var projectile in runtime.Projectiles.Slots.Take(5))
             {
                 int index = projectile.SlotTableOffset;
-                string owner = $"Projectile {projectile.SlotIndex}";
+                string owner = $"Projectile {projectile.Place}";
                 // The recorded type, direction and missile variable words are compared as the projectile state they decode to.
                 SamusProjectileType recordedType = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(W(NativeSnapshotMemory.ProjectileType + index));
                 if (projectile.Type != recordedType)
@@ -778,24 +778,19 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 };
                 Check(owner + " FrameBehavior", callback, NativeSnapshotMemory.ProjectileFrameBehavior + index);
                 Check(owner + " FrameHold", unchecked(projectile.FrameHold.RawValue), NativeSnapshotMemory.ProjectileFrameHold + index);
-                // Only missiles keep state in the variable word that this movie reaches: their ignition and link.
+                // Only missiles keep state in the variable word that this movie reaches: their ignition, and a Super
+                // Missile's link, which no other projectile has (UnlinkedSuperMissileLink).
                 if (projectile.Type.Family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
                 {
                     ushort recordedVariable = W(NativeSnapshotMemory.ProjectileVariable + index);
                     if (projectile.MissileIgnition != SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeMissileIgnition(recordedVariable) ||
-                        projectile.SuperMissileLinkSlot != SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeMissileLinkSlot(recordedVariable))
-                        mismatches.Add($"{owner} missile ignition: native={recordedVariable:X4} port={projectile.MissileIgnition}/{projectile.SuperMissileLinkSlot}");
+                        (projectile.Type.Family == SamusProjectileFamily.SuperMissile &&
+                        projectile.SuperMissileLinkPlace != SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeMissileLinkSlot(recordedVariable)))
+                        mismatches.Add($"{owner} missile ignition: native={recordedVariable:X4} port={projectile.MissileIgnition}/{projectile.SuperMissileLinkPlace}");
                 }
                 Check(owner + " TrailTimer", unchecked(projectile.TrailTimer.RawValue), NativeSnapshotMemory.ProjectileTrailTimer + index);
-                // The native phase word holds each Spazer phase's doubled position in its jump table.
-                ushort nativePhase = projectile.AuxiliaryPhase switch
-                {
-                    SpazerComboPhase.Circling => 0,
-                    SpazerComboPhase.FlyingUpTowardsPoint => 2,
-                    SpazerComboPhase.FlyingUpAwayFromPoint => 4,
-                    _ => throw new InvalidDataException($"Undefined {nameof(SpazerComboPhase)} {projectile.AuxiliaryPhase}."),
-                };
-                Check(owner + " AuxiliaryPhase", nativePhase, NativeSnapshotMemory.ProjectileAuxiliaryPhase + index);
+                // No Spazer phase is compared: only a Spazer special attack's particles have one, they set it before
+                // reading it, and the callback mapping above rejects them in this movie.
                 Check(owner + " Spritemap", unchecked((ushort)projectile.SpritemapPointer), NativeSnapshotMemory.ProjectileSpritemap + index);
             }
             if (game.GameState == SuperMetroidGameState.MainGameplay)

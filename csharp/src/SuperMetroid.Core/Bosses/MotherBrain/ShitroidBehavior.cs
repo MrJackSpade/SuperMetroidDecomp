@@ -674,7 +674,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ResolveShitroidShot(
         RoomEnemySlot slot,
         int collisionDamage,
-        SamusProjectileSlot firstShot)
+        SamusProjectile firstShot)
     {
         ShitroidEnemyState state = RequireShitroidState(slot);
         if (!state.ReactsToSamus)
@@ -865,7 +865,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             // enters vulnerability damage. Its own callback converts shot strength and the first shot's aim into recoil.
             BeforeSuperMissileQuake = (in EnemyShotContext c) =>
             {
-                c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
+                c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
                 ResolveShitroidShot(c.Enemy, c.Projectile.Damage, c.Projectiles.FirstShot);
                 return true;
             },

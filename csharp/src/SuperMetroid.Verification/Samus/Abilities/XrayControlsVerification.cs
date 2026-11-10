@@ -62,7 +62,7 @@ internal static class XrayControlsVerification
             runtime.StepFrame((runtime.Options.ControllerBindings.Dash | runtime.Options.ControllerBindings.Shoot));
             AssertEqual(60, pendingBomb.BombTimer.RawValue, "X-ray activation freezes an existing bomb fuse immediately");
             AssertEqual(100, pendingBomb.FrameHold.RawValue, "X-ray activation skips existing bomb animation immediately");
-            pendingBomb.ClearFields();
+            pendingBomb.End();
             AssertTrue(samus.Xray.IsActive && runtime.Freeze.TimeIsFrozen,
                 "configured Run takes priority over Shoot and activates scanning");
             AssertEqual(samus.Pose, samus.PoseHistory.PreviousPose, "X-ray activation commits interrupted pose");

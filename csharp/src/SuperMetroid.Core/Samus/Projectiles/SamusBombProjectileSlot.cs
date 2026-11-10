@@ -3,13 +3,18 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>One of Samus's five bomb slots: a placed bomb, a Power Bomb, or a bomb-spread bomb.</summary>
+/// <summary>
+/// One of Samus's bombs: a placed bomb, a Power Bomb, or a bomb-spread bomb. Each is created fresh when it takes its
+/// place among the five (<see cref="SamusBombProjectileSystem"/>) and ends when it is deleted or Samus's bombs are
+/// cleared; nothing it holds reaches the next bomb in its place. A place no bomb holds reads as the bomb that last
+/// ended there, or one never placed: no type, no damage, at rest at the room's origin.
+/// </summary>
 public sealed class SamusBombProjectileSlot
 {
-    /// <summary>Creates the bomb slot at its position among the five.</summary>
+    /// <summary>Creates a bomb, not yet placed, in <paramref name="index"/> among the five places.</summary>
     internal SamusBombProjectileSlot(int index) => Index = index;
 
-    /// <summary>The slot's position among the bomb slots, zero through four.</summary>
+    /// <summary>The bomb's place among the five, zero through four: bombs take the lowest free one, and a spread fills all five.</summary>
     public int Index { get; }
 
     /// <summary>Room-pixel 16.16 position.</summary>
@@ -27,7 +32,7 @@ public sealed class SamusBombProjectileSlot
     /// </summary>
     public static SamusProjectileDirection Direction => SamusProjectileDirection.UpFacingRight;
 
-    /// <summary>What the slot holds; <see cref="SamusProjectileType.None"/> marks an empty slot.</summary>
+    /// <summary>What the bomb is; <see cref="SamusProjectileType.None"/> before it is placed and once it ends.</summary>
     public SamusProjectileType Type { get; internal set; }
 
     /// <summary>
@@ -39,11 +44,11 @@ public sealed class SamusBombProjectileSlot
     /// <summary>Whether a placed bomb's explosion has reacted with the five-block cross of terrain around it; it does so once.</summary>
     public bool HasReactedToTerrain { get; internal set; }
 
-    /// <summary>Damage from the bomb's projectile data, which every bomb carries; zero while the slot is empty.</summary>
+    /// <summary>Damage from the bomb's projectile data, which every bomb carries; zero before it is placed and once it ends.</summary>
     public int Damage
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.AtLeastZero(value);
     }
     /// <summary>Where the slot's projectile program resumes; null marks an inactive slot, and a consumed timed frame advances it past that record.</summary>
     internal AnimationProgramCursor<SamusProjectileProgram>? Cursor { get; set; }
@@ -69,11 +74,14 @@ public sealed class SamusBombProjectileSlot
     /// <summary>The bomb's fuse, and after detonation its explosion phase counter.</summary>
     public WrappingCountdown BombTimer { get; internal set; }
 
-    /// <summary>Whether the slot holds a bomb: a placed bomb runs its program until the slot is cleared.</summary>
+    /// <summary>Whether the bomb is live: a placed bomb runs its program until it ends.</summary>
     public bool IsActive => Cursor is not null;
 
-    /// <summary>Clears the slot's state before reuse or deletion.</summary>
-    internal void ClearFields()
+    /// <summary>
+    /// Ends the bomb: it reads as no bomb, at rest at the room's origin, to whatever still holds it and to anything that
+    /// reads its place before the next bomb takes it.
+    /// </summary>
+    internal void End()
     {
         Position = FixedPosition<RoomPixels>.Zero;
         IsSpent = false;

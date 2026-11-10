@@ -65,7 +65,7 @@ internal static class MurderBeamVerification
         AssertTrue(fired.QueuedSoundEffect is null,
             "Murder Beam's adjacent sound-table entry is zero");
 
-        SamusProjectileSlot shot = projectiles.Slots[0];
+        SamusProjectile shot = projectiles.Slots[0];
         AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaIceWave, charged: true), shot.Type, "Murder Beam retains charged all-beams type");
         AssertEqual(200, shot.Damage, "Murder Beam uses the native 200-damage record");
         AssertEqual(SamusProjectileDirection.Left, shot.Direction,

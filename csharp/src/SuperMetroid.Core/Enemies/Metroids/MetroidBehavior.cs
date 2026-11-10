@@ -456,7 +456,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 if (c.Enemy.FrozenTimer == 0)
                 {
-                    SamusProjectileSlot recoilOrigin = MetroidRecoilOrigin.Of(c.OrdinaryProjectiles.Slots);
+                    SamusProjectile recoilOrigin = MetroidRecoilOrigin.Of(c.OrdinaryProjectiles.Slots);
                     ResolveMetroidNonFrozenShot(c.Enemy, c.Bomb.Type, Ensure.AtLeastZero(c.Bomb.Damage), recoilOrigin.Position.Whole, c.Samus);
                 }
             });
@@ -502,14 +502,14 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 // Frozen Metroid rejects every beam and bomb family. has already accepted the overlap, so
                 // non-plasma shots retain only the collision mark and never enter normal damage AI.
-                c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
+                c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
                 return true;
             }
 
             // Like the ordinary path, the walker only marks the direction word. The damage path does not reject a
             // projectile an earlier enemy marked this pass: a Super Missile that just hit a Rinka still reaches
             // the Metroid's shot reaction.
-            c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
+            c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
 
             EnemyWeaponVulnerability frozenVulnerability = EnemyCollision.ReadProjectileVulnerability(enemy, c.ProjectileType);
             int frozenDamage = (c.ProjectileDamage >> 1) * frozenVulnerability.Multiplier;
@@ -536,7 +536,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Custom Metroid shot AI does not call normal shot AI. Preserve the collision prelude, then apply recoil/ice
         // or attached power-bomb escape without inventing vulnerability-based health damage.
-        c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
+        c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
         ResolveMetroidNonFrozenShot(enemy, c.Projectile.Type, Ensure.AtLeastZero(c.Projectile.Damage), MetroidRecoilOrigin.Of(c.Projectiles.Slots).Position.Whole, c.Samus);
         return true;
     }

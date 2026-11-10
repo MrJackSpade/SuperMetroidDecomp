@@ -35,9 +35,9 @@ internal static class SharedSlopeHeightsVerification
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var enemy = enemies.SlotTable.Slots[0];
         var align = new Func<RoomLevelData, RoomEnemySlot, Position16<RoomPixels>, SlopeSurface, bool>(EnemyTerrain.AlignAgainstSlopeAtPixel);
-        var missile = new Func<RoomCollisionBlock, SamusProjectileSlot, bool>(ProjectileMotion.MissileSlopePointReaction);
+        var missile = new Func<RoomCollisionBlock, SamusProjectile, bool>(ProjectileMotion.MissileSlopePointReaction);
         var bomb = new Func<RoomLevelData, SamusBombProjectileSlot, bool>(SamusBombProjectileSystem.BombSpreadCollides);
-        var projectile = new SamusProjectileSlot(0);
+        var projectile = new SamusProjectile(0);
         var spread = new SamusBombProjectileSlot(0);
         int collisionCases = 0;
         for (int raw = 0; raw < 256; raw++)

@@ -209,7 +209,7 @@ internal sealed class TorizoCombat
             // counterattack bits are not armed through these transitional body rectangles.
             if (isBombTorizo || enemy.FlashTimer != 0 || torizoState.AnimationLocked)
             {
-                c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
+                c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
                 return true;
             }
         }
@@ -217,7 +217,7 @@ internal sealed class TorizoCombat
         {
             // Both callbacks return during a damage flash. Bomb Torizo also rejects shots while its awakening guard
             // is set; Golden Torizo's nonzero guard instead routes through common damage below.
-            c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
+            c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
             return true;
         }
 
@@ -234,7 +234,7 @@ internal sealed class TorizoCombat
         {
             if (c.Family == SamusProjectileFamily.Missile)
             {
-                c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
+                c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
                 c.Projectile.IsSpent = false;
                 torizoState.Function = TorizoFunction.Idle;
                 enemy.FrameHold = WrappingCountdown.Start(1);
@@ -248,7 +248,7 @@ internal sealed class TorizoCombat
             {
                 if (c.Samus is not null && _access.BombTorizoFunction12IsNonNegative(enemy, c.Samus))
                 {
-                    c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
+                    c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
                     SetBehavior(enemy, TorizoBehaviorFlags.CaughtSuperMissile);
                     torizoState.Function = TorizoFunction.Idle;
                     c.Projectile.IsSpent = true;

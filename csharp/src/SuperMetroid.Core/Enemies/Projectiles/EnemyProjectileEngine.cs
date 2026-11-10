@@ -146,7 +146,7 @@ internal sealed class EnemyProjectileEngine
                 enemyProjectile.CollisionOption == EnemyProjectileCollisionOption.NoCollision)
                 continue;
 
-            foreach (SamusProjectileSlot shot in projectiles.Slots.Take(5))
+            foreach (SamusProjectile shot in projectiles.Slots.Take(5))
             {
                 if (!shot.HasEnemyCollisionPayload)
                     continue;
@@ -924,7 +924,7 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>Creates the common dud shot for a protected head hitbox.</summary>
-    internal void CreateEnemyProjectileDudShot(SamusProjectileSlot projectile)
+    internal void CreateEnemyProjectileDudShot(SamusProjectile projectile)
     {
         _ = _spriteObjects.SpawnRoomSpriteObject(
             projectile.Position.Whole,

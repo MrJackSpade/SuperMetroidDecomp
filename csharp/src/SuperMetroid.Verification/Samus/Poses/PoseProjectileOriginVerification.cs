@@ -22,7 +22,7 @@ internal static class PoseProjectileOriginVerification
     internal static void VerifyPoseProjectileOrigin(SuperMetroidAddressSpace rom)
     {
         short Word(int a) => unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(a));
-        var initialize = new Action<SamusState, SamusProjectileSlot>(BeamFiring.InitializePosition);
+        var initialize = new Action<SamusState, SamusProjectile>(BeamFiring.InitializePosition);
         var refresh = new Action<SamusState, SamusGrappleState>(SamusGrappleBeamDrawing.RefreshFiringDrawOrigins);
         SamusPoseId guardedPose = default;
         var bus = new CartridgeReadGuard(rom)
@@ -31,7 +31,7 @@ internal static class PoseProjectileOriginVerification
             .Forbid(address => address == 0x91b629 + SamusPoseNumbers.Number(guardedPose) * 8 + 4,
                 _ => "Installed graphics offset read ROM.");
         var samus = PrepareRetailSamusFixture(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()));
-        var slot = new SamusProjectileSlot(0);
+        var slot = new SamusProjectile(0);
         InstalledSamusBodyArtwork template = CreateSamusIdentityFixture();
         // The graphics-Y byte only enters as a signed offset, so one artwork fixture per signed
         // byte class covers it.

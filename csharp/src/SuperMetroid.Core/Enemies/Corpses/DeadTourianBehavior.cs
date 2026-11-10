@@ -231,7 +231,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
             // select their species rot callback. No vulnerability, health damage, or projectile impact follows.
             BeforeSuperMissileQuake = (in EnemyShotContext c) =>
             {
-                c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
+                c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
                 TriggerDeadTourianCorpseRotting(c.Enemy);
                 return true;
             },

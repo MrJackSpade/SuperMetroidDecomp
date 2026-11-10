@@ -14,7 +14,7 @@ using SuperMetroid.Core.World;
 internal static class KraidBodyContourVerification
 {
     /// <summary>Builds a direct probe for the private contour branch at its exact projectile-bottom threshold.</summary>
-    internal static Func<RoomEnemySlot, SamusProjectileSlot, bool> CreateKraidBodyContourProbe() => (body, shot) =>
+    internal static Func<RoomEnemySlot, SamusProjectile, bool> CreateKraidBodyContourProbe() => (body, shot) =>
     {
         // Enter the body-contour branch at its exact Y threshold. The surrounding
         // mouth/body dispatch is covered by the encounter collision fixtures.

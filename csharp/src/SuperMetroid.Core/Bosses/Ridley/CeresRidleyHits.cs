@@ -48,7 +48,7 @@ internal sealed class CeresRidleyHits
             return 0;
         }
 
-        foreach (SamusProjectileSlot projectile in projectiles.Slots)
+        foreach (SamusProjectile projectile in projectiles.Slots)
         {
             if (!projectile.HasEnemyCollisionPayload ||
                 !ExtendedSpritemapOverlapsRectangle(
@@ -58,7 +58,7 @@ internal sealed class CeresRidleyHits
             {
                 continue;
             }
-            if (!projectiles.EnemyImpacts.TryStartEnemyImpact(sharedProjectiles, projectile.SlotIndex))
+            if (!projectiles.EnemyImpacts.TryStartEnemyImpact(sharedProjectiles, projectile))
                 continue;
 
             ResolveCeresRidleyShotAfterCollision(slot);

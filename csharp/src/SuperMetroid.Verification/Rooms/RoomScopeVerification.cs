@@ -43,9 +43,9 @@ internal static class RoomScopeVerification
         RoomEnemyProjectileSlot sourceProjectile = source.Enemies.Projectiles.EnemyProjectiles[3];
         sourceProjectile.Position = FixedPosition<RoomPixels>.FromStoredParts(0x0140, 0x1234, 0x0090, 0x5678);
         sourceProjectile.Velocity = new EightEightVector<RoomPixels>(0x0200, unchecked((short)0xFE00));
-        SamusProjectileSlot sourceShot = source.Projectiles.SlotTable.Slots[2];
+        SamusProjectile sourceShot = source.Projectiles.SlotTable.Slots[2];
+        sourceShot.Damage = 1;
         sourceShot.Position = FixedPosition<RoomPixels>.FromStoredParts(0x0120, 0x4321, 0x0080, 0x8765);
-        sourceShot.AuxiliaryPhase = SpazerComboPhase.FlyingUpTowardsPoint;
 
         SelectedRoom parlor = runtime.RoomLoader.LoadSelectedRoom(RoomHeaderDefinitions.Parlor);
         var camera = new Position16<RoomPixels>(0, 0);
@@ -114,11 +114,10 @@ internal static class RoomScopeVerification
             "an enemy projectile slot's whole coordinates survive the load; its fractions clear");
         VerificationAssertions.AssertEqual(sourceProjectile.Velocity, destinationProjectile.Velocity,
             "an enemy projectile slot's velocity survives the load");
-        SamusProjectileSlot destinationShot = destination.Projectiles.SlotTable.Slots[2];
-        VerificationAssertions.AssertEqual(FixedPosition<RoomPixels>.FromStoredParts(0, 0x4321, 0, 0), destinationShot.Position,
-            "a shot slot starts the next room with the horizontal sub-pixel position the outgoing room's left (RoomHandOver), and nothing else of its position");
-        VerificationAssertions.AssertEqual(SpazerComboPhase.Circling, destinationShot.AuxiliaryPhase,
-            "no Spazer phase is handed over: every Spazer special attack sets it before reading it");
+        VerificationAssertions.AssertEqual(0x4321, destination.Projectiles.SlotTable.MuzzleCarry.Kept(2),
+            "a shot place keeps for its next projectile the horizontal sub-pixel position of the outgoing room's shot in it (RoomHandOver, LeftMuzzleSubpixelCarry)");
+        VerificationAssertions.AssertEqual(FixedPosition<RoomPixels>.Zero, destination.Projectiles.SlotTable.Slots[2].Position,
+            "nothing else of the outgoing shot reaches the next room: the place reads as at rest at the origin");
         VerificationAssertions.AssertEqual(previous.Position.X.Fraction, destination.Camera.Position.X.Fraction, "X fraction word carried");
         VerificationAssertions.AssertEqual(previous.Position.Y.Fraction, destination.Camera.Position.Y.Fraction, "Y fraction word carried");
         VerificationAssertions.AssertEqual(previous.IdealPosition, destination.Camera.IdealPosition, "ideal position carried");

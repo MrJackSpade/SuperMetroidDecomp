@@ -87,7 +87,7 @@ public sealed class SamusProjectileSystem
         Charge = Ensure.NotNull(charge);
         PostureAdmission = overreads.PostureAdmission;
         DrainedCrashDepartures = overreads.DrainedCrashDepartures;
-        SlotTable = new ProjectileSlotTable();
+        SlotTable = new ProjectileSlotTable(new LeftMuzzleSubpixelCarry(SlotCount));
         Earthquakes = new ProjectileEarthquakes();
         ImpactAudio = new ProjectileImpactAudio();
         Animation = new ProjectileAnimation(Charge, SlotTable, overreads.ChargeFlareDelays);
@@ -102,20 +102,22 @@ public sealed class SamusProjectileSystem
     }
 
     /// <summary>
-    /// Starts each shot slot's horizontal sub-pixel position from what the room this one replaces left
-    /// (<see cref="RoomHandOver"/>), before any shot is fired.
+    /// Starts each shot place keeping the horizontal sub-pixel position the room this one replaces left
+    /// (<see cref="RoomHandOver"/>, <see cref="LeftMuzzleSubpixelCarry"/>), before any shot is fired.
     /// </summary>
     internal void TakeOverFrom(RoomHandOver handOver)
     {
         Ensure.NotNull(handOver);
-        IReadOnlyList<SamusProjectileSlot> slots = SlotTable.Slots;
-        for (int index = 0; index < slots.Count; index++)
-            slots[index].Position = slots[index].Position.WithFractionX(handOver.ShotHorizontalFraction(index));
+        for (int place = 0; place < SlotCount; place++)
+            SlotTable.MuzzleCarry.Keep(place, handOver.ShotHorizontalFraction(place));
     }
 
-    /// <summary>Leaves each shot slot's horizontal sub-pixel position for the room that replaces this one (<see cref="RoomHandOver"/>).</summary>
+    /// <summary>
+    /// Leaves for the room that replaces this one the horizontal sub-pixel position each shot place keeps as the room's
+    /// load clears Samus's shots (<see cref="RoomHandOver"/>, <see cref="LeftMuzzleSubpixelCarry"/>).
+    /// </summary>
     internal void HandOverTo(RoomHandOver handOver) =>
-        Ensure.NotNull(handOver).LeaveShots(SlotTable.Slots.Select(slot => (int)slot.Position.X.Fraction));
+        Ensure.NotNull(handOver).LeaveShots(Enumerable.Range(0, SlotCount).Select(SlotTable.SubpixelKeptOnClear));
 
     /// <summary>How many ordinary shots Samus can have out at once; bombs have their own slots.</summary>
     public const int SlotCount = 5;
@@ -123,14 +125,14 @@ public sealed class SamusProjectileSystem
     /// <summary>How many projectile trails can be live at once.</summary>
     public const int TrailSlotCount = 18;
 
-    /// <summary>The shot slots by ordinal.</summary>
-    public IReadOnlyList<SamusProjectileSlot> Slots => SlotTable.Slots;
+    /// <summary>Each shot place's projectile, in place order: the live one, or the last one that ended there.</summary>
+    public IReadOnlyList<SamusProjectile> Slots => SlotTable.Slots;
 
     /// <summary>
-    /// Samus's first shot: the shot with the lowest ordinal, live or left over from an earlier shot. Some enemies aim
-    /// their reaction to any hit from where it is, not from the projectile that hit them.
+    /// The projectile in Samus's first shot place, live or the last one that ended there, which reads as at rest at the
+    /// room's origin. Some enemies aim their reaction to any hit from where it is, not from the projectile that hit them.
     /// </summary>
-    public SamusProjectileSlot FirstShot => SlotTable.Slots[0];
+    public SamusProjectile FirstShot => SlotTable.Slots[0];
 
     /// <summary>The most recent charged-shot palette sub-handler result.</summary>
     public SamusBeamChargePaletteStepResult LastBeamChargePaletteStep
@@ -395,7 +397,7 @@ public sealed class SamusProjectileSystem
         // Bombs were handled by the companion class first; the shots run in update order here because instruction
         // deletion changes the counter. The HUD producer can activate X-ray during this pass, so the freeze is checked
         // before each slot, not only at entry.
-        foreach (SamusProjectileSlot slot in SlotTable.InUpdateOrder)
+        foreach (SamusProjectile slot in SlotTable.InUpdateOrder)
         {
             if (samus.Xray.TimeIsFrozen)
                 break;
@@ -602,7 +604,7 @@ public sealed class SamusProjectileSystem
     {
         Ensure.NotNull(sprites);
 
-        foreach (SamusProjectileSlot slot in SlotTable.InUpdateOrder)
+        foreach (SamusProjectile slot in SlotTable.InUpdateOrder)
         {
             if (!slot.IsActive ||
                 slot.Type.Family.IsBombOrExplosion)
@@ -615,7 +617,7 @@ public sealed class SamusProjectileSystem
                 // Shots in odd and even slots flicker on opposite frames. Spazer/plasma combinations use frame bit
                 // one and the opposite phase from power/ice/wave, which use frame bit zero. Keeping these branches
                 // separate is what prevents the wider beam art from disappearing on the wrong video field.
-                bool oddSlot = (slot.SlotIndex & 1) != 0;
+                bool oddSlot = (slot.Place & 1) != 0;
                 bool skip = slot.Type.HasAnyBeam(SamusBeamFlags.Spazer | SamusBeamFlags.Plasma)
                     ? oddSlot != ((frameCounter & 2) != 0)
                     : oddSlot == ((frameCounter & 1) != 0);
@@ -627,7 +629,7 @@ public sealed class SamusProjectileSystem
             // cull by world X. The sprite is published wherever it lies and the display clips it.
             // This also preserves sprite ordering/capacity when a combo orbits offscreen.
             if (slot.Sprite is not null)
-                ProjectileAnimation.DrawSlot(sprites, new SpriteSource(SpriteSourceKind.SamusProjectile, slot.SlotIndex),
+                ProjectileAnimation.DrawSlot(sprites, new SpriteSource(SpriteSourceKind.SamusProjectile, slot.Place),
                     slot, cameraPosition, artwork);
         }
     }
@@ -678,7 +680,7 @@ public sealed class SamusProjectileSystem
     {
         Ensure.NotNull(sprites);
 
-        foreach (SamusProjectileSlot slot in SlotTable.InUpdateOrder)
+        foreach (SamusProjectile slot in SlotTable.InUpdateOrder)
         {
             SamusProjectileFamily family = slot.Type.Family;
             if (!slot.IsActive || family is not (
@@ -686,7 +688,7 @@ public sealed class SamusProjectileSystem
                     SamusProjectileFamily.MissileExplosion))
                 continue;
 
-            ProjectileAnimation.DrawSlot(sprites, new SpriteSource(SpriteSourceKind.SamusProjectile, slot.SlotIndex),
+            ProjectileAnimation.DrawSlot(sprites, new SpriteSource(SpriteSourceKind.SamusProjectile, slot.Place),
                 slot, cameraPosition, artwork);
         }
     }
@@ -720,10 +722,7 @@ public sealed class SamusProjectileSystem
             samus.Shinespark.ResetProjectileEchoStorage();
         }
         Combos.ComboState = 0;
-        foreach (SamusProjectileSlot slot in SlotTable.Slots)
-            slot.ClearForProjectileDataReset();
-        foreach (SamusProjectileTrailSlot trail in SlotTable.TrailSlots)
-            trail.ClearFields();
+        SlotTable.ClearAll();
         SlotTable.ProjectileCounter = 0;
         Firing.ProjectileInvincibilityTimer = 0;
         Earthquakes.EarthquakeType = 0;

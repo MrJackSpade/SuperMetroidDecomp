@@ -53,7 +53,7 @@ internal static class SuperMissileDeathAnimationVerification
         enemy.FrameHold = WrappingCountdown.Start(0x7fff);
         runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(enemy.Position.Whole);
 
-        SamusProjectileSlot shot = runtime.Projectiles.Slots[0];
+        SamusProjectile shot = runtime.Projectiles.Slots[0];
         shot.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile); shot.Damage = 300; shot.Direction = SamusProjectileDirection.Right;
         shot.Position = shot.Position.WithWhole(enemy.Position.Whole);
         shot.Radius = new(4, 4);

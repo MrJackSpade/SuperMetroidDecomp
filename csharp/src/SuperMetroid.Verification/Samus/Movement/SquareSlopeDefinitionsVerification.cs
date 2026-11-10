@@ -53,9 +53,9 @@ internal static class SquareSlopeDefinitionsVerification
                     $"non-square slope shape {shape} has no square quadrants");
         }
 
-        var missile = new Func<RoomCollisionBlock, SamusProjectileSlot, bool>(ProjectileMotion.MissileSlopePointReaction);
+        var missile = new Func<RoomCollisionBlock, SamusProjectile, bool>(ProjectileMotion.MissileSlopePointReaction);
         var bus = NewSlopeHeightNoReadBus();
-        var projectile = new SamusProjectileSlot(0);
+        var projectile = new SamusProjectile(0);
         int cases = 0;
         for (int raw = 0; raw < 256; raw++)
         {

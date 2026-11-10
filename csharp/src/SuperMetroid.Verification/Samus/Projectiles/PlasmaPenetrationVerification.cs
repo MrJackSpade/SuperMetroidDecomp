@@ -27,7 +27,7 @@ internal static class PlasmaPenetrationVerification
             var bombs = new SamusBombProjectileSystem();
             for (int hit = 0; hit < 2; hit++)
             {
-                AssertTrue(shots.EnemyImpacts.TryStartEnemyImpact(bombs, 0), "penetrating enemy hit accepted");
+                AssertTrue(shots.EnemyImpacts.TryStartEnemyImpact(bombs, slot), "penetrating enemy hit accepted");
                 AssertEqual(type, slot.Type, "Plasma preserves live beam type instead of explosion");
                 AssertEqual(100, slot.Damage, "Plasma preserves original damage");
                 AssertTrue(!slot.IsSpent, "Plasma is not marked spent");

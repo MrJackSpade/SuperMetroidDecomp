@@ -26,7 +26,7 @@ internal sealed class ChainsawPowerBombCallback
     internal void RunPowerBombFrameBehavior(
         RoomLevelData level,
         SamusState samus,
-        SamusProjectileSlot slot,
+        SamusProjectile slot,
         SamusBombProjectileSystem sharedProjectiles,
         ISamusRoomObjects? roomObjects)
     {

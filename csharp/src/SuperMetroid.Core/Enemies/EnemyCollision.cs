@@ -194,7 +194,7 @@ internal sealed class EnemyCollision
             if (reaction.SkipsEnemy?.Invoke(enemy) == true)
                 continue;
 
-            foreach (SamusProjectileSlot projectile in projectiles.Slots)
+            foreach (SamusProjectile projectile in projectiles.Slots)
             {
                 // The slot still holds the live beam or missile when the enemy collision
                 // handler selects vulnerability. Starting the impact below deliberately
@@ -296,7 +296,7 @@ internal sealed class EnemyCollision
 
                 if (selectedIgnore)
                 {
-                    projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(projectile.SlotIndex, shot.MarksCollision);
+                    projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(projectile, shot.MarksCollision);
                     hitCount++;
                     break;
                 }
@@ -319,11 +319,11 @@ internal sealed class EnemyCollision
                     // Neither the beam nor the missile damage path rejects the removal marker: later
                     // overlapping enemies in this pass still receive the live payload.
                     projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(
-                        projectile.SlotIndex,
+                        projectile,
                         enemy.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||
                             !projectile.Type.BeamCombination.HasPlasma);
                 }
-                else if (!projectiles.EnemyImpacts.TryStartEnemyImpact(sharedProjectiles, projectile.SlotIndex,
+                else if (!projectiles.EnemyImpacts.TryStartEnemyImpact(sharedProjectiles, projectile,
                     enemy.Contact.HasAny(EnemyContact.BlocksPlasmaBeam)))
                     continue;
 

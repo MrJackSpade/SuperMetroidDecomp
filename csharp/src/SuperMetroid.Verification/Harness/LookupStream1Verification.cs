@@ -1270,13 +1270,13 @@ internal static class LookupStream1Verification
     internal static void VerifyLookupStream1ProjectileMotion(ISnesAddressSpace rom)
     {
         ushort Word(int address) => LittleEndianBytes.Word(LookupStream1ProjectileMotionRomByte(rom, address), LookupStream1ProjectileMotionRomByte(rom, address + 1));
-        var initialize = new Action<ProjectileLaunchInheritance, SamusProjectileSlot>((records, launched) =>
+        var initialize = new Action<ProjectileLaunchInheritance, SamusProjectile>((records, launched) =>
             BeamFiring.InitializePowerBeamVelocity(records, launched, InstalledFixtures.SamusOverreads.Projectiles.UnauthoredBeamFiring));
         var stationary = new ProjectileLaunchInheritance();
         for (ushort combination = 0; combination < 16; combination++)
         for (ushort direction = 0; direction < 10; direction++)
         {
-            var slot = new SamusProjectileSlot(0) { Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(combination), Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction) };
+            var slot = new SamusProjectile(0) { Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(combination), Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction) };
             initialize(stationary, slot);
             int speed = unchecked((short)Word(0x90c2d1 + combination * 4 + (direction is 1 or 3 or 6 or 8 ? 2 : 0)));
             AssertEqual(unchecked((short)(direction is 1 or 2 or 3 ? speed : direction is 6 or 7 or 8 ? -speed : 0)), slot.Velocity.X.SignedRawValue, "stream1 actual initializer X preserves adjacent missile-data overread");
@@ -2063,13 +2063,13 @@ internal static class LookupStream1Verification
         {
             ushort duration = Word(0x930000 | pointer);
             ushort sprite = Word(0x930000 | (pointer + 2));
-            var slot = new SamusProjectileSlot(0) { FrameHold = WrappingCountdown.Start(1), Cursor = SamusProjectileProgramAddresses.CursorAt(pointer) };
+            var slot = new SamusProjectile(0) { FrameHold = WrappingCountdown.Start(1), Cursor = SamusProjectileProgramAddresses.CursorAt(pointer) };
             AssertTrue(!shots.Animation.RunProjectileInstructionHandler(slot), "Actual native timed frame survives");
             AssertEqual(duration, slot.FrameHold.RawValue, "Actual timer unchanged");
             AssertEqual(sprite, slot.SpritemapPointer, "Installed artwork selection");
             AssertEqual(LookupStream1ProjectileRadiusLayoutRomByte(rom, 0x930000 | (pointer + 4)), slot.Radius.X, "Actual X radius");
             AssertEqual(LookupStream1ProjectileRadiusLayoutRomByte(rom, 0x930000 | (pointer + 5)), slot.Radius.Y, "Actual Y radius");
-            AssertEqual(Word(0x930000 | (pointer + 6)), slot.AnimationFrame, "Actual trail phase unchanged");
+            AssertEqual(Word(0x930000 | (pointer + 6)), ProjectileTrails.GetTrailAnimationFrame(slot, InstalledFixtures.SamusOverreads.Projectiles.TrailStarts), "Actual trail phase unchanged");
             AssertEqual(unchecked((ushort)(pointer + 8)), slot.InstructionPointer, "Actual record progression unchanged");
             interpreted++;
             if (duration == 0) continue; // Existing bomb contract excludes zero-duration timed records.
@@ -2152,7 +2152,7 @@ internal static class LookupStream1Verification
         {
             var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = bindings } };
             var bombs = new SamusBombProjectileSystem { FrameBindings = bindings };
-            var slot = new SamusProjectileSlot(0) { FrameHold = WrappingCountdown.Start(1), Cursor = SamusProjectileProgramAddresses.CursorAt(program.Start), Damage = 30 };
+            var slot = new SamusProjectile(0) { FrameHold = WrappingCountdown.Start(1), Cursor = SamusProjectileProgramAddresses.CursorAt(program.Start), Damage = 30 };
             var bomb = new SamusBombProjectileSlot(0) { FrameHold = WrappingCountdown.Start(1), Cursor = SamusProjectileProgramAddresses.CursorAt(program.Start), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
             ushort timer = 1, pointer = program.Start, sprite = 0, x = 0, y = 0, trail = 0;
             var visited = new HashSet<ushort>();
@@ -2189,14 +2189,11 @@ internal static class LookupStream1Verification
                     deletions++; finished = true; break;
                 }
                 AssertEqual(new VerifyLookupStream1ProjectileProgramsCase(timer, pointer, sprite, x, y, trail),
-                    new VerifyLookupStream1ProjectileProgramsCase(slot.FrameHold.RawValue, slot.InstructionPointer, slot.SpritemapPointer, slot.Radius.X, slot.Radius.Y, slot.AnimationFrame),
+                    new VerifyLookupStream1ProjectileProgramsCase(slot.FrameHold.RawValue, slot.InstructionPointer, slot.SpritemapPointer, slot.Radius.X, slot.Radius.Y, ProjectileTrails.GetTrailAnimationFrame(slot, InstalledFixtures.SamusOverreads.Projectiles.TrailStarts)),
                     "Every scheduled projectile exposure/physical envelope/trail phase matches native");
                 AssertEqual(new LookupStream1VerifyLookupStream1ProjectileProgramsCase(timer, pointer, sprite, x, y),
                     new LookupStream1VerifyLookupStream1ProjectileProgramsCase(bomb.FrameHold.RawValue, bomb.InstructionPointer, bomb.SpritemapPointer, bomb.Radius.X, bomb.Radius.Y),
                     "Every scheduled bomb exposure/physical envelope matches native");
-                slot.AnimationFrame = 0xbeef;
-                AssertEqual(trail, ProjectileTrails.GetTrailAnimationFrame(slot, InstalledFixtures.SamusOverreads.Projectiles.TrailStarts), "Actual trail consumer reads prior record, not next phase or cached frame");
-                slot.AnimationFrame = trail;
                 if (looped) { loops++; finished = true; break; }
             }
             AssertTrue(finished, "Complete native startup and first loop or terminal deletion confirmed");

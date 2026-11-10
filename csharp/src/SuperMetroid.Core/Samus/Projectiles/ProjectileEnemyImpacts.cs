@@ -33,12 +33,9 @@ internal sealed class ProjectileEnemyImpacts
     /// enemy callback which returns without entering ordinary impact conversion. This is
     /// shared by extended hitboxes and radius-based custom reactions such as shutters.
     /// </summary>
-    public void ApplyEnemyCollisionPrelude(int slotIndex, bool markCollisionState)
+    public void ApplyEnemyCollisionPrelude(SamusProjectile projectile, bool markCollisionState)
     {
-        if ((uint)slotIndex >= SamusProjectileSystem.SlotCount)
-            throw new ArgumentOutOfRangeException(nameof(slotIndex));
-
-        SamusProjectileSlot slot = _slotTable.Slots[slotIndex];
+        SamusProjectile slot = Ensure.NotNull(projectile);
         if (!slot.HasEnemyCollisionPayload)
             return;
 
@@ -58,8 +55,8 @@ internal sealed class ProjectileEnemyImpacts
     /// Compatibility name retained for callers whose geometry is specifically an extended
     /// spritemap. The behavior is the same projectile prelude, not a separate fix.
     /// </summary>
-    public void ApplyExtendedEnemyCollisionPrelude(int slotIndex, bool markCollisionState) =>
-        ApplyEnemyCollisionPrelude(slotIndex, markCollisionState);
+    public void ApplyExtendedEnemyCollisionPrelude(SamusProjectile projectile, bool markCollisionState) =>
+        ApplyEnemyCollisionPrelude(projectile, markCollisionState);
 
     /// <summary>
     /// Reflects the projectile after an enemy callback has replaced
@@ -67,23 +64,21 @@ internal sealed class ProjectileEnemyImpacts
     /// position, but reconstructs its damage, direction-specific animation, radii,
     /// and family frame behaviour exactly as the game does.
     /// </summary>
-    public void ReflectFromEnemy(SamusState samus, int slotIndex)
+    public void ReflectFromEnemy(SamusState samus, SamusProjectile projectile)
     {
         Ensure.NotNull(samus);
-        if ((uint)slotIndex >= SamusProjectileSystem.SlotCount)
-            throw new ArgumentOutOfRangeException(nameof(slotIndex));
-
-        SamusProjectileSlot slot = _slotTable.Slots[slotIndex];
+        SamusProjectile slot = Ensure.NotNull(projectile);
         if (!slot.HasEnemyCollisionPayload)
             return;
 
         SamusProjectileFamily family = slot.Type.Family;
         if (family == SamusProjectileFamily.SuperMissile)
         {
-            // Reflection clears the slot the Super Missile names as its link before
-            // repurposing the owner; it does not broadly delete unrelated Super Missiles.
-            if (slot.SuperMissileLinkSlot is { } linkIndex && linkIndex != slotIndex && _slotTable.Slots[linkIndex].IsActive)
-                _animation.ClearProjectile(_slotTable.Slots[linkIndex]);
+            // Reflection deletes the projectile in the place the Super Missile names as its link
+            // (UnlinkedSuperMissileLink) before repurposing the owner; it does not broadly delete
+            // unrelated Super Missiles.
+            if (slot.SuperMissileLinkPlace is { } linkPlace && linkPlace != slot.Place && _slotTable.Slots[linkPlace].IsActive)
+                _animation.ClearProjectile(_slotTable.Slots[linkPlace]);
         }
 
         if (family == SamusProjectileFamily.Beam)
@@ -124,13 +119,13 @@ internal sealed class ProjectileEnemyImpacts
         {
             slot.FrameBehavior = SamusProjectileFrameBehavior.Missile;
             slot.MissileIgnition = SamusMissileIgnition.PendingAfterReflection;
-            slot.SuperMissileLinkSlot = null;
+            slot.SuperMissileLinkPlace = null;
         }
         else if (family == SamusProjectileFamily.SuperMissile)
         {
             slot.FrameBehavior = SamusProjectileFrameBehavior.SuperMissile;
             slot.MissileIgnition = SamusMissileIgnition.PendingAfterReflection;
-            slot.SuperMissileLinkSlot = null;
+            slot.SuperMissileLinkPlace = null;
         }
         else
         {
@@ -154,7 +149,7 @@ internal sealed class ProjectileEnemyImpacts
     {
         Ensure.NotNull(sharedProjectiles);
 
-        foreach (SamusProjectileSlot slot in _slotTable.InUpdateOrder)
+        foreach (SamusProjectile slot in _slotTable.InUpdateOrder)
         {
             if (!slot.Type.IsFamily(SamusProjectileFamily.Missile))
                 continue;
@@ -176,14 +171,11 @@ internal sealed class ProjectileEnemyImpacts
     /// </summary>
     public bool TryStartEnemyImpact(
         SamusBombProjectileSystem sharedProjectiles,
-        int slotIndex,
+        SamusProjectile projectile,
         bool blocksPlasmaBeam = false)
     {
         Ensure.NotNull(sharedProjectiles);
-        if ((uint)slotIndex >= SamusProjectileSystem.SlotCount)
-            throw new ArgumentOutOfRangeException(nameof(slotIndex));
-
-        SamusProjectileSlot slot = _slotTable.Slots[slotIndex];
+        SamusProjectile slot = Ensure.NotNull(projectile);
         if (!slot.HasEnemyCollisionPayload)
             return false;
 
@@ -196,7 +188,7 @@ internal sealed class ProjectileEnemyImpacts
             // hit deletion (and Spazer's paired deletion) in their next frame behaviour;
             // replacing that handler with a beam explosion loses their family lifecycle.
             // Plasma normally pierces, unless the target explicitly stops Plasma beams.
-            ApplyEnemyCollisionPrelude(slotIndex,
+            ApplyEnemyCollisionPrelude(slot,
                 blocksPlasmaBeam || !slot.Type.BeamCombination.HasPlasma);
             return true;
         }

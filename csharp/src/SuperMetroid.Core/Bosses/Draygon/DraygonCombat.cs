@@ -207,7 +207,7 @@ internal sealed class DraygonCombat
                 {
                     // Body, claws, and shell use the shared common touch; only the first
                     // eye rectangle of the two eye-showing body frames reaches Draygon's damage callback.
-                    c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
+                    c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
                     _projectiles.CreateEnemyProjectileDudShot(c.Projectile);
                     return true;
                 }

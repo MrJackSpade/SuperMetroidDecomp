@@ -47,13 +47,6 @@ public sealed class TitleSequenceState : IFrontendScreen
 
     /// <summary>Queues the opening music and title transitions when audio is available.</summary>
     private readonly AudioQueues? audio;
-    /// <summary>
-    /// The record the tube light last showed (#1512), which the floor's shading names. It outlasts the skip's restart of
-    /// the console lights, as a record's colours stay shown until the restarted lights show their first.
-    /// </summary>
-    private PaletteFxFrame? tubeLightRecord;
-    /// <summary>The record the flickering displays last showed (#1512), kept as <see cref="tubeLightRecord"/> is.</summary>
-    private PaletteFxFrame? displaysRecord;
     /// <summary>Runs the two console-light palette-FX programs during the title sequence.</summary>
     private RoomPaletteFxSystem consolePaletteFx = new(new PaletteFxSessionState());
     /// <summary>The title and copyright sprite entries in drawing order, over the title sprite page (#1358).</summary>
@@ -328,8 +321,6 @@ public sealed class TitleSequenceState : IFrontendScreen
         // The title runs the same colour effects as rooms. Its two console
         // programs own their colors and timers; the host must not synthesize a blink.
         consolePaletteFx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
-        tubeLightRecord = consolePaletteFx.RecordOf(PaletteFxColours.BabyMetroidTubeLight) ?? tubeLightRecord;
-        displaysRecord = consolePaletteFx.RecordOf(PaletteFxColours.TitleScreenDisplays) ?? displaysRecord;
         // The skip reconstruction follows the palette effects for this frame. Restart
         // only here, not when the subsequent fade-in arms the title idle countdown.
         if (rebuildConsolePaletteFxAfterStep)
@@ -368,17 +359,18 @@ public sealed class TitleSequenceState : IFrontendScreen
         "Title rendering requires the installed title backdrop.");
 
     /// <summary>
-    /// The floor's shading (#1512): the shade of the record each console light last showed, the tube light's then the
-    /// displays', which recolour different colours of the floor.
+    /// The floor's shading (#1512, #1597): the shade of the record each running console light shows, the tube light's then
+    /// the displays', which recolour different colours of the floor. Lights the skip has just restarted show the floor's
+    /// own colours until they show their first record.
     /// </summary>
     internal PictureShading FloorShading
     {
         get
         {
             PictureShading shading = PictureShading.Standard;
-            if (tubeLightRecord is { } tube)
+            if (consolePaletteFx.RecordOf(PaletteFxColours.BabyMetroidTubeLight) is { } tube)
                 shading = shading.With(PaletteFxShades.Of(PaletteFxColours.BabyMetroidTubeLight, tube));
-            if (displaysRecord is { } displays)
+            if (consolePaletteFx.RecordOf(PaletteFxColours.TitleScreenDisplays) is { } displays)
                 shading = shading.With(PaletteFxShades.Of(PaletteFxColours.TitleScreenDisplays, displays));
             return shading;
         }

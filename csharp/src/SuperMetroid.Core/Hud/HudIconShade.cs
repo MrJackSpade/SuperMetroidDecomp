@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Hud;
 
-/// <summary>The shade the HUD last gave an item icon's cells when the selection changed (#1466).</summary>
+/// <summary>The shade the current item selection gives an item icon's cells (#1466, #1597).</summary>
 public enum HudIconShade
 {
     /// <summary>The selected item's shade.</summary>

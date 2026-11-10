@@ -79,7 +79,7 @@ internal static class PauseSnapshotTestsVerification
         Suite(nameof(VerifyPausePaletteSound), () => VerifyPausePaletteSound());
         Suite(nameof(VerifyPauseReserveManual), () => VerifyPauseReserveManual());
         Suite(nameof(VerifyPauseReserveArrow), () => VerifyPauseReserveArrow());
-        Suite(nameof(VerifyPauseReserveArrowRebindKeepsLatch), () => VerifyPauseReserveArrowRebindKeepsLatch());
+        Suite(nameof(VerifyPauseReserveArrowRebindKeepsPicture), () => VerifyPauseReserveArrowRebindKeepsPicture());
         Suite(nameof(VerifyPauseReserveTanks), () => VerifyPauseReserveTanks());
         Suite(nameof(VerifyPauseReserveHud), () => VerifyPauseReserveHud());
         return 0;

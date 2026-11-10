@@ -60,11 +60,6 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// installed flight's backdrop, which the engine flicker never recolours.
     /// </summary>
     internal RgbColor Backdrop { get; private set; }
-    /// <summary>
-    /// The record the gunship engine's flicker last showed (#1512), which the floor's shading names, or null before the
-    /// flicker has shown one.
-    /// </summary>
-    private PaletteFxFrame? engineRecord;
     /// <summary>The live actors' sprite entries over the sprite characters the uploads leave (#1358).</summary>
     internal readonly ScreenSprites objects;
     /// <summary>Installed art, bound when the game is bound to its installed content.</summary>
@@ -402,9 +397,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 PaletteFx.Start(CeresDestructionSceneDefinitions.GunshipEngineFlicker, 0);
             }
             // The flicker's records are shades the import pre-colours the scene's pictures in (#1512); the scene names the
-            // record its engine last showed, which stays shown should the program be rebuilt.
+            // record its running engine program shows (#1597).
             PaletteFx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
-            engineRecord = PaletteFx.RecordOf(PaletteFxColours.CutsceneGunshipEngine) ?? engineRecord;
             if (PaletteFx.SoundRequests.Count != 0 || PaletteFx.MusicRequests.Count != 0)
                 throw new InvalidDataException("Ceres engine palette program unexpectedly requested audio.");
         }
@@ -838,10 +832,10 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     }
 
     /// <summary>
-    /// The shading of the gunship's floor (#1512, #1544): the shade of the record the gunship engine's flicker last showed,
-    /// which recolours the engine's colour, or the floor's standard colours before the flicker has shown one.
+    /// The shading of the gunship's floor (#1512, #1544, #1597): the shade of the record the gunship engine's flicker
+    /// program shows, which recolours the engine's colour, or the floor's standard colours while no program has shown one.
     /// </summary>
-    internal PictureShading EngineShading => engineRecord is { } record
+    internal PictureShading EngineShading => PaletteFx?.RecordOf(PaletteFxColours.CutsceneGunshipEngine) is { } record
         ? PictureShading.Shaded(PaletteFxShades.Of(PaletteFxColours.CutsceneGunshipEngine, record))
         : PictureShading.Standard;
 

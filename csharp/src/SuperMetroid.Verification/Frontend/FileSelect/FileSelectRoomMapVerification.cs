@@ -179,7 +179,7 @@ internal static class FileSelectRoomMapVerification
         using var paletteJson = new MemoryStream();
         MapPaletteCycleFile.Write(paletteJson, new() { Version = 1, Frames = paletteFrames });
         paletteJson.Position = 0;
-        animations.BindPalette(MapPaletteCycleFile.Read(paletteJson).Timing);
+        animations.BindHighlight(MapPaletteCycleFile.Read(paletteJson).Timing);
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var artwork = SuperMetroid.AssetExtraction.Frontend.Map.MapSpriteExtractor.Extract(retail);
         var spriteDocument = RequiredJson.Deserialize<MapSpriteDocument>(artwork[MapSpriteFormat.JsonFile], options);
@@ -196,20 +196,24 @@ internal static class FileSelectRoomMapVerification
         {
             return animations.arrows[index].Frame;
         }
-        // The highlighted sprites show the screen's own colours until the cycle's first step, then name the shade of the
-        // frame last applied, which the import pre-colours from the cycle's colours (#1512).
-        AssertEqual(PictureShading.Shaded(MapSpriteShades.Drawn(MapSpriteScreen.FileSelect, MapSpriteColouring.Highlighted)),
-            animations.HighlightShading, "before the first cycle step the map highlight shows file select's own colours");
-        AssertTrue(!animations.StepPalette(), "initial map palette tick advances to frame one without loop sound");
+        // The highlighted sprites name the shade of the cycle's current frame, which the import pre-colours from the cycle's
+        // colours (#1512, #1597).
+        AssertEqual(PictureShading.Shaded(MapSpriteShades.Highlight(0)),
+            animations.HighlightShading, "before the first cycle step the map highlight shows frame zero's shade");
+        AssertTrue(!animations.StepHighlight(), "initial map highlight tick advances to frame one without loop sound");
         AssertEqual(PictureShading.Shaded(MapSpriteShades.Highlight(1)), animations.HighlightShading,
             "map highlight shows frame one's shade");
-        AssertTrue(!animations.StepPalette(), "palette delay does not queue a sound");
-        AssertTrue(animations.StepPalette(), "palette sentinel queues exactly one loop sound");
+        AssertTrue(!animations.StepHighlight(), "highlight delay does not queue a sound");
+        AssertTrue(animations.StepHighlight(), "highlight sentinel queues exactly one loop sound");
         AssertEqual(PictureShading.Shaded(MapSpriteShades.Highlight(0)), animations.HighlightShading,
-            "palette sentinel returns the highlight to frame zero's shade");
-        animations.ResetPalette();
+            "highlight sentinel returns the highlight to frame zero's shade");
+        for (int tick = 0; tick < 3; tick++)
+            AssertTrue(!animations.StepHighlight(), "frame zero's hold queues no sound");
+        AssertEqual(PictureShading.Shaded(MapSpriteShades.Highlight(1)), animations.HighlightShading,
+            "frame zero's three-tick hold ends on frame one before the reset");
+        animations.ResetHighlight();
         AssertEqual(PictureShading.Shaded(MapSpriteShades.Highlight(0)), animations.HighlightShading,
-            "resetting the cycle keeps the colours its last step applied");
+            "resetting the cycle shows frame zero's shade at once");
         animations.StepArrows(direction => direction == MapScrollDirection.Left);
         ScreenSprites Draw()
         {

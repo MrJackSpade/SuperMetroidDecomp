@@ -827,13 +827,9 @@ internal static class LookupStream3Verification
         foreach (int invalid in new[] { -1, 16, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainBeamQuadrants.DirectionForPair(invalid),
                 "stream 3 beam dispatcher preserves span index bounds");
-        // Each scene's fade groups at the native boundary: the cartridge position of the first colour and the colour count.
-        (int FirstColor, int ColorCount)[][] introRegions = [.. new[]
-        {
-            IntroCinematicDefinitions.Palette.Gameplay, IntroCinematicDefinitions.Palette.GameplayClear,
-            IntroCinematicDefinitions.Palette.Narration, IntroCinematicDefinitions.Palette.Discovery,
-        }.Select(scene => scene.Backgrounds.Select(group => IntroRegion(IntroSheetInks.Background(group), 0))
-            .Concat(scene.Sprites.Select(group => IntroRegion(IntroSheetInks.Sprite(group), ImageColourGroup.Count * ImageColourGroup.Colours))).ToArray())];
+        // The cartridge's four crossfade routines at the native boundary, each region the cartridge position of its first colour
+        // and its colour count: the narration's colours on the way out and on the way back, the flashback's and the
+        // laboratory's. Each crossfaded scene the import shades is the union of its routines' regions (#1597).
         (int FirstColor, int ColorCount)[][] expectedIntroRegions =
         [
             [new(0, 20), new(48, 16), new(233, 6)],
@@ -841,33 +837,41 @@ internal static class LookupStream3Verification
             [new(20, 3), new(112, 16), new(192, 32), new(240, 16)],
             [new(32, 16), new(224, 9)],
         ];
+        IntroCrossfadeScene[] introRoutineScenes =
+            [IntroCrossfadeScene.Narration, IntroCrossfadeScene.Narration, IntroCrossfadeScene.Flashback, IntroCrossfadeScene.Laboratory];
         int[][] nativeIntroOperands =
         [ [0x8bb258, 0x8bb261, 0x8bb26a], [0x8bb3c8, 0x8bb3d1, 0x8bb3da],
           [0x8bb273, 0x8bb27c, 0x8bb285, 0x8bb28e], [0x8bb2f5, 0x8bb2fe] ];
-        for (int group = 0; group < introRegions.Length; group++)
+        for (int group = 0; group < expectedIntroRegions.Length; group++)
         {
-            AssertTrue(introRegions[group].SequenceEqual(expectedIntroRegions[group]),
-                "stream 3 intro scene region order, offsets and color counts");
+            AssertEqual(expectedIntroRegions[group].Length, nativeIntroOperands[group].Length, "stream 3 intro routine region count");
             for (int index = 0; index < nativeIntroOperands[group].Length; index++)
             {
                 int address = nativeIntroOperands[group][index];
                 AssertEqual((byte)0xa2, rom.ReadCartridgeByte(address), "stream 3 intro native LDX region");
                 AssertEqual((byte)0xa0, rom.ReadCartridgeByte(address + 3), "stream 3 intro native LDY color count");
                 // The native X operand is the first color's byte offset into the two-byte palette entries.
-                AssertEqual(introRegions[group][index].FirstColor * 2,
+                AssertEqual(expectedIntroRegions[group][index].FirstColor * 2,
                     CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 1), "stream 3 intro native offset");
-                AssertEqual(introRegions[group][index].ColorCount,
+                AssertEqual(expectedIntroRegions[group][index].ColorCount,
                     CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 4), "stream 3 intro native count");
             }
-            foreach (int invalid in new[] { -1, introRegions[group].Length, int.MaxValue })
-                AssertThrows<IndexOutOfRangeException>(() => _ = introRegions[group][invalid], "stream 3 intro region bounds");
+            foreach (int invalid in new[] { -1, expectedIntroRegions[group].Length, int.MaxValue })
+                AssertThrows<IndexOutOfRangeException>(() => _ = expectedIntroRegions[group][invalid], "stream 3 intro region bounds");
         }
-        // The cartridge position of the first colour the import's fade shades move for a group, and how many they move (#1512).
-        static (int FirstColor, int ColorCount) IntroRegion(IEnumerable<int> inks, int start)
+        var introSceneColours = new HashSet<int>();
+        foreach (IntroCrossfadeScene scene in Enum.GetValues<IntroCrossfadeScene>())
         {
-            int[] colours = [.. inks];
-            return (start + colours[0], colours.Length);
+            int[] shaded = [.. IntroSceneColours(scene)];
+            int[] routines = [.. Enumerable.Range(0, expectedIntroRegions.Length).Where(group => introRoutineScenes[group] == scene)
+                .SelectMany(group => expectedIntroRegions[group]).SelectMany(region => Enumerable.Range(region.FirstColor, region.ColorCount)).Distinct().Order()];
+            AssertTrue(shaded.SequenceEqual(routines), $"stream 3 intro {scene} shades exactly the colours its native routines move");
+            foreach (int colour in shaded)
+                AssertTrue(introSceneColours.Add(colour), $"stream 3 intro colour {colour} belongs to one crossfaded scene only");
         }
+        // The cartridge positions of the colours the import's crossfade shades of a scene move, in rising order (#1512, #1597).
+        static IEnumerable<int> IntroSceneColours(IntroCrossfadeScene scene) =>
+            IntroSheetInks.Background(scene).Concat(IntroSheetInks.Sprite(scene).Select(ink => ImageColourGroup.Count * ImageColourGroup.Colours + ink)).Order();
         ushort[] motherBrainRoots =
         [
             0xa586, 0xa5bf, 0xa5f8, 0xa62c, 0xa660, 0xa694, 0xa69b, 0xa6d9, 0xa717,

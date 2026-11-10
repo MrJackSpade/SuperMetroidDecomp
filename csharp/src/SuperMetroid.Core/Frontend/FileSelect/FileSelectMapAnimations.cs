@@ -4,23 +4,22 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
-/// <summary>Map arrow animations and palette animation, advanced by menu ticks only.</summary>
+/// <summary>Map arrow animations and the highlight cycle, advanced by menu ticks only.</summary>
 public sealed class FileSelectMapAnimations
 {
     /// <summary>Independent visibility, phase, and delay state for each map-scroll arrow.</summary>
     internal readonly Arrow[] arrows = new Arrow[MapArrowDefinitions.Count];
-    /// <summary>Palette cycle state advanced separately from arrow timing.</summary>
-    private readonly MapPaletteAnimation palette;
+    /// <summary>The highlight cycle, advanced separately from arrow timing.</summary>
+    private readonly MapHighlightAnimation highlight = new();
     /// <summary>The installed arrow phases.</summary>
     private MapArrowPresentation? presentation;
 
-    /// <summary>Creates independent arrow counters and palette timing for a map menu, binding installed arrow positions and phase durations without reading the game's animation data.</summary>
+    /// <summary>Creates independent arrow counters and highlight timing for a map menu, binding installed arrow positions and phase durations without reading the game's animation data.</summary>
     /// <param name="presentation">Required installed arrow definitions.</param>
     /// <exception cref="ArgumentNullException">The installed arrow definitions are null.</exception>
     /// <exception cref="InvalidOperationException">Installed arrow definitions are absent, including when the optional argument is omitted.</exception>
     public FileSelectMapAnimations(MapArrowPresentation? presentation = null)
     {
-        palette = new MapPaletteAnimation(MapSpriteScreen.FileSelect);
         BindPresentation(presentation);
     }
 
@@ -45,17 +44,17 @@ public sealed class FileSelectMapAnimations
         presentation = content;
     }
 
-    /// <summary>Resetting the pause menu's animations resets palette timing but does not clear the arrow counters.</summary>
-    public void ResetPalette() => palette.Reset();
+    /// <summary>Resetting the map's animations resets the highlight cycle but does not clear the arrow counters.</summary>
+    public void ResetHighlight() => highlight.Reset();
     /// <summary>Replaces the installed highlight timing while retaining the menu-owned cycle state.</summary>
-    internal void BindPalette(SuperMetroid.Core.Frontend.Map.Artwork.MapHighlightCycle? cycle) => palette.Bind(cycle);
+    internal void BindHighlight(MapHighlightCycle? cycle) => highlight.Bind(cycle);
 
-    /// <summary>Advances the highlight cycle; returns the room-library sound request at the palette loop terminator.</summary>
-    /// <returns>True when the cycle wraps and the caller should queue the map's palette-loop sound; this method does not enqueue audio itself.</returns>
-    public bool StepPalette() => palette.Step();
+    /// <summary>Advances the highlight cycle; returns the room-library sound request at the cycle's loop terminator.</summary>
+    /// <returns>True when the cycle wraps and the caller should queue the map's highlight-loop sound; this method does not enqueue audio itself.</returns>
+    public bool StepHighlight() => highlight.Step();
 
     /// <summary>The shading the file-select map's highlighted sprites show at the highlight cycle's current frame (#1512).</summary>
-    public PictureShading HighlightShading => palette.Shading;
+    public PictureShading HighlightShading => highlight.Shading;
 
     /// <summary>Arrows advance only when their boundary test allows them to be drawn.</summary>
     /// <param name="available">Direction-specific scroll-boundary predicate; unavailable arrows become hidden and retain their existing frame and remaining timer.</param>

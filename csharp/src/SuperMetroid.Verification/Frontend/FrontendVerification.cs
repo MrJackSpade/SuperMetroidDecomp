@@ -412,43 +412,54 @@ internal static void VerifyIntroGameplayFlashbackVerticalScroll()
 }
 
 /// <summary>
-/// Checks group clearing and fixed-point fade rounding over 32 cinematic steps on the Mother Brain room's lit colours
-/// (#1512): the fader's level for the group, the shade of that level the scene pictures name, and the colour that level
-/// shows for a colour of channel four, where the rounding boundary is easy to see.
+/// Checks the opening's crossfade and its fixed-point fade rounding over 32 steps (#1512, #1597): the level each scene
+/// shows as the narration crossfades into the flashback and back, the shades of those levels the scene pictures name, and
+/// the colour the flashback's level shows for a colour of channel four, where the rounding boundary is easy to see.
 /// </summary>
-internal static void VerifyCinematicPaletteFader()
+internal static void VerifyIntroCrossfade()
 {
-    var fader = new CinematicPaletteFader();
-    var lit = new IntroFadeColours([IntroBackgroundFade.NarrationText], []);
     var target = new RgbColor(33, 33, 33);
-    AssertTrue(fader.SceneShading.IsStandard, "every cinematic colour starts at full, so the scene pictures name no fade shade");
+    var crossfade = new IntroCrossfade();
+    AssertTrue(crossfade.SceneShading.IsStandard, "every scene starts at full, so the scene pictures name no fade shade");
+    AssertThrows<InvalidOperationException>(crossfade.Step, "the opening cannot step a crossfade it has not started");
 
-    // $8B:B018 clears incoming range $28/$03, the Mother Brain room's three lit colours.
-    fader.Clear(lit);
-    AssertEqual(0, fader.LevelOf(IntroBackgroundFade.NarrationText), "cinematic clear blackens the lit colours");
-    AssertTrue(fader.SceneShading.Shades.SequenceEqual([IntroShades.Faded(IntroBackgroundFade.NarrationText, 0)]),
-        "the scene pictures name the cleared group's level-zero shade and no other");
+    // The Mother Brain setup starts the flashback black while the narration shows at full.
+    crossfade = new IntroCrossfade(IntroCrossfadeScene.Narration, IntroCrossfadeScene.Flashback);
+    AssertEqual(0, crossfade.LevelOf(IntroCrossfadeScene.Flashback), "the incoming flashback starts black");
+    AssertEqual(IntroCrossfade.Levels, crossfade.LevelOf(IntroCrossfadeScene.Narration), "the outgoing narration starts at full");
+    AssertTrue(crossfade.SceneShading.Shades.SequenceEqual([IntroShades.Faded(IntroCrossfadeScene.Flashback, 0)]),
+        "the scene pictures name the incoming scene's level-zero shade and no other");
 
     // One retail step adds component four << 3 = $0020. Compose takes the high byte,
-    // so the first seven calls remain black and the eighth produces component one.
+    // so the first seven steps remain black and the eighth produces component one.
     for (int step = 0; step < 7; step++)
-        fader.FadeIn(lit);
-    AssertEqual(RgbColor.Black, Shown(fader), "8.8 cinematic fade preserves early rounding");
-    fader.FadeIn(lit);
-    AssertEqual(new RgbColor(8, 8, 8), Shown(fader), "eighth fade step reaches component one");
-    AssertTrue(fader.SceneShading.Shades.SequenceEqual([IntroShades.Faded(IntroBackgroundFade.NarrationText, 8)]),
-        "the scene pictures name the shade of the group's current level");
+        crossfade.Step();
+    AssertEqual(RgbColor.Black, Shown(crossfade), "8.8 cinematic fade preserves early rounding");
+    crossfade.Step();
+    AssertEqual(new RgbColor(8, 8, 8), Shown(crossfade), "eighth fade step reaches component one");
+    AssertTrue(crossfade.SceneShading.Shades.SequenceEqual(
+            [IntroShades.Faded(IntroCrossfadeScene.Narration, IntroCrossfade.Levels - 8), IntroShades.Faded(IntroCrossfadeScene.Flashback, 8)]),
+        "the scene pictures name the shade of each moving scene's current level");
+    AssertEqual(IntroCrossfade.Levels, crossfade.LevelOf(IntroCrossfadeScene.Laboratory), "a scene the crossfade does not move shows at full");
 
-    for (int step = 8; step < 32; step++)
-        fader.FadeIn(lit);
-    AssertTrue(fader.SceneShading.IsStandard, "32 fade-in calls reach the installed colours, which name no shade");
+    for (int step = 8; step < IntroCrossfade.Levels; step++)
+        crossfade.Step();
+    AssertEqual(IntroCrossfade.Levels, crossfade.LevelOf(IntroCrossfadeScene.Flashback), "32 steps reach the flashback's installed colours");
+    AssertTrue(crossfade.SceneShading.Shades.SequenceEqual([IntroShades.Faded(IntroCrossfadeScene.Narration, 0)]),
+        "32 steps leave only the narration's black shade");
+    AssertThrows<InvalidOperationException>(crossfade.Step, "a crossfade takes no step past its last");
 
-    for (int step = 0; step < 32; step++)
-        fader.FadeOut(lit);
-    AssertEqual(0, fader.LevelOf(IntroBackgroundFade.NarrationText), "32 fade-out calls reach black");
+    // The page-two setup crossfades back: the narration starts black and the flashback at full.
+    crossfade = new IntroCrossfade(IntroCrossfadeScene.Flashback, IntroCrossfadeScene.Narration);
+    for (int step = 0; step < IntroCrossfade.Levels; step++)
+        crossfade.Step();
+    AssertEqual(0, crossfade.LevelOf(IntroCrossfadeScene.Flashback), "32 steps fade the flashback to black");
+    AssertEqual(IntroCrossfade.Levels, crossfade.LevelOf(IntroCrossfadeScene.Narration), "32 steps restore the narration");
+    AssertThrows<ArgumentException>(() => _ = new IntroCrossfade(IntroCrossfadeScene.Laboratory, IntroCrossfadeScene.Laboratory),
+        "a scene cannot crossfade into itself");
 
-    RgbColor Shown(CinematicPaletteFader shown) =>
-        new ColourLevel(shown.LevelOf(IntroBackgroundFade.NarrationText), CinematicPaletteFader.Levels).Apply(target);
+    RgbColor Shown(IntroCrossfade shown) =>
+        new ColourLevel(shown.LevelOf(IntroCrossfadeScene.Flashback), IntroCrossfade.Levels).Apply(target);
 }
 
 /// <summary>Checks the Mother Brain flashback's typed demo program: held and new input edges, record timing and its end routine.</summary>

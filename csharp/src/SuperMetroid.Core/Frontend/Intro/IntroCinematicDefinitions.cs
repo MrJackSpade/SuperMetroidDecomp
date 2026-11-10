@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Intro;
 
-/// <summary>The opening cinematic's shared definitions: its text layout, palette fades, music, actors' palettes and sounds, and the narration caret.</summary>
+/// <summary>The opening cinematic's shared definitions: its text layout, crossfade timing, music, actors' sounds, and the narration caret.</summary>
 public static class IntroCinematicDefinitions
 {
     /// <summary>The planes the opening's scene and text are drawn on.</summary>
@@ -10,29 +10,13 @@ public static class IntroCinematicDefinitions
         public const int Width = 32;
     }
 
-    /// <summary>The colours the repeating flashback and narration crossfades fade.</summary>
-    public static class Palette
+    /// <summary>The timing of the repeating crossfades between the narration and the flashback scenes.</summary>
+    public static class Crossfade
     {
         /// <summary>The crossfade counter's starting value.</summary>
-        public const int CrossfadeInitialCounter = 127;
-        /// <summary>Updates per crossfade colour step.</summary>
-        public const int CrossfadeStepFrames = 4;
-        /// <summary>The colours faded out as a scene replaces the narration.</summary>
-        public static IntroFadeColours Gameplay { get; } = new(
-            [IntroBackgroundFade.GameplayBackground, IntroBackgroundFade.Environment], [IntroSpriteFade.Samus]);
-        /// <summary>The colours cleared and faded back in as the narration returns from a scene.</summary>
-        public static IntroFadeColours GameplayClear { get; } = new(
-            [IntroBackgroundFade.ClearedBackground, IntroBackgroundFade.Environment], [IntroSpriteFade.Samus]);
-        /// <summary>The Mother Brain scene's colours, faded in and out with it.</summary>
-        public static IntroFadeColours Narration { get; } = new(
-            [IntroBackgroundFade.NarrationText, IntroBackgroundFade.NarrationBackground],
-            [IntroSpriteFade.NarrationPortrait, IntroSpriteFade.NarrationObjects]);
-        /// <summary>The Metroid discovery scenes' colours, faded in and out with them.</summary>
-        public static IntroFadeColours Discovery { get; } = new(
-            [IntroBackgroundFade.DiscoveryBackground], [IntroSpriteFade.DiscoveryScientists]);
-        /// <summary>The background groups that hold the narration text's colours, of which a transition moves at most one.</summary>
-        public static IReadOnlyList<IntroBackgroundFade> NarrationColours { get; } =
-            [IntroBackgroundFade.GameplayBackground, IntroBackgroundFade.ClearedBackground];
+        public const int InitialCounter = 127;
+        /// <summary>Updates per crossfade step.</summary>
+        public const int StepFrames = 4;
     }
 
     /// <summary>The music the opening's scene changes start.</summary>

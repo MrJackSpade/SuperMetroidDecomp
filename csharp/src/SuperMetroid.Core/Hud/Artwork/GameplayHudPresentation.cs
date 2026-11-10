@@ -36,11 +36,11 @@ public class GameplayHudPresentation
 
     /// <summary>
     /// Item <paramref name="itemIndex"/>'s cells: the icon where it has been added over a template that leaves room for it,
-    /// otherwise the template, in the shade the selection last gave them; null where they show the template unshaded.
+    /// otherwise the template, in the shade the current selection gives them; null where they show the template unshaded.
     /// </summary>
     /// <param name="itemIndex">The zero-based item icon index.</param>
     /// <param name="added">Whether the HUD has added the icon.</param>
-    /// <param name="shade">The shade the selection last gave the cells, or null.</param>
+    /// <param name="shade">The shade the current selection gives the cells, or null.</param>
     public PlacedHudImage? Icon(int itemIndex, bool added, HudIconShade? shade)
     {
         int item = ItemIndex(itemIndex);

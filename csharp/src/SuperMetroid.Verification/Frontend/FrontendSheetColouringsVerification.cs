@@ -41,7 +41,7 @@ internal static class FrontendSheetColouringsVerification
 
     /// <summary>
     /// The colourings each map sprite is drawn in, as Core's draw sites name them: the scroll arrows in the highlight
-    /// cycle's colouring (<c>MapPaletteAnimation</c>); a boss's marker live and under a defeated boss's cross; the station
+    /// cycle's colouring (<c>MapHighlightAnimation</c>); a boss's marker live and under a defeated boss's cross; the station
     /// icons, gunship, cross and position indicator as markers (<c>FileSelectMapIcons</c>, <c>FileSelectStationMarker</c>,
     /// <c>PauseMenuState</c>); the elevator labels and the world map's title as labels; and each world-map area label
     /// lit when selected and dim otherwise (<c>FileSelectAreaMapGraphics</c>).

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 
 /// <summary>
 /// The cartridge-ordered 256-colour image the pause screen's pictures show (#1512): the pause colours the import read,
-/// with the highlight shade the map's highlighted sprites name once the cycle has applied a frame while they are drawn, and the reserve arrow's
+/// with the highlight shade the map's highlighted sprites name while they are drawn, and the reserve arrow's
 /// shade, laid over the inks the import pre-colours them on. The screen keeps no such image; verification composes it from the shadings the screen publishes
 /// and the colours the import installs for them, to compare against native colour memory.
 /// </summary>
@@ -27,10 +27,13 @@ internal static class PauseShownColours
     private const int HighlightColours = 16;
 
     /// <summary>The highlight frame <paramref name="pause"/>'s highlighted map sprites show, or null when none is drawn.</summary>
-    private static int? ShownHighlight(PauseMenuState pause) =>
-        pause.paletteAnimation.ShownFrame is int frame && pause.CaptureRenderSnapshot().SpriteDraws.OfType<ImageSpriteDraw>()
+    private static int? ShownHighlight(PauseMenuState pause)
+    {
+        int frame = pause.mapHighlight.Frame;
+        return pause.CaptureRenderSnapshot().SpriteDraws.OfType<ImageSpriteDraw>()
             .Any(draw => Ensure.NotNull(draw.Shading).Shades.Contains(MapSpriteShades.Highlight(frame)))
             ? frame : null;
+    }
 
     /// <summary>
     /// The native colours <see cref="Of"/> composes that the pause screen's pictures show: every colour, but for the

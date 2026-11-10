@@ -57,7 +57,7 @@ internal static class PauseEquipmentPageLayout
             for (int place = 0; place < digits.Length; place++)
                 ui.ApplyDigit(tiles, place, digits[place]);
         }
-        if (page.Arrow != ShownReserveArrow.Unpainted)
+        if (page.Arrow != ShownReserveArrow.NoReserves)
             InstalledAreaMapPresentation.PauseOf(maps).ReserveUi.ApplyArrowTilePalettes(tiles, page.Arrow == ShownReserveArrow.Lit);
         return tiles;
     }
@@ -68,7 +68,7 @@ internal static class PauseEquipmentPageLayout
     /// </summary>
     internal static ShownEquipmentPage Reference { get; } = new(
         [.. PauseEquipmentLabelTiles.Labels().Select(key => new ShownEquipmentLabel(key.Label, PauseEquipmentLabelState.Blank))],
-        HyperBeam: false, PauseWireframeKind.PowerSuit, Reserve: null, ShownReserveArrow.Unpainted);
+        HyperBeam: false, PauseWireframeKind.PowerSuit, Reserve: null, ShownReserveArrow.NoReserves);
 
     /// <summary>
     /// Every picture of the equipment page (#1467, #1515). No part's picture shows a cell another part writes: the base

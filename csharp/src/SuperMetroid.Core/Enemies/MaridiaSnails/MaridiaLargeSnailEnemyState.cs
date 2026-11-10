@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 /// <summary>The state of Oum, with its ten family-extra values.</summary>
 public sealed class MaridiaLargeSnailEnemyState
 {
-    /// <summary>Where the animation resumes.</summary>
-    internal AnimationProgramCursor<MaridiaLargeSnailProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<MaridiaLargeSnailProgram> Playback { get; set; }
 
     /// <summary>
     /// Extra word zero: the requested animation, 0 through 7, an index into the eight-entry selector table.

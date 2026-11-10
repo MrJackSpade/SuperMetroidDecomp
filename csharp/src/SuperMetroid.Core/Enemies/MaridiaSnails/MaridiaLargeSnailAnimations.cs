@@ -10,14 +10,13 @@ namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 /// </summary>
 internal static class MaridiaLargeSnailAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<MaridiaLargeSnailProgram, MaridiaLargeSnailFrame, MaridiaLargeSnailCue> Programs { get; } = new(
-        new Dictionary<MaridiaLargeSnailProgram, AnimationProgramStep<MaridiaLargeSnailProgram, MaridiaLargeSnailFrame, MaridiaLargeSnailCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<MaridiaLargeSnailProgram, MaridiaLargeSnailFrame, MaridiaLargeSnailCue> Segments { get; } = new(
+        new Dictionary<MaridiaLargeSnailProgram, AnimationBeat<MaridiaLargeSnailFrame, MaridiaLargeSnailCue>[]>
     {
         [P.FacingLeftIdle] =
         [
             Show(0, 1),
-            Hold,
         ],
         [P.FacingLeftAttacking] =
         [
@@ -36,7 +35,6 @@ internal static class MaridiaLargeSnailAnimations
             Show(3, 1),
             Show(2, 18),
             Cue(new(K.FinishAttack)),
-            Hold,
         ],
         [P.FacingLeftRollingForwards] =
         [
@@ -50,7 +48,6 @@ internal static class MaridiaLargeSnailAnimations
             Show(12, 7),
             Show(13, 7),
             Show(14, 7),
-            GoTo(P.FacingLeftRollingForwards),
         ],
         [P.FacingLeftRollingBackwards] =
         [
@@ -64,12 +61,10 @@ internal static class MaridiaLargeSnailAnimations
             Cue(new(K.AllowAttackRotation)),
             Show(2, 7),
             Cue(new(K.DisallowAttackRotation)),
-            GoTo(P.FacingLeftRollingBackwards),
         ],
         [P.FacingRightIdle] =
         [
             Show(15, 1),
-            Hold,
         ],
         [P.FacingRightAttacking] =
         [
@@ -88,7 +83,6 @@ internal static class MaridiaLargeSnailAnimations
             Show(18, 1),
             Show(17, 18),
             Cue(new(K.FinishAttack)),
-            Hold,
         ],
         [P.FacingRightRollingForwards] =
         [
@@ -102,7 +96,6 @@ internal static class MaridiaLargeSnailAnimations
             Show(27, 7),
             Show(28, 7),
             Show(29, 7),
-            GoTo(P.FacingRightRollingForwards),
         ],
         [P.FacingRightRollingBackwards] =
         [
@@ -116,20 +109,28 @@ internal static class MaridiaLargeSnailAnimations
             Cue(new(K.AllowAttackRotation)),
             Show(17, 7),
             Cue(new(K.DisallowAttackRotation)),
-            GoTo(P.FacingRightRollingBackwards),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<MaridiaLargeSnailProgram, Animation<MaridiaLargeSnailProgram>> StartingAt { get; } = new Dictionary<MaridiaLargeSnailProgram, Animation<MaridiaLargeSnailProgram>>
+    {
+        [P.FacingLeftIdle] = new([new(P.FacingLeftIdle, 0, 1, 1)], AnimationEnd.Holds),
+        [P.FacingLeftAttacking] = new([new(P.FacingLeftAttacking, 0, 15, 1)], AnimationEnd.Holds),
+        [P.FacingLeftRollingForwards] = new([new(P.FacingLeftRollingForwards, 0, 10, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.FacingLeftRollingBackwards] = new([new(P.FacingLeftRollingBackwards, 0, 10, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.FacingRightIdle] = new([new(P.FacingRightIdle, 0, 1, 1)], AnimationEnd.Holds),
+        [P.FacingRightAttacking] = new([new(P.FacingRightAttacking, 0, 15, 1)], AnimationEnd.Holds),
+        [P.FacingRightRollingForwards] = new([new(P.FacingRightRollingForwards, 0, 10, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.FacingRightRollingBackwards] = new([new(P.FacingRightRollingBackwards, 0, 10, 1)], AnimationEnd.LoopsFrom(0)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<MaridiaLargeSnailProgram> StartingWith(MaridiaLargeSnailProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<MaridiaLargeSnailProgram, MaridiaLargeSnailFrame, MaridiaLargeSnailCue> Show(int pose, int duration) => AnimationProgramStep<MaridiaLargeSnailProgram, MaridiaLargeSnailFrame, MaridiaLargeSnailCue>.Show(new(pose), duration);
+    private static AnimationBeat<MaridiaLargeSnailFrame, MaridiaLargeSnailCue> Show(int pose, int duration) => new AnimationBeat<MaridiaLargeSnailFrame, MaridiaLargeSnailCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<MaridiaLargeSnailProgram, MaridiaLargeSnailFrame, MaridiaLargeSnailCue> Cue(MaridiaLargeSnailCue cue) => AnimationProgramStep<MaridiaLargeSnailProgram, MaridiaLargeSnailFrame, MaridiaLargeSnailCue>.Publish(cue);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<MaridiaLargeSnailProgram, MaridiaLargeSnailFrame, MaridiaLargeSnailCue> GoTo(MaridiaLargeSnailProgram program) => AnimationProgramStep<MaridiaLargeSnailProgram, MaridiaLargeSnailFrame, MaridiaLargeSnailCue>.GoTo(program);
-
-    /// <summary>Holds the last frame, as the sleep does.</summary>
-    private static AnimationProgramStep<MaridiaLargeSnailProgram, MaridiaLargeSnailFrame, MaridiaLargeSnailCue> Hold => AnimationProgramStep<MaridiaLargeSnailProgram, MaridiaLargeSnailFrame, MaridiaLargeSnailCue>.Hold;
-
+    private static AnimationBeat<MaridiaLargeSnailFrame, MaridiaLargeSnailCue> Cue(MaridiaLargeSnailCue cue) => new AnimationBeat<MaridiaLargeSnailFrame, MaridiaLargeSnailCue>.Event(cue);
 }

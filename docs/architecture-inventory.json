@@ -59192,6 +59192,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Compatibility.LeftMuzzleSubpixelCarry",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/LeftMuzzleSubpixelCarry.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Compatibility.LowHalfCountdownStep",
       "kind": "record struct",
       "scope": "product",
@@ -59328,6 +59341,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Compatibility.PowerBombedDraygonShotFinishesItsUpdate",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/PowerBombedDraygonShotFinishesItsUpdate.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay",
       "kind": "class",
       "scope": "product",
@@ -59449,6 +59475,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.ReleasedEchoStartsAtReplacedShot",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/ReleasedEchoStartsAtReplacedShot.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Compatibility.ReserveRowToggleSpreadBombSpeed",
@@ -60073,6 +60112,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.UnlinkedSuperMissileLink",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/UnlinkedSuperMissileLink.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Compatibility.WaveScanRead",
@@ -69304,6 +69356,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.EnemyProjectile",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/EnemyProjectile.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Enemies.EnemyProjectileCollisionOption",
@@ -78641,7 +78706,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileSlotFrameAccess.extension(SuperMetroid.Core.Enemies.RoomEnemyProjectileSlot)",
+      "type": "SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileSlotFrameAccess.extension(SuperMetroid.Core.Enemies.EnemyProjectile)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -80187,19 +80252,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.RoomEnemyProjectileSlot",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/RoomEnemyProjectileSlot.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Enemies.RoomEnemyRomLayout",
@@ -120142,6 +120194,22 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.extension(SuperMetroid.Core.Samus.Projectiles.SamusProjectile)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Samus/Artwork/ProjectileSpriteNative.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.extension(SuperMetroid.Core.Samus.Projectiles.SamusProjectileRecord)",
       "kind": "class",
       "scope": "test",
@@ -120159,22 +120227,6 @@
     },
     {
       "type": "SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.extension(SuperMetroid.Core.Samus.Projectiles.SamusProjectileRecordDefinitions)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Samus/Artwork/ProjectileSpriteNative.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.extension(SuperMetroid.Core.Samus.Projectiles.SamusProjectileSlot)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -126670,6 +126722,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Samus.Projectiles.SamusProjectile",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectile.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Samus.Projectiles.SamusProjectileAccelerations",
       "kind": "static class",
       "scope": "product",
@@ -127103,19 +127168,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Projectiles.SamusProjectileSlot",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileSlot.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Samus.Projectiles.SamusProjectileSlotNative",
       "kind": "static class",
       "scope": "test",
@@ -127148,7 +127200,7 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Projectiles.SamusProjectileSlotNative.extension(SuperMetroid.Core.Samus.Projectiles.SamusProjectileSlot)",
+      "type": "SuperMetroid.Core.Samus.Projectiles.SamusProjectileSlotNative.extension(SuperMetroid.Core.Samus.Projectiles.SamusProjectile)",
       "kind": "class",
       "scope": "test",
       "assemblies": [

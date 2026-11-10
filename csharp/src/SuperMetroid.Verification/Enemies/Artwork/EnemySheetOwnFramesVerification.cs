@@ -230,7 +230,7 @@ internal static class EnemySheetOwnFramesVerification
         ];
         KiHunterProgram[] wings = [KiHunterProgram.WingsLeft, KiHunterProgram.WingsRight, KiHunterProgram.DetachedWings];
         return new("Ki-Hunter", TableFrames(KiHunterFrameDefinitions.ShownFrames),
-            KiHunterPartDefinitions.Parts.Keys.ToDictionary<EnemyDefinitionId, EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>(definition => definition, definition => Reach(KiHunterAnimations.Programs,
+            KiHunterPartDefinitions.Parts.Keys.ToDictionary<EnemyDefinitionId, EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>(definition => definition, definition => Reach(KiHunterAnimations.Segments, KiHunterAnimations.StartingAt,
                 KiHunterFrameDefinitions.ShownFrames,
                 KiHunterBehavior.IsKiHunterBodyDefinition(definition) ? body
                     : KiHunterBehavior.IsKiHunterWingDefinition(definition) ? wings

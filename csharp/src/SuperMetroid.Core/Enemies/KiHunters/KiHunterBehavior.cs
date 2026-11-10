@@ -802,7 +802,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Restarts a body or wing animation from its first step.</summary>
     private static void InstallKiHunterInstruction(RoomEnemySlot slot, KiHunterEnemyState state, KiHunterProgram program)
     {
-        state.Program = AnimationProgramCursor<KiHunterProgram>.Start(program);
+        state.Playback = new(KiHunterAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
@@ -873,9 +873,11 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances the Ki-Hunter's typed animation.</summary>
     internal void AdvanceKiHunterTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, KiHunterAnimations.Programs, KiHunterFrameDefinitions.ShownFrames.Of,
-            static (KiHunterEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
-            (state, cue, _) => ApplyKiHunterCue(slot, cue));
+        EnemyProgramAnimation.Advance(slot, KiHunterAnimations.Segments, KiHunterFrameDefinitions.ShownFrames.Of,
+            static (KiHunterEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            (state, cue) => ApplyKiHunterCue(slot, cue) is { } target
+                ? new AnimationContinuation<KiHunterProgram>(KiHunterAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                : null);
 
     /// <summary>Runs wing-detachment logic after common power-bomb damage to a body.</summary>
     internal void AddKiHunterPowerBombReactions(EnemySharedReactions table)

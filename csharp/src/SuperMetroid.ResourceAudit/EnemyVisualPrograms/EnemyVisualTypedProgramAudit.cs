@@ -320,7 +320,7 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(ShaktoolAnimations), "csharp/src/SuperMetroid.Core/Enemies/Shaktool/ShaktoolAnimations.cs");
         RequireTypedFrames(YardAnimations.Programs, YardFrameToolingDefinitions.Spritemap, YardFrameToolingDefinitions.Bank,
             nameof(YardAnimations), "csharp/src/SuperMetroid.Core/Enemies/Yard/YardAnimations.cs");
-        RequireTypedFrames(KiHunterAnimations.Programs, KiHunterFrameToolingDefinitions.Spritemap, KiHunterFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(KiHunterAnimations.Segments, KiHunterFrameToolingDefinitions.Spritemap, KiHunterFrameToolingDefinitions.Bank,
             nameof(KiHunterAnimations), "csharp/src/SuperMetroid.Core/Enemies/KiHunters/KiHunterAnimations.cs");
         RequireTypedFrames(MagdolliteAnimations.Programs, MagdolliteFrameToolingDefinitions.Spritemap, MagdolliteFrameToolingDefinitions.Bank,
             nameof(MagdolliteAnimations), "csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdolliteAnimations.cs");

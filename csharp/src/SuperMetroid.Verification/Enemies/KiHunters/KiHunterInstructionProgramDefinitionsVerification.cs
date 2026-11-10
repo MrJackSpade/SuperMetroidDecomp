@@ -53,7 +53,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
             state.Velocity = state.Velocity.WithWholeX(movingRight ? (short)1 : (short)-1);
             Install(body, state, program);
             RunFrames(enemies, body, 7);
-            AssertEqual(program, state.Program.Program,
+            AssertEqual(program, Playing(state),
                 $"KiHunter {(movingRight ? "right" : "left")} flight remains in steady list");
         }
 
@@ -67,7 +67,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
             KiHunterProgram idle = movingRight
                 ? KiHunterProgram.FlyingRight
                 : KiHunterProgram.FlyingLeft;
-            AssertEqual(idle, state.Program.Program,
+            AssertEqual(idle, Playing(state),
                 $"KiHunter {(movingRight ? "right" : "left")} swoop returns to flight");
         }
 
@@ -76,7 +76,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
             (RoomEnemySystem enemies, _, RoomEnemySlot wings, _, KiHunterEnemyState wingState) = CreatePair();
             Install(wings, wingState, program);
             RunFrames(enemies, wings, 7);
-            AssertEqual(program, wingState.Program.Program,
+            AssertEqual(program, Playing(wingState),
                 $"KiHunter {direction} wing loop remains bounded");
         }
 
@@ -227,17 +227,23 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
 
         static void Install(RoomEnemySlot slot, KiHunterEnemyState state, KiHunterProgram program)
         {
-            state.Program = AnimationProgramCursor<KiHunterProgram>.Start(program);
+            state.Playback = new(KiHunterAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             slot.FrameHold = WrappingCountdown.Start(1);
             slot.Timer = WrappingCountdown.Start(0);
         }
 
-        // The cursor rests on the program's sleep step.
+        // The playback rests past the last beat of an animation that holds there.
         static void AssertAsleep(KiHunterEnemyState state, KiHunterProgram program, string message)
         {
-            AssertEqual(program, state.Program.Program, message);
-            AssertTrue(KiHunterAnimations.Programs.Steps(program)[state.Program.Position] is AnimationProgramStep<KiHunterProgram, KiHunterFrame, KiHunterCue>.HoldStep, message);
+            AnimationPlayback<KiHunterProgram> playback = state.Playback;
+            AssertEqual(program, Playing(state), message);
+            AssertTrue(playback.Animation.End is AnimationEnd.Hold && playback.Place.Phase == playback.Animation.Phases.Count - 1 &&
+                playback.Place.Beat == playback.Animation.Phases[^1].BeatCount, message);
         }
+
+        // The segment the playback's current phase plays.
+        static KiHunterProgram Playing(KiHunterEnemyState state) =>
+            state.Playback.Animation.Phases[state.Playback.Place.Phase].Segment;
 
         static void RunFrames(RoomEnemySystem enemies, RoomEnemySlot slot, int frames)
         {

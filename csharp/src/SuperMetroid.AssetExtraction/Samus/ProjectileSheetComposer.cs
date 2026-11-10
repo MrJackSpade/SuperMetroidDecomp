@@ -19,8 +19,9 @@ namespace SuperMetroid.AssetExtraction.Samus;
 internal static class ProjectileSheetComposer
 {
     /// <summary>
-    /// The combinations with a sheet: every one the game can load. Spazer with Plasma, with or without Ice and Wave,
-    /// has no translated beam palette, so loading it fails before anything is drawn.
+    /// The combinations with a sheet: every one with beam artwork of its own. Spazer with Plasma, with or without Ice
+    /// and Wave, has none; its projectiles show the sheet of the shot its uncharged beam fires
+    /// (<see cref="ProjectileSheetDefinitions.Sheets"/>, #1586).
     /// </summary>
     internal static IReadOnlyList<SamusBeamCombination> Combinations { get; } =
     [
@@ -52,7 +53,7 @@ internal static class ProjectileSheetComposer
     private static IEnumerable<ProjectileSpriteId> Compositions(SamusBeamCombination beams, InstalledProjectileFrameBindings bindings)
     {
         Ensure.NotNull(bindings);
-        HashSet<ProjectileSpriteId> shown = [.. LoadedBeamProjectilePrograms.Records(beams).Select(bindings.Resolve)];
+        HashSet<ProjectileSpriteId> shown = [.. EquippedBeamProjectilePrograms.Records(beams).Select(bindings.Resolve)];
         return ProjectileSpriteDefinitions.All.Where(composition => !composition.DrawsNothing && shown.Contains(composition));
     }
 

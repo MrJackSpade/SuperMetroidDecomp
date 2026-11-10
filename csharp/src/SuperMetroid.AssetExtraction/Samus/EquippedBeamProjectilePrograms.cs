@@ -6,11 +6,12 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
-/// The programs Samus's projectiles can run while one beam combination is loaded (#1513), so that the combination's
-/// projectile sheet holds only what its projectiles draw:
+/// The programs Samus's projectiles can run when she fires or places them with one beam combination equipped (#1513,
+/// #1586): each projectile shows the sheet of the beams it was fired with, so the combination's projectile sheet holds
+/// only what its projectiles draw:
 /// <list type="bullet">
 /// <item>the lists of the combination's uncharged and charged shots in every direction, its special attack's first list,
-/// and, for the combination the Hyper Beam loads, the charged Plasma lists the Hyper Beam fires;</item>
+/// and, for the combination the Hyper Beam equips, the charged Plasma lists the Hyper Beam fires;</item>
 /// <item>the missiles' and Super Missiles' lists in every direction, the bombs', Power Bombs' and the Super Missile
 /// link's first lists, the Spazer special attack's trail and Shinespark echo lists in every direction, and the lists of
 /// the uncharged Spazer and Plasma-Wave shots those echoes become when an enemy reflects them (#1559);</item>
@@ -24,10 +25,10 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// fuse over the shot from a stopped fuse, which the fuse leaves stopped, so the shot never reaches the fast stage whose
 /// move would land its animation in another list (<see cref="SuperMetroid.Core.Compatibility.ChainsawFuseAnimationShift{TCursor}"/>).
 /// </summary>
-internal static class LoadedBeamProjectilePrograms
+internal static class EquippedBeamProjectilePrograms
 {
-    /// <summary>The combination whose beam and palette the Hyper Beam loads: Wave with Plasma.</summary>
-    private const SamusBeamCombination HyperBeamLoaded = SamusBeamCombination.PlasmaWave;
+    /// <summary>The combination the Hyper Beam equips, whose pictures its shots show: Wave with Plasma.</summary>
+    private const SamusBeamCombination HyperBeamEquipped = SamusBeamCombination.PlasmaWave;
 
     /// <summary>The combination the Hyper Beam's shots take their lists from: charged Plasma.</summary>
     private const SamusBeamCombination HyperBeamFired = SamusBeamCombination.Plasma;
@@ -45,13 +46,13 @@ internal static class LoadedBeamProjectilePrograms
         SamusProjectileProgram.SuperMissileExplosion, SamusProjectileProgram.BombExplosion,
     ];
 
-    /// <summary>Every program a projectile can run while <paramref name="beams"/> is the loaded combination.</summary>
+    /// <summary>Every program a projectile fired or placed with <paramref name="beams"/> equipped can run.</summary>
     internal static IReadOnlySet<SamusProjectileProgram> Of(SamusBeamCombination beams)
     {
         var starts = new List<SamusProjectileProgram>();
         foreach (bool charged in (bool[])[false, true])
             starts.AddRange(BeamShotPrograms(beams, charged));
-        if (beams == HyperBeamLoaded)
+        if (beams == HyperBeamEquipped)
             starts.AddRange(BeamShotPrograms(HyperBeamFired, charged: true));
         // Only a retail combination has a special attack.
         if (beams.IsRetail && SamusProjectileSelection.SpecialAttack(beams) is { } specialAttack)
@@ -63,8 +64,8 @@ internal static class LoadedBeamProjectilePrograms
         foreach (SamusBeamEcho echo in Enum.GetValues<SamusBeamEcho>())
         {
             AddEveryDirection(starts, SamusProjectileSelection.Echo(echo));
-            // An enemy reflecting an echo restarts it as the beam shot its type names, whatever is loaded: a Metal Pirate
-            // turns a Shinespark crash's echo into an uncharged Plasma-Wave shot under the Power Beam (#1559).
+            // An enemy reflecting an echo restarts it as the beam shot its type names, whatever was equipped: a Metal
+            // Pirate turns a Shinespark crash's echo into an uncharged Plasma-Wave shot released under the Power Beam (#1559).
             SamusProjectileType reflected = SamusProjectileType.EchoOf(echo);
             starts.AddRange(BeamShotPrograms(reflected.BeamCombination, reflected.IsChargedBeam));
         }
@@ -74,7 +75,7 @@ internal static class LoadedBeamProjectilePrograms
         return Continued(starts);
     }
 
-    /// <summary>Every record a projectile can show while <paramref name="beams"/> is the loaded combination.</summary>
+    /// <summary>Every record a projectile fired or placed with <paramref name="beams"/> equipped can show.</summary>
     internal static IEnumerable<SamusProjectileFrame> Records(SamusBeamCombination beams) =>
         Of(beams).SelectMany(program => SamusProjectileAnimations.Programs.Steps(program))
             .OfType<AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.ShowStep>()

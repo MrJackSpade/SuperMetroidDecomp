@@ -25235,6 +25235,32 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Fx.PaletteFx.PaletteFxRecord",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFx/PaletteFxRecord.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.PaletteFx.PaletteFxRecords",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFx/PaletteFxRecords.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Fx.PaletteFx.PlanetZebesTextPaletteFxColorDefinition",
       "kind": "class",
       "scope": "product",
@@ -25651,19 +25677,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Fx.PaletteFxReachedProgram",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFxReachedProgram.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.AssetExtraction.Fx.PaletteFxRecordDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -25782,19 +25795,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Fx.PaletteFxShownRecord",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFxShownRecord.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Fx.PaletteFxSpriteShades",
@@ -96851,6 +96851,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Fx.PaletteFx.HeatPhase",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/HeatPhase.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Fx.PaletteFx.HyperBeamPaletteFxColorDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
@@ -97617,6 +97630,19 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxCue.PublishHeatPhase",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxCue.QueueSound",
       "kind": "record",
       "scope": "product",
@@ -97631,19 +97657,6 @@
     },
     {
       "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxCue.SetColours",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxCue.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxCue.SetHeatPaletteIndex",
       "kind": "record",
       "scope": "product",
       "assemblies": [
@@ -98272,6 +98285,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxReachedProgram",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxReachedProgram.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxRecordView",
       "kind": "record struct",
       "scope": "test",
@@ -98335,6 +98361,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxShades.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxShownFrames",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxShownFrames.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -98609,14 +98648,14 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.ShownPaletteFxRecord",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.ShownPaletteFxFrame",
       "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ShownPaletteFxRecord.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ShownPaletteFxFrame.cs"
       ],
       "partial": "none",
       "disposition": "value"

@@ -209,7 +209,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
-      "files": 98,
+      "files": 101,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Assets",
@@ -560,7 +560,6 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Fx",
-        "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.EnsureAnalyzer",
         "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes",
         "csharp/test-support/RunTimeLimit"
@@ -18324,9 +18323,6 @@
       "namespace": "SuperMetroid.AssetExtraction.Fx.PaletteFx",
       "assemblies": [
         "SuperMetroid.AssetExtraction"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Fx"
       ]
     },
     {
@@ -18351,6 +18347,31 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Fx"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFx/PaletteFxRecord.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Fx.PaletteFx",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Fx"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFx/PaletteFxRecords.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Fx.PaletteFx",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Fx",
+        "csharp/src/SuperMetroid.Core/Programs"
       ]
     },
     {
@@ -18714,27 +18735,12 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFxReachedProgram.cs",
-      "module": "csharp/src/SuperMetroid.AssetExtraction",
-      "role": "production",
-      "namespace": "SuperMetroid.AssetExtraction.Fx",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Fx"
-      ]
-    },
-    {
       "path": "csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFxRecordDefinitions.cs",
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
       "namespace": "SuperMetroid.AssetExtraction.Fx",
       "assemblies": [
         "SuperMetroid.AssetExtraction"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Fx"
       ]
     },
     {
@@ -18760,8 +18766,7 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Assets",
-        "csharp/src/SuperMetroid.Core/Fx",
-        "csharp/src/SuperMetroid.Core/Programs"
+        "csharp/src/SuperMetroid.Core/Fx"
       ]
     },
     {
@@ -18773,8 +18778,7 @@
         "SuperMetroid.AssetExtraction"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.Core",
-        "csharp/src/SuperMetroid.Core/Fx"
+        "csharp/src/SuperMetroid.Core"
       ]
     },
     {
@@ -18784,9 +18788,6 @@
       "namespace": "SuperMetroid.AssetExtraction.Fx",
       "assemblies": [
         "SuperMetroid.AssetExtraction"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Fx"
       ]
     },
     {
@@ -18819,18 +18820,6 @@
     },
     {
       "path": "csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFxScreenShades.cs",
-      "module": "csharp/src/SuperMetroid.AssetExtraction",
-      "role": "production",
-      "namespace": "SuperMetroid.AssetExtraction.Fx",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Fx"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFxShownRecord.cs",
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
       "namespace": "SuperMetroid.AssetExtraction.Fx",
@@ -62398,6 +62387,19 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/HeatPhase.cs",
+      "module": "csharp/src/SuperMetroid.Core/Fx",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Fx.PaletteFx",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxAnimations.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
@@ -62492,6 +62494,7 @@
         "SuperMetroid.Core"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Core/Progression"
       ]
     },
@@ -62517,6 +62520,16 @@
     },
     {
       "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxProgram.cs",
+      "module": "csharp/src/SuperMetroid.Core/Fx",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Fx.PaletteFx",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxReachedProgram.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -62569,6 +62582,20 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxShownFrames.cs",
+      "module": "csharp/src/SuperMetroid.Core/Fx",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Fx.PaletteFx",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Programs"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxSoundPriorities.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
@@ -62582,7 +62609,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ShownPaletteFxRecord.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ShownPaletteFxFrame.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -62986,6 +63013,7 @@
         "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Audio",
         "csharp/src/SuperMetroid.Core/Compatibility",
+        "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Core/Progression",
         "csharp/src/SuperMetroid.Core/Rooms"
       ]
@@ -83241,8 +83269,7 @@
         "SuperMetroid.EnsureVerification"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Fx",
-        "csharp/src/SuperMetroid.Core/Programs"
+        "csharp/src/SuperMetroid.Core/Fx"
       ]
     },
     {
@@ -140201,7 +140228,6 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Assets",
-        "csharp/src/SuperMetroid.Core/Fx",
         "csharp/test-support/VerificationAccess.Tooling"
       ]
     },
@@ -140683,7 +140709,6 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
-        "csharp/src/SuperMetroid.Core/Fx",
         "csharp/src/SuperMetroid.Tooling"
       ]
     },

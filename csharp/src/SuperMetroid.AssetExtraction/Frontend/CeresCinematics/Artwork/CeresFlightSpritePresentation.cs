@@ -50,14 +50,7 @@ public sealed class CeresFlightSpritePresentation : ICinematicSpriteFrames
             if (!document.Frames.TryGetValue(definition.Name, out SpriteVisualPart[]? visual) ||
                 visual is null)
                 throw new InvalidDataException($"Ceres flight sprite {definition.Name} is missing.");
-            var compiled = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
-            compiled = CeresStarPointParts.CalculateIfMatching(definition.Pose, compiled);
-            compiled = CeresLargeAsteroidParts.CalculateIfMatching(definition.Pose, compiled);
-            compiled = CeresStationParts.CalculateIfMatching(definition.Pose, compiled);
-            compiled = CeresSmallAsteroidParts.CalculateIfMatching(definition.Pose, compiled);
-            compiled = CeresVortexParts.CalculateIfMatching(definition.Pose, compiled,
-                frames.GetValueOrDefault(CeresFlightSpriteDefinitions.Stars));
-            frames.Add(definition.Pose, compiled);
+            frames.Add(definition.Pose, IntroCinematicSpriteCompiler.Compile(visual, definition.Name));
         }
         return new CeresFlightSpritePresentation(frames);
     }

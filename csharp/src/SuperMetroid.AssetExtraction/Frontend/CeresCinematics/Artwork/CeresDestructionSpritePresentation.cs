@@ -29,7 +29,7 @@ public sealed class CeresDestructionSpritePresentation : ICinematicSpriteFrames
 
     /// <summary>Loads version-1 <c>ceres-destruction-sprites.json</c>, requiring all 23 named compositions and validating each ordered part's offset, atlas region, size, palette, and priority.</summary>
     /// <param name="json">Caller-owned JSON stream consumed from its current position and left open; unknown and duplicate properties are rejected.</param>
-    /// <returns>Selected compiled frames, sharing calculated stock compositions only when all supplied visual fields match.</returns>
+    /// <returns>Every installed composition, compiled as installed.</returns>
     public static CeresDestructionSpritePresentation Load(Stream json)
     {
         Ensure.NotNull(json);
@@ -48,15 +48,7 @@ public sealed class CeresDestructionSpritePresentation : ICinematicSpriteFrames
                 visual is null)
                 throw new InvalidDataException(
                     $"Ceres destruction sprite {definition.Name} is missing.");
-            var compiled = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
-            compiled = CeresLargeAsteroidParts.CalculateIfMatching(definition.Pose, compiled);
-            compiled = IntroMotherBrainExplosionParts.CalculateIfMatching(definition.Pose, compiled);
-            compiled = CeresStationBlastParts.CalculateIfMatching(definition.Pose, compiled);
-            compiled = CeresLargeBlastParts.CalculateIfMatching(definition.Pose, compiled);
-            compiled = PlanetZebesTitleParts.CalculateIfMatching(definition.Backdrop, compiled);
-            compiled = ZebesPlanetBandParts.CalculateIfMatching(definition.Backdrop, compiled);
-            compiled = ZebesStarGridParts.CalculateIfMatching(definition.Backdrop, compiled);
-            frames.Add(definition.Pose, compiled);
+            frames.Add(definition.Pose, IntroCinematicSpriteCompiler.Compile(visual, definition.Name));
         }
         return new CeresDestructionSpritePresentation(frames);
     }

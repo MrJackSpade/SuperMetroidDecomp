@@ -866,12 +866,10 @@ internal static class LookupStream5Verification
             SpriteVisualPart[] parts = frames[definition.Name];
             Check(stock, definition.Pose, parts);
             var compiled = IntroCinematicSpriteCompiler.Compile(parts, definition.Name);
-            var calculated = ZebesStarGridParts.CalculateIfMatching(definition.Backdrop, compiled);
-            AssertTrue(calculated.parts is ZebesStarGridParts, "Stock stars use calculated common fields");
             for (int index = 0; index < parts.Length; index++)
             {
                 int source = 0x8c0000 | CinematicSpritemapSources.Of(definition.Pose) + 2 + index * 5;
-                CompiledSpritePart actual = calculated.Part(index);
+                CompiledSpritePart actual = compiled.Part(index);
                 // The star has no packed record: the native five-byte record is decoded by the import pipeline's codec
                 // and compared by offset, size, character, priority and mirroring, its palette row cleared because the
                 // scene replaces it.
@@ -883,7 +881,7 @@ internal static class LookupStream5Verification
             }
         }
         AssertEqual(29, total, "All four native star sheets checked");
-        Console.WriteLine("Zebes stars:29 native parts, actual ordered OAM and full content identity pass; only decorative position/glyph triples are retained.");
+        Console.WriteLine("Zebes stars:29 native parts, actual ordered OAM and full content identity pass.");
         static CeresDestructionSpritePresentation Load(CeresDestructionSpriteDocument value)
         {
             using var json = new MemoryStream();
@@ -1646,9 +1644,6 @@ internal static class LookupStream5Verification
             colors[index] = new PaletteRgb5 { Red = value & 31, Green = value >> 5 & 31, Blue = value >> 10 & 31 };
         }
         CeresFlightPalette stock = Check();
-        var edits = stock.edits;
-        AssertEqual(0, edits.Count, "Native shared sections and endpoint ramp need no residual corrections");
-        int independent = stock.colors.Count;
         // The import reads the palette as its background colours then its sprite colours (#1512); the game keeps its backdrop.
         AssertEqual(SnesCgram.ColorCount, stock.Colours.Length, "Ceres palette holds every colour of both owners");
         AssertEqual(stock.Colours[0], stock.Backdrop, "Ceres palette's backdrop is its first background colour");
@@ -1668,7 +1663,7 @@ internal static class LookupStream5Verification
             content.Append("actors", Convert.FromHexString(catalog.Actors.ContentIdentity));
         });
         AssertEqual(expectedHash, catalog.ContentIdentity, "Ceres flight canonical hash covers its backdrop; its colours are the import's alone (#1544)");
-        Console.WriteLine($"Ceres flight palette:256 native colors,actual CGRAM,byte serialization and catalog identity pass; {independent} independent color inputs remain required.");
+        Console.WriteLine("Ceres flight palette:256 native colors,actual CGRAM,byte serialization and catalog identity pass.");
 
         MemoryStream Open(string name) => new(files[name], writable: false);
         CeresFlightPalette Check()
@@ -1684,7 +1679,7 @@ internal static class LookupStream5Verification
                 PaletteRgb5 color = colors[index];
                 ushort expected = (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
                 AssertEqual(expected, selected[index], "Every selected color");
-                AssertEqual(expected, loaded[index], "Calculated colours reach the colours the import pre-colours the scenes in");
+                AssertEqual(expected, loaded[index], "Installed colours reach the colours the import pre-colours the scenes in");
                 AssertEqual(expected, System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(bytes.Slice(index * sizeof(ushort))), "Serialized colors retain exact native byte order");
             }
             return actual;

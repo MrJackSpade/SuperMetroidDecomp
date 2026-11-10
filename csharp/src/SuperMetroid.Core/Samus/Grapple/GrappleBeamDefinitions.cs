@@ -79,8 +79,6 @@ public static class GrappleBeamDefinitions
         public const int FirstSegmentSlot = 15;
         /// <summary>The rope centers an eight-pixel character on its beam coordinate.</summary>
         public const int CharacterCenterOffset = 4;
-        /// <summary>A rope segment is off screen when either whole coordinate reaches this extent.</summary>
-        public const int ViewportExtent = 256;
         /// <summary>Each rope animation record lasts five visits to its slot.</summary>
         public const int SegmentAnimationDelay = 5;
         /// <summary>Four successive rope animation records before the goto.</summary>

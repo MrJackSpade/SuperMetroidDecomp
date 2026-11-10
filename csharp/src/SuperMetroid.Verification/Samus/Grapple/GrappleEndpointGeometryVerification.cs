@@ -18,10 +18,10 @@ internal static class GrappleEndpointGeometryVerification
     /// <summary>Checks endpoint visibility and attributes across pose, camera, and coordinate boundaries.</summary>
     internal static void VerifyGrappleEndpointGeometry()
     {
-        // $94:B093 chooses by pose, not grapple connection phase. Keep the
-        // rope origin off-screen so its first visited slot is culled and only
-        // the endpoint can emit OAM. Probe both sides of the camera subtraction
-        // as well as positions above and below the view, where the endpoint is still published.
+        // $94:B093 chooses by pose, not grapple connection phase. The rope's one
+        // segment is published too (#1587), so only the endpoint's draw is read.
+        // Probe both sides of the camera subtraction as well as positions above
+        // and below the view, where the endpoint is still published.
         foreach (SamusPoseId pose in new[]
         {
             SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose,
@@ -40,9 +40,16 @@ internal static class GrappleEndpointGeometryVerification
                 Anchor = new(endpointX, endpointY), PointAnimationTimer = WrappingCountdown.Start(5),
             };
             grapple.SegmentAnimationTimers[15] = WrappingCountdown.Start(1);
-            var oamFrame = new SpriteFrameBuffer();
-            SamusGrappleBeamDrawing.DrawConnectedBeam(grapple, oamFrame, new(camera, camera), InstalledFixtures.GrappleSheet, samusPose: pose);
-            OamBuffer oam = oamFrame.FinalizeAsOam();
+            var drawn = new SpriteFrameBuffer();
+            drawn.BeginFrame();
+            SamusGrappleBeamDrawing.DrawConnectedBeam(grapple, drawn, new(camera, camera), InstalledFixtures.GrappleSheet, samusPose: pose);
+            drawn.FinalizeFrame();
+            OamBuffer oam = SpriteFrameBuffer.DrawnOam(frame =>
+            {
+                foreach (SpriteDraw draw in drawn.Draws)
+                    if (draw.Source.Kind == SpriteSourceKind.SamusGrappleEndpoint)
+                        frame.Add(draw);
+            });
             bool swinging = pose is SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose;
             string context = $"pose {(int)SamusPoseNumbers.Number(pose):X2}, camera {camera}, offsets {offsetX}/{offsetY}";
             // The endpoint is published wherever it lies; the display clips it to the view (#1541).

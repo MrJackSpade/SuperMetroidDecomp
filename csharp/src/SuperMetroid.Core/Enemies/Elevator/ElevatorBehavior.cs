@@ -126,7 +126,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         slot.Frame = EnemyFrameId.Empty;
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
-        state.Program = AnimationProgramCursor<ElevatorProgram>.Start(ElevatorProgram.Loop);
+        state.Playback = new(ElevatorAnimations.StartingWith(ElevatorProgram.Loop), AnimationPlace.StartOfAnimation);
         state.Direction = slot.SpawnSettings<ElevatorSpawnSettings>().Direction;
         state.RestingHeight = new Position16<RoomPixels>(0, slot.Position.Y.Whole);
 
@@ -291,8 +291,9 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
 
     /// <summary>Advances Elevator's typed animation.</summary>
     internal static void AdvanceElevatorTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, ElevatorAnimations.Programs, ElevatorFrameDefinitions.ShownFrames.Of,
-            static (ElevatorEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
+        EnemyProgramAnimation.Advance(slot, ElevatorAnimations.Segments, ElevatorFrameDefinitions.ShownFrames.Of,
+            static (ElevatorEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            static (_, cue) => throw new InvalidOperationException($"A cue-free Elevator animation raised {cue}."));
 
     /// <summary>Ports Elevator's initialization AI.</summary>
     internal void RunElevatorInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)

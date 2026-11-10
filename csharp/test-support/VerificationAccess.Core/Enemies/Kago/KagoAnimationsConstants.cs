@@ -8,7 +8,7 @@ internal static class KagoAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params KagoProgram[] programs) =>
-        programs.SelectMany(program => KagoAnimations.Programs.Steps(program))
-            .OfType<AnimationProgramStep<KagoProgram, KagoFrame, NoAnimationCue>.ShowStep>()
-            .Select(step => KagoFrameToolingDefinitions.Spritemap(step.Frame));
+        programs.SelectMany(program => KagoAnimations.Segments.Beats(program))
+            .OfType<AnimationBeat<KagoFrame, NoAnimationCue>.Frame>()
+            .Select(frame => KagoFrameToolingDefinitions.Spritemap(frame.Shown));
 }

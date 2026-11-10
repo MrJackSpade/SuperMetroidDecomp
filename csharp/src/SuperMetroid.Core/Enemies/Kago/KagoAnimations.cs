@@ -9,9 +9,9 @@ namespace SuperMetroid.Core.Enemies.Kago;
 /// </summary>
 internal static class KagoAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<KagoProgram, KagoFrame, NoAnimationCue> Programs { get; } = new(
-        new Dictionary<KagoProgram, AnimationProgramStep<KagoProgram, KagoFrame, NoAnimationCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<KagoProgram, KagoFrame, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<KagoProgram, AnimationBeat<KagoFrame, NoAnimationCue>[]>
     {
         [P.Slow] =
         [
@@ -19,7 +19,6 @@ internal static class KagoAnimations
             Show(1, 10),
             Show(2, 10),
             Show(1, 10),
-            GoTo(P.Slow),
         ],
         [P.Fast] =
         [
@@ -27,14 +26,19 @@ internal static class KagoAnimations
             Show(1, 3),
             Show(2, 3),
             Show(1, 3),
-            GoTo(P.Fast),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<KagoProgram, Animation<KagoProgram>> StartingAt { get; } = new Dictionary<KagoProgram, Animation<KagoProgram>>
+    {
+        [P.Slow] = new([new(P.Slow, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Fast] = new([new(P.Fast, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<KagoProgram> StartingWith(KagoProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<KagoProgram, KagoFrame, NoAnimationCue> Show(int pose, int duration) => AnimationProgramStep<KagoProgram, KagoFrame, NoAnimationCue>.Show(new(pose), duration);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<KagoProgram, KagoFrame, NoAnimationCue> GoTo(KagoProgram program) => AnimationProgramStep<KagoProgram, KagoFrame, NoAnimationCue>.GoTo(program);
-
+    private static AnimationBeat<KagoFrame, NoAnimationCue> Show(int pose, int duration) => new AnimationBeat<KagoFrame, NoAnimationCue>.Frame(new(pose), duration);
 }

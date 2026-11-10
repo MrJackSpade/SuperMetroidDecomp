@@ -114,21 +114,18 @@ public sealed class SamusArmCannonState
         Offset16<RoomPixels> offset = placement.Offset(samus.AnimationFrame);
         int graphicsYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus);
 
-        int screenX = CoordinateAxis.AsSigned(samus.Position.X.Whole + offset.X - cameraPosition.X);
-        int screenY = CoordinateAxis.AsSigned(
+        // The cover is published wherever it lies, off the screen included; the display clips it (#1587).
+        int screenX = CoordinateAxis.Wrap(samus.Position.X.Whole + offset.X - cameraPosition.X);
+        int screenY = CoordinateAxis.Wrap(
             samus.Position.Y.Whole + offset.Y - graphicsYOffset - cameraPosition.Y);
-        bool spriteWritten = screenX >= 0 && screenX < 256 && screenY >= 0 && screenY < 256;
-        if (spriteWritten)
-        {
-            // Selector -> one of four orientation lists -> current cover frame. The game loads that
-            // character to the tile the sprite names; the sheet frame is that cover as the sprite shows it. Frame
-            // zero, the null entry, returned above.
-            InstalledSpriteSheets sheets = samus.Presentation.Sheets ?? throw new InvalidOperationException(
-                "Arm cannon requires the installed sprite sheets.");
-            sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusArmCannon),
-                sheets.Get(SpriteSheetId.SamusOverlays).Frame(SamusOverlaySheetDefinitions.ArmCannonFrame(selector, Frame)),
-                new Position16<ScreenPixels>(CoordinateAxis.Wrap(screenX), CoordinateAxis.Wrap(screenY)), SpriteMirror.None));
-        }
+        // Selector -> one of four orientation lists -> current cover frame. The game loads that
+        // character to the tile the sprite names; the sheet frame is that cover as the sprite shows it. Frame
+        // zero, the null entry, returned above.
+        InstalledSpriteSheets sheets = samus.Presentation.Sheets ?? throw new InvalidOperationException(
+            "Arm cannon requires the installed sprite sheets.");
+        sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusArmCannon),
+            sheets.Get(SpriteSheetId.SamusOverlays).Frame(SamusOverlaySheetDefinitions.ArmCannonFrame(selector, Frame)),
+            new Position16<ScreenPixels>(screenX, screenY), SpriteMirror.None));
 
         return new SamusArmCannonDrawResult();
     }

@@ -250,7 +250,7 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(DeadTorizoAnimations), "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadTorizoAnimations.cs");
         RequireTypedFrames(HopperAnimations.Programs, HopperFrameToolingDefinitions.Spritemap, HopperFrameToolingDefinitions.Bank,
             nameof(HopperAnimations), "csharp/src/SuperMetroid.Core/Enemies/Hoppers/HopperAnimations.cs");
-        RequireTypedFrames(MultiviolaAnimations.Programs, MultiviolaFrameToolingDefinitions.Spritemap, MultiviolaFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(MultiviolaAnimations.Segments, MultiviolaFrameToolingDefinitions.Spritemap, MultiviolaFrameToolingDefinitions.Bank,
             nameof(MultiviolaAnimations), "csharp/src/SuperMetroid.Core/Enemies/Crawlers/MultiviolaAnimations.cs");
         RequireTypedFrames(PipeBugAnimations.Programs, PipeBugFrameToolingDefinitions.Spritemap, PipeBugFrameToolingDefinitions.Bank,
             nameof(PipeBugAnimations), "csharp/src/SuperMetroid.Core/Enemies/PipeBugs/PipeBugAnimations.cs");
@@ -264,7 +264,7 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(BlueBrinstarFaceBlockAnimations), "csharp/src/SuperMetroid.Core/Enemies/FaceBlocks/BlueBrinstarFaceBlockAnimations.cs");
         RequireTypedFrames(DragonAnimations.Programs, DragonFrameToolingDefinitions.Spritemap, DragonFrameToolingDefinitions.Bank,
             nameof(DragonAnimations), "csharp/src/SuperMetroid.Core/Enemies/Dragon/DragonAnimations.cs");
-        RequireTypedFrames(CrawlerAnimations.Programs, CrawlerFrameToolingDefinitions.Spritemap, CrawlerFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(CrawlerAnimations.Segments, CrawlerFrameToolingDefinitions.Spritemap, CrawlerFrameToolingDefinitions.Bank,
             nameof(CrawlerAnimations), "csharp/src/SuperMetroid.Core/Enemies/Crawlers/CrawlerAnimations.cs");
         RequireTypedFrames(MorphBallEyeAnimations.Programs, MorphBallEyeFrameToolingDefinitions.Spritemap, MorphBallEyeFrameToolingDefinitions.Bank,
             nameof(MorphBallEyeAnimations), "csharp/src/SuperMetroid.Core/Enemies/MorphBallEye/MorphBallEyeAnimations.cs");

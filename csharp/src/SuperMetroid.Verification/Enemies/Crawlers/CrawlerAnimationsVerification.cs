@@ -6,26 +6,27 @@ using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Enemies.Crawlers;
 
-/// <summary>#641: the crawlers' typed programs, each matched step by step to its native bank-$A3 list.</summary>
+/// <summary>#641, #1600: the crawlers' typed animations, each segment matched to its native bank-$A3 list and each animation to the lists' control flow.</summary>
 internal static class CrawlerAnimationsVerification
 {
-    /// <summary>Every program matches its native list.</summary>
+    /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifyCrawlerAnimations(SuperMetroidAddressSpace rom)
     {
-        int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, CrawlerAnimations.Programs,
-            CrawlerFrameToolingDefinitions.Spritemap,
-            word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
-            (word, operands, cue, at) =>
-            {
-                var instruction = Instructions[word];
-                AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
-                for (int index = 0; index < operands.Length; index++)
-                    AssertEqual(operands[index], instruction.Operands[index] switch
+        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
+            CrawlerAnimations.Segments, CrawlerAnimations.StartingAt, CrawlerFrameToolingDefinitions.Spritemap,
+            new NativeEnemyCueRules<CrawlerCue>(
+                word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
+                (word, operands, cue, at) =>
                 {
-                    'E' => CrawlersNativeWords.CrawlerEnemyFunctions.Word(cue.Function),
-                    _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
-                }, $"{at}: operand {index}");
-            });
-        Console.WriteLine($"  crawler programs: {Entries.Length} programs ({steps} steps) match bank $A3.");
+                    var instruction = Instructions[word];
+                    AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
+                    for (int index = 0; index < operands.Length; index++)
+                        AssertEqual(operands[index], instruction.Operands[index] switch
+                    {
+                        'E' => CrawlersNativeWords.CrawlerEnemyFunctions.Word(cue.Function),
+                        _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
+                    }, $"{at}: operand {index}");
+                }));
+        Console.WriteLine($"  crawler animations: {Entries.Length} segments ({beats} beats) and {CrawlerAnimations.StartingAt.Count} animations match bank $A3.");
     }
 }

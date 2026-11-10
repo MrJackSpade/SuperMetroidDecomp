@@ -9,9 +9,9 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 /// </summary>
 internal static class MultiviolaAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<MultiviolaProgram, MultiviolaFrame, NoAnimationCue> Programs { get; } = new(
-        new Dictionary<MultiviolaProgram, AnimationProgramStep<MultiviolaProgram, MultiviolaFrame, NoAnimationCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<MultiviolaProgram, MultiviolaFrame, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<MultiviolaProgram, AnimationBeat<MultiviolaFrame, NoAnimationCue>[]>
     {
         [P.Flying] =
         [
@@ -29,14 +29,18 @@ internal static class MultiviolaAnimations
             Show(3, 10),
             Show(2, 10),
             Show(1, 10),
-            GoTo(P.Flying),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<MultiviolaProgram, Animation<MultiviolaProgram>> StartingAt { get; } = new Dictionary<MultiviolaProgram, Animation<MultiviolaProgram>>
+    {
+        [P.Flying] = new([new(P.Flying, 0, 14, 1)], AnimationEnd.LoopsFrom(0)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<MultiviolaProgram> StartingWith(MultiviolaProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<MultiviolaProgram, MultiviolaFrame, NoAnimationCue> Show(int pose, int duration) => AnimationProgramStep<MultiviolaProgram, MultiviolaFrame, NoAnimationCue>.Show(new(pose), duration);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<MultiviolaProgram, MultiviolaFrame, NoAnimationCue> GoTo(MultiviolaProgram program) => AnimationProgramStep<MultiviolaProgram, MultiviolaFrame, NoAnimationCue>.GoTo(program);
-
+    private static AnimationBeat<MultiviolaFrame, NoAnimationCue> Show(int pose, int duration) => new AnimationBeat<MultiviolaFrame, NoAnimationCue>.Frame(new(pose), duration);
 }

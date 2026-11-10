@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 /// </summary>
 public sealed class MultiviolaEnemyState
 {
-    /// <summary>Where the animation resumes.</summary>
-    internal AnimationProgramCursor<MultiviolaProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<MultiviolaProgram> Playback { get; set; }
 
     /// <summary>Signed 16.16 velocity in room pixels per update.</summary>
     public FixedVector<RoomPixels> Velocity { get; internal set; }

@@ -10,14 +10,13 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 /// </summary>
 internal static class CrawlerAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<CrawlerProgram, CrawlerFrame, CrawlerCue> Programs { get; } = new(
-        new Dictionary<CrawlerProgram, AnimationProgramStep<CrawlerProgram, CrawlerFrame, CrawlerCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<CrawlerProgram, CrawlerFrame, CrawlerCue> Segments { get; } = new(
+        new Dictionary<CrawlerProgram, AnimationBeat<CrawlerFrame, CrawlerCue>[]>
     {
         [P.SciserUpsideRight] =
         [
             Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.CrawlingVertically)),
-            FallInto(P.SciserUpsideRightLoop),
         ],
         [P.SciserUpsideRightLoop] =
         [
@@ -25,12 +24,10 @@ internal static class CrawlerAnimations
             Show(4, 8),
             Show(5, 8),
             Show(4, 8),
-            GoTo(P.SciserUpsideRightLoop),
         ],
         [P.SciserUpsideLeft] =
         [
             Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.CrawlingVertically)),
-            FallInto(P.SciserUpsideLeftLoop),
         ],
         [P.SciserUpsideLeftLoop] =
         [
@@ -38,12 +35,10 @@ internal static class CrawlerAnimations
             Show(10, 8),
             Show(11, 8),
             Show(10, 8),
-            GoTo(P.SciserUpsideLeftLoop),
         ],
         [P.SciserUpsideDown] =
         [
             Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.CrawlingHorizontally)),
-            FallInto(P.SciserUpsideDownLoop),
         ],
         [P.SciserUpsideDownLoop] =
         [
@@ -51,12 +46,10 @@ internal static class CrawlerAnimations
             Show(7, 8),
             Show(8, 8),
             Show(7, 8),
-            GoTo(P.SciserUpsideDownLoop),
         ],
         [P.SciserUpsideUp] =
         [
             Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.CrawlingHorizontally)),
-            FallInto(P.SciserUpsideUpLoop),
         ],
         [P.SciserUpsideUpLoop] =
         [
@@ -64,12 +57,10 @@ internal static class CrawlerAnimations
             Show(1, 8),
             Show(2, 8),
             Show(1, 8),
-            GoTo(P.SciserUpsideUpLoop),
         ],
         [P.ZeroUpsideRight] =
         [
             Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.CrawlingVertically)),
-            FallInto(P.ZeroUpsideRightLoop),
         ],
         [P.ZeroUpsideRightLoop] =
         [
@@ -79,12 +70,10 @@ internal static class CrawlerAnimations
             Show(27, 4),
             Show(26, 4),
             Show(25, 4),
-            GoTo(P.ZeroUpsideRightLoop),
         ],
         [P.ZeroUpsideLeft] =
         [
             Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.CrawlingVertically)),
-            FallInto(P.ZeroUpsideLeftLoop),
         ],
         [P.ZeroUpsideLeftLoop] =
         [
@@ -94,12 +83,10 @@ internal static class CrawlerAnimations
             Show(19, 4),
             Show(18, 4),
             Show(17, 4),
-            GoTo(P.ZeroUpsideLeftLoop),
         ],
         [P.ZeroUpsideDown] =
         [
             Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.CrawlingHorizontally)),
-            FallInto(P.ZeroUpsideDownLoop),
         ],
         [P.ZeroUpsideDownLoop] =
         [
@@ -109,12 +96,10 @@ internal static class CrawlerAnimations
             Show(23, 4),
             Show(22, 4),
             Show(21, 4),
-            GoTo(P.ZeroUpsideDownLoop),
         ],
         [P.ZeroUpsideUp] =
         [
             Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.CrawlingHorizontally)),
-            FallInto(P.ZeroUpsideUpLoop),
         ],
         [P.ZeroUpsideUpLoop] =
         [
@@ -124,27 +109,22 @@ internal static class CrawlerAnimations
             Show(15, 4),
             Show(14, 4),
             Show(13, 4),
-            GoTo(P.ZeroUpsideUpLoop),
         ],
         [P.ViolaUpsideDown] =
         [
             Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.CrawlingHorizontally)),
-            GoTo(P.ViolaNormal),
         ],
         [P.ViolaUpsideUp] =
         [
             Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.CrawlingHorizontally)),
-            GoTo(P.ViolaNormal),
         ],
         [P.ViolaUpsideRight] =
         [
             Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.CrawlingVertically)),
-            GoTo(P.ViolaNormal),
         ],
         [P.ViolaUpsideLeft] =
         [
             Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.CrawlingVertically)),
-            FallInto(P.ViolaNormal),
         ],
         [P.ViolaNormal] =
         [
@@ -162,12 +142,10 @@ internal static class CrawlerAnimations
             Show(31, 10),
             Show(30, 10),
             Show(29, 10),
-            GoTo(P.ViolaNormal),
         ],
         [P.HZoomerUpsideRight] =
         [
             Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.HZoomerCrawlingVertically)),
-            FallInto(P.HZoomerUpsideRightLoop),
         ],
         [P.HZoomerUpsideRightLoop] =
         [
@@ -176,12 +154,10 @@ internal static class CrawlerAnimations
             Show(53, 3),
             Show(54, 3),
             Show(55, 3),
-            GoTo(P.HZoomerUpsideRightLoop),
         ],
         [P.HZoomerUpsideLeft] =
         [
             Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.HZoomerCrawlingVertically)),
-            FallInto(P.HZoomerUpsideLeftLoop),
         ],
         [P.HZoomerUpsideLeftLoop] =
         [
@@ -190,12 +166,10 @@ internal static class CrawlerAnimations
             Show(43, 3),
             Show(44, 3),
             Show(45, 3),
-            GoTo(P.HZoomerUpsideLeftLoop),
         ],
         [P.HZoomerUpsideDown] =
         [
             Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.HZoomerCrawlingHorizontally)),
-            FallInto(P.HZoomerUpsideDownLoop),
         ],
         [P.HZoomerUpsideDownLoop] =
         [
@@ -204,12 +178,10 @@ internal static class CrawlerAnimations
             Show(48, 3),
             Show(49, 3),
             Show(50, 3),
-            GoTo(P.HZoomerUpsideDownLoop),
         ],
         [P.HZoomerUpsideUp] =
         [
             Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.HZoomerCrawlingHorizontally)),
-            FallInto(P.HZoomerUpsideUpLoop),
         ],
         [P.HZoomerUpsideUpLoop] =
         [
@@ -218,12 +190,10 @@ internal static class CrawlerAnimations
             Show(38, 3),
             Show(39, 3),
             Show(40, 3),
-            GoTo(P.HZoomerUpsideUpLoop),
         ],
         [P.SharedUpsideRight] =
         [
             Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.CrawlingVertically)),
-            FallInto(P.SharedUpsideRightLoop),
         ],
         [P.SharedUpsideRightLoop] =
         [
@@ -232,12 +202,10 @@ internal static class CrawlerAnimations
             Show(53, 3),
             Show(54, 3),
             Show(55, 3),
-            GoTo(P.SharedUpsideRightLoop),
         ],
         [P.SharedUpsideLeft] =
         [
             Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.CrawlingVertically)),
-            FallInto(P.SharedUpsideLeftLoop),
         ],
         [P.SharedUpsideLeftLoop] =
         [
@@ -246,12 +214,10 @@ internal static class CrawlerAnimations
             Show(43, 3),
             Show(44, 3),
             Show(45, 3),
-            GoTo(P.SharedUpsideLeftLoop),
         ],
         [P.SharedUpsideDown] =
         [
             Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.CrawlingHorizontally)),
-            FallInto(P.SharedUpsideDownLoop),
         ],
         [P.SharedUpsideDownLoop] =
         [
@@ -260,12 +226,10 @@ internal static class CrawlerAnimations
             Show(48, 3),
             Show(49, 3),
             Show(50, 3),
-            GoTo(P.SharedUpsideDownLoop),
         ],
         [P.SharedUpsideUp] =
         [
             Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.CrawlingHorizontally)),
-            FallInto(P.SharedUpsideUpLoop),
         ],
         [P.SharedUpsideUpLoop] =
         [
@@ -274,20 +238,57 @@ internal static class CrawlerAnimations
             Show(38, 3),
             Show(39, 3),
             Show(40, 3),
-            GoTo(P.SharedUpsideUpLoop),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<CrawlerProgram, Animation<CrawlerProgram>> StartingAt { get; } = new Dictionary<CrawlerProgram, Animation<CrawlerProgram>>
+    {
+        [P.SciserUpsideRight] = new([new(P.SciserUpsideRight, 0, 1, 1), new(P.SciserUpsideRightLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.SciserUpsideRightLoop] = new([new(P.SciserUpsideRightLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.SciserUpsideLeft] = new([new(P.SciserUpsideLeft, 0, 1, 1), new(P.SciserUpsideLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.SciserUpsideLeftLoop] = new([new(P.SciserUpsideLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.SciserUpsideDown] = new([new(P.SciserUpsideDown, 0, 1, 1), new(P.SciserUpsideDownLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.SciserUpsideDownLoop] = new([new(P.SciserUpsideDownLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.SciserUpsideUp] = new([new(P.SciserUpsideUp, 0, 1, 1), new(P.SciserUpsideUpLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.SciserUpsideUpLoop] = new([new(P.SciserUpsideUpLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ZeroUpsideRight] = new([new(P.ZeroUpsideRight, 0, 1, 1), new(P.ZeroUpsideRightLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.ZeroUpsideRightLoop] = new([new(P.ZeroUpsideRightLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ZeroUpsideLeft] = new([new(P.ZeroUpsideLeft, 0, 1, 1), new(P.ZeroUpsideLeftLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.ZeroUpsideLeftLoop] = new([new(P.ZeroUpsideLeftLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ZeroUpsideDown] = new([new(P.ZeroUpsideDown, 0, 1, 1), new(P.ZeroUpsideDownLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.ZeroUpsideDownLoop] = new([new(P.ZeroUpsideDownLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ZeroUpsideUp] = new([new(P.ZeroUpsideUp, 0, 1, 1), new(P.ZeroUpsideUpLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.ZeroUpsideUpLoop] = new([new(P.ZeroUpsideUpLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ViolaUpsideDown] = new([new(P.ViolaUpsideDown, 0, 1, 1), new(P.ViolaNormal, 0, 14, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.ViolaUpsideUp] = new([new(P.ViolaUpsideUp, 0, 1, 1), new(P.ViolaNormal, 0, 14, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.ViolaUpsideRight] = new([new(P.ViolaUpsideRight, 0, 1, 1), new(P.ViolaNormal, 0, 14, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.ViolaUpsideLeft] = new([new(P.ViolaUpsideLeft, 0, 1, 1), new(P.ViolaNormal, 0, 14, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.ViolaNormal] = new([new(P.ViolaNormal, 0, 14, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.HZoomerUpsideRight] = new([new(P.HZoomerUpsideRight, 0, 1, 1), new(P.HZoomerUpsideRightLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.HZoomerUpsideRightLoop] = new([new(P.HZoomerUpsideRightLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.HZoomerUpsideLeft] = new([new(P.HZoomerUpsideLeft, 0, 1, 1), new(P.HZoomerUpsideLeftLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.HZoomerUpsideLeftLoop] = new([new(P.HZoomerUpsideLeftLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.HZoomerUpsideDown] = new([new(P.HZoomerUpsideDown, 0, 1, 1), new(P.HZoomerUpsideDownLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.HZoomerUpsideDownLoop] = new([new(P.HZoomerUpsideDownLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.HZoomerUpsideUp] = new([new(P.HZoomerUpsideUp, 0, 1, 1), new(P.HZoomerUpsideUpLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.HZoomerUpsideUpLoop] = new([new(P.HZoomerUpsideUpLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.SharedUpsideRight] = new([new(P.SharedUpsideRight, 0, 1, 1), new(P.SharedUpsideRightLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.SharedUpsideRightLoop] = new([new(P.SharedUpsideRightLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.SharedUpsideLeft] = new([new(P.SharedUpsideLeft, 0, 1, 1), new(P.SharedUpsideLeftLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.SharedUpsideLeftLoop] = new([new(P.SharedUpsideLeftLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.SharedUpsideDown] = new([new(P.SharedUpsideDown, 0, 1, 1), new(P.SharedUpsideDownLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.SharedUpsideDownLoop] = new([new(P.SharedUpsideDownLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.SharedUpsideUp] = new([new(P.SharedUpsideUp, 0, 1, 1), new(P.SharedUpsideUpLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.SharedUpsideUpLoop] = new([new(P.SharedUpsideUpLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<CrawlerProgram> StartingWith(CrawlerProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<CrawlerProgram, CrawlerFrame, CrawlerCue> Show(int pose, int duration) => AnimationProgramStep<CrawlerProgram, CrawlerFrame, CrawlerCue>.Show(new(pose), duration);
+    private static AnimationBeat<CrawlerFrame, CrawlerCue> Show(int pose, int duration) => new AnimationBeat<CrawlerFrame, CrawlerCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<CrawlerProgram, CrawlerFrame, CrawlerCue> Cue(CrawlerCue cue) => AnimationProgramStep<CrawlerProgram, CrawlerFrame, CrawlerCue>.Publish(cue);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<CrawlerProgram, CrawlerFrame, CrawlerCue> GoTo(CrawlerProgram program) => AnimationProgramStep<CrawlerProgram, CrawlerFrame, CrawlerCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<CrawlerProgram, CrawlerFrame, CrawlerCue> FallInto(CrawlerProgram program) => AnimationProgramStep<CrawlerProgram, CrawlerFrame, CrawlerCue>.FallInto(program);
-
+    private static AnimationBeat<CrawlerFrame, CrawlerCue> Cue(CrawlerCue cue) => new AnimationBeat<CrawlerFrame, CrawlerCue>.Event(cue);
 }

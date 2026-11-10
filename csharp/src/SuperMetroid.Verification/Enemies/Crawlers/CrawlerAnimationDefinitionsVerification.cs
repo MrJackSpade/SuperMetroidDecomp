@@ -80,9 +80,9 @@ internal static class CrawlerAnimationDefinitionsVerification
                         slot, family, speciesSurfaceFamily);
             }
 
-            AssertEqual(AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.ProgramFor(
-                    family, (CrawlerSurfaceOrientation)orientation)),
-                (enemies.CrawlerStates[0] ?? throw new InvalidOperationException("The crawler has no state.")).Program,
+            AssertEqual(new AnimationPlayback<CrawlerProgram>(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.ProgramFor(
+                    family, (CrawlerSurfaceOrientation)orientation)), AnimationPlace.StartOfAnimation),
+                (enemies.CrawlerStates[0] ?? throw new InvalidOperationException("The crawler has no state.")).Playback,
                 $"crawler production initial selector {family}/{orientation}");
         }
 
@@ -96,24 +96,24 @@ internal static class CrawlerAnimationDefinitionsVerification
 
             state.Velocity = state.Velocity.WithX(new SignedEightEight(0xffff));
             setHorizontal(slot, state);
-            AssertEqual(AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.ProgramFor(
-                    surfaceFamily, CrawlerSurfaceOrientation.UpsideRight)),
-                state.Program, $"crawler production right surface {surfaceFamily}");
+            AssertEqual(new AnimationPlayback<CrawlerProgram>(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.ProgramFor(
+                    surfaceFamily, CrawlerSurfaceOrientation.UpsideRight)), AnimationPlace.StartOfAnimation),
+                state.Playback, $"crawler production right surface {surfaceFamily}");
             state.Velocity = state.Velocity.WithX(new SignedEightEight(1));
             setHorizontal(slot, state);
-            AssertEqual(AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.ProgramFor(
-                    surfaceFamily, CrawlerSurfaceOrientation.UpsideLeft)),
-                state.Program, $"crawler production left surface {surfaceFamily}");
+            AssertEqual(new AnimationPlayback<CrawlerProgram>(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.ProgramFor(
+                    surfaceFamily, CrawlerSurfaceOrientation.UpsideLeft)), AnimationPlace.StartOfAnimation),
+                state.Playback, $"crawler production left surface {surfaceFamily}");
             state.Velocity = state.Velocity.WithY(new SignedEightEight(0xffff));
             setVertical(slot, state);
-            AssertEqual(AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.ProgramFor(
-                    surfaceFamily, CrawlerSurfaceOrientation.UpsideDown)),
-                state.Program, $"crawler production down surface {surfaceFamily}");
+            AssertEqual(new AnimationPlayback<CrawlerProgram>(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.ProgramFor(
+                    surfaceFamily, CrawlerSurfaceOrientation.UpsideDown)), AnimationPlace.StartOfAnimation),
+                state.Playback, $"crawler production down surface {surfaceFamily}");
             state.Velocity = state.Velocity.WithY(new SignedEightEight(1));
             setVertical(slot, state);
-            AssertEqual(AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.ProgramFor(
-                    surfaceFamily, CrawlerSurfaceOrientation.UpsideUp)),
-                state.Program, $"crawler production up surface {surfaceFamily}");
+            AssertEqual(new AnimationPlayback<CrawlerProgram>(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.ProgramFor(
+                    surfaceFamily, CrawlerSurfaceOrientation.UpsideUp)), AnimationPlace.StartOfAnimation),
+                state.Playback, $"crawler production up surface {surfaceFamily}");
         }
 
         AssertThrows<InvalidDataException>(

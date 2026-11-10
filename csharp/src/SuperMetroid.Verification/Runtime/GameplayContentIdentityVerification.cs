@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Samus.Abilities.Artwork;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Assets;

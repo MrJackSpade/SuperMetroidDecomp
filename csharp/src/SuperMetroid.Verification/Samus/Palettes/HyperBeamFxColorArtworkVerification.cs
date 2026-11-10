@@ -1,4 +1,3 @@
-using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Tooling;
 using System.Text;
@@ -8,13 +7,10 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.AssetExtraction.Fx.Artwork;
 
 namespace SuperMetroid.Verification.Samus.Palettes;
 

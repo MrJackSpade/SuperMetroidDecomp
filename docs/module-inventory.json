@@ -24,7 +24,7 @@
     {
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
-      "files": 2117,
+      "files": 2127,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Areas",
@@ -349,7 +349,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Samus",
       "role": "production",
-      "files": 506,
+      "files": 494,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Assets",
@@ -679,7 +679,7 @@
     {
       "module": "csharp/src/SuperMetroid.Tooling",
       "role": "tooling",
-      "files": 243,
+      "files": 244,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -1012,7 +1012,7 @@
     {
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
-      "files": 1126,
+      "files": 1125,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -23875,12 +23875,98 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusBodyComposition.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Samus",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Spatial"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusBodyCompositions.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Samus",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Samus",
+        "csharp/src/SuperMetroid.Core/Spatial"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusBodyFramePictures.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Samus",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusBodyFrameSelection.cs",
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
       "namespace": "SuperMetroid.AssetExtraction.Samus",
       "assemblies": [
         "SuperMetroid.AssetExtraction"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusBodyHalf.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Samus",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusBodyHalfFrame.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Samus",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Samus"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusBodyHalvesShown.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Samus",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusBodyPicture.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Samus",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusBodyPictureKey.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Samus",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
     {
@@ -24415,6 +24501,18 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusPoseSpritemaps.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Samus",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusProjectileRecordOrder.cs",
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
@@ -24505,6 +24603,15 @@
     },
     {
       "path": "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusSpritemapDefinition.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Samus",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusSpritemapId.cs",
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
       "namespace": "SuperMetroid.AssetExtraction.Samus",
@@ -73060,20 +73167,6 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Samus/Artwork/InstalledSamusSpritemaps.cs",
-      "module": "csharp/src/SuperMetroid.Core/Samus",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Samus.Artwork",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core",
-        "csharp/src/SuperMetroid.Core/Spatial"
-      ]
-    },
-    {
       "path": "csharp/src/SuperMetroid.Core/Samus/Artwork/PowerBombFixedColorFormat.cs",
       "module": "csharp/src/SuperMetroid.Core/Samus",
       "role": "production",
@@ -73208,82 +73301,6 @@
       "layer": "Simulation",
       "assemblies": [
         "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Spatial"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyFrameKey.cs",
-      "module": "csharp/src/SuperMetroid.Core/Samus",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Samus.Artwork",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Spatial"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyFramePictures.cs",
-      "module": "csharp/src/SuperMetroid.Core/Samus",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Samus.Artwork",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyHalf.cs",
-      "module": "csharp/src/SuperMetroid.Core/Samus",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Samus.Artwork",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyHalfFrame.cs",
-      "module": "csharp/src/SuperMetroid.Core/Samus",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Samus.Artwork",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyHalvesShown.cs",
-      "module": "csharp/src/SuperMetroid.Core/Samus",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Samus.Artwork",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyPicture.cs",
-      "module": "csharp/src/SuperMetroid.Core/Samus",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Samus.Artwork",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyPictures.cs",
-      "module": "csharp/src/SuperMetroid.Core/Samus",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Samus.Artwork",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
       ]
     },
     {
@@ -73351,29 +73368,6 @@
     },
     {
       "path": "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusOverlaySheetDefinitions.cs",
-      "module": "csharp/src/SuperMetroid.Core/Samus",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Samus.Artwork",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusPoseSpritemaps.cs",
-      "module": "csharp/src/SuperMetroid.Core/Samus",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Samus.Artwork",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusSpritemapId.cs",
       "module": "csharp/src/SuperMetroid.Core/Samus",
       "role": "production",
       "namespace": "SuperMetroid.Core.Samus.Artwork",
@@ -73583,7 +73577,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Samus/Drawing/SamusBodyDrawing.cs",
+      "path": "csharp/src/SuperMetroid.Core/Samus/Drawing/SamusBodyDraws.cs",
       "module": "csharp/src/SuperMetroid.Core/Samus",
       "role": "production",
       "namespace": "SuperMetroid.Core.Samus.Drawing",
@@ -73593,20 +73587,8 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Spatial"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Samus/Drawing/SamusBodyFrameState.cs",
-      "module": "csharp/src/SuperMetroid.Core/Samus",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Samus.Drawing",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Assets"
       ]
     },
     {
@@ -73717,21 +73699,6 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Compatibility"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Samus/Drawing/SamusSpritemapDraws.cs",
-      "module": "csharp/src/SuperMetroid.Core/Samus",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Samus.Drawing",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core",
-        "csharp/src/SuperMetroid.Core/Assets",
-        "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
     {
@@ -88058,6 +88025,19 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Rooms"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Tooling/AssetExtraction/Samus/SamusBodySourcesToolingExtensions.cs",
+      "module": "csharp/src/SuperMetroid.Tooling",
+      "role": "tooling",
+      "namespace": "SuperMetroid.AssetExtraction.Samus",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Samus"
       ]
     },
     {
@@ -123152,6 +123132,7 @@
         "csharp/src/SuperMetroid.Core/Progression",
         "csharp/src/SuperMetroid.Core/Samus",
         "csharp/src/SuperMetroid.Core/Spatial",
+        "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/Assertions",
         "csharp/test-support/RepositoryInstallation",
         "csharp/test-support/RepositoryInstallation.Verification",
@@ -123172,6 +123153,7 @@
         "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Samus",
         "csharp/src/SuperMetroid.Core/Spatial",
+        "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/Assertions",
         "csharp/test-support/RepositoryInstallation",
         "csharp/test-support/RepositoryInstallation.Verification"
@@ -132193,8 +132175,7 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.AssetExtraction",
-        "csharp/src/SuperMetroid.Core/Samus"
+        "csharp/src/SuperMetroid.AssetExtraction"
       ]
     },
     {
@@ -146851,23 +146832,6 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Samus/Artwork/InstalledSamusSpritemapsAccess.cs",
-      "module": "csharp/test-support/VerificationAccess.Core",
-      "role": "verification-support",
-      "namespace": "SuperMetroid.Core.Samus.Artwork",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.AssetExtraction",
-        "csharp/src/SuperMetroid.Core/Samus"
-      ]
-    },
-    {
       "path": "csharp/test-support/VerificationAccess.Core/Samus/Artwork/ProjectileObjectPagesAccess.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -147004,6 +146968,22 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/Samus/Artwork/SamusSpritemapSourcesAccess.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Samus.Artwork",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/Samus/Death/SamusDeathExplosionTimingDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -147051,25 +147031,6 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Samus"
-      ]
-    },
-    {
-      "path": "csharp/test-support/VerificationAccess.Core/Samus/Drawing/SamusBodyFrameStateAccess.cs",
-      "module": "csharp/test-support/VerificationAccess.Core",
-      "role": "verification-support",
-      "namespace": "SuperMetroid.Core.Samus.Drawing",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.AssetExtraction",
-        "csharp/src/SuperMetroid.Core",
-        "csharp/src/SuperMetroid.Core/Samus",
-        "csharp/test-support/RepositoryInstallation.Verification"
       ]
     },
     {
@@ -147158,7 +147119,6 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Assets",
-        "csharp/src/SuperMetroid.Core/Samus",
         "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },

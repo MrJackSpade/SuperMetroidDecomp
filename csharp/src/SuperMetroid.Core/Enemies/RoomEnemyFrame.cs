@@ -15,7 +15,7 @@ public sealed record RoomEnemyFrame
     /// <summary>Camera position (viewport top-left) in whole room pixels.</summary>
     public required Position16<RoomPixels> Camera { get; init; }
 
-    /// <summary>Whether time-freeze gating suppresses actor AI and instructions; this does not suppress every timer, palette hook, or frame publication.</summary>
+    /// <summary>Whether time is frozen, which stops the enemies' AI and animations; it does not stop every timer, the room-wide glows, or frame publication.</summary>
     public required bool TimeIsFrozen { get; init; }
 
     /// <summary>Active player state required by player-dependent enemy paths.</summary>

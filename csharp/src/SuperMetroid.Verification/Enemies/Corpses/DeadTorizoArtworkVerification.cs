@@ -43,7 +43,7 @@ internal static class DeadTorizoArtworkVerification
         // $A9:D39A draws the fixed corpse map at world (296, 187).
         DrawImportedEnemySpritemap(nativeBus, nativeCorpse, new NativeEnemySpritemapDraw { Bank = 0xa9, Pointer = 0xd761, Origin = new(296, 187), PaletteBits = 0, BaseTileIndex = 0 });
         AssertTrue((stock.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires stock spritemaps."))
-            .TryGetDisplay(DeadTorizoArtworkDefinitions.HookFrame, out EnemySpritemapParts hook), "Dead Torizo hook has an installed composition");
+            .TryGetDisplay(DeadTorizoArtworkDefinitions.SandHeapFrame, out EnemySpritemapParts hook), "Dead Torizo hook has an installed composition");
         var installedCorpse = new OamBuffer();
         installedCorpse.AddEnemySpritemap(hook, new Position16<SpritePixels>(296, 187), 0, 0);
         AssertTrue(nativeCorpse.ImageEquals(installedCorpse) &&
@@ -187,7 +187,7 @@ internal static class DeadTorizoArtworkVerification
     /// <summary>The corpse hook's installed composition as OAM, where the hook draws it with the camera at the room's origin.</summary>
     internal static OamBuffer DrawDeadTorizoHookComposition(InstalledEnemyArtwork artwork)
     {
-        if (artwork.Enemies.Spritemaps?.TryGetDisplay(DeadTorizoArtworkDefinitions.HookFrame, out EnemySpritemapParts hook) != true)
+        if (artwork.Enemies.Spritemaps?.TryGetDisplay(DeadTorizoArtworkDefinitions.SandHeapFrame, out EnemySpritemapParts hook) != true)
             throw new InvalidDataException("The dead Torizo hook has no installed composition.");
         var oam = new OamBuffer();
         oam.AddEnemySpritemap(hook, new Position16<SpritePixels>(296, 187), 0, 0);

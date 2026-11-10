@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies;
 public static class RoomEnemyGraphicsSetDefinitions
 {
     /// <summary>
-    /// The enemy graphics a room draws under when it loads no set (#1392, #1476): no set's tiles or palettes loaded over
+    /// The enemy graphics a room draws under when it loads no set (#1392, #1476): no set's pictures or colours loaded over
     /// the standard ones. A room whose population is empty loads no set and draws its spawned objects under this.
     /// </summary>
     public static RoomEnemyGraphicsSetDefinition SessionStart { get; } = new(nameof(SessionStart));

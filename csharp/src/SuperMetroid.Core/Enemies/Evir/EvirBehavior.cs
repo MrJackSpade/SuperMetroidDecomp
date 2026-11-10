@@ -115,9 +115,8 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// upper eight bits of a value of the enemy its room lists at a place fixed by its bobbing speed
     /// (<see cref="EvirBorrowedFirstHalfCycle"/>, <see cref="EvirInitDefinitions.FirstHalfCycleSources"/>). The enemy is
     /// read as it stands while the population loads: for the second Evir of either retail room the third enemy is the
-    /// first Evir's spit, already carrying its body's palette, so the first half-cycle is not zero. Read that way, a
-    /// palette field yields the enemy's palette row itself: the game keeps the row shifted nine bits up, so half its
-    /// upper eight bits is the row.
+    /// first Evir's spit, whose colour selection the game reads as the count, so the first half-cycle is not zero
+    /// (<see cref="EvirInitDefinitions.SpitColoursHalfCycle"/>).
     /// </summary>
     private int ReadFirstHalfCycle(SignedSixteenSixteen speed)
     {
@@ -172,9 +171,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state);
         InstallEvirInstruction(slot, state);
 
-        // The projectile definition has no graphics-set entry of its own; it shows the body's colours, and its sheet
-        // pictures it in the Evir's art.
-        slot.Shading = spitBody.Shading;
+        // The spit has no graphics-set entry of its own: its sheet pictures it in the Evir's art and colours.
         ResetEvirProjectilePosition(slot, state);
 
         // Clears installed-list after having installed the normal list. That oddity

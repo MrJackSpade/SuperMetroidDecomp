@@ -1,8 +1,10 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.Corpses.Artwork;
 using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>
-/// One dead sidehopper's corpse state: its silhouette, rot schedule, animation, hop, palette and contact progress.
+/// One dead sidehopper's corpse state: its silhouette, rot schedule, animation, hop, drain and contact progress.
 /// </summary>
 public sealed class DeadSidehopperEnemyState
 {
@@ -33,30 +35,44 @@ public sealed class DeadSidehopperEnemyState
     /// <summary>Position 0..3 in the four-hop launch cycle, selecting the next launch velocity; each landing advances it modulo four.</summary>
     public int JumpPhase { get; internal set; }
 
-    /// <summary>Draining AI calls since the palette last advanced, 0..7; the eighth call advances the palette and resets it.</summary>
-    public int PaletteFrameCounter { get; internal set; }
+    /// <summary>Draining AI calls since the drain last stepped, 0..7; the eighth call steps the drain and restarts the count.</summary>
+    public int DrainStepCalls { get; internal set; }
 
     /// <summary>
-    /// Drained-palette progress: 0 before Shitroid feeds, 1..7 while draining and 8 once transformed; absent for a corpse
-    /// placed already dead, which has no drain and is drained from the start (<see cref="IsDrained"/>).
-    /// </summary>
-    [IntegerQuantity("drain progress counted from zero to eight; comparisons test how far draining has gone")]
-    public int? PaletteStage { get; internal set; }
-
-    /// <summary>The palette stage at which draining is complete.</summary>
-    internal const int DrainedPaletteStage = 8;
-
-    /// <summary>
-    /// Whether the corpse is drained, placed already dead or transformed by Shitroid's feeding, so a shot, touch or Power
+    /// How far Shitroid's drain has gone: 0 before Shitroid feeds, 1..7 while draining and 8 once the victim is a corpse;
+    /// absent for a corpse placed already dead, which has no drain and is drained from the start (<see cref="IsDrained"/>).
+    /// Gameplay reads it: it decides whether the victim hops or drains after a landing and whether a shot, touch or Power
     /// Bomb starts it rotting.
     /// </summary>
-    internal bool IsDrained => PaletteStage is null or >= DrainedPaletteStage;
+    [IntegerQuantity("drain progress counted from zero to eight; comparisons test how far draining has gone")]
+    public int? DrainStage { get; internal set; }
+
+    /// <summary>The drain stage at which the victim is fully drained.</summary>
+    internal const int FullyDrainedStage = 8;
+
+    /// <summary>
+    /// Whether the corpse is drained, placed already dead or turned into a corpse by Shitroid's feeding, so a shot, touch
+    /// or Power Bomb starts it rotting.
+    /// </summary>
+    internal bool IsDrained => DrainStage is null or >= FullyDrainedStage;
 
     /// <summary>
     /// Whether draining has begun: Shitroid has fed on the corpse, or it was placed already dead. The hop's end and the
-    /// post-landing pause turn to the palette transformation once it has.
+    /// post-landing pause turn to the drain once it has.
     /// </summary>
-    internal bool HasBegunDraining => PaletteStage is not 0;
+    internal bool HasBegunDraining => DrainStage is not 0;
+
+    /// <summary>
+    /// The colours the corpse shows, from how far its drain has gone (#1512): a corpse placed already dead lies in the
+    /// drained corpses' colours; the victim shows the colours the Shitroid's room entry gives it until the drain's first
+    /// step, then each step of the drain in turn.
+    /// </summary>
+    internal PictureShading Shading => DrainStage switch
+    {
+        null => TourianCorpseShades.InDrainedColours,
+        < 2 => TourianCorpseShades.InShitroidTargetColours,
+        { } stage => PictureShading.Shaded(TourianCorpseShades.SidehopperDrain(stage - 2)),
+    };
 
     /// <summary>Signed 8.8 hop velocity, horizontal and vertical.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }

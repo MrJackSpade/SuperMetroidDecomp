@@ -86,7 +86,7 @@ internal static class CorpseRotDrawingVerification
         var state = new DeadTorizoEnemyState(enemies.SlotTable.Slots[0], new CorpseRotSchedule(DeadTorizoCorpseDefinitions.RowCount));
         var authored = new AuthoredRot(DeadTorizoCorpseDefinitions.RowCount);
         string body = EnemySheetDefinitions.FrameName(EnemyFrameId.DeadTorizoStationary);
-        string hook = EnemySheetDefinitions.EncounterFrameName(DeadTorizoArtworkDefinitions.HookFrame);
+        string hook = EnemySheetDefinitions.EncounterFrameName(DeadTorizoArtworkDefinitions.SandHeapFrame);
         SpriteSheet bodySheet = sheets.For(set, EnemyDefinitionId.CorpseTorizo);
         SpawnedObjectSheet hookSheet = sheets.Spawned(set, SpawnedObjectOwner.Shared);
         int compared = 0;

@@ -22,7 +22,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new ChozoStatueEntity(this, slot, common);
 
-    /// <summary>Supplies installed palette art, room events, scroll grid and Samus-control service.</summary>
+    /// <summary>Supplies room events, scroll grid and Samus-control service.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Clips walking-statue movement before the carried Samus position is written.</summary>
     private readonly EnemyTerrain _terrain;
@@ -72,10 +72,9 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     public bool ChozoStatueAcidLoweringStarted { get; private set; }
 
     /// <summary>
-    /// Runs the palette-only initializer. The retail record begins with the deletion property, so it exists solely long
-    /// enough to install the glass tube's crack colours, and the scheduler removes it before any main-AI frame. Those
-    /// colours are the shade every tube projectile draws in (<see cref="ChozoAndTubeShades.TubeCracks"/>, #1512), so
-    /// the initializer changes nothing the game keeps.
+    /// Initializes the glass tube's cracks, which do nothing the game keeps: the record is deleted before any main-AI
+    /// update, and the cracks' colours are the shade every tube projectile draws in
+    /// (<see cref="ChozoAndTubeShades.TubeCracks"/>, #1512).
     /// </summary>
     internal static void InitializeN00bTubeCracks()
     {
@@ -100,9 +99,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         statue.FrameHold = WrappingCountdown.Start(1);
         statue.Timer = WrappingCountdown.Start(0);
 
-        // The initializer selects the common sprite colours and installs the statue's own colours over two of the room's
-        // palettes; the statue's sheet is coloured as that selection shows it, and its draws show the statue's shade, which
-        // no other enemy sharing those palettes takes (#1512).
+        // The statue shows its own colours, the shade of its site's statue, which no other enemy shows (#1512).
         statue.Shading = PictureShading.Shaded(isWreckedShip ? ChozoAndTubeShades.WreckedShipStatue : ChozoAndTubeShades.LowerNorfairStatue);
 
         var state = new ChozoStatueState

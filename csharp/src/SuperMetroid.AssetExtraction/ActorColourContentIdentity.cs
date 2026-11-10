@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Magdollite.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Animals;
@@ -45,9 +46,9 @@ internal static class ActorColourContentIdentity
         /// <summary>Canonical selected RGB5 colors and ordered cycle frames, independent of JSON encoding.</summary>
         public string ContentIdentity => SelectedPresentationHash.Create("MagdollitePaletteCycle-v1", content =>
             {
-                content.Append("frames", MagdollitePaletteDefinitions.FrameCount);
+                content.Append("frames", MagdolliteShades.GlowFrames);
                 Span<RgbColor> frameColours = stackalloc RgbColor[MagdollitePaletteCycle.AnimatedColorCount];
-                for (int frame = 0; frame < MagdollitePaletteDefinitions.FrameCount; frame++)
+                for (int frame = 0; frame < MagdolliteShades.GlowFrames; frame++)
                 {
                     for (int color = 0; color < frameColours.Length; color++) frameColours[color] = cycle.Resolve(frame, color);
                     content.AppendColors("row", frameColours);
@@ -61,9 +62,9 @@ internal static class ActorColourContentIdentity
         /// <summary>Canonical selected RGB5 colors and ordered cycle frames, independent of JSON encoding.</summary>
         public string ContentIdentity => SelectedPresentationHash.Create("WorkRobotPaletteCycle-v1", content =>
             {
-                content.Append("frames", WorkRobotPaletteTimingDefinitions.StepCount);
+                content.Append("frames", WorkRobotGlowDefinitions.StepCount);
                 Span<RgbColor> frameColours = stackalloc RgbColor[WorkRobotPaletteDefinitions.ColorCount];
-                for (int frame = 0; frame < WorkRobotPaletteTimingDefinitions.StepCount; frame++)
+                for (int frame = 0; frame < WorkRobotGlowDefinitions.StepCount; frame++)
                 {
                     for (int color = 0; color < frameColours.Length; color++)
                         frameColours[color] = cycle.Resolve(frame, color);

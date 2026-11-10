@@ -61,11 +61,8 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
             PhaseTimer = WreckedShipGhostInitialDelay,
         };
 
-        // Retail clears the actor palette's target-buffer entries here. Its room fade then
-        // settles the independently stored current palette to that black target long before
-        // the 280-frame appearance delay expires. The ghost's fade is that already-settled
-        // value, so darken both; otherwise the first white ramp would begin from the
-        // graphics-set palette and carry between channels.
+        // The ghost starts dark: its colours have settled to black long before the 280-update appearance delay
+        // expires, so the first white ramp begins from black rather than from the ghost's own colours.
         state.Fade = WreckedShipGhostFade.Dark;
         ShowFade(slot, state);
         slot.SetSpeciesState(state);
@@ -89,8 +86,8 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
             case WreckedShipGhostAiFunction.BrighteningAndFlickering:
                 RunWreckedShipGhostBrightening(slot, state);
                 break;
-            case WreckedShipGhostAiFunction.FadingToGhostPalette:
-                RunWreckedShipGhostPaletteFade(slot, state, activeSamus);
+            case WreckedShipGhostAiFunction.FadingToGhostColours:
+                RunWreckedShipGhostColourFade(slot, state, activeSamus);
                 break;
             case WreckedShipGhostAiFunction.WaitingForWhiteFade:
                 RunWreckedShipGhostWhiteFade(slot, state);
@@ -244,17 +241,17 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         if (colorsChanged != 0)
             return;
 
-        state.Function = WreckedShipGhostAiFunction.FadingToGhostPalette;
+        state.Function = WreckedShipGhostAiFunction.FadingToGhostColours;
         state.Fade = state.Fade.Materializing(WreckedShipGhostAppearance.Colours);
     }
 
-    /// <summary>Fades to the ghost palette, including the simultaneous flicker and per-component fade.</summary>
-    private static void RunWreckedShipGhostPaletteFade(
+    /// <summary>Fades to the ghost's own colours, with the simultaneous flicker and per-channel fade.</summary>
+    private static void RunWreckedShipGhostColourFade(
         RoomEnemySlot slot,
         WreckedShipGhostEnemyState state,
         SamusState samus)
     {
-        int componentsChanged = StepWreckedShipGhostPaletteTowardTarget(slot, state);
+        int componentsChanged = StepWreckedShipGhostFadeTowardTarget(slot, state);
         AdvanceWreckedShipGhostFlicker(slot, state);
         if (state.PhaseTimer != 0 || componentsChanged != 0)
             return;
@@ -302,7 +299,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         RoomEnemySlot slot,
         WreckedShipGhostEnemyState state)
     {
-        if (StepWreckedShipGhostPaletteTowardTarget(slot, state) != 0)
+        if (StepWreckedShipGhostFadeTowardTarget(slot, state) != 0)
             return;
 
         state.Function = WreckedShipGhostAiFunction.InitialInvisibleDelay;
@@ -341,7 +338,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     /// Steps the ghost's fade: every colour channel moves exactly one level toward its target per frame; the return value
     /// counts channel changes, not changed colours.
     /// </summary>
-    internal static int StepWreckedShipGhostPaletteTowardTarget(
+    internal static int StepWreckedShipGhostFadeTowardTarget(
         RoomEnemySlot slot,
         WreckedShipGhostEnemyState state)
     {

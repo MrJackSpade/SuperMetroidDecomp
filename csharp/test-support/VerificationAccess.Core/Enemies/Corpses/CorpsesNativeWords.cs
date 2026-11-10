@@ -16,7 +16,7 @@ internal static class CorpsesNativeWords
         [DeadSidehopperAiFunction.NoOperation] = 0xd90f,
         [DeadSidehopperAiFunction.BeginPostLandingDelay] = 0xd910,
         [DeadSidehopperAiFunction.PostLandingDelay] = 0xd91d,
-        [DeadSidehopperAiFunction.TransformPalette] = 0xda08,
+        [DeadSidehopperAiFunction.Draining] = 0xda08,
         [DeadSidehopperAiFunction.WaitForSamusCollision] = 0xda64,
         [DeadSidehopperAiFunction.PreRotDelay] = 0xda8f,
         [DeadSidehopperAiFunction.Rotting] = 0xdaba,

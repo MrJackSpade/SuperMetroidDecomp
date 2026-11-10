@@ -25,7 +25,7 @@ public static class WorkRobotPaletteCycleExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        var frames = new PaletteRgb5[WorkRobotPaletteTimingDefinitions.StepCount][];
+        var frames = new PaletteRgb5[WorkRobotGlowDefinitions.StepCount][];
         for (int frame = 0; frame < frames.Length; frame++)
         {
             frames[frame] = new PaletteRgb5[WorkRobotPaletteDefinitions.ColorCount];

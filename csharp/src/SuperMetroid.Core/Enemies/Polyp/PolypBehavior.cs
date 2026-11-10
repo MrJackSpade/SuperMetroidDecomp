@@ -147,7 +147,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Spawns a lava rock from the Polyp and initializes it.
-    /// The actor's palette/tile word and all four position halves are copied at allocation.
+    /// The rock draws from the Polyp's spawned-object sheet in its colours, and all four position halves are copied at allocation.
     /// </summary>
     internal void SpawnPolypRock(
         RoomEnemySlot source,

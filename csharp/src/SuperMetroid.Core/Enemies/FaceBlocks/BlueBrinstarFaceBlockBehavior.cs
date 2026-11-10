@@ -29,7 +29,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     /// <summary>The room's enemy slots, whose face blocks all show the room-wide glow.</summary>
     private readonly EnemySlotTable _slotTable;
 
-    /// <summary>Exposes the door-transition pause condition for the shared graphics hook.</summary>
+    /// <summary>Exposes the door transition that pauses the face blocks' glow.</summary>
     private readonly ElevatorBehavior _elevatorBehavior;
 
     /// <summary>Binds the species to the room's slots and door-transition state.</summary>
@@ -39,23 +39,24 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         _slotTable = slotTable;
     }
 
-    /// <summary>Enemy frames between shared face-block palette advances.</summary>
-    private const int BlueBrinstarFaceBlockPalettePeriod = 16;
+    /// <summary>The updates each frame of the face blocks' glow holds for.</summary>
+    private const int GlowFrameUpdates = 16;
 
-    /// <summary>Whether an eligible block installed the room-wide graphics hook.</summary>
-    /// <remarks>The game stores this animation in the shared enemy-graphics-drawn hook words, not per enemy.
-    /// Multiple blocks repeatedly select the same graphics-set palette during main AI, and whichever eligible block
-    /// runs last therefore owns this one shared base.</remarks>
-    private bool _blueBrinstarFaceBlockPaletteHookInstalled;
-    /// <summary>Shared countdown, reset to sixteen after each color update or actor activation.</summary>
-    private int _blueBrinstarFaceBlockPaletteTimer;
-    /// <summary>Shared eight-frame color index, 0 through 7, intentionally retained when an actor activates.</summary>
-    private int _blueBrinstarFaceBlockPaletteFrame;
     /// <summary>
-    /// The glow every face block in the room shows (#1512): its standard colours until the hook first advances, then
-    /// the glow frame it advanced to last.
+    /// Whether a face block has started the room's glow, which it does once Samus has collected the Morph Ball. The room
+    /// has one glow, not one per block.
     /// </summary>
-    private PictureShading _blueBrinstarFaceBlockGlow = PictureShading.Standard;
+    private bool _glowStarted;
+    /// <summary>Updates left before the glow steps, restarted at sixteen by each step and by a block waking.</summary>
+    private int _glowStepCountdown;
+    /// <summary>
+    /// The frame of the glow every face block shows, 0 through <see cref="FaceBlockShades.GlowFrames"/> minus one, kept
+    /// when a block wakes. It starts at the last frame, so the glow's first step shows its first.
+    /// </summary>
+    private int _glowFrame = FaceBlockShades.GlowFrames - 1;
+
+    /// <summary>The glow every face block in the room shows once it has started (#1512).</summary>
+    private PictureShading Glow => PictureShading.Shaded(FaceBlockShades.Glow(_glowFrame));
 
     /// <summary>Initializes the Blue Brinstar face block.</summary>
     internal void InitializeBlueBrinstarFaceBlock(RoomEnemySlot slot, SamusState? samus)
@@ -69,13 +70,12 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 
-        // The initializer always primes the shared countdown, even before Morph Ball exists.
-        // It installs the hook only when collected-items bit two is already present. Main AI
-        // performs the same item test every frame, allowing an actor in a persistent/custom
-        // room to become active immediately after the item is acquired.
+        // The initializer always restarts the glow's countdown, even before Samus has the Morph Ball, and starts the glow
+        // only once she has collected it. Main AI makes the same test every update, so a block in the room where she
+        // collects it starts the glow at once.
         if (HasCollectedMorphBall(samus))
-            InstallBlueBrinstarFaceBlockPaletteHook(slot);
-        _blueBrinstarFaceBlockPaletteTimer = BlueBrinstarFaceBlockPalettePeriod;
+            StartGlow(slot);
+        _glowStepCountdown = GlowFrameUpdates;
 
         // Keeps only parameter two bit zero, moved to the sign bit. This looks
         // backwards until main AI is read: activation requires the Samus delta sign to be
@@ -91,13 +91,12 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         BlueBrinstarFaceBlockEnemyState state,
         SamusState? samus)
     {
-        // Collected-items, not equipped-items, gates both palette animation and waking. A
-        // null Samus owner means the caller has not supplied that global, so leaving
-        // the actor dormant is the only non-invented behavior until a gameplay frame does.
+        // The collected items, not the equipped ones, gate both the glow and waking. A null Samus owner means the caller
+        // has not supplied her, so leaving the block dormant is the only non-invented behaviour until a gameplay update does.
         if (!HasCollectedMorphBall(samus))
             return;
 
-        InstallBlueBrinstarFaceBlockPaletteHook(slot);
+        StartGlow(slot);
         if (state.Activated)
             return;
 
@@ -124,9 +123,8 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         slot.Timer = WrappingCountdown.Start(0);
         state.Activated = true;
 
-        // Activation restarts the singleton palette hook at the game's sixteen-frame
-        // cadence but deliberately does not reset its frame index.
-        _blueBrinstarFaceBlockPaletteTimer = BlueBrinstarFaceBlockPalettePeriod;
+        // Waking restarts the room's glow countdown at sixteen updates but keeps the glow's frame.
+        _glowStepCountdown = GlowFrameUpdates;
     }
 
     /// <summary>Uses the collected-item word so unequipping Morph Ball does not put active blocks back to sleep.</summary>
@@ -135,41 +133,35 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         samus.CollectedItems.HasAny(SamusEquipmentFlags.MorphBall);
 
     /// <summary>
-    /// Installs the singleton graphics hook and shows the room's glow on the block. The game's hook recolours the palette
-    /// of the last eligible block, which every block sharing it, and Stoke where it shares the face blocks' palette, shows;
-    /// here every face block, and only a face block, shows the glow (#1512).
+    /// Starts the room's glow and shows it on <paramref name="slot"/>; every face block, and only a face block, shows the
+    /// glow (#1512).
     /// </summary>
-    private void InstallBlueBrinstarFaceBlockPaletteHook(RoomEnemySlot slot)
+    private void StartGlow(RoomEnemySlot slot)
     {
-        _blueBrinstarFaceBlockPaletteHookInstalled = true;
-        slot.Shading = _blueBrinstarFaceBlockGlow;
+        _glowStarted = true;
+        slot.Shading = Glow;
     }
 
     /// <summary>
-    /// Runs the graphics-drawn palette hook. RoomEnemySystem executes
-    /// graphics hooks once per enemy frame after actor processing, the same ownership model
-    /// already used by Magdollite and Work Robot palette hooks. The door-transition gate pauses it during
-    /// an enemy door transition; that translated word is exposed as ElevatorDoorTransitionActive.
+    /// Counts down the room's glow once a block has started it, after the enemies' update; when the frame's time is up
+    /// the glow steps to its next frame on every face block. A door transition pauses it.
     /// </summary>
-    internal void StepBlueBrinstarFaceBlockPaletteAnimation()
+    internal void StepGlow()
     {
-        if (!_blueBrinstarFaceBlockPaletteHookInstalled || _elevatorBehavior.ElevatorDoorTransitionActive)
+        if (!_glowStarted || _elevatorBehavior.ElevatorDoorTransitionActive)
             return;
 
-        if (--_blueBrinstarFaceBlockPaletteTimer != 0)
+        if (--_glowStepCountdown != 0)
             return;
 
-        _blueBrinstarFaceBlockPaletteTimer = BlueBrinstarFaceBlockPalettePeriod;
-        int frame = _blueBrinstarFaceBlockPaletteFrame % FaceBlockShades.GlowFrames;
-        _blueBrinstarFaceBlockGlow = PictureShading.Shaded(FaceBlockShades.Glow(frame));
+        _glowStepCountdown = GlowFrameUpdates;
+        _glowFrame = (_glowFrame + 1) % FaceBlockShades.GlowFrames;
+        PictureShading glow = Glow;
         foreach (RoomEnemySlot block in _slotTable.Slots)
         {
             if (block.DefinitionId == EnemyDefinitionId.FaceBlock)
-                block.Shading = _blueBrinstarFaceBlockGlow;
+                block.Shading = glow;
         }
-
-        // The index cycles through the eight frames, as the game's increment and low-bits mask do.
-        _blueBrinstarFaceBlockPaletteFrame = (_blueBrinstarFaceBlockPaletteFrame + 1) % FaceBlockShades.GlowFrames;
     }
 
     /// <summary>Rejects AI dispatch for a face-block slot that was not initialized on room load.</summary>

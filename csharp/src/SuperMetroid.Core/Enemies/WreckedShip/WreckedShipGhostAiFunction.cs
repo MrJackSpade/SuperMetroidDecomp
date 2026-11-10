@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Enemies.WreckedShip;
 /// </summary>
 public enum WreckedShipGhostAiFunction
 {
-    /// <summary>Raises the palette toward white while advancing the flicker.</summary>
+    /// <summary>Brightens the ghost's colours toward white while advancing the flicker.</summary>
     BrighteningAndFlickering = 1,
-    /// <summary>Fades from white to the installed ghost palette while flickering.</summary>
-    FadingToGhostPalette,
+    /// <summary>Fades from white to the ghost's own colours while flickering.</summary>
+    FadingToGhostColours,
     /// <summary>Waits for the post-visible fade to reach white before hiding.</summary>
     WaitingForWhiteFade,
     /// <summary>Oscillates vertically during the vulnerable visible interval.</summary>

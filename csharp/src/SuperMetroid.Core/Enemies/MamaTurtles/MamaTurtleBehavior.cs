@@ -244,7 +244,6 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             }
 
             _ = child.RequireSpeciesState<BabyTurtleEnemyState>();
-            child.Shading = mama.Shading;
         }
 
         state.Function = MamaTurtleAiFunction.Asleep;

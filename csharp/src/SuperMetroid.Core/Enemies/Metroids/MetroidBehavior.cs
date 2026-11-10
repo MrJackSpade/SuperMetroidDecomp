@@ -239,7 +239,10 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         FreezeMetroidOuterBody(state.OuterBodyB, MetroidOuterBodyDefinitions.OuterBodyBFrozenProgram);
     }
 
-    /// <summary>Applies the palette-bit modulation of the Metroid's custom hurt AI.</summary>
+    /// <summary>
+    /// Flashes the Metroid's outer bodies while its custom hurt AI runs: its hit flash on alternate pairs of updates,
+    /// its own colours between.
+    /// </summary>
     internal static void ApplyMetroidHurt(RoomEnemySlot slot)
     {
         MetroidEnemyState state = slot.RequireSpeciesState<MetroidEnemyState>();

@@ -1074,9 +1074,10 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         }
         FrameContext.AdvanceRandomEnemyCounter();
         frame.Samus?.Kinematics.ClearSolidEnemyCollisions();
-        WorkRobotBehavior.AdvanceWorkRobotGlow();
-        MagdolliteBehavior.StepMagdollitePaletteAnimation();
-        BlueBrinstarFaceBlockBehavior.StepBlueBrinstarFaceBlockPaletteAnimation();
+        // The room-wide glows step after every enemy has updated, whether or not time is frozen.
+        WorkRobotBehavior.StepGlow();
+        MagdolliteBehavior.StepGlow();
+        BlueBrinstarFaceBlockBehavior.StepGlow();
         if (!frame.TimeIsFrozen)
             SpriteObjects.StepRoomSpriteObjects();
         PublishEnemyAudioRequests();

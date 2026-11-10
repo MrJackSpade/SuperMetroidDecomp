@@ -20,11 +20,11 @@ internal static class EnemyTileArtworkWorkRobotPaletteVerification
     {
         WorkRobotPaletteCycle native = stock.WorkRobotPaletteCycle ??
             throw new InvalidDataException("Installed enemy art has no Work Robot palette cycle.");
-        for (int record = 0; record < WorkRobotPaletteTimingDefinitions.StepCount; record++)
+        for (int record = 0; record < WorkRobotGlowDefinitions.StepCount; record++)
         for (int color = 0; color < WorkRobotPaletteDefinitions.ColorCount; color++)
         {
             int address = EnemyRomTablePointers.WorkRobot.PaletteAnimationRecords +
-                record * WorkRobotPaletteTimingDefinitions.RecordByteCount +
+                record * WorkRobotGlowDefinitions.RecordByteCount +
                 color * sizeof(ushort);
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address),
                 native.Resolve(record, color),

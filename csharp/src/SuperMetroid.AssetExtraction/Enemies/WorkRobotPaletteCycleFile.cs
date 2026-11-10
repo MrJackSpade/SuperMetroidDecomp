@@ -21,10 +21,10 @@ public static class WorkRobotPaletteCycleFile
 
         if (document.Version != WorkRobotPaletteCycleFormat.Version ||
             document.Frames is null ||
-            document.Frames.Length != WorkRobotPaletteTimingDefinitions.StepCount)
+            document.Frames.Length != WorkRobotGlowDefinitions.StepCount)
             throw new InvalidDataException("Work Robot palette cycle requires six version-one frames.");
 
-        var compiled = new RgbColor[WorkRobotPaletteTimingDefinitions.StepCount][];
+        var compiled = new RgbColor[WorkRobotGlowDefinitions.StepCount][];
         for (int frame = 0; frame < compiled.Length; frame++)
         {
             PaletteRgb5[]? source = document.Frames[frame];

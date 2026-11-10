@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Magdollite.Artwork;
 using System.Text.Json;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -23,10 +24,10 @@ public static class MagdollitePaletteCycleFile
 
         if (document.Version != MagdollitePaletteCycleFormat.Version ||
             document.Frames is null ||
-            document.Frames.Length != MagdollitePaletteDefinitions.FrameCount)
+            document.Frames.Length != MagdolliteShades.GlowFrames)
             throw new InvalidDataException("Magdollite palette cycle requires four version-one frames.");
 
-        var compiled = new RgbColor[MagdollitePaletteDefinitions.FrameCount][];
+        var compiled = new RgbColor[MagdolliteShades.GlowFrames][];
         for (int frame = 0; frame < compiled.Length; frame++)
         {
             PaletteRgb5[]? source = document.Frames[frame];

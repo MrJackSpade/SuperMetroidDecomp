@@ -421,8 +421,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         projectile.State = new PirateLaserState(speed == PirateLaserSpeed.Slow);
 
         // The initializer replaces the projectile definition's properties with the enemy's damage and the
-        // laser's own property. The source palette and tiles are *not* copied: spawning with room graphics passes a
-        // graphics index of zero so the laser uses the room projectile tiles/palette.
+        // laser's own property. The laser does not take the Pirate's pictures or colours: it draws from the room's
+        // shared sheet in its standard colours.
         projectile.Damage = source.Definition.Damage;
         projectile.CanDamageSamus = true;
         projectile.PersistsOnSamusContact = false;

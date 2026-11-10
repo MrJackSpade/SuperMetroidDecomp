@@ -14,7 +14,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>
-/// Checks Magdollite's extracted color cycle, its draw-hook cadence and that runtime reads no cartridge data.
+/// Checks Magdollite's extracted color cycle, its glow's cadence and that runtime reads no cartridge data.
 /// </summary>
 internal static class EnemyTileArtworkMagdollitePaletteVerification
 {
@@ -22,14 +22,14 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
     private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
 
     /// <summary>
-    /// Compares installed RGB5 colors with the cartridge, then exercises the room enemy draw hook.
+    /// Compares installed RGB5 colors with the cartridge, then exercises the room's lava glow.
     /// </summary>
     internal static void VerifyInstalledMagdollitePaletteCycle(
         ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {
         MagdollitePaletteCycle native = stock.Enemies.MagdollitePaletteCycle ??
             throw new InvalidDataException("Installed enemy art has no Magdollite palette cycle.");
-        for (int frame = 0; frame < MagdollitePaletteDefinitions.FrameCount; frame++)
+        for (int frame = 0; frame < MagdolliteShades.GlowFrames; frame++)
         for (int color = 0; color < MagdollitePaletteCycle.AnimatedColorCount; color++)
         {
             int address = EnemySpeciesSourceDefinitions.Magdollite.CycleColors +
@@ -47,31 +47,31 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
                 CaseInsensitiveJson) ??
             throw new InvalidDataException("Stock Magdollite palette JSON is null.");
         PaletteRgb5 original = document.Frames[1][0];
-        // Exercise the actual global graphics-drawn hook, not a palette helper.
-        // Forbid all bus reads: installed artwork must be sufficient on every tick.
+        // Exercise the room's production glow step. Forbid all bus reads: installed artwork must be sufficient on every tick.
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
-        // The hook names the glow frame every Magdollite shows (#1512); the frame's colours are the import's shade.
-        enemies.MagdolliteBehavior.MagdollitePaletteAnimationInstalled = true;
-        enemies.MagdolliteBehavior.MagdollitePaletteAnimationTimer = 8;
-        enemies.MagdolliteBehavior.MagdollitePaletteFrame = 0;
-        Action step = enemies.MagdolliteBehavior.StepMagdollitePaletteAnimation;
+        // The glow names the frame every Magdollite shows (#1512); the frame's colours are the import's shade. A restarted
+        // glow shows its first frame at once.
+        enemies.MagdolliteBehavior.RestartGlow();
+        AssertEqual(PictureShading.Shaded(MagdolliteShades.Glow(0)), enemies.MagdolliteBehavior.Glow,
+            "a restarted Magdollite glow shows its first frame");
+        Action step = enemies.MagdolliteBehavior.StepGlow;
         RoomEnemySlot untouched = enemies.SlotTable.Slots[0];
         int healthBefore = untouched.Health;
         ushort xBefore = untouched.Position.X.Whole;
         for (int tick = 0; tick < 32; tick++)
         {
-            PictureShading before = enemies.MagdolliteBehavior.MagdolliteGlow;
+            PictureShading before = enemies.MagdolliteBehavior.Glow;
             step();
             if ((tick + 1) % 8 != 0)
             {
-                AssertEqual(before, enemies.MagdolliteBehavior.MagdolliteGlow,
-                    $"Magdollite glow does not change before tick {tick + 1} reaches the hook boundary");
+                AssertEqual(before, enemies.MagdolliteBehavior.Glow,
+                    $"Magdollite glow does not change before tick {tick + 1} reaches the step boundary");
             }
             else
             {
-                int frame = (tick + 1) / 8 & (MagdollitePaletteDefinitions.FrameCount - 1);
-                AssertEqual(PictureShading.Shaded(MagdolliteShades.Glow(frame)), enemies.MagdolliteBehavior.MagdolliteGlow,
-                    $"Magdollite draw-hook tick {tick + 1} glow frame");
+                int frame = (tick + 1) / 8 & (MagdolliteShades.GlowFrames - 1);
+                AssertEqual(PictureShading.Shaded(MagdolliteShades.Glow(frame)), enemies.MagdolliteBehavior.Glow,
+                    $"Magdollite glow tick {tick + 1} glow frame");
             }
         }
         AssertEqual(healthBefore, untouched.Health,
@@ -79,12 +79,12 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
         AssertEqual(xBefore, untouched.Position.X.Whole,
             "the Magdollite glow cycle does not change enemy position");
         AssertEqual(8,
-            enemies.MagdolliteBehavior.MagdollitePaletteAnimationTimer,
+            enemies.MagdolliteBehavior.GlowStepCountdown,
             "the Magdollite glow keeps the eight-tick cadence");
 
         document.Frames[1][0] = original with { Red = 32 };
         AssertThrows<InvalidDataException>(() => MagdollitePaletteCycleFile.Read(new MemoryStream(MagdollitePaletteCycleFile.Write(document))),
             "Magdollite RGB5 channel outside five-bit precision is rejected");
-        Console.WriteLine("  Magdollite colors: sixteen native RGB5 words, 32 draw-hook ticks, channel rejection and no runtime ROM reads pass.");
+        Console.WriteLine("  Magdollite colors: sixteen native RGB5 words, 32 glow ticks, channel rejection and no runtime ROM reads pass.");
     }
 }

@@ -331,7 +331,7 @@ public enum EnemyDefinitionId
     /// <summary>The <c>PirateRedWall</c> enemy definition.</summary>
     PirateRedWall,
     /// <summary>The <c>PirateGoldWall</c> enemy definition.</summary>
-    /// <remarks>Ninja Pirate initialization copies this definition's sixteen colours to its target palette, irrespective of the ninja actor's own definition or starting colour.</remarks>
+    /// <remarks>Its colours are the ones every Ninja Pirate's divekick flashes in, whatever the ninja's own colours.</remarks>
     PirateGoldWall,
     /// <summary>The <c>PirateMagentaWall</c> enemy definition.</summary>
     PirateMagentaWall,

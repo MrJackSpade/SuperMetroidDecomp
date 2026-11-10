@@ -95,7 +95,6 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             Origin = slot.Position.Whole,
             ActivationDistance = slot.SpawnSettings<YappingMawSpawnSettings>().ActivationDistance,
             RetractedDelayTimer = YappingMawRetractedDelayFrames,
-            OriginalShading = slot.Shading,
         };
         slot.SetSpeciesState(state);
 
@@ -469,7 +468,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         YappingMawEnemyState state)
     {
         PictureShading shading = SelectYappingMawFrozenShading(
-            state.OriginalShading,
+            slot.Shading,
             slot.FrozenTimer);
         foreach (EnemyProjectile? body in state.BodyProjectiles)
         {
@@ -644,7 +643,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             context => ResolveYappingMawTouch(context.Slot.RequireSpeciesState<YappingMawEnemyState>(), context.Samus));
     }
 
-    /// <summary>Routes frozen palette updates to all body links and the root sprite object.</summary>
+    /// <summary>Routes the frozen look to all body links and the root sprite object.</summary>
     internal static void AddYappingMawFrozenAi(EnemySharedReactions table) =>
         table.AddFrozen(slot => slot.DefinitionId == EnemyDefinitionId.YappingMaw,
             slot => RunYappingMawFrozen(slot, slot.RequireSpeciesState<YappingMawEnemyState>()));

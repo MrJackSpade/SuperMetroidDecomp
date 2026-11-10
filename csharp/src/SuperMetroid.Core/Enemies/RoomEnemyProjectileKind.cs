@@ -107,9 +107,9 @@ public enum RoomEnemyProjectileKind
     CeresRidleyVerticalAfterburnUp = 49,
     /// <summary>A downward afterburn and its continuation chain.</summary>
     CeresRidleyVerticalAfterburnDown = 50,
-    /// <summary>The light palette variant of Ceres falling debris.</summary>
+    /// <summary>The light variant of Ceres falling debris.</summary>
     CeresFallingDebrisLight = 51,
-    /// <summary>The dark palette variant of Ceres falling debris.</summary>
+    /// <summary>The dark variant of Ceres falling debris.</summary>
     CeresFallingDebrisDark = 52,
     /// <summary>Dust emitted during gunship liftoff.</summary>
     GunshipLiftoffDustCloud = 53,

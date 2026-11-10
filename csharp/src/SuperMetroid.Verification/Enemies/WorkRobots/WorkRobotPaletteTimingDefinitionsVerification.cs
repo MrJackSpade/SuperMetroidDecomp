@@ -20,26 +20,26 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
     internal static void VerifyWorkRobotPaletteTimingDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        for (int glowStep = 0; glowStep < WorkRobotPaletteTimingDefinitions.StepCount; glowStep++)
+        for (int glowStep = 0; glowStep < WorkRobotGlowDefinitions.StepCount; glowStep++)
         {
-            int address = WorkRobotPaletteTimingDefinitions.NativeFirstTimerAddress +
-                glowStep * WorkRobotPaletteTimingDefinitions.RecordByteCount;
+            int address = WorkRobotGlowDefinitions.NativeFirstTimerAddress +
+                glowStep * WorkRobotGlowDefinitions.RecordByteCount;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
-                WorkRobotPaletteTimingDefinitions.Durations[glowStep],
+                WorkRobotGlowDefinitions.Durations[glowStep],
                 $"Work Robot glow step {glowStep} duration");
         }
         AssertEqual((ushort)0xffff,
-            CartridgeImportSource.Require(rom).ReadCartridgeWord(WorkRobotPaletteTimingDefinitions.NativeTerminatorAddress),
+            CartridgeImportSource.Require(rom).ReadCartridgeWord(WorkRobotGlowDefinitions.NativeTerminatorAddress),
             "Work Robot palette native terminator restarts the cycle after the sixth step");
 
         byte[] extracted = WorkRobotPaletteCycleExtractor.Extract(rom);
         WorkRobotPaletteCycle stock = WorkRobotPaletteCycleFile.Read(
             new MemoryStream(extracted, writable: false));
-        for (int record = 0; record < WorkRobotPaletteTimingDefinitions.StepCount; record++)
+        for (int record = 0; record < WorkRobotGlowDefinitions.StepCount; record++)
         for (int color = 0; color < WorkRobotPaletteDefinitions.ColorCount; color++)
         {
             int source = EnemyRomTablePointers.WorkRobot.PaletteAnimationRecords +
-                record * WorkRobotPaletteTimingDefinitions.RecordByteCount +
+                record * WorkRobotGlowDefinitions.RecordByteCount +
                 color * sizeof(ushort);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(source), stock.Resolve(record, color),
                 $"Work Robot color record {record} slot {color} preserves ROM RGB5");
@@ -49,9 +49,8 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
         {
             TileArtwork = EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), WorkRobotPaletteCycle = stock }),
         };
-        enemies.WorkRobotBehavior.GlowStepTimer = 1;
-        enemies.WorkRobotBehavior.NextGlowStep = 0;
-        var step = new Action(enemies.WorkRobotBehavior.AdvanceWorkRobotGlow);
+        enemies.WorkRobotBehavior.RestartGlow();
+        var step = new Action(enemies.WorkRobotBehavior.StepGlow);
 
         int[] loadCalls = [0, 64, 80, 96, 160, 176, 192];
         int nextLoad = 0;
@@ -61,16 +60,16 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
             if (call != loadCalls[nextLoad])
                 continue;
 
-            int record = nextLoad % WorkRobotPaletteTimingDefinitions.StepCount;
-            AssertEqual((record + 1) % WorkRobotPaletteTimingDefinitions.StepCount,
-                enemies.WorkRobotBehavior.NextGlowStep,
-                $"production Work Robot glow load {nextLoad} advances to the next step");
-            AssertEqual(WorkRobotPaletteTimingDefinitions.Durations[record],
-                enemies.WorkRobotBehavior.GlowStepTimer,
+            int record = nextLoad % WorkRobotGlowDefinitions.StepCount;
+            AssertEqual(record,
+                enemies.WorkRobotBehavior.GlowStep,
+                $"production Work Robot glow load {nextLoad} shows the next step");
+            AssertEqual(WorkRobotGlowDefinitions.Durations[record],
+                enemies.WorkRobotBehavior.GlowStepCountdown,
                 $"production Work Robot glow load {nextLoad} timer");
             // The robots draw in the record's glow shade, which the import pre-colours from the cycle's colours for the
             // record (#1512); those colours are compared with bank $A3 above.
-            AssertEqual(PictureShading.Shaded(WorkRobotShades.Glow(record)), enemies.WorkRobotBehavior.WorkRobotGlow,
+            AssertEqual(PictureShading.Shaded(WorkRobotShades.Glow(record)), enemies.WorkRobotBehavior.Glow,
                 $"production Work Robot palette load {nextLoad} shows the record's glow shade");
             nextLoad++;
         }
@@ -89,20 +88,20 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
         new CartridgeReadGuard(source).Forbid(address =>
             {
                 int relative = address -
-                    WorkRobotPaletteTimingDefinitions.NativeFirstTimerAddress;
+                    WorkRobotGlowDefinitions.NativeFirstTimerAddress;
                 bool timerByte = relative >= 0 &&
-                    relative < WorkRobotPaletteTimingDefinitions.StepCount *
-                        WorkRobotPaletteTimingDefinitions.RecordByteCount &&
-                    relative % WorkRobotPaletteTimingDefinitions.RecordByteCount < 2;
+                    relative < WorkRobotGlowDefinitions.StepCount *
+                        WorkRobotGlowDefinitions.RecordByteCount &&
+                    relative % WorkRobotGlowDefinitions.RecordByteCount < 2;
                 bool terminatorByte = address is
                     WorkRobotPaletteTimingDefinitionsConstants.NativeTerminatorAddress or
                     WorkRobotPaletteTimingDefinitionsConstants.NativeTerminatorAddress + 1;
                 int colorRelative = address -
                     EnemyRomTablePointers.WorkRobot.PaletteAnimationRecords;
                 bool colorByte = colorRelative >= 0 &&
-                    colorRelative < WorkRobotPaletteTimingDefinitions.StepCount *
-                        WorkRobotPaletteTimingDefinitions.RecordByteCount &&
-                    colorRelative % WorkRobotPaletteTimingDefinitions.RecordByteCount <
+                    colorRelative < WorkRobotGlowDefinitions.StepCount *
+                        WorkRobotGlowDefinitions.RecordByteCount &&
+                    colorRelative % WorkRobotGlowDefinitions.RecordByteCount <
                         WorkRobotPaletteDefinitions.ColorCount * sizeof(ushort);
                 return timerByte || terminatorByte || colorByte;
             },

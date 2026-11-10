@@ -15,10 +15,6 @@ internal static class NinjaSpacePirateShades
     /// <summary>A draw in the gold wall Pirates' colours.</summary>
     internal static PictureShading GoldWallFlash { get; } = PictureShading.Shaded(GoldWall);
 
-    /// <summary>
-    /// A draw in the Pirate's own colours, which the divekick flashes back to and lands in. The game selects a palette the
-    /// Metal Pirates room loads the gold Ninja Pirates' colours into; the escape's Climb loads its silver Pirate's
-    /// elsewhere, so there the game showed whatever that palette held. Each Pirate shows its own colours here.
-    /// </summary>
+    /// <summary>A draw in the Pirate's own colours, which the divekick flashes back to and lands in.</summary>
     internal static PictureShading Stance { get; } = PictureShading.Standard;
 }

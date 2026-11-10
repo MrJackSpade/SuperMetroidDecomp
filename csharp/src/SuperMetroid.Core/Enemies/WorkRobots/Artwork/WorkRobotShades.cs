@@ -13,5 +13,5 @@ internal static class WorkRobotShades
 
     /// <summary>The shade of glow step <paramref name="step"/>.</summary>
     internal static PictureShade Glow(int step) =>
-        new(GlowEffect, Ensure.BetweenInclusive(0, WorkRobotPaletteTimingDefinitions.StepCount - 1, step));
+        new(GlowEffect, Ensure.BetweenInclusive(0, WorkRobotGlowDefinitions.StepCount - 1, step));
 }

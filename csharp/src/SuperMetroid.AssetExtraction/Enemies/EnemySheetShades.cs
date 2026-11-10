@@ -243,7 +243,7 @@ internal sealed class EnemySheetShades
             case EnemyDefinitionId.Magdollite:
             {
                 MagdollitePaletteCycle cycle = inputs.Enemies.MagdollitePaletteCycle ?? throw Missing("Magdollite glow colours");
-                for (int frame = 0; frame < MagdollitePaletteDefinitions.FrameCount; frame++)
+                for (int frame = 0; frame < MagdolliteShades.GlowFrames; frame++)
                 {
                     int step = frame;
                     shades.Add(SheetShade.Run(MagdolliteShades.Glow(step), first + MagdollitePaletteCycle.FirstAnimatedColor,
@@ -254,7 +254,7 @@ internal sealed class EnemySheetShades
             case EnemyDefinitionId.Robot:
             {
                 WorkRobotPaletteCycle cycle = inputs.Enemies.WorkRobotPaletteCycle ?? throw Missing("Work Robot glow colours");
-                for (int record = 0; record < WorkRobotPaletteTimingDefinitions.StepCount; record++)
+                for (int record = 0; record < WorkRobotGlowDefinitions.StepCount; record++)
                 {
                     int step = record;
                     shades.Add(SheetShade.Run(WorkRobotShades.Glow(step), first + WorkRobotPaletteDefinitions.FirstAnimatedColor,

@@ -47053,8 +47053,8 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Kraid.KraidBehavior.KraidShotSlots",
-      "kind": "struct",
+      "type": "SuperMetroid.Core.Bosses.Kraid.KraidBehavior.KraidPassProjectile",
+      "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -47063,7 +47063,7 @@
         "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidBehavior.cs"
       ],
       "partial": "none",
-      "disposition": "value"
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Kraid.KraidBehaviorConstants",
@@ -58679,6 +58679,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Compatibility.ColourEffectTurnOrder",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/ColourEffectTurnOrder.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Compatibility.CompatibilityServiceAttribute",
       "kind": "class",
       "scope": "product",
@@ -58815,6 +58828,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Compatibility.DisplayFrameWaitContinuation",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/DisplayFrameWaitContinuation.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Compatibility.DoorTransitionFrameCounting",
       "kind": "class",
       "scope": "product",
@@ -58893,6 +58919,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Compatibility.FirefleaTouchDeathExplosion",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/FirefleaTouchDeathExplosion.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Compatibility.FirstPlaceExplosionLeavesNoPickup",
       "kind": "static class",
       "scope": "product",
@@ -58956,6 +58995,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.GunshipPadBorrowedHeight",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/GunshipPadBorrowedHeight.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Compatibility.IDoorMusicLoadFrames",
@@ -59153,6 +59205,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Compatibility.KraidShotPassReach",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/KraidShotPassReach.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Compatibility.LaidOutProgramContinuation\u003CTProgram, TStep\u003E",
       "kind": "class",
       "scope": "product",
@@ -59302,6 +59367,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Compatibility.PirateFlinchFromHighestShot",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/PirateFlinchFromHighestShot.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Compatibility.PostureAdmissionBeyondTransitions\u003CTPose\u003E",
       "kind": "class",
       "scope": "product",
@@ -59425,6 +59503,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Compatibility.PuyoCeilingTurnFromLastDraw",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/PuyoCeilingTurnFromLastDraw.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint",
       "kind": "class",
       "scope": "product",
@@ -59498,6 +59589,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Compatibility/ReserveRowToggleSpreadBombSpeed.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.RidleyTailMissileTarget",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/RidleyTailMissileTarget.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -59579,6 +59683,32 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.ShaktoolCirclesFollowFirstPlace",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/ShaktoolCirclesFollowFirstPlace.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.ShaktoolDeathDeletesFirstListed",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/ShaktoolDeathDeletesFirstListed.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Compatibility.SharedEscapeAndDrainCount",
@@ -156682,6 +156812,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Enemies/Puyo/PuyoAnimationsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Puyo.PuyoCeilingTurnVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Puyo/PuyoCeilingTurnVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

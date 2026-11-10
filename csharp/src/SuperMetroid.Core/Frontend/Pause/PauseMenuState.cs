@@ -47,8 +47,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 
     /// <summary>Queues menu navigation and animation sounds when a live frontend owns audio.</summary>
     private readonly AudioQueues? audio;
-    /// <summary>Advances the map highlight colors once per accepted menu update.</summary>
-    internal readonly MapPaletteAnimation paletteAnimation;
+    /// <summary>The map's highlight cycle, advanced once per accepted stable menu update.</summary>
+    internal readonly MapHighlightAnimation mapHighlight = new();
     /// <summary>Live inventory owner mutated by equipment and reserve controls.</summary>
     private readonly SamusState samus;
     /// <summary>Provides persistent area map and exploration bits.</summary>
@@ -128,8 +128,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         this.system = Ensure.NotNull(entry.System);
         this.audio = entry.Audio;
         CurrentMapArrows = new FileSelectMapAnimations(entry.MapPresentation.Arrows);
-        paletteAnimation = new MapPaletteAnimation(MapSpriteScreen.Pause);
-        paletteAnimation.Bind(entry.MapPresentation.HighlightCycle);
+        mapHighlight.Bind(entry.MapPresentation.HighlightCycle);
         area = entry.AreaIndex;
         _ = AreaIds.ToIndex(entry.AreaIndex);
         this.roomMapPosition = entry.RoomMapPosition;
@@ -257,9 +256,9 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // Only stable map dispatch handles the scroll arrows. Fade paths retain counters but hide arrows.
         CurrentMapArrows?.StepArrows(_ => false);
         pauseFrameCycle = frameCycle;
-        // Stable pause dispatch calls the palette handler afterwards. The
+        // Stable pause dispatch advances the highlight cycle afterwards. The
         // outer pause/unpause fades draw sprites without advancing this owner.
-        if (phase == PauseAnimationPhase.Stable && paletteAnimation.Step())
+        if (phase == PauseAnimationPhase.Stable && mapHighlight.Step())
             audio?.QueueSound(RoomSound.PauseBeep, priority: SoundRequestPriority.Normal);
         if (ScreenMode == PauseScreenMode.Map)
             StepMapIndicatorAnimation();
@@ -303,7 +302,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             icons.BindLandmarks(mapPresentation?.Landmarks);
             icons.BindSprites(MapSheet);
             if (mapLabelsBeforeIcons) icons.DrawElevatorLabels(screen.Objects, MapScrollPosition);
-            CurrentMapArrows?.DrawArrows(screen.Objects, paletteAnimation.Shading, MapSheet, PauseMapScrollLayout.ArrowVerticalOffset);
+            CurrentMapArrows?.DrawArrows(screen.Objects, mapHighlight.Shading, MapSheet, PauseMapScrollLayout.ArrowVerticalOffset);
             DrawMapPositionIndicator();
             // Pause shares the boss lists, defeated overlays and downloaded
             // destination lettering with file select. Preserve their per-phase drawing order.
@@ -784,14 +783,14 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         screen.MirrorAcceptedHud(gameplayHud);
     }
 
-    /// <summary>Rebinds edited map and pause artwork while retaining live scroll, palette, and label state.</summary>
+    /// <summary>Rebinds edited map and pause artwork while retaining live scroll, highlight, and label state.</summary>
     public void BindMapPresentation(AreaMapPresentation? catalog)
     {
         mapPresentation = catalog ?? throw new InvalidOperationException(
             "Pause menu requires installed map presentation assets.");
         CurrentMapArrows ??= new FileSelectMapAnimations(catalog.Arrows);
         CurrentMapArrows.BindPresentation(catalog.Arrows);
-        paletteAnimation.Bind(catalog.HighlightCycle);
+        mapHighlight.Bind(catalog.HighlightCycle);
         // Live highlights and reserve-arrow colours are typed state their owners keep; rebinding never resets their phase.
         screen.BindArtwork(catalog);
         // The equipment page is derived from Samus's state each frame (#1515), so the rebound sheets' pictures show it again.

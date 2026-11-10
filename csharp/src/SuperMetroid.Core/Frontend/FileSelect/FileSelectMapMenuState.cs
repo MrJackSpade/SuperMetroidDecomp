@@ -91,7 +91,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         navigation = new FileSelectMapNavigation(area, initialHeldInput);
         navigation.BindLabels(mapPresentation.Labels);
         animations = new FileSelectMapAnimations(mapPresentation.Arrows);
-        animations.BindPalette(mapPresentation.HighlightCycle);
+        animations.BindHighlight(mapPresentation.HighlightCycle);
         entry = new FileSelectMapEntry();
     }
 
@@ -108,7 +108,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         mapPresentation = catalog;
         navigation.BindLabels(catalog?.Labels);
         areaGraphics.BindMapPresentation(catalog);
-        animations.BindPalette(catalog?.HighlightCycle);
+        animations.BindHighlight(catalog?.HighlightCycle);
         animations.BindPresentation(catalog?.Arrows);
         roomGraphics.BindMapPresentation(catalog);
         marker.BindPosition(AreaIds.At(area), stationIndex, catalog?.SaveMarkers);
@@ -141,7 +141,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         // that requests load/cancel and the following load fade.
         if (before is FileSelectMapNavigationPhase.Room or FileSelectMapNavigationPhase.LoadRequested)
         {
-            if (animations.StepPalette()) Queue(RoomSound.PauseBeep);
+            if (animations.StepHighlight()) Queue(RoomSound.PauseBeep);
             marker.Step();
             markerDrawn = true;
         }
@@ -160,7 +160,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
                 Scroll = CreateScrollForCurrentContent();
                 marker = new FileSelectStationMarker(AreaIds.At(area), stationIndex, mapPresentation?.SaveMarkers);
                 markerDrawn = false;
-                animations.ResetPalette();
+                animations.ResetHighlight();
             }
             return;
         }

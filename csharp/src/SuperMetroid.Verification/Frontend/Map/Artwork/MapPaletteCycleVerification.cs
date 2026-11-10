@@ -23,9 +23,9 @@ internal static class MapPaletteCycleVerification
         AssertTrue(arrowOam.NextByteOffset > 0, "arrow palette test draws actual sprites");
         for (int offset = 0; offset < arrowOam.NextByteOffset; offset += 4)
             AssertEqual(LittleEndianBytes.HighByte(nativeArrowPalette), (byte)(arrowOam.LowTable[offset + 3] & 14), "each file-select arrow uses cartridge animated palette");
-        var native = new MapPaletteAnimation(MapSpriteScreen.Pause);
+        var native = new MapHighlightAnimation();
         native.Bind(original.HighlightCycle);
-        var installed = new MapPaletteAnimation(MapSpriteScreen.Pause);
+        var installed = new MapHighlightAnimation();
         installed.Bind(original.HighlightCycle);
         AssertEqual(MapAnimationNativeSources.PaletteFrameCount, original.HighlightCycle.FrameCount, "imported native highlight frame count");
         int loops = 0;

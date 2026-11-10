@@ -30,11 +30,9 @@ internal static class NativeSnapshotPauseImport
         SelectedRoom room = runtime.Room.ActiveRoom ?? throw new InvalidDataException("Paused snapshot has no room.");
         var menu = new PauseMenuState(new PauseMenuEntry { Samus = runtime.Player.Samus ?? throw new InvalidDataException("Paused snapshot has no Samus."), System = runtime.System, AreaIndex = room.AreaIndex, RoomMapPosition = room.MapPosition, Audio = game.Session.audio, GameplayHud = runtime.Hud.Shown(), MapRevealMode = game.Session.Assists.MapReveal, MapPresentation = game.Artwork.MapPresentation, SpriteSheets = game.Artwork.SpriteSheets ?? throw new InvalidDataException("Paused snapshot has no map presentation.") });
         menu.MapScrollPosition = new Position16<MapPixels>(W(PauseMemory.MapHorizontalScroll), W(PauseMemory.MapVerticalScroll));
-        var palette = menu.paletteAnimation;
-        palette.Timer = memory[PauseMemory.PaletteAnimationTimer];
-        palette.Frame = memory[PauseMemory.PaletteAnimationFrame];
-        // A stable pause has applied its highlight frame: the native colours hold that frame's (#1512).
-        palette.ShownFrame = palette.Frame;
+        var highlight = menu.mapHighlight;
+        highlight.Timer = memory[PauseMemory.PaletteAnimationTimer];
+        highlight.Frame = memory[PauseMemory.PaletteAnimationFrame];
         // $0776 is a byte offset into $82:BA25's word tables; the port keeps the phase index.
         menu.MapIndicatorAnimationFrame = W(PauseMemory.IndicatorAnimationFrame) / 2;
         menu.MapIndicatorAnimationTimer = W(PauseMemory.IndicatorAnimationTimer);

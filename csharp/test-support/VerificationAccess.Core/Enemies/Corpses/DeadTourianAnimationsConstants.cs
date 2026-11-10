@@ -8,7 +8,7 @@ internal static class DeadTourianAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params DeadTourianProgram[] programs) =>
-        programs.SelectMany(program => DeadTourianAnimations.Programs.Steps(program))
-            .OfType<AnimationProgramStep<DeadTourianProgram, DeadTourianFrame, DeadTourianCue>.ShowStep>()
-            .Select(step => DeadTourianFrameToolingDefinitions.Spritemap(step.Frame));
+        programs.SelectMany(program => DeadTourianAnimations.Segments.Beats(program))
+            .OfType<AnimationBeat<DeadTourianFrame, DeadTourianCue>.Frame>()
+            .Select(frame => DeadTourianFrameToolingDefinitions.Spritemap(frame.Shown));
 }

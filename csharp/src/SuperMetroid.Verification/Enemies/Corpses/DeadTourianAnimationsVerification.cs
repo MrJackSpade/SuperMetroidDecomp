@@ -6,21 +6,22 @@ using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Enemies.Corpses;
 
-/// <summary>#641: the dead Sidehopper's and Tourian corpses' typed programs, each matched step by step to its native bank-$A9 list.</summary>
+/// <summary>#641, #1600: the dead Sidehopper's and Tourian corpses' typed animations, each segment matched to its native bank-$A9 list and each animation to the lists' control flow.</summary>
 internal static class DeadTourianAnimationsVerification
 {
-    /// <summary>Every program matches its native list.</summary>
+    /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifyDeadTourianAnimations(SuperMetroidAddressSpace rom)
     {
-        int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, DeadTourianAnimations.Programs,
-            DeadTourianFrameToolingDefinitions.Spritemap,
-            word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
-            (word, operands, cue, at) =>
-            {
-                var instruction = Instructions[word];
-                AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
-                AssertEqual(0, operands.Length, $"{at}: operands");
-            });
-        Console.WriteLine($"  dead Tourian enemy programs: {Entries.Length} programs ({steps} steps) match bank $A9.");
+        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
+            DeadTourianAnimations.Segments, DeadTourianAnimations.StartingAt, DeadTourianFrameToolingDefinitions.Spritemap,
+            new NativeEnemyCueRules<DeadTourianCue>(
+                word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
+                (word, operands, cue, at) =>
+                {
+                    var instruction = Instructions[word];
+                    AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
+                    AssertEqual(0, operands.Length, $"{at}: operands");
+                }));
+        Console.WriteLine($"  dead Tourian enemy animations: {Entries.Length} segments ({beats} beats) and {DeadTourianAnimations.StartingAt.Count} animations match bank $A9.");
     }
 }

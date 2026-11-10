@@ -421,14 +421,14 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
     /// <summary>Starts a new dead Sidehopper animation, resetting both instruction clocks before its first step runs.</summary>
     internal static void SetDeadSidehopperProgram(RoomEnemySlot slot, DeadSidehopperEnemyState state, DeadTourianProgram program) =>
-        state.Program = StartDeadTourianProgram(slot, program);
+        state.Playback = StartDeadTourianProgram(slot, program);
 
-    /// <summary>Resets <paramref name="slot"/>'s instruction clocks and returns <paramref name="program"/>'s starting cursor.</summary>
-    internal static AnimationProgramCursor<DeadTourianProgram> StartDeadTourianProgram(RoomEnemySlot slot, DeadTourianProgram program)
+    /// <summary>Resets <paramref name="slot"/>'s instruction clocks and returns the playback of <paramref name="program"/>'s animation from its start.</summary>
+    internal static AnimationPlayback<DeadTourianProgram> StartDeadTourianProgram(RoomEnemySlot slot, DeadTourianProgram program)
     {
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
-        return AnimationProgramCursor<DeadTourianProgram>.Start(program);
+        return new AnimationPlayback<DeadTourianProgram>(DeadTourianAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Rejects missing or mismatched private state before dispatching the slot's corpse AI.</summary>
@@ -462,10 +462,12 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         if (!EnemyProgramAnimation.Expire(slot))
             return;
         DeadSidehopperEnemyState state = RequireDeadSidehopperState(slot);
-        AnimationProgramCursor<DeadTourianProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, DeadTourianAnimations.Programs, ref cursor, DeadTourianFrameDefinitions.ShownFrames.Of,
-            (cue, _) => ApplyDeadSidehopperCue(slot, cue));
-        state.Program = cursor;
+        AnimationPlayback<DeadTourianProgram> playback = state.Playback;
+        EnemyProgramAnimation.Play(slot, DeadTourianAnimations.Segments, ref playback, DeadTourianFrameDefinitions.ShownFrames.Of,
+            cue => ApplyDeadSidehopperCue(slot, cue) is { } target
+                ? new AnimationContinuation<DeadTourianProgram>(DeadTourianAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                : null);
+        state.Playback = playback;
     }
 
     /// <summary>Uses the private power-bomb callback in place of common enemy damage handling.</summary>

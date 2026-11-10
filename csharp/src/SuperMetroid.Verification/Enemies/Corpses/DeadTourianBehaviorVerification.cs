@@ -25,8 +25,8 @@ internal static class DeadTourianBehaviorVerification
         corpse.Bind(corpse.DefinitionId, default(RoomEnemyDefinition));
         corpse.SetSpawnParameter1(EnemyDefinitionId.CorpseSidehopper, 0);
         enemies.DeadSidehopperBehavior.InitializeDeadSidehopper(corpse);
-        AssertEqual(AnimationProgramCursor<DeadTourianProgram>.Start(DeadTourianProgram.SidehopperIdle),
-            corpse.RequireSpeciesState<DeadSidehopperEnemyState>().Program, "real dead Sidehopper initializer starts the alive-idle pose");
+        AssertEqual(new AnimationPlayback<DeadTourianProgram>(DeadTourianAnimations.StartingWith(DeadTourianProgram.SidehopperIdle), AnimationPlace.StartOfAnimation),
+            corpse.RequireSpeciesState<DeadSidehopperEnemyState>().Playback, "real dead Sidehopper initializer starts the alive-idle pose");
 
         foreach (DeadTourianProgram pose in new[] { DeadTourianProgram.SidehopperIdle, DeadTourianProgram.SidehopperCorpse, DeadTourianProgram.SidehopperInitiallyDead })
         {

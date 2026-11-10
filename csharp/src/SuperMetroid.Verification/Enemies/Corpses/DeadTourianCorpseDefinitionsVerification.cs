@@ -134,8 +134,8 @@ internal static class DeadTourianCorpseDefinitionsVerification
             $"dead {species} variant {variantIndex} species");
         AssertEqual(variantIndex, state.VariantIndex,
             $"dead {species} variant {variantIndex} index");
-        AssertEqual(AnimationProgramCursor<DeadTourianProgram>.Start(expected.InitialProgram),
-            state.Program,
+        AssertEqual(new AnimationPlayback<DeadTourianProgram>(DeadTourianAnimations.StartingWith(expected.InitialProgram), AnimationPlace.StartOfAnimation),
+            state.Playback,
             $"dead {species} variant {variantIndex} started animation");
         CorpseRotScheduleChecks.AssertFreshSchedule(expected.RowCount, state.Rot, $"dead {species} variant {variantIndex}");
     }

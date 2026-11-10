@@ -244,9 +244,9 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(WaverAnimations), "csharp/src/SuperMetroid.Core/Enemies/Waver/WaverAnimations.cs");
         RequireTypedFrames(NorfairLavaJumperAnimations.Programs, NorfairLavaJumperFrameToolingDefinitions.Spritemap, NorfairLavaJumperFrameToolingDefinitions.Bank,
             nameof(NorfairLavaJumperAnimations), "csharp/src/SuperMetroid.Core/Enemies/LavaJumpers/NorfairLavaJumperAnimations.cs");
-        RequireTypedFrames(DeadTourianAnimations.Programs, DeadTourianFrameToolingDefinitions.Spritemap, DeadTourianFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(DeadTourianAnimations.Segments, DeadTourianFrameToolingDefinitions.Spritemap, DeadTourianFrameToolingDefinitions.Bank,
             nameof(DeadTourianAnimations), "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadTourianAnimations.cs");
-        RequireTypedFrames(DeadTorizoAnimations.Programs, DeadTorizoFrameToolingDefinitions.Spritemap, DeadTorizoFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(DeadTorizoAnimations.Segments, DeadTorizoFrameToolingDefinitions.Spritemap, DeadTorizoFrameToolingDefinitions.Bank,
             nameof(DeadTorizoAnimations), "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadTorizoAnimations.cs");
         RequireTypedFrames(HopperAnimations.Programs, HopperFrameToolingDefinitions.Spritemap, HopperFrameToolingDefinitions.Bank,
             nameof(HopperAnimations), "csharp/src/SuperMetroid.Core/Enemies/Hoppers/HopperAnimations.cs");

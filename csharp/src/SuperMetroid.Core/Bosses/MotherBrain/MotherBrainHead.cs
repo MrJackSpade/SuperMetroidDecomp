@@ -163,12 +163,8 @@ internal sealed class MotherBrainHead
         MotherBrainWorldFrame frame,
         Position16<RoomPixels> camera)
     {
-        // Mother Brain's private sprite writer rejects an entire map whose center begins
-        // above the screen. The generic writer intentionally wraps, so preserve that unique
-        // vertical gate here before sharing its byte-exact map decoder.
+        // The frame is published wherever it lies, above the screen included; the display clips it (#1587).
         Position16<ScreenPixels> screen = frame.World.ToScreen(camera);
-        if (CoordinateAxis.AsSigned(screen.Y) < 0)
-            return;
 
         // The head's sheet pictures each frame over what the encounter's uploads leave (#1392); her corpse's frame is drawn
         // whole through her corpse's own rows as its rot leaves them (#1539).

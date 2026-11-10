@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 /// </summary>
 public sealed class MorphBallEyeEnemyState
 {
-    /// <summary>Where the animation resumes.</summary>
-    internal AnimationProgramCursor<MorphBallEyeProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<MorphBallEyeProgram> Playback { get; set; }
 
     /// <summary>
     /// Whether the eye is activated: set once the beam object has initialized, cleared once

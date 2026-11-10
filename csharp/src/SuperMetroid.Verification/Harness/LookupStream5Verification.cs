@@ -1118,8 +1118,8 @@ internal static class LookupStream5Verification
                 AssertEqual(unchecked((ushort)(origin + expected.First)), slot.Position.X.Whole, "Actual mount X with native wrap");
                 AssertEqual(unchecked((ushort)(origin + expected.Second)), slot.Position.Y.Whole, "Actual mount Y with native wrap");
                 MorphBallEyeEnemyState eye = enemies.SlotTable.Slots[0].SpeciesState<MorphBallEyeEnemyState>() ?? throw new InvalidOperationException("The mount has no state.");
-                AssertEqual(AnimationProgramCursor<MorphBallEyeProgram>.Start(mount.Program),
-                    eye.Program,
+                AssertEqual(new AnimationPlayback<MorphBallEyeProgram>(MorphBallEyeAnimations.StartingWith(mount.Program), AnimationPlace.StartOfAnimation),
+                    eye.Playback,
                     "Actual directional mount program");
                 AssertEqual(MorphBallEyeAiFunction.MountNoOp, eye.Function, "Mount remains decorative");
             }

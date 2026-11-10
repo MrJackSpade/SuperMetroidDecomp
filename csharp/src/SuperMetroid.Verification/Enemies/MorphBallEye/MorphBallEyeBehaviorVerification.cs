@@ -28,19 +28,19 @@ internal static class MorphBallEyeBehaviorVerification
                  })
         {
             (_, _, MorphBallEyeEnemyState body) = Create(parameter1, parameter2: 0);
-            AssertEqual(AnimationProgramCursor<MorphBallEyeProgram>.Start(closed), body.Program, $"eye body parameter {parameter1} starts closed");
+            AssertEqual(new AnimationPlayback<MorphBallEyeProgram>(MorphBallEyeAnimations.StartingWith(closed), AnimationPlace.StartOfAnimation), body.Playback, $"eye body parameter {parameter1} starts closed");
         }
         MorphBallEyeProgram[] mounts = [MorphBallEyeProgram.MountFacingLeft, MorphBallEyeProgram.MountFacingRight, MorphBallEyeProgram.MountFacingUp, MorphBallEyeProgram.MountFacingDown];
         for (ushort direction = 0; direction < mounts.Length; direction++)
         {
             (_, _, MorphBallEyeEnemyState mount) = Create(parameter1: 0, parameter2: (ushort)(MorphBallEyeNativeValues.MountParameter | direction));
-            AssertEqual(AnimationProgramCursor<MorphBallEyeProgram>.Start(mounts[direction]), mount.Program, $"eye mount direction {direction}");
+            AssertEqual(new AnimationPlayback<MorphBallEyeProgram>(MorphBallEyeAnimations.StartingWith(mounts[direction]), AnimationPlace.StartOfAnimation), mount.Playback, $"eye mount direction {direction}");
         }
 
         foreach (MorphBallEyeProgram closing in new[] { MorphBallEyeProgram.FacingRightDeactivating, MorphBallEyeProgram.FacingLeftDeactivating })
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, MorphBallEyeEnemyState state) = Create(parameter1: 0, parameter2: 0);
-            state.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start(closing);
+            state.Playback = new(MorphBallEyeAnimations.StartingWith(closing), AnimationPlace.StartOfAnimation);
             MorphBallEyeProgram closed = closing == MorphBallEyeProgram.FacingRightDeactivating ? MorphBallEyeProgram.FacingRightClosed : MorphBallEyeProgram.FacingLeftClosed;
             ushort shut = MorphBallEyeAnimationsConstants.Spritemaps(closed).Single();
             int[] holds = [8, 48, 5, 48];
@@ -49,14 +49,16 @@ internal static class MorphBallEyeBehaviorVerification
         }
 
         (RoomEnemySystem tracker, RoomEnemySlot eye, MorphBallEyeEnemyState tracking) = Create(parameter1: 0, parameter2: 0);
-        tracking.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start(MorphBallEyeProgram.Active);
-        AssertEqual(EnemyInstructionRunner.ExpectedLoop(MorphBallEyeAnimations.Programs, MorphBallEyeProgram.Active, MorphBallEyeFrameToolingDefinitions.Spritemap),
-            EnemyInstructionRunner.ShownFrames(eye, EnemyInstructionRunner.LoopUpdates(MorphBallEyeAnimations.Programs, MorphBallEyeProgram.Active)),
+        tracking.Playback = new(MorphBallEyeAnimations.StartingWith(MorphBallEyeProgram.Active), AnimationPlace.StartOfAnimation);
+        AssertEqual(EnemyInstructionRunner.ExpectedLoop(MorphBallEyeAnimations.Segments, MorphBallEyeProgram.Active, MorphBallEyeFrameToolingDefinitions.Spritemap),
+            EnemyInstructionRunner.ShownFrames(eye, EnemyInstructionRunner.LoopUpdates(MorphBallEyeAnimations.Segments, MorphBallEyeProgram.Active)),
             "eye tracking loop");
         ushort[] active = [.. MorphBallEyeAnimationsConstants.Spritemaps(MorphBallEyeProgram.Active)];
         for (int pose = 0; pose < active.Length; pose++)
         {
-            tracking.Program = new AnimationProgramCursor<MorphBallEyeProgram>(MorphBallEyeProgram.Active, pose);
+            tracking.Playback = new(MorphBallEyeAnimations.StartingWith(MorphBallEyeProgram.Active),
+                AnimationSegments<MorphBallEyeProgram, MorphBallEyeFrame, NoAnimationCue>.PlaceOf(
+                    MorphBallEyeAnimations.StartingWith(MorphBallEyeProgram.Active), MorphBallEyeProgram.Active, pose));
             eye.FrameHold = WrappingCountdown.Start(1);
             AssertEqual(EnemyInstructionRunner.ExpectedFrames([active[pose]], [1]), EnemyInstructionRunner.ShownFrames(eye, 1),
                 $"eye tracking pose {pose}");

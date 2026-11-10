@@ -14,44 +14,36 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 public readonly record struct PaletteFxColorFrames(int FirstRecord, int FrameCount, int ColorsPerFrame)
 {
     /// <summary>
-    /// The frames <paramref name="program"/> shows, read from its steps: the consecutive records its frames show, through
-    /// cues, counters and counted repeats and on into each program it falls into, until it jumps, holds or stops.
+    /// The frames <paramref name="program"/> shows: the consecutive records of its segment's frames and, where its list runs
+    /// on into the list authored next (<see cref="PaletteFxListLayout.RunOnIntoNext"/>), of each list it runs on into.
     /// </summary>
-    /// <param name="program">The program whose first show is the family's first frame.</param>
+    /// <param name="program">The segment whose first frame is the family's first frame.</param>
     /// <param name="colorsPerFrame">The colours each frame writes.</param>
     public static PaletteFxColorFrames Of(PaletteFxProgram program, int colorsPerFrame)
     {
         int first = -1, count = 0;
-        PaletteFxProgram? current = program;
-        while (current is { } running)
+        PaletteFxProgram[] authored = Enum.GetValues<PaletteFxProgram>();
+        for (PaletteFxProgram running = program; ; running = authored[Array.IndexOf(authored, running) + 1])
         {
-            current = null;
-            foreach (AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue> step in PaletteFxAnimations.Programs.Steps(running))
+            int frame = 0;
+            foreach (AnimationBeat<int, PaletteFxCue> beat in PaletteFxSegments.All.Beats(running))
             {
-                switch (step)
+                if (beat is not AnimationBeat<int, PaletteFxCue>.Frame)
+                    continue;
+                int record = PaletteFxRecord.Of(new PaletteFxFrame(running, frame++)).Record;
+                if (first < 0)
                 {
-                    case AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.ShowStep show when first < 0:
-                        first = PaletteFxRecord.Of(new PaletteFxFrame(running, show.Frame)).Record;
-                        count = 1;
-                        break;
-                    case AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.ShowStep show when PaletteFxRecord.Of(new PaletteFxFrame(running, show.Frame)).Record == first + count:
-                        count++;
-                        break;
-                    case AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.ShowStep show:
-                        throw new InvalidOperationException($"Palette-FX program {program} shows {new PaletteFxFrame(running, show.Frame)} out of order.");
-                    case AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.FallIntoStep fallInto:
-                        current = fallInto.Target;
-                        break;
-                    case AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.CueStep or AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.WaitStep or AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.SetCounterStep or AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.RepeatWhileCountingStep:
-                        break;
-                    case AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.GoToStep or AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.HoldStep or AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.StopStep:
-                        return Found(program, first, count, colorsPerFrame);
-                    default:
-                        throw new InvalidOperationException($"Undefined animation program step {step}.");
+                    first = record;
+                    count = 1;
                 }
+                else if (record == first + count)
+                    count++;
+                else
+                    throw new InvalidOperationException($"Palette-FX segment {program} shows {new PaletteFxFrame(running, frame - 1)} out of order.");
             }
+            if (!PaletteFxListLayout.RunOnIntoNext.Contains(running))
+                return Found(program, first, count, colorsPerFrame);
         }
-        return Found(program, first, count, colorsPerFrame);
     }
 
     /// <summary>The frames found, rejecting a program that shows nothing.</summary>

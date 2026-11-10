@@ -145,12 +145,11 @@ internal static class RoomPaletteFxDefinitionsVerification
                 $"${pointer:X4} production countdown");
             // Every native start installs a pre-instruction that does nothing, the intro's included: no condition.
             AssertEqual(null, effect.Condition, $"${pointer:X4} production condition");
-            AssertEqual(
-                AnimationProgramCursor<PaletteFxProgram>.Start(definition.Start == ColourEffectStart.ChoosesHeatProgramForSuit
-                    ? PaletteFxHeatPrograms.Start(PaletteFxHeatSuit.Power)
-                    : definition.InitialProgram),
-                effect.Step,
-                $"${pointer:X4} production initial program");
+            Animation<PaletteFxProgram> expected = PaletteFxAnimations.StartingWith(definition.Start == ColourEffectStart.ChoosesHeatProgramForSuit
+                ? PaletteFxHeatPrograms.Start(PaletteFxHeatSuit.Power)
+                : definition.InitialProgram);
+            AssertTrue(ReferenceEquals(expected, effect.Animation), $"${pointer:X4} production initial animation");
+            AssertEqual(expected.Start, effect.Place, $"${pointer:X4} production starts its animation");
         }
 
     }

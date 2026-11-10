@@ -1,5 +1,6 @@
 using SuperMetroid.TestSupport.Assertions;
 using SuperMetroid.AssetExtraction.Audio;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Fx;
@@ -10,65 +11,154 @@ using SuperMetroid.Core.Fx.PaletteFx;
 namespace SuperMetroid.TestSupport.MovieReplay;
 
 /// <summary>
-/// The ROM oracle of the palette-FX objects' typed programs (#1298): each program matched step by step to its native
-/// bank-$8D list, and the typed cursor a recording's native instruction pointer stands for. The one native instruction
-/// the programs deliberately do not reproduce is the set-pre-instruction of the deleted adjacent-slot inspection (#1526),
-/// a presentation quirk: the comparison steps over exactly that instruction, wherever a list runs or branches into it, and
-/// fails on any other native instruction the typed steps do not match.
+/// The ROM oracle of the palette-FX objects' typed animations (#1298, #1600): each segment's beats matched to its native
+/// bank-$8D list, each animation matched to the lists' control flow, and the animation place a recording's native
+/// instruction pointer stands for. The one native instruction the animations deliberately do not reproduce is the
+/// set-pre-instruction of the deleted adjacent-slot inspection (#1526), a presentation quirk: the comparison steps over
+/// exactly that instruction, wherever a list runs or branches into it, and fails on any other native instruction the typed
+/// beats do not match.
 /// </summary>
 internal static class PaletteFxNativeProgramOracle
 {
-    /// <summary>Compares every program with its native list and returns each typed step's native address.</summary>
-    internal static Dictionary<PaletteFxProgram, ushort[]> StepAddresses(IImportCartridgeSource cartridge)
+    /// <summary>
+    /// Reads every segment's native list, comparing its beats with the segment's: each beat's native address, and each
+    /// control instruction with the beat it follows.
+    /// </summary>
+    internal static Dictionary<PaletteFxProgram, PaletteFxNativeList> Lists(IImportCartridgeSource cartridge)
     {
         Dictionary<ushort, PaletteFxProgram> byEntry = PaletteFxNativeListAddresses.Entries.ToDictionary(entry => entry.Entry, entry => entry.Program);
-        return PaletteFxNativeListAddresses.Entries.ToDictionary(entry => entry.Program, entry => Compare(cartridge, byEntry, entry.Program, entry.Entry));
+        return PaletteFxNativeListAddresses.Entries.ToDictionary(entry => entry.Program, entry => Read(cartridge, byEntry, entry.Program, entry.Entry));
     }
 
     /// <summary>
-    /// The typed cursor a recording's native instruction pointer <paramref name="nativePointer"/> stands for: a program
-    /// entry where it is one, otherwise the single typed step at that address.
+    /// Checks that every typed animation plays the phases the native lists' control flow plays from its first segment:
+    /// counters set before a list, counted repeats, runs on into the next list, gotos forward and back, and deletes.
     /// </summary>
-    internal static AnimationProgramCursor<PaletteFxProgram> CursorAt(IImportCartridgeSource cartridge, ushort nativePointer)
+    internal static void VerifyAnimations(IReadOnlyDictionary<PaletteFxProgram, PaletteFxNativeList> lists)
     {
-        if (PaletteFxNativeListAddresses.Entries.Where(entry => entry.Entry == nativePointer).Select(entry => (PaletteFxProgram?)entry.Program).SingleOrDefault() is { } program)
-            return AnimationProgramCursor<PaletteFxProgram>.Start(program);
-        var matches = StepAddresses(cartridge)
-            .SelectMany(item => item.Value.Select((address, position) => new PaletteFxProgramsMatch(item.Key, address, position)))
-            .Where(item => item.Address == nativePointer)
-            .ToList();
-        return matches.Count == 1
-            ? new AnimationProgramCursor<PaletteFxProgram>(matches[0].Key, matches[0].Position)
-            : throw new InvalidDataException($"Native palette-FX pointer $8D:{nativePointer:X4} matches {matches.Count} typed steps.");
+        Ensure.NotNull(lists);
+        HashSet<PaletteFxProgram> bodies = [.. lists.Values.SelectMany(list => list.Controls)
+            .Where(control => control.Kind == PaletteFxNativeControlKind.Repeat).Select(control => control.Target!.Value)];
+        foreach (PaletteFxProgram start in Enum.GetValues<PaletteFxProgram>())
+        {
+            if (bodies.Contains(start))
+            {
+                VerificationAssertions.AssertTrue(!PaletteFxAnimations.StartingAt.ContainsKey(start), $"no animation starts in counted body {start}");
+                continue;
+            }
+            (List<AnimationPhase<PaletteFxProgram>> phases, AnimationEnd end) = Linearize(lists, start);
+            Animation<PaletteFxProgram> typed = PaletteFxAnimations.StartingWith(start);
+            VerificationAssertions.AssertTrue(typed.Phases.SequenceEqual(phases), $"{start}'s phases follow its native lists");
+            VerificationAssertions.AssertEqual(end, typed.End, $"{start}'s end follows its native lists");
+        }
     }
 
-    /// <summary>Compares one program with its native list.</summary>
-    private static ushort[] Compare(IImportCartridgeSource cartridge, Dictionary<ushort, PaletteFxProgram> byEntry, PaletteFxProgram program, ushort entry)
+    /// <summary>
+    /// The place a live object resumes at in one of <paramref name="candidates"/> (the animations it can be playing, its
+    /// own first): the phase beat at <paramref name="nativePointer"/>, or the end of a phase's play where the pointer rests on
+    /// the control instruction that follows it, with <paramref name="nativeTimer"/> as the plays a counted phase has left.
+    /// </summary>
+    /// <exception cref="InvalidDataException">No candidate animation plays the beat or control at the pointer.</exception>
+    internal static PaletteFxImportedPlace PlaceAt(
+        IReadOnlyDictionary<PaletteFxProgram, PaletteFxNativeList> lists, IEnumerable<PaletteFxProgram> candidates, ushort nativePointer, int nativeTimer)
     {
-        var steps = PaletteFxAnimations.Programs.Steps(program);
-        var addresses = new ushort[steps.Count];
+        Ensure.NotNull(lists);
+        foreach (PaletteFxProgram candidate in Ensure.NotNull(candidates))
+        {
+            Animation<PaletteFxProgram> animation = PaletteFxAnimations.StartingWith(candidate);
+            for (int index = 0; index < animation.Phases.Count; index++)
+            {
+                AnimationPhase<PaletteFxProgram> phase = animation.Phases[index];
+                PaletteFxNativeList list = lists[phase.Segment];
+                int plays = phase.Plays > 1 ? nativeTimer : phase.Plays;
+                // A pointer at a list's entry stands at its first beat, before any deleted inspection the list opens with.
+                if (phase.FirstBeat == 0 && PaletteFxNativeListAddresses.Entry(phase.Segment) == nativePointer)
+                    return new(candidate, new AnimationPlace(index, 0, plays));
+                for (int beat = 0; beat < phase.BeatCount; beat++)
+                {
+                    if (list.BeatAddresses[phase.FirstBeat + beat] == nativePointer)
+                        return new(candidate, new AnimationPlace(index, beat, plays));
+                }
+                if (list.Controls.FirstOrDefault(control => control.AfterBeat == phase.FirstBeat + phase.BeatCount) is { } after &&
+                    after.Address == nativePointer && after.Kind != PaletteFxNativeControlKind.RunOnIntoNext)
+                    return new(candidate, new AnimationPlace(index, phase.BeatCount, plays));
+            }
+        }
+        throw new InvalidDataException($"Native palette-FX pointer $8D:{nativePointer:X4} stands at no beat of the animations {string.Join(", ", candidates)} play.");
+    }
+
+    /// <summary>The phases and end the native lists play from <paramref name="start"/>, by the typed animations' rules.</summary>
+    private static (List<AnimationPhase<PaletteFxProgram>> Phases, AnimationEnd End) Linearize(
+        IReadOnlyDictionary<PaletteFxProgram, PaletteFxNativeList> lists, PaletteFxProgram start)
+    {
+        var phases = new List<AnimationPhase<PaletteFxProgram>>();
+        var entered = new Dictionary<PaletteFxProgram, int> { [start] = 0 };
+        PaletteFxProgram segment = start;
+        int runStart = 0, plays = 1;
+        int? pending = null;
+        for (int guard = 0; guard < 100000; guard++)
+        {
+            foreach (PaletteFxNativeControl control in lists[segment].Controls)
+            {
+                if (control.AfterBeat > runStart)
+                    phases.Add(new(segment, runStart, control.AfterBeat - runStart, plays));
+                runStart = control.AfterBeat;
+                plays = 1;
+                switch (control.Kind)
+                {
+                    case PaletteFxNativeControlKind.SetCounter:
+                        pending = control.Count;
+                        continue;
+                    case PaletteFxNativeControlKind.Repeat:
+                        continue;
+                    case PaletteFxNativeControlKind.Delete:
+                        return (phases, AnimationEnd.Stops);
+                    case PaletteFxNativeControlKind.Goto:
+                    case PaletteFxNativeControlKind.RunOnIntoNext:
+                        PaletteFxProgram target = control.Target!.Value;
+                        if (entered.TryGetValue(target, out int loop))
+                            return (phases, AnimationEnd.LoopsFrom(loop));
+                        entered[target] = phases.Count;
+                        segment = target;
+                        runStart = 0;
+                        plays = pending ?? 1;
+                        pending = null;
+                        break;
+                    default:
+                        throw new InvalidDataException($"Undefined native control {control.Kind}.");
+                }
+                break;
+            }
+        }
+        throw new InvalidDataException($"The native lists from {start} never end or loop.");
+    }
+
+    /// <summary>Reads one segment's native list, comparing its beats with the segment's.</summary>
+    private static PaletteFxNativeList Read(IImportCartridgeSource cartridge, Dictionary<ushort, PaletteFxProgram> byEntry, PaletteFxProgram program, ushort entry)
+    {
+        IReadOnlyList<AnimationBeat<int, PaletteFxCue>> beats = PaletteFxSegments.All.Beats(program);
+        var addresses = new List<ushort>();
+        var controls = new List<PaletteFxNativeControl>();
         ushort cursor = entry;
-        for (int index = 0; index < steps.Count; index++)
+        while (true)
         {
             cursor = PastDeletedInspection(cursor);
-            string at = $"palette-FX {program} step {index} at $8D:{cursor:X4}";
-            addresses[index] = cursor;
-            var step = steps[index];
+            int beat = addresses.Count;
+            string at = $"palette-FX {program} beat {beat} at $8D:{cursor:X4}";
             if (cursor != entry && byEntry.TryGetValue(cursor, out PaletteFxProgram next))
             {
-                var fallInto = VerificationAssertions.AssertIs<AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.FallIntoStep>(step, $"{at}: runs on into the next authored list");
-                VerificationAssertions.AssertEqual(next, fallInto.Target, $"{at}: fall-through target");
-                VerificationAssertions.AssertEqual(steps.Count, index + 1, $"{at}: the fall-through ends the program");
-                return addresses;
+                controls.Add(new(PaletteFxNativeControlKind.RunOnIntoNext, beat, cursor, next, null));
+                return Finish();
             }
             ushort word = Word(cursor);
             if (word < PaletteFxListWords.CommandWord)
             {
-                var show = VerificationAssertions.AssertIs<AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.ShowStep>(step, $"{at}: timed record");
-                VerificationAssertions.AssertEqual(word, show.Duration, $"{at}: duration");
-                // The frame's record, numbered by the programs' order of frames, lies where the native list shows it (#1598).
-                PaletteFxRecord record = PaletteFxRecord.Of(new PaletteFxFrame(program, show.Frame));
+                var frame = VerificationAssertions.AssertIs<AnimationBeat<int, PaletteFxCue>.Frame>(Beat(beat, at), $"{at}: timed record");
+                VerificationAssertions.AssertEqual(word, frame.Duration, $"{at}: duration");
+                // The frame's record, numbered by the segments' order of frames, lies where the native list shows it (#1598).
+                PaletteFxRecord record = PaletteFxRecord.Of(new PaletteFxFrame(program, frame.Shown));
                 VerificationAssertions.AssertEqual(cursor, PaletteFxColorLayoutAccess.RecordAddress(record), $"{at}: record address");
+                addresses.Add(cursor);
                 cursor = CompareLayout(cursor, PaletteFxRecordDefinitions.Layout(record), at);
                 continue;
             }
@@ -78,49 +168,49 @@ internal static class PaletteFxNativeProgramOracle
             switch (instruction)
             {
                 case PaletteFxInstruction.Goto:
-                    var goTo = VerificationAssertions.AssertIs<AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.GoToStep>(step, $"{at}: goto");
-                    VerificationAssertions.AssertEqual(byEntry[PastDeletedInspection(operandWord)], goTo.Target, $"{at}: goto target");
-                    VerificationAssertions.AssertEqual(steps.Count, index + 1, $"{at}: the goto ends the program");
-                    return addresses;
+                    controls.Add(new(PaletteFxNativeControlKind.Goto, beat, cursor, byEntry[PastDeletedInspection(operandWord)], null));
+                    return Finish();
                 case PaletteFxInstruction.Delete:
-                    VerificationAssertions.AssertTrue(step is AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.StopStep, $"{at}: delete");
-                    VerificationAssertions.AssertEqual(steps.Count, index + 1, $"{at}: the delete ends the program");
-                    return addresses;
+                    controls.Add(new(PaletteFxNativeControlKind.Delete, beat, cursor, null, null));
+                    return Finish();
                 case PaletteFxInstruction.DecrementTimerAndGoto:
-                    var repeat = VerificationAssertions.AssertIs<AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.RepeatWhileCountingStep>(step, $"{at}: counted repeat");
-                    VerificationAssertions.AssertEqual(byEntry[PastDeletedInspection(operandWord)], repeat.Target, $"{at}: repeat target");
+                    PaletteFxProgram repeated = byEntry[PastDeletedInspection(operandWord)];
+                    VerificationAssertions.AssertEqual(program, repeated, $"{at}: a counted repeat replays its own list");
+                    controls.Add(new(PaletteFxNativeControlKind.Repeat, beat, cursor, repeated, null));
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case PaletteFxInstruction.SetTimer:
                     // The native command writes only the timer's low byte; its high byte is zero from spawn and every
-                    // counted loop runs it down to zero, so the typed counter set is the same.
-                    var setCounter = VerificationAssertions.AssertIs<AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.SetCounterStep>(step, $"{at}: timer");
-                    VerificationAssertions.AssertEqual(operandByte, setCounter.Count, $"{at}: timer count");
+                    // counted loop runs it down to zero, so the typed play count is the same.
+                    controls.Add(new(PaletteFxNativeControlKind.SetCounter, beat, cursor, null, operandByte));
                     cursor = unchecked((ushort)(cursor + 3));
                     continue;
                 case PaletteFxInstruction.SetColorIndex:
-                    // The native operand is a CGRAM byte index; the typed cue names the colour group, which must be
+                    // The native operand is a CGRAM byte index; the typed event names the colour group, which must be
                     // placed where the operand starts.
                     VerificationAssertions.AssertTrue(operandWord % sizeof(ushort) == 0, $"{at}: colour byte index is word-aligned");
-                    var colourCue = VerificationAssertions.AssertIs<AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.CueStep>(step, $"{at}: command");
-                    var setColours = VerificationAssertions.AssertIs<PaletteFxCue.SetColours>(colourCue.Cue, $"{at}: colours cue");
+                    var setColours = VerificationAssertions.AssertIs<PaletteFxCue.SetColours>(Event(beat, at), $"{at}: colours event");
                     VerificationAssertions.AssertEqual(operandWord / sizeof(ushort), setColours.Target.CartridgeColour,
                         $"{at}: {setColours.Target} starts at the native colour");
+                    addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case PaletteFxInstruction.SetFrameBehavior:
-                    AssertCue(step, new PaletteFxCue.Watch(FxNativeWords.ConditionOf(FxNativeWords.PaletteFxPreInstructions.Decode(operandWord, "palette-FX pre-instruction"))
-                        ?? throw new InvalidDataException($"{at}: the native list installs a pre-instruction that does nothing, which no typed program watches.")), at);
+                    AssertEvent(beat, new PaletteFxCue.Watch(FxNativeWords.ConditionOf(FxNativeWords.PaletteFxPreInstructions.Decode(operandWord, "palette-FX pre-instruction"))
+                        ?? throw new InvalidDataException($"{at}: the native list installs a pre-instruction that does nothing, which no typed animation watches.")), at);
+                    addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case PaletteFxInstruction.ClearFrameBehavior:
-                    throw new InvalidDataException($"{at}: the native list clears its pre-instruction, which no colour effect's program does.");
+                    throw new InvalidDataException($"{at}: the native list clears its pre-instruction, which no colour effect's animation does.");
                 case PaletteFxInstruction.SetPaletteFxIndex:
-                    AssertCue(step, new PaletteFxCue.PublishHeatPhase(new HeatPhase(operandByte)), at);
+                    AssertEvent(beat, new PaletteFxCue.PublishHeatPhase(new HeatPhase(operandByte)), at);
+                    addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + 3));
                     continue;
                 case PaletteFxInstruction.QueueSfx2:
-                    AssertCue(step, new PaletteFxCue.QueueSound(Sound: SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, operandByte)), at);
+                    AssertEvent(beat, new PaletteFxCue.QueueSound(Sound: SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, operandByte)), at);
+                    addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + 3));
                     continue;
                 case PaletteFxInstruction.Wait:
@@ -137,12 +227,27 @@ internal static class PaletteFxNativeProgramOracle
                     throw new InvalidDataException($"{at}: native command {instruction} has no typed form.");
             }
         }
-        throw new InvalidDataException($"palette-FX {program} ran past its typed steps at $8D:{cursor:X4}.");
+
+        PaletteFxNativeList Finish()
+        {
+            VerificationAssertions.AssertEqual(beats.Count, addresses.Count, $"palette-FX {program}: its native list holds each of its beats");
+            return new PaletteFxNativeList([.. addresses], [.. controls]);
+        }
+
+        AnimationBeat<int, PaletteFxCue> Beat(int beat, string at) => beat < beats.Count
+            ? beats[beat]
+            : throw new InvalidDataException($"{at}: the native list holds more beats than the segment.");
+
+        PaletteFxCue Event(int beat, string at) =>
+            VerificationAssertions.AssertIs<AnimationBeat<int, PaletteFxCue>.Event>(Beat(beat, at), $"{at}: event").Raised;
+
+        void AssertEvent(int beat, PaletteFxCue expected, string at) =>
+            VerificationAssertions.AssertEqual(expected, Event(beat, at), $"{at}: event");
 
         ushort Word(int address) => cartridge.ReadCartridgeWord(PaletteFxListWords.ListBank | address);
 
         // The deleted adjacent-slot inspection (#1526) is a presentation quirk the port does not reproduce: where the native
-        // list sets that one pre-instruction, the typed program runs straight on to what follows it.
+        // list sets that one pre-instruction, the typed animation runs straight on to what follows it.
         ushort PastDeletedInspection(ushort address) =>
             Word(address) == (ushort)PaletteFxInstruction.SetFrameBehavior &&
             Word(address + 2) == FxNativeWords.DeletedSlotInspectionPreInstruction
@@ -194,12 +299,5 @@ internal static class PaletteFxNativeProgramOracle
             VerificationAssertions.AssertEqual((ushort)PaletteFxInstruction.Wait, Word(word), $"{at}: the record closes with a wait");
             return unchecked((ushort)(word + 2));
         }
-    }
-
-    /// <summary>Checks that <paramref name="step"/> publishes <paramref name="expected"/>.</summary>
-    private static void AssertCue(AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue> step, PaletteFxCue expected, string at)
-    {
-        var cueStep = VerificationAssertions.AssertIs<AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.CueStep>(step, $"{at}: command");
-        VerificationAssertions.AssertEqual(expected, cueStep.Cue, $"{at}: cue");
     }
 }

@@ -15,27 +15,30 @@ namespace SuperMetroid.Verification.Fx.PaletteFx;
 /// </summary>
 internal static class PaletteFxProgramsVerification
 {
-    /// <summary>Every program matches its native list.</summary>
+    /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifyPaletteFxPrograms(SuperMetroidAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         AssertEqual(Enum.GetValues<PaletteFxProgram>().Length, PaletteFxNativeListAddresses.Entries.Length, "every typed palette-FX program has a native entry");
-        Dictionary<PaletteFxProgram, ushort[]> steps = PaletteFxNativeProgramOracle.StepAddresses(cartridge);
-        // Each program's frames are numbered from zero in the order it shows them, and each shows its own record (#1598).
+        Dictionary<PaletteFxProgram, PaletteFxNativeList> lists = PaletteFxNativeProgramOracle.Lists(cartridge);
+        // Every animation plays the phases its native lists' control flow plays (#1600).
+        PaletteFxNativeProgramOracle.VerifyAnimations(lists);
+        // Each segment's frames are numbered from zero in the order it shows them, and each shows its own record (#1598).
         HashSet<int> records = [];
-        foreach (PaletteFxProgram program in Enum.GetValues<PaletteFxProgram>())
+        foreach (PaletteFxProgram segment in Enum.GetValues<PaletteFxProgram>())
         {
             int next = 0;
-            foreach (var step in PaletteFxAnimations.Programs.Steps(program))
+            foreach (AnimationBeat<int, PaletteFxCue> beat in PaletteFxSegments.All.Beats(segment))
             {
-                if (step is not AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.ShowStep show)
+                if (beat is not AnimationBeat<int, PaletteFxCue>.Frame frame)
                     continue;
-                AssertEqual(next++, show.Frame, $"{program}'s frames are numbered in the order it shows them");
-                records.Add(PaletteFxRecord.Of(new PaletteFxFrame(program, show.Frame)).Record);
+                AssertEqual(next++, frame.Shown, $"{segment}'s frames are numbered in the order it shows them");
+                records.Add(PaletteFxRecord.Of(new PaletteFxFrame(segment, frame.Shown)).Record);
             }
         }
-        AssertEqual(PaletteFxRecordDefinitionsConstants.RecordCount, records.Count, "every colour record is shown by a program");
-        Console.WriteLine($"  Palette-FX programs: {steps.Count} programs ({steps.Values.Sum(s => s.Length)} steps, {records.Count} colour records) match bank $8D.");
+        AssertEqual(PaletteFxRecordDefinitionsConstants.RecordCount, records.Count, "every colour record is shown by a segment");
+        Console.WriteLine($"  Palette-FX animations: {lists.Count} segments ({lists.Values.Sum(list => list.BeatAddresses.Length)} beats, " +
+            $"{records.Count} colour records) and {PaletteFxAnimations.StartingAt.Count} animations match bank $8D.");
     }
 
     /// <summary>Runs the palette-FX program oracle.</summary>

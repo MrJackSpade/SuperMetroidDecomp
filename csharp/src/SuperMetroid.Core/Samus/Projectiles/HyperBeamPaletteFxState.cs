@@ -19,10 +19,8 @@ public sealed class HyperBeamPaletteFxState
     /// <summary>The colours the Hyper Beam palette program names, which its object checks the program against.</summary>
     private const PaletteFxColours ProgramColours = PaletteFxColours.HyperBeam;
 
-    /// <summary>Where the object's typed program resumes between palette handler calls.</summary>
-    private AnimationProgramCursor<PaletteFxProgram> cursor;
-    /// <summary>Where the Hyper Beam palette program resumes.</summary>
-    internal AnimationProgramCursor<PaletteFxProgram> Cursor { get => cursor; private set => cursor = value; }
+    /// <summary>Where the Hyper Beam's colour animation resumes between palette handler calls.</summary>
+    internal AnimationPlace Place { get; private set; }
 
     /// <summary>True after controller function three has spawned the object.</summary>
     public bool IsActive { get; private set; }
@@ -55,7 +53,7 @@ public sealed class HyperBeamPaletteFxState
         FrameHold = 1;
         CurrentFrameIndex = null;
         CompletedCycles = 0;
-        Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(HyperBeamDefinition().InitialProgram);
+        Place = PaletteFxAnimations.StartingWith(HyperBeamDefinition().InitialProgram).Start;
     }
 
     /// <summary>Runs one call of the palette effect handler for the Hyper Beam object.</summary>
@@ -85,18 +83,21 @@ public sealed class HyperBeamPaletteFxState
             return new HyperBeamPaletteFxStepResult();
         }
 
-        WrappingCountdown unusedCounter = default;
-        AnimationProgramAdvance<int> advance = PaletteFxAnimations.Programs.Advance(ref cursor, ref unusedCounter,
-            (cue, _) => cue == new PaletteFxCue.SetColours(ProgramColours)
-                ? null
-                : throw new InvalidDataException($"The Hyper Beam palette program published {cue}, which its object does not carry out."));
-        if (advance is not AnimationProgramAdvance<int>.Show shown)
-            throw new InvalidDataException($"The Hyper Beam palette program reached a {advance}; its cycle only shows frames.");
-        // A show runs on to the next step of its own program, so the cursor names the program that showed the frame; the
-        // cycle's frames are the beams' cycle colourings in order.
-        if (cursor.Program != PaletteFxProgram.HyperBeam1)
-            throw new InvalidDataException($"The Hyper Beam palette program showed frame {shown.Frame} of {cursor.Program}, outside its cycle.");
-        int frameIndex = shown.Frame;
+        AnimationPlace place = Place;
+        AnimationShown<PaletteFxProgram, int> next = PaletteFxSegments.All.PlayToNextFrame(
+            PaletteFxAnimations.StartingWith(definition.InitialProgram), ref place,
+            cue =>
+            {
+                if (cue != new PaletteFxCue.SetColours(ProgramColours))
+                    throw new InvalidDataException($"The Hyper Beam's colour animation raised {cue}, which its object does not carry out.");
+            });
+        Place = place;
+        if (next is not AnimationShown<PaletteFxProgram, int>.Frame shown)
+            throw new InvalidDataException($"The Hyper Beam's colour animation reached {next}; its cycle only shows frames.");
+        // The cycle's frames are the beams' cycle colourings in order.
+        if (shown.Segment != PaletteFxProgram.HyperBeam1)
+            throw new InvalidDataException($"The Hyper Beam's colour animation showed frame {shown.Shown} of {shown.Segment}, outside its cycle.");
+        int frameIndex = shown.Shown;
         // The cycle's goto returns to its first frame: showing it again completes a cycle.
         if (frameIndex == 0 && CurrentFrameIndex is not null)
             CompletedCycles++;

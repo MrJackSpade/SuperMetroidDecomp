@@ -4,47 +4,48 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// One colour effect running in a room or on a screen (#1554, #1598): the glow, flash, fade or shimmer it shows, the
-/// colours it shows its frames in, the condition it watches, the step its program stands at, the
-/// updates left until that step, and the repeats its counted steps have left. Its authored steps are
-/// <see cref="PaletteFxAnimations"/>; the <see cref="RoomPaletteFxSystem"/> that started it gives it its turn.
+/// One colour effect running in a room or on a screen (#1554, #1598, #1600): the glow, flash, fade or shimmer it shows, the
+/// colours it shows its frames in, the condition it watches, the animation it plays and where it stands in it, and the
+/// updates left until its next frame. Its animations are <see cref="PaletteFxAnimations"/>; the
+/// <see cref="RoomPaletteFxSystem"/> that started it gives it its turn.
 /// </summary>
 internal sealed class RoomColourEffect
 {
-    /// <summary>Starts <paramref name="effect"/> at the start of <paramref name="program"/>, due to step on its first turn.</summary>
+    /// <summary>Starts <paramref name="effect"/> playing the animation that starts at <paramref name="segment"/>, due on its first turn.</summary>
     /// <param name="effect">What the effect shows.</param>
-    /// <param name="program">The program it starts.</param>
-    internal RoomColourEffect(PaletteFxObject effect, PaletteFxProgram program)
+    /// <param name="segment">The segment its animation starts at.</param>
+    internal RoomColourEffect(PaletteFxObject effect, PaletteFxProgram segment)
     {
         Effect = effect;
-        Step = AnimationProgramCursor<PaletteFxProgram>.Start(program);
+        Animation = PaletteFxAnimations.StartingWith(segment);
+        Place = Animation.Start;
         UpdatesUntilNextStep = 1;
-        Repeats = WrappingCountdown.Start(0);
     }
 
     /// <summary>What the effect shows.</summary>
     internal PaletteFxObject Effect { get; }
 
-    /// <summary>The colours the effect shows its frames in; none until its program names them.</summary>
+    /// <summary>The colours the effect shows its frames in; none until its animation names them.</summary>
     internal PaletteFxColours? Colours { get; set; }
 
-    /// <summary>The condition the effect checks at the start of its turn; none until its program names one.</summary>
+    /// <summary>The condition the effect checks at the start of its turn; none until its animation names one.</summary>
     internal ColourEffectCondition? Condition { get; set; }
 
-    /// <summary>The step of its program the effect runs next.</summary>
-    internal AnimationProgramCursor<PaletteFxProgram> Step { get; set; }
+    /// <summary>The animation the effect plays.</summary>
+    internal Animation<PaletteFxProgram> Animation { get; private set; }
+
+    /// <summary>Where the effect stands in its animation: the phase, the phase's next beat, and the plays of it left.</summary>
+    internal AnimationPlace Place { get; set; }
 
     /// <summary>
-    /// Updates until the effect runs its next step. It counts down before it is compared with zero; every frame lasts at
-    /// least one update and a started or restarted effect stands at one, so a running effect never counts down from zero.
+    /// Updates until the effect plays on to its next frame. It counts down before it is compared with zero; every frame
+    /// lasts at least one update and a started or restarted effect stands at one, so a running effect never counts down
+    /// from zero.
     /// </summary>
     internal int UpdatesUntilNextStep { get; set; }
 
-    /// <summary>The repeats the effect's counted step has left.</summary>
-    internal WrappingCountdown Repeats { get; set; }
-
     /// <summary>
-    /// The frame the effect shows now (#1597, #1598): the last its programs reached, held for that frame's duration and
+    /// The frame the effect shows now (#1597, #1598): the last its animation reached, held for that frame's duration and
     /// until its next one; none before its first.
     /// </summary>
     internal PaletteFxFrame? Frame { get; set; }
@@ -53,72 +54,65 @@ internal sealed class RoomColourEffect
     internal bool Ended { get; private set; }
 
     /// <summary>
-    /// Whether the effect ended by running its program to the end (#1597): it has settled on its final frame, which it
-    /// keeps showing as the look its program finishes on. An effect its condition ends has not settled and shows nothing.
+    /// Whether the effect ended by playing its animation to the end (#1597): it has settled on its final frame, which it
+    /// keeps showing as the look its animation finishes on. An effect its condition ends has not settled and shows nothing.
     /// </summary>
     internal bool Settled { get; private set; }
 
     /// <summary>Ends the effect: it takes no further part in this update or any later one, and shows nothing.</summary>
     internal void End() => Ended = true;
 
-    /// <summary>Restarts the effect at <paramref name="step"/> of its programs, due to step on this turn.</summary>
-    internal void Restart(AnimationProgramCursor<PaletteFxProgram> step)
+    /// <summary>Restarts the effect playing <paramref name="animation"/> from <paramref name="place"/>, due on this turn.</summary>
+    internal void Restart(Animation<PaletteFxProgram> animation, AnimationPlace place)
     {
-        Step = step;
+        Animation = Ensure.NotNull(animation);
+        Place = place;
         UpdatesUntilNextStep = 1;
     }
 
-    /// <summary>Counts one update off the wait for the next step; true when the step is due now.</summary>
+    /// <summary>Counts one update off the wait for the next frame; true when it is due now.</summary>
     internal bool CountDown() => --UpdatesUntilNextStep == 0;
 
     /// <summary>
-    /// Runs the effect's steps until it shows its next frame, which it then holds for that frame's duration, or ends.
-    /// It takes the colours and conditions its steps name itself and hands every other step, a heat phase or a sound, to
+    /// Plays the effect on to its next frame, which it then holds for that frame's duration, or to its end. It takes the
+    /// colours and conditions its animation names itself and hands every other event, a heat phase or a sound, to
     /// <paramref name="carryOut"/>.
     /// </summary>
-    /// <returns>The frame shown, of the program that showed it, or null when the effect ended.</returns>
-    /// <exception cref="InvalidOperationException">The program waits or holds, which no colour effect's program does.</exception>
+    /// <returns>The frame shown, of the segment that holds it, or null when the effect ended.</returns>
     internal PaletteFxFrame? Advance(Action<PaletteFxCue> carryOut)
     {
         Ensure.NotNull(carryOut);
-        AnimationProgramCursor<PaletteFxProgram> step = Step;
-        WrappingCountdown repeats = Repeats;
-        AnimationProgramAdvance<int> advance = PaletteFxAnimations.Programs.Advance(ref step, ref repeats,
-            (cue, _) =>
-            {
-                switch (cue)
-                {
-                    case PaletteFxCue.SetColours setColours:
-                        Colours = setColours.Target;
-                        break;
-                    case PaletteFxCue.Watch watch:
-                        Condition = watch.Condition;
-                        break;
-                    case PaletteFxCue.PublishHeatPhase or PaletteFxCue.QueueSound:
-                        carryOut(cue);
-                        break;
-                    default:
-                        throw new InvalidOperationException($"Undefined {nameof(PaletteFxCue)} {cue}.");
-                }
-                return null;
-            });
-        Step = step;
-        Repeats = repeats;
-        switch (advance)
+        AnimationPlace place = Place;
+        AnimationShown<PaletteFxProgram, int> shown = PaletteFxSegments.All.PlayToNextFrame(Animation, ref place, cue =>
         {
-            case AnimationProgramAdvance<int>.Show shown:
-                // A show runs on to the next step of its own program, so the cursor names the program that showed it.
-                UpdatesUntilNextStep = shown.Duration;
-                Frame = new PaletteFxFrame(step.Program, shown.Frame);
+            switch (cue)
+            {
+                case PaletteFxCue.SetColours setColours:
+                    Colours = setColours.Target;
+                    break;
+                case PaletteFxCue.Watch watch:
+                    Condition = watch.Condition;
+                    break;
+                case PaletteFxCue.PublishHeatPhase or PaletteFxCue.QueueSound:
+                    carryOut(cue);
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(PaletteFxCue)} {cue}.");
+            }
+        });
+        Place = place;
+        switch (shown)
+        {
+            case AnimationShown<PaletteFxProgram, int>.Frame frame:
+                UpdatesUntilNextStep = frame.Duration;
+                Frame = new PaletteFxFrame(frame.Segment, frame.Shown);
                 return Frame;
-            case AnimationProgramAdvance<int>.Stop:
+            case AnimationShown<PaletteFxProgram, int>.Ended:
                 End();
                 Settled = true;
                 return null;
-            case AnimationProgramAdvance<int>.Wait or AnimationProgramAdvance<int>.Hold:
-                throw new InvalidOperationException($"Colour effect {Effect}'s program {step.Program} reached a {advance}, which no colour effect's program has.");
             default:
-                throw new InvalidOperationException($"Undefined animation program advance {advance}.");
+                throw new InvalidOperationException($"Undefined animation outcome {shown}.");
         }
     }
 }

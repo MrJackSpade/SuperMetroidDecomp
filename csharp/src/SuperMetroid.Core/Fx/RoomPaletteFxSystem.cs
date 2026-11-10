@@ -212,7 +212,10 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
                 return;
             case ColourEffectCondition.RestartsWhileSamusIsHigh high:
                 if (conditions.SamusY < high.Height)
-                    effect.Restart(AnimationProgramCursor<PaletteFxProgram>.Start(high.Restart));
+                {
+                    Animation<PaletteFxProgram> restart = PaletteFxAnimations.StartingWith(high.Restart);
+                    effect.Restart(restart, restart.Start);
+                }
                 return;
             case ColourEffectCondition.BurnsSamusInHeat:
                 BurnSamusInHeat(effect, conditions.EquippedItems, conditions.Samus, conditions.FrameCounter);
@@ -254,9 +257,8 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
             return;
 
         _session.ShimmerHeatPhase = _session.PublishedHeatPhase;
-        effect.Restart(PaletteFxHeatPrograms.Phase(
-            PaletteFxHeatPrograms.SuitFor(equippedItems),
-            _session.PublishedHeatPhase));
+        PaletteFxHeatSuit suit = PaletteFxHeatPrograms.SuitFor(equippedItems);
+        effect.Restart(PaletteFxHeatPrograms.Shimmer(suit), PaletteFxHeatPrograms.Phase(suit, _session.PublishedHeatPhase));
     }
 
     /// <summary>Carries out a step of <paramref name="effect"/>'s program that reaches beyond it: a heat phase or a sound.</summary>

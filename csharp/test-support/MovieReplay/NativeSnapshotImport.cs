@@ -32,6 +32,7 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
@@ -93,6 +94,7 @@ internal static class NativeSnapshotImport
         // started are replaced by the recorded ones.
         var importedEffects = runtime.RoomPaletteFx.effects;
         importedEffects.Clear();
+        Dictionary<PaletteFxProgram, PaletteFxNativeList>? paletteFxLists = null;
         for (int visit = 0; visit < NativeSnapshotMemory.PaletteFxObjectCount; visit++)
         {
             int slot = NativeSnapshotMemory.PaletteFxObjectCount - 1 - visit;
@@ -100,12 +102,15 @@ internal static class NativeSnapshotImport
             if (id == 0)
                 continue;
             PaletteFxObject effect = PaletteFxObjectAccess.FromNative(id);
-            // A live object resumes its typed program where the recorded native pointer stands.
-            SuperMetroid.Core.Programs.AnimationProgramCursor<PaletteFxProgram> step = PaletteFxNativeProgramOracle.CursorAt(
-                SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W(NativeSnapshotMemory.PaletteFxInstruction + slot * 2));
-            var imported = new RoomColourEffect(effect, step.Program)
+            // A live object resumes its typed animation where the recorded native pointer stands: in the animation its start
+            // plays, or one its conditions restart it at, with the native timer as a counted phase's plays left.
+            PaletteFxImportedPlace resumed = PaletteFxNativeProgramOracle.PlaceAt(
+                paletteFxLists ??= PaletteFxNativeProgramOracle.Lists(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus)),
+                ImportedAnimationCandidates(effect), W(NativeSnapshotMemory.PaletteFxInstruction + slot * 2),
+                W(NativeSnapshotMemory.PaletteFxTimer + slot * 2));
+            var imported = new RoomColourEffect(effect, resumed.Animation)
             {
-                Step = step,
+                Place = resumed.Place,
                 // The native colour index names the colours the object animates: of the colour groups its programs name,
                 // the one starting there.
                 Colours = SuperMetroid.Core.Fx.PaletteFx.PaletteFxColoursPositions.FromCartridge(effect,
@@ -115,7 +120,6 @@ internal static class NativeSnapshotImport
                 Condition = SuperMetroid.Core.Fx.FxNativeWords.RecordedColourEffectCondition(
                     W(NativeSnapshotMemory.PaletteFxFrameBehavior + slot * 2)),
                 UpdatesUntilNextStep = W(NativeSnapshotMemory.PaletteFxFrameHold + slot * 2),
-                Repeats = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.PaletteFxTimer + slot * 2)),
             };
             ColourEffectTurnOrder.Join(importedEffects, imported);
         }
@@ -385,7 +389,7 @@ internal static class NativeSnapshotImport
         // Native slot order is the reverse of the order the effects take their turns in.
         foreach (RoomColourEffect effect in Enumerable.Reverse(runtime.RoomPaletteFx.effects))
         {
-            if (effect.Colours is not { } colours || LastShownFrame(effect.Step) is not { } frame)
+            if (effect.Colours is not { } colours || LastShownFrame(effect.Animation, effect.Place) is not { } frame)
                 continue;
             effect.Frame = frame;
             if (PaletteFxRoomColourDefinitions.RoomColours.Contains(colours))
@@ -400,45 +404,61 @@ internal static class NativeSnapshotImport
     }
 
     /// <summary>
-    /// The frame a palette-FX program showed last before <paramref name="cursor"/>: the nearest show step before the step
-    /// it resumes at. The native instruction pointer rests after the record it last showed (a loop's jump runs only when
-    /// the object next advances). A list whose last record runs on into the next list leaves the pointer at that list's
-    /// entry, so a cursor at a program's entry showed the last frame of the program falling into it. A cursor with no show
-    /// step before it, in its program or any falling into it, has shown no frame yet: null.
+    /// The animations an imported <paramref name="effect"/> can be playing, its own first: the one its start plays (each
+    /// suit's heat shimmer for an effect that chooses one), then those its conditions restart it at.
     /// </summary>
-    /// <exception cref="InvalidDataException">More than one program falls into the same program.</exception>
-    private static PaletteFxFrame? LastShownFrame(SuperMetroid.Core.Programs.AnimationProgramCursor<PaletteFxProgram> cursor)
+    private static IEnumerable<PaletteFxProgram> ImportedAnimationCandidates(PaletteFxObject effect)
     {
-        PaletteFxProgram program = cursor.Program;
-        int end = cursor.Position;
-        while (true)
+        RoomPaletteFxDefinition definition = RoomPaletteFxSelection.Get(effect);
+        PaletteFxProgram[] starts = definition.Start == ColourEffectStart.ChoosesHeatProgramForSuit
+            ? [.. Enum.GetValues<PaletteFxHeatSuit>().Select(PaletteFxHeatPrograms.Start)]
+            : [definition.InitialProgram];
+        var seen = new HashSet<PaletteFxProgram>();
+        var pending = new Queue<PaletteFxProgram>(starts);
+        while (pending.TryDequeue(out PaletteFxProgram start))
         {
-            var steps = PaletteFxAnimations.Programs.Steps(program);
-            for (int position = Math.Min(end, steps.Count) - 1; position >= 0; position--)
+            if (!seen.Add(start))
+                continue;
+            yield return start;
+            foreach (AnimationPhase<PaletteFxProgram> phase in PaletteFxAnimations.StartingWith(start).Phases)
             {
-                if (steps[position] is SuperMetroid.Core.Programs.AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.ShowStep shown)
-                    return new PaletteFxFrame(program, shown.Frame);
+                foreach (AnimationBeat<int, PaletteFxCue> beat in PaletteFxSegments.All.Beats(phase.Segment).Skip(phase.FirstBeat).Take(phase.BeatCount))
+                {
+                    if (beat is AnimationBeat<int, PaletteFxCue>.Event { Raised: PaletteFxCue.Watch { Condition: ColourEffectCondition.RestartsWhileSamusIsHigh high } })
+                        pending.Enqueue(high.Restart);
+                }
             }
-            if (ProgramFallingInto(program) is not { } previous)
-                return null;
-            program = previous;
-            end = int.MaxValue;
         }
     }
 
-    /// <summary>The program whose last step runs on into <paramref name="program"/>, or null when none does.</summary>
-    /// <exception cref="InvalidDataException">More than one program falls into <paramref name="program"/>.</exception>
-    private static PaletteFxProgram? ProgramFallingInto(PaletteFxProgram program)
+    /// <summary>
+    /// The frame a colour effect showed last before <paramref name="place"/> in <paramref name="animation"/>: the nearest
+    /// frame before the beat it resumes at, in its segment. The native instruction pointer rests after the record it last
+    /// showed (a loop's jump runs only when the object next advances). A list whose last record runs on into the next list
+    /// leaves the pointer at that list's entry, so a place at a segment's first beat showed the last frame of the segment
+    /// whose list runs on into it. A place with no frame before it, in its segment or any running on into it, has shown no
+    /// frame yet: null.
+    /// </summary>
+    private static PaletteFxFrame? LastShownFrame(SuperMetroid.Core.Programs.Animation<PaletteFxProgram> animation, SuperMetroid.Core.Programs.AnimationPlace place)
     {
-        PaletteFxProgram[] falling = [.. PaletteFxNativeListAddresses.Entries.Select(entry => entry.Program).Where(candidate =>
-            PaletteFxAnimations.Programs.Steps(candidate) is [.., SuperMetroid.Core.Programs.AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.FallIntoStep fall]
-            && fall.Target == program)];
-        return falling.Length switch
+        AnimationPhase<PaletteFxProgram> phase = animation.Phases[place.Phase];
+        PaletteFxProgram segment = phase.Segment;
+        int end = phase.FirstBeat + place.Beat;
+        PaletteFxProgram[] authored = Enum.GetValues<PaletteFxProgram>();
+        while (true)
         {
-            0 => null,
-            1 => falling[0],
-            _ => throw new InvalidDataException($"Palette-FX programs {string.Join(", ", falling)} all fall into {program}."),
-        };
+            IReadOnlyList<AnimationBeat<int, PaletteFxCue>> beats = PaletteFxSegments.All.Beats(segment);
+            for (int beat = Math.Min(end, beats.Count) - 1; beat >= 0; beat--)
+            {
+                if (beats[beat] is AnimationBeat<int, PaletteFxCue>.Frame shown)
+                    return new PaletteFxFrame(segment, shown.Shown);
+            }
+            int index = Array.IndexOf(authored, segment);
+            if (index == 0 || !SuperMetroid.AssetExtraction.Fx.PaletteFx.PaletteFxListLayout.RunOnIntoNext.Contains(authored[index - 1]))
+                return null;
+            segment = authored[index - 1];
+            end = int.MaxValue;
+        }
     }
 
     /// <summary>

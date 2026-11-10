@@ -27,12 +27,15 @@ public static class PaletteFxHeatPrograms
         _ => throw new ArgumentOutOfRangeException(nameof(suit), suit, "Unknown heat suit."),
     };
 
+    /// <summary>The heat shimmer's animation for <paramref name="suit"/>: its start, then its pulse, which it loops.</summary>
+    internal static Animation<PaletteFxProgram> Shimmer(PaletteFxHeatSuit suit) => PaletteFxAnimations.StartingWith(Start(suit));
+
     /// <summary>
-    /// Where the shimmer restarts for <paramref name="phase"/> in <paramref name="suit"/>: the frame of the suit's pulse
-    /// that shows that phase, each pulse showing its phases' frames one after another from its start.
+    /// Where the heat shimmer for <paramref name="suit"/> stands at heat phase <paramref name="phase"/>: its pulse's frame for
+    /// that phase, which the shimmer plays on from.
     /// </summary>
-    internal static AnimationProgramCursor<PaletteFxProgram> Phase(PaletteFxHeatSuit suit, HeatPhase phase) =>
-        new(Pulse(suit), phase.Index);
+    internal static AnimationPlace Phase(PaletteFxHeatSuit suit, HeatPhase phase) =>
+        AnimationSegments<PaletteFxProgram, int, PaletteFxCue>.PlaceOf(Shimmer(suit), Pulse(suit), phase.Index);
 
     /// <summary>The suit whose heat palette <paramref name="equippedItems"/> selects: Gravity before Varia.</summary>
     public static PaletteFxHeatSuit SuitFor(SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems) =>

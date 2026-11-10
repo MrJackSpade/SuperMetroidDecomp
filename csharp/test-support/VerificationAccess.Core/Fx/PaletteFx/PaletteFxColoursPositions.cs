@@ -104,40 +104,36 @@ internal static class PaletteFxColoursPositions
         };
     }
 
-    /// <summary>Every colour group the programs reachable from <paramref name="start"/> name.</summary>
+    /// <summary>
+    /// Every colour group the animation starting at <paramref name="start"/> names, and those of the animations its
+    /// conditions restart it at.
+    /// </summary>
     private static IEnumerable<PaletteFxColours> NamedColours(PaletteFxProgram start)
     {
         var seen = new HashSet<PaletteFxProgram>();
         var pending = new Stack<PaletteFxProgram>([start]);
-        while (pending.TryPop(out PaletteFxProgram program))
+        while (pending.TryPop(out PaletteFxProgram animation))
         {
-            if (!seen.Add(program))
+            if (!seen.Add(animation))
                 continue;
-            foreach (AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue> step in PaletteFxAnimations.Programs.Steps(program))
+            foreach (AnimationPhase<PaletteFxProgram> phase in PaletteFxAnimations.StartingWith(animation).Phases)
             {
-                switch (step)
+                IReadOnlyList<AnimationBeat<int, PaletteFxCue>> beats = PaletteFxSegments.All.Beats(phase.Segment);
+                for (int beat = phase.FirstBeat; beat < phase.FirstBeat + phase.BeatCount; beat++)
                 {
-                    case AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.CueStep { Cue: PaletteFxCue.SetColours setColours }:
-                        yield return setColours.Target;
-                        break;
-                    case AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.FallIntoStep fallInto:
-                        pending.Push(fallInto.Target);
-                        break;
-                    case AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.GoToStep goTo:
-                        pending.Push(goTo.Target);
-                        break;
-                    case AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.RepeatWhileCountingStep repeat:
-                        pending.Push(repeat.Target);
-                        break;
-                    case AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.CueStep
-                        or AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.ShowStep
-                        or AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.WaitStep
-                        or AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.SetCounterStep
-                        or AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.HoldStep
-                        or AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.StopStep:
-                        break;
-                    default:
-                        throw new InvalidOperationException($"Undefined animation program step {step}.");
+                    switch (beats[beat])
+                    {
+                        case AnimationBeat<int, PaletteFxCue>.Event { Raised: PaletteFxCue.SetColours setColours }:
+                            yield return setColours.Target;
+                            break;
+                        case AnimationBeat<int, PaletteFxCue>.Event { Raised: PaletteFxCue.Watch { Condition: ColourEffectCondition.RestartsWhileSamusIsHigh high } }:
+                            pending.Push(high.Restart);
+                            break;
+                        case AnimationBeat<int, PaletteFxCue>.Event or AnimationBeat<int, PaletteFxCue>.Frame:
+                            break;
+                        default:
+                            throw new InvalidOperationException($"Undefined animation beat {beats[beat]}.");
+                    }
                 }
             }
         }

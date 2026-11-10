@@ -40,12 +40,12 @@ internal static class PaletteFxRecords
         foreach (PaletteFxProgram program in Enum.GetValues<PaletteFxProgram>())
         {
             int next = 0;
-            foreach (AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue> step in PaletteFxAnimations.Programs.Steps(program))
+            foreach (AnimationBeat<int, PaletteFxCue> beat in PaletteFxSegments.All.Beats(program))
             {
-                if (step is not AnimationProgramStep<PaletteFxProgram, int, PaletteFxCue>.ShowStep show)
+                if (beat is not AnimationBeat<int, PaletteFxCue>.Frame frame)
                     continue;
-                if (show.Frame != next)
-                    throw new InvalidDataException($"Colour effect program {program} shows frame {show.Frame} where its frame {next} belongs.");
+                if (frame.Shown != next)
+                    throw new InvalidDataException($"Colour effect segment {program} shows frame {frame.Shown} where its frame {next} belongs.");
                 frames.Add(new PaletteFxFrame(program, next));
                 next++;
             }

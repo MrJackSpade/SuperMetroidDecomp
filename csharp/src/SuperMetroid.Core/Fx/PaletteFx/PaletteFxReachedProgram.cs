@@ -1,9 +1,10 @@
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>
-/// A colour effect's program a walk of the programs reaches (#1512, #1598), with the colour group the last cue before it
-/// named, which the program's frames show in until one of its own cues names another.
+/// A phase of a colour effect's animation that a walk of the animations reaches (#1512, #1598, #1600), with the colour
+/// group the last event before it named, which its frames show in until one of its own events names another.
 /// </summary>
-/// <param name="Program">The program reached.</param>
-/// <param name="Colours">The colour group named on reaching it, or null before any cue has named one.</param>
-internal readonly record struct PaletteFxReachedProgram(PaletteFxProgram Program, PaletteFxColours? Colours);
+/// <param name="Program">The segment the animation starts at.</param>
+/// <param name="Phase">The phase reached.</param>
+/// <param name="Colours">The colour group named on reaching it, or null before any event has named one.</param>
+internal readonly record struct PaletteFxReachedProgram(PaletteFxProgram Program, int Phase, PaletteFxColours? Colours);

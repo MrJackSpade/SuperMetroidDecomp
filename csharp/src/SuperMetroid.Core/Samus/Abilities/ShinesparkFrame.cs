@@ -14,19 +14,13 @@ public sealed record ShinesparkFrame
     public required int FrameCounter { get; init; }
 
     /// <summary>
-    /// Ordinary projectile count used for crash-echo admission when no live <see cref="Projectiles"/> owner is
-    /// supplied; excludes bomb slots. It is a count of live slots, never negative.
-    /// </summary>
-    public int ProjectileCounter { get; init; } = 0;
-
-    /// <summary>
     /// Whether Samus cannot die, as the cannot-die assist sets it: the spark ignores its low-energy
     /// cutoff and drains energy no lower than one, while a collision still ends it.
     /// </summary>
     public bool SamusCannotDie { get; init; } = false;
 
-    /// <summary>Optional live ordinary-projectile owner supplying its count and accepting released echoes in fixed slots three/four.</summary>
-    public SamusProjectileSystem? Projectiles { get; init; } = null;
+    /// <summary>Samus's shots, whose count admits the crash's echoes as it finishes and which carry them.</summary>
+    public required SamusProjectileSystem Projectiles { get; init; }
 
     /// <summary>
     /// The gameplay clock's frames within its second, used by echo sampling independently of

@@ -3,7 +3,8 @@ namespace SuperMetroid.Core.Samus;
 /// <summary>
 /// The compatibility services one Samus owns. Whoever builds a Samus (the room loader for a saved, a Ceres or a post-Ceres
 /// Samus, the attract demo, the opening cinematic's flashbacks) creates a fresh set with her, and the set lives exactly as
-/// long as she does: a new Samus starts with no recorded movement, no spark acceleration, no shared counts and no effect waits.
+/// long as she does: a new Samus starts with no recorded movement, no spark acceleration, no crash orbit travel, no shared
+/// counts and no effect waits.
 /// </summary>
 internal sealed class SamusCompatibility
 {
@@ -12,6 +13,9 @@ internal sealed class SamusCompatibility
 
     /// <summary>Her shinespark's upward acceleration, which the suit pickup's light beam overwrites.</summary>
     public required SuitPickupSparkCarryover SparkCarryover { get; init; }
+
+    /// <summary>How far her shinespark crash's orbit has turned, which the first echo a crash releases overwrites.</summary>
+    public required CrashOrbitTravelCarryover CrashOrbitTravel { get; init; }
 
     /// <summary>The count Crystal Flash's ammunition drain, Draygon's escape and the suit pickup's stage share.</summary>
     public required SharedEscapeAndDrainCount EscapeAndDrainCount { get; init; }
@@ -27,6 +31,7 @@ internal sealed class SamusCompatibility
     {
         LaunchInheritance = new ProjectileLaunchInheritance(),
         SparkCarryover = new SuitPickupSparkCarryover(),
+        CrashOrbitTravel = new CrashOrbitTravelCarryover(),
         EscapeAndDrainCount = new SharedEscapeAndDrainCount(),
         HurtFlash = new SharedHurtFlashCount(),
         EffectWaits = new BreathBubbleAndLavaSprayWaits(),

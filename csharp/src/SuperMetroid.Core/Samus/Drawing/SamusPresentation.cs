@@ -468,20 +468,20 @@ internal sealed class SamusPresentation
             return;
         }
 
-        // The second echo is drawn before the first, as for the boost's echoes.
+        // The second copy is drawn before the first, as for the boost's echoes.
         DrawActiveSpeedBoosterEcho(samus, 
             sprites,
-            samus.HorizontalSpeed.SecondSpeedEchoPosition,
+            samus.Shinespark.SecondOrbitingCopy,
             cameraPosition, slot: 1);
         DrawActiveSpeedBoosterEcho(samus, 
             sprites,
-            samus.HorizontalSpeed.FirstSpeedEchoPosition,
+            samus.Shinespark.FirstOrbitingCopy,
             cameraPosition, slot: 0);
     }
 
     /// <summary>
-    /// Draws the released shinespark crash echoes. These
-    /// copies are ordinary projectile-phase visuals after the centered crash circle ends.
+    /// Draws the released shinespark crash echoes where their shots last placed them, while their shots carry them.
+    /// These copies are ordinary projectile-phase visuals after the centered crash circle ends.
     /// </summary>
     public void DrawReleasedShinesparkCrashEchoes(SamusState samus, 
         SpriteFrameBuffer sprites,
@@ -492,21 +492,11 @@ internal sealed class SamusPresentation
         if ((frameCounter & 1) == 0)
             return;
 
-        // The shinespark echo draw tests/draws fixed slot four (speed echo index three) before fixed
-        // slot three (index two). That ordering controls drawing priority when copies overlap.
-        ShinesparkReleasedEcho second = samus.Shinespark.SecondReleasedCrashEcho;
-        if (second.Active)
-        {
-            DrawActiveSpeedBoosterEcho(samus, 
-                sprites, second.Position, cameraPosition, slot: 3);
-        }
-
-        ShinesparkReleasedEcho first = samus.Shinespark.FirstReleasedCrashEcho;
-        if (first.Active)
-        {
-            DrawActiveSpeedBoosterEcho(samus, 
-                sprites, first.Position, cameraPosition, slot: 2);
-        }
+        // The second echo is drawn before the first. That ordering controls drawing priority when copies overlap.
+        DrawActiveSpeedBoosterEcho(samus,
+            sprites, samus.Shinespark.SecondReleasedEcho.ShownPosition, cameraPosition, slot: 3);
+        DrawActiveSpeedBoosterEcho(samus,
+            sprites, samus.Shinespark.FirstReleasedEcho.ShownPosition, cameraPosition, slot: 2);
     }
 
     /// <summary>The installed sheets the body draws from.</summary>

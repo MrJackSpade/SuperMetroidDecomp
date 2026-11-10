@@ -534,7 +534,7 @@ public sealed class SamusState
         SparkCarryover = compatibility.SparkCarryover;
         EscapeAndDrainCount = compatibility.EscapeAndDrainCount;
         HurtFlash = compatibility.HurtFlash;
-        Shinespark = new SamusShinesparkState(compatibility.SparkCarryover);
+        Shinespark = new SamusShinesparkState(compatibility.SparkCarryover, compatibility.CrashOrbitTravel);
         CrystalFlash = new SamusCrystalFlashState(compatibility.EscapeAndDrainCount);
         DraygonGrabbed = new SamusDraygonGrabbedState(compatibility.EscapeAndDrainCount);
         HudSelection = new SamusHudSelection();

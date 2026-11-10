@@ -388,14 +388,11 @@ internal static void VerifySamusHorizontalSpeed()
     AssertEqual(SpeedEchoCursor.FirstSlot, booster.SpeedEchoIndex,
         "last crossed departure restores ordinary echo index");
 
-    // Mirror the same signed-word comparison for a left-facing cancellation. This uses the
-    // shared position-word publisher because those words really are overloaded by active
-    // boost, departure, and shinespark-crash state in WRAM.
-    var leftDeparture = new SamusHorizontalSpeedState();
-    leftDeparture.SetShinesparkCrashEchoState(
-        SpeedEchoCursor.FirstSlot,
-        first: new(150, 90),
-        second: new(154, 94));
+    // Mirror the same signed-word comparison for a left-facing cancellation, with both echoes
+    // captured by an ordinary full boost.
+    var leftDeparture = new SamusHorizontalSpeedState { SpeedBoostCounter = SamusSpeedBoostCounter.AtFullStage };
+    AssertTrue(leftDeparture.CaptureSpeedEchoPosition(0, new(150, 90)), "left departure captures its first echo");
+    AssertTrue(leftDeparture.CaptureSpeedEchoPosition(4, new(154, 94)), "left departure captures its second echo");
     leftDeparture.CancelRunningMomentum(SamusFacingDirection.Left);
     AssertEqual(new Offset16<RoomPixels>(-8, 0), leftDeparture.FirstSpeedEchoVelocity,
         "left-facing first departure speed is negative eight");

@@ -33,9 +33,21 @@ public sealed class SamusShinesparkState
     /// </summary>
     private readonly SuitPickupSparkCarryover _acceleration;
 
-    /// <summary>Creates a spark owner whose upward acceleration lives in Samus's suit pickup carryover.</summary>
+    /// <summary>
+    /// How far the crash's orbiting copies have turned, 0 through <see cref="CrashOrbitTravelCarryover.LargestTravel"/>:
+    /// the crash's entry keeps what the last orbit or the first echo it released left, and the first echo overwrites it
+    /// with its height while it flies.
+    /// </summary>
+    private readonly CrashOrbitTravelCarryover _orbitTravel;
+
+    /// <summary>Creates a spark owner whose upward acceleration and orbit travel live in Samus's compatibility services.</summary>
     /// <param name="acceleration">Samus's suit pickup carryover, which holds the spark's upward acceleration.</param>
-    internal SamusShinesparkState(SuitPickupSparkCarryover acceleration) => _acceleration = Ensure.NotNull(acceleration);
+    /// <param name="orbitTravel">Samus's crash orbit carryover, which holds how far the crash's orbit has turned.</param>
+    internal SamusShinesparkState(SuitPickupSparkCarryover acceleration, CrashOrbitTravelCarryover orbitTravel)
+    {
+        _acceleration = Ensure.NotNull(acceleration);
+        _orbitTravel = Ensure.NotNull(orbitTravel);
+    }
 
     /// <summary>
     /// Binds the room's projectile and sound owners before movement/palette production.
@@ -152,68 +164,40 @@ public sealed class SamusShinesparkState
     public bool ChargeCancellationSoundSuppressed { get; private set; }
 
     /// <summary>
-    /// The stage of the crash echoes' orbit: expanding at crash entry, orbiting once the radius reaches sixteen,
-    /// and contracting once the angular travel reaches 128.
+    /// The stage of the crash's orbit: expanding at crash entry, orbiting once the radius reaches sixteen,
+    /// and contracting once the orbit's travel reaches 128.
     /// </summary>
     public ShinesparkCrashOrbitStage CrashOrbitStage { get; private set; }
 
     /// <summary>
-    /// Distance of the two crash echoes from Samus in pixels, 0 through 16: zero at crash entry, raised by four per
+    /// Distance of the two orbiting copies from Samus in pixels, 0 through 16: zero at crash entry, raised by four per
     /// expanding call until it reaches sixteen and lowered by four per contracting call until it reaches zero.
     /// </summary>
     public int CrashRadius { get; private set; }
 
-    /// <summary>First byte-angle formerly stored in speed-echo X speed slot zero.</summary>
+    /// <summary>The first orbiting copy's angle around Samus.</summary>
     public RotationAngle FirstCrashEchoAngle { get; private set; }
 
-    /// <summary>Second byte-angle, exactly 128 degrees-of-256 opposite the first.</summary>
+    /// <summary>The second orbiting copy's angle, half a turn from the first.</summary>
     public RotationAngle SecondCrashEchoAngle { get; private set; }
 
     /// <summary>
-    /// The crash echoes' angular travel, 0 through <see cref="LargestCrashAngularTravel"/>. Its storage is the
-    /// released slot-three echo's Y coordinate: crash entry does not reset it, so a preceding echo or crash leaves a
-    /// value the orbit starts from. It advances only through <see cref="AdvanceCrashAngularTravel"/>, which wraps
-    /// past the largest value to zero, and the orbit ends on the sign of its distance from 128.
+    /// The steps of a 256-step turn both orbiting copies turn by on each orbiting call: four while Samus faces left and
+    /// minus four otherwise, set at crash entry.
     /// </summary>
-    public int CrashAngularTravel
-    {
-        get => FirstReleasedCrashEchoSlot.Position.Y;
-        private set => FirstReleasedCrashEchoSlot.Position = FirstReleasedCrashEchoSlot.Position.WithY(value);
-    }
+    private int _crashOrbitTurn;
 
-    /// <summary>The largest angular travel the shared echo coordinate holds; one more step wraps past it to zero.</summary>
-    internal const int LargestCrashAngularTravel = ushort.MaxValue;
+    /// <summary>Where the first orbiting copy is shown while the crash runs.</summary>
+    public Position16<RoomPixels> FirstOrbitingCopy { get; private set; }
 
-    /// <summary>Angular travel added on each orbiting call.</summary>
-    private const int CrashAngularTravelStep = 4;
+    /// <summary>Where the second orbiting copy is shown while the crash runs; it is drawn before the first.</summary>
+    public Position16<RoomPixels> SecondOrbitingCopy { get; private set; }
 
-    /// <summary>
-    /// Adds one orbiting call's travel, wrapping past <see cref="LargestCrashAngularTravel"/> to zero as the shared
-    /// echo coordinate does. A seeded travel near the largest value therefore restarts from zero and orbits longer.
-    /// </summary>
-    private void AdvanceCrashAngularTravel()
-    {
-        int advanced = CrashAngularTravel + CrashAngularTravelStep;
-        CrashAngularTravel = advanced > LargestCrashAngularTravel ? advanced - (LargestCrashAngularTravel + 1) : advanced;
-    }
+    /// <summary>The echo the crash releases first, only when Samus's shot count leaves room for both.</summary>
+    public ShinesparkCrashEcho FirstReleasedEcho { get; } = new();
 
-    /// <summary>
-    /// Host-readable echo drawing words associated with projectile slot three.
-    /// Active is the drawing enable, not ownership: a combo can overwrite the projectile
-    /// without clearing these words or allowing the old echo handler to keep running.
-    /// </summary>
-    public ShinesparkReleasedEcho FirstReleasedCrashEcho => FirstReleasedCrashEchoSlot.Snapshot;
-
-    /// <summary>
-    /// Host-readable snapshot of projectile slot four. The game draws this slot before
-    /// slot three, even though it is initialized second.
-    /// </summary>
-    public ShinesparkReleasedEcho SecondReleasedCrashEcho => SecondReleasedCrashEchoSlot.Snapshot;
-
-    /// <summary>Fixed slot-three echo storage whose position aliases crash angular words.</summary>
-    internal readonly ReleasedEchoSlot FirstReleasedCrashEchoSlot = new();
-    /// <summary>Fixed slot-four echo storage drawn before the slot-three copy.</summary>
-    internal readonly ReleasedEchoSlot SecondReleasedCrashEchoSlot = new();
+    /// <summary>The echo the crash releases second, whenever the shot count leaves room for one; it is drawn before the first.</summary>
+    public ShinesparkCrashEcho SecondReleasedEcho { get; } = new();
 
     /// <summary>
     /// Starting the X-ray scope clears the special-palette timer and replaces the shared
@@ -230,14 +214,18 @@ public sealed class SamusShinesparkState
     }
 
     /// <summary>
-    /// Resetting the projectile data clears the complete speed-echo arrays and index.
-    /// Keep the movement-handler phase and its unrelated timers unchanged.
+    /// Clearing Samus's shots (a room load, the elevator, the opening cinematic's flashbacks) forgets the released echoes
+    /// and restarts the crash's orbit: its stage, radius, angles, turn and copies, and its travel, which the next crash
+    /// starts from. The movement-handler phase and its unrelated timers are unchanged.
     /// </summary>
     internal void ResetProjectileEchoStorage()
     {
-        FirstReleasedCrashEchoSlot.Clear();
-        SecondReleasedCrashEchoSlot.Clear();
+        FirstReleasedEcho.Forget();
+        SecondReleasedEcho.Forget();
+        _orbitTravel.Clear();
         FirstCrashEchoAngle = SecondCrashEchoAngle = RotationAngle.Zero;
+        _crashOrbitTurn = 0;
+        FirstOrbitingCopy = SecondOrbitingCopy = Position16<RoomPixels>.Zero;
         CrashOrbitStage = ShinesparkCrashOrbitStage.Expanding;
         CrashRadius = 0;
     }
@@ -637,7 +625,7 @@ timedOut,                 PendingLaunchPose: pendingLaunchPose);
             if (Phase == ShinesparkPhase.CrashEchoCircle)
                 return StepCrashEchoCircle();
             if (Phase == ShinesparkPhase.CrashFinish)
-                return FinishCrash(samus, frame.Projectiles?.SlotTable.ProjectileCounter ?? frame.ProjectileCounter, frame.Projectiles);
+                return FinishCrash(samus, frame.Projectiles);
 
 
             // Stored/inactive states are not installed special movement handlers. Returning
@@ -744,7 +732,11 @@ false);
         return true;
     }
 
-    /// <summary>Stops translational spark motion, seeds paired orbit angles and installs the crash handler without clearing aliased angular travel.</summary>
+    /// <summary>
+    /// Stops translational spark motion, sets the orbit's angles and turn, ends the boost's echoes, places both orbiting
+    /// copies on Samus and installs the crash handler. The orbit's travel is not restarted: the orbit counts on from
+    /// what the last orbit or the first echo it released left (<see cref="CrashOrbitTravelCarryover"/>).
+    /// </summary>
     private void BeginCrash(SamusState samus)
     {
         // The crash entry kills translational velocity before installing the crash handler.
@@ -758,33 +750,20 @@ false);
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         FirstCrashEchoAngle = RotationAngle.FromSteps(facingLeft ? 32 : 224);
         SecondCrashEchoAngle = RotationAngle.FromSteps(facingLeft ? 160 : 96);
-        CrashAngularDelta = facingLeft ? 4 : -4;
-        FirstReleasedCrashEchoSlot.DisableDrawing();
+        _crashOrbitTurn = facingLeft ? CrashOrbitTurnSteps : -CrashOrbitTurnSteps;
         CrashOrbitStage = ShinesparkCrashOrbitStage.Expanding;
         CrashRadius = 0;
-        // The entry does not initialize the aliased angular-travel/echo-Y
-        // word. A preceding echo or crash can therefore shorten this orbit.
-        samus.HorizontalSpeed.SetShinesparkCrashEchoState(
-            SpeedEchoCursor.FirstSlot,
-            samus.Position.Whole,
-            samus.Position.Whole);
+        samus.HorizontalSpeed.ClearSpeedEchoes();
+        FirstOrbitingCopy = SecondOrbitingCopy = samus.Position.Whole;
         Phase = ShinesparkPhase.Crash;
         CrashSoundRequested = true;
         CrashSoundSuppressed = _audioPowerBomb?.IsActive == true;
     }
 
-    /// <summary>
-    /// The crash angular delta aliases departing slot-three echo X. Preserve the
-    /// complete signed word so any still-owned echo write affects the consumer: the delta reads the echo's X
-    /// word as signed, -32768 through 32767, and a write stores it back as that word.
-    /// </summary>
-    private int CrashAngularDelta
-    {
-        get => CoordinateAxis.AsSigned(FirstReleasedCrashEchoSlot.Position.X);
-        set => FirstReleasedCrashEchoSlot.Position = FirstReleasedCrashEchoSlot.Position.WithX(CoordinateAxis.Wrap(value));
-    }
+    /// <summary>The steps of a 256-step turn the orbiting copies turn by on each orbiting call.</summary>
+    private const int CrashOrbitTurnSteps = 4;
 
-    /// <summary>Runs the crash, including the three overloaded-index substates.</summary>
+    /// <summary>Runs the crash's orbit: its expanding, orbiting and contracting stages.</summary>
     private ShinesparkMovementResult StepCrashOrbit(
         SamusState samus)
     {
@@ -803,13 +782,9 @@ false);
             }
 
             case ShinesparkCrashOrbitStage.Orbiting:
-                FirstCrashEchoAngle = FirstCrashEchoAngle.TurnedBySteps(CrashAngularDelta);
-                SecondCrashEchoAngle = SecondCrashEchoAngle.TurnedBySteps(CrashAngularDelta);
-                AdvanceCrashAngularTravel();
-                // The travel shares its storage with the first echo's Y coordinate and is compared as that
-                // coordinate is, so a travel that wrapped to zero, or one seeded far above 128, keeps orbiting until
-                // it climbs back to 128.
-                if (CoordinateAxis.Difference(CrashAngularTravel, 128) >= 0)
+                FirstCrashEchoAngle = FirstCrashEchoAngle.TurnedBySteps(_crashOrbitTurn);
+                SecondCrashEchoAngle = SecondCrashEchoAngle.TurnedBySteps(_crashOrbitTurn);
+                if (_orbitTravel.Advance())
                     CrashOrbitStage = ShinesparkCrashOrbitStage.Contracting;
                 break;
 
@@ -833,12 +808,8 @@ false);
         // The projectile sine lookup consumes an angle and radius below 256 and returns offsets wrapping
         // at 65536. Both additions below deliberately retain that unsigned wrapping.
         int orbitRadius = Ensure.BetweenInclusive(0, byte.MaxValue, CrashRadius);
-        Offset16<RoomPixels> firstOffset = ProjectileSinLookup(FirstCrashEchoAngle, orbitRadius);
-        Offset16<RoomPixels> secondOffset = ProjectileSinLookup(SecondCrashEchoAngle, orbitRadius);
-        samus.HorizontalSpeed.SetShinesparkCrashEchoState(
-            SpeedEchoCursor.CrashOrbit(CrashOrbitStage, CrashRadius),
-            samus.Position.Whole + firstOffset,
-            samus.Position.Whole + secondOffset);
+        FirstOrbitingCopy = samus.Position.Whole + ProjectileSinLookup(FirstCrashEchoAngle, orbitRadius);
+        SecondOrbitingCopy = samus.Position.Whole + ProjectileSinLookup(SecondCrashEchoAngle, orbitRadius);
 
         return new ShinesparkMovementResult(
 false);
@@ -855,34 +826,20 @@ false);
     }
 
     /// <summary>
-    /// Ports the crash's end: convert the crash copies into fixed projectile slots three
-    /// and four when capacity permits, restore standing, and expire palette handler six.
+    /// The crash's end: releases its echoes on Samus's shots as far as her shot count leaves room, restores standing,
+    /// and expires the shinesparking palette. A released first echo leaves Samus's height as the next orbit's travel; a
+    /// crash that releases no first echo leaves the travel its own orbit ended on.
     /// </summary>
-    internal ShinesparkMovementResult FinishCrash(
-        SamusState samus,
-        int projectileCounter,
-        SamusProjectileSystem? projectiles)
+    internal ShinesparkMovementResult FinishCrash(SamusState samus, SamusProjectileSystem projectiles)
     {
+        Ensure.NotNull(projectiles);
         // Resolve the crash axis before publishing the standing pose.
-        var departureAngles = ShinesparkEchoDepartures.DepartureAngles(samus.Pose, projectiles?.DrainedCrashDepartures);
+        var departureAngles = ShinesparkEchoDepartures.DepartureAngles(samus.Pose, projectiles.DrainedCrashDepartures);
         samus.HorizontalSpeed.ClearSpeedEchoes();
 
-        // The game reserves fixed projectile slots three and four. Its projectile counter
-        // admits both while below four, only slot four at exactly four, and neither at five
-        // or above. The runtime supplies the ordinary projectile count, not bomb count.
-        // Capacity failure does not clear existing echo words or slots. In particular,
-        // retaining slot three's Y also retains the next crash's angular-travel seed.
-        if (CoordinateAxis.Difference(projectileCounter, 5) < 0)
-        {
-            if (CoordinateAxis.Difference(projectileCounter, 4) < 0)
-            {
-                FirstReleasedCrashEchoSlot.Initialize(departureAngles.First, samus.Position.Whole);
-                projectiles?.Shinespark.InitializeShinesparkEcho(3, departureAngles.First, SamusBeamCombinations.Of(samus.EquippedBeams));
-            }
-
-            SecondReleasedCrashEchoSlot.Initialize(departureAngles.Second, samus.Position.Whole);
-            projectiles?.Shinespark.InitializeShinesparkEcho(4, departureAngles.Second, SamusBeamCombinations.Of(samus.EquippedBeams));
-        }
+        if (projectiles.Shinespark.ReleaseCrashEchoes(FirstReleasedEcho, SecondReleasedEcho, departureAngles,
+                SamusBeamCombinations.Of(samus.EquippedBeams), samus.Position.Whole))
+            _orbitTravel.LeaveEchoHeight(samus.Position.Whole.Y);
 
         ShineTimer = 1;
         _acceleration.StopSpark();
@@ -910,62 +867,58 @@ false,             CrashSequenceFinished: true);
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
     }
 
+    /// <summary>The largest radius an echo's shot holds, in pixels; one more expansion continues from zero.</summary>
+    internal const int LargestEchoRadius = 65535;
+
+    /// <summary>The radii the sine lookup places an echo at, in pixels; a radius past them places it from Samus again.</summary>
+    private const int EchoPlacementRadii = 256;
+
+    /// <summary>Pixels an echo's radius grows by on each update.</summary>
+    private const int EchoRadiusStep = 8;
+
+    /// <summary>How far right of or below the camera's corner an echo may lie, in pixels, before it leaves the screen.</summary>
+    private const int EchoScreenReach = 256;
+
     /// <summary>
-    /// The projectile radius/angle belong to its current slot owner. Drawing enable and
-    /// coordinates are separate words and may survive replacement of that owner.
+    /// Runs one update of the released echo <paramref name="shot"/> carries: its radius grows by eight, continuing past
+    /// <see cref="LargestEchoRadius"/> from zero, and the echo is placed that far from Samus's current position along its
+    /// angle, with the radius taken within the lookup's 256 pixels, so an echo still on the screen at 248 pixels returns
+    /// to Samus. An echo placed left of or above the camera's corner, or <see cref="EchoScreenReach"/> or more right of
+    /// or below it, has left the screen; the first echo leaves its height for the crash's orbit, or nothing once it has
+    /// left (<see cref="CrashOrbitTravelCarryover"/>).
     /// </summary>
-    internal bool StepOwnedReleasedCrashEcho(SamusState samus,
-        Position16<RoomPixels> cameraPosition, SamusProjectileSlot projectile)
+    /// <param name="samus">Samus, around whom the echo is placed.</param>
+    /// <param name="cameraPosition">The camera's room position.</param>
+    /// <param name="shot">The shot carrying one of the crash's released echoes.</param>
+    /// <returns>Whether the echo is still on the screen; its shot is cleared otherwise.</returns>
+    /// <exception cref="InvalidOperationException">The shot carries neither of the crash's released echoes.</exception>
+    internal bool StepReleasedEcho(SamusState samus, Position16<RoomPixels> cameraPosition, SamusProjectileSlot shot)
     {
-        ReleasedEchoSlot echo = projectile.SlotIndex switch
+        ShinesparkCrashEcho echo = FirstReleasedEcho.IsCarriedBy(shot) ? FirstReleasedEcho
+            : SecondReleasedEcho.IsCarriedBy(shot) ? SecondReleasedEcho
+            : throw new InvalidOperationException("The shot carries none of the crash's released echoes.");
+
+        // The point is recalculated from Samus's current position on every update; these are expanding radial
+        // copies, not ordinary projectiles with independent velocity.
+        int expanded = shot.EchoRadius + EchoRadiusStep;
+        shot.EchoRadius = expanded > LargestEchoRadius ? expanded - (LargestEchoRadius + 1) : expanded;
+        Position16<RoomPixels> point = samus.Position.Whole +
+            ProjectileSinLookup(shot.EchoAngle.ToAngle(), shot.EchoRadius % EchoPlacementRadii);
+        bool onScreen = CoordinateAxis.Difference(point.X, cameraPosition.X) is >= 0 and < EchoScreenReach &&
+            CoordinateAxis.Difference(point.Y, cameraPosition.Y) is >= 0 and < EchoScreenReach;
+
+        if (echo == FirstReleasedEcho)
         {
-            3 => FirstReleasedCrashEchoSlot,
-            4 => SecondReleasedCrashEchoSlot,
-            _ => throw new InvalidOperationException("Crash echo requires fixed slot three or four.")
-        };
-        echo.Radius = projectile.EchoRadius;
-        echo.Angle = projectile.EchoAngle.ToAngle();
-        if (!StepReleasedCrashEcho(samus, cameraPosition,
-            echo, slotOwner: CrashEchoSlotOwner.Projectile)) return false;
-        projectile.EchoRadius = echo.Radius;
-        projectile.Position = projectile.Position.WithWhole(echo.Position);
-        return true;
-    }
-
-    /// <summary>Expands an echo around live Samus position and clears its drawing words when either viewport axis rejects it.</summary>
-    internal static bool StepReleasedCrashEcho(
-        SamusState samus,
-        Position16<RoomPixels> cameraPosition,
-        ReleasedEchoSlot slot,
-        CrashEchoSlotOwner slotOwner = CrashEchoSlotOwner.Echo)
-    {
-        if (slotOwner != CrashEchoSlotOwner.Projectile && !slot.Active)
-            return false;
-
-        // The crash increments the complete word but passes only its low byte as radius.
-        // The point is recalculated from the *current* Samus position on every frame; these
-        // are expanding radial copies, not ordinary projectiles with independent velocity.
-        slot.ExpandRadius();
-        Offset16<RoomPixels> offset = ProjectileSinLookup(slot.Angle, slot.PlacedRadius);
-        Position16<RoomPixels> point = samus.Position.Whole + offset;
-        slot.Position = slot.Position.WithX(point.X);
-
-        // The game performs the X viewport rejection before calculating/publishing Y. The
-        // cleared result is identical either way; the branch order follows the game's steps.
-        int screenX = CoordinateAxis.Difference(slot.Position.X, cameraPosition.X);
-        if (screenX is < 0 or >= 256)
-        {
-            slot.Clear();
-            return false;
+            if (onScreen)
+                _orbitTravel.LeaveEchoHeight(point.Y);
+            else
+                _orbitTravel.Clear();
         }
-
-        slot.Position = slot.Position.WithY(point.Y);
-        int screenY = CoordinateAxis.Difference(slot.Position.Y, cameraPosition.Y);
-        if (screenY is < 0 or >= 256)
-        {
-            slot.Clear();
+        if (!onScreen)
             return false;
-        }
+
+        echo.MoveTo(point);
+        shot.Position = shot.Position.WithWhole(point);
         return true;
     }
 
@@ -1083,70 +1036,5 @@ false,             CrashSequenceFinished: true);
             return new BlockMoveResult(SignedSixteenSixteen.Zero, true, EnemyCollision: enemy);
 
         return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = upwardDisplacement, ScanLeftToRight = (frameCounter & 1) == 0, CanBreakBombBlocks = true, IncludeSolidEnemies = false });
-    }
-
-    /// <summary>
-    /// Mutable storage corresponding to one of fixed projectile slots three/four.
-    /// It is deliberately private so callers cannot manufacture a live visual projectile.
-    /// </summary>
-    internal sealed class ReleasedEchoSlot
-    {
-        /// <summary>Drawing enable, independent of the slot's current projectile owner.</summary>
-        public bool Active { get; private set; }
-        /// <summary>Byte-angle used to place the departing echo around Samus.</summary>
-        public RotationAngle Angle { get; set; }
-        /// <summary>
-        /// Expanding radius in pixels, 0 through <see cref="LargestRadius"/>, retained in the owning projectile slot's
-        /// echo radius: zero when the echo departs and raised only by <see cref="ExpandRadius"/>. The sine lookup
-        /// places the echo with the radius taken modulo 256, so an echo can stay on screen while the radius grows on.
-        /// </summary>
-        public int Radius { get; set; }
-
-        /// <summary>The largest radius the game holds for an echo; one more expansion wraps past it to zero.</summary>
-        internal const int LargestRadius = ushort.MaxValue;
-
-        /// <summary>The radii the sine lookup places an echo at, in pixels; a radius past them places it from the centre again.</summary>
-        private const int PlacementRadii = 256;
-
-        /// <summary>The radius the echo is placed at: <see cref="Radius"/> within the lookup's 256-pixel cycle.</summary>
-        public int PlacedRadius => Radius % PlacementRadii;
-
-        /// <summary>Pixels the radius grows on each departing call.</summary>
-        private const int RadiusStep = 8;
-
-        /// <summary>Grows the radius by one departing call's step, wrapping past <see cref="LargestRadius"/> to zero.</summary>
-        public void ExpandRadius()
-        {
-            int expanded = Radius + RadiusStep;
-            Radius = expanded > LargestRadius ? expanded - (LargestRadius + 1) : expanded;
-        }
-        /// <summary>Last rendered room position, including the slot-three crash aliases.</summary>
-        public Position16<RoomPixels> Position { get; set; }
-
-        /// <summary>The echo's drawing enable and position, as one immutable value.</summary>
-        public ShinesparkReleasedEcho Snapshot => new(Active, Position);
-
-        /// <summary>Clears drawing enable while retaining coordinates, projectile ownership and aliased crash travel.</summary>
-        public void DisableDrawing() => Active = false;
-
-        /// <summary>Activates a departing echo at its crash position with zero projectile radius.</summary>
-        public void Initialize(RotationAngle angle, Position16<RoomPixels> position)
-        {
-            Active = true;
-            Angle = angle;
-            // Crash finish clears projectile X velocity (the departing radius). The
-            // separate speed-echo drawing field is 64; it is not this projectile word.
-            Radius = 0;
-            Position = position;
-        }
-
-        /// <summary>Zeroes the drawing and position words after a viewport rejection.</summary>
-        public void Clear()
-        {
-            Active = false;
-            Angle = RotationAngle.Zero;
-            Radius = 0;
-            Position = Position16<RoomPixels>.Zero;
-        }
     }
 }

@@ -95,9 +95,7 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// The speed echo cursor. Ordinary active Speed Booster echoes alternate between the first and second slots;
-    /// cancellation sends them departing while the two stored bodies travel back toward Samus; the shinespark crash
-    /// shares the cursor for its orbit, and what an unfinished crash leaves decides which slot the next boost captures
-    /// first.
+    /// cancellation sends them departing while the two stored bodies travel back toward Samus.
     /// </summary>
     public SpeedEchoCursor SpeedEchoIndex { get; private set; }
 
@@ -492,7 +490,7 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// Removes both echoes, stops their departure and points the next capture at the first slot: a shinespark's
-    /// directional launch and its crash's end do this, and so does a room load.
+    /// directional launch, its crash's start and its crash's end do this, and so does a room load.
     /// </summary>
     public void ClearSpeedEchoes()
     {
@@ -501,23 +499,6 @@ public sealed class SamusHorizontalSpeedState
         SecondSpeedEchoVelocity = Offset16<RoomPixels>.Zero;
         FirstSpeedEchoPosition = null;
         SecondSpeedEchoPosition = null;
-    }
-
-    /// <summary>
-    /// Places the two echoes where the shinespark crash's orbit shows them, with the cursor the crash leaves.
-    /// </summary>
-    /// <remarks>
-    /// The crash shares the ordinary boost-echo cursor for its orbit stage and radius, and reuses the two captured
-    /// positions as orbiting sprites.
-    /// </remarks>
-    public void SetShinesparkCrashEchoState(
-        SpeedEchoCursor cursor,
-        Position16<RoomPixels> first,
-        Position16<RoomPixels> second)
-    {
-        SpeedEchoIndex = cursor;
-        FirstSpeedEchoPosition = first;
-        SecondSpeedEchoPosition = second;
     }
 
     /// <summary>Adds the 16.16 extra-run increment while retaining separate whole and fractional words.</summary>

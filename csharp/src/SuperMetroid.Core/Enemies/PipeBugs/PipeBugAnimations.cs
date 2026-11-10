@@ -9,9 +9,9 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 /// </summary>
 internal static class PipeBugAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<PipeBugProgram, PipeBugFrame, NoAnimationCue> Programs { get; } = new(
-        new Dictionary<PipeBugProgram, AnimationProgramStep<PipeBugProgram, PipeBugFrame, NoAnimationCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<PipeBugProgram, PipeBugFrame, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<PipeBugProgram, AnimationBeat<PipeBugFrame, NoAnimationCue>[]>
     {
         [P.ZebRisingLeft] =
         [
@@ -23,7 +23,6 @@ internal static class PipeBugAnimations
             Show(3, 2),
             Show(2, 2),
             Show(1, 2),
-            GoTo(P.ZebRisingLeft),
         ],
         [P.ZebShootingLeft] =
         [
@@ -33,7 +32,6 @@ internal static class PipeBugAnimations
             Show(4, 1),
             Show(3, 1),
             Show(1, 1),
-            GoTo(P.ZebShootingLeft),
         ],
         [P.ZebRisingRight] =
         [
@@ -45,7 +43,6 @@ internal static class PipeBugAnimations
             Show(8, 2),
             Show(7, 2),
             Show(6, 2),
-            GoTo(P.ZebRisingRight),
         ],
         [P.ZebShootingRight] =
         [
@@ -55,7 +52,6 @@ internal static class PipeBugAnimations
             Show(9, 1),
             Show(8, 1),
             Show(6, 1),
-            GoTo(P.ZebShootingRight),
         ],
         [P.ZebboRisingLeft] =
         [
@@ -63,7 +59,6 @@ internal static class PipeBugAnimations
             Show(14, 1),
             Show(15, 2),
             Show(14, 1),
-            GoTo(P.ZebboRisingLeft),
         ],
         [P.ZebboShootingLeft] =
         [
@@ -71,7 +66,6 @@ internal static class PipeBugAnimations
             Show(11, 3),
             Show(12, 3),
             Show(11, 3),
-            GoTo(P.ZebboShootingLeft),
         ],
         [P.ZebboRisingRight] =
         [
@@ -79,7 +73,6 @@ internal static class PipeBugAnimations
             Show(20, 1),
             Show(21, 2),
             Show(20, 1),
-            GoTo(P.ZebboRisingRight),
         ],
         [P.ZebboShootingRight] =
         [
@@ -87,7 +80,6 @@ internal static class PipeBugAnimations
             Show(17, 3),
             Show(18, 3),
             Show(17, 3),
-            GoTo(P.ZebboShootingRight),
         ],
         [P.GametRisingLeft] =
         [
@@ -99,7 +91,6 @@ internal static class PipeBugAnimations
             Show(25, 2),
             Show(24, 2),
             Show(23, 2),
-            GoTo(P.GametRisingLeft),
         ],
         [P.GametFlyingLeft] =
         [
@@ -109,7 +100,6 @@ internal static class PipeBugAnimations
             Show(26, 1),
             Show(25, 1),
             Show(23, 1),
-            GoTo(P.GametFlyingLeft),
         ],
         [P.GametRisingRight] =
         [
@@ -121,7 +111,6 @@ internal static class PipeBugAnimations
             Show(30, 2),
             Show(29, 2),
             Show(28, 2),
-            GoTo(P.GametRisingRight),
         ],
         [P.GametFlyingRight] =
         [
@@ -131,7 +120,6 @@ internal static class PipeBugAnimations
             Show(31, 1),
             Show(30, 1),
             Show(28, 1),
-            GoTo(P.GametFlyingRight),
         ],
         [P.GeegaFlyingLeft] =
         [
@@ -139,7 +127,6 @@ internal static class PipeBugAnimations
             Show(33, 4),
             Show(34, 4),
             Show(33, 4),
-            GoTo(P.GeegaFlyingLeft),
         ],
         [P.GeegaArcingLeft] =
         [
@@ -147,7 +134,6 @@ internal static class PipeBugAnimations
             Show(36, 1),
             Show(37, 1),
             Show(36, 1),
-            GoTo(P.GeegaArcingLeft),
         ],
         [P.GeegaFlyingRight] =
         [
@@ -155,7 +141,6 @@ internal static class PipeBugAnimations
             Show(39, 4),
             Show(40, 4),
             Show(39, 4),
-            GoTo(P.GeegaFlyingRight),
         ],
         [P.GeegaArcingRight] =
         [
@@ -163,14 +148,33 @@ internal static class PipeBugAnimations
             Show(42, 1),
             Show(43, 1),
             Show(42, 1),
-            GoTo(P.GeegaArcingRight),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<PipeBugProgram, Animation<PipeBugProgram>> StartingAt { get; } = new Dictionary<PipeBugProgram, Animation<PipeBugProgram>>
+    {
+        [P.ZebRisingLeft] = new([new(P.ZebRisingLeft, 0, 8, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ZebShootingLeft] = new([new(P.ZebShootingLeft, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ZebRisingRight] = new([new(P.ZebRisingRight, 0, 8, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ZebShootingRight] = new([new(P.ZebShootingRight, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ZebboRisingLeft] = new([new(P.ZebboRisingLeft, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ZebboShootingLeft] = new([new(P.ZebboShootingLeft, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ZebboRisingRight] = new([new(P.ZebboRisingRight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ZebboShootingRight] = new([new(P.ZebboShootingRight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.GametRisingLeft] = new([new(P.GametRisingLeft, 0, 8, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.GametFlyingLeft] = new([new(P.GametFlyingLeft, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.GametRisingRight] = new([new(P.GametRisingRight, 0, 8, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.GametFlyingRight] = new([new(P.GametFlyingRight, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.GeegaFlyingLeft] = new([new(P.GeegaFlyingLeft, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.GeegaArcingLeft] = new([new(P.GeegaArcingLeft, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.GeegaFlyingRight] = new([new(P.GeegaFlyingRight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.GeegaArcingRight] = new([new(P.GeegaArcingRight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<PipeBugProgram> StartingWith(PipeBugProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<PipeBugProgram, PipeBugFrame, NoAnimationCue> Show(int pose, int duration) => AnimationProgramStep<PipeBugProgram, PipeBugFrame, NoAnimationCue>.Show(new(pose), duration);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<PipeBugProgram, PipeBugFrame, NoAnimationCue> GoTo(PipeBugProgram program) => AnimationProgramStep<PipeBugProgram, PipeBugFrame, NoAnimationCue>.GoTo(program);
-
+    private static AnimationBeat<PipeBugFrame, NoAnimationCue> Show(int pose, int duration) => new AnimationBeat<PipeBugFrame, NoAnimationCue>.Frame(new(pose), duration);
 }

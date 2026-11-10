@@ -252,7 +252,7 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(HopperAnimations), "csharp/src/SuperMetroid.Core/Enemies/Hoppers/HopperAnimations.cs");
         RequireTypedFrames(MultiviolaAnimations.Programs, MultiviolaFrameToolingDefinitions.Spritemap, MultiviolaFrameToolingDefinitions.Bank,
             nameof(MultiviolaAnimations), "csharp/src/SuperMetroid.Core/Enemies/Crawlers/MultiviolaAnimations.cs");
-        RequireTypedFrames(PipeBugAnimations.Programs, PipeBugFrameToolingDefinitions.Spritemap, PipeBugFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(PipeBugAnimations.Segments, PipeBugFrameToolingDefinitions.Spritemap, PipeBugFrameToolingDefinitions.Bank,
             nameof(PipeBugAnimations), "csharp/src/SuperMetroid.Core/Enemies/PipeBugs/PipeBugAnimations.cs");
         RequireTypedFrames(OwtchAnimations.Programs, OwtchFrameToolingDefinitions.Spritemap, OwtchFrameToolingDefinitions.Bank,
             nameof(OwtchAnimations), "csharp/src/SuperMetroid.Core/Enemies/Owtch/OwtchAnimations.cs");

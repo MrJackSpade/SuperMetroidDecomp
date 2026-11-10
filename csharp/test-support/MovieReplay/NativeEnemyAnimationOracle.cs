@@ -35,16 +35,54 @@ internal static class NativeEnemyAnimationOracle
         where TFrame : struct
         where TEvent : notnull
     {
+        Dictionary<TSegment, NativeEnemyList<TSegment>> lists = Lists(cartridge, bank, entries, segments, spritemap, rules);
+        CompareAnimations(lists, startingAt);
+        return lists.Values.Sum(list => list.BeatAddresses.Length);
+    }
+
+    /// <summary>
+    /// Reads every segment's native list, comparing its beats with the segment's as <see cref="CompareAll"/> does: each
+    /// beat's native address, and each control instruction with its address and the beat it follows.
+    /// </summary>
+    internal static Dictionary<TSegment, NativeEnemyList<TSegment>> Lists<TSegment, TFrame, TEvent>(
+        IImportCartridgeSource cartridge,
+        byte bank,
+        NativeProgramEntry<TSegment>[] entries,
+        AnimationSegments<TSegment, TFrame, TEvent> segments,
+        Func<TFrame, ushort> spritemap,
+        NativeEnemyCueRules<TEvent> rules)
+        where TSegment : struct, Enum
+        where TFrame : struct
+        where TEvent : notnull
+    {
         Ensure.NotNull(entries);
         Ensure.NotNull(segments);
-        Ensure.NotNull(startingAt);
         Ensure.NotNull(rules);
+        RequireAuthoredOrder(entries);
+        return entries.ToDictionary(entry => entry.Program,
+            entry => Read(cartridge, bank, entries, segments, spritemap, rules, entry.Program, entry.Entry));
+    }
+
+    /// <summary>Requires one native entry per segment, in the segments' declared (authored) order.</summary>
+    internal static void RequireAuthoredOrder<TSegment>(NativeProgramEntry<TSegment>[] entries)
+        where TSegment : struct, Enum
+    {
+        Ensure.NotNull(entries);
         VerificationAssertions.AssertEqual(Enum.GetValues<TSegment>().Length, entries.Length, $"every typed {typeof(TSegment).Name} has a native entry");
         for (int index = 0; index < entries.Length; index++)
             VerificationAssertions.AssertEqual(Enum.GetValues<TSegment>()[index], entries[index].Program, $"the {typeof(TSegment).Name} values are declared in authored order");
-        Dictionary<TSegment, NativeEnemyList<TSegment>> lists = entries.ToDictionary(entry => entry.Program,
-            entry => Read(cartridge, bank, entries, segments, spritemap, rules, entry.Program, entry.Entry));
+    }
 
+    /// <summary>
+    /// Checks that every typed animation plays the phases the native lists' control flow plays from its first segment,
+    /// and that no animation starts in a counted body.
+    /// </summary>
+    internal static void CompareAnimations<TSegment>(
+        IReadOnlyDictionary<TSegment, NativeEnemyList<TSegment>> lists, IReadOnlyDictionary<TSegment, Animation<TSegment>> startingAt)
+        where TSegment : struct, Enum
+    {
+        Ensure.NotNull(lists);
+        Ensure.NotNull(startingAt);
         HashSet<TSegment> bodies = [.. lists.Values.SelectMany(list => list.Controls)
             .Where(control => control.Kind == NativeEnemyControlKind.Repeat).Select(control => control.Target!.Value)];
         foreach (TSegment start in Enum.GetValues<TSegment>())
@@ -59,12 +97,106 @@ internal static class NativeEnemyAnimationOracle
             VerificationAssertions.AssertTrue(typed!.Phases.SequenceEqual(phases), $"{start}'s phases follow its native lists");
             VerificationAssertions.AssertEqual(end, typed.End, $"{start}'s end follows its native lists");
         }
-        return lists.Values.Sum(list => list.BeatAddresses.Length);
+    }
+
+    /// <summary>
+    /// The native instruction pointer <paramref name="playback"/> stands for: the start segment's entry before the
+    /// animation's first play, the native address of the phase beat it plays next, or, at the end of a phase's play, the
+    /// control instruction the pointer rests on after the phase's last beat (the next list's entry where the list runs on
+    /// into it).
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The playback stands before a later phase, or at no native place.</exception>
+    internal static ushort PointerOf<TSegment>(
+        IReadOnlyDictionary<TSegment, NativeEnemyList<TSegment>> lists,
+        NativeProgramEntry<TSegment>[] entries,
+        IReadOnlyDictionary<TSegment, Animation<TSegment>> startingAt,
+        AnimationPlayback<TSegment> playback)
+        where TSegment : struct, Enum
+    {
+        Ensure.NotNull(lists);
+        Ensure.NotNull(entries);
+        Ensure.NotNull(startingAt);
+        Animation<TSegment> animation = playback.Animation;
+        AnimationPlace place = playback.Place;
+        if (place.Beat == AnimationPlace.NotEntered)
+        {
+            if (place.Phase != 0)
+                throw new InvalidOperationException($"A {typeof(TSegment).Name} playback before phase {place.Phase} stands at no native place.");
+            TSegment start = startingAt.Single(pair => ReferenceEquals(pair.Value, animation)).Key;
+            return entries.Single(entry => EqualityComparer<TSegment>.Default.Equals(entry.Program, start)).Entry;
+        }
+        AnimationPhase<TSegment> phase = animation.Phases[place.Phase];
+        NativeEnemyList<TSegment> list = lists[phase.Segment];
+        if (place.Beat < phase.BeatCount)
+            return list.BeatAddresses[phase.FirstBeat + place.Beat];
+        return list.Controls.FirstOrDefault(control => control.AfterBeat == phase.FirstBeat + phase.BeatCount)?.Address
+            ?? throw new InvalidOperationException($"{phase.Segment}'s native list has no control after beat {phase.FirstBeat + phase.BeatCount}.");
+    }
+
+    /// <summary>
+    /// The playback a recording's native instruction pointer <paramref name="nativePointer"/> stands for: before the
+    /// first play of the animation starting at a segment whose entry it is; otherwise the phase beat at the pointer, or
+    /// the end of a phase's play where the pointer rests on the control instruction after it, in the animation starting
+    /// at that phase's segment when one plays it there, else the first in authored order that does.
+    /// </summary>
+    /// <exception cref="InvalidDataException">No animation, or more than one native place, matches the pointer.</exception>
+    internal static AnimationPlayback<TSegment> PlaybackAt<TSegment>(
+        IReadOnlyDictionary<TSegment, NativeEnemyList<TSegment>> lists,
+        NativeProgramEntry<TSegment>[] entries,
+        IReadOnlyDictionary<TSegment, Animation<TSegment>> startingAt,
+        ushort nativePointer)
+        where TSegment : struct, Enum
+    {
+        Ensure.NotNull(lists);
+        Ensure.NotNull(entries);
+        Ensure.NotNull(startingAt);
+        if (entries.Where(entry => entry.Entry == nativePointer && startingAt.ContainsKey(entry.Program)).Select(entry => (TSegment?)entry.Program).SingleOrDefault() is { } started)
+            return new AnimationPlayback<TSegment>(startingAt[started], AnimationPlace.StartOfAnimation);
+        var beats = new List<NativeEnemySegmentPlace<TSegment>>();
+        var ends = new List<NativeEnemySegmentPlace<TSegment>>();
+        foreach (KeyValuePair<TSegment, NativeEnemyList<TSegment>> pair in lists)
+        {
+            TSegment segment = pair.Key;
+            NativeEnemyList<TSegment> list = pair.Value;
+            for (int beat = 0; beat < list.BeatAddresses.Length; beat++)
+            {
+                if (list.BeatAddresses[beat] == nativePointer)
+                    beats.Add(new(segment, beat));
+            }
+            // The pointer rests on a list's first control after a beat; a later control at the same beat never holds it.
+            foreach (IGrouping<int, NativeEnemyControl<TSegment>> after in list.Controls.GroupBy(control => control.AfterBeat))
+            {
+                if (after.First().Address == nativePointer && after.First().Kind != NativeEnemyControlKind.RunOnIntoNext)
+                    ends.Add(new(segment, after.Key));
+            }
+        }
+        if (beats.Count + ends.Count != 1)
+            throw new InvalidDataException($"Native {typeof(TSegment).Name} instruction pointer ${nativePointer:X4} matches {beats.Count + ends.Count} typed places.");
+        bool atEnd = ends.Count == 1;
+        NativeEnemySegmentPlace<TSegment> found = atEnd ? ends[0] : beats[0];
+        IEnumerable<TSegment> candidates = startingAt.ContainsKey(found.Segment)
+            ? [found.Segment, .. Enum.GetValues<TSegment>().Where(startingAt.ContainsKey)]
+            : Enum.GetValues<TSegment>().Where(startingAt.ContainsKey);
+        foreach (TSegment candidate in candidates)
+        {
+            Animation<TSegment> animation = startingAt[candidate];
+            for (int index = 0; index < animation.Phases.Count; index++)
+            {
+                AnimationPhase<TSegment> phase = animation.Phases[index];
+                if (!EqualityComparer<TSegment>.Default.Equals(phase.Segment, found.Segment))
+                    continue;
+                if (!atEnd && found.Beat >= phase.FirstBeat && found.Beat < phase.FirstBeat + phase.BeatCount)
+                    return new AnimationPlayback<TSegment>(animation, new AnimationPlace(index, found.Beat - phase.FirstBeat));
+                if (atEnd && found.Beat == phase.FirstBeat + phase.BeatCount)
+                    return new AnimationPlayback<TSegment>(animation, new AnimationPlace(index, phase.BeatCount));
+            }
+        }
+        throw new InvalidDataException($"Native {typeof(TSegment).Name} instruction pointer ${nativePointer:X4} stands at {found}, which no typed animation plays.");
     }
 
     /// <summary>The phases and end the native lists play from <paramref name="start"/>, by the typed animations' rules.</summary>
     private static (List<AnimationPhase<TSegment>> Phases, AnimationEnd End) Linearize<TSegment>(
-        Dictionary<TSegment, NativeEnemyList<TSegment>> lists, TSegment start)
+        IReadOnlyDictionary<TSegment, NativeEnemyList<TSegment>> lists, TSegment start)
         where TSegment : struct, Enum
     {
         var phases = new List<AnimationPhase<TSegment>>();
@@ -130,7 +262,7 @@ internal static class NativeEnemyAnimationOracle
             int beat = addresses.Count;
             if (cursor != entry && entries.Where(item => item.Entry == cursor).Select(item => (TSegment?)item.Program).SingleOrDefault() is { } following)
             {
-                controls.Add(new(NativeEnemyControlKind.RunOnIntoNext, beat, following, null));
+                controls.Add(new(NativeEnemyControlKind.RunOnIntoNext, beat, following, null, cursor));
                 return Finish();
             }
             int address = (int)new SnesAddress(bank, cursor);
@@ -168,27 +300,27 @@ internal static class NativeEnemyAnimationOracle
                     if (endsList?.Invoke(raised.Raised) != true)
                         continue;
                     // A cue that always continues elsewhere ends its list: the animation holds there.
-                    controls.Add(new(NativeEnemyControlKind.Sleep, beat + 1, null, null));
+                    controls.Add(new(NativeEnemyControlKind.Sleep, beat + 1, null, null, cursor));
                     return Finish();
                 }
                 case NativeEnemyListDefinitions.WordKind.Sleep:
-                    controls.Add(new(NativeEnemyControlKind.Sleep, beat, null, null));
+                    controls.Add(new(NativeEnemyControlKind.Sleep, beat, null, null, cursor));
                     return Finish();
                 case NativeEnemyListDefinitions.WordKind.Stop:
-                    controls.Add(new(NativeEnemyControlKind.Stop, beat, null, null));
+                    controls.Add(new(NativeEnemyControlKind.Stop, beat, null, null, cursor));
                     return Finish();
                 case NativeEnemyListDefinitions.WordKind.GoTo:
-                    controls.Add(new(NativeEnemyControlKind.Goto, beat, SegmentAt(operand, at), null));
+                    controls.Add(new(NativeEnemyControlKind.Goto, beat, SegmentAt(operand, at), null, cursor));
                     return Finish();
                 case NativeEnemyListDefinitions.WordKind.SetCounter:
-                    controls.Add(new(NativeEnemyControlKind.SetCounter, beat, null, operand));
+                    controls.Add(new(NativeEnemyControlKind.SetCounter, beat, null, operand, cursor));
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case NativeEnemyListDefinitions.WordKind.RepeatWhileCounting:
                 {
                     TSegment repeated = SegmentAt(operand, at);
                     VerificationAssertions.AssertEqual(segment, repeated, $"{at}: a counted repeat replays its own list");
-                    controls.Add(new(NativeEnemyControlKind.Repeat, beat, repeated, null));
+                    controls.Add(new(NativeEnemyControlKind.Repeat, beat, repeated, null, cursor));
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 }
@@ -248,5 +380,16 @@ internal enum NativeEnemyControlKind
 /// <param name="AfterBeat">The number of the list's beats before it.</param>
 /// <param name="Target">The list it continues at or replays, where it names one.</param>
 /// <param name="Count">The timer it loads, where it loads one.</param>
-internal sealed record NativeEnemyControl<TSegment>(NativeEnemyControlKind Kind, int AfterBeat, TSegment? Target, int? Count)
+/// <param name="Address">
+/// The native address the instruction pointer rests at when it stands here: the instruction's own, or the next list's
+/// entry for a run on into it.
+/// </param>
+internal sealed record NativeEnemyControl<TSegment>(NativeEnemyControlKind Kind, int AfterBeat, TSegment? Target, int? Count, ushort Address)
+    where TSegment : struct, Enum;
+
+/// <summary>A place in one segment's native list (#1600): at a beat, or at the end of a run that stops before one.</summary>
+/// <typeparam name="TSegment">The segment identity.</typeparam>
+/// <param name="Segment">The segment.</param>
+/// <param name="Beat">The beat the place stands at, or that the run ends before.</param>
+internal readonly record struct NativeEnemySegmentPlace<TSegment>(TSegment Segment, int Beat)
     where TSegment : struct, Enum;

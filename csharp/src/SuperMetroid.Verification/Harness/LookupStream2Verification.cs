@@ -984,8 +984,8 @@ internal static class LookupStream2Verification
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c88 + member * 6)), PipeBugsNativeWords.PipeBugEnemyFunctions.Word(state.NorfairPostRiseFunction),
                     "Actual formation writes native role function");
                 AssertEqual(PipeBugEnemyFunction.NorfairRise, state.Function, "Actual formation begins rising");
-                AssertEqual(AnimationProgramCursor<PipeBugProgram>.Start(samusX < 128 ? PipeBugProgram.GametRisingLeft : PipeBugProgram.GametRisingRight),
-                    state.Program, "Actual formation selects facing");
+                AssertEqual(new AnimationPlayback<PipeBugProgram>(PipeBugAnimations.StartingWith(samusX < 128 ? PipeBugProgram.GametRisingLeft : PipeBugProgram.GametRisingRight), AnimationPlace.StartOfAnimation),
+                    state.Playback, "Actual formation selects facing");
                 AssertEqual((ushort)(member == 0 ? 1 : member + 4), enemies.SlotTable.Slots[member].FrameHold.RawValue,
                     "Only leader instruction timer resets");
                 AssertEqual((ushort)(member == 0 ? 0 : member + 8), enemies.SlotTable.Slots[member].Timer.RawValue,

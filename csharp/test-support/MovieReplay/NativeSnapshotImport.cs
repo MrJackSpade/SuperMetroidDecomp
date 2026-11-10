@@ -339,7 +339,7 @@ internal static class NativeSnapshotImport
                 kraid.HeadProgram = kraidHeadCursors.TryCursorAt(words.B);
             // A Pipe Bug's animation runs as a typed program (#641): resume it where the recorded pointer stands.
             if (runtime.Enemies.PipeBugStates[index] is { } pipeBug)
-                pipeBug.Program = pipeBugPointers.CursorAt(W(address + MovieDesyncMemory.EnemyAnimationScriptOffset));
+                pipeBug.Playback = pipeBugPointers.PlaybackAt(W(address + MovieDesyncMemory.EnemyAnimationScriptOffset));
             if (runtime.Enemies.PipeBugStates[index] is { IsBrinstar: true } pipe)
             {
                 pipe.SpawnPosition = new(words.B, words.C);

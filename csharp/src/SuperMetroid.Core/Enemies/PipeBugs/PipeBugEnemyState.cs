@@ -13,8 +13,8 @@ public sealed class PipeBugEnemyState
         DefinitionAtInitialization = slot.DefinitionId;
     }
 
-    /// <summary>Where the animation resumes.</summary>
-    internal AnimationProgramCursor<PipeBugProgram> Program { get; set; }
+    /// <summary>The animation the bug plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<PipeBugProgram> Playback { get; set; }
 
     /// <summary>The Pipe Bug family this state was set up for, one of the three that share it.</summary>
     public EnemyDefinitionId DefinitionAtInitialization { get; }

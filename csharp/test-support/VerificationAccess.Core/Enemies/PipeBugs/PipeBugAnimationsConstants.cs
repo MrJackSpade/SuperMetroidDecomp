@@ -8,7 +8,7 @@ internal static class PipeBugAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params PipeBugProgram[] programs) =>
-        programs.SelectMany(program => PipeBugAnimations.Programs.Steps(program))
-            .OfType<AnimationProgramStep<PipeBugProgram, PipeBugFrame, NoAnimationCue>.ShowStep>()
-            .Select(step => PipeBugFrameToolingDefinitions.Spritemap(step.Frame));
+        programs.SelectMany(program => PipeBugAnimations.Segments.Beats(program))
+            .OfType<AnimationBeat<PipeBugFrame, NoAnimationCue>.Frame>()
+            .Select(frame => PipeBugFrameToolingDefinitions.Spritemap(frame.Shown));
 }

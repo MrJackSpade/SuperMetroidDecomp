@@ -18,11 +18,11 @@ internal static class PipeBugBehaviorVerification
     /// </summary>
     internal static void VerifyPipeBugBehavior()
     {
-        AssertEqual(PipeBugProgram.ZebRisingLeft, Initialized(EnemyDefinitionId.Zeb, 0).Program.Program, "Zeb starts rising left");
-        AssertEqual(PipeBugProgram.ZebboRisingLeft, Initialized(EnemyDefinitionId.Zebbo, 1).Program.Program, "Zebbo starts rising left");
-        AssertEqual(PipeBugProgram.GametRisingLeft, Initialized(EnemyDefinitionId.Gamet, 0).Program.Program, "Gamet starts rising left");
-        AssertEqual(PipeBugProgram.GeegaFlyingLeft, Initialized(EnemyDefinitionId.Geega, 1).Program.Program, "Geega with parameter one starts flying left");
-        AssertEqual(PipeBugProgram.GeegaFlyingRight, Initialized(EnemyDefinitionId.Geega, 0).Program.Program, "Geega with parameter zero starts flying right");
+        AssertEqual(PipeBugAnimations.StartingWith(PipeBugProgram.ZebRisingLeft), Initialized(EnemyDefinitionId.Zeb, 0).Playback.Animation, "Zeb starts rising left");
+        AssertEqual(PipeBugAnimations.StartingWith(PipeBugProgram.ZebboRisingLeft), Initialized(EnemyDefinitionId.Zebbo, 1).Playback.Animation, "Zebbo starts rising left");
+        AssertEqual(PipeBugAnimations.StartingWith(PipeBugProgram.GametRisingLeft), Initialized(EnemyDefinitionId.Gamet, 0).Playback.Animation, "Gamet starts rising left");
+        AssertEqual(PipeBugAnimations.StartingWith(PipeBugProgram.GeegaFlyingLeft), Initialized(EnemyDefinitionId.Geega, 1).Playback.Animation, "Geega with parameter one starts flying left");
+        AssertEqual(PipeBugAnimations.StartingWith(PipeBugProgram.GeegaFlyingRight), Initialized(EnemyDefinitionId.Geega, 0).Playback.Animation, "Geega with parameter zero starts flying right");
 
         foreach (PipeBugProgram program in Enum.GetValues<PipeBugProgram>())
         {
@@ -37,8 +37,8 @@ internal static class PipeBugBehaviorVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             PipeBugEnemyState state = Initialize(enemies, slot, definition, parameter);
             PipeBugsBehavior.InstallPipeBugProgram(slot, state, program);
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(PipeBugAnimations.Programs, program, PipeBugFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(PipeBugAnimations.Programs, program)),
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(PipeBugAnimations.Segments, program, PipeBugFrameToolingDefinitions.Spritemap),
+                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(PipeBugAnimations.Segments, program)),
                 $"Pipe Bug {program} loop");
         }
         Console.WriteLine("  Pipe Bug behavior: four initializers start their native loops and all sixteen loops run on time.");

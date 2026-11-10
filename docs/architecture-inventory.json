@@ -14285,6 +14285,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemySheetComposer.VariantNames\u003CTDocument\u003E",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemySheetComposer.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Enemies.EnemySheetComposition",
       "kind": "record",
       "scope": "product",
@@ -14680,6 +14693,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemyVariantDocument",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyVariantDocument.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Enemies.FrameColouring",
       "kind": "record",
       "scope": "product",
@@ -15050,6 +15076,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Enemies.PopulationArtworkDocument",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/PopulationArtworkDocument.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Enemies.PopulationEntryWords",
       "kind": "record struct",
       "scope": "test",
@@ -15136,6 +15175,32 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Enemies.RoomEnemyGraphicsSetDefinition",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/RoomEnemyGraphicsSetDefinition.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.RoomEnemyGraphicsSetDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/RoomEnemyGraphicsSetDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Enemies.RoomEnemyGraphicsSetLists",
       "kind": "static class",
       "scope": "product",
@@ -15200,6 +15265,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.RoomStateEnemyGraphicsSetDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/RoomStateEnemyGraphicsSetDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Enemies.SetCharacters",
@@ -27805,32 +27883,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.InstalledArtworkContentIdentity.CorpsePictureOwner",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/InstalledArtworkContentIdentity.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.InstalledArtworkContentIdentity.PictureOwner",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/InstalledArtworkContentIdentity.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
     },
     {
       "type": "SuperMetroid.AssetExtraction.InstalledArtworkContentIdentity.extension(SuperMetroid.AssetExtraction.Samus.Artwork.InstalledSamusDeathPalettes)",
@@ -61591,6 +61643,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyArtworkVariant\u003CTSheet\u003E",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyArtworkVariant.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Artwork.EnemyBg2FrameDefinitionSequenceAccess",
       "kind": "static class",
       "scope": "test",
@@ -61901,32 +61966,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Artwork.EnemySheetGroup\u003CTKey, TSheet\u003E",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemySheetGroup.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Artwork.EnemySheetKey",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemySheetKey.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.Artwork.EnemySpritemapCatalogAccess",
       "kind": "static class",
       "scope": "test",
@@ -62230,6 +62269,38 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Artwork.InstalledEnemySheetsAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Artwork/InstalledEnemySheetsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Artwork.InstalledEnemySheetsAccess.extension(SuperMetroid.Core.Enemies.Artwork.InstalledEnemySheets)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Artwork/InstalledEnemySheetsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Artwork.KagoVisualDefinitions",
       "kind": "static class",
       "scope": "test",
@@ -62432,6 +62503,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Artwork.PopulationArtwork",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Artwork/PopulationArtwork.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Artwork.PowampVisualDefinitions",
       "kind": "static class",
       "scope": "tool",
@@ -62591,19 +62675,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Artwork.SpawnedObjectSheetKey",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/SpawnedObjectSheetKey.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.TripperKamerVisualDefinitions",
@@ -67264,7 +67335,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Drawing.SpriteColouringAccess.extension(SuperMetroid.Core.Enemies.EnemyGraphicsSet)",
+      "type": "SuperMetroid.Core.Enemies.Drawing.SpriteColouringAccess.extension(SuperMetroid.AssetExtraction.Enemies.RoomEnemyGraphicsSetDefinition)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -68213,19 +68284,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.EnemyGraphicsSet",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemyGraphicsSet.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.EnemyGraphicsSetAccess",
       "kind": "static class",
       "scope": "test",
@@ -68242,7 +68300,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.EnemyGraphicsSetAccess.extension(SuperMetroid.Core.Enemies.EnemyGraphicsSet)",
+      "type": "SuperMetroid.Core.Enemies.EnemyGraphicsSetAccess.extension(SuperMetroid.AssetExtraction.Enemies.RoomEnemyGraphicsSetDefinition)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -68275,6 +68333,22 @@
     },
     {
       "type": "SuperMetroid.Core.Enemies.EnemyGraphicsSetAccess.extension(SuperMetroid.Core.Enemies.SpriteGraphics)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/EnemyGraphicsSetAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.EnemyGraphicsSetAccess.extension(SuperMetroid.Core.World.RoomEnemySystem)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -79450,32 +79524,6 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.RoomEnemyGraphicsSetDefinition",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/RoomEnemyGraphicsSetDefinition.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.RoomEnemyGraphicsSetDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/RoomEnemyGraphicsSetDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.RoomEnemyGraphicsSetDefinitionsAccess",
       "kind": "static class",
       "scope": "test",
@@ -79492,7 +79540,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.RoomEnemyGraphicsSetDefinitionsAccess.extension(SuperMetroid.Core.Enemies.RoomEnemyGraphicsSetDefinitions)",
+      "type": "SuperMetroid.Core.Enemies.RoomEnemyGraphicsSetDefinitionsAccess.extension(SuperMetroid.AssetExtraction.Enemies.RoomEnemyGraphicsSetDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -141442,22 +141490,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.TestSupport.RepositoryInstallation.Verification.EnemySheetFixtures.ComposedSet",
-      "kind": "record",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/RepositoryInstallation.Verification/EnemySheetFixtures.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
       "type": "SuperMetroid.TestSupport.RepositoryInstallation.Verification.FixtureGraphicsSetMembers",
       "kind": "static class",
       "scope": "test",
@@ -141485,6 +141517,22 @@
       ],
       "files": [
         "csharp/test-support/RepositoryInstallation.Verification/FixtureGraphicsSetRows.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.RepositoryInstallation.Verification.FixturePopulationSets",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/RepositoryInstallation.Verification/FixturePopulationSets.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

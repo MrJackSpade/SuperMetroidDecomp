@@ -68,8 +68,10 @@ internal static class MapSpriteCasesVerification
         {
             int pointer = MapSourceDefinitions.Menu.ObjectBank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 MapSourceDefinitions.Menu.SpritemapPointers + frame.NativeId * 2);
-            foreach (ushort x in new ushort[] { 0, 1, 127, 255, 256, 511, 65535 })
-            foreach (ushort y in new ushort[] { 0, 1, 127, 128, 223, 224, 255, 65535 })
+            // Origins are signed screen pixels (#1587): an X of 511 is no longer the column left of the screen, and a Y of
+            // 65535 is the line above it, whose parts the display clips rather than the sprite table culling them whole.
+            foreach (ushort x in new ushort[] { 0, 1, 127, 255, 256, 65535 })
+            foreach (ushort y in new ushort[] { 0, 1, 127, 128, 223, 224, 255 })
             foreach (PictureShading colouring in MapSpriteShadings)
             {
                 int palette = MapSpriteSets[colouring];

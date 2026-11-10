@@ -44,7 +44,11 @@ internal static class PauseMapAreaLabelsVerification
             system.SetAreaMapAcquired(area);
             var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), System = system, AreaIndex = area, RoomMapPosition = new(0, 0) });
             int list = 0x820000 | Read(0x82c74d + (int)area * 2);
-            ushort x = unchecked((ushort)(Read(list) - 128)), y = unchecked((ushort)(Read(list + 2) - 100));
+            // The map is scrolled so every label lies on the screen's lines, the topmost LabelTopLine lines down: a label's
+            // origin is its signed screen position, and one below the screen no longer comes round at the top (#1587).
+            int topmost = int.MaxValue;
+            for (int entry = list; Read(entry) != 0xffff; entry += 6) topmost = Math.Min(topmost, Read(entry + 2));
+            ushort x = unchecked((ushort)(Read(list) - 128)), y = unchecked((ushort)(topmost - LabelTopLine));
             pause.MapScrollPosition = new Position16<MapPixels>(x, y);
             var native = new OamBuffer(); native.BeginFrame();
             for (int entry = list; Read(entry) != 0xffff; entry += 6)
@@ -113,6 +117,9 @@ internal static class PauseMapAreaLabelsVerification
         Console.WriteLine("Pause area labels: five outside-Tourian areas match raw ROM destination OAM and area-title words.");
         ushort Read(int address) => RomDataReader.ReadWordFixedBank(cart, address);
     }
+
+    /// <summary>The screen line the topmost destination label's origin is scrolled to.</summary>
+    private const int LabelTopLine = 16;
 
     /// <summary>Runs the focused pause area-label comparison against the repository ROM.</summary>
     [VerificationCommand("--pause-map-area-labels")]

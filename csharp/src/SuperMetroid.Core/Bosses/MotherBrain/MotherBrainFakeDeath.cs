@@ -5,6 +5,7 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Earthquakes;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 

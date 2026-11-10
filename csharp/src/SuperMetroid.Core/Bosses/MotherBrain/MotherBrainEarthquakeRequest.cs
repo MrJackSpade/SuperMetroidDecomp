@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Earthquakes;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 

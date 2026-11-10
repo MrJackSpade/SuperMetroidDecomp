@@ -5,6 +5,7 @@ using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Earthquakes;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 
 /// <summary>Checks the room shake produced by Ceres Ridley's real left-wall lunge collision.</summary>

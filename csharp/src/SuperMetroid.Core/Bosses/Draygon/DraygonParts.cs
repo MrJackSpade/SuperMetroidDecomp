@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Earthquakes;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 

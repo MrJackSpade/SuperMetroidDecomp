@@ -8,6 +8,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Earthquakes;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 

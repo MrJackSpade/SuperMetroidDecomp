@@ -1,8 +1,8 @@
-namespace SuperMetroid.Core.Fx;
+namespace SuperMetroid.Core.Earthquakes;
 
 /// <summary>
 /// One earthquake's look: how strongly and which way it throws the room, and what it shakes. A producer starts the
-/// room's earthquake with one (<see cref="RoomEarthquake"/>); its displacement comes from
+/// room's earthquake with one (the room's earthquake); its displacement comes from
 /// <see cref="EarthquakeShakeDefinitions"/>.
 /// </summary>
 /// <param name="Strength">How far the shake throws what it shakes.</param>

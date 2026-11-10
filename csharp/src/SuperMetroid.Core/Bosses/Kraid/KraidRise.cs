@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Earthquakes;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 

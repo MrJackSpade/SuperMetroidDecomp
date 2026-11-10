@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Fx;
+namespace SuperMetroid.Core.Earthquakes;
 
 /// <summary>One earthquake shake's background and enemy-projectile displacement (<see cref="EarthquakeShake.Displacement"/>).</summary>
 /// <param name="Foreground">The foreground scroll displacement.</param>

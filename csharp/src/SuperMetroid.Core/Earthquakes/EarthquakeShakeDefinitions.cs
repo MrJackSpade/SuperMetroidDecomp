@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Fx;
+namespace SuperMetroid.Core.Earthquakes;
 
 /// <summary>
 /// How each part of an <see cref="EarthquakeShake"/> displaces the room: the pixels each strength throws, the axes each
@@ -45,7 +45,7 @@ public static class EarthquakeShakeDefinitions
     };
 
     /// <summary>
-    /// The reaches that shake the enemies, every update for <see cref="RoomEarthquakeDefinitions.EnemyShakeDuration"/>
+    /// The reaches that shake the enemies, every update for the enemy shake duration
     /// updates, and draw the enemies' projectiles displaced with them.
     /// </summary>
     public static IReadOnlySet<EarthquakeReach> EnemyReaches { get; } = new HashSet<EarthquakeReach>

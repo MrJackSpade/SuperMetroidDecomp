@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Rooms.RoomObjects;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Earthquakes;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 

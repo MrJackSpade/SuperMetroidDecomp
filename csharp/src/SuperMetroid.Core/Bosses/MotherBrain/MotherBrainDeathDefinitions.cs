@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Earthquakes;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 

@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Earthquakes;
 
 namespace SuperMetroid.Core.Escape;
 

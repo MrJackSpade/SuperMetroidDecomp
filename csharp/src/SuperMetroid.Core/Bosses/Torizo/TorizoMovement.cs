@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Earthquakes;
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>Bomb and Golden Torizo's setup and movement: walking, jumps, falls and air transitions under gravity.</summary>

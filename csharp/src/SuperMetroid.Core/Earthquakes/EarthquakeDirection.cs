@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Fx;
+namespace SuperMetroid.Core.Earthquakes;
 
 /// <summary>The way an earthquake throws what it shakes: across, up and down, or both at once.</summary>
 public enum EarthquakeDirection

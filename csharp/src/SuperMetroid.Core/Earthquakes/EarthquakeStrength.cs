@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Fx;
+namespace SuperMetroid.Core.Earthquakes;
 
 /// <summary>How far an earthquake throws what it shakes from its rest position (<see cref="EarthquakeShakeDefinitions.Pixels"/>).</summary>
 public enum EarthquakeStrength

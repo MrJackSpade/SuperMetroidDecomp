@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Fx;
+namespace SuperMetroid.Core.Earthquakes;
 
 /// <summary>
 /// What an earthquake shakes: the room's foreground layer, its background layer, and the enemies with their projectiles

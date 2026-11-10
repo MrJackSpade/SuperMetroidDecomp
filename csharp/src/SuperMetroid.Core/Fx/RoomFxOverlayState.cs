@@ -3,6 +3,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Earthquakes;
 
 namespace SuperMetroid.Core.Fx;
 

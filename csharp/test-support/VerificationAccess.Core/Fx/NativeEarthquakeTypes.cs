@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Earthquakes;
+
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>

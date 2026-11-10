@@ -373,8 +373,8 @@ internal static class NativeSnapshotImport
     }
 
     /// <summary>
-    /// Restores the colour record each live palette-FX object last showed, in native slot order, as its handler pass showed it
-    /// (#1512): the record becomes its group's last, which the room's pictures shade with; a record of Samus's suit groups
+    /// Restores the colour record each live palette-FX object shows, in native slot order, as its handler pass showed it
+    /// (#1512, #1597): the effect holds the record, which the room's pictures shade with; a record of Samus's suit groups
     /// is laid over her suit and one of an enemy's groups is shown over its owner's colours, as the runtime does after the
     /// pass. Native colour memory already holds those records at the checkpoint, while the imported slots only resume
     /// their programs, which show their next record later.
@@ -387,7 +387,7 @@ internal static class NativeSnapshotImport
         {
             if (effect.Colours is not { } colours || LastShownRecord(effect.Step) is not { } record)
                 continue;
-            runtime.RoomPaletteFx.shown.Show(colours, record);
+            effect.Record = record;
             if (PaletteFxRoomColourDefinitions.RoomColours.Contains(colours))
                 continue;
             if (PaletteFxSamusColourDefinitions.SuitColours.Contains(colours))

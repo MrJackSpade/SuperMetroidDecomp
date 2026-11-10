@@ -257,7 +257,7 @@ internal static class LookupStream4Verification
         {
             // A frontend screen's step shows each loop's record without writing colours (#1512); the import pre-colours
             // the record's shade from the selected colours, which must hold the frame's authored colours.
-            fx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false }, (_, _) => { });
+            fx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
             foreach (var program in TitleScreenAmbientPaletteOwners.All)
             {
                 var rows = program.Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight

@@ -416,12 +416,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 throw new InvalidOperationException($"Undefined {nameof(EndingCreditsPhase)} {Stage.Phase}.");
         }
 
-        // The cinematic runs its colour effects after actors; each record shown shows over the colours
-        // the scenes loaded before it, as its write does (#1512).
-        EndingSpaceBackdrops spaceBackdrops = InstalledArtwork.SpaceBackdrops ?? throw new InvalidOperationException(
-            "Ending palette FX requires the installed backdrops of the space behind the exploding planet.");
-        Stage.PaletteFxSystem.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false },
-            (colours, record) => screen.Colours.PaletteFx(colours, record, PaletteFxBackdrop(colours, record, spaceBackdrops)));
+        // The cinematic runs its colour effects after actors; the ending's colours show the record each holds (#1512, #1597).
+        Stage.PaletteFxSystem.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
         if (Stage.PaletteFxSystem.SoundRequests.Count != 0 || Stage.PaletteFxSystem.MusicRequests.Count != 0)
             throw new InvalidDataException("Ending palette program requested an unhandled audio command.");
         // The ending follows cinematic actors even while a text-only screen hides sprites.
@@ -430,15 +426,6 @@ internal sealed class EndingCreditsState : IFrontendScreen
             (CreditsRoll.ShootingStars ??= new EndingShootingStars()).Step();
         Flyaway.CinematicFrame++;
     }
-
-    /// <summary>
-    /// The backdrop a palette-effect <paramref name="record"/> in <paramref name="colours"/> shows (#1512): the space behind
-    /// the exploding planet is the backdrop, and every record writes its first colour before any colour it skips, so a
-    /// record of its colours shows that colour behind every layer; any other record leaves the backdrop as it was.
-    /// </summary>
-    /// <exception cref="InvalidDataException">The record's backdrop is not installed.</exception>
-    private static RgbColor? PaletteFxBackdrop(PaletteFxColours colours, PaletteFxFrame record, EndingSpaceBackdrops installed) =>
-        colours == EndingPaletteFxDefinitions.SpaceColours ? installed.Of(record) : null;
 
     /// <summary>Rotates the turning floor every other cinematic call while applying the current zoom delta.</summary>
     private void StepAtmosphericTransform(int scaleDelta)

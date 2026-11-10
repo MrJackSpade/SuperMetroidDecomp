@@ -9,6 +9,6 @@ internal static class EndingColoursAccess
     extension(EndingColours self)
     {
         /// <summary>Each shade the running scene shows, in order, before any actor's or scenery's own are chosen from them (#1544).</summary>
-        internal PictureShading Shading => new([.. self.shown], []);
+        internal PictureShading Shading => new([.. self.Shades], []);
     }
 }

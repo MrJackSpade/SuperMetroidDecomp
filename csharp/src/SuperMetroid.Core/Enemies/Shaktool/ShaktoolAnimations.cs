@@ -10,45 +10,39 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 /// </summary>
 internal static class ShaktoolAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<ShaktoolProgram, ShaktoolFrame, ShaktoolCue> Programs { get; } = new(
-        new Dictionary<ShaktoolProgram, AnimationProgramStep<ShaktoolProgram, ShaktoolFrame, ShaktoolCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<ShaktoolProgram, ShaktoolFrame, ShaktoolCue> Segments { get; } = new(
+        new Dictionary<ShaktoolProgram, AnimationBeat<ShaktoolFrame, ShaktoolCue>[]>
     {
         [P.SawHandAttackPrimaryPiece] =
         [
             Wait(576),
-            GoTo(P.SawHandPrimaryPiece),
         ],
         [P.SawHandAttackFinalPiece] =
         [
             Wait(576),
             Cue(new(K.ResetFunctions)),
-            GoTo(P.SawHandFinalPiece),
         ],
         [P.SawHandHeadBobPrimaryPiece] =
         [
             Wait(20),
-            GoTo(P.SawHandPrimaryPiece),
         ],
         [P.SawHandHeadBobFinalPiece] =
         [
             Wait(20),
             Cue(new(K.ResetFunctions)),
-            GoTo(P.SawHandFinalPiece),
         ],
         [P.SawHandPrimaryPiece] =
         [
             Show(12, 10),
             Show(13, 10),
             Show(14, 10),
-            GoTo(P.SawHandPrimaryPiece),
         ],
         [P.SawHandFinalPiece] =
         [
             Show(0, 3),
             Show(1, 3),
             Show(2, 3),
-            GoTo(P.SawHandFinalPiece),
         ],
         [P.ArmPieceAttackBack] =
         [
@@ -57,7 +51,6 @@ internal static class ShaktoolAnimations
             Wait(128),
             Cue(new(K.RaiseTowardCenter)),
             Wait(256),
-            GoTo(P.ArmPieceNormal),
         ],
         [P.ArmPieceAttackFront] =
         [
@@ -66,14 +59,12 @@ internal static class ShaktoolAnimations
             Wait(128),
             Cue(new(K.RaiseTowardCenter)),
             Wait(192),
-            GoTo(P.ArmPieceNormal),
         ],
         [P.ArmPieceHeadBobBack] =
         [
             Cue(new(K.Lower)),
             Wait(20),
             Cue(new(K.Raise)),
-            GoTo(P.ArmPieceNormal),
         ],
         [P.ArmPieceHeadBobFront] =
         [
@@ -82,12 +73,10 @@ internal static class ShaktoolAnimations
             Wait(12),
             Cue(new(K.Raise)),
             Wait(4),
-            FallInto(P.ArmPieceNormal),
         ],
         [P.ArmPieceNormal] =
         [
             Show(3, 119),
-            GoTo(P.ArmPieceNormal),
         ],
         [P.HeadAttack] =
         [
@@ -98,7 +87,6 @@ internal static class ShaktoolAnimations
             Cue(new(K.RaiseTowardCenter)),
             Wait(320),
             Wait(1),
-            FallInto(P.HeadHeadBob),
         ],
         [P.HeadHeadBob] =
         [
@@ -108,63 +96,76 @@ internal static class ShaktoolAnimations
             Cue(new(K.Raise)),
             Wait(8),
             Wait(1),
-            FallInto(P.HeadAimingLeft),
         ],
         [P.HeadAimingLeft] =
         [
             Show(4, 1908),
-            GoTo(P.HeadAimingLeft),
         ],
         [P.HeadAimingUpLeft] =
         [
             Show(5, 1909),
-            GoTo(P.HeadAimingUpLeft),
         ],
         [P.HeadAimingUp] =
         [
             Show(6, 1910),
-            GoTo(P.HeadAimingUp),
         ],
         [P.HeadAimingUpRight] =
         [
             Show(7, 1911),
-            GoTo(P.HeadAimingUpRight),
         ],
         [P.HeadAimingRight] =
         [
             Show(8, 1912),
-            GoTo(P.HeadAimingRight),
         ],
         [P.HeadAimingDownRight] =
         [
             Show(9, 1913),
-            GoTo(P.HeadAimingDownRight),
         ],
         [P.HeadAimingDown] =
         [
             Show(10, 1914),
-            GoTo(P.HeadAimingDown),
         ],
         [P.HeadAimingDownLeft] =
         [
             Show(11, 1915),
-            GoTo(P.HeadAimingDownLeft),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<ShaktoolProgram, Animation<ShaktoolProgram>> StartingAt { get; } = new Dictionary<ShaktoolProgram, Animation<ShaktoolProgram>>
+    {
+        [P.SawHandAttackPrimaryPiece] = new([new(P.SawHandAttackPrimaryPiece, 0, 1, 1), new(P.SawHandPrimaryPiece, 0, 3, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.SawHandAttackFinalPiece] = new([new(P.SawHandAttackFinalPiece, 0, 2, 1), new(P.SawHandFinalPiece, 0, 3, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.SawHandHeadBobPrimaryPiece] = new([new(P.SawHandHeadBobPrimaryPiece, 0, 1, 1), new(P.SawHandPrimaryPiece, 0, 3, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.SawHandHeadBobFinalPiece] = new([new(P.SawHandHeadBobFinalPiece, 0, 2, 1), new(P.SawHandFinalPiece, 0, 3, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.SawHandPrimaryPiece] = new([new(P.SawHandPrimaryPiece, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.SawHandFinalPiece] = new([new(P.SawHandFinalPiece, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ArmPieceAttackBack] = new([new(P.ArmPieceAttackBack, 0, 5, 1), new(P.ArmPieceNormal, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.ArmPieceAttackFront] = new([new(P.ArmPieceAttackFront, 0, 5, 1), new(P.ArmPieceNormal, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.ArmPieceHeadBobBack] = new([new(P.ArmPieceHeadBobBack, 0, 3, 1), new(P.ArmPieceNormal, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.ArmPieceHeadBobFront] = new([new(P.ArmPieceHeadBobFront, 0, 5, 1), new(P.ArmPieceNormal, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.ArmPieceNormal] = new([new(P.ArmPieceNormal, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.HeadAttack] = new([new(P.HeadAttack, 0, 7, 1), new(P.HeadHeadBob, 0, 6, 1), new(P.HeadAimingLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(2)),
+        [P.HeadHeadBob] = new([new(P.HeadHeadBob, 0, 6, 1), new(P.HeadAimingLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.HeadAimingLeft] = new([new(P.HeadAimingLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.HeadAimingUpLeft] = new([new(P.HeadAimingUpLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.HeadAimingUp] = new([new(P.HeadAimingUp, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.HeadAimingUpRight] = new([new(P.HeadAimingUpRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.HeadAimingRight] = new([new(P.HeadAimingRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.HeadAimingDownRight] = new([new(P.HeadAimingDownRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.HeadAimingDown] = new([new(P.HeadAimingDown, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.HeadAimingDownLeft] = new([new(P.HeadAimingDownLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<ShaktoolProgram> StartingWith(ShaktoolProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<ShaktoolProgram, ShaktoolFrame, ShaktoolCue> Show(int pose, int duration) => AnimationProgramStep<ShaktoolProgram, ShaktoolFrame, ShaktoolCue>.Show(new(pose), duration);
+    private static AnimationBeat<ShaktoolFrame, ShaktoolCue> Show(int pose, int duration) => new AnimationBeat<ShaktoolFrame, ShaktoolCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<ShaktoolProgram, ShaktoolFrame, ShaktoolCue> Cue(ShaktoolCue cue) => AnimationProgramStep<ShaktoolProgram, ShaktoolFrame, ShaktoolCue>.Publish(cue);
+    private static AnimationBeat<ShaktoolFrame, ShaktoolCue> Cue(ShaktoolCue cue) => new AnimationBeat<ShaktoolFrame, ShaktoolCue>.Event(cue);
 
     /// <summary>Waits <paramref name="updates"/> updates on the current frame.</summary>
-    private static AnimationProgramStep<ShaktoolProgram, ShaktoolFrame, ShaktoolCue> Wait(int updates) => AnimationProgramStep<ShaktoolProgram, ShaktoolFrame, ShaktoolCue>.Wait(updates);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<ShaktoolProgram, ShaktoolFrame, ShaktoolCue> GoTo(ShaktoolProgram program) => AnimationProgramStep<ShaktoolProgram, ShaktoolFrame, ShaktoolCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<ShaktoolProgram, ShaktoolFrame, ShaktoolCue> FallInto(ShaktoolProgram program) => AnimationProgramStep<ShaktoolProgram, ShaktoolFrame, ShaktoolCue>.FallInto(program);
-
+    private static AnimationBeat<ShaktoolFrame, ShaktoolCue> Wait(int updates) => new AnimationBeat<ShaktoolFrame, ShaktoolCue>.Pause(updates);
 }

@@ -316,7 +316,7 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(TourianEntranceStatueAnimations), "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianEntranceStatueAnimations.cs");
         RequireTypedFrames(WorkRobotAnimations.Programs, WorkRobotFrameToolingDefinitions.Spritemap, WorkRobotFrameToolingDefinitions.Bank,
             nameof(WorkRobotAnimations), "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotAnimations.cs");
-        RequireTypedFrames(ShaktoolAnimations.Programs, ShaktoolFrameToolingDefinitions.Spritemap, ShaktoolFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(ShaktoolAnimations.Segments, ShaktoolFrameToolingDefinitions.Spritemap, ShaktoolFrameToolingDefinitions.Bank,
             nameof(ShaktoolAnimations), "csharp/src/SuperMetroid.Core/Enemies/Shaktool/ShaktoolAnimations.cs");
         RequireTypedFrames(YardAnimations.Programs, YardFrameToolingDefinitions.Spritemap, YardFrameToolingDefinitions.Bank,
             nameof(YardAnimations), "csharp/src/SuperMetroid.Core/Enemies/Yard/YardAnimations.cs");

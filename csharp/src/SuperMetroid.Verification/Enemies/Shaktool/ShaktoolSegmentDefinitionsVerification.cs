@@ -58,7 +58,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
                 $"Shaktool production angular velocity {index}");
             AssertEqual(definition.InitialOrbitAngle, state.OrbitAngle,
                 $"Shaktool production orbit angle {index}");
-            AssertEqual(AnimationProgramCursor<ShaktoolProgram>.Start(definition.InitialProgram), state.Program,
+            AssertEqual(new AnimationPlayback<ShaktoolProgram>(ShaktoolAnimations.StartingWith(definition.InitialProgram), AnimationPlace.StartOfAnimation), state.Playback,
                 $"Shaktool production initial list {index}");
             AssertEqual(definition.Layer, slot.Layer,
                 $"Shaktool production layer {index}");
@@ -68,10 +68,10 @@ internal static class ShaktoolSegmentDefinitionsVerification
 
         foreach (ShaktoolSegmentState? state in enemies.ShaktoolSegments.Take(7))
             (state ?? throw new InvalidOperationException("Verification requires state.")).FrameBehavior = ShaktoolFrameBehavior.Idle;
-        AssertEqual(null, enemies.ShaktoolBehavior.ApplyShaktoolCue(
-                enemies.SlotTable.Slots[0], enemies.ShaktoolSegments[0] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[0]."),
-                new ShaktoolCue(ShaktoolCueKind.ResetFunctions)),
-            "Shaktool production reset cue runs on");
+        // The reset cue carries out its reaction and the animation plays on: a cue's reaction continues nowhere else.
+        enemies.ShaktoolBehavior.ApplyShaktoolCue(
+            enemies.SlotTable.Slots[0], enemies.ShaktoolSegments[0] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[0]."),
+            new ShaktoolCue(ShaktoolCueKind.ResetFunctions));
         for (int index = 0; index < definitions.Length; index++)
         {
             AssertEqual(definitions[index].FrameBehavior,

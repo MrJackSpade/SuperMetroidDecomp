@@ -128,12 +128,6 @@ public sealed class SamusProjectileSystem
     /// <summary>Each shot place's projectile, in place order: the live one, or the last one that ended there.</summary>
     public IReadOnlyList<SamusProjectile> Slots => SlotTable.Slots;
 
-    /// <summary>
-    /// The projectile in Samus's first shot place, live or the last one that ended there, which reads as at rest at the
-    /// room's origin. Some enemies aim their reaction to any hit from where it is, not from the projectile that hit them.
-    /// </summary>
-    public SamusProjectile FirstShot => SlotTable.Slots[0];
-
     /// <summary>The most recent charged-shot palette sub-handler result.</summary>
     public SamusBeamChargePaletteStepResult LastBeamChargePaletteStep
     {

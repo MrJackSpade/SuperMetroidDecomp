@@ -670,11 +670,11 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the recoil-only shot callback.</summary>
+    /// <summary>Ports the recoil-only shot callback: the Baby recoils away from <paramref name="recoilOrigin"/>.</summary>
     private void ResolveShitroidShot(
         RoomEnemySlot slot,
         int collisionDamage,
-        SamusProjectile firstShot)
+        SamusProjectile recoilOrigin)
     {
         ShitroidEnemyState state = RequireShitroidState(slot);
         if (!state.ReactsToSamus)
@@ -682,8 +682,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         BreakReleasedShitroidFollow(state);
         RotationAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(new(
-            CoordinateAxis.Difference(firstShot.Position.X.Whole, slot.Position.X.Whole),
-            CoordinateAxis.Difference(firstShot.Position.Y.Whole, slot.Position.Y.Whole)));
+            CoordinateAxis.Difference(recoilOrigin.Position.X.Whole, slot.Position.X.Whole),
+            CoordinateAxis.Difference(recoilOrigin.Position.Y.Whole, slot.Position.Y.Whole)));
         RotationAngle angle = RotationAngle.Zero - sourceAngle;
         // The recoil strength is eight times the damage, capped at 240; no beam, missile or bomb deals the 8192
         // damage whose multiple would pass 65535.
@@ -779,13 +779,12 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Uses bomb damage for recoil strength but Samus's first shot for its direction, without health loss.</summary>
     internal void AddShitroidBombReactions(EnemySharedReactions table)
     {
-        // The Baby's shot handler reads damage from the projectile that hit it, but always aims its recoil from Samus's
-        // first shot (SamusProjectileSystem.FirstShot). For a bomb collision that means the bomb's damage controls
-        // recoil strength while whatever live or left-over shot is first controls direction. It never enters
-        // vulnerability damage.
+        // The Baby's shot handler reads damage from the projectile that hit it, but recoils from Samus's first shot
+        // (MetroidRecoilOrigin). For a bomb collision that means the bomb's damage controls recoil strength while
+        // whatever live or left-over shot is first controls direction. It never enters vulnerability damage.
         table.AddBombSpecial(c => c.Enemy.DefinitionId == EnemyDefinitionId.BabyMetroid &&
                                   c.SelectedShotAi == EnemyReaction.ShitroidShot,
-            c => ResolveShitroidShot(c.Enemy, c.Bomb.Damage, c.OrdinaryProjectiles.FirstShot));
+            c => ResolveShitroidShot(c.Enemy, c.Bomb.Damage, MetroidRecoilOrigin.Of(c.OrdinaryProjectiles.Slots)));
     }
 
     /// <summary>Ports Shitroid's initialization AI.</summary>
@@ -866,7 +865,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             BeforeSuperMissileQuake = (in EnemyShotContext c) =>
             {
                 c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
-                ResolveShitroidShot(c.Enemy, c.Projectile.Damage, c.Projectiles.FirstShot);
+                ResolveShitroidShot(c.Enemy, c.Projectile.Damage, MetroidRecoilOrigin.Of(c.Projectiles.Slots));
                 return true;
             },
         });

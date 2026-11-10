@@ -170,7 +170,7 @@ internal sealed class EnemyProjectileEngine
                 enemyProjectile.CollisionOption == EnemyProjectileCollisionOption.NoCollision)
                 continue;
 
-            foreach (SamusProjectile shot in projectiles.Slots.Take(5))
+            foreach (SamusProjectile shot in projectiles.Slots)
             {
                 if (!shot.HasEnemyCollisionPayload)
                     continue;

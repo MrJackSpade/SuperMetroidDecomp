@@ -4,14 +4,15 @@ namespace SuperMetroid.Core.Compatibility;
 /// Where a Metroid that is shot or bombed recoils from (#1542): Samus's first ordinary projectile, whichever projectile
 /// or bomb hit it. A free Metroid hit by a shot or a bomb flies away from that projectile's position at an eighth of
 /// their distance per update, so the push follows the projectile in Samus's first shot place, or the room's origin once
-/// no projectile holds it (an ended projectile reads as at rest there), not the projectile that struck.
+/// no projectile holds it (an ended projectile reads as at rest there), not the projectile that struck. The Baby Metroid
+/// recoils the same way (#1592), its strength still taken from the damage of the projectile or bomb that hit it.
 /// </summary>
 /// <remarks>
-/// Consulted once per hit, by the Metroid's shot and bomb reactions after the collision prelude, before its recoil
-/// velocity is stored. Evidence: the Metroid's shot reaction reads the position of projectile slot zero rather than
-/// the colliding projectile's, in both the shot and the bomb collision passes.
+/// Consulted once per hit, by the Metroid's and the Baby Metroid's shot and bomb reactions after the collision prelude,
+/// before the recoil velocity is stored. Evidence: the Metroid's and the Baby's shot reactions read the position of
+/// projectile slot zero rather than the colliding projectile's, in both the shot and the bomb collision passes.
 /// </remarks>
-[CompatibilityService("a shot or bombed Metroid recoils away from Samus's first ordinary projectile, whichever projectile hit it")]
+[CompatibilityService("a shot or bombed Metroid or Baby Metroid recoils away from Samus's first ordinary projectile, whichever projectile hit it")]
 public static class MetroidRecoilOrigin
 {
     /// <summary>The projectile whose position a hit Metroid recoils from.</summary>

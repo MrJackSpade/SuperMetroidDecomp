@@ -99,7 +99,7 @@ internal sealed class ProjectileEnemyImpacts
         else if (family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
         {
             header = SamusProjectileSelection.NonBeam(family);
-            program = SamusProjectileHeaders.Program(header, slot.Direction.ToAimIndex());
+            program = SamusProjectileHeaders.Program(header, slot.Direction);
         }
         else
         {

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Grapple;
 internal static class GrappleBeamDefinitionsConnectionsConstants
 {
     /// <summary>Number of shot directions represented by each four-byte connection table.</summary>
-    public const int DirectionCount = GrappleBeamDefinitions.Firing.DirectionCount;
+    public const int DirectionCount = SuperMetroid.AssetExtraction.Samus.SamusProjectileDirectionCodec.Count;
     /// <summary>Bytes in one special-angle record.</summary>
     public const int SpecialAngleRecordByteCount = 10;
     /// <summary>Number of fixed-angle special connection records.</summary>

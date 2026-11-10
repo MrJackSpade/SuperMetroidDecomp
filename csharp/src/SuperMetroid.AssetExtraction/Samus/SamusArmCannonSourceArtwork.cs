@@ -21,7 +21,7 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
 {
     /// <summary>Tile-source slots: one row per native aim direction, each holding every cover-art frame slot.</summary>
     private static readonly FixedGridShape CoverTileShape =
-        new(SamusDrawingDefinitions.ArmCannon.DirectionCount, OpeningFrames);
+        new(SamusProjectileDirectionCodec.Count, OpeningFrames);
     /// <summary>Cover frames that show a tile: every frame but the closed one.</summary>
     private const int OpeningFrames = SamusArmCannonArtworkFormat.FramesPerDirection - 1;
     /// <summary>The descriptor's flag byte bit that makes its direction change after animation frame zero.</summary>
@@ -126,8 +126,8 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
     internal SamusArmCannonSourceArtwork WithBodyGeometry(SamusSpritemapSources body) => new(
         Enumerable.Range(0, SamusBodySources.PoseCount).Select(PoseDescriptor).ToArray(),
         Enumerable.Range(0, SamusArmCannonArtworkFormat.DrawingDataByteCount).Select(ReadDrawingByte).ToArray(),
-        Enumerable.Range(0, SamusDrawingDefinitions.ArmCannon.DirectionCount).Select(CoverAppearance).ToArray(),
-        Enumerable.Range(0, SamusDrawingDefinitions.ArmCannon.DirectionCount).Select(direction =>
+        Enumerable.Range(0, SamusProjectileDirectionCodec.Count).Select(CoverAppearance).ToArray(),
+        Enumerable.Range(0, SamusProjectileDirectionCodec.Count).Select(direction =>
             Enumerable.Range(1, OpeningFrames).Select(frame => OpeningTile(direction, frame)).ToArray()).ToArray(),
         tiles, Ensure.NotNull(body));
 
@@ -139,9 +139,9 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
         for (int index = 0; index < selectedDrawing.Length; index++)
             selectedDrawing[index] = ReadDrawingByte(index);
         content.Append("drawing data", selectedDrawing);
-        for (int direction = 0; direction < SamusDrawingDefinitions.ArmCannon.DirectionCount; direction++)
+        for (int direction = 0; direction < SamusProjectileDirectionCodec.Count; direction++)
             CoverAppearance(direction).AppendIdentity(content);
-        for (int direction = 0; direction < SamusDrawingDefinitions.ArmCannon.DirectionCount; direction++)
+        for (int direction = 0; direction < SamusProjectileDirectionCodec.Count; direction++)
             for (int frame = 1; frame <= OpeningFrames; frame++)
                 content.Append("cover tile", OpeningTile(direction, frame));
         content.Append("characters", this.tiles.Characters.Span);
@@ -167,7 +167,7 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
             document.DrawingData is null ||
             document.DrawingData.Length != SamusArmCannonArtworkFormat.DrawingDataByteCount ||
             document.CoverAppearances is null ||
-            document.CoverAppearances.Length != SamusDrawingDefinitions.ArmCannon.DirectionCount ||
+            document.CoverAppearances.Length != SamusProjectileDirectionCodec.Count ||
             !CoverTileShape.HasRows(document.CoverTiles))
             throw new InvalidDataException("Arm-cannon artwork has an invalid version or table geometry.");
 
@@ -232,7 +232,7 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
     /// <summary>Gets the cover's character, palette, priority, and mirroring for native direction 0–9; supplied appearances override the stock $90:C791 table.</summary>
     public SpritePart CoverAppearance(int direction)
     {
-        if ((uint)direction >= SamusDrawingDefinitions.ArmCannon.DirectionCount) throw new ArgumentOutOfRangeException(nameof(direction));
+        if ((uint)direction >= SamusProjectileDirectionCodec.Count) throw new ArgumentOutOfRangeException(nameof(direction));
         return attributes.ContainsKey(direction) ? attributes[direction]
             : SamusArmCannonArtworkFormat.StockCoverAppearance(SamusProjectileDirectionCodec.FromAimIndex(direction));
     }
@@ -240,7 +240,7 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
     /// <summary>The installed cover tile native direction 0–9 shows at cover frame 0–3; the closed frame 0 shows none.</summary>
     public int? CoverTileIndex(int direction, int frame)
     {
-        if ((uint)direction >= SamusDrawingDefinitions.ArmCannon.DirectionCount)
+        if ((uint)direction >= SamusProjectileDirectionCodec.Count)
             throw new ArgumentOutOfRangeException(nameof(direction));
         if ((uint)frame >= SamusArmCannonArtworkFormat.FramesPerDirection)
             throw new ArgumentOutOfRangeException(nameof(frame));

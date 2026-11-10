@@ -109,7 +109,7 @@ public sealed class SamusArmCannonState
             return new SamusArmCannonDrawResult();
 
         SamusArmCannonPlacement placement = Placement(samus.Pose);
-        int selector = placement.Direction(samus.AnimationFrame).ToAimIndex();
+        SamusProjectileDirection direction = placement.Direction(samus.AnimationFrame);
 
         Offset16<RoomPixels> offset = placement.Offset(samus.AnimationFrame);
         int graphicsYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus);
@@ -124,7 +124,7 @@ public sealed class SamusArmCannonState
         InstalledSpriteSheets sheets = samus.Presentation.Sheets ?? throw new InvalidOperationException(
             "Arm cannon requires the installed sprite sheets.");
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusArmCannon),
-            sheets.Get(SpriteSheetId.SamusOverlays).Frame(SamusOverlaySheetDefinitions.ArmCannonFrame(selector, Frame)),
+            sheets.Get(SpriteSheetId.SamusOverlays).Frame(SamusOverlaySheetDefinitions.ArmCannonFrame(direction, Frame)),
             new Position16<ScreenPixels>(screenX, screenY), SpriteMirror.None));
 
         return new SamusArmCannonDrawResult();

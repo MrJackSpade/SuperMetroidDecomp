@@ -44,13 +44,13 @@ internal static class ProjectileTrailCoordinatesVerification
         int selections = 0;
         foreach ((ProjectileTrailFamilyGroup group, int table) in SelectorTables)
         foreach (SamusBeamCombination beams in Enum.GetValues<SamusBeamCombination>())
-        for (int direction = 0; direction < 16; direction++)
+        foreach (SamusProjectileDirection direction in SamusProjectileDirectionCodec.InAimOrder)
         {
-            AssertEqual(NativeList(bus, lists, table, beams, direction), ProjectileTrailPlacements.List(group, beams, direction),
+            AssertEqual(NativeList(bus, lists, table, beams, direction.ToAimIndex()), ProjectileTrailPlacements.List(group, beams, direction),
                 $"{group} {beams} direction {direction} selects the list the cartridge's pointers name");
             selections++;
         }
-        AssertEqual(768, selections, "Three selector tables of sixteen rows by sixteen direction-table indexes");
+        AssertEqual(480, selections, "Three selector tables of sixteen rows by the ten directions a shot is fired in");
 
         // Every frame a trail can read past a list's run: each record's animation frame and the word before each list, which a
         // trail spawned at a list's start reads. The installed service must yield what the cartridge holds there.

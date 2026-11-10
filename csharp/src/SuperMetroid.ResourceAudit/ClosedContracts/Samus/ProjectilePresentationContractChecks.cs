@@ -22,14 +22,15 @@ internal static class ProjectilePresentationContractChecks
         string consumer = """
             using SuperMetroid.AssetExtraction.Samus;
             using SuperMetroid.Core.Samus.Artwork;
+            using SuperMetroid.Core.Samus.Poses;
             using SuperMetroid.Core.Samus.Projectiles;
             class ProjectileConsumer {
                 void Inspect(ChargeFlarePlacements placement,
                     ChargeFlareSprites flare, InstalledProjectileTrails trails,
                     InstalledProjectileFrameBindings bindings, InstalledGrappleSprites grapple,
                     InstalledGrappleSwingFrames swing, InstalledProjectileSprites sprites, SuperMetroid.Core.Assets.ScreenSprites oam) {
-                    placement.Resolve(false, 12);
-                    placement.Resolve(true, 13);
+                    placement.Resolve(false, SamusFlareAim.WhileTurning(SamusTurningAim.Down));
+                    placement.Resolve(true, SamusFlareAim.AtMuzzle(SamusProjectileDirection.UpFacingLeft));
                     flare.Frame(53);
                     flare.Frame(54);
                     trails.Resolve(ProjectileTrailFrame.LeftIce0);
@@ -63,7 +64,7 @@ internal static class ProjectilePresentationContractChecks
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
         Require(before.UnresolvedCount == 10 && before.MissingCount == 1,
             "eleven constructed calls must first expose absent adapters and the known missing composition (" + before.Describe() + ")");
-        Require(after.Classifications.Count == 6 && after.UnresolvedCount == 5 && after.MissingCount == 0 &&
+        Require(after.Classifications.Count == 7 && after.UnresolvedCount == 4 && after.MissingCount == 0 &&
             after.Consumers.Count == 11, "complete sparse/ranged domains qualify, not neighboring frames" + " (" + after.Describe() + ")");
 
         SyntaxTree partialFactory = CSharpSyntaxTree.ParseText("""
@@ -73,7 +74,7 @@ internal static class ProjectilePresentationContractChecks
             }
             """, path: "fixture-external-projectile-factory.cs");
         AuditReport partial = Inspect(Compile(trees.Append(partialFactory)), true);
-        Require(partial.Classifications.Count == 5 && partial.UnresolvedCount == 6 &&
+        Require(partial.Classifications.Count == 6 && partial.UnresolvedCount == 5 &&
             partial.Findings.Count(item => item.Owner == "InstalledProjectileSprites.Frame" &&
                 item.Message.Contains("stale", StringComparison.Ordinal)) == 2,
             "external partial construction revokes ordinary coverage without revoking the private flare wrapper" + " (" + partial.Describe() + ")");

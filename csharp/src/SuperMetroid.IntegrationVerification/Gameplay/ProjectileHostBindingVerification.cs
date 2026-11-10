@@ -39,9 +39,8 @@ internal static class ProjectileHostBindingVerification
     private static void CheckFlare(ChargeFlarePlacements actual, ChargeFlarePlacements expected)
     {
         if (actual is null) throw new InvalidDataException("Host did not bind flare placement.");
-        foreach (bool running in new[] { false, true })
-        for (int direction = 0; direction < ChargeFlarePlacementDefinitions.DirectionCount; direction++)
-            if (actual.Resolve(running, direction) != expected.Resolve(running, direction))
+        foreach (ChargeFlarePlacement placement in ChargeFlarePlacements.Placements(ChargeFlareSource.Beam))
+            if (actual.Resolve(placement.Running, placement.Aim) != expected.Resolve(placement.Running, placement.Aim))
                 throw new InvalidDataException("Host restored stale flare placement.");
     }
 

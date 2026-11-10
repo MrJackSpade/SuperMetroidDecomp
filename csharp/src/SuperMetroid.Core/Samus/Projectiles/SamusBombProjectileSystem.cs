@@ -584,7 +584,7 @@ public sealed class SamusBombProjectileSystem
 
         slot.Damage = SamusProjectileDamage.Read(header);
 
-        slot.Cursor = SamusProjectilePrograms.Start(SamusProjectileHeaders.Program(header, 0));
+        slot.Cursor = SamusProjectilePrograms.Start(SamusProjectileHeaders.SoleProgram(header));
         slot.FrameHold = WrappingCountdown.Start(1);
     }
 

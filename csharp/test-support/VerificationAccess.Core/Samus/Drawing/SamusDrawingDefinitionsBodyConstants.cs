@@ -1,7 +1,7 @@
 
 namespace SuperMetroid.Core.Samus.Drawing;
 
-/// <summary>Cartridge values of <see cref="SamusDrawingDefinitions"/> that only verification reads.</summary>
+/// <summary>Cartridge values of Samus's drawing that only verification reads.</summary>
 internal static class SamusDrawingDefinitionsBodyConstants
 {
     /// <summary><c>$92:945D</c>, base bottom-spritemap index for each pose.</summary>

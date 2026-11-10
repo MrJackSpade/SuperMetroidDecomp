@@ -56,11 +56,11 @@ internal static class EquippedBeamProjectilePrograms
             starts.AddRange(BeamShotPrograms(HyperBeamFired, charged: true));
         // Only a retail combination has a special attack.
         if (beams.IsRetail && SamusProjectileSelection.SpecialAttack(beams) is { } specialAttack)
-            AddFirst(starts, specialAttack);
+            AddSole(starts, specialAttack);
         foreach (SamusProjectileFamily family in MissileFamilies)
             AddEveryDirection(starts, SamusProjectileSelection.NonBeam(family));
         foreach (SamusProjectileFamily family in BombFamilies)
-            AddFirst(starts, SamusProjectileSelection.NonBeam(family));
+            AddSole(starts, SamusProjectileSelection.NonBeam(family));
         foreach (SamusBeamEcho echo in Enum.GetValues<SamusBeamEcho>())
         {
             AddEveryDirection(starts, SamusProjectileSelection.Echo(echo));
@@ -69,7 +69,7 @@ internal static class EquippedBeamProjectilePrograms
             SamusProjectileType reflected = SamusProjectileType.EchoOf(echo);
             starts.AddRange(BeamShotPrograms(reflected.BeamCombination, reflected.IsChargedBeam));
         }
-        AddFirst(starts, SamusProjectileHeader.SuperMissileLink);
+        AddSole(starts, SamusProjectileHeader.SuperMissileLink);
         starts.AddRange(Explosions);
         starts.AddRange(SamusPowerBombFuseData.FastCounterparts.Values.Select(cursor => cursor.Program));
         return Continued(starts);
@@ -90,15 +90,15 @@ internal static class EquippedBeamProjectilePrograms
     internal static IEnumerable<SamusProjectileProgram> BeamShotPrograms(SamusBeamCombination beams, bool charged) =>
         SamusProjectileSelection.IsMurderBeam(beams, charged)
             ? SamusProjectileSelectionDefinitions.MurderBeamDirectionAnimations.Values.OfType<SamusProjectileProgram>()
-            : SamusProjectileHeaders.DirectionPrograms(SamusProjectileSelection.BeamShot(beams, charged));
+            : SamusProjectileHeaders.Programs(SamusProjectileSelection.BeamShot(beams, charged));
 
     /// <summary>Adds every list <paramref name="header"/> names.</summary>
     private static void AddEveryDirection(List<SamusProjectileProgram> starts, SamusProjectileHeader header) =>
-        starts.AddRange(SamusProjectileHeaders.DirectionPrograms(header));
+        starts.AddRange(SamusProjectileHeaders.Programs(header));
 
-    /// <summary>Adds the program a shot from <paramref name="header"/> starts in its first direction.</summary>
-    private static void AddFirst(List<SamusProjectileProgram> starts, SamusProjectileHeader header) =>
-        starts.Add(SamusProjectileHeaders.Program(header, 0));
+    /// <summary>Adds the one program a shot, bomb or particle from <paramref name="header"/> starts whatever its direction.</summary>
+    private static void AddSole(List<SamusProjectileProgram> starts, SamusProjectileHeader header) =>
+        starts.Add(SamusProjectileHeaders.SoleProgram(header));
 
     /// <summary><paramref name="starts"/> and every list they continue into.</summary>
     private static HashSet<SamusProjectileProgram> Continued(IEnumerable<SamusProjectileProgram> starts)

@@ -1049,37 +1049,41 @@ internal static class LookupStream1Verification
         var stock = ChargeFlarePlacementFile.Load(new MemoryStream(json));
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         AssertEqual(0, stock.offsets.Count, "Beam flare stock has zero stored fallback origins");
-        for (int mode = 0; mode < 2; mode++)
-        for (int direction = 0; direction < (mode == 0 ? ChargeFlarePlacementDefinitions.StandingDirectionCount : ChargeFlarePlacementDefinitions.DirectionCount); direction++)
+        foreach (ChargeFlarePlacement placement in ChargeFlarePlacements.Placements(ChargeFlareSource.Beam))
         {
-            var expected = new ChargeFlareOffset { X = Word((mode == 0 ? 0x90c1a8 : 0x90c1dc) + 2 * direction),
-                Y = Word((mode == 0 ? 0x90c1c2 : 0x90c1f0) + 2 * direction) };
-            AssertEqual(expected.Offset, ChargeFlarePlacementOffsets.BeamOffset(mode != 0, direction), "Named flare default and turning placement match direct native coordinates");
-            AssertEqual(expected.Offset, stock.Resolve(mode != 0, direction), "Installed flare default matches native");
+            int row = SamusProjectileDirectionCodec.FlarePlacementRow(placement.Aim);
+            var expected = new ChargeFlareOffset { X = Word((placement.Running ? 0x90c1dc : 0x90c1a8) + 2 * row),
+                Y = Word((placement.Running ? 0x90c1f0 : 0x90c1c2) + 2 * row) };
+            AssertEqual(expected.Offset, ChargeFlarePlacementOffsets.BeamOffset(placement.Running, placement.Aim), "Named flare default and turning placement match direct native coordinates");
+            AssertEqual(expected.Offset, stock.Resolve(placement.Running, placement.Aim), "Installed flare default matches native");
         }
+        AssertEqual(23, ChargeFlarePlacements.Placements(ChargeFlareSource.Beam).Count(),
+            "The beam flare is placed at ten muzzles in each movement mode and three turning placements standing");
         var grappleDocument = RequiredJson.Deserialize<ChargeFlarePlacementDocument>(GrappleFlarePlacementExtractor.Extract(rom), options);
         var grapple = ChargeFlarePlacementFile.LoadGrapple(new MemoryStream(ChargeFlarePlacementFile.WriteGrapple(grappleDocument)));
         AssertEqual(0, grapple.offsets.Count, "Grapple stock has zero stored fallback origins");
-        for (int mode = 0; mode < 2; mode++)
-        for (int direction = 0; direction < ChargeFlarePlacementDefinitions.DirectionCount; direction++)
+        foreach (ChargeFlarePlacement placement in ChargeFlarePlacements.Placements(ChargeFlareSource.Grapple))
         {
-            var expected = new ChargeFlareOffset { X = Word((mode == 0 ? 0x9bc14a : 0x9bc19a) + direction * 2),
-                Y = Word((mode == 0 ? 0x9bc15e : 0x9bc1ae) + direction * 2) };
-            AssertEqual(expected.Offset, ChargeFlarePlacementOffsets.GrappleOffset(mode != 0, direction), "Grapple direct defaults preserve the native words");
-            AssertEqual(expected.Offset, grapple.Resolve(mode != 0, direction), "Installed Grapple defaults match native");
+            int row = SamusProjectileDirectionCodec.FlarePlacementRow(placement.Aim);
+            var expected = new ChargeFlareOffset { X = Word((placement.Running ? 0x9bc19a : 0x9bc14a) + row * 2),
+                Y = Word((placement.Running ? 0x9bc1ae : 0x9bc15e) + row * 2) };
+            AssertEqual(expected.Offset, ChargeFlarePlacementOffsets.GrappleOffset(placement.Running, placement.Aim), "Grapple direct defaults preserve the native words");
+            AssertEqual(expected.Offset, grapple.Resolve(placement.Running, placement.Aim), "Installed Grapple defaults match native");
         }
-        foreach (int invalid in new[] { int.MinValue, -1, ChargeFlarePlacementDefinitions.StandingDirectionCount, 15, int.MaxValue })
+        AssertEqual(20, ChargeFlarePlacements.Placements(ChargeFlareSource.Grapple).Count(), "The Grapple flare is placed at ten muzzles in each movement mode");
+        // A flare aim naming neither a muzzle nor a turn is no placement.
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(false, default), "Flare placement catalog bounds");
+        AssertThrows<ArgumentOutOfRangeException>(() => grapple.Resolve(true, default), "Grapple catalog bounds");
+        AssertThrows<ArgumentOutOfRangeException>(() => ChargeFlarePlacementOffsets.GrappleOffset(false, default), "Grapple calculated bounds");
+        AssertThrows<ArgumentOutOfRangeException>(() => ChargeFlarePlacementOffsets.BeamOffset(true, default), "Flare calculated bounds");
+        // No pose places a flare while turning running, or a Grapple flare while turning (#1500).
+        foreach (SamusTurningAim turning in Enum.GetValues<SamusTurningAim>())
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(false, invalid), "Flare placement catalog bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => grapple.Resolve(true, invalid), "Grapple catalog bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => ChargeFlarePlacementOffsets.GrappleOffset(false, invalid), "Grapple calculated bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => ChargeFlarePlacementOffsets.BeamOffset(true, invalid), "Flare calculated bounds");
-        }
-        // No pose selects past the turning placements standing or past the named directions running (#1500).
-        foreach (int invalid in new[] { ChargeFlarePlacementDefinitions.DirectionCount, ChargeFlarePlacementDefinitions.StandingDirectionCount - 1 })
-        {
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(true, invalid), "Running flare placement rejects selections past the named directions");
-            AssertThrows<ArgumentOutOfRangeException>(() => grapple.Resolve(false, invalid), "Grapple flare placement has no turning placements");
+            SamusFlareAim aim = SamusFlareAim.WhileTurning(turning);
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(true, aim), "Running flare placement rejects turning placements");
+            AssertThrows<ArgumentOutOfRangeException>(() => ChargeFlarePlacementOffsets.BeamOffset(true, aim), "Running flare calculated placement rejects turning placements");
+            AssertThrows<ArgumentOutOfRangeException>(() => grapple.Resolve(false, aim), "Grapple flare placement has no turning placements");
+            AssertThrows<ArgumentOutOfRangeException>(() => ChargeFlarePlacementOffsets.GrappleOffset(false, aim), "Grapple calculated placement has no turning placements");
         }
         var compositions = ChargeFlareSprites.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(rom)));
         var body = CreateSamusIdentityFixture();
@@ -1208,10 +1212,8 @@ internal static class LookupStream1Verification
             AssertEqual(Word(0xa8d895 + 4 * index), intervals.Acceleration, "stream1 Bull acceleration interval");
             AssertEqual(Word(0xa8d897 + 4 * index), intervals.Deceleration, "stream1 Bull deceleration interval");
         }
-        for (int direction = 0; direction < 10; direction++)
-            AssertEqual(Word(0xa8d871 + 2 * direction), BullMotion.ShotAngle(direction), "stream1 Bull compass angle");
-        foreach (int invalid in new[] { -1, 10, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => BullMotion.ShotAngle(invalid), "stream1 Bull invalid direction");
+        foreach (SamusProjectileDirection direction in SamusProjectileDirectionCodec.InAimOrder)
+            AssertEqual(Word(0xa8d871 + 2 * direction.ToAimIndex()), BullMotion.ShotAngle(direction), "stream1 Bull compass angle");
         AssertThrows<InvalidDataException>(() => EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Bull, PopulationWords.Parameters(13, 0)), "stream1 Bull invalid interval");
         for (byte index = 0; index < 6; index++)
             AssertEqual(Word(0xa29f36 + 2 * index), CacatacTravelDistance(index), "stream1 Cacatac patrol blocks");
@@ -1557,7 +1559,7 @@ internal static class LookupStream1Verification
         AssertEqual(0, stock.attributes.Count + stock.openingTiles.Count, "Stock cannon selectors require no stored fallback overrides");
         for (int direction = 0; direction < 10; direction++)
         {
-            var aim = (SamusProjectileDirection)direction;
+            SamusProjectileDirection aim = SamusProjectileDirectionCodec.FromAimIndex(direction);
             // The cover appearance has no packed word: its character, palette row, priority and mirroring are compared
             // with the native attribute word decoded by the import pipeline's codec.
             AssertEqual(new SnesObjAttributeWord(Word(0x90c791 + direction * 2)).ToSinglePart(), SamusArmCannonArtworkFormat.StockCoverAppearance(aim),

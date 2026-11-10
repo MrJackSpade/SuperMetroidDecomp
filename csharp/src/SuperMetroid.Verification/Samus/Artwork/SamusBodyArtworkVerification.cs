@@ -383,7 +383,7 @@ internal static class SamusBodyArtworkVerification
                     (SamusSourceDefinitions.ArmCannonDrawingData + offset)),
                 armCannon.ReadDrawingByteAt((ushort)(SamusSourceDefinitions.ArmCannonDrawingData + offset)),
                 $"arm-cannon drawing byte {offset:X3}");
-        for (int direction = 0; direction < SamusDrawingDefinitions.ArmCannon.DirectionCount; direction++)
+        for (int direction = 0; direction < SamusProjectileDirectionCodec.Count; direction++)
         {
             int attrAddress = SamusSourceDefinitions.ArmCannonSpriteAttributes.Value + direction * 2;
             AssertEqual(new SnesObjAttributeWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(attrAddress)).ToSinglePart(),
@@ -413,10 +413,10 @@ internal static class SamusBodyArtworkVerification
             SamusArmCannonPlacement placement = body.ArmCannon.Placement(SamusPoseNumbering.FromNumber(pose));
             AssertEqual(SuperMetroid.Core.Samus.Drawing.SamusArmCannonState.DrawOrderOf(bus.ReadCartridgeByte(descriptor + 1)),
                 placement.DrawOrder, $"arm-cannon pose {pose:X2} drawing mode");
-            AssertEqual(SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirectionCodec.FromAimIndex(direction & 0x7f),
+            AssertEqual(SuperMetroid.AssetExtraction.Samus.SamusProjectileDirectionCodec.FromAimIndex(direction & 0x7f),
                 placement.FirstDirection, $"arm-cannon pose {pose:X2} first direction");
             AssertEqual(frameDependent
-                    ? SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirectionCodec.FromAimIndex(bus.ReadCartridgeByte(descriptor + 2) & 0x7f)
+                    ? SuperMetroid.AssetExtraction.Samus.SamusProjectileDirectionCodec.FromAimIndex(bus.ReadCartridgeByte(descriptor + 2) & 0x7f)
                     : null, placement.LaterDirection,
                 $"arm-cannon pose {pose:X2} later direction");
             int displacements = descriptor + (frameDependent ? 4 : 2);

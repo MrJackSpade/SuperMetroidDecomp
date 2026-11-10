@@ -24,11 +24,11 @@ internal static class ProjectileTrailPlacementSources
         {
             if (family is not { } named)
                 continue;
-            int direction = Array.IndexOf(ProjectileTrailPlacementDefinitions.Lists[named], list);
-            if (direction < 0)
+            SamusProjectileDirectionMap<ProjectileTrailPlacementList?> lists = ProjectileTrailPlacementDefinitions.Lists[named];
+            if (SamusProjectileDirectionCodec.InAimOrder.Where(direction => lists.For(direction) == list).ToArray() is not [var direction, ..])
                 continue;
             SnesAddress selector = SelectorTable(row.Group).AddWithinBank(row.Beams.TableIndex * sizeof(ushort));
-            SnesAddress entry = Pointer(cartridge, selector).AddWithinBank(direction * sizeof(ushort));
+            SnesAddress entry = Pointer(cartridge, selector).AddWithinBank(direction.ToAimIndex() * sizeof(ushort));
             return Pointer(cartridge, entry);
         }
         throw new ArgumentOutOfRangeException(nameof(list), list, "No trail selector row reaches this placement list.");

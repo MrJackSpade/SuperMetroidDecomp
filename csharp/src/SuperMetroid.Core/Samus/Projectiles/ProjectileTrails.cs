@@ -49,7 +49,7 @@ internal sealed class ProjectileTrails
             ? ProjectileTrailFamilyGroup.SpecialBeamAttack
             : projectile.Type.IsChargedBeam ? ProjectileTrailFamilyGroup.Charged : ProjectileTrailFamilyGroup.Uncharged;
         ProjectileTrailPlacementList? list = ProjectileTrailPlacements.List(
-            group, projectile.Type.BeamCombination, projectile.Direction.ToAimIndex());
+            group, projectile.Type.BeamCombination, projectile.Direction);
 
         // A shot whose direction names no placement list draws no trail, and so does a row whose list would be
         // left-over values: that appearance is not part of the game's design, so it is exempt (owner decision on #1318).

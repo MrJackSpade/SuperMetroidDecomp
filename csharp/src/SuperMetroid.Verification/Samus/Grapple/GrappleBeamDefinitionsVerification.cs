@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Samus.Grapple.SamusGrappleVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -46,7 +47,7 @@ internal static class GrappleBeamDefinitionsVerification
         })
         {
             TouchRange(bus, directionTable,
-                GrappleBeamDefinitions.Firing.DirectionCount * sizeof(ushort),
+                SamusProjectileDirectionCodec.Count * sizeof(ushort),
                 $"Grapple direction table ${directionTable:X6}");
         }
 
@@ -121,12 +122,12 @@ internal static class GrappleBeamDefinitionsVerification
                 GrappleBeamDefinitionsConnectionsConstants.SpecialAngleRecordByteCount,
             "Grapple special-angle records");
         TouchRange(bus, GrappleBeamDefinitionsRelease.StandingPoseTable,
-            GrappleBeamDefinitions.Firing.DirectionCount, "Grapple standing release poses");
+            SamusProjectileDirectionCodec.Count, "Grapple standing release poses");
         TouchRange(bus, GrappleBeamDefinitionsRelease.CrouchingPoseTable,
-            GrappleBeamDefinitions.Firing.DirectionCount, "Grapple crouching release poses");
+            SamusProjectileDirectionCodec.Count, "Grapple crouching release poses");
 
         Console.WriteLine(
-            $"  Samus Grapple ROM data: {GrappleBeamDefinitions.Firing.DirectionCount} directions, " +
+            $"  Samus Grapple ROM data: {SamusProjectileDirectionCodec.Count} directions, " +
             $"{segmentPointerCount} segment sets, three connection tables, and special angles are in range.");
     }
 

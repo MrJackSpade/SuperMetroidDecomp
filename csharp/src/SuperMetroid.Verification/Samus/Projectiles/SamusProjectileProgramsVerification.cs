@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -84,14 +85,19 @@ internal static class SamusProjectileProgramsVerification
             ushort header = SamusProjectileHeaderNative.Address(kind);
             int kept = FirstListReadHeaders.Contains(kind) ? 1 : HeaderListFields;
             if (kept < HeaderListFields)
-                AssertThrows<ArgumentOutOfRangeException>(() => SamusProjectileHeaders.Program(kind, kept), $"{kind} keeps only the list field its shots read");
+            {
+                AssertThrows<ArgumentOutOfRangeException>(() => SamusProjectileHeaders.ProgramAtField(kind, kept), $"{kind} keeps only the list field its shots read");
+                AssertThrows<ArgumentOutOfRangeException>(() => SamusProjectileHeaders.Program(kind, SamusProjectileDirection.UpFacingRight), $"{kind} is read by no direction");
+            }
+            else
+                AssertThrows<ArgumentOutOfRangeException>(() => SamusProjectileHeaders.SoleProgram(kind), $"{kind} is read by direction");
             for (int field = 0; field < kept; field++, fields++)
             {
                 ushort native = Word(header + sizeof(ushort) * (1 + field));
                 string at = $"projectile header $93:{header:X4} field {field}";
                 if (!byEntry.TryGetValue(native, out SamusProjectileProgram program))
                     throw new InvalidDataException($"{at}: native word ${native:X4} is not a list, but every header field the port keeps names one.");
-                AssertEqual(program, SamusProjectileHeaders.Program(header, field), $"{at}: list");
+                AssertEqual(program, SamusProjectileHeaders.ProgramAtField(header, field), $"{at}: list");
             }
         }
         ushort powerBomb = SamusProjectileHeaderNative.Address(SamusProjectileHeader.PowerBomb);
@@ -156,7 +162,7 @@ internal static class SamusProjectileProgramsVerification
             int fields = FirstListOnlyHeaders.Contains(header) ? 1 : HeaderListFields;
             for (int field = 0; field < fields; field++, compared++)
                 AssertEqual(word(at + sizeof(ushort) * (1 + field)),
-                    SamusProjectileProgramAddresses.Entry(SamusProjectileHeaders.Program(header, field)),
+                    SamusProjectileProgramAddresses.Entry(SamusProjectileHeaders.ProgramAtField(header, field)),
                     $"{label}: {header} list field {field}");
         }
         return compared;

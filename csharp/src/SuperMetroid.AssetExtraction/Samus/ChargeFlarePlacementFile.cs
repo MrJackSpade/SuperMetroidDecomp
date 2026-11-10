@@ -9,17 +9,24 @@ namespace SuperMetroid.AssetExtraction.Samus;
 public static class ChargeFlarePlacementFile
 {
     /// <summary>
-    /// Required revision of the beam and Grapple placement schemas. Revision two holds the ten named directions of each
-    /// movement mode and the beam flare's three turning placements; revision one also held the selections past them,
-    /// which no pose produces (#1500).
+    /// Required revision of the beam and Grapple placement schemas. Revision three keys each placement by the name of
+    /// its direction or turn (#1595); revision two keyed the ten directions of each movement mode and the beam flare's
+    /// three turning placements by the cartridge's row numbers; revision one also held the selections past them, which
+    /// no pose produces (#1500).
     /// </summary>
-    public const int Version = 2;
+    public const int Version = 3;
 
-    /// <summary>Formats the exact JSON identity for one movement-mode/direction placement; direction range validation belongs to catalog loading or lookup, not this formatter.</summary>
-    /// <param name="running">True for the running visual-origin table; false for standing.</param>
-    /// <param name="direction">A named aiming direction or, standing, a turning placement; formatted as two decimal digits rather than hexadecimal.</param>
-    /// <returns>A key such as <c>standing-00</c>, <c>standing-12</c> or <c>running-09</c>.</returns>
-    public static string Key(bool running, int direction) => $"{(running ? "running" : "standing")}-{direction:D2}";
+    /// <summary>Formats the exact JSON identity for one placement; which placements a flare holds belongs to catalog loading, not this formatter.</summary>
+    /// <param name="placement">The movement mode, and the direction whose muzzle or the turn whose placement the flare takes.</param>
+    /// <returns>A key such as <c>standing-UpFacingRight</c>, <c>running-UpFacingLeft</c> or <c>standing-turning-Down</c>.</returns>
+    /// <exception cref="ArgumentException">The placement names neither a muzzle nor a turn.</exception>
+    internal static string Key(ChargeFlarePlacement placement)
+    {
+        string mode = placement.Running ? "running" : "standing";
+        return placement.Aim.Muzzle is { } direction ? $"{mode}-{direction}"
+            : placement.Aim.Turning is { } turning ? $"{mode}-turning-{turning}"
+            : throw new ArgumentException("A flare is placed at a muzzle or while turning.", nameof(placement));
+    }
 
     /// <summary>Rejects unknown JSON properties while writing a stable camel-case authoring document.</summary>
     private static readonly JsonSerializerOptions Options = new()
@@ -57,17 +64,16 @@ public static class ChargeFlarePlacementFile
         {
             throw new InvalidDataException("A charge-flare placement offset is outside the signed 16-bit range.", error);
         }
-        int keys = ChargeFlarePlacements.DirectionsFor(source, running: false) + ChargeFlarePlacements.DirectionsFor(source, running: true);
-        if (document.Version != ChargeFlarePlacementFile.Version || document.Offsets is null || document.Offsets.Count != keys)
+        ChargeFlarePlacement[] placements = [.. ChargeFlarePlacements.Placements(source)];
+        if (document.Version != ChargeFlarePlacementFile.Version || document.Offsets is null || document.Offsets.Count != placements.Length)
             throw new InvalidDataException($"Charge-flare placement requires version {ChargeFlarePlacementFile.Version} and all standing/running directions.");
-        var offsets = new Dictionary<int, Offset16<RoomPixels>>();
-        foreach (bool running in (bool[])[false, true])
-        for (int direction = 0; direction < ChargeFlarePlacements.DirectionsFor(source, running); direction++)
+        var offsets = new Dictionary<ChargeFlarePlacement, Offset16<RoomPixels>>();
+        foreach (ChargeFlarePlacement placement in placements)
         {
-            string key = ChargeFlarePlacementFile.Key(running, direction);
+            string key = ChargeFlarePlacementFile.Key(placement);
             if (!document.Offsets.TryGetValue(key, out var value) || value is null)
                 throw new InvalidDataException($"Missing charge-flare placement {key}.");
-            offsets.Add(ChargeFlarePlacements.Slot(running, direction), value.Offset);
+            offsets.Add(placement, value.Offset);
         }
         return new(offsets, source);
     }

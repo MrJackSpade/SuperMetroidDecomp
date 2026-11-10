@@ -6,26 +6,27 @@ using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Enemies.Cacatac;
 
-/// <summary>#641: Cacatac's typed programs, each matched step by step to its native bank-$A2 list.</summary>
+/// <summary>#641, #1600: Cacatac's typed animations, each segment matched to its native bank-$A2 list and each animation to the lists' control flow.</summary>
 internal static class CacatacAnimationsVerification
 {
-    /// <summary>Every program matches its native list.</summary>
+    /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifyCacatacAnimations(SuperMetroidAddressSpace rom)
     {
-        int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, CacatacAnimations.Programs,
-            CacatacFrameToolingDefinitions.Spritemap,
-            word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
-            (word, operands, cue, at) =>
-            {
-                var instruction = Instructions[word];
-                AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
-                for (int index = 0; index < operands.Length; index++)
-                    AssertEqual(operands[index], instruction.Operands[index] switch
+        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
+            CacatacAnimations.Segments, CacatacAnimations.StartingAt, CacatacFrameToolingDefinitions.Spritemap,
+            new NativeEnemyCueRules<CacatacCue>(
+                word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
+                (word, operands, cue, at) =>
                 {
-                    'V' => CacatacNativeWords.SpikeDirections.Word(cue.Direction),
-                    _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
-                }, $"{at}: operand {index}");
-            });
-        Console.WriteLine($"  Cacatac programs: {Entries.Length} programs ({steps} steps) match bank $A2.");
+                    var instruction = Instructions[word];
+                    AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
+                    for (int index = 0; index < operands.Length; index++)
+                        AssertEqual(operands[index], instruction.Operands[index] switch
+                    {
+                        'V' => CacatacNativeWords.SpikeDirections.Word(cue.Direction),
+                        _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
+                    }, $"{at}: operand {index}");
+                }));
+        Console.WriteLine($"  Cacatac animations: {Entries.Length} segments ({beats} beats) and {CacatacAnimations.StartingAt.Count} animations match bank $A2.");
     }
 }

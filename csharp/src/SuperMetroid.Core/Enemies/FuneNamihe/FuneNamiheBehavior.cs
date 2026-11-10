@@ -151,7 +151,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
-        state.Program = AnimationProgramCursor<FuneNamiheProgram>.Start(SelectFuneNamiheProgram(state));
+        state.Playback = new(FuneNamiheAnimations.StartingWith(SelectFuneNamiheProgram(state)), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>The animation for <paramref name="state"/>'s species, activity and facing.</summary>
@@ -195,9 +195,11 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances FuneNamihe's typed animation.</summary>
     internal void AdvanceFuneNamiheTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, FuneNamiheAnimations.Programs, FuneNamiheFrameDefinitions.ShownFrames.Of,
-            static (FuneNamiheEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
-            (state, cue, _) => ApplyFuneNamiheCue(slot, state, cue));
+        EnemyProgramAnimation.Advance(slot, FuneNamiheAnimations.Segments, FuneNamiheFrameDefinitions.ShownFrames.Of,
+            static (FuneNamiheEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            (state, cue) => ApplyFuneNamiheCue(slot, state, cue) is { } target
+                ? new AnimationContinuation<FuneNamiheProgram>(FuneNamiheAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                : null);
 
     /// <summary>Shared projectile movement callback installed for both Fune and Namihe fireballs.</summary>
     private const EnemyProjectileFrameBehavior NamiFuneFireballFrameBehavior =

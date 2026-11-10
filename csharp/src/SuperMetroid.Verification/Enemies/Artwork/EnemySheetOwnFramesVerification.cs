@@ -133,8 +133,8 @@ internal static class EnemySheetOwnFramesVerification
     private static EnemySheetOwnFrameFamily FuneAndNamihe() => new("Fune and Namihe", TableFrames(FuneNamiheFrameDefinitions.ShownFrames),
         new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
         {
-            [EnemyDefinitionId.Fune] = Reach(FuneNamiheAnimations.Programs, FuneNamiheFrameDefinitions.ShownFrames, PlacedFuneNamihePrograms(EnemyDefinitionId.Fune)),
-            [EnemyDefinitionId.Namihe] = Reach(FuneNamiheAnimations.Programs, FuneNamiheFrameDefinitions.ShownFrames, PlacedFuneNamihePrograms(EnemyDefinitionId.Namihe)),
+            [EnemyDefinitionId.Fune] = Reach(FuneNamiheAnimations.Segments, FuneNamiheAnimations.StartingAt, FuneNamiheFrameDefinitions.ShownFrames, PlacedFuneNamihePrograms(EnemyDefinitionId.Fune)),
+            [EnemyDefinitionId.Namihe] = Reach(FuneNamiheAnimations.Segments, FuneNamiheAnimations.StartingAt, FuneNamiheFrameDefinitions.ShownFrames, PlacedFuneNamihePrograms(EnemyDefinitionId.Namihe)),
         });
 
     /// <summary>The programs every room placement of <paramref name="definition"/> can select.</summary>

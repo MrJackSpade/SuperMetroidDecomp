@@ -33,12 +33,12 @@ internal static class FuneNamiheDefinitionsVerification
                 ? FuneNamiheSelectorOracle.NamiheIdleLeftCursor
                 : FuneNamiheSelectorOracle.FuneIdleLeftCursor) +
                 (right ? FuneNamiheSelectorOracle.FacingRightCursorDelta : 0));
-            AssertEqual(AnimationProgramCursor<FuneNamiheProgram>.Start(FuneNamiheSelectorOracle.ProgramAt(idleCursor)), state.Program,
+            AssertEqual(new AnimationPlayback<FuneNamiheProgram>(FuneNamiheAnimations.StartingWith(FuneNamiheSelectorOracle.ProgramAt(idleCursor)), AnimationPlace.StartOfAnimation), state.Playback,
                 $"Fune/Namihe production idle list {variant}");
 
             runMain(slot, (state), namihe ? new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0, slot.Position.Y.Whole)) } : null);
             ushort activeCursor = (ushort)(idleCursor - FuneNamiheSelectorOracle.ActiveCursorDelta);
-            AssertEqual(AnimationProgramCursor<FuneNamiheProgram>.Start(FuneNamiheSelectorOracle.ProgramAt(activeCursor)), state.Program,
+            AssertEqual(new AnimationPlayback<FuneNamiheProgram>(FuneNamiheAnimations.StartingWith(FuneNamiheSelectorOracle.ProgramAt(activeCursor)), AnimationPlace.StartOfAnimation), state.Playback,
                 $"Fune/Namihe production active list {variant}");
         }
 

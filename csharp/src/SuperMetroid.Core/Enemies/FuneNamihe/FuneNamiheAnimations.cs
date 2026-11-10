@@ -10,14 +10,13 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 /// </summary>
 internal static class FuneNamiheAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<FuneNamiheProgram, FuneNamiheFrame, FuneNamiheCue> Programs { get; } = new(
-        new Dictionary<FuneNamiheProgram, AnimationProgramStep<FuneNamiheProgram, FuneNamiheFrame, FuneNamiheCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<FuneNamiheProgram, FuneNamiheFrame, FuneNamiheCue> Segments { get; } = new(
+        new Dictionary<FuneNamiheProgram, AnimationBeat<FuneNamiheFrame, FuneNamiheCue>[]>
     {
         [P.FuneIdleLeft] =
         [
             Show(0, 1),
-            Hold,
         ],
         [P.FuneActiveLeft] =
         [
@@ -32,12 +31,10 @@ internal static class FuneNamiheAnimations
             Show(2, 8),
             Show(1, 8),
             Cue(new(K.FinishActivity)),
-            GoTo(P.FuneIdleLeft),
         ],
         [P.FuneIdleRight] =
         [
             Show(5, 1),
-            Hold,
         ],
         [P.FuneActiveRight] =
         [
@@ -52,12 +49,10 @@ internal static class FuneNamiheAnimations
             Show(7, 8),
             Show(6, 8),
             Cue(new(K.FinishActivity)),
-            GoTo(P.FuneIdleRight),
         ],
         [P.NamiheIdleLeft] =
         [
             Show(10, 1),
-            Hold,
         ],
         [P.NamiheActiveLeft] =
         [
@@ -73,12 +68,10 @@ internal static class FuneNamiheAnimations
             Show(13, 8),
             Show(12, 8),
             Cue(new(K.FinishActivity)),
-            GoTo(P.NamiheIdleLeft),
         ],
         [P.NamiheIdleRight] =
         [
             Show(16, 1),
-            Hold,
         ],
         [P.NamiheActiveRight] =
         [
@@ -94,20 +87,28 @@ internal static class FuneNamiheAnimations
             Show(19, 8),
             Show(18, 8),
             Cue(new(K.FinishActivity)),
-            GoTo(P.NamiheIdleRight),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<FuneNamiheProgram, Animation<FuneNamiheProgram>> StartingAt { get; } = new Dictionary<FuneNamiheProgram, Animation<FuneNamiheProgram>>
+    {
+        [P.FuneIdleLeft] = new([new(P.FuneIdleLeft, 0, 1, 1)], AnimationEnd.Holds),
+        [P.FuneActiveLeft] = new([new(P.FuneActiveLeft, 0, 11, 1), new(P.FuneIdleLeft, 0, 1, 1)], AnimationEnd.Holds),
+        [P.FuneIdleRight] = new([new(P.FuneIdleRight, 0, 1, 1)], AnimationEnd.Holds),
+        [P.FuneActiveRight] = new([new(P.FuneActiveRight, 0, 11, 1), new(P.FuneIdleRight, 0, 1, 1)], AnimationEnd.Holds),
+        [P.NamiheIdleLeft] = new([new(P.NamiheIdleLeft, 0, 1, 1)], AnimationEnd.Holds),
+        [P.NamiheActiveLeft] = new([new(P.NamiheActiveLeft, 0, 12, 1), new(P.NamiheIdleLeft, 0, 1, 1)], AnimationEnd.Holds),
+        [P.NamiheIdleRight] = new([new(P.NamiheIdleRight, 0, 1, 1)], AnimationEnd.Holds),
+        [P.NamiheActiveRight] = new([new(P.NamiheActiveRight, 0, 12, 1), new(P.NamiheIdleRight, 0, 1, 1)], AnimationEnd.Holds),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<FuneNamiheProgram> StartingWith(FuneNamiheProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<FuneNamiheProgram, FuneNamiheFrame, FuneNamiheCue> Show(int pose, int duration) => AnimationProgramStep<FuneNamiheProgram, FuneNamiheFrame, FuneNamiheCue>.Show(new(pose), duration);
+    private static AnimationBeat<FuneNamiheFrame, FuneNamiheCue> Show(int pose, int duration) => new AnimationBeat<FuneNamiheFrame, FuneNamiheCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<FuneNamiheProgram, FuneNamiheFrame, FuneNamiheCue> Cue(FuneNamiheCue cue) => AnimationProgramStep<FuneNamiheProgram, FuneNamiheFrame, FuneNamiheCue>.Publish(cue);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<FuneNamiheProgram, FuneNamiheFrame, FuneNamiheCue> GoTo(FuneNamiheProgram program) => AnimationProgramStep<FuneNamiheProgram, FuneNamiheFrame, FuneNamiheCue>.GoTo(program);
-
-    /// <summary>Holds the last frame, as the sleep does.</summary>
-    private static AnimationProgramStep<FuneNamiheProgram, FuneNamiheFrame, FuneNamiheCue> Hold => AnimationProgramStep<FuneNamiheProgram, FuneNamiheFrame, FuneNamiheCue>.Hold;
-
+    private static AnimationBeat<FuneNamiheFrame, FuneNamiheCue> Cue(FuneNamiheCue cue) => new AnimationBeat<FuneNamiheFrame, FuneNamiheCue>.Event(cue);
 }

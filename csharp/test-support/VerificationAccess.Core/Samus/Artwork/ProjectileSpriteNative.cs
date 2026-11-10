@@ -124,7 +124,7 @@ internal static class ProjectileSpriteNative
     }
 
     /// <summary>A projectile slot's composition by address.</summary>
-    extension(SamusProjectileSlot slot)
+    extension(SamusProjectile slot)
     {
         /// <summary>The bank-$93 address of the composition the slot shows, or zero for none.</summary>
         internal int SpritemapPointer

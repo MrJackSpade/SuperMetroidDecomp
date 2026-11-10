@@ -111,7 +111,7 @@ internal static class ProjectileTrailCoordinatesVerification
                 SamusProjectileRecordDefinitions.Get(record).AnimationFrame == frame)) +
             SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListLayout.TimedRecordByteCount)))).ToArray();
         var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
-        var spawn = new Action<SamusProjectileSlot>(system.Trails.SpawnTrail);
+        var spawn = new Action<SamusProjectile>(system.Trails.SpawnTrail);
         int cases = 0;
         // 36 is the Spazer combo's trail echo; no projectile is an echo of Spazer+Wave (37), which the typed identity cannot name.
         foreach (ushort type in new ushort[] { 1, 2, 6, 7, 10, 11, 17, 18, 22, 23, 26, 27, 36, 0x100, 0x200 })
@@ -122,7 +122,7 @@ internal static class ProjectileTrailCoordinatesVerification
             ushort offsets = DirectionList(bus, type, direction);
             ushort y = unchecked((ushort)(offsets + frame * 4));
             system.Reset();
-            var shot = new SamusProjectileSlot(0)
+            var shot = new SamusProjectile(0)
             {
                 Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type),
                 Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction),
@@ -155,7 +155,7 @@ internal static class ProjectileTrailCoordinatesVerification
             ushort? offsets = FamilyIsCartridge(bus, type) ? DirectionList(bus, type, direction) : null;
             ushort y = unchecked((ushort)((offsets ?? 0) + frame * 4));
             system.Reset();
-            var shot = new SamusProjectileSlot(0)
+            var shot = new SamusProjectile(0)
             {
                 Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type), Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction), Cursor = SamusProjectileProgramAddresses.CursorAt(listStart), Position = new(new(0x0100, 0), new(0x0100, 0)),
             };

@@ -29,7 +29,7 @@ internal sealed class ProjectileMotion
     /// <summary>Accelerates a non-Wave beam, emits its old-position trail, and resolves directional block collision.</summary>
     internal bool RunNoWaveBeamFrameBehavior(
         RoomLevelData level,
-        SamusProjectileSlot slot,
+        SamusProjectile slot,
         Position16<RoomPixels> cameraPosition,
         ISamusRoomObjects? roomObjects,
         SamusPowerBombExplosionState powerBomb)
@@ -86,7 +86,7 @@ internal sealed class ProjectileMotion
     /// <summary>Updates Wave's three- or four-frame trail cadence before its block-transparent movement.</summary>
     internal void RunWaveBeamFrameBehavior(
         RoomLevelData level,
-        SamusProjectileSlot slot,
+        SamusProjectile slot,
         Position16<RoomPixels> cameraPosition,
         ISamusRoomObjects? roomObjects)
     {
@@ -116,7 +116,7 @@ internal sealed class ProjectileMotion
     /// <summary>Uses Wave's block-transparent movement for Hyper Beam without spawning projectile trails.</summary>
     internal void RunHyperBeamFrameBehavior(
         RoomLevelData level,
-        SamusProjectileSlot slot,
+        SamusProjectile slot,
         Position16<RoomPixels> cameraPosition,
         ISamusRoomObjects? roomObjects)
     {
@@ -135,7 +135,7 @@ internal sealed class ProjectileMotion
     /// <summary>Advances Wave or Hyper positions and notifies shootable blocks while ignoring terrain collision carry.</summary>
     private void RunWaveBeamShared(
         RoomLevelData level,
-        SamusProjectileSlot slot,
+        SamusProjectile slot,
         Position16<RoomPixels> cameraPosition,
         ISamusRoomObjects? roomObjects)
     {
@@ -165,7 +165,7 @@ internal sealed class ProjectileMotion
     internal bool RunMissileFrameBehavior(
         RoomLevelData level,
         SamusState samus,
-        SamusProjectileSlot slot,
+        SamusProjectile slot,
         Position16<RoomPixels> cameraPosition,
         SamusBombProjectileSystem sharedProjectiles,
         ISamusRoomObjects? roomObjects)
@@ -230,7 +230,7 @@ internal sealed class ProjectileMotion
     internal bool RunSuperMissileFrameBehavior(
         RoomLevelData level,
         SamusState samus,
-        SamusProjectileSlot slot,
+        SamusProjectile slot,
         Position16<RoomPixels> cameraPosition,
         SamusBombProjectileSystem sharedProjectiles,
         ISamusRoomObjects? roomObjects)
@@ -305,7 +305,7 @@ internal sealed class ProjectileMotion
     /// Adds one update's acceleration to the shot's velocity, the direction's entry for the shot's kind. The velocity
     /// stays far inside its range, since a shot accelerating that long has left the movement window.
     /// </summary>
-    private static void Accelerate(SamusProjectileSlot slot, EightEightVector<RoomPixels> acceleration) =>
+    private static void Accelerate(SamusProjectile slot, EightEightVector<RoomPixels> acceleration) =>
         slot.Velocity += acceleration;
 
     /// <summary>
@@ -316,7 +316,7 @@ internal sealed class ProjectileMotion
     /// </summary>
     /// <returns>True when the projectile was outside the movement window and cleared.</returns>
     private bool DeleteIfOutsideMovementWindow(
-        SamusProjectileSlot slot,
+        SamusProjectile slot,
         Position16<RoomPixels> cameraPosition)
     {
         const int MinimumVisibleCoordinate = -64;
@@ -340,7 +340,7 @@ internal sealed class ProjectileMotion
     /// Ignites a missile: its velocity is rebuilt from its ignition speed, one pixel per update, or more after a
     /// reflection's head start, combined with Samus's inherited motion.
     /// </summary>
-    private static void IgniteMissile(SamusState samus, SamusProjectileSlot slot)
+    private static void IgniteMissile(SamusState samus, SamusProjectile slot)
     {
         SignedEightEight ignitionSpeed = slot.MissileIgnition == SamusMissileIgnition.PendingAfterReflection
             ? SamusProjectileMotionDefinitions.ReflectedMissileIgnitionSpeed
@@ -352,9 +352,9 @@ internal sealed class ProjectileMotion
     /// <summary>Allocates the invisible collision link at ignition and records its slot in the owner; with no free slot the owner keeps the link it named.</summary>
     internal void SpawnSuperMissileLink(
         SamusState samus,
-        SamusProjectileSlot owner)
+        SamusProjectile owner)
     {
-        SamusProjectileSlot? link = _slotTable.Slots.FirstOrDefault(candidate => !candidate.IsOccupied);
+        SamusProjectile? link = _slotTable.Slots.FirstOrDefault(candidate => !candidate.IsOccupied);
         if (link is null)
             return;
 
@@ -380,7 +380,7 @@ internal sealed class ProjectileMotion
     }
 
     /// <summary>Keeps an ordinary link stationary or clears the whole Super Missile family on its deletion signal.</summary>
-    internal void RunSuperMissileLinkFrameBehavior(SamusProjectileSlot link)
+    internal void RunSuperMissileLinkFrameBehavior(SamusProjectile link)
     {
         // The link update leaves an ordinary link completely stationary. A spent link clears every
         // Super Missile slot, including its owner.
@@ -393,14 +393,14 @@ internal sealed class ProjectileMotion
     /// <summary>Places a fast link behind the owner for its extra point reaction, retaining impact checks on explosion frames.</summary>
     private void UpdateSuperMissileLinkAxis(
         RoomLevelData level,
-        SamusProjectileSlot owner,
+        SamusProjectile owner,
         Axis axis,
         SamusBombProjectileSystem sharedProjectiles,
         ISamusRoomObjects? roomObjects)
     {
         if (owner.MissileIgnition != SamusMissileIgnition.Ignited || owner.SuperMissileLinkSlot is not { } linkIndex)
             return;
-        SamusProjectileSlot link = _slotTable.Slots[linkIndex];
+        SamusProjectile link = _slotTable.Slots[linkIndex];
         if (!link.IsActive)
             return;
 
@@ -446,7 +446,7 @@ internal sealed class ProjectileMotion
     /// <summary>Clears every Super Missile slot after owner or link termination.</summary>
     private void ClearAllSuperMissileLinks()
     {
-        foreach (SamusProjectileSlot candidate in _slotTable.InUpdateOrder)
+        foreach (SamusProjectile candidate in _slotTable.InUpdateOrder)
         {
             if (candidate.Type.IsFamily(SamusProjectileFamily.SuperMissile))
                 _animation.ClearProjectile(candidate);
@@ -456,7 +456,7 @@ internal sealed class ProjectileMotion
     /// <summary>Advances missile X and tests its center unless it has crossed the room's screen-width boundary.</summary>
     private static bool MoveMissileHorizontally(
         RoomLevelData level,
-        SamusProjectileSlot slot,
+        SamusProjectile slot,
         ISamusRoomObjects? roomObjects)
     {
         slot.Position = slot.Position.AdvanceX(slot.Velocity.X.ToSixteenSixteenDelta());
@@ -474,7 +474,7 @@ internal sealed class ProjectileMotion
     /// <summary>Advances missile Y and tests its center unless it has crossed the room's screen-height boundary.</summary>
     private static bool MoveMissileVertically(
         RoomLevelData level,
-        SamusProjectileSlot slot,
+        SamusProjectile slot,
         ISamusRoomObjects? roomObjects)
     {
         slot.Position = slot.Position.AdvanceY(slot.Velocity.Y.ToSixteenSixteenDelta());
@@ -489,7 +489,7 @@ internal sealed class ProjectileMotion
     /// <summary>Resolves the missile center's extension chain, room-object reaction, and collision carry by block type.</summary>
     private static bool MissilePointReaction(
         RoomLevelData level,
-        SamusProjectileSlot slot,
+        SamusProjectile slot,
         ISamusRoomObjects? roomObjects)
     {
         int blockX = slot.Position.X.Whole >> 4;
@@ -570,7 +570,7 @@ internal sealed class ProjectileMotion
     /// <summary>Tests the missile center against mirrored height tables or the selected square-slope quadrant.</summary>
     internal static bool MissileSlopePointReaction(
         RoomCollisionBlock block,
-        SamusProjectileSlot slot)
+        SamusProjectile slot)
     {
         int slopeShape = block.Behavior.Slope.Shape;
         if (slopeShape >= 5)

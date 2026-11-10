@@ -13,7 +13,7 @@ internal static class PirateHitboxShotActions
     /// </summary>
     internal static PirateHitboxShotAction SelectPirateHitboxShotAction(
         RoomEnemySlot enemy,
-        SamusProjectileSlot projectile,
+        SamusProjectile projectile,
         EnemyReaction? hitboxShotAi)
     {
         // The empty extended map still has a real point hitbox. Its common callback

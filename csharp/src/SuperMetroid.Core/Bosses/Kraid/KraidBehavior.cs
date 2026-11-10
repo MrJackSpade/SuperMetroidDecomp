@@ -172,7 +172,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (index < SamusProjectileSystem.SlotCount)
             {
-                SamusProjectileSlot shot = _projectiles.Slots[index];
+                SamusProjectile shot = _projectiles.Slots[index];
                 return new(shot.Position.Whole, shot.Radius, shot.Type, shot.Damage, IsPlacedBomb: false);
             }
             SamusBombProjectileSlot bomb = _sharedProjectiles.FirstBomb;
@@ -184,7 +184,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (index < SamusProjectileSystem.SlotCount)
             {
-                SamusProjectileSlot shot = _projectiles.Slots[index];
+                SamusProjectile shot = _projectiles.Slots[index];
                 shot.IsSpent = true;
             }
             else

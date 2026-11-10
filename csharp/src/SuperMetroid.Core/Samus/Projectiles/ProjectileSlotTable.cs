@@ -11,19 +11,19 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 internal sealed class ProjectileSlotTable
 {
     /// <summary>The shot slots by ordinal; their occupancy does not replace the projectile counter.</summary>
-    private readonly SamusProjectileSlot[] _slots =
-        Enumerable.Range(0, SamusProjectileSystem.SlotCount).Select(index => new SamusProjectileSlot(index)).ToArray();
+    private readonly SamusProjectile[] _slots =
+        Enumerable.Range(0, SamusProjectileSystem.SlotCount).Select(index => new SamusProjectile(index)).ToArray();
     /// <summary>The trail slots by ordinal, independent of the shot slots.</summary>
     private readonly SamusProjectileTrailSlot[] _trailSlots =
         Enumerable.Range(0, SamusProjectileSystem.TrailSlotCount).Select(index => new SamusProjectileTrailSlot(index)).ToArray();
 
     /// <summary>The shot slots by ordinal.</summary>
-    internal IReadOnlyList<SamusProjectileSlot> Slots => _slots;
+    internal IReadOnlyList<SamusProjectile> Slots => _slots;
     /// <summary>The lowest shot slot no projectile holds, which the firing routines take, or -1 when all are held.</summary>
     internal int FindFreeSlotIndex() => Array.FindIndex(_slots, slot => !slot.IsOccupied);
 
     /// <summary>The shot slots in update order, highest ordinal first.</summary>
-    internal IEnumerable<SamusProjectileSlot> InUpdateOrder
+    internal IEnumerable<SamusProjectile> InUpdateOrder
     {
         get
         {

@@ -533,7 +533,7 @@ internal static void VerifySamusStoredShineAndShinespark()
         AssertTrue(shots.Shinespark.ReleaseCrashEchoes(samus.Shinespark.FirstReleasedEcho, samus.Shinespark.SecondReleasedEcho,
                 new ShinesparkDepartureAngles(RotationAngle.Zero, RotationAngle.HalfTurn), SuperMetroid.Core.Progression.SamusBeamCombination.Power, samus.Position.Whole),
             "an empty shot pool releases both echoes");
-        SuperMetroid.Core.Samus.Projectiles.SamusProjectileSlot echoShot = samus.Shinespark.FirstReleasedEcho.Shot!;
+        SuperMetroid.Core.Samus.Projectiles.SamusProjectile echoShot = samus.Shinespark.FirstReleasedEcho.Shot!;
         echoShot.EchoRadius = SamusShinesparkState.LargestEchoRadius - 7;
         shots.Shinespark.StepShinesparkEcho(samus, echoShot, new Position16<RoomPixels>(0, 0));
         AssertTrue(samus.Shinespark.FirstReleasedEcho.ShownPosition is not null, "a wrapped echo stays inside the viewport");

@@ -106,7 +106,7 @@ internal static class ProjectileRadiiVerification
             AssertTrue(duration < 0x8000, "Inventory entry is a timed frame, not executable data");
             int activeRecord = 0x930000 | pointer;
             ushort expectedSprite = CartridgeImportSource.Require(rom).ReadCartridgeWord((activeRecord + 2));
-            var slot = new SamusProjectileSlot(0) { FrameHold = WrappingCountdown.Start(1), Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), Damage = 30 };
+            var slot = new SamusProjectile(0) { FrameHold = WrappingCountdown.Start(1), Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), Damage = 30 };
             AssertEqual(false, projectiles.Animation.RunProjectileInstructionHandler(slot), "Timed projectile record survives");
             AssertEqual(duration, slot.FrameHold.RawValue, "Frame duration unchanged");
             AssertEqual(expectedSprite, slot.SpritemapPointer, "Native artwork reference");

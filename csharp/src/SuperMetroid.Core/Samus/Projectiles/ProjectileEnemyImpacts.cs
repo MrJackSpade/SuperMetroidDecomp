@@ -38,7 +38,7 @@ internal sealed class ProjectileEnemyImpacts
         if ((uint)slotIndex >= SamusProjectileSystem.SlotCount)
             throw new ArgumentOutOfRangeException(nameof(slotIndex));
 
-        SamusProjectileSlot slot = _slotTable.Slots[slotIndex];
+        SamusProjectile slot = _slotTable.Slots[slotIndex];
         if (!slot.HasEnemyCollisionPayload)
             return;
 
@@ -73,7 +73,7 @@ internal sealed class ProjectileEnemyImpacts
         if ((uint)slotIndex >= SamusProjectileSystem.SlotCount)
             throw new ArgumentOutOfRangeException(nameof(slotIndex));
 
-        SamusProjectileSlot slot = _slotTable.Slots[slotIndex];
+        SamusProjectile slot = _slotTable.Slots[slotIndex];
         if (!slot.HasEnemyCollisionPayload)
             return;
 
@@ -154,7 +154,7 @@ internal sealed class ProjectileEnemyImpacts
     {
         Ensure.NotNull(sharedProjectiles);
 
-        foreach (SamusProjectileSlot slot in _slotTable.InUpdateOrder)
+        foreach (SamusProjectile slot in _slotTable.InUpdateOrder)
         {
             if (!slot.Type.IsFamily(SamusProjectileFamily.Missile))
                 continue;
@@ -183,7 +183,7 @@ internal sealed class ProjectileEnemyImpacts
         if ((uint)slotIndex >= SamusProjectileSystem.SlotCount)
             throw new ArgumentOutOfRangeException(nameof(slotIndex));
 
-        SamusProjectileSlot slot = _slotTable.Slots[slotIndex];
+        SamusProjectile slot = _slotTable.Slots[slotIndex];
         if (!slot.HasEnemyCollisionPayload)
             return false;
 

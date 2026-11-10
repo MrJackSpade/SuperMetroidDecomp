@@ -28,7 +28,7 @@ internal sealed class ProjectileTerrainCollision
     /// <summary>Advances a shot by its signed 8.8 X velocity and scans its leading edge; Wave retains reactions but clears collision carry.</summary>
     internal static bool MoveHorizontally(
         RoomLevelData level,
-        SamusProjectileSlot slot,
+        SamusProjectile slot,
         ISamusRoomObjects? roomObjects,
         bool waveBeam = false)
     {
@@ -47,7 +47,7 @@ internal sealed class ProjectileTerrainCollision
     /// </summary>
     internal bool RunInitialBeamCollision(
         RoomLevelData level,
-        SamusProjectileSlot slot,
+        SamusProjectile slot,
         ISamusRoomObjects? roomObjects,
         bool waveBeam,
         SamusPowerBombExplosionState powerBomb)
@@ -109,7 +109,7 @@ internal sealed class ProjectileTerrainCollision
     /// <summary>Advances a shot by its signed 8.8 Y velocity and scans its leading edge; Wave retains reactions but clears collision carry.</summary>
     internal static bool MoveVertically(
         RoomLevelData level,
-        SamusProjectileSlot slot,
+        SamusProjectile slot,
         ISamusRoomObjects? roomObjects,
         bool waveBeam = false)
     {
@@ -126,7 +126,7 @@ internal sealed class ProjectileTerrainCollision
     /// <summary>Checks every block along the projectile's vertical span and reports collision only when the scan's solid counter completes.</summary>
     internal static bool ScanHorizontalShotReactions(
         RoomLevelData level,
-        SamusProjectileSlot slot,
+        SamusProjectile slot,
         ISamusRoomObjects? roomObjects)
     {
         int topBlock = CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y) >> 4;
@@ -162,7 +162,7 @@ internal sealed class ProjectileTerrainCollision
     /// <summary>Checks every block along the projectile's horizontal span, preserving each block reaction before aggregating solidity.</summary>
     internal static bool ScanVerticalShotReactions(
         RoomLevelData level,
-        SamusProjectileSlot slot,
+        SamusProjectile slot,
         ISamusRoomObjects? roomObjects)
     {
         int leftBlock = CoordinateAxis.Wrap(slot.Position.X.Whole - slot.Radius.X) >> 4;
@@ -243,7 +243,7 @@ internal sealed class ProjectileTerrainCollision
     /// square slope that the beam's edges reach in this block. A hit returns carry like a
     /// solid block; unlike a non-square slope it does not end the span.
     /// </summary>
-    private static bool SquareSlopeShotReaction(SamusProjectileSlot slot, RoomCollisionBlock block,
+    private static bool SquareSlopeShotReaction(SamusProjectile slot, RoomCollisionBlock block,
         ShotSpan span, bool horizontalMovement)
     {
         if (slot.Type.IsFamily(SamusProjectileFamily.Missile) ||
@@ -289,7 +289,7 @@ internal sealed class ProjectileTerrainCollision
     /// <summary>Resolves an extension and applies its slope, room-object, shootable, or ordinary solid reaction to one scanned block.</summary>
     private static bool RunShotReaction(
         RoomLevelData level,
-        SamusProjectileSlot slot,
+        SamusProjectile slot,
         RoomCollisionBlock block,
         ISamusRoomObjects? roomObjects,
         ShotSpan span,
@@ -425,7 +425,7 @@ internal sealed class ProjectileTerrainCollision
     /// <summary>Routes a shootable behaviour to its downward gate, resident room object, blue door, or ordinary shot-block owner.</summary>
     internal static void TrySpawnShootableReaction(
         RoomLevelData level,
-        SamusProjectileSlot slot,
+        SamusProjectile slot,
         RoomCollisionBlock block,
         ISamusRoomObjects? roomObjects)
     {
@@ -513,7 +513,7 @@ internal sealed class ProjectileTerrainCollision
     /// Kills a beam as block collision does: the
     /// explosion's sound queues (no cinematic test) before the swap.
     /// </summary>
-    internal void KillBeamOnBlockCollision(SamusProjectileSlot slot,
+    internal void KillBeamOnBlockCollision(SamusProjectile slot,
         SamusPowerBombExplosionState powerBomb)
     {
         _impactAudio.RequestBeamImpactSound(powerBomb);
@@ -521,7 +521,7 @@ internal sealed class ProjectileTerrainCollision
     }
 
     /// <summary>Moves a beam explosion to its directional leading edge and installs the explosion program.</summary>
-    internal static void KillBeam(SamusProjectileSlot slot)
+    internal static void KillBeam(SamusProjectile slot)
     {
         // Killing the beam moves the explosion anchor to the leading edge before the explosion
         // replaces the animation. Diagonals adjust both axes in their respective signs.
@@ -545,7 +545,7 @@ internal sealed class ProjectileTerrainCollision
 
     /// <summary>Converts a missile impact to its family-specific explosion and requests Super Missile quake and impact audio.</summary>
     internal void KillMissile(
-        SamusProjectileSlot slot,
+        SamusProjectile slot,
         SamusBombProjectileSystem sharedProjectiles)
     {
         // The kill dispatcher clears families beyond missiles immediately. A Super
@@ -588,7 +588,7 @@ internal sealed class ProjectileTerrainCollision
     /// scan runs past the room's ceiling it reads what <see cref="StraddledBlockRead"/> finds there.
     /// </summary>
     internal static void ScanHorizontalWaveShotReactions(
-        RoomLevelData level, SamusProjectileSlot slot, ISamusRoomObjects? roomObjects)
+        RoomLevelData level, SamusProjectile slot, ISamusRoomObjects? roomObjects)
     {
         int top = CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y);
         int bottom = CoordinateAxis.Wrap(slot.Position.Y.Whole + slot.Radius.Y - 1);
@@ -628,7 +628,7 @@ internal sealed class ProjectileTerrainCollision
     /// Preserves the vertical scan's linear block order across the room's side edges.
     /// </summary>
     internal static void ScanVerticalWaveShotReactions(
-        RoomLevelData level, SamusProjectileSlot slot, ISamusRoomObjects? roomObjects)
+        RoomLevelData level, SamusProjectile slot, ISamusRoomObjects? roomObjects)
     {
         int left = CoordinateAxis.Wrap(slot.Position.X.Whole - slot.Radius.X);
         int right = CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - 1);

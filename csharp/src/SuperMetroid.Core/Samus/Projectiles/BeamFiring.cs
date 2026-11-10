@@ -252,7 +252,7 @@ internal sealed class BeamFiring
         // The fire routines overwrite only the words they initialize. Words such as the
         // subpixels keep the slot's previous occupant until velocity setup, so the left
         // muzzle check's -1 speed can carry back into the same whole pixel.
-        SamusProjectileSlot slot = _slotTable.Slots[slotIndex];
+        SamusProjectile slot = _slotTable.Slots[slotIndex];
 
         SamusProjectileDirection? direction = samus.PendingTransitionShot is { } transitionShot
             ? transitionShot.Aim
@@ -363,7 +363,7 @@ internal sealed class BeamFiring
         }
 
         // As for ordinary beams, the slot keeps its previous occupant's uninitialized words.
-        SamusProjectileSlot slot = _slotTable.Slots[slotIndex];
+        SamusProjectile slot = _slotTable.Slots[slotIndex];
         if (SamusPoseMetadata.ReadAimDirection(samus) is not { } aim)
         {
             _slotTable.ProjectileCounter = WrappingCounter.DecrementCount(_slotTable.ProjectileCounter);
@@ -451,7 +451,7 @@ internal sealed class BeamFiring
             return new BeamShot(null, null);
 
         // As for beams, the slot keeps its previous occupant's uninitialized words.
-        SamusProjectileSlot slot = _slotTable.Slots[slotIndex];
+        SamusProjectile slot = _slotTable.Slots[slotIndex];
         if (SamusPoseMetadata.ReadAimDirection(samus) is not { } aim)
             return new BeamShot(null, null);
         slot.Direction = aim;
@@ -507,7 +507,7 @@ internal sealed class BeamFiring
     /// <summary>Places the muzzle using pose height and the running or ordinary directional origin table.</summary>
     internal static void InitializePosition(
         SamusState samus,
-        SamusProjectileSlot slot)
+        SamusProjectile slot)
     {
         int poseYOffset = SamusPoseProjectileOrigins.ReadYOffset(samus.Pose);
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
@@ -527,7 +527,7 @@ internal sealed class BeamFiring
     /// </summary>
     internal static void InitializePowerBeamVelocity(
         ProjectileLaunchInheritance inheritance,
-        SamusProjectileSlot slot,
+        SamusProjectile slot,
         UnauthoredBeamFiring<SamusBeamCombination> unauthoredFiring)
     {
         Ensure.NotNull(unauthoredFiring);
@@ -544,7 +544,7 @@ internal sealed class BeamFiring
     /// <summary>Clears projectile position fractions and combines base speed with Samus' inherited motion.</summary>
     internal static void InitializeDirectionalVelocity(
         ProjectileLaunchInheritance inheritance,
-        SamusProjectileSlot slot,
+        SamusProjectile slot,
         SignedEightEight baseSpeed)
     {
         slot.Position = slot.Position.WithFractionX(0).WithFractionY(0);

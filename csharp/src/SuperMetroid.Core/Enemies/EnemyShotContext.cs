@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Enemies;
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 internal readonly record struct EnemyShotContext(
     RoomEnemySlot Enemy,
-    SamusProjectileSlot Projectile,
+    SamusProjectile Projectile,
     SamusProjectileSystem Projectiles,
     SamusState? Samus,
     SamusProjectileType ProjectileType,

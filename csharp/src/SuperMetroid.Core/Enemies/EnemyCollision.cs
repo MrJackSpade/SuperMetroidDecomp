@@ -194,7 +194,7 @@ internal sealed class EnemyCollision
             if (reaction.SkipsEnemy?.Invoke(enemy) == true)
                 continue;
 
-            foreach (SamusProjectileSlot projectile in projectiles.Slots)
+            foreach (SamusProjectile projectile in projectiles.Slots)
             {
                 // The slot still holds the live beam or missile when the enemy collision
                 // handler selects vulnerability. Starting the impact below deliberately

@@ -121,7 +121,7 @@ internal sealed class BeamCombos
     }
 
     /// <summary>Selects damage and instruction data from the charged, combo, or Spazer echo tables and initializes its first frame.</summary>
-    internal static void InitializeComboData(SamusProjectileSlot slot, BeamComboData comboData)
+    internal static void InitializeComboData(SamusProjectile slot, BeamComboData comboData)
     {
         SamusProjectileHeader header = comboData switch
         {
@@ -142,7 +142,7 @@ internal sealed class BeamCombos
 
     /// <summary>Runs one Ice combo slot and returns its optional Samus-library sound request.</summary>
     internal SoundEffectId? StepIceCombo(SamusState samus,
-        SamusProjectileSlot slot, SamusBombProjectileSystem shared, Position16<RoomPixels> camera)
+        SamusProjectile slot, SamusBombProjectileSystem shared, Position16<RoomPixels> camera)
     {
         bool outward = slot.FrameBehavior == SamusProjectileFrameBehavior.IceComboOutward;
         if (!outward && slot.FrameBehavior != SamusProjectileFrameBehavior.IceCombo)
@@ -197,7 +197,7 @@ internal sealed class BeamCombos
     }
     /// <summary>The Plasma ring update: the ring grows, shrinks and grows again by its phase.</summary>
     internal void StepPlasmaCombo(SamusState samus,
-        SamusProjectileSlot slot, SamusBombProjectileSystem shared, Position16<RoomPixels> camera)
+        SamusProjectile slot, SamusBombProjectileSystem shared, Position16<RoomPixels> camera)
     {
         if (slot.FrameBehavior != SamusProjectileFrameBehavior.PlasmaCombo)
             throw new InvalidOperationException("Plasma update requires its own frame behaviour.");
@@ -243,7 +243,7 @@ internal sealed class BeamCombos
     /// </summary>
     /// <param name="progression">The session's progression, which the copy overwrites; required when it reaches it.</param>
     /// <param name="slot">The Spacetime shot.</param>
-    internal void RunSpacetimePaletteCopyTail(SharedGameState? progression, SamusProjectileSlot slot)
+    internal void RunSpacetimePaletteCopyTail(SharedGameState? progression, SamusProjectile slot)
     {
         Ensure.NotNull(slot);
         if (slot.Sprite is null || slot.Cursor is not { } cursor)
@@ -254,7 +254,7 @@ internal sealed class BeamCombos
     }
     /// <summary>Runs the Spazer combo, including paired-hit cleanup and retagging the primary particles as falling trails.</summary>
     internal SoundEffectId? StepSpazerCombo(SamusState samus,
-        SamusProjectileSlot slot, SamusBombProjectileSystem shared, int cameraY)
+        SamusProjectile slot, SamusBombProjectileSystem shared, int cameraY)
     {
         bool falling = slot.FrameBehavior == SamusProjectileFrameBehavior.SpazerComboFalling;
         if (!falling && slot.FrameBehavior != SamusProjectileFrameBehavior.SpazerCombo)
@@ -338,11 +338,11 @@ internal sealed class BeamCombos
     }
 
     /// <summary>Advances the Spazer particle's byte-sized angular phase by its signed step.</summary>
-    private static void AdvanceSpazerAngle(SamusProjectileSlot slot) =>
+    private static void AdvanceSpazerAngle(SamusProjectile slot) =>
         slot.ComboAngle = slot.ComboAngle.TurnedBySteps(slot.SpazerAngleStep);
 
     /// <summary>Moves a circling Spazer particle outward and switches its primary pair to falling echo artwork.</summary>
-    private static void BeginSpazerFall(SamusProjectileSlot slot)
+    private static void BeginSpazerFall(SamusProjectile slot)
     {
         slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole + (slot.SlotIndex < 2 ? 16 : -16));
         slot.Direction = SamusProjectileDirection.DownFacingLeft;
@@ -357,7 +357,7 @@ internal sealed class BeamCombos
     }
     /// <summary>Runs the Wave combo's homing oscillator, preserving 8.8 acceleration and 16.16 position carry.</summary>
     internal SoundEffectId? StepWaveCombo(SamusState samus,
-        SamusProjectileSlot slot, SamusBombProjectileSystem shared)
+        SamusProjectile slot, SamusBombProjectileSystem shared)
     {
         if (slot.FrameBehavior != SamusProjectileFrameBehavior.WaveCombo)
             throw new InvalidOperationException("Wave update requires its own frame behaviour.");

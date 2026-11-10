@@ -29,7 +29,7 @@ internal sealed class SamusProjectileSlotObservation
         _explosion = new bool[count];
         for (int index = 0; index < count; index++)
         {
-            SamusProjectileSlot slot = projectiles.Slots[index];
+            SamusProjectile slot = projectiles.Slots[index];
             _occupied[index] = IsOccupied(slot);
             _explosion[index] = IsLiveExplosion(slot);
         }
@@ -73,10 +73,10 @@ internal sealed class SamusProjectileSlotObservation
     }
 
     /// <summary>Uses the slot's occupancy, rather than the active flag, as the allocation marker.</summary>
-    private static bool IsOccupied(SamusProjectileSlot slot) => slot.IsOccupied;
+    private static bool IsOccupied(SamusProjectile slot) => slot.IsOccupied;
 
     /// <summary>Recognizes only active beam and missile explosion families as collision conversions.</summary>
-    private static bool IsLiveExplosion(SamusProjectileSlot slot) =>
+    private static bool IsLiveExplosion(SamusProjectile slot) =>
         slot.IsActive && slot.Type.Family is
             SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion;
 }

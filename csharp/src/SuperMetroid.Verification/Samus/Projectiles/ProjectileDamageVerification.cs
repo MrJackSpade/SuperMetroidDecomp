@@ -40,7 +40,7 @@ internal static class ProjectileDamageVerification
 
         var room = CreateRoom(new(32, 16), new RoomTerrainBlock[512], new RoomBlockBehavior[512]);
         SamusState Samus() => new(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = SamusPoseId.FacingRightNormalPose, Position = new(new(128, 0), new(128, 0)), Missiles = 10, SuperMissiles = 10 };
-        void Check(SamusProjectileSlot slot, int table, int index, int direction)
+        void Check(SamusProjectile slot, int table, int index, int direction)
         {
             int data = 0x930000 | Word(table + index * 2);
             AssertEqual(Word(data), slot.Damage, "Production initializer uses compiled damage");
@@ -207,7 +207,7 @@ internal static class ProjectileDamageVerification
 
             if (beam == 1)
                 continue;
-            SamusProjectileSlot first = projectiles.Slots[0];
+            SamusProjectile first = projectiles.Slots[0];
             int amplitude = beam == 2 ? 32 : first.ComboOrbitRadius;
             Offset16<RoomPixels> offset = SamusComboMechanics.GetSineOffset(first.ComboAngle, amplitude);
             if (beam == 2)
@@ -251,7 +251,7 @@ internal static class ProjectileDamageVerification
             AssertTrue(projectiles.Combos.TryActivateCombo(samus, shared, out _),
                 $"{pose} Plasma special attack activates");
             AssertEqual(step, projectiles.Combos.ComboState, $"{pose} Plasma special attack angle step");
-            SamusProjectileSlot first = projectiles.Slots[0];
+            SamusProjectile first = projectiles.Slots[0];
             first.ComboAngle = new TrigonometryAngle(checked((byte)from));
             projectiles.Combos.StepPlasmaCombo(samus, first, shared, Position16<RoomPixels>.Zero);
             AssertEqual(new TrigonometryAngle(checked((byte)to)), first.ComboAngle, $"{pose} angle {from} steps by {step} to {to} on the 256-step circle");

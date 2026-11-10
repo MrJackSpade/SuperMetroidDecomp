@@ -456,7 +456,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 if (c.Enemy.FrozenTimer == 0)
                 {
-                    SamusProjectileSlot recoilOrigin = MetroidRecoilOrigin.Of(c.OrdinaryProjectiles.Slots);
+                    SamusProjectile recoilOrigin = MetroidRecoilOrigin.Of(c.OrdinaryProjectiles.Slots);
                     ResolveMetroidNonFrozenShot(c.Enemy, c.Bomb.Type, Ensure.AtLeastZero(c.Bomb.Damage), recoilOrigin.Position.Whole, c.Samus);
                 }
             });

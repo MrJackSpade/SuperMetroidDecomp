@@ -28,7 +28,7 @@ internal sealed class ProjectileAnimation
     }
     /// <summary>Decodes timed frames, goto, and delete; publishes frame radius and animation metadata when the countdown expires.</summary>
     internal bool RunProjectileInstructionHandler(
-        SamusProjectileSlot slot)
+        SamusProjectile slot)
     {
         slot.FrameHold = slot.FrameHold.Decrement().Remaining;
         if (!slot.FrameHold.IsZero)
@@ -51,7 +51,7 @@ internal sealed class ProjectileAnimation
 
 
     /// <summary>Clears a projectile slot and decrements the shared active count without underflow.</summary>
-    internal void ClearProjectile(SamusProjectileSlot slot)
+    internal void ClearProjectile(SamusProjectile slot)
     {
         slot.ClearFields();
         _slotTable.ProjectileCounter = _slotTable.ProjectileCounter == 0
@@ -63,7 +63,7 @@ internal sealed class ProjectileAnimation
     internal static void DrawSlot(
         SpriteFrameBuffer sprites,
         SpriteSource source,
-        SamusProjectileSlot slot,
+        SamusProjectile slot,
         Position16<RoomPixels> cameraPosition,
         ProjectileDrawArtwork artwork)
     {

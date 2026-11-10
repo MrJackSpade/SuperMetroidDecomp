@@ -210,7 +210,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         SamusProjectileSlotObservation beforeCombined = combinedProjectiles.ObserveSlots();
         SamusProjectileFrameResult combinedResult = combinedProjectiles.StepFrame(new SamusTerrain { Level = air }, combinedSamus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = ControllerButton.X }, new(0, 0), combinedBombs);
 
-        SamusProjectileSlot combinedSlot = combinedProjectiles.Slots[0];
+        SamusProjectile combinedSlot = combinedProjectiles.Slots[0];
         AssertEqual(0, beforeCombined.FiredSlot(combinedProjectiles),
             $"beam combination {beamType} allocates one ordinary slot");
         AssertEqual(NativeDamage(0x9383c1, beamType), combinedSlot.Damage,
@@ -257,7 +257,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     OamBuffer spazerFlickerOam = SpriteFrameBuffer.DrawnOam(frame => spazerFlickerProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, frameCounter: 0, spazerArtwork));
     AssertTrue(spazerFlickerOam.LastFinalizedSpriteCount != 0,
         "even-slot Spazer draws while NMI bit one is clear");
-    SamusProjectileSlot spazerShot = spazerFlickerProjectiles.Slots[0];
+    SamusProjectile spazerShot = spazerFlickerProjectiles.Slots[0];
     AssertProjectileEntry(
         DrawnEntries(frame => spazerFlickerProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, frameCounter: 0, spazerArtwork)),
         new SpriteSource(SpriteSourceKind.SamusProjectile, 0), ProjectileSheetFrames.ProjectileFrame(ProjectileSpriteNative.Projectile(spazerShot.SpritemapPointer)), SamusBeamCombination.Spazer,
@@ -492,7 +492,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     SamusProjectileFrameResult chargedRelease = chargeProjectiles.StepFrame(new SamusTerrain { Level = air }, chargeSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), chargeBombs);
     int? chargedReleaseSlot = beforeChargedRelease.FiredSlot(chargeProjectiles);
     AssertTrue(chargedReleaseSlot is not null, "charged release allocates projectile");
-    SamusProjectileSlot chargedSlot = chargeProjectiles.Slots[(chargedReleaseSlot ?? throw new InvalidOperationException("Verification requires chargedReleaseSlot."))];
+    SamusProjectile chargedSlot = chargeProjectiles.Slots[(chargedReleaseSlot ?? throw new InvalidOperationException("Verification requires chargedReleaseSlot."))];
     AssertEqual(60, chargedSlot.Damage, "charged release uses charged data pointer");
     AssertTrue(chargedSlot.Type.IsChargedBeam,
         "charged release fires a charged beam");
@@ -614,7 +614,7 @@ internal static void VerifySamusPowerBeamProjectiles()
             beforeCombinedChargedRelease.FiredSlot(combinedChargeProjectiles);
         AssertTrue(combinedChargedReleaseSlot is not null,
             $"charged beam combination {beamType} allocates on release");
-        SamusProjectileSlot combinedChargedSlot =
+        SamusProjectile combinedChargedSlot =
             combinedChargeProjectiles.Slots[(combinedChargedReleaseSlot ?? throw new InvalidOperationException("Verification requires combinedChargedReleaseSlot."))];
         AssertEqual(NativeDamage(0x9383d9, beamType), combinedChargedSlot.Damage,
             $"charged beam combination {beamType} indexes charged data pointer");
@@ -650,7 +650,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     hyperBombs.StepFrame(new SamusTerrain { Level = air }, hyperSamus, 0, 0);
     SamusProjectileSlotObservation beforeHyper = hyperProjectiles.ObserveSlots();
     SamusProjectileFrameResult hyperResult = hyperProjectiles.StepFrame(new SamusTerrain { Level = air }, hyperSamus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = ControllerButton.X }, new(0, 0), hyperBombs);
-    SamusProjectileSlot hyperSlot = hyperProjectiles.Slots[0];
+    SamusProjectile hyperSlot = hyperProjectiles.Slots[0];
     AssertEqual(0, beforeHyper.FiredSlot(hyperProjectiles), "Hyper Beam allocates ordinary slot zero");
     AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.Plasma, charged: true), hyperSlot.Type, "Hyper Beam is a charged Plasma beam");
     AssertEqual(1000, hyperSlot.Damage, "Hyper Beam overwrites ROM-table damage with 1000");
@@ -1022,7 +1022,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     missileBombs.StepFrame(new SamusTerrain { Level = wall }, missileSamus, 0, 0);
     SamusProjectileSlotObservation beforeMissile = missileProjectiles.ObserveSlots();
     SamusProjectileFrameResult missileFired = missileProjectiles.StepFrame(new SamusTerrain { Level = wall }, missileSamus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = ControllerButton.X }, new(0, 0), missileBombs);
-    SamusProjectileSlot missile = missileProjectiles.Slots[0];
+    SamusProjectile missile = missileProjectiles.Slots[0];
     AssertEqual(0, beforeMissile.FiredSlot(missileProjectiles), "missile fresh press allocates slot zero");
     AssertEqual(
         (SoundEffectId?)SamusSound.Missile,
@@ -1130,7 +1130,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     int? postMissileBeamSlot = beforePostMissileBeam.FiredSlot(missileProjectiles);
     AssertTrue(postMissileBeamSlot.HasValue,
         "Shoot after missile deselection allocates a new beam");
-    SamusProjectileSlot postMissileBeam =
+    SamusProjectile postMissileBeam =
         missileProjectiles.Slots[(postMissileBeamSlot ?? throw new InvalidOperationException("Verification requires postMissileBeamSlot."))];
     AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false), postMissileBeam.Type,
         "post-missile shot is an uncharged Power Beam");
@@ -1497,8 +1497,8 @@ internal static void VerifySamusPowerBeamProjectiles()
     superBombs.StepFrame(new SamusTerrain { Level = wall }, superSamus, 0, 0);
     SamusProjectileSlotObservation beforeSuper = superProjectiles.ObserveSlots();
     SamusProjectileFrameResult superFired = superProjectiles.StepFrame(new SamusTerrain { Level = wall }, superSamus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = ControllerButton.X }, new(0, 0), superBombs);
-    SamusProjectileSlot super = superProjectiles.Slots[0];
-    SamusProjectileSlot superLink = superProjectiles.Slots[1];
+    SamusProjectile super = superProjectiles.Slots[0];
+    SamusProjectile superLink = superProjectiles.Slots[1];
     AssertEqual(0, beforeSuper.FiredSlot(superProjectiles), "super fresh press allocates owner slot zero");
     AssertEqual(
         (SoundEffectId?)SamusSound.SuperMissile,
@@ -1677,8 +1677,8 @@ internal static void VerifySamusPowerBeamProjectiles()
         skippedBombs.StepFrame(new SamusTerrain { Level = skippedWall }, skippedSamus, 0, 0);
         skippedProjectiles.StepFrame(new SamusTerrain { Level = skippedWall, RoomObjects = skippedObjects }, skippedSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? ControllerButton.X : 0, ControllerNewInput = frame == 0 ? ControllerButton.X : 0 }, new(0, 0), skippedBombs);
     }
-    SamusProjectileSlot skippedOwner = skippedProjectiles.Slots[0];
-    SamusProjectileSlot skippedLink = skippedProjectiles.Slots[1];
+    SamusProjectile skippedOwner = skippedProjectiles.Slots[0];
+    SamusProjectile skippedLink = skippedProjectiles.Slots[1];
     AssertTrue(skippedOwner.Type.IsFamily(SamusProjectileFamily.SuperMissile) && skippedLink.IsActive,
         "the Super Missile and its link are in flight");
     skippedLink.Position = skippedLink.Position.WithWholeX(0x5c);

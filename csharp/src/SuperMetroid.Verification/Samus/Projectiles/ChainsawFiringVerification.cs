@@ -123,7 +123,7 @@ internal static class ChainsawFiringVerification
         for (int update = 0; update < nextLists.Length; update++)
         {
             activeProjectiles.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = update == 0 ? ControllerButton.X : 0, ControllerNewInput = update == 0 ? ControllerButton.X : 0 }, new(0, 0), activeShared);
-            SamusProjectileSlot slot = activeProjectiles.Slots[0];
+            SamusProjectile slot = activeProjectiles.Slots[0];
             if (update == 0)
                 AssertTrue(slot.IsActive,
                     "active-Power-Bomb Chainsaw allocation");

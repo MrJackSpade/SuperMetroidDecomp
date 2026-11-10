@@ -21,7 +21,7 @@ internal sealed class ProjectileTrails
     }
 
     /// <summary>Selects trail animations and positions both sides from the shot's current animation record.</summary>
-    internal void SpawnTrail(SamusProjectileSlot projectile)
+    internal void SpawnTrail(SamusProjectile projectile)
     {
         switch (projectile.Type.Family)
         {
@@ -79,7 +79,7 @@ internal sealed class ProjectileTrails
     /// The animation frame a trail reads from <paramref name="projectile"/>: the frame of the record its animation last
     /// installed, or for a list that has just started the frame <paramref name="starts"/> decoded for it.
     /// </summary>
-    internal static int GetTrailAnimationFrame(SamusProjectileSlot projectile,
+    internal static int GetTrailAnimationFrame(SamusProjectile projectile,
         TrailStartPastPlacements<SamusProjectileProgram, ProjectileTrailPlacementList, ProjectileTrailPlacement> starts)
     {
         // The trail reads the record before the animation's next position, not a lookahead at the next phase.

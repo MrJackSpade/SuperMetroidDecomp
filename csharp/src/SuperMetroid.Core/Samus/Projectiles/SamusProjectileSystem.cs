@@ -108,7 +108,7 @@ public sealed class SamusProjectileSystem
     internal void TakeOverFrom(RoomHandOver handOver)
     {
         Ensure.NotNull(handOver);
-        IReadOnlyList<SamusProjectileSlot> slots = SlotTable.Slots;
+        IReadOnlyList<SamusProjectile> slots = SlotTable.Slots;
         for (int index = 0; index < slots.Count; index++)
             slots[index].Position = slots[index].Position.WithFractionX(handOver.ShotHorizontalFraction(index));
     }
@@ -124,13 +124,13 @@ public sealed class SamusProjectileSystem
     public const int TrailSlotCount = 18;
 
     /// <summary>The shot slots by ordinal.</summary>
-    public IReadOnlyList<SamusProjectileSlot> Slots => SlotTable.Slots;
+    public IReadOnlyList<SamusProjectile> Slots => SlotTable.Slots;
 
     /// <summary>
     /// Samus's first shot: the shot with the lowest ordinal, live or left over from an earlier shot. Some enemies aim
     /// their reaction to any hit from where it is, not from the projectile that hit them.
     /// </summary>
-    public SamusProjectileSlot FirstShot => SlotTable.Slots[0];
+    public SamusProjectile FirstShot => SlotTable.Slots[0];
 
     /// <summary>The most recent charged-shot palette sub-handler result.</summary>
     public SamusBeamChargePaletteStepResult LastBeamChargePaletteStep
@@ -395,7 +395,7 @@ public sealed class SamusProjectileSystem
         // Bombs were handled by the companion class first; the shots run in update order here because instruction
         // deletion changes the counter. The HUD producer can activate X-ray during this pass, so the freeze is checked
         // before each slot, not only at entry.
-        foreach (SamusProjectileSlot slot in SlotTable.InUpdateOrder)
+        foreach (SamusProjectile slot in SlotTable.InUpdateOrder)
         {
             if (samus.Xray.TimeIsFrozen)
                 break;
@@ -602,7 +602,7 @@ public sealed class SamusProjectileSystem
     {
         Ensure.NotNull(sprites);
 
-        foreach (SamusProjectileSlot slot in SlotTable.InUpdateOrder)
+        foreach (SamusProjectile slot in SlotTable.InUpdateOrder)
         {
             if (!slot.IsActive ||
                 slot.Type.Family.IsBombOrExplosion)
@@ -678,7 +678,7 @@ public sealed class SamusProjectileSystem
     {
         Ensure.NotNull(sprites);
 
-        foreach (SamusProjectileSlot slot in SlotTable.InUpdateOrder)
+        foreach (SamusProjectile slot in SlotTable.InUpdateOrder)
         {
             SamusProjectileFamily family = slot.Type.Family;
             if (!slot.IsActive || family is not (
@@ -720,7 +720,7 @@ public sealed class SamusProjectileSystem
             samus.Shinespark.ResetProjectileEchoStorage();
         }
         Combos.ComboState = 0;
-        foreach (SamusProjectileSlot slot in SlotTable.Slots)
+        foreach (SamusProjectile slot in SlotTable.Slots)
             slot.ClearForProjectileDataReset();
         foreach (SamusProjectileTrailSlot trail in SlotTable.TrailSlots)
             trail.ClearFields();

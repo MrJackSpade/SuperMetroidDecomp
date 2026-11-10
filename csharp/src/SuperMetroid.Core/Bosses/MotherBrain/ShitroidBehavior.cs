@@ -674,7 +674,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ResolveShitroidShot(
         RoomEnemySlot slot,
         int collisionDamage,
-        SamusProjectileSlot firstShot)
+        SamusProjectile firstShot)
     {
         ShitroidEnemyState state = RequireShitroidState(slot);
         if (!state.ReactsToSamus)

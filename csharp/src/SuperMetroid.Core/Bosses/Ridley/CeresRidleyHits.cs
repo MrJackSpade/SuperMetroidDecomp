@@ -48,7 +48,7 @@ internal sealed class CeresRidleyHits
             return 0;
         }
 
-        foreach (SamusProjectileSlot projectile in projectiles.Slots)
+        foreach (SamusProjectile projectile in projectiles.Slots)
         {
             if (!projectile.HasEnemyCollisionPayload ||
                 !ExtendedSpritemapOverlapsRectangle(

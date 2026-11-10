@@ -100,8 +100,8 @@ internal static class ProjectileInstructionsVerification
             else if (value < 0x8000) words.Add(a + 6);
         }
         AssertEqual(1792, words.Count, "All authored duration/trail/control words inventoried");
-        var trailFrame = new Func<SamusProjectileSlot, int>(slot => ProjectileTrails.GetTrailAnimationFrame(slot, InstalledFixtures.SamusOverreads.Projectiles.TrailStarts));
-        var trailSlot = new SamusProjectileSlot(0);
+        var trailFrame = new Func<SamusProjectile, int>(slot => ProjectileTrails.GetTrailAnimationFrame(slot, InstalledFixtures.SamusOverreads.Projectiles.TrailStarts));
+        var trailSlot = new SamusProjectile(0);
         // A trail reads the word just before the shot's next list position: the last record's animation frame, or the
         // word preceding a freshly installed list.
         foreach (ushort entry in entries)
@@ -122,7 +122,7 @@ internal static class ProjectileInstructionsVerification
         int frames = 0;
         foreach (ushort entry in entries)
         {
-            var slot = new SamusProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(entry), FrameHold = WrappingCountdown.Start(1), Damage = 30 };
+            var slot = new SamusProjectile(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(entry), FrameHold = WrappingCountdown.Start(1), Damage = 30 };
             var bomb = new SamusBombProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(entry), FrameHold = WrappingCountdown.Start(1), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500), Damage = 30 };
             ushort timer = 1, pointer = entry, sprite = 0, x = 0, y = 0, trail = 0;
             for (int frame = 0; frame < 64; frame++)

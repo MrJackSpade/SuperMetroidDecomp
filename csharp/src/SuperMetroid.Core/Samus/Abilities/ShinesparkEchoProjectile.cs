@@ -25,10 +25,10 @@ internal sealed class ShinesparkEchoProjectile
     }
 
     /// <summary>The place the first echo takes: the one before the last.</summary>
-    private SamusProjectileSlot FirstEchoPlace => _slotTable.Slots[SamusProjectileSystem.SlotCount - 2];
+    private SamusProjectile FirstEchoPlace => _slotTable.Slots[SamusProjectileSystem.SlotCount - 2];
 
     /// <summary>The place the second echo takes: the last.</summary>
-    private SamusProjectileSlot SecondEchoPlace => _slotTable.Slots[SamusProjectileSystem.SlotCount - 1];
+    private SamusProjectile SecondEchoPlace => _slotTable.Slots[SamusProjectileSystem.SlotCount - 1];
 
     /// <summary>
     /// Releases a finishing crash's echoes as far as Samus's shot count leaves room: the second echo while the count
@@ -57,7 +57,7 @@ internal sealed class ShinesparkEchoProjectile
     }
 
     /// <summary>Turns <paramref name="place"/> into a departing echo's shot at radius zero and counts it.</summary>
-    private SamusProjectileSlot Launch(SamusProjectileSlot place, RotationAngle angle, SamusBeamCombination picturedBeams)
+    private SamusProjectile Launch(SamusProjectile place, RotationAngle angle, SamusBeamCombination picturedBeams)
     {
         _slotTable.ProjectileCounter = WrappingCounter.IncrementCount(_slotTable.ProjectileCounter);
         place.Type = SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho);
@@ -71,7 +71,7 @@ internal sealed class ShinesparkEchoProjectile
 
     /// <summary>Runs one update of the echo <paramref name="slot"/> carries, clearing the shot once the echo leaves the screen.</summary>
     internal void StepShinesparkEcho(SamusState samus,
-        SamusProjectileSlot slot, Position16<RoomPixels> camera)
+        SamusProjectile slot, Position16<RoomPixels> camera)
     {
         if (slot.FrameBehavior != SamusProjectileFrameBehavior.ShinesparkEcho)
             throw new InvalidOperationException("Departing echo no longer owns this projectile slot.");

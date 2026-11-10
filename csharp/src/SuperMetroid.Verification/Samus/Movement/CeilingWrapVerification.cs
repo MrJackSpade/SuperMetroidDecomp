@@ -30,7 +30,7 @@ internal static class CeilingWrapVerification
             var words = Enumerable.Repeat(RoomTerrainBlock.Of(0x040, BlockMirroring.None, RoomCollisionType.Air), 128 * 32).ToArray();
             var level = CreateRoom(new(128, 32), words, new RoomBlockBehavior[words.Length]);
             var roomObjects = RoomObjectFixtures.Unbound();
-            var shot = new SamusProjectileSlot(0) { Position = new(new((ushort)(tileX * 16), 0), new(4, 0)), Radius = new(1, 8), Type = SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false),
+            var shot = new SamusProjectile(0) { Position = new(new((ushort)(tileX * 16), 0), new(4, 0)), Radius = new(1, 8), Type = SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false),
                 Direction = SamusProjectileDirection.Right };
             for (int call = 0; call < 45; call++)
             {

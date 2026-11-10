@@ -467,7 +467,7 @@ internal sealed class RidleyTail
         // The projectile rectangle check scans the five ordinary slots in ascending
         // order. It admits beams, missiles and Super Missiles and rejects bombs, Power Bombs
         // and shots already converted to explosions.
-        foreach (SamusProjectileSlot projectile in projectiles.Slots)
+        foreach (SamusProjectile projectile in projectiles.Slots)
         {
             if (!projectile.HasEnemyCollisionPayload)
             {

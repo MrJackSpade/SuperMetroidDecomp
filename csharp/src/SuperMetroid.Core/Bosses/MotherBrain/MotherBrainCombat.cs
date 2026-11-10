@@ -83,7 +83,7 @@ internal sealed class MotherBrainCombat
     /// </summary>
     private void ResolveMotherBrainHeadShot(
         RoomEnemySlot head,
-        SamusProjectileSlot projectile,
+        SamusProjectile projectile,
         SamusProjectileSystem projectiles,
         SamusProjectileType projectileType,
         int projectileDamage)
@@ -160,7 +160,7 @@ internal sealed class MotherBrainCombat
     internal void ResolveMotherBrainLaterFormHeadShot(
         MotherBrainEnemyState state,
         RoomEnemySlot head,
-        SamusProjectileSlot projectile,
+        SamusProjectile projectile,
         SamusProjectileSystem projectiles,
         SamusProjectileType projectileType,
         int projectileDamage)

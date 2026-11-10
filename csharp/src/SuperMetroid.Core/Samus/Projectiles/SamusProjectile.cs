@@ -4,10 +4,10 @@ using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>One of Samus's five ordinary projectile slots: a beam, missile, special-attack particle, echo or explosion.</summary>
-public sealed class SamusProjectileSlot
+public sealed class SamusProjectile
 {
     /// <summary>Creates the slot at its position in the projectile table.</summary>
-    internal SamusProjectileSlot(int slotIndex) => SlotIndex = slotIndex;
+    internal SamusProjectile(int slotIndex) => SlotIndex = slotIndex;
 
     /// <summary>The slot's ordinal in the projectile table, 0 through 4.</summary>
     [IntegerQuantity("ordinal of the slot in the projectile table")]

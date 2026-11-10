@@ -34,7 +34,7 @@ internal static class ProjectileFrameBindingsVerification
         {
             int record = SamusSourceDefinitions.ProjectileDataBank.Value | pointer;
             ushort Word(int offset) => LittleEndianBytes.Word(CpuBusRegionRead.Read(rom, record + offset), CpuBusRegionRead.Read(rom, record + offset + 1));
-            var nativeShot = new SamusProjectileSlot(0)
+            var nativeShot = new SamusProjectile(0)
             {
                 Cursor = SamusProjectileProgramAddresses.CursorAt(unchecked((ushort)(pointer + 8))),
                 FrameHold = WrappingCountdown.FromRaw(Word(0)), SpritemapPointer = Word(2),
@@ -49,7 +49,7 @@ internal static class ProjectileFrameBindingsVerification
                 Radius = new(nativeShot.Radius.X, nativeShot.Radius.Y),
                 Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500), Damage = 30,
             };
-            var installedShot = new SamusProjectileSlot(0)
+            var installedShot = new SamusProjectile(0)
                 { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), FrameHold = WrappingCountdown.Start(1), Damage = 30 };
             var installedBomb = new SamusBombProjectileSlot(0)
                 { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), FrameHold = WrappingCountdown.Start(1), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500), Damage = 30 };

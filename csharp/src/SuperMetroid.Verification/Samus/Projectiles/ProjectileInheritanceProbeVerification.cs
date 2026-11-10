@@ -46,7 +46,7 @@ internal static class ProjectileInheritanceProbeVerification
     /// <summary>Replays initialized WRAM snapshots through power-beam velocity setup and confirms live movement and weapon launches.</summary>
     internal static void ProbeProjectileVelocityInheritance()
     {
-        var initialize = new Action<ProjectileLaunchInheritance, SamusProjectileSlot>((launchRecords, launched) =>
+        var initialize = new Action<ProjectileLaunchInheritance, SamusProjectile>((launchRecords, launched) =>
             BeamFiring.InitializePowerBeamVelocity(launchRecords, launched, InstalledFixtures.SamusOverreads.Projectiles.UnauthoredBeamFiring));
         var inheritance = new ProjectileLaunchInheritance();
         var records = new ProjectileInheritanceRecordsAccess(inheritance);
@@ -61,7 +61,7 @@ internal static class ProjectileInheritanceProbeVerification
             for (ushort direction = 0; direction < 10; direction++)
             {
                 int baseSpeed = direction is 1 or 3 or 6 or 8 ? DiagonalBaseSpeed : StraightBaseSpeed;
-                var slot = new SamusProjectileSlot(0) { Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction) };
+                var slot = new SamusProjectile(0) { Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction) };
                 initialize(inheritance, slot);
                 // Direct transcription of loads/LSR/ORA/ADC at $90:B218..B2F5.
                 // Do not replace these overlapping reads with idealized fixed-point math.

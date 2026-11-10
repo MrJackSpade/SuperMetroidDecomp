@@ -256,7 +256,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         if (projectiles is null)
             return;
 
-        SamusProjectileSlot? firstAllocated = null;
+        SamusProjectile? firstAllocated = null;
         for (int index = SamusProjectileSystem.SlotCount - 1; index >= 0; index--)
         {
             // Code tests the projectile type, not the program. More importantly,

@@ -342,7 +342,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     SeedEnemyProjectileDefinitionWord(bus, eyeShot.Kind, 12, 0xb5fb);
 
     var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
-    SamusProjectileSlot owner = shots.Slots[0];
+    SamusProjectile owner = shots.Slots[0];
     owner.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile);
     owner.Damage = 0x012c;
     owner.Direction = SamusProjectileDirection.Right;
@@ -352,7 +352,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     owner.SpritemapPointer = 0xae0f;
     owner.FrameBehavior = SamusProjectileFrameBehavior.SuperMissile;
 
-    SamusProjectileSlot link = shots.Slots[1];
+    SamusProjectile link = shots.Slots[1];
     link.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile);
     link.Damage = 0x012c;
     link.Direction = SamusProjectileDirection.Right;
@@ -592,7 +592,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     SeedRipperProjectileDataPointers(bus);
 
     static void ArmProjectile(
-        SamusProjectileSlot projectile,
+        SamusProjectile projectile,
         RoomEnemySlot target,
         ushort type,
         ushort damage)
@@ -607,7 +607,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         projectile.FrameHold = WrappingCountdown.Start(1);
     }
 
-    SamusProjectileSlot shot = projectiles.Slots[0];
+    SamusProjectile shot = projectiles.Slots[0];
     ArmProjectile(shot, ripper, type: 0x8000, damage: 20);
     AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(projectiles, sharedProjectiles),
         "Ripper ineffective power-beam collision");

@@ -43,7 +43,7 @@ internal static class RoomScopeVerification
         RoomEnemyProjectileSlot sourceProjectile = source.Enemies.Projectiles.EnemyProjectiles[3];
         sourceProjectile.Position = FixedPosition<RoomPixels>.FromStoredParts(0x0140, 0x1234, 0x0090, 0x5678);
         sourceProjectile.Velocity = new EightEightVector<RoomPixels>(0x0200, unchecked((short)0xFE00));
-        SamusProjectileSlot sourceShot = source.Projectiles.SlotTable.Slots[2];
+        SamusProjectile sourceShot = source.Projectiles.SlotTable.Slots[2];
         sourceShot.Position = FixedPosition<RoomPixels>.FromStoredParts(0x0120, 0x4321, 0x0080, 0x8765);
         sourceShot.AuxiliaryPhase = SpazerComboPhase.FlyingUpTowardsPoint;
 
@@ -114,7 +114,7 @@ internal static class RoomScopeVerification
             "an enemy projectile slot's whole coordinates survive the load; its fractions clear");
         VerificationAssertions.AssertEqual(sourceProjectile.Velocity, destinationProjectile.Velocity,
             "an enemy projectile slot's velocity survives the load");
-        SamusProjectileSlot destinationShot = destination.Projectiles.SlotTable.Slots[2];
+        SamusProjectile destinationShot = destination.Projectiles.SlotTable.Slots[2];
         VerificationAssertions.AssertEqual(FixedPosition<RoomPixels>.FromStoredParts(0, 0x4321, 0, 0), destinationShot.Position,
             "a shot slot starts the next room with the horizontal sub-pixel position the outgoing room's left (RoomHandOver), and nothing else of its position");
         VerificationAssertions.AssertEqual(SpazerComboPhase.Circling, destinationShot.AuxiliaryPhase,

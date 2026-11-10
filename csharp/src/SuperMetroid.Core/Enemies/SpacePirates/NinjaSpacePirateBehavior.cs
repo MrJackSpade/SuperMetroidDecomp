@@ -238,7 +238,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
 
         // The projectile check selects only the highest occupied Samus projectile slot. If that one is
         // far away, it returns immediately instead of searching a lower slot that is closer.
-        SamusProjectileSlot? projectile = null;
+        SamusProjectile? projectile = null;
         for (int index = Math.Min(4, samusProjectiles.Slots.Count - 1); index >= 0; index--)
         {
             // The check selects by nonzero projectile type, not by the projectile's

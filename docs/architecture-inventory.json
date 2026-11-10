@@ -15711,12 +15711,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresDestructionBackdrop",
       "kind": "enum",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Frontend/CeresCinematics/Artwork/CeresDestructionBackdrop.cs"
+        "csharp/test-support/VerificationAccess.Tooling/AssetExtraction/Frontend/CeresCinematics/Artwork/CeresDestructionBackdrop.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -15815,12 +15818,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresDestructionSpritePoses",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Frontend/CeresCinematics/Artwork/CeresDestructionSpritePoses.cs"
+        "csharp/test-support/VerificationAccess.Tooling/AssetExtraction/Frontend/CeresCinematics/Artwork/CeresDestructionSpritePoses.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -15917,6 +15923,22 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresFlightSpriteDefinitionsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Tooling/AssetExtraction/Frontend/CeresCinematics/Artwork/CeresFlightSpriteDefinitionsConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresFlightSpriteDocument",
       "kind": "record",
       "scope": "product",
@@ -15945,12 +15967,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresFlightSpritePoses",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Frontend/CeresCinematics/Artwork/CeresFlightSpritePoses.cs"
+        "csharp/test-support/VerificationAccess.Tooling/AssetExtraction/Frontend/CeresCinematics/Artwork/CeresFlightSpritePoses.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -15964,71 +15989,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.AssetExtraction/Frontend/CeresCinematics/Artwork/CeresFlightSpritePresentation.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresLargeAsteroidCellDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Frontend/CeresCinematics/Artwork/CeresLargeAsteroidCellDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresLargeAsteroidComposition",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Frontend/CeresCinematics/Artwork/CeresLargeAsteroidComposition.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresLargeAsteroidParts",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Frontend/CeresCinematics/Artwork/CeresLargeAsteroidParts.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresLargeBlastParts",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Frontend/CeresCinematics/Artwork/CeresLargeBlastParts.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresReflectedStarParts",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Frontend/CeresCinematics/Artwork/CeresReflectedStarParts.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -16099,173 +16059,20 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresSmallAsteroidCellDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Frontend/CeresCinematics/Artwork/CeresSmallAsteroidCellDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresSmallAsteroidParts",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Frontend/CeresCinematics/Artwork/CeresSmallAsteroidParts.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresStarPointParts",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Frontend/CeresCinematics/Artwork/CeresStarPointParts.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresStationBlastCellDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Frontend/CeresCinematics/Artwork/CeresStationBlastCellDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresStationBlastParts",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Frontend/CeresCinematics/Artwork/CeresStationBlastParts.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresStationCellDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Frontend/CeresCinematics/Artwork/CeresStationCellDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresStationParts",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Frontend/CeresCinematics/Artwork/CeresStationParts.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresVortexCellDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Frontend/CeresCinematics/Artwork/CeresVortexCellDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresVortexFrame",
       "kind": "enum",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Frontend/CeresCinematics/Artwork/CeresVortexFrame.cs"
+        "csharp/test-support/VerificationAccess.Tooling/AssetExtraction/Frontend/CeresCinematics/Artwork/CeresVortexFrame.cs"
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresVortexParts",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Frontend/CeresCinematics/Artwork/CeresVortexParts.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CinematicAtlasStrip",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Frontend/CeresCinematics/Artwork/CinematicAtlasStrip.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.ZebesPlanetBandCellDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Frontend/CeresCinematics/Artwork/ZebesPlanetBandCellDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.ZebesPlanetBandParts",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Frontend/CeresCinematics/Artwork/ZebesPlanetBandParts.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.ZebesRevealArtwork",
@@ -16292,32 +16099,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.ZebesStarGridParts",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Frontend/CeresCinematics/Artwork/ZebesStarGridParts.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.ZebesStarPlacement",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Frontend/CeresCinematics/Artwork/ZebesStarPlacement.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Frontend.CinematicTypedTextSteps",
@@ -24188,45 +23969,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Frontend.Title.Artwork.PlanetZebesTitleGlyphDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Frontend/Title/Artwork/PlanetZebesTitleGlyphDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Frontend.Title.Artwork.PlanetZebesTitleGlyphs",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Frontend/Title/Artwork/PlanetZebesTitleGlyphs.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Frontend.Title.Artwork.PlanetZebesTitleParts",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Frontend/Title/Artwork/PlanetZebesTitleParts.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleAmbientColorDefinitions",
@@ -32453,19 +32195,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Samus.AlternateDiagonalStartupParts",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/AlternateDiagonalStartupParts.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.AssetExtraction.Samus.ArmCannonControlByte",
       "kind": "record struct",
       "scope": "product",
@@ -32505,32 +32234,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Samus.Artwork.BeamPaint",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/BeamPaint.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.Artwork.BeamPaintDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/BeamPaintDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.AssetExtraction.Samus.Artwork.BeamPaletteDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -32542,19 +32245,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.Artwork.BeamPaletteSources",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/BeamPaletteSources.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Samus.Artwork.ChainsawBeamColours\u003CTColour\u003E",
@@ -32596,19 +32286,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Samus.Artwork.HueRounding",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/HueRounding.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.AssetExtraction.Samus.Artwork.HyperBeamFxColours",
       "kind": "class",
       "scope": "product",
@@ -32620,19 +32297,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.Artwork.HyperBeamHues",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/HyperBeamHues.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Samus.Artwork.HyperBeamPaletteFxColorDefinitions",
@@ -32675,19 +32339,6 @@
     },
     {
       "type": "SuperMetroid.AssetExtraction.Samus.Artwork.InstalledSamusDeathPalettes",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/InstalledSamusDeathPalettes.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.Artwork.InstalledSamusDeathPalettes.WhiteoutInputs",
       "kind": "class",
       "scope": "product",
       "assemblies": [
@@ -32810,19 +32461,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Samus.Artwork.SamusHurtColorDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/SamusHurtColorDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.AssetExtraction.Samus.Artwork.SamusHurtColorFormat",
       "kind": "static class",
       "scope": "product",
@@ -32834,19 +32472,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.Artwork.SamusHurtColorLevels",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/SamusHurtColorLevels.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Samus.Artwork.SamusHyperBeamColours",
@@ -32888,19 +32513,6 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Samus.Artwork.SamusPaletteFade",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/SamusPaletteFade.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.AssetExtraction.Samus.Artwork.SamusSuitColorFormat",
       "kind": "static class",
       "scope": "product",
@@ -32909,19 +32521,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/SamusSuitColorFormat.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.Artwork.SamusVisorColorDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/SamusVisorColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -32940,32 +32539,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Samus.Artwork.SamusVisorColorSteps",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/SamusVisorColorSteps.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.Artwork.ShineTint",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/ShineTint.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.AssetExtraction.Samus.Artwork.SpeedBoosterOverrunColours\u003CTPhase, TColour\u003E",
       "kind": "class",
       "scope": "product",
@@ -32977,32 +32550,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.Artwork.TableColourPlace",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/TableColourPlace.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.AxialSuperMissileParts",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/AxialSuperMissileParts.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Samus.BeamPaletteDocument",
@@ -33070,19 +32617,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Samus.BeamTileAtlasDefinitions.UploadTileRole",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/BeamTileAtlasDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.AssetExtraction.Samus.BeamTileCatalog",
       "kind": "class",
       "scope": "product",
@@ -33107,19 +32641,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.BeamTileSharing",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/BeamTileSharing.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Samus.ChargeFlareOffset",
@@ -33200,19 +32721,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Samus.ChargedBeamParts",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/ChargedBeamParts.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.AssetExtraction.Samus.CrystalFlashColorDocument",
       "kind": "record",
       "scope": "product",
@@ -33252,19 +32760,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Samus.DiagonalMissileParts",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/DiagonalMissileParts.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.AssetExtraction.Samus.EquippedBeamProjectilePrograms",
       "kind": "static class",
       "scope": "product",
@@ -33273,19 +32768,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.AssetExtraction/Samus/EquippedBeamProjectilePrograms.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.GrappleBeamTilePatterns",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/GrappleBeamTilePatterns.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -33302,19 +32784,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.GrapplePointFrame",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/GrapplePointFrame.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Samus.GrappleSheetComposer",
@@ -33340,7 +32809,7 @@
         "csharp/src/SuperMetroid.AssetExtraction/Samus/GrappleSpriteDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Samus.GrappleSpriteDocument",
@@ -33499,58 +32968,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Samus.HorizontalChargedSpazerParts",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/HorizontalChargedSpazerParts.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.HorizontalChargedWaveParts",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/HorizontalChargedWaveParts.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.HorizontalPlasmaWaveShortParts",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/HorizontalPlasmaWaveShortParts.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.HyperBeamEndpointChannels",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/HyperBeamEndpointChannels.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.AssetExtraction.Samus.HyperBeamFxColorDocument",
       "kind": "record",
       "scope": "product",
@@ -33600,46 +33017,7 @@
         "csharp/src/SuperMetroid.AssetExtraction/Samus/HyperBeamFxColorFormat.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.HyperBeamInk",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/HyperBeamInk.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.HyperBeamMaskedColor",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/HyperBeamMaskedColor.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.HyperBeamShadeSource",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/HyperBeamShadeSource.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Samus.InstalledGrappleSprites",
@@ -33666,19 +33044,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.InstalledHyperBeamFxColors.PairedChannels",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/InstalledHyperBeamFxColors.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Samus.InstalledProjectilePresentation",
@@ -33737,19 +33102,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Samus.InstalledSamusChargeColors.ChargeInputs",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/InstalledSamusChargeColors.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.AssetExtraction.Samus.InstalledSamusFullBodyCycleColors",
       "kind": "class",
       "scope": "product",
@@ -33761,6 +33113,38 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Samus.InstalledSamusFullBodyCycleColorsAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Tooling/AssetExtraction/Samus/InstalledSamusFullBodyCycleColorsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Samus.InstalledSamusFullBodyCycleColorsAccess.extension(SuperMetroid.AssetExtraction.Samus.InstalledSamusFullBodyCycleColors)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Tooling/AssetExtraction/Samus/InstalledSamusFullBodyCycleColorsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Samus.InstalledSamusHyperBeamColors",
@@ -33776,17 +33160,36 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Samus.InstalledSamusHyperBeamColors.EndpointChannels",
-      "kind": "struct",
-      "scope": "product",
+      "type": "SuperMetroid.AssetExtraction.Samus.InstalledSamusHyperBeamColorsAccess",
+      "kind": "static class",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/InstalledSamusHyperBeamColors.cs"
+        "csharp/test-support/VerificationAccess.Tooling/AssetExtraction/Samus/InstalledSamusHyperBeamColorsAccess.cs"
       ],
       "partial": "none",
-      "disposition": "value"
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Samus.InstalledSamusHyperBeamColorsAccess.extension(SuperMetroid.AssetExtraction.Samus.InstalledSamusHyperBeamColors)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Tooling/AssetExtraction/Samus/InstalledSamusHyperBeamColorsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Samus.PlasmaGrowthShape",
@@ -33810,19 +33213,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.AssetExtraction/Samus/PlasmaGrowthStage.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.PlasmaStartupCoreParts",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/PlasmaStartupCoreParts.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -34105,45 +33495,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Samus.ProjectileSpritePartDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/ProjectileSpritePartDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.ProjectileSpritePartDefinitions.WaveDirection",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/ProjectileSpritePartDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.ProjectileSpriteParts",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/ProjectileSpriteParts.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.AssetExtraction.Samus.ProjectileTrailAppearance",
       "kind": "record",
       "scope": "product",
@@ -34222,19 +33573,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Samus.ProjectileTrailGlyphDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/ProjectileTrailGlyphDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.AssetExtraction.Samus.ProjectileTrailPlacementSources",
       "kind": "static class",
       "scope": "product",
@@ -34282,32 +33620,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.AssetExtraction/Samus/ProjectileTrailVisualDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.Projectiles.ProjectileWaveEnvelope",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/Projectiles/ProjectileWaveEnvelope.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.Projectiles.ProjectileWaveEnvelopeDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/Projectiles/ProjectileWaveEnvelopeDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -35261,7 +34573,7 @@
         "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusChargeColorFormat.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Samus.SamusCountWords",
@@ -35576,7 +34888,7 @@
         "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusHyperBeamColorFormat.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Samus.SamusOverlaySheetComposer",
@@ -35798,19 +35110,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.SamusPaletteRecognition",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusPaletteRecognition.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Samus.SamusPoseNumberDefinitions",
@@ -36170,162 +35469,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.SimpleEffectParts",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/SimpleEffectParts.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.SpazerAxialSpreadParts",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/SpazerAxialSpreadParts.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.SpazerAxialStartupParts",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/SpazerAxialStartupParts.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.SpazerCompositionGeometryDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/SpazerCompositionGeometryDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.SpazerDiagonalSpreadParts",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/SpazerDiagonalSpreadParts.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.SpazerDiagonalStartupParts",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/SpazerDiagonalStartupParts.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.SpazerSeedDirection",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/SpazerSeedDirection.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.SpazerSeedParts",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/SpazerSeedParts.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.SpeedPaletteColor",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/SpeedPaletteColor.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.SuitInkKey",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/SuitInkKey.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.VerticalChargedSpazerSpreadParts",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/VerticalChargedSpazerSpreadParts.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.VerticalChargedWaveParts",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/VerticalChargedWaveParts.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Samus.XrayRevealGroupKey",
@@ -92960,19 +92103,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Map.Artwork.AnchorOverride",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/AnchorOverride.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Frontend.Map.Artwork.AreaMapPresentation",
       "kind": "class",
       "scope": "product",
@@ -93027,38 +92157,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Map.Artwork.MapArrowVisualAccess",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Frontend/Map/Artwork/MapArrowVisualAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Map.Artwork.MapArrowVisualAccess.extension(SuperMetroid.Core.Frontend.Map.Artwork.MapArrowVisual)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Frontend/Map/Artwork/MapArrowVisualAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Map.Artwork.MapHighlightCycle",
@@ -93146,38 +92244,6 @@
       ],
       "files": [
         "csharp/test-support/VerificationAccess.Core/Frontend/Map/Artwork/MapObjectTileArtworkAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Map.Artwork.MapSaveMarkerLayoutAccess",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Frontend/Map/Artwork/MapSaveMarkerLayoutAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Map.Artwork.MapSaveMarkerLayoutAccess.extension(SuperMetroid.Core.Frontend.Map.Artwork.MapSaveMarkerPositions)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Frontend/Map/Artwork/MapSaveMarkerLayoutAccess.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -94147,19 +93213,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Menus.MenuSelectorTiming",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Menus/MenuSelectorTiming.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Frontend.Menus.MenuVramLayout",
       "kind": "static class",
       "scope": "test",
@@ -94200,19 +93253,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Options.Artwork.GameOptionsArtworkCells",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Options/Artwork/GameOptionsArtworkCells.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Options.Artwork.GameOptionsNames",
@@ -119305,7 +118345,7 @@
         "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayRevealDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Samus.Abilities.XrayRevealExtensions",
@@ -119316,6 +118356,22 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayRevealExtensions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Abilities.XrayRevealFixtures",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Samus/Abilities/XrayRevealFixtures.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -119770,19 +118826,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacementOffsets",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Artwork/ChargeFlarePlacementOffsets.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacements",
       "kind": "class",
       "scope": "product",
@@ -119993,7 +119036,7 @@
         "csharp/src/SuperMetroid.Core/Samus/Artwork/GrappleSwingFrameDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Samus.Artwork.GrappleTileAtlasAccess",
@@ -120432,22 +119475,6 @@
     },
     {
       "type": "SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.extension(SuperMetroid.Core.Samus.Projectiles.SamusProjectile)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Samus/Artwork/ProjectileSpriteNative.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.extension(SuperMetroid.Core.Samus.Projectiles.SamusProjectileRecord)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -159508,19 +158535,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Frontend.CeresCinematics.Artwork.CeresStarPointPartsVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Frontend/CeresCinematics/Artwork/CeresStarPointPartsVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Verification.Frontend.CeresCinematics.Artwork.CeresStationBlastPartsVerification",
       "kind": "static class",
       "scope": "test",
@@ -171700,58 +170714,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Samus.Palettes.VerifyFullBodyPaletteColorDataCase",
-      "kind": "record struct",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Samus/Palettes/VerifyFullBodyPaletteColorDataCase.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Verification.Samus.Palettes.VerifyHyperBeamFxColorArtworkCase",
-      "kind": "record struct",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Samus/Palettes/VerifyHyperBeamFxColorArtworkCase.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Verification.Samus.Palettes.VerifyNormalSuitCatalogBoundaryCase",
-      "kind": "record struct",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Samus/Palettes/VerifyNormalSuitCatalogBoundaryCase.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Verification.Samus.Palettes.VerifySamusChargeColorPhasesCase",
-      "kind": "record struct",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Samus/Palettes/VerifySamusChargeColorPhasesCase.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Verification.Samus.Poses.MakeSamusFaceForwardVerification",

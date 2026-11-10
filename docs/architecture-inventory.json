@@ -35420,6 +35420,22 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Samus.SamusFlareRows",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Tooling/AssetExtraction/Samus/SamusFlareRows.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorDocument",
       "kind": "record",
       "scope": "product",
@@ -35797,6 +35813,32 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Samus.SamusPoseNumberDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusPoseNumberDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Samus.SamusPoseNumbering",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusPoseNumbering.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Samus.SamusPoseNumbers",
       "kind": "static class",
       "scope": "product",
@@ -35821,6 +35863,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Samus.SamusProjectileDirectionCodec",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusProjectileDirectionCodec.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Samus.SamusProjectileRecordOrder",
@@ -36005,6 +36060,38 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Samus.SamusSpritemapSourcesAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Tooling/AssetExtraction/Samus/SamusSpritemapSourcesAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Samus.SamusSpritemapSourcesAccess.extension(SuperMetroid.AssetExtraction.Samus.SamusSpritemapSources)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Tooling/AssetExtraction/Samus/SamusSpritemapSourcesAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Samus.SamusSuitColorDocument",
@@ -119670,17 +119757,17 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacementDefinitions",
-      "kind": "static class",
+      "type": "SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacement",
+      "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Artwork/ChargeFlarePlacementDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Samus/Artwork/ChargeFlarePlacement.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacementOffsets",
@@ -121068,32 +121155,6 @@
       ],
       "files": [
         "csharp/test-support/VerificationAccess.Core/Samus/Drawing/SamusBodyFrameTableConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Drawing.SamusDrawingDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Drawing/SamusDrawingDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Drawing.SamusDrawingDefinitions.ArmCannon",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Drawing/SamusDrawingDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -125041,32 +125102,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Poses.SamusPoseNumberDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseNumberDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Poses.SamusPoseNumbering",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseNumbering.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Samus.Poses.SamusPoseProjectileOriginDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -126992,17 +127027,17 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirectionCodec",
-      "kind": "static class",
+      "type": "SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirectionMap\u003CT\u003E",
+      "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileDirectionCodec.cs"
+        "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileDirectionMap.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Samus.Projectiles.SamusProjectileFrame",
@@ -127055,6 +127090,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Projectiles.SamusProjectileHeaderDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileHeaderDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Samus.Projectiles.SamusProjectileHeaderNative",

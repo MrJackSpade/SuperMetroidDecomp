@@ -178,8 +178,8 @@ internal static class EnemySheetOwnFramesVerification
     private static EnemySheetOwnFrameFamily GunshipFamily() => new("gunship", TableFrames(GunshipFrameDefinitions.ShownFrames),
         new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
         {
-            [EnemyDefinitionId.ShipTop] = Reach(GunshipAnimations.Programs, GunshipFrameDefinitions.ShownFrames, [GunshipProgram.TopHull]),
-            [EnemyDefinitionId.ShipBottomEntrance] = Reach(GunshipAnimations.Programs, GunshipFrameDefinitions.ShownFrames,
+            [EnemyDefinitionId.ShipTop] = Reach(GunshipAnimations.Segments, GunshipAnimations.StartingAt, GunshipFrameDefinitions.ShownFrames, [GunshipProgram.TopHull]),
+            [EnemyDefinitionId.ShipBottomEntrance] = Reach(GunshipAnimations.Segments, GunshipAnimations.StartingAt, GunshipFrameDefinitions.ShownFrames,
                 [GunshipProgram.BottomHull, GunshipProgram.BottomEntrancePad, GunshipProgram.EntrancePadOpening, GunshipProgram.EntrancePadClosing]),
         });
 

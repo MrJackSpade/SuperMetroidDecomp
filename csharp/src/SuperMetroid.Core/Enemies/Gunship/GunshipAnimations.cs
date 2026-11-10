@@ -9,9 +9,9 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 /// </summary>
 internal static class GunshipAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<GunshipProgram, GunshipFrame, NoAnimationCue> Programs { get; } = new(
-        new Dictionary<GunshipProgram, AnimationProgramStep<GunshipProgram, GunshipFrame, NoAnimationCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<GunshipProgram, GunshipFrame, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<GunshipProgram, AnimationBeat<GunshipFrame, NoAnimationCue>[]>
     {
         [P.EntrancePadOpening] =
         [
@@ -25,12 +25,10 @@ internal static class GunshipAnimations
             Show(7, 6),
             Show(8, 5),
             Show(9, 4),
-            FallInto(P.EntrancePadOpen),
         ],
         [P.EntrancePadOpen] =
         [
             Show(10, 4),
-            GoTo(P.EntrancePadOpen),
         ],
         [P.EntrancePadClosing] =
         [
@@ -42,35 +40,35 @@ internal static class GunshipAnimations
             Show(4, 24),
             Show(3, 8),
             Show(11, 8),
-            FallInto(P.BottomEntrancePad),
         ],
         [P.BottomEntrancePad] =
         [
             Show(12, 8),
-            GoTo(P.BottomEntrancePad),
         ],
         [P.TopHull] =
         [
             Show(0, 1),
-            Hold,
         ],
         [P.BottomHull] =
         [
             Show(1, 1),
-            Hold,
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<GunshipProgram, Animation<GunshipProgram>> StartingAt { get; } = new Dictionary<GunshipProgram, Animation<GunshipProgram>>
+    {
+        [P.EntrancePadOpening] = new([new(P.EntrancePadOpening, 0, 10, 1), new(P.EntrancePadOpen, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.EntrancePadOpen] = new([new(P.EntrancePadOpen, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.EntrancePadClosing] = new([new(P.EntrancePadClosing, 0, 8, 1), new(P.BottomEntrancePad, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.BottomEntrancePad] = new([new(P.BottomEntrancePad, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.TopHull] = new([new(P.TopHull, 0, 1, 1)], AnimationEnd.Holds),
+        [P.BottomHull] = new([new(P.BottomHull, 0, 1, 1)], AnimationEnd.Holds),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<GunshipProgram> StartingWith(GunshipProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<GunshipProgram, GunshipFrame, NoAnimationCue> Show(int pose, int duration) => AnimationProgramStep<GunshipProgram, GunshipFrame, NoAnimationCue>.Show(new(pose), duration);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<GunshipProgram, GunshipFrame, NoAnimationCue> GoTo(GunshipProgram program) => AnimationProgramStep<GunshipProgram, GunshipFrame, NoAnimationCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<GunshipProgram, GunshipFrame, NoAnimationCue> FallInto(GunshipProgram program) => AnimationProgramStep<GunshipProgram, GunshipFrame, NoAnimationCue>.FallInto(program);
-
-    /// <summary>Holds the last frame, as the sleep does.</summary>
-    private static AnimationProgramStep<GunshipProgram, GunshipFrame, NoAnimationCue> Hold => AnimationProgramStep<GunshipProgram, GunshipFrame, NoAnimationCue>.Hold;
-
+    private static AnimationBeat<GunshipFrame, NoAnimationCue> Show(int pose, int duration) => new AnimationBeat<GunshipFrame, NoAnimationCue>.Frame(new(pose), duration);
 }

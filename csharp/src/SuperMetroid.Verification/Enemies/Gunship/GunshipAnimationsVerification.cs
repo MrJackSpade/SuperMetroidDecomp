@@ -6,16 +6,17 @@ using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Enemies.Gunship;
 
-/// <summary>#1290: the gunship's hull and entrance pad typed programs, each matched step by step to its native bank-$A2 list.</summary>
+/// <summary>#1290, #1600: the gunship's hull and entrance pad typed animations, each segment matched to its native bank-$A2 list and each animation to the lists' control flow.</summary>
 internal static class GunshipAnimationsVerification
 {
-    /// <summary>Every program matches its native list.</summary>
+    /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifyGunshipAnimations(SuperMetroidAddressSpace rom)
     {
-        int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, GunshipAnimations.Programs,
-            GunshipFrameDefinitionsConstants.Spritemap,
-            word => null,
-            (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions."));
-        Console.WriteLine($"  gunship programs: {Entries.Length} programs ({steps} steps) match bank $A2.");
+        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
+            GunshipAnimations.Segments, GunshipAnimations.StartingAt, GunshipFrameDefinitionsConstants.Spritemap,
+            new NativeEnemyCueRules<NoAnimationCue>(
+                word => null,
+                (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions.")));
+        Console.WriteLine($"  gunship animations: {Entries.Length} segments ({beats} beats) and {GunshipAnimations.StartingAt.Count} animations match bank $A2.");
     }
 }

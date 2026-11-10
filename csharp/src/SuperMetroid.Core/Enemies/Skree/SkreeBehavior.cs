@@ -45,7 +45,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
             Function = SkreeEnemyFunction.Idling,
         };
         slot.SetSpeciesState(state);
-        state.Program = AnimationProgramCursor<SkreeMetareeProgram>.Start(SkreeMetareeProgram.SkreeIdling);
+        state.Playback = new(SkreeMetareeAnimations.StartingWith(SkreeMetareeProgram.SkreeIdling), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Winds up near Samus, dives when the instruction callback is ready, then burrows after floor contact.</summary>
@@ -143,8 +143,8 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.InstalledInstructionIndex = state.RequestedInstructionIndex;
-        state.Program = AnimationProgramCursor<SkreeMetareeProgram>.Start(SkreeMetareePrograms.SkreeProgram(
-            state.RequestedInstructionIndex));
+        state.Playback = new(SkreeMetareeAnimations.StartingWith(SkreeMetareePrograms.SkreeProgram(
+            state.RequestedInstructionIndex)), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
@@ -157,9 +157,13 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Skree's typed animation.</summary>
     internal static void AdvanceSkreeTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, SkreeMetareeAnimations.Programs, SkreeMetareeFrameDefinitions.ShownFrames.Of,
-            static (SkreeEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
-            (state, cue, _) => SkreeMetareeCues.Apply(slot, cue, () => state.AttackReady = true));
+        EnemyProgramAnimation.Advance(slot, SkreeMetareeAnimations.Segments, SkreeMetareeFrameDefinitions.ShownFrames.Of,
+            static (SkreeEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            (state, cue) =>
+            {
+                SkreeMetareeCues.Apply(slot, cue, () => state.AttackReady = true);
+                return null;
+            });
 
 
     /// <summary>Spawns Skree's four debris actors before generic death processing of a lethal shot.</summary>

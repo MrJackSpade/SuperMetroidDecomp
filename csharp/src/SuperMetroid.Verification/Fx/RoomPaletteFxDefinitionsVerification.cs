@@ -149,7 +149,7 @@ internal static class RoomPaletteFxDefinitionsVerification
                 ? PaletteFxHeatPrograms.Start(PaletteFxHeatSuit.Power)
                 : definition.InitialProgram);
             AssertTrue(ReferenceEquals(expected, effect.Animation), $"${pointer:X4} production initial animation");
-            AssertEqual(SuperMetroid.Core.Programs.AnimationPlace.StartOf(0), effect.Place, $"${pointer:X4} production starts its animation");
+            AssertEqual(AnimationPlace.StartOfAnimation, effect.Place, $"${pointer:X4} production starts its animation");
         }
 
     }

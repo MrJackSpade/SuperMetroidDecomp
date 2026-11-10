@@ -18,9 +18,7 @@ internal sealed class RoomColourEffect
     {
         Effect = effect;
         Animation = PaletteFxAnimations.StartingWith(segment);
-        WrappingCountdown repeats = WrappingCountdown.Start(0);
-        Place = Animation.StartWith(ref repeats);
-        Repeats = repeats;
+        Place = AnimationPlace.StartOfAnimation;
         UpdatesUntilNextStep = 1;
     }
 
@@ -79,9 +77,7 @@ internal sealed class RoomColourEffect
     internal void Restart(Animation<PaletteFxProgram> animation)
     {
         Animation = Ensure.NotNull(animation);
-        WrappingCountdown repeats = Repeats;
-        Place = animation.StartWith(ref repeats);
-        Repeats = repeats;
+        Place = AnimationPlace.StartOfAnimation;
         UpdatesUntilNextStep = 1;
     }
 

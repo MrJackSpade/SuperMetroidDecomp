@@ -61,7 +61,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
                 metareeSlot,
                 metareeState.InstalledAnimationScriptIndex,
                 phase,
-                metareeState.Program,
+                metareeState.Playback,
                 SkreeMetareePrograms.MetareeProgram(phase),
                 $"Metaree {phase}");
 
@@ -76,7 +76,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
                 skreeSlot,
                 skreeState.InstalledInstructionIndex,
                 phase,
-                skreeState.Program,
+                skreeState.Playback,
                 SkreeMetareePrograms.SkreeProgram(phase),
                 $"Skree {phase}");
         }
@@ -102,7 +102,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
                 slot,
                 state.InstalledAnimationScriptIndex,
                 SkreeMetareeAnimationPhase.PreparingAttack,
-                state.Program,
+                state.Playback,
                 SkreeMetareePrograms.MetareeProgram(SkreeMetareeAnimationPhase.PreparingAttack),
             "live Metaree preparation");
 
@@ -112,7 +112,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
                 slot,
                 state.InstalledAnimationScriptIndex,
                 SkreeMetareeAnimationPhase.Diving,
-                state.Program,
+                state.Playback,
                 SkreeMetareePrograms.MetareeProgram(SkreeMetareeAnimationPhase.Diving),
             "live Metaree dive");
     }
@@ -137,7 +137,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
                 slot,
                 state.InstalledInstructionIndex,
                 SkreeMetareeAnimationPhase.PreparingAttack,
-                state.Program,
+                state.Playback,
                 SkreeMetareePrograms.SkreeProgram(SkreeMetareeAnimationPhase.PreparingAttack),
             "live Skree preparation");
 
@@ -147,7 +147,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
                 slot,
                 state.InstalledInstructionIndex,
                 SkreeMetareeAnimationPhase.Diving,
-                state.Program,
+                state.Playback,
                 SkreeMetareePrograms.SkreeProgram(SkreeMetareeAnimationPhase.Diving),
             "live Skree dive");
     }
@@ -179,12 +179,13 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         RoomEnemySlot slot,
         SkreeMetareeAnimationPhase installed,
         SkreeMetareeAnimationPhase expectedPhase,
-        AnimationProgramCursor<SkreeMetareeProgram> program,
+        AnimationPlayback<SkreeMetareeProgram> playback,
         SkreeMetareeProgram expectedProgram,
         string context)
     {
         AssertEqual(expectedPhase, installed, $"{context} installed phase");
-        AssertEqual(AnimationProgramCursor<SkreeMetareeProgram>.Start(expectedProgram), program, $"{context} animation");
+        AssertTrue(ReferenceEquals(SkreeMetareeAnimations.StartingWith(expectedProgram), playback.Animation) &&
+            playback.Place == AnimationPlace.StartOfAnimation, $"{context} animation");
         AssertEqual(1, slot.FrameHold.RawValue, $"{context} instruction timer");
         AssertEqual(0, slot.Timer.RawValue, $"{context} loop timer");
     }

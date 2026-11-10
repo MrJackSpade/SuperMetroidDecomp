@@ -6,21 +6,25 @@ using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Enemies.Skree;
 
-/// <summary>#641: the Skree's and Metaree's typed programs, each matched step by step to its native bank-$A3 list.</summary>
+/// <summary>
+/// #641, #1600: the Skree's and Metaree's typed animations, each segment matched to its native bank-$A3 list and each
+/// animation to the lists' control flow.
+/// </summary>
 internal static class SkreeMetareeAnimationsVerification
 {
-    /// <summary>Every program matches its native list.</summary>
+    /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifySkreeMetareeAnimations(SuperMetroidAddressSpace rom)
     {
-        int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, SkreeMetareeAnimations.Programs,
-            SkreeMetareeFrameToolingDefinitions.Spritemap,
-            word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
-            (word, operands, cue, at) =>
-            {
-                var instruction = Instructions[word];
-                AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
-                AssertEqual(0, operands.Length, $"{at}: operands");
-            });
-        Console.WriteLine($"  Skree or Metaree programs: {Entries.Length} programs ({steps} steps) match bank $A3.");
+        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
+            SkreeMetareeAnimations.Segments, SkreeMetareeAnimations.StartingAt, SkreeMetareeFrameToolingDefinitions.Spritemap,
+            new NativeEnemyCueRules<SkreeMetareeCue>(
+                word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
+                (word, operands, cue, at) =>
+                {
+                    var instruction = Instructions[word];
+                    AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
+                    AssertEqual(0, operands.Length, $"{at}: operands");
+                }));
+        Console.WriteLine($"  Skree or Metaree animations: {Entries.Length} segments ({beats} beats) and {SkreeMetareeAnimations.StartingAt.Count} animations match bank $A3.");
     }
 }

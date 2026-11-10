@@ -61,7 +61,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The initializer starts the idle animation directly rather than going through the change detector,
         // because both requested and installed indexes intentionally start at zero.
-        state.Program = AnimationProgramCursor<SkreeMetareeProgram>.Start(SkreeMetareeProgram.MetareeIdling);
+        state.Playback = new(SkreeMetareeAnimations.StartingWith(SkreeMetareeProgram.MetareeIdling), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Dispatches idle, attack preparation, airborne dive, and burrow phases with required Samus and room data.</summary>
@@ -200,7 +200,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.InstalledAnimationScriptIndex = requested;
-        state.Program = AnimationProgramCursor<SkreeMetareeProgram>.Start(SkreeMetareePrograms.MetareeProgram(requested));
+        state.Playback = new(SkreeMetareeAnimations.StartingWith(SkreeMetareePrograms.MetareeProgram(requested)), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
@@ -213,9 +213,13 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Metaree's typed animation.</summary>
     internal static void AdvanceMetareeTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, SkreeMetareeAnimations.Programs, SkreeMetareeFrameDefinitions.ShownFrames.Of,
-            static (MetareeEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
-            (state, cue, _) => SkreeMetareeCues.Apply(slot, cue, () => state.AttackReady = true));
+        EnemyProgramAnimation.Advance(slot, SkreeMetareeAnimations.Segments, SkreeMetareeFrameDefinitions.ShownFrames.Of,
+            static (MetareeEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            (state, cue) =>
+            {
+                SkreeMetareeCues.Apply(slot, cue, () => state.AttackReady = true);
+                return null;
+            });
 
     /// <summary>Spawns four metal debris actors in the dying Metaree's colours before common shot death clears them.</summary>
     internal void AddMetareeShotReactions(EnemySharedReactions table)

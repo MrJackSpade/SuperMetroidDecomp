@@ -83,6 +83,28 @@ internal static class EnemyInstructionRunner
         where TCue : notnull =>
         programs.Steps(program).OfType<AnimationProgramStep<TProgram, TFrame, TCue>.ShowStep>().Sum(step => step.Duration) + 1;
 
+    /// <summary>
+    /// The frames a looping segment's animation shows (#1600): one pass over <paramref name="segment"/>'s frames, then
+    /// the first of the next pass.
+    /// </summary>
+    internal static string ExpectedLoop<TSegment, TFrame, TEvent>(AnimationSegments<TSegment, TFrame, TEvent> segments,
+        TSegment segment, Func<TFrame, ushort> spritemap)
+        where TSegment : struct, Enum
+        where TFrame : struct
+        where TEvent : notnull
+    {
+        var frames = segments.Beats(segment).OfType<AnimationBeat<TFrame, TEvent>.Frame>().ToArray();
+        return ExpectedFrames([.. frames.Select(frame => spritemap(frame.Shown)), spritemap(frames[0].Shown)],
+            [.. frames.Select(frame => frame.Duration), frames[0].Duration]);
+    }
+
+    /// <summary>The update count the typed <see cref="ExpectedLoop{TSegment, TFrame, TEvent}(AnimationSegments{TSegment, TFrame, TEvent}, TSegment, Func{TFrame, ushort})"/> covers: one pass plus the first update of the next.</summary>
+    internal static int LoopUpdates<TSegment, TFrame, TEvent>(AnimationSegments<TSegment, TFrame, TEvent> segments, TSegment segment)
+        where TSegment : struct, Enum
+        where TFrame : struct
+        where TEvent : notnull =>
+        segments.Beats(segment).OfType<AnimationBeat<TFrame, TEvent>.Frame>().Sum(frame => frame.Duration) + 1;
+
     /// <summary>Accepts a nullable fixture reference at an argument index and reports mismatched runtime types.</summary>
     private static T? Optional<T>(object?[] arguments, int index) where T : class => arguments[index] switch
     {

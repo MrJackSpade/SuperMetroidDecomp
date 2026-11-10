@@ -97,9 +97,9 @@ internal static class EnemySheetOwnFramesVerification
     private static EnemySheetOwnFrameFamily SkreeAndMetaree() => new("Skree and Metaree", TableFrames(SkreeMetareeFrameDefinitions.ShownFrames),
         new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
         {
-            [EnemyDefinitionId.Skree] = Reach(SkreeMetareeAnimations.Programs, SkreeMetareeFrameDefinitions.ShownFrames,
+            [EnemyDefinitionId.Skree] = Reach(SkreeMetareeAnimations.Segments, SkreeMetareeAnimations.StartingAt, SkreeMetareeFrameDefinitions.ShownFrames,
                 SkreeMetareeAnimationDefinitions.SkreePrograms.Values),
-            [EnemyDefinitionId.Metaree] = Reach(SkreeMetareeAnimations.Programs, SkreeMetareeFrameDefinitions.ShownFrames,
+            [EnemyDefinitionId.Metaree] = Reach(SkreeMetareeAnimations.Segments, SkreeMetareeAnimations.StartingAt, SkreeMetareeFrameDefinitions.ShownFrames,
                 SkreeMetareeAnimationDefinitions.MetareePrograms.Values),
         });
 
@@ -367,6 +367,41 @@ internal static class EnemySheetOwnFramesVerification
                 {
                     foreach (TProgram target in cueTargets(cue.Cue))
                         pending.Enqueue(target);
+                }
+            }
+        }
+        return shown;
+    }
+
+    /// <summary>
+    /// The frames the animations starting at <paramref name="starts"/> show (#1600): every phase's frames, and those of the
+    /// animations <paramref name="eventTargets"/> says an event continues in.
+    /// </summary>
+    private static HashSet<EnemyFrameId> Reach<TSegment, TFrame, TEvent>(AnimationSegments<TSegment, TFrame, TEvent> segments,
+        IReadOnlyDictionary<TSegment, Animation<TSegment>> startingAt, EnemyFrameTable<TFrame> table, IEnumerable<TSegment> starts,
+        Func<TEvent, IEnumerable<TSegment>>? eventTargets = null)
+        where TSegment : struct, Enum
+        where TFrame : struct
+        where TEvent : notnull
+    {
+        var reached = new HashSet<TSegment>();
+        var pending = new Queue<TSegment>(starts);
+        var shown = new HashSet<EnemyFrameId>();
+        while (pending.TryDequeue(out TSegment start))
+        {
+            if (!reached.Add(start))
+                continue;
+            foreach (AnimationPhase<TSegment> phase in startingAt[start].Phases)
+            {
+                foreach (AnimationBeat<TFrame, TEvent> beat in segments.Beats(phase.Segment).Skip(phase.FirstBeat).Take(phase.BeatCount))
+                {
+                    if (beat is AnimationBeat<TFrame, TEvent>.Frame frame)
+                        shown.Add(table.Of(frame.Shown));
+                    else if (beat is AnimationBeat<TFrame, TEvent>.Event raised && eventTargets is not null)
+                    {
+                        foreach (TSegment target in eventTargets(raised.Raised))
+                            pending.Enqueue(target);
+                    }
                 }
             }
         }

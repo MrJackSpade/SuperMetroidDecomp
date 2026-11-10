@@ -107,6 +107,88 @@ internal static class EnemyProgramAnimation
     }
 
     /// <summary>
+    /// One typed-animation step of a species whose state holds its playback (#1600): when the slot's frame has expired,
+    /// plays the state's animation on to its next frame and stores the playback back. <paramref name="react"/> carries out
+    /// each event against the state and may continue the play in another animation.
+    /// </summary>
+    /// <param name="slot">The enemy.</param>
+    /// <param name="segments">The species' animation segments.</param>
+    /// <param name="frame">The installed frame an animation frame shows.</param>
+    /// <param name="read">Reads the species state's playback.</param>
+    /// <param name="write">Stores the playback back on the species state.</param>
+    /// <param name="react">Carries out an event, returning where the play continues, or null to play on.</param>
+    internal static void Advance<TState, TSegment, TFrame, TEvent>(
+        RoomEnemySlot slot,
+        AnimationSegments<TSegment, TFrame, TEvent> segments,
+        Func<TFrame, EnemyFrameId> frame,
+        Func<TState, AnimationPlayback<TSegment>> read,
+        Action<TState, AnimationPlayback<TSegment>> write,
+        Func<TState, TEvent, AnimationContinuation<TSegment>?> react)
+        where TState : class
+        where TSegment : struct, Enum
+        where TFrame : struct
+        where TEvent : notnull
+    {
+        Ensure.NotNull(slot);
+        Ensure.NotNull(read);
+        Ensure.NotNull(write);
+        Ensure.NotNull(react);
+        if (!Expire(slot))
+            return;
+        TState state = slot.RequireSpeciesState<TState>();
+        AnimationPlayback<TSegment> playback = read(state);
+        Play(slot, segments, ref playback, frame, raised => react(state, raised));
+        write(state, playback);
+    }
+
+    /// <summary>
+    /// Plays <paramref name="playback"/> on to its next frame after the slot's frame expired (#1600): a frame becomes the
+    /// slot's frame for its duration, a pause holds the slot's frame for its own, a hold leaves the slot as it is, and the
+    /// animation's end deletes the enemy. The enemy's timer word is the animation's repeat counter, which only its counted
+    /// phases load and count down.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The animation passes every beat without showing a frame.</exception>
+    internal static void Play<TSegment, TFrame, TEvent>(
+        RoomEnemySlot slot,
+        AnimationSegments<TSegment, TFrame, TEvent> segments,
+        ref AnimationPlayback<TSegment> playback,
+        Func<TFrame, EnemyFrameId> frame,
+        Func<TEvent, AnimationContinuation<TSegment>?> react)
+        where TSegment : struct, Enum
+        where TFrame : struct
+        where TEvent : notnull
+    {
+        Ensure.NotNull(slot);
+        Ensure.NotNull(segments);
+        Ensure.NotNull(frame);
+        Animation<TSegment> animation = playback.Animation;
+        AnimationPlace place = playback.Place;
+        WrappingCountdown repeats = slot.Timer;
+        AnimationShown<TSegment, TFrame> shown = segments.PlayToNextFrame(ref animation, ref place, ref repeats, react);
+        slot.Timer = repeats;
+        playback = new AnimationPlayback<TSegment>(animation, place);
+        switch (shown)
+        {
+            case AnimationShown<TSegment, TFrame>.Frame shownFrame:
+                slot.FrameHold = WrappingCountdown.FromRaw(shownFrame.Duration);
+                slot.Frame = frame(shownFrame.Shown);
+                slot.NewInstructionFrame = true;
+                return;
+            case AnimationShown<TSegment, TFrame>.Paused paused:
+                slot.FrameHold = WrappingCountdown.FromRaw(paused.Duration);
+                return;
+            case AnimationShown<TSegment, TFrame>.Held:
+                return;
+            case AnimationShown<TSegment, TFrame>.Ended:
+                // The common end deletes the enemy.
+                slot.Presence = slot.Presence.With(EnemyPresence.Deleted);
+                return;
+            default:
+                throw new InvalidOperationException($"Enemy {slot.DefinitionId}'s animation reached an undefined {shown}.");
+        }
+    }
+
+    /// <summary>
     /// Installs <paramref name="program"/> unless it is already the installed one: <paramref name="install"/> records it
     /// on the species state, and its first instruction runs on the next frame.
     /// </summary>

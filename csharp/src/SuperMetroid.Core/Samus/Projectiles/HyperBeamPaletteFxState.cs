@@ -53,9 +53,7 @@ public sealed class HyperBeamPaletteFxState
         FrameHold = 1;
         CurrentFrameIndex = null;
         CompletedCycles = 0;
-        // The Hyper Beam's cycle counts no repeats.
-        WrappingCountdown noRepeats = WrappingCountdown.Start(0);
-        Place = PaletteFxAnimations.StartingWith(HyperBeamDefinition().InitialProgram).StartWith(ref noRepeats);
+        Place = AnimationPlace.StartOfAnimation;
     }
 
     /// <summary>Runs one call of the palette effect handler for the Hyper Beam object.</summary>

@@ -35,7 +35,7 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
     /// <summary>
     /// Plays <paramref name="animation"/> on from <paramref name="place"/> to its next frame, raising each event it passes
     /// in <paramref name="raise"/>: a phase plays its run as many times as it says, counting its plays down
-    /// <paramref name="repeats"/>, the next phase follows, and past the last the animation stops or loops as it ends. On
+    /// <paramref name="repeats"/>, the next phase follows, and past the last the animation stops, loops or holds as it ends. On
     /// return <paramref name="place"/> is where the next play resumes.
     /// </summary>
     /// <exception cref="InvalidOperationException">The animation passes every beat without showing a frame.</exception>
@@ -74,6 +74,8 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
         {
             if (animation.Phases.Count == 0)
                 return AnimationShown<TSegment, TFrame>.Ended.Instance;
+            if (place.Beat == AnimationPlace.NotEntered)
+                place = Enter(animation, place.Phase, ref repeats);
             AnimationPhase<TSegment> phase = animation.Phases[place.Phase];
             if (place.Beat < phase.BeatCount)
             {
@@ -83,6 +85,8 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
                 {
                     case AnimationBeat<TFrame, TEvent>.Frame frame:
                         return new AnimationShown<TSegment, TFrame>.Frame(phase.Segment, frame.Shown, frame.Duration);
+                    case AnimationBeat<TFrame, TEvent>.Pause pause:
+                        return new AnimationShown<TSegment, TFrame>.Paused(pause.Duration);
                     case AnimationBeat<TFrame, TEvent>.Event raised:
                         if (react(raised.Raised) is { } continuation)
                         {
@@ -112,6 +116,8 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
             {
                 case AnimationEnd.Stop:
                     return AnimationShown<TSegment, TFrame>.Ended.Instance;
+                case AnimationEnd.Hold:
+                    return AnimationShown<TSegment, TFrame>.Held.Instance;
                 case AnimationEnd.Loop loop:
                     place = Enter(animation, loop.Phase, ref repeats);
                     continue;

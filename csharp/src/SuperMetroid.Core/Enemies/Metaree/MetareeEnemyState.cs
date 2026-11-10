@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Enemies.Metaree;
 /// <summary>The state of one Metaree.</summary>
 public sealed class MetareeEnemyState
 {
-    /// <summary>Where the typed animation (#641) resumes.</summary>
-    internal AnimationProgramCursor<SkreeMetareeProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<SkreeMetareeProgram> Playback { get; set; }
 
     /// <summary>Reloaded to 21 during flight, then counted down while underground.</summary>
     public int BurrowTimer { get; internal set; }

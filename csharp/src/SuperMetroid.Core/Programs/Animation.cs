@@ -26,14 +26,4 @@ internal sealed record Animation<TSegment>
     /// <summary>How the animation ends once its last phase has played.</summary>
     internal AnimationEnd End { get; }
 
-    /// <summary>
-    /// Starts the animation: its first phase, before its first beat, loading <paramref name="repeats"/> with that phase's
-    /// plays when it is played more than once.
-    /// </summary>
-    internal AnimationPlace StartWith(ref WrappingCountdown repeats)
-    {
-        if (Phases.Count > 0 && Phases[0].Plays > 1)
-            repeats = WrappingCountdown.FromRaw(Phases[0].Plays);
-        return AnimationPlace.StartOf(0);
-    }
 }

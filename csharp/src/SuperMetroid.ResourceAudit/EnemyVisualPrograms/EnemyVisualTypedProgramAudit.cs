@@ -174,6 +174,20 @@ internal static class EnemyVisualTypedProgramAudit
                 report.Require(ResourceDomains.EnemyDisplay, owner, ResourceIndex.Address(bank, frame), source, exports);
             rows.Add(new(frames.Length));
         }
+        // Typed animation segments (#1600) name their frames the same way.
+        void RequireSegmentFrames<TSegment, TFrame, TEvent>(AnimationSegments<TSegment, TFrame, TEvent> segments,
+            Func<TFrame, ushort> spritemap, byte bank, string owner, string source)
+            where TSegment : struct, Enum
+            where TFrame : struct
+            where TEvent : notnull
+        {
+            ushort[] frames = [.. Enum.GetValues<TSegment>().SelectMany(segment => segments.Beats(segment))
+                .OfType<AnimationBeat<TFrame, TEvent>.Frame>()
+                .Select(frame => spritemap(frame.Shown)).Distinct()];
+            foreach (ushort frame in frames)
+                report.Require(ResourceDomains.EnemyDisplay, owner, ResourceIndex.Address(bank, frame), source, exports);
+            rows.Add(new(frames.Length));
+        }
 
         RequireTypedFrames(CrocomireBodyAnimations.Programs, frame => CrocomireBodyFrameSpritemapsTooling.Spritemap(frame), CrocomireBodyVisualToolingDefinitions.Bank,
             nameof(CrocomireBodyAnimations), "csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireBodyAnimations.cs");
@@ -254,7 +268,7 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(CrawlerAnimations), "csharp/src/SuperMetroid.Core/Enemies/Crawlers/CrawlerAnimations.cs");
         RequireTypedFrames(MorphBallEyeAnimations.Programs, MorphBallEyeFrameToolingDefinitions.Spritemap, MorphBallEyeFrameToolingDefinitions.Bank,
             nameof(MorphBallEyeAnimations), "csharp/src/SuperMetroid.Core/Enemies/MorphBallEye/MorphBallEyeAnimations.cs");
-        RequireTypedFrames(SkreeMetareeAnimations.Programs, SkreeMetareeFrameToolingDefinitions.Spritemap, SkreeMetareeFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(SkreeMetareeAnimations.Segments, SkreeMetareeFrameToolingDefinitions.Spritemap, SkreeMetareeFrameToolingDefinitions.Bank,
             nameof(SkreeMetareeAnimations), "csharp/src/SuperMetroid.Core/Enemies/Skree/SkreeMetareeAnimations.cs");
         RequireTypedFrames(MochtroidAnimations.Programs, MochtroidFrameToolingDefinitions.Spritemap, MochtroidFrameToolingDefinitions.Bank,
             nameof(MochtroidAnimations), "csharp/src/SuperMetroid.Core/Enemies/Metroids/MochtroidAnimations.cs");

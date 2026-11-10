@@ -10,8 +10,7 @@ internal static class SkreeMetareeCues
     /// <param name="slot">The enemy.</param>
     /// <param name="cue">The cue the program published.</param>
     /// <param name="markAttackReady">Sets the species state's attack-ready flag.</param>
-    /// <returns>Null: no cue continues at another program.</returns>
-    internal static SkreeMetareeProgram? Apply(RoomEnemySlot slot, SkreeMetareeCue cue, Action markAttackReady)
+    internal static void Apply(RoomEnemySlot slot, SkreeMetareeCue cue, Action markAttackReady)
     {
         switch (cue.Kind)
         {
@@ -27,6 +26,5 @@ internal static class SkreeMetareeCues
             default:
                 throw new InvalidOperationException($"Undefined {nameof(SkreeMetareeCueKind)} {cue.Kind}.");
         }
-        return null;
     }
 }

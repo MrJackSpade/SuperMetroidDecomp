@@ -19,7 +19,7 @@ internal static class EnemyTerrainBlockScanVerification
         var terrain = new EnemyTerrain();
         SignedSixteenSixteen eightPixels = SignedSixteenSixteen.FromWholePixels(8);
 
-        RoomLevelData tall = Room(2, 260, new(1, 0, RoomCollisionType.SolidBlock, RoomBlockBehavior.None));
+        RoomLevelData tall = Room(2, 260, new EnemyTerrainScanBlock(1, 0, RoomCollisionType.SolidBlock, RoomBlockBehavior.None));
         RoomEnemySlot pastCycle = Enemy(8, 256 * 16 + 8);
         AssertTrue(terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(tall, pastCycle, eightPixels),
             "a horizontal move from the 257th row meets the block at the top of its target column");
@@ -29,7 +29,7 @@ internal static class EnemyTerrainBlockScanVerification
             "the same move from the second row passes");
         AssertEqual(16, inCycle.Position.X.Whole, "the move from the second row completes");
 
-        AssertVerticalMoveMeets(terrain, Room(200, 100, new(32, 91, RoomCollisionType.SolidBlock, RoomBlockBehavior.None)),
+        AssertVerticalMoveMeets(terrain, Room(200, 100, new EnemyTerrainScanBlock(32, 91, RoomCollisionType.SolidBlock, RoomBlockBehavior.None)),
             "a vertical move into row 255 reads row 91 column 32, counted past 32768 blocks");
         AssertVerticalMoveMeets(terrain, Room(200, 100,
                 new(32, 91, RoomCollisionType.HorizontalExtension, RoomBlockBehavior.Extending(1)),

@@ -17,8 +17,8 @@ public sealed record SamusBodyArtworkParts
     /// <summary>Each lower-body definition group's first record.</summary>
     public required int[] BottomSetStarts { get; init; }
 
-    /// <summary>Each pose's first four-byte frame selector.</summary>
-    public required int[] PoseFirstFrames { get; init; }
+    /// <summary>Each pose with a record's first four-byte frame selector, keyed by the pose.</summary>
+    public required IReadOnlyDictionary<SamusPoseId, int> PoseFirstFrames { get; init; }
 
     /// <summary>
     /// Where each pose with a record places the body (#1517): its art origin and, for a pose whose frames differ from it,

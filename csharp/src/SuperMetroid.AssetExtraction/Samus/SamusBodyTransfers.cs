@@ -10,20 +10,18 @@ internal static class SamusBodyTransfers
 {
     /// <summary>Import binding reuses its transient calculated snapshot across records; no snapshot is retained by the installed catalog.</summary>
     internal static bool TryFirstSize(InstalledSamusBodyArtwork body, SamusBodyTileSlot slot,
-        int payloadBytes, ReadOnlySpan<int> poseFirstFrames, ReadOnlySpan<SamusBodyFrameSelection> frames, out int firstSize)
+        int payloadBytes, IReadOnlyDictionary<SamusPoseId, int> poseFirstFrames, ReadOnlySpan<SamusBodyFrameSelection> frames, out int firstSize)
     {
         bool upper = slot.Upper;
         int set = slot.Set, position = slot.Position;
         if (TrySelectedPacking(upper, set, position, payloadBytes, out firstSize)) return true;
         int firstTiles = 0;
-        for (int pose = 0; pose < poseFirstFrames.Length; pose++)
+        foreach (SamusPoseId pose in poseFirstFrames.Keys)
         {
-            // A record no pose names is never drawn (#1517).
-            if (!SamusPoseNumbering.NamesPose(pose))
-                continue;
+            // A pose's frame list runs to the next frame list any pose begins.
             int start = poseFirstFrames[pose], end = SamusBodySources.FrameCount;
-            foreach (int next in poseFirstFrames) if (next > start && next < end) end = next;
-            int baseIndex = upper ? body.Source.Spritemaps.TopBase(SamusPoseNumbering.FromNumber(pose)) : body.Source.Spritemaps.BottomBase(SamusPoseNumbering.FromNumber(pose));
+            foreach (int next in poseFirstFrames.Values) if (next > start && next < end) end = next;
+            int baseIndex = upper ? body.Source.Spritemaps.TopBase(pose) : body.Source.Spritemaps.BottomBase(pose);
             for (int phase = 0; phase < end - start; phase++)
             {
                 int frameIndex = start + phase;

@@ -32,8 +32,8 @@ internal static class SamusArtworkPresentationContractChecks
                     compositions.TryGet(SamusSpritemapSources.EntryCount - 1, out _);
                     compositions.TryGet(SamusSpritemapSources.EntryCount, out _);
                     atmosphere.TryResolve(byte.MaxValue, byte.MaxValue, out _);
-                    arm.PoseDescriptor(252);
-                    arm.PoseDescriptor(253);
+                    arm.PoseDescriptor(SuperMetroid.Core.Samus.Poses.SamusPoseId.StandingTransitionAimDiagonalDownLeftPose);
+                    arm.PoseDescriptor(SuperMetroid.Core.Samus.Poses.SamusPoseId.FirstUnauthoredPose);
                     arm.ReadDrawingByte(SamusArmCannonArtworkFormat.DrawingDataByteCount - 1);
                     arm.ReadDrawingByte(SamusArmCannonArtworkFormat.DrawingDataByteCount);
                     arm.CoverTileIndex(9, 3);

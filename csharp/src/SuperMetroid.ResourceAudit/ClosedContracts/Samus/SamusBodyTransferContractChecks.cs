@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
@@ -51,6 +52,10 @@ internal static class SamusBodyTransferContractChecks
         ConfirmStaticCalls();
     }
 
+    /// <summary><paramref name="value"/> for each pose with a record in the pose tables.</summary>
+    private static Dictionary<SamusPoseId, int> EveryRecordedPose(int value) =>
+        SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose, _ => value);
+
     /// <summary>Builds a minimal body catalog and its characters, with a missing physical record when requested and the supplied frame selectors.</summary>
     private static SamusBodyCharacterArtwork Body(bool shortFirstGroup, SamusBodyFrameSelection[]? selectors = null)
     {
@@ -62,8 +67,8 @@ internal static class SamusBodyTransferContractChecks
         SamusBodyTileTransfer[][] groups = Enumerable.Range(0, count).Select(index =>
             Enumerable.Range(0, index == 0 && !shortFirstGroup ? 2 : 1).Select(_ =>
                 new SamusBodyTileTransfer(32, 0, new byte[32])).ToArray()).ToArray();
-        var spritemaps = new SamusSpritemapSources(new ushort[SamusBodySources.PoseCount],
-            new ushort[SamusBodySources.PoseCount], new SamusSpritemapId?[SamusSpritemapSources.EntryCount], []);
+        var spritemaps = new SamusSpritemapSources(EveryRecordedPose(0), EveryRecordedPose(0),
+            new SamusSpritemapId?[SamusSpritemapSources.EntryCount], []);
         var atmosphere = new SamusAtmosphericSourceArtwork(
             new SpritePart[SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount],
             new SpritePart[SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount]);
@@ -76,7 +81,7 @@ internal static class SamusBodyTransferContractChecks
         SamusDeathTileAtlas deathTiles = SamusDeathTileAtlas.Load(deathPng);
         var cannonDocument = new SamusArmCannonArtworkDocument {
             Version = SamusArmCannonArtworkFormat.Version,
-            PoseDescriptors = new int[SamusBodySources.PoseCount],
+            PoseDescriptors = EveryRecordedPose(0),
             DrawingData = new int[SamusArmCannonArtworkFormat.DrawingDataByteCount],
             CoverAppearances = Enumerable.Range(0, SamusDrawingDefinitions.ArmCannon.DirectionCount)
                 .Select(_ => SpriteVisualPart.FromSpritePart(SpritePart.Single(0, 0, 0), SpriteArtwork.CharactersPerRow)).ToArray(),
@@ -86,7 +91,7 @@ internal static class SamusBodyTransferContractChecks
         using var cannonPng = Png(new(SamusArmCannonArtworkFormat.CoverTileCount * 8, 8));
         InstalledSamusArmCannonArtwork cannon = InstalledSamusArmCannonArtworkTooling.Load(cannonJson, cannonPng);
         SamusBodyFrameSelection[] frames = selectors ?? new SamusBodyFrameSelection[SamusBodySources.FrameCount];
-        return SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = starts[..SamusBodySources.TopSetCount], BottomSetStarts = starts[SamusBodySources.TopSetCount..], PoseFirstFrames = new int[SamusBodySources.PoseCount], Placements = SamusBodyPlacementDecoding.Decode(new int[SamusBodySources.PoseCount], new int[SamusBodyPlacementSourceDefinitions.LandingByteCount], new int[SamusBodyPlacementSourceDefinitions.PostureByteCount], new int[SamusBodyPlacementSourceDefinitions.DrainedByteCount]), Frames = frames, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathColors, DeathTilesContentIdentity = deathTiles.ContentIdentity, ArmCannon = cannon },
+        return SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = starts[..SamusBodySources.TopSetCount], BottomSetStarts = starts[SamusBodySources.TopSetCount..], PoseFirstFrames = EveryRecordedPose(0), Placements = SamusBodyPlacementDecoding.Decode(new int[SamusBodySources.PoseCount], new int[SamusBodyPlacementSourceDefinitions.LandingByteCount], new int[SamusBodyPlacementSourceDefinitions.PostureByteCount], new int[SamusBodyPlacementSourceDefinitions.DrainedByteCount]), Frames = frames, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathColors, DeathTilesContentIdentity = deathTiles.ContentIdentity, ArmCannon = cannon },
             groups[..SamusBodySources.TopSetCount], groups[SamusBodySources.TopSetCount..]);
     }
 

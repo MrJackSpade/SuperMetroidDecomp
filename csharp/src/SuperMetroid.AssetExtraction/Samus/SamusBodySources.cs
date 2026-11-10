@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// </summary>
 public sealed class SamusBodySources : InstalledSamusBodyArtwork
 {
-    /// <summary>Number of poses with records in the game's pose tables: the poses the installed body describes.</summary>
+    /// <summary>Number of records in the cartridge's pose tables, which the import reads them by.</summary>
     public const int PoseCount = SamusPoseNumbering.RecordCount;
     /// <summary>Number of four-byte frame selectors, stored one after another.</summary>
     public const int FrameCount = 1143;
@@ -31,7 +31,7 @@ public sealed class SamusBodySources : InstalledSamusBodyArtwork
     /// <summary>Each lower-body definition group's first record.</summary>
     private readonly int[] bottomSetStarts;
     /// <summary>Each pose's first frame selector.</summary>
-    private readonly int[] poseFirstFrames;
+    private readonly Dictionary<SamusPoseId, int> poseFirstFrames;
     /// <summary>The contiguous frame-selector interval.</summary>
     private readonly SamusBodyFrameSelection[] frames;
     /// <summary>Each pose's installed animation frames' half pictures, or none where not installed.</summary>
@@ -57,7 +57,7 @@ public sealed class SamusBodySources : InstalledSamusBodyArtwork
         BodyCharactersContentIdentity = Ensure.NotNull(bodyCharactersContentIdentity);
         topSetStarts = (int[])parts.TopSetStarts.Clone();
         bottomSetStarts = (int[])parts.BottomSetStarts.Clone();
-        poseFirstFrames = (int[])parts.PoseFirstFrames.Clone();
+        poseFirstFrames = parts.PoseFirstFrames.ToDictionary();
         frames = (SamusBodyFrameSelection[])parts.Frames.Clone();
         Placements = parts.Placements.ToDictionary();
     }
@@ -95,11 +95,11 @@ public sealed class SamusBodySources : InstalledSamusBodyArtwork
     public IReadOnlyDictionary<SamusPoseId, SamusBodyPosePlacement> Placements { get; }
 
     /// <summary>SHA-256 of all visual selectors, the body characters' identity and bundled Samus presentation catalogs.</summary>
-    public string ContentIdentity => field ??= SelectedPresentationHash.Create("samus-body-v4", content =>
+    public string ContentIdentity => field ??= SelectedPresentationHash.Create("samus-body-v5", content =>
     {
         foreach (int start in TopSetStarts) content.Append("top set start", start);
         foreach (int start in BottomSetStarts) content.Append("bottom set start", start);
-        foreach (int firstFrame in PoseFirstFrames) content.Append("pose first frame", firstFrame);
+        foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses) content.Append("pose first frame", poseFirstFrames[pose]);
         AppendPlacements(content, Placements);
         foreach (SamusBodyFrameSelection frame in Frames)
         {
@@ -122,8 +122,8 @@ public sealed class SamusBodySources : InstalledSamusBodyArtwork
     /// <summary>Each lower-body definition group's first record.</summary>
     public ReadOnlySpan<int> BottomSetStarts => bottomSetStarts;
 
-    /// <summary>Each pose's first frame selector.</summary>
-    public ReadOnlySpan<int> PoseFirstFrames => poseFirstFrames;
+    /// <summary>Each pose with a record's first frame selector.</summary>
+    public IReadOnlyDictionary<SamusPoseId, int> PoseFirstFrames => poseFirstFrames;
 
     /// <summary>The contiguous frame-selector interval.</summary>
     public ReadOnlySpan<SamusBodyFrameSelection> Frames => frames;
@@ -135,16 +135,16 @@ public sealed class SamusBodySources : InstalledSamusBodyArtwork
     public static SamusBodyPicture Picture(int record) => new(record);
 
     /// <summary>
-    /// Adds every pose's placement to <paramref name="content"/> in the cartridge's pose order: its art origin, then its
-    /// frames' own placements when it has them.
+    /// Adds every pose's placement to <paramref name="content"/> in the cartridge's pose order, which the import keeps
+    /// the identity in: its art origin, then its frames' own placements when it has them.
     /// </summary>
     private static void AppendPlacements(SelectedPresentationHash content, IReadOnlyDictionary<SamusPoseId, SamusBodyPosePlacement> placements)
     {
         Ensure.NotNull(content);
         Ensure.NotNull(placements);
-        foreach (int number in Enumerable.Range(0, PoseCount).Where(SamusPoseNumbering.NamesPose))
+        foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses)
         {
-            SamusBodyPosePlacement placement = placements[SamusPoseNumbering.FromNumber(number)];
+            SamusBodyPosePlacement placement = placements[pose];
             content.Append("graphics y offset", placement.GraphicsYOffset);
             if (placement.FrameRises is not { } rises)
                 continue;
@@ -197,17 +197,18 @@ public sealed class SamusBodySources : InstalledSamusBodyArtwork
         Ensure.NotNull(parts.PoseFirstFrames);
         Ensure.NotNull(parts.Frames);
         if (parts.TopSetStarts.Length != TopSetCount || parts.BottomSetStarts.Length != BottomSetCount ||
-            parts.PoseFirstFrames.Length != PoseCount || parts.Frames.Length != FrameCount)
+            parts.Frames.Length != FrameCount)
             throw new InvalidDataException("Samus body selector tables have an invalid length.");
+        if (!SamusPoseNumbers.CoversRecordedPoses(parts.PoseFirstFrames))
+            throw new InvalidDataException("Samus body frame lists do not cover exactly the poses with records.");
         if (parts.Frames.Any(frame => !IsSelectorComponent(frame.TopSet) || !IsSelectorComponent(frame.TopPosition) ||
                 !IsSelectorComponent(frame.BottomSet) || !IsSelectorComponent(frame.BottomPosition)))
             throw new InvalidDataException("Samus body frame selector components must be table indices from 0 through 255.");
-        foreach (int firstFrame in parts.PoseFirstFrames)
+        foreach (int firstFrame in parts.PoseFirstFrames.Values)
             if ((uint)firstFrame >= FrameCount)
                 throw new InvalidDataException($"Samus pose selects invalid frame list {firstFrame}.");
         Ensure.NotNull(parts.Placements);
-        if (parts.Placements.Count != Enumerable.Range(0, PoseCount).Count(SamusPoseNumbering.NamesPose) || parts.Placements.Keys.Any(pose => !SamusPoseNumbers.HasRecord(pose)) ||
-            parts.Placements.Values.Any(placement => placement is null))
+        if (!SamusPoseNumbers.CoversRecordedPoses(parts.Placements) || parts.Placements.Values.Any(placement => placement is null))
             throw new InvalidDataException("Samus body placements do not cover exactly the poses with records.");
         int first = GroupLengths(parts.TopSetStarts, parts.BottomSetStarts).Keys.Min();
         // A frame is installed when both its pictures and its placement resolve.
@@ -226,10 +227,9 @@ public sealed class SamusBodySources : InstalledSamusBodyArtwork
         }
         var pictures = new Dictionary<SamusPoseId, IReadOnlyList<SamusBodyFramePictures?>>();
         var rises = new Dictionary<SamusPoseId, IReadOnlyList<int?>>();
-        foreach (int number in Enumerable.Range(0, PoseCount).Where(SamusPoseNumbering.NamesPose))
+        foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses)
         {
-            SamusPoseId pose = SamusPoseNumbering.FromNumber(number);
-            int firstFrame = parts.PoseFirstFrames[number];
+            int firstFrame = parts.PoseFirstFrames[pose];
             SamusBodyPosePlacement placement = parts.Placements[pose];
             int count = Math.Min(SamusBodySheetDefinitions.AnimationFrames, FrameCount - firstFrame);
             var framePictures = new SamusBodyFramePictures?[count];

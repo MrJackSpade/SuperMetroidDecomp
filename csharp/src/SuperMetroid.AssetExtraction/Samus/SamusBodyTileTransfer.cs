@@ -1,4 +1,5 @@
 using SuperMetroid.Core;
+using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -60,7 +61,7 @@ public sealed class SamusBodyTileTransfer
     /// deriving stock transfer geometry from the catalog's pose/frame selectors.
     /// </summary>
     private SamusBodyTileTransfer(SamusBodyTileTransfer supplied, SamusBodyCharacterArtwork body,
-        bool upper, int set, int position, ReadOnlySpan<int> poseFirstFrames, ReadOnlySpan<SamusBodyFrameSelection> frames)
+        bool upper, int set, int position, IReadOnlyDictionary<SamusPoseId, int> poseFirstFrames, ReadOnlySpan<SamusBodyFrameSelection> frames)
     {
         this.body = body;
         this.upper = upper;
@@ -111,7 +112,7 @@ public sealed class SamusBodyTileTransfer
 
     /// <summary>Creates a catalog-bound definition with native transfer size.</summary>
     internal SamusBodyTileTransfer WithTransferGeometry(SamusBodyCharacterArtwork body, bool upper, int set, int position,
-        ReadOnlySpan<int> poseFirstFrames, ReadOnlySpan<SamusBodyFrameSelection> frames) =>
+        IReadOnlyDictionary<SamusPoseId, int> poseFirstFrames, ReadOnlySpan<SamusBodyFrameSelection> frames) =>
         new(this, body, upper, set, position, poseFirstFrames, frames);
 
     /// <summary>Gets the byte count of the first VRAM transfer, at most one definition's payload.</summary>

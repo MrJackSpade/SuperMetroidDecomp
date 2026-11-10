@@ -112,7 +112,7 @@ internal sealed class SamusShownFrames
     internal static SamusShownFrames Of(LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> continuation) =>
         computed.GetValue(Ensure.NotNull(continuation), static key => new SamusShownFrames(key));
 
-    /// <summary>Every pose some path of the game gives Samus, in the game's numbering: the poses the body can show.</summary>
+    /// <summary>Every pose some path of the game gives Samus: the poses the body can show.</summary>
     internal static IReadOnlyList<SamusPoseId> Poses => SamusPoseMetadata.ReachablePoses;
 
     /// <summary>

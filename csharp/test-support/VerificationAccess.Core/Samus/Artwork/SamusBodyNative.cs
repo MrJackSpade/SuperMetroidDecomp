@@ -1,11 +1,13 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>
 /// Verification's native view of Samus body artwork: the bank-$92 address of each body DMA definition record and
-/// frame selector, as the cartridge's pointer tables store them.
+/// frame selector, as the cartridge's pointer tables store them, with each pose's frame list laid out by the cartridge's
+/// pose numbers.
 /// </summary>
 internal static class SamusBodyNative
 {
@@ -31,8 +33,12 @@ internal static class SamusBodyNative
     /// <summary>The records stored at <paramref name="pointers"/>.</summary>
     internal static int[] Records(IEnumerable<ushort> pointers) => [.. pointers.Select(pointer => Record(pointer))];
 
-    /// <summary>The frame selectors stored at <paramref name="pointers"/>.</summary>
-    internal static int[] Frames(IEnumerable<ushort> pointers) => [.. pointers.Select(pointer => Frame(pointer))];
+    /// <summary>
+    /// Each pose with a record's first frame selector, from the cartridge's frame-list pointer table
+    /// <paramref name="pointers"/>, which holds one pointer per pose-table record in record order.
+    /// </summary>
+    internal static Dictionary<SamusPoseId, int> Frames(IReadOnlyList<ushort> pointers) =>
+        SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose, pose => Frame(pointers[SamusPoseNumbers.Number(pose)]));
 
     /// <summary>Native views of the body catalog.</summary>
     extension(InstalledSamusBodyArtwork body)
@@ -43,8 +49,9 @@ internal static class SamusBodyNative
         /// <summary>The bank-$92 address of each lower-body definition group.</summary>
         internal ushort[] BottomSetPointers => [.. body.Source.BottomSetStarts.ToArray().Select(RecordPointer)];
 
-        /// <summary>The bank-$92 address of each pose's frame list.</summary>
-        internal ushort[] PosePointers => [.. body.Source.PoseFirstFrames.ToArray().Select(FramePointer)];
+        /// <summary>The bank-$92 address of each pose with a record's frame list.</summary>
+        internal IReadOnlyDictionary<SamusPoseId, ushort> PosePointers =>
+            body.Source.PoseFirstFrames.ToDictionary(pose => pose.Key, pose => FramePointer(pose.Value));
 
         /// <summary>The SNES address of the record a native body set and position select.</summary>
         internal int DefinitionAddress(SamusBodyHalf half, int set, int position) =>

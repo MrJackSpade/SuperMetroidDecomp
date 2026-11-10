@@ -17,13 +17,14 @@ internal static class SamusShownBodies
         /// <summary>
         /// Every whole picture Samus's body can be drawn as with <paramref name="body"/>'s pictures: each picture frame of
         /// each pose that is installed, composed by the pose's own halves rule from the half pictures that frame selects, in
-        /// pose and frame order. What the body showed before never chooses a picture's halves.
+        /// the cartridge's pose order and frame order, which the body sheet is laid out in. What the body showed before never
+        /// chooses a picture's halves.
         /// </summary>
         internal IEnumerable<SamusShownBody> Bodies(InstalledSamusBodyArtwork body)
         {
             Ensure.NotNull(body);
             SamusBodySources sources = body.Source;
-            foreach (SamusPoseId pose in SamusShownFrames.Poses)
+            foreach (SamusPoseId pose in SamusShownFrames.Poses.OrderBy(SamusPoseNumbers.Number))
             {
                 foreach (int frame in frames.pictured[pose])
                 {

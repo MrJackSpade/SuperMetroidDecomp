@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -115,7 +116,7 @@ public sealed class SamusBodyCharacterArtwork
     /// <summary>Resolves each definition's native transfer geometry against the selected frame tables.</summary>
     private void BindTransfers(SamusBodyHalf half, SamusBodyTileTransfer[][] groups)
     {
-        ReadOnlySpan<int> firstFrames = Body.Source.PoseFirstFrames;
+        IReadOnlyDictionary<SamusPoseId, int> firstFrames = Body.Source.PoseFirstFrames;
         ReadOnlySpan<SamusBodyFrameSelection> frameSnapshot = Body.Source.Frames;
         for (int set = 0; set < groups.Length; set++)
         for (int position = 0; position < groups[set].Length; position++)

@@ -9,8 +9,12 @@ namespace SuperMetroid.AssetExtraction.Samus;
 public static class SamusArmCannonArtworkFormat
 {
 
-    /// <summary>Supported placement JSON schema revision, checked with the fixed pose, descriptor, direction, and frame table dimensions.</summary>
-    public const int Version = 3;
+    /// <summary>
+    /// Supported placement JSON schema revision, checked with the fixed pose, descriptor, direction, and frame table
+    /// dimensions. Revision four keys each pose's descriptor by the pose's name rather than its place in the cartridge's
+    /// pose table, and installs no descriptor for the records no pose names (#1595).
+    /// </summary>
+    public const int Version = 4;
     /// <summary>Installed editable placement, OBJ-attribute, and tile-selector JSON filename, separate from cover pixels and animation mechanics.</summary>
     public const string JsonFileName = "samus-arm-cannon.json";
     /// <summary>Installed indexed PNG filename holding the twelve 8-by-8 cover characters in native source-identity order.</summary>
@@ -24,15 +28,23 @@ public static class SamusArmCannonArtworkFormat
     /// <summary>Bytes of one installed cover tile: a single 4bpp 8x8 character.</summary>
     public const int CoverTileByteCount = 32;
     /// <summary>
-    /// Where pose 0–252's stock drawing descriptor begins within the drawing data: $90:C7DF-$C9D8, ArmCannonDrawingData,
-    /// named descriptor selection for the existing 253-pose installed domain.
+    /// Where the cartridge's pose-table record <paramref name="record"/> (0–252) points its stock drawing descriptor within
+    /// the drawing data ($90:C7DF-$C9D8): the descriptor of the pose the record names, or, for a record no pose names, the
+    /// descriptor the cartridge still lays out for it.
     /// </summary>
-    internal static int StockPoseDescriptor(int pose)
+    internal static int StockRecordDescriptor(int record)
     {
-        if ((uint)pose >= SamusBodySources.PoseCount) throw new ArgumentOutOfRangeException(nameof(pose));
-        if (!SamusPoseNumbering.NamesPose(pose))
-            return ArmCannonUnreachedRecordDefinitions.StockDescriptors[pose];
-        return SamusPoseNumbering.FromNumber(pose) switch
+        if ((uint)record >= SamusBodySources.PoseCount) throw new ArgumentOutOfRangeException(nameof(record));
+        return SamusPoseNumbering.NamesPose(record)
+            ? StockPoseDescriptor(SamusPoseNumbering.FromNumber(record))
+            : ArmCannonUnreachedRecordDefinitions.StockDescriptors[record];
+    }
+
+    /// <summary>Where <paramref name="pose"/>'s stock drawing descriptor begins within the drawing data.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The pose has no record in the pose tables.</exception>
+    internal static int StockPoseDescriptor(SamusPoseId pose)
+    {
+        return pose switch
         {
             SamusPoseId.ForwardFacingPowerSuitPose or
             SamusPoseId.ForwardFacingSuitedPose => ArmCannonDescriptorDefinitions.FacingForward,

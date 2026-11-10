@@ -33,15 +33,17 @@ internal static class SamusBodyArtworkVerification
         SamusDeathTileAtlas stockDeathTiles = SamusBodySheetFixtures.Inputs.DeathTiles;
         Suite(nameof(VerifySamusArmCannonArtwork), () => VerifySamusArmCannonArtwork(bus, stock));
         int definitions = 0;
+        IReadOnlyDictionary<SamusPoseId, ushort> posePointers = stock.PosePointers;
+        AssertEqual(SamusPoseNumbers.RecordedPoses.Count, posePointers.Count, "Samus body installs a frame list for each pose with a record and none for a record no pose names");
         for (int pose = 0; pose < SamusBodySources.PoseCount; pose++)
         {
+            if (!SamusPoseNumbering.NamesPose(pose)) continue;
             int address = 0x92D94E + pose * 2;
             ushort native = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
-            AssertEqual(native, stock.PosePointers[pose], $"Samus body pose pointer {pose:X2}");
+            AssertEqual(native, posePointers[SamusPoseNumbering.FromNumber(pose)], $"Samus body pose pointer {pose:X2}");
             int graphicsAddress = SamusSourceDefinitions.PoseDefinitions.Value +
                 pose * SamusSourceDefinitions.PoseDefinitionByteCount + 4;
-            if (SamusPoseNumbering.NamesPose(pose))
-                AssertEqual(unchecked((sbyte)bus.ReadCartridgeByte(graphicsAddress)),
+            AssertEqual(unchecked((sbyte)bus.ReadCartridgeByte(graphicsAddress)),
                 stock.GraphicsYOffset(SamusPoseNumbering.FromNumber(pose)), $"Samus pose {pose:X2} visual Y origin");
         }
         for (int index = 0; index < SamusBodySources.FrameCount; index++)
@@ -373,9 +375,10 @@ internal static class SamusBodyArtworkVerification
         SamusArmCannonSourceArtwork armCannon = body.ArmCannon.Source;
         for (int pose = 0; pose < SamusBodySources.PoseCount; pose++)
         {
+            if (!SamusPoseNumbering.NamesPose(pose)) continue;
             int source = SamusSourceDefinitions.PoseDrawingDataPointers.Value + pose * 2;
             ushort native = CartridgeImportSource.Require(bus).ReadCartridgeWord(source);
-            AssertEqual(native, armCannon.PoseDrawingData(pose),
+            AssertEqual(native, armCannon.PoseDrawingData(SamusPoseNumbering.FromNumber(pose)),
                 $"arm-cannon pose {pose:X2} drawing pointer");
         }
         for (int offset = 0; offset < SamusArmCannonArtworkFormat.DrawingDataByteCount; offset++)

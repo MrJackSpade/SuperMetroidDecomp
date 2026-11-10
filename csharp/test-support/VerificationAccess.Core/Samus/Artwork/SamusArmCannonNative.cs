@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Samus.Artwork;
@@ -13,8 +14,8 @@ internal static class SamusArmCannonNative
     /// <summary>Native views of the installed arm cannon.</summary>
     extension(InstalledSamusArmCannonArtwork cannon)
     {
-        /// <summary>The bank-$90 address of pose <paramref name="pose"/>'s drawing descriptor.</summary>
-        internal ushort PoseDrawingData(int pose) =>
+        /// <summary>The bank-$90 address of <paramref name="pose"/>'s drawing descriptor.</summary>
+        internal ushort PoseDrawingData(SamusPoseId pose) =>
             checked((ushort)(SamusSourceDefinitions.ArmCannonDrawingData + cannon.Source.PoseDescriptor(pose)));
 
         /// <summary>The installed drawing byte stored at bank-$90 <paramref name="address"/>.</summary>

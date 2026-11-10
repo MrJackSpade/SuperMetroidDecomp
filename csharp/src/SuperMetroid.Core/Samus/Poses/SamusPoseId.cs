@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>
-/// Samus's poses. Their values are arbitrary; the game's number for each pose is <see cref="SamusPoseNumbering"/>'s.
+/// Samus's poses. Their values and their order are arbitrary.
 /// </summary>
 public enum SamusPoseId
 {

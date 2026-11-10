@@ -101,11 +101,11 @@ internal static class EnemySheetFixtures
         /// <summary>Each composed set's artwork, keyed by the set's definition, which lives as long as the process.</summary>
         private readonly Dictionary<RoomEnemyGraphicsSetDefinition, PopulationArtwork> sets = new(ReferenceEqualityComparer.Instance);
 
-        /// <inheritdoc/>
-        public PopulationArtwork Standard => installed?.Standard ?? Set(RoomEnemyGraphicsSetDefinitions.SessionStart);
-
         /// <summary>The artwork each population a room drew from was resolved to, by the population's definition.</summary>
         private readonly ConditionalWeakTable<RoomEnemyPopulationDefinition, PopulationArtwork> resolved = new();
+
+        /// <inheritdoc/>
+        public PopulationArtwork Standard => installed?.Standard ?? Set(RoomEnemyGraphicsSetDefinitions.SessionStart);
 
         /// <inheritdoc/>
         public PopulationArtwork For(RoomEnemyPopulationDefinition population)

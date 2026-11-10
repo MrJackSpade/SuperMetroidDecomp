@@ -24,7 +24,7 @@
     {
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
-      "files": 2064,
+      "files": 2065,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Areas",
@@ -209,7 +209,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
-      "files": 101,
+      "files": 102,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Assets",
@@ -282,7 +282,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Programs",
       "role": "production",
-      "files": 5,
+      "files": 13,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Compatibility"
@@ -18390,6 +18390,18 @@
     },
     {
       "path": "csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFx/PaletteFxHeatProgramMechanicsDefinitions.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Fx.PaletteFx",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Fx"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFx/PaletteFxListLayout.cs",
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
       "namespace": "SuperMetroid.AssetExtraction.Fx.PaletteFx",
@@ -62414,7 +62426,6 @@
         "SuperMetroid.Core"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Audio",
         "csharp/src/SuperMetroid.Core/Programs"
       ]
     },
@@ -62574,6 +62585,20 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxSegments.cs",
+      "module": "csharp/src/SuperMetroid.Core/Fx",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Fx.PaletteFx",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Audio",
+        "csharp/src/SuperMetroid.Core/Programs"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxShades.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
@@ -62720,7 +62745,6 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
-        "csharp/src/SuperMetroid.Core/Compatibility",
         "csharp/src/SuperMetroid.Core/Programs"
       ]
     },
@@ -64460,6 +64484,72 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Programs/Animation.cs",
+      "module": "csharp/src/SuperMetroid.Core/Programs",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Programs",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Programs/AnimationBeat.cs",
+      "module": "csharp/src/SuperMetroid.Core/Programs",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Programs",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Programs/AnimationContinuation.cs",
+      "module": "csharp/src/SuperMetroid.Core/Programs",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Programs",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Programs/AnimationEnd.cs",
+      "module": "csharp/src/SuperMetroid.Core/Programs",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Programs",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Programs/AnimationPhase.cs",
+      "module": "csharp/src/SuperMetroid.Core/Programs",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Programs",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Programs/AnimationPlace.cs",
+      "module": "csharp/src/SuperMetroid.Core/Programs",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Programs",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Programs/AnimationProgramAdvance.cs",
       "module": "csharp/src/SuperMetroid.Core/Programs",
       "role": "production",
@@ -64505,6 +64595,29 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Compatibility"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Programs/AnimationSegments.cs",
+      "module": "csharp/src/SuperMetroid.Core/Programs",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Programs",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Programs/AnimationShown.cs",
+      "module": "csharp/src/SuperMetroid.Core/Programs",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Programs",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
       ]
     },
     {
@@ -75925,7 +76038,6 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
-        "csharp/src/SuperMetroid.Core/Compatibility",
         "csharp/src/SuperMetroid.Core/Fx",
         "csharp/src/SuperMetroid.Core/Programs"
       ]
@@ -128508,6 +128620,20 @@
       ]
     },
     {
+      "path": "csharp/test-support/MovieReplay/PaletteFxNativeList.cs",
+      "module": "csharp/test-support/MovieReplay",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.TestSupport.MovieReplay",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Fx",
+        "csharp/src/SuperMetroid.Core/Programs"
+      ]
+    },
+    {
       "path": "csharp/test-support/MovieReplay/PaletteFxNativeListAddresses.cs",
       "module": "csharp/test-support/MovieReplay",
       "role": "verification-support",
@@ -128544,24 +128670,12 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Audio",
         "csharp/src/SuperMetroid.Core/Fx",
         "csharp/src/SuperMetroid.Core/Programs",
         "csharp/test-support/Assertions",
         "csharp/test-support/VerificationAccess.Core"
-      ]
-    },
-    {
-      "path": "csharp/test-support/MovieReplay/PaletteFxProgramsMatch.cs",
-      "module": "csharp/test-support/MovieReplay",
-      "role": "verification-support",
-      "namespace": "SuperMetroid.TestSupport.MovieReplay",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.Verification"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Fx"
       ]
     },
     {

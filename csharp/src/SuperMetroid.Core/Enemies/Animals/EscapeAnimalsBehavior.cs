@@ -51,7 +51,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state);
 
         // The critters-escaped event means the animals already escaped on an earlier visit. Code
-        // deletes the actor before changing any animation, position, palette, or AI fields.
+        // deletes the actor before changing any animation, position, colours, or AI fields.
         if (HasCrittersEscaped())
         {
             slot.Presence = slot.Presence.With(EnemyPresence.Deleted);

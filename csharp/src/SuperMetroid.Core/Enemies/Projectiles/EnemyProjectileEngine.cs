@@ -819,7 +819,7 @@ internal sealed class EnemyProjectileEngine
 
     /// <summary>
     /// Allocates the light or dark Ceres falling-tile actor requested by room main
-    /// main. The X coordinate and palette variant come directly from the room's
+    /// main. The X coordinate and light or dark variant come directly from the room's
     /// current RNG word; this initializer owns only projectile fields. The room
     /// main supplies the tile's animation and the graphics it draws in.
     /// </summary>

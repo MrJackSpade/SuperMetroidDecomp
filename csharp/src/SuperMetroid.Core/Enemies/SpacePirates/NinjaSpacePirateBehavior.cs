@@ -119,9 +119,6 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         slot.Position = slot.Position.WithX(new((startsAtLeft ? state.LeftPost : state.RightPost).X, 0));
         state.Function = NinjaSpacePirateFunction.NoOperation;
         state.SpawnPosition = slot.Position.Whole;
-
-        // The game copies the gold wall Pirate's colours into the palette the divekick flashes in. Those colours are the
-        // gold wall shade the Pirate's pictures are pre-coloured in (NinjaSpacePirateShades.GoldWall, #1512).
     }
 
     /// <summary>Dispatches the literal function installed in variable A.</summary>

@@ -2,7 +2,7 @@ using SuperMetroid.Core.Enemies.SpriteObjects;
 using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Core.Enemies.Metroids;
 
-/// <summary>A frozen Metroid's two outer-body sprite objects: their frozen programs and palette.</summary>
+/// <summary>A frozen Metroid's two outer-body sprite objects: their frozen programs and colours.</summary>
 internal static class MetroidOuterBodyDefinitions
 {
     /// <summary>The first outer body's frozen program, the Metroid's electricity.</summary>

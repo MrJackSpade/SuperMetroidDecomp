@@ -133,7 +133,6 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         InstallKiHunterInstruction(wings, state, KiHunterProgram.WingsLeft);
         wings.Position = wings.Position.WithWhole(body.Position.Whole);
         state.Function = KiHunterEnemyFunction.FollowBody;
-        wings.Shading = body.Shading;
         if (body.SpawnSettings<KiHunterSpawnSettings>().Wings == KiHunterWings.Wingless)
             wings.Presence = wings.Presence.With(EnemyPresence.Deleted);
     }
@@ -909,7 +908,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Spawns an acid spit from its definition and initializer.
-    /// The projectile retains the firing body's exact tile and palette words.
+    /// The acid draws from the Ki-Hunter's spawned-object sheet in the colours the firing body shows.
     /// </summary>
     internal void SpawnKiHunterAcidSpit(RoomEnemySlot body, bool movingRight)
     {

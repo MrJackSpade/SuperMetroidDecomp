@@ -14,7 +14,7 @@ internal static class KraidRockAnimations
 
     /// <summary>
     /// Each rock program: the shared and right rising rocks hold their still pose; the spat rock's burst takes the
-    /// palette frame behaviour, shows five four-update frames, then deletes itself.
+    /// burst's frame behaviour, shows five four-update frames, then deletes itself.
     /// </summary>
     internal static AnimationProgramSet<KraidRockProgram, KraidRockFrame, KraidRockCue> Programs { get; } = new(
         new Dictionary<KraidRockProgram, Step[]>

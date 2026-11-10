@@ -175,7 +175,7 @@ internal static class LookupStream5Verification
                     var particle = particles[emitted - ordinal - 1];
                     AssertEqual(x, particle.Position.X.Whole, "Actual produced native X including 16-bit wrap");
                     AssertEqual(y, particle.Position.Y.Whole, "Actual produced native Y including 16-bit wrap");
-                    AssertTrue(particle.Animation is MiscDustProjectileAnimation started && started.Cursor.Program == program, "RNG changes animation only");
+                    AssertTrue(particle.Animation is MiscDustProjectileAnimation started && started.PlayingSegment == program, "RNG changes animation only");
                 }
                 AssertEqual(call == 49, slot.Presence.HasAny(EnemyPresence.Hidden), "Hide only at destruction expiry");
             }

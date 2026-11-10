@@ -11,70 +11,78 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// </summary>
 internal static class DownwardGateProjectileAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<DownwardGateProjectileProgram, DownwardGateProjectileFrame, DownwardGateProjectileCue> Programs { get; } = new(
-        new Dictionary<DownwardGateProjectileProgram, AnimationProgramStep<DownwardGateProjectileProgram, DownwardGateProjectileFrame, DownwardGateProjectileCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<DownwardGateProjectileProgram, DownwardGateProjectileFrame, DownwardGateProjectileCue> Segments { get; } = new(
+        new Dictionary<DownwardGateProjectileProgram, AnimationBeat<DownwardGateProjectileFrame, DownwardGateProjectileCue>[]>
     {
         [P.Moving] =
         [
             Cue(new DownwardGateProjectileCue.SetYVelocity(YVelocity: SignedEightEight.FromSignedRaw(256))),
             Cue(new DownwardGateProjectileCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.DownwardGateDescent)),
             Show(0, 1),
-            Hold,
         ],
         [P.MovingStep2] =
         [
             Show(1, 1),
-            Hold,
         ],
         [P.MovingStep3] =
         [
             Show(2, 1),
-            Hold,
         ],
         [P.MovingStep4] =
         [
             Show(3, 1),
-            Hold,
         ],
         [P.MovingStep5] =
         [
             Cue(new DownwardGateProjectileCue.Command(K.ClearFrameBehavior)),
-            FallInto(P.Closed),
         ],
         [P.Closed] =
         [
             Cue(new DownwardGateProjectileCue.SetYVelocity(YVelocity: SignedEightEight.FromSignedRaw(-256))),
             Show(4, 1),
-            Hold,
         ],
         [P.ClosedStep2] =
         [
             Cue(new DownwardGateProjectileCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.DownwardGateDescent)),
             Show(5, 1),
-            Hold,
         ],
         [P.ClosedStep3] =
         [
             Show(6, 1),
-            Hold,
         ],
         [P.ClosedStep4] =
         [
             Show(7, 1),
-            Hold,
         ],
         [P.ClosedStep5] =
         [
             Show(8, 1),
-            Hold,
         ],
         [P.ClosedStep6] =
         [
             Cue(new DownwardGateProjectileCue.Command(K.Delete)),
-            Hold,
         ],
     });
+
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<DownwardGateProjectileProgram, Animation<DownwardGateProjectileProgram>> StartingAt { get; } = new Dictionary<DownwardGateProjectileProgram, Animation<DownwardGateProjectileProgram>>
+    {
+        [P.Moving] = new([new(P.Moving, 0, 3, 1)], AnimationEnd.Holds),
+        [P.MovingStep2] = new([new(P.MovingStep2, 0, 1, 1)], AnimationEnd.Holds),
+        [P.MovingStep3] = new([new(P.MovingStep3, 0, 1, 1)], AnimationEnd.Holds),
+        [P.MovingStep4] = new([new(P.MovingStep4, 0, 1, 1)], AnimationEnd.Holds),
+        [P.MovingStep5] = new([new(P.MovingStep5, 0, 1, 1), new(P.Closed, 0, 2, 1)], AnimationEnd.Holds),
+        [P.Closed] = new([new(P.Closed, 0, 2, 1)], AnimationEnd.Holds),
+        [P.ClosedStep2] = new([new(P.ClosedStep2, 0, 2, 1)], AnimationEnd.Holds),
+        [P.ClosedStep3] = new([new(P.ClosedStep3, 0, 1, 1)], AnimationEnd.Holds),
+        [P.ClosedStep4] = new([new(P.ClosedStep4, 0, 1, 1)], AnimationEnd.Holds),
+        [P.ClosedStep5] = new([new(P.ClosedStep5, 0, 1, 1)], AnimationEnd.Holds),
+        [P.ClosedStep6] = new([new(P.ClosedStep6, 0, 1, 1)], AnimationEnd.Holds),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<DownwardGateProjectileProgram> StartingWith(DownwardGateProjectileProgram segment) => StartingAt[segment];
 
     /// <summary>
     /// The program each sleeping program resumes with when its owner steps the list past the sleep, keyed by
@@ -94,14 +102,8 @@ internal static class DownwardGateProjectileAnimations
     };
 
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<DownwardGateProjectileProgram, DownwardGateProjectileFrame, DownwardGateProjectileCue> Show(int pose, int duration) => AnimationProgramStep<DownwardGateProjectileProgram, DownwardGateProjectileFrame, DownwardGateProjectileCue>.Show(new(pose), duration);
+    private static AnimationBeat<DownwardGateProjectileFrame, DownwardGateProjectileCue> Show(int pose, int duration) => new AnimationBeat<DownwardGateProjectileFrame, DownwardGateProjectileCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<DownwardGateProjectileProgram, DownwardGateProjectileFrame, DownwardGateProjectileCue> Cue(DownwardGateProjectileCue cue) => AnimationProgramStep<DownwardGateProjectileProgram, DownwardGateProjectileFrame, DownwardGateProjectileCue>.Publish(cue);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<DownwardGateProjectileProgram, DownwardGateProjectileFrame, DownwardGateProjectileCue> FallInto(DownwardGateProjectileProgram program) => AnimationProgramStep<DownwardGateProjectileProgram, DownwardGateProjectileFrame, DownwardGateProjectileCue>.FallInto(program);
-
-    /// <summary>Holds the last frame, as the sleep does.</summary>
-    private static AnimationProgramStep<DownwardGateProjectileProgram, DownwardGateProjectileFrame, DownwardGateProjectileCue> Hold => AnimationProgramStep<DownwardGateProjectileProgram, DownwardGateProjectileFrame, DownwardGateProjectileCue>.Hold;
+    private static AnimationBeat<DownwardGateProjectileFrame, DownwardGateProjectileCue> Cue(DownwardGateProjectileCue cue) => new AnimationBeat<DownwardGateProjectileFrame, DownwardGateProjectileCue>.Event(cue);
 }

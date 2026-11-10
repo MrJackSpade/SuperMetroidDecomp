@@ -203,7 +203,7 @@ internal static class BotwoonAnimationsVerification
         // The landed phase is the segment's own state (#1413); this no longer asserts the cartridge's RTS word in the
         // X-velocity slot.
         AssertEqual(BotwoonBodyFunction.Landed, state.SegmentFunctions[1], "a landed body enters its inert landed phase");
-        AssertTrue(body.Animation is MiscDustProjectileAnimation { Cursor.Program: MiscDustProjectileProgram.BigExplosion },
+        AssertTrue(body.Animation is MiscDustProjectileAnimation { PlayingSegment: MiscDustProjectileProgram.BigExplosion },
             "a landed body runs the shared misc-dust big explosion");
         Pass(body);
 

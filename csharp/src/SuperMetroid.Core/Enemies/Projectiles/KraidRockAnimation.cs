@@ -5,11 +5,14 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// <summary>A Kraid rock's (or the Kago bug's initial) typed animation.</summary>
 /// <param name="program">The program to play.</param>
 internal sealed class KraidRockAnimation(KraidRockProgram program)
-    : EnemyProjectileProgramAnimation<KraidRockProgram, KraidRockFrame, KraidRockCue>(program)
+    : EnemyProjectileTypedAnimation<KraidRockProgram, KraidRockFrame, KraidRockCue>(KraidRockAnimations.StartingWith(program))
 {
 
     /// <inheritdoc/>
-    private protected override AnimationProgramSet<KraidRockProgram, KraidRockFrame, KraidRockCue> Programs => KraidRockAnimations.Programs;
+    private protected override AnimationSegments<KraidRockProgram, KraidRockFrame, KraidRockCue> Segments => KraidRockAnimations.Segments;
+
+    /// <inheritdoc/>
+    private protected override IReadOnlyDictionary<KraidRockProgram, Animation<KraidRockProgram>> StartingAt => KraidRockAnimations.StartingAt;
 
     /// <inheritdoc/>
     private protected override EnemyProjectileFrameId Present(KraidRockFrame frame) =>

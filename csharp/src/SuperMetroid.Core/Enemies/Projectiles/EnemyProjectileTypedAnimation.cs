@@ -1,0 +1,72 @@
+using SuperMetroid.Core.Programs;
+
+namespace SuperMetroid.Core.Enemies.Projectiles;
+
+/// <summary>
+/// A projectile animation that plays a family's typed animations (#1600): frames with durations, events, counted phases
+/// and a hold. Each event goes to the handler its family registered with
+/// <see cref="EnemyProjectileHandlerTable.AddCue{TCue}"/>, or with
+/// <see cref="EnemyProjectileHandlerTable.AddBranchingCue{TProgram, TCue}"/> when its reaction continues the play in the
+/// animation starting at another segment, as a conditional goto does. Counted phases count the projectile's
+/// <see cref="EnemyProjectile.LoopCountdown"/>.
+/// </summary>
+/// <typeparam name="TSegment">The family's segment identity.</typeparam>
+/// <typeparam name="TFrame">The family's frame identity.</typeparam>
+/// <typeparam name="TEvent">The family's events.</typeparam>
+internal abstract class EnemyProjectileTypedAnimation<TSegment, TFrame, TEvent> : EnemyProjectileAnimation
+    where TSegment : struct, Enum
+    where TFrame : struct
+    where TEvent : notnull
+{
+    /// <summary>Starts <paramref name="animation"/> before its first play.</summary>
+    private protected EnemyProjectileTypedAnimation(Animation<TSegment> animation) =>
+        Playback = new AnimationPlayback<TSegment>(Ensure.NotNull(animation), AnimationPlace.StartOfAnimation);
+
+    /// <summary>The animation playing and where it stands; an imported projectile resumes where its recording stood.</summary>
+    internal AnimationPlayback<TSegment> Playback { get; set; }
+
+    /// <summary>The segment the playing phase plays: the one its next play shows a frame of, or rests in.</summary>
+    internal TSegment PlayingSegment => Playback.Animation.Phases[Playback.Place.Phase].Segment;
+
+    /// <summary>The family's segments.</summary>
+    private protected abstract AnimationSegments<TSegment, TFrame, TEvent> Segments { get; }
+
+    /// <summary>The family's animations, by the segment each starts at.</summary>
+    private protected abstract IReadOnlyDictionary<TSegment, Animation<TSegment>> StartingAt { get; }
+
+    /// <summary>The projectile frame <paramref name="frame"/> shows.</summary>
+    private protected abstract EnemyProjectileFrameId Present(TFrame frame);
+
+    /// <summary>Plays the animation on to its next frame, raising each event in the family's registered handler.</summary>
+    private protected sealed override bool TryShowNextFrame(
+        EnemyProjectileCueContext context, EnemyProjectileHandlerTable handlers, out int duration, out EnemyProjectileFrameId frame)
+    {
+        EnemyProjectile projectile = context.Projectile;
+        Animation<TSegment> animation = Playback.Animation;
+        AnimationPlace place = Playback.Place;
+        WrappingCountdown repeats = projectile.LoopCountdown;
+        AnimationShown<TSegment, TFrame> shown = Segments.PlayToNextFrame(ref animation, ref place, ref repeats,
+            raised => handlers.PublishProgramCue<TSegment, TEvent>(context, raised) is { } target
+                ? new AnimationContinuation<TSegment>(StartingAt[target], AnimationPlace.StartOfAnimation)
+                : null);
+        Playback = new AnimationPlayback<TSegment>(animation, place);
+        // A projectile an event deleted keeps its cleared countdown.
+        if (projectile.Animation == this)
+            projectile.LoopCountdown = repeats;
+        switch (shown)
+        {
+            case AnimationShown<TSegment, TFrame>.Frame shownFrame:
+                duration = shownFrame.Duration;
+                frame = Present(shownFrame.Shown);
+                return true;
+            case AnimationShown<TSegment, TFrame>.Held:
+                duration = 0;
+                frame = default;
+                return false;
+            case AnimationShown<TSegment, TFrame>.Paused:
+            case AnimationShown<TSegment, TFrame>.Ended:
+            default:
+                throw new InvalidOperationException($"A projectile animation ended an update with {shown}.");
+        }
+    }
+}

@@ -300,7 +300,7 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(NorfairRioAnimations), "csharp/src/SuperMetroid.Core/Enemies/Rios/NorfairRioAnimations.cs");
         RequireTypedFrames(LowerNorfairRioAnimations.Programs, LowerNorfairRioFrameToolingDefinitions.Spritemap, LowerNorfairRioFrameToolingDefinitions.Bank,
             nameof(LowerNorfairRioAnimations), "csharp/src/SuperMetroid.Core/Enemies/Rios/LowerNorfairRioAnimations.cs");
-        RequireTypedFrames(BeetomAnimations.Programs, BeetomFrameToolingDefinitions.Spritemap, BeetomFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(BeetomAnimations.Segments, BeetomFrameToolingDefinitions.Spritemap, BeetomFrameToolingDefinitions.Bank,
             nameof(BeetomAnimations), "csharp/src/SuperMetroid.Core/Enemies/Beetom/BeetomAnimations.cs");
         RequireSegmentFrames(AlcoonAnimations.Segments, AlcoonFrameToolingDefinitions.Spritemap, AlcoonFrameToolingDefinitions.Bank,
             nameof(AlcoonAnimations), "csharp/src/SuperMetroid.Core/Enemies/Alcoon/AlcoonAnimations.cs");

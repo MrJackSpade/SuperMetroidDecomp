@@ -546,7 +546,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         BeetomEnemyState state,
         BeetomProgram program)
     {
-        state.Program = AnimationProgramCursor<BeetomProgram>.Start(program);
+        state.Playback = new(BeetomAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
@@ -591,9 +591,11 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Beetom's typed animation.</summary>
     internal static void AdvanceBeetomTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, BeetomAnimations.Programs, BeetomFrameDefinitions.ShownFrames.Of,
-            static (BeetomEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
-            (state, cue, _) => ApplyBeetomCue(slot, cue));
+        EnemyProgramAnimation.Advance(slot, BeetomAnimations.Segments, BeetomFrameDefinitions.ShownFrames.Of,
+            static (BeetomEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            (state, cue) => ApplyBeetomCue(slot, cue) is { } target
+                ? new AnimationContinuation<BeetomProgram>(BeetomAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                : null);
 
     /// <summary>Clears attachment after every accepted common shot, including zero damage.</summary>
     internal static void AddBeetomShotReactions(EnemySharedReactions table)

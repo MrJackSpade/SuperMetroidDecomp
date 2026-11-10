@@ -187,8 +187,10 @@ internal static class RoomPaletteFxDefinitionsVerification
             "a later start takes the lowest free turn");
         system.StepScreen(conditions);
         PaletteFxColours[] shown = [.. system.Shown.Select(record => record.Colours)];
-        AssertTrue(shown.Length >= 2 && shown[0] == PaletteFxColours.TitleScreenDisplays && shown[1] == PaletteFxColours.NintendoCopyright,
-            "the copyright's first record shows after the displays' turn and before the tube light's");
+        // The title logo's fade ran to its end, so its final look lies under every running effect (#1597).
+        AssertTrue(shown.SequenceEqual([PaletteFxColours.TitleLogo, PaletteFxColours.TitleScreenDisplays,
+                PaletteFxColours.NintendoCopyright, PaletteFxColours.BabyMetroidTubeLight]),
+            "the settled logo lies first, then the copyright's first record shows after the displays' turn and before the tube light's");
         AssertEqual<PaletteFxFrame?>(PaletteFxColorFrames.Of(PaletteFxProgram.CommonFadeInLogo, colorsPerFrame: 1).Frame(0),
             system.RecordOf(PaletteFxColours.NintendoCopyright), "the copyright shows its first record on its first turn");
 

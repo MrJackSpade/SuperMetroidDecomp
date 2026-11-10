@@ -43,13 +43,21 @@ internal static class PauseShownColours
     /// The cartridge cycles that group whenever the pause screen runs, and the equipment page's selector and reserve
     /// strip drew in it and glowed with the map's highlight. That sharing was a presentation quirk (#1544): they show
     /// their own colours, so the native colours of the group say nothing about them.
+    /// <para>
+    /// The reserve arrow's two colours are never compared either. The cartridge writes them only on the updates the
+    /// equipment page takes input in the reserve rows, so they hold whatever was last written: the solid look the page's
+    /// setup wrote, or a pulse step from before a fade, a page change or the cursor's move. That latched look was a
+    /// presentation quirk (#1597): the port's arrow shows the cursor's current state, which the reserve arrow's own checks
+    /// confirm, so the arrow's native colours say nothing about it.
+    /// </para>
     /// </remarks>
     internal static IReadOnlyList<int> ComparedIn(PauseMenuState pause)
     {
         Ensure.NotNull(pause);
         bool highlighted = ShownHighlight(pause) is not null;
         return [.. Enumerable.Range(0, SnesCgram.ColorCount)
-            .Where(colour => highlighted || colour is < HighlightFirstColour or >= HighlightFirstColour + HighlightColours)];
+            .Where(colour => highlighted || colour is < HighlightFirstColour or >= HighlightFirstColour + HighlightColours)
+            .Where(colour => colour is not (ArrowShadeColour or ArrowLightColour))];
     }
 
     /// <summary>The colours <paramref name="pause"/>'s pictures show now.</summary>

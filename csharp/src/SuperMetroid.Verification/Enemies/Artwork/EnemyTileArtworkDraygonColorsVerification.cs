@@ -110,6 +110,9 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         AssertBand(DraygonColorDestinations.SpriteDestination,
             DraygonColorDefinitions.WhiteFlashCount, colors.ResolveWhiteFlash,
             "white hurt sprite CGRAM");
+        // His white flash covers his band while it shows (#1597), so the bands are checked once the flash has ended.
+        body.FlashTimer = 0;
+        enemies.DraygonBehavior.Combat.ApplyDraygonHurt(body, state, null);
         for (int band = 0; band < DraygonColorDefinitions.HealthBandCount; band++)
         {
             state.HealthBand = band;

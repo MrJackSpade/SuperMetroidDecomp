@@ -103,11 +103,10 @@ internal static class NativeSnapshotImport
                 continue;
             PaletteFxObject effect = PaletteFxObjectAccess.FromNative(id);
             // A live object resumes its typed animation where the recorded native pointer stands: in the animation its start
-            // plays, or one its conditions restart it at, with the native timer as a counted phase's plays left.
+            // plays, or one its conditions restart it at; its native timer is its repeat counter.
             PaletteFxImportedPlace resumed = PaletteFxNativeProgramOracle.PlaceAt(
                 paletteFxLists ??= PaletteFxNativeProgramOracle.Lists(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus)),
-                ImportedAnimationCandidates(effect), W(NativeSnapshotMemory.PaletteFxInstruction + slot * 2),
-                W(NativeSnapshotMemory.PaletteFxTimer + slot * 2));
+                ImportedAnimationCandidates(effect), W(NativeSnapshotMemory.PaletteFxInstruction + slot * 2));
             var imported = new RoomColourEffect(effect, resumed.Animation)
             {
                 Place = resumed.Place,
@@ -120,6 +119,7 @@ internal static class NativeSnapshotImport
                 Condition = SuperMetroid.Core.Fx.FxNativeWords.RecordedColourEffectCondition(
                     W(NativeSnapshotMemory.PaletteFxFrameBehavior + slot * 2)),
                 UpdatesUntilNextStep = W(NativeSnapshotMemory.PaletteFxFrameHold + slot * 2),
+                Repeats = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.PaletteFxTimer + slot * 2)),
             };
             ColourEffectTurnOrder.Join(importedEffects, imported);
         }

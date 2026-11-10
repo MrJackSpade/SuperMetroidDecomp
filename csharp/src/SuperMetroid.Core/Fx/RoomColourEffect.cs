@@ -18,7 +18,9 @@ internal sealed class RoomColourEffect
     {
         Effect = effect;
         Animation = PaletteFxAnimations.StartingWith(segment);
-        Place = Animation.Start;
+        WrappingCountdown repeats = WrappingCountdown.Start(0);
+        Place = Animation.StartWith(ref repeats);
+        Repeats = repeats;
         UpdatesUntilNextStep = 1;
     }
 
@@ -34,8 +36,11 @@ internal sealed class RoomColourEffect
     /// <summary>The animation the effect plays.</summary>
     internal Animation<PaletteFxProgram> Animation { get; private set; }
 
-    /// <summary>Where the effect stands in its animation: the phase, the phase's next beat, and the plays of it left.</summary>
+    /// <summary>Where the effect stands in its animation: the phase, and the phase's next beat.</summary>
     internal AnimationPlace Place { get; set; }
+
+    /// <summary>The plays its counted phase has left, which that phase loads as it starts and counts down.</summary>
+    internal WrappingCountdown Repeats { get; set; }
 
     /// <summary>
     /// Updates until the effect plays on to its next frame. It counts down before it is compared with zero; every frame
@@ -70,6 +75,16 @@ internal sealed class RoomColourEffect
         UpdatesUntilNextStep = 1;
     }
 
+    /// <summary>Restarts the effect at the start of <paramref name="animation"/>, due on this turn.</summary>
+    internal void Restart(Animation<PaletteFxProgram> animation)
+    {
+        Animation = Ensure.NotNull(animation);
+        WrappingCountdown repeats = Repeats;
+        Place = animation.StartWith(ref repeats);
+        Repeats = repeats;
+        UpdatesUntilNextStep = 1;
+    }
+
     /// <summary>Counts one update off the wait for the next frame; true when it is due now.</summary>
     internal bool CountDown() => --UpdatesUntilNextStep == 0;
 
@@ -83,7 +98,8 @@ internal sealed class RoomColourEffect
     {
         Ensure.NotNull(carryOut);
         AnimationPlace place = Place;
-        AnimationShown<PaletteFxProgram, int> shown = PaletteFxSegments.All.PlayToNextFrame(Animation, ref place, cue =>
+        WrappingCountdown repeats = Repeats;
+        AnimationShown<PaletteFxProgram, int> shown = PaletteFxSegments.All.PlayToNextFrame(Animation, ref place, ref repeats, cue =>
         {
             switch (cue)
             {
@@ -101,6 +117,7 @@ internal sealed class RoomColourEffect
             }
         });
         Place = place;
+        Repeats = repeats;
         switch (shown)
         {
             case AnimationShown<PaletteFxProgram, int>.Frame frame:

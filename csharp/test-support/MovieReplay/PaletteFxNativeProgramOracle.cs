@@ -56,11 +56,11 @@ internal static class PaletteFxNativeProgramOracle
     /// <summary>
     /// The place a live object resumes at in one of <paramref name="candidates"/> (the animations it can be playing, its
     /// own first): the phase beat at <paramref name="nativePointer"/>, or the end of a phase's play where the pointer rests on
-    /// the control instruction that follows it, with <paramref name="nativeTimer"/> as the plays a counted phase has left.
+    /// the control instruction that follows it.
     /// </summary>
     /// <exception cref="InvalidDataException">No candidate animation plays the beat or control at the pointer.</exception>
     internal static PaletteFxImportedPlace PlaceAt(
-        IReadOnlyDictionary<PaletteFxProgram, PaletteFxNativeList> lists, IEnumerable<PaletteFxProgram> candidates, ushort nativePointer, int nativeTimer)
+        IReadOnlyDictionary<PaletteFxProgram, PaletteFxNativeList> lists, IEnumerable<PaletteFxProgram> candidates, ushort nativePointer)
     {
         Ensure.NotNull(lists);
         foreach (PaletteFxProgram candidate in Ensure.NotNull(candidates))
@@ -70,18 +70,17 @@ internal static class PaletteFxNativeProgramOracle
             {
                 AnimationPhase<PaletteFxProgram> phase = animation.Phases[index];
                 PaletteFxNativeList list = lists[phase.Segment];
-                int plays = phase.Plays > 1 ? nativeTimer : phase.Plays;
                 // A pointer at a list's entry stands at its first beat, before any deleted inspection the list opens with.
                 if (phase.FirstBeat == 0 && PaletteFxNativeListAddresses.Entry(phase.Segment) == nativePointer)
-                    return new(candidate, new AnimationPlace(index, 0, plays));
+                    return new(candidate, new AnimationPlace(index, 0));
                 for (int beat = 0; beat < phase.BeatCount; beat++)
                 {
                     if (list.BeatAddresses[phase.FirstBeat + beat] == nativePointer)
-                        return new(candidate, new AnimationPlace(index, beat, plays));
+                        return new(candidate, new AnimationPlace(index, beat));
                 }
                 if (list.Controls.FirstOrDefault(control => control.AfterBeat == phase.FirstBeat + phase.BeatCount) is { } after &&
                     after.Address == nativePointer && after.Kind != PaletteFxNativeControlKind.RunOnIntoNext)
-                    return new(candidate, new AnimationPlace(index, phase.BeatCount, plays));
+                    return new(candidate, new AnimationPlace(index, phase.BeatCount));
             }
         }
         throw new InvalidDataException($"Native palette-FX pointer $8D:{nativePointer:X4} stands at no beat of the animations {string.Join(", ", candidates)} play.");

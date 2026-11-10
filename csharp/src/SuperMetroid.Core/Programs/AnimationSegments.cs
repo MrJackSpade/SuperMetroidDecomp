@@ -34,15 +34,17 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
 
     /// <summary>
     /// Plays <paramref name="animation"/> on from <paramref name="place"/> to its next frame, raising each event it passes
-    /// in <paramref name="raise"/>: a phase plays its run as many times as it says, the next phase follows, and past the last
-    /// the animation stops or loops as it ends. On return <paramref name="place"/> is where the next play resumes.
+    /// in <paramref name="raise"/>: a phase plays its run as many times as it says, counting its plays down
+    /// <paramref name="repeats"/>, the next phase follows, and past the last the animation stops or loops as it ends. On
+    /// return <paramref name="place"/> is where the next play resumes.
     /// </summary>
     /// <exception cref="InvalidOperationException">The animation passes every beat without showing a frame.</exception>
-    internal AnimationShown<TSegment, TFrame> PlayToNextFrame(Animation<TSegment> animation, ref AnimationPlace place, Action<TEvent> raise)
+    internal AnimationShown<TSegment, TFrame> PlayToNextFrame(
+        Animation<TSegment> animation, ref AnimationPlace place, ref WrappingCountdown repeats, Action<TEvent> raise)
     {
         Ensure.NotNull(raise);
         Animation<TSegment> playing = Ensure.NotNull(animation);
-        return PlayToNextFrame(ref playing, ref place, raised =>
+        return PlayToNextFrame(ref playing, ref place, ref repeats, raised =>
         {
             raise(raised);
             return null;
@@ -51,14 +53,19 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
 
     /// <summary>
     /// Plays <paramref name="animation"/> on from <paramref name="place"/> as
-    /// <see cref="PlayToNextFrame(Animation{TSegment}, ref AnimationPlace, Action{TEvent})"/> does, but the owner's reaction
+    /// <see cref="PlayToNextFrame(Animation{TSegment}, ref AnimationPlace, ref WrappingCountdown, Action{TEvent})"/> does, but the owner's reaction
     /// to an event may continue the play elsewhere: in the animation and at the place <paramref name="react"/> returns, at
     /// once, as the owner's state changes on that event. On return <paramref name="animation"/> and
     /// <paramref name="place"/> are where the next play resumes.
     /// </summary>
     /// <exception cref="InvalidOperationException">The animation passes every beat without showing a frame.</exception>
+    /// <remarks>
+    /// The repeat counter is the owner's, as a loop timer the owner keeps: a phase played more than once loads it with its
+    /// plays as the phase starts, each play's end counts it down and replays the run while it is not zero, and nothing else
+    /// changes it, so after the phase it stays at zero for whatever else reads it.
+    /// </remarks>
     internal AnimationShown<TSegment, TFrame> PlayToNextFrame(
-        ref Animation<TSegment> animation, ref AnimationPlace place, Func<TEvent, AnimationContinuation<TSegment>?> react)
+        ref Animation<TSegment> animation, ref AnimationPlace place, ref WrappingCountdown repeats, Func<TEvent, AnimationContinuation<TSegment>?> react)
     {
         Ensure.NotNull(animation);
         Ensure.NotNull(react);
@@ -87,14 +94,18 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
                         throw new InvalidOperationException($"Undefined beat in segment {phase.Segment}.");
                 }
             }
-            if (place.PlaysLeft > 1)
+            if (phase.Plays > 1)
             {
-                place = new AnimationPlace(place.Phase, 0, place.PlaysLeft - 1);
-                continue;
+                repeats = repeats.Decrement().Remaining;
+                if (!repeats.IsZero)
+                {
+                    place = AnimationPlace.StartOf(place.Phase);
+                    continue;
+                }
             }
             if (place.Phase + 1 < animation.Phases.Count)
             {
-                place = AnimationPlace.StartOf(place.Phase + 1, animation.Phases[place.Phase + 1].Plays);
+                place = Enter(animation, place.Phase + 1, ref repeats);
                 continue;
             }
             switch (animation.End)
@@ -102,7 +113,7 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
                 case AnimationEnd.Stop:
                     return AnimationShown<TSegment, TFrame>.Ended.Instance;
                 case AnimationEnd.Loop loop:
-                    place = AnimationPlace.StartOf(loop.Phase, animation.Phases[loop.Phase].Plays);
+                    place = Enter(animation, loop.Phase, ref repeats);
                     continue;
                 default:
                     throw new InvalidOperationException($"Undefined animation end {animation.End}.");
@@ -111,9 +122,18 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
         throw new InvalidOperationException("The animation passed every beat without showing a frame.");
     }
 
+    /// <summary>The start of phase <paramref name="phase"/> of <paramref name="animation"/>, loading a counted phase's plays.</summary>
+    private static AnimationPlace Enter(Animation<TSegment> animation, int phase, ref WrappingCountdown repeats)
+    {
+        int plays = animation.Phases[phase].Plays;
+        if (plays > 1)
+            repeats = WrappingCountdown.FromRaw(plays);
+        return AnimationPlace.StartOf(phase);
+    }
+
     /// <summary>
     /// The place of <paramref name="animation"/> whose next beat is beat <paramref name="beat"/> of <paramref name="segment"/>,
-    /// in the first phase playing it, on that phase's first play.
+    /// in the first phase playing it.
     /// </summary>
     /// <exception cref="ArgumentException">No phase of the animation plays that beat.</exception>
     internal static AnimationPlace PlaceOf(Animation<TSegment> animation, TSegment segment, int beat)
@@ -123,7 +143,7 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
         {
             AnimationPhase<TSegment> phase = animation.Phases[index];
             if (EqualityComparer<TSegment>.Default.Equals(phase.Segment, segment) && beat >= phase.FirstBeat && beat < phase.FirstBeat + phase.BeatCount)
-                return new AnimationPlace(index, beat - phase.FirstBeat, phase.Plays);
+                return new AnimationPlace(index, beat - phase.FirstBeat);
         }
         throw new ArgumentException($"No phase of the animation plays beat {beat} of segment {segment}.", nameof(beat));
     }

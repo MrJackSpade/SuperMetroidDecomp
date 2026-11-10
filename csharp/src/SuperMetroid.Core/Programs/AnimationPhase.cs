@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Programs;
 
 /// <summary>
 /// One phase of an animation (#1600): a run of a segment's beats, played <paramref name="Plays"/> times before the animation
-/// moves on.
+/// moves on. A phase played more than once counts its plays down the owner's repeat counter, which it loads as it starts.
 /// </summary>
 /// <typeparam name="TSegment">The segment identity.</typeparam>
 /// <param name="Segment">The segment whose beats the phase plays.</param>

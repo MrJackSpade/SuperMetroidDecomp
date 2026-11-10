@@ -3,7 +3,6 @@ using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Fx;
 
@@ -212,10 +211,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
                 return;
             case ColourEffectCondition.RestartsWhileSamusIsHigh high:
                 if (conditions.SamusY < high.Height)
-                {
-                    Animation<PaletteFxProgram> restart = PaletteFxAnimations.StartingWith(high.Restart);
-                    effect.Restart(restart, restart.Start);
-                }
+                    effect.Restart(PaletteFxAnimations.StartingWith(high.Restart));
                 return;
             case ColourEffectCondition.BurnsSamusInHeat:
                 BurnSamusInHeat(effect, conditions.EquippedItems, conditions.Samus, conditions.FrameCounter);

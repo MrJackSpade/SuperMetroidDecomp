@@ -53,7 +53,9 @@ public sealed class HyperBeamPaletteFxState
         FrameHold = 1;
         CurrentFrameIndex = null;
         CompletedCycles = 0;
-        Place = PaletteFxAnimations.StartingWith(HyperBeamDefinition().InitialProgram).Start;
+        // The Hyper Beam's cycle counts no repeats.
+        WrappingCountdown noRepeats = WrappingCountdown.Start(0);
+        Place = PaletteFxAnimations.StartingWith(HyperBeamDefinition().InitialProgram).StartWith(ref noRepeats);
     }
 
     /// <summary>Runs one call of the palette effect handler for the Hyper Beam object.</summary>
@@ -84,8 +86,10 @@ public sealed class HyperBeamPaletteFxState
         }
 
         AnimationPlace place = Place;
+        // The Hyper Beam's cycle counts no repeats.
+        WrappingCountdown noRepeats = WrappingCountdown.Start(0);
         AnimationShown<PaletteFxProgram, int> next = PaletteFxSegments.All.PlayToNextFrame(
-            PaletteFxAnimations.StartingWith(definition.InitialProgram), ref place,
+            PaletteFxAnimations.StartingWith(definition.InitialProgram), ref place, ref noRepeats,
             cue =>
             {
                 if (cue != new PaletteFxCue.SetColours(ProgramColours))

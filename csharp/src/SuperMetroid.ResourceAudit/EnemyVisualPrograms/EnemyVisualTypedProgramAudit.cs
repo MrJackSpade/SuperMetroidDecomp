@@ -234,7 +234,7 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(BullAnimations), "csharp/src/SuperMetroid.Core/Enemies/Bull/BullAnimations.cs");
         RequireSegmentFrames(BoulderAnimations.Segments, BoulderFrameToolingDefinitions.Spritemap, BoulderFrameToolingDefinitions.Bank,
             nameof(BoulderAnimations), "csharp/src/SuperMetroid.Core/Enemies/Boulder/BoulderAnimations.cs");
-        RequireTypedFrames(ChootAnimations.Programs, ChootFrameToolingDefinitions.Spritemap, ChootFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(ChootAnimations.Segments, ChootFrameToolingDefinitions.Spritemap, ChootFrameToolingDefinitions.Bank,
             nameof(ChootAnimations), "csharp/src/SuperMetroid.Core/Enemies/Choot/ChootAnimations.cs");
         RequireTypedFrames(ShutterAnimations.Programs, ShutterFrameToolingDefinitions.Spritemap, ShutterFrameToolingDefinitions.Bank,
             nameof(ShutterAnimations), "csharp/src/SuperMetroid.Core/Enemies/Shutters/ShutterAnimations.cs");

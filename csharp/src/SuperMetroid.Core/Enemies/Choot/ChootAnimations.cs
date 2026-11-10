@@ -10,39 +10,43 @@ namespace SuperMetroid.Core.Enemies.Choot;
 /// </summary>
 internal static class ChootAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<ChootProgram, ChootFrame, ChootCue> Programs { get; } = new(
-        new Dictionary<ChootProgram, AnimationProgramStep<ChootProgram, ChootFrame, ChootCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<ChootProgram, ChootFrame, ChootCue> Segments { get; } = new(
+        new Dictionary<ChootProgram, AnimationBeat<ChootFrame, ChootCue>[]>
     {
         [P.Idle] =
         [
             Cue(new(K.StopProcessingOffScreen)),
             Show(0, 1),
-            Hold,
         ],
         [P.Jumping] =
         [
             Cue(new(K.ProcessOffScreen)),
             Show(1, 8),
             Show(2, 1),
-            Hold,
         ],
         [P.Falling] =
         [
             Cue(new(K.ProcessOffScreen)),
             Show(1, 8),
             Show(3, 1),
-            Hold,
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<ChootProgram, Animation<ChootProgram>> StartingAt { get; } = new Dictionary<ChootProgram, Animation<ChootProgram>>
+    {
+        [P.Idle] = new([new(P.Idle, 0, 2, 1)], AnimationEnd.Holds),
+        [P.Jumping] = new([new(P.Jumping, 0, 3, 1)], AnimationEnd.Holds),
+        [P.Falling] = new([new(P.Falling, 0, 3, 1)], AnimationEnd.Holds),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<ChootProgram> StartingWith(ChootProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<ChootProgram, ChootFrame, ChootCue> Show(int pose, int duration) => AnimationProgramStep<ChootProgram, ChootFrame, ChootCue>.Show(new(pose), duration);
+    private static AnimationBeat<ChootFrame, ChootCue> Show(int pose, int duration) => new AnimationBeat<ChootFrame, ChootCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<ChootProgram, ChootFrame, ChootCue> Cue(ChootCue cue) => AnimationProgramStep<ChootProgram, ChootFrame, ChootCue>.Publish(cue);
-
-    /// <summary>Holds the last frame, as the sleep does.</summary>
-    private static AnimationProgramStep<ChootProgram, ChootFrame, ChootCue> Hold => AnimationProgramStep<ChootProgram, ChootFrame, ChootCue>.Hold;
-
+    private static AnimationBeat<ChootFrame, ChootCue> Cue(ChootCue cue) => new AnimationBeat<ChootFrame, ChootCue>.Event(cue);
 }

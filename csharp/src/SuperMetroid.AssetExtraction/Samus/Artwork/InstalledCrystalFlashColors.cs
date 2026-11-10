@@ -1,85 +1,65 @@
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Abilities;
 
 namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>
-/// Editable Crystal Flash body and bubble colors. Timers, frame cursors,
+/// The installed Crystal Flash body and bubble colours, every frame of both kept as installed. Timers, frame cursors,
 /// and completion still belong to <see cref="SamusCrystalFlashState"/>.
 /// </summary>
 public sealed class InstalledCrystalFlashColors
 {
-    /// <summary>Complete edited body frames, retained only when any supplied color differs from the calculated pulse.</summary>
-    internal readonly RgbColor[][]? body;
-    /// <summary>Bubble samples that differ from the rotating ramp, including the independently painted stock white.</summary>
-    internal readonly Dictionary<PaintColour, RgbColor> bubble;
+    /// <summary>Every installed body frame's colours, in playback order.</summary>
+    private readonly RgbColor[][] body;
+    /// <summary>Every installed bubble frame's colours, in playback order.</summary>
+    private readonly RgbColor[][] bubble;
 
-    /// <summary>Compares all supplied frames with color rules before retaining only independent edits.</summary>
-    /// <param name="body">Every supplied body frame when one color differs from the pulse, otherwise null.</param>
-    /// <param name="bubble">The bubble samples the import found differing from the rotating ramp.</param>
-    internal InstalledCrystalFlashColors(RgbColor[][]? body, Dictionary<PaintColour, RgbColor> bubble)
+    /// <summary>Keeps the complete installed body and bubble frames.</summary>
+    /// <param name="body">All <see cref="CrystalFlashColorFormat.BodyFrameCount"/> body frames of <see cref="CrystalFlashColorFormat.BodyColorCount"/> colours.</param>
+    /// <param name="bubble">All <see cref="CrystalFlashColorFormat.BubbleFrameCount"/> bubble frames of <see cref="CrystalFlashColorFormat.BubbleColorCount"/> colours.</param>
+    /// <exception cref="InvalidDataException">Either set is missing a frame or a colour.</exception>
+    internal InstalledCrystalFlashColors(RgbColor[][] body, RgbColor[][] bubble)
     {
-        this.body = body;
-        this.bubble = bubble;
+        this.body = Complete(body, CrystalFlashColorFormat.BodyFrameCount, CrystalFlashColorFormat.BodyColorCount, "body");
+        this.bubble = Complete(bubble, CrystalFlashColorFormat.BubbleFrameCount, CrystalFlashColorFormat.BubbleColorCount, "bubble");
     }
 
-    /// <summary>Returns one editable body color for a playback record, calculating stock frames when they require no stored overrides.</summary>
+    /// <summary>Returns one installed body colour.</summary>
     /// <param name="frame">Zero-based body record index, 0 through 9 in playback order.</param>
     /// <param name="color">Zero-based color within the ten-color body portion, including transparent color zero.</param>
-    /// <returns>RGB555 color word, with red in bits 0..4, green in bits 5..9, and blue in bits 10..14.</returns>
+    /// <returns>The installed colour.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The frame or color index is outside the body dimensions.</exception>
-    public RgbColor ResolveBody(int frame, int color)
-    {
-        if ((uint)frame >= CrystalFlashColorFormat.BodyFrameCount)
-            throw new ArgumentOutOfRangeException(nameof(frame));
-        if ((uint)color >= CrystalFlashColorFormat.BodyColorCount)
-            throw new ArgumentOutOfRangeException(nameof(color));
-        return body is null ? CalculateBody(frame, color) : body[frame][color];
-    }
+    public RgbColor ResolveBody(int frame, int color) => Resolve(body, frame, color);
 
-    /// <summary>
-    /// The body colors, selected by ten playback records: the first
-    /// frame is neutral grey16; subsequent frames pulse 19,23,27,23 twice and
-    /// return to19. All nine visible body colors share that intensity. The
-    /// transparent color is the fixed RGB5 backdrop (0,0,14) in every frame.
-    /// </summary>
-    internal static RgbColor CalculateBody(int frame, int color)
-    {
-        if (color == 0)
-            return new RgbColor(0, 0, 115);
-        int grey = frame == 0 ? 16 : 27 - 4 * Math.Abs((frame - 1) % 4 - 2);
-        return new FadeLevelColour(grey, grey, grey).ToColour();
-    }
-    /// <summary>Returns one editable bubble color from the independently cycling six-frame sequence, preserving supplied edits and the painted white sample.</summary>
+    /// <summary>Returns one installed bubble colour.</summary>
     /// <param name="frame">Zero-based bubble palette index, 0 through 5.</param>
     /// <param name="color">Zero-based color within the six-color bubble portion, 0 through 5.</param>
-    /// <returns>RGB555 color word, with red in bits 0..4, green in bits 5..9, and blue in bits 10..14.</returns>
+    /// <returns>The installed colour.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The frame or color index is outside the bubble dimensions.</exception>
-    public RgbColor ResolveBubble(int frame, int color)
+    public RgbColor ResolveBubble(int frame, int color) => Resolve(bubble, frame, color);
+
+    /// <summary>The colour at <paramref name="frame"/> and <paramref name="color"/> of <paramref name="frames"/>.</summary>
+    private static RgbColor Resolve(RgbColor[][] frames, int frame, int color)
     {
-        if ((uint)frame >= CrystalFlashColorFormat.BubbleFrameCount)
+        if ((uint)frame >= frames.Length)
             throw new ArgumentOutOfRangeException(nameof(frame));
-        if ((uint)color >= CrystalFlashColorFormat.BubbleColorCount)
+        if ((uint)color >= frames[frame].Length)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return bubble.TryGetValue(new PaintColour(frame, color), out RgbColor supplied)
-            ? supplied : CalculateBubble(frame, color);
+        return frames[frame][color];
     }
 
-    /// <summary>
-    /// The bubble frames rotate six pink-to-white levels one color per frame.
-    /// Red stays31; green/blue descend from31 to25 with nearest-integer interpolation
-    /// across five intervals. Frame5/color0 is independently painted white
-    /// rather than the ramp's 31711. The uniform five-tick traversal
-    /// and six-word copy supply no phase-specific
-    /// operation generating that choice. Only that sample remains supplied stock data;
-    /// a formula exception would merely reencode its frame/color identity and value.
-    /// </summary>
-    internal static RgbColor CalculateBubble(int frame, int color)
+    /// <summary>Copies <paramref name="frames"/>, rejecting a set without every frame and colour.</summary>
+    private static RgbColor[][] Complete(RgbColor[][] frames, int frameCount, int colorCount, string name)
     {
-        int phase = (color - frame + CrystalFlashColorFormat.BubbleColorCount)
-            % CrystalFlashColorFormat.BubbleColorCount;
-        int channel = 31 - (6 * phase + 2) / 5;
-        return new FadeLevelColour(31, channel, channel).ToColour();
+        if (frames.Length != frameCount)
+            throw new InvalidDataException($"Crystal Flash {name} requires {frameCount} frames.");
+        var copy = new RgbColor[frameCount][];
+        for (int frame = 0; frame < frameCount; frame++)
+        {
+            if (frames[frame].Length != colorCount)
+                throw new InvalidDataException($"Crystal Flash {name} frame {frame} requires {colorCount} colors.");
+            copy[frame] = (RgbColor[])frames[frame].Clone();
+        }
+        return copy;
     }
 }

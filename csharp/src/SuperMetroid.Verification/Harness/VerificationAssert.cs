@@ -44,7 +44,6 @@ using static SuperMetroid.Verification.Frontend.CeresCinematics.Artwork.CeresRef
 using static SuperMetroid.Verification.Bosses.Ridley.CeresRidleyGetawayDefinitionsVerification;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.Artwork.CeresSmallAsteroidPartsVerification;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresSpawnerScheduleVerification;
-using static SuperMetroid.Verification.Frontend.CeresCinematics.Artwork.CeresStarPointPartsVerification;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.Artwork.CeresStationBlastPartsVerification;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.Artwork.CeresStationPartsVerification;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.Artwork.CeresVortexPartsVerification;
@@ -2029,7 +2028,6 @@ internal static class VerificationAssert
         Suite(nameof(VerifyCeresSmallAsteroidParts), () => VerifyCeresSmallAsteroidParts(rom));
         Suite(nameof(VerifyCeresVortexParts), () => VerifyCeresVortexParts(rom));
         Suite(nameof(VerifyCeresReflectedStarParts), () => VerifyCeresReflectedStarParts(rom));
-        Suite(nameof(VerifyCeresStarPointParts), () => VerifyCeresStarPointParts(rom));
         Console.WriteLine("Ceres flight programs: five original streams, byte/word boundaries, shared aliases and interpreter loops pass.");
         return 0;
     }

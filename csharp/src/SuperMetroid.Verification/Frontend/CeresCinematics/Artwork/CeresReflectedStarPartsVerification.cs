@@ -11,22 +11,14 @@ using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Verification.Frontend.CeresCinematics.Artwork;
 
-/// <summary>Checks the reflected vortex stars against source stars and paired artwork edits.</summary>
+/// <summary>Checks the installed vortex's reflected stars draw as installed.</summary>
 internal static class CeresReflectedStarPartsVerification
 {
-    /// <summary>Verifies stock reflection, bounds, and OAM after presentation reload.</summary>
+    /// <summary>Verifies the stock vortex OAM after presentation reload.</summary>
     internal static void VerifyCeresReflectedStarParts(ISnesAddressSpace rom)
     {
         var original = IntroCinematicSpriteFrameExtractor.Extract(rom, 0x9478, 25, "stars");
         var vortex = IntroCinematicSpriteFrameExtractor.Extract(rom, 0x8fe7, 36, "vortex-even");
-        var source = IntroCinematicSpriteCompiler.Compile(original, "stars");
-        var expected = IntroCinematicSpriteCompiler.Compile(vortex, "vortex");
-        var stars = Enumerable.Range(2, 16).Concat(Enumerable.Range(29, 7)).Select(expected.Part).ToArray();
-        var calculated = CeresReflectedStarParts.CalculateIfMatching(source, stars);
-        AssertTrue(!ReferenceEquals(stars, calculated), "original23 stars select reflection view");
-        for (int index = 0; index < 23; index++) AssertEqual(stars[index], calculated[index], "every original reflected star field");
-        foreach (int index in new[] { -1, 23, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = calculated[index], "reflected star bounds");
         Check(original, vortex);
         void Check(SpriteVisualPart[] sourceVisual, SpriteVisualPart[] targetVisual)
         {

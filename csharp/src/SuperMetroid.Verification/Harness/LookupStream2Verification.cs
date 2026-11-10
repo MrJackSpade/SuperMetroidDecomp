@@ -1446,7 +1446,6 @@ internal static class LookupStream2Verification
     {
         byte[] source = CrystalFlashColorExtractor.Extract(rom);
         var stock = CrystalFlashColorFile.Read(new MemoryStream(source));
-        AssertTrue(stock.body is null, "Original Crystal Flash body selects calculation without stored rows");
         var samus = new SamusColours();
         for (int frame = 0; frame < CrystalFlashColorFormat.BodyFrameCount; frame++)
         {
@@ -1456,12 +1455,9 @@ internal static class LookupStream2Verification
             {
                 ushort expected = ReadVerificationWord(rom, 0x9b0000 | pointer + 2 * color);
                 AssertEqual(expected, stock.ResolveBody(frame, color), "Original Crystal Flash body RGB5 word");
-                AssertEqual(expected, samus.ShownBeams(InstalledFixtures.SamusShadeSources with { CrystalFlash = stock })[color], "Calculated body color reaches the body shade");
+                AssertEqual(expected, samus.ShownBeams(InstalledFixtures.SamusShadeSources with { CrystalFlash = stock })[color], "Installed body color reaches the body shade");
             }
         }
-        var residuals = stock.bubble;
-        AssertEqual(1, residuals.Count, "One stock bubble residual remains pending");
-        AssertEqual(0x7fff, residuals[new PaintColour(CrystalFlashColorFormat.BubbleFrameCount - 1, 0)], "Final-frame leading white remains supplied data");
         for (int frame = 0; frame < CrystalFlashColorFormat.BubbleFrameCount; frame++)
         for (int color = 0; color < CrystalFlashColorFormat.BubbleColorCount; color++)
         {
@@ -1475,11 +1471,11 @@ internal static class LookupStream2Verification
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBubble(6, 0), "Bubble upper frame bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBubble(0, -1), "Bubble lower color bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBubble(0, 6), "Bubble upper color bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBody(-1, 0), "Calculated body lower frame bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBody(10, 0), "Calculated body upper frame bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBody(0, -1), "Calculated body lower color bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBody(0, 10), "Calculated body upper color bound");
-        Console.WriteLine("Stream 2 Crystal Flash body: all100 body and36 bubble native colors and CGRAM application pass; one bubble residual remains pending.");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBody(-1, 0), "Body lower frame bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBody(10, 0), "Body upper frame bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBody(0, -1), "Body lower color bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBody(0, 10), "Body upper color bound");
+        Console.WriteLine("Stream 2 Crystal Flash body: all100 body and36 bubble native colors and CGRAM application pass.");
     }
 
     /// <summary>Checks Kraid palette ramp derivation and bounds against stock samples.</summary>

@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 /// <summary>Reads and writes the installed Ceres flight palette document.</summary>
 public static class CeresFlightPaletteFile
 {
-    /// <summary>Loads the supported palette schema with exactly 256 non-null RGB5 colors, rejecting malformed or duplicate JSON properties and channels outside 0..31; supplied edits remain independent of calculated stock repeats and ramps.</summary>
+    /// <summary>Loads the supported palette schema with exactly 256 non-null RGB5 colors, rejecting malformed or duplicate JSON properties and channels outside 0..31; every colour is kept as installed.</summary>
     /// <param name="json">Caller-owned UTF-8 JSON stream containing the complete Ceres approach palette in CGRAM order.</param>
     /// <returns>The immutable selected palette corresponding to compiled <c>Palettes_SpaceGunshipCeres</c> at <c>$8C:E5E9</c>.</returns>
     public static CeresFlightPalette Read(Stream json)

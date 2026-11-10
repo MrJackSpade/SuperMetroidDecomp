@@ -16,22 +16,14 @@ namespace SuperMetroid.Core.Fx;
 /// active FX record starts. Landing Site is one of them: its lightning flashes the scrolling-sky horizon's colours.
 /// </para>
 /// <para>
-/// Turn order (a compatibility rule): each update the effects take their turns from the lowest turn up, and a starting
-/// effect takes the lowest of the eight turns no running effect holds; while all eight are held, a start is ignored. The
-/// original handler visits its eight effects from the last down and a new effect takes the last free one, so this is
-/// that order. It is observable: Samus's heat shimmer (<see cref="PaletteFxObject.SamusInHeat"/>, started first in every
-/// heated room) takes its turn before the Norfair glow that publishes the heat phase, so the shimmer follows a new phase
-/// one update late; and where two effects show the same colours in one update, the later turn's record is the one that
-/// shows, as when Mother Brain's death starts Tourian's escape red flash over the room's glowing Arkanoid blocks and orbs.
+/// The effects take their turns in the order <see cref="ColourEffectTurnOrder"/> gives them, which Samus's heat shimmer
+/// (<see cref="PaletteFxObject.SamusInHeat"/>) and effects sharing colours observe.
 /// </para>
 /// </remarks>
 [RoomLifetime]
 public sealed class RoomPaletteFxSystem : IGameplayShadingSource
 {
-    /// <summary>The turns there are: at most this many effects run at once, and a start while all are held is ignored.</summary>
-    private const int TurnCount = 8;
-
-    /// <summary>The running effects, in turn order.</summary>
+    /// <summary>The running effects, in turn order (<see cref="ColourEffectTurnOrder"/>).</summary>
     internal readonly List<RoomColourEffect> effects = [];
     /// <summary>The record each colour group last showed, in the order they were shown (#1512).</summary>
     internal readonly PaletteFxShown shown = new();
@@ -182,7 +174,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
         effects.RemoveAll(effect => effect.Ended);
     }
 
-    /// <summary>Starts <paramref name="effect"/> on the lowest free turn, unless every turn is held or its start skips it.</summary>
+    /// <summary>Starts <paramref name="effect"/> on the turn its start takes, unless every turn is held or its start skips it.</summary>
     /// <returns>Whether the effect started.</returns>
     /// <exception cref="InvalidOperationException">The effect names a start of no defined kind.</exception>
     private bool TryStart(
@@ -190,7 +182,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
         bool areaMiniBossDefeated)
     {
-        if (LowestFreeTurn() is not { } turn)
+        if (ColourEffectTurnOrder.TurnForStart(effects, running => running.Turn) is not { } turn)
             return false;
 
         RoomPaletteFxDefinition definition = RoomPaletteFxSelection.Get(effect);
@@ -213,20 +205,8 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
                 throw new InvalidOperationException($"Colour effect {effect} has undefined start {definition.Start}.");
         }
 
-        int place = effects.FindIndex(running => running.Turn > turn);
-        effects.Insert(place < 0 ? effects.Count : place, new RoomColourEffect(effect, turn, program));
+        ColourEffectTurnOrder.Join(effects, new RoomColourEffect(effect, turn, program), running => running.Turn);
         return true;
-    }
-
-    /// <summary>The lowest turn no running effect holds, or null while every turn is held.</summary>
-    private int? LowestFreeTurn()
-    {
-        for (int turn = 0; turn < TurnCount; turn++)
-        {
-            if (!effects.Exists(running => running.Turn == turn))
-                return turn;
-        }
-        return null;
     }
 
     /// <summary>Checks the condition <paramref name="effect"/> watches, before its countdown runs.</summary>

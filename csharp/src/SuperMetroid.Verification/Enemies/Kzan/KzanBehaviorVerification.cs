@@ -26,8 +26,8 @@ internal static class KzanBehaviorVerification
         slot.Position = slot.Position.WithWholeY(128);
         slot.SetSpawnSettings(new KzanSpawnSettings(FallSpeed: SignedSixteenSixteen.FromParts(4, 0), FallWait: 112, FallDistance: 80));
         KzanBehavior.InitializeKzanTop(slot);
-        AssertEqual(AnimationProgramCursor<KzanProgram>.Start(KzanProgram.Idle),
-            (enemies.SlotTable.Slots[0].EntityState<KzanEntity, KzanEnemyState>() ?? throw new InvalidOperationException("The Kzan has no state.")).Program,
+        AssertEqual(new AnimationPlayback<KzanProgram>(KzanAnimations.StartingWith(KzanProgram.Idle), AnimationPlace.StartOfAnimation),
+            (enemies.SlotTable.Slots[0].EntityState<KzanEntity, KzanEnemyState>() ?? throw new InvalidOperationException("The Kzan has no state.")).Playback,
             "Kzan initializer animation");
         // The update that reaches the native sleep yields with the new-frame flag still set, so it reads as shown twice.
         ushort frame = KzanAnimationsConstants.Spritemaps(KzanProgram.Idle).Single();

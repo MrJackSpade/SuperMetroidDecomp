@@ -218,7 +218,7 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(FlyAnimations), "csharp/src/SuperMetroid.Core/Enemies/Flies/FlyAnimations.cs");
         RequireSegmentFrames(KagoAnimations.Segments, KagoFrameToolingDefinitions.Spritemap, KagoFrameToolingDefinitions.Bank,
             nameof(KagoAnimations), "csharp/src/SuperMetroid.Core/Enemies/Kago/KagoAnimations.cs");
-        RequireTypedFrames(KzanAnimations.Programs, KzanFrameToolingDefinitions.Spritemap, KzanFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(KzanAnimations.Segments, KzanFrameToolingDefinitions.Spritemap, KzanFrameToolingDefinitions.Bank,
             nameof(KzanAnimations), "csharp/src/SuperMetroid.Core/Enemies/Kzan/KzanAnimations.cs");
         RequireTypedFrames(PolypAnimations.Programs, PolypFrameToolingDefinitions.Spritemap, PolypFrameToolingDefinitions.Bank,
             nameof(PolypAnimations), "csharp/src/SuperMetroid.Core/Enemies/Polyp/PolypAnimations.cs");

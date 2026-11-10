@@ -49,7 +49,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new KzanEnemyState();
         slot.SetSpeciesState(state);
 
-        state.Program = AnimationProgramCursor<KzanProgram>.Start(KzanProgram.Idle);
+        state.Playback = new(KzanAnimations.StartingWith(KzanProgram.Idle), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         state.Function = KzanEnemyFunction.WaitingToFall;
@@ -248,8 +248,9 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Kzan's typed animation.</summary>
     internal static void AdvanceKzanTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, KzanAnimations.Programs, KzanFrameDefinitions.ShownFrames.Of,
-            static (KzanEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
+        EnemyProgramAnimation.Advance(slot, KzanAnimations.Segments, KzanFrameDefinitions.ShownFrames.Of,
+            static (KzanEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            static (_, cue) => throw new InvalidOperationException($"A cue-free Kzan animation raised {cue}."));
 
     /// <summary>Ports KzanTop's main AI.</summary>
     internal void RunKzanTopMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)

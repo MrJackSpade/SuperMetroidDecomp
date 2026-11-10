@@ -11,7 +11,6 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Doors;

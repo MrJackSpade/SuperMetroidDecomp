@@ -4,7 +4,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using static SuperMetroid.EnsureVerification.Harness.AnalyzerTests;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.EnsureVerification.PaletteFx;
 

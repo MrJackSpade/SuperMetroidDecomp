@@ -59,13 +59,13 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
             _parents.Place(slot, _slotTable.ListedBefore(slot, 1));
             ValidateNorfairRioParent(slot);
             state.InstalledProgram = NorfairRioProgram.FlamesAscending;
-            state.Program = AnimationProgramCursor<NorfairRioProgram>.Start(NorfairRioProgram.FlamesAscending);
+            state.Playback = new(NorfairRioAnimations.StartingWith(NorfairRioProgram.FlamesAscending), AnimationPlace.StartOfAnimation);
             state.Function = NorfairRioEnemyFunction.FollowParent;
             return;
         }
 
         state.InstalledProgram = NorfairRioProgram.Idle;
-        state.Program = AnimationProgramCursor<NorfairRioProgram>.Start(NorfairRioProgram.Idle);
+        state.Playback = new(NorfairRioAnimations.StartingWith(NorfairRioProgram.Idle), AnimationPlace.StartOfAnimation);
         state.Function = NorfairRioEnemyFunction.WaitForAttackOpportunity;
     }
 
@@ -188,7 +188,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of the Norfair Rio's animations: the swoop-start handshake or a flame placement.</summary>
-    private static NorfairRioProgram? ApplyNorfairRioCue(NorfairRioEnemyState state, NorfairRioCue cue)
+    private static void ApplyNorfairRioCue(NorfairRioEnemyState state, NorfairRioCue cue)
     {
         switch (cue.Kind)
         {
@@ -219,7 +219,6 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
             default:
                 throw new InvalidOperationException($"Undefined {nameof(NorfairRioCueKind)} {cue.Kind}.");
         }
-        return null;
     }
 
     /// <summary>Copies parent freeze, visibility, animation, and flame offset to the adjacent follower.</summary>
@@ -292,7 +291,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProgramAnimation.InstallOnce(slot, state.InstalledProgram, program, installed =>
         {
             state.InstalledProgram = installed;
-            state.Program = AnimationProgramCursor<NorfairRioProgram>.Start(installed);
+            state.Playback = new(NorfairRioAnimations.StartingWith(installed), AnimationPlace.StartOfAnimation);
         });
 
     /// <summary>The parent the follower found when it was placed, the enemy its room lists directly before it.</summary>
@@ -330,7 +329,11 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances NorfairRio's typed animation.</summary>
     internal static void AdvanceNorfairRioTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, NorfairRioAnimations.Programs, NorfairRioFrameDefinitions.ShownFrames.Of,
-            static (NorfairRioEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
-            (state, cue, _) => ApplyNorfairRioCue(state, cue));
+        EnemyProgramAnimation.Advance(slot, NorfairRioAnimations.Segments, NorfairRioFrameDefinitions.ShownFrames.Of,
+            static (NorfairRioEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            (state, cue) =>
+            {
+                ApplyNorfairRioCue(state, cue);
+                return null;
+            });
 }

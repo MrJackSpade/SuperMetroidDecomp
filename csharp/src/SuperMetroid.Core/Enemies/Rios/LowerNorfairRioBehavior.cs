@@ -59,13 +59,13 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
             _parents.Place(slot, _slotTable.ListedBefore(slot, 1));
             ValidateLowerNorfairRioParent(slot);
             state.InstalledProgram = LowerNorfairRioProgram.Flames;
-            state.Program = AnimationProgramCursor<LowerNorfairRioProgram>.Start(LowerNorfairRioProgram.Flames);
+            state.Playback = new(LowerNorfairRioAnimations.StartingWith(LowerNorfairRioProgram.Flames), AnimationPlace.StartOfAnimation);
             state.Function = LowerNorfairRioEnemyFunction.FollowParent;
             return;
         }
 
         state.InstalledProgram = LowerNorfairRioProgram.Idle;
-        state.Program = AnimationProgramCursor<LowerNorfairRioProgram>.Start(LowerNorfairRioProgram.Idle);
+        state.Playback = new(LowerNorfairRioAnimations.StartingWith(LowerNorfairRioProgram.Idle), AnimationPlace.StartOfAnimation);
         state.Function = LowerNorfairRioEnemyFunction.WaitForAttackOpportunity;
     }
 
@@ -191,7 +191,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
     }
 
     /// <summary>Carries out one cue of the Lower Norfair Rio's animations: the finished handshake and flame visibility.</summary>
-    private static LowerNorfairRioProgram? ApplyLowerNorfairRioCue(LowerNorfairRioEnemyState state, LowerNorfairRioCue cue)
+    private static void ApplyLowerNorfairRioCue(LowerNorfairRioEnemyState state, LowerNorfairRioCue cue)
     {
         switch (cue.Kind)
         {
@@ -207,7 +207,6 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
             default:
                 throw new InvalidOperationException($"Undefined {nameof(LowerNorfairRioCueKind)} {cue.Kind}.");
         }
-        return null;
     }
 
     /// <summary>Mirrors the preceding parent's freeze and visibility, placing live flames twelve pixels below it.</summary>
@@ -281,7 +280,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
         EnemyProgramAnimation.InstallOnce(slot, state.InstalledProgram, animationScript, installed =>
         {
             state.InstalledProgram = installed;
-            state.Program = AnimationProgramCursor<LowerNorfairRioProgram>.Start(installed);
+            state.Playback = new(LowerNorfairRioAnimations.StartingWith(installed), AnimationPlace.StartOfAnimation);
         });
 
     /// <summary>The parent the flame follower found when it was placed, the enemy its room lists directly before it.</summary>
@@ -319,7 +318,11 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
 
     /// <summary>Advances LowerNorfairRio's typed animation.</summary>
     internal static void AdvanceLowerNorfairRioTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, LowerNorfairRioAnimations.Programs, LowerNorfairRioFrameDefinitions.ShownFrames.Of,
-            static (LowerNorfairRioEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
-            (state, cue, _) => ApplyLowerNorfairRioCue(state, cue));
+        EnemyProgramAnimation.Advance(slot, LowerNorfairRioAnimations.Segments, LowerNorfairRioFrameDefinitions.ShownFrames.Of,
+            static (LowerNorfairRioEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            (state, cue) =>
+            {
+                ApplyLowerNorfairRioCue(state, cue);
+                return null;
+            });
 }

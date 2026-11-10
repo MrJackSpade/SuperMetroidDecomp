@@ -294,11 +294,11 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(EvirAnimations), "csharp/src/SuperMetroid.Core/Enemies/Evir/EvirAnimations.cs");
         RequireTypedFrames(YappingMawAnimations.Programs, YappingMawFrameToolingDefinitions.Spritemap, YappingMawFrameToolingDefinitions.Bank,
             nameof(YappingMawAnimations), "csharp/src/SuperMetroid.Core/Enemies/YappingMaws/YappingMawAnimations.cs");
-        RequireTypedFrames(RioAnimations.Programs, RioFrameToolingDefinitions.Spritemap, RioFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(RioAnimations.Segments, RioFrameToolingDefinitions.Spritemap, RioFrameToolingDefinitions.Bank,
             nameof(RioAnimations), "csharp/src/SuperMetroid.Core/Enemies/Rios/RioAnimations.cs");
-        RequireTypedFrames(NorfairRioAnimations.Programs, NorfairRioFrameToolingDefinitions.Spritemap, NorfairRioFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(NorfairRioAnimations.Segments, NorfairRioFrameToolingDefinitions.Spritemap, NorfairRioFrameToolingDefinitions.Bank,
             nameof(NorfairRioAnimations), "csharp/src/SuperMetroid.Core/Enemies/Rios/NorfairRioAnimations.cs");
-        RequireTypedFrames(LowerNorfairRioAnimations.Programs, LowerNorfairRioFrameToolingDefinitions.Spritemap, LowerNorfairRioFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(LowerNorfairRioAnimations.Segments, LowerNorfairRioFrameToolingDefinitions.Spritemap, LowerNorfairRioFrameToolingDefinitions.Bank,
             nameof(LowerNorfairRioAnimations), "csharp/src/SuperMetroid.Core/Enemies/Rios/LowerNorfairRioAnimations.cs");
         RequireTypedFrames(BeetomAnimations.Programs, BeetomFrameToolingDefinitions.Spritemap, BeetomFrameToolingDefinitions.Bank,
             nameof(BeetomAnimations), "csharp/src/SuperMetroid.Core/Enemies/Beetom/BeetomAnimations.cs");

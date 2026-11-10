@@ -65,7 +65,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
         parent.Bind(parent.DefinitionId, default(RoomEnemyDefinition));
         parent.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
         enemies.LowerNorfairRioBehavior.InitializeLowerNorfairRio(parent);
-        AssertEqual(AnimationProgramCursor<LowerNorfairRioProgram>.Start(LowerNorfairRioProgram.Idle), enemies.SlotTable.Slots[0].EntityState<LowerNorfairRioEntity, LowerNorfairRioEnemyState>()?.Program,
+        AssertEqual(new AnimationPlayback<LowerNorfairRioProgram>(LowerNorfairRioAnimations.StartingWith(LowerNorfairRioProgram.Idle), AnimationPlace.StartOfAnimation), enemies.SlotTable.Slots[0].EntityState<LowerNorfairRioEntity, LowerNorfairRioEnemyState>()?.Playback,
             "Lower Norfair Rio parent initializer selects idle");
 
         RoomEnemySlot follower = enemies.SlotTable.Slots[1];
@@ -73,7 +73,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
         follower.Bind(follower.DefinitionId, default(RoomEnemyDefinition));
         follower.SetSpawnParameter1(EnemyDefinitionId.Holtz, 0x8000);
         enemies.LowerNorfairRioBehavior.InitializeLowerNorfairRio(follower);
-        AssertEqual(AnimationProgramCursor<LowerNorfairRioProgram>.Start(LowerNorfairRioProgram.Flames), enemies.SlotTable.Slots[1].EntityState<LowerNorfairRioEntity, LowerNorfairRioEnemyState>()?.Program,
+        AssertEqual(new AnimationPlayback<LowerNorfairRioProgram>(LowerNorfairRioAnimations.StartingWith(LowerNorfairRioProgram.Flames), AnimationPlace.StartOfAnimation), enemies.SlotTable.Slots[1].EntityState<LowerNorfairRioEntity, LowerNorfairRioEnemyState>()?.Playback,
             "Lower Norfair Rio follower initializer selects flames");
     }
 
@@ -86,7 +86,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
         slot.Bind(EnemyDefinitionId.Holtz, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.FrameHold = WrappingCountdown.Start(1);
-        var state = new LowerNorfairRioEnemyState { Program = AnimationProgramCursor<LowerNorfairRioProgram>.Start(entry) };
+        var state = new LowerNorfairRioEnemyState { Playback = new(LowerNorfairRioAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation) };
         slot.SetSpeciesState(state);
         return new NewLowerNorfairRioInstructionSystemResult(enemies, slot, state);
     }

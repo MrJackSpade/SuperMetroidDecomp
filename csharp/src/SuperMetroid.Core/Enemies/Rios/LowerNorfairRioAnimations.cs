@@ -10,14 +10,13 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// </summary>
 internal static class LowerNorfairRioAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<LowerNorfairRioProgram, LowerNorfairRioFrame, LowerNorfairRioCue> Programs { get; } = new(
-        new Dictionary<LowerNorfairRioProgram, AnimationProgramStep<LowerNorfairRioProgram, LowerNorfairRioFrame, LowerNorfairRioCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<LowerNorfairRioProgram, LowerNorfairRioFrame, LowerNorfairRioCue> Segments { get; } = new(
+        new Dictionary<LowerNorfairRioProgram, AnimationBeat<LowerNorfairRioFrame, LowerNorfairRioCue>[]>
     {
         [P.Idle] =
         [
             Cue(new(K.HideFlames)),
-            FallInto(P.IdleLoop),
         ],
         [P.IdleLoop] =
         [
@@ -25,7 +24,6 @@ internal static class LowerNorfairRioAnimations
             Show(1, 11),
             Show(2, 11),
             Show(1, 11),
-            GoTo(P.IdleLoop),
         ],
         [P.PrepareToSwoop] =
         [
@@ -40,13 +38,11 @@ internal static class LowerNorfairRioAnimations
             Show(9, 3),
             Show(10, 3),
             Cue(new(K.AnimationFinished)),
-            Hold,
         ],
         [P.Descending] =
         [
             Cue(new(K.HideFlames)),
             Show(10, 1),
-            Hold,
         ],
         [P.AscendingPart1] =
         [
@@ -55,19 +51,16 @@ internal static class LowerNorfairRioAnimations
             Show(9, 3),
             Show(11, 3),
             Cue(new(K.AnimationFinished)),
-            Hold,
         ],
         [P.AscendingPart2] =
         [
             Cue(new(K.ShowFlames)),
-            FallInto(P.AscendingPart2Loop),
         ],
         [P.AscendingPart2Loop] =
         [
             Show(14, 2),
             Show(12, 2),
             Show(13, 2),
-            GoTo(P.AscendingPart2Loop),
         ],
         [P.Cooldown] =
         [
@@ -82,30 +75,35 @@ internal static class LowerNorfairRioAnimations
             Show(3, 1),
             Show(2, 1),
             Cue(new(K.AnimationFinished)),
-            Hold,
         ],
         [P.Flames] =
         [
             Show(15, 6),
             Show(16, 4),
             Show(17, 3),
-            GoTo(P.Flames),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<LowerNorfairRioProgram, Animation<LowerNorfairRioProgram>> StartingAt { get; } = new Dictionary<LowerNorfairRioProgram, Animation<LowerNorfairRioProgram>>
+    {
+        [P.Idle] = new([new(P.Idle, 0, 1, 1), new(P.IdleLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.IdleLoop] = new([new(P.IdleLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.PrepareToSwoop] = new([new(P.PrepareToSwoop, 0, 11, 1)], AnimationEnd.Holds),
+        [P.Descending] = new([new(P.Descending, 0, 2, 1)], AnimationEnd.Holds),
+        [P.AscendingPart1] = new([new(P.AscendingPart1, 0, 5, 1)], AnimationEnd.Holds),
+        [P.AscendingPart2] = new([new(P.AscendingPart2, 0, 1, 1), new(P.AscendingPart2Loop, 0, 3, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.AscendingPart2Loop] = new([new(P.AscendingPart2Loop, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Cooldown] = new([new(P.Cooldown, 0, 11, 1)], AnimationEnd.Holds),
+        [P.Flames] = new([new(P.Flames, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<LowerNorfairRioProgram> StartingWith(LowerNorfairRioProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<LowerNorfairRioProgram, LowerNorfairRioFrame, LowerNorfairRioCue> Show(int pose, int duration) => AnimationProgramStep<LowerNorfairRioProgram, LowerNorfairRioFrame, LowerNorfairRioCue>.Show(new(pose), duration);
+    private static AnimationBeat<LowerNorfairRioFrame, LowerNorfairRioCue> Show(int pose, int duration) => new AnimationBeat<LowerNorfairRioFrame, LowerNorfairRioCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<LowerNorfairRioProgram, LowerNorfairRioFrame, LowerNorfairRioCue> Cue(LowerNorfairRioCue cue) => AnimationProgramStep<LowerNorfairRioProgram, LowerNorfairRioFrame, LowerNorfairRioCue>.Publish(cue);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<LowerNorfairRioProgram, LowerNorfairRioFrame, LowerNorfairRioCue> GoTo(LowerNorfairRioProgram program) => AnimationProgramStep<LowerNorfairRioProgram, LowerNorfairRioFrame, LowerNorfairRioCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<LowerNorfairRioProgram, LowerNorfairRioFrame, LowerNorfairRioCue> FallInto(LowerNorfairRioProgram program) => AnimationProgramStep<LowerNorfairRioProgram, LowerNorfairRioFrame, LowerNorfairRioCue>.FallInto(program);
-
-    /// <summary>Holds the last frame, as the sleep does.</summary>
-    private static AnimationProgramStep<LowerNorfairRioProgram, LowerNorfairRioFrame, LowerNorfairRioCue> Hold => AnimationProgramStep<LowerNorfairRioProgram, LowerNorfairRioFrame, LowerNorfairRioCue>.Hold;
-
+    private static AnimationBeat<LowerNorfairRioFrame, LowerNorfairRioCue> Cue(LowerNorfairRioCue cue) => new AnimationBeat<LowerNorfairRioFrame, LowerNorfairRioCue>.Event(cue);
 }

@@ -16,9 +16,6 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
     /// <summary>Each segment's beats.</summary>
     private readonly Dictionary<TSegment, AnimationBeat<TFrame, TEvent>[]> beats;
 
-    /// <summary>Each segment's beats' places among its frames: a frame beat's frame number, or the next frame's for an event.</summary>
-    private readonly Dictionary<TSegment, int[]> frameNumbers;
-
     /// <summary>Creates the segments; every member of <typeparamref name="TSegment"/> must be present.</summary>
     /// <exception cref="ArgumentException">A segment is missing.</exception>
     internal AnimationSegments(IReadOnlyDictionary<TSegment, AnimationBeat<TFrame, TEvent>[]> segments)
@@ -30,11 +27,6 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
                 throw new ArgumentException($"Animation segment {segment} has no beats.", nameof(segments));
         }
         beats = segments.ToDictionary(pair => pair.Key, pair => pair.Value);
-        frameNumbers = beats.ToDictionary(pair => pair.Key, pair =>
-        {
-            int frames = 0;
-            return pair.Value.Select(beat => beat is AnimationBeat<TFrame, TEvent>.Frame ? frames++ : frames).ToArray();
-        });
     }
 
     /// <summary>The beats of <paramref name="segment"/>.</summary>
@@ -43,7 +35,7 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
     /// <summary>
     /// Plays <paramref name="animation"/> on from <paramref name="place"/> to its next frame, raising each event it passes
     /// in <paramref name="raise"/>: a phase plays its run as many times as it says, the next phase follows, and past the last
-    /// the animation stops, loops or holds as it ends. On return <paramref name="place"/> is where the next play resumes.
+    /// the animation stops or loops as it ends. On return <paramref name="place"/> is where the next play resumes.
     /// </summary>
     /// <exception cref="InvalidOperationException">The animation passes every beat without showing a frame.</exception>
     internal AnimationShown<TSegment, TFrame> PlayToNextFrame(Animation<TSegment> animation, ref AnimationPlace place, Action<TEvent> raise)
@@ -83,9 +75,7 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
                 switch (beats[phase.Segment][beat])
                 {
                     case AnimationBeat<TFrame, TEvent>.Frame frame:
-                        return new AnimationShown<TSegment, TFrame>.Frame(phase.Segment, frameNumbers[phase.Segment][beat], frame.Shown, frame.Duration);
-                    case AnimationBeat<TFrame, TEvent>.Pause pause:
-                        return new AnimationShown<TSegment, TFrame>.Paused(pause.Duration);
+                        return new AnimationShown<TSegment, TFrame>.Frame(phase.Segment, frame.Shown, frame.Duration);
                     case AnimationBeat<TFrame, TEvent>.Event raised:
                         if (react(raised.Raised) is { } continuation)
                         {
@@ -111,8 +101,6 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
             {
                 case AnimationEnd.Stop:
                     return AnimationShown<TSegment, TFrame>.Ended.Instance;
-                case AnimationEnd.Hold:
-                    return AnimationShown<TSegment, TFrame>.Held.Instance;
                 case AnimationEnd.Loop loop:
                     place = AnimationPlace.StartOf(loop.Phase, animation.Phases[loop.Phase].Plays);
                     continue;

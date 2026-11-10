@@ -5,8 +5,4 @@ namespace SuperMetroid.Core.Programs;
 /// <param name="Animation">The animation the play continues in.</param>
 /// <param name="Place">The place it continues at.</param>
 internal readonly record struct AnimationContinuation<TSegment>(Animation<TSegment> Animation, AnimationPlace Place)
-    where TSegment : struct
-{
-    /// <summary>The start of <paramref name="animation"/>.</summary>
-    internal static AnimationContinuation<TSegment> StartOf(Animation<TSegment> animation) => new(Ensure.NotNull(animation), animation.Start);
-}
+    where TSegment : struct;

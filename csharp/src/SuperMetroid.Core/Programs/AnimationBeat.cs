@@ -17,10 +17,6 @@ internal abstract record AnimationBeat<TFrame, TEvent>
     /// <param name="Duration">The updates it shows for.</param>
     internal sealed record Frame(TFrame Shown, int Duration) : AnimationBeat<TFrame, TEvent>;
 
-    /// <summary>A pause of <paramref name="Duration"/> updates that shows no new frame: the last one stays.</summary>
-    /// <param name="Duration">The updates it lasts.</param>
-    internal sealed record Pause(int Duration) : AnimationBeat<TFrame, TEvent>;
-
     /// <summary>An event the owner reacts to as the animation reaches it, before the next frame shows.</summary>
     /// <param name="Raised">The event.</param>
     internal sealed record Event(TEvent Raised) : AnimationBeat<TFrame, TEvent>;

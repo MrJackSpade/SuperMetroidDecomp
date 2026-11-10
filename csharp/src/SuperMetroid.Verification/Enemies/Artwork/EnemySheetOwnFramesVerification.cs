@@ -168,9 +168,9 @@ internal static class EnemySheetOwnFramesVerification
     private static EnemySheetOwnFrameFamily EvirFamily() => new("Evir", TableFrames(EvirFrameDefinitions.ShownFrames),
         new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
         {
-            [EnemyDefinitionId.Evir] = Reach(EvirAnimations.Programs, EvirFrameDefinitions.ShownFrames,
+            [EnemyDefinitionId.Evir] = Reach(EvirAnimations.Segments, EvirAnimations.StartingAt, EvirFrameDefinitions.ShownFrames,
                 [EvirProgram.BodyFacingLeft, EvirProgram.BodyFacingRight, EvirProgram.ArmsFacingLeft, EvirProgram.ArmsFacingRight]),
-            [EnemyDefinitionId.EvirProjectile] = Reach(EvirAnimations.Programs, EvirFrameDefinitions.ShownFrames,
+            [EnemyDefinitionId.EvirProjectile] = Reach(EvirAnimations.Segments, EvirAnimations.StartingAt, EvirFrameDefinitions.ShownFrames,
                 [EvirProgram.ProjectileNormal, EvirProgram.ProjectileRegenerating]),
         });
 

@@ -290,7 +290,7 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(RinkaAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/RinkaAnimations.cs");
         RequireTypedFrames(PlatformAnimations.Programs, PlatformFrameToolingDefinitions.Spritemap, PlatformFrameToolingDefinitions.Bank,
             nameof(PlatformAnimations), "csharp/src/SuperMetroid.Core/Enemies/Platforms/PlatformAnimations.cs");
-        RequireTypedFrames(EvirAnimations.Programs, EvirFrameToolingDefinitions.Spritemap, EvirFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(EvirAnimations.Segments, EvirFrameToolingDefinitions.Spritemap, EvirFrameToolingDefinitions.Bank,
             nameof(EvirAnimations), "csharp/src/SuperMetroid.Core/Enemies/Evir/EvirAnimations.cs");
         RequireTypedFrames(YappingMawAnimations.Programs, YappingMawFrameToolingDefinitions.Spritemap, YappingMawFrameToolingDefinitions.Bank,
             nameof(YappingMawAnimations), "csharp/src/SuperMetroid.Core/Enemies/YappingMaws/YappingMawAnimations.cs");

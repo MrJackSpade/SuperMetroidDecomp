@@ -10,9 +10,9 @@ namespace SuperMetroid.Core.Enemies.Evir;
 /// </summary>
 internal static class EvirAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<EvirProgram, EvirFrame, EvirCue> Programs { get; } = new(
-        new Dictionary<EvirProgram, AnimationProgramStep<EvirProgram, EvirFrame, EvirCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<EvirProgram, EvirFrame, EvirCue> Segments { get; } = new(
+        new Dictionary<EvirProgram, AnimationBeat<EvirFrame, EvirCue>[]>
     {
         [P.BodyFacingLeft] =
         [
@@ -22,7 +22,6 @@ internal static class EvirAnimations
             Show(3, 10),
             Show(4, 10),
             Show(5, 10),
-            GoTo(P.BodyFacingLeft),
         ],
         [P.ArmsFacingLeft] =
         [
@@ -43,7 +42,6 @@ internal static class EvirAnimations
             Show(8, 10),
             Show(9, 10),
             Show(10, 48),
-            GoTo(P.ArmsFacingLeft),
         ],
         [P.BodyFacingRight] =
         [
@@ -53,7 +51,6 @@ internal static class EvirAnimations
             Show(16, 10),
             Show(17, 10),
             Show(18, 10),
-            GoTo(P.BodyFacingRight),
         ],
         [P.ArmsFacingRight] =
         [
@@ -74,50 +71,42 @@ internal static class EvirAnimations
             Show(21, 10),
             Show(22, 10),
             Show(23, 48),
-            GoTo(P.ArmsFacingRight),
         ],
         [P.ProjectileNormal] =
         [
             Show(12, 1),
-            Hold,
         ],
         [P.ProjectileRegenerating] =
         [
             Cue(new(K.SetInitialRegenerationOffset)),
-            SetCounter(8),
             Cue(new(K.PlaySpitSound)),
-            FallInto(P.ProjectileRegenerationLoop),
         ],
         [P.ProjectileRegenerationLoop] =
         [
             Show(11, 8),
             Cue(new(K.AdvanceRegenerationOffset)),
-            RepeatWhileCounting(P.ProjectileRegenerationLoop),
             Show(12, 16),
             Cue(new(K.FinishRegeneration)),
-            Hold,
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<EvirProgram, Animation<EvirProgram>> StartingAt { get; } = new Dictionary<EvirProgram, Animation<EvirProgram>>
+    {
+        [P.BodyFacingLeft] = new([new(P.BodyFacingLeft, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ArmsFacingLeft] = new([new(P.ArmsFacingLeft, 0, 17, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.BodyFacingRight] = new([new(P.BodyFacingRight, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ArmsFacingRight] = new([new(P.ArmsFacingRight, 0, 17, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ProjectileNormal] = new([new(P.ProjectileNormal, 0, 1, 1)], AnimationEnd.Holds),
+        [P.ProjectileRegenerating] = new([new(P.ProjectileRegenerating, 0, 1, 1), new(P.ProjectileRegenerating, 1, 1, 1), new(P.ProjectileRegenerationLoop, 0, 2, 8), new(P.ProjectileRegenerationLoop, 2, 2, 1)], AnimationEnd.Holds),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<EvirProgram> StartingWith(EvirProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<EvirProgram, EvirFrame, EvirCue> Show(int pose, int duration) => AnimationProgramStep<EvirProgram, EvirFrame, EvirCue>.Show(new(pose), duration);
+    private static AnimationBeat<EvirFrame, EvirCue> Show(int pose, int duration) => new AnimationBeat<EvirFrame, EvirCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<EvirProgram, EvirFrame, EvirCue> Cue(EvirCue cue) => AnimationProgramStep<EvirProgram, EvirFrame, EvirCue>.Publish(cue);
-
-    /// <summary>Loads the loop counter with <paramref name="count"/>.</summary>
-    private static AnimationProgramStep<EvirProgram, EvirFrame, EvirCue> SetCounter(int count) => AnimationProgramStep<EvirProgram, EvirFrame, EvirCue>.SetCounter(count);
-
-    /// <summary>Repeats from <paramref name="program"/> while the loop counter counts down.</summary>
-    private static AnimationProgramStep<EvirProgram, EvirFrame, EvirCue> RepeatWhileCounting(EvirProgram program) => AnimationProgramStep<EvirProgram, EvirFrame, EvirCue>.RepeatWhileCounting(program);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<EvirProgram, EvirFrame, EvirCue> GoTo(EvirProgram program) => AnimationProgramStep<EvirProgram, EvirFrame, EvirCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<EvirProgram, EvirFrame, EvirCue> FallInto(EvirProgram program) => AnimationProgramStep<EvirProgram, EvirFrame, EvirCue>.FallInto(program);
-
-    /// <summary>Holds the last frame, as the sleep does.</summary>
-    private static AnimationProgramStep<EvirProgram, EvirFrame, EvirCue> Hold => AnimationProgramStep<EvirProgram, EvirFrame, EvirCue>.Hold;
-
+    private static AnimationBeat<EvirFrame, EvirCue> Cue(EvirCue cue) => new AnimationBeat<EvirFrame, EvirCue>.Event(cue);
 }

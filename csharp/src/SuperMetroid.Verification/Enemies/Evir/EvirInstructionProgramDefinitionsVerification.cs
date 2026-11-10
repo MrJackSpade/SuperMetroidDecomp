@@ -34,8 +34,8 @@ internal static class EvirInstructionProgramDefinitionsVerification
             var enemies = NewEvirInstructionSystem();
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             PrepareEvirInstructionSlot(slot, EnemyDefinitionId.Evir, loop);
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(EvirAnimations.Programs, loop, EvirFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(EvirAnimations.Programs, loop)),
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(EvirAnimations.Segments, loop, EvirFrameToolingDefinitions.Spritemap),
+                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(EvirAnimations.Segments, loop)),
                 $"Evir {loop} loop");
         }
 
@@ -46,9 +46,9 @@ internal static class EvirInstructionProgramDefinitionsVerification
             _ = EnemyInstructionRunner.ShownFrames(slot, 4);
             AssertEqual(EvirAnimationsConstants.Spritemaps(EvirProgram.ProjectileNormal).Single(), slot.SpritemapPointer,
                 "normal Evir projectile shows its flight pose");
-            AnimationProgramCursor<EvirProgram>? held = state.Program;
+            AnimationPlayback<EvirProgram>? held = state.Playback;
             _ = EnemyInstructionRunner.ShownFrames(slot, 4);
-            AssertEqual(held, state.Program, "normal Evir projectile holds its flight pose");
+            AssertEqual(held, state.Playback, "normal Evir projectile holds its flight pose");
         }
 
         {
@@ -115,7 +115,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
         {
             RequestedProgram = program,
             InstalledProgram = program,
-            Program = AnimationProgramCursor<EvirProgram>.Start(program),
+            Playback = new(EvirAnimations.StartingWith(program), AnimationPlace.StartOfAnimation),
         };
         slot.SetSpeciesState(state);
         return state;

@@ -8,7 +8,7 @@ internal static class EvirAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params EvirProgram[] programs) =>
-        programs.SelectMany(program => EvirAnimations.Programs.Steps(program))
-            .OfType<AnimationProgramStep<EvirProgram, EvirFrame, EvirCue>.ShowStep>()
-            .Select(step => EvirFrameToolingDefinitions.Spritemap(step.Frame));
+        programs.SelectMany(program => EvirAnimations.Segments.Beats(program))
+            .OfType<AnimationBeat<EvirFrame, EvirCue>.Frame>()
+            .Select(frame => EvirFrameToolingDefinitions.Spritemap(frame.Shown));
 }

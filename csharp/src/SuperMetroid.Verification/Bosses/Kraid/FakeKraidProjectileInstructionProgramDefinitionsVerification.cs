@@ -69,7 +69,7 @@ List:FakeKraidProjectileInstructionProgramDefinitionsConstants.SpikeRight),
 
         foreach (var testCase in cases)
         {
-            RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles.Single(
+            EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles.Single(
                 candidate => candidate.Kind == testCase.Kind);
             AssertTrue(projectile.Animation is FakeKraidProjectileAnimation animation && animation.Pose == testCase.Pose,
                 $"{testCase.Kind} plays its typed pose program");
@@ -104,7 +104,7 @@ List:FakeKraidProjectileInstructionProgramDefinitionsConstants.SpikeRight),
             "for the native duration, hold where the lists sleep, and delete on the shared shot reaction without " +
             "instruction ROM reads.");
 
-        void RunForcedTick(RoomEnemyProjectileSlot projectile)
+        void RunForcedTick(EnemyProjectile projectile)
         {
             projectile.FrameHold = WrappingCountdown.Start(1);
             enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), Position16<RoomPixels>.Zero);

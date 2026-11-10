@@ -110,7 +110,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         // Allocate in that order, then keep the links in root-to-mouth order.
         for (int parameter = 3; parameter >= 0; parameter--)
         {
-            RoomEnemyProjectileSlot? body = _projectiles.AllocateEnemyProjectile();
+            EnemyProjectile? body = _projectiles.AllocateEnemyProjectile();
             if (body is null)
             {
                 throw new InvalidDataException(
@@ -454,8 +454,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        foreach (RoomEnemyProjectileSlot? body in state.BodyProjectiles)
-            body?.Clear();
+        foreach (EnemyProjectile? body in state.BodyProjectiles)
+            body?.Delete();
         state.RootSpriteObject?.Clear();
         ReleaseSamusFromYappingMaw(state, samus);
     }
@@ -478,7 +478,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         PictureShading shading = SelectYappingMawFrozenShading(
             state.OriginalShading,
             slot.FrozenTimer);
-        foreach (RoomEnemyProjectileSlot? body in state.BodyProjectiles)
+        foreach (EnemyProjectile? body in state.BodyProjectiles)
         {
             if (body is not null)
                 body.Graphics = body.Graphics.In(shading);
@@ -524,7 +524,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         int index,
         Position16<RoomPixels> position)
     {
-        RoomEnemyProjectileSlot projectile = state.BodyProjectiles[index] ??
+        EnemyProjectile projectile = state.BodyProjectiles[index] ??
             throw new InvalidOperationException(
                 $"Yapping Maw slot {state.Owner.SlotIndex} lost body projectile {index}.");
         projectile.Position = projectile.Position.WithWhole(position);

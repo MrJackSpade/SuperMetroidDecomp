@@ -7,6 +7,6 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// <param name="Samus">Samus, for cues that act on her; null in fixtures without her.</param>
 /// <param name="Camera">The camera of the projectile pass, for cues that test the screen.</param>
 internal readonly record struct EnemyProjectileCueContext(
-    RoomEnemyProjectileSlot Projectile,
+    EnemyProjectile Projectile,
     SamusState? Samus,
     Position16<RoomPixels> Camera);

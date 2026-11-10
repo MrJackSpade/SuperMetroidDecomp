@@ -6,13 +6,11 @@ namespace SuperMetroid.Core.Compatibility;
 /// own and leaves the upper half of the countdown as it was; its tests describe the eight-bit count alone, so a count
 /// at 128 or more reads as negative whatever the upper half holds.
 /// <para>
-/// <b>Frame point.</b> Made by the owner's step: once per slow cinematic fade dispatch for the screen fade's delay, and
-/// once per afterburn spawned for the chain count of Ridley's fireball.
+/// <b>Frame point.</b> Made by the owner's step: once per slow cinematic fade dispatch for the screen fade's delay.
 /// </para>
 /// <para>
-/// <b>Evidence.</b> The original game counts these down as single bytes beside unrelated upper halves (the slow screen
-/// fade, Ridley's afterburn chain); the Ceres and intro cinematic fades and the Ridley full movie match the recording
-/// with the upper halves kept.
+/// <b>Evidence.</b> The original game counts the slow screen fade's delay down as a single byte beside an unrelated
+/// upper half; the Ceres and intro cinematic fades match the recording with the upper half kept.
 /// </para>
 /// </summary>
 /// <param name="Remaining">The countdown after the step: its eight-bit count one lower (wrapping 0 to 255), the rest unchanged.</param>

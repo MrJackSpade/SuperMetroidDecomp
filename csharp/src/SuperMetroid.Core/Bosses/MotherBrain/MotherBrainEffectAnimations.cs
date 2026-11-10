@@ -33,7 +33,7 @@ internal static class MotherBrainEffectAnimations
         ],
         [P.OnionRingHit] =
         [
-            Cue(new MotherBrainEffectCue.Command(K.UsePaletteZero)),
+            Cue(new MotherBrainEffectCue.Command(K.DrawFromSharedSheet)),
             Cue(new MotherBrainEffectCue.Command(K.ClearFrameBehavior)),
             Show(6, 5),
             Show(7, 5),

@@ -111,7 +111,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
             if (statue.DefinitionId == EnemyDefinitionId.TourianStatue)
                 statue.Shading = shading;
         }
-        foreach (RoomEnemyProjectileSlot projectile in _projectiles.EnemyProjectiles)
+        foreach (EnemyProjectile projectile in _projectiles.EnemyProjectiles)
         {
             if (TourianStatueProjectileStarts.ShowsStatueScene(projectile.Kind))
                 projectile.Graphics = projectile.Graphics.In(shading);
@@ -167,7 +167,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         RoomEnemyProjectileKind kind,
         Position16<RoomPixels> position)
     {
-        RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
 
@@ -178,7 +178,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     }
 
     /// <summary>Tracks the background statue's vertical displacement and publishes the base decoration's completion latch.</summary>
-    internal void PositionTourianEntranceStatueProjectile(RoomEnemyProjectileSlot projectile)
+    internal void PositionTourianEntranceStatueProjectile(EnemyProjectile projectile)
     {
         if (projectile.FrameBehavior == EnemyProjectileFrameBehavior.TourianStatueRevealFollow &&
             TourianEntranceStatueAnimation.AtRest)

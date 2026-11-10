@@ -358,7 +358,7 @@ internal sealed class DraygonParts
     /// <summary>Ports the two body instruction producers.</summary>
     internal void SpawnDraygonGoop(DraygonEnemyState state, bool movingRight)
     {
-        RoomEnemyProjectileSlot? goop = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? goop = _projectiles.AllocateEnemyProjectile();
         if (goop is null)
             return;
 
@@ -377,7 +377,7 @@ internal sealed class DraygonParts
 
     /// <summary>Launches a Draygon projectile along <paramref name="angle"/> at <paramref name="speed"/>.</summary>
     internal static void SetDraygonProjectileVelocity(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         TrigonometryAngle angle,
         int speed) =>
         projectile.State = AngledFlightState.Launch(angle, speed);

@@ -292,7 +292,7 @@ internal sealed class KraidRise
         RoomEnemyProjectileKind kind = KraidRandomDefinitions.RisingRockRight.IsSetIn(random)
             ? RoomEnemyProjectileKind.KraidRisingRockRight
             : RoomEnemyProjectileKind.KraidRisingRockLeft;
-        RoomEnemyProjectileSlot? rock = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? rock = _projectiles.AllocateEnemyProjectile();
         if (rock is null)
             return;
 

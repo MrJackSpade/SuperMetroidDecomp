@@ -24,10 +24,10 @@ internal static class NuclearWaffleProjectileBehaviorVerification
         owner.SetSpawnParameter2(EnemyDefinitionId.Puromi, 8192);
         owner.Position = owner.Position.WithWhole(new(384, 512));
         enemies.NuclearWaffleBehavior.InitializeNuclearWaffle(owner);
-        RoomEnemyProjectileSlot[] links = [.. (enemies.NuclearWaffleStates[0] ?? throw new InvalidOperationException("Verification requires the Nuclear Waffle's state."))
-            .ProjectileSegments.OfType<RoomEnemyProjectileSlot>()];
+        EnemyProjectile[] links = [.. (enemies.NuclearWaffleStates[0] ?? throw new InvalidOperationException("Verification requires the Nuclear Waffle's state."))
+            .ProjectileSegments.OfType<EnemyProjectile>()];
         AssertEqual(4, links.Length, "the initializer spawns four body links");
-        foreach (RoomEnemyProjectileSlot link in links)
+        foreach (EnemyProjectile link in links)
         {
             AssertTrue(link.Animation is NuclearWaffleProjectileAnimation { Cursor.Program: NuclearWaffleProjectileProgram.Initial }, "a body link starts its loop");
             (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, link,

@@ -121,8 +121,8 @@ public sealed class YappingMawEnemyState
     public PictureShading OriginalShading { get; internal set; } = PictureShading.Standard;
 
     /// <summary>The four physical body-link slots, ordered root to mouth.</summary>
-    public RoomEnemyProjectileSlot?[] BodyProjectiles { get; } =
-        new RoomEnemyProjectileSlot?[4];
+    public EnemyProjectile?[] BodyProjectiles { get; } =
+        new EnemyProjectile?[4];
 
     /// <summary>The root/base object selected by population parameter two.</summary>
     public RoomSpriteObjectSlot? RootSpriteObject { get; internal set; }

@@ -31,7 +31,7 @@ public enum SpriteSourceKind
     SamusProjectileTrail,
     /// <summary>An enemy, or one component of an extended enemy; the instance is its enemy slot.</summary>
     Enemy,
-    /// <summary>An enemy projectile; the instance is its enemy-projectile slot.</summary>
+    /// <summary>An enemy projectile; the instance is its enemy-projectile place.</summary>
     EnemyProjectile,
     /// <summary>A room sprite object (explosion, dust, splash); the instance is its sprite-object slot.</summary>
     RoomSpriteObject,

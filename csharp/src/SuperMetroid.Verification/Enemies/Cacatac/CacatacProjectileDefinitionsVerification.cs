@@ -24,8 +24,8 @@ internal static class CacatacProjectileDefinitionsVerification
 
         foreach (CacatacSpikeDirection direction in Enum.GetValues<CacatacSpikeDirection>())
         {
-            foreach (RoomEnemyProjectileSlot projectile in enemies.Projectiles.EnemyProjectiles)
-                projectile.Clear();
+            foreach (EnemyProjectile projectile in enemies.Projectiles.EnemyProjectiles)
+                projectile.Delete();
 
             ushort raw = CacatacNativeWords.SpikeDirections.Word(direction);
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(instructionTable + raw);
@@ -44,7 +44,7 @@ internal static class CacatacProjectileDefinitionsVerification
             AssertEqual(expectedPositive, speeds.Positive.RawValue, $"compiled Cacatac positive speed {direction}");
 
             spawn(source, direction);
-            RoomEnemyProjectileSlot actual = enemies.Projectiles.EnemyProjectiles.Single(
+            EnemyProjectile actual = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.CacatacSpike);
             AssertTrue(actual.Animation is CacatacProjectileAnimation { Cursor.Program: var spawned } &&
                     CacatacProjectileNativeListAddresses.Entry(spawned) == native,

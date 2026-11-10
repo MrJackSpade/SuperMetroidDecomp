@@ -42,7 +42,7 @@ internal static class KraidCeilingRockPositionsVerification
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         for (int index = 0; index < KraidCeilingRocks.Count; index++)
         {
-            foreach (var occupied in enemies.Projectiles.EnemyProjectiles) occupied.Clear();
+            foreach (var occupied in enemies.Projectiles.EnemyProjectiles) occupied.Delete();
             requests.Clear();
             state.CeilingRockSpawnCount = 0;
             body.Position = body.Position.WithWhole(new(128, (ushort)raw));

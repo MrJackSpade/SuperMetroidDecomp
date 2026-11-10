@@ -73,7 +73,7 @@ internal sealed class RidleyProjectiles
     /// <summary>Allocates Ridley's fireball at Ridley's facing-dependent muzzle with its calculated velocity and <paramref name="afterburns"/> afterburn stages.</summary>
     internal void SpawnRidleyFireball(RoomEnemySlot ridley, int afterburns)
     {
-        RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
 
@@ -91,7 +91,7 @@ internal sealed class RidleyProjectiles
     }
 
     /// <summary>Selects the damage row from Samus's current area, or Crateria for an unbound fixture.</summary>
-    private void ApplyRidleyProjectileAreaDamage(RoomEnemyProjectileSlot projectile)
+    private void ApplyRidleyProjectileAreaDamage(EnemyProjectile projectile)
     {
         // The enemy update binds live Samus before dispatch, including her current room
         // identity. Standalone fixtures without a room owner retain the default row.
@@ -102,7 +102,7 @@ internal sealed class RidleyProjectiles
     /// <summary>Allocates the dust enemy projectile with one authored dust variant.</summary>
     internal void SpawnRidleyDust(Position16<RoomPixels> position, MiscDustAnimation animation)
     {
-        RoomEnemyProjectileSlot? dust = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? dust = _projectiles.AllocateEnemyProjectile();
         if (dust is null)
             return;
 
@@ -120,7 +120,7 @@ internal sealed class RidleyProjectiles
         Position16<RoomPixels> position,
         int remaining)
     {
-        RoomEnemyProjectileSlot? center = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? center = _projectiles.AllocateEnemyProjectile();
         if (center is null)
             return;
         RidleyProjectileStarts.Initialize(center, kind, FireballGraphicsIndex);
@@ -131,7 +131,7 @@ internal sealed class RidleyProjectiles
     }
 
     /// <summary>Emits the left/right or up/down branches from an impact center.</summary>
-    internal void SpawnAfterburnPair(RoomEnemyProjectileSlot center, Axis axis)
+    internal void SpawnAfterburnPair(EnemyProjectile center, Axis axis)
     {
         if (axis == Axis.Horizontal)
         {
@@ -147,11 +147,11 @@ internal sealed class RidleyProjectiles
 
     /// <summary>Copies the impact position, damage, velocity, and remaining chain count into a directional branch.</summary>
     internal void SpawnDirectionalAfterburn(
-        RoomEnemyProjectileSlot source,
+        EnemyProjectile source,
         RoomEnemyProjectileKind kind,
         EightEightVector<RoomPixels> velocity)
     {
-        RoomEnemyProjectileSlot? afterburn = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? afterburn = _projectiles.AllocateEnemyProjectile();
         if (afterburn is null)
             return;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(afterburn, kind, FireballGraphicsIndex);
@@ -163,13 +163,16 @@ internal sealed class RidleyProjectiles
         afterburn.NextAfterburnKind = kind;
     }
 
-    /// <summary>Decrements the low-byte chain counter and repeats the branch while its sign bit remains clear.</summary>
-    internal void SpawnNextAfterburn(RoomEnemyProjectileSlot source)
+    /// <summary>
+    /// Continues the chain: an afterburn with afterburns left spends one and spawns the next, which carries on with the
+    /// rest; one with none left ends the chain. A chain of <c>n</c> therefore spawns <c>n</c> more after each of the
+    /// centre's pair.
+    /// </summary>
+    internal void SpawnNextAfterburn(EnemyProjectile source)
     {
-        LowHalfCountdownStep step = WrappingCounter.DecrementLowHalf(source.RemainingAfterburns);
-        source.RemainingAfterburns = step.Remaining.RemainingFrames;
-        if (step.IsNegative)
+        if (source.RemainingAfterburns == 0)
             return;
+        source.RemainingAfterburns--;
         SpawnDirectionalAfterburn(
             source,
             source.NextAfterburnKind,
@@ -177,7 +180,7 @@ internal sealed class RidleyProjectiles
     }
 
     /// <summary>Switches a collided branch to its final five-frame program without clearing its velocity or damage fields.</summary>
-    internal static void BeginAfterburnFinalAnimation(RoomEnemyProjectileSlot projectile)
+    internal static void BeginAfterburnFinalAnimation(EnemyProjectile projectile)
     {
         projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballProgram.AfterburnFinal));
         // The afterburns replace the list; its clear-frame-behaviour step stops motion.
@@ -197,7 +200,7 @@ internal sealed class RidleyProjectiles
             {
                 Position16<RoomPixels> impact = context.Projectile.Position.Whole;
                 int count = context.Projectile.RemainingAfterburns;
-                context.Projectile.Clear();
+                context.Projectile.Delete();
                 if (count != 0)
                 {
                     SpawnAfterburnCenter(
@@ -234,7 +237,7 @@ internal sealed class RidleyProjectiles
     {
         table.AddCue<RidleyFireballCue>((context, cue) =>
         {
-            RoomEnemyProjectileSlot projectile = context.Projectile;
+            EnemyProjectile projectile = context.Projectile;
             switch (cue)
             {
                 case RidleyFireballCue.ClearFrameBehavior:
@@ -253,7 +256,7 @@ internal sealed class RidleyProjectiles
                     SpawnNextAfterburn(projectile);
                     return;
                 case RidleyFireballCue.Delete:
-                    projectile.Clear();
+                    projectile.Delete();
                     return;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(RidleyFireballCue)} {cue}.");

@@ -425,18 +425,19 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         WorkRobotLaser definition,
         Position16<RoomPixels> camera)
     {
-        RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
 
-        // The enemy-projectile spawn installs the complete seven-word
-        // definition before entering the family initializer. Keeping that division here is
-        // important: the five records do not share radii or damage, and the common helper
-        // also supplies the pre-draw map sentinel and all three property bits.
+        // The enemy-projectile spawn installs the complete definition before the family's own setup. Keeping that
+        // division here is important: the five lasers do not share radii or damage, and the common helper also
+        // supplies the blank first frame and all three contact properties. The laser's pictures carry their own
+        // colours, so it draws from the room's shared sheet in its standard colours: no picture of it shows before its
+        // first pass, so the robot's graphics its spawn briefly held never draw.
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             definition.ProjectileKind(),
-            SpriteGraphics.SpawnedBy(robot));
+            SpriteGraphics.SharedStandard);
         projectile.Velocity = projectile.Velocity.WithX(state.LaserVelocity.X);
         projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromSignedRaw(definition switch
         {
@@ -449,17 +450,9 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         }));
 
         // All five initializers place the muzzle four pixels in the signed facing direction
-        // and sixteen pixels above the robot. The temporary graphics word comes from the
-        // owner; the laser's frame behaviour clears it before the first draw, matching the game's
-        // use of palette/tile bits embedded directly in the laser spritemaps.
+        // and sixteen pixels above the robot.
         projectile.Position = new(new(CoordinateAxis.Wrap(robot.Position.X.Whole +
             (state.LaserVelocity.X.IsNegative ? -4 : 4)), 0), new(CoordinateAxis.Wrap(robot.Position.Y.Whole - 16), 0));
-        // The down-left/right initializer clears the graphics word itself.
-        // Upward and horizontal variants retain the owner's word until common
-        // frame behaviour clears it on their first projectile pass.
-        if (definition is
-            WorkRobotLaser.DownLeft or WorkRobotLaser.DownRight)
-            projectile.Graphics = default;
 
         // Preserve the original laser viewport bug. Its final Y comparison omits
         // the camera's Y, so lasers only request sound while their owner's absolute
@@ -476,14 +469,13 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the laser's per-frame behaviour: X collision, then Y collision, else move.</summary>
     internal static void RunWorkRobotLaserFrameBehavior(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         RoomLevelData level)
     {
-        projectile.Graphics = default;
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal) ||
             EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical))
         {
-            projectile.Clear();
+            projectile.Delete();
         }
     }
 }

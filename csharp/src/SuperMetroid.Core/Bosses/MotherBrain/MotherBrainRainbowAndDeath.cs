@@ -382,7 +382,7 @@ internal sealed class MotherBrainRainbowAndDeath
         Position16<RoomPixels> samusBeforeMovement,
         MotherBrainRainbowExplosionRequest request)
     {
-        RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
 
@@ -392,7 +392,6 @@ internal sealed class MotherBrainRainbowAndDeath
             graphics: default);
         projectile.State = new MotherBrainFollowingExplosionState(request.Offset);
         projectile.Velocity = FollowingExplosionLeftVelocity.Of(request.Offset);
-        projectile.Graphics = default;
         projectile.Position = projectile.Position.WithWhole(samusBeforeMovement + request.Offset);
     }
 

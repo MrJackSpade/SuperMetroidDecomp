@@ -30,7 +30,7 @@ internal static class CeresFallingDebrisAnimationsVerification
             var guard = new MutableCartridgeReadGuard(rom);
             guard.Forbid(address => address is >= ListsStart and < ListsEnd,
                 address => $"Production read a native Ceres falling tile list at ${address:X6}.");
-            RoomEnemyProjectileSlot tile = enemies.Projectiles.EnemyProjectiles[^1];
+            EnemyProjectile tile = enemies.Projectiles.EnemyProjectiles[^1];
             tile.Kind = kind;
             tile.StartAnimation(new CeresFallingDebrisAnimation(program));
             (bool deleted, int compared) = NativeEnemyProjectileParity.Compare(cartridge, enemies, tile, entry, 16, $"Ceres falling tile {program}");

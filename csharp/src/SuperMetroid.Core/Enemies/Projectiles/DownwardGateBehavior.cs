@@ -55,7 +55,7 @@ internal sealed class DownwardGateBehavior
             _ => throw new InvalidDataException($"Downward gate requested undefined projectile {request.Kind}."),
         };
 
-        RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return; // The projectile spawn's deliberate finite-pool failure.
 
@@ -76,10 +76,10 @@ internal sealed class DownwardGateBehavior
     /// <summary>Finds the matching gate actor from the pool's end and advances its sleeping instruction.</summary>
     private void WakeDownwardGateProjectile(int roomObjectBlockIndex)
     {
-        RoomEnemyProjectileSlot? projectile = null;
+        EnemyProjectile? projectile = null;
         for (int index = _projectiles.EnemyProjectiles.Count - 1; index >= 0; index--)
         {
-            RoomEnemyProjectileSlot candidate = _projectiles.EnemyProjectiles[index];
+            EnemyProjectile candidate = _projectiles.EnemyProjectiles[index];
             if (candidate.IsActive &&
                 candidate.Kind is (RoomEnemyProjectileKind.DownwardGateMoving or
                     RoomEnemyProjectileKind.DownwardGateClosed) &&
@@ -99,7 +99,7 @@ internal sealed class DownwardGateBehavior
     }
 
     /// <summary>Moves the gate one block at a time with signed 8.8 motion.</summary>
-    internal static void RunDownwardGateProjectileMovement(RoomEnemyProjectileSlot projectile)
+    internal static void RunDownwardGateProjectileMovement(EnemyProjectile projectile)
     {
         DownwardGateState gate = projectile.StateOf<DownwardGateState>();
         int speedMagnitude = Math.Abs(projectile.Velocity.Y.SignedRawValue);
@@ -119,7 +119,7 @@ internal sealed class DownwardGateBehavior
     /// Steps a gate past the sleep its program holds, as the two-byte list advance with a one-update timer
     /// does: the program resumes with the one authored after that sleep.
     /// </summary>
-    private static void ResumeDownwardGate(RoomEnemyProjectileSlot projectile)
+    private static void ResumeDownwardGate(EnemyProjectile projectile)
     {
         DownwardGateProjectileProgram sleeping = projectile.Animation is DownwardGateProjectileAnimation gate
             ? gate.Cursor.Program
@@ -128,7 +128,7 @@ internal sealed class DownwardGateBehavior
     }
 
     /// <summary>Carries out one cue of the gate's programs.</summary>
-    private static void ApplyDownwardGateCue(RoomEnemyProjectileSlot projectile, DownwardGateProjectileCue cue)
+    private static void ApplyDownwardGateCue(EnemyProjectile projectile, DownwardGateProjectileCue cue)
     {
         switch (cue)
         {
@@ -142,7 +142,7 @@ internal sealed class DownwardGateBehavior
                 projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
                 break;
             case DownwardGateProjectileCue.Command { Kind: DownwardGateProjectileCueKind.Delete }:
-                projectile.Clear();
+                projectile.Delete();
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(DownwardGateProjectileCueKind)} {cue}.");

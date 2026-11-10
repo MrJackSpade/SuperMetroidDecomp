@@ -74,13 +74,4 @@ public static class WrappingCounter
     /// <param name="limit">The count it is compared with, 0 through 65535.</param>
     public static bool IsBehind(int value, int limit) =>
         unchecked((short)(Ensure.BetweenInclusive(0, ushort.MaxValue, value) - Ensure.BetweenInclusive(0, ushort.MaxValue, limit))) < 0;
-
-    /// <summary>
-    /// Takes one away from the eight-bit count kept in the lower half of <paramref name="value"/>, 0 through 65535: the
-    /// eight-bit count wraps from 0 to 255 and the upper half is kept unchanged. The step's tests describe the eight-bit
-    /// count alone.
-    /// </summary>
-    /// <param name="value">The value holding the count, 0 through 65535.</param>
-    public static LowHalfCountdownStep DecrementLowHalf(int value) =>
-        WrappingCountdown.FromRaw(value).DecrementEightBitCount();
 }

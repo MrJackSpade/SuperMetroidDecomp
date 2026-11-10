@@ -75,7 +75,7 @@ internal sealed class TourianUnlockBehavior
     }
 
     /// <summary>Allocates an unlock effect at a statue's <paramref name="eye"/>; null when every slot is busy.</summary>
-    private RoomEnemyProjectileSlot? SpawnAtStatueEye(RoomEnemyProjectileKind kind, TourianStatueEye eye)
+    private EnemyProjectile? SpawnAtStatueEye(RoomEnemyProjectileKind kind, TourianStatueEye eye)
     {
         Ensure.NotNull(eye);
         var projectile = _projectiles.AllocateEnemyProjectile();
@@ -86,7 +86,7 @@ internal sealed class TourianUnlockBehavior
     }
 
     /// <summary>Spawns a splash, particle, or tail at its parent, applying water height or randomized motion.</summary>
-    internal void SpawnTourianParticleChild(RoomEnemyProjectileSlot parent, RoomEnemyProjectileKind kind)
+    internal void SpawnTourianParticleChild(EnemyProjectile parent, RoomEnemyProjectileKind kind)
     {
         if (kind is not (RoomEnemyProjectileKind.TourianStatueSplash or RoomEnemyProjectileKind.TourianStatueParticle or
                 RoomEnemyProjectileKind.TourianStatueTail))
@@ -106,11 +106,11 @@ internal sealed class TourianUnlockBehavior
     }
 
     /// <summary>Holds a splash at the water surface.</summary>
-    private void HoldTourianStatueSplash(RoomEnemyProjectileSlot projectile) =>
+    private void HoldTourianStatueSplash(EnemyProjectile projectile) =>
         projectile.Position = projectile.Position.WithWholeY((TourianStatueWaterSurface + SplashAboveSurface).Y);
 
     /// <summary>Raises a soul, accelerating upward, and deletes it once it leaves the room.</summary>
-    internal static void RaiseTourianStatueSoul(RoomEnemyProjectileSlot projectile)
+    internal static void RaiseTourianStatueSoul(EnemyProjectile projectile)
     {
         projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
         // The soul is deleted while its Y lies in an odd 256-pixel screen row. Rising from the statues'
@@ -124,7 +124,7 @@ internal sealed class TourianUnlockBehavior
     }
 
     /// <summary>Drops a particle under gravity, splashing as it crosses the water surface and deleting it below the room.</summary>
-    private void DropTourianStatueParticle(RoomEnemyProjectileSlot projectile)
+    private void DropTourianStatueParticle(EnemyProjectile projectile)
     {
         // A splash marks the update the particle crosses the surface in either direction: the wrapped
         // signed distance from the particle down to the surface changes sign.
@@ -148,11 +148,11 @@ internal sealed class TourianUnlockBehavior
         table.AddFrameBehavior(context => RaiseTourianStatueSoul(context.Projectile), EnemyProjectileFrameBehavior.TourianStatueSoulMotion);
         table.AddCue<TourianStatueProjectileCue>((context, cue) =>
         {
-            RoomEnemyProjectileSlot projectile = context.Projectile;
+            EnemyProjectile projectile = context.Projectile;
             switch (cue)
             {
                 case TourianStatueProjectileCue.Command { Kind: TourianStatueProjectileCueKind.Delete }:
-                    projectile.Clear();
+                    projectile.Delete();
                     break;
                 case TourianStatueProjectileCue.Command { Kind: TourianStatueProjectileCueKind.PlayReleaseSound }:
                     _audio.QueueEnemySound(EnemySound.TourianStatueParticle, priority: SoundRequestPriority.Normal);

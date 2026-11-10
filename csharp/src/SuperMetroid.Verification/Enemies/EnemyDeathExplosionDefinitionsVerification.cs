@@ -34,7 +34,7 @@ internal static class EnemyDeathExplosionDefinitionsVerification
             enemy.Position = enemy.Position.WithWhole(new(unchecked((ushort)(0xfff0 + animation)), unchecked((ushort)(0x0100 + animation))));
 
             enemies.DeathsAndDrops.StartGenericEnemyDeath(enemy, explosion);
-            RoomEnemyProjectileSlot dying =
+            EnemyProjectile dying =
                 enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
             AssertEqual(RoomEnemyProjectileKind.EnemyDeathExplosion, dying.Kind,
                 $"production enemy death explosion kind {animation}");

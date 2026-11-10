@@ -253,14 +253,14 @@ internal static class NoobTubeObjectVerification
         AssertEqual(17, enemies.ActiveEnemyProjectileCount,
             "complete n00b-tube burst fits the native eighteen-slot projectile pool");
 
-        RoomEnemyProjectileSlot crack = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
+        EnemyProjectile crack = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.NoobTubeCrack);
         AssertEqual(0x0080, crack.Position.X.Whole,
             "crack initializer uses PLM X plus six blocks");
         AssertEqual(0x0050, crack.Position.Y.Whole,
             "crack initializer uses PLM Y plus three blocks");
 
-        RoomEnemyProjectileSlot firstShard = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
+        EnemyProjectile firstShard = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.NoobTubeShard &&
             projectile.Animation is NoobTubeProjectileAnimation { Cursor.Program: NoobTubeProjectileProgram.Shard0 });
         AssertEqual(0x0048, firstShard.StateOf<NoobTubeDebrisState>().X.Whole,
@@ -272,7 +272,7 @@ internal static class NoobTubeObjectVerification
         AssertEqual(0x0140, firstShard.Velocity.Y.RawValue,
             "first shard retains positive 8.8 Y velocity");
 
-        RoomEnemyProjectileSlot lastShard = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
+        EnemyProjectile lastShard = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.NoobTubeShard &&
             projectile.Animation is NoobTubeProjectileAnimation { Cursor.Program: NoobTubeProjectileProgram.Shard9 });
         AssertEqual(0x0078, lastShard.StateOf<NoobTubeDebrisState>().X.Whole,
@@ -284,7 +284,7 @@ internal static class NoobTubeObjectVerification
         AssertEqual(0x0180, lastShard.Velocity.Y.RawValue,
             "last shard uses final signed Y velocity");
 
-        RoomEnemyProjectileSlot firstBubble = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
+        EnemyProjectile firstBubble = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.NoobTubeReleasedAirBubble &&
             projectile.StateOf<NoobTubeDebrisState>().X.Whole == 0x0048);
         AssertEqual(0x0070, firstBubble.Position.Y.Whole,
@@ -292,7 +292,7 @@ internal static class NoobTubeObjectVerification
         AssertEqual(NoobTubeDebrisDefinitions.BubbleInitialYVelocity.RawValue,
             firstBubble.Velocity.Y.RawValue, "first bubble starts with cartridge upward velocity");
 
-        RoomEnemyProjectileSlot lastBubble = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
+        EnemyProjectile lastBubble = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.NoobTubeReleasedAirBubble &&
             projectile.StateOf<NoobTubeDebrisState>().X.Whole == 0x00d8);
         AssertEqual(0x0074, lastBubble.Position.Y.Whole,

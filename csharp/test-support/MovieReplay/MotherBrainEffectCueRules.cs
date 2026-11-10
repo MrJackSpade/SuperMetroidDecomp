@@ -17,7 +17,7 @@ internal static class MotherBrainEffectCueRules
             VerificationAssertions.AssertEqual(cue.FrameBehavior, EnemyProjectileFrameBehaviorAccess.FromWord(LittleEndianBytes.Word(operands[0], operands[1])), $"{at}: pre-instruction")),
         [NativeEnemyProjectileInstruction.XYRadiusInY] = NativeCueCommand<MotherBrainEffectCue>.Of<MotherBrainEffectCue.SetRadius>(2, (operands, cue, at) =>
             VerificationAssertions.AssertEqual(new Extent16<RoomPixels>(operands[0], operands[1]), cue.Radius, $"{at}: X and Y radii")),
-        [NativeEnemyProjectileInstruction.UsePalette0_Duplicate] = NativeCueCommand<MotherBrainEffectCue>.Exactly(new MotherBrainEffectCue.Command(MotherBrainEffectCueKind.UsePaletteZero)),
+        [NativeEnemyProjectileInstruction.UsePalette0_Duplicate] = NativeCueCommand<MotherBrainEffectCue>.Exactly(new MotherBrainEffectCue.Command(MotherBrainEffectCueKind.DrawFromSharedSheet)),
         [NativeEnemyProjectileInstruction.MotherBrainsDrool_MoveDownCPixels] = NativeCueCommand<MotherBrainEffectCue>.Exactly(new MotherBrainEffectCue.Command(MotherBrainEffectCueKind.DropDrool)),
         [NativeEnemyProjectileInstruction.MotherBrainPurpleBreath_Inactive] = NativeCueCommand<MotherBrainEffectCue>.Exactly(new MotherBrainEffectCue.Command(MotherBrainEffectCueKind.EndSmallPurpleBreath)),
     };

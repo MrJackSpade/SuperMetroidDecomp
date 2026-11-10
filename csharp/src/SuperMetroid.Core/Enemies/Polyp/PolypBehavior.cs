@@ -154,7 +154,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         int initialYSpeed,
         SignedEightEight xVelocity)
     {
-        RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
 
@@ -171,7 +171,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the rock's per-frame behaviour and its rising/falling dispatcher.</summary>
     internal static void RunPolypRockFrameBehavior(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         Position16<RoomPixels> camera)
     {
         PolypRockFunction phase = projectile.StateOf<PolypRockState>().Phase;
@@ -192,7 +192,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Integrates two upward quadratic samples unless the apex consumes this frame.</summary>
-    private static void StepRisingPolypRock(RoomEnemyProjectileSlot projectile)
+    private static void StepRisingPolypRock(EnemyProjectile projectile)
     {
         PolypRockState rock = projectile.StateOf<PolypRockState>();
         rock.SpeedIndex -= PolypRockGravityStep;
@@ -214,7 +214,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Clamps downward speed and integrates two positive quadratic samples per frame.</summary>
-    private static void StepFallingPolypRock(RoomEnemyProjectileSlot projectile)
+    private static void StepFallingPolypRock(EnemyProjectile projectile)
     {
         PolypRockState rock = projectile.StateOf<PolypRockState>();
         rock.SpeedIndex += PolypRockGravityStep;
@@ -231,7 +231,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     /// whole pixels.
     /// </summary>
     internal static void AddPolypRockQuadraticStep(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         int tableIndex,
         EnemySpeedSign sign)
     {
@@ -241,7 +241,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Moves the rock with the game's split signed-8.8 horizontal addition.</summary>
-    private static void MovePolypRockHorizontally(RoomEnemyProjectileSlot projectile)
+    private static void MovePolypRockHorizontally(EnemyProjectile projectile)
     {
         projectile.Position = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta());
     }

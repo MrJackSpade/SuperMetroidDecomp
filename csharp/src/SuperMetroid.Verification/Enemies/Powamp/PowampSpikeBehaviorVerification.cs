@@ -27,11 +27,11 @@ internal static class PowampSpikeBehaviorVerification
             Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,
         };
         int? lastSpikePlace = enemies.PowampBehavior.SpawnPowampSpikeBurst(body);
-        RoomEnemyProjectileSlot[] spikes = [.. enemies.Projectiles.EnemyProjectiles.Where(projectile => projectile.Kind == RoomEnemyProjectileKind.PowampSpike)];
+        EnemyProjectile[] spikes = [.. enemies.Projectiles.EnemyProjectiles.Where(projectile => projectile.Kind == RoomEnemyProjectileKind.PowampSpike)];
         AssertEqual(8, spikes.Length, "a burst spawns all eight spikes");
         // Spawning searches the pool from its last place down, so the eighth spike takes the lowest of the eight places.
-        AssertEqual<int?>(spikes.Min(spike => spike.SlotIndex), lastSpikePlace, "the burst reports the place of the last spike it fired");
-        foreach (RoomEnemyProjectileSlot spike in spikes)
+        AssertEqual<int?>(spikes.Min(spike => spike.Place), lastSpikePlace, "the burst reports the place of the last spike it fired");
+        foreach (EnemyProjectile spike in spikes)
         {
             AssertEqual(PowampSpikeProgram.Initial, ProgramOf(spike), $"spike {spike.StateOf<PowampSpikeState>().Direction} starts its looping program");
             (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, spike, Entry(PowampSpikeProgram.Initial), 40,
@@ -53,7 +53,7 @@ internal static class PowampSpikeBehaviorVerification
         NativeEnemyProjectileProgramOracle.EntryOf(PowampSpikeNativeListAddresses.Entries, program);
 
     /// <summary>The typed program <paramref name="projectile"/> runs.</summary>
-    private static PowampSpikeProgram ProgramOf(RoomEnemyProjectileSlot projectile) =>
+    private static PowampSpikeProgram ProgramOf(EnemyProjectile projectile) =>
         projectile.Animation is PowampSpikeAnimation animation ? animation.Cursor.Program
             : throw new InvalidOperationException("The spike runs no typed program.");
 

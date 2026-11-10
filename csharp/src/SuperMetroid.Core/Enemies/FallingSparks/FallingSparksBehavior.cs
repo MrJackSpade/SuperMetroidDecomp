@@ -27,7 +27,7 @@ internal sealed class FallingSparksBehavior
     /// <summary>Allocates and initializes a falling spark projectile.</summary>
     internal void SpawnFallingSpark(RoomEnemySlot source)
     {
-        RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
 
@@ -64,7 +64,7 @@ internal sealed class FallingSparksBehavior
 
     /// <summary>Runs the falling spark's per-frame behaviour.</summary>
     internal void RunFallingSparkFrameBehavior(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         RoomLevelData level,
         int frameCycle)
     {
@@ -102,19 +102,19 @@ internal sealed class FallingSparksBehavior
 
     /// <summary>Adds the spark's vertical speed to its position with fractional carry.</summary>
     private static void AddFallingSparkVerticalVelocity(
-        RoomEnemyProjectileSlot projectile) =>
+        EnemyProjectile projectile) =>
         projectile.Position = projectile.Position.AdvanceY(projectile.StateOf<FallingSparkState>().VerticalSpeed);
 
     /// <summary>Adds the spark's horizontal drift with fractional carry.</summary>
     internal static void AddFallingSparkHorizontalVelocity(
-        RoomEnemyProjectileSlot projectile) =>
+        EnemyProjectile projectile) =>
         projectile.Position = projectile.Position.AdvanceX(projectile.StateOf<FallingSparkState>().HorizontalStep);
 
     /// <summary>
     /// Switches a falling spark to its floor-impact program and scales its stored
     /// horizontal delta by four with carry propagation.
     /// </summary>
-    internal static void BeginFallingSparkFloorImpact(RoomEnemyProjectileSlot projectile)
+    internal static void BeginFallingSparkFloorImpact(EnemyProjectile projectile)
     {
         projectile.StartAnimation(new FallingSparkAnimation(FallingSparkProgram.HitFloor));
 
@@ -130,7 +130,7 @@ internal sealed class FallingSparksBehavior
     }
 
     /// <summary>Spawns a trail object at the spark's current whole-pixel position.</summary>
-    private void SpawnFallingSparkTrail(RoomEnemyProjectileSlot projectile)
+    private void SpawnFallingSparkTrail(EnemyProjectile projectile)
     {
         _ = _spriteObjects.SpawnRoomSpriteObject(
             projectile.Position.Whole,

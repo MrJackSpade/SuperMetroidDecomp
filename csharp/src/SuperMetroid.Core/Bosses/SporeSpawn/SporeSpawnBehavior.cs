@@ -312,7 +312,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         // its four initializer calls allocated them in reverse order.
         for (int segment = 0; segment < positions.Length; segment++)
         {
-            RoomEnemyProjectileSlot stalk = _projectiles.EnemyProjectiles[14 + segment];
+            EnemyProjectile stalk = _projectiles.EnemyProjectiles[14 + segment];
             if (axis == Axis.Horizontal)
                 stalk.Position = stalk.Position.WithWholeX(positions[segment]);
             else
@@ -356,7 +356,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileProgram.Stalk));
         table.AddCue<SporeSpawnProjectileCue>((context, cue) =>
         {
-            RoomEnemyProjectileSlot projectile = context.Projectile;
+            EnemyProjectile projectile = context.Projectile;
             switch (cue)
             {
                 case SporeSpawnProjectileCue.SpawnSpore:
@@ -372,7 +372,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                     RequestSporeSpawnSporeDrop(projectile);
                     return;
                 case SporeSpawnProjectileCue.Delete:
-                    projectile.Clear();
+                    projectile.Delete();
                     return;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(SporeSpawnProjectileCue)} {cue}.");
@@ -531,7 +531,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         // The clear walks the projectile slots downward from 13 to 0.
         // Slots 14..17 are the stalk and deliberately survive for the death animation.
         for (int projectileSlot = 0; projectileSlot <= 13; projectileSlot++)
-            _projectiles.EnemyProjectiles[projectileSlot].Clear();
+            _projectiles.EnemyProjectiles[projectileSlot].Delete();
 
         state.BodyProgram = AnimationProgramCursor<SporeSpawnBodyProgram>.Start(SporeSpawnBodyProgram.Death);
         body.FrameHold = WrappingCountdown.Start(1);
@@ -654,7 +654,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (spawnArgument is < 0 or > 3)
             throw new ArgumentOutOfRangeException(nameof(spawnArgument));
-        RoomEnemyProjectileSlot? stalk = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? stalk = _projectiles.AllocateEnemyProjectile();
         if (stalk is null)
             return;
 
@@ -674,7 +674,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (spawnArgument is < 0 or > 3)
             throw new ArgumentOutOfRangeException(nameof(spawnArgument));
-        RoomEnemyProjectileSlot? spawner = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? spawner = _projectiles.AllocateEnemyProjectile();
         if (spawner is null)
             return;
 
@@ -691,7 +691,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Spawns one spore projectile and runs its initializer.</summary>
     internal void SpawnSporeSpawnSpore(Position16<RoomPixels> position)
     {
-        RoomEnemyProjectileSlot? spore = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? spore = _projectiles.AllocateEnemyProjectile();
         if (spore is null)
             return;
 
@@ -708,7 +708,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs a spore's per-frame drift.</summary>
-    internal static void RunSporeSpawnSporeFrameBehavior(RoomEnemyProjectileSlot spore)
+    internal static void RunSporeSpawnSporeFrameBehavior(EnemyProjectile spore)
     {
         SporeSpawnSporeState drift = spore.StateOf<SporeSpawnSporeState>();
         Offset16<RoomPixels> movement = SporeSpawnProjectiles.DriftAt(drift.PathStep);
@@ -720,13 +720,13 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         int yDelta = movement.Y;
         spore.Position = spore.Position.WithWrappedWholeY(spore.Position.Y.Whole + yDelta + yDelta);
         if (CoordinateAxis.Difference(spore.Position.Y.Whole, 768) >= 0)
-            spore.Clear();
+            spore.Delete();
 
         drift.AdvancePath();
     }
 
     /// <summary>Runs a spore emitter's per-frame behaviour.</summary>
-    internal void RunSporeSpawnSpawnerFrameBehavior(RoomEnemyProjectileSlot spawner)
+    internal void RunSporeSpawnSpawnerFrameBehavior(EnemyProjectile spawner)
     {
         SporeSpawnEnemyState state = SporeSpawn ?? throw new InvalidOperationException(
             "A Spore Spawn ceiling emitter survived without its owning boss state.");
@@ -743,7 +743,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the spore's impact step, which replaces its whole property set.</summary>
-    internal static void SetSporeSpawnImpactProperties(RoomEnemyProjectileSlot spore)
+    internal static void SetSporeSpawnImpactProperties(EnemyProjectile spore)
     {
         if (spore.Kind != RoomEnemyProjectileKind.SporeSpawnSpore)
         {
@@ -761,7 +761,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the spore's drop-request step.</summary>
-    internal void RequestSporeSpawnSporeDrop(RoomEnemyProjectileSlot spore)
+    internal void RequestSporeSpawnSporeDrop(EnemyProjectile spore)
     {
         if (spore.Kind != RoomEnemyProjectileKind.SporeSpawnSpore)
         {

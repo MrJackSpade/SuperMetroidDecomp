@@ -45,7 +45,7 @@ internal static class KagoBugProjectileAnimations
         ],
         [P.Shot] =
         [
-            Cue(new(K.UsePaletteZero)),
+            Cue(new(K.DrawFromSharedSheet)),
             Show(6, 4),
             Show(7, 4),
             Show(8, 4),

@@ -554,13 +554,13 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     }
     /// <summary>Runs the front circle's per-frame behaviour.</summary>
     internal static void RunShaktoolFrontCircleFrameBehavior(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         RoomLevelData level)
     {
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal) ||
             EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical))
         {
-            projectile.Clear();
+            projectile.Delete();
         }
     }
 
@@ -572,12 +572,12 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the middle and back linked circles' per-frame behaviour.</summary>
     internal void RunShaktoolLinkedCircleFrameBehavior(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         RoomLevelData level)
     {
         if (!_projectiles.EnemyProjectiles[LinkedCircleOwnerSlot].IsActive)
         {
-            projectile.Clear();
+            projectile.Delete();
             return;
         }
 

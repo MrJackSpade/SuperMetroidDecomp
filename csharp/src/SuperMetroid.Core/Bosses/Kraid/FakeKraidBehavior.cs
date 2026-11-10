@@ -254,7 +254,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         int xOffset,
         EightEightVector<RoomPixels> velocity)
     {
-        RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return false;
 
@@ -279,7 +279,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileKind kind = state.FacingDelta < 0
             ? RoomEnemyProjectileKind.FakeKraidSpikeLeft
             : RoomEnemyProjectileKind.FakeKraidSpikeRight;
-        RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return false;
 
@@ -303,13 +303,13 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs Mini-Kraid's spit per frame.</summary>
     internal static void RunFakeKraidSpitFrameBehavior(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         RoomLevelData level)
     {
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal) ||
             EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical))
         {
-            projectile.Clear();
+            projectile.Delete();
             return;
         }
 
@@ -323,11 +323,11 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs Mini-Kraid's body spikes per frame.</summary>
     internal static void RunFakeKraidSpikeFrameBehavior(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         RoomLevelData level)
     {
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
-            projectile.Clear();
+            projectile.Delete();
     }
 
     /// <summary>Samples the room random word without advancing it for the action choice.</summary>

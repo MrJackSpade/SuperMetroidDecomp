@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 internal static class FamilyProjectileStarts
 {
     /// <summary>Initializes <paramref name="projectile"/> as its kind's production spawner does.</summary>
-    internal static void Initialize(RoomEnemyProjectileSlot projectile, RoomEnemyProjectileKind kind, SpriteGraphics graphics)
+    internal static void Initialize(EnemyProjectile projectile, RoomEnemyProjectileKind kind, SpriteGraphics graphics)
     {
         if (TourianStatueProjectileStarts.ForKind(kind) is not null)
             TourianStatueProjectileStarts.Initialize(projectile, kind, graphics);

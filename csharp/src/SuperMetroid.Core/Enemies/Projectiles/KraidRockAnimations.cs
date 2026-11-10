@@ -23,7 +23,7 @@ internal static class KraidRockAnimations
             [KraidRockProgram.RisingRightPose] = [Step.Show(new(KraidRockProgram.RisingRightPose, 0), StillFrameDuration), Step.Hold],
             [KraidRockProgram.SpitRockShot] =
             [
-                Step.Publish(KraidRockCue.UsePaletteZero),
+                Step.Publish(KraidRockCue.DrawFromSharedSheetFromNextPass),
                 .. Enumerable.Range(0, ShotPhaseCount)
                     .Select(phase => Step.Show(new(KraidRockProgram.SpitRockShot, phase), 4)),
                 Step.Publish(KraidRockCue.Delete),

@@ -63,7 +63,7 @@ internal static class EyeDoorObjectsVerification
                 Door: SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(5)),
             roomWidthInBlocks: 16,
             system);
-        RoomEnemyProjectileSlot attack = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
+        EnemyProjectile attack = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.EyeDoorProjectile);
         AssertEqual((ushort)104, attack.Position.X.Whole,
             "eye-door attack initializer applies cartridge PLM X offset");
@@ -91,7 +91,7 @@ internal static class EyeDoorObjectsVerification
                 Door: SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(5)),
             roomWidthInBlocks: 16,
             system);
-        RoomEnemyProjectileSlot sweat = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
+        EnemyProjectile sweat = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.EyeDoorSweat);
         AssertEqual((ushort)64, sweat.Velocity.X.RawValue,
             "a right-facing eye launches its sweat with positive cartridge X velocity");
@@ -106,7 +106,7 @@ internal static class EyeDoorObjectsVerification
                 Door: SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(5)),
             roomWidthInBlocks: 16,
             system);
-        RoomEnemyProjectileSlot smoke = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
+        EnemyProjectile smoke = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.EyeDoorSmoke);
         AssertTrue(smoke.Animation is MiscDustProjectileAnimation { Cursor.Program: var smokeProgram } &&
                 smokeProgram == MiscDustProjectiles.Program(MiscDustAnimation.CorpseDustCloud),

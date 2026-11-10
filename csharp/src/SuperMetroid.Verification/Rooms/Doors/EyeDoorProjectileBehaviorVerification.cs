@@ -29,7 +29,7 @@ internal static class EyeDoorProjectileBehaviorVerification
             new EyeDoorProjectileRequest(EyeDoorProjectileDefinition.Projectile, Facing: EyeDoorOrientation.Left, RoomObjectBlockIndex: 4 * 16 + 7, Door: SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(0)),
             roomWidthInBlocks: 16,
             new SharedGameState(new SharedRandom()));
-        RoomEnemyProjectileSlot shot = enemies.Projectiles.EnemyProjectiles.Single(
+        EnemyProjectile shot = enemies.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.EyeDoorProjectile);
         shot.Position = shot.Position.WithWhole(new(64, 32));
         AssertTrue(shot.Animation is EyeDoorProjectileAnimation { Cursor.Program: EyeDoorProjectileProgram.Initial }, "the shot starts its flight");

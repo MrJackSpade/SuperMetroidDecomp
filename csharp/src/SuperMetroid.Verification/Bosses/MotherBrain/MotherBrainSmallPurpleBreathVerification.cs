@@ -44,7 +44,7 @@ internal static class MotherBrainSmallPurpleBreathVerification
         Draw();
         AssertEqual(1, Breaths(), "an RNG with bit 15 clear spawns the small breath");
         AssertTrue(state.SmallPurpleBreathActive, "the initializer marks the small breath active");
-        RoomEnemyProjectileSlot breath = runtime.Enemies.Projectiles.EnemyProjectiles.First(projectile =>
+        EnemyProjectile breath = runtime.Enemies.Projectiles.EnemyProjectiles.First(projectile =>
             projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall);
         AssertEqual((ushort)0x0082, breath.Position.X.Whole, "the breath starts six pixels right of the head");
         AssertEqual((ushort)0x0068, breath.Position.Y.Whole, "the breath starts sixteen pixels below the head");

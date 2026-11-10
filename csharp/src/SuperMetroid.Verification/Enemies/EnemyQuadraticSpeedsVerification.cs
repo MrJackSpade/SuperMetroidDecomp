@@ -30,8 +30,8 @@ internal static class EnemyQuadraticSpeedsVerification
         AssertThrows<InvalidDataException>(() => EnemyQuadraticSpeeds.Row(-1), "negative quadratic row");
         AssertThrows<InvalidDataException>(() => EnemyQuadraticSpeeds.Row(EnemyQuadraticSpeedDefinitions.RowCount), "quadratic row past the table");
         if (definitionsOnly) return;
-        var addRock = new Action<RoomEnemyProjectileSlot, int, EnemySpeedSign>(PolypBehavior.AddPolypRockQuadraticStep);
-        var rock = new RoomEnemyProjectileSlot(0);
+        var addRock = new Action<EnemyProjectile, int, EnemySpeedSign>(PolypBehavior.AddPolypRockQuadraticStep);
+        var rock = new EnemyProjectile(0, default);
         foreach (uint origin in new uint[] { 0, 0x0080ff37, 0xffffff37 })
         for (int index = 0; index < EnemyQuadraticSpeedDefinitions.RowCount; index++)
         foreach (EnemySpeedSign sign in signs)

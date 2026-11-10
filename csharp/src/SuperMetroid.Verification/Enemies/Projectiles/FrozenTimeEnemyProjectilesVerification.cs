@@ -29,7 +29,7 @@ internal static class FrozenTimeEnemyProjectilesVerification
         runtime.Player.IntroducedSamus.Control.LockHandlers();
         RoomEnemySlot victim = runtime.Enemies.SlotTable.Slots.First(slot => slot.DefinitionId == EnemyDefinitionId.Sciser);
         runtime.Enemies.DeathsAndDrops.StartGenericEnemyDeath(victim, EnemyDeathExplosion.Normal);
-        RoomEnemyProjectileSlot explosion = runtime.Enemies.Projectiles.EnemyProjectiles
+        EnemyProjectile explosion = runtime.Enemies.Projectiles.EnemyProjectiles
             .Single(p => p.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion);
         runtime.StepFrame(0);
         var program = (EnemyDeathProjectileAnimation)(explosion.Animation ?? throw new InvalidOperationException("The explosion plays a program."));

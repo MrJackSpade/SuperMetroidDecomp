@@ -692,12 +692,12 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of the thrown lava's programs.</summary>
-    private void ApplyMagdolliteLavaCue(RoomEnemyProjectileSlot projectile, MagdolliteLavaCue cue)
+    private void ApplyMagdolliteLavaCue(EnemyProjectile projectile, MagdolliteLavaCue cue)
     {
         switch (cue.Kind)
         {
             case MagdolliteLavaCueKind.Delete:
-                projectile.Clear();
+                projectile.Delete();
                 break;
             case MagdolliteLavaCueKind.SpawnDrops:
                 RequestMagdolliteLavaDrop(projectile);
@@ -762,7 +762,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Spawns and initializes a Magdollite lava ball.</summary>
     internal void SpawnMagdolliteLava(RoomEnemySlot source, bool throwsRight)
     {
-        RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
 
@@ -784,7 +784,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the lava's per-frame behaviour: the lava flies sideways at its speed until it leaves the view.</summary>
     internal static void RunMagdolliteLavaFrameBehavior(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         Position16<RoomPixels> camera)
     {
         projectile.Position = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta());
@@ -794,12 +794,12 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         if (CoordinateAxis.Wrap(projectile.Position.X.Whole - camera.X) >= 256 ||
             CoordinateAxis.Wrap(projectile.Position.Y.Whole - camera.Y) >= 256)
         {
-            projectile.Clear();
+            projectile.Delete();
         }
     }
 
     /// <summary>Shot-animation cue: requests the lava's drop.</summary>
-    internal void RequestMagdolliteLavaDrop(RoomEnemyProjectileSlot projectile)
+    internal void RequestMagdolliteLavaDrop(EnemyProjectile projectile)
     {
         _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(
             projectile.Position.Whole,

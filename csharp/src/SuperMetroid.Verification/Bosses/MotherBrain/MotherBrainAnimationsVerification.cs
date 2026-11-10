@@ -189,7 +189,7 @@ internal static class MotherBrainAnimationsVerification
         ushort entry, int updates, string name)
     {
         (RoomEnemySystem enemies, _) = NewMotherBrain();
-        RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles[^1];
+        EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles[^1];
         FamilyProjectileStarts.Initialize(projectile, kind, MotherBrainTurretDefinitions.Graphics);
         projectile.StartAnimation(animation);
         var native = new NativeEnemyProjectileListReader(entry, projectile.FrameHold.RawValue);
@@ -205,7 +205,7 @@ internal static class MotherBrainAnimationsVerification
             AssertEqual(native.Timer, projectile.FrameHold.RawValue, $"{at}: timer");
             AssertEqual(native.Operand, projectile.PresentationOperandAddress, $"{at}: frame");
             if (native.PaletteCleared)
-                AssertEqual(SuperMetroid.Core.Enemies.SpriteGraphics.Emptied, projectile.Graphics, $"{at}: the cleared graphics word, in the common colours");
+                AssertEqual(SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard, projectile.Graphics, $"{at}: the cleared graphics word, in the common colours");
             if (native.FrameBehaviorCleared)
                 AssertEqual(EnemyProjectileFrameBehavior.Stationary, projectile.FrameBehavior, $"{at}: pre-instruction cleared");
         }
@@ -224,7 +224,7 @@ internal static class MotherBrainAnimationsVerification
         enemies.VerificationServices().ReadRandom = () => 0;
         state.HandBeamNextPosition = FixedPosition<RoomPixels>.FromWhole(new(128, 112));
         state.HandBeamNextVelocity = new(new SignedEightEight(256), new SignedEightEight(0));
-        RoomEnemyProjectileSlot beam = enemies.Projectiles.EnemyProjectiles[^1];
+        EnemyProjectile beam = enemies.Projectiles.EnemyProjectiles[^1];
         FamilyProjectileStarts.Initialize(beam, RoomEnemyProjectileKind.MotherBrainHandBeamCharging, default);
         beam.StartAnimation(new MotherBrainHandBeamAnimation());
         var native = new NativeEnemyProjectileListReader(HandBeamProgram, beam.FrameHold.RawValue);

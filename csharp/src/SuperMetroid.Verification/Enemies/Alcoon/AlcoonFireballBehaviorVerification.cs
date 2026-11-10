@@ -37,9 +37,9 @@ internal static class AlcoonFireballBehaviorVerification
             foreach (AlcoonFireballLaunch launch in new[] { AlcoonFireballLaunchDefinitions.Upward, AlcoonFireballLaunchDefinitions.Level, AlcoonFireballLaunchDefinitions.Downward })
                 enemies.AlcoonBehavior.SpawnAlcoonFireball(source, launch);
         }
-        RoomEnemyProjectileSlot[] fireballs = [.. enemies.Projectiles.EnemyProjectiles.Where(projectile => projectile.Kind == RoomEnemyProjectileKind.AlcoonFireball)];
+        EnemyProjectile[] fireballs = [.. enemies.Projectiles.EnemyProjectiles.Where(projectile => projectile.Kind == RoomEnemyProjectileKind.AlcoonFireball)];
         AssertEqual(6, fireballs.Length, "all three fire commands spawn in both facings");
-        foreach (RoomEnemyProjectileSlot fireball in fireballs)
+        foreach (EnemyProjectile fireball in fireballs)
         {
             AssertTrue(fireball.Animation is AlcoonFireballAnimation { Cursor.Program: AlcoonFireballProgram.Initial }, "a fireball starts its typed program");
             (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, fireball,

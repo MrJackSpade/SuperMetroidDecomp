@@ -48,7 +48,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         enemies.VerificationServices().NextRandom = () => 4;
 
         enemies.TourianUnlockBehavior.SpawnTourianEyeGlow(TourianStatueNativeWords.Eye(0));
-        RoomEnemyProjectileSlot eye = Single(RoomEnemyProjectileKind.TourianStatueEyeGlow);
+        EnemyProjectile eye = Single(RoomEnemyProjectileKind.TourianStatueEyeGlow);
         Run(eye, 10);
         AssertEqual((ushort)0xb7db, NativePointer(eye),
             "eye glow reaches its sound and release tail after ten display frames");
@@ -61,9 +61,9 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         AssertEqual((ushort)0x20, enemies.Earthquake.EarthquakeTimer.RawValue,
             "eye glow publishes the native earthquake duration bit");
 
-        RoomEnemyProjectileSlot particle = Single(RoomEnemyProjectileKind.TourianStatueParticle);
+        EnemyProjectile particle = Single(RoomEnemyProjectileKind.TourianStatueParticle);
         Run(particle, 3);
-        RoomEnemyProjectileSlot tail = Single(RoomEnemyProjectileKind.TourianStatueTail);
+        EnemyProjectile tail = Single(RoomEnemyProjectileKind.TourianStatueTail);
         Run(particle, 2);
         AssertEqual(ushort.MaxValue, particle.LoopCountdown.RemainingFrames,
             "unset particle loop timer wraps from zero to FFFF like the cartridge");
@@ -85,7 +85,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         AssertTrue(!tail.IsActive, "particle tail deletes after four authored poses");
 
         enemies.TourianUnlockBehavior.SpawnTourianParticleChild(particle, RoomEnemyProjectileKind.TourianStatueSplash);
-        RoomEnemyProjectileSlot splash = Single(RoomEnemyProjectileKind.TourianStatueSplash);
+        EnemyProjectile splash = Single(RoomEnemyProjectileKind.TourianStatueSplash);
         Run(splash, 4);
         AssertEqual((ushort)0xb7b1, NativePointer(splash),
             "water splash reaches deletion after four authored poses");
@@ -93,7 +93,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         AssertTrue(!splash.IsActive, "water splash deletes on its fifth instruction tick");
 
         enemies.TourianUnlockBehavior.SpawnTourianSoul(TourianStatueNativeWords.Eye(2));
-        RoomEnemyProjectileSlot soul = Single(RoomEnemyProjectileKind.TourianStatueSoul);
+        EnemyProjectile soul = Single(RoomEnemyProjectileKind.TourianStatueSoul);
         Run(soul, 3);
         AssertEqual((ushort)0xb852, NativePointer(soul),
             "statue soul loops through both authored poses");
@@ -101,7 +101,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         Run(soul, 1);
         AssertTrue(!soul.IsActive, "private Tourian delete list clears a soul actor");
 
-        RoomEnemyProjectileSlot baseDecoration = SpawnStatue(
+        EnemyProjectile baseDecoration = SpawnStatue(
             RoomEnemyProjectileKind.TourianStatueBaseDecoration);
         Run(baseDecoration, 2);
         AssertEqual(
@@ -114,11 +114,11 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         AssertEqual((ushort)0xb866, NativePointer(baseDecoration),
             "base decoration loop remains stable");
 
-        RoomEnemyProjectileSlot ridley = SpawnStatue(RoomEnemyProjectileKind.TourianStatueRidley);
+        EnemyProjectile ridley = SpawnStatue(RoomEnemyProjectileKind.TourianStatueRidley);
         Run(ridley, 2);
         AssertEqual((ushort)0xb86e, NativePointer(ridley),
             "Ridley statue loop remains stable");
-        RoomEnemyProjectileSlot phantoon = SpawnStatue(
+        EnemyProjectile phantoon = SpawnStatue(
             RoomEnemyProjectileKind.TourianStatuePhantoon);
         Run(phantoon, 2);
         AssertEqual((ushort)0xb876, NativePointer(phantoon),
@@ -146,20 +146,20 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
             "all eight real actor families, and twenty-eight installed sprite frames match native OAM " +
             "with mechanics bytes forbidden.");
 
-        ushort NativePointer(RoomEnemyProjectileSlot projectile) =>
+        ushort NativePointer(EnemyProjectile projectile) =>
             nativePointers(projectile.Animation ?? throw new InvalidOperationException("A statue projectile runs a typed animation."))
                 ?? throw new InvalidOperationException("The statue projectile runs another family's animation.");
 
-        RoomEnemyProjectileSlot Single(RoomEnemyProjectileKind kind) =>
+        EnemyProjectile Single(RoomEnemyProjectileKind kind) =>
             enemies.Projectiles.EnemyProjectiles.First(projectile => projectile.Kind == kind);
 
-        RoomEnemyProjectileSlot SpawnStatue(RoomEnemyProjectileKind kind)
+        EnemyProjectile SpawnStatue(RoomEnemyProjectileKind kind)
         {
             enemies.TourianEntranceStatueBehavior.SpawnTourianEntranceStatueProjectile(kind, new Position16<RoomPixels>(128, 128));
             return enemies.Projectiles.EnemyProjectiles.First(projectile => projectile.Kind == kind);
         }
 
-        void Run(RoomEnemyProjectileSlot projectile, int frames)
+        void Run(EnemyProjectile projectile, int frames)
         {
             for (int frame = 0; frame < frames; frame++)
             {

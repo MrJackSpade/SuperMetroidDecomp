@@ -167,8 +167,8 @@ internal static class SpikeShinesparkSuitVerification
         runtime.InitializeDebugGroundedSamus(200, 166, 16);
         foreach (RoomEnemySlot enemy in runtime.Enemies.SlotTable.Slots)
             enemy.Clear();
-        foreach (RoomEnemyProjectileSlot projectile in runtime.Enemies.Projectiles.EnemyProjectiles)
-            projectile.Clear();
+        foreach (EnemyProjectile projectile in runtime.Enemies.Projectiles.EnemyProjectiles)
+            projectile.Delete();
         for (int block = 0; block < level.Size.X * level.Size.Y; block++)
         {
             level.SetTerrain(block, OpenAir);

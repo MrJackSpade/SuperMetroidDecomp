@@ -9,9 +9,9 @@ namespace SuperMetroid.Core.Compatibility;
 /// <remarks>
 /// Written once per explosion, when Mother Brain's death explosion or her rainbow-beam impact is spawned, before its
 /// first placement. Evidence: both initializers store the requested offset in the projectile's velocity words, which
-/// their pre-instructions add to the followed actor's position each update; a slot's deletion and its next spawn leave
-/// the velocity words alone (<c>RoomEnemyProjectileSlot.Clear</c>), and the room hand-over carries them to the next
-/// room (<see cref="EnemyProjectileHandOver"/>).
+/// their pre-instructions add to the followed actor's position each update; a projectile's deletion and the next spawn into its place leave
+/// the velocity words alone, so the next projectile there starts from them (<see cref="EnemyProjectileHandOver"/>), in that room or the next
+/// (<see cref="RoomHandOver"/>).
 /// </remarks>
 [CompatibilityService("an explosion that follows an actor leaves its offset from that actor as its projectile place's velocity, which the place's next occupant inherits")]
 public static class FollowingExplosionLeftVelocity

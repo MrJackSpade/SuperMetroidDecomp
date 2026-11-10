@@ -71,8 +71,8 @@ public sealed class NuclearWaffleEnemyState
     public SpriteGraphics GraphicsAttributes { get; internal set; }
 
     /// <summary>Four persistent, damaging links.</summary>
-    public RoomEnemyProjectileSlot?[] ProjectileSegments { get; } =
-        new RoomEnemyProjectileSlot?[4];
+    public EnemyProjectile?[] ProjectileSegments { get; } =
+        new EnemyProjectile?[4];
 
     /// <summary>Three persistent, cosmetic links interleaved with the projectiles.</summary>
     public RoomSpriteObjectSlot?[] SpriteSegments { get; } =

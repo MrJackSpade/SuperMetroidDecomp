@@ -27,7 +27,7 @@ internal static class MotherBrainTurretAnimations
     /// <summary>The impact smoke's steps.</summary>
     private static Step[] BulletImpact() =>
     [
-        Step.Publish(MotherBrainTurretCue.UsePaletteZero),
+        Step.Publish(MotherBrainTurretCue.DrawFromSharedSheet),
         Step.Publish(MotherBrainTurretCue.ClearFrameBehavior),
         .. Enumerable.Range(0, ImpactPhaseCount).Select(phase =>
             Step.Show(new(MotherBrainTurretProgram.BulletImpact, phase), phase == ImpactPhaseCount - 1 ? 32 : 8)),

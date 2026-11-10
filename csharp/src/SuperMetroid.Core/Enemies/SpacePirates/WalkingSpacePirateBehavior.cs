@@ -362,7 +362,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         bool movingRight,
         int laserHeight)
     {
-        RoomEnemyProjectileSlot? projectile = SpawnPirateMotherBrainLaser(
+        EnemyProjectile? projectile = SpawnPirateMotherBrainLaser(
             source,
             new(
                 CoordinateAxis.Wrap(
@@ -405,13 +405,13 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// <param name="muzzle">Where the laser starts.</param>
     /// <param name="movingRight">Whether the laser travels right.</param>
     /// <param name="speed">The laser's speed, which the firing enemy's placement names.</param>
-    internal RoomEnemyProjectileSlot? SpawnPirateMotherBrainLaser(
+    internal EnemyProjectile? SpawnPirateMotherBrainLaser(
         RoomEnemySlot source,
         Position16<RoomPixels> muzzle,
         bool movingRight,
         PirateLaserSpeed speed)
     {
-        RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return null;
 
@@ -442,7 +442,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
 
     /// <summary>Flies a laser one step in <paramref name="direction"/>, deleting it once it leaves the 256x256 camera square.</summary>
     private static void FlyPirateLaser(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         Position16<RoomPixels> camera,
         HorizontalDirection direction)
     {
@@ -460,7 +460,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             CoordinateAxis.Difference(projectile.Position.Y.Whole, camera.Y) < 0 ||
             CoordinateAxis.Difference(projectile.Position.Y.Whole, bottom) >= 0;
         if (offScreen)
-            projectile.Clear();
+            projectile.Delete();
     }
 
     /// <summary>The direction a laser mover flies.</summary>

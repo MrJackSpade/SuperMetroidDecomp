@@ -150,11 +150,11 @@ internal static class BotwoonAnimationsVerification
     internal static void VerifyBotwoonProjectileAnimations(SuperMetroidAddressSpace rom)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        void Pass(RoomEnemyProjectileSlot projectile) => enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, null, Position16<RoomPixels>.Zero);
+        void Pass(EnemyProjectile projectile) => enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, null, Position16<RoomPixels>.Zero);
 
         for (ushort selector = 0; selector < 64; selector += 2)
         {
-            var projectile = new RoomEnemyProjectileSlot(0) { Kind = RoomEnemyProjectileKind.BotwoonBody };
+            var projectile = new EnemyProjectile(0, default) { Kind = RoomEnemyProjectileKind.BotwoonBody };
             projectile.StartAnimation(BotwoonProjectileAnimation.ForSegment(BotwoonSegmentSelectorCodec.Program(selector)));
             CompareBotwoonProjectile(rom, CartridgeImportSource.Require(rom).ReadCartridgeWord((BotwoonSegmentListTable + selector)), projectile, Pass,
                 $"segment selector ${selector:X2}");
@@ -162,7 +162,7 @@ internal static class BotwoonAnimationsVerification
 
         Action<RoomEnemySlot, byte, ushort> spawnSpit = (head, angle, speed) => enemies.BotwoonBehavior.SpawnBotwoonSpit(head, new TrigonometryAngle(angle), speed);
         spawnSpit(enemies.SlotTable.Slots[0], 0x40, 0x0180);
-        RoomEnemyProjectileSlot spit = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.BotwoonSpit);
+        EnemyProjectile spit = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.BotwoonSpit);
         AssertTrue(spit.Animation is BotwoonProjectileAnimation { Segment: null }, "the real spit producer starts the typed spit animation");
         AssertTrue(spit.Animation is not null, "a typed spit keeps no native instruction pointer");
         CompareBotwoonProjectile(rom, BotwoonSpitList, spit, Pass, "spit");
@@ -171,8 +171,8 @@ internal static class BotwoonAnimationsVerification
         var state = new BotwoonEnemyState();
         enemies.BotwoonBehavior.AttachBotwoon(enemies.SlotTable.Slots[0], state);
         // A changed selector restarts the segment; an unchanged one keeps running.
-        Action<RoomEnemyProjectileSlot, int> animate = enemies.BotwoonBehavior.AnimateBotwoonBodySegment;
-        var segment = new RoomEnemyProjectileSlot(1)
+        Action<EnemyProjectile, int> animate = enemies.BotwoonBehavior.AnimateBotwoonBodySegment;
+        var segment = new EnemyProjectile(1, default)
         {
             Kind = RoomEnemyProjectileKind.BotwoonBody,
             State = new BotwoonSegmentState(BotwoonSegmentSelectorCodec.Program(0)),
@@ -191,10 +191,10 @@ internal static class BotwoonAnimationsVerification
 
         // Landing hands the segment to the shared native big-explosion list.
         Action<RoomEnemySlot, BotwoonEnemyState, int> spawnBody = enemies.BotwoonBehavior.SpawnBotwoonBodySegment;
-        Action<RoomEnemyProjectileSlot, int> runBody = enemies.BotwoonBehavior.RunBotwoonBodyFrameBehavior;
+        Action<EnemyProjectile, int> runBody = enemies.BotwoonBehavior.RunBotwoonBodyFrameBehavior;
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
         spawnBody(head, state, 1);
-        RoomEnemyProjectileSlot body = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.BotwoonBody);
+        EnemyProjectile body = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.BotwoonBody);
         AssertEqual(BotwoonSegmentProgram.Hidden, ((BotwoonProjectileAnimation)(body.Animation ?? throw new InvalidOperationException("Verification requires body.Animation."))).Segment,
             "the real body producer starts a non-tail segment hidden");
         body.Position = body.Position.WithWholeY(200);
@@ -255,8 +255,8 @@ internal static class BotwoonAnimationsVerification
     }
 
     /// <summary>Runs a typed projectile beside a native-list reader for forty passes and compares timer and frame.</summary>
-    private static void CompareBotwoonProjectile(SuperMetroidAddressSpace rom, ushort nativeList, RoomEnemyProjectileSlot projectile,
-        Action<RoomEnemyProjectileSlot> pass, string label)
+    private static void CompareBotwoonProjectile(SuperMetroidAddressSpace rom, ushort nativeList, EnemyProjectile projectile,
+        Action<EnemyProjectile> pass, string label)
     {
         ushort cursor = nativeList, timer = projectile.FrameHold.RawValue, operand = 0;
         for (int update = 0; update < 40; update++)

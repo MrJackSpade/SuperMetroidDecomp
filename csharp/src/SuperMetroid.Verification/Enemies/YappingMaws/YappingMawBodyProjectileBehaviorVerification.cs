@@ -27,9 +27,9 @@ internal static class YappingMawBodyProjectileBehaviorVerification
             owner.SetSpawnParameter1(EnemyDefinitionId.YappingMaw, 128);
             owner.SetSpawnParameter2(EnemyDefinitionId.YappingMaw, facing);
             enemies.YappingMawBehavior.InitializeYappingMaw(owner);
-            RoomEnemyProjectileSlot[] links = [.. enemies.Projectiles.EnemyProjectiles.Where(projectile => projectile.Kind == RoomEnemyProjectileKind.YappingMawBody)];
+            EnemyProjectile[] links = [.. enemies.Projectiles.EnemyProjectiles.Where(projectile => projectile.Kind == RoomEnemyProjectileKind.YappingMawBody)];
             AssertEqual(4, links.Length, $"facing {facing} spawns four body links");
-            foreach (RoomEnemyProjectileSlot link in links)
+            foreach (EnemyProjectile link in links)
             {
                 AssertTrue(link.Animation is YappingMawBodyProjectileAnimation animation && animation.Cursor.Program == program, $"facing {facing} starts {program}");
                 (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, link, YappingMawBodyProjectileNativeListAddresses.Entry(program), 4, program.ToString());

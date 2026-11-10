@@ -198,7 +198,7 @@ internal static class PhantoonAnimationsVerification
         foreach ((PhantoonFlameProgram program, ushort entry) in FlameEntries)
         {
             RoomEnemySystem enemies = NewFlameSystem();
-            RoomEnemyProjectileSlot flame = SpawnDestroyable(enemies, PhantoonFlameSpawnType.Enraged);
+            EnemyProjectile flame = SpawnDestroyable(enemies, PhantoonFlameSpawnType.Enraged);
             flame.StartAnimation(new PhantoonFlameAnimation(program));
             var native = new NativeEnemyProjectileListReader(entry, flame.FrameHold.RawValue);
             int drops = 0;
@@ -238,7 +238,7 @@ internal static class PhantoonAnimationsVerification
     }
 
     /// <summary>Spawns one destroyable flame through the real producer.</summary>
-    private static RoomEnemyProjectileSlot SpawnDestroyable(RoomEnemySystem enemies, PhantoonFlameSpawnType type)
+    private static EnemyProjectile SpawnDestroyable(RoomEnemySystem enemies, PhantoonFlameSpawnType type)
     {
         AssertTrue(enemies.PhantoonBehavior.Patterns.SpawnPhantoonDestroyableFlame(enemies.SlotTable.Slots[0], type, 0), $"the real {type} producer allocates a flame");
         return enemies.Projectiles.EnemyProjectiles.Single(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.PhantoonDestroyableFlame);
@@ -258,7 +258,7 @@ internal static class PhantoonAnimationsVerification
     }
 
     /// <summary>Requires <paramref name="flame"/> to run <paramref name="program"/> from its start.</summary>
-    private static void AssertStarted(RoomEnemyProjectileSlot flame, PhantoonFlameProgram program, string label) =>
+    private static void AssertStarted(EnemyProjectile flame, PhantoonFlameProgram program, string label) =>
         AssertTrue(flame.Animation is PhantoonFlameAnimation started && started.Cursor == AnimationProgramCursor<PhantoonFlameProgram>.Start(program),
             $"the {label} starts the {program} program");
 
@@ -267,7 +267,7 @@ internal static class PhantoonAnimationsVerification
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         enemies.PrePhantoonRoomBehavior.SpawnPrePhantoonRoomProjectile();
-        RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.PrePhantoonRoom);
+        EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.PrePhantoonRoom);
         AssertTrue(projectile.Animation is PrePhantoonRoomAnimation, "the room setup starts the typed room animation");
         var native = new NativeEnemyProjectileListReader(PrePhantoonRoomEntry, projectile.FrameHold.RawValue);
         for (int update = 0; update < 40 && !native.Deleted; update++)

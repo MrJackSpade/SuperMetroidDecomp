@@ -42,7 +42,7 @@ internal static class EnemyProjectileDefinitionsVerification
 
         HashSet<int> forbidden = VerifyEnemyProjectileDefinitionRecords(rom, kinds);
 
-        Action<RoomEnemyProjectileSlot, RoomEnemyProjectileKind, SpriteGraphics> initialize =
+        Action<EnemyProjectile, RoomEnemyProjectileKind, SpriteGraphics> initialize =
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition;
 
         const ushort populationPointer = 0x9400;
@@ -50,14 +50,14 @@ internal static class EnemyProjectileDefinitionsVerification
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: setupBus, services: new StandaloneRoomEnemyServices(() => 0));
         enemies.Load(new RoomEnemyLoadRequest(setupBus.ReadEnemyPopulation(populationPointer), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(new SnesVram())));
         var guard = NewEnemyProjectileDefinitionReadGuard(setupBus, forbidden);
-        RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles[^1];
-        Func<RoomEnemyProjectileSlot, SamusState, SuperMetroid.Core.Samus.Movement.KnockbackHorizontalDirection?> collideWithSamus =
+        EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles[^1];
+        Func<EnemyProjectile, SamusState, SuperMetroid.Core.Samus.Movement.KnockbackHorizontalDirection?> collideWithSamus =
             enemies.Projectiles.ResolveEnemyProjectileSamusCollision;
 
         foreach (RoomEnemyProjectileKind kind in kinds)
         {
             EnemyProjectileDefinition definition = EnemyProjectileKinds.Get(kind);
-            projectile.Clear();
+            projectile.Delete();
             initialize(projectile, kind, SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook));
             AssertEqual(kind, projectile.Kind, $"{kind} production kind");
             AssertEqual(definition.FrameBehavior, projectile.FrameBehavior,
@@ -125,7 +125,7 @@ internal static class EnemyProjectileDefinitionsVerification
                 AssertTrue(ReferenceEquals(initialProgram, projectile.Animation), $"{kind} production touch keeps its program");
             }
 
-            initialize(projectile, kind, SpriteGraphics.Emptied);
+            initialize(projectile, kind, SpriteGraphics.SharedStandard);
             projectile.Position = projectile.Position.WithWhole(new(0x0100, 0x0100));
             projectile.BlocksSamusProjectiles = true;
             projectile.CollisionOption = EnemyProjectileCollisionOption.RunShotList;

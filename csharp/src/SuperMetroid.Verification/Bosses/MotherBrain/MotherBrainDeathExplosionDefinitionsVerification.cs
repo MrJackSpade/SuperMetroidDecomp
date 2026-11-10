@@ -35,7 +35,7 @@ internal static class MotherBrainDeathExplosionDefinitionsVerification
                 SoundEffect: MotherBrainSoundDefinitions.Explosion);
             enemies.MotherBrainBehavior.RainbowAndDeath.SpawnMotherBrainDeathExplosion(request);
 
-            RoomEnemyProjectileSlot projectile =
+            EnemyProjectile projectile =
                 enemies.Projectiles.EnemyProjectiles.Single(candidate => candidate.IsActive);
             AssertEqual(RoomEnemyProjectileKind.MotherBrainDeathExplosion, projectile.Kind,
                 $"production Mother Brain death explosion kind {parameter}");

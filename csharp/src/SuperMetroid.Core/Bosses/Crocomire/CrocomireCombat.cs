@@ -282,7 +282,7 @@ internal sealed class CrocomireCombat
 
     /// <summary>Ports the one-frame vector setup.</summary>
     internal void StartCrocomireProjectileFlight(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         RoomLevelData level)
     {
         // The setup performs one horizontal collision move and deliberately ignores carry.
@@ -302,13 +302,13 @@ internal sealed class CrocomireCombat
 
     /// <summary>Flies a fight projectile, deleting it on the first horizontal/vertical wall hit.</summary>
     internal static void RunCrocomireProjectileFlight(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         RoomLevelData level)
     {
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal) ||
             EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical))
         {
-            projectile.Clear();
+            projectile.Delete();
         }
     }
 
@@ -327,7 +327,7 @@ internal sealed class CrocomireCombat
     private static readonly SignedSixteenSixteen SpikeWallPieceGravity = SignedSixteenSixteen.FromSixteenthsOfPixel(3);
 
     /// <summary>Ports the byte-precise shard motion, whose limits each piece takes from its place in the wall.</summary>
-    internal void RunCrocomireSpikeWallPiece(RoomEnemyProjectileSlot projectile)
+    internal void RunCrocomireSpikeWallPiece(EnemyProjectile projectile)
     {
         CrocomireSpikeWallPieceState piece = projectile.StateOf<CrocomireSpikeWallPieceState>();
         int maximumAcceleration = CrocomireSpikeMotion.MaximumAcceleration(piece.Piece);
@@ -362,7 +362,7 @@ internal sealed class CrocomireCombat
 
         Position16<RoomPixels> impact = projectile.Position.Whole;
         bool crumbles = CrocomireSpikeWallCrumbleSounds.Crumbles(piece.Piece);
-        projectile.Clear();
+        projectile.Delete();
         if (crumbles)
             _access.RequestCrocomireSound(CrocomireSoundDefinitions.Crumble);
         _projectiles.SpawnRoomGraphicsDustExplosion(impact, MiscDustAnimation.BigDustCloud);
@@ -371,12 +371,12 @@ internal sealed class CrocomireCombat
 
     /// <summary>Ports bridge-fragment vertical collision and gravity.</summary>
     internal static void RunCrocomireBridgeFragment(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         RoomLevelData level)
     {
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical))
         {
-            projectile.Clear();
+            projectile.Delete();
             return;
         }
 
@@ -394,14 +394,14 @@ internal sealed class CrocomireCombat
             () => new CrocomireProjectileAnimation(CrocomireProjectileFrameKind.Shot));
         table.AddCue<CrocomireProjectileCue>((context, cue) =>
         {
-            RoomEnemyProjectileSlot projectile = context.Projectile;
+            EnemyProjectile projectile = context.Projectile;
             switch (cue)
             {
                 case CrocomireProjectileCue.SpawnDrops:
                     _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(projectile.Position.Whole, EnemyDefinitionId.Crocomire);
                     return;
                 case CrocomireProjectileCue.Delete:
-                    projectile.Clear();
+                    projectile.Delete();
                     return;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(CrocomireProjectileCue)} {cue}.");

@@ -149,7 +149,7 @@ internal static class RidleyExplosionDefinitionsVerification
 
             spawn(body, state);
 
-            RoomEnemyProjectileSlot effect = enemies.Projectiles.EnemyProjectiles.Single(p => p.IsActive);
+            EnemyProjectile effect = enemies.Projectiles.EnemyProjectiles.Single(p => p.IsActive);
             short xOffset = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c66e + selectedIndex * 4)));
             short yOffset = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c670 + selectedIndex * 4)));
             AssertEqual((ushort)selectedIndex, state.DeathExplosionCount,

@@ -94,7 +94,7 @@ internal sealed class EnemyDeathsAndDrops
         }
         bool respawns = enemy.Presence.HasAny(EnemyPresence.RespawnsIfKilled);
         RoomEnemySpawnSnapshot survivingSpawn = enemy.Spawn;
-        RoomEnemyProjectileSlot? explosion = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? explosion = _projectiles.AllocateEnemyProjectile();
         if (explosion is not null)
         {
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
@@ -183,12 +183,12 @@ internal sealed class EnemyDeathsAndDrops
     /// allocation search, slot-zero failure, random selection, and no-drop tail all match
     /// the original's enemy-projectile spawn followed by the pickup's initializer.
     /// </summary>
-    internal RoomEnemyProjectileSlot? SpawnEnemyDropFromEnemyHeader(
+    internal EnemyProjectile? SpawnEnemyDropFromEnemyHeader(
         Position16<RoomPixels> position,
         EnemyDefinitionId definitionId)
     {
         _room.EnsureLoaded();
-        RoomEnemyProjectileSlot? pickup = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? pickup = _projectiles.AllocateEnemyProjectile();
         if (pickup is null)
             return null;
 
@@ -208,12 +208,12 @@ internal sealed class EnemyDeathsAndDrops
     /// boss code. This represents routines such as Botwoon's Draygon-eye drop instruction
     /// without manufacturing a fake enemy header solely to get back to the same six bytes.
     /// </summary>
-    internal RoomEnemyProjectileSlot? SpawnEnemyDropFromChanceTable(
+    internal EnemyProjectile? SpawnEnemyDropFromChanceTable(
         Position16<RoomPixels> position,
         EnemyDropChances? dropChances)
     {
         _room.EnsureLoaded();
-        RoomEnemyProjectileSlot? pickup = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? pickup = _projectiles.AllocateEnemyProjectile();
         if (pickup is null)
             return null;
 
@@ -229,7 +229,7 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>Rolls a direct drop and either starts its pickup list or the no-drop tail.</summary>
-    private void InitializeDirectEnemyPickup(RoomEnemyProjectileSlot pickup)
+    private void InitializeDirectEnemyPickup(EnemyProjectile pickup)
     {
         EnemyPickupKind kind = SelectRandomEnemyDrop(pickup);
 
@@ -246,16 +246,16 @@ internal sealed class EnemyDeathsAndDrops
     /// respawn tail's. Keeping the actor in its existing place keeps both its retained killed enemy and whether it drops
     /// at all: an explosion in the first place never converts (<see cref="FirstPlaceExplosionLeavesNoPickup"/>).
     /// </summary>
-    internal EnemyDeathProjectileProgram ConvertEnemyDeathExplosionToPickup(RoomEnemyProjectileSlot projectile)
+    internal EnemyDeathProjectileProgram ConvertEnemyDeathExplosionToPickup(EnemyProjectile projectile)
     {
         EnemyPickupKind kind = SelectRandomEnemyDrop(projectile);
-        return !FirstPlaceExplosionLeavesNoPickup.BecomesPickup(projectile.SlotIndex) || kind is EnemyPickupKind.None or EnemyPickupKind.NoDrop
+        return !FirstPlaceExplosionLeavesNoPickup.BecomesPickup(projectile.Place) || kind is EnemyPickupKind.None or EnemyPickupKind.NoDrop
             ? ConfigureDormantPickup(projectile)
             : ConfigurePickup(projectile, kind);
     }
 
     /// <summary>Gives the projectile the selected pickup's identity, 400-frame life and collision callback, and returns its program.</summary>
-    internal static EnemyDeathProjectileProgram ConfigurePickup(RoomEnemyProjectileSlot projectile, EnemyPickupKind kind)
+    internal static EnemyDeathProjectileProgram ConfigurePickup(EnemyProjectile projectile, EnemyPickupKind kind)
     {
         EnemyPickupAnimationDefinition animation = EnemyPickups.Animation(kind);
         projectile.State = new EnemyPickupState(kind, EnemyPickupLifetime);
@@ -268,11 +268,11 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>Switches a consumed or rejected drop to the blank, non-interactive deletion tail.</summary>
-    private static void MakeEnemyPickupDormant(RoomEnemyProjectileSlot projectile) =>
+    private static void MakeEnemyPickupDormant(EnemyProjectile projectile) =>
         projectile.StartAnimation(new EnemyDeathProjectileAnimation(ConfigureDormantPickup(projectile)));
 
     /// <summary>Makes the projectile a blank, non-interactive drop and returns the deletion tail it runs.</summary>
-    private static EnemyDeathProjectileProgram ConfigureDormantPickup(RoomEnemyProjectileSlot projectile)
+    private static EnemyDeathProjectileProgram ConfigureDormantPickup(EnemyProjectile projectile)
     {
         // The blank frame lasts 64 frames before the respawn cue handles a retained respawning enemy
         // and the actor is deleted. Collection and natural expiry use this same tail.
@@ -290,7 +290,7 @@ internal sealed class EnemyDeathsAndDrops
     /// columns first, then the two major ones), and the first whose accumulated chance reaches the random draw is
     /// chosen; the draw is read before anything else, as the game reads it.
     /// </summary>
-    internal EnemyPickupKind SelectRandomEnemyDrop(RoomEnemyProjectileSlot projectile)
+    internal EnemyPickupKind SelectRandomEnemyDrop(EnemyProjectile projectile)
     {
         SamusState samus = SamusForEnemyDrops ?? throw new InvalidOperationException(
             "Enemy drop selection requires the active Samus state.");
@@ -393,7 +393,7 @@ internal sealed class EnemyDeathsAndDrops
     /// drops nothing: the drop-chance table indexed by the empty definition reads a value
     /// the boot clears and the game never sets to anything but zero.
     /// </summary>
-    private EnemyDropChances? ResolveEnemyDropChances(RoomEnemyProjectileSlot projectile)
+    private EnemyDropChances? ResolveEnemyDropChances(EnemyProjectile projectile)
     {
         if (projectile.DropChancesOverride is { } chances)
             return chances;
@@ -404,7 +404,7 @@ internal sealed class EnemyDeathsAndDrops
 
     /// <summary>Decrements pickup lifetime, then tests Grapple endpoint and strict Samus body overlap.</summary>
     internal void RunEnemyPickupFrameBehavior(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         SamusState? samus)
     {
         // The lifetime is decremented first; the pickup expires on the update it reaches zero.
@@ -445,7 +445,7 @@ internal sealed class EnemyDeathsAndDrops
 
     /// <summary>Applies health or ammo from a touched pickup, publishes its sound, and makes it dormant.</summary>
     private void CollectEnemyPickup(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         SamusState samus)
     {
         EnemyPickupKind kind = projectile.StateOf<EnemyPickupState>().Kind;
@@ -475,7 +475,7 @@ internal sealed class EnemyDeathsAndDrops
             case EnemyPickupKind.NoDrop:
             default:
                 throw new InvalidDataException(
-                    $"Enemy pickup slot {projectile.SlotIndex} holds no restorable pickup ({kind}).");
+                    $"The enemy pickup in place {projectile.Place} holds no restorable pickup ({kind}).");
         }
 
         MakeEnemyPickupDormant(projectile);
@@ -593,12 +593,12 @@ internal sealed class EnemyDeathsAndDrops
     /// Carries out one cue of the death and drop programs, returning the program a converted explosion continues at, or
     /// null to run on.
     /// </summary>
-    private EnemyDeathProjectileProgram? ApplyEnemyDeathProjectileCue(RoomEnemyProjectileSlot projectile, EnemyDeathProjectileCue cue)
+    private EnemyDeathProjectileProgram? ApplyEnemyDeathProjectileCue(EnemyProjectile projectile, EnemyDeathProjectileCue cue)
     {
         switch (cue.Kind)
         {
             case EnemyDeathProjectileCueKind.Delete:
-                projectile.Clear();
+                projectile.Delete();
                 return null;
             case EnemyDeathProjectileCueKind.SpawnSpriteWithin32:
                 _projectiles.SpawnRandomEnemyDeathSprite(

@@ -65,7 +65,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
             RoomEnemySlot source = enemies.SlotTable.Slots[0];
             source.Position = source.Position.WithWhole(new(128, 96));
             source.SetSpawnParameter1(EnemyDefinitionId.PirateGreyWalking, 0);
-            RoomEnemyProjectileSlot laser = enemies.WalkingSpacePirateBehavior.SpawnPirateMotherBrainLaser(source, new Position16<RoomPixels>(128, 96), movingRight, PirateLaserSpeed.Fast) ?? throw new InvalidOperationException("Verification requires enemies.WalkingSpacePirateBehavior.SpawnPirateMotherBrainLaser(source, new Position16<R....");
+            EnemyProjectile laser = enemies.WalkingSpacePirateBehavior.SpawnPirateMotherBrainLaser(source, new Position16<RoomPixels>(128, 96), movingRight, PirateLaserSpeed.Fast) ?? throw new InvalidOperationException("Verification requires enemies.WalkingSpacePirateBehavior.SpawnPirateMotherBrainLaser(source, new Position16<R....");
             AssertEqual(program, NativePointer(laser),
                 "real Pirate/Mother Brain laser producer selects its facing program");
             AssertEqual(EnemyProjectileFrameBehavior.Stationary, laser.FrameBehavior,
@@ -100,7 +100,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
             source.Position = source.Position.WithWhole(new(128, 96));
             var state = new NinjaSpacePirateEnemyState();
             enemies.NinjaSpacePirateBehavior.SpawnNinjaPirateClaw(source, state, throwsRight: direction != 0, Offset16<RoomPixels>.Zero);
-            RoomEnemyProjectileSlot claw = enemies.Projectiles.EnemyProjectiles.Single(
+            EnemyProjectile claw = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.PirateClaw);
             AssertEqual(program, NativePointer(claw),
                 "real Ninja Pirate claw producer selects its facing program");
@@ -116,7 +116,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
         RoomEnemySlot deleteSource = deleteSystem.SlotTable.Slots[0];
         var deleteState = new NinjaSpacePirateEnemyState();
         deleteSystem.NinjaSpacePirateBehavior.SpawnNinjaPirateClaw(deleteSource, deleteState, throwsRight: false, Offset16<RoomPixels>.Zero);
-        RoomEnemyProjectileSlot deleting = deleteSystem.Projectiles.EnemyProjectiles.Single(
+        EnemyProjectile deleting = deleteSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.PirateClaw);
         deleting.StartAnimation(EnemyProjectileDeleteAnimation.Instance);
         RunForcedTick(deleteSystem, deleting);
@@ -145,7 +145,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
             "both real producers/facings, immediate laser motion, claw loops, shared " +
             "deletion, and forty-two installed sprite frames match native OAM without operand reads.");
 
-        ushort NativePointer(RoomEnemyProjectileSlot projectile) =>
+        ushort NativePointer(EnemyProjectile projectile) =>
             nativePointers(projectile.Animation ?? throw new InvalidOperationException("A laser or claw runs a typed animation."))
                 ?? throw new InvalidOperationException("The laser or claw runs another family's animation.");
 
@@ -157,7 +157,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
 
         void RunForcedTick(
             RoomEnemySystem enemies,
-            RoomEnemyProjectileSlot projectile)
+            EnemyProjectile projectile)
         {
             projectile.FrameHold = WrappingCountdown.Start(1);
             enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), Position16<RoomPixels>.Zero);
@@ -168,7 +168,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
 
         void RunForcedTicks(
             RoomEnemySystem enemies,
-            RoomEnemyProjectileSlot projectile,
+            EnemyProjectile projectile,
             int count)
         {
             for (int tick = 0; tick < count; tick++)

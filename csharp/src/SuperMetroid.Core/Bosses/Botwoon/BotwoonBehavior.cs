@@ -103,7 +103,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // Segments spawn from the one behind the head down to the tail. The projectile allocator hands out slots in
-        // its own order, so a segment's death delay follows its projectile slot while its body spacing follows its
+        // its own order, so a segment's death delay follows its projectile place while its body spacing follows its
         // segment index; both orders are kept.
         for (int segmentIndex = state.BodySegments.Length - 1; segmentIndex >= 0; segmentIndex--)
             SpawnBotwoonBodySegment(head, state, segmentIndex);
@@ -417,7 +417,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         int historyIndex = BotwoonNavigationDefinitions.WrapHistoryIndex(state.RingIndex - state.SegmentSpacingEntries);
         for (int segmentIndex = state.BodySegments.Length - 1; segmentIndex >= 0; segmentIndex--)
         {
-            RoomEnemyProjectileSlot segment = state.Segment(segmentIndex);
+            EnemyProjectile segment = state.Segment(segmentIndex);
 
             ToggleBotwoonSegmentAtHole(state, segmentIndex, historyIndex);
             segment.Position = segment.Position.WithWhole(state.History[historyIndex]);
@@ -434,7 +434,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.SavedHoleRingIndex != historyIndex)
             return;
 
-        RoomEnemyProjectileSlot segment = state.Segment(segmentIndex);
+        EnemyProjectile segment = state.Segment(segmentIndex);
         bool wasInside = state.SegmentInsideHole[segmentIndex];
         state.SegmentInsideHole[segmentIndex] = !wasInside;
         segment.CanDamageSamus = wasInside;
@@ -456,8 +456,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         int lastSegment = state.BodySegments.Length - 1;
         for (int segmentIndex = lastSegment; segmentIndex >= 0; segmentIndex--)
         {
-            RoomEnemyProjectileSlot segment = state.Segment(segmentIndex);
-            RoomEnemyProjectileSlot? leader = segmentIndex == lastSegment ? null : state.Segment(segmentIndex + 1);
+            EnemyProjectile segment = state.Segment(segmentIndex);
+            EnemyProjectile? leader = segmentIndex == lastSegment ? null : state.Segment(segmentIndex + 1);
             Offset16<RoomPixels> toLeader = (leader?.Position.Whole ?? head.Position.Whole) - segment.Position.Whole;
             BotwoonSegmentProgramKind kind = state.SegmentInsideHole[segmentIndex] ? BotwoonSegmentProgramKind.Hidden
                 : segmentIndex == 0 ? BotwoonSegmentProgramKind.Tail
@@ -884,7 +884,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         BotwoonEnemyState state,
         int segmentIndex)
     {
-        RoomEnemyProjectileSlot? segment = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? segment = _projectiles.AllocateEnemyProjectile();
         if (segment is null)
         {
             throw new InvalidOperationException(
@@ -912,14 +912,14 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs a body segment's per-frame behaviour through its four movement states.</summary>
     internal void RunBotwoonBodyFrameBehavior(
-        RoomEnemyProjectileSlot segment,
+        EnemyProjectile segment,
         int randomEnemyCounter)
     {
         BotwoonEnemyState state = BotwoonState ?? throw new InvalidOperationException(
             "A live Botwoon body segment has no owning head state.");
         int segmentIndex = Array.IndexOf(state.BodySegments, segment);
         if (segmentIndex < 0)
-            throw new InvalidOperationException($"Projectile slot {segment.SlotIndex} is not one of Botwoon's body segments.");
+            throw new InvalidOperationException($"The enemy projectile in place {segment.Place} is not one of Botwoon's body segments.");
         BotwoonBodyFunction function = state.SegmentFunctions[segmentIndex];
         if (state.BodyDeathStarted && function == BotwoonBodyFunction.Main)
         {
@@ -935,7 +935,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case BotwoonBodyFunction.BeginDying:
                 // The delay follows the segment's projectile place, not its place in the body.
-                segment.StateOf<BotwoonSegmentState>().DeathDelay = BotwoonSegmentFallDelay.Start(segment.SlotIndex);
+                segment.StateOf<BotwoonSegmentState>().DeathDelay = BotwoonSegmentFallDelay.Start(segment.Place);
                 state.SegmentFunctions[segmentIndex] = BotwoonBodyFunction.DyingDelay;
                 goto case BotwoonBodyFunction.DyingDelay;
 
@@ -965,11 +965,11 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Installs a segment program for its angle and applies the head's hurt flash.</summary>
     internal void AnimateBotwoonBodySegment(
-        RoomEnemyProjectileSlot segment,
+        EnemyProjectile segment,
         int randomEnemyCounter)
     {
         BotwoonProjectileAnimation animation = segment.Animation as BotwoonProjectileAnimation
-            ?? throw new InvalidOperationException($"Botwoon body segment {segment.SlotIndex} has no segment animation.");
+            ?? throw new InvalidOperationException($"Botwoon body segment {segment.Place} has no segment animation.");
         if (animation.Install(segment.StateOf<BotwoonSegmentState>().Pose))
             segment.FrameHold = WrappingCountdown.Start(1);
         ShowBotwoonBodyHurtFlash(segment, randomEnemyCounter);
@@ -977,7 +977,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Shows his body in his health band's colours, or in the hurt flash on the updates his flashing head shows it.</summary>
     private void ShowBotwoonBodyHurtFlash(
-        RoomEnemyProjectileSlot segment,
+        EnemyProjectile segment,
         int randomEnemyCounter)
     {
         RoomEnemySlot head = _head ?? throw new InvalidOperationException("Botwoon's body draws once Botwoon is loaded.");
@@ -988,7 +988,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Accelerates a dying segment to Y=200 and marks the tail cap's final landing.</summary>
     private void RunBotwoonBodyFall(
-        RoomEnemyProjectileSlot segment,
+        EnemyProjectile segment,
         int segmentIndex,
         BotwoonEnemyState state,
         int randomEnemyCounter)
@@ -1025,7 +1025,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="speed">The spit speed, 0 through 65535.</param>
     internal void SpawnBotwoonSpit(RoomEnemySlot head, TrigonometryAngle angle, int speed)
     {
-        RoomEnemyProjectileSlot? spit = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? spit = _projectiles.AllocateEnemyProjectile();
         if (spit is null)
             return;
 
@@ -1043,7 +1043,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs a spit's per-frame flight.</summary>
     internal static void RunBotwoonSpitFrameBehavior(
-        RoomEnemyProjectileSlot spit,
+        EnemyProjectile spit,
         Position16<RoomPixels> camera)
     {
         spit.StateOf<AngledFlightState>().Advance(spit);
@@ -1053,7 +1053,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             CoordinateAxis.Difference(spit.Position.Y.Whole, camera.Y) < 0 ||
             CoordinateAxis.AsSigned(camera.Y + 256 - spit.Position.Y.Whole) < 0)
         {
-            spit.Clear();
+            spit.Delete();
         }
     }
 

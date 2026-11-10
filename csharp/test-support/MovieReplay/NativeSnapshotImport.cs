@@ -454,27 +454,27 @@ internal static class NativeSnapshotImport
     ];
 
     /// <summary>
-    /// Imports one enemy-projectile slot. A live slot is initialized from its definition, as
-    /// <c>SpawnEprojInner</c> does, then takes every per-slot word the native arrays hold; the
-    /// definition-derived radii and properties must already agree with them. Free slots keep
-    /// their stale position and velocity words, which later spawns can read.
+    /// Imports one enemy-projectile place from the native slot of the same index. A live slot's projectile is
+    /// initialized from its definition, as <c>SpawnEprojInner</c> does, then takes every per-slot word the native arrays
+    /// hold; the definition-derived radii and properties must already agree with them. A free slot's place holds a gone
+    /// projectile at the slot's position and velocity words, which the next spawn there starts from.
     /// </summary>
-    private static void ImportNativeEnemyProjectile(RoomEnemyProjectileSlot projectile, EnemyGraphicsSet graphicsSet, IImportCartridgeSource cartridge,
+    private static void ImportNativeEnemyProjectile(EnemyProjectile projectile, EnemyGraphicsSet graphicsSet, IImportCartridgeSource cartridge,
         Func<int, ushort> W)
     {
-        int index = projectile.SlotIndex * 2;
+        int index = projectile.Place * 2;
         ushort id = W(NativeSnapshotMemory.EnemyProjectileId + index);
         if (id == 0)
         {
             // Room loading spawns the room's projectiles afresh; a slot the snapshot holds
             // empty (for example Mother Brain's destroyed turrets) must be empty here too.
-            projectile.Clear();
+            projectile.Delete();
         }
         else
         {
             RoomEnemyProjectileKind kind = EnemyProjectileNativeWords.Kinds.Decode(id, "enemy projectile definition");
             VerificationAssertions.AssertTrue(NativeSlotOnlyEnemyProjectileKinds.Contains(kind),
-                $"initial native enemy projectile {projectile.SlotIndex} kind ${id:X4} has a verified slot-only import");
+                $"initial native enemy projectile {projectile.Place} kind ${id:X4} has a verified slot-only import");
             // The snapshot's graphics word packs the projectile's tile base and palette row as an attribute word does: the
             // tile base names the owner whose sheet the projectile draws from (#1513), and the row is decoded into the
             // shading it denotes (#1512): a projectile at its spawner's characters draws in its spawner's row, its standard
@@ -487,9 +487,9 @@ internal static class NativeSnapshotImport
             ushort instruction = W(NativeSnapshotMemory.NativeEnemyProjectileInstruction + index);
             // The typed family resumes at the step the recorded native pointer stands for.
             EnemyProjectileAnimation typed = projectile.Animation ?? throw new InvalidOperationException(
-                $"Initial enemy projectile {projectile.SlotIndex} kind {kind} starts no typed program.");
+                $"Initial enemy projectile {projectile.Place} kind {kind} starts no typed program.");
             VerificationAssertions.AssertEqual(1, NativeEnemyProjectileFamilies.All.Count(family => family.TryResumeAt(cartridge, typed, instruction)),
-                $"initial enemy projectile {projectile.SlotIndex} resumes its typed program");
+                $"initial enemy projectile {projectile.Place} resumes its typed program");
             projectile.FrameHold = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.EnemyProjectileFrameHold + index));
             // The slot-only kinds keep nothing but their program's loop count in the native timer word.
             projectile.LoopCountdown = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.EnemyProjectileTimer + index));
@@ -501,14 +501,14 @@ internal static class NativeSnapshotImport
             EnemyProjectileNativeImportAccess.ShowNativeOperand(
                 projectile, unchecked((ushort)(instruction - 2)));
             VerificationAssertions.AssertEqual(W(NativeSnapshotMemory.EnemyProjectileRadius + index), LittleEndianBytes.Word(unchecked((byte)projectile.Radius.X), unchecked((byte)projectile.Radius.Y)),
-                $"initial enemy projectile {projectile.SlotIndex} radii");
+                $"initial enemy projectile {projectile.Place} radii");
             ushort properties = checked((ushort)projectile.Damage);
             if (projectile.Depth == EnemyProjectileDepth.InFrontOfSamus) properties |= NativeSnapshotMemory.EnemyProjectileInFrontOfSamus;
             if (!projectile.CanDamageSamus) properties |= NativeSnapshotMemory.EnemyProjectileNoContact;
             if (projectile.PersistsOnSamusContact) properties |= NativeSnapshotMemory.EnemyProjectilePersistent;
             if (projectile.BlocksSamusProjectiles) properties |= NativeSnapshotMemory.EnemyProjectileShotCollision;
             VerificationAssertions.AssertEqual(W(NativeSnapshotMemory.EnemyProjectileProperties + index), properties,
-                $"initial enemy projectile {projectile.SlotIndex} properties");
+                $"initial enemy projectile {projectile.Place} properties");
         }
         projectile.Position = projectile.Position.WithWhole(new(
             W(NativeSnapshotMemory.EnemyProjectileX + index), W(NativeSnapshotMemory.EnemyProjectileY + index)));

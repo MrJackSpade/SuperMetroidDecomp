@@ -28,7 +28,7 @@ internal static class BombTorizoStatueFragmentDefinitionsVerification
             BombTorizoStatueFragmentDefinition expected =
                 BombTorizoStatueFragments.ForFragment(index);
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            RoomEnemyProjectileSlot projectile =
+            EnemyProjectile projectile =
                 enemies.BombTorizoBehavior.Attacks.SpawnBombTorizoStatueBreakingProjectile(
                     new BombTorizoStatueProjectileRequest(
                         index,

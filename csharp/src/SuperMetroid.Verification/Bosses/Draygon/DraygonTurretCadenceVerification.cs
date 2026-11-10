@@ -47,11 +47,11 @@ internal static class DraygonTurretCadenceVerification
         {
             runtime.System.SetRandomNumber(0x1234);
             runtime.Enemies.DraygonBehavior.Parts.SpawnDraygonGoop(boss, false);
-            RoomEnemyProjectileSlot goop = runtime.Enemies.Projectiles.EnemyProjectiles.Last(p =>
+            EnemyProjectile goop = runtime.Enemies.Projectiles.EnemyProjectiles.Last(p =>
                 p.Kind == RoomEnemyProjectileKind.DraygonGoop);
             AngledFlightState flight = goop.StateOf<AngledFlightState>();
             var velocity = new SpawnGoopResult(flight.Heading, flight.HorizontalSpeed, flight.VerticalSpeed);
-            goop.Clear();
+            goop.Delete();
             return velocity;
         }
         var beforeTurret = SpawnGoop();
@@ -65,7 +65,7 @@ internal static class DraygonTurretCadenceVerification
         // its ID and Samus's XSpeedDivisor clears, but the routine still moves the slot.
         runtime.System.SetRandomNumber(0x1234);
         runtime.Enemies.DraygonBehavior.Parts.SpawnDraygonGoop(boss, false);
-        RoomEnemyProjectileSlot bombed = runtime.Enemies.Projectiles.EnemyProjectiles.Last(p =>
+        EnemyProjectile bombed = runtime.Enemies.Projectiles.EnemyProjectiles.Last(p =>
             p.Kind == RoomEnemyProjectileKind.DraygonGoop);
         SamusPowerBombExplosionState explosion = runtime.BombProjectiles.PowerBombExplosion;
         explosion.Spawn(bombed.Position.Whole);

@@ -46,7 +46,7 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
             enemies.VerificationServices().NextRandom = () => randomCall++ == 0 ? (ushort)0 : (ushort)0x00ff;
             RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
             torizo.Position = torizo.Position.WithWhole(new(1000, 500));
-            RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles[^1];
+            EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles[^1];
             enemies.BombTorizoBehavior.Attacks.InitializeTorizoRandomizedProjectile(projectile, torizo, definition);
 
             AssertEqual<TorizoProjectileProgram?>(definition.Program, (projectile.Animation as TorizoProjectileAnimation)?.Cursor.Program,
@@ -110,7 +110,7 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
 
         spawn(enemies, torizo);
 
-        RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles[^1];
+        EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles[^1];
         AssertTrue(projectile.IsActive, $"{methodName} facing {facingRight} allocation");
         AssertEqual<TorizoProjectileProgram?>(expected.Program, (projectile.Animation as TorizoProjectileAnimation)?.Cursor.Program,
             $"{methodName} facing {facingRight} program");

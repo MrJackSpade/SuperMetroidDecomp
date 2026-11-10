@@ -13,10 +13,15 @@ using SuperMetroid.Core.Enemies.SpriteObjects;
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
-/// The enemy-projectile engine: the eighteen physical slots, allocation and definition setup, the
-/// per-frame pass (frame behaviours, then each program), the program interpreter, both draw-priority
-/// passes and the Samus collision passes. Species behavior arrives through registered handlers; the engine names
-/// no species.
+/// The enemy-projectile engine: the room's eighteen enemy-projectile places, spawning a fresh projectile into a free
+/// place and its definition setup, the per-frame pass (frame behaviours, then each program), the program interpreter,
+/// both draw-priority passes and the Samus collision passes. Species behavior arrives through registered handlers; the
+/// engine names no species.
+/// <para>
+/// The places are ordered, and gameplay reads the order: spawns take the free place searched from the last down, and
+/// every pass (movement and programs, collisions, drawing) runs from the last place down, so a projectile spawned below
+/// the one being run runs later in the same pass and one spawned above it waits for the next.
+/// </para>
 /// </summary>
 [RoomLifetime]
 internal sealed class EnemyProjectileEngine
@@ -46,12 +51,12 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>Carries out one shared command of a typed projectile program.</summary>
-    private void ApplyCommonCue(RoomEnemyProjectileSlot projectile, EnemyProjectileCommonCue cue)
+    private void ApplyCommonCue(EnemyProjectile projectile, EnemyProjectileCommonCue cue)
     {
         switch (cue)
         {
             case EnemyProjectileCommonCue.Command { Kind: EnemyProjectileCommonCueKind.Delete }:
-                projectile.Clear();
+                projectile.Delete();
                 break;
             case EnemyProjectileCommonCue.SetFrameBehavior setFrameBehavior:
                 projectile.FrameBehavior = setFrameBehavior.FrameBehavior;
@@ -74,7 +79,7 @@ internal sealed class EnemyProjectileEngine
     private readonly EnemyRoomBinding _room;
     /// <summary>Publishes projectiles from the loaded graphics set's sheets.</summary>
     private readonly EnemyPresentation _presentation;
-    /// <summary>Owns dust and explosion sprites separate from projectile slots.</summary>
+    /// <summary>Owns dust and explosion sprites separate from the projectile places.</summary>
     private readonly RoomSpriteObjectPool _spriteObjects;
     /// <summary>Publishes room quake effects requested by projectile instructions.</summary>
     private readonly RoomEarthquake _earthquake;
@@ -91,13 +96,16 @@ internal sealed class EnemyProjectileEngine
         _earthquake = earthquake;
         _audio = audio;
     }
-    /// <summary>The eighteen enemy-projectile slots.</summary>
-    internal const int RoomEnemyProjectileSlotCount = 18;
+    /// <summary>The number of enemy-projectile places.</summary>
+    internal const int PlaceCount = 18;
 
-    /// <summary>Pool including inactive entries, traversed from the highest physical slot down.</summary>
-    private readonly RoomEnemyProjectileSlot[] _enemyProjectiles =
-        Enumerable.Range(0, RoomEnemyProjectileSlotCount)
-            .Select(index => new RoomEnemyProjectileSlot(index))
+    /// <summary>
+    /// Each place's latest projectile, live or gone: the place is free while its projectile is gone or has freed it.
+    /// Until the room spawns into a place, it holds a gone projectile standing where the room before left that place's.
+    /// </summary>
+    private readonly EnemyProjectile[] _places =
+        Enumerable.Range(0, PlaceCount)
+            .Select(place => new EnemyProjectile(place, default))
             .ToArray();
     /// <summary>The frame counter of 0 through 255 sampled by the current projectile pass; verification drives it to step programs.</summary>
     internal int CurrentFrame8 { get; set; }
@@ -114,8 +122,24 @@ internal sealed class EnemyProjectileEngine
     /// <summary>The frame counter of 0 through 65535 for the current projectile pass.</summary>
     internal int CurrentFrame16 { get; private set; }
 
-    /// <summary>All eighteen physical slots, including currently inactive slots.</summary>
-    public IReadOnlyList<RoomEnemyProjectileSlot> EnemyProjectiles => _enemyProjectiles;
+    /// <summary>Each place's latest projectile, in place order, live or gone.</summary>
+    public IReadOnlyList<EnemyProjectile> EnemyProjectiles => _places;
+
+    /// <summary>
+    /// Starts each place from what the room this one replaces left in it (<see cref="RoomHandOver"/>): a gone projectile
+    /// at that place's whole position and velocity, which the room's first spawn there starts from. Called before the
+    /// room's population loads.
+    /// </summary>
+    internal void TakeOverFrom(RoomHandOver handOver)
+    {
+        Ensure.NotNull(handOver);
+        for (int place = 0; place < _places.Length; place++)
+            _places[place] = new EnemyProjectile(place, handOver.EnemyProjectile(place));
+    }
+
+    /// <summary>Leaves what each place's latest projectile left there for the room that replaces this one (<see cref="RoomHandOver"/>).</summary>
+    internal void HandOverTo(RoomHandOver handOver) =>
+        Ensure.NotNull(handOver).LeaveEnemyProjectiles(_places.Select(projectile => projectile.LeftInPlace));
 
     /// <summary>Requests the dud sound a rejected Samus shot makes.</summary>
     internal void RequestDudSound() =>
@@ -135,12 +159,12 @@ internal sealed class EnemyProjectileEngine
         _room.EnsureLoaded();
 
         int hitCount = 0;
-        for (int enemyProjectileIndex = _enemyProjectiles.Length - 1;
+        for (int enemyProjectileIndex = _places.Length - 1;
              enemyProjectileIndex >= 0;
              enemyProjectileIndex--)
         {
-            RoomEnemyProjectileSlot enemyProjectile =
-                _enemyProjectiles[enemyProjectileIndex];
+            EnemyProjectile enemyProjectile =
+                _places[enemyProjectileIndex];
             if (!enemyProjectile.IsActive ||
                 !enemyProjectile.BlocksSamusProjectiles ||
                 enemyProjectile.CollisionOption == EnemyProjectileCollisionOption.NoCollision)
@@ -198,7 +222,7 @@ internal sealed class EnemyProjectileEngine
         return hitCount;
     }
 
-    /// <summary>One projectile pass: every live slot's frame behaviour, then its program.</summary>
+    /// <summary>One projectile pass: every live projectile's frame behaviour, then its program.</summary>
     internal void RunPass(
         RoomLevelData level,
         SamusState? samus,
@@ -209,26 +233,15 @@ internal sealed class EnemyProjectileEngine
     {
         Ensure.NotNull(level);
 
-        // The projectile pass starts at the last physical slot, executes that slot, reloads
-        // the unchanged outer index, steps down one slot, and continues through slot zero.
-        // Array index 17 is the first slot run, so this must be a live descending scan rather than
-        // LINQ's ascending enumeration or a frame-start snapshot.
-        //
-        // The distinction is observable whenever a frame behaviour or animation cue
-        // allocates another projectile. Allocation searches from the last slot down without changing
-        // the pass's outer index. A child allocated below the current physical index is therefore
-        // reached later in THIS pass; a child allocated above it waits until the next pass.
-        // Reusing the current slot also lets the replacement's program run in this
-        // pass after the frame behaviour returns. Reading each array entry at loop time
-        // preserves all three cases and prevents host collection semantics from inventing a
-        // universal one-frame spawn delay.
+        // The pass runs the places from the last down, reading each place when it reaches it rather than a pass-start
+        // snapshot. The distinction is observable whenever a frame behaviour or program cue spawns another projectile:
+        // spawns search from the last place down, so one spawned below the place being run is reached later in THIS
+        // pass, and one spawned above it waits for the next.
         CurrentFrame8 = frameCycle;
         CurrentFrame16 = frameCounter;
-        for (int projectileIndex = _enemyProjectiles.Length - 1;
-             projectileIndex >= 0;
-             projectileIndex--)
+        for (int place = _places.Length - 1; place >= 0; place--)
         {
-            RoomEnemyProjectileSlot projectile = _enemyProjectiles[projectileIndex];
+            EnemyProjectile projectile = _places[place];
             if (!projectile.IsActive)
                 continue;
 
@@ -239,13 +252,13 @@ internal sealed class EnemyProjectileEngine
                 camera,
                 frameCycle,
                 samusBombs);
-            // The pass does not re-read the identity after the frame behaviour: a slot whose identity
-            // the frame behaviour released still runs its program in this pass (a power-bombed
-            // Draygon goop that reaches Samus attaches through its touch list). A slot the port
-            // cleared outright has no timer or animation left, so processing it does nothing.
-            ProcessEnemyProjectileInstructions(projectile, samus, camera);
+            // The program that runs next is that of whatever projectile the place holds after the frame behaviour, live
+            // or not. A projectile that ended and spawned its replacement into its own place hands the rest of the pass
+            // to the replacement, whose program starts in this pass. One that freed its place without ending finishes
+            // its update with its program (a power-bombed Draygon goop that reaches Samus sticks to her through its
+            // touch program, PowerBombedDraygonShotFinishesItsUpdate). One that ended plays no program, so nothing runs.
+            ProcessEnemyProjectileInstructions(_places[place], samus, camera);
         }
-
     }
 
     /// <summary>Publishes projectile hurt requests after room objects; the next Samus phase consumes them.</summary>
@@ -255,16 +268,16 @@ internal sealed class EnemyProjectileEngine
         // Gameplay runs every projectile's update first, then enters the
         // separate Samus-collision pass. That pass samples invincibility and
         // contact-damage state once at entry; damage from one overlapping projectile does
-        // not abort the remaining descending-slot scan. This distinction is observable for
+        // not abort the remaining descending scan of the places. This distinction is observable for
         // Puromi/Nuclear Waffle, whose four persistent body links begin co-located.
         if (samus is null || !samus.InvincibilityTimer.IsZero ||
             samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None)
             return;
 
         KnockbackHorizontalDirection? finalKnockbackXDirection = null;
-        for (int index = _enemyProjectiles.Length - 1; index >= 0; index--)
+        for (int index = _places.Length - 1; index >= 0; index--)
         {
-            RoomEnemyProjectileSlot projectile = _enemyProjectiles[index];
+            EnemyProjectile projectile = _places[index];
             if (projectile.IsActive)
             {
                 finalKnockbackXDirection =
@@ -326,8 +339,8 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>
-    /// Draws the projectiles at <paramref name="depth"/>, the highest slot first: among projectiles at one depth, a
-    /// higher slot's projectile is drawn over a lower slot's.
+    /// Draws the projectiles at <paramref name="depth"/>, the last place first: among projectiles at one depth, one in a
+    /// later place is drawn over one in an earlier place.
     /// </summary>
     internal void DrawEnemyProjectilesAt(
         SpriteFrameBuffer sprites,
@@ -336,11 +349,9 @@ internal sealed class EnemyProjectileEngine
         bool timeIsFrozen)
     {
         Offset16<RoomPixels> shake = _earthquake.GetEnemyProjectileShake(timeIsFrozen);
-        for (int projectileIndex = _enemyProjectiles.Length - 1;
-             projectileIndex >= 0;
-             projectileIndex--)
+        for (int place = _places.Length - 1; place >= 0; place--)
         {
-            RoomEnemyProjectileSlot projectile = _enemyProjectiles[projectileIndex];
+            EnemyProjectile projectile = _places[place];
 
             if (!projectile.IsActive ||
                 projectile.Depth != depth ||
@@ -352,23 +363,23 @@ internal sealed class EnemyProjectileEngine
 
             // The blank frame, and the program frames showing the empty spritemap, draw nothing (#1513).
             if (!EnemyProjectileEmptyFrames.DrawsNothing(frame))
-                _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.EnemyProjectile, projectileIndex),
+                _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.EnemyProjectile, place),
                     EnemySheetDefinitions.ProjectileFrameName(frame), screen, projectile.Graphics);
         }
     }
 
-    /// <summary>Searches the slots from the last down to the first and returns null when the finite pool is full.</summary>
-    internal RoomEnemyProjectileSlot? AllocateEnemyProjectile()
+    /// <summary>
+    /// Spawns a fresh projectile into the first free place searched from the last down, starting from what the place's
+    /// previous projectile left there (<see cref="EnemyProjectileHandOver"/>), or returns null when every place is held.
+    /// The new projectile is gone until its spawner gives it a kind.
+    /// </summary>
+    internal EnemyProjectile? AllocateEnemyProjectile()
     {
-        // Spawning searches from the last slot toward the first.
-        for (int index = _enemyProjectiles.Length - 1; index >= 0; index--)
+        for (int place = _places.Length - 1; place >= 0; place--)
         {
-            RoomEnemyProjectileSlot projectile = _enemyProjectiles[index];
-            if (!projectile.IsActive)
-            {
-                projectile.Clear();
-                return projectile;
-            }
+            EnemyProjectile previous = _places[place];
+            if (!previous.IsActive)
+                return _places[place] = new EnemyProjectile(place, previous.LeftInPlace);
         }
         return null;
     }
@@ -380,7 +391,7 @@ internal sealed class EnemyProjectileEngine
     /// from inventing subtly different radius/property semantics.
     /// </summary>
     internal static void InitializeEnemyProjectileFromDefinition(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         RoomEnemyProjectileKind kind,
         SpriteGraphics graphics)
     {
@@ -409,7 +420,7 @@ internal sealed class EnemyProjectileEngine
 
     /// <summary>Runs the projectile's current frame behaviour before its program advances.</summary>
     private void RunEnemyProjectileFrameBehavior(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         RoomLevelData level,
         SamusState? samus,
         Position16<RoomPixels> camera,
@@ -427,7 +438,7 @@ internal sealed class EnemyProjectileEngine
 
     /// <summary>Moves one projectile axis through each crossed room block and clamps it flush at the first collision.</summary>
     internal static bool MoveProjectileAxis(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         RoomLevelData level,
         Axis axis) =>
         MoveProjectileAxis(projectile, level, axis, axis == Axis.Horizontal ? projectile.Velocity.X : projectile.Velocity.Y);
@@ -437,7 +448,7 @@ internal sealed class EnemyProjectileEngine
     /// each crossed room block, clamping it flush at the first collision.
     /// </summary>
     internal static bool MoveProjectileAxis(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         RoomLevelData level,
         Axis axis,
         SignedEightEight speed)
@@ -519,7 +530,7 @@ internal sealed class EnemyProjectileEngine
     /// <summary>Tests a leading-edge block through extension and slope geometry for one projectile move.</summary>
     private static bool ProjectileAxisProbeHitsRoom(
         RoomLevelData level,
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         Position16<RoomBlocks> block,
         Axis axis,
         bool movingNegative,
@@ -642,12 +653,12 @@ internal sealed class EnemyProjectileEngine
 
     /// <summary>Checks radius overlap and publishes touch-list or damage behavior for a projectile that reaches Samus.</summary>
     internal KnockbackHorizontalDirection? ResolveEnemyProjectileSamusCollision(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         SamusState samus)
     {
         // The Samus-collision pass already made the pass-level invincibility/contact-damage decision.
         // Do not re-read the timer here: the first hit writes it, but the original loop
-        // deliberately continues testing the other projectile slots in this same pass.
+        // deliberately continues testing the other projectiles in this same pass.
         // The pass skips either zero radius before overlap testing. A zero
         // radius is not a point-shaped hazard: decorative wall shards use it to
         // remain harmless even while passing straight through Samus's body.
@@ -686,14 +697,14 @@ internal sealed class EnemyProjectileEngine
         // Generic enemy-projectile contact deletes Ridley's fireball. Afterburn is a wall-
         // impact feature of the fireball's wall hit, so a Samus contact does not create the wall bloom.
         if (!projectile.PersistsOnSamusContact)
-            projectile.Clear();
+            projectile.Delete();
 
         return knockbackXDirection;
     }
 
-    /// <summary>Advances a slot's typed program one projectile pass.</summary>
+    /// <summary>Advances a projectile's typed program one projectile pass.</summary>
     internal void ProcessEnemyProjectileInstructions(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         SamusState? samus,
         Position16<RoomPixels> camera)
     {
@@ -703,10 +714,10 @@ internal sealed class EnemyProjectileEngine
             return;
         }
 
-        // A slot its frame behaviour cleared this pass has no program left, so its program does nothing.
+        // A projectile its frame behaviour ended this pass, or one spawned without a program, runs nothing.
         if (!projectile.IsActive)
             return;
-        throw new InvalidOperationException($"Enemy projectile {projectile.Kind} in slot {projectile.SlotIndex} runs no program.");
+        throw new InvalidOperationException($"Enemy projectile {projectile.Kind} in place {projectile.Place} runs no program.");
     }
 
     /// <summary>
@@ -714,10 +725,10 @@ internal sealed class EnemyProjectileEngine
     /// random sample; <paramref name="xScatter"/> and <paramref name="yScatter"/> read that sample's fields that offset X and Y
     /// around the death actor, before both are centred back by <paramref name="center"/>.
     /// Sprite objects own a separate finite pool, so these decorations never
-    /// consume one of the eighteen pickup/death projectile slots.
+    /// consume one of the eighteen enemy-projectile places.
     /// </summary>
     internal void SpawnRandomEnemyDeathSprite(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         RoomSpriteObjectKind kind,
         RandomSampleField xScatter,
         RandomSampleField yScatter,
@@ -736,7 +747,7 @@ internal sealed class EnemyProjectileEngine
     /// the eventual signs. This peculiar rejection loop is observable in Bomb Torizo's sonic-boom wall impact, so a
     /// host RNG approximation would produce a visibly different debris cloud and desynchronize later randomness.
     /// </summary>
-    internal void Scatter(RoomEnemyProjectileSlot projectile, EnemyProjectileScatter scatter)
+    internal void Scatter(EnemyProjectile projectile, EnemyProjectileScatter scatter)
     {
         Ensure.NotNull(projectile);
         // The fields and centres are authored byte operands (checked below), so the offsets stay within one byte.
@@ -790,7 +801,7 @@ internal sealed class EnemyProjectileEngine
         MiscDustAnimation animation)
     {
         MiscDustProjectileProgram program = MiscDustProjectiles.Program(animation);
-        RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
+        EnemyProjectile? projectile = AllocateEnemyProjectile();
         if (projectile is null)
             return;
 
@@ -815,7 +826,7 @@ internal sealed class EnemyProjectileEngine
     public void SpawnCeresFallingDebris(int xPosition, bool dark, EnemyProjectileAnimation animation, SpriteGraphics graphics)
     {
         _room.EnsureLoaded();
-        RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
+        EnemyProjectile? projectile = AllocateEnemyProjectile();
         if (projectile is null)
             return;
 
@@ -832,11 +843,11 @@ internal sealed class EnemyProjectileEngine
     internal static void AddGunshipDustCues(EnemyProjectileHandlerTable table) =>
         table.AddCue<GunshipDustCue>((context, cue) =>
         {
-            RoomEnemyProjectileSlot projectile = context.Projectile;
+            EnemyProjectile projectile = context.Projectile;
             switch (cue)
             {
                 case GunshipDustCue.Delete:
-                    projectile.Clear();
+                    projectile.Delete();
                     return;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(GunshipDustCue)} {cue}.");
@@ -854,10 +865,10 @@ internal sealed class EnemyProjectileEngine
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(roomWidthInBlocks);
         Ensure.AtLeastZero(roomObjectBlockIndex);
 
-        RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
+        EnemyProjectile? projectile = AllocateEnemyProjectile();
         if (projectile is null)
         {
-            // The projectile spawn deliberately drops a spawn when all eighteen physical slots
+            // The projectile spawn deliberately drops a spawn when all eighteen places
             // are occupied. This is the game's finite-pool behavior, not a host error.
             return;
         }
@@ -874,7 +885,7 @@ internal sealed class EnemyProjectileEngine
     /// <summary>Allocates one of the gunship liftoff's six dust clouds, <paramref name="definition"/>, below Samus.</summary>
     internal void SpawnGunshipLiftoffDustCloud(GunshipDustPlacement definition, SamusState samus)
     {
-        RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
+        EnemyProjectile? projectile = AllocateEnemyProjectile();
         if (projectile is null)
             return;
 
@@ -911,7 +922,7 @@ internal sealed class EnemyProjectileEngine
         int xOffset,
         EightEightVector<RoomPixels> velocity)
     {
-        RoomEnemyProjectileSlot? particle = AllocateEnemyProjectile();
+        EnemyProjectile? particle = AllocateEnemyProjectile();
         if (particle is null)
             return;
 
@@ -944,14 +955,14 @@ internal sealed class EnemyProjectileEngine
     /// or more below it deletes the projectile.
     /// </remarks>
     internal static void DeleteEnemyProjectileIfVerticallyOffScreen(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         int cameraY)
     {
         int screenY = CoordinateAxis.Wrap(projectile.Position.Y.Whole - cameraY);
         if (CoordinateAxis.AsSigned(screenY) >= 0 &&
             screenY >= EnemyProjectileOffScreenDefinitions.VerticalDeletionDepth)
         {
-            projectile.Clear();
+            projectile.Delete();
         }
     }
 
@@ -971,7 +982,7 @@ internal sealed class EnemyProjectileEngine
             if (CoordinateAxis.Wrap(context.Projectile.Position.X.Whole - context.Camera.X) >= 256 ||
                 CoordinateAxis.Wrap(context.Projectile.Position.Y.Whole - context.Camera.Y) >= 256)
             {
-                context.Projectile.Clear();
+                context.Projectile.Delete();
             }
         }, EnemyProjectileFrameBehavior.SkreeParticleFlight);
     }
@@ -985,7 +996,7 @@ internal sealed class EnemyProjectileEngine
             if (EnemyProjectileEngine.MoveProjectileAxis(context.Projectile, context.Level, axis: Axis.Vertical))
             {
                 Position16<RoomPixels> impact = context.Projectile.Position.Whole;
-                context.Projectile.Clear();
+                context.Projectile.Delete();
                 SpawnRoomGraphicsDustExplosion(impact, MiscDustAnimation.SmallDustCloud);
                 _audio.QueueEnemySound(EnemySound.CeresTileFall, priority: SoundRequestPriority.Normal);
             }
@@ -1000,7 +1011,7 @@ internal sealed class EnemyProjectileEngine
         _room.Random.Next(EnemyProjectileRandomBranchDefinitions.OneInFourBranch) == EnemyProjectileRandomBranchDefinitions.OneInFourBranchTaken;
 
     /// <summary>Sets every behavior bit in <paramref name="flags"/>, as a list's property OR does.</summary>
-    internal static void SetPropertyFlags(RoomEnemyProjectileSlot projectile, EnemyProjectilePropertyFlags flags)
+    internal static void SetPropertyFlags(EnemyProjectile projectile, EnemyProjectilePropertyFlags flags)
     {
         Ensure.NotNull(projectile);
         if (flags.HasFlag(EnemyProjectilePropertyFlags.HarmlessToSamus))
@@ -1012,7 +1023,7 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>Clears every behavior bit in <paramref name="flags"/>, as a list's property AND clears the bits its mask leaves out.</summary>
-    internal static void ClearPropertyFlags(RoomEnemyProjectileSlot projectile, EnemyProjectilePropertyFlags flags)
+    internal static void ClearPropertyFlags(EnemyProjectile projectile, EnemyProjectilePropertyFlags flags)
     {
         Ensure.NotNull(projectile);
         if (flags.HasFlag(EnemyProjectilePropertyFlags.HarmlessToSamus))

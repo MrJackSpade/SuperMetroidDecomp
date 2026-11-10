@@ -33,10 +33,10 @@ internal static class FuneNamiheFireballBehaviorVerification
             source.SetSpawnParameter1(EnemyDefinitionId.Fune, kind == RoomEnemyProjectileKind.FuneFireball ? (ushort)0 : (ushort)1);
             foreach (bool movingRight in new[] { false, true })
             {
-                foreach (RoomEnemyProjectileSlot candidate in enemies.Projectiles.EnemyProjectiles)
-                    candidate.Clear();
+                foreach (EnemyProjectile candidate in enemies.Projectiles.EnemyProjectiles)
+                    candidate.Delete();
                 enemies.FuneNamiheBehavior.SpawnFuneNamiheFireball(source, movingRight ? HorizontalDirection.Right : HorizontalDirection.Left, kind);
-                RoomEnemyProjectileSlot fireball = enemies.Projectiles.EnemyProjectiles.Single(candidate => candidate.Kind == kind);
+                EnemyProjectile fireball = enemies.Projectiles.EnemyProjectiles.Single(candidate => candidate.Kind == kind);
                 FuneNamiheFireballProgram program = movingRight ? FuneNamiheFireballProgram.Right : FuneNamiheFireballProgram.Left;
                 AssertTrue(fireball.Animation is FuneNamiheFireballAnimation animation && animation.Cursor.Program == program,
                     $"the {kind} fireball moving {(movingRight ? "right" : "left")} starts {program}");

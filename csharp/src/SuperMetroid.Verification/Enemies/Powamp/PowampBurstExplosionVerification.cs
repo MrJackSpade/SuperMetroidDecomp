@@ -27,9 +27,9 @@ internal static class PowampBurstExplosionVerification
         AssertEqual(EnemyDeathExplosion.Small, ExplosionAfter(null), "a burst that found the pool full selects the small explosion");
 
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyProjectileSlot[] pool = [.. enemies.Projectiles.EnemyProjectiles];
+        EnemyProjectile[] pool = [.. enemies.Projectiles.EnemyProjectiles];
         // Occupy every place above the ninth and the first, so the eight spikes take the second through ninth places.
-        foreach (RoomEnemyProjectileSlot occupied in pool.Where(slot => slot.SlotIndex is 0 or > 8))
+        foreach (EnemyProjectile occupied in pool.Where(slot => slot.Place is 0 or > 8))
             occupied.Kind = RoomEnemyProjectileKind.MiscDustExplosion;
         var body = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
         {
@@ -38,9 +38,9 @@ internal static class PowampBurstExplosionVerification
         AssertEqual<int?>(1, enemies.PowampBehavior.SpawnPowampSpikeBurst(body), "the burst's last spike takes the second place");
         AssertEqual(8, pool.Count(slot => slot.Kind == RoomEnemyProjectileKind.PowampSpike), "the burst fires all eight spikes");
 
-        foreach (RoomEnemyProjectileSlot slot in pool)
-            slot.Clear();
-        foreach (RoomEnemyProjectileSlot occupied in pool.Where(slot => slot.SlotIndex > 4))
+        foreach (EnemyProjectile slot in pool)
+            slot.Delete();
+        foreach (EnemyProjectile occupied in pool.Where(slot => slot.Place > 4))
             occupied.Kind = RoomEnemyProjectileKind.MiscDustExplosion;
         AssertEqual<int?>(null, enemies.PowampBehavior.SpawnPowampSpikeBurst(body), "a burst finding the pool full before its eighth spike reports none");
         Console.WriteLine("  Powamp burst explosion: the last spike's pool place selects the explosion; a full pool selects the small one.");

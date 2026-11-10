@@ -30,7 +30,7 @@ internal sealed class PrePhantoonRoomBehavior
     public void SpawnPrePhantoonRoomProjectile()
     {
         _room.EnsureLoaded();
-        RoomEnemyProjectileSlot projectile = _projectiles.AllocateEnemyProjectile() ?? throw new InvalidOperationException(
+        EnemyProjectile projectile = _projectiles.AllocateEnemyProjectile() ?? throw new InvalidOperationException(
             "The pre-Phantoon room projectile found no free slot in a freshly cleared pool.");
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.PrePhantoonRoom, graphics: default);
         projectile.StartAnimation(new PrePhantoonRoomAnimation());
@@ -41,11 +41,11 @@ internal sealed class PrePhantoonRoomBehavior
     {
         table.AddCue<PrePhantoonRoomCue>((context, cue) =>
         {
-            RoomEnemyProjectileSlot projectile = context.Projectile;
+            EnemyProjectile projectile = context.Projectile;
             switch (cue)
             {
                 case PrePhantoonRoomCue.Delete:
-                    projectile.Clear();
+                    projectile.Delete();
                     return;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(PrePhantoonRoomCue)} {cue}.");

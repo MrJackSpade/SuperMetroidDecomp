@@ -21,7 +21,7 @@ internal static class EnemyProjectileSlotFrameAccess
     }
 
     /// <summary>Native views of a slot.</summary>
-    extension(RoomEnemyProjectileSlot self)
+    extension(EnemyProjectile self)
     {
         /// <summary>The bank-$8D spritemap word the native slot holds: zero once freed, the blank map under a program frame.</summary>
         internal ushort SpritemapPointer => self.Frame is not { } frame ? (ushort)0

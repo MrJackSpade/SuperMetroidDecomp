@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// families whose lists run on into, or jump between, one another. Each cue goes to the handler its family
 /// registered with <see cref="EnemyProjectileHandlerTable.AddCue{TCue}"/>, or with
 /// <see cref="EnemyProjectileHandlerTable.AddBranchingCue{TProgram, TCue}"/> when a cue may redirect the program,
-/// as a conditional goto does. Counter steps count the projectile's <see cref="RoomEnemyProjectileSlot.LoopCountdown"/>.
+/// as a conditional goto does. Counter steps count the projectile's <see cref="EnemyProjectile.LoopCountdown"/>.
 /// </summary>
 /// <typeparam name="TProgram">The family's program identity.</typeparam>
 /// <typeparam name="TFrame">The family's frame identity.</typeparam>
@@ -33,7 +33,7 @@ internal abstract class EnemyProjectileProgramAnimation<TProgram, TFrame, TCue> 
     private protected sealed override bool TryShowNextFrame(
         EnemyProjectileCueContext context, EnemyProjectileHandlerTable handlers, out int duration, out EnemyProjectileFrameId frame)
     {
-        RoomEnemyProjectileSlot projectile = context.Projectile;
+        EnemyProjectile projectile = context.Projectile;
         AnimationProgramCursor<TProgram> cursor = Cursor;
         WrappingCountdown counter = projectile.LoopCountdown;
         AnimationProgramAdvance<TFrame> advance = Programs.Advance(ref cursor, ref counter,

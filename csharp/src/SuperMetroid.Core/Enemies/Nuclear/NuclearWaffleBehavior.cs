@@ -143,7 +143,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         // Keep array order identical to the later descending update loop.
         for (int segmentIndex = 0; segmentIndex < state.ProjectileSegments.Length; segmentIndex++)
         {
-            RoomEnemyProjectileSlot? segment = _projectiles.AllocateEnemyProjectile();
+            EnemyProjectile? segment = _projectiles.AllocateEnemyProjectile();
             if (segment is null)
                 throw new InvalidOperationException("Nuclear Waffle exhausted the enemy-projectile pool during room load.");
 
@@ -190,7 +190,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         for (int index = 0; index < state.ProjectileSegments.Length; index++)
         {
             angle -= state.SegmentSpacing;
-            RoomEnemyProjectileSlot segment = state.ProjectileSegments[index]
+            EnemyProjectile segment = state.ProjectileSegments[index]
                 ?? throw new InvalidOperationException("Nuclear Waffle projectile link was not allocated.");
             NuclearWaffleOrientation orientation = GetNuclearWaffleOrientation(state, angle);
             if (orientation.State != state.ProjectileOrientationStates[index])

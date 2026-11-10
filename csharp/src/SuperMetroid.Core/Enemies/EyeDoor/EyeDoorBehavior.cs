@@ -52,7 +52,7 @@ internal sealed class EyeDoorBehavior
                 $"Undefined {nameof(EyeDoorProjectileDefinition)} {request.Definition}."),
         };
 
-        RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return; // Spawning fails when all eighteen projectile slots are live.
 
@@ -210,7 +210,7 @@ internal sealed class EyeDoorBehavior
 
     /// <summary>Places the eye's shot on the side the eye faces and retains its door bit.</summary>
     private static void InitializeEyeDoorProjectile(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         EyeDoorProjectileRequest request,
         Position16<RoomBlocks> block)
     {
@@ -227,7 +227,7 @@ internal sealed class EyeDoorBehavior
 
     /// <summary>Places sweat below the eye block and launches it toward the side the eye faces.</summary>
     private static void InitializeEyeDoorSweat(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         EyeDoorOrientation facing,
         Position16<RoomBlocks> block)
     {
@@ -245,7 +245,7 @@ internal sealed class EyeDoorBehavior
     /// uses one shared random sample for both smoke offsets, then advances the seed.
     /// </summary>
     internal void InitializeEyeDoorSmoke(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         MiscDustAnimation animation,
         int placementIndex,
         Position16<RoomBlocks> block)
@@ -267,7 +267,7 @@ internal sealed class EyeDoorBehavior
 
     /// <summary>Moves the eye shot, accelerates along its angle, and switches to impact on collision or door opening.</summary>
     internal void RunEyeDoorProjectileFrameBehavior(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         RoomLevelData level)
     {
         if (MoveEyeDoorEffectHorizontally(projectile, level) ||
@@ -290,7 +290,7 @@ internal sealed class EyeDoorBehavior
 
     /// <summary>Applies sweat gravity and enters the impact list on a downward vertical collision.</summary>
     internal static void RunEyeDoorSweatFrameBehavior(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         RoomLevelData level)
     {
         MoveEyeDoorEffectHorizontally(projectile, level);
@@ -318,14 +318,14 @@ internal sealed class EyeDoorBehavior
     private static readonly SignedEightEight EyeDoorSweatGravity = SignedEightEight.FromSignedRaw(12);
 
     /// <summary>Sends an eye-door shot into its typed impact program, stopping its movement as the list switch does.</summary>
-    private static void StartEyeDoorProjectileImpact(RoomEnemyProjectileSlot projectile)
+    private static void StartEyeDoorProjectileImpact(EnemyProjectile projectile)
     {
         projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
         projectile.StartAnimation(new EyeDoorProjectileAnimation(EyeDoorProjectileProgram.Impact));
     }
 
     /// <summary>Carries out one cue of the eye-door shot's programs.</summary>
-    private static void ApplyEyeDoorProjectileCue(RoomEnemyProjectileSlot projectile, IRoomSamus? samus, EyeDoorProjectileCue cue)
+    private static void ApplyEyeDoorProjectileCue(EnemyProjectile projectile, IRoomSamus? samus, EyeDoorProjectileCue cue)
     {
         switch (cue.Kind)
         {
@@ -339,7 +339,7 @@ internal sealed class EyeDoorBehavior
                 projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
                 break;
             case EyeDoorProjectileCueKind.Delete:
-                projectile.Clear();
+                projectile.Delete();
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EyeDoorProjectileCueKind)} {cue.Kind}.");
@@ -350,7 +350,7 @@ internal sealed class EyeDoorBehavior
     /// Aims the projectile at Samus: keeps the angle to
     /// Samus and launches the shot along it at unit speed.
     /// </summary>
-    private static void AimEyeDoorProjectileAtSamus(RoomEnemyProjectileSlot projectile, IRoomSamus samus)
+    private static void AimEyeDoorProjectileAtSamus(EnemyProjectile projectile, IRoomSamus samus)
     {
         EyeDoorShotState shot = projectile.StateOf<EyeDoorShotState>();
         shot.Heading = new TrigonometryAngle(EnemyMath.CalculateBearing(
@@ -361,7 +361,7 @@ internal sealed class EyeDoorBehavior
 
     /// <summary>Advances horizontal subpixels or snaps to the first solid leading edge.</summary>
     private static bool MoveEyeDoorEffectHorizontally(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         RoomLevelData level)
     {
         FixedCoordinate moved = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta()).X;
@@ -405,7 +405,7 @@ internal sealed class EyeDoorBehavior
 
     /// <summary>Advances vertical subpixels or snaps to the first solid leading edge.</summary>
     private static bool MoveEyeDoorEffectVertically(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         RoomLevelData level)
     {
         FixedCoordinate moved = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta()).Y;

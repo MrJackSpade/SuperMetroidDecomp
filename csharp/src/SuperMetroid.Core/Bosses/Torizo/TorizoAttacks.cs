@@ -107,7 +107,7 @@ internal sealed class TorizoAttacks
     /// Carries out one cue of a Torizo projectile's program, returning the program a conditional cue continues at, or
     /// null to run on.
     /// </summary>
-    internal TorizoProjectileProgram? ApplyTorizoProjectileCue(RoomEnemyProjectileSlot projectile, SamusState? samus, TorizoProjectileCue cue)
+    internal TorizoProjectileProgram? ApplyTorizoProjectileCue(EnemyProjectile projectile, SamusState? samus, TorizoProjectileCue cue)
     {
         switch (cue)
         {
@@ -131,7 +131,7 @@ internal sealed class TorizoAttacks
                 _audio.QueueEnemySound(playSound.Sound, playSound.Priority);
                 return null;
             case TorizoProjectileCue.Command { Kind: TorizoProjectileCueKind.Delete }:
-                projectile.Clear();
+                projectile.Delete();
                 return null;
             case TorizoProjectileCue.Command { Kind: TorizoProjectileCueKind.Hatch }:
                 return projectile.StateOf<GoldenTorizoEggState>().FacingRight ? TorizoProjectileProgram.EggHatchedRight : TorizoProjectileProgram.EggHatchedLeft;
@@ -181,7 +181,7 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>The program a Torizo projectile's typed animation is running.</summary>
-    private static TorizoProjectileProgram RunningTorizoProjectileProgram(RoomEnemyProjectileSlot projectile) =>
+    private static TorizoProjectileProgram RunningTorizoProjectileProgram(EnemyProjectile projectile) =>
         projectile.Animation is TorizoProjectileAnimation animation
             ? animation.Cursor.Program
             : throw new InvalidOperationException($"Enemy projectile {projectile.Kind} is not running a Torizo program.");
@@ -195,7 +195,7 @@ internal sealed class TorizoAttacks
         RoomEnemySlot torizo,
         RoomEnemyProjectileKind kind)
     {
-        RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
 
@@ -278,7 +278,7 @@ internal sealed class TorizoAttacks
     {
         Offset16<RoomPixels> placement = BombTorizoAttacks.Swipe(swipe);
 
-        RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
@@ -300,7 +300,7 @@ internal sealed class TorizoAttacks
                 site,
                 facingRight: _access.FacesRight(torizo));
 
-        RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
@@ -315,7 +315,7 @@ internal sealed class TorizoAttacks
     /// <summary>Starts a death explosion at the statue center and stores that center for its later instruction frames.</summary>
     internal void SpawnBombTorizoDeathExplosion(RoomEnemySlot torizo)
     {
-        RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
@@ -330,7 +330,7 @@ internal sealed class TorizoAttacks
     /// <summary>Allocates Bomb Torizo's Chozo orb with facing-dependent placement and randomized velocity.</summary>
     internal void SpawnBombTorizoChozoOrb(RoomEnemySlot torizo)
     {
-        RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
@@ -362,7 +362,7 @@ internal sealed class TorizoAttacks
         RoomEnemySlot torizo,
         RoomEnemyProjectileKind kind)
     {
-        RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
@@ -389,7 +389,7 @@ internal sealed class TorizoAttacks
     /// <summary>Allocates Golden Torizo's orb using the variant's facing-specific offset and randomized speed.</summary>
     internal void SpawnGoldenTorizoChozoOrb(RoomEnemySlot torizo)
     {
-        RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
 
@@ -407,7 +407,7 @@ internal sealed class TorizoAttacks
     /// <summary>Starts a Golden egg with the game's fixed 66-frame hatch timer and randomized launch speed.</summary>
     internal void SpawnGoldenTorizoEgg(RoomEnemySlot torizo)
     {
-        RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
 
@@ -428,7 +428,7 @@ internal sealed class TorizoAttacks
     /// <summary>Attaches a caught super missile above the active hand and selects its facing-dependent program.</summary>
     internal void SpawnGoldenTorizoSuperMissile(RoomEnemySlot torizo)
     {
-        RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
 
@@ -444,7 +444,7 @@ internal sealed class TorizoAttacks
     /// <summary>Fires an eye beam from the facing-specific offset with room-RNG angular spread.</summary>
     internal void SpawnGoldenTorizoEyeBeam(RoomEnemySlot torizo)
     {
-        RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
 
@@ -472,7 +472,7 @@ internal sealed class TorizoAttacks
 
     /// <summary>Applies the projectile definition and draws horizontal jitter before vertical jitter.</summary>
     internal void InitializeTorizoRandomizedProjectile(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         RoomEnemySlot torizo,
         TorizoRandomizedProjectileDefinition definition)
     {
@@ -491,7 +491,7 @@ internal sealed class TorizoAttacks
     /// <summary>Places a foot-specific dust effect 48 pixels below the statue after a landing step.</summary>
     internal void SpawnBombTorizoLandingDust(RoomEnemySlot torizo, HorizontalDirection foot)
     {
-        RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
         RoomEnemyProjectileKind kind = foot == HorizontalDirection.Right
@@ -504,7 +504,7 @@ internal sealed class TorizoAttacks
 
     /// <summary>Moves Bomb Torizo's orb through walls and floor, disabling damage on impact and adding gravity in flight.</summary>
     internal static void RunBombTorizoChozoOrbFrameBehavior(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         RoomLevelData level)
     {
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
@@ -526,12 +526,12 @@ internal sealed class TorizoAttacks
 
         projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + TorizoMotionDefinitions.BombOrbGravity);
         if (IsRunaway(projectile.Velocity.Y))
-            projectile.Clear();
+            projectile.Delete();
     }
 
     /// <summary>Accelerates the sonic boom horizontally and switches to its non-damaging wall-impact program.</summary>
     internal static void RunBombTorizoSonicBoomFrameBehavior(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         RoomLevelData level)
     {
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
@@ -546,7 +546,7 @@ internal sealed class TorizoAttacks
             ? projectile.Velocity.X - TorizoMotionDefinitions.SonicBoomAcceleration
             : projectile.Velocity.X + TorizoMotionDefinitions.SonicBoomAcceleration);
         if (IsRunaway(projectile.Velocity.X))
-            projectile.Clear();
+            projectile.Delete();
     }
 
     /// <summary>
@@ -555,7 +555,7 @@ internal sealed class TorizoAttacks
     /// negative and nonnegative drag branches load three when they cross zero.
     /// </summary>
     internal static void RunBombTorizoDroolFrameBehavior(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         RoomLevelData level)
     {
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
@@ -583,12 +583,12 @@ internal sealed class TorizoAttacks
 
         projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + TorizoMotionDefinitions.DroolAndMissileGravity);
         if (IsRunaway(projectile.Velocity.Y))
-            projectile.Clear();
+            projectile.Delete();
     }
 
     /// <summary>Bounces Golden Torizo's orb off walls and the floor, slowing horizontal motion until floor impact.</summary>
     internal static void RunGoldenTorizoChozoOrbFrameBehavior(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         RoomLevelData level)
     {
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
@@ -618,7 +618,7 @@ internal sealed class TorizoAttacks
 
     /// <summary>Counts down the egg's hatch timer while bouncing it off terrain with horizontal drag and gravity.</summary>
     internal static void RunGoldenTorizoEggFrameBehavior(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         RoomLevelData level)
     {
         GoldenTorizoEggState egg = projectile.StateOf<GoldenTorizoEggState>();
@@ -650,12 +650,12 @@ internal sealed class TorizoAttacks
 
         projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + TorizoMotionDefinitions.EggAcceleration);
         if (IsRunaway(projectile.Velocity.Y))
-            projectile.Clear();
+            projectile.Delete();
     }
 
     /// <summary>Accelerates the hatched egg sideways and changes to its fall phase when it hits a wall.</summary>
     internal static void RunGoldenTorizoEggHorizontalCharge(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         RoomLevelData level)
     {
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
@@ -673,7 +673,7 @@ internal sealed class TorizoAttacks
 
     /// <summary>Accelerates the egg downward until floor contact selects the facing-specific break program.</summary>
     internal static void RunGoldenTorizoEggFall(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         RoomLevelData level)
     {
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical))
@@ -686,12 +686,12 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>Keeps the held super missile beside Golden Torizo's hand, clearing it if its owner is gone.</summary>
-    internal void RunGoldenTorizoSuperMissileFrameBehavior(RoomEnemyProjectileSlot projectile)
+    internal void RunGoldenTorizoSuperMissileFrameBehavior(EnemyProjectile projectile)
     {
         TorizoEnemyState? state = GoldenTorizo;
         if (state is null)
         {
-            projectile.Clear();
+            projectile.Delete();
             return;
         }
 
@@ -702,7 +702,7 @@ internal sealed class TorizoAttacks
 
     /// <summary>Moves the thrown super missile until wall or downward floor impact, applying gravity in flight.</summary>
     internal static void RunGoldenTorizoSuperMissileFlight(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         RoomLevelData level)
     {
         bool impact = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal);
@@ -720,12 +720,12 @@ internal sealed class TorizoAttacks
 
         projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + TorizoMotionDefinitions.DroolAndMissileGravity);
         if (IsRunaway(projectile.Velocity.Y))
-            projectile.Clear();
+            projectile.Delete();
     }
 
     /// <summary>Aims the thrown missile toward or away from Samus using the up-zero angle convention.</summary>
     internal static void SetGoldenTorizoSuperMissileVelocity(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         SamusState samus,
         bool awayFromSamus)
     {
@@ -743,7 +743,7 @@ internal sealed class TorizoAttacks
 
     /// <summary>Selects wall or floor impact artwork when the eye beam strikes terrain.</summary>
     internal static void RunGoldenTorizoEyeBeamFrameBehavior(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         RoomLevelData level)
     {
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
@@ -765,7 +765,7 @@ internal sealed class TorizoAttacks
     /// Torizo's nonzero-area orb, which the cue carries as its typed meaning. This runtime already identifies the
     /// concrete loaded variant, which is the exact room-scoped equivalent of consulting the global area byte.
     /// </summary>
-    internal void RequestTorizoChozoOrbDrop(RoomEnemyProjectileSlot projectile)
+    internal void RequestTorizoChozoOrbDrop(EnemyProjectile projectile)
     {
         if (projectile.Kind is not (
                 RoomEnemyProjectileKind.BombTorizoChozoOrb or
@@ -790,14 +790,14 @@ internal sealed class TorizoAttacks
     /// Allocates the room-graphics enemy projectile a room object's script requests, then runs the statue fragment's
     /// initializer against the publishing room object's block coordinates.
     /// </summary>
-    public RoomEnemyProjectileSlot? SpawnBombTorizoStatueBreakingProjectile(
+    public EnemyProjectile? SpawnBombTorizoStatueBreakingProjectile(
         BombTorizoStatueProjectileRequest request)
     {
         _room.EnsureLoaded();
         BombTorizoStatueFragmentDefinition definition =
             BombTorizoStatueFragments.ForFragment(request.Fragment);
 
-        RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return null; // The projectile spawner silently drops work when all eighteen slots fill.
 
@@ -818,13 +818,13 @@ internal sealed class TorizoAttacks
     /// <see cref="FirstSlotFallAcceleration"/>.
     /// </summary>
     internal void RunBombTorizoStatueBreakingFrameBehavior(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         RoomLevelData level)
     {
         bool collided = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical);
         if (projectile.Velocity.Y.IsNegative || !collided)
         {
-            RoomEnemyProjectileSlot firstSlot = _projectiles.EnemyProjectiles[0];
+            EnemyProjectile firstSlot = _projectiles.EnemyProjectiles[0];
             SignedEightEight acceleration = FirstSlotFallAcceleration.Of(
                 firstSlot.IsActive,
                 firstSlot.IsActive && firstSlot.State is BombTorizoStatueFragmentState piece ? piece.Acceleration : null);

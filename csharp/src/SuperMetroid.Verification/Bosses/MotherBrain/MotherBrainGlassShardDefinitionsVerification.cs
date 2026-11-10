@@ -41,7 +41,7 @@ internal static class MotherBrainGlassShardDefinitionsVerification
                     direction,
                     RoomObjectBlock: new(0x20, 0x08)));
 
-                RoomEnemyProjectileSlot shard =
+                EnemyProjectile shard =
                     enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
                 AssertTrue(shard.Animation is MotherBrainGlassAnimation started &&
                     started.Program == MotherBrainGlassAnimations.ShardProgram(animationIndex),

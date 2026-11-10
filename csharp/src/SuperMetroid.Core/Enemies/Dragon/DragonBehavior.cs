@@ -374,7 +374,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Spawns and initializes a Dragon fireball.</summary>
     internal void SpawnDragonFireball(RoomEnemySlot body, DragonEnemyState bodyState)
     {
-        RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
 
@@ -402,7 +402,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the fireball's per-frame behaviour.</summary>
     internal static void RunDragonFireballFrameBehavior(
-        RoomEnemyProjectileSlot projectile,
+        EnemyProjectile projectile,
         int cameraY)
     {
         projectile.Position = projectile.Position.Advance(projectile.Velocity.ToSixteenSixteen());

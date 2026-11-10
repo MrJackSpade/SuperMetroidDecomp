@@ -70,7 +70,7 @@ keeps the branch the cartridge takes:
 | `DEC` then `BNE`/`BEQ` (expire on reaching zero) | `step.IsZero` |
 | `DEC`, `BEQ`, `BMI` | `step.IsZeroOrNegative` |
 | `LDA`, `BEQ`, `DEC` (saturating) | `t = t.DecrementToZero()` |
-| 8-bit `DEC` of a low byte beside independent high-byte state | `WrappingCounter.DecrementLowHalf(word)` |
+| 8-bit `DEC` of a low byte beside independent high-byte state | `WrappingCountdown.DecrementEightBitCount()` |
 
 A site that also reads the timer as a number (a table index, a threshold other than zero or the sign)
 reads `RawValue` explicitly. A countdown is stored as `WrappingCountdown` by the state that owns it. A timer
@@ -141,9 +141,9 @@ Botwoon is the reference migration:
 - Owners keep the cartridge's timer gate. A frame expires on the update its native timer would, and
   a hold behaves like the native sleep: the timer wraps and the last frame stays. Botwoon's head
   advances in `AdvanceBotwoonHeadAnimation`. Projectiles run an `EnemyProjectileAnimation` held on
-  the slot, which the interpreter yields to.
-- A native program installed later (a shot or touch redirect, or a landed segment's shared
-  explosion) goes through `RoomEnemyProjectileSlot.StartNativeProgram`. That call ends the typed
+  the projectile, which the interpreter yields to.
+- A program installed later (a shot or touch redirect, or a landed segment's shared
+  explosion) goes through `EnemyProjectile.StartAnimation`. That call ends the running
   animation structurally.
 - The frames are named semantically in the simulation. The one place that knows which cartridge spritemap
   or artwork operand a frame came from is the extraction that produces the installed artwork; a definitions

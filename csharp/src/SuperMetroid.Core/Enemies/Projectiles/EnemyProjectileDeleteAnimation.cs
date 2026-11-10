@@ -19,7 +19,7 @@ internal sealed class EnemyProjectileDeleteAnimation : EnemyProjectileAnimation
     private protected override bool TryShowNextFrame(
         EnemyProjectileCueContext context, EnemyProjectileHandlerTable handlers, out int duration, out EnemyProjectileFrameId frame)
     {
-        context.Projectile.Clear();
+        context.Projectile.Delete();
         duration = 0;
         frame = default;
         return false;

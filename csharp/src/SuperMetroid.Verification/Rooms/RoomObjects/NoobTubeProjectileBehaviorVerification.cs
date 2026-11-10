@@ -34,7 +34,7 @@ internal static class NoobTubeProjectileBehaviorVerification
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, NoobTubeProjectileNativeListAddresses.Extent, "n00b tube projectile");
 
         RoomEnemySystem crackSystem = NewSystem();
-        RoomEnemyProjectileSlot crack = Spawn(crackSystem, RoomEnemyProjectileKind.NoobTubeCrack, piece: null);
+        EnemyProjectile crack = Spawn(crackSystem, RoomEnemyProjectileKind.NoobTubeCrack, piece: null);
         AssertTrue(crack.Animation is NoobTubeProjectileAnimation { Cursor.Program: NoobTubeProjectileProgram.Crack },
             "real n00b-tube crack producer starts the crack program");
         AssertEqual(48, RunThroughDeletion(crackSystem, crack, maximumTicks: 64),
@@ -50,7 +50,7 @@ internal static class NoobTubeProjectileBehaviorVerification
         for (int piece = 0; piece < shards.Length; piece++)
         {
             RoomEnemySystem shardSystem = NewSystem();
-            RoomEnemyProjectileSlot shard = Spawn(shardSystem, RoomEnemyProjectileKind.NoobTubeShard, piece);
+            EnemyProjectile shard = Spawn(shardSystem, RoomEnemyProjectileKind.NoobTubeShard, piece);
             AssertTrue(shard.Animation is NoobTubeProjectileAnimation animation && animation.Cursor.Program == shards[piece],
                 $"real n00b-tube shard producer selects shard {piece}'s program");
             AssertEqual(305, RunThroughDeletion(shardSystem, shard, maximumTicks: 320),
@@ -60,7 +60,7 @@ internal static class NoobTubeProjectileBehaviorVerification
         for (int piece = 0; piece < 6; piece++)
         {
             RoomEnemySystem bubbleSystem = NewSystem();
-            RoomEnemyProjectileSlot bubble = Spawn(bubbleSystem, RoomEnemyProjectileKind.NoobTubeReleasedAirBubble, piece);
+            EnemyProjectile bubble = Spawn(bubbleSystem, RoomEnemyProjectileKind.NoobTubeReleasedAirBubble, piece);
             AssertTrue(bubble.Animation is NoobTubeProjectileAnimation { Cursor.Program: NoobTubeProjectileProgram.ReleasedAirBubble },
                 $"real released-air-bubble producer for bubble {piece} starts the bubble program");
             AssertEqual(16, RunThroughDeletion(bubbleSystem, bubble, maximumTicks: 24),
@@ -84,7 +84,7 @@ internal static class NoobTubeProjectileBehaviorVerification
             return system;
         }
 
-        RoomEnemyProjectileSlot Spawn(RoomEnemySystem system, RoomEnemyProjectileKind kind, int? piece)
+        EnemyProjectile Spawn(RoomEnemySystem system, RoomEnemyProjectileKind kind, int? piece)
         {
             NoobTubeProjectileDefinition definition = kind switch
             {
@@ -220,7 +220,7 @@ internal static class NoobTubeProjectileBehaviorVerification
             return system.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == kind);
         }
 
-        int RunThroughDeletion(RoomEnemySystem system, RoomEnemyProjectileSlot projectile, int maximumTicks)
+        int RunThroughDeletion(RoomEnemySystem system, EnemyProjectile projectile, int maximumTicks)
         {
             for (int tick = 1; tick <= maximumTicks; tick++)
             {
@@ -233,7 +233,7 @@ internal static class NoobTubeProjectileBehaviorVerification
             throw new InvalidOperationException($"N00b-tube projectile {projectile.Kind} exceeded {maximumTicks} forced ticks.");
         }
 
-        void Process(RoomEnemySystem system, RoomEnemyProjectileSlot projectile)
+        void Process(RoomEnemySystem system, EnemyProjectile projectile)
         {
             system.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), Position16<RoomPixels>.Zero);
             if (!projectile.IsActive)

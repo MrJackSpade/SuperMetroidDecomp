@@ -1,11 +1,11 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// The definition occupying one live room-enemy projectile slot. The values are arbitrary (#1452).
+/// What an enemy projectile is. The values are arbitrary (#1452).
 /// </summary>
 public enum RoomEnemyProjectileKind
 {
-    /// <summary>No projectile: the physical slot is available for allocation.</summary>
+    /// <summary>No projectile: the projectile is gone or has freed its place, and the place is free for a spawn.</summary>
     None = 0,
     /// <summary>The pre-Phantoon room's background-offset keeper, spawned by the room's setup.</summary>
     PrePhantoonRoom = 1,

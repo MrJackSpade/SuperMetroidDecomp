@@ -34,7 +34,7 @@ internal static class MiscDustProjectileBehaviorVerification
         {
             RoomEnemySystem enemies = CreateRoomEnemySystem();
             enemies.Projectiles.SpawnRoomGraphicsDustExplosion(new Position16<RoomPixels>(128, 96), animation);
-            RoomEnemyProjectileSlot dust = enemies.Projectiles.EnemyProjectiles.Single(
+            EnemyProjectile dust = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.MiscDustExplosion);
             MiscDustProjectileProgram program = MiscDustProjectiles.Program(animation);
             AssertTrue(dust.Animation is MiscDustProjectileAnimation started && started.Cursor.Program == program,
@@ -69,7 +69,7 @@ internal static class MiscDustProjectileBehaviorVerification
                 new EyeDoorProjectileRequest(puff, Facing: EyeDoorOrientation.Left, RoomObjectBlockIndex: 4 * 16 + 7, Door: SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(0)),
                 roomWidthInBlocks: 16,
                 new SharedGameState(new SharedRandom()));
-            RoomEnemyProjectileSlot smoke = smokeEnemies.Projectiles.EnemyProjectiles.Single(
+            EnemyProjectile smoke = smokeEnemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.EyeDoorSmoke);
             MiscDustProjectileProgram expected = MiscDustProjectiles.Program(animation);
             AssertTrue(smoke.Animation is MiscDustProjectileAnimation started && started.Cursor.Program == expected,
@@ -102,7 +102,7 @@ internal static class MiscDustProjectileBehaviorVerification
     }
 
     /// <summary>Forces <paramref name="count"/> frame expiries, checking each shown frame.</summary>
-    internal static void RunForcedTicks(ISnesAddressSpace rom, RoomEnemySystem enemies, RoomEnemyProjectileSlot projectile, SamusState samus, int count)
+    internal static void RunForcedTicks(ISnesAddressSpace rom, RoomEnemySystem enemies, EnemyProjectile projectile, SamusState samus, int count)
     {
         for (int tick = 0; tick < count; tick++)
         {
@@ -115,7 +115,7 @@ internal static class MiscDustProjectileBehaviorVerification
     /// Runs one projectile pass; a frame shown on it must be an installed key, leave its spritemap to installed content,
     /// and last as long as the native frame whose operand that key is.
     /// </summary>
-    internal static void Process(ISnesAddressSpace rom, RoomEnemySystem enemies, RoomEnemyProjectileSlot projectile, SamusState samus)
+    internal static void Process(ISnesAddressSpace rom, RoomEnemySystem enemies, EnemyProjectile projectile, SamusState samus)
     {
         bool selectsFrame = projectile.FrameHold.RawValue == 1;
         enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, samus, Position16<RoomPixels>.Zero);

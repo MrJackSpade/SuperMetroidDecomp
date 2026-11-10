@@ -26,7 +26,7 @@ internal interface IEnemyObjectSpawns
     void SpawnMotherBrainGlassProjectile(MotherBrainGlassProjectileRequest request);
 
     /// <summary>Spawns a fragment of Bomb Torizo's breaking statue.</summary>
-    RoomEnemyProjectileSlot? SpawnBombTorizoStatueBreakingProjectile(BombTorizoStatueProjectileRequest request);
+    EnemyProjectile? SpawnBombTorizoStatueBreakingProjectile(BombTorizoStatueProjectileRequest request);
 
     /// <summary>Spawns one escape explosion.</summary>
     void SpawnEscapeExplosion(Position16<RoomPixels> position, int random, int inheritedX);

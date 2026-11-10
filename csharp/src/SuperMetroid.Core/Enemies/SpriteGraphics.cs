@@ -5,11 +5,11 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>
 /// Which spawned-object sheet a projectile or sprite object takes its pictures from, and how they are shaded (#1464,
 /// #1512, #1513): what an enemy hands the objects it spawns so they draw its objects' pictures in its colours. The
-/// default value is the emptied graphics: the room's shared sheet in the pictures' standard colours.
+/// default value is <see cref="SharedStandard"/>: the room's shared sheet in the pictures' standard colours.
 /// </summary>
 public readonly record struct SpriteGraphics
 {
-    /// <summary>The shading given, or null for the emptied graphics' standard colours.</summary>
+    /// <summary>The shading given, or null for the standard colours.</summary>
     private readonly PictureShading? shading;
 
     /// <summary>Graphics drawing from <paramref name="owner"/>'s sheet under <paramref name="shading"/>.</summary>
@@ -24,15 +24,15 @@ public readonly record struct SpriteGraphics
     /// <summary>Whose spawned-object sheet the pictures come from.</summary>
     public SpawnedObjectOwner Owner { get; init; }
 
-    /// <summary>The shades and colour effects its pictures show; the emptied graphics show their standard colours.</summary>
+    /// <summary>The shades and colour effects its pictures show; <see cref="SharedStandard"/> shows their standard colours.</summary>
     public PictureShading Shading
     {
         get => shading ?? PictureShading.Standard;
         init => shading = Ensure.NotNull(value);
     }
 
-    /// <summary>What an emptied slot holds: the room's shared sheet in its standard colours.</summary>
-    internal static SpriteGraphics Emptied => default;
+    /// <summary>The room's shared sheet in its pictures' standard colours: what a projectile or sprite object draws with until its spawner gives it other graphics.</summary>
+    internal static SpriteGraphics SharedStandard => default;
 
     /// <summary>The room's shared sheet under <paramref name="shading"/>.</summary>
     internal static SpriteGraphics SharedIn(PictureShading shading) => new(SpawnedObjectOwner.Shared, shading);

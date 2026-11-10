@@ -196,8 +196,8 @@ internal sealed class DraygonGoop
 
         table.AddFrameBehavior(context =>
         {
-            // The goop's power-bomb step deletes a power-bombed shot, then still moves the released slot.
-            DeleteEnemyProjectileIfPowerBombed(context.Projectile, context.Samus);
+            // The goop's power-bomb step frees a power-bombed shot's place, then still moves the shot.
+            FreePlaceIfPowerBombed(context.Projectile, context.Samus);
             MoveDraygonProjectile(context.Projectile);
             DeleteDraygonProjectileOutsideRoom(context.Projectile);
         }, EnemyProjectileFrameBehavior.DraygonTurretShotFlight);
@@ -216,7 +216,7 @@ internal sealed class DraygonGoop
             () => new DraygonProjectileAnimation(DraygonProjectileProgram.GoopShot));
         table.AddCue<DraygonProjectileCue>((context, cue) =>
         {
-            RoomEnemyProjectileSlot projectile = context.Projectile;
+            EnemyProjectile projectile = context.Projectile;
             SamusState? samus = context.Samus;
             switch (cue)
             {
@@ -228,7 +228,7 @@ internal sealed class DraygonGoop
                     _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(projectile.Position.Whole, EnemyDefinitionId.DraygonEye);
                     return;
                 case DraygonProjectileCue.Delete:
-                    projectile.Clear();
+                    projectile.Delete();
                     return;
                 case DraygonProjectileCue.Fire:
                     projectile.FrameBehavior = EnemyProjectileFrameBehavior.DraygonTurretShotFlight;
@@ -240,25 +240,25 @@ internal sealed class DraygonGoop
     }
 
     /// <summary>Moves a Draygon projectile in 16.16 space by its angle and speed.</summary>
-    internal static void MoveDraygonProjectile(RoomEnemyProjectileSlot projectile) =>
+    internal static void MoveDraygonProjectile(EnemyProjectile projectile) =>
         projectile.StateOf<AngledFlightState>().Advance(projectile);
 
     /// <summary>Deletes a projectile that has left Draygon's room.</summary>
-    private static void DeleteDraygonProjectileOutsideRoom(RoomEnemyProjectileSlot projectile)
+    private static void DeleteDraygonProjectileOutsideRoom(EnemyProjectile projectile)
     {
         if (IsOutsideDraygonRoom(projectile))
-            projectile.Clear();
+            projectile.Delete();
     }
 
-    /// <summary>Advances airborne goop, including power-bomb deletion and Samus contact setup.</summary>
+    /// <summary>Advances airborne goop, including the power bomb freeing its place and Samus contact setup.</summary>
     internal void RunFlyingDraygonGoop(
-        RoomEnemyProjectileSlot goop,
+        EnemyProjectile goop,
         SamusState? samus)
     {
-        // A power-bombed goop loses its ID but the routine still moves it and
+        // A power-bombed goop frees its place but the routine still moves it and
         // tests Samus. Contact is tested before the room boundary, so a goop that touches
         // Samus outside the boundary still runs its touch list instead of being deleted.
-        DeleteEnemyProjectileIfPowerBombed(goop, samus);
+        FreePlaceIfPowerBombed(goop, samus);
         MoveDraygonProjectile(goop);
         if (samus is null)
         {
@@ -278,11 +278,11 @@ internal sealed class DraygonGoop
 
     /// <summary>Attaches goop to Samus, increasing her X-speed divisor until it expires.</summary>
     internal void AttachDraygonGoopToSamus(
-        RoomEnemyProjectileSlot goop,
+        EnemyProjectile goop,
         SamusState? samus)
     {
-        // The goop's attach step runs the power-bomb deletion first, then attaches regardless.
-        DeleteEnemyProjectileIfPowerBombed(goop, samus);
+        // The goop's attach step runs the power-bomb catch first, then attaches regardless.
+        FreePlaceIfPowerBombed(goop, samus);
         if (samus is null)
             return;
         int nextDivisor = samus.XSpeedDivisor + 1;
@@ -302,11 +302,11 @@ internal sealed class DraygonGoop
 
     /// <summary>Follows Samus with attached goop and counts down its removal timer.</summary>
     internal void RunAttachedDraygonGoop(
-        RoomEnemyProjectileSlot goop,
+        EnemyProjectile goop,
         SamusState? samus)
     {
-        // The power-bomb deletion does not end this frame behaviour.
-        DeleteEnemyProjectileIfPowerBombed(goop, samus);
+        // The power-bomb catch does not end this frame behaviour.
+        FreePlaceIfPowerBombed(goop, samus);
         if (samus is null)
             return;
         if (samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None)
@@ -324,21 +324,21 @@ internal sealed class DraygonGoop
 
     /// <summary>Releases one attached goop projectile and restores one X-speed divisor step.</summary>
     private static void RemoveAttachedDraygonGoop(
-        RoomEnemyProjectileSlot goop,
+        EnemyProjectile goop,
         SamusState samus)
     {
-        goop.Clear();
+        goop.Delete();
         samus.XSpeedDivisor = samus.XSpeedDivisor == 0
             ? 0
             : samus.XSpeedDivisor - 1;
     }
 
     /// <summary>
-    /// Deletes a projectile caught in a power bomb's explosion, for the Draygon goop
-    /// and wall-turret shot. Inside the explosion's ellipse it clears the projectile ID and
-    /// <c>XSpeedDivisor</c> only; the calling routine continues on the released slot.
+    /// Frees the place of a Draygon goop or wall-turret shot caught in a power bomb's explosion and clears Samus's
+    /// slowdown. Inside the explosion's ellipse the shot finishes its update
+    /// (<see cref="PowerBombedDraygonShotFinishesItsUpdate"/>): the calling routine goes on with it.
     /// </summary>
-    internal void DeleteEnemyProjectileIfPowerBombed(RoomEnemyProjectileSlot projectile, SamusState? samus)
+    internal void FreePlaceIfPowerBombed(EnemyProjectile projectile, SamusState? samus)
     {
         // A standalone projectile pass has no bomb owner, which is the radius-zero case.
         if (_audio.PowerBomb is not { } powerBomb)
@@ -352,13 +352,13 @@ internal sealed class DraygonGoop
         int yDistance = CoordinateAxis.Distance(powerBomb.Position.Y, projectile.Position.Y.Whole);
         if (xDistance >= horizontalRadius || yDistance >= verticalRadius)
             return;
-        projectile.ReleaseIdentityOnly();
+        PowerBombedDraygonShotFinishesItsUpdate.Catch(projectile, static shot => shot.FreePlace());
         if (samus is not null)
             samus.XSpeedDivisor = 0;
     }
 
     /// <summary>Tests the projectile against the 512-by-512-pixel Draygon arena bounds.</summary>
-    private static bool IsOutsideDraygonRoom(RoomEnemyProjectileSlot projectile) =>
+    private static bool IsOutsideDraygonRoom(EnemyProjectile projectile) =>
         CoordinateAxis.AsSigned(projectile.Position.X.Whole) < 0 || projectile.Position.X.Whole >= 512 ||
         CoordinateAxis.AsSigned(projectile.Position.Y.Whole) < 0 || projectile.Position.Y.Whole >= 512;
 }

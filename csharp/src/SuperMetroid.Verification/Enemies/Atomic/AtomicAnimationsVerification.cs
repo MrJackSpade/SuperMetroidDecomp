@@ -6,16 +6,17 @@ using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Enemies.Atomic;
 
-/// <summary>#641: Atomic's typed programs, each matched step by step to its native bank-$A8 list.</summary>
+/// <summary>#641, #1600: Atomic's typed animations, each segment matched to its native bank-$A8 list and each animation to the lists' control flow.</summary>
 internal static class AtomicAnimationsVerification
 {
-    /// <summary>Every program matches its native list.</summary>
+    /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifyAtomicAnimations(SuperMetroidAddressSpace rom)
     {
-        int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, AtomicAnimations.Programs,
-            AtomicFrameToolingDefinitions.Spritemap,
-            word => null,
-            (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions."));
-        Console.WriteLine($"  Atomic programs: {Entries.Length} programs ({steps} steps) match bank $A8.");
+        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
+            AtomicAnimations.Segments, AtomicAnimations.StartingAt, AtomicFrameToolingDefinitions.Spritemap,
+            new NativeEnemyCueRules<NoAnimationCue>(
+                word => null,
+                (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions.")));
+        Console.WriteLine($"  Atomic animations: {Entries.Length} segments ({beats} beats) and {AtomicAnimations.StartingAt.Count} animations match bank $A8.");
     }
 }

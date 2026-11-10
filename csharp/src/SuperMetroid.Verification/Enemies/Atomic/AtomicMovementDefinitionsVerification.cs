@@ -47,7 +47,7 @@ internal static class AtomicMovementDefinitionsVerification
             AtomicBehavior.InitializeAtomic(slot);
             AtomicEnemyState state = enemies.AtomicStates[0] ?? throw new InvalidOperationException("Verification requires enemies.AtomicStates[0].");
             AtomicProgram program = DecodedSpin(selector);
-            AssertEqual(AnimationProgramCursor<AtomicProgram>.Start(program), state.Program,
+            AssertEqual(new AnimationPlayback<AtomicProgram>(AtomicAnimations.StartingWith(program), AnimationPlace.StartOfAnimation), state.Playback,
                 $"Atomic initializer animation {selector}");
 
             EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(selector * 7);
@@ -55,8 +55,8 @@ internal static class AtomicMovementDefinitionsVerification
             AssertEqual(speeds.Negative, state.NegativeSpeed, $"Atomic negative speed {selector}");
 
             slot.FrameHold = WrappingCountdown.Start(1);
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(AtomicAnimations.Programs, program, AtomicFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(AtomicAnimations.Programs, program)),
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(AtomicAnimations.Segments, program, AtomicFrameToolingDefinitions.Spritemap),
+                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(AtomicAnimations.Segments, program)),
                 $"Atomic spinning loop {selector}");
         }
 

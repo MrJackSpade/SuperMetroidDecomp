@@ -24,7 +24,7 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = WrappingCountdown.Start(0);
 
         AtomicSpawnSettings settings = slot.SpawnSettings<AtomicSpawnSettings>();
-        state.Program = AnimationProgramCursor<AtomicProgram>.Start(settings.Spin);
+        state.Playback = new(AtomicAnimations.StartingWith(settings.Spin), AnimationPlace.StartOfAnimation);
 
         // The atomic moves at its speed toward increasing coordinates and at the same speed back.
         state.Speed = settings.Speed;
@@ -86,8 +86,9 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Atomic's typed animation.</summary>
     internal static void AdvanceAtomicTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, AtomicAnimations.Programs, AtomicFrameDefinitions.ShownFrames.Of,
-            static (AtomicEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
+        EnemyProgramAnimation.Advance(slot, AtomicAnimations.Segments, AtomicFrameDefinitions.ShownFrames.Of,
+            static (AtomicEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            static (_, cue) => throw new InvalidOperationException($"A cue-free Atomic animation raised {cue}."));
 
     /// <summary>Ports Atomic's main AI.</summary>
     internal static void RunAtomicMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)

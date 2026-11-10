@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Enemies.Atomic;
 /// </summary>
 public sealed class AtomicEnemyState
 {
-    /// <summary>Where the typed animation (#641) resumes.</summary>
-    internal AnimationProgramCursor<AtomicProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<AtomicProgram> Playback { get; set; }
 
     /// <summary>
     /// The vertical movement chosen this update (named for X in the original; the selected routine changes the actor's

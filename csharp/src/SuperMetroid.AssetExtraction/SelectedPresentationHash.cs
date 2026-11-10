@@ -82,15 +82,6 @@ internal sealed class SelectedPresentationHash
     }
 
     /// <summary>Adds a sequence of 16-bit values in little-endian order.</summary>
-    public void AppendWords(string label, ReadOnlySpan<ushort> words)
-    {
-        var bytes = new byte[checked(words.Length * sizeof(ushort))];
-        for (int index = 0; index < words.Length; index++)
-            BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(index * sizeof(ushort)), words[index]);
-        Append(label, bytes);
-    }
-
-    /// <summary>Adds a sequence of 16-bit values in little-endian order, identical to <see cref="AppendWords(string, ReadOnlySpan{ushort})"/> of the same words.</summary>
     /// <param name="label">The field's label.</param>
     /// <param name="words">The values, each 0 through 65535; any other value is rejected.</param>
     public void AppendWords(string label, ReadOnlySpan<int> words)
@@ -102,7 +93,7 @@ internal sealed class SelectedPresentationHash
         Append(label, bytes);
     }
 
-    /// <summary>Colors hash as their 15-bit CGRAM words, identical to <see cref="AppendWords(string, ReadOnlySpan{ushort})"/> of the encoded words.</summary>
+    /// <summary>Colors hash as their 15-bit CGRAM words, identical to <see cref="AppendWords(string, ReadOnlySpan{int})"/> of the encoded words.</summary>
     public void AppendColors(string label, ReadOnlySpan<RgbColor> colors)
     {
         var bytes = new byte[checked(colors.Length * sizeof(ushort))];

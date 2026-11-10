@@ -46,5 +46,5 @@ internal static class SamusPoseRecordDecoding
 
     /// <summary>The flare placement an aim byte's low four bits select: the flare origin table row they name.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The bits select past the turning placements.</exception>
-    private static SamusFlareAim DecodeFlare(int selection) => SamusProjectileDirectionCodec.FlareAimAtRow(selection);
+    private static SamusFlareAim DecodeFlare(int selection) => SamusFlareRows.AimAtRow(selection);
 }

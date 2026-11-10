@@ -52,14 +52,6 @@ internal static class SamusProjectileDirectionCodec
         : aim.Turning is { } turning ? Count + PlaceIn(TurningPlacementOrder, turning)
         : throw new ArgumentException("A flare is placed at a muzzle or while turning.", nameof(aim));
 
-    /// <summary>The flare aim a flare origin table's <paramref name="row"/> holds the placement of.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The row holds neither a muzzle nor a turning placement.</exception>
-    internal static SamusFlareAim FlareAimAtRow(int row) =>
-        row is >= 0 and < Count ? SamusFlareAim.AtMuzzle(FromAimIndex(row))
-        : row >= Count && row - Count < TurningPlacementOrder.Count
-            ? SamusFlareAim.WhileTurning(TurningPlacementOrder[row - Count])
-            : throw new ArgumentOutOfRangeException(nameof(row), row, "The flare origin tables hold ten directions and three turning placements.");
-
     /// <summary>Where <paramref name="value"/> stands in <paramref name="order"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The order does not hold the value.</exception>
     private static int PlaceIn<T>(IReadOnlyList<T> order, T value) where T : struct, Enum

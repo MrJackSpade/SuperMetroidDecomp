@@ -57,7 +57,7 @@ internal static class ChargeFlarePlacementVerification
             int record = SamusSourceDefinitions.PoseDefinitions.Value + SamusPoseNumbers.Number(pose) * 8;
             bool running = bus.ReadCartridgeByte(record + 1) == SamusMovementTypeNativeWords.Byte(SamusMovementType.Running);
             // The turning placements follow the standing rows only; no running pose selects past the named directions.
-            SamusFlareAim aim = SamusProjectileDirectionCodec.FlareAimAtRow(row);
+            SamusFlareAim aim = SamusFlareRows.AimAtRow(row);
             if (running && aim.Turning is not null)
                 continue;
             bool facingLeft = bus.ReadCartridgeByte(record) == 4;
@@ -100,7 +100,7 @@ internal static class ChargeFlarePlacementVerification
             PrepareRetailSamusFixture(samus);
             int record = SamusSourceDefinitions.PoseDefinitions.Value + SamusPoseNumbers.Number(pose) * 8;
             int turnRow = bus.ReadCartridgeByte(record + 3) & 15;
-            AssertTrue(SamusProjectileDirectionCodec.FlareAimAtRow(turnRow).Turning is not null, $"{pose} selects a turn row");
+            AssertTrue(SamusFlareRows.AimAtRow(turnRow).Turning is not null, $"{pose} selects a turn row");
             bool facingLeft = bus.ReadCartridgeByte(record) == 4;
             byte yOffset = bus.ReadCartridgeByte(record + 4);
             short Word(int address) => unchecked((short)CartridgeImportSource.Require(bus).ReadCartridgeWord(address));
@@ -120,7 +120,7 @@ internal static class ChargeFlarePlacementVerification
         for (int row = SamusProjectileDirectionCodec.Count + SamusProjectileDirectionCodec.TurningPlacementOrder.Count; row < 16; row++)
         {
             int past = row;
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusProjectileDirectionCodec.FlareAimAtRow(past), $"flare row {row} past the turning placements names no placement");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusFlareRows.AimAtRow(past), $"flare row {row} past the turning placements names no placement");
         }
         foreach (SamusTurningAim turning in Enum.GetValues<SamusTurningAim>())
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(true, SamusFlareAim.WhileTurning(turning)), $"running flare turning {turning} is rejected");

@@ -116,12 +116,6 @@ public sealed class SamusSpritemapSources
         }
     });
 
-    /// <summary>Each pose with a record's first upper-half table entry.</summary>
-    public IReadOnlyDictionary<SamusPoseId, int> TopBases => topBases;
-
-    /// <summary>Each pose with a record's first lower-half table entry, including poses sharing the upper/lower composition.</summary>
-    public IReadOnlyDictionary<SamusPoseId, int> BottomBases => bottomBases;
-
     /// <summary>The complete table in native order, preserving repeated compositions and entries with none.</summary>
     public ReadOnlySpan<SamusSpritemapId?> Entries => entries;
 

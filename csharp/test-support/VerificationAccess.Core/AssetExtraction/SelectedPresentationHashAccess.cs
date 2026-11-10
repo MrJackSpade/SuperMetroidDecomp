@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.AssetExtraction;
@@ -14,6 +15,19 @@ internal static class SelectedPresentationHashAccess
             hash.Append(label, frames.Count);
             foreach (ushort[] frame in frames)
                 hash.AppendWords("row", frame);
+        }
+
+        /// <summary>
+        /// Adds native 16-bit words in little-endian order, identical to
+        /// <see cref="SelectedPresentationHash.AppendWords(string, ReadOnlySpan{int})"/> of the same words: the checks'
+        /// content-identity oracles hash the cartridge's words this way (#1595).
+        /// </summary>
+        internal void AppendWords(string label, ReadOnlySpan<ushort> words)
+        {
+            var bytes = new byte[checked(words.Length * sizeof(ushort))];
+            for (int index = 0; index < words.Length; index++)
+                BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(index * sizeof(ushort)), words[index]);
+            hash.Append(label, bytes);
         }
     }
 

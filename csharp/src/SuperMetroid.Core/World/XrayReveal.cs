@@ -35,16 +35,18 @@ internal sealed class XrayReveal
     /// terrain reveals, then the item and special-room overlays, placed over the room's own blocks. Building it reads the
     /// room and changes nothing.
     /// </summary>
-    /// <exception cref="InvalidOperationException">No room or level data is loaded.</exception>
+    /// <exception cref="InvalidOperationException">No room or level data is loaded, or no installed reveal pictures are bound.</exception>
     internal XrayRevealedBlocks Reveal(IRoomObjects roomObjects)
     {
         Ensure.NotNull(roomObjects);
         var room = _room.ActiveRoom ?? throw new InvalidOperationException("The X-ray reveals no room.");
         var level = _room.LevelData ?? throw new InvalidOperationException("The X-ray reveals a room with no level data.");
+        InstalledXrayReveals visuals = XrayRevealVisuals
+            ?? throw new InvalidOperationException("The X-ray reveals a room with no installed reveal pictures bound.");
         Position16<RoomPixels> foregroundPosition = _backgroundScroll.ForegroundPosition;
-        RevealedBlock?[] blocks = XrayRevealMap.Build(level, foregroundPosition, room.AreaIndex, XrayRevealVisuals);
+        RevealedBlock?[] blocks = XrayRevealMap.Build(level, foregroundPosition, room.AreaIndex, visuals);
         XrayRevealOverlays.Apply(level, blocks, roomObjects.CollectibleObjects.Collectibles, _system,
-            room.State.XrayOverlay, foregroundPosition, XrayRevealVisuals);
+            room.State.XrayOverlay, foregroundPosition, visuals);
         return new(XrayRevealMap.OriginOf(foregroundPosition), [.. blocks]);
     }
 }

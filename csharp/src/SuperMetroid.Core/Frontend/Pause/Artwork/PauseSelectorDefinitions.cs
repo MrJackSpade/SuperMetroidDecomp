@@ -26,24 +26,4 @@ public static class PauseSelectorDefinitions
         [new(PauseEquipmentCategory.Boots, 1)] = "Boots.SpaceJump",
         [new(PauseEquipmentCategory.Boots, 2)] = "Boots.SpeedBooster",
     };
-
-    /// <summary>The screen position of each category's first selector, including the draw routine's
-    /// one-pixel bias.</summary>
-    internal static readonly IReadOnlyDictionary<PauseEquipmentCategory, Position16<ScreenPixels>> CategoryOrigins =
-        new Dictionary<PauseEquipmentCategory, Position16<ScreenPixels>>
-        {
-            [PauseEquipmentCategory.Reserves] = new(27, 84),
-            [PauseEquipmentCategory.Beams] = new(48, 132),
-            [PauseEquipmentCategory.Suits] = new(204, 76),
-            [PauseEquipmentCategory.Boots] = new(204, 156),
-        };
-
-    /// <summary>Vertical distance between successive items' selectors, one eight-pixel row.</summary>
-    internal const int ItemRowStride = 8;
-    /// <summary>The draw routine's one-pixel bias on both selector coordinates.</summary>
-    internal const int DrawBias = 1;
-    /// <summary>The first suit/misc item below the gap after Gravity (Morph Ball).</summary>
-    internal const int SuitsLowerGroupFirstItem = 2;
-    /// <summary>Suit/misc leaves two extra eight-pixel rows between Gravity and Morph Ball.</summary>
-    internal const int SuitsLowerGroupGap = 16;
 }

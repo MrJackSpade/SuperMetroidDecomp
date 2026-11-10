@@ -47,13 +47,17 @@ internal static class LookupCeresHazeRampVerification
     internal static void VerifyCeresHazeNativeRamp(ISnesAddressSpace rom)
     {
         int fadeLimit = ReadVerificationWord(rom, 0x88de43);
+        // The haze in the tints the import installs (#1596).
+        var tints = new SuperMetroid.Core.Fx.Artwork.CeresHazeTints(
+            SuperMetroid.AssetExtraction.Frontend.Map.SceneColourFiles.StockCeresHazeBlue,
+            SuperMetroid.AssetExtraction.Frontend.Map.SceneColourFiles.StockCeresHazeRed);
         for (int counter = 0; counter <= fadeLimit; counter++)
         {
             byte[] original = OriginalCeresHazeRamp(rom, counter);
             foreach (bool dead in new[] { false, true })
             {
                 int flags = ReadVerificationWord(rom, dead ? 0x88de16 : 0x88de11);
-                var captured = GameplayEffectCapture.CaptureCeresHaze(dead, counter);
+                var captured = GameplayEffectCapture.CaptureCeresHaze(tints, dead, counter);
                 // The haze is its tint stepped down the gameplay area (#1468): no colour above line 64, one step more
                 // every eight lines up to fifteen, shifted by the fade.
                 AssertEqual(new LineColourSteps(64, 8, 15, counter - 15), captured.Steps, "the haze's bands and fade");

@@ -18,7 +18,6 @@ internal static class PauseReserveAnchorsVerification
         byte[] bytes = PauseReserveTankExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<PauseReserveTankDocument>(bytes, ArtworkJson.Options);
         var stock = PauseReserveTankSourcePresentation.Load(new MemoryStream(bytes));
-        AssertEqual(0, stock.StoredAnchorComponentCount, "stock reserve coordinates are calculated");
         Suite(nameof(VerifyPauseReserveAnchorField), () => VerifyPauseReserveAnchorField(rom, document, stock, true));
         Suite(nameof(VerifyPauseReserveAnchorField), () => VerifyPauseReserveAnchorField(rom, document, stock, false));
         foreach (int invalid in new[] { int.MinValue, -1, 6, 256, int.MaxValue })
@@ -33,9 +32,7 @@ internal static class PauseReserveAnchorsVerification
         {
             int expected = horizontal ? ReadVerificationWord(rom, 0x82c1d6 + index * 2) : ReadVerificationWord(rom, 0x82c1e2) - 1;
             var point = stock.Anchor(index);
-            var basis = PauseReserveTankParts.StockAnchor(index);
             AssertEqual(expected, horizontal ? point.X : point.Y, "original installed reserve coordinate");
-            AssertEqual(expected, horizontal ? basis.X : basis.Y, "original reserve geometry");
         }
         foreach (int invalid in new[] { -1, horizontal ? 256 : 224 })
         {

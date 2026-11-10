@@ -1,30 +1,35 @@
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 
 /// <summary>
-/// Editable reserve-strip origins, independent of reserve energy and fill selection. The strip is drawn from
-/// the installed pause sheet, whose reserve compositions belong to the import pipeline that reads the installed
-/// presentation (#1463).
+/// The installed reserve-strip origins, independent of reserve energy and fill selection; the installation is their only
+/// source (#1596). The strip is drawn from the installed pause sheet, whose reserve compositions belong to the import
+/// pipeline that reads the installed presentation (#1463).
 /// </summary>
 public abstract class PauseReserveTankPresentation
 {
-    /// <summary>Per-coordinate deviations from the six stock reserve-strip anchors.</summary>
-    internal readonly Dictionary<int, AnchorOverride> anchorOverrides;
-    /// <summary>Stores independent anchor edits.</summary>
-    /// <param name="anchorOverrides">Per-coordinate deviations from the stock anchors.</param>
-    internal PauseReserveTankPresentation(Dictionary<int, AnchorOverride> anchorOverrides) =>
-        this.anchorOverrides = anchorOverrides;
+    /// <summary>The installed anchor of each strip position, tanks then the trailing cap.</summary>
+    internal readonly Position16<SpritePixels>[] anchors;
 
-    /// <summary>Gets one reserve-strip screen anchor, falling back independently to each stock coordinate.</summary>
-    /// <param name="index">Zero-based tank or trailing-cap position from 0 through 5.</param>
-    /// <returns>The configured screen-pixel anchor for that strip position.</returns>
-    public Position16<SpritePixels> Anchor(int index)
+    /// <summary>Keeps the complete installed anchors.</summary>
+    /// <param name="anchors">The six strip anchors, in strip order.</param>
+    /// <exception cref="InvalidDataException">The strip does not hold exactly six anchors.</exception>
+    internal PauseReserveTankPresentation(Position16<SpritePixels>[] anchors)
     {
-        var basis = PauseReserveTankParts.StockAnchor(index);
-        return anchorOverrides.TryGetValue(index, out var value) ? new(value.X ?? basis.X, value.Y ?? basis.Y) : basis;
+        Ensure.NotNull(anchors);
+        if (anchors.Length != PauseReserveTankDefinitions.AnchorCount)
+            throw new InvalidDataException($"Reserve tanks require {PauseReserveTankDefinitions.AnchorCount} anchors.");
+        this.anchors = [.. anchors];
     }
+
+    /// <summary>Gets one reserve-strip screen anchor as installed.</summary>
+    /// <param name="index">Zero-based tank or trailing-cap position from 0 through 5.</param>
+    /// <returns>The installed screen-pixel anchor for that strip position.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The position is outside the six-entry strip.</exception>
+    public Position16<SpritePixels> Anchor(int index) =>
+        (uint)index < (uint)anchors.Length ? anchors[index] : throw new ArgumentOutOfRangeException(nameof(index));
+
     /// <summary>
     /// Draws one full, empty, partially filled, or end-cap reserve frame of the pause sheet at a strip position, in the
     /// strip's own colours (#1544).

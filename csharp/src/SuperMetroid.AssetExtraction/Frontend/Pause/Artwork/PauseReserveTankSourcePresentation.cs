@@ -1,6 +1,5 @@
 using System.Collections.Immutable;
 using System.Text.Json;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
@@ -17,9 +16,9 @@ public sealed class PauseReserveTankSourcePresentation : PauseReserveTankPresent
     /// <summary>Edited sprite compositions for the ten native reserve visual roles.</summary>
     internal readonly FrameSet frames;
 
-    /// <summary>Stores independent anchor edits, frame art, and the sprite set the strip's frames are composed in.</summary>
-    private PauseReserveTankSourcePresentation(Dictionary<int, AnchorOverride> anchorOverrides, FrameSet frames, int spriteSet)
-        : base(anchorOverrides)
+    /// <summary>Stores the installed anchors, frame art, and the sprite set the strip's frames are composed in.</summary>
+    private PauseReserveTankSourcePresentation(Position16<SpritePixels>[] anchors, FrameSet frames, int spriteSet)
+        : base(anchors)
     {
         this.frames = frames;
         SpriteSet = spriteSet;
@@ -78,15 +77,7 @@ public sealed class PauseReserveTankSourcePresentation : PauseReserveTankPresent
             return parts.Length == 1 && parts[0] == PauseReserveTankStockPartDefinitions.StockPart(identity)
                 ? null : MenuSpriteCompiler.Compile(parts, name);
         }
-        var anchorOverrides = new Dictionary<int, AnchorOverride>();
-        for (int index = 0; index < document.Anchors.Length; index++)
-        {
-            var point = document.Anchors[index];
-            var basis = PauseReserveTankParts.StockAnchor(index);
-            if (point.X != basis.X || point.Y != basis.Y)
-                anchorOverrides.Add(index, new AnchorOverride(point.X == basis.X ? null : point.X, point.Y == basis.Y ? null : point.Y));
-        }
-        return new(anchorOverrides, frames, document.Palette);
+        return new(document.Anchors, frames, document.Palette);
     }
     /// <summary>Distinct reserve strip roles selected by the native fill renderer.</summary>
     /// <param name="Full">The full strip.</param>

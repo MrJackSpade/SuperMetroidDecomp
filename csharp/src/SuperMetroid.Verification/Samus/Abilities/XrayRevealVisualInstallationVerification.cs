@@ -26,11 +26,13 @@ internal static class XrayRevealVisualInstallationVerification
     {
         static RevealedBlock Defined(int block) => new(block, RevealedBlockArrangement.AsDefined);
         InstalledXrayReveals stock = installed.LoadXrayRevealVisuals();
+        var nativeBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(File.ReadAllBytes(installed.RomPath));
         int drawable = 0;
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
         for (int bts = 0; bts <= byte.MaxValue; bts++)
         {
-            XrayRevealDefinition? native = XrayRevealTable.Find(type, RoomBlockBehaviorCodec.Decode(bts));
+            // Every copy's blocks come from the cartridge's reveal operands, as the import extracted them (#1596).
+            XrayRevealDefinition? native = XrayRevealVerification.ReadNativeXrayRevealDefinition(nativeBus, type, unchecked((byte)bts));
             if (native is not { } definition ||
                 !InstalledXrayReveals.IsDrawable(definition.Command)) continue;
             AssertEqual((XrayRevealDefinition?)definition, stock.Apply(type, RoomBlockBehaviorCodec.Decode(bts)),
@@ -38,9 +40,10 @@ internal static class XrayRevealVisualInstallationVerification
             drawable++;
         }
         AssertEqual(305, drawable, "complete pinned drawable X-ray rule count");
-        InstalledXrayOverlays overlays = stock.Overlays ??
-            throw new InvalidDataException("Installed X-ray visuals omit item and room overlays.");
-        var nativeBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(File.ReadAllBytes(installed.RomPath));
+        AssertEqual((XrayRevealDefinition?)new XrayRevealDefinition(XrayRevealCommand.CopySquare, 0x99, 0x9a, 0xb9, 0xba),
+            stock.Apply(RoomCollisionType.ShootableBlock, RoomBlockBehaviorCodec.Decode(3)),
+            "stock square shot-block reveal installs all four row-major blocks");
+        InstalledXrayOverlays overlays = stock.Overlays;
         ushort NativeWord(int address) => CartridgeImportSource.Require(nativeBus).ReadCartridgeWord(address);
         // The tanks' draws follow the four that reveal the item in each block pair (#1538).
         for (int tank = 0; tank < InstalledXrayOverlays.TankCount; tank++)

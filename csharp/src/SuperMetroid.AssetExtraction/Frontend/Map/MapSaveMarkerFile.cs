@@ -1,6 +1,5 @@
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
-using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Progression;
@@ -19,7 +18,7 @@ public static class MapSaveMarkerFile
             foreach (int index in MapSaveMarkers.Indices(area)) yield return MapSaveMarkers.Id(area, index);
     }
 
-    /// <summary>Loads all 34 supported save/elevator marker anchors, validates the complete identity set and coordinate bounds, and retains only coordinates differing from compiled station projections.</summary>
+    /// <summary>Loads all 34 supported save/elevator marker anchors, validating the complete identity set and coordinate bounds; the installed anchors are the only source (#1596).</summary>
     /// <param name="json">Caller-owned stream containing the editable save-marker JSON document.</param>
     /// <returns>A drawing-only layout with independently editable X/Y coordinates.</returns>
     /// <exception cref="InvalidDataException">The JSON, schema version, marker identities, or coordinates are invalid.</exception>
@@ -32,19 +31,16 @@ public static class MapSaveMarkerFile
         if (document.Version != MapSaveMarkerFormat.Version || document.Markers is null ||
             document.Markers.Count != Ids().Count())
             throw new InvalidDataException("Save marker layout requires version 1 and every known marker.");
-        var overrides = new Dictionary<string, AnchorOverride>(StringComparer.Ordinal);
+        var anchors = new Dictionary<string, Position16<MapPixels>>(StringComparer.Ordinal);
         foreach (AreaId area in AreaIds.Zebes)
         foreach (int index in MapSaveMarkers.Indices(area))
         {
             string id = MapSaveMarkers.Id(area, index);
             if (!document.Markers.TryGetValue(id, out var point) || point.X is < 0 or > 511 || point.Y is < 0 or > 255)
                 throw new InvalidDataException($"Save marker {id} requires X=0..511 and Y=0..255.");
-            Position16<MapPixels> basis = FileSelectMapLoadAnchors.Get(area, index);
-            int? x = point.X == basis.X ? null : point.X;
-            int? y = point.Y == basis.Y ? null : point.Y;
-            if (x.HasValue || y.HasValue) overrides.Add(id, new AnchorOverride(x, y));
+            anchors.Add(id, point);
         }
-        return new(overrides);
+        return new(anchors);
     }
 
     /// <summary>Serializes the complete marker document as UTF-8 JSON to the destination.</summary>

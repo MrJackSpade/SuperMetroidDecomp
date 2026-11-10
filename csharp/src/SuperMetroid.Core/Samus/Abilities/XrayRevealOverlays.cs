@@ -26,14 +26,11 @@ public static class XrayRevealOverlays
     public static void Apply(RoomLevelData level, Span<RevealedBlock?> blocks,
         IReadOnlyList<CollectibleObjectSnapshot> items, SharedGameState system,
         XrayRoomOverlayDefinition? roomOverlay, Position16<RoomPixels> foregroundPosition,
-        InstalledXrayReveals? visuals = null)
+        InstalledXrayReveals visuals)
     {
         Ensure.NotNull(level);
         Ensure.LengthEqual(blocks, XrayRevealArea.BlockCount);
-        if (visuals is null)
-            throw new InvalidOperationException("X-ray reveal requires installed overlay visuals.");
-        InstalledXrayOverlays overlays = visuals.Overlays ?? throw new InvalidOperationException(
-            "X-ray reveal requires installed item and room-overlay definitions.");
+        InstalledXrayOverlays overlays = Ensure.NotNull(visuals).Overlays;
         for (int i = items.Count - 1; i >= 0; i--)
         {
             CollectibleObjectSnapshot item = items[i];

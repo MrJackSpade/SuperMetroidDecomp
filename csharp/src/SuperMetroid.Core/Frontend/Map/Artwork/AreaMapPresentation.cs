@@ -19,7 +19,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>
-/// Immutable map content snapshot. Overrides never alter stock provenance or exploration rules. The import reads it with
+/// Immutable map content snapshot, as installed; edits in place never alter exploration rules. The import reads it with
 /// the characters its screens, the HUD, the world map, the title and the opening and ending text are pictured from, which
 /// the game never reads (#1466, #1583).
 /// </summary>
@@ -58,7 +58,7 @@ public class AreaMapPresentation : IGameplayPresentationContent
         CeresRidleyGetawayBoostDelays = parts.CeresRidleyGetawayBoostDelays;
     }
 
-    /// <summary>Uppercase SHA-256 identity of length-framed stock map rules, station masks, and selected presentation resources in fixed order; override edits affect identity without changing stock provenance.</summary>
+    /// <summary>Uppercase SHA-256 identity of length-framed map rules, station masks, and installed presentation resources in fixed order; an edit in place changes the identity.</summary>
     public string ContentIdentity { get; }
     /// <summary>Selected highlight color frames used by map presentation; animation progression remains engine-owned.</summary>
     public MapHighlightCycle HighlightCycle { get; }
@@ -70,7 +70,7 @@ public class AreaMapPresentation : IGameplayPresentationContent
     public MapStationPositions Stations { get; }
     /// <summary>Boss, elevator, and gunship drawing anchors, independent of progression and destination rules.</summary>
     public MapLandmarkPositions Landmarks { get; }
-    /// <summary>File-select save-marker visual coordinate overrides, independent of load targets and scrolling.</summary>
+    /// <summary>The installed file-select save-marker drawing anchors, independent of load targets and scrolling.</summary>
     public MapSaveMarkerPositions SaveMarkers { get; }
     /// <summary>Map-arrow artwork and presentation frames for scrolling indicators.</summary>
     public MapArrowPresentation Arrows { get; }

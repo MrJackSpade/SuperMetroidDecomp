@@ -75,15 +75,14 @@ internal static class GameplayContentIdentityVerification
         png.Position = 0;
         RoomCharacterAtlas sprites = RoomCharacterAtlasPng.Read(png, RoomCharacterAtlasFormat.BytesPerTile);
 
+        // Every drawable rule shows four distinct blocks; one square rule's block is edited.
         var entries = new List<XrayRevealVisualDefinition>();
         bool editedOperands = false;
-        foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
-        for (int bts = 0; bts <= byte.MaxValue; bts++)
+        foreach (XrayRevealVisualDefinition entry in XrayRevealFixtures.EveryDrawable(_ => new XrayRevealVisualBlocks(10, 11, 12, 13)))
         {
-            if (XrayRevealTable.Find(type, RoomBlockBehaviorCodec.Decode(bts)) is not { } native ||
-                !InstalledXrayReveals.IsDrawable(native.Command)) continue;
-            var visual = new XrayRevealVisualBlocks(native.TopLeft, native.TopRight, native.BottomLeft, native.BottomRight);
-            if (!editedOperands && native.Command == XrayRevealCommand.CopySquare && edit?.StartsWith("xray-", StringComparison.Ordinal) == true)
+            XrayRevealVisualBlocks visual = entry.Visual;
+            if (!editedOperands && XrayRevealTable.Find(entry.Type, RoomBlockBehavior.Reacting(entry.Reaction)) == XrayRevealCommand.CopySquare &&
+                edit?.StartsWith("xray-", StringComparison.Ordinal) == true)
             {
                 visual = visual with
                 {
@@ -94,7 +93,7 @@ internal static class GameplayContentIdentityVerification
                 };
                 editedOperands = true;
             }
-            entries.Add(new(type, RoomBlockBehaviorCodec.Decode(bts).Reaction, visual));
+            entries.Add(entry with { Visual = visual });
         }
         AssertEqual(305, entries.Count, "complete compiled drawable rule fixture");
         var items = new RoomBlockAppearance[InstalledXrayOverlays.TankCount];

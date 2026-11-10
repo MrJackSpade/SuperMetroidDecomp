@@ -1,6 +1,4 @@
 using System.Text.Json;
-using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
@@ -58,15 +56,13 @@ public sealed class PauseSelectorSourcePresentation : PauseSelectorPresentation
             document.Frames is null || document.Frames.Count is < 1 or > PauseSelectorFormat.MaximumFrames ||
             document.Animation is null || document.Animation.Length is < 1 or > PauseSelectorFormat.MaximumPhases)
             throw new InvalidDataException("Pause selectors require version 1, sixteen anchors, palette 0..7, valid named frames and positive bounded timing.");
-        var anchorOverrides = new Dictionary<string, AnchorOverride>();
+        var anchors = new Dictionary<string, Position16<SpritePixels>>(StringComparer.Ordinal);
         foreach (var definition in PauseSelectorAnchors.Anchors())
         {
             string name = PauseSelectorAnchors.Anchor(definition.Category, definition.Item);
             if (!document.Anchors.TryGetValue(name, out var point) || point.X is < 0 or > 255 || point.Y is < 0 or > 223)
                 throw new InvalidDataException($"Pause selector {name} requires screen coordinates X=0..255/Y=0..223.");
-            var basis = PauseSelectorAnchors.StockAnchor(definition.Category, definition.Item);
-            if (point.X != basis.X || point.Y != basis.Y)
-                anchorOverrides.Add(name, new AnchorOverride(point.X == basis.X ? null : point.X, point.Y == basis.Y ? null : point.Y));
+            anchors.Add(name, point);
         }
         var frames = new Dictionary<string, PauseSelectorVisual>();
         foreach (var frame in document.Frames)
@@ -76,7 +72,7 @@ public sealed class PauseSelectorSourcePresentation : PauseSelectorPresentation
         }
         string? reserveBasis = null, beamBasis = null, equipmentBasis = null;
         Dictionary<int, string>? reserveOverrides = null, beamOverrides = null, equipmentOverrides = null;
-        Dictionary<int, int>? durationOverrides = null;
+        var durations = new int[document.Animation.Length];
         for (int i = 0; i < document.Animation.Length; i++)
         {
             var phase = document.Animation[i];
@@ -95,13 +91,12 @@ public sealed class PauseSelectorSourcePresentation : PauseSelectorPresentation
                 Capture(ref beamOverrides, beamBasis, i, phase.Beam);
                 Capture(ref equipmentOverrides, equipmentBasis, i, phase.Equipment);
             }
-            if (phase.DurationTicks != MenuSelectorTiming.Duration(i))
-                (durationOverrides ??= new()).Add(i, phase.DurationTicks);
+            durations[i] = phase.DurationTicks;
         }
         if (reserveBasis is null || beamBasis is null || equipmentBasis is null)
             throw new InvalidDataException("Pause selector animation requires at least one phase.");
-        return new(new PauseSelectorParts { AnchorOverrides = anchorOverrides, Reserve = new(reserveBasis, reserveOverrides),
-            Beam = new(beamBasis, beamOverrides), Equipment = new(equipmentBasis, equipmentOverrides), PhaseCount = document.Animation.Length, DurationOverrides = durationOverrides, InitialDuration = document.InitialDurationTicks },
+        return new(new PauseSelectorParts { Anchors = anchors, Reserve = new(reserveBasis, reserveOverrides),
+            Beam = new(beamBasis, beamOverrides), Equipment = new(equipmentBasis, equipmentOverrides), Durations = durations, InitialDuration = document.InitialDurationTicks },
             frames, document.Palette);
     }
 

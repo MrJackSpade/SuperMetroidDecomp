@@ -20,7 +20,6 @@ internal static class PauseSelectorDurationsVerification
         var document = RequiredJson.Deserialize<PauseSelectorDocument>(bytes, ArtworkJson.Options);
         var stock = PauseSelectorSourcePresentation.Load(new MemoryStream(bytes));
         Suite(nameof(VerifyPauseSelectorNativeDurations), () => VerifyPauseSelectorNativeDurations(rom, stock));
-        AssertEqual(0, stock.StoredDurationCount, "selector stock timing stores no phase values");
         foreach (int invalid in new[] { -1, int.MinValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Duration(invalid), "negative selector phase rejected");
         foreach (int invalid in new[] { 0, -1, 255 })

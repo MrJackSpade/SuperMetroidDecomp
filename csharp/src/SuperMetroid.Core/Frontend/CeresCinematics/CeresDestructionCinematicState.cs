@@ -428,14 +428,11 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         actors.Clear();
         for (int index = 0; index < CeresDestructionActorDefinitions.InitialActorCount; index++)
         {
-            CeresDestructionActorDefinition definition =
-                CeresDestructionActors.InitialActor(index);
-            if (content.CeresDestruction.DestructionActors is { } layout)
+            // Each actor starts at its installed placement (#1596).
+            actors.Add(CreateActor(CeresDestructionActors.InitialActor(index) with
             {
-                CeresDestructionActorPlacement placement = layout[index];
-                definition = definition with { Position = placement.Position };
-            }
-            actors.Add(CreateActor(definition));
+                Position = content.CeresDestruction.DestructionActors[index].Position,
+            }));
         }
         ceresActorsDrawnLast.Clear();
         ceresActorsDrawnLast.Add(actors[1]);
@@ -543,17 +540,15 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         return actor;
     }
 
-    /// <summary>Creates one Zebes reveal actor, applying an installed placement override when present.</summary>
+    /// <summary>Creates one Zebes reveal actor at its installed placement (#1596).</summary>
     private IntroDiscoverySprite CreateZebesActor(int index)
     {
-        CeresDestructionActorDefinition definition =
-            CeresDestructionActors.ZebesActor(index);
-        if (Artwork?.CeresDestruction.RevealActors is { } layout)
+        IntroCinematicArtwork content = Artwork ?? throw new InvalidOperationException(
+            "The Zebes reveal requires installed cinematic artwork.");
+        return CreateActor(CeresDestructionActors.ZebesActor(index) with
         {
-            CeresRevealActorPlacement placement = layout[index];
-            definition = definition with { Position = placement.Position };
-        }
-        return CreateActor(definition);
+            Position = content.CeresDestruction.RevealActors[index].Position,
+        });
     }
 
 

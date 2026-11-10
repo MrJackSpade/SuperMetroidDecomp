@@ -7,6 +7,8 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Rooms.Xray;
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
 
@@ -71,14 +73,18 @@ internal static class RoomRevealPresentationContractChecks
         var entries = new List<XrayRevealVisualDefinition>();
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
         for (int value = 0; value <= byte.MaxValue; value++)
-            if (XrayRevealTable.Find(type, RoomBlockBehaviorCodec.Decode(value)) is { } rule && InstalledXrayReveals.IsDrawable(rule.Command))
+            if (XrayRevealTable.Find(type, RoomBlockBehaviorCodec.Decode(value)) is { } command && InstalledXrayReveals.IsDrawable(command))
                 entries.Add(new(type, RoomBlockBehaviorCodec.Decode(value).Reaction, new(1, 2, 3, 4)));
-        var catalog = new InstalledXrayReveals(entries);
+        // The overlays are required with the reveals (#1596); every required room overlay shows one block.
+        var overlays = new InstalledXrayOverlays(Enumerable.Repeat(RoomBlockAppearance.Of(0), InstalledXrayOverlays.TankCount),
+            XrayRoomOverlayDefinitions.All.Select(overlay => new XrayRoomOverlayTiles(overlay,
+                [new XrayRoomOverlayVisual(Position16<RoomBlocks>.Of(0, 0), RoomBlockAppearance.Of(0))])));
+        var catalog = new InstalledXrayReveals(entries, overlays);
         Require(catalog.Apply(RoomCollisionType.ShootableBlock, RoomBlockBehaviorCodec.Decode(2)) is { } tall &&
             tall.Command == XrayRevealCommand.CopyTall && tall.TopLeft == 1 && tall.BottomLeft == 3,
             "one identity must select the compiled command and the matching installed operands");
         Require(catalog.Apply(RoomCollisionType.HorizontalExtension, RoomBlockBehaviorCodec.Decode(3)) ==
-            XrayRevealTable.Find(RoomCollisionType.HorizontalExtension, RoomBlockBehaviorCodec.Decode(3)), "extensions must retain their compiled definition");
+            new XrayRevealDefinition(XrayRevealCommand.HorizontalExtension, 0, 0, 0, 0), "extensions must retain their compiled command and show no blocks");
         Require(catalog.Apply(RoomCollisionType.SolidBlock, RoomBlockBehaviorCodec.Decode(0)) is null &&
             catalog.Apply(RoomCollisionType.ShootableBlock, RoomBlockBehaviorCodec.Decode(byte.MaxValue)) is null,
             "unowned collision/BTS pairs must return native no-reveal, not demand missing artwork");

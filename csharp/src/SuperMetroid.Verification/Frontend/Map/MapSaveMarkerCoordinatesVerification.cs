@@ -49,7 +49,6 @@ internal static class MapSaveMarkerCoordinatesVerification
     private static void VerifyMapSaveMarkerCoordinateField(MapSaveMarkerDocument original, byte[] extracted, bool vertical)
     {
         MapSaveMarkerPositions stock = MapSaveMarkerFile.Read(new MemoryStream(extracted, writable: false));
-        AssertEqual(0, stock.StoredCoordinateComponentCount, "stock marker coordinates are calculated, not cached");
         Check(original, stock);
         foreach (ushort invalid in new ushort[] { ushort.MaxValue, vertical ? (ushort)256 : (ushort)512 })
         {

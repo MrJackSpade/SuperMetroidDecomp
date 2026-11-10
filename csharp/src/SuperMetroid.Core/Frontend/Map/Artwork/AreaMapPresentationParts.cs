@@ -23,7 +23,7 @@ internal sealed record AreaMapPresentationParts
     /// <summary>Areas.</summary>
     public required IAreaMapView[] Areas { get; init; }
 
-    /// <summary>Uppercase SHA-256 identity of length-framed stock map rules, station masks, and selected presentation resources in fixed order; override edits affect identity without changing stock provenance.</summary>
+    /// <summary>Uppercase SHA-256 identity of length-framed map rules, station masks, and installed presentation resources in fixed order; an edit in place changes the identity.</summary>
     public required string ContentIdentity { get; init; }
 
     /// <summary>Selected highlight color frames used by map presentation; animation progression remains engine-owned.</summary>

@@ -10,22 +10,18 @@ namespace SuperMetroid.Core.Frontend.Options.Artwork;
 /// </summary>
 public abstract class GameOptionsPresentation
 {
-    /// <summary>Edited heading anchors by menu layout, or null for the stock anchors.</summary>
-    internal readonly Dictionary<GameOptionsPage, Position16<SpritePixels>>? headingAnchors;
-    /// <summary>Edited cursor anchors by menu layout, or null for the stock anchors.</summary>
-    internal readonly Dictionary<GameOptionsPage, Position16<SpritePixels>[]>? cursorAnchors;
+    /// <summary>The installed heading anchors by menu layout.</summary>
+    internal readonly Dictionary<GameOptionsPage, Position16<SpritePixels>> headingAnchors;
+    /// <summary>The installed cursor anchors by menu layout.</summary>
+    internal readonly Dictionary<GameOptionsPage, Position16<SpritePixels>[]> cursorAnchors;
 
-    /// <summary>Retains only the anchor edits that depart from stock geometry.</summary>
+    /// <summary>Keeps the complete installed anchors; the installation is their only source (#1596).</summary>
     /// <param name="placements">The validated anchors and cursor duration.</param>
     internal GameOptionsPresentation(GameOptionsPlacements placements)
     {
-        Dictionary<GameOptionsPage, Position16<SpritePixels>> headings = placements.HeadingAnchors.ToDictionary(
-            pair => pair.Key, pair => pair.Value);
-        headingAnchors = headings.Any(pair => pair.Value != GameOptionsArtworkCells.HeadingAnchor(pair.Key)) ? headings : null;
-        Dictionary<GameOptionsPage, Position16<SpritePixels>[]> cursors = placements.CursorAnchors.ToDictionary(
-            pair => pair.Key, pair => pair.Value);
-        cursorAnchors = cursors.Any(pair => pair.Value.Where((point, index) =>
-            point != GameOptionsArtworkCells.CursorAnchor(pair.Key, index)).Any()) ? cursors : null;
+        Ensure.NotNull(placements);
+        headingAnchors = placements.HeadingAnchors.ToDictionary(pair => pair.Key, pair => pair.Value);
+        cursorAnchors = placements.CursorAnchors.ToDictionary(pair => pair.Key, pair => (Position16<SpritePixels>[])[.. pair.Value]);
         HiddenCursor = placements.HiddenCursor;
         CursorFrameDuration = placements.CursorFrameDuration;
     }
@@ -40,8 +36,6 @@ public abstract class GameOptionsPresentation
     {
         if (!Enum.IsDefined(page))
             throw new ArgumentOutOfRangeException(nameof(page), page, "Options cursors exist only for the three menu pages.");
-        if (cursorAnchors is null)
-            return GameOptionsArtworkCells.CursorAnchor(page, selectedItem);
         Position16<SpritePixels>[] points = cursorAnchors[page];
         return (uint)selectedItem < points.Length
             ? points[selectedItem]
@@ -50,9 +44,7 @@ public abstract class GameOptionsPresentation
     /// <summary>Draws a page heading at its authored origin after applying menu scroll.</summary>
     internal void DrawHeading(ScreenSprites sprites, SpriteSheet sheet, GameOptionsPage page, int verticalScroll)
     {
-        Position16<SpritePixels> point = headingAnchors is null
-            ? GameOptionsArtworkCells.HeadingAnchor(page)
-            : headingAnchors[page];
+        Position16<SpritePixels> point = headingAnchors[page];
         // The authored X is validated on screen; scrolling the heading wraps its Y word.
         Position16<SpritePixels> origin = new(checked(point.X), CoordinateAxis.Wrap(point.Y - verticalScroll));
         sprites.AddImage(sheet.Frame(GameOptionsNames.HeadingSpriteName(page)), origin, shading: PictureShading.Standard);

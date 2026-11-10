@@ -52,7 +52,7 @@ public static class XrayRevealVisualFiles
     /// <remarks>Drawable rules are grouped by collision kind and definition. Item and room-overlay level words are decoded to appearances by <see cref="RoomLevelWordCodec"/>; room coordinates are unsigned 16-pixel block positions. Create-new writes refuse existing outputs and are not an atomic JSON/manifest transaction.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
     /// <exception cref="ArgumentException">The directory or source hash is null, empty, or whitespace.</exception>
-    /// <exception cref="InvalidDataException">A native rule differs from compiled definitions, a pointer/command is invalid, the X-ray reveals an item showing its own picture other than by its block pair's first frame, or a room overlay is empty, unterminated, or contains nonvisual words.</exception>
+    /// <exception cref="InvalidDataException">A native rule's command differs from the compiled commands, a pointer/command is invalid, the X-ray reveals an item showing its own picture other than by its block pair's first frame, or a room overlay is empty, unterminated, or contains nonvisual words.</exception>
     /// <exception cref="IOException">An output exists or filesystem access fails.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256)
@@ -68,9 +68,9 @@ public static class XrayRevealVisualFiles
         for (int value = 0; value <= byte.MaxValue; value++)
         {
             XrayRevealDefinition? native = ReadNative(bus, type, value);
-            if (native != XrayRevealTable.Find(type, RoomBlockBehaviorCodec.Decode(value)))
+            if (native?.Command != XrayRevealTable.Find(type, RoomBlockBehaviorCodec.Decode(value)))
                 throw new InvalidDataException(
-                    $"Compiled X-ray rule {type}/behaviour ${value:X2} differs from the cartridge.");
+                    $"Compiled X-ray command {type}/behaviour ${value:X2} differs from the cartridge.");
             if (native is not { } definition || !InstalledXrayReveals.IsDrawable(definition.Command))
                 continue;
             var key = new XrayRevealGroupKey(type, definition);
@@ -170,10 +170,9 @@ public static class XrayRevealVisualFiles
             if (entry is null || entry.BehaviorValues is null || entry.BehaviorValues.Length == 0 ||
                 entry.BehaviorValues.Any(value => value is < 0 or > byte.MaxValue))
                 throw new InvalidDataException($"X-ray visuals {path} contain an invalid behaviour group.");
-            if (XrayRevealTable.Find(entry.CollisionType, RoomBlockBehaviorCodec.Decode(entry.BehaviorValues[0])) is not { } rule ||
-                !InstalledXrayReveals.IsDrawable(rule.Command) || entry.Shape != NameOf(rule.Command))
+            if (XrayRevealTable.Find(entry.CollisionType, RoomBlockBehaviorCodec.Decode(entry.BehaviorValues[0])) is not { } command ||
+                !InstalledXrayReveals.IsDrawable(command) || entry.Shape != NameOf(command))
                 throw new InvalidDataException($"X-ray visuals {path} contain an invalid copy shape.");
-            XrayRevealCommand command = rule.Command;
             if ((command is XrayRevealCommand.CopyOne or XrayRevealCommand.CopyBrinstar &&
                     (entry.TopRight != 0 || entry.BottomLeft != 0 || entry.BottomRight != 0)) ||
                 (command == XrayRevealCommand.CopyWide &&

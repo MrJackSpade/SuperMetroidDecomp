@@ -3,38 +3,34 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Samus.Abilities.Artwork;
 
 /// <summary>
-/// Installed visual choices for X-ray blocks. The game's collision and behaviour lookup,
-/// copy dimensions, extension traversal, and Brinstar-only condition remain compiled.
+/// The installed blocks every X-ray copy reveal shows, and the installed item and special-room overlays. The game's
+/// collision and behaviour lookup, copy dimensions, extension traversal and Brinstar-only condition remain compiled; there
+/// is no compiled copy of the blocks (#1596).
 /// </summary>
 public sealed class InstalledXrayReveals
 {
     /// <summary>Installed reveal blocks keyed by collision kind and reaction.</summary>
     /// <remarks>
     /// Issue #1037: of every collision kind's reading of every reaction, the original data has 305 drawable pairs; the
-    /// constructor requires exactly those pairs and rejects duplicates.
-    /// Stock operands come from reveal command records and all
-    /// 305 installed values match the independent oracle.
-    /// The visual operands can also be replaced through reveals.json while
-    /// the command and copy dimensions remain fixed. Therefore no
-    /// single formula derived from the original data can reproduce every valid installation:
-    /// retain this bounded indexed store for the selected visual data.
+    /// constructor requires exactly those pairs and rejects duplicates. The player edits the blocks in reveals.json while
+    /// the command and copy dimensions remain fixed, so no single formula can reproduce every valid installation: retain
+    /// this bounded indexed store for the installed visual data.
     /// </remarks>
     internal readonly Dictionary<XrayRevealVisualKey, XrayRevealVisualBlocks> blocks = [];
 
-    /// <summary>Creates a complete visual replacement for every drawable reveal rule.</summary>
+    /// <summary>Creates the complete installed reveal blocks for every drawable reveal rule.</summary>
     /// <param name="entries">Exactly one set of blocks for each drawable collision kind and behaviour; command selection and copy geometry remain fixed.</param>
-    /// <param name="overlays">Installed item/special-room visuals, or null for a noninstalled fixture.</param>
-    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
+    /// <param name="overlays">The installed item and special-room overlays.</param>
+    /// <exception cref="ArgumentNullException">The entry sequence or the overlays are null.</exception>
     /// <exception cref="InvalidDataException">An entry has no drawable rule, duplicates another pair, or leaves drawable coverage incomplete.</exception>
     /// <exception cref="ArgumentOutOfRangeException">An entry names a block outside the tileset's block set.</exception>
-    public InstalledXrayReveals(IEnumerable<XrayRevealVisualDefinition> entries, InstalledXrayOverlays? overlays = null)
+    public InstalledXrayReveals(IEnumerable<XrayRevealVisualDefinition> entries, InstalledXrayOverlays overlays)
     {
         Ensure.NotNull(entries);
-        Overlays = overlays;
+        Overlays = Ensure.NotNull(overlays);
         foreach ((RoomCollisionType type, BlockReaction reaction, XrayRevealVisualBlocks visual) in entries)
         {
-            XrayRevealDefinition? retail = XrayRevealTable.Find(type, RoomBlockBehavior.Reacting(reaction));
-            if (retail is not { } definition || !IsDrawable(definition.Command))
+            if (XrayRevealTable.Find(type, RoomBlockBehavior.Reacting(reaction)) is not { } command || !IsDrawable(command))
                 throw new InvalidDataException(
                     $"X-ray visual {type}/reaction {reaction} has no drawable reveal rule.");
             ValidateBlocks(visual);
@@ -46,34 +42,29 @@ public sealed class InstalledXrayReveals
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
         foreach (BlockReaction reaction in BlockReaction.All)
         {
-            bool drawable = XrayRevealTable.Find(type, RoomBlockBehavior.Reacting(reaction)) is { } definition &&
-                IsDrawable(definition.Command);
+            bool drawable = XrayRevealTable.Find(type, RoomBlockBehavior.Reacting(reaction)) is { } command &&
+                IsDrawable(command);
             if (drawable != blocks.ContainsKey(new XrayRevealVisualKey(type, reaction)))
                 throw new InvalidDataException(
                     $"X-ray visual catalog does not cover reveal rule {type}/reaction {reaction}.");
         }
     }
 
-    /// <summary>Installed item and special-room visuals; null only in noninstalled fixtures.</summary>
-    public InstalledXrayOverlays? Overlays { get; }
+    /// <summary>The installed item and special-room overlays.</summary>
+    public InstalledXrayOverlays Overlays { get; }
 
     /// <summary>
     /// Resolves the compiled command and its installed blocks from the same collision kind and behaviour. Callers
-    /// cannot pair a drawable command with another block's absent artwork; unowned pairs retain the no-reveal result.
+    /// cannot pair a drawable command with another block's absent artwork; unowned pairs retain the no-reveal result, and
+    /// an extension command has no blocks.
     /// </summary>
     public XrayRevealDefinition? Apply(RoomCollisionType type, RoomBlockBehavior behavior)
     {
-        if (XrayRevealTable.Find(type, behavior) is not { } retail) return null;
-        if (!IsDrawable(retail.Command)) return retail;
+        if (XrayRevealTable.Find(type, behavior) is not { } command) return null;
+        if (!IsDrawable(command)) return new XrayRevealDefinition(command, 0, 0, 0, 0);
         if (!blocks.TryGetValue(new XrayRevealVisualKey(type, behavior.Reaction), out XrayRevealVisualBlocks visual))
             throw new InvalidDataException($"Missing X-ray visual {type}/behaviour {behavior}.");
-        return retail with
-        {
-            TopLeft = visual.TopLeft,
-            TopRight = visual.TopRight,
-            BottomLeft = visual.BottomLeft,
-            BottomRight = visual.BottomRight,
-        };
+        return new XrayRevealDefinition(command, visual.TopLeft, visual.TopRight, visual.BottomLeft, visual.BottomRight);
     }
 
     /// <summary>Rejects reveal blocks outside the tileset's block set, as an appearance of each would.</summary>

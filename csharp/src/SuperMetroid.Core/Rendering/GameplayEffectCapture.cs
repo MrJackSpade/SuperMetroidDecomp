@@ -207,11 +207,13 @@ public static class GameplayEffectCapture
     /// The Ceres haze: its tint added across the gameplay area, strengthening in bands down the screen and dimmed by
     /// how far the haze has faded, with no boss-state reference.
     /// </summary>
-    public static ColourAddWindowLayer CaptureCeresHaze(bool ridleyIsDead,
-        int intensity = CeresHazeRenderDefinitions.MaximumComponent,
-        CeresHazeTints? tints = null)
+    /// <param name="tints">The installed tints of the haze.</param>
+    /// <param name="ridleyIsDead">Whether Ceres Ridley is dead, which selects the red tint.</param>
+    /// <param name="intensity">How far the haze has faded in.</param>
+    public static ColourAddWindowLayer CaptureCeresHaze(CeresHazeTints tints, bool ridleyIsDead,
+        int intensity = CeresHazeRenderDefinitions.MaximumComponent)
     {
-        RgbColor tint = (tints ?? CeresHazeTints.Stock).For(ridleyIsDead);
+        RgbColor tint = Ensure.NotNull(tints).For(ridleyIsDead);
         // The fade's strength is relative to the whole haze: below it the bands dim, and the fade-out's first frame
         // shows one step more than whole.
         var steps = new LineColourSteps(CeresHazeRenderDefinitions.RampFirstLine, CeresHazeRenderDefinitions.BandHeight,

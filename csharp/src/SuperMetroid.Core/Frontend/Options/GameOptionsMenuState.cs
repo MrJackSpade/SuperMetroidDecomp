@@ -126,7 +126,8 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         // The selection missile is spawned by index one; the object handler
         // then runs after every index's work, including that first one.
         if (Phase != GameOptionsPhase.FinishFadingOut)
-            missile.Step(mapPresentation?.GameOptions.CursorFrameDuration);
+            missile.Step((mapPresentation ?? throw new InvalidOperationException(
+                "Game options require installed menu presentation assets.")).GameOptions.CursorFrameDuration);
 
         switch (Phase)
         {

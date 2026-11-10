@@ -1,4 +1,4 @@
-using System.Collections.Frozen;
+﻿using System.Collections.Frozen;
 using SuperMetroid.Core.Frontend.Intro;
 using static SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresDestructionSpriteFrameDefinitions;
 
@@ -29,10 +29,12 @@ internal static class CeresDestructionSpritePoses
     internal static CinematicSpritePose BackdropPose(CeresDestructionBackdrop backdrop) =>
         BackdropPoses.TryGetValue(backdrop, out CinematicSpritePose pose) ? pose : throw new ArgumentOutOfRangeException(nameof(backdrop));
 
-    /// <summary>Each backdrop's pose, keyed by the backdrop its frame declares.</summary>
+    /// <summary>
+    /// Each backdrop's pose: the destruction's first seven frames draw the seven backdrops in the order
+    /// <see cref="CeresDestructionBackdrop"/> lists them.
+    /// </summary>
     private static readonly FrozenDictionary<CeresDestructionBackdrop, CinematicSpritePose> BackdropPoses =
-        Frames.SelectMany(frame => frame.Backdrop is CeresDestructionBackdrop backdrop
-                ? new[] { KeyValuePair.Create(backdrop, frame.Pose) }
-                : [])
+        Enum.GetValues<CeresDestructionBackdrop>()
+            .Select((backdrop, frame) => KeyValuePair.Create(backdrop, Frames[frame].Pose))
             .ToFrozenDictionary();
 }

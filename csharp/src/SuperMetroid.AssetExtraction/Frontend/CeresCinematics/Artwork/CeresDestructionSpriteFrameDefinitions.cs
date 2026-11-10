@@ -6,19 +6,19 @@ namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 public static class CeresDestructionSpriteFrameDefinitions
 {
     /// <summary>
-    /// The 23 published compositions, one for each destruction pose in order: the seven backdrops in
-    /// <see cref="CeresDestructionBackdrop"/> order, six small blasts, four large blasts, then six station blasts. Original
+    /// The 23 published compositions, one for each destruction pose in order: the seven backdrops in their
+    /// drawing order, six small blasts, four large blasts, then six station blasts. Original
     /// sprite part counts describe stock geometry without restricting edited compositions.
     /// </summary>
     public static IReadOnlyList<CeresDestructionSpriteFrameDefinition> Frames { get; } =
     [
-        new("station-under-attack-large-asteroid", Poses[0], 19, CeresDestructionBackdrop.LargeAsteroids),
-        new("planet-zebes", Poses[1], 50, CeresDestructionBackdrop.Planet),
-        new("planet-zebes-title", Poses[2], 11, CeresDestructionBackdrop.Title),
-        new("zebes-stars-upper-left", Poses[3], 12, CeresDestructionBackdrop.UpperLeftStars),
-        new("zebes-stars-upper-right", Poses[4], 6, CeresDestructionBackdrop.UpperRightStars),
-        new("zebes-stars-lower-left", Poses[5], 4, CeresDestructionBackdrop.LowerLeftStars),
-        new("zebes-stars-lower-right", Poses[6], 7, CeresDestructionBackdrop.LowerRightStars),
+        new("station-under-attack-large-asteroid", Poses[0], 19),
+        new("planet-zebes", Poses[1], 50),
+        new("planet-zebes-title", Poses[2], 11),
+        new("zebes-stars-upper-left", Poses[3], 12),
+        new("zebes-stars-upper-right", Poses[4], 6),
+        new("zebes-stars-lower-left", Poses[5], 4),
+        new("zebes-stars-lower-right", Poses[6], 7),
         new("small-blast-0", Poses[7], 1),
         new("small-blast-1", Poses[8], 1),
         new("small-blast-2", Poses[9], 4),

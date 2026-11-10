@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 
 namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
@@ -17,16 +16,4 @@ public static class CeresFlightSpriteDefinitions
         new("vortex-even", new(36), 36),
         new("vortex-odd", new(37), 33),
     ];
-
-    /// <summary>The star field the flight background stream shows.</summary>
-    internal static CinematicSpritePose Stars => Frames[0].Pose;
-
-    /// <summary>The large asteroids of the approach, at OBJ priority zero.</summary>
-    internal static CinematicSpritePose LargeAsteroids => Frames[1].Pose;
-
-    /// <summary>The damaged station of the attack sequence.</summary>
-    internal static CinematicSpritePose StationUnderAttack => Frames[2].Pose;
-
-    /// <summary>The small asteroids beside the station.</summary>
-    internal static CinematicSpritePose SmallAsteroids => Frames[3].Pose;
 }

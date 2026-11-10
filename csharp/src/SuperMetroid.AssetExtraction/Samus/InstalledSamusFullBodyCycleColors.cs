@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 public sealed class InstalledSamusFullBodyCycleColors
 {
     /// <summary>Every installed cycle palette's colours, in <see cref="SamusFullBodyCycleColorFormat.PaletteIndex"/> order.</summary>
-    private readonly RgbColor[][] palettes;
+    internal readonly RgbColor[][] palettes;
 
     /// <summary>Keeps copies of the complete installed cycle palettes.</summary>
     /// <param name="palettes">All <see cref="SamusFullBodyCycleColorFormat.PaletteCount"/> palettes of <see cref="SamusFullBodyCycleColorFormat.ColorsPerPalette"/> colours.</param>
@@ -30,19 +30,6 @@ public sealed class InstalledSamusFullBodyCycleColors
             copy[palette] = (RgbColor[])colours.Clone();
         }
         this.palettes = copy;
-    }
-
-    /// <summary>Returns one installed colour of a cycle palette.</summary>
-    /// <param name="palette">The cycle palette.</param>
-    /// <param name="colorIndex">The colour within the palette, 0 through 15.</param>
-    /// <returns>The installed colour.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The palette is not catalogued or the colour is outside it.</exception>
-    public RgbColor Resolve(SamusFullBodyCyclePalette palette, int colorIndex)
-    {
-        RgbColor[] colours = palettes[SamusFullBodyCycleColorFormat.PaletteIndex(palette)];
-        if ((uint)colorIndex >= colours.Length)
-            throw new ArgumentOutOfRangeException(nameof(colorIndex));
-        return colours[colorIndex];
     }
 
     /// <summary>

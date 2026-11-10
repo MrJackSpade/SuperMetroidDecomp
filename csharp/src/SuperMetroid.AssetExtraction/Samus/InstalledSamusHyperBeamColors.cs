@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 public sealed class InstalledSamusHyperBeamColors
 {
     /// <summary>Every installed cycle frame's sixteen colours, in cycle order.</summary>
-    private readonly RgbColor[][] frames;
+    internal readonly RgbColor[][] frames;
 
     /// <summary>Keeps copies of the complete installed cycle.</summary>
     /// <param name="frames">All <see cref="SamusHyperBeamColorFormat.FrameCount"/> frames of <see cref="SamusHyperBeamColorFormat.ColorsPerFrame"/> colours, in cycle order.</param>
@@ -26,16 +26,4 @@ public sealed class InstalledSamusHyperBeamColors
     /// </summary>
     public SamusHyperBeamColours ToColours() =>
         new([.. frames.Select(frame => frame.ToImmutableArray())]);
-
-    /// <summary>Returns one installed colour; the frame clock remains gameplay's.</summary>
-    /// <param name="frame">The cycle frame, 0 through 9.</param>
-    /// <param name="color">The colour within the frame, 0 through 15.</param>
-    /// <returns>The installed colour.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The frame or colour is outside the cycle.</exception>
-    public RgbColor Resolve(int frame, int color)
-    {
-        if ((uint)frame >= frames.Length) throw new ArgumentOutOfRangeException(nameof(frame));
-        if ((uint)color >= frames[frame].Length) throw new ArgumentOutOfRangeException(nameof(color));
-        return frames[frame][color];
-    }
 }

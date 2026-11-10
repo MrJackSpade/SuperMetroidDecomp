@@ -1,4 +1,4 @@
-namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
+﻿namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>The two Ceres purple-vortex star-field frames.</summary>
 internal enum CeresVortexFrame

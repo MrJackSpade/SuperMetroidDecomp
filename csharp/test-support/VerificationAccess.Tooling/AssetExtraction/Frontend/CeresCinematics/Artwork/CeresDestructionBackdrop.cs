@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>The seven unique Ceres destruction and Zebes reveal backdrops, in catalog order.</summary>
-public enum CeresDestructionBackdrop
+internal enum CeresDestructionBackdrop
 {
     /// <summary>8C:909D, SpaceSpritemaps_CeresUnderAttackLargeAsteroids.</summary>
     LargeAsteroids,

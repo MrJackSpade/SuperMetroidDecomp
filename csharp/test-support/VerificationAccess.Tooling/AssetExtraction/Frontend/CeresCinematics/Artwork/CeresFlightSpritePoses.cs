@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Frontend.Intro;
+﻿using SuperMetroid.Core.Frontend.Intro;
 using static SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresFlightSpriteDefinitions;
 
 namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;

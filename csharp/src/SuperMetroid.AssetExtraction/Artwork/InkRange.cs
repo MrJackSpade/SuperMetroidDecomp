@@ -16,7 +16,4 @@ internal readonly record struct InkRange(int First, int End)
 
     /// <summary>Every ink of the run, in rising order.</summary>
     internal IEnumerable<int> Inks => Enumerable.Range(First, Count);
-
-    /// <summary>Whether <paramref name="ink"/> lies in the run.</summary>
-    internal bool Contains(int ink) => ink >= First && ink < End;
 }

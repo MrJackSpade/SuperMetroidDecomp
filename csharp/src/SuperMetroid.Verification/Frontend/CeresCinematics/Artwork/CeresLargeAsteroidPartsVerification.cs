@@ -17,7 +17,7 @@ internal static class CeresLargeAsteroidPartsVerification
     /// <summary>Compares the stock calculated parts and native visible or wrapped OAM.</summary>
     internal static void VerifyCeresLargeAsteroidParts(ISnesAddressSpace rom)
     {
-        foreach (var definition in new[] { new { Pose = CeresDestructionSpritePoses.BackdropPose(CeresDestructionBackdrop.LargeAsteroids), StockPartCount = 19, Name = "under-attack" }, new { Pose = CeresFlightSpriteDefinitions.LargeAsteroids, StockPartCount = 19, Name = "approach" } })
+        foreach (var definition in new[] { new { Pose = CeresDestructionSpritePoses.BackdropPose(CeresDestructionBackdrop.LargeAsteroids), StockPartCount = 19, Name = "under-attack" }, new { Pose = CeresFlightSpriteDefinitionsConstants.LargeAsteroids, StockPartCount = 19, Name = "approach" } })
         {
             SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(rom, CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name);
             SpriteComposition source = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);

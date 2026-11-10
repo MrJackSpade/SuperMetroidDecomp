@@ -453,7 +453,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                     handsOver = ThirdPhaseDeath.RunThirdPhaseDeathBlowUpEscapeDoor(requests);
                     break;
                 case MotherBrainBodyFunction.ThirdPhaseDeathKeepEarthquakeGoing:
-                    handsOver = ThirdPhaseDeath.RunThirdPhaseDeathKeepEarthquakeGoing(frame, requests);
+                    handsOver = MotherBrainThirdPhaseDeath.RunThirdPhaseDeathKeepEarthquakeGoing(frame, requests);
                     break;
                 // The sequence owns only the rainbow-beam and later body functions; the others belong to the room adapter.
                 case MotherBrainBodyFunction.FirstPhase:

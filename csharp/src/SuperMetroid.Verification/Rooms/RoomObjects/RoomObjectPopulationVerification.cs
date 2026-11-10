@@ -693,7 +693,7 @@ internal static class RoomObjectPopulationVerification
             disabledSamus,
             CreateFx(0x0300, null, 0, 0),
             disabledLevel,
-            _ => { });
+            () => { });
         disabled.Step(disabledLevel);
         disabled.Step(disabledLevel);
         AssertEqual(0, disabled.SlotTable.ActiveCount,
@@ -712,7 +712,7 @@ internal static class RoomObjectPopulationVerification
             activeSamus,
             activeFx,
             activeLevel,
-            _ => { });
+            () => { });
         active.Step(activeLevel);
         active.Step(activeLevel);
         AssertEqual(SpeedBoosterEscapeDefinitions.InitialLavaquakeVelocity.RawValue,

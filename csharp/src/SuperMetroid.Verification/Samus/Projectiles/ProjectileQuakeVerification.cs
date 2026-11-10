@@ -75,7 +75,7 @@ internal static class ProjectileQuakeVerification
             string quakeCase = $"type={type}, timer={timer}, depth={depth}, origin={position}";
             AssertSameBytes(expected.LowTable, actual.LowTable, $"native quake OAM low table: {quakeCase}");
             AssertSameBytes(expected.HighTable, actual.HighTable, $"native quake OAM high table: {quakeCase}");
-            AssertEqual((int)timer, enemies.Earthquake.RemainingFrames, "drawing leaves quake timer untouched");
+            AssertEqual(timer, enemies.Earthquake.RemainingFrames, "drawing leaves quake timer untouched");
             AssertEqual(unchecked((ushort)position), actor.Position.X.Whole, "drawing preserves world X");
             AssertEqual(unchecked((ushort)position), actor.Position.Y.Whole, "drawing preserves world Y");
             cases++;

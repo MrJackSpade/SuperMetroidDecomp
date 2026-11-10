@@ -659,7 +659,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// Runs the third phase death keep earthquake going body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
-    internal bool RunThirdPhaseDeathKeepEarthquakeGoing(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
+    internal static bool RunThirdPhaseDeathKeepEarthquakeGoing(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
         // The room's earthquake runs down outside enemy AI. Only a stopped earthquake is run on again, for the
         // longest length, with whatever shake the room has; a running one is left as it is.

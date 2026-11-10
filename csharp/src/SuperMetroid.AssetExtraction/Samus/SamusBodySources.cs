@@ -68,16 +68,9 @@ public sealed class SamusBodySources : InstalledSamusBodyArtwork
     /// <summary>Identity of the selected death-explosion characters, whose pre-coloured sheet is installed separately.</summary>
     public string DeathTilesContentIdentity { get; }
 
-    /// <summary>The half pictures <paramref name="pose"/>'s <paramref name="animationFrame"/> selects.</summary>
-    /// <exception cref="InvalidDataException">The pose has no record, or the frame is not installed.</exception>
-    public SamusBodyFramePictures Pictures(SamusPoseId pose, int animationFrame) =>
-        TryPictures(pose, animationFrame, out SamusBodyFramePictures pictures)
-            ? pictures
-            : throw new InvalidDataException($"Samus pose {pose} animation frame {animationFrame} selects no installed body pictures.");
-
     /// <summary>
     /// The half pictures <paramref name="pose"/>'s <paramref name="animationFrame"/> selects, when the pose has a record and
-    /// the frame is installed; false for any other pair, which <see cref="Pictures"/> rejects.
+    /// the frame is installed; false for any other pair.
     /// </summary>
     public bool TryPictures(SamusPoseId pose, int animationFrame, out SamusBodyFramePictures pictures)
     {

@@ -10,7 +10,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// <summary>The corpse rotting away after the final death, with its own rot schedule.</summary>
     internal readonly MotherBrainCorpseRottingState CorpseRotting = new();
 
-    /// <summary>The state every late-fight phase reads and writes: the body function and its timer, the neck and head programs, the brain's flags and the earthquake, with the walking and posture requests they share.</summary>
+    /// <summary>The state every late-fight phase reads and writes: the body function and its timer, the neck and head programs and the brain's flags, with the walking and posture requests they share.</summary>
     private readonly MotherBrainLateFightState _state;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -388,18 +388,17 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// Runs the third phase death brain falls to ground body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
-    internal bool RunThirdPhaseDeathBrainFallsToGround()
+    internal bool RunThirdPhaseDeathBrainFallsToGround(MotherBrainRainbowBeamStepRequests requests)
     {
         // The fall treats FunctionTimer as unsigned 8.8 velocity: add 32, use only
         // its high byte as this frame's whole-pixel displacement, and accumulate Y.
-        // Crossing 196 clamps the head and publishes earthquake type two for 20.
+        // Crossing 196 clamps the head and starts the brain's landing earthquake for 20 frames.
         _state.FunctionTimer += 32;
         int fallingDisplacement = UnsignedEightEight.Whole(_state.FunctionTimer);
         Position16<RoomPixels> candidate = _state.BrainPosition + new Offset16<RoomPixels>(0, fallingDisplacement);
         if (candidate.Y >= 196)
         {
-            _state.EarthquakeType = 2;
-            _state.EarthquakeTimer = WrappingCountdown.Start(20);
+            requests.StartEarthquake(MotherBrainDeathDefinitions.BrainLandingEarthquake, 20);
             _state.BrainPosition = _state.BrainPosition.WithY(196);
             CorpseReadyingElapsed = 0;
             _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathReadyCorpse;
@@ -560,8 +559,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         // indefinitely, create four palette-FX objects, disable the old unpause hook, and initialize text. The door's
         // fragments are pre-coloured in the exploded door's colours, so its colour load is not kept (#1544).
         requests.EscapeMusicTrackQueued = true;        // Eight-frame-delay escape song.
-        _state.EarthquakeType = 5;
-        _state.EarthquakeTimer = WrappingCountdown.Start(WrappingCountdown.LongestStart);
+        requests.StartEarthquake(MotherBrainDeathDefinitions.EscapeEarthquake, WrappingCountdown.LongestStart);
         requests.EscapePaletteFxRequests.Add(PaletteFxObject.TourianShutterRedFlashing);
         requests.EscapePaletteFxRequests.Add(PaletteFxObject.TourianBackgroundRedFlashing);
         requests.EscapePaletteFxRequests.Add(PaletteFxObject.TourianGeneralLevelRedFlashing);
@@ -663,16 +661,10 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// </summary>
     internal bool RunThirdPhaseDeathKeepEarthquakeGoing(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
-        // EarthquakeTimer is global and is normally decremented outside enemy
-        // AI. A supplied sample is therefore authoritative. The quake step changes only a
-        // visible zero to -1; every nonzero value, including -1, survives.
-        if (frame.GlobalEarthquakeTimer is WrappingCountdown observedEarthquakeTimer)
-            _state.EarthquakeTimer = observedEarthquakeTimer;
-        if (_state.EarthquakeTimer.IsZero)
-        {
-            _state.EarthquakeTimer = WrappingCountdown.Start(WrappingCountdown.LongestStart);
-            requests.EarthquakeTimerRefreshed = true;
-        }
+        // The room's earthquake runs down outside enemy AI. Only a stopped earthquake is run on again, for the
+        // longest length, with whatever shake the room has; a running one is left as it is.
+        if (frame.RoomEarthquakeStopped)
+            requests.RunEarthquakeOn(WrappingCountdown.LongestStart);
         return false;
     }
 }

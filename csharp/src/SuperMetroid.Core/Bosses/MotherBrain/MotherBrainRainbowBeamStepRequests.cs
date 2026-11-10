@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms.RoomObjects;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -81,8 +82,17 @@ internal sealed class MotherBrainRainbowBeamStepRequests
     /// <summary>The escape door's room object requested, if any.</summary>
     internal RoomObjectSpawnRequest<MotherBrainRoomMutation>? EscapeDoorObject { get; set; }
 
-    /// <summary>Whether the earthquake timer was refreshed.</summary>
-    internal bool EarthquakeTimerRefreshed { get; set; }
+    /// <summary>What the call last asked of the room's earthquake, if anything.</summary>
+    internal MotherBrainEarthquakeRequest? Earthquake { get; private set; }
+
+    /// <summary>Starts the room's earthquake with <paramref name="shake"/> for <paramref name="frames"/> frames.</summary>
+    internal void StartEarthquake(EarthquakeShake shake, int frames) => Earthquake = new(shake, frames);
+
+    /// <summary>Runs the room's earthquake on for <paramref name="frames"/> frames, keeping any shake this call started.</summary>
+    internal void RunEarthquakeOn(int frames) => Earthquake = new(Earthquake?.Shake, frames);
+
+    /// <summary>Stops the room's earthquake, keeping any shake this call started for a later run.</summary>
+    internal void StopEarthquake() => RunEarthquakeOn(0);
 
     /// <summary>The call's result, from the phases it started and ended in.</summary>
     internal MotherBrainRainbowBeamAttackStepResult ToResult(
@@ -93,5 +103,5 @@ internal sealed class MotherBrainRainbowBeamStepRequests
             EscapeMusicTrackQueued, EscapePaletteFxRequests,
             EscapeTypewriterSetupRequested, TimeBombSetSubtitleSpawnRequested, EscapeDoorExplosion, TimerHandlingEnableRequested,
             MotherBrainEscapeTimerStartRequested, MotherBrainBossBitRequested, ZebesTimebombEventRequested, EscapeDoorParticleSpawns,
-            EscapeDoorObject, EarthquakeTimerRefreshed);
+            EscapeDoorObject, Earthquake);
 }

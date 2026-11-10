@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.RoomObjects;
+using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.World;
 
@@ -30,11 +31,11 @@ internal sealed class RoomObjectRuntimeServices(
     /// <summary>Reads the live Tourian entrance statue completion state.</summary>
     public bool IsFinished => Enemies.TourianStatue.Finished;
 
-    /// <summary>Publishes a room-object-triggered quake countdown to the shared room earthquake.</summary>
-    public void SetTimer(int timer) => Enemies.Earthquake.EarthquakeTimer = WrappingCountdown.FromRaw(timer);
+    /// <summary>Starts the room's earthquake for a room object.</summary>
+    public void Start(EarthquakeShake shake, int frames) => Enemies.Earthquake.Start(shake, frames);
 
-    /// <summary>Publishes the quake selector alongside the shared countdown.</summary>
-    public void SetType(int type) => Enemies.Earthquake.EarthquakeType = type;
+    /// <summary>Stops the room's earthquake for a room object.</summary>
+    public void Stop() => Enemies.Earthquake.Stop();
 
     /// <summary>Spawns a Noob Tube projectile with the active room width for placement.</summary>
     public void SpawnNoobTubeProjectile(NoobTubeProjectileRequest request) =>

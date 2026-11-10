@@ -1,11 +1,13 @@
+using SuperMetroid.Core.Fx;
+
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>The room-shake writes room objects make (#633).</summary>
+/// <summary>The room's earthquake as room objects start and stop it (#633).</summary>
 public interface IRoomEarthquakeWriter
 {
-    /// <summary>Writes the earthquake timer, 0 through 65535.</summary>
-    void SetTimer(int timer);
+    /// <summary>Starts the room's earthquake: <paramref name="shake"/> for <paramref name="frames"/> frames, 0 through 65535.</summary>
+    void Start(EarthquakeShake shake, int frames);
 
-    /// <summary>Writes the earthquake type.</summary>
-    void SetType(int type);
+    /// <summary>Stops the room's earthquake.</summary>
+    void Stop();
 }

@@ -63,7 +63,8 @@ internal static class NoobTubeObjectVerification
         samus.LiquidPhysics.ConfigureFor(roomFx);
         var guarded = NewNoobTubeProgramReadGuard(bus);
         var projectiles = new List<NoobTubeProjectileRequest>();
-        var earthquakes = new List<int>();
+        var earthquakeShakes = new List<EarthquakeShake>();
+        var earthquakeFrames = new List<int>();
         bool brokenEvent = false;
         var roomObjects = RoomObjectFixtures.Unbound();
         RoomBlockAppearance originShown = level.GetCollisionBlock(new(blockX, blockY)).Terrain.Appearance;
@@ -73,7 +74,7 @@ internal static class NoobTubeObjectVerification
                 AssertEqual(NoobTubeObjectDefinitions.BrokenEvent, eventNumber,
                     "n00b tube writes its cartridge event");
                 brokenEvent = true;
-            } }, RoomFx = new RoomObjectFx(roomFx, () => samus), Earthquake = new FixtureRoomEarthquake { WriteTimer = earthquakes.Add, WriteType = earthquakes.Add }, Enemies = new FixtureObjectEnemyEffects { NoobTubeProjectile = projectiles.Add } });
+            } }, RoomFx = new RoomObjectFx(roomFx, () => samus), Earthquake = new FixtureRoomEarthquake { WriteStart = (shake, frames) => { earthquakeShakes.Add(shake); earthquakeFrames.Add(frames); } }, Enemies = new FixtureObjectEnemyEffects { NoobTubeProjectile = projectiles.Add } });
 
         AssertEqual(1, parsed, "n00b-tube population record loads");
         AssertEqual(new RoomTerrainBlock(originShown, RoomCollisionType.SolidBlock),
@@ -189,12 +190,12 @@ internal static class NoobTubeObjectVerification
             projectiles[11].Definition, "six bubbles follow all shards");
         AssertEqual<int?>(5, projectiles[^1].Piece,
             "the sixth bubble names the burst's last bubble");
-        AssertEqual(2, earthquakes.Count,
-            "break burst writes both earthquake type and timer");
-        AssertEqual(NoobTubeObjectDefinitions.EarthquakeType, earthquakes[0],
-            "earthquake type matches cartridge value");
-        AssertEqual(NoobTubeObjectDefinitions.EarthquakeTimer, earthquakes[1],
-            "earthquake timer matches cartridge value");
+        AssertEqual(1, earthquakeShakes.Count,
+            "break burst starts one earthquake");
+        AssertEqual(11, NativeEarthquakeTypes.TypeOf(earthquakeShakes[0]),
+            "earthquake shake matches the cartridge's type");
+        AssertEqual(NoobTubeObjectDefinitions.EarthquakeFrames, earthquakeFrames[0],
+            "earthquake length matches cartridge value");
 
         // The final broken frame lasts $60 frames, then event $0B is committed, water
         // physics are enabled, Samus is unlocked, and the one-shot actor deletes itself.
@@ -316,8 +317,7 @@ internal static class NoobTubeObjectVerification
         var guarded = NewNoobTubeProgramReadGuard(bus);
         var roomObjects = RoomObjectFixtures.Unbound();
         RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(new SharedRandom()), AreaId.Maridia), RoomObjectPopulationImporter.Read(guarded, populationPointer), new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = eventNumber => eventNumber == NoobTubeObjectDefinitions.BrokenEvent, SetEvent = _ => throw new InvalidOperationException(
-                "Already-broken n00b tube must not set its event again.") }, RoomFx = new RoomObjectFx(roomFx, () => samus), Earthquake = new FixtureRoomEarthquake { WriteTimer = _ => throw new InvalidOperationException(
-                "Already-broken n00b tube must not start an earthquake."), WriteType = _ => throw new InvalidOperationException(
+                "Already-broken n00b tube must not set its event again.") }, RoomFx = new RoomObjectFx(roomFx, () => samus), Earthquake = new FixtureRoomEarthquake { WriteStart = (_, _) => throw new InvalidOperationException(
                 "Already-broken n00b tube must not start an earthquake.") }, Enemies = new FixtureObjectEnemyEffects { NoobTubeProjectile = projectiles.Add } });
 
         StepNoobTube(roomObjects, level);

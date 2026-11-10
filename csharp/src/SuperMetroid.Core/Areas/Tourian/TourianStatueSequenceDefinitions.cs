@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Fx;
+
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>
@@ -15,15 +17,14 @@ public static class TourianStatueSequenceDefinitions
     /// <summary>The pixels the statue lowers before the descent completes.</summary>
     public const int DescentDistance = 240;
 
-    /// <summary>The earthquake the descent shakes the room with: type thirteen.</summary>
-    public const int DescentEarthquakeType = 13;
+    /// <summary>
+    /// The medium up-and-down earthquake, shaking both layers, the descent sustains every update it runs
+    /// (<see cref="SuperMetroid.Core.Fx.RoomEarthquake.Sustain"/>), so the shake lasts past its end.
+    /// </summary>
+    public static readonly EarthquakeShake DescentEarthquake =
+        new EarthquakeShake(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.ForegroundAndBackground);
 
-    /// <summary>The timer bit the descent keeps setting, so the shake lasts at least 32 updates past its end.</summary>
-    public const int DescentEarthquakeTimer = 32;
-
-    /// <summary>The earthquake a release shakes the room with: type one.</summary>
-    public const int ReleaseEarthquakeType = 1;
-
-    /// <summary>The timer bit a release sets, so the shake lasts at least 32 updates.</summary>
-    public const int ReleaseEarthquakeTimer = 32;
+    /// <summary>The light up-and-down foreground earthquake a release sustains.</summary>
+    public static readonly EarthquakeShake ReleaseEarthquake =
+        new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Vertical, EarthquakeReach.Foreground);
 }

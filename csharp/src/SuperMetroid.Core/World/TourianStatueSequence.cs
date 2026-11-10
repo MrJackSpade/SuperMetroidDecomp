@@ -269,8 +269,7 @@ public sealed class TourianStatueSequence
             delay = TourianStatueSequenceDefinitions.DescentDelay;
             return;
         }
-        _enemies.Earthquake.EarthquakeType = TourianStatueSequenceDefinitions.DescentEarthquakeType;
-        _enemies.Earthquake.AddTimerBits(TourianStatueSequenceDefinitions.DescentEarthquakeTimer);
+        _enemies.Earthquake.Sustain(TourianStatueSequenceDefinitions.DescentEarthquake);
         _roomFxOverlay.PublishStatueEarthquakeSound(
             _system.RandomNumber, _system.EarthquakeSoundDelay);
         if (delay >= 0)

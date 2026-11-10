@@ -12,6 +12,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Verification.Areas.Ceres;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -63,7 +64,7 @@ internal static class CeresDoorQuakeDefinitionsVerification
         int? baseX = null;
         for (ushort phase = 0; phase < expectedOffsets.Length; phase++)
         {
-            enemies.Earthquake.EarthquakeTimer = WrappingCountdown.FromRaw(phase);
+            enemies.Earthquake.Start(NativeEarthquakeTypes.Shake(29), phase);
             var oam = new OamBuffer();
             oam.BeginFrame();
             oam.AppendDrawn(frame => enemies.CeresRidleyBehavior.BabyScene.DrawCeresRidleyImmediateBabyAndDoor(frame, new(0, 0)));
@@ -73,7 +74,7 @@ internal static class CeresDoorQuakeDefinitionsVerification
                 $"Ceres private door production OAM phase {phase}");
         }
 
-        enemies.Earthquake.EarthquakeTimer = WrappingCountdown.Start(0);
+        enemies.Earthquake.Stop();
         var nativeOverlay = new OamBuffer();
         nativeOverlay.BeginFrame();
         DrawImportedEnemySpritemap(rom, nativeOverlay, new NativeEnemySpritemapDraw { Bank = 0xa6, Pointer = 0xa329, Origin = new(100, 80), PaletteBits = NativeSpriteGraphicsWords.PaletteBits(2), BaseTileIndex = 0 });

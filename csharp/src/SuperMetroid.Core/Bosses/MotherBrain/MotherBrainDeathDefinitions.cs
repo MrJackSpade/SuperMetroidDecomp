@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Projectiles;
 
@@ -8,6 +9,18 @@ public static class MotherBrainDeathDefinitions
 {
     /// <summary>The escape's song, the boss data set's third own song.</summary>
     public const MusicTrack EscapeMusicTrack = MusicTrack.ThirdSetSong;
+
+    /// <summary>The strong diagonal foreground shake the rainbow beam starts as it pins Samus and while it drains her.</summary>
+    public static readonly EarthquakeShake RainbowBeamEarthquake =
+        new(EarthquakeStrength.Strong, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground);
+
+    /// <summary>The light diagonal foreground shake the brain starts when it hits the ground.</summary>
+    public static readonly EarthquakeShake BrainLandingEarthquake =
+        new(EarthquakeStrength.Light, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground);
+
+    /// <summary>The medium diagonal foreground shake the escape starts and keeps going.</summary>
+    public static readonly EarthquakeShake EscapeEarthquake =
+        new(EarthquakeStrength.Medium, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground);
 
     /// <summary>The updates an escape-door fragment lives, counted through signed underflow.</summary>
     public const int DoorFragmentLifetime = 32;

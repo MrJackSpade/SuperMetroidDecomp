@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Verification.Rooms.RoomObjects;
 
@@ -49,8 +50,8 @@ internal static class RoomObjectDefinitionMigrationVerification
         AssertEqual(RoomBlockBehaviorCodec.Decode(0x10), DownwardGateDefinitions.ClosedGateBehavior, "closed gate behaviour");
         AssertEqual(0x1000, DownwardGateDefinitions.OneBlockDistance, "gate projectile block distance");
         AssertEqual(RoomCollisionType.SolidBlock, NoobTubeObjectDefinitions.OriginCollision, "n00b tube origin collision");
-        AssertEqual(0x000b, NoobTubeObjectDefinitions.EarthquakeType, "n00b tube earthquake type");
-        AssertEqual(0x0040, NoobTubeObjectDefinitions.EarthquakeTimer, "n00b tube earthquake timer");
+        AssertEqual(11, NativeEarthquakeTypes.TypeOf(NoobTubeObjectDefinitions.Earthquake), "n00b tube earthquake type");
+        AssertEqual(0x0040, NoobTubeObjectDefinitions.EarthquakeFrames, "n00b tube earthquake length");
         AssertEqual(0xfb00, NoobTubeDebrisDefinitions.BubbleInitialYVelocity.RawValue, "bubble velocity");
         AssertEqual(0x00c0, NoobTubeDebrisDefinitions.CrackFallVelocity.RawValue, "crack velocity");
         AssertEqual(0x00c0, NoobTubeDebrisDefinitions.ShardFallYVelocity.RawValue, "shard fall velocity");
@@ -58,7 +59,7 @@ internal static class RoomObjectDefinitionMigrationVerification
         AssertEqual(0x0ae0, SpeedBoosterEscapeDefinitions.StartFxMotionSamusX, "lavaquake start X");
         AssertEqual(0xff80, SpeedBoosterEscapeDefinitions.InitialLavaquakeVelocity.RawValue, "lavaquake velocity");
         AssertEqual(0xffe0, SpeedBoosterPickupDefinitions.LavaRiseVelocity.RawValue, "pickup lava velocity");
-        AssertEqual(0x0010, SamusEaterObjectDefinitions.HeldInvincibilityBit, "plant hold invincibility bit");
+        AssertEqual(16, SamusEaterObjectDefinitions.HeldInvincibilityFrames, "plant hold sustained invincibility frames");
         AssertEqual(48, SamusEaterObjectDefinitions.ReleaseInvincibilityFrames, "plant release invincibility");
         AssertEqual(2, SamusEaterObjectDefinitions.ChewDamage, "plant chew damage");
         AssertEqual(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock), RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SpecialBlock).Deactivated(), "plant trigger deactivation leaves a solid block solid with its appearance");

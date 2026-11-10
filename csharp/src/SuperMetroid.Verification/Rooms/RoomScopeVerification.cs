@@ -10,6 +10,7 @@ using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Verification.Rooms;
 
@@ -36,7 +37,7 @@ internal static class RoomScopeVerification
         source.Projectiles.Charge.FlareCounter = 30;
         const int heatPhase = 3;
         runtime.PaletteFxSession.SamusInHeatPaletteIndex = heatPhase;
-        source.Enemies.Earthquake.EarthquakeType = 5;
+        source.Enemies.Earthquake.Start(NativeEarthquakeTypes.Shake(5), 4);
         source.Enemies.RoomStatus.EnemyDoorTransitionActive = true;
         source.Enemies.Elevator.ElevatorDoorTransitionActive = true;
         runtime.EnemySession.CeresStatus = CeresEscapeStatus.RidleyEscaped;
@@ -103,7 +104,8 @@ internal static class RoomScopeVerification
         VerificationAssertions.AssertTrue(!ReferenceEquals(source.Enemies, destination.Enemies) &&
             !ReferenceEquals(source.Enemies.SlotTable, destination.Enemies.SlotTable),
             "the destination builds its own enemy system and slots");
-        VerificationAssertions.AssertEqual(0, destination.Enemies.Earthquake.EarthquakeType, "no enemy earthquake survives the load");
+        VerificationAssertions.AssertTrue(destination.Enemies.Earthquake.Shake is null && !destination.Enemies.Earthquake.IsShaking,
+            "no enemy earthquake survives the load");
         VerificationAssertions.AssertTrue(destination.Enemies.RoomStatus.EnemyDoorTransitionActive &&
             destination.Enemies.Elevator.ElevatorDoorTransitionActive,
             "the door-transition gates carry into the destination's enemies");

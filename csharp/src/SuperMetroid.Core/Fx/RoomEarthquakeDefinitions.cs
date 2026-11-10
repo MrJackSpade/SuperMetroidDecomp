@@ -2,29 +2,24 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Fx;
 
-/// <summary>Which earthquakes shake what, how rising lava and acid rumble, and the rooms whose quakes are silent (#1415).</summary>
+/// <summary>How the room's earthquake shakes, how rising lava and acid rumble, and the rooms whose quakes are silent (#1415).</summary>
 public static class RoomEarthquakeDefinitions
 {
-    /// <summary>First earthquake type that also shakes enemy positions.</summary>
-    public const int FirstEnemyShakingType = 18;
-
-    /// <summary>First earthquake type whose displacement is not shown.</summary>
-    public const int FirstNonRenderedType = 36;
-
-    /// <summary>Timer steps the shake shows on one side of the origin before it switches to the other.</summary>
+    /// <summary>Frames the shake shows on one side of the origin before it switches to the other.</summary>
     public const int StepsPerShakeSide = 2;
 
     /// <summary>Updates for which an enemy retains one applied shake displacement.</summary>
     public const int EnemyShakeDuration = 2;
 
-    /// <summary>Room-shake type written every active lava/acid rise frame.</summary>
-    public const int RisingLiquidType = 21;
-
     /// <summary>
-    /// Bits set in the global earthquake timer every active lava/acid rise frame.
-    /// The rise sets them, so existing low bits are preserved.
+    /// The frames a sustained earthquake keeps shaking at least (<see cref="RoomEarthquake.Sustain"/>): rising lava and
+    /// acid and the Tourian statues renew their earthquake for this long every update they shake the room.
     /// </summary>
-    public const int RisingLiquidTimerBits = 32;
+    public const int SustainedShakeFrames = 32;
+
+    /// <summary>The medium side-to-side earthquake, enemies included, every active lava or acid rise sustains.</summary>
+    public static readonly EarthquakeShake RisingLiquidShake =
+        new(EarthquakeStrength.Medium, EarthquakeDirection.Horizontal, EarthquakeReach.ForegroundBackgroundAndEnemies);
 
     /// <summary>
     /// Base delays between rising lava's or acid's repeated rumble sounds, in emission order. The live random

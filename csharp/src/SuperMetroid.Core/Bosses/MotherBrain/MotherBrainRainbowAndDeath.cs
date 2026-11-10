@@ -142,13 +142,6 @@ internal sealed class MotherBrainRainbowAndDeath
                 MotherBrainProjectiles.PinMotherBrainEscapeSubtitle(subtitle);
             }
         }
-        if (step.PhaseBefore == MotherBrainBodyFunction.ThirdPhaseDeathBrainFallsToGround &&
-            step.PhaseAfter == MotherBrainBodyFunction.ThirdPhaseDeathReadyCorpse ||
-            step.EscapeMusicTrackQueued || step.EarthquakeTimerRefreshed)
-        {
-            _earthquake.EarthquakeType = sequence.State.EarthquakeType;
-            _earthquake.EarthquakeTimer = sequence.State.EarthquakeTimer;
-        }
     }
 
     /// <summary>Places a death explosion with the requested position and visual phase.</summary>
@@ -207,7 +200,7 @@ internal sealed class MotherBrainRainbowAndDeath
                 WriteZebesTypewriterGlyph(typed);
             if (text.ClickRequested) _motherBrainEncounter.RequestCueSound(EscapeTypewriterDefinitions.ZebesClick);
         }
-        MotherBrainRainbowBeamAttackStepResult step = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = enemyFrameCounter, MainEnemyExecutionCounter = _frameContext.RandomEnemyCounter, PowerBombActive = sharedProjectiles?.PowerBombExplosion.IsActive != false, RandomNumberSeed = MotherBrainRandomSample.FromGenerator(_room.Random.Read()), NextRandomNumber = _room.Random.Generate, AlternateEscapeText = _room.Session.JapaneseText, TypewriterFinished = typewriterFinished, GlobalEarthquakeTimer = _earthquake.EarthquakeTimer, CameraCheckpoint = _room.RainbowBeamCameraCheckpoint });
+        MotherBrainRainbowBeamAttackStepResult step = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = enemyFrameCounter, MainEnemyExecutionCounter = _frameContext.RandomEnemyCounter, PowerBombActive = sharedProjectiles?.PowerBombExplosion.IsActive != false, RandomNumberSeed = MotherBrainRandomSample.FromGenerator(_room.Random.Read()), NextRandomNumber = _room.Random.Generate, AlternateEscapeText = _room.Session.JapaneseText, TypewriterFinished = typewriterFinished, RoomEarthquakeStopped = !_earthquake.IsShaking, CameraCheckpoint = _room.RainbowBeamCameraCheckpoint });
         _frameResults.MotherBrainDeathStep = step;
         ApplyLiveMotherBrainRainbowState(state, sequence, step, samus, sharedProjectiles);
     }
@@ -325,25 +318,13 @@ internal sealed class MotherBrainRainbowAndDeath
         if (current.Explosion is not null)
             _motherBrainEncounter.RequestBodySound(EnemySound.SmallExplosion);
 
-        // The rainbow start seeds the short quake, the drain start replaces it with the full drain duration,
-        // and the finish clears it when the beam contracts below its minimum width.
-        if (current.PhaseBefore == MotherBrainBodyFunction.SecondPhaseRainbowOneFrameDelay &&
-            current.PhaseAfter == MotherBrainBodyFunction.SecondPhaseRainbowStartDrainingSamus)
-        {
-            _earthquake.EarthquakeType = 8;
-            _earthquake.EarthquakeTimer = WrappingCountdown.Start(8);
-        }
-        else if (current.PhaseBefore == MotherBrainBodyFunction.SecondPhaseRainbowStartDrainingSamus)
-        {
-            _earthquake.EarthquakeType = 8;
-            _earthquake.EarthquakeTimer = WrappingCountdown.Start(299);
-        }
-        else if (current.PhaseBefore == MotherBrainBodyFunction.SecondPhaseRainbowFinishFiring &&
+        // The step's earthquake goes to the room's earthquake, its one owner: the rainbow start seeds the short quake,
+        // the drain start replaces it with the full drain duration, the finish stops it when the beam contracts below
+        // its minimum width, and the death sequence starts the brain's landing quake and the escape's.
+        current.Earthquake?.ApplyTo(_earthquake);
+        if (current.PhaseBefore == MotherBrainBodyFunction.SecondPhaseRainbowFinishFiring &&
             current.PhaseAfter == MotherBrainBodyFunction.SecondPhaseRainbowLetSamusFall)
-        {
-            _earthquake.EarthquakeTimer = WrappingCountdown.Start(0);
             _motherBrainEncounter.RequestRainbowBeamSound(MotherBrainSoundDefinitions.StopRainbowDrain);
-        }
 
         if (sharedProjectiles is not null)
         {

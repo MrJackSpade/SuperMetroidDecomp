@@ -342,8 +342,7 @@ internal sealed class DraygonParts
         // The tail hit also publishes the same 32-frame, type-seven quake used by the
         // original grabbed-tail impact. Keeping it on the shared room-enemy surface lets
         // the ordinary camera renderer observe the hit instead of reducing it to HP loss.
-        _earthquake.EarthquakeTimer = WrappingCountdown.Start(32);
-        _earthquake.EarthquakeType = 7;
+        _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Strong, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), 32);
 
         state.TailWhipHits++;
         _spriteObjects.SpawnRoomSpriteObject(

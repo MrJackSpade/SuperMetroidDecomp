@@ -473,8 +473,7 @@ internal sealed class CeresRidleyFlight
         if (wallImpact == RidleyWallImpact.CeresWall && CoordinateAxis.Difference(proposedX.Whole, state.MovementMinimum.X) < 0 &&
             SignedEightEight.Max(state.Velocity.X.Magnitude(), state.Velocity.Y.Magnitude()) >= RidleyWallImpactDefinitions.MinimumSpeed)
         {
-            _earthquake.EarthquakeType = RidleyWallImpactDefinitions.EarthquakeType;
-            _earthquake.EarthquakeTimer = WrappingCountdown.Start(RidleyWallImpactDefinitions.Duration);
+            _earthquake.Start(RidleyWallImpactDefinitions.Earthquake, RidleyWallImpactDefinitions.Duration);
         }
         (FixedCoordinate x, SignedEightEight xVelocity) = IntegrateAxis(
             slot.Position.X,

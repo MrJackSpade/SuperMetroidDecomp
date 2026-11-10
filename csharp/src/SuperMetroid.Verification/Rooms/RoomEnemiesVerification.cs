@@ -40,6 +40,7 @@ using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Verification.Rooms;
 
 using SuperMetroid.Verification.Enemies;
@@ -342,6 +343,8 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     SeedEnemyProjectileDefinitionWord(bus, eyeShot.Kind, 12, 0xb5fb);
 
     var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
+    var shotsEarthquake = new RoomEarthquake();
+    shots.Earthquakes.BindRoomEarthquake(shotsEarthquake);
     SamusProjectile owner = shots.Slots[0];
     owner.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile);
     owner.Damage = 0x012c;
@@ -380,7 +383,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
         "enemy-projectile collision leaves Super Missile link invisible");
     AssertTrue(link.IsSpent,
         "enemy-projectile collision marks Super Missile link lifecycle");
-    AssertEqual(0, shots.Earthquakes.EarthquakeTimer,
+    AssertTrue(!shotsEarthquake.IsShaking,
         "enemy-projectile collision does not invent ordinary Super impact quake");
     AssertTrue(!eyeShot.BlocksSamusProjectiles,
         "destructible enemy projectile disables subsequent-frame shot collision");

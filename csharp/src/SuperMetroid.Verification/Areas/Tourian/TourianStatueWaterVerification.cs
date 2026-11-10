@@ -85,7 +85,7 @@ internal static class TourianStatueWaterVerification
         game.Step(0);
         AssertEqual(0xb1, runtime.RoomFxOverlay.NamedSurface, "Special water follows the native one-pixel velocity");
         AssertEqual(0xb1, samus.LiquidPhysics.WaterSurfaceY, "The moved water surface reaches live Samus physics");
-        AssertEqual<RoomFxEarthquakeRequest?>(null, runtime.RoomFxOverlay.EarthquakeRequest,
+        AssertEqual<EarthquakeShake?>(null, runtime.RoomFxOverlay.SustainedEarthquake,
             "Water motion does not invoke the lava/acid earthquake branch");
         AssertEqual(0, runtime.RoomFxOverlay.SoundRequests.Count, "Water motion does not invoke lava/acid sound feedback");
         runtime.RoomFxOverlay.Step(runtime.Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = true, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });

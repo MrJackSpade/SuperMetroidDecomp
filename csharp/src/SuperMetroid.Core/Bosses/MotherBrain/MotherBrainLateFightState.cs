@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The state every late-fight phase reads and writes: the body function and its timer, the neck and head programs, the brain's flags and the earthquake, with the walking and posture requests they share.</summary>
+/// <summary>The state every late-fight phase reads and writes: the body function and its timer, the neck and head programs and the brain's flags, with the walking and posture requests they share.</summary>
 internal sealed class MotherBrainLateFightState
 {
 
@@ -86,20 +86,6 @@ internal sealed class MotherBrainLateFightState
 
     /// <summary>Brain-slot health rewritten to 36,000 when corpse state one is published.</summary>
     public int BrainHealth { get; internal set; } = 3000;
-
-    /// <summary>
-    /// Index of the room shake this actor last requested (0, 2, 5 or 8), written by the one-frame
-    /// delay, the drain initializer and the death sequence; the room earthquake owns the shake.
-    /// </summary>
-    public int EarthquakeType { get; internal set; }
-
-    /// <summary>
-    /// Earthquake timer as last written by this actor. The global earthquake updater owns
-    /// independent per-frame decrements, so this class does not fabricate them. It keeps the wrapping countdown: the
-    /// escape holds the quake by setting it to the full 65535-frame count, and it mirrors the room's own earthquake
-    /// countdown sampled each update.
-    /// </summary>
-    public WrappingCountdown EarthquakeTimer { get; internal set; }
 
     /// <summary>
     /// The updates the finish-off has spent readying the Baby Metroid's arrival so far.

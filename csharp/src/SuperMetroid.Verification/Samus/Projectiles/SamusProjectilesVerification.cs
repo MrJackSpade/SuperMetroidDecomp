@@ -39,6 +39,7 @@ using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Audio;
@@ -1494,6 +1495,8 @@ internal static void VerifySamusPowerBeamProjectiles()
     };
     var superBombs = CreateSyntheticBombs();
     var superProjectiles = CreateSyntheticProjectiles();
+    var superEarthquake = new RoomEarthquake();
+    superProjectiles.Earthquakes.BindRoomEarthquake(superEarthquake);
     superBombs.StepFrame(new SamusTerrain { Level = wall }, superSamus, 0, 0);
     SamusProjectileSlotObservation beforeSuper = superProjectiles.ObserveSlots();
     SamusProjectileFrameResult superFired = superProjectiles.StepFrame(new SamusTerrain { Level = wall }, superSamus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = ControllerButton.X }, new(0, 0), superBombs);
@@ -1560,10 +1563,10 @@ internal static void VerifySamusPowerBeamProjectiles()
         "super impact becomes a missile explosion");
     AssertEqual((ushort)(NativeWord(0x938693) + 8), super.InstructionPointer,
         "super collision consumes the first native explosion record");
-    AssertEqual(20, superProjectiles.Earthquakes.EarthquakeType,
-        "super impact publishes quake type `$14`");
-    AssertEqual(30, superProjectiles.Earthquakes.EarthquakeTimer,
-        "super impact publishes thirty-frame quake timer");
+    AssertTrue(superEarthquake.IsShakingWith(SuperMissileDefinitions.WallImpactEarthquake, 30),
+        "super impact starts its thirty-frame earthquake");
+    AssertEqual(20, NativeEarthquakeTypes.TypeOf(SuperMissileDefinitions.WallImpactEarthquake),
+        "super impact's earthquake is quake type `$14`");
     AssertTrue(!superLink.IsActive, "super owner impact clears invisible linked slot");
     AssertEqual(1, superProjectiles.SlotTable.ProjectileCounter,
         "super explosion retains only its visible owner count");

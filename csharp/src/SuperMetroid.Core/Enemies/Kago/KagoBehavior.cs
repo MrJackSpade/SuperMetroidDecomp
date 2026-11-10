@@ -82,8 +82,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal void ResolveKagoShotAfterCommon(RoomEnemySlot slot, KagoEnemyState state)
     {
-        _earthquake.EarthquakeType = 2;
-        _earthquake.EarthquakeTimer = WrappingCountdown.Start(16);
+        _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground), 16);
 
         if (!state.UsesFastAnimation)
         {

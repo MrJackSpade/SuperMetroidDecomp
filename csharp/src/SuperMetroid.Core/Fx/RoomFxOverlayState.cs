@@ -174,10 +174,10 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     public IReadOnlyList<SoundRequest> SoundRequests => soundRequests;
 
     /// <summary>
-    /// Global earthquake words requested by the current effect pass. The timer value is a
-    /// bit mask because the game sets the bits, not assigns them.
+    /// The earthquake the current effect pass sustains (<see cref="RoomEarthquake.Sustain"/>), if any: rising lava's or
+    /// acid's, every update it waits or moves.
     /// </summary>
-    public RoomFxEarthquakeRequest? EarthquakeRequest { get; private set; }
+    public EarthquakeShake? SustainedEarthquake { get; private set; }
 
     /// <summary>Builds one room's effect-overlay FX from the current door's FX record.</summary>
     /// <param name="session">The Fireflea state, which outlives each room.</param>
@@ -299,7 +299,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         if (!MovesLiquidBeforeMainLoop || LiquidMotionStopped)
             return;
         bool lavaOrAcid = Type is RoomFxType.Lava or RoomFxType.Acid;
-        EarthquakeRequest = null;
+        SustainedEarthquake = null;
         soundRequests.Clear();
         if (!LavaAcidOverlayFrameBehaviorInstalled)
         {
@@ -349,7 +349,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         if (!frame.LiquidMotionAlreadyAdvanced)
         {
             soundRequests.Clear();
-            EarthquakeRequest = null;
+            SustainedEarthquake = null;
         }
         if (Type == RoomFxType.Fireflea)
         {
@@ -637,9 +637,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         if (Type is not (RoomFxType.Lava or RoomFxType.Acid))
             return;
         HandleEarthquakeSoundEffect(randomNumber, earthquakeSoundDelay);
-        EarthquakeRequest = new RoomFxEarthquakeRequest(
-            RoomEarthquakeDefinitions.RisingLiquidType,
-            RoomEarthquakeDefinitions.RisingLiquidTimerBits);
+        SustainedEarthquake = RoomEarthquakeDefinitions.RisingLiquidShake;
     }
 
     /// <summary>
@@ -814,7 +812,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         LavaAcidOverlayFrameBehaviorInstalled = false;
         LiquidMotionStopped = false;
         lavaSoundTimer = 0;
-        EarthquakeRequest = null;
+        SustainedEarthquake = null;
         EarthquakeSoundTimer = WrappingCountdown.Start(0);
         EarthquakeSoundSequenceIndex = 0;
     }

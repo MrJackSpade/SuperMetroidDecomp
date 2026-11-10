@@ -638,10 +638,10 @@ internal static class RoomObjectPopulationVerification
             SamusState samus,
             RoomFxOverlayState fx,
             RoomLevelData level,
-            Action<int> writeEarthquake)
+            Action stopEarthquake)
         {
             var roomObjects = RoomObjectFixtures.Unbound();
-            AssertEqual(1, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Norfair), RoomObjectPopulationImporter.Read(bus, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent }, RoomFx = new RoomObjectFx(fx, () => samus), Earthquake = new FixtureRoomEarthquake { WriteTimer = writeEarthquake } }),
+            AssertEqual(1, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Norfair), RoomObjectPopulationImporter.Read(bus, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent }, RoomFx = new RoomObjectFx(fx, () => samus), Earthquake = new FixtureRoomEarthquake { WriteStop = stopEarthquake } }),
                 "Speed Booster escape record is accepted by sequential loader");
             return roomObjects;
         }
@@ -654,21 +654,21 @@ internal static class RoomObjectPopulationVerification
             new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()),
             CreateFx(0x0300, 0x0100, 0, 5),
             completedLevel,
-            _ => { });
+            () => { });
         AssertEqual(0, completed.SlotTable.ActiveCount,
             "event-$15 setup deletes B8AC synchronously");
 
         var unequippedSystem = new SharedGameState(new SharedRandom());
         var unequippedSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
         RoomFxOverlayState unequippedFx = CreateFx(0x0300, 0x0100, 0x1234, 5);
-        int earthquakeTimer = 7;
+        bool earthquakeStopped = false;
         RoomLevelData unequippedLevel = CreateLevel();
         RoomObjectSystem unequipped = Load(
             unequippedSystem,
             unequippedSamus,
             unequippedFx,
             unequippedLevel,
-            value => earthquakeTimer = value);
+            () => earthquakeStopped = true);
         unequipped.Step(unequippedLevel);
         unequipped.Step(unequippedLevel);
         AssertEqual(0, unequipped.SlotTable.ActiveCount,
@@ -679,8 +679,8 @@ internal static class RoomObjectPopulationVerification
             "missing Speed Booster clears packed FX velocity");
         AssertEqual(0, unequippedFx.Timer.RawValue,
             "missing Speed Booster clears FX timer");
-        AssertEqual(0, earthquakeTimer,
-            "missing Speed Booster clears global earthquake timer");
+        AssertTrue(earthquakeStopped,
+            "missing Speed Booster stops the room's earthquake");
 
         var disabledSystem = new SharedGameState(new SharedRandom());
         var disabledSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())

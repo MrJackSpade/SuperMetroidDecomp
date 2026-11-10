@@ -130,7 +130,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         // A super-missile earthquake drops an attached/hiding Yard, but cannot restart one
         // that is already falling, kicked, or shot through the air.
         if (state.Behavior is not (YardBehavior.Dropped or YardBehavior.Kicked or YardBehavior.BeamLaunched) &&
-            _earthquake.EarthquakeTimer.IsAt(SuperMissileDefinitions.EarthquakeDuration) && _earthquake.EarthquakeType == SuperMissileDefinitions.EarthquakeType)
+            _earthquake.IsShakingWith(SuperMissileDefinitions.WallImpactEarthquake, SuperMissileDefinitions.EarthquakeDuration))
         {
             DropYard(slot, state);
         }

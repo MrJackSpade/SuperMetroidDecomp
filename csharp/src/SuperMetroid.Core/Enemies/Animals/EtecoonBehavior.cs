@@ -646,7 +646,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Makes the earthquake's parameter and timer writes that pause an Etecoon.</summary>
     private void PauseEtecoonForEarthquake(RoomEnemySlot slot, EtecoonEnemyState state)
     {
-        if (_earthquake.EarthquakeTimer.IsZero)
+        if (!_earthquake.IsShaking)
             return;
 
         state.QuakePauseFrames = EtecoonQuakeDefinitions.QuakePauseFrames;

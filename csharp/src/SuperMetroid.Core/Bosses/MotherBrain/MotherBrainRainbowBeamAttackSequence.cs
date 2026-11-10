@@ -27,7 +27,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
 
     /// <summary>Owns the forced Samus movement during beam capture and the later drain sequence.</summary>
     private readonly MotherBrainRainbowBeamSamusMovement _movement = new();
-    /// <summary>The state every late-fight phase reads and writes: the body function and its timer, the neck and head programs, the brain's flags and the earthquake, with the walking and posture requests they share.</summary>
+    /// <summary>The state every late-fight phase reads and writes: the body function and its timer, the neck and head programs and the brain's flags, with the walking and posture requests they share.</summary>
     internal MotherBrainLateFightState State { get; }
 
     /// <summary>Mother Brain's rainbow-beam attack: charging, firing, pinning and draining Samus, letting her fall and deciding what comes next.</summary>
@@ -273,7 +273,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                     handsOver = RainbowAttack.RunSecondPhaseRainbowOneFrameDelay(samus, frame, requests);
                     break;
                 case MotherBrainBodyFunction.SecondPhaseRainbowStartDrainingSamus:
-                    handsOver = RainbowAttack.RunSecondPhaseRainbowStartDrainingSamus();
+                    handsOver = RainbowAttack.RunSecondPhaseRainbowStartDrainingSamus(requests);
                     break;
                 case MotherBrainBodyFunction.SecondPhaseRainbowDrainingSamus:
                     handsOver = RainbowAttack.RunSecondPhaseRainbowDrainingSamus(samus, frame, requests);
@@ -414,7 +414,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                     handsOver = ThirdPhaseDeath.RunThirdPhaseDeathRealizeDecapitation();
                     break;
                 case MotherBrainBodyFunction.ThirdPhaseDeathBrainFallsToGround:
-                    handsOver = ThirdPhaseDeath.RunThirdPhaseDeathBrainFallsToGround();
+                    handsOver = ThirdPhaseDeath.RunThirdPhaseDeathBrainFallsToGround(requests);
                     break;
                 case MotherBrainBodyFunction.ThirdPhaseDeathReadyCorpse:
                     handsOver = ThirdPhaseDeath.RunThirdPhaseDeathReadyCorpse();

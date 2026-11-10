@@ -177,10 +177,10 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
         switch (function)
         {
             case CeresDoorFunction.HandleEarthquakeDuringEscape:
-                RunCeresDoorEarthquake(baseEarthquakeType: 20);
+                RunCeresDoorEarthquake(EarthquakeReach.ForegroundBackgroundAndEnemies);
                 return;
             case CeresDoorFunction.HandleEarthquakeDuringEscapeInRidleysRoom:
-                RunCeresDoorEarthquake(baseEarthquakeType: 29);
+                RunCeresDoorEarthquake(EarthquakeReach.BackgroundAndEnemies);
                 return;
 
             case CeresDoorFunction.RidleyEscapeFloorWall:
@@ -214,26 +214,27 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
         }
     }
 
-    /// <summary>Runs the earthquake shared by both escape behaviours without advancing the RNG.</summary>
-    private void RunCeresDoorEarthquake(int baseEarthquakeType)
+    /// <summary>
+    /// Runs the diagonal earthquake shared by both escape behaviours without advancing the RNG; Ridley's room's door
+    /// leaves the foreground still (<paramref name="reach"/>).
+    /// </summary>
+    private void RunCeresDoorEarthquake(EarthquakeReach reach)
     {
-        // The door cannot start a second quake while the shared timer is active. A separate
-        // engine stage decrements that timer; this actor only chooses the next type/duration.
-        if (_ridleyEncounter.CeresStatus is CeresEscapeStatus.RidleyNotEscaped or CeresEscapeStatus.RidleyEscaped || !_earthquake.EarthquakeTimer.IsZero)
+        // The door cannot start a second quake while the room still shakes. A separate
+        // engine stage runs the earthquake down; this actor only chooses the next shake and length.
+        if (_ridleyEncounter.CeresStatus is CeresEscapeStatus.RidleyNotEscaped or CeresEscapeStatus.RidleyEscaped || _earthquake.IsShaking)
             return;
 
         // One random word in 32 (its strength roll below 128) picks the stronger quake.
         int strengthRoll = CeresDoorQuakeDefinitions.StrengthRoll.Of(_room.Random.Read());
         if (strengthRoll < 128)
         {
-            // Rarely select the stronger sibling quake six entries after the base type.
-            _earthquake.EarthquakeTimer = WrappingCountdown.Start(4);
-            _earthquake.EarthquakeType = baseEarthquakeType + 6;
+            // Rarely select the strong quake.
+            _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Strong, EarthquakeDirection.Diagonal, reach), 4);
             return;
         }
 
-        _earthquake.EarthquakeTimer = WrappingCountdown.Start(2);
-        _earthquake.EarthquakeType = baseEarthquakeType;
+        _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Diagonal, reach), 2);
     }
 
     /// <summary>Runs the 49-call destruction state exactly.</summary>

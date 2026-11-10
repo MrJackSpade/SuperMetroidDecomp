@@ -125,7 +125,7 @@ internal sealed class MotherBrainBody
         bool glassDestroyed = _room.Services.Events.Has(StoryEvent.MotherBrainGlassDestroyed);
         if (glassDestroyed)
         {
-            state.BrainMainShakeTimer = _earthquake.EarthquakeTimer.RemainingFrames;
+            state.BrainMainShakeTimer = _earthquake.RemainingFrames;
             if (samus is not null && samus.Position.X.Whole < 236 && state.Head.Health == 0)
             {
                 // This is the exact first-phase exit. The following
@@ -423,8 +423,7 @@ internal sealed class MotherBrainBody
     /// <summary>Shared four-frame earthquake produced by each planted walking frame.</summary>
     private void RunMotherBrainFootstep()
     {
-        _earthquake.EarthquakeType = 1;
-        _earthquake.EarthquakeTimer = WrappingCountdown.Start(4);
+        _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), 4);
 
         // Form three additionally makes the footstep sound. Phase two normally never
         // reaches that branch, but retaining it here makes the shared gait cue complete.

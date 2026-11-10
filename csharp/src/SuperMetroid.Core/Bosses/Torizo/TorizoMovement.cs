@@ -19,6 +19,9 @@ internal sealed class TorizoMovement
     private readonly EnemyTerrain _terrain;
     /// <summary>Receives the impact quake when a falling or jumping statue lands.</summary>
     private readonly RoomEarthquake _earthquake;
+    /// <summary>The medium up-and-down foreground shake a landing statue starts.</summary>
+    private static readonly EarthquakeShake LandingShake =
+        new(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.Foreground);
     /// <summary>Bomb and Golden Torizo's body: its behaviour flags, palette, program start and the low-health drool it triggers.</summary>
     private readonly TorizoBody _body;
     /// <summary>Bomb and Golden Torizo's state lookups, facing, posture and the function word their branches test.</summary>
@@ -189,8 +192,7 @@ internal sealed class TorizoMovement
             int velocity = state.Velocity.Y.SignedRawValue;
             if (velocity is >= 0 and not 256)
             {
-                _earthquake.EarthquakeType = 4;
-                _earthquake.EarthquakeTimer = WrappingCountdown.Start(32);
+                _earthquake.Start(LandingShake, 32);
                 state.Velocity = state.Velocity.WithY(new SignedEightEight(256));
             }
             return;
@@ -218,8 +220,7 @@ internal sealed class TorizoMovement
         {
             TorizoBody.StartTorizoBodyProgram(torizo, state, state.ReturnCursor);
             state.Velocity = state.Velocity.WithY(new SignedEightEight(256));
-            _earthquake.EarthquakeType = 4;
-            _earthquake.EarthquakeTimer = WrappingCountdown.Start(32);
+            _earthquake.Start(LandingShake, 32);
             return;
         }
 

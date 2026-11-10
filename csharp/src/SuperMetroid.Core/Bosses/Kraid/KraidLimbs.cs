@@ -97,8 +97,7 @@ internal sealed class KraidLimbs
                 return null;
             case KraidPartCue.LowerBodyAndShake:
                 body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + 1);
-                _earthquake.EarthquakeType = 1;
-                _earthquake.EarthquakeTimer = WrappingCountdown.Start(10);
+                _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), 10);
                 return null;
             case KraidPartCue.StepSound:
                 _access.RequestKraidSound(KraidSoundDefinitions.Footstep);
@@ -140,8 +139,7 @@ internal sealed class KraidLimbs
         KraidHeadGrowthResume resume = KraidHeadAnimations.ReadsAt(state.HeadProgram).Growth;
         state.HeadProgram = KraidHeadAnimations.GrowthResumeCursor(resume);
         state.BodyState.HeadTimer = KraidHeadAnimations.GrowthResumeDelay(resume);
-        _earthquake.EarthquakeType = 4;
-        _earthquake.EarthquakeTimer = WrappingCountdown.Start(340);
+        _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), 340);
 
         RoomEnemySlot foot = _parts.Foot;
         _access.StartKraidPartProgram(foot, KraidPartProgram.FootInitial);

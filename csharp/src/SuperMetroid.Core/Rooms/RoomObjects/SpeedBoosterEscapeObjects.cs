@@ -57,7 +57,7 @@ internal sealed class SpeedBoosterEscapeObjects
                 yVelocity: SignedEightEight.Zero,
                 timer: 0);
             (_earthquake ?? throw new InvalidOperationException(
-                "Speed Booster escape room object lost its earthquake owner.")).SetTimer(0);
+                "Speed Booster escape room object lost its earthquake owner.")).Stop();
             return false;
         }
 

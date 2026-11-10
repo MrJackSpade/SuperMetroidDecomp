@@ -126,7 +126,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports the indirect main dispatcher.</summary>
     private void RunZebetiteMain(RoomEnemySlot slot, ZebetiteEnemyState state)
     {
-        if (_earthquake.EarthquakeTimer.IsZero)
+        if (!_earthquake.IsShaking)
             slot.ShakeTimer = 0;
 
         switch (state.Function)

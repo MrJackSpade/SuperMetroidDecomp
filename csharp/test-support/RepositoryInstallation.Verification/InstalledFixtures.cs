@@ -4,6 +4,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Frontend.Ending;
@@ -249,9 +250,16 @@ internal static class InstalledFixtures
     /// <summary>The installation's intro cinematic artwork, loaded once per process.</summary>
     internal static IntroCinematicArtwork IntroArtwork => introArtwork.Value;
 
-    /// <summary>Creates a Samus projectile system with installed frame bindings.</summary>
-    internal static SamusProjectileSystem CreateProjectileSystem() =>
-        new(new BeamChargeState(), SamusOverreads) { Animation = { FrameBindings = Projectiles.FrameBindings } };
+    /// <summary>
+    /// Creates a Samus projectile system with installed frame bindings, bound to an earthquake of its own as a room binds
+    /// its projectiles to the room's, so Super Missile impacts have an earthquake to start.
+    /// </summary>
+    internal static SamusProjectileSystem CreateProjectileSystem()
+    {
+        var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusOverreads) { Animation = { FrameBindings = Projectiles.FrameBindings } };
+        projectiles.Earthquakes.BindRoomEarthquake(new RoomEarthquake());
+        return projectiles;
+    }
 
     /// <summary>Creates a bomb system with installed frame bindings and explosion colors.</summary>
     internal static SamusBombProjectileSystem CreateBombSystem() =>

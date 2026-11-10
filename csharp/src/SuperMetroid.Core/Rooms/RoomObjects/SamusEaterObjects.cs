@@ -48,14 +48,14 @@ internal sealed class SamusEaterObjects
     internal IRoomSamus RequirePlantSamus() => _samus?.Current
         ?? throw new InvalidOperationException("Samus Eater room object requires the live Samus owner.");
 
-    /// <summary>Holds Samus at <paramref name="held"/> after her normal movement and ORs in the invincibility bit.</summary>
+    /// <summary>Holds Samus at <paramref name="held"/> after her normal movement and sustains her invincibility.</summary>
     internal void HoldSamus(Position16<RoomPixels> held)
     {
         var samus = RequirePlantSamus();
         samus.Position = samus.Position.WithWhole(new(held.X, held.Y));
-        // The hold sets a bit of the invincibility timer, not a clamp or an input lock. Samus's normal
+        // The hold sustains the invincibility timer without restarting it, not a clamp or an input lock. Samus's normal
         // movement runs before this placement, preserving interactions.
-        samus.InvincibilityTimer = samus.InvincibilityTimer.MergedWith(SamusEaterObjectDefinitions.HeldInvincibilityBit);
+        samus.InvincibilityTimer = samus.InvincibilityTimer.Sustained(SamusEaterObjectDefinitions.HeldInvincibilityFrames);
     }
 
     /// <summary>One chew's periodic damage to the held Samus.</summary>

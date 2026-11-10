@@ -4,6 +4,7 @@ using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 
 /// <summary>Checks the room shake produced by Ceres Ridley's real left-wall lunge collision.</summary>
@@ -31,8 +32,8 @@ internal static class CeresRidleyWallVerification
         runtime.StepFrame(0);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertEqual(40, body.Position.X.Whole, "Ceres lunge clips at native left bound");
-        AssertEqual(33, runtime.Enemies.Earthquake.EarthquakeType, "Ceres left impact requests native quake type");
-        AssertEqual(11, runtime.Enemies.Earthquake.EarthquakeTimer.RawValue, "first draw consumes one of twelve quake frames");
+        AssertEqual<EarthquakeShake?>(NativeEarthquakeTypes.Shake(33), runtime.Enemies.Earthquake.Shake, "Ceres left impact requests native quake type");
+        AssertEqual(11, runtime.Enemies.Earthquake.RemainingFrames, "first draw consumes one of twelve quake frames");
         AssertTrue(runtime.Enemies.Earthquake.LastRoomShake != default, "impact reaches room shaking consumer");
         AssertEqual(0, runtime.Enemies.Earthquake.LastRoomShake.Foreground.X, "native impact does not shift BG1 X");
         AssertEqual(0, runtime.Enemies.Earthquake.LastRoomShake.Foreground.Y, "native impact does not shift BG1 Y");
@@ -48,7 +49,7 @@ internal static class CeresRidleyWallVerification
         {
             runtime.StepFrame(0);
             runtime.FrameBoundary.BeginAcceptedFrame(0);
-            AssertEqual(remaining, runtime.Enemies.Earthquake.EarthquakeTimer.RawValue, "impact timer consumes exactly twelve frames");
+            AssertEqual(remaining, runtime.Enemies.Earthquake.RemainingFrames, "impact timer consumes exactly twelve frames");
             AssertTrue(runtime.Display.DisplayedGameplayScrolls.RoomShake != default, "each impact frame reaches the display");
         }
         runtime.StepFrame(0);

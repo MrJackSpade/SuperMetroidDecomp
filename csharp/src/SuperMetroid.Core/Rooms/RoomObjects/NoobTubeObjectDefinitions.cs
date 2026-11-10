@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
@@ -23,11 +24,12 @@ public static class NoobTubeObjectDefinitions
     /// <summary>The sound queued when the glass breaks.</summary>
     public static readonly SoundEffectId BreakSound = EnemySound.GlassTubeShatter;
 
-    /// <summary>The kind of earthquake the break starts.</summary>
-    public const int EarthquakeType = 11;
+    /// <summary>The light diagonal earthquake, shaking both layers, the break starts.</summary>
+    public static readonly EarthquakeShake Earthquake =
+        new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Diagonal, EarthquakeReach.ForegroundAndBackground);
 
     /// <summary>How long the break's earthquake lasts, in frames.</summary>
-    public const int EarthquakeTimer = 64;
+    public const int EarthquakeFrames = 64;
 
     /// <summary>Glass shards the break spawns (parameters 0, 2, .. 18).</summary>
     public const int ShardCount = 10;

@@ -719,8 +719,6 @@ public sealed class SamusProjectileSystem
         SlotTable.ClearAll();
         SlotTable.ProjectileCounter = 0;
         Firing.ProjectileInvincibilityTimer = 0;
-        Earthquakes.EarthquakeType = 0;
-        Earthquakes.EarthquakeTimer = 0;
         LastFrameResult = default;
     }
 

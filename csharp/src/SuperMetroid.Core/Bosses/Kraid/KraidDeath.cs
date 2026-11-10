@@ -99,8 +99,7 @@ internal sealed class KraidDeath
                 state.BodyState.Function = KraidAiFunction.DeathSink;
                 state.DeathSoundTimer = 43;
                 body.Contact = body.Contact.With(EnemyContact.SolidToSamus);
-                _earthquake.EarthquakeType = 1;
-                _earthquake.EarthquakeTimer = WrappingCountdown.Start(256);
+                _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), 256);
                 _access.StartKraidPartProgram(_parts.Arm, KraidPartProgram.ArmRisingOrSinking);
                 _access.StartKraidPartProgram(_parts.Foot, KraidPartProgram.FootInitial);
                 state.FootState.Function = KraidAiFunction.NoOperation;

@@ -2,6 +2,7 @@
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Escape;
+using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.World;
 
@@ -35,7 +36,7 @@ internal sealed class EscapeRoomEffects
         if (setup is RoomSetupCallback.SetLightHorizontalRoomShaking or
             RoomSetupCallback.SetupEscapeRoom4ObjectAndMediumHorizontalShaking)
             diagonalQuake.Countdown = WrappingCountdown.Start(0);
-        int? type = setup switch
+        EarthquakeShake? shake = setup switch
         {
             RoomSetupCallback.SetZebesTimebombEventAndLightHorizontalShaking or
             RoomSetupCallback.SetLightHorizontalRoomShaking => ZebesEscapeDefinitions.LightHorizontal,
@@ -61,11 +62,8 @@ internal sealed class EscapeRoomEffects
                 RoomSetupCallback.ShowSpritesOnCeresRidleyBackgroundsAndSpawnHaze => null,
             _ => throw new InvalidOperationException($"Undefined RoomSetupCallback {setup}."),
         };
-        if (type is { } quake)
-        {
-            enemies.Earthquake.EarthquakeType = quake;
-            enemies.Earthquake.EarthquakeTimer = WrappingCountdown.Start(WrappingCountdown.LongestStart);
-        }
+        if (shake is { } quake)
+            enemies.Earthquake.Start(quake, WrappingCountdown.LongestStart);
         if (setup == RoomSetupCallback.SetZebesTimebombEventAndLightHorizontalShaking)
             _system.SetEvent(SuperMetroid.Core.Progression.StoryEvent.ZebesTimebombSet);
     }
@@ -89,12 +87,12 @@ internal sealed class EscapeRoomEffects
             {
                 diagonalQuake.Countdown = diagonalQuake.Countdown.Decrement().Remaining;
                 if (diagonalQuake.Countdown.IsZero)
-                    enemies.Earthquake.EarthquakeType = light ? ZebesEscapeDefinitions.LightHorizontal : ZebesEscapeDefinitions.MediumHorizontal;
+                    enemies.Earthquake.ChangeShake(light ? ZebesEscapeDefinitions.LightHorizontal : ZebesEscapeDefinitions.MediumHorizontal);
             }
             else if (_system.NextRandom() < (light ? ZebesEscapeDefinitions.LightChance : ZebesEscapeDefinitions.MediumChance))
             {
                 diagonalQuake.Countdown = WrappingCountdown.Start(ZebesEscapeDefinitions.DiagonalFrames);
-                enemies.Earthquake.EarthquakeType = light ? ZebesEscapeDefinitions.MediumDiagonal : ZebesEscapeDefinitions.StrongDiagonal;
+                enemies.Earthquake.ChangeShake(light ? ZebesEscapeDefinitions.MediumDiagonal : ZebesEscapeDefinitions.StrongDiagonal);
             }
         }
         if (!_freeze.TimeIsFrozen && (_clock.Counter & (nonblank ? 1 : 3)) == 0)

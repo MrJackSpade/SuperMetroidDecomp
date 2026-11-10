@@ -246,8 +246,7 @@ internal sealed class CrocomireFight
                 _access.RequestCrocomireSound(CrocomireSoundDefinitions.SkeletonCollapse);
                 return null;
             case CrocomireBodyCueKind.ShakeScreen:
-                _earthquake.EarthquakeType = 4;
-                _earthquake.EarthquakeTimer = WrappingCountdown.Start(5);
+                _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), 5);
                 _access.RequestCrocomireSound(CrocomireSoundDefinitions.ScreenShake);
                 return null;
 

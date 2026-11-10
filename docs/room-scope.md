@@ -139,7 +139,8 @@ Each must become a named `RoomTransitionCarryOver` member or stay a field of a s
 | `RoomEnemySystem` | species state | room |
 | `ElevatorBehavior` | actor states, arrival slot | room |
 | `EnemySession` | elevator journey, fade counter, Ceres status, drop bias, language, random counter, death quota, staging, Mode 7 residue, OBJ table, artwork | session carry-over |
-| `EnemyProjectileEngine`, `RoomSpriteObjectPool` | pools | room |
+| `EnemyProjectileEngine` | places | room |
+| `RoomSpriteObjects`, `SpriteObjectPlaces` | sprite objects, their places | room |
 | `RoomObjectSystem` | slots, sounds, gate requests, bindings, tilemap updates, station events, Chozo references | room |
 | `SamusBombProjectileSystem` | slots, bomb counter, cooldown, power-bomb explosion | room |
 | `SamusProjectileSystem` | slots, trails, counter, combo, earthquake | room |

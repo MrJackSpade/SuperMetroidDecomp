@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 /// <summary>The state of the Mama Turtle.</summary>
 public sealed class MamaTurtleEnemyState
 {
-    /// <summary>Where the typed animation (#641) resumes.</summary>
-    internal AnimationProgramCursor<MamaTurtleProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<MamaTurtleProgram> Playback { get; set; }
 
     /// <summary>The current Mama Turtle behaviour.</summary>
     public MamaTurtleAiFunction? Function { get; internal set; }

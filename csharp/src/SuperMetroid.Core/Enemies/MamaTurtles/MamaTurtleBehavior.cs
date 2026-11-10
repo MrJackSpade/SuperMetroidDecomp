@@ -155,7 +155,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         slot.Radius = slot.Radius.WithY(0);
-        state.Program = AnimationProgramCursor<MamaTurtleProgram>.Start(MamaTurtleProgram.MamaAsleep);
+        state.Playback = new(MamaTurtleAnimations.StartingWith(MamaTurtleProgram.MamaAsleep), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Initializes the Baby Turtle.</summary>
@@ -172,9 +172,9 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
-        state.Program = AnimationProgramCursor<MamaTurtleProgram>.Start(slot.SpawnSettings<TurtleSpawnSettings>().Speed < 0
+        state.Playback = new(MamaTurtleAnimations.StartingWith(slot.SpawnSettings<TurtleSpawnSettings>().Speed < 0
             ? MamaTurtleProgram.BabyCrawlingLeft
-            : MamaTurtleProgram.BabyCrawlingRight);
+            : MamaTurtleProgram.BabyCrawlingRight), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Runs the Mama Turtle's main behaviour and its indirect functions.</summary>
@@ -838,14 +838,14 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts a Mama Turtle animation with its instruction timer set to one.</summary>
     private static void InstallTurtleInstruction(RoomEnemySlot slot, MamaTurtleEnemyState state, MamaTurtleProgram program)
     {
-        state.Program = AnimationProgramCursor<MamaTurtleProgram>.Start(program);
+        state.Playback = new(MamaTurtleAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
     }
 
     /// <summary>Starts a baby turtle animation with its instruction timer set to one.</summary>
     private static void InstallTurtleInstruction(RoomEnemySlot slot, BabyTurtleEnemyState state, MamaTurtleProgram program)
     {
-        state.Program = AnimationProgramCursor<MamaTurtleProgram>.Start(program);
+        state.Playback = new(MamaTurtleAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
     }
 
@@ -889,10 +889,12 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EnemyProgramAnimation.Expire(slot))
             return;
         MamaTurtleEnemyState state = slot.RequireSpeciesState<MamaTurtleEnemyState>();
-        AnimationProgramCursor<MamaTurtleProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, MamaTurtleAnimations.Programs, ref cursor, MamaTurtleFrameDefinitions.ShownFrames.Of,
-            (cue, _) => ApplyMamaTurtleCue(slot, cue));
-        state.Program = cursor;
+        AnimationPlayback<MamaTurtleProgram> playback = state.Playback;
+        EnemyProgramAnimation.Play(slot, MamaTurtleAnimations.Segments, ref playback, MamaTurtleFrameDefinitions.ShownFrames.Of,
+            cue => ApplyMamaTurtleCue(slot, cue) is { } target
+                ? new AnimationContinuation<MamaTurtleProgram>(MamaTurtleAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                : null);
+        state.Playback = playback;
     }
 
     /// <summary>Advances BabyTurtle's typed animation.</summary>
@@ -901,10 +903,12 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EnemyProgramAnimation.Expire(slot))
             return;
         BabyTurtleEnemyState state = slot.RequireSpeciesState<BabyTurtleEnemyState>();
-        AnimationProgramCursor<MamaTurtleProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, MamaTurtleAnimations.Programs, ref cursor, MamaTurtleFrameDefinitions.ShownFrames.Of,
-            (cue, _) => ApplyBabyTurtleCue(slot, cue, context.Samus, context.Level));
-        state.Program = cursor;
+        AnimationPlayback<MamaTurtleProgram> playback = state.Playback;
+        EnemyProgramAnimation.Play(slot, MamaTurtleAnimations.Segments, ref playback, MamaTurtleFrameDefinitions.ShownFrames.Of,
+            cue => ApplyBabyTurtleCue(slot, cue, context.Samus, context.Level) is { } target
+                ? new AnimationContinuation<MamaTurtleProgram>(MamaTurtleAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                : null);
+        state.Playback = playback;
     }
 
     /// <summary>Runs the baby wake callback after common projectile damage.</summary>

@@ -187,12 +187,12 @@ internal static class EnemySheetOwnFramesVerification
     private static EnemySheetOwnFrameFamily TurtlesFamily() => new("turtles", TableFrames(MamaTurtleFrameDefinitions.ShownFrames),
         new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
         {
-            [EnemyDefinitionId.MamaTurtle] = Reach(MamaTurtleAnimations.Programs, MamaTurtleFrameDefinitions.ShownFrames,
+            [EnemyDefinitionId.MamaTurtle] = Reach(MamaTurtleAnimations.Segments, MamaTurtleAnimations.StartingAt, MamaTurtleFrameDefinitions.ShownFrames,
             [
                 MamaTurtleProgram.MamaAsleep, MamaTurtleProgram.MamaLeaveShellLeft, MamaTurtleProgram.MamaLeaveShellRight,
                 MamaTurtleProgram.MamaEnterShellLeft, MamaTurtleProgram.MamaEnterShellRight, MamaTurtleProgram.MamaSpinning,
             ]),
-            [EnemyDefinitionId.BabyTurtle] = Reach(MamaTurtleAnimations.Programs, MamaTurtleFrameDefinitions.ShownFrames,
+            [EnemyDefinitionId.BabyTurtle] = Reach(MamaTurtleAnimations.Segments, MamaTurtleAnimations.StartingAt, MamaTurtleFrameDefinitions.ShownFrames,
             [
                 MamaTurtleProgram.BabyCrawlingLeft, MamaTurtleProgram.BabyCrawlingRight, MamaTurtleProgram.BabyHidingLeft,
                 MamaTurtleProgram.BabyHidingRight, MamaTurtleProgram.BabySpinning, MamaTurtleProgram.BabyLeaveShellLeft,

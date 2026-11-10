@@ -324,7 +324,7 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(KiHunterAnimations), "csharp/src/SuperMetroid.Core/Enemies/KiHunters/KiHunterAnimations.cs");
         RequireSegmentFrames(MagdolliteAnimations.Segments, MagdolliteFrameToolingDefinitions.Spritemap, MagdolliteFrameToolingDefinitions.Bank,
             nameof(MagdolliteAnimations), "csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdolliteAnimations.cs");
-        RequireTypedFrames(MamaTurtleAnimations.Programs, MamaTurtleFrameToolingDefinitions.Spritemap, MamaTurtleFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(MamaTurtleAnimations.Segments, MamaTurtleFrameToolingDefinitions.Spritemap, MamaTurtleFrameToolingDefinitions.Bank,
             nameof(MamaTurtleAnimations), "csharp/src/SuperMetroid.Core/Enemies/MamaTurtles/MamaTurtleAnimations.cs");
         RequireSegmentFrames(ChozoStatueAnimations.Segments, ChozoStatueFrameToolingDefinitions.Spritemap, ChozoStatueFrameToolingDefinitions.Bank,
             nameof(ChozoStatueAnimations), "csharp/src/SuperMetroid.Core/Enemies/Chozo/ChozoStatueAnimations.cs");

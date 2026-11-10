@@ -208,7 +208,7 @@ internal static class EnemyVisualTypedProgramAudit
         RequireTypedFrames(ZebetiteAnimations.Programs, frame => ZebetiteVisualToolingDefinitions.Spritemap(frame.Index), ZebetiteVisualToolingDefinitions.Bank,
             nameof(ZebetiteAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/ZebetiteAnimations.cs");
 
-        RequireTypedFrames(RipperAnimations.Programs, RipperFrameToolingDefinitions.Spritemap, RipperFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(RipperAnimations.Segments, RipperFrameToolingDefinitions.Spritemap, RipperFrameToolingDefinitions.Bank,
             nameof(RipperAnimations), "csharp/src/SuperMetroid.Core/Enemies/Ripper/RipperAnimations.cs");
         RequireTypedFrames(ZoaAnimations.Programs, ZoaFrameToolingDefinitions.Spritemap, ZoaFrameToolingDefinitions.Bank,
             nameof(ZoaAnimations), "csharp/src/SuperMetroid.Core/Enemies/Zoa/ZoaAnimations.cs");

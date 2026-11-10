@@ -116,8 +116,8 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         // left-facing list. Unlike a reversal, initialization keeps the population's instruction timer.
         bool movingRight = slot.SpawnSettings<RipperSpawnSettings>().Direction == HorizontalDirection.Right;
         RipperEnemyState state = CreateRipperState(slot);
-        state.Program = AnimationProgramCursor<RipperProgram>.Start(
-            movingRight ? RipperProgram.RipperMovingRight : RipperProgram.RipperMovingLeft);
+        state.Playback = new(RipperAnimations.StartingWith(
+            movingRight ? RipperProgram.RipperMovingRight : RipperProgram.RipperMovingLeft), AnimationPlace.StartOfAnimation);
 
         // The state retains the speed row because the reversal routine reuses it.
         state.Speeds = EnemyLinearSpeedRow.Moving(slot.SpawnSettings<RipperSpawnSettings>().Speed);
@@ -196,7 +196,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Installs a flying loop from its first step on the next enemy frame.</summary>
     private static void SetRipperProgram(RoomEnemySlot slot, RipperProgram program)
     {
-        slot.RequireSpeciesState<RipperEnemyState>().Program = AnimationProgramCursor<RipperProgram>.Start(program);
+        slot.RequireSpeciesState<RipperEnemyState>().Playback = new(RipperAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
@@ -207,9 +207,10 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EnemyProgramAnimation.Expire(slot))
             return;
         RipperEnemyState state = slot.RequireSpeciesState<RipperEnemyState>();
-        AnimationProgramCursor<RipperProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, RipperAnimations.Programs, ref cursor, RipperFrameDefinitions.ShownFrames.Of);
-        state.Program = cursor;
+        AnimationPlayback<RipperProgram> playback = state.Playback;
+        EnemyProgramAnimation.Play(slot, RipperAnimations.Segments, ref playback, RipperFrameDefinitions.ShownFrames.Of,
+            static cue => throw new InvalidOperationException($"Ripper's cue-free animation raised {cue}."));
+        state.Playback = playback;
     }
 
     /// <summary>Preserves the direction-specific frozen map after common bomb reactions.</summary>

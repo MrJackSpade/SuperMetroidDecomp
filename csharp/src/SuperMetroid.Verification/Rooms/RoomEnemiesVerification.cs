@@ -532,8 +532,8 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     }
     RipperEnemyState ripperState = ripper.SpeciesState<RipperEnemyState>()
         ?? throw new InvalidOperationException("The initialized Ripper has no state.");
-    AssertEqual(AnimationProgramCursor<RipperProgram>.Start(RipperProgram.RipperMovingRight),
-        ripperState.Program, "Ripper init right animation");
+    AssertEqual(new AnimationPlayback<RipperProgram>(RipperAnimations.StartingWith(RipperProgram.RipperMovingRight), AnimationPlace.StartOfAnimation),
+        ripperState.Playback, "Ripper init right animation");
     AssertEqual(1, ripperState.XVelocity.UnsignedWholePixels, "Ripper init signed whole X velocity");
     AssertEqual(0, ripperState.XVelocity.Fraction, "Ripper init X subvelocity");
 

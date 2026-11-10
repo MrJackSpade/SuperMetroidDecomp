@@ -110,7 +110,7 @@ internal static class CrystalFlashCleanupVerification
                 // Contact runs before AI publishes its first map. Seed that same
                 // authored map so this fixture tests contact on this exact frame.
                 contactEnemy.SpritemapPointer = RipperAnimationsConstants.Spritemaps(
-                    contactEnemy.RequireSpeciesState<RipperEnemyState>().Program.Program).First();
+                    contactEnemy.RequireSpeciesState<RipperEnemyState>().Playback.Animation.Phases[0].Segment).First();
             }
             int beforeHealth = samus.Health;
             // Later projectile processing can delete the actor and clear its header.

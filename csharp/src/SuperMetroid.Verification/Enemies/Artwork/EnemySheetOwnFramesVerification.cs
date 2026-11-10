@@ -210,11 +210,11 @@ internal static class EnemySheetOwnFramesVerification
         return new("Ripper", TableFrames(RipperFrameDefinitions.ShownFrames).Union(frozen).ToHashSet(),
             new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
             {
-                [EnemyDefinitionId.GRipper] = With(Reach(RipperAnimations.Programs, RipperFrameDefinitions.ShownFrames,
+                [EnemyDefinitionId.GRipper] = With(Reach(RipperAnimations.Segments, RipperAnimations.StartingAt, RipperFrameDefinitions.ShownFrames,
                     [RipperProgram.GRipperMovingLeft, RipperProgram.GRipperMovingRight]), frozen),
-                [EnemyDefinitionId.Ripper2] = With(Reach(RipperAnimations.Programs, RipperFrameDefinitions.ShownFrames,
+                [EnemyDefinitionId.Ripper2] = With(Reach(RipperAnimations.Segments, RipperAnimations.StartingAt, RipperFrameDefinitions.ShownFrames,
                     [RipperProgram.Ripper2MovingLeft, RipperProgram.Ripper2MovingRight]), frozen),
-                [EnemyDefinitionId.Ripper] = Reach(RipperAnimations.Programs, RipperFrameDefinitions.ShownFrames,
+                [EnemyDefinitionId.Ripper] = Reach(RipperAnimations.Segments, RipperAnimations.StartingAt, RipperFrameDefinitions.ShownFrames,
                     [RipperProgram.RipperMovingLeft, RipperProgram.RipperMovingRight]),
             });
     }

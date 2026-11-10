@@ -62,14 +62,12 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         state.ResetOrientation();
         slot.Processing = slot.Processing.With(definition.Processing);
         slot.Contact = slot.Contact.With(definition.Contact);
-        // The segment's definition names how far after the chain's leading saw the room lists it. A kill empties the
-        // struck segment's owner to the first enemy, and the chain's death then deletes the seven enemies from the
-        // first. Both retail Shaktool room states list the chain first, so those are its own segments; a chain
-        // anywhere else would delete unrelated enemies, which no retail room reaches.
+        // The segment's definition names how far after the chain's leading saw the room lists it. The chain's death
+        // deletes the enemies the room lists first (ShaktoolDeathDeletesFirstListed), so the chain must be listed first.
         RoomEnemySlot? owner = definition.OwnerSlotDistance == 0
             ? slot
             : _slotTable.ListedBeforeOrNone(slot, definition.OwnerSlotDistance);
-        if (owner is null || !owner.IsListedFirst())
+        if (owner is null || !ShaktoolDeathDeletesFirstListed.DeletesOwnChain(_slotTable.Slots, owner))
         {
             throw new InvalidDataException(
                 $"Shaktool's chain starts in enemy slot {slot.SlotIndex - definition.OwnerSlotDistance}; its death deletes the first seven slots, " +
@@ -476,16 +474,15 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         SignedEightEight.FromSignedRaw(Trigonometry.SignedSine(TrigonometryAngle.Wrapped(fullTableIndex - 64)));
 
     /// <summary>
-    /// Implements Shaktool's fatal-shot tail: a hit that kills one segment deletes the seven enemies from the room's
-    /// first, which initialization requires to be the chain's own segments.
+    /// Implements Shaktool's fatal-shot tail: a hit that kills one segment deletes the enemies the room lists first
+    /// (<see cref="ShaktoolDeathDeletesFirstListed"/>), which initialization requires to be the chain's own segments.
     /// </summary>
     private void ResolveShaktoolShotAfterCommon(RoomEnemySlot struckSegment)
     {
         if (struckSegment.Health != 0)
             return;
-        // The generic death clears the entire common slot, which empties the segment's owner to the first enemy.
         _killedSegment.RecordKill(struckSegment);
-        foreach (RoomEnemySlot segment in _chains.Of(struckSegment).Chain)
+        foreach (RoomEnemySlot segment in ShaktoolDeathDeletesFirstListed.Deleted(_slotTable.Slots, ShaktoolSegmentCount))
         {
             segment.Contact = EnemyContact.None;
             segment.Processing = EnemyProcessing.None;
@@ -565,17 +562,14 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The projectile slot a middle or back attack circle follows. Nothing that spawns the circles names the circle they
-    /// follow, so they follow the first slot and vanish once it is free.
+    /// Runs the middle and back linked circles' per-frame behaviour: a circle vanishes once the first enemy-projectile
+    /// place is free (<see cref="ShaktoolCirclesFollowFirstPlace"/>).
     /// </summary>
-    private const int LinkedCircleOwnerSlot = 0;
-
-    /// <summary>Runs the middle and back linked circles' per-frame behaviour.</summary>
     internal void RunShaktoolLinkedCircleFrameBehavior(
         EnemyProjectile projectile,
         RoomLevelData level)
     {
-        if (!_projectiles.EnemyProjectiles[LinkedCircleOwnerSlot].IsActive)
+        if (!ShaktoolCirclesFollowFirstPlace.Lasts(_projectiles.EnemyProjectiles, place => place.IsActive))
         {
             projectile.Delete();
             return;

@@ -1,13 +1,11 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Draygon;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.SpriteObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.Draygon;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.World;
 
 /// <summary>Checks Draygon intro start delays and the traced path against ROM and the full Evir trajectory.</summary>

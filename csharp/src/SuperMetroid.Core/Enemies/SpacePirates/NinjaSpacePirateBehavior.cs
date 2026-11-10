@@ -410,7 +410,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             direction == HorizontalDirection.Right
                 ? NinjaSpacePirateProgram.LandFacingRight
                 : NinjaSpacePirateProgram.LandFacingLeft);
-        SpawnNinjaPirateLandingDust(slot, state);
+        SpawnNinjaPirateLandingDust(slot);
     }
 
     /// <summary>
@@ -484,7 +484,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                 : NinjaSpacePirateProgram.WalkToLeftPost);
         // Landing at either post stores the spawn row's whole Y only; the dive's Y fraction stays.
         slot.Position = slot.Position.WithWholeY(state.SpawnPosition.Y);
-        SpawnNinjaPirateLandingDust(slot, state);
+        SpawnNinjaPirateLandingDust(slot);
     }
 
     /// <summary>Walks back to the selected post and restores its landing program.</summary>
@@ -512,9 +512,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>Spawns a dust cloud on each side of the landing position.</summary>
-    private void SpawnNinjaPirateLandingDust(
-        RoomEnemySlot slot,
-        NinjaSpacePirateEnemyState state)
+    private void SpawnNinjaPirateLandingDust(RoomEnemySlot slot)
     {
         SpriteGraphics graphics = SpriteGraphics.SharedStandard;
         _spriteObjects.SpawnRoomSpriteObject(

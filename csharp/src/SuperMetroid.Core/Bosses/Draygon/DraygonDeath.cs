@@ -81,7 +81,7 @@ internal sealed class DraygonDeath
         DraygonEnemyState state,
         int frameCounter)
     {
-        SpawnDyingDraygonSmoke(state, frameCounter);
+        SpawnDyingDraygonSmoke(frameCounter);
         if (--state.BurialWait == 0)
         {
             state.Function = DraygonAiFunction.DyingFinish;
@@ -96,7 +96,7 @@ internal sealed class DraygonDeath
         DraygonEnemyState state,
         int frameCounter)
     {
-        SpawnDyingDraygonSmoke(state, frameCounter);
+        SpawnDyingDraygonSmoke(frameCounter);
         MoveDraygonDeathEvirs(state);
         RoomEnemySlot body = state.Body;
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + 1);
@@ -129,7 +129,7 @@ internal sealed class DraygonDeath
     }
 
     /// <summary>Consumes room RNG and spawns smoke at the dying body every eighth frame.</summary>
-    private void SpawnDyingDraygonSmoke(DraygonEnemyState state, int frameCounter)
+    private void SpawnDyingDraygonSmoke(int frameCounter)
     {
         if ((frameCounter & 7) != 0)
             return;

@@ -316,15 +316,14 @@ internal sealed class GameplayActorDrawing
 
                 if (grappleBeamSpecificPath)
                 {
-                    // The active grapple handler deliberately omits drawing Samus's speed echoes. It updates
-                    // endpoint/segment tiles after Samus, increments flare time, and only
-                    // then emits rope pieces when length is nonzero.
+                    // The active grapple handler deliberately omits drawing Samus's speed echoes. It advances
+                    // the endpoint's animation after Samus, moves the flare on, and only
+                    // then draws the rope and endpoint when length is nonzero.
                     SamusGrappleBeamDrawing.DrawConnectedBeam(
                         _player.Samus.Grapple,
                         _sprites,
                         _room.Camera.PixelPosition,
-                        _artwork.SpriteSheets?.Get(SpriteSheetId.Grapple),
-                        _player.Samus.Pose);
+                        _artwork.SpriteSheets?.Get(SpriteSheetId.Grapple));
                 }
                 else
                 {

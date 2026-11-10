@@ -12,21 +12,16 @@ using SuperMetroid.Core.Gameplay;
 using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Samus.Grapple;
 
-/// <summary>Checks grapple endpoint clipping, wrapped subtraction, and OAM across poses and cameras.</summary>
+/// <summary>Checks grapple endpoint placement, wrapped subtraction, and OAM across cameras and coordinates.</summary>
 internal static class GrappleEndpointGeometryVerification
 {
-    /// <summary>Checks endpoint visibility and attributes across pose, camera, and coordinate boundaries.</summary>
+    /// <summary>Checks endpoint placement and attributes across camera and coordinate boundaries.</summary>
     internal static void VerifyGrappleEndpointGeometry()
     {
-        // $94:B093 chooses by pose, not grapple connection phase. The rope's one
-        // segment is published too (#1587), so only the endpoint's draw is read.
+        // The rope's one segment is published too (#1587), so only the endpoint's draw is read.
         // Probe both sides of the camera subtraction as well as positions above
         // and below the view, where the endpoint is still published.
-        foreach (SamusPoseId pose in new[]
-        {
-            SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose,
-            SamusPoseId.GrappleSwingRightPose, SamusPoseId.GrappleSwingLeftPose
-        })
+        int cases = 0;
         foreach (ushort camera in new ushort[] { 0, 128, 65535 })
         foreach (int offsetX in new[] { -1, 0, 4, 255, 256 })
         foreach (int offsetY in new[] { -1, 0, 3, 4, 255, 256 })
@@ -39,10 +34,9 @@ internal static class GrappleEndpointGeometryVerification
                 BeamStart = new(camera, camera),
                 Anchor = new(endpointX, endpointY), PointAnimationTimer = WrappingCountdown.Start(5),
             };
-            grapple.SegmentAnimationTimers[15] = WrappingCountdown.Start(1);
             var drawn = new SpriteFrameBuffer();
             drawn.BeginFrame();
-            SamusGrappleBeamDrawing.DrawConnectedBeam(grapple, drawn, new(camera, camera), InstalledFixtures.GrappleSheet, samusPose: pose);
+            SamusGrappleBeamDrawing.DrawConnectedBeam(grapple, drawn, new(camera, camera), InstalledFixtures.GrappleSheet);
             drawn.FinalizeFrame();
             OamBuffer oam = SpriteFrameBuffer.DrawnOam(frame =>
             {
@@ -50,22 +44,22 @@ internal static class GrappleEndpointGeometryVerification
                     if (draw.Source.Kind == SpriteSourceKind.SamusGrappleEndpoint)
                         frame.Add(draw);
             });
-            bool swinging = pose is SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose;
-            string context = $"pose {(int)SamusPoseNumbers.Number(pose):X2}, camera {camera}, offsets {offsetX}/{offsetY}";
+            string context = $"camera {camera}, offsets {offsetX}/{offsetY}";
             // The endpoint is published wherever it lies; the display clips it to the view (#1541).
             AssertEqual(4, (oam.LastFinalizedSpriteCount * 4), "Endpoint is published wherever it lies: " + context);
-            // Connected code omits the second SEC. Preserve the borrow from the
-            // camera subtraction, including when unsigned world coordinates wrap.
-            ushort x = unchecked((ushort)(endpointX - camera - 4 - (swinging && endpointX < camera ? 1 : 0)));
-            ushort y = unchecked((ushort)(endpointY - camera - 4 - (swinging && endpointY < camera ? 1 : 0)));
+            // The endpoint is centred on the anchor in every pose, including when unsigned world coordinates wrap; the
+            // swinging draw's borrow into the half-character offset is gone (#1588).
+            ushort x = unchecked((ushort)(endpointX - camera - 4));
+            ushort y = unchecked((ushort)(endpointY - camera - 4));
             AssertEqual((byte)x, oam.LowTable[0], "Native endpoint X: " + context);
             AssertEqual((byte)y, oam.LowTable[1], "Native endpoint Y: " + context);
             AssertEqual((byte)((LittleEndianBytes.HighByte(x)) & 1), oam.HighTable[0], "Native endpoint high-X bit: " + context);
             AssertEqual((byte)0x20, oam.LowTable[2], "Native endpoint character");
             AssertEqual((byte)0x3a, oam.LowTable[3], "Native endpoint palette/priority");
+            cases++;
         }
         Suite(nameof(VerifyGrappleEndpointActor), () => VerifyGrappleEndpointActor());
-        Console.WriteLine("Grapple endpoint geometry: 360 pose/camera/wrapped-coordinate cases and actual actor pose handoff match native placement, borrow and OAM attributes.");
+        Console.WriteLine($"Grapple endpoint geometry: {cases} camera/wrapped-coordinate cases and the actual actor pass in each pose place the endpoint centred on the anchor with native OAM attributes.");
     }
 
     /// <summary>Checks the full gameplay actor drawing pass publishes the endpoint in every pose.</summary>
@@ -87,13 +81,15 @@ internal static class GrappleEndpointGeometryVerification
             samus.Grapple.Anchor = samus.Grapple.Anchor.WithY(unchecked((ushort)(runtime.Room.LoadedCamera.PixelPosition.Y - 1)));
             samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithX(samus.Position.X.Whole);
             samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(samus.Position.Y.Whole);
-            samus.Grapple.SegmentAnimationTimers[15] = WrappingCountdown.Start(1);
             runtime.Sprites.BeginFrame();
             runtime.ActorDrawing.DrawGameplayActors(runtime.Room.LoadedScope, SamusDrawOwner.Gameplay, SamusPaletteEffects.Hold);
             runtime.Sprites.FinalizeFrame();
-            int endpoints = runtime.Sprites.Draws.Count(draw => draw.Source.Kind == SpriteSourceKind.SamusGrappleEndpoint);
+            ImageSpriteDraw[] endpoints = [.. runtime.Sprites.Draws.Where(draw => draw.Source.Kind == SpriteSourceKind.SamusGrappleEndpoint).Cast<ImageSpriteDraw>()];
             // The endpoint just above the view is published in every pose; the display clips it (#1541).
-            AssertEqual(1, endpoints, $"Actual gameplay actor publishes the endpoint in pose {(int)SamusPoseNumbers.Number(pose):X2}");
+            AssertEqual(1, endpoints.Length, $"Actual gameplay actor publishes the endpoint in pose {(int)SamusPoseNumbers.Number(pose):X2}");
+            // It is centred on the anchor in every pose, the swinging ones included (#1588).
+            AssertEqual(new Position16<ScreenPixels>(100, CoordinateAxis.Wrap(-1)), endpoints[0].Origin,
+                $"Actual gameplay actor centres the endpoint on the anchor in pose {(int)SamusPoseNumbers.Number(pose):X2}");
         }
     }
 }

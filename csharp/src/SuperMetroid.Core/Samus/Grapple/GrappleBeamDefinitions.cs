@@ -4,9 +4,8 @@ namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>The Grapple Beam's definitions: its palette, sounds, swing physics, firing and rope drawing (#1411).</summary>
 /// <remarks>
-/// Grapple runtime state deliberately remains elsewhere. This type names the tables,
-/// callback offsets, physics coefficients, and fixed artwork destinations that define
-/// the subsystem's data contract.
+/// Grapple runtime state deliberately remains elsewhere. This type names the palette, sounds, physics coefficients,
+/// firing definitions and rope drawing measures that define the subsystem's data contract.
 /// </remarks>
 public static class GrappleBeamDefinitions
 {
@@ -66,22 +65,21 @@ public static class GrappleBeamDefinitions
         public const int DirectionCount = 10;
     }
 
-    /// <summary>Swing-frame, body-offset, rope-character, and fixed upload definitions.</summary>
+    /// <summary>How the rope is drawn: a chain of rope pictures from the muzzle toward the anchor, animated as one.</summary>
     public static class Rendering
     {
-        /// <summary>The rope's distance between consecutive rope objects in pixels.</summary>
+        /// <summary>The distance in pixels between the centres of consecutive rope pictures along the rope.</summary>
         public const int SegmentSpacing = 8;
         /// <summary>Convert a signed 8.8 sample into an eight-pixel 16.16 displacement.</summary>
         public const int SegmentSampleToFixedPoint = SegmentSpacing * 256;
-        /// <summary>The rope's segment counts the length quotient wraps through, one per animation slot.</summary>
-        public const int SegmentCountCycle = 16;
-        /// <summary>The rope's first animation slot, traversed downward.</summary>
-        public const int FirstSegmentSlot = 15;
-        /// <summary>The rope centers an eight-pixel character on its beam coordinate.</summary>
-        public const int CharacterCenterOffset = 4;
-        /// <summary>Each rope animation record lasts five visits to its slot.</summary>
+        /// <summary>Rope draws each of the rope's pictures lasts before the whole rope steps on to the next.</summary>
         public const int SegmentAnimationDelay = 5;
-        /// <summary>Four successive rope animation records before the goto.</summary>
+        /// <summary>
+        /// Rope draws a fresh beam's first pictures last: one more than the rest, since the beam's first rope draw only
+        /// takes up the pattern it fired with.
+        /// </summary>
+        public const int FirstSegmentAnimationDelay = SegmentAnimationDelay + 1;
+        /// <summary>The rope's cycle of pictures, which repeats along the rope and over time.</summary>
         public const int SegmentAnimationFrameCount = 4;
     }
 

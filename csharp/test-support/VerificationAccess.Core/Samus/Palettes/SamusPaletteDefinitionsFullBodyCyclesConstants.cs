@@ -47,9 +47,7 @@ internal static class SamusPaletteDefinitionsFullBodyCyclesConstants
     /// The stride describes pointer selection; installed artwork now supplies
     /// the authored target colors without reading those cartridge bytes at runtime.
     ///
-    /// Hyper Beam target colors at $9B:A240..A37F have an independent
-    /// #1165 review in InstalledSamusHyperBeamColors. This pointer mapping
-    /// provides no retention justification for their remaining color inputs.
+    /// Hyper Beam target colors at $9B:A240..A37F are installed whole in InstalledSamusHyperBeamColors (#1596).
     /// </remarks>
     public const int HyperBeamPointers = 0x91d99e;
     /// <summary><c>$91:DA4A</c>, suit-indexed Screw Attack palette lists.</summary>

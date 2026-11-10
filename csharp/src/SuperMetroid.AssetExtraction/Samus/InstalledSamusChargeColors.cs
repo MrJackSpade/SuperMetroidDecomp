@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 

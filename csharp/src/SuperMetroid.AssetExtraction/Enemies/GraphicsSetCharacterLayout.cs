@@ -25,6 +25,14 @@ internal sealed class GraphicsSetCharacterLayout
     /// <summary>Where the set's first member that follows the previous one stages its tiles: 64 tiles into the enemy tile area.</summary>
     private const int OrdinaryTilesStart = 64 * TileByteCount;
 
+    /// <summary>
+    /// How many characters an enemy's pictures may count from: the first 256. Drawing an enemy leaves its character index
+    /// where a Puyo's ceiling strike reads it, and the game takes every enemy's draw as leaving that value clear
+    /// (<see cref="SuperMetroid.Core.Compatibility.PuyoCeilingTurnFromLastDraw"/>, #1592), which an index of 256 or more
+    /// would not.
+    /// </summary>
+    private const int DrawnCharacterIndexLimit = 256;
+
     /// <summary>The layout of <paramref name="set"/>.</summary>
     private GraphicsSetCharacterLayout(RoomEnemyGraphicsSetMembers set) => Members = LayOut(set);
 
@@ -40,12 +48,16 @@ internal sealed class GraphicsSetCharacterLayout
     /// for an enemy the set does not load, with the index its initialization copies from the enemy it follows, or fixes,
     /// in place of the set's where it does.
     /// </summary>
+    /// <exception cref="InvalidDataException">The index lies past the first 256 characters (<see cref="DrawnCharacterIndexLimit"/>).</exception>
     internal int TileBaseOf(EnemyDefinitionId enemy)
     {
         int tileBase = LoadedTileBaseOf(enemy);
         if (EnemyCharacterBaseDefinitions.DrawsAtTilesOf.TryGetValue(enemy, out EnemyDefinitionId tileOwner))
             tileBase = LoadedTileBaseOf(tileOwner);
-        return EnemyCharacterBaseDefinitions.Fixed.GetValueOrDefault(enemy, tileBase);
+        tileBase = EnemyCharacterBaseDefinitions.Fixed.GetValueOrDefault(enemy, tileBase);
+        return tileBase < DrawnCharacterIndexLimit ? tileBase
+            : throw new InvalidDataException(
+                $"Enemy {enemy} would count its pictures from character {tileBase}, past the first {DrawnCharacterIndexLimit} its draws keep their index within.");
     }
 
     /// <summary>

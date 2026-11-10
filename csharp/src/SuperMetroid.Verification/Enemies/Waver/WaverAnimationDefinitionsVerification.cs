@@ -40,8 +40,8 @@ internal static class WaverAnimationDefinitionsVerification
             WaverBehavior.SetWaverProgram(slot, state);
             AssertEqual(selector, state.InstalledAnimation,
                 $"production Waver current selector {selector}");
-            AssertEqual(AnimationProgramCursor<WaverProgram>.Start(selector),
-                state.Program,
+            AssertEqual(new AnimationPlayback<WaverProgram>(WaverAnimations.StartingWith(selector), AnimationPlace.StartOfAnimation),
+                state.Playback,
                 $"production Waver animation {selector}");
             AssertEqual(1, slot.FrameHold.RawValue,
                 $"production Waver instruction timer {selector}");
@@ -62,8 +62,8 @@ internal static class WaverAnimationDefinitionsVerification
                 $"production Waver initial requested selector {parameter}");
             AssertEqual(expected, waver.InstalledAnimation,
                 $"production Waver initial current selector {parameter}");
-            AssertEqual(AnimationProgramCursor<WaverProgram>.Start(expected),
-                waver.Program,
+            AssertEqual(new AnimationPlayback<WaverProgram>(WaverAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation),
+                waver.Playback,
                 $"production Waver initial animation {parameter}");
         }
 

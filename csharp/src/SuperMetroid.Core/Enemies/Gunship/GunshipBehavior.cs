@@ -154,9 +154,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
 
         if (slot.SpawnSettings<GunshipSpawnSettings>().Part == GunshipBottomPiece.EntrancePad)
         {
-            // The equally strange read lands on the Y position of the enemy listed two before the pad, the top hull.
-            // The opening pad sits one pixel above the top hull origin.
-            slot.Position = slot.Position.WithWrappedWholeY(_slotTable.ListedBefore(slot, 2).Position.Y.Whole - 1);
+            slot.Position = slot.Position.WithWrappedWholeY(GunshipPadBorrowedHeight.Start(
+                distance => _slotTable.ListedBefore(slot, distance).Position.Y.Whole));
         }
         else
         {

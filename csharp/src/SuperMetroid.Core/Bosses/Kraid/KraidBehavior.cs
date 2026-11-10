@@ -84,14 +84,14 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusBombProjectileSystem? sharedProjectiles)
     {
         KraidEnemyState state = Access.RequireKraidState(body);
-        KraidShotSlots? shots = samusProjectiles is not null && sharedProjectiles is not null
-            ? new KraidShotSlots(samusProjectiles, sharedProjectiles)
+        IReadOnlyList<KraidPassProjectile>? tested = samusProjectiles is not null && sharedProjectiles is not null
+            ? TestedByShotPasses(samusProjectiles, sharedProjectiles)
             : null;
-        if (shots is { } mouthShots)
-            Combat.ResolveKraidMouthProjectileHits(body, state, mouthShots);
+        if (tested is not null)
+            Combat.ResolveKraidMouthProjectileHits(body, state, tested);
         Head.RunKraidPaletteHandling(body, state);
-        if (shots is { } bodyShots)
-            Combat.ResolveKraidBodyProjectileHits(body, state, bodyShots);
+        if (tested is not null)
+            Combat.ResolveKraidBodyProjectileHits(body, state, tested);
         if (samus is not null)
             Combat.ResolveKraidBodyContact(body, state, samus);
         // The body-layer placement places his body layer to follow Kraid rather than the room. X radius is the authored
@@ -139,59 +139,66 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The counter-indexed shot view both of Kraid's shot passes use, a compatibility rule of his fight: the passes count
-    /// from Samus's shot count itself, not one below it, and do not skip free shots, so with five shots counted they also
-    /// test Samus's first bomb (<see cref="SamusBombProjectileSystem.FirstBomb"/>). A bomb can hit Kraid's mouth or body
-    /// through it, and its collision is marked. The passes consult it during his body's update, before his palette
-    /// handling; the original game's shot loops read the projectile table from the count down, where the entry past the
-    /// five shots is the first bomb.
+    /// The projectiles both of Kraid's shot passes test this update, in the order they test them
+    /// (<see cref="KraidShotPassReach"/>): from the place Samus's shot count names down to her first shot, her first bomb
+    /// standing past the last shot place.
     /// </summary>
-    [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
-    internal readonly struct KraidShotSlots
+    /// <param name="projectiles">Samus's shots.</param>
+    /// <param name="bombs">Samus's bombs.</param>
+    internal static IReadOnlyList<KraidPassProjectile> TestedByShotPasses(
+        SamusProjectileSystem projectiles,
+        SamusBombProjectileSystem bombs)
     {
-        /// <summary>Five physical Samus shot slots indexed by the shot counter.</summary>
-        private readonly SamusProjectileSystem _projectiles;
-        /// <summary>Samus's bombs, whose first is reached when the count includes a sixth projectile.</summary>
-        private readonly SamusBombProjectileSystem _sharedProjectiles;
+        Ensure.NotNull(projectiles);
+        Ensure.NotNull(bombs);
+        return KraidShotPassReach.Tested(
+            projectiles.SlotTable.ProjectileCounter,
+            [.. projectiles.Slots.Select(KraidPassProjectile.Shot)],
+            KraidPassProjectile.Bomb(bombs.FirstBomb));
+    }
 
-        /// <summary>Captures the shot count and validates its bounded slot domain.</summary>
-        public KraidShotSlots(SamusProjectileSystem projectiles, SamusBombProjectileSystem sharedProjectiles)
+    /// <summary>One projectile one of Kraid's shot passes tests: a shot of Samus's, or her first bomb.</summary>
+    internal sealed class KraidPassProjectile
+    {
+        /// <summary>The shot, or null for the bomb.</summary>
+        private readonly SamusProjectile? _shot;
+        /// <summary>The bomb, or null for a shot.</summary>
+        private readonly SamusBombProjectileSlot? _bomb;
+
+        /// <summary>Holds exactly one of a shot and a bomb.</summary>
+        private KraidPassProjectile(SamusProjectile? shot, SamusBombProjectileSlot? bomb)
         {
-            _projectiles = projectiles;
-            _sharedProjectiles = sharedProjectiles;
-            LastSlot = projectiles.SlotTable.ProjectileCounter;
-            if (LastSlot > SamusProjectileSystem.SlotCount)
-                throw new InvalidDataException($"Kraid projectile counter {LastSlot} exceeds Kraid's projectile slots.");
+            _shot = shot;
+            _bomb = bomb;
         }
 
-        /// <summary>Inclusive last index selected by the projectile counter.</summary>
-        public int LastSlot { get; }
+        /// <summary>A shot the passes test.</summary>
+        /// <param name="shot">The projectile in one of Samus's shot places.</param>
+        internal static KraidPassProjectile Shot(SamusProjectile shot) => new(Ensure.NotNull(shot), null);
 
-        /// <summary>Reads the selected shot or shared bomb's position, radius, type, and damage.</summary>
-        public KraidCollisionShot Read(int index)
+        /// <summary>The bomb the passes test past the last shot place.</summary>
+        /// <param name="bomb">Samus's first bomb.</param>
+        internal static KraidPassProjectile Bomb(SamusBombProjectileSlot bomb) => new(null, Ensure.NotNull(bomb));
+
+        /// <summary>Reads the projectile's position, radius, type and damage.</summary>
+        public KraidCollisionShot Read()
         {
-            if (index < SamusProjectileSystem.SlotCount)
-            {
-                SamusProjectile shot = _projectiles.Slots[index];
+            if (_shot is { } shot)
                 return new(shot.Position.Whole, shot.Radius, shot.Type, shot.Damage, IsPlacedBomb: false);
-            }
-            SamusBombProjectileSlot bomb = _sharedProjectiles.FirstBomb;
-            return new(bomb.Position.Whole, bomb.Radius, bomb.Type, bomb.Damage, IsPlacedBomb: !bomb.IsBombSpread);
+            if (_bomb is { } bomb)
+                return new(bomb.Position.Whole, bomb.Radius, bomb.Type, bomb.Damage, IsPlacedBomb: !bomb.IsBombSpread);
+            throw new InvalidOperationException("A Kraid pass projectile holds exactly one of a shot and a bomb.");
         }
 
-        /// <summary>Marks the selected shot or bomb as having collided with Kraid.</summary>
-        public void MarkCollision(int index)
+        /// <summary>Marks the projectile as having collided with Kraid.</summary>
+        public void MarkCollision()
         {
-            if (index < SamusProjectileSystem.SlotCount)
-            {
-                SamusProjectile shot = _projectiles.Slots[index];
+            if (_shot is { } shot)
                 shot.IsSpent = true;
-            }
-            else
-            {
-                SamusBombProjectileSlot bomb = _sharedProjectiles.FirstBomb;
+            else if (_bomb is { } bomb)
                 bomb.IsSpent = true;
-            }
+            else
+                throw new InvalidOperationException("A Kraid pass projectile holds exactly one of a shot and a bomb.");
         }
     }
 

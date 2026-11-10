@@ -148,18 +148,17 @@ internal sealed class RidleyTail
 
         RidleyTailSegment root = state.TailSegments[0];
         Position16<RoomPixels> aim = samus.Position.Whole + new Offset16<RoomPixels>(0, 24);
-        // The tail-attack check scans only the five ordinary projectile slots, first match wins.
-        if (_frameContext.SamusProjectiles is { } projectiles && projectiles.SlotTable.ProjectileCounter > 0)
+        if (_frameContext.SamusProjectiles is { } projectiles)
         {
             RidleyTailSegment tip = state.TailSegments[6];
-            foreach (var projectile in projectiles.Slots.Take(5))
-            {
-                if (projectile.Type.Family is not (SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)) continue;
-                if (CoordinateAxis.Distance(projectile.Position.X.Whole, tip.Position.X) - projectile.Radius.X >= 64 ||
-                    CoordinateAxis.Distance(projectile.Position.Y.Whole, tip.Position.Y) - projectile.Radius.Y >= 64) continue;
-                aim = projectile.Position.Whole;
-                break;
-            }
+            SamusProjectile? missile = RidleyTailMissileTarget.Target(
+                projectiles.SlotTable.ProjectileCounter,
+                projectiles.Slots,
+                projectile => projectile.Type.Family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile &&
+                    CoordinateAxis.Distance(projectile.Position.X.Whole, tip.Position.X) - projectile.Radius.X < 64 &&
+                    CoordinateAxis.Distance(projectile.Position.Y.Whole, tip.Position.Y) - projectile.Radius.Y < 64);
+            if (missile is not null)
+                aim = missile.Position.Whole;
         }
         int targetAngle = EnemyMath.CalculateBearing(aim - root.Position).ToTableAngle().TurnedBy(TrigonometryAngle.QuarterTurn).RawValue;
         int additional = additionalAngle.ToAngle().RawValue;

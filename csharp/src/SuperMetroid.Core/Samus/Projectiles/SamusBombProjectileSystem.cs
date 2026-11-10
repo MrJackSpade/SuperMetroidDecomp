@@ -56,7 +56,7 @@ public sealed class SamusBombProjectileSystem
 
     /// <summary>
     /// Samus's first bomb: the bomb with the lowest ordinal, which a bomb placed while none is out takes and a bomb
-    /// spread fills first. Enemy shot passes that count one past Samus's shots reach it (<c>KraidShotSlots</c>).
+    /// spread fills first. Kraid's shot passes, which count one past Samus's shots, reach it (<see cref="KraidShotPassReach"/>).
     /// </summary>
     public SamusBombProjectileSlot FirstBomb => _slots[0];
 

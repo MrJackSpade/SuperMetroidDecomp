@@ -135,20 +135,19 @@ internal sealed class KraidCombat
     /// Resolves projectile hits on Kraid's mouth. Projectile
     /// removal is deferred to the projectile's frame behaviour.
     /// </summary>
-    internal int ResolveKraidMouthProjectileHits(RoomEnemySlot body, KraidEnemyState state, KraidBehavior.KraidShotSlots shots)
+    internal int ResolveKraidMouthProjectileHits(RoomEnemySlot body, KraidEnemyState state, IReadOnlyList<KraidBehavior.KraidPassProjectile> tested)
     {
         if (KraidSinkingSkipsProjectileCollision(body))
             return 0;
 
-        int lastSlot = shots.LastSlot;
         int mouthHits = 0;
-        KraidMouthHitbox? innerMouth = lastSlot == 0 ? null : KraidHeadAnimations.InnerMouthAt(state.HeadProgram);
+        KraidMouthHitbox? innerMouth = tested.Count == 0 ? null : KraidHeadAnimations.InnerMouthAt(state.HeadProgram);
         if (innerMouth is { } inner)
         {
             KraidPassBounds bounds = PlaceKraidPassBounds(body, inner);
-            for (int index = lastSlot; index >= 0; index--)
+            foreach (KraidBehavior.KraidPassProjectile projectile in tested)
             {
-                KraidBehavior.KraidCollisionShot shot = shots.Read(index);
+                KraidBehavior.KraidCollisionShot shot = projectile.Read();
                 SamusProjectileType type = shot.Type;
                 if (!OverlapsKraidMouth(bounds, shot) ||
                     (type.Family == SamusProjectileFamily.Beam && !type.IsChargedBeam))
@@ -189,7 +188,7 @@ internal sealed class KraidCombat
                     bounds.LeaveAfterDud(_spriteObjects.PlaceOf(dud), shot.Position, KraidContactDefinitions.ShotLeftBoundAfterDud);
                     _audio.QueueEnemySound(SamusSound.DudShot, priority: SoundRequestPriority.Low);
                 }
-                shots.MarkCollision(index);
+                projectile.MarkCollision();
                 mouthHits++;
             }
         }
@@ -212,26 +211,25 @@ internal sealed class KraidCombat
     /// Resolves projectile hits on Kraid's body, the independent
     /// outer mouth/body pass.
     /// </summary>
-    internal int ResolveKraidBodyProjectileHits(RoomEnemySlot body, KraidEnemyState state, KraidBehavior.KraidShotSlots shots)
+    internal int ResolveKraidBodyProjectileHits(RoomEnemySlot body, KraidEnemyState state, IReadOnlyList<KraidBehavior.KraidPassProjectile> tested)
     {
         if (KraidSinkingSkipsProjectileCollision(body))
             return 0;
 
         state.MouthFlags &= ~KraidMouthFlags.Hit;
-        int lastSlot = shots.LastSlot;
         int bodyHits = 0;
-        if (lastSlot != 0)
+        if (tested.Count != 0)
         {
             KraidMouthHitbox outerMouth = KraidHeadAnimations.OuterMouthAt(state.HeadProgram);
             KraidPassBounds bounds = PlaceKraidPassBounds(body, outerMouth);
-            for (int index = lastSlot; index >= 0; index--)
+            foreach (KraidBehavior.KraidPassProjectile projectile in tested)
             {
-                KraidBehavior.KraidCollisionShot shot = shots.Read(index);
+                KraidBehavior.KraidCollisionShot shot = projectile.Read();
                 if (!OverlapsKraidBody(ref bounds, body, shot))
                     continue;
                 SpawnKraidArmShotExplosion(shot.Type, shot.Position);
                 bounds.LeaveAfterBodyHit(shot.Position);
-                shots.MarkCollision(index);
+                projectile.MarkCollision();
                 if (shot.Type.IsChargedBeam)
                     state.MouthFlags |= KraidMouthFlags.Hit;
                 bodyHits++;

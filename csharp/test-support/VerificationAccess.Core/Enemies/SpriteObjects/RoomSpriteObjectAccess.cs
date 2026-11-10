@@ -7,32 +7,35 @@ namespace SuperMetroid.Core.Enemies.SpriteObjects;
 
 /// <summary>
 /// Verification's native view of room sprite objects: the bank-$B4 address of the record an object shows, derived from the
-/// programs' list addresses (a timed record takes four bytes, a hold or delete two, a goto four and a fall-through none),
-/// and the native words of its timer, spritemap, attributes and disable flag.
+/// segments' list addresses (a timed record takes four bytes, and the lists' frames come first), and the native words of
+/// its timer, spritemap, attributes and disable flag.
 /// </summary>
 internal static class RoomSpriteObjectAccess
 {
-    /// <summary>The bytes a step occupies in its native list.</summary>
-    private static int StepBytes(AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue> step) => step switch
+    /// <summary>The bytes a beat occupies in its native list: only timed frames, four bytes each.</summary>
+    private static int BeatBytes(AnimationBeat<RoomSpriteObjectFrame, NoAnimationCue> beat) => beat switch
     {
-        AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue>.ShowStep => 4,
-        AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue>.HoldStep or AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue>.StopStep => 2,
-        AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue>.GoToStep => 4,
-        AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue>.FallIntoStep => 0,
-        AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue>.CueStep or AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue>.WaitStep or AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue>.SetCounterStep or AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue>.RepeatWhileCountingStep => throw new InvalidOperationException($"Room sprite-object programs have no {step} step."),
-        _ => throw new InvalidOperationException($"Room sprite-object programs have no {step} step."),
+        AnimationBeat<RoomSpriteObjectFrame, NoAnimationCue>.Frame => 4,
+        AnimationBeat<RoomSpriteObjectFrame, NoAnimationCue>.Pause or AnimationBeat<RoomSpriteObjectFrame, NoAnimationCue>.Event => throw new InvalidOperationException($"Room sprite-object segments have no {beat} beat."),
+        _ => throw new InvalidOperationException($"Room sprite-object segments have no {beat} beat."),
     };
 
-    /// <summary>The bank-$B4 address of step <paramref name="position"/> of <paramref name="program"/>.</summary>
-    internal static ushort RecordAddress(RoomSpriteObjectProgram program, int position) =>
-        checked((ushort)(RoomSpriteObjectProgramAddresses.Entries[program] +
-            RoomSpriteObjectAnimations.Programs.Steps(program).Take(position).Sum(StepBytes)));
+    /// <summary>The bank-$B4 address of beat <paramref name="beat"/> of <paramref name="segment"/>.</summary>
+    internal static ushort RecordAddress(RoomSpriteObjectProgram segment, int beat) =>
+        checked((ushort)(RoomSpriteObjectProgramAddresses.Entries[segment] +
+            RoomSpriteObjectAnimations.Segments.Beats(segment).Take(beat).Sum(BeatBytes)));
 
     /// <summary>Native views of a sprite object.</summary>
     extension(RoomSpriteObject self)
     {
-        /// <summary>The bank-$B4 address of the record the object shows, or zero once it has ended.</summary>
-        internal ushort InstructionPointer => self.Cursor is { } cursor ? RecordAddress(cursor.Program, cursor.Position - 1) : (ushort)0;
+        /// <summary>
+        /// The bank-$B4 address of the record the object shows, or zero once it has ended: the beat before the place its
+        /// animation stands at, in the segment of the phase it plays.
+        /// </summary>
+        internal ushort InstructionPointer => self.Playback is { } playback
+            ? RecordAddress(playback.Animation.Phases[playback.Place.Phase].Segment,
+                playback.Animation.Phases[playback.Place.Phase].FirstBeat + playback.Place.Beat - 1)
+            : (ushort)0;
 
         /// <summary>The native timer word while the object counts down; a holding object counts none.</summary>
         internal ushort FrameHold => self.Holds

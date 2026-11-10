@@ -31,20 +31,20 @@ internal static class FrozenMetroidShellVerification
         var state = enemies.MetroidStates[0];
         // The shell is read by its own draws, apart from the electrical overlay.
         var shell = (state ?? throw new InvalidOperationException("Verification requires state.")).OuterBodyB;
-        // The shell program's second record, the native alternating empty shell frame.
-        var shellSteps = RoomSpriteObjectAnimations.Programs.Steps(RoomSpriteObjectProgram.MetroidShell);
-        // The shell plays its first record out, which brings it onto the second with that record's whole duration.
-        var first = AssertIs<AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue>.ShowStep>(shellSteps[0], "first shell step");
+        // The shell segment's second beat, the native alternating empty shell frame.
+        var shellBeats = RoomSpriteObjectAnimations.Segments.Beats(RoomSpriteObjectProgram.MetroidShell);
+        // The shell plays its first beat out, which brings it onto the second with that beat's whole duration.
+        var first = AssertIs<AnimationBeat<RoomSpriteObjectFrame, NoAnimationCue>.Frame>(shellBeats[0], "first shell beat");
         for (int update = 0; update < first.Duration; update++)
             shell.Step();
-        var shown = AssertIs<AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue>.ShowStep>(shellSteps[1], "second shell step");
-        Require(shell.Frame == shown.Frame && shell.Timer == shown.Duration, "The shell must reach its second record with that record's whole duration.");
+        var shown = AssertIs<AnimationBeat<RoomSpriteObjectFrame, NoAnimationCue>.Frame>(shellBeats[1], "second shell beat");
+        Require(shell.Frame == shown.Shown && shell.Timer == shown.Duration, "The shell must reach its second record with that record's whole duration.");
         Require(shell.InstructionPointer == 0xc4ba, "The reproduction must run the native empty shell record.");
         OamBuffer actual = ShellOam();
         Require(shell.SpritemapPointer == 0xbda6 && actual.NextByteOffset == 0,
             "The reproduction must begin on the native empty shell frame.");
         ushort retainedTimer = shell.FrameHold;
-        ushort expectedPointer = RoomSpriteObjectVisualDefinitionsConstants.Spritemap(AssertIs<AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue>.ShowStep>(shellSteps[0], "first shell step").Frame);
+        ushort expectedPointer = RoomSpriteObjectVisualDefinitionsConstants.Spritemap(first.Shown);
         Require((InstalledFixtures.EnemyTiles.Spritemaps ?? throw new InvalidOperationException("Verification requires the installed enemy compositions.")).TryGetDisplay(0xb4, expectedPointer, out var parts),
             "Installed frozen shell artwork must exist.");
         var expected = new OamBuffer();

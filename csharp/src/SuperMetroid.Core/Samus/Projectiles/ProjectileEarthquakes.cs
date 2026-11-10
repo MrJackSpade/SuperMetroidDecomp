@@ -3,14 +3,11 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Super Missile impact earthquakes: the last requested quake type and duration, published to the room's shared earthquake owner when one is bound.</summary>
+/// <summary>Super Missile impact earthquakes, started on the room's earthquake, their one owner, when the impact happens.</summary>
 [RoomLifetime]
 internal sealed class ProjectileEarthquakes
 {
-    /// <summary>
-    /// The room's earthquake, bound when the room loads; quake state itself remains
-    /// in the shared room owner rather than in a second store.
-    /// </summary>
+    /// <summary>The room's earthquake, bound when the room loads.</summary>
     private RoomEarthquake? _roomEarthquake;
 
     /// <summary>Reconnects the shared room quake owner before projectile collision can request an impact.</summary>
@@ -18,34 +15,13 @@ internal sealed class ProjectileEarthquakes
         => _roomEarthquake = Ensure.NotNull(earthquake);
 
     /// <summary>
-    /// Records the Super Missile impact quake and publishes it at the collision call when a
-    /// room owner is bound, allowing later quake producers to supersede this request.
+    /// Starts the Super Missile impact quake on the room's earthquake at the collision call, not at frame end: later
+    /// enemy and room producers may replace it, and earlier draw owners may read it.
     /// </summary>
-    /// <param name="earthquakeType">
-    /// The impact's type, or the enemy-hit type.
-    /// </param>
-    internal void RequestSuperMissileEarthquake(int earthquakeType)
-    {
-        EarthquakeType = earthquakeType;
-        EarthquakeTimer = SuperMissileDefinitions.EarthquakeDuration;
-        if (_roomEarthquake is { } earthquake)
-        {
-            // Publish at the collision call, not at frame end: later enemy/room
-            // producers may replace this request, and earlier draw owners may read it.
-            earthquake.EarthquakeType = EarthquakeType;
-            earthquake.EarthquakeTimer = WrappingCountdown.Start(EarthquakeTimer);
-        }
-    }
-
-    /// <summary>
-    /// Last impact's quake type, zero or one of the two Super Missile quake types; runtime requests also write the
-    /// shared room owner, whose quake type is the same 0 through 65535 integer, immediately.
-    /// </summary>
-    public int EarthquakeType { get; internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
-    /// <summary>
-    /// Duration in frames of the most recent Super Missile impact quake request, not a ticking countdown: zero, or
-    /// the Super Missile quake duration. Cleared by <see cref="SamusProjectileSystem.ClearProjectileData"/> and
-    /// published immediately to the shared room earthquake owner, whose countdown starts at it, when bound.
-    /// </summary>
-    public int EarthquakeTimer { get; internal set; }
+    /// <param name="shake">The impact's shake on a block, or the enemy-hit shake.</param>
+    /// <exception cref="InvalidOperationException">No room earthquake is bound.</exception>
+    internal void RequestSuperMissileEarthquake(EarthquakeShake shake) =>
+        (_roomEarthquake ?? throw new InvalidOperationException(
+            "A Super Missile impact found no room earthquake bound to start."))
+            .Start(shake, SuperMissileDefinitions.EarthquakeDuration);
 }

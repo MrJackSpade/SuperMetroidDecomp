@@ -24,8 +24,8 @@ public sealed record RainbowBeamAttackFrame
     /// <summary>Typewriter finished.</summary>
     public bool TypewriterFinished { get; init; } = false;
 
-    /// <summary>The global earthquake timer as this frame observes it, or null when the caller supplies none.</summary>
-    public WrappingCountdown? GlobalEarthquakeTimer { get; init; } = null;
+    /// <summary>Whether the room's earthquake has stopped as this step observes it; false unless supplied.</summary>
+    public bool RoomEarthquakeStopped { get; init; } = false;
 
     /// <summary>The session's record of what the beam's push hides from the camera, which every push writes.</summary>
     public required RainbowBeamCameraCheckpoint CameraCheckpoint { get; init; }

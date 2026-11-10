@@ -52,8 +52,11 @@ internal static class SamusEaterObjectDefinitions
     /// <summary>The chew sound's request priority.</summary>
     internal static readonly SoundRequestPriority ChewSoundPriority = SoundRequestPriority.Normal;
 
-    /// <summary>The invincibility bit the hold ORs into Samus's invincibility timer each frame.</summary>
-    public const int HeldInvincibilityBit = 1 << 4;
+    /// <summary>
+    /// The frames of invincibility the hold sustains on Samus every frame (<see cref="WrappingCountdown.Sustained"/>), so she
+    /// stays invincible while held.
+    /// </summary>
+    public const int HeldInvincibilityFrames = 16;
 
     /// <summary>The immunity the release gives Samus, in frames.</summary>
     public const int ReleaseInvincibilityFrames = 48;

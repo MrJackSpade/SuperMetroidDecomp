@@ -81,6 +81,7 @@ using SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Cartridge-oracle checks for Ceres, boss, projectile and map visual definitions in lookup stream five.</summary>
@@ -1621,7 +1622,7 @@ internal static class LookupStream5Verification
         foreach (ushort camera in new ushort[] { 0, ushort.MaxValue })
         for (ushort phase = 0; phase < 4; phase++)
         {
-            door.Position = door.Position.WithWholeX(x); enemies.Earthquake.EarthquakeTimer = WrappingCountdown.FromRaw(phase);
+            door.Position = door.Position.WithWholeX(x); enemies.Earthquake.Start(NativeEarthquakeTypes.Shake(29), phase);
             var actual = new OamBuffer(); actual.BeginFrame();
             actual.AppendDrawn(frame => enemies.CeresRidleyBehavior.BabyScene.DrawCeresRidleyImmediateBabyAndDoor(frame, new(camera, 0))); actual.FinalizeFrame();
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6a321 + phase * 2);

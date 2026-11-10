@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Fx;
 
-/// <summary>One earthquake type's background and enemy-projectile displacement.</summary>
+/// <summary>One earthquake shake's background and enemy-projectile displacement (<see cref="EarthquakeShake.Displacement"/>).</summary>
 /// <param name="Foreground">The foreground scroll displacement.</param>
 /// <param name="Background">The background scroll displacement.</param>
 /// <param name="Projectile">Enemy-projectile draw displacement.</param>

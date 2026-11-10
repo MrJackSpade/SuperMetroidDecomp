@@ -18,14 +18,15 @@ namespace SuperMetroid.Core.Compatibility;
 /// </para>
 /// <para>
 /// <b>Negative.</b> A countdown at 32768 or more is negative (<see cref="IsNegative"/>): it has run past zero, and an owner
-/// that tests for expiry by sign treats it as expired. A timer set that high on purpose (the earthquake's continuous-shake
-/// flag, a held invincibility flag) therefore reads as already expired to such an owner while it keeps counting for tens
-/// of thousands of frames to an owner that waits for zero.
+/// that tests for expiry by sign treats it as expired. A timer set that high on purpose (the escape's 65535-frame
+/// earthquake) therefore reads as already expired to such an owner while it keeps counting for tens of thousands of
+/// frames to an owner that waits for zero.
 /// </para>
 /// <para>
-/// <b>Eight-bit count.</b> Some owners keep a small count in the lower eight bits of the countdown (<see cref="EightBitCount"/>)
-/// and test, reload or clear only that count, leaving the rest of the countdown as it was; Samus's beam and bomb cooldown
-/// is the main example, its upper half set by one firing path and its lower half tested by another.
+/// <b>Sustained.</b> A producer that renews a running timer every update without restarting it (<see cref="Sustained"/>)
+/// keeps it in the later half of a round of twice the sustained frames, so the timer never runs out while the producer
+/// renews it and runs out within one round once it stops: rising lava's and the Tourian statues' earthquakes, and the
+/// plant that holds Samus invincible.
 /// </para>
 /// <para>
 /// <b>Frame point.</b> The countdown has none of its own: its owner advances it once per call of the owner's update (an
@@ -36,8 +37,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// with no clamp; the full-movie replays (the Ridley full movie and the 13% SMV) step every enemy, boss, Samus and frontend
 /// countdown through this type and match the recording on every update. The wrap itself is observable where a timer is
 /// stepped from zero: the Ceres hall's debris waits as long as the elevator shaft's last turn step reads as a countdown
-/// (<see cref="RoomMainCarryover"/>), and the Zebes escape keeps the room shaking by setting the earthquake countdown's top
-/// flag rather than re-arming it.
+/// (<see cref="RoomMainCarryover"/>).
 /// </para>
 /// <para>
 /// Gameplay reads a countdown only through these named tests and the <see cref="RemainingFrames"/> it has left; checks and
@@ -70,15 +70,6 @@ public readonly record struct WrappingCountdown
     /// run past zero reads as the large count it wrapped to.
     /// </summary>
     public int RemainingFrames => count;
-
-    /// <summary>
-    /// The small count an owner keeps in the lower eight bits of the countdown (0 through 255). Owners that keep such a
-    /// count test, reload or clear only it and leave the rest of the countdown as it was.
-    /// </summary>
-    public byte EightBitCount => unchecked((byte)count);
-
-    /// <summary>The countdown with its eight-bit count replaced by <paramref name="eightBitCount"/> and the rest kept.</summary>
-    public WrappingCountdown WithEightBitCount(byte eightBitCount) => new((ushort)(count - EightBitCount + eightBitCount));
 
     /// <summary>Whether the countdown has no frames left.</summary>
     public bool IsZero => count == 0;
@@ -117,13 +108,23 @@ public readonly record struct WrappingCountdown
     public int CyclePhase(int phaseFrames, int phases) => count / Ensure.BetweenInclusive(1, ushort.MaxValue, phaseFrames) % Ensure.BetweenInclusive(1, ushort.MaxValue, phases);
 
     /// <summary>
-    /// The countdown merged with a request of <paramref name="frames"/>: every frame flag set in either is set in the
-    /// result, the way a producer that adds its request to a running timer without restarting it does. It never
-    /// shortens a running countdown; merging in the negative flag keeps it counting for tens of thousands of frames.
+    /// The countdown renewed by a producer that keeps it running for at least <paramref name="frames"/> without restarting
+    /// it. The countdown runs in rounds of twice <paramref name="frames"/>: one in the first <paramref name="frames"/> of its
+    /// round moves on by <paramref name="frames"/>, and one in the later half is left as it is. It never shortens a running
+    /// countdown. Renewed every update, a countdown below twice <paramref name="frames"/> therefore cycles through the later
+    /// half and never runs out; once the renewals stop it runs out within one round, from wherever in the round it was.
     /// </summary>
-    /// <param name="frames">The requested frames, 0 through 65535.</param>
-    public WrappingCountdown MergedWith(int frames) =>
-        new(unchecked((ushort)(count | Ensure.BetweenInclusive(0, ushort.MaxValue, frames))));
+    /// <param name="frames">
+    /// The frames sustained: a power of two from 1 through 32768, so that the rounds divide the countdown's 65536 counts
+    /// and a renewal never carries past its round.
+    /// </param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="frames"/> is not such a power of two.</exception>
+    public WrappingCountdown Sustained(int frames)
+    {
+        if (!int.IsPow2(Ensure.BetweenInclusive(1, NegativeFrom, frames)))
+            throw new ArgumentOutOfRangeException(nameof(frames), frames, "Sustained frames divide the countdown's rounds only as a power of two.");
+        return CyclePhase(frames, 2) == 0 ? AddFrames(frames) : this;
+    }
 
     /// <summary>
     /// Starts a countdown at <paramref name="frames"/>, 0 through 65535.
@@ -147,13 +148,6 @@ public readonly record struct WrappingCountdown
 
     /// <summary>Takes one frame away from a countdown that has frames left; a countdown at zero stays at zero.</summary>
     public WrappingCountdown DecrementToZero() => count == 0 ? this : new((ushort)(count - 1));
-
-    /// <summary>
-    /// Takes one away from the <see cref="EightBitCount"/> alone: it wraps from 0 to 255 and the rest of the countdown is
-    /// kept. The step's tests describe the eight-bit count.
-    /// </summary>
-    public LowHalfCountdownStep DecrementEightBitCount() =>
-        new(WithEightBitCount(unchecked((byte)(EightBitCount - 1))));
 
     /// <summary>
     /// Adds <paramref name="frames"/> to the countdown (a negative count takes frames away): a sum past 65535 restarts

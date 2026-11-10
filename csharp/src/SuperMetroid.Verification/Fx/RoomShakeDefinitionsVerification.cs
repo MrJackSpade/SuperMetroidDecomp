@@ -8,121 +8,127 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Verification.Fx;
 
-/// <summary>Checks compiled room-shake vectors and the runtime's alternating background and projectile offsets.</summary>
+/// <summary>
+/// Checks every earthquake shake's displacement against the cartridge's shake vectors, and the room earthquake's
+/// alternating background and projectile offsets, its frozen and stopped frames, its sustain and its continuous shake.
+/// </summary>
 internal static class RoomShakeDefinitionsVerification
 {
-    /// <summary>Compares all rendered shake types, frozen behavior, and non-rendered timer preservation.</summary>
+    /// <summary>Compares all shown shakes, frozen behavior, sustained and continuous shaking.</summary>
     internal static void VerifyRoomShakeDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyRoomShakeBg1Algorithm), () => VerifyRoomShakeBg1Algorithm(rom));
         Suite(nameof(VerifyRoomShakeBg2Algorithm), () => VerifyRoomShakeBg2Algorithm(rom));
         Suite(nameof(VerifyRoomShakeProjectileAlgorithm), () => VerifyRoomShakeProjectileAlgorithm(rom));
-        const ushort renderedTypeCount = 36;
 
         var guarded = NewRoomShakeReadGuard(rom);
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
 
-        for (ushort type = 0; type < renderedTypeCount; type++)
+        for (int type = 0; type < NativeEarthquakeTypes.ShownTypeCount; type++)
         {
-            RoomShakeDefinition definition = RoomShakes.ForType(type);
-            enemies.Earthquake.EarthquakeType = type;
-            enemies.Earthquake.EarthquakeTimer = WrappingCountdown.Start(1);
+            EarthquakeShake shake = NativeEarthquakeTypes.Shake(type);
+            RoomShakeDefinition definition = shake.Displacement;
+            enemies.Earthquake.Start(shake, 1);
             RoomShakeFrameResult positive = enemies.HandleRoomShaking(timeIsFrozen: false);
             AssertEqual(new RoomShakeFrameResult(definition.Foreground, definition.Background),
                 positive,
-                $"room shake type {type} positive production frame");
-            AssertEqual((ushort)0, enemies.Earthquake.EarthquakeTimer.RawValue,
-                $"room shake type {type} positive timer consumption");
+                $"room shake {shake} positive production frame");
+            AssertTrue(!enemies.Earthquake.IsShaking, $"room shake {shake} positive frame consumes its last frame");
 
-            enemies.Earthquake.EarthquakeTimer = WrappingCountdown.Start(2);
+            enemies.Earthquake.Start(shake, 2);
             RoomShakeFrameResult negative = enemies.HandleRoomShaking(timeIsFrozen: false);
             AssertEqual(new RoomShakeFrameResult(
                     new(unchecked((short)-definition.Foreground.X), unchecked((short)-definition.Foreground.Y)),
                     new(unchecked((short)-definition.Background.X), unchecked((short)-definition.Background.Y))),
                 negative,
-                $"room shake type {type} alternating production frame");
+                $"room shake {shake} alternating production frame");
 
-            enemies.Earthquake.EarthquakeTimer = WrappingCountdown.Start(1);
+            enemies.Earthquake.Start(shake, 1);
             var positiveProjectile = enemies.Earthquake.GetEnemyProjectileShake(false);
             AssertEqual(definition.Projectile, positiveProjectile,
-                $"room shake type {type} positive projectile displacement");
+                $"room shake {shake} positive projectile displacement");
 
-            enemies.Earthquake.EarthquakeTimer = WrappingCountdown.Start(2);
+            enemies.Earthquake.Start(shake, 2);
             var negativeProjectile = enemies.Earthquake.GetEnemyProjectileShake(false);
             AssertEqual(-definition.Projectile,
                 negativeProjectile,
-                $"room shake type {type} alternating projectile displacement");
+                $"room shake {shake} alternating projectile displacement");
+            AssertEqual(type >= 18, shake.ShakesEnemies, $"room shake {shake} shakes the enemies exactly from type 18");
         }
 
-        AssertThrows<InvalidDataException>(
-            () => RoomShakes.ForType(renderedTypeCount),
-            "room shake type outside rendered table");
-
-        enemies.Earthquake.EarthquakeType = RoomEarthquakeDefinitions.FirstNonRenderedType;
-        enemies.Earthquake.EarthquakeTimer = WrappingCountdown.Start(4);
-        AssertEqual(default(RoomShakeFrameResult), enemies.HandleRoomShaking(timeIsFrozen: false),
-            "non-rendered earthquake type does not access compiled definitions");
-        AssertEqual((ushort)4, enemies.Earthquake.EarthquakeTimer.RawValue,
-            "non-rendered earthquake type preserves timer");
-        AssertEqual(Offset16<RoomPixels>.Zero,
-            enemies.Earthquake.GetEnemyProjectileShake(false),
-            "non-rendered earthquake type has no projectile displacement");
-
-        // The type holds the cartridge's whole word as a non-negative number: its largest value is still an
-        // ordinary non-rendered type, and anything outside the word is rejected instead of wrapping.
-        enemies.Earthquake.EarthquakeType = ushort.MaxValue;
-        enemies.Earthquake.EarthquakeTimer = WrappingCountdown.Start(4);
-        AssertEqual(default(RoomShakeFrameResult), enemies.HandleRoomShaking(timeIsFrozen: false),
-            "largest earthquake type is non-rendered");
-        AssertEqual((ushort)4, enemies.Earthquake.EarthquakeTimer.RawValue,
-            "largest earthquake type preserves timer");
-        AssertThrows<ArgumentOutOfRangeException>(() => { enemies.Earthquake.EarthquakeType = -1; },
-            "negative earthquake type is rejected");
-
-        // Timer bits are OR'd into the running timer, keeping its existing bits.
-        enemies.Earthquake.EarthquakeTimer = WrappingCountdown.Start(1);
-        enemies.Earthquake.AddTimerBits(RoomEarthquakeDefinitions.RisingLiquidTimerBits);
-        AssertEqual((ushort)(1 | RoomEarthquakeDefinitions.RisingLiquidTimerBits), enemies.Earthquake.EarthquakeTimer.RawValue,
-            "earthquake timer bits keep the running timer's bits");
-        AssertThrows<ArgumentOutOfRangeException>(() => enemies.Earthquake.AddTimerBits(ushort.MaxValue + 1),
-            "earthquake timer bits above the cartridge word are rejected");
-
-        enemies.Earthquake.EarthquakeType = 0;
+        EarthquakeShake light = NativeEarthquakeTypes.Shake(0);
+        enemies.Earthquake.Start(light, 4);
         AssertEqual(default(RoomShakeFrameResult), enemies.HandleRoomShaking(timeIsFrozen: true),
-            "frozen room shake does not access compiled definitions");
+            "frozen room shake does not displace the layers");
+        AssertEqual(4, enemies.Earthquake.RemainingFrames, "frozen room shake keeps the earthquake's length");
         AssertEqual(Offset16<RoomPixels>.Zero,
             enemies.Earthquake.GetEnemyProjectileShake(true),
-            "frozen projectile shake does not access compiled definitions");
+            "frozen projectile shake does not displace projectiles");
+
+        enemies.Earthquake.Stop();
+        AssertEqual(default(RoomShakeFrameResult), enemies.HandleRoomShaking(timeIsFrozen: false),
+            "a stopped earthquake does not displace the layers");
+        AssertEqual<EarthquakeShake?>(light, enemies.Earthquake.Shake, "a stopped earthquake keeps its shake for a producer that runs it on");
+
+        // A sustain moves a countdown in the first half of its 64-frame round on by 32 and keeps one in the later half.
+        enemies.Earthquake.Start(light, 1);
+        enemies.Earthquake.Sustain(RoomEarthquakeDefinitions.RisingLiquidShake);
+        AssertEqual(33, enemies.Earthquake.RemainingFrames, "a sustain keeps the running earthquake's frames and adds its 32");
+        AssertEqual<EarthquakeShake?>(RoomEarthquakeDefinitions.RisingLiquidShake, enemies.Earthquake.Shake, "a sustain gives the room its shake");
+        enemies.Earthquake.Sustain(RoomEarthquakeDefinitions.RisingLiquidShake);
+        AssertEqual(33, enemies.Earthquake.RemainingFrames, "a sustain leaves an earthquake already in its sustained half");
+
+        // A continuous shake never stops and keeps alternating its sides through the countdown's wrap.
+        enemies.Earthquake.Start(light, 3);
+        enemies.Earthquake.KeepShaking();
+        RoomShakeDefinition lightDefinition = light.Displacement;
+        for (int frame = 0; frame < 12; frame++)
+        {
+            RoomShakeFrameResult continuous = enemies.HandleRoomShaking(timeIsFrozen: false);
+            // Frames left 3, 2, 1, 0, then the wrapped 65535, 65534...: the far side shows while the frames left, counted
+            // in pairs, are odd.
+            int framesLeft = (3 - frame) & ushort.MaxValue;
+            bool farSide = framesLeft / RoomEarthquakeDefinitions.StepsPerShakeSide % 2 != 0;
+            AssertEqual(farSide ? -lightDefinition.Foreground : lightDefinition.Foreground, continuous.Foreground,
+                $"a continuous shake alternates its sides at frame {frame}");
+            AssertTrue(enemies.Earthquake.IsShaking, $"a continuous shake keeps shaking at frame {frame}");
+        }
+        AssertThrows<InvalidOperationException>(() => _ = enemies.Earthquake.RemainingFrames,
+            "a continuous shake has no frames left to read");
+        enemies.Earthquake.Start(light, 30);
+        AssertTrue(enemies.Earthquake.IsShakingWith(light, 30), "a producer's start ends the continuous shake");
+
+        var unshaken = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        AssertThrows<InvalidOperationException>(() => unshaken.Earthquake.RunFor(4),
+            "an earthquake cannot be run on before any producer gives the room a shake");
 
         Console.WriteLine(
-            "Room shake definitions: all 216 native words and 144 real background/projectile phase selections pass with both source tables forbidden.");
+            "Room shake definitions: all 216 cartridge words and 144 real background/projectile phase selections pass with both source tables forbidden.");
     }
 
     /// <summary>Compares BG1 displacement pairs with their native table entries.</summary>
     private static void VerifyRoomShakeBg1Algorithm(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifyRoomShakeVector), () => VerifyRoomShakeVector(rom, RoomShakes.Bg1ReferenceAddress, 8,
+        Suite(nameof(VerifyRoomShakeVector), () => VerifyRoomShakeVector(rom, NativeEarthquakeTypes.Bg1ReferenceAddress, 8,
             definition => new OctantVector(definition.Foreground.X, definition.Foreground.Y), "BG1"));
 
     /// <summary>Compares BG2 displacement pairs with their native table entries.</summary>
     private static void VerifyRoomShakeBg2Algorithm(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifyRoomShakeVector), () => VerifyRoomShakeVector(rom, RoomShakes.Bg2ReferenceAddress, 8,
+        Suite(nameof(VerifyRoomShakeVector), () => VerifyRoomShakeVector(rom, NativeEarthquakeTypes.Bg2ReferenceAddress, 8,
             definition => new OctantVector(definition.Background.X, definition.Background.Y), "BG2"));
 
     /// <summary>Compares enemy-projectile displacement pairs with their native table entries.</summary>
     private static void VerifyRoomShakeProjectileAlgorithm(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifyRoomShakeVector), () => VerifyRoomShakeVector(rom, RoomShakes.ProjectileReferenceAddress, 4,
+        Suite(nameof(VerifyRoomShakeVector), () => VerifyRoomShakeVector(rom, NativeEarthquakeTypes.ProjectileReferenceAddress, 4,
             definition => new OctantVector(definition.Projectile.X, definition.Projectile.Y), "projectile"));
 
-    /// <summary>Checks one compiled vector field against all 36 native rows and rejects invalid type indices.</summary>
+    /// <summary>Checks one displacement of every shake against the native row its type number indexes.</summary>
     private static void VerifyRoomShakeVector(SuperMetroidAddressSpace rom, int source, int stride,
         Func<RoomShakeDefinition, OctantVector> select, string label)
     {
         short Word(int address) => unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
-        for (ushort type = 0; type < 36; type++)
+        for (int type = 0; type < NativeEarthquakeTypes.ShownTypeCount; type++)
             AssertEqual(new OctantVector(Word(source + type * stride), Word(source + type * stride + 2)),
-                select(RoomShakes.ForType(type)), $"Original shake {label} vector {type}");
-        AssertThrows<InvalidDataException>(() => select(RoomShakes.ForType(36)), $"Shake {label} upper bound");
-        AssertThrows<InvalidDataException>(() => select(RoomShakes.ForType(ushort.MaxValue)), $"Shake {label} invalid maximum");
+                select(NativeEarthquakeTypes.Shake(type).Displacement), $"Original shake {label} vector {type}");
     }
 
     /// <summary>Forbids reads of the migrated background and projectile shake tables during runtime checks.</summary>

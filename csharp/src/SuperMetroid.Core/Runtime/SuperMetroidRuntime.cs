@@ -546,14 +546,10 @@ internal sealed class SuperMetroidRuntime
         if (Room.Camera is not null)
         {
             Room.LoadedScope.FxOverlay.Step(Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = Room.Camera.PixelPosition, TimeIsFrozen = Freeze.TimeIsFrozen, EarthquakeSoundDelay = System.EarthquakeSoundDelay, RandomNumber = System.RandomNumber, FirefleaDarknessStep = Room.LoadedScope.Enemies.RoomStatus.FirefleaDarknessStep, PowerBomb = Room.LoadedScope.BombProjectiles.PowerBombExplosion.Activity, LiquidMotionAlreadyAdvanced = Room.LoadedScope.FxOverlay.MovesLiquidBeforeMainLoop });
-            if (Room.LoadedScope.FxOverlay.EarthquakeRequest is { } roomFxEarthquake)
-            {
-                // A lava or acid rise sets bits of the shared earthquake timer after writing
-                // type 21. Apply that global side effect before the ordinary shake handler
-                // later in this frame so its first displacement is visible immediately.
-                Room.LoadedScope.Enemies.Earthquake.EarthquakeType = roomFxEarthquake.Type;
-                Room.LoadedScope.Enemies.Earthquake.AddTimerBits(roomFxEarthquake.TimerBits);
-            }
+            // A lava or acid rise sustains the room's earthquake. Apply it before the ordinary shake handler later in
+            // this frame so its first displacement is visible immediately.
+            if (Room.LoadedScope.FxOverlay.SustainedEarthquake is { } risingLiquidShake)
+                Room.LoadedScope.Enemies.Earthquake.Sustain(risingLiquidShake);
             if (Player.Samus is not null && Room.LoadedScope.FxOverlay.Type is
                     RoomFxType.Water or RoomFxType.TourianEntranceStatue or RoomFxType.Lava or RoomFxType.Acid)
                 Player.Samus.LiquidPhysics.ConfigureFor(Room.LoadedScope.FxOverlay);

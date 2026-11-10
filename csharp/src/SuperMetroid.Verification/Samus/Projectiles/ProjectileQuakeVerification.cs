@@ -10,6 +10,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 
 using SuperMetroid.Verification.Harness;
@@ -34,7 +35,7 @@ internal static class ProjectileQuakeVerification
             if (other != actor) other.Kind = 0;
         ushort nativeSpritemap = NativeEnemyProjectileSpritemap(bus, actor);
         int cases = 0;
-        foreach (ushort type in Enumerable.Range(0, 37).Select(x => (ushort)x))
+        foreach (ushort type in Enumerable.Range(0, NativeEarthquakeTypes.ShownTypeCount).Select(x => (ushort)x))
         foreach (ushort timer in new ushort[] { 0, 1, 2, 3, 4 })
         foreach (bool frozen in new[] { false, true })
         foreach (var depth in new[] { EnemyProjectileDepth.InFrontOfSamus, EnemyProjectileDepth.BehindSamus })
@@ -42,10 +43,9 @@ internal static class ProjectileQuakeVerification
         {
             actor.Depth = depth;
             actor.Position = actor.Position.WithWhole(new(unchecked((ushort)position), unchecked((ushort)position)));
-            enemies.Earthquake.EarthquakeType = type;
-            enemies.Earthquake.EarthquakeTimer = WrappingCountdown.FromRaw(timer);
+            enemies.Earthquake.Start(NativeEarthquakeTypes.Shake(type), timer);
             short dx = 0, dy = 0;
-            if (timer != 0 && type < 36 && !frozen)
+            if (timer != 0 && !frozen)
             {
                 dx = unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x86846b + type * 4));
                 dy = unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x86846d + type * 4));
@@ -75,7 +75,7 @@ internal static class ProjectileQuakeVerification
             string quakeCase = $"type={type}, timer={timer}, depth={depth}, origin={position}";
             AssertSameBytes(expected.LowTable, actual.LowTable, $"native quake OAM low table: {quakeCase}");
             AssertSameBytes(expected.HighTable, actual.HighTable, $"native quake OAM high table: {quakeCase}");
-            AssertEqual(timer, enemies.Earthquake.EarthquakeTimer.RawValue, "drawing leaves quake timer untouched");
+            AssertEqual((int)timer, enemies.Earthquake.RemainingFrames, "drawing leaves quake timer untouched");
             AssertEqual(unchecked((ushort)position), actor.Position.X.Whole, "drawing preserves world X");
             AssertEqual(unchecked((ushort)position), actor.Position.Y.Whole, "drawing preserves world Y");
             cases++;

@@ -57,7 +57,7 @@ internal static class SpeedBoosterPickupVerification
             {
                 fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
                 AssertEqual((ushort)0xda, fx.NamedBaseY.Whole, "surface waits throughout native delay");
-                AssertEqual(chozo, fx.EarthquakeRequest.HasValue,
+                AssertEqual(chozo, fx.SustainedEarthquake.HasValue,
                     "native liquid owner publishes pickup earthquake during delay");
             }
             // Native liquid initialization starts at subposition $8000. At -$20

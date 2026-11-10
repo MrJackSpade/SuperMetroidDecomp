@@ -13,6 +13,7 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -35,18 +36,17 @@ internal static class TorizoPaletteShakeVerification
                     actor, state, new TorizoInstructionInputs { Samus = null, Level = null, ControllerInput = 0, FrameCounter = 0 },
                     new TorizoCue.Command(kind), AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.BombTorizoInitial1)) is null,
                 "Torizo palette cue runs on");
-        enemies.Earthquake.EarthquakeType = 4;
-        enemies.Earthquake.EarthquakeTimer = WrappingCountdown.Start(32);
+        enemies.Earthquake.Start(NativeEarthquakeTypes.Shake(4), 32);
         // The native awakening loop invokes B271 every four frames. It must not extend a pending landing quake.
         Execute(TorizoCueKind.FadeToNormalColors);
         for (int frame = 0; frame < 96; frame++)
         {
             if (frame < 64 && frame % 4 == 0)
                 Execute(TorizoCueKind.AdvancePaletteFade);
-            ushort timerBeforeShake = enemies.Earthquake.EarthquakeTimer.RawValue;
+            int timerBeforeShake = enemies.Earthquake.RemainingFrames;
             var shake = enemies.HandleRoomShaking(false);
             // An accepted shake frame is exactly one that consumes an earthquake-timer tick.
-            AssertEqual(frame < 32, enemies.Earthquake.EarthquakeTimer.RawValue != timerBeforeShake, $"Palette instruction cannot extend landing shake at frame {frame}");
+            AssertEqual(frame < 32, enemies.Earthquake.RemainingFrames != timerBeforeShake, $"Palette instruction cannot extend landing shake at frame {frame}");
             if (frame < 32)
             {
                 AssertEqual((short)0, shake.Foreground.X, "Landing BG1 X");
@@ -66,7 +66,7 @@ internal static class TorizoPaletteShakeVerification
             Execute(TorizoCueKind.AdvancePaletteFade);
         AssertEqual(PictureShading.Shaded(TorizoShades.Shared).With(TorizoShades.Body(new TorizoLook(TorizoLookKind.Black))),
             state.Colours.Shading, "The completed fade settles the body and belly in black");
-        AssertEqual((ushort)0, enemies.Earthquake.EarthquakeTimer.RawValue, "Completed fade does not create an earthquake");
+        AssertTrue(!enemies.Earthquake.IsShaking, "Completed fade does not create an earthquake");
 
         Execute(TorizoCueKind.FadeToNormalColors);
         Execute(TorizoCueKind.AdvancePaletteFade);

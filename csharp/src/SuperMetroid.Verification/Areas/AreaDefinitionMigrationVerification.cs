@@ -77,10 +77,9 @@ internal static class AreaDefinitionMigrationVerification
         AssertEqual(300, TourianStatueSequenceDefinitions.DescentDelay, "descent delay");
         AssertEqual(0x4000, TourianStatueSequenceDefinitions.DescentStep, "descent step");
         AssertEqual(240, TourianStatueSequenceDefinitions.DescentDistance, "descent distance");
-        AssertEqual(13, TourianStatueSequenceDefinitions.DescentEarthquakeType, "descent earthquake");
-        AssertEqual(0x20, TourianStatueSequenceDefinitions.DescentEarthquakeTimer, "descent earthquake timer bit");
-        AssertEqual(1, TourianStatueSequenceDefinitions.ReleaseEarthquakeType, "release earthquake");
-        AssertEqual(0x20, TourianStatueSequenceDefinitions.ReleaseEarthquakeTimer, "release earthquake timer bit");
+        AssertEqual(13, NativeEarthquakeTypes.TypeOf(TourianStatueSequenceDefinitions.DescentEarthquake), "descent earthquake");
+        AssertEqual(1, NativeEarthquakeTypes.TypeOf(TourianStatueSequenceDefinitions.ReleaseEarthquake), "release earthquake");
+        AssertEqual(0x20, RoomEarthquakeDefinitions.SustainedShakeFrames, "descent and release earthquake timer bit");
         AssertEqual(16, TourianStatueColorFormat.BaseColorCount, "statue base colours");
         AssertEqual(16, TourianStatueColorFormat.StatueColorCount, "statue colours");
         AssertEqual(4, TourianStatueColorDefinitions.EyeGlowCount, "eye rows");
@@ -96,15 +95,18 @@ internal static class AreaDefinitionMigrationVerification
         AssertEqual<SoundEffectId>(RoomSound.IntroTypewriter, EscapeTypewriterDefinitions.ZebesClick, "Zebes click");
         AssertEqual<SoundEffectId>(EnemySound.CeresTypewriter, EscapeTypewriterDefinitions.CeresClick, "Ceres click");
         AssertEqual(42, ZebesEscapeDefinitions.DiagonalFrames, "diagonal shake frames");
-        AssertEqual(18, ZebesEscapeDefinitions.LightHorizontal, "light horizontal shake");
-        AssertEqual(26, ZebesEscapeDefinitions.StrongDiagonal, "strong diagonal shake");
+        AssertEqual(18, NativeEarthquakeTypes.TypeOf(ZebesEscapeDefinitions.LightHorizontal), "light horizontal shake");
+        AssertEqual(21, NativeEarthquakeTypes.TypeOf(ZebesEscapeDefinitions.MediumHorizontal), "medium horizontal shake");
+        AssertEqual(23, NativeEarthquakeTypes.TypeOf(ZebesEscapeDefinitions.MediumDiagonal), "medium diagonal shake");
+        AssertEqual(26, NativeEarthquakeTypes.TypeOf(ZebesEscapeDefinitions.StrongDiagonal), "strong diagonal shake");
+        AssertEqual(24, NativeEarthquakeTypes.TypeOf(ZebesEscapeDefinitions.MainstreetQuake), "Mainstreet quake");
         AssertEqual(512, ZebesEscapeDefinitions.LightChance, "light diagonal chance");
         AssertEqual(255, ZebesEscapeDefinitions.BlankTile, "blank explosion tile");
-        AssertEqual(6, ZebesEscapeDefinitions.LandingQuake, "landing site quake");
+        AssertEqual(6, NativeEarthquakeTypes.TypeOf(ZebesEscapeDefinitions.LandingQuake), "landing site quake");
         AssertEqual(128, EscapeTimerDefinitions.ClearedPixel, "timer cleared origin");
         var earthquake = new RoomEarthquake();
         earthquake.KeepShaking();
-        AssertEqual(0x8000, earthquake.EarthquakeTimer.RawValue, "continuous shake sets the timer's top bit, as the deleted catalog's bit did");
+        AssertTrue(earthquake.IsShaking, "a continuous shake shakes the room without a length, as the timer's top bit did");
         Console.WriteLine("Area definition migration: native words, Ceres, Maridia, Tourian and escape definitions and extraction sources keep their values.");
     }
 

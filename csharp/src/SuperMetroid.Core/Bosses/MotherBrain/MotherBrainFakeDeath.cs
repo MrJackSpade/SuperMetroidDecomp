@@ -357,8 +357,7 @@ internal sealed class MotherBrainFakeDeath
         }
 
         StopMotherBrainRoomPalette(state);
-        _earthquake.EarthquakeType = 25;
-        _earthquake.EarthquakeTimer = WrappingCountdown.Start(32);
+        _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Strong, EarthquakeDirection.Vertical, EarthquakeReach.ForegroundBackgroundAndEnemies), 32);
         // The fake death ends the first four per-line display effects, removing the room's
         // liquid scroll effects (and any X-ray cone) for the rest of the encounter.
         _frameResults.RemoveLiquidEffects = true;

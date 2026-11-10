@@ -11,6 +11,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Verification.Areas.Tourian;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -57,9 +58,9 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         AssertEqual(4, enemies.Projectiles.EnemyProjectiles.Count(
             projectile => projectile.Kind == RoomEnemyProjectileKind.TourianStatueParticle),
             "eye glow releases four real unlocking particles");
-        AssertEqual(1, enemies.Earthquake.EarthquakeType, "eye glow starts the native earthquake");
-        AssertEqual((ushort)0x20, enemies.Earthquake.EarthquakeTimer.RawValue,
-            "eye glow publishes the native earthquake duration bit");
+        AssertEqual<EarthquakeShake?>(NativeEarthquakeTypes.Shake(1), enemies.Earthquake.Shake, "eye glow starts the native earthquake");
+        AssertEqual(0x20, enemies.Earthquake.RemainingFrames,
+            "eye glow sustains the native earthquake for its 32 frames");
 
         EnemyProjectile particle = Single(RoomEnemyProjectileKind.TourianStatueParticle);
         Run(particle, 3);

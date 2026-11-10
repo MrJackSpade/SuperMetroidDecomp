@@ -102,7 +102,7 @@ internal static class InstalledSporesTests
                     Require(liquid.FxType == RoomFxType.Spores && liquid.WaterSurfaceY is null &&
                         liquid.LavaAcidSurfaceY is null, "Spore artwork activated liquid physics.");
                 }
-                Require(baseline.SoundRequests.Count == 0 && baseline.EarthquakeRequest is null,
+                Require(baseline.SoundRequests.Count == 0 && baseline.SustainedEarthquake is null,
                     "Spore presentation produced audio or earthquake side effects.");
                 if (frame is 0 or 10 or 20 or 30 or 44 or 511 or 1024)
                 {

@@ -800,14 +800,14 @@ internal static class RoomFxRetailInventoryVerification
             "room $02/$28 earthquake sound identity");
         AssertEqual(SoundRequestPriority.Normal, sound.Priority,
             "room $02/$28 earthquake sound priority");
-        AssertEqual(RoomEarthquakeDefinitions.RisingLiquidType, runtime.Enemies.Earthquake.EarthquakeType,
+        AssertEqual<EarthquakeShake?>(RoomEarthquakeDefinitions.RisingLiquidShake, runtime.Enemies.Earthquake.Shake,
             "room $02/$28 earthquake type");
         AssertTrue(Shook(firstActiveShake) &&
-            runtime.Enemies.Earthquake.EarthquakeType >= RoomEarthquakeDefinitions.FirstEnemyShakingType,
+            runtime.Enemies.Earthquake.Shake is { ShakesEnemies: true },
             "room $02/$28 first wait frame shakes backgrounds and enemies");
 
         int table = RoomFxNativeSources.EarthquakeDisplacementTable +
-            RoomEarthquakeDefinitions.RisingLiquidType *
+            NativeEarthquakeTypes.TypeOf(RoomEarthquakeDefinitions.RisingLiquidShake) *
             RoomFxNativeSources.EarthquakeDisplacementRecordBytes;
         AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table)),
             firstActiveShake.Foreground.X, "room $02/$28 first shake BG1 X");
@@ -850,7 +850,7 @@ internal static class RoomFxRetailInventoryVerification
                 firstMovementFrame = frame;
             if (targetFrame < 0 && runtime.RoomFxOverlay.YVelocity.RawValue == 0)
                 targetFrame = frame;
-            if (targetFrame >= 0 && runtime.Enemies.Earthquake.EarthquakeTimer.IsZero)
+            if (targetFrame >= 0 && !runtime.Enemies.Earthquake.IsShaking)
                 break;
         }
 

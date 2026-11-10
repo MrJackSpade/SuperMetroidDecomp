@@ -80,7 +80,11 @@ public sealed class SamusBombProjectileSystem
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
-    /// <summary>The cooldown shared by every Samus projectile. Its low byte gates another bomb while one is active.</summary>
+    /// <summary>
+    /// The cooldown shared by every Samus projectile, 0 through <see cref="SamusProjectileCooldownDefinitions.LongestCooldown"/>
+    /// frames: every shot, bomb and boss sets it no longer, and it only counts down from there or steps from zero to one, so
+    /// whether it has run out gates another shot and, while a bomb is out, another bomb.
+    /// </summary>
     public WrappingCountdown CooldownTimer { get; private set; }
 
     /// <summary>
@@ -90,7 +94,9 @@ public sealed class SamusBombProjectileSystem
     /// Beams, missiles, power bombs and normal bombs do not own separate cooldowns; they all read and write the same
     /// one. Ordinary projectiles live in a separate class, but that boundary must not create a second clock.
     /// </remarks>
-    internal void SetSharedCooldown(int value) => CooldownTimer = WrappingCountdown.FromRaw(value);
+    /// <param name="value">The cooldown's frames, 0 through <see cref="SamusProjectileCooldownDefinitions.LongestCooldown"/>.</param>
+    internal void SetSharedCooldown(int value) =>
+        CooldownTimer = WrappingCountdown.Start(Ensure.BetweenInclusive(0, SamusProjectileCooldownDefinitions.LongestCooldown, value));
 
     /// <summary>
     /// Replaces the bomb count from an enemy-owned Samus interaction. Shitroid writes
@@ -441,7 +447,7 @@ public sealed class SamusBombProjectileSystem
         slot.Position = slot.Position.WithWhole(samus.Position.Whole);
         slot.BombTimer = WrappingCountdown.Start(MorphBallBombDefinitions.InitialBombTimer);
         InitializeBomb(slot);
-        CooldownTimer = WrappingCountdown.FromRaw(placingPowerBomb
+        CooldownTimer = WrappingCountdown.Start(placingPowerBomb
             ? MorphBallBombDefinitions.PowerBombCooldown
             : MorphBallBombDefinitions.NormalBombCooldown);
 
@@ -530,17 +536,16 @@ public sealed class SamusBombProjectileSystem
         samus.BeamCharge.ClearCount();
     }
 
-    /// <summary>Requires a fresh Shoot edge and available bomb capacity, testing only the cooldown's low byte after the first bomb.</summary>
+    /// <summary>Requires a fresh Shoot edge and available bomb capacity, testing the cooldown after the first bomb.</summary>
     private bool TryReserveBombSlot(ControllerButton controllerNewInput, ControllerButton shoot)
     {
         if ((controllerNewInput & shoot) == ControllerButton.None)
             return false;
 
         // The first bomb is allowed regardless of cooldown. With any active bomb,
-        // five slots or a cooldown that is not a whole multiple of 256 reject the edge. Only the cooldown
-        // modulo 256 is tested; that oddity is intentional.
+        // five slots or a running cooldown reject the edge.
         if (BombCounter != 0 &&
-            (BombCounter >= SlotCount || CooldownTimer.EightBitCount != 0))
+            (BombCounter >= SlotCount || !CooldownTimer.IsZero))
         {
             return false;
         }

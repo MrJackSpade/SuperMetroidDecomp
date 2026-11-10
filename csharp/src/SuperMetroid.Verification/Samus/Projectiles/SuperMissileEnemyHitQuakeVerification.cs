@@ -8,6 +8,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
@@ -30,15 +31,16 @@ internal static class SuperMissileEnemyHitQuakeVerification
             SelectedHudItem = HudItem.SuperMissile, SuperMissiles = 3,
         };
         SamusProjectileSystem projectiles = CreateProjectileFixture();
+        var earthquake = new RoomEarthquake();
+        projectiles.Earthquakes.BindRoomEarthquake(earthquake);
         SamusBombProjectileSystem bombs = CreateBombFixture();
         projectiles.StepFrame(new SamusTerrain { Level = room }, samus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = ControllerButton.X }, new(0, 0), bombs);
         AssertEqual(SamusProjectileFamily.SuperMissile, projectiles.Slots[0].Type.Family, "X fires a Super Missile");
 
         projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(projectiles.Slots[0], markCollisionState: true);
-        AssertEqual(SuperMissileDefinitions.EnemyHitEarthquakeType, projectiles.Earthquakes.EarthquakeType,
-            "an enemy hit starts quake type $12");
-        AssertEqual(SuperMissileDefinitions.EarthquakeDuration, projectiles.Earthquakes.EarthquakeTimer,
-            "for thirty calls");
+        AssertTrue(earthquake.IsShakingWith(SuperMissileDefinitions.EnemyHitEarthquake, SuperMissileDefinitions.EarthquakeDuration),
+            "an enemy hit starts its earthquake for thirty calls");
+        AssertEqual(18, NativeEarthquakeTypes.TypeOf(SuperMissileDefinitions.EnemyHitEarthquake), "the enemy-hit earthquake is quake type $12");
         Console.WriteLine("  Super Missile enemy-hit quake: type $12, which leaves crawlers crawling.");
     }
 

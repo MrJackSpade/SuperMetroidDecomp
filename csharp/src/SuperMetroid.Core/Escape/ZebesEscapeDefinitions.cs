@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Escape;
@@ -12,17 +13,21 @@ public static class ZebesEscapeDefinitions
     /// <summary>The updates a temporary diagonal shake lasts before the room returns to its horizontal shake.</summary>
     public const int DiagonalFrames = 42;
 
-    /// <summary>Light horizontal shaking, enemies included.</summary>
-    public const int LightHorizontal = 18;
+    /// <summary>Light horizontal shaking of both layers, enemies included.</summary>
+    public static readonly EarthquakeShake LightHorizontal =
+        new(EarthquakeStrength.Light, EarthquakeDirection.Horizontal, EarthquakeReach.ForegroundBackgroundAndEnemies);
 
-    /// <summary>Medium horizontal shaking, enemies included.</summary>
-    public const int MediumHorizontal = 21;
+    /// <summary>Medium horizontal shaking of both layers, enemies included.</summary>
+    public static readonly EarthquakeShake MediumHorizontal =
+        new(EarthquakeStrength.Medium, EarthquakeDirection.Horizontal, EarthquakeReach.ForegroundBackgroundAndEnemies);
 
-    /// <summary>The medium diagonal shake a lightly shaking room turns to.</summary>
-    public const int MediumDiagonal = 23;
+    /// <summary>The medium diagonal shake, enemies included, a lightly shaking room turns to.</summary>
+    public static readonly EarthquakeShake MediumDiagonal =
+        new(EarthquakeStrength.Medium, EarthquakeDirection.Diagonal, EarthquakeReach.ForegroundBackgroundAndEnemies);
 
-    /// <summary>The strong diagonal shake a medium shaking room turns to.</summary>
-    public const int StrongDiagonal = 26;
+    /// <summary>The strong diagonal shake, enemies included, a medium shaking room turns to.</summary>
+    public static readonly EarthquakeShake StrongDiagonal =
+        new(EarthquakeStrength.Strong, EarthquakeDirection.Diagonal, EarthquakeReach.ForegroundBackgroundAndEnemies);
 
     /// <summary>A lightly shaking room turns diagonal on an update whose random number is below this.</summary>
     public const int LightChance = 512;
@@ -51,11 +56,13 @@ public static class ZebesEscapeDefinitions
     /// <summary>The blank foreground tile outdoor explosions skip.</summary>
     public const int BlankTile = 255;
 
-    /// <summary>The strong horizontal shake, enemies included, Mainstreet's escape room shakes with.</summary>
-    public const int MainstreetQuake = 24;
+    /// <summary>The strong horizontal shake of both layers, enemies included, Mainstreet's escape room shakes with.</summary>
+    public static readonly EarthquakeShake MainstreetQuake =
+        new(EarthquakeStrength.Strong, EarthquakeDirection.Horizontal, EarthquakeReach.ForegroundBackgroundAndEnemies);
 
-    /// <summary>The strong horizontal background shake the Landing Site shakes with during the escape.</summary>
-    public const int LandingQuake = 6;
+    /// <summary>The strong horizontal foreground shake the Landing Site shakes with during the escape.</summary>
+    public static readonly EarthquakeShake LandingQuake =
+        new(EarthquakeStrength.Strong, EarthquakeDirection.Horizontal, EarthquakeReach.Foreground);
 
     /// <summary>
     /// The room mains of the escape rooms that set off random explosions: the outdoor rooms, whose explosions skip blank

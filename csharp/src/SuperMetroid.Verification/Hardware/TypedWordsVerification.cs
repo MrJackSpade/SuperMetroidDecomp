@@ -293,16 +293,25 @@ internal static void VerifyTypedNativeWords()
         "a countdown start must fit the native word");
     AssertThrows<ArgumentOutOfRangeException>(() => WrappingCountdown.Start(-1), "a countdown start cannot be negative");
 
-    LowHalfCountdownStep laneToZero = WrappingCountdown.FromRaw(0x1201).DecrementEightBitCount();
-    AssertEqual((ushort)0x1200, laneToZero.Remaining.RawValue, "8-bit low-byte DEC keeps the high byte");
-    AssertTrue(laneToZero.IsZero && !laneToZero.IsNegative, "8-bit low-byte DEC reports byte-width zero");
-    LowHalfCountdownStep laneWrapped = WrappingCountdown.FromRaw(0x3400).DecrementEightBitCount();
-    AssertEqual((ushort)0x34ff, laneWrapped.Remaining.RawValue, "8-bit low-byte DEC wraps without borrowing from the high byte");
-    AssertTrue(laneWrapped.IsNegative && !laneWrapped.IsZero && laneWrapped.IsZeroOrNegative,
-        "8-bit low-byte DEC reports byte-width negative");
-    LowHalfCountdownStep laneHighBitOnly = WrappingCountdown.FromRaw(0x8003).DecrementEightBitCount();
-    AssertTrue(laneHighBitOnly.IsNonNegative && laneHighBitOnly.Low == 2,
-        "8-bit low-byte DEC ignores the high byte's sign bit");
+    // A sustained countdown is the count the game's producers leave when they set the sustained frames' flag in a
+    // running timer: the rule matches that flag over the whole count for both sustained lengths the game uses.
+    foreach (int sustainedFrames in (int[])[16, 32])
+        for (int frames = 0; frames <= ushort.MaxValue; frames++)
+            if (WrappingCountdown.FromRaw(frames).Sustained(sustainedFrames).RawValue != (ushort)(frames | sustainedFrames))
+                AssertEqual((ushort)(frames | sustainedFrames), WrappingCountdown.FromRaw(frames).Sustained(sustainedFrames).RawValue,
+                    $"sustaining {frames} frames for {sustainedFrames} sets the sustained frames' flag");
+    AssertEqual(WrappingCountdown.Start(37), WrappingCountdown.Start(5).Sustained(32), "a countdown in the first half of its round moves on");
+    AssertEqual(WrappingCountdown.Start(40), WrappingCountdown.Start(40).Sustained(32), "a countdown in the later half of its round is kept");
+    AssertEqual(WrappingCountdown.Start(102), WrappingCountdown.Start(70).Sustained(32), "the rounds repeat past twice the sustained frames");
+    WrappingCountdown renewed = WrappingCountdown.Start(0);
+    for (int update = 0; update < 200; update++)
+    {
+        renewed = renewed.Sustained(32).Decrement().Remaining;
+        AssertTrue(renewed.IsAtLeast(31) && !renewed.IsAtLeast(64), $"a countdown renewed every update stays in its round at update {update}");
+    }
+    AssertThrows<ArgumentOutOfRangeException>(() => WrappingCountdown.Start(0).Sustained(24),
+        "sustained frames that do not divide the countdown's rounds are refused");
+    AssertThrows<ArgumentOutOfRangeException>(() => WrappingCountdown.Start(0).Sustained(0), "zero sustained frames are refused");
 
     // Map cells are all ordinary SNES tile words; elevator, item-dot, and station meanings do
     // not occupy a separate packed field. Give those constructed fixture categories distinct

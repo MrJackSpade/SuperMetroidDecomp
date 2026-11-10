@@ -156,8 +156,7 @@ internal sealed class MotherBrainAscent
         state.Body.Position = state.Body.Position.WithWhole(new(59, 279));
         MotherBrainBody.PlaceMotherBrainBodyLayer(state, Position16<BackgroundPixels>.Wrapped(-27, -217));
         _motherBrainEncounter.RequestMusic(MusicRequest.SelectTrack(MusicTrack.FirstSetSong), MusicQueueDelay.Shortest);
-        _earthquake.EarthquakeType = 2;
-        _earthquake.EarthquakeTimer = WrappingCountdown.Start(256);
+        _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground), 256);
         state.NeckAngleDelta = 80;
         state.NeckMovementEnabled = true;
         state.LowerNeckMovement = MotherBrainNeckMovement.Raise;
@@ -181,7 +180,7 @@ internal sealed class MotherBrainAscent
             return;
 
         state.Body.Position = state.Body.Position.WithWholeY(188);
-        _earthquake.EarthquakeTimer = WrappingCountdown.Start(0);
+        _earthquake.Stop();
         state.RisingFloorClipActive = false;
         MotherBrainEncounterAccess.SetMotherBrainBodyProgram(state, MotherBrainBodyProgram.StandAfterCrouchSlow);
         state.Function = MotherBrainBodyFunction.FakeDeathAscentWaitUntilUncrouched;

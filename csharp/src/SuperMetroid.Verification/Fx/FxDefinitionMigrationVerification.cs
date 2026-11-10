@@ -92,10 +92,10 @@ internal static class FxDefinitionMigrationVerification
         AssertEqual(0x04b8, ScrollingSkyBands.GetSection(22).TopPosition, "last band top");
 
         // RoomFxRomData's earthquake rules.
-        AssertEqual(0x0012, RoomEarthquakeDefinitions.FirstEnemyShakingType, "first enemy-shaking earthquake");
-        AssertEqual(0x0024, RoomEarthquakeDefinitions.FirstNonRenderedType, "first unshown earthquake");
-        AssertEqual(0x0015, RoomEarthquakeDefinitions.RisingLiquidType, "rising liquid earthquake");
-        AssertEqual(0x0020, RoomEarthquakeDefinitions.RisingLiquidTimerBits, "rising liquid timer bits");
+        AssertTrue(!NativeEarthquakeTypes.Shake(0x0011).ShakesEnemies && NativeEarthquakeTypes.Shake(0x0012).ShakesEnemies,
+            "first enemy-shaking earthquake");
+        AssertEqual(0x0015, NativeEarthquakeTypes.TypeOf(RoomEarthquakeDefinitions.RisingLiquidShake), "rising liquid earthquake");
+        AssertEqual(0x0020, RoomEarthquakeDefinitions.SustainedShakeFrames, "rising liquid timer bits");
         AssertEqual(6, RoomEarthquakeDefinitions.SoundSuppressedRooms.Count, "silent quake rooms");
         AssertEqual(RoomHeaderDefinitions.BombTorizo, RoomEarthquakeDefinitions.SoundSuppressedRooms[0], "first silent quake room");
 

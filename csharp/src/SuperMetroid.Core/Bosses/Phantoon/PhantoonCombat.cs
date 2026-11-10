@@ -189,8 +189,7 @@ internal sealed class PhantoonCombat
             // no-op shell hit therefore still marks the beam and shakes for a Super Missile.
             if (family == SamusProjectileFamily.SuperMissile)
             {
-                _earthquake.EarthquakeTimer = WrappingCountdown.Start(SuperMissileDefinitions.EarthquakeDuration);
-                _earthquake.EarthquakeType = SuperMissileDefinitions.EnemyHitEarthquakeType;
+                _earthquake.Start(SuperMissileDefinitions.EnemyHitEarthquake, SuperMissileDefinitions.EarthquakeDuration);
             }
 
             if (hitboxShotAi == EnemyReaction.Ignore ||

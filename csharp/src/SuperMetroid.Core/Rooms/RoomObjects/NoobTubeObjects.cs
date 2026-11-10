@@ -71,8 +71,7 @@ internal sealed class NoobTubeObjects
     internal void TriggerEarthquake()
     {
         (_earthquake ?? throw new InvalidOperationException(
-            "N00b tube has no earthquake-type writer.")).SetType(NoobTubeObjectDefinitions.EarthquakeType);
-        _earthquake.SetTimer(NoobTubeObjectDefinitions.EarthquakeTimer);
+            "N00b tube has no earthquake writer.")).Start(NoobTubeObjectDefinitions.Earthquake, NoobTubeObjectDefinitions.EarthquakeFrames);
     }
 
     /// <summary>Sets the tube's broken event.</summary>

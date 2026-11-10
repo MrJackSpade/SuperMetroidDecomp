@@ -21,6 +21,9 @@ internal sealed class MotherBrainProjectiles
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Publishes screen shake during the encounter's collapse and attacks.</summary>
     private readonly RoomEarthquake _earthquake;
+    /// <summary>The medium diagonal foreground shake a hand beam leaving the arena or an onion ring exploding starts.</summary>
+    private static readonly EarthquakeShake ExplosionShake =
+        new(EarthquakeStrength.Medium, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground);
     /// <summary>Applies the encounter's damage and death/drop rules.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
     /// <summary>Holds the shared body/head state for the current Mother Brain room.</summary>
@@ -520,8 +523,7 @@ internal sealed class MotherBrainProjectiles
                 impact,
                 MiscDustAnimation.BigExplosion);
             _motherBrainEncounter.RequestCueSound(MotherBrainSoundDefinitions.Explosion);
-            _earthquake.EarthquakeTimer = WrappingCountdown.Start(10);
-            _earthquake.EarthquakeType = 5;
+            _earthquake.Start(ExplosionShake, 10);
             return;
         }
 
@@ -643,8 +645,7 @@ internal sealed class MotherBrainProjectiles
         if (signedY < 32 || ring.Position.Y.Whole >= 216 || signedX < 0 ||
             screenX < 0 || screenX >= 248)
         {
-            _earthquake.EarthquakeTimer = WrappingCountdown.Start(10);
-            _earthquake.EarthquakeType = 5;
+            _earthquake.Start(ExplosionShake, 10);
             ExplodeMotherBrainOnionRing(ring, ring.Position.Whole);
         }
     }

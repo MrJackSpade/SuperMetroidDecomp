@@ -9,7 +9,7 @@ internal sealed class MotherBrainRainbowAttackPhases
 {
     /// <summary>Owns the forced Samus movement during beam capture and the later drain sequence.</summary>
     private readonly MotherBrainRainbowBeamSamusMovement _movement ;
-    /// <summary>The state every late-fight phase reads and writes: the body function and its timer, the neck and head programs, the brain's flags and the earthquake, with the walking and posture requests they share.</summary>
+    /// <summary>The state every late-fight phase reads and writes: the body function and its timer, the neck and head programs and the brain's flags, with the walking and posture requests they share.</summary>
     private readonly MotherBrainLateFightState _state;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -51,8 +51,6 @@ internal sealed class MotherBrainRainbowAttackPhases
         SoundQueueCount = 6;
         _state.RainbowBeamSoundPlaying = false;
         BeamActive = true;
-        _state.EarthquakeType = 0;
-        _state.EarthquakeTimer = WrappingCountdown.Start(0);
         SamusProjectileCooldownTimer = 0;
         _state.NeckAngleDelta = 64;
         _state.NeckMovementEnabled = true;
@@ -334,8 +332,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         // The start-draining step decrements zero to -1; the sign test fails on this very call.
         if (--_state.FunctionTimer < 0)
         {
-            _state.EarthquakeType = 8;
-            _state.EarthquakeTimer = WrappingCountdown.Start(8);
+            requests.StartEarthquake(MotherBrainDeathDefinitions.RainbowBeamEarthquake, 8);
             _state.Phase = MotherBrainBodyFunction.SecondPhaseRainbowStartDrainingSamus;
         }
         return false;
@@ -345,14 +342,13 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// Runs the second phase rainbow start draining samus body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
-    internal bool RunSecondPhaseRainbowStartDrainingSamus()
+    internal bool RunSecondPhaseRainbowStartDrainingSamus(MotherBrainRainbowBeamStepRequests requests)
     {
-        // The drain start installs draining, seeds both timers with 299, and falls
+        // The drain start installs draining, seeds both its timer and the earthquake with 299, and falls
         // through into the draining function in the same enemy-processing call.
         _state.Phase = MotherBrainBodyFunction.SecondPhaseRainbowDrainingSamus;
         _state.FunctionTimer = 299;
-        _state.EarthquakeTimer = WrappingCountdown.Start(299);
-        _state.EarthquakeType = 8;
+        requests.StartEarthquake(MotherBrainDeathDefinitions.RainbowBeamEarthquake, 299);
         return true;
     }
 
@@ -396,7 +392,7 @@ internal sealed class MotherBrainRainbowAttackPhases
             AngularWidth = 512;
             _movement.BeginFallingAfterRainbowBeam();
             BeamActive = false;
-            _state.EarthquakeTimer = WrappingCountdown.Start(0);
+            requests.StopEarthquake();
             _state.RainbowBeamSoundPlaying = false;
             samus.Control.Unlock(); // Samus command one.
             SamusProjectileCooldownTimer = 8;

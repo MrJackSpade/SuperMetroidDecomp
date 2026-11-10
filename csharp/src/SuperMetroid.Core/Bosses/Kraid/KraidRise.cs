@@ -97,7 +97,8 @@ internal sealed class KraidRise
 
         // The rocks' colours are the import's shade of them (#1512); his eyes start from his band's colours.
         state.Colours.ShowBandEyes(_head.BandEyes(KraidHead.InitialBand(body, state)));
-        _earthquake.EarthquakeType = 5;
+        // The setup gives the room its rise shake; the rise runs it on later, with whatever shake the room has by then.
+        _earthquake.ChangeShake(new EarthquakeShake(EarthquakeStrength.Medium, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground));
     }
 
     /// <summary>Switches the arena scrolls between the small and grown boss layouts.</summary>
@@ -336,7 +337,7 @@ internal sealed class KraidRise
                 RestrictSamusToKraidFirstScreen(samus);
                 state.BodyState.Function = KraidAiFunction.RaiseRocksEvery16Frames;
                 state.BodyState.RisingRockTimer = 120;
-                _earthquake.EarthquakeTimer = WrappingCountdown.Start(496);
+                _earthquake.RunFor(496);
                 _access.RequestKraidMusic(MusicRequest.SelectTrack(MusicTrack.FirstSetSong));
                 return;
 
@@ -368,7 +369,7 @@ internal sealed class KraidRise
 
             case KraidAiFunction.RaiseBody:
                 RestrictSamusToKraidFirstScreen(samus);
-                if (_earthquake.EarthquakeTimer.CyclePhase(1, 8) is 0 or 2)
+                if (_earthquake.RemainingFrames % 8 is 0 or 2)
                     RequestKraidRisingRock(body, state);
                 body.Position = body.Position.WithWrappedWholeX(body.Position.X.Whole +
                     ((body.Position.Y.Whole & 2) == 0 ? -1 : 1));

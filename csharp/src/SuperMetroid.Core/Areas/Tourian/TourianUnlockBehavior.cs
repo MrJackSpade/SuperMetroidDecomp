@@ -158,8 +158,7 @@ internal sealed class TourianUnlockBehavior
                     _audio.QueueEnemySound(EnemySound.TourianStatueParticle, priority: SoundRequestPriority.Normal);
                     break;
                 case TourianStatueProjectileCue.Command { Kind: TourianStatueProjectileCueKind.Earthquake }:
-                    _earthquake.EarthquakeType = TourianStatueSequenceDefinitions.ReleaseEarthquakeType;
-                    _earthquake.AddTimerBits(TourianStatueSequenceDefinitions.ReleaseEarthquakeTimer);
+                    _earthquake.Sustain(TourianStatueSequenceDefinitions.ReleaseEarthquake);
                     break;
                 case TourianStatueProjectileCue.Command { Kind: TourianStatueProjectileCueKind.SpawnParticle }:
                     SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueParticle);

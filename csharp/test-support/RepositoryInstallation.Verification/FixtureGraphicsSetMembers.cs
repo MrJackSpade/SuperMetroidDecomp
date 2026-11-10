@@ -1,6 +1,5 @@
 using System.Runtime.CompilerServices;
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 

@@ -344,6 +344,7 @@ using static SuperMetroid.Verification.Rooms.RoomObjects.ShotBlockObjectPrograms
 using static SuperMetroid.Verification.Enemies.Shutters.ShutterRidingVerification;
 using static SuperMetroid.Verification.Enemies.Shutters.ShutterScrewContactVerification;
 using static SuperMetroid.Verification.Enemies.FollowUpAfterStruckPartVerification;
+using static SuperMetroid.Verification.Enemies.EnemyTerrainBlockScanVerification;
 using static SuperMetroid.Verification.Enemies.SpacePirates.SpacePirateCollisionDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.SpacetimeBeamVerification;
 using static SuperMetroid.Verification.Enemies.Sparks.SparkCrashAlignmentVerification;
@@ -855,6 +856,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyFirefleaDoubleDeath), () => VerifyFirefleaDoubleDeath()),
         new(nameof(VerifyShutterScrewContact), () => VerifyShutterScrewContact()),
         new(nameof(VerifyFollowUpAfterStruckPart), () => VerifyFollowUpAfterStruckPart()),
+        new(nameof(VerifyEnemyTerrainBlockScan), () => VerifyEnemyTerrainBlockScan()),
         new(nameof(VerifyBabyMetroidVictim), () => VerifyBabyMetroidVictim()),
         new(nameof(VerifyZebetiteShotShare), () => VerifyZebetiteShotShare()),
         new(nameof(VerifyEnemyOccupantStates), () => VerifyEnemyOccupantStates()),

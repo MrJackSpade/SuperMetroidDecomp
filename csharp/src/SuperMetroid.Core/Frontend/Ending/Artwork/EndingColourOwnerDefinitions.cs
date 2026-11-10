@@ -58,6 +58,20 @@ internal static class EndingColourOwnerDefinitions
             [EndingColourLoad.LogoInitial] = new([EndingSpriteColouring.Logo], []),
         }.ToFrozenDictionary();
 
+    /// <summary>
+    /// What each load within a scene restores (#1597): restoring the explosion's backgrounds as its hold begins ends the
+    /// far background's fade-out, the final gunship's colours replace the look the gunship's emergence settled on, and the
+    /// restored shot ends the shot's fade-out. The assembling logo's first colours restore no effect's colours.
+    /// </summary>
+    internal static readonly FrozenDictionary<EndingColourLoad, EndingRestoredEffects> Restores =
+        new Dictionary<EndingColourLoad, EndingRestoredEffects>
+        {
+            [EndingColourLoad.ExplosionBackgrounds] = new([EndingFade.ExplosionBackground], []),
+            [EndingColourLoad.FinalGunship] = new([], [PaletteFxColours.GunshipEmergingFromExplosion]),
+            [EndingColourLoad.RestoredShot] = new([EndingFade.Shot], []),
+            [EndingColourLoad.LogoInitial] = new([], []),
+        }.ToFrozenDictionary();
+
     /// <summary>What each faded group is authored for.</summary>
     internal static readonly FrozenDictionary<EndingFade, EndingEffectOwners> Fades =
         new Dictionary<EndingFade, EndingEffectOwners>

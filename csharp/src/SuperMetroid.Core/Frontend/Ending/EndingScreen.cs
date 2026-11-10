@@ -6,6 +6,6 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// </summary>
 internal sealed class EndingScreen
 {
-    /// <summary>What the ending's colours show: each load, fade, flash and palette-effect record its scenes have shown (#1512).</summary>
+    /// <summary>What the ending's colours show now: the running scene's loads, fades, flashes and palette effects (#1512, #1597).</summary>
     internal EndingColours Colours { get; } = new();
 }

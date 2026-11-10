@@ -27,18 +27,17 @@ internal static class PaletteFxContractTests
         if (steps.Length != 1 || steps[0].GetParameters() is not [{ ParameterType: var conditions }] || conditions != typeof(PaletteFxConditions))
             throw new InvalidOperationException("Palette FX must expose exactly one Step, which takes the conditions alone.");
 
-        // A frontend screen's step writes no colours either: it hands the screen each record as it is shown, which the
-        // screen shades its pictures with. The gunship engine flickers on the Ceres destruction cinematic, so its first
+        // A frontend screen's step writes no colours either: each effect holds the record it shows, which the screen
+        // shades its pictures with (#1597). The gunship engine flickers on the Ceres destruction cinematic, so its first
         // step shows the flicker's first record in the engine's colours.
         var fxSession = new PaletteFxSessionState();
         var fx = new RoomPaletteFxSystem(fxSession);
         fx.Start(PaletteFxObject.CutsceneGunshipEngineFlicker, 0);
-        var shown = new List<(PaletteFxColours Colours, PaletteFxFrame Record)>();
-        fx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false },
-            (colours, record) => shown.Add((colours, record)));
+        fx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
+        IReadOnlyList<ShownPaletteFxRecord> shown = fx.Shown;
         PaletteFxFrame first = PaletteFxAnimations.Programs.Steps(PaletteFxProgram.CutsceneGunshipEngineFlicker1)
             .OfType<AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.ShowStep>().First().Frame;
-        if (shown.Count != 1 || shown[0] != (PaletteFxColours.CutsceneGunshipEngine, first)
+        if (shown.Count != 1 || shown[0] != new ShownPaletteFxRecord(PaletteFxColours.CutsceneGunshipEngine, first)
             || fx.RecordOf(PaletteFxColours.CutsceneGunshipEngine) != first || fx.ActiveCount != 1)
             throw new InvalidOperationException("The first screen step did not show the gunship engine's first record.");
         Console.WriteLine("#1512: two compiler contracts, the colourless step shape and the screen step pass; no gameplay search.");

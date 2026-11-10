@@ -41,8 +41,8 @@ internal static class EndingLogoVerification
         IReadOnlyList<SheetShade> installedShades = EndingScreenShades.Screen(palettes, ImportAreaMapPresentation.RoomPaletteFxOf(InstalledFixtures.Maps));
         var logoSprites = CinematicSheetFixtures.Drawer(RepositoryInstallation.Installation.LoadEndingObjectArt().LogoSprites);
         var logo = new EndingLogo(stage, () => landings++);
-        AssertTrue(screen.Colours.Shading.Shades.SequenceEqual([EndingShades.Flashed(EndingFlash.LogoBackground), EndingShades.Loaded(EndingColourLoad.LogoInitial)]),
-            "the logo blacks out its background colours, then shows its first sprite colours");
+        AssertTrue(screen.Colours.Shading.Shades.SequenceEqual([EndingShades.Loaded(EndingColourLoad.LogoInitial), EndingShades.Flashed(EndingFlash.LogoBackground)]),
+            "the logo shows its first sprite colours and its background colours blacked out (#1597: loads lie under flashes)");
         int frame = 0, fadeStart = 0;
         var poses = new HashSet<string>();
         while (!logo.Completed && frame < 300)

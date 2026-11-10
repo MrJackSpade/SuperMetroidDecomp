@@ -78,8 +78,8 @@ internal sealed class EndingArtwork
     }
 
     /// <summary>
-    /// Binds the installed scene backdrops when the game is bound to its installed content (#1544). The backdrop shown stays
-    /// until the next scene's colours show, which shows that scene's backdrop from the newly bound ones.
+    /// Binds the installed scene backdrops when the game is bound to its installed content (#1544). The running scene keeps
+    /// the backdrop it started with; the next scene starts with its backdrop from the newly bound ones.
     /// </summary>
     internal void BindBackdrops(EndingBackdrops? value)
     {

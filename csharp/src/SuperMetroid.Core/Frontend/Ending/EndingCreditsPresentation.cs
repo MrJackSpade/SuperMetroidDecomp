@@ -145,14 +145,14 @@ internal static class EndingCreditsPresentation
         new(UsesWaitingBackground(ending) ? ending.WaitingPlane() : ending.PostCreditsTextPlane(), Offset16<PlanePixels>.Zero);
 
     /// <summary>What the ending paints with: its backdrop; its sprites are drawn by its sprite layers (#1514).</summary>
-    internal static FramePaint Paint(EndingCreditsState ending) => new(ending.screen.Colours.Backdrop);
+    internal static FramePaint Paint(EndingCreditsState ending) => new(ending.screen.Colours.Backdrop(ending.InstalledArtwork.SpaceBackdrops));
 
     /// <summary>
     /// The backdrop with this frame's sprite entries drawn from <paramref name="objectSheet"/>, which the atmosphere's
     /// turning floor composes in its own glow (#1514).
     /// </summary>
     private static FramePaint FloorGlowPaint(EndingCreditsState ending, EndingObjectSheet objectSheet) =>
-        new(ending.screen.Colours.Backdrop, PrepareSprites(ending, objectSheet).Draws);
+        new(ending.screen.Colours.Backdrop(ending.InstalledArtwork.SpaceBackdrops), PrepareSprites(ending, objectSheet).Draws);
 
     /// <summary>
     /// The sprite layer of this frame's sprites drawn from <paramref name="objectSheet"/> (#1514): those of

@@ -106,24 +106,20 @@ internal sealed class EndingStage
     /// Scene boundaries clear the palette effects' slots (#1544): the records they showed stop showing, as the effects
     /// that showed them have ended.
     /// </summary>
-    internal void ResetPaletteFx()
-    {
-        PaletteFxSystem = new RoomPaletteFxSystem(new PaletteFxSessionState());
-        screen.Colours.EndPaletteFx();
-    }
+    internal void ResetPaletteFx() => screen.Colours.ResetPaletteFx();
 
     /// <summary>
-    /// Shows the installed colours <paramref name="load"/> (#1512, #1544): a scene's whole screen of colours, or its
-    /// backgrounds' colours restored, also shows that scene's own backdrop behind every layer.
+    /// Shows the installed colours <paramref name="load"/> (#1512, #1544, #1597): a scene's whole screen of colours also
+    /// shows that scene's own backdrop behind every layer; a load within a scene restores some of its colours.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The load is not one the ending makes.</exception>
     internal void LoadColours(EndingColourLoad load) => screen.Colours.Load(load, load switch
     {
         EndingColourLoad.Escape => RequireBackdrops().Escape,
-        EndingColourLoad.Explosion or EndingColourLoad.ExplosionBackgrounds => RequireBackdrops().Explosion,
+        EndingColourLoad.Explosion => RequireBackdrops().Explosion,
         EndingColourLoad.Credits => RequireBackdrops().Credits,
         EndingColourLoad.PostCredits => RequireBackdrops().PostCredits,
-        EndingColourLoad.FinalGunship or EndingColourLoad.RestoredShot or EndingColourLoad.LogoInitial => null,
+        EndingColourLoad.ExplosionBackgrounds or EndingColourLoad.FinalGunship or EndingColourLoad.RestoredShot or EndingColourLoad.LogoInitial => null,
         _ => throw new ArgumentOutOfRangeException(nameof(load), load, "Undefined ending colour load."),
     });
 
@@ -245,8 +241,8 @@ internal sealed class EndingStage
         }
     }
 
-    /// <summary>The palette effects the ending runs.</summary>
-    internal RoomPaletteFxSystem PaletteFxSystem { get; private set; } = new(new PaletteFxSessionState());
+    /// <summary>The palette effects the ending runs, which its colours own (#1597).</summary>
+    internal RoomPaletteFxSystem PaletteFxSystem => screen.Colours.PaletteFx;
 
     /// <summary>The ending scenes' installed backdrops (#1544).</summary>
     internal EndingBackdrops? Backdrops { get; private set; }

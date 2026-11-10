@@ -137,22 +137,6 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Runs one update of a frontend screen's colour effects and hands each record shown to <paramref name="shown"/> as it
-    /// is shown (#1512).
-    /// </summary>
-    /// <exception cref="InvalidOperationException">A record is shown in colours no frontend screen shows.</exception>
-    internal void StepScreen(PaletteFxConditions conditions, Action<PaletteFxColours, PaletteFxFrame> shown)
-    {
-        Ensure.NotNull(shown);
-        audioPowerBomb = null;
-        RunTurns(conditions, (effect, frame) =>
-        {
-            ShowScreenRecord(effect, frame);
-            shown(effect.Colours ?? throw new InvalidOperationException($"Colour effect {effect.Effect} named no colours."), frame);
-        });
-    }
-
-    /// <summary>
     /// Gives each running effect its turn, from the lowest turn up: it checks its condition, counts down, and when its
     /// next step is due runs its steps to the next record, which goes to <paramref name="show"/>. Effects that end are
     /// dropped from the turns once every turn has run; one that settled keeps its final record shown.
@@ -343,6 +327,12 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
         }
         return null;
     }
+
+    /// <summary>The record each colour group shows now, the settled effects' first and then the running ones' in turn order (#1597).</summary>
+    internal IReadOnlyList<ShownPaletteFxRecord> Shown => ShownRecords();
+
+    /// <summary>Whether a running effect animates <paramref name="colours"/> (#1597).</summary>
+    internal bool Animates(PaletteFxColours colours) => effects.Exists(effect => !effect.Ended && effect.Colours == colours);
 
     /// <summary>
     /// Lays the shade of the record each of the room's colour groups shows now over the room's pictures (#1512, #1597):

@@ -1640,14 +1640,20 @@ internal static class PaletteFxInstructionCodesVerification
     }
 
     /// <summary>
-    /// Runs one handler pass of a frontend screen's palette FX and lays each record as it is shown, coloured from
-    /// <paramref name="colours"/> as the screen's pictures are, so each record's colours are read once, when it is shown.
+    /// Runs one handler pass of a frontend screen's palette FX and lays each record it newly shows, in turn order, coloured
+    /// from <paramref name="colours"/> as the screen's pictures are, so each record's colours are read once, when it is shown.
     /// </summary>
     private static void StepScreenShowing(RoomPaletteFxSystem fx, SuperMetroid.AssetExtraction.Fx.Artwork.IPaletteFxColorSource colours)
     {
         var cgram = new SnesCgram();
-        fx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false },
-            (group, record) => PaletteFxRoomLook.LayShade(cgram, group, record, colours));
+        PaletteFxColours[] groups = Enum.GetValues<PaletteFxColours>();
+        PaletteFxFrame?[] before = [.. groups.Select(fx.RecordOf)];
+        fx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
+        foreach ((PaletteFxColours group, PaletteFxFrame record) in fx.Shown)
+        {
+            if (record != before[Array.IndexOf(groups, group)])
+                PaletteFxRoomLook.LayShade(cgram, group, record, colours);
+        }
     }
 
     /// <summary>

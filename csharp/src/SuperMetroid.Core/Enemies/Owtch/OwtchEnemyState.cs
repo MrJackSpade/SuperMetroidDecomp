@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Enemies.Owtch;
 /// <summary>The state of an Owtch, with its three extended words.</summary>
 public sealed class OwtchEnemyState
 {
-    /// <summary>Where the animation resumes.</summary>
-    internal AnimationProgramCursor<OwtchProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<OwtchProgram> Playback { get; set; }
 
     /// <summary>
     /// The signed 16.16 rightward patrol speed in pixels per update, taken from the shared linear-speed table; the

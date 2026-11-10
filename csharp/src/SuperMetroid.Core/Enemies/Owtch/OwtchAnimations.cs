@@ -10,46 +10,47 @@ namespace SuperMetroid.Core.Enemies.Owtch;
 /// </summary>
 internal static class OwtchAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<OwtchProgram, OwtchFrame, OwtchCue> Programs { get; } = new(
-        new Dictionary<OwtchProgram, AnimationProgramStep<OwtchProgram, OwtchFrame, OwtchCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<OwtchProgram, OwtchFrame, OwtchCue> Segments { get; } = new(
+        new Dictionary<OwtchProgram, AnimationBeat<OwtchFrame, OwtchCue>[]>
     {
         [P.MovingLeft] =
         [
             Cue(new(K.SetMovingLeft)),
-            FallInto(P.MovingLeftLoop),
         ],
         [P.MovingLeftLoop] =
         [
             Show(0, 8),
             Show(1, 8),
             Show(2, 8),
-            GoTo(P.MovingLeftLoop),
         ],
         [P.MovingRight] =
         [
             Cue(new(K.SetMovingRight)),
-            FallInto(P.MovingRightLoop),
         ],
         [P.MovingRightLoop] =
         [
             Show(2, 8),
             Show(1, 8),
             Show(0, 8),
-            GoTo(P.MovingRightLoop),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<OwtchProgram, Animation<OwtchProgram>> StartingAt { get; } = new Dictionary<OwtchProgram, Animation<OwtchProgram>>
+    {
+        [P.MovingLeft] = new([new(P.MovingLeft, 0, 1, 1), new(P.MovingLeftLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.MovingLeftLoop] = new([new(P.MovingLeftLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.MovingRight] = new([new(P.MovingRight, 0, 1, 1), new(P.MovingRightLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.MovingRightLoop] = new([new(P.MovingRightLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<OwtchProgram> StartingWith(OwtchProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<OwtchProgram, OwtchFrame, OwtchCue> Show(int pose, int duration) => AnimationProgramStep<OwtchProgram, OwtchFrame, OwtchCue>.Show(new(pose), duration);
+    private static AnimationBeat<OwtchFrame, OwtchCue> Show(int pose, int duration) => new AnimationBeat<OwtchFrame, OwtchCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<OwtchProgram, OwtchFrame, OwtchCue> Cue(OwtchCue cue) => AnimationProgramStep<OwtchProgram, OwtchFrame, OwtchCue>.Publish(cue);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<OwtchProgram, OwtchFrame, OwtchCue> GoTo(OwtchProgram program) => AnimationProgramStep<OwtchProgram, OwtchFrame, OwtchCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<OwtchProgram, OwtchFrame, OwtchCue> FallInto(OwtchProgram program) => AnimationProgramStep<OwtchProgram, OwtchFrame, OwtchCue>.FallInto(program);
-
+    private static AnimationBeat<OwtchFrame, OwtchCue> Cue(OwtchCue cue) => new AnimationBeat<OwtchFrame, OwtchCue>.Event(cue);
 }

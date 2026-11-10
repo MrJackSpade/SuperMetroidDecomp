@@ -6,21 +6,22 @@ using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Enemies.Owtch;
 
-/// <summary>#641: Owtch's typed programs, each matched step by step to its native bank-$A2 list.</summary>
+/// <summary>#641: Owtch's typed animations (#1600), each segment matched to its native bank-$A2 list and each animation to the lists' control flow.</summary>
 internal static class OwtchAnimationsVerification
 {
-    /// <summary>Every program matches its native list.</summary>
+    /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifyOwtchAnimations(SuperMetroidAddressSpace rom)
     {
-        int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, OwtchAnimations.Programs,
-            OwtchFrameToolingDefinitions.Spritemap,
-            word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
-            (word, operands, cue, at) =>
-            {
-                var instruction = Instructions[word];
-                AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
-                AssertEqual(0, operands.Length, $"{at}: operands");
-            });
-        Console.WriteLine($"  Owtch programs: {Entries.Length} programs ({steps} steps) match bank $A2.");
+        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
+            OwtchAnimations.Segments, OwtchAnimations.StartingAt, OwtchFrameToolingDefinitions.Spritemap,
+            new NativeEnemyCueRules<OwtchCue>(
+                word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
+                (word, operands, cue, at) =>
+                {
+                    var instruction = Instructions[word];
+                    AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
+                    AssertEqual(0, operands.Length, $"{at}: operands");
+                }));
+        Console.WriteLine($"  Owtch animations: {Entries.Length} segments ({beats} beats) and {OwtchAnimations.StartingAt.Count} animations match bank $A2.");
     }
 }

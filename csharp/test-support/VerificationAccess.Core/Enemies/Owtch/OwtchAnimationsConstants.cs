@@ -8,7 +8,7 @@ internal static class OwtchAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params OwtchProgram[] programs) =>
-        programs.SelectMany(program => OwtchAnimations.Programs.Steps(program))
-            .OfType<AnimationProgramStep<OwtchProgram, OwtchFrame, OwtchCue>.ShowStep>()
-            .Select(step => OwtchFrameToolingDefinitions.Spritemap(step.Frame));
+        programs.SelectMany(program => OwtchAnimations.Segments.Beats(program))
+            .OfType<AnimationBeat<OwtchFrame, OwtchCue>.Frame>()
+            .Select(frame => OwtchFrameToolingDefinitions.Spritemap(frame.Shown));
 }

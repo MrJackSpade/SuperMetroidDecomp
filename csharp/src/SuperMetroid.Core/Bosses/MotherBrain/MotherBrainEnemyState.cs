@@ -69,9 +69,6 @@ public sealed class MotherBrainEnemyState
     /// <summary>Count of dynamically spawned physical falling-tube enemy records.</summary>
     public int SpawnedFallingTubeCount { get; internal set; }
 
-    /// <summary>Whether the unpause hook must restore Mother Brain's background image and beam SFX.</summary>
-    public bool EnableUnpauseHook { get; internal set; }
-
 
     /// <summary>The colours the encounter has loaded over its sprites, her body layer and her room (#1512).</summary>
     internal MotherBrainColours Colours { get; } = new();
@@ -105,8 +102,8 @@ public sealed class MotherBrainEnemyState
     public bool DeleteTurretsAndRinkas { get; internal set; }
 
     /// <summary>
-    /// Set by the head main on frames where the game's enemy-graphics-drawn hook points
-    /// at the brain draw. It is deliberately rebuilt every frame rather than treated as
+    /// Set by the head main on frames where her brain is drawn after the ordinary enemy
+    /// queues. It is deliberately rebuilt every frame rather than treated as
     /// ordinary visibility because both physical records carry the hide-drawing property.
     /// </summary>
     public bool DrawBrain { get; internal set; }
@@ -118,7 +115,7 @@ public sealed class MotherBrainEnemyState
     /// </summary>
     public int NextRainbowFrame { get; internal set; }
 
-    /// <summary>Whether the active draw hook appends five articulated neck joints.</summary>
+    /// <summary>Whether her brain's draw appends five articulated neck joints.</summary>
     public bool DrawNeck { get; internal set; }
 
     /// <summary>

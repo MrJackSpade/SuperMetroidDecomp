@@ -117,7 +117,6 @@ internal sealed class MotherBrainRainbowAndDeath
         if (step.EscapeMusicTrackQueued) _motherBrainEncounter.RequestMusic(MusicRequest.SelectTrack(MotherBrainDeathDefinitions.EscapeMusicTrack), MusicQueueDelay.Shortest);
         if (step.EscapeTypewriterSetupRequested)
         {
-            state.EnableUnpauseHook = sequence.ThirdPhaseDeath.MotherBrainUnpauseHookEnabled;
             state.EscapeTypewriter = _bossArtwork.EscapeTypewriterPresentation is { } presentation
                 ? new(presentation.Get(EscapeTypewriterProgramId.Zebes))
                 : new(EscapeTypewriterProgramId.Zebes);
@@ -257,7 +256,7 @@ internal sealed class MotherBrainRainbowAndDeath
             sequence.ThirdPhaseFight.Phase3NeckFunctionTimer == 10)
         {
             // The rainbow setup loads fifty during the one-shot setup call, immediately before the
-            // fallthrough decrements neck timer eleven to ten. The physical draw hook owns
+            // fallthrough decrements neck timer eleven to ten. Her brain's draw owns
             // subsequent shake decrements, so publish this event only on that exact setup
             // result rather than copying the sequence's retained word every enemy frame.
             state.BrainMainShakeTimer = 50;

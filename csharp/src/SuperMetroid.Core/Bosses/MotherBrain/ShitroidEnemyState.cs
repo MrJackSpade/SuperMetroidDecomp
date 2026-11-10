@@ -51,12 +51,12 @@ public sealed class ShitroidEnemyState
     /// <summary>Whether the periodic Shitroid cry is enabled (extended word 04).</summary>
     public bool CryEnabled { get; internal set; }
 
-    /// <summary>Palette cycles toward the next periodic cry, 0 through 3 (extended word 05).</summary>
+    /// <summary>Membrane pulses toward the next periodic cry, 0 through 3 (extended word 05).</summary>
     public int CryCounter { get; internal set; }
 
     /// <summary>
-    /// Diagnostic mirror of its victim's palette stage. Shitroid writes the actual dead-sidehopper palette
-    /// stage through <c>ActivateDeadSidehopperVictim</c>; retaining this value on the boss state makes that cross-slot
+    /// Whether the Shitroid has started its victim's drain. Shitroid starts the dead Sidehopper's drain itself
+    /// through <c>ActivateDeadSidehopperVictim</c>; retaining this value on the boss state makes that cross-slot
     /// side effect directly auditable.
     /// </summary>
     public bool VictimActivationFlag { get; internal set; }

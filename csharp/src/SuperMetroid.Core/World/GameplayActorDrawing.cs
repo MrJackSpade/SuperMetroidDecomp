@@ -412,11 +412,10 @@ internal sealed class GameplayActorDrawing
 
         if (!deathOwnsSamus && room.Enemies.IsLoaded)
         {
-            // Ceres Ridley's main step installs his graphics-drawn hook as the enemies' graphics-drawn hook. It runs
-            // after every ordinary enemy layer and is the only producer of the Baby
-            // Metroid sprite (plus the arena-door overlay). Keeping this after layer seven
-            // preserves the hook's actual sprite position instead of inventing a Baby slot.
-            room.Enemies.Ceres.DrawCeresRidleyPostEnemyHook(
+            // Once his animation starts, Ceres Ridley's scene draws the Baby Metroid sprite (plus the arena-door
+            // overlay) after every ordinary enemy layer; it is their only producer. Keeping this after layer seven
+            // preserves the Baby's actual sprite position instead of inventing a Baby slot.
+            room.Enemies.Ceres.DrawCeresRidleyBabyAndDoorOverEnemies(
                 _sprites,
                 _room.Camera.PixelPosition);
         }

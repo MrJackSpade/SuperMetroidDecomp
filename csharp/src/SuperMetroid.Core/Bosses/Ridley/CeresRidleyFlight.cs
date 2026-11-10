@@ -16,7 +16,7 @@ internal sealed class CeresRidleyFlight
     private readonly IEnemyDispatch _dispatch;
     /// <summary>Provides room randomness and Ceres artwork state.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Offsets the private Baby/door drawing hook during a room quake.</summary>
+    /// <summary>Offsets the scene's own Baby and door drawing during a room quake.</summary>
     private readonly RoomEarthquake _earthquake;
     /// <summary>Queues Ceres battle and getaway sound effects.</summary>
     private readonly EnemyAudioQueue _audio;

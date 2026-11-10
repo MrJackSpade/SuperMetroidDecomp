@@ -50,7 +50,6 @@ internal static class NativeSnapshotMotherBrainImport
         state.BodySubFunctionTimer = CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer));
         state.FakeDeathExplosionTimer = CoordinateAxis.AsSigned(W(MotherBrainMemory.FakeDeathExplosionTimer));
         state.FakeDeathExplosionIndex = W(MotherBrainMemory.FakeDeathExplosionIndex);
-        state.EnableUnpauseHook = W(MotherBrainMemory.EnableUnpauseHook) != 0;
         // The native palette words name rows: the neck draws in her brain's row, and her brain in it or, once her death
         // copied her brain's colours there, in the corpse's (#1512).
         int neckRow = SnesObjAttributeWordConstants.FromPaletteBits(W(MotherBrainMemory.NeckPaletteIndex)).PaletteIndex;
@@ -211,7 +210,6 @@ internal static class NativeSnapshotMotherBrainImport
         sequence.State.GreyTransitionCounter = W(MotherBrainMemory.GreyTransitionCounter);
         sequence.State.Phase2CorpseState = DecodePhase2CorpseState(W(MotherBrainMemory.Phase2CorpseState));
         sequence.Revival.BabyMetroidAttackCounter = W(MotherBrainMemory.BabyMetroidAttackCounter);
-        sequence.ThirdPhaseDeath.MotherBrainUnpauseHookEnabled = W(MotherBrainMemory.EnableUnpauseHook) != 0;
         sequence.ThirdPhaseDeath.DeathExplosionIntervalTimer = CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunction));
         sequence.ThirdPhaseDeath.DeathAndEscapeExplosionIndex = CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer));
         sequence.LowerNeckAngle = RotationAngle.FromRaw(W(MotherBrainMemory.LowerNeckAngle));

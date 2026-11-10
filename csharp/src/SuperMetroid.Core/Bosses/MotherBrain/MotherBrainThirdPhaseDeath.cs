@@ -90,9 +90,6 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// </summary>
     public int ExplodedDoorReadyingElapsed { get; private set; }
 
-    /// <summary>Unpause-hook enable word cleared when the escape typewriter is installed.</summary>
-    public bool MotherBrainUnpauseHookEnabled { get; internal set; } = true;
-
     /// <summary>
     /// Set when the decapitation step installs the brain-slot draw setup before the decapitated head
     /// starts falling. The separate brain AI is not silently folded into the body function.
@@ -555,7 +552,7 @@ internal sealed class MotherBrainThirdPhaseDeath
             return false;
 
         // The last readying update performs the full escape-door handoff on that call: start escape music, hold the quake
-        // indefinitely, create four palette-FX objects, disable the old unpause hook, and initialize text. The door's
+        // indefinitely, create four palette-FX objects and initialize text. The door's
         // fragments are pre-coloured in the exploded door's colours, so its colour load is not kept (#1544).
         requests.EscapeMusicTrackQueued = true;        // Eight-frame-delay escape song.
         requests.StartEarthquake(MotherBrainDeathDefinitions.EscapeEarthquake, WrappingCountdown.LongestStart);
@@ -563,7 +560,6 @@ internal sealed class MotherBrainThirdPhaseDeath
         requests.EscapePaletteFxRequests.Add(PaletteFxObject.TourianBackgroundRedFlashing);
         requests.EscapePaletteFxRequests.Add(PaletteFxObject.TourianGeneralLevelRedFlashing);
         requests.EscapePaletteFxRequests.Add(PaletteFxObject.TourianRedFlashingArkanoidBlocksAndRedOrbs);
-        MotherBrainUnpauseHookEnabled = false;
         requests.EscapeTypewriterSetupRequested = true;
         _state.FunctionTimer = 32;
         _state.Phase = frame.AlternateEscapeText

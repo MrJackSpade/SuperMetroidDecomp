@@ -14,7 +14,7 @@ internal sealed record CeresRidleyFlightDependencies
     /// <summary>Provides room randomness and Ceres artwork state.</summary>
     public required EnemyRoomBinding Room { get; init; }
 
-    /// <summary>Offsets the private Baby/door drawing hook during a room quake.</summary>
+    /// <summary>Offsets the scene's own Baby and door drawing during a room quake.</summary>
     public required RoomEarthquake Earthquake { get; init; }
 
     /// <summary>Queues Ceres battle and getaway sound effects.</summary>

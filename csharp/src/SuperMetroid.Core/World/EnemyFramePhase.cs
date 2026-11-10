@@ -151,8 +151,8 @@ internal sealed class EnemyFramePhase
                 // cooldown live in this companion owner and complete that same operation.
                 room.BombProjectiles.Reset();
             }
-            // Ceres Ridley does not install the post-enemy hook until his animation
-            // starts. Before the reveal he draws the Baby and door directly
+            // Ceres Ridley draws the Baby and door over every enemy only once his animation
+            // starts. Before the reveal he draws them directly
             // during the enemy pass, so emit the Baby/door sprites now, before queued enemy layers.
             room.Enemies.Ceres.DrawCeresRidleyImmediateBabyAndDoor(
                 _sprites,

@@ -32,16 +32,12 @@ internal static class EnemyAnimationIsolationFixtureVerification
         /// <summary>Y coordinate where solid blocks begin in the synthetic room.</summary>
         internal const int FloorY = 224;
 
-        /// <summary>The enemy session the fixture's room runs in, which holds the installed sheets its enemies draw from.</summary>
-        private readonly EnemySession session;
-
         /// <summary>
         /// Whether <paramref name="slot"/>'s current frame's finished picture shows nothing, so that it draws nothing (#1538)
         /// where the cartridge writes its transparent sprites.
         /// </summary>
         internal bool FrameShowsNothing(RoomEnemySlot slot) =>
-            slot.Frame is { } frame && (session.Sheets ?? throw new InvalidOperationException("The fixture's enemy sheets are not bound."))
-                .For(Enemies.GraphicsSet.LoadedSet, slot.DefinitionId).ShowsNothing(EnemySheetDefinitions.FrameName(frame));
+            slot.Frame is { } frame && Enemies.Presentation.Artwork.Enemy(slot.DefinitionId).Sheet.ShowsNothing(EnemySheetDefinitions.FrameName(frame));
         /// <summary>RAM-only bus that cannot supply cartridge instructions.</summary>
         internal SuperMetroidAddressSpace Memory { get; } = SuperMetroidAddressSpace.CreateWithoutCartridge();
         /// <summary>Enemy runtime fed by this fixture's room, RNG, and artwork.</summary>
@@ -62,16 +58,15 @@ internal static class EnemyAnimationIsolationFixtureVerification
         /// <summary>Creates matching terrain and services, then initializes Boyon.</summary>
         /// <param name="artwork">The enemy artwork the fixture draws.</param>
         /// <param name="graphicsSet">
-        /// The graphics set the actor's room loads, which gives it its tile base and palette before it initializes; none
-        /// leaves the session's start, for an actor that draws from characters at index zero.
+        /// The graphics set the actor's room draws under, which gives it its tile base and palette before it initializes;
+        /// none draws the standard artwork, for an actor that draws from characters at index zero.
         /// </param>
         internal EnemyAnimationFixture(InstalledEnemyArtwork artwork, RoomEnemyGraphicsSetDefinition? graphicsSet = null)
         {
             const int roomBlocks = 32;
             const int floorRow = FloorY / 16;
             Level = CreateSolidRowsRoom(new(roomBlocks, roomBlocks), floorRow, roomBlocks - floorRow);
-            session = EnemySessionFixtures.WithInstalledServices();
-            Enemies = new RoomEnemySystem(session, RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
+            Enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
             Enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(Vram));
             Enemies.VerificationServices().NextRandom = NextRandom;
             Enemies.VerificationServices().ReadRandom = () => RandomWord;
@@ -91,7 +86,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
             Actor.FrameHold = WrappingCountdown.Start(1);
             if (graphicsSet is not null)
             {
-                Enemies.GraphicsSet.LoadGraphicsSet(graphicsSet);
+                Enemies.DrawUnder(graphicsSet);
                 Actor.Shading = PictureShading.Standard;
             }
             // Choose valid nonzero bounce-height and multiplier indexes; these are

@@ -274,7 +274,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         if (art is not null)
         {
             // The enemy draws as a room drawing it loads it: at its tile base and in its palette there.
-            enemies.GraphicsSet.LoadGraphicsSet(SpawnedObjectFixtures.SetDrawing(slot.DefinitionId));
+            enemies.DrawUnder(SpawnedObjectFixtures.SetDrawing(slot.DefinitionId));
             slot.Shading = PictureShading.Standard;
         }
         // Ridley's scene draws his tail and wings before his body while his movement animation runs, and his AI latches

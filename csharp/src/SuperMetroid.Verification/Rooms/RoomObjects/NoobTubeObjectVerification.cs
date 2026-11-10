@@ -248,7 +248,7 @@ internal static class NoobTubeObjectVerification
     {
         SeedEmptyRoomEnemyPopulation(bus, 0x9600);
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0x4040));
-        enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(0x9600), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(new SnesVram())) { Level = level, Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) });
+        enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(0x9600), BgArtworkFixtures.For(new SnesVram())) { Level = level, Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) });
 
         foreach (NoobTubeProjectileRequest request in requests)
             enemies.NoobTubeBehavior.SpawnNoobTubeProjectile(request, level.Size.X);

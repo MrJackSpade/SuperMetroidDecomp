@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Enemies;
+
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>

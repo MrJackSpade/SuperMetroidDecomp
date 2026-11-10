@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Corpses;
 
 namespace SuperMetroid.Core.Enemies;
 
-/// <summary>One frame an enemy draws from its graphics set's sheet (#1392).</summary>
+/// <summary>One frame an enemy draws from the sheet of the variant its room's population places it in (#1392, #1599).</summary>
 /// <param name="Enemy">The enemy whose sheet is drawn.</param>
 /// <param name="Frame">The sheet frame's name.</param>
 /// <param name="Origin">The frame origin on screen.</param>

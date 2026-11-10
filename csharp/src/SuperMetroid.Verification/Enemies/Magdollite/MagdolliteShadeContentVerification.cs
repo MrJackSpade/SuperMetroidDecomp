@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -23,7 +24,7 @@ internal static class MagdolliteShadeContentVerification
     internal static void VerifyMagdolliteShadeContent()
     {
         ISnesAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetLists.All.First(candidate =>
+        RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetLists.DrawnUnder.First(candidate =>
             RoomEnemyGraphicsSetLists.MembersOf(candidate).Records.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.Magdollite));
         int row = new GraphicsSetRows(RoomEnemyGraphicsSetLists.MembersOf(set), EnemyGraphicsSetPaletteRowDefinitions.Rows).RowOf(EnemyDefinitionId.Magdollite);
         SpriteImage image = InstalledFixtures.EnemySheets.For(set, EnemyDefinitionId.Magdollite).Image;

@@ -51,7 +51,7 @@ internal static class ActorPartDrawsVerification
         EnemyExtendedFrameCatalog compositions = artwork.Enemies.ExtendedFrames
             ?? throw new InvalidOperationException("Verification requires the installed extended frames.");
         RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetDefinitions.GreenPiratesShaft;
-        enemies.GraphicsSet.LoadGraphicsSet(set);
+        enemies.DrawUnder(set);
         EnemyFrameId frame = EnemyDefinitionFrameDefinitions.Frames[EnemyDefinitionId.PirateGreenWalking]
             .First(shown => compositions.TryGetDisplay(shown, out ReadOnlyMemory<EnemyExtendedDrawComponent> pieces) && pieces.Length > 1);
         RoomEnemySlot pirate = enemies.SlotTable.Slots[0];

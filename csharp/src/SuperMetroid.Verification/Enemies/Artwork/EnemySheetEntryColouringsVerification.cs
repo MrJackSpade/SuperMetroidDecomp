@@ -33,21 +33,21 @@ internal static class EnemySheetEntryColouringsVerification
         string directory = RepositoryInstallation.Installation.EnemySheetDirectory;
         var failures = new List<string>();
         int sheets = 0;
-        foreach ((EnemySheetKey key, SpriteSheet sheet) in InstalledFixtures.EnemySheets.sheets
-            .Where(entry => EntryColourings.ContainsKey(entry.Key.Enemy))
-            .OrderBy(entry => entry.Key.Set, StringComparer.Ordinal).ThenBy(entry => entry.Key.Enemy))
+        foreach ((EnemyDefinitionId enemy, EnemyArtworkVariant<SpriteSheet> variant) in InstalledFixtures.EnemySheets.EnemyVariants
+            .Where(entry => EntryColourings.ContainsKey(entry.Key)))
         {
             sheets++;
+            SpriteSheet sheet = variant.Sheet;
             SpriteImage image = sheet.Image;
             HashSet<int> inked = InkedColours(SheetInkRules.InkPlane(directory, image), image, sheet);
-            foreach (PictureShade shade in EntryColourings[key.Enemy].Shades)
+            foreach (PictureShade shade in EntryColourings[enemy].Shades)
             {
                 ShadeInks shown = image.Shade(shade);
                 for (int index = 0; index < shown.Inks.Length; index++)
                 {
                     int ink = shown.Inks[index];
                     if (inked.Contains(ink) && image.StandardColours[ink] != shown.Colours[index])
-                        failures.Add($"{key.Set} {key.Enemy} ({image.Name}) shows colour {ink} as {image.StandardColours[ink]}, "
+                        failures.Add($"{variant.Name} ({image.Name}) shows colour {ink} as {image.StandardColours[ink]}, "
                             + $"which its entry colouring {shade.Key} draws as {shown.Colours[index]}");
                 }
             }

@@ -46,7 +46,7 @@ internal static class EnemySheetFilesVerification
             foreach ((EnemyDefinitionId enemy, SpriteSheetSources sources, _, _) in EnemySheetComposer.Sources(inputs, set).Enemies)
             {
                 members++;
-                SpriteSheet sheet = installed.For(set.Name, enemy);
+                SpriteSheet sheet = installed.For(set, enemy);
                 foreach (SheetFrameSource source in sources.Frames)
                 {
                     frames++;

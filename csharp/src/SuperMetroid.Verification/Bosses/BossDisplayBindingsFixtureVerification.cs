@@ -46,16 +46,12 @@ internal static class BossDisplayBindingsFixtureVerification
         /// <summary>The fixture's boss frames and the body sheets composed from them, which its bosses draw from.</summary>
         private readonly BossBodyArtworkFixture bodies;
 
-        /// <summary>The enemy session the fixture's room runs in, which holds the installed sheets its enemies draw from.</summary>
-        private readonly EnemySession session;
-
         /// <summary>
         /// Whether the actor's current frame's finished picture shows nothing, so that it draws nothing (#1538) where the
         /// cartridge writes its transparent sprites.
         /// </summary>
         internal bool ActorFrameShowsNothing =>
-            Actor.Frame is { } frame && (session.Sheets ?? throw new InvalidOperationException("The fixture's enemy sheets are not bound."))
-                .For(Enemies.GraphicsSet.LoadedSet, Actor.DefinitionId).ShowsNothing(EnemySheetDefinitions.FrameName(frame));
+            Actor.Frame is { } frame && Enemies.Presentation.Artwork.Enemy(Actor.DefinitionId).Sheet.ShowsNothing(EnemySheetDefinitions.FrameName(frame));
 
         /// <summary>The body sheets composed from the fixture's boss frames.</summary>
         private BossBodySheets Sheets => bodies.Sheets;
@@ -66,8 +62,7 @@ internal static class BossDisplayBindingsFixtureVerification
         internal BossDisplayFixture(EnemyDefinitionId definition, InstalledEnemyArtwork artwork, int slot = 0)
         {
             _slot = slot;
-            session = EnemySessionFixtures.WithInstalledServices();
-            Enemies = new RoomEnemySystem(session, RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance)
+            Enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance)
             {
                 TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, 
             };

@@ -36,7 +36,7 @@ internal static class RoomEnemyLoadContractsVerification
 
         var services = new StandaloneRoomEnemyServices(() => 0x1234);
         AssertEqual(GunshipLoadScenario.Ordinary, new RoomEnemyLoadRequest(
-            RoomEnemyPopulationDefinitions.DraygonWhenAreaBossDeadOrMotherBrainWhenMainAreaBossDead, RoomEnemyGraphicsSetDefinitions.Draygon1MotherBrain2, BgArtworkFixtures.For(new SnesVram())).GunshipScenario,
+            RoomEnemyPopulationDefinitions.DraygonWhenAreaBossDeadOrMotherBrainWhenMainAreaBossDead, BgArtworkFixtures.For(new SnesVram())).GunshipScenario,
             "the ordinary gunship scenario is the named default");
 
         AssertEqual(0x1234, services.Random.Generate(), "the standalone RNG generates through its installed generator");

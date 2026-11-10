@@ -36,14 +36,14 @@ internal static class MotherBrainPicturesVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         RoomEnemySlot head = (runtime.Enemies.MotherBrainEncounter.MotherBrain ?? throw new InvalidOperationException("Mother Brain's room loads her.")).Head;
         EnemyFrameId[] frames = [.. MotherBrainVisualDefinitions.HeadFrames.Select(entry => entry.Value).Append(MotherBrainVisualDefinitions.NeckJointFrame).Distinct()];
-        RoomEnemyGraphicsSetDefinition set = runtime.Enemies.GraphicsSet.LoadedSet;
-        IEnemySheetSource sheets = runtime.EnemySession.Sheets ?? throw new InvalidOperationException("The runtime loads the enemy sheets.");
-        SpriteSheet sheet = sheets.For(set, EnemyDefinitionId.MotherBrainHead);
+        RoomEnemyGraphicsSetDefinition set = runtime.Enemies.GraphicsSet;
+        EnemyArtworkVariant<SpriteSheet> variant = runtime.Enemies.Presentation.Artwork.Enemy(EnemyDefinitionId.MotherBrainHead);
+        SpriteSheet sheet = variant.Sheet;
         int drawn = 0, empty = 0;
         foreach (EnemyFrameId frame in frames)
         {
             string name = EnemySheetDefinitions.FrameName(frame);
-            AssertEqual(0, sheets.ChangingEncounters(set, EnemyDefinitionId.MotherBrainHead, name).Count, $"Mother Brain {frame} has one finished picture");
+            AssertEqual(0, variant.ChangingEncounters(name).Count, $"Mother Brain {frame} has one finished picture");
             ImmutableArray<SpriteDraw> pictures = DrawFrame(frame);
             if (sheet.ShowsNothing(name))
             {

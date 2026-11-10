@@ -56,7 +56,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         // decorations, the sprite statues and the released particles and tails are on one of those sheets; the colours a
         // published shading shows are that sheet's inks under it, at the places of the native image the import coloured
         // them from.
-        RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetLists.All.First(candidate =>
+        RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetLists.DrawnUnder.First(candidate =>
             RoomEnemyGraphicsSetLists.MembersOf(candidate).Records.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.TourianStatue));
         SpawnedObjectSheet scenePictures = InstalledFixtures.EnemySheets.Spawned(set, SpawnedObjectOwner.Shared);
         SpriteImage statueSheet = scenePictures.Frame(EnemySheetDefinitions.ProjectileFrameName(EnemyProjectileFrameId.TourianStatueFrame24)).Sheet;

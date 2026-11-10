@@ -20,7 +20,7 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 /// </summary>
 internal static class EscapeWallExplosionPicturesVerification
 {
-    /// <summary>Draws every explosion frame of the fake wall under each escape-wall state's graphics set.</summary>
+    /// <summary>Draws every explosion frame of the fake wall in the artwork each escape-wall state's room draws.</summary>
     internal static void VerifyEscapeWallExplosionPictures()
     {
         EnemyProjectileFrameId[] explosion = [.. SpawnedObjectFrameDefinitions.Common
@@ -31,26 +31,25 @@ internal static class EscapeWallExplosionPicturesVerification
         SpriteGraphics shared = SpriteGraphics.SharedIn(PictureShading.Standard);
         foreach (RoomStateSettings state in states)
         {
-            // The room load loads the state's set unless its population is empty.
-            var graphics = new EnemyGraphicsSet();
-            if (!state.EnemyPopulation.Records.IsEmpty)
-                graphics.LoadGraphicsSet(state.EnemyGraphicsSet);
             var session = new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), InstalledFixtures.EnemyOverreads, InstalledFixtures.BossAndIntroOverreads, new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint())
             {
                 FrameDisplays = InstalledFixtures.EnemyTiles.ExtendedFrames?.Displays,
                 Sheets = InstalledFixtures.EnemySheets,
             };
-            var presentation = new EnemyPresentation(new EnemyRoomBinding(session, CompiledRoomEnemyDefinitions.Instance, services: null), graphics);
+            var presentation = new EnemyPresentation(new EnemyRoomBinding(session, CompiledRoomEnemyDefinitions.Instance, services: null));
+            // The room load draws the state's population's artwork unless its population is empty.
+            if (!state.EnemyPopulation.Records.IsEmpty)
+                presentation.DrawPopulation(state.EnemyPopulation);
             var sprites = new SpriteFrameBuffer();
             sprites.BeginFrame();
             foreach (EnemyProjectileFrameId frame in explosion)
             {
-                // Fails loudly, naming the set and its sheets, when the set pictures no such frame.
+                // Fails loudly, naming the sheets, when the room's artwork pictures no such frame.
                 presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.EnemyProjectile), EnemySheetDefinitions.ProjectileFrameName(frame),
                     new Position16<ScreenPixels>(128, 128), shared);
             }
             sprites.FinalizeFrame();
         }
-        Console.WriteLine($"  Escape wall: {explosion.Length} explosion frames resolve under the sets of {states.Length} escape-wall room states.");
+        Console.WriteLine($"  Escape wall: {explosion.Length} explosion frames resolve in the artwork of {states.Length} escape-wall room states.");
     }
 }

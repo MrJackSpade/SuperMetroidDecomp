@@ -48,8 +48,9 @@ internal static class MotherBrainWholeFramesVerification
         InstalledEnemySheets sheets = InstalledFixtures.EnemySheets;
         RoomEnemyGraphicsSetDefinition set = SetDrawing(sheets, enemy);
         string name = EnemySheetDefinitions.FrameName(frame);
-        AssertEqual(0, sheets.ChangingEncounters(set, enemy, name).Count, $"no look gameplay shows changes {frame}");
-        SpriteSheet sheet = sheets.For(set, enemy);
+        EnemyArtworkVariant<SpriteSheet> variant = sheets.Under(set).Enemy(enemy);
+        AssertEqual(0, variant.ChangingEncounters(name).Count, $"no look gameplay shows changes {frame}");
+        SpriteSheet sheet = variant.Sheet;
         // A frame her look's copies never write shows nothing: its characters hold another family's artwork (#1513).
         if (sheet.ShowsNothing(name))
             return 1;
@@ -61,12 +62,9 @@ internal static class MotherBrainWholeFramesVerification
         return 1;
     }
 
-    /// <summary>The first graphics set that installs a sheet of <paramref name="enemy"/>.</summary>
-    private static RoomEnemyGraphicsSetDefinition SetDrawing(InstalledEnemySheets sheets, EnemyDefinitionId enemy)
-    {
-        string name = sheets.sheets.Keys.First(key => key.Enemy == enemy).Set;
-        return RoomEnemyGraphicsSetLists.DrawnUnder.First(set => set.Name == name);
-    }
+    /// <summary>The first graphics set rooms draw under whose installed artwork holds a variant of <paramref name="enemy"/>.</summary>
+    private static RoomEnemyGraphicsSetDefinition SetDrawing(InstalledEnemySheets sheets, EnemyDefinitionId enemy) =>
+        RoomEnemyGraphicsSetLists.DrawnUnder.First(set => sheets.Under(set).enemies.ContainsKey(enemy));
 
     /// <summary>Runs the Mother Brain whole-frame check.</summary>
     [VerificationCommand("--mother-brain-whole-frames")]

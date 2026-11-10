@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -580,7 +581,7 @@ internal static class RoomBlockPicturesVerification
         // and the frames its animations paint over them.
         bool sprites = rooms.BlockArtwork == RoomBlockArtwork.Sprites;
         byte[] tiles = sprites
-            ? EnemySheetFixtures.LivePage(runtime.Enemies.GraphicsSet.LoadedSet, SuperMetroid.Verification.Enemies.Artwork.UploadedPictureChecks.Shown(runtime)).Characters.ToArray()
+            ? EnemySheetFixtures.LivePage(runtime.Enemies.GraphicsSet, SuperMetroid.Verification.Enemies.Artwork.UploadedPictureChecks.Shown(runtime)).Characters.ToArray()
             : runtime.ComposedVram()[(BgCharacterWordsConstants.WordOf(BgCharacterSet.Tiles, 0) * sizeof(ushort))..];
         RoomScope scope = RoomScopeOf(runtime);
         bool ceres = scope.Room.AreaIndex == AreaId.Ceres;

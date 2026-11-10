@@ -51,7 +51,7 @@ internal static class EnemyArtworkStaticContractChecks
         Require(after.Classifications.Count == 2 && after.UnresolvedCount == 1 && after.MissingCount == 0 && after.Consumers.Count == 3,
             "valid identities/lengths qualify while invalid known selectors remain findings" + " (" + after.Describe() + ")");
         SyntaxTree extraMetadata = CSharpSyntaxTree.ParseText(
-            "namespace SuperMetroid.Core.Enemies; public static partial class RoomEnemyGraphicsSetDefinitions { }",
+            "namespace SuperMetroid.AssetExtraction.Enemies; internal static partial class RoomEnemyGraphicsSetDefinitions { }",
             path: "fixture-unreviewed-enemy-metadata.cs");
         Revoked(Inspect(Compile(trees.Append(extraMetadata)), true), "additional metadata declaration");
     }

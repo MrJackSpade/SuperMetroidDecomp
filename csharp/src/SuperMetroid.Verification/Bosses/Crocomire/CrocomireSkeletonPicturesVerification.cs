@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -26,7 +27,7 @@ internal static class CrocomireSkeletonPicturesVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Crocomire);
         // His skeleton's frames are drawn only once the skeleton look shows, and his projectiles show the same pictures in both
         // looks, so his looks change no frame of his room's sheets; they change only the room's blocks (#1538).
-        AssertEqual(0, UploadedPictureChecks.AssertFramesFollowLooks(runtime.Enemies.GraphicsSet.LoadedSet, EncounterArtwork.Crocomire,
+        AssertEqual(0, UploadedPictureChecks.AssertFramesFollowLooks(runtime.Enemies.GraphicsSet, EncounterArtwork.Crocomire,
             "Crocomire's skeleton", requireFrames: false), "Crocomire's looks change no frame of his room's sheets");
         Console.WriteLine("Crocomire skeleton pictures: his looks change no frame of his room's sheets.");
     }

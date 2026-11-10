@@ -506,7 +506,7 @@ internal static class EnemySpritemapArtworkVerification
         {
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses };
             // The enemy draws as a room drawing it loads it: at its tile base and in its palette there.
-            enemies.GraphicsSet.LoadGraphicsSet(SpawnedObjectFixtures.SetDrawing(definition));
+            enemies.DrawUnder(SpawnedObjectFixtures.SetDrawing(definition));
             enemies.Drawing.Enqueue(EnemyDrawLayer.Of(0), enemies.SlotTable.Slots[0]);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(definition, slot.Definition);
@@ -633,7 +633,8 @@ internal static class EnemySpritemapArtworkVerification
     private static void VerifyInstalledMotherBrainDrawHook(
         SuperMetroidAddressSpace rom, InstalledEnemyArtwork stock)
     {
-        EnemyGraphicsSet headSet = MotherBrainHeadSet();
+        // Mother Brain's room's graphics set, which gives the tile base and colours it loads her head with.
+        RoomEnemyGraphicsSetDefinition headSet = SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.MotherBrainHead);
         int tileBase = headSet.TileBaseOf(EnemyDefinitionId.MotherBrainHead);
         int indexesRow = headSet.DrawRow(EnemyDefinitionId.MotherBrainHead);
         // The head's draw hook shows the head's frames; her falling tubes draw from their own sheet through her encounter.
@@ -657,14 +658,6 @@ internal static class EnemySpritemapArtworkVerification
         AssertEqual(1, aboveScreen.Draws.Length, "Mother Brain private draw publishes a head above the viewport");
         AssertEqual(-1, CoordinateAxis.AsSigned(aboveScreen.Draws[0].Origin.Y),
             "Mother Brain private draw publishes a head above the viewport at its row above the screen");
-    }
-
-    /// <summary>Mother Brain's room's graphics set, which gives the tile base and colours it loads her head with.</summary>
-    private static EnemyGraphicsSet MotherBrainHeadSet()
-    {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles };
-        SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.MotherBrainHead);
-        return enemies.GraphicsSet;
     }
 
     /// <summary>Draws one Mother Brain world frame through the installed private renderer under a cartridge-read guard.</summary>

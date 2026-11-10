@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -117,8 +118,23 @@ internal static class LookupRoomStateSettingsVerification
     private static void VerifyRoomStateFxPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.FxPointer, "FxPointer");
     /// <summary>Checks which native enemy population each state installs.</summary>
     private static void VerifyRoomStateEnemyPopulationPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => RoomEnemyPopulationDefinitions.PointerOf(state.EnemyPopulation), "EnemyPopulationPointer");
-    /// <summary>Checks the enemy graphics-set pointer paired with each population.</summary>
-    private static void VerifyRoomStateEnemyTilesetPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => RoomEnemyGraphicsSetDefinitions.PointerOf(state.EnemyGraphicsSet), "EnemyTilesetPointer");
+    /// <summary>
+    /// Checks the import's catalogue of the enemy graphics set each room state names (#1599): the set it decodes for each
+    /// state, through lookup and enumeration, is the one the cartridge's state payload points at.
+    /// </summary>
+    private static void VerifyRoomStateEnemyTilesetPointer(SuperMetroidAddressSpace rom)
+    {
+        RoomStateSettings[] enumerated = RoomStateDefinitions.All.ToArray();
+        for (int index = 0; index < OriginalRoomStatePointers.Length; index++)
+        {
+            ushort pointer = OriginalRoomStatePointers[index];
+            ushort expected = CartridgeRoomStateImporter.EnemyGraphicsSetPointer(rom, pointer);
+            AssertEqual(expected, RoomEnemyGraphicsSetDefinitions.PointerOf(RoomEnemyGraphicsSetLists.Of(RoomStateDefinitions.Get(pointer))),
+                $"State {pointer:X4} EnemyTilesetPointer");
+            AssertEqual(expected, RoomEnemyGraphicsSetDefinitions.PointerOf(RoomEnemyGraphicsSetLists.Of(enumerated[index])),
+                $"Enumerated state {pointer:X4} EnemyTilesetPointer");
+        }
+    }
     /// <summary>Checks horizontal layer-two scroll configuration in every room state.</summary>
     private static void VerifyRoomStateLayer2ScrollX(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.BackgroundScrollModes.Horizontal, "Layer2ScrollX");
     /// <summary>Checks vertical layer-two scroll configuration in every room state.</summary>

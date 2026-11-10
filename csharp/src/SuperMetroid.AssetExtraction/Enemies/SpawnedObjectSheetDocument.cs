@@ -1,9 +1,9 @@
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
-/// One owner's spawned-object pictures in the enemy sheet manifest (#1392, #1513): the installed sheet of the pictures
-/// particular to its graphics set, and the common sheets holding its other pictures, each of which every set that draws it
-/// reads.
+/// One variant of an owner's spawned-object pictures in the enemy sheet manifest (#1392, #1513, #1599): the installed sheet
+/// of the pictures particular to it, and the common sheets holding its other pictures, each of which every variant that
+/// draws it reads.
 /// </summary>
 internal sealed record SpawnedObjectSheetDocument
 {
@@ -17,9 +17,9 @@ internal sealed record SpawnedObjectSheetDocument
     public required Dictionary<string, List<string>> CommonPictures { get; init; }
 
     /// <summary>
-    /// For each picture the owner's set composed from other places than the installed sheet holding it records, by picture
-    /// name, where the set composed its colours from (#1544); absent for none. A picture held once is sourced as its first
-    /// holder composed it, and another set's colours may lie elsewhere in its colour table.
+    /// For each picture the variant composed from other places than the installed sheet holding it records, by picture
+    /// name, where the variant composed its colours from (#1544); absent for none. A picture held once is sourced as its
+    /// first holder composed it, and another variant's colours may lie elsewhere in its colour table.
     /// </summary>
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public Dictionary<string, SuperMetroid.AssetExtraction.Artwork.InstalledFrameSource>? FrameSources { get; init; }
@@ -41,4 +41,18 @@ internal sealed record SpawnedObjectSheetDocument
 
     /// <summary>The owner's finished pictures that show nothing, which no sheet holds (#1538).</summary>
     public required List<string> Empty { get; init; }
+
+    /// <summary>
+    /// For each frame encounters' looks change, by frame name, the encounters whose looks change it (#1538), by encounter
+    /// name in encounter order, each with the names of its looks the frame is drawn in; absent when no frame changes.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public Dictionary<string, Dictionary<string, string[]>>? LookChanges { get; init; }
+
+    /// <summary>
+    /// For each picture that shows a rotting corpse, by picture name, where the corpse lies in it (#1539); absent when none
+    /// shows one.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public Dictionary<string, CorpsePictureDocument>? CorpsePictures { get; init; }
 }

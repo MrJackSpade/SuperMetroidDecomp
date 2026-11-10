@@ -44,7 +44,7 @@ internal static class RoomSpriteObjectAccess
 
         /// <summary>
         /// The native OBJ attribute word the character index the object's owner draws from and the row holding its colours
-        /// under <paramref name="enemies"/>' loaded graphics set encode to.
+        /// under the graphics set <paramref name="enemies"/>' room draws under encode to.
         /// </summary>
         internal ushort GraphicsIndexIn(RoomEnemySystem enemies) =>
             SnesObjAttributeWord.Create(self.Graphics.NativeTileBaseIn(enemies), self.Graphics.PaletteRowIn(enemies), priority: 0).Raw;

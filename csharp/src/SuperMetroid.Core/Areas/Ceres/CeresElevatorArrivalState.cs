@@ -100,7 +100,7 @@ public sealed class CeresElevatorArrivalState
     /// Emits the low-priority spritemaps selected by the live programs.
     /// </summary>
     /// <param name="sprites">The frame's sprite description.</param>
-    /// <param name="presentation">Publishes the platforms from the loaded graphics set's sheets.</param>
+    /// <param name="presentation">Publishes the platforms from the room's enemy artwork.</param>
     /// <param name="camera">Camera position in whole room pixels.</param>
     internal void Draw(SpriteFrameBuffer sprites, EnemyPresentation presentation, Position16<RoomPixels> camera)
     {
@@ -151,7 +151,7 @@ public sealed class CeresElevatorArrivalState
         }
     }
 
-    /// <summary>Draws an active projectile from its graphics set's sheet, wherever it lies; the display clips it (#1587).</summary>
+    /// <summary>Draws an active projectile from the room's variant of its owner's pictures, wherever it lies; the display clips it (#1587).</summary>
     private static void DrawProjectile(
         CeresElevatorProjectile projectile,
         int instance,

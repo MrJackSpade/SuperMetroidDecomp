@@ -114,7 +114,7 @@ public sealed class RoomEnemySlot
     public WrappingCountdown FrameHold { get; internal set; }
     /// <summary>
     /// The shades and colour effects the enemy shows its pictures in (#1512) while no hit or freeze flash overrides
-    /// them: its sheet's standard colours, the colours its graphics set loads for it, unless its behaviour shows a look of
+    /// them: its sheet's standard colours, the colours of the variant its room places it in, unless its behaviour shows a look of
     /// its own, such as a glow's frame or a fade's step.
     /// </summary>
     public PictureShading Shading

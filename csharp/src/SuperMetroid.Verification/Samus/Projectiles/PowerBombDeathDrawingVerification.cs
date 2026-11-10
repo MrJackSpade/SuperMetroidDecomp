@@ -41,7 +41,7 @@ internal static class PowerBombDeathDrawingVerification
             FixtureGraphicsSetMembers.Record(set, [new RoomEnemyGraphicsSetMember(header)]);
             // The fixture's set loads its one member's colours into row one, as its record would name.
             FixtureGraphicsSetRows.Record(set, [PowerBombFixtureRow]);
-            enemies.GraphicsSet.LoadGraphicsSet(set);
+            enemies.DrawUnder(set);
             var actor = enemies.SlotTable.Slots[0];
             actor.Bind(header, actor.Definition);
             actor.Bind(actor.DefinitionId, RoomEnemyHeaders.Get(header));

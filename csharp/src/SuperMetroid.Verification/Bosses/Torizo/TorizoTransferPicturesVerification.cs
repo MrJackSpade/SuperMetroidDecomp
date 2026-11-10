@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -34,7 +35,7 @@ internal static class TorizoTransferPicturesVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(room);
-        int frames = UploadedPictureChecks.AssertFramesFollowLooks(runtime.Enemies.GraphicsSet.LoadedSet, torizo, $"{room.Name}'s swaps");
+        int frames = UploadedPictureChecks.AssertFramesFollowLooks(runtime.Enemies.GraphicsSet, torizo, $"{room.Name}'s swaps");
         Console.WriteLine($"Torizo transfer pictures: {frames} frames of {room.Name} follow every look of its swaps.");
     }
 

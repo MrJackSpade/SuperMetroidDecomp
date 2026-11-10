@@ -130,8 +130,8 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
             slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
         }
 
-        // Both ordinary and Mother Brain variants draw in the Rinka's own colours, which every graphics set holding
-        // Rinkas loads: their sheet's standard colours (#1512).
+        // Both ordinary and Mother Brain variants draw in the Rinka's own colours, which every room placing
+        // Rinkas draws them in: their variant's standard colours (#1512, #1599).
         slot.Shading = PictureShading.Standard;
         InitializeRinkaLife(slot, state);
     }

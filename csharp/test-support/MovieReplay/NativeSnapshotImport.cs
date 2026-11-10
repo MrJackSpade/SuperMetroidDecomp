@@ -458,7 +458,7 @@ internal static class NativeSnapshotImport
     /// hold; the definition-derived radii and properties must already agree with them. A free slot's place holds a gone
     /// projectile at the slot's position and velocity words, which the next spawn there starts from.
     /// </summary>
-    private static void ImportNativeEnemyProjectile(EnemyProjectile projectile, EnemyGraphicsSet graphicsSet, IImportCartridgeSource cartridge,
+    private static void ImportNativeEnemyProjectile(EnemyProjectile projectile, SuperMetroid.AssetExtraction.Enemies.RoomEnemyGraphicsSetDefinition graphicsSet, IImportCartridgeSource cartridge,
         Func<int, ushort> W)
     {
         int index = projectile.Place * 2;

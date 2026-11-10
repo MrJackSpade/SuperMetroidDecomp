@@ -16,8 +16,8 @@ internal static class SpawnedObjectSheetFrameRulesVerification
     /// <summary>Checks every installed spawned-object sheet's frames against the sheet pixel rules.</summary>
     internal static void VerifySpawnedObjectSheetInks() =>
         SheetInkRules.Assert("spawned-object", RepositoryInstallation.Installation.EnemySheetDirectory,
-            [.. InstalledFixtures.EnemySheets.spawned.OrderBy(entry => entry.Key.Set, StringComparer.Ordinal).ThenBy(entry => entry.Key.Owner.ToString(), StringComparer.Ordinal)
-                .SelectMany(entry => entry.Value.Sheets.Select(sheet => new LabelledSheet($"{entry.Key.Set} spawned {entry.Key.Owner}", sheet)))]);
+            [.. InstalledFixtures.EnemySheets.spawnedVariants.OrderBy(entry => entry.Key, StringComparer.Ordinal)
+                .SelectMany(entry => entry.Value.Sheet.Sheets.Select(sheet => new LabelledSheet($"spawned {entry.Key}", sheet)))]);
 
     /// <summary>Runs the installed spawned-object sheets' pixel rules.</summary>
     [VerificationCommand("--spawned-object-sheet-frame-rules")]

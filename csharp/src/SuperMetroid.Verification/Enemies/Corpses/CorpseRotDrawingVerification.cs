@@ -67,7 +67,7 @@ internal static class CorpseRotDrawingVerification
             foreach (EnemyFrameId frame in frames)
             {
                 string picture = EnemySheetDefinitions.FrameName(frame);
-                compared += AssertDrawsWhole(sheets.For(set, enemy).Frame(picture), sheets.CorpsePlacement(set, enemy, picture), rows.Shown,
+                compared += AssertDrawsWhole(sheets.For(set, enemy).Frame(picture), sheets.Under(set).Enemy(enemy).CorpsePlacement(picture), rows.Shown,
                     authored, $"{enemy} {frame} after rot call {call}");
             }
         }
@@ -94,9 +94,9 @@ internal static class CorpseRotDrawingVerification
         while (true)
         {
             int calls = checked((int)state.ProcessCallCount);
-            compared += AssertDrawsWhole(bodySheet.Frame(body), sheets.CorpsePlacement(set, EnemyDefinitionId.CorpseTorizo, body), state.Rows.Shown,
+            compared += AssertDrawsWhole(bodySheet.Frame(body), sheets.Under(set).Enemy(EnemyDefinitionId.CorpseTorizo).CorpsePlacement(body), state.Rows.Shown,
                 authored, $"dead Torizo after rot call {calls}");
-            compared += AssertDrawsWhole(hookSheet.Frame(hook), sheets.SpawnedCorpsePlacement(set, SpawnedObjectOwner.Shared, hook),
+            compared += AssertDrawsWhole(hookSheet.Frame(hook), sheets.Under(set).Spawned(SpawnedObjectOwner.Shared).CorpsePlacement(hook),
                 DeadTorizoBehavior.ShownSand(state), AuthoredRot.Sand(calls), $"dead Torizo's hook after rot call {calls}");
             if (!rotting)
                 break;
@@ -111,7 +111,7 @@ internal static class CorpseRotDrawingVerification
     {
         RoomEnemyGraphicsSetDefinition set = SetDrawing(sheets, EnemyDefinitionId.MotherBrainHead);
         string name = EnemySheetDefinitions.FrameName(EnemyFrameId.MotherBrainHead12);
-        AssertEqual(0, sheets.ChangingEncounters(set, EnemyDefinitionId.MotherBrainHead, name).Count,
+        AssertEqual(0, sheets.Under(set).Enemy(EnemyDefinitionId.MotherBrainHead).ChangingEncounters(name).Count,
             "Mother Brain's corpse frame has one finished picture, which no later look changes");
         SpriteSheet sheet = sheets.For(set, EnemyDefinitionId.MotherBrainHead);
         var rotting = new MotherBrainCorpseRottingState();
@@ -125,7 +125,7 @@ internal static class CorpseRotDrawingVerification
                 still = rotting.Step(new Position16<RoomPixels>(128, 112), MotherBrainRandomSample.FromGenerator(unchecked((ushort)(call * 37))), call).StillRotting;
                 ReplaySchedule(authored, rotting);
             }
-            compared += AssertDrawsWhole(sheet.Frame(name), sheets.CorpsePlacement(set, EnemyDefinitionId.MotherBrainHead, name), rotting.Shown,
+            compared += AssertDrawsWhole(sheet.Frame(name), sheets.Under(set).Enemy(EnemyDefinitionId.MotherBrainHead).CorpsePlacement(name), rotting.Shown,
                 authored, $"Mother Brain's corpse after rot call {call}");
         }
         return compared;
@@ -231,14 +231,11 @@ internal static class CorpseRotDrawingVerification
 
     /// <summary>The frames of <paramref name="enemy"/>'s sheet under <paramref name="set"/> the sheet says a rotting corpse lies in.</summary>
     private static IEnumerable<EnemyFrameId> CorpseFrames(InstalledEnemySheets sheets, RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy) =>
-        EnemyDefinitionFrameDefinitions.Frames[enemy].Where(frame => sheets.CorpsePlacement(set, enemy, EnemySheetDefinitions.FrameName(frame)) is not null);
+        EnemyDefinitionFrameDefinitions.Frames[enemy].Where(frame => sheets.Under(set).Enemy(enemy).CorpsePlacement(EnemySheetDefinitions.FrameName(frame)) is not null);
 
-    /// <summary>The first graphics set that installs a sheet of <paramref name="enemy"/>.</summary>
-    private static RoomEnemyGraphicsSetDefinition SetDrawing(InstalledEnemySheets sheets, EnemyDefinitionId enemy)
-    {
-        string name = sheets.sheets.Keys.First(key => key.Enemy == enemy).Set;
-        return RoomEnemyGraphicsSetLists.DrawnUnder.First(set => set.Name == name);
-    }
+    /// <summary>The first graphics set rooms draw under whose installed artwork holds a variant of <paramref name="enemy"/>.</summary>
+    private static RoomEnemyGraphicsSetDefinition SetDrawing(InstalledEnemySheets sheets, EnemyDefinitionId enemy) =>
+        RoomEnemyGraphicsSetLists.DrawnUnder.First(set => sheets.Under(set).enemies.ContainsKey(enemy));
 
     /// <summary>
     /// The authored rot, restated apart from Core: for each corpse row, the corpse row it shows, or none. A move copies a row

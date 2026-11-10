@@ -13,19 +13,14 @@ namespace SuperMetroid.Core.Enemies;
 public sealed record RoomEnemyLoadRequest : IRoomEnemyLoad
 {
     /// <summary>Creates a load of <paramref name="population"/> into the room whose load <paramref name="appearance"/> shows over.</summary>
-    public RoomEnemyLoadRequest(RoomEnemyPopulationDefinition population,
-        RoomEnemyGraphicsSetDefinition graphicsSet, RoomAppearance appearance)
+    public RoomEnemyLoadRequest(RoomEnemyPopulationDefinition population, RoomAppearance appearance)
     {
         Population = Ensure.NotNull(population);
-        GraphicsSet = Ensure.NotNull(graphicsSet);
         Appearance = Ensure.NotNull(appearance);
     }
 
     /// <inheritdoc />
     public RoomEnemyPopulationDefinition Population { get; }
-
-    /// <inheritdoc />
-    public RoomEnemyGraphicsSetDefinition GraphicsSet { get; }
 
     /// <inheritdoc />
     public RoomAppearance Appearance { get; }

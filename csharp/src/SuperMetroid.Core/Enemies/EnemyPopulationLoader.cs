@@ -3,8 +3,8 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Room enemy population loading: the population and kill quota, and resolution of enemy definitions,
-/// populations and graphics sets from the room state.
+/// Room enemy population loading: the population and kill quota, and resolution of enemy definitions and
+/// populations from the room state.
 /// </summary>
 internal sealed class EnemyPopulationLoader
 {

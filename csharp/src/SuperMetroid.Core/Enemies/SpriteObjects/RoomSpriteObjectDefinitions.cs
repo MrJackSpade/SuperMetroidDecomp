@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.SpriteObjects;
 /// <summary>The program each room sprite-object kind starts, as the sprite-object spawn selects it.</summary>
 internal static class RoomSpriteObjectDefinitions
 {
-    /// <summary>The program each kind an owner spawns starts; <see cref="RoomSpriteObjectKind.None"/> starts none.</summary>
+    /// <summary>The program each kind an owner spawns starts.</summary>
     internal static IReadOnlyDictionary<RoomSpriteObjectKind, RoomSpriteObjectProgram> Programs { get; } =
         new Dictionary<RoomSpriteObjectKind, RoomSpriteObjectProgram>
     {

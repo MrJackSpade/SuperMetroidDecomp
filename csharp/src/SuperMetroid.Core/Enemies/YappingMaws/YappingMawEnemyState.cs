@@ -18,7 +18,7 @@ public sealed class YappingMawEnemyState
     /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<YappingMawProgram> Program { get; set; }
 
-    /// <summary>Physical enemy slot representing the moving mouth, distinct from the four body-projectile slots and the stationary root sprite-object slot.</summary>
+    /// <summary>Physical enemy slot representing the moving mouth, distinct from the four body-projectile slots and the stationary root sprite object.</summary>
     public RoomEnemySlot Owner { get; }
     /// <summary>Host projection of the variable-A dispatcher entry, initialized to neutral and advanced by targeting, curl completion, and cooldown expiration.</summary>
     public YappingMawAiFunction Function { get; internal set; }
@@ -125,7 +125,7 @@ public sealed class YappingMawEnemyState
         new EnemyProjectile?[4];
 
     /// <summary>The root/base object selected by population parameter two.</summary>
-    public RoomSpriteObjectSlot? RootSpriteObject { get; internal set; }
+    public RoomSpriteObject? RootSpriteObject { get; internal set; }
 
     /// <summary>One variable-27..2E curl correction per tongue link, changed only by calculations.</summary>
     internal Offset16<RoomPixels>[] Corrections { get; } = new Offset16<RoomPixels>[4];

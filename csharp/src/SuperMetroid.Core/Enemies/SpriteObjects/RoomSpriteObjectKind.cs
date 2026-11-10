@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Enemies.SpriteObjects;
 /// </summary>
 public enum RoomSpriteObjectKind
 {
-    /// <summary>A cleared slot, which shows nothing.</summary>
-    None,
     /// <summary>Finite small explosion used by Spore Spawn, Draygon, and escape effects.</summary>
     SporeSpawnDyingExplosion,
     /// <summary>The same small explosion, as the generic enemy-death explosions spawn it.</summary>

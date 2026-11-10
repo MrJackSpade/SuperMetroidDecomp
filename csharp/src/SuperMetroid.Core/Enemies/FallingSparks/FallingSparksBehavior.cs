@@ -14,10 +14,10 @@ internal sealed class FallingSparksBehavior
     /// <summary>Allocates sparks and applies their projectile definition and motion.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Allocates the periodic sprite-object trail.</summary>
-    private readonly RoomSpriteObjectPool _spriteObjects;
+    private readonly RoomSpriteObjects _spriteObjects;
 
     /// <summary>Binds room RNG, projectile allocation, and sprite-object trail ownership.</summary>
-    internal FallingSparksBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomSpriteObjectPool spriteObjects)
+    internal FallingSparksBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomSpriteObjects spriteObjects)
     {
         _room = room;
         _projectiles = projectiles;

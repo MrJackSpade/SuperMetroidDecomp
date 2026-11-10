@@ -29,7 +29,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Creates the four auxiliary body-link projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Owns the root sprite object accompanying the body links.</summary>
-    private readonly RoomSpriteObjectPool _spriteObjects;
+    private readonly RoomSpriteObjects _spriteObjects;
     /// <summary>Caps camera movement while Samus is held at the Maw's mouth.</summary>
     private readonly SamusScrollCap _scrollCap;
 
@@ -37,7 +37,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Connects Maw AI to room, body-link, sprite-object, and Samus camera services.</summary>
-    internal YappingMawBehavior(EnemyProjectileEngine projectiles, RoomSpriteObjectPool spriteObjects, SamusScrollCap scrollCap, EnemyAudioQueue audio)
+    internal YappingMawBehavior(EnemyProjectileEngine projectiles, RoomSpriteObjects spriteObjects, SamusScrollCap scrollCap, EnemyAudioQueue audio)
     {
         _audio = audio;
         _projectiles = projectiles;
@@ -128,20 +128,13 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             state.BodyProjectiles[parameter] = body;
         }
 
-        // The sprite-object spawn uses object number 56 for parameter zero and 57 otherwise. Its
-        // returned index is represented by the retained physical slot reference.
+        // The root's kind follows the Maw's attack direction; the Maw holds the root it spawned.
         state.RootSpriteObject = _spriteObjects.SpawnRoomSpriteObject(
             new(slot.Position.X.Whole, CoordinateAxis.Wrap(slot.Position.Y.Whole + (slot.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down ? -8 : 8))),
             slot.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
                 ? RoomSpriteObjectKind.YappingMawRootVariantZero
                 : RoomSpriteObjectKind.YappingMawRootVariantOne,
             SpriteGraphics.SpawnedBy(slot));
-
-        if (state.RootSpriteObject is null)
-        {
-            throw new InvalidDataException(
-                $"Yapping Maw slot {slot.SlotIndex} could not allocate its root sprite object.");
-        }
     }
 
     /// <summary>Runs the Maw's main behaviour and the four post-dispatch link-position writers.</summary>
@@ -438,7 +431,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Runs after common shot AI on the Maw the hit struck. Ice releases a living Maw's captive; death additionally
-    /// destroys all four body eprojs and the root sprite-object slot, which the killed Maw's state still names.
+    /// destroys all four body eprojs and the root sprite object, which the killed Maw's state still names.
     /// </summary>
     private static void ResolveYappingMawShotAfterCommon(
         RoomEnemySlot slot,
@@ -456,7 +449,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
         foreach (EnemyProjectile? body in state.BodyProjectiles)
             body?.Delete();
-        state.RootSpriteObject?.Clear();
+        state.RootSpriteObject?.End();
         ReleaseSamusFromYappingMaw(state, samus);
     }
 

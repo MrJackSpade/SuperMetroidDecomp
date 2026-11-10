@@ -6,11 +6,11 @@ using SuperMetroid.Core.World;
 namespace SuperMetroid.Core.Enemies.SpriteObjects;
 
 /// <summary>
-/// Verification's native view of room sprite objects: the bank-$B4 address of the record a slot shows, derived from the
+/// Verification's native view of room sprite objects: the bank-$B4 address of the record an object shows, derived from the
 /// programs' list addresses (a timed record takes four bytes, a hold or delete two, a goto four and a fall-through none),
 /// and the native words of its timer, spritemap, attributes and disable flag.
 /// </summary>
-internal static class RoomSpriteObjectSlotAccess
+internal static class RoomSpriteObjectAccess
 {
     /// <summary>The bytes a step occupies in its native list.</summary>
     private static int StepBytes(AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue> step) => step switch
@@ -28,20 +28,22 @@ internal static class RoomSpriteObjectSlotAccess
         checked((ushort)(RoomSpriteObjectProgramAddresses.Entries[program] +
             RoomSpriteObjectAnimations.Programs.Steps(program).Take(position).Sum(StepBytes)));
 
-    /// <summary>Native views of a slot.</summary>
-    extension(RoomSpriteObjectSlot self)
+    /// <summary>Native views of a sprite object.</summary>
+    extension(RoomSpriteObject self)
     {
-        /// <summary>The bank-$B4 address of the record the slot shows, or zero for a free slot.</summary>
+        /// <summary>The bank-$B4 address of the record the object shows, or zero once it has ended.</summary>
         internal ushort InstructionPointer => self.Cursor is { } cursor ? RecordAddress(cursor.Program, cursor.Position - 1) : (ushort)0;
 
-        /// <summary>The native timer word.</summary>
-        internal ushort FrameHold => checked((ushort)self.Timer);
+        /// <summary>The native timer word while the object counts down; a holding object counts none.</summary>
+        internal ushort FrameHold => self.Holds
+            ? throw new InvalidOperationException($"Sprite object {self.Kind} holds its frame and counts no timer.")
+            : checked((ushort)self.Timer);
 
-        /// <summary>The bank-$B4 spritemap the slot shows, or zero for a free slot.</summary>
+        /// <summary>The bank-$B4 spritemap the object shows, or zero once it has ended.</summary>
         internal ushort SpritemapPointer => self.IsActive ? RoomSpriteObjectVisualDefinitionsConstants.Spritemap(self.Frame) : (ushort)0;
 
         /// <summary>
-        /// The native OBJ attribute word the character index the slot's owner draws from and the row holding its colours
+        /// The native OBJ attribute word the character index the object's owner draws from and the row holding its colours
         /// under <paramref name="enemies"/>' loaded graphics set encode to.
         /// </summary>
         internal ushort GraphicsIndexIn(RoomEnemySystem enemies) =>
@@ -49,6 +51,17 @@ internal static class RoomSpriteObjectSlotAccess
 
         /// <summary>The native disable word.</summary>
         internal int DisableFlags => self.UpdatesDisabled ? 1 : 0;
+    }
+
+    /// <summary>Views of the room's sprite objects.</summary>
+    extension(RoomSpriteObjects self)
+    {
+        /// <summary>The instance <paramref name="spawned"/>'s draws carry: its position among the live objects.</summary>
+        internal int DrawInstanceOf(RoomSpriteObject spawned)
+        {
+            int instance = self.Live.ToList().IndexOf(spawned);
+            return instance >= 0 ? instance : throw new InvalidOperationException($"Sprite object {spawned.Kind} is not live.");
+        }
     }
 
     /// <summary>Native views of the kind selection.</summary>

@@ -28,7 +28,7 @@ internal sealed record DraygonBehaviorDependencies
     public required EnemyAudioQueue Audio { get; init; }
 
     /// <summary>Sprite objects.</summary>
-    public required RoomSpriteObjectPool SpriteObjects { get; init; }
+    public required RoomSpriteObjects SpriteObjects { get; init; }
 
     /// <summary>Presentation.</summary>
     public required EnemyPresentation Presentation { get; init; }

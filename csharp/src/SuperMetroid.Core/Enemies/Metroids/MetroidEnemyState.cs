@@ -4,14 +4,14 @@ using SuperMetroid.Core.Enemies.SpriteObjects;
 namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>
-/// The state of an ordinary Metroid, with its three extra values. The two sprite-object references are the
-/// managed equivalent of the original's sprite-object indexes; the drain accumulator is the third.
+/// The state of an ordinary Metroid, with its three extra values: the two outer-body sprite objects it spawned and
+/// the drain accumulator.
 /// </summary>
 public sealed class MetroidEnemyState
 {
     /// <summary>Connects the Metroid's common slot to its two live outer-body sprite objects.</summary>
-    internal MetroidEnemyState(RoomSpriteObjectSlot outerBodyA,
-        RoomSpriteObjectSlot outerBodyB)
+    internal MetroidEnemyState(RoomSpriteObject outerBodyA,
+        RoomSpriteObject outerBodyB)
     {
         OuterBodyA = outerBodyA;
         OuterBodyB = outerBodyB;
@@ -29,10 +29,10 @@ public sealed class MetroidEnemyState
     /// <summary>Zero-based movement dispatcher index 0..3, not an AI routine.</summary>
     public MetroidAiFunction Function { get; internal set; }
 
-    /// <summary>Live shared-pool electricity sprite object; the Metroid owner repositions, freezes and terminates it alongside the central body.</summary>
-    public RoomSpriteObjectSlot OuterBodyA { get; }
-    /// <summary>Live shared-pool shell sprite object; distinct from both the electricity layer and central enemy spritemap.</summary>
-    public RoomSpriteObjectSlot OuterBodyB { get; }
+    /// <summary>The electricity sprite object the Metroid spawned; its owner repositions, freezes and ends it alongside the central body.</summary>
+    public RoomSpriteObject OuterBodyA { get; }
+    /// <summary>The shell sprite object the Metroid spawned; distinct from both the electricity layer and the central body.</summary>
+    public RoomSpriteObject OuterBodyB { get; }
 
     /// <summary>
     /// Fractional health-drain accumulator, 0 through 65535 in 1/65536ths of one energy. A borrow from subtracting the

@@ -29,14 +29,14 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues Metroid-specific animation, ice, and recoil sounds.</summary>
     private readonly EnemyAudioQueue _audio;
     /// <summary>Owns the two sprite objects composited over the Metroid body.</summary>
-    private readonly RoomSpriteObjectPool _spriteObjects;
+    private readonly RoomSpriteObjects _spriteObjects;
     /// <summary>Supplies the current frame's Samus and room context to registered AI.</summary>
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Creates death animations and randomized item drops.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
 
     /// <summary>Binds Metroid AI to the room, body layers, audio, frame context, and death owner.</summary>
-    internal MetroidBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyAudioQueue audio, RoomSpriteObjectPool spriteObjects, EnemyFrameContext frameContext, EnemyDeathsAndDrops deathsAndDrops)
+    internal MetroidBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyAudioQueue audio, RoomSpriteObjects spriteObjects, EnemyFrameContext frameContext, EnemyDeathsAndDrops deathsAndDrops)
     {
         _room = room;
         _terrain = terrain;
@@ -82,16 +82,14 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeMetroid(RoomEnemySlot slot)
     {
         SpriteGraphics graphics = SpriteGraphics.SpawnedBy(slot);
-        RoomSpriteObjectSlot outerBodyA = _spriteObjects.SpawnRoomSpriteObject(
+        RoomSpriteObject outerBodyA = _spriteObjects.SpawnRoomSpriteObject(
             slot.Position.Whole,
             RoomSpriteObjectKind.MetroidOuterBodyA,
-            graphics) ?? throw new InvalidOperationException(
-                "Metroid initialization exhausted the retail 32-slot sprite-object pool.");
-        RoomSpriteObjectSlot outerBodyB = _spriteObjects.SpawnRoomSpriteObject(
+            graphics);
+        RoomSpriteObject outerBodyB = _spriteObjects.SpawnRoomSpriteObject(
             slot.Position.Whole,
             RoomSpriteObjectKind.MetroidOuterBodyB,
-            graphics) ?? throw new InvalidOperationException(
-                "Metroid initialization exhausted the retail 32-slot sprite-object pool.");
+            graphics);
 
         var state = new MetroidEnemyState(outerBodyA, outerBodyB)
         {
@@ -380,8 +378,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         MetroidEnemyState state = slot.RequireSpeciesState<MetroidEnemyState>();
         state.Velocity = state.Velocity.WithWholeX(0);
-        state.OuterBodyA.Cursor = null;
-        state.OuterBodyB.Cursor = null;
+        state.OuterBodyA.End();
+        state.OuterBodyB.End();
         if (samus is not null)
             samus.MetroidAttachmentPalette = SamusMetroidAttachmentPalette.Inactive;
     }
@@ -417,7 +415,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Moves an outer-body sprite to the Metroid's position and enables its selected graphics.</summary>
     private static void PositionMetroidOuterBody(
-        RoomSpriteObjectSlot outerBody,
+        RoomSpriteObject outerBody,
         RoomEnemySlot metroid,
         SpriteGraphics graphics)
     {
@@ -428,14 +426,14 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Switches an outer-body sprite to frozen art without resetting its retained instruction timer.</summary>
     private static void FreezeMetroidOuterBody(
-        RoomSpriteObjectSlot outerBody,
+        RoomSpriteObject outerBody,
         RoomSpriteObjectProgram frozenProgram)
     {
         outerBody.Graphics = MetroidOuterBodyDefinitions.FrozenGraphics;
         outerBody.UpdatesDisabled = true;
         // Drawing reads the selected record even while animation is disabled.
         // Show the frozen program's first frame without resetting the retained timer.
-        RoomSpriteObjectPool.ShowFirstFrameKeepingTimer(outerBody, frozenProgram);
+        outerBody.ShowFirstFrameKeepingTimer(frozenProgram);
     }
 
     /// <summary>Restarts a Metroid animation at timer one after its function changes.</summary>

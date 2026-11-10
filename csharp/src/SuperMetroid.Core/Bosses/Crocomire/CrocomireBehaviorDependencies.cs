@@ -25,7 +25,7 @@ internal sealed record CrocomireBehaviorDependencies
     public required RoomEarthquake Earthquake { get; init; }
 
     /// <summary>Sprite objects.</summary>
-    public required RoomSpriteObjectPool SpriteObjects { get; init; }
+    public required RoomSpriteObjects SpriteObjects { get; init; }
 
     /// <summary>What the boss draws with: the room\'s presentation surfaces and the installed boss artwork.</summary>
     public required BossPresentation Presentation { get; init; }

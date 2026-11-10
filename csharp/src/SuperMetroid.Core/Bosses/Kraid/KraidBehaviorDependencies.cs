@@ -30,7 +30,7 @@ internal sealed record KraidBehaviorDependencies
     public required EnemyAudioQueue Audio { get; init; }
 
     /// <summary>Sprite objects.</summary>
-    public required RoomSpriteObjectPool SpriteObjects { get; init; }
+    public required RoomSpriteObjects SpriteObjects { get; init; }
 
     /// <summary>Slot table.</summary>
     public required EnemySlotTable SlotTable { get; init; }

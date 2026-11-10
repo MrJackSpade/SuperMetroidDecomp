@@ -10,12 +10,12 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 internal sealed class DraygonIntro
 {
     /// <summary>Allocates breath bubbles, death smoke, and burial Evir sprites.</summary>
-    private readonly RoomSpriteObjectPool _spriteObjects;
+    private readonly RoomSpriteObjects _spriteObjects;
     /// <summary>The wall turrets' firing cadence during Draygon's fight.</summary>
     private readonly DraygonTurrets _turrets;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal DraygonIntro(RoomSpriteObjectPool spriteObjects, DraygonTurrets turrets)
+    internal DraygonIntro(RoomSpriteObjects spriteObjects, DraygonTurrets turrets)
     {
         _spriteObjects = spriteObjects;
         _turrets = turrets;
@@ -36,14 +36,11 @@ internal sealed class DraygonIntro
                 // exactly these.
                 for (int dancer = 0; dancer < DraygonIntroDanceDefinitions.EvirCount; dancer++)
                 {
-                    if (_spriteObjects.SpawnRoomSpriteObject(
-                            new(16, 384),
-                            RoomSpriteObjectKind.DraygonIntroEvir,
-                            SpriteGraphics.SharedIn(DraygonColours.Evirs)) is { } sprite)
-                    {
-                        state.IntroEvirsSpawned++;
-                        state.IntroDancers.Add(new DraygonIntroDancer(sprite, DraygonIntroDance.StartDelay(dancer)));
-                    }
+                    RoomSpriteObject sprite = _spriteObjects.SpawnRoomSpriteObject(
+                        new(16, 384),
+                        RoomSpriteObjectKind.DraygonIntroEvir,
+                        SpriteGraphics.SharedIn(DraygonColours.Evirs));
+                    state.IntroDancers.Add(new DraygonIntroDancer(sprite, DraygonIntroDance.StartDelay(dancer)));
                 }
             }
             state.IntroFrames++;
@@ -75,7 +72,7 @@ internal sealed class DraygonIntro
         // The dance moves the Evirs it spawned, in the order they spawned, each once it has waited out its start delay.
         foreach (DraygonIntroDancer dancer in state.IntroDancers)
         {
-            RoomSpriteObjectSlot sprite = dancer.Sprite;
+            RoomSpriteObject sprite = dancer.Sprite;
             int step = state.IntroDanceStep - dancer.StartDelay;
             if (step < 0 || !sprite.IsActive)
                 continue;
@@ -84,7 +81,7 @@ internal sealed class DraygonIntro
 
             if (movement.DeletesSprite)
             {
-                sprite.Clear();
+                sprite.End();
                 continue;
             }
 

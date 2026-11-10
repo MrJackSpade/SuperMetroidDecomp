@@ -33,7 +33,7 @@ public enum SpriteSourceKind
     Enemy,
     /// <summary>An enemy projectile; the instance is its enemy-projectile place.</summary>
     EnemyProjectile,
-    /// <summary>A room sprite object (explosion, dust, splash); the instance is its sprite-object slot.</summary>
+    /// <summary>A room sprite object (explosion, dust, splash); the instance is its position among the room's live sprite objects, in spawn order.</summary>
     RoomSpriteObject,
     /// <summary>A Ceres elevator arrival actor; the instance is 0 for the moving pad and 1 for the platform.</summary>
     CeresElevatorArrival,

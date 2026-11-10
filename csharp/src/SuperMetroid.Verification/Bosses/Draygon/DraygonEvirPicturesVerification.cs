@@ -40,9 +40,8 @@ internal static class DraygonEvirPicturesVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Draygon);
         // The room load's uploads reach the OBJ characters when its first frame drains them.
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        RoomSpriteObjectSlot evir = runtime.Enemies.SpriteObjects.SpawnRoomSpriteObject(EvirPosition,
-            RoomSpriteObjectKind.DraygonIntroEvir, SpriteGraphics.SharedIn(SuperMetroid.Core.Bosses.Draygon.DraygonColours.Evirs)) ?? throw new InvalidOperationException(
-            "Draygon's room has a free sprite-object slot for an opening Evir.");
+        RoomSpriteObject evir = runtime.Enemies.SpriteObjects.SpawnRoomSpriteObject(EvirPosition,
+            RoomSpriteObjectKind.DraygonIntroEvir, SpriteGraphics.SharedIn(SuperMetroid.Core.Bosses.Draygon.DraygonColours.Evirs));
 
         RoomEnemyGraphicsSetDefinition set = runtime.Enemies.GraphicsSet.LoadedSet;
         SpawnedObjectOwner owner = evir.Graphics.Owner;
@@ -62,7 +61,7 @@ internal static class DraygonEvirPicturesVerification
     /// paint over the characters <paramref name="set"/> leaves once Draygon's opening has readied the Evirs; returns its draws.
     /// </summary>
     private static ImmutableArray<SpriteDraw> AssertDrawnLikeParts(SuperMetroidRuntime runtime, RoomEnemyGraphicsSetDefinition set,
-        RoomSpriteObjectSlot evir, string when)
+        RoomSpriteObject evir, string when)
     {
         SpriteArtwork live = EnemySheetFixtures.LivePage(set, ComposedEncounter.DraygonEvirs,
             EncounterLookUploads.IndexOf(ComposedEncounter.DraygonEvirs, EncounterLookUploads.DraygonEvirsLook));
@@ -82,13 +81,14 @@ internal static class DraygonEvirPicturesVerification
     }
 
     /// <summary>Draws the room's sprite objects and returns <paramref name="evir"/>'s draws.</summary>
-    private static ImmutableArray<SpriteDraw> DrawEvir(SuperMetroidRuntime runtime, RoomSpriteObjectSlot evir)
+    private static ImmutableArray<SpriteDraw> DrawEvir(SuperMetroidRuntime runtime, RoomSpriteObject evir)
     {
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
         runtime.Enemies.SpriteObjects.DrawRoomSpriteObjects(sprites, Position16<RoomPixels>.Zero);
         sprites.FinalizeFrame();
-        return [.. sprites.Draws.Where(draw => draw.Source == new SpriteSource(SpriteSourceKind.RoomSpriteObject, evir.SlotIndex))];
+        var source = new SpriteSource(SpriteSourceKind.RoomSpriteObject, runtime.Enemies.SpriteObjects.DrawInstanceOf(evir));
+        return [.. sprites.Draws.Where(draw => draw.Source == source)];
     }
 
     /// <summary>Runs the Draygon Evir picture check.</summary>

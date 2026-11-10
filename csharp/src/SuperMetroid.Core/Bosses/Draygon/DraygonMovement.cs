@@ -9,10 +9,10 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 internal sealed class DraygonMovement
 {
     /// <summary>Allocates breath bubbles, death smoke, and burial Evir sprites.</summary>
-    private readonly RoomSpriteObjectPool _spriteObjects;
+    private readonly RoomSpriteObjects _spriteObjects;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal DraygonMovement(RoomSpriteObjectPool spriteObjects)
+    internal DraygonMovement(RoomSpriteObjects spriteObjects)
     {
         _spriteObjects = spriteObjects;
     }
@@ -26,18 +26,15 @@ internal sealed class DraygonMovement
             : body.Position.X.MovedBack(state.SwoopVelocity));
     }
 
-    /// <summary>Emits a breath bubble every 128 body frames when a sprite slot is available.</summary>
+    /// <summary>Emits a breath bubble every 128 body frames.</summary>
     internal void SpawnPeriodicDraygonBreathBubble(DraygonEnemyState state)
     {
         if ((state.Body.FrameCounter & 127) != 0)
             return;
-        if (_spriteObjects.SpawnRoomSpriteObject(
-                new(CoordinateAxis.Wrap(state.Body.Position.X.Whole - 16), CoordinateAxis.Wrap(state.Body.Position.Y.Whole - 16)),
-                RoomSpriteObjectKind.DraygonBreathBubble,
-                graphics: default) is not null)
-        {
-            state.BreathBubblesSpawned++;
-        }
+        _spriteObjects.SpawnRoomSpriteObject(
+            new(CoordinateAxis.Wrap(state.Body.Position.X.Whole - 16), CoordinateAxis.Wrap(state.Body.Position.Y.Whole - 16)),
+            RoomSpriteObjectKind.DraygonBreathBubble,
+            graphics: default);
     }
 
     /// <summary>

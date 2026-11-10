@@ -33,10 +33,12 @@ internal static class FrozenMetroidShellVerification
         var shell = (state ?? throw new InvalidOperationException("Verification requires state.")).OuterBodyB;
         // The shell program's second record, the native alternating empty shell frame.
         var shellSteps = RoomSpriteObjectAnimations.Programs.Steps(RoomSpriteObjectProgram.MetroidShell);
-        shell.Cursor = new(RoomSpriteObjectProgram.MetroidShell, 2);
+        // The shell plays its first record out, which brings it onto the second with that record's whole duration.
+        var first = AssertIs<AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue>.ShowStep>(shellSteps[0], "first shell step");
+        for (int update = 0; update < first.Duration; update++)
+            shell.Step();
         var shown = AssertIs<AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue>.ShowStep>(shellSteps[1], "second shell step");
-        shell.Frame = shown.Frame;
-        shell.Timer = shown.Duration;
+        Require(shell.Frame == shown.Frame && shell.Timer == shown.Duration, "The shell must reach its second record with that record's whole duration.");
         Require(shell.InstructionPointer == 0xc4ba, "The reproduction must run the native empty shell record.");
         OamBuffer actual = ShellOam();
         Require(shell.SpritemapPointer == 0xbda6 && actual.NextByteOffset == 0,
@@ -73,7 +75,7 @@ internal static class FrozenMetroidShellVerification
             drawn.BeginFrame();
             enemies.SpriteObjects.DrawRoomSpriteObjects(drawn, Position16<RoomPixels>.Zero);
             drawn.FinalizeFrame();
-            var source = new SpriteSource(SpriteSourceKind.RoomSpriteObject, shell.SlotIndex);
+            var source = new SpriteSource(SpriteSourceKind.RoomSpriteObject, enemies.SpriteObjects.DrawInstanceOf(shell));
             var oam = new OamBuffer();
             oam.BeginFrame();
             oam.AppendDrawn(frame =>

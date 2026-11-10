@@ -13,7 +13,7 @@ internal static class MetroidDrainCountersVerification
     /// </summary>
     internal static void VerifyMetroidDrainCounters()
     {
-        var metroid = new MetroidEnemyState(new RoomSpriteObjectSlot(0), new RoomSpriteObjectSlot(1))
+        var metroid = new MetroidEnemyState(new RoomSpriteObject(RoomSpriteObjectKind.MetroidOuterBodyA, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard), new RoomSpriteObject(RoomSpriteObjectKind.MetroidOuterBodyB, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard))
         {
             DrainAccumulator = 0x3000,
         };

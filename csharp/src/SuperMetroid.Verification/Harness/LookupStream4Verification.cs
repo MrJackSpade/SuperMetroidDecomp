@@ -1278,17 +1278,16 @@ internal static class LookupStream4Verification
     /// <summary>Checks room sprite dispatch identities and their native table ordering.</summary>
     internal static void VerifyRoomSpriteDispatch(SuperMetroidAddressSpace rom)
     {
-        Func<RoomEnemySystem, Position16<RoomPixels>, RoomSpriteObjectKind, SpriteGraphics, RoomSpriteObjectSlot?> spriteSpawn =
+        Func<RoomEnemySystem, Position16<RoomPixels>, RoomSpriteObjectKind, SpriteGraphics, RoomSpriteObject> spriteSpawn =
             (owner, position, kind, graphics) => owner.SpriteObjects.SpawnRoomSpriteObject(position, kind, graphics);
         int kinds = 0;
-        foreach (RoomSpriteObjectKind kind in Enum.GetValues<RoomSpriteObjectKind>().Where(kind => kind != RoomSpriteObjectKind.None).Distinct())
+        foreach (RoomSpriteObjectKind kind in Enum.GetValues<RoomSpriteObjectKind>().Distinct())
         {
             ushort entry = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb4bda8 + 2 * RoomSpriteObjectNativeWords.Kinds.Word(kind)));
             AssertEqual(entry, RoomSpriteObjectDefinitions.InstructionPointer(kind), "room sprite native program case");
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            RoomSpriteObjectSlot? spawned = spriteSpawn(enemies, new(0x1234, 0x5678), kind, SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InProjectileLook));
-            AssertTrue(spawned is not null, "room sprite native case allocates real slot");
-            AssertEqual(entry, (spawned ?? throw new InvalidOperationException("Verification requires spawned.")).InstructionPointer, "room sprite actual initial program");
+            RoomSpriteObject spawned = spriteSpawn(enemies, new(0x1234, 0x5678), kind, SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InProjectileLook));
+            AssertEqual(entry, spawned.InstructionPointer, "room sprite actual initial program");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb40000 | entry)), spawned.FrameHold, "room sprite actual initial native duration");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb40000 | (entry + 2))), spawned.SpritemapPointer, "room sprite actual initial native visual");
             AssertEqual(kind, spawned.Kind, "room sprite selected kind preserved");
@@ -1300,9 +1299,6 @@ internal static class LookupStream4Verification
         foreach (ushort invalid in new ushort[] { 62, 0x8000, 0xffff })
             AssertEqual(false, RoomSpriteObjectNativeWords.Kinds.TryDecode(invalid, out _),
                 "room sprite native kind domain rejects invalid selector");
-        AssertThrows<KeyNotFoundException>(
-            () => _ = RoomSpriteObjectDefinitions.Programs[RoomSpriteObjectKind.None],
-            "room sprite cleared kind starts no program");
         Console.WriteLine($"Room sprite dispatch: {kinds} spawned kinds' native entries and actual spawns, initial timing/visuals and invalid selectors pass.");
     }
 

@@ -11,17 +11,17 @@ internal sealed class EscapeExplosionsBehavior
 {
     /// <summary>Shared queue that applies enemy sound limits to each explosion sound.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Room pool that owns the emitted explosion sprite objects.</summary>
-    private readonly RoomSpriteObjectPool _spriteObjects;
+    /// <summary>The room's sprite objects, which the explosions join.</summary>
+    private readonly RoomSpriteObjects _spriteObjects;
 
     /// <summary>Connects the escape explosion publisher to the room's shared sound and sprite owners.</summary>
-    internal EscapeExplosionsBehavior(EnemyAudioQueue audio, RoomSpriteObjectPool spriteObjects)
+    internal EscapeExplosionsBehavior(EnemyAudioQueue audio, RoomSpriteObjects spriteObjects)
     {
         _audio = audio;
         _spriteObjects = spriteObjects;
     }
 
-    /// <summary>Publishes an escape explosion's sprite and sound through the shared object pool.</summary>
+    /// <summary>Spawns an escape explosion's sprite object and requests its sound.</summary>
     /// <remarks>A random low nibble of eight or more leaves the inherited X selector unchanged; the caller may supply zero or a block offset.</remarks>
     public void SpawnEscapeExplosion(Position16<RoomPixels> position, int random, int inheritedX)
     {

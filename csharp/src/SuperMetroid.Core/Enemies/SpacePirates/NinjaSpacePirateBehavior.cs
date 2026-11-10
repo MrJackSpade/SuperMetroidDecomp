@@ -26,13 +26,13 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// <summary>Allocates thrown claw projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Spawns paired landing dust sprites.</summary>
-    private readonly RoomSpriteObjectPool _spriteObjects;
+    private readonly RoomSpriteObjects _spriteObjects;
 
     /// <summary>Receives sound requests from shared Space Pirate program steps.</summary>
     private readonly WalkingSpacePirateBehavior _walkingSpacePirateBehavior;
 
     /// <summary>Captures the room, collision, projectile, sprite, and sound owners for ninja AI.</summary>
-    internal NinjaSpacePirateBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, RoomSpriteObjectPool spriteObjects, WalkingSpacePirateBehavior walkingSpacePirateBehavior)
+    internal NinjaSpacePirateBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, RoomSpriteObjects spriteObjects, WalkingSpacePirateBehavior walkingSpacePirateBehavior)
     {
         _walkingSpacePirateBehavior = walkingSpacePirateBehavior;
         _room = room;
@@ -511,26 +511,20 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         state.Function = NinjaSpacePirateFunction.NoOperation;
     }
 
-    /// <summary>Attempts a dust sprite on each side of the landing position and counts successful spawns.</summary>
+    /// <summary>Spawns a dust cloud on each side of the landing position.</summary>
     private void SpawnNinjaPirateLandingDust(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state)
     {
         SpriteGraphics graphics = SpriteGraphics.SharedStandard;
-        if (_spriteObjects.SpawnRoomSpriteObject(
-                new(CoordinateAxis.Wrap(slot.Position.X.Whole - 8), CoordinateAxis.Wrap(slot.Position.Y.Whole + 28)),
-                RoomSpriteObjectKind.NinjaPirateLandingDust,
-                graphics) is not null)
-        {
-            state.LandingDustCount++;
-        }
-        if (_spriteObjects.SpawnRoomSpriteObject(
-                new(CoordinateAxis.Wrap(slot.Position.X.Whole + 8), CoordinateAxis.Wrap(slot.Position.Y.Whole + 28)),
-                RoomSpriteObjectKind.NinjaPirateLandingDust,
-                graphics) is not null)
-        {
-            state.LandingDustCount++;
-        }
+        _spriteObjects.SpawnRoomSpriteObject(
+            new(CoordinateAxis.Wrap(slot.Position.X.Whole - 8), CoordinateAxis.Wrap(slot.Position.Y.Whole + 28)),
+            RoomSpriteObjectKind.NinjaPirateLandingDust,
+            graphics);
+        _spriteObjects.SpawnRoomSpriteObject(
+            new(CoordinateAxis.Wrap(slot.Position.X.Whole + 8), CoordinateAxis.Wrap(slot.Position.Y.Whole + 28)),
+            RoomSpriteObjectKind.NinjaPirateLandingDust,
+            graphics);
     }
 
     /// <summary>A thrown claw's launch speed, eight pixels per update, in 1/256 pixel per update.</summary>

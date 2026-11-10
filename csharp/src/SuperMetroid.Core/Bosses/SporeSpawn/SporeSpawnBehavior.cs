@@ -29,7 +29,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Allocates stalks, spore emitters, spores, and hardening dust effects.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Spawns visual dust and dying explosions.</summary>
-    private readonly RoomSpriteObjectPool _spriteObjects;
+    private readonly RoomSpriteObjects _spriteObjects;
     /// <summary>Receives live and death palette writes.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Exposes the enemy-frame counter and process-all-enemies override.</summary>

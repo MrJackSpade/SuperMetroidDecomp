@@ -29,7 +29,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Allocates Botwoon's thirteen body actors and spit projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Spawns the wall-phase explosion sprites.</summary>
-    private readonly RoomSpriteObjectPool _spriteObjects;
+    private readonly RoomSpriteObjects _spriteObjects;
     /// <summary>Runs common touch behavior before Botwoon's special death tail.</summary>
     private readonly EnemyCollision _collision;
     /// <summary>Spawns the sixteen special drops from the chance table.</summary>

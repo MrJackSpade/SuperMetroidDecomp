@@ -186,7 +186,7 @@ internal sealed class EnemyDrawList
             // low- and high-priority layer ranges.
             if (layer == 5)
             {
-                _motherBrainBehavior.Head.DrawMotherBrainHook(sprites, camera);
+                _motherBrainBehavior.Head.DrawMotherBrainBrainAndNeck(sprites, camera);
                 _deadTorizoBehavior.DrawDeadTorizoSandHeap(sprites, camera);
             }
         }

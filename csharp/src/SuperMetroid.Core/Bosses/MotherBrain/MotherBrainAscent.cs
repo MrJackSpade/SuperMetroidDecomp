@@ -42,8 +42,7 @@ internal sealed class MotherBrainAscent
     {
         // The ascent installs colors 1..15 of the attack and back-leg palettes. Color zero
         // belongs to the room backdrop and must remain untouched.
-        state.Colours.Own.Lay(MotherBrainShades.PhaseTwo);
-        state.EnableUnpauseHook = true;
+        state.Colours.ShowPhaseTwo();
         state.Function = MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Brain;
         // The transition reveals her body, its frame as her body last showed it, replacing the room's pipe background
         // before the articulated body becomes visible (#1356, #1466, #1515).
@@ -58,7 +57,7 @@ internal sealed class MotherBrainAscent
 
         // Both records become tangible before the suspense pause, but remain invisible for
         // their separate reasons: the body waits for its leg tiles, while the head's hide-drawing
-        // bit deliberately selects the custom articulated draw hook.
+        // bit deliberately selects her brain and articulated neck's own draw.
         state.Body.Contact = state.Body.Contact.Without(EnemyContact.IgnoresSamus);
         state.Head.Contact = state.Head.Contact.Without(EnemyContact.IgnoresSamus);
         state.Head.Health = 18000;

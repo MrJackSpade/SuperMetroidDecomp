@@ -78,7 +78,7 @@ internal static class MotherBrainFakeDeathPaletteVerification
     /// </summary>
     private static SnesCgram Shown(MotherBrainEnemyState state, MotherBrainRainbowPalettePresentation colors)
     {
-        ushort[] words = BossShadeColours.Laid(state.Colours.Own.Laid, SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.RainbowSprites(colors),
+        ushort[] words = BossShadeColours.Laid(state.Colours.OwnShading.Shades, SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.RainbowSprites(colors),
             BossShadeColours.Sprites, 0);
         var cgram = new SnesCgram();
         for (int colour = 0; colour < SnesCgram.ColorCount; colour++)

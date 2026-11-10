@@ -69,9 +69,6 @@ public sealed class MotherBrainEnemyState
     /// <summary>Count of dynamically spawned physical falling-tube enemy records.</summary>
     public int SpawnedFallingTubeCount { get; internal set; }
 
-    /// <summary>Whether the unpause hook must restore Mother Brain's background image and beam SFX.</summary>
-    public bool EnableUnpauseHook { get; internal set; }
-
 
     /// <summary>The colours the encounter has loaded over its sprites, her body layer and her room (#1512).</summary>
     internal MotherBrainColours Colours { get; } = new();
@@ -105,8 +102,8 @@ public sealed class MotherBrainEnemyState
     public bool DeleteTurretsAndRinkas { get; internal set; }
 
     /// <summary>
-    /// Set by the head main on frames where the game's enemy-graphics-drawn hook points
-    /// at the brain draw. It is deliberately rebuilt every frame rather than treated as
+    /// Set by the head main on frames where her brain is drawn after the ordinary enemy
+    /// queues. It is deliberately rebuilt every frame rather than treated as
     /// ordinary visibility because both physical records carry the hide-drawing property.
     /// </summary>
     public bool DrawBrain { get; internal set; }
@@ -118,7 +115,7 @@ public sealed class MotherBrainEnemyState
     /// </summary>
     public int NextRainbowFrame { get; internal set; }
 
-    /// <summary>Whether the active draw hook appends five articulated neck joints.</summary>
+    /// <summary>Whether her brain's draw appends five articulated neck joints.</summary>
     public bool DrawNeck { get; internal set; }
 
     /// <summary>
@@ -184,8 +181,6 @@ public sealed class MotherBrainEnemyState
     /// <summary>Zero-based colour step used while leaving fake-death grey.</summary>
     public int GrayTransitionCounter { get; internal set; }
 
-    /// <summary>Enables the head's ordinary palette processing; resurrection and draining transitions suspend it while their own palettes own the colors.</summary>
-    public bool BrainPaletteHandlingEnabled { get; internal set; }
     /// <summary>Allows head bytecode's mouth-drool generation, enabled during live combat and cleared by low-power/death transitions.</summary>
     public bool DroolGenerationEnabled { get; internal set; }
     /// <summary>Allows the head's small purple breath/dust producer, enabled after stretching and disabled for the drained corpse interval.</summary>
@@ -318,8 +313,6 @@ public sealed class MotherBrainEnemyState
     public RotationAngle RainbowBeamAngle { get; internal set; }
     /// <summary>Rainbow-beam angular width in 8.8 table units, published by body AI as the beam widens or narrows; independent of pixel width at a given scanline.</summary>
     public int RainbowBeamAngularWidth { get; internal set; }
-    /// <summary>Whether this body-function call requested a rainbow palette step; cleared at the beginning of every enemy frame.</summary>
-    public bool RainbowBeamPaletteRequested { get; internal set; }
 
     /// <summary>
     /// Last brain program copied from the rainbow state machine into the brain.
@@ -343,10 +336,4 @@ public sealed class MotherBrainEnemyState
     /// and consumed by the next onion-ring spawn.
     /// </summary>
     public int OnionRingsTargetAngle { get; internal set; }
-
-    /// <summary>Clears the one-update rainbow palette witness before AI advances.</summary>
-    internal void BeginFrame()
-    {
-        RainbowBeamPaletteRequested = false;
-    }
 }

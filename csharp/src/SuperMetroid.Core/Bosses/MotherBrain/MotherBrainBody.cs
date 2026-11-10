@@ -102,7 +102,6 @@ internal sealed class MotherBrainBody
         _motherBrainEncounter.MotherBrain = new MotherBrainEnemyState(body)
         {
             Form = MotherBrainForm.Glass,
-            EnableUnpauseHook = false,
             HitboxesEnabled = MotherBrainHitboxParts.Brain,
             BrainFunction = MotherBrainBrainFunction.SetupBrainToBeDrawn,
             Function = MotherBrainBodyFunction.FirstPhase,

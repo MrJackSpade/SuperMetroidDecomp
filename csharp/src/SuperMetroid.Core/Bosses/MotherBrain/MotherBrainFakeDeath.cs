@@ -72,7 +72,7 @@ internal sealed class MotherBrainFakeDeath
                 // Fake-death fade replaces colors 145..147 only. Copying a convenient
                 // whole palette would visibly alter unrelated room art and is not what
                 // the fake-death fade does.
-                state.Colours.Own.Lay(MotherBrainShades.FakeDeathToGrey(step));
+                state.Colours.ShowFakeDeathToGrey(step);
             }
         }
 
@@ -82,12 +82,12 @@ internal sealed class MotherBrainFakeDeath
         RunMotherBrainFakeDeathExplosion(state);
     }
 
-    /// <summary>Stops the palette effect and restores the encounter's steady room colors.</summary>
-    internal static void StopMotherBrainRoomPalette(MotherBrainEnemyState state)
+    /// <summary>Stops her room's flash and shows its steady grey.</summary>
+    internal static void StopMotherBrainRoomFlash(MotherBrainEnemyState state)
     {
         state.RoomFlashFrame = null;
         state.RoomFlashTimer = 0;
-        state.Colours.Room.Lay(MotherBrainShades.FinalRoom);
+        state.Colours.ShowRoomGrey();
     }
 
     /// <summary>Emits timed explosions while the first-phase body appears to die.</summary>
@@ -357,7 +357,7 @@ internal sealed class MotherBrainFakeDeath
             return;
         }
 
-        StopMotherBrainRoomPalette(state);
+        StopMotherBrainRoomFlash(state);
         _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Strong, EarthquakeDirection.Vertical, EarthquakeReach.ForegroundBackgroundAndEnemies), 32);
         // The fake death ends the first four per-line display effects, removing the room's
         // liquid scroll effects (and any X-ray cone) for the rest of the encounter.
@@ -535,11 +535,10 @@ internal sealed class MotherBrainFakeDeath
         if (paletteStep < MotherBrainFakeDeathPaletteDefinitions.FrameCount)
         {
             // Fake-death restoration changes only brain sprite colors one through three.
-            state.Colours.Own.Lay(MotherBrainShades.FakeDeathFromGrey(paletteStep));
+            state.Colours.ShowFakeDeathFromGrey(paletteStep);
             return;
         }
 
-        state.BrainPaletteHandlingEnabled = true;
         state.Form = MotherBrainForm.SecondPhase;
         state.DroolGenerationEnabled = true;
         state.LowerNeckMovement = MotherBrainNeckMovement.Lower;

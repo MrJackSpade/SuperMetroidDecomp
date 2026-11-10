@@ -89,7 +89,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             : null;
         if (tested is not null)
             Combat.ResolveKraidMouthProjectileHits(body, state, tested);
-        Head.RunKraidPaletteHandling(body, state);
+        Head.RunKraidHurtColours(body, state);
         if (tested is not null)
             Combat.ResolveKraidBodyProjectileHits(body, state, tested);
         if (samus is not null)

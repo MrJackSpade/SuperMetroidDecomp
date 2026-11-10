@@ -88,7 +88,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         AssertBand(DraygonColorDestinations.IntroDestination,
             DraygonColorDefinitions.IntroCount, colors.ResolveIntro, "intro CGRAM");
 
-        state.HealthPaletteBand = 1;
+        state.HealthBand = 1;
         enemies.DraygonBehavior.Combat.ApplyDraygonHurt(body, state, null);
         for (int color = 0; color < DraygonColorDefinitions.BackgroundCount; color++)
         {
@@ -112,8 +112,8 @@ internal static class EnemyTileArtworkDraygonColorsVerification
             "white hurt sprite CGRAM");
         for (int band = 0; band < DraygonColorDefinitions.HealthBandCount; band++)
         {
-            state.HealthPaletteBand = band;
-            DraygonCombat.CopyDraygonHealthColors(state);
+            state.HealthBand = band;
+            DraygonCombat.ShowDraygonHealthBand(state);
             for (int color = 0; color < DraygonColorDefinitions.HealthBandColorCount; color++)
                 AssertEqual(colors.ResolveHealthBand(band, color),
                     Shown()[DraygonColorDestinations.HealthDestination + color],

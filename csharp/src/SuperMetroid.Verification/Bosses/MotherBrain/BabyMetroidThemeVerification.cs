@@ -22,12 +22,10 @@ internal static class BabyMetroidThemeVerification
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
         Action<BabyMetroidCutsceneStepResult> apply = enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects;
         var begin = new Action(enemies.BeginEnemySoundRequestFrame);
-        var beginMotherBrain = new Action(state.BeginFrame);
         var collect = new Action(enemies.PublishEnemyAudioRequests);
         for (int frame = 0; frame <= 73; frame++)
         {
             begin();
-            beginMotherBrain();
             var step = baby.Step(samus, sequence, HeadOf(sequence));
             apply(step);
             collect();

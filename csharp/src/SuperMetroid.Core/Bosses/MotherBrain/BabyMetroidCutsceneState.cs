@@ -56,7 +56,7 @@ public sealed class BabyMetroidCutsceneState
     /// Whether the onion-ring hit flash shows the shared white palette this update instead of
     /// the Baby's own sprite palette.
     /// </summary>
-    public bool HitFlashPaletteShown { get; private set; }
+    public bool HurtFlashShown { get; private set; }
 
     /// <summary>The Baby's current program.</summary>
     public MotherBrainBabyProgram Program { get; private set; }
@@ -85,9 +85,6 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>Initial request to permit the Baby cry effect.</summary>
     public bool CrySoundEnabled { get; private set; }
 
-    /// <summary>Health-palette gate, initially disabled for the entrance.</summary>
-    public bool HealthBasedPaletteEnabled { get; private set; }
-
     /// <summary>
     /// Zero-based leg of the ceiling-to-Samus route the Baby is steering along, started at the
     /// first leg after the ceiling collision.
@@ -110,11 +107,11 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>Saved whole-pixel origin used by the fatal-blow shake.</summary>
     public Position16<RoomPixels> FatalBlowOrigin { get; private set; }
 
-    /// <summary>Reload-eight timer producing the nine-call black-palette cadence.</summary>
-    public int FadeToBlackPaletteTimer { get; private set; }
+    /// <summary>Reload-eight timer producing the nine-call cadence of the Baby's fade to black.</summary>
+    public int FadeToBlackTimer { get; private set; }
 
-    /// <summary>Current black-fade palette index; valid stored values are 0..6.</summary>
-    public int FadeToBlackPaletteIndex { get; private set; }
+    /// <summary>The shade the Baby's fade to black has reached; valid stored values are 0..6.</summary>
+    public int FadeToBlackShade { get; private set; }
 
     /// <summary>Five-call cadence word for the dust explosions surrounding the dying Baby.</summary>
     public int DeathExplosionTimer { get; private set; }
@@ -136,13 +133,13 @@ public sealed class BabyMetroidCutsceneState
     public int RoomLightsTransitionCounter { get; private set; }
 
     /// <summary>
-    /// Fraction of a rainbow palette frame accumulated toward slowing Samus's rainbow, in
-    /// 1/65536 frames: each call adds 768, and every completed whole frame advances the palette.
+    /// Fraction of a rainbow frame accumulated toward slowing Samus's rainbow, in
+    /// 1/65536 frames: each call adds 768, and every completed whole frame advances her rainbow.
     /// </summary>
-    public int SamusRainbowPaletteAnimationCounter { get; private set; }
+    public int SamusRainbowFraction { get; private set; }
 
-    /// <summary>The accumulated fraction, in 1/65536 frames, that completes one rainbow palette frame.</summary>
-    private const int SamusRainbowPaletteFractionsPerFrame = 65536;
+    /// <summary>The accumulated fraction, in 1/65536 frames, that completes one rainbow frame.</summary>
+    private const int SamusRainbowFractionsPerFrame = 65536;
 
     /// <summary>
     /// Adds one call's 768/65536 of a rainbow palette frame to <paramref name="fraction"/>, returning
@@ -152,9 +149,9 @@ public sealed class BabyMetroidCutsceneState
     /// </summary>
     internal static SamusRainbowFractionStep AdvanceSamusRainbowFraction(int fraction)
     {
-        int sum = Ensure.BetweenInclusive(0, SamusRainbowPaletteFractionsPerFrame - 1, fraction) + 768;
-        return sum >= SamusRainbowPaletteFractionsPerFrame
-            ? new SamusRainbowFractionStep(sum - SamusRainbowPaletteFractionsPerFrame, true)
+        int sum = Ensure.BetweenInclusive(0, SamusRainbowFractionsPerFrame - 1, fraction) + 768;
+        return sum >= SamusRainbowFractionsPerFrame
+            ? new SamusRainbowFractionStep(sum - SamusRainbowFractionsPerFrame, true)
             : new SamusRainbowFractionStep(sum, false);
     }
 
@@ -180,21 +177,20 @@ public sealed class BabyMetroidCutsceneState
         Contact = populationContact.With(EnemyContact.BlocksPlasmaBeam);
         Processing = populationProcessing.With(EnemyProcessing.AnimationScript);
         Presence = populationPresence;
-        HitFlashPaletteShown = false;
+        HurtFlashShown = false;
         SetProgram(MotherBrainBabyProgram.Initial);
         CrySoundEnabled = true;
-        HealthBasedPaletteEnabled = false;
         RouteLeg = 0;
         Health = 3200;
         OnionRingHitFlashTimer = 0;
         FatalBlowOrigin = Position16<RoomPixels>.Zero;
-        FadeToBlackPaletteTimer = 0;
-        FadeToBlackPaletteIndex = 0;
+        FadeToBlackTimer = 0;
+        FadeToBlackShade = 0;
         DeathExplosionTimer = 0;
         DeathExplosionPatternIndex = 0;
         AttacksAgainReadyingElapsed = 0;
         RoomLightsTransitionCounter = 0;
-        SamusRainbowPaletteAnimationCounter = 0;
+        SamusRainbowFraction = 0;
         SamusRainbowPhase = BabyMetroidSamusRainbowPhase.Inactive;
         Position = FixedPosition<RoomPixels>.FromWhole(new(320, 96)).WithFractionsOf(previousOccupant);
         Velocity = default;
@@ -411,7 +407,6 @@ public sealed class BabyMetroidCutsceneState
                 // palette selection on *every* route call. The random cry comparison uses
                 // only the low twelve bits and succeeds for 4000 through 4095 (96 of 4096 seeds).
                 CrySoundEnabled = false;
-                HealthBasedPaletteEnabled = true;
                 ambientCrySoundQueued = MotherBrainRandomDefinitions.BabyMetroidCryRoll.Of(randomNumber) >= 4000;
 
                 // The route is eight overlapping records. The fixed targets, divisors, and callback identities are
@@ -496,7 +491,6 @@ public sealed class BabyMetroidCutsceneState
                     // disables health-band palettes, and lets the next step run next frame.
                     Health = 320;
                     Phase = BabyMetroidCutscenePhase.ReleaseSamus;
-                    HealthBasedPaletteEnabled = false;
                 }
                 break;
 
@@ -718,11 +712,11 @@ public sealed class BabyMetroidCutsceneState
         if (OnionRingHitFlashTimer != 0)
         {
             OnionRingHitFlashTimer--;
-            HitFlashPaletteShown = OnionRingHitFlashTimer / 2 % 2 != 0;
+            HurtFlashShown = OnionRingHitFlashTimer / 2 % 2 != 0;
         }
         else
         {
-            HitFlashPaletteShown = false;
+            HurtFlashShown = false;
         }
 
         return new BabyMetroidCutsceneStepResult(
@@ -773,8 +767,8 @@ public sealed class BabyMetroidCutsceneState
 
             case BabyMetroidSamusRainbowPhase.GraduallySlowAnimationDown:
             {
-                (int fraction, bool frameCompleted) = AdvanceSamusRainbowFraction(SamusRainbowPaletteAnimationCounter);
-                SamusRainbowPaletteAnimationCounter = fraction;
+                (int fraction, bool frameCompleted) = AdvanceSamusRainbowFraction(SamusRainbowFraction);
+                SamusRainbowFraction = fraction;
                 if (frameCompleted)
                     samus.Drained.IncrementRainbowPaletteFrame(maximumFrame: 10);
                 return;
@@ -810,15 +804,15 @@ public sealed class BabyMetroidCutsceneState
         if (CoordinateAxis.Difference(Position.Y.Whole, 128) < 0)
             return false;
 
-        if (--FadeToBlackPaletteTimer >= 0)
+        if (--FadeToBlackTimer >= 0)
             return false;
 
-        FadeToBlackPaletteTimer = 8;
-        int nextIndex = FadeToBlackPaletteIndex + 1;
+        FadeToBlackTimer = 8;
+        int nextIndex = FadeToBlackShade + 1;
         if (nextIndex >= 7)
             return true;
 
-        FadeToBlackPaletteIndex = nextIndex;
+        FadeToBlackShade = nextIndex;
         fadeShade = nextIndex;
         return false;
     }

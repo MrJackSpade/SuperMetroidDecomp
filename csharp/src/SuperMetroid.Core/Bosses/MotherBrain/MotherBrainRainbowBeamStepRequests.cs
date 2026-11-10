@@ -16,8 +16,8 @@ internal sealed class MotherBrainRainbowBeamStepRequests
     /// <summary>Whether the beam's sound was queued.</summary>
     internal bool SoundQueued { get; set; }
 
-    /// <summary>Whether the beam's palette was requested.</summary>
-    internal bool PaletteRequested { get; set; }
+    /// <summary>Whether this step shows the next step of her colours: the rainbow, the drain, the revival or the death fade.</summary>
+    internal bool ColoursRequested { get; set; }
 
     /// <summary>The beam explosion requested, if any.</summary>
     internal MotherBrainRainbowExplosionRequest? Explosion { get; set; }
@@ -97,7 +97,7 @@ internal sealed class MotherBrainRainbowBeamStepRequests
     /// <summary>The call's result, from the phases it started and ended in.</summary>
     internal MotherBrainRainbowBeamAttackStepResult ToResult(
         MotherBrainBodyFunction? phaseBefore, MotherBrainBodyFunction? phaseAfter, bool headAnimationScriptRequested) =>
-        new(phaseBefore, phaseAfter, Movement, SoundQueued, PaletteRequested, Explosion, ChargeSoundQueued, BodyWalkRequested,
+        new(phaseBefore, phaseAfter, Movement, SoundQueued, ColoursRequested, Explosion, ChargeSoundQueued, BodyWalkRequested,
             headAnimationScriptRequested, BodyPostureRequested, BabySpawnRequested, FinalBeamSoundQueued,
             DeathExplosions, CorpseDustRequests, MusicStopQueued, EscapeMusicQueued,
             EscapeMusicTrackQueued, EscapePaletteFxRequests,

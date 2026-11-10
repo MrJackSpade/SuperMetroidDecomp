@@ -75,13 +75,13 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         // The import pre-colours his pictures in each load of his colours, which his colour state names (#1512).
         BossSourceArtwork bosses = stock.Bosses;
         AssertBand(BossSheetShades.SpawnedObjects(bosses, EnemyDefinitionId.Crocomire), CrocomireShades.Wall, 16, colors.ResolveInitialWall, "initial wall");
-        enemies.CrocomireBehavior.Combat.ApplyCrocomireHurtPalette(body);
+        enemies.CrocomireBehavior.Combat.ApplyCrocomireHurtFlash(body);
         AssertTrue(state.Colours.ShowsFightBody && !state.Colours.HurtFlash, "a hurt update shows the restored fight body");
         IReadOnlyList<SheetShade> bodyShades = BossSheetShades.Body(BossBodyOwner.Crocomire, bosses, [], []);
         AssertBand(bodyShades, CrocomireShades.FightBody, CrocomireColorDefinitions.FightBodyCount, colors.ResolveFightBody, "restored fight-body");
         body.FlashTimer = 1;
         enemies.FrameContext.SeedRandomEnemyCounter(2);
-        enemies.CrocomireBehavior.Combat.ApplyCrocomireHurtPalette(body);
+        enemies.CrocomireBehavior.Combat.ApplyCrocomireHurtFlash(body);
         AssertTrue(state.Colours.HurtFlash, "a flashing hurt update shows the white hurt flash");
         AssertBand(bodyShades, CrocomireShades.BodyHurt, CrocomireColorDefinitions.FightBodyCount, _ => RgbColor.White, "native white hurt flash");
         AssertEqual(CrocomireDeathPhase.Fighting, state.DeathPhase,

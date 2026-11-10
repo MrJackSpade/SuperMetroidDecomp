@@ -167,7 +167,7 @@ public sealed class DraygonEnemyState
     /// The installed health-palette band 0-7 (the game stores twice this, since the threshold table is
     /// indexed by word); null until a band is installed.
     /// </summary>
-    public int? HealthPaletteBand { get; internal set; }
+    public int? HealthBand { get; internal set; }
 
     /// <summary>True after the terminal burial routine scatters sixteen physical pickups using the body's drop definition.</summary>
     public bool ItemDropRequested { get; internal set; }

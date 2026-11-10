@@ -31,13 +31,13 @@ internal sealed class KraidHead
         _background = background;
     }
 
-    /// <summary>Advances the active body palette program and health-dependent colors.</summary>
-    internal void RunKraidPaletteHandling(RoomEnemySlot body, KraidEnemyState state)
+    /// <summary>Steps his hurt flash down and shows the colours of his health band or of the flash.</summary>
+    internal void RunKraidHurtColours(RoomEnemySlot body, KraidEnemyState state)
     {
         if (body.Health == 0)
         {
             state.HurtFrame = 0;
-            UpdateKraidHealthPalettes(body, state);
+            UpdateKraidHealthColours(body, state);
             return;
         }
         if (state.HurtFrame == 0)
@@ -46,7 +46,7 @@ internal sealed class KraidHead
         {
             state.HurtFrameTimer = 2;
             state.StepHurtFrameDown();
-            UpdateKraidHealthPalettes(body, state);
+            UpdateKraidHealthColours(body, state);
         }
     }
 
@@ -54,7 +54,7 @@ internal sealed class KraidHead
     /// Shows Kraid's colours for his current health band, or the hurt flash on an odd hurt frame (#1512): his body and
     /// every sprite part take the band's shade, and his eyes the band's colours at once.
     /// </summary>
-    internal void UpdateKraidHealthPalettes(RoomEnemySlot body, KraidEnemyState state)
+    internal void UpdateKraidHealthColours(RoomEnemySlot body, KraidEnemyState state)
     {
         int band = (state.HurtFrame & 1) != 0 ? HurtBand : HealthBand(body, state);
         state.Colours.ShowBand(band, BandEyes(band), _background.EyeColours.Shaded);

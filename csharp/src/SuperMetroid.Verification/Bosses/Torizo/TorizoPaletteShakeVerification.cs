@@ -42,7 +42,7 @@ internal static class TorizoPaletteShakeVerification
         for (int frame = 0; frame < 96; frame++)
         {
             if (frame < 64 && frame % 4 == 0)
-                Execute(TorizoCueKind.AdvancePaletteFade);
+                Execute(TorizoCueKind.AdvanceColourFade);
             int timerBeforeShake = enemies.Earthquake.RemainingFrames;
             var shake = enemies.HandleRoomShaking(false);
             // An accepted shake frame is exactly one that consumes an earthquake-timer tick.
@@ -63,14 +63,14 @@ internal static class TorizoPaletteShakeVerification
         AssertEqual(beforeBlack, state.Colours.Shading, "Black target setup does not black out the current colours");
         // The running fade's counter stands at one: thirteen more steps move the colours and the fourteenth settles them.
         for (int call = 0; call < 14; call++)
-            Execute(TorizoCueKind.AdvancePaletteFade);
+            Execute(TorizoCueKind.AdvanceColourFade);
         AssertEqual(PictureShading.Shaded(TorizoShades.Shared).With(TorizoShades.Body(new TorizoLook(TorizoLookKind.Black))),
             state.Colours.Shading, "The completed fade settles the body and belly in black");
         AssertTrue(!enemies.Earthquake.IsShaking, "Completed fade does not create an earthquake");
 
         Execute(TorizoCueKind.FadeToNormalColors);
-        Execute(TorizoCueKind.AdvancePaletteFade);
-        Execute(TorizoCueKind.AdvancePaletteFade);
+        Execute(TorizoCueKind.AdvanceColourFade);
+        Execute(TorizoCueKind.AdvanceColourFade);
         // Save mid-fade: the fade's start, target and step must survive, not restart. They are the statue's colours, which
         // are saved on their own: the whole statue state reaches the enemy system's graph through its body slot.
         using var saved = new MemoryStream();
@@ -81,7 +81,7 @@ internal static class TorizoPaletteShakeVerification
 
         // A hurt colouring written mid-fade restarts the fade from it at the counter value it stands at (#1512).
         state.Colours.Show(new TorizoLook(TorizoLookKind.White));
-        Execute(TorizoCueKind.AdvancePaletteFade);
+        Execute(TorizoCueKind.AdvanceColourFade);
         PictureShade fromWhite = TorizoShades.Fading(new TorizoLook(TorizoLookKind.White), new TorizoLook(TorizoLookKind.Normal), 2, 2);
         AssertEqual(PictureShading.Shaded(TorizoShades.Shared).With(fromWhite), state.Colours.Shading,
             "The fade restarts from the hurt flash's white at the counter value it stands at");
@@ -158,8 +158,9 @@ internal static class TorizoPaletteShakeVerification
     }
 
     /// <summary>
-    /// Checks the Bomb Torizo's belly glow (#1512): the statue's colours lay the shade of each record the glow writes over
-    /// his own colouring until his colouring is written again, and a fade steps the glowing colours from the record shown;
+    /// Checks the Bomb Torizo's belly glow (#1512, #1597): the statue's colours show the shade of the glow's current record
+    /// over his own colouring, whatever colouring is written but his white flash, and a fade steps the glowing colours
+    /// from the record shown;
     /// the import's record shades recolour the three colours the program's colour index names with the colours of bank
     /// $8D's program, and its fade from a record takes the cartridge's step from those colours.
     /// </summary>
@@ -181,7 +182,7 @@ internal static class TorizoPaletteShakeVerification
         PaletteFxFrame shown = new(records[0].Shade.Step);
         var colours = new TorizoColours();
         colours.Show(new TorizoLook(TorizoLookKind.Normal));
-        colours.ShowBelly(shown);
+        colours.ShowBellyGlow(shown);
         AssertEqual(PaletteFxShades.Of(PaletteFxColours.TorizoBelly, shown), colours.Shading.Shades[^1], "The glow's record lies over the statue's colouring");
         colours.FadeToward(new TorizoLook(TorizoLookKind.Black));
         var counter = new SharedFadeStepCount();
@@ -203,7 +204,11 @@ internal static class TorizoPaletteShakeVerification
         }
         colours.Show(new TorizoLook(TorizoLookKind.White));
         AssertEqual(PictureShading.Shaded(TorizoShades.Shared).With(TorizoShades.Body(new TorizoLook(TorizoLookKind.White))), colours.Shading,
-            "The statue's colouring written again covers the glow");
+            "The white hurt flash covers the glow");
+        colours.Show(new TorizoLook(TorizoLookKind.Normal));
+        AssertEqual(PictureShading.Shaded(TorizoShades.Shared).With(TorizoShades.Body(new TorizoLook(TorizoLookKind.Normal)))
+            .With(PaletteFxShades.Of(PaletteFxColours.TorizoBelly, shown)), colours.Shading,
+            "Once the flash ends, the glow shows its current record at once over the colouring written");
     }
 
     /// <summary>Runs the focused Torizo palette and landing-shake checks.</summary>

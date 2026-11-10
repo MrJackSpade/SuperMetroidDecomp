@@ -517,14 +517,14 @@ internal static class LookupStream4Verification
             AssertEqual(Native(row, color), stock.ResolveAlarm(row, color), "installed native alarm color");
         }
         IReadOnlyList<SheetShade> room = [.. RidleySheetShades.CeresRoom(stock, floor), .. RidleySheetShades.CeresWarning(stock)];
-        Action<RidleyEnemyState, int> update = CeresRidleyGetaway.UpdateCeresSelfDestructPalette;
-        var state = new RidleyEnemyState { CeresEscapePaletteFrame = 15 };
+        Action<RidleyEnemyState, int> update = CeresRidleyGetaway.UpdateCeresSelfDestructAlarm;
+        var state = new RidleyEnemyState { SelfDestructAlarmStep = 15 };
         for (ushort nmi = 0; nmi < 64; nmi++)
         {
             update(state, nmi);
             ushort[] laid = RidleyLaidColours.Of(state, [], room, 0x1234);
             int row = nmi / 4;
-            AssertEqual((ushort)row, state.CeresEscapePaletteFrame, "actual alarm advances only every fourth NMI and wraps");
+            AssertEqual((ushort)row, state.SelfDestructAlarmStep, "actual alarm advances only every fourth NMI and wraps");
             for (int color = 0; color < 256; color++)
                 AssertEqual(color is >= 97 and <= 99 ? Native(row, color - 97) : (ushort)0x1234, laid[color], "actual gated producer preserves exact row and other CGRAM colors");
         }
@@ -1978,7 +1978,7 @@ internal static class LookupStream4Verification
                 var artwork=EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
                 var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
                 var enemies=new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance){TileArtwork=artwork, BossArtwork = artworkBosses}; var cgram=new SnesCgram();
-                                var body=enemies.SlotTable.Slots[0]; var state=new DraygonEnemyState(body){Eye=enemies.SlotTable.Slots[1],Tail=enemies.SlotTable.Slots[2],Arms=enemies.SlotTable.Slots[3],HealthPaletteBand=5};
+                                var body=enemies.SlotTable.Slots[0]; var state=new DraygonEnemyState(body){Eye=enemies.SlotTable.Slots[1],Tail=enemies.SlotTable.Slots[2],Arms=enemies.SlotTable.Slots[3],HealthBand=5};
                 Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
                 foreach(ushort timer in new ushort[]{2,0})
                 {
@@ -2032,7 +2032,7 @@ internal static class LookupStream4Verification
                 var artwork=EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
                 var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
                 var enemies=new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance){TileArtwork=artwork, BossArtwork = artworkBosses}; var cgram=new SnesCgram();
-                var body=enemies.SlotTable.Slots[0]; var state=new DraygonEnemyState(body){Eye=enemies.SlotTable.Slots[1],Tail=enemies.SlotTable.Slots[2],Arms=enemies.SlotTable.Slots[3],HealthPaletteBand=3};
+                var body=enemies.SlotTable.Slots[0]; var state=new DraygonEnemyState(body){Eye=enemies.SlotTable.Slots[1],Tail=enemies.SlotTable.Slots[2],Arms=enemies.SlotTable.Slots[3],HealthBand=3};
                 Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
                 foreach(ushort timer in new ushort[]{2,0})
                 {
@@ -2078,13 +2078,13 @@ internal static class LookupStream4Verification
                 var cgram = new SnesCgram();
                 RoomEnemySlot body = enemies.SlotTable.Slots[0];
                 var state = new DraygonEnemyState(body) { Eye = enemies.SlotTable.Slots[1], Tail = enemies.SlotTable.Slots[2], Arms = enemies.SlotTable.Slots[3] };
-                Action<DraygonEnemyState> update = DraygonCombat.UpdateDraygonHealthPalette;
+                Action<DraygonEnemyState> update = DraygonCombat.UpdateDraygonHealthBand;
                 Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
                 for (int band = 0; band < 8; band++)
                 {
-                    body.Health = (ushort)((7 - band) * 750); state.HealthPaletteBand = null;
+                    body.Health = (ushort)((7 - band) * 750); state.HealthBand = null;
                     update(state); LayDraygonShading(cgram, selected, state.Colours);
-                    AssertEqual(band, state.HealthPaletteBand, "Actual health threshold selects native color band");
+                    AssertEqual(band, state.HealthBand, "Actual health threshold selects native color band");
                     for (int shade = 0; shade < 4; shade++) AssertEqual(Pack(document.HealthBands[band][shade]), cgram.Colors[89 + shade], "Actual health producer shows the band's colours");
                     PictureShading heldBand = DraygonRoomShading(state.Colours); update(state);
                     AssertEqual(heldBand, DraygonRoomShading(state.Colours), "Same health band keeps the shading it shows");
@@ -2628,7 +2628,7 @@ internal static class LookupStream4Verification
             var selected = zoomStock;
             var ridley = new RidleyEnemyState();
             IReadOnlyList<SheetShade> zoomRoom = RidleySheetShades.CeresRoom(ceresStock, selected);
-            Action<ushort> apply = appliedZoom => CeresRidleyGetaway.UpdateCeresRidleyFloorPalette(ridley, appliedZoom);
+            Action<ushort> apply = appliedZoom => CeresRidleyGetaway.UpdateCeresRidleyFloorZoomColours(ridley, appliedZoom);
             for (int row = 0; row < 9; row++)
             {
                 apply((ushort)(row * 256 + 255));
@@ -2703,8 +2703,8 @@ internal static class LookupStream4Verification
             var selected = stock;
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
             IReadOnlyList<SheetShade> healthShades = RidleySheetShades.CeresSprites(selected);
-            Action<RoomEnemySlot, RidleyEnemyState> norfair = RidleyInteractions.UpdateNorfairRidleyHealthPalette;
-            Action<RidleyEnemyState> ceres = CeresRidleyHits.UpdateCeresRidleyHealthPalette;
+            Action<RoomEnemySlot, RidleyEnemyState> norfair = RidleyInteractions.UpdateNorfairRidleyHealthBand;
+            Action<RidleyEnemyState> ceres = CeresRidleyHits.UpdateCeresRidleyHealthBand;
             void Check(RidleyEnemyState shown, int row)
             {
                 ushort[] cgram = RidleyLaidColours.Of(shown, healthShades, [], 0x1234);

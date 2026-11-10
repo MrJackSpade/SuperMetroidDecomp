@@ -161,7 +161,7 @@ internal static class TorizoNativeListAddresses
         [0xb22e] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Command(TorizoCueKind.MakeInvisible)), []),
         [0xb238] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Command(TorizoCueKind.FadeToBlack)), []),
         [0xb24d] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Command(TorizoCueKind.FinishDeath)), []),
-        [0xb271] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Command(TorizoCueKind.AdvancePaletteFade)), []),
+        [0xb271] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Command(TorizoCueKind.AdvanceColourFade)), []),
         [0xb94d] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Command(TorizoCueKind.FadeToNormalColors)), []),
         [0xb951] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Command(TorizoCueKind.StartBombTorizoFight)), []),
         [0xc2c8] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Command(TorizoCueKind.NoOperation)), []),

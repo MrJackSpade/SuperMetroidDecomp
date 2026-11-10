@@ -243,7 +243,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             shitroidRecord.Function = words.A == 0 ? null : MotherBrainNativeWords.ShitroidAiFunctions.Decode(words.A, "recorded ShitroidAiFunction");
             shitroidRecord.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.C));
-            shitroidRecord.PalettePhase = LittleEndianBytes.LowByte(words.D);
+            shitroidRecord.MembranePulsePhase = LittleEndianBytes.LowByte(words.D);
             shitroidRecord.PaletteTimer = LittleEndianBytes.HighByte(words.D);
             shitroidRecord.PaletteDelay = words.E;
             shitroidRecord.StateTimer = CoordinateAxis.AsSigned(words.F);

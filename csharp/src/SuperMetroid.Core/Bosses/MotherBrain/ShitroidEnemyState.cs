@@ -23,8 +23,8 @@ public sealed class ShitroidEnemyState
     /// <summary>Signed 8.8 velocity: X, Y.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
-    /// <summary>Membrane palette-cycle phase, 0 through 7: each advance moves to the next of the eight phases.</summary>
-    public int PalettePhase { get; internal set; }
+    /// <summary>The phase of the membrane's pulse, 0 through 7: each advance moves to the next of the eight phases.</summary>
+    public int MembranePulsePhase { get; internal set; }
 
     /// <summary>
     /// Updates left before the membrane palette advances to its next phase; each update decrements it until zero, and
@@ -51,15 +51,9 @@ public sealed class ShitroidEnemyState
     /// <summary>Whether the periodic Shitroid cry is enabled (extended word 04).</summary>
     public bool CryEnabled { get; internal set; }
 
-    /// <summary>Palette cycles toward the next periodic cry, 0 through 3 (extended word 05).</summary>
+    /// <summary>Membrane pulses toward the next periodic cry, 0 through 3 (extended word 05).</summary>
     public int CryCounter { get; internal set; }
 
-    /// <summary>
-    /// Diagnostic mirror of its victim's palette stage. Shitroid writes the actual dead-sidehopper palette
-    /// stage through <c>ActivateDeadSidehopperVictim</c>; retaining this value on the boss state makes that cross-slot
-    /// side effect directly auditable.
-    /// </summary>
-    public bool VictimActivationFlag { get; internal set; }
     /// <summary>The membrane pulse phase last shown, or null before its first step (#1512).</summary>
     internal int? MembraneShown { get; set; }
 

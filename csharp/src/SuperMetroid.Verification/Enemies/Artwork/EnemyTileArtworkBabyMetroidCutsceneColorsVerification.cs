@@ -65,7 +65,7 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
         // The Baby's colours are sprite palette seven from colour one, CGRAM byte $01E2.
         int destination = 0x01e2 / 2;
         ushort[] Shown() => MotherBrainLook.Over(motherBrain, InstalledFixtures.Maps, stock.Bosses, BossShadeColours.Filled(0x1234));
-        enemies.BabyMetroidCutsceneBehavior.LoadBabyMetroidCutsceneInitialPalette();
+        enemies.BabyMetroidCutsceneBehavior.ShowBabyMetroidArrival();
         ushort[] cgram = Shown();
         AssertEqual(0x1234, cgram[destination - 1],
             "cutscene Baby initial load preserves palette color zero");
@@ -76,7 +76,7 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
 
         for (int index = 1; index <= BabyMetroidCutsceneColorDefinitions.FadeFrameCount; index++)
         {
-            enemies.BabyMetroidCutsceneBehavior.LoadBabyMetroidCutsceneFadePalette(index);
+            enemies.BabyMetroidCutsceneBehavior.ShowBabyMetroidFade(index);
             cgram = Shown();
             for (int color = 0; color < BabyMetroidCutsceneColorFormat.FadeColorCount; color++)
                 AssertEqual(colors.FadeColor(index, color).ToWord(), cgram[destination + color],

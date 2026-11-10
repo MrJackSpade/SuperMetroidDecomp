@@ -13,7 +13,7 @@ internal sealed class RidleyInteractions
         definitionId is EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.Ridley;
 
     /// <summary>Selects three damage-color health bands at 9000, 5400, and 1800 health.</summary>
-    internal static void UpdateNorfairRidleyHealthPalette(RoomEnemySlot slot, RidleyEnemyState state)
+    internal static void UpdateNorfairRidleyHealthBand(RoomEnemySlot slot, RidleyEnemyState state)
     {
         state.HealthStage = slot.Health switch
         {
@@ -29,7 +29,7 @@ internal sealed class RidleyInteractions
         // Norfair's health thresholds here, but use the installed palette so
         // editing that one asset updates both encounters consistently.
         int band = state.HealthStage - 1;
-        state.Colours.Sprites.Lay(RidleyShades.Health(band));
+        state.Colours.ShowHealth(band);
     }
 
     /// <summary>

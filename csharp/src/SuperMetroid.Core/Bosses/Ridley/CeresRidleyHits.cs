@@ -101,7 +101,7 @@ internal sealed class CeresRidleyHits
             slot,
             state,
             slot.FrameCounter - 1);
-        UpdateCeresRidleyHealthPalette(state);
+        UpdateCeresRidleyHealthBand(state);
     }
 
     /// <summary>
@@ -124,7 +124,7 @@ internal sealed class CeresRidleyHits
     /// original missing branch after the 90-shot comparison: 50-69 selects health band zero,
     /// and every value from 70 onward selects health band two.
     /// </summary>
-    internal static void UpdateCeresRidleyHealthPalette(RidleyEnemyState state)
+    internal static void UpdateCeresRidleyHealthBand(RidleyEnemyState state)
     {
         if (state.FightMode == RidleyFightMode.NotFighting || state.HitCounter < 50)
             return;
@@ -132,7 +132,7 @@ internal sealed class CeresRidleyHits
         int band = state.HitCounter < 70
             ? CeresRidleyPaletteDefinitions.HealthMidBand
             : CeresRidleyPaletteDefinitions.HealthLateBand;
-        state.Colours.Sprites.Lay(RidleyShades.Health(band));
+        state.Colours.ShowHealth(band);
     }
 
     /// <summary>Routes exploding normal bombs to Ceres Ridley's shot counter after common overlap.</summary>

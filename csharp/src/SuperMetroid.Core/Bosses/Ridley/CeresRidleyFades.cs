@@ -37,7 +37,7 @@ internal sealed class CeresRidleyFades
             return;
         }
 
-        state.Colours.Sprites.Lay(RidleyShades.EyeFade(fadeStep.Shade));
+        state.Colours.ShowEyeFade(fadeStep.Shade);
         state.FadeStep++;
     }
 
@@ -51,7 +51,7 @@ internal sealed class CeresRidleyFades
         // Each step of the body fade shows the next shade, from black to the full body colours.
         int shade = state.FadeStep;
         if (shade < CeresRidleyPaletteDefinitions.BodyFadeShadeCount)
-            state.Colours.Sprites.Lay(RidleyShades.BodyFade(shade));
+            state.Colours.ShowBodyFade(shade);
         else throw new InvalidOperationException(
             $"Ceres Ridley body-fade shade {shade} is outside the installed shades.");
         state.FadeStep++;

@@ -30,9 +30,9 @@ internal static class RidleyLaidColours
     {
         ArgumentNullException.ThrowIfNull(state);
         ArgumentNullException.ThrowIfNull(colours);
-        foreach (PictureShade shade in state.Colours.Room.Laid.Concat(state.Colours.Warning.Laid))
+        foreach (PictureShade shade in state.Colours.RoomShading.Shades.Concat(state.Colours.WarningShading.Shades))
             BossShadeColours.Lay(colours, room, shade, BossShadeColours.Room);
-        foreach (PictureShade shade in state.Colours.Sprites.Laid)
+        foreach (PictureShade shade in state.Colours.SpriteShading(flashing: false).Shades)
             BossShadeColours.Lay(colours, sprites, shade, BossShadeColours.Sprites);
         return colours;
     }

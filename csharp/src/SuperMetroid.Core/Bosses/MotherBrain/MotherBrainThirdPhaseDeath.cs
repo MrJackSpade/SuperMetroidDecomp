@@ -90,9 +90,6 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// </summary>
     public int ExplodedDoorReadyingElapsed { get; private set; }
 
-    /// <summary>Unpause-hook enable word cleared when the escape typewriter is installed.</summary>
-    public bool MotherBrainUnpauseHookEnabled { get; internal set; } = true;
-
     /// <summary>
     /// Set when the decapitation step installs the brain-slot draw setup before the decapitated head
     /// starts falling. The separate brain AI is not silently folded into the body function.
@@ -294,9 +291,8 @@ internal sealed class MotherBrainThirdPhaseDeath
             _state.UpperNeckMovement = MotherBrainNeckMovement.None;
             _state.DroolGenerationEnabled = false;
             _state.DisableSmallPurpleBreathGeneration();
-            _state.BrainPaletteHandlingEnabled = false;
-            _state.HealthBasedPaletteHandlingEnabled = false;
-            requests.PaletteRequested = true;
+            _state.HealthColoursEnabled = false;
+            requests.ColoursRequested = true;
             // Disabling the brain's effects clears the death-explosion counters before the fade-out explosions.
             DeathExplosionIntervalTimer = 0;
             DeathAndEscapeExplosionIndex = 0;
@@ -341,7 +337,7 @@ internal sealed class MotherBrainThirdPhaseDeath
             _state.FunctionTimer = 16;
             int paletteIndex = _state.GreyTransitionCounter;
             _state.GreyTransitionCounter++;
-            requests.PaletteRequested |= paletteIndex < 16;
+            requests.ColoursRequested |= paletteIndex < 16;
             if (paletteIndex >= 16)
             {
                 BodyClearRequested = true;
@@ -452,7 +448,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         {
             int paletteIndex = _state.GreyTransitionCounter;
             _state.GreyTransitionCounter++;
-            requests.PaletteRequested = paletteIndex < 8;
+            requests.ColoursRequested = paletteIndex < 8;
             if (paletteIndex < 8)
             {
                 _state.FunctionTimer = 16;
@@ -556,7 +552,7 @@ internal sealed class MotherBrainThirdPhaseDeath
             return false;
 
         // The last readying update performs the full escape-door handoff on that call: start escape music, hold the quake
-        // indefinitely, create four palette-FX objects, disable the old unpause hook, and initialize text. The door's
+        // indefinitely, create four palette-FX objects and initialize text. The door's
         // fragments are pre-coloured in the exploded door's colours, so its colour load is not kept (#1544).
         requests.EscapeMusicTrackQueued = true;        // Eight-frame-delay escape song.
         requests.StartEarthquake(MotherBrainDeathDefinitions.EscapeEarthquake, WrappingCountdown.LongestStart);
@@ -564,7 +560,6 @@ internal sealed class MotherBrainThirdPhaseDeath
         requests.EscapePaletteFxRequests.Add(PaletteFxObject.TourianBackgroundRedFlashing);
         requests.EscapePaletteFxRequests.Add(PaletteFxObject.TourianGeneralLevelRedFlashing);
         requests.EscapePaletteFxRequests.Add(PaletteFxObject.TourianRedFlashingArkanoidBlocksAndRedOrbs);
-        MotherBrainUnpauseHookEnabled = false;
         requests.EscapeTypewriterSetupRequested = true;
         _state.FunctionTimer = 32;
         _state.Phase = frame.AlternateEscapeText

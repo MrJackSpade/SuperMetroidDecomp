@@ -4,10 +4,10 @@ using SuperMetroid.Core.Bosses.Draygon.Artwork;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>
-/// Draygon's colours (#1512, #1544): whether a hurt update last showed his material colours or their white flash, and the
-/// health band last shown, with whether it was shown over a white flash. His body layer shows the import's shades of them,
-/// and his sprites show his opening's colours and his sprite shades. His room and the Evirs he spawns show their own
-/// colours: the original game drew them in colours his hurt updates rewrote, which the port does not share.
+/// Draygon's colours (#1512, #1544, #1597): whether a hurt update last showed his material colours or their white flash,
+/// and his health band, which his material colours show and his white flash covers. His body layer shows the import's
+/// shades of them, and his sprites show his opening's colours and his sprite shades. His room and the Evirs he spawns show
+/// their own colours: the original game drew them in colours his hurt updates rewrote, which the port does not share.
 /// </summary>
 internal sealed class DraygonColours : IGameplayShadingSource
 {
@@ -17,11 +17,8 @@ internal sealed class DraygonColours : IGameplayShadingSource
     /// <summary>Whether the last hurt update showed the white flash.</summary>
     private bool white;
 
-    /// <summary>The health band last shown, or null before any.</summary>
+    /// <summary>His health band, or null before any is shown.</summary>
     private int? band;
-
-    /// <summary>Whether the band was shown after the last hurt update's white flash, so it shows over it.</summary>
-    private bool bandOverWhite;
 
     /// <summary>The shading his sprites show: his opening's colours, with his material colours or white flash over them.</summary>
     internal PictureShading Sprites => !hurtShown
@@ -45,15 +42,10 @@ internal sealed class DraygonColours : IGameplayShadingSource
     {
         hurtShown = true;
         white = whiteFrame;
-        bandOverWhite = false;
     }
 
-    /// <summary>Shows health band <paramref name="shown"/>'s colours.</summary>
-    internal void ShowBand(int shown)
-    {
-        band = shown;
-        bandOverWhite = hurtShown && white;
-    }
+    /// <summary>Shows health band <paramref name="shown"/>'s colours with his material colours; his white flash covers them.</summary>
+    internal void ShowBand(int shown) => band = shown;
 
     /// <inheritdoc />
     public void ShadeGameplay(GameplayShadingBuilder frame)
@@ -62,8 +54,6 @@ internal sealed class DraygonColours : IGameplayShadingSource
         if (hurtShown && white)
         {
             frame.Shade(GameplayPictures.BossBody, DraygonShades.BackgroundWhite);
-            if (bandOverWhite && band is { } over)
-                frame.Shade(GameplayPictures.BossBody, DraygonShades.Health(over));
             return;
         }
         if (hurtShown)

@@ -34,7 +34,7 @@ public enum MotherBrainBodyFunction
     FakeDeathAscentDrawMuralRows9And10,
     /// <summary>Requests the mural's last two rows and hands off to phase-two graphics setup.</summary>
     FakeDeathAscentDrawMuralRows11And12,
-    /// <summary>Installs attack/back-leg colors, enables the unpause hook, and transfers the prepared enemy background tilemap.</summary>
+    /// <summary>Shows her phase-two attack and rear-leg colours and transfers the prepared enemy background tilemap.</summary>
     FakeDeathAscentSetupPhase2Graphics,
     /// <summary>Configures articulated drawing and blending, makes head/body tangible, sets head health 18,000, and immediately starts the 128-count suspense wait.</summary>
     FakeDeathAscentSetupPhase2Brain,

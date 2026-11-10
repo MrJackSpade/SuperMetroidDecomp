@@ -93,12 +93,8 @@ internal sealed class NorfairRidleyCombat
         };
         CeresRidleyFlight.StartRidleyProgram(_ridleyEncounter.Ridley, slot, RidleyBodyProgram.Initial);
 
-        // The initial colours install both the body and the tail/wing
-        // source palettes. The following loops clear the two fifteen-color sprite
-        // ranges that the reveal gradually fills; color zero remains transparent.
-        _ridleyEncounter.Ridley.Colours.Sprites.Lay(RidleyShades.NorfairStart);
-        _ridleyEncounter.Ridley.Colours.Sprites.Lay(RidleyShades.NorfairHidden);
-        _ridleyEncounter.Ridley.Colours.Room.Lay(RidleyShades.NorfairHidden);
+        // He arrives in his own colours, his body and tail hidden in black, and his arena hidden for its reveal.
+        _ridleyEncounter.Ridley.Colours.ShowNorfairArrival();
     }
 
     /// <summary>
@@ -117,7 +113,7 @@ internal sealed class NorfairRidleyCombat
             throw new InvalidDataException($"Norfair Ridley reveal step {step} is past the reveal's end.");
         hasPalette = step < NorfairRidleyPaletteDefinitions.RevealStepCount;
         if (hasPalette)
-            state.Colours.Room.Lay(RidleyShades.NorfairReveal(step));
+            state.Colours.ShowArenaReveal(step);
         state.FadeStep++;
         if (hasPalette)
             return;

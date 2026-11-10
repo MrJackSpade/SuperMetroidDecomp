@@ -68,13 +68,13 @@ internal sealed class MotherBrainHead
         MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.Initial);
     }
 
-    /// <summary>Ports the head main/hurt entry and its first-phase draw-hook selector.</summary>
+    /// <summary>Ports the head main/hurt entry and its choice of whether her brain and neck are drawn.</summary>
     internal void RunMotherBrainHeadMain(RoomEnemySlot head, SamusState? samus)
     {
         MotherBrainEnemyState state = _access.RequireCompleteMotherBrainState(head);
 
-        // The head main first restores the global enemy-graphics-drawn hook to an empty one. Only an
-        // intentionally invisible head dispatches the shared brain function and replaces it.
+        // The head main first stops drawing her brain and neck. Only an intentionally invisible head
+        // dispatches the shared brain function, which draws them again.
         state.DrawBrain = false;
         state.DrawNeck = false;
         if (!head.Presence.HasAny(EnemyPresence.Hidden))
@@ -102,12 +102,12 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>
-    /// Executes the brain draw hook after the ordinary enemy queues have
+    /// Draws her brain, and her neck when it is shown, after the ordinary enemy queues have
     /// been written. The source is an ordinary spritemap even though the population
     /// record carries the extended-spritemap property; routing it through the generic
-    /// extended parser is precisely the corruption the original game hook avoids.
+    /// extended parser is precisely the corruption her own brain draw avoids.
     /// </summary>
-    internal void DrawMotherBrainHook(SpriteFrameBuffer sprites, Position16<RoomPixels> camera)
+    internal void DrawMotherBrainBrainAndNeck(SpriteFrameBuffer sprites, Position16<RoomPixels> camera)
     {
         MotherBrainEnemyState? state = _motherBrainEncounter.MotherBrain;
         RoomEnemySlot? head = state?.Head;
@@ -131,7 +131,7 @@ internal sealed class MotherBrainHead
             new MotherBrainWorldFrame(
                 MotherBrainVisualDefinitions.HeadFrames.Of(brainFrame),
                 head.Position.Whole + brainShake,
-                // The custom draw hook bypasses ordinary enemy colour selection. Retail
+                // Her brain's own draw bypasses ordinary enemy colour selection. Retail
                 // still selects the shared white hurt colours on odd flash-timer frames.
                 (head.FlashTimer % 2 != 0) ? EnemyShades.HurtFlashLook : state.Colours.OwnShading),
             camera);
@@ -261,7 +261,7 @@ internal sealed class MotherBrainHead
     /// <summary>Carries out one cue of a brain program.</summary>
     /// <returns>The program a random hold or drool cue redirects to; otherwise null.</returns>
     /// <remarks>
-    /// The brain program advances in the brain draw hook, after the enemy update has collected the frame's legacy
+    /// The brain program advances in her brain's draw, after the enemy update has collected the frame's legacy
     /// sound slots, so its sounds go straight to the enemy audio queue at their limits (#1391).
     /// </remarks>
     private MotherBrainHeadProgram? ApplyMotherBrainHeadCue(MotherBrainEnemyState state, SamusState? samus, MotherBrainHeadCue cue)

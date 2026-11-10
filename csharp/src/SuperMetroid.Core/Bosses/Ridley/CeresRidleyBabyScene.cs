@@ -17,7 +17,7 @@ internal sealed class CeresRidleyBabyScene
 {
     /// <summary>Provides room randomness and Ceres artwork state.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Offsets the private Baby/door drawing hook during a room quake.</summary>
+    /// <summary>Offsets the scene's own Baby and door drawing during a room quake.</summary>
     private readonly RoomEarthquake _earthquake;
     /// <summary>Queues Ceres battle and getaway sound effects.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -144,7 +144,7 @@ internal sealed class CeresRidleyBabyScene
 
     /// <summary>
     /// Replays the direct branch to the Baby and door draw taken while Ridley's movement and
-    /// animation word is zero. This is deliberately separate from the deferred hook below:
+    /// animation word is zero. This is deliberately separate from the later draw below:
     /// the original game executes this path inside Ridley's enemy-main call, before the ordinary
     /// drawing queues, so the Baby appears with the room and before Ridley's composite.
     /// </summary>
@@ -165,11 +165,10 @@ internal sealed class CeresRidleyBabyScene
     }
 
     /// <summary>
-    /// Replays the enemy-graphics-drawn hook installed by Ceres Ridley's reveal. The original game
-    /// installs it only after Ridley's animation word becomes nonzero; it then emits the
-    /// same private Baby animation script after the ordinary enemy layer loop.
+    /// Draws the Baby and door over every enemy once Ceres Ridley's reveal has started his
+    /// animation: the same private Baby animation script, after the ordinary enemy layer loop.
     /// </summary>
-    public void DrawCeresRidleyPostEnemyHook(
+    public void DrawCeresRidleyBabyAndDoorOverEnemies(
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> camera)
     {
@@ -211,8 +210,7 @@ internal sealed class CeresRidleyBabyScene
             int quakeXOffset = CeresDoorQuake.XOffset(_earthquake.RemainingFrames);
             _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.CeresDoorOverlay), CeresDoorFrameDefinitions.RidleyPrivateOverlayFrame,
                 new(CoordinateAxis.Wrap(door.Position.X.Whole - camera.X + quakeXOffset), CoordinateAxis.Wrap(door.Position.Y.Whole - camera.Y)),
-                // The hook draws the overlay in the row the room's set loads the door's colours into, which its parts name
-                // themselves; the door actor's own row and its looks never reach it (#1512).
+                // The overlay shows its own standard colours; the door actor's own looks never reach it (#1512).
                 PictureShading.Standard);
         }
     }
@@ -260,7 +258,7 @@ internal sealed class CeresRidleyBabyScene
                 _audio.QueueEnemySound(RoomSound.CeresBabyMetroidCry, priority: SoundRequestPriority.Normal);
                 return null;
             case CeresBabyCue.UpdateColors updateColors:
-                state.Colours.Sprites.Lay(RidleyShades.Baby(updateColors.Shade));
+                state.Colours.ShowBaby(updateColors.Shade);
                 return null;
             case CeresBabyCue.GoToIfMoving goToIfMoving:
                 return !state.BabyVerticalVelocity.IsZero ? goToIfMoving.Target : null;

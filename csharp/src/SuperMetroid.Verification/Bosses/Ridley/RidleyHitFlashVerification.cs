@@ -31,11 +31,11 @@ internal static class RidleyHitFlashVerification
     internal static int VerifyRidleyHitFlash()
     {
         var colours = new RidleyColours();
-        colours.Sprites.Lay(RidleyShades.NorfairStart);
-        AssertTrue(colours.SpriteShading(true).Shades.SequenceEqual([RidleyShades.NorfairStart, EnemyShades.HurtFlash]),
-            "Ridley's flashing draw lays the hurt flash after the shades his encounter laid");
-        AssertTrue(colours.SpriteShading(false).Shades.SequenceEqual([RidleyShades.NorfairStart]),
-            "Ridley's ordinary draw shows the shades his encounter laid");
+        colours.ShowNorfairArrival();
+        AssertTrue(colours.SpriteShading(true).Shades.SequenceEqual([RidleyShades.NorfairStart, RidleyShades.NorfairHidden, EnemyShades.HurtFlash]),
+            "Ridley's flashing draw lays the hurt flash after the shades his encounter shows");
+        AssertTrue(colours.SpriteShading(false).Shades.SequenceEqual([RidleyShades.NorfairStart, RidleyShades.NorfairHidden]),
+            "Ridley's ordinary draw shows the shades his encounter shows");
 
         EnemySheetInputs inputs = EnemySheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory);
         RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetLists.DrawnUnder.First(candidate =>

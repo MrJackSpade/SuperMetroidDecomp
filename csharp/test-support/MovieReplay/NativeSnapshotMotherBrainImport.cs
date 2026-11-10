@@ -50,7 +50,6 @@ internal static class NativeSnapshotMotherBrainImport
         state.BodySubFunctionTimer = CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer));
         state.FakeDeathExplosionTimer = CoordinateAxis.AsSigned(W(MotherBrainMemory.FakeDeathExplosionTimer));
         state.FakeDeathExplosionIndex = W(MotherBrainMemory.FakeDeathExplosionIndex);
-        state.EnableUnpauseHook = W(MotherBrainMemory.EnableUnpauseHook) != 0;
         // The native palette words name rows: the neck draws in her brain's row, and her brain in it or, once her death
         // copied her brain's colours there, in the corpse's (#1512).
         int neckRow = SnesObjAttributeWordConstants.FromPaletteBits(W(MotherBrainMemory.NeckPaletteIndex)).PaletteIndex;
@@ -92,7 +91,6 @@ internal static class NativeSnapshotMotherBrainImport
             W(MotherBrainMemory.UpperNeckMovementIndex), "Mother Brain upper neck movement index");
         state.StandingBodyReadyingElapsed = DecodeLegTilePage(W(MotherBrainMemory.SpriteTileTransferEntry));
         state.GrayTransitionCounter = W(MotherBrainMemory.GreyTransitionCounter);
-        state.BrainPaletteHandlingEnabled = W(MotherBrainMemory.BrainPaletteHandling) != 0;
         state.DroolGenerationEnabled = W(MotherBrainMemory.DroolGeneration) != 0;
         state.DroolProjectileParameter = W(MotherBrainMemory.DroolProjectileParameter);
         state.SmallPurpleBreathGenerationEnabled = W(MotherBrainMemory.SmallPurpleBreathGeneration) != 0;
@@ -206,14 +204,12 @@ internal static class NativeSnapshotMotherBrainImport
         sequence.RainbowAttack.SoundQueueCount = CoordinateAxis.AsSigned(W(MotherBrainMemory.RainbowBeamSoundQueueCount));
         sequence.State.RainbowBeamSoundPlaying = W(MotherBrainMemory.RainbowBeamSoundPlaying) != 0;
         sequence.State.BrainMainShakeTimer = W(MotherBrainMemory.BrainMainShakeTimer);
-        sequence.State.BrainPaletteHandlingEnabled = W(MotherBrainMemory.BrainPaletteHandling) != 0;
-        sequence.State.HealthBasedPaletteHandlingEnabled = W(MotherBrainMemory.HealthBasedPaletteHandling) != 0;
+        sequence.State.HealthColoursEnabled = W(MotherBrainMemory.HealthBasedPaletteHandling) != 0;
         sequence.State.DroolGenerationEnabled = W(MotherBrainMemory.DroolGeneration) != 0;
         sequence.State.SmallPurpleBreathGenerationEnabled = W(MotherBrainMemory.SmallPurpleBreathGeneration) != 0;
         sequence.State.GreyTransitionCounter = W(MotherBrainMemory.GreyTransitionCounter);
         sequence.State.Phase2CorpseState = DecodePhase2CorpseState(W(MotherBrainMemory.Phase2CorpseState));
         sequence.Revival.BabyMetroidAttackCounter = W(MotherBrainMemory.BabyMetroidAttackCounter);
-        sequence.ThirdPhaseDeath.MotherBrainUnpauseHookEnabled = W(MotherBrainMemory.EnableUnpauseHook) != 0;
         sequence.ThirdPhaseDeath.DeathExplosionIntervalTimer = CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunction));
         sequence.ThirdPhaseDeath.DeathAndEscapeExplosionIndex = CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer));
         sequence.LowerNeckAngle = RotationAngle.FromRaw(W(MotherBrainMemory.LowerNeckAngle));

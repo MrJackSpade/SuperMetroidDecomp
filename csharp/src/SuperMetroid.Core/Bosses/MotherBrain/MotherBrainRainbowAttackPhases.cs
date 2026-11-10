@@ -113,7 +113,7 @@ internal sealed class MotherBrainRainbowAttackPhases
 
         // Palette handling runs only when enemy frame-counter bit one is set. The palette
         // program itself remains presentation work, but its cadence is observable.
-        requests.PaletteRequested = (enemyFrameCounter & 2) != 0;
+        requests.ColoursRequested = (enemyFrameCounter & 2) != 0;
 
         if (growth == MotherBrainRainbowBeamGrowth.Widening)
             IncreaseWidthAndAim(samus);

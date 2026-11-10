@@ -46,16 +46,16 @@ internal static class MotherBrainRoomColorsVerification
         state.RoomFlashFrame = 0;
         for (int frame = 0; frame < 48; frame++)
         {
-            MotherBrainBehavior.RunMotherBrainRoomPalette(state);
+            MotherBrainBehavior.RunMotherBrainRoomFlash(state);
             int shown = state.RoomFlashFrame ?? throw new InvalidOperationException("The room flash stopped on its own.");
-            AssertEqual(MotherBrainShades.Flash(shown), state.Colours.Room.Laid[^1],
+            AssertEqual(MotherBrainShades.Flash(shown), state.Colours.RoomShading.Shades[^1],
                 $"Mother Brain's room flash shows its frame {shown} on update {frame}");
         }
-        MotherBrainFakeDeath.StopMotherBrainRoomPalette(state);
-        AssertEqual(MotherBrainShades.FinalRoom, state.Colours.Room.Laid[^1], "stopping the flash shows the steady grey room");
+        MotherBrainFakeDeath.StopMotherBrainRoomFlash(state);
+        AssertEqual(MotherBrainShades.FinalRoom, state.Colours.RoomShading.Shades[^1], "stopping the flash shows the steady grey room");
         AssertEqual(null, state.RoomFlashFrame, "stopping the flash clears its frame");
         enemies.MotherBrainBehavior.Ascent.SetupMotherBrainPhaseTwoGraphics(state);
-        AssertEqual(MotherBrainShades.PhaseTwo, state.Colours.Own.Laid[^1], "the ascent loads the phase-two attack and rear-leg colours");
+        AssertEqual(MotherBrainShades.PhaseTwo, state.Colours.OwnShading.Shades[^1], "the ascent loads the phase-two attack and rear-leg colours");
         Suite(nameof(VerifyMotherBrainRecoveryLights), () => VerifyMotherBrainRecoveryLights(enemies, state));
 
         MotherBrainRoomColorDocument document =
@@ -92,7 +92,7 @@ internal static class MotherBrainRoomColorsVerification
         for (int frame = 0; frame < MotherBrainRoomColorDefinitions.RecoveryLightsFrames; frame++)
         {
             enemies.BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(frame);
-            AssertEqual(MotherBrainShades.RecoveryLights(frame), state.Colours.Room.Laid[^1],
+            AssertEqual(MotherBrainShades.RecoveryLights(frame), state.Colours.RoomShading.Shades[^1],
                 $"Mother Brain recovery-light frame {frame} is laid over her room");
         }
         AssertThrows<InvalidDataException>(

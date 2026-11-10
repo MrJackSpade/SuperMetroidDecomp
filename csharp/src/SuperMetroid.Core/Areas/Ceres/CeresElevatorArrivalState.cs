@@ -151,7 +151,7 @@ public sealed class CeresElevatorArrivalState
         }
     }
 
-    /// <summary>Draws an active on-screen projectile from its graphics set's sheet.</summary>
+    /// <summary>Draws an active projectile from its graphics set's sheet, wherever it lies; the display clips it (#1587).</summary>
     private static void DrawProjectile(
         CeresElevatorProjectile projectile,
         int instance,
@@ -162,15 +162,8 @@ public sealed class CeresElevatorArrivalState
         if (!projectile.Active || projectile.Pose is not { } pose)
             return;
 
-        Position16<ScreenPixels> screen = projectile.Position.ToScreen(camera);
-        // Only origins within 128 pixels of the screen on each axis draw: X + 128 and Y + 128 below 512.
-        if (screen.X + 128 >= 512 || screen.Y + 128 >= 512)
-        {
-            return;
-        }
-
         presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.CeresElevatorArrival, instance),
-            EnemySheetDefinitions.ProjectileFrameName(CeresElevatorArrivalAnimations.Frame(pose)), screen,
+            EnemySheetDefinitions.ProjectileFrameName(CeresElevatorArrivalAnimations.Frame(pose)), projectile.Position.ToScreen(camera),
             projectile.Graphics);
     }
 

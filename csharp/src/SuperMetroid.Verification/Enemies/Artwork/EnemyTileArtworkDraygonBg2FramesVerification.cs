@@ -39,7 +39,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
             "installed enemy art includes Draygon BG2 frames");
         var noCartridge = NewCartridgeReadGuard(rom);
         int writeCount = 0;
-        foreach (EnemySpritemapDefinition frame in DraygonBg2FrameDefinitions.Frames)
+        foreach (EnemyFrameName frame in DraygonBg2FrameDefinitions.Frames)
         {
             AssertTrue((stock.Bosses.DraygonBg2Frames ?? throw new InvalidOperationException("Verification requires stock.DraygonBg2Frames.")).TryGet(frame.Frame,
                     out ReadOnlyMemory<EnemyBg2TilemapWrite> installed),
@@ -98,7 +98,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         EnemyBg2FrameDocument document =
             RequiredJson.Deserialize<EnemyBg2FrameDocument>(File.ReadAllBytes(Path.Combine(stockDirectory, DraygonBg2FrameDefinitions.FileName)),
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        EnemySpritemapDefinition firstIdentity = DraygonBg2FrameDefinitions.Frames[0];
+        EnemyFrameName firstIdentity = DraygonBg2FrameDefinitions.Frames[0];
         EnemyBg2WriteDocument first = document.Frames[firstIdentity.Name][0];
         AssertTrue(DrawDraygonBg2(stock, firstIdentity.Pointer, false).All(value => value == 0),
             "Draygon BG2 drawing keeps the native new-frame producer gate");
@@ -116,7 +116,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         SuperMetroidAddressSpace rom)
     {
         var nativeLists = new Dictionary<ushort, IReadOnlyList<EnemyCollisionHitbox>>();
-        foreach (EnemySpritemapDefinition frame in DraygonBg2FrameDefinitions.Frames)
+        foreach (EnemyFrameName frame in DraygonBg2FrameDefinitions.Frames)
         {
             int root = ((int)new SnesAddress(DraygonBg2FrameToolingDefinitions.Bank, frame.Pointer));
             EnemyCollisionComponent[] components =

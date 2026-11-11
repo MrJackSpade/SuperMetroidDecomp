@@ -415,7 +415,7 @@ internal static class EnemySpritemapArtworkVerification
         AssertTrue(RinkaAnimationsConstants.Spritemaps(Enum.GetValues<RinkaProgram>()).ToHashSet().SetEquals(rinkaFrames),
             "every installed Rinka composition is shown by a Rinka program");
         var differing = new List<string>();
-        foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
+        foreach (EnemyFrameName frame in EnemySpritemapDefinitions.Frames)
         {
             AssertTrue((stock.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps.")).TryGet(frame.Bank, frame.Pointer, out var parts),
                 $"installed enemy frame {frame.Name} exists");

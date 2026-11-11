@@ -34,10 +34,10 @@ internal static class BossDisplayBindingsDocumentsVerification
         internal BossDisplayDocuments()
         {
             Oam = json.ExtendedDocument();
-            foreach ((_, EnemySpritemapDefinition[] family) in Families())
+            foreach ((_, EnemyFrameName[] family) in Families())
             for (int index = 0; index < family.Length; index++)
             {
-                EnemySpritemapDefinition frame = family[index];
+                EnemyFrameName frame = family[index];
                 Oam.Frames[frame.Name] = EnemyExtendedFrameBounds.IsBg2Only(frame) ? [] :
                 [ new() { OffsetX = 0, OffsetY = 0,
                     Parts = [new() { OffsetX = 2, OffsetY = 3, Size = index % 2 == 0 ? 16 : 8,
@@ -71,7 +71,7 @@ internal static class BossDisplayBindingsDocumentsVerification
                 DraygonBg2FrameToolingDefinitions.Bank => new WritesCase(Draygon, DraygonBg2FrameDefinitions.Frames.ToArray()),
                 _ => throw new InvalidDataException("Unknown fixture family."),
             };
-            foreach (EnemySpritemapDefinition frame in family.Definitions)
+            foreach (EnemyFrameName frame in family.Definitions)
                 if (frame.Pointer == pointer) return family.Document.Frames[frame.Name];
             return [];
         }
@@ -79,7 +79,7 @@ internal static class BossDisplayBindingsDocumentsVerification
         /// <summary>Groups Crocomire, Phantoon, and Draygon frames by their native enemy family.</summary>
         internal static IEnumerable<FamiliesResult> Families()
         {
-            EnemySpritemapDefinition[] all = EnemyExtendedFrameDefinitions.Frames.ToArray();
+            EnemyFrameName[] all = EnemyExtendedFrameDefinitions.Frames.ToArray();
             yield return new FamiliesResult(EnemyDefinitionId.Crocomire, all.Where(frame =>
                 frame.Bank == CrocomireBodyVisualToolingDefinitions.Bank && frame.Name.StartsWith("crocomire_body_", StringComparison.Ordinal)).ToArray());
             yield return new FamiliesResult(EnemyDefinitionId.PhantoonBody, all.Where(frame =>
@@ -107,7 +107,7 @@ internal static class BossDisplayBindingsDocumentsVerification
         }
 
         /// <summary>Gives each BG2 frame distinctive tiles, authored by their tilemap entries.</summary>
-        private static EnemyBg2FrameDocument Bg2(ImmutableArray<EnemySpritemapDefinition> definitions, int version) => new()
+        private static EnemyBg2FrameDocument Bg2(ImmutableArray<EnemyFrameName> definitions, int version) => new()
         {
             Version = version,
             // Each write names characters every boss room loads, which a body's sheet is composed over (#1466).

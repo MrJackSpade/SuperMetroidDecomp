@@ -111,7 +111,7 @@ internal static class CrocomireBodyVisualsVerification
             }
         }
 
-        foreach (EnemySpritemapDefinition frame in CrocomireBg2FrameDefinitions.Frames)
+        foreach (EnemyFrameName frame in CrocomireBg2FrameDefinitions.Frames)
         {
             AssertTrue((stock.Bosses.CrocomireBg2Frames ?? throw new InvalidOperationException("Verification requires stock.CrocomireBg2Frames.")).TryGet(frame.Pointer,
                     out ReadOnlyMemory<EnemyBg2TilemapWrite> installed),

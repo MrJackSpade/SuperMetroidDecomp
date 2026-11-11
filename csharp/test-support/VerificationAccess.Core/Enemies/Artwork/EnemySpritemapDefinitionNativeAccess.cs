@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 internal static class EnemySpritemapDefinitionNativeAccess
 {
     /// <summary>The native view of a composition.</summary>
-    extension(EnemySpritemapDefinition definition)
+    extension(EnemyFrameName definition)
     {
         /// <summary>
         /// Where the cartridge stores the composition's frame, and the name composition documents gave it before frames

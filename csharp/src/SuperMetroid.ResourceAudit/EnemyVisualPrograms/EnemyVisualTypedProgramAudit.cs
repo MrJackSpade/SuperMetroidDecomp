@@ -146,8 +146,8 @@ internal static class EnemyVisualTypedProgramAudit
         // Botwoon's typed head and projectile animations (#641) draw through its presentation catalog.
         const string botwoonSource = "csharp/src/SuperMetroid.Core/Bosses/Botwoon/Artwork/BotwoonVisualDefinitions.cs";
         // The hidden head draws the shared empty map; Verification proves every timeline frame is one of these.
-        EnemySpritemapDefinition[] botwoonHeadFrames = EnemyCompositionSchemaTooling.Family("botwoon_head_");
-        foreach (EnemySpritemapDefinition frame in botwoonHeadFrames)
+        EnemyFrameName[] botwoonHeadFrames = EnemyCompositionSchemaTooling.Family("botwoon_head_");
+        foreach (EnemyFrameName frame in botwoonHeadFrames)
         {
             report.Require(ResourceDomains.EnemyDisplay, nameof(BotwoonVisualDefinitions),
                 ResourceIndex.Address(frame.Bank, frame.Pointer), botwoonSource, exports);

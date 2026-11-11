@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 internal static class EnemyBg2FrameDefinitionSequenceAccess
 {
     /// <summary>Projections of a BG2 frame definition list.</summary>
-    extension(ImmutableArray<EnemySpritemapDefinition> self)
+    extension(ImmutableArray<EnemyFrameName> self)
     {
         /// <summary>A new array of <paramref name="selector"/>'s results for each frame and its index, in frame order.</summary>
-        internal TResult[] SelectToArray<TResult>(Func<EnemySpritemapDefinition, int, TResult> selector)
+        internal TResult[] SelectToArray<TResult>(Func<EnemyFrameName, int, TResult> selector)
         {
             Ensure.NotNull(selector);
             var result = new TResult[self.Length];

@@ -18,7 +18,7 @@ internal static class PhantoonBg2FrameDefinitions
     internal const int MaximumComponents = 2;
 
     /// <summary>Enumerates the selected native frames in instruction-program order.</summary>
-    internal static ImmutableArray<EnemySpritemapDefinition> Frames { get; } =
+    internal static ImmutableArray<EnemyFrameName> Frames { get; } =
     [
         new(EnemyFrameId.PhantoonInvulnerableBody0, "body_invulnerable"),
         new(EnemyFrameId.PhantoonFullHitboxBody0, "body_full_hitbox"),

@@ -37,7 +37,7 @@ internal static class EnemySpriteArtworkBoundaryVerification
         EnemyProjectileSpritemapCatalog projectileArtwork = (artwork.Enemies.ProjectileSpritemaps ?? throw new InvalidOperationException("Verification requires artwork.ProjectileSpritemaps."));
         int enemyCases = 0, projectileCases = 0;
 
-        foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
+        foreach (EnemyFrameName frame in EnemySpritemapDefinitions.Frames)
         foreach ((ushort x, ushort y, bool clip) in new VerifyEnemySpriteArtworkBoundaryCase[]
             { new VerifyEnemySpriteArtworkBoundaryCase(128, 96, false), new VerifyEnemySpriteArtworkBoundaryCase(511, 1, true), new VerifyEnemySpriteArtworkBoundaryCase(0, ushort.MaxValue, true) })
         {

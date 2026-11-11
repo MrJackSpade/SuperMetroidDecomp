@@ -27,9 +27,9 @@ internal static class EnemyFrameCartridgeLookupTooling
     private static Dictionary<SnesAddress, EnemyFrameId> Bind()
     {
         var frames = new Dictionary<SnesAddress, EnemyFrameId>();
-        foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
+        foreach (EnemyFrameName frame in EnemySpritemapDefinitions.Frames)
             frames.TryAdd(EnemyFrameCartridgeLookup.Of(frame.Frame), frame.Frame);
-        foreach (EnemySpritemapDefinition frame in EnemyExtendedFrameDefinitions.Frames)
+        foreach (EnemyFrameName frame in EnemyExtendedFrameDefinitions.Frames)
             frames.TryAdd(EnemyFrameCartridgeLookup.Of(frame.Frame), frame.Frame);
         return frames;
     }

@@ -17,7 +17,7 @@ internal static class MotherBrainBodyBg2FrameDefinitions
     /// <summary>Installed JSON filename for Mother Brain's selected BG2 body frames.</summary>
     internal const string FileName = "mother-brain-body-bg2-frames.json";
     /// <summary>Every body frame with a BG2 stream, omitting the OAM-only initial dummy.</summary>
-    internal static ImmutableArray<EnemySpritemapDefinition> Frames { get; } =
+    internal static ImmutableArray<EnemyFrameName> Frames { get; } =
     [
         new(EnemyFrameId.MotherBrainBodyStanding, "mother_brain_body_bg2_standing"),
         new(EnemyFrameId.MotherBrainBodyWalking0, "mother_brain_body_bg2_walking_0"),

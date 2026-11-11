@@ -44,11 +44,11 @@ internal static class BossDisplayBindingsStockVerification
         InstalledEnemyArtwork installed = InstalledFixtures.EnemyArtwork;
         int frames = 0, parts = 0, runs = 0, tiles = 0;
         var nativeLists = new HashSet<int>();
-        foreach ((EnemyDefinitionId definition, EnemySpritemapDefinition[] family) in BossDisplayDocuments.Families())
+        foreach ((EnemyDefinitionId definition, EnemyFrameName[] family) in BossDisplayDocuments.Families())
         {
             // Each frame is drawn by the part of the boss that shows it, whose sheet holds its picture.
             var partFixtures = new Dictionary<EnemyDefinitionId, BossDisplayFixture>();
-            foreach (EnemySpritemapDefinition frame in family)
+            foreach (EnemyFrameName frame in family)
             {
                 frames++;
                 EnemyDefinitionId part = BossDisplayDocuments.DrawnBy(definition, frame.Frame);
@@ -92,7 +92,7 @@ internal static class BossDisplayBindingsStockVerification
     }
 
     /// <summary>Resolves one Crocomire, Phantoon, or Draygon frame's installed BG2 writes.</summary>
-    private static ReadOnlyMemory<EnemyBg2TilemapWrite> StockBossWrites(InstalledEnemyArtwork catalog, EnemySpritemapDefinition frame)
+    private static ReadOnlyMemory<EnemyBg2TilemapWrite> StockBossWrites(InstalledEnemyArtwork catalog, EnemyFrameName frame)
     {
         ReadOnlyMemory<EnemyBg2TilemapWrite> writes;
         bool exists = frame.Bank switch

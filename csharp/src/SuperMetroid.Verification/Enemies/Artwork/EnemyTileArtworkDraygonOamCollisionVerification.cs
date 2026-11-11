@@ -32,7 +32,7 @@ internal static class EnemyTileArtworkDraygonOamCollisionVerification
         int draygonFrames = 0;
         int sporeFrames = 0;
         int componentsChecked = 0;
-        foreach (EnemySpritemapDefinition frame in
+        foreach (EnemyFrameName frame in
                  EnemyExtendedFrameDefinitions.Frames.Take(
                      EnemyExtendedFrameDefinitionsConstants.PreCeresSteamFrameCount))
         {

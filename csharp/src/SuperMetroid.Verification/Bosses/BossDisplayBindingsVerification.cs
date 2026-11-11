@@ -22,13 +22,13 @@ internal static class BossDisplayBindingsVerification
     internal static void VerifyBossDisplayBindings(BossDisplayDocuments stock)
     {
         int frames = 0;
-        foreach ((EnemyDefinitionId definition, EnemySpritemapDefinition[] family) in BossDisplayDocuments.Families())
+        foreach ((EnemyDefinitionId definition, EnemyFrameName[] family) in BossDisplayDocuments.Families())
         {
             // Each frame is drawn by the part of the boss that shows it, whose sheet holds its picture.
             var parts = new Dictionary<EnemyDefinitionId, BossDisplayFixture>();
             // One artwork per boss: its parts' fixtures share the body sheets composed from it.
             InstalledEnemyArtwork artwork = stock.Build();
-            foreach (EnemySpritemapDefinition frame in family)
+            foreach (EnemyFrameName frame in family)
             {
                 frames++;
                 EnemyDefinitionId part = BossDisplayDocuments.DrawnBy(definition, frame.Frame);
@@ -80,7 +80,7 @@ internal static class BossDisplayBindingsVerification
     /// The frame <paramref name="frame"/> is pictured with, whose writes fill the gap it leaves for another part (#1513), or
     /// null for a frame pictured alone.
     /// </summary>
-    internal static EnemySpritemapDefinition? PicturedWith(EnemySpritemapDefinition frame) =>
+    internal static EnemyFrameName? PicturedWith(EnemyFrameName frame) =>
         BossBodySourceDefinitions.FramesPicturedWith.TryGetValue(frame.Frame, out EnemyFrameId filling)
             ? EnemyExtendedFrameDefinitions.Frames.Single(candidate => candidate.Frame == filling)
             : null;

@@ -684,7 +684,7 @@ internal static class LookupStream5Verification
     {
         int componentCount = 0;
         var lists = new HashSet<ushort>();
-        foreach (EnemySpritemapDefinition frame in PhantoonBg2FrameDefinitions.Frames)
+        foreach (EnemyFrameName frame in PhantoonBg2FrameDefinitions.Frames)
         {
             int root = 0xa70000 | frame.Pointer;
             var components = PhantoonCollision.ComponentsAt(frame.Pointer);

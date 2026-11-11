@@ -30,13 +30,13 @@ internal static class DefinitionAudit
     internal static ResourceIndex CollectEnemyVisuals(string root, AuditReport report)
     {
         var exports = new ResourceIndex();
-        foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
+        foreach (EnemyFrameName frame in EnemySpritemapDefinitions.Frames)
         {
             exports.Add(ResourceDomains.EnemySimple, frame.Frame.ToString());
             exports.Add(ResourceDomains.EnemyFrame, frame.Frame.ToString());
             exports.Add(ResourceDomains.EnemyDisplay, ResourceIndex.Address(frame.Bank, frame.Pointer));
         }
-        foreach (EnemySpritemapDefinition frame in EnemyExtendedFrameDefinitions.Frames)
+        foreach (EnemyFrameName frame in EnemyExtendedFrameDefinitions.Frames)
         {
             exports.Add(ResourceDomains.EnemyExtended, frame.Frame.ToString());
             exports.Add(ResourceDomains.EnemyFrame, frame.Frame.ToString());

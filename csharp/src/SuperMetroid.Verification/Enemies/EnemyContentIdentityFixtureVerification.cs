@@ -425,7 +425,7 @@ internal static class EnemyContentIdentityFixtureVerification
         public EnemyProjectileSpritemapCatalog Projectiles() => Shared("projectiles", () => EnemyProjectileSpritemapDocuments.Load(Json(ProjectileDocument())));
 
         /// <summary>Builds BG2 frame writes whose tiles, placement, order, count, or run boundaries can vary, at the family's document revision.</summary>
-        private MemoryStream Bg2(string family, ImmutableArray<EnemySpritemapDefinition> definitions, int version)
+        private MemoryStream Bg2(string family, ImmutableArray<EnemyFrameName> definitions, int version)
         {
             foreach (string component in new[] { "tiles", "x", "y", "order", "count", "run-boundary" }) Register(family + "-" + component);
             var frames = definitions.SelectToArray((frame, index) =>

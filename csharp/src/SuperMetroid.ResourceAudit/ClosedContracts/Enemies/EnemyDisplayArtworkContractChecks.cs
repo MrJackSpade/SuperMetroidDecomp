@@ -25,7 +25,7 @@ internal static class EnemyDisplayArtworkContractChecks
         Stream Json<T>(T document) => new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document,
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemySpritemapCatalog simple = EnemySpritemapDocuments.Load(Json(simpleDocument));
-        EnemySpritemapDefinition simpleId = EnemySpritemapDefinitions.Frames[0];
+        EnemyFrameName simpleId = EnemySpritemapDefinitions.Frames[0];
         Require(simple.TryGetDisplay(simpleId.Frame, out var parts) && parts.IsEmpty,
             "installed simple binding resolves authored parts");
         simpleBindings[simpleId.Name] = "unowned-target";
@@ -38,7 +38,7 @@ internal static class EnemyDisplayArtworkContractChecks
         var extendedDocument = new EnemyExtendedFrameDocument {
             Version = EnemyExtendedFrameSchema.Revision, Frames = extendedFrames, DisplayFrames = extendedBindings };
         EnemyExtendedFrameCatalog extended = EnemyExtendedFrameDocuments.Load(Json(extendedDocument));
-        EnemySpritemapDefinition extendedId = EnemyExtendedFrameDefinitions.Frames.First();
+        EnemyFrameName extendedId = EnemyExtendedFrameDefinitions.Frames.First();
         Require(extended.TryGetDisplay(extendedId.Frame, out var components) && components.Length == 1 &&
             extended.TryGetDisplay(EnemyFrameId.Empty, out components) && components.IsEmpty,
             "installed extended binding and compiled empty fallback");
@@ -48,7 +48,7 @@ internal static class EnemyDisplayArtworkContractChecks
     }
 
     /// <summary>Compiles representative call sites and source mutations to confirm when the audit may classify display lookups.</summary>
-    private static void ConfirmStaticCalls(EnemySpritemapDefinition simple, EnemySpritemapDefinition extended)
+    private static void ConfirmStaticCalls(EnemyFrameName simple, EnemyFrameName extended)
     {
         var trees = EnemyDisplayArtworkClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
             .DistinctBy(source => source.Path).Select(source => CSharpSyntaxTree.ParseText(File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();

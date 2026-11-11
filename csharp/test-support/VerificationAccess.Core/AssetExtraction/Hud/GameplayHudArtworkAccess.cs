@@ -30,7 +30,7 @@ internal static class GameplayHudArtworkAccess
         /// </summary>
         internal BackgroundTile[] RowsOver(ShownHud hud, BackgroundTile uncovered)
         {
-            var rows = new BackgroundTile[GameplayHudDefinitions.Width * GameplayHudDefinitions.Rows];
+            var rows = new BackgroundTile[GameplayHudDocumentDefinitions.Columns * GameplayHudDocumentDefinitions.Rows];
             rows.AsSpan().Fill(uncovered);
             foreach (PlacedHudImage placed in Ensure.NotNull(hud).Images)
                 artwork.Write(rows, placed, 0);
@@ -49,9 +49,9 @@ internal static class GameplayHudArtworkAccess
         }
 
         /// <summary>Draws an ammunition count into the three drawn rows.</summary>
-        internal void ApplyAmmo(Span<BackgroundTile> tiles, int itemIndex, int value)
+        internal void ApplyAmmo(Span<BackgroundTile> tiles, HudAmmoCounter counter, int value)
         {
-            foreach (PlacedHudImage placed in artwork.Ammo(itemIndex, value))
+            foreach (PlacedHudImage placed in artwork.Ammo(counter, value))
                 artwork.Write(tiles, placed, 1);
         }
 
@@ -66,14 +66,14 @@ internal static class GameplayHudArtworkAccess
         internal void ClearAutoReserve(Span<BackgroundTile> tiles) => artwork.ApplyAutoReserve(tiles, HudReserveIndicator.Cleared);
 
         /// <summary>The cell index in the three drawn rows of minimap cell <paramref name="output"/>.</summary>
-        internal int MinimapCellIndex(Position16<TilemapCells> output)
+        internal int MinimapCellIndex(Position16<MapTiles> output)
         {
-            Position16<TilemapCells> cell = artwork.MinimapCell(output, MinimapHiddenCell.Instance).Cell;
-            return (cell.Y - 1) * GameplayHudDefinitions.Width + cell.X;
+            Position16<CharacterCells> cell = Cell(artwork.MinimapCell(output, MinimapHiddenCell.Instance));
+            return (cell.Y - 1) * GameplayHudDocumentDefinitions.Columns + cell.X;
         }
 
         /// <summary>Draws one minimap cell into the three drawn rows.</summary>
-        internal void DrawMinimapCell(Span<BackgroundTile> tiles, Position16<TilemapCells> output, MinimapCell cell) =>
+        internal void DrawMinimapCell(Span<BackgroundTile> tiles, Position16<MapTiles> output, MinimapCell cell) =>
             artwork.Write(tiles, artwork.MinimapCell(output, cell), 1);
 
         /// <summary>
@@ -83,15 +83,30 @@ internal static class GameplayHudArtworkAccess
         private void Write(Span<BackgroundTile> tiles, PlacedHudImage placed, int firstRow)
         {
             HudImageTiles image = artwork.Tiles(placed.Image);
-            int rows = tiles.Length / GameplayHudDefinitions.Width;
+            Position16<CharacterCells> cell = Cell(placed);
+            const int columns = GameplayHudDocumentDefinitions.Columns;
+            int rows = tiles.Length / columns;
             for (int y = 0; y < image.Size.Y; y++)
             for (int x = 0; x < image.Size.X; x++)
             {
-                int row = placed.Cell.Y + y - firstRow, column = placed.Cell.X + x;
-                if (row < 0 || row >= rows || column >= GameplayHudDefinitions.Width)
+                int row = cell.Y + y - firstRow, column = cell.X + x;
+                if (row < 0 || row >= rows || column >= columns)
                     throw new InvalidDataException($"HUD image {placed.Image.FrameName} runs past the rows written.");
-                tiles[row * GameplayHudDefinitions.Width + column] = image.Tiles[y * image.Size.X + x];
+                tiles[row * columns + column] = image.Tiles[y * image.Size.X + x];
             }
+        }
+
+        /// <summary>
+        /// The HUD cell <paramref name="placed"/>'s corner lies on, counting the static top row as row zero, as the
+        /// cartridge's HUD rows lay its words out.
+        /// </summary>
+        /// <exception cref="InvalidDataException">The image is not placed on a cell's corner.</exception>
+        private static Position16<CharacterCells> Cell(PlacedHudImage placed)
+        {
+            const int pixels = CharacterCellConversions.CellPixels;
+            if (placed.Corner.X % pixels != 0 || placed.Corner.Y % pixels != 0)
+                throw new InvalidDataException($"HUD image {placed.Image.FrameName} is placed at {placed.Corner}, between the HUD's cells.");
+            return new(placed.Corner.X / pixels, placed.Corner.Y / pixels);
         }
     }
 }

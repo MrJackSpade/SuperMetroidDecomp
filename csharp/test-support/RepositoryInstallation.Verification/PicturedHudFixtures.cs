@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud;
-using SuperMetroid.Core.Hud.Artwork;
+using SuperMetroid.AssetExtraction.Hud;
 
 namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
@@ -23,8 +23,8 @@ internal static class PicturedHudFixtures
     /// </summary>
     internal static PicturedHud FromVram(ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette, int characterWord = GameplayVramLayout.HudCharacterWord)
     {
-        const int tile = GameplayHudDefinitions.CellPixels, characterWords = 8;
-        const int columns = GameplayHudDefinitions.Width, rows = GameplayHudDefinitions.Rows;
+        const int tile = ScreenGeometry.BackgroundTileSizePixels, characterWords = 8;
+        const int columns = GameplayHudDocumentDefinitions.Columns, rows = GameplayHudDocumentDefinitions.Rows;
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(columns * tile, rows * tile));
         RgbColor[] colours = palette[..ImageColourGroup.HalfColours].ToArray();
         var character = new byte[characterWords * sizeof(ushort)];

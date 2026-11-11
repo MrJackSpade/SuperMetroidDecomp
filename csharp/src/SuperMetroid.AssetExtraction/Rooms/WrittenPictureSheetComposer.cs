@@ -138,7 +138,8 @@ internal static class WrittenPictureSheetComposer
 
     /// <summary>The frame of each of <paramref name="hud"/>'s images, within its shelf's part.</summary>
     private static IEnumerable<PartFrame> HudFrames(HudSheetLayout hud) =>
-        hud.Placements.Select(placed => new PartFrame(placed.Image.Image.FrameName, HudShelfName(placed.Shelf), placed.Cell, placed.Image.Size));
+        hud.Placements.Select(placed => new PartFrame(placed.Image.Image.FrameName, HudShelfName(placed.Shelf),
+            new(placed.Cell.X, placed.Cell.Y), new(placed.Image.Size.X, placed.Image.Size.Y)));
 
     /// <summary>
     /// Composes <paramref name="layer"/>'s sheet: <paramref name="written"/>'s fixed parts as the room loads them, each of
@@ -230,7 +231,8 @@ internal static class WrittenPictureSheetComposer
         foreach (PartFrame frame in partFrames)
         {
             Position16<TilemapCells> corner = partCorners[frame.Part] + (frame.Cell - Position16<TilemapCells>.Zero);
-            frames.Add(frame.Name, Frame(canvas, HudImageSheet.Pixels(corner), HudImageSheet.Pixels(frame.Size), layer));
+            frames.Add(frame.Name, Frame(canvas, HudImageSheet.Pixels(new Position16<CharacterCells>(corner.X, corner.Y)),
+                HudImageSheet.Pixels(new Extent16<CharacterCells>(frame.Size.X, frame.Size.Y)), layer));
         }
         return new ComposedWrittenPictureSheet(layer, tileset, canvas.ToRoomSheet(colours, frames, ColoursOf(layer)), inputsOf);
 

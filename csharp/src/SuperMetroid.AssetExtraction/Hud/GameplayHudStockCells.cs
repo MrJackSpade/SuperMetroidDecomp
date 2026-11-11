@@ -13,7 +13,7 @@ internal static class GameplayHudStockCells
     /// <returns>Cell index in the 32-by-3 mutable HUD tilemap (the native table holds twice this, a byte offset).</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="tank"/> is outside the fourteen tank cells.</exception>
     internal static int EnergyTankCell(int tank) => (uint)tank < GameplayHudDefinitions.EnergyTankCount
-        ? 1 + tank % 7 + (tank < 7 ? GameplayHudDefinitions.Width : 0)
+        ? 1 + tank % 7 + (tank < 7 ? GameplayHudDocumentDefinitions.Columns : 0)
         : throw new ArgumentOutOfRangeException(nameof(tank));
 
     /// <summary><c>ToggleHUDItemHighlight.HUDItemOffsets</c> at $80:9D6E: three-cell missiles, then two-cell icons, each with a blank gap.</summary>
@@ -29,6 +29,6 @@ internal static class GameplayHudStockCells
     /// <returns>Word index in the 32-by-3 mutable HUD tilemap, not a byte offset.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="cell"/> is outside the six AUTO cells.</exception>
     internal static int AutoReserveCellIndex(int cell) => (uint)cell < GameplayHudDefinitions.AutoReserveCellCount
-        ? 8 + cell % 2 + cell / 2 * GameplayHudDefinitions.Width
+        ? 8 + cell % 2 + cell / 2 * GameplayHudDocumentDefinitions.Columns
         : throw new ArgumentOutOfRangeException(nameof(cell));
 }

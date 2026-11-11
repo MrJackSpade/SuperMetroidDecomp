@@ -8,12 +8,12 @@ namespace SuperMetroid.AssetExtraction.Hud;
 /// <param name="Anchor">The cell its upper-left tile sits in.</param>
 /// <param name="Width">Its width in cells.</param>
 /// <param name="Cells">Its tiles, row by row.</param>
-internal sealed record GameplayHudIcon(Position16<TilemapCells> Anchor, int Width, ImmutableArray<BackgroundTile> Cells)
+internal sealed record GameplayHudIcon(Position16<CharacterCells> Anchor, int Width, ImmutableArray<BackgroundTile> Cells)
 {
     /// <summary>Every icon is two cells tall.</summary>
     internal const int Height = 2;
 
     /// <summary>The HUD cell the icon's <paramref name="cell"/>th tile sits in, counting row by row.</summary>
-    internal Position16<TilemapCells> CellAt(int cell) =>
-        Anchor + new Offset16<TilemapCells>(checked((short)(cell % Width)), checked((short)(cell / Width)));
+    internal Position16<CharacterCells> CellAt(int cell) =>
+        Anchor + new Offset16<CharacterCells>(checked((short)(cell % Width)), checked((short)(cell / Width)));
 }

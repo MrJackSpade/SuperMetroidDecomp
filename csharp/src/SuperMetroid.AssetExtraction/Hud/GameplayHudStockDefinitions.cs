@@ -40,7 +40,7 @@ internal static class GameplayHudStockDefinitions
     internal const int PowerBombAnchorByteOffset = 162;
 
     /// <summary>The minimap's upper-left cell: <c>$90:A91B</c> writes its five columns from word 26 of each of the three rows.</summary>
-    internal static Position16<TilemapCells> MinimapAnchor { get; } = new(26, 0);
+    internal static Position16<CharacterCells> MinimapAnchor { get; } = new(26, 0);
 
     /// <summary>Each icon's width in cells, in Missile, Super Missile, Power Bomb, Grapple and X-Ray order: the missile has a central shaft.</summary>
     internal static readonly int[] IconWidths = [3, 2, 2, 2, 2];

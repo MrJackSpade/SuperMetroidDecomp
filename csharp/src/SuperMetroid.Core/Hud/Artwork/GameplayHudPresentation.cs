@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Hud.Artwork;
 /// <summary>
 /// The installed gameplay HUD's layout (#1466): where each of the HUD's images is placed for each of its values. The import
 /// pipeline decodes and validates the editable HUD document into it and pictures every image; <see cref="HudState.Shown"/>
-/// places the images the HUD's values select. Placements are on the HUD's four rows: the static top row, then the three
-/// rows the values are drawn over.
+/// places the images the HUD's values select. Placements are screen pixels across the HUD: the static top row at its top,
+/// then the band the values are drawn over.
 /// </summary>
 public class GameplayHudPresentation
 {
@@ -17,79 +17,80 @@ public class GameplayHudPresentation
     internal GameplayHudPresentation(GameplayHudPresentationParts parts)
     {
         this.parts = Ensure.NotNull(parts);
-        if (parts.EnergyTankCells.Length != GameplayHudDefinitions.EnergyTankCount ||
-            parts.AutoReserveCells.Length != GameplayHudDefinitions.AutoReserveCellCount ||
+        if (parts.EnergyTankCorners.Length != GameplayHudDefinitions.EnergyTankCount ||
+            parts.AutoReserveCorners.Length != GameplayHudDefinitions.AutoReserveCellCount ||
             parts.IconAnchors.Length != GameplayHudDefinitions.ItemCount || parts.IconsShowOverTemplate.Length != GameplayHudDefinitions.ItemCount)
             throw new ArgumentException("The gameplay HUD's layout does not place each of its elements.", nameof(parts));
     }
 
 
-    /// <summary>The five-by-three minimap's size in HUD cells.</summary>
-    public static Extent16<TilemapCells> MinimapSize => new(5, 3);
+    /// <summary>The minimap's size: five area-map squares across and three down.</summary>
+    public static Extent16<MapTiles> MinimapSize => new(5, 3);
 
-    /// <summary>The static top row, across the HUD's first row.</summary>
-    public static PlacedHudImage TopRow => new(HudTopRowImage.Instance, Position16<TilemapCells>.Zero);
+    /// <summary>The static top row, across the HUD's top.</summary>
+    public static PlacedHudImage TopRow => new(HudTopRowImage.Instance, Position16<ScreenPixels>.Zero);
 
-    /// <summary>The template, across the three rows the HUD's values are drawn over.</summary>
-    public static PlacedHudImage Template => new(HudTemplateImage.Instance, Drawn(Position16<TilemapCells>.Zero));
+    /// <summary>The template, across the band the HUD's values are drawn over, below the static top row.</summary>
+    public static PlacedHudImage Template => new(HudTemplateImage.Instance, new Position16<ScreenPixels>(0, GameplayHudDefinitions.TopRowHeightPixels));
 
 
     /// <summary>
-    /// Item <paramref name="itemIndex"/>'s cells: the icon where it has been added over a template that leaves room for it,
-    /// otherwise the template, in the shade the current selection gives them; null where they show the template unshaded.
+    /// Item icon <paramref name="icon"/>'s place: the icon where it has been added over a template that leaves room for it,
+    /// otherwise the template, in the shade the current selection gives them; null where it shows the template unshaded.
     /// </summary>
-    /// <param name="itemIndex">The zero-based item icon index.</param>
+    /// <param name="icon">The item icon.</param>
     /// <param name="added">Whether the HUD has added the icon.</param>
-    /// <param name="shade">The shade the current selection gives the cells, or null.</param>
-    public PlacedHudImage? Icon(int itemIndex, bool added, HudIconShade? shade)
+    /// <param name="shade">The shade the current selection gives the icon's place, or null.</param>
+    public PlacedHudImage? Icon(HudIcon icon, bool added, HudIconShade? shade)
     {
-        int item = ItemIndex(itemIndex);
-        HudIconCover cover = added && parts.IconsShowOverTemplate[item] ? HudIconCover.Icon : HudIconCover.Template;
+        int order = IconOrder(icon);
+        HudIconCover cover = added && parts.IconsShowOverTemplate[order] ? HudIconCover.Icon : HudIconCover.Template;
         return cover == HudIconCover.Template && shade is null ? null
-            : new PlacedHudImage(new HudIconImage(item, cover, shade), Drawn(parts.IconAnchors[item]));
+            : new PlacedHudImage(new HudIconImage(icon, cover, shade), parts.IconAnchors[order]);
     }
 
     /// <summary>One energy tank full or empty.</summary>
     /// <param name="tank">The tank, 0 through 13.</param>
     /// <param name="shown">Whether the tank is full or empty.</param>
     public PlacedHudImage EnergyTank(int tank, HudEnergyTank shown) =>
-        new(new HudEnergyTankImage(shown), Drawn(parts.EnergyTankCells[Ensure.BetweenInclusive(0, GameplayHudDefinitions.EnergyTankCount - 1, tank)]));
+        new(new HudEnergyTankImage(shown), parts.EnergyTankCorners[Ensure.BetweenInclusive(0, GameplayHudDefinitions.EnergyTankCount - 1, tank)]);
 
     /// <summary>The two-digit energy count.</summary>
     /// <param name="remainder">The energy beyond full tanks, 0 through 99.</param>
     public IEnumerable<PlacedHudImage> EnergyCount(int remainder) =>
-        Digits(remainder, parts.HealthAnchor, 2).Select(digit => new PlacedHudImage(new HudEnergyDigitImage(digit.Numeral), digit.Cell));
+        Digits(remainder, parts.HealthAnchor, 2).Select(digit => new PlacedHudImage(new HudEnergyDigitImage(digit.Numeral), digit.Corner));
 
-    /// <summary>The ammunition count for a projectile item.</summary>
-    /// <param name="itemIndex">Zero for missiles, one for Super Missiles, or two for Power Bombs.</param>
+    /// <summary>The ammunition count <paramref name="counter"/> shows.</summary>
+    /// <param name="counter">The ammunition counter.</param>
     /// <param name="value">The ammunition count to display.</param>
-    public IEnumerable<PlacedHudImage> Ammo(int itemIndex, int value)
+    public IEnumerable<PlacedHudImage> Ammo(HudAmmoCounter counter, int value)
     {
-        (Position16<TilemapCells> anchor, int digits) = itemIndex switch
+        HudAmmoField field = counter switch
         {
-            0 => new HudAmmoField(parts.MissileAmmoAnchor, 3),
-            1 => new HudAmmoField(parts.SuperMissileAmmoAnchor, 2),
-            2 => new HudAmmoField(parts.PowerBombAmmoAnchor, 2),
-            _ => throw new ArgumentOutOfRangeException(nameof(itemIndex)),
+            HudAmmoCounter.Missiles => new HudAmmoField(parts.MissileAmmoAnchor, 3),
+            HudAmmoCounter.SuperMissiles => new HudAmmoField(parts.SuperMissileAmmoAnchor, 2),
+            HudAmmoCounter.PowerBombs => new HudAmmoField(parts.PowerBombAmmoAnchor, 2),
+            _ => throw new ArgumentOutOfRangeException(nameof(counter), counter, "Undefined ammunition counter."),
         };
         // A count the game has drained below zero shows as SamusQuantity.HudShown describes.
-        return Digits(SamusQuantity.HudShown(value), anchor, digits).Select(digit => new PlacedHudImage(new HudAmmoDigitImage(digit.Numeral), digit.Cell));
+        return Digits(SamusQuantity.HudShown(value), field.Anchor, field.Digits)
+            .Select(digit => new PlacedHudImage(new HudAmmoDigitImage(digit.Numeral), digit.Corner));
     }
 
-    /// <summary>The AUTO reserve indicator's cells as <paramref name="indicator"/> shows them; a cleared indicator shows blank cells.</summary>
+    /// <summary>The AUTO reserve indicator's parts as <paramref name="indicator"/> shows them; a cleared indicator shows them blank.</summary>
     /// <param name="indicator">What the indicator shows.</param>
     public IEnumerable<PlacedHudImage> AutoReserve(HudReserveIndicator indicator)
     {
         if (!Enum.IsDefined(indicator))
             throw new ArgumentOutOfRangeException(nameof(indicator), indicator, "Undefined reserve indicator.");
         for (int cell = 0; cell < GameplayHudDefinitions.AutoReserveCellCount; cell++)
-            yield return new PlacedHudImage(new HudReserveCellImage(indicator, cell), Drawn(parts.AutoReserveCells[cell]));
+            yield return new PlacedHudImage(new HudReserveCellImage(indicator, cell), parts.AutoReserveCorners[cell]);
     }
 
-    /// <summary>One minimap cell: a revealed map cell in its shade, or the empty cell.</summary>
-    /// <param name="output">The zero-based minimap column and row.</param>
-    /// <param name="cell">What the minimap cell shows.</param>
-    public PlacedHudImage MinimapCell(Position16<TilemapCells> output, MinimapCell cell)
+    /// <summary>One minimap square: a revealed map square in its shade, or the empty square.</summary>
+    /// <param name="output">The minimap square, counted in area-map squares from the minimap's upper-left square.</param>
+    /// <param name="cell">What the minimap square shows.</param>
+    public PlacedHudImage MinimapCell(Position16<MapTiles> output, MinimapCell cell)
     {
         if (!MinimapSize.Contains(output)) throw new ArgumentOutOfRangeException(nameof(output));
         HudImage image = Ensure.NotNull(cell) switch
@@ -98,26 +99,27 @@ public class GameplayHudPresentation
             MinimapMapCell shown => HudMinimapCellImage.Of(shown),
             _ => throw new ArgumentOutOfRangeException(nameof(cell), cell, "Undefined minimap cell."),
         };
-        return new PlacedHudImage(image, Drawn(parts.MinimapAnchor + (output - Position16<TilemapCells>.Zero)));
+        const int square = GameplayHudDefinitions.MinimapSquarePixels;
+        return new PlacedHudImage(image, parts.MinimapAnchor + new Offset16<ScreenPixels>(output.X * square, output.Y * square));
     }
 
-    /// <summary>Each digit of <paramref name="value"/>'s last <paramref name="count"/> decimal digits and the cell it sits in.</summary>
-    private static IEnumerable<HudDigitPlacement> Digits(int value, Position16<TilemapCells> anchor, int count)
+    /// <summary>Where <paramref name="icon"/> stands in <see cref="GameplayHudDefinitions.IconNames"/> order, the order the layout lists the icons in.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="icon"/> names no item icon.</exception>
+    internal static int IconOrder(HudIcon icon)
+    {
+        int order = Array.IndexOf(GameplayHudDefinitions.Icons, icon);
+        return order >= 0 ? order : throw new ArgumentOutOfRangeException(nameof(icon), icon, "Undefined item icon.");
+    }
+
+    /// <summary>Each digit of <paramref name="value"/>'s last <paramref name="count"/> decimal digits and where it is shown.</summary>
+    private static IEnumerable<HudDigitPlacement> Digits(int value, Position16<ScreenPixels> anchor, int count)
     {
         int divisor = count == 3 ? 100 : 10;
         for (int digit = 0; digit < count; digit++)
         {
             yield return new HudDigitPlacement((value / divisor) % GameplayHudDefinitions.Numerals,
-                Drawn(anchor + new Offset16<TilemapCells>(digit, 0)));
+                anchor + new Offset16<ScreenPixels>(digit * GameplayHudDefinitions.DigitWidthPixels, 0));
             divisor /= GameplayHudDefinitions.Numerals;
         }
     }
-
-    /// <summary>A cell of the three drawn rows, placed below the static top row.</summary>
-    private static Position16<TilemapCells> Drawn(Position16<TilemapCells> cell) => cell + new Offset16<TilemapCells>(0, 1);
-
-    /// <summary>Requires a zero-based item icon index.</summary>
-    private static int ItemIndex(int itemIndex) => (uint)itemIndex < GameplayHudDefinitions.ItemCount
-        ? itemIndex
-        : throw new ArgumentOutOfRangeException(nameof(itemIndex));
 }

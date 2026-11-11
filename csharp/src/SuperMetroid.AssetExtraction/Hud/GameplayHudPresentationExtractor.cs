@@ -92,6 +92,6 @@ public static class GameplayHudPresentationExtractor
     }
 
     /// <summary>Converts a linear HUD tilemap index into its two-dimensional cell anchor.</summary>
-    private static Position16<TilemapCells> Point(int index) =>
-        new(checked((ushort)(index % GameplayHudDefinitions.Width)), checked((ushort)(index / GameplayHudDefinitions.Width)));
+    private static Position16<CharacterCells> Point(int index) =>
+        new(checked((ushort)(index % GameplayHudDocumentDefinitions.Columns)), checked((ushort)(index / GameplayHudDocumentDefinitions.Columns)));
 }

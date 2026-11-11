@@ -45,7 +45,7 @@ internal static class HudStateWords
                 int columns = GameplayHudPresentation.MinimapSize.X;
                 for (int index = 0; index < hud.Minimap.Length; index++)
                     minimapCells.Add(GameplayHudArtwork.Of(presentation).MinimapCellIndex(
-                        new Position16<TilemapCells>(checked((ushort)(index % columns)), checked((ushort)(index / columns)))), index);
+                        new Position16<MapTiles>(checked((ushort)(index % columns)), checked((ushort)(index / columns)))), index);
             }
             var differences = new List<string>();
             for (int tile = 0; tile < native.Length; tile++)

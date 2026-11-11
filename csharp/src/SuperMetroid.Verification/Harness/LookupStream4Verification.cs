@@ -1234,11 +1234,12 @@ internal static class LookupStream4Verification
             stock.ApplyEnergy(tiles, (ushort)(digit * 11), 99);
             for (int place = 0; place < 2; place++)
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809dbf + digit * 2)), tiles[70 + place], "actual stock health digit draw");
-            stock.ApplyAmmo(tiles, 0, (ushort)(digit * 111));
+            stock.ApplyAmmo(tiles, HudAmmoCounter.Missiles, (ushort)(digit * 111));
             for (int place = 0; place < 3; place++)
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809dd3 + digit * 2)), tiles[74 + place], "actual stock ammo digit draw");
         }
-        foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
+        // A value naming no ammunition counter is rejected rather than drawn anywhere.
+        foreach (HudAmmoCounter invalid in new[] { (HudAmmoCounter)int.MinValue, (HudAmmoCounter)(-1), (HudAmmoCounter)int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ApplyAmmo(tiles, invalid, 0), "HUD ammunition counter exact domain");
     }
 

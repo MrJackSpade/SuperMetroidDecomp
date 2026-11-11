@@ -37,9 +37,7 @@ internal static class ClosedPresentationIndexDefinitions
     /// <summary>Returns a source-reviewed finite domain for a provider parameter, or null when no closed numeric proof exists.</summary>
     internal static ProviderIndexDomain? Get(string type, string method, string parameter) => new ClosedPresentationIndexGetCase(type, method, parameter) switch
     {
-        ("GameplayHudPresentation", "Icon", "itemIndex") => new(0, 5),
         ("GameplayHudPresentation", "EnergyTank", "tank") => new(0, GameplayHudDefinitions.EnergyTankCount),
-        ("GameplayHudPresentation", "Ammo", "itemIndex") => new(0, 3),
         ("GameplayHudPresentation", "MinimapCell", "output.X") => new(0, GameplayHudPresentation.MinimapSize.X),
         ("GameplayHudPresentation", "MinimapCell", "output.Y") => new(0, GameplayHudPresentation.MinimapSize.Y),
         ("FileSelectPresentation", "Slot" or "DrawHelmet", "slot") => new(0, 3),

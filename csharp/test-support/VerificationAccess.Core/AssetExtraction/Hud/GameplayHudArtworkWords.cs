@@ -32,7 +32,7 @@ internal static class GameplayHudArtworkWords
         });
 
         /// <summary>Draws an ammunition count into packed words.</summary>
-        internal void ApplyAmmo(Span<ushort> words, int itemIndex, int value) => Edit(words, tiles => artwork.ApplyAmmo(tiles, itemIndex, value));
+        internal void ApplyAmmo(Span<ushort> words, HudAmmoCounter counter, int value) => Edit(words, tiles => artwork.ApplyAmmo(tiles, counter, value));
 
         /// <summary>Draws the AUTO reserve indicator into packed words.</summary>
         internal void ApplyAutoReserve(Span<ushort> words, bool containsEnergy) =>

@@ -86,7 +86,7 @@ public sealed class GameplayHudArtwork : GameplayHudPresentation
     /// <exception cref="ArgumentOutOfRangeException">The image is not one of the HUD's.</exception>
     internal HudImageTiles Tiles(HudImage image) => Ensure.NotNull(image) switch
     {
-        HudTopRowImage => new HudImageTiles(image, new(GameplayHudDefinitions.Width, 1), parts.TopRow),
+        HudTopRowImage => new HudImageTiles(image, new(GameplayHudDocumentDefinitions.Columns, 1), parts.TopRow),
         HudTemplateImage => new HudImageTiles(image, GameplayHudDocumentDefinitions.Size, parts.Template),
         HudEnergyTankImage tank => OneCell(image, TankTile(tank.Tank)),
         HudEnergyDigitImage digit => OneCell(image, parts.HealthDigits[digit.Numeral]),
@@ -102,17 +102,18 @@ public sealed class GameplayHudArtwork : GameplayHudPresentation
     private HudImageTiles IconTiles(HudIconImage image)
     {
         var drawn = new BackgroundTile[GameplayHudDocumentDefinitions.CellCount];
+        int order = GameplayHudPresentation.IconOrder(image.Item);
         ApplyTemplate(drawn);
         if (image.Cover == HudIconCover.Icon)
-            TryApplyIcon(drawn, image.Item);
+            TryApplyIcon(drawn, order);
         if (image.Shade is { } shade)
-            ToggleItemHighlight(drawn, GameplayHudDefinitions.IconItems[image.Item], shade switch
+            ToggleItemHighlight(drawn, GameplayHudDefinitions.IconItems[order], shade switch
             {
                 HudIconShade.Selected => SelectedPalette,
                 HudIconShade.Deselected => DeselectedPalette,
                 _ => throw new ArgumentOutOfRangeException(nameof(image), shade, "Undefined icon shade."),
             });
-        GameplayHudIcon icon = Icon(image.Item);
+        GameplayHudIcon icon = Icon(order);
         var cells = ImmutableArray.CreateBuilder<BackgroundTile>(icon.Cells.Length);
         for (int cell = 0; cell < icon.Cells.Length; cell++)
             cells.Add(drawn[Index(icon.CellAt(cell))]);
@@ -161,7 +162,7 @@ public sealed class GameplayHudArtwork : GameplayHudPresentation
         : throw new ArgumentOutOfRangeException(nameof(itemIndex));
 
     /// <summary>Converts an HUD tile coordinate to the mutable row-major cell index.</summary>
-    private static int Index(Position16<TilemapCells> point) => GameplayHudDocumentDefinitions.Size.RowMajorIndex(point);
+    private static int Index(Position16<CharacterCells> point) => GameplayHudDocumentDefinitions.Size.RowMajorIndex(point);
 
     /// <summary>Requires a destination span for exactly three 32-cell HUD rows.</summary>
     private static void ValidateTilemap(Span<BackgroundTile> tiles)
@@ -184,16 +185,23 @@ public sealed class GameplayHudArtwork : GameplayHudPresentation
         return new GameplayHudPresentationParts
         {
             ContentIdentity = parts.ContentIdentity,
-            EnergyTankCells = parts.EnergyTankCells,
-            HealthAnchor = parts.HealthAnchor,
-            MissileAmmoAnchor = parts.MissileAmmoAnchor,
-            SuperMissileAmmoAnchor = parts.SuperMissileAmmoAnchor,
-            PowerBombAmmoAnchor = parts.PowerBombAmmoAnchor,
-            AutoReserveCells = parts.AutoReserveCells,
-            IconAnchors = [.. parts.Icons.Select(icon => icon.Anchor)],
+            EnergyTankCorners = [.. parts.EnergyTankCells.Select(Shown)],
+            HealthAnchor = Shown(parts.HealthAnchor),
+            MissileAmmoAnchor = Shown(parts.MissileAmmoAnchor),
+            SuperMissileAmmoAnchor = Shown(parts.SuperMissileAmmoAnchor),
+            PowerBombAmmoAnchor = Shown(parts.PowerBombAmmoAnchor),
+            AutoReserveCorners = [.. parts.AutoReserveCells.Select(Shown)],
+            IconAnchors = [.. parts.Icons.Select(icon => Shown(icon.Anchor))],
             // The cartridge draws an icon only over a blank anchor, and nothing but the template ever sits under an icon.
             IconsShowOverTemplate = [.. parts.Icons.Select(icon => parts.Template[Index(icon.Anchor)].Tile == parts.Blank.Tile)],
-            MinimapAnchor = parts.MinimapAnchor,
+            MinimapAnchor = Shown(parts.MinimapAnchor),
         };
     }
+
+    /// <summary>
+    /// The screen pixel the corner of cell <paramref name="cell"/> of the drawn rows shows at: the document counts the
+    /// drawn rows' cells from the first row below the static top row.
+    /// </summary>
+    private static Position16<ScreenPixels> Shown(Position16<CharacterCells> cell) =>
+        cell.CornerPixel<ScreenPixels>() + new Offset16<ScreenPixels>(0, GameplayHudDefinitions.TopRowHeightPixels);
 }

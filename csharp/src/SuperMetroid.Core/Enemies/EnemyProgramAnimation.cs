@@ -97,7 +97,7 @@ internal static class EnemyProgramAnimation
         Action<TState, AnimationPlayback<TSegment>> write,
         Func<TState, TEvent, AnimationContinuation<TSegment>?> react)
         where TState : class
-        where TSegment : struct, Enum
+        where TSegment : struct
         where TFrame : struct
         where TEvent : notnull
     {
@@ -126,7 +126,7 @@ internal static class EnemyProgramAnimation
         ref AnimationPlayback<TSegment> playback,
         Func<TFrame, EnemyFrameId> frame,
         Func<TEvent, AnimationContinuation<TSegment>?> react)
-        where TSegment : struct, Enum
+        where TSegment : struct
         where TFrame : struct
         where TEvent : notnull
     {

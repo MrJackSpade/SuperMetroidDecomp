@@ -5,23 +5,36 @@ namespace SuperMetroid.Core.Programs;
 /// events its owner reacts to. An animation's phases name runs of these beats; playing one moves its place from frame
 /// to frame and raises the events it passes.
 /// </summary>
-/// <typeparam name="TSegment">The segment identity: an enum, whose every member must be a segment.</typeparam>
+/// <typeparam name="TSegment">
+/// The segment identity: an enum, whose every member must be a segment, or a composite value naming the segments it requires.
+/// </typeparam>
 /// <typeparam name="TFrame">The frame identity.</typeparam>
 /// <typeparam name="TEvent">The events the owner reacts to.</typeparam>
 internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
-    where TSegment : struct, Enum
+    where TSegment : struct
     where TFrame : struct
     where TEvent : notnull
 {
     /// <summary>Each segment's beats.</summary>
     private readonly Dictionary<TSegment, AnimationBeat<TFrame, TEvent>[]> beats;
 
-    /// <summary>Creates the segments; every member of <typeparamref name="TSegment"/> must be present.</summary>
-    /// <exception cref="ArgumentException">A segment is missing.</exception>
+    /// <summary>Creates the segments of an enum identity; every member of <typeparamref name="TSegment"/> must be present.</summary>
+    /// <exception cref="ArgumentException">
+    /// <typeparamref name="TSegment"/> is not an enum, so it names no members to require, or a segment is missing.
+    /// </exception>
     internal AnimationSegments(IReadOnlyDictionary<TSegment, AnimationBeat<TFrame, TEvent>[]> segments)
+        : this(segments, typeof(TSegment).IsEnum
+            ? Enum.GetValues(typeof(TSegment)).Cast<TSegment>()
+            : throw new ArgumentException($"{typeof(TSegment).Name} is not an enum; name the segments it requires.", nameof(segments)))
+    {
+    }
+
+    /// <summary>Creates the segments; every one of <paramref name="required"/> must be present.</summary>
+    /// <exception cref="ArgumentException">A required segment is missing.</exception>
+    internal AnimationSegments(IReadOnlyDictionary<TSegment, AnimationBeat<TFrame, TEvent>[]> segments, IEnumerable<TSegment> required)
     {
         Ensure.NotNull(segments);
-        foreach (TSegment segment in Enum.GetValues<TSegment>())
+        foreach (TSegment segment in Ensure.NotNull(required))
         {
             if (!segments.ContainsKey(segment))
                 throw new ArgumentException($"Animation segment {segment} has no beats.", nameof(segments));

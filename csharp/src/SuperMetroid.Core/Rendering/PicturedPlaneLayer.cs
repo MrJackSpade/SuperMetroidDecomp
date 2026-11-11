@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
 /// A scrolled frontend background drawn from placed pictures (#1467, #1555): every picture's pixels at the layer's place in
-/// its scene's order (#1514), clear pixels showing what lies behind unless <see cref="ShowsClearPixelColours"/> is set. The
+/// its scene's order (#1514), clear pixels showing what lies behind unless the layer <see cref="DrawsOpaque"/>. The
 /// plane does not repeat: a screen pixel no picture covers shows what lies behind.
 /// </summary>
 /// <param name="Plane">The plane's pictures.</param>
@@ -17,9 +17,8 @@ public sealed record PicturedPlaneLayer(PicturedPlane Plane, Offset16<PlanePixel
     } = Ensure.NotNull(Plane);
 
     /// <summary>
-    /// Whether the pictures' clear pixels are drawn in the colour each picture gives them rather than showing what lies
-    /// behind, as an opaque plane draws them (#1544); a clear pixel with no colour, and a place no picture covers, still
-    /// show nothing.
+    /// Whether the layer is drawn opaque (#1544, #1633): its pictures' clear pixels show the colour each keeps under its
+    /// alpha rather than what lies behind. A place no picture covers still shows what lies behind.
     /// </summary>
-    public bool ShowsClearPixelColours { get; init; }
+    public bool DrawsOpaque { get; init; }
 }

@@ -3,20 +3,20 @@ using System.Collections.Immutable;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// An installed picture's own colours (#1544): the list its pixels name their colours from, which holds exactly the
-/// colours its pixels show, in the shades it is pre-coloured in (#1512), and, for a room tileset's picture, the colour its
-/// scene shows where nothing is drawn.
+/// What an installed sheet image's colours do (#1633): the shades it is pre-coloured in and the colour its scene shows
+/// where nothing is drawn. Its own colours are its pixels'.
 /// </summary>
-/// <param name="Standard">The colours the picture was coloured with, each named by its place in the list.</param>
-public sealed record PictureColours(ImmutableArray<RgbColor> Standard)
+public sealed record PictureColours
 {
-    /// <summary>The shades the import pre-coloured the picture in besides its standard colours, by name (#1512).</summary>
-    public ImmutableDictionary<PictureShade, ShadeInks> Shades { get; init; } = ImmutableDictionary<PictureShade, ShadeInks>.Empty;
+    /// <summary>No shades and no backdrop.</summary>
+    public static PictureColours None { get; } = new();
+
+    /// <summary>Each shade the image is pre-coloured in, by the shade that names it.</summary>
+    public ImmutableDictionary<PictureShade, PictureRecolouring> Shades { get; init; } = ImmutableDictionary<PictureShade, PictureRecolouring>.Empty;
 
     /// <summary>
-    /// The place in the list of the colour the picture's scene shows where nothing is drawn: a room tileset's backdrop,
-    /// which the room's colour effects change as they change its pictures' colours. Null for a picture whose scene takes
-    /// its backdrop from elsewhere.
+    /// The colour the image's scene shows where nothing is drawn, for a room's block sheet (#1544), as the key the image's
+    /// shades recolour it by; null for an image whose scene has no backdrop of its own.
     /// </summary>
-    public int? Backdrop { get; init; }
+    public ColourKey? Backdrop { get; init; }
 }

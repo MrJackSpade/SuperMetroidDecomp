@@ -3,10 +3,11 @@ using System.Collections.Immutable;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// How a draw's picture is coloured (#1512): its standard colours, with the shades its owner names laid over them in
-/// order, then each colour effect applied in order, then the shades laid over the effects, whose inks show colours
-/// written over what the effects show. The simulation names shades and effects; it never selects a colour for an ink.
-/// A backend colours the picture from <see cref="InkColours"/> alone.
+/// How a draw's picture is coloured (#1512, #1633): its own colours, with the shades its owner names laid over them in
+/// order, then each colour effect applied in order, then the shades laid over the effects, whose colours are written over
+/// what the effects show. A shade names the pixels it recolours by their colour key, the colour they hold with their
+/// recolour region. The simulation names shades and effects; it never selects a colour for a pixel. A backend colours the
+/// picture from <see cref="KeyColours(SpriteImage)"/> alone.
 /// </summary>
 public sealed record PictureShading
 {
@@ -74,34 +75,58 @@ public sealed record PictureShading
     /// <summary>This shading with <paramref name="shade"/> laid over what its effects show.</summary>
     public PictureShading OverEffect(PictureShade shade) => new(Shades, Effects, OverEffects.Add(shade));
 
-    /// <summary>The colour each of <paramref name="picture"/>'s inks shows under this shading.</summary>
+    /// <summary>The colour each of <paramref name="picture"/>'s colour keys (<see cref="SpriteImage.ColourKeys"/>) shows under this shading.</summary>
     /// <exception cref="InvalidDataException">The installation did not pre-colour the picture in a shade this shading names.</exception>
-    public RgbColor[] InkColours(SpriteImage picture)
+    public RgbColor[] KeyColours(SpriteImage picture)
     {
         Ensure.NotNull(picture);
-        var inks = new RgbColor[picture.StandardColours.Length];
-        InkColours(picture, inks);
-        return inks;
+        var shown = new RgbColor[picture.ColourKeys.Length];
+        KeyColours(picture, shown);
+        return shown;
     }
 
     /// <summary>
-    /// Writes the colours <paramref name="picture"/>'s inks show in this shading into <paramref name="inks"/>, one per ink
-    /// of its standard colours, without allocating, for a backend that packs every picture's colours each frame.
+    /// Writes the colour each of <paramref name="picture"/>'s colour keys shows in this shading into <paramref name="shown"/>,
+    /// one per key in <see cref="SpriteImage.ColourKeys"/>' order, without allocating, for a backend that packs every
+    /// picture's colours each frame. A shade's colour for a key the picture holds no pixel of shows nowhere.
     /// </summary>
-    /// <exception cref="ArgumentException"><paramref name="inks"/> does not hold one colour per ink.</exception>
-    public void InkColours(SpriteImage picture, Span<RgbColor> inks)
+    /// <exception cref="ArgumentException"><paramref name="shown"/> does not hold one colour per key.</exception>
+    /// <exception cref="InvalidDataException">The installation did not pre-colour the picture in a shade this shading names.</exception>
+    public void KeyColours(SpriteImage picture, Span<RgbColor> shown)
     {
         Ensure.NotNull(picture);
-        _ = Ensure.LengthEqual(inks, picture.StandardColours.Length);
-        picture.StandardColours.CopyTo(inks);
+        ImmutableArray<ColourKey> keys = picture.ColourKeys;
+        _ = Ensure.LengthEqual(shown, keys.Length);
+        for (int key = 0; key < keys.Length; key++)
+            shown[key] = keys[key].Colour;
         foreach (PictureShade shade in Shades)
-            picture.Shade(shade).Over(inks);
+            Recolour(picture, picture.Shade(shade), shown);
         foreach (ColourEffect effect in Effects)
         {
-            for (int ink = 0; ink < inks.Length; ink++)
-                inks[ink] = effect.Apply(inks[ink]);
+            for (int key = 0; key < shown.Length; key++)
+                shown[key] = effect.Apply(shown[key]);
         }
         foreach (PictureShade shade in OverEffects)
-            picture.Shade(shade).Over(inks);
+            Recolour(picture, picture.Shade(shade), shown);
+    }
+
+    /// <summary>The colour <paramref name="key"/> of <paramref name="picture"/> shows under this shading, such as its backdrop's.</summary>
+    /// <exception cref="ArgumentException">The picture holds no such key.</exception>
+    /// <exception cref="InvalidDataException">The installation did not pre-colour the picture in a shade this shading names.</exception>
+    public RgbColor Shown(SpriteImage picture, ColourKey key)
+    {
+        Ensure.NotNull(picture);
+        int place = picture.PlaceOf(key) ?? throw new ArgumentException($"Picture {picture.Name} holds no colour key {key}.", nameof(key));
+        return KeyColours(picture)[place];
+    }
+
+    /// <summary>Writes each colour <paramref name="recolouring"/> shows over the keys of <paramref name="picture"/> it names.</summary>
+    private static void Recolour(SpriteImage picture, PictureRecolouring recolouring, Span<RgbColor> shown)
+    {
+        foreach (KeyedSubstitution substitution in recolouring.Substitutions)
+        {
+            if (picture.PlaceOf(substitution.Replaced) is { } place)
+                shown[place] = substitution.Shown;
+        }
     }
 }

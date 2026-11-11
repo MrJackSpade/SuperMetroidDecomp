@@ -1240,7 +1240,7 @@ level, samus, frameCounter);
             // The first card is opaque and unscrolled and shows no sprites; later text is transparent
             // and cropped one tile down. Do not conflate those two display setups.
             return new(new FramePaint(Backdrop),
-                new DisplayLayer[] { new PicturedPlaneLayer(IntroNarrationPictures.FirstCardPlane(SceneSheets, crossfade.SceneShading), default) { ShowsClearPixelColours = true } },
+                new DisplayLayer[] { new PicturedPlaneLayer(IntroNarrationPictures.FirstCardPlane(SceneSheets, crossfade.SceneShading), default) { DrawsOpaque = true } },
                 Brightness.Level);
         }
         else

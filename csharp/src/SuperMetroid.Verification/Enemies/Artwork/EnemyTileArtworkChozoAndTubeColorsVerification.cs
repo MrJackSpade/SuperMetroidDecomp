@@ -74,7 +74,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
         void VerifyLive(ushort variant, PictureShading expectedShading, string name,
             Action<RoomEnemySystem, RoomEnemySlot> initialize, ChozoStatueProgram? expectedProgram)
         {
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
+            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = stock.Bosses };
             RoomEnemySlot statue = enemies.SlotTable.Slots[0];
             statue.SetSpawnParameter2(EnemyDefinitionId.Chozo, variant);
             initialize(enemies, statue);

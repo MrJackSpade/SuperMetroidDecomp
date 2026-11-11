@@ -62,9 +62,9 @@ internal static class BossDisplayBindingsFixtureVerification
         internal BossDisplayFixture(EnemyDefinitionId definition, InstalledEnemyArtwork artwork, int slot = 0)
         {
             _slot = slot;
-            Enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance)
+            Enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance)
             {
-                TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, 
+                BossArtwork = artwork.Bosses,
             };
             Enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(Vram));
             bodyOwner = BodyOwnerOf(definition);

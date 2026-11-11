@@ -46,9 +46,9 @@ internal static class DraygonHealthPaletteDefinitionsVerification
 
         var guard = NewDraygonHealthThresholdReadGuard(rom);
         using var colors = new MemoryStream(DraygonColorExtractor.Extract(rom), writable: false);
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance)
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
-            TileArtwork = EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), BossArtwork = new BossSourceArtwork { DraygonColors = DraygonColorFile.Read(colors) },
+            BossArtwork = new BossSourceArtwork { DraygonColors = DraygonColorFile.Read(colors) },
         };
         Action<DraygonEnemyState> update = DraygonCombat.UpdateDraygonHealthBand;
         var state = new DraygonEnemyState(enemies.SlotTable.Slots[0]);

@@ -175,7 +175,7 @@ internal static class CrocomireBodyVisualsVerification
         static DrawNativeResult Draw(InstalledEnemyArtwork art,
             ISnesAddressSpace bus, ushort pointer, bool newFrame)
         {
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses };
+            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(art.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = art.Bosses };
             var vram = new SnesVram();
             enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
             // His fight binds the installed body sheets and attaches the body his body frames show on.

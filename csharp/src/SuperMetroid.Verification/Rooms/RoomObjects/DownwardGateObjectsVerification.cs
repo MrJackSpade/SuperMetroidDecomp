@@ -141,11 +141,11 @@ internal static class DownwardGateObjectsVerification
         SeedEmptyRoomEnemyPopulation(bus, 0x9600);
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0));
         enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(0x9600), BgArtworkFixtures.For(new SnesVram())) { Level = level, Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) });
-        enemies.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(request, level.Size.X);
+        enemies.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(request);
         EnemyProjectile actor = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
         AssertEqual(RoomEnemyProjectileKind.DownwardGateClosed, actor.Kind,
             "bank-$86 pool owns the closed gate actor");
-        AssertEqual(gateBlockIndex, actor.StateOf<DownwardGateState>().RoomObjectBlockIndex,
+        AssertEqual(level.BlockAt(gateBlockIndex), actor.StateOf<DownwardGateState>().RoomObjectBlock,
             "gate actor is tied to its gate's PLM block");
         AssertEqual((ushort)96, actor.Position.Y.Whole,
             "closed gate actor begins four tiles beneath a row-two PLM origin");
@@ -175,7 +175,7 @@ internal static class DownwardGateObjectsVerification
         AssertTrue(roomObjects.Sounds.SoundRequests.Any(sound =>
                 sound.SoundEffect == DownwardGateDefinitions.MovementSound),
             "opening gate queues its cartridge movement sound");
-        enemies.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(wake, level.Size.X);
+        enemies.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(wake);
 
         // Run the PLM and bank-$86 actor together until the open-state coroutine sleeps.
         // This exercises all four 16-pixel movement segments and the list's final goto.
@@ -209,7 +209,7 @@ internal static class DownwardGateObjectsVerification
             "open gate publishes a moving close actor");
         AssertEqual((DownwardGateProjectileKind?)DownwardGateProjectileKind.Moving,
             close.Kind, "close request spawns the moving gate projectile");
-        enemies.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(close, level.Size.X);
+        enemies.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(close);
         for (int frame = 0; frame < 80; frame++)
             enemies.StepEnemyProjectiles(level, samus: null);
         EnemyProjectile closedActor = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);

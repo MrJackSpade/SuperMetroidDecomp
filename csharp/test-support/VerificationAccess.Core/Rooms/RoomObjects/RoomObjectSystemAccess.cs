@@ -69,7 +69,7 @@ internal static class RoomObjectSystemAccess
                 .Where(entry => entry.Door is not null)
                 .Select(entry => new ColoredDoorObjectSnapshot(
                     entry.Slot.Header,
-                    entry.Slot.BlockIndex,
+                    self.Level.Size.RowMajorIndex(entry.Slot.Block),
                     entry.Slot.NativeRoomArgument,
                     (entry.Door ?? throw new InvalidOperationException("Verification requires entry.door.")).Color,
                     entry.Door.Orientation,
@@ -83,7 +83,7 @@ internal static class RoomObjectSystemAccess
                 .Where(entry => entry.Door is not null)
                 .Select(entry => new GreyDoorObjectSnapshot(
                     entry.Slot.Header,
-                    entry.Slot.BlockIndex,
+                    self.Level.Size.RowMajorIndex(entry.Slot.Block),
                     entry.Slot.NativeRoomArgument,
                     (entry.Door ?? throw new InvalidOperationException("Verification requires entry.door.")).Orientation,
                     entry.Door.Condition,
@@ -97,7 +97,7 @@ internal static class RoomObjectSystemAccess
                 .Where(entry => entry.Door is not null || entry.Part is not null)
                 .Select(entry => new EyeDoorObjectSnapshot(
                     entry.Slot.Header,
-                    entry.Slot.BlockIndex,
+                    self.Level.Size.RowMajorIndex(entry.Slot.Block),
                     entry.Slot.NativeRoomArgument,
                     entry.Door is not null ? EyeDoorComponent.Eye
                         : (entry.Part ?? throw new InvalidOperationException("Verification requires an eye-door part.")).Component,
@@ -118,7 +118,7 @@ internal static class RoomObjectSystemAccess
                 return true;
             foreach (var slot in ActiveSlots(self))
             {
-                bool? takesShots = slot.BlockIndex != blockIndex ? null : slot.Behaviour switch
+                bool? takesShots = self.Level.Size.RowMajorIndex(slot.Block) != blockIndex ? null : slot.Behaviour switch
                 {
                     ColoredDoorObject colored => colored.TakesShots,
                     GreyDoorObject grey => grey.Waits != GreyDoorWait.Nothing,
@@ -155,7 +155,7 @@ internal static class RoomObjectSystemAccess
             RoomObjectSlot[] active = [.. ActiveSlots(self)];
             if (active.Length != 1)
                 throw new InvalidOperationException("Draw probe requires exactly one active PLM slot.");
-            self.Drawing.Draw(level, active[0].BlockIndex, draw);
+            self.Drawing.Draw(level, active[0].Block, draw);
         }
 
         /// <summary>
@@ -168,7 +168,7 @@ internal static class RoomObjectSystemAccess
         {
             foreach (var slot in self.SlotTable.Slots)
             {
-                if (!slot.Active || slot.BlockIndex != blockIndex || slot.Behaviour is not EyeDoorEyeObject)
+                if (!slot.Active || self.Level.Size.RowMajorIndex(slot.Block) != blockIndex || slot.Behaviour is not EyeDoorEyeObject)
                     continue;
 
                 // The pending hit is single. A later collision before the eye's update replaces it rather than
@@ -193,7 +193,7 @@ internal static class RoomObjectSystemAccess
                 .Select(entry => new RoomObjectSlotSnapshot(
                     ProcessingPosition: entry.Index,
                     HeaderPointer: entry.Slot.Header,
-                    BlockIndex: entry.Slot.BlockIndex,
+                    BlockIndex: self.Level.Size.RowMajorIndex(entry.Slot.Block),
                     RoomArgument: entry.Slot.NativeRoomArgument,
                     ProjectileHit: entry.Slot.ProjectileHit,
                     Behaviour: entry.Slot.Behaviour,
@@ -209,7 +209,7 @@ internal static class RoomObjectSystemAccess
 
         /// <summary>Typed BTS overload used by room collision dispatch.</summary>
         internal bool TryNotifyStationTouch(int accessBlockIndex, RoomBlockBehavior behavior)
-            => self.Stations.TryNotifyStationCollision(accessBlockIndex, behavior, SamusPoseId.LastUnauthoredPose.ForRoomCollision(), Axis.Horizontal, true, 0, StationSetupGate.Bypassed);
+            => self.Stations.TryNotifyStationCollision(accessBlockIndex, behavior, SamusPoseId.LastUnauthoredPose.ForRoomCollision(), Axis.Horizontal, true, StationSetupGate.Bypassed);
 
         /// <summary>
         /// Runs setup <c>$84:CFB5</c> for BTS one or two and installs the corresponding PLM.
@@ -334,7 +334,7 @@ internal static class RoomObjectSystemAccess
                 return false;
 
             RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-            slot.BlockIndex = blockIndex;
+            slot.Block = level.BlockAt(blockIndex);
 
             if (areaDependent)
             {

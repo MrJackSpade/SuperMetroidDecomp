@@ -43,7 +43,6 @@ internal sealed class BombTorizoHandObjects
 
     /// <summary>Runs the hand room object's setup after the generic room allocator has installed the header.</summary>
     internal void SetupBombTorizoHandSlot(
-        RoomLevelData level,
         RoomObjectSlot slot,
         IAreaBossFlagReader bosses)
     {
@@ -55,7 +54,6 @@ internal sealed class BombTorizoHandObjects
         }
 
         slot.Become(new BombTorizoHandObject(this));
-        _bombTorizoHandRoomWidth = level.Size.X;
     }
 
     /// <summary>Discards the previous room-object pass's fragment and music requests before the next pass.</summary>
@@ -74,8 +72,7 @@ internal sealed class BombTorizoHandObjects
         _bombTorizoStatueProjectileRequests.Add(new BombTorizoStatueProjectileRequest(
             fragment,
             // The fragment spawn carries both block coordinates as bytes.
-            new(slot.BlockIndex % _bombTorizoHandRoomWidth,
-                slot.BlockIndex / _bombTorizoHandRoomWidth)));
+            slot.Block));
 
     /// <summary>
     /// Queues the loaded set's second song with the shared eight-frame delay.
@@ -83,6 +80,4 @@ internal sealed class BombTorizoHandObjects
     internal void QueueMusic() =>
         _musicRequests.Add(new DelayedMusicRequest(MusicRequest.SelectTrack(MusicTrack.SecondSetSong), MusicQueueDelay.Shortest));
 
-    /// <summary>Room width in blocks used to turn the hand's linear block index into fragment spawn coordinates.</summary>
-    private int _bombTorizoHandRoomWidth;
 }

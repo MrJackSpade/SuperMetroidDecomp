@@ -12,13 +12,13 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <param name="AreaIndex">The room's area, used for map acquisition and save-station identity.</param>
 /// <param name="StationIndex">The number the station was placed with, 0 through 65535, used with the area to identify a resident save
 /// station; null for a station placed without one (a map station).</param>
-/// <param name="BlockIndex">The parent station's linear foreground-block index, rather than a side-access trigger's index.</param>
+/// <param name="Block">The parent station's room block, rather than a side-access trigger's.</param>
 public readonly record struct StationActivationEvent(
     StationKind Kind,
     GameplayMessageId MessageBoxIndex,
     AreaId AreaIndex,
     int? StationIndex,
-    int BlockIndex)
+    Position16<RoomBlocks> Block)
 {
     /// <summary>The number the station was placed with, 0 through 65535, or null when it carries none.</summary>
     public int? StationIndex { get; init; } = StationIndex is { } index ? Ensure.BetweenInclusive(0, ushort.MaxValue, index) : null;
@@ -26,5 +26,5 @@ public readonly record struct StationActivationEvent(
     /// <summary>The save station's number, which identifies the resident station a save returns to.</summary>
     /// <exception cref="InvalidOperationException">The station was placed without a number.</exception>
     public int SaveStationNumber => StationIndex ??
-        throw new InvalidOperationException($"{Kind} station at block {BlockIndex} was placed without its number.");
+        throw new InvalidOperationException($"{Kind} station at block {Block} was placed without its number.");
 }

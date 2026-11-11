@@ -60,13 +60,13 @@ internal sealed class EyeDoorObjects
 
         if (component == EyeDoorComponent.Eye)
         {
-            RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, slot.BlockIndex, EyeDoorDefinitions.EyeCollision,
+            RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, slot.Block, EyeDoorDefinitions.EyeCollision,
                 EyeDoorDefinitions.EyeBehavior);
-            WriteExtensionRows(level, slot.BlockIndex, EyeDoorDefinitions.EyeExtensionRows);
+            WriteExtensionRows(level, slot.Block, EyeDoorDefinitions.EyeExtensionRows);
             return;
         }
 
-        RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, slot.BlockIndex, EyeDoorDefinitions.ClosedComponentCollision,
+        RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, slot.Block, EyeDoorDefinitions.ClosedComponentCollision,
             EyeDoorDefinitions.ClosedComponentBehavior);
     }
 
@@ -75,12 +75,12 @@ internal sealed class EyeDoorObjects
         _sounds.Queue(EyeDoorDefinitions.RejectedShotSound, Priority: SoundRequestPriority.Normal);
 
     /// <summary>Whether Samus stands within <paramref name="reach"/> blocks across and up or down of the part.</summary>
-    internal bool IsSamusNear(RoomLevelData level, RoomObjectSlot slot, Extent16<RoomBlocks> reach)
+    internal bool IsSamusNear(RoomObjectSlot slot, Extent16<RoomBlocks> reach)
     {
         IRoomSamus samus = _samus?.Current
             ?? throw new InvalidOperationException("Eye-door proximity requires Samus.");
-        int roomObjectX = slot.BlockIndex % level.Size.X;
-        int roomObjectY = slot.BlockIndex / level.Size.X;
+        int roomObjectX = slot.Block.X;
+        int roomObjectY = slot.Block.Y;
         int deltaX = Math.Abs((samus.Position.X.Whole >> 4) - roomObjectX);
         int deltaY = Math.Abs((samus.Position.Y.Whole >> 4) - roomObjectY);
         return deltaX <= reach.X && deltaY <= reach.Y;
@@ -122,26 +122,26 @@ internal sealed class EyeDoorObjects
             EyeDoorOrientation.Right => RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Right)),
             _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorOrientation)} {orientation}."),
         };
-        slot.BlockIndex = checked(slot.BlockIndex - level.Size.X);
+        slot.Block += new Offset16<RoomBlocks>(0, -1);
         RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(
             level,
-            slot.BlockIndex,
+            slot.Block,
             RoomCollisionType.ShootableBlock,
             facing);
-        WriteExtensionRows(level, slot.BlockIndex, EyeDoorDefinitions.BlueDoorExtensionCount);
+        WriteExtensionRows(level, slot.Block, EyeDoorDefinitions.BlueDoorExtensionCount);
     }
 
     /// <summary>
-    /// Writes <paramref name="rows"/> vertical extension blocks below <paramref name="originIndex"/>, each pointing back
+    /// Writes <paramref name="rows"/> vertical extension blocks below <paramref name="origin"/>, each pointing back
     /// up to the origin block.
     /// </summary>
-    private static void WriteExtensionRows(RoomLevelData level, int originIndex, int rows)
+    private static void WriteExtensionRows(RoomLevelData level, Position16<RoomBlocks> origin, int rows)
     {
         for (int row = 1; row <= rows; row++)
         {
             RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(
                 level,
-                checked(originIndex + row * level.Size.X),
+                origin + new Offset16<RoomBlocks>(0, row),
                 RoomCollisionType.VerticalExtension,
                 RoomBlockBehavior.Extending(-row));
         }
@@ -158,7 +158,7 @@ internal sealed class EyeDoorObjects
         enemies.SpawnEyeDoorProjectile(new EyeDoorProjectileRequest(
             definition,
             facing,
-            slot.BlockIndex,
+            slot.Block,
             (slot.Argument as DoorBitArgument)?.Door));
     }
 }

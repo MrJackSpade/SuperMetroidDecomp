@@ -57,12 +57,11 @@ internal sealed class MotherBrainGlassObjects
         }
 
         slot.Become(new MotherBrainGlassObject(this));
-        RoomCollisionBlock original = level.GetCollisionBlockByIndex(slot.BlockIndex);
-        level.SetTerrain(slot.BlockIndex, original.Terrain.WithCollision(RoomCollisionType.SolidBlock));
-        level.SetBehavior(slot.BlockIndex, RoomBlockBehavior.Reacting(BlockReactionDefinitions.ResidentObjectTrigger));
+        RoomCollisionBlock original = level.GetCollisionBlock(slot.Block);
+        level.SetTerrain(slot.Block, original.Terrain.WithCollision(RoomCollisionType.SolidBlock));
+        level.SetBehavior(slot.Block, RoomBlockBehavior.Reacting(BlockReactionDefinitions.ResidentObjectTrigger));
 
         _motherBrainGlassSlot = slot;
-        _motherBrainGlassRoomWidth = level.Size.X;
         MotherBrainGlassWasLoaded = true;
         MotherBrainGlassLastRoomArgument = 0;
     }
@@ -102,8 +101,7 @@ internal sealed class MotherBrainGlassObjects
     {
         _sounds.Queue(RoomSound.MotherBrainGlassShatter, Priority: ShatterSoundPriority);
         // The fragment spawn carries both block coordinates as bytes.
-        Position16<RoomBlocks> glassBlock = new(slot.BlockIndex % _motherBrainGlassRoomWidth,
-            slot.BlockIndex / _motherBrainGlassRoomWidth);
+        Position16<RoomBlocks> glassBlock = slot.Block;
         foreach (MotherBrainGlassShard shard in shards)
             _motherBrainGlassProjectileRequests.Add(new MotherBrainGlassProjectileRequest(
                 RoomEnemyProjectileKind.MotherBrainGlassShard, shard, glassBlock));
@@ -116,8 +114,6 @@ internal sealed class MotherBrainGlassObjects
     /// <summary>The shatter sound's request priority.</summary>
     private static readonly SoundRequestPriority ShatterSoundPriority = SoundRequestPriority.Essential;
 
-    /// <summary>Room width in blocks used to turn the glass block index into shard spawn coordinates.</summary>
-    private int _motherBrainGlassRoomWidth;
 
     /// <summary>Finds the live glass, without accepting a later object that took its place.</summary>
     internal bool TryGetMotherBrainGlass([NotNullWhen(true)] out MotherBrainGlassObject? glass)

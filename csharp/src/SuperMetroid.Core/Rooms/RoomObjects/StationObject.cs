@@ -46,8 +46,8 @@ internal sealed class StationObject(
     public StationOperationPhase OperationPhase { get; set; }
     /// <summary>Updates remaining in the current access-arm phase.</summary>
     public int OperationTimer { get; set; }
-    /// <summary>Room block index where the activated access arm is drawn.</summary>
-    public int AccessBlockIndex { get; set; } = -1;
+    /// <summary>The access block where the activated access arm is drawn, or null when no access is active.</summary>
+    public Position16<RoomBlocks>? AccessBlock { get; set; }
     /// <summary>The access Samus used, which selects the arm's draws.</summary>
     public StationAccessBehavior? AccessBehavior { get; set; }
     /// <summary>Tracks the save's confirmation and animation separately from arm motion.</summary>
@@ -81,7 +81,7 @@ internal sealed class StationObject(
                 // The full-resource branch releases Samus before the access ends. A refill between the touch and this
                 // update must release her too.
                 samus.Control.Unlock();
-                AccessBlockIndex = -1;
+                AccessBlock = null;
                 AccessBehavior = null;
             }
             if (canActivate && Kind == StationKind.Save)
@@ -129,15 +129,15 @@ internal sealed class StationObject(
     }
 
     /// <summary>
-    /// The accepted save's first image, drawn at <paramref name="blockIndex"/> on the update the save is accepted, which
+    /// The accepted save's first image, drawn at <paramref name="block"/> on the update the save is accepted, which
     /// starts its loops.
     /// </summary>
-    internal void StartSaveAnimation(IRoomObjectDrawing drawing, RoomLevelData level, int blockIndex)
+    internal void StartSaveAnimation(IRoomObjectDrawing drawing, RoomLevelData level, Position16<RoomBlocks> block)
     {
         SavePhase = SaveStationPhase.Animating;
         AnimationFrame = 0;
         SaveAnimationLoopsRemaining = SaveStationAnimationDefinitions.SaveAnimationLoops;
-        DrawSaveImage(drawing, level, blockIndex);
+        DrawSaveImage(drawing, level, block);
     }
 
     /// <summary>Advances the arm's countdown and, when it runs out, the arm's next phase.</summary>
@@ -175,7 +175,7 @@ internal sealed class StationObject(
                 OperationPhase = Kind == StationKind.Map && samus.Control.AlphaLocked
                     ? StationOperationPhase.AwaitingMapUnpause
                     : StationOperationPhase.Idle;
-                AccessBlockIndex = -1;
+                AccessBlock = null;
                 AccessBehavior = null;
                 // The access only ends here. Recharges released Samus at activation; leaving the map screen releases
                 // her after the map.
@@ -210,21 +210,21 @@ internal sealed class StationObject(
                 GameplayMessageIds.SaveCompleted,
                 AreaIndex,
                 StationNumber(place),
-                place.BlockIndex));
+                place.Block));
             return true;
         }
-        DrawSaveImage(context.RoomObjects.Drawing, context.Level, place.BlockIndex);
+        DrawSaveImage(context.RoomObjects.Drawing, context.Level, place.Block);
         return true;
     }
 
     /// <summary>Draws the next of the save's two four-update images.</summary>
-    private void DrawSaveImage(IRoomObjectDrawing drawing, RoomLevelData level, int blockIndex)
+    private void DrawSaveImage(IRoomObjectDrawing drawing, RoomLevelData level, Position16<RoomBlocks> block)
     {
         StationAnimationList list = AnimationFrame == 0
             ? StationAnimationList.SaveFirstFrame
             : StationAnimationList.SaveSecondFrame;
         StationAnimationProgramDefinitions.Frame frame = StationAnimationPrograms.Resolve(list, 0);
-        Ensure.NotNull(drawing).Draw(level, blockIndex, frame.Draw);
+        Ensure.NotNull(drawing).Draw(level, block, frame.Draw);
         AnimationTimer = frame.Duration;
         AnimationFrame ^= 1;
         if (AnimationFrame == 0)
@@ -270,12 +270,12 @@ internal sealed class StationObject(
             message,
             AreaIndex,
             (place.Argument as StationArgument)?.Station,
-            place.BlockIndex));
+            place.Block));
     }
 
     /// <summary>The number the station was placed with, which its activation events carry.</summary>
     private static int StationNumber(RoomObjectSlot place) => (place.Argument as StationArgument
-        ?? throw new InvalidDataException($"Station at block {place.BlockIndex} was placed without its number.")).Station;
+        ?? throw new InvalidDataException($"Station at block {place.Block} was placed without its number.")).Station;
 
     /// <summary>Draws the access arm at the access Samus used, in the short or extended pose.</summary>
     private void DrawAccess(RoomObjectStepContext context, StationAccessPose pose)
@@ -283,7 +283,7 @@ internal sealed class StationObject(
         StationAccessBehavior accessBehavior = AccessBehavior
             ?? throw new InvalidDataException("Station access has no behaviour owner.");
         StationAccessObjectDefinition definition = StationAccessObjects.Resolve(accessBehavior);
-        context.RoomObjects.Drawing.Draw(context.Level, AccessBlockIndex,
+        context.RoomObjects.Drawing.Draw(context.Level, AccessBlock ?? throw new InvalidOperationException("A station drew its access arm with no access active."),
             RoomObjectDraw.Of(pose == StationAccessPose.Extended ? definition.Extended : definition.Retracted));
     }
 }

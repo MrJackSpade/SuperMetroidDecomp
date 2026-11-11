@@ -71,7 +71,7 @@ internal static class XraySetupVerification
             var visuals = runtime.Xray.XrayRevealVisuals
                 ?? throw new InvalidOperationException("Verification requires the runtime's installed X-ray reveals.");
             RevealedBlock?[] built = XrayRevealMap.Build(level, scroll.ForegroundPosition, room.AreaIndex, visuals);
-            XrayRevealOverlays.Apply(level, built, runtime.RoomObjects.CollectibleObjects.Collectibles, runtime.System,
+            XrayRevealOverlays.Apply(built, runtime.RoomObjects.CollectibleObjects.Collectibles, runtime.System,
                 room.State.XrayOverlay, scroll.ForegroundPosition, visuals);
             return built;
         }

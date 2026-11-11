@@ -36,24 +36,23 @@ internal static class XrayOverlaysVerification
             });
         // The terrain reveals' blocks play no part in the overlays.
         var visuals = new InstalledXrayReveals(XrayRevealFixtures.EveryDrawable(_ => new XrayRevealVisualBlocks(0, 0, 0, 0)), overlays);
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(new RoomTerrainBlock[1024], new RoomBlockBehavior[1024], new RoomBlockAppearance[1024]), RoomLevelData.NothingBeyondGrid());
         var system = new SharedGameState(new SharedRandom());
         var items = new[]
         {
-            new CollectibleObjectSnapshot(33, SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Item(1), InWorldCollectibleKind.Bombs),
-            new CollectibleObjectSnapshot(33, SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Item(2), InWorldCollectibleKind.EnergyTank),
+            new CollectibleObjectSnapshot(new(1, 1), SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Item(1), InWorldCollectibleKind.Bombs),
+            new CollectibleObjectSnapshot(new(1, 1), SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Item(2), InWorldCollectibleKind.EnergyTank),
         };
         // Each overlay places one whole block (#1431): the cell at the camera's block shows the block written last, in the
         // arrangement its mirroring selects.
         var map = new RevealedBlock?[XrayRevealArea.BlockCount];
         RevealedBlock Defined(int block) => new(block, RevealedBlockArrangement.AsDefined);
-        XrayRevealOverlays.Apply(level, map, items, system, null, new(16, 16), visuals);
+        XrayRevealOverlays.Apply(map, items, system, null, new(16, 16), visuals);
         AssertEqual(Defined(CollectibleCellPictures.DefinitionOf(new CollectiblePicture(InWorldCollectibleKind.Bombs, 0))), map[0],
             "descending item order leaves the lower item's reveal last, and Bombs is revealed as its own picture's first frame");
         system.SetCollectedItemBit(1);
-        XrayRevealOverlays.Apply(level, map, items, system, null, new(16, 16), visuals);
+        XrayRevealOverlays.Apply(map, items, system, null, new(16, 16), visuals);
         AssertEqual(Defined(5), map[0], "collected items do not obscure another live reveal, and the Energy Tank shows its installed block");
-        XrayRevealOverlays.Apply(level, map, items, system, SpecialRoom, new(16, 16), visuals);
+        XrayRevealOverlays.Apply(map, items, system, SpecialRoom, new(16, 16), visuals);
         AssertEqual(new RevealedBlock(9, RevealedBlockArrangement.RowsSwapped), map[0],
             "special-room override follows item writes, and its vertical flip swaps the block's rows without mirroring them");
         AssertEqual(Defined(3), map[1], "an overlay's horizontal flip is not drawn, as natively");
@@ -62,7 +61,7 @@ internal static class XrayOverlaysVerification
         Array.Clear(map);
         items[0] = items[0] with { Location = null };
         system.SetCollectedItemBit(2);
-        XrayRevealOverlays.Apply(level, map, items, system, null, new(16, 16), visuals);
+        XrayRevealOverlays.Apply(map, items, system, null, new(16, 16), visuals);
         AssertTrue(map.All(block => block is null), "negative item arguments and collected items leave the reveal unchanged");
         Console.WriteLine("  X-ray overlays: item pictures, tank blocks, collection gates, item order, room override, vertical flip and viewport bounds agree.");
     }

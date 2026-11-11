@@ -14,7 +14,6 @@ namespace SuperMetroid.Core.World;
 internal sealed class RoomObjectRuntimeServices(
     RoomScopeConstruction destination,
     SamusFrameState player,
-    ActiveRoomState room,
     SharedGameState system) :
     IRoomSamusAccess, ITourianStatueProgress, IRoomEarthquakeWriter, IRoomObjectEnemyEffects
 {
@@ -37,13 +36,13 @@ internal sealed class RoomObjectRuntimeServices(
     /// <summary>Stops the room's earthquake for a room object.</summary>
     public void Stop() => Enemies.Earthquake.Stop();
 
-    /// <summary>Spawns a Noob Tube projectile with the active room width for placement.</summary>
+    /// <summary>Spawns a Noob Tube projectile at its room object's block.</summary>
     public void SpawnNoobTubeProjectile(NoobTubeProjectileRequest request) =>
-        Enemies.RoomObjectSpawns.SpawnNoobTubeProjectile(request, room.LoadedLevelData.Size.X);
+        Enemies.RoomObjectSpawns.SpawnNoobTubeProjectile(request);
 
-    /// <summary>Spawns an eye-door projectile using the active room width and system state.</summary>
+    /// <summary>Spawns an eye-door projectile at its door's block, with the system state.</summary>
     public void SpawnEyeDoorProjectile(EyeDoorProjectileRequest request) =>
-        Enemies.RoomObjectSpawns.SpawnEyeDoorProjectile(request, room.LoadedLevelData.Size.X, system);
+        Enemies.RoomObjectSpawns.SpawnEyeDoorProjectile(request, system);
 
     /// <summary>Delegates the old Tourian escape shaft wall blast to its resident enemy behavior.</summary>
     public void SpawnOldTourianEscapeShaftWallExplosion() =>

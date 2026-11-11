@@ -933,7 +933,7 @@ internal sealed class RoomLoader
         // The room's room-object system is built with its bindings, then one set of runtime services
         // serves the room's room objects and enemies.
         var progress = new RoomAreaProgress(_system, room.AreaIndex);
-        var roomObjectServices = new RoomObjectRuntimeServices(scope, _player, _room, _system);
+        var roomObjectServices = new RoomObjectRuntimeServices(scope, _player, _system);
         var roomObjectRoom = new RoomObjectRoom(assets.LevelData, scope.Appearance, _system, room.AreaIndex);
         var roomObjectBindings = new RoomObjectServices
         {

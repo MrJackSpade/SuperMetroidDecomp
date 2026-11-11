@@ -22,9 +22,12 @@ internal sealed class CollectibleObjects
     private readonly IRoomObjectDrawing _drawing;
     /// <summary>Enumerates active item room objects by slot ordinal.</summary>
     private readonly RoomObjectSlotTable _slotTable;
-    /// <summary>Connects the collectibles to room state and drawing.</summary>
-    internal CollectibleObjects(SharedGameState? system, IRoomSamusAccess? samus, IRoomFxMotion? roomFx, IRoomObjectDrawing drawing, RoomObjectSlotTable slotTable)
+    /// <summary>The room's level, which places a touched or struck block.</summary>
+    private readonly RoomLevelData _level;
+    /// <summary>Connects the collectibles to room state, drawing and the room's level.</summary>
+    internal CollectibleObjects(SharedGameState? system, IRoomSamusAccess? samus, IRoomFxMotion? roomFx, IRoomObjectDrawing drawing, RoomObjectSlotTable slotTable, RoomLevelData level)
     {
+        _level = Ensure.NotNull(level);
         _system = system;
         _samus = samus;
         _roomFx = roomFx;
@@ -104,7 +107,7 @@ internal sealed class CollectibleObjects
     public IReadOnlyList<CollectibleObjectSnapshot> Collectibles => _slotTable.Slots
         .Where(slot => slot.Active)
         .SelectMany(slot => slot.Behaviour is CollectibleObject { } item
-            ? [new CollectibleObjectSnapshot(slot.BlockIndex, (slot.Argument as CollectedItemArgument)?.Location, item.Kind)]
+            ? [new CollectibleObjectSnapshot(slot.Block, (slot.Argument as CollectedItemArgument)?.Location, item.Kind)]
             : Array.Empty<CollectibleObjectSnapshot>())
         .ToArray();
 
@@ -115,9 +118,10 @@ internal sealed class CollectibleObjects
     /// </summary>
     public bool TryNotifyCollectibleTouch(int blockIndex)
     {
+        Position16<RoomBlocks> block = _level.BlockAt(blockIndex);
         foreach (RoomObjectSlot slot in _slotTable.Slots)
         {
-            if (!slot.Active || slot.BlockIndex != blockIndex || slot.Behaviour is not CollectibleObject item)
+            if (!slot.Active || slot.Block != block || slot.Behaviour is not CollectibleObject item)
                 continue;
             // The pickup message retains both the visible block and its physical owner.
             // On message return, movement can touch that block before the room-object update runs
@@ -144,9 +148,10 @@ internal sealed class CollectibleObjects
     public bool TryNotifyCollectibleProjectileHit(
         int blockIndex)
     {
+        Position16<RoomBlocks> block = _level.BlockAt(blockIndex);
         foreach (RoomObjectSlot slot in _slotTable.Slots)
         {
-            if (!slot.Active || slot.BlockIndex != blockIndex || slot.Behaviour is not CollectibleObject item)
+            if (!slot.Active || slot.Block != block || slot.Behaviour is not CollectibleObject item)
                 continue;
             if (item.Phase is not (
                     CollectiblePhase.ChozoOrb or
@@ -176,15 +181,15 @@ internal sealed class CollectibleObjects
     {
         RoomLevelData level = room.Level;
         SharedGameState system = room.System;
-        RoomCollisionBlock original = level.GetCollisionBlockByIndex(slot.BlockIndex);
+        RoomCollisionBlock original = level.GetCollisionBlock(slot.Block);
         bool collected = slot.Argument is CollectedItemArgument placedItem &&
             system.HasCollectedItem(placedItem.Location);
         int? blockPair = ShowsOwnPicture(kind) ? _blockPairs.Take() : null;
 
         RoomTerrainBlock setup = original.Terrain.WithCollision(
             presentation == CollectiblePresentation.ShotBlock ? RoomCollisionType.ShootableBlock : RoomCollisionType.Air);
-        level.SetTerrain(slot.BlockIndex, setup);
-        level.SetBehavior(slot.BlockIndex, RoomBlockBehavior.Reacting(BlockReactionDefinitions.CollectibleTrigger));
+        level.SetTerrain(slot.Block, setup);
+        level.SetBehavior(slot.Block, RoomBlockBehavior.Reacting(BlockReactionDefinitions.CollectibleTrigger));
         slot.RestoreTerrain = setup;
 
         CollectiblePhase phase = collected

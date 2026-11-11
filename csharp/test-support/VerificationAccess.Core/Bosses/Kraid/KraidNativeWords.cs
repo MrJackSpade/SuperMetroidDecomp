@@ -20,4 +20,20 @@ internal static class KraidNativeWords
         [KraidMouthHitbox.WiderInvulnerable] = 0x97b8,
         [KraidMouthHitbox.OpenInvulnerable] = 0x97c0,
     });
+
+    /// <summary>
+    /// The bank-$84 PLM header pointer the cartridge spawns each <see cref="KraidRoomMutation"/> with. Core spawns a
+    /// mutation by what it does and keeps no header for it (#1608); only the oracle reads these words.
+    /// </summary>
+    internal static readonly NativeWordIdentities<KraidRoomMutation> RoomMutations = new(new Dictionary<KraidRoomMutation, ushort>
+    {
+        [KraidRoomMutation.CrumbleCeilingIntoBackground1] = 0xb7a3,
+        [KraidRoomMutation.CrumblePlatformVariant1] = 0xb7a7,
+        [KraidRoomMutation.CrumbleCeilingIntoBackground2] = 0xb7ab,
+        [KraidRoomMutation.CrumblePlatformVariant2] = 0xb7af,
+        [KraidRoomMutation.CrumbleCeilingIntoBackground3] = 0xb7b3,
+        [KraidRoomMutation.ClearCeiling] = 0xb7b7,
+        [KraidRoomMutation.ClearSpikes] = 0xb7bb,
+        [KraidRoomMutation.CrumbleSpikes] = 0xb7bf,
+    });
 }

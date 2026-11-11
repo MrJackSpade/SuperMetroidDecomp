@@ -228,13 +228,13 @@ internal sealed class CollectibleObject(
             WasCollectedBeforeReveal = true;
             Phase = CollectiblePhase.CollectedShotBlockEmpty;
             AnimationIndex = 0;
-            drawing.Draw(level, place.BlockIndex, RoomObjectCollectibleDrawDefinitions.Empty);
+            drawing.Draw(level, place.Block, RoomObjectCollectibleDrawDefinitions.Empty);
             Timer = CollectibleTimingDefinitions.CollectedShotBlockEmptyUpdates;
             return;
         }
 
         // The empty item draws for one update; it leaves on the following update.
-        drawing.Draw(level, place.BlockIndex, RoomObjectCollectibleDrawDefinitions.Empty);
+        drawing.Draw(level, place.Block, RoomObjectCollectibleDrawDefinitions.Empty);
         Phase = CollectiblePhase.EmptyAwaitingDelete;
         Timer = CollectibleTimingDefinitions.PickedUpEmptyUpdates;
     }
@@ -270,6 +270,6 @@ internal sealed class CollectibleObject(
     {
         context.Draw(place, CollectibleObjectDraws.VisibleFrame(Kind, AnimationIndex, BlockPair));
         if (BlockPair is not null)
-            context.Level.ShowCollectible(place.BlockIndex, new CollectiblePicture(Kind, AnimationIndex));
+            context.Level.ShowCollectible(place.Block, new CollectiblePicture(Kind, AnimationIndex));
     }
 }

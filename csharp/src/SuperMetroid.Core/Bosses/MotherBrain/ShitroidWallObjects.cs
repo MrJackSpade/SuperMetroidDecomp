@@ -13,26 +13,27 @@ internal sealed class ShitroidWallObjects(RoomObjectSlotTable slotTable)
     /// gives each block of the wall column the mutation's collision, keeping every block's appearance, and the object
     /// leaves the room on its first update.
     /// </summary>
-    /// <returns>False when every room-object slot is occupied; no terrain is changed then.</returns>
+    /// <returns>
+    /// False when every room-object slot is occupied; no terrain is changed then (<see cref="RoomObjectSlotTable"/>'s
+    /// full-room rule).
+    /// </returns>
     public bool TrySpawn(RoomLevelData level, RoomObjectSpawnRequest<ShitroidWallMutation> request)
     {
         Ensure.NotNull(level);
-        RoomObjectHeaderId roomObject = Ensure.Listed(RoomObjects, request.RoomObject);
         RoomCollisionType collision = Ensure.Listed(Collisions, request.RoomObject);
 
         if (slotTable.SpawnHardcoded() is not { } slot)
             return false;
 
-        slot.Header = roomObject;
-        slot.BlockIndex = level.GetBlockIndex(request.Block);
+        slot.Block = level.GridBlock(request.Block);
         slot.Become(new TerrainChangeObject(TerrainChange.MadeAtSpawn));
 
         // The setup walks down the wall column. The change is made as the object spawns, before its first update
         // removes it.
         for (int rowOffset = 0; rowOffset < WallHeight; rowOffset++)
         {
-            int blockIndex = level.GetBlockIndex(request.Block + new Offset16<RoomBlocks>(0, rowOffset));
-            level.SetTerrain(blockIndex, level.GetCollisionBlockByIndex(blockIndex).Terrain.WithCollision(collision));
+            Position16<RoomBlocks> block = level.GridBlock(request.Block + new Offset16<RoomBlocks>(0, rowOffset));
+            level.SetTerrain(block, level.GetCollisionBlock(block).Terrain.WithCollision(collision));
         }
         return true;
     }

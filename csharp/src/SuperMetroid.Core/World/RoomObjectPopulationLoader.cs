@@ -71,15 +71,16 @@ internal sealed class RoomObjectPopulationLoader
             var record = new RoomObjectPopulationRecord(
                 recordIndex, header, placement.Block, placement.Argument);
 
-            int blockIndex;
+            Position16<RoomBlocks> block;
             try
             {
                 // A room-object spawn allocates the ID first and converts the two unsigned
                 // coordinates with the room-width multiplier without checking logical
                 // dimensions. The bounded allocation preserves that ordering for
-                // the two shipped off-room door records; setup routines that genuinely
-                // require authored terrain still validate when they consume the index.
-                blockIndex = room.Level.GetObjectBlockIndex(record.Block);
+                // the two shipped off-room door records, whose column past the room's width is the block that many
+                // columns into the following rows; setup routines that genuinely require authored terrain still
+                // validate when they consume the block.
+                block = room.Level.ObjectBlock(record.Block);
             }
             catch (ArgumentOutOfRangeException error)
             {
@@ -90,7 +91,7 @@ internal sealed class RoomObjectPopulationLoader
                     error);
             }
 
-            RoomObjectSlot? slot = AllocateRoomPopulationSlot(record, blockIndex);
+            RoomObjectSlot? slot = AllocateRoomPopulationSlot(record, block);
             if (slot is null)
                 continue; // The routine returns carry set when all forty IDs are live.
 
@@ -116,13 +117,13 @@ internal sealed class RoomObjectPopulationLoader
     /// <summary>Claims the highest free place, which resets whatever it held, and installs the record's identity before setup runs.</summary>
     private RoomObjectSlot? AllocateRoomPopulationSlot(
         RoomObjectPopulationRecord record,
-        int blockIndex)
+        Position16<RoomBlocks> block)
     {
         if (_slotTable.SpawnRoomObject() is not { } slot)
             return null;
 
         slot.Header = record.Header;
-        slot.BlockIndex = blockIndex;
+        slot.Block = block;
         slot.Argument = record.Argument;
         return slot;
     }
@@ -181,7 +182,7 @@ internal sealed class RoomObjectPopulationLoader
 
         if (header == RoomObjectHeaderId.BombTorizoHand)
         {
-            _bombTorizoHand.SetupBombTorizoHandSlot(level, slot, bosses);
+            _bombTorizoHand.SetupBombTorizoHandSlot(slot, bosses);
             return true;
         }
 

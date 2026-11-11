@@ -2,19 +2,11 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
-/// <summary>Where Botwoon's wall object is spawned, and the room object and terrain change of each wall mutation.</summary>
+/// <summary>Where Botwoon's wall object is spawned, and the terrain change of each wall mutation.</summary>
 internal static class BotwoonWallMutationDefinitions
 {
     /// <summary>The room block both wall mutations are spawned at: the wall's top block.</summary>
     internal static readonly Position16<RoomBlocks> Block = new(15, 4);
-
-    /// <summary>The room object each mutation is.</summary>
-    internal static readonly IReadOnlyDictionary<BotwoonWallMutation, RoomObjectHeaderId> RoomObjects =
-        new Dictionary<BotwoonWallMutation, RoomObjectHeaderId>
-        {
-            [BotwoonWallMutation.Clear] = RoomObjectHeaderId.ClearBotwoonWall,
-            [BotwoonWallMutation.Crumble] = RoomObjectHeaderId.CrumbleBotwoonWall,
-        };
 
     /// <summary>Rows the crumble crumbles, top to bottom.</summary>
     internal const int CrumbleRows = 9;

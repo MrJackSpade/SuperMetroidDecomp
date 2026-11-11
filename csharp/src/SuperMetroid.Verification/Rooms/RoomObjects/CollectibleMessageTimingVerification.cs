@@ -40,14 +40,15 @@ internal static class CollectibleMessageTimingVerification
         runtime.StepFrame(0);
         runtime.StepFrame(0);
         var item = runtime.RoomObjects.CollectibleObjects.Collectibles.Single(i => i.Kind == InWorldCollectibleKind.EnergyTank);
-        RoomTerrainBlock visible = runtime.Room.LoadedLevelData.GetCollisionBlockByIndex(item.BlockIndex).Terrain;
+        int itemIndex = runtime.Room.LoadedLevelData.GetBlockIndex(item.Block);
+        RoomTerrainBlock visible = runtime.Room.LoadedLevelData.GetCollisionBlockByIndex(itemIndex).Terrain;
         // The block the displayed frame shows for the pickup, with its mirroring, and the picture it draws: its latched room
         // BG1 (#1346, #1431).
         (RoomBlockCell Cell, SpriteSheetFrame? Picture) ShownBlock()
         {
             RoomBackgroundLayer bg1 = (runtime.Display.Latched.Rooms ?? throw new InvalidOperationException(
                 "The displayed frame has no room backgrounds.")).Foreground;
-            RoomBlockCell cell = bg1.Blocks.Cells[item.BlockIndex];
+            RoomBlockCell cell = bg1.Blocks.Cells[itemIndex];
             return (cell, bg1.Pictures?.Picture(cell.Definition));
         }
         ushort[] HudWords() => runtime.Hud.TileWords.WhereToArray((_, index) => index % 32 < 26);
@@ -63,7 +64,7 @@ internal static class CollectibleMessageTimingVerification
         ushort[] beforeVisibleHud = VisibleHudWords();
         (RoomBlockCell Cell, SpriteSheetFrame? Picture) beforeTile = ShownBlock();
         ushort[] beforeHud = HudWords();
-        AssertTrue(runtime.RoomObjects.CollectibleObjects.TryNotifyCollectibleTouch(item.BlockIndex), "reported pickup accepts contact");
+        AssertTrue(runtime.RoomObjects.CollectibleObjects.TryNotifyCollectibleTouch(itemIndex), "reported pickup accepts contact");
         runtime.StepFrame(0);
         AssertTrue(runtime.MessageBox.IsActive, "pickup begins synchronous message");
         AssertEqual(199, samus.MaxHealth, "native grant precedes message return");
@@ -71,7 +72,7 @@ internal static class CollectibleMessageTimingVerification
         Console.WriteLine($"Pickup frame: tile retained={beforeTile == ShownBlock()}, HUD retained={beforeHud.SequenceEqual(HudWords())}");
         void AssertHeld()
         {
-            AssertEqual(visible, runtime.Room.LoadedLevelData.GetCollisionBlockByIndex(item.BlockIndex).Terrain, "pickup level tile remains during message");
+            AssertEqual(visible, runtime.Room.LoadedLevelData.GetCollisionBlockByIndex(itemIndex).Terrain, "pickup level tile remains during message");
             AssertTrue(beforeTile == ShownBlock(), "displayed pickup block and picture remain during message");
             AssertTrue(beforeHud.SequenceEqual(HudWords()), "HUD counters remain during message");
             AssertTrue(beforeVisibleHud.SequenceEqual(VisibleHudWords()), "displayed HUD VRAM remains during message");
@@ -92,7 +93,7 @@ internal static class CollectibleMessageTimingVerification
             runtime.StepFrame(0);
         }
         AssertTrue(!runtime.MessageBox.IsActive, "message returns");
-        AssertTrue(runtime.Room.LoadedLevelData.GetCollisionBlockByIndex(item.BlockIndex).Terrain != visible, "return executes pickup empty draw");
+        AssertTrue(runtime.Room.LoadedLevelData.GetCollisionBlockByIndex(itemIndex).Terrain != visible, "return executes pickup empty draw");
         AssertTrue(!beforeHud.SequenceEqual(HudWords()), "return rebuilds HUD for acquired energy");
         AssertEqual(199, samus.MaxHealth, "return grants no duplicate energy");
         runtime.FrameBoundary.BeginAcceptedFrame(0);

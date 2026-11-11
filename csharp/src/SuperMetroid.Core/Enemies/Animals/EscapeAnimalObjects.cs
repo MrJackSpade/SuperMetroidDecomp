@@ -29,10 +29,11 @@ internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
         // Hardcoded spawn cannot execute setup when every room-object slot is occupied.
         if (_slotTable.IsFull)
             throw new InvalidOperationException("Animal rescue wall setup has no free room-object slot.");
-        RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, blockIndex, EscapeAnimalWallDefinitions.OriginCollisionType,
+        Position16<RoomBlocks> origin = level.BlockAt(blockIndex);
+        RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, origin, EscapeAnimalWallDefinitions.OriginCollisionType,
             EscapeAnimalWallDefinitions.ReactionBehavior);
         for (int row = 1; row <= 2; row++)
-            RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, blockIndex + row * level.Size.X,
+            RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, origin + new Offset16<RoomBlocks>(0, row),
                 EscapeAnimalWallDefinitions.ExtensionCollisionType,
                 EscapeAnimalWallDefinitions.ExtensionBehavior);
     }
@@ -55,7 +56,7 @@ internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
         if (_slotTable.SpawnHardcoded() is not { } slot)
             return false;
 
-        slot.BlockIndex = level.GetBlockIndex(
+        slot.Block = level.GridBlock(
             new(CrateriaMainstreetEscapePassageObjectDefinitions.BlockX, CrateriaMainstreetEscapePassageObjectDefinitions.BlockY));
         slot.Header = RoomObjectHeaderId.CrateriaMainstreetEscapePassage;
         slot.Become(new TerrainChangeObject(ScriptedTerrainChangeDefinitions.CrateriaEscapePassage));
@@ -72,7 +73,7 @@ internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
         if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
             return false;
 
-        slot.BlockIndex = blockIndex;
+        slot.Block = level.BlockAt(blockIndex);
         slot.Become(new CritterWallBreakthroughObject());
         RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
         // The reaction shows the struck wall's installed picture over the wall's collision type; until its list runs, the

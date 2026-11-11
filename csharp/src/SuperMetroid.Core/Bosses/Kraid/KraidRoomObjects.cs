@@ -13,23 +13,24 @@ internal sealed class KraidRoomObjects(RoomObjectSlotTable slotTable)
     /// deactivates the block's collision while keeping its appearance; the mutation's terrain change then draws its
     /// crumble frames on the authored cadence and is gone.
     /// </summary>
-    /// <returns>False only when every room-object slot is occupied; nothing is spawned or changed then.</returns>
+    /// <returns>
+    /// False when every room-object slot is occupied; nothing is spawned or changed then (<see cref="RoomObjectSlotTable"/>'s
+    /// full-room rule).
+    /// </returns>
     public bool TrySpawn(RoomLevelData level, RoomObjectSpawnRequest<KraidRoomMutation> request)
     {
         Ensure.NotNull(level);
-        RoomObjectHeaderId roomObject = Ensure.Listed(RoomObjects, request.RoomObject);
         TerrainChange change = Ensure.Listed(Changes, request.RoomObject);
 
-        int blockIndex = level.GetBlockIndex(request.Block);
+        Position16<RoomBlocks> block = level.GridBlock(request.Block);
         if (slotTable.SpawnHardcoded() is not { } slot)
             return false;
 
-        slot.Header = roomObject;
-        slot.BlockIndex = blockIndex;
+        slot.Block = block;
         slot.Become(new TerrainChangeObject(change));
 
         // The deactivating setup keeps a solid block solid and turns every other block to air.
-        level.SetTerrain(blockIndex, level.GetCollisionBlockByIndex(blockIndex).Terrain.Deactivated());
+        level.SetTerrain(block, level.GetCollisionBlock(block).Terrain.Deactivated());
         return true;
     }
 }

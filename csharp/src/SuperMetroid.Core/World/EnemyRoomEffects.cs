@@ -238,7 +238,7 @@ internal sealed class EnemyRoomEffects
         {
             if (_player.Samus?.Xray.AreEnemyProjectilesSuspended == true)
                 continue;
-            enemies.RoomObjectRequests.ApplyDownwardGateProjectileRequest(request, _room.LevelData.Size.X);
+            enemies.RoomObjectRequests.ApplyDownwardGateProjectileRequest(request);
         }
     }
 }

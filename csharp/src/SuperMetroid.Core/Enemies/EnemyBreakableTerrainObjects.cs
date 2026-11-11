@@ -27,7 +27,7 @@ internal sealed class EnemyBreakableTerrainObjects
             return false;
 
         slot.Header = RoomObjectHeaderId.EnemyBreakableBlock;
-        slot.BlockIndex = blockIndex;
+        slot.Block = level.BlockAt(blockIndex);
         slot.Become(new TerrainChangeObject(ScriptedTerrainChangeDefinitions.EnemyBreakableBlockBreak));
         level.SetTerrain(blockIndex, block.Terrain.WithCollision(RoomCollisionType.Air));
         return true;

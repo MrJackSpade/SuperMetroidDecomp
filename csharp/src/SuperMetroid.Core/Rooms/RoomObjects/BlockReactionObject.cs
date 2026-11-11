@@ -45,7 +45,7 @@ internal class BlockReactionObject(BlockReactionChange change) : RoomObjectBehav
         }
         // The owner of the room's block reactions learns as each image shows whether the block now stands broken open,
         // which a room object waiting on a block's breakup observes.
-        context.RoomObjects.BlockReactions.RecordImageShown(place.BlockIndex, frame.Draw);
+        context.RoomObjects.BlockReactions.RecordImageShown(place.Block, frame.Draw);
         _updatesBeforeNextStep = frame.Updates;
     }
 

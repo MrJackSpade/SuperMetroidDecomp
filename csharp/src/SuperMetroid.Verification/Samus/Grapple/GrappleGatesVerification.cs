@@ -35,7 +35,7 @@ internal static class GrappleGatesVerification
             // The gate draws from the sheets of the set its room loads; Green Hill Zone, the room this fixture models, loads
             // its set with its own population (an empty population would keep the session's standard sprites).
             enemies.Load(new RoomEnemyLoadRequest(RoomEnemyPopulationDefinitions.GreenHillZone, BgArtworkFixtures.For(new SnesVram())) { Level = level, Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) });
-            enemies.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(roomObjects.Gates.TakeDownwardGateProjectileRequests().Single(), level.Size.X);
+            enemies.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(roomObjects.Gates.TakeDownwardGateProjectileRequests().Single());
             enemies.StepEnemyProjectiles(level, null);
             enemies.StepEnemyProjectiles(level, null);
             var oam = new OamBuffer();

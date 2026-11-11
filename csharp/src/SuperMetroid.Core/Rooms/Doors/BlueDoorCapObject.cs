@@ -70,7 +70,7 @@ internal sealed class BlueDoorCapObject : DoorCapObject
     private void Close(RoomObjectSlot place, RoomObjectStepContext context)
     {
         Phase = BlueDoorCapPhase.Closed;
-        context.Level.SetBehavior(place.BlockIndex,
+        context.Level.SetBehavior(place.Block,
             RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(Orientation)));
         Play(DoorCapSequenceDefinitions.BlueClosed, place, context);
     }

@@ -21,8 +21,12 @@ internal sealed class RoomObjectSlot
     public bool Active { get; private set; }
     /// <summary>The room object the slot holds, selecting its setup and behavior.</summary>
     public RoomObjectHeaderId Header { get; set; }
-    /// <summary>Index of the room block owned by this room object.</summary>
-    public int BlockIndex { get; set; }
+    /// <summary>
+    /// The room block this room object sits on and draws from: a block of the room's grid, or one past its last row in the
+    /// terrain beyond the room. It is always the block's own position (its column inside the room's width); a step to a
+    /// neighbouring block goes through <see cref="RoomLevelData.ObjectBlockStep"/>.
+    /// </summary>
+    public Position16<RoomBlocks> Block { get; set; }
     /// <summary>
     /// The terrain the slot restores at its block, or null when its object saved none. Grapple setup saves the original
     /// block; collision-bomb setup saves the dimension parent instead. Only an object whose setup saved a block restores
@@ -42,7 +46,7 @@ internal sealed class RoomObjectSlot
     {
         Active = false;
         Header = 0;
-        BlockIndex = 0;
+        Block = default;
         RestoreTerrain = null;
         Argument = null;
         ProjectileHit = null;

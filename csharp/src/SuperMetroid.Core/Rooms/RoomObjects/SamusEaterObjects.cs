@@ -32,7 +32,7 @@ internal sealed class SamusEaterObjects
             return;
 
         slot.Header = header;
-        slot.BlockIndex = block.Index;
+        slot.Block = level.BlockAt(block.Index);
         slot.Become(new SamusEaterObject(this, definition,
             new(samus.Position.X.Whole, CoordinateAxis.Wrap(samus.Position.Y.Whole + (definition.Ceiling ? 1 : -1)))));
         level.SetTerrain(block.Index, block.Terrain.Deactivated());

@@ -39,7 +39,7 @@ internal static class RechargeStationAdmissionVerification
             var behavior = RoomBlockBehaviorCodec.Decode(RoomBlockBehaviorCodec.Encode(level.GetCollisionBlock(new(checked((ushort)accessX), 8)).Behavior));
             bool Touch() => roomObjects.Stations.TryNotifyStationCollision(level.GetBlockIndex(new(checked((ushort)accessX), 8)), behavior,
                 (right ? SamusPoseId.RanIntoWallLeftPose : SamusPoseId.RanIntoWallRightPose).ForRoomCollision(),
-                Axis.Horizontal, movingPositive: !right, roomWidthInBlocks: 32);
+                Axis.Horizontal, movingPositive: !right);
             AssertTrue(Touch(), "full recharge station remains solid");
             AssertTrue(!samus.Control.AlphaLocked, "full resource must be rejected before station input lock");
             roomObjects.Step(level);

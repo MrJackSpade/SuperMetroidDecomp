@@ -100,12 +100,11 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         Installed(_visuals.RoomObjectSetupBlocks, "room-object setup block").Shown(block);
 
     /// <summary>Draws a compiled draw, selecting its family's installed visuals while retaining the draw's collision.</summary>
-    public void Draw(RoomLevelData level, int blockIndex, RoomObjectDraw draw)
+    public void Draw(RoomLevelData level, Position16<RoomBlocks> origin, RoomObjectDraw draw)
     {
         // A draw is a list of runs, each a row or a column of blocks starting at its own offset from the room-object origin; the
         // list ends at its last run. The 2x2 bomb art is consequently two horizontal runs: row zero at the origin, then
         // row one starting one block below it.
-        Position16<RoomBlocks> origin = level.Size.CellAtRowMajorIndex(blockIndex);
         if (BombedRevealObjectDraws.TryGet(draw, out var bombedReveal))
         {
             DrawRevealOrWall(level, bombedReveal, origin, Installed(RevealAndWallVisuals, "reveal and wall").Image(draw));
@@ -363,13 +362,12 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
                 DrawImageCell(level, definition.Draw, origin, image, run.CellAt(offset), run.Collisions.Span[offset]);
     }
 
-    /// <summary>Converts a draw's block coordinate to a room-object block index before writing its terrain.</summary>
+    /// <summary>Writes a draw's terrain at <paramref name="block"/>, which must be a block a room object can reach.</summary>
     private static void DrawTerrainAt(RoomLevelData level, RoomObjectDraw draw, Position16<RoomBlocks> block, RoomTerrainBlock terrain)
     {
-        int blockIndex;
         try
         {
-            blockIndex = level.GetObjectBlockIndex(block);
+            _ = level.GetObjectBlockIndex(block);
         }
         catch (ArgumentOutOfRangeException error)
         {
@@ -378,7 +376,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
                 "the room's room-object-reachable blocks.", error);
         }
 
-        RoomObjectLevelWrites.DrawTerrain(level, blockIndex, terrain);
+        RoomObjectLevelWrites.DrawTerrain(level, block, terrain);
     }
 
     /// <summary>

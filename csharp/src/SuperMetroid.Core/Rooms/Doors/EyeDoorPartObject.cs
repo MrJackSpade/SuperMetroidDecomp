@@ -116,5 +116,5 @@ internal sealed class EyeDoorPartObject(EyeDoorOrientation orientation, EyeDoorC
 
     /// <summary>Whether Samus stands near enough to make the part pulse.</summary>
     private static bool IsSamusNear(RoomObjectSlot place, RoomObjectStepContext context) =>
-        context.RoomObjects.EyeDoors.IsSamusNear(context.Level, place, EyeDoorSequenceDefinitions.PulseReach);
+        context.RoomObjects.EyeDoors.IsSamusNear(place, EyeDoorSequenceDefinitions.PulseReach);
 }

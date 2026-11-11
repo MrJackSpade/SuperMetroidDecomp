@@ -18,7 +18,7 @@ internal static class KraidGrowthObjectMappingsVerification
 
     /// <summary>Compares the compiled growth PLM headers with callback inline words.</summary>
     internal static void VerifyKraidGrowthObjectHeaders(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifyKraidGrowthObjectField), () => VerifyKraidGrowthObjectField(rom, 6, request => RoomObjectNativeWords.Word(KraidRoomMutationDefinitions.RoomObjects[request.RoomObject])));
+        Suite(nameof(VerifyKraidGrowthObjectField), () => VerifyKraidGrowthObjectField(rom, 6, request => KraidNativeWords.RoomMutations.Word(request.RoomObject)));
 
     /// <summary>Reads each callback field at the requested native offset and checks indexed and enumerated PLM requests.</summary>
     private static void VerifyKraidGrowthObjectField(SuperMetroidAddressSpace rom, int offset,

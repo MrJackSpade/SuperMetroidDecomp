@@ -2,23 +2,9 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>The room object and terrain change of each of Kraid's room mutations.</summary>
+/// <summary>The terrain change of each of Kraid's room mutations.</summary>
 internal static class KraidRoomMutationDefinitions
 {
-    /// <summary>The room object each mutation is.</summary>
-    internal static readonly IReadOnlyDictionary<KraidRoomMutation, RoomObjectHeaderId> RoomObjects =
-        new Dictionary<KraidRoomMutation, RoomObjectHeaderId>
-        {
-            [KraidRoomMutation.CrumbleCeilingIntoBackground1] = RoomObjectHeaderId.CrumbleKraidCeilingIntoBackground1,
-            [KraidRoomMutation.CrumblePlatformVariant1] = RoomObjectHeaderId.CrumbleKraidPlatformVariant1,
-            [KraidRoomMutation.CrumbleCeilingIntoBackground2] = RoomObjectHeaderId.CrumbleKraidCeilingIntoBackground2,
-            [KraidRoomMutation.CrumblePlatformVariant2] = RoomObjectHeaderId.CrumbleKraidPlatformVariant2,
-            [KraidRoomMutation.CrumbleCeilingIntoBackground3] = RoomObjectHeaderId.CrumbleKraidCeilingIntoBackground3,
-            [KraidRoomMutation.ClearCeiling] = RoomObjectHeaderId.ClearKraidCeiling,
-            [KraidRoomMutation.ClearSpikes] = RoomObjectHeaderId.ClearKraidSpikes,
-            [KraidRoomMutation.CrumbleSpikes] = RoomObjectHeaderId.CrumbleKraidSpikes,
-        };
-
     /// <summary>Updates each crumble image, background or spike image shows.</summary>
     internal const int CrumbleFrameDuration = 3;
 

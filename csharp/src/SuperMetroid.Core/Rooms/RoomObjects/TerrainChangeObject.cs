@@ -37,7 +37,7 @@ internal class TerrainChangeObject(TerrainChange change) : RoomObjectBehaviour
         TerrainChangeFrame frame = Change.Frames[_framesDrawn];
         _framesDrawn++;
         if (frame.MoveBefore != Offset16<RoomBlocks>.Zero)
-            context.MoveOrigin(place, frame.MoveBefore.X, frame.MoveBefore.Y);
+            context.MoveOrigin(place, frame.MoveBefore);
         if (frame.SoundBefore is { } sound)
             context.QueueSound(sound, frame.SoundPriority);
         context.Draw(place, frame.Draw);

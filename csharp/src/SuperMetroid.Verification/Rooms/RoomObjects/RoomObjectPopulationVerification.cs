@@ -1208,9 +1208,9 @@ internal static class RoomObjectPopulationVerification
         AssertTrue(SamusPoseMetadata.IsForwardFacingPose(samus.Pose),
             "save animation applies shared MakeSamusFaceForward setup");
         AssertTrue(samus.Control.AlphaLocked, "save animation owns Samus input");
-        AssertEqual(level.GetBlockIndex(new(18, 6)), saveRequest.BlockIndex,
+        AssertEqual(level.GridBlock(new(18, 6)), saveRequest.Block,
             "save activation retains the executing PLM block for bank-$86 electricity");
-        Suite(nameof(VerifySaveStationElectricity), () => VerifySaveStationElectricity(bus, level, saveRequest.BlockIndex));
+        Suite(nameof(VerifySaveStationElectricity), () => VerifySaveStationElectricity(bus, level, saveRequest.Block));
 
         StationActivationEvent completion = default;
         bool completionPublished = false;
@@ -1252,7 +1252,7 @@ internal static class RoomObjectPopulationVerification
     private static void VerifySaveStationElectricity(
         TestAddressSpace bus,
         RoomLevelData level,
-        int saveBlockIndex)
+        Position16<RoomBlocks> saveBlock)
     {
         // The native control stream is compiled. Constructed artwork is supplied by
         // operand identity, rather than shortening a bank-$86 program on a fake bus.
@@ -1265,7 +1265,7 @@ internal static class RoomObjectPopulationVerification
         // the electricity on its shared sheet, as entering a save room loads it (#1513).
         SpawnedObjectFixtures.LoadSetSpawning(enemies, EnemyProjectileFrameId.SaveStationElectricityFrame00,
             SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InProjectileLook));
-        enemies.Projectiles.SpawnSaveStationElectricity(saveBlockIndex, level.Size.X);
+        enemies.Projectiles.SpawnSaveStationElectricity(saveBlock);
 
         var visible = new SpriteVisualPart
         {

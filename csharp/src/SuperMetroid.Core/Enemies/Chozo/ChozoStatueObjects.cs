@@ -62,7 +62,7 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
 
         reaction.Header = wreckedShip ? RoomObjectHeaderId.CollisionWreckedShipChozoHandCheck
             : RoomObjectHeaderId.CollisionLowerNorfairChozoHandCheck;
-        reaction.BlockIndex = block.Index;
+        reaction.Block = level.BlockAt(block.Index);
         if (eligible)
         {
             IEnemyObjectRequests hands = _chozoHands ??
@@ -78,26 +78,26 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
     public bool TrySpawnChozoStatueObject(RoomLevelData level, ChozoStatueObjectRequest request)
     {
         RoomObjectHeaderId header = ChozoStatueObjectHeaders.Require(request.Header);
-        int index = level.GetBlockIndex(request.Block);
+        Position16<RoomBlocks> block = level.GridBlock(request.Block);
         if ((request.IsHardcoded ? _slotTable.SpawnHardcoded() : _slotTable.SpawnAtCurrentBlock()) is not { } slot)
             return false;
 
         slot.Header = header;
-        slot.BlockIndex = index;
+        slot.Block = block;
         slot.Become(header == RoomObjectHeaderId.LowerNorfairChozoHand ? new LowerNorfairChozoHandObject(this)
             : header == RoomObjectHeaderId.ClearSlopeAccessForWreckedShipChozo ? ChozoSlopeAccessObject.Clearing()
             : header == RoomObjectHeaderId.BlockSlopeAccessForWreckedShipChozo ? ChozoSlopeAccessObject.Blocking()
             : header == RoomObjectHeaderId.CrumbleLowerNorfairChozoRoomPlug ? new TerrainChangeObject(ChozoStatueObjectDefinitions.CrumblePlug)
             : new TerrainChangeObject(ChozoStatueObjectDefinitions.WreckedShipHand));
         if (header == RoomObjectHeaderId.WreckedShipChozoHand)
-            WriteChozoBlock(level, index, RoomCollisionType.SpecialBlock,
+            WriteChozoBlock(level, block, RoomCollisionType.SpecialBlock,
                 ChozoStatueRoomDefinitions.WreckedShipHandBehavior);
         else if (request.Header == RoomObjectHeaderId.CrumbleLowerNorfairChozoRoomPlug)
         {
             // The plug spawn never chooses the block it writes: the two spawn entry points
             // leave different blocks behind, so preserve that quirk rather than reading
             // the previous tile.
-            level.SetTerrain(index, request.IsHardcoded
+            level.SetTerrain(block, request.IsHardcoded
                 ? ChozoStatueRoomDefinitions.HardcodedCrumbleSetupBlock
                 : ChozoStatueRoomDefinitions.SpawnedCrumbleSetupBlock);
         }
@@ -105,12 +105,12 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
     }
 
     /// <summary>Changes a hand or plug block's collision kind and behaviour while preserving its appearance.</summary>
-    internal static void WriteChozoBlock(RoomLevelData level, int index,
+    internal static void WriteChozoBlock(RoomLevelData level, Position16<RoomBlocks> block,
         RoomCollisionType type, RoomBlockBehavior behavior)
     {
-        RoomTerrainBlock terrain = level.GetCollisionBlockByIndex(index).Terrain;
-        level.SetTerrain(index, terrain.WithCollision(type));
-        level.SetBehavior(index, behavior);
+        RoomTerrainBlock terrain = level.GetCollisionBlock(block).Terrain;
+        level.SetTerrain(block, terrain.WithCollision(type));
+        level.SetBehavior(block, behavior);
     }
 
     /// <summary>Whether the Lower Norfair acid has been lowered, which the Lower Norfair hand checks as it starts.</summary>
@@ -121,18 +121,18 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
     /// <summary>Turns the Wrecked Ship Chozo spikes into slopes.</summary>
     internal static void TransformSpikesToSlopes(RoomLevelData level)
     {
-        WriteChozoBlock(level, ChozoStatueRoomDefinitions.FirstSlopeBlockIndex,
+        WriteChozoBlock(level, level.BlockAt(ChozoStatueRoomDefinitions.FirstSlopeBlockIndex),
             RoomCollisionType.Slope, ChozoStatueRoomDefinitions.FirstSlopeBehavior);
-        WriteChozoBlock(level, ChozoStatueRoomDefinitions.FirstSlopeBlockIndex + 1,
+        WriteChozoBlock(level, level.BlockAt(ChozoStatueRoomDefinitions.FirstSlopeBlockIndex + 1),
             RoomCollisionType.Slope, ChozoStatueRoomDefinitions.SecondSlopeBehavior);
     }
 
     /// <summary>Turns the Wrecked Ship Chozo slopes back into spikes.</summary>
     internal static void RevertSlopesToSpikes(RoomLevelData level)
     {
-        WriteChozoBlock(level, ChozoStatueRoomDefinitions.FirstSlopeBlockIndex,
+        WriteChozoBlock(level, level.BlockAt(ChozoStatueRoomDefinitions.FirstSlopeBlockIndex),
             RoomCollisionType.SpikeBlock, RoomBlockBehavior.None);
-        WriteChozoBlock(level, ChozoStatueRoomDefinitions.FirstSlopeBlockIndex + 1,
+        WriteChozoBlock(level, level.BlockAt(ChozoStatueRoomDefinitions.FirstSlopeBlockIndex + 1),
             RoomCollisionType.SpikeBlock, RoomBlockBehavior.None);
     }
 

@@ -21,20 +21,17 @@ internal sealed class DownwardGateBehavior
 
     /// <summary>Applies one gate request to the shared eighteen-slot projectile pool.</summary>
     public void ApplyDownwardGateProjectileRequest(
-        DownwardGateProjectileRequest request,
-        int roomWidthInBlocks)
+        DownwardGateProjectileRequest request)
     {
         _room.EnsureLoaded();
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(roomWidthInBlocks);
-        Ensure.AtLeastZero(request.RoomObjectBlockIndex);
 
         switch (request.Operation)
         {
             case DownwardGateProjectileOperation.Spawn:
-                SpawnDownwardGateProjectile(request, roomWidthInBlocks);
+                SpawnDownwardGateProjectile(request);
                 return;
             case DownwardGateProjectileOperation.Wake:
-                WakeDownwardGateProjectile(request.RoomObjectBlockIndex);
+                WakeDownwardGateProjectile(request.RoomObjectBlock);
                 return;
             default:
                 throw new ArgumentOutOfRangeException(
@@ -44,8 +41,7 @@ internal sealed class DownwardGateBehavior
 
     /// <summary>Allocates a gate actor at its room object's block and ties it to its gate's block for waking.</summary>
     private void SpawnDownwardGateProjectile(
-        DownwardGateProjectileRequest request,
-        int roomWidthInBlocks)
+        DownwardGateProjectileRequest request)
     {
         RoomEnemyProjectileKind kind = request.Kind switch
         {
@@ -60,8 +56,8 @@ internal sealed class DownwardGateBehavior
             return; // The projectile spawn's deliberate finite-pool failure.
 
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphics: default);
-        int blockX = request.RoomObjectBlockIndex % roomWidthInBlocks;
-        int blockY = request.RoomObjectBlockIndex / roomWidthInBlocks;
+        int blockX = request.RoomObjectBlock.X;
+        int blockY = request.RoomObjectBlock.Y;
         projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(
             blockX * DownwardGateDefinitions.PixelsPerRoomBlock), CoordinateAxis.Wrap(
             blockY * DownwardGateDefinitions.PixelsPerRoomBlock +
@@ -70,11 +66,11 @@ internal sealed class DownwardGateBehavior
                 : 0))));
 
         // The gate's block ties the actor to its gate; the gate's room object searches for it when the gate needs to open again.
-        projectile.State = new DownwardGateState(request.RoomObjectBlockIndex);
+        projectile.State = new DownwardGateState(request.RoomObjectBlock);
     }
 
     /// <summary>Finds the matching gate actor from the pool's end and advances its sleeping instruction.</summary>
-    private void WakeDownwardGateProjectile(int roomObjectBlockIndex)
+    private void WakeDownwardGateProjectile(Position16<RoomBlocks> roomObjectBlock)
     {
         EnemyProjectile? projectile = null;
         for (int index = _projectiles.EnemyProjectiles.Count - 1; index >= 0; index--)
@@ -83,7 +79,7 @@ internal sealed class DownwardGateBehavior
             if (candidate.IsActive &&
                 candidate.Kind is (RoomEnemyProjectileKind.DownwardGateMoving or
                     RoomEnemyProjectileKind.DownwardGateClosed) &&
-                candidate.StateOf<DownwardGateState>().RoomObjectBlockIndex == roomObjectBlockIndex)
+                candidate.StateOf<DownwardGateState>().RoomObjectBlock == roomObjectBlock)
             {
                 projectile = candidate;
                 break;
@@ -92,7 +88,7 @@ internal sealed class DownwardGateBehavior
         if (projectile is null)
         {
             throw new InvalidDataException(
-                $"Downward gate room object at block {roomObjectBlockIndex} has no associated gate projectile.");
+                $"Downward gate room object at block {roomObjectBlock} has no associated gate projectile.");
         }
 
         ResumeDownwardGate(projectile);

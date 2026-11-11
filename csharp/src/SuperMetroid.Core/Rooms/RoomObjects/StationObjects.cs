@@ -23,9 +23,13 @@ internal sealed class StationObjects
     /// <summary>Queues extension, retraction, and save-animation sounds.</summary>
     private readonly RoomObjectSoundQueue _sounds;
 
-    /// <summary>Connects station activation to room state, room-object drawing, resident slots, and sound requests.</summary>
-    internal StationObjects(SharedGameState? system, IRoomSamusAccess? samus, IRoomObjectDrawing drawing, RoomObjectSlotTable slotTable, RoomObjectSoundQueue sounds)
+    /// <summary>The room's level, which places a touched access block.</summary>
+    private readonly RoomLevelData _level;
+
+    /// <summary>Connects station activation to room state, room-object drawing, resident slots, sound requests and the room's level.</summary>
+    internal StationObjects(SharedGameState? system, IRoomSamusAccess? samus, IRoomObjectDrawing drawing, RoomObjectSlotTable slotTable, RoomObjectSoundQueue sounds, RoomLevelData level)
     {
+        _level = Ensure.NotNull(level);
         _system = system;
         _samus = samus;
         _drawing = drawing;
@@ -116,7 +120,7 @@ internal sealed class StationObjects
 
         // The accepted route queues the saving sound right after centring Samus.
         _pendingSavingSound = _sounds.CreateSoundRequest(SamusSound.Saving, Priority: SoundRequestPriority.Normal);
-        station.StartSaveAnimation(_drawing, level, activation.BlockIndex);
+        station.StartSaveAnimation(_drawing, level, activation.Block);
         return true;
     }
 
@@ -169,7 +173,7 @@ internal sealed class StationObjects
             // The deactivating setup leaves a solid block solid and any other block air, keeping its appearance; the
             // platform then plays its loop.
             slot.Become(new ElevatorPlatformObject());
-            level.SetTerrain(slot.BlockIndex, level.GetCollisionBlockByIndex(slot.BlockIndex).Terrain.Deactivated());
+            level.SetTerrain(slot.Block, level.GetCollisionBlock(slot.Block).Terrain.Deactivated());
             return true;
         }
         if (!StationKindDefinitions.Kinds.TryGetValue(slot.Header, out StationKind kind))
@@ -186,7 +190,7 @@ internal sealed class StationObjects
         RoomObjectSlot slot,
         StationKind kind)
     {
-        RoomTerrainBlock original = level.GetCollisionBlockByIndex(slot.BlockIndex).Terrain;
+        RoomTerrainBlock original = level.GetCollisionBlock(slot.Block).Terrain;
         switch (kind)
         {
             case StationKind.Save:
@@ -211,7 +215,7 @@ internal sealed class StationObjects
     {
         WriteStationBlock(
             level,
-            slot.BlockIndex,
+            slot.Block,
             original,
             RoomCollisionType.SpecialBlock,
             RoomBlockBehavior.Reacting(BlockReactionDefinitions.StationAccesses.ReactionFor(StationAccessBehavior.SaveFloor)));
@@ -235,9 +239,9 @@ internal sealed class StationObjects
         RoomTerrainBlock original,
         StationAccessRule rule)
     {
-        WriteStationBlock(level, slot.BlockIndex, original, RoomCollisionType.SolidBlock, behavior: null);
-        WriteAccessBlock(level, slot.BlockIndex + rule.RightOffset, rule.RightBehavior);
-        WriteAccessBlock(level, slot.BlockIndex + rule.LeftOffset, rule.LeftBehavior);
+        WriteStationBlock(level, slot.Block, original, RoomCollisionType.SolidBlock, behavior: null);
+        WriteAccessBlock(level, level.ObjectBlockStep(slot.Block, new Offset16<RoomBlocks>(rule.RightOffset, 0)), rule.RightBehavior);
+        WriteAccessBlock(level, level.ObjectBlockStep(slot.Block, new Offset16<RoomBlocks>(rule.LeftOffset, 0)), rule.LeftBehavior);
 
         StationAnimationList normalAnimationList = rule.Animation;
         StationAnimationList completedAnimationList = rule.AcquiredAnimation ?? normalAnimationList;
@@ -255,18 +259,18 @@ internal sealed class StationObjects
     /// <summary>Marks an in-room access block with station-trigger collision and its directional behaviour.</summary>
     private static void WriteAccessBlock(
         RoomLevelData level,
-        int blockIndex,
+        Position16<RoomBlocks> block,
         StationAccessBehavior behavior)
     {
-        if (!level.IsLogicalBlockIndex(blockIndex))
+        if (!level.Size.Contains(block))
         {
             throw new InvalidDataException(
-                $"Station access setup targets out-of-room block index {blockIndex}.");
+                $"Station access setup targets out-of-room block {block}.");
         }
         WriteStationBlock(
             level,
-            blockIndex,
-            level.GetCollisionBlockByIndex(blockIndex).Terrain,
+            block,
+            level.GetCollisionBlock(block).Terrain,
             RoomCollisionType.SpecialBlock,
             RoomBlockBehavior.Reacting(BlockReactionDefinitions.StationAccesses.ReactionFor(behavior)));
     }
@@ -274,14 +278,14 @@ internal sealed class StationObjects
     /// <summary>Changes a station block's collision kind while preserving its appearance, and sets its optional behaviour.</summary>
     private static void WriteStationBlock(
         RoomLevelData level,
-        int blockIndex,
+        Position16<RoomBlocks> block,
         RoomTerrainBlock original,
         RoomCollisionType collisionType,
         RoomBlockBehavior? behavior)
     {
-        level.SetTerrain(blockIndex, original.WithCollision(collisionType));
+        level.SetTerrain(block, original.WithCollision(collisionType));
         if (behavior is { } written)
-            level.SetBehavior(blockIndex, written);
+            level.SetBehavior(block, written);
     }
 
     /// <summary>The station collision notice room collision dispatch sends with the block's behaviour.</summary>
@@ -290,15 +294,13 @@ internal sealed class StationObjects
         RoomBlockBehavior behavior,
         SamusCollisionPose collisionPose,
         Axis axis,
-        bool movingPositive,
-        int roomWidthInBlocks)
+        bool movingPositive)
         => TryNotifyStationCollision(
             accessBlockIndex,
             behavior,
             collisionPose,
             axis,
             movingPositive,
-            roomWidthInBlocks,
             StationSetupGate.Checked);
 
     /// <summary>Checks the entry pose and direction, then arms a matching resident station's room-object sequence.</summary>
@@ -308,27 +310,28 @@ internal sealed class StationObjects
         SamusCollisionPose collisionPose,
         Axis axis,
         bool movingPositive,
-        int roomWidthInBlocks,
         StationSetupGate setupGate)
     {
         if (!behavior.TryGetStationAccess(out StationAccessBehavior access))
             return false;
 
-        int parentBlockIndex = access switch
+        // The access blocks sit beside their station on its row; the step to the station runs through the room's blocks in
+        // reading order, as the station's setup placed them.
+        Position16<RoomBlocks> accessBlock = _level.BlockAt(accessBlockIndex);
+        int columnsToStation = access switch
         {
-            StationAccessBehavior.MapRight => accessBlockIndex - 1,
-            StationAccessBehavior.MapLeft => accessBlockIndex + 2,
-            StationAccessBehavior.EnergyRight or StationAccessBehavior.MissileRight =>
-                accessBlockIndex - 1,
-            StationAccessBehavior.EnergyLeft or StationAccessBehavior.MissileLeft =>
-                accessBlockIndex + 1,
-            StationAccessBehavior.SaveFloor => accessBlockIndex,
+            StationAccessBehavior.MapRight => -1,
+            StationAccessBehavior.MapLeft => 2,
+            StationAccessBehavior.EnergyRight or StationAccessBehavior.MissileRight => -1,
+            StationAccessBehavior.EnergyLeft or StationAccessBehavior.MissileLeft => 1,
+            StationAccessBehavior.SaveFloor => 0,
             _ => throw new InvalidOperationException($"Undefined station access {access}."),
         };
+        Position16<RoomBlocks> stationBlock = _level.ObjectBlockStep(accessBlock, new Offset16<RoomBlocks>(columnsToStation, 0));
 
         foreach (RoomObjectSlot slot in _slotTable.Slots)
         {
-            if (!slot.Active || slot.BlockIndex != parentBlockIndex || slot.Behaviour is not StationObject station)
+            if (!slot.Active || slot.Block != stationBlock || slot.Behaviour is not StationObject station)
                 continue;
 
             bool setupAccepted = setupGate == StationSetupGate.Bypassed || access switch
@@ -350,7 +353,7 @@ internal sealed class StationObjects
                 // reaches its column. Accepts only the latter, narrower range.
                 StationAccessBehavior.SaveFloor => axis == Axis.Vertical && movingPositive &&
                     collisionPose == SamusCollisionPose.StandingNormal &&
-                    IsSaveStationTriggerCentered(slot.BlockIndex, roomWidthInBlocks),
+                    IsSaveStationTriggerCentered(slot.Block),
                 _ => throw new InvalidOperationException($"Undefined station access {access}."),
             };
             if (setupAccepted && station.OperationPhase == StationOperationPhase.Idle &&
@@ -372,7 +375,7 @@ internal sealed class StationObjects
                     }
                 }
                 station.Triggered = true;
-                station.AccessBlockIndex = accessBlockIndex;
+                station.AccessBlock = accessBlock;
                 station.AccessBehavior = access;
 
                 // The arm-cannon line-up check runs command six in setup,
@@ -395,13 +398,12 @@ internal sealed class StationObjects
     }
 
     /// <summary>Applies the game's wrapping coordinate test before queuing any save side effect.</summary>
-    private bool IsSaveStationTriggerCentered(int blockIndex, int roomWidthInBlocks)
+    private bool IsSaveStationTriggerCentered(Position16<RoomBlocks> block)
     {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(roomWidthInBlocks);
         IRoomSamus samus = _samus?.Current
             ?? throw new InvalidOperationException("Save-station collision requires the room's Samus owner.");
         int probeX = CoordinateAxis.Wrap(samus.Position.X.Whole - SaveStationTriggerGeometry.HorizontalProbeOffset);
-        return (probeX >> SaveStationTriggerGeometry.BlockCoordinateShift) == blockIndex % roomWidthInBlocks;
+        return (probeX >> SaveStationTriggerGeometry.BlockCoordinateShift) == block.X;
     }
 
     /// <summary>Samus, whom <paramref name="owner"/> reads and changes.</summary>

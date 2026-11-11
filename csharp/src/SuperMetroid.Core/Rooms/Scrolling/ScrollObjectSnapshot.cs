@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Rooms.Scrolling;
 
 /// <summary>Detached diagnostic identity of one live resident scroll trigger; it does not expose mutable slot or scroll-program state.</summary>
-/// <param name="BlockIndex">Zero-based row-major 16x16 room-block index, not a doubled block-byte offset.</param>
+/// <param name="Block">The trigger's room block.</param>
 public readonly record struct ScrollObjectSnapshot(
-    int BlockIndex);
+    Position16<RoomBlocks> Block);

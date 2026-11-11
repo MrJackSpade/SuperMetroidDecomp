@@ -41,13 +41,9 @@ internal sealed class NoobTubeBehavior
     /// while constructing each actor.
     /// </summary>
     public void SpawnNoobTubeProjectile(
-        NoobTubeProjectileRequest request,
-        int roomWidthInBlocks)
+        NoobTubeProjectileRequest request)
     {
         _room.EnsureLoaded();
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(roomWidthInBlocks);
-        if (request.RoomObjectBlockIndex < 0)
-            throw new ArgumentOutOfRangeException(nameof(request));
 
         RoomEnemyProjectileKind kind = request.Definition switch
         {
@@ -65,8 +61,8 @@ internal sealed class NoobTubeBehavior
         // The tube's pieces draw from the shared sheet in the crack colours the room's crack initializer installs (#1512).
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphics: TubePieceGraphics);
 
-        int blockX = request.RoomObjectBlockIndex % roomWidthInBlocks;
-        int blockY = request.RoomObjectBlockIndex / roomWidthInBlocks;
+        int blockX = request.RoomObjectBlock.X;
+        int blockY = request.RoomObjectBlock.Y;
         switch (kind)
         {
             case RoomEnemyProjectileKind.NoobTubeCrack:

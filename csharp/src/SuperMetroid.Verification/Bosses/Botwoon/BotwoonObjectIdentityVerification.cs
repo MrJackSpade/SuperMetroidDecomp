@@ -11,8 +11,9 @@ using SuperMetroid.Verification.Harness;
 internal static class BotwoonObjectIdentityVerification
 {
     /// <summary>
-    /// Alternates Clear and Crumble Botwoon wall PLMs through the 40-slot pool, checking
-    /// their identity, placement, timers and instruction lists, then full-pool and reset behavior.
+    /// Alternates Clear and Crumble Botwoon wall PLMs through the 40-slot pool, checking that each is known by what it does
+    /// (its terrain change, the crumble its own object) and carries no header identity, its placement and timers, then
+    /// full-pool and reset behavior.
     /// </summary>
     internal static void VerifyBotwoonObjectIdentity()
     {
@@ -24,10 +25,9 @@ internal static class BotwoonObjectIdentityVerification
         for (int i = 0; i < 40; i++)
         {
             BotwoonWallMutation mutation = (i & 1) == 0 ? BotwoonWallMutation.Clear : BotwoonWallMutation.Crumble;
-            RoomObjectHeaderId header = (i & 1) == 0 ? RoomObjectHeaderId.ClearBotwoonWall : RoomObjectHeaderId.CrumbleBotwoonWall;
             AssertTrue(roomObjects.BossRoomMutations.BotwoonWall.TrySpawn(assets.LevelData, mutation), "Botwoon slot allocation succeeds until full");
             var slot = roomObjects.PopulationSlots.Single(slot => slot.ProcessingPosition == i);
-            AssertEqual(header, slot.HeaderPointer, "hardcoded Botwoon header identity survives allocation");
+            AssertEqual(RoomObjectHeaderId.None, slot.HeaderPointer, "a Botwoon wall carries no header identity");
             AssertEqual(assets.LevelData.GetBlockIndex(new(15, 4)), slot.BlockIndex, "hardcoded Botwoon placement");
             TerrainChange expectedChange = (i & 1) == 0 ? BotwoonWallMutationDefinitions.Clear : BotwoonWallMutationDefinitions.Crumble;
             AssertTrue(slot.Behaviour is TerrainChangeObject { Change: var change } && change == expectedChange,
@@ -39,9 +39,8 @@ internal static class BotwoonObjectIdentityVerification
         AssertTrue(!roomObjects.BossRoomMutations.BotwoonWall.TrySpawn(assets.LevelData, BotwoonWallMutation.Clear), "full native PLM pool declines spawn");
         AssertTrue(before.SequenceEqual(roomObjects.PopulationSlots), "failed spawn preserves every owner and timer");
         roomObjects = RoomObjectFixtures.Unbound();
-        AssertTrue(!roomObjects.BombTorizoHand.HasActiveHeader(RoomObjectHeaderId.ClearBotwoonWall) && !roomObjects.BombTorizoHand.HasActiveHeader(RoomObjectHeaderId.CrumbleBotwoonWall),
-            "room reset retires both Botwoon header identities");
-        Console.WriteLine("Botwoon hardcoded PLMs: both header identities, slot order, placement, programs, timers and full-pool/reset behavior pass.");
+        AssertEqual(0, roomObjects.PopulationSlots.Count, "room reset retires both Botwoon walls");
+        Console.WriteLine("Botwoon hardcoded PLMs: no header identity, slot order, placement, programs, timers and full-pool/reset behavior pass.");
     }
 
     /// <summary>Runs the Botwoon wall PLM identity and allocation checks.</summary>

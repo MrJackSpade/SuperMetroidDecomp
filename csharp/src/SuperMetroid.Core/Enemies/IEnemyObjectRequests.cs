@@ -14,5 +14,5 @@ internal interface IEnemyObjectRequests
     void ActivateChozoStatueHandTrigger(RoomLevelData level, int collisionBlockIndex);
 
     /// <summary>Spawns or wakes the downward gate's projectile a gate room object requested.</summary>
-    void ApplyDownwardGateProjectileRequest(DownwardGateProjectileRequest request, int roomWidthInBlocks);
+    void ApplyDownwardGateProjectileRequest(DownwardGateProjectileRequest request);
 }

@@ -48,10 +48,10 @@ internal sealed class DoorObjects
         Ensure.NotNull(door);
         Ensure.NotNull(system);
 
-        int blockIndex = level.GetBlockIndex(door.RoomObjectBlock);
+        Position16<RoomBlocks> block = level.GridBlock(door.RoomObjectBlock);
         foreach (RoomObjectSlot resident in _slotTable.InProcessingOrder)
         {
-            if (!resident.Active || resident.BlockIndex != blockIndex)
+            if (!resident.Active || resident.Block != block)
                 continue;
 
             // A cap whose opening never persists always closes. The escape entrance's cap never persists, so it
@@ -75,7 +75,7 @@ internal sealed class DoorObjects
             return false;
 
         slot.Header = fallback.Header;
-        slot.BlockIndex = blockIndex;
+        slot.Block = block;
         slot.Become(fallback.BlueCapFacing is { } facing
             ? new BlueDoorCapObject(facing, BlueDoorCapPhase.Closing)
             : new MotherBrainEscapeGateObject(MotherBrainEscapeGateDefinitions.Closing));
@@ -88,17 +88,17 @@ internal sealed class DoorObjects
     /// Despite its historical name, the routine does not delete or deactivate the room-object slot.
     /// </summary>
     internal static void SetupDoorTransitionDeactivatedSlot(RoomLevelData level, RoomObjectSlot slot) =>
-        level.SetTerrain(slot.BlockIndex, level.GetCollisionBlockByIndex(slot.BlockIndex).Terrain.Deactivated());
+        level.SetTerrain(slot.Block, level.GetCollisionBlock(slot.Block).Terrain.Deactivated());
 
     /// <summary>Installs shootable-solid collision and the resident room-object projectile behaviour at a colored cap.</summary>
-    private static void ApplyColoredDoorSetup(RoomLevelData level, int blockIndex)
+    private static void ApplyColoredDoorSetup(RoomLevelData level, Position16<RoomBlocks> block)
     {
         // The colored-door setup keeps the block's appearance, installs shootable-solid collision, and selects the
         // resident room-object projectile trigger so subsequent projectiles find this resident room object.
         level.SetObjectTerrain(
-            blockIndex,
-            level.GetObjectCollisionBlockByIndex(blockIndex).Terrain.WithCollision(RoomCollisionType.ShootableBlock));
-        level.SetObjectBehavior(blockIndex, RoomBlockBehavior.Reacting(BlockReactionDefinitions.ResidentObjectTrigger));
+            block,
+            level.GetObjectCollisionBlock(block).Terrain.WithCollision(RoomCollisionType.ShootableBlock));
+        level.SetObjectBehavior(block, RoomBlockBehavior.Reacting(BlockReactionDefinitions.ResidentObjectTrigger));
     }
 
     /// <summary>
@@ -111,7 +111,7 @@ internal sealed class DoorObjects
         ColoredDoorColor color,
         ColoredDoorOrientation orientation)
     {
-        ApplyColoredDoorSetup(level, slot.BlockIndex);
+        ApplyColoredDoorSetup(level, slot.Block);
         slot.Become(new ColoredDoorObject(new ColoredDoorVariant(color, orientation)));
     }
 
@@ -203,7 +203,7 @@ internal sealed class DoorObjects
             return false;
 
         slot.Header = blueDoorHeader;
-        slot.BlockIndex = blockIndex;
+        slot.Block = level.BlockAt(blockIndex);
         slot.Become(new BlueDoorCapObject(orientation, BlueDoorCapPhase.Opening));
         // The spawn leaves the argument the game's first door, the Landing Site's green door, which a later closing
         // check reads: once that door has been opened for good, the spawned blue door never closes.

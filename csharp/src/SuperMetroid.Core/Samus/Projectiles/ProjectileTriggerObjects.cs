@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Rooms.RoomObjects;
+﻿using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
@@ -9,10 +10,14 @@ internal sealed class ProjectileTriggerObjects
     /// <summary>The room-object slots searched from highest index to lowest on a projectile hit.</summary>
     private readonly RoomObjectSlotTable _slotTable;
 
-    /// <summary>Binds the active room's room-object population for generic projectile collision dispatch.</summary>
-    internal ProjectileTriggerObjects(RoomObjectSlotTable slotTable)
+    /// <summary>The room's level, which places a struck block.</summary>
+    private readonly RoomLevelData _level;
+
+    /// <summary>Binds the active room's room-object population and level for generic projectile collision dispatch.</summary>
+    internal ProjectileTriggerObjects(RoomObjectSlotTable slotTable, RoomLevelData level)
     {
         _slotTable = slotTable;
+        _level = Ensure.NotNull(level);
     }
     /// <summary>
     /// Publishes a projectile's hit on a resident-trigger block to the room object at <paramref name="blockIndex"/>: the
@@ -23,11 +28,12 @@ internal sealed class ProjectileTriggerObjects
         int blockIndex,
         SamusProjectileType projectileType)
     {
+        Position16<RoomBlocks> block = _level.BlockAt(blockIndex);
         // The search runs in processing order and accepts the first matching block regardless of its header. Preserve
         // that generality: reaction room objects and future translated actors must not be omitted from a family dispatcher.
         foreach (RoomObjectSlot slot in _slotTable.InProcessingOrder)
         {
-            if (!slot.Active || slot.BlockIndex != blockIndex)
+            if (!slot.Active || slot.Block != block)
                 continue;
 
             // An object a shot strikes directly keeps the strike itself; every other place records the hit on its block,

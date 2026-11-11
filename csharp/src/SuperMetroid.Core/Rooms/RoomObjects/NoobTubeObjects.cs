@@ -37,12 +37,12 @@ internal sealed class NoobTubeObjects
         Ensure.NotNull(level);
         Ensure.NotNull(slot);
         slot.Become(new NoobTubeObject(this));
-        RoomTerrainBlock origin = level.GetCollisionBlockByIndex(slot.BlockIndex).Terrain;
+        RoomTerrainBlock origin = level.GetCollisionBlock(slot.Block).Terrain;
         level.SetTerrain(
-            slot.BlockIndex,
+            slot.Block,
             origin.WithCollision(NoobTubeObjectDefinitions.OriginCollision));
         level.SetBehavior(
-            slot.BlockIndex,
+            slot.Block,
             RoomBlockBehavior.Reacting(BlockReactionDefinitions.ResidentObjectTrigger));
     }
 
@@ -97,5 +97,5 @@ internal sealed class NoobTubeObjects
     private void SpawnNoobTubeProjectile(RoomObjectSlot slot, NoobTubeProjectileDefinition definition, int? piece) =>
         (_enemies ?? throw new InvalidOperationException(
             "N00b tube has no enemy-projectile spawner.")).SpawnNoobTubeProjectile(
-            new NoobTubeProjectileRequest(definition, piece, slot.BlockIndex));
+            new NoobTubeProjectileRequest(definition, piece, slot.Block));
 }

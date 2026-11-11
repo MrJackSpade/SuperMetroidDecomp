@@ -1718,7 +1718,7 @@ internal static class LookupStream4Verification
 
         var electricityGuard = NativeEnemyProjectileListGuard.Forbidding(rom, SaveStationElectricityNativeListAddresses.Extent, "save-station electricity");
         var electricitySystem = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        electricitySystem.Projectiles.SpawnSaveStationElectricity(42, 16);
+        electricitySystem.Projectiles.SpawnSaveStationElectricity(new(10, 2));
         var electricity = electricitySystem.Projectiles.EnemyProjectiles.Single(p => p.Kind == RoomEnemyProjectileKind.SaveStationElectricity);
         for (int frame = 0; frame < 160; frame++)
         {

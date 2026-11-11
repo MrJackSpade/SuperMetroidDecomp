@@ -14,8 +14,8 @@ public sealed class ShitroidEnemyState
     /// <summary>The Shitroid's enemy slot.</summary>
     public RoomEnemySlot Slot { get; }
 
-    /// <summary>Where the Shitroid's program resumes (#641).</summary>
-    internal AnimationProgramCursor<ShitroidProgram> Cursor { get; set; }
+    /// <summary>The Shitroid's animation and where it stands (#641, #1600).</summary>
+    internal AnimationPlayback<ShitroidProgram> Playback { get; set; } = ShitroidAnimations.Starting(default);
 
     /// <summary>Gets the current Shitroid AI function.</summary>
     public ShitroidAiFunction? Function { get; internal set; }

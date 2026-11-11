@@ -203,7 +203,7 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(MotherBrainBabyAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainAnimations.cs");
         RequireTypedFrames(MotherBrainTubeAnimations.Programs, frame => EnemyFrameCartridgeLookupTooling.Word(MotherBrainVisualDefinitions.TubeFrames.Of(frame)), MotherBrainVisualToolingDefinitions.Bank,
             nameof(MotherBrainTubeAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainTubeAnimations.cs");
-        RequireTypedFrames(ShitroidAnimations.Programs, frame => BabyMetroidVisualToolingDefinitions.Spritemap(frame.Index), ShitroidVisualDefinitions.Bank,
+        RequireSegmentFrames(ShitroidAnimations.Segments, frame => BabyMetroidVisualToolingDefinitions.Spritemap(frame.Index), ShitroidVisualDefinitions.Bank,
             nameof(ShitroidAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/ShitroidAnimations.cs");
         RequireSegmentFrames(ZebetiteAnimations.Segments, frame => ZebetiteVisualToolingDefinitions.Spritemap(frame.Index), ZebetiteVisualToolingDefinitions.Bank,
             nameof(ZebetiteAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/ZebetiteAnimations.cs");

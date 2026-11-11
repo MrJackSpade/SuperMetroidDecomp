@@ -361,14 +361,14 @@ internal static class MotherBrainNativeListAddresses
     };
 
     /// <summary>The Shitroid's opcodes: three gotos and the random remorse cry, whose goto operand is the remorse start; without the cry it goes to that operand.</summary>
-    private static Dictionary<ushort, NativeOp<ShitroidProgram, BabyMetroidFrame, ShitroidCue>> ShitroidNativeOps { get; } = new()
+    private static Dictionary<ushort, NativeListOp<ShitroidProgram, ShitroidCue>> ShitroidNativeOps { get; } = new()
     {
-        [0xf920] = new(0, (_, _) => [AnimationProgramStep<ShitroidProgram, BabyMetroidFrame, ShitroidCue>.GoTo(ShitroidProgram.Normal)], true),
-        [0xf936] = new(0, (_, _) => [AnimationProgramStep<ShitroidProgram, BabyMetroidFrame, ShitroidCue>.GoTo(ShitroidProgram.LatchedOn)], true),
-        [0xf990] = new(0, (_, _) => [AnimationProgramStep<ShitroidProgram, BabyMetroidFrame, ShitroidCue>.GoTo(ShitroidProgram.Remorse)], true),
-        [0xf994] = new(1, (operands, programAt) => programAt(operands[0]) == ShitroidProgram.Remorse
-            ? [AnimationProgramStep<ShitroidProgram, BabyMetroidFrame, ShitroidCue>.Publish(ShitroidCue.MaybeRemorseCry)]
-            : throw new InvalidDataException("The remorse cry's goto operand is not the remorse start."), false),
+        [0xf920] = new(0, (_, _) => new([], ShitroidProgram.Normal)),
+        [0xf936] = new(0, (_, _) => new([], ShitroidProgram.LatchedOn)),
+        [0xf990] = new(0, (_, _) => new([], ShitroidProgram.Remorse)),
+        [0xf994] = new(1, (operands, segmentAt) => segmentAt(operands[0]) == ShitroidProgram.Remorse
+            ? new([ShitroidCue.MaybeRemorseCry], null)
+            : throw new InvalidDataException("The remorse cry's goto operand is not the remorse start.")),
     };
 
     /// <summary>Compares every typed body program with its native list; returns each native record's typed cursor.</summary>
@@ -383,9 +383,10 @@ internal static class MotherBrainNativeListAddresses
     internal static Dictionary<ushort, AnimationProgramCursor<MotherBrainBabyProgram>> CompareBaby(IImportCartridgeSource cartridge) =>
         Walk(cartridge, MotherBrainBank, MotherBrainBabyAnimations.Programs, BabyEntries, frame => BabyMetroidVisualToolingDefinitions.Spritemap(frame.Index), BabyNativeOps);
 
-    /// <summary>Compares the Shitroid's typed programs with their native lists.</summary>
+    /// <summary>Compares the Shitroid's typed segments and animations with their native lists.</summary>
     internal static void CompareShitroid(IImportCartridgeSource cartridge) =>
-        Walk(cartridge, MotherBrainBank, ShitroidAnimations.Programs, ShitroidEntries, frame => BabyMetroidVisualToolingDefinitions.Spritemap(frame.Index), ShitroidNativeOps);
+        Lists(cartridge, MotherBrainBank, ShitroidAnimations.Segments, ShitroidAnimations.StartingAt, ShitroidEntries,
+            frame => BabyMetroidVisualToolingDefinitions.Spritemap(frame.Index), ShitroidNativeOps);
 
     /// <summary>Compares the Zebetites' typed health segments and animations with their native lists.</summary>
     internal static void CompareZebetites(IImportCartridgeSource cartridge) =>

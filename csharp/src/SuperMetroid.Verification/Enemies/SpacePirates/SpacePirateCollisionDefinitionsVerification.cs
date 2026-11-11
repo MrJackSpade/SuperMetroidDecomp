@@ -240,6 +240,8 @@ internal static class SpacePirateCollisionDefinitionsVerification
                 _ => EnemyDefinitionId.PirateGreyWalking,
             }, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+            // Space Pirates collide by their frames' hitboxes, so the empty frame is the point-hitbox record.
+            slot.CollidesByFrameHitboxes = true;
             slot.Frame = RoomEnemySlotFrameAccess.FrameAt(SpacePirateFrameBank, pointer);
             slot.Position = slot.Position.WithWhole(new(x, y));
             return new DachoraInstructionProgramDefinitionsNewDachoraResult(enemies, slot);

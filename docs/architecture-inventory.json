@@ -13716,6 +13716,38 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemyFrameHitboxWordsAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Enemies/EnemyFrameHitboxWordsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemyFrameHitboxWordsAccess.extension(SuperMetroid.AssetExtraction.Enemies.EnemyFrameCartridgeLookupTooling)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Enemies/EnemyFrameHitboxWordsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Enemies.EnemyGraphicsSetPaletteRowDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -15009,6 +15041,19 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.InstalledEnemyFrameDisplays",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/InstalledEnemyFrameDisplays.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Enemies.LoadedSetColours",
@@ -36567,6 +36612,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.World.Artwork.EnemyExtendedFrameDocumentOrder",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/World/Artwork/EnemyExtendedFrameDocumentOrder.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.World.Artwork.EnemyExtendedFrameDocuments",
       "kind": "static class",
       "scope": "product",
@@ -36714,6 +36772,19 @@
       ],
       "partial": "none",
       "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.World.Artwork.EnemySpritemapDocumentOrder",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/World/Artwork/EnemySpritemapDocumentOrder.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.AssetExtraction.World.Artwork.EnemySpritemapDocuments",
@@ -61740,7 +61811,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyBg2FrameDefinitionSequenceAccess.extension(System.Collections.Immutable.ImmutableArray\u003CSuperMetroid.Core.Enemies.Artwork.EnemySpritemapDefinition\u003E)",
+      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyBg2FrameDefinitionSequenceAccess.extension(System.Collections.Immutable.ImmutableArray\u003CSuperMetroid.Core.Enemies.Artwork.EnemyFrameName\u003E)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -61801,58 +61872,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyExtendedFrameCompositions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyExtendedFrameCompositions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyExtendedFrameDisplayCatalog",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyExtendedFrameDisplayCatalog.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyExtendedFrameDisplaySelection",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyExtendedFrameDisplaySelection.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyExtendedFrameDisplays",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyExtendedFrameDisplays.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.Artwork.EnemyFrameCollision\u003CTElement\u003E",
       "kind": "class",
       "scope": "product",
@@ -61861,6 +61880,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyFrameCollision.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyFrameDisplays",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyFrameDisplays.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -61905,7 +61937,7 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyFrameLocationTooling.extension(SuperMetroid.Core.Enemies.Artwork.EnemySpritemapDefinition)",
+      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyFrameLocationTooling.extension(SuperMetroid.Core.Enemies.Artwork.EnemyFrameName)",
       "kind": "class",
       "scope": "tool",
       "assemblies": [
@@ -61916,6 +61948,35 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyFrameName",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyFrameName.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyFrameNameDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyFrameNameDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog",
+      "flags": [
+        "large"
+      ]
     },
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.EnemyFrameSheetKeys",
@@ -62066,32 +62127,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Artwork.EnemySpritemapCompositions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemySpritemapCompositions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Artwork.EnemySpritemapDefinition",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemySpritemapDefinition.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.Artwork.EnemySpritemapDefinitionNativeAccess",
       "kind": "static class",
       "scope": "test",
@@ -62108,7 +62143,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Artwork.EnemySpritemapDefinitionNativeAccess.extension(SuperMetroid.Core.Enemies.Artwork.EnemySpritemapDefinition)",
+      "type": "SuperMetroid.Core.Enemies.Artwork.EnemySpritemapDefinitionNativeAccess.extension(SuperMetroid.Core.Enemies.Artwork.EnemyFrameName)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -67152,20 +67187,20 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Drawing.CommonEnemyEmptyExtendedFrameDefinitions",
+      "type": "SuperMetroid.Core.Enemies.Drawing.CommonEnemyEmptyFrameDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Drawing/CommonEnemyEmptyExtendedFrameDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Drawing/CommonEnemyEmptyFrameDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Drawing.CommonEnemyEmptyExtendedFrameDefinitionsConstants",
+      "type": "SuperMetroid.Core.Enemies.Drawing.CommonEnemyEmptyFrameDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -67175,13 +67210,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/Drawing/CommonEnemyEmptyExtendedFrameDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/Drawing/CommonEnemyEmptyFrameDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Drawing.CommonEnemyEmptyExtendedFrameDefinitionsConstants.extension(SuperMetroid.Core.Enemies.Drawing.CommonEnemyEmptyExtendedFrameDefinitions)",
+      "type": "SuperMetroid.Core.Enemies.Drawing.CommonEnemyEmptyFrameDefinitionsConstants.extension(SuperMetroid.Core.Enemies.Drawing.CommonEnemyEmptyFrameDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -67191,39 +67226,39 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/Drawing/CommonEnemyEmptyExtendedFrameDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/Drawing/CommonEnemyEmptyFrameDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Drawing.CommonEnemyEmptyExtendedFrameDefinitionsTooling",
+      "type": "SuperMetroid.Core.Enemies.Drawing.CommonEnemyEmptyFrameDefinitionsTooling",
       "kind": "static class",
       "scope": "tool",
       "assemblies": [
         "SuperMetroid.Tooling"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Drawing/CommonEnemyEmptyExtendedFrameDefinitionsTooling.cs"
+        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Drawing/CommonEnemyEmptyFrameDefinitionsTooling.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Drawing.CommonEnemyEmptyExtendedFrameToolingDefinitions",
+      "type": "SuperMetroid.Core.Enemies.Drawing.CommonEnemyEmptyFrameToolingDefinitions",
       "kind": "static class",
       "scope": "tool",
       "assemblies": [
         "SuperMetroid.Tooling"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Drawing/CommonEnemyEmptyExtendedFrameToolingDefinitions.cs"
+        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Drawing/CommonEnemyEmptyFrameToolingDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Drawing.CommonEnemyEmptyExtendedFrameToolingDefinitionsConstants",
+      "type": "SuperMetroid.Core.Enemies.Drawing.CommonEnemyEmptyFrameToolingDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -67233,7 +67268,7 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Core/Enemies/Drawing/CommonEnemyEmptyExtendedFrameToolingDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Core/Enemies/Drawing/CommonEnemyEmptyFrameToolingDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -72363,14 +72398,14 @@
       "disposition": "contract"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.IEnemyExtendedHitboxes",
+      "type": "SuperMetroid.Core.Enemies.IEnemyFrameHitboxes",
       "kind": "interface",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/IEnemyExtendedHitboxes.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/IEnemyFrameHitboxes.cs"
       ],
       "partial": "none",
       "disposition": "contract"
@@ -128855,6 +128890,19 @@
     },
     {
       "type": "SuperMetroid.Core.World.EnemyDrawList.PreparedEnemyDraw",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/World/EnemyDrawList.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.World.EnemyDrawList.QueuedEnemy",
       "kind": "record struct",
       "scope": "product",
       "assemblies": [

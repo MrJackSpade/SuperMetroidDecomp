@@ -163,6 +163,27 @@ internal static class InstalledFixtures
     /// <summary>The installation's stock enemy, boss and area artwork, loaded once per process.</summary>
     internal static InstalledEnemyArtwork EnemyArtwork => enemyArtwork.Value;
 
+    /// <summary>Every frame display of the installation's stock enemy artwork.</summary>
+    /// <exception cref="InvalidDataException">The installed enemy artwork holds no enemy frames.</exception>
+    internal static SuperMetroid.Core.Enemies.Artwork.EnemyFrameDisplays EnemyFrameDisplays => EnemyTiles.FrameDisplays
+        ?? throw new InvalidDataException("The installed enemy artwork holds no enemy frames.");
+
+    /// <summary>
+    /// The installed catalogs a bare runtime is built over: the Samus, boss and enemy overread services and the installed
+    /// enemy sheets and frame displays (#1616).
+    /// </summary>
+    internal static SuperMetroid.Core.Frontend.GameArtwork BareRuntimeArtwork => bareRuntimeArtwork.Value;
+
+    /// <summary>Backing value of <see cref="BareRuntimeArtwork"/>.</summary>
+    private static readonly Lazy<SuperMetroid.Core.Frontend.GameArtwork> bareRuntimeArtwork = new(() => new SuperMetroid.Core.Frontend.GameArtwork
+    {
+        SamusOverreads = SamusOverreads,
+        BossAndIntroOverreads = BossAndIntroOverreads,
+        EnemyOverreads = EnemyOverreads,
+        EnemySheets = EnemySheets,
+        EnemyFrameDisplays = EnemyFrameDisplays,
+    });
+
     /// <summary>The installation's complete game artwork as the game binds it, loaded once per process and only read.</summary>
     private static readonly Lazy<SuperMetroid.Core.Frontend.GameArtwork> gameArtwork =
         Shared<SuperMetroid.Core.Frontend.GameArtwork>("game artwork", () => InstalledGameBindings.Artwork(RepositoryInstallation.Installation));

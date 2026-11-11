@@ -192,7 +192,6 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
             ISnesAddressSpace source, InstalledEnemyArtwork artwork)
         {
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
-            runtime.EnemySession.FrameDisplays = artwork.Enemies.FrameDisplays;
             runtime.BossArtwork.KraidEyes = artwork.Bosses.KraidColors?.Eyes();
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();

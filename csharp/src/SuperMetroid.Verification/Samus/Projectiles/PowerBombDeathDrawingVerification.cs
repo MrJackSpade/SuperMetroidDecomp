@@ -35,7 +35,6 @@ internal static class PowerBombDeathDrawingVerification
         {
             var fixture = CreateEnemyDropFixture(CreateDropTestSamus(), [1]);
             var enemies = fixture.System;
-            enemies.TileArtwork = artwork;
             // The room's graphics set loads the enemy, as every room that holds one does.
             var set = new RoomEnemyGraphicsSetDefinition($"power-bomb {header}");
             FixtureGraphicsSetMembers.Record(set, [new RoomEnemyGraphicsSetMember(header)]);

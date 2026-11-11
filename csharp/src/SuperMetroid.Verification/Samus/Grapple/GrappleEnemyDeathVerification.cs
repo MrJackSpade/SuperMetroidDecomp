@@ -29,7 +29,6 @@ internal static class GrappleEnemyDeathVerification
         // The fixture room loads no enemy set, so the session's first set stays loaded. Every room with enemies loads a set
         // whose shared sheet holds their deaths and drops (#1513); load a retail room's, as entering it does.
         SuperMetroid.TestSupport.RepositoryInstallation.Verification.SpawnedObjectFixtures.LoadSetDrawing(fixture.System, EnemyDefinitionId.Zeela);
-        fixture.System.TileArtwork = InstalledFixtures.EnemyTiles;
         fixture.System.BossArtwork = InstalledFixtures.BossArtwork;
         SeedGrappleEnemyDeathRetailBanks(fixture.Bus);
         const ushort header = 0x9000;
@@ -113,7 +112,6 @@ internal static class GrappleEnemyDeathVerification
             samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(17);
             samus.Position = samus.Position.WithWhole(new(220, 100));
             var fixture = CreateEnemyDropFixture(samus, [1]);
-        fixture.System.TileArtwork = InstalledFixtures.EnemyTiles;
         fixture.System.BossArtwork = InstalledFixtures.BossArtwork;
             var enemy = fixture.System.SlotTable.Slots[0];
             enemy.Bind((EnemyDefinitionId)0x9000, enemy.Definition);

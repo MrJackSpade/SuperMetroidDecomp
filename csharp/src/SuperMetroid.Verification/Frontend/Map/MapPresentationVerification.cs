@@ -217,8 +217,6 @@ internal static class MapPresentationVerification
             runtime.Artwork.RoomVisualLayouts = visualLayouts;
             runtime.Artwork.RoomLevelStreams = levelStreams;
 
-            runtime.EnemySession.FrameDisplays = EnemyTiles.Enemies.FrameDisplays;
-            runtime.EnemySession.Sheets = SuperMetroid.TestSupport.RepositoryInstallation.Verification.EnemySheetFixtures.For(EnemyTiles.Enemies);
             runtime.BossArtwork.KraidEyes = EnemyTiles.Bosses.KraidColors?.Eyes();
 
             runtime.Artwork.SamusBodyArt = SamusBody;
@@ -649,7 +647,7 @@ internal static class MapPresentationVerification
         var restored = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(game);
         AssertEqual(original.ContentIdentity, restored.MapPresentationIdentity, "restored graph names its bound map content");
 
-        var runtime =SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads, InstalledFixtures.EnemyOverreads);
+        var runtime =SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.BareRuntimeArtwork);
         runtime.Artwork.MapPresentation = original;
         fixtureAssets.Bind(runtime);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

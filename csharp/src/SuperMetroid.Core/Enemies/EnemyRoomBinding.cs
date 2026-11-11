@@ -43,8 +43,8 @@ internal sealed class EnemyRoomBinding
     /// <summary>The game random source of the current room's services.</summary>
     internal IEnemyRandomNumbers Random => Services.Random;
 
-    /// <summary>The session's installed enemy frame displays; drawing an enemy requires them.</summary>
-    internal EnemyFrameDisplays? FrameDisplays => Session.FrameDisplays;
+    /// <summary>The session's installed enemy frame displays, which drawing an enemy reads.</summary>
+    internal EnemyFrameDisplays FrameDisplays => Session.FrameDisplays;
 
     /// <summary>The session's record of what Mother Brain's rainbow-beam push hides from the camera.</summary>
     internal RainbowBeamCameraCheckpoint RainbowBeamCameraCheckpoint => Session.RainbowBeamCameraCheckpoint;

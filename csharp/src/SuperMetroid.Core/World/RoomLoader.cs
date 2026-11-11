@@ -80,6 +80,16 @@ internal sealed class RoomLoader
     private readonly BeamChargeState _beamCharge;
     /// <summary>The installed services reproducing Samus's glitch reads, handed to every Samus and projectile system built here.</summary>
     private readonly SamusOverreadServices _samusOverreads;
+    /// <summary>
+    /// The session's unauthored Speed Booster cadence, handed to every Samus built here and to every room's enemies, whose
+    /// Ceres Ridley getaway leaves its delays behind.
+    /// </summary>
+    private readonly UnauthoredBoostCadence _unauthoredBoostCadence;
+    /// <summary>
+    /// The runtime's shared fade step count, handed to every room's enemies, whose backdrop and body fades count their steps
+    /// on it with the runtime's door, death and time-up fades.
+    /// </summary>
+    private readonly SharedFadeStepCount _fadeStepCount;
     /// <summary>Holds the active room, camera, selected door, and load-station identity.</summary>
     private readonly ActiveRoomState _room;
     /// <summary>The Fireflea state, the room's fixed colour and installed FX artwork each room's effect-overlay FX reads.</summary>
@@ -116,6 +126,8 @@ internal sealed class RoomLoader
         _shotBlockVisuals = dependencies.ShotBlockVisuals;
         _beamCharge = dependencies.BeamCharge;
         _samusOverreads = Ensure.NotNull(dependencies.SamusOverreads);
+        _unauthoredBoostCadence = Ensure.NotNull(dependencies.UnauthoredBoostCadence);
+        _fadeStepCount = Ensure.NotNull(dependencies.FadeStepCount);
         _room = dependencies.Room;
         _roomFx = dependencies.RoomFx;
         _paletteFxSession = dependencies.PaletteFxSession;
@@ -265,7 +277,7 @@ internal sealed class RoomLoader
     internal void RestoreSavedPlayerState(SuperMetroidSaveSlot slot)
     {
         Ensure.NotNull(slot);
-        _player.Samus = new SamusState(_samusOverreads.AnimationContinuation, _enemySession.UnauthoredBoostCadence, SamusCompatibility.ForNewSamus(), _beamCharge)
+        _player.Samus = new SamusState(_samusOverreads.AnimationContinuation, _unauthoredBoostCadence, SamusCompatibility.ForNewSamus(), _beamCharge)
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             AnimationFrame = 0,
@@ -301,7 +313,7 @@ internal sealed class RoomLoader
         // state the escape left behind; only the inventory below it survives. The player is
         // the same one, so a loadout already granted to her is not granted again.
         // Initialization clears Pose; the port's constructor defaults to the right-facing pose.
-        var samus = new SamusState(_samusOverreads.AnimationContinuation, _enemySession.UnauthoredBoostCadence, SamusCompatibility.ForNewSamus(), _beamCharge) { Pose = 0, AnimationFrame = 0 };
+        var samus = new SamusState(_samusOverreads.AnimationContinuation, _unauthoredBoostCadence, SamusCompatibility.ForNewSamus(), _beamCharge) { Pose = 0, AnimationFrame = 0 };
         samus.CopyInventoryFrom(carried);
         _player.Samus = samus;
         _assists.CarryLoadoutGrant(carried, samus);
@@ -917,7 +929,9 @@ internal sealed class RoomLoader
             loadingSamus.Shinespark.ResetProjectileEchoStorage();
         }
         var bombs = new SamusBombProjectileSystem();
-        var projectiles = new SamusProjectileSystem(_beamCharge, _samusOverreads);
+        // Each room's shot places start keeping nothing; TakeOverFrom then hands them what the outgoing room's kept.
+        var projectiles = new SamusProjectileSystem(_beamCharge, _samusOverreads,
+            new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
         projectiles.TakeOverFrom(_room.HandOver);
         scope.BombProjectiles = bombs;
         scope.Projectiles = projectiles;
@@ -988,14 +1002,18 @@ internal sealed class RoomLoader
 
         // The destination's enemies load with the door-transition gates clear; their projectile places start from what
         // the outgoing room's left (RoomHandOver).
-        // Each enemy system gets its own compatibility services: the sweep and the slots start with no earlier kill or
-        // occupant, and a Puyo's ceiling turn starts from what loading the beams' colours above left.
+        // Each enemy system gets its own compatibility services: the sweep, the slots and the sprite-object places start
+        // with no earlier kill, occupant or taken place, and a Puyo's ceiling turn starts from what loading the beams'
+        // colours above left. The fade step count and the boost cadence outlive the room and are handed on.
         var compatibility = new RoomEnemyCompatibility
         {
             PowerBombRadius = new PowerBombRadiusAfterKill(),
             BullInheritance = new SlotInheritance<BullEnemyState>(EnemySlotOrder.Capacity),
             BeetomInheritance = new SlotInheritance<BeetomEnemyState>(EnemySlotOrder.Capacity),
             PuyoCeilingTurn = new PuyoCeilingTurnFromLastDraw(),
+            SpriteObjectPlaces = new SpriteObjectPlaces(),
+            FadeStepCount = _fadeStepCount,
+            UnauthoredBoostCadence = _unauthoredBoostCadence,
         };
         var enemies = new RoomEnemySystem(_enemySession, compatibility, CompiledRoomEnemyDefinitions.Instance, areaServices,
             _bossArtwork);
@@ -1129,7 +1147,7 @@ internal sealed class RoomLoader
         if (_room.ActiveRoom is null || _room.ActiveLoadStation is null)
             throw new InvalidOperationException("The starting Ceres room must be loaded before Samus setup.");
 
-        _player.Samus = new SamusState(_samusOverreads.AnimationContinuation, _enemySession.UnauthoredBoostCadence, SamusCompatibility.ForNewSamus(), _beamCharge)
+        _player.Samus = new SamusState(_samusOverreads.AnimationContinuation, _unauthoredBoostCadence, SamusCompatibility.ForNewSamus(), _beamCharge)
         {
             Pose = SamusPoseId.ForwardFacingPowerSuitPose,
             AnimationFrame = 0,

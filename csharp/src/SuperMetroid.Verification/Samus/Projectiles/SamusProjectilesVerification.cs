@@ -101,7 +101,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         new MemoryStream(ProjectileSpriteExtractor.Extract(bus)));
     SamusProjectileSystem CreateSyntheticProjectiles()
     {
-        SamusProjectileSystem created = new(new BeamChargeState(), InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = fixtureFrames } };
+        SamusProjectileSystem created = new(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount)) { Animation = { FrameBindings = fixtureFrames } };
         // A Super Missile impact starts the room's earthquake, so the system is bound to one, as a room load binds it (#1594).
         created.Earthquakes.BindRoomEarthquake(new RoomEarthquake());
         return created;
@@ -254,7 +254,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     var spazerFlickerBombs = CreateSyntheticBombs();
     // The shot shows the installed Spazer compositions, which the Spazer sheet holds (#1513): the synthetic bindings give
     // the Spazer shot's first frame the power beam's composition, which the Spazer sheet does not hold (#1534).
-    var spazerFlickerProjectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads)
+    var spazerFlickerProjectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount))
     {
         Animation = { FrameBindings = InstalledFixtures.Projectiles.FrameBindings },
     };

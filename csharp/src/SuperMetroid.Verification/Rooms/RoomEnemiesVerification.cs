@@ -343,7 +343,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     eyeShot.CollisionOption = EnemyProjectileCollisionOption.RunShotList;
     SeedEnemyProjectileDefinitionWord(bus, eyeShot.Kind, 12, 0xb5fb);
 
-    var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
+    var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
     var shotsEarthquake = new RoomEarthquake();
     shots.Earthquakes.BindRoomEarthquake(shotsEarthquake);
     SamusProjectile owner = shots.Slots[0];

@@ -4,9 +4,11 @@ using SuperMetroid.Core.Enemies.Bull;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// The compatibility services a room's enemy system consults. The room's loader creates a fresh set with each enemy
-/// system it builds, and the set lives exactly as long as that system: a room's power-bomb sweep and its slots start
-/// with no earlier kill and no earlier occupant.
+/// The compatibility services a room's enemy system consults. The room's own services the room's loader creates fresh
+/// with each enemy system it builds, and they live exactly as long as that system: a room's power-bomb sweep, its slots
+/// and its sprite-object places start with no earlier kill, no earlier occupant and no place taken. The services that
+/// outlive every room, the runtime's shared fade step count and the session's unauthored Speed Booster cadence, the loader
+/// hands on to every enemy system it builds.
 /// </summary>
 internal sealed class RoomEnemyCompatibility
 {
@@ -24,4 +26,22 @@ internal sealed class RoomEnemyCompatibility
     /// one holds what the room's load leaves.
     /// </summary>
     public required PuyoCeilingTurnFromLastDraw PuyoCeilingTurn { get; init; }
+
+    /// <summary>
+    /// The room's thirty-two sprite-object places, whose place a dud flash on Kraid's mouth takes bounds the rest of that
+    /// collision pass; a new room starts with every place free.
+    /// </summary>
+    public required SpriteObjectPlaces SpriteObjectPlaces { get; init; }
+
+    /// <summary>
+    /// The runtime's shared fade step count, which Kraid's backdrop fades and the Torizos' body fades count their steps on
+    /// with the runtime's door, death and time-up fades; it outlives every room.
+    /// </summary>
+    public required SharedFadeStepCount FadeStepCount { get; init; }
+
+    /// <summary>
+    /// The session's unauthored Speed Booster cadence, whose delays Ceres Ridley's getaway wing frames leave behind for
+    /// every later Samus; it outlives every room and every runtime.
+    /// </summary>
+    public required UnauthoredBoostCadence UnauthoredBoostCadence { get; init; }
 }

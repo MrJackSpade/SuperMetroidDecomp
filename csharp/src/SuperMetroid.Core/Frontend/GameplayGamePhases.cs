@@ -378,8 +378,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     private void BeginTimeUp()
     {
         SuperMetroidRuntime runtime = session.Runtime ?? throw new InvalidOperationException("Time-up requires a gameplay runtime.");
-        runtime.FadeOut.Begin(TimeUpDefinitions.WhiteColor, TimeUpDefinitions.WhiteOutDenominator,
-            runtime.EnemySession.FadeStepCount, GameplayFadeSpares.Nothing);
+        runtime.FadeOut.Begin(TimeUpDefinitions.WhiteColor, TimeUpDefinitions.WhiteOutDenominator, GameplayFadeSpares.Nothing);
         session.GameState = SuperMetroidGameState.TimeUp;
     }
 

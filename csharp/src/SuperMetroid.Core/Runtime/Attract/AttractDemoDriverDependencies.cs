@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.World;
@@ -19,8 +18,8 @@ internal sealed record AttractDemoDriverDependencies
     public required ControllerInputState Controller1 { get; init; }
 
 
-    /// <summary>The enemy words and installed enemy artwork that outlive each room.</summary>
-    public required EnemySession EnemySession { get; init; }
+    /// <summary>The session's unauthored Speed Booster cadence, which a demo Samus runs on like any other.</summary>
+    public required UnauthoredBoostCadence UnauthoredBoostCadence { get; init; }
 
     /// <summary>Hud setup.</summary>
     public required GameplayHudSetup HudSetup { get; init; }

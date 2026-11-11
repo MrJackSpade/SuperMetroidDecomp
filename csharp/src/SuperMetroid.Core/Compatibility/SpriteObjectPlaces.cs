@@ -10,9 +10,10 @@ namespace SuperMetroid.Core.Compatibility;
 /// </summary>
 /// <remarks>
 /// Taken for every sprite object the room spawns, as it spawns, after the places of the objects that have ended since the
-/// last spawn are freed; consulted by Kraid's mouth pass right after a dud flash spawns. Lifetime: the room's; a new room
-/// starts with every place free. Evidence: the original sprite-object spawn searches its thirty-two places from the last
-/// down for one whose object has ended and returns twice that place, or reports none free; Kraid's mouth pass keeps the
+/// last spawn are freed; consulted by Kraid's mouth pass right after a dud flash spawns. Lifetime: the room's; the room
+/// loader creates it with each room's enemy system, so a new room starts with every place free. Evidence: the original
+/// sprite-object spawn searches its thirty-two places from the last down for one whose object has ended and returns twice
+/// that place, or reports none free; Kraid's mouth pass keeps the
 /// returned value in the working value it tests the next projectile's top edge against.
 /// </remarks>
 [CompatibilityService("a dud shot on Kraid's mouth bounds the rest of its collision pass by the place its flash takes among the room's thirty-two sprite-object places")]

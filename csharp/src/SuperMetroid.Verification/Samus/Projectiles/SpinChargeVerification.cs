@@ -26,7 +26,7 @@ internal static class SpinChargeVerification
             WritePoseDefinition(bus, SamusPoseNumbers.Number(pose), [8, SamusMovementTypeNativeWords.Byte(movement), 0, 2, 0, 0, 0, 0]);
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
                 EquippedBeams = SamusBeamFlags.Charge };
-            var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = frames } };
+            var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount)) { Animation = { FrameBindings = frames } };
             var bombs = new SamusBombProjectileSystem { FrameBindings = frames };
             for (int frame = 0; frame < 60; frame++)
                 projectiles.StepFrame(new SamusTerrain { Level = air }, samus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = 0 }, new(0, 0), bombs);

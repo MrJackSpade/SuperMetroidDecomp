@@ -100,6 +100,14 @@ internal sealed record RoomLoaderDependencies
     /// <summary>The installed services reproducing Samus's glitch reads, handed to every Samus and projectile system a load builds.</summary>
     public required SamusOverreadServices SamusOverreads { get; init; }
 
+    /// <summary>
+    /// The session's unauthored Speed Booster cadence, handed to every Samus a load builds and to every room's enemies.
+    /// </summary>
+    public required UnauthoredBoostCadence UnauthoredBoostCadence { get; init; }
+
+    /// <summary>The runtime's shared fade step count, handed to every room's enemies.</summary>
+    public required SharedFadeStepCount FadeStepCount { get; init; }
+
 
 
 

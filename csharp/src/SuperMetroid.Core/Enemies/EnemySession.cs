@@ -5,12 +5,11 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// The enemy-side state that outlives each room, as the game keeps it across enemy loading (#1329): the
-/// elevator journey, the shared fade counter, Ceres's escape progress, the critical-energy drop bias, the language
+/// elevator journey, Ceres's escape progress, the critical-energy drop bias, the language
 /// flag, the random enemy counter, the death quota an empty population keeps and how far the
 /// room's encounters have played their artwork; the compatibility services its enemies consult, which it receives when it
-/// is built: the session's unauthored Speed Booster cadence, whose delays Ceres Ridley's getaway leaves behind, the
-/// installation's enemy and boss over-read services and the runtime's rainbow-beam camera checkpoint; and the host's
-/// installed enemy sheets and enemy frame displays, which every room's enemies draw from.
+/// is built: the installation's enemy and boss over-read services and the runtime's rainbow-beam camera checkpoint; and
+/// the host's installed enemy sheets and enemy frame displays, which every room's enemies draw from.
 /// </summary>
 [ArchitectureReview("context-bag", "The enemy state that outlives each room and the installed enemy content every room binds: each member is session-lifetime state or installed data a room reads, not a service looked up.")]
 public sealed class EnemySession
@@ -18,7 +17,6 @@ public sealed class EnemySession
     /// <summary>
     /// Creates the enemy words a fresh power-on holds, bound to the compatibility services its enemies consult.
     /// </summary>
-    /// <param name="unauthoredBoostCadence">The session's unauthored Speed Booster cadence, which outlives every runtime.</param>
     /// <param name="overreads">The installation's services reproducing what enemies read past their authored data (#1500).</param>
     /// <param name="bossOverreads">
     /// The installation's services reproducing what Kraid's fingernails and Crocomire's volley read past their data (#1500).
@@ -28,28 +26,17 @@ public sealed class EnemySession
     /// consumes.
     /// </param>
     public EnemySession(
-        UnauthoredBoostCadence unauthoredBoostCadence,
         EnemyOverreadServices overreads,
         BossAndIntroOverreadServices bossOverreads,
         RainbowBeamCameraCheckpoint rainbowBeamCameraCheckpoint)
     {
-        UnauthoredBoostCadence = Ensure.NotNull(unauthoredBoostCadence);
         Overreads = Ensure.NotNull(overreads);
         BossOverreads = Ensure.NotNull(bossOverreads);
         RainbowBeamCameraCheckpoint = Ensure.NotNull(rainbowBeamCameraCheckpoint);
     }
 
-    /// <summary>The session's unauthored Speed Booster cadence, whose delays Ceres Ridley's getaway wing frames leave behind.</summary>
-    internal UnauthoredBoostCadence UnauthoredBoostCadence { get; }
-
     /// <summary>The elevator journey state carried through an elevator door.</summary>
     internal ElevatorJourneyState Elevator { get; } = new();
-
-    /// <summary>
-    /// The shared fade step count, a compatibility service (#1544): enemies' fades and the runtime's door, death and time-up
-    /// fades all count their steps on it, so a fade left part-way shortens the next. It outlives every room.
-    /// </summary>
-    public SharedFadeStepCount FadeStepCount { get; } = new();
 
     /// <summary>
     /// How far Ceres's escape has progressed, consumed by the Ceres doors and the elevator shaft. A fresh station load

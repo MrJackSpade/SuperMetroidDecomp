@@ -18,7 +18,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// <para>
 /// Consulted and advanced once per update by the running fade's owner: the door transition's fade phases, the death and
 /// time-up phases, Kraid's backdrop fade functions and the Torizos' fade instructions; reset by the fade that completes and
-/// by Kraid's background redraw. Owned by the session's <c>EnemySession</c>, so the count outlives every room. Evidence:
+/// by Kraid's background redraw. Created with each gameplay runtime, which hands it to its door transition, its death and
+/// time-up fades and every room's enemies, so the count outlives every room. Evidence:
 /// the original gradual colour change routines, which all read, advance and clear one shared step count and none clears it
 /// at its start; the Torizo programs' sixteen-step wake-up and fourteen-step death fade, which only complete in fourteen
 /// steps from the count the wake-up leaves.

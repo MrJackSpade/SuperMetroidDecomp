@@ -28,4 +28,7 @@ internal sealed record CeresRidleyGetawayDependencies
 
     /// <summary>The session's installed boss artwork.</summary>
     public required BossArtworkBinding BossArtwork { get; init; }
+
+    /// <summary>The session's unauthored Speed Booster cadence, whose delays the getaway's wing frames leave behind.</summary>
+    public required UnauthoredBoostCadence UnauthoredBoostCadence { get; init; }
 }

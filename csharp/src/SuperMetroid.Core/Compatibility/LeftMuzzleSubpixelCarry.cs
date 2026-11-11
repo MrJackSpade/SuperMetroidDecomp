@@ -19,7 +19,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// <para>
 /// Consulted when a projectile takes a place (<see cref="Start"/>), when Samus's shots are cleared (<see cref="Keep"/>),
 /// and across a room load, where the outgoing room's places leave what they keep (<see cref="RoomHandOver"/>) and the next
-/// room's start from it before any shot is fired. Lifetime: one room's shot pool, created with it.
+/// room's start from it before any shot is fired. Lifetime: one room's shot pool, created with it by the room's builder
+/// (the room loader, or the opening cinematic for its flashbacks' shots) and handed to the pool.
 /// </para>
 /// <para>
 /// Evidence: the original fire routines write only the parts of a shot they set, the left muzzle check runs before

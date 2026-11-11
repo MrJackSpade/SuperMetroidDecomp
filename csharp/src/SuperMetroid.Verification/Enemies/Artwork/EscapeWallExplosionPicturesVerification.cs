@@ -31,12 +31,12 @@ internal static class EscapeWallExplosionPicturesVerification
         SpriteGraphics shared = SpriteGraphics.SharedIn(PictureShading.Standard);
         foreach (RoomStateSettings state in states)
         {
-            var session = new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), InstalledFixtures.EnemyOverreads, InstalledFixtures.BossAndIntroOverreads, new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint())
+            var session = new EnemySession(InstalledFixtures.EnemyOverreads, InstalledFixtures.BossAndIntroOverreads, new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint())
             {
                 FrameDisplays = InstalledFixtures.EnemyTiles.FrameDisplays,
                 Sheets = InstalledFixtures.EnemySheets,
             };
-            var presentation = new EnemyPresentation(new EnemyRoomBinding(session, CompiledRoomEnemyDefinitions.Instance, services: null));
+            var presentation = new EnemyPresentation(new EnemyRoomBinding(session, CompiledRoomEnemyDefinitions.Instance, services: null), new SharedFadeStepCount());
             // The room load draws the state's population's artwork unless its population is empty.
             if (!state.EnemyPopulation.Records.IsEmpty)
                 presentation.DrawPopulation(state.EnemyPopulation);

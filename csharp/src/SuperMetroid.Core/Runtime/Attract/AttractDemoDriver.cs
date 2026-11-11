@@ -24,8 +24,8 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     private readonly AttractDemoSession _attractSession;
     /// <summary>Player controller replaced by demo input only during Samus updates.</summary>
     private readonly ControllerInputState _controller1;
-    /// <summary>The session's enemy state, whose unauthored Speed Booster cadence a demo's Samus reads.</summary>
-    private readonly EnemySession _enemySession;
+    /// <summary>The session's unauthored Speed Booster cadence, which a demo's Samus runs on.</summary>
+    private readonly UnauthoredBoostCadence _unauthoredBoostCadence;
     /// <summary>Builds the initial HUD from the demo record's health and ammunition.</summary>
     private readonly GameplayHudSetup _hudSetup;
     /// <summary>Publishes initial HUD graphics before loading the demo room.</summary>
@@ -50,7 +50,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         _artwork = dependencies.Artwork;
         _attractSession = dependencies.AttractSession;
         _controller1 = dependencies.Controller1;
-        _enemySession = dependencies.EnemySession;
+        _unauthoredBoostCadence = Ensure.NotNull(dependencies.UnauthoredBoostCadence);
         _hudSetup = dependencies.HudSetup;
         _frameBoundary = dependencies.FrameBoundary;
         _player = dependencies.Player;
@@ -110,7 +110,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         // The demo load clears the Zebes areas' stored explored maps and leaves the live map as the session left it.
         StoredExploredMapLoads.ClearForDemo(_system.StoredExploredMaps);
 
-        _player.Samus = new SamusState(_animationContinuation, _enemySession.UnauthoredBoostCadence, SamusCompatibility.ForNewSamus(), _beamCharge)
+        _player.Samus = new SamusState(_animationContinuation, _unauthoredBoostCadence, SamusCompatibility.ForNewSamus(), _beamCharge)
         {
             Position = FixedPosition<RoomPixels>.FromWhole(scene.SamusPosition),
             EquippedItems = scene.Items, CollectedItems = scene.Items,

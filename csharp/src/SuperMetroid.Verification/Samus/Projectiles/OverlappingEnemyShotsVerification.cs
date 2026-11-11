@@ -41,7 +41,7 @@ internal static class OverlappingEnemyShotsVerification
             enemy.Frame = EnemyFrameId.BeetomLeftCrawl0; // Shots reach only an enemy showing a frame.
             interactive.Add(enemy);
         }
-        var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = InstalledFixtures.Projectiles.FrameBindings } };
+        var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount)) { Animation = { FrameBindings = InstalledFixtures.Projectiles.FrameBindings } };
         var bombs = new SamusBombProjectileSystem { FrameBindings = InstalledFixtures.Projectiles.FrameBindings };
         var shot = shots.Slots[0];
         shot.Type = SamusProjectileType.Of(SamusProjectileFamily.Missile);

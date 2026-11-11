@@ -37,7 +37,7 @@ internal static class KraidContourCaseMappingsVerification
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var overlaps = CreateKraidBodyContourProbe();
         var body = enemies.SlotTable.Slots[0];
-        var shot = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads).Slots[0];
+        var shot = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount)).Slots[0];
         body.Position = body.Position.WithWhole(new(256, 32768));
         shot.Radius = shot.Radius.WithX(0);
         foreach (short y in new short[] { -32768, -31746, -31745 })

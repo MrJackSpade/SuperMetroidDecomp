@@ -39,7 +39,7 @@ internal static class SpeedBoosterStageFiveResidueVerification
         }
 
         // The getaway writes its transfer lists into the room's Mode 7 map (#1349).
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(cadence), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance,
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(new SharedFadeStepCount(), cadence), definitions: CompiledRoomEnemyDefinitions.Instance,
             services: new StandaloneRoomEnemyServices(() => throw new InvalidOperationException("The getaway draws no random numbers here."))
             {
                 Floor = RoomBackgroundsFixtures.CeresFloor(),

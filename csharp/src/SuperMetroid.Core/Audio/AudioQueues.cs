@@ -17,12 +17,8 @@ namespace SuperMetroid.Core.Audio;
 /// </remarks>
 public sealed class AudioQueues
 {
-    /// <summary>Requests awaiting music dispatch in the circular queue; an empty position holds the stop request.</summary>
-    private readonly MusicRequest[] _musicEntries =
-        [.. Enumerable.Repeat(MusicRequest.Stop, AudioQueueDefinitions.MusicCapacity)];
-    /// <summary>Per-entry frame delays paired with queued music requests.</summary>
-    internal readonly MusicQueueDelay[] MusicDelays =
-        new MusicQueueDelay[AudioQueueDefinitions.MusicCapacity];
+    /// <summary>The music requests waiting for the music handler, each with its delay.</summary>
+    internal readonly MusicQueue Music = new();
     /// <summary>Each sound library's own queue of waiting requests.</summary>
     private readonly Dictionary<SoundEffectLibrary, SoundQueue> _soundQueues =
         SoundEffectLibraries.InQueueOrder.ToDictionary(library => library, _ => new SoundQueue());
@@ -34,17 +30,11 @@ public sealed class AudioQueues
     /// <summary>The power-on requests, deferred until the next audio frame.</summary>
     private readonly List<AudioRequest> _pendingPowerOnRequests = [];
 
-    /// <summary>Slot of the music entry being retired or fetched by the music handler, below <see cref="AudioQueueDefinitions.MusicCapacity"/>.</summary>
-    internal int MusicReadPosition { get; private set; }
-    /// <summary>Insertion slot of the circular delayed-music command queue, below <see cref="AudioQueueDefinitions.MusicCapacity"/>.</summary>
-    internal int MusicWritePosition { get; private set; }
     /// <summary>
-    /// The music delay countdown, in music-handler calls. It expires on reaching zero, and a cleared timer runs
-    /// negative on the next call, which is what fetches the next queued entry.
+    /// The request the music handler fetched and is waiting out the delay of, or none when its next call fetches the
+    /// next request from the queue.
     /// </summary>
-    internal int MusicTimer { get; private set; }
-    /// <summary>Music request currently awaiting delay expiry and dispatch.</summary>
-    private MusicRequest _musicEntry = MusicRequest.Stop;
+    internal PendingMusicDispatch? PendingMusic { get; private set; }
     /// <summary>Sound-handler calls, 0 through <see cref="AudioQueueDefinitions.MusicChangeSoundDowntimeCalls"/>, for which a music change withdraws every library's sound request.</summary>
     private int _soundHandlerDowntime;
 
@@ -73,8 +63,11 @@ public sealed class AudioQueues
     /// <summary>The track most recently played, or null after a stop or a data set change.</summary>
     public MusicTrack? PlayingTrack { get; private set; }
 
-    /// <summary>Exact <c>HasQueuedMusic</c> result: any occupied delayed-command slot.</summary>
-    public bool HasQueuedMusic => MusicDelays.Any(delay => delay.Updates != 0);
+    /// <summary>
+    /// What phases waiting for the music to settle read: true while the music queue holds any request, including requests
+    /// a scheduled request overtook (see <see cref="MusicQueue"/>).
+    /// </summary>
+    public bool HasQueuedMusic => Music.HoldsAnyRequest;
 
     /// <summary>
     /// What the door transition waits on: true while any sound library has a request waiting in its queue. A request
@@ -94,15 +87,11 @@ public sealed class AudioQueues
     public void Reset()
     {
         DoorTransitionSoundsDisabled = false;
-        Array.Fill(_musicEntries, MusicRequest.Stop);
-        Array.Clear(MusicDelays);
+        Music.Clear();
+        PendingMusic = null;
         foreach (SoundQueue queue in _soundQueues.Values)
             queue.Clear();
         SoundHandshakes.Reset();
-        MusicReadPosition = 0;
-        MusicWritePosition = 0;
-        MusicTimer = default;
-        _musicEntry = MusicRequest.Stop;
         _soundHandlerDowntime = 0;
         DataSet = null;
         PlayingTrack = null;
@@ -121,16 +110,24 @@ public sealed class AudioQueues
     /// </summary>
     /// <param name="request">The music request.</param>
     public void QueueMusic(MusicRequest request) =>
-        Enqueue(request, MusicQueueDelay.Shortest, overflow: MusicQueueOverflow.SkipWhenFull);
+        Music.QueueUnlessFull(new QueuedMusic(request, MusicQueueDelay.Shortest));
 
     /// <summary>
-    /// Schedules <paramref name="request"/> to play after <paramref name="delay"/>. A full music queue writes it regardless,
-    /// overtaking the queue's read position.
+    /// Schedules <paramref name="request"/> to play after <paramref name="delay"/>. A full music queue takes it regardless,
+    /// and the requests waiting in it are overtaken (see <see cref="MusicQueue"/>).
     /// </summary>
     /// <param name="request">The music request.</param>
     /// <param name="delay">How long it waits on the queue, already lengthened to the shortest delay.</param>
-    public void ScheduleMusic(MusicRequest request, MusicQueueDelay delay) =>
-        Enqueue(request, delay, overflow: MusicQueueOverflow.Overwrite);
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="delay"/> is shorter than the shortest delay.</exception>
+    public void ScheduleMusic(MusicRequest request, MusicQueueDelay delay)
+    {
+        if (delay.Updates < AudioQueueDefinitions.MinimumMusicDelayFrames)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(delay), delay, "Effective music queue delay must be at least eight frames.");
+        }
+        Music.QueueOvertakingWhenFull(new QueuedMusic(request, delay));
+    }
 
     /// <summary>Queues the data set and track requests performed by ordinary room loading.</summary>
     public void QueueRoomMusic(RoomMusic music)
@@ -203,11 +200,8 @@ public sealed class AudioQueues
     {
         MusicTrack? roomTrack = PlayingTrack;
 
-        Array.Fill(_musicEntries, MusicRequest.Stop);
-        Array.Clear(MusicDelays);
-        MusicReadPosition = MusicWritePosition;
-        MusicTimer = default;
-        _musicEntry = MusicRequest.Stop;
+        Music.Clear();
+        PendingMusic = null;
 
         QueueMusic(MusicRequest.SelectTrack(AudioQueueDefinitions.PermanentItemTrack));
         ScheduleMusic(
@@ -284,72 +278,43 @@ public sealed class AudioQueues
         return requests.Count == 0 ? Array.Empty<AudioRequest>() : requests.ToArray();
     }
 
-    /// <summary>Enqueues a delayed music request, dropping it or overtaking the read position when the queue has no free slot, as <paramref name="overflow"/> says.</summary>
-    private void Enqueue(
-        MusicRequest request,
-        MusicQueueDelay delay,
-        MusicQueueOverflow overflow)
-    {
-        if (delay.Updates < AudioQueueDefinitions.MinimumMusicDelayFrames)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(delay), delay, "Effective music queue delay must be at least eight frames.");
-        }
-
-        int next = NextMusicPosition(MusicWritePosition);
-        if (overflow == MusicQueueOverflow.SkipWhenFull && next == MusicReadPosition)
-            return;
-
-        _musicEntries[MusicWritePosition] = request;
-        MusicDelays[MusicWritePosition] = delay;
-        MusicWritePosition = next;
-    }
-
-    /// <summary>Advances the music handler's delay countdown and requests either a data set change or a track at expiry.</summary>
+    /// <summary>
+    /// Runs one music-handler call. While a fetched request waits out its delay the call counts the wait down, and the
+    /// call that ends it dispatches the request and retires it from the queue: a data set change then returns, so the
+    /// next request is fetched on the following call, and a track or a stop goes on to fetch the next request in the same
+    /// call. A call that is not waiting fetches the next request, if the queue has one to fetch, and starts its delay.
+    /// </summary>
     private void HandleMusicQueue(List<AudioRequest> requests)
     {
-        MusicTimer--;
-        bool timerExpired = MusicTimer == 0;
-        if (MusicTimer >= 0)
+        if (PendingMusic is PendingMusicDispatch pending)
         {
-            if (!timerExpired)
+            // A fetched request waits at least the shortest delay, so the wait reaches zero on its last call and never wraps.
+            int callsUntilDispatch = Ensure.AtLeastZero(pending.CallsUntilDispatch - 1);
+            if (callsUntilDispatch != 0)
+            {
+                PendingMusic = pending with { CallsUntilDispatch = callsUntilDispatch };
                 return;
+            }
+            PendingMusic = null;
 
-            if (_musicEntry is MusicRequest.ChangeDataSet change)
+            if (pending.Request is MusicRequest.ChangeDataSet change)
             {
                 DataSet = change.DataSet;
                 PlayingTrack = null;
                 requests.Add(new AudioRequest.ChangeMusicDataSet(change.DataSet));
-                // Retiring the data entry returns at once. The timer stays zero,
-                // so the next entry is fetched only on the following call when it underflows.
-                ClearAndAdvanceMusicEntry();
+                Music.RetireFetched();
                 _soundHandlerDowntime = AudioQueueDefinitions.MusicChangeSoundDowntimeCalls;
                 return;
             }
 
-            PlayingTrack = (_musicEntry as MusicRequest.PlayTrack)?.Track;
+            PlayingTrack = (pending.Request as MusicRequest.PlayTrack)?.Track;
             requests.Add(AudioRequest.ForTrack(PlayingTrack));
-
-            ClearAndAdvanceMusicEntry();
+            Music.RetireFetched();
             _soundHandlerDowntime = AudioQueueDefinitions.MusicChangeSoundDowntimeCalls;
         }
 
-        if (MusicReadPosition == MusicWritePosition)
-        {
-            MusicTimer = default;
-            return;
-        }
-
-        _musicEntry = _musicEntries[MusicReadPosition];
-        MusicTimer = MusicDelays[MusicReadPosition].Updates;
-    }
-
-    /// <summary>Retires the processed music command and its delay before fetching the next entry.</summary>
-    private void ClearAndAdvanceMusicEntry()
-    {
-        _musicEntries[MusicReadPosition] = MusicRequest.Stop;
-        MusicDelays[MusicReadPosition] = default;
-        MusicReadPosition = NextMusicPosition(MusicReadPosition);
+        if (Music.NextToFetch is QueuedMusic next)
+            PendingMusic = new PendingMusicDispatch(next.Request, next.Delay.Updates);
     }
 
     /// <summary>Either withdraws all three libraries' requests during music downtime or advances their independent handshakes.</summary>
@@ -416,7 +381,4 @@ public sealed class AudioQueues
         _soundQueues.TryGetValue(library, out SoundQueue? queue)
             ? queue
             : throw new ArgumentOutOfRangeException(nameof(library), library, "Unknown sound-effect library.");
-
-    /// <summary>The music queue slot after <paramref name="position"/>, wrapping to the first at the queue's capacity.</summary>
-    private static int NextMusicPosition(int position) => (position + 1) % AudioQueueDefinitions.MusicCapacity;
 }

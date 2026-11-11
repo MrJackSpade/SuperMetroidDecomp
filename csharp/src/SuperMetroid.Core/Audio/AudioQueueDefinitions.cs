@@ -3,7 +3,10 @@ namespace SuperMetroid.Core.Audio;
 /// <summary>The sizes and update counts of the game's music queue and its three sound queues.</summary>
 public static class AudioQueueDefinitions
 {
-    /// <summary>Music requests the music queue holds, each with its own delay.</summary>
+    /// <summary>
+    /// Positions in the music queue, each holding a request with its own delay. A request queued with the shortest delay is
+    /// dropped once one position is left, so the queue ordinarily holds one request fewer; a scheduled request takes the last.
+    /// </summary>
     public const int MusicCapacity = 8;
 
     /// <summary>The shortest music delay, in music-handler calls; shorter requested delays are lengthened to it.</summary>

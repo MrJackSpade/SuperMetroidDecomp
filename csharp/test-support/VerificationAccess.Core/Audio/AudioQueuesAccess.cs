@@ -6,11 +6,16 @@ internal static class AudioQueuesAccess
     /// <summary>Exposes music timing and each sound library's waiting requests and handshake.</summary>
     extension(AudioQueues self)
     {
-        /// <summary>Music queue read/write indices, current timer and slot delays ($063B/$0639/$063F/$0629).</summary>
+        /// <summary>
+        /// The music handler's wait (the fetched request and the calls left before it is dispatched, or "fetch" when its
+        /// next call fetches), the request the queue would hand it next, and whether the queue holds any request.
+        /// </summary>
         internal string MusicQueueForVerification() =>
-            $"{self.MusicReadPosition:X}/{self.MusicWritePosition:X} " +
-            $"t={self.MusicTimer:X} d=" +
-            string.Join(",", self.MusicDelays.Select(delay => $"{delay.Updates:X}"));
+            (self.PendingMusic is PendingMusicDispatch pending
+                ? $"wait={pending.Request}@{pending.CallsUntilDispatch:X}"
+                : "wait=fetch") +
+            (self.Music.NextToFetch is QueuedMusic next ? $" next={next.Request}@{next.Delay.Updates:X}" : " next=none") +
+            $" queued={self.HasQueuedMusic}";
 
         /// <summary>One sound library's waiting requests, oldest first, and its handler's handshake phase.</summary>
         /// <param name="library">The library read.</param>

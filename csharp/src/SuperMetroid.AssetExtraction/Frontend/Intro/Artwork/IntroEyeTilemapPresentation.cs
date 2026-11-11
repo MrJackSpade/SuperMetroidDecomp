@@ -8,18 +8,18 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 /// <summary>Four editable 3x2 Samus-eye BG2 rectangles; blink timing stays in code.</summary>
 public sealed class IntroEyeTilemapPresentation
 {
-    /// <summary>Four compiled 3-by-2 eye patches in blink selector order.</summary>
-    internal readonly EyeRectangle[] frames;
+    /// <summary>Four installed 3-by-2 eye patches in blink selector order, each its six row-major tiles.</summary>
+    private readonly BackgroundTile[][] frames;
 
-    /// <summary>Retains edited eye tiles only when they differ from the calculated native atlas grid.</summary>
-    private IntroEyeTilemapPresentation(BackgroundTile[][] frames) => this.frames = frames.Select((tiles, index) => new EyeRectangle(tiles, index)).ToArray();
+    /// <summary>Retains the four installed eye rectangles as loaded.</summary>
+    private IntroEyeTilemapPresentation(BackgroundTile[][] frames) => this.frames = frames;
 
     /// <summary>Identity of every selected eye rectangle in its compiled blink-selector order.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(IntroEyeTilemapPresentation), content =>
     {
         content.Append("frames", frames.Length);
-        foreach (EyeRectangle frame in frames)
-            content.AppendTiles("frame", frame.Tiles);
+        foreach (BackgroundTile[] frame in frames)
+            content.AppendTiles("frame", frame);
     });
 
     /// <summary>Gets the six tiles of one blink frame.</summary>
@@ -27,48 +27,9 @@ public sealed class IntroEyeTilemapPresentation
     {
         if ((uint)index >= frames.Length)
             throw new ArgumentOutOfRangeException(nameof(index));
-        return frames[index].Tiles;
+        return frames[index];
     }
 
-    /// <summary>One eye patch whose stock tiles can be calculated from its first tile.</summary>
-    internal sealed class EyeRectangle
-    {
-        /// <summary>Blink frame selecting the patch's first tile.</summary>
-        private readonly int frame;
-        /// <summary>Complete authored tiles when any cell differs from the native grid.</summary>
-        internal readonly BackgroundTile[]? supplied;
-        /// <summary>Detects whether supplied tiles match the six-cell native patch.</summary>
-        internal EyeRectangle(BackgroundTile[] tiles, int frame)
-        {
-            this.frame = frame;
-            for (int cell = 0; cell < tiles.Length; cell++)
-            {
-                if (tiles[cell] == Calculate(cell)) continue;
-                supplied = tiles;
-                break;
-            }
-        }
-        /// <summary>Calculates a cell's tile from the frame anchor and 16-tile row stride.</summary>
-        private BackgroundTile Calculate(int cell)
-        {
-            BackgroundTile first = IntroEyeTilemapFormat.FirstTile(frame);
-            return first with
-            {
-                Tile = first.Tile + cell % IntroEyeTilemapFormat.Columns + cell / IntroEyeTilemapFormat.Columns * IntroEyeTilemapFormat.RowStride,
-            };
-        }
-        /// <summary>Supplied override tiles or a reconstructed native rectangle.</summary>
-        internal ReadOnlySpan<BackgroundTile> Tiles
-        {
-            get
-            {
-                if (supplied is not null) return supplied;
-                var output = new BackgroundTile[IntroEyeTilemapFormat.CellsPerFrame];
-                for (int cell = 0; cell < output.Length; cell++) output[cell] = Calculate(cell);
-                return output;
-            }
-        }
-    }
     /// <summary>Loads and validates the four ordered Samus portrait eye rectangles.</summary>
     public static IntroEyeTilemapPresentation Load(Stream json)
     {

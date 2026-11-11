@@ -11,30 +11,24 @@ using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Frontend.Intro.Artwork;
 
-/// <summary>Checks seven calculated egg-remnant poses against native OAM.</summary>
+/// <summary>Checks the seven extracted egg-remnant compositions draw the native OAM.</summary>
 internal static class IntroEggRemnantPartsVerification
 {
     /// <summary>Checks stock fields and visible/wrapped drawing.</summary>
     internal static void VerifyIntroEggRemnantParts(ISnesAddressSpace rom)
     {
-        string Identity(SpriteComposition value) => SelectedPresentationHash.Create("EggRemnant", value.AppendIdentity);
         foreach (var definition in IntroDiscoveryActorSpriteDefinitions.Frames.Skip(9).Take(7))
         {
             SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(rom, CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name);
             SpriteComposition source = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
-            SpriteComposition result = IntroEggRemnantParts.CalculateIfMatching(definition.Pose, source);
-            AssertTrue(!ReferenceEquals(source, result), "original EggRemnant selects calculated parts");
-            AssertEqual(Identity(source), Identity(result), "all original EggRemnant compiled fields");
-            foreach (int invalid in new[] { -1, result.PartCount, int.MaxValue })
-                AssertThrows<ArgumentOutOfRangeException>(() => result.Part(invalid), "calculated EggRemnant part bounds");
             foreach (ushort y in new ushort[] { 72, 0xfff8 })
             {
                 var native = new OamBuffer(); native.BeginFrame();
                 DrawImportedSpritemap(rom, native, 0x8c0000 + CinematicSpritemapSources.Of(definition.Pose), new(120, y), 0x0e00, originIsOnScreen: y == 72);
                 native.FinalizeFrame();
                 var actual = new OamBuffer(); actual.BeginFrame();
-                if (y == 72) result.DrawOnScreen(actual, new(120, y), 0x0e00);
-                else result.DrawOffScreen(actual, new(120, y), 0x0e00);
+                if (y == 72) source.DrawOnScreen(actual, new(120, y), 0x0e00);
+                else source.DrawOffScreen(actual, new(120, y), 0x0e00);
                 actual.FinalizeFrame();
                 AssertTrue(native.ImageEquals(actual)
                     && native.LastFinalizedSpriteCount == actual.LastFinalizedSpriteCount, "native EggRemnant OAM at visible and wrapped origins");

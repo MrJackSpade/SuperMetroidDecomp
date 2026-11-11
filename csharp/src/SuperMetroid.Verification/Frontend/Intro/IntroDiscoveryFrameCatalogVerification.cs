@@ -39,10 +39,6 @@ internal static class IntroDiscoveryFrameCatalogVerification
         AssertEqual(0x90fe, pointer, "large baby record chain end");
         foreach (int invalid in new[] { int.MinValue, -1, 20, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => { _ = frames[invalid]; }, "discovery catalog bounds");
-        foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => IntroDiscoveryActorSpritePoses.EggFramePose(invalid), "egg pointer bounds");
-        foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => IntroDiscoveryActorSpritePoses.BabyFramePose(invalid), "baby pointer bounds");
         AssertTrue(frames.SequenceEqual(frames.ToArray()), "discovery enumeration agrees with indexing");
     }
 

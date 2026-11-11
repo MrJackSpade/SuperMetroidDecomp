@@ -105,7 +105,7 @@ internal sealed class EndingFlyaway
         PlanetVelocity -= EndingMotionDefinitions.PlanetAcceleration;
         _stage.FloorPosition = _stage.FloorPosition.WithX(_stage.FloorPosition.X.MovedBy(PlanetVelocity));
         if (_stage.FloorZoom < EndingMotionDefinitions.PlanetTurnStartScale &&
-            (CinematicFrame & 3) == 0 &&
+            EndingCadenceDefinitions.PlanetTurnEveryFourthUpdate.IsDue(CinematicFrame) &&
             _stage.FloorAngle != EndingMotionDefinitions.PlanetExitTargetAngle)
         {
             _stage.FloorAngle = _stage.FloorAngle.TurnedBySteps(2);

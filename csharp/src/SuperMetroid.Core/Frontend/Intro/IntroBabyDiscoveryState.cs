@@ -417,7 +417,7 @@ internal sealed class IntroBabyDiscoveryState
         {
             BabyDanceFrames++;
             // The dancing baby cries when its count of frames danced reaches 64 and 128.
-            if (BabyDanceFrames % 64 == 0)
+            if (IntroCadenceDefinitions.BabyCriesEverySixtyFourthDanceUpdate.IsDue(BabyDanceFrames))
                 audio?.QueueSound(
                     IntroCinematicDefinitions.Objects.BabyCry1,
                     priority: IntroCinematicDefinitions.Objects.MaximumQueuedSounds);

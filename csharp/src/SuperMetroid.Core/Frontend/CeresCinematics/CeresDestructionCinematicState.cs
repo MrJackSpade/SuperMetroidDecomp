@@ -508,7 +508,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// </summary>
     private bool StepZebesMosaic()
     {
-        if ((cinematicFrameCounter & 3) != 0)
+        if (!CeresCinematicCadenceDefinitions.ZebesMosaicStepEveryFourthUpdate.IsDue(cinematicFrameCounter))
             return false;
         phaseTimer = (phaseTimer + CeresDestructionSceneDefinitions.Timing.MosaicSizeCount - 1) %
             CeresDestructionSceneDefinitions.Timing.MosaicSizeCount;

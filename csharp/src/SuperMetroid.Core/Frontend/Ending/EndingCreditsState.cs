@@ -315,7 +315,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
             case EndingCreditsPhase.PostCreditsReward:
                 // Both fade halves test their counter before the decrement. Both 64-frame halves advance
                 // their shared palette accumulator on the fourth, eighth, ... calls.
-                if ((Stage.PhaseTimer & 3) == 1)
+                if (EndingCadenceDefinitions.RewardColourStepEveryFourthUpdate.IsDue(Stage.PhaseTimer))
                 {
                     CreditsRoll.AdvanceRewardPalette();
                     CreditsRoll.ApplyRewardPalette();
@@ -431,7 +431,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
     private void StepAtmosphericTransform(int scaleDelta)
     {
         // The floor turns during both fades as well as the fully visible interval.
-        if ((Flyaway.CinematicFrame & 1) == 0)
+        if (EndingCadenceDefinitions.AtmosphereFloorTurnEverySecondUpdate.IsDue(Flyaway.CinematicFrame))
             Stage.FloorAngle = Stage.FloorAngle.TurnedBySteps(-1);
         Stage.FloorZoom += scaleDelta;
     }

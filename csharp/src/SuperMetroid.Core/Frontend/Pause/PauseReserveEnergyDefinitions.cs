@@ -19,8 +19,6 @@ internal static class PauseReserveEnergyDefinitions
     internal const int EnergyPerFillStep = 14;
     /// <summary>A partly filled tank showing fewer whole steps than this flickers its next step while that step is partly filled.</summary>
     internal const int FlickerFillStepLimit = 4;
-    /// <summary>Updates the flickering step stays shown, then stays hidden, in turn.</summary>
-    internal const int FlickerPhaseFrames = 4;
     /// <summary>Refill updates between refill sounds; the countdown starts at the reserve energy rounded up to a whole interval.</summary>
     internal const int RefillSoundInterval = 8;
     /// <summary>The sound each refill interval plays.</summary>

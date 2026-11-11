@@ -63,7 +63,7 @@ internal sealed class IntroScientistCutsceneState
         {
             baby.Start(CinematicSpriteProgram.Delete);
         }
-        else if ((cinematicFunctionTimer & 3) == 0)
+        else if (IntroCadenceDefinitions.LaboratoryStepEveryFourthUpdate.IsDue(cinematicFunctionTimer))
         {
             if (Scene == IntroLaboratoryScene.Delivery && Background.X != 0)
             {

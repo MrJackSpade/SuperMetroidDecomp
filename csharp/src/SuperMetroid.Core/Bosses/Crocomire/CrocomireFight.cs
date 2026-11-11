@@ -152,17 +152,20 @@ internal sealed class CrocomireFight
             return;
         }
 
-        var cursor = new AnimationProgramCursor<CrocomireTongueProgram>(state.TongueProgram, state.TonguePosition);
-        AnimationProgramAdvance<CrocomireTongueFrame> advance = CrocomireAnimations.TonguePrograms.Advance(ref cursor,
-            cue => throw new InvalidOperationException($"A Crocomire tongue program published cue {cue}."));
-        state.TonguePosition = cursor.Position;
+        AnimationPlace place = state.TonguePlayback.Place;
+        // The tongue's animations count no repeats, so nothing reads or writes this counter.
+        WrappingCountdown repeats = WrappingCountdown.Start(0);
+        AnimationShown<CrocomireTongueProgram, CrocomireTongueFrame> outcome = CrocomireAnimations.TongueSegments.PlayToNextFrame(
+            state.TonguePlayback.Animation, ref place, ref repeats,
+            cue => throw new InvalidOperationException($"A Crocomire tongue animation raised event {cue}."));
+        state.TonguePlayback = state.TonguePlayback with { Place = place };
         // A hold is the script's sleep: the timer wraps from zero and the last frame stays.
-        if (advance is AnimationProgramAdvance<CrocomireTongueFrame>.Hold)
+        if (outcome is AnimationShown<CrocomireTongueProgram, CrocomireTongueFrame>.Held)
             return;
-        if (advance is not AnimationProgramAdvance<CrocomireTongueFrame>.Show shown)
-            throw new InvalidOperationException($"Crocomire's tongue program ended an update with {advance}.");
+        if (outcome is not AnimationShown<CrocomireTongueProgram, CrocomireTongueFrame>.Frame shown)
+            throw new InvalidOperationException($"Crocomire's tongue animation ended an update with {outcome}.");
         tongue.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
-        tongue.Frame = CrocomireTongueFrameDefinitions.ShownFrames.Of(shown.Frame);
+        tongue.Frame = CrocomireTongueFrameDefinitions.ShownFrames.Of(shown.Shown);
         tongue.NewInstructionFrame = true;
     }
 
@@ -182,38 +185,44 @@ internal sealed class CrocomireFight
             return;
         }
 
-        AnimationProgramCursor<CrocomireBodyProgram> cursor = state.BodyCursor;
+        Animation<CrocomireBodyProgram> animation = state.BodyPlayback.Animation;
+        AnimationPlace place = state.BodyPlayback.Place;
         WrappingCountdown counter = body.Timer;
-        AnimationProgramAdvance<CrocomireBodyFrame> advance = CrocomireBodyAnimations.Programs.Advance(ref cursor, ref counter,
-            (cue, continuation) => ApplyCrocomireBodyCue(state, samus, level, cameraX, cue,
-                CrocomireBodyAnimations.Programs.ResidentProgram(continuation)));
-        state.BodyCursor = cursor;
+        // Each cue's reaction reads where the play stands just past the cue, which the play has written to these
+        // locals by then: the fight AI compares the segment the body then rests in.
+        AnimationShown<CrocomireBodyProgram, CrocomireBodyFrame> outcome = CrocomireBodyAnimations.Segments.PlayToNextFrame(
+            ref animation, ref place, ref counter,
+            cue => ApplyCrocomireBodyCue(state, samus, level, cameraX, cue,
+                    CrocomireEnemyState.ResidentSegment(new AnimationPlayback<CrocomireBodyProgram>(animation, place))) is { } started
+                ? new AnimationContinuation<CrocomireBodyProgram>(CrocomireBodyAnimations.StartingWith(started), AnimationPlace.StartOfAnimation)
+                : null);
+        state.BodyPlayback = new AnimationPlayback<CrocomireBodyProgram>(animation, place);
         body.Timer = counter;
-        // A hold is the script's sleep: the timer wraps from zero and the last frame stays. The body programs
-        // have no waits or stops.
-        if (advance is not AnimationProgramAdvance<CrocomireBodyFrame>.Show shown)
+        // A hold is the script's sleep: the timer wraps from zero and the last frame stays. The body animations
+        // have no pauses or ends.
+        if (outcome is not AnimationShown<CrocomireBodyProgram, CrocomireBodyFrame>.Frame shown)
         {
-            if (advance is not AnimationProgramAdvance<CrocomireBodyFrame>.Hold)
-                throw new InvalidOperationException($"Crocomire's body program ended an update with {advance}.");
+            if (outcome is not AnimationShown<CrocomireBodyProgram, CrocomireBodyFrame>.Held)
+                throw new InvalidOperationException($"Crocomire's body animation ended an update with {outcome}.");
             return;
         }
         body.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
-        state.BodyFrame = shown.Frame;
-        body.Frame = CrocomireBodyFrameSpritemaps.ShownFrames.Of(shown.Frame);
+        state.BodyFrame = shown.Shown;
+        body.Frame = CrocomireBodyFrameSpritemaps.ShownFrames.Of(shown.Shown);
         body.NewInstructionFrame = true;
     }
 
     /// <summary>
     /// Carries out one body-program cue. Movement, wall, sound, shake and dust cues keep their authored order;
-    /// the fight AI and the spike-wall move may start another program, which the program set runs at once.
+    /// the fight AI and the spike-wall move may start another animation, which plays on at once.
     /// </summary>
     /// <param name="state">The Crocomire encounter whose body runs the program.</param>
     /// <param name="samus">Samus, whom the fight AI measures against; null in fixtures without her.</param>
     /// <param name="level">The room's collision level, which the movement cues require.</param>
     /// <param name="cameraX">The camera's X, which the on-screen movement tests use.</param>
     /// <param name="cue">The cue to carry out.</param>
-    /// <param name="continuation">The program the cursor rests in after the cue, which the fight AI compares.</param>
-    /// <returns>The program to start, or null to continue after the cue.</returns>
+    /// <param name="continuation">The segment the body's animation rests in just past the cue, which the fight AI compares.</param>
+    /// <returns>The segment whose animation starts, or null to continue after the cue.</returns>
     private CrocomireBodyProgram? ApplyCrocomireBodyCue(
         CrocomireEnemyState state,
         SamusState? samus,

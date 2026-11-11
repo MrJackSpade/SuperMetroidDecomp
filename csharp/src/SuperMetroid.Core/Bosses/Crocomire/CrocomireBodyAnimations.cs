@@ -4,18 +4,17 @@ using P = SuperMetroid.Core.Bosses.Crocomire.CrocomireBodyProgram;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>Crocomire's typed body programs (#641).</summary>
+/// <summary>Crocomire's typed body animations (#641, #1600): each body, melting and skeleton segment's beats, and the animation starting at each.</summary>
 internal static class CrocomireBodyAnimations
 {
-    /// <summary>Every body, melting and skeleton program.</summary>
-    internal static AnimationProgramSet<CrocomireBodyProgram, CrocomireBodyFrame, CrocomireBodyCue> Programs { get; } = new(
-        new Dictionary<CrocomireBodyProgram, AnimationProgramStep<CrocomireBodyProgram, CrocomireBodyFrame, CrocomireBodyCue>[]>
+    /// <summary>Every body, melting and skeleton segment's beats.</summary>
+    internal static AnimationSegments<CrocomireBodyProgram, CrocomireBodyFrame, CrocomireBodyCue> Segments { get; } = new(
+        new Dictionary<CrocomireBodyProgram, AnimationBeat<CrocomireBodyFrame, CrocomireBodyCue>[]>
     {
         [P.Initial] =
         [
             Show(Body(12), 1),
             Cue(K.FightAi),
-            GoTo(P.Initial),
         ],
         [P.UnusedChargeForwardOneStep] =
         [
@@ -45,7 +44,6 @@ internal static class CrocomireBodyAnimations
             Cue(K.MoveLeft),
             Show(Body(11), 8),
             Cue(K.FightAi),
-            FallInto(P.ProjectileAttack),
         ],
         [P.ProjectileAttack] =
         [
@@ -78,7 +76,6 @@ internal static class CrocomireBodyAnimations
             Cue(K.Cry),
             Show(Body(25), 5),
             Show(Body(26), 5),
-            FallInto(P.ProjectileAttackLoop),
         ],
         [P.ProjectileAttackLoop] =
         [
@@ -88,12 +85,10 @@ internal static class CrocomireBodyAnimations
             Show(Body(39), 7),
             Show(Body(40), 7),
             Show(Body(41), 7),
-            GoTo(P.ProjectileAttackLoop),
         ],
         [P.StepForwardAfterDelay] =
         [
             Show(Body(27), 180),
-            FallInto(P.StepForward),
         ],
         [P.StepForward] =
         [
@@ -132,12 +127,10 @@ internal static class CrocomireBodyAnimations
             Cue(K.FightAi),
             Show(Body(36), 4),
             Cue(K.FightAi),
-            GoTo(P.StepForward),
         ],
         [P.StepBack] =
         [
             Show(Body(25), 2),
-            FallInto(P.SteppingBack),
         ],
         [P.SteppingBack] =
         [
@@ -153,7 +146,6 @@ internal static class CrocomireBodyAnimations
             Cue(K.ShakeScreen),
             Cue(K.MoveRightIfOnScreen),
             Cue(K.FightAi),
-            FallInto(P.WaitForFirstSecondDamage),
         ],
         [P.WaitForFirstSecondDamage] =
         [
@@ -190,7 +182,6 @@ internal static class CrocomireBodyAnimations
             Show(Body(13), 1),
             Show(Body(12), 1),
             Cue(K.FightAi),
-            FallInto(P.MovingClaws),
         ],
         [P.MovingClaws] =
         [
@@ -220,7 +211,6 @@ internal static class CrocomireBodyAnimations
             Cue(K.BigExplosionSound),
             Dust(-16),
             Cue(K.FightAi),
-            FallInto(P.Roar),
         ],
         [P.Roar] =
         [
@@ -257,7 +247,6 @@ internal static class CrocomireBodyAnimations
             Cue(K.FightAi),
             Show(Body(26), 1),
             Cue(K.FightAi),
-            FallInto(P.RoarCloseMouth),
         ],
         [P.RoarCloseMouth] =
         [
@@ -267,7 +256,6 @@ internal static class CrocomireBodyAnimations
             Cue(K.FightAi),
             Show(Body(25), 8),
             Show(Body(24), 2),
-            FallInto(P.RoarCloseMouthLoop),
         ],
         [P.RoarCloseMouthLoop] =
         [
@@ -275,17 +263,14 @@ internal static class CrocomireBodyAnimations
             Cue(K.FightAi),
             Show(Body(24), 1),
             Cue(K.FightAi),
-            FallInto(P.PowerBombReactionMouthFullyOpen),
         ],
         [P.PowerBombReactionMouthFullyOpen] =
         [
             Show(Body(25), 2),
-            FallInto(P.PowerBombReactionMouthPartiallyOpen),
         ],
         [P.PowerBombReactionMouthPartiallyOpen] =
         [
             Show(Body(24), 2),
-            FallInto(P.PowerBombReactionMouthNotOpen),
         ],
         [P.PowerBombReactionMouthNotOpen] =
         [
@@ -314,7 +299,6 @@ internal static class CrocomireBodyAnimations
             Show(Body(23), 5),
             Cue(K.BigExplosionSound),
             Dust(-16),
-            FallInto(P.PowerBombReactionMouthNotOpenLoop),
         ],
         [P.PowerBombReactionMouthNotOpenLoop] =
         [
@@ -344,7 +328,6 @@ internal static class CrocomireBodyAnimations
             Cue(K.MoveLeft),
             Show(Body(11), 4),
             Cue(K.FightAi),
-            GoTo(P.PowerBombReactionMouthNotOpenLoop),
         ],
         [P.NearSpikeWallCharge] =
         [
@@ -385,7 +368,6 @@ internal static class CrocomireBodyAnimations
             Cue(K.FightAi),
             Show(Body(24), 2),
             Cue(K.FightAi),
-            FallInto(P.NearSpikeWallChargeLoop),
         ],
         [P.NearSpikeWallChargeLoop] =
         [
@@ -415,7 +397,6 @@ internal static class CrocomireBodyAnimations
             Cue(K.MoveLeftTowardSpikeWall),
             Show(Body(11), 3),
             Cue(K.FightAi),
-            GoTo(P.NearSpikeWallChargeLoop),
         ],
         [P.BackOffFromSpikeWall] =
         [
@@ -431,47 +412,38 @@ internal static class CrocomireBodyAnimations
             Cue(K.ShakeScreen),
             Cue(K.MoveRight),
             Cue(K.FightAi),
-            GoTo(P.BackOffFromSpikeWall),
         ],
         [P.MeltingOneTopRow] =
         [
             Show(Body(42), 32767),
-            GoTo(P.MeltingOneTopRow),
         ],
         [P.MeltingOneTopTwoRows] =
         [
             Show(Body(43), 32767),
-            Hold,
         ],
         [P.MeltingOneTopThreeRows] =
         [
             Show(Body(44), 32767),
-            Hold,
         ],
         [P.MeltingOneTopFourRows] =
         [
             Show(Body(45), 32767),
-            Hold,
         ],
         [P.MeltingTwoTopRow] =
         [
             Show(Body(46), 32767),
-            GoTo(P.MeltingTwoTopRow),
         ],
         [P.MeltingTwoTopTwoRows] =
         [
             Show(Body(47), 32767),
-            Hold,
         ],
         [P.MeltingTwoTopThreeRows] =
         [
             Show(Body(48), 32767),
-            Hold,
         ],
         [P.MeltingTwoTopFourRows] =
         [
             Show(Body(49), 32767),
-            Hold,
         ],
         [P.BridgeCollapsed] =
         [
@@ -480,14 +452,12 @@ internal static class CrocomireBodyAnimations
             Cue(K.Cry),
             Show(Body(25), 5),
             Show(Body(26), 5),
-            Hold,
         ],
         [P.SkeletonFalling] =
         [
             Show(Skeleton(0), 10),
             Show(Skeleton(1), 10),
             Show(Skeleton(2), 10),
-            Hold,
         ],
         [P.SkeletonFallsApart] =
         [
@@ -526,17 +496,14 @@ internal static class CrocomireBodyAnimations
             Dust(64),
             Cue(K.BigExplosionSound),
             Show(Skeleton(20), 5),
-            FallInto(P.SkeletonStable),
         ],
         [P.SkeletonStable] =
         [
             Show(Skeleton(21), 32767),
-            Hold,
         ],
         [P.Dead] =
         [
             Show(Skeleton(22), 32767),
-            Hold,
         ],
         [P.SkeletonFlowingDownRiver] =
         [
@@ -550,9 +517,73 @@ internal static class CrocomireBodyAnimations
             Show(Skeleton(30), 4),
             Show(Skeleton(31), 4),
             Show(Skeleton(32), 20),
-            GoTo(P.SkeletonFlowingDownRiver),
         ],
     });
+
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<CrocomireBodyProgram, Animation<CrocomireBodyProgram>> StartingAt { get; } = new Dictionary<CrocomireBodyProgram, Animation<CrocomireBodyProgram>>
+    {
+        [P.Initial] = new([new(P.Initial, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.UnusedChargeForwardOneStep] = new([new(P.UnusedChargeForwardOneStep, 0, 26, 1), new(P.ProjectileAttack, 0, 29, 1), new(P.ProjectileAttackLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(2)),
+        [P.ProjectileAttack] = new([new(P.ProjectileAttack, 0, 29, 1), new(P.ProjectileAttackLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.ProjectileAttackLoop] = new([new(P.ProjectileAttackLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.StepForwardAfterDelay] = new([new(P.StepForwardAfterDelay, 0, 1, 1), new(P.StepForward, 0, 35, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.StepForward] = new([new(P.StepForward, 0, 35, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.StepBack] = new([new(P.StepBack, 0, 1, 1), new(P.SteppingBack, 0, 12, 1), new(P.WaitForFirstSecondDamage, 0, 33, 1), new(P.MovingClaws, 0, 26, 1), new(P.Roar, 0, 33, 1), new(P.RoarCloseMouth, 0, 6, 1), new(P.RoarCloseMouthLoop, 0, 4, 1), new(P.PowerBombReactionMouthFullyOpen, 0, 1, 1), new(P.PowerBombReactionMouthPartiallyOpen, 0, 1, 1), new(P.PowerBombReactionMouthNotOpen, 0, 25, 1), new(P.PowerBombReactionMouthNotOpenLoop, 0, 26, 1)], AnimationEnd.LoopsFrom(10)),
+        [P.SteppingBack] = new([new(P.SteppingBack, 0, 12, 1), new(P.WaitForFirstSecondDamage, 0, 33, 1), new(P.MovingClaws, 0, 26, 1), new(P.Roar, 0, 33, 1), new(P.RoarCloseMouth, 0, 6, 1), new(P.RoarCloseMouthLoop, 0, 4, 1), new(P.PowerBombReactionMouthFullyOpen, 0, 1, 1), new(P.PowerBombReactionMouthPartiallyOpen, 0, 1, 1), new(P.PowerBombReactionMouthNotOpen, 0, 25, 1), new(P.PowerBombReactionMouthNotOpenLoop, 0, 26, 1)], AnimationEnd.LoopsFrom(9)),
+        [P.WaitForFirstSecondDamage] = new([new(P.WaitForFirstSecondDamage, 0, 33, 1), new(P.MovingClaws, 0, 26, 1), new(P.Roar, 0, 33, 1), new(P.RoarCloseMouth, 0, 6, 1), new(P.RoarCloseMouthLoop, 0, 4, 1), new(P.PowerBombReactionMouthFullyOpen, 0, 1, 1), new(P.PowerBombReactionMouthPartiallyOpen, 0, 1, 1), new(P.PowerBombReactionMouthNotOpen, 0, 25, 1), new(P.PowerBombReactionMouthNotOpenLoop, 0, 26, 1)], AnimationEnd.LoopsFrom(8)),
+        [P.MovingClaws] = new([new(P.MovingClaws, 0, 26, 1), new(P.Roar, 0, 33, 1), new(P.RoarCloseMouth, 0, 6, 1), new(P.RoarCloseMouthLoop, 0, 4, 1), new(P.PowerBombReactionMouthFullyOpen, 0, 1, 1), new(P.PowerBombReactionMouthPartiallyOpen, 0, 1, 1), new(P.PowerBombReactionMouthNotOpen, 0, 25, 1), new(P.PowerBombReactionMouthNotOpenLoop, 0, 26, 1)], AnimationEnd.LoopsFrom(7)),
+        [P.Roar] = new([new(P.Roar, 0, 33, 1), new(P.RoarCloseMouth, 0, 6, 1), new(P.RoarCloseMouthLoop, 0, 4, 1), new(P.PowerBombReactionMouthFullyOpen, 0, 1, 1), new(P.PowerBombReactionMouthPartiallyOpen, 0, 1, 1), new(P.PowerBombReactionMouthNotOpen, 0, 25, 1), new(P.PowerBombReactionMouthNotOpenLoop, 0, 26, 1)], AnimationEnd.LoopsFrom(6)),
+        [P.RoarCloseMouth] = new([new(P.RoarCloseMouth, 0, 6, 1), new(P.RoarCloseMouthLoop, 0, 4, 1), new(P.PowerBombReactionMouthFullyOpen, 0, 1, 1), new(P.PowerBombReactionMouthPartiallyOpen, 0, 1, 1), new(P.PowerBombReactionMouthNotOpen, 0, 25, 1), new(P.PowerBombReactionMouthNotOpenLoop, 0, 26, 1)], AnimationEnd.LoopsFrom(5)),
+        [P.RoarCloseMouthLoop] = new([new(P.RoarCloseMouthLoop, 0, 4, 1), new(P.PowerBombReactionMouthFullyOpen, 0, 1, 1), new(P.PowerBombReactionMouthPartiallyOpen, 0, 1, 1), new(P.PowerBombReactionMouthNotOpen, 0, 25, 1), new(P.PowerBombReactionMouthNotOpenLoop, 0, 26, 1)], AnimationEnd.LoopsFrom(4)),
+        [P.PowerBombReactionMouthFullyOpen] = new([new(P.PowerBombReactionMouthFullyOpen, 0, 1, 1), new(P.PowerBombReactionMouthPartiallyOpen, 0, 1, 1), new(P.PowerBombReactionMouthNotOpen, 0, 25, 1), new(P.PowerBombReactionMouthNotOpenLoop, 0, 26, 1)], AnimationEnd.LoopsFrom(3)),
+        [P.PowerBombReactionMouthPartiallyOpen] = new([new(P.PowerBombReactionMouthPartiallyOpen, 0, 1, 1), new(P.PowerBombReactionMouthNotOpen, 0, 25, 1), new(P.PowerBombReactionMouthNotOpenLoop, 0, 26, 1)], AnimationEnd.LoopsFrom(2)),
+        [P.PowerBombReactionMouthNotOpen] = new([new(P.PowerBombReactionMouthNotOpen, 0, 25, 1), new(P.PowerBombReactionMouthNotOpenLoop, 0, 26, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.PowerBombReactionMouthNotOpenLoop] = new([new(P.PowerBombReactionMouthNotOpenLoop, 0, 26, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.NearSpikeWallCharge] = new([new(P.NearSpikeWallCharge, 0, 37, 1), new(P.NearSpikeWallChargeLoop, 0, 26, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.NearSpikeWallChargeLoop] = new([new(P.NearSpikeWallChargeLoop, 0, 26, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.BackOffFromSpikeWall] = new([new(P.BackOffFromSpikeWall, 0, 12, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.MeltingOneTopRow] = new([new(P.MeltingOneTopRow, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.MeltingOneTopTwoRows] = new([new(P.MeltingOneTopTwoRows, 0, 1, 1)], AnimationEnd.Holds),
+        [P.MeltingOneTopThreeRows] = new([new(P.MeltingOneTopThreeRows, 0, 1, 1)], AnimationEnd.Holds),
+        [P.MeltingOneTopFourRows] = new([new(P.MeltingOneTopFourRows, 0, 1, 1)], AnimationEnd.Holds),
+        [P.MeltingTwoTopRow] = new([new(P.MeltingTwoTopRow, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.MeltingTwoTopTwoRows] = new([new(P.MeltingTwoTopTwoRows, 0, 1, 1)], AnimationEnd.Holds),
+        [P.MeltingTwoTopThreeRows] = new([new(P.MeltingTwoTopThreeRows, 0, 1, 1)], AnimationEnd.Holds),
+        [P.MeltingTwoTopFourRows] = new([new(P.MeltingTwoTopFourRows, 0, 1, 1)], AnimationEnd.Holds),
+        [P.BridgeCollapsed] = new([new(P.BridgeCollapsed, 0, 5, 1)], AnimationEnd.Holds),
+        [P.SkeletonFalling] = new([new(P.SkeletonFalling, 0, 3, 1)], AnimationEnd.Holds),
+        [P.SkeletonFallsApart] = new([new(P.SkeletonFallsApart, 0, 35, 1), new(P.SkeletonStable, 0, 1, 1)], AnimationEnd.Holds),
+        [P.SkeletonStable] = new([new(P.SkeletonStable, 0, 1, 1)], AnimationEnd.Holds),
+        [P.Dead] = new([new(P.Dead, 0, 1, 1)], AnimationEnd.Holds),
+        [P.SkeletonFlowingDownRiver] = new([new(P.SkeletonFlowingDownRiver, 0, 10, 1)], AnimationEnd.LoopsFrom(0)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<CrocomireBodyProgram> StartingWith(CrocomireBodyProgram segment) => StartingAt[segment];
+
+    /// <summary>
+    /// The segment each list that runs on into the list authored next, directly after its last beat, continues into: a body
+    /// resting after that beat already stands in the next, which the fight AI and the skeleton's rest test read.
+    /// </summary>
+    internal static IReadOnlyDictionary<CrocomireBodyProgram, CrocomireBodyProgram> RunsOnInto { get; } = new Dictionary<CrocomireBodyProgram, CrocomireBodyProgram>
+    {
+        [P.UnusedChargeForwardOneStep] = P.ProjectileAttack,
+        [P.ProjectileAttack] = P.ProjectileAttackLoop,
+        [P.StepForwardAfterDelay] = P.StepForward,
+        [P.StepBack] = P.SteppingBack,
+        [P.SteppingBack] = P.WaitForFirstSecondDamage,
+        [P.WaitForFirstSecondDamage] = P.MovingClaws,
+        [P.MovingClaws] = P.Roar,
+        [P.Roar] = P.RoarCloseMouth,
+        [P.RoarCloseMouth] = P.RoarCloseMouthLoop,
+        [P.RoarCloseMouthLoop] = P.PowerBombReactionMouthFullyOpen,
+        [P.PowerBombReactionMouthFullyOpen] = P.PowerBombReactionMouthPartiallyOpen,
+        [P.PowerBombReactionMouthPartiallyOpen] = P.PowerBombReactionMouthNotOpen,
+        [P.PowerBombReactionMouthNotOpen] = P.PowerBombReactionMouthNotOpenLoop,
+        [P.NearSpikeWallCharge] = P.NearSpikeWallChargeLoop,
+        [P.SkeletonFallsApart] = P.SkeletonStable,
+    };
 
     /// <summary>A fight-body or melting frame.</summary>
     private static CrocomireBodyFrame Body(int index) => new(CrocomireBodyFrameSet.Body, index);
@@ -561,26 +592,14 @@ internal static class CrocomireBodyAnimations
     private static CrocomireBodyFrame Skeleton(int index) => new(CrocomireBodyFrameSet.Skeleton, index);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<CrocomireBodyProgram, CrocomireBodyFrame, CrocomireBodyCue> Show(CrocomireBodyFrame frame, int duration) =>
-        AnimationProgramStep<CrocomireBodyProgram, CrocomireBodyFrame, CrocomireBodyCue>.Show(frame, duration);
+    private static AnimationBeat<CrocomireBodyFrame, CrocomireBodyCue> Show(CrocomireBodyFrame frame, int duration) =>
+        new AnimationBeat<CrocomireBodyFrame, CrocomireBodyCue>.Frame(frame, duration);
 
     /// <summary>Publishes a cue of <paramref name="kind"/>.</summary>
-    private static AnimationProgramStep<CrocomireBodyProgram, CrocomireBodyFrame, CrocomireBodyCue> Cue(CrocomireBodyCueKind kind) =>
-        AnimationProgramStep<CrocomireBodyProgram, CrocomireBodyFrame, CrocomireBodyCue>.Publish(new(kind, 0));
+    private static AnimationBeat<CrocomireBodyFrame, CrocomireBodyCue> Cue(CrocomireBodyCueKind kind) =>
+        new AnimationBeat<CrocomireBodyFrame, CrocomireBodyCue>.Event(new(kind, 0));
 
     /// <summary>Publishes a big dust cloud <paramref name="offset"/> pixels from the body.</summary>
-    private static AnimationProgramStep<CrocomireBodyProgram, CrocomireBodyFrame, CrocomireBodyCue> Dust(int offset) =>
-        AnimationProgramStep<CrocomireBodyProgram, CrocomireBodyFrame, CrocomireBodyCue>.Publish(new(CrocomireBodyCueKind.Dust, offset));
-
-    /// <summary>Continues at the start of <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<CrocomireBodyProgram, CrocomireBodyFrame, CrocomireBodyCue> GoTo(CrocomireBodyProgram program) =>
-        AnimationProgramStep<CrocomireBodyProgram, CrocomireBodyFrame, CrocomireBodyCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<CrocomireBodyProgram, CrocomireBodyFrame, CrocomireBodyCue> FallInto(CrocomireBodyProgram program) =>
-        AnimationProgramStep<CrocomireBodyProgram, CrocomireBodyFrame, CrocomireBodyCue>.FallInto(program);
-
-    /// <summary>Holds the last frame: the script's sleep.</summary>
-    private static AnimationProgramStep<CrocomireBodyProgram, CrocomireBodyFrame, CrocomireBodyCue> Hold =>
-        AnimationProgramStep<CrocomireBodyProgram, CrocomireBodyFrame, CrocomireBodyCue>.Hold;
+    private static AnimationBeat<CrocomireBodyFrame, CrocomireBodyCue> Dust(int offset) =>
+        new AnimationBeat<CrocomireBodyFrame, CrocomireBodyCue>.Event(new(CrocomireBodyCueKind.Dust, offset));
 }

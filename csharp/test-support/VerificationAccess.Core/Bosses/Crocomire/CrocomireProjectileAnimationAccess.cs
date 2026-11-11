@@ -6,7 +6,7 @@ internal static class CrocomireProjectileAnimationAccess
     /// <summary>Exposes <see cref="CrocomireProjectileAnimation"/> state that only verification reads.</summary>
     extension(CrocomireProjectileAnimation self)
     {
-        /// <summary>The program played.</summary>
-        internal CrocomireProjectileFrameKind Kind => self.Cursor.Program;
+        /// <summary>The segment the animation stands in.</summary>
+        internal CrocomireProjectileFrameKind Kind => self.PlayingSegment;
     }
 }

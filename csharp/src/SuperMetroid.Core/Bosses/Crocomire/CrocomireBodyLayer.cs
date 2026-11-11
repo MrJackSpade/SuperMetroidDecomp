@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
@@ -33,8 +34,7 @@ internal sealed class CrocomireBodyLayer
     {
         RoomEnemySlot tongue = state.Tongue ??
             throw new InvalidOperationException("Crocomire's tongue program started without a tongue.");
-        state.TongueProgram = program;
-        state.TonguePosition = 0;
+        state.TonguePlayback = new AnimationPlayback<CrocomireTongueProgram>(CrocomireAnimations.TongueStartingWith(program), AnimationPlace.StartOfAnimation);
         tongue.FrameHold = timer;
         tongue.Timer = WrappingCountdown.Start(0);
     }

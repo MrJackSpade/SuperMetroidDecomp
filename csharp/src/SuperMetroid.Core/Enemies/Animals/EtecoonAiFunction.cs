@@ -39,7 +39,7 @@ public enum EtecoonAiFunction
     LongJumpLanding,
     /// <summary>Performs the top-room vertical hop; downward collision may select route two's Samus-proximity wait, while upward collision clears vertical velocity.</summary>
     TeachingJump,
-    /// <summary>Counts four teaching hops in parameter one's high byte; route two repeats hop groups, while the other routes begin the failed tunnel-jump run.</summary>
+    /// <summary>Counts four teaching hops; route two repeats hop groups, while the other routes begin the failed tunnel-jump run.</summary>
     IdleBetweenTeachingJumps,
     /// <summary>After the hop wait, starts the successful tunnel run when Samus is within 64 vertical and 48 horizontal room pixels, otherwise hops again.</summary>
     WaitForSamusBeforeLongRun,

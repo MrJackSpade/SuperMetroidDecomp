@@ -33,9 +33,9 @@ public sealed class HopperEnemyState
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<HopperProgram> Playback { get; set; }
-    /// <summary>Initial quadratic record index, within the table's 95 records, calculated with step 3 and accumulated-height threshold 4096 using the game's odd-byte speed-word reads.</summary>
+    /// <summary>Initial quadratic record index, within the table's 95 records, calculated with step 3 and accumulated-height threshold 4096 by summing each row's coarse speed in 256ths of a pixel.</summary>
     public int SmallHopInitialYSpeedTableIndex { get; internal set; }
-    /// <summary>Initial quadratic record index, within the table's 95 records, calculated with step 4 and accumulated-height threshold 12288 using the game's odd-byte speed-word reads.</summary>
+    /// <summary>Initial quadratic record index, within the table's 95 records, calculated with step 4 and accumulated-height threshold 12288 by summing each row's coarse speed in 256ths of a pixel.</summary>
     public int BigHopInitialYSpeedTableIndex { get; internal set; }
     /// <summary>True selects motion back toward the attachment surface, downward for floor Hoppers or upward for ceiling Hoppers; collision or the apex ends the outward phase.</summary>
     public bool Falling { get; internal set; }

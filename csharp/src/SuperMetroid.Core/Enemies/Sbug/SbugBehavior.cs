@@ -278,8 +278,8 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         SbugEnemyState state,
         SbugEnemyFunction movement)
     {
-        // Reading a byte, subtracting a quarter turn and wrapping again creates an unsigned byte delta; the later
-        // trigonometry reads only the heading's low byte, which the turn wraps within.
+        // Reading 0 through 255, subtracting a quarter turn and wrapping again creates an unsigned turn of less than a
+        // full turn; the later trigonometry reads only the heading within one turn, which the turn wraps within.
         int randomTurn = _room.Random.Next(SbugMovementDefinitions.RandomTurn);
         int angleDelta = TrigonometryAngle.Wrapped(randomTurn - EnemyTrigonometryAngleDefinitions.QuarterTurn).RawValue;
         state.TurnCustomHeading(angleDelta);
@@ -305,8 +305,8 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Preserves the independent word negation and the folded facing on reversal.</summary>
     private static void ReverseSbugCustomDirection(RoomEnemySlot slot, SbugEnemyState state)
     {
-        // The original negates pixel and subpixel words separately. For a nonzero low word
-        // that is off by exactly 1.0 compared with a proper 32-bit two's complement; this
+        // The original negates whole pixels and subpixels separately. For a nonzero subpixel
+        // that is off by exactly 1.0 compared with a proper negation; this
         // visible drift is part of retail behavior and must not be “fixed.”
         state.CustomXVelocity = NegateSbugPartsIndependently(state.CustomXVelocity);
         state.CustomYVelocity = NegateSbugPartsIndependently(state.CustomYVelocity);

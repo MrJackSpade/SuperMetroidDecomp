@@ -46,9 +46,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Puyo.</summary>
     internal static void InitializePuyo(RoomEnemySlot slot)
     {
-        // The initializer writes the common empty map and clears Enemy.var0 before
-        // installing the fast grounded list. Enemy.var0 is not one of the six exposed
-        // per-family variable words; no later Puyo routine reads it.
+        // The initializer shows the common empty frame before installing the fast grounded list.
         slot.Frame = EnemyFrameId.Empty;
 
         var state = new PuyoEnemyState
@@ -339,8 +337,8 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.StepAirborneIndex(Hop(state).YIndexDelta);
 
-        // X speed is stored as 8.8, but NTSC movement moves by the whole byte only
-        // and zeroes the subspeed word; only the PAL build uses the fraction. The giant
+        // X speed is authored as 8.8, but NTSC movement moves by the whole pixels only
+        // and zeroes the subspeed; only the PAL build uses the fraction. The giant
         // hop's 1.25 therefore moves exactly one pixel per frame either way.
         int xSpeed = Hop(state).XSpeed;
         int whole = EightEight.WholeOf(xSpeed);

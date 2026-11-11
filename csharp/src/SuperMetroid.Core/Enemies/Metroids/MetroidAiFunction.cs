@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>
-/// Dispatch-table indexes stored in ordinary Metroid variable F. These are indexes,
+/// The ordinary Metroid's movement selections. These are indexes,
 /// not functions: main AI uses the value directly to select one of four
 /// movement routines.
 /// </summary>

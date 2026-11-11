@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// The enemy instruction interpreter: common instructions, owner-private instruction dispatch,
-/// visual selectors and mechanics words, animation tile transfers, and the body frames bosses show on their bodies.
+/// visual selectors and mechanics, the artwork animations show, and the body frames bosses show on their bodies.
 /// </summary>
 [RoomLifetime]
 internal sealed class EnemyInstructionInterpreter

@@ -12,7 +12,7 @@ public sealed class RoomSpriteObject
     /// <summary>Spawns an object of <paramref name="kind"/> at <paramref name="position"/>, showing its program's first frame.</summary>
     /// <param name="kind">What the object is, which selects the program it plays.</param>
     /// <param name="position">Where it stands, in whole room pixels.</param>
-    /// <param name="graphics">The sheet characters and colours it draws with.</param>
+    /// <param name="graphics">The artwork and colours it draws with.</param>
     internal RoomSpriteObject(RoomSpriteObjectKind kind, Position16<RoomPixels> position, SpriteGraphics graphics)
     {
         Kind = kind;
@@ -35,7 +35,7 @@ public sealed class RoomSpriteObject
     /// </summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
 
-    /// <summary>The sheet characters and colours the object draws with.</summary>
+    /// <summary>The artwork and colours the object draws with.</summary>
     public SpriteGraphics Graphics { get; internal set; }
 
     /// <summary>The animation the object plays and where it stands in it (#1600), or null once it has ended.</summary>

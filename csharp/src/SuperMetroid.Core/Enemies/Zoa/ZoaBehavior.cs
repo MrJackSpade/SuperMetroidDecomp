@@ -160,7 +160,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Once its center leaves the inclusive 256x256 camera square, Zoa teleports to the
         // saved population coordinate and becomes invisible until the next proximity wake.
-        // The return stores only the whole words: the subpixel fractions left by the
+        // The return stores only the whole pixels: the subpixel fractions left by the
         // rise and the shot carry into the next flight.
         slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
         slot.Position = slot.Position.WithWhole(state.SpawnPosition);

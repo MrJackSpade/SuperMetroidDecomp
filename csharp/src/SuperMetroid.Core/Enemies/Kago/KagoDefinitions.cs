@@ -10,8 +10,9 @@ internal static class KagoDefinitions
     internal const int JumpHeightStep = 256;
 
     /// <summary>
-    /// The random bit that sends a bug near its shell leftward: bit eight, the low bit of <see cref="JumpHeightSteps"/>,
-    /// so the game reads it back from the chosen jump magnitude rather than drawing again.
+    /// The random bit that sends a bug near its shell leftward: bit eight, the first bit <see cref="JumpHeightSteps"/>
+    /// reads, so an odd count of steps sends it left; the game reads it back from the chosen jump magnitude rather than
+    /// drawing again.
     /// </summary>
     internal static readonly RandomSampleField LeftJump = new(8, 1);
 

@@ -30,7 +30,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         state.FallingPath = fallingPath;
         state.FallingPatternYDistance = ChootFalls.LoopYDistance(fallingPath);
 
-        // The multiply consumes only the loop count's low byte; the authored loop advance is
+        // The multiply consumes the loop count modulo 256; the authored loop advance is
         // already below 256. Retail loop counts are nonzero.
         int jumpHeight = CoordinateAxis.Wrap(
             slot.SpawnSettings<ChootSpawnSettings>().PatternLoops * state.FallingPatternYDistance);

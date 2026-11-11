@@ -164,8 +164,8 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.Angle = CalculateMorphBallEyeAngle(eye, samus);
 
-        // The resume point is the high angle nibble shifted down by two, one four-byte record per
-        // pose: the tracking loop resumes at the pose for the arc of the turn the angle lies in.
+        // The tracking loop resumes at the pose for the arc of the turn the angle lies in, one pose for
+        // each of the turn's sixteen equal arcs.
         Animation<MorphBallEyeProgram> tracking = MorphBallEyeAnimations.StartingWith(MorphBallEyeProgram.Active);
         state.Playback = new(tracking, AnimationSegments<MorphBallEyeProgram, MorphBallEyeFrame, NoAnimationCue>.PlaceOf(tracking,
             MorphBallEyeProgram.Active, state.Angle.Sector(MorphBallEyeBeamDefinitions.TrackingPoses)));

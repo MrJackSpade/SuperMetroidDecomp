@@ -51,7 +51,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         {
             // The retail population always places this cosmetic second half immediately
             // after its moving parent. Its main AI relies on aliasing across those two
-            // physical 64-byte records, so reject reordered/custom populations explicitly.
+            // neighbouring enemies, so reject reordered/custom populations explicitly.
             _parents.Place(slot, _slotTable.ListedBefore(slot, 1));
             ValidateNorfairLavaJumpingEnemyParent(slot);
             state.Playback = new(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperProgram.Follower), AnimationPlace.StartOfAnimation);

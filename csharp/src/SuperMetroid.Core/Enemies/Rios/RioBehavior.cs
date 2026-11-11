@@ -17,7 +17,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new RioEntity(this, slot, common);
 
-    /// <summary>Supplies the global enemy RNG word consumed on every Rio AI frame.</summary>
+    /// <summary>Supplies the shared enemy random number consumed on every Rio AI frame.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Resolves Rio's horizontal and vertical flight against current room terrain.</summary>
     private readonly EnemyTerrain _terrain;

@@ -22,15 +22,15 @@ public sealed class SkulteraEnemyState
     /// <summary>The vertical oscillation's phase; only its table index is meaningful, and it wraps after a full turn.</summary>
     public RotationAngle Angle { get; internal set; }
 
-    /// <summary>Vertical oscillation radius in pixels, population parameter two's low byte (0 through 255).</summary>
+    /// <summary>Vertical oscillation radius in pixels, its authored wave height (0 through 255).</summary>
     public int Radius { get; internal set; }
 
     /// <summary>Published by the turn animation's last cue after a complete turn.</summary>
     public bool TurnFinished { get; internal set; }
 
     /// <summary>
-    /// Signed angle step per unobstructed swimming update, in table units: population parameter two's high byte
-    /// (0 through 255), negated at every completed turn.
+    /// Signed angle step per unobstructed swimming update, in table units: its authored wave step (0 through 255),
+    /// negated at every completed turn.
     /// </summary>
     public int AngleDelta { get; internal set; }
 

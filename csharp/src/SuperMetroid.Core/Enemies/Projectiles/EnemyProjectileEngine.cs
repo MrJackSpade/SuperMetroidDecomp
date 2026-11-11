@@ -779,7 +779,7 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>
-    /// <paramref name="field"/>, checked to lie within a sample's low byte, as the scatter's authored byte operand does.
+    /// <paramref name="field"/>, checked to lie within a sample's bits zero to seven, the only range the scatter authors.
     /// </summary>
     private static RandomSampleField RequireLowHalfField(RandomSampleField field)
     {
@@ -787,7 +787,7 @@ internal sealed class EnemyProjectileEngine
         return field;
     }
 
-    /// <summary>The bits of a sample's low byte, the only bits a scatter's range reads.</summary>
+    /// <summary>The sample's bits zero to seven, the only bits a scatter's range reads.</summary>
     private const int LowHalfBits = 8;
 
     /// <summary>
@@ -820,7 +820,7 @@ internal sealed class EnemyProjectileEngine
     /// <summary>
     /// Allocates the light or dark Ceres falling-tile actor requested by room main
     /// main. The X coordinate and light or dark variant come directly from the room's
-    /// current RNG word; this initializer owns only projectile fields. The room
+    /// current random number; this initializer owns only projectile fields. The room
     /// main supplies the tile's animation and the graphics it draws in.
     /// </summary>
     public void SpawnCeresFallingDebris(int xPosition, bool dark, EnemyProjectileAnimation animation, SpriteGraphics graphics)
@@ -1002,8 +1002,8 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>
-    /// Draws the one-in-four branch: it is taken when both high bits of the room's next random
-    /// number are set.
+    /// Draws the one-in-four branch: it is taken when bits fourteen and fifteen of the room's next random
+    /// number are both set.
     /// </summary>
     internal bool TakeOneInFourBranch() =>
         _room.Random.Next(EnemyProjectileRandomBranchDefinitions.OneInFourBranch) == EnemyProjectileRandomBranchDefinitions.OneInFourBranchTaken;

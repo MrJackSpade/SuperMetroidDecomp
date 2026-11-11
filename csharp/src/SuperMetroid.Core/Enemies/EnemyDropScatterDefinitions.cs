@@ -17,13 +17,13 @@ internal static class EnemyDropScatterDefinitions
 
     /// <summary>
     /// The random selection that scatters a boss's death drops 0-255 pixels across a 256-pixel arena strip from its left
-    /// edge: the low byte.
+    /// edge: bits zero to seven of the random sample.
     /// </summary>
     internal static readonly RandomSampleField WideArenaHorizontalScatter = new(Shift: 0, Width: 8);
 
     /// <summary>
     /// The random selection that scatters a boss's death drops 0-63 pixels down a 64-pixel arena band from its top edge:
-    /// the low six bits of the high byte.
+    /// bits eight to thirteen of the random sample.
     /// </summary>
     internal static readonly RandomSampleField ArenaBandVerticalScatter = new(Shift: 8, Width: 6);
 }

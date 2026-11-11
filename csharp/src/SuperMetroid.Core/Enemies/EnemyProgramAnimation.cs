@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies;
 /// Runs an enemy's typed program (#641) where the enemy instruction interpreter would run its list: the
 /// frame expires on the update its timer would, a newly shown frame raises the new-frame flag, a wait reloads
 /// the timer without changing the frame, and a hold is the sleep, whose timer wraps from zero. Owners keep
-/// the cursor and carry out their cues: <c>if (Expire(slot)) { ...; Run(...); }</c>.
+/// the cursor and perform their cues: <c>if (Expire(slot)) { ...; Run(...); }</c>.
 /// </summary>
 internal static class EnemyProgramAnimation
 {

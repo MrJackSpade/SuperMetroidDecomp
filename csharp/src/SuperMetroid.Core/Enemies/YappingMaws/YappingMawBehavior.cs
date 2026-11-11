@@ -171,7 +171,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // The mouth actor owns the final point. The four projectiles own root, quarter, half,
-        // and three-quarter points in variables 40..43. The game writes coordinates even
+        // and three-quarter points of the tongue. The game writes coordinates even
         // though their frame behaviours are empty; the projectile pass advances only their one-frame
         // map selection and permanent sleep step.
         PositionYappingMawBodyProjectile(state, 0, state.Origin);
@@ -260,7 +260,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             int rawX = CoordinateAxis.Wrap(CalculateYappingMawX(linkAngle, state.SegmentRadius) - state.Baseline.X);
             int rawY = CoordinateAxis.Wrap(CalculateYappingMawY(linkAngle, state.SegmentRadius / 2) - state.Baseline.Y);
 
-            // Variables 27..2E rotate a correction whose length is the LOW BYTE of raw X.
+            // The curl rotates a correction whose length is raw X.
             // Passing raw Y here is an attractive cleanup and is wrong; the game's
             // lopsided curve is a direct consequence of reusing raw X for both components.
             int correctionX = CoordinateAxis.Wrap(

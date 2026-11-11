@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
-/// The operands of the random scatter: per axis, the random field of a fresh sample's low byte that offsets the axis and
+/// The operands of the random scatter: per axis, the random field within a fresh sample's bits zero to seven that offsets the axis and
 /// the center subtracted from it, a candidate below zero being drawn again.
 /// </summary>
 /// <param name="XRange">The random field that offsets the X axis.</param>

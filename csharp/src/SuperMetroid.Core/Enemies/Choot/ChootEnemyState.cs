@@ -23,7 +23,7 @@ public sealed class ChootEnemyState
     /// <summary>The falling pattern's current frame, advanced by one per falling update and restarted at each loop's end.</summary>
     public int FallingPatternFrame { get; internal set; }
 
-    /// <summary>Loop counter initialized to parameter one's low byte minus one, expiring when it decrements below zero.</summary>
+    /// <summary>Loop counter initialized to its authored pattern loops minus one, expiring when it decrements below zero.</summary>
     public int FallingPatternLoopCounter { get; internal set; }
 
     /// <summary>The authored falling path the Choot follows after its apex.</summary>

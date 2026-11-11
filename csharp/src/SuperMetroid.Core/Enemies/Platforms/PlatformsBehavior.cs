@@ -118,7 +118,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (CoordinateAxis.AsSigned(xDistance) < 0)
             xDistance = CoordinateAxis.Wrap(-xDistance);
 
-        // Carry clear after subtracting Samus's radius jumps directly to Y. Otherwise the
+        // A distance within Samus's radius goes directly to the Y test. Otherwise the
         // remainder must be strictly less than the platform radius; equality is not overlap.
         if (xDistance >= samus.Kinematics.Radius.X)
         {

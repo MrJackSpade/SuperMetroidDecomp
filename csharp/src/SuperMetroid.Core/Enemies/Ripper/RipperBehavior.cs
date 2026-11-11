@@ -87,8 +87,8 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Speeds = EnemyLinearSpeedRow.Moving(slot.SpawnSettings<RipperSpawnSettings>().Speed);
 
         // Ripper II's list labels appear inverted relative to the displayed shared maps.
-        // Keep the list names instead of normalizing them: init1 zero uses the
-        // negative speed pair with the moving-right list, while nonzero uses positive speed
+        // Keep the list names instead of normalizing them: a leftward start uses the
+        // negative speed pair with the moving-right list, while a rightward start uses positive speed
         // with the moving-left list.
         bool movingPositive = slot.SpawnSettings<RipperSpawnSettings>().Direction == HorizontalDirection.Right;
         LoadRipperVelocity(state, movingPositive);

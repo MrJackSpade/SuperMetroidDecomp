@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Hoppers;
 /// </summary>
 public enum HopperEnemyFunction
 {
-    /// <summary>Consumes a shared RNG value and chooses small or big hop from its low bit without starting movement that update.</summary>
+    /// <summary>Consumes a shared RNG value and chooses small or big hop by whether it is odd, without starting movement that update.</summary>
     ChooseHopSize = 1,
     /// <summary>Installs the precomputed small-hop speed index, index delta 3, and positive three-pixel X velocity before choosing floor or ceiling direction setup.</summary>
     PrepareSmallHop,

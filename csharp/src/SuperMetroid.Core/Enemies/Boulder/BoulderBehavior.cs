@@ -80,8 +80,8 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         int initialYOffset = settings.Drop;
         if (initialYOffset == 0)
         {
-            // A zero high byte is not “no offset.” The game substitutes one pixel and sets
-            // var07 so the trigger jumps directly to rolling instead of the bounce chain.
+            // A zero drop is not “no offset.” The game substitutes one pixel and marks the
+            // boulder so the trigger jumps directly to rolling instead of the bounce chain.
             initialYOffset = 1;
             state.StartsRollingWithoutBounce = true;
         }
@@ -260,8 +260,8 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         SignedSixteenSixteen horizontalDisplacement = ReadBoulderHorizontalDisplacement(state);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, horizontalDisplacement))
         {
-            // Setting the hidden and deleted properties both hides and deletes the record. The inert function is
-            // still written before DetermineWhichEnemiesToProcess clears it next frame.
+            // Setting the hidden and deleted properties both hides and deletes the boulder. The inert function is
+            // still written before the next update's processing pass clears it.
             slot.Presence = slot.Presence.With(EnemyPresence.Hidden | EnemyPresence.Deleted);
             state.Function = BoulderAiFunction.Inert;
             _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Boulder, BoulderImpactSound, priority: SoundRequestPriority.Normal);

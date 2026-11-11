@@ -121,7 +121,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         state.SpawnPosition = slot.Position.Whole;
     }
 
-    /// <summary>Dispatches the literal function installed in variable A.</summary>
+    /// <summary>Runs the Ninja Space Pirate's current behaviour.</summary>
     private void RunNinjaSpacePirateMain(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,

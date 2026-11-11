@@ -44,6 +44,6 @@ internal abstract class EnemyProjectileAnimation
 
     /// <summary>Advances the timeline to its next frame, a frame shown for good, or its rest.</summary>
     /// <param name="context">The slot the animation runs on, Samus and the pass's camera, for cues that act on them.</param>
-    /// <param name="handlers">The engine's handlers, which carry out published cues.</param>
+    /// <param name="handlers">The engine's handlers, which perform published cues.</param>
     private protected abstract EnemyProjectileFrameStep NextFrame(EnemyProjectileCueContext context, EnemyProjectileHandlerTable handlers);
 }

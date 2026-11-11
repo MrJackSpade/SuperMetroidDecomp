@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>
-/// The one-frame movement selector stored in Mochtroid variable F. Main AI clears this word
+/// The Mochtroid's one-frame movement selector. Main AI clears it
 /// before dispatch, so touch collision must republish <see cref="TouchingSamus"/> every frame
 /// for the creature to remain latched on.
 /// </summary>

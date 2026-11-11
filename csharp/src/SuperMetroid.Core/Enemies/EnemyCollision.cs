@@ -363,8 +363,8 @@ internal sealed class EnemyCollision
                     if (enemy.FrozenTimer == 0 && enemy.Definition.HurtSoundEffect is SoundEffectId cry)
                         _audio.QueueEnemySound(cry, SoundRequestPriority.Low);
                     // Every plasma-family hit gives sixteen invincibility frames.
-                    // The packed beam type uses bit three for Plasma; other families do not
-                    // set that low bit in their ordinary projectile words.
+                    // Only a beam combining Plasma gives this; other projectile
+                    // families never count as Plasma.
                     if (projectileType.BeamCombination.HasPlasma)
                         enemy.InvincibilityTimer = EnemyShotTiming.PlasmaInvincibilityFrames;
 
@@ -597,7 +597,7 @@ internal sealed class EnemyCollision
 
     /// <summary>
     /// Runs the power-bomb interaction for one expansion
-    /// sample. The caller supplies the high byte of the live power-bomb radius; the game
+    /// sample. The caller supplies the live power-bomb radius in whole pixels; the game
     /// uses it as the horizontal radius and derives a three-quarter-height vertical ellipse.
     /// </summary>
     public int ResolveOrdinaryPowerBombHits(

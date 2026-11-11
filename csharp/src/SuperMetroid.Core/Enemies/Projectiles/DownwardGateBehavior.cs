@@ -112,7 +112,7 @@ internal sealed class DownwardGateBehavior
     }
 
     /// <summary>
-    /// Steps a gate past the sleep its program holds, as the two-byte list advance with a one-update timer
+    /// Steps a gate past the sleep its program holds, as stepping its program one entry on with a one-update timer
     /// does: the program resumes with the one authored after that sleep.
     /// </summary>
     private static void ResumeDownwardGate(EnemyProjectile projectile)

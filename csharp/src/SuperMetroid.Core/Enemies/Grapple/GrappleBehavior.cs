@@ -143,7 +143,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
 
     /// <summary>
     /// The frame the common grapple wrapper hands to main AI: the enemy's own camera, Samus,
-    /// input and room, but no Samus projectiles, turning-floor transform, shared bombs or tile transfer queue,
+    /// input and room, but no Samus projectiles, turning-floor transform, shared bombs or artwork changes,
     /// exactly as the wrapper's main-AI call has always received them (#633).
     /// </summary>
     internal sealed class GrappleWrappedAiFrame(IEnemyAiFrame frame) : IEnemyAiFrame
@@ -154,7 +154,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
         public SamusState? Samus => frame.Samus;
         /// <summary>New input edges inherited from the current update.</summary>
         public ControllerButton NewlyPressedControllerInput => frame.NewlyPressedControllerInput;
-        /// <summary>Held controller word inherited from the current update.</summary>
+        /// <summary>Held buttons inherited from the current update.</summary>
         public ControllerButton ControllerInput => frame.ControllerInput;
         /// <summary>Current room collision data visible to wrapped main AI.</summary>
         public RoomLevelData? Level => frame.Level;

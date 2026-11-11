@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <remarks>
 /// Reviewed for #1165 against both NTSC J/U v1.0 copies of the table. Row <c>n</c>'s speed is the triangle number
 /// <c>n(n+1)/2</c> in 256ths of a pixel per frame, but the authored fractions are widened by
-/// <see cref="FractionMultiplier"/>/256 with the carry past the fraction dropped, so speeds do not climb evenly.
+/// <see cref="FractionMultiplier"/>/256 with the whole pixels the widening adds dropped, so speeds do not climb evenly.
 /// </remarks>
 public static class EnemyQuadraticSpeedDefinitions
 {

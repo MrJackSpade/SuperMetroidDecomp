@@ -22,7 +22,7 @@ internal sealed class EnemyBreakableTerrainObjects
     {
         Ensure.NotNull(level);
         RoomCollisionBlock block = level.GetCollisionBlock(position);
-        // Full-pool allocation skips setup. Its caller still returns carry clear.
+        // A full pool skips setup, and the block is reported as not broken.
         if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
             return false;
 

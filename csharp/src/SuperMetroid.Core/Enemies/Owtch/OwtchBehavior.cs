@@ -102,7 +102,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
                 slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole - 1);
                 if (state.RiseOnePixel())
                 {
-                    // The underground wait samples the random seed's high byte without advancing the RNG. The
+                    // The underground wait samples the current random number without advancing the RNG. The
                     // gameplay runtime supplies that read seam; isolated callers without it
                     // retain the established advancing fallback used by other translated AI.
                     int random = _room.Random.Read();

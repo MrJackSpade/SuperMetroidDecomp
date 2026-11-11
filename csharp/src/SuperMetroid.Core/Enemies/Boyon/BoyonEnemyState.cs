@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Boyon;
 
-/// <summary>The state of a Boyon, with its six parallel extended words.</summary>
+/// <summary>The state of a Boyon: its bounce, its speed and its animation.</summary>
 public sealed class BoyonEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>

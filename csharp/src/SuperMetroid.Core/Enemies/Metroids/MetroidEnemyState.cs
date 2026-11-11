@@ -23,7 +23,7 @@ public sealed class MetroidEnemyState
     /// <summary>Signed 16.16 velocity in pixels per movement update, positive right and down.</summary>
     public FixedVector<RoomPixels> Velocity { get; internal set; }
 
-    /// <summary>Variable E; four-frame escape timer and frozen-shake countdown.</summary>
+    /// <summary>Four-frame escape timer and frozen-shake countdown.</summary>
     public int EscapeTimer { get; internal set; }
 
     /// <summary>Zero-based movement dispatcher index 0..3, not an AI routine.</summary>

@@ -100,9 +100,11 @@ internal sealed class TourianUnlockBehavior
         if (kind != RoomEnemyProjectileKind.TourianStatueParticle) return;
         // A particle leaves within an eighth of a turn either side of the zero angle; one below zero lies near a full turn.
         TrigonometryAngle angle = TrigonometryAngle.Wrapped(_room.Random.Next(TourianStatueParticleDefinitions.LaunchAngle) - 32);
-        // The samples lie within one pixel either way, so four times one stays within four.
-        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromSignedRaw(Trigonometry.SignedNegativeCosineSample(angle.RawValue + 64)));
-        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromSignedRaw(4 * Trigonometry.SignedNegativeCosineSample(angle.RawValue)));
+        // The samples lie within one pixel either way, so four times one stays within four. The vertical speed is the
+        // sine a quarter turn back: the angle's negative cosine.
+        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromSignedRaw(Trigonometry.SignedSine(angle)));
+        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromSignedRaw(
+            4 * Trigonometry.SignedSine(angle.TurnedBySteps(-TrigonometryAngle.QuarterTurn.RawValue))));
     }
 
     /// <summary>Holds a splash at the water surface.</summary>

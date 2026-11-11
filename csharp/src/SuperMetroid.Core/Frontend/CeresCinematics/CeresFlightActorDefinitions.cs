@@ -11,6 +11,9 @@ internal static class CeresFlightActorDefinitions
     /// <summary>The acceleration applied to the opening star field on each update.</summary>
     public static readonly SignedEightEight FrontStarAcceleration = SignedEightEight.FromSignedRaw(128);
 
+    /// <summary>Where the opening star field starts; the rear view's actors start at their installed placements.</summary>
+    public static readonly Position16<ScreenPixels> FrontStarsStart = new(112, 87);
+
     /// <summary>
     /// The star definition with initializer parameter zero: opening star field and the speed its rush starts at, four
     /// pixels an update toward the top-left.
@@ -29,47 +32,45 @@ internal static class CeresFlightActorDefinitions
     public static CeresFlightActorDefinition FrontStars => new(
         ActiveFrameBehavior: CinematicSpriteFrameBehavior.CeresStars,
         Program: CinematicSpriteProgram.CeresStars,
-        Position: new(112, 87),
         Colouring: CeresSpriteColouring.SpaceObjects,
         InitialVelocity: SignedEightEight.FromSignedRaw(-1024),
         HorizontalDelta: SignedSixteenSixteen.Zero,
         WrapX: false);
 
     /// <summary>The large asteroids of the Ceres explosion.
-    /// Its initializer places it at (80,159), palette0800; its callback adds 1/4 pixel and masks X to nine bits;
+    /// Its initializer colours it with palette0800; its callback adds 1/4 pixel and masks X to nine bits;
     /// its animation is the large-asteroid loop. The destruction scene substitutes its own definition and animation.</summary>
     internal static CeresFlightActorDefinition LargeAsteroids =>
         new(CinematicSpriteFrameBehavior.CeresLargeAsteroids, CinematicSpriteProgram.CeresLargeAsteroid,
-            new(80, 159), CeresSpriteColouring.SpaceObjects, SignedEightEight.Zero, SignedSixteenSixteen.FromSixteenthsOfPixel(4), true);
+            CeresSpriteColouring.SpaceObjects, SignedEightEight.Zero, SignedSixteenSixteen.FromSixteenthsOfPixel(4), true);
 
     /// <summary>The space station under attack.
-    /// Its initializer places it at (116,160) in the station's colours; its callback adds 1/16 pixel, wrapping X past 511;
+    /// Its initializer colours it in the station's colours; its callback adds 1/16 pixel, wrapping X past 511;
     /// its animation is the station-under-attack loop.</summary>
     internal static CeresFlightActorDefinition StationUnderAttack =>
         new(CinematicSpriteFrameBehavior.CeresUnderAttack, CinematicSpriteProgram.CeresUnderAttack,
-            new(116, 160), CeresSpriteColouring.Station, SignedEightEight.Zero, SignedSixteenSixteen.FromSixteenthsOfPixel(1), true);
+            CeresSpriteColouring.Station, SignedEightEight.Zero, SignedSixteenSixteen.FromSixteenthsOfPixel(1), true);
 
     /// <summary>The small asteroids around Ceres.
-    /// Its initializer places it at (128,96), palette0800; its callback adds 1/32 pixel with nine-bit X wrap;
+    /// Its initializer colours it with palette0800; its callback adds 1/32 pixel with nine-bit X wrap;
     /// its animation is the small-asteroid loop. Both Ceres scenes share this identity.</summary>
     internal static CeresFlightActorDefinition SmallAsteroids =>
         new(CinematicSpriteFrameBehavior.CeresSmallAsteroid, CinematicSpriteProgram.CeresSmallAsteroid,
-            new(128, 96), CeresSpriteColouring.SpaceObjects, SignedEightEight.Zero, SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(8), true);
+            CeresSpriteColouring.SpaceObjects, SignedEightEight.Zero, SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(8), true);
 
     /// <summary>The purple space vortex, parameter1.
-    /// Its initializer takes the nonzero branch to (224,87), palette0800, preserving the moving callback;
+    /// Its initializer takes the nonzero branch, palette0800, preserving the moving callback;
     /// its animation alternates two frames. Parameter0 is the stationary destruction-scene variant.</summary>
     internal static CeresFlightActorDefinition MovingVortex =>
         new(CinematicSpriteFrameBehavior.CeresPurpleSpaceVortex, CinematicSpriteProgram.CeresVortex,
-            new(224, 87), CeresSpriteColouring.SpaceObjects, SignedEightEight.Zero, VortexHorizontalDelta, false);
+            CeresSpriteColouring.SpaceObjects, SignedEightEight.Zero, VortexHorizontalDelta, false);
 
     /// <summary>The stars around Ceres, parameter1.
-    /// Its initializer takes the nonzero branch: X=-32, Y87, palette0800, timer remains cleared;
+    /// Its initializer takes the nonzero branch: palette0800, timer remains cleared;
     /// it replaces the star-field callback with the drifting one. The definition and animation alias FrontStars.</summary>
     internal static CeresFlightActorDefinition RearStars => FrontStars with
     {
         ActiveFrameBehavior = CinematicSpriteFrameBehavior.CeresPurpleSpaceVortex,
-        Position = FrontStars.Position.WithX(CoordinateAxis.Wrap(-32)),
         InitialVelocity = SignedEightEight.Zero,
         HorizontalDelta = VortexHorizontalDelta,
     };

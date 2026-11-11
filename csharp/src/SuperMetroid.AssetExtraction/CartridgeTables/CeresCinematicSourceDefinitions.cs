@@ -47,6 +47,18 @@ internal static class CeresCinematicSourceDefinitions
         new(CeresFlightActors.RearViewPlacementId(4), 0xbea3),
     ];
 
+    /// <summary>
+    /// The X/Y immediates of the Ceres destruction's three persistent actors' initializers, in spawn order: the large and
+    /// small asteroids share the rear view's initializers, and the stationary vortex's parameter-zero branch loads its own
+    /// X before the vortex's shared Y.
+    /// </summary>
+    internal static IReadOnlyList<CinematicPlacementImmediates> DestructionPlacements { get; } =
+    [
+        new(CeresDestructionActors.InitialPlacementId(0), 0xbf23, 0xbf29),
+        new(CeresDestructionActors.InitialPlacementId(1), 0xbf77, 0xbf7d),
+        new(CeresDestructionActors.InitialPlacementId(2), 0xbfa6, 0xbfba),
+    ];
+
     /// <summary>The X/Y immediates of the Zebes reveal's six actors' initializers ($8B:C810..C831), in spawn order.</summary>
     internal static IReadOnlyList<CinematicPlacementSourceDefinition> ZebesPlacements { get; } =
     [

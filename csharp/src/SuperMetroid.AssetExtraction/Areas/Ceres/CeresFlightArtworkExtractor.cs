@@ -100,11 +100,6 @@ internal static class CeresFlightArtworkExtractor
                 CeresCinematicSourceDefinitions.PlacementBank | source.FirstOperand);
             int y = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 CeresCinematicSourceDefinitions.PlacementBank | source.SecondOperand);
-            CeresFlightActorDefinition translated =
-                CeresFlightActors.RearViewActor(index);
-            if (x != translated.Position.X || y != translated.Position.Y)
-                throw new InvalidDataException(
-                    $"Ceres flight actor {source.Id} differs from its native initializer operands.");
             placements[index] = new CeresFlightActorPlacement
             {
                 Id = source.Id, X = x, Y = y,

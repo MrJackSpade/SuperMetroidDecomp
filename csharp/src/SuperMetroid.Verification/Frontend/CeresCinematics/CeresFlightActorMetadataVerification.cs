@@ -20,8 +20,8 @@ internal static class CeresFlightActorMetadataVerification
         ushort frontDefinition = CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe57);
         Suite(nameof(VerifyActor), () => VerifyActor(retail, front, frontDefinition, "front stars"));
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe84), front.InitialVelocity.RawValue, "front stars initial speed");
-        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe8a), front.Position.X, "front stars X");
-        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe90), front.Position.Y, "front stars Y");
+        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe8a), CeresFlightActorDefinitions.FrontStarsStart.X, "front stars X");
+        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe90), CeresFlightActorDefinitions.FrontStarsStart.Y, "front stars Y");
         PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe96), CeresSheetInks.SpriteSet(front.Colouring), "front stars attributes");
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbec3),
             CeresFlightActorDefinitions.FrontStarAcceleration.RawValue,
@@ -50,8 +50,6 @@ internal static class CeresFlightActorMetadataVerification
                     VerifyWrappedActor(retail, actor, new WrappedActorRomFields(0x8bbf77, 0x8bbf7d, 0x8bbf83, 0x8bbf8e, 0x8bbf9a), "small asteroids");
                     break;
                 case 3:
-                    AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfb4), actor.Position.X, "rear vortex X");
-                    AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfba), actor.Position.Y, "rear vortex Y");
                     PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfc0), CeresSheetInks.SpriteSet(actor.Colouring),
                         "rear vortex attributes");
                     AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfcb),
@@ -59,8 +57,6 @@ internal static class CeresFlightActorMetadataVerification
                     AssertTrue(!actor.WrapX, "rear vortex uses signed non-wrapping motion");
                     break;
                 case 4:
-                    AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbea3), actor.Position.X, "rear stars X");
-                    AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbea9), actor.Position.Y, "rear stars Y");
                     PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbeaf), CeresSheetInks.SpriteSet(actor.Colouring),
                         "rear stars attributes");
                     AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe9d), actor.ActiveFrameBehavior.NativeAddress,
@@ -106,8 +102,6 @@ internal static class CeresFlightActorMetadataVerification
             WrappedActorRomFields fields,
             string name)
         {
-            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.XWord), actor.Position.X, $"{name} X");
-            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.YWord), actor.Position.Y, $"{name} Y");
             PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.AttributeWord), CeresSheetInks.SpriteSet(actor.Colouring),
                 $"{name} attributes");
             AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.DeltaWord), actor.HorizontalDelta.Fraction,

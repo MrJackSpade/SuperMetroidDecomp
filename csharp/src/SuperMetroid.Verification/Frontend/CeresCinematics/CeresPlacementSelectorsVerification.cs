@@ -4,10 +4,10 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 
-/// <summary>Checks compiled Ceres actor placements against immediate operands in bank $8B.</summary>
+/// <summary>Checks the import's Ceres actor placement sources against immediate operands in bank $8B.</summary>
 internal static class CeresPlacementSelectorsVerification
 {
-    /// <summary>Checks the five rear-view actors and their X and Y native placement words.</summary>
+    /// <summary>Checks the five rear-view actors' X and Y native placement immediates.</summary>
     internal static void VerifyCeresRearPlacementSelector(ISnesAddressSpace rom)
     {
         // Original maintained extraction table at d12fa8fa; IDs are asset-format identities,
@@ -25,15 +25,14 @@ internal static class CeresPlacementSelectorsVerification
         {
             var actual = CeresCinematicSourceDefinitions.RearViewPlacements[i];
             AssertEqual(original[i], actual, "the import reads the original rear placement operands under the Core actor id");
-            var actor = CeresFlightActors.RearViewActor(i);
-            VerifyPlacementOperand(rom, actual.FirstOperand, actor.Position.X);
-            VerifyPlacementOperand(rom, actual.SecondOperand, actor.Position.Y);
+            VerifyPlacementOperand(rom, actual.FirstOperand);
+            VerifyPlacementOperand(rom, actual.SecondOperand);
         }
         foreach (int i in new[] { int.MinValue, -1, original.Length, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => CeresFlightActors.RearViewPlacementId(i), "rear selector bounds");
     }
 
-    /// <summary>Checks six Zebes reveal actors and their X and Y native placement words.</summary>
+    /// <summary>Checks the six Zebes reveal actors' X and Y native placement immediates.</summary>
     internal static void VerifyCeresRevealPlacementSelector(ISnesAddressSpace rom)
     {
         CinematicPlacementSourceDefinition[] original =
@@ -50,30 +49,39 @@ internal static class CeresPlacementSelectorsVerification
         {
             var actual = CeresCinematicSourceDefinitions.ZebesPlacements[i];
             AssertEqual(original[i], actual, "the import reads the original reveal placement operands under the Core actor id");
-            var actor = CeresDestructionActors.ZebesActor(i);
-            VerifyPlacementOperand(rom, actual.FirstOperand, actor.Position.X);
-            VerifyPlacementOperand(rom, actual.SecondOperand, actor.Position.Y);
+            VerifyPlacementOperand(rom, actual.FirstOperand);
+            VerifyPlacementOperand(rom, actual.SecondOperand);
         }
         foreach (int i in new[] { int.MinValue, -1, original.Length, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => CeresDestructionActors.ZebesPlacementId(i), "reveal selector bounds");
     }
 
-    /// <summary>Checks the three initial destruction actors before the reveal phase.</summary>
-    internal static void VerifyCeresInitialPlacementSelector()
+    /// <summary>Checks the three initial destruction actors' ids and the import's X and Y native placement immediates.</summary>
+    internal static void VerifyCeresInitialPlacementSelector(ISnesAddressSpace rom)
     {
-        string[] original = ["large-asteroid", "small-asteroid", "vortex"];
+        CinematicPlacementImmediates[] original =
+        [
+            new("large-asteroid", 0xbf23, 0xbf29),
+            new("small-asteroid", 0xbf77, 0xbf7d),
+            new("vortex", 0xbfa6, 0xbfba),
+        ];
         AssertEqual(original.Length, CeresDestructionActorDefinitions.InitialActorCount, "initial placement count");
         for (int i = 0; i < original.Length; i++)
-            AssertEqual(original[i], CeresDestructionActors.InitialPlacementId(i), "original initial placement selector");
+        {
+            AssertEqual(original[i].Id, CeresDestructionActors.InitialPlacementId(i), "original initial placement selector");
+            CinematicPlacementImmediates actual = CeresCinematicSourceDefinitions.DestructionPlacements[i];
+            AssertEqual(original[i], actual, "the import reads the original initial placement operands under the Core actor id");
+            VerifyPlacementOperand(rom, actual.XOperand);
+            VerifyPlacementOperand(rom, actual.YOperand);
+        }
         foreach (int i in new[] { int.MinValue, -1, original.Length, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => CeresDestructionActors.InitialPlacementId(i), "initial selector bounds");
     }
 
-    /// <summary>Requires an immediate LDA before the coordinate and compares its retail word.</summary>
-    private static void VerifyPlacementOperand(ISnesAddressSpace rom, int operand, ushort coordinate)
+    /// <summary>Requires an immediate LDA before the coordinate the import reads.</summary>
+    private static void VerifyPlacementOperand(ISnesAddressSpace rom, int operand)
     {
         int address = 0x8b0000 | operand;
         AssertEqual((byte)0xa9, rom.ReadCartridgeByte(address - 1), "placement immediate LDA");
-        AssertEqual(coordinate, CartridgeImportSource.Require(rom).ReadCartridgeWord(address), "native placement operand");
     }
 }

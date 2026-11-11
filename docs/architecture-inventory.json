@@ -42906,7 +42906,7 @@
         "csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireAnimations.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireArenaDraw",
@@ -46861,6 +46861,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidHeadGrowthResume.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Kraid.KraidHeadListPosition",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidHeadListPosition.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -51335,7 +51348,7 @@
         "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainTubeAnimations.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainTubeCollapseFunction",
@@ -52798,6 +52811,38 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonEnemyStateAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/Phantoon/PhantoonEnemyStateAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonEnemyStateAccess.extension(SuperMetroid.Core.Bosses.Phantoon.PhantoonEnemyState)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/Phantoon/PhantoonEnemyStateAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonEntity",
@@ -54422,7 +54467,7 @@
         "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyBreakupAnimations.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Ridley.RidleyBreakupFrame",
@@ -77168,7 +77213,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/Polyp/PolypRockProgram.cs"
       ],
       "partial": "none",
-      "disposition": "constructor-parameters"
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Polyp.PolypRockState",
@@ -78116,19 +78161,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileProgramAnimation\u003CTProgram, TFrame, TCue\u003E",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Projectiles/EnemyProjectileProgramAnimation.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Projectiles.EnemyProjectilePropertyFlags",
@@ -101105,19 +101137,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Gameplay.AnimationListContinuation",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Gameplay/AnimationListContinuation.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Gameplay.BelowPerspectiveFloor",
       "kind": "enum",
       "scope": "product",
@@ -104257,225 +104276,17 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Programs.AnimationProgramAdvance\u003CTFrame\u003E",
-      "kind": "record",
+      "type": "SuperMetroid.Core.Programs.AnimationResidence",
+      "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Programs/AnimationProgramAdvance.cs"
+        "csharp/src/SuperMetroid.Core/Programs/AnimationResidence.cs"
       ],
       "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Programs.AnimationProgramAdvance\u003CTFrame\u003E.Hold",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Programs/AnimationProgramAdvance.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Programs.AnimationProgramAdvance\u003CTFrame\u003E.Show",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Programs/AnimationProgramAdvance.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Programs.AnimationProgramAdvance\u003CTFrame\u003E.Stop",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Programs/AnimationProgramAdvance.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Programs.AnimationProgramAdvance\u003CTFrame\u003E.Wait",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Programs/AnimationProgramAdvance.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Programs.AnimationProgramCursor\u003CTProgram\u003E",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Programs/AnimationProgramCursor.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Programs.AnimationProgramSet\u003CTProgram, TFrame, TCue\u003E",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Programs/AnimationProgramSet.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Programs.AnimationProgramStep\u003CTProgram, TFrame, TCue\u003E",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Programs/AnimationProgramStep.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Programs.AnimationProgramStep\u003CTProgram, TFrame, TCue\u003E.CueStep",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Programs/AnimationProgramStep.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Programs.AnimationProgramStep\u003CTProgram, TFrame, TCue\u003E.FallIntoStep",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Programs/AnimationProgramStep.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Programs.AnimationProgramStep\u003CTProgram, TFrame, TCue\u003E.GoToStep",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Programs/AnimationProgramStep.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Programs.AnimationProgramStep\u003CTProgram, TFrame, TCue\u003E.HoldStep",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Programs/AnimationProgramStep.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Programs.AnimationProgramStep\u003CTProgram, TFrame, TCue\u003E.RepeatWhileCountingStep",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Programs/AnimationProgramStep.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Programs.AnimationProgramStep\u003CTProgram, TFrame, TCue\u003E.SetCounterStep",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Programs/AnimationProgramStep.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Programs.AnimationProgramStep\u003CTProgram, TFrame, TCue\u003E.ShowStep",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Programs/AnimationProgramStep.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Programs.AnimationProgramStep\u003CTProgram, TFrame, TCue\u003E.StopStep",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Programs/AnimationProgramStep.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Programs.AnimationProgramStep\u003CTProgram, TFrame, TCue\u003E.WaitStep",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Programs/AnimationProgramStep.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Programs.AnimationSegments\u003CTSegment, TFrame, TEvent\u003E",
@@ -126831,6 +126642,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Samus.Projectiles.SamusProjectileSegmentBeat",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileSegmentBeat.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Samus.Projectiles.SamusProjectileSelection",
       "kind": "static class",
       "scope": "product",
@@ -140136,7 +139960,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.TestSupport.MovieReplay.MotherBrainNativeListAddresses.NativeOp\u003CTProgram, TFrame, TCue\u003E",
+      "type": "SuperMetroid.TestSupport.MovieReplay.MotherBrainNativeListAddresses.NativeListOp\u003CTSegment, TEvent\u003E",
       "kind": "record struct",
       "scope": "test",
       "assemblies": [
@@ -140148,6 +139972,20 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.MovieReplay.MotherBrainNativeListAddresses.NativeListOpEffect\u003CTSegment, TEvent\u003E",
+      "kind": "record",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/MovieReplay/MotherBrainNativeListAddresses.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.TestSupport.MovieReplay.MotherBrainTopTubeNativeListAddresses",
@@ -140416,34 +140254,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.TestSupport.MovieReplay.NativeEnemyProgramOracle",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/MovieReplay/NativeEnemyProgramOracle.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.TestSupport.MovieReplay.NativeEnemyProgramOracle.Family\u003CTProgram, TFrame, TCue\u003E",
-      "kind": "record",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/MovieReplay/NativeEnemyProgramOracle.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
       "type": "SuperMetroid.TestSupport.MovieReplay.NativeEnemyProjectileAnimationFamily\u003CTSegment, TFrame, TEvent\u003E",
       "kind": "class",
       "scope": "test",
@@ -140542,20 +140352,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.TestSupport.MovieReplay.NativeEnemyProjectileProgramFamily\u003CTProgram, TFrame, TCue\u003E",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/MovieReplay/NativeEnemyProjectileProgramFamily.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.TestSupport.MovieReplay.NativeEnemyProjectileProgramFamilyMatch2\u003CTProgram\u003E",
       "kind": "record struct",
       "scope": "test",
@@ -140582,20 +140378,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.TestSupport.MovieReplay.NativeEnemyProjectileProgramOracle.Family\u003CTProgram, TFrame, TCue\u003E",
-      "kind": "record",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/MovieReplay/NativeEnemyProjectileProgramOracle.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
     },
     {
       "type": "SuperMetroid.TestSupport.MovieReplay.NativeEnemyRecordWords",
@@ -140722,20 +140504,6 @@
       ],
       "partial": "none",
       "disposition": "contract"
-    },
-    {
-      "type": "SuperMetroid.TestSupport.MovieReplay.NativeObjectListDefinitions.ProgramSetOracle\u003CTProgram, TFrame, TCue\u003E",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/MovieReplay/NativeObjectListDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.TestSupport.MovieReplay.NativeObjectListDefinitions.ShowReader\u003CTFrame\u003E",
@@ -141310,20 +141078,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.TestSupport.MovieReplay.RidleyNativeInstructionPointersMatch",
-      "kind": "record struct",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/MovieReplay/RidleyNativeInstructionPointersMatch.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.TestSupport.MovieReplay.RidleyNativeListAddresses",
@@ -148719,19 +148473,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Bosses/Phantoon/FlameEntry.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Verification.Bosses.Phantoon.PartEntryValue2",
-      "kind": "record struct",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Bosses/Phantoon/PartEntryValue2.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -171968,14 +171709,14 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Samus.Projectiles.ProjectileFixtureCursors",
+      "type": "SuperMetroid.Verification.Samus.Projectiles.ProjectileFixturePlaybacks",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Verification/Samus/Projectiles/ProjectileFixtureCursors.cs"
+        "csharp/src/SuperMetroid.Verification/Samus/Projectiles/ProjectileFixturePlaybacks.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"

@@ -41,9 +41,8 @@ internal sealed class PauseScreen
 
     /// <summary>
     /// The frame <paramref name="area"/>'s pause screen shows under <paramref name="highlight"/> (#1467): the area's
-    /// backdrop, the button rows over its bottom rows and each label in the shade the highlight shows it in, each as its part
-    /// drawn behind and its part drawn in front (#1634); a picture the installed pictures hold as showing nothing is not
-    /// placed (#1513).
+    /// backdrop, the button rows over its bottom rows and each label in the shade the highlight shows it in; a picture the
+    /// installed pictures hold as showing nothing is not placed (#1513).
     /// </summary>
     /// <exception cref="InvalidDataException">The installed pause pictures hold no such frame.</exception>
     internal PicturedPlane Frame(AreaId area, PauseButtonHighlight highlight)
@@ -55,8 +54,8 @@ internal sealed class PauseScreen
         var placed = ImmutableArray.CreateBuilder<PlacedPlanePicture>();
         foreach (string frame in frames)
         {
-            if (PictureParts.Of(pictures, frame) is { Size: not null } picture)
-                placed.Add(AtCorner(picture));
+            if (!pictures.ShowsNothing(frame))
+                placed.Add(AtCorner(pictures.Frame(frame)));
         }
         return new PicturedPlane(placed.ToImmutable());
     }
@@ -66,7 +65,7 @@ internal sealed class PauseScreen
     /// origin on the page's corner, which lies <see cref="PageRowsAboveScreen"/> above the screen's top, so the screen
     /// shows each page from the row below its first (#1555).
     /// </summary>
-    private static PlacedPlanePicture AtCorner(LayeredPicture picture, PictureShading shading)
+    private static PlacedPlanePicture AtCorner(SpriteSheetFrame picture, PictureShading shading)
     {
         PlacedPlanePicture atCorner = PlacedPlanePicture.WithOriginAt(picture, default, shading);
         return atCorner with { Corner = atCorner.Corner.WithY(atCorner.Corner.Y - PageRowsAboveScreen) };
@@ -76,24 +75,21 @@ internal sealed class PauseScreen
     internal const int PageRowsAboveScreen = 1;
 
     /// <summary><paramref name="picture"/> placed on the frame's corner in the standard colours the import pre-coloured it in under the pause colours (#1512).</summary>
-    private static PlacedPlanePicture AtCorner(LayeredPicture picture) => AtCorner(picture, PictureShading.Standard);
+    private static PlacedPlanePicture AtCorner(SpriteSheetFrame picture) => AtCorner(picture, PictureShading.Standard);
 
     /// <summary>
     /// The equipment page <paramref name="page"/> shows (#1467): the template's picture and, beside it, the picture of each
     /// label, the wireframe, the reserve display and the arrow in the state the page shows it in, the
-    /// arrow in <paramref name="arrowShading"/> (#1512), each as its part drawn behind and its part drawn in front (#1634). A
-    /// picture the installed pictures hold as showing nothing, such as a blank label the page's data leaves clear, is not
-    /// placed (#1513).
+    /// arrow in <paramref name="arrowShading"/> (#1512). A picture the installed pictures hold as showing nothing, such as
+    /// a blank label the page's data leaves clear, is not placed (#1513).
     /// </summary>
     /// <exception cref="InvalidDataException">The installed pause pictures hold no such frame.</exception>
     internal PicturedPlane EquipmentPage(ShownEquipmentPage page, PictureShading arrowShading)
     {
         SpriteSheet pictures = Pictures;
         string arrow = PauseEquipmentPictures.ReserveArrowFrame(page.Arrow);
-        return new PicturedPlane([.. PauseEquipmentPictures.Frames(page)
-            .Select(frame => (Frame: frame, Picture: PictureParts.Of(pictures, frame)))
-            .Where(shown => shown.Picture.Size is not null)
-            .Select(shown => AtCorner(shown.Picture, shown.Frame == arrow ? arrowShading : PictureShading.Standard))]);
+        return new PicturedPlane([.. PauseEquipmentPictures.Frames(page).Where(frame => !pictures.ShowsNothing(frame))
+            .Select(frame => AtCorner(pictures.Frame(frame), frame == arrow ? arrowShading : PictureShading.Standard))]);
     }
 
     /// <summary>

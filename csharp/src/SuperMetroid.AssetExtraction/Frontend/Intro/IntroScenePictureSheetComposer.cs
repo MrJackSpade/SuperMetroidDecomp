@@ -11,15 +11,15 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
 /// <summary>
 /// Composes the opening cinematic's scene pictures once (#1467): each scene page, Samus's portrait and each eye frame, over
-/// the scene characters under the cinematic's palette, each installed as its two parts (#1634): the pixels its back tiles
-/// paint and those its front tiles paint. A tile naming a character past those the cinematic loads shows nothing, as the
-/// scene planes showed nothing there. The sheet holds a shade for every cross-fade level of each faded colour group (#1512).
+/// the scene characters under the cinematic's palette, each installed whole (#1634). A tile naming a
+/// character past those the cinematic loads shows nothing, as the scene planes showed nothing there. The sheet holds a shade
+/// for every cross-fade level of each faded colour group (#1512).
 /// </summary>
 internal static class IntroScenePictureSheetComposer
 {
-    /// <summary>The name of every picture the sheet holds, each as its two parts (#1634).</summary>
-    internal static IEnumerable<string> FrameNames => ScreenPictureSheetComposer.PartNames(
-        [.. Enum.GetValues<IntroScenePage>().Select(IntroScenePictures.Page), IntroScenePictures.Portrait, .. Enum.GetValues<IntroEyeFrame>().Select(IntroScenePictures.Eye)]);
+    /// <summary>The name of every picture the sheet holds.</summary>
+    internal static IEnumerable<string> FrameNames =>
+        [.. Enum.GetValues<IntroScenePage>().Select(IntroScenePictures.Page), IntroScenePictures.Portrait, .. Enum.GetValues<IntroEyeFrame>().Select(IntroScenePictures.Eye)];
 
     /// <summary>Pixels along each side of a character.</summary>
     private const int CharacterPixels = RoomTileCanvas.CharacterPixels;
@@ -49,7 +49,7 @@ internal static class IntroScenePictureSheetComposer
         for (int frame = 0; frame < eyes.Length; frame++)
             frames.Add(IntroScenePictures.Eye(eyes[frame]),
                 PaintRect(canvas, frame * eye.X, (pages.Length + 1) * cells, eye.X, sources.EyeFrames.FrameTiles(frame), characters, colours));
-        ComposedSpriteSheet sheet = canvas.ToSplitSheet(colours, frames, SpriteImageColours.Background);
+        ComposedSpriteSheet sheet = canvas.ToSheet(colours, frames, SpriteImageColours.Background);
         // The scene pictures show every cross-fade level of the colour groups the opening fades (#1512).
         return sheet with { Manifest = sheet.Manifest with { Shades = SheetShade.Documents(IntroSheetShades.Scene(colours)) } };
     }

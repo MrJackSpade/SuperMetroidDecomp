@@ -26,8 +26,8 @@ internal static class AreaMapPictures
 
     /// <summary>
     /// The grid of <paramref name="map"/>'s cells, each pictured from <paramref name="sheet"/> in the standard colours the
-    /// import pre-coloured it in under its screen's colours (#1512), as its part drawn behind and its part drawn in front
-    /// (#1634); a cell whose picture the sheet holds as showing nothing draws nothing (#1513).
+    /// import pre-coloured it in under its screen's colours (#1512); a cell whose picture the sheet holds as showing
+    /// nothing draws nothing (#1513).
     /// </summary>
     /// <exception cref="InvalidDataException">The sheet pictures no such cell.</exception>
     internal static PictureGrid Grid(ShownAreaMap map, SpriteSheet sheet)
@@ -37,8 +37,8 @@ internal static class AreaMapPictures
         var cells = ImmutableArray.CreateBuilder<GridPicture?>(map.Cells.Length);
         foreach (ShownMapCell shown in map.Cells)
         {
-            LayeredPicture picture = PictureParts.Of(sheet, FrameName(shown));
-            cells.Add(picture.Size is null ? null : new GridPicture(picture, TileFlip.None, PictureShading.Standard));
+            string frame = FrameName(shown);
+            cells.Add(sheet.ShowsNothing(frame) ? null : new GridPicture(sheet.Frame(frame), TileFlip.None, PictureShading.Standard));
         }
         return new PictureGrid(new Extent16<MapTiles>(AreaMapSize.WidthInTiles, AreaMapSize.HeightInTiles), cells.MoveToImmutable());
     }

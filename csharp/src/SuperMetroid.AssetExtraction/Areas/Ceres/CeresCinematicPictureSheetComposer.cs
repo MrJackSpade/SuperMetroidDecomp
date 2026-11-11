@@ -15,17 +15,16 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 /// <summary>
 /// Composes the Ceres cinematics' background pictures once (#1467): each SPACE COLONY caption letter and the katakana
 /// caption over the flight's object characters, and the Zebes planet over the characters the destruction leaves once the
-/// reveal loads its own, all under the flight's palette, each installed as its two parts (#1634): the pixels its back tiles
-/// paint and those its front tiles paint.
+/// reveal loads its own, all under the flight's palette, each installed whole (#1634).
 /// </summary>
 internal static class CeresCinematicPictureSheetComposer
 {
     /// <summary>The katakana caption's width in characters: an eight-by-two block below SPACE COLONY.</summary>
     internal const int JapaneseWidth = 8;
 
-    /// <summary>The name of every picture the sheet holds, each as its two parts (#1634).</summary>
-    internal static IEnumerable<string> FrameNames => ScreenPictureSheetComposer.PartNames(
-        [.. Enumerable.Range(0, SpaceColonyCaptionDefinitions.LetterCount).Select(CeresCinematicPictures.CaptionLetter), CeresCinematicPictures.JapaneseCaption, CeresCinematicPictures.ZebesPlanet]);
+    /// <summary>The name of every picture the sheet holds.</summary>
+    internal static IEnumerable<string> FrameNames =>
+        [.. Enumerable.Range(0, SpaceColonyCaptionDefinitions.LetterCount).Select(CeresCinematicPictures.CaptionLetter), CeresCinematicPictures.JapaneseCaption, CeresCinematicPictures.ZebesPlanet];
 
     /// <summary>The caption character visible letter <paramref name="index"/> draws.</summary>
     internal static char CaptionCharacter(int index) => SpaceColonyCaptionDefinitions.Text[SpaceColonyCaption.TextIndex(index)];
@@ -89,7 +88,7 @@ internal static class CeresCinematicPictureSheetComposer
             planetGroups = planetGroups.Union(Paint(canvas, cell % PlanetCells * CharacterPixels, captionHeight + cell / PlanetCells * CharacterPixels,
                 planet[cell], zebes, colours));
         frames.Add(CeresCinematicPictures.ZebesPlanet, Frame(0, captionHeight, PlanetCells, planet.Length / PlanetCells, planetGroups));
-        return canvas.ToSplitSheet(colours, frames, SpriteImageColours.Background);
+        return canvas.ToSheet(colours, frames, SpriteImageColours.Background);
     }
 
     /// <summary>Paints <paramref name="tile"/> at (<paramref name="left"/>, <paramref name="top"/>) from <paramref name="characters"/>.</summary>

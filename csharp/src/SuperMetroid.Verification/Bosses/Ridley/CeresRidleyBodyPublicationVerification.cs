@@ -9,7 +9,6 @@ using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.Artwork;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Bosses.Ridley;
 
@@ -79,10 +78,7 @@ internal static class CeresRidleyBodyPublicationVerification
         for (int wall = 0; wall < points.Length; wall++)
         {
             PlacedPlanePicture placed = walls.Plane.Pictures[wall];
-            // Each wall is one picture, installed whole and drawn as its plane's part behind (#1634).
-            AssertTrue(placed.Picture.InFront is null, $"wall {wall}'s picture is whole, with no part in front");
-            SpriteSheetFrame picture = placed.Picture.Behind ?? throw new InvalidOperationException($"Wall {wall} shows no picture.");
-            AssertEqual(new Offset16<PlanePixels>(points[wall].X - picture.Origin.X, points[wall].Y - picture.Origin.Y),
+            AssertEqual(new Offset16<PlanePixels>(points[wall].X - placed.Picture.Origin.X, points[wall].Y - placed.Picture.Origin.Y),
                 placed.Corner, $"wall {wall}'s picture places its origin on the wall's room point");
         }
         AssertEqual(camera.AsPlaneOffset(), walls.Scroll, "the walls scroll with the actors' camera");

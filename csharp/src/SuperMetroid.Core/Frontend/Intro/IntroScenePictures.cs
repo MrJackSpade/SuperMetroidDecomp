@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
 /// The opening cinematic's scene pictures (#1467): each scene page, Samus's portrait and each eye frame drawn over it,
-/// which the import composes once under the cinematic's palette, each as its part drawn behind and its part drawn in front
-/// (#1634). The cinematic places the pictures its scene state shows on a plane the size of the cinematic's tilemaps.
+/// which the import composes once under the cinematic's palette. The cinematic places the pictures its scene state shows
+/// on a plane the size of the cinematic's tilemaps.
 /// </summary>
 public static class IntroScenePictures
 {
@@ -25,7 +25,7 @@ public static class IntroScenePictures
 
     /// <summary>The plane showing scene page <paramref name="page"/> in <paramref name="shading"/> (#1512).</summary>
     internal static PicturedPlane PagePlane(InstalledSpriteSheets sheets, IntroScenePage page, PictureShading shading) =>
-        Plane([new PlacedPlanePicture(PictureParts.Of(Sheet(sheets), Page(page)), default, Ensure.NotNull(shading))]);
+        Plane([new PlacedPlanePicture(Sheet(sheets).Frame(Page(page)), default, Ensure.NotNull(shading))]);
 
     /// <summary>The plane showing the portrait, with <paramref name="eye"/>'s picture over its eye once the eye has shown a frame, both in <paramref name="shading"/> (#1512).</summary>
     internal static PicturedPlane PortraitPlane(InstalledSpriteSheets sheets, IntroEyeFrame? eye, PictureShading shading)
@@ -33,9 +33,9 @@ public static class IntroScenePictures
         SpriteSheet sheet = Sheet(sheets);
         var placed = ImmutableArray.CreateBuilder<PlacedPlanePicture>();
         Ensure.NotNull(shading);
-        placed.Add(new(PictureParts.Of(sheet, Portrait), default, shading));
+        placed.Add(new(sheet.Frame(Portrait), default, shading));
         if (eye is { } frame)
-            placed.Add(new(PictureParts.Of(sheet, Eye(frame)), IntroEyeAnimationDefinitions.PortraitEyeCorner - Position16<PlanePixels>.Zero, shading));
+            placed.Add(new(sheet.Frame(Eye(frame)), IntroEyeAnimationDefinitions.PortraitEyeCorner - Position16<PlanePixels>.Zero, shading));
         return Plane(placed.ToImmutable());
     }
 

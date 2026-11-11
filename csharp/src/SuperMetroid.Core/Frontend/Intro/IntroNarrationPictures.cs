@@ -41,7 +41,7 @@ public static class IntroNarrationPictures
     /// lie in several groups and in colours no group moves.
     /// </summary>
     internal static PicturedPlane FirstCardPlane(InstalledSpriteSheets sheets, PictureShading shading) =>
-        Plane([new PlacedPlanePicture(Whole(Sheet(sheets), FirstCard), default, Ensure.NotNull(shading))]);
+        Plane([new PlacedPlanePicture(Sheet(sheets).Frame(FirstCard), default, Ensure.NotNull(shading))]);
 
     /// <summary>
     /// The screen of the narration pages (#1512, #1555): the final line in <paramref name="finalLine"/>, as its colours lie
@@ -55,14 +55,14 @@ public static class IntroNarrationPictures
         SpriteSheet sheet = Sheet(sheets);
         var placed = ImmutableArray.CreateBuilder<PlacedPlanePicture>();
         Ensure.NotNull(shown);
-        placed.Add(new(Whole(sheet, FinalLine), At(0, FinalLineRow), Ensure.NotNull(finalLine)));
+        placed.Add(new(sheet.Frame(FinalLine), At(0, FinalLineRow), Ensure.NotNull(finalLine)));
         for (int row = IntroNarrationText.FirstTextRow; row < IntroNarrationText.FirstTextRow + IntroNarrationText.TextRows; row++)
         {
             for (int column = 0; column < IntroNarrationText.RowCells; column++)
             {
                 IntroTextCell cell = text.ShownAt(column, row);
                 if (cell.Letter is { } letter)
-                    placed.Add(new(Whole(sheet, Letter(letter)), At(column, row), shown(PictureShading.Shaded(IntroShades.Glow(cell.ColourVariant)))));
+                    placed.Add(new(sheet.Frame(Letter(letter)), At(column, row), shown(PictureShading.Shaded(IntroShades.Glow(cell.ColourVariant)))));
             }
         }
         return Plane(placed.ToImmutable());
@@ -74,12 +74,6 @@ public static class IntroNarrationPictures
 
     /// <summary>The installed narration picture sheet.</summary>
     private static SpriteSheet Sheet(InstalledSpriteSheets sheets) => Ensure.NotNull(sheets).Get(SpriteSheetId.IntroNarrationPictures);
-
-    /// <summary>
-    /// The narration picture named <paramref name="name"/>, installed whole (#1634): the narration's glyphs keep a colour at
-    /// every pixel, so none of them is installed as two parts, and its plane draws it as its part behind.
-    /// </summary>
-    private static LayeredPicture Whole(SpriteSheet sheet, string name) => new(sheet.Frame(name), InFront: null);
 
     /// <summary>A narration plane holding <paramref name="placed"/>.</summary>
     private static PicturedPlane Plane(ImmutableArray<PlacedPlanePicture> placed) => new(placed);

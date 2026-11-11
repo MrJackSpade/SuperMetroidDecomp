@@ -12,9 +12,8 @@ namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 /// <summary>
 /// Turns a fixture's memory image into pictured backgrounds (#1467): a tilemap's cells over the characters at a character
 /// base become one picture of the whole map on a pictured plane, or a grid of one-cell pictures each mirrored as its cell
-/// mirrors it. The import's frontend picture composer paints them under the fixture's palette, installing each sixteen-colour
-/// picture as its two parts and each four-colour one whole (#1634), and each picture shows those standard colours in
-/// <see cref="PictureShading.Standard"/> (#1493, #1512).
+/// mirrors it. The import's frontend picture composer paints them under the fixture's palette, and each picture shows
+/// those standard colours in <see cref="PictureShading.Standard"/> (#1493, #1512).
 /// </summary>
 internal static class VramPictureFixtures
 {
@@ -67,8 +66,7 @@ internal static class VramPictureFixtures
     /// <summary>
     /// A plane showing one picture, at its origin, of the <paramref name="size"/> tilemap at <paramref name="tilemapWord"/> in
     /// <paramref name="image"/> over its <paramref name="depth"/> characters from <paramref name="characterWord"/>, coloured
-    /// from <paramref name="palette"/>: each cell's tile in its colour variant and mirroring, in the part of the picture its
-    /// tier paints (#1634). A map painting nothing places no picture.
+    /// from <paramref name="palette"/>: each cell's tile in its colour variant and mirroring, the picture installed whole (#1634).
     /// </summary>
     internal static PicturedPlane Plane(ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette, int tilemapWord, int characterWord, TileInkDepth depth,
         Extent16<CharacterCells> size)
@@ -76,14 +74,14 @@ internal static class VramPictureFixtures
         BackgroundTile[] cells = Tilemap(image, tilemapWord, size);
         SpriteSheet sheet = Load(ScreenPictureSheetComposerConstants.ComposeRoom([ScreenPictureSubject.Page(MapFrame, cells, size.X)],
             Characters(image, characterWord, depth), palette), $"vram-plane-{tilemapWord:X4}-{characterWord:X4}-{depth}");
-        return PicturedPlane.Showing([new PlacedPlanePicture(Picture(sheet, MapFrame, depth), Offset16<PlanePixels>.Zero, PictureShading.Standard)]);
+        return new PicturedPlane([new PlacedPlanePicture(sheet.Frame(MapFrame), Offset16<PlanePixels>.Zero, PictureShading.Standard)]);
     }
 
     /// <summary>
     /// A <paramref name="size"/> grid whose cells show the tilemap at <paramref name="tilemapWord"/> in
     /// <paramref name="image"/> over its <paramref name="depth"/> characters from <paramref name="characterWord"/>, coloured
-    /// from <paramref name="palette"/>: each cell the unmirrored picture of its tile in its colour variant, in the part its
-    /// tier paints (#1634), which the grid mirrors as the cell does; a cell whose picture paints nothing shows none.
+    /// from <paramref name="palette"/>: each cell the unmirrored picture of its tile in its colour variant, installed whole
+    /// (#1634), which the grid mirrors as the cell does.
     /// </summary>
     internal static PictureGrid Grid(ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette, int tilemapWord, int characterWord, TileInkDepth depth,
         Extent16<CharacterCells> size)
@@ -94,16 +92,8 @@ internal static class VramPictureFixtures
             [.. unmirrored.Select(tile => ScreenPictureSubject.Block(CellFrame(tile), default, CellSize, [tile]))],
             Characters(image, characterWord, depth), palette), $"vram-grid-{tilemapWord:X4}-{characterWord:X4}-{depth}");
         // The grid counts its squares as an area map does; each square shows one of the tilemap's cells.
-        return new PictureGrid(new Extent16<MapTiles>(size.X, size.Y), [.. cells.Select(cell => Picture(sheet, CellFrame(Unmirrored(cell)), depth) is { Size: not null } picture
-            ? new GridPicture(picture, cell.Flip, PictureShading.Standard) : (GridPicture?)null)]);
+        return new PictureGrid(new Extent16<MapTiles>(size.X, size.Y), [.. cells.Select(cell => (GridPicture?)new GridPicture(sheet.Frame(CellFrame(Unmirrored(cell))), cell.Flip, PictureShading.Standard))]);
     }
-
-    /// <summary>
-    /// The picture named <paramref name="name"/> on a sheet painted over <paramref name="depth"/> characters: its two parts
-    /// over sixteen-colour characters, and whole, drawn as its plane's part behind, over four-colour ones (#1634).
-    /// </summary>
-    private static LayeredPicture Picture(SpriteSheet sheet, string name, TileInkDepth depth) => depth == TileInkDepth.SixteenColours
-        ? PictureParts.Of(sheet, name) : new LayeredPicture(sheet.Frame(name), InFront: null);
 
     /// <summary><paramref name="tile"/> without its mirroring.</summary>
     private static BackgroundTile Unmirrored(BackgroundTile tile) => tile with { FlipHorizontally = false, FlipVertically = false };

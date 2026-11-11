@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rendering;
 /// <summary>
 /// A grid of equal squares each showing an installed picture or nothing (#1467), as an area map shows its squares: row by
 /// row from the top-left square, which lies on the grid's origin; outside its squares the grid shows nothing and does not
-/// repeat (#1555). Each square's picture is its part drawn behind and its part drawn in front (#1634). Equal to another showing the same pictures the same way in every square, so an unchanged map keeps the
+/// repeat (#1555). Equal to another showing the same pictures the same way in every square, so an unchanged map keeps the
 /// backend's packing.
 /// </summary>
 public sealed class PictureGrid : IEquatable<PictureGrid>
@@ -27,13 +27,8 @@ public sealed class PictureGrid : IEquatable<PictureGrid>
         Ensure.LengthEqual(cells.AsSpan(), size.X * size.Y);
         foreach (GridPicture? cell in cells)
         {
-            if (cell is not { } shown)
-                continue;
-            // A cell showing nothing is none; a cell's picture is one square, both its parts alike (#1634).
-            if (Ensure.NotNull(shown.Picture).Size is not { } size)
-                throw new ArgumentException("A grid cell's picture shows nothing; such a cell shows none.", nameof(cells));
-            if (size.X != CellPixels || size.Y != CellPixels)
-                throw new ArgumentException($"A grid cell's picture is {size.X}x{size.Y}, not one {CellPixels}-pixel square.", nameof(cells));
+            if (cell is { } shown && (shown.Picture.Size.X != CellPixels || shown.Picture.Size.Y != CellPixels))
+                throw new ArgumentException($"A grid cell's picture is {shown.Picture.Size.X}x{shown.Picture.Size.Y}, not one {CellPixels}-pixel square.", nameof(cells));
         }
         Size = size;
         Cells = cells;
@@ -58,9 +53,9 @@ public sealed class PictureGrid : IEquatable<PictureGrid>
         return true;
     }
 
-    /// <summary>Whether two cells show the same picture's parts the same way, or both show nothing.</summary>
+    /// <summary>Whether two cells show the same picture the same way, or both show nothing.</summary>
     private static bool Same(GridPicture? mine, GridPicture? theirs) => mine is { } shown
-        ? theirs is { } other && shown.Picture == other.Picture && shown.Mirroring == other.Mirroring
+        ? theirs is { } other && ReferenceEquals(shown.Picture, other.Picture) && shown.Mirroring == other.Mirroring
         : theirs is null;
 
     /// <inheritdoc />

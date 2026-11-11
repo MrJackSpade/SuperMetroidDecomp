@@ -40,6 +40,6 @@ internal static class MenuPictureSheet
     internal static ComposedSpriteSheet Compose(AreaMapPresentation maps) =>
         ScreenPictureSheetComposer.Compose(Subjects(maps), Characters(maps), ImportAreaMapPresentation.PalettesOf(maps).FileSelect);
 
-    /// <summary>The frames the sheet must hold: each picture's two parts (#1634), its sixteen-colour pictures' parts.</summary>
-    internal static IEnumerable<string> FrameNames(AreaMapPresentation maps) => ScreenPictureSheetComposer.PartNames(Subjects(maps).Select(subject => subject.Name));
+    /// <summary>The frames the sheet must hold: one per picture.</summary>
+    internal static IEnumerable<string> FrameNames(AreaMapPresentation maps) => Subjects(maps).Select(subject => subject.Name);
 }

@@ -50,31 +50,31 @@ internal static class ScreenTilePicturesVerification
         for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
         {
             var shownArea = (AreaId)area;
-            // The foreground is installed as its two parts (#1634); the four-colour background whole, as its plane's part behind.
-            LayeredPicture foreground = PictureParts.Of(sheets.Get(ScreenTileSheetDefinitions.AreaMapForegrounds[shownArea]), AreaMapPictures.WorldForegroundFrame);
-            var background = new LayeredPicture(sheets.Get(ScreenTileSheetDefinitions.AreaMapBackgrounds[shownArea]).Frame(AreaMapPictures.WorldBackgroundFrame), InFront: null);
+            SpriteSheetFrame foreground = sheets.Get(ScreenTileSheetDefinitions.AreaMapForegrounds[shownArea]).Frame(AreaMapPictures.WorldForegroundFrame);
+            SpriteSheetFrame background = sheets.Get(ScreenTileSheetDefinitions.AreaMapBackgrounds[shownArea]).Frame(AreaMapPictures.WorldBackgroundFrame);
             FileSelectAreaMapGraphics world = InstalledFixtures.CreateFileSelectAreaMap(area);
             foreach (AreaMapBackgroundGlow math in new[] { AreaMapBackgroundGlow.WholeScreen, AreaMapBackgroundGlow.ForegroundOnly })
             {
                 LayeredScene scene = world.CaptureRenderSnapshot(FileSelectMapGraphicsPixelsAccess.UsedStations(used), math);
-                AssertTrue(scene.Layers[0] is PicturedPlaneLayer { Plane.Pictures: [{ } shownForeground] } && shownForeground.Picture == foreground
-                    && scene.Layers[1] is AddedPicturedPlaneLayer { Plane.Pictures: [{ } shownBackground] } added && shownBackground.Picture == background
+                AssertTrue(scene.Layers[0] is PicturedPlaneLayer { Plane.Pictures: [{ } shownForeground] } && ReferenceEquals(shownForeground.Picture, foreground)
+                    && scene.Layers[1] is AddedPicturedPlaneLayer { Plane.Pictures: [{ } shownBackground] } added && ReferenceEquals(shownBackground.Picture, background)
                     && (added.GlowsOver is null) == (math == AreaMapBackgroundGlow.WholeScreen),
                     $"{shownArea} world map shows its foreground and its background glowing over it ({math})");
             }
             var room = new FileSelectRoomMapGraphics(explored, shownArea, mapPresentation: maps, sheets: sheets);
             LayeredScene roomScene = room.CaptureRenderSnapshot();
-            // A cell whose picture the room-map sheet holds as showing nothing, both its parts, draws nothing (#1513, #1634);
-            // every other cell shows its installed picture's parts.
+            // A cell whose picture the room-map sheet holds as showing nothing draws nothing (#1513); every other cell shows
+            // its installed picture.
             SpriteSheet roomPictures = sheets.Get(SpriteSheetId.RoomMapPictures);
             ImmutableArray<ShownMapCell> shownCells = room.AreaMap.Cells;
             AssertTrue(roomScene.Layers.Length == 2 && roomScene.Layers[1] is PictureGridLayer { Grid: { } grid }
                 && grid.Cells.Length == AreaMapSize.WidthInTiles * AreaMapSize.HeightInTiles && grid.Cells.Length == shownCells.Length
-                && grid.Cells.Select((cell, index) => PictureParts.Of(roomPictures, AreaMapPictures.FrameName(shownCells[index])) is var installed
-                    && (installed.Size is null ? cell is null : cell is { } shown && shown.Picture == installed)).All(matches => matches),
+                && grid.Cells.Select((cell, index) => roomPictures.ShowsNothing(AreaMapPictures.FrameName(shownCells[index]))
+                    ? cell is null
+                    : cell is { } shown && ReferenceEquals(shown.Picture, roomPictures.Frame(AreaMapPictures.FrameName(shownCells[index])))).All(matches => matches),
                 $"{shownArea} room map shows every cell's picture, and nothing for a cell whose picture shows nothing");
             AssertTrue(room.CaptureRenderSnapshot(content: RoomMapContent.FrameOnly).Layers is [PicturedPlaneLayer { Plane.Pictures: [{ } frame] }]
-                && frame.Picture == PictureParts.Of(sheets.Get(SpriteSheetId.RoomMapPictures), AreaMapPictures.RoomFrameName(shownArea)),
+                && ReferenceEquals(frame.Picture, sheets.Get(SpriteSheetId.RoomMapPictures).Frame(AreaMapPictures.RoomFrameName(shownArea))),
                 $"{shownArea} room map frame shows its picture");
         }
         Console.WriteLine("Screen pictures: each area's world map and room map show their installed pictures.");

@@ -10,8 +10,8 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
 /// <summary>
-/// Composes the opening narration's pictures once (#1467) from the narration font under the cinematic's palette, each pixel
-/// in the priority tier its tile gave it: the first card over the whole font, as the cinematic shows it before the first
+/// Composes the opening narration's pictures once (#1467) from the narration font under the cinematic's palette, each
+/// installed whole (#1634): the first card over the whole font, as the cinematic shows it before the first
 /// illustrated page; the final line and each letter, with a shade for each colour variant the letters' typing or glow gives
 /// them (#1512), over the font with its Japanese glyphs blanked, as
 /// <c>BlankOut_JapanText_Tiles</c> leaves it for the pages. A tile naming a character the font does not hold shows nothing.

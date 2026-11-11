@@ -96,17 +96,12 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private const int HudPictureWords = 2;
     /// <summary>
     /// Words of a pictured plane's table before its pictures (#1467, #1555): its count of pictures; each picture follows in
-    /// drawing order as three words, its two parts' offsets (<see cref="PlanePartWords"/>, #1634) and its upper-left plane
-    /// pixel, x below y, each a signed sixteen-bit half.
+    /// drawing order as two words, its picture's offset and its upper-left plane pixel, x below y, each a signed sixteen-bit
+    /// half.
     /// </summary>
     private const int PlaneTableHeaderWords = 1;
-    /// <summary>
-    /// Words of a frontend picture's two parts wherever a plane's or a grid's table names one (#1634): the offset of its part
-    /// drawn behind, then of its part drawn in front, each zero where that part shows nothing.
-    /// </summary>
-    private const int PlanePartWords = 2;
-    /// <summary>Words of a placed plane picture's record: its parts, then its upper-left plane pixel.</summary>
-    private const int PlanePictureWords = PlanePartWords + 1;
+    /// <summary>Words of a placed plane picture's record.</summary>
+    private const int PlanePictureWords = 2;
     /// <summary>The bit an X-ray reveal block's arrangement starts at.</summary>
     private const int ArrangementShift = 28;
     /// <summary>Initial buffer size; it grows to fit larger rooms.</summary>
@@ -127,9 +122,9 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// <summary>Where the last <see cref="Pack"/> put each pictured plane's table (#1467).</summary>
     private readonly Dictionary<PicturedPlane, int> planeTables = [];
     /// <summary>
-    /// Where the last <see cref="Pack"/> put each picture grid (#1467): its width and height in cells, x below y, then two
-    /// words per cell row by row, its one-cell picture's two parts' offsets (<see cref="PlanePartWords"/>, #1634; both zero
-    /// for none), the first with the cell's horizontal and vertical mirroring in bits 30 and 31.
+    /// Where the last <see cref="Pack"/> put each picture grid (#1467): its width and height in cells, x below y, then one
+    /// word per cell row by row, its one-cell picture's offset (zero for none) with its horizontal and vertical mirroring in
+    /// bits 30 and 31.
     /// </summary>
     private readonly Dictionary<PictureGrid, int> gridTables = [];
     /// <summary>The bit of a packed grid cell marking horizontal mirroring.</summary>
@@ -213,7 +208,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         foreach (PictureGrid grid in grids)
         {
             if (gridTables.TryAdd(grid, words))
-                words += 1 + grid.Cells.Length * PlanePartWords;
+                words += 1 + grid.Cells.Length;
         }
         var blockOffsets = new int[PlaneSlots];
         for (int slot = 0; slot < PlaneSlots; slot++)
@@ -450,7 +445,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
 
     /// <summary>
     /// Packs <paramref name="plane"/>'s table from <paramref name="offset"/>, as <see cref="PlaneTableHeaderWords"/>
-    /// describes: the count of its pictures, then each picture's two parts' offsets and its upper-left plane pixel.
+    /// describes: the count of its pictures, then each picture's offset and its upper-left plane pixel.
     /// </summary>
     private static void PackPlane(Span<uint> upload, PicturedPlane plane, int offset, Dictionary<ShownPicture, int> pictureWords)
     {
@@ -460,14 +455,14 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         {
             PlacedPlanePicture placed = pictures[index];
             int record = offset + PlaneTableHeaderWords + index * PlanePictureWords;
-            PackPlaneParts(upload, record, placed.Picture, placed.Shading, pictureWords);
-            upload[record + PlanePartWords] = D3D11ConstantPacking.SignedHalves(placed.Corner.X, placed.Corner.Y);
+            upload[record] = (uint)pictureWords[new(placed.Picture, D3D11PictureColouring.OwnShading, placed.Shading)];
+            upload[record + 1] = D3D11ConstantPacking.SignedHalves(placed.Corner.X, placed.Corner.Y);
         }
     }
 
     /// <summary>
     /// Packs <paramref name="grid"/> from <paramref name="offset"/>, as <see cref="gridTables"/> describes: its size, then
-    /// each cell's picture's two parts, the first with the cell's mirroring.
+    /// each cell's picture with its mirroring.
     /// </summary>
     private static void PackGrid(Span<uint> upload, PictureGrid grid, int offset, Dictionary<ShownPicture, int> pictureWords)
     {
@@ -477,22 +472,10 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         {
             if (cells[index] is not { } cell)
                 continue;
-            int record = offset + 1 + index * PlanePartWords;
-            PackPlaneParts(upload, record, cell.Picture, cell.Shading, pictureWords);
-            upload[record] |= ((cell.Mirroring & TileFlip.Horizontal) != 0 ? GridFlipHorizontally : 0)
+            upload[offset + 1 + index] = (uint)pictureWords[new(cell.Picture, D3D11PictureColouring.OwnShading, cell.Shading)]
+                | ((cell.Mirroring & TileFlip.Horizontal) != 0 ? GridFlipHorizontally : 0)
                 | ((cell.Mirroring & TileFlip.Vertical) != 0 ? GridFlipVertically : 0);
         }
-    }
-
-    /// <summary>
-    /// Packs the offsets of a frontend picture's two parts at <paramref name="at"/>, each coloured in its own shading as
-    /// <paramref name="shading"/> names it, as <see cref="PlanePartWords"/> describes (#1634): zero for a part that shows nothing.
-    /// </summary>
-    private static void PackPlaneParts(Span<uint> upload, int at, LayeredPicture picture, PictureShading shading,
-        Dictionary<ShownPicture, int> pictureWords)
-    {
-        upload[at] = picture.Behind is { } behind ? (uint)pictureWords[new(behind, D3D11PictureColouring.OwnShading, shading)] : 0;
-        upload[at + 1] = picture.InFront is { } inFront ? (uint)pictureWords[new(inFront, D3D11PictureColouring.OwnShading, shading)] : 0;
     }
 
     /// <summary>The room level buffer word of <paramref name="grid"/>'s cells in the last packing (#1467).</summary>
@@ -572,19 +555,14 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         foreach (PicturedPlane plane in frame.Planes?.Planes ?? [])
         {
             foreach (PlacedPlanePicture placed in plane.Pictures)
-            {
-                foreach (SpriteSheetFrame part in placed.Picture.Parts)
-                    yield return new(part, D3D11PictureColouring.OwnShading, placed.Shading);
-            }
+                yield return new(placed.Picture, D3D11PictureColouring.OwnShading, placed.Shading);
         }
         foreach (PictureGrid grid in frame.Grids?.Grids ?? [])
         {
             foreach (GridPicture? cell in grid.Cells)
             {
-                if (cell is not { } shown)
-                    continue;
-                foreach (SpriteSheetFrame part in shown.Picture.Parts)
-                    yield return new(part, D3D11PictureColouring.OwnShading, shown.Shading);
+                if (cell is { } shown)
+                    yield return new(shown.Picture, D3D11PictureColouring.OwnShading, shown.Shading);
             }
         }
         foreach (PlacedWrittenPicture placed in (frame.BackgroundText?.Pictures ?? []).Concat(frame.ForegroundText?.Pictures ?? []))

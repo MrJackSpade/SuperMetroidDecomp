@@ -482,11 +482,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
     }
 
 
-    /// <summary>
-    /// The ending's installed picture <paramref name="picture"/> of sheet <paramref name="sheet"/>, as its part drawn behind and
-    /// its part drawn in front (#1634).
-    /// </summary>
-    private LayeredPicture Picture(SpriteSheetId sheet, string picture) => PictureParts.Of(InstalledArtwork.SpriteSheet(sheet), picture);
+    /// <summary>The ending's installed picture <paramref name="picture"/> of sheet <paramref name="sheet"/>.</summary>
+    private SpriteSheetFrame Picture(SpriteSheetId sheet, string picture) => InstalledArtwork.SpriteSheet(sheet).Frame(picture);
 
     /// <summary>
     /// A one-screen plane showing the whole-screen picture <paramref name="picture"/>, which is <paramref name="scenery"/>, in
@@ -515,12 +512,9 @@ internal sealed class EndingCreditsState : IFrontendScreen
     /// </summary>
     internal PicturedPlane WavySamusTexture()
     {
-        // The wavy Samus keeps a colour at every pixel, so the import installs her whole (#1634): her plane draws her as its
-        // part behind.
-        SpriteSheetFrame whole = InstalledArtwork.SpriteSheet(SpriteSheetId.EndingWavySamusPicture).Frame(EndingPictureNames.WavySamus);
-        var picture = new LayeredPicture(whole, InFront: null);
+        SpriteSheetFrame picture = Picture(SpriteSheetId.EndingWavySamusPicture, EndingPictureNames.WavySamus);
         PictureShading shading = screen.Colours.SceneryShading(EndingScenery.WavySamus);
-        int width = whole.Size.X, height = whole.Size.Y;
+        int width = picture.Size.X, height = picture.Size.Y;
         int lowestShownLine = EndingWavySamus.VerticalScrollAtAge(EndingSequenceDefinitions.Timing.WaitingBackdropFrames)
             + ScreenGeometry.ScreenHeightPixels;
         var placed = ImmutableArray.CreateBuilder<PlacedPlanePicture>();
@@ -550,8 +544,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
         SpriteSheet sheet = InstalledArtwork.SpriteSheet(SpriteSheetId.EndingPostCreditsPictures);
         PictureShading shading = screen.Colours.SceneryShading(EndingScenery.PostCreditsText);
         EndingPostCreditsText text = InstalledArtwork.PostCreditsText;
-        return PicturedPlane.Showing(text.Shown().Select(shown => new PlacedPlanePicture(PictureParts.Of(sheet, shown.Picture),
-            Offset16<PlanePixels>.Of(shown.Corner.X, shown.Corner.Y + text.Drop), shading)));
+        return new PicturedPlane([.. text.Shown().Select(shown => new PlacedPlanePicture(sheet.Frame(shown.Picture),
+            Offset16<PlanePixels>.Of(shown.Corner.X, shown.Corner.Y + text.Drop), shading))]);
     }
 
     /// <summary>

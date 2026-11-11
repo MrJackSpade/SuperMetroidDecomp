@@ -133,13 +133,6 @@ internal static class SceneShownColours
         return shown;
     }
 
-    /// <summary>Adds the image of each of <paramref name="picture"/>'s parts (#1634), as <paramref name="shading"/> shows it.</summary>
-    private static void AddParts(List<(SpriteImage Picture, PictureShading Shading)> shown, LayeredPicture picture, PictureShading shading)
-    {
-        foreach (SpriteSheetFrame part in picture.Parts)
-            Add(shown, part.Sheet, shading);
-    }
-
     /// <summary>Each distinct picture and shading the layers of <paramref name="scene"/> draw, layer by layer.</summary>
     /// <exception cref="InvalidOperationException">
     /// A picture names no shading, or a layer shows pictures gameplay colours by group, which a frontend scene has none of.
@@ -154,11 +147,11 @@ internal static class SceneShownColours
             {
                 case PicturedPlaneLayer plane:
                     foreach (PlacedPlanePicture placed in plane.Plane.Pictures)
-                        AddParts(shown, placed.Picture, placed.Shading);
+                        Add(shown, placed.Picture.Sheet, placed.Shading);
                     break;
                 case AddedPicturedPlaneLayer added:
                     foreach (PlacedPlanePicture placed in added.Plane.Pictures)
-                        AddParts(shown, placed.Picture, placed.Shading);
+                        Add(shown, placed.Picture.Sheet, placed.Shading);
                     break;
                 case ColourAddWindowLayer or ScreenGradientLayer or ScreenTintLayer or SpritesLayer:
                     // These layers draw colours, or sprites, which are read from the scene's sprite draws below.
@@ -167,7 +160,7 @@ internal static class SceneShownColours
                     foreach (GridPicture? cell in grid.Grid.Cells)
                     {
                         if (cell is { } picture)
-                            AddParts(shown, picture.Picture, picture.Shading);
+                            Add(shown, picture.Picture.Sheet, picture.Shading);
                     }
                     break;
                 case HudLayer hud:

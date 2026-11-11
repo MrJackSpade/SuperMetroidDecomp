@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -48,17 +49,23 @@ public static class RoomObjectKraidVisualFiles
         _ => throw new InvalidOperationException($"Undefined {nameof(KraidRoomDraw)} {draw}."),
     };
 
-    /// <summary>The one horizontal run of each Kraid draw, built from the blocks the game calculates.</summary>
+    /// <summary>
+    /// Every Kraid room frame's draw list as the cartridge writes it: one run along the row from the object's block, each
+    /// cell colliding as the game's block shape for the frame says (#1608). The run form is the cartridge's; the game
+    /// draws the shape.
+    /// </summary>
     internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All
     {
         get
         {
             foreach (KraidRoomDraw frame in Enum.GetValues<KraidRoomDraw>())
             {
-                var draw = new KraidRoomObjectDraws.Draw(frame);
-                var collisions = new RoomCollisionType[draw.BlockCount];
-                for (int block = 0; block < collisions.Length; block++) collisions[block] = draw.CollisionAt(block);
-                yield return RoomObjectDrawListExport.SingleRun(RoomObjectDraw.Of(frame), RoomObjectRunDirection.Horizontal, collisions);
+                RoomObjectDraw draw = RoomObjectDraw.Of(frame);
+                if (!KraidRoomObjectDraws.TryDescribe(draw, out RoomBlockShape? shape))
+                    throw new InvalidOperationException($"Kraid room frame {frame} has no shape.");
+                var collisions = new RoomCollisionType[shape.Cells.Count];
+                for (int cell = 0; cell < collisions.Length; cell++) collisions[cell] = shape.CollisionAt(new Offset16<RoomBlocks>(cell, 0));
+                yield return RoomObjectDrawListExport.SingleRun(draw, RoomObjectRunDirection.Horizontal, collisions);
             }
         }
     }

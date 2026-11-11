@@ -1,54 +1,28 @@
-using SuperMetroid.Core.Rooms.LevelData;
-using static SuperMetroid.Core.Rooms.RoomObjects.KraidRoomObjectDrawDefinitions;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>How the blocks of Kraid's room's crumble and clear draws collide.</summary>
+/// <summary>
+/// Kraid's room's ceiling and spike block draws: which room-object draws are the room's, and the block shape each draws,
+/// from <see cref="KraidRoomObjectDrawDefinitions"/>. What each frame shows is its installed picture (#1557).
+/// </summary>
 internal static class KraidRoomObjectDraws
 {
-    /// <summary>Recognizes a Kraid room draw and returns its calculated descriptor.</summary>
-    internal static bool TryGet(RoomObjectDraw request, out Draw draw)
+    /// <summary>The block shape of <paramref name="request"/> when it is one of the ten Kraid room frames.</summary>
+    /// <param name="request">The draw to describe.</param>
+    /// <param name="shape">The frame's block shape; null when the draw is not the room's.</param>
+    /// <returns>Whether the draw is one of the Kraid room's frames.</returns>
+    /// <exception cref="InvalidOperationException">The draw is a Kraid room frame with no shape.</exception>
+    internal static bool TryDescribe(RoomObjectDraw request, [MaybeNullWhen(false)] out RoomBlockShape shape)
     {
-        bool found = RoomObjectDraw.TryFrame(request, out KraidRoomDraw frame);
-        draw = found ? new(frame) : default;
-        return found;
-    }
-
-    /// <summary>Gets the one, fifteen, or twenty-two block span for a named Kraid draw.</summary>
-    private static int CountFor(KraidRoomDraw draw) => draw switch
-    {
-        KraidRoomDraw.CrumbleFirst or KraidRoomDraw.CrumbleSecond or KraidRoomDraw.CrumbleThird or
-        KraidRoomDraw.CeilingBackground1 or KraidRoomDraw.CeilingBackground2 or KraidRoomDraw.CeilingBackground3 or
-        KraidRoomDraw.SpikeFirst or KraidRoomDraw.SpikeSecond => 1,
-        KraidRoomDraw.ClearCeiling => 15,
-        KraidRoomDraw.ClearSpikes => 22,
-        _ => throw new InvalidOperationException($"Undefined {nameof(KraidRoomDraw)} {draw}."),
-    };
-
-    /// <summary>How a named crumble, background, or alternating clear block collides.</summary>
-    /// <remarks>The ceiling clear starts with its unique left edge, then repeats background two/three. The spike clear
-    /// repeats first/second columns eleven times. What each block shows is the frame's installed picture.</remarks>
-    private static RoomCollisionType Collision(KraidRoomDraw draw, int index) => draw switch
-    {
-        KraidRoomDraw.ClearCeiling => FixedCollision(index == 0 ? KraidRoomDraw.CeilingBackground1
-            : (index & 1) != 0 ? KraidRoomDraw.CeilingBackground2 : KraidRoomDraw.CeilingBackground3),
-        KraidRoomDraw.ClearSpikes => FixedCollision((index & 1) == 0 ? KraidRoomDraw.SpikeFirst : KraidRoomDraw.SpikeSecond),
-        KraidRoomDraw.CrumbleFirst or KraidRoomDraw.CrumbleSecond or KraidRoomDraw.CrumbleThird or
-        KraidRoomDraw.CeilingBackground1 or KraidRoomDraw.CeilingBackground2 or KraidRoomDraw.CeilingBackground3 or
-        KraidRoomDraw.SpikeFirst or KraidRoomDraw.SpikeSecond => FixedCollision(draw),
-        _ => throw new InvalidOperationException($"Undefined {nameof(KraidRoomDraw)} {draw}."),
-    };
-
-    /// <summary>How a single named crumble, background or spike block collides.</summary>
-    private static RoomCollisionType FixedCollision(KraidRoomDraw draw) => FixedCollisions[draw];
-
-    /// <summary>A horizontal, single-run Kraid draw evaluated without stored blocks.</summary>
-    internal readonly record struct Draw(KraidRoomDraw Frame)
-    {
-        /// <summary>Gets the number of blocks in this single horizontal run.</summary>
-        internal int BlockCount => CountFor(Frame);
-        /// <summary>How a block in this draw collides.</summary>
-        internal RoomCollisionType CollisionAt(int index) =>
-            (uint)index < (uint)BlockCount ? Collision(Frame, index) : throw new ArgumentOutOfRangeException(nameof(index));
+        if (!RoomObjectDraw.TryFrame(request, out KraidRoomDraw frame))
+        {
+            shape = null;
+            return false;
+        }
+        shape = KraidRoomObjectDrawDefinitions.Shapes.TryGetValue(frame, out RoomBlockShape? described)
+            ? described
+            : throw new InvalidOperationException($"Undefined {nameof(KraidRoomDraw)} {frame}.");
+        return true;
     }
 }

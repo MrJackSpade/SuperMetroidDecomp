@@ -138,11 +138,9 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
             DrawImageCell(level, draw, origin, Installed(SpeedBoosterVisuals, "Speed Booster").Image(draw), Offset16<RoomBlocks>.Zero, SpeedBoosterBlockObjectDrawDefinitions.BombRevealCollision);
             return;
         }
-        if (KraidRoomObjectDraws.TryGet(draw, out var kraidDraw))
+        if (KraidRoomObjectDraws.TryDescribe(draw, out RoomBlockShape? kraidRoom))
         {
-            RoomObjectFrameImage kraidRoom = Installed(KraidVisuals, "Kraid room").Image(draw);
-            for (int block = 0; block < kraidDraw.BlockCount; block++)
-                DrawImageCell(level, draw, origin, kraidRoom, new Offset16<RoomBlocks>(block, 0), kraidDraw.CollisionAt(block));
+            DrawShape(level, draw, origin, Installed(KraidVisuals, "Kraid room").Image(draw), kraidRoom);
             return;
         }
         if (draw == MaridiaElevatubeObjectDefinitions.BlockDraw)

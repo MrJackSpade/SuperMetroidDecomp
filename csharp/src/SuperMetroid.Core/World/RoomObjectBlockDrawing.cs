@@ -86,7 +86,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
     /// <summary>The installed pictures of Kraid's ceiling and spike frames, distinct from the boss's private background body maps and from elevatube owners of the shared crumble draw.</summary>
     public InstalledRoomObjectKraidVisuals? KraidVisuals => _visuals.RoomObjectKraidVisuals;
 
-    /// <summary>The installed pictures of Crocomire's bridge-clear, crumble and invisible-wall frames; compiled draw runs still own block placement and collision.</summary>
+    /// <summary>The installed pictures of Crocomire's bridge-clear, crumble and invisible-wall frames; each frame's block shape owns placement and collision.</summary>
     public InstalledRoomObjectCrocomireVisuals? CrocomireVisuals => _visuals.RoomObjectCrocomireVisuals;
 
     /// <summary>Collectible art; compiled terrain retains collision.</summary>
@@ -150,13 +150,9 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
             DrawImageCell(level, draw, origin, Installed(MaridiaElevatubeVisuals, "Maridia elevatube").Image(draw), Offset16<RoomBlocks>.Zero, MaridiaElevatubeObjectDefinitions.Collision);
             return;
         }
-        if (CrocomireArenaDraws.TryDescribe(draw,
-                out var crocomireDraw))
+        if (CrocomireArenaDraws.TryDescribe(draw, out RoomBlockShape? crocomireArena))
         {
-            RoomObjectFrameImage arena = Installed(CrocomireVisuals, "Crocomire arena").Image(draw);
-            for (int run = 0; run < crocomireDraw.RunCount; run++)
-                for (int block = 0; block < crocomireDraw.BlocksPerRun; block++)
-                    DrawImageCell(level, draw, origin, arena, new Offset16<RoomBlocks>(crocomireDraw.Wall ? run : block, crocomireDraw.Wall ? block : 0), crocomireDraw.CollisionAt(run, block));
+            DrawShape(level, draw, origin, Installed(CrocomireVisuals, "Crocomire arena").Image(draw), crocomireArena);
             return;
         }
         if (MotherBrainFakeDeathDraws.TryDescribeBackground(draw, out var backgroundFakeDeath))

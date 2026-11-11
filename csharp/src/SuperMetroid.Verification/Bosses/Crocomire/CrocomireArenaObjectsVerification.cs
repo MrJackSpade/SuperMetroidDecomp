@@ -78,7 +78,7 @@ internal static class CrocomireArenaObjectsVerification
         for (int y = 0; y < 9; y++)
         for (int x = 0; x < 11; x++)
             AssertEqual(expectedBlock(new((ushort)x, (ushort)y)),
-                level.GetCollisionBlockByIndex((3 + y) * width + 5 + x).Terrain,
+                level.GetCollisionBlock(new Position16<RoomBlocks>(5, 3) + new Offset16<RoomBlocks>(x, y)).Terrain,
                 $"Crocomire mutation {mutation} physical block ({x},{y})");
         roomObjects.Step(level);
         AssertEqual(0, roomObjects.SlotTable.ActiveCount,

@@ -1,44 +1,29 @@
-using SuperMetroid.Core.Rooms.LevelData;
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// Crocomire's bridge and invisible-wall block draws: which room-object draws are the arena's, their run geometry and how their
-/// cells collide, from <see cref="CrocomireArenaObjectDrawDefinitions"/>.
+/// Crocomire's bridge and invisible-wall block draws: which room-object draws are the arena's, and the block shape each
+/// draws, from <see cref="CrocomireArenaObjectDrawDefinitions"/>. What each frame shows is its installed picture (#1557).
 /// </summary>
 internal static class CrocomireArenaDraws
 {
-    /// <summary>Bridge or three-column wall geometry with its independently selected solidity.</summary>
-    internal readonly record struct Draw(CrocomireArenaDraw Frame, CrocomireArenaShape Shape, int BlocksPerRun)
-    {
-        /// <summary>Whether the draw writes wall columns rather than a bridge run.</summary>
-        internal bool Wall => Shape != CrocomireArenaShape.Bridge;
-
-        /// <summary>Wall layouts draw three columns; bridge layouts draw one horizontal run.</summary>
-        internal int RunCount => CrocomireArenaObjectDrawDefinitions.Cells[Frame].Length;
-        /// <summary>How a bridge cell or wall cell collides; the wall is solid only in the create-wall state.</summary>
-        internal RoomCollisionType CollisionAt(int run, int block)
-        {
-            if ((uint)run >= RunCount)
-                throw new ArgumentOutOfRangeException(nameof(run));
-            if ((uint)block >= BlocksPerRun)
-                throw new ArgumentOutOfRangeException(nameof(block));
-            return CrocomireArenaObjectDrawDefinitions.Cells[Frame][run][block];
-        }
-    }
-
-    /// <summary>
-    /// Describes a draw handed over by the shared room-object drawing; draws of other families are not the arena's.
-    /// </summary>
-    internal static bool TryDescribe(RoomObjectDraw draw, out Draw shape)
+    /// <summary>The block shape of <paramref name="draw"/> when it is one of the five arena frames.</summary>
+    /// <param name="draw">The draw to describe.</param>
+    /// <param name="shape">The frame's block shape; null when the draw is not the arena's.</param>
+    /// <returns>Whether the draw is one of the arena's frames.</returns>
+    /// <exception cref="InvalidOperationException">The draw is an arena frame with no shape.</exception>
+    internal static bool TryDescribe(RoomObjectDraw draw, [MaybeNullWhen(false)] out RoomBlockShape shape)
     {
         if (draw is not RoomObjectFrameDraw<CrocomireArenaDraw> { Frame: var frame })
         {
-            shape = default;
+            shape = null;
             return false;
         }
-        shape = new(frame, CrocomireArenaObjectDrawDefinitions.Shapes[frame], CrocomireArenaObjectDrawDefinitions.Cells[frame][0].Length);
+        shape = CrocomireArenaObjectDrawDefinitions.Shapes.TryGetValue(frame, out RoomBlockShape? described)
+            ? described
+            : throw new InvalidOperationException($"Undefined {nameof(CrocomireArenaDraw)} {frame}.");
         return true;
     }
 }

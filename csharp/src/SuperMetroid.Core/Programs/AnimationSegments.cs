@@ -83,6 +83,21 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
         ref Animation<TSegment> animation, ref AnimationPlace place, ref TCounter counter, Func<TEvent, AnimationContinuation<TSegment>?> react)
         where TCounter : struct, IAnimationRepeatCounter
     {
+        Ensure.NotNull(react);
+        return PlayToNextFrame(ref animation, ref place, ref counter, (raised, _) => react(raised));
+    }
+
+    /// <summary>
+    /// Plays the animation as the other overloads do, also telling <paramref name="react"/> where the play stands just
+    /// past each event it raises: the place an owner's call saves, to return to later, as a subroutine call saves its
+    /// return address.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The animation passes every beat without showing a frame.</exception>
+    internal AnimationShown<TSegment, TFrame> PlayToNextFrame<TCounter>(
+        ref Animation<TSegment> animation, ref AnimationPlace place, ref TCounter counter,
+        Func<TEvent, AnimationPlayback<TSegment>, AnimationContinuation<TSegment>?> react)
+        where TCounter : struct, IAnimationRepeatCounter
+    {
         Ensure.NotNull(animation);
         Ensure.NotNull(react);
         int limit = beats.Values.Sum(segment => segment.Length + 1) + 1;
@@ -108,7 +123,7 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
                     case AnimationBeat<TFrame, TEvent>.Pause pause:
                         return new AnimationShown<TSegment, TFrame>.Paused(pause.Duration);
                     case AnimationBeat<TFrame, TEvent>.Event raised:
-                        if (react(raised.Raised) is { } continuation)
+                        if (react(raised.Raised, new AnimationPlayback<TSegment>(animation, place)) is { } continuation)
                         {
                             animation = continuation.Animation;
                             place = continuation.Place;

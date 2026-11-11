@@ -10,8 +10,8 @@ internal sealed class ShitroidWallObjects(RoomObjectSlotTable slotTable)
 {
     /// <summary>
     /// Spawns the wall room object performing the request's mutation at its block. The setup runs as it is spawned: it
-    /// gives each block of the wall column the mutation's collision, keeping every block's appearance, and the object
-    /// leaves the room on its first update.
+    /// gives each block of the mutation's shape on the wall column the shape's collision, keeping every block's
+    /// appearance, and the object leaves the room on its first update.
     /// </summary>
     /// <returns>
     /// False when every room-object slot is occupied; no terrain is changed then (<see cref="RoomObjectSlotTable"/>'s
@@ -20,7 +20,7 @@ internal sealed class ShitroidWallObjects(RoomObjectSlotTable slotTable)
     public bool TrySpawn(RoomLevelData level, RoomObjectSpawnRequest<ShitroidWallMutation> request)
     {
         Ensure.NotNull(level);
-        RoomCollisionType collision = Ensure.Listed(Collisions, request.RoomObject);
+        RoomBlockShape shape = Ensure.Listed(Shapes, request.RoomObject);
 
         if (slotTable.SpawnHardcoded() is not { } slot)
             return false;
@@ -28,12 +28,12 @@ internal sealed class ShitroidWallObjects(RoomObjectSlotTable slotTable)
         slot.Block = level.GridBlock(request.Block);
         slot.Become(new TerrainChangeObject(TerrainChange.MadeAtSpawn));
 
-        // The setup walks down the wall column. The change is made as the object spawns, before its first update
-        // removes it.
-        for (int rowOffset = 0; rowOffset < WallHeight; rowOffset++)
+        // The change is made as the object spawns, before its first update removes it. Each block is written once, so
+        // the order of the writes is unobservable.
+        foreach (RoomBlockShapeCell cell in shape.Cells)
         {
-            Position16<RoomBlocks> block = level.GridBlock(request.Block + new Offset16<RoomBlocks>(0, rowOffset));
-            level.SetTerrain(block, level.GetCollisionBlock(block).Terrain.WithCollision(collision));
+            Position16<RoomBlocks> block = level.GridBlock(request.Block + cell.Cell);
+            level.SetTerrain(block, level.GetCollisionBlock(block).Terrain.WithCollision(cell.Collision));
         }
         return true;
     }

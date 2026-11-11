@@ -30,7 +30,8 @@ internal static class KraidWorkingMap
         // The lower stream is decompressed directly over the working map. `$A7:AB19` then copies only its first $600
         // bytes upward before the upper stream replaces the upper page, so the lower page's untouched tail remains
         // lower-stream data, priority bits and all. Priority is cleared only in the copied regions; Kraid's grown body
-        // shows the tail above his head.
+        // shows the tail above his head. The body sheet reads these tiers once, to place each of his frames behind the
+        // sprites or in front of them whole (#1634); no picture carries them.
         lower[..KraidWorkingMapDefinitions.WorkingMapCells].CopyTo(working);
         for (int cell = 0; cell < KraidWorkingMapDefinitions.LowerSourceCopiedCells; cell++)
             working[KraidWorkingMapDefinitions.LowerPageFirstCell + cell] = working[cell] with { HighPriority = false };

@@ -25,7 +25,7 @@ internal static class NativeSnapshotMotherBrainImport
     /// Imports Mother Brain's shared encounter state (enemy records $EC7F/$EC3F) from the
     /// native body/brain slot words and her extended WRAM ($7E:7800-$787B, $7E:8000-$8069).
     /// Called only when the room loaded her; the physical slot words were imported first.
-    /// Native list pointers become typed program cursors (#641) through the ROM oracle's walk of each list.
+    /// Native list pointers become typed playbacks (#641, #1600) through the ROM oracle's reading of each list.
     /// </summary>
     internal static void ImportNativeMotherBrain(SuperMetroidRuntime runtime, IImportCartridgeSource cartridge, Func<int, ushort> W)
     {
@@ -60,14 +60,16 @@ internal static class NativeSnapshotMotherBrainImport
             state.Colours.DetachBrain();
         ushort brain = W(MotherBrainMemory.BrainAnimationScript);
         // Bit 15 clear means the brain list is not live.
-        state.BrainCursor = unchecked((short)brain) >= 0 ? null : MotherBrainNativeListAddresses.CompareHead(cartridge)[brain];
+        state.BrainPlayback = unchecked((short)brain) >= 0 ? null : BrainPlaybackAt(cartridge, brain);
         state.BrainFrameTimer = W(MotherBrainMemory.BrainFrameHold);
-        Dictionary<ushort, AnimationProgramCursor<MotherBrainBodyProgram>> body = MotherBrainNativeListAddresses.CompareBody(cartridge);
-        // Each record's instruction-list word is read from the snapshot; the port keeps the typed cursor it names.
+        Dictionary<MotherBrainBodyProgram, NativeEnemyList<MotherBrainBodyProgram>> body = MotherBrainNativeListAddresses.CompareBody(cartridge);
+        // Each record's instruction-list word is read from the snapshot; the port keeps the typed playback it stands for.
         ushort AnimationScript(RoomEnemySlot slot) => W(NativeSnapshotMemory.EnemyBase +
             SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(slot.SlotIndex) + MovieDesyncMemory.EnemyAnimationScriptOffset);
-        state.BodyCursor = body[AnimationScript(state.Body)];
-        state.HeadSlotCursor = body[AnimationScript(state.Head)];
+        AnimationPlayback<MotherBrainBodyProgram> BodyPlaybackAt(RoomEnemySlot slot) => NativeEnemyAnimationOracle.PlaybackAt(
+            body, MotherBrainNativeListAddresses.BodyEntries, MotherBrainAnimations.BodyStartingAt, AnimationScript(slot));
+        state.BodyPlayback = BodyPlaybackAt(state.Body);
+        state.HeadSlotPlayback = BodyPlaybackAt(state.Head);
         Dictionary<MotherBrainTubePiece, NativeEnemyList<MotherBrainTubePiece>> tubes = MotherBrainNativeListAddresses.CompareTubes(cartridge);
         foreach (RoomEnemySlot tube in runtime.Enemies.SlotTable.Slots.Where(slot => slot.DefinitionId == EnemyDefinitionId.MotherBrainTubes))
         {
@@ -116,6 +118,17 @@ internal static class NativeSnapshotMotherBrainImport
         state.RainbowBeamAngularWidth = W(MotherBrainMemory.RainbowBeamAngularWidth);
         if (RainbowSequenceFunctions.Contains(state.Function))
             ImportNativeMotherBrainRainbowSequence(state, state.Function, W);
+    }
+
+    /// <summary>
+    /// The brain playback the recorded brain list pointer <paramref name="pointer"/> stands for. The native pointer rests
+    /// on the beat it plays next, so a pointer at a list's entry rests on that list's first beat, entered.
+    /// </summary>
+    private static AnimationPlayback<MotherBrainHeadProgram> BrainPlaybackAt(IImportCartridgeSource cartridge, ushort pointer)
+    {
+        AnimationPlayback<MotherBrainHeadProgram> playback = NativeEnemyAnimationOracle.PlaybackAt(MotherBrainNativeListAddresses.CompareHead(cartridge),
+            MotherBrainNativeListAddresses.HeadEntries, MotherBrainAnimations.HeadStartingAt, pointer);
+        return playback.Place.Beat == AnimationPlace.NotEntered ? playback with { Place = AnimationPlace.StartOf(playback.Place.Phase) } : playback;
     }
 
     /// <summary>The body functions the live rainbow sequence runs, which a recorded function in this set resumes.</summary>

@@ -13,10 +13,10 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// The native lists Mother Brain's ROM oracle (#1285) walks: every typed program's entry point, the bank-$A9 opcodes
-/// with the steps each must become, and the walker that compares a typed program with its native list. Only
-/// verification reads them; the port runs typed programs. The walker's address map also decodes a native snapshot's
-/// list pointers into typed cursors.
+/// The native lists Mother Brain's ROM oracle (#1285, #1600) reads: every typed segment's entry point, the bank-$A9
+/// opcodes with the events each must raise, and the reader that compares a typed segment with its native list and the
+/// typed animations with the lists' control flow. Only verification reads them; the port plays typed animations. The
+/// lists it reads also decode a native snapshot's list pointers into typed playbacks.
 /// </summary>
 internal static class MotherBrainNativeListAddresses
 {
@@ -216,11 +216,6 @@ internal static class MotherBrainNativeListAddresses
         where TSegment : struct, Enum
         where TEvent : notnull;
 
-    /// <summary>An opcode that raises only <paramref name="raised"/> and runs on.</summary>
-    private static NativeListOpEffect<TSegment, TEvent> Raises<TSegment, TEvent>(TEvent raised)
-        where TSegment : struct, Enum
-        where TEvent : notnull => new([raised], null);
-
     /// <summary>
     /// Reads each segment's native list beside its typed beats (#1600): frames must show the native spritemap for the
     /// native duration, opcodes must raise the events <paramref name="ops"/> names, and the lists' sleeps, gotos and runs on
@@ -313,43 +308,25 @@ internal static class MotherBrainNativeListAddresses
         where TEvent : notnull =>
         beat < beats.Count ? beats[beat] : throw new InvalidDataException($"{at}: the native list holds more beats than its segment.");
 
-    /// <summary>What a native flow opcode becomes: its operand words, the typed steps, and whether it ends the list.</summary>
-    /// <param name="Operands">The opcode's operand words.</param>
-    /// <param name="Steps">The typed steps the opcode becomes, given its operands and the entry-to-program lookup.</param>
-    /// <param name="Ends">Whether the opcode ends the native list.</param>
-    internal readonly record struct NativeOp<TProgram, TFrame, TCue>(
-        int Operands, Func<ushort[], Func<ushort, TProgram>, AnimationProgramStep<TProgram, TFrame, TCue>[]> Steps, bool Ends)
-        where TProgram : struct, Enum
-        where TFrame : struct
-        where TCue : notnull;
+    /// <summary>The body opcodes, each a single event.</summary>
+    private static Dictionary<ushort, NativeListOp<MotherBrainBodyProgram, B>> BodyNativeOps { get; } =
+        BodyOps.ToDictionary(pair => pair.Key, pair => new NativeListOp<MotherBrainBodyProgram, B>(
+            pair.Value.Operands, (operands, _) => new([pair.Value.Cue(operands)], null)));
 
-    /// <summary>The body opcodes, each a single cue.</summary>
-    private static Dictionary<ushort, NativeOp<MotherBrainBodyProgram, MotherBrainBodyFrame, B>> BodyNativeOps { get; } =
-        BodyOps.ToDictionary(pair => pair.Key, pair => new NativeOp<MotherBrainBodyProgram, MotherBrainBodyFrame, B>(
-            pair.Value.Operands, (operands, _) => [AnimationProgramStep<MotherBrainBodyProgram, MotherBrainBodyFrame, B>.Publish(pair.Value.Cue(operands))], false));
+    /// <summary>The brain opcodes: single events, and the gotos that end a list.</summary>
+    private static Dictionary<ushort, NativeListOp<MotherBrainHeadProgram, H>> HeadNativeOps { get; } = BuildHeadNativeOps();
 
-    /// <summary>The brain opcodes: single cues, and the gotos that end a list.</summary>
-    private static Dictionary<ushort, NativeOp<MotherBrainHeadProgram, MotherBrainHeadFrame, H>> HeadNativeOps { get; } = BuildHeadNativeOps();
-
-    /// <summary>Adds <c>MotherBrain_GotoX</c>, the neck-enabling goto and the dying-drool pick to the brain's cue opcodes.</summary>
-    private static Dictionary<ushort, NativeOp<MotherBrainHeadProgram, MotherBrainHeadFrame, H>> BuildHeadNativeOps()
+    /// <summary>Adds <c>MotherBrain_GotoX</c>, the neck-enabling goto and the dying-drool pick to the brain's event opcodes.</summary>
+    private static Dictionary<ushort, NativeListOp<MotherBrainHeadProgram, H>> BuildHeadNativeOps()
     {
-        var ops = HeadCueOps.ToDictionary(pair => pair.Key, pair => new NativeOp<MotherBrainHeadProgram, MotherBrainHeadFrame, H>(
-            pair.Value.Operands, (operands, _) => [AnimationProgramStep<MotherBrainHeadProgram, MotherBrainHeadFrame, H>.Publish(pair.Value.Cue(operands))], false));
+        var ops = HeadCueOps.ToDictionary(pair => pair.Key, pair => new NativeListOp<MotherBrainHeadProgram, H>(
+            pair.Value.Operands, (operands, _) => new([pair.Value.Cue(operands)], null)));
         // $A9:9B0F, MotherBrain_GotoX.
-        ops[0x9b0f] = new(1, (operands, programAt) => [AnimationProgramStep<MotherBrainHeadProgram, MotherBrainHeadFrame, H>.GoTo(programAt(operands[0]))], true);
+        ops[0x9b0f] = new(1, (operands, segmentAt) => new([], segmentAt(operands[0])));
         // $A9:9B14, MotherBrainHead_EnableNeckMovement_GotoX.
-        ops[0x9b14] = new(1, (operands, programAt) =>
-        [
-            AnimationProgramStep<MotherBrainHeadProgram, MotherBrainHeadFrame, H>.Publish(H.Of(K.EnableNeckMovement)),
-            AnimationProgramStep<MotherBrainHeadProgram, MotherBrainHeadFrame, H>.GoTo(programAt(operands[0])),
-        ], true);
+        ops[0x9b14] = new(1, (operands, segmentAt) => new([H.Of(K.EnableNeckMovement)], segmentAt(operands[0])));
         // $A9:9C65, MotherBrainHead_GotoDyingDroolInstList: it picks the burst or the loop itself.
-        ops[0x9c65] = new(0, (_, _) =>
-        [
-            AnimationProgramStep<MotherBrainHeadProgram, MotherBrainHeadFrame, H>.Publish(H.Of(K.MaybeDroolAgain)),
-            AnimationProgramStep<MotherBrainHeadProgram, MotherBrainHeadFrame, H>.GoTo(MotherBrainHeadProgram.DyingDroolLoop),
-        ], true);
+        ops[0x9c65] = new(0, (_, _) => new([H.Of(K.MaybeDroolAgain)], MotherBrainHeadProgram.DyingDroolLoop));
         return ops;
     }
 
@@ -371,13 +348,15 @@ internal static class MotherBrainNativeListAddresses
             : throw new InvalidDataException("The remorse cry's goto operand is not the remorse start.")),
     };
 
-    /// <summary>Compares every typed body program with its native list; returns each native record's typed cursor.</summary>
-    internal static Dictionary<ushort, AnimationProgramCursor<MotherBrainBodyProgram>> CompareBody(IImportCartridgeSource cartridge) =>
-        Walk(cartridge, MotherBrainBank, MotherBrainAnimations.Body, BodyEntries, frame => MotherBrainBodyVisualDefinitionsConstants.Frame(frame.Index).Pointer, BodyNativeOps);
+    /// <summary>Compares every typed body segment and animation with its native list; returns each body segment's native list.</summary>
+    internal static Dictionary<MotherBrainBodyProgram, NativeEnemyList<MotherBrainBodyProgram>> CompareBody(IImportCartridgeSource cartridge) =>
+        Lists(cartridge, MotherBrainBank, MotherBrainAnimations.BodySegments, MotherBrainAnimations.BodyStartingAt, BodyEntries,
+            frame => MotherBrainBodyVisualDefinitionsConstants.Frame(frame.Index).Pointer, BodyNativeOps);
 
-    /// <summary>Compares every typed brain program with its native list; returns each native record's typed cursor.</summary>
-    internal static Dictionary<ushort, AnimationProgramCursor<MotherBrainHeadProgram>> CompareHead(IImportCartridgeSource cartridge) =>
-        Walk(cartridge, MotherBrainBank, MotherBrainAnimations.Head, HeadEntries, frame => MotherBrainVisualDefinitionsConstants.Frame(frame.Index).Pointer, HeadNativeOps);
+    /// <summary>Compares every typed brain segment and animation with its native list; returns each brain segment's native list.</summary>
+    internal static Dictionary<MotherBrainHeadProgram, NativeEnemyList<MotherBrainHeadProgram>> CompareHead(IImportCartridgeSource cartridge) =>
+        Lists(cartridge, MotherBrainBank, MotherBrainAnimations.HeadSegments, MotherBrainAnimations.HeadStartingAt, HeadEntries,
+            frame => MotherBrainVisualDefinitionsConstants.Frame(frame.Index).Pointer, HeadNativeOps);
 
     /// <summary>Compares the cutscene Baby's typed segments and animations with their native lists.</summary>
     internal static void CompareBaby(IImportCartridgeSource cartridge) =>
@@ -480,84 +459,4 @@ internal static class MotherBrainNativeListAddresses
     {
         [0x87a2] = MotherBrainBrainFunction.SetupBrainAndNeckToBeDrawn,
         [0x87d0] = MotherBrainBrainFunction.SetupBrainToBeDrawn,
-    };
-    /// <summary>
-    /// Walks each program's native list beside its typed steps: frames must show the native spritemap for the native
-    /// duration, opcodes must become the steps <paramref name="ops"/> names, a sleep must hold, and running into the
-    /// next authored entry must fall into it. Returns every native record's typed cursor.
-    /// </summary>
-    internal static Dictionary<ushort, AnimationProgramCursor<TProgram>> Walk<TProgram, TFrame, TCue>(
-        IImportCartridgeSource cartridge, int bank, AnimationProgramSet<TProgram, TFrame, TCue> programs,
-        NativeProgramEntry<TProgram>[] entries, Func<TFrame, ushort> spritemap,
-        IReadOnlyDictionary<ushort, NativeOp<TProgram, TFrame, TCue>> ops)
-        where TProgram : struct, Enum
-        where TFrame : struct
-        where TCue : notnull
-    {
-        VerificationAssertions.AssertEqual(Enum.GetValues<TProgram>().Length, entries.Length, $"every typed {typeof(TProgram).Name} has a native entry");
-        Dictionary<ushort, TProgram> programAt = entries.ToDictionary(entry => entry.Entry, entry => entry.Program);
-        var map = new Dictionary<ushort, AnimationProgramCursor<TProgram>>();
-        foreach ((TProgram program, ushort entry) in entries)
-        {
-            var steps = programs.Steps(program);
-            ushort cursor = entry;
-            int index = 0;
-            for (int record = 0; ; record++)
-            {
-                if (record > 256)
-                    throw new InvalidDataException($"{program} ran past its native list.");
-                string at = $"{program} step {index} (native record {record})";
-                if (record > 0 && programAt.TryGetValue(cursor, out TProgram next))
-                {
-                    var fallInto = VerificationAssertions.AssertIs<AnimationProgramStep<TProgram, TFrame, TCue>.FallIntoStep>(steps[index], $"{at}: runs on into the next authored program");
-                    VerificationAssertions.AssertEqual(next, fallInto.Target, $"{at}: fall-through target");
-                    VerificationAssertions.AssertEqual(steps.Count, index + 1, $"{at}: fall-through ends the program");
-                    break;
-                }
-                map.TryAdd(cursor, new(program, index));
-                ushort word = cartridge.ReadCartridgeWord(bank | cursor);
-                switch (NativeEnemyListDefinitions.Classify(word))
-                {
-                    case NativeEnemyListDefinitions.WordKind.Frame:
-                        var show = VerificationAssertions.AssertIs<AnimationProgramStep<TProgram, TFrame, TCue>.ShowStep>(steps[index], $"{at}: frame");
-                        VerificationAssertions.AssertEqual(word, show.Duration, $"{at}: duration");
-                        VerificationAssertions.AssertEqual(cartridge.ReadCartridgeWord(bank | (cursor + 2)), spritemap(show.Frame), $"{at}: spritemap");
-                        cursor = unchecked((ushort)(cursor + 4));
-                        index++;
-                        continue;
-                    case NativeEnemyListDefinitions.WordKind.Sleep:
-                        VerificationAssertions.AssertTrue(steps[index] is AnimationProgramStep<TProgram, TFrame, TCue>.HoldStep, $"{at}: sleep");
-                        VerificationAssertions.AssertEqual(steps.Count, index + 1, $"{at}: sleep ends the program");
-                        break;
-                    case NativeEnemyListDefinitions.WordKind.Callback:
-                    {
-                        if (!ops.TryGetValue(word, out NativeOp<TProgram, TFrame, TCue> op))
-                            throw new InvalidDataException($"{at}: opcode ${word:X4} is outside the compared set.");
-                        ushort[] operands = [.. Enumerable.Range(0, op.Operands)
-                            .Select(operand => cartridge.ReadCartridgeWord(bank | (cursor + 2 + 2 * operand)))];
-                        foreach (var step in op.Steps(operands, address => programAt[address]))
-                        {
-                            VerificationAssertions.AssertEqual(step, steps[index], $"{at}: opcode ${word:X4} step");
-                            index++;
-                        }
-                        cursor = unchecked((ushort)(cursor + 2 + 2 * op.Operands));
-                        if (!op.Ends)
-                            continue;
-                        VerificationAssertions.AssertEqual(steps.Count, index, $"{at}: opcode ${word:X4} ends the program");
-                        break;
-                    }
-                    case NativeEnemyListDefinitions.WordKind.GoTo:
-                    case NativeEnemyListDefinitions.WordKind.Stop:
-                    case NativeEnemyListDefinitions.WordKind.SetCounter:
-                    case NativeEnemyListDefinitions.WordKind.RepeatWhileCounting:
-                    case NativeEnemyListDefinitions.WordKind.Wait:
-                        throw new InvalidDataException($"{at}: these lists use no common gotos, stops, counters or waits.");
-                    default:
-                        throw new InvalidOperationException($"Undefined {nameof(NativeEnemyListDefinitions.WordKind)}.");
-                }
-                break;
-            }
-        }
-        return map;
-    }
-}
+    };}

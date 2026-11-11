@@ -36,9 +36,9 @@ internal static class MotherBrainBodyPresentationVerification
         EnemyBg2FrameDocument stockBg2 = BodyBg2();
         var baseline = new MotherBrainPresentationFixture(Build(stockOam, stockBg2));
         var physicalFrames = Enum.GetValues<MotherBrainBodyProgram>()
-            .SelectMany(program => MotherBrainAnimations.Body.Steps(program))
-            .OfType<AnimationProgramStep<MotherBrainBodyProgram, MotherBrainBodyFrame, MotherBrainBodyCue>.ShowStep>()
-            .Select(step => MotherBrainBodyVisualDefinitionsConstants.Frame(step.Frame.Index).Pointer).ToHashSet();
+            .SelectMany(program => MotherBrainAnimations.BodySegments.Beats(program))
+            .OfType<AnimationBeat<MotherBrainBodyFrame, MotherBrainBodyCue>.Frame>()
+            .Select(beat => MotherBrainBodyVisualDefinitionsConstants.Frame(beat.Shown.Index).Pointer).ToHashSet();
         AssertTrue(physicalFrames.SetEquals(MotherBrainBodyVisualDefinitions.Frames
             .Select(frame => frame.Pointer)), "installed body inventory covers every compiled program selector, not only exercised paths");
         foreach (NativeEnemySpritemapDefinition frame in MotherBrainBodyVisualDefinitions.Frames)

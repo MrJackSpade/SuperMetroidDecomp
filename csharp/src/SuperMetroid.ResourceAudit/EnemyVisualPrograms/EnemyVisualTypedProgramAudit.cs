@@ -195,9 +195,9 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(DraygonAnimations), "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonAnimations.cs");
         RequireTypedFrames(KraidAnimations.Programs, frame => KraidPartFrameToolingDefinitions.Spritemap(frame), KraidLintVisualDefinitions.Bank,
             nameof(KraidAnimations), "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidAnimations.cs");
-        RequireTypedFrames(MotherBrainAnimations.Body, frame => EnemyFrameCartridgeLookupTooling.Word(MotherBrainBodyVisualDefinitions.ShownFrames.Of(frame)), MotherBrainBodyVisualToolingDefinitions.Bank,
+        RequireSegmentFrames(MotherBrainAnimations.BodySegments, frame => EnemyFrameCartridgeLookupTooling.Word(MotherBrainBodyVisualDefinitions.ShownFrames.Of(frame)), MotherBrainBodyVisualToolingDefinitions.Bank,
             nameof(MotherBrainAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainAnimations.cs");
-        RequireTypedFrames(MotherBrainAnimations.Head, frame => EnemyFrameCartridgeLookupTooling.Word(MotherBrainVisualDefinitions.HeadFrames.Of(frame)), MotherBrainVisualToolingDefinitions.Bank,
+        RequireSegmentFrames(MotherBrainAnimations.HeadSegments, frame => EnemyFrameCartridgeLookupTooling.Word(MotherBrainVisualDefinitions.HeadFrames.Of(frame)), MotherBrainVisualToolingDefinitions.Bank,
             nameof(MotherBrainAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainAnimations.cs");
         RequireSegmentFrames(MotherBrainBabyAnimations.Segments, frame => BabyMetroidVisualToolingDefinitions.Spritemap(frame.Index), MotherBrainVisualToolingDefinitions.Bank,
             nameof(MotherBrainBabyAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainAnimations.cs");

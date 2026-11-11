@@ -19,8 +19,9 @@ using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.MovieReplay.Verification;
 
 /// <summary>
-/// #1285: Mother Brain's typed body, brain, Baby, Shitroid, Zebetite, falling-tube and projectile programs against
-/// the retail cartridge. Every typed program must match its native list step by step; the brain's count-up timer,
+/// #1285, #1600: Mother Brain's typed body, brain, Baby, Shitroid, Zebetite, falling-tube and projectile animations
+/// against the retail cartridge. Every typed segment must match its native list beat by beat and every animation the
+/// lists' control flow; the brain's count-up timer,
 /// random holds, body moves and the projectiles must behave as the native interpreters do.
 /// </summary>
 internal static class MotherBrainAnimationsVerification
@@ -29,8 +30,8 @@ internal static class MotherBrainAnimationsVerification
     internal static void VerifyMotherBrainAnimations(SuperMetroidAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
-        int body = CompareBody(cartridge).Count;
-        int head = CompareHead(cartridge).Count;
+        int body = CompareBody(cartridge).Values.Sum(list => list.BeatAddresses.Length);
+        int head = CompareHead(cartridge).Values.Sum(list => list.BeatAddresses.Length);
         CompareBaby(cartridge);
         CompareShitroid(cartridge);
         CompareZebetites(cartridge);
@@ -39,7 +40,7 @@ internal static class MotherBrainAnimationsVerification
         VerifyBrainCadence();
         VerifyBrainRandomHolds();
         VerifyBodyMoves();
-        Console.WriteLine($"  Mother Brain programs: {body} body and {head} brain records, the Baby, Shitroid, Zebetite and tube lists " +
+        Console.WriteLine($"  Mother Brain animations: {body} body and {head} brain beats, the Baby, Shitroid, Zebetite and tube lists " +
             "match bank $A9/$A6; the brain's count-up cadence, random holds and body moves match the native routines.");
     }
 
@@ -80,16 +81,19 @@ internal static class MotherBrainAnimationsVerification
         {
             (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrain();
             MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, program);
-            var steps = MotherBrainAnimations.Head.Steps(program);
-            var shown = steps.OfType<AnimationProgramStep<MotherBrainHeadProgram, MotherBrainHeadFrame, MotherBrainHeadCue>.ShowStep>().First();
+            var beats = MotherBrainAnimations.HeadSegments.Beats(program);
+            var shown = beats.OfType<AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue>.Frame>().First();
             int duration = shown.Duration;
             for (int draw = 0; draw < duration; draw++)
-                AssertEqual((MotherBrainHeadFrame?)shown.Frame, enemies.MotherBrainBehavior.Head.AdvanceMotherBrainBrain(state, samus: null),
+                AssertEqual((MotherBrainHeadFrame?)shown.Shown, enemies.MotherBrainBehavior.Head.AdvanceMotherBrainBrain(state, samus: null),
                     $"{program} shows its first frame on draw {draw}");
             AssertEqual((ushort)(duration + 1), state.BrainFrameTimer, $"{program}'s timer counts up past the duration");
             enemies.MotherBrainBehavior.Head.AdvanceMotherBrainBrain(state, samus: null);
             AssertEqual(1, state.BrainFrameTimer, $"{program} installs its next frame once the timer exceeds the duration");
-            AssertTrue(MotherBrainAnimations.Head.Steps((state.BrainCursor ?? throw new InvalidOperationException("Verification requires state.BrainCursor.")).Program)[state.BrainCursor.Value.Position] is AnimationProgramStep<MotherBrainHeadProgram, MotherBrainHeadFrame, MotherBrainHeadCue>.ShowStep, $"{program}'s cursor rests on the frame it shows");
+            AnimationPlayback<MotherBrainHeadProgram> resting = state.BrainPlayback ?? throw new InvalidOperationException("Verification requires state.BrainPlayback.");
+            AnimationPhase<MotherBrainHeadProgram> phase = resting.Animation.Phases[resting.Place.Phase];
+            AssertTrue(MotherBrainAnimations.HeadSegments.Beats(phase.Segment)[phase.FirstBeat + resting.Place.Beat] is AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue>.Frame,
+                $"{program}'s place rests on the frame it shows");
         }
     }
 
@@ -106,9 +110,10 @@ internal static class MotherBrainAnimationsVerification
             MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.NeutralPhase2Hold);
             for (int draw = 0; draw <= 8; draw++)
                 enemies.MotherBrainBehavior.Head.AdvanceMotherBrainBrain(state, samus: null);
-            AssertEqual(holds ? new AnimationProgramCursor<MotherBrainHeadProgram>(MotherBrainHeadProgram.NeutralPhase2Hold, 0)
-                    : new AnimationProgramCursor<MotherBrainHeadProgram>(MotherBrainHeadProgram.NeutralPhase2Hold, 2),
-                state.BrainCursor, $"random {random} {(holds ? "holds" : "leaves")} the phase-two neutral pose");
+            // Holding restarts the hold's animation on its first frame; leaving rests on the hold's last frame before its goto.
+            AssertEqual(new AnimationPlayback<MotherBrainHeadProgram>(MotherBrainAnimations.HeadStartingWith(MotherBrainHeadProgram.NeutralPhase2Hold),
+                    new AnimationPlace(0, holds ? 0 : 2)),
+                state.BrainPlayback, $"random {random} {(holds ? "holds" : "leaves")} the phase-two neutral pose");
         }
         foreach ((ushort random, bool bursts) in new[] { new VerifyBrainRandomHoldsCase(4063, false), new VerifyBrainRandomHoldsCase(4064, true) })
         {
@@ -117,7 +122,8 @@ internal static class MotherBrainAnimationsVerification
             MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.DyingDroolLoop);
             for (int draw = 0; draw <= 2; draw++)
                 enemies.MotherBrainBehavior.Head.AdvanceMotherBrainBrain(state, samus: null);
-            AssertEqual(bursts ? MotherBrainHeadProgram.DyingDroolBurst : MotherBrainHeadProgram.DyingDroolLoop, (state.BrainCursor ?? throw new InvalidOperationException("Verification requires state.BrainCursor.")).Program,
+            AnimationPlayback<MotherBrainHeadProgram> drooling = state.BrainPlayback ?? throw new InvalidOperationException("Verification requires state.BrainPlayback.");
+            AssertEqual(bursts ? MotherBrainHeadProgram.DyingDroolBurst : MotherBrainHeadProgram.DyingDroolLoop, drooling.Animation.Phases[drooling.Place.Phase].Segment,
                 $"random {random} {(bursts ? "bursts into more drool" : "keeps the drool loop")}");
         }
     }

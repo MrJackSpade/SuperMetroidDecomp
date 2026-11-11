@@ -136,47 +136,27 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>
-    /// Runs the body's program, or the head slot's dummy, where the enemy instruction interpreter would: the frame
-    /// expires on the update its timer would, and a newly shown frame raises the new-frame flag.
+    /// Plays the body's animation, or the head slot's dummy, where the enemy instruction interpreter would: the frame
+    /// expires on the update its timer would, and a newly shown frame raises the new-frame flag. A held animation is the
+    /// script's sleep: the timer wraps from zero and the last frame stays.
     /// </summary>
     internal void AdvanceMotherBrainSlotAnimation(RoomEnemySlot slot, SamusState? samus)
     {
         MotherBrainEnemyState state = _access.RequireCompleteMotherBrainState(slot);
         bool body = ReferenceEquals(slot, state.Body);
-        CountdownStep frameHold = slot.FrameHold.Decrement();
-        slot.FrameHold = frameHold.Remaining;
-        if (!frameHold.IsZero)
-        {
-            slot.NewInstructionFrame = false;
+        if (!EnemyProgramAnimation.Expire(slot))
             return;
-        }
-
-        AnimationProgramCursor<MotherBrainBodyProgram> cursor = body ? state.BodyCursor : state.HeadSlotCursor;
-        WrappingCountdown counter = slot.Timer;
-        AnimationProgramAdvance<MotherBrainBodyFrame> advance = MotherBrainAnimations.Body.Advance(ref cursor, ref counter,
-            (cue, continuation) =>
+        AnimationPlayback<MotherBrainBodyProgram> playback = body ? state.BodyPlayback : state.HeadSlotPlayback;
+        EnemyProgramAnimation.Play(slot, MotherBrainAnimations.BodySegments, ref playback, MotherBrainBodyVisualDefinitions.ShownFrames.Of,
+            cue =>
             {
                 ApplyMotherBrainBodyCue(state, samus, cue);
                 return null;
             });
-        slot.Timer = counter;
         if (body)
-            state.BodyCursor = cursor;
+            state.BodyPlayback = playback;
         else
-            state.HeadSlotCursor = cursor;
-        switch (advance)
-        {
-            case AnimationProgramAdvance<MotherBrainBodyFrame>.Show shown:
-                slot.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
-                slot.Frame = MotherBrainBodyVisualDefinitions.ShownFrames.Of(shown.Frame);
-                slot.NewInstructionFrame = true;
-                return;
-            case AnimationProgramAdvance<MotherBrainBodyFrame>.Hold:
-                // The script's sleep: the timer wraps from zero and the last frame stays.
-                return;
-            default:
-                throw new InvalidOperationException($"Mother Brain's body programs have no {advance} step.");
-        }
+            state.HeadSlotPlayback = playback;
     }
 
     /// <summary>Carries out one cue of a body program.</summary>

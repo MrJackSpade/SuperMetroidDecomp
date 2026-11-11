@@ -25,7 +25,7 @@ internal static class EndingExplosionSpriteArtworkVerification
     /// <summary>Compares sixteen program-selected frame pointers, part counts, and stable asset keys with bank-$8C sprite maps.</summary>
     internal static void VerifyEndingExplosionFrameCatalog(ISnesAddressSpace bus)
     {
-        Suite(nameof(VerifyEndingExplosionCalculatedParts), () => VerifyEndingExplosionCalculatedParts(bus));
+        Suite(nameof(VerifyEndingExplosionCompositions), () => VerifyEndingExplosionCompositions(bus));
         // Independent original list operands select every distinct visual frame.
         ushort[] operands = [0xeb15, 0xeb19, 0xeb1d, 0xeb21, 0xeb2b, 0xeb2f, 0xeb33, 0xeb37,
             0xeb5f, 0xeb63, 0xeb3f, 0xeb43, 0xeb47, 0xeb53, 0xeb6b, 0xeb8b];
@@ -42,43 +42,23 @@ internal static class EndingExplosionSpriteArtworkVerification
             int header = 0x8c0000 | pointer;
             int parts = CartridgeImportSource.Require(bus).ReadCartridgeWord(header);
             AssertEqual(pointer, CinematicSpritemapSources.Of(frames[i].Pose), $"explosion catalog native pointer {i}");
-            AssertEqual(frames[i].Pose, i < 10 ? EndingExplosionSpritePoses.PlanetPose(i) :
-                EndingExplosionSpritePoses.PoseOf(Enum.GetValues<EndingExplosionSpriteDefinitions.Pose>()[i - 10]),
-                $"explosion shared pose {i}");
             AssertEqual(parts, frames[i].StockPartCount, $"explosion catalog native part count {i}");
             AssertEqual(names[i], frames[i].Name, $"explosion catalog asset key {i}");
         }
         AssertTrue(frames.Select(frame => frame.Name).SequenceEqual(names), "explosion catalog enumeration order");
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
-        {
             AssertThrows<ArgumentOutOfRangeException>(() => _ = frames[invalid], "explosion catalog index bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionSpritePoses.PoseOf(
-                (EndingExplosionSpriteDefinitions.Pose)invalid), "explosion pose pointer bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionSpritePoses.PlanetPose(invalid),
-                "explosion planet record bounds");
-        }
-        // The composite poses and the planet records name disjoint compositions.
-        foreach (EndingExplosionSpriteDefinitions.Pose composite in Enum.GetValues<EndingExplosionSpriteDefinitions.Pose>())
-        {
-            for (int planet = 0; planet < 10; planet++)
-                AssertTrue(EndingExplosionSpritePoses.PoseOf(composite) != EndingExplosionSpritePoses.PlanetPose(planet),
-                    "planet records are not composite poses");
-        }
-        AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionSpritePoses.PlanetPose(10),
-            "planet record count");
+        AssertEqual(frames.Count, frames.Select(frame => frame.Pose).Distinct().Count(), "explosion frames name distinct compositions");
     }
 
-    /// <summary>Checks calculated grid/quadrant parts preserve the stock fields and native OAM.</summary>
-    private static void VerifyEndingExplosionCalculatedParts(ISnesAddressSpace bus)
+    /// <summary>Checks the compositions compiled from the native maps draw the native OAM.</summary>
+    private static void VerifyEndingExplosionCompositions(ISnesAddressSpace bus)
     {
-        // Applies the five calculation families only when the supplied sprite map still matches their supported basis.
-        static SpriteComposition Calculate(CinematicSpritePose shown, SpriteComposition supplied) =>
-            EndingExplosionGridParts.CalculateIfMatching(shown, EndingExplosionQuadrantParts.CalculateIfMatching(shown, EndingExplosionStarfieldParts.CalculateIfMatching(shown, EndingExplosionAfterglowParts.CalculateIfMatching(shown, EndingExplosionSilhouetteParts.CalculateIfMatching(shown, supplied)))));
         for (int pose = 0; pose < 16; pose++)
         {
             ushort pointer = pose < 10 ? (ushort)(0xa396 + pose * 22) : pose == 10 ? (ushort)0xa472 : pose == 11 ? (ushort)0xa4b0 : pose == 12 ? (ushort)0xa516 : pose == 13 ? (ushort)0xa28b : pose == 14 ? (ushort)0xa5e2 : (ushort)0xa57c;
-            CinematicSpritePose shown = EndingExplosionSpriteDefinitions.Frames
-                .Single(frame => CinematicSpritemapSources.Of(frame.Pose) == pointer).Pose;
+            AssertTrue(EndingExplosionSpriteDefinitions.Frames.Count(frame => CinematicSpritemapSources.Of(frame.Pose) == pointer) == 1,
+                "each native explosion map is one catalog frame");
             int count = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(0x8c0000 | pointer);
             var visual = new SpriteVisualPart[count];
             for (int index = 0; index < count; index++)
@@ -95,48 +75,19 @@ internal static class EndingExplosionSpriteArtworkVerification
                 };
             }
             SpriteComposition original = IntroCinematicSpriteCompiler.Compile(visual, "native grid");
-            if (pose == 14)
-            {
-                for (int index = 0; index < visual.Length; index++)
-                    AssertEqual(visual[index].TileRow * 16 + visual[index].TileColumn,
-                        EndingExplosionAfterglowParts.StockTile(index), "original afterglow ordered tile runs");
-                foreach (int invalid in new[] { int.MinValue, -1, 37, int.MaxValue })
-                    AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionAfterglowParts.StockTile(invalid), "afterglow tile sequence bounds");
-            }
-            SpriteComposition calculated = Calculate(shown, original);
-            AssertTrue(!ReferenceEquals(original, calculated), "original grid uses calculated parts");
-            // Hashes every compiled visual field and part order to compare authored and calculated compositions.
-            string Identity(SpriteComposition composition) => SelectedPresentationHash.Create("grid", composition.AppendIdentity);
-            AssertEqual(Identity(original), Identity(calculated), "calculated grid preserves every compiled visual field and order");
             foreach (ushort y in new ushort[] { 72, 0xfff8 })
             {
                 var native = new OamBuffer();
                 var generated = new OamBuffer();
                 native.BeginFrame(); generated.BeginFrame();
                 DrawImportedSpritemap(bus, native, 0x8c0000 | pointer, new(120, y), 0x0800, originIsOnScreen: y == 72);
-                if (y == 72) calculated.DrawOnScreen(generated, new(120, y), 0x0800);
-                else calculated.DrawOffScreen(generated, new(120, y), 0x0800);
+                if (y == 72) original.DrawOnScreen(generated, new(120, y), 0x0800);
+                else original.DrawOffScreen(generated, new(120, y), 0x0800);
                 native.FinalizeFrame(); generated.FinalizeFrame();
                 AssertTrue(native.ImageEquals(generated),
-                    "calculated grid preserves native OAM and clipping");
-            }
-            if (pose is >= 10 and <= 12)
-            {
-                EndingExplosionSpriteDefinitions.Pose role = Enum.GetValues<EndingExplosionSpriteDefinitions.Pose>()[pose - 10];
-                int basisCount = pose == 10 ? 3 : 5;
-                for (int index = 0; index < basisCount; index++)
-                    AssertEqual(original.Part(index), EndingExplosionQuadrantParts.StockBasis(role, index), "original packed quadrant basis");
-                foreach (int invalid in new[] { int.MinValue, -1, basisCount, int.MaxValue })
-                    AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionQuadrantParts.StockBasis(role, invalid), "quadrant basis index bounds");
+                    "compiled explosion composition preserves native OAM and clipping");
             }
         }
-        foreach (EndingExplosionSpriteDefinitions.Pose invalid in new[]
-        {
-            (EndingExplosionSpriteDefinitions.Pose)int.MinValue, (EndingExplosionSpriteDefinitions.Pose)(-1),
-            EndingExplosionSpriteDefinitions.Pose.Stars, EndingExplosionSpriteDefinitions.Pose.Silhouette,
-            EndingExplosionSpriteDefinitions.Pose.Afterglow, (EndingExplosionSpriteDefinitions.Pose)int.MaxValue,
-        })
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionQuadrantParts.StockBasis(invalid, 0), "quadrant basis role bounds");
     }
 
     /// <summary>Compares installed explosion OAM with native maps for visible and wrapped offscreen origins after checking frame and program catalogs.</summary>

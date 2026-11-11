@@ -14,7 +14,7 @@ public sealed class EndingExplosionSpritePresentation : ICinematicSpriteFrames
     /// <summary>Validated OAM compositions keyed by the poses that show them.</summary>
     private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
 
-    /// <summary>Retains the decoded compositions after their stock shapes and calculated parts are checked.</summary>
+    /// <summary>Retains every installed composition, compiled as installed.</summary>
     private EndingExplosionSpritePresentation(Dictionary<CinematicSpritePose, SpriteComposition> frames) =>
         this.frames = frames;
 
@@ -48,12 +48,7 @@ public sealed class EndingExplosionSpritePresentation : ICinematicSpriteFrames
                 visual is null)
                 throw new InvalidDataException(
                     $"Ending explosion sprite {definition.Name} is missing.");
-            SpriteComposition compiled = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
-            compiled = EndingExplosionQuadrantParts.CalculateIfMatching(definition.Pose, compiled);
-            compiled = EndingExplosionStarfieldParts.CalculateIfMatching(definition.Pose, compiled);
-            compiled = EndingExplosionAfterglowParts.CalculateIfMatching(definition.Pose, compiled);
-            compiled = EndingExplosionSilhouetteParts.CalculateIfMatching(definition.Pose, compiled);
-            frames.Add(definition.Pose, EndingExplosionGridParts.CalculateIfMatching(definition.Pose, compiled));
+            frames.Add(definition.Pose, IntroCinematicSpriteCompiler.Compile(visual, definition.Name));
         }
         return new EndingExplosionSpritePresentation(frames);
     }

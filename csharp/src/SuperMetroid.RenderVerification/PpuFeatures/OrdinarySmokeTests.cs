@@ -8,7 +8,6 @@ using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Compares ordinary gameplay rendering across native geometry, layer, and HDMA settings.</summary>
@@ -22,15 +21,14 @@ internal static class OrdinarySmokeTests
         var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount]; random.NextBytes(oam);
         RgbColor[] colors = Enumerable.Range(0, 256).Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
         var memory = FramePaint.FromOamGameplay(vram, colors, oam, 128, 3);
-        // Even HDMA cases show BG2 from a room plane; case one from the ocean sky's rows, whose last chunks show
-        // nothing (#1347); case three from a library background's image (#1403), which no 64x64 map ever shows, so a
-        // room plane there.
+        // Even HDMA cases show BG2 from a room plane; case one from the sky's rows (#1347); case three from a library
+        // background's image (#1403), which no 64x64 map ever shows, so a room plane there.
         var rooms = RoomBackgroundsFixtures.Seeded(random, new(511, 255), new(65535, 511), door: true, overlay: true);
         var loaded = rooms with { Background = null, BackgroundImage = RoomBackgroundsFixtures.SeededBackground(random, colors) };
         var sky = rooms with
         {
             Background = null,
-            Sky = new SkyPictures(RoomBackgroundsFixtures.SeededSky(random, colors), ScrollingSkyChunkTable.Ocean),
+            Sky = new SkyPictures(RoomBackgroundsFixtures.SeededSky(random, colors)),
         };
         // Line scrolls described as shapes (#1468): a falling sixteen-sample ramp across, a rising one down.
         LineScroll x = new SampledScrollWave(65535, [.. Enumerable.Range(0, 16).Select(i => -i)], 17 * 256, 0, 32, 224);

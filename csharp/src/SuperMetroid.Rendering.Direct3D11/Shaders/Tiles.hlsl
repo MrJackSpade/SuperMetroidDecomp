@@ -50,22 +50,20 @@ static const uint SourcePicturedPlane = 11;
 static const uint SourcePictureGrid = 12;
 static const uint GridFlipX = 1073741824, GridFlipY = 2147483648, GridPictureMask = 1073741823;
 static const uint SourceWrittenOverBackground = 256;
-static const uint RoomRecordWords = 6, RoomDoorSlot = 2, RoomDoorWindowWord = 18, RoomOverlayWord = 19, RoomSkyWord = 20;
-static const uint RoomFxOverlayWord = 21, RoomWrittenOverBackgroundWord = 22, RoomFloorSheetsWord = 23, RoomBossBodyWord = 24, RoomXrayRevealWord = 25;
+static const uint RoomRecordWords = 6, RoomDoorSlot = 2, RoomDoorWindowWord = 18, RoomOverlayWord = 19;
+static const uint RoomFxOverlayWord = 20, RoomWrittenOverBackgroundWord = 21, RoomFloorSheetsWord = 22, RoomBossBodyWord = 23, RoomXrayRevealWord = 24;
 // A library background (RoomBackgroundImagePlane, #1555): its image picture's offset, the area its rectangles lie on, the
 // count of its rectangles, three words for each (its corner on the area, the image pixel that corner shows and its size,
 // each x below y), then each 16x16 cell's picture offset, row by row across the image.
-static const uint RoomLibraryBackgroundWord = 26;
+static const uint RoomLibraryBackgroundWord = 25;
 static const uint ImagePieceWords = 3;
 // The scrolling sky's image, laid out as a library background's.
-static const uint RoomSkyImageWord = 27;
-// Pixels down one band of the scrolling sky, which shows one page or none (SkyPictures.BandPixels).
-static const uint SkyBandPixels = 256;
+static const uint RoomSkyImageWord = 26;
 // The image of the message box the frame shows (#1392).
-static const uint RoomMessagePictureWord = 28;
+static const uint RoomMessagePictureWord = 27;
 // The HUD's placed pictures (#1466): their count, then two words each in drawing order, the picture's offset and its
 // upper-left screen pixel, x below y.
-static const uint RoomHudWord = 29;
+static const uint RoomHudWord = 28;
 // The X-ray reveal (XrayRevealPlane, #1514): the foreground pixel its first block lies on, x below y, then 17 block columns
 // by 16 rows, each its picture's offset with its arrangement in the top four bits: as defined, mirrored horizontally,
 // vertically or both, or its tile rows swapped.
@@ -110,9 +108,9 @@ bool RoomPlaneTile(uint slot, uint2 scrolled, out uint entry, out uint2 within, 
     return inside;
 }
 // What the scrolling sky (SkyPictures, #1403, #1514) shows: its image or a rebound cell's picture as `picture`, with
-// `within` its pixel, repeating every 2048 pixels down and 256 across; a band of SkyBandPixels showing no page shows
-// nothing. Its image's record is a library background's: the picture, its area, then its cells.
-bool SkyPicture(uint2 scrolled, out uint2 within, out uint picture)
+// `within` its pixel, repeating every 2048 pixels down and 256 across; every band of it shows one of its pages (#1611).
+// Its image's record is a library background's: the picture, its area, then its cells.
+void SkyPicture(uint2 scrolled, out uint2 within, out uint picture)
 {
     uint2 position = uint2(scrolled.x & 255, scrolled.y & 2047);
     uint skyImage = RoomLevels[RoomSkyImageWord];
@@ -121,7 +119,6 @@ bool SkyPicture(uint2 scrolled, out uint2 within, out uint picture)
     uint cell = RoomLevels[cells + (position.y >> 4) * 16 + (position.x >> 4)];
     picture = cell != 0 ? cell : RoomLevels[skyImage];
     within = cell != 0 ? (position & 15) : position;
-    return RoomLevels[RoomLevels[RoomSkyWord] + position.y / SkyBandPixels] != 0;
 }
 // What the effect overlay shows at a scrolled position (OverlayPicture, #1514), from its record at room level word
 // RoomFxOverlayWord: its picture's offset, the picture pixel its rectangle's corner shows, the rectangle's size, the
@@ -311,7 +308,10 @@ bool RoomTile(uint source, uint2 scrolled, out uint entry, out uint2 within, out
     }
     bool shown = overlaid;
     if (source == SourceSky)
-        shown = SkyPicture(scrolled, within, picture);
+    {
+        SkyPicture(scrolled, within, picture);
+        shown = true;
+    }
     else if (!overlaid)
         shown = RoomPlaneTile(slot, scrolled, entry, within, picture);
     return shown;

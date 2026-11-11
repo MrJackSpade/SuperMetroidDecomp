@@ -1079,9 +1079,8 @@ internal static void VerifyScrollingSkyState()
     sky.ProcessFrame(cameraY: 0x041f, timeIsFrozen: false);
     AssertEqual(new Position16<BackgroundPixels>(0, 0x041f), sky.BackgroundScroll, "$88:AFB2 BG2 scroll copies layer-one Y and leaves X zero");
 
-    // Chunk index five is the intentional table-adjacency wrap to tilemap zero.
-    AssertTrue(ScrollingSkyChunks.TryGetPage(ScrollingSkyChunkTable.Land, 5, out int wrapped) && wrapped == 0,
-        "land chunk five wraps to the first sky page");
+    // The land sky's five chunks repeat from its first: chunk five shows page zero.
+    AssertEqual(0, ScrollingSkyChunks.PageOf(ScrollingSkyChunkTable.Land, 5), "land chunk five wraps to the first sky page");
 
     // The $02E0 section aliases data slot eight, which already received the $0238 row's
     // +0.8000. Its additional +0.C000 produces integer 1 after only one frame.

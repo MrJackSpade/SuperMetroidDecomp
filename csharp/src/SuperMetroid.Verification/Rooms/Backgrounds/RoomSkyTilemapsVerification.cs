@@ -45,19 +45,15 @@ internal static class RoomSkyTilemapsVerification
         AssertThrows<ArgumentOutOfRangeException>(
             () => stock.Page(RoomSkyTilemapFormat.PageCount, RoomSkyTilemapFormat.PageTiles),
             "sky catalog rejects a page outside the sky");
-        // Every row the land and ocean tables select is the native page row at that offset; the ocean table's
-        // adjacent-code chunks select no row.
+        // Every row the land and ocean skies show is the native row of its chunk's page at that offset (#1611: every
+        // chunk shows one of its own sky's pages).
         foreach (ScrollingSkyChunkTable table in new[] { ScrollingSkyChunkTable.Land, ScrollingSkyChunkTable.Ocean })
         {
             SkyTilemap rows = stock.Tilemap(table);
             AssertTrue(ReferenceEquals(rows, stock.Tilemap(table)), $"{table} sky rows are built once per installed catalog");
             for (int row = 0; row < SkyTilemap.Rows; row++)
             {
-                if (!ScrollingSkyChunks.TryGetPage(table, row / 32, out int page))
-                {
-                    AssertTrue(!rows.RowShown(row), $"{table} row {row} selects no page");
-                    continue;
-                }
+                int page = ScrollingSkyChunks.PageOf(table, row / 32);
                 byte[] native = ReadRetailSkyBytes(bus, LibraryBackgroundOperands.SkyPageAddress(page) + row % 32 * 0x40, 0x40);
                 for (int column = 0; column < SkyTilemap.Columns; column++)
                     AssertEqual(LittleEndianBytes.Word(native[column * 2], native[column * 2 + 1]), rows.Tiles[row * SkyTilemap.Columns + column].PackedWord,

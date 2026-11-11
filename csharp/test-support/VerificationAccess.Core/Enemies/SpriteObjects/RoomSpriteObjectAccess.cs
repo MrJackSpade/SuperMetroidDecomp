@@ -30,11 +30,13 @@ internal static class RoomSpriteObjectAccess
     {
         /// <summary>
         /// The bank-$B4 address of the record the object shows, or zero once it has ended: the beat before the place its
-        /// animation stands at, in the segment of the phase it plays.
+        /// animation stands at, in the segment of the phase it plays; a held animation rests past its phase's last beat and
+        /// shows that beat.
         /// </summary>
         internal ushort InstructionPointer => self.Playback is { } playback
             ? RecordAddress(playback.Animation.Phases[playback.Place.Phase].Segment,
-                playback.Animation.Phases[playback.Place.Phase].FirstBeat + playback.Place.Beat - 1)
+                playback.Animation.Phases[playback.Place.Phase].FirstBeat
+                    + Math.Min(playback.Place.Beat, playback.Animation.Phases[playback.Place.Phase].BeatCount) - 1)
             : (ushort)0;
 
         /// <summary>The native timer word while the object counts down; a holding object counts none.</summary>

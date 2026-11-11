@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -30,6 +31,28 @@ internal static class MotherBrainRoomMutationDefinitions
             [MotherBrainRoomMutation.ClearBottomLeftTube] = Drawn(MotherBrainFakeDeathDraw.ClearBottomLeftTube),
             [MotherBrainRoomMutation.ClearBottomRightTube] = Drawn(MotherBrainFakeDeathDraw.ClearBottomRightTube),
         };
+
+    /// <summary>
+    /// The blocks the escape door's setup installs as it spawns, before its first draw changes their artwork: the door
+    /// block at the origin and the three vertical extensions below it.
+    /// </summary>
+    internal static readonly RoomBlockShape EscapeDoorSetup = new(
+    [
+        new(new(0, 0), RoomCollisionType.DoorBlock),
+        new(new(0, 1), RoomCollisionType.VerticalExtension),
+        new(new(0, 2), RoomCollisionType.VerticalExtension),
+        new(new(0, 3), RoomCollisionType.VerticalExtension),
+    ]);
+
+    /// <summary>
+    /// How each block of <see cref="EscapeDoorSetup"/> behaves, by how it collides: the door block leads through the
+    /// escape door, and each extension links to the block above it.
+    /// </summary>
+    internal static readonly Dictionary<RoomCollisionType, RoomBlockBehavior> EscapeDoorSetupBehaviors = new()
+    {
+        [RoomCollisionType.DoorBlock] = MotherBrainDeathDefinitions.EscapeDoorBehavior,
+        [RoomCollisionType.VerticalExtension] = MotherBrainDeathDefinitions.EscapeDoorExtensionBehavior,
+    };
 
     /// <summary>The change that draws <paramref name="layout"/> once.</summary>
     private static TerrainChange Drawn(MotherBrainFakeDeathDraw layout) => TerrainChange.DrawnOnce(RoomObjectDraw.Of(layout));

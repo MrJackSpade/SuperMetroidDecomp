@@ -4,6 +4,7 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Verification.Areas.Escape;
 using static SuperMetroid.Verification.Rooms.RoomObjects.InstalledFramePictureAssertions;
+using static SuperMetroid.Verification.Rooms.RoomObjects.RoomBlockShapeAssertions;
 
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
@@ -11,34 +12,22 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 internal static class LookupMotherBrainRegularDrawsVerification
 {
     /// <summary>The two fill rows' and six tube clears' draw-list addresses and published names.</summary>
-    private static readonly LookupEscapeGateStockFrame[] Regular = [new(0x966d, "background-row-e-unused"), new(0x968b, "background-row-f-unused"),
+    internal static readonly LookupEscapeGateStockFrame[] Regular = [new(0x966d, "background-row-e-unused"), new(0x968b, "background-row-f-unused"),
         new(0x96a9, "clear-ceiling-block"), new(0x96b1, "clear-ceiling-tube"), new(0x96bf, "clear-bottom-middle-side-tube"),
         new(0x96cb, "clear-bottom-middle-tubes"), new(0x96ef, "clear-bottom-left-tube"), new(0x9703, "clear-bottom-right-tube")];
 
-    /// <summary>Compares all eight draw lists' geometry and collision with native words, including ownership and bounds.</summary>
+    /// <summary>
+    /// Compares all eight draw lists' geometry and collision with native words, and checks that each shape covers exactly
+    /// the cells its draw list writes. Which other draws are the room's is checked with the mural rows
+    /// (<see cref="LookupMotherBrainBackgroundVerification.VerifyMotherBrainBackgroundGeometry"/>).
+    /// </summary>
     internal static void VerifyMotherBrainRegularDrawMapping(SuperMetroidAddressSpace rom)
     {
-        for (int value = 0; value <= ushort.MaxValue; value++)
+        foreach (LookupEscapeGateStockFrame frame in Regular)
         {
-            bool owned = Regular.Any(frame => frame.Pointer == value);
-            AssertEqual(owned, MotherBrainFakeDeathDraws.TryDescribeRegular(NativeObjectDraws.At<MotherBrainFakeDeathDraw>(value), out var shape),
-                $"Mother Brain regular descriptor ownership {value:X4}");
-            if (!owned)
-            {
-                AssertEqual(default(MotherBrainFakeDeathDraws.RegularDraw), shape, "Mother Brain regular missing descriptor");
-                continue;
-            }
-            foreach (int invalid in new[] { int.MinValue, -1, shape.RunCount, int.MaxValue })
-            {
-                AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(invalid, 0), "Mother Brain regular run bounds");
-                AssertThrows<ArgumentOutOfRangeException>(() => shape.Start(invalid), "Mother Brain regular start bounds");
-            }
-            for (int run = 0; run < shape.RunCount; run++)
-            {
-                int selectedRun = run;
-                foreach (int invalid in new[] { int.MinValue, -1, shape.Count(run), int.MaxValue })
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(selectedRun, invalid), "Mother Brain regular cell bounds");
-            }
+            if (!MotherBrainFakeDeathDraws.TryDescribe(NativeObjectDraws.At<MotherBrainFakeDeathDraw>(frame.Pointer), out RoomBlockShape? shape))
+                throw new InvalidOperationException($"Mother Brain fill row or tube clear {frame.Id} has no shape.");
+            AssertShapeAsNative(rom, shape, frame.Pointer, frame.Id);
         }
         AssertLayoutsAsNative(rom, RoomObjectMotherBrainFakeDeathVisualFiles.Family, Regular, collision: true);
         int cells = 0;

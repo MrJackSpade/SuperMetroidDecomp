@@ -8,9 +8,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="slotTable">The room's room-object slots, which her mutations contend for with every other room object.</param>
 internal sealed class MotherBrainRoomObjects(RoomObjectSlotTable slotTable)
 {
-    /// <summary>Blocks the escape door's upward-linked extensions occupy below the door block.</summary>
-    private const int EscapeDoorExtensionCount = 3;
-
     /// <summary>
     /// Spawns one of Mother Brain's room mutations at its block: a terrain change that draws its layout on its first
     /// update and is gone on the next.
@@ -33,13 +30,11 @@ internal sealed class MotherBrainRoomObjects(RoomObjectSlotTable slotTable)
         slot.Become(new TerrainChangeObject(change));
         if (request.RoomObject == MotherBrainRoomMutation.EscapeDoor)
         {
-            // The escape door's setup installs the door block and its three upward-linked extensions below it at once,
-            // before the first draw changes their artwork.
-            RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, slot.Block, RoomCollisionType.DoorBlock,
-                MotherBrainDeathDefinitions.EscapeDoorBehavior);
-            for (int row = 1; row <= EscapeDoorExtensionCount; row++)
-                RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, slot.Block + new Offset16<RoomBlocks>(0, row),
-                    RoomCollisionType.VerticalExtension, MotherBrainDeathDefinitions.EscapeDoorExtensionBehavior);
+            // The escape door's setup installs the door block and its extensions at once, before the first draw changes
+            // their artwork. Each block is written once, so the order of the writes is unobservable.
+            foreach (RoomBlockShapeCell cell in EscapeDoorSetup.Cells)
+                RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, slot.Block + cell.Cell, cell.Collision,
+                    EscapeDoorSetupBehaviors[cell.Collision]);
         }
         return true;
     }

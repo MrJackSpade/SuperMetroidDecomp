@@ -118,7 +118,7 @@ internal sealed class MotherBrainGlassObjects
     /// <summary>Finds the live glass, without accepting a later object that took its place.</summary>
     internal bool TryGetMotherBrainGlass([NotNullWhen(true)] out MotherBrainGlassObject? glass)
     {
-        if (_motherBrainGlassSlot is { Active: true, Header: RoomObjectHeaderId.MotherBrainGlass, Behaviour: MotherBrainGlassObject live })
+        if (_motherBrainGlassSlot is { Active: true, Behaviour: MotherBrainGlassObject live })
         {
             glass = live;
             return true;
@@ -131,7 +131,7 @@ internal sealed class MotherBrainGlassObjects
     internal void OnObjectDeleted(RoomObjectSlot slot)
     {
         Ensure.NotNull(slot);
-        if (slot.Header != RoomObjectHeaderId.MotherBrainGlass)
+        if (!ReferenceEquals(slot, _motherBrainGlassSlot))
             return;
         MotherBrainGlassLastRoomArgument = (slot.Behaviour as MotherBrainGlassObject
             ?? throw new InvalidOperationException("Mother Brain's glass left the room without its typed object.")).Hits;

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 using static SuperMetroid.Verification.Rooms.RoomObjects.InstalledFramePictureAssertions;
+using static SuperMetroid.Verification.Rooms.RoomObjects.RoomBlockShapeAssertions;
 namespace SuperMetroid.Verification.Areas.Escape;
 
 /// <summary>Checks Mother Brain escape-gate PLM program and draw fields against native data.</summary>
@@ -52,23 +53,30 @@ internal static class LookupEscapeGateVerification
     /// <summary>The three gate frames' draw-list addresses and published names.</summary>
     private static readonly LookupEscapeGateStockFrame[] Frames = [new(0x9473, "open"), new(0x947f, "half-closed"), new(0x948b, "closed")];
 
-    /// <summary>Checks which draws are the gate's, each frame's one vertical run against the cartridge, and the row bounds.</summary>
+    /// <summary>
+    /// Checks which draws are the gate's, each frame's one vertical run against the cartridge, and that each frame's shape
+    /// covers exactly the four cells its draw list writes.
+    /// </summary>
     internal static void VerifyEscapeGateDrawGeometry(SuperMetroidAddressSpace rom)
     {
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             bool owned = Frames.Any(frame => frame.Pointer == raw);
-            AssertEqual(owned, MotherBrainEscapeGateDraws.TryDescribe(NativeObjectDraws.At<MotherBrainEscapeGateDraw>(raw), out var shape), "Escape gate descriptor domain");
-            if (!owned) AssertEqual(default(MotherBrainEscapeGateDraws.Draw), shape, "Escape gate missing descriptor");
+            AssertEqual(owned, MotherBrainEscapeGateDraws.TryDescribe(NativeObjectDraws.At<MotherBrainEscapeGateDraw>(raw), out RoomBlockShape? shape), "Escape gate descriptor domain");
+            if (!owned) AssertTrue(shape is null, "Escape gate missing descriptor");
         }
         AssertLayoutsAsNative(rom, RoomObjectEscapeGateVisualFiles.Family, Frames, collision: false);
         foreach (LookupEscapeGateStockFrame frame in Frames)
         {
             AssertEqual((ushort)0x8004, ReadSamusEaterObjectWord(rom, 0x840000 | frame.Pointer), "Escape gate native vertical geometry");
             AssertEqual((ushort)0, ReadSamusEaterObjectWord(rom, 0x840000 | (frame.Pointer + 10)), "Escape gate native final offset");
+            if (!MotherBrainEscapeGateDraws.TryDescribe(NativeObjectDraws.At<MotherBrainEscapeGateDraw>(frame.Pointer), out RoomBlockShape? shape))
+                throw new InvalidOperationException($"Escape gate frame {frame.Id} has no shape.");
+            RoomBlockShape described = shape;
+            AssertShapeAsNative(rom, described, frame.Pointer, frame.Id);
+            foreach (Offset16<RoomBlocks> outside in new Offset16<RoomBlocks>[] { new(0, -1), new(0, 4) })
+                AssertThrows<ArgumentOutOfRangeException>(() => described.CollisionAt(outside), "Escape gate shape covers only its column's four cells");
         }
-        foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainEscapeGateDraws.Draw.CollisionAt(invalid), "Escape gate row bounds");
     }
 
     /// <summary>Checks that every cell of every gate frame collides as the cartridge's does.</summary>

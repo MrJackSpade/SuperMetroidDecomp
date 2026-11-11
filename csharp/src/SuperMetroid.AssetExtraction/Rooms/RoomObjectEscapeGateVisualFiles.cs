@@ -30,15 +30,20 @@ public static class RoomObjectEscapeGateVisualFiles
     public static InstalledEscapeGateFrames Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
-    /// <summary>Every gate frame's geometry: four solid cells down its column.</summary>
+    /// <summary>
+    /// Every gate frame's geometry as the cartridge writes it: one four-cell column from the origin, each cell colliding
+    /// as the game's block shape for the frame says (#1608).
+    /// </summary>
     private static Dictionary<MotherBrainEscapeGateDraw, RoomObjectFrameLayout> Layouts()
     {
         var layouts = new Dictionary<MotherBrainEscapeGateDraw, RoomObjectFrameLayout>();
         foreach (MotherBrainEscapeGateDraw frame in Enum.GetValues<MotherBrainEscapeGateDraw>())
-            layouts.Add(frame, RoomObjectFrameLayout.Of(RoomObjectDraw.Of(frame), 1,
-                static _ => MotherBrainEscapeGateObjectDrawDefinitions.Height,
-                static (_, row) => MotherBrainEscapeGateDraws.Draw.CollisionAt(row),
-                static _ => RoomObjectRunDirection.Vertical, static _ => Offset16<RoomBlocks>.Zero));
+        {
+            RoomObjectDraw draw = RoomObjectDraw.Of(frame);
+            if (!MotherBrainEscapeGateDraws.TryDescribe(draw, out RoomBlockShape? shape))
+                throw new InvalidOperationException($"Escape-gate frame {frame} has no shape.");
+            layouts.Add(frame, RoomObjectShapeRun.Layout(draw, shape, RoomObjectShapeRun.Column(Offset16<RoomBlocks>.Zero, 4)));
+        }
         return layouts;
     }
 }

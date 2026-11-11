@@ -163,9 +163,10 @@ internal static class EnemyProgramAnimation
         Ensure.NotNull(frame);
         Animation<TSegment> animation = playback.Animation;
         AnimationPlace place = playback.Place;
-        WrappingCountdown repeats = slot.Timer;
-        AnimationShown<TSegment, TFrame> shown = segments.PlayToNextFrame(ref animation, ref place, ref repeats, react);
-        slot.Timer = repeats;
+        // The enemy's timer word is read and written in place, as the load and countdown instructions do, so a write a cue's
+        // reaction makes to it in between stands.
+        var timer = new EnemyTimerRepeats(slot);
+        AnimationShown<TSegment, TFrame> shown = segments.PlayToNextFrame(ref animation, ref place, ref timer, react);
         playback = new AnimationPlayback<TSegment>(animation, place);
         switch (shown)
         {

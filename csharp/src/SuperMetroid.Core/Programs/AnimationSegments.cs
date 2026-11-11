@@ -67,15 +67,32 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
     internal AnimationShown<TSegment, TFrame> PlayToNextFrame(
         ref Animation<TSegment> animation, ref AnimationPlace place, ref WrappingCountdown repeats, Func<TEvent, AnimationContinuation<TSegment>?> react)
     {
+        var held = new HeldRepeats(repeats);
+        AnimationShown<TSegment, TFrame> shown = PlayToNextFrame(ref animation, ref place, ref held, react);
+        repeats = held.Repeats;
+        return shown;
+    }
+
+    /// <summary>
+    /// Plays the animation as the other overloads do, reading and writing the owner's repeat counter through
+    /// <paramref name="counter"/> at the moment a counted phase loads or counts it, so a write an event's reaction makes to
+    /// the same counter in between stands as it would on a loop timer the owner shares.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The animation passes every beat without showing a frame.</exception>
+    internal AnimationShown<TSegment, TFrame> PlayToNextFrame<TCounter>(
+        ref Animation<TSegment> animation, ref AnimationPlace place, ref TCounter counter, Func<TEvent, AnimationContinuation<TSegment>?> react)
+        where TCounter : struct, IAnimationRepeatCounter
+    {
         Ensure.NotNull(animation);
         Ensure.NotNull(react);
         int limit = beats.Values.Sum(segment => segment.Length + 1) + 1;
         for (int visited = 0; visited < limit; visited++)
         {
+            // An animation of no phase is over at once, or rests where it is when it holds.
             if (animation.Phases.Count == 0)
-                return AnimationShown<TSegment, TFrame>.Ended.Instance;
+                return animation.End is AnimationEnd.Hold ? AnimationShown<TSegment, TFrame>.Held.Instance : AnimationShown<TSegment, TFrame>.Ended.Instance;
             if (place.Beat == AnimationPlace.NotEntered)
-                place = Enter(animation, place.Phase, ref repeats);
+                place = Enter(animation, place.Phase, ref counter);
             AnimationPhase<TSegment> phase = animation.Phases[place.Phase];
             // A held animation stays held: its last play is done and counts nothing again.
             if (place.Beat > phase.BeatCount)
@@ -103,8 +120,8 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
             }
             if (phase.CountsRepeats)
             {
-                repeats = repeats.Decrement().Remaining;
-                if (!repeats.IsZero)
+                counter.Repeats = counter.Repeats.Decrement().Remaining;
+                if (!counter.Repeats.IsZero)
                 {
                     place = AnimationPlace.StartOf(place.Phase);
                     continue;
@@ -112,7 +129,7 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
             }
             if (place.Phase + 1 < animation.Phases.Count)
             {
-                place = Enter(animation, place.Phase + 1, ref repeats);
+                place = Enter(animation, place.Phase + 1, ref counter);
                 continue;
             }
             switch (animation.End)
@@ -123,7 +140,7 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
                     place = AnimationPlace.HoldingIn(place.Phase, phase.BeatCount);
                     return AnimationShown<TSegment, TFrame>.Held.Instance;
                 case AnimationEnd.Loop loop:
-                    place = Enter(animation, loop.Phase, ref repeats);
+                    place = Enter(animation, loop.Phase, ref counter);
                     continue;
                 default:
                     throw new InvalidOperationException($"Undefined animation end {animation.End}.");
@@ -133,10 +150,11 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
     }
 
     /// <summary>The start of phase <paramref name="phase"/> of <paramref name="animation"/>, loading a counted phase's plays.</summary>
-    private static AnimationPlace Enter(Animation<TSegment> animation, int phase, ref WrappingCountdown repeats)
+    private static AnimationPlace Enter<TCounter>(Animation<TSegment> animation, int phase, ref TCounter counter)
+        where TCounter : struct, IAnimationRepeatCounter
     {
         if (animation.Phases[phase].CountsRepeats)
-            repeats = WrappingCountdown.FromRaw(animation.Phases[phase].Plays);
+            counter.Repeats = WrappingCountdown.FromRaw(animation.Phases[phase].Plays);
         return AnimationPlace.StartOf(phase);
     }
 

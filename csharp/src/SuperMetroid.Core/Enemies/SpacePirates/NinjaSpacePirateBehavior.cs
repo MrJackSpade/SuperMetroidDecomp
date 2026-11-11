@@ -430,7 +430,10 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         state.Speed = new SignedEightEight(NinjaPirateInitialDiveSpeed);
     }
 
-    /// <summary>Moves horizontally and descends with packed speed until floor or speed ends the dive.</summary>
+    /// <summary>
+    /// Moves horizontally and falls by the divekick's step (<see cref="NinjaPirateDiveFallStep"/>) until the floor or the
+    /// speed ends the dive.
+    /// </summary>
     internal void StepNinjaPirateDive(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
@@ -446,12 +449,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole +
             (direction == HorizontalDirection.Right ? NinjaPirateDiveHorizontalPixels : -NinjaPirateDiveHorizontalPixels));
 
-        // The vertical mover receives the high speed byte as the signed integer word and
-        // the low byte as only the low eight bits of the fractional word. This odd packing is
-        // preserved literally; treating Speed as a conventional 8.8 fixed value is subtly
-        // different from the game's own speed arithmetic.
-        SignedSixteenSixteen displacement = SignedSixteenSixteen.FromParts(state.Speed.UnsignedWholePixels, state.Speed.FractionSubpixels);
-        bool landed = _terrain.MoveEnemyVertically(level, slot, displacement);
+        bool landed = _terrain.MoveEnemyVertically(level, slot, NinjaPirateDiveFallStep.Of(state.Speed));
         if (!landed)
         {
             state.ChangeSpeed(-64);

@@ -29,7 +29,7 @@ internal static class KraidBodyContourVerification
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var overlaps = CreateKraidBodyContourProbe();
         var body = enemies.SlotTable.Slots[0];
-        var shot = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads).Slots[0];
+        var shot = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount)).Slots[0];
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             short y = unchecked((short)raw);

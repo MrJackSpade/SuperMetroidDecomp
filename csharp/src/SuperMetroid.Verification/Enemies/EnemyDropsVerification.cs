@@ -66,7 +66,7 @@ internal static class EnemyDropsVerification
         enemy.Contact = EnemyContact.None;
         enemy.Processing = EnemyProcessing.None;
         enemy.Presence = EnemyPresence.RespawnsIfKilled;
-        var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
+        var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
         var samusColours = new SamusColours();
         fixture.System.StepFrame(new RoomEnemyFrame { FrameCounter = fixture.System.StandaloneFrameCounter, Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = fixture.Level, SamusProjectiles = projectiles, SamusColours = samusColours, ResolveSamusContactBeforeAi = true });
         AssertEqual(EnemyDefinitionId.Respawn, enemy.DefinitionId, "contact death retains respawn placeholder");

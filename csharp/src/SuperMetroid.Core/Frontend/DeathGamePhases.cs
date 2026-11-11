@@ -102,8 +102,7 @@ internal sealed class DeathGamePhases(FrontendSession session)
     private void BeginDeathFade()
     {
         SuperMetroidRuntime runtime = session.Runtime ?? throw new InvalidOperationException("The death fade requires a runtime.");
-        runtime.FadeOut.Begin(RgbColor.Black, SamusDeathDefinitions.FadeDenominator, runtime.EnemySession.FadeStepCount,
-            GameplayFadeSpares.Samus);
+        runtime.FadeOut.Begin(RgbColor.Black, SamusDeathDefinitions.FadeDenominator, GameplayFadeSpares.Samus);
     }
 
     /// <summary>

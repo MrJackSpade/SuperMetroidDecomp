@@ -115,6 +115,19 @@ internal sealed class SuperMetroidRuntime
     internal RainbowBeamCameraCheckpoint RainbowBeamCameraCheckpoint { get; } = new();
 
     /// <summary>
+    /// The step count every gradual fade shares, created with the runtime and handed to the owners whose fades count on it:
+    /// the door transition's fades, the death and time-up fades of <see cref="FadeOut"/>, and every room's enemies, whose
+    /// Kraid backdrop and Torizo body fades count on it too. It outlives every room.
+    /// </summary>
+    internal SharedFadeStepCount FadeStepCount { get; } = new();
+
+    /// <summary>
+    /// The session's unauthored Speed Booster cadence, which the runtime hands its room loader and attract demo for every
+    /// Samus they build and every room's enemies, whose Ceres Ridley getaway leaves its delays behind.
+    /// </summary>
+    internal UnauthoredBoostCadence UnauthoredBoostCadence { get; }
+
+    /// <summary>
     /// The compatibility services reproducing what Samus's glitch paths read past their data, from the installed content;
     /// the runtime hands each to the owner that consults it as it builds that owner and every Samus and room.
     /// </summary>
@@ -159,7 +172,8 @@ internal sealed class SuperMetroidRuntime
         Ensure.NotNull(artwork);
         Ensure.NotNull(session);
         FrameClock clock = session.Clock;
-        UnauthoredBoostCadence unauthoredBoostCadence = session.UnauthoredBoostCadence;
+        UnauthoredBoostCadence = Ensure.NotNull(session.UnauthoredBoostCadence);
+        FadeOut = new GameplayFadeOut(FadeStepCount);
         MessageBox = new GameplayMessageBoxState(session.SaveChoiceInput);
         SamusOverreads = artwork.SamusOverreads ?? throw new InvalidOperationException(
             "Gameplay requires the installed Samus overread services.");
@@ -170,7 +184,6 @@ internal sealed class SuperMetroidRuntime
         Clock = Ensure.NotNull(clock);
         Options = new GameplayOptions();
         EnemySession = new EnemySession(
-            unauthoredBoostCadence,
             artwork.EnemyOverreads ?? throw new InvalidOperationException("Gameplay requires the installed enemy overread services."),
             artwork.BossAndIntroOverreads ?? throw new InvalidOperationException("Gameplay requires the installed boss and intro overread services."),
             RainbowBeamCameraCheckpoint);
@@ -192,8 +205,8 @@ internal sealed class SuperMetroidRuntime
         DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing,  Display = Display, EnemyPhase = EnemyPhase, LiquidWaveAndStatueDescent = LiquidWaveAndStatueDescent, Clock = Clock, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, System = System});
         EscapeEffects = new EscapeRoomEffects(Freeze, Clock, Room, System);
         ShotBlockVisuals = new RoomObjectVisuals();
-        RoomLoader = new RoomLoader(new RoomLoaderDependencies { EnemySession = EnemySession, BossArtwork = BossArtwork, RoomFx = RoomFx, PaletteFxSession = PaletteFxSession, TourianStatueDependencies = TourianStatueDependencies, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, DoorFrameCounting = DoorFrameCounting, Options = Options, Player = Player, Room = Room, System = System, Assists = Assists, SamusOverreads = SamusOverreads });
-        AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { EnemySession = EnemySession, Artwork = Artwork, AttractSession = AttractSession, Controller1 = Controller1, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System, AnimationContinuation = SamusOverreads.AnimationContinuation, BeamCharge = BeamCharge });
+        RoomLoader = new RoomLoader(new RoomLoaderDependencies { EnemySession = EnemySession, BossArtwork = BossArtwork, RoomFx = RoomFx, PaletteFxSession = PaletteFxSession, TourianStatueDependencies = TourianStatueDependencies, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, DoorFrameCounting = DoorFrameCounting, Options = Options, Player = Player, Room = Room, System = System, Assists = Assists, SamusOverreads = SamusOverreads, UnauthoredBoostCadence = UnauthoredBoostCadence, FadeStepCount = FadeStepCount });
+        AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { UnauthoredBoostCadence = UnauthoredBoostCadence, Artwork = Artwork, AttractSession = AttractSession, Controller1 = Controller1, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System, AnimationContinuation = SamusOverreads.AnimationContinuation, BeamCharge = BeamCharge });
         DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { Artwork = Artwork, Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room});
         MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Room = Room, SuitPickup = SuitPickup, System = System });
         RoomObjectPhase = new RoomObjectFramePhase(new RoomObjectFramePhaseDependencies { Controller1 = Controller1, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, MessageBox = MessageBox, MessageBoxes = MessageBoxes, Player = Player, Room = Room, SuitPickup = SuitPickup});
@@ -327,8 +340,11 @@ internal sealed class SuperMetroidRuntime
     /// <summary>The colours a door's fades show, which the door transition steps (#1512).</summary>
     internal DoorFade DoorFade { get; } = new();
 
-    /// <summary>The death fade and the time-up whiteout of the whole display, which their game states step (#1512).</summary>
-    internal GameplayFadeOut FadeOut { get; } = new();
+    /// <summary>
+    /// The death fade and the time-up whiteout of the whole display, which their game states step (#1512), on the runtime's
+    /// <see cref="FadeStepCount"/>.
+    /// </summary>
+    internal GameplayFadeOut FadeOut { get; }
 
     /// <summary>The sprite frame the update is building for the next frame boundary: sprites plus whole-frame draws.</summary>
     public SpriteFrameBuffer Sprites { get; } = new();

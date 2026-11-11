@@ -18,7 +18,7 @@ internal static class SparkCrashAlignmentVerification
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(700, 35)) };
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0x1234);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            var fullShots = new SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem(new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), InstalledFixtures.SamusOverreads);
+            var fullShots = new SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem(new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.SlotCount));
             fullShots.SlotTable.ProjectileCounter = 5;
             samus.Shinespark.FinishCrash(samus, fullShots);
             AssertEqual((ushort)35, samus.Position.Y.Whole, "Movement queues standing alignment until after animation");

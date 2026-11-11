@@ -17,10 +17,15 @@ internal sealed class EnemyPresentation
     /// <summary>Room artwork binding used to resolve enemy display compositions.</summary>
     private readonly EnemyRoomBinding _room;
 
-    /// <summary>Binds enemy presentation to its room's installed artwork catalog.</summary>
-    internal EnemyPresentation(EnemyRoomBinding room)
+    /// <summary>Binds enemy presentation to its room's installed artwork catalog and the runtime's shared fade step count.</summary>
+    /// <param name="room">The room's bindings, whose session holds the installed sheets and the encounters' looks.</param>
+    /// <param name="fadeStepCount">
+    /// The runtime's shared fade step count, which its door, death and time-up fades also count their steps on.
+    /// </param>
+    internal EnemyPresentation(EnemyRoomBinding room, SharedFadeStepCount fadeStepCount)
     {
         _room = room;
+        FadeStepCount = Ensure.NotNull(fadeStepCount);
     }
 
     /// <summary>
@@ -82,10 +87,10 @@ internal sealed class EnemyPresentation
     internal void ShowLook(EncounterLook look) => Looks.Show(look);
 
     /// <summary>
-    /// The session's shared fade step count, a compatibility service (#1544): enemies' fades and the runtime's door, death
+    /// The runtime's shared fade step count, a compatibility service (#1544): enemies' fades and the runtime's door, death
     /// and time-up fades all count their steps on it, so a fade left part-way shortens the next.
     /// </summary>
-    public SharedFadeStepCount FadeStepCount => _room.Session.FadeStepCount;
+    public SharedFadeStepCount FadeStepCount { get; }
 
     /// <summary>
     /// Publishes one frame of the enemy <paramref name="draw"/> shows from its installed sheet (#1392): the sheet of the

@@ -33,6 +33,8 @@ internal sealed class CeresRidleyGetaway
     private readonly EnemyRoomStatus _roomStatus;
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;
+    /// <summary>The session's unauthored Speed Booster cadence, whose delays the wing frames leave behind.</summary>
+    private readonly UnauthoredBoostCadence _unauthoredBoostCadence;
 
 
 
@@ -46,6 +48,7 @@ internal sealed class CeresRidleyGetaway
         _presentation = dependencies.Presentation;
         _ridleyEncounter = dependencies.RidleyEncounter;
         _roomStatus = dependencies.RoomStatus;
+        _unauthoredBoostCadence = Ensure.NotNull(dependencies.UnauthoredBoostCadence);
     }
 
     /// <summary>
@@ -165,7 +168,7 @@ internal sealed class CeresRidleyGetaway
             _room.Services.DrawFloor(wing);
             CeresRidleyGetawayBoostDelays delays = _bossArtwork.CeresRidleyGetawayBoostDelays ?? throw new InvalidOperationException(
                 "The Ceres Ridley getaway requires the installed delays its wing frames leave behind.");
-            _room.UnauthoredBoostCadence.TakeDelaysLeftByWings(delays.LeftBy(wing));
+            _unauthoredBoostCadence.TakeDelaysLeftByWings(delays.LeftBy(wing));
         }
     }
 

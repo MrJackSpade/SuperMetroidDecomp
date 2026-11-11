@@ -61,7 +61,7 @@ internal static class SamusChargeColorsVerification
         };
         // Charge and Hyper-shot steps name shades (#1512); the import resolves them from the installed charge colours.
         var installedSources = InstalledFixtures.SamusShadeSources with { Charge = ImportAreaMapPresentation.SamusColoursOf(original).Charge };
-        var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
+        var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
         projectiles.Charge.FlareCounter = 60;
         var samusColours = new SamusColours();
         ushort[] suits = [0, 1, 0x20];
@@ -250,7 +250,7 @@ internal static class SamusChargeColorsVerification
         var guarded = NewChargeColorReadGuard(rom, forbidden);
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = SamusPoseId.FacingRightNormalPose,
             EquippedBeams = SamusBeamFlags.Charge };
-        var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
+        var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
         projectiles.Charge.FlareCounter = 60;
         ushort[] suits = [0, 1, 0x20];
         for (int family = 0; family < 2; family++)

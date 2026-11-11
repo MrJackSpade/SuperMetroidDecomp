@@ -81,13 +81,17 @@ public sealed class SamusProjectileSystem
     /// <summary>Creates one room's five projectile slots, eighteen trail slots and the owners that run them.</summary>
     /// <param name="charge">The held beam charge, flare and charge palette, which outlive each room's projectiles.</param>
     /// <param name="samusOverreads">The installed services reproducing Samus's glitch reads; the projectiles consult their own group of them.</param>
-    internal SamusProjectileSystem(BeamChargeState charge, SamusOverreadServices samusOverreads)
+    /// <param name="muzzleCarry">
+    /// What each of the room's shot places keeps for its next projectile's horizontal sub-pixel position, created by the
+    /// room's builder with the room's shot pool.
+    /// </param>
+    internal SamusProjectileSystem(BeamChargeState charge, SamusOverreadServices samusOverreads, LeftMuzzleSubpixelCarry muzzleCarry)
     {
         SamusProjectileOverreads overreads = Ensure.NotNull(samusOverreads).Projectiles;
         Charge = Ensure.NotNull(charge);
         PostureAdmission = overreads.PostureAdmission;
         DrainedCrashDepartures = overreads.DrainedCrashDepartures;
-        SlotTable = new ProjectileSlotTable(new LeftMuzzleSubpixelCarry(SlotCount));
+        SlotTable = new ProjectileSlotTable(muzzleCarry);
         Earthquakes = new ProjectileEarthquakes();
         ImpactAudio = new ProjectileImpactAudio();
         Animation = new ProjectileAnimation(Charge, SlotTable, overreads.ChargeFlareDelays);

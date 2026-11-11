@@ -53,7 +53,7 @@ internal static class ProjectileFrameBindingsVerification
                 { Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), FrameHold = WrappingCountdown.Start(1), Damage = 30 };
             var installedBomb = new SamusBombProjectileSlot(0)
                 { Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), FrameHold = WrappingCountdown.Start(1), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500), Damage = 30 };
-            var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = stock } };
+            var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount)) { Animation = { FrameBindings = stock } };
             var bombs = new SamusBombProjectileSystem { FrameBindings = stock };
             AssertTrue(nativeShot.FrameHold.RawValue is > 0 and < 0x8000,
                 "native inventory contains timed records");

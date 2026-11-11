@@ -10,6 +10,9 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class GameplayFadeOut : IGameplayShadingSource
 {
+    /// <summary>The runtime's shared fade step count, which every fade this owner runs reads and advances.</summary>
+    private readonly SharedFadeStepCount counter;
+
     /// <summary>The running fade's steps, or null while none runs.</summary>
     private GradualFadeSteps? steps;
 
@@ -19,12 +22,18 @@ internal sealed class GameplayFadeOut : IGameplayShadingSource
     /// <summary>What the running fade leaves in its own colours.</summary>
     private GameplayFadeSpares spared;
 
-    /// <summary>Starts fading the display toward <paramref name="colour"/> over <paramref name="denominator"/> steps.</summary>
+    /// <summary>Creates the display's fade over the runtime's shared fade step count.</summary>
+    /// <param name="counter">The runtime's shared fade step count, which its door fades and its enemies' fades share.</param>
+    internal GameplayFadeOut(SharedFadeStepCount counter) => this.counter = Ensure.NotNull(counter);
+
+    /// <summary>
+    /// Starts fading the display toward <paramref name="colour"/> over <paramref name="denominator"/> steps, from the step
+    /// the shared count holds.
+    /// </summary>
     /// <param name="colour">The colour the fade ends in.</param>
     /// <param name="denominator">The fade's length.</param>
-    /// <param name="counter">The shared step counter the fade reads and advances.</param>
     /// <param name="spares">What the fade leaves in its own colours: Samus for the death fade, nothing for the whiteout.</param>
-    internal void Begin(RgbColor colour, int denominator, SharedFadeStepCount counter, GameplayFadeSpares spares)
+    internal void Begin(RgbColor colour, int denominator, GameplayFadeSpares spares)
     {
         steps = new GradualFadeSteps(denominator, counter);
         toward = colour;

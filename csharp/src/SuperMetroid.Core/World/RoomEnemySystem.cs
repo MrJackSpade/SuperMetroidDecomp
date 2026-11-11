@@ -604,7 +604,10 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// clear, without loading a population or binding memory, graphics, random-number, or gameplay services.
     /// </summary>
     /// <param name="session">The enemy words and installed artwork that outlive each room.</param>
-    /// <param name="compatibility">The room's own compatibility services, created with the system by its builder.</param>
+    /// <param name="compatibility">
+    /// The compatibility services the room's enemies consult: the room's own, created with the system by its builder, and
+    /// those that outlive every room, which the builder hands on.
+    /// </param>
     /// <param name="definitions">The room's enemy definition source, or null for an enemy system with no population.</param>
     /// <param name="services">The original game-state services the room's AI calls, or null when none is supplied.</param>
     /// <param name="bossArtwork">The session's installed boss artwork, or null for a system with its own, empty binding.</param>
@@ -620,7 +623,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         RoomFx = new EnemyRoomFx();
         RoomStatus = new EnemyRoomStatus(session);
         FrameContext = new EnemyFrameContext(session);
-        Presentation = new EnemyPresentation(Room);
+        Presentation = new EnemyPresentation(Room, compatibility.FadeStepCount);
         BossPresentation = new BossPresentation(Presentation, BossArtworkBinding);
         SlotTable = new EnemySlotTable();
         Audio = new EnemyAudioQueue();
@@ -631,7 +634,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         RidleyEncounter = new RidleyEncounter(SlotTable, session);
         Earthquake = new RoomEarthquake();
         PuyoCeilingTurn = compatibility.PuyoCeilingTurn;
-        SpriteObjects = new RoomSpriteObjects(Presentation, new SpriteObjectPlaces(), PuyoCeilingTurn);
+        SpriteObjects = new RoomSpriteObjects(Presentation, compatibility.SpriteObjectPlaces, PuyoCeilingTurn);
         Projectiles = new EnemyProjectileEngine(Room, Presentation, SpriteObjects, Earthquake, Audio);
         Projectiles.AddHandlerSource(this);
         GunshipBehavior = new GunshipBehavior(Audio, Projectiles, Room, SlotTable, FrameResults);
@@ -668,7 +671,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         RipperBehavior = new RipperBehavior(Terrain);
         RioBehavior = new RioBehavior(Room, Terrain, Audio);
         RinkaBehavior = new RinkaBehavior(Collision, FrameContext, Projectiles, DeathsAndDrops);
-        CeresRidleyBehavior = new CeresRidleyBehavior(new CeresRidleyBehaviorDependencies { FrameResults = BossFrameResults, Dispatch = Dispatch, Room = Room, Earthquake = Earthquake, Audio = Audio, SlotTable = SlotTable, Presentation = BossPresentation, Collision = Collision, RidleyEncounter = RidleyEncounter, RidleyTail = RidleyTail, RoomStatus = RoomStatus });
+        CeresRidleyBehavior = new CeresRidleyBehavior(new CeresRidleyBehaviorDependencies { FrameResults = BossFrameResults, Dispatch = Dispatch, Room = Room, Earthquake = Earthquake, Audio = Audio, SlotTable = SlotTable, Presentation = BossPresentation, Collision = Collision, RidleyEncounter = RidleyEncounter, RidleyTail = RidleyTail, RoomStatus = RoomStatus, UnauthoredBoostCadence = compatibility.UnauthoredBoostCadence });
         RidleyBehavior = new RidleyBehavior(new RidleyBehaviorDependencies { Dispatch = Dispatch, Room = Room, Earthquake = Earthquake, Audio = Audio, Presentation = BossPresentation, DeathsAndDrops = DeathsAndDrops, RidleyEncounter = RidleyEncounter, RidleyTail = RidleyTail, CeresRidleyBehavior = CeresRidleyBehavior, RidleyProjectiles = RidleyProjectiles, RoomStatus = RoomStatus, RoomFx = RoomFx  });
         PuyoBehavior = new PuyoBehavior(Room, Terrain, PuyoCeilingTurn);
         PrePhantoonRoomBehavior = new PrePhantoonRoomBehavior(Room, Projectiles);

@@ -9,16 +9,9 @@ namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 internal static class EnemySessionFixtures
 {
     /// <summary>
-    /// A fresh power-on enemy session bound to <paramref name="unauthoredBoostCadence"/>, the installation's enemy and boss
-    /// over-read services and a fresh rainbow-beam camera checkpoint.
+    /// A fresh power-on enemy session bound to the installation's enemy and boss over-read services and a fresh
+    /// rainbow-beam camera checkpoint.
     /// </summary>
-    /// <param name="unauthoredBoostCadence">The unauthored Speed Booster cadence the case shares with its Samus, if any.</param>
-    internal static EnemySession WithInstalledServices(UnauthoredBoostCadence unauthoredBoostCadence) =>
-        new(unauthoredBoostCadence, InstalledFixtures.EnemyOverreads, InstalledFixtures.BossAndIntroOverreads, new RainbowBeamCameraCheckpoint());
-
-    /// <summary>
-    /// A fresh power-on enemy session with a cadence of its own, the installation's enemy and boss over-read services and a
-    /// fresh rainbow-beam camera checkpoint.
-    /// </summary>
-    internal static EnemySession WithInstalledServices() => WithInstalledServices(new UnauthoredBoostCadence());
+    internal static EnemySession WithInstalledServices() =>
+        new(InstalledFixtures.EnemyOverreads, InstalledFixtures.BossAndIntroOverreads, new RainbowBeamCameraCheckpoint());
 }

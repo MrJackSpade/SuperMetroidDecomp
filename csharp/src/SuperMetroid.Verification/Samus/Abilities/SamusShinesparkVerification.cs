@@ -39,7 +39,8 @@ static void SeedStoredShinePalettes(TestAddressSpace bus)
 
 /// <summary>A fresh shot pool for a spark fixture, whose count admits the crash's echoes and whose shots carry them.</summary>
 static SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem Shots() =>
-    new(new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), InstalledFixtures.SamusOverreads);
+    new(new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), InstalledFixtures.SamusOverreads,
+        new LeftMuzzleSubpixelCarry(SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.SlotCount));
 
 /// <summary>Checks shine storage and palette selection through launch, movement, collision, crash, echoes, and return to standing.</summary>
 internal static void VerifySamusStoredShineAndShinespark()

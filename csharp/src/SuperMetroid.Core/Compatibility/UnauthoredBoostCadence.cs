@@ -11,7 +11,9 @@ namespace SuperMetroid.Core.Compatibility;
 /// with that frame's ten delays for the rest of the session. The capsule's frames leave them as they were.
 /// </summary>
 /// <remarks>
-/// Owned by the session (<c>FrontendSession</c>), which outlives every gameplay runtime as the original's memory does.
+/// Owned by the session (<c>FrontendSession</c>), which outlives every gameplay runtime as the original's memory does, and
+/// handed to each runtime, whose room loader and attract demo give it to every Samus they build and to every room's
+/// enemies, and to the opening cinematic for its flashbacks' Samus.
 /// Recorded during the enemy pass, when the getaway's floor update advances the wing animation (every eighth frame of
 /// the frame counter); consulted by Samus's running animation after movement, when the boost stage advances to full
 /// while the echo finds the sound queue full, for the delay of the run's first frame. Evidence: the

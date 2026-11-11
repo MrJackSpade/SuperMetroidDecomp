@@ -46,9 +46,6 @@ internal sealed class EnemyRoomBinding
     /// <summary>The session's installed enemy frame displays; drawing an enemy requires them.</summary>
     internal EnemyFrameDisplays? FrameDisplays => Session.FrameDisplays;
 
-    /// <summary>The session's unauthored Speed Booster cadence, whose delays Ceres Ridley's getaway wing frames leave behind.</summary>
-    internal UnauthoredBoostCadence UnauthoredBoostCadence => Session.UnauthoredBoostCadence;
-
     /// <summary>The session's record of what Mother Brain's rainbow-beam push hides from the camera.</summary>
     internal RainbowBeamCameraCheckpoint RainbowBeamCameraCheckpoint => Session.RainbowBeamCameraCheckpoint;
 

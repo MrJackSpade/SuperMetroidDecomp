@@ -256,7 +256,7 @@ internal static class InstalledFixtures
     /// </summary>
     internal static SamusProjectileSystem CreateProjectileSystem()
     {
-        var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusOverreads) { Animation = { FrameBindings = Projectiles.FrameBindings } };
+        var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusOverreads, new SuperMetroid.Core.Compatibility.LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount)) { Animation = { FrameBindings = Projectiles.FrameBindings } };
         projectiles.Earthquakes.BindRoomEarthquake(new RoomEarthquake());
         return projectiles;
     }

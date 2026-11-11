@@ -26,7 +26,7 @@ internal static class ProjectileTrailDefinitionsVerification
             if ((selection & 0x20) != 0 && selection != 0x24)
                 continue;
             spawned++;
-            var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
+            var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
             var projectile = new SamusProjectile(0)
             {
                 Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(selection),
@@ -43,7 +43,7 @@ internal static class ProjectileTrailDefinitionsVerification
             AssertEqual(1, trail.Left.FrameHold, "Selector extraction leaves allocation timer unchanged");
             AssertEqual(96, trail.Left.Position.X, "Selector extraction leaves origin offset unchanged");
         }
-        var echoProjectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
+        var echoProjectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
         var echo = new SamusProjectile(0)
         {
             Type = SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho),

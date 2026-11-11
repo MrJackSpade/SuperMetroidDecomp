@@ -53,7 +53,7 @@ internal static class OperationContractsVerification
             Samus = samus,
             NewlyPressedControllerInput = ControllerButton.A,
             ControllerInput = ControllerButton.Right,
-            SamusProjectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads),
+            SamusProjectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount)),
             TurningFloor = new TurningFloorTransform(0.0666, new(128, 112)),
             SharedProjectiles = new SamusBombProjectileSystem(),
         };

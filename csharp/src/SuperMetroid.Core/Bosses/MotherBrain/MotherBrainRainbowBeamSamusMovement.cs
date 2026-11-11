@@ -119,8 +119,8 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         bool reachedVerticalBoundary =
             MoveVerticallyTowardCeilingOrFloor(samus, cameraCheckpoint, CustomVelocity.Y);
 
-        // The wait step branches on the carry returned by the vertical helper. Horizontal wall
-        // carry is intentionally discarded by the following addition.
+        // The wait step ends when the vertical move reaches the ceiling or floor. Whether the
+        // horizontal move met a wall is intentionally ignored.
         return CreateResult(
             before,
             reachedBoundary: reachedVerticalBoundary);
@@ -194,9 +194,9 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         return false;
     }
 
-    /// <summary>Adds velocity to only the high subposition byte and carries into the whole pixel word, retaining the low byte.</summary>
+    /// <summary>Moves the position by the velocity in 256ths of a pixel, carrying into whole pixels, and keeps its finer precision unchanged.</summary>
     private static FixedCoordinate AddVelocityToHighSubpixel(FixedCoordinate position, SignedEightEight velocity) =>
-        // The push adds only to the subposition's high byte; the low byte is never read or written.
+        // The push moves only in 256ths of a pixel; precision finer than that is never read or changed.
         position.MovedBy(velocity);
 
     /// <summary>The arena's ceiling: the least whole Y the forced movement leaves Samus at.</summary>

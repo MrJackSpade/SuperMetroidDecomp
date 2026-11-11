@@ -70,7 +70,7 @@ internal sealed class CrocomireEncounterAccess
     internal void PublishCrocomireObject(Position16<RoomBlocks> block, CrocomireArenaMutation mutation) =>
         _frameResults.CrocomireObjects.Add(new RoomObjectSpawnRequest<CrocomireArenaMutation>(block, mutation));
 
-    /// <summary>Consumes the room's next RNG word for Crocomire effects and choices.</summary>
+    /// <summary>Draws the room's next random number for Crocomire effects and choices.</summary>
     internal int ReadCrocomireRandom() => _room.Random.Read();
 
     /// <summary>The session's installed gradient the volley's last shot reads past the authored nine.</summary>

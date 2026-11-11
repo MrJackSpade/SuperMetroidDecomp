@@ -495,7 +495,7 @@ internal sealed class MotherBrainAttacks
                 return;
         }
 
-        // The original game samples the current RNG word; it does not advance the generator.
+        // The original game reads the current random number; it does not draw a new one.
         if (MotherBrainForwardWalkDefinitions.ForwardWalkRandom.Of(_room.Random.Read()) >=
             MotherBrainForwardWalkDefinitions.ForwardWalkRandomThreshold)
             StartMotherBrainForwardWalk(state);

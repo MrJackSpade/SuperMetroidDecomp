@@ -183,11 +183,11 @@ internal sealed class MotherBrainLateFightState
         return MotherBrainWalkResult.WalkInstalled;
     }
 
-    /// <summary>Uses the random low byte at or above 192 to toggle a standing or leaning body list.</summary>
+    /// <summary>Uses a random roll of 0 through 255, at or above 192, to toggle a standing or leaning body list.</summary>
     internal bool MaybeRequestStandUpOrLeanDown(MotherBrainRandomSample randomNumberSeed)
     {
         // The lean helper ignores every pose except standing (zero) and leaning (six), and its
-        // low-byte threshold is inclusive at 192. A request still executes as body
+        // roll's threshold is inclusive at 192. A request still executes as body
         // instruction bytecode later in the enemy-processing stage.
         if (randomNumberSeed.LowPart < 192)
             return false;

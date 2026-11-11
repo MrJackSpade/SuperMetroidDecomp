@@ -311,8 +311,8 @@ internal sealed class RidleyTail
         if (index != 0)
             angle = angle.TurnedBy(state.TailSegments[index - 1].Angle.Direction);
         int distanceInPixels = segment.Distance.WholePixels;
-        // The tail composition reads the middle/high bytes of the signed rotation product.
-        // An arithmetic shift preserves its floor for negative fractional pixels.
+        // Each segment's offset is its rotated distance in whole pixels, rounded down:
+        // a negative fractional pixel rounds toward the more negative whole pixel.
         segment.Offset = new Offset16<RoomPixels>(
             CoordinateAxis.AsSigned(EightEight.Multiply(distanceInPixels, Trigonometry.SignedSine(angle))),
             CoordinateAxis.AsSigned(EightEight.Multiply(distanceInPixels, Trigonometry.SignedSine(angle.TurnedBy(TrigonometryAngle.QuarterTurn)))));

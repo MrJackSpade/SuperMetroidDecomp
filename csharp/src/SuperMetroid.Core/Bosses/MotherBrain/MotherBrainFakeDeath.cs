@@ -67,7 +67,7 @@ internal sealed class MotherBrainFakeDeath
             }
             else
             {
-                // Fake-death fade replaces colors 145..147 only. Copying a convenient
+                // Fake-death fade greys her brain's three colours only. Copying a convenient
                 // whole palette would visibly alter unrelated room art and is not what
                 // the fake-death fade does.
                 state.Colours.ShowFakeDeathToGrey(step);
@@ -100,7 +100,7 @@ internal sealed class MotherBrainFakeDeath
             MotherBrainBehavior.MotherBrainFakeDeathExplosionPositions.Length;
         Position16<RoomPixels> explosion = MotherBrainBehavior.MotherBrainFakeDeathExplosionPositions[state.FakeDeathExplosionIndex];
 
-        // The tube dust samples the existing RNG word and never advances it. A host random
+        // The tube dust reads the current random number and never draws a new one. A host random
         // call here would desynchronize every later Rinka and phase-two attack decision.
         int sampledRandom = _room.Random.Read();
         MiscDustAnimation animation = sampledRandom < 16384 ? MiscDustAnimation.Smoke : MiscDustAnimation.SmallExplosion;

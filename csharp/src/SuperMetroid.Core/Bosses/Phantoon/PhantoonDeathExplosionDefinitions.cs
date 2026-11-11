@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <summary>Authored explosion choreography for Phantoon's death sequence.</summary>
 public static class PhantoonDeathExplosionDefinitions
 {
-    /// <summary>Thirteen four-byte position/type/delay records begin.</summary>
+    /// <summary>Thirteen explosions, each with a position, a type and a delay.</summary>
     public const int Count = 13;
     /// <summary>Repeat from record five after the initial pass.</summary>
     public const int RepeatStart = 5;

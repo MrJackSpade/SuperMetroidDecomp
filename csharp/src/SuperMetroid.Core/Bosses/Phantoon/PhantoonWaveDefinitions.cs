@@ -19,7 +19,7 @@ public static class PhantoonWaveDefinitions
     public const int PhaseCycle = 512;
 
     /// <summary>
-    /// The phases in one of the sine's angle steps. The phase counts the bytes of two-byte sine samples; an odd phase,
+    /// The phases in one of the sine's angle steps, two for each angle; an odd phase,
     /// which only a restored phase can hold, shows the angle of the even phase below it (#1468: the original's read
     /// straddling two samples there is a presentation quirk, not kept).
     /// </summary>

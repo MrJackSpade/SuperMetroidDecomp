@@ -65,8 +65,8 @@ public sealed class BabyMetroidCutsceneState
     public int FrameHold { get; private set; }
 
     /// <summary>
-    /// 16.16 room position. Only the high byte of each subposition participates in
-    /// this actor's 8.8 mover; the low bytes are deliberately retained and untouched.
+    /// Room position. This actor's 8.8 mover moves it in 256ths of a pixel; its precision finer
+    /// than a 256th of a pixel is deliberately kept unchanged.
     /// </summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
 
@@ -157,7 +157,7 @@ public sealed class BabyMetroidCutsceneState
             : new SamusRainbowFractionStep(sum, false);
     }
 
-    /// <summary>Which of the two rainbow-palette handlers is currently installed.</summary>
+    /// <summary>Which of the two rainbow colour cycles Samus currently shows.</summary>
     public BabyMetroidSamusRainbowPhase SamusRainbowPhase { get; private set; }
 
     /// <summary>True after the deleted enemy property marks the cutscene actor deleted.</summary>
@@ -497,8 +497,8 @@ public sealed class BabyMetroidCutsceneState
                 break;
 
             case BabyMetroidCutscenePhase.ReleaseSamus:
-                // The next step is a one-call cross-actor dispatcher. The write to the
-                // brain-slot speed word is presentation state; the meaningful body write
+                // The next step is a one-call cross-actor dispatcher. The speed it gives
+                // Mother Brain's brain is presentation state; the meaningful body change
                 // starts Mother Brain's fast retreat while this same call falls through to
                 // the first flight update.
                 motherBrain.PrepareForFinalBabyMetroidAttack();

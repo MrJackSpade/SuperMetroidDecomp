@@ -146,8 +146,8 @@ internal sealed class CeresRidleyGetaway
         UpdateCeresRidleyFloorZoomColours(state, zoom);
         state.FloorAngle = state.FloorAngle.AddRaw(48);
 
-        // The Baby capsule advances on every fourth frame of the frame counter using 0,1,2,1. The transfer
-        // lists patch only the two two-byte rows occupied by that animation in the map.
+        // The Baby capsule advances on every fourth frame of the frame counter using 0,1,2,1. Only the
+        // floor's two rows that show that animation are redrawn.
         if (RidleyCadenceDefinitions.GetawayCapsuleStepEveryFourthUpdate.IsDue(frameCounter))
         {
             state.GetawayBabyFrame = (state.GetawayBabyFrame + 1) % 4;
@@ -224,11 +224,11 @@ internal sealed class CeresRidleyGetaway
                 {
                     // The warning setup draws the emergency text immediately after the final
                     // graphics record. The call was missing from the earlier
-                    // translation, so the newly uploaded letter tiles existed but no
-                    // tilemap entries ever referenced them on screen.
+                    // translation, so the letters' artwork was ready but the text never
+                    // appeared on screen.
                     DrawCeresEmergencyText();
-                    // The warning setup also queues the set's third song after installing the final
-                    // static warning tilemap page. The frontend consumes this typed request
+                    // The warning setup also queues the set's third song after showing the final
+                    // static warning picture. The frontend consumes this typed request
                     // through the same queue used by every other music producer.
                     _audio.RequestRidleyMusic(MusicRequest.SelectTrack(MusicTrack.ThirdSetSong));
                     state.CeresSelfDestructPhase = CeresSelfDestructPhase.HoldingTitle;

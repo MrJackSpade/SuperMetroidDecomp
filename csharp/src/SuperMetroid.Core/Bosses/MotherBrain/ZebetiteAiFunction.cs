@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The three Zebetite AI functions stored in variable A, order.</summary>
+/// <summary>The three Zebetite AI functions, in order.</summary>
 public enum ZebetiteAiFunction
 {
     /// <summary>Primary setup allocates a linked half when the generation flag is negative, links slot indices, then enters the door wait in the same update.</summary>

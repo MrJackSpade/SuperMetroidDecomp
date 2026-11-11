@@ -347,8 +347,8 @@ internal sealed class CrocomireCombat
             .WithWholePixelsAtMost(CrocomireSpikeMotion.MaximumVelocity(piece.Piece));
         projectile.Velocity = projectile.Velocity.WithX(xVelocity);
 
-        // Move X with the same split-byte math. Only the high subposition byte participates;
-        // its low byte remains untouched, exactly as the original projectile mover leaves it.
+        // Move X in 256ths of a pixel, as the original projectile mover does: the position's precision finer than a
+        // 256th of a pixel stays exactly as it was.
         FixedCoordinate x = new FixedCoordinate(projectile.Position.X.Whole, projectile.Position.X.Fraction)
             .MovedBy(xVelocity);
         projectile.Position = projectile.Position.WithFractionX(x.Fraction).WithWholeX(x.Whole);

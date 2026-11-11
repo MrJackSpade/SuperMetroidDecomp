@@ -157,8 +157,8 @@ internal sealed class DraygonGrab
             return;
         }
 
-        // The current RNG word is sampled without advancing it. Turret cadence and other
-        // actors are the producers; a low byte of zero inserts one 64-frame tail whip.
+        // The current random number is read without drawing a new one: turret cadence and other
+        // actors draw them. A tail-whip roll of zero inserts one 64-frame tail whip.
         if (DraygonRandomDefinitions.TailWhipRoll.Of(_room.Random.Read()) == 0)
         {
             state.TailWhipTimer = DraygonBehavior.DraygonTailWhipDuration;

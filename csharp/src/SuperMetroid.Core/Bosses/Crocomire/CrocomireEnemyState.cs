@@ -87,7 +87,7 @@ public sealed class CrocomireEnemyState
     private const int MaximumStepCount = short.MaxValue;
 
     /// <summary>
-    /// In the submerged pause and the skeleton tile upload: the frames left in that death phase, counted down only while
+    /// In the submerged pause and while the skeleton is bared behind the wall: the frames left in that death phase, counted down only while
     /// it is above zero.
     /// </summary>
     public int DeathPhaseDelay { get; internal set; }

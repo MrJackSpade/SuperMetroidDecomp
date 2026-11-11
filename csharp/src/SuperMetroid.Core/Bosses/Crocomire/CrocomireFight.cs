@@ -220,7 +220,7 @@ internal sealed class CrocomireFight
     /// <param name="samus">Samus, whom the fight AI measures against; null in fixtures without her.</param>
     /// <param name="level">The room's collision level, which the movement cues require.</param>
     /// <param name="cameraX">The camera's X, which the on-screen movement tests use.</param>
-    /// <param name="cue">The cue to carry out.</param>
+    /// <param name="cue">The cue to perform.</param>
     /// <param name="continuation">The segment the body's animation rests in just past the cue, which the fight AI compares.</param>
     /// <returns>The segment whose animation starts, or null to continue after the cue.</returns>
     private CrocomireBodyProgram? ApplyCrocomireBodyCue(

@@ -33,7 +33,7 @@ internal static class EscapeWallExplosionPicturesVerification
         {
             var session = new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), InstalledFixtures.EnemyOverreads, InstalledFixtures.BossAndIntroOverreads, new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint())
             {
-                FrameDisplays = InstalledFixtures.EnemyTiles.ExtendedFrames?.Displays,
+                FrameDisplays = InstalledFixtures.EnemyTiles.FrameDisplays,
                 Sheets = InstalledFixtures.EnemySheets,
             };
             var presentation = new EnemyPresentation(new EnemyRoomBinding(session, CompiledRoomEnemyDefinitions.Instance, services: null));

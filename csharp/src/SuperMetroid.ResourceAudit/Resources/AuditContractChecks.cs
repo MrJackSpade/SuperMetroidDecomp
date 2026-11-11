@@ -199,18 +199,21 @@ internal static class AuditContractChecks
         Require(!exports.Contains(ResourceDomains.EnemySimple, ResourceIndex.Address(0xa8, empty)),
             "a compiled renderer no-op must not imply an installed catalog entry");
         const string renderer = "class Fixture { " +
-            "void Advance(EnemyFrameId[] frames) { foreach (EnemyFrameId frame in frames) " +
-            "prepared.Add(new PreparedEnemyDraw(frame, Pictured: !CommonEnemyEmptyFrames.DrawsNothing(frame))); } " +
+            "bool TryGetDisplay(EnemyFrameId frame, out bool pictured) { if (CommonEnemyEmptyFrames.DrawsNothing(frame)) { pictured = false; return true; } " +
+            "pictured = true; return true; } " +
+            "void Advance(EnemyFrameId[] frames) { foreach (EnemyFrameId shown in frames) { displays.TryGetDisplay(shown, out bool pictured); " +
+            "prepared.Add(new PreparedEnemyDraw(shown, pictured)); } } " +
             "void Draw() { foreach (PreparedEnemyDraw draw in prepared) { if (draw.Pictured) DrawArt(); } } }";
         bool Recognized(string text)
         {
             SyntaxTree tree = CSharpSyntaxTree.ParseText(text);
-            return CompiledEnemyDisplayAudit.HasNoOpBranch(CompiledEnemyDisplayAudit.Method(tree, "Advance"),
-                CompiledEnemyDisplayAudit.Method(tree, "Draw"));
+            return CompiledEnemyDisplayAudit.HasNoOpBranch(CompiledEnemyDisplayAudit.Method(tree, "TryGetDisplay"),
+                CompiledEnemyDisplayAudit.Method(tree, "Advance"), CompiledEnemyDisplayAudit.Method(tree, "Draw"));
         }
         Require(Recognized(renderer), "the precise reviewed no-op branch must be recognized");
         Require(!Recognized(renderer.Replace("if (draw.Pictured) DrawArt();", "DrawArt();", StringComparison.Ordinal)) &&
-            !Recognized(renderer.Replace("!CommonEnemyEmptyFrames.DrawsNothing(frame)", "true", StringComparison.Ordinal)) &&
+            !Recognized(renderer.Replace("{ pictured = false; return true; }", "{ pictured = true; return true; }", StringComparison.Ordinal)) &&
+            !Recognized(renderer.Replace("new PreparedEnemyDraw(shown, pictured)", "new PreparedEnemyDraw(shown, true)", StringComparison.Ordinal)) &&
             !Recognized(renderer.Replace("CommonEnemyEmptyFrames.DrawsNothing", "CommonEnemyEmptyFrames.DrawsSomething", StringComparison.Ordinal)),
             "changed behavior or identity arguments must invalidate the reviewed classification");
     }

@@ -17,7 +17,7 @@ internal static class RoomEnemySystemArtworkAccess
         {
             set
             {
-                self.Room.Session.FrameDisplays = value?.ExtendedFrames?.Displays;
+                self.Room.Session.FrameDisplays = value?.FrameDisplays;
                 self.Room.Session.Sheets = value is null ? null : SuperMetroid.TestSupport.RepositoryInstallation.Verification.EnemySheetFixtures.For(value);
             }
         }

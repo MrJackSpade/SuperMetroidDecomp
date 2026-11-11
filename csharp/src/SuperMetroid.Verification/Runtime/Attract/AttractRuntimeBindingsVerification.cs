@@ -23,13 +23,13 @@ internal static class AttractRuntimeBindingsVerification
             SamusOverreads = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusOverreads,
             BossAndIntroOverreads = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossAndIntroOverreads,
             EnemyOverreads = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyOverreads,
-            EnemyFrameDisplays = (enemyArtwork.Enemies.ExtendedFrames ?? throw new InvalidOperationException("The fixture authors extended frames.")).Displays,
+            EnemyFrameDisplays = enemyArtwork.Enemies.FrameDisplays ?? throw new InvalidOperationException("The fixture authors enemy frames."),
             EnemySheets = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemySheets, KraidEyes = enemyArtwork.Bosses.KraidColors?.Eyes(), 
         });
         int incomingRandom = game.DispatcherRandomNumber;
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.AttractDemo);
         var demo = game.GameplayRuntimeForVerification;
-        AssertTrue(ReferenceEquals(enemyArtwork.Enemies.ExtendedFrames?.Displays, demo.EnemySession.FrameDisplays),
+        AssertTrue(ReferenceEquals(enemyArtwork.Enemies.FrameDisplays, demo.EnemySession.FrameDisplays),
             "attract runtime binds the installed extended frame displays");
         AssertEqual(incomingRandom, demo.System.RandomNumber, "attract runtime preserves frontend random state");
         AssertTrue(ReferenceEquals(demo.Assists.Current, GameplayAssists.None),

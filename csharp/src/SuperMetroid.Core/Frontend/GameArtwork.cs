@@ -176,8 +176,8 @@ public sealed record GameArtwork : IGameplayArtwork
     /// <summary>The pre-coloured enemy artwork: each variant of each enemy, and the variants each population draws (#1599).</summary>
     public InstalledEnemySheets? EnemySheets { get; init; }
 
-    /// <summary>The installed extended enemy frames' display bindings, drawn with the enemy sheets.</summary>
-    public EnemyExtendedFrameDisplayCatalog? EnemyFrameDisplays { get; init; }
+    /// <summary>Every installed enemy frame's display, drawn with the enemy sheets.</summary>
+    public EnemyFrameDisplays? EnemyFrameDisplays { get; init; }
 
     /// <summary>The compatibility services reproducing what enemies read past their authored data, decoded from the player's game data.</summary>
     public EnemyOverreadServices? EnemyOverreads { get; init; }

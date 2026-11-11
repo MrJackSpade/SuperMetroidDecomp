@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// which the sheets and their shades are pre-coloured in (#1512), each enemy's characters, the enemy, extended-frame and
 /// enemy-projectile compositions and the gunship's takeoff pages that the sheet composers compose the pre-coloured enemy
 /// sheets from, and the identity of the whole selected presentation. The runtime receives none of it: gameplay is given
-/// only the extended frames' display bindings and the composed sheets.
+/// only every installed frame's display (<see cref="FrameDisplays"/>) and the composed sheets.
 /// </summary>
 public sealed class EnemyTileSourceArtwork
 {
@@ -34,6 +34,8 @@ public sealed class EnemyTileSourceArtwork
         AuxiliaryColors = parts.AuxiliaryColors;
         Spritemaps = parts.Spritemaps;
         ExtendedFrames = parts.ExtendedFrames;
+        FrameDisplays = Spritemaps is { } spritemaps && ExtendedFrames is { } extended
+            ? InstalledEnemyFrameDisplays.Of(spritemaps, extended) : null;
         GunshipLiftoff = parts.GunshipLiftoff;
         ProjectileSpritemaps = parts.ProjectileSpritemaps;
     }
@@ -98,13 +100,16 @@ public sealed class EnemyTileSourceArtwork
         sheets.TryGetValue(enemy, out sheet);
 
     /// <summary>Installed visual-only OAM frames; null for constructed legacy fixtures.</summary>
-    public EnemySpritemapCatalog? Spritemaps { get; internal set; }
+    public EnemySpritemapCatalog? Spritemaps { get; }
+
+    /// <summary>Installed extended frame compositions the sheet composer composes the frames' whole pictures from.</summary>
+    public EnemyExtendedFrameCatalog? ExtendedFrames { get; }
 
     /// <summary>
-    /// Installed extended frame compositions the sheet composer composes the frames' whole pictures from, with the display
-    /// bindings the installation gives gameplay.
+    /// Every installed enemy frame as gameplay draws it, built from both enemy frame documents; null for constructed
+    /// fixtures that install only one of them.
     /// </summary>
-    public EnemyExtendedFrameCatalog? ExtendedFrames { get; internal set; }
+    public SuperMetroid.Core.Enemies.Artwork.EnemyFrameDisplays? FrameDisplays { get; }
 
     /// <summary>Five editable gunship takeoff character uploads; null for constructed fixtures.</summary>
     public GunshipLiftoffArtworkCatalog? GunshipLiftoff { get; }

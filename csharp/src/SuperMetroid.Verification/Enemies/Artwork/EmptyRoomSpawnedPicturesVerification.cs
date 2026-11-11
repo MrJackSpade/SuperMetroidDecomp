@@ -24,7 +24,7 @@ internal static class EmptyRoomSpawnedPicturesVerification
     {
         var session = new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), InstalledFixtures.EnemyOverreads, InstalledFixtures.BossAndIntroOverreads, new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint())
         {
-            FrameDisplays = InstalledFixtures.EnemyTiles.ExtendedFrames?.Displays,
+            FrameDisplays = InstalledFixtures.EnemyTiles.FrameDisplays,
             Sheets = InstalledFixtures.EnemySheets,
         };
         // A fresh presentation draws the standard artwork: the room load draws none of an empty population's.

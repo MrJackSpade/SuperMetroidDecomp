@@ -12,8 +12,8 @@ internal static class CompiledEnemyDisplayAudit
     /// <summary>Credits the renderer-owned empty OAM frames in the resource audit after checking the renderer still recognizes them; direct OAM catalog lookups still need installed entries.</summary>
     internal static void Install(string root, ResourceIndex exports, AuditReport report)
     {
-        const string path = "csharp/src/SuperMetroid.Core/World/EnemyDrawList.cs";
-        SyntaxTreeGuard(root, path);
+        SyntaxTreeGuard(root, "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyFrameDisplays.cs",
+            "csharp/src/SuperMetroid.Core/World/EnemyDrawList.cs");
         foreach (byte bank in CommonEnemyEmptyFrameDefinitionsTooling.SupportedBanks)
         {
             ushort pointer = CommonEnemyEmptyFrameToolingDefinitions.EmptySpritemap;
@@ -25,11 +25,15 @@ internal static class CompiledEnemyDisplayAudit
         }
     }
 
-    /// <summary>Requires the reviewed no-op branch in Draw before treating compiled empty frames as renderer-owned resources.</summary>
-    private static void SyntaxTreeGuard(string root, string path)
+    /// <summary>
+    /// Requires the reviewed no-op branch, the empty frame resolved without a picture in the frame displays and the draw
+    /// publishing only pictured frames, before treating compiled empty frames as renderer-owned resources.
+    /// </summary>
+    private static void SyntaxTreeGuard(string root, string displaysPath, string drawPath)
     {
-        var tree = CSharpSyntaxTree.ParseText(File.ReadAllText(Path.Combine(root, path)));
-        if (!HasNoOpBranch(Method(tree, "Advance"), Method(tree, "Draw")))
+        var displays = CSharpSyntaxTree.ParseText(File.ReadAllText(Path.Combine(root, displaysPath)));
+        var draw = CSharpSyntaxTree.ParseText(File.ReadAllText(Path.Combine(root, drawPath)));
+        if (!HasNoOpBranch(Method(displays, "TryGetDisplay"), Method(draw, "Advance"), Method(draw, "Draw")))
             throw new InvalidDataException("The compiled empty-OAM renderer contract changed; review the resource audit adapter.");
     }
 
@@ -38,18 +42,27 @@ internal static class CompiledEnemyDisplayAudit
         .OfType<MethodDeclarationSyntax>().Single(item => item.Identifier.ValueText == name);
 
     /// <summary>
-    /// Recognizes only the reviewed no-op (#1513): <paramref name="prepares"/> marks each prepared draw pictured exactly when
-    /// its frame is not one <c>CommonEnemyEmptyFrames.DrawsNothing</c> names, and <paramref name="draws"/> publishes the sheet
+    /// Recognizes only the reviewed no-op (#1513, #1603): <paramref name="resolves"/> answers a frame
+    /// <c>CommonEnemyEmptyFrames.DrawsNothing</c> names as displayed without a picture, <paramref name="prepares"/> marks
+    /// each prepared draw pictured exactly as that resolution says, and <paramref name="draws"/> publishes the sheet
     /// picture only under a bare <c>if (draw.Pictured)</c>, so a changed renderer contract fails the audit.
     /// </summary>
-    internal static bool HasNoOpBranch(MethodDeclarationSyntax prepares, MethodDeclarationSyntax draws) =>
-        prepares.DescendantNodes().OfType<ArgumentSyntax>().Any(argument =>
-            argument.NameColon?.Name.Identifier.ValueText == "Pictured" &&
-            argument.Expression is PrefixUnaryExpressionSyntax { RawKind: (int)SyntaxKind.LogicalNotExpression } negation &&
-            negation.Operand is InvocationExpressionSyntax call &&
+    internal static bool HasNoOpBranch(MethodDeclarationSyntax resolves, MethodDeclarationSyntax prepares, MethodDeclarationSyntax draws) =>
+        resolves.DescendantNodes().OfType<IfStatementSyntax>().Any(branch =>
+            branch.Else is null &&
+            branch.Condition is InvocationExpressionSyntax call &&
             call.Expression.ToString() == "CommonEnemyEmptyFrames.DrawsNothing" &&
             call.ArgumentList.Arguments.Count == 1 &&
-            call.ArgumentList.Arguments[0].ToString() == "frame") &&
+            call.ArgumentList.Arguments[0].ToString() == "frame" &&
+            branch.Statement.DescendantNodes().OfType<AssignmentExpressionSyntax>().Any(assignment =>
+                assignment.Left.ToString() == "pictured" && assignment.Right.IsKind(SyntaxKind.FalseLiteralExpression))) &&
+        prepares.DescendantNodes().OfType<InvocationExpressionSyntax>().Any(call =>
+            call.Expression is MemberAccessExpressionSyntax { Name.Identifier.ValueText: "TryGetDisplay" } &&
+            call.ArgumentList.Arguments.Count == 2 &&
+            call.ArgumentList.Arguments[1].ToString() == "out bool pictured") &&
+        prepares.DescendantNodes().OfType<ObjectCreationExpressionSyntax>().Any(creation =>
+            creation.Type.ToString() == "PreparedEnemyDraw" &&
+            creation.ArgumentList?.Arguments.LastOrDefault()?.ToString() == "pictured") &&
         draws.DescendantNodes().OfType<IfStatementSyntax>().Any(branch =>
             branch.Else is null && branch.Condition.ToString() == "draw.Pictured");
 }

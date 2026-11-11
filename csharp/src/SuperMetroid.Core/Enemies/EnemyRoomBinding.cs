@@ -43,8 +43,8 @@ internal sealed class EnemyRoomBinding
     /// <summary>The game random source of the current room's services.</summary>
     internal IEnemyRandomNumbers Random => Services.Random;
 
-    /// <summary>The session's installed extended frame display bindings; drawing an extended frame requires them.</summary>
-    internal EnemyExtendedFrameDisplayCatalog? FrameDisplays => Session.FrameDisplays;
+    /// <summary>The session's installed enemy frame displays; drawing an enemy requires them.</summary>
+    internal EnemyFrameDisplays? FrameDisplays => Session.FrameDisplays;
 
     /// <summary>The session's unauthored Speed Booster cadence, whose delays Ceres Ridley's getaway wing frames leave behind.</summary>
     internal UnauthoredBoostCadence UnauthoredBoostCadence => Session.UnauthoredBoostCadence;

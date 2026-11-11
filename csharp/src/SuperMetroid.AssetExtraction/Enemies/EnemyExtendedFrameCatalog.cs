@@ -5,8 +5,8 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <summary>
 /// Installed visual compositions for extended enemy frames as the import pipeline holds them (#1463): each piece's
 /// placement and OAM parts, which the enemy sheet composer composes each frame's one whole picture from (#1513), and the
-/// display bindings gameplay reads. Hitbox records and callback pointers remain application-owned and never come from
-/// this JSON.
+/// display bindings, which gameplay reads with every other installed frame's (<see cref="InstalledEnemyFrameDisplays"/>).
+/// Hitbox records and callback pointers remain application-owned and never come from this JSON.
 /// </summary>
 public sealed class EnemyExtendedFrameCatalog
 {
@@ -16,17 +16,11 @@ public sealed class EnemyExtendedFrameCatalog
     /// <summary>The compiled frame components and display bindings.</summary>
     internal readonly EnemyExtendedFrameSelection selection;
 
-    /// <summary>Retains validated visual components and same-family display bindings, and the displays gameplay reads from them.</summary>
+    /// <summary>Retains validated visual components and same-family display bindings.</summary>
     internal EnemyExtendedFrameCatalog(
         Dictionary<EnemyFrameId, EnemyExtendedDrawComponent[]> frames,
-        Dictionary<EnemyFrameId, EnemyFrameId> displayFrames)
-    {
+        Dictionary<EnemyFrameId, EnemyFrameId> displayFrames) =>
         selection = new(frames, displayFrames);
-        Displays = EnemyExtendedFrames.Displays(selection);
-    }
-
-    /// <summary>The installed frames, the ones pictured and the display bindings, as gameplay draws the frames' pictures.</summary>
-    public EnemyExtendedFrameDisplayCatalog Displays { get; }
 
     /// <summary>Maps the frame gameplay shows to the editable draw components displayed for it.</summary>
     internal bool TryGetDisplay(EnemyFrameId frame, out ReadOnlyMemory<EnemyExtendedDrawComponent> components) =>

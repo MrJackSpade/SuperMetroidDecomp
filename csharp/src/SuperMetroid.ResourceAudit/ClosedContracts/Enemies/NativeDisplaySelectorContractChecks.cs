@@ -20,7 +20,7 @@ internal static class NativeDisplaySelectorContractChecks
         SyntaxTree calls = CSharpSyntaxTree.ParseText("""
             using SuperMetroid.Core.Enemies.Artwork;
             class SelectorConsumer {
-                void Inspect(EnemyExtendedFrameDisplayCatalog frames, EnemyFrameId frame) {
+                void Inspect(EnemyFrameDisplays frames, EnemyFrameId frame) {
                     frames.GetDisplayFrame(frame);
                     frames.GetDisplayFrame(EnemyFrameId.Empty);
                     frames.GetDisplayFrame(EnemyFrameId.KraidFootStanding);
@@ -31,7 +31,7 @@ internal static class NativeDisplaySelectorContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("NativeDisplaySelectorFixture", sources,
-            platforms.Append(typeof(EnemyExtendedFrameDisplayCatalog).Assembly.Location).Distinct()
+            platforms.Append(typeof(EnemyFrameDisplays).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)

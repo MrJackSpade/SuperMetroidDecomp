@@ -99,10 +99,10 @@ public sealed class EnemySession
     internal IEnemySheetSource? Sheets { get; set; }
 
     /// <summary>
-    /// The installed extended enemy frames' display bindings, bound with the enemy sheets: drawing an extended frame
-    /// requires them, and null does not enable a fallback.
+    /// Every installed enemy frame's display, bound with the enemy sheets: drawing an enemy requires it, and null does not
+    /// enable a fallback.
     /// </summary>
-    internal EnemyExtendedFrameDisplayCatalog? FrameDisplays { get; set; }
+    internal EnemyFrameDisplays? FrameDisplays { get; set; }
 
     /// <summary>
     /// The installation's services reproducing what enemies read past their authored data (#1500), consulted only on the

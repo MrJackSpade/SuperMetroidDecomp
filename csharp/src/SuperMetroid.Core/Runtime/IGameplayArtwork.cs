@@ -148,8 +148,8 @@ internal interface IGameplayArtwork
     /// <summary>The pre-coloured enemy artwork: each variant of each enemy, and the variants each population draws (#1599).</summary>
     InstalledEnemySheets? EnemySheets { get; }
 
-    /// <summary>The installed extended enemy frames' display bindings, drawn with the enemy sheets.</summary>
-    EnemyExtendedFrameDisplayCatalog? EnemyFrameDisplays { get; }
+    /// <summary>Every installed enemy frame's display, drawn with the enemy sheets.</summary>
+    EnemyFrameDisplays? EnemyFrameDisplays { get; }
 
     /// <summary>The compatibility services reproducing what enemies read past their authored data, decoded from the player's game data.</summary>
     EnemyOverreadServices? EnemyOverreads { get; }

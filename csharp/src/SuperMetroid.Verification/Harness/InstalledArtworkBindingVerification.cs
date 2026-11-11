@@ -26,7 +26,7 @@ internal static class InstalledArtworkBindingVerification
         if (enemyArtwork is not null)
             artwork = artwork with
             {
-                EnemyFrameDisplays = enemyArtwork.Enemies.ExtendedFrames?.Displays,
+                EnemyFrameDisplays = enemyArtwork.Enemies.FrameDisplays,
                 KraidEyes = enemyArtwork.Bosses.KraidColors?.Eyes(),
             };
         // An already-finished intro is deliberately not rebound for a restored gameplay room: its restored DMA side effect

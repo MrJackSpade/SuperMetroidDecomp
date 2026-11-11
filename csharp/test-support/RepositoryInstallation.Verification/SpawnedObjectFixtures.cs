@@ -122,7 +122,7 @@ internal static class SpawnedObjectFixtures
     internal static EnemyPresentation Presentation(RoomStateSettings state)
     {
         ArgumentNullException.ThrowIfNull(state);
-        var session = new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), InstalledFixtures.EnemyOverreads, InstalledFixtures.BossAndIntroOverreads, new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint()) { FrameDisplays = InstalledFixtures.EnemyTiles.ExtendedFrames?.Displays, Sheets = EnemySheetFixtures.For(InstalledFixtures.EnemyTiles) };
+        var session = new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), InstalledFixtures.EnemyOverreads, InstalledFixtures.BossAndIntroOverreads, new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint()) { FrameDisplays = InstalledFixtures.EnemyTiles.FrameDisplays, Sheets = EnemySheetFixtures.For(InstalledFixtures.EnemyTiles) };
         var room = new EnemyRoomBinding(session, CompiledRoomEnemyDefinitions.Instance, services: null);
         var presentation = new EnemyPresentation(room);
         presentation.DrawPopulation(FixturePopulationSets.Drawing(RoomEnemyGraphicsSetLists.Of(state)));

@@ -30712,19 +30712,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectCrocomireVisualFiles.extension(SuperMetroid.Core.Bosses.Crocomire.CrocomireArenaDraws.Draw)",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectCrocomireVisualFiles.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectCrocomireVisualFilesConstants",
       "kind": "static class",
       "scope": "test",
@@ -43100,19 +43087,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireArenaDraws.Draw",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireArenaDraws.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireArenaMutation",
       "kind": "enum",
       "scope": "product",
@@ -43195,19 +43169,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireArenaShape",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireArenaShape.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireBehavior",
@@ -44574,19 +44535,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Draygon.DraygonCannonCondition",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonCannonCondition.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.Draygon.DraygonCannonData",
       "kind": "static class",
       "scope": "product",
@@ -44637,19 +44585,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Draygon.DraygonCannonDraws.Draw",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonCannonDraws.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Draygon.DraygonCannonLook",
@@ -56597,19 +56532,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Torizo.BombTorizoHandDraws.Draw",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Torizo/BombTorizoHandDraws.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Torizo.BombTorizoHandObject",
@@ -113375,19 +113297,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.KraidRoomObjectDraws.Draw",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/KraidRoomObjectDraws.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.LinkedRestoreObjectFamily",
       "kind": "class",
       "scope": "product",
@@ -114027,6 +113936,32 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomBlockShape",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomBlockShape.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomBlockShapeCell",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomBlockShapeCell.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectAnimationScriptsConstants",

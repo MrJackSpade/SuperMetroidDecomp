@@ -882,7 +882,7 @@ public sealed class BabyMetroidCutsceneState
     }
 
     /// <summary>Multiplies speed by a signed sine-table entry with the game's bit-8-to-23 result.</summary>
-    /// <param name="speed">The unsigned 8.8 speed, 0 through 65535.</param>
+    /// <param name="speed">The speed in 256ths of a pixel an update, never negative.</param>
     /// <param name="angle">The sine-table angle.</param>
     internal static SignedEightEight CalculateVelocityComponent(
         int speed,

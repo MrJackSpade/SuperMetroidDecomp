@@ -47,10 +47,10 @@ internal sealed class NorfairRidleyMovement
     /// arena's height), so the clamps compare signed velocities.
     /// </summary>
     /// <param name="axisVelocity">The axis velocity.</param>
-    /// <param name="position">Ridley's whole coordinate on the axis, 0 through 65535.</param>
-    /// <param name="target">The target's whole coordinate on the axis, 0 through 65535.</param>
+    /// <param name="position">Ridley's whole coordinate on the axis, as his position holds it.</param>
+    /// <param name="target">The target's whole coordinate on the axis, as its position holds it.</param>
     /// <param name="divisor">The inertia divisor, at least one.</param>
-    /// <param name="reversalBoost">The extra speed a reversal subtracts or adds first, 0 through 65535.</param>
+    /// <param name="reversalBoost">The extra speed a reversal subtracts or adds first, never negative.</param>
     private static SignedEightEight AccelerateNorfairRidleyAxis(
         SignedEightEight axisVelocity,
         int position,

@@ -1019,7 +1019,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Spawns one of Botwoon's spits.</summary>
     /// <param name="head">Botwoon's head.</param>
     /// <param name="angle">The spit's direction.</param>
-    /// <param name="speed">The spit speed, 0 through 65535.</param>
+    /// <param name="speed">The spit's speed.</param>
     internal void SpawnBotwoonSpit(RoomEnemySlot head, TrigonometryAngle angle, int speed)
     {
         EnemyProjectile? spit = _projectiles.AllocateEnemyProjectile();

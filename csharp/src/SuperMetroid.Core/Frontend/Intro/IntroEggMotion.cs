@@ -13,23 +13,23 @@ internal static class IntroEggMotion
     /// Issues #625 and #979: the odd-actor table has
     /// 62 signed 16.16 records matching
     /// the original data. For f=0..13, g=f/7 and r=f%7
-    /// give whole=g-2 and fraction=0 for r=0, otherwise 57344-8192*r.
-    /// For f=14..61 the signed value is (f-14)*8192 65536ths, ending at 5 and 57344 65536ths.
+    /// give whole=g-2 and fraction=0 for r=0, otherwise (7-r) eighths of a pixel.
+    /// For f=14..61 the signed value is (f-14) eighths of a pixel, ending at five and seven eighths.
     /// The slime motion chooses this table when the actor timer is odd,
     /// then indexes by the timer over 256; ordinary odd actors are IDs 1 and 3.
-    /// In the 96-pixel start fixture, fractional starts 0, 1, 32767, and
-    /// 65535 all ground at frame 51, inside the table. The method rejects
+    /// In the 96-pixel start fixture, fractional starts from zero to just under a
+    /// whole pixel all ground at frame 51, inside the table. The method rejects
     /// frame 62 and negative frames instead of reading the adjacent even
     /// table; fractional addition and the carry into the whole part stay exact.
     ///
     /// Issues #625 and #980: the separate even-actor table
     /// has 69 signed 16.16 records matching the original data. For
     /// f=0..20, g=f/7 and r=f%7 give whole=g-3 and fraction=0 for r=0,
-    /// otherwise 57344-8192*r. For f=21..68 the signed value is
-    /// (f-21)*8192 65536ths, ending at 5 and 57344 65536ths. An even timer selects
+    /// otherwise (7-r) eighths of a pixel. For f=21..68 the signed value is
+    /// (f-21) eighths of a pixel, ending at five and seven eighths. An even timer selects
     /// this table for ordinary actor IDs 0 and 2, and the timer over 256 indexes
-    /// the records. The 96-pixel start fixture with fractions 0, 1, 32767,
-    /// and 65535 grounds at frame 62, within the table. Frame 69 and
+    /// the records. The 96-pixel start fixture with fractions from zero to just
+    /// under a whole pixel grounds at frame 62, within the table. Frame 69 and
     /// negative frames throw instead of reading the adjacent routine.
     /// </remarks>
     public static SignedSixteenSixteen SlimeY(int frame, bool odd) => Curve(frame, odd ? 62 : 69, odd ? 2 : 3);
@@ -63,7 +63,7 @@ internal static class IntroEggMotion
     /// <remarks>
     /// Issues #625 and #975: the fragment spawn reads six X/Y
     /// origin pairs, then adds 16 and 59
-    /// respectively, wrapping past 65535. The original data
+    /// respectively. The original data
     /// gives source pairs (92,88), (99,88), (89,93),
     /// (96,91), (102,94), and (99,96); all twelve values match this
     /// selector after the biases. The spawn step creates exactly indices

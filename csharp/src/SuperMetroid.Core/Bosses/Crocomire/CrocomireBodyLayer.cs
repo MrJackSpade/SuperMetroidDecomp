@@ -56,7 +56,7 @@ internal sealed class CrocomireBodyLayer
     internal void HideCrocomireBodyFrom(int top) => _presentation.RequireBossBody().ShowAbove(top);
 
     /// <summary>Levels the melt's stretch: every line of his body layer shows <paramref name="verticalScroll"/> (#1468).</summary>
-    /// <param name="verticalScroll">The vertical scroll every line shows, 0 through 65535.</param>
+    /// <param name="verticalScroll">The vertical scroll every line shows.</param>
     internal void LevelCrocomireMeltDistortion(int verticalScroll) =>
         _access.RequireCrocomireDeath().MeltDistortion = CrocomireMeltDistortion.Level(verticalScroll);
 
@@ -92,7 +92,7 @@ internal sealed class CrocomireBodyLayer
     }
 
     /// <summary>Converts the body X position into his body layer's horizontal placement, which keeps Crocomire onscreen.</summary>
-    /// <param name="bodyX">The body's whole X coordinate, 0 through 65535.</param>
+    /// <param name="bodyX">The body's whole X coordinate.</param>
     /// <param name="camera">The camera position.</param>
     private static int OnScreenCrocomireBodyLayerX(int bodyX, Position16<RoomPixels> camera)
     {

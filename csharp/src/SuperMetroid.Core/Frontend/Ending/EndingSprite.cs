@@ -10,7 +10,7 @@ internal sealed record EndingSprite(IntroDiscoverySprite Sprite, EndingSpriteRol
 
     /// <summary>
     /// The starfield's speed across the screen once the flyaway starts it: a quarter pixel an update to the right,
-    /// slowing by 32 65536ths of a pixel each update until the starfield leaves with the finale.
+    /// slowing by 1/2048 of a pixel each update until the starfield leaves with the finale.
     /// </summary>
     public SignedSixteenSixteen FlyawayVelocity { get; set; }
 }

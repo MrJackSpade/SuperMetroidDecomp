@@ -37,7 +37,10 @@ internal static class SamusBodySheetFixtures
         new(StringComparer.Ordinal);
 
     /// <summary>The characters each fixture body shows, registered or bound from the installation's.</summary>
-    private static readonly ConditionalWeakTable<InstalledSamusBodyArtwork, SamusBodyCharacterArtwork> characters = new();
+    private static readonly ConditionalWeakTable<SamusBodySources, SamusBodyCharacterArtwork> characters = new();
+
+    /// <summary>The body each fixture presentation was last bound to by <c>BindBodyFixture</c>.</summary>
+    private static readonly ConditionalWeakTable<SamusPresentation, SamusBodySources> boundBodies = new();
 
     /// <summary>Registered characters by their identity, which other fixture bodies naming the same characters bind.</summary>
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, SamusBodyCharacterArtwork> registeredByIdentity = new(StringComparer.Ordinal);
@@ -58,7 +61,7 @@ internal static class SamusBodySheetFixtures
         new(StringComparer.Ordinal);
 
     /// <summary>The installed sheets with the body and overlay sheets <paramref name="body"/> composes.</summary>
-    internal static InstalledSpriteSheets For(InstalledSamusBodyArtwork body)
+    internal static InstalledSpriteSheets For(SamusBodySources body)
     {
         ArgumentNullException.ThrowIfNull(body);
         string identity = body.ContentIdentity;
@@ -68,7 +71,7 @@ internal static class SamusBodySheetFixtures
     }
 
     /// <summary>Registers a fixture body's own characters, which its sheets compose from; returns the body.</summary>
-    internal static InstalledSamusBodyArtwork Register(SamusBodyCharacterArtwork artwork)
+    internal static SamusBodySources Register(SamusBodyCharacterArtwork artwork)
     {
         ArgumentNullException.ThrowIfNull(artwork);
         characters.AddOrUpdate(artwork.Body, artwork);
@@ -80,7 +83,7 @@ internal static class SamusBodySheetFixtures
     /// The characters <paramref name="body"/> shows: those registered for it, or the registered or installed characters it
     /// names, bound to its frames.
     /// </summary>
-    internal static SamusBodyCharacterArtwork CharactersOf(InstalledSamusBodyArtwork body)
+    internal static SamusBodyCharacterArtwork CharactersOf(SamusBodySources body)
     {
         if (characters.TryGetValue(body, out SamusBodyCharacterArtwork? registered))
             return registered;
@@ -94,7 +97,7 @@ internal static class SamusBodySheetFixtures
     }
 
     /// <summary>The sheets <paramref name="body"/> draws from, with the overlay sheet <paramref name="cannon"/> composes.</summary>
-    internal static InstalledSpriteSheets For(InstalledSamusBodyArtwork body, InstalledSamusArmCannonArtwork cannon)
+    internal static InstalledSpriteSheets For(SamusBodySources body, SamusArmCannonSourceArtwork cannon)
     {
         ArgumentNullException.ThrowIfNull(body);
         ArgumentNullException.ThrowIfNull(cannon);
@@ -109,18 +112,18 @@ internal static class SamusBodySheetFixtures
     /// <paramref name="atmosphere"/>, each the installed body's when not given.
     /// </summary>
     internal static InstalledSpriteSheets ForAtmosphere(SamusSpritemapSources? spritemaps = null,
-        InstalledSamusAtmosphericArtwork? atmosphere = null)
+        SamusAtmosphericSourceArtwork? atmosphere = null)
     {
-        InstalledSamusBodyArtwork installed = inputs.Value.SamusBody.Body;
-        spritemaps ??= installed.Source.Spritemaps;
+        SamusBodySources installed = inputs.Value.SamusBody.Body;
+        spritemaps ??= installed.Spritemaps;
         atmosphere ??= installed.Atmosphere;
-        if (spritemaps.ContentIdentity == installed.Source.Spritemaps.ContentIdentity && atmosphere.ContentIdentity == installed.Atmosphere.ContentIdentity)
+        if (spritemaps.ContentIdentity == installed.Spritemaps.ContentIdentity && atmosphere.ContentIdentity == installed.Atmosphere.ContentIdentity)
             return InstalledFixtures.SpriteSheets;
         SamusSpritemapSources maps = spritemaps;
-        InstalledSamusAtmosphericArtwork attributes = atmosphere;
+        SamusAtmosphericSourceArtwork attributes = atmosphere;
         return atmospheres.GetOrAdd($"{maps.ContentIdentity}-{attributes.ContentIdentity}", key => new(() =>
         {
-            SpriteSheetSources sources = SamusAtmosphereSheetComposer.Sources(inputs.Value, maps, attributes.Source);
+            SpriteSheetSources sources = SamusAtmosphereSheetComposer.Sources(inputs.Value, maps, attributes);
             return Replace(InstalledFixtures.SpriteSheets, SpriteSheetId.SamusAtmosphere, sources, $"fixture-{key}");
         })).Value;
     }
@@ -128,12 +131,21 @@ internal static class SamusBodySheetFixtures
     /// <summary>Binds a fixture's body artwork and the sheets it draws from.</summary>
     extension(SamusPresentation presentation)
     {
-        /// <summary>Binds <paramref name="body"/> and the sheets composed from it.</summary>
-        internal void BindBodyFixture(InstalledSamusBodyArtwork body)
+        /// <summary>Binds what the game reads of <paramref name="body"/> and the sheets composed from it.</summary>
+        internal void BindBodyFixture(SamusBodySources body)
         {
-            presentation.BindArtwork(body);
+            ArgumentNullException.ThrowIfNull(body);
+            presentation.BindArtwork(body.Gameplay);
             presentation.BindSheets(For(body));
+            boundBodies.AddOrUpdate(presentation, body);
         }
+
+        /// <summary>The body a fixture bound to this presentation, as the import reads it.</summary>
+        /// <exception cref="InvalidOperationException">The presentation shows no body a fixture bound.</exception>
+        internal SamusBodySources BoundBodyFixture => boundBodies.TryGetValue(presentation, out SamusBodySources? body) &&
+            ReferenceEquals(presentation.Artwork, body.Gameplay)
+                ? body
+                : throw new InvalidOperationException("Samus shows no body a fixture bound.");
 
         /// <summary>Binds the body of <paramref name="artwork"/> and the sheets composed from its characters.</summary>
         internal void BindBodyFixture(SamusBodyCharacterArtwork artwork) => presentation.BindBodyFixture(Register(artwork));
@@ -142,12 +154,13 @@ internal static class SamusBodySheetFixtures
     /// <summary>Binds a fixture's arm cannon and the overlay sheet composed from it.</summary>
     extension(SamusState samus)
     {
-        /// <summary>Binds <paramref name="cannon"/> over Samus's bound body, and the sheets they draw from.</summary>
-        internal void BindArmCannonFixture(InstalledSamusArmCannonArtwork cannon)
+        /// <summary>Binds <paramref name="cannon"/> over the body fixture bound to Samus, and the sheets they draw from.</summary>
+        /// <exception cref="InvalidOperationException">Samus shows no body a fixture bound.</exception>
+        internal void BindArmCannonFixture(SamusArmCannonSourceArtwork cannon)
         {
-            InstalledSamusBodyArtwork body = samus.Presentation.Artwork
-                ?? throw new InvalidOperationException("An arm-cannon fixture binds over a bound body.");
-            samus.ArmCannon.Artwork = cannon;
+            ArgumentNullException.ThrowIfNull(cannon);
+            SamusBodySources body = samus.Presentation.BoundBodyFixture;
+            samus.ArmCannon.Artwork = cannon.Gameplay;
             samus.Presentation.BindSheets(For(body, cannon));
         }
     }
@@ -159,7 +172,7 @@ internal static class SamusBodySheetFixtures
     /// <param name="cannon">The arm cannon the overlay sheet composes.</param>
     /// <param name="suffix">Keeps the fixture's frames apart from the installed sheets' in the frame-source registry.</param>
     private static InstalledSpriteSheets Compose(InstalledSpriteSheets basis, SamusSheetInputs fixture, IEnumerable<SpriteSheetId> ids,
-        InstalledSamusArmCannonArtwork cannon, string suffix)
+        SamusArmCannonSourceArtwork cannon, string suffix)
     {
         SpriteSheetId[] replaced = [.. ids];
         var composedSheets = new SpriteSheet[replaced.Length];
@@ -172,7 +185,7 @@ internal static class SamusBodySheetFixtures
         System.Threading.Tasks.Parallel.For(0, replaced.Length, index =>
         {
             SpriteSheetId id = replaced[index];
-            composedSources[index] = id == SpriteSheetId.SamusOverlays ? SamusOverlaySheetComposer.Sources(fixture, cannon.Source)
+            composedSources[index] = id == SpriteSheetId.SamusOverlays ? SamusOverlaySheetComposer.Sources(fixture, cannon)
                 : SamusSheetSources.For(fixture, id);
             var layout = new SpriteSheetLayout(composedSources[index], 0, 0);
             composedSheets[index] = paintedLayouts.GetOrAdd($"{id}-{layout.Identity}", _ => new(() =>

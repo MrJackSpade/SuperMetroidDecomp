@@ -42,9 +42,9 @@ internal static class AudioClipBackendVerification
     {
         InstalledClipAudioLibrary clips = installation.LoadAudioClips();
         ExtractedAudioAssetCatalog extracted = installation.LoadAudio();
-        VerifyEquivalence(clips, extracted, AudioRequest.ForTrack(MusicTrackNumbers.Decode(RoomTrack)), MusicUpdates, "Green Brinstar room track");
-        VerifyEquivalence(clips, extracted, new AudioRequest.RequestSound(SamusSound.UnchargedPowerBeam), SoundUpdates, "Power Beam");
-        VerifyMusicCommands(clips);
+        VerifyEquivalence(clips.Clips, extracted, AudioRequest.ForTrack(MusicTrackNumbers.Decode(RoomTrack)), MusicUpdates, "Green Brinstar room track");
+        VerifyEquivalence(clips.Clips, extracted, new AudioRequest.RequestSound(SamusSound.UnchargedPowerBeam), SoundUpdates, "Power Beam");
+        VerifyMusicCommands(clips.Clips);
         VerifySoundCommands(clips);
         Console.WriteLine(
             "  Audio clip backend: PCM equals the emulated driver for a track and a sound; same-track, end restart, " +
@@ -118,7 +118,7 @@ internal static class AudioClipBackendVerification
         InstalledSoundEffectClip low = clips.Manifest.SoundEffects.First(entry =>
             entry.Context == MusicDataSet.GreenBrinstar && entry.Sound.Library == SoundEffectLibrary.Enemies &&
             entry.Policy is { Priority: SoundEffectPriorityEffect.Low, IgnoresPriority: false } && entry.Sound != high.Sound);
-        var script = new Script(clips);
+        var script = new Script(clips.Clips);
         script.Advance([new AudioRequest.ChangeMusicDataSet(null), new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)]);
         ClipLibraryState library2 = script.State.Libraries[1];
 

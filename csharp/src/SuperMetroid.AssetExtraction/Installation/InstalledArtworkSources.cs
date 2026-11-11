@@ -10,6 +10,9 @@ namespace SuperMetroid.AssetExtraction.Installation;
 /// </summary>
 public sealed record InstalledArtworkSources
 {
+    /// <summary>Samus's body sources, whose game catalog the installed artwork set binds (#1616).</summary>
+    public required SamusBodySources SamusBody { get; init; }
+
     /// <summary>The standard object characters (#1484).</summary>
     public required RoomCharacterAtlas StandardObjects { get; init; }
 

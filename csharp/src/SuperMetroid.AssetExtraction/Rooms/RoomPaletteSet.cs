@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rooms.LevelData;
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>A graphics set's room background palette.</summary>
 public enum RoomPaletteSet

@@ -33,7 +33,7 @@ internal static class SamusDeathSheetComposer
     internal static SpriteSheetSources Sources(SamusSheetInputs inputs)
     {
         Ensure.NotNull(inputs);
-        InstalledSamusBodyArtwork body = inputs.SamusBody.Body;
+        SamusBodySources body = inputs.SamusBody.Body;
         var frames = new List<SheetFrameSource>();
         foreach (HorizontalDirection facing in Facings)
         {
@@ -42,7 +42,7 @@ internal static class SamusDeathSheetComposer
                 string name = SamusDeathSheetDefinitions.ExplosionFrame(facing, frame);
                 // A zero entry in the installed pointer table names direct-page scratch the port does not model and
                 // draws nothing (owner decision on #1318), so its frame is empty.
-                frames.Add(new(name, body.Source.Spritemaps.TryGetFrame(ExplosionSpritemap(facing, frame), out SpriteFrame? spritemap)
+                frames.Add(new(name, body.Spritemaps.TryGetFrame(ExplosionSpritemap(facing, frame), out SpriteFrame? spritemap)
                     ? spritemap : new SpriteFrame(name, []), inputs.DeathTiles.Explosion));
             }
         }

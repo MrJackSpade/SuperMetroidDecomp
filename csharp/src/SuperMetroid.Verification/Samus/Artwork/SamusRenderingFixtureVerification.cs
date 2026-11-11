@@ -14,14 +14,14 @@ using SuperMetroid.Verification.Harness;
 internal static class SamusRenderingFixtureVerification
 {
     /// <summary>Loads the installed body artwork only when a rendering fixture first needs it.</summary>
-    private static readonly Lazy<InstalledSamusBodyArtwork> renderingFixtureStock =
+    private static readonly Lazy<SamusBodySources> renderingFixtureStock =
         new(() => InstalledFixtures.SamusBody);
 
     /// <summary>Caches complete catalogs whose every pose uses a requested graphics Y offset.</summary>
-    private static readonly Dictionary<sbyte, InstalledSamusBodyArtwork> graphicsOffsetFixtures = [];
+    private static readonly Dictionary<sbyte, SamusBodySources> graphicsOffsetFixtures = [];
 
     /// <summary>Builds or reuses a stock body catalog with every pose's graphics Y offset replaced.</summary>
-    internal static InstalledSamusBodyArtwork SamusGraphicsOffsetFixture(sbyte offset)
+    internal static SamusBodySources SamusGraphicsOffsetFixture(sbyte offset)
     {
         if (graphicsOffsetFixtures.TryGetValue(offset, out var existing)) return existing;
         var stock = renderingFixtureStock.Value;
@@ -70,7 +70,7 @@ internal static class SamusRenderingFixtureVerification
     /// <summary>The body the bus's seeded tables describe over the installed stock body.</summary>
     private static SamusBodyCharacterArtwork BuildSyntheticBody(TestAddressSpace bus)
     {
-        InstalledSamusBodyArtwork stock = renderingFixtureStock.Value;
+        SamusBodySources stock = renderingFixtureStock.Value;
         SamusBodyCharacterArtwork stockCharacters = SamusBodySheetFixtures.CharactersOf(stock);
         ushort Word(int address) => LittleEndianBytes.Word(bus.ReadByte(address), bus.ReadByte(address + 1));
         ushort[] Words(int address, int count) => Enumerable.Range(0, count)
@@ -103,7 +103,7 @@ internal static class SamusRenderingFixtureVerification
         SamusBodyFrameSelection[] frames = stock.Frames.ToArray();
         for (int index = 0; index < frames.Length; index++)
         {
-            int address = InstalledSamusBodyArtwork.FirstFrameAddress + index * 4;
+            int address = SamusBodySources.FirstFrameAddress + index * 4;
             if (bus.HasSeededByte(address)) frames[index] = new(bus.ReadByte(address), bus.ReadByte(address + 1),
                 bus.ReadByte(address + 2), bus.ReadByte(address + 3));
         }
@@ -154,7 +154,7 @@ internal static class SamusRenderingFixtureVerification
     /// override their seeded bytes and decode them again: each pose's origin, and the whole landing, posture-transition and
     /// drained tables, which the first pose of each family installs from its first frame to the table's end.
     /// </summary>
-    private static PlacementTables StockPlacementTables(InstalledSamusBodyArtwork stock)
+    private static PlacementTables StockPlacementTables(SamusBodySources stock)
     {
         int[] Rises(SamusPoseId pose) => stock.Placements[pose].FrameRises is { } rises
             ? [.. rises]

@@ -26,7 +26,7 @@ public static class PauseAudioSmokeTest
             new SuperMetroid.Core.Gameplay.GameplayAssists { SkipOpeningCinematic = true });
         // A bare game draws the title and file screens from installed artwork, as the hosts bind it.
         InstalledGameBindings.Create(RepositoryInstallation.Installation)(game);
-        game.BindAudio(RepositoryInstallation.Installation.LoadAudioClips());
+        game.BindAudio(RepositoryInstallation.Installation.LoadAudioClips().Clips);
         var samples = new short[AudioSession.PcmSamplesPerFrame];
         FrontendFrame frame = default;
         int frames = 0;

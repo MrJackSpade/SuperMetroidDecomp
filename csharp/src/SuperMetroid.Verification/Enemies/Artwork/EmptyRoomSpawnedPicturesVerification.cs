@@ -22,11 +22,8 @@ internal static class EmptyRoomSpawnedPicturesVerification
     /// <summary>Draws every projectile frame the common spawners of each empty-population room spawn, in the standard variants.</summary>
     internal static void VerifyEmptyRoomSpawnedPictures()
     {
-        var session = new EnemySession(InstalledFixtures.EnemyOverreads, InstalledFixtures.BossAndIntroOverreads, new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint())
-        {
-            FrameDisplays = InstalledFixtures.EnemyTiles.FrameDisplays,
-            Sheets = InstalledFixtures.EnemySheets,
-        };
+        var session = new EnemySession(InstalledFixtures.EnemyOverreads, InstalledFixtures.BossAndIntroOverreads, new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint(),
+            InstalledFixtures.EnemySheets, InstalledFixtures.EnemyFrameDisplays);
         // A fresh presentation draws the standard artwork: the room load draws none of an empty population's.
         var presentation = new EnemyPresentation(new EnemyRoomBinding(session, CompiledRoomEnemyDefinitions.Instance, services: null), new SharedFadeStepCount());
         VerificationAssertions.AssertTrue(presentation.DrawnPopulation is null && ReferenceEquals(presentation.Artwork, InstalledFixtures.EnemySheets.Standard),

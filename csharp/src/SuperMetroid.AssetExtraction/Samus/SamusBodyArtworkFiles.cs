@@ -122,10 +122,10 @@ public static class SamusBodyArtworkFiles
 
     /// <summary>Validates and compiles the installed Samus body catalog, as the player may have edited it: body JSON, PNGs, and linked artwork.</summary>
     /// <param name="directory">Directory containing supported-revision body metadata, PNG sets, and all linked Samus artwork.</param>
-    /// <returns>A cartridge-free catalog of visual pose/frame mappings, spritemaps, offsets, linked artwork and the installed characters' identity.</returns>
+    /// <returns>The installed body's tables, spritemaps, placements and linked artwork, with the installed characters' identity.</returns>
     /// <remarks>Transfer sizes and references are validated, and unused PNG-slot tiles must stay zero.</remarks>
     /// <exception cref="InvalidDataException">Metadata, sizes, PNG padding, or linked artwork are invalid; diagnostics retain the offending filename.</exception>
-    public static InstalledSamusBodyArtwork Load(string directory) => LoadCharacters(directory).Body;
+    public static SamusBodySources Load(string directory) => LoadCharacters(directory).Body;
 
     /// <summary>Validates and compiles the installed Samus body and its characters, from which the body sheets are composed.</summary>
     /// <param name="directory">Directory containing supported-revision body metadata, PNG sets, and all linked Samus artwork.</param>

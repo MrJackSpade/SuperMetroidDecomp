@@ -4,6 +4,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Samus;
 
 namespace SuperMetroid.AssetExtraction.Installation;
 
@@ -27,8 +28,10 @@ public static class InstalledArtworkIdentity
         Ensure.NotNull(artwork);
         Ensure.NotNull(enemies);
         Ensure.NotNull(sources);
+        if (!ReferenceEquals(artwork.SamusBodyArt, sources.SamusBody.Gameplay))
+            throw new InvalidOperationException("The installed artwork set's Samus body was not bound from the body whose identity is asked for.");
         return RoomPresentationIdentity.Create(Require(artwork.RoomVisualLayouts))
-            .Append(KeyValuePair.Create(GameInstallationLayout.SamusBodyDirectoryName, Require(artwork.SamusBodyArt).ContentIdentity))
+            .Append(KeyValuePair.Create(GameInstallationLayout.SamusBodyDirectoryName, sources.SamusBody.ContentIdentity))
             .Concat(RoomObjectPresentationIdentity.Create(new RoomObjectVisualCatalogSet
             {
                 ShotBlock = Require(artwork.RoomObjectShotBlockVisuals),

@@ -10,6 +10,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Evir;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.World;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Verification.Enemies.Evir;
 
@@ -44,9 +45,8 @@ internal static class EvirVisualsVerification
             "every exported Evir frame is shown by a program");
         foreach (EvirProgram loop in new[] { EvirProgram.BodyFacingLeft, EvirProgram.ArmsFacingLeft, EvirProgram.BodyFacingRight, EvirProgram.ArmsFacingRight })
         {
-            RoomEnemySystem enemies = NewEvirInstructionSystem();
-            enemies.TileArtwork = stock.Enemies;
-            enemies.BossArtwork = stock.Bosses;
+            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(),
+                definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = stock.Bosses };
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             PrepareEvirInstructionSlot(slot, EnemyDefinitionId.Evir, loop);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(EvirAnimations.Segments, loop, EvirFrameToolingDefinitions.Spritemap),

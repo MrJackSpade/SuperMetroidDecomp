@@ -17,7 +17,7 @@ internal static class MotherBrainFakeDeathPaletteVerification
 {
     /// <summary>Compares both descent and ascent color tables, timers, and zero-terminator transitions.</summary>
     internal static void VerifyMotherBrainFakeDeathPalette(
-        ISnesAddressSpace rom, MotherBrainRainbowPalettePresentation installed)
+        ISnesAddressSpace rom, InstalledMotherBrainRainbowPalette installed)
     {
         Suite(nameof(VerifyFade), () => VerifyFade(toGrey: true));
         Suite(nameof(VerifyFade), () => VerifyFade(toGrey: false));
@@ -69,14 +69,14 @@ internal static class MotherBrainFakeDeathPaletteVerification
     }
 
     /// <summary>Creates a Mother Brain actor with installed colors.</summary>
-    private static RoomEnemySystem CreateFakeDeathPaletteEnemy(MotherBrainRainbowPalettePresentation colors) =>
-        new(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { MotherBrainRainbowColors = colors } };
+    private static RoomEnemySystem CreateFakeDeathPaletteEnemy(InstalledMotherBrainRainbowPalette colors) =>
+        new(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { MotherBrainRainbowColors = colors.Beam } };
 
     /// <summary>
     /// The colours Mother Brain's sprites show over black: the import's shades of <paramref name="colors"/>, laid as her
     /// fades laid them on <paramref name="state"/> (#1512).
     /// </summary>
-    private static SnesCgram Shown(MotherBrainEnemyState state, MotherBrainRainbowPalettePresentation colors)
+    private static SnesCgram Shown(MotherBrainEnemyState state, InstalledMotherBrainRainbowPalette colors)
     {
         ushort[] words = BossShadeColours.Laid(state.Colours.OwnShading.Shades, SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.RainbowSprites(colors),
             BossShadeColours.Sprites, 0);

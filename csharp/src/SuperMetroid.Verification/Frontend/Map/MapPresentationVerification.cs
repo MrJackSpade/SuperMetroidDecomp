@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.AssetExtraction.Samus;
 using System.Text;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -184,7 +185,7 @@ internal static class MapPresentationVerification
         /// <summary>Enemy character and sprite art bound alongside room art.</summary>
         public InstalledEnemyArtwork EnemyTiles { get; }
         /// <summary>Samus body art bound before gameplay drawing begins.</summary>
-        public InstalledSamusBodyArtwork SamusBody { get; }
+        public SamusBodySources SamusBody { get; }
 
         /// <summary>
         /// The repository installation's room artwork set, gathered once per process (#1532): the map checks bind only map
@@ -217,11 +218,9 @@ internal static class MapPresentationVerification
             runtime.Artwork.RoomVisualLayouts = visualLayouts;
             runtime.Artwork.RoomLevelStreams = levelStreams;
 
-            runtime.EnemySession.FrameDisplays = EnemyTiles.Enemies.FrameDisplays;
-            runtime.EnemySession.Sheets = SuperMetroid.TestSupport.RepositoryInstallation.Verification.EnemySheetFixtures.For(EnemyTiles.Enemies);
             runtime.BossArtwork.KraidEyes = EnemyTiles.Bosses.KraidColors?.Eyes();
 
-            runtime.Artwork.SamusBodyArt = SamusBody;
+            runtime.Artwork.SamusBodyArt = SamusBody.Gameplay;
             runtime.ShotBlockVisuals.RoomObjectElevatorPlatformVisuals = elevatorPlatform;
         }
     }
@@ -447,7 +446,8 @@ internal static class MapPresentationVerification
             JsonSerializer.Deserialize<MotherBrainRainbowPaletteDocument>(
                 File.ReadAllBytes(source), ArtworkJson.Options)
             ?? throw new InvalidDataException("Extracted Mother Brain rainbow palette is null.");
-        Suite(nameof(VerifyMotherBrainFakeDeathPalette), () => VerifyMotherBrainFakeDeathPalette(bus, original.MotherBrainRainbowPalette));
+        InstalledMotherBrainRainbowPalette rainbow = InstalledFixtures.ImportMaps.MotherBrainRainbowColours;
+        Suite(nameof(VerifyMotherBrainFakeDeathPalette), () => VerifyMotherBrainFakeDeathPalette(bus, rainbow));
         for (int frame = 0; frame < MotherBrainRainbowPaletteFormat.RainbowFrameCount; frame++)
         {
             var native = new SnesCgram();
@@ -460,7 +460,7 @@ internal static class MapPresentationVerification
                 MotherBrainColorDestinations.BrainColor);
             SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(native, bus, palette + MotherBrainRainbowPaletteGeometry.ColorCount * sizeof(ushort),
                 MotherBrainRainbowPaletteGeometry.ColorCount, MotherBrainColorDestinations.RearLegColor);
-            SnesCgram installed = MotherBrainLook.OfRainbow(original.MotherBrainRainbowPalette, MotherBrainShades.Rainbow(frame));
+            SnesCgram installed = MotherBrainLook.OfRainbow(rainbow, MotherBrainShades.Rainbow(frame));
             AssertTrue(new CgramPalettes(native).ImageEquals(new CgramPalettes(installed)),
                 $"Mother Brain rainbow frame {frame} matches all native CGRAM colors");
         }
@@ -492,7 +492,7 @@ internal static class MapPresentationVerification
             SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(native, bus, palette + count * sizeof(ushort),
                 MotherBrainRainbowPaletteGeometry.BackLegCount,
                 MotherBrainColorDestinations.DrainedRearLegColor);
-            SnesCgram installed = MotherBrainLook.OfRainbow(original.MotherBrainRainbowPalette,
+            SnesCgram installed = MotherBrainLook.OfRainbow(rainbow,
                 draining ? MotherBrainShades.ToGrey(frame) : MotherBrainShades.FromGrey(frame), seed);
             AssertTrue(new CgramPalettes(native).ImageEquals(new CgramPalettes(installed)),
                 $"Mother Brain {(draining ? "drain" : "revival")} frame {frame} retains exact native CGRAM and preserved colors");
@@ -505,7 +505,7 @@ internal static class MapPresentationVerification
             MotherBrainRainbowPaletteGeometry.ColorCount, MotherBrainColorDestinations.BrainColor);
         SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(nativeNormal, bus, MotherBrainSourceDefinitions.Palettes.NormalRearLegColors,
             MotherBrainRainbowPaletteGeometry.ColorCount, MotherBrainColorDestinations.RearLegColor);
-        SnesCgram installedNormal = MotherBrainLook.OfRainbow(original.MotherBrainRainbowPalette, MotherBrainShades.Restored);
+        SnesCgram installedNormal = MotherBrainLook.OfRainbow(rainbow, MotherBrainShades.Restored);
         AssertTrue(new CgramPalettes(nativeNormal).ImageEquals(new CgramPalettes(installedNormal)),
             "Mother Brain normal restoration matches both fixed native sources");
         AssertEqual(MotherBrainSourceDefinitions.Beam.InitialColor,
@@ -649,7 +649,7 @@ internal static class MapPresentationVerification
         var restored = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(game);
         AssertEqual(original.ContentIdentity, restored.MapPresentationIdentity, "restored graph names its bound map content");
 
-        var runtime =SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads, InstalledFixtures.EnemyOverreads);
+        var runtime =SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.BareRuntimeArtwork);
         runtime.Artwork.MapPresentation = original;
         fixtureAssets.Bind(runtime);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

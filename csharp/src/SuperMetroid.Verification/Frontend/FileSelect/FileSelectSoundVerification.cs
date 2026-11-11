@@ -56,7 +56,7 @@ internal static class FileSelectSoundVerification
         if (existingSave)
             saves.SaveSlot(0, new SuperMetroidSaveSnapshot());
         var game = CreateRetailGameFixture(saves);
-        var assets = RepositoryInstallation.Installation.LoadAudioClips();
+        var assets = RepositoryInstallation.Installation.LoadAudioClips().Clips;
         game.BindAudio(assets);
         var pcm = new short[AudioSession.PcmSamplesPerFrame];
         var withoutSwoosh = new ClipAudioBackend(assets);

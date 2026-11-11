@@ -63,10 +63,17 @@ internal static class RepositoryInstallation
         new(() => SharedFixtureTiming.Load("Fixture: maps",
             () => SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationFiles.LoadForImport(Installation.MapDirectory)));
 
+    /// <summary>The installation's Samus body, loaded once per process: the artwork binds what the game reads of it.</summary>
+    internal static Lazy<SuperMetroid.AssetExtraction.Samus.SamusBodySources> SamusBodyLoader { get; } =
+        new(() => SharedFixtureTiming.Load("Fixture: repository Samus body", () => Installation.LoadSamusBody()));
+
+    /// <summary>The installation's Samus body, whose game catalog <see cref="Artwork"/> binds.</summary>
+    internal static SuperMetroid.AssetExtraction.Samus.SamusBodySources SamusBody => SamusBodyLoader.Value;
+
     /// <summary>The installation's presentation catalogs, loaded once per process and bound to every fixture.</summary>
     internal static Lazy<GameArtwork> ArtworkLoader { get; } =
         new(() => SharedFixtureTiming.Load("Fixture: repository artwork",
-            () => Installation.LoadGameArtwork(ImportMapsLoader.Value.Game, Installation.LoadProjectiles(), Installation.LoadEnemyTiles())));
+            () => Installation.LoadGameArtwork(ImportMapsLoader.Value.Game, Installation.LoadProjectiles(), Installation.LoadEnemyTiles(), SamusBody)));
 
     /// <summary>Shares immutable extracted catalogs while each fixture owns its bus and mutable state.</summary>
     internal static GameInstallation Installation => installation.Value;
@@ -81,10 +88,7 @@ internal static class RepositoryInstallation
         SuperMetroid.Core.Compatibility.SharedRandom? random = null, SavedEncounterReset? encounterResetOnLoad = null)
     {
         var assists = new GameplayAssists { SamusCannotDie = playerInvincibilityEnabled, AmmoNeverRunsOut = infiniteAmmoEnabled, MapReveal = mapRevealMode, EscapeTimerHoldsAtOneSecond = preventEscapeTimeout, EncounterResetOnLoad = encounterResetOnLoad };
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(assists, Artwork.SamusOverreads ?? throw new InvalidOperationException(
-            "The installation's artwork carries no Samus overread services."), Artwork.BossAndIntroOverreads ?? throw new InvalidOperationException(
-            "The installation's artwork carries no boss and intro overread services."), Artwork.EnemyOverreads ?? throw new InvalidOperationException(
-            "The installation's artwork carries no enemy overread services."), random);
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(assists, Artwork, random);
         BindRuntime(runtime);
         return runtime;
     }

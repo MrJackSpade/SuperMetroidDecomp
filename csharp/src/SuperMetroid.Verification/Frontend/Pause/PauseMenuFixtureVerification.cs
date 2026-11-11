@@ -123,6 +123,7 @@ internal static class PauseMenuFixtureVerification
             new ImportPresentationColours(stock.SamusColours, stock.TitlePalette,
                 palettes, stock.CeresRidleyColors, stock.CeresRidleyFloorColors,
                 stock.MotherBrainHealthPalette, stock.MotherBrainRoomColors,
-                stock.RoomFxPaletteBlends, stock.RoomPaletteFx)));
+                stock.RoomFxPaletteBlends, stock.RoomPaletteFx,
+                stock.MotherBrainRainbowColours)));
     }
 }

@@ -100,8 +100,10 @@ public sealed record GameInstallation(string Root)
     /// <summary>Validates and loads the installed common OBJ sheet for the shared character transfer.</summary>
     public RoomCharacterAtlas LoadStandardObjects() => StandardObjectArtworkFiles.Load(StandardObjectDirectory);
     /// <summary>Loads the installed artwork only the import reads, which the installed content's identity covers (#1616).</summary>
-    public InstalledArtworkSources LoadArtworkSources() => new()
+    /// <param name="samusBody">The Samus body the host loaded once and bound the game's body catalog from.</param>
+    public InstalledArtworkSources LoadArtworkSources(SamusBodySources samusBody) => new()
     {
+        SamusBody = Ensure.NotNull(samusBody),
         StandardObjects = LoadStandardObjects(),
         Intro = LoadIntroCinematicArt(),
         EndingObjects = LoadEndingObjectArt(),
@@ -110,8 +112,8 @@ public sealed record GameInstallation(string Root)
     public string ProjectileDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.ProjectileDirectoryName);
     /// <summary>Installed Samus body PNGs and visual selectors, which the player edits in place.</summary>
     public string SamusBodyDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.SamusBodyDirectoryName);
-    /// <summary>Loads the validated installed Samus body artwork.</summary>
-    public InstalledSamusBodyArtwork LoadSamusBodyArt() => SamusBodyArtworkFiles.Load(SamusBodyDirectory);
+    /// <summary>Loads the validated installed Samus body: the tables, compositions and linked artwork it is composed from.</summary>
+    public SamusBodySources LoadSamusBody() => SamusBodyArtworkFiles.Load(SamusBodyDirectory);
     /// <summary>Installed opening-cinematic artwork, which the player edits in place.</summary>
     public string IntroCinematicDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.IntroCinematicDirectoryName);
     /// <summary>Loads the installed opening-cinematic artwork, which only the import reads.</summary>
@@ -307,19 +309,22 @@ public sealed record GameInstallation(string Root)
     public AreaMapPresentation LoadMaps() => MapPresentationFiles.Load(MapDirectory).Game;
 
     /// <summary>
-    /// Loads every installed presentation catalog the frontend binds. Hosts pass the maps, projectile presentation and
-    /// enemy directory they already hold for content identity and save persistence.
+    /// Loads every installed presentation catalog the frontend binds. Hosts pass the maps, projectile presentation, enemy
+    /// directory and Samus body they already hold for content identity and save persistence; of the body, the frontend
+    /// binds what the game reads.
     /// </summary>
-    public GameArtwork LoadGameArtwork(AreaMapPresentation maps, InstalledProjectilePresentation projectiles, InstalledEnemyArtwork enemies)
+    public GameArtwork LoadGameArtwork(AreaMapPresentation maps, InstalledProjectilePresentation projectiles, InstalledEnemyArtwork enemies,
+        SamusBodySources samusBody)
     {
         Ensure.NotNull(maps);
         Ensure.NotNull(projectiles);
         Ensure.NotNull(enemies);
+        Ensure.NotNull(samusBody);
         return new GameArtwork
         {
             MapPresentation = maps,
             IntroCinematicArt = LoadIntroCinematic(),
-            SamusBodyArt = LoadSamusBodyArt(),
+            SamusBodyArt = samusBody.Gameplay,
 
             EndingBackdrops = LoadEndingBackdrops(),
             RoomBlockSheets = LoadRoomBlockSheets(),

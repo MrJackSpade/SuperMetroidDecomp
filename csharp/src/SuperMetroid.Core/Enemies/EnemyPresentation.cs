@@ -190,6 +190,5 @@ internal sealed class EnemyPresentation
         Artwork.Enemy(enemy).Sheet.Frame(EnemySheetDefinitions.FrameName(frame));
 
     /// <summary>The installed enemy sheets.</summary>
-    private IEnemySheetSource Sheets => _room.Session.Sheets ?? throw new InvalidOperationException(
-        "Enemy drawing requires the installed enemy sheets.");
+    private IEnemySheetSource Sheets => _room.Session.Sheets;
 }

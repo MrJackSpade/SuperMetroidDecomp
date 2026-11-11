@@ -55,7 +55,6 @@ internal static class SamusArtworkClosedContractDefinitions
              new("csharp/src/SuperMetroid.AssetExtraction/Artwork/SpritePart.cs")]),
         new("SuperMetroid.AssetExtraction.Samus.SamusAtmosphericSourceArtwork", "samus-complete-direct-atmospheric-membership", ["TryResolve"],
             [new("csharp/src/SuperMetroid.AssetExtraction/Samus/SamusAtmosphericSourceArtwork.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/Artwork/InstalledSamusAtmosphericArtwork.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Samus/SamusAtmosphericArtworkDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Movement/SamusMovementDefinitions.cs")]),
         new("SuperMetroid.AssetExtraction.Samus.SamusArmCannonSourceArtwork", "samus-complete-cannon-placement-and-tile-membership",

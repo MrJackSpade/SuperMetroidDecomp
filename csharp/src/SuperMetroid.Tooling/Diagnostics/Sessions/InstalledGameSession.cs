@@ -57,13 +57,14 @@ internal sealed class InstalledGameSession : IDisposable
         // the running session binds only the installed presentation catalog.
         projectiles = installation.LoadProjectiles();
         var enemyArtwork = installation.LoadEnemyTiles();
-        GameArtwork artwork = installation.LoadGameArtwork(maps, projectiles, enemyArtwork);
+        var samusBody = installation.LoadSamusBody();
+        GameArtwork artwork = installation.LoadGameArtwork(maps, projectiles, enemyArtwork, samusBody);
         Console.WriteLine($"Projectile compositions: {projectiles.ContentSha256} ({root}).");
         InstalledClipAudioLibrary assets = audioDirectory is null
             ? installation.LoadAudioClips()
             : InstalledAudioClips.Load(audioDirectory);
         ContentIdentity = SuperMetroid.AssetExtraction.Installation.GameContentIdentity.Create(
-            assets, maps, projectiles, SuperMetroid.AssetExtraction.Installation.InstalledArtworkIdentity.Create(artwork, enemyArtwork, installation.LoadArtworkSources()));
+            assets, maps, projectiles, SuperMetroid.AssetExtraction.Installation.InstalledArtworkIdentity.Create(artwork, enemyArtwork, installation.LoadArtworkSources(samusBody)));
         Console.WriteLine(
             $"Installed content: {ContentIdentity.CompositeSha256}; " +
             $"definitions={ContentIdentity.CompiledDefinitionsBuildId:D}, " +
@@ -71,7 +72,7 @@ internal sealed class InstalledGameSession : IDisposable
             $"projectiles={ContentIdentity.ProjectileContentSha256}.");
         foreach ((string domain, string digest) in ContentIdentity.AdditionalContentSha256.OrderBy(pair => pair.Key))
             Console.WriteLine($"Installed content component: {domain}={digest}.");
-        content = new InstalledSessionContent(artwork, assets);
+        content = new InstalledSessionContent(artwork, assets.Clips);
         Game = GameSessionComposer.Create(saves, Options.Game.ToAssists(), content, saveFile);
         states = DebuggerSaveStateStore.ForInstalledGame(
             root,

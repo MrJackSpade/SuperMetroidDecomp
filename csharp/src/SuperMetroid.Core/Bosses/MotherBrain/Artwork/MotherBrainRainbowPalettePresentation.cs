@@ -5,9 +5,9 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// <summary>
 /// The colours of Mother Brain's rainbow beam backdrop, which the game reads while the beam fires: its first colour and
 /// every colour of its hue cycle, as installed (#1557). Her rainbow, drain, revival and restoration colours are the
-/// import's, which pre-colours her pictures in them (#1512, #1527).
+/// import's, which pre-colours her pictures in them (#1512, #1527, #1616).
 /// </summary>
-public class MotherBrainRainbowPalettePresentation
+public sealed class MotherBrainRainbowPalettePresentation
 {
     /// <summary>Every colour of the backdrop's hue cycle, in the order the beam shows them, owned by this presentation.</summary>
     private readonly RgbColor[] beamCycle;

@@ -42,7 +42,7 @@ internal static class AndroidBundleReplay
         SuperMetroidAddressSpace bus = importBus;
         if (!SHA256.HashData(importBus.Rom).SequenceEqual(recording.RomSha256))
             throw new InvalidDataException("Local ROM does not match Android recording digest.");
-        ClipAudioLibrary assets = RepositoryInstallation.Installation.LoadAudioClips();
+        ClipAudioLibrary assets = RepositoryInstallation.Installation.LoadAudioClips().Clips;
         SuperMetroid.Core.Frontend.Map.Artwork.AreaMapPresentation maps = RepositoryInstallation.Installation.LoadMaps();
         SaveSlotStore journalSaves = SaveRamCodec.Decode(recording.InitialSaveRam, maps);
         string temporary = Directory.CreateTempSubdirectory("SuperMetroid-android-replay-").FullName;
@@ -58,7 +58,7 @@ internal static class AndroidBundleReplay
                 GameInstallation installation = RepositoryInstallation.Installation;
                 var identity = GameContentIdentity.Create(installation.LoadAudioClips(), installation.LoadMaps(), installation.LoadProjectiles());
                 var content = new SuperMetroid.Diagnostics.Sessions.InstalledSessionContent(
-                    installation.LoadGameArtwork(installation.LoadMaps(), installation.LoadProjectiles(), installation.LoadEnemyTiles()), assets);
+                    installation.LoadGameArtwork(installation.LoadMaps(), installation.LoadProjectiles(), installation.LoadEnemyTiles(), installation.LoadSamusBody()), assets);
                 var store = DebuggerSaveStateStoreTooling.ForCartridge(romPath, importBus.Rom, identity, content, temporary);
                 using (var output = File.Create(store.GetSlotPath(0)))
                 using (var input = Required(bundle, "input-recordings/" + seed).Open()) input.CopyTo(output);

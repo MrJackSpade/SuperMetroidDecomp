@@ -49,7 +49,6 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
         }
 
         var runtime = CreateRetailRuntimeFixture();
-        runtime.EnemySession.FrameDisplays = stock.Enemies.FrameDisplays;
         runtime.BossArtwork.KraidEyes = stock.Bosses.KraidColors?.Eyes();
         SpriteArtworkPlacements stockPages = ShowAllTakeoffPages(stock, RuntimeArtworkContent.Of(runtime, stock.Enemies));
         var nativeQueue = new VramWriteQueue();
@@ -75,7 +74,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
 
         static SpriteArtworkPlacements ShowAllTakeoffPages(InstalledEnemyArtwork art, IInstalledArtworkContent resolver)
         {
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()) { TileArtwork = art.Enemies, BossArtwork = art.Bosses };
+            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(art.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom()) { BossArtwork = art.Bosses };
             RoomEnemySlot top = enemies.SlotTable.Slots[0];
             var part = new GunshipPartState();
             top.SetSpeciesState(part);

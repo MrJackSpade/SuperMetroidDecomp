@@ -31,7 +31,7 @@ internal static class MotherBrainBeamWindowVerification
                 ["green"] = frame % 2 == 0 ? 0 : 31, ["blue"] = 0 });
         paletteDocument["beamCycle"] = cycle;
         MotherBrainRainbowPalettePresentation installedColours = MotherBrainRainbowPaletteFile.Read(new MemoryStream(
-            System.Text.Encoding.UTF8.GetBytes(paletteDocument.ToJsonString())));
+            System.Text.Encoding.UTF8.GetBytes(paletteDocument.ToJsonString()))).Beam;
         var beam = new MotherBrainRainbowBeamEffect { PresentationColors = installedColours };
         AssertTrue(beam.Geometry is null, "no geometry is published before the first build");
         AssertEqual(ScreenWindow.Closed, (GameplayEffectCapture.CaptureMotherBrainRainbowBeam(

@@ -18,7 +18,7 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 internal static class MotherBrainLook
 {
     /// <summary>The colours <paramref name="rainbow"/>'s shade <paramref name="shade"/> shows over <paramref name="seed"/>.</summary>
-    internal static SnesCgram OfRainbow(MotherBrainRainbowPalettePresentation rainbow, PictureShade shade, SnesCgram? seed = null) =>
+    internal static SnesCgram OfRainbow(InstalledMotherBrainRainbowPalette rainbow, PictureShade shade, SnesCgram? seed = null) =>
         Of(MotherBrainSheetShades.RainbowBackground(rainbow), MotherBrainSheetShades.RainbowSprites(rainbow), shade, seed);
 
     /// <summary>The colours <paramref name="health"/>'s band <paramref name="band"/> shows over <paramref name="seed"/>.</summary>

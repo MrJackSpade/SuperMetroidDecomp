@@ -14,9 +14,9 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <summary>
 /// The arm cannon's installed artwork as the import pipeline holds it (#1463): the cartridge's descriptor bytes, cover
 /// appearances and indexed 8×8 cover tiles, from which the overlay sheet is composed and each pose's typed placement is
-/// decoded for gameplay.
+/// decoded for gameplay, which receives only <see cref="Gameplay"/> (#1616).
 /// </summary>
-public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
+public sealed class SamusArmCannonSourceArtwork
 {
     /// <summary>Tile-source slots: one row per native aim direction, each holding every cover-art frame slot.</summary>
     private static readonly FixedGridShape CoverTileShape =
@@ -51,14 +51,17 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
     /// <summary>Holds the complete installed descriptors, drawing data, cover appearances, cover tiles and characters.</summary>
     private SamusArmCannonSourceArtwork(IReadOnlyDictionary<SamusPoseId, int> poseDescriptors, byte[] drawingData,
         SpritePart[] attributes, int[][] coverTiles, RoomCharacterAtlas tiles)
-        : base(Placements(poseDescriptors, drawingData))
     {
+        Gameplay = new InstalledSamusArmCannonArtwork(Placements(poseDescriptors, drawingData));
         this.poseDescriptors = poseDescriptors.ToDictionary();
         this.drawingData = [.. drawingData];
         this.attributes = [.. attributes];
         openingTiles = [.. coverTiles.Select(row => row.ToArray())];
         this.tiles = tiles;
     }
+
+    /// <summary>Where each pose draws the cover, which is what the game reads of the arm cannon.</summary>
+    public InstalledSamusArmCannonArtwork Gameplay { get; }
 
     /// <summary>
     /// Decodes each pose's descriptor into its typed placement: the descriptor's direction byte, whose top bit makes

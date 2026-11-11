@@ -25,7 +25,7 @@ internal static class ChargeFlareCompositionsVerification
         byte[] json = ChargeFlareSpriteExtractor.Extract(bus);
         var stock = ChargeFlareSprites.Load(new MemoryStream(json));
         // The shared installed fixtures, which a capture names by path rather than copies.
-        InstalledSamusBodyArtwork body = InstalledFixtures.SamusBody;
+        SamusBodySources body = InstalledFixtures.SamusBody;
         var roomAssets = MapPresentationInstalledRoomAssets.Shared;
         var maps = InstalledFixtures.Maps;
         Suite(nameof(VerifyChargeFlareProduction), () => VerifyChargeFlareProduction(bus, body,

@@ -15,6 +15,7 @@ using SuperMetroid.Core.Saves;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Diagnostics.Recording;
 using SuperMetroid.Desktop.Audio;
 using SuperMetroid.Desktop.Diagnostics;
@@ -260,18 +261,19 @@ public sealed class PlayableGameControl : UserControl
             audioDevice = CreateAudioDevice();
         projectilePresentation = installation.LoadProjectiles();
         InstalledEnemyArtwork enemyArtwork = installation.LoadEnemyTiles();
+        SamusBodySources samusBody = installation.LoadSamusBody();
         GameArtwork artwork = installation.LoadGameArtwork(
             mapPresentation ?? throw new InvalidOperationException("Installed map identity is unavailable."),
-            projectilePresentation, enemyArtwork);
+            projectilePresentation, enemyArtwork, samusBody);
         // The session binds clips in every configuration so a debugger state always carries
         // its playback state; whether samples reach a device is the host's choice alone.
-        content = new InstalledSessionContent(artwork, selectedAudioAssets);
+        content = new InstalledSessionContent(artwork, selectedAudioAssets.Clips);
         Console.WriteLine($"Projectile compositions: {projectilePresentation.ContentSha256} ({playerDataDirectory}).");
         installedContentIdentity = GameContentIdentity.Create(
             selectedAudioAssets,
             mapPresentation,
             projectilePresentation,
-            InstalledArtworkIdentity.Create(artwork, enemyArtwork, installation.LoadArtworkSources()));
+            InstalledArtworkIdentity.Create(artwork, enemyArtwork, installation.LoadArtworkSources(samusBody)));
         Console.WriteLine(
             $"Installed content: {installedContentIdentity.CompositeSha256}; " +
             $"definitions={installedContentIdentity.CompiledDefinitionsBuildId:D}, " +

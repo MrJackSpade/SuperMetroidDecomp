@@ -4,9 +4,9 @@ namespace SuperMetroid.Core.Audio;
 /// The pre-rendered audio clips (#1305): the songs, sound effects and acceptance policies of a manifest the import
 /// pipeline validated (#1502), with each clip's samples supplied by an <see cref="IAudioClipSource"/>. Construction
 /// rejects a repeated identity; <see cref="ReadClip"/> checks each clip's length as it is read, so a host reads only
-/// the clips it plays.
+/// the clips it plays. The manifest itself and the audio's identity are the import's (#1616).
 /// </summary>
-public abstract class ClipAudioLibrary
+public sealed class ClipAudioLibrary
 {
     /// <summary>Supplies each clip's samples.</summary>
     private readonly IAudioClipSource source;

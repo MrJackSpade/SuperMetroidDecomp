@@ -158,8 +158,8 @@ internal sealed class SuperMetroidRuntime
     /// <param name="assists">The assists the runtime plays under; <see cref="GameplayAssists.None"/> for the unassisted game.</param>
     /// <param name="artwork">
     /// The installed catalogs; their initial palette is loaded into the colour table during construction, their Samus overread services
-    /// are handed to the owners that consult them, their enemy and boss overread services and the rainbow-beam camera
-    /// checkpoint are injected into the enemy session it builds, and
+    /// are handed to the owners that consult them, their enemy and boss overread services, enemy sheets and enemy frame
+    /// displays and the rainbow-beam camera checkpoint are injected into the enemy session it builds, and
     /// <see cref="BindArtwork"/> binds the rest.
     /// </param>
     /// <param name="session">
@@ -186,7 +186,9 @@ internal sealed class SuperMetroidRuntime
         EnemySession = new EnemySession(
             artwork.EnemyOverreads ?? throw new InvalidOperationException("Gameplay requires the installed enemy overread services."),
             artwork.BossAndIntroOverreads ?? throw new InvalidOperationException("Gameplay requires the installed boss and intro overread services."),
-            RainbowBeamCameraCheckpoint);
+            RainbowBeamCameraCheckpoint,
+            artwork.EnemySheets ?? throw new InvalidOperationException("Gameplay requires the installed enemy sheets."),
+            artwork.EnemyFrameDisplays ?? throw new InvalidOperationException("Gameplay requires the installed enemy frame displays."));
 
         BeamCharge = new BeamChargeState();
         Freeze = new GameplayTimeFreeze(Player);
@@ -227,9 +229,15 @@ internal sealed class SuperMetroidRuntime
     /// </remarks>
     /// <param name="artwork">The catalogs to bind.</param>
     /// <param name="previous">The catalogs bound before, or <see langword="null"/> to bind every catalog.</param>
+    /// <exception cref="InvalidOperationException">
+    /// <paramref name="artwork"/> names enemy sheets or enemy frame displays other than those the runtime was built with.
+    /// </exception>
     internal void BindArtwork(IGameplayArtwork artwork, IGameplayArtwork? previous)
     {
         Ensure.NotNull(artwork);
+        // The enemy session holds the sheets and frame displays it was built with for the runtime's lifetime (#1616).
+        if (!ReferenceEquals(artwork.EnemySheets, EnemySession.Sheets) || !ReferenceEquals(artwork.EnemyFrameDisplays, EnemySession.FrameDisplays))
+            throw new InvalidOperationException("A runtime draws its enemies from the sheets and frame displays it was built with.");
         void Bind<T>(Func<IGameplayArtwork, T?> catalog, Action<T?> bind) where T : class
         {
             T? value = catalog(artwork);
@@ -274,8 +282,6 @@ internal sealed class SuperMetroidRuntime
 
         Bind(a => a.ProjectileFrameBindings, value => Artwork.ProjectileFrameBindings = value);
         Bind(a => a.SpriteSheets, value => Artwork.SpriteSheets = value);
-        Bind(a => a.EnemySheets, value => EnemySession.Sheets = value);
-        Bind(a => a.EnemyFrameDisplays, value => EnemySession.FrameDisplays = value);
         Bind(a => a.ChargeFlarePlacement, value => Artwork.ChargeFlarePlacement = value);
         Bind(a => a.GrappleFlarePlacement, value => Artwork.GrappleFlarePlacement = value);
         Bind(a => a.GrappleSwingFrames, value => Artwork.GrappleSwingFrames = value);

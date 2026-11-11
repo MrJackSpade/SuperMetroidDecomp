@@ -174,9 +174,8 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
             LittleEndianBytes.Word(CpuBusRegionRead.Read(bus, address), CpuBusRegionRead.Read(bus, address + 1));
 
         static RoomEnemySystem CreateEnemy(InstalledEnemyArtwork artwork) =>
-            new(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance)
+            new(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance)
             {
-                TileArtwork = artwork.Enemies,
                 BossArtwork = artwork.Bosses,
             };
 
@@ -192,7 +191,6 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
             ISnesAddressSpace source, InstalledEnemyArtwork artwork)
         {
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
-            runtime.EnemySession.FrameDisplays = artwork.Enemies.FrameDisplays;
             runtime.BossArtwork.KraidEyes = artwork.Bosses.KraidColors?.Eyes();
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();

@@ -68,6 +68,7 @@ internal static class NativeEnemyAnimationOracle
         where TSegment : struct, Enum
     {
         var phases = new List<AnimationPhase<TSegment>>();
+        bool counted = false;
         var entered = new Dictionary<TSegment, int> { [start] = 0 };
         TSegment segment = start;
         int runStart = 0, plays = 1;
@@ -77,9 +78,11 @@ internal static class NativeEnemyAnimationOracle
             foreach (NativeEnemyControl<TSegment> control in lists[segment].Controls)
             {
                 if (control.AfterBeat > runStart)
-                    phases.Add(new(segment, runStart, control.AfterBeat - runStart, plays));
+                    phases.Add(new(segment, runStart, control.AfterBeat - runStart, plays,
+                        counted && plays == 1 ? AnimationPhaseCounting.EveryPlay : AnimationPhaseCounting.RepeatsOnly));
                 runStart = control.AfterBeat;
                 plays = 1;
+                counted = false;
                 switch (control.Kind)
                 {
                     case NativeEnemyControlKind.SetCounter:
@@ -100,6 +103,7 @@ internal static class NativeEnemyAnimationOracle
                         segment = target;
                         runStart = 0;
                         plays = pending ?? 1;
+                        counted = pending is not null;
                         pending = null;
                         break;
                     default:

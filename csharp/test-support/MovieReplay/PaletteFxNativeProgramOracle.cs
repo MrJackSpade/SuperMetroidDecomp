@@ -91,6 +91,7 @@ internal static class PaletteFxNativeProgramOracle
         IReadOnlyDictionary<PaletteFxProgram, PaletteFxNativeList> lists, PaletteFxProgram start)
     {
         var phases = new List<AnimationPhase<PaletteFxProgram>>();
+        bool counted = false;
         var entered = new Dictionary<PaletteFxProgram, int> { [start] = 0 };
         PaletteFxProgram segment = start;
         int runStart = 0, plays = 1;
@@ -100,9 +101,11 @@ internal static class PaletteFxNativeProgramOracle
             foreach (PaletteFxNativeControl control in lists[segment].Controls)
             {
                 if (control.AfterBeat > runStart)
-                    phases.Add(new(segment, runStart, control.AfterBeat - runStart, plays));
+                    phases.Add(new(segment, runStart, control.AfterBeat - runStart, plays,
+                        counted && plays == 1 ? AnimationPhaseCounting.EveryPlay : AnimationPhaseCounting.RepeatsOnly));
                 runStart = control.AfterBeat;
                 plays = 1;
+                counted = false;
                 switch (control.Kind)
                 {
                     case PaletteFxNativeControlKind.SetCounter:
@@ -121,6 +124,7 @@ internal static class PaletteFxNativeProgramOracle
                         segment = target;
                         runStart = 0;
                         plays = pending ?? 1;
+                        counted = pending is not null;
                         pending = null;
                         break;
                     default:

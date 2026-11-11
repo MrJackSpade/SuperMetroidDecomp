@@ -60,7 +60,7 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
     /// </summary>
     /// <exception cref="InvalidOperationException">The animation passes every beat without showing a frame.</exception>
     /// <remarks>
-    /// The repeat counter is the owner's, as a loop timer the owner keeps: a phase played more than once loads it with its
+    /// The repeat counter is the owner's, as a loop timer the owner keeps: a counted phase loads it with its
     /// plays as the phase starts, each play's end counts it down and replays the run while it is not zero, and nothing else
     /// changes it, so after the phase it stays at zero for whatever else reads it.
     /// </remarks>
@@ -98,7 +98,7 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
                         throw new InvalidOperationException($"Undefined beat in segment {phase.Segment}.");
                 }
             }
-            if (phase.Plays > 1)
+            if (phase.CountsRepeats)
             {
                 repeats = repeats.Decrement().Remaining;
                 if (!repeats.IsZero)
@@ -131,9 +131,8 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
     /// <summary>The start of phase <paramref name="phase"/> of <paramref name="animation"/>, loading a counted phase's plays.</summary>
     private static AnimationPlace Enter(Animation<TSegment> animation, int phase, ref WrappingCountdown repeats)
     {
-        int plays = animation.Phases[phase].Plays;
-        if (plays > 1)
-            repeats = WrappingCountdown.FromRaw(plays);
+        if (animation.Phases[phase].CountsRepeats)
+            repeats = WrappingCountdown.FromRaw(animation.Phases[phase].Plays);
         return AnimationPlace.StartOf(phase);
     }
 

@@ -1,13 +1,12 @@
-using System.Text.Json.Serialization;
 using SuperMetroid.Core.Progression;
-
+using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Saves;
 
 /// <summary>One valid save slot expressed as named gameplay domains.</summary>
 /// <remarks>
 /// The numeric fields are JSON numbers. The codec accepts each only inside the range the slot can hold
-/// (<see cref="SaveFieldValue"/>) and decodes the reserve mode and HUD item into their domains.
+/// (<see cref="SaveFieldValue"/>); the reserve mode and HUD item are written by name.
 /// </remarks>
 public sealed record GameSaveSlotJsonDocument
 {
@@ -32,11 +31,11 @@ public sealed record GameSaveSlotJsonDocument
     /// <summary>Persistent world events, room bits, station bits, and explored map tiles.</summary>
     public required SaveProgressionJsonDocument Progression { get; init; }
 
-    /// <summary>The reserve-tank mode's number: zero unset, one auto, or two manual.</summary>
-    public required int ReserveMode { get; init; }
+    /// <summary>The reserve tanks' mode: none, auto or manual.</summary>
+    public required ReserveTankMode ReserveMode { get; init; }
 
-    /// <summary>The selected HUD item's number in the six-entry selection ring.</summary>
-    public required int HudItem { get; init; }
+    /// <summary>The selected HUD item.</summary>
+    public required HudItem HudItem { get; init; }
 
     /// <summary>Whether backward walking remains enabled after the options screen closes.</summary>
     public required bool MoonwalkEnabled { get; init; }
@@ -52,17 +51,6 @@ public sealed record GameSaveSlotJsonDocument
     /// <see cref="SaveFieldValue.MaximumValue"/>; the save only carries the value it reached.
     /// </summary>
     public required int LoadedItemCount { get; init; }
-
-    /// <summary>The debug-mode setting the slot was saved with, carried unchanged.</summary>
-    /// <remarks>
-    /// The JSON property keeps its schema-two name, so saves written before the rename stay
-    /// readable and new saves stay readable by earlier builds.
-    /// </remarks>
-    [JsonPropertyName("cartridgeDebugFlag")]
-    public required int DebugMode { get; init; }
-
-    /// <summary>The checksummed new-file initialization marker, carried unchanged.</summary>
-    public required int NewFileMarker { get; init; }
 
     /// <summary>The startup route the save resumes by; a save without one resumes the main game.</summary>
     public SaveLoadingGameState StartupRoute { get; init; } = SaveLoadingGameState.MainGame;

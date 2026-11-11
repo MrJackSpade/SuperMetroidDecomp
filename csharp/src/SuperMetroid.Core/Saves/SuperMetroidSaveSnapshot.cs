@@ -12,10 +12,6 @@ public sealed record SuperMetroidSaveSnapshot
 
     /// <summary>Whether the options menu's moonwalk behavior is enabled.</summary>
     public bool MoonwalkEnabled { get; init; }
-    /// <summary>The checksummed debug value, carried unchanged; a new file holds one.</summary>
-    public int DebugFlag { get; init; } = 1;
-    /// <summary>The checksummed new-file marker, carried unchanged; a new file holds one.</summary>
-    public int NewFileMarker { get; init; } = 1;
 
     /// <summary>Whether door transitions automatically clear the selected HUD item.</summary>
     public bool IconCancelEnabled { get; init; }
@@ -44,7 +40,7 @@ public sealed record SuperMetroidSaveSnapshot
     /// <summary>Bit mask of all beam upgrades Samus has collected.</summary>
     public SamusBeamFlags CollectedBeams { get; init; }
 
-    /// <summary>The reserve-tank mode; zero is unset, one is auto, and two is manual.</summary>
+    /// <summary>The reserve tanks' mode: none, auto or manual.</summary>
     public ReserveTankMode ReserveMode { get; init; }
 
     /// <summary>Samus's current energy in energy-point units.</summary>

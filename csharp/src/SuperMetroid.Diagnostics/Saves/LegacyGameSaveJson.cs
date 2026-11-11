@@ -13,7 +13,8 @@ namespace SuperMetroid.Diagnostics.Saves;
 /// three (#1523) kept the cartridge's loading-state word, which becomes the startup route it selects; schema four
 /// (#1527) listed the Zebetite count as three event bits, which become a count, and named an event after its number;
 /// schema five (#1553) listed event-table bits no story event uses by number, and the Chozo orbs, item locations and
-/// doors by room-data number, which become the locations and doors they number.
+/// doors by room-data number, which become the locations and doors they number; schema six (#1605) kept the HUD
+/// selection and reserve-tank mode as numbers, which become their names, and two settings the game never reads.
 /// </summary>
 public static class LegacyGameSaveJson
 {
@@ -51,7 +52,7 @@ public static class LegacyGameSaveJson
         return GameSaveJsonCodec.Deserialize(current, sourceName);
     }
 
-    /// <summary>One-way upgrade of schemas one through five to the current schema; the current schema is returned unchanged.</summary>
+    /// <summary>One-way upgrade of schemas one through six to the current schema; the current schema is returned unchanged.</summary>
     private static string Upgrade(string json, out int sourceSchemaVersion)
     {
         JsonObject root = JsonNode.Parse(json) as JsonObject ??
@@ -67,10 +68,48 @@ public static class LegacyGameSaveJson
             UpgradeSchemaThree(root);
         if (sourceSchemaVersion <= SchemaFour)
             UpgradeSchemaFour(root);
-        UpgradeSchemaFive(root);
+        if (sourceSchemaVersion <= SchemaFive)
+            UpgradeSchemaFive(root);
+        UpgradeSchemaSix(root);
         root["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
         return root.ToJsonString();
     }
+
+    /// <summary>The schema that listed item locations and doors by room-data number.</summary>
+    private const int SchemaFive = 5;
+
+    /// <summary>
+    /// Schema six to seven (#1605): schema six kept each slot's HUD selection as its place in the selection ring and its
+    /// reserve-tank mode as none, auto or manual counted from zero (<see cref="SaveSlotNumbering"/>); both become their
+    /// names, and a number naming no selection or mode is rejected, as schema six's loader rejected it. Schema six also
+    /// carried <c>cartridgeDebugFlag</c>, the debug build's Samus-placement setting, and <c>newFileMarker</c>, a word a
+    /// new file sets; no retail routine reads either, so, like schema two's padding, they are not carried.
+    /// </summary>
+    private static void UpgradeSchemaSix(JsonObject root)
+    {
+        JsonArray slots = root["slots"] as JsonArray ?? throw new InvalidDataException("slots is required");
+        for (int index = 0; index < slots.Count; index++)
+        {
+            if (slots[index] is null) continue;
+            JsonObject slot = slots[index] as JsonObject ?? throw new InvalidDataException($"slots[{index}] must be an object");
+            slot["hudItem"] = EnumName(SaveSlotNumbering.SavedHudItem(TakeInteger(slot, "hudItem", index)));
+            slot["reserveMode"] = EnumName(SaveSlotNumbering.SavedReserveMode(TakeInteger(slot, "reserveMode", index)));
+            _ = TakeInteger(slot, "cartridgeDebugFlag", index);
+            _ = TakeInteger(slot, "newFileMarker", index);
+        }
+    }
+
+    /// <summary>Removes and returns a schema-six slot's integer property.</summary>
+    private static int TakeInteger(JsonObject slot, string name, int index)
+    {
+        int value = slot[name] is JsonValue number && number.TryGetValue(out int parsed) ? parsed
+            : throw new InvalidDataException($"slots[{index}].{name} must be an integer");
+        slot.Remove(name);
+        return value;
+    }
+
+    /// <summary>The name the current schema writes for <paramref name="value"/>.</summary>
+    private static string EnumName<T>(T value) where T : struct, Enum => JsonNamingPolicy.CamelCase.ConvertName(value.ToString());
 
     /// <summary>The schema that kept the cartridge's loading-state word.</summary>
     private const int SchemaThree = 3;

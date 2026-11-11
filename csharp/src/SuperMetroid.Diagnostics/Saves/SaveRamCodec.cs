@@ -22,7 +22,7 @@ namespace SuperMetroid.Diagnostics.Saves;
 /// the image as given, and decides from its raw completion mark the earthquake rumble delay power-on gives
 /// (<see cref="PowerOnEarthquakeSoundDelay"/>); progress is read through <see cref="ProgressionTableCodec"/>, which keeps
 /// what the game can observe. Encoding writes the canonical image of a store, without padding or noncanonical marker
-/// bytes.
+/// bytes, and with the words the game itself writes in the fields no retail routine reads.
 /// <para>
 /// The encoding owned here: the little-endian slot words at the <see cref="SaveRamLayout"/> offsets,
 /// the controller bindings stored as controller-button words, the equipment, beam and per-area boss flags stored as
@@ -126,9 +126,9 @@ public static class SaveRamCodec
             Area: ReadWord(payload, SaveRamLayout.AreaOffset))
         {
             ControllerBindings = ReadControllerBindings(payload).RequireRetailPermutation(),
+            // The debug build's placement-mode word and the never-read word after it are not decoded: no retail
+            // routine reads either (SaveRamLayout.DebugFlagSavedWord, NewFileMarkerSavedWord).
             MoonwalkEnabled = ReadWord(payload, SaveRamLayout.MoonwalkOffset) != 0,
-            DebugFlag = ReadWord(payload, SaveRamLayout.DebugFlagOffset),
-            NewFileMarker = ReadWord(payload, SaveRamLayout.NewFileMarkerOffset),
             IconCancelEnabled = ReadWord(payload, SaveRamLayout.IconCancelOffset) != 0,
             ReserveMissiles = SamusCountWords.Decode(ReadWord(payload, SaveRamLayout.ReserveMissilesOffset)),
             JapaneseText = ReadWord(payload, SaveRamLayout.JapaneseTextOffset) != 0,
@@ -183,9 +183,10 @@ public static class SaveRamCodec
         WriteWord(payload, SaveRamLayout.GameTimeHoursOffset,
             FieldWord(snapshot.GameTimeHours, nameof(snapshot.GameTimeHours)));
         WriteWord(payload, SaveRamLayout.MoonwalkOffset, snapshot.MoonwalkEnabled ? (ushort)1 : (ushort)0);
-        WriteWord(payload, SaveRamLayout.DebugFlagOffset, FieldWord(snapshot.DebugFlag, nameof(snapshot.DebugFlag)));
-        WriteWord(payload, SaveRamLayout.NewFileMarkerOffset,
-            FieldWord(snapshot.NewFileMarker, nameof(snapshot.NewFileMarker)));
+        // Every save the game writes holds the words a new file stored in these two fields, since no retail routine
+        // changes them; an imported save's other words are not carried.
+        WriteWord(payload, SaveRamLayout.DebugFlagOffset, SaveRamLayout.DebugFlagSavedWord);
+        WriteWord(payload, SaveRamLayout.NewFileMarkerOffset, SaveRamLayout.NewFileMarkerSavedWord);
         WriteWord(payload, SaveRamLayout.IconCancelOffset, snapshot.IconCancelEnabled ? (ushort)1 : (ushort)0);
 
         EncodeProgression(snapshot.Progress, payload);
@@ -202,8 +203,6 @@ public static class SaveRamCodec
     {
         ControllerBindings = slot.ControllerBindings,
         MoonwalkEnabled = slot.MoonwalkEnabled,
-        DebugFlag = slot.DebugFlag,
-        NewFileMarker = slot.NewFileMarker,
         IconCancelEnabled = slot.IconCancelEnabled,
         ReserveMissiles = slot.ReserveMissiles,
         JapaneseText = slot.JapaneseText,

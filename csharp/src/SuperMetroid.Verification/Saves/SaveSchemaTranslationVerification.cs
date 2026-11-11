@@ -31,7 +31,13 @@ internal static class SaveSchemaTranslationVerification
         // Isolated arrays only; no player save file is read or changed.
         var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var ram = new SaveSlotStore(RetailPresentationFixture());
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { ReserveMissiles = 27 };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+        {
+            ReserveMissiles = 27,
+            // A selection and mode other than the first of each, which schema six kept as numbers (#1605).
+            SelectedHudItem = HudItem.PowerBomb,
+            ReserveTankMode = ReserveTankMode.Manual,
+        };
         var system = new SharedGameState(new SharedRandom()) { LoadedItemCount = 65535 };
         // Progress in every set schema two listed by table position, so its upgrade is exercised (#1475).
         system.SetBossBits(AreaId.Brinstar, BossBits.AreaBoss | BossBits.AreaTorizo);
@@ -94,6 +100,34 @@ internal static class SaveSchemaTranslationVerification
             AssertEqual(route, (upgradedThree.Slots[0] ?? throw new InvalidOperationException("The upgraded save lost slot 0.")).StartupRoute,
                 $"schema three's loading-state word ${word:X4} becomes its startup route");
         }
+
+        // A schema-six save keeps the HUD selection and reserve-tank mode as numbers and carries the debug build's
+        // placement setting and the never-read new-file word (#1605); it upgrades to the names and the same saves,
+        // whatever the two unread words held, and a number naming no selection or mode is rejected.
+        JsonObject schemaSix = RequiredJson.Parse(json).AsObject();
+        schemaSix["schemaVersion"] = 6;
+        ToSchemaSixSlots(schemaSix);
+        JsonObject sixSlot = schemaSix.Required("slots").Required(0).AsObject();
+        sixSlot["cartridgeDebugFlag"] = 0;
+        sixSlot["newFileMarker"] = 65535;
+        // The current schema's strict reader never takes schema six's numbers in place of the names.
+        JsonObject sixAsCurrent = RequiredJson.Parse(schemaSix.ToJsonString()).AsObject();
+        sixAsCurrent["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
+        AssertInvalidJsonSave(sixAsCurrent.ToJsonString(), "reserveMode");
+        GameSaveJsonDocument upgradedSix = LegacyGameSaveJson.Deserialize(schemaSix.ToJsonString(), "game save", out bool migratedSix);
+        AssertTrue(migratedSix, "a schema-six save is upgraded");
+        GameSaveSlotJsonDocument upgradedSixSlot = upgradedSix.Slots[0] ?? throw new InvalidOperationException("The upgraded save lost slot 0.");
+        AssertEqual(HudItem.PowerBomb, upgradedSixSlot.HudItem, "schema six's HUD selection number becomes the selection");
+        AssertEqual(ReserveTankMode.Manual, upgradedSixSlot.ReserveMode, "schema six's reserve-mode number becomes the mode");
+        AssertSameBytes(SaveRamCodec.Encode(GameSaveJsonCodec.ToStore(upgradedSix, RetailPresentationFixture()), RetailPresentationFixture()),
+            SaveRamCodec.Encode(ram, RetailPresentationFixture()),
+            "a schema-six save upgrades to the same saves, without the words the game never reads");
+        JsonObject badSix = RequiredJson.Parse(schemaSix.ToJsonString()).AsObject();
+        badSix.Required("slots").Required(0)["hudItem"] = 6;
+        AssertInvalidLegacyJsonSave(badSix.ToJsonString(), "HUD selection number 6");
+        badSix = RequiredJson.Parse(schemaSix.ToJsonString()).AsObject();
+        badSix.Required("slots").Required(0)["reserveMode"] = 3;
+        AssertInvalidLegacyJsonSave(badSix.ToJsonString(), "Reserve-tank mode number 3");
 
         // A schema-five save lists event bits no story event uses by number, broken Chozo orbs, and item locations and
         // doors by room-data number, including numbers no retail placement has (#1553); it upgrades to the same saves,
@@ -227,11 +261,31 @@ internal static class SaveSchemaTranslationVerification
     }
 
     /// <summary>
-    /// Rewrites each slot's current progression as schema five wrote it (#1553): the item locations and doors by the
-    /// numbers room data gives them, and an empty list of broken Chozo orbs.
+    /// Rewrites each slot as schema six wrote it (#1605): the HUD selection as its place in the selection ring, the
+    /// reserve-tank mode as none, auto or manual counted from zero, and the two words a new file sets, holding the one
+    /// a new file stores.
+    /// </summary>
+    private static void ToSchemaSixSlots(JsonObject root)
+    {
+        foreach (JsonNode? slotNode in root.Required("slots").AsArray())
+        {
+            if (slotNode is null) continue;
+            JsonObject slot = slotNode.AsObject();
+            slot["hudItem"] = Enum.Parse<HudItem>(slot.Required("hudItem").GetValue<string>(), ignoreCase: true).SavedNumber();
+            slot["reserveMode"] = Enum.Parse<ReserveTankMode>(slot.Required("reserveMode").GetValue<string>(), ignoreCase: true).SavedNumber();
+            slot["cartridgeDebugFlag"] = 1;
+            slot["newFileMarker"] = 1;
+        }
+    }
+
+    /// <summary>
+    /// Rewrites each slot as schema six wrote it (<see cref="ToSchemaSixSlots"/>), then its progression as schema five
+    /// wrote it (#1553): the item locations and doors by the numbers room data gives them, and an empty list of broken
+    /// Chozo orbs.
     /// </summary>
     private static void ToSchemaFiveProgression(JsonObject root)
     {
+        ToSchemaSixSlots(root);
         foreach (JsonNode? slotNode in root.Required("slots").AsArray())
         {
             if (slotNode is null) continue;

@@ -96,7 +96,7 @@ internal static class OrdinarySmokeTests
         var boss = rooms with
         {
             Background = null,
-            BossBody = RoomBackgroundsFixtures.SeededBody(random, colors, 128, KraidBackgroundDefinitions.BodyArea),
+            BossBody = RoomBackgroundsFixtures.SeededBody(random, colors, 128, new Extent16<BackgroundPixels>(512, 512)),
         };
         for (int hdma = 0; hdma < 4; hdma++)
         {

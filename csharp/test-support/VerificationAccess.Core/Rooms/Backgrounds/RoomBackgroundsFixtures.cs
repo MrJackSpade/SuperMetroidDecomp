@@ -111,7 +111,7 @@ internal static class RoomBackgroundsFixtures
                 ?? throw new InvalidOperationException("A seeded block has no picture.");
             Tile(parts, picture, CellCorner(top, 0, area), BodyColumns * BodyCellPixels, Math.Min(partRows, rows - top) * BodyCellPixels);
         }
-        return new ShownBossBody([.. parts], area);
+        return new ShownBossBody([.. parts]);
     }
 
     /// <summary>
@@ -145,7 +145,7 @@ internal static class RoomBackgroundsFixtures
                 ?? throw new InvalidOperationException("A painted word has no picture.");
             Tile(parts, picture, CellCorner(row, first % BodyColumns, area), (cell - first) * BodyCellPixels, BodyCellPixels);
         }
-        return new ShownBossBody([.. parts], area);
+        return new ShownBossBody([.. parts]);
     }
 
     /// <summary>
@@ -162,7 +162,7 @@ internal static class RoomBackgroundsFixtures
             ?? throw new InvalidOperationException("The painted block has no picture.");
         var parts = new List<ShownBossBodyPart>();
         Tile(parts, block, default, area.X, area.Y);
-        return new ShownBossBody([.. parts], area);
+        return new ShownBossBody([.. parts]);
     }
 
     /// <summary>Cells across one screen of a fixture's body tilemap, the cells of a row in reading order.</summary>

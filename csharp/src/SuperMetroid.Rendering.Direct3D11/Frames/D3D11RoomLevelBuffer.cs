@@ -244,7 +244,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             words += 1 + hud.Pictures.Length * HudPictureWords;
         int bossBodyOffset = bossBody is null ? 0 : words;
         if (bossBody is not null)
-            words += 2 + bossBody.Parts.Length * BossBodyPartWords;
+            words += 1 + bossBody.Parts.Length * BossBodyPartWords;
         int backgroundWrittenOffset = ReserveWritten(writtenOverBackground);
         int foregroundWrittenOffset = ReserveWritten(writtenOverForeground);
         // Reserves the count and two words for each written picture; zero without any.
@@ -405,17 +405,16 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
 
     /// <summary>
     /// Packs <paramref name="body"/>'s parts from <paramref name="offset"/>, as <see cref="BossBodyWord"/> describes: the
-    /// count, the area, then each part's record in draw order.
+    /// count, then each part's record in draw order.
     /// </summary>
     private static void PackBossBody(Span<uint> upload, ShownBossBody body, int offset, Dictionary<ShownPicture, int> pictureWords)
     {
         ImmutableArray<ShownBossBodyPart> parts = body.Parts;
         upload[offset] = (uint)parts.Length;
-        upload[offset + 1] = D3D11ConstantPacking.Halves(body.Area.X, body.Area.Y);
         for (int index = 0; index < parts.Length; index++)
         {
             ShownBossBodyPart part = parts[index];
-            int record = offset + 2 + index * BossBodyPartWords;
+            int record = offset + 1 + index * BossBodyPartWords;
             upload[record] = (uint)pictureWords[new(part.Picture, D3D11PictureColouring.BossBody)];
             upload[record + 1] = D3D11ConstantPacking.Halves(part.Corner.X, part.Corner.Y);
             upload[record + 2] = D3D11ConstantPacking.Halves(part.Size.X, part.Size.Y);

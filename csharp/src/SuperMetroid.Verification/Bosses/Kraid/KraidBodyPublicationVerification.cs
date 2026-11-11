@@ -55,8 +55,7 @@ internal static class KraidBodyPublicationVerification
             "the risen body publishes both working pages, blank elsewhere");
         AssertTrue(risen.KraidBodyPlacement == state.BodyLayerPlacement, "the body publishes at Kraid's body layer placement");
         var drawn = (GameplaySceneLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
-        AssertTrue(BossBodyDisplay.ShowsLatchedBody(drawn, runtime) && drawn.Rooms.BossBody?.Area == KraidBackgroundDefinitions.BodyArea,
-            "the capture draws the published body on the background across its four pages");
+        AssertTrue(BossBodyDisplay.ShowsLatchedBody(drawn, runtime), "the capture draws the published body on the background");
 
         // Mouth open: his head's current pose shows over his body (#1515).
         state.DisplayedHeadFrame = KraidHeadFrame.Open;

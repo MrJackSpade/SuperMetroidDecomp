@@ -270,7 +270,7 @@ internal sealed class AcceptedFrameBoundary
                 ? RoomBackgroundImagePlacement.Whole(background.Image) : RoomBackgroundImagePlacement.HalvesSideBySide(background.Image));
         }
         // A boss body shows each part's whole picture (#1466, #1513).
-        ShownBossBody? shownBody = latched.Bosses.Body?.Show(BossBodyExtent(latched.Bosses));
+        ShownBossBody? shownBody = latched.Bosses.Body?.Show();
         // The text an escape shows over a layer, as its sequence describes it (#1555): Zebes's warning over the background, Ceres's
         // over the foreground, each drawn from the written picture sheet's frames for the inputs they depend on (#1466).
         RoomWrittenOverlay zebesWarning = scope.Enemies.DisplaySources.ZebesWarning;
@@ -302,15 +302,6 @@ internal sealed class AcceptedFrameBoundary
             XrayReveal = reveal is { } revealed ? new XrayRevealPlane(revealed.Origin, revealed.Blocks.AsSpan(), pictures) : null,
         };
     }
-
-    /// <summary>
-    /// The area a boss body covers before it repeats (#1514): Kraid's two screens across and two down; one screen while
-    /// Mother Brain places her body; any other body's two screens side by side.
-    /// </summary>
-    private static Extent16<BackgroundPixels> BossBodyExtent(GameplayLatchedBossBackgrounds bosses) =>
-        bosses.KraidBodyPlacement is not null ? KraidBackgroundDefinitions.BodyArea
-        : bosses.MotherBrainBody is { LayerPlacement: not null } ? ShownBossBody.OneScreenArea
-        : ShownBossBody.SideBySideArea;
 
     /// <summary>The effect overlay plane this frame boundary displays (#1348): the room effect's page; the HUD is its own layer (#1466).</summary>
     internal FxOverlayPlane CaptureFxOverlayPlane() => _room.FxOverlay?.EffectPlane ?? FxOverlayPlane.Cleared;

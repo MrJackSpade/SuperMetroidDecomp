@@ -7,8 +7,6 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 public static class KraidBackgroundDefinitions
 {
 
-    /// <summary>The area Kraid's body covers: four pages, two across and two down (#1514).</summary>
-    public static Extent16<BackgroundPixels> BodyArea { get; } = new(512, 512);
 
     /// <summary>
     /// The last step of the room backdrop's fades that moves its colours (#1512): the step after it completes the fade.

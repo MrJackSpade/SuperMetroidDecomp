@@ -50,7 +50,7 @@ internal static class BossBodyLayeredPartsVerification
         var state = new CrocomireEnemyState(enemies.SlotTable.Slots[0]);
         _ = BossBodyCanvasFixtures.AttachCrocomire(enemies, sheets);
         Dictionary<string, BossBodyFrameSource> sources = SourcesOf(frames, BossBodyOwner.Crocomire);
-        Extent16<BackgroundPixels> area = ShownBossBody.SideBySideArea;
+        Extent16<BackgroundPixels> area = SideBySideCanvas;
         int compared = 0;
         void Compare(string when)
         {
@@ -108,7 +108,7 @@ internal static class BossBodyLayeredPartsVerification
                 BossBodyLayer layer = enemies.KraidBehavior.BodyLayer.CaptureBodyLayer()
                     ?? throw new InvalidOperationException("Kraid showing his body layer draws his body.");
                 AssertEqual(2, layer.Frames.Length, $"Kraid's {appearance} body shows his body and one head");
-                AssertLayered(layer, sources, KraidBackgroundDefinitions.BodyArea, $"Kraid's {appearance} body with head {head?.MouthStage.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "risen with it"}");
+                AssertLayered(layer, sources, KraidCanvas, $"Kraid's {appearance} body with head {head?.MouthStage.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "risen with it"}");
                 compared++;
             }
         }
@@ -136,7 +136,7 @@ internal static class BossBodyLayeredPartsVerification
                 parts.Show(EnemyDefinitionId.PhantoonEye, sheet.Frame(eye));
                 parts.Show(EnemyDefinitionId.PhantoonTentacles, sheet.Frame(EnemyFrameId.PhantoonTentacle0));
                 parts.Show(EnemyDefinitionId.PhantoonMouth, sheet.Frame(EnemyFrameId.PhantoonMouth0));
-                AssertLayered(parts.Publish(), sources, ShownBossBody.SideBySideArea, $"Phantoon's {body} with his {eye}");
+                AssertLayered(parts.Publish(), sources, SideBySideCanvas, $"Phantoon's {body} with his {eye}");
                 compared++;
             }
         }
@@ -148,11 +148,17 @@ internal static class BossBodyLayeredPartsVerification
     {
         BossBodyFrame body = sheet.Frame(EnemyFrameId.CrocomireBody0);
         var nothing = new BossBodyFrame("Nothing", picture: null, body.Corner);
-        ShownBossBody shown = new BossBodyLayer([body, nothing]).Show(ShownBossBody.SideBySideArea);
+        ShownBossBody shown = new BossBodyLayer([body, nothing]).Show();
         SpriteSheetFrame picture = body.Picture ?? throw new InvalidOperationException("Crocomire's body frame has a picture.");
         AssertTrue(shown.Parts.Length == 1 && shown.Parts[0] == new ShownBossBodyPart(picture, body.Corner, new Extent16<BackgroundPixels>(picture.Size.X, picture.Size.Y)),
             "a part showing nothing is not drawn, and the body beneath it shows whole");
     }
+
+    /// <summary>The canvas the checks compose a body on whose room shows two screens of it side by side.</summary>
+    private static readonly Extent16<BackgroundPixels> SideBySideCanvas = new(512, 256);
+
+    /// <summary>The canvas the checks compose Kraid's body on: two screens across and two down.</summary>
+    private static readonly Extent16<BackgroundPixels> KraidCanvas = new(512, 512);
 
     /// <summary>
     /// Fails unless <paramref name="layer"/>'s parts, layered on <paramref name="area"/>, show at every pixel what its frames
@@ -161,7 +167,7 @@ internal static class BossBodyLayeredPartsVerification
     private static void AssertLayered(BossBodyLayer layer, Dictionary<string, BossBodyFrameSource> sources, Extent16<BackgroundPixels> area, string context)
     {
         SpriteImageInk?[] composed = Composed(layer, sources, area);
-        SpriteImageInk?[] layered = Layered(layer.Show(area), area);
+        SpriteImageInk?[] layered = Layered(layer.Show(), area);
         int differing = 0, first = -1;
         for (int pixel = 0; pixel < composed.Length; pixel++)
         {
@@ -216,7 +222,11 @@ internal static class BossBodyLayeredPartsVerification
             for (int x = 0; x < part.Size.X; x++)
             {
                 if (InkAt(part.Picture, x, y) is { } ink)
-                    inks[(part.Corner.Y + y) * area.X + part.Corner.X + x] = ink;
+                {
+                    // A part reaching past the canvas shows nothing there to compare.
+                    if (part.Corner.X + x < area.X && part.Corner.Y + y < area.Y)
+                        inks[(part.Corner.Y + y) * area.X + part.Corner.X + x] = ink;
+                }
             }
         }
         return inks;

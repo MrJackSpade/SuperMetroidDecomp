@@ -15,22 +15,22 @@ public sealed record BossBodyLayer(ImmutableArray<BossBodyFrame> Frames, int? Sh
     public static BossBodyLayer Empty { get; } = new([]);
 
     /// <summary>
-    /// The body as the frame shows it on an area of <paramref name="area"/>: each frame's picture, in draw order, cut where
-    /// the area ends and at <see cref="ShownAbove"/>. A frame showing nothing draws no part.
+    /// The body as the frame shows it: each frame's picture, in draw order, cut at <see cref="ShownAbove"/>. A frame showing
+    /// nothing draws no part.
     /// </summary>
-    public ShownBossBody Show(Extent16<BackgroundPixels> area)
+    public ShownBossBody Show()
     {
-        int bottom = ShownAbove is { } shownAbove ? Math.Clamp(shownAbove, 0, area.Y) : area.Y;
         var parts = ImmutableArray.CreateBuilder<ShownBossBodyPart>(Frames.Length);
         foreach (BossBodyFrame frame in Frames)
         {
             if (frame.Picture is not { } picture)
                 continue;
-            int width = Math.Min(picture.Size.X, area.X - frame.Corner.X);
-            int height = Math.Min(picture.Size.Y, bottom - frame.Corner.Y);
-            if (width > 0 && height > 0)
-                parts.Add(new ShownBossBodyPart(picture, frame.Corner, new Extent16<BackgroundPixels>(width, height)));
+            int height = ShownAbove is { } shownAbove
+                ? Math.Min(picture.Size.Y, Math.Max(shownAbove, 0) - frame.Corner.Y)
+                : picture.Size.Y;
+            if (height > 0)
+                parts.Add(new ShownBossBodyPart(picture, frame.Corner, new Extent16<BackgroundPixels>(picture.Size.X, height)));
         }
-        return new(parts.ToImmutable(), area);
+        return new(parts.ToImmutable());
     }
 }

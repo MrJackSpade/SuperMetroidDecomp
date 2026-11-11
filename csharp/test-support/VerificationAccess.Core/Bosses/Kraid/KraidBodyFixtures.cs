@@ -49,7 +49,8 @@ internal static class KraidBodyFixtures
     /// </summary>
     internal static ushort[] Tilemap(ReadOnlySpan<ushort> top, ReadOnlySpan<ushort> head, ReadOnlySpan<ushort> bottom)
     {
-        var words = new ushort[(KraidBackgroundDefinitions.BodyArea.X / 8) * (KraidBackgroundDefinitions.BodyArea.Y / 8)];
+        // The native body tilemap holds sixty-four cells across and down.
+        var words = new ushort[64 * 64];
         words.AsSpan().Fill(KraidWorkingMapDefinitions.BlankTile.PackedWord);
         top.CopyTo(words);
         head.CopyTo(words);

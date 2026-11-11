@@ -29,7 +29,7 @@ internal sealed class DraygonMovement
     /// <summary>Emits a breath bubble every 128 body frames.</summary>
     internal void SpawnPeriodicDraygonBreathBubble(DraygonEnemyState state)
     {
-        if ((state.Body.FrameCounter & 127) != 0)
+        if (!DraygonCadenceDefinitions.BreathBubbleEvery128thUpdate.IsDue(state.Body.FrameCounter))
             return;
         _spriteObjects.SpawnRoomSpriteObject(
             new(CoordinateAxis.Wrap(state.Body.Position.X.Whole - 16), CoordinateAxis.Wrap(state.Body.Position.Y.Whole - 16)),

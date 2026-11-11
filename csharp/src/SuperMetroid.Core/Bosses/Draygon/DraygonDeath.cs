@@ -31,7 +31,7 @@ internal sealed class DraygonDeath
     internal void DriftDyingDraygonToBurialPoint(DraygonEnemyState state)
     {
         RoomEnemySlot body = state.Body;
-        if ((body.FrameCounter & 15) == 0)
+        if (DraygonCadenceDefinitions.DyingFoamEverySixteenthUpdate.IsDue(body.FrameCounter))
         {
             _spriteObjects.SpawnRoomSpriteObject(
                 body.Position.Whole + new Offset16<RoomPixels>(CoordinateAxis.AsSigned(state.FacingRight ? 32 : -32), -16),
@@ -131,7 +131,7 @@ internal sealed class DraygonDeath
     /// <summary>Consumes room RNG and spawns smoke at the dying body every eighth frame.</summary>
     private void SpawnDyingDraygonSmoke(int frameCounter)
     {
-        if ((frameCounter & 7) != 0)
+        if (!DraygonCadenceDefinitions.DyingSmokeEveryEighthUpdate.IsDue(frameCounter))
             return;
 
         int random = _room.Random.Generate();

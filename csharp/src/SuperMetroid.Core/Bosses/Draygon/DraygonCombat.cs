@@ -96,7 +96,7 @@ internal sealed class DraygonCombat
         DraygonEnemyState state,
         SamusState? samus)
     {
-        bool whiteFrame = body.FlashTimer / 2 % 2 != 0;
+        bool whiteFrame = DraygonCadenceDefinitions.HurtWhiteFlashShown.IsSetIn(body.FlashTimer);
         // A hurt update shows his material colours with his band, or their white flash, as the import's shades (#1512).
         state.Colours.ShowHurt(whiteFrame);
         if (!whiteFrame)
@@ -106,7 +106,8 @@ internal sealed class DraygonCombat
         // Grapple-connected flag bit zero is the retail electrocution channel. It is
         // sampled only while hurt AI owns the body and subtracts exactly 256 HP on every
         // eighth body frame before running the same fatal/nonfatal reaction as a shot.
-        if (samus is null || !DraygonGrab.IsDraygonGrappleConnected(samus) || (body.FrameCounter & 7) != 0)
+        if (samus is null || !DraygonGrab.IsDraygonGrappleConnected(samus) ||
+            !DraygonCadenceDefinitions.GrappleShockEveryEighthUpdate.IsDue(body.FrameCounter))
             return;
 
         body.Health = body.Health <= 256

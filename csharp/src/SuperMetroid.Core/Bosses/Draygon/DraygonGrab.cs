@@ -175,7 +175,7 @@ internal sealed class DraygonGrab
                 state.SpiralAngle.ToTrigonometryAngle(),
                 state.SpiralXRadius.WholePixels / 4)));
 
-        if ((body.FrameCounter & 7) == 0)
+        if (DraygonCadenceDefinitions.GrabFoamEveryEighthUpdate.IsDue(body.FrameCounter))
         {
             _spriteObjects.SpawnRoomSpriteObject(
                 body.Position.Whole + new Offset16<RoomPixels>(state.FacingRight ? 32 : -32, -16),

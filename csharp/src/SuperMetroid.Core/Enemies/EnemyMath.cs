@@ -22,7 +22,7 @@ internal static class EnemyMath
 
     /// <summary>
     /// The proportional pull a Metroid or Mochtroid takes from its velocity for a signed distance of
-    /// <paramref name="distance"/> pixels from its target, -32768 through 32767: a quarter of the distance, rounded
+    /// <paramref name="distance"/> pixels from its target: a quarter of the distance, rounded
     /// toward minus infinity, in 256ths of a pixel.
     /// </summary>
     internal static SignedSixteenSixteen HomingPull(int distance) =>

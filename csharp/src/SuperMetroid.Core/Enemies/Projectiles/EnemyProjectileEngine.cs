@@ -119,7 +119,7 @@ internal sealed class EnemyProjectileEngine
     /// <summary>The pixel offset within an 8-pixel half block.</summary>
     private const int HalfBlockPixelMask = 7;
 
-    /// <summary>The frame counter of 0 through 65535 for the current projectile pass.</summary>
+    /// <summary>The frame clock's count for the current projectile pass.</summary>
     internal int CurrentFrame16 { get; private set; }
 
     /// <summary>Each place's latest projectile, in place order, live or gone.</summary>

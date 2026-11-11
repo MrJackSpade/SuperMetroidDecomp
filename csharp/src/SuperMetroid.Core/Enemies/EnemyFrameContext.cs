@@ -30,8 +30,8 @@ internal sealed class EnemyFrameContext
     }
 
     /// <summary>
-    /// The frame counter for the current enemy pass, 0 through 65535, copied from the frame clock (or the
-    /// random counter when the pass has none). It is independent of the counter of 0 through 255; standalone audits seed both
+    /// The frame clock's count for the current enemy pass (or the random counter when the pass has none). It is
+    /// independent of the enemies' own cycle of 256 updates; standalone audits seed both
     /// from the same enemy clock. Readers take its low bits.
     /// </summary>
     internal int FrameCounter { get; private set; }
@@ -61,7 +61,7 @@ internal sealed class EnemyFrameContext
     internal void RequestFullSweep() => ProcessAllEnemies = true;
 
     /// <summary>
-    /// Enemy frame start: the freeze flag, the live projectiles, and the frame counter of 0 through 65535.
+    /// Enemy frame start: the freeze flag, the live projectiles, and the frame clock's count.
     /// </summary>
     internal void BeginFrame(bool timeIsFrozen, SamusProjectileSystem? samusProjectiles, SamusColours? samusColours, int frameCounter)
     {

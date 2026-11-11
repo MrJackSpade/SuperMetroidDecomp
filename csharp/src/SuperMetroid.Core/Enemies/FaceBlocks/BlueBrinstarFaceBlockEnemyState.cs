@@ -14,7 +14,7 @@ public sealed class BlueBrinstarFaceBlockEnemyState
     public bool Activated { get; internal set; }
 
     /// <summary>
-    /// Samus's signed horizontal distance in room pixels from the face block, -32768 through 32767, written only after
+    /// Samus's signed horizontal distance in room pixels from the face block, written only after
     /// Samus passes the vertical range test; negative when Samus is to the left. The room-coordinate subtraction wraps
     /// across the room's wrapping axis (<see cref="CoordinateAxis.Difference"/>).
     /// </summary>

@@ -535,7 +535,7 @@ internal sealed class EnemyDeathsAndDrops
         }
     }
 
-    /// <summary>Measures the absolute distance between wrapping coordinates of 0 through 65535.</summary>
+    /// <summary>Measures the absolute distance between two of the room's wrapping coordinates.</summary>
     private static int AbsoluteWrappedDelta(int left, int right) =>
         CoordinateAxis.Distance(left, right);
 

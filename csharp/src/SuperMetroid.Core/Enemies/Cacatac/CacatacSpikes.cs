@@ -12,7 +12,7 @@ internal static class CacatacSpikes
 
     /// <summary>
     /// The launch speeds of a spike in <paramref name="direction"/>. The positive speed is the signed 8.8 magnitude and
-    /// the negative speed is its negation, wrapped to 0 through 65535.
+    /// the negative speed is its negation.
     /// </summary>
     /// <exception cref="InvalidDataException"><paramref name="direction"/> is not one of the ten selectors.</exception>
     internal static CacatacSpikeSpeedPair SpeedPair(CacatacSpikeDirection direction) =>

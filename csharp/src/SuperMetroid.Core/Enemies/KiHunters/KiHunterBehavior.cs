@@ -613,8 +613,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Walks the quadratic speed table until the detached wing's speed sum reaches its threshold. The reset cannot wrap:
-    /// the table read rejects an index past its last record long before the reset would pass 65535.
+    /// Walks the quadratic speed table until the detached wing's speed sum reaches its threshold. The reset cannot run
+    /// past the table: the table read rejects an index past its last record.
     /// </summary>
     private static void CalculateKiHunterDetachedSpeedReset(KiHunterEnemyState state)
     {

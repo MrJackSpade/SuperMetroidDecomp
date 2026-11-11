@@ -12,14 +12,12 @@ namespace SuperMetroid.Core.Enemies.SaveStation;
 /// </summary>
 internal static class SaveStationElectricityAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<SaveStationElectricityProgram, SaveStationElectricityFrame, EnemyProjectileCommonCue> Programs { get; } = new(
-        new Dictionary<SaveStationElectricityProgram, AnimationProgramStep<SaveStationElectricityProgram, SaveStationElectricityFrame, EnemyProjectileCommonCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<SaveStationElectricityProgram, SaveStationElectricityFrame, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<SaveStationElectricityProgram, AnimationBeat<SaveStationElectricityFrame, EnemyProjectileCommonCue>[]>
     {
         [P.Start] =
         [
-            AnimationProgramStep<SaveStationElectricityProgram, SaveStationElectricityFrame, EnemyProjectileCommonCue>.SetCounter(20),
-            AnimationProgramStep<SaveStationElectricityProgram, SaveStationElectricityFrame, EnemyProjectileCommonCue>.FallInto(P.Cycle),
         ],
         [P.Cycle] =
         [
@@ -31,18 +29,22 @@ internal static class SaveStationElectricityAnimations
             Show(5, 1),
             Show(6, 1),
             Show(7, 1),
-            AnimationProgramStep<SaveStationElectricityProgram, SaveStationElectricityFrame, EnemyProjectileCommonCue>.RepeatWhileCounting(P.Cycle),
             Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
-            Hold,
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<SaveStationElectricityProgram, Animation<SaveStationElectricityProgram>> StartingAt { get; } = new Dictionary<SaveStationElectricityProgram, Animation<SaveStationElectricityProgram>>
+    {
+        [P.Start] = new([new(P.Cycle, 0, 8, 20), new(P.Cycle, 8, 1, 1)], AnimationEnd.Holds),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<SaveStationElectricityProgram> StartingWith(SaveStationElectricityProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<SaveStationElectricityProgram, SaveStationElectricityFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => AnimationProgramStep<SaveStationElectricityProgram, SaveStationElectricityFrame, EnemyProjectileCommonCue>.Show(new(pose), duration);
+    private static AnimationBeat<SaveStationElectricityFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => new AnimationBeat<SaveStationElectricityFrame, EnemyProjectileCommonCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<SaveStationElectricityProgram, SaveStationElectricityFrame, EnemyProjectileCommonCue> Cue(EnemyProjectileCommonCue cue) => AnimationProgramStep<SaveStationElectricityProgram, SaveStationElectricityFrame, EnemyProjectileCommonCue>.Publish(cue);
-
-    /// <summary>Holds the last frame, as the sleep does.</summary>
-    private static AnimationProgramStep<SaveStationElectricityProgram, SaveStationElectricityFrame, EnemyProjectileCommonCue> Hold => AnimationProgramStep<SaveStationElectricityProgram, SaveStationElectricityFrame, EnemyProjectileCommonCue>.Hold;
+    private static AnimationBeat<SaveStationElectricityFrame, EnemyProjectileCommonCue> Cue(EnemyProjectileCommonCue cue) => new AnimationBeat<SaveStationElectricityFrame, EnemyProjectileCommonCue>.Event(cue);
 }

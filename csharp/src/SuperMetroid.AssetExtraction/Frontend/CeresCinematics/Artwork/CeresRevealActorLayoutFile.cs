@@ -10,7 +10,7 @@ public static class CeresRevealActorLayoutFile
 {
     /// <summary>Validates the six fixed reveal-actor identities and compiles their editable initial positions from ceres-zebes-reveal-actors.json.</summary>
     /// <param name="json">UTF-8 JSON source read from its current position and left open.</param>
-    /// <returns>Selected placements for the reveal, with stock positions resolved from the compiled initializers.</returns>
+    /// <returns>The six installed placements of the reveal.</returns>
     /// <exception cref="ArgumentNullException">The source stream is null.</exception>
     /// <exception cref="InvalidDataException">The JSON, schema version, six-entry order, actor identity, or unsigned 16-bit coordinate is invalid.</exception>
     public static CeresRevealActorPlacements Read(Stream json)

@@ -44,7 +44,7 @@ public static class BeamPaletteFile
         WriteIndented = true,
     };
 
-    /// <summary>Loads all twelve ordinary beam palette selections, rejecting duplicate or unknown properties, unsupported versions, missing keys, rows other than sixteen colors, and RGB5 channels outside 0..31; independently supplied color edits remain exact.</summary>
+    /// <summary>Loads all twelve ordinary beam palette selections, rejecting duplicate or unknown properties, unsupported versions, missing keys, rows other than sixteen colors, and RGB5 channels outside 0..31; every installed colour is kept as installed.</summary>
     /// <param name="json">UTF-8 JSON stream containing the versioned beam-palette document.</param>
     /// <returns>The validated immutable palette catalog.</returns>
     public static InstalledBeamPalettes Read(Stream json)

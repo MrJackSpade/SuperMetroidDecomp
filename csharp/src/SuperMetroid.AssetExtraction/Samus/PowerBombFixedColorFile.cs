@@ -16,7 +16,7 @@ public static class PowerBombFixedColorFile
     /// <summary>JSON resource filename containing the pre-explosion and explosion RGB5 sequences.</summary>
     public const string FileName = "power-bomb-fixed-colors.json";
 
-    /// <summary>Validates the installed fixed-color JSON and compiles independent edits to the two native RGB5 sequences without changing phase or radius mechanics.</summary>
+    /// <summary>Validates the installed fixed-color JSON and keeps both complete RGB5 sequences as installed, without changing phase or radius mechanics.</summary>
     /// <param name="json">UTF-8 JSON source consumed from its current position and left open.</param>
     /// <returns>Every colour of both sequences, detached from the document arrays.</returns>
     /// <exception cref="ArgumentNullException">The source stream is null.</exception>

@@ -33,8 +33,8 @@ internal sealed class EndingRewardJump
     private readonly IntroDiscoverySprite body;
     /// <summary>Separate head actor present for the two suited ending rewards.</summary>
     private readonly IntroDiscoverySprite? head;
-    /// <summary>Shared packed vertical velocity; each active actor movement applies gravity to it.</summary>
-    internal int Velocity { get; private set; }
+    /// <summary>Shared vertical velocity; each active actor movement applies gravity to it.</summary>
+    internal SignedSixteenSixteen Velocity { get; private set; }
     /// <summary>Whether the shooting instruction has requested the ending screen capture.</summary>
     public bool ShotRequested { get; private set; }
     /// <summary>Set when the body crosses the graphics sheet switch height and Samus is drawn from her falling sheet.</summary>
@@ -98,11 +98,11 @@ internal sealed class EndingRewardJump
         body.Draw(destination, installedArt: installedArt);
     }
 
-    /// <summary>Applies gravity to shared velocity and moves an actor using packed fixed-point height.</summary>
+    /// <summary>Applies gravity to shared velocity and moves an actor by it.</summary>
     private void Move(IntroDiscoverySprite actor)
     {
-        Velocity = unchecked(Velocity + EndingRewardJumpDefinitions.Gravity);
-        actor.Position = actor.Position.WithY(actor.Position.Y.MovedBy(SignedSixteenSixteen.FromRaw(Velocity)));
+        Velocity += EndingRewardJumpDefinitions.Gravity;
+        actor.Position = actor.Position.WithY(actor.Position.Y.MovedBy(Velocity));
     }
 
     /// <summary>Handles launch, head placement, and the shoot event the jump programs publish.</summary>

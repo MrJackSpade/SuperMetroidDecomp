@@ -1845,7 +1845,7 @@ internal static class LookupStream1Verification
             AssertEqual(0, Stored(program), "escape text stock contains no sampled line overrides");
             for (int index = 0; index < original.Length; index++)
             {
-                var expected = new EscapeTypewriterLine(new Position16<PlanePixels>(original[index].X, original[index].Y), original[index].Text);
+                var expected = new EscapeTypewriterLine(original[index].Start, original[index].Text);
                 AssertEqual(expected, EscapeTypewriterLines.Line(id, index), "escape text direct original placement and wording");
                 AssertEqual(expected, program.Lines[index], "escape text installed line");
             }

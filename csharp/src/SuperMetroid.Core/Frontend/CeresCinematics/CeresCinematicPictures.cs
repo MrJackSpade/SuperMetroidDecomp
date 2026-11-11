@@ -30,10 +30,10 @@ public static class CeresCinematicPictures
         SpriteSheet sheet = Ensure.NotNull(sheets).Get(SpriteSheetId.CeresCinematicPictures);
         var placed = ImmutableArray.CreateBuilder<PlacedPlanePicture>();
         for (int letter = 0; letter < letters; letter++)
-            placed.Add(new(sheet.Frame(CaptionLetter(letter)), Corner(SpaceColonyCaption.Column(letter), SpaceColonyCaptionDefinitions.Row),
+            placed.Add(new(sheet.Frame(CaptionLetter(letter)), new Offset16<PlanePixels>(SpaceColonyCaption.Left(letter), SpaceColonyCaptionDefinitions.Top),
                 PictureShading.Standard));
         if (japanese)
-            placed.Add(new(sheet.Frame(JapaneseCaption), Corner(SpaceColonyCaptionDefinitions.JapaneseColumn, SpaceColonyCaptionDefinitions.JapaneseRow),
+            placed.Add(new(sheet.Frame(JapaneseCaption), new Offset16<PlanePixels>(SpaceColonyCaptionDefinitions.JapaneseLeft, SpaceColonyCaptionDefinitions.JapaneseTop),
                 PictureShading.Standard));
         return new PicturedPlane(placed.ToImmutable());
     }
@@ -47,8 +47,4 @@ public static class CeresCinematicPictures
             ? [new PlacedPlanePicture(Ensure.NotNull(sheets).Get(SpriteSheetId.CeresCinematicPictures).Frame(ZebesPlanet), default,
                 PictureShading.Standard)]
             : []);
-
-    /// <summary>The plane pixel of cell (<paramref name="column"/>, <paramref name="row"/>)'s upper-left corner.</summary>
-    private static Offset16<PlanePixels> Corner(int column, int row) => new(
-        column * ScreenGeometry.BackgroundTileSizePixels, row * ScreenGeometry.BackgroundTileSizePixels);
 }

@@ -85,7 +85,7 @@ public static class EscapeTypewriterExtractor
                 characters.Add(character);
             }
             Position16<PlanePixels> start = StartOf(destination - TilemapWordOf(id));
-            lines.Add(new() { X = start.X, Y = start.Y, Text = new(characters.ToArray()) });
+            lines.Add(new() { Start = start, Text = new(characters.ToArray()) });
         }
         throw new InvalidDataException($"Escape typewriter program {id} exceeded sixteen lines.");
     }

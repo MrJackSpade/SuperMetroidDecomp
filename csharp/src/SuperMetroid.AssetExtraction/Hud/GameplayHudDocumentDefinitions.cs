@@ -12,8 +12,6 @@ public static class GameplayHudDocumentDefinitions
     public const int Columns = 32;
     /// <summary>Rows of cells the HUD's values are drawn over, below the static top row.</summary>
     public const int DrawnRows = 3;
-    /// <summary>The HUD's rows of cells: the static top row, then the rows its values are drawn over.</summary>
-    public const int Rows = DrawnRows + 1;
     /// <summary>Ninety-six cells in the three rows the HUD's values are drawn over; the static top row is excluded.</summary>
     public const int CellCount = Columns * DrawnRows;
     /// <summary>The drawn rows' size in cells.</summary>

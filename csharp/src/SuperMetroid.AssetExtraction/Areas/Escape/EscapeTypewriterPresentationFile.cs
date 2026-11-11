@@ -51,12 +51,12 @@ public static class EscapeTypewriterPresentationFile
                     ?? throw new InvalidDataException($"Escape typewriter program {id} line {index} is null.");
                 if (string.IsNullOrEmpty(line.Text) || line.Text.Length > EscapeTypewriterDocumentDefinitions.MaximumLineLength ||
                     line.Text.Any(static character => character is not (' ' or '!' or >= 'A' and <= 'Z')) ||
-                    !LineFitsLayer(line.X, line.Y, line.Text.Length))
+                    !LineFitsLayer(line.Start, line.Text.Length))
                 {
                     throw new InvalidDataException(
                         $"Escape typewriter program {id} line {index} has invalid text or placement.");
                 }
-                var supplied = new EscapeTypewriterLine(new Position16<PlanePixels>(line.X, line.Y), line.Text);
+                var supplied = new EscapeTypewriterLine(line.Start, line.Text);
                 if (index >= EscapeTypewriterLines.LineCount(id) || supplied != EscapeTypewriterLines.Line(id, index))
                     differences.Add(index, supplied);
             }
@@ -67,10 +67,10 @@ public static class EscapeTypewriterPresentationFile
     }
 
     /// <summary>
-    /// Whether a line of <paramref name="length"/> characters typed from pixel (<paramref name="x"/>, <paramref name="y"/>)
-    /// of its layer stays inside the layer, each character a glyph's width right of the last.
+    /// Whether a line of <paramref name="length"/> characters typed from layer pixel <paramref name="start"/> stays inside
+    /// the layer, each character a glyph's width right of the last.
     /// </summary>
-    private static bool LineFitsLayer(int x, int y, int length) =>
-        x >= 0 && y >= 0 && x + length * EscapeTypewriterDefinitions.GlyphAdvance <= EscapeTypewriterDocumentDefinitions.LayerWidth
-        && y + EscapeTypewriterDocumentDefinitions.GlyphHeight <= EscapeTypewriterDocumentDefinitions.LayerHeight;
+    private static bool LineFitsLayer(Position16<PlanePixels> start, int length) =>
+        start.X >= 0 && start.Y >= 0 && start.X + length * EscapeTypewriterDefinitions.GlyphAdvance <= EscapeTypewriterDocumentDefinitions.LayerWidth
+        && start.Y + EscapeTypewriterDocumentDefinitions.GlyphHeight <= EscapeTypewriterDocumentDefinitions.LayerHeight;
 }

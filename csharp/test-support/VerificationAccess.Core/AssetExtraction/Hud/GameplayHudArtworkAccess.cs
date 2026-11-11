@@ -1,6 +1,5 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hud;
-using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Hud;
@@ -30,7 +29,7 @@ internal static class GameplayHudArtworkAccess
         /// </summary>
         internal BackgroundTile[] RowsOver(ShownHud hud, BackgroundTile uncovered)
         {
-            var rows = new BackgroundTile[GameplayHudDocumentDefinitions.Columns * GameplayHudDocumentDefinitions.Rows];
+            var rows = new BackgroundTile[GameplayHudDocumentDefinitions.Columns * (GameplayHudDocumentDefinitions.DrawnRows + 1)];
             rows.AsSpan().Fill(uncovered);
             foreach (PlacedHudImage placed in Ensure.NotNull(hud).Images)
                 artwork.Write(rows, placed, 0);

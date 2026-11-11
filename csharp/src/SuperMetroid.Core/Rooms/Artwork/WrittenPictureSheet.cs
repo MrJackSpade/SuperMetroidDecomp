@@ -65,8 +65,7 @@ public sealed class WrittenPictureSheet
 
     /// <summary>
     /// The installed name of the sheet of pictures shown on <paramref name="layer"/> in <paramref name="tileset"/>'s rooms:
-    /// <c>Written.</c> for the pictures written over the room, <c>OverlayPictures.</c> for the effect overlay's, then the
-    /// tileset's name.
+    /// the layer's role, then the tileset's name.
     /// </summary>
     public static string NameOf(WrittenPictureLayer layer, TilesetDefinition tileset) =>
         $"{(layer == WrittenPictureLayer.FxOverlayAndHud ? "OverlayPictures" : "Written")}.{RoomBlockSheet.NameOf(tileset)}";

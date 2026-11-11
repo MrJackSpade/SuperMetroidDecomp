@@ -42,7 +42,6 @@ different types; moving between spaces is always a named conversion.
 | `RoomBlocks` | The sixteen-pixel collision/level-data grid. |
 | `RoomScreens` | The 256-pixel scroll-region grid. |
 | `TilemapBlocks` | The sixteen-pixel block grid of a wrapping BG tilemap (bank-$80 `BG1/BG2 X/Y block`), distinct from room blocks. |
-| `TilemapCells` | VRAM tilemap cells. |
 | `MapTiles` | Area-map tiles (pause, file select, minimap). |
 | `MapPixels` | Area-map plane pixels (eight per tile): map scroll offsets, scroll bounds and map marker/arrow positions. |
 | `FloorPixels` | Coordinates on a turning, scaling floor image, and the centre it turns about. |

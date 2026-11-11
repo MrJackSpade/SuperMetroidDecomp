@@ -2,12 +2,13 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
 /// <summary>
 /// Lays out the English SPACE COLONY caption (<see cref="SpaceColonyCaptionDefinitions"/>): its visible letters left to
-/// right, one cell each, skipping the undrawn space.
+/// right, one letter's width apart, skipping the space.
 /// </summary>
 public static class SpaceColonyCaption
 {
-    /// <summary>The column visible letter <paramref name="index"/> is drawn at, skipping the undrawn space cell.</summary>
-    public static int Column(int index) => SpaceColonyCaptionDefinitions.FirstColumn + TextIndex(index);
+    /// <summary>The pixel column of visible letter <paramref name="index"/>'s left edge, the space's width skipped.</summary>
+    public static int Left(int index) =>
+        SpaceColonyCaptionDefinitions.FirstLetterLeft + TextIndex(index) * SpaceColonyCaptionDefinitions.LetterAdvance;
 
     /// <summary>Where visible letter <paramref name="index"/> lies in the caption's text.</summary>
     /// <exception cref="ArgumentOutOfRangeException">No visible letter has the index.</exception>

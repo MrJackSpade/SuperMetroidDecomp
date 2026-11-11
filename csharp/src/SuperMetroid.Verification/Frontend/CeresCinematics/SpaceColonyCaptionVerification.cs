@@ -16,13 +16,14 @@ internal static class SpaceColonyCaptionVerification
         {
             int instruction = 0x8cd629 + 6 * index;
             AssertEqual(16, CartridgeImportSource.Require(rom).ReadCartridgeWord(instruction), "native letter duration unchanged");
-            AssertEqual(rom.ReadCartridgeByte(instruction + 2), SpaceColonyCaption.Column(index), "native caption column");
-            AssertEqual((byte)SpaceColonyCaptionDefinitions.Row, rom.ReadCartridgeByte(instruction + 3), "native caption row unchanged");
+            // The native list places each letter by tile column and row; the caption places it in pixels.
+            AssertEqual(rom.ReadCartridgeByte(instruction + 2) * ScreenGeometry.BackgroundTileSizePixels, SpaceColonyCaption.Left(index), "native caption column");
+            AssertEqual(rom.ReadCartridgeByte(instruction + 3) * ScreenGeometry.BackgroundTileSizePixels, SpaceColonyCaptionDefinitions.Top, "native caption row");
             int drawing = 0x8c0000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((instruction + 4));
             AssertEqual(0x0101, CartridgeImportSource.Require(rom).ReadCartridgeWord((drawing + 2)), "one-cell character drawing");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((drawing + 4)), BackgroundTileWords.ToWord(SpaceColonyCaptionTileDefinitions.Glyphs[CeresCinematicPictureSheetComposer.CaptionCharacter(index)]), "the import pictures the native caption tile and attributes");
         }
         foreach (int invalid in new[] { -1, 11, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => SpaceColonyCaption.Column(invalid), "caption domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => SpaceColonyCaption.Left(invalid), "caption domain");
     }
 }

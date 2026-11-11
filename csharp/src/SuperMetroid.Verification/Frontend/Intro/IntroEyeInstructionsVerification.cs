@@ -80,10 +80,10 @@ internal static class IntroEyeInstructionsVerification
                 {
                     int position = Word(pointer + 2);
                     // The record names the portrait character the eye's corner lies on; the port draws it at that character's pixel.
-                    AssertEqual((int)IntroEyeAnimationDefinitions.PortraitEyeCorner.X,
+                    AssertEqual(IntroEyeAnimationDefinitions.PortraitEyeCorner.X,
                         LittleEndianBytes.LowByte(checked((ushort)position)) * CharacterCellConversions.CellPixels,
                         "native eye record draws at the portrait column");
-                    AssertEqual((int)IntroEyeAnimationDefinitions.PortraitEyeCorner.Y,
+                    AssertEqual(IntroEyeAnimationDefinitions.PortraitEyeCorner.Y,
                         LittleEndianBytes.HighByte(checked((ushort)position)) * CharacterCellConversions.CellPixels,
                         "native eye record draws at the portrait row");
                     int record = Word(pointer + 4) - FrontendSourceDefinitions.IntroEyeFrameRecords;

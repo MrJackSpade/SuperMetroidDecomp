@@ -47,7 +47,7 @@ internal sealed class CreditsObjectState
     /// the roll's top, in <paramref name="shading"/>, the ending's colours (#1512); the screen shows it moved up by
     /// <see cref="ScrolledPixels"/>.
     /// </summary>
-    internal PicturedPlane Plane(SpriteSheet lines, PictureShading shading)
+    internal static PicturedPlane Plane(SpriteSheet lines, PictureShading shading)
     {
         Ensure.NotNull(lines);
         Ensure.NotNull(shading);

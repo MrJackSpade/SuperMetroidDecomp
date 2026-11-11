@@ -10,7 +10,6 @@ using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Samus.Palettes;
-using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Samus.Death;

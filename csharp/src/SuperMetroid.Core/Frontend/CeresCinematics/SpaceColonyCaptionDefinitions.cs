@@ -1,24 +1,25 @@
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
-/// <summary>The English caption: emit the non-space characters
-/// of SPACE COLONY left-to-right, one eight-pixel cell each, starting at column10 of row 24,
-/// and, with Japanese text, the katakana caption below it. The import pictures each letter and the katakana caption.</summary>
+/// <summary>
+/// The SPACE COLONY caption: its non-space letters appear left to right, one letter's width apart, and with Japanese text
+/// the katakana caption shows below it. The import pictures each letter and the katakana caption.
+/// </summary>
 public static class SpaceColonyCaptionDefinitions
 {
-    /// <summary>The English caption; its one space occupies a cell but has no drawing operation.</summary>
+    /// <summary>The English caption; its one space takes a letter's width but shows nothing.</summary>
     public const string Text = "SPACE COLONY";
-    /// <summary>Counts the visible glyph operations after omitting the caption's space.</summary>
+    /// <summary>Counts the caption's visible letters, its space left out.</summary>
     public static int LetterCount => Text.Length - 1;
 
-    /// <summary>The column the caption's first cell is drawn at.</summary>
-    internal const int FirstColumn = 10;
+    /// <summary>The pixel column of the caption's first letter's left edge.</summary>
+    internal const int FirstLetterLeft = 80;
 
-    /// <summary>The row the caption is drawn on.</summary>
-    internal const int Row = 24;
+    /// <summary>The width each of the caption's characters takes, in pixels.</summary>
+    internal const int LetterAdvance = 8;
 
-    /// <summary>
-    /// With Japanese text the caption list draws the katakana caption
-    /// below SPACE COLONY, at column 12, row 26.
-    /// </summary>
-    public const int JapaneseColumn = 12, JapaneseRow = 26;
+    /// <summary>The pixel row of the caption's top edge.</summary>
+    public const int Top = 192;
+
+    /// <summary>The pixel column of the katakana caption's left edge, and the pixel row of its top edge.</summary>
+    public const int JapaneseLeft = 96, JapaneseTop = 208;
 }

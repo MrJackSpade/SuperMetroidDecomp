@@ -527,7 +527,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
     }
 
     /// <summary>The credits roll's plane: its held rows' line pictures (#1467) in the ending's colours (#1512).</summary>
-    internal PicturedPlane CreditsPlane() => Credits.Plane(InstalledArtwork.SpriteSheet(SpriteSheetId.EndingCreditsRows),
+    internal PicturedPlane CreditsPlane() => CreditsObjectState.Plane(InstalledArtwork.SpriteSheet(SpriteSheetId.EndingCreditsRows),
         screen.Colours.SceneryShading(EndingScenery.CreditsRows));
 
     /// <summary>The waiting scene's backdrop (#1467, #1515), in the ending's colours (#1512).</summary>

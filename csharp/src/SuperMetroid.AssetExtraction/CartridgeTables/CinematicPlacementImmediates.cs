@@ -6,6 +6,6 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// row (#1615).
 /// </summary>
 /// <param name="Id">The actor's asset id.</param>
-/// <param name="XOperand">The bank-$8B address of its horizontal immediate.</param>
-/// <param name="YOperand">The bank-$8B address of its vertical immediate.</param>
-internal readonly record struct CinematicPlacementImmediates(string Id, int XOperand, int YOperand);
+/// <param name="FirstOperand">The bank-$8B address of its horizontal immediate.</param>
+/// <param name="SecondOperand">The bank-$8B address of its vertical immediate.</param>
+internal readonly record struct CinematicPlacementImmediates(string Id, int FirstOperand, int SecondOperand);

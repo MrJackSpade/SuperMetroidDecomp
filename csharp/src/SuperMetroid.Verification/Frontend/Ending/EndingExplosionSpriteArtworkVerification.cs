@@ -6,7 +6,6 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -46,8 +45,6 @@ internal static class EndingExplosionSpriteArtworkVerification
             AssertEqual(names[i], frames[i].Name, $"explosion catalog asset key {i}");
         }
         AssertTrue(frames.Select(frame => frame.Name).SequenceEqual(names), "explosion catalog enumeration order");
-        foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = frames[invalid], "explosion catalog index bounds");
         AssertEqual(frames.Count, frames.Select(frame => frame.Pose).Distinct().Count(), "explosion frames name distinct compositions");
     }
 

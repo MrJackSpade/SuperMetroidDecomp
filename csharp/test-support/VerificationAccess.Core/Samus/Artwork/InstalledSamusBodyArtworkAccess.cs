@@ -21,7 +21,7 @@ internal static class InstalledSamusBodyArtworkAccess
         internal ReadOnlySpan<int> BottomSetStarts => self.Source.BottomSetStarts;
 
         /// <summary>Each pose with a record's first frame selector.</summary>
-        internal IReadOnlyDictionary<SamusPoseId, int> PoseFirstFrames => self.Source.PoseFirstFrames;
+        internal IReadOnlyDictionary<SamusPoseId, int> PoseFirstFrames => self.Source.poseFirstFrames;
 
         /// <summary>The contiguous frame-selector interval.</summary>
         internal ReadOnlySpan<SamusBodyFrameSelection> Frames => self.Source.Frames;
@@ -45,7 +45,7 @@ internal static class InstalledSamusBodyArtworkAccess
         /// <exception cref="InvalidDataException">The pose has no record, or the selector is outside the table.</exception>
         internal SamusBodyFrameSelection Selection(SamusPoseId pose, int animationFrame)
         {
-            if (!self.Source.PoseFirstFrames.TryGetValue(pose, out int firstFrame))
+            if (!self.PoseFirstFrames.TryGetValue(pose, out int firstFrame))
                 throw new InvalidDataException($"Pose {pose} has no authored Samus body frame list.");
             int index = firstFrame + animationFrame;
             return (uint)index < SamusBodySources.FrameCount

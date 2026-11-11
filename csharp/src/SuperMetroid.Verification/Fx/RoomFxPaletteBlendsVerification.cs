@@ -13,7 +13,6 @@ using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.AssetExtraction.Fx.Artwork;

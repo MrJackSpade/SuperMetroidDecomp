@@ -18,7 +18,6 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.World;
-using SuperMetroid.Core.Fx.Artwork;
 
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 /// <summary>

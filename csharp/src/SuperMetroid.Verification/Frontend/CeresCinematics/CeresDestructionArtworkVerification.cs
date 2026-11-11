@@ -148,9 +148,9 @@ internal static class CeresDestructionArtworkVerification
             AssertEqual(CeresDestructionActors.InitialPlacementId(index),
                 destructionActorsDocument.Actors[index].Id,
                 $"Ceres destruction actor {index} retains its native role");
-            AssertEqual((int)CartridgeImportSource.Require(bus).ReadCartridgeWord(CeresCinematicSourceDefinitions.PlacementBank | source.XOperand),
+            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(CeresCinematicSourceDefinitions.PlacementBank | source.FirstOperand),
                 destructionActorsDocument.Actors[index].X, $"Ceres destruction actor {index} X is its initializer's immediate");
-            AssertEqual((int)CartridgeImportSource.Require(bus).ReadCartridgeWord(CeresCinematicSourceDefinitions.PlacementBank | source.YOperand),
+            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(CeresCinematicSourceDefinitions.PlacementBank | source.SecondOperand),
                 destructionActorsDocument.Actors[index].Y, $"Ceres destruction actor {index} Y is its initializer's immediate");
         }
         destructionActorsDocument.Actors[0] = destructionActorsDocument.Actors[0] with

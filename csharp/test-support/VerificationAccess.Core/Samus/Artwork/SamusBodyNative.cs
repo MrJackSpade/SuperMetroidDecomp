@@ -51,7 +51,7 @@ internal static class SamusBodyNative
 
         /// <summary>The bank-$92 address of each pose with a record's frame list.</summary>
         internal IReadOnlyDictionary<SamusPoseId, ushort> PosePointers =>
-            body.Source.PoseFirstFrames.ToDictionary(pose => pose.Key, pose => FramePointer(pose.Value));
+            body.PoseFirstFrames.ToDictionary(pose => pose.Key, pose => FramePointer(pose.Value));
 
         /// <summary>The SNES address of the record a native body set and position select.</summary>
         internal int DefinitionAddress(SamusBodyHalf half, int set, int position) =>

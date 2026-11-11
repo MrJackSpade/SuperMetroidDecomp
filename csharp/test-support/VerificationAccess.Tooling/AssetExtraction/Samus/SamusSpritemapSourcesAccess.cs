@@ -1,9 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
-/// <summary>Verification access to the whole per-pose base tables of <see cref="SamusSpritemapSources"/>, which only checks read (#1595).</summary>
+/// <summary>Verification access to the per-pose base tables and entries of <see cref="SamusSpritemapSources"/>, which only checks read (#1595, #1615).</summary>
 internal static class SamusSpritemapSourcesAccess
 {
     /// <summary>Reads each pose's first upper-half and lower-half table entries.</summary>
@@ -14,6 +15,13 @@ internal static class SamusSpritemapSourcesAccess
 
         /// <summary>Each pose with a record's first lower-half table entry, including poses sharing the upper/lower composition.</summary>
         internal IReadOnlyDictionary<SamusPoseId, int> BottomBases => Bases(self, "bottomBases");
+
+        /// <summary>Returns false only for an entry with no composition, which draws nothing.</summary>
+        internal bool TryGet(int index, [NotNullWhen(true)] out SamusSpritemapDefinition? definition)
+        {
+            definition = self.TryGetEntry(index, out SamusSpritemapId composition) ? self.definitions[composition.Ordinal] : null;
+            return definition is not null;
+        }
     }
 
     /// <summary>The sources' per-pose base table held in <paramref name="field"/>.</summary>

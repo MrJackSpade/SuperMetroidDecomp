@@ -50,14 +50,4 @@ public readonly record struct BackgroundTile(int Tile, int ColourVariant, bool F
     /// <summary>The mirroring the tile is drawn with; documents store its two axes.</summary>
     [JsonIgnore]
     public TileFlip Flip => (FlipHorizontally ? TileFlip.Horizontal : TileFlip.None) | (FlipVertically ? TileFlip.Vertical : TileFlip.None);
-
-    /// <summary>
-    /// The same placement with the mirrorings <paramref name="flip"/> names reversed: a 16x16 block mirrored on an axis
-    /// mirrors each of its four tiles on that axis as well as swapping their places.
-    /// </summary>
-    public BackgroundTile WithFlipsToggled(TileFlip flip) => this with
-    {
-        FlipHorizontally = FlipHorizontally ^ ((flip & TileFlip.Horizontal) != TileFlip.None),
-        FlipVertically = FlipVertically ^ ((flip & TileFlip.Vertical) != TileFlip.None),
-    };
 }

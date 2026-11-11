@@ -17,7 +17,7 @@ internal static class FileSelectHelmetAnimationVerification
             AssertEqual(ReadVerificationWord(rom, 0x819e2c + 2 * frame),
                 FileSelectHelmetSpritemaps.SpritemapId(frame), $"original helmet sprite {frame}");
         AssertEqual((byte)0xa9, FileSelectHelmetAnimationRomByte(rom, 0x819df3), "native helmet timer LDA");
-        AssertEqual((int)ReadVerificationWord(rom, 0x819df4), MenuAnimationTimings.HelmetFrameDuration(rom),
+        AssertEqual(ReadVerificationWord(rom, 0x819df4), MenuAnimationTimings.HelmetFrameDuration(rom),
             "the import installs the native helmet frame duration");
         AssertEqual((byte)0xc9, FileSelectHelmetAnimationRomByte(rom, 0x819dfd), "native helmet frame CMP");
         AssertEqual(ReadVerificationWord(rom, 0x819dfe), FileSelectHelmetAnimation.FrameCount,

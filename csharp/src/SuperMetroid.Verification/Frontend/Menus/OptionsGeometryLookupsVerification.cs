@@ -6,7 +6,6 @@ using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Frontend;
-using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Verification.Frontend.Menus;

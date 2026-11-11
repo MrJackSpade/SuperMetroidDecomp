@@ -31,7 +31,7 @@ public sealed class SamusBodySources : InstalledSamusBodyArtwork
     /// <summary>Each lower-body definition group's first record.</summary>
     private readonly int[] bottomSetStarts;
     /// <summary>Each pose's first frame selector.</summary>
-    private readonly Dictionary<SamusPoseId, int> poseFirstFrames;
+    internal readonly Dictionary<SamusPoseId, int> poseFirstFrames;
     /// <summary>The contiguous frame-selector interval.</summary>
     private readonly SamusBodyFrameSelection[] frames;
     /// <summary>Each pose's installed animation frames' half pictures, or none where not installed.</summary>
@@ -121,9 +121,6 @@ public sealed class SamusBodySources : InstalledSamusBodyArtwork
 
     /// <summary>Each lower-body definition group's first record.</summary>
     public ReadOnlySpan<int> BottomSetStarts => bottomSetStarts;
-
-    /// <summary>Each pose with a record's first frame selector.</summary>
-    public IReadOnlyDictionary<SamusPoseId, int> PoseFirstFrames => poseFirstFrames;
 
     /// <summary>The contiguous frame-selector interval.</summary>
     public ReadOnlySpan<SamusBodyFrameSelection> Frames => frames;

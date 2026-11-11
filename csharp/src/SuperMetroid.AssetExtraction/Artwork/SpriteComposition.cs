@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
 
@@ -10,11 +9,6 @@ public sealed class SpriteComposition
     internal readonly IReadOnlyList<CompiledSpritePart> parts;
     /// <summary>Copies authored parts so later document edits cannot alter a compiled composition.</summary>
     internal SpriteComposition(CompiledSpritePart[] parts) => this.parts = (CompiledSpritePart[])parts.Clone();
-    /// <summary>Number of parts drawn in composition order.</summary>
-    [IntegerQuantity("number of sprite parts in the composition")]
-    internal int PartCount => parts.Count;
-    /// <summary>Selects one part by its drawing ordinal.</summary>
-    internal CompiledSpritePart Part(int index) => parts[index];
 
     /// <summary>Hashes only compiled visual fields, preserving the draw order and palette inheritance.</summary>
     internal void AppendIdentity(SelectedPresentationHash content)

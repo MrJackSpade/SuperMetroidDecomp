@@ -12,5 +12,7 @@ internal static class PlanetZebesTextPaletteFxColorDefinitionAccess
         internal ushort DefinitionPointer => (ushort)(PlanetZebesTextPaletteFxColorDefinitions.FadeInDefinition + (int)self.Owner * 4);
         /// <summary>The colour group the definition's object animates.</summary>
         internal PaletteFxColours AnimatedColours => PaletteFxObjectAccess.FromNative(self.DefinitionPointer).AnimatedColours;
+        /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
+        public PaletteFxColorKey Color(int frame, int color) => self.ColorFrames.Color(frame, color);
     }
 }

@@ -93,14 +93,6 @@ public readonly record struct FadeLevelColour
         return new(map(ColorChannel.Red, Red), map(ColorChannel.Green, Green), map(ColorChannel.Blue, Blue));
     }
 
-    /// <summary>Combines matching channels' levels of these and <paramref name="other"/>; the results must be levels.</summary>
-    public FadeLevelColour Zip(FadeLevelColour other, Func<ColorChannel, int, int, int> combine)
-    {
-        Ensure.NotNull(combine);
-        return new(combine(ColorChannel.Red, Red, other.Red), combine(ColorChannel.Green, Green, other.Green),
-            combine(ColorChannel.Blue, Blue, other.Blue));
-    }
-
     /// <inheritdoc />
     public override string ToString() => $"Levels(r{Red}, g{Green}, b{Blue})";
 

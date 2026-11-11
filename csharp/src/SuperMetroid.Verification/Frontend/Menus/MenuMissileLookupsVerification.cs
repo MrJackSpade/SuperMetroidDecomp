@@ -29,6 +29,6 @@ internal static class MenuMissileLookupsVerification
     {
         int installed = MenuAnimationTimings.MissileFrameDuration(rom);
         for (int frame = 0; frame < 4; frame++)
-            AssertEqual((int)ReadVerificationWord(rom, 0x82baaa + frame * 2), installed, $"menu missile duration {frame}");
+            AssertEqual(ReadVerificationWord(rom, 0x82baaa + frame * 2), installed, $"menu missile duration {frame}");
     }
 }

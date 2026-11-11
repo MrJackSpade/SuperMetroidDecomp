@@ -20,4 +20,6 @@ internal static class PostCreditsIconGlarePaletteFxColorDefinitionsConstants
     }
     /// <summary>The instruction-list entry at <c>$8D:DF94</c>.</summary>
     public const ushort ProgramStart = 0xdf94;
+    /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
+    public static PaletteFxColorKey Color(int frame, int color) => PostCreditsIconGlarePaletteFxColorDefinitions.ColorFrames.Color(frame, color);
 }

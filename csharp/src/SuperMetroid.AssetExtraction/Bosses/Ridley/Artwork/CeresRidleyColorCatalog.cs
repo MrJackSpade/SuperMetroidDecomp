@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Assets;
@@ -33,12 +34,11 @@ public sealed class CeresRidleyColorCatalog
     /// <param name="bodyFade">The body fade's shades.</param>
     /// <param name="health">The health bands.</param>
     /// <param name="alarm">The alarm steps.</param>
-    /// <param name="retreatBg">The retreat background colours.</param>
-    /// <param name="retreatShared">The retreat shared colours.</param>
+    /// <param name="retreat">The retreat's background and shared colours.</param>
     /// <param name="baby">Each Baby shade's colours.</param>
     /// <exception cref="InvalidDataException">A family is missing a row, a shade or a colour.</exception>
     internal CeresRidleyColorCatalog(RgbColor[] start, RgbColor[][] eyeFade, RgbColor[][] bodyFade, RgbColor[][] health,
-        RgbColor[][] alarm, RgbColor[] retreatBg, RgbColor[] retreatShared, CeresBabyShadeColours baby)
+        RgbColor[][] alarm, CeresRidleyRetreatColours retreat, CeresBabyShadeColours baby)
     {
         this.start = new InstalledColourRows(start, CeresRidleyColorFormat.StartColorCount, "Ceres Ridley start");
         this.eyeFade = new InstalledColourRows(eyeFade, CeresRidleyColorFormat.EyeFadeShadeCount,
@@ -49,8 +49,9 @@ public sealed class CeresRidleyColorCatalog
             CeresRidleyColorFormat.HealthColorCount, "Ceres Ridley health");
         this.alarm = new InstalledColourRows(alarm, CeresRidleyColorFormat.AlarmStepCount,
             CeresRidleyColorFormat.AlarmColorCount, "Ceres Ridley alarm");
-        this.retreatBg = new InstalledColourRows(retreatBg, CeresRidleyColorFormat.RetreatBgColorCount, "Ceres Ridley retreat BG");
-        this.retreatShared = new InstalledColourRows(retreatShared, CeresRidleyColorFormat.RetreatSharedColorCount,
+        Ensure.NotNull(retreat);
+        retreatBg = new InstalledColourRows(retreat.Background, CeresRidleyColorFormat.RetreatBgColorCount, "Ceres Ridley retreat BG");
+        retreatShared = new InstalledColourRows(retreat.Shared, CeresRidleyColorFormat.RetreatSharedColorCount,
             "Ceres Ridley retreat shared");
         this.baby = Enum.GetValues<CeresBabyShade>().ToDictionary(shade => shade,
             shade => new InstalledColourRows(baby.Of(shade), CeresRidleyColorFormat.BabyColorCount, $"Ceres Ridley Baby {shade}"));

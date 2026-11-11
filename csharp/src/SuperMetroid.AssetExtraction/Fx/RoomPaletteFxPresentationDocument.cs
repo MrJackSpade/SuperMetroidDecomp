@@ -40,11 +40,11 @@ public sealed record RoomPaletteFxPresentationDocument
     public required PaletteRgb5[][] BombTorizoBelly { get; init; }
     /// <summary>Gets six three-color belly phases for Golden Torizo, with its own native program identity.</summary>
     public required PaletteRgb5[][] GoldenTorizoBelly { get; init; }
-    /// <summary>Gets eight eight-color grey-out records for the Tourian statues; matching intermediate samples can be derived from the supplied endpoints.</summary>
+    /// <summary>Gets eight eight-color grey-out records for the Tourian statues, each kept as installed.</summary>
     public required PaletteRgb5[][] TourianStatueGrey { get; init; }
     /// <summary>Gets thirteen eight-color records for surface lightning, including the long neutral holds and brief flashes defined by the native program.</summary>
     public required PaletteRgb5[][] CrateriaSurfaceLightning { get; init; }
-    /// <summary>Gets fourteen seven-color records for the distinct unused dark-lightning program; independent sample edits remain addressable.</summary>
+    /// <summary>Gets fourteen seven-color records for the distinct unused dark-lightning program, each kept as installed.</summary>
     public required PaletteRgb5[][] CrateriaUnusedDarkLightning { get; init; }
     /// <summary>Gets two single-color records for the Ceres gunship engine-light loop.</summary>
     public required PaletteRgb5[][] CeresGunshipEngineLights { get; init; }
@@ -80,7 +80,7 @@ public sealed record RoomPaletteFxPresentationDocument
     public required PaletteRgb5[][] ZebesExplosionCrust { get; init; }
     /// <summary>Gets eight fifteen-color fade records for the explosion's grey-cloud layer.</summary>
     public required PaletteRgb5[][] ZebesExplosionGreyClouds { get; init; }
-    /// <summary>Gets sixteen sixteen-color gunship fade records; matching intermediate colors can be calculated from the retained endpoint row.</summary>
+    /// <summary>Gets sixteen sixteen-color gunship fade records, each kept as installed.</summary>
     public required PaletteRgb5[][] ZebesExplosionGunship { get; init; }
     /// <summary>Gets nine sixteen-color Power Suit loading records: four two-record groups followed by the terminal palette row.</summary>
     public required PaletteRgb5[][] SamusLoadingPowerSuit { get; init; }
@@ -88,7 +88,7 @@ public sealed record RoomPaletteFxPresentationDocument
     public required PaletteRgb5[][] SamusLoadingVariaSuit { get; init; }
     /// <summary>Gets nine sixteen-color Gravity Suit loading records with the same compiled group timing as the other suits.</summary>
     public required PaletteRgb5[][] SamusLoadingGravitySuit { get; init; }
-    /// <summary>Gets fourteen sixteen-color post-credits icon glare records; matching samples can be derived from the retained base colors.</summary>
+    /// <summary>Gets fourteen sixteen-color post-credits icon glare records, each kept as installed.</summary>
     public required PaletteRgb5[][] PostCreditsIconGlare { get; init; }
     /// <summary>Gets fourteen two-color red-flash records for the Tourian escape shutter, held for six updates per record.</summary>
     public required PaletteRgb5[][] TourianEscapeShutter { get; init; }

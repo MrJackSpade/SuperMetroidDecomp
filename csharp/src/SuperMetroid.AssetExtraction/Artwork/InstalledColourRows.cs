@@ -58,10 +58,4 @@ internal sealed class InstalledColourRows
     /// <summary>The installed colour <paramref name="colour"/> of a single-row table.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The colour is outside the row.</exception>
     internal RgbColor Colour(int colour) => Colour(0, colour);
-
-    /// <summary>A copy of row <paramref name="row"/>'s installed colours.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The row is outside the table.</exception>
-    internal RgbColor[] Row(int row) => (uint)row < (uint)rows.Length
-        ? (RgbColor[])rows[row].Clone()
-        : throw new ArgumentOutOfRangeException(nameof(row));
 }

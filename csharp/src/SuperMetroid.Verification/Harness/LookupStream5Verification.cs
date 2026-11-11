@@ -18,11 +18,9 @@ using SuperMetroid.Verification.Enemies.Magdollite;
 using SuperMetroid.Verification.Enemies.MorphBallEye;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Input;
-using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Areas.Ceres.CeresDoorQuakeDefinitionsVerification;
-using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireMeltingDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Crocomire.Artwork.CrocomireSkeletonArtworkVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
@@ -105,7 +103,7 @@ internal static class LookupStream5Verification
             VerifyInstalledCrocomireMeltingTilemap(oracle, catalog, source, phase == 0
                 ? CrocomireBodyProgram.MeltingOneTopRow : CrocomireBodyProgram.MeltingTwoTopRow);
         }
-        var first = (art ?? throw new InvalidOperationException("Verification requires art.")).first;
+        var first = art.first;
         var second = art.second;
         string expectedIdentity = SelectedPresentationHash.Create("enemy-crocomire-melt-v2", content =>
         {

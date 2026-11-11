@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Text;
 
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 

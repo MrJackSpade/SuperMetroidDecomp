@@ -14,10 +14,12 @@ internal static class PlanetZebesTextPaletteFxColorDefinitionsConstants
     extension(PlanetZebesTextPaletteFxColorDefinitions)
     {
         /// <summary>Each complete one-shot fade lasts 24 frames.</summary>
-        internal static int CycleFrames => PlanetZebesTextPaletteFxColorDefinitions.FrameCount * PlanetZebesTextPaletteFxColorDefinitionsConstants.FrameDuration;
+        internal static int CycleFrames => PlanetZebesTextPaletteFxColorDefinitionsConstants.FrameCount * PlanetZebesTextPaletteFxColorDefinitionsConstants.FrameDuration;
         /// <inheritdoc cref="PlanetZebesTextPaletteFxColorDefinitionsConstants.FadeInDefinition"/>
         internal static ushort FadeInDefinition => PlanetZebesTextPaletteFxColorDefinitionsConstants.FadeInDefinition;
     }
     /// <summary>$8D:C910/C966: CGRAM palette 8 for the cinematic text.</summary>
     internal const int TextPalette = 8;
+    /// <summary>Eight brightness records per fade.</summary>
+    public static int FrameCount => PlanetZebesTextPaletteFxColorDefinitions.All[0].ColorFrames.FrameCount;
 }

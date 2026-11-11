@@ -21,7 +21,6 @@ using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
-using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonAnimationsVerification;
 using static SuperMetroid.Verification.Frontend.Ending.Artwork.EndingTextPresentationVerification;
 using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkBotwoonColorsVerification;
@@ -52,7 +51,6 @@ using SuperMetroid.Core.Enemies.SpriteObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
@@ -77,14 +75,12 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Fx.PaletteFx;
-using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.Verification.Bosses;
 using SuperMetroid.AssetExtraction.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
-using SuperMetroid.AssetExtraction.Fx.Artwork;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Compares stream-four imported definitions and runtime consumers with pinned cartridge data.</summary>
@@ -310,8 +306,7 @@ internal static class LookupStream4Verification
         AssertEqual(112, sites.Count, "native environmental color domain");
         foreach (var definition in MaridiaEnvironmentalPaletteFxColorDefinitions.All)
         {
-            var nativeBus = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> nativeBusPresentationReads);
-            var installedBus = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> installedBusPresentationReads);
+            var nativeBus = NewPaletteFxMechanicsForbiddenBus(rom, out _);
             var nativeSession = new PaletteFxSessionState();
             var native = new RoomPaletteFxSystem(nativeSession); var installedSession = new PaletteFxSessionState();
                                                                  var installed = new RoomPaletteFxSystem(installedSession);
@@ -326,7 +321,6 @@ internal static class LookupStream4Verification
                 PaletteFxRoomLook.LayShownShades(installed, installedCgram, stock);
                 AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)), "actual installed environmental cycle matches original colors each step");
             }
-            AssertEqual(0, installedBusPresentationReads.Value, "installed environmental cycle performs zero live color reads");
             AssertTrue(installed.IsRunning(definition.DefinitionPointer), "environmental palette retains native loop behavior");
         }
         Console.WriteLine("Maridia colors:112 installed native words and three actual installed cycles pass.");

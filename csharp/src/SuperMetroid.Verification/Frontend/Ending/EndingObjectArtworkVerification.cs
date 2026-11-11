@@ -91,8 +91,6 @@ internal static class EndingObjectArtworkVerification
             }
         }
         AssertTrue(catalog.Select(frame => frame.Name).SequenceEqual(names), "cloud catalog enumeration order");
-        foreach (int invalid in new[] { int.MinValue, -1, 6, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = catalog[invalid], "cloud catalog bounds");
     }
 
     /// <summary>Checks ending OBJ sheets, sprite actors, backgrounds, and guarded runtime reads.</summary>

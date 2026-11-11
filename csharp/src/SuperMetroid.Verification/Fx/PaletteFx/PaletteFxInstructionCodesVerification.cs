@@ -1039,7 +1039,7 @@ internal static class PaletteFxInstructionCodesVerification
                      PlanetZebesTextPaletteFxColorDefinitions.All)
             {
                 for (int frame = 0;
-                     frame < PlanetZebesTextPaletteFxColorDefinitions.FrameCount;
+                     frame < PlanetZebesTextPaletteFxColorDefinitionsConstants.FrameCount;
                      frame++)
                 {
                     int offset = source.Offset - unchecked((ushort)(

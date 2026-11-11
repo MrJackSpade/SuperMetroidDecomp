@@ -20,4 +20,6 @@ internal static class ZebesExplosionGunshipPaletteFxColorDefinitionsConstants
     }
     /// <summary>The instruction-list entry at <c>$8D:D6BA</c>.</summary>
     public const ushort ProgramStart = 0xd6ba;
+    /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
+    public static PaletteFxColorKey Color(int frame, int color) => ZebesExplosionGunshipPaletteFxColorDefinitions.ColorFrames.Color(frame, color);
 }

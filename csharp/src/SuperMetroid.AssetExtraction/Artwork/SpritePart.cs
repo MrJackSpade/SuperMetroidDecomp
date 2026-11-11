@@ -78,16 +78,6 @@ public readonly record struct SpritePart(
     public bool FlipsVertically => (Flip & TileFlip.Vertical) != TileFlip.None;
 
     /// <summary>
-    /// <paramref name="x"/> wrapped into the horizontal range a piece may start at: a piece placed past either end of
-    /// that range shows as far in from the other end, as the reflected Ceres stars place their mirror images.
-    /// </summary>
-    public static int WrapX(int x) => ((x - MinimumX) % PlaneWidth + PlaneWidth) % PlaneWidth + MinimumX;
-
-    /// <summary>The piece moved to start at <paramref name="offset"/>, validated as <see cref="Create"/> validates.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The new corner is outside the range a piece may start at.</exception>
-    public SpritePart At(Offset16<ScreenPixels> offset) => Create(offset, Large, Character, Palette, Priority, Flip);
-
-    /// <summary>
     /// The piece as a whole-frame part over artwork whose character 0 is sheet character <paramref name="firstCharacter"/>,
     /// on a screen whose sprites draw at <paramref name="sizes"/>.
     /// </summary>

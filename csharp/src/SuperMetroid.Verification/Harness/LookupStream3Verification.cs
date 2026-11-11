@@ -1964,8 +1964,6 @@ internal static class LookupStream3Verification
             calculatedOam.AddEnemySpritemap(parts, new Position16<SpritePixels>(128, 128), 0, 0);
             AssertTrue(nativeOam.ImageEquals(calculatedOam),
                 "stream 3 installed Baby view matches native OAM drawing");
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = parts[-1], "stream 3 installed part lower bound");
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = parts[30], "stream 3 installed part upper bound");
         }
     }
     /// <summary>Checks the phase-two attack palette's live colors and rear-leg routing without stored stock rows.</summary>

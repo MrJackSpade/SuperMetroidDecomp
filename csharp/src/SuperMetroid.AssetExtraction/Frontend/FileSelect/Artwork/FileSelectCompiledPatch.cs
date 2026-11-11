@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 

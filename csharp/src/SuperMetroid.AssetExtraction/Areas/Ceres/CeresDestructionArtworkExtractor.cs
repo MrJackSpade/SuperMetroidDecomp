@@ -111,9 +111,9 @@ internal static class CeresDestructionArtworkExtractor
             {
                 Id = source.Id,
                 X = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                    CeresCinematicSourceDefinitions.PlacementBank | source.XOperand),
+                    CeresCinematicSourceDefinitions.PlacementBank | source.FirstOperand),
                 Y = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                    CeresCinematicSourceDefinitions.PlacementBank | source.YOperand),
+                    CeresCinematicSourceDefinitions.PlacementBank | source.SecondOperand),
             };
         }
         using var destructionActorsJson = new MemoryStream();

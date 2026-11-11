@@ -20,9 +20,6 @@ public sealed class SamusBodyTileTransfer
         SecondSize = secondSize;
         this.planar = (byte[])planar.Clone();
     }
-
-    /// <summary>Combined byte count of both native VRAM transfers in this definition.</summary>
-    internal int PayloadLength => planar.Length;
     /// <summary>Gets the installed byte count of the first VRAM transfer.</summary>
     public int FirstSize { get; }
     /// <summary>Gets the installed byte count of the optional second VRAM transfer.</summary>

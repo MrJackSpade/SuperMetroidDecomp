@@ -71,8 +71,8 @@ internal static class CeresPlacementSelectorsVerification
             AssertEqual(original[i].Id, CeresDestructionActors.InitialPlacementId(i), "original initial placement selector");
             CinematicPlacementImmediates actual = CeresCinematicSourceDefinitions.DestructionPlacements[i];
             AssertEqual(original[i], actual, "the import reads the original initial placement operands under the Core actor id");
-            VerifyPlacementOperand(rom, actual.XOperand);
-            VerifyPlacementOperand(rom, actual.YOperand);
+            VerifyPlacementOperand(rom, actual.FirstOperand);
+            VerifyPlacementOperand(rom, actual.SecondOperand);
         }
         foreach (int i in new[] { int.MinValue, -1, original.Length, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => CeresDestructionActors.InitialPlacementId(i), "initial selector bounds");

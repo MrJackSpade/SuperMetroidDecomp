@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -22,9 +21,9 @@ public sealed class SamusBodyCharacterArtwork
     private const int HalfRowCharacters = SpriteArtwork.CharactersPerRow / 2;
 
     /// <summary>Upper-body tile definitions grouped by native pointer-table entry.</summary>
-    private readonly SamusBodyTileTransfer[][] top;
+    internal readonly SamusBodyTileTransfer[][] top;
     /// <summary>Lower-body tile definitions grouped by native pointer-table entry.</summary>
-    private readonly SamusBodyTileTransfer[][] bottom;
+    internal readonly SamusBodyTileTransfer[][] bottom;
     /// <summary>Definition lookup by physical record, including cross-group selections.</summary>
     private readonly Dictionary<int, SamusBodyTileTransfer> definitionsByRecord = [];
     /// <summary>Owned ordinal of each definition in authored order (top sets, then bottom sets); the body artwork identity uses it.</summary>
@@ -103,11 +102,6 @@ public sealed class SamusBodyCharacterArtwork
             }
         }
     }
-
-    /// <summary>Gets an upper-body definition group by pointer-table index.</summary>
-    public IReadOnlyList<SamusBodyTileTransfer> TopSet(int set) => top[set];
-    /// <summary>Gets a lower-body definition group by pointer-table index.</summary>
-    public IReadOnlyList<SamusBodyTileTransfer> BottomSet(int set) => bottom[set];
 
     /// <summary>
     /// Samus's 32 body characters as the selected definitions make them visible: each definition's first transfer

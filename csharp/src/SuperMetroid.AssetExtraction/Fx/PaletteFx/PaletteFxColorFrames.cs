@@ -61,15 +61,4 @@ public readonly record struct PaletteFxColorFrames(int FirstRecord, int FrameCou
     public PaletteFxColorKey Color(int frame, int color) => (uint)color < ColorsPerFrame
         ? new(Frame(frame), color)
         : throw new ArgumentOutOfRangeException(nameof(color));
-
-    /// <summary>The frame and colour of <paramref name="key"/> when it belongs to this family.</summary>
-    public bool TryLocate(PaletteFxColorKey key, out int frame, out int color)
-    {
-        frame = key.Record.Record - FirstRecord;
-        color = key.Color;
-        if ((uint)frame < FrameCount && (uint)color < ColorsPerFrame)
-            return true;
-        frame = color = 0;
-        return false;
-    }
 }

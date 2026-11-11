@@ -30,12 +30,14 @@ public static class CeresRidleyColorFile
             CeresRidleyColorFormat.HealthColorCount, "health");
         RgbColor[][] alarm = CompileRows(document.Alarm, CeresRidleyColorFormat.AlarmStepCount,
             CeresRidleyColorFormat.AlarmColorCount, "alarm");
-        RgbColor[] retreatBg = Compile(document.RetreatBg, CeresRidleyColorFormat.RetreatBgColorCount, "retreat BG");
-        RgbColor[] retreatShared = Compile(document.RetreatShared, CeresRidleyColorFormat.RetreatSharedColorCount,
-            "retreat shared");
+        var retreat = new CeresRidleyRetreatColours
+        {
+            Background = Compile(document.RetreatBg, CeresRidleyColorFormat.RetreatBgColorCount, "retreat BG"),
+            Shared = Compile(document.RetreatShared, CeresRidleyColorFormat.RetreatSharedColorCount, "retreat shared"),
+        };
         CeresBabyShadeColours baby = CompileShades(document.BabyShades
             ?? throw new InvalidDataException("Ceres Ridley Baby requires its shades."));
-        return new CeresRidleyColorCatalog(start, eyeFade, bodyFade, health, alarm, retreatBg, retreatShared, baby);
+        return new CeresRidleyColorCatalog(start, eyeFade, bodyFade, health, alarm, retreat, baby);
     }
 
     /// <summary>Serializes a complete current-version color document as indented camel-case UTF-8 JSON.</summary>

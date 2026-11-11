@@ -22,5 +22,7 @@ internal static class MaridiaEnvironmentalPaletteFxColorDefinitionAccess
         /// <summary>Bytes from a duration word through its terminal wait command.</summary>
         public int FrameByteCount =>
             sizeof(ushort) + self.ColorsPerFrame * sizeof(ushort) + sizeof(ushort);
+        /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
+        public PaletteFxColorKey Color(int frame, int color) => self.ColorFrames.Color(frame, color);
     }
 }

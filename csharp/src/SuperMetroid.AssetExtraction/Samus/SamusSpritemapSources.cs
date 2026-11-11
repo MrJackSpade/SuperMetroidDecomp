@@ -177,13 +177,6 @@ public sealed class SamusSpritemapSources
         return TryGetFrame(EntryIndex(halfFrame), out frame);
     }
 
-    /// <summary>Returns false only for an entry with no composition, which draws nothing.</summary>
-    public bool TryGet(int index, [NotNullWhen(true)] out SamusSpritemapDefinition? definition)
-    {
-        definition = TryGetEntry(index, out SamusSpritemapId composition) ? definitions[composition.Ordinal] : null;
-        return definition is not null;
-    }
-
     /// <summary>Requires <paramref name="index"/> to be a table entry.</summary>
     private static int Checked(int index) => index is < 0 or >= EntryCount
         ? throw new InvalidDataException($"Samus spritemap index {index} is outside extracted art.")

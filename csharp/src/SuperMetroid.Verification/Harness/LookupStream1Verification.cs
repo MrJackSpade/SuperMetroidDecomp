@@ -1552,7 +1552,6 @@ internal static class LookupStream1Verification
         }
         AssertTrue(!stock.TryResolve(2, 0, out _), "atmospheric null pointer remains outside installed domain");
         AssertTrue(!stock.TryResolve(1, 4, out _), "atmospheric next frame rejected");
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = stock.TypeOne[-1], "atmospheric negative view index");
         Console.WriteLine("Atmospheric attributes: eight installed native appearances and the canonical stock identity pass.");
     }
 

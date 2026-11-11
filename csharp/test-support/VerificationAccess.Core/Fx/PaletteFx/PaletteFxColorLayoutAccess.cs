@@ -314,7 +314,7 @@ internal static class ZebesExplosionGunshipPaletteFxColorDefinitionsLayoutAccess
         internal static ushort FramePointer(int frame) => PaletteFxColorLayoutAccess.RecordAddress(ZebesExplosionGunshipPaletteFxColorDefinitions.ColorFrames.Frame(frame));
 
         /// <summary>The bank-$8D address of colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-        internal static ushort ColorPointer(int frame, int color) => PaletteFxColorLayoutAccess.ColorAddress(ZebesExplosionGunshipPaletteFxColorDefinitions.Color(frame, color));
+        internal static ushort ColorPointer(int frame, int color) => PaletteFxColorLayoutAccess.ColorAddress(ZebesExplosionGunshipPaletteFxColorDefinitionsConstants.Color(frame, color));
     }
 }
 
@@ -348,7 +348,7 @@ internal static class PostCreditsIconGlarePaletteFxColorDefinitionsLayoutAccess
         internal static ushort FramePointer(int frame) => PaletteFxColorLayoutAccess.RecordAddress(PostCreditsIconGlarePaletteFxColorDefinitions.ColorFrames.Frame(frame));
 
         /// <summary>The bank-$8D address of colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-        internal static ushort ColorPointer(int frame, int color) => PaletteFxColorLayoutAccess.ColorAddress(PostCreditsIconGlarePaletteFxColorDefinitions.Color(frame, color));
+        internal static ushort ColorPointer(int frame, int color) => PaletteFxColorLayoutAccess.ColorAddress(PostCreditsIconGlarePaletteFxColorDefinitionsConstants.Color(frame, color));
     }
 }
 
@@ -365,7 +365,7 @@ internal static class TourianStatueGreyPaletteFxColorDefinitionsLayoutAccess
         internal static ushort FramePointer(int frame) => PaletteFxColorLayoutAccess.RecordAddress(TourianStatueGreyPaletteFxColorDefinitions.ColorFrames.Frame(frame));
 
         /// <summary>The bank-$8D address of colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-        internal static ushort ColorPointer(int frame, int color) => PaletteFxColorLayoutAccess.ColorAddress(TourianStatueGreyPaletteFxColorDefinitions.Color(frame, color));
+        internal static ushort ColorPointer(int frame, int color) => PaletteFxColorLayoutAccess.ColorAddress(TourianStatueGreyPaletteFxColorDefinitionsConstants.Color(frame, color));
     }
 }
 

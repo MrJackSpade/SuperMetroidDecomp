@@ -11,7 +11,7 @@ using SuperMetroid.AssetExtraction.Bosses.Torizo;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 
 /// <summary>
-/// #1289: Bomb and Golden Torizo's typed body programs against the retail cartridge. Each program must match its
+/// #1289, #1600: Bomb and Golden Torizo's typed body animations against the retail cartridge. Each segment must match its
 /// native bank-$AA list step by step: every frame's duration and spritemap, every common command, every Torizo
 /// instruction's cue and operands, every tile transfer's descriptor, and the fixed sleeps two callbacks schedule.
 /// </summary>
@@ -26,44 +26,50 @@ internal static class TorizoAnimationsVerification
     /// <summary>The bytes a common $814B tile transfer occupies: its opcode word and seven-byte descriptor.</summary>
     private const int TileTransferBytes = 9;
 
-    /// <summary>Every body program matches its native list.</summary>
+    /// <summary>Every body segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifyTorizoAnimations(SuperMetroidAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
-        AssertEqual(Enum.GetValues<TorizoBodyProgram>().Length, BodyEntries.Length, "every typed Torizo body program has a native entry");
+        AssertEqual(Enum.GetValues<TorizoBodyProgram>().Length, BodyEntries.Length, "every typed Torizo body segment has a native entry");
         for (int index = 0; index < BodyEntries.Length; index++)
-            AssertEqual((TorizoBodyProgram)index, BodyEntries[index].Program, "the Torizo body programs are declared in authored order");
+            AssertEqual((TorizoBodyProgram)index, BodyEntries[index].Program, "the Torizo body segments are declared in authored order");
         AssertTrue(BodyEntries.Zip(BodyEntries.Skip(1), (first, second) => first.Entry < second.Entry).All(ascends => ascends), "native Torizo body entries ascend");
-        int steps = 0;
-        foreach ((TorizoBodyProgram program, ushort entry) in BodyEntries)
-            steps += CompareBodyProgram(cartridge, program, entry);
-        VerifyResumedSleeps(cartridge);
+        Dictionary<TorizoBodyProgram, NativeEnemyList<TorizoBodyProgram>> lists = BodyEntries.ToDictionary(entry => entry.Program,
+            entry => ReadBodyList(cartridge, entry.Program, entry.Entry));
+        NativeEnemyAnimationOracle.CompareAnimations(lists, TorizoAnimations.StartingAt);
+        int beats = lists.Values.Sum(list => list.BeatAddresses.Length);
+        VerifyResumedSleeps(cartridge, lists);
         var poses = new HashSet<ushort>(Enumerable.Range(0, TorizoFrameDefinitionsConstants.PoseCount)
             .Select(pose => TorizoFrameDefinitionsConstants.Spritemap(new TorizoFrame(pose))));
         AssertEqual(TorizoFrameDefinitionsConstants.PoseCount, poses.Count, "every Torizo pose shows a distinct spritemap");
-        AssertTrue(poses.SetEquals(TorizoAnimationsConstants.Spritemaps(TorizoAnimationsConstants.AllPrograms)), "the body programs show every Torizo pose");
+        AssertTrue(poses.SetEquals(TorizoAnimationsConstants.Spritemaps(TorizoAnimationsConstants.AllPrograms)), "the body segments show every Torizo pose");
         AssertTrue(poses.SetEquals(TorizoCollisionDefinitions.FramePointers), "every Torizo pose has its physical frame");
-        Console.WriteLine($"  Torizo programs: {BodyEntries.Length} body programs ({steps} steps, {poses.Count} poses) match bank $AA.");
+        Console.WriteLine($"  Torizo animations: {BodyEntries.Length} body segments ({beats} beats, {poses.Count} poses) and {TorizoAnimations.StartingAt.Count} animations match bank $AA.");
     }
 
-    /// <summary>Compares one body program with its native list and returns its step count.</summary>
-    private static int CompareBodyProgram(IImportCartridgeSource cartridge, TorizoBodyProgram program, ushort entry)
+    /// <summary>
+    /// Reads one body segment's native list, comparing its beats with the segment's: each frame, wait, tile transfer and
+    /// Torizo instruction (with the fixed sleep two callbacks schedule, a wait beat at the instruction after the callback),
+    /// and each control instruction with its address and the beat it follows.
+    /// </summary>
+    private static NativeEnemyList<TorizoBodyProgram> ReadBodyList(IImportCartridgeSource cartridge, TorizoBodyProgram program, ushort entry)
     {
-        var steps = TorizoAnimations.Programs.Steps(program);
+        IReadOnlyList<AnimationBeat<TorizoFrame, TorizoCue>> beats = TorizoAnimations.Segments.Beats(program);
+        var addresses = new List<ushort>();
+        var controls = new List<NativeEnemyControl<TorizoBodyProgram>>();
         ushort cursor = entry;
-        int index = 0;
-        AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue> Next(string what)
+        AnimationBeat<TorizoFrame, TorizoCue> Next(string what)
         {
-            AssertTrue(index < steps.Count, $"Torizo {program} has a step for native {what} at $AA:{cursor:X4}");
-            return steps[index++];
+            AssertTrue(addresses.Count < beats.Count, $"Torizo {program} has a beat for native {what} at $AA:{cursor:X4}");
+            addresses.Add(cursor);
+            return beats[addresses.Count - 1];
         }
         while (true)
         {
             string at = $"Torizo {program} at $AA:{cursor:X4}";
             if (cursor != entry && ProgramAt(cursor) is { } following)
             {
-                var fall = AssertIs<AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.FallIntoStep>(Next("fall-through"), $"{at}: runs on into the next authored program");
-                AssertEqual(following, fall.Target, $"{at}: fall-through target");
+                controls.Add(new(NativeEnemyControlKind.RunOnIntoNext, addresses.Count, following, null, cursor));
                 break;
             }
             int address = (BodyBankNumber << 16) | cursor;
@@ -71,8 +77,8 @@ internal static class TorizoAnimationsVerification
             ushort operand = cartridge.ReadCartridgeWord(address + 2);
             if (ClassifyBodyWord(word) == BodyWordKind.TileTransfer)
             {
-                var copyStep = AssertIs<AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.CueStep>(Next("tile transfer"), $"{at}: tile transfer");
-                var copy = AssertIs<TorizoCue.ShowArtwork>(copyStep.Cue, $"{at}: artwork swap cue");
+                var copyBeat = AssertIs<AnimationBeat<TorizoFrame, TorizoCue>.Event>(Next("tile transfer"), $"{at}: tile transfer");
+                var copy = AssertIs<TorizoCue.ShowArtwork>(copyBeat.Raised, $"{at}: artwork swap cue");
                 TorizoArtworkSwapDefinition transfer = TorizoArtworkSwapPageDefinitions.Entries[copy.Swap.Ordinal];
                 AssertEqual(cursor, TorizoArtworkSwapDefinitions.Sites[copy.Swap.Ordinal].Instruction, $"{at}: tile transfer descriptor");
                 AssertEqual(transfer.ByteCount, cartridge.ReadCartridgeWord(address + 2), $"{at}: tile transfer size");
@@ -85,41 +91,36 @@ internal static class TorizoAnimationsVerification
             {
                 case NativeEnemyListDefinitions.WordKind.Frame:
                 {
-                    var show = AssertIs<AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.ShowStep>(Next("frame"), $"{at}: frame");
+                    var show = AssertIs<AnimationBeat<TorizoFrame, TorizoCue>.Frame>(Next("frame"), $"{at}: frame");
                     AssertEqual(word, show.Duration, $"{at}: duration");
-                    AssertEqual(operand, TorizoFrameDefinitionsConstants.Spritemap(show.Frame), $"{at}: spritemap");
+                    AssertEqual(operand, TorizoFrameDefinitionsConstants.Spritemap(show.Shown), $"{at}: spritemap");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 }
                 case NativeEnemyListDefinitions.WordKind.Sleep:
-                    _ = AssertIs<AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.HoldStep>(Next("sleep"), $"{at}: sleep");
+                    controls.Add(new(NativeEnemyControlKind.Sleep, addresses.Count, null, null, cursor));
                     break;
                 case NativeEnemyListDefinitions.WordKind.Stop:
-                    _ = AssertIs<AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.StopStep>(Next("stop"), $"{at}: stop");
+                    controls.Add(new(NativeEnemyControlKind.Stop, addresses.Count, null, null, cursor));
                     break;
                 case NativeEnemyListDefinitions.WordKind.GoTo:
-                {
-                    var jump = AssertIs<AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.GoToStep>(Next("goto"), $"{at}: goto");
-                    AssertEqual(operand, Entry(jump.Target), $"{at}: goto target");
+                    controls.Add(new(NativeEnemyControlKind.Goto, addresses.Count, SegmentAt(operand, at), null, cursor));
                     break;
-                }
                 case NativeEnemyListDefinitions.WordKind.SetCounter:
-                {
-                    var load = AssertIs<AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.SetCounterStep>(Next("counter load"), $"{at}: counter load");
-                    AssertEqual(operand, load.Count, $"{at}: counter");
+                    controls.Add(new(NativeEnemyControlKind.SetCounter, addresses.Count, null, operand, cursor));
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
-                }
                 case NativeEnemyListDefinitions.WordKind.RepeatWhileCounting:
                 {
-                    var repeat = AssertIs<AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.RepeatWhileCountingStep>(Next("counted repeat"), $"{at}: counted repeat");
-                    AssertEqual(operand, Entry(repeat.Target), $"{at}: repeat target");
+                    TorizoBodyProgram repeated = SegmentAt(operand, at);
+                    AssertEqual(program, repeated, $"{at}: a counted repeat replays its own list");
+                    controls.Add(new(NativeEnemyControlKind.Repeat, addresses.Count, repeated, null, cursor));
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 }
                 case NativeEnemyListDefinitions.WordKind.Wait:
                 {
-                    var wait = AssertIs<AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.WaitStep>(Next("wait"), $"{at}: wait");
+                    var wait = AssertIs<AnimationBeat<TorizoFrame, TorizoCue>.Pause>(Next("wait"), $"{at}: wait");
                     AssertEqual(operand, wait.Duration, $"{at}: wait length");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
@@ -127,7 +128,7 @@ internal static class TorizoAnimationsVerification
                 case NativeEnemyListDefinitions.WordKind.Callback:
                 {
                     AssertTrue(BodyInstructions.TryGetValue(word, out var instruction), $"{at}: native instruction ${word:X4} is known");
-                    TorizoCue cue = AssertIs<AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.CueStep>(Next("instruction"), $"{at}: instruction").Cue;
+                    TorizoCue cue = AssertIs<AnimationBeat<TorizoFrame, TorizoCue>.Event>(Next("instruction"), $"{at}: instruction").Raised;
                     instruction.Cue.Check(cue, at);
                     for (int operandIndex = 0; operandIndex < instruction.Operands.Length; operandIndex++)
                     {
@@ -170,15 +171,15 @@ internal static class TorizoAnimationsVerification
                     };
                     if (sleep is { } updates)
                     {
-                        var wait = AssertIs<AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.WaitStep>(Next("callback sleep"), $"{at}: the callback's sleep");
+                        var wait = AssertIs<AnimationBeat<TorizoFrame, TorizoCue>.Pause>(Next("callback sleep"), $"{at}: the callback's sleep");
                         AssertEqual(updates, wait.Duration, $"{at}: the callback's sleep length");
                     }
-                    // A return always redirects and saves no return point: where the native list ends, a hold closes
-                    // the program, and where the next program starts, the unreached step runs on into it. A call saves
-                    // the step after it, so its list always runs on.
+                    // A return always redirects and saves no return point: where the native list ends, the animation
+                    // holds there, and where the next list starts, the unreached end runs on into it. A call saves the
+                    // place after it, so its list always runs on.
                     if (cue is TorizoCue.Command { Kind: TorizoCueKind.Return or TorizoCueKind.ResumeInterrupted } && ProgramAt(cursor) is null)
                     {
-                        _ = AssertIs<AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.HoldStep>(Next("redirect"), $"{at}: closes after its redirect");
+                        controls.Add(new(NativeEnemyControlKind.Sleep, addresses.Count, null, null, cursor));
                         break;
                     }
                     continue;
@@ -188,21 +189,24 @@ internal static class TorizoAnimationsVerification
             }
             break;
         }
-        AssertEqual(steps.Count, index, $"Torizo {program} ends where its native list does");
-        return steps.Count;
+        AssertEqual(beats.Count, addresses.Count, $"Torizo {program} holds each of its beats in its native list");
+        return new NativeEnemyList<TorizoBodyProgram>([.. addresses], [.. controls]);
     }
+
+    /// <summary>The body segment whose native list starts at <paramref name="address"/>, failing when none does.</summary>
+    private static TorizoBodyProgram SegmentAt(ushort address, string at) =>
+        ProgramAt(address) ?? throw new InvalidDataException($"{at}: ${address:X4} is no body segment's native entry.");
 
     /// <summary>
     /// The AI resumes a sleeping list by stepping its pointer past the sleep; <see cref="TorizoAnimations.AfterSleep"/>
-    /// must name the program that starts there.
+    /// must name the segment that starts there.
     /// </summary>
-    private static void VerifyResumedSleeps(IImportCartridgeSource cartridge)
+    private static void VerifyResumedSleeps(IImportCartridgeSource cartridge, Dictionary<TorizoBodyProgram, NativeEnemyList<TorizoBodyProgram>> lists)
     {
         int resumed = 0;
         foreach ((TorizoBodyProgram program, ushort entry) in BodyEntries)
         {
-            var steps = TorizoAnimations.Programs.Steps(program);
-            if (steps[^1] is not AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.HoldStep)
+            if (lists[program].Controls.LastOrDefault() is not { Kind: NativeEnemyControlKind.Sleep })
                 continue;
             ushort? sleep = SleepAddress(cartridge, entry);
             if (sleep is not { } address || ProgramAt(unchecked((ushort)(address + 2))) is not { } next)

@@ -30,14 +30,14 @@ public sealed class TorizoEnemyState
     /// <summary>Persistent target colors and numerator shared by awakening and death fades.</summary>
     internal TorizoColours Colours { get; } = new();
 
-    /// <summary>The body program's cursor.</summary>
-    internal AnimationProgramCursor<TorizoBodyProgram> BodyProgram { get; set; }
+    /// <summary>The body animation playing and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<TorizoBodyProgram> BodyPlayback { get; set; }
 
-    /// <summary><c>toriz_var_00</c>: the body program's return/landing point.</summary>
-    internal AnimationProgramCursor<TorizoBodyProgram> ReturnCursor { get; set; }
+    /// <summary><c>toriz_var_00</c>: where the body's play returns or lands: a call's return point, or a landing's animation.</summary>
+    internal AnimationPlayback<TorizoBodyProgram> ReturnPlayback { get; set; }
 
-    /// <summary><c>toriz_var_01</c>: the body program the gut explosion interrupted, restored afterwards.</summary>
-    internal AnimationProgramCursor<TorizoBodyProgram> InterruptedCursor { get; set; }
+    /// <summary><c>toriz_var_01</c>: where the gut explosion interrupted the body's play, resumed afterwards.</summary>
+    internal AnimationPlayback<TorizoBodyProgram> InterruptedPlayback { get; set; }
 
     /// <summary><c>toriz_var_03</c>: delayed in-air transition counter.</summary>
     public int AirTransitionTimer { get; internal set; }

@@ -8,15 +8,14 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <summary>Bomb Torizo's programs while it faces left: turning, walking, attacks, jumps and falls, with its face and without.</summary>
 internal static class TorizoFacingLeftPrograms
 {
-    /// <summary>Each program and its steps.</summary>
-    internal static Dictionary<TorizoBodyProgram, AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>[]> Programs { get; } = new()
+    /// <summary>Each segment and its beats.</summary>
+    internal static Dictionary<TorizoBodyProgram, AnimationBeat<TorizoFrame, TorizoCue>[]> Segments { get; } = new()
     {
         [P.FacingLeftTurningLeft] =
         [
             Cue(new TorizoCue.SetFunction(Function: TorizoFunction.Falling)),
             Cue(new TorizoCue.Command(K.SetTurningAround)),
             Show(1, 24),
-            FallInto(P.FacingLeftWalkingRightLegMoving),
         ],
         [P.FacingLeftWalkingRightLegMoving] =
         [
@@ -40,7 +39,6 @@ internal static class TorizoFacingLeftPrograms
             Cue(new TorizoCue.Walk(TorizoWalkKind.WalkBombTorizo, Step: 4)),
             Show(6, 6),
             Cue(new TorizoCue.Walk(TorizoWalkKind.WalkBombTorizo, Step: 5)),
-            FallInto(P.FacingLeftWalkingLeftLegMoving),
         ],
         [P.FacingLeftWalkingLeftLegMoving] =
         [
@@ -64,7 +62,6 @@ internal static class TorizoFacingLeftPrograms
             Cue(new TorizoCue.Walk(TorizoWalkKind.WalkBombTorizo, Step: 9)),
             Show(11, 6),
             Cue(new TorizoCue.Walk(TorizoWalkKind.WalkBombTorizo, Step: 0)),
-            GoTo(P.FacingLeftWalkingRightLegMoving),
         ],
         [P.FacingLeftSpewingChozoOrbsRightFootFwd0] =
         [
@@ -76,21 +73,17 @@ internal static class TorizoFacingLeftPrograms
             Show(16, 8),
             Show(17, 16),
             Cue(new TorizoCue.Command(K.PlayShotSound)),
-            SetCounter(3),
-            FallInto(P.FacingLeftSpewingChozoOrbsRightFootFwd1),
         ],
         [P.FacingLeftSpewingChozoOrbsRightFootFwd1] =
         [
             Cue(new TorizoCue.Command(K.SpawnBombTorizoChozoOrbs)),
             Wait(16),
-            RepeatWhileCounting(P.FacingLeftSpewingChozoOrbsRightFootFwd1),
             Show(16, 8),
             Show(15, 8),
             Show(14, 8),
             Show(13, 72),
             Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.AirTransition)),
             Cue(new TorizoCue.Command(K.Return)),
-            FallInto(P.FacingLeftSpewingChozoOrbsLeftFootFwd0),
         ],
         [P.FacingLeftSpewingChozoOrbsLeftFootFwd0] =
         [
@@ -102,27 +95,21 @@ internal static class TorizoFacingLeftPrograms
             Show(22, 8),
             Show(23, 16),
             Cue(new TorizoCue.Command(K.PlayShotSound)),
-            SetCounter(3),
-            FallInto(P.FacingLeftSpewingChozoOrbsLeftFootFwd1),
         ],
         [P.FacingLeftSpewingChozoOrbsLeftFootFwd1] =
         [
             Cue(new TorizoCue.Command(K.SpawnBombTorizoChozoOrbs)),
             Wait(16),
-            RepeatWhileCounting(P.FacingLeftSpewingChozoOrbsLeftFootFwd1),
             Show(22, 8),
             Show(21, 8),
             Show(20, 8),
             Show(19, 72),
             Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.AirTransition)),
             Cue(new TorizoCue.Command(K.Return)),
-            FallInto(P.FacingLeftSonicBoomsRightFootForward0),
         ],
         [P.FacingLeftSonicBoomsRightFootForward0] =
         [
             Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.Gravity)),
-            SetCounter(4),
-            FallInto(P.FacingLeftSonicBoomsRightFootForward1),
         ],
         [P.FacingLeftSonicBoomsRightFootForward1] =
         [
@@ -148,16 +135,12 @@ internal static class TorizoFacingLeftPrograms
             Cue(new TorizoCue.ParameterizedSpawn(TorizoParameterizedSpawnKind.SpawnBombTorizoSonicBoom, Parameter: 1)),
             Show(30, 2),
             Show(29, 56),
-            RepeatWhileCounting(P.FacingLeftSonicBoomsRightFootForward1),
             Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.AirTransition)),
             Cue(new TorizoCue.Command(K.Return)),
-            FallInto(P.FacingLeftSonicBoomsLeftFootForward0),
         ],
         [P.FacingLeftSonicBoomsLeftFootForward0] =
         [
             Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.Gravity)),
-            SetCounter(4),
-            FallInto(P.FacingLeftSonicBoomsLeftFootForward1),
         ],
         [P.FacingLeftSonicBoomsLeftFootForward1] =
         [
@@ -183,10 +166,8 @@ internal static class TorizoFacingLeftPrograms
             Cue(new TorizoCue.ParameterizedSpawn(TorizoParameterizedSpawnKind.SpawnBombTorizoSonicBoom, Parameter: 1)),
             Show(40, 2),
             Show(39, 56),
-            RepeatWhileCounting(P.FacingLeftSonicBoomsLeftFootForward1),
             Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.AirTransition)),
             Cue(new TorizoCue.Command(K.Return)),
-            FallInto(P.FacingLeftExplosiveSwipeRightFootForward),
         ],
         [P.FacingLeftExplosiveSwipeRightFootForward] =
         [
@@ -223,7 +204,6 @@ internal static class TorizoFacingLeftPrograms
             Show(29, 16),
             Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.AirTransition)),
             Cue(new TorizoCue.Command(K.Return)),
-            FallInto(P.FacingLeftExplosiveSwipeLeftFootForward),
         ],
         [P.FacingLeftExplosiveSwipeLeftFootForward] =
         [
@@ -260,7 +240,6 @@ internal static class TorizoFacingLeftPrograms
             Show(39, 16),
             Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.AirTransition)),
             Cue(new TorizoCue.Command(K.Return)),
-            FallInto(P.FacingLeftJumpingForwards0),
         ],
         [P.FacingLeftJumpingForwards0] =
         [
@@ -268,31 +247,26 @@ internal static class TorizoFacingLeftPrograms
             Cue(new TorizoCue.Branch(TorizoBranchKind.Link, Target: P.FacingLeftFalling0)),
             Show(100, 5),
             Show(101, 5),
-            FallInto(P.FacingLeftJumpingForwards1),
         ],
         [P.FacingLeftJumpingForwards1] =
         [
             Show(102, 1),
             Cue(new TorizoCue.Branch(TorizoBranchKind.GoToIfRising, Target: P.FacingLeftJumpingForwards1)),
-            FallInto(P.FacingLeftFalling0),
         ],
         [P.FacingLeftFalling0] =
         [
             Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.Jump)),
             Cue(new TorizoCue.Branch(TorizoBranchKind.Link, Target: P.FacingLeftFalling2)),
-            FallInto(P.FacingLeftFalling1),
         ],
         [P.FacingLeftFalling1] =
         [
             Show(101, 5),
-            GoTo(P.FacingLeftFalling1),
         ],
         [P.FacingLeftFalling2] =
         [
             Cue(new TorizoCue.Command(K.PlayFootstepSound)),
             Cue(new TorizoCue.Command(K.SpawnLandingDust)),
             Cue(new TorizoCue.Choice(TorizoChoiceKind.GoToIfFaceBlownUpElseIfGolden, Target: P.FacingLeftFacelessWalkingLeftLegMoving, Alternate: P.GoldenWalkingLeftLeftLegMoving)),
-            GoTo(P.FacingLeftWalkingLeftLegMoving),
         ],
         [P.FacingLeftJumpingBackwardLandLeftFootFwd0] =
         [
@@ -300,24 +274,20 @@ internal static class TorizoFacingLeftPrograms
             Cue(new TorizoCue.Branch(TorizoBranchKind.Link, Target: P.FacingLeftJumpingBackwardLandLeftFootFwd2)),
             Show(100, 5),
             Show(101, 5),
-            FallInto(P.FacingLeftJumpingBackwardLandLeftFootFwd1),
         ],
         [P.FacingLeftJumpingBackwardLandLeftFootFwd1] =
         [
             Show(102, 1),
             Cue(new TorizoCue.Branch(TorizoBranchKind.GoToIfRising, Target: P.FacingLeftJumpingBackwardLandLeftFootFwd1)),
-            FallInto(P.FacingLeftJumpingBackwardLandLeftFootFwd2),
         ],
         [P.FacingLeftJumpingBackwardLandLeftFootFwd2] =
         [
             Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.Jump)),
             Cue(new TorizoCue.Branch(TorizoBranchKind.Link, Target: P.FacingLeftJumpingBackwardLandLeftFootFwd4)),
-            FallInto(P.FacingLeftJumpingBackwardLandLeftFootFwd3),
         ],
         [P.FacingLeftJumpingBackwardLandLeftFootFwd3] =
         [
             Show(101, 5),
-            GoTo(P.FacingLeftJumpingBackwardLandLeftFootFwd3),
         ],
         [P.FacingLeftJumpingBackwardLandLeftFootFwd4] =
         [
@@ -325,7 +295,6 @@ internal static class TorizoFacingLeftPrograms
             Cue(new TorizoCue.Command(K.SpawnLandingDust)),
             Cue(new TorizoCue.Choice(TorizoChoiceKind.GoToIfFaceBlownUpElseIfGolden, Target: P.FacingLeftFacelessWalkingRightLegMoving, Alternate: P.GoldenLandedFromBackwardsJumpFacingLeftLeftFootFwd)),
             Cue(new TorizoCue.Choice(TorizoChoiceKind.CallBombTorizoAttack, Target: P.FacingLeftSpewingChozoOrbsLeftFootFwd0, Alternate: P.FacingLeftSonicBoomsLeftFootForward0)),
-            GoTo(P.FacingLeftWalkingRightLegMoving),
         ],
         [P.FacingLeftJumpingBackwardRightFootFwd0] =
         [
@@ -333,24 +302,20 @@ internal static class TorizoFacingLeftPrograms
             Cue(new TorizoCue.Branch(TorizoBranchKind.Link, Target: P.FacingLeftJumpingBackwardRightFootFwd2)),
             Show(100, 5),
             Show(101, 5),
-            FallInto(P.FacingLeftJumpingBackwardRightFootFwd1),
         ],
         [P.FacingLeftJumpingBackwardRightFootFwd1] =
         [
             Show(102, 1),
             Cue(new TorizoCue.Branch(TorizoBranchKind.GoToIfRising, Target: P.FacingLeftJumpingBackwardRightFootFwd1)),
-            FallInto(P.FacingLeftJumpingBackwardRightFootFwd2),
         ],
         [P.FacingLeftJumpingBackwardRightFootFwd2] =
         [
             Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.Jump)),
             Cue(new TorizoCue.Branch(TorizoBranchKind.Link, Target: P.FacingLeftJumpingBackwardRightFootFwd4)),
-            FallInto(P.FacingLeftJumpingBackwardRightFootFwd3),
         ],
         [P.FacingLeftJumpingBackwardRightFootFwd3] =
         [
             Show(101, 5),
-            GoTo(P.FacingLeftJumpingBackwardRightFootFwd3),
         ],
         [P.FacingLeftJumpingBackwardRightFootFwd4] =
         [
@@ -358,14 +323,12 @@ internal static class TorizoFacingLeftPrograms
             Cue(new TorizoCue.Command(K.SpawnLandingDust)),
             Cue(new TorizoCue.Choice(TorizoChoiceKind.GoToIfFaceBlownUpElseIfGolden, Target: P.FacingLeftFacelessWalkingLeftLegMoving, Alternate: P.GoldenLandedFromBackwardsJumpFacingLeftRightFootFwd)),
             Cue(new TorizoCue.Choice(TorizoChoiceKind.CallBombTorizoAttack, Target: P.FacingLeftSpewingChozoOrbsRightFootFwd0, Alternate: P.FacingLeftSonicBoomsRightFootForward0)),
-            GoTo(P.FacingLeftWalkingLeftLegMoving),
         ],
         [P.FacingLeftFacelessTurningLeft] =
         [
             Cue(new TorizoCue.SetFunction(Function: TorizoFunction.Falling)),
             Cue(new TorizoCue.Command(K.SetTurningAround)),
             Show(1, 8),
-            FallInto(P.FacingLeftFacelessWalkingRightLegMoving),
         ],
         [P.FacingLeftFacelessWalkingRightLegMoving] =
         [
@@ -385,7 +348,6 @@ internal static class TorizoFacingLeftPrograms
             Cue(new TorizoCue.Walk(TorizoWalkKind.WalkFacelessBombTorizo, Step: 4)),
             Show(6, 5),
             Cue(new TorizoCue.Walk(TorizoWalkKind.WalkFacelessBombTorizo, Step: 5)),
-            FallInto(P.FacingLeftFacelessWalkingLeftLegMoving),
         ],
         [P.FacingLeftFacelessWalkingLeftLegMoving] =
         [
@@ -405,14 +367,12 @@ internal static class TorizoFacingLeftPrograms
             Cue(new TorizoCue.Walk(TorizoWalkKind.WalkFacelessBombTorizo, Step: 9)),
             Show(11, 5),
             Cue(new TorizoCue.Walk(TorizoWalkKind.WalkFacelessBombTorizo, Step: 0)),
-            GoTo(P.FacingLeftFacelessWalkingRightLegMoving),
         ],
         [P.FacingLeftFacelessWalkingLeftLegMovingTrailing] =
         [
             Cue(new TorizoCue.Command(K.SteppedRightWithLeftFoot)),
             Show(0, 1),
             Cue(new TorizoCue.SetFunction(Function: TorizoFunction.WaitForHandTrigger)),
-            Hold,
         ],
         [P.FacingLeftFacelessWalkingLeftLegMovingTrailingResumed] =
         [
@@ -430,7 +390,6 @@ internal static class TorizoFacingLeftPrograms
             Show(98, 8),
             Cue(new TorizoCue.Posture(TorizoPostureKind.StandUp, Step: 13)),
             Show(99, 8),
-            GoTo(P.FacingRightWalkingRightLegMoving),
         ],
     };
 }

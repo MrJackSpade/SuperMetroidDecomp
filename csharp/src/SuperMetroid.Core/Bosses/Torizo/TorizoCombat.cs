@@ -123,7 +123,7 @@ internal sealed class TorizoCombat
             return;
         state.DeathStarted = true;
         state.Function = TorizoFunction.Idle;
-        TorizoBody.StartTorizoBodyProgram(torizo, state, AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.DeathSequence0));
+        TorizoBody.StartTorizoBodyProgram(torizo, state, TorizoAnimations.Start(TorizoBodyProgram.DeathSequence0));
         SetBehavior(torizo, TorizoBehaviorFlags.GutBlownUp | TorizoBehaviorFlags.FaceBlownUp);
         // The normal Torizo shot reaction makes the actor intangible when
         // entering the death stream. This removes the dying actor from Samus contact and
@@ -238,7 +238,7 @@ internal sealed class TorizoCombat
                 c.Projectile.IsSpent = false;
                 torizoState.Function = TorizoFunction.Idle;
                 enemy.FrameHold = WrappingCountdown.Start(1);
-                _access.RequireBombTorizoState(enemy).BodyProgram = AnimationProgramCursor<TorizoBodyProgram>.Start(_access.FacesRight(enemy)
+                _access.RequireBombTorizoState(enemy).BodyPlayback = TorizoAnimations.Start(_access.FacesRight(enemy)
                     ? TorizoBodyProgram.GoldenDodgeTurningRight
                     : TorizoBodyProgram.GoldenDodgeTurningLeft);
                 return true;
@@ -253,7 +253,7 @@ internal sealed class TorizoCombat
                     torizoState.Function = TorizoFunction.Idle;
                     c.Projectile.IsSpent = true;
                     enemy.FrameHold = WrappingCountdown.Start(1);
-                    _access.RequireBombTorizoState(enemy).BodyProgram = AnimationProgramCursor<TorizoBodyProgram>.Start(_access.Posture(enemy).HasFlag(TorizoPostureFlags.OppositeLegForward)
+                    _access.RequireBombTorizoState(enemy).BodyPlayback = TorizoAnimations.Start(_access.Posture(enemy).HasFlag(TorizoPostureFlags.OppositeLegForward)
                         ? _access.FacesRight(enemy)
                             ? TorizoBodyProgram.GoldenCaughtSuperFacingRightLeftLegFwd
                             : TorizoBodyProgram.GoldenCaughtSuperFacingLeftRightLegFwd

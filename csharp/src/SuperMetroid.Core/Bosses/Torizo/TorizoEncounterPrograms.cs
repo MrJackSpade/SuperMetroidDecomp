@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <summary>The encounter programs both Torizos share: the gut and face blow-ups, the death sequence and the opening.</summary>
 internal static class TorizoEncounterPrograms
 {
-    /// <summary>Each program and its steps.</summary>
-    internal static Dictionary<TorizoBodyProgram, AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>[]> Programs { get; } = new()
+    /// <summary>Each segment and its beats.</summary>
+    internal static Dictionary<TorizoBodyProgram, AnimationBeat<TorizoFrame, TorizoCue>[]> Segments { get; } = new()
     {
         [P.SpecialCallableBlowUpBombTorizosGut] =
         [
@@ -25,7 +25,6 @@ internal static class TorizoEncounterPrograms
             Cue(new TorizoCue.SetFunction(Function: TorizoFunction.Active)),
             Cue(new TorizoCue.Command(K.UnlockAnimation)),
             Cue(new TorizoCue.Command(K.ResumeInterrupted)),
-            Unreachable,
         ],
         [P.CallableBlowUpBombTorizosFace] =
         [
@@ -47,24 +46,18 @@ internal static class TorizoEncounterPrograms
             Cue(new TorizoCue.SetFunction(Function: TorizoFunction.Active)),
             Cue(new TorizoCue.Command(K.UnlockAnimation)),
             Cue(new TorizoCue.Command(K.Return)),
-            Unreachable,
         ],
         [P.DeathSequence0] =
         [
             Cue(new TorizoCue.SetFunction(Function: TorizoFunction.Idle)),
             Cue(new TorizoCue.Command(K.LockAnimation)),
-            SetCounter(8),
-            FallInto(P.DeathSequence1),
         ],
         [P.DeathSequence1] =
         [
             Cue(new TorizoCue.Command(K.SpawnDeathExplosion)),
             Wait(1),
             Wait(6),
-            RepeatWhileCounting(P.DeathSequence1),
             Cue(new TorizoCue.Command(K.FadeToBlack)),
-            SetCounter(14),
-            FallInto(P.DeathSequence2),
         ],
         [P.DeathSequence2] =
         [
@@ -89,10 +82,8 @@ internal static class TorizoEncounterPrograms
             Cue(new TorizoCue.Command(K.MakeInvisible)),
             Wait(2),
             Cue(new TorizoCue.Command(K.AdvanceColourFade)),
-            RepeatWhileCounting(P.DeathSequence2),
             Wait(64),
             Cue(new TorizoCue.Command(K.FinishDeath)),
-            Stop,
         ],
         [P.BombTorizoInitial0] =
         [
@@ -100,7 +91,6 @@ internal static class TorizoEncounterPrograms
             Cue(new TorizoCue.Command(K.LockAnimation)),
             Show(0, 1),
             Cue(new TorizoCue.SetFunction(Function: TorizoFunction.WaitForHandTrigger)),
-            Hold,
         ],
         [P.BombTorizoInitial0Resumed] =
         [
@@ -114,8 +104,6 @@ internal static class TorizoEncounterPrograms
             Show(44, 8),
             ShowArtwork(16),
             Show(44, 32),
-            SetCounter(2),
-            FallInto(P.BombTorizoInitial1),
         ],
         [P.BombTorizoInitial1] =
         [
@@ -127,7 +115,6 @@ internal static class TorizoEncounterPrograms
             ShowArtwork(19),
             Show(44, 4),
             ShowArtwork(20),
-            RepeatWhileCounting(P.BombTorizoInitial1),
             Show(44, 48),
             Cue(new TorizoCue.Posture(TorizoPostureKind.StandUp, Step: 0)),
             Show(45, 16),
@@ -141,27 +128,21 @@ internal static class TorizoEncounterPrograms
             Show(49, 8),
             Cue(new TorizoCue.Posture(TorizoPostureKind.StandUp, Step: 5)),
             Cue(new TorizoCue.Command(K.FadeToNormalColors)),
-            SetCounter(16),
-            FallInto(P.BombTorizoInitial2),
         ],
         [P.BombTorizoInitial2] =
         [
             Show(50, 4),
             Cue(new TorizoCue.Command(K.AdvanceColourFade)),
-            RepeatWhileCounting(P.BombTorizoInitial2),
             Cue(new TorizoCue.Command(K.NoOperation)),
             Cue(new TorizoCue.Command(K.UnlockAnimation)),
             Cue(new TorizoCue.Command(K.StartBombTorizoFight)),
             Show(50, 16),
-            GoTo(P.FacingLeftWalkingLeftLegMoving),
         ],
         [P.Stunned0] =
         [
             Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.GoldenGravity)),
             Cue(new TorizoCue.Command(K.LockAnimation)),
             Wait(24),
-            SetCounter(2),
-            FallInto(P.Stunned1),
         ],
         [P.Stunned1] =
         [
@@ -173,13 +154,11 @@ internal static class TorizoEncounterPrograms
             ShowArtwork(50),
             Wait(3),
             ShowArtwork(51),
-            RepeatWhileCounting(P.Stunned1),
             Wait(16),
             Cue(new TorizoCue.Command(K.UnlockAnimation)),
             Cue(new TorizoCue.Command(K.UnmarkStunned)),
             Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.GoldenAirTransition)),
             Cue(new TorizoCue.Command(K.Return)),
-            Unreachable,
         ],
     };
 }

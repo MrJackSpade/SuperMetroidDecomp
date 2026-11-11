@@ -276,8 +276,8 @@ internal static class EnemySheetOwnFramesVerification
         return new("Torizo", TableFrames(TorizoFrameDefinitions.ShownFrames),
             new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
             {
-                [EnemyDefinitionId.BombTorizo] = Reach(TorizoAnimations.Programs, TorizoFrameDefinitions.ShownFrames, bombStarts, TorizoCueTargets),
-                [EnemyDefinitionId.GoldenTorizo] = Reach(TorizoAnimations.Programs, TorizoFrameDefinitions.ShownFrames, goldenStarts, TorizoCueTargets),
+                [EnemyDefinitionId.BombTorizo] = Reach(TorizoAnimations.Segments, TorizoAnimations.StartingAt, TorizoFrameDefinitions.ShownFrames, bombStarts, TorizoCueTargets),
+                [EnemyDefinitionId.GoldenTorizo] = Reach(TorizoAnimations.Segments, TorizoAnimations.StartingAt, TorizoFrameDefinitions.ShownFrames, goldenStarts, TorizoCueTargets),
             });
     }
 

@@ -49,10 +49,10 @@ internal sealed class TorizoBody
     internal void SpawnBombTorizoInitialDrool(RoomEnemySlot torizo) =>
         _attacks.SpawnBombTorizoDrool(torizo, RoomEnemyProjectileKind.BombTorizoInitialDrool);
 
-    /// <summary>Installs a body program cursor and runs its first instruction on the next frame.</summary>
-    internal static void StartTorizoBodyProgram(RoomEnemySlot torizo, TorizoEnemyState state, AnimationProgramCursor<TorizoBodyProgram> cursor)
+    /// <summary>Installs a body playback; its play resumes on the next frame.</summary>
+    internal static void StartTorizoBodyProgram(RoomEnemySlot torizo, TorizoEnemyState state, AnimationPlayback<TorizoBodyProgram> playback)
     {
-        state.BodyProgram = cursor;
+        state.BodyPlayback = playback;
         torizo.FrameHold = WrappingCountdown.Start(1);
     }
 }

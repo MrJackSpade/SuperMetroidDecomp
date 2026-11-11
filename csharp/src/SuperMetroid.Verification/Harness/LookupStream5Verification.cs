@@ -1161,16 +1161,13 @@ internal static class LookupStream5Verification
         }).ToArray();
         var original = new MapPaletteCycleDocument { Version = 1, Frames = frames };
         MapPaletteCycle stock = Check(original);
-        AssertEqual(0, stock.durationEdits.Count, "No stock duration lookup retained");
-        AssertEqual(0, stock.reverseColorEdits.Count, "No stock reverse-frame lookup retained");
-        AssertEqual(8, stock.colors.Length, "Only independent color phases remain");
         for (int frame = 0; frame < 14; frame++)
         {
             AssertEqual((byte)Math.Min(frame, 14 - frame), rom.ReadCartridgeByte(MapSourceDefinitions.Animation.PaletteTiming + frame * 3 + 1), "Native highlight phase traversal");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Duration(-1), "Highlight lower frame bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Colours(14), "Highlight upper frame bound");
-        Console.WriteLine("Map highlight: 224 native colors and14 timing/phase records resolve to each frame's highlight shade colours; eight color seed rows remain pending.");
+        Console.WriteLine("Map highlight: 224 native colors and14 timing/phase records resolve to each frame's highlight shade colours.");
 
         static MapPaletteCycle Check(MapPaletteCycleDocument document)
         {

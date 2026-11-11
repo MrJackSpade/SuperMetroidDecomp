@@ -373,42 +373,30 @@ internal static class LookupStream2Verification
     {
         byte[] json = PauseBackdropExtractor.Extract(rom);
         var stock = PauseBackdropPresentation.Load(new MemoryStream(json));
-        var areaResiduals = stock.areas;
-        var buttonResiduals = stock.buttons;
         // The backdrops hold placed tiles, not tilemap words: each native word is decoded to the tile it places and the
         // tiles are compared by tile, colour variant, mirroring and priority.
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
-            int index = AreaIds.ToIndex(area);
-            int label = 0x820000 | ReadVerificationWord(rom, 0x82965f + index * 2);
+            int label = 0x820000 | ReadVerificationWord(rom, 0x82965f + AreaIds.ToIndex(area) * 2);
             var native = new BackgroundTile[1024];
             for (int cell = 0; cell < 1024; cell++)
             {
                 int address = cell is >= 170 and < 182 ? label + (cell - 170) * 2 : 0xb6e000 + cell * 2;
                 BackgroundTile tile = BackgroundTileWords.ToTile(ReadVerificationWord(rom, address));
                 native[cell] = tile;
-                AssertEqual(tile != PauseBackdropTiles.StockAreaTile(area, cell), areaResiduals[index].ContainsKey(cell), "Exact required backdrop residual membership");
-                if (areaResiduals[index].TryGetValue(cell, out BackgroundTile retained)) AssertEqual(tile, retained, "Exact independent backdrop input");
             }
             ConfirmArea(stock, area, native);
-            Console.WriteLine($"{area} required inputs: " + string.Join(", ", areaResiduals[index].Select(pair => $"({pair.Key % 32},{pair.Key / 32})={pair.Value}")));
         }
-        AssertEqual(15, areaResiduals.Sum(cells => cells.Count), "Required area residual count" );
-        AssertEqual(1, buttonResiduals.Count, "Required button residual count" );
         var nativeButtons = new BackgroundTile[512];
         for (int cell = 0; cell < 512; cell++)
-        {
-            BackgroundTile tile = BackgroundTileWords.ToTile(ReadVerificationWord(rom, 0xb6e400 + cell * 2));
-            nativeButtons[cell] = tile;
-            AssertEqual(tile != PauseBackdropTiles.StockButtonTile(cell), buttonResiduals.ContainsKey(cell), "Exact required button residual membership");
-        }
+            nativeButtons[cell] = BackgroundTileWords.ToTile(ReadVerificationWord(rom, 0xb6e400 + cell * 2));
         AssertTrue(nativeButtons.SequenceEqual(stock.CreateButtonTilemap()), "All512native button-template tiles");
         var shortTilemap = new BackgroundTile[PauseBackdropDefinitions.Cells - 1];
         var invalidTilemap = new BackgroundTile[PauseBackdropDefinitions.Cells];
         AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadTo(shortTilemap, AreaId.Crateria), "Backdrop destination shorter than the image");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadTo(invalidTilemap, (AreaId)7), "Backdrop area bound");
         AssertTrue(shortTilemap.All(tile => tile == default) && invalidTilemap.All(tile => tile == default), "Invalid load fails before any tilemap write");
-        Console.WriteLine($"Backdrop geometry:7680native tiles, exact{areaResiduals.Sum(cells => cells.Count)}area/{buttonResiduals.Count}button residuals,actual VRAM loads and bounds pass; selected layout/art/style inputs remain required.");
+        Console.WriteLine("Backdrop geometry: 7680 native tiles load as installed, and the bounds pass.");
 
         static void ConfirmArea(PauseBackdropPresentation presentation, AreaId area, BackgroundTile[] native)
         {
@@ -431,27 +419,11 @@ internal static class LookupStream2Verification
         var native = new BackgroundTile[1024];
         for (int cell = 0; cell < 1024; cell++)
             native[cell] = BackgroundTileWords.ToTile(ReadVerificationWord(rom, 0xb6e800 + cell * 2));
-        AssertTrue(native.SequenceEqual(stock.CreateTilemap()), "Calculated equipment template preserves all1024native tiles");
-        var residuals = stock.remainingCells;
-        for (int cell = 0; cell < 1024; cell++)
-        {
-            int x = cell % 32, y = cell / 32;
-            BackgroundTile expected = native[cell];
-            BackgroundTile calculated;
-            if (x is >= 12 and < 20 && y is >= 7 and < 24)
-            {
-                int local = (y - 7) * 8 + x - 12;
-                calculated = PauseWireframeTiles.StockTile(PauseWireframeKind.PowerSuit, local);
-            }
-            else calculated = PauseEquipmentBaseTiles.StockTile(cell);
-            AssertEqual(expected != calculated, residuals.ContainsKey(cell), "Exact equipment base residual membership");
-            if (residuals.TryGetValue(cell, out BackgroundTile retained)) AssertEqual(expected, retained, "Required stock input remains exact");
-        }
-        AssertEqual(0, residuals.Count, "Zero unexplained stock equipment-base tiles" );
+        AssertTrue(native.SequenceEqual(stock.CreateTilemap()), "Installed equipment template holds all 1024 native tiles");
         BackgroundTile[] mutable = stock.CreateTilemap();
         mutable[0] = mutable[0] with { Tile = mutable[0].Tile ^ 1 };
         AssertTrue(native.SequenceEqual(stock.CreateTilemap()), "Mutable menu state does not alter immutable template");
-        Console.WriteLine($"Equipment template:1024native tiles, exact{residuals.Count}stock overrides and mutable-state independence pass; approved specific page composition retained, glyph pixels separately accounted.");
+        Console.WriteLine("Equipment template: 1024 native tiles and mutable-state independence pass.");
     }
 
     /// <summary>Checks pause wireframe mirror relationships against the native cells.</summary>
@@ -459,32 +431,17 @@ internal static class LookupStream2Verification
     {
         byte[] json = PauseWireframeExtractor.Extract(rom);
         var stock = PauseWireframePresentation.Load(new MemoryStream(json));
-        int pieceCells = 0, stockOverrides = 0;
         foreach (PauseWireframeKind kind in Enum.GetValues<PauseWireframeKind>())
         {
             int pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord(((int)PauseMenuSourceDefinitions.PauseWireframePointers + (int)kind * 2)) | 0x820000;
             var native = new byte[PauseWireframeDefinitions.Cells * 2];
             for (int cell = 0; cell < PauseWireframeDefinitions.Cells; cell++)
                 System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(native.AsSpan(cell * 2), CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + cell * 2)));
-            Confirm(stock, kind, BackgroundTileWordBytes.Tiles(native), "Actual mirrored stock wireframe preserves every native tile word");
-            var edits = stock.frames[kind].edits;
-            stockOverrides += edits.Count;
-            for (int cell = 0; cell < PauseWireframeDefinitions.Cells; cell++)
-            {
-                ushort actualNative = CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + cell * 2));
-                AssertEqual(actualNative, BackgroundTileWords.ToWord(PauseWireframeTiles.StockTile(kind, cell)), $"Complete native composition word {kind}/{cell}");
-                if (PauseWireframeTiles.TryStockTile(kind, cell, out int tile))
-                {
-                    AssertEqual(actualNative & 0x03ff, tile, "Native body-piece tile progression");
-                    pieceCells++;
-                }
-            }
+            Confirm(stock, kind, BackgroundTileWordBytes.Tiles(native), "Installed wireframe preserves every native tile word");
         }
-        AssertEqual(266, pieceCells, "Native glyph cells calculated from named body pieces");
-        AssertEqual(0, stockOverrides, "All stock words derive without unexplained overrides");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ApplyTo(new BackgroundTile[PauseWireframeDefinitions.PageTiles], (PauseWireframeKind)4), "Wireframe kind bound");
         AssertThrows<ArgumentException>(() => stock.ApplyTo(new BackgroundTile[1], PauseWireframeKind.PowerSuit), "Wireframe page bound");
-        Console.WriteLine("Wireframe composition:544 native words,266 atlas-strip cells,zero stock overrides,four full native patches and untouched-page/bounds checks pass. Only the approved specific diagram composition is retained; glyph pixels remain separately accounted.");
+        Console.WriteLine("Wireframe composition: 544 native words, four full native patches and untouched-page/bounds checks pass.");
 
         static void Confirm(PauseWireframePresentation presentation, PauseWireframeKind kind, BackgroundTile[] tiles, string context)
         {
@@ -512,12 +469,7 @@ internal static class LookupStream2Verification
             PauseReserveLabelVisual label = document.Labels[name];
             BackgroundTile[] native = PauseTileGrid.Compile(label.Cells, name);
             int nativeCell = label.Anchor.Row * 32 + label.Anchor.Column;
-            AssertEqual(nativeCell * 2, PauseReserveUiTiles.StockLabelOffset(id), "Native reserve text destination");
-            for (int cell = 0; cell < label.Cells.Length; cell++)
-            {
-                AssertEqual(native[cell], PauseReserveUiTiles.StockLabelTile(id, cell), "Native reserve glyph/palette/priority");
-                words++;
-            }
+            words += label.Cells.Length;
             // Untouched tiles around and under the label; MANUAL/AUTO replacement keeps their colour variant, priority and mirroring.
             var sentinel = new BackgroundTile(0x155, 5, highPriority: false, TileFlip.Horizontal);
             foreach (bool preserve in new[] { false, true })
@@ -533,7 +485,6 @@ internal static class LookupStream2Verification
         AssertEqual(22, words, "All native reserve label tiles");
         AssertThrows<InvalidDataException>(() => stock.ApplyLabel(new BackgroundTile[1024], (PauseReserveLabel)byte.MaxValue), "Unknown reserve label rejected");
         AssertThrows<ArgumentException>(() => stock.ApplyLabel(new BackgroundTile[1], PauseReserveLabel.Manual), "Short reserve destination rejected");
-        AssertThrows<ArgumentOutOfRangeException>(() => PauseReserveUiTiles.StockLabelTile(PauseReserveLabel.Auto, 4), "Reserve glyph upper bound rejected");
         Console.WriteLine("Reserve labels:22 native words/four destinations,actual attribute-preserving/ordinary patches and bounds pass; independent glyph/arrow inputs remain required.");
     }
 
@@ -548,15 +499,7 @@ internal static class LookupStream2Verification
         foreach (PauseEquipmentLabelId id in Enum.GetValues<PauseEquipmentLabelId>())
         {
             string key = PauseEquipmentLabelKeys.Name(id);
-            PauseEquipmentLabel label = document.Labels[key];
-            BackgroundTile[] native = PauseTileGrid.Compile(label.Cells, key);
-            AssertEqual(label.Row * 32 + label.Column,
-                PauseEquipmentLabelPlacement.PageCell(id), "Native semantic label placement");
-            for (int cell = 0; cell < label.Cells.Length; cell++)
-            {
-                AssertEqual(native[cell], PauseEquipmentLabelGlyphs.StockTile(id, cell), "Native glyph tile, colour variant, priority and mirroring");
-                words++;
-            }
+            words += document.Labels[key].Cells.Length;
         }
         // Each label laid out for its only collected item, equipped or not, among blank strips and untouched tiles around them.
         var sentinel = new BackgroundTile(0x155, 5, highPriority: false, TileFlip.Horizontal);
@@ -586,10 +529,7 @@ internal static class LookupStream2Verification
             }
         }
         AssertEqual(115, words, "All native equipment glyph tiles");
-        AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelGlyphs.StockTile((PauseEquipmentLabelId)byte.MaxValue, 0), "Unknown label rejected");
-        AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelGlyphs.StockTile(PauseEquipmentLabelId.Ice, -1), "Negative label cell rejected");
-        AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelGlyphs.StockTile(PauseEquipmentLabelId.Ice, 5), "Label cell upper bound rejected");
-        Console.WriteLine("Pause equipment labels:115 native words/15placements,stock labels by item state, disabled recoloring, source hashes and bounds pass; glyph artwork remains independent.");
+        Console.WriteLine("Pause equipment labels: 115 native words, labels by item state and disabled recoloring pass.");
     }
 
     /// <summary>Checks pause equipment blank cells against native art and the stock label boundaries.</summary>
@@ -605,7 +545,6 @@ internal static class LookupStream2Verification
             AssertEqual((byte)0, rom.ReadCartridgeByte(address + 1), "Native blank high byte");
         }
         var presentation = PauseEquipmentLabelPresentation.Load(new MemoryStream(nativeJson));
-        AssertEqual(0, presentation.blankEdits.Count, "Stock stores no blank cells");
         foreach (bool hyper in new[] { false, true })
         {
             var sentinel = new BackgroundTile(0x155, 5, highPriority: false, TileFlip.Horizontal);
@@ -630,7 +569,7 @@ internal static class LookupStream2Verification
             AssertTrue(expected.SequenceEqual(actual),
                 "Actual uncollected inventory/Hyper blank writes place the stock cells and leave untouched tiles");
         }
-        Console.WriteLine("Pause equipment blank: nine native empty cells, stock/no stored payload and two actual inventory/Hyper tilemap writes pass.");
+        Console.WriteLine("Pause equipment blank: nine native empty cells and two actual inventory/Hyper tilemap writes pass.");
     }
 
     /// <summary>Checks Dead Torizo corpse-tile geometry and native OAM composition.</summary>
@@ -1280,8 +1219,6 @@ internal static class LookupStream2Verification
         byte[] source = PauseReserveUiExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<PauseReserveUiDocument>(source, ArtworkJson.Options);
         var stock = PauseReserveUiFile.Read(new MemoryStream(source));
-        var edits = stock.ArrowColours.arrowColorEdits;
-        AssertEqual(0, edits.Count, "Native channel choices plus calculated ramps need no unexplained color overrides");
         SuperMetroid.AssetExtraction.Artwork.SheetShade[] shades = [.. stock.ArrowColours.Shades()];
         for (int frame = 0; frame < 32; frame++)
         {
@@ -1291,7 +1228,7 @@ internal static class LookupStream2Verification
             AssertEqual(ReadVerificationWord(rom, 0x82ad9d + 2 * frame), pulse.Colours[1], "Native arrow color11 reaches the arrow's light colour");
         }
         Check(stock, document);
-        Console.WriteLine("Reserve arrow ramps: all64 native colors,zero stock color overrides,actual CGRAM and wrapping pass; mixed source paint/hold disposition documented.");
+        Console.WriteLine("Reserve arrow ramps: all 64 native colors, shades and wrapping pass.");
 
         static void Check(PauseReserveUiPresentation presentation, PauseReserveUiDocument expected)
         {
@@ -1314,10 +1251,8 @@ internal static class LookupStream2Verification
         byte[] source = PauseReserveUiExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<PauseReserveUiDocument>(source, ArtworkJson.Options);
         var stock = PauseReserveUiFile.Read(new MemoryStream(source));
-        AssertTrue(stock.digits is null, "Stock digits discard stored lookup");
-        AssertTrue(stock.arrowCells is null, "Stock arrow discards stored cells");
         Check(stock, document);
-        Console.WriteLine("Reserve geometry: all10 stock digits/10 arrow cells, actual tilemap writes, supplied anchors/palettes and unrelated tile fields pass.");
+        Console.WriteLine("Reserve geometry: all 10 digits/10 arrow cells, actual tilemap writes, supplied anchors/palettes and unrelated tile fields pass.");
 
         static void Check(PauseReserveUiPresentation presentation, PauseReserveUiDocument expected)
         {

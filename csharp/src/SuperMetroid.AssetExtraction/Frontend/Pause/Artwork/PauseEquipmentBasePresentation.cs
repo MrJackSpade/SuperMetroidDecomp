@@ -1,53 +1,26 @@
 using System.Text.Json;
-using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
-/// <summary>Editable equipment-page base art, independent of live inventory and reserve patches.</summary>
+/// <summary>
+/// Editable equipment-page base art, independent of live inventory and reserve patches, kept as installed (#1615): all
+/// 1024 cells.
+/// </summary>
 public sealed class PauseEquipmentBasePresentation
 {
-    /// <summary>Only independently edited cells; unchanged tiles come from the composed stock page.</summary>
-    internal readonly Dictionary<int, BackgroundTile> remainingCells = [];
-    /// <summary>
-    /// The complete page, each edited cell's tile and the stock composition's elsewhere, composed once when the presentation
-    /// is read (#1532): the presentation never changes, and composing the stock page cell by cell on every request
-    /// re-derived every label's and panel's footprint for each of its 1024 cells.
-    /// </summary>
-    private readonly BackgroundTile[] tilemap = new BackgroundTile[PauseEquipmentBaseDefinitions.Cells];
-    /// <summary>Compares every selected cell with the immutable stock composition.</summary>
-    private PauseEquipmentBasePresentation(ReadOnlySpan<BackgroundTile> selected)
-    {
-        // Compare each supplied tile independently with immutable stock composition. The page shows the supplied tile in
-        // every cell: an edited cell's edit, and elsewhere the stock tile it equals.
-        for (int cell = 0; cell < PauseEquipmentBaseDefinitions.Cells; cell++)
-        {
-            if (selected[cell] != DefaultTile(cell)) remainingCells.Add(cell, selected[cell]);
-            tilemap[cell] = selected[cell];
-        }
-    }
+    /// <summary>The installed page's every cell, in row-major order.</summary>
+    private readonly BackgroundTile[] tilemap;
+    /// <summary>Keeps every installed cell.</summary>
+    private PauseEquipmentBasePresentation(BackgroundTile[] tilemap) => this.tilemap = tilemap;
 
-    /// <summary>The complete 32-by-32 tilemap of the selected edits over the calculated stock composition.</summary>
+    /// <summary>The complete installed 32-by-32 tilemap.</summary>
     /// <returns>A new caller-owned 1024-tile tilemap in row-major order.</returns>
     public BackgroundTile[] CreateTilemap() => (BackgroundTile[])tilemap.Clone();
 
-    /// <summary>Combines the power-suit wireframe with the equipment base outside its footprint.</summary>
-    private static BackgroundTile DefaultTile(int cell)
-    {
-        int relative = cell - PauseWireframeDefinitions.FirstPageTile;
-        int stride = PauseWireframeDefinitions.PageColumns;
-        if (relative >= 0 && relative / stride < PauseWireframeDefinitions.Rows &&
-            relative % stride < PauseWireframeDefinitions.Columns)
-        {
-            int local = relative / stride * PauseWireframeDefinitions.Columns + relative % stride;
-            return PauseWireframeTiles.StockTile(PauseWireframeKind.PowerSuit, local);
-        }
-        return PauseEquipmentBaseTiles.StockTile(cell);
-    }
-
     /// <summary>Loads and validates all 1024 editable equipment-page base cells.</summary>
     /// <param name="json">The caller-owned stream containing the tile-reference document.</param>
-    /// <returns>The presentation retaining only cells that differ from calculated stock composition.</returns>
+    /// <returns>The presentation holding every installed cell.</returns>
     /// <exception cref="InvalidDataException">The JSON, version, cell count, or tile references are invalid.</exception>
     public static PauseEquipmentBasePresentation Load(Stream json)
     {

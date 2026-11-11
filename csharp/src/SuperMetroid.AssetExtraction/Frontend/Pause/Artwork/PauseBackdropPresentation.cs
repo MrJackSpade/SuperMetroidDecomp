@@ -5,26 +5,23 @@ using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
-/// <summary>Complete authored pause backdrops, including area lettering, without runtime ROM patches.</summary>
+/// <summary>
+/// Complete authored pause backdrops, including area lettering, kept as installed (#1615): every area's 1024 cells and
+/// the button page's 512 cells.
+/// </summary>
 public sealed class PauseBackdropPresentation
 {
-    /// <summary>Per-area authored tiles that differ from stock; complete backdrops are calculated on demand.</summary>
-    internal readonly Dictionary<int, BackgroundTile>[] areas;
-    /// <summary>Authored foreground tiles that differ from the stock button page.</summary>
-    internal readonly Dictionary<int, BackgroundTile> buttons;
-    /// <summary>Retains validated sparse edits for every area and the separate button overlay.</summary>
-    private PauseBackdropPresentation(Dictionary<int, BackgroundTile>[] areas, Dictionary<int, BackgroundTile> buttons)
+    /// <summary>Every retail area's installed backdrop, by area index.</summary>
+    private readonly BackgroundTile[][] areas;
+    /// <summary>The installed button page.</summary>
+    private readonly BackgroundTile[] buttons;
+    /// <summary>Retains the complete installed backdrops and button page.</summary>
+    private PauseBackdropPresentation(BackgroundTile[][] areas, BackgroundTile[] buttons)
     { this.areas = areas; this.buttons = buttons; }
 
     /// <summary>Materializes the selected 32-by-16 button/foreground image without caching or modifying the presentation.</summary>
     /// <returns>A new caller-owned array of 512 tiles in row-major order; the live pause menu may change its buttons' colour variants.</returns>
-    public BackgroundTile[] CreateButtonTilemap()
-    {
-        var result = new BackgroundTile[PauseBackdropDefinitions.ButtonCells];
-        for (int cell = 0; cell < PauseBackdropDefinitions.ButtonCells; cell++)
-            result[cell] = buttons.TryGetValue(cell, out BackgroundTile edited) ? edited : PauseBackdropTiles.StockButtonTile(cell);
-        return result;
-    }
+    public BackgroundTile[] CreateButtonTilemap() => (BackgroundTile[])buttons.Clone();
 
     /// <summary>Writes the selected area's complete 32-by-32 backdrop, including its authored area lettering, into the pause BG2 tilemap.</summary>
     /// <param name="destination">The pause BG2 tilemap; tiles outside the 32-by-32 image remain unchanged.</param>
@@ -34,19 +31,10 @@ public sealed class PauseBackdropPresentation
     {
         var selected = areas[AreaIds.ToIndex(area)];
         Ensure.BetweenInclusive(PauseBackdropDefinitions.Cells, int.MaxValue, destination.Length);
-        for (int cell = 0; cell < PauseBackdropDefinitions.Cells; cell++)
-            destination[cell] = selected.TryGetValue(cell, out BackgroundTile edited) ? edited : PauseBackdropTiles.StockAreaTile(area, cell);
+        selected.AsSpan().CopyTo(destination);
     }
 
-    /// <summary>Extracts only tiles changed from the stock calculation, preserving independent authored edits.</summary>
-    private static Dictionary<int, BackgroundTile> Differences(BackgroundTile[] selected, Func<int, BackgroundTile> calculate)
-    {
-        var result = new Dictionary<int, BackgroundTile>();
-        for (int cell = 0; cell < selected.Length; cell++)
-            if (selected[cell] != calculate(cell)) result.Add(cell, selected[cell]);
-        return result;
-    }
-    /// <summary>Validates all seven authored area pages and the separate button page, compiling independent tiles and retaining only their differences from stock.</summary>
+    /// <summary>Validates all seven authored area pages and the separate button page and keeps them whole.</summary>
     /// <param name="json">UTF-8 JSON read from its current position to the end and left open.</param>
     /// <returns>An immutable selection of backdrop and button artwork that does not retain the document's mutable dictionaries or arrays.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
@@ -72,8 +60,8 @@ public sealed class PauseBackdropPresentation
     }
 
     /// <summary>
-    /// Builds the presentation from compiled tilemaps (one 1024-cell page per retail area in
-    /// area order, plus the 512-cell button page), keeping only tiles that differ from stock.
+    /// Builds the presentation from compiled tilemaps (one 1024-cell page per retail area in area order, plus the 512-cell
+    /// button page), keeping every tile.
     /// </summary>
     internal static PauseBackdropPresentation FromTilemaps(BackgroundTile[][] areaTilemaps, BackgroundTile[] buttonTilemap)
     {
@@ -83,15 +71,15 @@ public sealed class PauseBackdropPresentation
             throw new InvalidDataException("Pause backdrops require one tilemap per retail area.");
         if (buttonTilemap.Length != PauseBackdropDefinitions.ButtonCells)
             throw new InvalidDataException("Pause buttons require 512 cells.");
-        var areas = new Dictionary<int, BackgroundTile>[AreaIds.RetailCount];
+        var areas = new BackgroundTile[AreaIds.RetailCount][];
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
             BackgroundTile[] tilemap = areaTilemaps[AreaIds.ToIndex(area)] ?? throw new InvalidDataException($"Pause backdrop {area} is missing.");
             if (tilemap.Length != PauseBackdropDefinitions.Cells)
                 throw new InvalidDataException($"Pause backdrop {area} requires 1024 cells.");
-            areas[AreaIds.ToIndex(area)] = Differences(tilemap, cell => PauseBackdropTiles.StockAreaTile(area, cell));
+            areas[AreaIds.ToIndex(area)] = (BackgroundTile[])tilemap.Clone();
         }
-        return new(areas, Differences(buttonTilemap, PauseBackdropTiles.StockButtonTile));
+        return new(areas, (BackgroundTile[])buttonTilemap.Clone());
     }
 
     /// <summary>Serializes every backdrop and button cell as the UTF-8 JSON document.</summary>

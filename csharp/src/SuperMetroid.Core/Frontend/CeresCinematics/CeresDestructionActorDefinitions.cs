@@ -16,15 +16,15 @@ internal static class CeresDestructionActorDefinitions
     /// Its slide callback accelerates by 64/256 pixels.</summary>
     internal static CeresDestructionActorDefinition ZebesPlanet =>
         new(CinematicSpriteFrameBehavior.Zebes, CinematicSpriteProgram.ZebesPlanet,
-            new(136, 111), CeresSpriteColouring.Zebes, SignedSixteenSixteen.Zero, false, SignedEightEight.FromParts(0, 64),
+            CeresSpriteColouring.Zebes, SignedSixteenSixteen.Zero, false, SignedEightEight.FromParts(0, 64),
             CinematicSpriteFrameBehavior.ZebesSlideSceneAway, false);
 
     /// <summary>The PLANET ZEBES text actor: its initializer,
-    /// an empty callback and its list. Its operands center the title at (128,186), in the cinematic's first sprite colours.
+    /// an empty callback and its list, in the cinematic's first sprite colours.
     /// Its program deletes before scene sliding, so it has no slide callback or acceleration.</summary>
     internal static CeresDestructionActorDefinition ZebesTitle =>
         new(CinematicSpriteFrameBehavior.NoOp, CinematicSpriteProgram.ZebesTitle,
-            new(128, 186), CeresSpriteColouring.ZebesTitle, SignedSixteenSixteen.Zero, false, SignedEightEight.Zero, null, false);
+            CeresSpriteColouring.ZebesTitle, SignedSixteenSixteen.Zero, false, SignedEightEight.Zero, null, false);
 
     /// <summary>The four star sheets' programs, indexed by row-major quadrant.</summary>
     internal static readonly CinematicSpriteProgram[] ZebesStarSheets =

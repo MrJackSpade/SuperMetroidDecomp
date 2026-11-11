@@ -39,7 +39,7 @@ internal static class CeresDestructionActors
     /// This existing explicit actor dispatch is preserved: large debris aliases flight row0
     /// with its distinct definition/list, small debris aliases flight row2 unchanged, and
     /// vortex aliases flight row3 with the parameter-zero initializer overrides.
-    /// Its initializer sets X112 and installs an empty callback, so this vortex has no horizontal
+    /// Its initializer installs an empty callback, so this vortex has no horizontal
     /// movement or wrap. The definition still names the moving callback before initialization. No slide
     /// policy applies to these actors. One proof against the original data covers the complete mapping,
     /// initializer operands, shared aliases and invalid-index rejection. The prior authored-
@@ -56,12 +56,12 @@ internal static class CeresDestructionActors
         };
         return index switch
         {
-            0 => new(                flight.ActiveFrameBehavior, CinematicSpriteProgram.CeresDestructionLargeAsteroid, flight.Position, flight.Colouring,
+            0 => new(                flight.ActiveFrameBehavior, CinematicSpriteProgram.CeresDestructionLargeAsteroid, flight.Colouring,
                 flight.HorizontalDelta, flight.WrapX, SignedEightEight.Zero, null, false),
-            1 => new(                flight.ActiveFrameBehavior, flight.Program, flight.Position,
+            1 => new(                flight.ActiveFrameBehavior, flight.Program,
                 flight.Colouring, flight.HorizontalDelta, flight.WrapX, SignedEightEight.Zero, null, false),
-            // Parameter zero makes the vortex's setup replace its moving callback with the no-op and use X=112.
-            2 => new(                CinematicSpriteFrameBehavior.CeresStationaryVortexNoOp, flight.Program, flight.Position.WithX(112), flight.Colouring,
+            // Parameter zero makes the vortex's setup replace its moving callback with the no-op.
+            2 => new(                CinematicSpriteFrameBehavior.CeresStationaryVortexNoOp, flight.Program, flight.Colouring,
                 SignedSixteenSixteen.Zero, false, SignedEightEight.Zero, null, false),
             _ => throw new InvalidOperationException("Validated Ceres actor index became invalid."),
         };
@@ -69,9 +69,8 @@ internal static class CeresDestructionActors
 
     /// <summary>Returns planet, four grid-aligned star sheets and title in spawn order.</summary>
     /// <remarks>
-    /// #1165: the reveal's spawns select these six roles. Star quadrant q=index-1 is bounded to 0..3:
-    /// X=48+160*(q mod 2), Y=47+160*(q/2). The star initializers place
-    /// all four sheets on this two-by-two grid with the same palette and acceleration.
+    /// #1165: the reveal's spawns select these six roles. Star quadrant q=index-1 is bounded to 0..3. The star
+    /// initializers give all four sheets the same palette and acceleration; where each starts is installed (#1615).
     /// Their definitions are six bytes apart, initializers twenty bytes apart (including
     /// each leading NOP), and single-frame loop programs eight bytes apart. Only the
     /// lower-right sheet installs the completion callback. Planet and title are separate
@@ -95,7 +94,6 @@ internal static class CeresDestructionActors
         return new(
 wait,
             ZebesStarSheets[quadrant],
-            new(48 + 160 * (quadrant & 1), 47 + 160 * (quadrant >> 1)),
             CeresSpriteColouring.SpaceObjects, SignedSixteenSixteen.Zero, false, SignedEightEight.FromParts(0, 32),
             completesScene ? CinematicSpriteFrameBehavior.ZebesStarsCompletionSlideSceneAway : CinematicSpriteFrameBehavior.ZebesStarsSlideSceneAway,
             completesScene);

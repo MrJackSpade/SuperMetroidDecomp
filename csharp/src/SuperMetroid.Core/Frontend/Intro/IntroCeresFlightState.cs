@@ -23,7 +23,7 @@ internal sealed class IntroCeresFlightState
     private CeresFlightActorPlacements? actorLayout;
     /// <summary>Front-view star actor, whose rush also drives the diagonal background rush.</summary>
     private readonly IntroDiscoverySprite stars =
-        CreateActor(CeresFlightActorDefinitions.FrontStars);
+        CreateActor(CeresFlightActorDefinitions.FrontStars, CeresFlightActorDefinitions.FrontStarsStart);
 
     /// <summary>The front stars' speed on each axis, which the background rush shares.</summary>
     private SignedEightEight starsVelocity = CeresFlightActorDefinitions.FrontStars.InitialVelocity;
@@ -250,7 +250,7 @@ internal sealed class IntroCeresFlightState
         CeresFlightActorPlacements layout = actorLayout ?? throw new InvalidOperationException(
             "The Ceres approach's rear view requires the installed actor placements.");
         RearViewActors = Enumerable.Range(0, CeresFlightActorDefinitions.RearViewActorCount)
-            .Select(index => CreateActor(CeresFlightActors.RearViewActor(index) with { Position = layout[index].Position }))
+            .Select(index => CreateActor(CeresFlightActors.RearViewActor(index), layout[index].Position))
             .ToArray();
 
         // The flash adds the fixed colour to the rear view, sprites, and backdrop. It begins at
@@ -259,11 +259,11 @@ internal sealed class IntroCeresFlightState
         Phase = IntroCeresFlightPhase.FlyingTowardCeres;
     }
 
-    /// <summary>Creates one cinematic actor with its authored timing and active frame behaviour.</summary>
-    private static IntroDiscoverySprite CreateActor(CeresFlightActorDefinition definition)
+    /// <summary>Creates one cinematic actor at <paramref name="start"/> with its authored timing and active frame behaviour.</summary>
+    private static IntroDiscoverySprite CreateActor(CeresFlightActorDefinition definition, Position16<ScreenPixels> start)
     {
         var actor = new IntroDiscoverySprite(
-            definition.Position,
+            start,
             CeresShades.Drawn(definition.Colouring),
             definition.Program)
         {

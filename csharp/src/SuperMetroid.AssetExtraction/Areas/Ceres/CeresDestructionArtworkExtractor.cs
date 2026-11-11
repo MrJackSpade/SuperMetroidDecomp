@@ -76,9 +76,8 @@ internal static class CeresDestructionArtworkExtractor
             });
         byte[] spritesFile = spritesJson.ToArray();
 
-        // These six X/Y operands are presentation data. Read the pinned cartridge
-        // directly, then verify that the existing translated actor definitions
-        // have not drifted from the source before publishing an editable layout.
+        // These six X/Y operands are presentation data, read from the pinned cartridge into an editable layout; the game
+        // keeps no copy of them (#1615).
         var placements = new CeresRevealActorPlacement[
             CeresDestructionActorDefinitions.ZebesActorCount];
         for (int index = 0; index < placements.Length; index++)
@@ -88,11 +87,6 @@ internal static class CeresDestructionArtworkExtractor
                 CeresCinematicSourceDefinitions.PlacementBank | source.FirstOperand);
             int y = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 CeresCinematicSourceDefinitions.PlacementBank | source.SecondOperand);
-            CeresDestructionActorDefinition translatedActor =
-                CeresDestructionActors.ZebesActor(index);
-            if (x != translatedActor.Position.X || y != translatedActor.Position.Y)
-                throw new InvalidDataException(
-                    $"Ceres reveal actor {source.Id} placement differs from pinned cartridge operands.");
             placements[index] = new CeresRevealActorPlacement
             {
                 Id = source.Id, X = x, Y = y,
@@ -106,20 +100,20 @@ internal static class CeresDestructionArtworkExtractor
         });
         byte[] actorsFile = actorsJson.ToArray();
 
-        // The three initial actor positions are the bounded initializer results
-        // already checked against the pinned cartridge by the native actor verifier.
-        // Export only presentation coordinates; their movement and callbacks stay in code.
+        // The three initial actors' starts are read from their initializers' immediates; only presentation coordinates are
+        // exported, and their movement and callbacks stay in code.
         var destructionPlacements = new CeresDestructionActorPlacement[
             CeresDestructionActorDefinitions.InitialActorCount];
         for (int index = 0; index < destructionPlacements.Length; index++)
         {
-            CeresDestructionActorDefinition actor =
-                CeresDestructionActors.InitialActor(index);
+            CinematicPlacementImmediates source = CeresCinematicSourceDefinitions.DestructionPlacements[index];
             destructionPlacements[index] = new CeresDestructionActorPlacement
             {
-                Id = CeresDestructionActors.InitialPlacementId(index),
-                X = actor.Position.X,
-                Y = actor.Position.Y,
+                Id = source.Id,
+                X = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                    CeresCinematicSourceDefinitions.PlacementBank | source.XOperand),
+                Y = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                    CeresCinematicSourceDefinitions.PlacementBank | source.YOperand),
             };
         }
         using var destructionActorsJson = new MemoryStream();

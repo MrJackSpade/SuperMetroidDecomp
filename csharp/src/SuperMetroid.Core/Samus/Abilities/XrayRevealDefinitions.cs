@@ -9,9 +9,6 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// </summary>
 internal static class XrayRevealDefinitions
 {
-    /// <summary>Blank metatile selected by negative-coordinate extension exits.</summary>
-    internal const int BlankMetatile = 255;
-
     /// <summary>The only special-air reaction the table admits.</summary>
     /// <remarks>
     /// Issue #1028: the special-air table holds one entry for this behaviour and a terminator, then a copy-one command.

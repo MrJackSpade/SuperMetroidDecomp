@@ -144,15 +144,14 @@ internal static class CeresDestructionArtworkVerification
             throw new InvalidDataException("Stock Ceres destruction actor layout is empty.");
         for (int index = 0; index < destructionActorsDocument.Actors.Length; index++)
         {
-            CeresDestructionActorDefinition definition =
-                CeresDestructionActors.InitialActor(index);
+            CinematicPlacementImmediates source = CeresCinematicSourceDefinitions.DestructionPlacements[index];
             AssertEqual(CeresDestructionActors.InitialPlacementId(index),
                 destructionActorsDocument.Actors[index].Id,
                 $"Ceres destruction actor {index} retains its native role");
-            AssertEqual(definition.Position.X, destructionActorsDocument.Actors[index].X,
-                $"Ceres destruction actor {index} X matches its verified initializer");
-            AssertEqual(definition.Position.Y, destructionActorsDocument.Actors[index].Y,
-                $"Ceres destruction actor {index} Y matches its verified initializer");
+            AssertEqual((int)CartridgeImportSource.Require(bus).ReadCartridgeWord(CeresCinematicSourceDefinitions.PlacementBank | source.XOperand),
+                destructionActorsDocument.Actors[index].X, $"Ceres destruction actor {index} X is its initializer's immediate");
+            AssertEqual((int)CartridgeImportSource.Require(bus).ReadCartridgeWord(CeresCinematicSourceDefinitions.PlacementBank | source.YOperand),
+                destructionActorsDocument.Actors[index].Y, $"Ceres destruction actor {index} Y is its initializer's immediate");
         }
         destructionActorsDocument.Actors[0] = destructionActorsDocument.Actors[0] with
         {

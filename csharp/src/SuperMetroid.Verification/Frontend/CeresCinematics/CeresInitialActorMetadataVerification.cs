@@ -33,8 +33,6 @@ internal static class CeresInitialActorMetadataVerification
         Suite(nameof(VerifyWrappedActor), () => VerifyWrappedActor(retail, CeresDestructionActors.InitialActor(1), new WrappedActorRomFields(0x8bbf77, 0x8bbf7d, 0x8bbf83, 0x8bbf8e, 0x8bbf9a), "destruction small asteroids"));
         CeresDestructionActorDefinition vortex =
             CeresDestructionActors.InitialActor(2);
-        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfa6), vortex.Position.X, "destruction vortex X");
-        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfba), vortex.Position.Y, "destruction vortex Y");
         PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfc0), CeresSheetInks.SpriteSet(vortex.Colouring),
             "destruction vortex attributes");
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfac), vortex.ActiveFrameBehavior.NativeAddress,
@@ -72,8 +70,6 @@ internal static class CeresInitialActorMetadataVerification
             WrappedActorRomFields fields,
             string name)
         {
-            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.XWord), actor.Position.X, $"{name} X");
-            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.YWord), actor.Position.Y, $"{name} Y");
             PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.AttributeWord), CeresSheetInks.SpriteSet(actor.Colouring),
                 $"{name} attributes");
             AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.DeltaWord), actor.HorizontalDelta.Fraction,

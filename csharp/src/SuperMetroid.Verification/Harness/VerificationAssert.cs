@@ -111,7 +111,6 @@ using static SuperMetroid.Verification.Rooms.Doors.GreyDoorObjectDrawDefinitions
 using static SuperMetroid.Verification.Enemies.Shutters.GrowingShutterDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Gunship.GunshipMotionDefinitionsVerification;
 using static SuperMetroid.Verification.Hardware.HalfWaveAlgorithmsVerification;
-using static SuperMetroid.Verification.Hardware.HighlightTilePixelsVerification;
 using static SuperMetroid.Verification.Samus.Palettes.HyperBeamFxColorArtworkVerification;
 using static SuperMetroid.Verification.Frontend.Intro.Artwork.IntroConfusedBabyPartsVerification;
 using static SuperMetroid.Verification.Frontend.Intro.IntroDiscoveryCollisionVerification;
@@ -185,20 +184,11 @@ using static SuperMetroid.Verification.Frontend.Map.MapArrowCasesVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapArrowDurationsVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapIndicatorAnimationVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapLoadAnchorsVerification;
-using static SuperMetroid.Verification.Frontend.Map.MapMarkerPixelsVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapSaveMarkerCoordinatesVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapSaveMarkersVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapSpriteCasesVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapWindowMotionDefinitionsVerification;
-using static SuperMetroid.Verification.Frontend.Menus.MenuBeveledSquarePixelsVerification;
-using static SuperMetroid.Verification.Frontend.Menus.MenuCompactLetteringPixelsVerification;
-using static SuperMetroid.Verification.Frontend.Menus.MenuLargeFontPixelsVerification;
 using static SuperMetroid.Verification.Frontend.Menus.MenuMissileLookupsVerification;
-using static SuperMetroid.Verification.Frontend.Menus.MenuPanelPixelsVerification;
-using static SuperMetroid.Verification.Frontend.Menus.MenuShoulderButtonPixelsVerification;
-using static SuperMetroid.Verification.Frontend.Menus.MenuShoulderHighlightPixelsVerification;
-using static SuperMetroid.Verification.Frontend.Menus.MenuSmallFontPixelsVerification;
-using static SuperMetroid.Verification.Frontend.Menus.MenuThinBorderPixelsVerification;
 using static SuperMetroid.Verification.Enemies.Metroids.MetroidBehaviorDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.MiscDustProjectileDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainGeneratedVisualCatalogsVerification;
@@ -234,7 +224,6 @@ using static SuperMetroid.Verification.Samus.Projectiles.ProjectileSoundRoutingV
 using static SuperMetroid.Verification.Enemies.Puyo.PuyoInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Fx.QuicksandVerification;
 using static SuperMetroid.Verification.Rendering.RenderingAndRoomsVerification;
-using static SuperMetroid.Verification.Hud.ReserveTilePixelsVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using static SuperMetroid.Verification.Bosses.Ridley.RidleyAttackChoicesVerification;
 using static SuperMetroid.Verification.Bosses.Ridley.RidleyClawOffsetsVerification;
@@ -1562,145 +1551,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Checks pause-menu title glyph pixels against source tiles.</summary>
-    [VerificationCommand("--lookup-menu-title-font")]
-    [VerificationCommand("--lookup-menu-large-font")]
-    internal static int LookupMenuTitleFontCommand()
-    {
-        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Large font pixel oracle revision");
-        Suite(nameof(VerifyMenuLargeFontPixels), () => VerifyMenuLargeFontPixels(rom));
-        Console.WriteLine("Large font pixels: all original pixels, complete native uploads, independent edits, full custom region and bounds pass.");
-        return 0;
-    }
-
-    /// <summary>Checks thin menu border tiles and their pixel edges.</summary>
-    [VerificationCommand("--lookup-menu-thin-border-pixels")]
-    internal static int LookupMenuThinBorderPixelsCommand()
-    {
-        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Thin border pixel oracle revision");
-        Suite(nameof(VerifyMenuThinBorderPixels), () => VerifyMenuThinBorderPixels(rom));
-        Console.WriteLine("Thin border pixels: all original pixels, complete native uploads, independent edits, full custom region and bounds pass.");
-        return 0;
-    }
-
-    /// <summary>Checks beveled menu square tiles and corner pixels.</summary>
-    [VerificationCommand("--lookup-menu-beveled-square-pixels")]
-    internal static int LookupMenuBeveledSquarePixelsCommand()
-    {
-        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Beveled square pixel oracle revision");
-        Suite(nameof(VerifyMenuBeveledSquarePixels), () => VerifyMenuBeveledSquarePixels(rom));
-        Console.WriteLine("Beveled square pixels: all original pixels, complete native uploads, independent edits, full custom region and bounds pass.");
-        return 0;
-    }
-
-    /// <summary>Checks map arrow artwork using the requested cartridge source.</summary>
-    [VerificationCommand("--lookup-map-arrow-pixels")]
-    [VerificationCommand("--lookup-map-pulse-pixels")]
-    [VerificationCommand("--lookup-defeated-boss-pixels")]
-    internal static int LookupMapArrowPixelsCommand(string[] args)
-    {
-        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Map marker pixel oracle revision");
-        if (args[0] == "--lookup-map-arrow-pixels") VerifyMapArrowPixels(rom);
-        else if (args[0] == "--lookup-map-pulse-pixels") VerifyMapPulsePixels(rom);
-        else VerifyDefeatedBossPixels(rom);
-        Console.WriteLine($"{args[0]}: all original pixels, complete native uploads, independent edits, full custom region and bounds pass.");
-        return 0;
-    }
-
-    /// <summary>Checks shoulder-button highlight tiles and pixel colors.</summary>
-    [VerificationCommand("--lookup-menu-shoulder-highlight-pixels")]
-    internal static int LookupMenuShoulderHighlightPixelsCommand()
-    {
-        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Shoulder highlight pixel oracle revision");
-        Suite(nameof(VerifyMenuShoulderHighlightPixels), () => VerifyMenuShoulderHighlightPixels(rom));
-        Console.WriteLine("Shoulder highlight pixels: all original pixels, complete native uploads, independent edits, full custom region and bounds pass.");
-        return 0;
-    }
-
-    /// <summary>Checks shoulder-button label and outline tiles.</summary>
-    [VerificationCommand("--lookup-menu-shoulder-button-pixels")]
-    internal static int LookupMenuShoulderButtonPixelsCommand()
-    {
-        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Shoulder button pixel oracle revision");
-        Suite(nameof(VerifyMenuShoulderButtonPixels), () => VerifyMenuShoulderButtonPixels(rom));
-        Console.WriteLine("Shoulder button pixels: all original pixels, complete native uploads, independent edits, full custom region and bounds pass.");
-        return 0;
-    }
-
-    /// <summary>Checks menu panel tile pixels against native artwork.</summary>
-    [VerificationCommand("--lookup-menu-panel-pixels")]
-    internal static int LookupMenuPanelPixelsCommand()
-    {
-        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Menu panel pixel oracle revision");
-        Suite(nameof(VerifyMenuPanelPixels), () => VerifyMenuPanelPixels(rom));
-        Console.WriteLine("Menu panel pixels: all original pixels, complete native uploads, independent edits, full custom region and bounds pass.");
-        return 0;
-    }
-
-    /// <summary>Checks elevator-lettering glyph shapes and tile order.</summary>
-    [VerificationCommand("--lookup-elevator-lettering")]
-    [VerificationCommand("--lookup-menu-outlined-lettering")]
-    [VerificationCommand("--lookup-menu-compact-lettering")]
-    internal static int LookupElevatorLetteringCommand()
-    {
-        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Elevator lettering pixel oracle revision");
-        Suite(nameof(VerifyMenuCompactLetteringPixels), () => VerifyMenuCompactLetteringPixels(rom));
-        Console.WriteLine("Elevator lettering pixels: all original pixels, complete native uploads, independent edits, full custom region and bounds pass.");
-        return 0;
-    }
-
-    /// <summary>Checks menu small-font glyph pixels and spacing.</summary>
-    [VerificationCommand("--lookup-menu-small-font")]
-    internal static int LookupMenuSmallFontCommand()
-    {
-        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Small font pixel oracle revision");
-        Suite(nameof(VerifyMenuSmallFontPixels), () => VerifyMenuSmallFontPixels(rom));
-        Console.WriteLine("Small font pixels: all original pixels, complete native uploads, independent edits, full custom region and bounds pass.");
-        return 0;
-    }
-
-    /// <summary>Checks highlighted map tile pixels against source artwork.</summary>
-    [VerificationCommand("--lookup-highlight-tile-pixels")]
-    internal static int LookupHighlightTilePixelsCommand()
-    {
-        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Highlight pixel oracle revision");
-        Suite(nameof(VerifyHighlightTilePixels), () => VerifyHighlightTilePixels(rom));
-        Console.WriteLine("Highlight pixels: all original pixels, complete native uploads, independent edits, full custom region and bounds pass.");
-        return 0;
-    }
-
-    /// <summary>Checks reserve-tank UI tile pixels against native data.</summary>
-    [VerificationCommand("--lookup-reserve-tile-pixels")]
-    internal static int LookupReserveTilePixelsCommand()
-    {
-        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Reserve pixel oracle revision");
-        Suite(nameof(VerifyReserveTilePixels), () => VerifyReserveTilePixels(rom));
-        Console.WriteLine("Reserve pixels: all original pixels, complete native uploads, independent edits, full custom region and bounds pass.");
-        return 0;
-    }
-
     /// <summary>Checks reserve-tank frame selection in the pause menu.</summary>
     [VerificationCommand("--lookup-pause-reserve-frames")]
     internal static int LookupPauseReserveFramesCommand()
@@ -1998,7 +1848,7 @@ internal static class VerificationAssert
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres placement oracle revision");
         Suite(nameof(VerifyCeresRearPlacementSelector), () => VerifyCeresRearPlacementSelector(rom));
         Suite(nameof(VerifyCeresRevealPlacementSelector), () => VerifyCeresRevealPlacementSelector(rom));
-        Suite(nameof(VerifyCeresInitialPlacementSelector), () => VerifyCeresInitialPlacementSelector());
+        Suite(nameof(VerifyCeresInitialPlacementSelector), () => VerifyCeresInitialPlacementSelector(rom));
         Console.WriteLine("Ceres placement selectors: all 14 original entries, native operands and invalid-index contracts pass.");
         return 0;
     }

@@ -4,26 +4,37 @@ using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.AssetExtraction.Frontend;
+using SuperMetroid.Core.Frontend.Options.Artwork;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Verification.Frontend.Menus;
 
 /// <summary>Checks options-screen cursor positions and controller label transfer geometry against bank-$82 words.</summary>
 internal static class OptionsGeometryLookupsVerification
 {
-    /// <summary>Checks five four-byte-stride primary-menu cursor heights and their index bounds.</summary>
+    /// <summary>Checks the five installed primary-menu cursor heights against the four-byte-stride native table.</summary>
     internal static void VerifyOptionsPrimaryCursorY(ISnesAddressSpace rom) =>
-        Suite(nameof(VerifyOptionsGeometryWords), () => VerifyOptionsGeometryWords(rom, 0x82f309, 4, 5,
-            GameOptionsPositions.PrimaryY, "primary cursor Y"));
+        Suite(nameof(VerifyOptionsCursorRows), () => VerifyOptionsCursorRows(rom, 0x82f309, 5, GameOptionsPage.Primary, "primary cursor Y"));
 
-    /// <summary>Checks nine four-byte-stride controller-menu cursor heights and their index bounds.</summary>
+    /// <summary>Checks the nine installed controller-menu cursor heights against the four-byte-stride native table.</summary>
     internal static void VerifyOptionsControllerCursorY(ISnesAddressSpace rom) =>
-        Suite(nameof(VerifyOptionsGeometryWords), () => VerifyOptionsGeometryWords(rom, 0x82f31d, 4, 9,
-            GameOptionsPositions.ControllerY, "controller cursor Y"));
+        Suite(nameof(VerifyOptionsCursorRows), () => VerifyOptionsCursorRows(rom, 0x82f31d, 9, GameOptionsPage.Controller, "controller cursor Y"));
 
-    /// <summary>Checks three four-byte-stride special-menu cursor heights and their index bounds.</summary>
+    /// <summary>Checks the three installed special-menu cursor heights against the four-byte-stride native table.</summary>
     internal static void VerifyOptionsSpecialCursorY(ISnesAddressSpace rom) =>
-        Suite(nameof(VerifyOptionsGeometryWords), () => VerifyOptionsGeometryWords(rom, 0x82f341, 4, 3,
-            GameOptionsPositions.SpecialY, "special cursor Y"));
+        Suite(nameof(VerifyOptionsCursorRows), () => VerifyOptionsCursorRows(rom, 0x82f341, 3, GameOptionsPage.Special, "special cursor Y"));
+
+    /// <summary>Compares the extracted cursor anchors of <paramref name="page"/> with a native table of four-byte rows.</summary>
+    private static void VerifyOptionsCursorRows(ISnesAddressSpace rom, int address, int count, GameOptionsPage page, string name)
+    {
+        var document = RequiredJson.Deserialize<GameOptionsPresentationDocument>(GameOptionsPresentationExtractor.Extract(rom), ArtworkJson.Options);
+        Position16<SpritePixels>[] anchors = document.CursorAnchors[GameOptionsPresentationFormat.MenuName(page)];
+        AssertEqual(count, anchors.Length, $"{name} row count");
+        for (int index = 0; index < count; index++)
+            AssertEqual((int)ReadVerificationWord(rom, address + 4 * index), anchors[index].Y, $"{name} native word {index}");
+    }
 
     /// <summary>Checks the seven controller-label boxes against the native byte offsets their labels are drawn at.</summary>
     internal static void VerifyOptionsLabelDestinations(ISnesAddressSpace rom) =>

@@ -64,20 +64,15 @@ internal static class GameOptionsHeadingsVerification
     {
         AssertEqual((byte)0xa9, GameOptionsHeadingAnchorsRomByte(rom, 0x82f369), "native heading common Y LDA");
         ushort y = ReadVerificationWord(rom, 0x82f36a);
-        AssertEqual(y, GameOptionsDefinitions.Headings.HeadingY, "native common heading Y");
         for (int page = 0; page < 3; page++)
         {
             int setup = 0x82f34b + 8 * page;
             AssertEqual((byte)0xa9, GameOptionsHeadingAnchorsRomByte(rom, setup), "native heading X LDA");
             ushort x = ReadVerificationWord(rom, setup + 1);
-            AssertEqual(x, GameOptionsPositions.HeadingX((GameOptionsPage)page), "native heading X case");
             Position16<SpritePixels> actual = document.HeadingAnchors[GameOptionsPresentationFormat.MenuName(OriginalHeadingPage(page))];
             AssertEqual((int)x, actual.X, "imported heading X");
             AssertEqual((int)y, actual.Y, "imported heading Y");
         }
-        foreach (int invalid in new[] { int.MinValue, -1, 3, 65536, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsPositions.HeadingX((GameOptionsPage)invalid),
-                "heading anchor selector bounds");
     }
 
     /// <summary>Reads a native heading setup opcode for the cartridge comparison.</summary>

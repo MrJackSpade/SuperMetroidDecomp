@@ -18,10 +18,10 @@ using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 
-/// <summary>Checks calculated stock map sprites and required map roles.</summary>
+/// <summary>Checks the installed map sprites against the cartridge's and required map roles.</summary>
 internal static class MapSpriteCasesVerification
 {
-    /// <summary>Compares stock compositions while requiring every named map role.</summary>
+    /// <summary>Compares the installed compositions with the cartridge's while requiring every named map role.</summary>
     internal static void VerifyMapSpriteCompositionCases(ISnesAddressSpace rom)
     {
         var files = MapSpriteExtractor.Extract(rom);
@@ -29,16 +29,6 @@ internal static class MapSpriteCasesVerification
         var document = RequiredJson.Deserialize<MapSpriteDocument>(files[MapSpriteFormat.JsonFile], ArtworkJson.Options);
         var stock = MapSpriteArtwork.Read(new MemoryStream(files[MapSpriteFormat.JsonFile]), new MemoryStream(png));
         Suite(nameof(VerifyMapSpriteNativeCompositions), () => VerifyMapSpriteNativeCompositions(rom, stock));
-        foreach (var role in MapSpriteRoleOracle())
-        {
-            AssertTrue(!stock.StoresComposition(MapSpriteOrdinals.Spritemaps.Decode(role.NativeId, "map spritemap ordinal")), "regular stock map composition has no stored parts");
-            var original = document.Frames[role.Name];
-            bool worldLabel = role.NativeId is >= 0x39 and <= 0x3e;
-            if (worldLabel)
-                AssertEqual(role.NativeId switch { 0x39 => 3, 0x3a => 4, 0x3b => 2, 0x3c => 3, 0x3d => 3, 0x3e => 5, _ => 0 },
-                    stock.StoredLabelHorizontalCount(MapSpriteOrdinals.Spritemaps.Decode(role.NativeId, "map spritemap ordinal")), "only line origins and nonstandard advances remain stored");
-            else AssertEqual(original.Length, MapMarkerGeometry.PartCount(MapSpriteOrdinals.Spritemaps.Decode(role.NativeId, "map spritemap ordinal")), "original marker part count");
-        }
         foreach (var changed in MapSpriteRoleOracle())
         {
             var frames = new Dictionary<string, SpriteVisualPart[]>(document.Frames);

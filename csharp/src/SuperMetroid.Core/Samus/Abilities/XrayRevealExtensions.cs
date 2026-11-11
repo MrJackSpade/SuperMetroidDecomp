@@ -12,7 +12,7 @@ public static class XrayRevealExtensions
     /// </summary>
     /// <param name="level">The room whose extension chain is followed.</param>
     /// <param name="blockIndex">The extension block the chain starts at.</param>
-    /// <param name="visuals">The installed reveal blocks, which a terminal special-air block shows.</param>
+    /// <param name="visuals">The installed reveal blocks, which a terminal special-air block or a backward exit from the room shows.</param>
     public static int? Resolve(RoomLevelData level, int blockIndex, InstalledXrayReveals visuals)
     {
         Ensure.NotNull(level);
@@ -34,7 +34,7 @@ public static class XrayRevealExtensions
             if (!visited.Add(new(Position16<RoomBlocks>.Of(x, y), vertical, step)))
                 throw new InvalidDataException($"Cyclic X-ray extension chain from block {blockIndex}.");
             int coordinate = CoordinateAxis.Wrap((vertical ? y : x) + step);
-            if (CoordinateAxis.AsSigned(coordinate) < 0) return XrayRevealDefinitions.BlankMetatile;
+            if (CoordinateAxis.AsSigned(coordinate) < 0) return visuals.ExtensionExitBlock;
             if (vertical) y = coordinate; else x = coordinate;
             // The block lookup takes Y's row within the scan cycle; X is then added, so it may legitimately spill into
             // the next row.

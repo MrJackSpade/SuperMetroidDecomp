@@ -423,10 +423,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         for (int index = 0; index < CeresDestructionActorDefinitions.InitialActorCount; index++)
         {
             // Each actor starts at its installed placement (#1596).
-            actors.Add(CreateActor(CeresDestructionActors.InitialActor(index) with
-            {
-                Position = content.CeresDestruction.DestructionActors[index].Position,
-            }));
+            actors.Add(CreateActor(CeresDestructionActors.InitialActor(index), content.CeresDestruction.DestructionActors[index].Position));
         }
         ceresActorsDrawnLast.Clear();
         ceresActorsDrawnLast.Add(actors[1]);
@@ -519,12 +516,12 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private bool MusicQueueFinished() =>
         audio is null ? --musicQueueTimer <= 0 : !audio.HasQueuedMusic;
 
-    /// <summary>Installs an authored sprite's position, attributes, program, and frame behaviour.</summary>
+    /// <summary>Installs an authored sprite at <paramref name="start"/> with its attributes, program, and frame behaviour.</summary>
     private static IntroDiscoverySprite CreateActor(
-        CeresDestructionActorDefinition definition)
+        CeresDestructionActorDefinition definition, Position16<ScreenPixels> start)
     {
         var actor = new IntroDiscoverySprite(
-            definition.Position,
+            start,
             CeresShades.Drawn(definition.Colouring),
             definition.Program)
         {
@@ -539,10 +536,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         IntroCinematicArtwork content = Artwork ?? throw new InvalidOperationException(
             "The Zebes reveal requires installed cinematic artwork.");
-        return CreateActor(CeresDestructionActors.ZebesActor(index) with
-        {
-            Position = content.CeresDestruction.RevealActors[index].Position,
-        });
+        return CreateActor(CeresDestructionActors.ZebesActor(index), content.CeresDestruction.RevealActors[index].Position);
     }
 
 

@@ -14,14 +14,12 @@ namespace SuperMetroid.Verification.Frontend.Pause;
 /// <summary>Checks pause equipment selector OAM against native sprites.</summary>
 internal static class PauseSelectorCompositionsVerification
 {
-    /// <summary>Checks stock compact storage, native compositions and the phase bound.</summary>
+    /// <summary>Checks the installed compositions against the cartridge's and the phase bound.</summary>
     internal static void VerifyPauseSelectorCompositions(ISnesAddressSpace rom)
     {
         byte[] bytes = PauseSelectorExtractor.Extract(rom);
         var stock = PauseSelectorSourcePresentation.Load(new MemoryStream(bytes));
         for (int group = 0; group < 3; group++) VerifyPauseSelectorNativeCompositions(rom, stock, group);
-        AssertEqual(0, stock.StoredCompositionOverrideCount, "stock selector has no phase composition table");
-        AssertTrue(!stock.StoresCompositionParts, "stock selector stores no sprite part records");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Draw(ScreenSpritesFixtures.Blank(), MenuSheetFixtures.PauseSprites(stock), 0, 0, -1), "negative composition phase");
     }
 

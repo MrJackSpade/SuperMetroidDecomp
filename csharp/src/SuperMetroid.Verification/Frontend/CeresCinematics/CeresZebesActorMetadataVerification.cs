@@ -12,8 +12,6 @@ internal static class CeresZebesActorMetadataVerification
     /// <summary>Compares spawn, slide, and completion callbacks while rejecting invalid actor ordinals.</summary>
     internal static void VerifyCeresZebesActorMetadata(ISnesAddressSpace retail)
     {
-        int[] xAddresses = [0x8bc83c, 0x8bc944, 0x8bc958, 0x8bc96c, 0x8bc980, 0x8bc993];
-        int[] yAddresses = [0x8bc842, 0x8bc94a, 0x8bc95e, 0x8bc972, 0x8bc986, 0x8bc999];
         int[] attributeAddresses = [0x8bc848, 0x8bc950, 0x8bc964, 0x8bc978, 0x8bc98c, 0x8bc99f];
         for (int index = 0; index < CeresDestructionActorDefinitions.ZebesActorCount; index++)
         {
@@ -28,10 +26,6 @@ internal static class CeresZebesActorMetadataVerification
             AssertEqual(SignedSixteenSixteen.Zero, actor.HorizontalDelta, "reveal actor has no horizontal motion");
             AssertEqual(false, actor.WrapX, "reveal actor has no horizontal wrap");
             AssertEqual(index == 4, actor.CompletesScene, "only native star5 callback at C8F2 loads game");
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(xAddresses[index]), actor.Position.X,
-                $"Zebes reveal actor {index} X");
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(yAddresses[index]), actor.Position.Y,
-                $"Zebes reveal actor {index} Y");
             PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(attributeAddresses[index]), CeresSheetInks.SpriteSet(actor.Colouring),
                 $"Zebes reveal actor {index} attributes");
         }

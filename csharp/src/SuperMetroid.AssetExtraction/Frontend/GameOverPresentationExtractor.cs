@@ -93,7 +93,7 @@ public static class GameOverPresentationExtractor
             BabyPalette = GameOverSourceDefinitions.BabyPalette,
             EggPalette = GameOverSourceDefinitions.EggPalette,
             CursorPalette = MenuRenderDefinitions.ObjectPalette,
-            CursorFrameDuration = MenuMissileAnimationDefinitions.FrameDuration,
+            CursorFrameDuration = MenuAnimationTimings.MissileFrameDuration(bus),
         });
         return output.ToArray();
 

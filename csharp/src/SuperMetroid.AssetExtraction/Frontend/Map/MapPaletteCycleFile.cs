@@ -22,7 +22,7 @@ public static class MapPaletteCycleFile
     /// <summary>Compiles an editable ordered color-and-duration document into an immutable map-highlight cycle.</summary>
     /// <param name="json">Caller-owned readable JSON stream, consumed from its current position without being disposed.</param>
     /// <returns>A cycle owning copied native-precision colors and holds; it contains no playback timer, CGRAM destination, or loop-sound command.</returns>
-    /// <remarks>Stock extraction reads timing at $82:C10C and colors at $82:A987. A fourteen-frame cycle shares matching reverse phases while retaining independently edited reverse colors exactly; other lengths preserve the supplied frame sequence directly.</remarks>
+    /// <remarks>Extraction reads timing at $82:C10C and colors at $82:A987. Every frame's hold and colours are kept as installed.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
     /// <exception cref="InvalidDataException">The JSON, version, frame count, tick durations, sixteen-color frame shape, or RGB5 components are invalid.</exception>
     public static MapPaletteCycle Read(Stream json)

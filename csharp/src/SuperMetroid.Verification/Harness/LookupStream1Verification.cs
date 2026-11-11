@@ -1845,14 +1845,14 @@ internal static class LookupStream1Verification
             AssertEqual(0, Stored(program), "escape text stock contains no sampled line overrides");
             for (int index = 0; index < original.Length; index++)
             {
-                var expected = new EscapeTypewriterLine(SuperMetroid.Core.Rooms.Backgrounds.TwoScreenTilemapCells.CellAt(original[index].Cell), original[index].Text);
+                var expected = new EscapeTypewriterLine(new Position16<PlanePixels>(original[index].X, original[index].Y), original[index].Text);
                 AssertEqual(expected, EscapeTypewriterLines.Line(id, index), "escape text direct original placement and wording");
                 AssertEqual(expected, program.Lines[index], "escape text installed line");
             }
             // Independently interpret original control words and characters; the production
             // side receives only the installed calculated view and no cartridge reader.
             ushort tileBase = id == EscapeTypewriterProgramId.Ceres ? (ushort)0x3582 : (ushort)0x2610;
-            // The program's words are VRAM tilemap words; the port types at cells of the overlay over that tilemap.
+            // The program's words are VRAM tilemap words; the port types at the pixel of the layer that tilemap word's cell shows at.
             int tilemapWord = id == EscapeTypewriterProgramId.Ceres ? GameplayVramLayout.Bg1TilemapWord : GameplayVramLayout.Bg2TilemapWord;
             var actual = new EscapeTypewriterState(program);
             var actualVram = new SnesVram(); var expectedVram = new SnesVram();
@@ -1884,7 +1884,7 @@ internal static class LookupStream1Verification
                     }
                 }
                 AssertEqual(done, actual.StepInto(actualVram), "escape text native completion");
-                AssertEqual(destination - tilemapWord, SuperMetroid.Core.Rooms.Backgrounds.TwoScreenTilemapCells.IndexOf(actual.Cell), "escape text native cell");
+                AssertEqual(destination - tilemapWord, SuperMetroid.Core.Rooms.Backgrounds.TwoScreenTilemapCells.IndexOf(actual.Corner), "escape text native cell");
                 AssertEqual(delay, actual.Delay, "escape text native delay");
                 AssertEqual(timer, actual.DelayTimer, "escape text native countdown");
                 AssertEqual(glyphs, actual.GlyphsWritten, "escape text native glyph count");

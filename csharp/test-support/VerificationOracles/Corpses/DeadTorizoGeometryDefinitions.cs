@@ -20,8 +20,8 @@ internal static class DeadTorizoGeometryDefinitions
             for (int index = 0; index < DeadTorizoStationaryCompositionDefinitions.Count; index++)
             {
                 var part = SourcePart(index);
-                left = Math.Min(left, part.Corner.X); top = Math.Min(top, part.Corner.Y);
-                right = Math.Max(right, part.Corner.X + part.Extent); bottom = Math.Max(bottom, part.Corner.Y + part.Extent);
+                left = Math.Min(left, part.Column); top = Math.Min(top, part.Row);
+                right = Math.Max(right, part.Column + part.Extent); bottom = Math.Max(bottom, part.Row + part.Extent);
             }
             return new(left, top, right, bottom);
         }
@@ -32,8 +32,8 @@ internal static class DeadTorizoGeometryDefinitions
     {
         DeadTorizoStockPart part = DeadTorizoStationaryCompositionDefinitions.Part(index);
         int tile = part.Tile - DeadTorizoStationaryCompositionDefinitions.SourceTileBase;
-        return new(new((ushort)(tile % DeadTorizoStationaryCompositionDefinitions.SourceColumns),
-            (ushort)(tile / DeadTorizoStationaryCompositionDefinitions.SourceColumns)), part.TileExtent);
+        return new(tile % DeadTorizoStationaryCompositionDefinitions.SourceColumns,
+            tile / DeadTorizoStationaryCompositionDefinitions.SourceColumns, part.TileExtent);
     }
 
     /// <summary>Calculate each native MVN's source, destination and length from the stock sprite tile union.</summary>
@@ -45,8 +45,8 @@ internal static class DeadTorizoGeometryDefinitions
         for (int index = 0; index < DeadTorizoStationaryCompositionDefinitions.Count; index++)
         {
             var part = SourcePart(index);
-            if (sourceRow < part.Corner.Y || sourceRow >= part.Corner.Y + part.Extent) continue;
-            left = Math.Min(left, part.Corner.X); right = Math.Max(right, part.Corner.X + part.Extent);
+            if (sourceRow < part.Row || sourceRow >= part.Row + part.Extent) continue;
+            left = Math.Min(left, part.Column); right = Math.Max(right, part.Column + part.Extent);
         }
         return new((sourceRow * DeadTorizoStationaryCompositionDefinitions.SourceColumns + left) * TileBytes,
             (row * (bounds.Right - bounds.Left) + left - bounds.Left) * TileBytes, (right - left) * TileBytes);

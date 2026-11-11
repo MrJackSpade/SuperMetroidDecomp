@@ -28,7 +28,7 @@ internal static class MotherBrainDeathHandoffVerification
         AssertEqual(EscapeTypewriterTileDefinitions.ZebesTileBase.PackedWord, vram.ReadWord(0), "text glyph reaches its cell");
         AssertTrue(!text.ClickRequested, "first glyph does not click");
         text.StepInto(vram);
-        AssertEqual(new Position16<TilemapCells>(2, 0), text.Cell, "space advances cursor without a tile");
+        AssertEqual(new Position16<PlanePixels>(2 * EscapeTypewriterDefinitions.GlyphAdvance, 0), text.Corner, "space advances cursor a glyph's width without a tile");
         text.StepInto(vram);
         text.StepInto(vram);
         AssertEqual(1, text.GlyphsWritten, "delay applies before next visible glyph");

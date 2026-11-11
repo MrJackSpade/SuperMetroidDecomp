@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
@@ -37,7 +38,7 @@ internal static class EndingPictureSheetComposer
     /// <summary>Each ending picture sheet: how it is composed and the frames it holds.</summary>
     private static readonly IReadOnlyDictionary<SpriteSheetId, PictureSheet> PictureSheets = new Dictionary<SpriteSheetId, PictureSheet>
     {
-        [SpriteSheetId.EndingCreditsRows] = new(ComposeCredits, () => CreditsRows().Select(row => row.Name), [EndingScenery.CreditsRows]),
+        [SpriteSheetId.EndingCreditsRows] = new(ComposeCredits, () => CreditsRollLines.Lines.Select(line => line.Picture), [EndingScenery.CreditsRows]),
         [SpriteSheetId.EndingPostCreditsPictures] = new(ComposePostCredits, () =>
             [EndingPictureNames.WaitingBackdrop, EndingPictureNames.Logo, EndingPictureNames.ResultPanel, EndingPictureNames.CopyrightPanel,
                 EndingPictureNames.JapaneseSubtitle, .. Glyphs().Select(glyph => glyph.Name)],
@@ -68,16 +69,6 @@ internal static class EndingPictureSheetComposer
     /// <exception cref="ArgumentOutOfRangeException">The sheet is not an ending picture sheet.</exception>
     internal static IEnumerable<string> FrameNames(SpriteSheetId sheet) => Ensure.Listed(PictureSheets, sheet).Frames();
 
-    /// <summary>The credits roll's pictured rows: each line row's picture name and its row on the roll.</summary>
-    private static IEnumerable<CreditsRow> CreditsRows()
-    {
-        for (int row = 0; row < CreditsRollRows.Pictures.Length; row++)
-        {
-            if (CreditsRollRows.Pictures[row] is { } name)
-                yield return new CreditsRow(name, row);
-        }
-    }
-
     /// <summary>
     /// The typed glyphs and the item percentage's digits and percent sign: each glyph's name and its one or two map words,
     /// top first.
@@ -99,7 +90,7 @@ internal static class EndingPictureSheetComposer
         static BackgroundTile Offset(BackgroundTile zero, int digit) => zero with { Tile = zero.Tile + digit };
     }
 
-    /// <summary>The credits roll's staff lines, one row each, under the credits palette.</summary>
+    /// <summary>The credits roll's staff lines, one picture each as high as the line, under the credits palette.</summary>
     private static ComposedSpriteSheet ComposeCredits(ScreenTileSources sources)
     {
         AreaMapPresentation maps = sources.Maps;
@@ -108,36 +99,49 @@ internal static class EndingPictureSheetComposer
         RequireBlank(font);
         var characters = new Characters(RoomTileCanvas.CharacterBytes);
         characters.Load(EndingTextLayerDefinitions.FontFirstCharacter, font);
-        CreditsRow[] rows = [.. CreditsRows()];
-        // Rows writing the same tiles, such as two lines naming one person, are one picture on one sheet row (#1513).
-        var sheetRowOf = new Dictionary<string, int>(StringComparer.Ordinal);
-        int[] sheetRows = new int[rows.Length];
-        for (int index = 0; index < rows.Length; index++)
+        ImmutableArray<CreditsRollLine> lines = CreditsRollLines.Lines;
+        // Lines writing the same tiles, such as two lines naming one person, are one picture on the sheet (#1513).
+        var sheetTopOf = new Dictionary<string, int>(StringComparer.Ordinal);
+        int[] sheetTops = new int[lines.Length];
+        int sheetRows = 0;
+        for (int index = 0; index < lines.Length; index++)
         {
-            string written = string.Join(';', credits.GetRow(rows[index].Row).ToArray());
-            if (!sheetRowOf.TryGetValue(written, out int sheetRow))
+            string written = string.Join('|', RowsOf(credits, lines[index]).Select(row => string.Join(';', row)));
+            if (!sheetTopOf.TryGetValue(written, out int sheetTop))
             {
-                sheetRow = sheetRowOf.Count;
-                sheetRowOf.Add(written, sheetRow);
+                sheetTop = sheetRows;
+                sheetTopOf.Add(written, sheetTop);
+                sheetRows += CreditsPresentation.RowsOf(lines[index].Height);
             }
-            sheetRows[index] = sheetRow;
+            sheetTops[index] = sheetTop;
         }
-        var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(ScreenSize.X, checked((ushort)(sheetRowOf.Count * CharacterPixels))));
+        var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(ScreenSize.X, checked((ushort)(sheetRows * CharacterPixels))));
         RgbColor[] colours = Colours(sources, EndingPaletteId.Credits);
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
         var painted = new HashSet<int>();
-        for (int index = 0; index < rows.Length; index++)
+        for (int index = 0; index < lines.Length; index++)
         {
-            int sheetRow = sheetRows[index];
-            if (painted.Add(sheetRow))
+            int sheetTop = sheetTops[index];
+            BackgroundTile[][] rows = RowsOf(credits, lines[index]);
+            if (painted.Add(sheetTop))
             {
-                ReadOnlySpan<BackgroundTile> row = credits.GetRow(rows[index].Row);
-                for (int column = 0; column < row.Length; column++)
-                    characters.Paint(canvas, column * CharacterPixels, sheetRow * CharacterPixels, row[column], colours);
+                for (int row = 0; row < rows.Length; row++)
+                for (int column = 0; column < rows[row].Length; column++)
+                    characters.Paint(canvas, column * CharacterPixels, (sheetTop + row) * CharacterPixels, rows[row][column], colours);
             }
-            frames.Add(rows[index].Name, WrittenPictureSheetComposer.Frame(canvas, sheetRow, EndingTextDefinitions.SmallGlyphHeight, WrittenPictureLayer.WrittenOverRoom));
+            frames.Add(lines[index].Picture, WrittenPictureSheetComposer.Frame(canvas, sheetTop, rows.Length, WrittenPictureLayer.WrittenOverRoom));
         }
         return canvas.ToSheet(colours, frames, SpriteImageColours.Background);
+    }
+
+    /// <summary>The cartridge's credits rows <paramref name="line"/> covers on the roll, top first.</summary>
+    private static BackgroundTile[][] RowsOf(CreditsPresentation credits, CreditsRollLine line)
+    {
+        int first = CreditsPresentation.RowsOf(line.Top);
+        var rows = new BackgroundTile[CreditsPresentation.RowsOf(line.Height)][];
+        for (int row = 0; row < rows.Length; row++)
+            rows[row] = credits.GetRow(first + row).ToArray();
+        return rows;
     }
 
     /// <summary>
@@ -313,11 +317,6 @@ internal static class EndingPictureSheetComposer
     /// <param name="Scenery">The scenery its pictures are.</param>
     private sealed record PictureSheet(Func<ScreenTileSources, ComposedSpriteSheet> Compose, Func<IEnumerable<string>> Frames,
         EndingScenery[] Scenery);
-
-    /// <summary>A pictured row of the credits roll.</summary>
-    /// <param name="Name">The row's picture name.</param>
-    /// <param name="Row">The row on the roll.</param>
-    private sealed record CreditsRow(string Name, int Row);
 
     /// <summary>A typed glyph's picture.</summary>
     /// <param name="Name">The glyph's picture name.</param>

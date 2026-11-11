@@ -29,34 +29,37 @@ internal static class CreditsPresentationVerification
         ushort[][] nativeRows =
             SuperMetroid.AssetExtraction.Frontend.Ending.CreditsPresentationExtractor.ReadNativeRows(bus);
         AssertEqual(nativeRows.Length,
-            CreditsRollDefinitions.ExpectedCompiledRows, "installed credits retain the fixed native schedule");
+            CreditsPresentationDefinitions.RowCount, "installed credits retain the fixed native schedule");
         for (int row = 0; row < nativeRows.Length; row++)
         {
             AssertTrue(BackgroundTileWordBytes.Words(presentation.GetRow(row)).SequenceEqual(nativeRows[row]),
                 $"installed credits row {row}, encoded through the codec, matches the native row program");
         }
 
-        // Exercise actual runtime cadence through completion. CreditsObjectState has no bus
-        // dependency, so this also proves installed playback cannot fall back to ROM text.
-        var runtime = new CreditsObjectState(CreditsRollDefinitions.ExpectedCompiledRows);
-        for (int row = 0; row < CreditsRollDefinitions.ExpectedCompiledRows; row++)
+        // Every row the installed document gives text is a row one of the roll's line pictures covers.
+        for (int row = 0; row < nativeRows.Length; row++)
         {
-            for (int frame = 0; frame < 15; frame++)
-            {
-                runtime.Step();
-                AssertEqual(row, runtime.NextSourceRow, $"credits row {row} waits for its sixteenth half-pixel frame");
-            }
-            runtime.Step();
-            AssertTrue(runtime.NextSourceRow == row + 1 && !runtime.Finished,
-                $"credits row {row} is taken at the native eight-pixel boundary");
-            // Every row the installed document gives text is a row the roll lays a line picture on.
-            AssertTrue(CreditsRollRows.Pictures[row] is not null
+            int top = row * CreditsPresentationDefinitions.RowHeight;
+            AssertTrue(CreditsRollLines.Lines.Any(line => line.Top <= top && top < line.Top + line.Height)
                 || presentation.GetRow(row).ToArray().All(tile => tile == CreditsPresentationDefinitions.BlankTile),
-                $"credits row {row} with text is a pictured line row");
+                $"credits row {row} with text is covered by a line picture");
         }
-        for (int frame = 0; frame < 16; frame++) runtime.Step();
-        AssertTrue(runtime.Finished && !runtime.Enabled,
-            "credits finish on the boundary after the final installed row");
+
+        // Exercise actual runtime cadence through completion. CreditsObjectState has no bus
+        // dependency, so this also proves installed playback cannot fall back to ROM text. The native
+        // row object takes a row every eight scrolled pixels and finishes on the boundary after its final
+        // row; the roll finishes on the same update.
+        var runtime = new CreditsObjectState();
+        int nativeFinish = (nativeRows.Length + 1) * CreditsPresentationDefinitions.RowHeight;
+        int updates = 0;
+        while (!runtime.Finished)
+        {
+            AssertTrue(updates < 2 * nativeFinish, "credits finish within the native row object's updates");
+            runtime.Step();
+            updates++;
+        }
+        AssertEqual(2 * nativeFinish, updates, "credits finish on the native boundary after the final installed row");
+        AssertEqual(nativeFinish, runtime.ScrolledPixels, "credits finish having scrolled to the native boundary after the final row");
 
         Suite(nameof(VerifyBadCreditDocument), () => VerifyBadCreditDocument(extracted, document => document["version"] = 2,
             "unsupported staff-credit schema rejected"));

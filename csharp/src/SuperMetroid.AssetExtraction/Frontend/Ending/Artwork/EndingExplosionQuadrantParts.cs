@@ -84,22 +84,22 @@ internal sealed class EndingExplosionQuadrantParts : IReadOnlyList<CompiledSprit
             _ => throw new ArgumentOutOfRangeException(nameof(pose)),
         };
         if ((uint)index >= (pose == Pose.Glow ? GlowPieces.Length : SupernovaPieces.Length)) throw new ArgumentOutOfRangeException(nameof(index));
-        Position16<TilemapCells> cell = pose == Pose.Glow ? GlowPieces[index] switch
+        AtlasCell cell = pose == Pose.Glow ? GlowPieces[index] switch
         {
-            GlowPiece.TopCap => new Position16<TilemapCells>(1, 0),
-            GlowPiece.OuterBody => new Position16<TilemapCells>(0, 1),
-            GlowPiece.InnerBody => new Position16<TilemapCells>(1, 1),
+            GlowPiece.TopCap => new AtlasCell(1, 0),
+            GlowPiece.OuterBody => new AtlasCell(0, 1),
+            GlowPiece.InnerBody => new AtlasCell(1, 1),
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         } : SupernovaPieces[index] switch
         {
-            SupernovaPiece.LowerOuterEdge => new Position16<TilemapCells>(0, 2),
-            SupernovaPiece.UpperOuterEdge => new Position16<TilemapCells>(0, 1),
-            SupernovaPiece.InnerTopEdge => new Position16<TilemapCells>(2, 0),
-            SupernovaPiece.OuterTopEdge => new Position16<TilemapCells>(1, 0),
-            SupernovaPiece.Interior => new Position16<TilemapCells>(1, 1),
+            SupernovaPiece.LowerOuterEdge => new AtlasCell(0, 2),
+            SupernovaPiece.UpperOuterEdge => new AtlasCell(0, 1),
+            SupernovaPiece.InnerTopEdge => new AtlasCell(2, 0),
+            SupernovaPiece.OuterTopEdge => new AtlasCell(1, 0),
+            SupernovaPiece.Interior => new AtlasCell(1, 1),
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
-        int column = cell.X, row = cell.Y;
+        int column = cell.Column, row = cell.Row;
         bool large = pose == Pose.Glow || SupernovaPieces[index] == SupernovaPiece.Interior;
         bool right = pose != Pose.SupernovaSecond;
         int x = column * 8 - 24, y = row * 8 - 24;
@@ -107,6 +107,11 @@ internal sealed class EndingExplosionQuadrantParts : IReadOnlyList<CompiledSprit
         return new(SpritePart.Create(Offset16<ScreenPixels>.Of(x, y), large,
             atlasOrigin + row * 16 + column, 0, 0, right ? TileFlip.Horizontal : 0), true);
     }
+
+    /// <summary>A piece's eight-pixel character within its quadrant's block of the sprite character atlas.</summary>
+    /// <param name="Column">The character's column from the block's left.</param>
+    /// <param name="Row">The character's row from the block's top.</param>
+    private readonly record struct AtlasCell(int Column, int Row);
 
     /// <summary>Uses a supplied first quadrant to calculate matching glow or supernova reflections.</summary>
     internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)

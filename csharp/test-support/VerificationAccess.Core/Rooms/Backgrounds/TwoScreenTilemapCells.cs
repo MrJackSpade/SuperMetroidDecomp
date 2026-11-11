@@ -1,42 +1,46 @@
 using System.Collections.Immutable;
+using SuperMetroid.AssetExtraction.Video;
 
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>
-/// The two side-by-side tilemap screens the original game wrote pictures into (#1514), as oracles compare the port's placed
-/// pictures with the words it wrote: the left screen's cells row by row, then the right screen's.
+/// The two side-by-side tilemap screens the original game wrote pictures into (#1514, #1601), as oracles compare the
+/// port's placed pictures with the words it wrote: the left screen's eight-pixel cells row by row, then the right
+/// screen's. The port places pictures at pixels of the layer; this oracle alone knows the screens' cells.
 /// </summary>
 internal static class TwoScreenTilemapCells
 {
     /// <summary>The cells of the two screens.</summary>
-    internal const int Count = 2 * SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.CellCount;
+    internal const int Count = 2 * TilemapScreenGeometry.CellCount;
 
-    /// <summary>The word of the two screens a cell of the layer lies in.</summary>
-    internal static int IndexOf(Position16<TilemapCells> cell) =>
-        cell.X / SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.WidthInTiles * SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.CellCount
-        + cell.Y * SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.WidthInTiles + cell.X % SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.WidthInTiles;
+    /// <summary>The pixels along either side of one cell.</summary>
+    private const int CellPixels = ScreenGeometry.BackgroundTileSizePixels;
 
-    /// <summary>The cell of the layer word <paramref name="index"/> of the two screens lies in.</summary>
-    internal static Position16<TilemapCells> CellAt(int index) =>
-        new(index / SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.CellCount * SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.WidthInTiles + index % SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.WidthInTiles,
-            index % SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.CellCount / SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.WidthInTiles);
+    /// <summary>The word of the two screens the layer pixel <paramref name="corner"/>, a cell's top-left corner, lies in.</summary>
+    internal static int IndexOf(Position16<PlanePixels> corner)
+    {
+        int column = corner.X / CellPixels, row = corner.Y / CellPixels;
+        return column / TilemapScreenGeometry.WidthInTiles * TilemapScreenGeometry.CellCount
+            + row * TilemapScreenGeometry.WidthInTiles + column % TilemapScreenGeometry.WidthInTiles;
+    }
+
+    /// <summary>The layer pixel of the top-left corner of word <paramref name="index"/> of the two screens.</summary>
+    internal static Position16<PlanePixels> CornerAt(int index) =>
+        new((index / TilemapScreenGeometry.CellCount * TilemapScreenGeometry.WidthInTiles + index % TilemapScreenGeometry.WidthInTiles) * CellPixels,
+            index % TilemapScreenGeometry.CellCount / TilemapScreenGeometry.WidthInTiles * CellPixels);
 
     /// <summary>
-    /// The picture of each word of the two screens <paramref name="pictures"/> cover, in the order written, each tile of a
-    /// picture as the tile of its frame it shows; null where nothing was written.
+    /// The picture of each word of the two screens <paramref name="pictures"/> cover, in the order written, each cell of a
+    /// picture as the cell of its frame it shows; null where nothing was written.
     /// </summary>
     internal static BgTilePicture?[] Lay(ImmutableArray<PlacedWrittenPicture> pictures)
     {
         var laid = new BgTilePicture?[Count];
-        const int tile = ScreenGeometry.BackgroundTileSizePixels;
         foreach (PlacedWrittenPicture placed in pictures)
         {
-            for (int row = 0; row < placed.Picture.Size.Y / tile; row++)
-            for (int column = 0; column < placed.Picture.Size.X / tile; column++)
-            {
-                laid[IndexOf(new Position16<TilemapCells>(placed.Corner.X / tile + column, placed.Corner.Y / tile + row))] = new BgTilePicture(placed.Picture,
-                    new Position16<ImagePixels>(column * tile, row * tile));
-            }
+            for (int y = 0; y < placed.Picture.Size.Y; y += CellPixels)
+            for (int x = 0; x < placed.Picture.Size.X; x += CellPixels)
+                laid[IndexOf(placed.Corner + new Offset16<PlanePixels>(x, y))] = new BgTilePicture(placed.Picture, new Position16<ImagePixels>(x, y));
         }
         return laid;
     }

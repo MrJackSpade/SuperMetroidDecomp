@@ -334,34 +334,29 @@ internal static void VerifyDoorOpeningTrajectories()
 }
 
 /// <summary>
-/// Checks the credits roll takes its rows on half-pixel scroll boundaries and holds the last thirty-two, each one screen
-/// below its row's place (#1467).
+/// Checks the credits roll scrolls half a pixel an update and finishes on the update it has scrolled its whole length and
+/// on past its end, then scrolls no further (#1467, #1601).
 /// </summary>
 internal static void VerifyCreditsObjectInterpreter()
 {
-    const int rows = 33;
-    var credits = new CreditsObjectState(rows);
-    for (int frame = 0; frame < 15; frame++)
-    {
-        credits.Step();
-        AssertEqual(0, credits.NextSourceRow, "credits waits sixteen half-pixel frames");
-    }
-    credits.Step();
-    AssertEqual(1, credits.NextSourceRow, "credits takes its first row at the eight-pixel boundary");
-    AssertEqual(8, credits.ScrolledPixels, "the first row is reached as the roll scrolls eight pixels");
-
-    for (int row = 1; row < rows; row++)
-        for (int frame = 0; frame < 16; frame++)
-            credits.Step();
-    AssertEqual(rows, credits.NextSourceRow, "credits takes one row per eight pixels");
-
+    var credits = new CreditsObjectState();
     for (int frame = 0; frame < 16; frame++)
         credits.Step();
-    AssertTrue(credits.Finished && !credits.Enabled,
-        "compiled credits disable the row object one boundary after the final row");
+    AssertEqual(8, credits.ScrolledPixels, "the roll scrolls eight pixels in sixteen half-pixel updates");
+
+    // Half a pixel an update: the roll reaches its finishing scroll on update twice that distance.
+    int finishingUpdate = 2 * CreditsRollLines.FinishingScroll;
+    for (int frame = 16; frame < finishingUpdate - 1; frame++)
+        credits.Step();
+    AssertTrue(!credits.Finished && credits.Enabled, "the roll still scrolls on the update before its finishing scroll");
+    credits.Step();
+    AssertTrue(credits.Finished && !credits.Enabled, "the roll finishes on the update it scrolls past its end");
+    AssertEqual(CreditsRollLines.FinishingScroll, credits.ScrolledPixels, "the roll finishes having scrolled its length and on past its end");
+    credits.Step();
+    AssertEqual(CreditsRollLines.FinishingScroll, credits.ScrolledPixels, "a finished roll scrolls no further");
 
     Console.WriteLine(
-        "  Credits: half-pixel scroll, installed rows, circular staging, and completion agree.");
+        "  Credits: half-pixel scroll and completion agree.");
 }
 
 /// <summary>Runs the retail ending state through escape, rewards, percentage, and final hold when its ROM oracle is available.</summary>

@@ -12,7 +12,7 @@ public static class EndingPictureNames
     /// <summary>The Super Metroid logo, a whole screen.</summary>
     public const string Logo = "Logo";
 
-    /// <summary>The wavy Samus transformation, a whole screen of four-colour pictures.</summary>
+    /// <summary>The wavy Samus transformation, a picture as large as the screen.</summary>
     public const string WavySamus = "WavySamus";
 
     /// <summary>The result panel: the producer and development credits, nine rows.</summary>
@@ -30,12 +30,9 @@ public static class EndingPictureNames
     /// <summary>The explosion's map <paramref name="map"/>, a whole screen.</summary>
     public static string ExplosionMap(EndingObjectFragmentId map) => "ExplosionMap" + map;
 
-    /// <summary>The credits roll's line <paramref name="line"/>, or the upper row of a two-row line.</summary>
+    /// <summary>The credits roll's line <paramref name="line"/>, the whole line however high.</summary>
     public static string CreditsLine(int line) =>
         "CreditsLine" + line.ToString("D2", System.Globalization.CultureInfo.InvariantCulture);
-
-    /// <summary>The lower row of the credits roll's two-row line <paramref name="line"/>.</summary>
-    public static string CreditsLineBottom(int line) => CreditsLine(line) + "Bottom";
 
     /// <summary>The letter <paramref name="character"/> of the typed text style <paramref name="style"/>.</summary>
     public static string Glyph(EndingTextStyle style, char character) => style + "Glyph" + character;

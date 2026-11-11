@@ -28,23 +28,26 @@ public sealed class CreditsPresentation
     /// <returns>Thirty-two tiles.</returns>
     public ReadOnlySpan<BackgroundTile> GetRow(int index)
     {
-        if ((uint)index >= CreditsRollDefinitions.ExpectedCompiledRows)
+        if ((uint)index >= CreditsPresentationDefinitions.RowCount)
             throw new ArgumentOutOfRangeException(nameof(index));
-        int row = 0;
         CreditsLineDocument[] authored = lines;
         for (int line = 0; line < authored.Length; line++)
         {
-            var definition = CreditsRoles.Lines[line];
-            row += definition.BlankRowsBefore;
+            CreditsRollLine placed = CreditsRollLines.Lines[line];
+            int row = RowsOf(placed.Top);
             if (index < row)
                 return BlankRow();
-            int height = definition.Style == CreditsLineStyle.Large ? 2 : 1;
-            if (index < row + height)
-                return RenderLine(definition, lines[line], bottom: index != row);
-            row += height;
+            if (index < row + RowsOf(placed.Height))
+                return RenderLine(CreditsRoles.Lines[line], lines[line], bottom: index != row);
         }
         return BlankRow();
     }
+
+    /// <summary>The rows of the cartridge's credits row stream <paramref name="pixels"/> of the roll cover.</summary>
+    /// <exception cref="InvalidDataException">The distance is not whole rows.</exception>
+    internal static int RowsOf(int pixels) => pixels % CreditsPresentationDefinitions.RowHeight == 0
+        ? pixels / CreditsPresentationDefinitions.RowHeight
+        : throw new InvalidDataException($"The credits roll's {pixels}-pixel distance is not whole rows of the cartridge's credits row stream.");
     /// <summary>Loads and validates the ordered editable staff-credit lines from JSON.</summary>
     /// <param name="json">Caller-owned stream containing a credits document.</param>
     /// <returns>The compiled credits presentation.</returns>
@@ -102,15 +105,15 @@ public sealed class CreditsPresentation
                     $"Credits line '{id}' exceeds the 32-column tilemap.");
             }
 
-            compiledRows += definition.BlankRowsBefore + (definition.Style == CreditsLineStyle.Large ? 2 : 1);
+            compiledRows += RowsOf(definition.SpaceBefore) + RowsOf(CreditsRollLines.HeightOf(definition.Style));
             ValidateLine(definition, id, line);
         }
-        compiledRows += CreditsRollDefinitions.TrailingBlankRows;
-        if (compiledRows != CreditsRollDefinitions.ExpectedCompiledRows)
+        compiledRows += RowsOf(CreditsRollDefinitions.TrailingSpace);
+        if (compiledRows != CreditsPresentationDefinitions.RowCount)
         {
             throw new InvalidDataException(
                 $"Credits compiled to {compiledRows} rows; expected " +
-                $"{CreditsRollDefinitions.ExpectedCompiledRows}.");
+                $"{CreditsPresentationDefinitions.RowCount}.");
         }
         return new(document.Lines, Convert.ToHexString(SHA256.HashData(source)));
     }

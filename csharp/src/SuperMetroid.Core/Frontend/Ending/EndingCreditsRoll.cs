@@ -47,7 +47,7 @@ internal sealed class EndingCreditsRoll
         // Func126 clears palette objects before installing credits/reward palettes.
         _stage.ResetPaletteFx();
         _artwork.LoadCreditsAndPostCreditsAssets();
-        _artwork.CurrentCredits = new CreditsObjectState(CreditsRollDefinitions.ExpectedCompiledRows);
+        _artwork.CurrentCredits = new CreditsObjectState();
         _artwork.PostCreditsText.Clear();
         sprites.Clear();
         _stage.Brightness = 15;

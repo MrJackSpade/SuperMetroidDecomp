@@ -115,15 +115,15 @@ internal static class RoomBackgroundsFixtures
     }
 
     /// <summary>
-    /// The boss body a fixture loaded as a <paramref name="size"/> tilemap at <paramref name="tilemapWord"/> in
-    /// <paramref name="image"/>, in the hardware's screen order (#1403, #1466, #1540): for each distinct word a picture, a
-    /// block of four copies of the word painted from the characters at <paramref name="characterWord"/>, tiled as parts over
-    /// each run of cells showing the word.
+    /// The boss body of <paramref name="area"/> pixels a fixture loaded as a tilemap at <paramref name="tilemapWord"/> in
+    /// <paramref name="image"/>, one word for each eight-pixel cell in the hardware's screen order (#1403, #1466, #1540,
+    /// #1601): for each distinct word a picture, a block of four copies of the word painted from the characters at
+    /// <paramref name="characterWord"/>, tiled as parts over each run of cells showing the word.
     /// </summary>
     internal static ShownBossBody BodyFromTilemap(ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette, int tilemapWord,
-        Extent16<TilemapCells> size, int characterWord = 0)
+        Extent16<BackgroundPixels> area, int characterWord = 0)
     {
-        var words = new ushort[size.X * size.Y];
+        var words = new ushort[area.X / BodyCellPixels * (area.Y / BodyCellPixels)];
         for (int cell = 0; cell < words.Length; cell++)
             words[cell] = BinaryPrimitives.ReadUInt16LittleEndian(image.Slice(SnesVramAddressingConstants.ByteOffsetOfWord(tilemapWord + cell), sizeof(ushort)));
         ushort[] distinct = [.. words.Distinct()];
@@ -134,7 +134,6 @@ internal static class RoomBackgroundsFixtures
             definitions[index * BlockTiles + corner] = BackgroundTileWordBytes.Tile(distinct[index]);
         RoomBlockPictureTable painted = RoomBlockFixtures.Pictures(definitions, image, palette, characterWord);
         var parts = new List<ShownBossBodyPart>();
-        Extent16<BackgroundPixels> area = AreaOf(size);
         for (int cell = 0; cell < words.Length;)
         {
             // Each run of a row's cells showing one word shows that word's picture tiled across it; every quarter of the
@@ -150,26 +149,21 @@ internal static class RoomBackgroundsFixtures
     }
 
     /// <summary>
-    /// A boss body of <paramref name="size"/> that shows tilemap word <paramref name="word"/> in every cell (#1403, #1466,
-    /// #1540): a block of four copies of the word painted from the characters at <paramref name="characterWord"/> in
-    /// <paramref name="image"/>, tiled as parts over the whole body.
+    /// A boss body of <paramref name="area"/> pixels that shows tilemap word <paramref name="word"/> in every cell (#1403,
+    /// #1466, #1540, #1601): a block of four copies of the word painted from the characters at
+    /// <paramref name="characterWord"/> in <paramref name="image"/>, tiled as parts over the whole body.
     /// </summary>
-    internal static ShownBossBody UniformBody(SnesBgTilemapWord word, Extent16<TilemapCells> size, ReadOnlySpan<byte> image,
+    internal static ShownBossBody UniformBody(SnesBgTilemapWord word, Extent16<BackgroundPixels> area, ReadOnlySpan<byte> image,
         ReadOnlySpan<RgbColor> palette, int characterWord = 0)
     {
         var definition = new BackgroundTile[BlockTiles];
         definition.AsSpan().Fill(BackgroundTileWordBytes.Tile(word.Raw));
         SpriteSheetFrame block = RoomBlockFixtures.Pictures(definition, image, palette, characterWord).Picture(0)
             ?? throw new InvalidOperationException("The painted block has no picture.");
-        Extent16<BackgroundPixels> area = AreaOf(size);
         var parts = new List<ShownBossBodyPart>();
         Tile(parts, block, default, area.X, area.Y);
         return new ShownBossBody([.. parts], area);
     }
-
-    /// <summary>The area a body loaded as a <paramref name="size"/> tilemap covers.</summary>
-    private static Extent16<BackgroundPixels> AreaOf(Extent16<TilemapCells> size) =>
-        new(checked((ushort)(size.X * BodyCellPixels)), checked((ushort)(size.Y * BodyCellPixels)));
 
     /// <summary>Cells across one screen of a fixture's body tilemap, the cells of a row in reading order.</summary>
     private const int BodyColumns = 32;

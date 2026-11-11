@@ -10,8 +10,8 @@ public static class EscapeTypewriterPresentationFile
     /// <summary>Loads the two editable escape-warning programs and validates their character alphabet and tile placement.</summary>
     /// <param name="json">Non-null caller-owned readable JSON stream, consumed from its current position without being disposed.</param>
     /// <returns>A catalog owning compiled line selections for the exact Ceres and Zebes key set.</returns>
-    /// <remarks>Requires at least one line per program, with one through 32 characters per line drawn from space, uppercase A-Z, and exclamation mark, each line starting at an overlay cell from which the whole line stays inside the overlay. Typewriter delay, glyph art, audio cadence, and escape behavior remain compiled.</remarks>
-    /// <exception cref="InvalidDataException">The JSON, schema version, program set, line contents, or overlay placement is invalid.</exception>
+    /// <remarks>Requires at least one line per program, with one through 32 characters per line drawn from space, uppercase A-Z, and exclamation mark, each line starting at a pixel of its layer from which the whole line stays inside the layer. Typewriter delay, glyph art, audio cadence, and escape behavior remain compiled.</remarks>
+    /// <exception cref="InvalidDataException">The JSON, schema version, program set, line contents, or line placement is invalid.</exception>
     public static EscapeTypewriterPresentation Load(Stream json)
     {
         EscapeTypewriterDocument document;
@@ -26,7 +26,7 @@ public static class EscapeTypewriterPresentationFile
         }
 
         if (document.Version != EscapeTypewriterDocumentDefinitions.Version || document.Programs is null)
-            throw new InvalidDataException("Escape typewriter content requires schema version 1.");
+            throw new InvalidDataException($"Escape typewriter content requires schema version {EscapeTypewriterDocumentDefinitions.Version}.");
 
         EscapeTypewriterProgramId[] expected = Enum.GetValues<EscapeTypewriterProgramId>()
             .Where(static id => id != EscapeTypewriterProgramId.None).ToArray();
@@ -51,12 +51,12 @@ public static class EscapeTypewriterPresentationFile
                     ?? throw new InvalidDataException($"Escape typewriter program {id} line {index} is null.");
                 if (string.IsNullOrEmpty(line.Text) || line.Text.Length > EscapeTypewriterDocumentDefinitions.MaximumLineLength ||
                     line.Text.Any(static character => character is not (' ' or '!' or >= 'A' and <= 'Z')) ||
-                    !LineFitsOverlay(line.Cell, line.Text.Length))
+                    !LineFitsLayer(line.X, line.Y, line.Text.Length))
                 {
                     throw new InvalidDataException(
                         $"Escape typewriter program {id} line {index} has invalid text or placement.");
                 }
-                var supplied = new EscapeTypewriterLine(CellOf(line.Cell), line.Text);
+                var supplied = new EscapeTypewriterLine(new Position16<PlanePixels>(line.X, line.Y), line.Text);
                 if (index >= EscapeTypewriterLines.LineCount(id) || supplied != EscapeTypewriterLines.Line(id, index))
                     differences.Add(index, supplied);
             }
@@ -66,21 +66,11 @@ public static class EscapeTypewriterPresentationFile
         return new(programs);
     }
 
-    /// <summary>The cells of the two side-by-side tilemap screens a document's overlay cell counts across.</summary>
-    private const int OverlayCells = 2 * SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.CellCount;
-
-    /// <summary>Whether a line of <paramref name="length"/> glyphs typed from <paramref name="cell"/> stays inside the overlay.</summary>
-    private static bool LineFitsOverlay(int cell, int length) =>
-        cell >= 0 && cell + length <= OverlayCells;
-
     /// <summary>
-    /// Where a document's overlay cell shows on its layer (#1514): the document counts cells row by row through the
-    /// left screen and then through the right one.
+    /// Whether a line of <paramref name="length"/> characters typed from pixel (<paramref name="x"/>, <paramref name="y"/>)
+    /// of its layer stays inside the layer, each character a glyph's width right of the last.
     /// </summary>
-    private static Position16<TilemapCells> CellOf(int cell)
-    {
-        int screen = cell / SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.CellCount, within = cell % SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.CellCount;
-        return new(screen * SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.WidthInTiles + within % SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.WidthInTiles,
-            within / SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.WidthInTiles);
-    }
+    private static bool LineFitsLayer(int x, int y, int length) =>
+        x >= 0 && y >= 0 && x + length * EscapeTypewriterDefinitions.GlyphAdvance <= EscapeTypewriterDocumentDefinitions.LayerWidth
+        && y + EscapeTypewriterDocumentDefinitions.GlyphHeight <= EscapeTypewriterDocumentDefinitions.LayerHeight;
 }

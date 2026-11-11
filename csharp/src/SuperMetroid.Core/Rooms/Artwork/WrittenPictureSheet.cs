@@ -5,11 +5,11 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>
-/// The installed pre-coloured pictures written over one tileset's rooms after they load (#1392, #1466): each picture
-/// something writes over the foreground or the background (typed text, the Ceres warning) or that effect overlay shows (an effect's page, the cleared cell,
-/// the HUD's images), coloured with their own standard colours, pictured again for each value
-/// of the appearance inputs it depends on and named by <see cref="AppearancePictureNames"/>; with the inputs each picture
-/// depends on, which choose among them.
+/// The installed pre-coloured pictures shown on one display layer of a tileset's rooms (#1392, #1466, #1601): for the
+/// room's layers, each picture an encounter writes over the foreground or the background (typed text, the Ceres warning);
+/// for the effect overlay, each room effect's page and the HUD's images. Each is coloured with its own standard colours,
+/// pictured again for each value of the appearance inputs it depends on and named by <see cref="AppearancePictureNames"/>;
+/// with the inputs each picture depends on, which choose among them. A picture is placed in pixels, so it may be any size.
 /// </summary>
 public sealed class WrittenPictureSheet
 {
@@ -17,11 +17,11 @@ public sealed class WrittenPictureSheet
     internal readonly Dictionary<string, ImmutableArray<AppearanceInput>> inputs;
 
     /// <summary>Indexes the pictures <paramref name="inputs"/> names in <paramref name="sheet"/>.</summary>
-    /// <param name="layer">The backgrounds the pictures are written over.</param>
+    /// <param name="layer">The display layer the pictures show on.</param>
     /// <param name="tileset">The tileset whose rooms the pictures are written in.</param>
     /// <param name="sheet">The pictures.</param>
     /// <param name="inputs">The inputs each picture depends on, by the name its pictures begin with.</param>
-    /// <exception cref="InvalidDataException">A picture has no frame for the room's load, or one that is not whole tiles.</exception>
+    /// <exception cref="InvalidDataException">A picture has no frame for the room's load.</exception>
     public WrittenPictureSheet(WrittenPictureLayer layer, TilesetDefinition tileset, SpriteSheet sheet,
         IReadOnlyDictionary<string, ImmutableArray<AppearanceInput>> inputs)
     {
@@ -32,14 +32,11 @@ public sealed class WrittenPictureSheet
         foreach ((string picture, ImmutableArray<AppearanceInput> depends) in this.inputs)
         {
             string[] loaded = [.. Enumerable.Repeat(RoomAppearanceValues.Loaded, depends.Length)];
-            SpriteSheetFrame frame = sheet.Frame(AppearancePictureNames.Of(picture, depends, loaded));
-            if (frame.Size.X == 0 || frame.Size.X % ScreenGeometry.BackgroundTileSizePixels != 0
-                || frame.Size.Y % ScreenGeometry.BackgroundTileSizePixels != 0)
-                throw new InvalidDataException($"{Name} pictures {picture} as {frame.Size.X}x{frame.Size.Y} pixels, not whole tiles.");
+            _ = sheet.Frame(AppearancePictureNames.Of(picture, depends, loaded));
         }
     }
 
-    /// <summary>The backgrounds the pictures are written over.</summary>
+    /// <summary>The display layer the pictures show on.</summary>
     public WrittenPictureLayer Layer { get; }
 
     /// <summary>The tileset whose rooms the pictures are written in.</summary>
@@ -66,7 +63,11 @@ public sealed class WrittenPictureSheet
         return Sheet.Frame(AppearancePictureNames.Of(picture, depends, values));
     }
 
-    /// <summary>The installed name of the sheet of pictures written over <paramref name="layer"/> in <paramref name="tileset"/>'s rooms.</summary>
+    /// <summary>
+    /// The installed name of the sheet of pictures shown on <paramref name="layer"/> in <paramref name="tileset"/>'s rooms:
+    /// <c>Written.</c> for the pictures written over the room, <c>OverlayPictures.</c> for the effect overlay's, then the
+    /// tileset's name.
+    /// </summary>
     public static string NameOf(WrittenPictureLayer layer, TilesetDefinition tileset) =>
-        $"{(layer == WrittenPictureLayer.FxOverlayAndHud ? "Bg3Pictures" : "Written")}.{RoomBlockSheet.NameOf(tileset)}";
+        $"{(layer == WrittenPictureLayer.FxOverlayAndHud ? "OverlayPictures" : "Written")}.{RoomBlockSheet.NameOf(tileset)}";
 }

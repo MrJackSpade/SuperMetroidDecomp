@@ -233,8 +233,8 @@ internal static class RoomBlockPicturesVerification
         {
             if (glyph is { } typed)
             {
-                overlay = overlay.With(new WrittenPicture(typed.Picture, typed.Cell));
-                typedWords[TwoScreenTilemapCells.IndexOf(typed.Cell)] = EscapeTypewriterGlyphTilesConstants.Of(EscapeTypewriterProgramId.Zebes, typed).PackedWord;
+                overlay = overlay.With(new WrittenPicture(typed.Picture, typed.Corner));
+                typedWords[TwoScreenTilemapCells.IndexOf(typed.Corner)] = EscapeTypewriterGlyphTilesConstants.Of(EscapeTypewriterProgramId.Zebes, typed).PackedWord;
             }
         }
         BgTilePicture?[] pictures = TwoScreenTilemapCells.Lay(new WrittenPictureResolver(sheet).Resolve(overlay, AppearanceOf(runtime, RoomScopeOf(runtime).ArtworkFrames)));

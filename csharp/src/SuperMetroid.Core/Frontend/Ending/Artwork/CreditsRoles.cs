@@ -4,13 +4,13 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>
 /// The credits' 67 staff roles in roll order (<see cref="CreditsRollDefinitions"/>), each with its glyph style and
-/// preceding blank rows.
+/// the blank space before it.
 /// </summary>
 public static class CreditsRoles
 {
     /// <summary>Fixed role order without duplicating the 67 role descriptors in storage.</summary>
     private static readonly CreditRoles Roles = new();
-    /// <summary>Calculated read-only view of all 67 required credit roles in roll order, with fixed one-/two-row styles and preceding blank-row counts; wording remains editable content.</summary>
+    /// <summary>Calculated read-only view of all 67 required credit roles in roll order, with fixed heading or name styles and the blank space before each; wording remains editable content.</summary>
     public static IReadOnlyList<CreditsLineDefinition> Lines => Roles;
 
     /// <summary>Calculates glyph style and spacing from line order.</summary>
@@ -25,9 +25,9 @@ public static class CreditsRoles
             {
                 if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
                 bool heading = IsHeading(index);
-                int blankRows = index == 0 ? InitialBlankRows : index == 17 ? 0
-                    : heading ? SectionBlankRows : InterLineBlankRows;
-                return new(heading ? CreditsLineStyle.Small : CreditsLineStyle.Large, blankRows);
+                int space = index == 0 ? InitialSpace : index == 17 ? 0
+                    : heading ? SectionSpace : InterLineSpace;
+                return new(heading ? CreditsLineStyle.Small : CreditsLineStyle.Large, space);
             }
         }
         /// <summary>Yields all fixed role descriptors in displayed order.</summary>

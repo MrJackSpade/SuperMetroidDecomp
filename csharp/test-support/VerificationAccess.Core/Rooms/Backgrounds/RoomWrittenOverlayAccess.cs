@@ -34,7 +34,7 @@ internal static class RoomWrittenOverlayAccess
             {
                 BackgroundTile[] tiles = TilesOf(written.Picture, pages);
                 for (int index = 0; index < tiles.Length; index++)
-                    words[TwoScreenTilemapCells.IndexOf(written.Cell) + index] = tiles[index].PackedWord;
+                    words[TwoScreenTilemapCells.IndexOf(written.Corner) + index] = tiles[index].PackedWord;
             }
             return [.. words];
         }

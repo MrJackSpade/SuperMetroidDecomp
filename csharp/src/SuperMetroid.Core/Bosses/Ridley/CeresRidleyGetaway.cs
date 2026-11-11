@@ -299,12 +299,11 @@ internal sealed class CeresRidleyGetaway
     }
 
     /// <summary>
-    /// Writes one warning picture over the room's foreground with its corner on its room pixel (#1466, #1555); the room's
-    /// written overlay places a picture by the eight-pixel cell its corner lies on.
+    /// Writes one warning picture over the room's foreground with its top-left corner at its pixel of the foreground
+    /// (#1466, #1555, #1601).
     /// </summary>
     private void DrawCeresOverlay(CeresEscapeWarningPicture page) =>
-        _ridleyEncounter.ShowCeresWarning(new WrittenPicture(page.Picture, new Position16<TilemapCells>(
-            page.Corner.X / ScreenGeometry.BackgroundTileSizePixels, page.Corner.Y / ScreenGeometry.BackgroundTileSizePixels)));
+        _ridleyEncounter.ShowCeresWarning(new WrittenPicture(page.Picture, page.Corner));
 
     /// <summary>
     /// Runs one update of the self-destruct's current readying stage (#1406, #1538): on the last update of bringing up the
@@ -341,7 +340,7 @@ internal sealed class CeresRidleyGetaway
         bool completed = installed.Step(out EscapeTypewriterGlyph? glyph);
         // The Ceres program types over the room's foreground (#1348), as part of the warning (#1555).
         if (glyph is { } typed)
-            _ridleyEncounter.ShowCeresWarning(new WrittenPicture(typed.Picture, typed.Cell));
+            _ridleyEncounter.ShowCeresWarning(new WrittenPicture(typed.Picture, typed.Corner));
         state.CeresEscapeTextDelayTimer = installed.DelayTimer;
         if (installed.ClickRequested)
             _audio.QueueEnemySound(EscapeTypewriterDefinitions.CeresClick, priority: SoundRequestPriority.Low);

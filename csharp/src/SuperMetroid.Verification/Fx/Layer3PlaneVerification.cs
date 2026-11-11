@@ -109,7 +109,7 @@ internal static class Layer3PlaneVerification
     internal static void VerifyTypewriterGlyphs()
     {
         var program = new EscapeTypewriterProgram(EscapeTypewriterProgramId.Ceres,
-            [new EscapeTypewriterLine(new Position16<TilemapCells>(5, 8), "AB C!")]);
+            [new EscapeTypewriterLine(new Position16<PlanePixels>(40, 64), "AB C!")]);
         var text = new EscapeTypewriterState(program);
         var typed = new List<EscapeTypewriterGlyph>();
         bool completed = false;
@@ -123,12 +123,13 @@ internal static class Layer3PlaneVerification
             AssertEqual(typed.Count, text.GlyphsWritten, $"step {steps} reports every glyph it has typed");
         }
         AssertEqual(4, typed.Count, "the space types no glyph");
-        Position16<TilemapCells>[] cells = [new(5, 8), new(6, 8), new(8, 8), new(9, 8)];
+        // Each character, space included, moves the next glyph a glyph's width right.
+        Position16<PlanePixels>[] corners = [new(40, 64), new(48, 64), new(64, 64), new(72, 64)];
         // Each glyph names the picture of its character (#1466); the import composes that picture from the character's tile.
         char[] characters = ['A', 'B', 'C', '!'];
         for (int index = 0; index < typed.Count; index++)
         {
-            AssertEqual(cells[index], typed[index].Cell, $"glyph {index} lands at its program's cell");
+            AssertEqual(corners[index], typed[index].Corner, $"glyph {index} lands at its program's pixel");
             AssertEqual(EscapeTypewriterGlyph.PictureOf(EscapeTypewriterProgramId.Ceres, characters[index]), typed[index].Picture,
                 $"glyph {index} names its character's picture");
         }

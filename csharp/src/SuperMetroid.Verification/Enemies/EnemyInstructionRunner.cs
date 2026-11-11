@@ -61,29 +61,6 @@ internal static class EnemyInstructionRunner
     }
 
     /// <summary>
-    /// The <see cref="ShownFrames"/> listing of one pass through <paramref name="program"/>, a loop of shows that ends by
-    /// going back to its start, followed by its first frame again; the generated ROM oracle ties the program itself to
-    /// the cartridge, so this states only how the runtime must execute it.
-    /// </summary>
-    internal static string ExpectedLoop<TProgram, TFrame, TCue>(AnimationProgramSet<TProgram, TFrame, TCue> programs,
-        TProgram program, Func<TFrame, ushort> spritemap)
-        where TProgram : struct, Enum
-        where TFrame : struct
-        where TCue : notnull
-    {
-        var shows = programs.Steps(program).OfType<AnimationProgramStep<TProgram, TFrame, TCue>.ShowStep>().ToArray();
-        return ExpectedFrames([.. shows.Select(step => spritemap(step.Frame)), spritemap(shows[0].Frame)],
-            [.. shows.Select(step => step.Duration), shows[0].Duration]);
-    }
-
-    /// <summary>The update count <see cref="ExpectedLoop"/> covers: one pass plus the first update of the next.</summary>
-    internal static int LoopUpdates<TProgram, TFrame, TCue>(AnimationProgramSet<TProgram, TFrame, TCue> programs, TProgram program)
-        where TProgram : struct, Enum
-        where TFrame : struct
-        where TCue : notnull =>
-        programs.Steps(program).OfType<AnimationProgramStep<TProgram, TFrame, TCue>.ShowStep>().Sum(step => step.Duration) + 1;
-
-    /// <summary>
     /// The frames a looping segment's animation shows (#1600): one pass over <paramref name="segment"/>'s frames, then
     /// the first of the next pass.
     /// </summary>

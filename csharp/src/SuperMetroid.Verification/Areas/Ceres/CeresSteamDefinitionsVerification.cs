@@ -26,7 +26,7 @@ internal static class CeresSteamDefinitionsVerification
             CeresSteamInitialization definition =
                 CeresSteamInitializations.Initialization(variant);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTable + index * 2)),
-                NativeEnemyProgramOracle.EntryOf(CeresSteamNativeListAddresses.Entries, definition.Program),
+                NativeEnemyAnimationOracle.EntryOf(CeresSteamNativeListAddresses.Entries, definition.Program),
                 $"Ceres steam {variant} instruction list");
             AssertEqual(CeresNativeWords.SteamFunctions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(functionTable + index * 2), "native Ceres steam function"),
                 definition.Function,

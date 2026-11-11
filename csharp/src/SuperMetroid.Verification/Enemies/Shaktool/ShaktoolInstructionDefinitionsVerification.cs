@@ -21,13 +21,13 @@ internal static class ShaktoolInstructionDefinitionsVerification
         for (ushort bucket = 0; bucket <= 0x00e0; bucket += 0x0020)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaadd15 + (bucket >> 5) * 2)),
-                NativeEnemyProgramOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolPrograms.ForOrientationBucket(bucket)),
+                NativeEnemyAnimationOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolPrograms.ForOrientationBucket(bucket)),
                 $"Shaktool orientation list {bucket:X2}");
         }
         for (int index = 0; index < 7; index++)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaadf13 + index * 2)),
-                NativeEnemyProgramOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolPrograms.CollisionForSegment(index)),
+                NativeEnemyAnimationOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolPrograms.CollisionForSegment(index)),
                 $"Shaktool collision list {index}");
         }
 

@@ -328,51 +328,6 @@ internal static class EnemySheetOwnFramesVerification
     private static HashSet<EnemyFrameId> TableFrames<TFrame>(EnemyFrameTable<TFrame> table) where TFrame : notnull =>
         [.. table.Select(entry => entry.Value)];
 
-    /// <summary>The frames <paramref name="programs"/> show from <paramref name="starts"/>, whose cues name no program.</summary>
-    private static HashSet<EnemyFrameId> Reach<TProgram, TFrame, TCue>(AnimationProgramSet<TProgram, TFrame, TCue> programs,
-        EnemyFrameTable<TFrame> table, IEnumerable<TProgram> starts)
-        where TProgram : struct
-        where TFrame : struct
-        where TCue : notnull =>
-        Reach(programs, table, starts, static _ => []);
-
-    /// <summary>
-    /// The frames <paramref name="programs"/> show from <paramref name="starts"/>, following every go-to, fall-through and
-    /// counted repeat, and every program <paramref name="cueTargets"/> says a cue names.
-    /// </summary>
-    private static HashSet<EnemyFrameId> Reach<TProgram, TFrame, TCue>(AnimationProgramSet<TProgram, TFrame, TCue> programs,
-        EnemyFrameTable<TFrame> table, IEnumerable<TProgram> starts, Func<TCue, IEnumerable<TProgram>> cueTargets)
-        where TProgram : struct
-        where TFrame : struct
-        where TCue : notnull
-    {
-        var reached = new HashSet<TProgram>();
-        var pending = new Queue<TProgram>(starts);
-        var shown = new HashSet<EnemyFrameId>();
-        while (pending.TryDequeue(out TProgram program))
-        {
-            if (!reached.Add(program))
-                continue;
-            foreach (AnimationProgramStep<TProgram, TFrame, TCue> step in programs.Steps(program))
-            {
-                if (step is AnimationProgramStep<TProgram, TFrame, TCue>.ShowStep show)
-                    shown.Add(table.Of(show.Frame));
-                else if (step is AnimationProgramStep<TProgram, TFrame, TCue>.GoToStep goTo)
-                    pending.Enqueue(goTo.Target);
-                else if (step is AnimationProgramStep<TProgram, TFrame, TCue>.FallIntoStep fallInto)
-                    pending.Enqueue(fallInto.Target);
-                else if (step is AnimationProgramStep<TProgram, TFrame, TCue>.RepeatWhileCountingStep repeat)
-                    pending.Enqueue(repeat.Target);
-                else if (step is AnimationProgramStep<TProgram, TFrame, TCue>.CueStep cue)
-                {
-                    foreach (TProgram target in cueTargets(cue.Cue))
-                        pending.Enqueue(target);
-                }
-            }
-        }
-        return shown;
-    }
-
     /// <summary>
     /// The frames the animations starting at <paramref name="starts"/> show (#1600): every phase's frames, and those of the
     /// animations <paramref name="eventTargets"/> says an event continues in.

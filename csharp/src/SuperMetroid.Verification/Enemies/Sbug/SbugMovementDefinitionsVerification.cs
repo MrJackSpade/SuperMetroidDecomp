@@ -30,7 +30,7 @@ internal static class SbugMovementDefinitionsVerification
         {
             int address = instructionTable + facing * 2;
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-            AssertEqual(native, NativeEnemyProgramOracle.EntryOf(SbugNativeListAddresses.Entries,
+            AssertEqual(native, NativeEnemyAnimationOracle.EntryOf(SbugNativeListAddresses.Entries,
                     SbugMovement.FacingProgram(SbugMovementDefinitions.FacingsCounterClockwise.At(facing))),
                 $"compiled Sbug facing selector {facing}");
         }
@@ -62,7 +62,7 @@ internal static class SbugMovementDefinitionsVerification
                 $"Sbug production facing {selector}");
             AssertEqual(new AnimationPlayback<SbugProgram>(SbugAnimations.StartingWith(SbugMovement.FacingProgram(state.ForwardFacing)), AnimationPlace.StartOfAnimation), state.Playback,
                 $"Sbug production facing animation {selector}");
-            AssertEqual(native, NativeEnemyProgramOracle.EntryOf(SbugNativeListAddresses.Entries, state.Playback.Animation.Phases[0].Segment),
+            AssertEqual(native, NativeEnemyAnimationOracle.EntryOf(SbugNativeListAddresses.Entries, state.Playback.Animation.Phases[0].Segment),
                 $"Sbug production facing list {selector}");
             // Each loop shows its four frames five updates apiece, then its goto shows the first again.
             ushort[] loop = SbugAnimationsConstants.Spritemaps(state.Playback.Animation.Phases[0].Segment).ToArray();

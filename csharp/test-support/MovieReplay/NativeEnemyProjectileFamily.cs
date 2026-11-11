@@ -10,18 +10,6 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 /// </summary>
 internal abstract class NativeEnemyProjectileFamily
 {
-    /// <summary>The family of <paramref name="programs"/>, whose native lists start at <paramref name="entries"/>.</summary>
-    internal static NativeEnemyProjectileProgramFamily<TProgram, TFrame, TCue> Of<TProgram, TFrame, TCue>(
-        NativeProgramEntry<TProgram>[] entries,
-        AnimationProgramSet<TProgram, TFrame, TCue> programs,
-        Func<TFrame, ushort> presentationKey,
-        NativeEnemyProjectileCueRules<TCue> rules,
-        Func<TFrame, ushort?>? reflectedPresentationKey = null)
-        where TProgram : struct, Enum
-        where TFrame : struct
-        where TCue : notnull =>
-        new(entries, programs, presentationKey, rules, reflectedPresentationKey);
-
     /// <summary>
     /// The family of typed animations <paramref name="startingAt"/> over <paramref name="segments"/> (#1600), whose native
     /// lists start at <paramref name="entries"/>; its owners start the counted lists of

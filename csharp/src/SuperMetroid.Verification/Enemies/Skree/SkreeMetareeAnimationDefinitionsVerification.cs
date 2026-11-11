@@ -21,10 +21,10 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         {
             var phase = (SkreeMetareeAnimationPhase)index;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3894e + index * 2)),
-                NativeEnemyProgramOracle.EntryOf(SkreeMetareeNativeListAddresses.Entries, SkreeMetareePrograms.MetareeProgram(phase)),
+                NativeEnemyAnimationOracle.EntryOf(SkreeMetareeNativeListAddresses.Entries, SkreeMetareePrograms.MetareeProgram(phase)),
                 $"Metaree animation phase {phase}");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3c69c + index * 2)),
-                NativeEnemyProgramOracle.EntryOf(SkreeMetareeNativeListAddresses.Entries, SkreeMetareePrograms.SkreeProgram(phase)),
+                NativeEnemyAnimationOracle.EntryOf(SkreeMetareeNativeListAddresses.Entries, SkreeMetareePrograms.SkreeProgram(phase)),
                 $"Skree animation phase {phase}");
         }
 

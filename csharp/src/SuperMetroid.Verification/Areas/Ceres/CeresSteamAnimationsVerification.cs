@@ -21,8 +21,8 @@ internal static class CeresSteamAnimationsVerification
                 for (int index = 0; index < operands.Length; index++)
                     AssertEqual(operands[index], instruction.Operands[index] switch
                 {
-                    'T' => NativeEnemyProgramOracle.EntryOf(Entries, AssertIs<CeresSteamCue.CountDownToActivation>(cue, $"{at}: cue").Target),
-                    'A' => NativeEnemyProgramOracle.EntryOf(Entries, AssertIs<CeresSteamCue.CountDownToActivation>(cue, $"{at}: cue").Alternate),
+                    'T' => NativeEnemyAnimationOracle.EntryOf(Entries, AssertIs<CeresSteamCue.CountDownToActivation>(cue, $"{at}: cue").Target),
+                    'A' => NativeEnemyAnimationOracle.EntryOf(Entries, AssertIs<CeresSteamCue.CountDownToActivation>(cue, $"{at}: cue").Alternate),
                     _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                 }, $"{at}: operand {index}");
             }));

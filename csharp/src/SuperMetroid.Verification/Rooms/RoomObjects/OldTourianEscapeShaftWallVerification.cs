@@ -84,7 +84,7 @@ internal static class OldTourianEscapeShaftWallVerification
         AssertEqual((ushort)NativeEnemyProjectileInstruction.TimerInY, Word(0xb445), "the list then loads the timer");
         AnimationPhase<OldTourianWallExplosionProgram> counted = animation.Phases[1];
         AssertTrue(counted.CountsRepeats, "the burst counts its plays down the timer the list loads");
-        AssertEqual((int)Word(0xb447), counted.Plays, "the burst count");
+        AssertEqual(Word(0xb447), counted.Plays, "the burst count");
         AssertEqual(OldTourianWallExplosionProgram.Burst, counted.Segment, "the setup runs on into the burst");
         AssertEqual(0, counted.FirstBeat, "the counted burst plays from the burst's start");
 
@@ -103,7 +103,7 @@ internal static class OldTourianEscapeShaftWallVerification
         {
             var show = AssertIs<AnimationBeat<int, OldTourianWallExplosionCue>.Frame>(burst[2 + frame], $"pose {frame} is shown");
             AssertEqual(frame, show.Shown, $"pose {frame} order");
-            AssertEqual((int)Word(cursor), show.Duration, $"pose {frame} duration");
+            AssertEqual(Word(cursor), show.Duration, $"pose {frame} duration");
             AssertEqual((ushort)(cursor + 2), OldTourianEscapeShaftWallExplosionInstructionProgramDefinitionsTooling.PresentationWordAddress(frame),
                 $"pose {frame} operand follows its duration");
         }

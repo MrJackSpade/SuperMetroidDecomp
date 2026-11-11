@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;

@@ -26,7 +26,7 @@ internal static class WorkRobotInitialSelectionVerification
             int address = EnemyRomTablePointers.WorkRobot.InitialAnimationScriptWords + 2 * parameter;
             WorkRobotProgram expected = SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.WorkRobotPose(parameter);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
-                NativeEnemyProgramOracle.EntryOf(WorkRobotNativeListAddresses.Entries, expected),
+                NativeEnemyAnimationOracle.EntryOf(WorkRobotNativeListAddresses.Entries, expected),
                 $"Work Robot original selection {parameter}");
             var system = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
             var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);

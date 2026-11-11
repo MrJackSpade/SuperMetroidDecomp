@@ -1,6 +1,6 @@
 namespace SuperMetroid.TestSupport.MovieReplay;
 
-/// <summary>How the <see cref="NativeEnemyProgramOracle"/> reads and compares one owner's private instructions.</summary>
+/// <summary>How the <see cref="NativeEnemyAnimationOracle"/> reads and compares one owner's private instructions.</summary>
 /// <param name="OperandWords">An owner instruction's operand word count, or null for a word the owner does not use.</param>
 /// <param name="CompareCue">Compares an owner instruction's operands with the cue it became.</param>
 /// <param name="EndsList">

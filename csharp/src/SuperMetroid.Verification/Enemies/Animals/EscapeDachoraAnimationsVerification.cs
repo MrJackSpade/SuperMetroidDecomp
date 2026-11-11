@@ -27,7 +27,7 @@ internal static class EscapeDachoraAnimationsVerification
                     for (int index = 0; index < operands.Length; index++)
                         AssertEqual(operands[index], instruction.Operands[index] switch
                     {
-                        'T' => NativeEnemyProgramOracle.EntryOf(Entries, cue.Target),
+                        'T' => NativeEnemyAnimationOracle.EntryOf(Entries, cue.Target),
                         _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                     }, $"{at}: operand {index}");
                 }),

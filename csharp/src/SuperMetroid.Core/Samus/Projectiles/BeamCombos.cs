@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus.Projectiles;
 

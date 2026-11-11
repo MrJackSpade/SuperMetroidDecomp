@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;

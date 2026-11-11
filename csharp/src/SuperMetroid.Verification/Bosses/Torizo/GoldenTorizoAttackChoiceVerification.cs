@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;

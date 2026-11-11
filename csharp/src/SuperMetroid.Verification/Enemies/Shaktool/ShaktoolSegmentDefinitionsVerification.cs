@@ -109,7 +109,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
     /// <summary>Checks the first animation instruction list selected for each segment.</summary>
     private static void VerifyShaktoolInitialInstructionSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeInstructionAddress,
-            definition => NativeEnemyProgramOracle.EntryOf(ShaktoolNativeListAddresses.Entries, definition.InitialProgram), "initial instruction selection"));
+            definition => NativeEnemyAnimationOracle.EntryOf(ShaktoolNativeListAddresses.Entries, definition.InitialProgram), "initial instruction selection"));
 
     /// <summary>Checks the rendering layer assigned to each segment at initialization.</summary>
     private static void VerifyShaktoolLayerSelection(SuperMetroidAddressSpace rom) =>

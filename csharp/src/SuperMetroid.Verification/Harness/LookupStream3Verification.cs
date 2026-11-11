@@ -987,7 +987,7 @@ internal static class LookupStream3Verification
             ushort list = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa8e682 + offset);
             var function = SparksNativeWords.SparkEnemyFunctions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa8e688 + offset), "Spark function");
             SparkMovementDefinition definition = SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.SparkStart(parameter);
-            AssertEqual(list, NativeEnemyProgramOracle.EntryOf(SparkNativeListAddresses.Entries, definition.Program),
+            AssertEqual(list, NativeEnemyAnimationOracle.EntryOf(SparkNativeListAddresses.Entries, definition.Program),
                 "stream 3 native Spark list selector");
             AssertEqual(function, definition.Function, "stream 3 native Spark function selector");
         }
@@ -1001,7 +1001,7 @@ internal static class LookupStream3Verification
             {
                 int address = 0xaadd15 + 2 * (bucket >> 5);
                 ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-                AssertEqual(expected, NativeEnemyProgramOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolPrograms.ForOrientationBucket(direction)),
+                AssertEqual(expected, NativeEnemyAnimationOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolPrograms.ForOrientationBucket(direction)),
                     "stream 3 native Shaktool orientation");
             }
         }
@@ -1009,7 +1009,7 @@ internal static class LookupStream3Verification
         {
             int offset = segment * 2;
             ushort collision = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xaadf13 + offset);
-            AssertEqual(collision, NativeEnemyProgramOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolPrograms.CollisionForSegment(segment)),
+            AssertEqual(collision, NativeEnemyAnimationOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolPrograms.CollisionForSegment(segment)),
                 "stream 3 native Shaktool collision program");
         }
         foreach (int invalid in new[] { -1, 7, int.MinValue, int.MaxValue })

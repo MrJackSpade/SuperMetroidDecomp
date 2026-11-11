@@ -18,7 +18,7 @@ internal static class MotherBrainTurretAnimations
     ];
 
     /// <summary>
-    /// Every turret segment: each turret and bullet pose shows for one update; the impact smoke takes palette zero, stops
+    /// Every turret segment: each turret and bullet pose shows for one update; the impact smoke takes its first colouring, stops
     /// flying, shows four eight-update puffs and a 32-update fade, then deletes itself.
     /// </summary>
     internal static AnimationSegments<MotherBrainTurretPose, MotherBrainTurretFrame, MotherBrainTurretCue> Segments { get; } = new(

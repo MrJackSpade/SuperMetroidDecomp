@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Programs;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Samus.Projectiles.PowerBombBoundaryVerification;

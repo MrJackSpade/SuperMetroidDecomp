@@ -153,7 +153,7 @@ internal static class CeresElevatorArrivalVerification
         {
             int address = CeresElevatorArrivalDefinitions.BankBase | definitionPointer;
             VerificationAssertions.AssertEqual(cartridge.ReadCartridgeWord(address + 4),
-                NativeEnemyProgramOracle.EntryOf(CeresElevatorArrivalNativeListAddresses.Entries, definition.Program),
+                NativeEnemyAnimationOracle.EntryOf(CeresElevatorArrivalNativeListAddresses.Entries, definition.Program),
                 "Ceres elevator definition names its program's native list");
         }
 
@@ -178,7 +178,7 @@ internal static class CeresElevatorArrivalVerification
                 {
                     // Each arrival list jumps back to its own start: the animation loops its one phase.
                     VerificationAssertions.AssertEqual(operand,
-                        NativeEnemyProgramOracle.EntryOf(CeresElevatorArrivalNativeListAddresses.Entries, program), $"{at}: goto target");
+                        NativeEnemyAnimationOracle.EntryOf(CeresElevatorArrivalNativeListAddresses.Entries, program), $"{at}: goto target");
                     VerificationAssertions.AssertEqual(AnimationEnd.LoopsFrom(0), animation.End, $"{at}: goto");
                     break;
                 }

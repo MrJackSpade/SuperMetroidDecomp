@@ -12,6 +12,11 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 /// </summary>
 internal static class NativeEnemyAnimationOracle
 {
+    /// <summary>The native entry of <paramref name="segment"/>.</summary>
+    internal static ushort EntryOf<TSegment>(NativeProgramEntry<TSegment>[] entries, TSegment segment)
+        where TSegment : struct, Enum =>
+        entries.Single(item => EqualityComparer<TSegment>.Default.Equals(item.Program, segment)).Entry;
+
     /// <summary>
     /// Compares every segment with its native list and every animation with the lists' control flow, and returns the
     /// total number of beats.

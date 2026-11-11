@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Abilities;
 

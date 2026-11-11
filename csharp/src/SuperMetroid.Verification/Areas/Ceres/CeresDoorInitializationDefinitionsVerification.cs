@@ -32,7 +32,7 @@ internal static class CeresDoorInitializationDefinitionsVerification
                 CeresNativeWords.DoorFunctions.Word(definition.MainFunction),
                 $"Ceres door function selector {variant}");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTable + variant * 2)),
-                NativeEnemyProgramOracle.EntryOf(CeresDoorNativeListAddresses.Entries, definition.Program),
+                NativeEnemyAnimationOracle.EntryOf(CeresDoorNativeListAddresses.Entries, definition.Program),
                 $"Ceres door instruction selector {variant}");
 
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork };

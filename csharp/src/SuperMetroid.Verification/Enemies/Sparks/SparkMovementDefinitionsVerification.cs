@@ -30,7 +30,7 @@ internal static class SparkMovementDefinitionsVerification
             var nativeFunction = SparksNativeWords.SparkEnemyFunctions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(SparkNativeValues.FunctionTable + selector * 2),
                 $"Spark selector {selector}'s function");
             SparkMovementDefinition definition = SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.SparkStart(selector);
-            AssertEqual(nativeList, NativeEnemyProgramOracle.EntryOf(SparkNativeListAddresses.Entries, definition.Program),
+            AssertEqual(nativeList, NativeEnemyAnimationOracle.EntryOf(SparkNativeListAddresses.Entries, definition.Program),
                 $"Spark list selector {selector}");
             AssertEqual(nativeFunction, definition.Function, $"Spark function selector {selector}");
 

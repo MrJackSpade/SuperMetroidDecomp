@@ -106,7 +106,7 @@ internal static class EnemyRomTablePointersVerification
         Suite(nameof(VerifyWorkRobotInitialSelection), () => VerifyWorkRobotInitialSelection(rom));
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointers.TourianStatue.AnimationScriptWords + parameter)),
-                NativeEnemyProgramOracle.EntryOf(TourianEntranceStatueNativeListAddresses.Entries,
+                NativeEnemyAnimationOracle.EntryOf(TourianEntranceStatueNativeListAddresses.Entries,
                     SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.TourianStatue(parameter)),
                 $"Tourian entrance statue initial selector {parameter}");
         AssertThrows<InvalidDataException>(() => SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.TourianStatue(1),

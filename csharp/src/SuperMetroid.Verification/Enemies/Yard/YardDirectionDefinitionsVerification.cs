@@ -27,11 +27,11 @@ internal static class YardDirectionDefinitionsVerification
             YardDirectionDefinition definition =
                 YardDirections.ForDirection(SuperMetroid.AssetExtraction.Enemies.YardDirectionCodec.At(direction));
             int record = directionAddress + direction * 8;
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(record), NativeEnemyProgramOracle.EntryOf(YardNativeListAddresses.Entries, definition.CrawlingProgram),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(record), NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.CrawlingProgram),
                 $"Yard direction {direction} crawling list");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2)), SuperMetroid.AssetExtraction.Enemies.CrawlerOrientationOrder.Orientations.PositionOf(definition.BlockSide),
                 $"Yard direction {direction} block side");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 4)), NativeEnemyProgramOracle.EntryOf(YardNativeListAddresses.Entries, definition.HidingProgram),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 4)), NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.HidingProgram),
                 $"Yard direction {direction} hiding list");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6)), definition.AirborneFacingDirection == YardAirborneFacing.Right ? (ushort)1 : (ushort)0,
                 $"Yard direction {direction} airborne facing");
@@ -50,10 +50,10 @@ internal static class YardDirectionDefinitionsVerification
             YardAirborneInstructionDefinition definition =
                 YardDirections.ForAirborneFacing(facing);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((source + row * 4)),
-                NativeEnemyProgramOracle.EntryOf(YardNativeListAddresses.Entries, definition.VisibleProgram),
+                NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.VisibleProgram),
                 $"Yard airborne ${source:X6} facing {facing} visible list");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((source + row * 4 + 2)),
-                NativeEnemyProgramOracle.EntryOf(YardNativeListAddresses.Entries, definition.HidingProgram),
+                NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.HidingProgram),
                 $"Yard airborne ${source:X6} facing {facing} hiding list");
         }
 

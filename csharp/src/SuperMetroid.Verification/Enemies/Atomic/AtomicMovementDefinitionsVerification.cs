@@ -19,7 +19,7 @@ internal static class AtomicMovementDefinitionsVerification
     {
         for (ushort selector = 0; selector < 4; selector++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa80000 | ((ushort)(0xe380 + 2 * selector))),
-                NativeEnemyProgramOracle.EntryOf(AtomicNativeListAddresses.Entries, DecodedSpin(selector)),
+                NativeEnemyAnimationOracle.EntryOf(AtomicNativeListAddresses.Entries, DecodedSpin(selector)),
                 "Atomic native direction program");
         foreach (ushort selector in new ushort[] { 4, 5, 0x7fff, 0xffff })
             AssertThrows<InvalidDataException>(() => DecodedSpin(selector),

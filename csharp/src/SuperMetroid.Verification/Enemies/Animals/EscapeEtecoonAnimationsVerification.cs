@@ -23,7 +23,7 @@ internal static class EscapeEtecoonAnimationsVerification
                     for (int index = 0; index < operands.Length; index++)
                         AssertEqual(operands[index], instruction.Operands[index] switch
                     {
-                        'T' => NativeEnemyProgramOracle.EntryOf(Entries, AssertIs<EscapeEtecoonCue.GoToIfAcidHigh>(cue, $"{at}: cue").Target),
+                        'T' => NativeEnemyAnimationOracle.EntryOf(Entries, AssertIs<EscapeEtecoonCue.GoToIfAcidHigh>(cue, $"{at}: cue").Target),
                         'S' => unchecked((ushort)AssertIs<EscapeEtecoonCue.Move>(cue, $"{at}: cue").Offset),
                         'E' => AnimalsNativeWords.EscapeEtecoonFrameBehaviors.Word(AssertIs<EscapeEtecoonCue.SetFrameBehavior>(cue, $"{at}: cue").FrameBehavior),
                         _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),

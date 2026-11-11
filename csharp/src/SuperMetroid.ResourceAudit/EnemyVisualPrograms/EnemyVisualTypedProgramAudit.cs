@@ -158,22 +158,6 @@ internal static class EnemyVisualTypedProgramAudit
                 nameof(BotwoonVisualDefinitions), botwoonSource, exports, report);
         }
         rows.Add(new(botwoonHeadFrames.Length + BotwoonVisualDefinitions.ProjectileFrames.Count));
-
-        // Typed boss programs (#641) name their frames' installed spritemaps directly; each distinct frame a program
-        // shows must be an exported enemy display resource in its bank.
-        void RequireTypedFrames<TProgram, TFrame, TCue>(AnimationProgramSet<TProgram, TFrame, TCue> programs,
-            Func<TFrame, ushort> spritemap, byte bank, string owner, string source)
-            where TProgram : struct, Enum
-            where TFrame : struct
-            where TCue : notnull
-        {
-            ushort[] frames = [.. Enum.GetValues<TProgram>().SelectMany(program => programs.Steps(program))
-                .OfType<AnimationProgramStep<TProgram, TFrame, TCue>.ShowStep>()
-                .Select(step => spritemap(step.Frame)).Distinct()];
-            foreach (ushort frame in frames)
-                report.Require(ResourceDomains.EnemyDisplay, owner, ResourceIndex.Address(bank, frame), source, exports);
-            rows.Add(new(frames.Length));
-        }
         // Typed animation segments (#1600) name their frames the same way.
         void RequireSegmentFrames<TSegment, TFrame, TEvent>(AnimationSegments<TSegment, TFrame, TEvent> segments,
             Func<TFrame, ushort> spritemap, byte bank, string owner, string source)

@@ -40,9 +40,9 @@ internal static class YardTurnDefinitionsVerification
                 $"Yard turn {movement}/{disabled} lookahead X");
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2))), definition.Lookahead.Y,
                 $"Yard turn {movement}/{disabled} lookahead Y");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4)), NativeEnemyProgramOracle.EntryOf(YardNativeListAddresses.Entries, definition.OutsideTurnProgram),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4)), NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.OutsideTurnProgram),
                 $"Yard turn {movement}/{disabled} outside list");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6)), NativeEnemyProgramOracle.EntryOf(YardNativeListAddresses.Entries, definition.InsideTurnProgram),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6)), NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.InsideTurnProgram),
                 $"Yard turn {movement}/{disabled} inside list");
         }
 

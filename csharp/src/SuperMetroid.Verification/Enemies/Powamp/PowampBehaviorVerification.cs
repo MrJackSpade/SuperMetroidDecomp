@@ -60,8 +60,8 @@ internal static class PowampBehaviorVerification
     private static void AssertBalloonPhase(IImportCartridgeSource cartridge, AnimationPlayback<PowampProgram> playback, PowampProgram segment, int passed, string context)
     {
         (bool sinking, int shown) = PowampBehavior.PowampBalloonPhase(playback);
-        ushort sequence = NativeEnemyProgramOracle.EntryOf(PowampNativeListAddresses.Entries, sinking ? PowampProgram.BalloonStartSinking : PowampProgram.BalloonInflate0);
-        ushort pointer = (ushort)(NativeEnemyProgramOracle.EntryOf(PowampNativeListAddresses.Entries, segment) + 4 * passed);
+        ushort sequence = NativeEnemyAnimationOracle.EntryOf(PowampNativeListAddresses.Entries, sinking ? PowampProgram.BalloonStartSinking : PowampProgram.BalloonInflate0);
+        ushort pointer = (ushort)(NativeEnemyAnimationOracle.EntryOf(PowampNativeListAddresses.Entries, segment) + 4 * passed);
         AssertEqual(pointer, (ushort)(sequence + 4 * shown), context);
         IReadOnlyList<AnimationBeat<PowampFrame, NoAnimationCue>> beats = PowampAnimations.Segments.Beats(segment);
         if (passed < beats.Count)

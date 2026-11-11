@@ -28,7 +28,6 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
-using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 

@@ -103,7 +103,7 @@ internal static class TorizoProjectileAnimationsVerification
     /// </summary>
     private static NativeEnemyProjectileCueRules<TorizoProjectileCue> CueRules => new(
         word => Words.TryGetValue((NativeEnemyProjectileInstruction)word, out var meaning) && meaning.Cue is not null
-            ? (int?)OperandByteCounts.GetValueOrDefault((NativeEnemyProjectileInstruction)word)
+            ? OperandByteCounts.GetValueOrDefault((NativeEnemyProjectileInstruction)word)
             : null,
         (word, operands, cue, at) =>
         {

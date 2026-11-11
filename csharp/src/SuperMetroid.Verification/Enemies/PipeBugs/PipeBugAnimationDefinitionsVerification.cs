@@ -38,7 +38,7 @@ internal static class PipeBugAnimationDefinitionsVerification
                 PipeBugAnimationSelector selector = PipeBugsNativeWords.BrinstarAnimations.Decode(index, "Pipe Bug animation index");
                 ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(((strong ? strongTable : normalTable) + index * 2));
                 AssertEqual(expected,
-                    NativeEnemyProgramOracle.EntryOf(PipeBugNativeListAddresses.Entries, PipeBugPrograms.BrinstarProgram(strong, selector)),
+                    NativeEnemyAnimationOracle.EntryOf(PipeBugNativeListAddresses.Entries, PipeBugPrograms.BrinstarProgram(strong, selector)),
                     $"{(strong ? "strong" : "normal")} Pipe Bug {selector}");
 
                 var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry)

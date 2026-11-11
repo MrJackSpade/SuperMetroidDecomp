@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Samus.Drawing;
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Bosses.Torizo;

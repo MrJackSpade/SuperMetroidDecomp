@@ -34,7 +34,7 @@ internal static class CrawlerAnimationDefinitionsVerification
         for (int orientation = 0; orientation < 4; orientation++)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + orientation * 2)),
-                NativeEnemyProgramOracle.EntryOf(CrawlerNativeListAddresses.Entries, CrawlerSurfaceAnimations.ProgramFor(
+                NativeEnemyAnimationOracle.EntryOf(CrawlerNativeListAddresses.Entries, CrawlerSurfaceAnimations.ProgramFor(
                     family, orientations[orientation])),
                 $"crawler initial selector {family}/{orientation}");
         }
@@ -46,7 +46,7 @@ internal static class CrawlerAnimationDefinitionsVerification
         {
             CrawlerAnimationFamily family = SuperMetroid.AssetExtraction.Enemies.CrawlerSurfaceTableOrder.FamilyAt(column * 2);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((surfaceTables[orientation] + column * 2)),
-                NativeEnemyProgramOracle.EntryOf(CrawlerNativeListAddresses.Entries, CrawlerSurfaceAnimations.ProgramFor(
+                NativeEnemyAnimationOracle.EntryOf(CrawlerNativeListAddresses.Entries, CrawlerSurfaceAnimations.ProgramFor(
                     family, orientations[orientation])),
                 $"crawler surface selector column {column} ({family})/{orientation}");
         }

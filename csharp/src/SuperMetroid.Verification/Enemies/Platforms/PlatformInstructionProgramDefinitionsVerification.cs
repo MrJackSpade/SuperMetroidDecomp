@@ -169,7 +169,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             ushort right = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | (isKamer ? (ushort)0x9cb6 : (ushort)0x9cca));
             for (int direction = 0; direction <= ushort.MaxValue; direction++)
                 AssertEqual(direction == 0 ? left : right,
-                    NativeEnemyProgramOracle.EntryOf(PlatformNativeListAddresses.Entries,
+                    NativeEnemyAnimationOracle.EntryOf(PlatformNativeListAddresses.Entries,
                         PlatformPrograms.SelectProgram(isKamer, Axis.Horizontal, (PlatformHorizontalMovement)direction)),
                     "platform initial program uses full-word zero/nonzero direction");
         }
@@ -192,7 +192,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             ushort right = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | rightOperand);
             for (int direction = 0; direction <= ushort.MaxValue; direction++)
                 AssertEqual(direction == 0 ? left : right,
-                    NativeEnemyProgramOracle.EntryOf(PlatformNativeListAddresses.Entries,
+                    NativeEnemyAnimationOracle.EntryOf(PlatformNativeListAddresses.Entries,
                         PlatformPrograms.SelectProgram(isKamer, moving ? Axis.Vertical : Axis.Horizontal, (PlatformHorizontalMovement)direction)),
                     "platform animation program uses species, motion and full-word direction");
         }

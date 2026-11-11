@@ -25,7 +25,7 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
         {
             MaridiaLargeSnailProgram program = MaridiaLargeSnailPrograms.Program(animationIndex);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(MaridiaLargeSnailNativeValues.SelectorTable + animationIndex * 2),
-                NativeEnemyProgramOracle.EntryOf(MaridiaLargeSnailNativeListAddresses.Entries, program),
+                NativeEnemyAnimationOracle.EntryOf(MaridiaLargeSnailNativeListAddresses.Entries, program),
                 $"Oum selector {animationIndex}");
             var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
             var state = new MaridiaLargeSnailEnemyState()

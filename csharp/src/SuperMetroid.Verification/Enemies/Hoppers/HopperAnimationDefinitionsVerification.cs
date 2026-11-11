@@ -30,7 +30,7 @@ internal static class HopperAnimationDefinitionsVerification
             bool upsideDown = (selector & 1) != 0;
             bool jumping = (selector & 2) != 0;
             AssertEqual(ReadHopperAnimationWord(rom, tables[selector] + variant * 2),
-                NativeEnemyProgramOracle.EntryOf(HopperNativeListAddresses.Entries,
+                NativeEnemyAnimationOracle.EntryOf(HopperNativeListAddresses.Entries,
                     HopperPrograms.Program(variant, upsideDown ? HopperSurface.Ceiling : HopperSurface.Floor, jumping ? HopperPhase.Jumping : HopperPhase.Landed)),
                 $"hopper animation variant {variant}, selector {selector}");
         }

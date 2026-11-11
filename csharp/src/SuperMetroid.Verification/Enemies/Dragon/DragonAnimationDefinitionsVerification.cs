@@ -21,7 +21,7 @@ internal static class DragonAnimationDefinitionsVerification
             // The cartridge pairs its six ordinals as facing left (even) and right (odd) within each phase.
             DragonAnimationSelector selector = Selector(index);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2e5ef + index * 2)),
-                NativeEnemyProgramOracle.EntryOf(DragonNativeListAddresses.Entries, DragonPhases.Program(selector)),
+                NativeEnemyAnimationOracle.EntryOf(DragonNativeListAddresses.Entries, DragonPhases.Program(selector)),
                 $"Dragon animation selector {selector}");
             AssertEqual(Selector(index & ~1),
                 DragonPhases.WithFacing(selector, facingLeft: true),

@@ -27,58 +27,6 @@ internal static class EnemyProgramAnimation
     }
 
     /// <summary>
-    /// Runs <paramref name="slot"/>'s program after its frame expired, until it shows a frame, waits or holds. Each
-    /// cue goes to <paramref name="publish"/>; a program it returns starts at once, as a goto does.
-    /// </summary>
-    /// <param name="slot">The enemy the program animates.</param>
-    /// <param name="programs">The owner's program set.</param>
-    /// <param name="cursor">Where the program resumes; updated in place.</param>
-    /// <param name="frame">The installed frame a program frame shows.</param>
-    /// <param name="publish">Carries out a cue, returning the program a goto cue continues at.</param>
-    internal static void Run<TProgram, TFrame, TCue>(
-        RoomEnemySlot slot,
-        AnimationProgramSet<TProgram, TFrame, TCue> programs,
-        ref AnimationProgramCursor<TProgram> cursor,
-        Func<TFrame, EnemyFrameId> frame,
-        Func<TCue, AnimationProgramCursor<TProgram>, TProgram?> publish)
-        where TProgram : struct, Enum
-        where TFrame : struct
-        where TCue : notnull
-    {
-        Ensure.NotNull(publish);
-        RunTo(slot, programs, ref cursor, frame,
-            (cue, continuation) => publish(cue, continuation) is { } program ? AnimationProgramCursor<TProgram>.Start(program) : null);
-    }
-
-    /// <summary>Like the cue-free step, for a program set whose cues <paramref name="publish"/> carries out against the state.</summary>
-    /// <param name="slot">The enemy.</param>
-    /// <param name="programs">The species' program set.</param>
-    /// <param name="frame">The installed frame a program frame shows.</param>
-    /// <param name="read">Reads the species state's program cursor.</param>
-    /// <param name="write">Stores the cursor back on the species state.</param>
-    /// <param name="publish">Carries out a cue, returning the program a goto cue continues at.</param>
-    internal static void Advance<TState, TProgram, TFrame, TCue>(
-        RoomEnemySlot slot,
-        AnimationProgramSet<TProgram, TFrame, TCue> programs,
-        Func<TFrame, EnemyFrameId> frame,
-        Func<TState, AnimationProgramCursor<TProgram>> read,
-        Action<TState, AnimationProgramCursor<TProgram>> write,
-        Func<TState, TCue, AnimationProgramCursor<TProgram>, TProgram?> publish)
-        where TState : class
-        where TProgram : struct, Enum
-        where TFrame : struct
-        where TCue : notnull
-    {
-        Ensure.NotNull(slot);
-        if (!Expire(slot))
-            return;
-        TState state = slot.RequireSpeciesState<TState>();
-        AnimationProgramCursor<TProgram> cursor = read(state);
-        Run(slot, programs, ref cursor, frame, (cue, continuation) => publish(state, cue, continuation));
-        write(state, cursor);
-    }
-
-    /// <summary>
     /// One typed-animation step of a species whose state holds its playback (#1600): when the slot's frame has expired,
     /// plays the state's animation on to its next frame and stores the playback back. <paramref name="react"/> carries out
     /// each event against the state and may continue the play in another animation.
@@ -145,7 +93,7 @@ internal static class EnemyProgramAnimation
         ref AnimationPlayback<TSegment> playback,
         Func<TFrame, EnemyFrameId> frame,
         Func<TEvent, AnimationPlayback<TSegment>, AnimationContinuation<TSegment>?> react)
-        where TSegment : struct, Enum
+        where TSegment : struct
         where TFrame : struct
         where TEvent : notnull
     {
@@ -197,49 +145,5 @@ internal static class EnemyProgramAnimation
         install(program);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
-    }
-
-    /// <summary>
-    /// Like <see cref="Run{TProgram, TFrame, TCue}"/>, but a cue may resume anywhere: <paramref name="publish"/> returns the cursor the program
-    /// continues at, as a return to a saved position in the animation does, or null to run on.
-    /// </summary>
-    internal static void RunTo<TProgram, TFrame, TCue>(
-        RoomEnemySlot slot,
-        AnimationProgramSet<TProgram, TFrame, TCue> programs,
-        ref AnimationProgramCursor<TProgram> cursor,
-        Func<TFrame, EnemyFrameId> frame,
-        Func<TCue, AnimationProgramCursor<TProgram>, AnimationProgramCursor<TProgram>?> publish)
-        where TProgram : struct, Enum
-        where TFrame : struct
-        where TCue : notnull
-    {
-        Ensure.NotNull(slot);
-        Ensure.NotNull(programs);
-        Ensure.NotNull(frame);
-        // A counting set keeps its loop counter in the enemy's timer word, as the timer-load and countdown
-        // commands do; a set that never counts leaves that word to its owner.
-        WrappingCountdown loopCounter = programs.CountsLoops ? slot.Timer : WrappingCountdown.Start(0);
-        AnimationProgramAdvance<TFrame> advance = programs.AdvanceTo(ref cursor, ref loopCounter, publish);
-        if (programs.CountsLoops)
-            slot.Timer = loopCounter;
-        switch (advance)
-        {
-            case AnimationProgramAdvance<TFrame>.Show shown:
-                slot.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
-                slot.Frame = frame(shown.Frame);
-                slot.NewInstructionFrame = true;
-                return;
-            case AnimationProgramAdvance<TFrame>.Wait waiting:
-                slot.FrameHold = WrappingCountdown.FromRaw(waiting.Duration);
-                return;
-            case AnimationProgramAdvance<TFrame>.Hold:
-                return;
-            case AnimationProgramAdvance<TFrame>.Stop:
-                // The common stop deletes the enemy.
-                slot.Presence = slot.Presence.With(EnemyPresence.Deleted);
-                return;
-            default:
-                throw new InvalidOperationException($"Enemy {slot.DefinitionId}'s programs have no {advance} step.");
-        }
     }
 }

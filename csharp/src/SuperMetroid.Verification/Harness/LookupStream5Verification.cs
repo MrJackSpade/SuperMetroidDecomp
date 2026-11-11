@@ -1105,7 +1105,7 @@ internal static class LookupStream5Verification
                 ReadVerificationWord(rom, 0xa890da + direction * 2));
             var mountSettings = (MorphBallEyeSpawnSettings)EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Eye, PopulationWords.Parameters(0, 0x8000 | direction));
             var mount = MorphBallEyeGeometry.Mount(mountSettings.MountSide);
-            AssertEqual(expected, new LookupStream5Expected2(mount.Offset.X, mount.Offset.Y, NativeEnemyProgramOracle.EntryOf(MorphBallEyeNativeListAddresses.Entries, mount.Program)),
+            AssertEqual(expected, new LookupStream5Expected2(mount.Offset.X, mount.Offset.Y, NativeEnemyAnimationOracle.EntryOf(MorphBallEyeNativeListAddresses.Entries, mount.Program)),
                 "Native directional mount tuple");
             foreach (ushort origin in new ushort[] { 0, 65535 })
             {
@@ -1505,20 +1505,20 @@ internal static class LookupStream5Verification
         for (ushort variant = 0; variant < 7; variant++)
         {
             var actual = CeresDoorInitializations.For(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoor(variant));
-            AssertEqual(ReadVerificationWord(rom, 0xa6f52c + 2 * variant), NativeEnemyProgramOracle.EntryOf(CeresDoorNativeListAddresses.Entries, actual.Program), "Ceres door original instruction dispatch");
+            AssertEqual(ReadVerificationWord(rom, 0xa6f52c + 2 * variant), NativeEnemyAnimationOracle.EntryOf(CeresDoorNativeListAddresses.Entries, actual.Program), "Ceres door original instruction dispatch");
             AssertEqual(ReadVerificationWord(rom, 0xa6f72b + 2 * variant), CeresNativeWords.DoorFunctions.Word(actual.MainFunction), "Ceres door original function dispatch");
         }
         for (ushort variant = 0; variant < 6; variant++)
         {
             var actual = CeresSteamInitializations.Initialization((CeresSteamVariant)variant);
-            AssertEqual(ReadVerificationWord(rom, 0xa6eff5 + 2 * variant), NativeEnemyProgramOracle.EntryOf(CeresSteamNativeListAddresses.Entries, actual.Program), "Ceres steam original instruction dispatch");
+            AssertEqual(ReadVerificationWord(rom, 0xa6eff5 + 2 * variant), NativeEnemyAnimationOracle.EntryOf(CeresSteamNativeListAddresses.Entries, actual.Program), "Ceres steam original instruction dispatch");
             AssertEqual(ReadVerificationWord(rom, 0xa6f001 + 2 * variant), CeresNativeWords.SteamFunctions.Word(actual.Function), "Ceres steam original function dispatch");
         }
         for (int index = 0; index < 9; index++)
         {
             var actual = MagdolliteRise.Phase(index);
             AssertEqual(ReadVerificationWord(rom, 0xa8af55 + 2 * index), actual.DistanceThreshold, "Magdollite original rise threshold");
-            AssertEqual(ReadVerificationWord(rom, 0xa8af67 + 2 * index), NativeEnemyProgramOracle.EntryOf(MagdolliteNativeListAddresses.Entries, actual.BodyProgram), "Magdollite original body program");
+            AssertEqual(ReadVerificationWord(rom, 0xa8af67 + 2 * index), NativeEnemyAnimationOracle.EntryOf(MagdolliteNativeListAddresses.Entries, actual.BodyProgram), "Magdollite original body program");
             AssertEqual(ReadVerificationWord(rom, 0xa8af79 + 2 * index), actual.OverlayYOffset, "Magdollite original overlay offset");
         }
         AssertThrows<InvalidDataException>(() => CeresDoorInitializations.For(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoor(7)), "Ceres door upper bound");

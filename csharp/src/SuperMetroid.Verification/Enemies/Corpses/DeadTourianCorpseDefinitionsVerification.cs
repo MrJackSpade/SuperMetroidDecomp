@@ -48,7 +48,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
                     DeadTourianCorpses.For(family.Species, variantIndex);
                 AssertEqual(
                     CartridgeImportSource.Require(rom).ReadCartridgeWord((family.InstructionTable + variantIndex * 2)),
-                    NativeEnemyProgramOracle.EntryOf(DeadTourianNativeListAddresses.Entries, definition.InitialProgram),
+                    NativeEnemyAnimationOracle.EntryOf(DeadTourianNativeListAddresses.Entries, definition.InitialProgram),
                     $"dead {family.Species} variant {variantIndex} instruction selector");
                 VerifyDeadTourianCorpseConfiguration(
                     rom, family.Species, variantIndex, definition);

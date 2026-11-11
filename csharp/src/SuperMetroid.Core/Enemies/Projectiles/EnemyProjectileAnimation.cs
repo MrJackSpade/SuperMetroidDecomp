@@ -18,24 +18,32 @@ internal abstract class EnemyProjectileAnimation
         projectile.FrameHold = frameStep.Remaining;
         if (!frameStep.IsZero)
             return;
-        bool shown = TryShowNextFrame(context, handlers, out int duration, out EnemyProjectileFrameId frame);
+        EnemyProjectileFrameStep step = NextFrame(context, handlers);
         if (projectile.Animation != this)
             return;
-        if (!shown)
+        switch (step)
         {
-            // A held timeline is the sleep: the timer stays zero and wraps, never expiring again.
-            projectile.FrameHold = WrappingCountdown.Start(0);
-            return;
+            case EnemyProjectileFrameStep.Show shown:
+                projectile.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
+                projectile.Frame = shown.Frame;
+                return;
+            case EnemyProjectileFrameStep.ShowForGood held:
+                // A frame shown for good rests as a held timeline does: the timer stays zero and wraps, and no later
+                // expiry shows anything.
+                projectile.FrameHold = WrappingCountdown.Start(0);
+                projectile.Frame = held.Frame;
+                return;
+            case EnemyProjectileFrameStep.Rest:
+                // A held timeline is the sleep: the timer stays zero and wraps, never expiring again.
+                projectile.FrameHold = WrappingCountdown.Start(0);
+                return;
+            default:
+                throw new InvalidOperationException($"A projectile animation took an undefined step {step}.");
         }
-        projectile.FrameHold = WrappingCountdown.FromRaw(duration);
-        projectile.Frame = frame;
     }
 
-    /// <summary>Advances the timeline to its next frame, or reports that it holds.</summary>
+    /// <summary>Advances the timeline to its next frame, a frame shown for good, or its rest.</summary>
     /// <param name="context">The slot the animation runs on, Samus and the pass's camera, for cues that act on them.</param>
     /// <param name="handlers">The engine's handlers, which carry out published cues.</param>
-    /// <param name="duration">How many projectile passes the frame lasts.</param>
-    /// <param name="frame">The frame shown.</param>
-    private protected abstract bool TryShowNextFrame(
-        EnemyProjectileCueContext context, EnemyProjectileHandlerTable handlers, out int duration, out EnemyProjectileFrameId frame);
+    private protected abstract EnemyProjectileFrameStep NextFrame(EnemyProjectileCueContext context, EnemyProjectileHandlerTable handlers);
 }

@@ -41,7 +41,7 @@ internal static class ShaktoolInstructionDefinitionsVerification
             ushort midpoint = unchecked((ushort)(bucket << 8));
             centerState.MotionFlags = 0;
             centerState.OrbitAngle = RotationAngle.FromRaw(unchecked((ushort)(midpoint ^ 0x8000)));
-            centerState.AngularVelocity = 0;
+            centerState.AngularVelocity = RotationAngle.Zero;
             centerState.ResetOrientation();
             nextState.OrbitAngle = RotationAngle.FromRaw(midpoint);
             orient(center, centerState);

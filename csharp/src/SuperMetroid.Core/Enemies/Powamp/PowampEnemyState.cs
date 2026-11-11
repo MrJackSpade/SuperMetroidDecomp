@@ -27,7 +27,7 @@ public sealed class PowampEnemyState
     public int WiggleTimer { get; internal set; }
 
     /// <summary>
-    /// The balloon's grappled rise in room pixels, copied from population parameter two (0 through 65535) and
+    /// The balloon's grappled rise in room pixels, copied from its spawn settings and
     /// subtracted from the balloon's spawn Y, wrapping at the room's top edge, to obtain the grappled body's target.
     /// </summary>
     public int BalloonGrappleTravelDistance { get; internal set; }

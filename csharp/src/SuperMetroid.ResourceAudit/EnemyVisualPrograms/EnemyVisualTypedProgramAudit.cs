@@ -166,8 +166,8 @@ internal static class EnemyVisualTypedProgramAudit
             where TEvent : notnull
         {
             ushort[] frames = [.. Enum.GetValues<TSegment>().SelectMany(segment => segments.Beats(segment))
-                .OfType<AnimationBeat<TFrame, TEvent>.Frame>()
-                .Select(frame => spritemap(frame.Shown)).Distinct()];
+                .Select(beat => beat.ShownFrame).OfType<TFrame>()
+                .Select(frame => spritemap(frame)).Distinct()];
             foreach (ushort frame in frames)
                 report.Require(ResourceDomains.EnemyDisplay, owner, ResourceIndex.Address(bank, frame), source, exports);
             rows.Add(new(frames.Length));

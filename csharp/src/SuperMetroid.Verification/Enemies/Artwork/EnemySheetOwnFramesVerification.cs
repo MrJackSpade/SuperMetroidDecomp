@@ -350,8 +350,8 @@ internal static class EnemySheetOwnFramesVerification
             {
                 foreach (AnimationBeat<TFrame, TEvent> beat in segments.Beats(phase.Segment).Skip(phase.FirstBeat).Take(phase.BeatCount))
                 {
-                    if (beat is AnimationBeat<TFrame, TEvent>.Frame frame)
-                        shown.Add(table.Of(frame.Shown));
+                    if (beat.ShownFrame is { } frame)
+                        shown.Add(table.Of(frame));
                     else if (beat is AnimationBeat<TFrame, TEvent>.Event raised && eventTargets is not null)
                     {
                         foreach (TSegment target in eventTargets(raised.Raised))

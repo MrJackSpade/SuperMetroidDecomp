@@ -22,14 +22,14 @@ internal sealed class EnemyRoomStatus
     /// </summary>
     public bool EnemyDoorTransitionActive { get; set; }
     /// <summary>
-    /// The room's kill count, 0 through 65535: reset at load and incremented by death paths through
+    /// The room's kill count, zero or more: reset at load and incremented by death paths through
     /// <see cref="RecordKill"/>; it counts their publications rather than enumerating remaining or uniquely defeated
-    /// slots. The count returns to zero after 65535, as the game's does.
+    /// slots. Its readers compare it with the room's kill quota, at most 255, on every room-object update from the room's
+    /// load, so the count meets the quota long before a count kept to the game's word could pass 65535 and start again;
+    /// once met, the grey door has opened and the cleared event is set for good, so no reader sees where a count past
+    /// that would stand.
     /// </summary>
-    public int EnemiesKilled { get; internal set => field = Ensure.BetweenInclusive(0, KillCountPeriod - 1, value); }
-
-    /// <summary>How many kills the count records before it returns to zero.</summary>
-    private const int KillCountPeriod = 65536;
+    public int EnemiesKilled { get; internal set => field = Ensure.AtLeastZero(value); }
     /// <summary>
     /// The boss of the loaded encounter, or null: reset on room load and published by a boss definition in the
     /// population or by boss initialization. Not an area boss-defeated flag.
@@ -45,8 +45,8 @@ internal sealed class EnemyRoomStatus
     /// <summary>The last darkness step Fireflea deaths reach: six deaths; a seventh leaves it.</summary>
     public const int MaximumFirefleaDarknessStep = 6;
 
-    /// <summary>Counts one more enemy death in the room's kill count, which wraps from 65535 to zero.</summary>
-    internal void RecordKill() => EnemiesKilled = (EnemiesKilled + 1) % KillCountPeriod;
+    /// <summary>Counts one more enemy death in the room's kill count.</summary>
+    internal void RecordKill() => EnemiesKilled++;
 
     /// <summary>Language flag sampled when the Ceres warning-text phase begins and by Mother Brain's alternate escape-text selection.</summary>
     public bool JapaneseText

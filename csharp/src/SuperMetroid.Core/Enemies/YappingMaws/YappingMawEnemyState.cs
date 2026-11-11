@@ -85,8 +85,8 @@ public sealed class YappingMawEnemyState
     public int RetractedDelayTimer { get; internal set; }
 
     /// <summary>
-    /// Variable F: the population parameter-one distance, 0 through 65535, below which an attack starts. The game
-    /// compares it by the sign of a wrapped difference, so a parameter of 32768 or more behaves as the game's
+    /// The distance from its spawn settings below which an attack starts. The game compares it by the sign of a
+    /// wrapped difference, so a distance of 32768 or more behaves as the game's
     /// wrapped comparison does; <see cref="IsWithinActivationDistance"/> owns that comparison.
     /// </summary>
     public int ActivationDistance { get; internal set; }

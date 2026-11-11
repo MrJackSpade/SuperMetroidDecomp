@@ -12,6 +12,9 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 /// </summary>
 internal static class NativeEnemyAnimationOracle
 {
+    /// <summary>The longest duration a native frame instruction gives, which a list follows with its sleep to hold a frame.</summary>
+    private const ushort NativeHeldFrameDuration = 0x7fff;
+
     /// <summary>The native entry of <paramref name="segment"/>.</summary>
     internal static ushort EntryOf<TSegment>(NativeProgramEntry<TSegment>[] entries, TSegment segment)
         where TSegment : struct, Enum =>
@@ -379,6 +382,19 @@ internal static class NativeEnemyAnimationOracle
             NativeEnemyListDefinitions.WordKind kind = NativeEnemyListDefinitions.Classify(word);
             switch (kind)
             {
+                case NativeEnemyListDefinitions.WordKind.Frame when Beat(beat, at) is AnimationBeat<TFrame, TEvent>.HeldFrame held:
+                {
+                    // A typed held frame stands for the list's longest frame followed at once by its sleep (#1607): the
+                    // frame shows for good, which the sleep after it reads as the same rest.
+                    VerificationAssertions.AssertEqual(NativeHeldFrameDuration, word, $"{at}: a held frame's native duration");
+                    VerificationAssertions.AssertEqual(operand, spritemap(held.Shown), $"{at}: held frame's spritemap");
+                    ushort following = cartridge.ReadCartridgeWord((int)new SnesAddress(bank, unchecked((ushort)(cursor + 4))));
+                    VerificationAssertions.AssertEqual(NativeEnemyListDefinitions.WordKind.Sleep, NativeEnemyListDefinitions.Classify(following),
+                        $"{at}: a held frame's native frame is followed by its sleep");
+                    addresses.Add(cursor);
+                    cursor = unchecked((ushort)(cursor + 4));
+                    continue;
+                }
                 case NativeEnemyListDefinitions.WordKind.Frame:
                 {
                     var frame = VerificationAssertions.AssertIs<AnimationBeat<TFrame, TEvent>.Frame>(Beat(beat, at), $"{at}: frame");

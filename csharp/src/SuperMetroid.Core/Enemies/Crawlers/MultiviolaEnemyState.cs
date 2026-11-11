@@ -14,11 +14,11 @@ public sealed class MultiviolaEnemyState
     public FixedVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>
-    /// The flight heading, from its spawn settings, reflected by exclusive-or at each wall or floor; its velocity is
-    /// rebuilt from it every update.
+    /// The flight heading, from its spawn settings, bounced into the neighbouring quarter turn at each wall or floor
+    /// (<see cref="MultiviolaQuarterBounce"/>); its velocity is rebuilt from it every update.
     /// </summary>
     public TrigonometryAngle Heading { get; internal set; }
 
-    /// <summary>The flight speed, from its spawn settings, multiplied with the heading's sine and cosine.</summary>
+    /// <summary>The flight speed in whole pixels per update, from its spawn settings, split by the heading's sine and cosine.</summary>
     public int Speed { get; internal set; }
 }

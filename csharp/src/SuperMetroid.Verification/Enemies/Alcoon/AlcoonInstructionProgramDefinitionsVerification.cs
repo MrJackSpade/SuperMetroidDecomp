@@ -71,12 +71,14 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
             enemies.StepFrame(new RoomEnemyFrame { FrameCounter = enemies.StandaloneFrameCounter, Camera = new(cameraX, 0), TimeIsFrozen = false, Samus = samus, Level = assets.LevelData });
             foreach (RoomEnemySlot slot in enemies.SlotTable.Slots)
             {
-                // A playback that has just passed a frame beat is showing that pose.
+                // A playback that has just passed a frame beat is showing that pose; one resting on a held frame stands past
+                // its phase's last beat, the held frame.
                 if (slot.DefinitionId == EnemyDefinitionId.Alcoon &&
                     enemies.AlcoonStates[slot.SlotIndex] is { Playback: { Place.Beat: > 0 } playback } &&
                     playback.Animation.Phases[playback.Place.Phase] is var phase &&
-                    AlcoonAnimations.Segments.Beats(phase.Segment)[phase.FirstBeat + playback.Place.Beat - 1] is AnimationBeat<AlcoonFrame, AlcoonCue>.Frame)
-                    reachedPoses.Add(new ReachedPose(phase.Segment, phase.FirstBeat + playback.Place.Beat - 1));
+                    phase.FirstBeat + Math.Min(playback.Place.Beat, phase.BeatCount) - 1 is var shownBeat &&
+                    AlcoonAnimations.Segments.Beats(phase.Segment)[shownBeat].ShownFrame is not null)
+                    reachedPoses.Add(new ReachedPose(phase.Segment, shownBeat));
             }
 
             samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(actor.Position.X.Whole +
@@ -94,7 +96,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
             "real Alcoon programs execute fire callbacks in both facings");
         var poses = Enum.GetValues<AlcoonProgram>()
             .SelectMany(program => AlcoonAnimations.Segments.Beats(program)
-                .Select((beat, index) => new AlcoonInstructionProgramDefinitionsPose(Program:program, Step:index, Shows:beat is AnimationBeat<AlcoonFrame, AlcoonCue>.Frame)))
+                .Select((beat, index) => new AlcoonInstructionProgramDefinitionsPose(Program:program, Step:index, Shows:beat.ShownFrame is not null)))
             .Where(step => step.Shows)
             .Select(step => new ReachedPose(step.Program, step.Step))
             .ToHashSet();

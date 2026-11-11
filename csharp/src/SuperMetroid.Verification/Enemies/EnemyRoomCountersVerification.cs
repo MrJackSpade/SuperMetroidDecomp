@@ -7,7 +7,7 @@ using SuperMetroid.Core.World;
 
 /// <summary>
 /// Checks the room-wide enemy counters stored as ordinary quantities: each accepts exactly the range its producers can
-/// reach and rejects anything wider, and the kill count keeps its wrap through its one named advance.
+/// reach and rejects anything wider, and the kill count counts every kill, past where the game's word would start again.
 /// </summary>
 internal static class EnemyRoomCountersVerification
 {
@@ -30,11 +30,11 @@ internal static class EnemyRoomCountersVerification
         AssertThrows<ArgumentOutOfRangeException>(() => enemies.SlotTable.EnemyCount = -1,
             "the population count cannot be negative");
 
-        enemies.RoomStatus.EnemiesKilled = ushort.MaxValue;
+        enemies.RoomStatus.EnemiesKilled = 65535;
         enemies.RoomStatus.RecordKill();
-        AssertEqual(0, enemies.RoomStatus.EnemiesKilled, "the kill count wraps from 65535 to zero");
-        AssertThrows<ArgumentOutOfRangeException>(() => enemies.RoomStatus.EnemiesKilled = ushort.MaxValue + 1,
-            "the kill count rejects a value past its period");
+        AssertEqual(65536, enemies.RoomStatus.EnemiesKilled, "the kill count keeps counting past 65535");
+        AssertThrows<ArgumentOutOfRangeException>(() => enemies.RoomStatus.EnemiesKilled = -1,
+            "the kill count rejects a negative count");
 
         Console.WriteLine("Enemy room counters: darkness, slot-table and kill-count ranges hold at their bounds.");
     }

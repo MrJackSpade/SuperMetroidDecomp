@@ -10,6 +10,12 @@ namespace SuperMetroid.Core.Enemies.Kago;
 /// </summary>
 internal static class KagoBugProjectileAnimations
 {
+    /// <summary>
+    /// The updates a landed bug's idle pose shows before its animation starts the landing again (#1607). The falling and
+    /// jumping poses are held instead: their lists show the same pose again, so they rest on it for good.
+    /// </summary>
+    private const int LongestPose = 32767;
+
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<KagoBugProjectileProgram, KagoBugProjectileFrame, KagoBugProjectileCue> Segments { get; } = new(
         new Dictionary<KagoBugProjectileProgram, AnimationBeat<KagoBugProjectileFrame, KagoBugProjectileCue>[]>
@@ -22,11 +28,11 @@ internal static class KagoBugProjectileAnimations
         [
             Show(0, 5),
             Cue(new(K.StartIdle)),
-            Show(1, 32767),
+            Show(1, LongestPose),
         ],
         [P.Falling] =
         [
-            Show(2, 32767),
+            Hold(2),
         ],
         [P.JumpStart] =
         [
@@ -36,7 +42,7 @@ internal static class KagoBugProjectileAnimations
         ],
         [P.JumpLoop] =
         [
-            Show(5, 32767),
+            Hold(5),
         ],
         [P.Shot] =
         [
@@ -66,6 +72,9 @@ internal static class KagoBugProjectileAnimations
 
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<KagoBugProjectileFrame, KagoBugProjectileCue> Show(int pose, int duration) => new AnimationBeat<KagoBugProjectileFrame, KagoBugProjectileCue>.Frame(new(pose), duration);
+
+    /// <summary>Shows pose <paramref name="pose"/> for good: the animation rests on it until its owner plays another (#1607).</summary>
+    private static AnimationBeat<KagoBugProjectileFrame, KagoBugProjectileCue> Hold(int pose) => new AnimationBeat<KagoBugProjectileFrame, KagoBugProjectileCue>.HeldFrame(new(pose));
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationBeat<KagoBugProjectileFrame, KagoBugProjectileCue> Cue(KagoBugProjectileCue cue) => new AnimationBeat<KagoBugProjectileFrame, KagoBugProjectileCue>.Event(cue);

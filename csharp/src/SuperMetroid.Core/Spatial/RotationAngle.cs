@@ -88,6 +88,13 @@ public readonly record struct RotationAngle : IComparable<RotationAngle>
     public int Sector(int sectors) =>
         Steps * Ensure.BetweenInclusive(1, StepsPerTurn, sectors) / StepsPerTurn;
 
+    /// <summary>
+    /// The turn split into <paramref name="parts"/> equal arcs: one arc, rounded back to a whole 256th of a step, as a
+    /// turn made a share at a time, or the point halfway along an arc, is formed.
+    /// </summary>
+    /// <param name="parts">The number of equal arcs, at least one.</param>
+    public RotationAngle DividedBy(int parts) => new((ushort)(RawValue / Ensure.BetweenInclusive(1, int.MaxValue, parts)));
+
     /// <summary>The angle turned on by <paramref name="turn"/>, continuing around the circle past a full turn.</summary>
     public static RotationAngle operator +(RotationAngle angle, RotationAngle turn) => angle.AddRaw(turn.RawValue);
 

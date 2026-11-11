@@ -74,7 +74,11 @@ public sealed class EnemySession
     /// </summary>
     internal int RandomEnemyCounter { get; set; }
 
-    /// <summary>Required room kill count from the nonempty population's terminator for enemy-clear triggers; empty-population initialization retains the previous quota. 0 through 255.</summary>
+    /// <summary>
+    /// The kills that clear the room for its grey doors and clearance watches: the room population's own quota
+    /// (<see cref="RoomEnemyPopulationDefinition.DeathQuota"/>) when the room places enemies; a room that places none
+    /// keeps the quota of the last room that did.
+    /// </summary>
     internal int DeathQuota { get; set; }
 
     /// <summary>

@@ -181,7 +181,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         // adding 128 selects the exact opposite direction for behavior six.
         TrigonometryAngle heading = EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ToTableAngle();
-        state.FaceCustomHeading(heading.TurnedBySteps(relativeHeading == SbugHeading.Away ? TrigonometryAngle.HalfTurn.RawValue : 0).ToAngle());
+        state.FaceCustomHeading((relativeHeading == SbugHeading.Away ? heading.TurnedBy(TrigonometryAngle.HalfTurn) : heading).ToAngle());
         RecalculateSbugCustomDirection(slot, state);
         state.Function = relativeHeading == SbugHeading.Away
             ? SbugEnemyFunction.MoveAwayFromSamus
@@ -353,19 +353,15 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         return against ? SignedSixteenSixteen.Zero - along : along;
     }
 
-    /// <summary>Multiplies a quarter-wave table value by population speed into unsigned 16.16 words.</summary>
+    /// <summary>
+    /// The forward speed along one axis: the Sbug's whole-pixel speed, at most 255, scaled by the unsigned half-wave
+    /// sample, in 65536ths, of the angle turned by <paramref name="phase"/>.
+    /// </summary>
     internal static UnsignedSixteenSixteen CalculateUnsignedSbugMagnitude(
         TrigonometryAngle angle,
         int speed,
-        int phase)
-    {
-        // Converting the angle to X and Y reads a 128-entry unsigned quarter-circle table,
-        // then performs a complete multiplication into a 16.16 result. Population speed is at most 255,
-        // but retaining uint arithmetic documents the actual range of the result.
-        int tableIndex = angle.TurnedBySteps(phase).HalfWaveIndex;
-        uint product = (uint)Trigonometry.UnsignedHalfWave(tableIndex) * (uint)speed;
-        return UnsignedSixteenSixteen.FromRaw(product);
-    }
+        int phase) =>
+        UnsignedSixteenSixteen.ShareOfWholePixels(speed, Trigonometry.UnsignedHalfWave(angle.TurnedBySteps(phase).HalfWaveIndex));
 
     /// <summary>Samples the signed short multiply path for X and Y phase offsets.</summary>
     private static void CalculateSignedSbugVelocities(
@@ -378,18 +374,12 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         yVelocity = CalculateSignedSbugComponent(angle, speed, phase: EnemyTrigonometryAngleDefinitions.HalfTurn);
     }
 
-    /// <summary>Reproduces the short sine multiply and independent negation of each part.</summary>
-    internal static SignedSixteenSixteen CalculateSignedSbugComponent(TrigonometryAngle angle, int speed, int phase)
-    {
-        // The short sine multiplication multiplies two values of 0 through 255, takes the product as a 16.16
-        // displacement in 256ths, then (when negative) negates its whole and fraction parts independently. Recreate the operations rather
-        // than using floating point or Math.Sin, both of which erase its rounding bug.
-        TrigonometryAngle tableAngle = angle.TurnedBySteps(phase);
-        int sineMagnitude = Trigonometry.EightBitHalfWave(tableAngle.HalfWaveIndex);
-        // Every authored speed is below five, so the product of the two bytes stays below 65,536.
-        SignedSixteenSixteen product = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(sineMagnitude * speed);
-        return tableAngle.IsInSecondHalf ? product.NegatedPartsSeparately() : product;
-    }
+    /// <summary>
+    /// The side speed along one axis: the short circle product (<see cref="ShortCircleProduct"/>) of the angle turned by
+    /// <paramref name="phase"/> at the Sbug's speed, every authored one below five.
+    /// </summary>
+    internal static SignedSixteenSixteen CalculateSignedSbugComponent(TrigonometryAngle angle, int speed, int phase) =>
+        EnemyMath.ReadEightBitSineFixedProduct(angle.TurnedBySteps(phase), speed);
 
     /// <summary>Restarts the selected animation only when its facing list differs from the installed one.</summary>
     private static void SetSbugFacing(

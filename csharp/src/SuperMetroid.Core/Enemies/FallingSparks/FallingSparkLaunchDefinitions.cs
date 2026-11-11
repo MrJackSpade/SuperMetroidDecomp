@@ -7,18 +7,17 @@ public static class FallingSparkLaunchDefinitions
     internal static readonly RandomSampleField LaunchSelector = new(2, 3);
 
     /// <summary>
-    /// Distance and subdistance: the seven authored records, by launch selector, as signed 16.16 horizontal deltas:
-    /// four leftward and three rightward launches. The eighth selection lies past them and drifts by
-    /// <see cref="FallingSparkUnauthoredLaunch"/>.
+    /// The seven authored horizontal drifts per update, by launch selector, in 256ths of a pixel: four leftward and three
+    /// rightward launches. The eighth selection lies past them and drifts by <see cref="FallingSparkUnauthoredLaunch"/>.
     /// </summary>
     internal static readonly SignedSixteenSixteen[] Launches =
     [
-        SignedSixteenSixteen.FromRaw(-18432),
-        SignedSixteenSixteen.FromRaw(-16384),
-        SignedSixteenSixteen.FromRaw(-8192),
-        SignedSixteenSixteen.FromRaw(-256),
-        SignedSixteenSixteen.FromParts(0, 256),
-        SignedSixteenSixteen.FromParts(0, 8192),
-        SignedSixteenSixteen.FromParts(0, 16384),
+        SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(-72),
+        SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(-64),
+        SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(-32),
+        SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(-1),
+        SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(1),
+        SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(32),
+        SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(64),
     ];
 }

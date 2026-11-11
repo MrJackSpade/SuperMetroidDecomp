@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// </summary>
 /// <param name="FrameBehavior">Per-frame callback installed before the first frame-list tick.</param>
 /// <param name="Radius">The collision half-extents in room pixels.</param>
-/// <param name="Damage">Samus contact damage, 0 through 4095.</param>
+/// <param name="Damage">Samus contact damage, zero or more.</param>
 /// <param name="Properties">The Samus-damage, contact-persistence and shot-blocking behaviours.</param>
 /// <param name="Depth">Whether the projectile starts drawn in front of or behind Samus.</param>
 /// <param name="SamusTouch">What touching Samus does to the projectile's program.</param>

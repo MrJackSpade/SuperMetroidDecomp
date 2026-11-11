@@ -53,11 +53,11 @@ internal static class AlcoonAnimations
         ],
         [P.AirborneLeftLookingUp] =
         [
-            Show(8, 32767),
+            Hold(8),
         ],
         [P.AirborneLeftLookingForward] =
         [
-            Show(3, 32767),
+            Hold(3),
         ],
         [P.WalkingRight] =
         [
@@ -98,11 +98,11 @@ internal static class AlcoonAnimations
         ],
         [P.AirborneRightLookingUp] =
         [
-            Show(17, 32767),
+            Hold(17),
         ],
         [P.AirborneRightLookingForward] =
         [
-            Show(12, 32767),
+            Hold(12),
         ],
     });
 
@@ -126,6 +126,9 @@ internal static class AlcoonAnimations
 
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<AlcoonFrame, AlcoonCue> Show(int pose, int duration) => new AnimationBeat<AlcoonFrame, AlcoonCue>.Frame(new(pose), duration);
+
+    /// <summary>Shows pose <paramref name="pose"/> for good: the animation rests on it until its owner plays another (#1607).</summary>
+    private static AnimationBeat<AlcoonFrame, AlcoonCue> Hold(int pose) => new AnimationBeat<AlcoonFrame, AlcoonCue>.HeldFrame(new(pose));
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationBeat<AlcoonFrame, AlcoonCue> Cue(AlcoonCue cue) => new AnimationBeat<AlcoonFrame, AlcoonCue>.Event(cue);

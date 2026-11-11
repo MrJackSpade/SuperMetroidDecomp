@@ -147,11 +147,11 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         PositionShaktoolAroundPreviousSegment(slot, state);
         ShaktoolMotionFlags flags = state.MotionFlags;
-        int increment;
+        RotationAngle increment;
         if ((flags & ShaktoolMotionFlags.Straightening) != ShaktoolMotionFlags.None)
         {
-            state.TargetAngle = state.TargetAngle.AddRaw(ShaktoolOrbitDefinitions.TableStep);
-            increment = ShaktoolOrbitDefinitions.TableStep;
+            state.TargetAngle += ShaktoolOrbitDefinitions.StraighteningTurn;
+            increment = ShaktoolOrbitDefinitions.StraighteningTurn;
         }
         else
         {
@@ -159,8 +159,8 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.OrbitAngle = (flags & ShaktoolMotionFlags.Clockwise) != ShaktoolMotionFlags.None
-            ? state.OrbitAngle.AddRaw(-increment)
-            : state.OrbitAngle.AddRaw(increment);
+            ? state.OrbitAngle - increment
+            : state.OrbitAngle + increment;
     }
 
     /// <summary>Runs middle-segment orientation selection.</summary>
@@ -173,10 +173,10 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         ShaktoolSegmentState next = RequireShaktoolState(nextSlot);
 
         // The heading lies halfway along the turn from the angle opposite this segment's on to the next segment's.
-        RotationAngle oppositeAngle = state.OrbitAngle.AddRaw(RotationAngle.HalfTurn.RawValue);
-        RotationAngle midpoint = oppositeAngle.AddRaw(oppositeAngle.UnitsTo(next.OrbitAngle) / 2);
+        RotationAngle oppositeAngle = state.OrbitAngle + RotationAngle.HalfTurn;
+        RotationAngle midpoint = oppositeAngle + (next.OrbitAngle - oppositeAngle).DividedBy(2);
         if (state.OrientationReversed)
-            midpoint = midpoint.AddRaw(RotationAngle.HalfTurn.RawValue);
+            midpoint += RotationAngle.HalfTurn;
 
         RotationAngle heading = midpoint.TurnedBySteps(ShaktoolOrbitDefinitions.OrientationBucketLead);
         int directionBucket = heading.Sector(ShaktoolOrbitDefinitions.OrientationBuckets) *
@@ -224,7 +224,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         if ((flags & ShaktoolMotionFlags.Straightening) != ShaktoolMotionFlags.None)
         {
             // The straightening step deliberately adds a second step after the first increment.
-            state.TargetAngle = state.TargetAngle.AddRaw(ShaktoolOrbitDefinitions.TableStep);
+            state.TargetAngle += ShaktoolOrbitDefinitions.StraighteningTurn;
             return;
         }
 
@@ -280,8 +280,8 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         RotationAngle target = EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(slot.Position.X.Whole, owner.Position.X.Whole), CoordinateAxis.Difference(slot.Position.Y.Whole, owner.Position.Y.Whole))).ToMirroredTableAngle().ToAngle();
         target = (state.MotionFlags & ShaktoolMotionFlags.Clockwise) != ShaktoolMotionFlags.None
-            ? target.AddRaw(-RotationAngle.QuarterTurn.RawValue)
-            : target.AddRaw(RotationAngle.QuarterTurn.RawValue);
+            ? target - RotationAngle.QuarterTurn
+            : target + RotationAngle.QuarterTurn;
         SetShaktoolGroupTargetAngle(slot, target);
 
         RoomEnemySlot[] group = GetShaktoolGroup(slot);
@@ -333,13 +333,16 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         rightState.OrbitAngle = OppositeOrbitStep(saved);
     }
 
-    /// <summary>Runs the per-segment convergence speed calculation: four raw angle units per whole step left to the target in the orbit direction.</summary>
+    /// <summary>
+    /// Runs the per-segment convergence speed calculation: a sixty-fourth of the whole steps left to the target in the
+    /// orbit direction, four 256ths of a step for each.
+    /// </summary>
     private static void CalculateShaktoolAngularVelocity(ShaktoolSegmentState state)
     {
         RotationAngle turnLeft = (state.MotionFlags & ShaktoolMotionFlags.Clockwise) != ShaktoolMotionFlags.None
             ? state.OrbitAngle - state.TargetAngle
             : state.TargetAngle - state.OrbitAngle;
-        state.AngularVelocity = 4 * turnLeft.ToTrigonometryAngle().RawValue;
+        state.AngularVelocity = turnLeft.WholeStep.DividedBy(ShaktoolOrbitDefinitions.ConvergenceShares);
     }
 
     /// <summary>Runs group synchronization.</summary>
@@ -457,18 +460,15 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the one-frame sine movement helper.</summary>
     private static void MoveShaktoolSegmentForAnimation(RoomEnemySlot slot, TrigonometryAngle angle)
     {
-        // The decompilation names a 320-word view whose indices 64..319 are the game's
-        // 256-word table. Convert those full-view indices explicitly: X reads
-        // full[angle+64], while Y reads full[angle]. A naïve +64 on the authored table rotates
-        // both components by a quarter turn.
-        SignedEightEight xVelocity = ReadShaktoolCommonSineSample(angle.RawValue + 64);
-        SignedEightEight yVelocity = ReadShaktoolCommonSineSample(angle.RawValue);
+        // X reads the shared signed sine at the angle and Y the sine a quarter turn behind it, the negative cosine.
+        SignedEightEight xVelocity = ReadShaktoolCommonSineSample(angle);
+        SignedEightEight yVelocity = ReadShaktoolCommonSineSample(angle.TurnedBy(TrigonometryAngle.HalfTurn).TurnedBy(TrigonometryAngle.QuarterTurn));
         slot.Position = slot.Position.Advance(new(xVelocity.ToSixteenSixteenDelta(), yVelocity.ToSixteenSixteenDelta()));
     }
 
-    /// <summary>Maps the Shaktool orbit index into the shared signed enemy sine table.</summary>
-    internal static SignedEightEight ReadShaktoolCommonSineSample(int fullTableIndex) =>
-        SignedEightEight.FromSignedRaw(Trigonometry.SignedSine(TrigonometryAngle.Wrapped(fullTableIndex - 64)));
+    /// <summary>The shared signed enemy sine at <paramref name="angle"/>, in 256ths of a pixel.</summary>
+    internal static SignedEightEight ReadShaktoolCommonSineSample(TrigonometryAngle angle) =>
+        SignedEightEight.FromSignedRaw(Trigonometry.SignedSine(angle));
 
     /// <summary>
     /// Implements Shaktool's fatal-shot tail: a hit that kills one segment deletes the enemies the room lists first

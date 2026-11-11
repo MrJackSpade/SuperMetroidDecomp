@@ -14,6 +14,9 @@ namespace SuperMetroid.Verification.Enemies;
 /// </summary>
 internal static class NativeEnemyProjectileParity
 {
+    /// <summary>The longest duration a native frame command gives: the frame a typed animation holds for good.</summary>
+    private const ushort NativeHeldFrameDuration = 0x7fff;
+
     /// <summary>
     /// Compares <paramref name="projectile"/> with the native list at <paramref name="entry"/> for up to
     /// <paramref name="updates"/> updates or until the list deletes it; returns whether it did and the updates compared.
@@ -31,7 +34,12 @@ internal static class NativeEnemyProjectileParity
             AssertEqual(!native.Deleted, projectile.IsActive, $"{at}: deletion");
             if (native.Deleted)
                 return new CompareResult(true, update + 1);
-            AssertEqual(native.Timer, projectile.FrameHold.RawValue, $"{at}: timer");
+            // A frame the typed animation holds for good (#1607) rests on the hold's timer, counting on from zero, while
+            // the native list counts its longest frame down before resting on the same frame: within the updates a check
+            // runs, the two stay the longest frame's duration apart.
+            bool restsOnHeldFrame = projectile.FrameHold.RawValue == unchecked((ushort)(native.Timer - NativeHeldFrameDuration));
+            if (!restsOnHeldFrame)
+                AssertEqual(native.Timer, projectile.FrameHold.RawValue, $"{at}: timer");
             AssertEqual(native.Operand, projectile.PresentationOperandAddress, $"{at}: frame");
             if (native.FrameBehaviorCleared)
                 AssertEqual(EnemyProjectileFrameBehavior.Stationary, projectile.FrameBehavior, $"{at}: cleared pre-instruction");

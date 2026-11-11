@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>One room state's ordered enemy population and the kills that clear the room.</summary>
 /// <param name="name">The list's name.</param>
 /// <param name="records">The list's placements in order.</param>
-/// <param name="deathQuota">The kills, 0 through 255, that clear a room with a nonempty population.</param>
+/// <param name="deathQuota">The kills, zero or more, that clear a room whose population places enemies.</param>
 public sealed class RoomEnemyPopulationDefinition(string name, RoomEnemyPopulationRecord[] records, int deathQuota)
 {
     /// <summary>The placements in order.</summary>

@@ -67,7 +67,7 @@ internal static class MamaTurtleAnimations
             Show(13, 5),
             Show(12, 5),
             Cue(new(K.RiseToHoverRightwards)),
-            Show(11, 32767),
+            Hold(11),
         ],
         [P.BabyHidingLeft] =
         [
@@ -75,11 +75,11 @@ internal static class MamaTurtleAnimations
             Show(5, 5),
             Show(7, 64),
             Cue(new(K.LeaveShell)),
-            Show(7, 32767),
+            Hold(7),
         ],
         [P.MamaAsleep] =
         [
-            Show(11, 32767),
+            Hold(11),
         ],
         [P.MamaLeaveShellLeft] =
         [
@@ -88,7 +88,7 @@ internal static class MamaTurtleAnimations
             Show(13, 5),
             Show(14, 96),
             Cue(new(K.EnterShell)),
-            Show(14, 32767),
+            Hold(14),
         ],
         [P.BabyLeaveShellLeft] =
         [
@@ -131,7 +131,7 @@ internal static class MamaTurtleAnimations
             Show(27, 5),
             Show(26, 5),
             Cue(new(K.RiseToHoverLeftwards)),
-            Show(25, 32767),
+            Hold(25),
         ],
         [P.BabyHidingRight] =
         [
@@ -139,7 +139,7 @@ internal static class MamaTurtleAnimations
             Show(22, 5),
             Show(24, 64),
             Cue(new(K.LeaveShell)),
-            Show(24, 32767),
+            Hold(24),
         ],
         [P.MamaLeaveShellRight] =
         [
@@ -148,7 +148,7 @@ internal static class MamaTurtleAnimations
             Show(27, 5),
             Show(28, 96),
             Cue(new(K.EnterShell)),
-            Show(28, 32767),
+            Hold(28),
         ],
         [P.BabyLeaveShellRight] =
         [
@@ -182,6 +182,9 @@ internal static class MamaTurtleAnimations
 
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<MamaTurtleFrame, MamaTurtleCue> Show(int pose, int duration) => new AnimationBeat<MamaTurtleFrame, MamaTurtleCue>.Frame(new(pose), duration);
+
+    /// <summary>Shows pose <paramref name="pose"/> for good: the animation rests on it until its owner plays another (#1607).</summary>
+    private static AnimationBeat<MamaTurtleFrame, MamaTurtleCue> Hold(int pose) => new AnimationBeat<MamaTurtleFrame, MamaTurtleCue>.HeldFrame(new(pose));
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationBeat<MamaTurtleFrame, MamaTurtleCue> Cue(MamaTurtleCue cue) => new AnimationBeat<MamaTurtleFrame, MamaTurtleCue>.Event(cue);

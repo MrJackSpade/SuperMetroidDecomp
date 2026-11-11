@@ -89,10 +89,10 @@ internal static class FileCopyArrowVerification
                     "the copy arrow draws in its rotation step's shade");
                 // The sheet's colours laid out by the palette index each was composed as (#1544); a colour none of its
                 // pixels shows is not one of its colours.
-                RgbColor[] shown = InstalledPictureColoursConstants.ByComposedIndex(arrowSheet, shading.InkColours(arrowSheet));
+                RgbColor[] shown = InstalledPictureColoursConstants.ByComposedIndex(arrowSheet, shading.KeyColours(arrowSheet));
                 for (int color = 128; color < 256; color++)
                 {
-                    if (InstalledPictureColoursConstants.ColourComposedAs(arrowSheet, color - 128) is null)
+                    if (InstalledPictureColoursConstants.KeyComposedAs(arrowSheet, color - 128) is null)
                         continue;
                     int source = color is >= 145 and <= 151 ? 145 + (color - 145 + step) % 7 : color;
                     AssertEqual(cartridge[source], shown[color - 128], "arrow shade rotates only colors 1..7 of the cartridge's file-select colours");

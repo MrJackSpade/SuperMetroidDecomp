@@ -37,18 +37,19 @@ internal static class WreckedShipGhostShadeContentVerification
         RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetLists.DrawnUnder.First(candidate =>
             RoomEnemyGraphicsSetLists.MembersOf(candidate).Records.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.Coven));
         int first = new GraphicsSetRows(RoomEnemyGraphicsSetLists.MembersOf(set), EnemyGraphicsSetPaletteRowDefinitions.Rows).RowOf(EnemyDefinitionId.Coven) * LoadedSetColours.RowColours;
-        SpriteImage image = InstalledFixtures.EnemySheets.For(set, EnemyDefinitionId.Coven).Image;
+        // The sheet composed in-process, which knows the palette index each pixel was composed as (#1633).
+        SpriteImage image = EnemySheetFixtures.ComposedSheet(set, EnemyDefinitionId.Coven);
         IReadOnlyList<ShadeColours> steps = EnemySheetShades.GhostFadeSteps();
         AssertTrue(steps.Count > 3 * 31, "the ghost's path passes through its brightening and both fades");
         foreach ((PictureShade shade, RgbColor[] colours) in steps)
         {
             // The sheet's colours laid out by the palette index each was composed as (#1544): a colour of the row none of
             // its pixels shows is not one of its colours, and nothing shows it.
-            RgbColor[] inks = InstalledPictureColoursConstants.ByComposedIndex(image, PictureShading.Shaded(shade).InkColours(image));
+            RgbColor[] shown = InstalledPictureColoursConstants.ByComposedIndex(image, PictureShading.Shaded(shade).KeyColours(image));
             for (int color = 0; color < WreckedShipGhostFade.ColourCount; color++)
             {
-                if (InstalledPictureColoursConstants.ColourComposedAs(image, first + color) is not null)
-                    AssertEqual(colours[color], inks[first + color], $"ghost shade {shade.Key} ink {color} shows the fade's colour");
+                if (InstalledPictureColoursConstants.KeyComposedAs(image, first + color) is not null)
+                    AssertEqual(colours[color], shown[first + color], $"ghost shade {shade.Key} colour {color} shows the fade's colour");
             }
         }
         Console.WriteLine($"Wrecked Ship ghost shade content: the brightening's carry and {steps.Count} installed fade shades in {set.Name} match the fade.");

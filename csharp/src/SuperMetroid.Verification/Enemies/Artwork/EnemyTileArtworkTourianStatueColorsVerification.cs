@@ -69,16 +69,19 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
             AssertEqual(statueSheet.Name, scenePictures.Frame(EnemySheetDefinitions.ProjectileFrameName(scene)).Sheet.Name,
                 $"the statue scene's {scene} is on the decoration's installed sheet");
         }
+        // The scene sheet composed in-process, which knows the palette index each pixel was composed as (#1633).
+        SpriteImage composedStatueSheet = EnemySheetFixtures.ComposedSpawnedSheet(set, SpawnedObjectOwner.Shared)
+            .Frame(EnemySheetDefinitions.ProjectileFrameName(EnemyProjectileFrameId.TourianStatueFrame24)).Sheet;
         var guard = NewTourianStatueColorGuard(bus, forbidden);
         // The places of the native image the scene sheet holds a colour for (#1544): a sheet holds only the colours its
         // pictures show, so a native write to any other place shows nothing in the port.
-        HashSet<int> sceneHeld = [.. Enumerable.Range(0, statueSheet.StandardColours.Length)
-            .Select(colour => SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.CartridgeColourOf(statueSheet, colour))];
+        HashSet<int> sceneHeld = [.. composedStatueSheet.ColourKeys
+            .SelectMany(key => SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.CartridgeColoursOf(composedStatueSheet, key))];
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
         {
             RoomEnemySystem installed = CreateEnemy(stock);
             Initialize(installed, parameter);
-            RgbColor[] shown = NativeColouredPictures.ShownIn(statueSheet, installed.SlotTable.Slots[0].Shading);
+            RgbColor[] shown = NativeColouredPictures.ShownIn(composedStatueSheet, installed.SlotTable.Slots[0].Shading);
             AssertNativeWrites(shown, sceneHeld, 0xaad785, TourianStatuePaletteConstants.BaseCgramIndex, TourianStatueColorFormat.BaseColorCount,
                 $"Tourian statue entry parameter {parameter} shows the native base colours");
             AssertNativeWrites(shown, sceneHeld, 0xaad765, TourianStatuePaletteConstants.StatueCgramIndex, TourianStatueColorFormat.StatueColorCount,
@@ -96,7 +99,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         {
             RoomEnemySystem installed = CreateEnemy(stock);
             installed.TourianUnlockBehavior.SpawnTourianEyeGlow(TourianStatueNativeWords.Eye(parameter));
-            AssertNativeWrites(NativeColouredPictures.ShownIn(statueSheet, installed.TourianEntranceStatueBehavior.SceneShading), sceneHeld,
+            AssertNativeWrites(NativeColouredPictures.ShownIn(composedStatueSheet, installed.TourianEntranceStatueBehavior.SceneShading), sceneHeld,
                 0x86b91e + parameter * 4, TourianStatuePaletteConstants.EyeCgramIndex, TourianStatueColorDefinitions.EyeColorCount,
                 $"Tourian eye parameter {parameter} shows the native eye glow colours");
             AssertEqual(new ushort[] { 0x84, 0x7a, 0x9e, 0x68 }[parameter / 2],
@@ -123,7 +126,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         // shading show, at each of the four retail programs' grey destinations, the native grey instruction's colours
         // (#1512): the room-tile statues grey over the room's pictures, the sprite statues over the scene's.
         RgbColor[] greyRoom = GameplayShownColours.Of(installedRoom, InstalledFixtures.SamusShadeSources);
-        RgbColor[] greyScene = NativeColouredPictures.ShownIn(statueSheet, installedRoom.Enemies.TourianEntranceStatueBehavior.SceneShading);
+        RgbColor[] greyScene = NativeColouredPictures.ShownIn(composedStatueSheet, installedRoom.Enemies.TourianEntranceStatueBehavior.SceneShading);
         HashSet<int> roomHeld = [.. GameplayShownColours.ComparedIn(installedRoom)];
         foreach (int program in new[] { 0x8783ac, 0x878414, 0x87847c, 0x8784e4 })
         {

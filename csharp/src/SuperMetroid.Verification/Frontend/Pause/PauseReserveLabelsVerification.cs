@@ -70,7 +70,7 @@ internal static class PauseReserveLabelsVerification
             foreach (PlacedPlanePicture placed in snapshot.Layers.ToArray().OfType<PicturedPlaneLayer>().SelectMany(layer => layer.Plane.Pictures)
                 .Where(placed => placed.Shading == PictureShading.Standard))
                 AssertTrue(SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.ShowsNativeColours(placed.Picture.Sheet,
-                        PictureShading.Standard.InkColours(placed.Picture.Sheet), nativeColours.Colors),
+                        PictureShading.Standard.KeyColours(placed.Picture.Sheet), nativeColours.Colors),
                     $"pause picture {placed.Picture.Sheet.Name} shows the cartridge's pause colours ({capacity}/{mode})");
             var expectedPixels = DisplayRendering.Render(snapshot.WithNativeColours(PauseShownColours.Of(pause)));
             var actualPixels = pause.Render();

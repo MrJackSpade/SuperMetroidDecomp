@@ -71,7 +71,7 @@ internal static class EndingPlanetBoundaryVerification
             {
                 int pixel = Enumerable.Range(0, actual.Length).First(index => actual[index] != expected[index]);
                 // Each layer alone on both sides says whether the floor's colours or the sprites' combination differ.
-                string inkTrace = SpriteInkTrace(snapshot, pixel % DisplayScreen.Width, pixel / DisplayScreen.Width);
+                string inkTrace = SpritePixelTrace(snapshot, pixel % DisplayScreen.Width, pixel / DisplayScreen.Width);
                 string screenShades = string.Join(" ", ending.screen.Colours.Shading.Shades.Select(shade => shade.Key));
                 string spriteShades = string.Join(" | ", snapshot.SpriteDraws.ToArray().OfType<ImageSpriteDraw>()
                     .Select(draw => draw.Shading is { } shading ? string.Join(" ", shading.Shades.Select(shade => shade.Key)) : "none").Distinct());
@@ -155,10 +155,10 @@ internal static class EndingPlanetBoundaryVerification
 
     /// <summary>
     /// The topmost sprite drawn at screen pixel (<paramref name="x"/>, <paramref name="y"/>) of <paramref name="scene"/>: its
-    /// sheet ink there, the ink's standard colour, and each shade of the draw that recolours the ink with the colour it gives,
-    /// so a failed colour check names the shade that decides the pixel.
+    /// sheet pixel's colour key there and the colour the draw's shades show it in, and whether it blends,
+    /// so a failed colour check names what decides the pixel.
     /// </summary>
-    internal static string SpriteInkTrace(LayeredScene scene, int x, int y)
+    internal static string SpritePixelTrace(LayeredScene scene, int x, int y)
     {
         var covering = new List<string>();
         ImageSpriteDraw[] draws = [.. scene.SpriteDraws.ToArray().OfType<ImageSpriteDraw>()];
@@ -173,21 +173,28 @@ internal static class EndingPlanetBoundaryVerification
             if ((draw.Mirror & SpriteMirror.Vertical) != 0)
                 localY = draw.Image.Size.Y - 1 - localY;
             SpriteImage sheet = draw.Image.Sheet;
-            SpriteImageInk pixelInk = sheet.Inks[(draw.Image.Corner.Y + localY) * sheet.Size.X + draw.Image.Corner.X + localX];
-            if (pixelInk.Colour is not int ink)
+            int pixel = (draw.Image.Corner.Y + localY) * sheet.Size.X + draw.Image.Corner.X + localX;
+            if (sheet.Pixels[pixel].A == 0)
             {
                 covering.Add($"#{index} {sheet.Name} clear");
                 continue;
             }
-            RgbColor shown = sheet.StandardColours[ink];
+            ColourKey key = sheet.KeyAt(pixel);
+            RgbColor shown = key.Colour;
             foreach (PictureShade shade in draw.Shading?.Shades ?? [])
             {
-                if (sheet.Shades.TryGetValue(shade, out ShadeInks? inks) && inks.Inks.IndexOf(ink) is var at and >= 0)
-                    shown = inks.Colours[at];
+                if (!sheet.Shades.TryGetValue(shade, out PictureRecolouring? recolouring))
+                    continue;
+                foreach (KeyedSubstitution substitution in recolouring.Substitutions)
+                {
+                    if (substitution.Replaced == key)
+                        shown = substitution.Shown;
+                }
             }
-            covering.Add($"#{index} {sheet.Name} colour {ink} {(pixelInk.Clear ? "clear" : shown.ToString())}"
+            bool blends = draw.Image.Blends || (!sheet.Blending.IsEmpty && sheet.Blending[pixel]);
+            covering.Add($"#{index} {sheet.Name} colour key {key} {shown}"
                 + $" (frame at {draw.Image.Corner.X},{draw.Image.Corner.Y} size {draw.Image.Size.X}x{draw.Image.Size.Y}, drawn at {draw.Corner.X},{draw.Corner.Y},"
-                + $" mirror {draw.Mirror}, {(pixelInk.Blends ? "blending" : "opaque")}, shades [{string.Join(" ", (draw.Shading?.Shades ?? []).Select(shade => shade.Key))}])");
+                + $" mirror {draw.Mirror}, {(blends ? "blending" : "opaque")}, shades [{string.Join(" ", (draw.Shading?.Shades ?? []).Select(shade => shade.Key))}])");
         }
         return covering.Count == 0 ? "no sprite" : string.Join("; ", covering);
     }

@@ -19,9 +19,10 @@ internal static class FramePaintTestsVerification
             cgram.SetColor(index, RgbColor.FromWord((ushort)(index * 97)));
         // A fixture picture whose pixels show every colour of the sprite half but the first, transparent one, installed as an
         // installed sprite sheet's would be, with no palette bits, so a capture colours its colours from the cartridge
-        // colours as the loader's pictures are (#1512, #1544).
+        // colours as the loader's pictures are (#1512, #1544): its colours are all black and visible but the clear first.
         byte[] indices = [.. Enumerable.Range(0, ImageColourGroup.HalfColours).Select(index => (byte)index)];
-        SpriteImage image = ComposedPictures.Install("Fixture", new(16, 8), new RgbaPixel[indices.Length], indices,
+        RgbaPixel[] fixturePixels = [.. indices.Select(index => index == 0 ? default(RgbaPixel) : new RgbaPixel(0, 0, 0))];
+        SpriteImage image = ComposedPictures.Install("Fixture", new(16, 8), fixturePixels, indices,
             SpriteImageColours.Sprite, new RgbColor[ImageColourGroup.HalfColours]);
         sprites.BeginFrame();
         sprites.Add(new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer), new SpriteSheetFrame(image, default, new(16, 8), default),
@@ -57,9 +58,10 @@ internal static class FramePaintTestsVerification
         Console.WriteLine("Frame paint: CGRAM parity, draw retention, ownership and size checks passed.");
 
         // A native frame shows native colour 0 as its backdrop and draws each picture as a copy coloured from the native
-        // image (#1512): the fixture's sprite picture takes the sprite half but its transparent first colour.
+        // image (#1512): the fixture's sprite picture takes the sprite half but its clear first colour, its colour keys in the
+        // order its visible pixels show them, which is the order of their palette indices (#1633).
         static RgbColor[] Shown(FramePaint paint) =>
-            [paint.Backdrop, .. paint.SpriteDraws.Cast<ImageSpriteDraw>().SelectMany(draw => draw.Image.Sheet.StandardColours.ToArray())];
+            [paint.Backdrop, .. paint.SpriteDraws.Cast<ImageSpriteDraw>().SelectMany(draw => draw.Image.Sheet.ColourKeys.Select(key => key.Colour))];
         static RgbColor[] NativeShown(RgbColor[] native) => [native[0], .. native.AsSpan(SnesCgram.ColorCount / 2 + 1)];
 
         // A native-coloured frame draws a copy of each picture (#1512), so a draw is known by its source and where, in order.

@@ -30,7 +30,6 @@ internal static class EnemySheetEntryColouringsVerification
     /// <summary>Fails, naming each sheet colour that differs, when such an enemy's sheet shows a colour its entry colouring replaces.</summary>
     internal static void VerifyEnemySheetEntryColourings()
     {
-        string directory = RepositoryInstallation.Installation.EnemySheetDirectory;
         var failures = new List<string>();
         int sheets = 0;
         foreach ((EnemyDefinitionId enemy, EnemyArtworkVariant<SpriteSheet> variant) in InstalledFixtures.EnemySheets.EnemyVariants
@@ -39,16 +38,14 @@ internal static class EnemySheetEntryColouringsVerification
             sheets++;
             SpriteSheet sheet = variant.Sheet;
             SpriteImage image = sheet.Image;
-            HashSet<int> inked = InkedColours(SheetInkRules.InkPlane(directory, image), image, sheet);
+            HashSet<ColourKey> painted = PaintedKeys(image, sheet);
             foreach (PictureShade shade in EntryColourings[enemy].Shades)
             {
-                ShadeInks shown = image.Shade(shade);
-                for (int index = 0; index < shown.Inks.Length; index++)
+                foreach (KeyedSubstitution substitution in image.Shade(shade).Substitutions)
                 {
-                    int ink = shown.Inks[index];
-                    if (inked.Contains(ink) && image.StandardColours[ink] != shown.Colours[index])
-                        failures.Add($"{variant.Name} ({image.Name}) shows colour {ink} as {image.StandardColours[ink]}, "
-                            + $"which its entry colouring {shade.Key} draws as {shown.Colours[index]}");
+                    if (painted.Contains(substitution.Replaced) && substitution.Replaced.Colour != substitution.Shown)
+                        failures.Add($"{variant.Name} ({image.Name}) shows colour key {substitution.Replaced}, "
+                            + $"which its entry colouring {shade.Key} draws as {substitution.Shown}");
                 }
             }
         }
@@ -58,23 +55,24 @@ internal static class EnemySheetEntryColouringsVerification
         Console.WriteLine($"Enemy sheet entry colourings: {sheets} installed sheets of enemies drawn in their entry colouring show it.");
     }
 
-    /// <summary>Every colour the frames of <paramref name="sheet"/> ink on <paramref name="image"/>, from its ink plane <paramref name="inks"/>.</summary>
-    private static HashSet<int> InkedColours(SpriteImageInk[] inks, SpriteImage image, SpriteSheet sheet)
+    /// <summary>Every colour key the opaque pixels of the frames of <paramref name="sheet"/> show on <paramref name="image"/>.</summary>
+    private static HashSet<ColourKey> PaintedKeys(SpriteImage image, SpriteSheet sheet)
     {
-        var inked = new HashSet<int>();
+        ReadOnlySpan<RgbaPixel> pixels = image.Pixels;
+        var painted = new HashSet<ColourKey>();
         foreach (SpriteSheetFrame frame in sheet.frames.Values)
         {
             for (int row = 0; row < frame.Size.Y; row++)
             {
                 for (int column = 0; column < frame.Size.X; column++)
                 {
-                    SpriteImageInk ink = inks[(frame.Corner.Y + row) * image.Size.X + frame.Corner.X + column];
-                    if (!ink.Clear && ink.Colour is int colour)
-                        inked.Add(colour);
+                    int pixel = (frame.Corner.Y + row) * image.Size.X + frame.Corner.X + column;
+                    if (pixels[pixel].A != 0)
+                        painted.Add(image.KeyAt(pixel));
                 }
             }
         }
-        return inked;
+        return painted;
     }
 
     /// <summary>Runs the entry-colouring rule of the installed enemy sheets.</summary>

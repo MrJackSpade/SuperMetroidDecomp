@@ -16,17 +16,18 @@ internal static class IntroDrawnShadeChecks
     /// <summary>
     /// The cartridge sprite palette row <paramref name="drawn"/> stands for, once the installed intro sprite sheet's shade
     /// <paramref name="drawn"/> is confirmed to show that row's installed colours: each of the sheet's colours it recolours
-    /// shows the row's colour of the same place in its group (#1544).
+    /// shows, at every palette index its pixels were composed as, the row's colour of the same place in its group (#1544,
+    /// #1633).
     /// </summary>
     internal static int InstalledRow(PictureShade drawn)
     {
         int row = DrawnShadeRows.Row(drawn);
         ImmutableArray<RgbColor> sprites = ImportIntroCinematicArtwork.Imported(InstalledFixtures.IntroArtwork).Palette.SpriteColours;
         SpriteImage image = InstalledFixtures.SpriteSheets.Get(SpriteSheetId.IntroSprites).Image;
-        ShadeInks inks = image.Shade(drawn);
-        AssertTrue(!inks.Inks.IsEmpty && Enumerable.Range(0, inks.Inks.Length).All(entry =>
-                inks.Colours[entry] == sprites[row * ImageColourGroup.Colours
-                    + InstalledPictureColoursConstants.ComposedIndexOf(image, inks.Inks[entry]) % ImageColourGroup.Colours]),
+        PictureRecolouring shade = image.Shade(drawn);
+        AssertTrue(!shade.Substitutions.IsEmpty && shade.Substitutions.All(substitution =>
+                InstalledPictureColoursConstants.ComposedIndicesOf(image, substitution.Replaced).All(index =>
+                    substitution.Shown == sprites[row * ImageColourGroup.Colours + index % ImageColourGroup.Colours])),
             $"the intro sheet's {drawn.Key} shade shows the cartridge's sprite set {row}");
         return row;
     }

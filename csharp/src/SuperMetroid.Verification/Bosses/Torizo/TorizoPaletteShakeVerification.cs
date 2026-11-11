@@ -145,16 +145,17 @@ internal static class TorizoPaletteShakeVerification
     /// <summary>
     /// Checks that Bomb Torizo's sheet is coloured in the rows his parts name, as his initialization clears his draw's
     /// palette bits (bank $AA's spritemaps name rows one, two and five), so the hurt flash, which clears the same bits,
-    /// recolours none of his inks.
+    /// recolours none of his colours.
     /// </summary>
     private static void VerifyTorizoSheetRows()
     {
         RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetLists.DrawnUnder.First(candidate =>
             RoomEnemyGraphicsSetLists.MembersOf(candidate).Records.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.BombTorizo));
-        SpriteImage image = InstalledFixtures.EnemySheets.For(set, EnemyDefinitionId.BombTorizo).Image;
-        int[] rows = [.. image.Inks.ToArray().Where(ink => !ink.IsTransparent).Select(ink => InstalledPictureColoursConstants.ComposedIndexOf(image, ink) / 16).Distinct().Order()];
+        // His sheet composed in-process, which knows the palette index each pixel was composed as (#1633).
+        SpriteImage image = EnemySheetFixtures.ComposedSheet(set, EnemyDefinitionId.BombTorizo);
+        int[] rows = [.. image.ColourKeys.SelectMany(key => InstalledPictureColoursConstants.ComposedIndicesOf(image, key)).Select(index => index / 16).Distinct().Order()];
         AssertTrue(rows.Length > 0 && rows.All(row => row is 1 or 2 or 5), "Bomb Torizo's sheet is coloured in the rows his parts name");
-        AssertEqual(0, image.Shade(SuperMetroid.Core.Enemies.Drawing.EnemyShades.HurtFlash).Inks.Length, "The hurt flash recolours none of Bomb Torizo's inks");
+        AssertEqual(0, image.Shade(SuperMetroid.Core.Enemies.Drawing.EnemyShades.HurtFlash).Substitutions.Length, "The hurt flash recolours none of Bomb Torizo's colours");
     }
 
     /// <summary>

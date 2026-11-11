@@ -8,7 +8,7 @@ namespace SuperMetroid.Verification.Assets;
 
 /// <summary>
 /// Holds every installed Samus, projectile and frontend sprite sheet's frames to the sheet pixel rule (#1513): no frame
-/// is empty, as <see cref="SheetInkRules"/> defines it. Each sheet's frame set is the
+/// is empty, as <see cref="SheetPixelRules"/> defines it. Each sheet's frame set is the
 /// one its family's draw tables name, which loading the installation already requires; whether a frame is only a piece of
 /// a body the actor publishes with others is <see cref="ActorPartDrawsVerification"/>'s rule.
 /// </summary>
@@ -16,7 +16,7 @@ internal static class SpriteSheetFrameRulesVerification
 {
     /// <summary>Checks every installed sprite sheet's frames against the sheet pixel rules.</summary>
     internal static void VerifySpriteSheetFrameRules() =>
-        SheetInkRules.Assert("sprite", RepositoryInstallation.Installation.SpriteSheetDirectory,
+        SheetPixelRules.Assert("sprite", RepositoryInstallation.Installation.SpriteSheetDirectory,
             [.. SpriteSheetDefinitions.Sheets.Select(sheet => new LabelledSheet(sheet.ToString(), InstalledFixtures.SpriteSheets.Get(sheet)))]);
 
     /// <summary>Runs the installed sprite sheets' pixel rules.</summary>

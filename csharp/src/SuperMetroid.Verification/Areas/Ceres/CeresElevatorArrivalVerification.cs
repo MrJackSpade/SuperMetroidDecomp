@@ -99,40 +99,48 @@ internal static class CeresElevatorArrivalVerification
         {
             SpriteSheetFrame picture = ((ImageSpriteDraw)draw).Image;
             SpriteImage sheet = picture.Sheet;
-            // The colours the draw's picture shows, and of them those its holder composed as the cleared colour; the
-            // sheet's other colours belong to the other pictures it holds (#1544).
-            HashSet<int> shown = ShownColours(picture);
-            int[] cleared = [.. shown.Where(colour => ComposedIndexOf(picture, colour) == spriteColour).Order()];
+            // The colour keys the draw's picture shows, and of them those whose pixels were composed as the cleared colour;
+            // the sheet's other keys belong to the other pictures it holds (#1544, #1633).
+            Dictionary<ColourKey, SortedSet<int>> shown = ShownKeys(picture);
+            ColourKey[] cleared = [.. shown.Where(entry => entry.Value.Contains(spriteColour)).Select(entry => entry.Key).OrderBy(Spelled, StringComparer.Ordinal)];
             showsCleared |= cleared.Length > 0;
-            ShadeInks inks = sheet.Shade(CeresElevatorShades.ConcealerCleared);
-            int[] entries = [.. Enumerable.Range(0, inks.Inks.Length).Where(entry => shown.Contains(inks.Inks[entry]))];
-            int[] recoloured = [.. entries.Select(entry => inks.Inks[entry]).Order()];
-            RgbColor[] colours = [.. entries.Select(entry => inks.Colours[entry])];
+            PictureRecolouring shade = sheet.Shade(CeresElevatorShades.ConcealerCleared);
+            KeyedSubstitution[] entries = [.. shade.Substitutions.Where(substitution => shown.ContainsKey(substitution.Replaced))];
+            ColourKey[] recoloured = [.. entries.Select(entry => entry.Replaced).OrderBy(Spelled, StringComparer.Ordinal)];
+            RgbColor[] colours = [.. entries.Select(entry => entry.Shown)];
             VerificationAssertions.AssertTrue(recoloured.SequenceEqual(cleared) && colours.All(colour => colour == RgbColor.Black),
-                $"the concealer's shade shows exactly the cartridge's cleared sprite colour {spriteColour} of {draw} black: of its picture's colours "
-                + $"composed as [{string.Join(", ", shown.Order().Select(colour => ComposedIndexOf(picture, colour)))}] it recolours composed "
-                + $"[{string.Join(", ", entries.Select(entry => ComposedIndexOf(picture, inks.Inks[entry])))}] to [{string.Join(", ", colours)}]");
+                $"the concealer's shade shows exactly the cartridge's cleared sprite colour {spriteColour} of {draw} black: of its picture's keys "
+                + $"composed as [{string.Join(", ", shown.Select(entry => $"{entry.Key}: {string.Join("/", entry.Value)}"))}] it recolours "
+                + $"[{string.Join(", ", entries.Select(entry => entry.Replaced))}] to [{string.Join(", ", colours)}]");
         }
         VerificationAssertions.AssertTrue(showsCleared,
             $"an arrival draw shows the cartridge's cleared sprite colour {spriteColour}, the concealer's solid pixels");
     }
 
-    /// <summary>The composed palette index the colour <paramref name="colour"/> of <paramref name="picture"/>'s sheet came from, as the picture's holder composed it.</summary>
-    private static int ComposedIndexOf(SpriteSheetFrame picture, int colour) =>
-        SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.ComposedIndexOf(picture, colour);
+    /// <summary>A colour key spelled for ordering keys in a failure.</summary>
+    private static string Spelled(ColourKey key) => key.ToString();
 
-    /// <summary>The places among its sheet's colours of the colours <paramref name="picture"/>'s pixels show.</summary>
-    private static HashSet<int> ShownColours(SpriteSheetFrame picture)
+    /// <summary>
+    /// The colour keys <paramref name="picture"/>'s opaque pixels show, each with the composed palette indices the picture's
+    /// pixels of that key were composed as.
+    /// </summary>
+    private static Dictionary<ColourKey, SortedSet<int>> ShownKeys(SpriteSheetFrame picture)
     {
-        ReadOnlySpan<SpriteImageInk> inks = picture.Sheet.Inks;
-        int width = picture.Sheet.Size.X;
-        var shown = new HashSet<int>();
+        SpriteImage sheet = picture.Sheet;
+        ReadOnlySpan<RgbaPixel> pixels = sheet.Pixels;
+        int width = sheet.Size.X;
+        var shown = new Dictionary<ColourKey, SortedSet<int>>();
         for (int row = 0; row < picture.Size.Y; row++)
         {
-            foreach (SpriteImageInk ink in inks.Slice((picture.Corner.Y + row) * width + picture.Corner.X, picture.Size.X))
+            int line = (picture.Corner.Y + row) * width + picture.Corner.X;
+            for (int column = 0; column < picture.Size.X; column++)
             {
-                if (ink.Colour is int colour)
-                    shown.Add(colour);
+                if (pixels[line + column].A == 0)
+                    continue;
+                ColourKey key = sheet.KeyAt(line + column);
+                if (!shown.TryGetValue(key, out SortedSet<int>? indices))
+                    shown.Add(key, indices = []);
+                indices.Add(SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.ComposedIndexAt(sheet, line + column));
             }
         }
         return shown;

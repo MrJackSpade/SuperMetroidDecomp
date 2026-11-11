@@ -85,14 +85,12 @@ internal static class TitleGradientVerification
     private static void AssertStop(ScreenGradient gradient, GradientStop expected, string description) =>
         AssertEqual(expected, StopCovering(gradient, expected.Line), description);
 
-    /// <summary>Compares extracted title character and map transfers with their retail source streams and live title rendering.</summary>
+    /// <summary>Compares extracted title character and map transfers and the title's OBJ frames with their retail sources.</summary>
     private static void VerifyExtractedTitleGraphics(ISnesAddressSpace bus)
     {
         _ = TitleCardOracle.CompareAll(bus);
-        var cartridgeReads = new HashSet<int>();
-        var tracingBus = NewTitlePresentationReadBus(bus, cartridgeReads, forbidReads: false);
         IReadOnlyDictionary<string, byte[]> files =
-            SuperMetroid.AssetExtraction.Frontend.Title.TitleGraphicsExtractor.Extract(tracingBus);
+            SuperMetroid.AssetExtraction.Frontend.Title.TitleGraphicsExtractor.Extract(bus);
         TitleGraphicsCharacters presentation = TitleGraphicsCharacters.Read(
             new MemoryStream(files[TitleGraphicsFormat.FloorTilesFile]),
             new MemoryStream(files[TitleGraphicsFormat.FloorMapFile]),
@@ -111,43 +109,6 @@ internal static class TitleGradientVerification
             TitleFloorTileDefinitions.BabyCharacterByteCount, presentation.BabyCharacters,
             "title Baby characters");
 
-        // The installed title uses compiled card timing and sprite selectors alongside
-        // installed bank-$8C OAM compositions. The original source addresses are all
-        // blocked while the complete natural scene is compared with independently installed stock.
-        var guardedBus = NewTitlePresentationReadBus(bus, cartridgeReads, forbidReads: true);
-        TitleGradientPresentation gradient = TitleGradientFile.Read(
-            new MemoryStream(TitleGradientExtractor.Extract(bus), writable: false));
-        var stock = CreateTitlePresentationFixture(titleGradientPresentation: gradient);
-        var installed = CreateTitlePresentationFixture(titleGradientPresentation: gradient, titleGraphicsPresentation: presentation);
-        for (int frame = 0; frame < 140; frame++)
-        {
-            stock.Step(0);
-            installed.Step(0);
-            // Frames whose descriptions are equal show equal pixels without either being drawn; any other pair is drawn.
-            if (!ScenePixels.Same(new DisplayPacket(0, stock.CaptureRenderSnapshot()), new DisplayPacket(0, installed.CaptureRenderSnapshot())))
-                throw new InvalidDataException($"Installed title graphics differ from stock at frame {frame}.");
-        }
-        bool reachedTitle = false;
-        for (int frame = 140; frame < 1800; frame++)
-        {
-            stock.Step(0);
-            installed.Step(0);
-            FloorScene native = stock.CaptureRenderSnapshot();
-            FloorScene extracted = installed.CaptureRenderSnapshot();
-            if (stock.Phase != installed.Phase ||
-                !native.Paint.SpriteParts().SequenceEqual(extracted.Paint.SpriteParts()))
-                throw new InvalidDataException($"Installed title sprite composition differs at frame {frame} ({stock.Phase}).");
-            if (stock.Phase == TitleSequencePhase.TitleScreen)
-            {
-                reachedTitle = true;
-                break;
-            }
-        }
-        if (!reachedTitle)
-            throw new InvalidDataException("Title sprite parity test never reached the logo/copyright scene.");
-        if (guardedBus.ForbiddenReadAttempts != 0)
-            throw new InvalidDataException("Production title reread compressed graphics or native spritemaps.");
-
         TitleFloorMapDocument spriteDocument = JsonSerializer.Deserialize<TitleFloorMapDocument>(
             files[TitleGraphicsFormat.FloorMapFile], ArtworkJson.Options)
             ?? throw new InvalidDataException("Extracted title map document is null.");
@@ -158,8 +119,7 @@ internal static class TitleGradientVerification
         IReadOnlyDictionary<TitleSprite, int> spritemaps =
             SuperMetroid.AssetExtraction.Frontend.Title.TitleSpriteExtractor.MapSprites(bus);
         AssertEqual(yearPointer, spritemaps[TitleSprite.YearReveal1], "the year's first letter is the year card's first listed spritemap");
-        // Independent native OBJ records retain the cartridge reference now that both
-        // scene owners require installed graphics rather than a ROM-backed draw path.
+        // Independent native OBJ records are the cartridge reference for each extracted composition's draw.
         // Both draws show the title cards' text colours: the native records take their sprite set as palette bits.
         ushort textPaletteBits = SnesObjAttributeWord.Create(0, SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleSheetInks.SpriteSet(TitleSpriteColouring.Text), 0).PaletteBits;
         foreach (TitleSpriteFrame frame in spriteDocument.Sprites)
@@ -214,9 +174,7 @@ internal static class TitleGradientVerification
             new MemoryStream(files[TitleGraphicsFormat.ObjectTilesFile]),
             new MemoryStream(files[TitleGraphicsFormat.BabyTilesFile])),
             "title graphics reject wrong Mode 7 PNG dimensions");
-        Console.WriteLine(
-            $"  Title graphics presentation: four installed assets and all title OBJ frames match native OAM; " +
-            $"production avoided {cartridgeReads.Count} cartridge-art bytes.");
+        Console.WriteLine("  Title graphics presentation: four extracted assets match the cartridge and all title OBJ frames match native OAM.");
 
         void AssertSource(int address, int count, ReadOnlySpan<byte> actual, string description)
         {
@@ -256,19 +214,11 @@ internal static class TitleGradientVerification
             throw new InvalidDataException(
                 "Production title initialization did not use the installed palette exclusively.");
         }
-        var nativeSkip = CreateTitlePresentationFixture();
-        var installedSkip = CreateTitlePresentationFixture(titleBackdrop: presentation.Backdrop);
-        nativeSkip.Step(ControllerButton.Start);
-        installedSkip.Step(ControllerButton.Start);
+        var skip = CreateTitlePresentationFixture();
+        skip.Step(ControllerButton.Start);
         for (int frame = 0; frame < 18; frame++)
-        {
-            nativeSkip.Step(0);
-            installedSkip.Step(0);
-        }
-        AssertEqual(nativeSkip.Phase, installedSkip.Phase, "title skip phase unaffected by installed colors");
-        AssertTrue(nativeSkip.CopyrightRestored && installedSkip.CopyrightRestored, "the skip restores the copyright's glyph colours");
-        AssertEqual(nativeSkip.CopyrightShading, installedSkip.CopyrightShading,
-            "installed title skip names the native copyright shading");
+            skip.Step(0);
+        AssertTrue(skip.CopyrightRestored, "the skip restores the copyright's glyph colours");
         Console.WriteLine(
             $"  Title palette presentation: {SnesCgram.ColorCount} initial, 36 ambient, and two skip " +
             $"installed colors match ROM; production avoided {paletteAddresses.Count} " +

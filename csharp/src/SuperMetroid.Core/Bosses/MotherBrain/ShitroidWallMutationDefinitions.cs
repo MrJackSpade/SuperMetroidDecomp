@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;

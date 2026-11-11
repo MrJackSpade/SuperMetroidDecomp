@@ -286,7 +286,7 @@ internal sealed class BeamFiring
         SamusProjectileHeader header = SamusProjectileSelection.BeamShot(beamType, charged);
         slot.Damage = SamusProjectileDamage.Read(header);
         SamusProjectileProgram? program = SamusProjectileSelection.BeamShotProgram(beamType, charged, aim);
-        slot.Cursor = SamusProjectilePrograms.Start(program);
+        slot.Playback = SamusProjectilePrograms.Start(program);
         slot.Radius = SamusProjectilePrograms.InitialRadius(program);
         slot.FrameHold = WrappingCountdown.Start(1);
 
@@ -382,7 +382,7 @@ internal sealed class BeamFiring
         SamusProjectileHeader header = SamusProjectileSelection.BeamShot(hyperBeamType, charged: true);
         slot.Damage = SamusProjectileDamage.Read(header);
         SamusProjectileProgram program = SamusProjectileHeaders.Program(header, slot.Direction);
-        slot.Cursor = SamusProjectilePrograms.Start(program);
+        slot.Playback = SamusProjectilePrograms.Start(program);
         slot.Radius = SamusProjectilePrograms.InitialRadius(program);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Damage = 1000;
@@ -475,7 +475,7 @@ internal sealed class BeamFiring
         SamusProjectileHeader header = SamusProjectileSelection.NonBeam(slot.Type.Family);
         slot.Damage = SamusProjectileDamage.Read(header);
         SamusProjectileProgram program = SamusProjectileHeaders.Program(header, slot.Direction);
-        slot.Cursor = SamusProjectilePrograms.Start(program);
+        slot.Playback = SamusProjectilePrograms.Start(program);
         slot.Radius = SamusProjectilePrograms.InitialRadius(program);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.FrameBehavior = isSuperMissile

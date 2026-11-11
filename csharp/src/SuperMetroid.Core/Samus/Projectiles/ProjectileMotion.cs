@@ -374,7 +374,7 @@ internal sealed class ProjectileMotion
         BeamFiring.InitializePosition(samus, link);
         const SamusProjectileHeader header = SamusProjectileHeader.SuperMissileLink;
         link.Damage = SamusProjectileDamage.Read(header);
-        link.Cursor = SamusProjectilePrograms.Start(SamusProjectileHeaders.SoleProgram(header));
+        link.Playback = SamusProjectilePrograms.Start(SamusProjectileHeaders.SoleProgram(header));
         link.FrameHold = WrappingCountdown.Start(1);
         link.FrameBehavior = SamusProjectileFrameBehavior.SuperMissileLink;
         link.SuperMissileLinkPlace = UnlinkedSuperMissileLink.Place;

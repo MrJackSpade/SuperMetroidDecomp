@@ -111,7 +111,7 @@ internal sealed class ProjectileEnemyImpacts
         }
 
         slot.Damage = SamusProjectileDamage.Read(header);
-        slot.Cursor = SamusProjectilePrograms.Start(program);
+        slot.Playback = SamusProjectilePrograms.Start(program);
         slot.Radius = SamusProjectilePrograms.InitialRadius(program);
         slot.FrameHold = WrappingCountdown.Start(1);
 

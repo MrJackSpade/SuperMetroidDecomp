@@ -351,7 +351,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     owner.Damage = 0x012c;
     owner.Direction = SamusProjectileDirection.Right;
     owner.Position = owner.Position.WithWhole(new(0x01b7, 0x0196));
-    owner.Cursor = SamusProjectileProgramAddresses.CursorAt(0x9f3b);
+    owner.Playback = SamusProjectileProgramAddresses.PlaybackAt(0x9f3b);
     owner.FrameHold = WrappingCountdown.Start(15);
     owner.SpritemapPointer = 0xae0f;
     owner.FrameBehavior = SamusProjectileFrameBehavior.SuperMissile;
@@ -361,7 +361,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     link.Damage = 0x012c;
     link.Direction = SamusProjectileDirection.Right;
     link.Position = link.Position.WithWhole(new(0x01af, 0x0196));
-    link.Cursor = SamusProjectileProgramAddresses.CursorAt(0x9f7b);
+    link.Playback = SamusProjectileProgramAddresses.PlaybackAt(0x9f7b);
     link.FrameHold = WrappingCountdown.Start(1);
     link.SpritemapPointer = 0;
     link.FrameBehavior = SamusProjectileFrameBehavior.SuperMissileLink;
@@ -608,7 +608,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         projectile.Direction = SamusProjectileDirection.Right;
         projectile.Position = projectile.Position.WithWhole(target.Position.Whole);
         projectile.Radius = new(4, 4);
-        projectile.Cursor = ProjectileFixtureCursors.Active;
+        projectile.Playback = ProjectileFixturePlaybacks.Active;
         projectile.FrameHold = WrappingCountdown.Start(1);
         return projectile;
     }

@@ -1,5 +1,4 @@
 using System.Collections.Frozen;
-using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
@@ -9,11 +8,11 @@ public static class SamusPowerBombFuseData
     /// <summary>The fuse switches to the fast animation when the decremented fuse reaches fifteen.</summary>
     public const int FastAnimationTimer = 15;
     /// <summary>
-    /// The fast-animation position each slow bomb and Power Bomb position switches to: the same frame in the fast list.
-    /// A bomb's list has one more leading step than its fast list.
+    /// The fast-animation place each slow bomb and Power Bomb place switches to: the same frame in the fast segment.
+    /// A bomb's segment is one beat ahead of its fast segment.
     /// </summary>
-    internal static readonly FrozenDictionary<AnimationProgramCursor<SamusProjectileProgram>, AnimationProgramCursor<SamusProjectileProgram>> FastCounterparts =
-        new Dictionary<AnimationProgramCursor<SamusProjectileProgram>, AnimationProgramCursor<SamusProjectileProgram>>
+    internal static readonly FrozenDictionary<SamusProjectileSegmentBeat, SamusProjectileSegmentBeat> FastCounterparts =
+        new Dictionary<SamusProjectileSegmentBeat, SamusProjectileSegmentBeat>
         {
             [new(SamusProjectileProgram.PowerBomb, 0)] = new(SamusProjectileProgram.FastPowerBomb, 0),
             [new(SamusProjectileProgram.PowerBomb, 1)] = new(SamusProjectileProgram.FastPowerBomb, 1),

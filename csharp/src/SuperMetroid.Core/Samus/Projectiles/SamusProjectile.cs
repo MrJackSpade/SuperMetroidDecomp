@@ -74,8 +74,8 @@ public sealed class SamusProjectile
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
     /// <summary>Collision half-extents in pixels.</summary>
     public Extent16<RoomPixels> Radius { get; internal set; }
-    /// <summary>Where the projectile's program resumes; null while it has none to animate.</summary>
-    internal AnimationProgramCursor<SamusProjectileProgram>? Cursor { get; set; }
+    /// <summary>The projectile's animation and where it stands in it (#1600); null while it has none to animate.</summary>
+    internal AnimationPlayback<SamusProjectileProgram>? Playback { get; set; }
     /// <summary>Updates remaining before the current projectile instruction advances.</summary>
     public WrappingCountdown FrameHold { get; internal set; }
     /// <summary>The composition the projectile shows, selected by the timed-frame interpreter or installed frame binding; none before its first frame.</summary>
@@ -133,7 +133,7 @@ public sealed class SamusProjectile
     public SamusProjectileFrameBehavior FrameBehavior { get; internal set; }
 
     /// <summary>A live projectile program marks the projectile drawable and updated.</summary>
-    public bool IsActive => Cursor is not null;
+    public bool IsActive => Playback is not null;
 
     /// <summary>
     /// Enemy collision admits a beam, missile, or Super Missile even when it has no program to animate. This
@@ -156,7 +156,7 @@ public sealed class SamusProjectile
         Position = FixedPosition<RoomPixels>.Zero;
         Velocity = default(EightEightVector<RoomPixels>);
         Radius = Extent16<RoomPixels>.Zero;
-        Cursor = null;
+        Playback = null;
         FrameHold = WrappingCountdown.Start(0);
         Sprite = null;
         TrailTimer = WrappingCountdown.Start(0);

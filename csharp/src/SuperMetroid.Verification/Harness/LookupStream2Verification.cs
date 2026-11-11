@@ -1126,7 +1126,7 @@ internal static class LookupStream2Verification
             var projectile = new SamusProjectile(0)
             {
                 Type = trailingType,
-                Cursor = SamusProjectileProgramAddresses.CursorAt(0x86e3),
+                Playback = SamusProjectileProgramAddresses.PlaybackAt(0x86e3),
                 Position = new(new(100, 0), new(200, 0)),
             };
             projectiles.Trails.SpawnTrail(projectile);
@@ -1559,7 +1559,7 @@ internal static class LookupStream2Verification
         for (int direction = 0; direction < 8; direction++)
         {
             ushort pointer = (ushort)(0x86db + direction * 12);
-            var shot = new SamusProjectile(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), FrameHold = WrappingCountdown.Start(1) };
+            var shot = new SamusProjectile(0) { Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), FrameHold = WrappingCountdown.Start(1) };
             var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = stock } };
             _ = system.Animation.RunProjectileInstructionHandler(shot);
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), shot.SpritemapPointer, "Actual projectile handler selects calculated compass pose");
@@ -1583,7 +1583,7 @@ internal static class LookupStream2Verification
                 checkedAxialEndPairs++;
             if (pointer is >= 0x8bfb and < 0x8c4f)
                 checkedCappedSweep++;
-            var shot = new SamusProjectile(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), FrameHold = WrappingCountdown.Start(1) };
+            var shot = new SamusProjectile(0) { Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), FrameHold = WrappingCountdown.Start(1) };
             var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = stock } };
             _ = system.Animation.RunProjectileInstructionHandler(shot);
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), shot.SpritemapPointer, "Actual handler uses native Wave/Ice traversal pose");
@@ -1596,7 +1596,7 @@ internal static class LookupStream2Verification
         foreach (ushort pointer in SamusProjectileRecordDefinitions.TimedRecordAddresses)
         {
             if (pointer is < 0x9f87 or >= 0xa007) continue;
-            var bomb = new SamusBombProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), FrameHold = WrappingCountdown.Start(1), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
+            var bomb = new SamusBombProjectileSlot(0) { Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), FrameHold = WrappingCountdown.Start(1), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
             var bombs = new SamusBombProjectileSystem { FrameBindings = stock };
             _ = bombs.RunProjectileInstructionHandler(bomb);
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), bomb.SpritemapPointer, "Actual bomb handler uses sequential normal/fast pose");

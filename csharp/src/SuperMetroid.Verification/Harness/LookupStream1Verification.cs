@@ -2040,7 +2040,7 @@ internal static class LookupStream1Verification
         {
             ushort duration = Word(0x930000 | pointer);
             ushort sprite = Word(0x930000 | (pointer + 2));
-            var slot = new SamusProjectile(0) { FrameHold = WrappingCountdown.Start(1), Cursor = SamusProjectileProgramAddresses.CursorAt(pointer) };
+            var slot = new SamusProjectile(0) { FrameHold = WrappingCountdown.Start(1), Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer) };
             AssertTrue(!shots.Animation.RunProjectileInstructionHandler(slot), "Actual native timed frame survives");
             AssertEqual(duration, slot.FrameHold.RawValue, "Actual timer unchanged");
             AssertEqual(sprite, slot.SpritemapPointer, "Installed artwork selection");
@@ -2050,7 +2050,7 @@ internal static class LookupStream1Verification
             AssertEqual(unchecked((ushort)(pointer + 8)), slot.InstructionPointer, "Actual record progression unchanged");
             interpreted++;
             if (duration == 0) continue; // Existing bomb contract excludes zero-duration timed records.
-            var bomb = new SamusBombProjectileSlot(0) { FrameHold = WrappingCountdown.Start(1), Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
+            var bomb = new SamusBombProjectileSlot(0) { FrameHold = WrappingCountdown.Start(1), Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
             AssertTrue(!bombs.RunProjectileInstructionHandler(bomb), "Actual bomb timed frame survives");
             AssertEqual(duration, bomb.FrameHold.RawValue, "Actual bomb timer unchanged");
             AssertEqual(sprite, bomb.SpritemapPointer, "Installed bomb artwork selection");
@@ -2124,8 +2124,8 @@ internal static class LookupStream1Verification
         {
             var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = bindings } };
             var bombs = new SamusBombProjectileSystem { FrameBindings = bindings };
-            var slot = new SamusProjectile(0) { FrameHold = WrappingCountdown.Start(1), Cursor = SamusProjectileProgramAddresses.CursorAt(program.Start), Damage = 30 };
-            var bomb = new SamusBombProjectileSlot(0) { FrameHold = WrappingCountdown.Start(1), Cursor = SamusProjectileProgramAddresses.CursorAt(program.Start), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
+            var slot = new SamusProjectile(0) { FrameHold = WrappingCountdown.Start(1), Playback = SamusProjectileProgramAddresses.PlaybackAt(program.Start), Damage = 30 };
+            var bomb = new SamusBombProjectileSlot(0) { FrameHold = WrappingCountdown.Start(1), Playback = SamusProjectileProgramAddresses.PlaybackAt(program.Start), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
             ushort timer = 1, pointer = program.Start, sprite = 0, x = 0, y = 0, trail = 0;
             var visited = new HashSet<ushort>();
             bool finished = false;

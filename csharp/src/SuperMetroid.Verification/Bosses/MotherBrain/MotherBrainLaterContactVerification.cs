@@ -63,7 +63,7 @@ internal static class MotherBrainLaterContactVerification
             var shot = shots.Slots[0];
             shot.Type = type; shot.Damage = 100; shot.Direction = SamusProjectileDirection.Right;
             shot.Position = shot.Position.WithWhole(new(128, 128)); shot.Radius = new(4, 4);
-            shot.Cursor = ProjectileFixtureCursors.Active; shot.FrameHold = WrappingCountdown.Start(1);
+            shot.Playback = ProjectileFixturePlaybacks.Active; shot.FrameHold = WrappingCountdown.Start(1);
             shot.FrameBehavior = type.Family == SamusProjectileFamily.Missile ? SamusProjectileFrameBehavior.Missile : SamusProjectileFrameBehavior.NoWaveBeam;
             AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(shots, new SamusBombProjectileSystem(), new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())),
                 "Mother Brain body accepts the projectile collision callback");

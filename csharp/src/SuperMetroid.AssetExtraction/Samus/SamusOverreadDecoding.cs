@@ -121,9 +121,10 @@ internal static class SamusOverreadDecoding
         foreach (SamusProjectileProgram program in SpaceTimeShotPrograms())
         {
             var positions = new Dictionary<string, IReadOnlyList<SamusOverreadDocument.Overwrite?>>();
-            for (int position = 0; position < SamusProjectileAnimations.Programs.Steps(program).Count; position++)
+            // Every place of the segment: before each beat, and at its end.
+            for (int position = 0; position <= SamusProjectileAnimations.Segments.Beats(program).Count; position++)
             {
-                int place = lists.Position(new AnimationProgramCursor<SamusProjectileProgram>(program, position));
+                int place = lists.Position(new SamusProjectileSegmentBeat(program, position));
                 positions.Add(position.ToString(System.Globalization.CultureInfo.InvariantCulture),
                     [.. Enumerable.Range(0, SamusProjectileSystem.SlotCount).Select(slot => SpaceTimeOverwrite(cartridge, place, slot))]);
             }
@@ -133,8 +134,8 @@ internal static class SamusOverreadDecoding
     }
 
     /// <summary>
-    /// Every program a SpaceTime shot can animate by: the programs its header selects in every aim direction, and every
-    /// program their steps go to or fall into.
+    /// Every segment a SpaceTime shot can animate by: the segments its header selects in every aim direction, and every
+    /// segment their animations play.
     /// </summary>
     internal static SamusProjectileProgram[] SpaceTimeShotPrograms()
     {
@@ -155,16 +156,10 @@ internal static class SamusOverreadDecoding
         }
         while (pending.TryDequeue(out SamusProjectileProgram program))
         {
-            foreach (var step in SamusProjectileAnimations.Programs.Steps(program))
+            foreach (AnimationPhase<SamusProjectileProgram> phase in SamusProjectileAnimations.StartingWith(program).Phases)
             {
-                SamusProjectileProgram? target = step switch
-                {
-                    AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.GoToStep goTo => goTo.Target,
-                    AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.FallIntoStep fallInto => fallInto.Target,
-                    _ => null,
-                };
-                if (target is { } next && programs.Add(next))
-                    pending.Enqueue(next);
+                if (programs.Add(phase.Segment))
+                    pending.Enqueue(phase.Segment);
             }
         }
         return [.. programs.Order()];
@@ -249,13 +244,13 @@ internal static class SamusOverreadDecoding
         foreach (SamusProjectileProgram program in Enum.GetValues<SamusProjectileProgram>())
         {
             var landings = new Dictionary<string, SamusOverreadDocument.Cursor>();
-            for (int position = 0; position < SamusProjectileAnimations.Programs.Steps(program).Count; position++)
+            for (int position = 0; position <= SamusProjectileAnimations.Segments.Beats(program).Count; position++)
             {
-                int landing = unchecked((ushort)(lists.Position(new AnimationProgramCursor<SamusProjectileProgram>(program, position)) +
+                int landing = unchecked((ushort)(lists.Position(new SamusProjectileSegmentBeat(program, position)) +
                     SamusOverreadSourceDefinitions.FastAnimationOffset));
-                if (landing != 0 && lists.TryCursorAt(landing, out AnimationProgramCursor<SamusProjectileProgram> landed))
+                if (landing != 0 && lists.TryPlaceAt(landing, out SamusProjectileSegmentBeat landed))
                     landings.Add(position.ToString(System.Globalization.CultureInfo.InvariantCulture),
-                        new SamusOverreadDocument.Cursor(landed.Program.ToString(), landed.Position));
+                        new SamusOverreadDocument.Cursor(landed.Segment.ToString(), landed.Beat));
             }
             result.Add(program.ToString(), landings);
         }

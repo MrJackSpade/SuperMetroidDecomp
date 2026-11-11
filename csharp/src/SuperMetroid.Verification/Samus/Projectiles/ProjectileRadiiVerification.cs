@@ -106,7 +106,7 @@ internal static class ProjectileRadiiVerification
             AssertTrue(duration < 0x8000, "Inventory entry is a timed frame, not executable data");
             int activeRecord = 0x930000 | pointer;
             ushort expectedSprite = CartridgeImportSource.Require(rom).ReadCartridgeWord((activeRecord + 2));
-            var slot = new SamusProjectile(0) { FrameHold = WrappingCountdown.Start(1), Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), Damage = 30 };
+            var slot = new SamusProjectile(0) { FrameHold = WrappingCountdown.Start(1), Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), Damage = 30 };
             AssertEqual(false, projectiles.Animation.RunProjectileInstructionHandler(slot), "Timed projectile record survives");
             AssertEqual(duration, slot.FrameHold.RawValue, "Frame duration unchanged");
             AssertEqual(expectedSprite, slot.SpritemapPointer, "Native artwork reference");
@@ -118,7 +118,7 @@ internal static class ProjectileRadiiVerification
             // The bomb owner deliberately rejects zero-duration records. Keep that
             // existing contract instead of treating arbitrary beam records as bombs.
             if (duration == 0) continue;
-            var bomb = new SamusBombProjectileSlot(0) { FrameHold = WrappingCountdown.Start(1), Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
+            var bomb = new SamusBombProjectileSlot(0) { FrameHold = WrappingCountdown.Start(1), Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
             AssertEqual(false, bombs.RunProjectileInstructionHandler(bomb), "Bomb timed record survives");
             AssertEqual(duration, bomb.FrameHold.RawValue, "Bomb duration unchanged");
             AssertEqual(expectedSprite, bomb.SpritemapPointer, "Bomb native artwork reference");

@@ -395,7 +395,7 @@ public sealed class SamusProjectileSystem
         {
             if (samus.Xray.TimeIsFrozen)
                 break;
-            if (slot.Cursor is null)
+            if (slot.Playback is null)
                 continue;
 
             if (slot.FrameBehavior == SamusProjectileFrameBehavior.ShinesparkEcho)
@@ -507,7 +507,7 @@ public sealed class SamusProjectileSystem
 
             // Killing a projectile replaces rather than clears a live beam. Consequently the
             // explosion's first record is selected in this same handler pass.
-            if (slot.Cursor is not null)
+            if (slot.Playback is not null)
                 projectileDeleted |= Animation.RunProjectileInstructionHandler(slot);
         }
 

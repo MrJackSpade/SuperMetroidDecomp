@@ -33,9 +33,9 @@ internal sealed class ProjectileAnimation
         slot.FrameHold = slot.FrameHold.Decrement().Remaining;
         if (!slot.FrameHold.IsZero)
             return false;
-        AnimationProgramCursor<SamusProjectileProgram> cursor = slot.Cursor
+        AnimationPlayback<SamusProjectileProgram> playback = slot.Playback
             ?? throw new InvalidOperationException("An inactive projectile has no list to run.");
-        if (SamusProjectilePrograms.RunToNextRecord(ref cursor, out int duration) is not { } frame)
+        if (SamusProjectilePrograms.RunToNextRecord(ref playback, out int duration) is not { } frame)
         {
             ClearProjectile(slot);
             return true;
@@ -45,7 +45,7 @@ internal sealed class ProjectileAnimation
         slot.Sprite = (FrameBindings ?? throw new InvalidOperationException(
             "Samus's projectiles show their records' installed compositions, which are not bound.")).Resolve(frame);
         slot.Radius = record.Radius;
-        slot.Cursor = cursor;
+        slot.Playback = playback;
         return false;
     }
 

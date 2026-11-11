@@ -106,7 +106,7 @@ internal static class ProjectileTrailCoordinatesVerification
         // For each animation frame, the list position just past the first record that installs it: a trail spawned there
         // reads that frame.
         var records = SamusProjectileRecordOrder.Frames.OrderBy(SamusProjectileProgramAddresses.RecordAddress).ToArray();
-        var afterFrame = Enumerable.Range(0, 22).Select(frame => SamusProjectileProgramAddresses.CursorAt(unchecked((ushort)(
+        var afterFrame = Enumerable.Range(0, 22).Select(frame => SamusProjectileProgramAddresses.PlaybackAt(unchecked((ushort)(
             SamusProjectileProgramAddresses.RecordAddress(records.First(record =>
                 SamusProjectileRecordDefinitions.Get(record).AnimationFrame == frame)) +
             SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListLayout.TimedRecordByteCount)))).ToArray();
@@ -126,7 +126,7 @@ internal static class ProjectileTrailCoordinatesVerification
             {
                 Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type),
                 Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction),
-                Cursor = afterFrame[frame],
+                Playback = afterFrame[frame],
                 Position = new(new(origin, 0), new(origin, 0)),
             };
             spawn(shot);
@@ -157,7 +157,7 @@ internal static class ProjectileTrailCoordinatesVerification
             system.Reset();
             var shot = new SamusProjectile(0)
             {
-                Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type), Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction), Cursor = SamusProjectileProgramAddresses.CursorAt(listStart), Position = new(new(0x0100, 0), new(0x0100, 0)),
+                Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type), Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction), Playback = SamusProjectileProgramAddresses.PlaybackAt(listStart), Position = new(new(0x0100, 0), new(0x0100, 0)),
             };
             spawn(shot);
             var actual = system.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];

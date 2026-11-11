@@ -54,38 +54,10 @@ internal static class ReflectedEchoPicturesVerification
         Console.WriteLine($"  Reflected echoes: {frames.Count} shot pictures resolve on all {ProjectileSheetComposer.Combinations.Count} combinations' sheets.");
     }
 
-    /// <summary>Every frame <paramref name="start"/> and the lists it continues into show.</summary>
-    private static HashSet<SamusProjectileFrame> ShownFrames(SamusProjectileProgram start)
-    {
-        var shown = new HashSet<SamusProjectileFrame>();
-        var reached = new HashSet<SamusProjectileProgram>();
-        var pending = new Queue<SamusProjectileProgram>([start]);
-        while (pending.TryDequeue(out SamusProjectileProgram program))
-        {
-            if (!reached.Add(program))
-                continue;
-            foreach (AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue> step in SamusProjectileAnimations.Programs.Steps(program))
-            {
-                switch (step)
-                {
-                    case AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.ShowStep show:
-                        shown.Add(show.Frame);
-                        break;
-                    case AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.GoToStep goTo:
-                        pending.Enqueue(goTo.Target);
-                        break;
-                    case AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.FallIntoStep fallInto:
-                        pending.Enqueue(fallInto.Target);
-                        break;
-                    case AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.RepeatWhileCountingStep repeat:
-                        pending.Enqueue(repeat.Target);
-                        break;
-                    default:
-                        // The other steps show nothing and continue nowhere.
-                        break;
-                }
-            }
-        }
-        return shown;
-    }
+    /// <summary>Every frame the animation starting at <paramref name="start"/> shows, in every segment it plays.</summary>
+    private static HashSet<SamusProjectileFrame> ShownFrames(SamusProjectileProgram start) =>
+        [.. SamusProjectileAnimations.StartingWith(start).Phases
+            .SelectMany(phase => SamusProjectileAnimations.Segments.Beats(phase.Segment).Skip(phase.FirstBeat).Take(phase.BeatCount))
+            .OfType<AnimationBeat<SamusProjectileFrame, NoAnimationCue>.Frame>()
+            .Select(frame => frame.Shown)];
 }

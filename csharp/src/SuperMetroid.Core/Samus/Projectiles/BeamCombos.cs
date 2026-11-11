@@ -15,11 +15,11 @@ internal sealed class BeamCombos
     /// <summary>Spawns periodic Wave and other combo trails from their live particle slots.</summary>
     private readonly ProjectileTrails _trails;
     /// <summary>What the Spacetime shot's runaway palette copy overwrites in saved progression.</summary>
-    private readonly SpaceTimeProgressionOverwrite<AnimationProgramCursor<SamusProjectileProgram>, ProgressionOverwrite> _spaceTimeOverwrite;
+    private readonly SpaceTimeProgressionOverwrite<SamusProjectileSegmentBeat, ProgressionOverwrite> _spaceTimeOverwrite;
 
     /// <summary>Connects special beam activation and particle updates to shared projectile, charge, and trail owners.</summary>
     internal BeamCombos(ProjectileAnimation animation, BeamChargeState charge, ProjectileSlotTable slotTable, ProjectileTrails trails,
-        SpaceTimeProgressionOverwrite<AnimationProgramCursor<SamusProjectileProgram>, ProgressionOverwrite> spaceTimeOverwrite)
+        SpaceTimeProgressionOverwrite<SamusProjectileSegmentBeat, ProgressionOverwrite> spaceTimeOverwrite)
     {
         _animation = animation;
         _charge = charge;
@@ -135,7 +135,7 @@ internal sealed class BeamCombos
         SamusProjectileProgram program = comboData == BeamComboData.Combo
             ? SamusProjectileHeaders.SoleProgram(header)
             : SamusProjectileHeaders.Program(header, slot.Direction);
-        slot.Cursor = SamusProjectilePrograms.Start(program);
+        slot.Playback = SamusProjectilePrograms.Start(program);
         slot.FrameHold = WrappingCountdown.Start(1);
         if (comboData == BeamComboData.Charged)
             slot.Radius = SamusProjectilePrograms.InitialRadius(program);
@@ -247,9 +247,9 @@ internal sealed class BeamCombos
     internal void RunSpacetimePaletteCopyTail(SharedGameState? progression, SamusProjectile slot)
     {
         Ensure.NotNull(slot);
-        if (slot.Sprite is null || slot.Cursor is not { } cursor)
+        if (slot.Sprite is null || slot.Playback is not { } playback)
             return;
-        if (_spaceTimeOverwrite.For(cursor, slot.Place) is { } overwrite)
+        if (_spaceTimeOverwrite.For(SamusProjectilePrograms.BeatOf(playback), slot.Place) is { } overwrite)
             (progression ?? throw new InvalidOperationException(
                 "SpaceTime's palette-copy overwrite writes progression; the frame must pass it.")).Overwrite(overwrite);
     }

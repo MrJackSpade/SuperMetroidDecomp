@@ -83,7 +83,7 @@ internal sealed class ProjectileTrails
         TrailStartPastPlacements<SamusProjectileProgram, ProjectileTrailPlacementList, ProjectileTrailPlacement> starts)
     {
         // The trail reads the record before the animation's next position, not a lookahead at the next phase.
-        return SamusProjectilePrograms.PrecedingAnimationFrame(projectile.Cursor
+        return SamusProjectilePrograms.PrecedingAnimationFrame(projectile.Playback
             ?? throw new InvalidOperationException("A trail read the animation frame of an inactive projectile."), starts);
     }
 

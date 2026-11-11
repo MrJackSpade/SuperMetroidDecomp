@@ -58,7 +58,7 @@ internal static class SaveStationSoundVerification
             game.StepCaptured(input);
             if (messageFrame < 0 && runtime.MessageBox.IsActive)
                 messageFrame = frame;
-            if (audio.SoundsQueuedSinceForVerification(samusMark).Contains(SamusSound.Saving))
+            if (audio.SoundsQueuedSinceForVerification(samusMark).Contains<SoundEffectId>(SamusSound.Saving))
                 soundFrame = frame;
         }
         AssertTrue(messageFrame >= 0, "landing on the save station opens the save message");

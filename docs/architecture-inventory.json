@@ -61976,7 +61976,8 @@
       "disposition": "definition-catalog",
       "flags": [
         "large"
-      ]
+      ],
+      "justified": true
     },
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.EnemyFrameSheetKeys",

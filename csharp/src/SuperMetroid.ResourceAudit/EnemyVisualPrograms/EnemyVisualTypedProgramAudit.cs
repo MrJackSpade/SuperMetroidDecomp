@@ -205,7 +205,7 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(MotherBrainTubeAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainTubeAnimations.cs");
         RequireTypedFrames(ShitroidAnimations.Programs, frame => BabyMetroidVisualToolingDefinitions.Spritemap(frame.Index), ShitroidVisualDefinitions.Bank,
             nameof(ShitroidAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/ShitroidAnimations.cs");
-        RequireTypedFrames(ZebetiteAnimations.Programs, frame => ZebetiteVisualToolingDefinitions.Spritemap(frame.Index), ZebetiteVisualToolingDefinitions.Bank,
+        RequireSegmentFrames(ZebetiteAnimations.Segments, frame => ZebetiteVisualToolingDefinitions.Spritemap(frame.Index), ZebetiteVisualToolingDefinitions.Bank,
             nameof(ZebetiteAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/ZebetiteAnimations.cs");
 
         RequireSegmentFrames(RipperAnimations.Segments, RipperFrameToolingDefinitions.Spritemap, RipperFrameToolingDefinitions.Bank,

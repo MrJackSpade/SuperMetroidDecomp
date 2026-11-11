@@ -33,8 +33,8 @@ public sealed class ZebetiteEnemyState
     /// <summary>Including the sign bit that requests a linked second half.</summary>
     public ZebetiteGenerationFlags GenerationFlags { get; internal set; }
 
-    /// <summary>Where this half's health program resumes (#641).</summary>
-    internal AnimationProgramCursor<ZebetiteProgram> Cursor { get; set; }
+    /// <summary>This half's health animation and where it stands (#641, #1600).</summary>
+    internal AnimationPlayback<ZebetiteProgram> Playback { get; set; } = ZebetiteAnimations.Starting(default);
 
     /// <summary>
     /// The other half of a linked pair, to which a shot's health and flash are copied; null for a single barrier, which

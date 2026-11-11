@@ -198,6 +198,121 @@ internal static class MotherBrainNativeListAddresses
     /// <summary>The bank-$A9 population record of <paramref name="piece"/>, as a long address.</summary>
     internal static int TubePopulationRecord(MotherBrainTubePiece piece) => TubePopulationRecords[piece];
 
+    /// <summary>
+    /// What a native opcode of these lists becomes (#1600): its operand words, the events it raises, and the list it
+    /// continues at when it ends its own with a goto.
+    /// </summary>
+    /// <param name="Operands">The opcode's operand words.</param>
+    /// <param name="Effect">What the opcode does, given its operands and the entry-to-segment lookup.</param>
+    internal readonly record struct NativeListOp<TSegment, TEvent>(
+        int Operands, Func<ushort[], Func<ushort, TSegment>, NativeListOpEffect<TSegment, TEvent>> Effect)
+        where TSegment : struct, Enum
+        where TEvent : notnull;
+
+    /// <summary>The events a native opcode raises, in order, and the list it then continues at, if it ends its own.</summary>
+    /// <param name="Events">The events raised.</param>
+    /// <param name="GoesTo">The list a goto continues at, or null when the list runs on past the opcode.</param>
+    internal sealed record NativeListOpEffect<TSegment, TEvent>(TEvent[] Events, TSegment? GoesTo)
+        where TSegment : struct, Enum
+        where TEvent : notnull;
+
+    /// <summary>An opcode that raises only <paramref name="raised"/> and runs on.</summary>
+    private static NativeListOpEffect<TSegment, TEvent> Raises<TSegment, TEvent>(TEvent raised)
+        where TSegment : struct, Enum
+        where TEvent : notnull => new([raised], null);
+
+    /// <summary>
+    /// Reads each segment's native list beside its typed beats (#1600): frames must show the native spritemap for the
+    /// native duration, opcodes must raise the events <paramref name="ops"/> names, and the lists' sleeps, gotos and runs on
+    /// into the next authored entry are recorded as their control instructions. Every typed animation must then play the
+    /// phases the lists' control flow plays. Returns each segment's native list, which also maps a native snapshot's list
+    /// pointers to typed playbacks.
+    /// </summary>
+    internal static Dictionary<TSegment, NativeEnemyList<TSegment>> Lists<TSegment, TFrame, TEvent>(
+        IImportCartridgeSource cartridge, int bank, AnimationSegments<TSegment, TFrame, TEvent> segments,
+        IReadOnlyDictionary<TSegment, Animation<TSegment>> startingAt,
+        NativeProgramEntry<TSegment>[] entries, Func<TFrame, ushort> spritemap,
+        IReadOnlyDictionary<ushort, NativeListOp<TSegment, TEvent>> ops)
+        where TSegment : struct, Enum
+        where TFrame : struct
+        where TEvent : notnull
+    {
+        VerificationAssertions.AssertEqual(Enum.GetValues<TSegment>().Length, entries.Length, $"every typed {typeof(TSegment).Name} has a native entry");
+        Dictionary<ushort, TSegment> segmentAt = entries.ToDictionary(entry => entry.Entry, entry => entry.Program);
+        var lists = new Dictionary<TSegment, NativeEnemyList<TSegment>>();
+        foreach ((TSegment segment, ushort entry) in entries)
+        {
+            IReadOnlyList<AnimationBeat<TFrame, TEvent>> beats = segments.Beats(segment);
+            var addresses = new List<ushort>();
+            var controls = new List<NativeEnemyControl<TSegment>>();
+            ushort cursor = entry;
+            for (int record = 0; controls.Count == 0; record++)
+            {
+                if (record > 256)
+                    throw new InvalidDataException($"{segment} ran past its native list.");
+                string at = $"{segment} beat {addresses.Count} (native record {record})";
+                if (record > 0 && segmentAt.TryGetValue(cursor, out TSegment next))
+                {
+                    controls.Add(new(NativeEnemyControlKind.RunOnIntoNext, addresses.Count, next, null, cursor));
+                    continue;
+                }
+                ushort word = cartridge.ReadCartridgeWord(bank | cursor);
+                switch (NativeEnemyListDefinitions.Classify(word))
+                {
+                    case NativeEnemyListDefinitions.WordKind.Frame:
+                        var frame = VerificationAssertions.AssertIs<AnimationBeat<TFrame, TEvent>.Frame>(Beat(beats, addresses.Count, at), $"{at}: frame");
+                        VerificationAssertions.AssertEqual(word, frame.Duration, $"{at}: duration");
+                        VerificationAssertions.AssertEqual(cartridge.ReadCartridgeWord(bank | (cursor + 2)), spritemap(frame.Shown), $"{at}: spritemap");
+                        addresses.Add(cursor);
+                        cursor = unchecked((ushort)(cursor + 4));
+                        continue;
+                    case NativeEnemyListDefinitions.WordKind.Sleep:
+                        controls.Add(new(NativeEnemyControlKind.Sleep, addresses.Count, null, null, cursor));
+                        continue;
+                    case NativeEnemyListDefinitions.WordKind.Callback:
+                    {
+                        if (!ops.TryGetValue(word, out NativeListOp<TSegment, TEvent> op))
+                            throw new InvalidDataException($"{at}: opcode ${word:X4} is outside the compared set.");
+                        ushort[] operands = [.. Enumerable.Range(0, op.Operands)
+                            .Select(operand => cartridge.ReadCartridgeWord(bank | (cursor + 2 + 2 * operand)))];
+                        NativeListOpEffect<TSegment, TEvent> effect = op.Effect(operands, address => segmentAt[address]);
+                        foreach (TEvent raised in effect.Events)
+                        {
+                            var typed = VerificationAssertions.AssertIs<AnimationBeat<TFrame, TEvent>.Event>(Beat(beats, addresses.Count, at), $"{at}: opcode ${word:X4} event");
+                            VerificationAssertions.AssertEqual(raised, typed.Raised, $"{at}: opcode ${word:X4} event");
+                            addresses.Add(cursor);
+                        }
+                        ushort after = unchecked((ushort)(cursor + 2 + 2 * op.Operands));
+                        // A goto that raises nothing is where the pointer rests after the beat before it; one that raises an
+                        // event first is never a resting place, so it stands after its operands.
+                        if (effect.GoesTo is { } target)
+                            controls.Add(new(NativeEnemyControlKind.Goto, addresses.Count, target, null, effect.Events.Length == 0 ? cursor : after));
+                        cursor = after;
+                        continue;
+                    }
+                    case NativeEnemyListDefinitions.WordKind.GoTo:
+                    case NativeEnemyListDefinitions.WordKind.Stop:
+                    case NativeEnemyListDefinitions.WordKind.SetCounter:
+                    case NativeEnemyListDefinitions.WordKind.RepeatWhileCounting:
+                    case NativeEnemyListDefinitions.WordKind.Wait:
+                        throw new InvalidDataException($"{at}: these lists use no common gotos, stops, counters or waits.");
+                    default:
+                        throw new InvalidOperationException($"Undefined {nameof(NativeEnemyListDefinitions.WordKind)}.");
+                }
+            }
+            VerificationAssertions.AssertEqual(beats.Count, addresses.Count, $"{segment}: its native list holds each of its beats");
+            lists[segment] = new NativeEnemyList<TSegment>([.. addresses], [.. controls]);
+        }
+        NativeEnemyAnimationOracle.CompareAnimations(lists, startingAt);
+        return lists;
+    }
+
+    /// <summary>Beat <paramref name="beat"/> of <paramref name="beats"/>, which the native list must not outrun.</summary>
+    private static AnimationBeat<TFrame, TEvent> Beat<TFrame, TEvent>(IReadOnlyList<AnimationBeat<TFrame, TEvent>> beats, int beat, string at)
+        where TFrame : struct
+        where TEvent : notnull =>
+        beat < beats.Count ? beats[beat] : throw new InvalidDataException($"{at}: the native list holds more beats than its segment.");
+
     /// <summary>What a native flow opcode becomes: its operand words, the typed steps, and whether it ends the list.</summary>
     /// <param name="Operands">The opcode's operand words.</param>
     /// <param name="Steps">The typed steps the opcode becomes, given its operands and the entry-to-program lookup.</param>
@@ -272,10 +387,10 @@ internal static class MotherBrainNativeListAddresses
     internal static void CompareShitroid(IImportCartridgeSource cartridge) =>
         Walk(cartridge, MotherBrainBank, ShitroidAnimations.Programs, ShitroidEntries, frame => BabyMetroidVisualToolingDefinitions.Spritemap(frame.Index), ShitroidNativeOps);
 
-    /// <summary>Compares the Zebetites' typed health programs with their native lists.</summary>
+    /// <summary>Compares the Zebetites' typed health segments and animations with their native lists.</summary>
     internal static void CompareZebetites(IImportCartridgeSource cartridge) =>
-        Walk(cartridge, ZebetiteBank, ZebetiteAnimations.Programs, ZebetiteEntries, frame => ZebetiteVisualToolingDefinitions.Spritemap(frame.Index),
-            new Dictionary<ushort, NativeOp<ZebetiteProgram, ZebetiteFrame, NoAnimationCue>>());
+        Lists(cartridge, ZebetiteBank, ZebetiteAnimations.Segments, ZebetiteAnimations.StartingAt, ZebetiteEntries,
+            frame => ZebetiteVisualToolingDefinitions.Spritemap(frame.Index), new Dictionary<ushort, NativeListOp<ZebetiteProgram, NoAnimationCue>>());
 
     /// <summary>Compares the falling tubes' typed programs with their native lists; returns each native record's typed cursor.</summary>
     internal static Dictionary<ushort, AnimationProgramCursor<MotherBrainTubePiece>> CompareTubes(IImportCartridgeSource cartridge) =>

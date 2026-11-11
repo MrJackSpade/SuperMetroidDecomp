@@ -106,7 +106,7 @@ internal static class ZebetiteDefinitionsVerification
                 $"production Zebetite generation {generation} flags");
             AssertEqual(expected.YRadius, slot.Radius.Y,
                 $"production Zebetite generation {generation} radius");
-            AssertEqual(AnimationProgramCursor<ZebetiteProgram>.Start(expected.Program), state.Cursor,
+            AssertEqual(ZebetiteAnimations.Starting(expected.Program), state.Playback,
                 $"production Zebetite generation {generation} program");
             AssertEqual(expected.XPosition, slot.Position.X.Whole,
                 $"production Zebetite generation {generation} X");
@@ -120,7 +120,7 @@ internal static class ZebetiteDefinitionsVerification
                 AssertEqual(ZebetiteAnimations.HealthProgram(
                         (expected.GenerationFlags & ZebetiteGenerationFlags.LinkedPair) != 0,
                         health),
-                    state.Cursor.Program,
+                    state.Playback.Animation.Phases[state.Playback.Place.Phase].Segment,
                     $"production Zebetite generation {generation} health {health}");
             }
         }

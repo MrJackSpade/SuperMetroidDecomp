@@ -50,7 +50,13 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
             _ = EnemyInstructionRunner.ShownFrames(slot, 4 * 6 * 8 + 2 * 32);
             AnimationPlayback<EtecoonProgram> held = state.Playback;
             _ = EnemyInstructionRunner.ShownFrames(slot, 8);
-            AssertEqual(held, state.Playback, "Etecoon flex ends asleep");
+            // The flex's last pose plays out, then the animation holds in its last phase for good.
+            AssertEqual(new AnimationPlayback<EtecoonProgram>(held.Animation,
+                    AnimationPlace.HoldingIn(held.Animation.Phases.Count - 1, held.Animation.Phases[^1].BeatCount)),
+                state.Playback, "Etecoon flex ends asleep");
+            _ = EnemyInstructionRunner.ShownFrames(slot, 8);
+            AssertEqual(AnimationPlace.HoldingIn(held.Animation.Phases.Count - 1, held.Animation.Phases[^1].BeatCount), state.Playback.Place,
+                "Etecoon flex stays asleep");
             AssertEqual(EtecoonAnimationsTooling.Spritemaps(EtecoonProgram.FlexingLoop).Last(), slot.SpritemapPointer, "Etecoon flex ends on its last pose");
             AssertEqual((ushort)0, slot.Timer.RawValue, "Etecoon flex loop count expires");
         }

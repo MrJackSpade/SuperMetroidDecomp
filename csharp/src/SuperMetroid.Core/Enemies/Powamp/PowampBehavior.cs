@@ -444,8 +444,8 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static PowampBalloonState PowampBalloonPhase(AnimationPlayback<PowampProgram> playback)
     {
         AnimationPhase<PowampProgram> phase = playback.Animation.Phases[playback.Place.Phase];
-        // A phase the play has not entered yet has shown none of its poses.
-        int passed = phase.FirstBeat + (playback.Place.Beat == AnimationPlace.NotEntered ? 0 : playback.Place.Beat);
+        // A phase the play has not entered yet has shown none of its poses, and a held one all of them.
+        int passed = phase.FirstBeat + Math.Clamp(playback.Place.Beat, 0, phase.BeatCount);
         return phase.Segment switch
         {
             PowampProgram.BalloonInflate0 => new PowampBalloonState(false, passed),

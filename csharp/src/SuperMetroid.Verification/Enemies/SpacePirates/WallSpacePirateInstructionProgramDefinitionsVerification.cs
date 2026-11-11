@@ -65,9 +65,9 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             WallSpacePirateProgram program = movingRight
                 ? WallSpacePirateProgram.FireAndJumpRight
                 : WallSpacePirateProgram.FireAndJumpLeft;
-            // The attack has played every beat of its one phase and rests on its last pose.
+            // The attack has played every beat of its one phase and holds on its last pose.
             Animation<WallSpacePirateProgram> attack = WallSpacePirateAnimations.StartingWith(program);
-            var expected = new AnimationPlayback<WallSpacePirateProgram>(attack, new AnimationPlace(0, attack.Phases[0].BeatCount));
+            var expected = new AnimationPlayback<WallSpacePirateProgram>(attack, AnimationPlace.HoldingIn(0, attack.Phases[0].BeatCount));
             WallSpacePirateFunction expectedFunction = movingRight
                 ? WallSpacePirateFunction.WallJumpingRight
                 : WallSpacePirateFunction.WallJumpingLeft;

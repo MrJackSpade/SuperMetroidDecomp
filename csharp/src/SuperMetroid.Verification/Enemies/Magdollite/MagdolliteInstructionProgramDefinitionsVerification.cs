@@ -117,11 +117,12 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
             (RoomEnemySystem enemies, RoomEnemySlot slot, MagdolliteEnemyState state) = CreateSystem(part);
             Install(slot, state, program);
             RunFrames(enemies, slot, 3);
-            // The playback rests past the last beat of an animation that holds there.
+            // The playback holds past the last beat of an animation that holds there.
             AnimationPlayback<MagdolliteProgram> playback = state.Playback;
             AssertEqual(program, playback.Animation.Phases[playback.Place.Phase].Segment, $"Magdollite {name} stays in its program");
-            AssertTrue(playback.Animation.End is AnimationEnd.Hold && playback.Place.Phase == playback.Animation.Phases.Count - 1 &&
-                playback.Place.Beat == playback.Animation.Phases[^1].BeatCount, $"Magdollite {name} reaches terminal sleep");
+            AssertTrue(playback.Animation.End is AnimationEnd.Hold &&
+                playback.Place == AnimationPlace.HoldingIn(playback.Animation.Phases.Count - 1, playback.Animation.Phases[^1].BeatCount),
+                $"Magdollite {name} reaches terminal sleep");
         }
 
         CreateSystemResult CreateSystem(

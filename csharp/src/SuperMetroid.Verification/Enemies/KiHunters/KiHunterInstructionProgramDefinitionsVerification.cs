@@ -237,8 +237,8 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
         {
             AnimationPlayback<KiHunterProgram> playback = state.Playback;
             AssertEqual(program, Playing(state), message);
-            AssertTrue(playback.Animation.End is AnimationEnd.Hold && playback.Place.Phase == playback.Animation.Phases.Count - 1 &&
-                playback.Place.Beat == playback.Animation.Phases[^1].BeatCount, message);
+            AssertTrue(playback.Animation.End is AnimationEnd.Hold &&
+                playback.Place == AnimationPlace.HoldingIn(playback.Animation.Phases.Count - 1, playback.Animation.Phases[^1].BeatCount), message);
         }
 
         // The segment the playback's current phase plays.

@@ -55,15 +55,15 @@ internal static class BossDisplayBindingsResourcesVerification
         // Phantoon's tentacles: four eight-update poses that loop ($A7:CCD7).
         const int duration = 8;
         const int frames = 150;
-        var steps = PhantoonAnimations.Programs.Steps(PhantoonPartProgram.Tentacles);
-        int poseCount = steps.Count - 1;
+        var beats = PhantoonAnimations.Segments.Beats(PhantoonPartProgram.Tentacles);
+        int poseCount = beats.Count;
         BossDisplayFixture tentacles = NewTentacleFixture(stock.Build());
         int transitions = 0;
         for (int frame = 0; frame < frames; frame++)
         {
             tentacles.Step(); tentacles.Draw();
             int index = frame / duration % poseCount;
-            AssertEqual(PhantoonPartFrameSpritemapsConstants.Spritemap(AssertIs<AnimationProgramStep<PhantoonPartProgram, PhantoonPartFrame, PhantoonPartCue>.ShowStep>(steps[index], "pose step").Frame), tentacles.Actor.SpritemapPointer, "exact physical pose sequence");
+            AssertEqual(PhantoonPartFrameSpritemapsConstants.Spritemap(AssertIs<AnimationBeat<PhantoonPartFrame, PhantoonPartCue>.Frame>(beats[index], "pose beat").Shown), tentacles.Actor.SpritemapPointer, "exact physical pose sequence");
             AssertEqual((ushort)(duration - frame % duration), tentacles.Actor.FrameHold.RawValue, "exact native hold/goto clock");
             bool fresh = frame % duration == 0;
             AssertEqual(fresh, tentacles.Actor.NewInstructionFrame, "exact new-frame schedule");
@@ -86,7 +86,7 @@ internal static class BossDisplayBindingsResourcesVerification
         };
         fixture.Enemies.PhantoonBehavior.Combat.Phantoon = state;
         fixture.SetFrame(0, false);
-        state.PartProgram(fixture.Actor) = AnimationProgramCursor<PhantoonPartProgram>.Start(PhantoonPartProgram.Tentacles);
+        state.PartPlayback(fixture.Actor) = PhantoonEnemyState.Starting(PhantoonPartProgram.Tentacles);
         fixture.Actor.FrameHold = WrappingCountdown.Start(1);
         return fixture;
     }

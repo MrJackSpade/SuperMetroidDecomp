@@ -62,7 +62,8 @@ internal static class PhantoonCasualFlamesVerification
             int pointer = 0xa70000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7ccfd + pattern * 2));
             for (int frame = 0; frame < 2048; frame++)
             {
-                state.PartProgram(mouth) = default;
+                // The mouth rests closed before each update; only the casual trigger installs its flame-spitting animation.
+                state.PartPlayback(mouth) = PhantoonEnemyState.Starting(PhantoonPartProgram.MouthInitial);
                 mouth.FrameHold = WrappingCountdown.Start(0);
                 bool draw = false;
                 timer = WrappingCounter.Decrement(timer).Value;
@@ -89,7 +90,8 @@ internal static class PhantoonCasualFlamesVerification
                 AssertEqual(timer, state.MouthState.CasualFlameHold, "Actual casual frame timer");
                 // The count is the signed value the cartridge's word holds.
                 AssertEqual(unchecked((short)count), state.MouthState.CasualFlameCount, "Actual casual frame remaining count");
-                AssertEqual(draw ? AnimationProgramCursor<PhantoonPartProgram>.Start(PhantoonPartProgram.MouthSpawnFlame) : default, state.PartProgram(mouth), "Exact casual mouth animation trigger frame");
+                AssertEqual(PhantoonEnemyState.Starting(draw ? PhantoonPartProgram.MouthSpawnFlame : PhantoonPartProgram.MouthInitial), state.PartPlayback(mouth),
+                    "Exact casual mouth animation trigger frame");
                 AssertEqual(draw ? (ushort)1 : (ushort)0, mouth.FrameHold.RawValue, "Exact casual instruction timer reset");
             }
         }

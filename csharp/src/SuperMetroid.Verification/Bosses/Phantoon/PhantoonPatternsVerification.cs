@@ -78,7 +78,7 @@ internal static class PhantoonPatternsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(eyeBody.Position.X.Whole + x)), unchecked((ushort)(eyeBody.Position.Y.Whole + y)))),
             });
             AssertEqual(PhantoonEyeGaze.EyeProgram(direction),
-                eyeState.PartProgram(trackingEye).Program,
+                eyeState.PlayingProgram(trackingEye),
                 $"production Phantoon eye direction {direction}");
         }
         AssertThrows<InvalidDataException>(

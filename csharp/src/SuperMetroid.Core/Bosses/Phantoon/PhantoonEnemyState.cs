@@ -47,31 +47,49 @@ public sealed class PhantoonEnemyState
     /// <summary>Gets the mouth, attached by part initialization and also retaining the wave/blending controls.</summary>
     public RoomEnemySlot Mouth { get => _mouth ?? throw new InvalidOperationException("Phantoon's mouth part is not attached; part initialization attaches it."); internal set => _mouth = value; }
 
-    /// <summary>The body's typed program cursor (#641).</summary>
-    private AnimationProgramCursor<PhantoonPartProgram> _bodyProgram;
+    /// <summary>
+    /// The body's animation playback (#641, #1600). Every part's playback is the invulnerable body's until the part's
+    /// initialization installs its own.
+    /// </summary>
+    private AnimationPlayback<PhantoonPartProgram> _bodyPlayback = Starting(PhantoonPartProgram.InvulnerableBody);
 
-    /// <summary>The eye's typed program cursor.</summary>
-    private AnimationProgramCursor<PhantoonPartProgram> _eyeProgram;
+    /// <summary>The eye's animation playback.</summary>
+    private AnimationPlayback<PhantoonPartProgram> _eyePlayback = Starting(PhantoonPartProgram.InvulnerableBody);
 
-    /// <summary>The tentacles' typed program cursor.</summary>
-    private AnimationProgramCursor<PhantoonPartProgram> _tentaclesProgram;
+    /// <summary>The tentacles' animation playback.</summary>
+    private AnimationPlayback<PhantoonPartProgram> _tentaclesPlayback = Starting(PhantoonPartProgram.InvulnerableBody);
 
-    /// <summary>The mouth's typed program cursor.</summary>
-    private AnimationProgramCursor<PhantoonPartProgram> _mouthProgram;
+    /// <summary>The mouth's animation playback.</summary>
+    private AnimationPlayback<PhantoonPartProgram> _mouthPlayback = Starting(PhantoonPartProgram.InvulnerableBody);
 
-    /// <summary>The program cursor of <paramref name="part"/>, which is Phantoon's body or one of his attached parts.</summary>
+    /// <summary>The animation starting at <paramref name="program"/>, before its first play.</summary>
+    internal static AnimationPlayback<PhantoonPartProgram> Starting(PhantoonPartProgram program) =>
+        new(PhantoonAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+
+    /// <summary>
+    /// The program <paramref name="part"/> is playing: the segment its playing phase plays, or, before its first play,
+    /// the one its animation starts at.
+    /// </summary>
     /// <exception cref="InvalidOperationException"><paramref name="part"/> is not one of Phantoon's parts.</exception>
-    internal ref AnimationProgramCursor<PhantoonPartProgram> PartProgram(RoomEnemySlot part)
+    internal PhantoonPartProgram PlayingProgram(RoomEnemySlot part)
+    {
+        AnimationPlayback<PhantoonPartProgram> playback = PartPlayback(part);
+        return playback.Animation.Phases[playback.Place.Phase].Segment;
+    }
+
+    /// <summary>The animation playback of <paramref name="part"/>, which is Phantoon's body or one of his attached parts.</summary>
+    /// <exception cref="InvalidOperationException"><paramref name="part"/> is not one of Phantoon's parts.</exception>
+    internal ref AnimationPlayback<PhantoonPartProgram> PartPlayback(RoomEnemySlot part)
     {
         Ensure.NotNull(part);
         if (ReferenceEquals(part, Body))
-            return ref _bodyProgram;
+            return ref _bodyPlayback;
         if (ReferenceEquals(part, _eye))
-            return ref _eyeProgram;
+            return ref _eyePlayback;
         if (ReferenceEquals(part, _tentacles))
-            return ref _tentaclesProgram;
+            return ref _tentaclesPlayback;
         if (ReferenceEquals(part, _mouth))
-            return ref _mouthProgram;
+            return ref _mouthPlayback;
         throw new InvalidOperationException($"Enemy {part.DefinitionId} in slot {part.SlotIndex} is not one of Phantoon's parts.");
     }
 

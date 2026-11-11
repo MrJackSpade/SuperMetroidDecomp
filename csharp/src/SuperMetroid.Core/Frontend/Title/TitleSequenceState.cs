@@ -2,7 +2,6 @@ using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Frontend.Title.Artwork;

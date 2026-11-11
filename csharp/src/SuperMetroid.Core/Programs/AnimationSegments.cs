@@ -144,7 +144,7 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
                     case AnimationBeat<TFrame, TEvent>.HeldFrame held:
                         // The animation rests on a held frame for good: its play is done where it stands.
                         place = AnimationPlace.HoldingIn(place.Phase, phase.BeatCount);
-                        return new AnimationShown<TSegment, TFrame>.HeldFrame(phase.Segment, held.Shown);
+                        return new AnimationShown<TSegment, TFrame>.HeldFrame(held.Shown);
                     case AnimationBeat<TFrame, TEvent>.Pause pause:
                         return new AnimationShown<TSegment, TFrame>.Paused(pause.Duration);
                     case AnimationBeat<TFrame, TEvent>.Event raised:

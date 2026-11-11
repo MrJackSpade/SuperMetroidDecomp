@@ -13,8 +13,6 @@ public sealed class SparkEnemyState
     /// <summary>The updates the Spark waits between functions when it does not randomize them, from its spawn settings.</summary>
     public int BaseFunctionTime { get; internal set; }
 
-    /// <summary>Whether the Spark waits a random number of updates between functions instead of <see cref="BaseFunctionTime"/>.</summary>
-    internal bool RequestsRandomDelay { get; set; }
 
     /// <summary>The countdown, decremented and then tested for zero as the game does: reaching zero expires it, and one that starts from zero wraps instead.</summary>
     public int FunctionTimer { get; internal set; }

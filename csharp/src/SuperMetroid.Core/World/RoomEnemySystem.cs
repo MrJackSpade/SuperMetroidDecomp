@@ -657,7 +657,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         StokeBehavior = new StokeBehavior(Room, Terrain, Projectiles);
         SporeSpawnBehavior = new SporeSpawnBehavior(new SporeSpawnBehaviorDependencies { Audio = Audio, Room = Room, Projectiles = Projectiles, SpriteObjects = SpriteObjects, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults , BossArtwork = BossArtworkBinding });
         FallingSparksBehavior = new FallingSparksBehavior(Room, Projectiles, SpriteObjects);
-        SparkBehavior = new SparkBehavior(Room, FallingSparksBehavior);
+        SparkBehavior = new SparkBehavior(FallingSparksBehavior);
         SkulteraBehavior = new SkulteraBehavior(Terrain);
         SkreeBehavior = new SkreeBehavior(Audio, Projectiles, DeathsAndDrops);
         ShuttersBehavior = new ShuttersBehavior(Audio);

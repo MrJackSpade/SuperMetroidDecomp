@@ -125,10 +125,10 @@ internal static class NativeEnemyProjectileProgramOracle
                 _ = Next("held frame");
                 VerificationAssertions.AssertEqual(NativeHeldFrameDuration, word, $"{at}: a held frame's native duration");
                 VerificationAssertions.AssertEqual(unchecked((ushort)(cursor + 2)), presentationKey(held.Shown), $"{at}: held frame's presentation key");
-                var following = (NativeEnemyProjectileInstruction)cartridge.ReadCartridgeWord(address + 4);
-                ushort followingOperand = cartridge.ReadCartridgeWord(address + 6);
-                VerificationAssertions.AssertTrue(following == NativeEnemyProjectileInstruction.Sleep ||
-                    (following == NativeEnemyProjectileInstruction.GotoY && followingOperand == entry && firstBeat),
+                var afterHeld = (NativeEnemyProjectileInstruction)cartridge.ReadCartridgeWord(address + 4);
+                ushort afterHeldOperand = cartridge.ReadCartridgeWord(address + 6);
+                VerificationAssertions.AssertTrue(afterHeld == NativeEnemyProjectileInstruction.Sleep ||
+                    (afterHeld == NativeEnemyProjectileInstruction.GotoY && afterHeldOperand == entry && firstBeat),
                     $"{at}: a held frame's native frame is followed by a sleep or by a goto back to the frame");
                 cursor = unchecked((ushort)(cursor + 4));
                 continue;

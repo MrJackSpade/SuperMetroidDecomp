@@ -58,8 +58,8 @@ internal static class DraygonTurretCadenceVerification
         runtime.Enemies.DraygonBehavior.Turrets.SpawnDraygonWallTurret(boss, runtime.Player.IntroducedSamus, 0);
         var afterTurret = SpawnGoop();
         AssertEqual(beforeTurret, afterTurret, "goop speed does not inherit a turret's parameter");
-        int expectedX = EnemyMath.ReadUnsignedSineMagnitudeProduct(afterTurret.Heading, DraygonProjectileSpeeds.Goop, 0x40);
-        AssertEqual(expectedX, unchecked((int)afterTurret.HorizontalSpeed.RawValue), "goop horizontal speed is speed two");
+        AssertEqual(EnemyMath.AbsoluteCosineSpeed(afterTurret.Heading, DraygonProjectileSpeeds.Goop), afterTurret.HorizontalSpeed,
+            "goop horizontal speed is speed two");
 
         // #1269: $86:8E0F starts with $86:8D5C. Inside the power-bomb ellipse the goop loses
         // its ID and Samus's XSpeedDivisor clears, but the routine still moves the slot.

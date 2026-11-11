@@ -148,25 +148,6 @@ internal static class EnemyMath
         UnsignedSixteenSixteen.ShareOfWholePixels(wholePixels, Trigonometry.UnsignedHalfWave(angle.HalfWaveIndex));
 
     /// <summary>
-    /// <see cref="UnsignedSineSpeed"/> of the angle turned on by <paramref name="angleOffset"/> table steps, as the whole
-    /// speed's 32 bits in an integer: kept for the boss movers that read the product as one (Botwoon's head, Draygon's
-    /// projectiles and Spore Spawn's swing) until they take the typed speed.
-    /// </summary>
-    internal static int ReadUnsignedSineMagnitudeProduct(
-        TrigonometryAngle angle,
-        int magnitude,
-        int angleOffset) =>
-        unchecked((int)UnsignedSineSpeed(angle.TurnedBySteps(angleOffset), magnitude).RawValue);
-
-    /// <summary>The absolute cosine half of the angle-to-vector routine as an integer, for Botwoon's head: the sample a quarter turn ahead.</summary>
-    internal static int ReadAbsoluteCosineProduct(TrigonometryAngle angle, int magnitude) =>
-        unchecked((int)AbsoluteCosineSpeed(angle, magnitude).RawValue);
-
-    /// <summary>The absolute sine half of the angle-to-vector routine as an integer, for Botwoon's head: the sample a half turn ahead.</summary>
-    internal static int ReadAbsoluteSineProduct(TrigonometryAngle angle, int magnitude) =>
-        unchecked((int)AbsoluteSineSpeed(angle, magnitude).RawValue);
-
-    /// <summary>
     /// The horizontal part of a speed of <paramref name="wholePixels"/> whole pixels per update along
     /// <paramref name="angle"/>, regardless of direction: <see cref="UnsignedSineSpeed"/> a quarter turn ahead.
     /// </summary>

@@ -23,18 +23,11 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new SparkEntity(this, slot, common);
 
-    /// <summary>Room services for the live RNG, boss flag, and memory bus consulted during spark setup.</summary>
-    private readonly EnemyRoomBinding _room;
-
     /// <summary>Owner of the falling-spark projectile emitted by one spark function.</summary>
     private readonly FallingSparksBehavior _fallingSparksBehavior;
 
-    /// <summary>Binds the spark species to its room services and falling-spark producer.</summary>
-    internal SparkBehavior(EnemyRoomBinding room, FallingSparksBehavior fallingSparksBehavior)
-    {
-        _fallingSparksBehavior = fallingSparksBehavior;
-        _room = room;
-    }
+    /// <summary>Binds the spark species to its falling-spark producer.</summary>
+    internal SparkBehavior(FallingSparksBehavior fallingSparksBehavior) => _fallingSparksBehavior = fallingSparksBehavior;
 
     /// <summary>Carries out one cue of Spark's animations.</summary>
     private static void ApplySparkCue(RoomEnemySlot slot, SparkCue cue)
@@ -57,7 +50,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Spark.</summary>
-    internal void InitializeSpark(RoomEnemySlot slot)
+    internal static void InitializeSpark(RoomEnemySlot slot)
     {
         var state = new SparkEnemyState();
         slot.SetSpeciesState(state);
@@ -65,7 +58,6 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
         SparkMovementDefinition definition = slot.SpawnSettings<SparkSpawnSettings>().Start;
         state.Function = definition.Function;
         state.BaseFunctionTime = slot.SpawnSettings<SparkSpawnSettings>().BaseFunctionTime;
-        state.RequestsRandomDelay = slot.SpawnSettings<SparkSpawnSettings>().RandomizesDelay;
         SetSparkFunctionTimer(state, additionalTime: 0);
 
         slot.FrameHold = WrappingCountdown.Start(1);
@@ -130,13 +122,9 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Sets the Spark's function timer.</summary>
-    private void SetSparkFunctionTimer(SparkEnemyState state, int additionalTime)
+    private static void SetSparkFunctionTimer(SparkEnemyState state, int additionalTime)
     {
-        int baseTime = state.BaseFunctionTime;
-        if (state.RequestsRandomDelay)
-            baseTime = _room.Random.Next(SparkMovementDefinitions.RandomDelay) + 4;
-
-        state.FunctionTimer = baseTime + additionalTime;
+        state.FunctionTimer = state.BaseFunctionTime + additionalTime;
     }
 
     /// <summary>Selects an animation and makes its first step due on the next pass.</summary>

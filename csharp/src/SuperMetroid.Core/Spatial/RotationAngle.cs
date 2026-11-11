@@ -69,12 +69,6 @@ public readonly record struct RotationAngle : IComparable<RotationAngle>
     public RotationAngle TurnedBySteps(int steps) => AddRaw(steps * FractionsPerStep);
 
     /// <summary>
-    /// The turn from this angle on to <paramref name="other"/>, in 256ths of a step, 0 through 65535: the arc in the
-    /// direction of increasing angle, so an angle just behind this one lies almost a full turn on.
-    /// </summary>
-    public int UnitsTo(RotationAngle other) => NormalizeRaw(other.RawValue - RawValue).RawValue;
-
-    /// <summary>
     /// The turn from <paramref name="origin"/> to this angle the shorter way round, in 256ths of a step, -32768 through
     /// 32767: negative when this angle lies behind the origin, as a heading compares itself with its target.
     /// </summary>

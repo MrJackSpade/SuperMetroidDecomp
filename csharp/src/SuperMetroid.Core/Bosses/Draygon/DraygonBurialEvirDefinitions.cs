@@ -17,5 +17,8 @@ internal static class DraygonBurialEvirDefinitions
     /// The scale the authored subspeeds apply to the unit circle's components: the largest fraction of a pixel, one
     /// 65536th short of a whole pixel, so a full component stays a fraction.
     /// </summary>
-    internal const int SubspeedScale = 65535;
+    internal const int SubspeedScale = FractionUnitsPerPixel - 1;
+
+    /// <summary>The fractions of a pixel a subspeed counts in: 65536 to the pixel.</summary>
+    private const int FractionUnitsPerPixel = 1 << 16;
 }

@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.MamaTurtles.Artwork;
+﻿using SuperMetroid.Core.Enemies.MamaTurtles.Artwork;
 
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
 

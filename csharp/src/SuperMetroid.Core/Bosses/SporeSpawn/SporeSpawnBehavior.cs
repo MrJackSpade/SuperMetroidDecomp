@@ -236,8 +236,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             new(CoordinateAxis.Difference(SporeSpawnDeathCenterX, body.Position.X.Whole), CoordinateAxis.Difference(SporeSpawnDeathCenterY, body.Position.Y.Whole))).ToTableAngle();
         state.DeathAngle = direction.ToAngle();
         state.DeathVelocityMagnitude = new(
-            SignedSixteenSixteen.FromRaw(EnemyMath.ReadUnsignedSineMagnitudeProduct(direction, 1, 64)),
-            SignedSixteenSixteen.FromRaw(EnemyMath.ReadUnsignedSineMagnitudeProduct(direction, 1, 128)));
+            EnemyMath.AbsoluteCosineSpeed(direction, 1).AsDisplacement(),
+            EnemyMath.AbsoluteSineSpeed(direction, 1).AsDisplacement());
     }
 
     /// <summary>Runs Spore Spawn's dying sequence.</summary>

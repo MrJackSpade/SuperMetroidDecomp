@@ -388,8 +388,8 @@ internal static class NativeEnemyAnimationOracle
                     // frame shows for good, which the sleep after it reads as the same rest.
                     VerificationAssertions.AssertEqual(NativeHeldFrameDuration, word, $"{at}: a held frame's native duration");
                     VerificationAssertions.AssertEqual(operand, spritemap(held.Shown), $"{at}: held frame's spritemap");
-                    ushort following = cartridge.ReadCartridgeWord((int)new SnesAddress(bank, unchecked((ushort)(cursor + 4))));
-                    VerificationAssertions.AssertEqual(NativeEnemyListDefinitions.WordKind.Sleep, NativeEnemyListDefinitions.Classify(following),
+                    ushort afterHeld = cartridge.ReadCartridgeWord((int)new SnesAddress(bank, unchecked((ushort)(cursor + 4))));
+                    VerificationAssertions.AssertEqual(NativeEnemyListDefinitions.WordKind.Sleep, NativeEnemyListDefinitions.Classify(afterHeld),
                         $"{at}: a held frame's native frame is followed by its sleep");
                     addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + 4));

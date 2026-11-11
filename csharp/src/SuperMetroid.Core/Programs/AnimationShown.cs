@@ -19,12 +19,10 @@ internal abstract record AnimationShown<TSegment, TFrame>
     internal sealed record Frame(TSegment Segment, TFrame Shown, int Duration) : AnimationShown<TSegment, TFrame>;
 
     /// <summary>
-    /// The animation shows <paramref name="Shown"/>, a frame of <paramref name="Segment"/>, and rests on it for good (#1607),
-    /// until its owner plays another.
+    /// The animation shows <paramref name="Shown"/> and rests on it for good (#1607), until its owner plays another.
     /// </summary>
-    /// <param name="Segment">The segment the frame belongs to.</param>
     /// <param name="Shown">The frame.</param>
-    internal sealed record HeldFrame(TSegment Segment, TFrame Shown) : AnimationShown<TSegment, TFrame>;
+    internal sealed record HeldFrame(TFrame Shown) : AnimationShown<TSegment, TFrame>;
 
     /// <summary>The animation pauses for <paramref name="Duration"/> updates, showing no new frame.</summary>
     /// <param name="Duration">The updates the pause lasts.</param>

@@ -677,7 +677,7 @@ internal static class EnemyTrigonometryVerification
         var fixedNegative = new Func<ushort, ushort, SignedSixteenSixteen>((angle, radius) => EnemyMath.ReadEightBitNegativeSineFixedProduct(new TrigonometryAngle(unchecked((byte)angle)), radius));
         var sbugSigned = new Func<byte, byte, int, SignedSixteenSixteen>((angle, speed, phase) => SbugBehavior.CalculateSignedSbugComponent(new TrigonometryAngle(angle), speed, phase));
         var sbugUnsigned = new Func<byte, byte, int, UnsignedSixteenSixteen>((angle, speed, phase) => SbugBehavior.CalculateUnsignedSbugMagnitude(new TrigonometryAngle(angle), speed, phase));
-        var unsigned = new Func<ushort, ushort, ushort, int>((angle, magnitude, offset) => EnemyMath.ReadUnsignedSineMagnitudeProduct(new TrigonometryAngle(unchecked((byte)angle)), magnitude, offset));
+        var unsigned = new Func<ushort, ushort, ushort, int>((angle, magnitude, offset) => unchecked((int)EnemyMath.UnsignedSineSpeed(new TrigonometryAngle(unchecked((byte)angle)).TurnedBySteps(offset), magnitude).RawValue));
 
         int ExpectedPixel(int angle, int radius)
         {

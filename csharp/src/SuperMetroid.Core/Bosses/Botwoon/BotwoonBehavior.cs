@@ -788,12 +788,10 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         TrigonometryAngle angle,
         int magnitude)
     {
-        int xMagnitude = EnemyMath.ReadAbsoluteCosineProduct(angle, magnitude);
-        int yMagnitude = EnemyMath.ReadAbsoluteSineProduct(angle, magnitude);
-        int xDisplacement = EnemyMath.CosineIsNegative(angle) ? -xMagnitude : xMagnitude;
-        int yDisplacement = EnemyMath.SineIsNegative(angle) ? -yMagnitude : yMagnitude;
-        head.Position = head.Position.AdvanceX(SignedSixteenSixteen.FromRaw(xDisplacement));
-        head.Position = head.Position.AdvanceY(SignedSixteenSixteen.FromRaw(yDisplacement));
+        SignedSixteenSixteen xMagnitude = EnemyMath.AbsoluteCosineSpeed(angle, magnitude).AsDisplacement();
+        SignedSixteenSixteen yMagnitude = EnemyMath.AbsoluteSineSpeed(angle, magnitude).AsDisplacement();
+        head.Position = head.Position.AdvanceX(EnemyMath.CosineIsNegative(angle) ? -xMagnitude : xMagnitude);
+        head.Position = head.Position.AdvanceY(EnemyMath.SineIsNegative(angle) ? -yMagnitude : yMagnitude);
     }
 
     /// <summary>Requires the state of the initialized Botwoon whose head is <paramref name="head"/>.</summary>

@@ -29,7 +29,7 @@ cbuffer TileParameters : register(b0)
     uint4 LineScrolls[24];
 };
 // The scene's colours (D3D11SceneColourBuffer): the backdrop, then each colour slot's table's word, then the tables:
-// each ink's colour under the slot's shading (#1512).
+// the colour each of the slot's image's colour keys shows under the slot's shading (#1512, #1633).
 StructuredBuffer<uint> Colours : register(t0);
 // Room level planes (D3D11RoomLevelBuffer): the foreground, background and door-source plane records, the door window, the foreground overlay,
 // and the pre-coloured block pictures the planes' definitions show (#1392).
@@ -82,12 +82,12 @@ static const uint RevealColumns = 17, RevealRows = 16;
 // A picture (a block, or a background image): its colour slot, its place in the image texture and its width and height,
 // x below y.
 static const uint PictureColoursWord = 0, PicturePlaceWord = 1, PictureSizeWord = 2;
-// The installed images (D3D11ImageAtlas), each texel the image's pre-coloured pixel, then its ink word: the place of its
-// colour among its image's own colours (#1544), and above it whether it is clear and whether it has a colour of its own.
+// The installed images (D3D11ImageAtlas), each texel the image's pixel, then its key word (D3D11ImageAtlas.KeyWord): the
+// place of the pixel's colour key among its image's in the low sixteen bits (#1633), and above it whether it is clear.
 Texture2D<uint2> Images : register(t4);
-static const uint InkClear = 65536, InkColoured = 131072;
+static const uint KeyPlaceMask = 65535, KeyClear = 65536;
 // The perspective floor's image (D3D11FloorImage): the 1024-pixel floor with its states' pictures laid over it. Each
-// texel's ink word keeps the index of the floor picture it comes from.
+// texel's key word keeps the index of the floor picture it comes from.
 Texture2D<uint2> Floor : register(t5);
 static const uint FloorSheetShift = 20;
 // How a floor pass blends, in Reserved27 (D3D11FrameRenderer.FloorBlendWord): not at all, subtracting the frontmost
@@ -338,22 +338,21 @@ uint Pack(uint3 c, uint alpha) { return c.r | (c.g << 8) | (c.b << 16) | (alpha 
 uint3 Unpack(uint c) { return uint3(c & 255, (c >> 8) & 255, (c >> 16) & 255); }
 // The colour shown where nothing is drawn.
 uint Backdrop() { return Colours[0]; }
-// The colour an image texel shows when its image is coloured from colour slot `slot` (#1408, #1512): whether it is opaque
-// rather than clear (`index`), and its colour under the slot's shading. A clear pixel shows nothing, or, where it has a
-// colour of its own (#1544), that colour when its layer is drawn opaque. A pixel is only a colour: which pictures lie in
-// front is the pass's choice of pictures (#1634).
+// The colour an image texel shows when its image is coloured from colour slot `slot` (#1408, #1512, #1633): whether it is
+// opaque rather than clear (`index`), and its colour. A visible pixel shows the colour its colour key shows under the
+// slot's shading. A clear pixel has no key and is never recoloured: a see-through layer leaves it out, and a layer drawn
+// opaque shows its stored colour as it is, the colour it keeps of its own or black (#1544). A pixel is only a colour:
+// which pictures lie in front is the pass's choice of pictures (#1634).
 uint TexelColour(uint2 texel, uint slot, out uint index)
 {
-    uint meta = texel.y;
-    uint ink = meta & 255;
-    uint table = Colours[1 + slot];
-    if ((meta & InkClear) != 0)
+    index = 0;
+    uint colour = texel.x | 0xff000000;
+    if ((texel.y & KeyClear) == 0)
     {
-        index = 0;
-        return (meta & InkColoured) != 0 ? Colours[table + ink] : 0;
+        index = 1;
+        colour = Colours[Colours[1 + slot] + (texel.y & KeyPlaceMask)];
     }
-    index = 1;
-    return Colours[table + ink];
+    return colour;
 }
 // A picture's pixel (#1392, #1408), as TexelColour colours it from the picture's colour slot.
 uint PicturePixel(uint picture, uint2 pixel, out uint index)
@@ -367,7 +366,7 @@ static const uint BossBodyBehindSprites = 0, BossBodyInFrontOfSprites = 1;
 static const uint BossBodyPartWords = 4;
 // A boss body (ShownBossBody, #1466, #1514, #1540, #1609) at a scrolled position of its layer: its parts are placed on the
 // layer with nothing repeating beyond them, and layered in their table's order, each drawn over the parts before it. The
-// frontmost part whose picture inks the position shows there, its pixel `within`; where no part inks it, the frontmost part
+// frontmost part whose picture is opaque at the position shows there, its pixel `within`; where none is, the frontmost part
 // reaching it gives its clear pixel, and a position no part reaches shows nothing. Each boss part is drawn whole at its
 // depth (#1634): its picture is the layer's behind part (`part` PartBehind) for a boss part drawn behind the sprites and
 // its in-front part (PartInFront) for one drawn in front of them, so `picture` is the shown boss part's picture when its
@@ -722,7 +721,8 @@ void Main(uint3 id : SV_DispatchThreadID)
     uint color;
     uint sampled;
     if (!LayerPixel(sampleScreen, scroll, id.xy, sampled, color)) return;
-    // Room planes show a clear pixel as transparent; a layer drawn opaque shows a clear pixel's own colour (#1544).
+    // A see-through layer leaves its clear pixels out; a layer drawn opaque shows a clear pixel's stored colour, unshaded,
+    // black where it keeps none (#1544, #1633).
     if (color == 0 && TransparentZero != 0) return;
     if (Operation == OpAddLayerBehind)
     {

@@ -9,16 +9,16 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 /// <summary>
 /// The perspective floor's image (#1408, #1467): the whole floor, 1024 pixels square, copied from the floor's installed
 /// image with the pictures of its states laid over it at their places, once whenever the floor changes, so the floor
-/// shader samples one image. Each texel holds the pixel's pre-coloured colour and its ink word, with the index of the floor
-/// picture it comes from above the ink's flags.
+/// shader samples one image. Each texel holds the pixel's colour and its key word (<see cref="D3D11ImageAtlas.KeyWord"/>),
+/// with the index of the floor picture it comes from above the key word's marks.
 /// </summary>
 internal sealed class D3D11FloorImage : IDisposable
 {
     /// <summary>The floor's side in pixels.</summary>
     internal const int Side = AffineFloor.SidePixels;
-    /// <summary>Where a texel's ink word keeps the index of the floor picture it comes from.</summary>
+    /// <summary>Where a texel's key word keeps the index of the floor picture it comes from, above the key's place and marks.</summary>
     internal const int SheetShift = 20;
-    /// <summary>Words per texel: the colour, then the ink.</summary>
+    /// <summary>Words per texel: the colour, then the key word.</summary>
     private const int TexelWords = 2;
 
     /// <summary>The device context that copies the image in.</summary>
@@ -46,7 +46,7 @@ internal sealed class D3D11FloorImage : IDisposable
     internal unsafe void Show(AffineFloor floor)
     {
         Ensure.NotNull(floor);
-        // The image holds the pictures' pixels and inks; what the inks show is the colour slots' (#1512).
+        // The image holds the pictures' pixels and key words; what each key shows is the colour slots' (#1512, #1633).
         if (floor.SamePictures(shown))
             return;
         Lay(floor, floor.Image, 0, 0);
@@ -63,7 +63,6 @@ internal sealed class D3D11FloorImage : IDisposable
         SpriteImage sheet = picture.Sheet;
         uint sheetIndex = (uint)floor.Pictures.IndexOf(picture) << SheetShift;
         ReadOnlySpan<RgbaPixel> pixels = sheet.Pixels;
-        ReadOnlySpan<SpriteImageInk> inks = sheet.Inks;
         for (int y = 0; y < picture.Size.Y; y++)
         {
             int source = (picture.Corner.Y + y) * sheet.Size.X + picture.Corner.X;
@@ -72,7 +71,7 @@ internal sealed class D3D11FloorImage : IDisposable
                 RgbaPixel pixel = pixels[source + x];
                 int target = TexelWords * ((top + y) * Side + left + x);
                 texels[target] = pixel.R | (uint)pixel.G << 8 | (uint)pixel.B << 16 | (uint)pixel.A << 24;
-                texels[target + 1] = D3D11ImageAtlas.InkWord(inks[source + x]) | sheetIndex;
+                texels[target + 1] = D3D11ImageAtlas.KeyWord(picture, source + x) | sheetIndex;
             }
         }
     }

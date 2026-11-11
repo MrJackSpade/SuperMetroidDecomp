@@ -10,20 +10,28 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 /// <summary>
 /// The installed images a scene draws, as one texture (#1408): each sprite frame, block picture, background image and
 /// tile sheet a scene shows is copied in once, at a place it keeps while later scenes show it. Each texel holds the
-/// image's pre-coloured pixel and, beside it, the pixel's ink word (<see cref="InkWord"/>): the place of its colour among the
-/// image's own colours, and whether it is clear or blends, so a shading recolours the image as it shows it (#1512, #1544).
+/// image's pixel and, beside it, the pixel's key word (<see cref="KeyWord"/>): for a visible pixel the place of its colour
+/// key among the image's (<see cref="SpriteImage.ColourKeys"/>), so a shading recolours the image as it shows it (#1512,
+/// #1633), with whether it blends where it is drawn as a sprite; for a clear pixel only that it is clear.
 /// </summary>
 internal sealed class D3D11ImageAtlas : IDisposable
 {
     /// <summary>The texture's width and height in texels.</summary>
     internal const int Edge = 2048;
-    /// <summary>An ink word's bit marking a clear pixel, which shows what lies behind it (#1544).</summary>
-    internal const uint ClearInk = 1u << 16;
-    /// <summary>An ink word's bit marking a pixel with a colour of its image's, which a clear pixel shows where its layer is opaque.</summary>
-    internal const uint ColouredInk = 1u << 17;
-    /// <summary>An ink word's bit marking a pixel that takes part in colour blends where it is drawn as an actor's (#1544).</summary>
-    internal const uint BlendsInk = 1u << 9;
-    /// <summary>Words per texel: the colour, then the ink.</summary>
+    /// <summary>The most colour keys an image may have: a key word holds the place of a pixel's key below its marks.</summary>
+    internal const int MostColourKeys = 1 << 16;
+    /// <summary>
+    /// A key word's mark on a clear pixel, one whose alpha is zero (#1544, #1633): a see-through layer shows what lies behind
+    /// it, and a layer drawn opaque shows its stored colour, unshaded. A clear pixel has no colour key.
+    /// </summary>
+    internal const uint ClearMark = 1u << 16;
+    /// <summary>
+    /// A key word's mark on a pixel that takes part in colour blends where it is drawn as a sprite (#1544, #1633): every pixel
+    /// of a frame that blends (<see cref="SpriteSheetFrame.Blends"/>), or a pixel its sheet's blend map marks
+    /// (<see cref="SpriteImage.Blending"/>).
+    /// </summary>
+    internal const uint BlendsMark = 1u << 17;
+    /// <summary>Words per texel: the colour, then the key word.</summary>
     private const int TexelWords = 2;
 
     /// <summary>The device context that copies images in.</summary>
@@ -32,7 +40,7 @@ internal sealed class D3D11ImageAtlas : IDisposable
     /// Where each image region the texture holds starts, by sheet and region: a capture that names the same region of a
     /// sheet through a new frame finds the place the region already has.
     /// </summary>
-    private readonly Dictionary<(SpriteImage Sheet, Position16<ImagePixels> Corner, Extent16<ImagePixels> Size), Position16<ImagePixels>> places = [];
+    private readonly Dictionary<(SpriteImage Sheet, Position16<ImagePixels> Corner, Extent16<ImagePixels> Size, bool Blends), Position16<ImagePixels>> places = [];
     /// <summary>
     /// The texture's skyline: left to right, runs of columns each with the row below the lowest image placed in it, which
     /// together span the texture's width.
@@ -143,7 +151,8 @@ internal sealed class D3D11ImageAtlas : IDisposable
         return true;
     }
 
-    /// <summary>Copies <paramref name="image"/>'s colours and inks into the texture at (<paramref name="left"/>, <paramref name="top"/>).</summary>
+    /// <summary>Copies <paramref name="image"/>'s pixels and key words into the texture at (<paramref name="left"/>, <paramref name="top"/>).</summary>
+    /// <exception cref="InvalidDataException">The image's sheet has more colour keys than a key word can place.</exception>
     private unsafe void CopyIn(SpriteSheetFrame image, int left, int top)
     {
         SpriteImage sheet = image.Sheet;
@@ -151,7 +160,6 @@ internal sealed class D3D11ImageAtlas : IDisposable
         if (texels.Length < TexelWords * width * height)
             texels = new uint[TexelWords * width * height];
         ReadOnlySpan<RgbaPixel> pixels = sheet.Pixels;
-        ReadOnlySpan<SpriteImageInk> inks = sheet.Inks;
         int target = 0;
         for (int row = 0; row < height; row++)
         {
@@ -160,7 +168,7 @@ internal sealed class D3D11ImageAtlas : IDisposable
             {
                 RgbaPixel pixel = pixels[source + column];
                 texels[target] = pixel.R | (uint)pixel.G << 8 | (uint)pixel.B << 16 | (uint)pixel.A << 24;
-                texels[target + 1] = InkWord(inks[source + column]);
+                texels[target + 1] = KeyWord(image, source + column);
             }
         }
         fixed (uint* source = texels)
@@ -170,15 +178,40 @@ internal sealed class D3D11ImageAtlas : IDisposable
     }
 
     /// <summary>
-    /// The word the shaders read a pixel's ink from (#1544): the place of its colour among its image's colours, then
-    /// <see cref="BlendsInk"/>, <see cref="ClearInk"/> and <see cref="ColouredInk"/>.
+    /// The word the shaders read beside sheet pixel <paramref name="pixel"/> of <paramref name="image"/> (#1633): for a clear
+    /// pixel, one whose alpha is zero, <see cref="ClearMark"/> alone, since a clear pixel is never recoloured and an opaque
+    /// layer shows its stored colour as it is; for a visible pixel, the place of its colour key among its sheet's
+    /// (<see cref="SpriteImage.ColourKeys"/>) in the low sixteen bits, with <see cref="BlendsMark"/> where the frame blends or
+    /// the sheet's blend map marks the pixel.
     /// </summary>
-    internal static uint InkWord(SpriteImageInk ink) => (uint)(ink.Colour ?? 0)
-        | (ink.Blends ? BlendsInk : 0) | (ink.Clear ? ClearInk : 0) | (ink.Colour is null ? 0 : ColouredInk);
+    /// <param name="image">The frame the pixel is copied in as part of.</param>
+    /// <param name="pixel">The pixel, counted row by row from the top of the whole sheet.</param>
+    /// <exception cref="InvalidDataException">
+    /// The sheet has more colour keys than a key word can place, or its keys do not hold a visible pixel's.
+    /// </exception>
+    internal static uint KeyWord(SpriteSheetFrame image, int pixel)
+    {
+        Ensure.NotNull(image);
+        SpriteImage sheet = image.Sheet;
+        if (sheet.Pixels[pixel].A == 0)
+            return ClearMark;
+        if (sheet.ColourKeys.Length > MostColourKeys)
+            throw new InvalidDataException(
+                $"Sheet {sheet.Name} has {sheet.ColourKeys.Length} colour keys, more than the {MostColourKeys} a key word can place.");
+        ColourKey key = sheet.KeyAt(pixel);
+        int place = sheet.PlaceOf(key)
+            ?? throw new InvalidDataException($"Sheet {sheet.Name}'s colour keys do not hold {key}, the key of its visible pixel {pixel}.");
+        ReadOnlySpan<bool> blending = sheet.Blending;
+        bool blends = image.Blends || (!blending.IsEmpty && blending[pixel]);
+        return (uint)place | (blends ? BlendsMark : 0);
+    }
 
-    /// <summary>The sheet and region <paramref name="image"/> shows.</summary>
-    private static (SpriteImage Sheet, Position16<ImagePixels> Corner, Extent16<ImagePixels> Size) Region(SpriteSheetFrame image) =>
-        (image.Sheet, image.Corner, image.Size);
+    /// <summary>
+    /// The sheet and region <paramref name="image"/> shows, with whether the frame blends, which its key words carry: a
+    /// region copied in for a frame that blends is not the one a frame that does not blend shows.
+    /// </summary>
+    private static (SpriteImage Sheet, Position16<ImagePixels> Corner, Extent16<ImagePixels> Size, bool Blends) Region(SpriteSheetFrame image) =>
+        (image.Sheet, image.Corner, image.Size, image.Blends);
 
     /// <summary>Releases the texture and its view.</summary>
     public void Dispose()

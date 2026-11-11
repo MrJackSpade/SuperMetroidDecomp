@@ -34,15 +34,14 @@ internal static class SamusBodyTransferContractChecks
         crossing[2] = new(1, 0, SamusBodyFrameSelection.NoBottomSet, 0);
         crossing[3] = new(SamusBodySources.TopSetCount - 1, 1, 0, 0);
         SamusBodyCharacterArtwork characters = Body(shortFirstGroup: false, crossing);
-        InstalledSamusBodyArtwork body = characters.Body;
-        SamusBodySources pictures = body.Source;
+        SamusBodySources pictures = characters.Body;
         Require(ReferenceEquals(characters.DefinitionAt(SamusBodySources.Record(pictures.Pictures(0, 0).Top)), characters.TopSet(0)[0]),
             "a published frame resolves an admitted physical definition");
         Require(pictures.Pictures(0, 1).Top == pictures.Pictures(0, 2).Top && pictures.Pictures(0, 3).Top == pictures.Pictures(0, 3).Bottom,
             "native position arithmetic can cross set and half boundaries");
         SamusBodyFrameSelection[] invalidAdjacent = new SamusBodyFrameSelection[SamusBodySources.FrameCount];
         invalidAdjacent[1] = new(byte.MaxValue, 0, byte.MaxValue, 0);
-        body = Body(shortFirstGroup: false, invalidAdjacent).Body;
+        InstalledSamusBodyArtwork body = Body(shortFirstGroup: false, invalidAdjacent).Body.Gameplay;
         _ = body.OriginRise(0, 0);
         rejected = false;
         try { _ = body.OriginRise(0, 1); }
@@ -88,7 +87,7 @@ internal static class SamusBodyTransferContractChecks
                 new int[SamusArmCannonArtworkFormat.FramesPerDirection - 1]).ToArray() };
         using var cannonJson = new MemoryStream(SamusArmCannonSourceArtwork.Write(cannonDocument));
         using var cannonPng = Png(new(SamusArmCannonArtworkFormat.CoverTileCount * 8, 8));
-        InstalledSamusArmCannonArtwork cannon = InstalledSamusArmCannonArtworkTooling.Load(cannonJson, cannonPng);
+        SamusArmCannonSourceArtwork cannon = InstalledSamusArmCannonArtworkTooling.Load(cannonJson, cannonPng);
         SamusBodyFrameSelection[] frames = selectors ?? new SamusBodyFrameSelection[SamusBodySources.FrameCount];
         return SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = starts[..SamusBodySources.TopSetCount], BottomSetStarts = starts[SamusBodySources.TopSetCount..], PoseFirstFrames = EveryRecordedPose(0), Placements = SamusBodyPlacementDecoding.Decode(new int[SamusBodySources.PoseCount], new int[SamusBodyPlacementSourceDefinitions.LandingByteCount], new int[SamusBodyPlacementSourceDefinitions.PostureByteCount], new int[SamusBodyPlacementSourceDefinitions.DrainedByteCount]), Frames = frames, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathColors, DeathTilesContentIdentity = deathTiles.ContentIdentity, ArmCannon = cannon },
             groups[..SamusBodySources.TopSetCount], groups[SamusBodySources.TopSetCount..]);
@@ -129,7 +128,7 @@ internal static class SamusBodyTransferContractChecks
         Require(before.UnresolvedCount == 2 && before.Consumers.Count == 2, "original unaccounted frame-placement boundaries" + " (" + before.Describe() + ")");
         Require(after.Classifications.Count == 1 && after.UnresolvedCount == 1 && after.Consumers.Count == 2,
             "valid-domain frame-placement availability does not suppress a known invalid pose constant" + " (" + after.Describe() + ")");
-        var extra = CSharpSyntaxTree.ParseText("namespace SuperMetroid.Core.Samus.Artwork; public abstract partial class InstalledSamusBodyArtwork { }",
+        var extra = CSharpSyntaxTree.ParseText("namespace SuperMetroid.Core.Samus.Artwork; public sealed partial class InstalledSamusBodyArtwork { }",
             path: "fixture-unreviewed-body-partial.cs");
         Require(Inspect(Compile(trees.Append(extra)), true).UnresolvedCount == 2, "unreviewed private-state access revokes frame-placement closure");
     }

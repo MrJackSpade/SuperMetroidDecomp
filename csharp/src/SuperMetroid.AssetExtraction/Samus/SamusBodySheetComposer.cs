@@ -151,9 +151,9 @@ internal static class SamusBodySheetComposer
     /// it. A body whose halves reach past the table draws nothing the sheet could hold: the draw rejects it.
     /// </summary>
     /// <exception cref="InvalidDataException">Poses with two different colourings show one picture.</exception>
-    private static List<SheetBody> Bodies(InstalledSamusBodyArtwork body, LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> continuation)
+    private static List<SheetBody> Bodies(SamusBodySources body, LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> continuation)
     {
-        SamusSpritemapSources spritemaps = body.Source.Spritemaps;
+        SamusSpritemapSources spritemaps = body.Spritemaps;
         var bodies = new List<SheetBody>();
         var pictures = new Dictionary<SamusBodyPictureKey, SheetPicture>();
         foreach (SamusShownBody shown in SamusShownFrames.Of(continuation).Bodies(body))

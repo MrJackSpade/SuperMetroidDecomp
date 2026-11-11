@@ -122,11 +122,12 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
         int pairedBodyDraws = 0, phaseShiftedBodyDraws = 0, retainedHiddenBodyRecords = 0;
         // The body records the whole picture it drew (#1585); the cartridge's index for each half the import composed that
         // picture of is compared.
-        InstalledSamusBodyArtwork BodyArtwork() => samus.Presentation.Artwork ??
-            throw new InvalidOperationException("Verification requires installed Samus body artwork.");
+        SamusBodySources BodyArtwork() => ReferenceEquals(samus.Presentation.Artwork, SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.SamusBody.Gameplay)
+            ? SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.SamusBody
+            : throw new InvalidOperationException("Verification requires the installation's Samus body artwork.");
         SamusBodyComposition? Drawn() => samus.Presentation.DrawnFrame is { } picture
             ? SamusBodyCompositions.Of(picture.Pose, picture.PictureFrame, BodyArtwork()) : null;
-        int SpritemapIndex(SamusBodyHalfFrame? drawn) => SamusSpritemapNative.Index(BodyArtwork().Source.Spritemaps, drawn);
+        int SpritemapIndex(SamusBodyHalfFrame? drawn) => SamusSpritemapNative.Index(BodyArtwork().Spritemaps, drawn);
         BodyRecordResult BodyRecord() =>
             new BodyRecordResult(SpritemapIndex(Drawn()?.Top), SpritemapIndex(Drawn()?.Bottom),
                 samus.Presentation.SpritemapPosition.X, samus.Presentation.SpritemapPosition.Y);

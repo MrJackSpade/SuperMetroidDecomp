@@ -27,7 +27,7 @@ internal static class SamusBodyCompositions
     /// chest cover between them for the forward-facing Power Suit body.
     /// </summary>
     /// <exception cref="InvalidDataException">The pose has no movement type, or the forward-facing Power Suit frame is not installed.</exception>
-    internal static SamusBodyComposition Of(SamusPoseId pose, int pictureFrame, InstalledSamusBodyArtwork artwork)
+    internal static SamusBodyComposition Of(SamusPoseId pose, int pictureFrame, SamusBodySources artwork)
     {
         Ensure.NotNull(artwork);
         return new SamusBodyComposition(
@@ -100,8 +100,8 @@ internal static class SamusBodyCompositions
     /// the whole picture keeps the cover where it sits on the body, a presentation quirk the port does not replicate
     /// (owner ruling on #1513).
     /// </remarks>
-    private static Offset16<ScreenPixels>? ChestCover(SamusPoseId pose, int animationFrame, InstalledSamusBodyArtwork artwork) =>
+    private static Offset16<ScreenPixels>? ChestCover(SamusPoseId pose, int animationFrame, SamusBodySources artwork) =>
         pose == SamusPoseId.ForwardFacingPowerSuitPose
-            ? Offset16<ScreenPixels>.Of(-7, artwork.OriginRise(pose, animationFrame) - 17)
+            ? Offset16<ScreenPixels>.Of(-7, artwork.Gameplay.OriginRise(pose, animationFrame) - 17)
             : null;
 }

@@ -146,9 +146,10 @@ internal static class NativeSnapshotImport
         samus.Control.Unlock();
         // The recorded top index names the picture the body last drew; it is imported as the whole picture of the pose and
         // frame whose top half shows it (#1513, #1585), which is composed of the bottom half that frame draws.
-        InstalledSamusBodyArtwork bodyArtwork = samus.Presentation.Artwork ?? throw new InvalidDataException(
-            "The native Ridley checkpoint requires installed Samus body artwork.");
-        SamusBodyHalfFrame drawnTop = SamusSpritemapNative.Frame(bodyArtwork.Source.Spritemaps, SamusPoseNumbering.FromNumber(W(NativeSnapshotMemory.Pose)), SamusBodyHalf.Top, W(NativeSnapshotMemory.SamusTopSpritemap))
+        SamusBodySources bodyArtwork = SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.SamusBody;
+        if (!ReferenceEquals(samus.Presentation.Artwork, bodyArtwork.Gameplay))
+            throw new InvalidDataException("The native Ridley checkpoint requires the installation's Samus body artwork.");
+        SamusBodyHalfFrame drawnTop = SamusSpritemapNative.Frame(bodyArtwork.Spritemaps, SamusPoseNumbering.FromNumber(W(NativeSnapshotMemory.Pose)), SamusBodyHalf.Top, W(NativeSnapshotMemory.SamusTopSpritemap))
             ?? throw new InvalidDataException("The native Ridley checkpoint names no top body picture.");
         samus.Presentation.DrawnFrame = new SamusBodyFrame(drawnTop.Pose, drawnTop.AnimationFrame);
         samus.Presentation.SpritemapPosition = new Position16<ScreenPixels>(W(NativeSnapshotMemory.SamusSpriteX), W(NativeSnapshotMemory.SamusSpriteY));

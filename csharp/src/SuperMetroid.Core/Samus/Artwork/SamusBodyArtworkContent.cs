@@ -4,8 +4,8 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>
-/// What an installed Samus body holds (#1465, #1517, #1585): where each pose's installed animation frames place the body,
-/// each pose's art origin, and the catalogs it binds.
+/// What an installed Samus body holds for the game (#1465, #1517, #1585, #1616): where each pose's installed animation
+/// frames place the body, each pose's art origin, her death steps and the arm cannon's placements.
 /// </summary>
 public sealed record SamusBodyArtworkContent
 {
@@ -20,9 +20,6 @@ public sealed record SamusBodyArtworkContent
     /// the speed-booster echoes are drawn, for the same poses as <see cref="OriginRises"/>.
     /// </summary>
     public required IReadOnlyDictionary<SamusPoseId, int> GraphicsYOffsets { get; init; }
-
-    /// <summary>The selected appearance of the atmospheric effects.</summary>
-    public required InstalledSamusAtmosphericArtwork Atmosphere { get; init; }
 
     /// <summary>The order her death sequence steps through and the room's whiteout colours (#1512).</summary>
     public required SamusDeathSteps DeathSteps { get; init; }

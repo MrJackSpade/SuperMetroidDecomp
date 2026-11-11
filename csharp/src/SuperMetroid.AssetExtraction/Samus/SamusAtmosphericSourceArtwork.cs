@@ -1,15 +1,17 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
-/// <summary>Editable single-piece appearances for Samus's bank-$90 atmospheric effects, which the atmosphere sheet is composed from (#1463).</summary>
+/// <summary>
+/// Editable single-piece appearances for Samus's bank-$90 atmospheric effects, which the atmosphere sheet is composed from
+/// (#1463). The game reads none of them; it draws each effect's frame from the pre-coloured atmosphere sheet by name (#1616).
+/// </summary>
 /// <remarks>
 /// Types four, six, and seven share the same retail list. Type two has a null retail
 /// pointer and deliberately remains on the mutable-address-space path.
 /// </remarks>
-public sealed class SamusAtmosphericSourceArtwork : InstalledSamusAtmosphericArtwork
+public sealed class SamusAtmosphericSourceArtwork
 {
     /// <summary>Holds both installed four-frame appearance lists whole, without retaining caller arrays.</summary>
     /// <param name="typeOne">Four type-one footstep appearances in animation-frame order, corresponding to $90:8C0F.</param>
@@ -28,8 +30,11 @@ public sealed class SamusAtmosphericSourceArtwork : InstalledSamusAtmosphericArt
     }
 
     /// <summary>SHA-256 of both selected atmospheric appearance lists.</summary>
-    /// <remarks>The hash keeps the name the runtime catalog had when it held these lists, so its value is unchanged.</remarks>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledSamusAtmosphericArtwork) + ".v2", content =>
+    /// <remarks>
+    /// The hash keeps the name of the runtime catalog that once held these lists, so an unchanged installation keeps its
+    /// identity.
+    /// </remarks>
+    public string ContentIdentity => SelectedPresentationHash.Create("InstalledSamusAtmosphericArtwork.v2", content =>
     {
         content.Append("type one", TypeOne.Count);
         foreach (SpritePart part in TypeOne)

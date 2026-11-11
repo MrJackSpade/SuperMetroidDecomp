@@ -57,13 +57,14 @@ internal sealed class InstalledGameSession : IDisposable
         // the running session binds only the installed presentation catalog.
         projectiles = installation.LoadProjectiles();
         var enemyArtwork = installation.LoadEnemyTiles();
-        GameArtwork artwork = installation.LoadGameArtwork(maps, projectiles, enemyArtwork);
+        var samusBody = installation.LoadSamusBody();
+        GameArtwork artwork = installation.LoadGameArtwork(maps, projectiles, enemyArtwork, samusBody);
         Console.WriteLine($"Projectile compositions: {projectiles.ContentSha256} ({root}).");
         InstalledClipAudioLibrary assets = audioDirectory is null
             ? installation.LoadAudioClips()
             : InstalledAudioClips.Load(audioDirectory);
         ContentIdentity = SuperMetroid.AssetExtraction.Installation.GameContentIdentity.Create(
-            assets, maps, projectiles, SuperMetroid.AssetExtraction.Installation.InstalledArtworkIdentity.Create(artwork, enemyArtwork, installation.LoadStandardObjects()));
+            assets, maps, projectiles, SuperMetroid.AssetExtraction.Installation.InstalledArtworkIdentity.Create(artwork, enemyArtwork, samusBody, installation.LoadStandardObjects()));
         Console.WriteLine(
             $"Installed content: {ContentIdentity.CompositeSha256}; " +
             $"definitions={ContentIdentity.CompiledDefinitionsBuildId:D}, " +

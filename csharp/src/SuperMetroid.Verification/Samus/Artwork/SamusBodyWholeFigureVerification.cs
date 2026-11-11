@@ -54,8 +54,8 @@ internal static class SamusBodyWholeFigureVerification
         SpriteImage image = sheet.Image;
         var opaque = new OpaquePixels(SheetInkRules.InkPlane(RepositoryInstallation.Installation.SpriteSheetDirectory, image), image.Size.X);
 
-        InstalledSamusBodyArtwork body = InstalledFixtures.SamusBody;
-        SamusSpritemapSources spritemaps = body.Source.Spritemaps;
+        SamusBodySources body = InstalledFixtures.SamusBody;
+        SamusSpritemapSources spritemaps = body.Spritemaps;
         var drawers = new Dictionary<string, List<string>>(StringComparer.Ordinal);
         var findings = new List<string>();
         foreach (SamusShownBody shown in SamusShownFrames.Of(InstalledFixtures.AnimationContinuation).Bodies(body))
@@ -71,7 +71,7 @@ internal static class SamusBodyWholeFigureVerification
                 drawers.Add(name, named);
             }
             named.Add(drawer);
-            findings.AddRange(ForeignSelections(drawn, key, spritemaps, body.Source, name, drawer));
+            findings.AddRange(ForeignSelections(drawn, key, spritemaps, body, name, drawer));
             if (sheet.ShowsNothing(name))
                 continue;
             SpriteSheetFrame frame = sheet.Frame(name);

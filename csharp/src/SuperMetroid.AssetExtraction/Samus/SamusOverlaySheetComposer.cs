@@ -22,7 +22,7 @@ internal static class SamusOverlaySheetComposer
                 .Select(frame => SamusOverlaySheetDefinitions.ArmCannonFrame(direction, frame)));
 
     /// <summary>What the overlay sheet composes with the body's arm cannon.</summary>
-    internal static SpriteSheetSources Sources(SamusSheetInputs inputs) => Sources(inputs, Ensure.NotNull(inputs).SamusBody.Body.ArmCannon.Source);
+    internal static SpriteSheetSources Sources(SamusSheetInputs inputs) => Sources(inputs, Ensure.NotNull(inputs).SamusBody.Body.ArmCannon);
 
     /// <summary>What the overlay sheet composes with <paramref name="cannon"/>.</summary>
     internal static SpriteSheetSources Sources(SamusSheetInputs inputs, SamusArmCannonSourceArtwork cannon)

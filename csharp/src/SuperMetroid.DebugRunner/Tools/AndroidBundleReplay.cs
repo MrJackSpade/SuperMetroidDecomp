@@ -58,7 +58,7 @@ internal static class AndroidBundleReplay
                 GameInstallation installation = RepositoryInstallation.Installation;
                 var identity = GameContentIdentity.Create(installation.LoadAudioClips(), installation.LoadMaps(), installation.LoadProjectiles());
                 var content = new SuperMetroid.Diagnostics.Sessions.InstalledSessionContent(
-                    installation.LoadGameArtwork(installation.LoadMaps(), installation.LoadProjectiles(), installation.LoadEnemyTiles()), assets);
+                    installation.LoadGameArtwork(installation.LoadMaps(), installation.LoadProjectiles(), installation.LoadEnemyTiles(), installation.LoadSamusBody()), assets);
                 var store = DebuggerSaveStateStoreTooling.ForCartridge(romPath, importBus.Rom, identity, content, temporary);
                 using (var output = File.Create(store.GetSlotPath(0)))
                 using (var input = Required(bundle, "input-recordings/" + seed).Open()) input.CopyTo(output);

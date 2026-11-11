@@ -3,22 +3,23 @@ using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Core.Samus.Artwork;
 
-/// <summary>Where Samus's body is placed at each installed pose frame, and the catalogs her presentation binds.</summary>
+/// <summary>
+/// What the game reads of Samus's installed body (#1616): where each installed pose frame places the body, each pose's
+/// art origin, the order her death sequence steps through and where each pose places the arm cannon's cover.
+/// </summary>
 /// <remarks>
 /// These records affect presentation only. Pose transitions, animation delays, collision,
 /// and projectile timing remain in the compiled simulation. The import composes, once, the whole picture each pose shows
 /// at every picture frame the body sheet covers (#1585) and bakes where each installed frame places the body (#1517);
-/// the body draws its picture by pose and picture frame from the pre-coloured sheet.
+/// the body draws its picture by pose and picture frame from the pre-coloured sheet. The tables, compositions,
+/// characters and appearances the import composed the sheets from stay in the import.
 /// </remarks>
-public abstract class InstalledSamusBodyArtwork
+public sealed class InstalledSamusBodyArtwork
 {
     /// <summary>Each pose's art origin, independent of physical collision offsets.</summary>
     internal readonly Dictionary<SamusPoseId, int> graphicsYOffsets;
     /// <summary>Where each pose's installed animation frames place the body, or none where not installed.</summary>
     private readonly Dictionary<SamusPoseId, IReadOnlyList<int?>> originRises;
-
-    /// <summary>The selected appearance of Samus's atmospheric effects.</summary>
-    public InstalledSamusAtmosphericArtwork Atmosphere { get; }
 
     /// <summary>The order her death sequence steps through and the room's whiteout colours (#1512).</summary>
     public SamusDeathSteps DeathSteps { get; }
@@ -33,12 +34,11 @@ public abstract class InstalledSamusBodyArtwork
     /// A pose has no frame list, the art origins do not cover exactly the poses with frames, or an art origin lies outside
     /// -128 through 127 pixels.
     /// </exception>
-    protected InstalledSamusBodyArtwork(SamusBodyArtworkContent content)
+    internal InstalledSamusBodyArtwork(SamusBodyArtworkContent content)
     {
         Ensure.NotNull(content);
         Ensure.NotNull(content.OriginRises);
         Ensure.NotNull(content.GraphicsYOffsets);
-        Ensure.NotNull(content.Atmosphere);
         Ensure.NotNull(content.DeathSteps);
         Ensure.NotNull(content.ArmCannon);
         if (content.OriginRises.Values.Any(frames => frames is null))
@@ -50,7 +50,6 @@ public abstract class InstalledSamusBodyArtwork
             throw new InvalidDataException("Samus art origins must lie from -128 through 127 pixels.");
         this.graphicsYOffsets = content.GraphicsYOffsets.ToDictionary();
         this.originRises = content.OriginRises.ToDictionary();
-        Atmosphere = content.Atmosphere;
         DeathSteps = content.DeathSteps;
         ArmCannon = content.ArmCannon;
     }

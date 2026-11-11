@@ -24,7 +24,7 @@ internal static class ChargeFlareProductionVerification
 {
     /// <summary>Compares normal and Hyper flare frames with native OAM and checks drawing leaves projectile state intact.</summary>
     internal static void VerifyChargeFlareProduction(SuperMetroidAddressSpace bus,
-        InstalledSamusBodyArtwork body, MapPresentationInstalledRoomAssets roomAssets,
+        SamusBodySources body, MapPresentationInstalledRoomAssets roomAssets,
         AreaMapPresentation maps)
     {
         var placement = ChargeFlarePlacementFile.Load(new MemoryStream(ChargeFlarePlacementExtractor.Extract(bus)));

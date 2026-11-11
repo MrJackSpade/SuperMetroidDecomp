@@ -60,11 +60,12 @@ internal sealed class AndroidSessionData : IDisposable
         // the running session binds only the installed presentation catalog.
         projectiles = installation.LoadProjectiles();
         var enemyArtwork = installation.LoadEnemyTiles();
-        GameArtwork artwork = installation.LoadGameArtwork(maps, projectiles, enemyArtwork);
+        var samusBody = installation.LoadSamusBody();
+        GameArtwork artwork = installation.LoadGameArtwork(maps, projectiles, enemyArtwork, samusBody);
         Console.WriteLine($"Projectile compositions: {projectiles.ContentSha256} ({root}).");
         InstalledClipAudioLibrary assets = installation.LoadAudioClips();
         ContentIdentity = SuperMetroid.AssetExtraction.Installation.GameContentIdentity.Create(
-            assets, maps, projectiles, SuperMetroid.AssetExtraction.Installation.InstalledArtworkIdentity.Create(artwork, enemyArtwork, installation.LoadStandardObjects()));
+            assets, maps, projectiles, SuperMetroid.AssetExtraction.Installation.InstalledArtworkIdentity.Create(artwork, enemyArtwork, samusBody, installation.LoadStandardObjects()));
         Console.WriteLine(
             $"Installed content: {ContentIdentity.CompositeSha256}; " +
             $"definitions={ContentIdentity.CompiledDefinitionsBuildId:D}, " +

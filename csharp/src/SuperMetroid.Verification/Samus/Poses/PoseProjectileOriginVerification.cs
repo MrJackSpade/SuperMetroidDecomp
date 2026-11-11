@@ -32,10 +32,10 @@ internal static class PoseProjectileOriginVerification
                 _ => "Installed graphics offset read ROM.");
         var samus = PrepareRetailSamusFixture(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()));
         var slot = new SamusProjectile(0);
-        InstalledSamusBodyArtwork template = CreateSamusIdentityFixture();
+        SamusBodySources template = CreateSamusIdentityFixture();
         // The graphics-Y byte only enters as a signed offset, so one artwork fixture per signed
         // byte class covers it.
-        var artwork = SignedByteClasses.Select(art => new SamusBodySources(new SamusBodyArtworkParts { TopSetStarts = template.TopSetStarts.ToArray(), BottomSetStarts = template.BottomSetStarts.ToArray(), PoseFirstFrames = template.PoseFirstFrames.ToDictionary(), Placements = template.Placements.ToDictionary(pose => pose.Key, pose => pose.Value with { GraphicsYOffset = unchecked((sbyte)art) }), Frames = template.Frames.ToArray(), Spritemaps = template.Source.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, DeathTilesContentIdentity = template.DeathTilesContentIdentity, ArmCannon = template.ArmCannon }, template.BodyCharactersContentIdentity)).ToArray();
+        var artwork = SignedByteClasses.Select(art => new SamusBodySources(new SamusBodyArtworkParts { TopSetStarts = template.TopSetStarts.ToArray(), BottomSetStarts = template.BottomSetStarts.ToArray(), PoseFirstFrames = template.PoseFirstFrames.ToDictionary(), Placements = template.Placements.ToDictionary(pose => pose.Key, pose => pose.Value with { GraphicsYOffset = unchecked((sbyte)art) }), Frames = template.Frames.ToArray(), Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, DeathTilesContentIdentity = template.DeathTilesContentIdentity, ArmCannon = template.ArmCannon }, template.BodyCharactersContentIdentity)).ToArray();
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         {
             if (!SamusPoseNumbering.NamesPose(pose)) continue;
@@ -48,7 +48,7 @@ internal static class PoseProjectileOriginVerification
         for (int artIndex = 0; artIndex < artwork.Length; artIndex++)
         {
             int art = SignedByteClasses[artIndex];
-            samus.Presentation.BindArtwork(artwork[artIndex]);
+            samus.Presentation.BindArtwork(artwork[artIndex].Gameplay);
             foreach (int pose in Enumerable.Range(0, SamusPoseNumbering.RecordCount).Where(SamusPoseNumbering.NamesPose))
             for (byte direction = 0; direction < 10; direction++)
             {

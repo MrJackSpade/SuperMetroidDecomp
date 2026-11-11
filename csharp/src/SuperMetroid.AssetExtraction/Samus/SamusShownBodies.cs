@@ -20,15 +20,14 @@ internal static class SamusShownBodies
         /// the cartridge's pose order and frame order, which the body sheet is laid out in. What the body showed before never
         /// chooses a picture's halves.
         /// </summary>
-        internal IEnumerable<SamusShownBody> Bodies(InstalledSamusBodyArtwork body)
+        internal IEnumerable<SamusShownBody> Bodies(SamusBodySources body)
         {
             Ensure.NotNull(body);
-            SamusBodySources sources = body.Source;
             foreach (SamusPoseId pose in SamusShownFrames.Poses.OrderBy(SamusPoseNumbers.Number))
             {
                 foreach (int frame in frames.pictured[pose])
                 {
-                    if (!sources.TryPictures(pose, frame, out SamusBodyFramePictures pictures))
+                    if (!body.TryPictures(pose, frame, out SamusBodyFramePictures pictures))
                         continue;
                     yield return new SamusShownBody(new SamusBodyFrame(pose, frame), SamusBodyCompositions.Of(pose, frame, body), pictures);
                 }

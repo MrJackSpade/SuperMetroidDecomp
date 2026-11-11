@@ -15,8 +15,9 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>
 /// The source artwork an installed map presentation was read with, which only the import composes pictures from (#1466,
-/// #1467): the game reads none of it. The colours only the import pre-colours sheets from are not among them: the game's
-/// read leaves them unread (#1544, <see cref="ImportPresentationColours"/>).
+/// #1467): the game reads none of it, only the catalogs the selector, reserve-strip, HUD, options and file-select sources
+/// build for it (#1616). The colours only the import pre-colours sheets from are not among them: the game's read leaves
+/// them unread (#1544, <see cref="ImportPresentationColours"/>).
 /// </summary>
 /// <param name="Characters">The characters the map screens, the pause interface and the HUD are pictured from.</param>
 /// <param name="Messages">The editable gameplay messages, whose words compose each message box image.</param>

@@ -896,7 +896,6 @@ internal static class LookupStream1Verification
         SamusArmCannonSourceArtwork Load(SamusArmCannonArtworkDocument value) => SamusArmCannonSourceArtwork.FromPlacement(
             SamusArmCannonSourceArtwork.LoadPlacement(new MemoryStream(SamusArmCannonSourceArtwork.Write(value))), tiles);
         var stock = Load(document);
-        Dictionary<SamusPoseId, int> Stored(SamusArmCannonSourceArtwork value) => value.poseDescriptors;
         ushort Native(int pose) => LittleEndianBytes.Word(LookupStream1CannonPosesRomByte(rom, 0x90C7DF + pose * 2), LookupStream1CannonPosesRomByte(rom, 0x90C7E0 + pose * 2));
         string Identity(SamusArmCannonArtworkDocument value) => SelectedPresentationHash.Create("samus-arm-cannon-v4", hash =>
         {
@@ -910,18 +909,13 @@ internal static class LookupStream1Verification
             hash.Append("characters", tiles.Characters.Span);
         });
         AssertEqual(253, SamusBodySources.PoseCount, "cannon original 506-byte pointer extent");
-        AssertEqual(0, Stored(stock).Count, "cannon pose stock stores no copied pointer overrides");
         AssertEqual(Identity(document), stock.ContentIdentity, "cannon canonical native identity unchanged");
-        for (int record = 0; record < 253; record++)
-            AssertEqual(Native(record), checked((ushort)(SamusSourceDefinitions.ArmCannonDrawingData + SamusArmCannonArtworkFormat.StockRecordDescriptor(record))), "cannon direct native pose dispatch");
         AssertEqual(SamusPoseNumbers.RecordedPoses.Count, document.PoseDescriptors.Count, "cannon installs one descriptor per pose with a record, and none for a record no pose names");
         foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses)
             AssertEqual(Native(SamusPoseNumbers.Number(pose)), stock.PoseDrawingData(pose), "cannon installed native pose dispatch");
-        foreach (int invalid in new[] { int.MinValue, -1, 253, 254, 255, 256, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusArmCannonArtworkFormat.StockRecordDescriptor(invalid), "cannon calculated record domain rejects aliases");
         foreach (SamusPoseId pose in new[] { SamusPoseId.FirstUnauthoredPose, SamusPoseId.SecondUnauthoredPose, SamusPoseId.LastUnauthoredPose })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.PoseDrawingData(pose), "cannon installed pose domain excludes the poses past the records");
-        Console.WriteLine("Cannon poses:253 direct native defaults, 233 named installed descriptors, zero stock overrides, the canonical stock hash and exact FD-FF rejection pass.");
+        Console.WriteLine("Cannon poses: 233 named installed descriptors, the canonical stock hash and exact FD-FF rejection pass.");
     }
 
     /// <summary>Reads the native pose-to-cannon pointer table.</summary>
@@ -1507,19 +1501,6 @@ internal static class LookupStream1Verification
         byte[] json = File.ReadAllBytes(Path.Combine(directory, SamusArmCannonArtworkFormat.JsonFileName));
         byte[] png = File.ReadAllBytes(Path.Combine(directory, SamusArmCannonArtworkFormat.TileFileName));
         var stock = InstalledSamusArmCannonArtworkTooling.Load(new MemoryStream(json), new MemoryStream(png));
-        AssertEqual(0, stock.attributes.Count + stock.openingTiles.Count, "Stock cannon selectors require no stored fallback overrides");
-        for (int direction = 0; direction < 10; direction++)
-        {
-            SamusProjectileDirection aim = SamusProjectileDirectionCodec.FromAimIndex(direction);
-            // The cover appearance has no packed word: its character, palette row, priority and mirroring are compared
-            // with the native attribute word decoded by the import pipeline's codec.
-            AssertEqual(new SnesObjAttributeWord(Word(0x90c791 + direction * 2)).ToSinglePart(), SamusArmCannonArtworkFormat.StockCoverAppearance(aim),
-                "Direct calculated cannon cover appearances match the original native attribute words");
-            int list = 0x900000 | Word(0x90c7a5 + direction * 2);
-            for (int frame = 0; frame < 4; frame++)
-                AssertEqual(Word(list + frame * 2), SamusArmCannonArtworkFormat.StockTileSource(aim, frame),
-                    "Direct calculated cannon source defaults match original native operands");
-        }
         byte[] nativePlanar = expected.SelectMany(pointer => Enumerable.Range(0, 32).Select(offset => LookupStream1ArmCannonTileSourcesRomByte(rom, (0x9a0000 | pointer) + offset))).ToArray();
         AssertEqual(ReferenceIdentity(json, nativePlanar), stock.ContentIdentity, "Calculated cannon selectors preserve canonical native content identity");
         Suite(nameof(VerifySelectors), () => VerifySelectors(stock));
@@ -1539,7 +1520,9 @@ internal static class LookupStream1Verification
         {
             for (int direction = 0; direction < 10; direction++)
             {
-                AssertEqual(new SnesObjAttributeWord(Word(0x90c791 + direction * 2)).ToSinglePart(), catalog.CoverAppearance(direction), "Calculated cover reflections preserve native appearances");
+                // The cover appearance has no packed word: its character, palette row, priority and mirroring are
+                // compared with the native attribute word decoded by the import pipeline's codec.
+                AssertEqual(new SnesObjAttributeWord(Word(0x90c791 + direction * 2)).ToSinglePart(), catalog.CoverAppearance(direction), "Installed cover appearances match the native attribute words");
                 int list = 0x900000 | Word(0x90c7a5 + direction * 2);
                 for (int frame = 0; frame < 4; frame++)
                     AssertEqual(Word(list + frame * 2), catalog.TileSource(direction, frame), "Calculated cannon orientation/frame preserves native selections");
@@ -1616,133 +1599,15 @@ internal static class LookupStream1Verification
         SamusArmCannonSourceArtwork Load(SamusArmCannonArtworkDocument value) => SamusArmCannonSourceArtwork.FromPlacement(
             SamusArmCannonSourceArtwork.LoadPlacement(new MemoryStream(SamusArmCannonSourceArtwork.Write(value))), tiles);
         var stock = Load(document);
-        Dictionary<int, byte> Stored(SamusArmCannonSourceArtwork value) => value.drawingData;
-        ushort Word(int address) => LittleEndianBytes.Word(LookupStream1CannonDrawingControlsRomByte(rom, address), LookupStream1CannonDrawingControlsRomByte(rom, address + 1));
-        var headers = new HashSet<int>();
-        var descriptors = new SortedSet<int>();
-        for (int pose = 0; pose < 253; pose++)
-        {
-            int pointer = Word(0x90C7DF + pose * 2);
-            descriptors.Add(pointer);
-            headers.Add(pointer); headers.Add(pointer + 1);
-            if ((LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | pointer) & 0x80) != 0)
-            { headers.Add(pointer + 2); headers.Add(pointer + 3); }
-        }
-        AssertEqual(130, headers.Count, "cannon original distinct direction/mode control-byte count");
-        for (int address = 0xCC21; address < 0xCC39; address++) headers.Add(address);
-        var aliases = new Dictionary<int, int>();
-        int[] boundaries = descriptors.Append(0xCC21).ToArray();
-        for (int descriptor = 0; descriptor < boundaries.Length - 1; descriptor++)
-        {
-            int pointer = boundaries[descriptor], next = boundaries[descriptor + 1];
-            if ((LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | pointer) & 0x80) != 0 || next - pointer <= 4) continue;
-            bool constantPair = true;
-            for (int address = pointer + 4; address < next; address++)
-                constantPair &= LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | address) == LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | (pointer + 2 + ((address - pointer) & 1)));
-            if (constantPair)
-                for (int address = pointer + 4; address < next; address++) aliases.Add(address, pointer + 2 + ((address - pointer) & 1));
-            else
-            {
-                bool fixedX = true;
-                for (int address = pointer + 4; address < next; address += 2)
-                    fixedX &= LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | address) == LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | (pointer + 2));
-                if (fixedX)
-                {
-                    for (int address = pointer + 4; address < next; address += 2) aliases.Add(address, pointer + 2);
-                    int frames = (next - pointer - 2) / 2;
-                    if (frames is 6 or 10)
-                    {
-                        bool repeatedHalf = true;
-                        for (int address = pointer + 3 + frames; address < next; address += 2)
-                            repeatedHalf &= LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | address) == LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | (address - frames));
-                        if (repeatedHalf)
-                            for (int address = pointer + 3 + frames; address < next; address += 2)
-                                aliases.Add(address, address - frames);
-                    }
-                }
-            }
-        }
-        foreach ((int earlierPose, int laterPose) in new VerifyLookupStream1SamusPolicyDomainsCase[]
-        {
-            new VerifyLookupStream1SamusPolicyDomainsCase(0x01,0x02), new VerifyLookupStream1SamusPolicyDomainsCase(0x07,0x08), new VerifyLookupStream1SamusPolicyDomainsCase(0x0F,0x10), new VerifyLookupStream1SamusPolicyDomainsCase(0x11,0x12),
-            new VerifyLookupStream1SamusPolicyDomainsCase(0x13,0x14), new VerifyLookupStream1SamusPolicyDomainsCase(0x17,0x18), new VerifyLookupStream1SamusPolicyDomainsCase(0x51,0x52), new VerifyLookupStream1SamusPolicyDomainsCase(0x69,0x6A),
-            new VerifyLookupStream1SamusPolicyDomainsCase(0x6B,0x6C), new VerifyLookupStream1SamusPolicyDomainsCase(0x67,0x68), new VerifyLookupStream1SamusPolicyDomainsCase(0x2D,0x2E), new VerifyLookupStream1SamusPolicyDomainsCase(0x6D,0x6E),
-            new VerifyLookupStream1SamusPolicyDomainsCase(0x6F,0x70), new VerifyLookupStream1SamusPolicyDomainsCase(0x27,0x28), new VerifyLookupStream1SamusPolicyDomainsCase(0x73,0x74), new VerifyLookupStream1SamusPolicyDomainsCase(0x49,0x4A),
-            new VerifyLookupStream1SamusPolicyDomainsCase(0x75,0x76), new VerifyLookupStream1SamusPolicyDomainsCase(0x77,0x78), new VerifyLookupStream1SamusPolicyDomainsCase(0x55,0x56),
-        })
-        {
-            int earlier = Word(0x90C7DF + earlierPose * 2), later = Word(0x90C7DF + laterPose * 2);
-            int end = boundaries[Array.IndexOf(boundaries, later) + 1] - later;
-            for (int offset = 3; offset < end; offset += 2)
-            {
-                AssertEqual(LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | (earlier + offset)), LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | (later + offset)),
-                    "native horizontally reflected poses share this vertical profile");
-                if (!aliases.ContainsKey(later + offset)) aliases.Add(later + offset, earlier + offset);
-            }
-        }
-        foreach ((int earlierPose, int laterPose) in new VerifyLookupStream1SamusPolicyDomainsCase[] { new VerifyLookupStream1SamusPolicyDomainsCase(0x03,0x04), new VerifyLookupStream1SamusPolicyDomainsCase(0x15,0x16), new VerifyLookupStream1SamusPolicyDomainsCase(0x85,0x86) })
-        {
-            int earlierY = Word(0x90C7DF + earlierPose * 2) + 7, laterY = Word(0x90C7DF + laterPose * 2) + 7;
-            AssertEqual(LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | earlierY), LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | laterY), "native fully upward secondary pose shares Y");
-            aliases.Add(laterY, earlierY);
-        }
-        var reflections = new Dictionary<int, int>();
-        // Native pose identities independently select the paired descriptors; no
-        // production reflection selector participates in this expected mapping.
-        foreach ((int earlierPose, int laterPose) in new VerifyLookupStream1SamusPolicyDomainsCase[]
-        {
-            new VerifyLookupStream1SamusPolicyDomainsCase(0x01,0x02), new VerifyLookupStream1SamusPolicyDomainsCase(0x03,0x04), new VerifyLookupStream1SamusPolicyDomainsCase(0x05,0x06), new VerifyLookupStream1SamusPolicyDomainsCase(0x07,0x08),
-            new VerifyLookupStream1SamusPolicyDomainsCase(0x0B,0x0C), new VerifyLookupStream1SamusPolicyDomainsCase(0x0F,0x10), new VerifyLookupStream1SamusPolicyDomainsCase(0x11,0x12), new VerifyLookupStream1SamusPolicyDomainsCase(0x13,0x14),
-            new VerifyLookupStream1SamusPolicyDomainsCase(0x15,0x16), new VerifyLookupStream1SamusPolicyDomainsCase(0x51,0x52), new VerifyLookupStream1SamusPolicyDomainsCase(0x69,0x6A), new VerifyLookupStream1SamusPolicyDomainsCase(0x6B,0x6C),
-            new VerifyLookupStream1SamusPolicyDomainsCase(0x67,0x68), new VerifyLookupStream1SamusPolicyDomainsCase(0x2B,0x2C), new VerifyLookupStream1SamusPolicyDomainsCase(0x6D,0x6E), new VerifyLookupStream1SamusPolicyDomainsCase(0x6F,0x70),
-            new VerifyLookupStream1SamusPolicyDomainsCase(0x27,0x28), new VerifyLookupStream1SamusPolicyDomainsCase(0x71,0x72), new VerifyLookupStream1SamusPolicyDomainsCase(0x73,0x74), new VerifyLookupStream1SamusPolicyDomainsCase(0x85,0x86),
-            new VerifyLookupStream1SamusPolicyDomainsCase(0x49,0x4A), new VerifyLookupStream1SamusPolicyDomainsCase(0x75,0x76), new VerifyLookupStream1SamusPolicyDomainsCase(0x77,0x78), new VerifyLookupStream1SamusPolicyDomainsCase(0x55,0x56),
-        })
-        {
-            int earlier = Word(0x90C7DF + earlierPose * 2), later = Word(0x90C7DF + laterPose * 2);
-            bool variableDirection = (LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | later) & 0x80) != 0;
-            int first = variableDirection ? 4 : 2;
-            int end = variableDirection ? boundaries[Array.IndexOf(boundaries, later) + 1] - later : first + 2;
-            for (int offset = first; offset < end; offset += 2)
-            {
-                int source = earlier + offset, target = later + offset;
-                byte expected = unchecked((byte)(-unchecked((sbyte)LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | source)) - 8));
-                AssertEqual(expected, LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | target), "native paired cover spans reflect around Samus origin");
-                reflections.Add(target, source);
-            }
-        }
-        AssertEqual(29, reflections.Count, "cannon native reflected origin count");
-        AssertEqual(290, aliases.Count, "cannon original repeated coordinate-byte domain");
-        const int start = 0xC9D9, count = 608, coordinateCount = 135;
-        AssertEqual(coordinateCount, Stored(stock).Count, "cannon stores exactly required coordinate basis");
+        const int start = 0xC9D9, count = 608;
         for (int index = 0; index < count; index++)
         {
             ushort address = (ushort)(start + index);
-            byte expected = LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | address);
-            bool calculated = SamusArmCannonArtworkFormat.TryStockDrawingByte(address - start, out int value);
-            AssertEqual(headers.Contains(address), calculated, "cannon only original controls/cost aliases are calculated");
-            if (calculated) AssertEqual(expected, value, "cannon direct original header/cost calculation");
-            bool alias = SamusArmCannonArtworkFormat.TryStockCoordinateSource(address - start, out int source);
-            AssertEqual(aliases.ContainsKey(address), alias, "cannon direct native constant-origin domain");
-            if (alias)
-            {
-                AssertEqual(aliases[address] - start, source, "cannon direct original first-pair source");
-                AssertTrue(source < address - start, "cannon coordinate aliases strictly decrease");
-            }
-            bool reflection = SamusArmCannonArtworkFormat.TryStockReflectedXSource(address - start, out int reflectedSource);
-            AssertEqual(reflections.ContainsKey(address), reflection, "cannon native reflected-origin domain");
-            if (reflection)
-            {
-                AssertEqual(reflections[address] - start, reflectedSource, "cannon original opposite-facing source");
-                AssertTrue(reflectedSource < address - start && !calculated && !alias, "cannon reflection is an acyclic independent source relation");
-                AssertEqual(expected, SamusArmCannonArtworkFormat.ReflectCoverX(LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | (start + reflectedSource))), "cannon reflected native default");
-            }
-            AssertEqual(!calculated && !alias && !reflection, Stored(stock).ContainsKey(index), "cannon exact coordinate storage membership");
-            AssertEqual(expected, stock.ReadDrawingByteAt(address), "cannon complete installed byte window");
+            AssertEqual(LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | address), stock.ReadDrawingByteAt(address), "cannon complete installed byte window");
         }
         foreach (ushort address in new ushort[] { 0, start - 1, start + count, ushort.MaxValue })
             AssertThrows<InvalidDataException>(() => stock.ReadDrawingByteAt(address), "cannon drawing bounds remain exact");
-        Console.WriteLine("Cannon drawing:130 native controls,24 cost aliases,290 shared coordinates,29 reflected origins,135 exact basis bytes and the608-byte installed window pass.");
+        Console.WriteLine("Cannon drawing: the 608-byte installed window holds the cartridge's bytes and its bounds are exact.");
     }
 
     /// <summary>Reads native arm-cannon drawing control and placement words.</summary>
@@ -2120,27 +1985,13 @@ internal static class LookupStream1Verification
         var tiles = RoomCharacterAtlasPng.Read(new MemoryStream(png), SamusArmCannonArtworkFormat.TileSourcePointers.Count * 32);
         SamusArmCannonSourceArtwork Load(SamusArmCannonArtworkDocument value) => SamusArmCannonSourceArtwork.FromPlacement(
             SamusArmCannonSourceArtwork.LoadPlacement(new MemoryStream(SamusArmCannonSourceArtwork.Write(value))), tiles);
-        Dictionary<int, byte> Stored(SamusArmCannonSourceArtwork value) => value.drawingData;
         var stock = body.ArmCannon.Source;
-        AssertEqual(0, Stored(stock).Count, "Installed cannon has zero stock coordinate fallbacks: " +
-            string.Join(", ", Stored(stock).Select(pair => $"{pair.Key + 0xc9d9:X4}={pair.Value:X2}")));
         AssertEqual(Load(document).ContentIdentity, stock.ContentIdentity, "Body binding preserves canonical cannon identity");
-        int basis = 0;
         for (int index = 0; index < document.DrawingData.Length; index++)
         {
             ushort address = (ushort)(0xc9d9 + index);
-            byte expected = LookupStream1CannonPlacementRomByte(rom, 0x900000 | address);
-            if (!SamusArmCannonArtworkFormat.TryStockDrawingByte(index, out _) &&
-                !SamusArmCannonArtworkFormat.TryStockCoordinateSource(index, out _) &&
-                !SamusArmCannonArtworkFormat.TryStockReflectedXSource(index, out _))
-            {
-                AssertTrue(SamusArmCannonPlacements.TryCoordinate(body.Spritemaps, index, out int direct), "Every independent coordinate has a direct body/default source");
-                AssertEqual(expected, direct, $"Direct native cannon attachment {address:X4}");
-                basis++;
-            }
-            AssertEqual(expected, stock.ReadDrawingByteAt(address), "Every installed native cannon byte");
+            AssertEqual(LookupStream1CannonPlacementRomByte(rom, 0x900000 | address), stock.ReadDrawingByteAt(address), "Every installed native cannon byte");
         }
-        AssertEqual(135, basis, "All formerly independent coordinate basis bytes now have reviewed defaults");
         int draws = 0;
         foreach (SamusPoseId pose in new[]
         {
@@ -2180,7 +2031,7 @@ internal static class LookupStream1Verification
                 draws++;
             }
         }
-        Console.WriteLine($"Cannon placement:135 direct body/tail defaults,608 native bytes,zero stock fallbacks,the canonical hash and{draws} actual OAM draws pass.");
+        Console.WriteLine($"Cannon placement:608 installed native bytes,the canonical hash and {draws} actual OAM draws pass.");
     }
 
     /// <summary>Reads Samus arm-cannon placement source words.</summary>

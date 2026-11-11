@@ -76,9 +76,9 @@ internal static class HostAudioAcknowledgementTests
             $"host acknowledgements diverged at {context}");
         Check(host.AudioForVerification.HasQueuedSounds == reference.AudioForVerification.HasQueuedSounds,
             $"host queued-sound state diverged at {context}");
-        for (int library = 0; library < 3; library++)
+        foreach (SoundEffectLibrary library in SoundEffectLibraries.InQueueOrder)
             Check(host.AudioForVerification.SoundQueueForVerification(library) ==
                 reference.AudioForVerification.SoundQueueForVerification(library),
-                $"host library {library + 1} dispatcher diverged at {context}");
+                $"host {library} library dispatcher diverged at {context}");
     }
 }

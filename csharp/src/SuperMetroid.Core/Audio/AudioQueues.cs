@@ -17,22 +17,11 @@ namespace SuperMetroid.Core.Audio;
 /// </remarks>
 public sealed class AudioQueues
 {
-    /// <summary>Requests awaiting music dispatch in the circular queue; an empty position holds the stop request.</summary>
-    private readonly MusicRequest[] _musicEntries =
-        [.. Enumerable.Repeat(MusicRequest.Stop, AudioQueueDefinitions.MusicCapacity)];
-    /// <summary>Per-entry frame delays paired with queued music requests.</summary>
-    internal readonly MusicQueueDelay[] MusicDelays =
-        new MusicQueueDelay[AudioQueueDefinitions.MusicCapacity];
-    /// <summary>Three independent unread sound rings, one per sound library; a position holds no sound until one is queued there.</summary>
-    internal readonly SoundEffectId?[,] SoundQueues = new SoundEffectId?[
-        SoundEffectLibraries.Count,
-        AudioQueueDefinitions.SoundCapacity];
-    /// <summary>Next unread position in each library's SFX ring.</summary>
-    internal readonly int[] SoundReadPositions =
-        new int[SoundEffectLibraries.Count];
-    /// <summary>Next insertion position in each library's SFX ring.</summary>
-    internal readonly int[] SoundWritePositions =
-        new int[SoundEffectLibraries.Count];
+    /// <summary>The music requests waiting for the music handler, each with its delay.</summary>
+    internal readonly MusicQueue Music = new();
+    /// <summary>Each sound library's own queue of waiting requests.</summary>
+    private readonly Dictionary<SoundEffectLibrary, SoundQueue> _soundQueues =
+        SoundEffectLibraries.InQueueOrder.ToDictionary(library => library, _ => new SoundQueue());
     /// <summary>The handshake each library's handler runs with its library, injected by the session's composition root.</summary>
     internal readonly SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId> SoundHandshakes;
 
@@ -41,17 +30,11 @@ public sealed class AudioQueues
     /// <summary>The power-on requests, deferred until the next audio frame.</summary>
     private readonly List<AudioRequest> _pendingPowerOnRequests = [];
 
-    /// <summary>Slot of the music entry being retired or fetched by the music handler, below <see cref="AudioQueueDefinitions.MusicCapacity"/>.</summary>
-    internal int MusicReadPosition { get; private set; }
-    /// <summary>Insertion slot of the circular delayed-music command queue, below <see cref="AudioQueueDefinitions.MusicCapacity"/>.</summary>
-    internal int MusicWritePosition { get; private set; }
     /// <summary>
-    /// The music delay countdown, in music-handler calls. It expires on reaching zero, and a cleared timer runs
-    /// negative on the next call, which is what fetches the next queued entry.
+    /// The request the music handler fetched and is waiting out the delay of, or none when its next call fetches the
+    /// next request from the queue.
     /// </summary>
-    internal int MusicTimer { get; private set; }
-    /// <summary>Music request currently awaiting delay expiry and dispatch.</summary>
-    private MusicRequest _musicEntry = MusicRequest.Stop;
+    internal PendingMusicDispatch? PendingMusic { get; private set; }
     /// <summary>Sound-handler calls, 0 through <see cref="AudioQueueDefinitions.MusicChangeSoundDowntimeCalls"/>, for which a music change withdraws every library's sound request.</summary>
     private int _soundHandlerDowntime;
 
@@ -80,43 +63,35 @@ public sealed class AudioQueues
     /// <summary>The track most recently played, or null after a stop or a data set change.</summary>
     public MusicTrack? PlayingTrack { get; private set; }
 
-    /// <summary>Exact <c>HasQueuedMusic</c> result: any occupied delayed-command slot.</summary>
-    public bool HasQueuedMusic => MusicDelays.Any(delay => delay.Updates != 0);
+    /// <summary>
+    /// What phases waiting for the music to settle read: true while the music queue holds any request, including requests
+    /// a scheduled request overtook (see <see cref="MusicQueue"/>).
+    /// </summary>
+    public bool HasQueuedMusic => Music.HoldsAnyRequest;
 
     /// <summary>
-    /// Exact door-transition predicate: true while any of the
-    /// three sixteen-entry SFX rings has an unread request. An already-dequeued request that
-    /// is merely waiting for its library's acknowledgement does not keep the door wait alive.
+    /// What the door transition waits on: true while any sound library has a request waiting in its queue. A request
+    /// its handler has already taken and is only waiting for its library to accept does not keep the door waiting.
     /// </summary>
-    public bool HasQueuedSounds
-    {
-        get
-        {
-            for (int library = 0; library < SoundEffectLibraries.Count; library++)
-            {
-                if (UnreadSounds(library) != 0)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-    }
+    public bool HasQueuedSounds => _soundQueues.Values.Any(queue => queue.Count != 0);
+
+    /// <summary>
+    /// The requests waiting in <paramref name="library"/>'s queue, oldest first; the next its handler asks the library
+    /// for is the first. The view changes as requests are queued and taken.
+    /// </summary>
+    /// <param name="library">One of the sound libraries.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="library"/> is not a sound library.</exception>
+    public IReadOnlyList<SoundEffectId> WaitingSounds(SoundEffectLibrary library) => QueueOf(library).Waiting;
 
     /// <summary>Restores the audio queue state the game starts with at power-on.</summary>
     public void Reset()
     {
         DoorTransitionSoundsDisabled = false;
-        Array.Fill(_musicEntries, MusicRequest.Stop);
-        Array.Clear(MusicDelays);
-        Array.Clear(SoundQueues);
-        Array.Clear(SoundReadPositions);
-        Array.Clear(SoundWritePositions);
+        Music.Clear();
+        PendingMusic = null;
+        foreach (SoundQueue queue in _soundQueues.Values)
+            queue.Clear();
         SoundHandshakes.Reset();
-        MusicReadPosition = 0;
-        MusicWritePosition = 0;
-        MusicTimer = default;
-        _musicEntry = MusicRequest.Stop;
         _soundHandlerDowntime = 0;
         DataSet = null;
         PlayingTrack = null;
@@ -135,16 +110,24 @@ public sealed class AudioQueues
     /// </summary>
     /// <param name="request">The music request.</param>
     public void QueueMusic(MusicRequest request) =>
-        Enqueue(request, MusicQueueDelay.Shortest, overflow: MusicQueueOverflow.SkipWhenFull);
+        Music.QueueUnlessFull(new QueuedMusic(request, MusicQueueDelay.Shortest));
 
     /// <summary>
-    /// Schedules <paramref name="request"/> to play after <paramref name="delay"/>. A full music queue writes it regardless,
-    /// overtaking the queue's read position.
+    /// Schedules <paramref name="request"/> to play after <paramref name="delay"/>. A full music queue takes it regardless,
+    /// and the requests waiting in it are overtaken (see <see cref="MusicQueue"/>).
     /// </summary>
     /// <param name="request">The music request.</param>
     /// <param name="delay">How long it waits on the queue, already lengthened to the shortest delay.</param>
-    public void ScheduleMusic(MusicRequest request, MusicQueueDelay delay) =>
-        Enqueue(request, delay, overflow: MusicQueueOverflow.Overwrite);
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="delay"/> is shorter than the shortest delay.</exception>
+    public void ScheduleMusic(MusicRequest request, MusicQueueDelay delay)
+    {
+        if (delay.Updates < AudioQueueDefinitions.MinimumMusicDelayFrames)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(delay), delay, "Effective music queue delay must be at least eight frames.");
+        }
+        Music.QueueOvertakingWhenFull(new QueuedMusic(request, delay));
+    }
 
     /// <summary>Queues the data set and track requests performed by ordinary room loading.</summary>
     public void QueueRoomMusic(RoomMusic music)
@@ -217,11 +200,8 @@ public sealed class AudioQueues
     {
         MusicTrack? roomTrack = PlayingTrack;
 
-        Array.Fill(_musicEntries, MusicRequest.Stop);
-        Array.Clear(MusicDelays);
-        MusicReadPosition = MusicWritePosition;
-        MusicTimer = default;
-        _musicEntry = MusicRequest.Stop;
+        Music.Clear();
+        PendingMusic = null;
 
         QueueMusic(MusicRequest.SelectTrack(AudioQueueDefinitions.PermanentItemTrack));
         ScheduleMusic(
@@ -260,19 +240,15 @@ public sealed class AudioQueues
     public SoundQueueAdmission QueueSound(
         SoundEffectId soundEffect, SoundRequestPriority priority, bool soundSuppressed = false)
     {
-        int queue = SoundEffectLibraries.ToQueueIndex(soundEffect.Library);
-        SoundQueueAdmission admission = SoundQueueAdmission.For(UnreadSounds(queue), priority);
+        SoundQueue queue = QueueOf(soundEffect.Library);
+        SoundQueueAdmission admission = SoundQueueAdmission.For(queue.Count, priority);
         if (!admission.IsAdmitted || soundSuppressed || DoorTransitionSoundsDisabled)
             return admission;
 
-        // The ring never fills here: a full ring holds fifteen unread requests, and every priority admits at most fifteen,
-        // so the occupancy test above has already rejected the request. The game's full-ring branch, which keeps
-        // the higher-priority of two requests in the last free position, is unreachable.
-        int write = SoundWritePositions[queue];
-        int next = NextSoundPosition(write);
-        SoundQueues[queue, write] = soundEffect;
-        SoundWritePositions[queue] = next;
-        SoundQueues[queue, next] = null;
+        // Every priority turns a request away once fifteen wait, so an admitted request always finds room: the game's
+        // handling of a request arriving at a queue with no room, which keeps the higher-priority of the two, is never
+        // reached.
+        queue.Add(soundEffect);
         return admission;
     }
 
@@ -302,72 +278,43 @@ public sealed class AudioQueues
         return requests.Count == 0 ? Array.Empty<AudioRequest>() : requests.ToArray();
     }
 
-    /// <summary>Enqueues a delayed music request, dropping it or overtaking the read position when the queue has no free slot, as <paramref name="overflow"/> says.</summary>
-    private void Enqueue(
-        MusicRequest request,
-        MusicQueueDelay delay,
-        MusicQueueOverflow overflow)
-    {
-        if (delay.Updates < AudioQueueDefinitions.MinimumMusicDelayFrames)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(delay), delay, "Effective music queue delay must be at least eight frames.");
-        }
-
-        int next = NextMusicPosition(MusicWritePosition);
-        if (overflow == MusicQueueOverflow.SkipWhenFull && next == MusicReadPosition)
-            return;
-
-        _musicEntries[MusicWritePosition] = request;
-        MusicDelays[MusicWritePosition] = delay;
-        MusicWritePosition = next;
-    }
-
-    /// <summary>Advances the music handler's delay countdown and requests either a data set change or a track at expiry.</summary>
+    /// <summary>
+    /// Runs one music-handler call. While a fetched request waits out its delay the call counts the wait down, and the
+    /// call that ends it dispatches the request and retires it from the queue: a data set change then returns, so the
+    /// next request is fetched on the following call, and a track or a stop goes on to fetch the next request in the same
+    /// call. A call that is not waiting fetches the next request, if the queue has one to fetch, and starts its delay.
+    /// </summary>
     private void HandleMusicQueue(List<AudioRequest> requests)
     {
-        MusicTimer--;
-        bool timerExpired = MusicTimer == 0;
-        if (MusicTimer >= 0)
+        if (PendingMusic is PendingMusicDispatch pending)
         {
-            if (!timerExpired)
+            // A fetched request waits at least the shortest delay, so the wait reaches zero on its last call and never wraps.
+            int callsUntilDispatch = Ensure.AtLeastZero(pending.CallsUntilDispatch - 1);
+            if (callsUntilDispatch != 0)
+            {
+                PendingMusic = pending with { CallsUntilDispatch = callsUntilDispatch };
                 return;
+            }
+            PendingMusic = null;
 
-            if (_musicEntry is MusicRequest.ChangeDataSet change)
+            if (pending.Request is MusicRequest.ChangeDataSet change)
             {
                 DataSet = change.DataSet;
                 PlayingTrack = null;
                 requests.Add(new AudioRequest.ChangeMusicDataSet(change.DataSet));
-                // Retiring the data entry returns at once. The timer stays zero,
-                // so the next entry is fetched only on the following call when it underflows.
-                ClearAndAdvanceMusicEntry();
+                Music.RetireFetched();
                 _soundHandlerDowntime = AudioQueueDefinitions.MusicChangeSoundDowntimeCalls;
                 return;
             }
 
-            PlayingTrack = (_musicEntry as MusicRequest.PlayTrack)?.Track;
+            PlayingTrack = (pending.Request as MusicRequest.PlayTrack)?.Track;
             requests.Add(AudioRequest.ForTrack(PlayingTrack));
-
-            ClearAndAdvanceMusicEntry();
+            Music.RetireFetched();
             _soundHandlerDowntime = AudioQueueDefinitions.MusicChangeSoundDowntimeCalls;
         }
 
-        if (MusicReadPosition == MusicWritePosition)
-        {
-            MusicTimer = default;
-            return;
-        }
-
-        _musicEntry = _musicEntries[MusicReadPosition];
-        MusicTimer = MusicDelays[MusicReadPosition].Updates;
-    }
-
-    /// <summary>Retires the processed music command and its delay before fetching the next entry.</summary>
-    private void ClearAndAdvanceMusicEntry()
-    {
-        _musicEntries[MusicReadPosition] = MusicRequest.Stop;
-        MusicDelays[MusicReadPosition] = default;
-        MusicReadPosition = NextMusicPosition(MusicReadPosition);
+        if (Music.NextToFetch is QueuedMusic next)
+            PendingMusic = new PendingMusicDispatch(next.Request, next.Delay.Updates);
     }
 
     /// <summary>Either withdraws all three libraries' requests during music downtime or advances their independent handshakes.</summary>
@@ -385,20 +332,16 @@ public sealed class AudioQueues
             return;
         }
 
-        for (int queue = 0; queue < SoundEffectLibraries.Count; queue++)
-            HandleSoundEffectQueue(
-                queue,
-                acknowledgements[SoundEffectLibraries.FromQueueIndex(queue)],
-                requests);
+        foreach (SoundEffectLibrary library in SoundEffectLibraries.InQueueOrder)
+            HandleSoundEffectQueue(library, acknowledgements[library], requests);
     }
 
-    /// <summary>Runs one handler call of <paramref name="queue"/>'s library handshake and does what the call asks of the queue.</summary>
+    /// <summary>Runs one handler call of <paramref name="library"/>'s handshake and does what the call asks of its queue.</summary>
     private void HandleSoundEffectQueue(
-        int queue,
+        SoundEffectLibrary library,
         SoundAcknowledgement<SoundEffectId> acknowledgement,
         List<AudioRequest> requests)
     {
-        SoundEffectLibrary library = SoundEffectLibraries.FromQueueIndex(queue);
         SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandlerStep step = SoundHandshakes.Advance(library, acknowledgement);
         switch (step)
         {
@@ -406,7 +349,7 @@ public sealed class AudioQueues
                 break;
 
             case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandlerStep.RequestNext:
-                SendNextSound(queue, requests);
+                SendNextSound(library, requests);
                 break;
 
             case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandlerStep.RepeatRequest:
@@ -422,34 +365,20 @@ public sealed class AudioQueues
         }
     }
 
-    /// <summary>Dequeues one unread sound request, asks its library for it, and starts awaiting its acceptance.</summary>
-    private void SendNextSound(int queue, List<AudioRequest> requests)
+    /// <summary>Takes <paramref name="library"/>'s oldest waiting request, if one waits, asks the library for it, and starts awaiting its acceptance.</summary>
+    private void SendNextSound(SoundEffectLibrary library, List<AudioRequest> requests)
     {
-        if (SoundReadPositions[queue] == SoundWritePositions[queue])
+        if (QueueOf(library).TakeOldest() is not SoundEffectId sound)
             return;
 
-        int read = SoundReadPositions[queue];
-        SoundEffectId? sound = SoundQueues[queue, read];
-        SoundEffectLibrary library = SoundEffectLibraries.FromQueueIndex(queue);
         requests.Add(AudioRequest.ForSound(library, sound));
         SoundHandshakes.Requested(library, sound);
-        SoundReadPositions[queue] = NextSoundPosition(read);
     }
 
-    /// <summary>The sound ring position after <paramref name="position"/>, wrapping to the first at the ring's capacity.</summary>
-    /// <param name="position">A sound ring position, below <see cref="AudioQueueDefinitions.SoundCapacity"/>.</param>
-    internal static int NextSoundPosition(int position) => (position + 1) % AudioQueueDefinitions.SoundCapacity;
-
-    /// <summary>The music queue slot after <paramref name="position"/>, wrapping to the first at the queue's capacity.</summary>
-    private static int NextMusicPosition(int position) => (position + 1) % AudioQueueDefinitions.MusicCapacity;
-
-    /// <summary>
-    /// The unread requests in <paramref name="library"/>'s sound ring: the positions from its read position up to its
-    /// write position, counted around the ring.
-    /// </summary>
-    private int UnreadSounds(int library)
-    {
-        int distance = (SoundWritePositions[library] - SoundReadPositions[library]) % AudioQueueDefinitions.SoundCapacity;
-        return distance < 0 ? distance + AudioQueueDefinitions.SoundCapacity : distance;
-    }
+    /// <summary>The queue of <paramref name="library"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="library"/> is not a sound library.</exception>
+    private SoundQueue QueueOf(SoundEffectLibrary library) =>
+        _soundQueues.TryGetValue(library, out SoundQueue? queue)
+            ? queue
+            : throw new ArgumentOutOfRangeException(nameof(library), library, "Unknown sound-effect library.");
 }

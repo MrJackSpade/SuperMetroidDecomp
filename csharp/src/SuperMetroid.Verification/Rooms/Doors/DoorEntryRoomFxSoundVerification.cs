@@ -75,15 +75,17 @@ internal static class DoorEntryRoomFxSoundVerification
         }
         AssertTrue(selected, "Rising Tide has an exit");
         var audio = game.AudioForVerification;
-        int start = audio.SoundQueueForVerification(1).Next;
+        SoundRequestsMark start = audio.MarkSoundRequestsForVerification(SoundEffectLibrary.Enemies);
         game.GameState = SuperMetroidGameState.HitDoorBlock;
         game.Step(0);
 
         AssertEqual(DoorTransitionPhase.WaitForSoundQueues, game.DoorTransitionPhaseForVerification,
             "the entry frame begins the door sound wait");
-        AssertEqual<SoundEffectId?>(EnemySound.Lavaquake, audio.SoundQueueEntryForVerification(1, start),
+        IReadOnlyList<SoundEffectId> queued = audio.SoundsQueuedSinceForVerification(start);
+        AssertTrue(queued.Count >= 2, "the entry frame queues at least the rumble and the door's cancel");
+        AssertEqual<SoundEffectId>(EnemySound.Lavaquake, queued[0],
             "the HDMA pass's rumble is queued first");
-        AssertEqual<SoundEffectId?>(EnemySound.Silence, audio.SoundQueueEntryForVerification(1, (start + 1) & 0x0f),
+        AssertEqual<SoundEffectId>(EnemySound.Silence, queued[1],
             "the door's library-two cancel follows it");
         Console.WriteLine("Door entry room-FX sound: the entry frame's rumble precedes the door's cancel and DisableSounds.");
     }

@@ -8,14 +8,13 @@ namespace SuperMetroid.Core.Audio;
 public readonly record struct MusicQueueDelay
 {
     /// <summary>A delay of <paramref name="updates"/> music-handler updates, already lengthened to the shortest one.</summary>
-    /// <param name="updates">Music-handler updates, zero or more; zero is an empty queue position's.</param>
+    /// <param name="updates">Music-handler updates, zero or more.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="updates"/> is negative.</exception>
     internal MusicQueueDelay(int updates) => Updates = Ensure.AtLeastZero(updates);
 
     /// <summary>
-    /// Music-handler updates the request waits before it plays, zero or more. The queue's countdown starts at this count
-    /// and counts down to zero, and one step past zero fetches the next request, so it never wraps; zero marks an empty
-    /// queue position.
+    /// Music-handler updates the request waits before it plays, zero or more. The handler's wait starts at this count
+    /// when it fetches the request and dispatches the request on the call that brings it to zero.
     /// The longest delay the game requests is a fanfare's 365 updates.
     /// </summary>
     public int Updates { get; }

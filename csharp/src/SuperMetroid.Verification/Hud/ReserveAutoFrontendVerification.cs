@@ -103,14 +103,14 @@ internal static class ReserveAutoFrontendVerification
         lockedAnimationFrame = samus.AnimationFrame;
         lockedAnimationTimer = samus.AnimationFrameTimer.RawValue;
         game.GameState = SuperMetroidGameState.ReserveTanksAuto;
-        var positions = audio.SoundWritePositions;
-        var queues = audio.SoundQueues;
         for (int frame = 0; frame < 33; frame++)
         {
             // Drain the unrelated host transport between observations. Production
             // refill and warning producers still own every request being inspected.
             audio.Reset();
+            SoundRequestsMark roomMark = audio.MarkSoundRequestsForVerification(SoundEffectLibrary.Room);
             var capture = game.StepCaptured(0);
+            IReadOnlyList<SoundEffectId> roomRequests = audio.SoundsQueuedSinceForVerification(roomMark);
             if (frame < 32)
             {
                 AssertEqual(lockedAnimationFrame, samus.AnimationFrame,
@@ -135,7 +135,7 @@ internal static class ReserveAutoFrontendVerification
                 digitImages.Add(frame % 10, onesPixels);
             AssertEqual(frame + 1, samus.Health, "full automatic refill progression");
             AssertEqual(frame < 30, samus.HealthWarning.IsActive, "warning switches off exactly at health 31");
-            bool Has(int command) => Enumerable.Range(0, positions[2]).Any(i => queues[2, i] == SoundEffectCommands.Decode(SoundEffectLibrary.Room, command));
+            bool Has(int command) => roomRequests.Contains(SoundEffectCommands.Decode(SoundEffectLibrary.Room, command));
             AssertEqual(frame == 0, Has(2), "warning start issued only once through real frontend");
             AssertEqual(frame == 30, Has(1), "warning stop issued on 30-to-31 refill crossing");
         }

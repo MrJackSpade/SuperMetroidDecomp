@@ -53,15 +53,15 @@ internal static class DoorSoundsDuringPowerBombVerification
 
         runtime.Room.LoadedScope.BombProjectiles.PowerBombExplosion.ForceActive(true);
         var audio = game.AudioForVerification;
-        int library1 = audio.SoundQueueForVerification(0).Next;
-        int library2 = audio.SoundQueueForVerification(1).Next;
+        SoundRequestsMark library1 = audio.MarkSoundRequestsForVerification(SoundEffectLibrary.Samus);
+        SoundRequestsMark library2 = audio.MarkSoundRequestsForVerification(SoundEffectLibrary.Enemies);
         game.GameState = SuperMetroidGameState.HitDoorBlock;
         game.Step(0);
 
         AssertEqual(DoorTransitionPhase.WaitForSoundQueues, game.DoorTransitionPhaseForVerification,
             "the entry frame begins the door sound wait");
-        AssertEqual(library1, audio.SoundQueueForVerification(0).Next, "library one's cancel is dropped");
-        AssertEqual(library2, audio.SoundQueueForVerification(1).Next, "library two's $71 is dropped");
+        AssertEqual(0, audio.SoundsQueuedSinceForVerification(library1).Count, "library one's cancel is dropped");
+        AssertEqual(0, audio.SoundsQueuedSinceForVerification(library2).Count, "library two's $71 is dropped");
         game.Step(0);
         AssertEqual(DoorTransitionPhase.FadeOutSourcePalette, game.DoorTransitionPhaseForVerification,
             "$E29E finds the rings empty on its first check");

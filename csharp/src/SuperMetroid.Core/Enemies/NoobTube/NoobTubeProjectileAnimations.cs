@@ -12,9 +12,9 @@ namespace SuperMetroid.Core.Enemies.NoobTube;
 /// </summary>
 internal static class NoobTubeProjectileAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<NoobTubeProjectileProgram, NoobTubeProjectileFrame, NoobTubeProjectileCue> Programs { get; } = new(
-        new Dictionary<NoobTubeProjectileProgram, AnimationProgramStep<NoobTubeProjectileProgram, NoobTubeProjectileFrame, NoobTubeProjectileCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<NoobTubeProjectileProgram, NoobTubeProjectileFrame, NoobTubeProjectileCue> Segments { get; } = new(
+        new Dictionary<NoobTubeProjectileProgram, AnimationBeat<NoobTubeProjectileFrame, NoobTubeProjectileCue>[]>
     {
         [P.Crack] =
         [
@@ -55,246 +55,172 @@ internal static class NoobTubeProjectileAnimations
             Show(32, 7),
             Show(33, 7),
             Show(34, 16),
-            SetCounter(6),
-            FallInto(P.CrackLoop),
         ],
         [P.CrackLoop] =
         [
             Show(35, 16),
             Show(36, 16),
-            RepeatWhileCounting(P.CrackLoop),
             Cue(new(K.Delete)),
-            Hold,
         ],
         [P.Shard0] =
         [
-            SetCounter(32),
-            FallInto(P.Shard0Loop),
         ],
         [P.Shard0Loop] =
         [
             Cue(new(K.FlickerReflected)),
             Flicker(37, 38),
-            RepeatWhileCounting(P.Shard0Loop),
             Cue(new(K.AssignShardFallingAngle)),
             Cue(new(K.SetFrameBehavior, FrameBehavior: EnemyProjectileFrameBehavior.NoobTubeShardFalling)),
-            SetCounter(272),
-            FallInto(P.Shard0Loop2),
         ],
         [P.Shard0Loop2] =
         [
             Cue(new(K.FlickerReflected)),
             Flicker(39, 40),
-            RepeatWhileCounting(P.Shard0Loop2),
             Cue(new(K.Delete)),
-            Hold,
         ],
         [P.Shard1] =
         [
-            SetCounter(32),
-            FallInto(P.Shard1Loop),
         ],
         [P.Shard1Loop] =
         [
             Cue(new(K.FlickerReflected)),
             Flicker(41, 42),
-            RepeatWhileCounting(P.Shard1Loop),
             Cue(new(K.AssignShardFallingAngle)),
             Cue(new(K.SetFrameBehavior, FrameBehavior: EnemyProjectileFrameBehavior.NoobTubeShardFalling)),
-            SetCounter(272),
-            FallInto(P.Shard1Loop2),
         ],
         [P.Shard1Loop2] =
         [
             Cue(new(K.FlickerReflected)),
             Flicker(43, 44),
-            RepeatWhileCounting(P.Shard1Loop2),
             Cue(new(K.Delete)),
-            Hold,
         ],
         [P.Shard2] =
         [
-            SetCounter(32),
-            FallInto(P.Shard2Loop),
         ],
         [P.Shard2Loop] =
         [
             Cue(new(K.FlickerReflected)),
             Flicker(45, 46),
-            RepeatWhileCounting(P.Shard2Loop),
             Cue(new(K.AssignShardFallingAngle)),
             Cue(new(K.SetFrameBehavior, FrameBehavior: EnemyProjectileFrameBehavior.NoobTubeShardFalling)),
-            SetCounter(272),
-            FallInto(P.Shard2Loop2),
         ],
         [P.Shard2Loop2] =
         [
             Cue(new(K.FlickerReflected)),
             Flicker(47, 48),
-            RepeatWhileCounting(P.Shard2Loop2),
             Cue(new(K.Delete)),
-            Hold,
         ],
         [P.Shard3] =
         [
-            SetCounter(32),
-            FallInto(P.Shard3Loop),
         ],
         [P.Shard3Loop] =
         [
             Cue(new(K.FlickerReflected)),
             Flicker(49, 50),
-            RepeatWhileCounting(P.Shard3Loop),
             Cue(new(K.AssignShardFallingAngle)),
             Cue(new(K.SetFrameBehavior, FrameBehavior: EnemyProjectileFrameBehavior.NoobTubeShardFalling)),
-            SetCounter(272),
-            FallInto(P.Shard3Loop2),
         ],
         [P.Shard3Loop2] =
         [
             Cue(new(K.FlickerReflected)),
             Flicker(51, 52),
-            RepeatWhileCounting(P.Shard3Loop2),
             Cue(new(K.Delete)),
-            Hold,
         ],
         [P.Shard4] =
         [
-            SetCounter(32),
-            FallInto(P.Shard4Loop),
         ],
         [P.Shard4Loop] =
         [
             Cue(new(K.FlickerReflected)),
             Flicker(53, 54),
-            RepeatWhileCounting(P.Shard4Loop),
             Cue(new(K.AssignShardFallingAngle)),
             Cue(new(K.SetFrameBehavior, FrameBehavior: EnemyProjectileFrameBehavior.NoobTubeShardFalling)),
-            SetCounter(272),
-            FallInto(P.Shard4Loop2),
         ],
         [P.Shard4Loop2] =
         [
             Cue(new(K.FlickerReflected)),
             Flicker(55, 56),
-            RepeatWhileCounting(P.Shard4Loop2),
             Cue(new(K.Delete)),
-            Hold,
         ],
         [P.Shard5] =
         [
-            SetCounter(32),
-            FallInto(P.Shard5Loop),
         ],
         [P.Shard5Loop] =
         [
             Cue(new(K.FlickerReflected)),
             Flicker(57, 58),
-            RepeatWhileCounting(P.Shard5Loop),
             Cue(new(K.AssignShardFallingAngle)),
             Cue(new(K.SetFrameBehavior, FrameBehavior: EnemyProjectileFrameBehavior.NoobTubeShardFalling)),
-            SetCounter(272),
-            FallInto(P.Shard5Loop2),
         ],
         [P.Shard5Loop2] =
         [
             Cue(new(K.FlickerReflected)),
             Flicker(59, 60),
-            RepeatWhileCounting(P.Shard5Loop2),
             Cue(new(K.Delete)),
-            Hold,
         ],
         [P.Shard6] =
         [
-            SetCounter(32),
-            FallInto(P.Shard6Loop),
         ],
         [P.Shard6Loop] =
         [
             Cue(new(K.FlickerReflected)),
             Flicker(61, 62),
-            RepeatWhileCounting(P.Shard6Loop),
             Cue(new(K.AssignShardFallingAngle)),
             Cue(new(K.SetFrameBehavior, FrameBehavior: EnemyProjectileFrameBehavior.NoobTubeShardFalling)),
-            SetCounter(272),
-            FallInto(P.Shard6Loop2),
         ],
         [P.Shard6Loop2] =
         [
             Cue(new(K.FlickerReflected)),
             Flicker(63, 64),
-            RepeatWhileCounting(P.Shard6Loop2),
             Cue(new(K.Delete)),
-            Hold,
         ],
         [P.Shard7] =
         [
-            SetCounter(32),
-            FallInto(P.Shard7Loop),
         ],
         [P.Shard7Loop] =
         [
             Cue(new(K.FlickerReflected)),
             Flicker(65, 66),
-            RepeatWhileCounting(P.Shard7Loop),
             Cue(new(K.AssignShardFallingAngle)),
             Cue(new(K.SetFrameBehavior, FrameBehavior: EnemyProjectileFrameBehavior.NoobTubeShardFalling)),
-            SetCounter(272),
-            FallInto(P.Shard7Loop2),
         ],
         [P.Shard7Loop2] =
         [
             Cue(new(K.FlickerReflected)),
             Flicker(67, 68),
-            RepeatWhileCounting(P.Shard7Loop2),
             Cue(new(K.Delete)),
-            Hold,
         ],
         [P.Shard8] =
         [
-            SetCounter(32),
-            FallInto(P.Shard8Loop),
         ],
         [P.Shard8Loop] =
         [
             Cue(new(K.FlickerHidden)),
             Flicker(69),
-            RepeatWhileCounting(P.Shard8Loop),
             Cue(new(K.AssignShardFallingAngle)),
             Cue(new(K.SetFrameBehavior, FrameBehavior: EnemyProjectileFrameBehavior.NoobTubeShardFalling)),
-            SetCounter(272),
-            FallInto(P.Shard8Loop2),
         ],
         [P.Shard8Loop2] =
         [
             Cue(new(K.FlickerHidden)),
             Flicker(70),
-            RepeatWhileCounting(P.Shard8Loop2),
             Cue(new(K.Delete)),
-            Hold,
         ],
         [P.Shard9] =
         [
-            SetCounter(32),
-            FallInto(P.Shard9Loop),
         ],
         [P.Shard9Loop] =
         [
             Cue(new(K.FlickerReflected)),
             Flicker(71, 72),
-            RepeatWhileCounting(P.Shard9Loop),
             Cue(new(K.AssignShardFallingAngle)),
             Cue(new(K.SetFrameBehavior, FrameBehavior: EnemyProjectileFrameBehavior.NoobTubeShardFalling)),
-            SetCounter(272),
-            FallInto(P.Shard9Loop2),
         ],
         [P.Shard9Loop2] =
         [
             Cue(new(K.FlickerReflected)),
             Flicker(73, 74),
-            RepeatWhileCounting(P.Shard9Loop2),
             Cue(new(K.Delete)),
-            Hold,
         ],
         [P.ReleasedAirBubble] =
         [
@@ -317,31 +243,38 @@ internal static class NoobTubeProjectileAnimations
             Show(88, 4),
             Show(89, 4),
             Cue(new(K.Delete)),
-            Hold,
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<NoobTubeProjectileProgram, Animation<NoobTubeProjectileProgram>> StartingAt { get; } = new Dictionary<NoobTubeProjectileProgram, Animation<NoobTubeProjectileProgram>>
+    {
+        [P.Crack] = new([new(P.Crack, 0, 37, 1), new(P.CrackLoop, 0, 2, 6), new(P.CrackLoop, 2, 1, 1)], AnimationEnd.Holds),
+        [P.Shard0] = new([new(P.Shard0Loop, 0, 2, 32), new(P.Shard0Loop, 2, 2, 1), new(P.Shard0Loop2, 0, 2, 272), new(P.Shard0Loop2, 2, 1, 1)], AnimationEnd.Holds),
+        [P.Shard1] = new([new(P.Shard1Loop, 0, 2, 32), new(P.Shard1Loop, 2, 2, 1), new(P.Shard1Loop2, 0, 2, 272), new(P.Shard1Loop2, 2, 1, 1)], AnimationEnd.Holds),
+        [P.Shard2] = new([new(P.Shard2Loop, 0, 2, 32), new(P.Shard2Loop, 2, 2, 1), new(P.Shard2Loop2, 0, 2, 272), new(P.Shard2Loop2, 2, 1, 1)], AnimationEnd.Holds),
+        [P.Shard3] = new([new(P.Shard3Loop, 0, 2, 32), new(P.Shard3Loop, 2, 2, 1), new(P.Shard3Loop2, 0, 2, 272), new(P.Shard3Loop2, 2, 1, 1)], AnimationEnd.Holds),
+        [P.Shard4] = new([new(P.Shard4Loop, 0, 2, 32), new(P.Shard4Loop, 2, 2, 1), new(P.Shard4Loop2, 0, 2, 272), new(P.Shard4Loop2, 2, 1, 1)], AnimationEnd.Holds),
+        [P.Shard5] = new([new(P.Shard5Loop, 0, 2, 32), new(P.Shard5Loop, 2, 2, 1), new(P.Shard5Loop2, 0, 2, 272), new(P.Shard5Loop2, 2, 1, 1)], AnimationEnd.Holds),
+        [P.Shard6] = new([new(P.Shard6Loop, 0, 2, 32), new(P.Shard6Loop, 2, 2, 1), new(P.Shard6Loop2, 0, 2, 272), new(P.Shard6Loop2, 2, 1, 1)], AnimationEnd.Holds),
+        [P.Shard7] = new([new(P.Shard7Loop, 0, 2, 32), new(P.Shard7Loop, 2, 2, 1), new(P.Shard7Loop2, 0, 2, 272), new(P.Shard7Loop2, 2, 1, 1)], AnimationEnd.Holds),
+        [P.Shard8] = new([new(P.Shard8Loop, 0, 2, 32), new(P.Shard8Loop, 2, 2, 1), new(P.Shard8Loop2, 0, 2, 272), new(P.Shard8Loop2, 2, 1, 1)], AnimationEnd.Holds),
+        [P.Shard9] = new([new(P.Shard9Loop, 0, 2, 32), new(P.Shard9Loop, 2, 2, 1), new(P.Shard9Loop2, 0, 2, 272), new(P.Shard9Loop2, 2, 1, 1)], AnimationEnd.Holds),
+        [P.ReleasedAirBubble] = new([new(P.ReleasedAirBubble, 0, 19, 1)], AnimationEnd.Holds),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<NoobTubeProjectileProgram> StartingWith(NoobTubeProjectileProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<NoobTubeProjectileProgram, NoobTubeProjectileFrame, NoobTubeProjectileCue> Show(int pose, int duration) => AnimationProgramStep<NoobTubeProjectileProgram, NoobTubeProjectileFrame, NoobTubeProjectileCue>.Show(new(pose), duration);
+    private static AnimationBeat<NoobTubeProjectileFrame, NoobTubeProjectileCue> Show(int pose, int duration) => new AnimationBeat<NoobTubeProjectileFrame, NoobTubeProjectileCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<NoobTubeProjectileProgram, NoobTubeProjectileFrame, NoobTubeProjectileCue> Cue(NoobTubeProjectileCue cue) => AnimationProgramStep<NoobTubeProjectileProgram, NoobTubeProjectileFrame, NoobTubeProjectileCue>.Publish(cue);
-
-    /// <summary>Loads the loop counter with <paramref name="count"/>.</summary>
-    private static AnimationProgramStep<NoobTubeProjectileProgram, NoobTubeProjectileFrame, NoobTubeProjectileCue> SetCounter(int count) => AnimationProgramStep<NoobTubeProjectileProgram, NoobTubeProjectileFrame, NoobTubeProjectileCue>.SetCounter(count);
-
-    /// <summary>Repeats from <paramref name="program"/> while the loop counter counts down.</summary>
-    private static AnimationProgramStep<NoobTubeProjectileProgram, NoobTubeProjectileFrame, NoobTubeProjectileCue> RepeatWhileCounting(NoobTubeProjectileProgram program) => AnimationProgramStep<NoobTubeProjectileProgram, NoobTubeProjectileFrame, NoobTubeProjectileCue>.RepeatWhileCounting(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<NoobTubeProjectileProgram, NoobTubeProjectileFrame, NoobTubeProjectileCue> FallInto(NoobTubeProjectileProgram program) => AnimationProgramStep<NoobTubeProjectileProgram, NoobTubeProjectileFrame, NoobTubeProjectileCue>.FallInto(program);
-
-    /// <summary>Holds the last frame, as the sleep does.</summary>
-    private static AnimationProgramStep<NoobTubeProjectileProgram, NoobTubeProjectileFrame, NoobTubeProjectileCue> Hold => AnimationProgramStep<NoobTubeProjectileProgram, NoobTubeProjectileFrame, NoobTubeProjectileCue>.Hold;
+    private static AnimationBeat<NoobTubeProjectileFrame, NoobTubeProjectileCue> Cue(NoobTubeProjectileCue cue) => new AnimationBeat<NoobTubeProjectileFrame, NoobTubeProjectileCue>.Event(cue);
 
     /// <summary>Shows <paramref name="pose"/>, or on even frames <paramref name="reflectedPose"/>, for the one update a flicker lasts.</summary>
-    private static AnimationProgramStep<NoobTubeProjectileProgram, NoobTubeProjectileFrame, NoobTubeProjectileCue> Flicker(int pose, int reflectedPose) => AnimationProgramStep<NoobTubeProjectileProgram, NoobTubeProjectileFrame, NoobTubeProjectileCue>.Show(new(pose, reflectedPose), 1);
+    private static AnimationBeat<NoobTubeProjectileFrame, NoobTubeProjectileCue> Flicker(int pose, int reflectedPose) => new AnimationBeat<NoobTubeProjectileFrame, NoobTubeProjectileCue>.Frame(new(pose, reflectedPose), 1);
 
     /// <summary>Shows <paramref name="pose"/> for the one update a flicker lasts.</summary>
-    private static AnimationProgramStep<NoobTubeProjectileProgram, NoobTubeProjectileFrame, NoobTubeProjectileCue> Flicker(int pose) => AnimationProgramStep<NoobTubeProjectileProgram, NoobTubeProjectileFrame, NoobTubeProjectileCue>.Show(new(pose), 1);
+    private static AnimationBeat<NoobTubeProjectileFrame, NoobTubeProjectileCue> Flicker(int pose) => new AnimationBeat<NoobTubeProjectileFrame, NoobTubeProjectileCue>.Frame(new(pose), 1);
 }

@@ -125,8 +125,8 @@ internal static class EnemySheetOwnFramesVerification
         {
             [EnemyDefinitionId.EtecoonEscape] = Reach(EscapeEtecoonAnimations.Segments, EscapeEtecoonAnimations.StartingAt, EscapeEtecoonFrameDefinitions.ShownFrames,
                 EscapeEtecoonAnimations.StartingAt.Keys),
-            [EnemyDefinitionId.DachoraEscape] = Reach(EscapeDachoraAnimations.Programs, EscapeDachoraFrameDefinitions.ShownFrames,
-                Enum.GetValues<EscapeDachoraProgram>()),
+            [EnemyDefinitionId.DachoraEscape] = Reach(EscapeDachoraAnimations.Segments, EscapeDachoraAnimations.StartingAt, EscapeDachoraFrameDefinitions.ShownFrames,
+                EscapeDachoraAnimations.StartingAt.Keys),
         });
 
     /// <summary>A Fune or Namihe runs the programs its placements' variant selects, idle or active, facing either way.</summary>
@@ -276,8 +276,8 @@ internal static class EnemySheetOwnFramesVerification
         return new("Torizo", TableFrames(TorizoFrameDefinitions.ShownFrames),
             new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
             {
-                [EnemyDefinitionId.BombTorizo] = Reach(TorizoAnimations.Programs, TorizoFrameDefinitions.ShownFrames, bombStarts, TorizoCueTargets),
-                [EnemyDefinitionId.GoldenTorizo] = Reach(TorizoAnimations.Programs, TorizoFrameDefinitions.ShownFrames, goldenStarts, TorizoCueTargets),
+                [EnemyDefinitionId.BombTorizo] = Reach(TorizoAnimations.Segments, TorizoAnimations.StartingAt, TorizoFrameDefinitions.ShownFrames, bombStarts, TorizoCueTargets),
+                [EnemyDefinitionId.GoldenTorizo] = Reach(TorizoAnimations.Segments, TorizoAnimations.StartingAt, TorizoFrameDefinitions.ShownFrames, goldenStarts, TorizoCueTargets),
             });
     }
 

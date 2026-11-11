@@ -22,8 +22,8 @@ public sealed class SamusProjectileOverreads
     /// <param name="drainedCrashDepartures">The angles a Shinespark crash finishing in a drained pose releases its echoes at.</param>
     internal SamusProjectileOverreads(
         TrailStartPastPlacements<SamusProjectileProgram, ProjectileTrailPlacementList, ProjectileTrailPlacement> trailStarts,
-        SpaceTimeProgressionOverwrite<AnimationProgramCursor<SamusProjectileProgram>, ProgressionOverwrite> spaceTimeOverwrite,
-        ChainsawFuseAnimationShift<AnimationProgramCursor<SamusProjectileProgram>> chainsawFuseShift,
+        SpaceTimeProgressionOverwrite<SamusProjectileSegmentBeat, ProgressionOverwrite> spaceTimeOverwrite,
+        ChainsawFuseAnimationShift<SamusProjectileSegmentBeat> chainsawFuseShift,
         ChargeFlareDelaysBelowPrograms chargeFlareDelays,
         PostureAdmissionBeyondTransitions<SamusPoseId> postureAdmission,
         UnauthoredBeamFiring<SamusBeamCombination> unauthoredBeamFiring,
@@ -42,10 +42,10 @@ public sealed class SamusProjectileOverreads
     internal TrailStartPastPlacements<SamusProjectileProgram, ProjectileTrailPlacementList, ProjectileTrailPlacement> TrailStarts { get; }
 
     /// <summary>What Spacetime's palette copy overwrites in saved progression.</summary>
-    internal SpaceTimeProgressionOverwrite<AnimationProgramCursor<SamusProjectileProgram>, ProgressionOverwrite> SpaceTimeOverwrite { get; }
+    internal SpaceTimeProgressionOverwrite<SamusProjectileSegmentBeat, ProgressionOverwrite> SpaceTimeOverwrite { get; }
 
     /// <summary>Where the Chainsaw beam's animation lands when its borrowed Power Bomb fuse speeds up.</summary>
-    internal ChainsawFuseAnimationShift<AnimationProgramCursor<SamusProjectileProgram>> ChainsawFuseShift { get; }
+    internal ChainsawFuseAnimationShift<SamusProjectileSegmentBeat> ChainsawFuseShift { get; }
 
     /// <summary>The delays a charge-flare frame reads when it wraps below the flare's programs.</summary>
     internal ChargeFlareDelaysBelowPrograms ChargeFlareDelays { get; }

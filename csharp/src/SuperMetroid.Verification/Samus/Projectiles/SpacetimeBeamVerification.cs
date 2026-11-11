@@ -147,10 +147,10 @@ internal static class SpacetimeBeamVerification
         int reaching = 0;
         int situations = 0;
         foreach (SamusProjectileProgram program in SamusOverreadDecoding.SpaceTimeShotPrograms())
-        for (int position = 0; position < SamusProjectileAnimations.Programs.Steps(program).Count; position++)
+        for (int position = 0; position <= SamusProjectileAnimations.Segments.Beats(program).Count; position++)
         for (int slot = 0; slot < SamusProjectileSystem.SlotCount; slot++)
         {
-            var cursor = new AnimationProgramCursor<SamusProjectileProgram>(program, position);
+            var cursor = new SamusProjectileSegmentBeat(program, position);
             byte?[] native = SpacetimeCopyOracle.ProgressionSlice(cartridge, SamusProjectileProgramAddresses.Address(cursor), slot);
             SharedGameState state = SentinelProgression();
             if (service.For(cursor, slot) is { } overwrite)
@@ -166,7 +166,7 @@ internal static class SpacetimeBeamVerification
             situations++;
         }
         AssertTrue(reaching > 0, "Some SpaceTime animation positions copy into progression");
-        AssertThrows<ArgumentOutOfRangeException>(() => service.For(new AnimationProgramCursor<SamusProjectileProgram>(
+        AssertThrows<ArgumentOutOfRangeException>(() => service.For(new SamusProjectileSegmentBeat(
             SamusProjectileProgram.PowerUpFacingRight, 0), 0), "A position no SpaceTime shot holds is rejected");
         Console.WriteLine($"SpaceTime overwrite: {situations} positions and slots match the original copy, {reaching} of them reaching progression.");
     }

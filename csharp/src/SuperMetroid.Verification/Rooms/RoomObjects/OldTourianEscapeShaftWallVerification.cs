@@ -62,56 +62,61 @@ internal static class OldTourianEscapeShaftWallVerification
     }
 
     /// <summary>
-    /// The typed wall-explosion programs against the retail list at $86:B443-$B46F, word by word: the cleared
-    /// movement, the burst count, the scatter masks, the sound, each pose's duration and operand position, the
-    /// counted repeat back to $86:B449 and the delete.
+    /// The typed wall-explosion segments and animation against the retail list at $86:B443-$B46F, word by word: the
+    /// cleared movement, the burst count, the scatter masks, the sound, each pose's duration and operand position, the
+    /// counted repeat back to $86:B449 and the delete, after which the explosion holds.
     /// </summary>
     private static void VerifyWallExplosionProgramAgainstRom(SuperMetroidAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         ushort Word(int address) => cartridge.ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | address);
-        var programs = OldTourianWallExplosionAnimation.AllPrograms;
+        var segments = OldTourianWallExplosionAnimation.AllSegments;
+        Animation<OldTourianWallExplosionProgram> animation = OldTourianWallExplosionAnimation.AllAnimations[OldTourianWallExplosionProgram.Start];
+        AssertEqual(3, animation.Phases.Count, "the animation plays the setup, the counted burst and the delete");
 
-        var start = programs.Steps(OldTourianWallExplosionProgram.Start);
-        AssertEqual(3, start.Count, "the setup has three steps");
+        var start = segments.Beats(OldTourianWallExplosionProgram.Start);
+        AssertEqual(1, start.Count, "the setup has one beat");
+        AssertEqual(new AnimationPhase<OldTourianWallExplosionProgram>(OldTourianWallExplosionProgram.Start, 0, 1, 1), animation.Phases[0],
+            "the animation first plays the setup");
         AssertEqual(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitionsConstants.InitialAnimationScript, (ushort)0xb443, "the setup starts the list");
         AssertEqual((ushort)NativeEnemyProjectileInstruction.ClearFrameBehavior, Word(0xb443), "the list first clears the movement");
-        AssertEqual(OldTourianWallExplosionCue.ClearFrameBehavior, AssertIs<AnimationProgramStep<OldTourianWallExplosionProgram, int, OldTourianWallExplosionCue>.CueStep>(start[0], "the setup publishes a cue").Cue, "the setup clears the movement");
+        AssertEqual(OldTourianWallExplosionCue.ClearFrameBehavior, AssertIs<AnimationBeat<int, OldTourianWallExplosionCue>.Event>(start[0], "the setup raises an event").Raised, "the setup clears the movement");
         AssertEqual((ushort)NativeEnemyProjectileInstruction.TimerInY, Word(0xb445), "the list then loads the timer");
-        var setCounter = AssertIs<AnimationProgramStep<OldTourianWallExplosionProgram, int, OldTourianWallExplosionCue>.SetCounterStep>(start[1], "the setup loads the counter");
-        AssertEqual(Word(0xb447), setCounter.Count, "the burst count");
-        var fallInto = AssertIs<AnimationProgramStep<OldTourianWallExplosionProgram, int, OldTourianWallExplosionCue>.FallIntoStep>(start[2], "the setup runs on into the burst");
-        AssertEqual(OldTourianWallExplosionProgram.Burst, fallInto.Target, "the setup's next program");
+        AnimationPhase<OldTourianWallExplosionProgram> counted = animation.Phases[1];
+        AssertTrue(counted.CountsRepeats, "the burst counts its plays down the timer the list loads");
+        AssertEqual((int)Word(0xb447), counted.Plays, "the burst count");
+        AssertEqual(OldTourianWallExplosionProgram.Burst, counted.Segment, "the setup runs on into the burst");
+        AssertEqual(0, counted.FirstBeat, "the counted burst plays from the burst's start");
 
-        var burst = programs.Steps(OldTourianWallExplosionProgram.Burst);
+        var burst = segments.Beats(OldTourianWallExplosionProgram.Burst);
         AssertEqual(OldTourianEscapeShaftWallExplosionInstructionProgramToolingDefinitions.Loop, (ushort)0xb449, "the burst starts at the loop label");
         AssertEqual((ushort)NativeEnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius, Word(0xb449), "the burst first scatters");
-        AssertEqual(OldTourianWallExplosionCue.Scatter, AssertIs<AnimationProgramStep<OldTourianWallExplosionProgram, int, OldTourianWallExplosionCue>.CueStep>(burst[0], "the burst publishes a cue").Cue, "the burst scatters");
+        AssertEqual(OldTourianWallExplosionCue.Scatter, AssertIs<AnimationBeat<int, OldTourianWallExplosionCue>.Event>(burst[0], "the burst raises an event").Raised, "the burst scatters");
         EnemyProjectileScatter scatter = OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Scatter;
         AssertEqual(LittleEndianBytes.Word(checked((byte)((scatter.XRange.Outcomes - 1) << scatter.XRange.Shift)), checked((byte)scatter.Center.X)), Word(0xb44b), "the X scatter mask and centre");
         AssertEqual(LittleEndianBytes.Word(checked((byte)((scatter.YRange.Outcomes - 1) << scatter.YRange.Shift)), checked((byte)scatter.Center.Y)), Word(0xb44d), "the Y scatter mask and centre");
         AssertEqual((ushort)NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max6, Word(0xb44f), "the burst then sounds");
-        AssertEqual(OldTourianWallExplosionCue.ExplosionSound, AssertIs<AnimationProgramStep<OldTourianWallExplosionProgram, int, OldTourianWallExplosionCue>.CueStep>(burst[1], "the burst publishes a cue").Cue, "the burst sounds");
+        AssertEqual(OldTourianWallExplosionCue.ExplosionSound, AssertIs<AnimationBeat<int, OldTourianWallExplosionCue>.Event>(burst[1], "the burst raises an event").Raised, "the burst sounds");
 
         int cursor = 0xb452;
         for (int frame = 0; frame < 6; frame++, cursor += 4)
         {
-            var step = burst[2 + frame];
-            var show = AssertIs<AnimationProgramStep<OldTourianWallExplosionProgram, int, OldTourianWallExplosionCue>.ShowStep>(step, $"pose {frame} is shown");
-            AssertEqual(frame, show.Frame, $"pose {frame} order");
-            AssertEqual(Word(cursor), show.Duration, $"pose {frame} duration");
+            var show = AssertIs<AnimationBeat<int, OldTourianWallExplosionCue>.Frame>(burst[2 + frame], $"pose {frame} is shown");
+            AssertEqual(frame, show.Shown, $"pose {frame} order");
+            AssertEqual((int)Word(cursor), show.Duration, $"pose {frame} duration");
             AssertEqual((ushort)(cursor + 2), OldTourianEscapeShaftWallExplosionInstructionProgramDefinitionsTooling.PresentationWordAddress(frame),
                 $"pose {frame} operand follows its duration");
         }
 
         AssertEqual((ushort)NativeEnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero, Word(cursor), "the burst then counts down");
-        var repeat = AssertIs<AnimationProgramStep<OldTourianWallExplosionProgram, int, OldTourianWallExplosionCue>.RepeatWhileCountingStep>(burst[8], "the burst repeats while counting");
         AssertEqual(OldTourianEscapeShaftWallExplosionInstructionProgramToolingDefinitions.Loop, Word(cursor + 2), "the repeat returns to the loop label");
-        AssertEqual(OldTourianWallExplosionProgram.Burst, repeat.Target, "the repeat returns to the burst");
+        AssertEqual(8, counted.BeatCount, "the counted burst ends at the count-down, after its six poses");
         AssertEqual((ushort)NativeEnemyProjectileInstruction.Delete, Word(cursor + 4), "the list ends by deleting the explosion");
-        AssertEqual(OldTourianWallExplosionCue.Delete, AssertIs<AnimationProgramStep<OldTourianWallExplosionProgram, int, OldTourianWallExplosionCue>.CueStep>(burst[9], "the burst publishes a cue").Cue, "the burst deletes the explosion");
-        AssertTrue(burst[10] is AnimationProgramStep<OldTourianWallExplosionProgram, int, OldTourianWallExplosionCue>.HoldStep, "the deleted explosion holds");
-        AssertEqual(11, burst.Count, "the burst has eleven steps");
+        AssertEqual(OldTourianWallExplosionCue.Delete, AssertIs<AnimationBeat<int, OldTourianWallExplosionCue>.Event>(burst[8], "the burst raises an event").Raised, "the burst deletes the explosion");
+        AssertEqual(9, burst.Count, "the burst has nine beats");
+        AssertEqual(new AnimationPhase<OldTourianWallExplosionProgram>(OldTourianWallExplosionProgram.Burst, 8, 1, 1), animation.Phases[2],
+            "after its last burst the animation plays the delete");
+        AssertEqual(AnimationEnd.Holds, animation.End, "the deleted explosion holds");
     }
 
     /// <summary>

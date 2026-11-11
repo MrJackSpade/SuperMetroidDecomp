@@ -10,9 +10,9 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 /// </summary>
 internal static class NuclearWaffleProjectileAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<NuclearWaffleProjectileProgram, NuclearWaffleProjectileFrame, EnemyProjectileCommonCue> Programs { get; } = new(
-        new Dictionary<NuclearWaffleProjectileProgram, AnimationProgramStep<NuclearWaffleProjectileProgram, NuclearWaffleProjectileFrame, EnemyProjectileCommonCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<NuclearWaffleProjectileProgram, NuclearWaffleProjectileFrame, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<NuclearWaffleProjectileProgram, AnimationBeat<NuclearWaffleProjectileFrame, EnemyProjectileCommonCue>[]>
     {
         [P.Initial] =
         [
@@ -28,13 +28,18 @@ internal static class NuclearWaffleProjectileAnimations
             Show(9, 3),
             Show(10, 3),
             Show(11, 3),
-            GoTo(P.Initial),
         ],
     });
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<NuclearWaffleProjectileProgram, NuclearWaffleProjectileFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => AnimationProgramStep<NuclearWaffleProjectileProgram, NuclearWaffleProjectileFrame, EnemyProjectileCommonCue>.Show(new(pose), duration);
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<NuclearWaffleProjectileProgram, Animation<NuclearWaffleProjectileProgram>> StartingAt { get; } = new Dictionary<NuclearWaffleProjectileProgram, Animation<NuclearWaffleProjectileProgram>>
+    {
+        [P.Initial] = new([new(P.Initial, 0, 12, 1)], AnimationEnd.LoopsFrom(0)),
+    };
 
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<NuclearWaffleProjectileProgram, NuclearWaffleProjectileFrame, EnemyProjectileCommonCue> GoTo(NuclearWaffleProjectileProgram program) => AnimationProgramStep<NuclearWaffleProjectileProgram, NuclearWaffleProjectileFrame, EnemyProjectileCommonCue>.GoTo(program);
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<NuclearWaffleProjectileProgram> StartingWith(NuclearWaffleProjectileProgram segment) => StartingAt[segment];
+
+    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<NuclearWaffleProjectileFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => new AnimationBeat<NuclearWaffleProjectileFrame, EnemyProjectileCommonCue>.Frame(new(pose), duration);
 }

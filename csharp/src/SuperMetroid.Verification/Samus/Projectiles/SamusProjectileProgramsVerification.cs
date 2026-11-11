@@ -6,14 +6,16 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
 namespace SuperMetroid.Verification.Samus.Projectiles;
 
 /// <summary>
-/// #1301: the Samus projectiles' typed programs, each matched step by step to its bank-$93 list: every timed record's
-/// duration, address, radii and animation frame, every goto, fall-through and delete, the native address each step
-/// stands for, the word before each list, and every projectile header's list fields. What each record pictures is
+/// #1301, #1600: the Samus projectiles' typed segments, each matched beat by beat to its bank-$93 list: every timed
+/// record's duration, address, radii and animation frame, the native address each place stands for, the word before
+/// each list, and every projectile header's list fields; each animation plays the segments its lists' gotos,
+/// fall-throughs and deletes play. What each record pictures is
 /// installed, and <see cref="ProjectileFrameBindingsVerification"/> checks the import's bindings against each record.
 /// </summary>
 internal static class SamusProjectileProgramsVerification
@@ -27,55 +29,55 @@ internal static class SamusProjectileProgramsVerification
         Dictionary<ushort, SamusProjectileProgram> byEntry = Enum.GetValues<SamusProjectileProgram>()
             .ToDictionary(SamusProjectileProgramAddresses.Entry, program => program);
         var records = new SortedSet<ushort>();
+        var lists = new Dictionary<SamusProjectileProgram, NativeEnemyList<SamusProjectileProgram>>();
         int steps = 0;
         foreach ((ushort entry, SamusProjectileProgram program) in byEntry)
         {
             AssertEqual(Word(entry - sizeof(ushort)), SamusProjectileProgramAddresses.Prefix(program), $"projectile {program}: word before its list");
-            var programSteps = SamusProjectileAnimations.Programs.Steps(program);
+            IReadOnlyList<AnimationBeat<SamusProjectileFrame, NoAnimationCue>> beats = SamusProjectileAnimations.Segments.Beats(program);
+            var addresses = new List<ushort>();
+            NativeEnemyControl<SamusProjectileProgram> end;
             ushort cursor = entry;
-            int shown = 0;
-            for (int index = 0; index < programSteps.Count; index++, steps++)
+            for (int index = 0; ; index++, steps++)
             {
-                string at = $"projectile {program} step {index} at $93:{cursor:X4}";
-                var step = programSteps[index];
-                AssertEqual(cursor, SamusProjectileProgramAddresses.Address(new AnimationProgramCursor<SamusProjectileProgram>(program, index)), $"{at}: native address");
+                string at = $"projectile {program} place {index} at $93:{cursor:X4}";
+                AssertEqual(cursor, SamusProjectileProgramAddresses.Address(new SamusProjectileSegmentBeat(program, index)), $"{at}: native address");
                 if (cursor != entry && byEntry.TryGetValue(cursor, out SamusProjectileProgram next))
                 {
-                    var fallInto = AssertIs<AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.FallIntoStep>(step, $"{at}: runs on into the next list");
-                    AssertEqual(next, fallInto.Target, $"{at}: fall-through target");
-                    AssertEqual(programSteps.Count, index + 1, $"{at}: the fall-through ends the program");
+                    AssertEqual(beats.Count, index, $"{at}: the run on into the next list ends the segment");
+                    end = new(NativeEnemyControlKind.RunOnIntoNext, index, next, null, cursor);
                     break;
                 }
                 ushort word = Word(cursor);
                 if (unchecked((short)word) >= 0)
                 {
-                    var show = AssertIs<AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.ShowStep>(step, $"{at}: timed record");
+                    AssertTrue(index < beats.Count, $"{at}: the segment has a beat for the timed record");
+                    var show = AssertIs<AnimationBeat<SamusProjectileFrame, NoAnimationCue>.Frame>(beats[index], $"{at}: timed record");
                     AssertEqual(word, show.Duration, $"{at}: duration");
-                    AssertEqual(new SamusProjectileFrame(program, shown++), show.Frame, $"{at}: the program's next record");
-                    SamusProjectileRecord record = SamusProjectileRecordDefinitions.Get(show.Frame);
-                    AssertEqual(cursor, SamusProjectileProgramAddresses.RecordAddress(show.Frame), $"{at}: record address");
+                    AssertEqual(new SamusProjectileFrame(program, index), show.Shown, $"{at}: the segment's next record");
+                    SamusProjectileRecord record = SamusProjectileRecordDefinitions.Get(show.Shown);
+                    AssertEqual(cursor, SamusProjectileProgramAddresses.RecordAddress(show.Shown), $"{at}: record address");
                     ushort radii = Word(cursor + 4);
                     AssertEqual(new Extent16<RoomPixels>(LittleEndianBytes.LowByte(radii), LittleEndianBytes.HighByte(radii)), record.Radius, $"{at}: radii");
                     AssertEqual(Word(cursor + 6), record.AnimationFrame, $"{at}: animation frame");
                     records.Add(cursor);
+                    addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListLayout.TimedRecordByteCount));
                     continue;
                 }
-                switch ((SamusProjectileInstruction)word)
+                AssertEqual(beats.Count, index, $"{at}: the goto or delete ends the segment");
+                end = (SamusProjectileInstruction)word switch
                 {
-                    case SamusProjectileInstruction.GoTo:
-                        var goTo = AssertIs<AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.GoToStep>(step, $"{at}: goto");
-                        AssertEqual(byEntry[Word(cursor + 2)], goTo.Target, $"{at}: goto target");
-                        break;
-                    case SamusProjectileInstruction.Delete:
-                        AssertTrue(step is AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.StopStep, $"{at}: delete");
-                        break;
-                    default:
-                        throw new InvalidDataException($"{at}: native word ${word:X4} has no typed form.");
-                }
-                AssertEqual(programSteps.Count, index + 1, $"{at}: the goto or delete ends the program");
+                    SamusProjectileInstruction.GoTo => new(NativeEnemyControlKind.Goto, index, byEntry[Word(cursor + 2)], null, cursor),
+                    SamusProjectileInstruction.Delete => new(NativeEnemyControlKind.Stop, index, null, null, cursor),
+                    _ => throw new InvalidDataException($"{at}: native word ${word:X4} has no typed form."),
+                };
+                break;
             }
+            lists.Add(program, new NativeEnemyList<SamusProjectileProgram>([.. addresses], [end]));
         }
+        // Each animation plays the segments its lists' gotos, runs on and deletes play.
+        NativeEnemyAnimationOracle.CompareAnimations(lists, SamusProjectileAnimations.StartingAt);
         AssertEqual(SamusProjectileRecordDefinitionsConstants.RecordCount, records.Count, "every record is shown by a program");
         AssertTrue(records.SequenceEqual(SamusProjectileRecordDefinitions.TimedRecordAddresses), "the record addresses are the timed records in address order");
 
@@ -171,10 +173,11 @@ internal static class SamusProjectileProgramsVerification
     /// <summary>The typed record at bank-$93 record address <paramref name="address"/>.</summary>
     internal static SamusProjectileRecord RecordAt(ushort address)
     {
-        var cursor = SamusProjectileProgramAddresses.CursorAt(address) ?? throw new InvalidDataException("A record address is never zero.");
-        var step = SamusProjectileAnimations.Programs.Steps(cursor.Program)[cursor.Position];
-        return step is AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.ShowStep show
-            ? SamusProjectileRecordDefinitions.Get(show.Frame)
+        if (address == 0 || !SamusProjectileProgramAddresses.Layout.TryPlaceAt(address, out SamusProjectileSegmentBeat place))
+            throw new InvalidDataException($"$93:{address:X4} is not a Samus projectile list position.");
+        IReadOnlyList<AnimationBeat<SamusProjectileFrame, NoAnimationCue>> beats = SamusProjectileAnimations.Segments.Beats(place.Segment);
+        return place.Beat < beats.Count && beats[place.Beat] is AnimationBeat<SamusProjectileFrame, NoAnimationCue>.Frame show
+            ? SamusProjectileRecordDefinitions.Get(show.Shown)
             : throw new InvalidDataException($"$93:{address:X4} is not a timed record.");
     }
 

@@ -7,10 +7,13 @@ namespace SuperMetroid.Core.Enemies.SaveStation;
 
 /// <summary>The save-station electricity's typed animation.</summary>
 internal sealed class SaveStationElectricityAnimation(SaveStationElectricityProgram program)
-    : EnemyProjectileProgramAnimation<SaveStationElectricityProgram, SaveStationElectricityFrame, EnemyProjectileCommonCue>(program)
+    : EnemyProjectileTypedAnimation<SaveStationElectricityProgram, SaveStationElectricityFrame, EnemyProjectileCommonCue>(SaveStationElectricityAnimations.StartingWith(program))
 {
     /// <inheritdoc/>
-    private protected override AnimationProgramSet<SaveStationElectricityProgram, SaveStationElectricityFrame, EnemyProjectileCommonCue> Programs => SaveStationElectricityAnimations.Programs;
+    private protected override AnimationSegments<SaveStationElectricityProgram, SaveStationElectricityFrame, EnemyProjectileCommonCue> Segments => SaveStationElectricityAnimations.Segments;
+
+    /// <inheritdoc/>
+    private protected override IReadOnlyDictionary<SaveStationElectricityProgram, Animation<SaveStationElectricityProgram>> StartingAt => SaveStationElectricityAnimations.StartingAt;
 
     /// <inheritdoc/>
     private protected override EnemyProjectileFrameId Present(SaveStationElectricityFrame frame) =>

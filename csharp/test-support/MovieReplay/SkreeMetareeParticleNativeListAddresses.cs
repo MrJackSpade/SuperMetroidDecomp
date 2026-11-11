@@ -30,5 +30,5 @@ internal static class SkreeMetareeParticleNativeListAddresses
     };
 
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, SkreeMetareeParticleAnimations.Programs, frame => NativeOperands[frame], NativeEnemyProjectileCommonCues.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, SkreeMetareeParticleAnimations.Segments, SkreeMetareeParticleAnimations.StartingAt, frame => NativeOperands[frame], NativeEnemyProjectileCommonCues.Rules);
 }

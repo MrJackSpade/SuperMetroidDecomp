@@ -3,36 +3,64 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// Runs the Samus projectiles' typed programs (#1301) as the instruction handlers run their lists: each timed
+/// Plays the Samus projectiles' typed animations (#1301, #1600) as the instruction handlers run their lists: each timed
 /// record installs its duration, spritemap and radii.
 /// </summary>
 internal static class SamusProjectilePrograms
 {
     /// <summary>
-    /// Runs from <paramref name="cursor"/> to the next timed record and returns it with its duration, leaving the cursor
-    /// past it; returns null when the list deletes the projectile.
+    /// Plays <paramref name="playback"/> on to the next timed record and returns it with its duration, leaving the
+    /// playback past it; returns null when the animation ends, as the list deletes the projectile.
     /// </summary>
-    internal static SamusProjectileFrame? RunToNextRecord(ref AnimationProgramCursor<SamusProjectileProgram> cursor, out int duration)
+    internal static SamusProjectileFrame? RunToNextRecord(ref AnimationPlayback<SamusProjectileProgram> playback, out int duration)
     {
-        WrappingCountdown counter = default;
-        AnimationProgramAdvance<SamusProjectileFrame> advance =
-            SamusProjectileAnimations.Programs.Advance(ref cursor, ref counter, static (_, _) => null);
-        switch (advance)
+        AnimationPlace place = playback.Place;
+        // The projectiles' animations count no repeats.
+        WrappingCountdown repeats = default;
+        AnimationShown<SamusProjectileProgram, SamusProjectileFrame> shown =
+            SamusProjectileAnimations.Segments.PlayToNextFrame(playback.Animation, ref place, ref repeats, static _ => { });
+        playback = playback with { Place = place };
+        switch (shown)
         {
-            case AnimationProgramAdvance<SamusProjectileFrame>.Show shown:
-                duration = shown.Duration;
-                return shown.Frame;
-            case AnimationProgramAdvance<SamusProjectileFrame>.Stop:
+            case AnimationShown<SamusProjectileProgram, SamusProjectileFrame>.Frame frame:
+                duration = frame.Duration;
+                return frame.Shown;
+            case AnimationShown<SamusProjectileProgram, SamusProjectileFrame>.Ended:
                 duration = 0;
                 return null;
             default:
-                throw new InvalidOperationException($"Samus projectile program {cursor.Program} ended an advance with {advance}.");
+                throw new InvalidOperationException($"Samus projectile animation at {BeatOf(playback)} ended a play with {shown}.");
         }
     }
 
-    /// <summary>The cursor at the start of <paramref name="program"/>; no program is a projectile with no list.</summary>
-    internal static AnimationProgramCursor<SamusProjectileProgram>? Start(SamusProjectileProgram? program) =>
-        program is { } selected ? AnimationProgramCursor<SamusProjectileProgram>.Start(selected) : null;
+    /// <summary>A playback of the animation starting at <paramref name="program"/>; no program is a projectile with no list.</summary>
+    internal static AnimationPlayback<SamusProjectileProgram>? Start(SamusProjectileProgram? program) =>
+        program is { } selected ? new AnimationPlayback<SamusProjectileProgram>(SamusProjectileAnimations.StartingWith(selected), AnimationPlace.StartOfAnimation) : null;
+
+    /// <summary>
+    /// Where <paramref name="playback"/> stands: before its first play, at the start of the segment its animation starts
+    /// at; otherwise in its playing phase's segment, after the beats of it played.
+    /// </summary>
+    internal static SamusProjectileSegmentBeat BeatOf(AnimationPlayback<SamusProjectileProgram> playback)
+    {
+        if (playback.Place == AnimationPlace.StartOfAnimation)
+            return new(SamusProjectileAnimations.StartingAt.Single(pair => ReferenceEquals(pair.Value, playback.Animation)).Key, 0);
+        AnimationPhase<SamusProjectileProgram> phase = playback.Animation.Phases[playback.Place.Phase];
+        return new(phase.Segment, phase.FirstBeat + Math.Clamp(playback.Place.Beat, 0, phase.BeatCount));
+    }
+
+    /// <summary>
+    /// A playback standing at <paramref name="beat"/>: in the animation starting at its segment, which plays the whole
+    /// segment first, before its first play at the segment's start.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The place is past the segment's end.</exception>
+    internal static AnimationPlayback<SamusProjectileProgram> PlaybackAt(SamusProjectileSegmentBeat beat)
+    {
+        Animation<SamusProjectileProgram> animation = SamusProjectileAnimations.StartingWith(beat.Segment);
+        if ((uint)beat.Beat > (uint)animation.Phases[0].BeatCount)
+            throw new InvalidDataException($"Samus projectile segment {beat.Segment} has no place after beat {beat.Beat}.");
+        return new(animation, beat.Beat == 0 ? AnimationPlace.StartOfAnimation : new AnimationPlace(0, beat.Beat));
+    }
 
     /// <summary>
     /// The hitbox a freshly selected list declares through its first record, as the initializers' reads of the list's
@@ -42,27 +70,27 @@ internal static class SamusProjectilePrograms
     {
         if (program is not { } selected)
             return Extent16<RoomPixels>.Zero;
-        var first = SamusProjectileAnimations.Programs.Steps(selected)[0];
-        if (first is not AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.ShowStep show)
-            throw new InvalidDataException($"Samus projectile program {selected} does not open with a timed record.");
-        SamusProjectileRecord record = SamusProjectileRecordDefinitions.Get(show.Frame);
+        AnimationPhase<SamusProjectileProgram> first = SamusProjectileAnimations.StartingWith(selected).Phases[0];
+        if (SamusProjectileAnimations.Segments.Beats(first.Segment)[first.FirstBeat] is not AnimationBeat<SamusProjectileFrame, NoAnimationCue>.Frame frame)
+            throw new InvalidDataException($"Samus projectile animation {selected} does not open with a timed record.");
+        SamusProjectileRecord record = SamusProjectileRecordDefinitions.Get(frame.Shown);
         return record.Radius;
     }
 
     /// <summary>
-    /// The animation frame a trail reads from a projectile whose animation stands at <paramref name="cursor"/>: the
+    /// The animation frame a trail reads from a projectile whose animation stands at <paramref name="playback"/>: the
     /// animation frame of the record last installed, or for a freshly installed list the frame <paramref name="starts"/>
     /// decoded for its program.
     /// </summary>
-    internal static int PrecedingAnimationFrame(AnimationProgramCursor<SamusProjectileProgram> cursor,
+    internal static int PrecedingAnimationFrame(AnimationPlayback<SamusProjectileProgram> playback,
         TrailStartPastPlacements<SamusProjectileProgram, ProjectileTrailPlacementList, ProjectileTrailPlacement> starts)
     {
         Ensure.NotNull(starts);
-        if (cursor.Position == 0)
-            return starts.FrameAtListStart(cursor.Program);
-        var previous = SamusProjectileAnimations.Programs.Steps(cursor.Program)[cursor.Position - 1];
-        if (previous is not AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.ShowStep show)
-            throw new InvalidOperationException($"Samus projectile program {cursor.Program} continues past a non-record step.");
-        return SamusProjectileRecordDefinitions.Get(show.Frame).AnimationFrame;
+        SamusProjectileSegmentBeat at = BeatOf(playback);
+        if (at.Beat == 0)
+            return starts.FrameAtListStart(at.Segment);
+        if (SamusProjectileAnimations.Segments.Beats(at.Segment)[at.Beat - 1] is not AnimationBeat<SamusProjectileFrame, NoAnimationCue>.Frame frame)
+            throw new InvalidOperationException($"Samus projectile segment {at.Segment} continues past a beat that is no record.");
+        return SamusProjectileRecordDefinitions.Get(frame.Shown).AnimationFrame;
     }
 }

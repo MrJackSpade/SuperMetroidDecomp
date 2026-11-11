@@ -7,10 +7,13 @@ namespace SuperMetroid.Core.Enemies.NoobTube;
 
 /// <summary>N00b tube projectile's typed animation.</summary>
 internal sealed class NoobTubeProjectileAnimation(NoobTubeProjectileProgram program)
-    : EnemyProjectileProgramAnimation<NoobTubeProjectileProgram, NoobTubeProjectileFrame, NoobTubeProjectileCue>(program)
+    : EnemyProjectileTypedAnimation<NoobTubeProjectileProgram, NoobTubeProjectileFrame, NoobTubeProjectileCue>(NoobTubeProjectileAnimations.StartingWith(program))
 {
     /// <inheritdoc/>
-    private protected override AnimationProgramSet<NoobTubeProjectileProgram, NoobTubeProjectileFrame, NoobTubeProjectileCue> Programs => NoobTubeProjectileAnimations.Programs;
+    private protected override AnimationSegments<NoobTubeProjectileProgram, NoobTubeProjectileFrame, NoobTubeProjectileCue> Segments => NoobTubeProjectileAnimations.Segments;
+
+    /// <inheritdoc/>
+    private protected override IReadOnlyDictionary<NoobTubeProjectileProgram, Animation<NoobTubeProjectileProgram>> StartingAt => NoobTubeProjectileAnimations.StartingAt;
 
     /// <inheritdoc/>
     private protected override EnemyProjectileFrameId Present(NoobTubeProjectileFrame frame) =>

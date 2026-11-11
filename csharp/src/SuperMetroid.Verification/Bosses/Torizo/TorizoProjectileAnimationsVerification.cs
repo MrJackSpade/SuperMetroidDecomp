@@ -77,16 +77,49 @@ internal static class TorizoProjectileAnimationsVerification
         [NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max1] = new SoundCommand(SoundEffectLibrary.Enemies, SoundRequestPriority.WhenIdle),
     };
 
-    /// <summary>Every projectile program matches its native list.</summary>
+    /// <summary>The operand byte count of each native command that becomes a cue; the rest carry none.</summary>
+    private static readonly Dictionary<NativeEnemyProjectileInstruction, int> OperandByteCounts = new()
+    {
+        [NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max6] = 1,
+        [NativeEnemyProjectileInstruction.QueueSoundInY_Lib3_Max6] = 1,
+        [NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max1] = 1,
+        [NativeEnemyProjectileInstruction.FrameBehaviorInY] = 2,
+        [NativeEnemyProjectileInstruction.Properties_OrY] = 2,
+        [NativeEnemyProjectileInstruction.Properties_AndY] = 2,
+        [NativeEnemyProjectileInstruction.GotoYIfEyeBeamExplosionsDisabled] = 2,
+        [NativeEnemyProjectileInstruction.GotoY_Probability_1_4] = 2,
+        [NativeEnemyProjectileInstruction.XYRadiusInY] = 2,
+        [NativeEnemyProjectileInstruction.SpawnEnemyDropsWIthYDropChances] = 4,
+        [NativeEnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius] = 4,
+    };
+
+    /// <summary>The projectile segments' native entries, in authored order.</summary>
+    private static NativeProgramEntry<TorizoProjectileProgram>[] SegmentEntries =>
+        [.. ProjectileEntries.Select(entry => new NativeProgramEntry<TorizoProjectileProgram>(entry.Program, entry.Entry))];
+
+    /// <summary>
+    /// How the projectile oracle reads Torizo's commands: each becomes the cue its <see cref="Words"/> entry names, with
+    /// its operands compared field by field; a deletion and the egg's hatch end their lists.
+    /// </summary>
+    private static NativeEnemyProjectileCueRules<TorizoProjectileCue> CueRules => new(
+        word => Words.TryGetValue((NativeEnemyProjectileInstruction)word, out var meaning) && meaning.Cue is not null
+            ? (int?)OperandByteCounts.GetValueOrDefault((NativeEnemyProjectileInstruction)word)
+            : null,
+        (word, operands, cue, at) =>
+        {
+            var instruction = (NativeEnemyProjectileInstruction)word;
+            (Words[instruction].Cue ?? throw new InvalidOperationException($"{at}: a cue command names its cue.")).Check(cue, at);
+            CompareOperands(instruction, operands, cue, at);
+        },
+        EndsList: cue => cue is TorizoProjectileCue.Command { Kind: TorizoProjectileCueKind.Delete or TorizoProjectileCueKind.Hatch });
+
+    /// <summary>Every projectile segment and animation matches its native lists.</summary>
     internal static void VerifyTorizoProjectileAnimations(SuperMetroidAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
-        AssertEqual(Enum.GetValues<TorizoProjectileProgram>().Length, ProjectileEntries.Length, "every typed Torizo projectile program has a native entry");
-        for (int index = 0; index < ProjectileEntries.Length; index++)
-            AssertEqual((TorizoProjectileProgram)index, ProjectileEntries[index].Program, "the Torizo projectile programs are declared in authored order");
-        int steps = 0;
-        foreach ((TorizoProjectileProgram program, ushort entry) in ProjectileEntries)
-            steps += CompareProjectileProgram(cartridge, program, entry);
+        int beats = NativeEnemyProjectileProgramOracle.CompareAll(cartridge, SegmentEntries, TorizoProjectileAnimations.Segments,
+            TorizoProjectileAnimations.StartingAt, frame => EnemyProjectileProgramFrameSources.Operand(TorizoProjectileVisualDefinitions.ShownProjectileFrames[frame]),
+            CueRules);
 
         int frames = 0;
         foreach (TorizoProjectileFamily family in Enum.GetValues<TorizoProjectileFamily>())
@@ -94,10 +127,10 @@ internal static class TorizoProjectileAnimationsVerification
             IReadOnlyList<TorizoProjectileFrame> installed = TorizoProjectileVisualDefinitions.Frames(family);
             var shown = Enum.GetValues<TorizoProjectileProgram>()
                 .Where(program => TorizoProjectileAnimationsConstants.Family(program) == family)
-                .SelectMany(program => TorizoProjectileAnimations.Programs.Steps(program))
-                .OfType<AnimationProgramStep<TorizoProjectileProgram, TorizoProjectileFrame, TorizoProjectileCue>.ShowStep>()
-                .Select(step => step.Frame).ToHashSet();
-            AssertTrue(shown.SetEquals(installed), $"the {family} programs show exactly the installed frames");
+                .SelectMany(program => TorizoProjectileAnimations.Segments.Beats(program))
+                .OfType<AnimationBeat<TorizoProjectileFrame, TorizoProjectileCue>.Frame>()
+                .Select(frame => frame.Shown).ToHashSet();
+            AssertTrue(shown.SetEquals(installed), $"the {family} segments show exactly the installed frames");
             ushort[] keys = [.. installed.Select((frame => EnemyProjectileProgramFrameSources.Operand(TorizoProjectileVisualDefinitions.ShownProjectileFrames[frame])))];
             AssertTrue(keys.Zip(keys.Skip(1), (first, second) => first < second).All(ascends => ascends), $"the {family} frames install in native operand order");
             frames += installed.Count;
@@ -112,169 +145,75 @@ internal static class TorizoProjectileAnimationsVerification
 
         foreach (TorizoProjectileProgram sleeping in new[] { TorizoProjectileProgram.EggBouncingLeft, TorizoProjectileProgram.EggBouncingRight })
         {
-            var held = TorizoProjectileAnimations.Programs.Steps(sleeping);
-            AssertTrue(held[^1] is AnimationProgramStep<TorizoProjectileProgram, TorizoProjectileFrame, TorizoProjectileCue>.HoldStep, $"{sleeping} sleeps");
+            AssertEqual(AnimationEnd.Holds, TorizoProjectileAnimations.StartingWith(sleeping).End, $"{sleeping} sleeps");
             ushort sleep = unchecked((ushort)(ProjectileEntry(sleeping) + 4));
             AssertEqual(ProjectileWord.Sleep, Words[(NativeEnemyProjectileInstruction)cartridge.ReadCartridgeWord(NativeEnemyProjectileListDefinitions.ProjectileBank | sleep)].Word,
                 $"{sleeping}'s sleep follows its frame");
             AssertEqual(ProjectileProgramAt(unchecked((ushort)(sleep + 2))), TorizoProjectileAnimations.AfterSleep(sleeping),
                 $"{sleeping} resumes past its sleep");
         }
-        Console.WriteLine($"  Torizo projectile programs: {ProjectileEntries.Length} programs ({steps} steps, {frames} installed frames) match bank $86.");
+        Console.WriteLine($"  Torizo projectile animations: {ProjectileEntries.Length} segments ({beats} beats, {frames} installed frames) and {TorizoProjectileAnimations.StartingAt.Count} animations match bank $86.");
     }
 
-    /// <summary>Compares one projectile program with its native list and returns its step count.</summary>
-    private static int CompareProjectileProgram(IImportCartridgeSource cartridge, TorizoProjectileProgram program, ushort entry)
+    /// <summary>Compares a command's operand bytes with its cue's typed fields.</summary>
+    private static void CompareOperands(NativeEnemyProjectileInstruction instruction, byte[] operands, TorizoProjectileCue cue, string at)
     {
-        var steps = TorizoProjectileAnimations.Programs.Steps(program);
-        ushort cursor = entry;
-        int index = 0;
-        AnimationProgramStep<TorizoProjectileProgram, TorizoProjectileFrame, TorizoProjectileCue> Next(string what)
-        {
-            AssertTrue(index < steps.Count, $"Torizo projectile {program} has a step for native {what} at $86:{cursor:X4}");
-            return steps[index++];
-        }
-        while (true)
-        {
-            string at = $"Torizo projectile {program} at $86:{cursor:X4}";
-            if (cursor != entry && ProjectileProgramAt(cursor) is { } following)
-            {
-                var fall = Next("fall-through");
-                var fallInto = AssertIs<AnimationProgramStep<TorizoProjectileProgram, TorizoProjectileFrame, TorizoProjectileCue>.FallIntoStep>(fall, $"{at}: runs on into the next authored program");
-                AssertEqual(following, fallInto.Target, $"{at}: fall-through target");
-                break;
-            }
-            int address = NativeEnemyProjectileListDefinitions.ProjectileBank | cursor;
-            ushort word = cartridge.ReadCartridgeWord(address);
-            ushort operand = cartridge.ReadCartridgeWord(address + 2);
-            if ((word & NativeEnemyListDefinitions.InstructionBit) == 0)
-            {
-                var show = AssertIs<AnimationProgramStep<TorizoProjectileProgram, TorizoProjectileFrame, TorizoProjectileCue>.ShowStep>(Next("frame"), $"{at}: frame");
-                AssertEqual(word, show.Duration, $"{at}: duration");
-                AssertEqual(unchecked((ushort)(cursor + 2)), EnemyProjectileProgramFrameSources.Operand(TorizoProjectileVisualDefinitions.ShownProjectileFrames[show.Frame]), $"{at}: installed frame");
-                cursor = unchecked((ushort)(cursor + 4));
-                continue;
-            }
-            var instruction = (NativeEnemyProjectileInstruction)word;
-            AssertTrue(Words.TryGetValue(instruction, out var meaning), $"{at}: native command ${word:X4} is known");
-            switch (meaning.Word)
-            {
-                case ProjectileWord.Sleep:
-                    AssertTrue(Next("sleep") is AnimationProgramStep<TorizoProjectileProgram, TorizoProjectileFrame, TorizoProjectileCue>.HoldStep, $"{at}: sleep");
-                    break;
-                case ProjectileWord.GoTo:
-                {
-                    var jump = Next("goto");
-                    var goTo = AssertIs<AnimationProgramStep<TorizoProjectileProgram, TorizoProjectileFrame, TorizoProjectileCue>.GoToStep>(jump, $"{at}: goto");
-                    AssertEqual(operand, ProjectileEntry(goTo.Target), $"{at}: goto target");
-                    break;
-                }
-                case ProjectileWord.Delete:
-                case ProjectileWord.Hatch:
-                {
-                    var cue = Next("ending command");
-                    var cueStep = AssertIs<AnimationProgramStep<TorizoProjectileProgram, TorizoProjectileFrame, TorizoProjectileCue>.CueStep>(cue, $"{at}: ending command");
-                    (meaning.Cue ?? throw new InvalidOperationException($"{at}: an ending command names its cue.")).Check(cueStep.Cue, at);
-                    AssertTrue(Next("hold") is AnimationProgramStep<TorizoProjectileProgram, TorizoProjectileFrame, TorizoProjectileCue>.HoldStep, $"{at}: the program ends where the list does");
-                    break;
-                }
-                case ProjectileWord.SetCounter:
-                {
-                    var load = Next("timer load");
-                    var setCounter = AssertIs<AnimationProgramStep<TorizoProjectileProgram, TorizoProjectileFrame, TorizoProjectileCue>.SetCounterStep>(load, $"{at}: timer load");
-                    AssertEqual(operand, setCounter.Count, $"{at}: timer");
-                    cursor = unchecked((ushort)(cursor + 4));
-                    continue;
-                }
-                case ProjectileWord.RepeatWhileCounting:
-                {
-                    var repeat = AssertIs<AnimationProgramStep<TorizoProjectileProgram, TorizoProjectileFrame, TorizoProjectileCue>.RepeatWhileCountingStep>(Next("timer countdown"), $"{at}: timer countdown");
-                    AssertEqual(operand, ProjectileEntry(repeat.Target), $"{at}: countdown target");
-                    cursor = unchecked((ushort)(cursor + 4));
-                    continue;
-                }
-                case ProjectileWord.Cue:
-                {
-                    var step = Next("command");
-                    var cueStep = AssertIs<AnimationProgramStep<TorizoProjectileProgram, TorizoProjectileFrame, TorizoProjectileCue>.CueStep>(step, $"{at}: command");
-                    TorizoProjectileCue cue = cueStep.Cue;
-                    (meaning.Cue ?? throw new InvalidOperationException($"{at}: a cue command names its cue.")).Check(cue, at);
-                    cursor = unchecked((ushort)(cursor + 2 + CompareOperands(cartridge, instruction, address, cue, at)));
-                    continue;
-                }
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(ProjectileWord)} {meaning.Word}.");
-            }
-            break;
-        }
-        AssertEqual(steps.Count, index, $"Torizo projectile {program} ends where its native list does");
-        return steps.Count;
-    }
-
-    /// <summary>Compares a command's operands with its cue's typed fields and returns their byte count.</summary>
-    private static int CompareOperands(IImportCartridgeSource cartridge, NativeEnemyProjectileInstruction instruction, int address, TorizoProjectileCue cue, string at)
-    {
-        ushort first = cartridge.ReadCartridgeWord(address + 2);
+        ushort Word(int offset) => LittleEndianBytes.Word(operands[offset], operands[offset + 1]);
         if (SoundCommands.TryGetValue(instruction, out var sound))
         {
             var playSound = AssertIs<TorizoProjectileCue.PlaySound>(cue, $"{at}: cue");
-            AssertEqual(SoundEffectCommands.Decode(sound.Library, OperandByte(cartridge, address + 2)), playSound.Sound, $"{at}: sound");
+            AssertEqual(SoundEffectCommands.Decode(sound.Library, operands[0]), playSound.Sound, $"{at}: sound");
             AssertEqual(sound.Priority, playSound.Priority, $"{at}: sound queue limit");
-            return 1;
+            return;
         }
         switch (cue)
         {
             case TorizoProjectileCue.SetFrameBehavior setFrameBehavior:
-                AssertEqual(setFrameBehavior.FrameBehavior, EnemyProjectileFrameBehaviorAccess.FromWord(first), $"{at}: movement routine");
-                return 2;
+                AssertEqual(setFrameBehavior.FrameBehavior, EnemyProjectileFrameBehaviorAccess.FromWord(Word(0)), $"{at}: movement routine");
+                return;
             case TorizoProjectileCue.SetProperties setProperties:
                 // The cue's behaviours, encoded by the import's property-word bits, are the OR operand the cartridge stores;
                 // setting the depth bit moves the projectile in front of Samus.
-                AssertEqual(first, unchecked((ushort)(EnemyProjectilePropertyWords.ToNativeWord(setProperties.Properties) |
+                AssertEqual(Word(0), unchecked((ushort)(EnemyProjectilePropertyWords.ToNativeWord(setProperties.Properties) |
                     (setProperties.Depth is { } setDepth ? EnemyProjectilePropertyWords.ToNativeWord(setDepth) : 0))), $"{at}: property bits set");
                 AssertTrue(setProperties.Depth is null or EnemyProjectileDepth.InFrontOfSamus, $"{at}: a property OR can only move the projectile in front of Samus");
-                return 2;
+                return;
             case TorizoProjectileCue.ClearProperties clearProperties:
                 // The cue's behaviours, encoded by the import's property-word bits, are the bits the cartridge's AND mask clears;
                 // clearing the depth bit moves the projectile behind Samus.
-                AssertEqual(first, unchecked((ushort)~(EnemyProjectilePropertyWords.ToNativeWord(clearProperties.Properties) |
+                AssertEqual(Word(0), unchecked((ushort)~(EnemyProjectilePropertyWords.ToNativeWord(clearProperties.Properties) |
                     (clearProperties.Depth is not null ? EnemyProjectilePropertyWords.ToNativeWord(EnemyProjectileDepth.InFrontOfSamus) : 0))), $"{at}: property bits kept");
                 AssertTrue(clearProperties.Depth is null or EnemyProjectileDepth.BehindSamus, $"{at}: a property AND can only move the projectile behind Samus");
-                return 2;
+                return;
             case TorizoProjectileCue.GoToIfEyeBeamExplosionsDisabled goToIfEyeBeamExplosionsDisabled:
-                AssertEqual(first, ProjectileEntry(goToIfEyeBeamExplosionsDisabled.Target), $"{at}: branch target");
-                return 2;
+                AssertEqual(Word(0), ProjectileEntry(goToIfEyeBeamExplosionsDisabled.Target), $"{at}: branch target");
+                return;
             case TorizoProjectileCue.GoToSometimes goToSometimes:
-                AssertEqual(first, ProjectileEntry(goToSometimes.Target), $"{at}: branch target");
-                return 2;
+                AssertEqual(Word(0), ProjectileEntry(goToSometimes.Target), $"{at}: branch target");
+                return;
             case TorizoProjectileCue.SetRadius setRadius:
-                AssertEqual(new Extent16<RoomPixels>(OperandByte(cartridge, address + 2), OperandByte(cartridge, address + 3)), setRadius.Radius, $"{at}: radius");
-                return 2;
+                AssertEqual(new Extent16<RoomPixels>(operands[0], operands[1]), setRadius.Radius, $"{at}: radius");
+                return;
             case TorizoProjectileCue.Command { Kind: TorizoProjectileCueKind.SpawnOrbDrops }:
-                AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(EnemyDefinitionId.BombTorizoOrb), first, $"{at}: Bomb Torizo orb header");
-                AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(EnemyDefinitionId.GoldenTorizoOrb), cartridge.ReadCartridgeWord(address + 4), $"{at}: Golden Torizo orb header");
-                return 4;
+                AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(EnemyDefinitionId.BombTorizoOrb), Word(0), $"{at}: Bomb Torizo orb header");
+                AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(EnemyDefinitionId.GoldenTorizoOrb), Word(2), $"{at}: Golden Torizo orb header");
+                return;
             case TorizoProjectileCue.Scatter scatter:
                 // Each range field reads exactly the bits of its native mask operand.
-                AssertEqual<int>(OperandByte(cartridge, address + 2), (scatter.Spread.XRange.Outcomes - 1) << scatter.Spread.XRange.Shift,
-                    $"{at}: scatter X range");
-                AssertEqual<int>(OperandByte(cartridge, address + 4), (scatter.Spread.YRange.Outcomes - 1) << scatter.Spread.YRange.Shift,
-                    $"{at}: scatter Y range");
-                AssertEqual(new Extent16<RoomPixels>(OperandByte(cartridge, address + 3), OperandByte(cartridge, address + 5)),
-                    scatter.Spread.Center, $"{at}: scatter center");
-                return 4;
+                AssertEqual<int>(operands[0], (scatter.Spread.XRange.Outcomes - 1) << scatter.Spread.XRange.Shift, $"{at}: scatter X range");
+                AssertEqual<int>(operands[2], (scatter.Spread.YRange.Outcomes - 1) << scatter.Spread.YRange.Shift, $"{at}: scatter Y range");
+                AssertEqual(new Extent16<RoomPixels>(operands[1], operands[3]), scatter.Spread.Center, $"{at}: scatter center");
+                return;
             case TorizoProjectileCue.Command { Kind: TorizoProjectileCueKind.ClearFrameBehavior or TorizoProjectileCueKind.AimSuperMissileTowardSamus or
                 TorizoProjectileCueKind.AimSuperMissileAwayFromSamus or TorizoProjectileCueKind.ReturnToOrigin or TorizoProjectileCueKind.RaiseDust or
                 TorizoProjectileCueKind.StopBlockingShots or TorizoProjectileCueKind.StopHarmingSamus or TorizoProjectileCueKind.DrawInFront or
-                TorizoProjectileCueKind.NoOperation }:
-                return 0;
-            case TorizoProjectileCue.PlaySound or TorizoProjectileCue.Command { Kind: TorizoProjectileCueKind.Delete or TorizoProjectileCueKind.Hatch }:
+                TorizoProjectileCueKind.NoOperation or TorizoProjectileCueKind.Delete or TorizoProjectileCueKind.Hatch }:
+                AssertEqual(0, operands.Length, $"{at}: no operands");
+                return;
+            case TorizoProjectileCue.PlaySound:
                 throw new InvalidDataException($"{at}: {cue} is not an operand command here.");
             default:
                 throw new InvalidOperationException($"Undefined Torizo projectile cue {cue}.");
         }
     }
-
-    /// <summary>Reads one byte of a native command's operands for the cartridge-side comparison.</summary>
-    private static byte OperandByte(IImportCartridgeSource cartridge, int address) => cartridge.ReadCartridgeByte(address);
 }

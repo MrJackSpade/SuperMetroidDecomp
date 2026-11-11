@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Programs;
-using P = SuperMetroid.Core.Bosses.Torizo.TorizoBodyProgram;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
@@ -12,9 +11,9 @@ internal static class TorizoAnimationsConstants
     /// first-seen frame order.
     /// </summary>
     internal static IEnumerable<ushort> Spritemaps(params TorizoBodyProgram[] programs) =>
-        programs.SelectMany(program => TorizoAnimations.Programs.Steps(program))
-            .OfType<AnimationProgramStep<P, TorizoFrame, TorizoCue>.ShowStep>()
-            .Select(step => TorizoFrameDefinitionsConstants.Spritemap(step.Frame));
+        programs.SelectMany(program => TorizoAnimations.Segments.Beats(program))
+            .OfType<AnimationBeat<TorizoFrame, TorizoCue>.Frame>()
+            .Select(frame => TorizoFrameDefinitionsConstants.Spritemap(frame.Shown));
     /// <summary>Every body program, in authored address order.</summary>
     internal static TorizoBodyProgram[] AllPrograms { get; } = Enum.GetValues<TorizoBodyProgram>();
 }

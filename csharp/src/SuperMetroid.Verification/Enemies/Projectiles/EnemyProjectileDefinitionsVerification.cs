@@ -445,14 +445,14 @@ internal static class EnemyProjectileDefinitionsVerification
                     _ => TorizoProjectileProgram.ChozoOrbShot,
                 };
                 AssertTrue(projectile.Animation is TorizoProjectileAnimation started
-                        && started.Cursor == AnimationProgramCursor<TorizoProjectileProgram>.Start(expected),
+                        && started.Playback == new AnimationPlayback<TorizoProjectileProgram>(TorizoProjectileAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation),
                     $"{kind} production shot starts the typed {expected} program");
                 AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }
             else if (kind == RoomEnemyProjectileKind.PowampSpike)
             {
                 // The spike's shot list is its private delete list, typed with its programs (#1291).
-                AssertTrue(projectile.Animation is PowampSpikeAnimation { Cursor.Program: PowampSpikeProgram.Delete },
+                AssertTrue(projectile.Animation is PowampSpikeAnimation { PlayingSegment: PowampSpikeProgram.Delete },
                     $"{kind} production shot starts the typed delete program");
                 AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }

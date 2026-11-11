@@ -5,19 +5,18 @@ using P = SuperMetroid.Core.Enemies.Animals.EscapeDachoraProgram;
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
-/// The escaping Dachora's typed programs (#641). Each
-/// frame shows a <see cref="EscapeDachoraFrame"/> pose and each callback becomes a <see cref="EscapeDachoraCue"/> with its typed operands.
+/// The escaping Dachora's typed animations (#641, #1600). Each frame shows a <see cref="EscapeDachoraFrame"/> pose and
+/// each callback becomes a <see cref="EscapeDachoraCue"/> with its typed operands. Around the shaft it runs five laps
+/// left and five right, counted on its timer; a branch continues the play where <see cref="BranchTargets"/> says.
 /// </summary>
 internal static class EscapeDachoraAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<EscapeDachoraProgram, EscapeDachoraFrame, EscapeDachoraCue> Programs { get; } = new(
-        new Dictionary<EscapeDachoraProgram, AnimationProgramStep<EscapeDachoraProgram, EscapeDachoraFrame, EscapeDachoraCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<EscapeDachoraProgram, EscapeDachoraFrame, EscapeDachoraCue> Segments { get; } = new(
+        new Dictionary<EscapeDachoraProgram, AnimationBeat<EscapeDachoraFrame, EscapeDachoraCue>[]>
     {
         [P.RunningAroundLowTide] =
         [
-            SetCounter(5),
-            FallInto(P.RunningAroundLowTideLeft),
         ],
         [P.RunningAroundLowTideLeft] =
         [
@@ -35,9 +34,6 @@ internal static class EscapeDachoraAnimations
             Cue(new(K.MoveLeft)),
             Cue(new(K.GoToIfAcidHigh, Target: P.RunningAroundHighTideLeftLoop)),
             Cue(new(K.GoToIfCrittersEscaped, Target: P.RunningForEscape)),
-            RepeatWhileCounting(P.RunningAroundLowTideLeft),
-            SetCounter(5),
-            FallInto(P.RunningAroundLowTideRight),
         ],
         [P.RunningAroundLowTideRight] =
         [
@@ -55,13 +51,9 @@ internal static class EscapeDachoraAnimations
             Cue(new(K.MoveRight)),
             Cue(new(K.GoToIfAcidHigh, Target: P.RunningAroundHighTideRightLoop)),
             Cue(new(K.GoToIfCrittersEscaped, Target: P.RunningForEscapeAccelerating)),
-            RepeatWhileCounting(P.RunningAroundLowTideRight),
-            GoTo(P.RunningAroundLowTide),
         ],
         [P.RunningAroundHighTide] =
         [
-            SetCounter(5),
-            FallInto(P.RunningAroundHighTideLeft),
         ],
         [P.RunningAroundHighTideLeft] =
         [
@@ -78,13 +70,9 @@ internal static class EscapeDachoraAnimations
             Show(5, 2),
             Cue(new(K.MoveLeft)),
             Cue(new(K.GoToIfCrittersEscaped, Target: P.RunningForEscape)),
-            FallInto(P.RunningAroundHighTideLeftLoop),
         ],
         [P.RunningAroundHighTideLeftLoop] =
         [
-            RepeatWhileCounting(P.RunningAroundHighTideLeft),
-            SetCounter(5),
-            FallInto(P.RunningAroundHighTideRight),
         ],
         [P.RunningAroundHighTideRight] =
         [
@@ -101,17 +89,13 @@ internal static class EscapeDachoraAnimations
             Show(11, 2),
             Cue(new(K.MoveRight)),
             Cue(new(K.GoToIfCrittersEscaped, Target: P.RunningForEscapeAccelerating)),
-            FallInto(P.RunningAroundHighTideRightLoop),
         ],
         [P.RunningAroundHighTideRightLoop] =
         [
-            RepeatWhileCounting(P.RunningAroundHighTideRight),
-            GoTo(P.RunningAroundHighTide),
         ],
         [P.RunningForEscape] =
         [
             Show(0, 30),
-            FallInto(P.RunningForEscapeAccelerating),
         ],
         [P.RunningForEscapeAccelerating] =
         [
@@ -139,7 +123,6 @@ internal static class EscapeDachoraAnimations
             Cue(new(K.MoveRight)),
             Show(11, 2),
             Cue(new(K.MoveRight)),
-            FallInto(P.RunningForEscapeMaximumSpeed),
         ],
         [P.RunningForEscapeMaximumSpeed] =
         [
@@ -155,26 +138,55 @@ internal static class EscapeDachoraAnimations
             Cue(new(K.MoveRight)),
             Show(11, 1),
             Cue(new(K.MoveRight)),
-            GoTo(P.RunningForEscapeMaximumSpeed),
         ],
     });
 
+    /// <summary>Five laps left then five right at low tide, each lap counted on the timer, over and over.</summary>
+    private static readonly Animation<P> RunningAroundLowTide =
+        new([new(P.RunningAroundLowTideLeft, 0, 14, 5), new(P.RunningAroundLowTideRight, 0, 14, 5)], AnimationEnd.LoopsFrom(0));
+
+    /// <summary>Five quicker laps left then five right at high tide, each lap counted on the timer, over and over.</summary>
+    private static readonly Animation<P> RunningAroundHighTide =
+        new([new(P.RunningAroundHighTideLeft, 0, 13, 5), new(P.RunningAroundHighTideRight, 0, 13, 5)], AnimationEnd.LoopsFrom(0));
+
+    /// <summary>The pause, the acceleration, then the sprint at full speed for good.</summary>
+    private static readonly Animation<P> RunningForEscape = new(
+        [new(P.RunningForEscape, 0, 1, 1), new(P.RunningForEscapeAccelerating, 0, 24, 1), new(P.RunningForEscapeMaximumSpeed, 0, 12, 1)],
+        AnimationEnd.LoopsFrom(2));
+
+    /// <summary>The acceleration, then the sprint at full speed for good.</summary>
+    private static readonly Animation<P> RunningForEscapeAccelerating = new(
+        [new(P.RunningForEscapeAccelerating, 0, 24, 1), new(P.RunningForEscapeMaximumSpeed, 0, 12, 1)], AnimationEnd.LoopsFrom(1));
+
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<EscapeDachoraProgram, Animation<EscapeDachoraProgram>> StartingAt { get; } = new Dictionary<EscapeDachoraProgram, Animation<EscapeDachoraProgram>>
+    {
+        [P.RunningAroundLowTide] = RunningAroundLowTide,
+        [P.RunningAroundHighTide] = RunningAroundHighTide,
+        [P.RunningForEscape] = RunningForEscape,
+        [P.RunningForEscapeAccelerating] = RunningForEscapeAccelerating,
+        [P.RunningForEscapeMaximumSpeed] = new([new(P.RunningForEscapeMaximumSpeed, 0, 12, 1)], AnimationEnd.LoopsFrom(0)),
+    };
+
+    /// <summary>
+    /// Where each branch target continues the play. A branch on high acid continues the high-tide laps at the end of a
+    /// lap in the same direction, so the lap count already on the timer counts on; a branch for the escape starts the run.
+    /// </summary>
+    internal static IReadOnlyDictionary<EscapeDachoraProgram, AnimationContinuation<EscapeDachoraProgram>> BranchTargets { get; } =
+        new Dictionary<EscapeDachoraProgram, AnimationContinuation<EscapeDachoraProgram>>
+        {
+            [P.RunningAroundHighTideLeftLoop] = new(RunningAroundHighTide, new AnimationPlace(0, 13)),
+            [P.RunningAroundHighTideRightLoop] = new(RunningAroundHighTide, new AnimationPlace(1, 13)),
+            [P.RunningForEscape] = new(RunningForEscape, AnimationPlace.StartOfAnimation),
+            [P.RunningForEscapeAccelerating] = new(RunningForEscapeAccelerating, AnimationPlace.StartOfAnimation),
+        };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<EscapeDachoraProgram> StartingWith(EscapeDachoraProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<EscapeDachoraProgram, EscapeDachoraFrame, EscapeDachoraCue> Show(int pose, int duration) => AnimationProgramStep<EscapeDachoraProgram, EscapeDachoraFrame, EscapeDachoraCue>.Show(new(pose), duration);
+    private static AnimationBeat<EscapeDachoraFrame, EscapeDachoraCue> Show(int pose, int duration) => new AnimationBeat<EscapeDachoraFrame, EscapeDachoraCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<EscapeDachoraProgram, EscapeDachoraFrame, EscapeDachoraCue> Cue(EscapeDachoraCue cue) => AnimationProgramStep<EscapeDachoraProgram, EscapeDachoraFrame, EscapeDachoraCue>.Publish(cue);
-
-    /// <summary>Loads the loop counter with <paramref name="count"/>.</summary>
-    private static AnimationProgramStep<EscapeDachoraProgram, EscapeDachoraFrame, EscapeDachoraCue> SetCounter(int count) => AnimationProgramStep<EscapeDachoraProgram, EscapeDachoraFrame, EscapeDachoraCue>.SetCounter(count);
-
-    /// <summary>Repeats from <paramref name="program"/> while the loop counter counts down.</summary>
-    private static AnimationProgramStep<EscapeDachoraProgram, EscapeDachoraFrame, EscapeDachoraCue> RepeatWhileCounting(EscapeDachoraProgram program) => AnimationProgramStep<EscapeDachoraProgram, EscapeDachoraFrame, EscapeDachoraCue>.RepeatWhileCounting(program);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<EscapeDachoraProgram, EscapeDachoraFrame, EscapeDachoraCue> GoTo(EscapeDachoraProgram program) => AnimationProgramStep<EscapeDachoraProgram, EscapeDachoraFrame, EscapeDachoraCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<EscapeDachoraProgram, EscapeDachoraFrame, EscapeDachoraCue> FallInto(EscapeDachoraProgram program) => AnimationProgramStep<EscapeDachoraProgram, EscapeDachoraFrame, EscapeDachoraCue>.FallInto(program);
-
+    private static AnimationBeat<EscapeDachoraFrame, EscapeDachoraCue> Cue(EscapeDachoraCue cue) => new AnimationBeat<EscapeDachoraFrame, EscapeDachoraCue>.Event(cue);
 }

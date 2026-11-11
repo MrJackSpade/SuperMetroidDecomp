@@ -106,7 +106,7 @@ internal static class ProjectileInstructionsVerification
         // word preceding a freshly installed list.
         foreach (ushort entry in entries)
         {
-            trailSlot.Cursor = SamusProjectileProgramAddresses.CursorAt(entry);
+            trailSlot.Playback = SamusProjectileProgramAddresses.PlaybackAt(entry);
             foreach (ushort timer in new ushort[] { 0, 1, 2, ushort.MaxValue })
             {
                 trailSlot.FrameHold = WrappingCountdown.FromRaw(timer);
@@ -120,8 +120,8 @@ internal static class ProjectileInstructionsVerification
         int frames = 0;
         foreach (ushort entry in entries)
         {
-            var slot = new SamusProjectile(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(entry), FrameHold = WrappingCountdown.Start(1), Damage = 30 };
-            var bomb = new SamusBombProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(entry), FrameHold = WrappingCountdown.Start(1), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500), Damage = 30 };
+            var slot = new SamusProjectile(0) { Playback = SamusProjectileProgramAddresses.PlaybackAt(entry), FrameHold = WrappingCountdown.Start(1), Damage = 30 };
+            var bomb = new SamusBombProjectileSlot(0) { Playback = SamusProjectileProgramAddresses.PlaybackAt(entry), FrameHold = WrappingCountdown.Start(1), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500), Damage = 30 };
             ushort timer = 1, pointer = entry, sprite = 0, x = 0, y = 0, trail = 0;
             for (int frame = 0; frame < 64; frame++)
             {

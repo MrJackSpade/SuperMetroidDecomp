@@ -212,7 +212,7 @@ public sealed class SamusBombProjectileSystem
         {
             if (samus.Xray.TimeIsFrozen)
                 break;
-            if (slot.Cursor is null)
+            if (slot.Playback is null)
                 continue;
 
             bool wasNormalBomb = slot.Type.Family == SamusProjectileFamily.Bomb;
@@ -301,7 +301,7 @@ public sealed class SamusBombProjectileSystem
             // timed-spritemap interpreter. The large power-bomb flash itself is a glowing
             // window and is composed separately from the sprites.
             SamusProjectileFamily family = slot.Type.Family;
-            if (slot.Cursor is null ||
+            if (slot.Playback is null ||
                 family is not (SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb))
                 continue;
 
@@ -584,7 +584,7 @@ public sealed class SamusBombProjectileSystem
 
         slot.Damage = SamusProjectileDamage.Read(header);
 
-        slot.Cursor = SamusProjectilePrograms.Start(SamusProjectileHeaders.SoleProgram(header));
+        slot.Playback = SamusProjectilePrograms.Start(SamusProjectileHeaders.SoleProgram(header));
         slot.FrameHold = WrappingCountdown.Start(1);
     }
 
@@ -619,7 +619,7 @@ public sealed class SamusBombProjectileSystem
             PowerBombFuseStep fuse = SamusPowerBombFuse.Step(slot.BombTimer, PowerBombExplosion.IsArmed);
             slot.BombTimer = fuse.Timer;
             if (fuse.FastAnimation)
-                slot.Cursor = SamusPowerBombFuse.FastAnimation(slot.Cursor);
+                slot.Playback = SamusPowerBombFuse.FastAnimation(slot.Playback);
             if (fuse.DeleteProjectile)
             {
                 ClearProjectile(slot);
@@ -637,14 +637,14 @@ public sealed class SamusBombProjectileSystem
             if (slot.BombTimer.IsAt(15))
             {
                 // The slow and fast lists have identical four-frame layouts and differ by
-                // a fixed distance. Moving the live instruction cursor by it preserves phase.
-                slot.Cursor = SamusPowerBombFuse.FastAnimation(slot.Cursor);
+                // a fixed distance. Moving the live animation by it preserves phase.
+                slot.Playback = SamusPowerBombFuse.FastAnimation(slot.Playback);
             }
             else if (slot.BombTimer.IsZero)
             {
                 // The explosion reads the animation embedded in the bomb-explosion data
                 // record and resets the animation timer to one.
-                slot.Cursor = SamusProjectilePrograms.Start(SamusProjectileProgram.BombExplosion);
+                slot.Playback = SamusProjectilePrograms.Start(SamusProjectileProgram.BombExplosion);
                 slot.FrameHold = WrappingCountdown.Start(1);
                 explosionStarted = true;
             }
@@ -1057,9 +1057,9 @@ public sealed class SamusBombProjectileSystem
         if (!slot.FrameHold.IsZero)
             return false;
 
-        AnimationProgramCursor<SamusProjectileProgram> cursor = slot.Cursor
+        AnimationPlayback<SamusProjectileProgram> playback = slot.Playback
             ?? throw new InvalidOperationException("An inactive bomb has no list to run.");
-        if (SamusProjectilePrograms.RunToNextRecord(ref cursor, out int duration) is not { } frame)
+        if (SamusProjectilePrograms.RunToNextRecord(ref playback, out int duration) is not { } frame)
         {
             ClearProjectile(slot);
             return true;
@@ -1071,7 +1071,7 @@ public sealed class SamusBombProjectileSystem
         slot.Sprite = (FrameBindings ?? throw new InvalidOperationException(
             "Samus's bombs show their records' installed compositions, which are not bound.")).Resolve(frame);
         slot.Radius = record.Radius;
-        slot.Cursor = cursor;
+        slot.Playback = playback;
         return false;
     }
 

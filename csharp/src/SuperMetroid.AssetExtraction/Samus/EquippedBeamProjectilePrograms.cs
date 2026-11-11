@@ -71,15 +71,15 @@ internal static class EquippedBeamProjectilePrograms
         }
         AddSole(starts, SamusProjectileHeader.SuperMissileLink);
         starts.AddRange(Explosions);
-        starts.AddRange(SamusPowerBombFuseData.FastCounterparts.Values.Select(cursor => cursor.Program));
+        starts.AddRange(SamusPowerBombFuseData.FastCounterparts.Values.Select(place => place.Segment));
         return Continued(starts);
     }
 
     /// <summary>Every record a projectile fired or placed with <paramref name="beams"/> equipped can show.</summary>
     internal static IEnumerable<SamusProjectileFrame> Records(SamusBeamCombination beams) =>
-        Of(beams).SelectMany(program => SamusProjectileAnimations.Programs.Steps(program))
-            .OfType<AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.ShowStep>()
-            .Select(show => show.Frame)
+        Of(beams).SelectMany(program => SamusProjectileAnimations.Segments.Beats(program))
+            .OfType<AnimationBeat<SamusProjectileFrame, NoAnimationCue>.Frame>()
+            .Select(show => show.Shown)
             .Distinct();
 
     /// <summary>
@@ -100,35 +100,7 @@ internal static class EquippedBeamProjectilePrograms
     private static void AddSole(List<SamusProjectileProgram> starts, SamusProjectileHeader header) =>
         starts.Add(SamusProjectileHeaders.SoleProgram(header));
 
-    /// <summary><paramref name="starts"/> and every list they continue into.</summary>
-    private static HashSet<SamusProjectileProgram> Continued(IEnumerable<SamusProjectileProgram> starts)
-    {
-        var reached = new HashSet<SamusProjectileProgram>();
-        var pending = new Queue<SamusProjectileProgram>(starts);
-        while (pending.TryDequeue(out SamusProjectileProgram program))
-        {
-            if (!reached.Add(program))
-                continue;
-            foreach (AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue> step in
-                SamusProjectileAnimations.Programs.Steps(program))
-            {
-                switch (step)
-                {
-                    case AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.GoToStep goTo:
-                        pending.Enqueue(goTo.Target);
-                        break;
-                    case AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.FallIntoStep fallInto:
-                        pending.Enqueue(fallInto.Target);
-                        break;
-                    case AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.RepeatWhileCountingStep repeat:
-                        pending.Enqueue(repeat.Target);
-                        break;
-                    default:
-                        // A shown frame, a cue or a stop continues into no other list.
-                        break;
-                }
-            }
-        }
-        return reached;
-    }
+    /// <summary><paramref name="starts"/> and every segment their animations play.</summary>
+    private static HashSet<SamusProjectileProgram> Continued(IEnumerable<SamusProjectileProgram> starts) =>
+        [.. starts.SelectMany(start => SamusProjectileAnimations.StartingWith(start).Phases).Select(phase => phase.Segment)];
 }

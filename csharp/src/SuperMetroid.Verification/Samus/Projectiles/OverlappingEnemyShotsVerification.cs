@@ -49,7 +49,7 @@ internal static class OverlappingEnemyShotsVerification
         shot.Direction = SamusProjectileDirection.Right;
         shot.Position = shot.Position.WithWhole(new(128, 128));
         shot.Radius = new(4, 4);
-        shot.Cursor = ProjectileFixtureCursors.Active;
+        shot.Playback = ProjectileFixturePlaybacks.Active;
         shot.FrameHold = WrappingCountdown.Start(1);
         shot.FrameBehavior = SamusProjectileFrameBehavior.Missile;
 

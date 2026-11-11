@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
@@ -12,11 +11,11 @@ internal sealed class ChainsawPowerBombCallback
     /// <summary>Projectile animation owner used when the callback clears its slot.</summary>
     private readonly ProjectileAnimation _animation;
     /// <summary>Where the shot's animation lands when the borrowed fuse speeds up.</summary>
-    private readonly ChainsawFuseAnimationShift<AnimationProgramCursor<SamusProjectileProgram>> _fuseShift;
+    private readonly ChainsawFuseAnimationShift<SamusProjectileSegmentBeat> _fuseShift;
 
     /// <summary>Connects the callback to projectile animation cleanup and the fuse's animation shift.</summary>
     internal ChainsawPowerBombCallback(ProjectileAnimation animation,
-        ChainsawFuseAnimationShift<AnimationProgramCursor<SamusProjectileProgram>> fuseShift)
+        ChainsawFuseAnimationShift<SamusProjectileSegmentBeat> fuseShift)
     {
         _animation = animation;
         _fuseShift = Ensure.NotNull(fuseShift);
@@ -35,8 +34,8 @@ internal sealed class ChainsawPowerBombCallback
         slot.ChainsawPowerBombFuse = fuse.Timer;
         // On a beam the fuse's switch to the fast animation moves the beam's own animation as far as a bomb's fast
         // animation lies from its slow one, which lands wherever the original game laid an animation out there.
-        if (fuse.FastAnimation && slot.Cursor is { } live)
-            slot.Cursor = _fuseShift.Shift(live);
+        if (fuse.FastAnimation && slot.Playback is { } live)
+            slot.Playback = SamusProjectilePrograms.PlaybackAt(_fuseShift.Shift(SamusProjectilePrograms.BeatOf(live)));
 
         if (fuse.SpawnExplosion)
             sharedProjectiles.PowerBombExplosion.Spawn(slot.Position.Whole);

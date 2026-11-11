@@ -10,25 +10,30 @@ namespace SuperMetroid.Core.Enemies.YappingMaws;
 /// </summary>
 internal static class YappingMawBodyProjectileAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<YappingMawBodyProjectileProgram, YappingMawBodyProjectileFrame, EnemyProjectileCommonCue> Programs { get; } = new(
-        new Dictionary<YappingMawBodyProjectileProgram, AnimationProgramStep<YappingMawBodyProjectileProgram, YappingMawBodyProjectileFrame, EnemyProjectileCommonCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<YappingMawBodyProjectileProgram, YappingMawBodyProjectileFrame, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<YappingMawBodyProjectileProgram, AnimationBeat<YappingMawBodyProjectileFrame, EnemyProjectileCommonCue>[]>
     {
         [P.FacingDown] =
         [
             Show(0, 1),
-            Hold,
         ],
         [P.FacingUp] =
         [
             Show(1, 1),
-            Hold,
         ],
     });
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<YappingMawBodyProjectileProgram, YappingMawBodyProjectileFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => AnimationProgramStep<YappingMawBodyProjectileProgram, YappingMawBodyProjectileFrame, EnemyProjectileCommonCue>.Show(new(pose), duration);
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<YappingMawBodyProjectileProgram, Animation<YappingMawBodyProjectileProgram>> StartingAt { get; } = new Dictionary<YappingMawBodyProjectileProgram, Animation<YappingMawBodyProjectileProgram>>
+    {
+        [P.FacingDown] = new([new(P.FacingDown, 0, 1, 1)], AnimationEnd.Holds),
+        [P.FacingUp] = new([new(P.FacingUp, 0, 1, 1)], AnimationEnd.Holds),
+    };
 
-    /// <summary>Holds the last frame, as the sleep does.</summary>
-    private static AnimationProgramStep<YappingMawBodyProjectileProgram, YappingMawBodyProjectileFrame, EnemyProjectileCommonCue> Hold => AnimationProgramStep<YappingMawBodyProjectileProgram, YappingMawBodyProjectileFrame, EnemyProjectileCommonCue>.Hold;
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<YappingMawBodyProjectileProgram> StartingWith(YappingMawBodyProjectileProgram segment) => StartingAt[segment];
+
+    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<YappingMawBodyProjectileFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => new AnimationBeat<YappingMawBodyProjectileFrame, EnemyProjectileCommonCue>.Frame(new(pose), duration);
 }

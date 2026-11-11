@@ -164,14 +164,15 @@ internal static class SamusOverreadServicesReader
     }
 
     /// <summary>Every SpaceTime animation position's overwrite, by slot.</summary>
-    private static SpaceTimeProgressionOverwrite<AnimationProgramCursor<SamusProjectileProgram>, ProgressionOverwrite> SpaceTimeOverwrite(
+    private static SpaceTimeProgressionOverwrite<SamusProjectileSegmentBeat, ProgressionOverwrite> SpaceTimeOverwrite(
         IReadOnlyDictionary<string, IReadOnlyDictionary<string, IReadOnlyList<SamusOverreadDocument.Overwrite?>>> overwrites)
     {
-        var result = new Dictionary<AnimationProgramCursor<SamusProjectileProgram>, IReadOnlyList<ProgressionOverwrite?>>();
+        var result = new Dictionary<SamusProjectileSegmentBeat, IReadOnlyList<ProgressionOverwrite?>>();
         foreach ((string programName, IReadOnlyDictionary<string, IReadOnlyList<SamusOverreadDocument.Overwrite?>> positions) in overwrites)
         {
             SamusProjectileProgram program = Parse<SamusProjectileProgram>(programName, "SpaceTime program");
-            int steps = SamusProjectileAnimations.Programs.Steps(program).Count;
+            // A segment's places: before each beat, and at its end.
+            int steps = SamusProjectileAnimations.Segments.Beats(program).Count + 1;
             if (positions.Count != steps)
                 throw new InvalidDataException($"Samus overread file holds SpaceTime overwrites for {positions.Count} of {program}'s {steps} steps.");
             foreach ((string positionName, IReadOnlyList<SamusOverreadDocument.Overwrite?> bySlot) in positions)
@@ -207,10 +208,10 @@ internal static class SamusOverreadServicesReader
             overwrite.SavedLoadingGameState is int word ? SaveLoadingGameStateCodec.Route(word) : null);
 
     /// <summary>Every animation position the Chainsaw fuse lands somewhere.</summary>
-    private static ChainsawFuseAnimationShift<AnimationProgramCursor<SamusProjectileProgram>> ChainsawFuseShift(
+    private static ChainsawFuseAnimationShift<SamusProjectileSegmentBeat> ChainsawFuseShift(
         IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.Cursor>> landings)
     {
-        var result = new Dictionary<AnimationProgramCursor<SamusProjectileProgram>, AnimationProgramCursor<SamusProjectileProgram>>();
+        var result = new Dictionary<SamusProjectileSegmentBeat, SamusProjectileSegmentBeat>();
         foreach ((string programName, IReadOnlyDictionary<string, SamusOverreadDocument.Cursor> positions) in landings)
         {
             SamusProjectileProgram program = Parse<SamusProjectileProgram>(programName, "Chainsaw program");
@@ -222,12 +223,12 @@ internal static class SamusOverreadServicesReader
         return new(result);
     }
 
-    /// <summary>A decoded animation position, which must name a step of its program.</summary>
-    private static AnimationProgramCursor<SamusProjectileProgram> Cursor(SamusOverreadDocument.Cursor cursor)
+    /// <summary>A decoded animation place, which must name a place of its segment: before one of its beats, or at its end.</summary>
+    private static SamusProjectileSegmentBeat Cursor(SamusOverreadDocument.Cursor cursor)
     {
         Ensure.NotNull(cursor);
         SamusProjectileProgram program = Parse<SamusProjectileProgram>(cursor.Program, "animation position program");
-        return (uint)cursor.Position < (uint)SamusProjectileAnimations.Programs.Steps(program).Count
+        return (uint)cursor.Position <= (uint)SamusProjectileAnimations.Segments.Beats(program).Count
             ? new(program, cursor.Position)
             : throw new InvalidDataException($"Samus overread file names step {cursor.Position} of {program}, which it does not have.");
     }

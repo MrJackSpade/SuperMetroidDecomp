@@ -30,7 +30,7 @@ internal static class ProjectileTrailDefinitionsVerification
             var projectile = new SamusProjectile(0)
             {
                 Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(selection),
-                Cursor = SamusProjectileProgramAddresses.CursorAt(0x86e3),
+                Playback = SamusProjectileProgramAddresses.PlaybackAt(0x86e3),
                 Position = new(new(100, 0), new(200, 0)),
             };
             projectiles.Trails.SpawnTrail(projectile);
@@ -47,7 +47,7 @@ internal static class ProjectileTrailDefinitionsVerification
         var echo = new SamusProjectile(0)
         {
             Type = SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho),
-            Cursor = SamusProjectileProgramAddresses.CursorAt(0x86e3),
+            Playback = SamusProjectileProgramAddresses.PlaybackAt(0x86e3),
             Position = new(new(100, 0), new(200, 0)),
         };
         AssertThrows<ArgumentOutOfRangeException>(() => echoProjectiles.Trails.SpawnTrail(echo), "A Shinespark echo's selection past the trail tables is rejected");

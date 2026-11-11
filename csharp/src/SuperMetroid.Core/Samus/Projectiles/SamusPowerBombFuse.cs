@@ -23,11 +23,11 @@ public static class SamusPowerBombFuse
     }
 
     /// <summary>Switches a bomb or Power Bomb to the same frame of its fast animation.</summary>
-    /// <exception cref="InvalidDataException">The cursor is not a slow bomb or Power Bomb position.</exception>
-    internal static AnimationProgramCursor<SamusProjectileProgram>? FastAnimation(AnimationProgramCursor<SamusProjectileProgram>? cursor) =>
-        cursor is { } live
-            ? SamusPowerBombFuseData.FastCounterparts.TryGetValue(live, out AnimationProgramCursor<SamusProjectileProgram> fast)
-                ? fast
-                : throw new InvalidDataException($"{live} has no fast-animation counterpart.")
+    /// <exception cref="InvalidDataException">The playback is not at a slow bomb or Power Bomb place.</exception>
+    internal static AnimationPlayback<SamusProjectileProgram>? FastAnimation(AnimationPlayback<SamusProjectileProgram>? playback) =>
+        playback is { } live
+            ? SamusPowerBombFuseData.FastCounterparts.TryGetValue(SamusProjectilePrograms.BeatOf(live), out SamusProjectileSegmentBeat fast)
+                ? SamusProjectilePrograms.PlaybackAt(fast)
+                : throw new InvalidDataException($"{SamusProjectilePrograms.BeatOf(live)} has no fast-animation counterpart.")
             : null;
 }

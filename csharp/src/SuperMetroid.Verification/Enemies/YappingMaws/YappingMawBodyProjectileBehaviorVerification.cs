@@ -31,7 +31,7 @@ internal static class YappingMawBodyProjectileBehaviorVerification
             AssertEqual(4, links.Length, $"facing {facing} spawns four body links");
             foreach (EnemyProjectile link in links)
             {
-                AssertTrue(link.Animation is YappingMawBodyProjectileAnimation animation && animation.Cursor.Program == program, $"facing {facing} starts {program}");
+                AssertTrue(link.Animation is YappingMawBodyProjectileAnimation animation && animation.PlayingSegment == program, $"facing {facing} starts {program}");
                 (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, link, YappingMawBodyProjectileNativeListAddresses.Entry(program), 4, program.ToString());
                 AssertTrue(!deleted, $"{program} holds its pose");
             }

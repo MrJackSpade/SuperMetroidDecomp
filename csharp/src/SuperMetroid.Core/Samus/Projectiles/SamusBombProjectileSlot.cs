@@ -50,8 +50,8 @@ public sealed class SamusBombProjectileSlot
         get;
         internal set => field = Ensure.AtLeastZero(value);
     }
-    /// <summary>Where the slot's projectile program resumes; null marks an inactive slot, and a consumed timed frame advances it past that record.</summary>
-    internal AnimationProgramCursor<SamusProjectileProgram>? Cursor { get; set; }
+    /// <summary>The slot's projectile animation and where it stands in it (#1600); null marks an inactive slot, and a consumed timed frame plays it past that record.</summary>
+    internal AnimationPlayback<SamusProjectileProgram>? Playback { get; set; }
     /// <summary>Wrapping duration countdown, decremented once per unfrozen projectile update; reaching zero runs the next program instruction.</summary>
     public WrappingCountdown FrameHold { get; internal set; }
     /// <summary>The composition the bomb shows, selected by the timed-frame interpreter or installed frame binding; none before its first frame.</summary>
@@ -75,7 +75,7 @@ public sealed class SamusBombProjectileSlot
     public WrappingCountdown BombTimer { get; internal set; }
 
     /// <summary>Whether the bomb is live: a placed bomb runs its program until it ends.</summary>
-    public bool IsActive => Cursor is not null;
+    public bool IsActive => Playback is not null;
 
     /// <summary>
     /// Ends the bomb: it reads as no bomb, at rest at the room's origin, to whatever still holds it and to anything that
@@ -89,7 +89,7 @@ public sealed class SamusBombProjectileSlot
         PicturedBeams = SamusBeamCombination.Power;
         HasReactedToTerrain = false;
         Damage = 0;
-        Cursor = null;
+        Playback = null;
         FrameHold = WrappingCountdown.Start(0);
         Sprite = null;
         Radius = Extent16<RoomPixels>.Zero;

@@ -5,7 +5,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// The projectile list layout, read from the supported cartridge, for checks that compare cursors with native instruction
+/// The projectile list layout, read from the supported cartridge, for checks that compare playbacks with native instruction
 /// pointers. The game never sees a list position (#1474).
 /// </summary>
 internal static class SamusProjectileProgramAddresses
@@ -17,23 +17,23 @@ internal static class SamusProjectileProgramAddresses
     /// <summary>The layout.</summary>
     internal static SamusProjectileListLayout Layout => layout.Value;
 
-    /// <summary>Each step's instruction pointer, by program.</summary>
-    internal static IReadOnlyDictionary<SamusProjectileProgram, ushort[]> StepAddresses => Layout.StepPositions;
+    /// <summary>Each place's instruction pointer, by segment: one per beat, then the segment's end.</summary>
+    internal static IReadOnlyDictionary<SamusProjectileProgram, ushort[]> BeatAddresses => Layout.BeatPositions;
 
     /// <summary>The list entry of <paramref name="program"/>.</summary>
-    internal static ushort Entry(SamusProjectileProgram program) => Layout.StepPositions[program][0];
+    internal static ushort Entry(SamusProjectileProgram program) => Layout.BeatPositions[program][0];
 
     /// <inheritdoc cref="SamusProjectileListLayout.Prefix"/>
     internal static ushort Prefix(SamusProjectileProgram program) => Layout.Prefix(program);
 
-    /// <inheritdoc cref="SamusProjectileListLayout.Position(AnimationProgramCursor{SamusProjectileProgram})"/>
-    internal static ushort Address(AnimationProgramCursor<SamusProjectileProgram> cursor) => Layout.Position(cursor);
+    /// <inheritdoc cref="SamusProjectileListLayout.Position(SamusProjectileSegmentBeat)"/>
+    internal static ushort Address(SamusProjectileSegmentBeat place) => Layout.Position(place);
 
-    /// <summary>The bank position of <paramref name="cursor"/>, or zero for no cursor.</summary>
-    internal static ushort Address(AnimationProgramCursor<SamusProjectileProgram>? cursor) => Layout.Position(cursor);
+    /// <summary>The bank position of <paramref name="playback"/>, or zero for no playback.</summary>
+    internal static ushort Address(AnimationPlayback<SamusProjectileProgram>? playback) => Layout.Position(playback);
 
-    /// <summary>The cursor the bank position <paramref name="address"/> names, or none for zero.</summary>
-    internal static AnimationProgramCursor<SamusProjectileProgram>? CursorAt(ushort address) => Layout.CursorAt(address);
+    /// <summary>The playback the bank position <paramref name="address"/> names, or none for zero.</summary>
+    internal static AnimationPlayback<SamusProjectileProgram>? PlaybackAt(ushort address) => Layout.PlaybackAt(address);
 
     /// <inheritdoc cref="SamusProjectileListLayout.RecordPosition"/>
     internal static ushort RecordAddress(SamusProjectileFrame record) => Layout.RecordPosition(record);

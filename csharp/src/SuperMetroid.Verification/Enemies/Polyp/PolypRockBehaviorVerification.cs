@@ -33,7 +33,7 @@ internal static class PolypRockBehaviorVerification
         };
         enemies.PolypBehavior.SpawnPolypRock(source, 16, SignedEightEight.FromSignedRaw(-256));
         EnemyProjectile rock = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.PolypRock);
-        AssertTrue(rock.Animation is PolypRockAnimation { Cursor.Program: PolypRockProgram.Initial }, "a spawned rock starts its typed program");
+        AssertTrue(rock.Animation is PolypRockAnimation { PlayingSegment: PolypRockProgram.Initial }, "a spawned rock starts its typed program");
         (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, rock,
             NativeEnemyProjectileProgramOracle.EntryOf(PolypRockNativeListAddresses.Entries, PolypRockProgram.Initial), 5, "Polyp rock");
         AssertTrue(!deleted, "the rock holds its frame and sleeps");

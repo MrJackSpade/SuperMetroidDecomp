@@ -10,25 +10,30 @@ namespace SuperMetroid.Core.Enemies.Skree;
 /// </summary>
 internal static class SkreeMetareeParticleAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<SkreeMetareeParticleProgram, SkreeMetareeParticleFrame, EnemyProjectileCommonCue> Programs { get; } = new(
-        new Dictionary<SkreeMetareeParticleProgram, AnimationProgramStep<SkreeMetareeParticleProgram, SkreeMetareeParticleFrame, EnemyProjectileCommonCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<SkreeMetareeParticleProgram, SkreeMetareeParticleFrame, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<SkreeMetareeParticleProgram, AnimationBeat<SkreeMetareeParticleFrame, EnemyProjectileCommonCue>[]>
     {
         [P.Skree] =
         [
             Show(0, 16),
-            GoTo(P.Skree),
         ],
         [P.Metaree] =
         [
             Show(1, 16),
-            GoTo(P.Metaree),
         ],
     });
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<SkreeMetareeParticleProgram, SkreeMetareeParticleFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => AnimationProgramStep<SkreeMetareeParticleProgram, SkreeMetareeParticleFrame, EnemyProjectileCommonCue>.Show(new(pose), duration);
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<SkreeMetareeParticleProgram, Animation<SkreeMetareeParticleProgram>> StartingAt { get; } = new Dictionary<SkreeMetareeParticleProgram, Animation<SkreeMetareeParticleProgram>>
+    {
+        [P.Skree] = new([new(P.Skree, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Metaree] = new([new(P.Metaree, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+    };
 
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<SkreeMetareeParticleProgram, SkreeMetareeParticleFrame, EnemyProjectileCommonCue> GoTo(SkreeMetareeParticleProgram program) => AnimationProgramStep<SkreeMetareeParticleProgram, SkreeMetareeParticleFrame, EnemyProjectileCommonCue>.GoTo(program);
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<SkreeMetareeParticleProgram> StartingWith(SkreeMetareeParticleProgram segment) => StartingAt[segment];
+
+    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<SkreeMetareeParticleFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => new AnimationBeat<SkreeMetareeParticleFrame, EnemyProjectileCommonCue>.Frame(new(pose), duration);
 }

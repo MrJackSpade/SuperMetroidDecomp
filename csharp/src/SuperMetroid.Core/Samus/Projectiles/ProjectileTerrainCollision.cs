@@ -539,7 +539,7 @@ internal sealed class ProjectileTerrainCollision
             slot.Position += new Offset16<RoomPixels>(0, slot.Radius.Y);
 
         slot.Type = slot.Type.AsFamily(SamusProjectileFamily.BeamExplosion);
-        slot.Cursor = SamusProjectilePrograms.Start(SamusProjectileProgram.BeamExplosion);
+        slot.Playback = SamusProjectilePrograms.Start(SamusProjectileProgram.BeamExplosion);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Damage = 8;
         slot.FrameBehavior = SamusProjectileFrameBehavior.None;
@@ -567,7 +567,7 @@ internal sealed class ProjectileTerrainCollision
         _impactAudio.RequestMissileImpactSound(sharedProjectiles.PowerBombExplosion);
         bool wasSuperMissile = slot.Type.IsFamily(SamusProjectileFamily.SuperMissile);
         slot.Type = slot.Type.AsFamily(SamusProjectileFamily.MissileExplosion);
-        slot.Cursor = SamusProjectilePrograms.Start(
+        slot.Playback = SamusProjectilePrograms.Start(
             wasSuperMissile ? SamusProjectileProgram.SuperMissileExplosion : SamusProjectileProgram.MissileExplosion);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Damage = 8;

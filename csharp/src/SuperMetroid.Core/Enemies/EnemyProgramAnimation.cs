@@ -130,6 +130,25 @@ internal static class EnemyProgramAnimation
         where TFrame : struct
         where TEvent : notnull
     {
+        Ensure.NotNull(react);
+        Play(slot, segments, ref playback, frame, (raised, _) => react(raised));
+    }
+
+    /// <summary>
+    /// Plays <paramref name="playback"/> as the other overload does, also telling <paramref name="react"/> where the play
+    /// stands just past each event: the place an owner's call saves, to return to later.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The animation passes every beat without showing a frame.</exception>
+    internal static void Play<TSegment, TFrame, TEvent>(
+        RoomEnemySlot slot,
+        AnimationSegments<TSegment, TFrame, TEvent> segments,
+        ref AnimationPlayback<TSegment> playback,
+        Func<TFrame, EnemyFrameId> frame,
+        Func<TEvent, AnimationPlayback<TSegment>, AnimationContinuation<TSegment>?> react)
+        where TSegment : struct, Enum
+        where TFrame : struct
+        where TEvent : notnull
+    {
         Ensure.NotNull(slot);
         Ensure.NotNull(segments);
         Ensure.NotNull(frame);

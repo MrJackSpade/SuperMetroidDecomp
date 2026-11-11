@@ -39,7 +39,7 @@ internal static class BombTorizoStatueFragmentDefinitionsVerification
             AssertEqual(RoomEnemyProjectileKind.BombTorizoStatueBreaking,
                 projectile.Kind,
                 $"Bomb Torizo statue fragment {index} projectile kind");
-            AssertEqual<TorizoProjectileProgram?>(expected.Program, (projectile.Animation as TorizoProjectileAnimation)?.Cursor.Program,
+            AssertEqual<TorizoProjectileProgram?>(expected.Program, (projectile.Animation as TorizoProjectileAnimation)?.PlayingSegment,
                 $"Bomb Torizo statue fragment {index} production program");
             AssertEqual(unchecked((ushort)(10 * 16 + expected.Offset.X)),
                 projectile.Position.X.Whole,

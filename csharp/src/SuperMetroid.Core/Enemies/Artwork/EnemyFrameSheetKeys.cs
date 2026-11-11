@@ -4,9 +4,10 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
 /// The key each enemy frame's picture has in the installed enemy sheets and in the
-/// installed artwork's content identity (#1412): its composition name, which names the frame for its owner and meaning
-/// (#1465), in Pascal case (<c>draygon_frame_0</c> is keyed <c>DraygonFrame0</c>). The key stays derived from the
-/// composition name, the installed artwork document's own key, so renaming a frame's identity never changes a key on
+/// installed artwork's content identity (#1412): its document name (<see cref="EnemyFrameNameDefinitions"/>), which names
+/// the frame for its owner and meaning (#1465), in Pascal case (<c>draygon_frame_0</c> is keyed <c>DraygonFrame0</c>). The
+/// key stays derived from the document name, the installed artwork document's own key, so renaming a frame's identity
+/// never changes a key on disk.
 /// </summary>
 internal static class EnemyFrameSheetKeys
 {
@@ -17,17 +18,17 @@ internal static class EnemyFrameSheetKeys
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is not an installed frame.</exception>
     internal static string Of(EnemyFrameId frame) => Keys.TryGetValue(frame, out string? key)
         ? key
-        : throw new ArgumentOutOfRangeException(nameof(frame), frame, "The frame has no installed composition.");
+        : throw new ArgumentOutOfRangeException(nameof(frame), frame, "The frame is not installed.");
 
-    /// <summary>Keys every installed composition, and the shared empty frame by its own name.</summary>
+    /// <summary>Keys every installed frame by its document name, and the shared empty frame by its own name.</summary>
     private static FrozenDictionary<EnemyFrameId, string> Build()
     {
         var keys = new Dictionary<EnemyFrameId, string>
         {
             [EnemyFrameId.Empty] = "Empty",
         };
-        foreach (EnemySpritemapDefinition composition in EnemySpritemapCompositions.All.Concat(EnemyExtendedFrameCompositions.All))
-            keys.Add(composition.Frame, PascalCase(composition.Name));
+        foreach ((EnemyFrameId frame, string name) in EnemyFrameNameDefinitions.Names)
+            keys.Add(frame, PascalCase(name));
         return keys.ToFrozenDictionary();
     }
 

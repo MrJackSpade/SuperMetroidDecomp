@@ -96,7 +96,7 @@ internal static class EnemyDisplayArtworkContractChecks
         Require(revoked.Classifications.Count == 3 && revoked.UnresolvedCount == 4 && revoked.Consumers.Count == 7,
             "additional simple metadata declaration revokes only its rule, not the independent extended rule" + " (" + revoked.Describe() + ")");
         SyntaxTree extraGenerator = CSharpSyntaxTree.ParseText(
-            $"namespace {typeof(EnemyExtendedFrameCompositions).Namespace}; internal static partial class {nameof(EnemyExtendedFrameCompositions)} {{ }}",
+            $"namespace {typeof(EnemyExtendedFrameDocumentOrder).Namespace}; internal static partial class {nameof(EnemyExtendedFrameDocumentOrder)} {{ }}",
             path: "fixture-unreviewed-extended-compositions.cs");
         revoked = Inspect(Compile(trees.Append(extraGenerator)), true);
         Require(revoked.Classifications.Count == 2 && revoked.UnresolvedCount == 5,

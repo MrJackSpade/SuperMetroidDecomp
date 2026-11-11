@@ -6,8 +6,9 @@ namespace SuperMetroid.AssetExtraction.World.Artwork;
 /// <summary>Exposes the complete stock frame sequence with checked index and range access.</summary>
 internal sealed class EnemySpritemapFrameList : IReadOnlyList<EnemySpritemapDefinition>
 {
-    /// <summary>The installed compositions in schema order.</summary>
-    private readonly ImmutableArray<EnemySpritemapDefinition> frames = EnemySpritemapCompositions.All;
+    /// <summary>The installed compositions in schema order, each with its document name.</summary>
+    private readonly ImmutableArray<EnemySpritemapDefinition> frames =
+        [.. EnemySpritemapDocumentOrder.Frames.Select(frame => new EnemySpritemapDefinition(frame, EnemyFrameNameDefinitions.Names[frame]))];
     /// <summary>Total named and appended frames in the current installed schema.</summary>
     public int Count => frames.Length;
     /// <summary>Reads one current-schema frame with an explicit bounds check.</summary>

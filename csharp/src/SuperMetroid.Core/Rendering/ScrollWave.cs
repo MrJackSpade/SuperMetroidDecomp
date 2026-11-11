@@ -11,34 +11,30 @@ namespace SuperMetroid.Core.Rendering;
 /// (<see cref="Trigonometry.SignedSine"/>) scaled by <see cref="Amplitude"/>, rounded toward zero, so the ripple has the
 /// shape the game's other sine motion has.
 /// </remarks>
-/// <param name="BaseScroll">The horizontal scroll every line shows before its displacement, 0 through 65535.</param>
-/// <param name="Amplitude">The wave's peak displacement in 1/256ths of a pixel, 0 through 65535.</param>
+/// <param name="BaseScroll">
+/// The horizontal scroll every line shows before its displacement, any whole number of pixels: the plane repeats across
+/// its width, so a scroll and the same scroll a whole number of plane widths on show the same lines.
+/// </param>
+/// <param name="Amplitude">The wave's peak displacement in 1/256ths of a pixel, zero or more.</param>
 /// <param name="Phase">The wave's angle at screen line zero.</param>
 /// <param name="Period">The screen lines of one whole cycle of the wave, at least one.</param>
 /// <param name="FirstLine">The first screen line the wave displaces, 0 through the screen's height.</param>
 /// <param name="EndLine">The screen line after the last the wave displaces, <paramref name="FirstLine"/> through the screen's height.</param>
 public sealed record ScrollWave(int BaseScroll, int Amplitude, TrigonometryAngle Phase, int Period, int FirstLine, int EndLine) : LineScroll
 {
-    /// <summary>The horizontal scroll every line shows before its displacement, 0 through 65535.</summary>
-    public int BaseScroll
-    {
-        get;
-        init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    } = Ensure.BetweenInclusive(0, ushort.MaxValue, BaseScroll);
-
-    /// <summary>The wave's peak displacement in 1/256ths of a pixel, 0 through 65535.</summary>
+    /// <summary>The wave's peak displacement in 1/256ths of a pixel, zero or more.</summary>
     public int Amplitude
     {
         get;
-        init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    } = Ensure.BetweenInclusive(0, ushort.MaxValue, Amplitude);
+        init => field = Ensure.AtLeastZero(value);
+    } = Ensure.AtLeastZero(Amplitude);
 
-    /// <summary>The screen lines of one whole cycle of the wave, 1 through 65535.</summary>
+    /// <summary>The screen lines of one whole cycle of the wave, at least one.</summary>
     public int Period
     {
         get;
-        init => field = Ensure.BetweenInclusive(1, ushort.MaxValue, value);
-    } = Ensure.BetweenInclusive(1, ushort.MaxValue, Period);
+        init => field = Ensure.BetweenInclusive(1, int.MaxValue, value);
+    } = Ensure.BetweenInclusive(1, int.MaxValue, Period);
 
     /// <summary>The first screen line the wave displaces.</summary>
     public int FirstLine

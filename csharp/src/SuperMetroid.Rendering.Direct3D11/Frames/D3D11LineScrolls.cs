@@ -33,6 +33,13 @@ internal static class D3D11LineScrolls
     private const int SampleBits = 8;
     /// <summary>The bit the high half of a word starts at.</summary>
     private const int HighHalf = 16;
+    /// <summary>
+    /// The largest scale (a wave's amplitude, a stretch's slope) the shader evaluates without overflowing its 32-bit
+    /// products: a sine of 256, a sample of 128 or a band of 224 lines times it stays inside a word.
+    /// </summary>
+    private const int LargestScale = (1 << 24) - 1;
+    /// <summary>The longest period a slot's shape word holds in its high half.</summary>
+    private const int LongestPeriod = ushort.MaxValue;
     /// <summary>The words the slots and their data rows take, which must fit after the per-line rows.</summary>
     internal const int Words = (Slots + Slots * DataRowsPerSlot) * RowWords;
 
@@ -41,7 +48,10 @@ internal static class D3D11LineScrolls
     /// <param name="slot">The slot to pack.</param>
     /// <param name="shape">The axis's described line scroll, or null.</param>
     /// <param name="ownScroll">The plane's own scroll on the axis, which every line shows without a shape.</param>
-    /// <exception cref="NotSupportedException">A waveform or band list is larger than a slot's data rows hold.</exception>
+    /// <exception cref="NotSupportedException">
+    /// A waveform or band list is larger than a slot's data rows hold, a scale is larger than the shader evaluates, or a
+    /// wave's period is longer than a slot holds.
+    /// </exception>
     internal static void Pack(Span<uint> data, int slot, LineScroll? shape, int ownScroll)
     {
         Span<uint> record = data.Slice(D3D11ShaderLayout.LineScrollsWordOffset + slot * RowWords, RowWords);
@@ -54,13 +64,15 @@ internal static class D3D11LineScrolls
             case ScrollWave wave:
                 record[0] = Kind(D3D11LineScrollKind.Wave, wave.BaseScroll);
                 record[1] = Band(wave.FirstLine, wave.EndLine);
-                record[2] = (uint)wave.Amplitude;
-                record[3] = D3D11ConstantPacking.Halves(wave.Phase.RawValue, checked((ushort)wave.Period));
+                record[2] = Scale(wave.Amplitude);
+                if (wave.Period > LongestPeriod)
+                    throw new NotSupportedException($"A wave of {wave.Period} lines a cycle is longer than a line-scroll slot holds.");
+                record[3] = D3D11ConstantPacking.Halves(wave.Phase.RawValue, (ushort)wave.Period);
                 break;
             case ScrollStretch stretch:
                 record[0] = Kind(D3D11LineScrollKind.Stretch, stretch.BaseScroll);
                 record[1] = Band(stretch.FirstLine, stretch.EndLine);
-                record[2] = (uint)stretch.Slope;
+                record[2] = Scale(stretch.Slope);
                 record[3] = unchecked((ushort)(stretch.ScrollAbove - stretch.BaseScroll));
                 break;
             case SampledScrollWave sampled:
@@ -68,7 +80,7 @@ internal static class D3D11LineScrolls
                     throw new NotSupportedException($"A waveform of {sampled.Period} samples is longer than a line-scroll slot holds.");
                 record[0] = Kind(D3D11LineScrollKind.Sampled, sampled.BaseScroll);
                 record[1] = Band(sampled.FirstLine, sampled.EndLine);
-                record[2] = (uint)sampled.Amplitude;
+                record[2] = Scale(sampled.Amplitude);
                 record[3] = D3D11ConstantPacking.Halves(checked((ushort)sampled.Phase), checked((ushort)sampled.Period));
                 for (int index = 0; index < sampled.Period; index++)
                     words[index / SamplesPerWord] |= (uint)unchecked((byte)checked((sbyte)sampled.Samples[index]))
@@ -88,7 +100,17 @@ internal static class D3D11LineScrolls
         }
     }
 
-    /// <summary>A slot's kind word: the kind in the low byte, the base scroll wrapped to sixteen bits in the high half.</summary>
+    /// <summary>
+    /// A slot's scale word, <paramref name="scale"/>.
+    /// </summary>
+    /// <exception cref="NotSupportedException">The scale is larger than the shader evaluates.</exception>
+    private static uint Scale(int scale) => scale <= LargestScale ? (uint)scale
+        : throw new NotSupportedException($"A line-scroll scale of {scale} is larger than the shader evaluates.");
+
+    /// <summary>
+    /// A slot's kind word: the kind in the low byte, the base scroll in the high half. The shader reads scrolls as sixteen
+    /// bits, which every plane's length divides, so a scroll wrapped to sixteen bits shows the same lines.
+    /// </summary>
     private static uint Kind(D3D11LineScrollKind kind, int baseScroll) => (uint)kind | (uint)unchecked((ushort)baseScroll) << HighHalf;
 
     /// <summary>A slot's band word: the first line, then the line after the last in the high half.</summary>

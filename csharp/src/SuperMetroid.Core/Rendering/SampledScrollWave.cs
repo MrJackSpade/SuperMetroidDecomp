@@ -13,22 +13,18 @@ namespace SuperMetroid.Core.Rendering;
 /// Screen line <c>y</c> reads sample <c>(Phase + y) mod Period</c>; its displacement is that sample times
 /// <see cref="Amplitude"/> in 1/256ths of a pixel, rounded down.
 /// </remarks>
-/// <param name="BaseScroll">The scroll every line shows before its displacement, 0 through 65535.</param>
+/// <param name="BaseScroll">
+/// The scroll every line shows before its displacement, any whole number of pixels: the plane repeats along the axis, so
+/// a scroll and the same scroll a whole number of plane lengths on show the same lines.
+/// </param>
 /// <param name="Samples">One period of the waveform, each sample a signed displacement in whole units of the amplitude.</param>
-/// <param name="Amplitude">The displacement of a sample of one, in 1/256ths of a pixel, 0 through 65535.</param>
+/// <param name="Amplitude">The displacement of a sample of one, in 1/256ths of a pixel, zero or more.</param>
 /// <param name="Phase">The sample screen line zero reaches, 0 through the period less one.</param>
 /// <param name="FirstLine">The first screen line the wave moves, 0 through the screen's height.</param>
 /// <param name="EndLine">The screen line after the last the wave moves, <paramref name="FirstLine"/> through the screen's height.</param>
 public sealed record SampledScrollWave(int BaseScroll, ImmutableArray<int> Samples, int Amplitude, int Phase, int FirstLine, int EndLine)
     : LineScroll
 {
-    /// <summary>The scroll every line shows before its displacement, 0 through 65535.</summary>
-    public int BaseScroll
-    {
-        get;
-        init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    } = Ensure.BetweenInclusive(0, ushort.MaxValue, BaseScroll);
-
     /// <summary>One period of the waveform, at least one sample.</summary>
     /// <exception cref="ArgumentException">The waveform has no samples.</exception>
     public ImmutableArray<int> Samples
@@ -37,12 +33,12 @@ public sealed record SampledScrollWave(int BaseScroll, ImmutableArray<int> Sampl
         init => field = RequirePeriod(value);
     } = RequirePeriod(Samples);
 
-    /// <summary>The displacement of a sample of one, in 1/256ths of a pixel.</summary>
+    /// <summary>The displacement of a sample of one, in 1/256ths of a pixel, zero or more.</summary>
     public int Amplitude
     {
         get;
-        init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    } = Ensure.BetweenInclusive(0, ushort.MaxValue, Amplitude);
+        init => field = Ensure.AtLeastZero(value);
+    } = Ensure.AtLeastZero(Amplitude);
 
     /// <summary>The sample screen line zero reaches.</summary>
     public int Phase

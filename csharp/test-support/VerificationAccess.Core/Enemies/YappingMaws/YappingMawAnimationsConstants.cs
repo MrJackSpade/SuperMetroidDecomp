@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Programs;
-using P = SuperMetroid.Core.Enemies.YappingMaws.YappingMawProgram;
 using SuperMetroid.Core.Enemies.YappingMaws.Artwork;
 
 namespace SuperMetroid.Core.Enemies.YappingMaws;

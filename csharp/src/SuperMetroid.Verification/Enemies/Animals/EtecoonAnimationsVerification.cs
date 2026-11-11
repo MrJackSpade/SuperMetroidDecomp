@@ -3,6 +3,7 @@ using static SuperMetroid.Verification.Enemies.Animals.EtecoonNativeListAddresse
 using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Animals.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Verification.Enemies.Animals;
 

@@ -3,6 +3,7 @@ using static SuperMetroid.Verification.Enemies.Kago.KagoNativeListAddresses;
 using SuperMetroid.Core.Enemies.Kago;
 using SuperMetroid.Core.Enemies.Kago.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Verification.Enemies.Kago;
 

@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Programs;
-using P = SuperMetroid.Core.Enemies.SpacePirates.NinjaSpacePirateProgram;
 using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 
 namespace SuperMetroid.Core.Enemies.SpacePirates;

@@ -29,7 +29,7 @@ internal static class NorfairLavaJumperBehaviorVerification
         enemies.NorfairLavaJumpingEnemyBehavior.InitializeNorfairLavaJumpingEnemy(parent);
         NorfairLavaJumpingEnemyState parentState = enemies.NorfairLavaJumpingEnemyStates[0]
             ?? throw new InvalidOperationException("Verification requires enemies.NorfairLavaJumpingEnemyStates[0].");
-        AssertEqual(AnimationProgramCursor<NorfairLavaJumperProgram>.Start(NorfairLavaJumperProgram.Hidden), parentState.Program,
+        AssertEqual(new AnimationPlayback<NorfairLavaJumperProgram>(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperProgram.Hidden), AnimationPlace.StartOfAnimation), parentState.Playback,
             "lava-jumper parent starts hidden");
         // The initializer leaves the population's instruction timer; start the hidden pose on the next update.
         parent.FrameHold = WrappingCountdown.Start(1);
@@ -40,7 +40,7 @@ internal static class NorfairLavaJumperBehaviorVerification
         enemies.NorfairLavaJumpingEnemyBehavior.RunNorfairLavaJumpingEnemyMain(parent, parentState);
         parentState.YVelocity = SignedEightEight.FromSignedRaw(-1080); // Past the native switch velocity, still rising.
         enemies.NorfairLavaJumpingEnemyBehavior.RunNorfairLavaJumpingEnemyMain(parent, parentState);
-        AssertEqual(AnimationProgramCursor<NorfairLavaJumperProgram>.Start(NorfairLavaJumperProgram.Jump), parentState.Program,
+        AssertEqual(new AnimationPlayback<NorfairLavaJumperProgram>(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperProgram.Jump), AnimationPlace.StartOfAnimation), parentState.Playback,
             "real lava-jumper rise handoff starts the jump animation");
         ushort[] jump = NorfairLavaJumperAnimationsConstants.Spritemaps(NorfairLavaJumperProgram.Jump).ToArray();
         int[] holds = [1, 5, 9, 7, 3, 10, 1];
@@ -55,7 +55,7 @@ internal static class NorfairLavaJumperBehaviorVerification
         enemies.NorfairLavaJumpingEnemyBehavior.InitializeNorfairLavaJumpingEnemy(follower);
         NorfairLavaJumpingEnemyState followerState = enemies.NorfairLavaJumpingEnemyStates[1]
             ?? throw new InvalidOperationException("Verification requires enemies.NorfairLavaJumpingEnemyStates[1].");
-        AssertEqual(AnimationProgramCursor<NorfairLavaJumperProgram>.Start(NorfairLavaJumperProgram.Follower), followerState.Program,
+        AssertEqual(new AnimationPlayback<NorfairLavaJumperProgram>(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperProgram.Follower), AnimationPlace.StartOfAnimation), followerState.Playback,
             "real follower initializer starts the follower loop");
         follower.FrameHold = WrappingCountdown.Start(1);
         ushort[] startup = NorfairLavaJumperAnimationsConstants.Spritemaps(NorfairLavaJumperProgram.Follower).ToArray();

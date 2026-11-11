@@ -17,7 +17,7 @@ public sealed class NorfairLavaJumpingEnemyState
     internal NorfairLavaJumperProgram? InstalledProgram { get; set; }
 
     /// <summary>Where the typed animation (#641) resumes.</summary>
-    internal AnimationProgramCursor<NorfairLavaJumperProgram> Program { get; set; }
+    internal AnimationPlayback<NorfairLavaJumperProgram> Playback { get; set; }
 
     /// <summary>
     /// Signed 8.8 vertical velocity. Gravity adds to its word, which the jump compares unsigned with the animation

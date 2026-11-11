@@ -54,7 +54,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
             // physical 64-byte records, so reject reordered/custom populations explicitly.
             _parents.Place(slot, _slotTable.ListedBefore(slot, 1));
             ValidateNorfairLavaJumpingEnemyParent(slot);
-            state.Program = AnimationProgramCursor<NorfairLavaJumperProgram>.Start(NorfairLavaJumperProgram.Follower);
+            state.Playback = new(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperProgram.Follower), AnimationPlace.StartOfAnimation);
             state.Function = NorfairLavaJumpingEnemyFunction.FollowParent;
             return;
         }
@@ -62,7 +62,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         // The jumping parent returns to exactly these population coordinates after every
         // arc. Subpositions are deliberately not saved or cleared by the retail routine.
         state.SpawnPosition = slot.Position.Whole;
-        state.Program = AnimationProgramCursor<NorfairLavaJumperProgram>.Start(NorfairLavaJumperProgram.Hidden);
+        state.Playback = new(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperProgram.Hidden), AnimationPlace.StartOfAnimation);
         state.Function = NorfairLavaJumpingEnemyFunction.BeginJump;
     }
 
@@ -139,12 +139,11 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     }
 
     /// <summary>Carries out the jump animation's finishing cue, the private handshake.</summary>
-    private static NorfairLavaJumperProgram? ApplyNorfairLavaJumperCue(NorfairLavaJumpingEnemyState state, NorfairLavaJumperCue cue)
+    private static void ApplyNorfairLavaJumperCue(NorfairLavaJumpingEnemyState state, NorfairLavaJumperCue cue)
     {
         if (cue.Kind != NorfairLavaJumperCueKind.FinishAnimation)
             throw new InvalidOperationException($"Undefined {nameof(NorfairLavaJumperCueKind)} {cue.Kind}.");
         state.AnimationFinished = true;
-        return null;
     }
 
     /// <summary>Mirrors the preceding parent's frozen timer and upward Y position into the cosmetic follower.</summary>
@@ -216,7 +215,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         EnemyProgramAnimation.InstallOnce(slot, state.InstalledProgram, program, installed =>
         {
             state.InstalledProgram = installed;
-            state.Program = AnimationProgramCursor<NorfairLavaJumperProgram>.Start(installed);
+            state.Playback = new(NorfairLavaJumperAnimations.StartingWith(installed), AnimationPlace.StartOfAnimation);
         });
 
     /// <summary>Ports NorfairLavaJumpingEnemy's main AI.</summary>
@@ -229,7 +228,11 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
 
     /// <summary>Advances NorfairLavaJumpingEnemy's typed animation.</summary>
     internal static void AdvanceNorfairLavaJumpingEnemyTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, NorfairLavaJumperAnimations.Programs, NorfairLavaJumperFrameDefinitions.ShownFrames.Of,
-            static (NorfairLavaJumpingEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
-            (state, cue, _) => ApplyNorfairLavaJumperCue(state, cue));
+        EnemyProgramAnimation.Advance(slot, NorfairLavaJumperAnimations.Segments, NorfairLavaJumperFrameDefinitions.ShownFrames.Of,
+            static (NorfairLavaJumpingEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            (state, cue) =>
+            {
+                ApplyNorfairLavaJumperCue(state, cue);
+                return null;
+            });
 }

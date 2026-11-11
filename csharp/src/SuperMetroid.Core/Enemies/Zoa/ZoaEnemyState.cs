@@ -32,5 +32,5 @@ public sealed class ZoaEnemyState
     public int ShotSpeedStage { get; internal set; }
 
     /// <summary>Where Zoa's typed animation (#641) resumes.</summary>
-    internal AnimationPlayback<ZoaProgram> Program { get; set; }
+    internal AnimationPlayback<ZoaProgram> Playback { get; set; }
 }

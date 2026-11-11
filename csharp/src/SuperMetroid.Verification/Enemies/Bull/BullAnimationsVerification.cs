@@ -3,6 +3,7 @@ using static SuperMetroid.Verification.Enemies.Bull.BullNativeListAddresses;
 using SuperMetroid.Core.Enemies.Bull;
 using SuperMetroid.Core.Enemies.Bull.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Verification.Enemies.Bull;
 

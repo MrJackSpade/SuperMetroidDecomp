@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// The frames a typed animation can show (#1600): the import pipeline composes a sheet of every frame a spawned object's
 /// animation reaches, which are the frames of every phase it plays.
 /// </summary>
-internal static class AnimationFrames
+internal static class AnimationSegmentFrames
 {
     /// <summary>The frames of one family's animations.</summary>
     extension<TSegment, TFrame, TEvent>(AnimationSegments<TSegment, TFrame, TEvent> segments)

@@ -11,11 +11,10 @@ public sealed class ShaktoolSegmentState
     /// <summary>The angle around the immediately preceding segment; its table index selects the orbit displacement.</summary>
     public RotationAngle OrbitAngle { get; internal set; }
     /// <summary>
-    /// The unsigned orbital increment per gameplay update in raw angle units, from 0 through 1020: an authored
-    /// curling rate, four times the whole table steps left to a target, or the straightening step. The motion flags
-    /// determine its sign.
+    /// The turn the segment orbits by each update, up to four whole steps: an authored curling rate, a sixty-fourth of
+    /// the whole steps left to a target, or the straightening step. The motion flags give its direction.
     /// </summary>
-    public int AngularVelocity { get; internal set; }
+    public RotationAngle AngularVelocity { get; internal set; }
     /// <summary>
     /// The centre segment's heading bucket: one of eight eighth-turns in table units (0, 32, ... 224), selected
     /// from the midpoint of its neighbours' angles and choosing its head animation.
@@ -24,10 +23,11 @@ public sealed class ShaktoolSegmentState
     /// <summary>Whether the chain runs reversed, so the centre segment's midpoint flips a half turn; an endpoint swap toggles it.</summary>
     public bool OrientationReversed { get; internal set; }
     /// <summary>
-    /// The final saw's curl progress: the angular increments accumulated since the chain last reached its target,
-    /// from 0 through 62459. Reaching 61440 starts the chain straightening, which stops the accumulation.
+    /// The final saw's curl progress: the turns it has orbited by since the chain last reached its target, short of a
+    /// full turn. Reaching 240 whole steps starts the chain straightening, which stops the accumulation one update's turn
+    /// past it at most.
     /// </summary>
-    public int CurlProgress { get; internal set; }
+    public RotationAngle CurlProgress { get; internal set; }
     /// <summary>
     /// The segment motion run by Shaktool's main AI; collision-response animations temporarily replace it with the idle
     /// attack motion.
@@ -41,6 +41,6 @@ public sealed class ShaktoolSegmentState
     {
         OrientationBucket = 0;
         OrientationReversed = false;
-        CurlProgress = 0;
+        CurlProgress = RotationAngle.Zero;
     }
 }

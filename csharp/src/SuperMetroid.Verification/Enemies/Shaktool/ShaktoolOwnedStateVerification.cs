@@ -26,7 +26,7 @@ internal static class ShaktoolOwnedStateVerification
         {
             centerState.MotionFlags = 0;
             centerState.OrbitAngle = RotationAngle.FromRaw(0xff80);
-            centerState.AngularVelocity = 0x0100;
+            centerState.AngularVelocity = RotationAngle.FromSteps(1);
             centerState.ResetOrientation();
             centerState.OrientationReversed = reversed;
             states[4].OrbitAngle = RotationAngle.FromRaw(0x8080);
@@ -40,9 +40,9 @@ internal static class ShaktoolOwnedStateVerification
             state.MotionFlags = ShaktoolMotionFlags.Straightening;
         centerState.ResetOrientation();
         RoomEnemySlot tail = enemies.SlotTable.Slots[6];
-        states[6].CurlProgress = 0x1234;
+        states[6].CurlProgress = RotationAngle.FromSteps(0x12, 0x34);
         enemies.ShaktoolBehavior.ReverseShaktoolAfterCollision(tail, states[6], tail.Position.Whole);
-        AssertEqual(0, states[6].CurlProgress, "a wall reversal empties the saw's curl progress");
+        AssertEqual(RotationAngle.Zero, states[6].CurlProgress, "a wall reversal empties the saw's curl progress");
         AssertTrue(centerState.OrientationReversed, "a first wall reversal swaps the chain's ends");
         for (int index = 0; index < states.Length; index++)
         {

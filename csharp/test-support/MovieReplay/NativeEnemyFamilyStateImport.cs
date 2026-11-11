@@ -533,7 +533,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             segment.TargetAngle = RotationAngle.FromRaw(words.A);
             segment.OrbitAngle = RotationAngle.FromRaw(words.B);
-            segment.AngularVelocity = Index(words.C, 1020, "Shaktool angular velocity");
+            segment.AngularVelocity = RotationAngle.FromRaw(Index(words.C, 1020, "Shaktool angular velocity"));
             ImportShaktoolOrientation(segment, Array.IndexOf(ShaktoolSegmentDefinitions.Segments, slot.SpawnSettings<ShaktoolSpawnSettings>().Segment), words.D);
             // Every segment's owner is the chain's leading saw, the first enemy its room lists.
             if (SlotIndex(words.E, "Shaktool owner") != 0)
@@ -787,7 +787,7 @@ internal static class NativeEnemyFamilyStateImport
                 segment.OrientationBucket = bucket;
                 return;
             case 6:
-                segment.CurlProgress = Index(word, 0xf3fb, "Shaktool curl progress");
+                segment.CurlProgress = RotationAngle.FromRaw(Index(word, 0xf3fb, "Shaktool curl progress"));
                 return;
             default:
                 if (word != 0)

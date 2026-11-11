@@ -67,8 +67,8 @@ internal static void VerifyCeresDestructionCinematic()
             Version = CeresFlightArtworkFileFormat.Version,
             Width = CeresFlightArtworkFileFormat.MapWidth,
             Height = CeresFlightArtworkFileFormat.MapHeight,
-            FrontTiles = maps.AsSpan(0, 0x300).SelectToArray(value => (int)value),
-            RearTiles = maps.AsSpan(0x300, 0x300).SelectToArray(value => (int)value),
+            FrontViewTiles = maps.AsSpan(0, 0x300).SelectToArray(value => (int)value),
+            RearViewTiles = maps.AsSpan(0x300, 0x300).SelectToArray(value => (int)value),
         });
     using (var stream = File.Create(Path.Combine(introDirectory, CeresDestructionMapFormat.FileName)))
         CeresDestructionMaps.Write(stream, new CeresDestructionMapDocument

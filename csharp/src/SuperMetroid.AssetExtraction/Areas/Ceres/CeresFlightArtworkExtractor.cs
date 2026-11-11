@@ -47,9 +47,9 @@ internal static class CeresFlightArtworkExtractor
             Version = CeresFlightArtworkFileFormat.Version,
             Width = CeresFlightArtworkFileFormat.MapWidth,
             Height = CeresFlightArtworkFileFormat.MapHeight,
-            FrontTiles = map.AsSpan(0, CeresFlightArtworkFileFormat.MapCellsPerView)
+            FrontViewTiles = map.AsSpan(0, CeresFlightArtworkFileFormat.MapCellsPerView)
                 .SelectToArray(value => (int)value),
-            RearTiles = map.AsSpan(CeresFlightArtworkFileFormat.MapCellsPerView,
+            RearViewTiles = map.AsSpan(CeresFlightArtworkFileFormat.MapCellsPerView,
                 CeresFlightArtworkFileFormat.MapCellsPerView)
                 .SelectToArray(value => (int)value),
         });

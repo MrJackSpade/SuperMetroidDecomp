@@ -50,6 +50,19 @@ public readonly record struct UnsignedSixteenSixteen
         FromRaw(checked((uint)Ensure.BetweenInclusive(0, int.MaxValue, twoFiftySixths) *
             (uint)Ensure.BetweenInclusive(0, int.MaxValue, otherTwoFiftySixths)));
 
+    /// <summary>
+    /// The speed that is a share of <paramref name="wholePixels"/> whole pixels, the share counted in 65536ths, as a mover
+    /// scales a whole-pixel speed by a sine sample: whole pixels times 65536ths are 65536ths of a pixel. The product must
+    /// fit the type.
+    /// </summary>
+    /// <param name="wholePixels">The whole-pixel speed, zero or more.</param>
+    /// <param name="share">The share in 65536ths, zero or more.</param>
+    /// <exception cref="ArgumentOutOfRangeException">A factor is negative.</exception>
+    /// <exception cref="OverflowException">The product lies outside the type's range.</exception>
+    public static UnsignedSixteenSixteen ShareOfWholePixels(int wholePixels, int share) =>
+        FromRaw(checked((uint)Ensure.BetweenInclusive(0, int.MaxValue, wholePixels) *
+            (uint)Ensure.BetweenInclusive(0, int.MaxValue, share)));
+
     /// <summary>A speed of <paramref name="sixteenths"/> sixteenths of a pixel, which must not be negative.</summary>
     public static UnsignedSixteenSixteen FromSixteenthsOfPixel(int sixteenths) => FromRaw(checked((uint)sixteenths * 4096u));
 

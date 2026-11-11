@@ -99,7 +99,7 @@ internal static class EnemyProjectileDefinitionsVerification
             if (kind == RoomEnemyProjectileKind.DraygonGoop)
             {
                 // Draygon's goop touch program is typed (#641); VerifyDraygonProjectileAnimations matches it to the native list.
-                AssertTrue(projectile.Animation is DraygonProjectileAnimation { Cursor.Program: DraygonProjectileProgram.GoopTouch },
+                AssertTrue(projectile.Animation is DraygonProjectileAnimation { PlayingSegment: DraygonProjectileProgram.GoopTouch },
                     $"{kind} production touch starts the typed touch program");
             }
             else if (kind == RoomEnemyProjectileKind.MotherBrainOnionRing)
@@ -141,7 +141,7 @@ internal static class EnemyProjectileDefinitionsVerification
             AssertEqual(1, hits, $"{kind} production shot admitted");
             if (kind == RoomEnemyProjectileKind.DraygonGoop)
             {
-                AssertTrue(projectile.Animation is DraygonProjectileAnimation { Cursor.Program: DraygonProjectileProgram.GoopShot },
+                AssertTrue(projectile.Animation is DraygonProjectileAnimation { PlayingSegment: DraygonProjectileProgram.GoopShot },
                     $"{kind} production shot starts the typed shot program");
             }
             else if (kind == RoomEnemyProjectileKind.CrocomireProjectile)

@@ -4,30 +4,27 @@ using SuperMetroid.Core.Enemies.SpriteObjects;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
-/// <summary>Draygon's typed programs (#641).</summary>
+/// <summary>Draygon's typed animations (#641, #1600): each body, eye, tail and arms segment's beats, and the animation starting at each.</summary>
 internal static class DraygonAnimations
 {
-    /// <summary>Every body, eye, tail and arms program.</summary>
-    internal static AnimationProgramSet<DraygonProgram, DraygonFrame, DraygonCue> Programs { get; } = new(
-        new Dictionary<DraygonProgram, AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue>[]>
+    /// <summary>Every body, eye, tail and arms segment's beats.</summary>
+    internal static AnimationSegments<DraygonProgram, DraygonFrame, DraygonCue> Segments { get; } = new(
+        new Dictionary<DraygonProgram, AnimationBeat<DraygonFrame, DraygonCue>[]>
     {
         [P.Sleep] =
         [
-            Hold,
         ],
         [P.BodyFacingLeftReset] =
         [
             Cue(new DraygonCue.StartPartPrograms(P.BodyFacingLeftIdle, P.EyeFacingLeftIdle, P.TailFacingLeftIdle, P.ArmsFacingLeftIdle)),
             Cue(new DraygonCue.SetEyeFunction(DraygonEyeFunction.FacingLeft)),
             Show(22, 1),
-            Hold,
         ],
         [P.BodyFacingRightReset] =
         [
             Cue(new DraygonCue.StartPartPrograms(P.BodyFacingRightIdle, P.EyeFacingRightIdle, P.TailFacingRightIdle, P.ArmsFacingRightIdle)),
             Cue(new DraygonCue.SetEyeFunction(DraygonEyeFunction.FacingRight)),
             Show(63, 1),
-            Hold,
         ],
         [P.ArmsFacingLeftIdle] =
         [
@@ -37,7 +34,6 @@ internal static class DraygonAnimations
             Show(3, 5),
             Show(4, 5),
             Show(5, 5),
-            GoTo(P.ArmsFacingLeftIdle),
         ],
         [P.ArmsFacingLeftNearSwoopApex] =
         [
@@ -45,7 +41,6 @@ internal static class DraygonAnimations
             Show(24, 1),
             Show(25, 1),
             Show(26, 64),
-            Hold,
         ],
         [P.ArmsFacingLeftGrab] =
         [
@@ -57,7 +52,6 @@ internal static class DraygonAnimations
             Show(24, 1),
             Show(23, 1),
             Show(24, 1),
-            Hold,
         ],
         [P.ArmsFacingLeftDying] =
         [
@@ -65,20 +59,16 @@ internal static class DraygonAnimations
             Show(7, 5),
             Show(8, 5),
             Show(9, 5),
-            GoTo(P.BodyDying),
         ],
         [P.BodyFacingLeftIdle] =
         [
             Cue(new DraygonCue.SetEyeFunction(DraygonEyeFunction.FacingLeft)),
             Show(22, 1),
-            Hold,
         ],
         [P.BodyDying] =
         [
             Cue(new DraygonCue.QueueSound(DraygonSoundDefinitions.DyingCry)),
             Cue(DraygonCue.SetBodyIntangible.Instance),
-            SetCounter(8),
-            FallInto(P.BodyDyingExplosions),
         ],
         [P.BodyDyingExplosions] =
         [
@@ -88,10 +78,8 @@ internal static class DraygonAnimations
             Cue(new DraygonCue.SpawnDyingObject(RoomSpriteObjectKind.DustCloud)),
             Cue(new DraygonCue.SpawnDyingObject(RoomSpriteObjectKind.DraygonBreathBubble)),
             Cue(new DraygonCue.QueueSound(DraygonSoundDefinitions.Explosion)),
-            RepeatWhileCounting(P.BodyDyingExplosions),
             Wait(1),
             Cue(DraygonCue.ParalyseTailAndArms.Instance),
-            FallInto(P.BodyDyingExplosionsLoop),
         ],
         [P.BodyDyingExplosionsLoop] =
         [
@@ -101,11 +89,9 @@ internal static class DraygonAnimations
             Cue(new DraygonCue.SpawnDyingObject(RoomSpriteObjectKind.DustCloud)),
             Cue(new DraygonCue.SpawnDyingObject(RoomSpriteObjectKind.DraygonBreathBubble)),
             Cue(new DraygonCue.QueueSound(DraygonSoundDefinitions.Explosion)),
-            GoTo(P.BodyDyingExplosionsLoop),
         ],
         [P.Delete] =
         [
-            Stop,
         ],
         [P.BodyFacingLeftFireGoop] =
         [
@@ -118,7 +104,6 @@ internal static class DraygonAnimations
             Show(12, 2),
             Show(11, 2),
             Show(10, 1),
-            Hold,
         ],
         [P.BodyFacingLeftRoar] =
         [
@@ -130,7 +115,6 @@ internal static class DraygonAnimations
             Show(12, 6),
             Show(11, 6),
             Show(10, 6),
-            Hold,
         ],
         [P.EyeFacingLeftIdle] =
         [
@@ -147,12 +131,9 @@ internal static class DraygonAnimations
             Show(15, 5),
             Show(14, 5),
             Cue(new DraygonCue.SetOwnEyeFunction(DraygonEyeFunction.FacingLeft)),
-            Hold,
         ],
         [P.EyeFacingLeftDying] =
         [
-            SetCounter(4),
-            FallInto(P.EyeFacingLeftDyingLoop),
         ],
         [P.EyeFacingLeftDyingLoop] =
         [
@@ -160,10 +141,8 @@ internal static class DraygonAnimations
             Show(20, 4),
             Show(19, 4),
             Show(21, 4),
-            RepeatWhileCounting(P.EyeFacingLeftDyingLoop),
             Show(17, 32),
             Show(16, 16),
-            Hold,
         ],
         [P.EyeFacingLeftDead] =
         [
@@ -171,27 +150,22 @@ internal static class DraygonAnimations
             Show(16, 32),
             Show(15, 32),
             Show(14, 1),
-            Hold,
         ],
         [P.EyeFacingLeftLookingLeft] =
         [
             Show(18, 1),
-            Hold,
         ],
         [P.EyeFacingLeftLookingRight] =
         [
             Show(19, 1),
-            Hold,
         ],
         [P.EyeFacingLeftLookingUp] =
         [
             Show(20, 1),
-            Hold,
         ],
         [P.EyeFacingLeftLookingDown] =
         [
             Show(21, 1),
-            Hold,
         ],
         [P.TailFacingLeftIdle] =
         [
@@ -207,7 +181,6 @@ internal static class DraygonAnimations
             Show(30, 6),
             Show(29, 6),
             Show(28, 7),
-            GoTo(P.TailFacingLeftIdle),
         ],
         [P.TailFacingLeftInitialFakeWhip] =
         [
@@ -233,12 +206,9 @@ internal static class DraygonAnimations
             Show(36, 4),
             Show(35, 5),
             Show(34, 6),
-            GoTo(P.TailFacingLeftIdle),
         ],
         [P.TailFacingLeftFinalWhips] =
         [
-            SetCounter(4),
-            FallInto(P.TailFacingLeftFinalWhipsLoop),
         ],
         [P.TailFacingLeftFinalWhipsLoop] =
         [
@@ -266,9 +236,7 @@ internal static class DraygonAnimations
             Show(36, 4),
             Show(35, 5),
             Show(34, 6),
-            RepeatWhileCounting(P.TailFacingLeftFinalWhipsLoop),
             Cue(new DraygonCue.SetBodyFunction(DraygonAiFunction.ReleaseSamus)),
-            GoTo(P.TailFacingLeftIdle),
         ],
         [P.TailFacingLeftWhip] =
         [
@@ -296,7 +264,6 @@ internal static class DraygonAnimations
             Show(36, 4),
             Show(35, 5),
             Show(34, 6),
-            GoTo(P.TailFacingLeftIdle),
         ],
         [P.TailFacingLeftFlail] =
         [
@@ -315,7 +282,6 @@ internal static class DraygonAnimations
             Show(36, 4),
             Show(35, 5),
             Show(34, 6),
-            GoTo(P.TailFacingLeftIdle),
         ],
         [P.ArmsFacingRightIdle] =
         [
@@ -325,7 +291,6 @@ internal static class DraygonAnimations
             Show(44, 5),
             Show(45, 5),
             Show(46, 5),
-            GoTo(P.ArmsFacingRightIdle),
         ],
         [P.ArmsFacingRightNearSwoopApex] =
         [
@@ -333,7 +298,6 @@ internal static class DraygonAnimations
             Show(65, 1),
             Show(66, 1),
             Show(67, 64),
-            Hold,
         ],
         [P.ArmsFacingRightGrab] =
         [
@@ -345,7 +309,6 @@ internal static class DraygonAnimations
             Show(65, 1),
             Show(64, 1),
             Show(65, 1),
-            Hold,
         ],
         [P.ArmsFacingRightDying] =
         [
@@ -353,13 +316,11 @@ internal static class DraygonAnimations
             Show(48, 5),
             Show(49, 5),
             Show(50, 5),
-            GoTo(P.BodyDying),
         ],
         [P.BodyFacingRightIdle] =
         [
             Cue(new DraygonCue.SetEyeFunction(DraygonEyeFunction.FacingRight)),
             Show(63, 1),
-            Hold,
         ],
         [P.BodyFacingRightFireGoop] =
         [
@@ -372,7 +333,6 @@ internal static class DraygonAnimations
             Show(53, 2),
             Show(52, 2),
             Show(51, 1),
-            Hold,
         ],
         [P.BodyFacingRightRoar] =
         [
@@ -384,7 +344,6 @@ internal static class DraygonAnimations
             Show(53, 6),
             Show(52, 6),
             Show(51, 6),
-            Hold,
         ],
         [P.EyeFacingRightIdle] =
         [
@@ -401,12 +360,9 @@ internal static class DraygonAnimations
             Show(56, 5),
             Show(55, 5),
             Cue(new DraygonCue.SetOwnEyeFunction(DraygonEyeFunction.FacingLeft)),
-            Hold,
         ],
         [P.EyeFacingRightDying] =
         [
-            SetCounter(4),
-            FallInto(P.EyeFacingRightDyingLoop),
         ],
         [P.EyeFacingRightDyingLoop] =
         [
@@ -414,10 +370,8 @@ internal static class DraygonAnimations
             Show(61, 4),
             Show(60, 4),
             Show(62, 4),
-            RepeatWhileCounting(P.EyeFacingRightDyingLoop),
             Show(58, 32),
             Show(57, 16),
-            Hold,
         ],
         [P.EyeFacingRightDead] =
         [
@@ -425,27 +379,22 @@ internal static class DraygonAnimations
             Show(57, 32),
             Show(56, 32),
             Show(55, 1),
-            Hold,
         ],
         [P.EyeFacingRightLookingRight] =
         [
             Show(59, 1),
-            Hold,
         ],
         [P.EyeFacingRightLookingLeft] =
         [
             Show(60, 1),
-            Hold,
         ],
         [P.EyeFacingRightLookingUp] =
         [
             Show(61, 1),
-            Hold,
         ],
         [P.EyeFacingRightLookingDown] =
         [
             Show(62, 1),
-            Hold,
         ],
         [P.TailFacingRightIdle] =
         [
@@ -461,12 +410,9 @@ internal static class DraygonAnimations
             Show(71, 6),
             Show(70, 6),
             Show(69, 7),
-            GoTo(P.TailFacingRightIdle),
         ],
         [P.TailFacingRightFinalWhips] =
         [
-            SetCounter(4),
-            FallInto(P.TailFacingRightFinalWhipsLoop),
         ],
         [P.TailFacingRightFinalWhipsLoop] =
         [
@@ -494,9 +440,7 @@ internal static class DraygonAnimations
             Show(77, 4),
             Show(76, 5),
             Show(75, 6),
-            RepeatWhileCounting(P.TailFacingRightFinalWhipsLoop),
             Cue(new DraygonCue.SetBodyFunction(DraygonAiFunction.ReleaseSamus)),
-            GoTo(P.TailFacingRightIdle),
         ],
         [P.TailFacingRightWhip] =
         [
@@ -524,7 +468,6 @@ internal static class DraygonAnimations
             Show(77, 4),
             Show(76, 5),
             Show(75, 6),
-            GoTo(P.TailFacingRightIdle),
         ],
         [P.TailFacingRightFlail] =
         [
@@ -543,42 +486,69 @@ internal static class DraygonAnimations
             Show(77, 4),
             Show(76, 5),
             Show(75, 6),
-            GoTo(P.TailFacingRightIdle),
-        ],    });
+        ],
+    });
+
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<DraygonProgram, Animation<DraygonProgram>> StartingAt { get; } = new Dictionary<DraygonProgram, Animation<DraygonProgram>>
+    {
+        [P.Sleep] = new([], AnimationEnd.Holds),
+        [P.BodyFacingLeftReset] = new([new(P.BodyFacingLeftReset, 0, 3, 1)], AnimationEnd.Holds),
+        [P.BodyFacingRightReset] = new([new(P.BodyFacingRightReset, 0, 3, 1)], AnimationEnd.Holds),
+        [P.ArmsFacingLeftIdle] = new([new(P.ArmsFacingLeftIdle, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ArmsFacingLeftNearSwoopApex] = new([new(P.ArmsFacingLeftNearSwoopApex, 0, 4, 1)], AnimationEnd.Holds),
+        [P.ArmsFacingLeftGrab] = new([new(P.ArmsFacingLeftGrab, 0, 8, 1)], AnimationEnd.Holds),
+        [P.ArmsFacingLeftDying] = new([new(P.ArmsFacingLeftDying, 0, 4, 1), new(P.BodyDying, 0, 2, 1), new(P.BodyDyingExplosions, 0, 6, 8), new(P.BodyDyingExplosions, 6, 2, 1), new(P.BodyDyingExplosionsLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(4)),
+        [P.BodyFacingLeftIdle] = new([new(P.BodyFacingLeftIdle, 0, 2, 1)], AnimationEnd.Holds),
+        [P.BodyDying] = new([new(P.BodyDying, 0, 2, 1), new(P.BodyDyingExplosions, 0, 6, 8), new(P.BodyDyingExplosions, 6, 2, 1), new(P.BodyDyingExplosionsLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(3)),
+        [P.BodyDyingExplosionsLoop] = new([new(P.BodyDyingExplosionsLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Delete] = new([], AnimationEnd.Stops),
+        [P.BodyFacingLeftFireGoop] = new([new(P.BodyFacingLeftFireGoop, 0, 9, 1)], AnimationEnd.Holds),
+        [P.BodyFacingLeftRoar] = new([new(P.BodyFacingLeftRoar, 0, 8, 1)], AnimationEnd.Holds),
+        [P.EyeFacingLeftIdle] = new([new(P.EyeFacingLeftIdle, 0, 13, 1)], AnimationEnd.Holds),
+        [P.EyeFacingLeftDying] = new([new(P.EyeFacingLeftDyingLoop, 0, 4, 4), new(P.EyeFacingLeftDyingLoop, 4, 2, 1)], AnimationEnd.Holds),
+        [P.EyeFacingLeftDead] = new([new(P.EyeFacingLeftDead, 0, 4, 1)], AnimationEnd.Holds),
+        [P.EyeFacingLeftLookingLeft] = new([new(P.EyeFacingLeftLookingLeft, 0, 1, 1)], AnimationEnd.Holds),
+        [P.EyeFacingLeftLookingRight] = new([new(P.EyeFacingLeftLookingRight, 0, 1, 1)], AnimationEnd.Holds),
+        [P.EyeFacingLeftLookingUp] = new([new(P.EyeFacingLeftLookingUp, 0, 1, 1)], AnimationEnd.Holds),
+        [P.EyeFacingLeftLookingDown] = new([new(P.EyeFacingLeftLookingDown, 0, 1, 1)], AnimationEnd.Holds),
+        [P.TailFacingLeftIdle] = new([new(P.TailFacingLeftIdle, 0, 12, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.TailFacingLeftInitialFakeWhip] = new([new(P.TailFacingLeftInitialFakeWhip, 0, 22, 1), new(P.TailFacingLeftIdle, 0, 12, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.TailFacingLeftFinalWhips] = new([new(P.TailFacingLeftFinalWhipsLoop, 0, 24, 4), new(P.TailFacingLeftFinalWhipsLoop, 24, 1, 1), new(P.TailFacingLeftIdle, 0, 12, 1)], AnimationEnd.LoopsFrom(2)),
+        [P.TailFacingLeftWhip] = new([new(P.TailFacingLeftWhip, 0, 24, 1), new(P.TailFacingLeftIdle, 0, 12, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.TailFacingLeftFlail] = new([new(P.TailFacingLeftFlail, 0, 15, 1), new(P.TailFacingLeftIdle, 0, 12, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.ArmsFacingRightIdle] = new([new(P.ArmsFacingRightIdle, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ArmsFacingRightNearSwoopApex] = new([new(P.ArmsFacingRightNearSwoopApex, 0, 4, 1)], AnimationEnd.Holds),
+        [P.ArmsFacingRightGrab] = new([new(P.ArmsFacingRightGrab, 0, 8, 1)], AnimationEnd.Holds),
+        [P.ArmsFacingRightDying] = new([new(P.ArmsFacingRightDying, 0, 4, 1), new(P.BodyDying, 0, 2, 1), new(P.BodyDyingExplosions, 0, 6, 8), new(P.BodyDyingExplosions, 6, 2, 1), new(P.BodyDyingExplosionsLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(4)),
+        [P.BodyFacingRightIdle] = new([new(P.BodyFacingRightIdle, 0, 2, 1)], AnimationEnd.Holds),
+        [P.BodyFacingRightFireGoop] = new([new(P.BodyFacingRightFireGoop, 0, 9, 1)], AnimationEnd.Holds),
+        [P.BodyFacingRightRoar] = new([new(P.BodyFacingRightRoar, 0, 8, 1)], AnimationEnd.Holds),
+        [P.EyeFacingRightIdle] = new([new(P.EyeFacingRightIdle, 0, 13, 1)], AnimationEnd.Holds),
+        [P.EyeFacingRightDying] = new([new(P.EyeFacingRightDyingLoop, 0, 4, 4), new(P.EyeFacingRightDyingLoop, 4, 2, 1)], AnimationEnd.Holds),
+        [P.EyeFacingRightDead] = new([new(P.EyeFacingRightDead, 0, 4, 1)], AnimationEnd.Holds),
+        [P.EyeFacingRightLookingRight] = new([new(P.EyeFacingRightLookingRight, 0, 1, 1)], AnimationEnd.Holds),
+        [P.EyeFacingRightLookingLeft] = new([new(P.EyeFacingRightLookingLeft, 0, 1, 1)], AnimationEnd.Holds),
+        [P.EyeFacingRightLookingUp] = new([new(P.EyeFacingRightLookingUp, 0, 1, 1)], AnimationEnd.Holds),
+        [P.EyeFacingRightLookingDown] = new([new(P.EyeFacingRightLookingDown, 0, 1, 1)], AnimationEnd.Holds),
+        [P.TailFacingRightIdle] = new([new(P.TailFacingRightIdle, 0, 12, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.TailFacingRightFinalWhips] = new([new(P.TailFacingRightFinalWhipsLoop, 0, 24, 4), new(P.TailFacingRightFinalWhipsLoop, 24, 1, 1), new(P.TailFacingRightIdle, 0, 12, 1)], AnimationEnd.LoopsFrom(2)),
+        [P.TailFacingRightWhip] = new([new(P.TailFacingRightWhip, 0, 24, 1), new(P.TailFacingRightIdle, 0, 12, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.TailFacingRightFlail] = new([new(P.TailFacingRightFlail, 0, 15, 1), new(P.TailFacingRightIdle, 0, 12, 1)], AnimationEnd.LoopsFrom(1)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<DraygonProgram> StartingWith(DraygonProgram segment) => StartingAt[segment];
 
     /// <summary>Shows the catalog frame <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue> Show(int frame, int duration) =>
-        AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue>.Show(new(frame), duration);
+    private static AnimationBeat<DraygonFrame, DraygonCue> Show(int frame, int duration) =>
+        new AnimationBeat<DraygonFrame, DraygonCue>.Frame(new(frame), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue> Cue(DraygonCue cue) =>
-        AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue>.Publish(cue);
-
-    /// <summary>Continues at the start of <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue> GoTo(DraygonProgram program) =>
-        AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue> FallInto(DraygonProgram program) =>
-        AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue>.FallInto(program);
+    private static AnimationBeat<DraygonFrame, DraygonCue> Cue(DraygonCue cue) =>
+        new AnimationBeat<DraygonFrame, DraygonCue>.Event(cue);
 
     /// <summary>Keeps the current frame for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue> Wait(int duration) =>
-        AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue>.Wait(duration);
-
-    /// <summary>Loads the part's loop counter with <paramref name="count"/>.</summary>
-    private static AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue> SetCounter(int count) =>
-        AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue>.SetCounter(count);
-
-    /// <summary>Repeats <paramref name="program"/> while the loop counter counts down.</summary>
-    private static AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue> RepeatWhileCounting(DraygonProgram program) =>
-        AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue>.RepeatWhileCounting(program);
-
-    /// <summary>Holds the last frame: the script's sleep.</summary>
-    private static AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue> Hold =>
-        AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue>.Hold;
-
-    /// <summary>Stops the part and deletes it.</summary>
-    private static AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue> Stop =>
-        AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue>.Stop;
+    private static AnimationBeat<DraygonFrame, DraygonCue> Wait(int duration) =>
+        new AnimationBeat<DraygonFrame, DraygonCue>.Pause(duration);
 }

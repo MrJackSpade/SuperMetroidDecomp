@@ -191,7 +191,7 @@ internal static class EnemyVisualTypedProgramAudit
 
         RequireTypedFrames(CrocomireBodyAnimations.Programs, frame => CrocomireBodyFrameSpritemapsTooling.Spritemap(frame), CrocomireBodyVisualToolingDefinitions.Bank,
             nameof(CrocomireBodyAnimations), "csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireBodyAnimations.cs");
-        RequireTypedFrames(DraygonAnimations.Programs, frame => DraygonFrameToolingDefinitions.Spritemap(frame), DraygonBg2FrameToolingDefinitions.Bank,
+        RequireSegmentFrames(DraygonAnimations.Segments, frame => DraygonFrameToolingDefinitions.Spritemap(frame), DraygonBg2FrameToolingDefinitions.Bank,
             nameof(DraygonAnimations), "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonAnimations.cs");
         RequireTypedFrames(KraidAnimations.Programs, frame => KraidPartFrameToolingDefinitions.Spritemap(frame), KraidLintVisualDefinitions.Bank,
             nameof(KraidAnimations), "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidAnimations.cs");

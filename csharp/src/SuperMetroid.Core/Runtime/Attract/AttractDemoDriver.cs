@@ -24,7 +24,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     private readonly AttractDemoSession _attractSession;
     /// <summary>Player controller replaced by demo input only during Samus updates.</summary>
     private readonly ControllerInputState _controller1;
-    /// <summary>The session's turning-floor transfer residue, which a demo's Samus reads.</summary>
+    /// <summary>The session's enemy state, whose unauthored Speed Booster cadence a demo's Samus reads.</summary>
     private readonly EnemySession _enemySession;
     /// <summary>Builds the initial HUD from the demo record's health and ammunition.</summary>
     private readonly GameplayHudSetup _hudSetup;

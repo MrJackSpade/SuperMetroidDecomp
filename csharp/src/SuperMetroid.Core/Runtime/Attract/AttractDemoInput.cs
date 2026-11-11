@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Runtime.Attract;
 public sealed class AttractDemoInput
 {
     /// <summary>Owned, mutable recorded-input playback, loaded and enabled for the constructor's scene; the same instance is returned rather than a snapshot.</summary>
-    /// <remarks><see cref="StepStock"/> advances its record timers and independently authored held/newly-pressed controller words, which the gameplay runtime consumes without deriving new edges.</remarks>
+    /// <remarks><see cref="StepStock"/> advances its record timers and independently authored held and newly pressed buttons, which the gameplay runtime consumes without deriving new edges.</remarks>
     public DemoInputState Script { get; } = new();
 
     /// <summary>What the playback watches for before its next step.</summary>

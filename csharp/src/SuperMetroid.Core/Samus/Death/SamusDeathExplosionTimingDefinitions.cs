@@ -23,7 +23,9 @@ internal static class SamusDeathExplosionTimingDefinitions
     /// <summary>Number of authored suit-explosion timing records.</summary>
     public const int RecordCount = 9;
 
-    /// <summary>Nine authored dwell times: initial whiteout hold, seven drawing cadences, and final completion delay.</summary>
-    internal static ReadOnlySpan<byte> Durations =>
+    /// <summary>
+    /// Nine authored dwell times, in updates: initial whiteout hold, seven drawing cadences, and final completion delay.
+    /// </summary>
+    internal static IReadOnlyList<int> Durations { get; } =
         [21, 6, 3, 4, 5, 5, 6, 6, 80];
 }

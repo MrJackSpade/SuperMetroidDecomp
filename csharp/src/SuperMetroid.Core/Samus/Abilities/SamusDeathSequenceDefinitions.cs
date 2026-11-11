@@ -10,8 +10,8 @@ public static class SamusDeathSequenceDefinitions
     /// <summary>Sixty calls alternate palettes before the suit explodes.</summary>
     public const int FlashFrameCount = 60;
 
-    /// <summary>The value each key selects; InitialFrame looks it up.</summary>
-    public static readonly IReadOnlyDictionary<SamusMovementType, byte> InitialFrames = new Dictionary<SamusMovementType, byte>
+    /// <summary>The death-pose animation frame each movement type starts the death pose on; InitialFrame looks it up.</summary>
+    public static readonly IReadOnlyDictionary<SamusMovementType, int> InitialFrames = new Dictionary<SamusMovementType, int>
     {
         [SamusMovementType.MorphBallGround] = 1,
         [SamusMovementType.MorphBallFalling] = 1,

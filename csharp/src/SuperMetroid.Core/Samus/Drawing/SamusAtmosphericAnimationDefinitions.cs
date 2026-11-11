@@ -13,8 +13,8 @@ internal static class SamusAtmosphericAnimationDefinitions
     internal const int DustInitialFrameTicks = 3;
     /// <summary>Dust holds advance by1 tick per frame; the exact progression increment is retained under the reviewed original-animation disposition.</summary>
     internal const int DustFrameTickIncrement = 1;
-    /// <summary>Nine retained exposure choices for the drawn ripple/jet/droplet choreography; discrete frame art does not determine these holds. Preserve old-frame reload and the final hold of seven, which no step shows.</summary>
-    internal static readonly ushort[] RetainedDivingSplashTimers = [2, 2, 3, 3, 3, 5, 5, 6, 7];
+    /// <summary>The updates each of the diving splash's nine steps shows, in step order: nine retained exposure choices for the drawn ripple/jet/droplet choreography; discrete frame art does not determine these holds. Preserve old-frame reload and the final hold of seven, which no step shows.</summary>
+    internal static IReadOnlyList<int> DivingSplashStepUpdates { get; } = [2, 2, 3, 3, 3, 5, 5, 6, 7];
     /// <summary>Dust rises one pixel on each update it is shown.</summary>
     internal static readonly Offset16<RoomPixels> DustDrift = new(0, -1);
     /// <summary>Lava spray rises one pixel on each update it is shown, as it drifts one pixel to its side.</summary>

@@ -13,6 +13,6 @@ public static class SamusDeathSequenceFrames
     /// </summary>
     /// <param name="movement">The movement type before the death pose.</param>
     /// <returns>The initial death-pose animation frame.</returns>
-    public static byte InitialFrame(SamusMovementType movement) =>
+    public static int InitialFrame(SamusMovementType movement) =>
         InitialFrames.ContainsKey(movement) ? InitialFrames[movement] : throw new InvalidDataException($"Death-pose frame table has no movement type {movement}.");
 }

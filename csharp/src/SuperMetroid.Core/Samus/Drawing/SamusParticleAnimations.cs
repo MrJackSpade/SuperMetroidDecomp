@@ -8,7 +8,7 @@ internal static class SamusParticleAnimations
     /// <summary>The animation steps <paramref name="kind"/> shows.</summary>
     internal static int StepCount(SamusParticleKind kind) => kind switch
     {
-        SamusParticleKind.DivingSplash => RetainedDivingSplashTimers.Length,
+        SamusParticleKind.DivingSplash => DivingSplashStepUpdates.Count,
         SamusParticleKind.Bubbles => 8,
         SamusParticleKind.SurfaceSplash or SamusParticleKind.LavaSpray or SamusParticleKind.Dust => 4,
         _ => throw new InvalidDataException($"Undefined particle kind {kind}."),
@@ -26,7 +26,7 @@ internal static class SamusParticleAnimations
         return kind switch
         {
             SamusParticleKind.SurfaceSplash => FootstepFrameTicks,
-            SamusParticleKind.DivingSplash => RetainedDivingSplashTimers[step],
+            SamusParticleKind.DivingSplash => DivingSplashStepUpdates[step],
             SamusParticleKind.LavaSpray => LavaSurfaceFrameTicks,
             SamusParticleKind.Bubbles => BubbleFrameTicks,
             SamusParticleKind.Dust => DustInitialFrameTicks + DustFrameTickIncrement * step,

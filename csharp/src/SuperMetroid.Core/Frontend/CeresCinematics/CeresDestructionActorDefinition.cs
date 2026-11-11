@@ -9,8 +9,8 @@ internal readonly record struct CeresDestructionActorDefinition(
     CinematicSpriteProgram Program,
     Position16<ScreenPixels> Position,
     CeresSpriteColouring Colouring,
-    int HorizontalDelta,
+    SignedSixteenSixteen HorizontalDelta,
     bool WrapX,
-    int SlideAcceleration,
+    SignedEightEight SlideAcceleration,
     CinematicSpriteFrameBehavior? SlideFrameBehavior,
     bool CompletesScene);

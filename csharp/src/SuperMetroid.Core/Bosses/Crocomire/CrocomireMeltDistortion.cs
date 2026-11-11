@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// the lines above keep <see cref="ScrollAbove"/>, the scroll the melt was last levelled at. The display draws it as a
 /// scroll stretch; the boss keeps no table of lines.
 /// </summary>
-/// <param name="ScrollAbove">The vertical scroll the lines above the band show, 0 through 65535.</param>
-/// <param name="BaseScroll">His body layer's vertical placement the band stretches from, 0 through 65535.</param>
+/// <param name="ScrollAbove">The vertical scroll the lines above the band show.</param>
+/// <param name="BaseScroll">His body layer's vertical placement the band stretches from.</param>
 /// <param name="FirstLine">The band's first screen line.</param>
 /// <param name="EndLine">The screen line after the band's last.</param>
 /// <param name="Slope">The rows the band falls behind per line, in 1/65536ths of a row.</param>

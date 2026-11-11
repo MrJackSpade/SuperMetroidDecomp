@@ -74,7 +74,7 @@ public sealed class FileSelectMapAnimations
     /// <param name="entries">Destination sprite buffer owned by the menu frame being composed.</param>
     /// <param name="highlight">The shading of the highlight cycle's current frame on the screen that draws the arrows (#1512).</param>
     /// <param name="sheet">Required installed map sprite sheet; no fallback artwork is used when absent.</param>
-    /// <param name="verticalOffset">Screen-pixel Y translation added to each bound arrow anchor, wrapping past 65535; pause-map rendering supplies its header offset here.</param>
+    /// <param name="verticalOffset">Screen-pixel Y translation added to each bound arrow anchor; pause-map rendering supplies its header offset here.</param>
     /// <exception cref="InvalidOperationException">Installed sprite definitions are absent, including when the optional argument is omitted.</exception>
     public void DrawArrows(ScreenSprites entries, PictureShading highlight, SpriteSheet? sheet = null, int verticalOffset = 0)
     {
@@ -82,7 +82,7 @@ public sealed class FileSelectMapAnimations
         foreach (Arrow arrow in arrows)
         {
             if (!arrow.Visible) continue;
-            MapSpriteSheet.Draw(installed, arrow.Base, entries, arrow.Position + new Offset16<SpritePixels>(0, CoordinateAxis.AsSigned(verticalOffset)),
+            MapSpriteSheet.Draw(installed, arrow.Base, entries, arrow.Position + new Offset16<SpritePixels>(0, verticalOffset),
                 highlight);
         }
     }

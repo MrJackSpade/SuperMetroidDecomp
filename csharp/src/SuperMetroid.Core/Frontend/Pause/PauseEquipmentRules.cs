@@ -40,7 +40,7 @@ internal static class PauseEquipmentRules
     /// <summary>Exact inverse of the four boot/suit equipment words.
     /// The game masks the entire equipped-items word to Varia/Hi-Jump, then
     /// searches [neither, Hi-Jump, Varia, both]. Pack Hi-Jump into result bit0 and
-    /// Varia into bit1. All65536 input words are supported; every other bit, including
+    /// Varia into bit1. All 65536 input words are supported; every other bit, including
     /// Gravity, is ignored.</summary>
     public static PauseWireframeKind WireframeKind(SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems) =>
         equippedItems.HasAny(SamusEquipmentFlags.VariaSuit)

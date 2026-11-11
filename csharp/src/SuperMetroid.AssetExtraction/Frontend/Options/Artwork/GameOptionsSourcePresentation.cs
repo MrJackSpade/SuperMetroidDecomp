@@ -248,8 +248,8 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
         ValidatePalette(document.CursorPalette, nameof(document.CursorPalette));
         if (document.SelectedPalette == document.UnselectedPalette)
             throw new InvalidDataException("Options selected and unselected palettes must differ.");
-        if (document.CursorFrameDuration is < 1 or > ushort.MaxValue)
-            throw new InvalidDataException("Options cursor frame duration must be 1..65535.");
+        if (document.CursorFrameDuration < 1)
+            throw new InvalidDataException("Options cursor frame duration must be at least one update.");
         ValidatePoint(document.HiddenCursor, "hidden cursor", offscreenX: OffscreenX.Allowed);
 
         var pages = GameOptionsPresentationFormat.Tilemaps.ToDictionary(tilemap => tilemap,

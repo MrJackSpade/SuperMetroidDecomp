@@ -22,8 +22,8 @@ public sealed record FileSelectPlacements
     public required Position16<SpritePixels>[] HelmetAnchors { get; init; }
     /// <summary>The page pixel each copy or clear page's slot letter is shown at.</summary>
     public required IReadOnlyDictionary<FileSelectAnchor, Position16<PlanePixels>> DynamicAnchors { get; init; }
-    /// <summary>Menu updates per missile-cursor animation frame, in the range 1-65535.</summary>
+    /// <summary>Menu updates per missile-cursor animation frame, at least one.</summary>
     public required int CursorFrameDuration { get; init; }
-    /// <summary>Menu updates per selected-slot helmet animation frame, in the range 1-65535.</summary>
+    /// <summary>Menu updates per selected-slot helmet animation frame, at least one.</summary>
     public required int HelmetFrameDuration { get; init; }
 }

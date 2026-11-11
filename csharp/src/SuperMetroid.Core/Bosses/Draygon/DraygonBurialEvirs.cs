@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 internal static class DraygonBurialEvirs
 {
     /// <summary>
-    /// The burial subspeeds are the absolute unit-circle components scaled by 65,535
-    /// and truncated; the six angles all lie in the upper half of the circle, so the vertical one is positive. The spawn positions use the same six angles on the radius508
+    /// The burial subspeeds are the absolute unit-circle components scaled by <see cref="DraygonBurialEvirDefinitions.SubspeedScale"/>
+    /// and truncated, in 65536ths of a pixel; the six angles all lie in the upper half of the circle, so the vertical one is positive. The spawn positions use the same six angles on the radius508
     /// circle, floor to pixels, then wrap signed X into the word. The angle
     /// selects the movement signs; its unused zero padding is not state.
     /// </summary>
@@ -20,12 +20,12 @@ internal static class DraygonBurialEvirs
         double radians = angle * Math.PI / 128;
         double x = Math.Cos(radians), y = Math.Sin(radians);
         return new(
-            FixedVector<RoomPixels>.FromStoredParts(
-                0, (int)Math.Floor(ushort.MaxValue * Math.Abs(x)),
-                0, (int)Math.Floor(ushort.MaxValue * y)),
-            new Position16<RoomPixels>(
-                CoordinateAxis.Wrap((int)Math.Floor(CenterX + Radius * x)),
-                CoordinateAxis.Wrap((int)Math.Floor(CenterY - Radius * y))),
+            new FixedVector<RoomPixels>(
+                SignedSixteenSixteen.FromParts(0, (int)Math.Floor(SubspeedScale * Math.Abs(x))),
+                SignedSixteenSixteen.FromParts(0, (int)Math.Floor(SubspeedScale * y))),
+            Position16<RoomPixels>.Wrapped(
+                (int)Math.Floor(CenterX + Radius * x),
+                (int)Math.Floor(CenterY - Radius * y)),
             TrigonometryAngle.Wrapped(angle));
     }
 

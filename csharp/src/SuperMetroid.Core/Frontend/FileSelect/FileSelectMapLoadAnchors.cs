@@ -11,10 +11,9 @@ public static class FileSelectMapLoadAnchors
     /// <summary>Projects a valid saved station from compiled placement and room metadata.</summary>
     /// <remarks>
     /// Independently reviewed for #1165 against the game's load placement and
-    /// map projection. First wrap camera plus player offset to a
-    /// world coordinate of 0 through 65535 (including the horizontal128 bias), then take
-    /// its whole screens (the coordinate over 256). Add the room map coordinate and multiply by eight; Y has one
-    /// additional map row. The thirty-four supported station identities retain the
+    /// map projection. Take the whole room screens of Samus's placement at the station, add the room's map
+    /// coordinate and multiply by eight; Y has one additional map row. A map square and a room's screens are small
+    /// counts, so the result is an ordinary map pixel and nothing wraps. The thirty-four supported station identities retain the
     /// existing marker-validity guard before narrowing the station index.
     /// Only fixed compiled room metadata is needed, never room-state selection,
     /// original data access, editable marker art, or a generated coordinate cache.
@@ -26,7 +25,7 @@ public static class FileSelectMapLoadAnchors
         RoomHeaderDefinition room = station.Room ??
             throw new InvalidOperationException($"{area} station {stationIndex} has no room.");
         Position16<RoomPixels> samus = station.SamusPosition;
-        return new(CoordinateAxis.Wrap((room.MapPosition.X + RoomGridConversions.PixelToScreen(samus.X)) << 3),
-            CoordinateAxis.Wrap((room.MapPosition.Y + RoomGridConversions.PixelToScreen(samus.Y) + 1) << 3));
+        return new((room.MapPosition.X + RoomGridConversions.PixelToScreen(samus.X)) * 8,
+            (room.MapPosition.Y + RoomGridConversions.PixelToScreen(samus.Y) + 1) * 8);
     }
 }

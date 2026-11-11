@@ -322,8 +322,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 break;
 
             case CeresDestructionPhase.FlyingTowardZebesA:
-                Background = Background.WithY(IntroCinematicMotion.AddSignedSixteenSixteen(Background.Y, CeresDestructionSceneDefinitions.Motion.EighthPixel16Point16));
-                Background = Background.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(Background.X, CeresDestructionSceneDefinitions.Motion.NegativeHalfPixel16Point16));
+                Background = Background.WithY(Background.Y.MovedBy(CeresDestructionSceneDefinitions.Motion.EighthPixel));
+                Background = Background.WithX(Background.X.MovedBy(CeresDestructionSceneDefinitions.Motion.NegativeHalfPixel));
                 if (Zoom < CeresDestructionSceneDefinitions.Motion.ZebesApproachScaleLimit)
                     Zoom += 4;
                 else
@@ -332,8 +332,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 break;
 
             case CeresDestructionPhase.FlyingTowardZebesB:
-                Background = Background.WithY(IntroCinematicMotion.AddSignedSixteenSixteen(Background.Y, CeresDestructionSceneDefinitions.Motion.EighthPixel16Point16));
-                Background = Background.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(Background.X, CeresDestructionSceneDefinitions.Motion.NegativeHalfPixel16Point16));
+                Background = Background.WithY(Background.Y.MovedBy(CeresDestructionSceneDefinitions.Motion.EighthPixel));
+                Background = Background.WithX(Background.X.MovedBy(CeresDestructionSceneDefinitions.Motion.NegativeHalfPixel));
                 if (CoordinateAxis.AsSigned(Background.X.Whole) < -128)
                 {
                     Phase = CeresDestructionPhase.FlyingTowardZebesC;
@@ -347,8 +347,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 break;
 
             case CeresDestructionPhase.FlyingTowardZebesC:
-                Background = Background.WithY(IntroCinematicMotion.AddSignedSixteenSixteen(Background.Y, CeresDestructionSceneDefinitions.Motion.EighthPixel16Point16));
-                Background = Background.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(Background.X, CeresDestructionSceneDefinitions.Motion.EighthPixel16Point16));
+                Background = Background.WithY(Background.Y.MovedBy(CeresDestructionSceneDefinitions.Motion.EighthPixel));
+                Background = Background.WithX(Background.X.MovedBy(CeresDestructionSceneDefinitions.Motion.EighthPixel));
                 if (Zoom < CeresDestructionSceneDefinitions.Motion.FarZebesScaleLimit)
                 {
                     Zoom += CeresDestructionSceneDefinitions.Motion.FastScaleStep;
@@ -479,8 +479,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Drifts the Ceres camera by one sixteenth pixel down and one quarter pixel left.</summary>
     private void StepInitialDrift()
     {
-        Background = Background.WithY(IntroCinematicMotion.AddSignedSixteenSixteen(Background.Y, CeresDestructionSceneDefinitions.Motion.SixteenthPixel16Point16));
-        Background = Background.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(Background.X, CeresDestructionSceneDefinitions.Motion.NegativeQuarterPixel16Point16));
+        Background = Background.WithY(Background.Y.MovedBy(CeresDestructionSceneDefinitions.Motion.SixteenthPixel));
+        Background = Background.WithX(Background.X.MovedBy(CeresDestructionSceneDefinitions.Motion.NegativeQuarterPixel));
     }
 
     /// <summary>Raises master brightness one level on alternating calls, capped at fifteen.</summary>
@@ -695,7 +695,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 // cross -128, so indexes necessarily shift during this loop.
                 // The slide speed grows by at most 64 a frame and the actor is deleted within a few dozen frames, once
                 // it crosses -128, so the speed stays far inside its range.
-                SignedEightEight slideSpeed = slideSpeeds.GetValueOrDefault(actor) + SignedEightEight.FromSignedRaw(definition.SlideAcceleration);
+                SignedEightEight slideSpeed = slideSpeeds.GetValueOrDefault(actor) + definition.SlideAcceleration;
                 slideSpeeds[actor] = slideSpeed;
                 actor.Position = actor.Position.WithY(actor.Position.Y.MovedBy(-slideSpeed.ToSixteenSixteenDelta()));
                 if (CoordinateAxis.AsSigned(actor.WholePosition.Y) < -128)
@@ -779,11 +779,11 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     }
 
     /// <summary>Adds a fractional asteroid X step and wraps its whole coordinate around the world's width.</summary>
-    private static void AddWrappedX(IntroDiscoverySprite actor, int horizontalDelta)
+    private static void AddWrappedX(IntroDiscoverySprite actor, SignedSixteenSixteen horizontalDelta)
     {
         // The wrapping field adds only the delta's fraction, with nothing in the whole pixel: a leftward delta,
         // whose fraction is the rest of a pixel, carries the actor right instead.
-        FixedCoordinate x = IntroCinematicMotion.AddFraction(actor.Position.X, SignedSixteenSixteen.FromRaw(horizontalDelta).Fraction);
+        FixedCoordinate x = IntroCinematicMotion.AddFraction(actor.Position.X, horizontalDelta);
         actor.Position = actor.Position.WithX(x.WithWhole(CoordinateAxis.Wrap(x.Whole % CeresDestructionSceneDefinitions.WorldWidth)));
     }
 

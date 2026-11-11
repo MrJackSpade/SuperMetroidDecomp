@@ -93,7 +93,7 @@ internal static class RidleySupplementalArtworkVerification
                     Position = new Position16<RoomPixels>(
                         unchecked((ushort)(80 + index * 10)),
                         unchecked((ushort)(120 + index * 3))),
-                    Angle = index == 6 ? unchecked((ushort)(tailDirection.Value << 4)) : (ushort)0,
+                    Angle = RidleyTailAngle.FromStepsFromStraightDown(index == 6 ? tailDirection.Value << 4 : 0),
                 })],
         };
         enemies.RidleyEncounter.Ridley = state;

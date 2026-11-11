@@ -66,16 +66,16 @@ internal static class CeresDestructionSceneDefinitions
         internal const int SlowScaleStep = 16;
         /// <summary>The fast per-update zoom change.</summary>
         internal const int FastScaleStep = 32;
-        /// <summary>One eighth of a pixel per update, in 1/65536 pixels.</summary>
-        internal const int EighthPixel16Point16 = 8192;
-        /// <summary>Minus one half pixel per update, in 1/65536 pixels.</summary>
-        internal const int NegativeHalfPixel16Point16 = -32768;
-        /// <summary>One sixteenth of a pixel per update, in 1/65536 pixels.</summary>
-        internal const int SixteenthPixel16Point16 = 4096;
-        /// <summary>Minus one quarter pixel per update, in 1/65536 pixels.</summary>
-        internal const int NegativeQuarterPixel16Point16 = -16384;
-        /// <summary>The fleeing gunship's horizontal speed: a quarter pixel per update, in 1/65536 pixels.</summary>
-        internal const int GunshipXSubvelocity = 16384;
+        /// <summary>One eighth of a pixel per update.</summary>
+        internal static SignedSixteenSixteen EighthPixel { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(2);
+        /// <summary>Minus one half pixel per update.</summary>
+        internal static SignedSixteenSixteen NegativeHalfPixel { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(-8);
+        /// <summary>One sixteenth of a pixel per update.</summary>
+        internal static SignedSixteenSixteen SixteenthPixel { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(1);
+        /// <summary>Minus one quarter pixel per update.</summary>
+        internal static SignedSixteenSixteen NegativeQuarterPixel { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(-4);
+        /// <summary>The fleeing gunship's horizontal speed: a quarter pixel per update, of which only the fraction moves the blasts.</summary>
+        internal static SignedSixteenSixteen GunshipXSubvelocity { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(4);
         /// <summary>The fleeing gunship's vertical velocity: one sixteenth of a pixel upward per update.</summary>
         internal static SignedSixteenSixteen GunshipYVelocity { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(-1);
         /// <summary>The floor position, in pixels, that completes the gunship's exit.</summary>

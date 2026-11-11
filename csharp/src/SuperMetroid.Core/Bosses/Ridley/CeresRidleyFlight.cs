@@ -85,7 +85,7 @@ internal sealed class CeresRidleyFlight
             ClockwiseWhipTarget = null,
             CounterClockwiseWhipTarget = null,
             TailWhipRequest = 0,
-            TailExtensionSpeed = 240,
+            TailExtensionSpeed = RidleyTailDefinitions.StandardExtensionSpeed,
             IdealInterSegmentTailAngle = RidleyTailDefinitions.IdealInterSegmentSpacing,
             TailSegments = RidleyTail.CreateInitialRidleyTailSegments(),
         };
@@ -417,8 +417,8 @@ internal sealed class CeresRidleyFlight
     /// to five pixels and a step is at most the arena's width), so the clamps compare signed velocities.
     /// </summary>
     /// <param name="velocity">The axis velocity.</param>
-    /// <param name="position">Ridley's whole coordinate on the axis, 0 through 65535.</param>
-    /// <param name="target">The target's whole coordinate on the axis, 0 through 65535.</param>
+    /// <param name="position">Ridley's whole coordinate on the axis, as his position holds it.</param>
+    /// <param name="target">The target's whole coordinate on the axis, as its position holds it.</param>
     /// <param name="divisor">The inertia divisor, at least one.</param>
     private static SignedEightEight AccelerateAxis(SignedEightEight velocity, int position, int target, int divisor)
     {

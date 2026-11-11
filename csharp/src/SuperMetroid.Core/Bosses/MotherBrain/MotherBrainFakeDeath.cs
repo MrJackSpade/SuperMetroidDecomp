@@ -367,8 +367,8 @@ internal sealed class MotherBrainFakeDeath
         // lengths and starting angles must exist before the ascent gets installed several
         // frames later or the first visible neck frame collapses every joint onto zero.
         MotherBrainNeckJointDefinitions.InitialDistances.CopyTo(state.NeckJointDistances);
-        state.LowerNeckAngle = RotationAngle.FromRaw(18432);
-        state.UpperNeckAngle = RotationAngle.FromRaw(20480);
+        state.LowerNeckAngle = RotationAngle.FromSteps(72);
+        state.UpperNeckAngle = RotationAngle.FromSteps(80);
         state.NeckAngleDelta = 256;
         state.Function = MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows1And2;
         ExplodeMotherBrainTube(tube);

@@ -72,10 +72,10 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// Lower neck angle updated by the brain-slot handler. The final
     /// beam has already lowered it to three sixteenths of a turn before the Baby interrupts the body.
     /// </summary>
-    public RotationAngle LowerNeckAngle { get; internal set; } = RotationAngle.FromRaw(12288);
+    public RotationAngle LowerNeckAngle { get; internal set; } = RotationAngle.FromSteps(48);
 
     /// <summary>Upper neck angle, correspondingly lowered to an eighth of a turn.</summary>
-    public RotationAngle UpperNeckAngle { get; internal set; } = RotationAngle.FromRaw(8192);
+    public RotationAngle UpperNeckAngle { get; internal set; } = RotationAngle.FromSteps(32);
 
     /// <summary>
     /// Number of live Mother Brain bomb enemy projectiles.

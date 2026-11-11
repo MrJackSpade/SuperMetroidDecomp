@@ -161,7 +161,7 @@ internal sealed class DebuggerSaveStateStore : IDisposable
         EnsureRomMatches(addressSpace);
         var metadata = new DebuggerSaveStateMetadata(
             DateTimeOffset.UtcNow,
-            checked((ushort)game.FrameNumber),
+            game.FrameNumber,
             game.GameState,
             game.GameplayActiveRoom?.Name,
             game.GameplayActiveRoomState?.Name,
@@ -291,7 +291,7 @@ internal sealed class DebuggerSaveStateStore : IDisposable
             Console.Error.WriteLine($"WARNING: {warning}");
 
         DateTimeOffset savedUtc = new(reader.ReadInt64(), TimeSpan.Zero);
-        ushort frame = reader.ReadUInt16();
+        int frame = reader.ReadInt32();
         SuperMetroidGameState gameState = Enum.Parse<SuperMetroidGameState>(reader.ReadString());
         string? room = ReadNullableString(reader);
         string? roomState = ReadNullableString(reader);

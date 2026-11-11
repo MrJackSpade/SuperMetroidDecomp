@@ -1,18 +1,18 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>Compiled fixed-point launch words for Kraid's paired fingernails.</summary>
+/// <summary>The launch speeds of Kraid's paired fingernails.</summary>
 /// <remarks>
 /// The two nail launch tables select four records each. All four RNG choices within each table are identical:
 /// X=-1, fractions zero, and Y opposite the sibling's sign. RNG remains relevant to spawn-mode selection.
 /// </remarks>
 public static class KraidNailLaunchDefinitions
 {
-    /// <summary>The launch's whole X word: one pixel per frame leftward.</summary>
-    public const int LeftwardWhole = ushort.MaxValue;
+    /// <summary>The launch's horizontal speed: one pixel per frame leftward.</summary>
+    public static SignedSixteenSixteen Leftward { get; } = SignedSixteenSixteen.FromWholePixels(-1);
 
-    /// <summary>The launch's whole Y word when the sibling moves upward: one pixel per frame downward.</summary>
-    public const int DownwardWhole = 1;
+    /// <summary>The launch's vertical speed when the sibling moves upward: one pixel per frame downward.</summary>
+    public static SignedSixteenSixteen Downward { get; } = SignedSixteenSixteen.FromWholePixels(1);
 
-    /// <summary>The launch's whole Y word when the sibling moves downward or holds: one pixel per frame upward.</summary>
-    public const int UpwardWhole = ushort.MaxValue;
+    /// <summary>The launch's vertical speed when the sibling moves downward or holds: one pixel per frame upward.</summary>
+    public static SignedSixteenSixteen Upward { get; } = SignedSixteenSixteen.FromWholePixels(-1);
 }

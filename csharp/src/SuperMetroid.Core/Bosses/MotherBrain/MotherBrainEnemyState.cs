@@ -311,8 +311,8 @@ public sealed class MotherBrainEnemyState
     public MotherBrainRainbowBeamEffect RainbowBeam { get; } = new();
     /// <summary>Current angular aim published from the beam's forced-movement owner and consumed by the rainbow beam effect.</summary>
     public RotationAngle RainbowBeamAngle { get; internal set; }
-    /// <summary>Rainbow-beam angular width in 8.8 table units, published by body AI as the beam widens or narrows; independent of pixel width at a given scanline.</summary>
-    public int RainbowBeamAngularWidth { get; internal set; }
+    /// <summary>Rainbow-beam angular width, published by body AI as the beam widens or narrows; independent of pixel width at a given scanline.</summary>
+    public RotationAngle RainbowBeamAngularWidth { get; internal set; }
 
     /// <summary>
     /// Last brain program copied from the rainbow state machine into the brain.

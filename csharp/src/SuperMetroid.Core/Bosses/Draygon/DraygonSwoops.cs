@@ -222,7 +222,7 @@ internal sealed class DraygonSwoops
     /// frame count, the quotient code splits into the swoop speed's whole and subpixel words.
     /// </summary>
     /// <param name="state">Draygon's state, which receives the velocity.</param>
-    /// <param name="distance">The whole-pixel distance, 0 through 65535.</param>
+    /// <param name="distance">The whole pixels the swoop covers.</param>
     /// <param name="frameCount">The path's entries.</param>
     private static void SetDraygonSwoopVelocity(DraygonEnemyState state, int distance, int frameCount) =>
         state.SwoopVelocity = UnsignedSixteenSixteen.Covering(distance, frameCount);

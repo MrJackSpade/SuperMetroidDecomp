@@ -273,7 +273,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Upper room boundary for the spiral center's vertical lift.</summary>
     internal const int DraygonMinimumSpiralCenterY = 64;
     /// <summary>The spiral center's per-frame 16.16 lift, a quarter pixel upward.</summary>
-    internal static readonly SignedSixteenSixteen DraygonSpiralCenterLift = SignedSixteenSixteen.FromRaw(-16384);
+    internal static readonly SignedSixteenSixteen DraygonSpiralCenterLift = -SignedSixteenSixteen.FromSixteenthsOfPixel(4);
     /// <summary>Number of AI calls in Draygon's tail-whip phase.</summary>
     internal const int DraygonTailWhipDuration = 64;
     /// <summary>Countdown value that triggers the first tail-whip animation step.</summary>

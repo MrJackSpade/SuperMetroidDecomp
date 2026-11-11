@@ -133,23 +133,25 @@ public sealed class BabyMetroidCutsceneState
     public int RoomLightsTransitionCounter { get; private set; }
 
     /// <summary>
-    /// Fraction of a rainbow frame accumulated toward slowing Samus's rainbow, in
-    /// 1/65536 frames: each call adds 768, and every completed whole frame advances her rainbow.
+    /// Fraction of a rainbow frame accumulated toward slowing Samus's rainbow, in 256ths of a frame: each call adds
+    /// three, and every completed whole frame advances her rainbow.
     /// </summary>
     public int SamusRainbowFraction { get; private set; }
 
-    /// <summary>The accumulated fraction, in 1/65536 frames, that completes one rainbow frame.</summary>
-    private const int SamusRainbowFractionsPerFrame = 65536;
+    /// <summary>The accumulated 256ths that complete one rainbow frame.</summary>
+    private const int SamusRainbowFractionsPerFrame = 256;
+
+    /// <summary>The 256ths of a rainbow frame one call adds.</summary>
+    private const int SamusRainbowFractionPerCall = 3;
 
     /// <summary>
-    /// Adds one call's 768/65536 of a rainbow palette frame to <paramref name="fraction"/>, returning
-    /// the fraction left over and whether the addition completed a whole frame. This is the
-    /// original game's carry past 65536: the slowing rainbow advances one palette
-    /// frame on every carry and keeps the remainder.
+    /// Adds one call's three 256ths of a rainbow palette frame to <paramref name="fraction"/>, returning the fraction
+    /// left over and whether the addition completed a whole frame: the slowing rainbow advances one palette frame each
+    /// time the fraction completes a frame, and keeps the remainder.
     /// </summary>
     internal static SamusRainbowFractionStep AdvanceSamusRainbowFraction(int fraction)
     {
-        int sum = Ensure.BetweenInclusive(0, SamusRainbowFractionsPerFrame - 1, fraction) + 768;
+        int sum = Ensure.BetweenInclusive(0, SamusRainbowFractionsPerFrame - 1, fraction) + SamusRainbowFractionPerCall;
         return sum >= SamusRainbowFractionsPerFrame
             ? new SamusRainbowFractionStep(sum - SamusRainbowFractionsPerFrame, true)
             : new SamusRainbowFractionStep(sum, false);
@@ -268,7 +270,7 @@ public sealed class BabyMetroidCutsceneState
                 break;
 
             case BabyMetroidCutscenePhase.CurveTowardMotherBrainHead:
-                UpdateSpeedAndAngle(angleDelta: -384, targetAngle: RotationAngle.FromRaw(45056), targetSpeed: 2560);
+                UpdateSpeedAndAngle(angleDelta: -384, targetAngle: RotationAngle.FromSteps(176), targetSpeed: 2560);
                 if (--FunctionTimer < 0)
                 {
                     Phase = BabyMetroidCutscenePhase.GetRightUpInMotherBrainsFace;
@@ -277,7 +279,7 @@ public sealed class BabyMetroidCutsceneState
                 break;
 
             case BabyMetroidCutscenePhase.GetRightUpInMotherBrainsFace:
-                UpdateSpeedAndAngle(angleDelta: -1536, targetAngle: RotationAngle.FromRaw(33280), targetSpeed: 3584);
+                UpdateSpeedAndAngle(angleDelta: -1536, targetAngle: RotationAngle.FromSteps(130), targetSpeed: 3584);
                 brainCollision = CollidesWithRectangle(
                     head,
                     TargetRadius);
@@ -880,7 +882,7 @@ public sealed class BabyMetroidCutsceneState
     }
 
     /// <summary>Multiplies speed by a signed sine-table entry with the game's bit-8-to-23 result.</summary>
-    /// <param name="speed">The unsigned 8.8 speed, 0 through 65535.</param>
+    /// <param name="speed">The speed in 256ths of a pixel an update, never negative.</param>
     /// <param name="angle">The sine-table angle.</param>
     internal static SignedEightEight CalculateVelocityComponent(
         int speed,

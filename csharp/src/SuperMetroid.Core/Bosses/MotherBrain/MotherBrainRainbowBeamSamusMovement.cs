@@ -127,14 +127,14 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     }
 
     /// <summary>Projects an 8.8 beam speed onto the vertical axis using the quarter-turn sine lookup.</summary>
-    /// <param name="speed">The unsigned 8.8 beam speed, 0 through 65535.</param>
+    /// <param name="speed">The beam's speed in 256ths of a pixel an update, never negative.</param>
     /// <param name="angle">The live beam angle.</param>
     internal static SignedEightEight CalculateYVelocity(
         int speed,
         RotationAngle angle)
     {
         // The sine multiply multiplies unsigned speed by the magnitude, selects product bits 8..23,
-        // then reapplies the table entry's sign with two's-complement negation wrapping at 65536.
+        // then reapplies the table entry's sign.
         return Trigonometry.MultiplySignedSine(
             speed, (angle + RotationAngle.QuarterTurn).ToTrigonometryAngle());
     }

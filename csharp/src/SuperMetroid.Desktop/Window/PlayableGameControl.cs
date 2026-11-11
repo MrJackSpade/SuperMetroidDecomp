@@ -507,7 +507,7 @@ public sealed class PlayableGameControl : UserControl
                 {
                     lastRecoverableError = errorReporter?.Report(exception, new GitHubErrorContext(
                         Boundary: "audio submission after completed gameplay frame",
-                        FrameNumber: checked((ushort)game.FrameNumber),
+                        FrameNumber: game.FrameNumber,
                         GameState: game.GameState.ToString(),
                         Phase: game.CurrentFrame.Phase,
                         ControllerInput: input,
@@ -576,7 +576,7 @@ public sealed class PlayableGameControl : UserControl
                 frameException,
                 new GitHubErrorContext(
                     Boundary: "playable emulated-frame boundary",
-                    FrameNumber: checked((ushort)game.FrameNumber),
+                    FrameNumber: game.FrameNumber,
                     GameState: game.GameState.ToString(),
                     Phase: game.CurrentFrame.Phase,
                     ControllerInput: input,

@@ -81,11 +81,13 @@ internal static class EndingRewardGestureVerification
             int jumpCalls = 0;
             while (!jump.ShotRequested && jumpCalls++ < 500)
             {
-                int beforeVelocity = jump.VerticalVelocity;
+                SignedSixteenSixteen beforeVelocity = jump.VerticalVelocity;
                 jump.Step();
-                if (beforeVelocity == -16 * 65536 && !firstMotion)
+                SignedSixteenSixteen launch = SignedSixteenSixteen.FromWholePixels(-16);
+                if (beforeVelocity == launch && !firstMotion)
                 {
-                    AssertEqual(-16 * 65536 + (reward == EndingReward.Suitless ? 0x3800 : 0x7000),
+                    // Seven thirty-seconds of a pixel for each active actor: the body alone, or the body and its head.
+                    AssertEqual(launch + SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(reward == EndingReward.Suitless ? 56 : 112),
                         jump.VerticalVelocity, "native jump accelerates once per active actor, before moving");
                     firstMotion = true;
                 }

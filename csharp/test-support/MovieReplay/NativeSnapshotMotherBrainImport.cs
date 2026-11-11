@@ -115,7 +115,7 @@ internal static class NativeSnapshotMotherBrainImport
         // The game reads only the low byte of each aim angle, the byte angle it stored.
         state.HandBeamNextAngle = W(MotherBrainMemory.DeathBeamNext + 12) & byte.MaxValue;
         state.OnionRingsTargetAngle = W(MotherBrainMemory.OnionRingsTargetAngle) & byte.MaxValue;
-        state.RainbowBeamAngularWidth = W(MotherBrainMemory.RainbowBeamAngularWidth);
+        state.RainbowBeamAngularWidth = RotationAngle.FromRaw(W(MotherBrainMemory.RainbowBeamAngularWidth));
         if (RainbowSequenceFunctions.Contains(state.Function))
             ImportNativeMotherBrainRainbowSequence(state, state.Function, W);
     }
@@ -216,7 +216,7 @@ internal static class NativeSnapshotMotherBrainImport
         var sequence = new MotherBrainRainbowBeamAttackSequence();
         sequence.State.Phase = phase;
         sequence.State.FunctionTimer = CoordinateAxis.AsSigned(W(MotherBrainMemory.BodyFunctionTimer));
-        sequence.RainbowAttack.AngularWidth = W(MotherBrainMemory.RainbowBeamAngularWidth);
+        sequence.RainbowAttack.AngularWidth = RotationAngle.FromRaw(W(MotherBrainMemory.RainbowBeamAngularWidth));
         sequence.RainbowAttack.SoundQueueCount = CoordinateAxis.AsSigned(W(MotherBrainMemory.RainbowBeamSoundQueueCount));
         sequence.State.RainbowBeamSoundPlaying = W(MotherBrainMemory.RainbowBeamSoundPlaying) != 0;
         sequence.State.BrainMainShakeTimer = W(MotherBrainMemory.BrainMainShakeTimer);

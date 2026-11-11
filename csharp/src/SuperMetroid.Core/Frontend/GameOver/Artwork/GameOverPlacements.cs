@@ -14,6 +14,6 @@ public sealed record GameOverPlacements
     public required int YesCursorY { get; init; }
     /// <summary>Vertical missile-cursor position for the No answer in screen pixels, 0-255.</summary>
     public required int NoCursorY { get; init; }
-    /// <summary>Duration 1-65535 in menu updates for each looping missile-cursor frame.</summary>
+    /// <summary>Duration in menu updates, at least one, of each looping missile-cursor frame.</summary>
     public required int CursorFrameDuration { get; init; }
 }

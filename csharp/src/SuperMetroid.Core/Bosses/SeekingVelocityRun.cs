@@ -16,13 +16,13 @@ internal struct SeekingVelocityRun
 
     /// <summary>Starts a run from <paramref name="start"/> toward <paramref name="target"/> from <paramref name="position"/>.</summary>
     /// <param name="start">The axis velocity before the run.</param>
-    /// <param name="position">The boss's whole coordinate on the axis, 0 through 65535.</param>
-    /// <param name="target">The target's whole coordinate on the axis, 0 through 65535.</param>
+    /// <param name="position">The boss's whole coordinate on the axis, as its position holds it.</param>
+    /// <param name="target">The target's whole coordinate on the axis, as its position holds it.</param>
     internal SeekingVelocityRun(SignedEightEight start, int position, int target)
     {
         Velocity = start;
         bool targetAhead = CoordinateAxis.Difference(position, target) < 0;
-        bool orderedAhead = Ensure.BetweenInclusive(0, ushort.MaxValue, position) < Ensure.BetweenInclusive(0, ushort.MaxValue, target);
+        bool orderedAhead = position < target;
         extraUnit = targetAhead == orderedAhead ? 0 : 1;
     }
 
@@ -32,18 +32,18 @@ internal struct SeekingVelocityRun
     /// <summary>Starts a fresh run: the next step adds no unit for a crossing before it.</summary>
     internal void StartFresh() => extraUnit = 0;
 
-    /// <summary>Raises the velocity by <paramref name="amount"/> units, 0 through 65535, plus any unit a crossing left.</summary>
+    /// <summary>Raises the velocity by <paramref name="amount"/> units, never negative, plus any unit a crossing left.</summary>
     internal void Raise(int amount)
     {
-        int sum = Velocity.RawValue + Ensure.BetweenInclusive(0, ushort.MaxValue, amount) + extraUnit;
+        int sum = Velocity.RawValue + Ensure.AtLeastZero(amount) + extraUnit;
         extraUnit = sum > ushort.MaxValue ? 1 : 0;
         Velocity = SignedEightEight.Wrapped(sum);
     }
 
-    /// <summary>Lowers the velocity by <paramref name="amount"/> units, 0 through 65535, plus any unit a crossing left.</summary>
+    /// <summary>Lowers the velocity by <paramref name="amount"/> units, never negative, plus any unit a crossing left.</summary>
     internal void Lower(int amount)
     {
-        int difference = Velocity.RawValue - Ensure.BetweenInclusive(0, ushort.MaxValue, amount) - extraUnit;
+        int difference = Velocity.RawValue - Ensure.AtLeastZero(amount) - extraUnit;
         extraUnit = difference < 0 ? 1 : 0;
         Velocity = SignedEightEight.Wrapped(difference);
     }

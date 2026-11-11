@@ -676,7 +676,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Accelerates the defeated head down to Y=200, then hides it and waits for body landing.</summary>
     private void RunBotwoonHeadFall(RoomEnemySlot head, BotwoonEnemyState state)
     {
-        SignedSixteenSixteen displacement = EnemyQuadraticSpeeds.Row(Ensure.BetweenInclusive(0, ushort.MaxValue, state.DeathFallAccumulator / BotwoonDeathFallUnitsPerStep)).Positive;
+        SignedSixteenSixteen displacement = EnemyQuadraticSpeeds.Row(state.DeathFallAccumulator / BotwoonDeathFallUnitsPerStep).Positive;
         head.Position = head.Position.AdvanceY(displacement);
         if (CoordinateAxis.Difference(head.Position.Y.Whole, 200) < 0)
         {
@@ -788,8 +788,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         TrigonometryAngle angle,
         int magnitude)
     {
-        int xMagnitude = EnemyMath.ReadAbsoluteCosineProduct(angle, Ensure.BetweenInclusive(0, ushort.MaxValue, magnitude));
-        int yMagnitude = EnemyMath.ReadAbsoluteSineProduct(angle, Ensure.BetweenInclusive(0, ushort.MaxValue, magnitude));
+        int xMagnitude = EnemyMath.ReadAbsoluteCosineProduct(angle, magnitude);
+        int yMagnitude = EnemyMath.ReadAbsoluteSineProduct(angle, magnitude);
         int xDisplacement = EnemyMath.CosineIsNegative(angle) ? -xMagnitude : xMagnitude;
         int yDisplacement = EnemyMath.SineIsNegative(angle) ? -yMagnitude : yMagnitude;
         head.Position = head.Position.AdvanceX(SignedSixteenSixteen.FromRaw(xDisplacement));
@@ -1019,7 +1019,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Spawns one of Botwoon's spits.</summary>
     /// <param name="head">Botwoon's head.</param>
     /// <param name="angle">The spit's direction.</param>
-    /// <param name="speed">The spit speed, 0 through 65535.</param>
+    /// <param name="speed">The spit's speed.</param>
     internal void SpawnBotwoonSpit(RoomEnemySlot head, TrigonometryAngle angle, int speed)
     {
         EnemyProjectile? spit = _projectiles.AllocateEnemyProjectile();

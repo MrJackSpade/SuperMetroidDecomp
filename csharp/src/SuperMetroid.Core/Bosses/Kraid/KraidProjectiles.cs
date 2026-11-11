@@ -327,18 +327,15 @@ internal sealed class KraidProjectiles
             _access.NailState(nail).NailVelocity.X.WholePixels >= 0;
     }
 
-    /// <summary>The units of a 16.16 velocity's fraction in one whole pixel.</summary>
-    private const int FractionUnitsPerPixel = 65536;
-
     /// <summary>
     /// Horizontal wall/contour reflections and the nail's reflection negate
-    /// each part independently: the whole pixels change sign and a nonzero fraction becomes its complement within
-    /// the pixel. Do not propagate fractional borrow as a normal fixed-point negation would; the resulting
-    /// nonzero-fraction quirk is the original's.
+    /// each part independently (<see cref="SignedSixteenSixteen.NegatedPartsSeparately"/>): the whole pixels change sign
+    /// and a nonzero fraction becomes its complement within the pixel. A nail with a fraction therefore rebounds one
+    /// pixel an update to the right of its true reversal, whichever way it arrived; the quirk is the original's and
+    /// changes the nail's path.
     /// </summary>
     private static SignedSixteenSixteen ReflectKraidNailHorizontalVelocity(SignedSixteenSixteen velocity) =>
-        SignedSixteenSixteen.FromParts(-velocity.WholePixels,
-            velocity.Fraction == 0 ? 0 : FractionUnitsPerPixel - velocity.Fraction);
+        velocity.NegatedPartsSeparately();
 
     /// <summary>Advances a lint part through idle, charge, fire, and reattachment states.</summary>
     internal void RunKraidLintMain(RoomEnemySlot lint, SamusState? samus)

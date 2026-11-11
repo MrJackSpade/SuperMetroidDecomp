@@ -213,14 +213,17 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         UpdateSporeSpawnStalks(state);
         body.Position = body.Position.WithWrappedWholeX(
             state.MovementCenter.X +
-            EnemyMath.ReadEightBitCosineProduct(state.Angle.ToTrigonometryAngle(), Ensure.BetweenInclusive(0, ushort.MaxValue, state.MaximumXRadius)));
-        // The vertical sway turns twice as fast as the horizontal, from a quarter turn behind it.
+            EnemyMath.ReadEightBitCosineProduct(state.Angle.ToTrigonometryAngle(), state.MaximumXRadius));
+        // The vertical sway turns twice as fast as the horizontal, from a quarter turn behind it, sixteen pixels
+        // narrower. Spore Spawn only moves once the fight has started, which sets the radius to 48 or 64 first; the only
+        // other way into movement is a hit on the exposed core, which only the open frames after that start carry. The
+        // radius therefore never lies below sixteen when it is read.
         TrigonometryAngle swayBehind = (state.Angle - RotationAngle.QuarterTurn).ToTrigonometryAngle();
         body.Position = body.Position.WithWrappedWholeY(
             state.MovementCenter.Y +
             EnemyMath.ReadEightBitNegativeSineProduct(
                 swayBehind.TurnedBy(swayBehind),
-                CoordinateAxis.Wrap(state.MaximumXRadius - 16)));
+                state.MaximumXRadius - 16));
 
         // The phase advances by the signed delta and wraps around the turn.
         state.Angle = state.Angle.TurnedBySteps(state.AngleDelta);
@@ -302,7 +305,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         int threeQuarters = quarter + half;
         Span<int> positions = stackalloc int[4]
         {
-            Ensure.BetweenInclusive(0, ushort.MaxValue, firstPosition),
+            firstPosition,
             CoordinateAxis.Wrap(anchor + (negative ? -quarter : quarter)),
             CoordinateAxis.Wrap(anchor + (negative ? -half : half)),
             CoordinateAxis.Wrap(anchor + (negative ? -threeQuarters : threeQuarters)),

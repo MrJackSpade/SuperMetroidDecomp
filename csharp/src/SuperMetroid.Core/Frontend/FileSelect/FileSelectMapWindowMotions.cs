@@ -16,7 +16,7 @@ internal static class FileSelectMapWindowMotions
     /// 16.16. The farthest edge travels exactly four pixels per update. The edges move on
     /// floor(D/4)+1 updates, and the reveal completes on the last of them.
     /// The generation square is 256 high even though the edges stop at the screen's bottom.
-    /// Integer numerators are at most65536; division precedes the ten-bit shift.
+    /// Integer numerators are at most 65536; the division comes before the speed is scaled to sixty-fourths.
     /// Stock origins intentionally remain independent of editable label positions: edits
     /// move the initial window but did not change compiled motion in the prior contract.
     /// No generated velocity table or runtime read of the original data is used.
@@ -26,9 +26,9 @@ internal static class FileSelectMapWindowMotions
         Position16<ScreenPixels> origin = StockOrigin(area);
         int x = origin.X, y = origin.Y;
         int farthest = Math.Max(Math.Max(x, 256 - x), Math.Max(y, 256 - y));
-        // A sixty-fourth of a pixel is 1024 65536ths.
+        // The speed is a whole number of sixty-fourths of a pixel: four 256ths each.
         SignedSixteenSixteen Velocity(int distance, int sign) =>
-            SignedSixteenSixteen.FromRaw(sign * (256 * distance / farthest) * 1024);
+            SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(sign * (256 * distance / farthest) * 4);
         return new(farthest / 4 + 1, Velocity(x, -1), Velocity(256 - x, 1),
             Velocity(y, -1), Velocity(256 - y, 1));
     }

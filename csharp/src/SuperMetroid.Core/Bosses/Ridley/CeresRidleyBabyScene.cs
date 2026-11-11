@@ -107,9 +107,10 @@ internal sealed class CeresRidleyBabyScene
         if (state.TailSegments.Length == 7)
         {
             RidleyTailSegment tip = state.TailSegments[6];
-            // The tip's sixteen poses split the byte angle into sixteenths.
-            int tipIndex = TrigonometryAngle.Wrapped(
-                tip.Angle + state.TailSegments[5].Angle + 8).RawValue / 16;
+            // The tip's sixteen poses split its direction, turned by the link before it and
+            // half a pose on, into sixteenths of a turn.
+            int tipIndex = tip.Angle.Direction.TurnedBy(state.TailSegments[5].Angle.Direction)
+                .TurnedBySteps(8).ToAngle().Sector(16);
             EnemyFrameId tipFrame = RidleySupplementalVisualDefinitions.TailTipFrames.Of(
                 tipIndex);
             DrawRidleyWorldSpritemap(

@@ -967,9 +967,9 @@ internal static class LookupStream4Verification
     {
         Suite(nameof(VerifyLookupStream4TailAngles), () => VerifyLookupStream4TailAngles(rom));
         for (int link = 0; link < 7; link++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d37c + link * 2)), RidleyTailReach.RestDistance(link), "Shared tail rest geometry preserves the native initial separation");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d37c + link * 2)), RidleyTailReach.RestDistance(link).RawValue, "Shared tail rest geometry preserves the native initial separation");
         for (int link = 1; link < 7; link++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6cf7f + (link - 1) * 0x36)), RidleyTailReach.RestDistance(link), "Native shrink threshold equals initialized rest geometry");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6cf7f + (link - 1) * 0x36)), RidleyTailReach.RestDistance(link).RawValue, "Native shrink threshold equals initialized rest geometry");
         foreach (int invalid in new[] { int.MinValue, -1, 7, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => RidleyTailReach.RestDistance(invalid), "Shared rest geometry preserves bounded array selection");
         Action<RidleyEnemyState> update = RidleyTail.UpdateRidleyTailDistances;
@@ -979,7 +979,7 @@ internal static class LookupStream4Verification
             {
                 TailSegments = Enumerable.Range(0, 7).Select(link => new RidleyTailSegment
                 {
-                    Distance = (ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d37c + link * 2)) + delta),
+                    Distance = new SignedEightEight(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d37c + link * 2)) + delta),
                 }).ToArray(),
             };
             update(state);
@@ -987,25 +987,25 @@ internal static class LookupStream4Verification
             {
                 int before = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d37c + link * 2)) + delta;
                 ushort expected = (ushort)(before - (link != 0 && delta > 0 ? CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6cf8b + (link - 1) * 0x36)) : 0));
-                AssertEqual(expected, state.TailSegments[link].Distance, "Actual tail shrinking preserves strict threshold, native decrement and excluded base");
+                AssertEqual(expected, state.TailSegments[link].Distance.RawValue, "Actual tail shrinking preserves strict threshold, native decrement and excluded base");
             }
         }
         var extending = new RidleyEnemyState
         {
-            TailExtensionSpeed = 0xf0,
+            TailExtensionSpeed = SignedEightEight.FromParts(0, 240),
             TailSegments = Enumerable.Range(0, 7).Select(link => new RidleyTailSegment
             {
-                Distance = link == 0 ? (ushort)123 : (ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6cf72 + (link - 1) * 0x36)) - 1),
-                TargetDistance = 1,
+                Distance = new SignedEightEight(link == 0 ? 123 : CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6cf72 + (link - 1) * 0x36)) - 1),
+                TargetDistance = new SignedEightEight(1),
             }).ToArray(),
         };
         update(extending);
         for (int link = 1; link < 7; link++)
         {
-            AssertEqual(0, extending.TailSegments[link].TargetDistance, "Actual tail extension clears the passed target first");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6cf72 + (link - 1) * 0x36)), extending.TailSegments[link].Distance, "Actual tail still extends and clamps on the target-clearing frame");
+            AssertEqual<SignedEightEight?>(null, extending.TailSegments[link].TargetDistance, "Actual tail extension clears the passed target first");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6cf72 + (link - 1) * 0x36)), extending.TailSegments[link].Distance.RawValue, "Actual tail still extends and clamps on the target-clearing frame");
         }
-        AssertEqual(123, extending.TailSegments[0].Distance, "Tail base stays outside extension updates");
+        AssertEqual(123, extending.TailSegments[0].Distance.RawValue, "Tail base stays outside extension updates");
         Console.WriteLine("Tail rest geometry: seven initial distances, six original shrink thresholds and actual boundary/extension ordering pass; chosen lengths remain required.");
     }
 
@@ -1413,8 +1413,8 @@ internal static class LookupStream4Verification
         AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6d2fe), RidleyTailDefinitions.IdealInterSegmentSpacing, "Tail separation matches the native initializer immediate");
         for (int index = 0; index < segments.Length; index++)
         {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d38a + 2 * index)), segments[index].Angle, "Actual initialized link angle matches native progression");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d37c + 2 * index)), segments[index].Distance, "Unresolved independent tail distance remains unchanged");
+            AssertEqual(RidleyTailNativeWords.AngleOf(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d38a + 2 * index))), segments[index].Angle, "Actual initialized link angle matches native progression");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d37c + 2 * index)), segments[index].Distance.RawValue, "Unresolved independent tail distance remains unchanged");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d36e + 2 * index)), segments[index].Clockwise ? (ushort)0x8000 : (ushort)0, "Initial rotation direction remains unchanged");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6d2fe) + 1, segments[index].StaggerAngle, "Initial stagger remains ideal separation plus one");
         }

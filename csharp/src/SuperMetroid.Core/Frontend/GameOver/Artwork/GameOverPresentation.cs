@@ -29,7 +29,7 @@ public abstract class GameOverPresentation
     public int YesCursorY { get; }
     /// <summary>Missile-cursor vertical screen coordinate in pixels for the No answer, bounded to 0-255.</summary>
     public int NoCursorY { get; }
-    /// <summary>Menu updates per frame of the looping missile cursor, in the range 1-65535.</summary>
+    /// <summary>Menu updates per frame of the looping missile cursor, at least one.</summary>
     public int CursorFrameDuration { get; }
 
     /// <summary>Appends the chosen Baby sprite composition at the installed anchor, shown in its colours <paramref name="colours"/>.</summary>

@@ -12,6 +12,6 @@ internal enum IntroSamusDisplay
     /// <summary>Positive (1): cinematic objects draw before Samus.</summary>
     ObjectsFirst = 1,
 
-    /// <summary>Negative (65535): Samus and her projectiles draw first.</summary>
+    /// <summary>Negative: Samus and her projectiles draw first.</summary>
     SamusFirst = -1,
 }

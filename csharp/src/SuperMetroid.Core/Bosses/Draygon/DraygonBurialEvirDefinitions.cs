@@ -13,4 +13,9 @@ internal static class DraygonBurialEvirDefinitions
     internal const int CenterX = 256, CenterY = 512;
     /// <summary>Radius of the six original spawn positions in pixels, four pixels inside the 512-pixel extent.</summary>
     internal const int Radius = 508;
+    /// <summary>
+    /// The scale the authored subspeeds apply to the unit circle's components: the largest fraction of a pixel, one
+    /// 65536th short of a whole pixel, so a full component stays a fraction.
+    /// </summary>
+    internal const int SubspeedScale = 65535;
 }

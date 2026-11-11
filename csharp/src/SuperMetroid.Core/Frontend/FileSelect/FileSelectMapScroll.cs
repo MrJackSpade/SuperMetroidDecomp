@@ -47,31 +47,34 @@ public sealed class FileSelectMapScroll
             if (Enumerable.Range(0, 64).Any(x => Visible(x, y))) { top = y; break; }
         for (int y = 31; y > 0; y--)
             if (Enumerable.Range(0, 64).Any(x => Visible(x, y))) { bottom = y; break; }
-        // Every map value below holds its value wrapped to 0 through 65535; the signed tests read 32768 and above as
-        // negative, as the game's tests do.
-        int minimumX = Wrap(left * 8 - (map.Area == AreaId.Maridia ? 24 : 0));
-        int maximumX = Wrap(right * 8);
-        int minimumY = Wrap(top * 8);
-        int maximumY = Wrap(bottom * 8);
-        int horizontal = Wrap(minimumX + Wrap(maximumX - minimumX) / 2 - 128);
-        int screenX = Wrap(player.X - horizontal);
-        if (Signed(224 - screenX) < 0)
-            horizontal = Wrap(horizontal - Signed(224 - screenX));
-        else if (Signed(32 - screenX) >= 0)
-            horizontal = Wrap(horizontal - Wrap(32 - screenX));
-        int middle = Wrap(minimumY + Wrap(maximumY - minimumY) / 2 + 16);
-        int offset = Wrap((112 - middle) & ~7);
-        int vertical = Wrap(-offset);
-        int distance = Signed(64 - Wrap(player.Y + offset));
+        // Every value below is a map pixel or a difference of two, within a few hundred pixels of the 512 by 256 map:
+        // the scans keep the left column at or before the right and the top row at or above the bottom, so the
+        // halved spans are never negative and no value comes near a word's range. Only a negative result (Maridia's
+        // margin left of the first column, a scroll above the map) is stored as its wrapped coordinate.
+        int minimumX = left * 8 - (map.Area == AreaId.Maridia ? 24 : 0);
+        int maximumX = right * 8;
+        int minimumY = top * 8;
+        int maximumY = bottom * 8;
+        int horizontal = minimumX + (maximumX - minimumX) / 2 - 128;
+        int screenX = player.X - horizontal;
+        if (224 - screenX < 0)
+            horizontal -= 224 - screenX;
+        else if (32 - screenX >= 0)
+            horizontal -= 32 - screenX;
+        int middle = minimumY + (maximumY - minimumY) / 2 + 16;
+        // The centring offset is rounded down to whole eight-pixel map rows.
+        int offset = (112 - middle) & ~7;
+        int vertical = -offset;
+        int distance = 64 - (player.Y + offset);
         if (distance >= 0)
         {
-            vertical = Wrap(vertical - distance);
-            if (Signed(vertical + 40) < 0) vertical = Wrap(-40);
+            vertical -= distance;
+            if (vertical + 40 < 0) vertical = -40;
         }
-        Scroll = new(Wrap(horizontal), Wrap(vertical));
-        Maximum = new(Wrap(maximumX), Wrap(maximumY));
+        Scroll = Position16<MapPixels>.Wrapped(horizontal, vertical);
+        Maximum = Position16<MapPixels>.Wrapped(maximumX, maximumY);
         // The game adjusts the upper arrow boundary only after positioning.
-        Minimum = new(Wrap(minimumX), Wrap(minimumY + 24));
+        Minimum = Position16<MapPixels>.Wrapped(minimumX, minimumY + 24);
     }
 
     /// <summary>Determines whether another eight-pixel step fits within the boundary for a direction.</summary>
@@ -116,8 +119,6 @@ public sealed class FileSelectMapScroll
         return true;
     }
 
-    /// <summary>A computed map coordinate, which wraps past either end of the map space as every coordinate does.</summary>
-    private static int Wrap(int value) => CoordinateAxis.Wrap(value);
     /// <summary>A map coordinate or boundary difference read as a signed offset, as the scroll's sign tests read it.</summary>
     private static int Signed(int value) => CoordinateAxis.AsSigned(value);
 }

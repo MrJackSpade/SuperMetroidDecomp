@@ -57,12 +57,12 @@ internal static class CeresDestructionActors
         return index switch
         {
             0 => new(                flight.ActiveFrameBehavior, CinematicSpriteProgram.CeresDestructionLargeAsteroid, flight.Position, flight.Colouring,
-                flight.HorizontalDelta, flight.WrapX, 0, null, false),
+                flight.HorizontalDelta, flight.WrapX, SignedEightEight.Zero, null, false),
             1 => new(                flight.ActiveFrameBehavior, flight.Program, flight.Position,
-                flight.Colouring, flight.HorizontalDelta, flight.WrapX, 0, null, false),
+                flight.Colouring, flight.HorizontalDelta, flight.WrapX, SignedEightEight.Zero, null, false),
             // Parameter zero makes the vortex's setup replace its moving callback with the no-op and use X=112.
             2 => new(                CinematicSpriteFrameBehavior.CeresStationaryVortexNoOp, flight.Program, flight.Position.WithX(112), flight.Colouring,
-                0, false, 0, null, false),
+                SignedSixteenSixteen.Zero, false, SignedEightEight.Zero, null, false),
             _ => throw new InvalidOperationException("Validated Ceres actor index became invalid."),
         };
     }
@@ -96,7 +96,7 @@ internal static class CeresDestructionActors
 wait,
             ZebesStarSheets[quadrant],
             new(48 + 160 * (quadrant & 1), 47 + 160 * (quadrant >> 1)),
-            CeresSpriteColouring.SpaceObjects, 0, false, 32,
+            CeresSpriteColouring.SpaceObjects, SignedSixteenSixteen.Zero, false, SignedEightEight.FromParts(0, 32),
             completesScene ? CinematicSpriteFrameBehavior.ZebesStarsCompletionSlideSceneAway : CinematicSpriteFrameBehavior.ZebesStarsSlideSceneAway,
             completesScene);
     }

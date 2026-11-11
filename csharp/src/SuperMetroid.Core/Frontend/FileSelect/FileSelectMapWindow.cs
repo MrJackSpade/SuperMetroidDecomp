@@ -115,6 +115,11 @@ public sealed class FileSelectMapWindow
     /// <paramref name="edge"/> kept between the screen's first pixel and <paramref name="side"/> along the edge's axis: an
     /// edge moved past either stops there.
     /// </summary>
-    private static SignedSixteenSixteen OnScreen(SignedSixteenSixteen edge, int side) =>
-        SignedSixteenSixteen.FromRaw(Math.Clamp(edge.RawValue, 0, SignedSixteenSixteen.FromWholePixels(side).RawValue));
+    private static SignedSixteenSixteen OnScreen(SignedSixteenSixteen edge, int side)
+    {
+        SignedSixteenSixteen far = SignedSixteenSixteen.FromWholePixels(side);
+        if (edge.IsNegative)
+            return SignedSixteenSixteen.Zero;
+        return (far - edge).IsNegative ? far : edge;
+    }
 }

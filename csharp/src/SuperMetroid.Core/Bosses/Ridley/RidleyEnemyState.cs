@@ -70,27 +70,27 @@ public sealed class RidleyEnemyState
     public RidleyTailFunction TailFunctionIndex { get; internal set; }
     /// <summary>Gets the angular step (zero through eight) used by shared tail segment motion and stagger propagation.</summary>
     public int TailAngleDelta { get; internal set; }
-    /// <summary>Gets the facing-dependent lowest angle clockwise tail movement may reach.</summary>
-    public RotationAngle TailMinimumClockwiseAngle { get; internal set; }
-    /// <summary>Gets the facing-dependent highest angle counterclockwise tail movement may reach.</summary>
-    public RotationAngle TailMaximumCounterClockwiseAngle { get; internal set; }
+    /// <summary>Gets the facing-dependent furthest-clockwise angle clockwise tail movement may reach.</summary>
+    public RidleyTailAngle TailMinimumClockwiseAngle { get; internal set; }
+    /// <summary>Gets the facing-dependent furthest-counterclockwise angle counterclockwise tail movement may reach.</summary>
+    public RidleyTailAngle TailMaximumCounterClockwiseAngle { get; internal set; }
     /// <summary>
-    /// Gets the tail angle (see <see cref="RidleyTailSegment.Angle"/>) a clockwise whip stops at, or null while no clockwise
-    /// whip is aimed. Aimed targets lie within a quarter turn of straight down.
+    /// Gets the tail angle a clockwise whip stops at, or null while no clockwise whip is aimed. Aimed targets lie within
+    /// a turn either side of straight down.
     /// </summary>
-    public int? ClockwiseWhipTarget { get; internal set; }
+    public RidleyTailAngle? ClockwiseWhipTarget { get; internal set; }
     /// <summary>
-    /// Gets the tail angle (see <see cref="RidleyTailSegment.Angle"/>) a counterclockwise whip stops at, or null while no
-    /// counterclockwise whip is aimed. Aimed targets lie within a quarter turn of straight down.
+    /// Gets the tail angle a counterclockwise whip stops at, or null while no counterclockwise whip is aimed. Aimed
+    /// targets lie within a turn either side of straight down.
     /// </summary>
-    public int? CounterClockwiseWhipTarget { get; internal set; }
+    public RidleyTailAngle? CounterClockwiseWhipTarget { get; internal set; }
     /// <summary>
-    /// Gets the pending one-shot whip request, zero or one; its value minus one supplies the additional aim-angle byte
-    /// before neutral tail control consumes it.
+    /// Gets the pending one-shot whip request, zero or one; its value minus one is how many whole turns further along
+    /// its swing the next aimed whip's target lies, before neutral tail control consumes it.
     /// </summary>
     public int TailWhipRequest { get; internal set; }
-    /// <summary>Gets the 8.8 distance increment (240 or 384, in 1/256 pixels) applied while tail segments extend toward their targets.</summary>
-    public int TailExtensionSpeed { get; internal set; }
+    /// <summary>Gets the distance (fifteen sixteenths or one and a half pixels) tail segments extend each update toward their targets.</summary>
+    public SignedEightEight TailExtensionSpeed { get; internal set; }
     /// <summary>Gets the angular stagger threshold (eight through 23) used to propagate a wave or whip from one segment to the next.</summary>
     public int IdealInterSegmentTailAngle { get; internal set; }
     /// <summary>Gets the seven tail segments, base first, installed by shared initialization; the array is empty before that layout is initialized.</summary>
@@ -188,7 +188,7 @@ public sealed class RidleyEnemyState
     public Offset16<FloorPixels> FloorOffset { get; internal set; }
     /// <summary>
     /// Gets the getaway's zoom in 256ths of a floor pixel per screen pixel: 2048 when the getaway starts, then each table
-    /// frame's zoom, which the table keeps from zero through 65535. It also selects the floor's shade.
+    /// frame's authored zoom. It also selects the floor's shade.
     /// </summary>
     public int FloorZoom { get; internal set; }
     /// <summary>Gets the floor point the Ceres getaway turns and zooms its floor about, (64, 64) while it runs and cleared on completion.</summary>

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <paramref name="Frames"/> frames, or, with no shake, run the room's own shake for that long (zero stops it).
 /// </summary>
 /// <param name="Shake">The shake to start, or null to keep the room's current shake.</param>
-/// <param name="Frames">The frames to shake, 0 through 65535.</param>
+/// <param name="Frames">The frames to shake.</param>
 public readonly record struct MotherBrainEarthquakeRequest(EarthquakeShake? Shake, int Frames)
 {
     /// <summary>Applies the request to the room's earthquake.</summary>

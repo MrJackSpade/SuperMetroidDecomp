@@ -111,8 +111,8 @@ public sealed class GameOverSourcePresentation : GameOverPresentation
         ValidatePaletteIndex(document.BabyPalette, nameof(document.BabyPalette));
         ValidatePaletteIndex(document.EggPalette, nameof(document.EggPalette));
         ValidatePaletteIndex(document.CursorPalette, nameof(document.CursorPalette));
-        if (document.CursorFrameDuration is < 1 or > ushort.MaxValue)
-            throw new InvalidDataException("Game-over cursor frame duration must be 1..65535.");
+        if (document.CursorFrameDuration < 1)
+            throw new InvalidDataException("Game-over cursor frame duration must be at least one update.");
 
         var tilemap = new BackgroundTile[GameOverPageDefinitions.TilemapCellCount];
         for (int index = 0; index < document.Tilemap.Length; index++)

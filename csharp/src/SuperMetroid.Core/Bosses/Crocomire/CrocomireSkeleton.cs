@@ -163,7 +163,7 @@ internal sealed class CrocomireSkeleton
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         if (CoordinateAxis.Difference(state.Body.Position.X.Whole, 224) < 0)
         {
-            state.SkeletonVelocity = AccelerateCrocomireSkeleton(state.SkeletonVelocity, accelerationEightEight: 128, maximumWhole: 2);
+            state.SkeletonVelocity = AccelerateCrocomireSkeleton(state.SkeletonVelocity, accelerationTwoFiftySixths: 128, maximumWhole: 2);
             state.Body.Position = state.Body.Position.WithX(
                 state.SkeletonVelocity.AddTo(state.Body.Position.X.Whole, state.Body.Position.X.Fraction));
         }
@@ -180,7 +180,7 @@ internal sealed class CrocomireSkeleton
     /// <summary>Moves the skeleton through its airborne arc after the wall break.</summary>
     internal void RunCrocomireSkeletonArc(CrocomireEnemyState state)
     {
-        state.SkeletonVelocity = AccelerateCrocomireSkeleton(state.SkeletonVelocity, accelerationEightEight: 8, maximumWhole: 5);
+        state.SkeletonVelocity = AccelerateCrocomireSkeleton(state.SkeletonVelocity, accelerationTwoFiftySixths: 8, maximumWhole: 5);
         state.Body.Position = state.Body.Position.WithY(
             CrocomireBehavior.SkeletonArcFallSpeed.AddTo(state.Body.Position.Y.Whole, state.Body.Position.Y.Fraction));
         state.Body.Position = state.Body.Position.WithX(
@@ -200,7 +200,7 @@ internal sealed class CrocomireSkeleton
     {
         if (!CrocomireBodyProgramGroups.SkeletonAtRest.Contains(state.BodyResidentProgram))
         {
-            state.SkeletonVelocity = AccelerateCrocomireSkeleton(state.SkeletonVelocity, accelerationEightEight: 16, maximumWhole: 6);
+            state.SkeletonVelocity = AccelerateCrocomireSkeleton(state.SkeletonVelocity, accelerationTwoFiftySixths: 16, maximumWhole: 6);
             return;
         }
 
@@ -259,17 +259,17 @@ internal sealed class CrocomireSkeleton
     }
 
     /// <summary>
-    /// Adds an acceleration of <paramref name="accelerationEightEight"/>/256 pixel per frame per frame to the
+    /// Adds an acceleration of <paramref name="accelerationTwoFiftySixths"/>/256 pixel per frame per frame to the
     /// skeleton's 16.16 speed and clamps its whole pixels at <paramref name="maximumWhole"/>, keeping the fraction.
     /// The speed starts at rest and only grows, so its whole pixels never leave the clamp's range.
     /// </summary>
     private static SignedSixteenSixteen AccelerateCrocomireSkeleton(
         SignedSixteenSixteen velocity,
-        int accelerationEightEight,
+        int accelerationTwoFiftySixths,
         int maximumWhole)
     {
         SignedSixteenSixteen accelerated =
-            velocity + SignedSixteenSixteen.FromRaw(SixteenSixteen.FromEightEight(accelerationEightEight));
+            velocity + SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(accelerationTwoFiftySixths);
         return accelerated.WithWholePixelsAtMost(maximumWhole);
     }
 

@@ -238,7 +238,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
 
             case RidleyAiFunction.NorfairPogoSetup:
                 state.IdealInterSegmentTailAngle = 11;
-                state.TailExtensionSpeed = 384;
+                state.TailExtensionSpeed = RidleyTailDefinitions.PogoExtensionSpeed;
                 state.Function = RidleyAiFunction.NorfairPogoDescending;
                 state.FunctionTimer = RidleyRandomDefinitions.PogoDescentTimer.Of(_room.Random.Read()) + 32;
                 Combat.TickNorfairRidleyPogo(slot, state, samus, direction: VerticalDirection.Down);
@@ -297,7 +297,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 if (NorfairRidleyMovement.TickRidleyFunctionTimer(state))
                 {
                     state.IdealInterSegmentTailAngle = RidleyTailDefinitions.CarryReleaseInterSegmentSpacing;
-                    state.TailExtensionSpeed = RidleyTailDefinitions.CarryReleaseExtensionSpeed;
+                    state.TailExtensionSpeed = RidleyTailDefinitions.StandardExtensionSpeed;
                     NorfairRidleyDeath.ReleaseNorfairRidleyGrab(state, samus);
                     state.Function = RidleyAiFunction.NorfairCarryRelease;
                     state.FunctionTimer = 64;
@@ -310,7 +310,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 if (NorfairRidleyMovement.TickRidleyFunctionTimer(state))
                 {
                     state.IdealInterSegmentTailAngle = RidleyTailDefinitions.IdealInterSegmentSpacing;
-                    state.TailExtensionSpeed = RidleyTailDefinitions.CarryReleaseExtensionSpeed;
+                    state.TailExtensionSpeed = RidleyTailDefinitions.StandardExtensionSpeed;
                     state.Function = RidleyAiFunction.NorfairSelectAttack;
                 }
                 else

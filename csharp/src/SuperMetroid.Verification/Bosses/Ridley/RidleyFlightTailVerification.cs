@@ -63,15 +63,15 @@ internal static class RidleyFlightTailVerification
             TailSegments = Enumerable.Range(0, 7).Select(index => new RidleyTailSegment
             {
                 Active = true, StaggerAngle = null, Clockwise = false,
-                Angle = 0x3ff0, Distance = RidleyTailReach.RestDistance(index),
+                Angle = RidleyTailAngle.StraightDown.TurnedClockwise(16), Distance = RidleyTailReach.RestDistance(index),
             }).ToArray(),
         };
         run(slot, state, null, 0, null);
         AssertEqual(RidleyTailFunction.PointDown, state.TailFunctionIndex, "pogo wait runs pointed-tail setup");
-        AssertEqual(0x3ff8, state.TailSegments[0].Angle, "setup immediately advances tail by eight");
+        AssertEqual(RidleyTailAngle.StraightDown.TurnedClockwise(8), state.TailSegments[0].Angle, "setup immediately advances tail by eight");
         tail(slot, state, null);
         AssertEqual(RidleyTailFunction.Pogo, state.TailFunctionIndex, "all pointed segments finish into normal pogo");
-        AssertTrue(state.TailSegments.All(segment => segment.Angle == 0x4000 && !segment.Active), "pogo tail points down and stops");
+        AssertTrue(state.TailSegments.All(segment => segment.Angle == RidleyTailAngle.StraightDown && !segment.Active), "pogo tail points down and stops");
         // $D10E returns on deactivation before recomputing offsets: retain the
         // previous $F8-angle Mode 7 products (-1,+1), not the new angle's (0,2).
         AssertEqual((ushort)159, state.TailSegments[0].Position.X, "pointed root retains pre-stop native hip X");
@@ -81,27 +81,27 @@ internal static class RidleyFlightTailVerification
         AssertEqual(RidleyTailFunction.StabSetup, state.TailFunctionIndex, "descending normal pogo starts stab setup");
         tail(slot, state, null);
         AssertEqual(RidleyTailFunction.Stab, state.TailFunctionIndex, "stab setup activates downward stab");
-        AssertTrue(state.TailSegments.All(segment => segment.TargetDistance == 0x0a00), "stab sets every segment extension target");
+        AssertTrue(state.TailSegments.All(segment => segment.TargetDistance == SignedEightEight.FromParts(10, 0)), "stab sets every segment extension target");
         state.Function = RidleyAiFunction.NorfairFireballRecover;
         run(slot, state, null, 0, null);
         AssertEqual(RidleyTailFunction.Neutral, state.TailFunctionIndex, "leaving pogo restores neutral tail");
         AssertEqual(1, state.TailAngleDelta, "leaving pogo restores native delta");
-        Action<RidleyEnemyState, SamusState?, byte> aim = (state, samus, angle) => enemies.RidleyTail.AimCeresRidleyTailWhip(state, samus, new TrigonometryAngle(angle));
+        Action<RidleyEnemyState, SamusState?, int> aim = (state, samus, turnsBeyond) => enemies.RidleyTail.AimCeresRidleyTailWhip(state, samus, turnsBeyond);
         state.FightMode = RidleyFightMode.Fighting;
         state.FacingDirection = RidleyFacing.Left;
         state.TailSegments[0].Position = new Position16<RoomPixels>(128, 128);
-        state.TailSegments[0].Angle = 0x4000;
+        state.TailSegments[0].Angle = RidleyTailAngle.StraightDown;
         state.TailSegments[6].Position = new Position16<RoomPixels>(128, 128);
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 200)) };
         aim(state, samus, 0);
-        int? samusTarget = state.ClockwiseWhipTarget;
+        RidleyTailAngle? samusTarget = state.ClockwiseWhipTarget;
         var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
         projectiles.SlotTable.ProjectileCounter = 1;
         projectiles.Slots[0].Type = SamusProjectileType.Of(SamusProjectileFamily.Missile);
         projectiles.Slots[0].Position = projectiles.Slots[0].Position.WithWhole(new(96, 128));
         enemies.FrameContext.SeedSamusProjectiles(projectiles);
         aim(state, samus, 0);
-        int? missileTarget = state.ClockwiseWhipTarget;
+        RidleyTailAngle? missileTarget = state.ClockwiseWhipTarget;
         AssertTrue(missileTarget != samusTarget, "nearby missile changes tail target");
         enemies.FrameContext.SeedSamusProjectiles(null);
         aim(state, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(96, 104)) }, 0);
@@ -112,7 +112,7 @@ internal static class RidleyFlightTailVerification
         enemies.VerificationServices().NextRandom = () => { advances++; return 0; };
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?> neutral = enemies.RidleyTail.HandleCeresRidleyNeutralTailControl;
         state.IdleTailWhipEnabled = true;
-        state.TailSegments[0].Angle = 0x5000;
+        state.TailSegments[0].Angle = RidleyTailAngle.StraightDown.TurnedByWholeTurns(16);
         foreach (var segment in state.TailSegments) segment.Active = true;
         state.ClockwiseWhipTarget = state.CounterClockwiseWhipTarget = null;
         neutral(slot, state, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(512, 128)) });

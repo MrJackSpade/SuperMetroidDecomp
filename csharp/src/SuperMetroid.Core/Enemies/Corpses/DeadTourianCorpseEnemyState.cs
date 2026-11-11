@@ -31,12 +31,10 @@ public sealed class DeadTourianCorpseEnemyState
     /// <summary>The corpse's own pixel rows as its rot calls have left them, which its frames are drawn through (#1539).</summary>
     internal RottingCorpseRows Rows { get; }
     /// <summary>
-    /// Pre-rot AI calls counted after solid Samus collision, from 0 through <see cref="LargestPreRotDelayCount"/>; the
-    /// sixteenth switches to rotting and the corpse never returns to the delay. Touch/shot callbacks enter rotting directly.
+    /// Pre-rot AI calls counted after solid Samus collision, from zero; the sixteenth switches to rotting and the corpse
+    /// never returns to the delay, so the count stops at sixteen. Touch/shot callbacks enter rotting directly.
     /// </summary>
     public int PreRotDelayCounter { get; internal set; }
-    /// <summary>The largest pre-rot count; the next call counts zero.</summary>
-    internal const int LargestPreRotDelayCount = 65535;
     /// <summary>Port diagnostic count of shared rotting-scheduler calls for this corpse; the final completion call is included.</summary>
     public uint ProcessCallCount { get; internal set; }
     /// <summary>Port diagnostic count of row-table completion callbacks, including the final entry before the AI becomes a no-operation.</summary>
@@ -47,7 +45,6 @@ public sealed class DeadTourianCorpseEnemyState
     /// <summary>Assembly-internal callback profile and tile-row layout of this corpse's species.</summary>
     internal DeadTourianBehavior.DeadTourianCorpseProfile Profile { get; }
 
-    /// <summary>Counts one pre-rot AI call, wrapping from <see cref="LargestPreRotDelayCount"/> to zero.</summary>
-    internal void CountPreRotDelayCall() =>
-        PreRotDelayCounter = PreRotDelayCounter == LargestPreRotDelayCount ? 0 : PreRotDelayCounter + 1;
+    /// <summary>Counts one pre-rot AI call.</summary>
+    internal void CountPreRotDelayCall() => PreRotDelayCounter++;
 }

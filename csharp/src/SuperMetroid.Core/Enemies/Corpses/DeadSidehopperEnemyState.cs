@@ -78,18 +78,14 @@ public sealed class DeadSidehopperEnemyState
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>
-    /// Pre-rot AI calls counted, deliberately retained across repeated corpse contacts: the sixteenth call starts
-    /// rotting. Every later contact counts on from the retained value, so the count can reach <see
-    /// cref="LargestPreRotDelayCount"/> and wrap to zero, restoring the full sixteen-call delay.
+    /// Pre-rot AI calls counted since Samus first stood on the corpse, from zero: the sixteenth call starts rotting, and
+    /// the corpse never returns to the delay, so the count stops at sixteen.
     /// </summary>
     public int PreRotDelayCounter
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, LargestPreRotDelayCount, value);
+        internal set => field = Ensure.AtLeastZero(value);
     }
-
-    /// <summary>The largest pre-rot count; the next call counts zero.</summary>
-    internal const int LargestPreRotDelayCount = 65535;
 
     /// <summary>
     /// The countdown initialized to 64 for the post-landing pause; expiry requires decrementing through zero
@@ -104,7 +100,6 @@ public sealed class DeadSidehopperEnemyState
     /// <summary>Host diagnostic count of dust effects requested by completed corpse entries; increments once per completion hook invocation.</summary>
     public uint DustSpawnCount { get; internal set; }
 
-    /// <summary>Counts one pre-rot AI call, wrapping from <see cref="LargestPreRotDelayCount"/> to zero.</summary>
-    internal void CountPreRotDelayCall() =>
-        PreRotDelayCounter = PreRotDelayCounter == LargestPreRotDelayCount ? 0 : PreRotDelayCounter + 1;
+    /// <summary>Counts one pre-rot AI call.</summary>
+    internal void CountPreRotDelayCall() => PreRotDelayCounter++;
 }

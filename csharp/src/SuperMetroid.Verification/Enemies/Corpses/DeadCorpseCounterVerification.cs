@@ -7,48 +7,35 @@ namespace SuperMetroid.Verification.Enemies.Corpses;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks the corpse pre-rot contact counters, whose cartridge word wraps from 65535 to zero.</summary>
+/// <summary>Checks the corpse pre-rot contact counters: sixteen calls after Samus stands on a corpse start its rot.</summary>
 internal static class DeadCorpseCounterVerification
 {
     /// <summary>
-    /// Drives the real dead-sidehopper dispatcher through the pre-rot delay at both sides of the counter's wrap: a
-    /// retained count of 65534 reaches 65535 and starts rotting at once, while a retained count of 65535 wraps to zero
-    /// and restarts the full sixteen-call delay.
+    /// Drives the real dead-sidehopper dispatcher through the pre-rot delay from its start: fifteen calls hold the delay
+    /// with Samus still colliding, and the sixteenth starts rotting and stops further collision (#1607: the count is a
+    /// plain count, since nothing counts past sixteen).
     /// </summary>
-    internal static void VerifyDeadSidehopperPreRotDelayWrap()
+    internal static void VerifyDeadSidehopperPreRotDelay()
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new DeadSidehopperEnemyState(slot, 2, new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount));
 
         state.Function = DeadSidehopperAiFunction.PreRotDelay;
-        state.PreRotDelayCounter = DeadSidehopperEnemyState.LargestPreRotDelayCount - 1;
-        enemies.DeadSidehopperBehavior.DispatchDeadSidehopperState(slot, state, null, null, default);
-        AssertEqual(DeadSidehopperEnemyState.LargestPreRotDelayCount, state.PreRotDelayCounter,
-            "a retained count below the wrap advances to the largest count");
-        AssertEqual(DeadSidehopperAiFunction.Rotting, state.Function, "the largest count passes the sixteen-call threshold");
-        AssertTrue(slot.Contact.HasAny(EnemyContact.IgnoresSamus), "rotting stops further Samus collision");
-
-        slot.Contact = slot.Contact.Without(EnemyContact.IgnoresSamus);
-        state.Function = DeadSidehopperAiFunction.PreRotDelay;
-        state.PreRotDelayCounter = DeadSidehopperEnemyState.LargestPreRotDelayCount;
-        enemies.DeadSidehopperBehavior.DispatchDeadSidehopperState(slot, state, null, null, default);
-        AssertEqual(0, state.PreRotDelayCounter, "the largest retained count wraps to zero");
-        AssertEqual(DeadSidehopperAiFunction.PreRotDelay, state.Function, "the wrapped count restarts the pre-rot delay");
-        AssertTrue(!slot.Contact.HasAny(EnemyContact.IgnoresSamus), "the restarted delay keeps Samus collision");
-
         for (int call = 1; call < 16; call++)
             enemies.DeadSidehopperBehavior.DispatchDeadSidehopperState(slot, state, null, null, default);
-        AssertEqual(15, state.PreRotDelayCounter, "fifteen more calls after the wrap");
+        AssertEqual(15, state.PreRotDelayCounter, "fifteen pre-rot calls");
         AssertEqual(DeadSidehopperAiFunction.PreRotDelay, state.Function, "the delay holds below sixteen");
+        AssertTrue(!slot.Contact.HasAny(EnemyContact.IgnoresSamus), "the delay keeps Samus collision");
         enemies.DeadSidehopperBehavior.DispatchDeadSidehopperState(slot, state, null, null, default);
-        AssertEqual(16, state.PreRotDelayCounter, "the sixteenth call after the wrap");
-        AssertEqual(DeadSidehopperAiFunction.Rotting, state.Function, "the sixteenth call after the wrap starts rotting");
-        Console.WriteLine("  Dead sidehopper pre-rot delay: both sides of the 65535-to-0 wrap pass through the real dispatcher.");
+        AssertEqual(16, state.PreRotDelayCounter, "the sixteenth call");
+        AssertEqual(DeadSidehopperAiFunction.Rotting, state.Function, "the sixteenth call starts rotting");
+        AssertTrue(slot.Contact.HasAny(EnemyContact.IgnoresSamus), "rotting stops further Samus collision");
+        Console.WriteLine("  Dead sidehopper pre-rot delay: the sixteenth call through the real dispatcher starts the rot.");
     }
 
-    /// <summary>Counts a dead Zoomer's pre-rot calls through the named operation, including its wrap from 65535 to zero.</summary>
-    internal static void VerifyDeadTourianPreRotDelayWrap()
+    /// <summary>Counts a dead Zoomer's pre-rot calls through the named operation, one call at a time.</summary>
+    internal static void VerifyDeadTourianPreRotDelay()
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
@@ -59,19 +46,15 @@ internal static class DeadCorpseCounterVerification
         state.PreRotDelayCounter = 15;
         state.CountPreRotDelayCall();
         AssertEqual(16, state.PreRotDelayCounter, "an ordinary pre-rot call counts one more");
-
-        state.PreRotDelayCounter = DeadTourianCorpseEnemyState.LargestPreRotDelayCount;
-        state.CountPreRotDelayCall();
-        AssertEqual(0, state.PreRotDelayCounter, "the largest count wraps to zero");
-        Console.WriteLine("  Dead Tourian pre-rot delay: the named count operation wraps from 65535 to 0.");
+        Console.WriteLine("  Dead Tourian pre-rot delay: the named count operation counts one call.");
     }
 
     /// <summary>Runs the corpse pre-rot counter checks; no cartridge is needed.</summary>
     [VerificationCommand("--dead-corpse-counters")]
     internal static int DeadCorpseCounterCommand()
     {
-        Suite(nameof(VerifyDeadSidehopperPreRotDelayWrap), () => VerifyDeadSidehopperPreRotDelayWrap());
-        Suite(nameof(VerifyDeadTourianPreRotDelayWrap), () => VerifyDeadTourianPreRotDelayWrap());
+        Suite(nameof(VerifyDeadSidehopperPreRotDelay), () => VerifyDeadSidehopperPreRotDelay());
+        Suite(nameof(VerifyDeadTourianPreRotDelay), () => VerifyDeadTourianPreRotDelay());
         return 0;
     }
 }

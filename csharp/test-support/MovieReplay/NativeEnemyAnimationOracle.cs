@@ -23,6 +23,10 @@ internal static class NativeEnemyAnimationOracle
     /// <param name="startingAt">The typed animations, by the segment each starts at.</param>
     /// <param name="spritemap">The spritemap a frame shows.</param>
     /// <param name="rules">How the family's instructions are read and compared.</param>
+    /// <param name="countDownContinuations">
+    /// Where an owner's branch into each count-down tail continues the play (<see cref="CompareCountDownContinuations"/>);
+    /// required when the family's lists have one.
+    /// </param>
     internal static int CompareAll<TSegment, TFrame, TEvent>(
         IImportCartridgeSource cartridge,
         byte bank,
@@ -30,13 +34,15 @@ internal static class NativeEnemyAnimationOracle
         AnimationSegments<TSegment, TFrame, TEvent> segments,
         IReadOnlyDictionary<TSegment, Animation<TSegment>> startingAt,
         Func<TFrame, ushort> spritemap,
-        NativeEnemyCueRules<TEvent> rules)
+        NativeEnemyCueRules<TEvent> rules,
+        IReadOnlyDictionary<TSegment, AnimationContinuation<TSegment>>? countDownContinuations = null)
         where TSegment : struct, Enum
         where TFrame : struct
         where TEvent : notnull
     {
         Dictionary<TSegment, NativeEnemyList<TSegment>> lists = Lists(cartridge, bank, entries, segments, spritemap, rules);
         CompareAnimations(lists, startingAt);
+        CompareCountDownContinuations(lists, startingAt, countDownContinuations ?? new Dictionary<TSegment, AnimationContinuation<TSegment>>());
         return lists.Values.Sum(list => list.BeatAddresses.Length);
     }
 
@@ -88,8 +94,14 @@ internal static class NativeEnemyAnimationOracle
         Ensure.NotNull(startingAt);
         HashSet<TSegment> bodies = [.. lists.Values.SelectMany(list => list.Controls)
             .Where(control => control.Kind == NativeEnemyControlKind.Repeat).Select(control => control.Target!.Value)];
+        HashSet<TSegment> tails = CountDownTails(lists);
         foreach (TSegment start in Enum.GetValues<TSegment>())
         {
+            if (tails.Contains(start))
+            {
+                VerificationAssertions.AssertTrue(!startingAt.ContainsKey(start), $"no animation starts in count-down {start}");
+                continue;
+            }
             if (startsWithClearedCounter?.Contains(start) == true)
             {
                 VerificationAssertions.AssertTrue(bodies.Contains(start), $"{start}, started with a cleared counter, is a counted body");
@@ -253,6 +265,13 @@ internal static class NativeEnemyAnimationOracle
                         pending = control.Count;
                         continue;
                     case NativeEnemyControlKind.Repeat:
+                        // A count-down opening a list repeats the whole run of the list that ran on into it, the phase
+                        // just played.
+                        if (!EqualityComparer<TSegment>.Default.Equals(control.Target!.Value, segment)
+                            && (phases.Count == 0 || !IsWholeRunOf(lists, phases[^1], control.Target.Value)))
+                        {
+                            throw new InvalidDataException($"{segment}'s count-down of {control.Target.Value} follows no whole run of that list.");
+                        }
                         continue;
                     case NativeEnemyControlKind.Stop:
                         return (phases, AnimationEnd.Stops);
@@ -277,6 +296,54 @@ internal static class NativeEnemyAnimationOracle
             }
         }
         throw new InvalidDataException($"The native lists from {start} never end or loop.");
+    }
+
+    /// <summary>Whether <paramref name="phase"/> plays every beat of <paramref name="segment"/>'s native list, from its first.</summary>
+    private static bool IsWholeRunOf<TSegment>(IReadOnlyDictionary<TSegment, NativeEnemyList<TSegment>> lists, AnimationPhase<TSegment> phase, TSegment segment)
+        where TSegment : struct, Enum =>
+        EqualityComparer<TSegment>.Default.Equals(phase.Segment, segment) && phase.FirstBeat == 0 && phase.BeatCount == lists[segment].BeatAddresses.Length;
+
+    /// <summary>
+    /// The segments whose native list opens with the count-down of another list (#1600): the list that runs on into it
+    /// repeats there while the counter lasts. No animation starts at one; a branch into one continues the play at the end
+    /// of a play of the counted phase it counts down.
+    /// </summary>
+    internal static HashSet<TSegment> CountDownTails<TSegment>(IReadOnlyDictionary<TSegment, NativeEnemyList<TSegment>> lists)
+        where TSegment : struct, Enum =>
+        [.. Ensure.NotNull(lists).Where(pair => pair.Value.Controls.FirstOrDefault() is { Kind: NativeEnemyControlKind.Repeat, AfterBeat: 0 } control
+                && !EqualityComparer<TSegment>.Default.Equals(control.Target!.Value, pair.Key))
+            .Select(pair => pair.Key)];
+
+    /// <summary>
+    /// Checks the continuation an owner's branch into each count-down tail takes (#1600): the end of a play of a counted
+    /// phase, of one of the family's animations, that plays the whole list the tail counts down, a list that continues into
+    /// the tail directly after its last beat. Counting down there replays that phase while the counter lasts and then
+    /// moves on, as the tail's count-down does; what follows is the animation's own, which <see cref="CompareAnimations"/>
+    /// matched to the lists.
+    /// </summary>
+    internal static void CompareCountDownContinuations<TSegment>(
+        IReadOnlyDictionary<TSegment, NativeEnemyList<TSegment>> lists, IReadOnlyDictionary<TSegment, Animation<TSegment>> startingAt,
+        IReadOnlyDictionary<TSegment, AnimationContinuation<TSegment>> continuations)
+        where TSegment : struct, Enum
+    {
+        Ensure.NotNull(lists);
+        Ensure.NotNull(startingAt);
+        Ensure.NotNull(continuations);
+        foreach (TSegment tail in CountDownTails(lists))
+        {
+            TSegment counted = lists[tail].Controls[0].Target!.Value;
+            VerificationAssertions.AssertTrue(continuations.TryGetValue(tail, out AnimationContinuation<TSegment> continuation),
+                $"a branch into count-down {tail} has a continuation");
+            VerificationAssertions.AssertTrue(startingAt.Values.Any(animation => ReferenceEquals(animation, continuation.Animation)),
+                $"{tail}'s continuation plays one of the family's animations");
+            AnimationPhase<TSegment> phase = continuation.Animation.Phases[continuation.Place.Phase];
+            VerificationAssertions.AssertTrue(IsWholeRunOf(lists, phase, counted) && phase.CountsRepeats,
+                $"{tail}'s continuation stands in a counted phase playing all of {counted}");
+            VerificationAssertions.AssertEqual(phase.BeatCount, continuation.Place.Beat, $"{tail}'s continuation stands at the end of a play");
+            VerificationAssertions.AssertTrue(lists[counted].Controls.FirstOrDefault(control => control.AfterBeat == phase.BeatCount) is
+                { Kind: NativeEnemyControlKind.RunOnIntoNext or NativeEnemyControlKind.Goto } next && EqualityComparer<TSegment>.Default.Equals(next.Target!.Value, tail),
+                $"{counted} continues into {tail} after its last beat");
+        }
     }
 
     /// <summary>Reads one segment's native list, comparing its beats with the segment's.</summary>
@@ -355,7 +422,10 @@ internal static class NativeEnemyAnimationOracle
                 case NativeEnemyListDefinitions.WordKind.RepeatWhileCounting:
                 {
                     TSegment repeated = SegmentAt(operand, at);
-                    VerificationAssertions.AssertEqual(segment, repeated, $"{at}: a counted repeat replays its own list");
+                    // A list may open with the count-down of the list that ran on into it (#1600): a branch into it
+                    // counts that list's plays on from where the counter stands.
+                    VerificationAssertions.AssertTrue(EqualityComparer<TSegment>.Default.Equals(segment, repeated) || (beat == 0 && controls.Count == 0),
+                        $"{at}: a counted repeat replays its own list, or, opening a list, another");
                     controls.Add(new(NativeEnemyControlKind.Repeat, beat, repeated, null, cursor));
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;

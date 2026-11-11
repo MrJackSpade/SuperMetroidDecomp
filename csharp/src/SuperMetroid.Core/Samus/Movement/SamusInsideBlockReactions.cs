@@ -156,18 +156,19 @@ public static class SamusInsideBlockReactions
     /// its accepted sinking displacement. Pose-clearance probes consume carry only.
     /// </summary>
     /// <param name="contact">Samus's body and contact damage.</param>
-    /// <param name="level">The room's level, which places the sand block a reaction sits on.</param>
+    /// <param name="terrain">The room's level, which places the sand block a reaction sits on, and its objects, where a sand
+    /// reaction takes a place.</param>
     /// <param name="block">The special-air block the collision scan reached.</param>
     /// <param name="axis">The axis the scan moves along.</param>
     /// <param name="displacement">The scan's accepted displacement, which sand can limit.</param>
     /// <param name="surfaceContact">Whether Samus touched the sand's surface.</param>
     /// <param name="blockReactionDirection">The direction the reaction sees, or null for the scan's own.</param>
-    /// <param name="roomObjects">The room's objects, where a sand reaction takes a place; null runs no spawn.</param>
     internal static bool ReactCollision(SamusCollisionContact contact,
-        RoomLevelData level, RoomCollisionBlock block, Axis axis, ref SignedSixteenSixteen displacement, out bool surfaceContact,
-        SamusCollisionDirection? blockReactionDirection = null,
-        ISamusRoomObjects? roomObjects = null)
+        SamusTerrain terrain, RoomCollisionBlock block, Axis axis, ref SignedSixteenSixteen displacement, out bool surfaceContact,
+        SamusCollisionDirection? blockReactionDirection = null)
     {
+        RoomLevelData level = terrain.Level;
+        ISamusRoomObjects? roomObjects = terrain.RoomObjects;
         SamusKinematicsState body = contact.Body;
         surfaceContact = false;
         if (!block.Behavior.Reaction.IsAreaSpecific) return false;

@@ -130,7 +130,7 @@ internal static class QuicksandVerification
             SignedSixteenSixteen displacement = SignedSixteenSixteen.FromRaw(0x28000);
             bool collided = SamusInsideBlockReactions.ReactCollision(
                 new(body, body.CollisionContactDamageIndex(null)),
-                level,
+                new SamusTerrain { Level = level },
                 new RoomCollisionBlock(0, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), RoomBlockBehaviorCodec.Decode(0x80 + index)),
                 axis: Axis.Vertical,
                 ref displacement,
@@ -258,7 +258,7 @@ internal static class QuicksandVerification
             SignedSixteenSixteen displacement = SignedSixteenSixteen.FromRaw(probe);
             SamusInsideBlockReactions.ReactCollision(
                 new(body, body.CollisionContactDamageIndex(null)),
-                level,
+                new SamusTerrain { Level = level },
                 new RoomCollisionBlock(0, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), RoomBlockBehaviorCodec.Decode(0x80)),
                 axis: Axis.Vertical,
                 ref displacement,

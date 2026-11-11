@@ -212,8 +212,8 @@ public static class SamusBlockCollision
                     case RoomCollisionType.SpecialAir:
                         // Sand's submerging callback clears vertical speed/gravity even
                         // when reached through the horizontal dispatcher.
-                        collided = SamusInsideBlockReactions.ReactCollision(new(state, state.CollisionContactDamageIndex(owner)), terrain.Level, block, Axis.Horizontal,
-                            ref acceptedDisplacement, out _, move.BlockReactionDirection, terrain.RoomObjects);
+                        collided = SamusInsideBlockReactions.ReactCollision(new(state, state.CollisionContactDamageIndex(owner)), terrain, block, Axis.Horizontal,
+                            ref acceptedDisplacement, out _, move.BlockReactionDirection);
                         if (collided) collisionBlock = block;
                         if (block.Behavior.Reaction == BlockReactionDefinitions.ScrollTrigger &&
                             (terrain.RoomObjects is null || !terrain.RoomObjects.Scrolls.TryNotifyScrollTouch(terrain.Level.BlockAt(block.Index))))
@@ -565,8 +565,8 @@ public static class SamusBlockCollision
                 case RoomCollisionType.SpecialAir:
                     if (block.CollisionType == RoomCollisionType.SpecialAir)
                     {
-                        collided = SamusInsideBlockReactions.ReactCollision(new(state, state.CollisionContactDamageIndex(owner)), terrain.Level, block, Axis.Vertical,
-                            ref acceptedDisplacement, out bool touchedSand, move.BlockReactionDirection, terrain.RoomObjects);
+                        collided = SamusInsideBlockReactions.ReactCollision(new(state, state.CollisionContactDamageIndex(owner)), terrain, block, Axis.Vertical,
+                            ref acceptedDisplacement, out bool touchedSand, move.BlockReactionDirection);
                         sandContact |= touchedSand;
                     }
                     if (block.CollisionType == RoomCollisionType.SpecialAir &&

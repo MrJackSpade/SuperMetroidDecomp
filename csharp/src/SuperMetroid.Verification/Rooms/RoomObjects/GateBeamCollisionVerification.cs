@@ -76,7 +76,7 @@ internal static class GateBeamCollisionVerification
             var shot = new SamusProjectile(0) { Position = new(new(33, 0), new(33, 0)),
                 Radius = new(17, 17), Velocity = new(-1, -1) };
             bool result = false;
-            if (wave && horizontal) ProjectileTerrainCollision.ScanHorizontalWaveShotReactions(level, shot, roomObjects);
+            if (wave && horizontal) ProjectileTerrainCollision.ScanHorizontalWaveShotReactions(level, shot, roomObjects, InstalledFixtures.SamusOverreads.Projectiles.StraddledTerrain);
             else if (wave) ProjectileTerrainCollision.ScanVerticalWaveShotReactions(level, shot, roomObjects);
             else result = horizontal
                 ? ProjectileTerrainCollision.ScanHorizontalShotReactions(level, shot, roomObjects)

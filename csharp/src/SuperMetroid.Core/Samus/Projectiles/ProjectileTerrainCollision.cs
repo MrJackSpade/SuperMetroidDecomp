@@ -16,30 +16,43 @@ internal sealed class ProjectileTerrainCollision
     private readonly ProjectileEarthquakes _earthquakes;
     /// <summary>Queues distinct beam and missile impact sounds at the collision seam.</summary>
     private readonly ProjectileImpactAudio _impactAudio;
+    /// <summary>The terrain a Wave shot's horizontal scan finds where it lands halfway through a block.</summary>
+    private readonly StraddledTerrain _straddledTerrain;
 
-    /// <summary>Binds the projectile animation, quake, and impact-audio owners used when terrain consumes a shot.</summary>
-    internal ProjectileTerrainCollision(ProjectileAnimation animation, ProjectileEarthquakes earthquakes, ProjectileImpactAudio impactAudio)
+    /// <summary>
+    /// Binds the projectile animation, quake, and impact-audio owners used when terrain consumes a shot, and the
+    /// installation's straddled terrain the horizontal Wave scan reads.
+    /// </summary>
+    internal ProjectileTerrainCollision(ProjectileAnimation animation, ProjectileEarthquakes earthquakes, ProjectileImpactAudio impactAudio,
+        StraddledTerrain straddledTerrain)
     {
         _animation = animation;
         _earthquakes = earthquakes;
         _impactAudio = impactAudio;
+        _straddledTerrain = Ensure.NotNull(straddledTerrain);
     }
 
-    /// <summary>Advances a shot by its signed 8.8 X velocity and scans its leading edge; Wave retains reactions but clears collision carry.</summary>
+    /// <summary>Advances a shot by its signed 8.8 X velocity and scans its leading edge for block reactions and collision.</summary>
     internal static bool MoveHorizontally(
         RoomLevelData level,
         SamusProjectile slot,
-        ISamusRoomObjects? roomObjects,
-        bool waveBeam = false)
+        ISamusRoomObjects? roomObjects)
     {
         slot.Position = slot.Position.AdvanceX(slot.Velocity.X.ToSixteenSixteenDelta());
-
-        if (waveBeam)
-        {
-            ScanHorizontalWaveShotReactions(level, slot, roomObjects);
-            return false;
-        }
         return ScanHorizontalShotReactions(level, slot, roomObjects);
+    }
+
+    /// <summary>
+    /// Advances a Wave or Hyper shot by its signed 8.8 X velocity and scans its leading edge for block reactions, which
+    /// never report a collision.
+    /// </summary>
+    internal void MoveWaveShotHorizontally(
+        RoomLevelData level,
+        SamusProjectile slot,
+        ISamusRoomObjects? roomObjects)
+    {
+        slot.Position = slot.Position.AdvanceX(slot.Velocity.X.ToSixteenSixteenDelta());
+        ScanHorizontalWaveShotReactions(level, slot, roomObjects, _straddledTerrain);
     }
 
     /// <summary>
@@ -68,7 +81,11 @@ internal sealed class ProjectileTerrainCollision
             SamusProjectileDirection.Left or
             SamusProjectileDirection.UpLeft)
         {
-            bool horizontalReaction = MoveHorizontally(level, slot, roomObjects, waveBeam);
+            bool horizontalReaction = false;
+            if (waveBeam)
+                MoveWaveShotHorizontally(level, slot, roomObjects);
+            else
+                horizontalReaction = MoveHorizontally(level, slot, roomObjects);
 
             // The Wave-beam scan deliberately reports no collision after publishing a block
             // reaction. Preserve that contract here instead of allowing our shared scanner's
@@ -197,46 +214,6 @@ internal sealed class ProjectileTerrainCollision
     /// minus one (the first, top or left, block has both equal) and the target boundary.
     /// </summary>
     private readonly record struct ShotSpan(int Span, int Remaining, int TargetBoundary);
-
-    /// <summary>
-    /// The collision kinds in the game's family order, which a block read straddling two neighbours exposes as part of
-    /// its block number (<see cref="StraddledBlockRead"/>).
-    /// </summary>
-    private static readonly RoomCollisionType[] KindsByFamily =
-    [
-        RoomCollisionType.Air, RoomCollisionType.Slope, RoomCollisionType.SpikeAir, RoomCollisionType.SpecialAir,
-        RoomCollisionType.ShootableAir, RoomCollisionType.HorizontalExtension, RoomCollisionType.UnusedAir,
-        RoomCollisionType.BombableAir, RoomCollisionType.SolidBlock, RoomCollisionType.DoorBlock,
-        RoomCollisionType.SpikeBlock, RoomCollisionType.SpecialBlock, RoomCollisionType.ShootableBlock,
-        RoomCollisionType.VerticalExtension, RoomCollisionType.GrappleBlock, RoomCollisionType.BombableBlock,
-    ];
-
-    /// <summary>The terrain a Wave shot's scan reads straddling <paramref name="first"/> and the block after it.</summary>
-    private static RoomTerrainBlock Straddling(RoomTerrainBlock first, RoomTerrainBlock second)
-    {
-        StraddledBlock read = StraddledBlockRead.Of(ToStraddled(first), ToStraddled(second));
-        BlockMirroring mirroring = read.Mirroring switch
-        {
-            StraddledBlock.Reflection.None => BlockMirroring.None,
-            StraddledBlock.Reflection.Horizontal => BlockMirroring.Horizontal,
-            StraddledBlock.Reflection.Vertical => BlockMirroring.Vertical,
-            StraddledBlock.Reflection.Both => BlockMirroring.Both,
-            _ => throw new InvalidOperationException($"Undefined straddled mirroring {read.Mirroring}."),
-        };
-        return RoomTerrainBlock.Of(read.Block, mirroring, KindsByFamily[read.Family]);
-    }
-
-    /// <summary>A terrain block as the straddled read takes it.</summary>
-    private static StraddledBlock ToStraddled(RoomTerrainBlock block) => new(block.Appearance.Block,
-        block.Appearance.Mirroring switch
-        {
-            BlockMirroring.None => StraddledBlock.Reflection.None,
-            BlockMirroring.Horizontal => StraddledBlock.Reflection.Horizontal,
-            BlockMirroring.Vertical => StraddledBlock.Reflection.Vertical,
-            BlockMirroring.Both => StraddledBlock.Reflection.Both,
-            _ => throw new InvalidOperationException($"Undefined mirroring {block.Appearance.Mirroring}."),
-        },
-        Array.IndexOf(KindsByFamily, block.Collision));
 
     /// <summary>
     /// Square-slope collision for a beam, horizontal or vertical: the quarter cells of a
@@ -588,11 +565,17 @@ internal sealed class ProjectileTerrainCollision
     }
     /// <summary>
     /// Scans the rows a Wave shot's leading edge spans for block reactions, one row per step from its top row; where the
-    /// scan runs past the room's ceiling it reads what <see cref="StraddledBlockRead"/> finds there.
+    /// scan runs past the room's ceiling and lands halfway through a block (<see cref="WaveScanRead"/>) it reacts to the
+    /// terrain <paramref name="straddledTerrain"/> finds straddling that block and the next.
     /// </summary>
+    /// <param name="level">The room's terrain as it is now.</param>
+    /// <param name="slot">The Wave or Hyper shot.</param>
+    /// <param name="roomObjects">The room's objects, which a block reaction may spawn; none in a room without them.</param>
+    /// <param name="straddledTerrain">The installation's straddled terrain, which the projectile system's terrain collision holds.</param>
     internal static void ScanHorizontalWaveShotReactions(
-        RoomLevelData level, SamusProjectile slot, ISamusRoomObjects? roomObjects)
+        RoomLevelData level, SamusProjectile slot, ISamusRoomObjects? roomObjects, StraddledTerrain straddledTerrain)
     {
+        Ensure.NotNull(straddledTerrain);
         int top = CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y);
         int bottom = CoordinateAxis.Wrap(slot.Position.Y.Whole + slot.Radius.Y - 1);
         int span = CoordinateAxis.Wrap(bottom - (top & ~15)) >> 4;
@@ -608,7 +591,7 @@ internal sealed class ProjectileTerrainCollision
 
         for (int step = 0; step <= span; step++)
         {
-            WaveScanRead read = StraddledBlockRead.WaveScanReadAt(top >> 4, targetX >> 4, level.Size.X, step);
+            WaveScanRead read = WaveScanRead.At(Position16<RoomBlocks>.Of(targetX >> 4, top >> 4), level.Size.X, step);
             if (!level.IsLogicalBlockIndex(read.Block))
                 continue;
             RoomCollisionBlock block = level.GetCollisionBlockByIndex(read.Block);
@@ -619,7 +602,7 @@ internal sealed class ProjectileTerrainCollision
                 RoomTerrainBlock next = level.GetCollisionBlockByIndex(read.Block + 1).Terrain;
                 // Dispatch consumes the straddled block; the behaviour and room-object setup
                 // still use the block the read starts in, as aligned reads do.
-                block = block with { Terrain = Straddling(block.Terrain, next) };
+                block = block with { Terrain = straddledTerrain.Straddling(block.Terrain, next) };
             }
             RunShotReaction(level, slot, block, roomObjects, new ShotSpan(span, span - step, targetX), out bool endSpan);
             // Wave discards collision carry, but still honors room-object scan termination.

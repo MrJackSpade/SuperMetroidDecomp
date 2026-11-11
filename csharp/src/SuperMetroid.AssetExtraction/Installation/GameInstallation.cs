@@ -69,8 +69,15 @@ public sealed record GameInstallation(string Root)
     public string MapDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.MapDirectoryName);
     /// <summary>Stock decoded results of Samus's glitch reads, which are not presentation the player edits.</summary>
     public string SamusOverreadDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.SamusOverreadDirectoryName);
-    /// <summary>Loads the validated compatibility services reproducing Samus's glitch reads.</summary>
-    public SamusOverreadServices LoadSamusOverreads() => SamusOverreadFiles.Load(SamusOverreadDirectory);
+    /// <summary>
+    /// Loads the validated compatibility services reproducing Samus's glitch reads, with the installed straddled terrain
+    /// her Wave shots' scan past the room's ceiling finds.
+    /// </summary>
+    public SamusOverreadServices LoadSamusOverreads() => SamusOverreadFiles.Load(SamusOverreadDirectory, LoadStraddledTerrain());
+    /// <summary>Stock decoded terrain a Wave shot's scan finds straddling two blocks, which is not presentation the player edits.</summary>
+    public string StraddledTerrainDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.StraddledTerrainDirectoryName);
+    /// <summary>Loads the validated terrain a Wave shot's scan past the room's ceiling finds straddling two blocks.</summary>
+    public SuperMetroid.Core.Compatibility.StraddledTerrain LoadStraddledTerrain() => StraddledTerrainFiles.Load(StraddledTerrainDirectory);
     /// <summary>Stock decoded results of what enemies read past their authored data, which are not presentation the player edits.</summary>
     public string EnemyOverreadDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EnemyOverreadDirectoryName);
     /// <summary>Loads the validated compatibility services reproducing what enemies read past their authored data.</summary>

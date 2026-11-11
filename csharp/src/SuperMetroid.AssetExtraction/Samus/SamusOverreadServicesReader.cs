@@ -18,10 +18,13 @@ namespace SuperMetroid.AssetExtraction.Samus;
 internal static class SamusOverreadServicesReader
 {
     /// <summary>Builds every service, requiring an entry for every situation each one covers.</summary>
+    /// <param name="document">The installed overread document.</param>
+    /// <param name="straddledTerrain">The installed straddled terrain, which the projectiles' group carries (#1612).</param>
     /// <exception cref="InvalidDataException">The document is incomplete or names something the game does not have.</exception>
-    internal static SamusOverreadServices Read(SamusOverreadDocument document)
+    internal static SamusOverreadServices Read(SamusOverreadDocument document, StraddledTerrain straddledTerrain)
     {
         Ensure.NotNull(document);
+        Ensure.NotNull(straddledTerrain);
         if (document.Version != SamusOverreadFormat.Version)
             throw new InvalidDataException("Samus overread file has an unsupported version.");
         var projectiles = new SamusProjectileOverreads(
@@ -33,7 +36,8 @@ internal static class SamusOverreadServicesReader
             PostureAdmission(Require(document.PostureAdmissions, nameof(document.PostureAdmissions))),
             UnauthoredFiring(Require(document.UnauthoredBeamLaunchSpeeds, nameof(document.UnauthoredBeamLaunchSpeeds)),
                 Require(document.UnauthoredBeamCooldowns, nameof(document.UnauthoredBeamCooldowns))),
-            DrainedCrashDepartures(Require(document.DrainedCrashDepartures, nameof(document.DrainedCrashDepartures))));
+            DrainedCrashDepartures(Require(document.DrainedCrashDepartures, nameof(document.DrainedCrashDepartures))),
+            straddledTerrain);
         return new SamusOverreadServices(
             AnimationContinuation(document),
             projectiles);

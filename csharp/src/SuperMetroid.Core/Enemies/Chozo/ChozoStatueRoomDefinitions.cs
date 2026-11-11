@@ -34,8 +34,8 @@ internal static class ChozoStatueRoomDefinitions
     /// Gameplay terrain, not a picture (#1580): nothing pictures it, and when room objects run, the plug draws its first
     /// breakup image over it in the room-object pass later in the same update. Until then it is read as terrain: its
     /// air by Samus's and her shots' collision, and its block number and mirroring by a Wave shot's scan past the room's
-    /// ceiling (<see cref="Compatibility.StraddledBlockRead"/>), whose straddled block takes its collision family from
-    /// those bits and keeps the block it read as the block to restore.
+    /// ceiling (<see cref="Compatibility.StraddledTerrain"/>), whose straddled terrain takes its collision kind from them
+    /// and keeps the block it read as the block to restore.
     /// </remarks>
     public static readonly RoomTerrainBlock HardcodedCrumbleSetupBlock =
         RoomTerrainBlock.Of(416, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.Air);
@@ -46,7 +46,7 @@ internal static class ChozoStatueRoomDefinitions
     /// spawn is applied right after the enemy pass, and when room objects run the plug draws its first breakup image over
     /// it in the room-object pass later in the same update. Until then it is read as terrain: its air by Samus's and her
     /// shots' collision, and its block number and mirroring by a Wave shot's scan past the room's ceiling
-    /// (<see cref="Compatibility.StraddledBlockRead"/>).
+    /// (<see cref="Compatibility.StraddledTerrain"/>).
     /// </remarks>
     public static readonly RoomTerrainBlock SpawnedCrumbleSetupBlock =
         RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Air);

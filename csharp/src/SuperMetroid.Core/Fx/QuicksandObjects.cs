@@ -1,9 +1,11 @@
-﻿using SuperMetroid.Core.Rooms.LevelData;
+﻿using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>Quicksand reaction room objects and the allocation-full check their spawns depend on.</summary>
+[RoomLifetime]
 internal sealed class QuicksandObjects
 {
     /// <summary>Shared forty-slot room-object pool; occupied slots can prevent a quicksand reaction from spawning.</summary>

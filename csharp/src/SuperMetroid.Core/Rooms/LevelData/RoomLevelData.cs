@@ -225,10 +225,6 @@ public sealed class RoomLevelData
     internal void SetObjectTerrain(Position16<RoomBlocks> block, RoomTerrainBlock terrain) =>
         SetObjectTerrain(Size.RowMajorIndex(block), terrain);
 
-    /// <summary>A room object's terrain write at its block that shows <paramref name="shown"/> over the terrain.</summary>
-    internal void SetObjectTerrain(Position16<RoomBlocks> block, RoomTerrainBlock terrain, RoomBlockAppearance shown) =>
-        SetObjectTerrain(Size.RowMajorIndex(block), terrain, shown);
-
     /// <summary>A room object's behaviour write at its block, inside the grid or in the terrain beyond the room.</summary>
     internal void SetObjectBehavior(Position16<RoomBlocks> block, RoomBlockBehavior behavior) =>
         SetObjectBehavior(Size.RowMajorIndex(block), behavior);

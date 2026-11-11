@@ -1,10 +1,12 @@
-﻿using SuperMetroid.Core.Rooms.LevelData;
+﻿using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Room objects triggered by Samus projectiles reaching their block rather than by contact.</summary>
+[RoomLifetime]
 internal sealed class ProjectileTriggerObjects
 {
     /// <summary>The room-object slots searched from highest index to lowest on a projectile hit.</summary>

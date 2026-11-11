@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Rooms.Scrolling;
 
 /// <summary>The room's scroll triggers and scroll extensions: their setup, and Samus's touch of a trigger.</summary>
+[RoomLifetime]
 internal sealed class ScrollObjects
 {
     /// <summary>The room's objects, in the update order, searched for the trigger at a block.</summary>

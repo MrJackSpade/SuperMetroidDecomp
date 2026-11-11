@@ -14,8 +14,8 @@ namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>
 /// Turns a fixture's tile words into what the effect overlay shows (#1403, #1514): the words laid row by row into one
-/// picture, each painted, mirrored, coloured and prioritised as the word says from its two-bit character, as extraction
-/// paints a room's effect overlay sheet. A fixture's page is the rows the original game wrote the effect's page to; a
+/// picture, each painted, mirrored and coloured as the word says from its two-bit character and installed as its part behind
+/// and its part in front as each word's priority says, as extraction installs a room's effect overlay sheet (#1634). A fixture's page is the rows the original game wrote the effect's page to; a
 /// fixture's whole plane is placed through <see cref="Rows"/>.
 /// </summary>
 internal static class FxOverlayFixtures
@@ -27,7 +27,7 @@ internal static class FxOverlayFixtures
     /// The picture of the gameplay overlay tilemap's whole plane in <paramref name="image"/>, its words' characters read from
     /// <paramref name="characterWord"/> and coloured from <paramref name="palette"/>.
     /// </summary>
-    internal static SpriteSheetFrame PlaneFromVram(ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette, int characterWord = GameplayVramLayout.HudCharacterWord) =>
+    internal static LayeredPicture PlaneFromVram(ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette, int characterWord = GameplayVramLayout.HudCharacterWord) =>
         Picture(PlaneWords(image), image, palette, characterWord);
 
     /// <summary>
@@ -60,10 +60,11 @@ internal static class FxOverlayFixtures
     /// The overlay a whole plane's picture shows from tile row <paramref name="firstRow"/>, <paramref name="rows"/> rows
     /// repeating down and the plane's width repeating across, as the original game's plane showed a window of its rows.
     /// </summary>
-    internal static OverlayPicture Rows(SpriteSheetFrame plane, int firstRow, int rows)
+    internal static OverlayPicture Rows(LayeredPicture plane, int firstRow, int rows)
     {
         Ensure.NotNull(plane);
-        var size = new Extent16<OverlayPixels>(plane.Size.X, rows * TilePixels);
+        Extent16<ImagePixels> pictured = plane.Size ?? throw new InvalidOperationException("An overlay fixture's plane installs neither part.");
+        var size = new Extent16<OverlayPixels>(pictured.X, rows * TilePixels);
         return new OverlayPicture(plane, new Position16<ImagePixels>(0, firstRow * TilePixels), size, Position16<OverlayPixels>.Zero, size);
     }
 
@@ -71,7 +72,7 @@ internal static class FxOverlayFixtures
     /// The picture <paramref name="words"/> show, laid row by row a plane's width to a row, their characters read from
     /// <paramref name="characterWord"/> in <paramref name="image"/> and coloured from <paramref name="palette"/>.
     /// </summary>
-    internal static SpriteSheetFrame Picture(ReadOnlySpan<ushort> words, ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette,
+    internal static LayeredPicture Picture(ReadOnlySpan<ushort> words, ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette,
         int characterWord = GameplayVramLayout.HudCharacterWord)
     {
         const int characterWords = 8;
@@ -97,10 +98,10 @@ internal static class FxOverlayFixtures
         {
             ["overlay"] = WrittenPictureSheetComposer.Frame(canvas, 0, rows, WrittenPictureLayer.FxOverlayAndHud),
         };
-        ComposedSpriteSheet composed = canvas.ToRoomSheet(colours, frames, SpriteImageColours.TwoBppBackground);
+        ComposedSpriteSheet composed = canvas.ToSplitRoomSheet(colours, frames, SpriteImageColours.TwoBppBackground);
         SpriteSheet sheet = SpriteSheetFileConstants.Load(composed.Manifest, "overlay-fixture",
-            composed.Size, composed.Pixels, composed.PaletteIndices, composed.FrontTiles);
-        return sheet.Frame("overlay");
+            composed.Size, composed.Pixels, composed.PaletteIndices);
+        return PictureParts.Of(sheet, "overlay");
     }
 
     /// <summary>The gameplay overlay tilemap's words in <paramref name="image"/>, row by row.</summary>

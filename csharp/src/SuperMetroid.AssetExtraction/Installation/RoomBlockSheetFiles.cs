@@ -115,6 +115,7 @@ public static class RoomBlockSheetFiles
             tilesets.ToDictionary(tileset => tileset, tileset => new RoomBlockSheet(tileset, store.Read(RoomBlockSheet.NameOf(tileset)),
                 RoomBlockAppearanceFiles.Read(directory, tileset))),
             manifest.Words.ToDictionary(entry => entry.Key, entry => new RoomBackgroundImage(entry.Key, store.Read(entry.Key),
+                    RoomBackgroundImageGeometry.ImageSize(entry.Value.Length),
                     (manifest.Cells.TryGetValue(entry.Key, out CellDocument[]? cells) && cells is not null ? cells
                         : throw new InvalidDataException($"Room background manifest {manifestPath} records no cells of {entry.Key}."))
                     .Select(cell => new RoomBackgroundCell(cell.Cell, cell.Picture ?? throw new InvalidDataException($"Room background manifest {manifestPath} names no picture of a cell of {entry.Key}."),

@@ -413,11 +413,14 @@ public sealed class D3D11FrameRenderer : IDisposable
         _ => throw new InvalidOperationException($"Undefined actor depth {depth}."),
     };
 
-    /// <summary>The <see cref="D3D11TileDispatch.DrawnPart"/> of a pass inserting the sprites at <paramref name="depth"/>.</summary>
+    /// <summary>The <see cref="D3D11TileDispatch.DrawnDepth"/> of a pass inserting the sprites at <paramref name="depth"/>.</summary>
     private static uint Inserting(ActorDepth depth) => DepthWord(depth) + 1;
 
-    /// <summary>The <see cref="D3D11TileDispatch.DrawnPart"/> of a room layer pass drawing its back or its front tiles.</summary>
-    private static uint Tiles(bool front) => front ? 2u : 1u;
+    /// <summary>
+    /// The <see cref="D3D11TileDispatch.DrawnDepth"/> of a room layer pass drawing its back or its front tiles: the part of its
+    /// pictures drawn in front, or the part drawn behind (#1634), as Tiles.hlsl's DrawsInFrontPart and DrawsBehindPart name them.
+    /// </summary>
+    private static uint PicturePart(bool inFront) => inFront ? 2u : 1u;
 
     /// <summary>Draws the message box's picture where it lies on the screen, coloured in the message's text colours (#1408, #1555).</summary>
     private unsafe void DispatchMessage(MessageBoxLayer layer)
@@ -463,13 +466,13 @@ public sealed class D3D11FrameRenderer : IDisposable
             switch (shown)
             {
                 case GameplayLayer.ActorsBehindRoom or GameplayLayer.ActorsBehindFrontTiles or GameplayLayer.ActorsInFront:
-                    DispatchTile(D3D11TileOperation.InsertSprites, new D3D11TileDispatch { DrawnPart = Inserting(ActorsAt(shown)), FirstScanline = (uint)floorStart });
+                    DispatchTile(D3D11TileOperation.InsertSprites, new D3D11TileDispatch { DrawnDepth = Inserting(ActorsAt(shown)), FirstScanline = (uint)floorStart });
                     break;
                 case GameplayLayer.BackgroundBackTiles or GameplayLayer.BackgroundFrontTiles:
                     DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch
                     {
                         RoomSource = D3D11RoomSource.Background, Scroll = floor.Scroll.AsPlaneScroll(),
-                        DrawnPart = Tiles(shown == GameplayLayer.BackgroundFrontTiles), FirstScanline = (uint)floorStart,
+                        DrawnDepth = PicturePart(shown == GameplayLayer.BackgroundFrontTiles), FirstScanline = (uint)floorStart,
                     });
                     break;
                 case GameplayLayer.ForegroundBackTiles or GameplayLayer.ForegroundFrontTiles:
@@ -511,7 +514,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                 {
                     case GameplayLayer.ActorsBehindRoom or GameplayLayer.ActorsBehindFrontTiles or GameplayLayer.ActorsInFront:
                         if ((shownLayers & ScreenLayers.Sprites) != 0)
-                            DispatchTile(D3D11TileOperation.InsertSprites, new D3D11TileDispatch { DrawnPart = Inserting(ActorsAt(shown)), FirstScanline = (uint)first, EndScanline = (uint)end });
+                            DispatchTile(D3D11TileOperation.InsertSprites, new D3D11TileDispatch { DrawnDepth = Inserting(ActorsAt(shown)), FirstScanline = (uint)first, EndScanline = (uint)end });
                         break;
                     case GameplayLayer.BackgroundBackTiles or GameplayLayer.BackgroundFrontTiles:
                         if ((shownLayers & ScreenLayers.Background) != 0)
@@ -523,7 +526,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                             {
                                 RoomSource = D3D11RoomSource.Foreground,
                                 Scroll = r.ForegroundScroll.AsPlaneScroll(),
-                                DrawnPart = Tiles(shown == GameplayLayer.ForegroundFrontTiles), FirstScanline = (uint)first, EndScanline = (uint)end,
+                                DrawnDepth = PicturePart(shown == GameplayLayer.ForegroundFrontTiles), FirstScanline = (uint)first, EndScanline = (uint)end,
                             });
                         break;
                     default:
@@ -543,7 +546,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         var r = layer.View;
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.Layer;
-        data[7] = Tiles(frontTiles); data[8] = 1; data[15] = 1;
+        data[7] = PicturePart(frontTiles); data[8] = 1; data[15] = 1;
         data[14] = D3D11RoomSources.BackgroundSourceOf(layer.Rooms);
         data[25] = (uint)Math.Max(r.BackgroundFirstLine, first); data[26] = (uint)Math.Min(r.BackgroundEndLine, end);
         // Header word 27 is the mosaic's block size (zero elsewhere).
@@ -896,7 +899,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         // The tile shader's header words three and four are the layer's scroll; what a layer shows says where it repeats (#1514).
         var data = ClearUploadConstants();
         data[0] = (uint)operation; data[1] = tile.Map; data[3] = tile.Scroll.X;
-        data[4] = tile.Scroll.Y; data[7] = tile.DrawnPart;
+        data[4] = tile.Scroll.Y; data[7] = tile.DrawnDepth;
         data[8] = tile.TransparentZero; data[9] = tile.Level; data[10] = tile.Red; data[11] = tile.Green; data[12] = tile.Blue;
         data[14] = (uint)tile.RoomSource;
         data[25] = tile.FirstScanline; data[26] = tile.EndScanline;

@@ -9,11 +9,12 @@ static const uint OpMessageText = 12;
 static const uint OpXrayRoom = 14;
 cbuffer TileParameters : register(b0)
 {
-    // LayerWindowed marks a layer pass drawn only within its window (#1514), whose shapes WindowShapes holds. DrawnPart
-    // is the part of the layer a pass draws (#1514): zero for all of it; for a sprite insertion, one more than the depth
-    // whose sprites it inserts; for a layer pass, one more than whether it draws the layer's front tiles.
+    // LayerWindowed marks a layer pass drawn only within its window (#1514), whose shapes WindowShapes holds. DrawnDepth
+    // is the depth of what a pass draws (#1514, #1634): zero for everything; for a sprite insertion, one more than the depth
+    // whose sprites it inserts; for a layer pass, which of its pictures' parts it draws (DrawsBehindPart or
+    // DrawsInFrontPart).
     uint Operation, TilemapWord, LayerWindowed, HorizontalScroll;
-    uint VerticalScroll, Reserved5, Reserved6, DrawnPart;
+    uint VerticalScroll, Reserved5, Reserved6, DrawnDepth;
     uint TransparentZero, Level, AddR, AddG;
     uint AddB, Reserved2, RoomSource, Reserved3;
     int MatrixA, MatrixB, MatrixC, MatrixD;
@@ -52,11 +53,21 @@ static const uint GridFlipX = 1073741824, GridFlipY = 2147483648, GridPictureMas
 static const uint SourceWrittenOverBackground = 256;
 static const uint RoomRecordWords = 6, RoomDoorSlot = 2, RoomDoorWindowWord = 18, RoomOverlayWord = 19;
 static const uint RoomFxOverlayWord = 20, RoomWrittenOverBackgroundWord = 21, RoomFloorSheetsWord = 22, RoomBossBodyWord = 23, RoomXrayRevealWord = 24;
-// A library background (RoomBackgroundImagePlane, #1555): its image picture's offset, the area its rectangles lie on, the
-// count of its rectangles, three words for each (its corner on the area, the image pixel that corner shows and its size,
-// each x below y), then each 16x16 cell's picture offset, row by row across the image.
+// A picture of a room's tiles is installed as two parts (LayeredPicture, #1634): the part drawn behind the actors that
+// pass in front of the room's back tiles and the part drawn in front of them. Wherever a table names such a picture it
+// names both, PictureParts words, the behind part's offset first; either is zero where that part shows nothing. A source
+// is asked for one part's picture at a time.
+static const uint PictureParts = 2, PartBehind = 0, PartInFront = 1;
+// What a layer pass's DrawnDepth chooses: both parts, the in-front part over the behind part, or one part alone.
+static const uint DrawsBothParts = 0, DrawsBehindPart = 1, DrawsInFrontPart = 2;
+// A library background (RoomBackgroundImagePlane, #1555): its image picture's parts, the image's width and height and the
+// area its rectangles lie on, each x below y, the count of its rectangles, three words for each (its corner on the area,
+// the image pixel that corner shows and its size, each x below y), then each 16x16 cell's picture's parts, row by row
+// across the image, the behind part's word marked by CellShowsOwnPicture where the cell shows its own picture.
 static const uint RoomLibraryBackgroundWord = 25;
+static const uint ImageSizeWord = 2, ImageAreaWord = 3, ImagePieceCountWord = 4, ImageHeaderWords = 5;
 static const uint ImagePieceWords = 3;
+static const uint CellShowsOwnPicture = 2147483648, CellPictureMask = 2147483647;
 // The scrolling sky's image, laid out as a library background's.
 static const uint RoomSkyImageWord = 26;
 // The image of the message box the frame shows (#1392).
@@ -65,17 +76,16 @@ static const uint RoomMessagePictureWord = 27;
 // upper-left screen pixel, x below y.
 static const uint RoomHudWord = 28;
 // The X-ray reveal (XrayRevealPlane, #1514): the foreground pixel its first block lies on, x below y, then 17 block columns
-// by 16 rows, each its picture's offset with its arrangement in the top four bits: as defined, mirrored horizontally,
-// vertically or both, or its tile rows swapped.
+// by 16 rows, each its picture's parts, the first with the block's arrangement in the top four bits: as defined, mirrored
+// horizontally, vertically or both, or its tile rows swapped.
 static const uint RevealColumns = 17, RevealRows = 16;
 // A picture (a block, or a background image): its colour slot, its place in the image texture and its width and height,
 // x below y.
 static const uint PictureColoursWord = 0, PicturePlaceWord = 1, PictureSizeWord = 2;
 // The installed images (D3D11ImageAtlas), each texel the image's pre-coloured pixel, then its ink word: the place of its
-// colour among its image's own colours (#1544), above it whether the pixel lies in one of its layer's front tiles (#1514),
-// and above that whether it is clear and whether it has a colour of its own.
+// colour among its image's own colours (#1544), and above it whether it is clear and whether it has a colour of its own.
 Texture2D<uint2> Images : register(t4);
-static const uint InkFrontTile = 256, InkClear = 65536, InkColoured = 131072;
+static const uint InkClear = 65536, InkColoured = 131072;
 // The perspective floor's image (D3D11FloorImage): the 1024-pixel floor with its states' pictures laid over it. Each
 // texel's ink word keeps the index of the floor picture it comes from.
 Texture2D<uint2> Floor : register(t5);
@@ -86,10 +96,10 @@ static const uint FloorBlendsNot = 0, FloorSubtractsSprites = 1, FloorAddsOwnCol
 RWTexture2D<uint> Output : register(u0);
 RWTexture2D<uint2> SpriteLayer : register(u1);
 
-// What a room plane shows at a scrolled position; false outside the room: its block's picture (#1392), mirrored by the
-// block's flips, with `within` the picture pixel. Each packed block is its definition with its horizontal and vertical
-// mirroring in bits sixteen and seventeen (#1403, #1538).
-bool RoomPlaneTile(uint slot, uint2 scrolled, out uint entry, out uint2 within, out uint picture)
+// What a room plane shows at a scrolled position; false outside the room: part `part` of its block's picture (#1392,
+// #1634), mirrored by the block's flips, with `within` the picture pixel. Each packed block is its definition with its
+// horizontal and vertical mirroring in bits sixteen and seventeen (#1403, #1538).
+bool RoomPlaneTile(uint slot, uint2 scrolled, uint part, out uint entry, out uint2 within, out uint picture)
 {
     uint record = slot * RoomRecordWords;
     uint width = RoomLevels[record + 1], height = RoomLevels[record + 2];
@@ -102,40 +112,49 @@ bool RoomPlaneTile(uint slot, uint2 scrolled, out uint entry, out uint2 within, 
     {
         uint word = RoomLevels[RoomLevels[record] + (level.y >> 4) * width + (level.x >> 4)];
         uint h = (word >> 16) & 1, v = (word >> 17) & 1;
-        picture = RoomLevels[RoomLevels[record + 5] + (word & 65535)];
+        picture = RoomLevels[RoomLevels[record + 5] + (word & 65535) * PictureParts + part];
         within = uint2(h != 0 ? 15 - (level.x & 15) : level.x & 15, v != 0 ? 15 - (level.y & 15) : level.y & 15);
     }
     return inside;
 }
-// What the scrolling sky (SkyPictures, #1403, #1514) shows: its image or a rebound cell's picture as `picture`, with
-// `within` its pixel, repeating every 2048 pixels down and 256 across; every band of it shows one of its pages (#1611).
-// Its image's record is a library background's: the picture, its area, then its cells.
-void SkyPicture(uint2 scrolled, out uint2 within, out uint picture)
+// Part `part` of what a background image's record at room level word `image` shows at image pixel `pixel` (#1392, #1634):
+// the picture of the 16x16 cell lying there where the cell shows its own, otherwise the image's, as `picture`, with
+// `within` its pixel. The image's width, in its record, counts its cells across.
+void BackgroundImagePicture(uint image, uint2 pixel, uint part, out uint2 within, out uint picture)
+{
+    uint columns = (RoomLevels[image + ImageSizeWord] & 65535) >> 4;
+    uint cells = image + ImageHeaderWords + RoomLevels[image + ImagePieceCountWord] * ImagePieceWords;
+    uint cell = cells + ((pixel.y >> 4) * columns + (pixel.x >> 4)) * PictureParts;
+    bool own = (RoomLevels[cell] & CellShowsOwnPicture) != 0;
+    picture = own ? RoomLevels[cell + part] & CellPictureMask : RoomLevels[image + part];
+    within = own ? (pixel & 15) : pixel;
+}
+// What the scrolling sky (SkyPictures, #1403, #1514) shows: part `part` of its image or of a rebound cell's picture as
+// `picture`, with `within` its pixel, repeating every 2048 pixels down and 256 across; every band of it shows one of its
+// pages (#1611). Its image's record is a library background's.
+void SkyPicture(uint2 scrolled, uint part, out uint2 within, out uint picture)
 {
     uint2 position = uint2(scrolled.x & 255, scrolled.y & 2047);
-    uint skyImage = RoomLevels[RoomSkyImageWord];
     // The sky's one rectangle is its whole image at the area's corner, so the image pixel is the position.
-    uint cells = skyImage + 3 + RoomLevels[skyImage + 2] * ImagePieceWords;
-    uint cell = RoomLevels[cells + (position.y >> 4) * 16 + (position.x >> 4)];
-    picture = cell != 0 ? cell : RoomLevels[skyImage];
-    within = cell != 0 ? (position & 15) : position;
+    BackgroundImagePicture(RoomLevels[RoomSkyImageWord], position, part, within, picture);
 }
 // What the effect overlay shows at a scrolled position (OverlayPicture, #1514), from its record at room level word
-// RoomFxOverlayWord: its picture's offset, the picture pixel its rectangle's corner shows, the rectangle's size, the
+// RoomFxOverlayWord: its picture's parts (#1634), the picture pixel its rectangle's corner shows, the rectangle's size, the
 // overlay pixel the corner lies on and the size the overlay repeats at, each x below y. The overlay repeats at that
-// size; a position within the rectangle gives `picture`, with `within` its pixel there, and nothing shows elsewhere.
-bool FxOverlayPicture(uint2 scrolled, out uint2 within, out uint picture)
+// size; a position within the rectangle gives part `part` of the picture as `picture`, with `within` its pixel there,
+// and nothing shows elsewhere.
+bool FxOverlayPicture(uint2 scrolled, uint part, out uint2 within, out uint picture)
 {
     picture = 0;
     within = uint2(0, 0);
     uint table = RoomLevels[RoomFxOverlayWord];
     if (table == 0) return false;
-    uint source = RoomLevels[table + 1], size = RoomLevels[table + 2];
-    uint place = RoomLevels[table + 3], repeatSize = RoomLevels[table + 4];
+    uint source = RoomLevels[table + PictureParts], size = RoomLevels[table + PictureParts + 1];
+    uint place = RoomLevels[table + PictureParts + 2], repeatSize = RoomLevels[table + PictureParts + 3];
     uint2 position = scrolled % uint2(repeatSize & 65535, repeatSize >> 16);
     uint2 offset = position - uint2(place & 65535, place >> 16);
     if (offset.x >= (size & 65535) || offset.y >= (size >> 16)) return false;
-    picture = RoomLevels[table];
+    picture = RoomLevels[table + part];
     within = uint2(source & 65535, source >> 16) + offset;
     return true;
 }
@@ -211,36 +230,39 @@ bool GridPicture(uint table, int2 scrolled, out uint2 within, out uint picture)
     return picture != 0;
 }
 // A picture written over a room's layer (RoomOverlayPictures, #1403, #1514) at a scrolled position of that layer, from the
-// table at room level word `table`: its count, then two words each in the order written, the picture's offset and the
-// layer pixel its corner lies on, x below y. The last written picture covering the position gives `picture`, with
-// `within` its pixel there; false where none does, which leaves the layer showing.
-bool WrittenPicture(uint table, uint2 scrolled, out uint2 within, out uint picture)
+// table at room level word `table`: its count, then WrittenPictureWords words each in the order written, the picture's
+// parts (#1634), the layer pixel its corner lies on and its width and height, each x below y. The last written picture
+// covering the position gives part `part` of it as `picture`, with `within` its pixel there, and covers the layer there
+// whether or not that part shows anything; false where none does, which leaves the layer showing.
+static const uint WrittenPictureWords = PictureParts + 2;
+bool WrittenPicture(uint table, uint2 scrolled, uint part, out uint2 within, out uint picture)
 {
     picture = 0;
     within = uint2(0, 0);
     if (table == 0) return false;
     for (uint placed = RoomLevels[table]; placed > 0; placed--)
     {
-        uint record = table + 1 + (placed - 1) * 2;
-        uint shown = RoomLevels[record];
-        uint corner = RoomLevels[record + 1];
+        uint record = table + 1 + (placed - 1) * WrittenPictureWords;
+        uint corner = RoomLevels[record + PictureParts];
         uint2 offset = (scrolled - uint2(corner & 65535, corner >> 16)) & 65535;
-        uint extent = RoomLevels[shown + PictureSizeWord];
+        uint extent = RoomLevels[record + PictureParts + 1];
         if (offset.x >= (extent & 65535) || offset.y >= (extent >> 16)) continue;
-        picture = shown;
+        picture = RoomLevels[record + part];
         within = offset;
         return true;
     }
     return false;
 }
-// The picture written over the background at a scrolled position (#1348, #1514), as WrittenPicture finds it.
-bool WrittenOverBackgroundPicture(uint2 scrolled, out uint picture, out uint2 within)
+// Part `part` of the picture written over the background at a scrolled position (#1348, #1514, #1634), as WrittenPicture
+// finds it.
+bool WrittenOverBackgroundPicture(uint2 scrolled, uint part, out uint picture, out uint2 within)
 {
-    return WrittenPicture(RoomLevels[RoomWrittenOverBackgroundWord], scrolled, within, picture);
+    return WrittenPicture(RoomLevels[RoomWrittenOverBackgroundWord], scrolled, part, within, picture);
 }
-// The X-ray reveal's block picture and pixel at a scrolled position of the foreground (#1392, #1514), the background
-// moving with the foreground while it shows the reveal; false outside the blocks it reveals.
-bool RevealPicture(uint2 scrolled, out uint picture, out uint2 within)
+// Part `part` of the X-ray reveal's block picture and its pixel at a scrolled position of the foreground (#1392, #1514,
+// #1634), the background moving with the foreground while it shows the reveal; false outside the blocks it reveals and
+// where the block's picture has no such part.
+bool RevealPicture(uint2 scrolled, uint part, out uint picture, out uint2 within)
 {
     uint table = RoomLevels[RoomXrayRevealWord];
     uint origin = RoomLevels[table];
@@ -249,46 +271,42 @@ bool RevealPicture(uint2 scrolled, out uint picture, out uint2 within)
     picture = 0;
     within = position & 15;
     if (block.x >= RevealColumns || block.y >= RevealRows) return false;
-    uint entry = RoomLevels[table + 1 + block.y * RevealColumns + block.x];
-    uint arrangement = entry >> 28;
-    picture = entry & 0x0FFFFFFF;
+    uint record = table + 1 + (block.y * RevealColumns + block.x) * PictureParts;
+    uint arrangement = RoomLevels[record] >> 28;
+    picture = RoomLevels[record + part] & 0x0FFFFFFF;
     if (arrangement == 1 || arrangement == 3) within.x = 15 - within.x;
     if (arrangement == 2 || arrangement == 3) within.y = 15 - within.y;
     if (arrangement == 4) within.y = (within.y + 8) & 15;
     // A block copied from beyond the room has no picture and shows nothing.
     return picture != 0;
 }
-// The picture and pixel a room's library background shows at a position of the background (#1392, #1555): the image's
-// area (#1514), in its record's second word, x below y, repeats beyond its edges, and the rectangle lying at the position
+// Part `part` of the picture a room's library background shows at a position of the background, and its pixel (#1392,
+// #1555, #1634): the image's area (#1514), x below y, repeats beyond its edges, and the rectangle lying at the position
 // shows the image pixel that far from its corner's; a rebound cell's picture, or the image. False where no rectangle lies.
-bool LibraryBackgroundPicture(uint2 scrolled, out uint picture, out uint2 within)
+bool LibraryBackgroundPicture(uint2 scrolled, uint part, out uint picture, out uint2 within)
 {
     uint image = RoomLevels[RoomLibraryBackgroundWord];
-    uint area = RoomLevels[image + 1];
+    uint area = RoomLevels[image + ImageAreaWord];
     uint2 extent = uint2(area & 65535, area >> 16);
     uint2 position = (scrolled & 65535) % extent;
-    uint whole = RoomLevels[image];
-    uint columns = (RoomLevels[whole + PictureSizeWord] & 65535) >> 4;
-    uint pieces = RoomLevels[image + 2];
+    uint pieces = RoomLevels[image + ImagePieceCountWord];
     picture = 0;
     within = uint2(0, 0);
     for (uint piece = 0; piece < pieces; piece++)
     {
-        uint record = image + 3 + piece * ImagePieceWords;
+        uint record = image + ImageHeaderWords + piece * ImagePieceWords;
         uint corner = RoomLevels[record], source = RoomLevels[record + 1], size = RoomLevels[record + 2];
         uint2 offset = position - uint2(corner & 65535, corner >> 16);
         if (offset.x >= (size & 65535) || offset.y >= (size >> 16)) continue;
-        uint2 pixel = uint2(source & 65535, source >> 16) + offset;
-        uint cell = RoomLevels[image + 3 + pieces * ImagePieceWords + (pixel.y >> 4) * columns + (pixel.x >> 4)];
-        picture = cell != 0 ? cell : whole;
-        within = cell != 0 ? (pixel & 15) : pixel;
+        BackgroundImagePicture(image, uint2(source & 65535, source >> 16) + offset, part, within, picture);
         return true;
     }
     return false;
 }
-// The background from the room's background plane or the sky's rows, or the foreground as RoomBackgrounds resolves it: a door's source
-// screen, then words written over the foreground, then the level plane.
-bool RoomTile(uint source, uint2 scrolled, out uint entry, out uint2 within, out uint picture)
+// Part `part` of the background from the room's background plane or the sky's rows, or of the foreground as
+// RoomBackgrounds resolves it: a door's source screen, then words written over the foreground, then the level plane. A
+// written picture covers the plane where it lies, in both parts (#1634).
+bool RoomTile(uint source, uint2 scrolled, uint part, out uint entry, out uint2 within, out uint picture)
 {
     entry = 0;
     picture = 0;
@@ -304,16 +322,16 @@ bool RoomTile(uint source, uint2 scrolled, out uint entry, out uint2 within, out
             slot = RoomDoorSlot;
         else
             // A picture written over the foreground draws where it lies (#1403, #1514); none where nothing was written.
-            overlaid = WrittenPicture(RoomLevels[RoomOverlayWord], scrolled, within, picture);
+            overlaid = WrittenPicture(RoomLevels[RoomOverlayWord], scrolled, part, within, picture);
     }
     bool shown = overlaid;
     if (source == SourceSky)
     {
-        SkyPicture(scrolled, within, picture);
+        SkyPicture(scrolled, part, within, picture);
         shown = true;
     }
     else if (!overlaid)
-        shown = RoomPlaneTile(slot, scrolled, entry, within, picture);
+        shown = RoomPlaneTile(slot, scrolled, part, entry, within, picture);
     return shown;
 }
 uint Pack(uint3 c, uint alpha) { return c.r | (c.g << 8) | (c.b << 16) | (alpha << 24); }
@@ -321,13 +339,13 @@ uint3 Unpack(uint c) { return uint3(c & 255, (c >> 8) & 255, (c >> 16) & 255); }
 // The colour shown where nothing is drawn.
 uint Backdrop() { return Colours[0]; }
 // The colour an image texel shows when its image is coloured from colour slot `slot` (#1408, #1512): whether it is opaque
-// rather than clear (`index`), whether it lies in a front tile (#1514), and its colour under the slot's shading. A clear
-// pixel shows nothing, or, where it has a colour of its own (#1544), that colour when its layer is drawn opaque.
-uint TexelColour(uint2 texel, uint slot, out uint index, out bool front)
+// rather than clear (`index`), and its colour under the slot's shading. A clear pixel shows nothing, or, where it has a
+// colour of its own (#1544), that colour when its layer is drawn opaque. A pixel is only a colour: which pictures lie in
+// front is the pass's choice of pictures (#1634).
+uint TexelColour(uint2 texel, uint slot, out uint index)
 {
     uint meta = texel.y;
     uint ink = meta & 255;
-    front = (meta & InkFrontTile) != 0;
     uint table = Colours[1 + slot];
     if ((meta & InkClear) != 0)
     {
@@ -338,11 +356,11 @@ uint TexelColour(uint2 texel, uint slot, out uint index, out bool front)
     return Colours[table + ink];
 }
 // A picture's pixel (#1392, #1408), as TexelColour colours it from the picture's colour slot.
-uint PicturePixel(uint picture, uint2 pixel, out uint index, out bool front)
+uint PicturePixel(uint picture, uint2 pixel, out uint index)
 {
     uint place = RoomLevels[picture + PicturePlaceWord];
     uint2 texel = Images.Load(int3(uint2(place & 65535, place >> 16) + pixel, 0));
-    return TexelColour(texel, RoomLevels[picture + PictureColoursWord], index, front);
+    return TexelColour(texel, RoomLevels[picture + PictureColoursWord], index);
 }
 // A boss body (ShownBossBody, #1466, #1514, #1540, #1609) at a scrolled position of its layer: its parts are placed on the
 // layer with nothing repeating beyond them, and layered in their table's order, each drawn over the parts before it. The frontmost part whose picture inks the position gives `picture` and `within`, its pixel there; where
@@ -482,9 +500,73 @@ bool GlowCovers(uint2 screen)
     uint2 coverWithin;
     uint coverPicture;
     uint coverIndex = 0;
-    bool coverFront = false;
     bool coverShown = PlanePicture(map.x, int2(screen) + int2(map.zw), coverWithin, coverPicture);
-    return coverShown && PicturePixel(coverPicture, coverWithin, coverIndex, coverFront) != 0 && coverIndex != 0;
+    return coverShown && PicturePixel(coverPicture, coverWithin, coverIndex) != 0 && coverIndex != 0;
+}
+
+// Part `part` of the picture a layer pass's source (RoomSource) shows at a pixel, as `picture`, with `within` its pixel
+// there (#1634): false where the source shows no picture of that part. `sampleScreen` is the screen pixel the pass samples
+// (the mosaic's), `scroll` its scroll and `screen` the pixel drawn. A word written over the background shows its picture
+// over whatever the background shows there (#1403).
+bool SourcePicture(uint part, uint2 sampleScreen, uint2 scroll, uint2 screen, out uint2 within, out uint picture)
+{
+    uint entry = 0;
+    picture = 0;
+    within = uint2(0, 0);
+    uint2 scrolled = (sampleScreen + scroll) & 65535;
+    uint source = RoomSource & 255;
+    bool shown;
+    if ((RoomSource & SourceWrittenOverBackground) != 0 && WrittenOverBackgroundPicture(scrolled, part, picture, within))
+        shown = true;
+    else if (source == SourceFxOverlay)
+        shown = FxOverlayPicture(scrolled, part, within, picture);
+    else if (source == SourceBossBody)
+    {
+        BossBodyPicture(scrolled, part, within, picture);
+        shown = true;
+    }
+    else if (source == SourceXrayReveal)
+        shown = RevealPicture(scrolled, part, picture, within);
+    else if (source == SourceLibraryBackground)
+        shown = LibraryBackgroundPicture(scrolled, part, picture, within);
+    // The HUD's, a pictured plane's and a picture grid's pictures are whole, drawn in one pass (#1634): they have no
+    // in-front part, and show their one picture as the part behind.
+    else if (source == SourceHud)
+        shown = part == PartBehind && HudPicture(screen, within, picture);
+    else if (source == SourcePicturedPlane)
+        shown = part == PartBehind && PlanePicture(TilemapWord, PlanePosition(sampleScreen, scroll), within, picture);
+    else if (source == SourcePictureGrid)
+        shown = part == PartBehind && GridPicture(TilemapWord, PlanePosition(sampleScreen, scroll), within, picture);
+    else
+        shown = RoomTile(source, scrolled, part, entry, within, picture);
+    // Every background draws from pictures (#1403); a position without one shows nothing.
+    return shown && picture != 0;
+}
+
+// The colour a layer pass draws at a pixel and whether it is opaque rather than clear (`index`), from the pictures of the
+// parts it draws (DrawnDepth, #1634); false where none of them has a picture there. A pass drawing both parts shows the
+// in-front part's opaque pixel over the behind part's pixel; where neither part is opaque the two show alike, as a part
+// keeps the picture's clear pixels (RoomTileCanvas.SplitSheet), and the behind part's shows.
+bool LayerPixel(uint2 sampleScreen, uint2 scroll, uint2 screen, out uint colour, out uint index)
+{
+    colour = 0;
+    index = 0;
+    uint2 within;
+    uint picture;
+    bool inFront = DrawnDepth != DrawsBehindPart && SourcePicture(PartInFront, sampleScreen, scroll, screen, within, picture);
+    if (inFront)
+    {
+        colour = PicturePixel(picture, within, index);
+        if (DrawnDepth == DrawsInFrontPart || index != 0) return true;
+    }
+    if (DrawnDepth == DrawsInFrontPart) return false;
+    if (SourcePicture(PartBehind, sampleScreen, scroll, screen, within, picture))
+    {
+        colour = PicturePixel(picture, within, index);
+        return true;
+    }
+    // Only the in-front part lies here, and its pixel shows nothing.
+    return inFront;
 }
 
 [numthreads(8, 8, 1)]
@@ -504,8 +586,7 @@ void Main(uint3 id : SV_DispatchThreadID)
         uint2 within = id.xy - uint2(HorizontalScroll, TilemapWord);
         if (within.x >= (size & 65535) || within.y >= (size >> 16)) return;
         uint index;
-        bool front;
-        uint shown = PicturePixel(picture, within, index, front);
+        uint shown = PicturePixel(picture, within, index);
         if (index != 0) Output[id.xy] = shown;
         return;
     }
@@ -547,8 +628,7 @@ void Main(uint3 id : SV_DispatchThreadID)
         uint2 texel = Floor.Load(int3(at, 0));
         // `shown` is the colour a nonzero pixel shows.
         uint index;
-        bool front;
-        uint shown = TexelColour(texel, RoomLevels[RoomLevels[RoomFloorSheetsWord] + (texel.y >> FloorSheetShift)], index, front);
+        uint shown = TexelColour(texel, RoomLevels[RoomLevels[RoomFloorSheetsWord] + (texel.y >> FloorSheetShift)], index);
         uint color = index;
         if (transparentOutside) color = 0;
         if (Reserved27 == FloorAddsOwnColour)
@@ -585,7 +665,7 @@ void Main(uint3 id : SV_DispatchThreadID)
     {
         bool blends;
         uint2 winner = SpriteAt(id.xy, blends);
-        if (winner.y != NoSprite && (DrawnPart == 0 || DrawnPart - 1 == winner.y))
+        if (winner.y != NoSprite && (DrawnDepth == 0 || DrawnDepth - 1 == winner.y))
         {
             // AddR makes the sprites glow, adding each one's colour to the screen's; AddG tints the sprites that blend by
         // AddB's five-bit colour. The sums are of five-bit channels, before brightness (#1514).
@@ -622,54 +702,12 @@ void Main(uint3 id : SV_DispatchThreadID)
     // The mosaic groups screen pixels before the line's own scroll.
     uint2 sampleScreen = id.xy;
     if (Operation == OpLayer && Reserved27 > 1) sampleScreen -= sampleScreen % Reserved27;
-    uint entry = 0;
-    uint picture = 0;
-    uint2 within = uint2(0, 0);
-    uint2 scrolled = (sampleScreen + scroll) & 65535;
-    uint source = RoomSource & 255;
-    // A word written over the background shows its picture over whatever the background shows there (#1403).
-    bool overlaid = (RoomSource & SourceWrittenOverBackground) != 0 && WrittenOverBackgroundPicture(scrolled, picture, within);
-    if (!overlaid)
-    {
-        if (source == SourceFxOverlay)
-        {
-            if (!FxOverlayPicture(scrolled, within, picture)) return;
-        }
-        else if (source == SourceBossBody)
-            BossBodyPicture(scrolled, within, picture);
-        else if (source == SourceXrayReveal)
-        {
-            if (!RevealPicture(scrolled, picture, within)) return;
-        }
-        else if (source == SourceLibraryBackground)
-        {
-            if (!LibraryBackgroundPicture(scrolled, picture, within)) return;
-        }
-        else if (source == SourceHud)
-        {
-            if (!HudPicture(id.xy, within, picture)) return;
-        }
-        else if (source == SourcePicturedPlane)
-        {
-            if (!PlanePicture(TilemapWord, PlanePosition(sampleScreen, scroll), within, picture)) return;
-        }
-        else if (source == SourcePictureGrid)
-        {
-            if (!GridPicture(TilemapWord, PlanePosition(sampleScreen, scroll), within, picture)) return;
-        }
-        else
-        {
-            if (!RoomTile(source, scrolled, entry, within, picture)) return;
-        }
-    }
-    // Every background draws from pictures (#1403); a position without one shows nothing.
-    if (picture == 0) return;
+    // A room layer's back tiles and its front tiles are drawn as layers of their own (#1514): each pass draws the pictures
+    // of the part it chooses (#1634).
     uint color;
-    bool front;
+    uint sampled;
+    if (!LayerPixel(sampleScreen, scroll, id.xy, sampled, color)) return;
     // Room planes show a clear pixel as transparent; a layer drawn opaque shows a clear pixel's own colour (#1544).
-    uint sampled = PicturePixel(picture, within, color, front);
-    // A room layer's back tiles and its front tiles are drawn as layers of their own (#1514).
-    if (DrawnPart != 0 && (front ? 1u : 0u) != DrawnPart - 1) return;
     if (color == 0 && TransparentZero != 0) return;
     if (Operation == OpAddLayerBehind)
     {

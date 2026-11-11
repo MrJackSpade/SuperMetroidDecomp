@@ -44,7 +44,7 @@ internal static class CollectibleMessageTimingVerification
         RoomTerrainBlock visible = runtime.Room.LoadedLevelData.GetCollisionBlockByIndex(itemIndex).Terrain;
         // The block the displayed frame shows for the pickup, with its mirroring, and the picture it draws: its latched room
         // BG1 (#1346, #1431).
-        (RoomBlockCell Cell, SpriteSheetFrame? Picture) ShownBlock()
+        (RoomBlockCell Cell, LayeredPicture? Picture) ShownBlock()
         {
             RoomBackgroundLayer bg1 = (runtime.Display.Latched.Rooms ?? throw new InvalidOperationException(
                 "The displayed frame has no room backgrounds.")).Foreground;
@@ -62,7 +62,7 @@ internal static class CollectibleMessageTimingVerification
                 .Select(index => shown[FxOverlayPlaneConstants.Columns + index]).ToArray();
         }
         ushort[] beforeVisibleHud = VisibleHudWords();
-        (RoomBlockCell Cell, SpriteSheetFrame? Picture) beforeTile = ShownBlock();
+        (RoomBlockCell Cell, LayeredPicture? Picture) beforeTile = ShownBlock();
         ushort[] beforeHud = HudWords();
         AssertTrue(runtime.RoomObjects.CollectibleObjects.TryNotifyCollectibleTouch(item.Block), "reported pickup accepts contact");
         runtime.StepFrame(0);

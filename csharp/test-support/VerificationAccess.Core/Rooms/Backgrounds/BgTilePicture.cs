@@ -7,6 +7,6 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// image and the tile's top-left pixel in it. The display model places whole pictures (#1514); only verification lays
 /// them out cell by cell.
 /// </summary>
-/// <param name="Picture">The image picturing the tile.</param>
+/// <param name="Picture">The image picturing the tile, as its part behind and its part in front (#1634).</param>
 /// <param name="Corner">The tile's top-left pixel within <paramref name="Picture"/>.</param>
-internal readonly record struct BgTilePicture(SpriteSheetFrame Picture, Position16<ImagePixels> Corner);
+internal readonly record struct BgTilePicture(LayeredPicture Picture, Position16<ImagePixels> Corner);

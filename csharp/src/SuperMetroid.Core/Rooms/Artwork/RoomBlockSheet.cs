@@ -37,17 +37,23 @@ public sealed class RoomBlockSheet
     /// <summary>The installed name of tileset <paramref name="tileset"/>'s block sheet.</summary>
     public static string NameOf(TilesetDefinition tileset) => tileset.GraphicsSet.ToString();
 
-    /// <summary>The picture named <paramref name="name"/>.</summary>
-    /// <exception cref="InvalidDataException">The sheet has no such picture, or it is not one block.</exception>
-    public SpriteSheetFrame Picture(string name)
+    /// <summary>
+    /// The picture named <paramref name="name"/>, as its part drawn behind the actors passing in front of the room's back
+    /// tiles and its part drawn in front of them (#1634); either part, or both, may show nothing.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The sheet installs neither part of such a picture, or a part is not one block.</exception>
+    public LayeredPicture Picture(string name)
     {
-        SpriteSheetFrame picture = Sheet.Frame(name);
-        if (picture.Size.X != BlockPixels || picture.Size.Y != BlockPixels)
-            throw new InvalidDataException($"Room block sheet {Sheet.Image.Name} picture {name} is not one block.");
+        LayeredPicture picture = PictureParts.Of(Sheet, name);
+        foreach (SpriteSheetFrame part in picture.Parts)
+        {
+            if (part.Size.X != BlockPixels || part.Size.Y != BlockPixels)
+                throw new InvalidDataException($"Room block sheet {Sheet.Image.Name} picture {name} is not one block.");
+        }
         return picture;
     }
 
     /// <summary>The picture of <paramref name="collectible"/>'s frame, which its kind shows where it lies in the tileset's rooms (#1538).</summary>
     /// <exception cref="InvalidDataException">The sheet has no such picture: no room of the tileset places the kind.</exception>
-    public SpriteSheetFrame PictureOf(CollectiblePicture collectible) => Picture(RoomBlockPictureNames.OfCollectible(collectible));
+    public LayeredPicture PictureOf(CollectiblePicture collectible) => Picture(RoomBlockPictureNames.OfCollectible(collectible));
 }

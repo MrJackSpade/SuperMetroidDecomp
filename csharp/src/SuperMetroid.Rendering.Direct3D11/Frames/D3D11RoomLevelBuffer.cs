@@ -26,8 +26,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
 {
     /// <summary>
     /// Words per plane record: block offset, width, height, the layer pixel the plane's first block lies on, X and Y (zero
-    /// for the room's own planes; where the door's source screen shows its room), and the offset of the picture each block
-    /// shows.
+    /// for the room's own planes; where the door's source screen shows its room), and the offset of the table of each
+    /// block's picture's two parts (#1634).
     /// </summary>
     private const int RecordWords = 6;
 
@@ -41,18 +41,21 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// <summary>Header word of the door window's origin on the destination's foreground.</summary>
     private const int DoorWindowWord = PlaneSlots * RecordWords;
     /// <summary>
-    /// Header word of the pictures written over the foreground (#1403, #1514), or zero without any: their count, then two
-    /// words each in the order written, the picture's offset and the foreground pixel its corner lies on, x below y.
+    /// Header word of the pictures written over the foreground (#1403, #1514), or zero without any: their count, then
+    /// <see cref="WrittenPictureWords"/> words each in the order written, the picture's two parts' offsets (#1634), the
+    /// foreground pixel its corner lies on and the size it covers, each x below y.
     /// </summary>
     private const int OverlayWord = DoorWindowWord + 1;
+    /// <summary>Words of a written picture's record: its parts, its corner and its size.</summary>
+    private const int WrittenPictureWords = PartWords + 2;
     /// <summary>
-    /// Header word of what the effect overlay shows (#1403, #1514), or zero where it shows nothing: its picture's offset,
-    /// the picture pixel its rectangle's corner shows, the rectangle's size, the overlay pixel the corner lies on and the
+    /// Header word of what the effect overlay shows (#1403, #1514), or zero where it shows nothing: its picture's two parts'
+    /// offsets (#1634), the picture pixel its rectangle's corner shows, the rectangle's size, the overlay pixel the corner lies on and the
     /// size the overlay repeats at, each x below y.
     /// </summary>
     private const int FxOverlayWord = OverlayWord + 1;
     /// <summary>Words of the effect overlay's record.</summary>
-    private const int FxOverlayWords = 5;
+    private const int FxOverlayWords = PartWords + 4;
     /// <summary>Header word of the pictures written over the background, laid out as <see cref="OverlayWord"/>'s, or zero without any (#1348).</summary>
     private const int WrittenOverBackgroundWord = FxOverlayWord + 1;
     /// <summary>
@@ -71,16 +74,33 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private const int BossBodyPartWords = 3;
     /// <summary>
     /// Header word of the X-ray reveal, or zero without one (#1392, #1514): the foreground pixel its first block lies on, x
-    /// below y, then each block row by row, its picture's offset with its arrangement in the top four bits.
+    /// below y, then each block row by row, its picture's two parts' offsets (#1634), the first with the block's arrangement
+    /// in the top four bits.
     /// </summary>
     private const int XrayRevealWord = BossBodyWord + 1;
     /// <summary>
-    /// Header word of a library background's image (#1392), or zero without one: the image picture's offset, the area its
-    /// rectangles lie on, x below y (#1514), the count of its rectangles, three words for each (#1555: the area pixel its
-    /// corner lies on, the image pixel that corner shows, and its size, each x below y), then each 16x16 cell's picture
-    /// offset, row by row across the image, zero where the image shows.
+    /// Header word of a library background's image (#1392), or zero without one: the image picture's two parts' offsets
+    /// (#1634), the image's width and height and the area its rectangles lie on, each x below y (#1514), the count of its
+    /// rectangles, three words for each (#1555: the area pixel its corner lies on, the image pixel that corner shows, and its
+    /// size, each x below y), then each 16x16 cell's picture's two parts' offsets, row by row across the image, zero where
+    /// the image shows.
     /// </summary>
     private const int LibraryBackgroundImageWord = XrayRevealWord + 1;
+    /// <summary>
+    /// Words of a picture's two parts wherever a table names a picture of a room's tiles (#1634): the offset of its part
+    /// drawn behind, then of its part drawn in front, each zero where that part shows nothing.
+    /// </summary>
+    private const int PartWords = 2;
+    /// <summary>Word of a background image's record holding its width and height, after its picture's parts.</summary>
+    private const int ImageSizeWord = PartWords;
+    /// <summary>Word of a background image's record holding the area its rectangles lie on.</summary>
+    private const int ImageAreaWord = ImageSizeWord + 1;
+    /// <summary>Word of a background image's record holding the count of its rectangles.</summary>
+    private const int ImagePieceCountWord = ImageAreaWord + 1;
+    /// <summary>Words of a background image's record before its rectangles.</summary>
+    private const int ImageHeaderWords = ImagePieceCountWord + 1;
+    /// <summary>The bit of a background image cell's first part word marking that the cell shows its own picture in place of the image's.</summary>
+    private const uint CellShowsOwnPicture = 1u << 31;
     /// <summary>Words of a background image's rectangle: its corner on the area, the image pixel it shows there, and its size.</summary>
     private const int ImagePieceWords = 3;
     /// <summary>Header word of the scrolling sky's image, laid out as <see cref="LibraryBackgroundImageWord"/>'s, or zero without one (#1392).</summary>
@@ -226,17 +246,17 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
                 continue;
             RoomBlockPictureTable table = layer.Pictures ?? throw new InvalidOperationException("A room plane is drawn once its pictures are resolved.");
             pictureTables[slot] = words;
-            words += table.Blocks;
+            words += table.Blocks * PartWords;
         }
         int revealOffset = reveal is null ? 0 : words;
         if (reveal is not null)
-            words += 1 + reveal.Blocks.Length;
+            words += 1 + reveal.Blocks.Length * PartWords;
         int imageOffset = image is null ? 0 : words;
         if (image is not null)
-            words += 3 + image.Pieces.Length * ImagePieceWords + image.CellCount;
+            words += ImageHeaderWords + image.Pieces.Length * ImagePieceWords + image.CellCount * PartWords;
         int skyImageOffset = skyImage is null ? 0 : words;
         if (skyImage is not null)
-            words += 3 + skyImage.Pieces.Length * ImagePieceWords + skyImage.CellCount;
+            words += ImageHeaderWords + skyImage.Pieces.Length * ImagePieceWords + skyImage.CellCount * PartWords;
         int hudOffset = hud is null ? 0 : words;
         if (hud is not null)
             words += 1 + hud.Pictures.Length * HudPictureWords;
@@ -251,7 +271,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             if (written is null)
                 return 0;
             int offset = words;
-            words += 1 + 2 * written.Pictures.Length;
+            words += 1 + WrittenPictureWords * written.Pictures.Length;
             return offset;
         }
         int fxOverlayOffset = fxOverlay is null ? 0 : words;
@@ -303,7 +323,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             upload[record + 5] = (uint)pictureTables[slot];
             RoomBlockPictureTable table = layer.Pictures ?? throw new InvalidOperationException("A room plane is drawn once its pictures are resolved.");
             for (int block = 0; block < table.Blocks; block++)
-                upload[pictureTables[slot] + block] = table.Picture(block) is { } shown ? (uint)pictureWords[new(shown, PlaneColouring(slot))] : 0;
+                PackParts(upload, pictureTables[slot] + block * PartWords, table.Picture(block), PlaneColouring(slot), pictureWords);
             // Each cell's picture definition, a block's or past the blocks a collectible's (#1538), with its horizontal and
             // vertical mirroring in bits sixteen and seventeen, as Tiles.hlsl reads a block.
             ImmutableArray<RoomBlockCell> cells = blocks.Cells;
@@ -330,20 +350,26 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         {
             if (plane is null)
                 continue;
-            upload[offset] = (uint)pictureWords[new(plane.Picture, D3D11PictureColouring.Room)];
-            upload[offset + 1] = D3D11ConstantPacking.Halves(plane.Area.X, plane.Area.Y);
-            upload[offset + 2] = (uint)plane.Pieces.Length;
+            PackParts(upload, offset, plane.Picture, D3D11PictureColouring.Room, pictureWords);
+            upload[offset + ImageSizeWord] = D3D11ConstantPacking.Halves(plane.Size.X, plane.Size.Y);
+            upload[offset + ImageAreaWord] = D3D11ConstantPacking.Halves(plane.Area.X, plane.Area.Y);
+            upload[offset + ImagePieceCountWord] = (uint)plane.Pieces.Length;
             for (int index = 0; index < plane.Pieces.Length; index++)
             {
                 RoomBackgroundImagePiece piece = plane.Pieces[index];
-                int record = offset + 3 + index * ImagePieceWords;
+                int record = offset + ImageHeaderWords + index * ImagePieceWords;
                 upload[record] = D3D11ConstantPacking.Halves(piece.Corner.X, piece.Corner.Y);
                 upload[record + 1] = D3D11ConstantPacking.Halves(piece.Source.X, piece.Source.Y);
                 upload[record + 2] = D3D11ConstantPacking.Halves(piece.Size.X, piece.Size.Y);
             }
-            int cells = offset + 3 + plane.Pieces.Length * ImagePieceWords;
+            int cells = offset + ImageHeaderWords + plane.Pieces.Length * ImagePieceWords;
             for (int cell = 0; cell < plane.CellCount; cell++)
-                upload[cells + cell] = plane.Cell(cell) is { } picture ? (uint)pictureWords[new(picture, D3D11PictureColouring.Room)] : 0;
+            {
+                if (plane.Cell(cell) is not { } shown)
+                    continue;
+                PackParts(upload, cells + cell * PartWords, shown, D3D11PictureColouring.Room, pictureWords);
+                upload[cells + cell * PartWords] |= CellShowsOwnPicture;
+            }
         }
         if (door is not null)
             upload[DoorWindowWord] = D3D11ConstantPacking.Halves(door.WindowOrigin.X, door.WindowOrigin.Y);
@@ -368,9 +394,11 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
                 // A block copied from beyond the room has no picture: zero, which draws nothing.
                 if (blocks[block] is not { } shown)
                     continue;
-                SpriteSheetFrame picture = reveal.Pictures.Picture(shown.Definition)
+                LayeredPicture picture = reveal.Pictures.Picture(shown.Definition)
                     ?? throw new InvalidOperationException($"The X-ray reveal's block definition {shown.Definition} has no picture.");
-                upload[revealOffset + 1 + block] = (uint)pictureWords[new(picture, D3D11PictureColouring.Room)] | ShaderArrangement(shown.Arrangement) << ArrangementShift;
+                int record = revealOffset + 1 + block * PartWords;
+                PackParts(upload, record, picture, D3D11PictureColouring.Room, pictureWords);
+                upload[record] |= ShaderArrangement(shown.Arrangement) << ArrangementShift;
             }
         }
         upload[HudWord] = (uint)hudOffset;
@@ -382,16 +410,27 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         upload[FxOverlayWord] = (uint)fxOverlayOffset;
         if (fxOverlay is not null)
         {
-            upload[fxOverlayOffset] = (uint)pictureWords[new(fxOverlay.Picture, D3D11PictureColouring.FxOverlay)];
-            upload[fxOverlayOffset + 1] = D3D11ConstantPacking.Halves(fxOverlay.Source.X, fxOverlay.Source.Y);
-            upload[fxOverlayOffset + 2] = D3D11ConstantPacking.Halves(fxOverlay.Size.X, fxOverlay.Size.Y);
-            upload[fxOverlayOffset + 3] = D3D11ConstantPacking.Halves(fxOverlay.Place.X, fxOverlay.Place.Y);
-            upload[fxOverlayOffset + 4] = D3D11ConstantPacking.Halves(fxOverlay.Repeat.X, fxOverlay.Repeat.Y);
+            PackParts(upload, fxOverlayOffset, fxOverlay.Picture, D3D11PictureColouring.FxOverlay, pictureWords);
+            upload[fxOverlayOffset + PartWords] = D3D11ConstantPacking.Halves(fxOverlay.Source.X, fxOverlay.Source.Y);
+            upload[fxOverlayOffset + PartWords + 1] = D3D11ConstantPacking.Halves(fxOverlay.Size.X, fxOverlay.Size.Y);
+            upload[fxOverlayOffset + PartWords + 2] = D3D11ConstantPacking.Halves(fxOverlay.Place.X, fxOverlay.Place.Y);
+            upload[fxOverlayOffset + PartWords + 3] = D3D11ConstantPacking.Halves(fxOverlay.Repeat.X, fxOverlay.Repeat.Y);
         }
         upload[MessagePictureWord] = message is null ? 0 : (uint)pictureWords[new(message, D3D11PictureColouring.MessageBox)];
         packed = frame;
         packedGeneration = images.Generation;
         return true;
+    }
+
+    /// <summary>
+    /// Packs the offsets of <paramref name="picture"/>'s two parts at <paramref name="at"/>, as <see cref="PartWords"/>
+    /// describes: zero for a part that shows nothing, and both zero for no picture.
+    /// </summary>
+    private static void PackParts(Span<uint> upload, int at, LayeredPicture? picture, D3D11PictureColouring colouring,
+        Dictionary<ShownPicture, int> pictureWords)
+    {
+        upload[at] = picture?.Behind is { } behind ? (uint)pictureWords[new(behind, colouring)] : 0;
+        upload[at + 1] = picture?.InFront is { } inFront ? (uint)pictureWords[new(inFront, colouring)] : 0;
     }
 
     /// <summary>
@@ -477,7 +516,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
 
     /// <summary>
     /// Packs <paramref name="written"/>'s pictures from <paramref name="offset"/>, as <see cref="OverlayWord"/> describes:
-    /// the count, then each picture's offset and the layer pixel its corner lies on; nothing without pictures.
+    /// the count, then each picture's parts, the layer pixel its corner lies on and its size; nothing without pictures.
     /// </summary>
     private static void PackWritten(Span<uint> upload, RoomOverlayPictures? written, int offset, Dictionary<ShownPicture, int> pictureWords)
     {
@@ -488,9 +527,10 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         for (int index = 0; index < pictures.Length; index++)
         {
             PlacedWrittenPicture placed = pictures[index];
-            int record = offset + 1 + index * 2;
-            upload[record] = (uint)pictureWords[new(placed.Picture, D3D11PictureColouring.WrittenOverRoom)];
-            upload[record + 1] = D3D11ConstantPacking.Halves(placed.Corner.X, placed.Corner.Y);
+            int record = offset + 1 + index * WrittenPictureWords;
+            PackParts(upload, record, placed.Picture, D3D11PictureColouring.WrittenOverRoom, pictureWords);
+            upload[record + PartWords] = D3D11ConstantPacking.Halves(placed.Corner.X, placed.Corner.Y);
+            upload[record + PartWords + 1] = D3D11ConstantPacking.Halves(placed.Size.X, placed.Size.Y);
         }
     }
 
@@ -510,27 +550,28 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
                 continue;
             for (int block = 0; block < table.Blocks; block++)
             {
-                if (table.Picture(block) is { } picture)
-                    yield return new(picture, PlaneColouring(slot));
+                foreach (SpriteSheetFrame part in table.Picture(block)?.Parts ?? [])
+                    yield return new(part, PlaneColouring(slot));
             }
         }
         if (frame.XrayReveal?.Pictures is { } reveal)
         {
             for (int block = 0; block < reveal.Blocks; block++)
             {
-                if (reveal.Picture(block) is { } picture)
-                    yield return new(picture, D3D11PictureColouring.Room);
+                foreach (SpriteSheetFrame part in reveal.Picture(block)?.Parts ?? [])
+                    yield return new(part, D3D11PictureColouring.Room);
             }
         }
         foreach (RoomBackgroundImagePlane? plane in new[] { frame.BackgroundImage, skyImage })
         {
             if (plane is null)
                 continue;
-            yield return new(plane.Picture, D3D11PictureColouring.Room);
+            foreach (SpriteSheetFrame part in plane.Picture.Parts)
+                yield return new(part, D3D11PictureColouring.Room);
             for (int cell = 0; cell < plane.CellCount; cell++)
             {
-                if (plane.Cell(cell) is { } picture)
-                    yield return new(picture, D3D11PictureColouring.Room);
+                foreach (SpriteSheetFrame part in plane.Cell(cell)?.Parts ?? [])
+                    yield return new(part, D3D11PictureColouring.Room);
             }
         }
         if (frame.MessagePicture is { } message)
@@ -553,9 +594,12 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             }
         }
         foreach (PlacedWrittenPicture placed in (frame.BackgroundText?.Pictures ?? []).Concat(frame.ForegroundText?.Pictures ?? []))
-            yield return new(placed.Picture, D3D11PictureColouring.WrittenOverRoom);
-        if (frame.FxOverlay is { } overlay)
-            yield return new(overlay.Picture, D3D11PictureColouring.FxOverlay);
+        {
+            foreach (SpriteSheetFrame part in placed.Picture.Parts)
+                yield return new(part, D3D11PictureColouring.WrittenOverRoom);
+        }
+        foreach (SpriteSheetFrame part in frame.FxOverlay?.Picture.Parts ?? [])
+            yield return new(part, D3D11PictureColouring.FxOverlay);
     }
 
     /// <summary>How plane slot <paramref name="slot"/>'s block pictures are coloured: layers 1 and 2 the room's, the third the room a door leaves (#1512).</summary>

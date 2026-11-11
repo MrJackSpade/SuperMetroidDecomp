@@ -4,15 +4,16 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>
 /// The picture each block a room's planes use shows at one moment (#1392, #1431, #1466): the block for the values its
-/// appearance inputs take. Immutable; the room resolves a new table when a block it shows or an input it reads changes.
+/// appearance inputs take, as its part behind the actors passing in front of the room's back tiles and its part in front
+/// of them (#1634). Immutable; the room resolves a new table when a block it shows or an input it reads changes.
 /// </summary>
 public sealed class RoomBlockPictureTable
 {
     /// <summary>The picture of each block the planes use, null for the rest.</summary>
-    private readonly SpriteSheetFrame?[] pictures;
+    private readonly LayeredPicture?[] pictures;
 
     /// <summary>Keeps the pictures, by block.</summary>
-    internal RoomBlockPictureTable(RoomBlockSheet sheet, SpriteSheetFrame?[] pictures)
+    internal RoomBlockPictureTable(RoomBlockSheet sheet, LayeredPicture?[] pictures)
     {
         Sheet = Ensure.NotNull(sheet);
         this.pictures = Ensure.NotNull(pictures);
@@ -24,6 +25,9 @@ public sealed class RoomBlockPictureTable
     /// <summary>The blocks the table covers, used or not.</summary>
     public int Blocks => pictures.Length;
 
-    /// <summary>The picture block <paramref name="block"/> shows, or null when the planes do not use it.</summary>
-    public SpriteSheetFrame? Picture(int block) => pictures[block];
+    /// <summary>
+    /// The picture block <paramref name="block"/> shows, or null when the planes do not use it; a used block whose picture
+    /// shows nothing has neither part.
+    /// </summary>
+    public LayeredPicture? Picture(int block) => pictures[block];
 }

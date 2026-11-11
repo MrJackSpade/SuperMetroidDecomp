@@ -19,7 +19,7 @@ public sealed class RoomBackgroundImagePlacement
         {
             if (piece.Size.X == 0 || piece.Size.Y == 0
                 || piece.Corner.X + piece.Size.X > area.X || piece.Corner.Y + piece.Size.Y > area.Y
-                || piece.Source.X + piece.Size.X > image.Picture.Size.X || piece.Source.Y + piece.Size.Y > image.Picture.Size.Y)
+                || piece.Source.X + piece.Size.X > image.Size.X || piece.Source.Y + piece.Size.Y > image.Size.Y)
                 throw new ArgumentException($"Room background {image.Name} places a rectangle outside its area or its picture.", nameof(pieces));
         }
         Pieces = pieces;
@@ -36,7 +36,7 @@ public sealed class RoomBackgroundImagePlacement
     public static RoomBackgroundImagePlacement Whole(RoomBackgroundImage image)
     {
         Ensure.NotNull(image);
-        var size = new Extent16<BackgroundPixels>(image.Picture.Size.X, image.Picture.Size.Y);
+        var size = new Extent16<BackgroundPixels>(image.Size.X, image.Size.Y);
         return new(image, [new RoomBackgroundImagePiece(default, default, size)], size);
     }
 
@@ -48,7 +48,7 @@ public sealed class RoomBackgroundImagePlacement
     public static RoomBackgroundImagePlacement HalvesSideBySide(RoomBackgroundImage image)
     {
         Ensure.NotNull(image);
-        int width = image.Picture.Size.X, half = image.Picture.Size.Y / 2;
+        int width = image.Size.X, half = image.Size.Y / 2;
         if (half == 0 || half % RoomBackgroundImage.CellPixels != 0)
             throw new ArgumentException($"Room background {image.Name} has no two halves of whole cells.", nameof(image));
         var size = new Extent16<BackgroundPixels>(width, half);

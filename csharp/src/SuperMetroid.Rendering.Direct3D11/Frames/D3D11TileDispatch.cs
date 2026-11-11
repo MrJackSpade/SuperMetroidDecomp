@@ -3,7 +3,7 @@ using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Rendering.Direct3D11.Frames;
 
-/// <summary>A layer pass's constants: what it draws and where, its scroll, the part it draws, transparency, brightness, colour and line range (#633).</summary>
+/// <summary>A layer pass's constants: what it draws and where, its scroll, the depth it draws, transparency, brightness, colour and line range (#633).</summary>
 internal sealed record D3D11TileDispatch
 {
     /// <summary>Map.</summary>
@@ -14,10 +14,11 @@ internal sealed record D3D11TileDispatch
     public Position16<PlanePixels> Scroll { get; init; } = default;
 
     /// <summary>
-    /// The part of the layer the pass draws (#1514): zero for all of it, otherwise one more than the actor depth a sprite
-    /// insertion inserts (<see cref="D3D11FrameRenderer.DepthOf"/>) or than whether a room layer pass draws its front tiles.
+    /// The depth of what the pass draws (#1514, #1634): zero for everything, otherwise one more than the actor depth a sprite
+    /// insertion inserts (<see cref="D3D11FrameRenderer.DepthOf"/>), or, for a room layer pass, which part of its pictures it
+    /// draws: one for the part behind, two for the part in front.
     /// </summary>
-    public uint DrawnPart { get; init; } = 0;
+    public uint DrawnDepth { get; init; } = 0;
 
     /// <summary>Whether a layer pass leaves its pictures' clear pixels showing what lies behind (#1544).</summary>
     public uint TransparentZero { get; init; } = 1;

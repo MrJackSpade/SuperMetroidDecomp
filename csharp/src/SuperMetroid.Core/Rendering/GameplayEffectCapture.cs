@@ -187,9 +187,10 @@ public static class GameplayEffectCapture
     {
         if (page.Picture is not { } picture)
             return null;
+        Extent16<ImagePixels> size = PageSize(picture);
         int first = FxOverlayPageDefinitions.AtmosphereFirstPageRow;
         return new OverlayPicture(picture, new Position16<ImagePixels>(0, first),
-            new Extent16<OverlayPixels>(picture.Size.X, picture.Size.Y - first), Position16<OverlayPixels>.Zero,
+            new Extent16<OverlayPixels>(size.X, size.Y - first), Position16<OverlayPixels>.Zero,
             new Extent16<OverlayPixels>(FxOverlayPageDefinitions.RepeatWidth, FxOverlayPageDefinitions.AtmosphereRepeatHeight));
     }
 
@@ -199,9 +200,14 @@ public static class GameplayEffectCapture
     /// </summary>
     private static OverlayPicture? LiquidOverlayOf(FxOverlayPage page) =>
         page.Picture is not { } picture ? null
-            : new OverlayPicture(picture, Position16<ImagePixels>.Zero, new Extent16<OverlayPixels>(picture.Size.X, picture.Size.Y),
+            : new OverlayPicture(picture, Position16<ImagePixels>.Zero, new Extent16<OverlayPixels>(PageSize(picture).X, PageSize(picture).Y),
                 new Position16<OverlayPixels>(0, FxOverlayPageDefinitions.LiquidPageTop),
                 new Extent16<OverlayPixels>(FxOverlayPageDefinitions.RepeatWidth, FxOverlayPageDefinitions.LiquidRepeatHeight));
+
+    /// <summary>The width and height of an effect's page picture (#1634).</summary>
+    /// <exception cref="InvalidDataException">The page installs neither of its parts.</exception>
+    private static Extent16<ImagePixels> PageSize(LayeredPicture picture) =>
+        picture.Size ?? throw new InvalidDataException("An effect's page installs neither of its parts.");
 
     /// <summary>
     /// The Ceres haze: its tint added across the gameplay area, strengthening in bands down the screen and dimmed by

@@ -122,7 +122,7 @@ internal static class RoomBlockPicturesVerification
                 for (int x = 0; x < RoomBackgroundImageGeometry.PagePixels; x++)
                 {
                     var word = new SnesBgTilemapWord(sky.Tiles[row * SkyTilemap.Columns + x / CharacterPixels].PackedWord);
-                    (SpriteSheetFrame picture, Position16<ImagePixels> pixel) = PictureAt(shown.Image, x, y);
+                    (LayeredPicture picture, Position16<ImagePixels> pixel) = PictureAt(shown.Image, x, y);
                     AssertPaintsTile($"{room.Name}'s sky at ({x}, {y})", vram, word, x % CharacterPixels, y % CharacterPixels, picture, pixel);
                 }
             }
@@ -135,7 +135,7 @@ internal static class RoomBlockPicturesVerification
     /// The picture and its pixel a background image shows at (<paramref name="x"/>, <paramref name="y"/>) of its pages or
     /// rows laid one above the next: a rebound 16x16 cell's own picture, otherwise the image's.
     /// </summary>
-    private static (SpriteSheetFrame Picture, Position16<ImagePixels> Pixel) PictureAt(RoomBackgroundImagePlane image, int x, int y)
+    private static (LayeredPicture Picture, Position16<ImagePixels> Pixel) PictureAt(RoomBackgroundImagePlane image, int x, int y)
     {
         const int cell = 16;
         return image.Cell(y / cell * (RoomBackgroundImageGeometry.PagePixels / cell) + x / cell) is { } picture
@@ -145,8 +145,9 @@ internal static class RoomBlockPicturesVerification
 
     /// <summary>
     /// Checks the pixel at (<paramref name="x"/>, <paramref name="y"/>) of <paramref name="word"/>'s tile, as <paramref name="vram"/>'s
-    /// characters paint it, is <paramref name="picture"/>'s pixel at <paramref name="pixel"/>: its palette index, its tile
-    /// priority and its standard colour.
+    /// characters paint it, is whole picture <paramref name="picture"/>'s pixel at <paramref name="pixel"/>: its palette index
+    /// and its standard colour. A whole picture, such as a boss body's, is drawn at one depth (#1634), so the tile's priority
+    /// is not a property of its pixels.
     /// </summary>
     internal static void AssertPaintsTile(string context, ReadOnlySpan<byte> vram, SnesBgTilemapWord word, int x, int y,
         SpriteSheetFrame picture, Position16<ImagePixels> pixel)
@@ -154,12 +155,87 @@ internal static class RoomBlockPicturesVerification
         int colour = TileColour(vram, word, x, y);
         int expected = colour == 0 ? 0 : word.PaletteIndex * 16 + colour;
         SpriteImage sheet = picture.Sheet;
-        int at = (picture.Corner.Y + pixel.Y) * sheet.Size.X + picture.Corner.X + pixel.X;
+        int at = At(picture, pixel);
         // The message is built only for a failing pixel, since every checked pixel comes through here.
-        if (!(Painted(sheet, at) == expected && (colour == 0 || (sheet.Inks[at].FrontTile == word.HasPriority
-                && sheet.Pixels[at] == StandardOf(sheet, expected).ToRgbaPixel()))))
+        if (!(Painted(sheet, at) == expected && (colour == 0 || sheet.Pixels[at] == StandardOf(sheet, expected).ToRgbaPixel())))
             AssertTrue(false, $"{context}: the picture paints index {Painted(sheet, at)} where tile ${word.Raw:X4} paints {expected}");
     }
+
+    /// <summary>
+    /// Checks the pixel at (<paramref name="x"/>, <paramref name="y"/>) of <paramref name="word"/>'s tile, as <paramref name="vram"/>'s
+    /// characters paint it, is <paramref name="picture"/>'s pixel at <paramref name="pixel"/> in the part the tile's priority
+    /// puts it in (#1634), with its palette index and its standard colour, and that the other part shows nothing there.
+    /// </summary>
+    internal static void AssertPaintsTile(string context, ReadOnlySpan<byte> vram, SnesBgTilemapWord word, int x, int y,
+        LayeredPicture picture, Position16<ImagePixels> pixel)
+    {
+        int colour = TileColour(vram, word, x, y);
+        int expected = colour == 0 ? 0 : word.PaletteIndex * 16 + colour;
+        // The message is built only for a failing pixel, since every checked pixel comes through here.
+        if (!PaintsInPart(picture, pixel, expected, word.HasPriority))
+            AssertTrue(false, $"{context}: the picture's parts paint {Describe(picture, pixel)} where tile ${word.Raw:X4} paints {expected} {PartOf(word)}");
+    }
+
+    /// <summary>
+    /// Whether <paramref name="picture"/> paints, at <paramref name="pixel"/> of its rectangle, what a tile in front when
+    /// <paramref name="inFront"/> and behind otherwise paints there as palette index <paramref name="expected"/> (#1634): the
+    /// part of the tile's depth paints the index in its standard colour and the other part shows nothing there; where the
+    /// tile paints nothing, neither part does.
+    /// </summary>
+    private static bool PaintsInPart(LayeredPicture picture, Position16<ImagePixels> pixel, int expected, bool inFront)
+    {
+        SpriteSheetFrame? shown = inFront ? picture.InFront : picture.Behind;
+        SpriteSheetFrame? other = inFront ? picture.Behind : picture.InFront;
+        if (expected == 0)
+            return PaintsNothing(picture.Behind, pixel) && PaintsNothing(picture.InFront, pixel);
+        if (shown is null)
+            return false;
+        int at = At(shown, pixel);
+        return Painted(shown.Sheet, at) == expected && shown.Sheet.Pixels[at] == StandardOf(shown.Sheet, expected).ToRgbaPixel()
+            && PaintsNothing(other, pixel);
+    }
+
+    /// <summary>Whether <paramref name="part"/> shows nothing at <paramref name="pixel"/>: it is not installed, or its pixel there is transparent.</summary>
+    private static bool PaintsNothing(SpriteSheetFrame? part, Position16<ImagePixels> pixel) =>
+        part is null || Painted(part.Sheet, At(part, pixel)) == 0;
+
+    /// <summary>
+    /// Whether two-bit <paramref name="picture"/> paints, at <paramref name="pixel"/>, what a tile in front when
+    /// <paramref name="inFront"/> and behind otherwise paints there as palette index <paramref name="expected"/>, whose group's
+    /// clear colour is <paramref name="clear"/> (#1634): an opaque pixel in the part of the tile's depth, in its standard
+    /// colour, with the other part's pixel clear in that group; a clear pixel in every installed part.
+    /// </summary>
+    private static bool PaintsTwoBitInPart(LayeredPicture picture, Position16<ImagePixels> pixel, int expected, int clear, bool inFront)
+    {
+        SpriteSheetFrame? shown = inFront ? picture.InFront : picture.Behind;
+        SpriteSheetFrame? other = inFront ? picture.Behind : picture.InFront;
+        if (expected == clear)
+            return picture.Parts.Any() && picture.Parts.All(part => PaintsClear(part, pixel, clear));
+        if (shown is null)
+            return false;
+        int at = At(shown, pixel);
+        return Painted(shown.Sheet, at) == expected && shown.Sheet.Pixels[at] == StandardOf(shown.Sheet, expected).ToRgbaPixel()
+            && (other is null || PaintsClear(other, pixel, clear));
+    }
+
+    /// <summary>Whether two-bit <paramref name="part"/>'s pixel at <paramref name="pixel"/> is clear, as palette index <paramref name="clear"/>.</summary>
+    private static bool PaintsClear(SpriteSheetFrame part, Position16<ImagePixels> pixel, int clear)
+    {
+        int at = At(part, pixel);
+        return Painted(part.Sheet, at) == clear && part.Sheet.Pixels[at].A == 0;
+    }
+
+    /// <summary>The place in <paramref name="part"/>'s sheet of the pixel at <paramref name="pixel"/> of its rectangle.</summary>
+    private static int At(SpriteSheetFrame part, Position16<ImagePixels> pixel) =>
+        (part.Corner.Y + pixel.Y) * part.Sheet.Size.X + part.Corner.X + pixel.X;
+
+    /// <summary>The palette index each installed part of <paramref name="picture"/> paints at <paramref name="pixel"/>, for a failure's message.</summary>
+    private static string Describe(LayeredPicture picture, Position16<ImagePixels> pixel) =>
+        $"behind {(picture.Behind is { } behind ? Painted(behind.Sheet, At(behind, pixel)).ToString(System.Globalization.CultureInfo.InvariantCulture) : "none")}, "
+        + $"in front {(picture.InFront is { } inFront ? Painted(inFront.Sheet, At(inFront, pixel)).ToString(System.Globalization.CultureInfo.InvariantCulture) : "none")}";
+
+    /// <summary>The part of its picture <paramref name="word"/>'s priority puts its pixels in, for a failure's message.</summary>
+    private static string PartOf(SnesBgTilemapWord word) => word.HasPriority ? "in front" : "behind";
 
     /// <summary>The palette index the import composed <paramref name="sheet"/>'s pixel at <paramref name="at"/> as (#1544); zero for a transparent pixel.</summary>
     private static int Painted(SpriteImage sheet, int at) => InstalledPictureColoursConstants.ComposedIndexOf(sheet, sheet.Inks[at]);
@@ -352,7 +428,6 @@ internal static class RoomBlockPicturesVerification
                 int cellX = (index - firstWord) % FxOverlayPlaneConstants.Columns * CharacterPixels;
                 int cellY = (index - firstWord) / FxOverlayPlaneConstants.Columns * CharacterPixels;
                 var word = new SnesBgTilemapWord(planeWords[index]);
-                SpriteImage sheet = shownPage.Sheet;
                 // A character an effect's animation paints shows the frame it selected (#1406), which VRAM never holds.
                 ReadOnlySpan<byte> bytes = effects.Bytes(frames, word.CharacterIndex, vram[(characterBase * sizeof(ushort))..], out _);
                 for (int y = 0; y < CharacterPixels; y++)
@@ -363,13 +438,12 @@ internal static class RoomBlockPicturesVerification
                     int address = pixelRow * 2;
                     int colour = (bytes[address] >> bit & 1) | (bytes[address + 1] >> bit & 1) << 1;
                     int expected = word.PaletteIndex * 4 + colour;
-                    int at = (shownPage.Corner.Y + cellY + y) * sheet.Size.X + shownPage.Corner.X + cellX + x;
+                    var at = new Position16<ImagePixels>(cellX + x, cellY + y);
                     // The message names the character's picture, which costs a lookup, so it is built only for a failing pixel.
-                    if (!(Painted(sheet, at) == expected && sheet.Inks[at].FrontTile == word.HasPriority
-                            && (colour == 0 ? sheet.Pixels[at].A == 0 : sheet.Pixels[at] == StandardOf(sheet, expected).ToRgbaPixel())))
+                    if (!PaintsTwoBitInPart(shownPage, at, expected, word.PaletteIndex * 4, word.HasPriority))
                     {
                         AssertTrue(false,
-                            $"{room.Name}: BG3 word {index} ${word.Raw:X4} pixel ({x}, {y}) paints index {Painted(sheet, at)} where its character, "
+                            $"{room.Name}: BG3 word {index} ${word.Raw:X4} pixel ({x}, {y}) paints {Describe(shownPage, at)} {PartOf(word)} where its character, "
                             + $"{runtime.BgArtwork.Showing(layer3, word.CharacterIndex, 1)}, paints {expected}");
                     }
                 }
@@ -433,8 +507,8 @@ internal static class RoomBlockPicturesVerification
     }
 
     /// <summary>
-    /// Asserts BG2's library background paints, pixel for pixel over both pages, the palette index, priority and standard
-    /// colour the image's tilemap tiles paint over the characters the cartridge would show, as <paramref name="animations"/>
+    /// Asserts BG2's library background paints, pixel for pixel over both pages, in the part each tile's priority puts it in
+    /// (#1634), the palette index and standard colour the image's tilemap tiles paint over the characters the cartridge would show, as <paramref name="animations"/>
     /// paint them in <paramref name="latched"/>'s frames; returns its rebound cells.
     /// </summary>
     private static int AssertBackgroundPaintsTiles(SuperMetroidRuntime runtime, RoomAnimatedCharacters animations,
@@ -469,8 +543,8 @@ internal static class RoomBlockPicturesVerification
 
     /// <summary>
     /// Asserts <paramref name="plane"/> paints, at each pixel of the tile at (<paramref name="tileX"/>, <paramref name="tileY"/>)
-    /// of its pages, the palette index, priority and standard colour <paramref name="word"/> paints over its character's
-    /// <paramref name="bytes"/>.
+    /// of its pages, in the part its priority puts it in (#1634), the palette index and standard colour <paramref name="word"/>
+    /// paints over its character's <paramref name="bytes"/>.
     /// </summary>
     private static void AssertBackgroundTilePaints(RoomBackgroundImagePlane plane, SnesBgTilemapWord word, ReadOnlySpan<byte> bytes,
         int tileX, int tileY, string where)
@@ -484,15 +558,12 @@ internal static class RoomBlockPicturesVerification
             int colour = (bytes[address] >> bit & 1) | (bytes[address + 1] >> bit & 1) << 1
                 | (bytes[address + 16] >> bit & 1) << 2 | (bytes[address + 17] >> bit & 1) << 3;
             int expected = colour == 0 ? 0 : word.PaletteIndex * 16 + colour;
-            (SpriteSheetFrame picture, Position16<ImagePixels> picturePixel) = PictureAt(plane, x, y);
-            SpriteImage sheet = picture.Sheet;
-            int pixel = (picture.Corner.Y + picturePixel.Y) * sheet.Size.X + picture.Corner.X + picturePixel.X;
+            (LayeredPicture picture, Position16<ImagePixels> picturePixel) = PictureAt(plane, x, y);
             // The message is built only for a failing pixel: building it for each of the pages' pixels was the check's cost.
-            if (!(Painted(sheet, pixel) == expected && (colour == 0 || (sheet.Inks[pixel].FrontTile == word.HasPriority
-                    && sheet.Pixels[pixel] == StandardOf(sheet, expected).ToRgbaPixel()))))
+            if (!PaintsInPart(picture, picturePixel, expected, word.HasPriority))
             {
                 AssertTrue(false,
-                    $"{where}: the background paints index {Painted(sheet, pixel)} at ({x}, {y}) where its tile ${word.Raw:X4} paints {expected}");
+                    $"{where}: the background paints {Describe(picture, picturePixel)} at ({x}, {y}) where its tile ${word.Raw:X4} paints {expected} {PartOf(word)}");
             }
         }
     }
@@ -561,7 +632,7 @@ internal static class RoomBlockPicturesVerification
 
     /// <summary>
     /// Asserts each picture the displayed BG1 resolves by block identity and appearance (#1431, #1466) paints, pixel for
-    /// pixel, the palette index, priority and standard colour the block's tiles paint over the characters the cartridge
+    /// pixel, in the part each tile's priority puts it in (#1634), the palette index and standard colour the block's tiles paint over the characters the cartridge
     /// would show: the tiles the cartridge's block tables compose, or for a collectible's picture, its kind's own graphics in
     /// its palette selectors' colours (#1538). Returns the pictures checked and those shown for inputs that no longer show
     /// the room's load.
@@ -587,7 +658,6 @@ internal static class RoomBlockPicturesVerification
             if (table.Picture(block) is not { } picture)
                 continue;
             pictures++;
-            SpriteImage sheet = picture.Sheet;
             // A collectible's picture shows its kind's own graphics, whatever the room loaded or showed before it (#1538).
             bool collectible = CollectibleCellPictures.TryPictureOf(block, out CollectiblePicture shownCollectible);
             bool overUpload = !collectible && scope.Assets.BlockSheet.Inputs.Of(block, rooms.BlockArtwork)
@@ -612,14 +682,13 @@ internal static class RoomBlockPicturesVerification
                         int bit = 7 - (word.FlipHorizontally ? CharacterPixels - 1 - x : x);
                         int colour = (bytes[address] >> bit & 1) | (bytes[address + 1] >> bit & 1) << 1
                             | (bytes[address + 16] >> bit & 1) << 2 | (bytes[address + 17] >> bit & 1) << 3;
-                        int pixel = (picture.Corner.Y + tile / 2 * CharacterPixels + y) * sheet.Size.X + picture.Corner.X + tile % 2 * CharacterPixels + x;
+                        var pixel = new Position16<ImagePixels>(tile % 2 * CharacterPixels + x, tile / 2 * CharacterPixels + y);
                         int expected = colour == 0 ? 0 : word.PaletteIndex * 16 + colour;
                         // The message is built only for a failing pixel.
-                        if (!(Painted(sheet, pixel) == expected && (colour == 0 || sheet.Inks[pixel].FrontTile == word.HasPriority)
-                            && (colour == 0 || sheet.Pixels[pixel] == StandardOf(sheet, expected).ToRgbaPixel())))
+                        if (!PaintsInPart(picture, pixel, expected, word.HasPriority))
                         {
                             AssertTrue(false,
-                                $"{where}: block {block}'s picture paints index {Painted(sheet, pixel)} front tile {sheet.Inks[pixel].FrontTile} " +
+                                $"{where}: block {block}'s picture paints {Describe(picture, pixel)} {PartOf(word)} " +
                                 $"at tile {tile} pixel ({x}, {y}), where its tile ${word.Raw:X4} paints index {expected}{(animated ? " in its animation's frame" : "")}");
                         }
                     }

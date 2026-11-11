@@ -132,7 +132,8 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
         }
         foreach (List<ISymbol> family in families.Values)
         {
-            int length = CapitalHexSuffixLength(family[0].Name)!.Value;
+            int length = CapitalHexSuffixLength(family[0].Name) ??
+                throw new InvalidOperationException($"Capital-code family member {family[0].Name} has no capital code.");
             string Suffix(ISymbol member) => member.Name.Substring(member.Name.Length - length);
             if (family.Count < 2 || !family.Any(member => Suffix(member).Any(IsHexLetter)) ||
                 !family.Any(member => Suffix(member).Any(IsDecimalDigit)))

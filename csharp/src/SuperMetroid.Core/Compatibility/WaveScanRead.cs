@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <summary>
 /// Where one step of a Wave shot's horizontal reaction scan reads (#1469, #1552): the block the read starts in, and
 /// whether it lands halfway through that block and so reads the terrain straddling it and the next one
-/// (<see cref="StraddledTerrain"/>). The scan walks down the rows the shot's leading edge spans, but it counts its place
+/// (<see cref="StraddledTerrain{TTerrain}"/>). The scan walks down the rows the shot's leading edge spans, but it counts its place
 /// in halves of a block within a cycle of 65536 halves, so a walk that runs past the cycle above the room's ceiling lands
 /// one half further on, halfway through a block, for the rest of its steps.
 /// </summary>
@@ -25,7 +25,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <param name="Block">The block the read starts in, counted along the room's rows from its first block, 0 through 32767.</param>
 /// <param name="StraddlesNext">
 /// Whether the read starts halfway through <paramref name="Block"/>, reading the terrain straddling it and the next
-/// (<see cref="StraddledTerrain.Straddling"/>); otherwise it reads the block itself.
+/// (<see cref="StraddledTerrain{TTerrain}.Straddling"/>); otherwise it reads the block itself.
 /// </param>
 [CompatibilityService("where a Wave shot's scan past the room's ceiling reads: a block, or the terrain straddling it and the next")]
 public readonly record struct WaveScanRead(int Block, bool StraddlesNext)

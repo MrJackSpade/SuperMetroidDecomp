@@ -17,14 +17,14 @@ internal sealed class ProjectileTerrainCollision
     /// <summary>Queues distinct beam and missile impact sounds at the collision seam.</summary>
     private readonly ProjectileImpactAudio _impactAudio;
     /// <summary>The terrain a Wave shot's horizontal scan finds where it lands halfway through a block.</summary>
-    private readonly StraddledTerrain _straddledTerrain;
+    private readonly StraddledTerrain<RoomTerrainBlock> _straddledTerrain;
 
     /// <summary>
     /// Binds the projectile animation, quake, and impact-audio owners used when terrain consumes a shot, and the
     /// installation's straddled terrain the horizontal Wave scan reads.
     /// </summary>
     internal ProjectileTerrainCollision(ProjectileAnimation animation, ProjectileEarthquakes earthquakes, ProjectileImpactAudio impactAudio,
-        StraddledTerrain straddledTerrain)
+        StraddledTerrain<RoomTerrainBlock> straddledTerrain)
     {
         _animation = animation;
         _earthquakes = earthquakes;
@@ -573,7 +573,7 @@ internal sealed class ProjectileTerrainCollision
     /// <param name="roomObjects">The room's objects, which a block reaction may spawn; none in a room without them.</param>
     /// <param name="straddledTerrain">The installation's straddled terrain, which the projectile system's terrain collision holds.</param>
     internal static void ScanHorizontalWaveShotReactions(
-        RoomLevelData level, SamusProjectile slot, ISamusRoomObjects? roomObjects, StraddledTerrain straddledTerrain)
+        RoomLevelData level, SamusProjectile slot, ISamusRoomObjects? roomObjects, StraddledTerrain<RoomTerrainBlock> straddledTerrain)
     {
         Ensure.NotNull(straddledTerrain);
         int top = CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y);

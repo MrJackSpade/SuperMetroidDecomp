@@ -95,7 +95,7 @@ public sealed class SamusProjectileSystem
         Earthquakes = new ProjectileEarthquakes();
         ImpactAudio = new ProjectileImpactAudio();
         Animation = new ProjectileAnimation(Charge, SlotTable, overreads.ChargeFlareDelays);
-        TerrainCollision = new ProjectileTerrainCollision(Animation, Earthquakes, ImpactAudio, overreads.StraddledTerrain);
+        TerrainCollision = new ProjectileTerrainCollision(Animation, Earthquakes, ImpactAudio, samusOverreads.StraddledTerrain);
         EnemyImpacts = new ProjectileEnemyImpacts(Animation, Earthquakes, SlotTable, TerrainCollision, overreads.UnauthoredBeamFiring);
         Trails = new ProjectileTrails(SlotTable, overreads.TrailStarts);
         Chainsaw = new ChainsawPowerBombCallback(Animation, overreads.ChainsawFuseShift);

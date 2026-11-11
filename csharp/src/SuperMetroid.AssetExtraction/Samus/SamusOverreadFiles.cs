@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
@@ -40,7 +41,7 @@ public static class SamusOverreadFiles
     /// group of services carries (#1612).
     /// </param>
     /// <exception cref="InvalidDataException">The manifest, digest, provenance or file shape is invalid.</exception>
-    public static SamusOverreadServices Load(string directory, StraddledTerrain straddledTerrain) =>
+    public static SamusOverreadServices Load(string directory, StraddledTerrain<RoomTerrainBlock> straddledTerrain) =>
         SamusOverreadServicesReader.Read(LoadDocument(directory), straddledTerrain);
 
     /// <summary>

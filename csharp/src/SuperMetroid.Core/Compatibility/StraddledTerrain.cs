@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Compatibility;
 
@@ -16,7 +15,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// straddles two blocks (<see cref="WaveScanRead"/>). Every lookup is a pure table lookup: the import decodes, for every
 /// first block, what its end contributes (its lead), for every block number what the start of the next block
 /// contributes (its tail), and for every lead and tail the terrain they make, once at installation; nothing here
-/// derives one block from another. Created once from the installed table with the installation's other Samus
+/// derives one block from another. The import supplies a lead and a tail for every terrain block the room can hold.
+/// Created once from the installed table with the installation's other Samus
 /// projectile services and injected into each projectile system's terrain collision, which hands it to the scan.
 /// Lifetime: the installation's, shared by every runtime; it holds no state that changes.
 /// </para>
@@ -28,32 +28,32 @@ namespace SuperMetroid.Core.Compatibility;
 /// </para>
 /// </remarks>
 [CompatibilityService("a Wave shot's scan past the room's ceiling finds terrain made of the end of one block and the start of the next")]
-public sealed class StraddledTerrain
+public sealed class StraddledTerrain<TTerrain>
+    where TTerrain : notnull
 {
     /// <summary>What the end of each first block contributes, by the block as the room holds it.</summary>
-    private readonly Dictionary<RoomTerrainBlock, int> leads;
+    private readonly Dictionary<TTerrain, int> leads;
 
-    /// <summary>What the start of each second block contributes, by the block's number.</summary>
-    private readonly int[] tails;
+    /// <summary>What the start of each second block contributes, by the block as the room holds it.</summary>
+    private readonly Dictionary<TTerrain, int> tails;
 
     /// <summary>The terrain each lead and tail make, by lead and then by tail.</summary>
-    private readonly RoomTerrainBlock[][] outcomes;
+    private readonly TTerrain[][] outcomes;
 
-    /// <summary>Keeps the installed table, requiring an entry for every block the scan can find.</summary>
-    /// <param name="leads">
-    /// What the end of each first block contributes, for every block number, mirroring and collision kind; each one a
-    /// lead of <paramref name="outcomes"/>.
-    /// </param>
+    /// <summary>Keeps the installed table, requiring a lead and a tail for the same blocks.</summary>
+    /// <param name="leads">What the end of each first block contributes; each one a lead of <paramref name="outcomes"/>.</param>
     /// <param name="tails">
-    /// What the start of each second block contributes, by the block's number, for every block number; each one a tail of
+    /// What the start of each second block contributes, for the same blocks as <paramref name="leads"/>; each one a tail of
     /// every lead's outcomes.
     /// </param>
     /// <param name="outcomes">The terrain each lead and tail make, by lead and then by tail.</param>
-    /// <exception cref="ArgumentException">A block has no entry, or an entry names no lead or tail of the outcomes.</exception>
+    /// <exception cref="ArgumentException">
+    /// The leads and tails cover different blocks, or an entry names no lead or tail of the outcomes.
+    /// </exception>
     internal StraddledTerrain(
-        IReadOnlyDictionary<RoomTerrainBlock, int> leads,
-        IReadOnlyList<int> tails,
-        IReadOnlyList<IReadOnlyList<RoomTerrainBlock>> outcomes)
+        IReadOnlyDictionary<TTerrain, int> leads,
+        IReadOnlyDictionary<TTerrain, int> tails,
+        IReadOnlyList<IReadOnlyList<TTerrain>> outcomes)
     {
         Ensure.NotNull(leads);
         Ensure.NotNull(tails);
@@ -62,20 +62,14 @@ public sealed class StraddledTerrain
         if (this.outcomes.Length == 0 || this.outcomes.Any(row => row.Length != this.outcomes[0].Length))
             throw new ArgumentException("Straddled terrain needs the same tails for every lead.", nameof(outcomes));
         int tailCount = this.outcomes[0].Length;
-        if (tails.Count != RoomBlockAppearance.LastBlock + 1 || tails.Any(tail => tail < 0 || tail >= tailCount))
-            throw new ArgumentException("Straddled terrain needs a tail of its outcomes for every block number.", nameof(tails));
-        this.tails = [.. tails];
-        this.leads = new Dictionary<RoomTerrainBlock, int>(leads);
-        foreach (RoomCollisionType kind in Enum.GetValues<RoomCollisionType>())
-        foreach (BlockMirroring mirroring in Enum.GetValues<BlockMirroring>())
-        for (int block = 0; block <= RoomBlockAppearance.LastBlock; block++)
-        {
-            if (!this.leads.TryGetValue(RoomTerrainBlock.Of(block, mirroring, kind), out int lead) ||
-                lead < 0 || lead >= this.outcomes.Length)
-                throw new ArgumentException(
-                    $"Straddled terrain needs a lead of its outcomes for block {block} mirrored {mirroring} colliding as {kind}.",
-                    nameof(leads));
-        }
+        this.leads = new Dictionary<TTerrain, int>(leads);
+        this.tails = new Dictionary<TTerrain, int>(tails);
+        if (this.leads.Count != this.tails.Count || this.leads.Keys.Any(block => !this.tails.ContainsKey(block)))
+            throw new ArgumentException("Straddled terrain needs a lead and a tail for the same blocks.", nameof(tails));
+        if (this.leads.Values.Any(lead => lead < 0 || lead >= this.outcomes.Length))
+            throw new ArgumentException("Straddled terrain has a lead its outcomes do not hold.", nameof(leads));
+        if (this.tails.Values.Any(tail => tail < 0 || tail >= tailCount))
+            throw new ArgumentException("Straddled terrain has a tail its outcomes do not hold.", nameof(tails));
     }
 
     /// <summary>
@@ -84,6 +78,5 @@ public sealed class StraddledTerrain
     /// </summary>
     /// <param name="first">The block whose end the read starts in.</param>
     /// <param name="second">The block after it, whose start the read ends in.</param>
-    public RoomTerrainBlock Straddling(RoomTerrainBlock first, RoomTerrainBlock second) =>
-        outcomes[leads[first]][tails[second.Appearance.Block]];
+    public TTerrain Straddling(TTerrain first, TTerrain second) => outcomes[leads[first]][tails[second]];
 }

@@ -38,7 +38,7 @@ internal static class WaveDoorBandsVerification
                 level = CreateRoom(new(16, 32), words, behaviors);
             }
             ProjectileTerrainCollision.ScanHorizontalWaveShotReactions(level, shot, roomObjects,
-                SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusOverreads.Projectiles.StraddledTerrain);
+                SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusOverreads.StraddledTerrain);
             AssertEqual(inside ? ((y & 15) == 0 && y > 0 ? 2 : 1) : 0, roomObjects.SlotTable.ActiveCount,
                 $"Wave door reaction at Y={y}, left={left}: XBA tests the original high byte");
         }

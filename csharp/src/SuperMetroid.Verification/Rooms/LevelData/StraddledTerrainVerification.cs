@@ -23,8 +23,8 @@ internal static class StraddledTerrainVerification
     /// </summary>
     internal static void VerifyStraddledTerrain()
     {
-        StraddledTerrain installed = InstalledFixtures.SamusOverreads.Projectiles.StraddledTerrain;
-        StraddledTerrain decoded = StraddledTerrainFiles.Read(StraddledTerrainFiles.Decode());
+        StraddledTerrain<RoomTerrainBlock> installed = InstalledFixtures.SamusOverreads.StraddledTerrain;
+        StraddledTerrain<RoomTerrainBlock> decoded = StraddledTerrainFiles.Read(StraddledTerrainFiles.Decode());
         int pairs = 0;
         for (int value = 0; value <= ushort.MaxValue; value++)
         {

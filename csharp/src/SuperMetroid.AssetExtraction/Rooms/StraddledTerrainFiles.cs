@@ -50,7 +50,7 @@ public static class StraddledTerrainFiles
     /// <summary>Validates the installed file's schema and provenance, then builds the straddled terrain from it.</summary>
     /// <param name="directory">Installed straddled-terrain directory holding the file and its manifest.</param>
     /// <exception cref="InvalidDataException">The manifest, provenance or file shape is invalid.</exception>
-    public static StraddledTerrain Load(string directory)
+    public static StraddledTerrain<RoomTerrainBlock> Load(string directory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         string manifestPath = Path.Combine(directory, StraddledTerrainFormat.ManifestFileName);
@@ -79,14 +79,13 @@ public static class StraddledTerrainFiles
         int[] tails = Unset(RoomBlockAppearance.LastBlock + 1);
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
-            ushort word = (ushort)value;
-            RoomTerrainBlock terrain = RoomLevelWordCodec.Decode(word);
+            RoomTerrainBlock terrain = RoomLevelWordCodec.Decode((ushort)value);
             int block = terrain.Appearance.Block;
             int[] leads = leadRows[terrain.Collision][terrain.Appearance.Mirroring];
             if (leads[block] >= 0)
                 throw new InvalidOperationException($"Two level words decode to {terrain}.");
-            leads[block] = RoomLevelWordCodec.SecondStoredHalf(word);
-            int tail = RoomLevelWordCodec.FirstStoredHalf(word);
+            leads[block] = RoomLevelWordCodec.SecondStoredHalf((ushort)value);
+            int tail = RoomLevelWordCodec.FirstStoredHalf((ushort)value);
             if (tails[block] >= 0 && tails[block] != tail)
                 throw new InvalidOperationException($"The start of block {block} depends on more than its number.");
             tails[block] = tail;
@@ -116,7 +115,7 @@ public static class StraddledTerrainFiles
 
     /// <summary>Builds the straddled terrain from a document, requiring a lead for every first block and a tail for every block number.</summary>
     /// <exception cref="InvalidDataException">The document is incomplete or names a mirroring or collision kind the game does not have.</exception>
-    internal static StraddledTerrain Read(StraddledTerrainDocument document)
+    internal static StraddledTerrain<RoomTerrainBlock> Read(StraddledTerrainDocument document)
     {
         Ensure.NotNull(document);
         if (document.Version != StraddledTerrainFormat.Version)
@@ -126,7 +125,11 @@ public static class StraddledTerrainFiles
         RoomCollisionType[] kinds = Enum.GetValues<RoomCollisionType>();
         if (leadRows.Count != kinds.Length)
             throw new InvalidDataException("Straddled-terrain leads must name every collision kind once.");
+        IReadOnlyList<int> tailsByNumber = Require(document.Tails, "tails");
+        if (tailsByNumber.Count != RoomBlockAppearance.LastBlock + 1)
+            throw new InvalidDataException("Straddled-terrain tails must hold every block number.");
         var leads = new Dictionary<RoomTerrainBlock, int>();
+        var tails = new Dictionary<RoomTerrainBlock, int>();
         foreach (RoomCollisionType kind in kinds)
         {
             if (!leadRows.TryGetValue(kind.ToString(), out IReadOnlyDictionary<string, IReadOnlyList<int>>? rows) || rows is null ||
@@ -139,10 +142,14 @@ public static class StraddledTerrainFiles
                     throw new InvalidDataException(
                         $"Straddled-terrain leads must hold every block number for {kind} mirrored {mirroring}.");
                 for (int block = 0; block < blocks.Count; block++)
-                    leads.Add(RoomTerrainBlock.Of(block, mirroring, kind), blocks[block]);
+                {
+                    RoomTerrainBlock terrain = RoomTerrainBlock.Of(block, mirroring, kind);
+                    leads.Add(terrain, blocks[block]);
+                    // The start of a block contributes the same whatever its mirroring and kind.
+                    tails.Add(terrain, tailsByNumber[block]);
+                }
             }
         }
-        IReadOnlyList<int> tails = Require(document.Tails, "tails");
         IReadOnlyList<IReadOnlyList<StraddledTerrainDocument.Outcome>> rowsByLead =
             Require(document.Outcomes, "outcomes");
         var outcomes = new IReadOnlyList<RoomTerrainBlock>[rowsByLead.Count];
@@ -152,7 +159,7 @@ public static class StraddledTerrainFiles
         }
         try
         {
-            return new StraddledTerrain(leads, tails, outcomes);
+            return new StraddledTerrain<RoomTerrainBlock>(leads, tails, outcomes);
         }
         catch (ArgumentException error)
         {

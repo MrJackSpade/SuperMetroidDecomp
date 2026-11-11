@@ -613,7 +613,8 @@ internal sealed class SuperMetroidRuntime
             Player.Samus?.Xray.ArePaletteFxSuspended != true)
         {
             Room.LoadedScope.PaletteFx.Step(new PaletteFxConditions { SamusY = Player.Samus?.Position.Y.Whole ?? 0, EquippedItems = Player.Samus?.EquippedItems ?? 0, TorizoIsDead = Room.LoadedScope.Enemies.SlotTable.Slots.Count == 0 || Room.LoadedScope.Enemies.SlotTable.Slots[0].Health == 0, AreaMiniBossDefeated = Room.ActiveRoom is { } paletteRoom &&
-                    System.HasAnyBossBits(paletteRoom.AreaIndex, BossBits.AreaMiniBoss), Samus = Player.Samus?.RoomView, FrameCounter = Clock.Counter }, Room.LoadedScope.BombProjectiles.PowerBombExplosion.Activity);
+                    System.HasAnyBossBits(paletteRoom.AreaIndex, BossBits.AreaMiniBoss), Samus = Player.Samus?.RoomView, FrameCounter = Clock.Counter,
+                    PowerBomb = Room.LoadedScope.BombProjectiles.PowerBombExplosion.Activity });
             // Her heat glow and her suit's loading show over her suit as the frames that wrote it (#1512).
             foreach ((PaletteFxColours colours, PaletteFxFrame frame) in Room.LoadedScope.PaletteFx.SuitShown)
                 Player.Colours.LayOverSuit(PaletteFxShades.Of(colours, frame));

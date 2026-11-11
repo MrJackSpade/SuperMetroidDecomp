@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// collected or not, a fifth taking the first pair again; each room starts again at the first pair. What a collectible
 /// shows does not depend on its pair: it shows its kind's picture. The pair stays because the block numbers a collectible
 /// writes into the room's terrain are gameplay-observable: a Wave shot's scan past the room's ceiling reads a block
-/// straddling a collectible's block and its neighbour (<see cref="StraddledTerrain"/>), whose collision family comes
+/// straddling a collectible's block and its neighbour (<see cref="StraddledTerrain{TTerrain}"/>), whose collision family comes
 /// from the collectible's block number, so a straddled read ending in the first pair's blocks reacts as a solid block and
 /// one ending in the other three pairs' blocks as a door block, and a reaction that spawns a room object keeps the
 /// straddled block to restore.

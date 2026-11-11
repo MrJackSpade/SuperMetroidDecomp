@@ -111,12 +111,11 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     /// shade, and the frames of Samus's and the enemies' groups are handed to their owners through
     /// <see cref="SuitShown"/> and <see cref="EnemyShown"/>, whose colourings the import pre-colours per frame.
     /// </remarks>
-    /// <param name="conditions">The update's conditions the effects watch.</param>
-    /// <param name="powerBomb">The live Power Bomb, which suppresses colour-effect sounds while it is active.</param>
+    /// <param name="conditions">The update's conditions the effects watch, with the live Power Bomb that silences their sounds.</param>
     /// <exception cref="InvalidOperationException">A frame is shown in colours no gameplay picture shows.</exception>
-    public void Step(PaletteFxConditions conditions, IActivePowerBomb? powerBomb = null)
+    public void Step(PaletteFxConditions conditions)
     {
-        audioPowerBomb = powerBomb;
+        audioPowerBomb = Ensure.NotNull(conditions).PowerBomb;
         RunTurns(conditions, ShowGameplayFrame);
     }
 

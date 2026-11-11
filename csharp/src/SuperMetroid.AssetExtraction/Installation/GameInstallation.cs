@@ -77,7 +77,7 @@ public sealed record GameInstallation(string Root)
     /// <summary>Stock decoded terrain a Wave shot's scan finds straddling two blocks, which is not presentation the player edits.</summary>
     public string StraddledTerrainDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.StraddledTerrainDirectoryName);
     /// <summary>Loads the validated terrain a Wave shot's scan past the room's ceiling finds straddling two blocks.</summary>
-    public SuperMetroid.Core.Compatibility.StraddledTerrain LoadStraddledTerrain() => StraddledTerrainFiles.Load(StraddledTerrainDirectory);
+    public SuperMetroid.Core.Compatibility.StraddledTerrain<SuperMetroid.Core.Rooms.LevelData.RoomTerrainBlock> LoadStraddledTerrain() => StraddledTerrainFiles.Load(StraddledTerrainDirectory);
     /// <summary>Stock decoded results of what enemies read past their authored data, which are not presentation the player edits.</summary>
     public string EnemyOverreadDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EnemyOverreadDirectoryName);
     /// <summary>Loads the validated compatibility services reproducing what enemies read past their authored data.</summary>

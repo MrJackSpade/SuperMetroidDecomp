@@ -56,7 +56,7 @@ public sealed class SamusXrayState
     public bool AreAnimatedTilesSuspended =>
         (SuspendedSubsystems & XraySuspendedSubsystems.AnimatedTiles) != XraySuspendedSubsystems.None;
 
-    /// <summary>Whether X-ray's independent palette-FX disable remains set; this suspends room palette effects, not Samus's separate visor palette handler.</summary>
+    /// <summary>Whether X-ray's independent palette-FX disable remains set; this suspends the room's colour effects, not the separate colouring of Samus's visor.</summary>
     public bool ArePaletteFxSuspended =>
         (SuspendedSubsystems & XraySuspendedSubsystems.PaletteFx) != XraySuspendedSubsystems.None;
 
@@ -95,14 +95,14 @@ public sealed class SamusXrayState
     public SignedSixteenSixteen AngularWideningSpeed { get; private set; }
 
     /// <summary>
-    /// The visor-colour sequence the palette handler runs: widening at admission, full beam once the palette
-    /// handler sees the full-beam phase, and a request to restore the normal suit palette after teardown.
+    /// The visor-colour sequence X-ray's suit colouring runs: widening at admission, full beam once the colouring
+    /// sees the full-beam phase, and a request to restore the normal suit colours after teardown.
     /// </summary>
     public XrayVisorPaletteMode VisorPaletteMode { get; private set; }
 
     /// <summary>
-    /// The special-palette handler this owner holds: X-ray once the visor command installs it, none after
-    /// teardown restores the suit palette or another handler replaces it.
+    /// The special suit colouring X-ray runs: X-ray's once the visor command starts it, none after teardown
+    /// restores the suit colours or another colouring takes over.
     /// </summary>
     public SamusSpecialPaletteType SpecialPaletteKind { get; private set; }
 
@@ -256,7 +256,7 @@ public sealed class SamusXrayState
         // pose-input handler is gone as well as its movement handler. Keeping the host lock
         // would make Samus immobile again when X-Ray teardown restores ordinary input.
         samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
-        // The same routine replaces the shared movement/palette handlers and clears
+        // The same step takes over Samus's movement and suit colouring and clears
         // the special-palette timer even when an interrupted Flash, not a normal charge, owns it.
         samus.CrystalFlash.RelinquishMovementHandler();
         samus.CrystalFlash.RelinquishPaletteHandler();
@@ -320,7 +320,7 @@ public sealed class SamusXrayState
         CommonPaletteTimer = 0;
     }
 
-    /// <summary>Another special-palette handler replaces the shared special-palette words.</summary>
+    /// <summary>Another special suit colouring takes over from X-ray's.</summary>
     internal void RelinquishPaletteHandler()
     {
         SpecialPaletteKind = SamusSpecialPaletteType.None;
@@ -495,7 +495,7 @@ public sealed class SamusXrayState
             completed: !IsActive);
     }
 
-    /// <summary>Runs the X-ray visor palette and writes only visor color four until restoration.</summary>
+    /// <summary>Runs the X-ray visor's colouring, which changes only the visor's shade until restoration.</summary>
     public bool UpdatePalette(
         SamusColours colours,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems)

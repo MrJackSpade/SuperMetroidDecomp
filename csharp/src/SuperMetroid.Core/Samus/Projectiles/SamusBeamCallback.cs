@@ -38,13 +38,13 @@ internal enum SamusBeamCallback
     ChargedChainsawOverrun,
     /// <summary>
     /// Uncharged combination fifteen reads an operand of the charged-shot routine past the callback table; it names a
-    /// word of work memory, so the game executes Samus's state as code. That is outside the emulation scope limit
+    /// place in the game's live state, so the game executes Samus's state as code. That is outside the emulation scope limit
     /// (#1500): the shot is rejected loudly.
     /// </summary>
     UnchargedCombinationFifteenOverrun,
     /// <summary>
     /// Charged combination twelve reads the first instruction of the projectile placement routine past the charged
-    /// callback table; it names a word of work memory, so the game executes that memory as code. That is outside the
+    /// callback table; it names a place in the game's live state, so the game executes that state as code. That is outside the
     /// emulation scope limit (#1500): the shot is rejected loudly.
     /// </summary>
     ChargedCombinationTwelveOverrun,

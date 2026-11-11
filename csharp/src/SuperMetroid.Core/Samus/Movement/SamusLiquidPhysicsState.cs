@@ -267,10 +267,10 @@ public sealed class SamusLiquidPhysicsState
     /// lava/acid surface, without applying the Gravity Suit exemption.
     /// </summary>
     /// <remarks>
-    /// This is the exact environmental question asked by the Samus palette handler.
+    /// This is the exact environmental question asked by Samus's suit colouring.
     /// It deliberately differs from
-    /// <see cref="DetermineMovementMedium"/>: the palette routine tests the Gravity
-    /// Suit bit first, then performs the raw bottom-boundary liquid test. Keeping those two
+    /// <see cref="DetermineMovementMedium"/>: the suit colouring checks for the Gravity
+    /// Suit first, then performs the raw bottom-boundary liquid test. Keeping those two
     /// decisions separate lets the caller reproduce both the submerged Power/Varia early
     /// return and Gravity Suit's unconditional palette-animation bypass. Water option bit
     /// two still disables water, while a room with no water surface falls through to the

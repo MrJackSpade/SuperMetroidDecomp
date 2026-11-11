@@ -665,7 +665,7 @@ public sealed class SamusBombProjectileSystem
         else if (typeFamily == SamusProjectileFamily.PowerBomb)
         {
             // The update the explosion starts on touches no terrain. Every later frame scans the
-            // newly reached rectangle border using the high bytes of the explosion's shared radii.
+            // newly reached rectangle border using the explosion's shared radii in whole pixels.
             if (!explosionStarted && slot.BombTimer.IsZero && PowerBombExplosion.IsArmed)
             {
                 CollectPowerBombBoundaryReactions(
@@ -701,7 +701,7 @@ public sealed class SamusBombProjectileSystem
             slot.Position = slot.Position.WithWholeY(previousY).WithFractionY(previousYSub);
             if (slot.BombSpreadVerticalVelocity.WholePixels < 0)
             {
-                // A ceiling clears only the whole word; the fraction keeps accumulating gravity.
+                // A ceiling clears only the speed's whole pixels; the fraction keeps accumulating gravity.
                 slot.BombSpreadVerticalVelocity = slot.BombSpreadVerticalVelocity.WithWholePixels(0);
                 slot.Radius = slot.Radius.WithY(0);
             }
@@ -714,8 +714,8 @@ public sealed class SamusBombProjectileSystem
 
         int previousX = slot.Position.X.Whole;
         int previousXSub = slot.Position.X.Fraction;
-        // Rightward travel adds the speed with the fraction carrying into the whole word; leftward travel subtracts it
-        // with the borrow. Both wrap at sixteen whole bits, the signed 16.16 value's wrapping addition.
+        // Rightward travel adds the speed with the fraction carrying into the whole pixels; leftward travel subtracts
+        // it, borrowing from them. Both wrap after 65535 whole pixels, the signed 16.16 value's wrapping addition.
         slot.Position = slot.Position.AdvanceX(slot.BombSpreadHorizontal.Displacement);
         if (!BombSpreadCollides(level, slot))
             return;

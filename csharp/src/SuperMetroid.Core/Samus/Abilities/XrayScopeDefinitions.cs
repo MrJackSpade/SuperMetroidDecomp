@@ -18,7 +18,7 @@ public static class XrayScopeDefinitions
         public const int FullCycleFirstShade = SamusPaletteDefinitions.Visor.CycleFirstShade;
         /// <summary>The visor shade count, which ends the full-beam cycle.</summary>
         public const int FullCycleEndShade = SamusPaletteDefinitions.Visor.CycleEndShade;
-        /// <summary>Frames between visor color advances.</summary>
+        /// <summary>Frames between visor shade advances.</summary>
         public const int FrameDelay = SamusPaletteDefinitions.Visor.FrameDelay;
     }
 

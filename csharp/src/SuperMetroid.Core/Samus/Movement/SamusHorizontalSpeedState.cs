@@ -210,7 +210,7 @@ public sealed class SamusHorizontalSpeedState
         {
             if (!HasRunningMomentum)
             {
-                // Initializes the counter's authored low byte.
+                // Starts the running momentum and the boost's colour timer and step.
                 // Palette writes themselves remain renderer work, but their
                 // frame/timer state is movement-visible and therefore retained here.
                 HasRunningMomentum = true;
@@ -335,7 +335,7 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     /// <returns>True when this call copied an authored palette into Samus's colours.</returns>
     /// <param name="colours">Samus's colours, which the copied palette replaces.</param>
-    /// <param name="frame">What this update's palette handler reads of Samus.</param>
+    /// <param name="frame">What this update's suit colouring reads of Samus.</param>
     internal bool UpdateSpeedBoosterPalette(SamusColours colours, SpeedBoosterPaletteFrame frame)
     {
         Ensure.NotNull(colours);
@@ -343,9 +343,9 @@ public sealed class SamusHorizontalSpeedState
         bool paletteCopied = ApplyPendingNormalSuitPaletteRestore(colours, frame.EquippedItems);
         SamusSuit suit = frame.EquippedItems.ShownSuit();
 
-        // Stored-shine and shinespark handlers have priority in the palette dispatcher. Cancellation's
-        // immediate normal-palette copy above still occurs, but handler zero must not advance
-        // its hidden four-frame Speed Booster cycle beneath handler one or six.
+        // The stored shine's and the shinespark's suit colourings take priority. Cancellation's
+        // immediate normal-colour copy above still occurs, but the ordinary colouring must not advance
+        // its hidden four-frame Speed Booster cycle beneath the stored shine's or the shinespark's.
         if (frame.SuppressActiveSpeedBoosterPalette)
             return paletteCopied;
 
@@ -374,9 +374,8 @@ public sealed class SamusHorizontalSpeedState
 
             if (frame.AnimationFrame >= 27)
             {
-                // Carry clear asks the outer palette dispatcher to copy
-                // the normal suit palette for frames 27 onward. Frames 1..26 cycle below.
-                // The colour store is the runtime's directly visible palette buffer.
+                // From frame 27 onward Samus shows her normal suit colours.
+                // Frames 1..26 cycle below. Samus's colours are what the next shown frame displays.
                 SamusNormalSuitPalette.Load(colours, frame.EquippedItems);
                 return true;
             }
@@ -424,7 +423,7 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Defers the normal 16-color suit copy until before the runtime's palette handlers.
+    /// Defers restoring Samus's normal suit colours until just before this update's suit colourings run.
     /// The game's pose initialization performs this when leaving a Screw Attack spin family.
     /// </summary>
     public void RequestNormalSuitPaletteRestore() => NormalSuitPaletteRestoreRequested = true;
@@ -573,7 +572,7 @@ public sealed class SamusHorizontalSpeedState
     /// <summary>
     /// Performs the complete horizontal-momentum teardown shared by collision, standing,
     /// posture, aerial, and Morph-Ball handlers. The seam first cancels Speed Booster
-    /// bookkeeping/echoes, then clears the two extra-run words, two base-speed words, and
+    /// bookkeeping/echoes, then clears the extra run speed, the base speed and the
     /// acceleration mode; keeping that ordering here prevents five copies from diverging.
     /// </summary>
     public void ClearHorizontalMomentum(SamusFacingDirection facingDirection)
@@ -691,8 +690,8 @@ public sealed class SamusHorizontalSpeedState
         SamusHorizontalMotion.Row(ActiveSpeedTable, movementType);
 
     /// <summary>
-    /// Resolves authored speed entries without reading the original data. Fields remain split into the
-    /// same high/low words as the original table instead of becoming floating-point values.
+    /// Resolves authored speed entries. Each speed keeps its whole pixels and its fraction exactly as
+    /// authored instead of becoming a floating-point value.
     /// </summary>
     public SpeedTableEntry ReadEntry(SamusMovementType movementType) => ReadEntryAtRow(ResolveEntryRow(movementType));
 
@@ -705,7 +704,7 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// Calculates the horizontal base speed and returns its unsigned
-    /// 16.16 result. It mutates the modeled speed words exactly once.
+    /// 16.16 result. It updates Samus's base speed exactly once.
     /// </summary>
     public UnsignedSixteenSixteen CalculateBaseSpeed(SamusMovementType movementType)
     {
@@ -728,7 +727,7 @@ public sealed class SamusHorizontalSpeedState
         {
             BaseSpeed -= ScaledDeceleration(entry);
 
-            // The sign test reads only the high word. Once deceleration crosses
+            // The sign test reads only the whole pixels. Once deceleration crosses
             // below zero it clears both halves and returns to acceleration mode zero.
             if (SamusSpeedMagnitude.HasPassedZero(BaseSpeed.Whole))
             {
@@ -781,7 +780,7 @@ public sealed class SamusHorizontalSpeedState
                 AccelerationMode = SamusAccelerationMode.Accelerating;
             }
 
-            // Every path through the deceleration-disallowed routine exits with carry clear.
+            // No path through the deceleration-disallowed calculation reports reaching the maximum.
             return new AerialBaseSpeedResult(BaseSpeed, ReachedMaximum: false);
         }
 

@@ -321,7 +321,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         samus.HorizontalSpeed.BaseSpeed = default;
 
         // A triggered wall jump queues the landing sound with a
-        // six-entry threshold after clearing the base-speed words and before pose setup.
+        // six-entry threshold after clearing the base speed and before pose setup.
         samus.LiquidPhysics.QueueMovementSound(RoomSound.Landing, priority: SoundRequestPriority.Normal);
 
         SamusAerialMovement.InitializeWallJump(samus);
@@ -436,9 +436,9 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
         }
 
-        // Clears the two base-X and two Y-speed words regardless of the
-        // pose-collision result. Extra run speed is not touched by this routine; an ordinary
-        // connected grapple never creates it, so preserving the words is the literal rule.
+        // Clears the horizontal base speed and the vertical speed regardless of the
+        // pose-collision result. Extra run speed is not touched here; an ordinary
+        // connected grapple never creates it, so keeping it is the literal rule.
         if (speed == GrappleDropSpeed.Cleared)
         {
             samus.HorizontalSpeed.BaseSpeed = default;

@@ -29,7 +29,7 @@ internal sealed class BeamCombos
     /// <summary>
     /// Angle step the Ice and Plasma special attacks add to every orbiting slot's angle each update: four, or minus
     /// four when a left-facing Samus starts the attack; activation also stores four for Wave and zero for Spazer,
-    /// which never read it. Each slot keeps only the low byte of angle plus step, so minus four turns the 256-step
+    /// which never read it. Each slot's angle plus step wraps around the angle's 256 steps, so minus four turns the
     /// angle the opposite way by the same four steps.
     /// </summary>
     public int ComboState { get; internal set; }
@@ -48,12 +48,12 @@ internal sealed class BeamCombos
         if (samus.SelectedHudItem != HudItem.PowerBomb) return false;
         SamusBeamCombination beam = SamusBeamCombinations.Of(samus.EquippedBeams);
         // A Spazer and Plasma combination indexes the special-attack dispatch past its twelve entries, into the angles
-        // the Ice and Plasma attacks start their slots at. Read as routine places those angles name work memory, so the
-        // game executes that memory as code, which only full memory and processor emulation could reproduce: the
+        // the Ice and Plasma attacks start their slots at. Read as places to continue the attack, those angles lead into the game's live state, so the
+        // game executes that state as code, which only full memory and processor emulation could reproduce: the
         // attack is rejected under the emulation scope limit (#1500).
         if (!beam.IsRetail)
             throw new NotSupportedException(
-                "A Spazer and Plasma special attack dispatches into work memory as code; reproducing it needs full memory " +
+                "A Spazer and Plasma special attack runs the game's live state as code; reproducing it needs full memory " +
                 "and processor emulation, which is outside the port's scope.");
         int remaining = samus.PowerBombs - SamusComboMechanics.GetPowerBombCost(beam);
         samus.PowerBombs = remaining < 0 ? 0 : remaining;

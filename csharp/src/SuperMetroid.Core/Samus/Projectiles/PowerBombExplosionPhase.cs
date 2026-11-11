@@ -7,7 +7,7 @@ public enum PowerBombExplosionPhase
     Inactive,
     /// <summary>The white pre-explosion: expands the non-damaging 8.8 flash radius with decreasing speed, up to 37376.</summary>
     PreExplosionWhite,
-    /// <summary>The yellow pre-explosion: advances the pre-scaled 192-byte lead-in shapes before initializing the damaging radius.</summary>
+    /// <summary>The yellow pre-explosion: advances the pre-scaled lead-in shapes before initializing the damaging radius.</summary>
     PreExplosionYellow,
     /// <summary>The yellow explosion: accelerates the damaging 8.8 radius while scaling the yellow explosion window.</summary>
     ExplosionYellow,

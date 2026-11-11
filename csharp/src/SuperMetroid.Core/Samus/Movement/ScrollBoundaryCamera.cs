@@ -211,7 +211,7 @@ public sealed class ScrollBoundaryCamera
     /// <summary>
     /// The fast-swing branch of the camera's scrolling: the camera
     /// steps three pixels toward a dead zone around Samus, then both autoscrollers run.
-    /// The camera speed words are not recalculated. A negative Samus X skips both axes.
+    /// The camera's scroll speeds are not recalculated. A negative Samus X skips both axes.
     /// </summary>
     public void TrackGrappleSlowScrolling(Position16<RoomPixels> samus, bool timeIsFrozen = false)
     {

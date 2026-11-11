@@ -31,8 +31,8 @@ public sealed class SamusDrainedState
     public DrainedSamusPhase Phase { get; private set; }
 
     /// <summary>
-    /// Live translation of the drained palette object. It animates sprite palette-six colors
-    /// one through eight independently of the earlier full-body rainbow palette handler.
+    /// The drained Samus's Hyper Beam glow colouring. It animates the glow's colours independently of the earlier
+    /// full-body rainbow colouring.
     /// </summary>
     public HyperBeamPaletteFxState HyperBeamPaletteFx { get; } = new();
 
@@ -182,7 +182,7 @@ public sealed class SamusDrainedState
     }
 
     /// <summary>
-    /// Runs the negative-super-special branch of Samus's palette handler.
+    /// Runs Samus's rainbow suit colouring after the Baby drains her, while the rainbow-start command's flag is set.
     /// </summary>
     /// <remarks>
     /// While the rainbow-start command's flag is set, this handler has absolute priority over

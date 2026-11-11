@@ -268,7 +268,7 @@ public static class SamusGroundedMovement
         // Cancels the speed boost on every turn frame. This matters even
         // without the Speed Booster item: the turn initializer folded the numeric extra component but
         // deliberately left the running-momentum flag set until this movement handler. Then the handler
-        // perform the separately observable zero writes to the two extra-speed words.
+        // cancels that momentum and zeroes the extra run speed, each separately observable.
         speed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         speed.ExtraRunSpeed = default;
         return new GroundedMovementResult(horizontal, vertical);

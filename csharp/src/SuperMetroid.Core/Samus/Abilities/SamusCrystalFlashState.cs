@@ -47,7 +47,7 @@ public sealed class SamusCrystalFlashState
     /// <summary>Replaces the movement handler without clearing the live Flash palette/timer.</summary>
     internal void RelinquishMovementHandler() => Phase = CrystalFlashPhase.Inactive;
 
-    /// <summary>Another special palette handler replaces the special-palette handler and its live timer.</summary>
+    /// <summary>Another special suit colouring takes over from Crystal Flash's, along with its running timer.</summary>
     internal void RelinquishPaletteHandler()
     {
         SpecialPaletteKind = SamusSpecialPaletteType.None;
@@ -66,8 +66,8 @@ public sealed class SamusCrystalFlashState
     public int CrystalPaletteTimer { get; private set; }
 
     /// <summary>
-    /// The special-palette handler this owner holds: Crystal Flash from activation until the finish restores the
-    /// beam palette, or none once another handler replaces it.
+    /// The special suit colouring Crystal Flash runs: Crystal Flash's from activation until the finish restores the
+    /// beam colours, or none once another colouring takes over.
     /// </summary>
     public SamusSpecialPaletteType SpecialPaletteKind { get; internal set; }
 
@@ -121,18 +121,18 @@ public sealed class SamusCrystalFlashState
     }
 
     /// <summary>
-    /// Applies every test and initialization write in <c>CrystalFlash</c>.
+    /// Starts Crystal Flash when Samus may use it: checks every admission condition and sets up the raise.
     /// </summary>
     /// <param name="samus">Live actor whose admission state is checked and whose pose, handler ownership, shared timers, and hit state are updated on success.</param>
-    /// <param name="controllerInput">Raw held-button word; ordinary admission requires exact equality to Down, L, R, and the Shot binding.</param>
-    /// <param name="shotBinding">Raw controller mask for Shot, defaulting to X; non-controller bits are rejected.</param>
+    /// <param name="controllerInput">The held buttons; ordinary admission requires exactly Down, L, R and the Shot button held.</param>
+    /// <param name="shotBinding">The button bound to Shot, defaulting to X; a binding that names no button is rejected.</param>
     /// <param name="inputCheck">
     /// True only while a title demo is ending and the game is returning from it. Ordinary
     /// gameplay must supply the exact chord; extra held buttons make initiation fail.
     /// </param>
     /// <returns>True after installing the raising handler; false when the chord or the speed, health, reserve, or ammunition preconditions reject activation.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="samus"/> is null.</exception>
-    /// <exception cref="InvalidDataException">A controller word contains non-controller bits or the Crystal Flash pose no longer has special movement.</exception>
+    /// <exception cref="InvalidDataException">The held buttons or the Shot binding name something that is not a button, or the Crystal Flash pose no longer has special movement.</exception>
     public bool TryBegin(
         SamusState samus,
         ControllerButton controllerInput,
@@ -178,9 +178,9 @@ public sealed class SamusCrystalFlashState
         // The routine reuses shinespark state but installs a distinct movement handler. The
         // states stay separate so Crystal Flash is never mistaken for a spark.
         samus.Shinespark.RelinquishToCrystalFlash();
-        // Reserve Mode leaves X-Ray's cone effect alive but Crystal Flash still replaces
-        // the shared special-palette handler. Keep the greyout object; release only its
-        // palette words so handler seven is the sole owner.
+        // Reserve Mode leaves X-Ray's cone effect alive but Crystal Flash still takes over
+        // Samus's special suit colouring. Keep the greyout; release only X-ray's suit
+        // colouring so Crystal Flash's colouring alone colours Samus.
         samus.Xray.RelinquishPaletteHandler();
         samus.DraygonGrabbed.RelinquishMovementHandler();
         // Flash admission can occur after the Super Metroid has already installed drained
@@ -351,11 +351,11 @@ public sealed class SamusCrystalFlashState
     }
 
     /// <summary>
-    /// Translates special Samus palette handler seven.
+    /// Runs Crystal Flash's suit colouring for one update.
     /// </summary>
     /// <remarks>
     /// The beams' colours are split deliberately: the body's shade pulses through ten steps of ten calls each, while the
-    /// bubble's shade, laid over the beams' upper colours, rotates through six steps every five handler calls. The import
+    /// bubble's shade, laid over the beams' upper colours, rotates through six steps every five updates. The import
     /// pre-colours Samus in every step of both (#1512); completion shows the beam shade of the currently equipped beam
     /// combination again.
     /// </remarks>

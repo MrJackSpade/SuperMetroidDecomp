@@ -146,7 +146,7 @@ public static class SamusSolidEnemyCollision
         bool borrowed = target.Fraction < reach.Fraction;
         int fraction = CoordinateAxis.Wrap(target.Fraction - reach.Fraction);
         // After a borrow the decrement's zero test reads the whole target, so it
-        // tests that word rather than the fraction and a second decrement follows unless it is 0.
+        // tests the whole pixels rather than the fraction and a second decrement follows unless it is 0.
         if (borrowed)
         {
             whole = WrappingCounter.DecrementCount(whole);
@@ -170,11 +170,11 @@ public static class SamusSolidEnemyCollision
     {
         int whole = CoordinateAxis.Wrap(target.Whole + reach.Whole);
 
-        // The add carries the fractional overflow into the whole word before the
+        // The add carries the fraction's overflow into the whole pixels before the
         // nonzero-fraction increment performs its outward pixel rounding.
         int fractionSum = target.Fraction + reach.Fraction;
         // After an overflow the increment's zero test reads the whole target, so it
-        // tests that word rather than the fraction and a second increment follows unless it is 0.
+        // tests the whole pixels rather than the fraction and a second increment follows unless it is 0.
         if (fractionSum > ushort.MaxValue)
         {
             whole = WrappingCounter.IncrementCount(whole);

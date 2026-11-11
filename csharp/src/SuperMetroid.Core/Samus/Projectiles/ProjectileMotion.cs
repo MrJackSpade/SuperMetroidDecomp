@@ -143,10 +143,10 @@ internal sealed class ProjectileMotion
         Accelerate(slot, SamusProjectileAccelerations.For(direction).Beam);
 
         // Wave's block collisions advance the same 16.16 positions and scan every block touched by
-        // the projectile radii, but deliberately return carry clear unconditionally. That is
+        // the projectile radii, but deliberately never report a collision. That is
         // the defining Wave Beam behavior: block reactions may run, yet terrain never kills
         // or clips the shot. The span scanners below now publish ordinary shootable-block
-        // room objects while intentionally discarding their carry result, matching this fallthrough.
+        // room objects while intentionally discarding their collision result, matching this fallthrough.
         if (MovesHorizontally(direction))
         {
             slot.Position = slot.Position.AdvanceX(slot.Velocity.X.ToSixteenSixteenDelta());
@@ -466,8 +466,8 @@ internal sealed class ProjectileMotion
         slot.Position = slot.Position.AdvanceX(slot.Velocity.X.ToSixteenSixteenDelta());
 
         // Missile block collision tests the projectile center, not its radius-spanning leading edge. Room
-        // width is stored in 256-pixel screens; coordinates in/past the first out-of-room
-        // high byte skip reaction and are left for the later 64-pixel viewport deletion.
+        // width is counted in 256-pixel screens; coordinates in or past the first screen beyond
+        // the room skip reaction and are left for the later 64-pixel viewport deletion.
         int roomWidthInScreens = (level.Size.X + 15) >> 4;
         if ((EightEight.WholeOf(slot.Position.X.Whole)) >= roomWidthInScreens)
             return false;

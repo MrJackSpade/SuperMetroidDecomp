@@ -9,8 +9,8 @@ public sealed record SamusAnimationStep
     public ControllerButton ControllerInput { get; init; } = 0;
 
     /// <summary>
-    /// The frame clock's value for this step, 0 through 65535: the clock wraps at sixteen bits and its low bits
-    /// pace liquid effects, so the full wrapped value is carried; other values are rejected.
+    /// The frame clock's value for this step, 0 through 65535: the clock wraps back to 0 after 65535 and paces
+    /// liquid effects, so the full wrapped value is carried; other values are rejected.
     /// </summary>
     public int FrameCounter
     {
@@ -18,7 +18,7 @@ public sealed record SamusAnimationStep
         init => field = Ensure.BetweenInclusive(0, Compatibility.FrameClock.CounterPeriod - 1, value);
     }
 
-    /// <summary>The session's random-number word, which Samus's liquid effects draw air bubbles from.</summary>
+    /// <summary>The session's random-number generator, which Samus's liquid effects draw air bubbles from.</summary>
     public required SharedRandom Random { get; init; }
 
     /// <summary>Begin liquid sound request frame.</summary>

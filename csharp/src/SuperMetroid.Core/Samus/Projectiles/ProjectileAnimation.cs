@@ -140,8 +140,8 @@ internal sealed class ProjectileAnimation
         int xOffset = visualOffset.X;
         int yOffset = visualOffset.Y;
 
-        // The flare draw applies Ceres's rotation under the same Ceres-status high bit used by the
-        // body renderer. Only Samus's center is transformed; the pose-selected muzzle
+        // The flare draw applies Ceres's rotation whenever the body renderer does, under the same
+        // Ceres status. Only Samus's center is transformed; the pose-selected muzzle
         // offsets are added afterward. Retail then restores Samus's world point, so this path
         // must never write the public physics coordinates merely to reuse the arithmetic.
         var samusPosition = samus.Position.Whole;

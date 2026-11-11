@@ -201,11 +201,11 @@ internal static class SamusPosturePoseTransitions
             // no horizontal Speed Booster state of its own.
             if (samus.Shinespark.TryStoreFromSpeedBooster(samus.HorizontalSpeed.SpeedBoostCounter))
             {
-                // The successful store replaces the shared palette handler
+                // The successful store takes over Samus's special suit colouring
                 // and timer even if an interrupted Flash was keeping them alive.
                 samus.CrystalFlash.RelinquishPaletteHandler();
                 // Reserve Mode keeps only X-Ray's cone effect. Crouch storage replaces
-                // shared palette handler eight with the stored-shine handler one.
+                // X-ray's suit colouring with the stored shine's.
                 samus.Xray.RelinquishPaletteHandler();
             }
 
@@ -314,7 +314,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.CrouchEntryD
         if (startsMorphing)
         {
             // The morphing-transition initializer restores PreviousPose and
-            // returns carry set when the Morph Ball bit is absent. No radius, animation, or position
+            // rejects the morph when Samus lacks the Morph Ball. No radius, animation, or position
             // write from the rejected prospective pose survives that frame.
             if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.MorphBall))
                 return false;
@@ -406,7 +406,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
     /// interrupt the transition with an ordinary movement-type-six falling record. This is
     /// not a fresh jump or an animation-completion shortcut: it enters the shared
     /// changed-pose initializer, makes room for the target body's potentially larger radius,
-    /// and preserves the existing X/Y speed words that describe Samus's current fall.
+    /// and preserves the existing horizontal and vertical speeds that describe Samus's current fall.
     /// </remarks>
     public static bool TryApplyUnmorphToFallingTransition(SamusState samus, 
 
@@ -444,7 +444,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
             // Radius sixteen is already non-ball geometry. If both sides constrain an
             // attempted full-height falling body, the crouch selector selects stable crouch just as
             // it does for aimed crouch and compact-aerial expansion. A failed compensating
-            // probe instead retains the visible unmorph frame and all live speed words.
+            // probe instead retains the visible unmorph frame and all of Samus's live speeds.
             if (collision == LargerPoseCollisionOutcome.CrouchFallback)
                 samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
             return false;
@@ -554,8 +554,8 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
             ? SamusPoseId.MorphBallGroundLeftPose
             : SamusPoseId.MorphBallGroundRightPose;
         ApplyMorphBallPoseChange(samus, groundedPose);
-        // Clears base momentum only when the bounce handler returns
-        // carry clear. Both airborne rebounds above retain their horizontal speed.
+        // Clears base momentum only when the bounce ends with the ball on the
+        // ground. Both airborne rebounds above retain their horizontal speed.
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
         samus.HorizontalSpeed.BaseSpeed = default;
         return true;
@@ -608,8 +608,8 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
             ? SamusPoseId.SpringBallGroundLeftPose
             : SamusPoseId.SpringBallGroundRightPose;
         ApplyMorphBallPoseChange(samus, groundPose);
-        // The common landing caller clears base speed when the bounce routine
-        // returns carry clear. Spring Ball shares this with ordinary ball landing.
+        // The common landing caller clears base speed when the bounce ends with
+        // the ball on the ground. Spring Ball shares this with ordinary ball landing.
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
         samus.HorizontalSpeed.BaseSpeed = default;
         return true;

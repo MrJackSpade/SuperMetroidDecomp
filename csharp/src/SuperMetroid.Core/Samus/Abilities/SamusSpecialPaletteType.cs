@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
-/// Special-Samus-palette handler index, dispatched through the handler table.
-/// These are the values the game stores into the word.
+/// Which special suit colouring colours Samus: the stored shine, a shinespark, Crystal Flash or the X-ray visor.
+/// At most one runs at a time; starting one ends the one before.
 /// </summary>
 public enum SamusSpecialPaletteType
 {
-    /// <summary>No special palette handler owns Samus's suit colors.</summary>
+    /// <summary>No special colouring changes Samus's suit colours.</summary>
     None = 0,
 
     /// <summary>Stored Speed Booster shine (the shine's colours, stored).</summary>

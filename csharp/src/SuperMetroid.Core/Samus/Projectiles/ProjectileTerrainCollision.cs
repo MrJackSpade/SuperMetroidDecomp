@@ -52,7 +52,7 @@ internal sealed class ProjectileTerrainCollision
         bool waveBeam,
         SamusPowerBombExplosionState powerBomb)
     {
-        // The producer explicitly stores zero in both 8.8 speed words. Direction seven is
+        // The producer explicitly sets both 8.8 speeds to zero. Firing left is
         // the sole exception: its firing setup writes -1 before the horizontal scan so the
         // amount-sign branch samples the left radius. Diagonal-left directions retain zero,
         // including the game's counterintuitive right-edge initial horizontal probe.
@@ -70,15 +70,15 @@ internal sealed class ProjectileTerrainCollision
         {
             bool horizontalReaction = MoveHorizontally(level, slot, roomObjects, waveBeam);
 
-            // The Wave-beam dispatcher deliberately clears carry after publishing a block
+            // The Wave-beam scan deliberately reports no collision after publishing a block
             // reaction. Preserve that contract here instead of allowing our shared scanner's
             // Boolean return to suppress the diagonal vertical probe. Ordinary beams retain
-            // the reaction result because their producer aborts immediately on carry set.
+            // the reaction result because their producer aborts immediately on a collision.
             collided = !waveBeam && horizontalReaction;
         }
 
-        // Diagonals call vertical collision only when the no-Wave horizontal call returned
-        // carry clear. Wave's horizontal routine always returns clear even when it
+        // Diagonals call vertical collision only when the no-Wave horizontal call reported
+        // no collision. Wave's horizontal scan never reports one even when it
         // publishes a block reaction, so it necessarily reaches this second axis as well.
         bool diagonal = direction is
             SamusProjectileDirection.UpRight or

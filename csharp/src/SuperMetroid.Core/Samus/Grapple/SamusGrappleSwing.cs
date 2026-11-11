@@ -216,8 +216,8 @@ public static class SamusGrappleSwing
 
 
     /// <summary>
-    /// The D-pad kick-start compares only the angle's high byte with 128;
-    /// the release-time drop test instead requires exactly 32768.
+    /// The D-pad kick-start compares only the angle's whole step with straight down;
+    /// the release-time drop test instead requires exactly half a turn.
     /// </summary>
     private static bool HangsStraightDown(SamusGrappleState grapple) =>
         grapple.Angle.WholeStep == RotationAngle.HalfTurn;
@@ -240,7 +240,7 @@ public static class SamusGrappleSwing
         }
         else if (angle >= RotationAngle.HalfTurn)
         {
-            // The hang test compares only the high byte: all of 32768-33023 hangs straight down.
+            // The hang test compares only the whole step: every angle from 32768 through 33023 hangs straight down.
             if (HangsStraightDown(grapple))
             {
                 grapple.GravityAcceleration = 0;

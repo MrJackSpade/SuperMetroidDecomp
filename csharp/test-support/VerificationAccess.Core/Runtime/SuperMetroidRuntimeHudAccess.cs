@@ -19,11 +19,21 @@ internal static class SuperMetroidRuntimeHudAccess
             self.Display.Latched.FxOverlay ?? throw new InvalidOperationException("No accepted NMI has latched a room's BG3 plane.");
 
         /// <summary>
+        /// The installed HUD artwork the runtime's HUD layout was read with: the tiles the import pictures the HUD's images
+        /// from, which the runtime never holds (#1616).
+        /// </summary>
+        /// <exception cref="InvalidOperationException">No map presentation is bound, or it is not a fixture's.</exception>
+        internal GameplayHudArtwork InstalledHudArtwork =>
+            SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportOf(self.Artwork.MapPresentation
+                ?? throw new InvalidOperationException("No map presentation is bound.")).GameplayHud;
+
+        /// <summary>
         /// The HUD's four rows the last accepted NMI latched, as the installed images' tiles lay them out, row by row, as
         /// the cartridge's packed tilemap words.
         /// </summary>
-        /// <exception cref="InvalidOperationException">No HUD artwork is bound.</exception>
-        internal ushort[] AcceptedHudWords => BackgroundTileWordBytes.Words(GameplayHudArtwork.Of(self.Hud.Presentation
-            ?? throw new InvalidOperationException("No HUD artwork is bound.")).Rows(self.AcceptedHud));
+        /// <exception cref="InvalidOperationException">No HUD layout is bound.</exception>
+        internal ushort[] AcceptedHudWords => self.Hud.Presentation is null
+            ? throw new InvalidOperationException("No HUD layout is bound.")
+            : BackgroundTileWordBytes.Words(self.InstalledHudArtwork.Rows(self.AcceptedHud));
     }
 }

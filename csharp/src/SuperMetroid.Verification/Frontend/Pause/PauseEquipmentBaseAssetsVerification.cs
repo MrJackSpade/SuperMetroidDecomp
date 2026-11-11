@@ -23,7 +23,7 @@ internal static class PauseEquipmentBaseAssetsVerification
     {
         byte[] nativeBase = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.EquipmentPage,
             PauseEquipmentBaseDefinitions.Cells * sizeof(ushort));
-        AssertTrue(BackgroundTileWordBytes.Tiles(nativeBase).SequenceEqual(InstalledAreaMapPresentation.PauseOf(original).EquipmentBase.CreateTilemap()),
+        AssertTrue(BackgroundTileWordBytes.Tiles(nativeBase).SequenceEqual(InstalledFixtures.ImportOf(original).Pause.EquipmentBase.CreateTilemap()),
             "all 1024 equipment base cells match the native tiles");
 
         var native = new PauseMenuState(new PauseMenuEntry { Samus = Samus(), System = new SharedGameState(new SharedRandom()), AreaIndex = AreaId.Norfair, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });

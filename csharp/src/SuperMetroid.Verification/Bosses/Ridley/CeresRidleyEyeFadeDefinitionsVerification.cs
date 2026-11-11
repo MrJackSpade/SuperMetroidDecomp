@@ -42,7 +42,7 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
             "Ceres Ridley eye fade rejects restored offsets beyond the authored schedule");
 
         var guard = NewCeresRidleyEyeFadeReadGuard(rom);
-        CeresRidleyColorCatalog colours = ImportAreaMapPresentation.CeresRidleyColorsOf(RetailPresentationFixture());
+        CeresRidleyColorCatalog colours = RetailImportPresentationFixture().CeresRidleyColors;
         IReadOnlyList<SuperMetroid.AssetExtraction.Artwork.SheetShade> shades = SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.CeresSprites(colours);
         Action<RidleyEnemyState> tick = CeresRidleyFades.TickCeresRidleyEyeFade;
 

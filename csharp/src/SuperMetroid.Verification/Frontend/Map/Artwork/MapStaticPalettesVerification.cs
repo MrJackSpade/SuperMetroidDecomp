@@ -18,7 +18,7 @@ internal static class MapStaticPalettesVerification
     {
         var palette = new SnesCgram();
         SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(palette, bus, MapSourceDefinitions.Artwork.PauseColors);
-        MapStaticPalettes installed = ImportAreaMapPresentation.PalettesOf(original);
+        MapStaticPalettes installed = InstalledFixtures.ImportOf(original).Palettes;
         AssertTrue(palette.Colors.SequenceEqual(installed.Pause), "all static pause colors match cartridge");
         AssertEqual(palette.Colors[0], original.Backdrops.Pause, "the pause backdrop is the cartridge's backdrop colour");
         SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(palette, bus, MapSourceDefinitions.Menu.Colors);

@@ -79,8 +79,7 @@ internal static class InstalledFixtures
     /// Lazy map and shared presentation resources, as the import reads them (#1544): the game's presentation with the
     /// colours the fixture sheets are pre-coloured from. Its identity is the game's read's.
     /// </summary>
-    private static readonly Lazy<AreaMapPresentation> maps = Shared<AreaMapPresentation>("maps", () =>
-        SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationFiles.LoadForImport(RepositoryInstallation.Installation.MapDirectory));
+    private static readonly Lazy<ImportAreaMapPresentation> maps = RepositoryInstallation.ImportMapsLoader;
 
     /// <summary>Lazy installed enemy tile and sprite artwork.</summary>
     private static readonly Lazy<InstalledEnemyArtwork> enemyArtwork = Shared<InstalledEnemyArtwork>("enemy artwork", () => RepositoryInstallation.Installation.LoadEnemyTiles());
@@ -154,8 +153,42 @@ internal static class InstalledFixtures
     private static readonly Lazy<ExtractedAudioAssetCatalog> audio = new(() => SharedFixtureTiming.Load("Fixture: extracted audio",
         () => ExtractedAudioAssetCatalog.Load(RepositoryInstallation.Installation.AudioDirectory)));
 
-    /// <summary>The installation's stock map and presentation catalog, loaded once per process.</summary>
-    internal static AreaMapPresentation Maps => maps.Value;
+    /// <summary>The installation's stock map and presentation catalog the game binds, loaded once per process.</summary>
+    internal static AreaMapPresentation Maps => maps.Value.Game;
+
+    /// <summary>
+    /// The installation's stock map presentation as the import reads it, loaded once per process: <see cref="Maps"/> beside the
+    /// source artwork and colours the fixture sheets are composed from, which the game never receives (#1616).
+    /// </summary>
+    internal static ImportAreaMapPresentation ImportMaps => maps.Value;
+
+    /// <summary>Fixture presentations a check built as the import reads them, by the game catalog each holds (#1616).</summary>
+    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<AreaMapPresentation, ImportAreaMapPresentation> fixtureImports = new();
+
+    /// <summary>
+    /// Records a fixture presentation a check built as the import reads it, so checks that hold only the game catalog it
+    /// binds can compose what the import composes from it (<see cref="ImportOf"/>).
+    /// </summary>
+    /// <param name="maps">The fixture presentation as the import reads it.</param>
+    /// <returns><paramref name="maps"/>.</returns>
+    internal static ImportAreaMapPresentation Record(ImportAreaMapPresentation maps)
+    {
+        SuperMetroid.Core.Ensure.NotNull(maps);
+        fixtureImports.AddOrUpdate(maps.Game, maps);
+        return maps;
+    }
+
+    /// <summary>
+    /// The import's read of the installed presentation the game catalog <paramref name="game"/> was taken from: the
+    /// installation's, or a fixture's a check recorded (<see cref="Record"/>), so a check that holds only what a runtime or
+    /// screen binds can compose what the import composed from it (#1616).
+    /// </summary>
+    /// <param name="game">The catalog a runtime or screen binds.</param>
+    /// <exception cref="InvalidOperationException">The catalog is neither the installation's nor a recorded fixture's.</exception>
+    internal static ImportAreaMapPresentation ImportOf(SuperMetroid.Core.Gameplay.IGameplayPresentationContent game) =>
+        ReferenceEquals(SuperMetroid.Core.Ensure.NotNull(game), Maps) ? ImportMaps
+        : game is AreaMapPresentation catalog && fixtureImports.TryGetValue(catalog, out ImportAreaMapPresentation? recorded) ? recorded
+        : throw new InvalidOperationException("The map presentation is neither the repository installation's nor a recorded fixture's; record the import's read of it.");
 
     /// <summary>The installation's stock enemy artwork, loaded once per process.</summary>
     internal static EnemyTileSourceArtwork EnemyTiles => enemyArtwork.Value.Enemies;
@@ -327,7 +360,7 @@ internal static class InstalledFixtures
         TitleGraphicsCharacters? titleGraphicsPresentation = null) =>
         new(audio, titleGradientPresentation ?? Maps.TitleGradient,
             titleBackdrop ?? Maps.TitleBackdrop,
-            MenuSheetFixtures.WithTitle(titleGraphicsPresentation ?? InstalledAreaMapPresentation.TitleGraphicsOf(Maps)));
+            MenuSheetFixtures.WithTitle(titleGraphicsPresentation ?? ImportMaps.TitleGraphics));
 
     /// <summary>Creates a pause menu while retaining the supplied state and installed map presentation.</summary>
     internal static PauseMenuState CreatePause(PauseMenuEntry entry) =>

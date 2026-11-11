@@ -40,21 +40,21 @@ internal static class EndingSheetFixtures
         ArgumentNullException.ThrowIfNull(objects);
         string identity = objects.ContentIdentity;
         return identity == stockIdentity.Value ? InstalledFixtures.SpriteSheets
-            : composed.GetOrAdd(identity, key => Compose(objects, palettes.Value, InstalledFixtures.Maps, key[..8], withFloors: false));
+            : composed.GetOrAdd(identity, key => Compose(objects, palettes.Value, InstalledFixtures.ImportMaps, key[..8], withFloors: false));
     }
 
     /// <summary>Installed sheets with the ending sheets composed over edited maps, by map presentation.</summary>
-    private static readonly ConditionalWeakTable<AreaMapPresentation, InstalledSpriteSheets> mapSheets = new();
+    private static readonly ConditionalWeakTable<ImportAreaMapPresentation, InstalledSpriteSheets> mapSheets = new();
 
     /// <summary>
     /// The installed sheets with the ending sheets the installed ending artwork composes over <paramref name="maps"/>' font
     /// and palette-FX colours: the ending's sprites, pictures and floors are pre-coloured from them (#1512), so edited
     /// palette-FX colours show only through them.
     /// </summary>
-    internal static InstalledSpriteSheets WithEndingMaps(AreaMapPresentation maps)
+    internal static InstalledSpriteSheets WithEndingMaps(ImportAreaMapPresentation maps)
     {
         ArgumentNullException.ThrowIfNull(maps);
-        return maps.ContentIdentity == InstalledFixtures.Maps.ContentIdentity ? InstalledFixtures.SpriteSheets : mapSheets.GetValue(maps,
+        return maps.Game.ContentIdentity == InstalledFixtures.Maps.ContentIdentity ? InstalledFixtures.SpriteSheets : mapSheets.GetValue(maps,
             key => Compose(RepositoryInstallation.Installation.LoadEndingObjectArt(), palettes.Value, key,
                 $"maps-{RuntimeHelpers.GetHashCode(key):X8}", withFloors: true));
     }
@@ -68,12 +68,12 @@ internal static class EndingSheetFixtures
     /// <paramref name="maps"/>, named by <paramref name="tag"/>: its sprite and picture sheets, and its floors when
     /// <paramref name="withFloors"/>.
     /// </summary>
-    private static InstalledSpriteSheets Compose(EndingObjectArtwork objects, EndingPaletteSet colours, AreaMapPresentation maps, string tag,
+    private static InstalledSpriteSheets Compose(EndingObjectArtwork objects, EndingPaletteSet colours, ImportAreaMapPresentation maps, string tag,
         bool withFloors)
     {
         var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(id => id, InstalledFixtures.SpriteSheets.Get);
         foreach (SpriteSheetId sheet in EndingSpriteSheetsConstants.Sheets)
-            sheets[sheet] = CinematicSheetFixtures.Load(EndingSpriteSheetComposer.Sources(sheet, objects, colours, InstalledAreaMapPresentation.EndingFontOf(maps), ImportAreaMapPresentation.RoomPaletteFxOf(maps)),
+            sheets[sheet] = CinematicSheetFixtures.Load(EndingSpriteSheetComposer.Sources(sheet, objects, colours, maps.EndingFont, maps.RoomPaletteFx),
                 $"{SpriteSheetDefinitions.FileNames[sheet]}-fixture-{tag}");
         // The ending's background pictures and floors are pre-coloured from these objects, colours and maps (#1392, #1467).
         var tileSources = new ScreenTileSources(() => maps, () => InstalledFixtures.IntroArtwork, () => objects, () => colours,
@@ -98,7 +98,7 @@ internal static class EndingSheetFixtures
     {
         ArgumentNullException.ThrowIfNull(mode7);
         var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(id => id, InstalledFixtures.SpriteSheets.Get);
-        var tileSources = new ScreenTileSources(() => InstalledFixtures.Maps, () => InstalledFixtures.IntroArtwork,
+        var tileSources = new ScreenTileSources(() => InstalledFixtures.ImportMaps, () => InstalledFixtures.IntroArtwork,
             RepositoryInstallation.Installation.LoadEndingObjectArt, () => palettes.Value, () => mode7);
         foreach (SpriteSheetId sheet in EndingFloorSheets)
             sheets[sheet] = Loaded(sheet, FrontendFloorSheetComposer.Compose(sheet, tileSources), "mode7");

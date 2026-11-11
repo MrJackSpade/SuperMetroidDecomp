@@ -44,9 +44,9 @@ internal static class RidleyLaidColours
     internal static RgbColor[] Ceres(RidleyEnemyState state, AreaMapPresentation maps)
     {
         ArgumentNullException.ThrowIfNull(maps);
-        CeresRidleyColorCatalog ceres = ImportAreaMapPresentation.CeresRidleyColorsOf(maps);
+        CeresRidleyColorCatalog ceres = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportOf(maps).CeresRidleyColors;
         return [.. Of(state, RidleySheetShades.CeresSprites(ceres),
-            [.. RidleySheetShades.CeresRoom(ceres, ImportAreaMapPresentation.CeresRidleyFloorColorsOf(maps)), .. RidleySheetShades.CeresWarning(ceres)], 0)
+            [.. RidleySheetShades.CeresRoom(ceres, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportOf(maps).CeresRidleyFloorColors), .. RidleySheetShades.CeresWarning(ceres)], 0)
             .Select(RgbColor.FromWord)];
     }
 }

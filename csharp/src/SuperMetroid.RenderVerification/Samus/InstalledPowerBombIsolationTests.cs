@@ -25,7 +25,7 @@ internal static class InstalledPowerBombIsolationTests
     internal static void Run(string installationRoot)
     {
         string stockDirectory = Path.Combine(Path.GetFullPath(installationRoot), "game", "maps");
-        AreaMapPresentation stock = MapPresentationFiles.Load(stockDirectory);
+        AreaMapPresentation stock = MapPresentationFiles.Load(stockDirectory).Game;
         CheckCompiledLifetimeOperands(stock.PowerBombFixedColors);
         CheckStateRestoration(stock.PowerBombFixedColors);
         var framesToRender = new List<ContextFrame>();

@@ -19,8 +19,9 @@ internal static class PausePictureSheetConstants
     {
         Ensure.NotNull(maps);
         var frame = new BackgroundTile[PauseBackdropDefinitions.Cells];
-        InstalledAreaMapPresentation.PauseOf(maps).Backdrops.LoadTo(frame, area);
-        BackgroundTile[] buttons = PausePictureSheet.ButtonRows(maps);
+        SuperMetroid.AssetExtraction.Frontend.Map.ImportAreaMapPresentation installed = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportOf(maps);
+        installed.Pause.Backdrops.LoadTo(frame, area);
+        BackgroundTile[] buttons = PausePictureSheet.ButtonRows(installed);
         foreach (int cell in PausePictureSheet.ButtonRowCells())
             frame[cell] = buttons[cell];
         foreach (PauseButtonLabel label in Enum.GetValues<PauseButtonLabel>())

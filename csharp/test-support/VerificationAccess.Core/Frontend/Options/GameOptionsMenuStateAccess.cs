@@ -14,11 +14,11 @@ internal static class GameOptionsMenuStateAccess
         /// <summary>
         /// The page the menu shows, laid out as the cartridge's little-endian tilemap words from the import's sources of the
         /// pictures it places (#1467): the page with its language rows, controller labels or toggle choices as shown, read
-        /// from <paramref name="maps"/>, the presentation the menu was built with.
+        /// from <paramref name="maps"/>, the import's read of the presentation the menu was built with (#1616).
         /// </summary>
-        internal byte[] ShownPageBytes(AreaMapPresentation maps)
+        internal byte[] ShownPageBytes(SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentation maps)
         {
-            GameOptionsSourcePresentation presentation = GameOptionsSourcePresentation.Of(Ensure.NotNull(maps).GameOptions);
+            GameOptionsSourcePresentation presentation = Ensure.NotNull(maps).GameOptions;
             ShownOptionsPage shown = self.ShownPage;
             BackgroundTile[] tiles = presentation.CreatePage(shown.Page);
             switch (shown.Page)

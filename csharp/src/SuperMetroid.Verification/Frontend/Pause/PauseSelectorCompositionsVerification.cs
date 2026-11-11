@@ -20,14 +20,14 @@ internal static class PauseSelectorCompositionsVerification
         byte[] bytes = PauseSelectorExtractor.Extract(rom);
         var stock = PauseSelectorSourcePresentation.Load(new MemoryStream(bytes));
         for (int group = 0; group < 3; group++) VerifyPauseSelectorNativeCompositions(rom, stock, group);
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.Draw(ScreenSpritesFixtures.Blank(), MenuSheetFixtures.PauseSprites(stock), 0, 0, -1), "negative composition phase");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Presentation.Draw(ScreenSpritesFixtures.Blank(), MenuSheetFixtures.PauseSprites(stock), 0, 0, -1), "negative composition phase");
     }
 
     /// <summary>
     /// Compares each group's 14 phases with native OAM; the object limit that cuts a frame short in a nearly full sprite
     /// buffer is not replicated (#1513).
     /// </summary>
-    internal static void VerifyPauseSelectorNativeCompositions(ISnesAddressSpace rom, PauseSelectorPresentation selector, int group)
+    internal static void VerifyPauseSelectorNativeCompositions(ISnesAddressSpace rom, PauseSelectorSourcePresentation selector, int group)
     {
         int program = 0x820000 | ReadVerificationWord(rom, 0x82c0ec);
         int bases = 0x820000 | ReadVerificationWord(rom, 0x82c1e8);
@@ -43,7 +43,7 @@ internal static class PauseSelectorCompositionsVerification
                 var expected = new OamBuffer(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
                 DrawImportedSpritemap(rom, expected, pointer, new(x, y), 0x600);
                 SpriteSheet sheet = MenuSheetFixtures.PauseSprites(selector);
-                selector.Draw(actual, sheet, anchor.Category, anchor.Item, phase);
+                selector.Presentation.Draw(actual, sheet, anchor.Category, anchor.Item, phase);
                 expected.FinalizeFrame(); actual.FinalizeFrame();
                 AssertTrue(expected.ImageEquals(actual),
                     "native selector composition, attributes and order");

@@ -27,10 +27,10 @@ internal static class MapStationLayoutVerification
                 var installed = new FileSelectMapIcons(system, area);
                 native.BindStations(original.Stations);
                 native.BindLandmarks(original.Landmarks);
-                native.BindSprites(MenuSheetFixtures.MapSprites(InstalledAreaMapPresentation.SpritesOf(original)));
+                native.BindSprites(MenuSheetFixtures.MapSprites(InstalledFixtures.ImportOf(original).Sprites));
                 installed.BindStations(original.Stations);
                 installed.BindLandmarks(original.Landmarks);
-                installed.BindSprites(MenuSheetFixtures.MapSprites(InstalledAreaMapPresentation.SpritesOf(original)));
+                installed.BindSprites(MenuSheetFixtures.MapSprites(InstalledFixtures.ImportOf(original).Sprites));
                 AssertTrue(Draw(native).SequenceEqual(Draw(installed)), $"station OAM stock parity {area}/{mask}");
                 combinations++;
             }

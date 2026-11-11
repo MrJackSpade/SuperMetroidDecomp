@@ -21,7 +21,7 @@ internal static class PauseTileAtlasVerification
     /// <summary>Compares stock VRAM bytes, three-area menu transitions and a restored equipment page.</summary>
     internal static void VerifyPauseTileAtlas(ISnesAddressSpace bus, AreaMapPresentation original)
     {
-        var vram = new SnesVram(); MapCharacterArtwork.Of(original).Pause.LoadTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(PauseTileAtlasFormatConstants.DestinationByte / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort)));
+        var vram = new SnesVram(); InstalledFixtures.ImportOf(original).Characters.Pause.LoadTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(PauseTileAtlasFormatConstants.DestinationByte / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort)));
         AssertTrue(vram.Bytes.Slice(PauseTileAtlasFormatConstants.DestinationByte, PauseTileAtlasFormat.ByteCount).SequenceEqual(
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Artwork.PauseInterfaceCharacters, PauseTileAtlasFormat.ByteCount)), "pause UI PNG round-trips all native character bytes");
         foreach (AreaId area in new[] { AreaId.Crateria, AreaId.Maridia, AreaId.Tourian })

@@ -47,8 +47,8 @@ internal sealed class RuntimeArtworkContent(SuperMetroidRuntime runtime, RoomCha
                 InstalledArtworkId.GunshipLiftoffFifthTiles
             ? (EnemyTiles.GunshipLiftoff ?? throw new InvalidOperationException("Gunship takeoff artwork is not bound.")).Resolve(asset)
             : asset is InstalledArtworkId.EscapeTimerFirstTiles or InstalledArtworkId.EscapeTimerSecondTiles
-            ? EscapeTimerTilePageTransfers.Resolve(InstalledAreaMapPresentation.EscapeTimerTilesOf(runtime.Artwork.MapPresentation as AreaMapPresentation
-                ?? throw new InvalidOperationException("Map presentation artwork is not bound.")), asset)
+            ? EscapeTimerTilePageTransfers.Resolve(InstalledFixtures.ImportOf(runtime.Artwork.MapPresentation
+                ?? throw new InvalidOperationException("Map presentation artwork is not bound.")).EscapeTimerTiles, asset)
             : throw new ArgumentOutOfRangeException(nameof(asset), asset, "The runtime binds no characters for this asset.");
 
     /// <summary>The gameplay OBJ character page enemy-format sprites draw from: the table's uploads over the bound artwork.</summary>

@@ -22,7 +22,7 @@ internal static class PauseReserveTankAssetsVerification
         var guard = NewReserveTankAssetReadGuard(bus);
         Suite(nameof(VerifyPauseReserveAnchors), () => VerifyPauseReserveAnchors(bus));
         int comparisons = 0;
-        Suite(nameof(VerifyPauseReserveNativeFrames), () => VerifyPauseReserveNativeFrames(bus, catalog.PauseReserveTanks));
+        Suite(nameof(VerifyPauseReserveNativeFrames), () => VerifyPauseReserveNativeFrames(bus, InstalledFixtures.ImportOf(catalog).PauseReserveTanks));
         foreach (ushort capacity in new ushort[] { 0, 100, 200, 300, 400 })
         {
             var nativeSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { MaxReserveEnergy = capacity, ReserveTankMode = ReserveTankMode.Manual };

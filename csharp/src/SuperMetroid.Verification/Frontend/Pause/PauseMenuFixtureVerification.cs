@@ -10,6 +10,7 @@ using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Progression;
 
 using SuperMetroid.AssetExtraction.Video;
@@ -22,11 +23,15 @@ namespace SuperMetroid.Verification.Frontend.Pause;
 /// <summary>Builds a constructed pause presentation from retail source data and isolated fixture visuals.</summary>
 internal static class PauseMenuFixtureVerification
 {
-    /// <summary>Translates constructed cartridge visuals into the installed pause contract without mutating shared retail catalog data.</summary>
-    internal static AreaMapPresentation CreateConstructedPausePresentation(
+    /// <summary>
+    /// Translates constructed cartridge visuals into the installed pause contract without mutating shared retail catalog data:
+    /// the import's read of a constructed installation, whose game catalog the pause binds (#1616).
+    /// </summary>
+    internal static ImportAreaMapPresentation CreateConstructedPausePresentation(
         CartridgeImportAddressSpace bus)
     {
-        var stock = RetailPresentationFixture();
+        ImportAreaMapPresentation stock = RetailImportPresentationFixture();
+        AreaMapPresentation game = stock.Game;
         var installation = RepositoryInstallation.Installation;
         byte[] Read(int address, int count) => RomDataReader.ReadFixedBank(
             CartridgeImportSource.Require(bus), address, count);
@@ -39,11 +44,11 @@ internal static class PauseMenuFixtureVerification
         // The pause colours come from the constructed ROM, as the import reads them; the other screens' are stock's.
         var pauseColors = new SnesCgram();
         CartridgePaletteImporter.LoadToCgram(pauseColors, bus, MapSourceDefinitions.Artwork.PauseColors);
-        MapStaticPalettes stockPalettes = ImportAreaMapPresentation.PalettesOf(stock);
+        MapStaticPalettes stockPalettes = stock.Palettes;
         var palettes = new MapStaticPalettes(pauseColors.Colors.ToArray(), stockPalettes.FileSelect.ToArray(),
             Enum.GetValues<AreaId>().Where(area => area != AreaId.Ceres)
                 .ToDictionary(area => area, area => stockPalettes.World(area).ToArray()));
-        var areas = Enum.GetValues<AreaId>().Select(stock.Get).ToArray();
+        var areas = Enum.GetValues<AreaId>().Select(game.Get).ToArray();
         areas[AreaIds.ToIndex(AreaId.Crateria)] = AreaMapImporter.Load(bus, AreaId.Crateria);
         var backdrops = PauseBackdropPresentation.FromTilemaps(
             Enum.GetValues<AreaId>().Select(_ => BackgroundTileWordBytes.Tiles(Read(0xb6e000, 0x0800))).ToArray(),
@@ -64,57 +69,60 @@ internal static class PauseMenuFixtureVerification
         selectors.Anchors[PauseSelectorAnchors.Anchor(PauseEquipmentCategory.Suits, 3)] = new(0xa0, 0x80);
         foreach (string name in selectors.Frames.Keys.ToArray()) selectors.Frames[name] = [singlePart];
         using var selectorJson = Json(selectors);
+        PauseSelectorSourcePresentation constructedSelectors = PauseSelectorSourcePresentation.Load(selectorJson);
         // The original synthetic ROM supplied zero-part reserve-strip maps. Keep
         // that fixture isolation while reserve state and digits still execute.
         var reserveTanks = Document<PauseReserveTankDocument>(PauseReserveTankFormat.FileName);
         foreach (string name in reserveTanks.Frames.Keys.ToArray()) reserveTanks.Frames[name] = [];
         using var reserveJson = Json(reserveTanks);
+        PauseReserveTankSourcePresentation constructedTanks = PauseReserveTankSourcePresentation.Load(reserveJson);
         // Every part comes from the stock catalog's same-named property unless the fixture constructs it above.
         var parts = new AreaMapPresentationParts
         {
             Areas = areas,
             ContentIdentity = "constructed-pause-interaction-fixture",
-            HighlightCycle = stock.HighlightCycle,
+            HighlightCycle = game.HighlightCycle,
             Backdrops = palettes.Backdrops(),
-            Labels = stock.Labels,
-            Stations = stock.Stations,
-            Landmarks = stock.Landmarks,
-            SaveMarkers = stock.SaveMarkers,
-            Arrows = stock.Arrows,
-            PauseSelectors = PauseSelectorSourcePresentation.Load(selectorJson),
-            PauseReserveTanks = PauseReserveTankSourcePresentation.Load(reserveJson),
-            EscapeTimer = stock.EscapeTimer,
-            GameplayHud = stock.GameplayHud,
-            GameOver = stock.GameOver,
-            GameOptions = stock.GameOptions,
-            FileSelect = stock.FileSelect,
-            EscapeTypewriter = stock.EscapeTypewriter,
-            IntroNarration = stock.IntroNarration,
-            EndingText = stock.EndingText,
-            TitleBackdrop = stock.TitleBackdrop,
-            TitleGradient = stock.TitleGradient,
-            EndingSpaceBackdrops = stock.EndingSpaceBackdrops,
-            MotherBrainRainbowPalette = stock.MotherBrainRainbowPalette,
-            CeresHaze = stock.CeresHaze,
-            PowerBombFixedColors = stock.PowerBombFixedColors,
-            CeresRidleyGetawayBoostDelays = stock.CeresRidleyGetawayBoostDelays,
+            Labels = game.Labels,
+            Stations = game.Stations,
+            Landmarks = game.Landmarks,
+            SaveMarkers = game.SaveMarkers,
+            Arrows = game.Arrows,
+            PauseSelectors = constructedSelectors.Presentation,
+            PauseReserveTanks = constructedTanks.Presentation,
+            EscapeTimer = game.EscapeTimer,
+            GameplayHud = game.GameplayHud,
+            GameOver = game.GameOver,
+            GameOptions = game.GameOptions,
+            FileSelect = game.FileSelect,
+            EscapeTypewriter = game.EscapeTypewriter,
+            IntroNarration = game.IntroNarration,
+            EndingText = game.EndingText,
+            TitleBackdrop = game.TitleBackdrop,
+            TitleGradient = game.TitleGradient,
+            EndingSpaceBackdrops = game.EndingSpaceBackdrops,
+            MotherBrainRainbowPalette = game.MotherBrainRainbowPalette,
+            CeresHaze = game.CeresHaze,
+            PowerBombFixedColors = game.PowerBombFixedColors,
+            CeresRidleyGetawayBoostDelays = game.CeresRidleyGetawayBoostDelays,
         };
         // The screens and the HUD are pictured from the constructed ROM's characters (#1466).
-        return new ImportAreaMapPresentation(parts, new InstalledPresentationSources(new MapCharacterArtwork(
+        return InstalledFixtures.Record(new ImportAreaMapPresentation(new AreaMapPresentation(parts), new InstalledPresentationSources(new MapCharacterArtwork(
             new MapTileCharacters(Read(MapSourceDefinitions.Artwork.MapCharacters, MapTileAtlasFormat.ByteCount)), new HudTileAtlas(hud),
             new MapTileCharacters(Read(MapSourceDefinitions.Artwork.PauseInterfaceCharacters, PauseTileAtlasFormat.ByteCount))),
-            GameplayMessageArtwork.Of(stock), InstalledAreaMapPresentation.RoomFxPagesOf(stock), InstalledAreaMapPresentation.StaffCreditsOf(stock),
-            InstalledAreaMapPresentation.EndingTextOf(stock), InstalledAreaMapPresentation.ScreensOf(stock),
-            new PauseScreenArtwork(backdrops, InstalledAreaMapPresentation.PauseOf(stock).Wireframes,
-                InstalledAreaMapPresentation.PauseOf(stock).EquipmentBase, InstalledAreaMapPresentation.PauseOf(stock).EquipmentLabels,
-                InstalledAreaMapPresentation.PauseOf(stock).ReserveUi), MapSpriteArtwork.Read(spriteJson, spritePng),
-            InstalledAreaMapPresentation.HighlightColoursOf(stock), InstalledAreaMapPresentation.EscapeTimerTilesOf(stock),
-            InstalledAreaMapPresentation.RoomFxAnimatedTilesOf(stock), InstalledAreaMapPresentation.WorldCharactersOf(stock),
-            InstalledAreaMapPresentation.IntroFontOf(stock), InstalledAreaMapPresentation.EndingFontOf(stock),
-            InstalledAreaMapPresentation.TitleGraphicsOf(stock)),
-            new ImportPresentationColours(ImportAreaMapPresentation.SamusColoursOf(stock), ImportAreaMapPresentation.TitlePaletteOf(stock),
-                palettes, ImportAreaMapPresentation.CeresRidleyColorsOf(stock), ImportAreaMapPresentation.CeresRidleyFloorColorsOf(stock),
-                ImportAreaMapPresentation.MotherBrainHealthPaletteOf(stock), ImportAreaMapPresentation.MotherBrainRoomColorsOf(stock),
-                ImportAreaMapPresentation.RoomFxPaletteBlendsOf(stock), ImportAreaMapPresentation.RoomPaletteFxOf(stock)));
+            stock.Messages, stock.RoomFxPages, stock.StaffCredits,
+            stock.EndingTextPresentation, stock.Screens,
+            new PauseScreenArtwork(backdrops, stock.Pause.Wireframes,
+                stock.Pause.EquipmentBase, stock.Pause.EquipmentLabels,
+                stock.Pause.ReserveUi), MapSpriteArtwork.Read(spriteJson, spritePng),
+            stock.HighlightColours, stock.EscapeTimerTiles,
+            stock.RoomFxAnimatedTiles, stock.WorldCharacters,
+            stock.IntroFont, stock.EndingFont,
+            stock.TitleGraphics, constructedSelectors, constructedTanks,
+            stock.GameplayHud, stock.GameOptions, stock.FileSelect),
+            new ImportPresentationColours(stock.SamusColours, stock.TitlePalette,
+                palettes, stock.CeresRidleyColors, stock.CeresRidleyFloorColors,
+                stock.MotherBrainHealthPalette, stock.MotherBrainRoomColors,
+                stock.RoomFxPaletteBlends, stock.RoomPaletteFx)));
     }
 }

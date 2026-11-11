@@ -554,7 +554,7 @@ internal static class RoomFxRetailInventoryVerification
     /// The tile words of the BG3 plane a room effect shows under a blank HUD: the page its effect chose (#1348), as the
     /// installed pages spell it (#1466).
     /// </summary>
-    private static ushort[] EffectPlane(RoomFxOverlayState fx) => fx.EffectPlane.WordsIn(SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentation.RoomFxPagesOf(InstalledFixtures.Maps));
+    private static ushort[] EffectPlane(RoomFxOverlayState fx) => fx.EffectPlane.WordsIn(InstalledFixtures.ImportMaps.RoomFxPages);
 
     /// <summary>Copies a vertical frame band so the audit can compare the animated liquid boundary.</summary>
     private static RgbaPixel[] ReadRows(RgbaPixel[] frame, int firstRow, int endRow) =>

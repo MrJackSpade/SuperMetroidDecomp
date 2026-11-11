@@ -23,7 +23,7 @@ internal static class MenuScreenFixtures
     internal static SnesVram Vram(FileSelectAreaMapGraphics graphics, AreaMapPresentation maps)
     {
         Ensure.NotNull(graphics);
-        MapScreenPresentation screens = InstalledAreaMapPresentation.ScreensOf(maps);
+        MapScreenPresentation screens = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportOf(maps).Screens;
         var tiles = new BackgroundTile[4 * ScreenCells];
         screens.Page(MapScreenDefinitions.WorldForeground).CopyTo(tiles);
         screens.Page(MapScreenDefinitions.WorldBackground(AreaIds.At(graphics.SelectedArea))).CopyTo(tiles.AsSpan(3 * ScreenCells));
@@ -37,7 +37,7 @@ internal static class MenuScreenFixtures
         Ensure.NotNull(graphics);
         var tiles = new BackgroundTile[4 * ScreenCells];
         ShownAreaMapTiles.Of(graphics.AreaMap).CopyTo(tiles, 0);
-        InstalledAreaMapPresentation.ScreensOf(maps).Page(MapScreenDefinitions.RoomFrame(graphics.icons.MapArea)).CopyTo(tiles.AsSpan(2 * ScreenCells));
+        SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportOf(maps).Screens.Page(MapScreenDefinitions.RoomFrame(graphics.icons.MapArea)).CopyTo(tiles.AsSpan(2 * ScreenCells));
         return Load(MenuScreenMemory.Compose(maps, tiles));
     }
 

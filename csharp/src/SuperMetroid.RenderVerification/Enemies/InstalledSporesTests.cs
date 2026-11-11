@@ -29,8 +29,8 @@ internal static class InstalledSporesTests
     internal static void Run(string installationRoot, string romPath, string nativeArtworkDirectory)
     {
         string maps = Path.Combine(Path.GetFullPath(installationRoot), "game", "maps");
-        AreaMapPresentation stock = MapPresentationFiles.Load(maps);
-        CheckArtwork(InstalledAreaMapPresentation.RoomFxAnimatedTilesOf(stock), maps, romPath, nativeArtworkDirectory);
+        InstalledAreaMapPresentation stock = MapPresentationFiles.Load(maps);
+        CheckArtwork(stock.RoomFxAnimatedTiles, maps, romPath, nativeArtworkDirectory);
         var packets = new List<DisplayPacket>();
         CheckOwners(stock, packets);
         CheckPixels(packets);
@@ -48,7 +48,7 @@ internal static class InstalledSporesTests
     }
 
     /// <summary>Checks the installed spores FX over freeze, scroll wrap, and animated transfers while guarding gameplay state.</summary>
-    private static void CheckOwners(AreaMapPresentation stock, List<DisplayPacket> packets)
+    private static void CheckOwners(InstalledAreaMapPresentation stock, List<DisplayPacket> packets)
     {
         var mechanics = RoomFxAnimatedTileLoops.All.Single(
             value => value.AnimatedObject == AnimatedTileObject.Spores);
@@ -88,7 +88,7 @@ internal static class InstalledSporesTests
                         unchecked((ushort)(camera.Y + (sbyte)(LittleEndianBytes.HighByte(accumulator))))), "Spores lost native signed 8.8 camera anchoring.");
                     int source = AnimatedTileImageSources.OfCursor(mechanics,
                         mechanics.FrameInstructionPointer(tick / 10 % 3));
-                    Require(InstalledAreaMapPresentation.RoomFxAnimatedTilesOf(stock).TryResolve(source, 48, out var expected), "Missing stock spores frame.");
+                    Require(stock.RoomFxAnimatedTiles.TryResolve(source, 48, out var expected), "Missing stock spores frame.");
                     // Animated frames are selected, and the room's BG3 pictures show the selected frame (#1406).
                     ArtworkFrame cadence = AnimatedTileFrames.Frame(AnimatedTileObject.Spores, tick / 10 % 3);
                     Require(baselineFrames.TryShown(AnimatedTileFrames.Of(AnimatedTileObject.Spores), out ArtworkFrame stockShown) && stockShown == cadence,
@@ -109,7 +109,7 @@ internal static class InstalledSporesTests
                     var gameplay = new GameplaySceneLayer(new(default, default,
                         ScreenLayers.Background), RoomBackgroundsFixtures.Blank() with
                         {
-                            FxOverlay = FxOverlayFixtures.PageOf(baseline.EffectPlane, InstalledAreaMapPresentation.RoomFxPagesOf(stock),
+                            FxOverlay = FxOverlayFixtures.PageOf(baseline.EffectPlane, stock.RoomFxPages,
                                 new byte[SnesVram.ByteCount], new RgbColor[SnesCgram.ColorCount]),
                         });
                     var layer = GameplayEffectCapture.CaptureEffectBlendingBehind(gameplay, (baseline.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires baseline.CaptureForDisplay().")));

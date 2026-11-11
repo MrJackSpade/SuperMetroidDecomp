@@ -49,7 +49,7 @@ internal static class MapSpritesVerification
     {
         var native = new OamBuffer();
         var installed = new OamBuffer();
-        Suite(nameof(VerifyMapSpriteNativeCompositions), () => VerifyMapSpriteNativeCompositions(bus, InstalledAreaMapPresentation.SpritesOf(original)));
+        Suite(nameof(VerifyMapSpriteNativeCompositions), () => VerifyMapSpriteNativeCompositions(bus, InstalledFixtures.ImportOf(original).Sprites));
         // Independent coordinate oracle: the native carry/sign test parks wrapped
         // Y at $180/$E0, rather than letting it reappear on the opposite screen edge.
         for (int origin = 0; origin < 256; origin++)
@@ -65,7 +65,7 @@ internal static class MapSpritesVerification
             AssertEqual(hidden ? (byte)224 : (byte)sum, installed.LowTable[1], "typed sprite Y clipping");
             AssertEqual((byte)3, (byte)(installed.HighTable[0] & 3), "typed sprite preserves high X and large size");
         }
-        var vram = new SnesVram(); InstalledAreaMapPresentation.SpritesOf(original).LoadArtworkTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(MenuVramLayout.MapSpriteByteAddress / sizeof(ushort), MapSpriteFormat.ByteCount / sizeof(ushort)));
+        var vram = new SnesVram(); InstalledFixtures.ImportOf(original).Sprites.LoadArtworkTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(MenuVramLayout.MapSpriteByteAddress / sizeof(ushort), MapSpriteFormat.ByteCount / sizeof(ushort)));
         AssertTrue(vram.Bytes.Slice(MenuVramLayout.MapSpriteByteAddress, MapSpriteFormat.ByteCount).SequenceEqual(
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.ObjectCharacters, MapSpriteFormat.ByteCount)), "map OBJ PNG round-trips native characters exactly");
         Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(original));

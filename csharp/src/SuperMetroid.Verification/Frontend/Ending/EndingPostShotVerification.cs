@@ -29,7 +29,7 @@ internal static class EndingPostShotVerification
         var screen = new EndingScreen();
         // The import's fade levels scale the post-credits colours as the cartridge's accumulator does (#1512).
         IReadOnlyList<SheetShade> installedShades = EndingScreenShades.Screen(InstalledFixtures.EndingColours,
-            ImportAreaMapPresentation.RoomPaletteFxOf(InstalledFixtures.Maps));
+            InstalledFixtures.ImportMaps.RoomPaletteFx);
         foreach ((EndingFade fade, int start) in new[] { (EndingFade.Shot, 192), (EndingFade.ShootingSamus, 240) })
         {
             for (int level = 0; level <= EndingShades.FadeLevels; level++)

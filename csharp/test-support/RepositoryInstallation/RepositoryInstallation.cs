@@ -54,10 +54,19 @@ internal static class RepositoryInstallation
         }
     }
 
+    /// <summary>
+    /// The installation's map presentation as the import reads it, loaded once per process: the catalog every fixture binds
+    /// (<see cref="SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentation.Game"/>) beside the source artwork
+    /// and colours checks compose pictures from, which the game never receives (#1616).
+    /// </summary>
+    internal static Lazy<SuperMetroid.AssetExtraction.Frontend.Map.ImportAreaMapPresentation> ImportMapsLoader { get; } =
+        new(() => SharedFixtureTiming.Load("Fixture: maps",
+            () => SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationFiles.LoadForImport(Installation.MapDirectory)));
+
     /// <summary>The installation's presentation catalogs, loaded once per process and bound to every fixture.</summary>
     internal static Lazy<GameArtwork> ArtworkLoader { get; } =
         new(() => SharedFixtureTiming.Load("Fixture: repository artwork",
-            () => Installation.LoadGameArtwork(Installation.LoadMaps(), Installation.LoadProjectiles(), Installation.LoadEnemyTiles())));
+            () => Installation.LoadGameArtwork(ImportMapsLoader.Value.Game, Installation.LoadProjectiles(), Installation.LoadEnemyTiles())));
 
     /// <summary>Shares immutable extracted catalogs while each fixture owns its bus and mutable state.</summary>
     internal static GameInstallation Installation => installation.Value;

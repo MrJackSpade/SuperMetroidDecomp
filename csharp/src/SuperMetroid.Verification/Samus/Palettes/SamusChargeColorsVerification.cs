@@ -60,7 +60,7 @@ internal static class SamusChargeColorsVerification
             EquippedBeams = SamusBeamFlags.Charge,
         };
         // Charge and Hyper-shot steps name shades (#1512); the import resolves them from the installed charge colours.
-        var installedSources = InstalledFixtures.SamusShadeSources with { Charge = ImportAreaMapPresentation.SamusColoursOf(original).Charge };
+        var installedSources = InstalledFixtures.SamusShadeSources with { Charge = InstalledFixtures.ImportOf(original).SamusColours.Charge };
         var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
         projectiles.Charge.FlareCounter = 60;
         var samusColours = new SamusColours();
@@ -81,7 +81,7 @@ internal static class SamusChargeColorsVerification
                 AssertEqual(phase, appliedPhase,
                     $"installed charge phase {family}/{suit}/{phase}");
                 for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
-                    AssertEqual(ImportAreaMapPresentation.SamusColoursOf(original).Charge.ResolveCharge(family != 0, suit, phase, color),
+                    AssertEqual(InstalledFixtures.ImportOf(original).SamusColours.Charge.ResolveCharge(family != 0, suit, phase, color),
                         samusColours.ShownSuit(installedSources)[color],
                         $"installed charge CGRAM {family}/{suit}/{phase}/{color}");
             }
@@ -108,7 +108,7 @@ internal static class SamusChargeColorsVerification
             // Even low-five-bit timer offsets $14..$02 select Hyper palettes 0..9.
             AssertEqual(0x14 - frame * 2, glowTimerBefore & 0x001e, $"Hyper-shot playback frame {frame}");
             for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
-                AssertEqual(ImportAreaMapPresentation.SamusColoursOf(original).Charge.ResolveHyper(frame, color),
+                AssertEqual(InstalledFixtures.ImportOf(original).SamusColours.Charge.ResolveHyper(frame, color),
                     samusColours.ShownSuit(installedSources)[color],
                     $"installed Hyper-shot colour {frame}/{color}");
         }

@@ -23,7 +23,7 @@ internal static class TitleScreenPublicationVerification
     internal static void VerifyTitleScreenPublication()
     {
         var maps = InstalledFixtures.Maps;
-        TitleGraphicsCharacters graphics = InstalledAreaMapPresentation.TitleGraphicsOf(maps);
+        TitleGraphicsCharacters graphics = InstalledFixtures.ImportOf(maps).TitleGraphics;
         var title = new TitleSequenceState(titleGradientPresentation: maps.TitleGradient,
             titleBackdrop: maps.TitleBackdrop, spriteSheets: MenuSheetFixtures.WithTitle(graphics));
         SpriteSheet titleSheet = MenuSheetFixtures.WithTitle(graphics).Get(SpriteSheetId.Title);

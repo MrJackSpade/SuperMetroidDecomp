@@ -1321,32 +1321,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Artwork.AnimationProgramFrames",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Artwork/AnimationProgramFrames.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Artwork.AnimationProgramFrames.extension\u003CTProgram, TFrame, TCue\u003E(SuperMetroid.Core.Programs.AnimationProgramSet\u003CTProgram, TFrame, TCue\u003E)",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Artwork/AnimationProgramFrames.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.AssetExtraction.Artwork.AnimationSegmentFrames",
       "kind": "static class",
       "scope": "product",
@@ -38922,7 +38896,7 @@
         "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianEntranceStatueAnimations.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Areas.Tourian.TourianEntranceStatueBehavior",
@@ -69610,6 +69584,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.EnemyTimerRepeats",
+      "kind": "struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/EnemyTimerRepeats.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.EnemyTouchContext",
       "kind": "record struct",
       "scope": "product",
@@ -78241,6 +78228,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileTypedAnimation\u003CTSegment, TFrame, TEvent\u003E",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Projectiles/EnemyProjectileTypedAnimation.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileTypedStarts",
       "kind": "static class",
       "scope": "product",
@@ -78306,7 +78306,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/Projectiles/KraidRockAnimations.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Projectiles.KraidRockCue",
@@ -101105,6 +101105,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Gameplay.AnimationListContinuation",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Gameplay/AnimationListContinuation.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Gameplay.BelowPerspectiveFloor",
       "kind": "enum",
       "scope": "product",
@@ -104541,6 +104554,32 @@
       ],
       "partial": "none",
       "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Programs.HeldRepeats",
+      "kind": "struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Programs/HeldRepeats.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Programs.IAnimationRepeatCounter",
+      "kind": "interface",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Programs/IAnimationRepeatCounter.cs"
+      ],
+      "partial": "none",
+      "disposition": "contract"
     },
     {
       "type": "SuperMetroid.Core.Programs.IDeclaredProgramBank",
@@ -140405,6 +140444,20 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.TestSupport.MovieReplay.NativeEnemyProjectileAnimationFamily\u003CTSegment, TFrame, TEvent\u003E",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/MovieReplay/NativeEnemyProjectileAnimationFamily.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.TestSupport.MovieReplay.NativeEnemyProjectileCommonCues",
       "kind": "static class",
       "scope": "test",
@@ -140554,6 +140607,20 @@
       ],
       "files": [
         "csharp/test-support/MovieReplay/NativeEnemyRecordWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.MovieReplay.NativeEnemySegmentPlace\u003CTSegment\u003E",
+      "kind": "record struct",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/MovieReplay/NativeEnemyAnimationOracle.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -141005,20 +141072,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.TestSupport.MovieReplay.PipeBugNativeInstructionPointersMatch",
-      "kind": "record struct",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/MovieReplay/PipeBugNativeInstructionPointersMatch.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.TestSupport.MovieReplay.PipeBugNativeListAddresses",

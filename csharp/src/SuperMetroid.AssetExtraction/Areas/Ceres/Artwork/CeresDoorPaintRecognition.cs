@@ -5,21 +5,11 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 
 /// <summary>
-/// Separates the Ceres door's supplied colours into the material channels their paint calculates from and the colours
-/// that depart from that calculation, the form the game resolves its door colours from.
+/// Separates Ceres-door-style colours into the material channels their paint calculates from and the colours that depart
+/// from that calculation. The Ceres door keeps its installed colours whole; only the boss colour readers still use this.
 /// </summary>
 internal static class CeresDoorPaintRecognition
 {
-    /// <summary>Recognizes the normal, escape and animation paints of the installed door visuals.</summary>
-    /// <param name="normal">Fifteen normal setup colours.</param>
-    /// <param name="escape">Fifteen escape setup colours.</param>
-    /// <param name="animation">Eight steps of six animation colours.</param>
-    internal static CeresDoorVisuals Visuals(RgbColor[] normal, RgbColor[] escape, RgbColor[][] animation)
-    {
-        CeresDoorNormalPaint normalPaint = Normal(normal);
-        return new(normalPaint, Escape(escape, normalPaint), Animation(animation, normalPaint));
-    }
-
     /// <summary>Validates six supplied target colors, captures their shared channels, and preserves independently edited colors as overrides.</summary>
     internal static CeresDoorWarmTargetPaint WarmTargets(ReadOnlySpan<RgbColor> colors)
     {
@@ -89,23 +79,6 @@ internal static class CeresDoorPaintRecognition
         var paint = new CeresDoorEscapePaint(warm, Surface(colors[..8]), colors[14].FadeLevels.Blue, edits);
         for (int index = 0; index < colors.Length; index++)
             if (paint.ColorAt(index) != colors[index]) edits.Add(new PaintColour(0, index), colors[index]);
-        return paint;
-    }
-
-    /// <summary>Captures independent paint channels and per-cell edits from the eight six-color steps of the glow cycle.</summary>
-    internal static CeresDoorAnimationPaint Animation(RgbColor[][] steps, CeresDoorNormalPaint normal)
-    {
-        Ensure.NotNull(steps); Ensure.NotNull(normal);
-        if (steps.Length != 8 || steps.Any(step => step is null || step.Length != 6))
-            throw new ArgumentException("Beacon paint requires eight six-color steps.", nameof(steps));
-        var seedEdits = new Dictionary<PaintColour, RgbColor>();
-        var edits = new Dictionary<PaintColour, RgbColor>();
-        var paint = new CeresDoorAnimationPaint(normal, steps[1][0].FadeLevels.Blue, steps[3][4].FadeLevels.Red, seedEdits, edits);
-        for (int color = 0; color < 6; color++)
-            if (steps[1][color] != paint.SharedSeed(color)) seedEdits.Add(new PaintColour(0, color), steps[1][color]);
-        for (int step = 0; step < 8; step++)
-            for (int color = 0; color < 6; color++)
-                if (steps[step][color] != paint.ColorAt(step, color)) edits.Add(new PaintColour(step, color), steps[step][color]);
         return paint;
     }
 }

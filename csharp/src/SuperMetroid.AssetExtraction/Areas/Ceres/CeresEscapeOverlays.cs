@@ -21,23 +21,14 @@ public sealed class CeresEscapeOverlays
         }
     });
 
-    /// <summary>Selected tiles differing from the calculated stock warning pages, keyed by page and position.</summary>
-    internal readonly Dictionary<CeresEscapeOverlayWord, BackgroundTile> edits;
-    /// <summary>Retains only authored deviations from the stock Ceres warning tilemaps.</summary>
-    private CeresEscapeOverlays(Dictionary<CeresEscapeOverlayWord, BackgroundTile> edits) => this.edits = edits;
+    /// <summary>Every page's installed tiles in tilemap order, keyed by the page's installed name.</summary>
+    private readonly Dictionary<string, BackgroundTile[]> pages;
+    /// <summary>Retains the five complete installed warning pages.</summary>
+    private CeresEscapeOverlays(Dictionary<string, BackgroundTile[]> pages) => this.pages = pages;
 
-    /// <summary>One page's calculated and edited tiles, in tilemap order.</summary>
-    private BackgroundTile[] PageTiles(CeresEscapeWarningPicture page)
-    {
-        var tiles = new BackgroundTile[page.WordCount];
-        for (int index = 0; index < page.WordCount; index++)
-        {
-            tiles[index] = edits.GetValueOrDefault(
-                new CeresEscapeOverlayWord(page.Name, index), CeresEscapeWarningGlyphs.StockTile(page, index));
-        }
-        return tiles;
-    }
-    /// <summary>Validates the five-page JSON document and compiles its edited tiles.</summary>
+    /// <summary>One page's installed tiles, in tilemap order.</summary>
+    private BackgroundTile[] PageTiles(CeresEscapeWarningPicture page) => pages[page.Name];
+    /// <summary>Validates the five-page JSON document and keeps every page's tiles.</summary>
     internal static CeresEscapeOverlays Load(Stream json)
     {
         Ensure.NotNull(json);
@@ -67,8 +58,8 @@ public sealed class CeresEscapeOverlays
         return false;
     }
 
-    /// <summary>Requires the exact five page names and dimensions while recording only tiles that differ from stock.</summary>
-    private static Dictionary<CeresEscapeOverlayWord, BackgroundTile> Compile(
+    /// <summary>Requires the exact five page names and dimensions and copies every page's tiles.</summary>
+    private static Dictionary<string, BackgroundTile[]> Compile(
         CeresEscapeOverlayTilemapDocument document)
     {
         Ensure.NotNull(document);
@@ -77,7 +68,7 @@ public sealed class CeresEscapeOverlays
             document.Pages.Count != CeresEscapeOverlayPages.All.Length)
             throw new InvalidDataException(
                 $"Ceres escape overlay requires version {CeresWarningGlyphDefinitions.Version} and five named tilemaps.");
-        var compiled = new Dictionary<CeresEscapeOverlayWord, BackgroundTile>();
+        var compiled = new Dictionary<string, BackgroundTile[]>(StringComparer.Ordinal);
         foreach (CeresEscapeWarningPicture definition in
                  CeresEscapeOverlayPages.All)
         {
@@ -85,9 +76,7 @@ public sealed class CeresEscapeOverlays
                 tiles is null || tiles.Length != definition.WordCount)
                 throw new InvalidDataException(
                     $"Ceres escape tilemap {definition.Name} requires {definition.WordCount} tiles.");
-            for (int index = 0; index < tiles.Length; index++)
-                if (tiles[index] != CeresEscapeWarningGlyphs.StockTile(definition, index))
-                    compiled.Add(new CeresEscapeOverlayWord(definition.Name, index), tiles[index]);
+            compiled.Add(definition.Name, [.. tiles]);
         }
         if (document.Pages.Keys.Any(name =>
                 !CeresEscapeOverlayPages.All

@@ -38,16 +38,16 @@ public sealed class CeresDoorSourceArtwork
     {
         content.Append("tiles", tiles.Characters.Span);
         Span<RgbColor> normalColors = stackalloc RgbColor[CeresDoorVisualDefinitions.SetupColorCount];
-        for (int color = 0; color < normalColors.Length; color++) normalColors[color] = Visuals.normal.ColorAt(color);
+        for (int color = 0; color < normalColors.Length; color++) normalColors[color] = Visuals.NormalColor(color);
         content.AppendColors("normal", normalColors);
         Span<RgbColor> escapeColors = stackalloc RgbColor[CeresDoorVisualDefinitions.SetupColorCount];
-        for (int color = 0; color < escapeColors.Length; color++) escapeColors[color] = Visuals.escape.ColorAt(color);
+        for (int color = 0; color < escapeColors.Length; color++) escapeColors[color] = Visuals.EscapeColor(color);
         content.AppendColors("escape", escapeColors);
         content.Append("animation", CeresDoorVisualDefinitions.AnimationStepCount);
         Span<RgbColor> rowColors = stackalloc RgbColor[CeresDoorVisualDefinitions.AnimationColorCount];
         for (int row = 0; row < CeresDoorVisualDefinitions.AnimationStepCount; row++)
         {
-            for (int color = 0; color < rowColors.Length; color++) rowColors[color] = Visuals.animation.ColorAt(row, color);
+            for (int color = 0; color < rowColors.Length; color++) rowColors[color] = Visuals.AnimationColor(row, color);
             content.AppendColors("row", rowColors);
         }
     });

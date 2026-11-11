@@ -55,7 +55,7 @@ internal static class DoorTransitionAutosaveVerification
             // A host persists save RAM through an object that owns native handles, as the desktop window does (#1424).
             using var saveRamHost = new NativeHandleSaveRamHost();
             game.SavesChanged += saveRamHost.Persist;
-            var assets = RepositoryInstallation.Installation.LoadAudioClips();
+            var assets = RepositoryInstallation.Installation.LoadAudioClips().Clips;
             game.BindAudio(assets);
             var identity = GameContentIdentity.Create(new string('A', 64), new string('B', 64), new string('C', 64),
                 typeof(SuperMetroidGame).Module.ModuleVersionId);

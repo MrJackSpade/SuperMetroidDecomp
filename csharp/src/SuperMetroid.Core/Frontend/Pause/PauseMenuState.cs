@@ -473,48 +473,45 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             break;
         }
 
-        // Every map coordinate below wraps where it is computed, as every coordinate does; the signed
-        // tests read those coordinates as offsets, as the game's branches do.
-        int minimumX = CoordinateAxis.Wrap(left * 8 - (area == AreaId.Maridia ? 24 : 0));
+        // Every value below is a map pixel or a difference of two, within a few hundred pixels of the 512 by 256 map:
+        // the scans keep the left column at or before the right and the top row at or above the bottom, so the
+        // halved spans are never negative and no value comes near a word's range. Only a negative result (Maridia's
+        // margin left of the first column, a scroll above the map) is stored as its wrapped coordinate.
+        int minimumX = left * 8 - (area == AreaId.Maridia ? 24 : 0);
         int maximumX = right * 8;
         int minimumY = top * 8;
         int maximumY = bottom * 8;
-        CurrentMapScrollBounds = new PauseMapScroll(new(CoordinateAxis.Wrap(minimumX), CoordinateAxis.Wrap(minimumY)), new(CoordinateAxis.Wrap(maximumX), CoordinateAxis.Wrap(maximumY)));
+        CurrentMapScrollBounds = new PauseMapScroll(Position16<MapPixels>.Wrapped(minimumX, minimumY), Position16<MapPixels>.Wrapped(maximumX, maximumY));
 
-        // The pause map's scroll setup wraps past 65535 throughout. These local
-        // helpers wrap before every signed test so an edge-of-map position behaves as the
-        // game's does rather than like unbounded integer arithmetic.
         // The player's map cell: the room's map origin plus Samus's room screen, with the
         // map convention's one-row downward offset.
         Position16<MapPixels> player = SamusMapCell().ToMapPixels();
-        int horizontal = CoordinateAxis.Wrap(
-            minimumX + CoordinateAxis.Wrap(maximumX - minimumX) / 2 - 128);
-        int horizontalScreenPosition = CoordinateAxis.Wrap(player.X - horizontal);
-        int distanceFromRightClamp = CoordinateAxis.Difference(224, horizontalScreenPosition);
+        int horizontal = minimumX + (maximumX - minimumX) / 2 - 128;
+        int horizontalScreenPosition = player.X - horizontal;
+        int distanceFromRightClamp = 224 - horizontalScreenPosition;
         if (distanceFromRightClamp >= 0)
         {
-            int distanceFromLeftClamp = CoordinateAxis.Wrap(32 - horizontalScreenPosition);
-            if (CoordinateAxis.AsSigned(distanceFromLeftClamp) >= 0)
-                horizontal = CoordinateAxis.Wrap(horizontal - distanceFromLeftClamp);
+            int distanceFromLeftClamp = 32 - horizontalScreenPosition;
+            if (distanceFromLeftClamp >= 0)
+                horizontal -= distanceFromLeftClamp;
         }
         else
         {
-            horizontal = CoordinateAxis.Wrap(horizontal - distanceFromRightClamp);
+            horizontal -= distanceFromRightClamp;
         }
 
-        int verticalMiddle = CoordinateAxis.Wrap(
-            minimumY + CoordinateAxis.Wrap(maximumY - minimumY) / 2 + 16);
-        int verticalCenterOffset = CoordinateAxis.Wrap((128 - verticalMiddle) & ~7);
-        int vertical = CoordinateAxis.Wrap(-verticalCenterOffset);
-        int playerMapY = CoordinateAxis.Wrap(player.Y + verticalCenterOffset);
-        int distanceFromTopClamp = CoordinateAxis.AsSigned(64 - playerMapY);
+        int verticalMiddle = minimumY + (maximumY - minimumY) / 2 + 16;
+        // The centring offset is rounded down to whole eight-pixel map rows.
+        int verticalCenterOffset = (128 - verticalMiddle) & ~7;
+        int vertical = -verticalCenterOffset;
+        int distanceFromTopClamp = 64 - (player.Y + verticalCenterOffset);
         if (distanceFromTopClamp >= 0)
         {
-            vertical = CoordinateAxis.Wrap(vertical - distanceFromTopClamp);
-            if (CoordinateAxis.AsSigned(vertical + 40) < 0)
-                vertical = CoordinateAxis.Wrap(-40);
+            vertical -= distanceFromTopClamp;
+            if (vertical + 40 < 0)
+                vertical = -40;
         }
-        MapScrollPosition = new(horizontal, vertical);
+        MapScrollPosition = Position16<MapPixels>.Wrapped(horizontal, vertical);
     }
 
     /// <summary>Maps Samus's current room screen to the area map with its one-row Y convention.</summary>

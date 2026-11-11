@@ -39,7 +39,7 @@ internal sealed class PhantoonPatterns
             return;
 
         state.EyeState.WaveLength = null;
-        state.EyeState.ClosedTimer = PhantoonTimerDefinitions.EyeClosed[(_frameContext.FrameCounter >> 1) & 3];
+        state.EyeState.ClosedTimer = PhantoonTimerDefinitions.EyeClosed[PhantoonCadenceDefinitions.FirstEyeClosedChoice.Of(_frameContext.FrameCounter)];
         state.BodyState.Function = PhantoonAiFunction.MoveInFigureEightThenOpenEye;
         state.BodyState.SpeedPhase = 0;
         if (PhantoonRandomDefinitions.FigureEightReversed.IsSetIn(_room.Random.Generate()))
@@ -638,7 +638,7 @@ internal sealed class PhantoonPatterns
         PhantoonEnemyState state,
         int denominator)
     {
-        if ((_frameContext.FrameCounter & 1) != 0 || state.EyeState.FadeComplete)
+        if (!PhantoonCadenceDefinitions.FadeStepEverySecondUpdate.IsDue(_frameContext.FrameCounter) || state.EyeState.FadeComplete)
             return;
 
         state.EyeState.FadeDenominator = denominator;
@@ -677,7 +677,7 @@ internal sealed class PhantoonPatterns
     {
         state.BodyState.FunctionTimer = 60;
         state.EyeState.ClosedTimer = PhantoonTimerDefinitions.EyeClosed[_room.Random.Next(PhantoonRandomDefinitions.EyeClosedChoice)];
-        if ((_frameContext.FrameCounter & 1) != 0)
+        if (PhantoonCadenceDefinitions.FigureEightReverses.IsSetIn(_frameContext.FrameCounter))
         {
             if (!state.EyeState.FigureEightReversed)
                 state.BodyState.PathCursor = state.BodyState.PathCursor == 0 ? 533 : state.BodyState.PathCursor - 1;

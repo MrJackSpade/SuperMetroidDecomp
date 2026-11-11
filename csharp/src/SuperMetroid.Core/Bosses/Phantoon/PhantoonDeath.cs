@@ -153,7 +153,7 @@ internal sealed class PhantoonDeath
         PhantoonEyeState eyePart = state.EyeState;
         if (!eyePart.DeathMosaicFinished)
         {
-            if (_frameContext.FrameCounter % PhantoonDeathDefinitions.MosaicGrowthInterval != 0)
+            if (!PhantoonCadenceDefinitions.DeathMosaicGrowsEverySixteenthUpdate.IsDue(_frameContext.FrameCounter))
                 return;
 
             if (eyePart.DeathMosaicSize == PhantoonDeathDefinitions.FinalMosaicSize)
@@ -201,7 +201,7 @@ internal sealed class PhantoonDeath
             state.BodyState.FunctionTimer--;
             return;
         }
-        if ((_frameContext.FrameCounter & 3) != 0)
+        if (!PhantoonCadenceDefinitions.PowerReturnStepEveryFourthUpdate.IsDue(_frameContext.FrameCounter))
             return;
 
         state.EyeState.FadeDenominator = 12;

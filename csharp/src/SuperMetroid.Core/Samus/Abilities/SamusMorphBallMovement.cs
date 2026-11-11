@@ -193,7 +193,7 @@ public static class SamusMorphBallMovement
             samus.Kinematics.YSpeed = default;
             SignedSixteenSixteen displacement = SamusExtraDisplacement.CalculateExtraOnlyVerticalDisplacement(samus.Kinematics) ??
                 throw new InvalidOperationException("A nonzero external Y displacement always yields a scan distance.");
-            vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (frameCounter & 1) == 0 });
+            vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
             landed = !displacement.IsNegative && vertical.Collided;
             hitCeiling = displacement.IsNegative && vertical.Collided;
         }
@@ -400,7 +400,7 @@ level, samus, controllerInput, frameCounter, roomObjects, SamusMovementType.Spri
         displacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(
             state,
             displacement);
-        BlockMoveResult vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, state, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (frameCounter & 1) == 0 });
+        BlockMoveResult vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, state, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
 
         hitCeiling = displacement.IsNegative && vertical.Collided;
         landed = !displacement.IsNegative && vertical.Collided;
@@ -422,7 +422,7 @@ level, samus, controllerInput, frameCounter, roomObjects, SamusMovementType.Spri
         SignedSixteenSixteen displacement = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
             samus.Kinematics,
             samus.HorizontalSpeed);
-        BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (frameCounter & 1) == 0 });
+        BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
         // No-speed Y movement can still go UP when a platform carries Samus. The
         // game publishes the same deferred ceiling command as a velocity-driven
         // jump. Its speed/direction writes belong to the later winning transition.

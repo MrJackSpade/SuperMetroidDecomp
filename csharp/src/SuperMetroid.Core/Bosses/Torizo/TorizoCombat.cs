@@ -102,7 +102,7 @@ internal sealed class TorizoCombat
     {
         _body.MaybeSpawnBombTorizoLowHealthDrool(torizo);
         TorizoEnemyState state = _access.RequireBombTorizoState(torizo);
-        if (torizo.FlashTimer % 2 == 0)
+        if (!TorizoCadenceDefinitions.HurtWhiteShown.IsSetIn(torizo.FlashTimer))
         {
             if (torizo.DefinitionId == EnemyDefinitionId.GoldenTorizo)
                 LoadGoldenTorizoHealthPalette(torizo, state, torizo.Health);

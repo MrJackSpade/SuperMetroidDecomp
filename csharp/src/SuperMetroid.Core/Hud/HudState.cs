@@ -213,7 +213,7 @@ public sealed class HudState
         // familiar blinking Samus location without a separate sprite. The center is always
         // the explored cell Samus stands in, so it is always a revealed map cell.
         int center = columns + 2;
-        if ((frame.FrameCounter & 8) == 0 && cells[center] is MinimapMapCell located)
+        if (!HudCadenceDefinitions.SamusSquareShowsExploredShade.IsSetIn(frame.FrameCounter) && cells[center] is MinimapMapCell located)
             cells[center] = located with { Shade = MinimapShade.SamusLocation };
         Minimap = [.. cells];
     }

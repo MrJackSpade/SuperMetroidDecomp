@@ -50,7 +50,7 @@ public sealed class MotherBrainCorpseRottingState
                         randomNumberSeed.Read(MotherBrainRandomDefinitions.CorpseDustOffset) - 16,
                         16),
                     Animation: MiscDustAnimation.CorpseDustCloud,
-                    SoundEffectQueued: (mainEnemyExecutionCounter & 7) == 0,
+                    SoundEffectQueued: MotherBrainCadenceDefinitions.CorpseDustSoundEveryEighthEnemyPass.IsDue(mainEnemyExecutionCounter),
                     SoundEffect: EnemySound.LiquidDamage));
             });
 

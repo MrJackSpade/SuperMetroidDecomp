@@ -459,9 +459,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.EchoLifetime != 0)
         {
             state.EchoLifetime--;
-            bool visible = state.ShowsOnOddFrames
-                ? (frameCycle & 1) != 0
-                : (frameCycle & 1) == 0;
+            bool visible = DachoraCadenceDefinitions.EchoOddUpdate.IsSetIn(frameCycle) == state.ShowsOnOddFrames;
             slot.Presence = visible
                 ? slot.Presence.Without(EnemyPresence.Hidden)
                 : slot.Presence.With(EnemyPresence.Hidden);

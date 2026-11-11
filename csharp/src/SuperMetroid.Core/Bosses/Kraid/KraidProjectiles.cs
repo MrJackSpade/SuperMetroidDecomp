@@ -445,7 +445,7 @@ internal sealed class KraidProjectiles
     /// <summary>Advances the visible lint charge before firing.</summary>
     private void ChargeKraidLint(RoomEnemySlot lint)
     {
-        lint.Shading = _access.LintState(lint).FunctionTimer % 2 != 0
+        lint.Shading = KraidCadenceDefinitions.LintChargeShowsOwnColours.IsSetIn(_access.LintState(lint).FunctionTimer)
             ? _access.RequireKraidState(lint).Colours.Parts
             : EnemyShades.HurtFlashLook;
         lint.Position = lint.Position.WithWrappedWholeX(

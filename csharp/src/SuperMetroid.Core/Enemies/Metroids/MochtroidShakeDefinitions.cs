@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Metroids;
 
-/// <summary>Cardinal displacement in the shipped shake, selected by timer bits1..2.</summary>
+/// <summary>The shaking Mochtroid's four displacements, stepped through by its shake timer.</summary>
 internal static class MochtroidShakeDefinitions
 {
     /// <summary>The shake velocity table's two-pixel shake amplitude.
@@ -8,7 +8,10 @@ internal static class MochtroidShakeDefinitions
     /// review).</summary>
     internal const int Amplitude = 2;
 
-    /// <summary>The shake displacement timer bits 1..2 select: right, up, left or down in that order.</summary>
+    /// <summary>
+    /// The shake's displacements in the order <see cref="MetroidCadenceDefinitions.MochtroidShakeStep"/> steps through
+    /// them: right, up, left and down.
+    /// </summary>
     internal static readonly Offset16<RoomPixels>[] Offsets =
         [new(Amplitude, 0), new(0, -Amplitude), new(-Amplitude, 0), new(0, Amplitude)];
 }

@@ -501,13 +501,13 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if ((_frameContext.RandomEnemyCounter & 7) == 7 && samus.Health >= 30)
+        if (BeetomCadenceDefinitions.DrainSoundEveryEighthEnemyPass.IsDue(_frameContext.RandomEnemyCounter) && samus.Health >= 30)
             _audio.QueueEnemySound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Normal);
 
         // Unlike ordinary touch damage, the once-per-64-frame drain explicitly cancels the
         // invincibility and knockback installed by common AI. Apply the suit-scaled health
         // subtraction directly, then reproduce those two clearing stores.
-        if ((slot.FrameCounter & 63) != 63)
+        if (!BeetomCadenceDefinitions.DrainDamageEverySixtyFourthUpdate.IsDue(slot.FrameCounter))
             return;
         int damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
             ? slot.Definition.Damage >> 2

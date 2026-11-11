@@ -294,7 +294,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         int frameCycle)
     {
         ResolveMamaTurtleExpandedContact(mama, samus);
-        if ((frameCycle & 1) != 0)
+        if (!MamaTurtleCadenceDefinitions.LeavingShellStepEverySecondUpdate.IsDue(frameCycle))
             return;
 
         if (PlatformsBehavior.IsSamusRidingPlatform(mama, samus))

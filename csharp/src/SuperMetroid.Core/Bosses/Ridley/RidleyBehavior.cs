@@ -449,7 +449,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         Position16<RoomPixels> camera)
     {
         RidleyEnemyState state = _ridleyEncounter.RequireNorfairRidley(body);
-        if ((body.FrameCounter & 1) == 0)
+        if (RidleyCadenceDefinitions.NorfairRidleyActsEverySecondUpdate.IsDue(body.FrameCounter))
         {
             RidleyInteractions.UpdateNorfairRidleyIntangibility(body, state, camera);
             NorfairRidleyCombat.PrepareNorfairRidleyCombatFrame(state, sharedProjectiles);

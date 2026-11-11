@@ -58,7 +58,7 @@ public static class SamusGroundedMovement
             // downward mover with one whole pixel. That entry deliberately skips
             // solid-enemy collision but retains ordinary room-block and behaviour scanning and the
             // alternating left/right order selected from the frame counter's parity.
-            vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromParts(1, 0), ScanLeftToRight = (frameCounter & 1) == 0, IncludeSolidEnemies = false, PublishDoorSideEffects = publishDoorSideEffects });
+            vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromParts(1, 0), ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), IncludeSolidEnemies = false, PublishDoorSideEffects = publishDoorSideEffects });
         }
 
         // Is the only write in the ordinary no-elevator path. In particular,
@@ -475,7 +475,7 @@ public static class SamusGroundedMovement
         // Alternates its left-to-right and right-to-left horizontal scan order on
         // the frame counter's parity. That parity can affect which simultaneous
         // collision side effect wins, so it remains an explicit input even in this slice.
-        return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (frameCounter & 1) == 0 });
+        return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
     }
 
 }

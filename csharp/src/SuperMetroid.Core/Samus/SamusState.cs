@@ -622,13 +622,13 @@ public sealed class SamusState
 
             level,
             displacement: SignedSixteenSixteen.FromWholePixels(-radiusDifference),
-            scanLeftToRight: (frameCounter & 1) == 0,
+            scanLeftToRight: SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter),
             targetPose, roomObjects);
         BlockMoveResult downward = ProbeChangedPoseVertical(
 
             level,
             displacement: SignedSixteenSixteen.FromWholePixels(radiusDifference),
-            scanLeftToRight: (frameCounter & 1) == 0,
+            scanLeftToRight: SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter),
             targetPose, roomObjects);
 
         if (upward.Collided && downward.Collided)
@@ -656,7 +656,7 @@ public sealed class SamusState
             BlockMoveResult opposite = ProbeChangedPoseVertical(
 level,
                 displacement: SignedSixteenSixteen.FromWholePixels(centerAdjustment),
-                scanLeftToRight: (frameCounter & 1) == 0,
+                scanLeftToRight: SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter),
                 targetPose, roomObjects: roomObjects);
             if (opposite.Collided)
                 return LargerPoseCollisionOutcome.RetainSource;
@@ -674,7 +674,7 @@ level,
             BlockMoveResult opposite = ProbeChangedPoseVertical(
 level,
                 displacement: SignedSixteenSixteen.FromWholePixels(centerAdjustment),
-                scanLeftToRight: (frameCounter & 1) == 0,
+                scanLeftToRight: SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter),
                 targetPose, roomObjects: roomObjects);
             if (opposite.Collided)
                 return LargerPoseCollisionOutcome.RetainSource;

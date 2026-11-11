@@ -131,7 +131,7 @@ internal sealed class MotherBrainHead
                 head.Position.Whole + brainShake,
                 // Her brain's own draw bypasses ordinary enemy colour selection. Retail
                 // still selects the shared white hurt colours on odd flash-timer frames.
-                (head.FlashTimer % 2 != 0) ? EnemyShades.HurtFlashLook : state.Colours.OwnShading),
+                MotherBrainCadenceDefinitions.HurtFlashWhite.IsSetIn(head.FlashTimer) ? EnemyShades.HurtFlashLook : state.Colours.OwnShading),
             camera);
 
         if (!state.DrawNeck || state.Body.Presence.HasAny(EnemyPresence.Hidden))
@@ -139,7 +139,7 @@ internal sealed class MotherBrainHead
 
         // The neck draw emits the joint nearest the brain first and the body-side joint
         // last. Equal-priority overlap therefore follows the same drawing precedence.
-        int shakeIndex = head.FlashTimer / 2 % 4;
+        int shakeIndex = MotherBrainCadenceDefinitions.NeckShakeStep.Of(head.FlashTimer);
         Offset16<RoomPixels> neckShake = MotherBrainBehavior.MotherBrainShakeOffsets[shakeIndex];
         Position16<RoomPixels>[] segments = state.NeckJoints;
         for (int index = segments.Length - 1; index >= 0; index--)

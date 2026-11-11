@@ -262,16 +262,11 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>
-    /// Applies the shift-and-mask index into the eight-entry low-health-drool list table,
-    /// whose entries repeat the no-delay, two-frame and four-frame lists.
+    /// The drool a low-health drool starts: the entry of <see cref="TorizoRandomDefinitions.LowHealthDroolPrograms"/>
+    /// the sample's <see cref="TorizoRandomDefinitions.LowHealthDroolDelay"/> draws.
     /// </summary>
     internal static TorizoProjectileProgram SelectLowHealthDroolProgram(int random) =>
-        (TorizoRandomDefinitions.LowHealthDroolDelay.Of(random) % 3) switch
-        {
-            0 => TorizoProjectileProgram.DroolNoDelay,
-            1 => TorizoProjectileProgram.DroolTwoFrameDelay,
-            _ => TorizoProjectileProgram.DroolFourFrameDelay,
-        };
+        TorizoRandomDefinitions.LowHealthDroolPrograms[TorizoRandomDefinitions.LowHealthDroolDelay.Of(random)];
 
     /// <summary>Places a swipe explosion at the attack-table hand offset, mirroring it for right-facing Torizo.</summary>
     internal void SpawnBombTorizoExplosiveSwipe(RoomEnemySlot torizo, int swipe)

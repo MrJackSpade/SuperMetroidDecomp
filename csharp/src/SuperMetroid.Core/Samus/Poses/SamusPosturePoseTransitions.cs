@@ -218,7 +218,7 @@ internal static class SamusPosturePoseTransitions
             // the surface first and the shorter clipped distance is what moves center Y.
             BlockMoveResult alignment = samus.ProbeChangedPoseVertical(
 level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.CrouchEntryDownwardPixels),
-                (frameCounter & 1) == 0, targetPose, roomObjects);
+                SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), targetPose, roomObjects);
             samus.Kinematics.Position = samus.Kinematics.Position.WithWrappedWholeY(
                 samus.Kinematics.Position.Y.Whole + alignment.AcceptedDisplacement.WholePixels);
             // Command seven publishes the aligned whole Y before scrolling; the
@@ -330,7 +330,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.CrouchEntryD
             }
             BlockMoveResult alignment = samus.ProbeChangedPoseVertical(
 level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDownwardPixels),
-                (frameCounter & 1) == 0, targetPose, roomObjects);
+                SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), targetPose, roomObjects);
             samus.Kinematics.Position = samus.Kinematics.Position.WithWrappedWholeY(
                 samus.Kinematics.Position.Y.Whole + alignment.AcceptedDisplacement.WholePixels);
             // Command seven replaces the previous whole-Y checkpoint

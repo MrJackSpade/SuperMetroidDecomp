@@ -111,9 +111,9 @@ internal sealed class MotherBrainRainbowAttackPhases
             requests.SoundQueued = true;
         }
 
-        // Palette handling runs only when enemy frame-counter bit one is set. The palette
+        // The colours step only on their phase of the body's update count. The colour
         // program itself remains presentation work, but its cadence is observable.
-        requests.ColoursRequested = (enemyFrameCounter & 2) != 0;
+        requests.ColoursRequested = MotherBrainCadenceDefinitions.RainbowColoursStep.IsSetIn(enemyFrameCounter);
 
         if (growth == MotherBrainRainbowBeamGrowth.Widening)
             IncreaseWidthAndAim(samus);
@@ -166,7 +166,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     {
         // Missiles and supers are visited only every fourth main-enemy pass. Power bombs
         // are visited every call, matching the branch layout rather than sharing the gate.
-        if ((mainEnemyExecutionCounter & 3) == 0)
+        if (MotherBrainCadenceDefinitions.RainbowMissileDrainEveryFourthEnemyPass.IsDue(mainEnemyExecutionCounter))
         {
             samus.Missiles = DecrementOneAmmoType(samus, samus.Missiles, selectedItem: HudItem.Missile);
             samus.SuperMissiles = DecrementOneAmmoType(samus, samus.SuperMissiles, selectedItem: HudItem.SuperMissile);

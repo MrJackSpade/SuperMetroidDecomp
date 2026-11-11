@@ -337,7 +337,7 @@ public sealed class BabyMetroidCutsceneState
 
             case BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse:
             {
-                int shakingIndex = (enemyFrameCounter & 6) >> 1;
+                int shakingIndex = MotherBrainCadenceDefinitions.BabyShakeStep.Of(enemyFrameCounter);
                 Position = Position.WithWhole(head + ShakingOffsets[shakingIndex] + BrainLatchOffset);
                 if (motherBrain.State.Phase2CorpseState != MotherBrainPhase2CorpseState.Living)
                 {
@@ -453,7 +453,7 @@ public sealed class BabyMetroidCutsceneState
                 // subsequent common mover is harmless because the touch handler zeroed
                 // both velocities when it installed this function.
                 CrySoundEnabled = false;
-                int shakingIndex = (enemyFrameCounter & 6) >> 1;
+                int shakingIndex = MotherBrainCadenceDefinitions.BabyShakeStep.Of(enemyFrameCounter);
                 Position = Position.WithWhole(samus.Position.Whole + ShakingOffsets[shakingIndex] + SamusLatchOffset);
 
                 // Healing adds exactly one energy per enemy-processing call. The compare is a
@@ -478,7 +478,7 @@ public sealed class BabyMetroidCutsceneState
                 // actor owns only the resulting shake and health-to-function transition.
                 if (OnionRingHitFlashTimer != 0)
                 {
-                    int shakingIndex = OnionRingHitFlashTimer / 2 % 4;
+                    int shakingIndex = MotherBrainCadenceDefinitions.BabyHitShakeStep.Of(OnionRingHitFlashTimer);
                     Offset16<RoomPixels> shake = ShakingOffsets[shakingIndex];
                     Position = Position.WithWhole(samus.Position.Whole + shake + shake + SamusLatchOffset);
                 }
@@ -592,7 +592,7 @@ public sealed class BabyMetroidCutsceneState
                 // which the common mover then applies, and places the Baby at the saved origin
                 // plus the undoubled shaking offsets.
                 Velocity = Velocity.WithY(Velocity.Y - SignedEightEight.FromSignedRaw(1));
-                int shakingIndex = (enemyFrameCounter & 6) >> 1;
+                int shakingIndex = MotherBrainCadenceDefinitions.BabyShakeStep.Of(enemyFrameCounter);
                 Position = Position.WithWhole(FatalBlowOrigin + ShakingOffsets[shakingIndex]);
                 if (--FunctionTimer < 0)
                 {
@@ -642,7 +642,7 @@ public sealed class BabyMetroidCutsceneState
                 {
                     deathExplosion = StepDeathExplosion();
                     // The flicker step clears invisibility on odd enemy frames and sets it on even.
-                    Presence = (enemyFrameCounter & 1) != 0
+                    Presence = MotherBrainCadenceDefinitions.BabyDeathFlickerShown.IsSetIn(enemyFrameCounter)
                         ? Presence.Without(EnemyPresence.Hidden)
                         : Presence.With(EnemyPresence.Hidden);
                 }
@@ -712,7 +712,7 @@ public sealed class BabyMetroidCutsceneState
         if (OnionRingHitFlashTimer != 0)
         {
             OnionRingHitFlashTimer--;
-            HurtFlashShown = OnionRingHitFlashTimer / 2 % 2 != 0;
+            HurtFlashShown = MotherBrainCadenceDefinitions.BabyHurtFlashShown.IsSetIn(OnionRingHitFlashTimer);
         }
         else
         {

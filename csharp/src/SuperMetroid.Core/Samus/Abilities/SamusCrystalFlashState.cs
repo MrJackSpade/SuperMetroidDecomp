@@ -285,7 +285,7 @@ public sealed class SamusCrystalFlashState
     {
         // All three drains do nothing on seven of every eight frames of the frame counter;
         // Crystal Flash keeps no cadence of its own.
-        if ((frameCounter & 7) != 0)
+        if (!SamusCadenceDefinitions.CrystalFlashDrainEveryEighthUpdate.IsDue(frameCounter))
             return;
 
         switch (DrainingAmmo)

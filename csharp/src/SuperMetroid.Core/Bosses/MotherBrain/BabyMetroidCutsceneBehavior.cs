@@ -157,7 +157,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         // energy write. Use the phase that ran, including its final full-health call.
         if (step.PhaseBefore == BabyMetroidCutscenePhase.HealSamusToFullHealth &&
             target.Health >= MotherBrainHealthSounds.MinimumEnergy &&
-            (_frameContext.RandomEnemyCounter & MotherBrainHealthSounds.EnemyClockMask) == 0)
+            MotherBrainCadenceDefinitions.BabyHealSoundEveryEighthEnemyPass.IsDue(_frameContext.RandomEnemyCounter))
             _audio.QueueEnemySound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Low);
 
         // The Baby's drain step writes the body enemy's animation script from this later Baby slot.

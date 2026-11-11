@@ -100,7 +100,7 @@ public static class SamusPostureMovement
         // this matters for a Speed-Booster slide through the crouching transition.
         SignedSixteenSixteen verticalDisplacement = SamusExtraDisplacement
             .CalculateNoSpeedVerticalDisplacement(samus.Kinematics, speed);
-        BlockMoveResult vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = verticalDisplacement, ScanLeftToRight = (frameCounter & 1) == 0 });
+        BlockMoveResult vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = verticalDisplacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
         return new GroundedMovementResult(horizontal, vertical);
     }
 

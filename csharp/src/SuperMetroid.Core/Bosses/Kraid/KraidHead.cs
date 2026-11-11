@@ -56,7 +56,7 @@ internal sealed class KraidHead
     /// </summary>
     internal void UpdateKraidHealthColours(RoomEnemySlot body, KraidEnemyState state)
     {
-        int band = (state.HurtFrame & 1) != 0 ? HurtBand : HealthBand(body, state);
+        int band = KraidCadenceDefinitions.HurtColoursShown.IsSetIn(state.HurtFrame) ? HurtBand : HealthBand(body, state);
         state.Colours.ShowBand(band, BandEyes(band), _background.EyeColours.Shaded);
         PictureShading parts = state.Colours.Parts;
         foreach (RoomEnemySlot part in _parts.All)
@@ -126,7 +126,7 @@ internal sealed class KraidHead
         // The open-mouth tilemap remains installed for 64 frames. Retail emits a rock on
         // every sixteenth timer value, including the entry frame after the open-mouth setup reloads it.
         if (state.DisplayedHeadFrame is { MouthStage: KraidHeadFrame.FullyOpenMouthStage } &&
-            state.BodyState.HeadTimer % 16 == 0)
+            KraidCadenceDefinitions.SpitRockEverySixteenthMouthUpdate.IsDue(state.BodyState.HeadTimer))
         {
             state.SpitRockRequestCount++;
             if (SpawnKraidSpitRock(body))

@@ -256,7 +256,7 @@ internal sealed class NoobTubeBehavior
         NoobTubeCrackState crack = projectile.StateOf<NoobTubeCrackState>();
         if (projectile.Position.X.Whole != NoobTubeDebrisDefinitions.HiddenXPosition)
             crack.ShownX = projectile.Position.X.Whole;
-        projectile.Position = projectile.Position.WithWholeX((_projectiles.CurrentFrame8 & 1) != 0
+        projectile.Position = projectile.Position.WithWholeX(NoobTubeCadenceDefinitions.CrackHidden.IsSetIn(_projectiles.CurrentFrame8)
             ? NoobTubeDebrisDefinitions.HiddenXPosition
             : crack.ShownX);
     }
@@ -330,19 +330,19 @@ internal sealed class NoobTubeBehavior
     /// <summary>Carries out one cue of the crack, shard and bubble programs.</summary>
     private void ApplyNoobTubeProjectileCue(EnemyProjectile projectile, NoobTubeProjectileCue cue)
     {
-        bool oddFrame = (_projectiles.CurrentFrame8 & 1) != 0;
+        bool atOwnColumn = NoobTubeCadenceDefinitions.DebrisAtOwnColumn.IsSetIn(_projectiles.CurrentFrame8);
         switch (cue.Kind)
         {
             case NoobTubeProjectileCueKind.FlickerReflected:
-                // Odd frames show the first pose at the shard's column; even frames the reflected pose, mirrored across the tube.
+                // The shard shows its first pose at its column, or the reflected pose mirrored across the tube.
                 int column = projectile.StateOf<NoobTubeDebrisState>().X.Whole;
-                projectile.Position = projectile.Position.WithWholeX(oddFrame
+                projectile.Position = projectile.Position.WithWholeX(atOwnColumn
                     ? column
                     : CoordinateAxis.Wrap(NoobTubeDebrisDefinitions.ShardMirrorSpan - column));
-                ShardAnimation(projectile).ShowsReflectedPose = !oddFrame;
+                ShardAnimation(projectile).ShowsReflectedPose = !atOwnColumn;
                 break;
             case NoobTubeProjectileCueKind.FlickerHidden:
-                projectile.Position = projectile.Position.WithWholeX(oddFrame ? projectile.StateOf<NoobTubeDebrisState>().X.Whole : NoobTubeDebrisDefinitions.HiddenXPosition);
+                projectile.Position = projectile.Position.WithWholeX(atOwnColumn ? projectile.StateOf<NoobTubeDebrisState>().X.Whole : NoobTubeDebrisDefinitions.HiddenXPosition);
                 break;
             case NoobTubeProjectileCueKind.AssignShardFallingAngle:
                 projectile.StateOf<NoobTubeDebrisState>().SwayPhase = _room.Random.Next(NoobTubeDebrisDefinitions.FallingSwayPhase);

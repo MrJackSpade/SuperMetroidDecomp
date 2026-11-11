@@ -108,7 +108,7 @@ internal sealed class IntroMotherBrainSpriteState
         if (hurtFlashTimer == 0)
             return;
 
-        FlashesWhite = hurtFlashTimer % 2 == 0;
+        FlashesWhite = !IntroCadenceDefinitions.MotherBrainHurtShowsOwnColours.IsSetIn(hurtFlashTimer);
         hurtFlashTimer--;
     }
 
@@ -157,8 +157,8 @@ internal sealed class IntroMotherBrainSpriteState
         // The inherited scroll of 8 therefore alternates 12/8; starting this host
         // field at zero would produce 4/0 and shift the whole room down one tile.
         // The scroll wraps at sixteen bits, as every room scroll does.
-        Background += (cinematicFrameCounter & 1) == 0
-            ? new Offset16<RoomPixels>(0, 4)
-            : new Offset16<RoomPixels>(0, -4);
+        Background += IntroCadenceDefinitions.MotherBrainRoomShakesUp.IsSetIn(cinematicFrameCounter)
+            ? new Offset16<RoomPixels>(0, -4)
+            : new Offset16<RoomPixels>(0, 4);
     }
 }

@@ -245,7 +245,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void ApplyMetroidHurt(RoomEnemySlot slot)
     {
         MetroidEnemyState state = slot.RequireSpeciesState<MetroidEnemyState>();
-        if (slot.FlashTimer / 2 % 2 != 0)
+        if (MetroidCadenceDefinitions.HurtOuterBodiesShowOwnColours.IsSetIn(slot.FlashTimer))
         {
             state.OuterBodyA.Graphics = state.OuterBodyA.Graphics.In(slot.Shading);
             state.OuterBodyB.Graphics = state.OuterBodyB.Graphics.In(slot.Shading);
@@ -280,7 +280,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (state.Function != MetroidAiFunction.PowerBombEscape)
         {
-            if ((_frameContext.RandomEnemyCounter & 7) == 7 && samus.Health >= 30)
+            if (MetroidCadenceDefinitions.DrainSoundEveryEighthEnemyPass.IsDue(_frameContext.RandomEnemyCounter) && samus.Health >= 30)
                 _audio.QueueEnemySound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Normal);
             DrainSamusWithMetroid(state, samus);
         }

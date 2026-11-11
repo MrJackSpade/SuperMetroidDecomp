@@ -87,15 +87,14 @@ internal sealed class EnemyDrawList
             Position16<ScreenPixels> origin = (slot.Position.Whole + slot.DrawOffset).ToScreen(camera);
 
             // The draw pass consumes one shake tick of an enemy it reaches while forming
-            // its origin. Bit one of
-            // the enemy's frame counter chooses -1 or +1; this is deliberately not the
+            // its origin. The enemy's own update count chooses one pixel left or right; this is deliberately not the
             // room's background displacement. Ceres quake types 18 and above reload ShakeTimer for
             // every active enemy, which is why its door sprites visibly move
             // with the station instead of remaining pinned to host screen space.
             if (reached && slot.ShakeTimer != 0)
             {
                 origin = origin.WithX(CoordinateAxis.Wrap(origin.X +
-                    ((slot.FrameCounter & 2) != 0 ? -1 : 1)));
+                    (EnemyDrawPhaseDefinitions.ShakeShiftsLeft.IsSetIn(slot.FrameCounter) ? -1 : 1)));
                 slot.ShakeTimer--;
             }
             PictureShading drawShading = SelectCommonEnemyDrawShading(slot);
@@ -198,11 +197,11 @@ internal sealed class EnemyDrawList
         // A hit flash shows the common sprite colours on alternate phases. The flash selects another row for the draw, so
         // it lies over the enemy's own shading: pixels it moves show the selected row, and pixels whose row the selection
         // leaves as it is keep showing what the enemy's own effects laid there.
-        if (slot.FlashTimer != 0 && (_frameContext.RandomEnemyCounter & 2) != 0)
+        if (slot.FlashTimer != 0 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(_frameContext.RandomEnemyCounter))
             return slot.Shading.With(EnemyShades.HurtFlash);
 
         if (slot.FrozenTimer != 0 &&
-            (slot.FrozenTimer >= 90 || (slot.FrozenTimer / 2 % 2 != 0)))
+            (slot.FrozenTimer >= 90 || EnemyDrawPhaseDefinitions.FrozenColoursShown.IsSetIn(slot.FrozenTimer)))
         {
             return slot.Shading.With(EnemyShades.Frozen);
         }

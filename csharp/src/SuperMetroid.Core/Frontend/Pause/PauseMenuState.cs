@@ -806,7 +806,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     internal PictureShading ReserveArrowShading => samus.MaxReserveEnergy == 0
         ? PictureShading.Standard
         : PictureShading.Shaded(ReserveArrow == ReserveArrowState.Animated
-            ? PauseReserveArrowShades.Pulse(pauseFrameCycle & (PauseReserveArrowDefinitions.ArrowFrames - 1))
+            ? PauseReserveArrowShades.Pulse(PauseCadenceDefinitions.ReserveArrowPulseFrame.Of(pauseFrameCycle))
             : PauseReserveArrowShades.Solid);
 
     /// <summary>
@@ -843,7 +843,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             int steps = remainder / PauseReserveEnergyDefinitions.EnergyPerFillStep;
             if (steps < PauseReserveEnergyDefinitions.FlickerFillStepLimit &&
                 remainder % PauseReserveEnergyDefinitions.EnergyPerFillStep != 0 &&
-                pauseFrameCycle / PauseReserveEnergyDefinitions.FlickerPhaseFrames % 2 == 0)
+                !PauseCadenceDefinitions.ReserveFlickerStepHidden.IsSetIn(pauseFrameCycle))
                 steps++;
             Draw(PauseReserveTankParts.FillLevel(steps), tank++);
         }

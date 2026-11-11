@@ -105,7 +105,7 @@ public sealed class SamusArmCannonState
 
         // The cannon shares Samus's invincibility flicker, and a closed frame performs
         // neither sprite nor artwork work. The game returns before even consulting pose data.
-        if (Frame == 0 || (!samus.InvincibilityTimer.IsZero && (frameCounter & 1) != 0))
+        if (Frame == 0 || (!samus.InvincibilityTimer.IsZero && SamusCadenceDefinitions.InvincibilityFlickerHidden.IsSetIn(frameCounter)))
             return new SamusArmCannonDrawResult();
 
         SamusArmCannonPlacement placement = Placement(samus.Pose);

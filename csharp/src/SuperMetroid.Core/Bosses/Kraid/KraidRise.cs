@@ -150,7 +150,7 @@ internal sealed class KraidRise
                 return;
 
             case KraidAiFunction.GrowBreakCeilingPlatforms:
-                if ((body.FrameCounter & 7) == 0)
+                if (KraidCadenceDefinitions.CeilingBreakRockEveryEighthUpdate.IsDue(body.FrameCounter))
                     RequestKraidRisingRock(body, state);
                 body.Position = body.Position.WithWrappedWholeX(body.Position.X.Whole +
                     ((body.Position.Y.Whole & 2) == 0 ? 1 : -1));
@@ -302,10 +302,10 @@ internal sealed class KraidRise
         rock.StartAnimation(new KraidRockAnimation(kind == RoomEnemyProjectileKind.KraidRisingRockRight
             ? KraidRockProgram.RisingRightPose
             : KraidRockProgram.SharedPose));
-        // The rock initializer tests bit zero: clear complements the offset to the left.
+        // A rock on the left starts one pixel further from the body than its mirror on the right.
         int randomOffset = KraidRandomDefinitions.RisingRockOffset.Of(random);
         if (!KraidRandomDefinitions.RisingRockOffsetRight.IsSetIn(random))
-            randomOffset = CoordinateAxis.AsSigned(~randomOffset);
+            randomOffset = CoordinateAxis.AsSigned(-(randomOffset + KraidRandomDefinitions.RisingRockLeftExtraPixels));
         rock.Position = FixedPosition<RoomPixels>.FromWhole(new(CoordinateAxis.Wrap(body.Position.X.Whole + randomOffset), 432));
         rock.Velocity = new(SignedEightEight.FromSignedRaw(KraidRandomDefinitions.RisingRockXSpeedSteps.Of(random) * KraidRandomDefinitions.RisingRockXSpeedStep), SignedEightEight.FromSignedRaw(-1280));
         rock.Graphics = SpriteGraphics.SharedIn(KraidColours.RocksShading);
@@ -349,7 +349,7 @@ internal sealed class KraidRise
                     state.BodyState.Function = KraidAiFunction.RaiseRocksEvery8Frames;
                     state.BodyState.RisingRockTimer = 96;
                 }
-                else if (state.BodyState.RisingRockTimer % 16 == 0)
+                else if (KraidCadenceDefinitions.FirstRiseRockEverySixteenthUpdate.IsDue(state.BodyState.RisingRockTimer))
                 {
                     RequestKraidRisingRock(body, state);
                 }
@@ -362,7 +362,7 @@ internal sealed class KraidRise
                     state.BodyState.Function = KraidAiFunction.RaiseBody;
                     state.BodyState.FunctionTimer = 288;
                 }
-                else if (state.BodyState.RisingRockTimer % 8 == 0)
+                else if (KraidCadenceDefinitions.FasterRiseRockEveryEighthUpdate.IsDue(state.BodyState.RisingRockTimer))
                 {
                     RequestKraidRisingRock(body, state);
                 }
@@ -370,7 +370,8 @@ internal sealed class KraidRise
 
             case KraidAiFunction.RaiseBody:
                 RestrictSamusToKraidFirstScreen(samus);
-                if (_earthquake.RemainingFrames % 8 is 0 or 2)
+                if (KraidCadenceDefinitions.RaisedBodyFirstRockOfEight.IsDue(_earthquake.RemainingFrames) ||
+                    KraidCadenceDefinitions.RaisedBodySecondRockOfEight.IsDue(_earthquake.RemainingFrames))
                     RequestKraidRisingRock(body, state);
                 body.Position = body.Position.WithWrappedWholeX(body.Position.X.Whole +
                     ((body.Position.Y.Whole & 2) == 0 ? -1 : 1));

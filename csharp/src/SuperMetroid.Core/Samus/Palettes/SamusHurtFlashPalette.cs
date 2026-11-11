@@ -61,7 +61,7 @@ public static class SamusHurtFlashPalette
         // counter seven is reached the existing colours deliberately remain untouched.
         if (counterBefore < 7)
         {
-            if ((counterBefore & 1) != 0)
+            if (SamusCadenceDefinitions.HurtColoursShown.IsSetIn(counterBefore))
             {
                 colours.ShowSuit(SamusShades.Hurt(SamusHurtColorVariant.Hurt));
             }

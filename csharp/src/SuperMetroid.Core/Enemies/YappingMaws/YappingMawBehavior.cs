@@ -489,7 +489,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The frozen colours flash back to the actor's own on alternating pairs only
         // during the final 89 ticks. The strict signed comparison excludes timer 90.
-        if (WrappingCounter.IsBehind(frozenTimer, 90) && (frozenTimer & 2) == 0)
+        if (WrappingCounter.IsBehind(frozenTimer, 90) && !EnemyDrawPhaseDefinitions.FrozenColoursShown.IsSetIn(frozenTimer))
             return originalShading;
         return EnemyShades.FrozenLook;
     }

@@ -74,17 +74,11 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Fewest frames a spike clock waits after it fires before it can fire again.</summary>
-    private const int MinimumSpikeReloadFrames = 16;
-
     /// <summary>The gravity Mini-Kraid's spit gains each update.</summary>
     private static readonly SignedEightEight SpitGravity = SignedEightEight.FromSignedRaw(64);
 
     /// <summary>The fastest Mini-Kraid's spit falls: four pixels an update.</summary>
     private static readonly SignedEightEight SpitMaximumFallSpeed = SignedEightEight.FromSignedRaw(1024);
-
-    /// <summary>Number of distinct random extra frames (zero through sixty-three) added to a spike clock's reload.</summary>
-    private const int SpikeReloadRandomSpread = 64;
 
     /// <summary>Whole pixels per frame a body spike travels horizontally, toward the side Mini-Kraid faces.</summary>
     private const int SpikePixelsPerFrame = 2;
@@ -116,7 +110,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         // the RNG. Use the read callback when available and reserve NextRandom for older
         // isolated callers that did not expose that seam.
         int random = ReadFakeKraidRandomNumber();
-        int seedDelay = KraidRandomDefinitions.FakeKraidStartDelay.Of(random) + 2;
+        int seedDelay = KraidRandomDefinitions.FakeKraidStartDelay.Of(random) + KraidRandomDefinitions.FakeKraidStartDelayBase;
         state.WalkStepTimer = seedDelay;
         state.SpitDecisionTimer = seedDelay;
         state.SpikeTimers[FakeKraidSpikeRow.Top] = seedDelay + 64;
@@ -154,9 +148,9 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // The reload keeps the random word's low six bits: sixteen to seventy-nine frames.
         state.SpikeTimers[row] =
-            ReadFakeKraidRandomNumber() % SpikeReloadRandomSpread + MinimumSpikeReloadFrames;
+            KraidRandomDefinitions.FakeKraidSpikeReloadSpread.Of(ReadFakeKraidRandomNumber()) +
+            KraidRandomDefinitions.FakeKraidSpikeReloadBase;
         if (SpawnFakeKraidSpike(slot, state, row) &&
             FakeKraidOriginIsOnScreen(slot, camera))
         {
@@ -179,13 +173,13 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.SpitDecisionTimer = Math.Max(0, state.SpitDecisionTimer - 1);
 
-        // The step expires when the decrement reaches zero: reload seven through ten and
-        // reverse without moving. Otherwise attempt the signed four-pixel 16.16
+        // The step expires when the decrement reaches zero: reload and reverse without moving. Otherwise attempt the signed four-pixel 16.16
         // displacement and reverse only if the room collision helper reports a wall.
         bool reverse = --state.WalkStepTimer == 0;
         if (reverse)
         {
-            state.WalkStepTimer = (ReadFakeKraidRandomNumber() & 3) + 7;
+            state.WalkStepTimer = KraidRandomDefinitions.FakeKraidWalkStepSpread.Of(ReadFakeKraidRandomNumber()) +
+                KraidRandomDefinitions.FakeKraidWalkStepBase;
         }
         else
         {
@@ -222,7 +216,8 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 : FakeKraidProgram.StepForwardsFacingRight;
         }
 
-        state.SpitDecisionTimer = (ReadFakeKraidRandomNumber() & 3) + 3;
+        state.SpitDecisionTimer = KraidRandomDefinitions.FakeKraidSpitDecisionSpread.Of(ReadFakeKraidRandomNumber()) +
+            KraidRandomDefinitions.FakeKraidSpitDecisionBase;
         return state.FacingDelta < 0
             ? FakeKraidProgram.FireSpitFacingLeft
             : FakeKraidProgram.FireSpitFacingRight;

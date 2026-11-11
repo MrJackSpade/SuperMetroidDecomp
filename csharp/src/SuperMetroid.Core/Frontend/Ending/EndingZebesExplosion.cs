@@ -71,7 +71,7 @@ internal sealed class EndingZebesExplosion
     internal void StepExplosionCrossfade()
     {
         _stage.FloorZoom += EndingExplosionFadeDefinitions.ZoomStep;
-        if ((_stage.PhaseTimer & 1) == 0)
+        if (EndingCadenceDefinitions.ExplosionFadeStepEverySecondUpdate.IsDue(_stage.PhaseTimer))
         {
             explosionFadeStep++;
             screen.Colours.Fade(EndingFade.ExplosionBackground, EndingExplosionFadeDefinitions.Steps - explosionFadeStep);

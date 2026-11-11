@@ -142,7 +142,7 @@ public static class SamusAerialMovement
             BlockMoveResult? vertical = null;
             if (externalY is { } displacement)
             {
-                vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (frameCounter & 1) == 0 });
+                vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
             }
             return new AerialMovementResult(
                 Landed: externalY is { IsNegative: false } && vertical is { Collided: true },
@@ -659,7 +659,7 @@ public static class SamusAerialMovement
             state,
             displacement);
         downwardDisplacement = !displacement.IsNegative;
-        BlockMoveResult vertical = SamusBlockCollision.MoveVertical(terrain, state, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (frameCounter & 1) == 0 });
+        BlockMoveResult vertical = SamusBlockCollision.MoveVertical(terrain, state, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
 
         // (down) and the upward mover (up) publish this word after every move. A
         // downward pass is never zero: 1 on a landing, otherwise 2 unless a wall jump's 5 is retained.

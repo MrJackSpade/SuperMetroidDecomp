@@ -403,7 +403,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Seeds camera-dependent liquid registers during a room transition without advancing
+    /// Seeds the liquid surface's camera-dependent screen line during a room transition without advancing
     /// a wave clock. Destination rendering can therefore show the correct surface on its
     /// first frame boundary instead of waiting for the first gameplay handler call.
     /// </summary>
@@ -640,18 +640,15 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Runs the signed timer and eight-entry earthquake-sound loop.
-    /// All eight sound words are enemy-library Earthquake; the negative ninth
-    /// word resets selection to zero. Constant sound selection and the index bound
-    /// replace those words; the independently retained rhythm supplies only delays.
+    /// Runs the signed timer and the earthquake sound's loop of eight delays. Every one of the eight plays the
+    /// earthquake sound; after the eighth the loop starts again from the first. The independently retained rhythm
+    /// supplies only the delays.
     /// </summary>
-    /// <param name="randomNumber">Current RNG word, sampled without advancing it; its low two bits add zero through three updates to the next earthquake-sound delay.</param>
+    /// <param name="randomNumber">The current random number, sampled without advancing it; bits zero and one add zero through three updates to the next earthquake-sound delay.</param>
     /// <param name="earthquakeSoundDelay">
-    /// The frame the save file found at power-on adds to the next delay. The earthquake sound request restores the carry
-    /// with the status restore, so the delay addition adds it. Both callers' per-line effect objects are the first their FX
-    /// spawns after the door deletes the per-line effect objects, so they run in slot zero, which inherits the main loop's
-    /// power-on carry (<see cref="PowerOnEarthquakeSoundDelay"/>); a later slot would see the clear carry from
-    /// the room-effect slot loop.
+    /// The frame the save file found at power-on adds to every next delay (<see cref="PowerOnEarthquakeSoundDelay"/>).
+    /// Both callers' effects are the first their room starts after the door ends the previous room's effects, so they
+    /// receive that frame; an effect started after another would add nothing.
     /// </param>
     private void HandleEarthquakeSoundEffect(int randomNumber, PowerOnEarthquakeSoundDelay earthquakeSoundDelay)
     {
@@ -829,9 +826,9 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Deletes the liquid's scroll per-line effect objects, as zeroing their channel words does: no
-    /// later pass moves the liquid, queues its ambient sound or (for lava/acid) swaps the
-    /// RNG bytes. Effects without per-line liquid motion are unaffected.
+    /// Ends the liquid's per-line motion effects: no later pass moves the liquid, queues its ambient sound or
+    /// (for lava/acid) swaps the halves of the shared random number. Effects without per-line liquid motion are
+    /// unaffected.
     /// </summary>
     public void StopLiquidMotion() => LiquidMotionStopped = true;
 

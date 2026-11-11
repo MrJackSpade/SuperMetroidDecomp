@@ -55,7 +55,7 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
     /// <summary>Whether the indirect table has not been terminated by a frozen frame.</summary>
     public bool BandsShown { get; private set; } = hasBands;
 
-    /// <summary>Integer per-line data words, indexed like the sky's 23 four-byte slots.</summary>
+    /// <summary>The whole-pixel horizontal offset of band <paramref name="slot"/>, one of the sky's 23 bands.</summary>
     public int GetDataSlotPosition(int slot)
     {
         if ((uint)slot >= _fixedHorizontalScrolls.Length)

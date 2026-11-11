@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Enemies.Kago;
 internal static class KagoBugProjectileAnimations
 {
     /// <summary>
-    /// The updates a bug's idle, falling or jumping pose shows before its animation plays on (#1607): the landed pose
-    /// then starts the landing again, and the falling and jumping poses show themselves again.
+    /// The updates a landed bug's idle pose shows before its animation starts the landing again (#1607). The falling and
+    /// jumping poses are held instead: their lists show the same pose again, so they rest on it for good.
     /// </summary>
     private const int LongestPose = 32767;
 
@@ -32,7 +32,7 @@ internal static class KagoBugProjectileAnimations
         ],
         [P.Falling] =
         [
-            Show(2, LongestPose),
+            Hold(2),
         ],
         [P.JumpStart] =
         [
@@ -42,7 +42,7 @@ internal static class KagoBugProjectileAnimations
         ],
         [P.JumpLoop] =
         [
-            Show(5, LongestPose),
+            Hold(5),
         ],
         [P.Shot] =
         [
@@ -72,6 +72,9 @@ internal static class KagoBugProjectileAnimations
 
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<KagoBugProjectileFrame, KagoBugProjectileCue> Show(int pose, int duration) => new AnimationBeat<KagoBugProjectileFrame, KagoBugProjectileCue>.Frame(new(pose), duration);
+
+    /// <summary>Shows pose <paramref name="pose"/> for good: the animation rests on it until its owner plays another (#1607).</summary>
+    private static AnimationBeat<KagoBugProjectileFrame, KagoBugProjectileCue> Hold(int pose) => new AnimationBeat<KagoBugProjectileFrame, KagoBugProjectileCue>.HeldFrame(new(pose));
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationBeat<KagoBugProjectileFrame, KagoBugProjectileCue> Cue(KagoBugProjectileCue cue) => new AnimationBeat<KagoBugProjectileFrame, KagoBugProjectileCue>.Event(cue);

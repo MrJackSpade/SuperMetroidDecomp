@@ -17,9 +17,6 @@ public readonly record struct RidleyTailAngle : IComparable<RidleyTailAngle>
     /// <summary>The link pointing straight down from its anchor.</summary>
     public static RidleyTailAngle StraightDown => default;
 
-    /// <summary>The angle <paramref name="steps"/> 256ths of a turn counterclockwise of straight down, clockwise when negative.</summary>
-    public static RidleyTailAngle FromStepsFromStraightDown(int steps) => new(steps);
-
     /// <summary>
     /// The sine-table direction the link's offset is computed from: the step within the turn, with straight down at
     /// zero, the link's horizontal offset from its sine and its vertical offset from its cosine.

@@ -532,9 +532,9 @@ internal static class MapPresentationVerification
         };
         for (int frame = 0; frame < MotherBrainRainbowPaletteGeometry.BeamCycleColorCount + 3; frame++)
         {
-            nativeBeamSequence.Step(true, new(100, 95), RotationAngle.QuarterTurn, 0x4000, default);
+            nativeBeamSequence.Step(true, new(100, 95), RotationAngle.QuarterTurn, RotationAngle.FromSteps(64), default);
             installedBeamSequence.Step(true, new(100, 95),
-                RotationAngle.QuarterTurn, 0x4000, default);
+                RotationAngle.QuarterTurn, RotationAngle.FromSteps(64), default);
             AssertTrue(nativeBeamSequence.Color == installedBeamSequence.Color &&
                 nativeBeamSequence.ColorIndex == installedBeamSequence.ColorIndex &&
                 nativeBeamSequence.Geometry == installedBeamSequence.Geometry,

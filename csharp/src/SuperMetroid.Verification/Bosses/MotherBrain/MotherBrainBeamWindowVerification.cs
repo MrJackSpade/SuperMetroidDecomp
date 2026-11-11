@@ -80,7 +80,7 @@ internal static class MotherBrainBeamWindowVerification
         int cursor = beam.ColorIndex;
         _ = GameplayEffectCapture.CaptureMotherBrainRainbowBeam(beam.RenderSnapshot);
         AssertEqual(cursor, beam.ColorIndex, "repainting cannot advance beam simulation");
-        beam.Step(false, new(0, 0), default, 0, default);
+        beam.Step(false, new(0, 0), default, RotationAngle.Zero, default);
         AssertTrue(GameplayEffectCapture.CaptureMotherBrainRainbowBeam(beam.RenderSnapshot) is null,
             "deleted HDMA object emits no render layer");
         AssertEqual(snapshot.Geometry, beam.Geometry, "deactivation keeps the last geometry");
@@ -120,7 +120,7 @@ internal static class MotherBrainBeamWindowVerification
         ScreenWindow up = Cone(beam.RenderSnapshot);
         beam.Step(true, new(100, 95), RotationAngle.ThreeQuarterTurn, Width(2), default);
         AssertEqual(up, Cone(beam.RenderSnapshot), "retain keeps the previous cone");
-        beam.Step(false, default, default, 0, default);
+        beam.Step(false, default, default, RotationAngle.Zero, default);
         beam.Step(true, new(40, 150), RotationAngle.ThreeQuarterTurn, Width(2), default);
         AssertEqual(up, Cone(beam.RenderSnapshot), "retain after reactivation still shows the cone from the earlier attack");
     }

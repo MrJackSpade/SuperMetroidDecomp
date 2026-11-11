@@ -64,7 +64,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
         var state = new RinkaEnemyState()
         {
             Function = RinkaEnemyFunction.WatchForLeavingViewport,
-            Program = AnimationProgramCursor<RinkaProgram>.Start(program),
+            Playback = new(RinkaAnimations.StartingWith(program), AnimationPlace.StartOfAnimation),
         };
         enemies.SlotTable.Slots[0].SetSpeciesState(state);
 

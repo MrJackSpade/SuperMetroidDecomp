@@ -105,7 +105,7 @@ internal static class EnemyProjectileDefinitionsVerification
             else if (kind == RoomEnemyProjectileKind.MotherBrainOnionRing)
             {
                 // The onion ring's impact program is typed (#1292); VerifyMotherBrainEffectAnimations matches it.
-                AssertTrue(projectile.Animation is MotherBrainEffectAnimation { Cursor.Program: MotherBrainEffectProgram.OnionRingHit },
+                AssertTrue(projectile.Animation is MotherBrainEffectAnimation { PlayingSegment: MotherBrainEffectProgram.OnionRingHit },
                     $"{kind} production touch starts the typed touch program");
             }
             else if (kind == RoomEnemyProjectileKind.MotherBrainRoomTurretBullet)

@@ -11,9 +11,9 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 internal static class MotherBrainEffectAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<MotherBrainEffectProgram, MotherBrainEffectFrame, MotherBrainEffectCue> Programs { get; } = new(
-        new Dictionary<MotherBrainEffectProgram, AnimationProgramStep<MotherBrainEffectProgram, MotherBrainEffectFrame, MotherBrainEffectCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<MotherBrainEffectProgram, MotherBrainEffectFrame, MotherBrainEffectCue> Segments { get; } = new(
+        new Dictionary<MotherBrainEffectProgram, AnimationBeat<MotherBrainEffectFrame, MotherBrainEffectCue>[]>
     {
         [P.OnionRing] =
         [
@@ -29,7 +29,6 @@ internal static class MotherBrainEffectAnimations
             Show(4, 6),
             Cue(new MotherBrainEffectCue.SetRadius(Radius: new(6, 6))),
             Show(5, 5),
-            Hold,
         ],
         [P.OnionRingHit] =
         [
@@ -42,7 +41,6 @@ internal static class MotherBrainEffectAnimations
             Show(10, 5),
             Show(11, 5),
             Cue(new MotherBrainEffectCue.Command(K.Delete)),
-            Hold,
         ],
         [P.Bomb] =
         [
@@ -55,7 +53,6 @@ internal static class MotherBrainEffectAnimations
             Show(18, 3),
             Show(19, 4),
             Show(20, 5),
-            GoTo(P.Bomb),
         ],
         [P.RainbowBeamCharging] =
         [
@@ -66,7 +63,6 @@ internal static class MotherBrainEffectAnimations
             Show(25, 5),
             Show(26, 5),
             Cue(new MotherBrainEffectCue.Command(K.Delete)),
-            Hold,
         ],
         [P.Drool] =
         [
@@ -78,7 +74,6 @@ internal static class MotherBrainEffectAnimations
             Cue(new MotherBrainEffectCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.MotherBrainDroolFall)),
             Cue(new MotherBrainEffectCue.Command(K.DropDrool)),
             Show(32, 10),
-            Hold,
         ],
         [P.DroolHitFloor] =
         [
@@ -88,7 +83,6 @@ internal static class MotherBrainEffectAnimations
             Show(35, 10),
             Show(36, 10),
             Cue(new MotherBrainEffectCue.Command(K.Delete)),
-            Hold,
         ],
         [P.EscapeDoorParticle] =
         [
@@ -100,7 +94,6 @@ internal static class MotherBrainEffectAnimations
             Show(42, 3),
             Show(43, 4),
             Show(44, 4),
-            GoTo(P.EscapeDoorParticle),
         ],
         [P.PurpleBreathBig] =
         [
@@ -114,7 +107,6 @@ internal static class MotherBrainEffectAnimations
             Show(51, 11),
             Show(52, 11),
             Cue(new MotherBrainEffectCue.Command(K.Delete)),
-            Hold,
         ],
         [P.PurpleBreathSmall] =
         [
@@ -129,24 +121,34 @@ internal static class MotherBrainEffectAnimations
             Show(60, 12),
             Cue(new MotherBrainEffectCue.Command(K.EndSmallPurpleBreath)),
             Cue(new MotherBrainEffectCue.Command(K.Delete)),
-            Hold,
         ],
         [P.EscapeSubtitle] =
         [
             Show(61, 1),
-            Hold,
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<MotherBrainEffectProgram, Animation<MotherBrainEffectProgram>> StartingAt { get; } = new Dictionary<MotherBrainEffectProgram, Animation<MotherBrainEffectProgram>>
+    {
+        [P.OnionRing] = new([new(P.OnionRing, 0, 12, 1)], AnimationEnd.Holds),
+        [P.OnionRingHit] = new([new(P.OnionRingHit, 0, 9, 1)], AnimationEnd.Holds),
+        [P.Bomb] = new([new(P.Bomb, 0, 9, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.RainbowBeamCharging] = new([new(P.RainbowBeamCharging, 0, 7, 1)], AnimationEnd.Holds),
+        [P.Drool] = new([new(P.Drool, 0, 8, 1)], AnimationEnd.Holds),
+        [P.DroolHitFloor] = new([new(P.DroolHitFloor, 0, 6, 1)], AnimationEnd.Holds),
+        [P.EscapeDoorParticle] = new([new(P.EscapeDoorParticle, 0, 8, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.PurpleBreathBig] = new([new(P.PurpleBreathBig, 0, 10, 1)], AnimationEnd.Holds),
+        [P.PurpleBreathSmall] = new([new(P.PurpleBreathSmall, 0, 11, 1)], AnimationEnd.Holds),
+        [P.EscapeSubtitle] = new([new(P.EscapeSubtitle, 0, 1, 1)], AnimationEnd.Holds),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<MotherBrainEffectProgram> StartingWith(MotherBrainEffectProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<MotherBrainEffectProgram, MotherBrainEffectFrame, MotherBrainEffectCue> Show(int pose, int duration) => AnimationProgramStep<MotherBrainEffectProgram, MotherBrainEffectFrame, MotherBrainEffectCue>.Show(new(pose), duration);
+    private static AnimationBeat<MotherBrainEffectFrame, MotherBrainEffectCue> Show(int pose, int duration) => new AnimationBeat<MotherBrainEffectFrame, MotherBrainEffectCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<MotherBrainEffectProgram, MotherBrainEffectFrame, MotherBrainEffectCue> Cue(MotherBrainEffectCue cue) => AnimationProgramStep<MotherBrainEffectProgram, MotherBrainEffectFrame, MotherBrainEffectCue>.Publish(cue);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<MotherBrainEffectProgram, MotherBrainEffectFrame, MotherBrainEffectCue> GoTo(MotherBrainEffectProgram program) => AnimationProgramStep<MotherBrainEffectProgram, MotherBrainEffectFrame, MotherBrainEffectCue>.GoTo(program);
-
-    /// <summary>Holds the last frame, as the script's sleep does.</summary>
-    private static AnimationProgramStep<MotherBrainEffectProgram, MotherBrainEffectFrame, MotherBrainEffectCue> Hold => AnimationProgramStep<MotherBrainEffectProgram, MotherBrainEffectFrame, MotherBrainEffectCue>.Hold;
+    private static AnimationBeat<MotherBrainEffectFrame, MotherBrainEffectCue> Cue(MotherBrainEffectCue cue) => new AnimationBeat<MotherBrainEffectFrame, MotherBrainEffectCue>.Event(cue);
 }

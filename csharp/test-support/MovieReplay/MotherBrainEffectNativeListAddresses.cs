@@ -31,6 +31,6 @@ internal static class MotherBrainEffectNativeListAddresses
     /// <summary>The native entry of <paramref name="program"/>.</summary>
     internal static ushort Entry(MotherBrainEffectProgram program) => NativeEnemyProjectileProgramOracle.EntryOf(Entries, program);
 
-    /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, MotherBrainEffectAnimations.Programs, (frame => EnemyProjectileProgramFrameSources.Operand(MotherBrainEffectFrameDefinitions.ShownProjectileFrames[frame])), MotherBrainEffectCueRules.Rules);
+    /// <summary>The family's typed segments and animations beside their native lists.</summary>
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, MotherBrainEffectAnimations.Segments, MotherBrainEffectAnimations.StartingAt, (frame => EnemyProjectileProgramFrameSources.Operand(MotherBrainEffectFrameDefinitions.ShownProjectileFrames[frame])), MotherBrainEffectCueRules.Rules);
 }

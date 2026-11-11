@@ -1,9 +1,9 @@
 using SuperMetroid.Core.Programs;
-using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassProgram, SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassFrame, SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassCue>;
+using Beat = SuperMetroid.Core.Programs.AnimationBeat<SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassFrame, SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassCue>;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Mother Brain's typed glass programs (#641).</summary>
+/// <summary>Mother Brain's typed glass animations (#641, #1600).</summary>
 internal static class MotherBrainGlassAnimations
 {
     /// <summary>Frames in each shard loop.</summary>
@@ -12,25 +12,29 @@ internal static class MotherBrainGlassAnimations
     internal const int SparklePhaseCount = 4;
 
     /// <summary>
-    /// Every glass program: a shard spins through its eight frames with the symmetric 4, 3, 2, 3 cadence twice and
-    /// loops; the sparkle alternates six and eight updates over four frames, then deletes itself.
+    /// Every glass segment: a shard spins through its eight frames with the symmetric 4, 3, 2, 3 cadence twice; the
+    /// sparkle alternates six and eight updates over four frames, then deletes itself.
     /// </summary>
-    internal static AnimationProgramSet<MotherBrainGlassProgram, MotherBrainGlassFrame, MotherBrainGlassCue> Programs { get; } = new(
+    internal static AnimationSegments<MotherBrainGlassProgram, MotherBrainGlassFrame, MotherBrainGlassCue> Segments { get; } = new(
         Enum.GetValues<MotherBrainGlassProgram>().ToDictionary(program => program, Build));
 
-    /// <summary>The steps of <paramref name="program"/>.</summary>
-    private static Step[] Build(MotherBrainGlassProgram program) =>
+    /// <summary>Each glass animation: a shard's spin loops for good, and the deleted sparkle rests.</summary>
+    internal static IReadOnlyDictionary<MotherBrainGlassProgram, Animation<MotherBrainGlassProgram>> StartingAt { get; } =
+        Enum.GetValues<MotherBrainGlassProgram>().ToDictionary(program => program, program => new Animation<MotherBrainGlassProgram>(
+            [new(program, 0, Segments.Beats(program).Count, 1)],
+            program == MotherBrainGlassProgram.Sparkle ? AnimationEnd.Holds : AnimationEnd.LoopsFrom(0)));
+
+    /// <summary>The beats of <paramref name="program"/>.</summary>
+    private static Beat[] Build(MotherBrainGlassProgram program) =>
         program == MotherBrainGlassProgram.Sparkle
             ?
             [
-                .. Enumerable.Range(0, SparklePhaseCount).Select(phase => Step.Show(new(program, phase), phase % 2 == 0 ? 6 : 8)),
-                Step.Publish(MotherBrainGlassCue.Delete),
-                Step.Hold,
+                .. Enumerable.Range(0, SparklePhaseCount).Select(phase => new Beat.Frame(new(program, phase), phase % 2 == 0 ? 6 : 8)),
+                new Beat.Event(MotherBrainGlassCue.Delete),
             ]
             :
             [
-                .. Enumerable.Range(0, ShardPhaseCount).Select(phase => Step.Show(new(program, phase), ShardDuration(phase))),
-                Step.GoTo(program),
+                .. Enumerable.Range(0, ShardPhaseCount).Select(phase => new Beat.Frame(new(program, phase), ShardDuration(phase))),
             ];
 
     /// <summary>The 4, 3, 2, 3 cadence of a shard's spin.</summary>

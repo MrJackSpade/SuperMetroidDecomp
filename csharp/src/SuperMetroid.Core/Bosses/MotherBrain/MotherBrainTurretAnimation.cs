@@ -6,25 +6,29 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>A turret's, bullet's or impact smoke's typed animation.</summary>
 internal sealed class MotherBrainTurretAnimation
-    : EnemyProjectileProgramAnimation<MotherBrainTurretPose, MotherBrainTurretFrame, MotherBrainTurretCue>
+    : EnemyProjectileTypedAnimation<MotherBrainTurretPose, MotherBrainTurretFrame, MotherBrainTurretCue>
 {
     /// <summary>Plays the still pose of <paramref name="program"/> facing <paramref name="direction"/>.</summary>
     internal MotherBrainTurretAnimation(MotherBrainTurretProgram program, MotherBrainTurretDirection direction)
         : base(program == MotherBrainTurretProgram.BulletImpact
             ? throw new ArgumentOutOfRangeException(nameof(program), program, "Only turrets and bullets have direction poses.")
-            : new MotherBrainTurretPose(program, direction))
+            : MotherBrainTurretAnimations.StartingAt[new MotherBrainTurretPose(program, direction)])
     {
     }
 
     /// <summary>Plays a bullet's impact smoke.</summary>
     internal MotherBrainTurretAnimation()
-        : base(MotherBrainTurretPose.BulletImpact)
+        : base(MotherBrainTurretAnimations.StartingAt[MotherBrainTurretPose.BulletImpact])
     {
     }
 
     /// <inheritdoc/>
-    private protected override AnimationProgramSet<MotherBrainTurretPose, MotherBrainTurretFrame, MotherBrainTurretCue> Programs =>
-        MotherBrainTurretAnimations.Programs;
+    private protected override AnimationSegments<MotherBrainTurretPose, MotherBrainTurretFrame, MotherBrainTurretCue> Segments =>
+        MotherBrainTurretAnimations.Segments;
+
+    /// <inheritdoc/>
+    private protected override IReadOnlyDictionary<MotherBrainTurretPose, Animation<MotherBrainTurretPose>> StartingAt =>
+        MotherBrainTurretAnimations.StartingAt;
 
     /// <inheritdoc/>
     private protected override EnemyProjectileFrameId Present(MotherBrainTurretFrame frame) =>

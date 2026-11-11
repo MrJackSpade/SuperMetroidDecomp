@@ -36,7 +36,7 @@ internal static class MotherBrainEffectBehaviorVerification
         EnemyProjectile bomb = bombEnemies.Projectiles.EnemyProjectiles[^1];
         FamilyProjectileStarts.Initialize(bomb, RoomEnemyProjectileKind.MotherBrainBomb, SuperMetroid.Core.Enemies.SpriteGraphics.SharedIn(PictureShading.Shaded(MotherBrainShades.PhaseTwo)));
         RunForcedTicks(rom, bombEnemies, bomb, samus, 10);
-        AssertTrue(bomb.IsActive && bomb.Animation is MotherBrainEffectAnimation { Cursor.Program: MotherBrainEffectProgram.Bomb },
+        AssertTrue(bomb.IsActive && bomb.Animation is MotherBrainEffectAnimation { PlayingSegment: MotherBrainEffectProgram.Bomb },
             "room-system Mother Brain bomb keeps looping its program");
 
         RoomEnemySystem breathEnemies = CreateRoomEnemySystem();
@@ -95,14 +95,14 @@ internal static class MotherBrainEffectBehaviorVerification
         EnemyProjectile fragment = fragmentEnemies.Projectiles.EnemyProjectiles[^1];
         FamilyProjectileStarts.Initialize(fragment, RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment, default);
         RunForcedTicks(rom, fragmentEnemies, fragment, samus, 9);
-        AssertTrue(fragment.IsActive && fragment.Animation is MotherBrainEffectAnimation { Cursor.Program: MotherBrainEffectProgram.EscapeDoorParticle },
+        AssertTrue(fragment.IsActive && fragment.Animation is MotherBrainEffectAnimation { PlayingSegment: MotherBrainEffectProgram.EscapeDoorParticle },
             "room-system Mother Brain escape fragment keeps looping its program");
 
         RoomEnemySystem subtitleEnemies = CreateRoomEnemySystem();
         EnemyProjectile subtitle = subtitleEnemies.Projectiles.EnemyProjectiles[^1];
         FamilyProjectileStarts.Initialize(subtitle, RoomEnemyProjectileKind.MotherBrainEscapeSubtitle, default);
         RunForcedTicks(rom, subtitleEnemies, subtitle, samus, 2);
-        AssertTrue(subtitle.IsActive && subtitle.Animation is MotherBrainEffectAnimation { Cursor.Program: MotherBrainEffectProgram.EscapeSubtitle },
+        AssertTrue(subtitle.IsActive && subtitle.Animation is MotherBrainEffectAnimation { PlayingSegment: MotherBrainEffectProgram.EscapeSubtitle },
             "room-system Mother Brain escape subtitle holds at its sleep");
 
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the Mother Brain effect or misc-dust list bytes");
@@ -178,7 +178,7 @@ internal static class MotherBrainEffectBehaviorVerification
             AssertEqual(6, ring.Radius.X, "real room onion ring reaches its final X radius");
             AssertEqual(6, ring.Radius.Y, "real room onion ring reaches its final Y radius");
             Process(rom, ringEnemies, ring, samus);
-            AssertTrue(ring.Animation is MotherBrainEffectAnimation { Cursor.Program: MotherBrainEffectProgram.OnionRing },
+            AssertTrue(ring.Animation is MotherBrainEffectAnimation { PlayingSegment: MotherBrainEffectProgram.OnionRing },
                 "real room onion ring holds at its growth program's sleep");
 
             // The ring's own movement routine handles its Samus hits; its definition's touch list is reached through the
@@ -189,7 +189,7 @@ internal static class MotherBrainEffectBehaviorVerification
             ring.PersistsOnSamusContact = true;
             var touching = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = ring.Position, Health = ushort.MaxValue };
             AssertTrue(ringEnemies.Projectiles.ResolveEnemyProjectileSamusCollision(ring, touching).HasValue, "Samus touches the onion ring");
-            AssertTrue(ring.Animation is MotherBrainEffectAnimation { Cursor.Program: MotherBrainEffectProgram.OnionRingHit },
+            AssertTrue(ring.Animation is MotherBrainEffectAnimation { PlayingSegment: MotherBrainEffectProgram.OnionRingHit },
                 "the touched onion ring starts its typed impact program");
             for (int frame = 0; frame < 30; frame++)
                 Process(rom, ringEnemies, ring, samus);
@@ -222,12 +222,12 @@ internal static class MotherBrainEffectBehaviorVerification
             AssertEqual(EnemyProjectileFrameBehavior.MotherBrainDroolFall, drool.FrameBehavior,
                 $"{expectedKind} switches to falling after its fifth attached stage");
             AssertEqual(unchecked((ushort)(attachedY + 12)), drool.Position.Y.Whole, $"{expectedKind} release drops the drool twelve pixels");
-            AssertTrue(drool.Animation is MotherBrainEffectAnimation { Cursor.Program: MotherBrainEffectProgram.Drool },
+            AssertTrue(drool.Animation is MotherBrainEffectAnimation { PlayingSegment: MotherBrainEffectProgram.Drool },
                 $"{expectedKind} release frame holds at its program's sleep");
 
             drool.Position = drool.Position.WithWholeY(215);
             MotherBrainProjectiles.RunMotherBrainFallingDroolFrameBehavior(drool);
-            AssertTrue(drool.Animation is MotherBrainEffectAnimation { Cursor.Program: MotherBrainEffectProgram.DroolHitFloor },
+            AssertTrue(drool.Animation is MotherBrainEffectAnimation { PlayingSegment: MotherBrainEffectProgram.DroolHitFloor },
                 $"{expectedKind} floor impact starts the splash program");
             AssertLifetime(droolEnemies, drool, 40, $"{expectedKind} splash survives all four ten-frame stages");
         }

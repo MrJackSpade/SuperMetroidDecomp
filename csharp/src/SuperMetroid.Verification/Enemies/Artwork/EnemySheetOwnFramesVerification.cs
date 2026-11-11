@@ -125,8 +125,8 @@ internal static class EnemySheetOwnFramesVerification
         {
             [EnemyDefinitionId.EtecoonEscape] = Reach(EscapeEtecoonAnimations.Segments, EscapeEtecoonAnimations.StartingAt, EscapeEtecoonFrameDefinitions.ShownFrames,
                 EscapeEtecoonAnimations.StartingAt.Keys),
-            [EnemyDefinitionId.DachoraEscape] = Reach(EscapeDachoraAnimations.Programs, EscapeDachoraFrameDefinitions.ShownFrames,
-                Enum.GetValues<EscapeDachoraProgram>()),
+            [EnemyDefinitionId.DachoraEscape] = Reach(EscapeDachoraAnimations.Segments, EscapeDachoraAnimations.StartingAt, EscapeDachoraFrameDefinitions.ShownFrames,
+                EscapeDachoraAnimations.StartingAt.Keys),
         });
 
     /// <summary>A Fune or Namihe runs the programs its placements' variant selects, idle or active, facing either way.</summary>

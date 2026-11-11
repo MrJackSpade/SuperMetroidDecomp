@@ -91,7 +91,8 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Frame = EnemyFrameId.Empty;
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
-        slot.RequireSpeciesState<EscapeDachoraEnemyState>().Program = AnimationProgramCursor<EscapeDachoraProgram>.Start(EscapeDachoraProgram.RunningAroundLowTide);
+        slot.RequireSpeciesState<EscapeDachoraEnemyState>().Playback =
+            new(EscapeDachoraAnimations.StartingWith(EscapeDachoraProgram.RunningAroundLowTide), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Runs an escaping Etecoon's per-frame behaviour through its complete function dispatch.</summary>
@@ -175,10 +176,10 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
         EscapeDachoraEnemyState dachora = slot.RequireSpeciesState<EscapeDachoraEnemyState>();
-        AnimationProgramCursor<EscapeDachoraProgram> dachoraCursor = dachora.Program;
-        EnemyProgramAnimation.Run(slot, EscapeDachoraAnimations.Programs, ref dachoraCursor, EscapeDachoraFrameDefinitions.ShownFrames.Of,
-            (cue, _) => ApplyEscapeDachoraCue(slot, samus, cue));
-        dachora.Program = dachoraCursor;
+        AnimationPlayback<EscapeDachoraProgram> dachoraPlayback = dachora.Playback;
+        EnemyProgramAnimation.Play(slot, EscapeDachoraAnimations.Segments, ref dachoraPlayback, EscapeDachoraFrameDefinitions.ShownFrames.Of,
+            cue => ApplyEscapeDachoraCue(slot, samus, cue) is { } target ? EscapeDachoraAnimations.BranchTargets[target] : null);
+        dachora.Playback = dachoraPlayback;
     }
 
     /// <summary>Carries out one cue of an Etecoon's program, returning the program a branch continues at, or null to run on.</summary>
@@ -202,7 +203,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Carries out one cue of the Dachora's program, returning the program a branch continues at, or null to run on.</summary>
+    /// <summary>Carries out one cue of the Dachora's animation, returning the target a branch continues at, or null to run on.</summary>
     private EscapeDachoraProgram? ApplyEscapeDachoraCue(RoomEnemySlot slot, SamusState? samus, EscapeDachoraCue cue)
     {
         switch (cue.Kind)

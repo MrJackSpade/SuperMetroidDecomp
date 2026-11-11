@@ -8,6 +8,6 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// </summary>
 public sealed class EscapeDachoraEnemyState
 {
-    /// <summary>The actor's typed program cursor.</summary>
-    internal AnimationProgramCursor<EscapeDachoraProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<EscapeDachoraProgram> Playback { get; set; }
 }

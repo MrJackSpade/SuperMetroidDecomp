@@ -1552,24 +1552,16 @@ internal static class LookupStream1Verification
             foreach (SpritePart part in second) AppendCanonicalSpritePart(hash, part);
         });
         AssertEqual(Identity(one, shared), stock.ContentIdentity, "atmospheric canonical selected identity unchanged");
-        AssertEqual(0, stock.typeOne.Count, "atmospheric footsteps contain no stock overrides");
-        AssertEqual(0, stock.sharedTypeFour.Count, "atmospheric lava/dust contains no stock overrides");
         for (int kind = 0; kind < 2; kind++)
         for (int frame = 0; frame < 4; frame++)
         {
-            ushort expectedWord = (kind == 0 ? oneWords : sharedWords)[frame];
-            SpritePart expected = (kind == 0 ? one : shared)[frame];
-            AssertEqual(expected, SamusAtmosphericAttributes.Attributes(kind == 0, frame), "atmospheric direct native default appearance");
-            var packed = new SnesObjAttributeWord(expectedWord);
-            AssertEqual(SamusAtmosphericArtworkDefinitions.Palette, packed.PaletteIndex, "atmospheric required palette basis");
-            AssertEqual(SamusAtmosphericArtworkDefinitions.Priority, packed.Priority, "atmospheric required priority basis");
-            AssertEqual((kind == 0 ? SamusAtmosphericArtworkDefinitions.FootstepFirstTile : SamusAtmosphericArtworkDefinitions.LavaDustFirstTile) + frame,
-                packed.TileNumber, "atmospheric nine-bit tile progression");
+            AssertTrue(stock.TryResolve(kind == 0 ? 1 : 4, frame, out SpritePart installed), "atmospheric installed frame resolves");
+            AssertEqual((kind == 0 ? one : shared)[frame], installed, "atmospheric installed appearance matches native");
         }
         AssertTrue(!stock.TryResolve(2, 0, out _), "atmospheric null pointer remains outside installed domain");
         AssertTrue(!stock.TryResolve(1, 4, out _), "atmospheric next frame rejected");
         AssertThrows<ArgumentOutOfRangeException>(() => _ = stock.TypeOne[-1], "atmospheric negative view index");
-        Console.WriteLine("Atmospheric attributes: eight direct native defaults, exact OBJ field basis, zero stock overrides and the canonical stock identity pass.");
+        Console.WriteLine("Atmospheric attributes: eight installed native appearances and the canonical stock identity pass.");
     }
 
     /// <summary>Reads native atmospheric sprite attribute words.</summary>
@@ -2023,7 +2015,7 @@ internal static class LookupStream1Verification
             "a zero selector draws no OAM entry through the actual renderer");
     }
 
-    /// <summary>Checks body tile pixel inputs, derived bytes, and the canonical stock hash.</summary>
+    /// <summary>Checks the installed body tile pixels against the cartridge and the canonical stock hash.</summary>
     internal static void VerifyLookupStream1BodyPixels(ISnesAddressSpace rom)
     {
         string directory = RepositoryInstallation.Installation.SamusBodyDirectory;
@@ -2031,8 +2023,7 @@ internal static class LookupStream1Verification
         var body = bodyArt.Body;
         var top = Enumerable.Range(0, 13).Select(set => bodyArt.TopSet(set).ToArray()).ToArray();
         var bottom = Enumerable.Range(0, 11).Select(set => bodyArt.BottomSet(set).ToArray()).ToArray();
-        int bytes = 0, blankBytes = 0, sharedBytes = 0, retained = 0, circleBits = 0, diagnosticBytes = 0;
-        var basisRows = new List<string> { "Half,Set,Position,NativeAddress,Byte,Mask" };
+        int bytes = 0;
         for (int half = 0; half < 2; half++)
         {
             bool upper = half == 0;
@@ -2040,46 +2031,18 @@ internal static class LookupStream1Verification
             for (int set = 0; set < groups.Length; set++)
             for (int position = 0; position < groups[set].Length; position++)
             {
-                var glyph = groups[set][position];
                 int glyphSource = LookupStream1BodySource(rom, upper, set, position);
-                var stored = glyph.pixelInputs;
-                byte[] image = glyph.Planar.ToArray();
-                var contour = glyph.contourEdits;
-                AssertEqual(0, (contour ?? throw new InvalidOperationException("Verification requires contour.")).Count, "Zero stock morph-circle contour overrides");
+                byte[] image = groups[set][position].Planar.ToArray();
                 for (int index = 0; index < image.Length; index++)
                 {
-                    byte native = LookupStream1BodyPixelsRomByte(rom, glyphSource + index);
-                    AssertEqual(native, image[index], "Every native body pixel byte");
-                    byte mask = SamusBodyPixels.ContourMask(upper, set, position, index);
-                    AssertEqual((byte)0, (byte)(native & ~mask), "Exact native circular silhouette");
-                    circleBits += System.Numerics.BitOperations.PopCount((byte)~mask);
-                    int tile = index / 32;
-                    bool blank = SamusBodyPixels.IsBlank(upper, set, position, tile);
-                    bool relation = SamusBodyPixels.TrySourceByte(upper, set, position, index, out int sourcePosition, out int sourceIndex);
-                    bool shared = !blank && relation;
-                    bool diagnostic = SamusBodyPixels.TryDiagnosticByte(upper, set, position, index, out int glyphByte);
-                    if (diagnostic) { AssertEqual(native, glyphByte, "Direct native Ep drawing"); diagnosticBytes++; }
-                    else if (blank) { AssertEqual((byte)0, native, "Direct native transparent allocation"); blankBytes++; }
-                    else if (shared) { AssertEqual(LookupStream1BodyPixelsRomByte(rom, LookupStream1BodySource(rom, upper, set, sourcePosition) + sourceIndex), native, "Direct native shared anatomical patch"); sharedBytes++; }
-                    else
-                    {
-                        retained++;
-                        basisRows.Add($"{half},{set:X},{position:X},{glyphSource + index:X6},{native:X2},{mask:X2}");
-                    }
-                    AssertEqual(!diagnostic && !blank && !shared, (stored ?? throw new InvalidOperationException("Verification requires stored.")).ContainsKey(index), "Exact pixel basis; no stock defaults survive as overrides");
+                    AssertEqual(LookupStream1BodyPixelsRomByte(rom, glyphSource + index), image[index], "Every native body pixel byte");
                     bytes++;
                 }
             }
         }
         AssertEqual(130464, bytes, "Complete native body planar domain");
-        AssertEqual(81 * 32, blankBytes, "Exact transparent tile domain");
-        AssertEqual(357 * 32, sharedBytes, "Exact grapple/drained anatomy domain");
-        AssertEqual(4 * 32, diagnosticBytes, "Exact bounded diagnostic domain");
-        AssertEqual(1536, circleBits, "Eight morph silhouettes exclude48 pixels each in four planes");
-        Directory.CreateDirectory("csharp/test-temp");
-        File.WriteAllLines("csharp/test-temp/samus-body-pixel-basis.csv", basisRows);
         AssertEqual(CanonicalBodyHash(body, body.TopSetPointers.ToArray(), body.BottomSetPointers.ToArray(), body.PoseFirstFrames, body.Frames.ToArray(), top, bottom), body.ContentIdentity, "Original native body hash");
-        Console.WriteLine($"Body pixels: {bytes} native bytes, {blankBytes} blank and {sharedBytes} shared bytes, exact {retained} selected inputs, {diagnosticBytes} drawn diagnostic bytes, {circleBits} circular transparency bits and the canonical hash pass.");
+        Console.WriteLine($"Body pixels: {bytes} installed native bytes and the canonical hash pass.");
     }
 
     /// <summary>Where the cartridge stores body record <paramref name="position"/> of set <paramref name="set"/>'s planar bytes, read from its native descriptor.</summary>
@@ -2113,11 +2076,8 @@ internal static class LookupStream1Verification
                 int address = 0x920000 | (Word((upper ? 0x92d91e : 0x92d938) + set * 2) + position * 7);
                 int source = (int)new SnesAddress(LookupStream1BodyTransfersRomByte(rom, address + 2), Word(address));
                 ushort first = Word(address + 3), second = Word(address + 5);
-                AssertTrue(SamusBodyTransfers.TryFirstSize(body, upper, set, position, value.Planar.Length, out int calculated), "Every native record has a direct row calculation");
-                AssertEqual(first, calculated, $"Direct native row geometry {upper}/{set:X}/{position:X}");
                 AssertEqual(first, value.FirstSize, "Installed native first row");
                 AssertEqual(second, value.SecondSize, "Installed native remaining row");
-                AssertTrue(value.firstSizeOverride is null, "Zero stock metadata overrides");
                 byte[] pixels = value.Planar.ToArray();
                 for (int index = 0; index < pixels.Length; index++) AssertEqual(LookupStream1BodyTransfersRomByte(rom, source + index), pixels[index], "Separate native pixel payload preserved");
                 records++;

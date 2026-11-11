@@ -53,15 +53,6 @@ public sealed class SamusBodyCharacterArtwork
         ValidateCompleteGroups(topStarts, bottomStarts, this.top, this.bottom);
         IndexDefinitions(SamusBodyHalf.Top, this.top);
         IndexDefinitions(SamusBodyHalf.Bottom, this.bottom);
-        // The contiguous bank image also contains bytes reached only by a frame
-        // counter running past its authored list. Validate a selection when it is
-        // actually used, not every four-byte word in the backing ROM interval.
-        BindTransfers(SamusBodyHalf.Top, this.top);
-        BindTransfers(SamusBodyHalf.Bottom, this.bottom);
-        definitionsByRecord.Clear();
-        definitionOrdinals.Clear();
-        IndexDefinitions(SamusBodyHalf.Top, this.top);
-        IndexDefinitions(SamusBodyHalf.Bottom, this.bottom);
     }
 
     /// <summary>Builds the body catalog from <paramref name="parts"/> naming these characters, and binds the characters to it.</summary>
@@ -111,16 +102,6 @@ public sealed class SamusBodyCharacterArtwork
                         throw new InvalidDataException($"Samus body definition record {starts[set] + position} is duplicated.");
             }
         }
-    }
-
-    /// <summary>Resolves each definition's native transfer geometry against the selected frame tables.</summary>
-    private void BindTransfers(SamusBodyHalf half, SamusBodyTileTransfer[][] groups)
-    {
-        IReadOnlyDictionary<SamusPoseId, int> firstFrames = Body.Source.PoseFirstFrames;
-        ReadOnlySpan<SamusBodyFrameSelection> frameSnapshot = Body.Source.Frames;
-        for (int set = 0; set < groups.Length; set++)
-        for (int position = 0; position < groups[set].Length; position++)
-            groups[set][position] = groups[set][position].WithTransferGeometry(this, half == SamusBodyHalf.Top, set, position, firstFrames, frameSnapshot);
     }
 
     /// <summary>Gets an upper-body definition group by pointer-table index.</summary>

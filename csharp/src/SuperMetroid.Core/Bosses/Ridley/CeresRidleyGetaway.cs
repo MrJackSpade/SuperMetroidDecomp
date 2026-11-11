@@ -180,10 +180,10 @@ internal sealed class CeresRidleyGetaway
 
     /// <summary>Selects the zoom-dependent fifteen-color Ceres getaway palette without replacing transparent color zero.</summary>
     /// <param name="state">The getaway's Ridley, whose room colours show the floor.</param>
-    /// <param name="zoom">The floor's zoom, 0 through 65535.</param>
+    /// <param name="zoom">The floor's zoom, in 256ths of a floor pixel per screen pixel.</param>
     internal static void UpdateCeresRidleyFloorZoomColours(RidleyEnemyState state, int zoom)
     {
-        // The floor's zoom-level colours use this wrapped expression.
+        // The floor's shade is chosen by the zoom's whole floor pixels per screen pixel.
         // There are fifteen colors; palette entry zero remains the shared transparent color.
         int zoomStep = UnsignedEightEight.Whole(zoom);
         if (zoomStep < CeresRidleyPaletteDefinitions.GetawayZoomStepCount)

@@ -213,7 +213,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         UpdateSporeSpawnStalks(state);
         body.Position = body.Position.WithWrappedWholeX(
             state.MovementCenter.X +
-            EnemyMath.ReadEightBitCosineProduct(state.Angle.ToTrigonometryAngle(), Ensure.BetweenInclusive(0, ushort.MaxValue, state.MaximumXRadius)));
+            EnemyMath.ReadEightBitCosineProduct(state.Angle.ToTrigonometryAngle(), state.MaximumXRadius));
         // The vertical sway turns twice as fast as the horizontal, from a quarter turn behind it.
         TrigonometryAngle swayBehind = (state.Angle - RotationAngle.QuarterTurn).ToTrigonometryAngle();
         body.Position = body.Position.WithWrappedWholeY(
@@ -302,7 +302,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         int threeQuarters = quarter + half;
         Span<int> positions = stackalloc int[4]
         {
-            Ensure.BetweenInclusive(0, ushort.MaxValue, firstPosition),
+            firstPosition,
             CoordinateAxis.Wrap(anchor + (negative ? -quarter : quarter)),
             CoordinateAxis.Wrap(anchor + (negative ? -half : half)),
             CoordinateAxis.Wrap(anchor + (negative ? -threeQuarters : threeQuarters)),

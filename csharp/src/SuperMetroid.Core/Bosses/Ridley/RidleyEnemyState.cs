@@ -188,7 +188,7 @@ public sealed class RidleyEnemyState
     public Offset16<FloorPixels> FloorOffset { get; internal set; }
     /// <summary>
     /// Gets the getaway's zoom in 256ths of a floor pixel per screen pixel: 2048 when the getaway starts, then each table
-    /// frame's zoom, which the table keeps from zero through 65535. It also selects the floor's shade.
+    /// frame's authored zoom. It also selects the floor's shade.
     /// </summary>
     public int FloorZoom { get; internal set; }
     /// <summary>Gets the floor point the Ceres getaway turns and zooms its floor about, (64, 64) while it runs and cleared on completion.</summary>

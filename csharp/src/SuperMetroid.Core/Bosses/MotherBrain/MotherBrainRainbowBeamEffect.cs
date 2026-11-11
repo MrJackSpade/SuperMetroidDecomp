@@ -64,7 +64,7 @@ public sealed class MotherBrainRainbowBeamEffect
     private void ResolveGeometry(Position16<RoomPixels> head, Position16<RoomPixels> camera,
         RotationAngle angle, int angularWidth)
     {
-        int halfWidth = EightEight.WholeOf(Ensure.BetweenInclusive(0, ushort.MaxValue, angularWidth)) / 2;
+        int halfWidth = EightEight.WholeOf(Ensure.AtLeastZero(angularWidth)) / 2;
         int a = angle.ToTrigonometryAngle().TurnedBySteps(-halfWidth).RawValue;
         int b = angle.ToTrigonometryAngle().TurnedBySteps(halfWidth).RawValue;
         int quadrant = (a / TrigonometryAngle.QuarterTurn.RawValue) * 4 + b / TrigonometryAngle.QuarterTurn.RawValue;

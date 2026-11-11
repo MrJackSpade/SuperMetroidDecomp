@@ -93,7 +93,7 @@ internal sealed class RoomObjectPopulationLoader
 
             RoomObjectSlot? slot = AllocateRoomPopulationSlot(record, block);
             if (slot is null)
-                continue; // The routine returns carry set when all forty IDs are live.
+                continue; // No room object spawns while all forty slots are live.
 
             if (!TryRunRoomPopulationSetup(room, services.Bosses, record, slot, placement))
             {

@@ -470,8 +470,8 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         if (_player.LastGrappleMovement is { CameraPrevious: { } grapplePrevious })
         {
             // The grapple's close-collision snap clamps previous-position values to twelve
-            // pixels after a close-collision snap. Feed those corrected whole words
-            // to tracking while preserving the pre-frame subpositions.
+            // pixels after a close-collision snap. Feed those corrected whole pixels
+            // to tracking while preserving the pre-frame subpixels.
             frame.SnapCameraPoint(grapplePrevious);
         }
 

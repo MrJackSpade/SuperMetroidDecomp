@@ -6,9 +6,9 @@ namespace SuperMetroid.Core.World;
 /// One invocation of the game's source-camera alignment step while a door transition begins.
 /// </summary>
 /// <remarks>
-/// Horizontal doors align the camera's vertical low byte; vertical doors align its
-/// horizontal low byte. The signed-byte branch deliberately approaches zero through
-/// either 1 to 0 or -1 to 0. Completion is reported only by the
+/// Horizontal doors move the camera's Y toward the nearest screen boundary; vertical doors
+/// move its X. The offset from that boundary, read as -128 through 127, deliberately approaches
+/// zero through either 1 to 0 or -1 to 0. Completion is reported only by the
 /// following call that observes an already aligned coordinate.
 /// </remarks>
 [IndependentFlag("whether the camera alignment completed, a fact of the step")]

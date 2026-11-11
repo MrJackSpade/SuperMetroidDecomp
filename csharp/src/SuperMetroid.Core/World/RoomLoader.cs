@@ -369,11 +369,11 @@ internal sealed class RoomLoader
     public DoorDefinition? PendingDoorTransition => _room.LevelData?.PendingDoorTransition;
 
     /// <summary>
-    /// Runs one source-room alignment call at the start of a door transition. Horizontal doors converge the
-    /// camera Y low byte; vertical doors converge X. Signed low-byte motion deliberately
-    /// takes -1 to 0 and 1 to 0 in one-pixel steps.
+    /// Runs one source-room alignment call at the start of a door transition. Horizontal doors move the
+    /// camera's Y toward the nearest screen boundary; vertical doors move X. The offset from the boundary, read as
+    /// -128 through 127, deliberately takes -1 to 0 and 1 to 0 in one-pixel steps.
     /// </summary>
-    /// <returns>True only when the relevant low byte was already zero on entry.</returns>
+    /// <returns>True only when the camera already lay on that screen boundary on entry.</returns>
     public bool AlignPendingDoorCameraOnePixel()
     {
         DoorDefinition door = PendingDoorTransition

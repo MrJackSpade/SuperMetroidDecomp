@@ -17,13 +17,13 @@ namespace SuperMetroid.Core.World;
 [ArchitectureReview("context-bag", "The installed room-object visual catalogs a host binds; every member is immutable artwork data, not a service.")]
 internal sealed class RoomObjectVisuals
 {
-    /// <summary>Visual-only shot-block selection; collision words remain compiled.</summary>
+    /// <summary>Visual-only shot-block selection; collision remains compiled.</summary>
     public InstalledRoomObjectShotBlockVisuals? RoomObjectShotBlockVisuals { get; set; }
 
-    /// <summary>Grapple-block art; the compiled full level words own collision.</summary>
+    /// <summary>Grapple-block art; the compiled terrain owns collision.</summary>
     public InstalledRoomObjectGrappleBlockVisuals? RoomObjectGrappleBlockVisuals { get; set; }
 
-    /// <summary>Station appearance; the compiled level words retain collision.</summary>
+    /// <summary>Station appearance; the compiled terrain retains collision.</summary>
     public InstalledRoomObjectStationVisuals? RoomObjectStationVisuals { get; set; }
 
     /// <summary>Visual-only blue-door cap frames supplied by installed content.</summary>
@@ -44,7 +44,7 @@ internal sealed class RoomObjectVisuals
     /// <summary>Visual-only n00b-tube frames supplied by installed content.</summary>
     public InstalledRoomObjectNoobTubeVisuals? RoomObjectNoobTubeVisuals { get; set; }
 
-    /// <summary>Gate-block appearance; compiled level words retain collision.</summary>
+    /// <summary>Gate-block appearance; compiled terrain retains collision.</summary>
     public InstalledRoomObjectDownwardGateVisuals? RoomObjectDownwardGateVisuals { get; set; }
 
     /// <summary>Visual-only elevator frames; platform collision and timing remain compiled.</summary>
@@ -53,19 +53,19 @@ internal sealed class RoomObjectVisuals
     /// <summary>The installed pictures of Mother Brain's escape-gate frames; collision stays with the draws.</summary>
     public InstalledEscapeGateFrames? RoomObjectEscapeGateVisuals { get; set; }
 
-    /// <summary>Bomb Torizo hand art; physical draw words stay compiled.</summary>
+    /// <summary>Bomb Torizo hand art; collision stays with the draws.</summary>
     public InstalledRoomObjectBombTorizoHandVisuals? RoomObjectBombTorizoHandVisuals { get; set; }
 
     /// <summary>The installed pictures of Draygon's cannon frames; collision stays with the draws.</summary>
     public InstalledDraygonCannonFrames? RoomObjectDraygonCannonVisuals { get; set; }
 
-    /// <summary>Chozo statue room-object art; physical draw words stay compiled.</summary>
+    /// <summary>Chozo statue room-object art; collision stays with the draws.</summary>
     public InstalledRoomObjectChozoStatueVisuals? RoomObjectChozoStatueVisuals { get; set; }
 
     /// <summary>Linked-block restoration art; collision stays compiled.</summary>
     public InstalledRoomObjectLinkedRestoreVisuals? RoomObjectLinkedRestoreVisuals { get; set; }
 
-    /// <summary>Tourian access-floor art; physical level words stay compiled.</summary>
+    /// <summary>Tourian access-floor art; the floor's terrain stays compiled.</summary>
     public RoomObjectTourianAccessVisuals? RoomObjectTourianAccessVisuals { get; set; }
 
     /// <summary>The installed picture of the Speed Booster block reveal; compiled terrain still determines collision and breakability.</summary>
@@ -92,7 +92,7 @@ internal sealed class RoomObjectVisuals
     /// <summary>The installed pictures of Mother Brain's fake-death room wall, door, mural rows, fill rows and tube clears; geometry, collision and timing stay with the draws.</summary>
     public InstalledMotherBrainFakeDeathFrames? RoomObjectMotherBrainFakeDeathVisuals { get; set; }
 
-    /// <summary>Collectible art; compiled level words retain collision.</summary>
+    /// <summary>Collectible art; compiled terrain retains collision.</summary>
     public InstalledRoomObjectCollectibleVisuals? RoomObjectCollectibleVisuals { get; set; }
 
     /// <summary>The installed pictures of the bombed reveals, the escape passage, the escape shaft wall and the animals' rescue wall.</summary>

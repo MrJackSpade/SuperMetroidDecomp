@@ -27,8 +27,8 @@ namespace SuperMetroid.Core.World;
 /// <remarks>
 /// A room object is not a Samus animation. It is an independent room object which keeps running
 /// after the rope disconnects, owns collision/BTS mutation, and requests a background redraw when
-/// an instruction changes its level word. Keeping this state outside <c>SamusGrappleState</c>
-/// is essential for the respawning block: Samus is long gone when its original word returns.
+/// an instruction changes its block. Keeping this state outside <c>SamusGrappleState</c>
+/// is essential for the respawning block: Samus is long gone when its original block returns.
 ///
 /// The retail allocation contains 40 slots and searches from
 /// the highest slot downward. The C# array uses logical indices 0..39 and preserves that

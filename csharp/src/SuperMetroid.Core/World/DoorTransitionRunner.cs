@@ -216,7 +216,7 @@ internal sealed class DoorTransitionRunner
         }
 
         wreckedShipTreadmill.Start(direction);
-        // Both spawn helpers return carry set when their fixed arrays are full, and
+        // Both spawn helpers report when they have no free slot left, and
         // the door routine deliberately ignores that result. The dedicated animated owner
         // above cannot exhaust; preserve the room-object allocator's false result here.
         _ = roomObjects.WreckedShipTreadmill.TrySpawnWreckedShipEntranceTreadmill(

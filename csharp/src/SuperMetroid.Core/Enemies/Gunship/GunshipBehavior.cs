@@ -85,16 +85,16 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Each hull and pad place's typed program cursor. Initialization sets a place's cursor before its program runs, so a
-    /// place's entry always belongs to its current piece.
+    /// Each hull and pad place's typed animation playback (#1600). Initialization sets a place's playback before its animation
+    /// plays, so a place's entry always belongs to its current piece.
     /// </summary>
-    private readonly Dictionary<RoomEnemySlot, AnimationProgramCursor<GunshipProgram>> _shipPrograms = [];
+    private readonly Dictionary<RoomEnemySlot, AnimationPlayback<GunshipProgram>> _shipPrograms = [];
 
     /// <summary>Starts <paramref name="program"/> on <paramref name="slot"/> from the next update.</summary>
     private void StartGunshipProgram(RoomEnemySlot slot, GunshipProgram program)
     {
         slot.FrameHold = WrappingCountdown.Start(1);
-        _shipPrograms[slot] = AnimationProgramCursor<GunshipProgram>.Start(program);
+        _shipPrograms[slot] = new AnimationPlayback<GunshipProgram>(GunshipAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Runs a hull or pad piece's typed program where the enemy instruction interpreter would.</summary>
@@ -102,10 +102,10 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
-        AnimationProgramCursor<GunshipProgram> cursor = _shipPrograms[slot];
-        EnemyProgramAnimation.Run(slot, GunshipAnimations.Programs, ref cursor, GunshipFrameDefinitions.ShownFrames.Of,
-            (cue, _) => throw new InvalidOperationException($"The gunship's programs publish no cue; got {cue}."));
-        _shipPrograms[slot] = cursor;
+        AnimationPlayback<GunshipProgram> playback = _shipPrograms[slot];
+        EnemyProgramAnimation.Play(slot, GunshipAnimations.Segments, ref playback, GunshipFrameDefinitions.ShownFrames.Of,
+            cue => throw new InvalidOperationException($"The gunship's programs publish no cue; got {cue}."));
+        _shipPrograms[slot] = playback;
     }
 
     /// <summary>Initializes the top hull and selects ordinary idle or post-Ceres descent.</summary>
@@ -118,7 +118,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
-        _shipPrograms[slot] = AnimationProgramCursor<GunshipProgram>.Start(GunshipProgram.TopHull);
+        _shipPrograms[slot] = new AnimationPlayback<GunshipProgram>(GunshipAnimations.StartingWith(GunshipProgram.TopHull), AnimationPlace.StartOfAnimation);
         if (_gunshipLoadScenario == GunshipLoadScenario.EscapingCeres)
         {
             SamusState samus = _samusAtEnemyInitialization
@@ -148,9 +148,9 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
-        _shipPrograms[slot] = AnimationProgramCursor<GunshipProgram>.Start(slot.SpawnSettings<GunshipSpawnSettings>().Part == GunshipBottomPiece.EntrancePad
+        _shipPrograms[slot] = new AnimationPlayback<GunshipProgram>(GunshipAnimations.StartingWith(slot.SpawnSettings<GunshipSpawnSettings>().Part == GunshipBottomPiece.EntrancePad
             ? GunshipProgram.BottomEntrancePad
-            : GunshipProgram.BottomHull);
+            : GunshipProgram.BottomHull), AnimationPlace.StartOfAnimation);
 
         if (slot.SpawnSettings<GunshipSpawnSettings>().Part == GunshipBottomPiece.EntrancePad)
         {

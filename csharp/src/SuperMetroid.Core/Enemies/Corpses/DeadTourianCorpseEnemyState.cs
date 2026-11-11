@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// <summary>Typed corpse state for one dead Zoomer, Ripper, or Skree.</summary>
 public sealed class DeadTourianCorpseEnemyState
 {
-    /// <summary>The corpse's typed pose (#641), started by setup.</summary>
-    internal AnimationProgramCursor<DeadTourianProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<DeadTourianProgram> Playback { get; set; }
 
     /// <summary>Captures the selected corpse variant's callback profile and its own rot schedule for one slot, and starts its own rows.</summary>
     internal DeadTourianCorpseEnemyState(RoomEnemySlot slot, DeadTourianCorpseSpecies species, int variantIndex, DeadTourianBehavior.DeadTourianCorpseProfile profile, CorpseRotSchedule rot)

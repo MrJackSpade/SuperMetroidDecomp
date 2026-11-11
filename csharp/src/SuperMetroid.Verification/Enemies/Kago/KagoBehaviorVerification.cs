@@ -25,14 +25,14 @@ internal static class KagoBehaviorVerification
         slot.SetSpawnParameter1(EnemyDefinitionId.Kago, 10);
         KagoBehavior.InitializeKago(slot);
         KagoEnemyState state = enemies.KagoStates[0] ?? throw new InvalidDataException("Kago initializer did not publish typed state.");
-        AssertEqual(AnimationProgramCursor<KagoProgram>.Start(KagoProgram.Slow), state.Program, "Kago initializer animation");
+        AssertEqual(new AnimationPlayback<KagoProgram>(KagoAnimations.StartingWith(KagoProgram.Slow), AnimationPlace.StartOfAnimation), state.Playback, "Kago initializer animation");
         ushort[] slow = KagoAnimationsConstants.Spritemaps(KagoProgram.Slow).ToArray();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([.. slow, slow[0]], [10, 10, 10, 10, 10]),
             EnemyInstructionRunner.ShownFrames(slot, 41), "Kago slow loop");
 
         enemies.KagoBehavior.ResolveKagoShotAfterCommon(slot, state);
         AssertTrue(state.UsesFastAnimation, "Kago real shot handoff selects fast animation");
-        AssertEqual(AnimationProgramCursor<KagoProgram>.Start(KagoProgram.Fast), state.Program, "Kago shot animation");
+        AssertEqual(new AnimationPlayback<KagoProgram>(KagoAnimations.StartingWith(KagoProgram.Fast), AnimationPlace.StartOfAnimation), state.Playback, "Kago shot animation");
         AssertEqual(1, state.SpawnedBugCount, "Kago real shot handoff retains its projectile side effect");
         ushort[] fast = KagoAnimationsConstants.Spritemaps(KagoProgram.Fast).ToArray();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([.. fast, fast[0]], [3, 3, 3, 3, 3]),

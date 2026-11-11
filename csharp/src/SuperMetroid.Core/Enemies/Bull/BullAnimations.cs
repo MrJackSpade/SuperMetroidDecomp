@@ -9,9 +9,9 @@ namespace SuperMetroid.Core.Enemies.Bull;
 /// </summary>
 internal static class BullAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<BullProgram, BullFrame, NoAnimationCue> Programs { get; } = new(
-        new Dictionary<BullProgram, AnimationProgramStep<BullProgram, BullFrame, NoAnimationCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<BullProgram, BullFrame, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<BullProgram, AnimationBeat<BullFrame, NoAnimationCue>[]>
     {
         [P.Normal] =
         [
@@ -19,12 +19,9 @@ internal static class BullAnimations
             Show(1, 10),
             Show(0, 10),
             Show(2, 10),
-            GoTo(P.Normal),
         ],
         [P.Shot] =
         [
-            SetCounter(5),
-            FallInto(P.ShotLoop),
         ],
         [P.ShotLoop] =
         [
@@ -32,24 +29,19 @@ internal static class BullAnimations
             Show(1, 3),
             Show(0, 3),
             Show(2, 3),
-            RepeatWhileCounting(P.ShotLoop),
-            GoTo(P.Normal),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<BullProgram, Animation<BullProgram>> StartingAt { get; } = new Dictionary<BullProgram, Animation<BullProgram>>
+    {
+        [P.Normal] = new([new(P.Normal, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Shot] = new([new(P.ShotLoop, 0, 4, 5), new(P.Normal, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<BullProgram> StartingWith(BullProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<BullProgram, BullFrame, NoAnimationCue> Show(int pose, int duration) => AnimationProgramStep<BullProgram, BullFrame, NoAnimationCue>.Show(new(pose), duration);
-
-    /// <summary>Loads the loop counter with <paramref name="count"/>.</summary>
-    private static AnimationProgramStep<BullProgram, BullFrame, NoAnimationCue> SetCounter(int count) => AnimationProgramStep<BullProgram, BullFrame, NoAnimationCue>.SetCounter(count);
-
-    /// <summary>Repeats from <paramref name="program"/> while the loop counter counts down.</summary>
-    private static AnimationProgramStep<BullProgram, BullFrame, NoAnimationCue> RepeatWhileCounting(BullProgram program) => AnimationProgramStep<BullProgram, BullFrame, NoAnimationCue>.RepeatWhileCounting(program);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<BullProgram, BullFrame, NoAnimationCue> GoTo(BullProgram program) => AnimationProgramStep<BullProgram, BullFrame, NoAnimationCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<BullProgram, BullFrame, NoAnimationCue> FallInto(BullProgram program) => AnimationProgramStep<BullProgram, BullFrame, NoAnimationCue>.FallInto(program);
-
+    private static AnimationBeat<BullFrame, NoAnimationCue> Show(int pose, int duration) => new AnimationBeat<BullFrame, NoAnimationCue>.Frame(new(pose), duration);
 }

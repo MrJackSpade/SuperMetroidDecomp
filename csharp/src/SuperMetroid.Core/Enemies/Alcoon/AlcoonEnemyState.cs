@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Enemies.Alcoon;
 /// <summary>The state of one Alcoon.</summary>
 public sealed class AlcoonEnemyState
 {
-    /// <summary>Where the typed animation (#641) resumes.</summary>
-    internal AnimationProgramCursor<AlcoonProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<AlcoonProgram> Playback { get; set; }
 
     /// <summary>The current behaviour.</summary>
     public AlcoonEnemyFunction? Function { get; internal set; }

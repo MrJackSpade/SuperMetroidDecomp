@@ -105,17 +105,17 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         if (settings.Role == DachoraRole.SpeedBoostEcho)
         {
             // An echo faces the way the body does; each trail placement later gives it an eight-update life.
-            state.Program = AnimationProgramCursor<DachoraProgram>.Start(settings.Facing == HorizontalDirection.Right
+            state.Playback = new(DachoraAnimations.StartingWith(settings.Facing == HorizontalDirection.Right
                 ? DachoraProgram.EchoRight
-                : DachoraProgram.EchoLeft);
+                : DachoraProgram.EchoLeft), AnimationPlace.StartOfAnimation);
             state.Function = DachoraAiFunction.Echo;
             return;
         }
 
         _echoes.Place(slot, _slotTable.ListedRunAfter(slot, DachoraEchoCount));
-        state.Program = AnimationProgramCursor<DachoraProgram>.Start(settings.Facing == HorizontalDirection.Right
+        state.Playback = new(DachoraAnimations.StartingWith(settings.Facing == HorizontalDirection.Right
             ? DachoraProgram.IdleRight
-            : DachoraProgram.IdleLeft);
+            : DachoraProgram.IdleLeft), AnimationPlace.StartOfAnimation);
         state.Function = DachoraAiFunction.WaitingForSamus;
     }
 
@@ -312,9 +312,9 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Speed = speed;
 
             // The game's speed-up jump lands at the matching pose in the faster clone of the
-            // current six-pose run loop. The animation keeps its phase and timing.
+            // current six-pose run loop: every run plays one six-pose phase, so the animation keeps its place and timing.
             if ((speed.WholePixels is 4 or 8) && speed.Fraction == 0)
-                state.Program = state.Program with { Program = FasterDachoraRun(state.Program.Program) };
+                state.Playback = state.Playback with { Animation = DachoraAnimations.StartingWith(FasterDachoraRun(Playing(state.Playback))) };
         }
         else
         {
@@ -333,7 +333,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The charge animation is asleep at its launch wait. Stepping past the sleep enters the same
         // right-facing echo animation used by the four trails, exactly as the game does on launch.
-        state.Program = AnimationProgramCursor<DachoraProgram>.Start(DachoraAnimations.AfterSleep(state.Program.Program));
+        state.Playback = new(DachoraAnimations.StartingWith(DachoraAnimations.AfterSleep(Playing(state.Playback))), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         state.Function = DachoraAiFunction.Shinesparking;
 
@@ -514,7 +514,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts an authored Dachora animation at its first tick.</summary>
     private static void InstallDachoraInstruction(RoomEnemySlot slot, DachoraEnemyState state, DachoraProgram program)
     {
-        state.Program = AnimationProgramCursor<DachoraProgram>.Start(program);
+        state.Playback = new(DachoraAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
     }
 
@@ -549,10 +549,15 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             samus.Kinematics.YAcceleration.Whole,
             samus.Kinematics.YAcceleration.Fraction);
 
+    /// <summary>The segment <paramref name="playback"/> is playing: the one its current phase plays, as a sleep rests in it.</summary>
+    private static DachoraProgram Playing(AnimationPlayback<DachoraProgram> playback) =>
+        playback.Animation.Phases[playback.Place.Phase].Segment;
+
     /// <summary>Advances Dachora's typed animation.</summary>
     internal static void AdvanceDachoraTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, DachoraAnimations.Programs, DachoraFrameDefinitions.ShownFrames.Of,
-            static (DachoraEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
+        EnemyProgramAnimation.Advance(slot, DachoraAnimations.Segments, DachoraFrameDefinitions.ShownFrames.Of,
+            static (DachoraEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            static (_, cue) => throw new InvalidOperationException($"A cue-free Dachora animation raised {cue}."));
 
     /// <summary>Ports Dachora's main AI.</summary>
     internal void RunDachoraMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)

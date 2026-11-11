@@ -10,14 +10,13 @@ namespace SuperMetroid.Core.Enemies.Beetom;
 /// </summary>
 internal static class BeetomAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<BeetomProgram, BeetomFrame, BeetomCue> Programs { get; } = new(
-        new Dictionary<BeetomProgram, AnimationProgramStep<BeetomProgram, BeetomFrame, BeetomCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<BeetomProgram, BeetomFrame, BeetomCue> Segments { get; } = new(
+        new Dictionary<BeetomProgram, AnimationBeat<BeetomFrame, BeetomCue>[]>
     {
         [P.CrawlingLeft] =
         [
             Cue(new(K.StopProcessingOffScreen)),
-            FallInto(P.CrawlingLeftLoop),
         ],
         [P.CrawlingLeftLoop] =
         [
@@ -25,7 +24,6 @@ internal static class BeetomAnimations
             Show(1, 10),
             Show(2, 10),
             Show(1, 10),
-            GoTo(P.CrawlingLeftLoop),
         ],
         [P.HopLeft] =
         [
@@ -34,7 +32,6 @@ internal static class BeetomAnimations
             Show(4, 8),
             Show(3, 4),
             Show(0, 1),
-            Hold,
         ],
         [P.DrainingLeft] =
         [
@@ -43,7 +40,6 @@ internal static class BeetomAnimations
             Show(7, 5),
             Show(6, 48),
             Cue(new(K.Nothing)),
-            FallInto(P.DrainingLeftLoop),
         ],
         [P.DrainingLeftLoop] =
         [
@@ -51,12 +47,10 @@ internal static class BeetomAnimations
             Show(9, 5),
             Show(10, 5),
             Show(9, 5),
-            GoTo(P.DrainingLeftLoop),
         ],
         [P.CrawlingRight] =
         [
             Cue(new(K.StopProcessingOffScreen)),
-            FallInto(P.CrawlingRightLoop),
         ],
         [P.CrawlingRightLoop] =
         [
@@ -64,7 +58,6 @@ internal static class BeetomAnimations
             Show(12, 10),
             Show(13, 10),
             Show(12, 10),
-            GoTo(P.CrawlingRightLoop),
         ],
         [P.HopRight] =
         [
@@ -73,7 +66,6 @@ internal static class BeetomAnimations
             Show(15, 8),
             Show(14, 4),
             Show(11, 1),
-            Hold,
         ],
         [P.DrainingRight] =
         [
@@ -82,7 +74,6 @@ internal static class BeetomAnimations
             Show(18, 5),
             Show(17, 48),
             Cue(new(K.Nothing)),
-            FallInto(P.DrainingRightLoop),
         ],
         [P.DrainingRightLoop] =
         [
@@ -90,23 +81,30 @@ internal static class BeetomAnimations
             Show(20, 5),
             Show(21, 5),
             Show(20, 5),
-            GoTo(P.DrainingRightLoop),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<BeetomProgram, Animation<BeetomProgram>> StartingAt { get; } = new Dictionary<BeetomProgram, Animation<BeetomProgram>>
+    {
+        [P.CrawlingLeft] = new([new(P.CrawlingLeft, 0, 1, 1), new(P.CrawlingLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.CrawlingLeftLoop] = new([new(P.CrawlingLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.HopLeft] = new([new(P.HopLeft, 0, 5, 1)], AnimationEnd.Holds),
+        [P.DrainingLeft] = new([new(P.DrainingLeft, 0, 5, 1), new(P.DrainingLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.DrainingLeftLoop] = new([new(P.DrainingLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.CrawlingRight] = new([new(P.CrawlingRight, 0, 1, 1), new(P.CrawlingRightLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.CrawlingRightLoop] = new([new(P.CrawlingRightLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.HopRight] = new([new(P.HopRight, 0, 5, 1)], AnimationEnd.Holds),
+        [P.DrainingRight] = new([new(P.DrainingRight, 0, 5, 1), new(P.DrainingRightLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.DrainingRightLoop] = new([new(P.DrainingRightLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<BeetomProgram> StartingWith(BeetomProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<BeetomProgram, BeetomFrame, BeetomCue> Show(int pose, int duration) => AnimationProgramStep<BeetomProgram, BeetomFrame, BeetomCue>.Show(new(pose), duration);
+    private static AnimationBeat<BeetomFrame, BeetomCue> Show(int pose, int duration) => new AnimationBeat<BeetomFrame, BeetomCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<BeetomProgram, BeetomFrame, BeetomCue> Cue(BeetomCue cue) => AnimationProgramStep<BeetomProgram, BeetomFrame, BeetomCue>.Publish(cue);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<BeetomProgram, BeetomFrame, BeetomCue> GoTo(BeetomProgram program) => AnimationProgramStep<BeetomProgram, BeetomFrame, BeetomCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<BeetomProgram, BeetomFrame, BeetomCue> FallInto(BeetomProgram program) => AnimationProgramStep<BeetomProgram, BeetomFrame, BeetomCue>.FallInto(program);
-
-    /// <summary>Holds the last frame, as the sleep does.</summary>
-    private static AnimationProgramStep<BeetomProgram, BeetomFrame, BeetomCue> Hold => AnimationProgramStep<BeetomProgram, BeetomFrame, BeetomCue>.Hold;
-
+    private static AnimationBeat<BeetomFrame, BeetomCue> Cue(BeetomCue cue) => new AnimationBeat<BeetomFrame, BeetomCue>.Event(cue);
 }

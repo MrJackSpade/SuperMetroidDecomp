@@ -97,7 +97,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Frame = EnemyFrameId.Empty;
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
-        state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonProgram.Initial);
+        state.Playback = new(EtecoonAnimations.StartingWith(EtecoonProgram.Initial), AnimationPlace.StartOfAnimation);
         state.Function = EtecoonAiFunction.WaitingForSamus;
         state.FunctionTimer = WrappingCountdown.Start(ushort.MaxValue);
     }
@@ -229,7 +229,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
-        state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonAnimations.AfterSleep(state.Program.Program));
+        state.Playback = new(EtecoonAnimations.StartingWith(EtecoonAnimations.AfterSleep(Playing(state.Playback))), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         state.Function = EtecoonAiFunction.InitialJump;
         if (CoordinateAxis.Difference(samus.Position.X.Whole, 256) >= 0)
@@ -275,7 +275,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         SetEtecoonVerticalVelocity(state, SignedSixteenSixteen.Zero);
         slot.FrameHold = WrappingCountdown.Start(3);
-        state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonProgram.HitCeiling);
+        state.Playback = new(EtecoonAnimations.StartingWith(EtecoonProgram.HitCeiling), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Waits 32 calls before choosing a left or right wall run from the stored facing bit.</summary>
@@ -286,7 +286,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!DecrementEtecoonTimerAndTestExpired(state))
             return;
 
-        state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonAnimations.AfterSleep(state.Program.Program));
+        state.Playback = new(EtecoonAnimations.StartingWith(EtecoonAnimations.AfterSleep(Playing(state.Playback))), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         if (state.HeadingRight)
         {
@@ -410,17 +410,17 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case EtecoonRoute.RunLeftToTeachingStart:
                 state.Function = EtecoonAiFunction.MoveLeftToTeachingStart;
-                state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonProgram.RunningLeft);
+                state.Playback = new(EtecoonAnimations.StartingWith(EtecoonProgram.RunningLeft), AnimationPlace.StartOfAnimation);
                 SetEtecoonHorizontalVelocity(state, EtecoonLeftVelocity);
                 break;
             case EtecoonRoute.RunRightToTeachingStart:
                 state.Function = EtecoonAiFunction.MoveRightToTeachingStart;
-                state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonProgram.RunningRight);
+                state.Playback = new(EtecoonAnimations.StartingWith(EtecoonProgram.RunningRight), AnimationPlace.StartOfAnimation);
                 SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity);
                 break;
             case EtecoonRoute.TeachAtOnce:
                 state.Function = EtecoonAiFunction.TeachingJump;
-                state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonAnimations.AfterSleep(state.Program.Program));
+                state.Playback = new(EtecoonAnimations.StartingWith(EtecoonAnimations.AfterSleep(Playing(state.Playback))), AnimationPlace.StartOfAnimation);
                 SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity);
                 break;
             default:
@@ -545,7 +545,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         SetEtecoonVerticalVelocity(state, SignedSixteenSixteen.Zero);
         slot.FrameHold = WrappingCountdown.Start(3);
-        state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonProgram.HitCeiling);
+        state.Playback = new(EtecoonAnimations.StartingWith(EtecoonProgram.HitCeiling), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Counts teaching hops and takes the return run after four on nonlooping routes.</summary>
@@ -571,12 +571,12 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (fewerThanFourTeachingJumps || state.Route == EtecoonRoute.TeachAtOnce)
         {
             state.Function = EtecoonAiFunction.TeachingJump;
-            state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonAnimations.AfterSleep(state.Program.Program));
+            state.Playback = new(EtecoonAnimations.StartingWith(EtecoonAnimations.AfterSleep(Playing(state.Playback))), AnimationPlace.StartOfAnimation);
         }
         else
         {
             state.Function = EtecoonAiFunction.RunRightToReturnJump;
-            state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonProgram.RunningRight);
+            state.Playback = new(EtecoonAnimations.StartingWith(EtecoonProgram.RunningRight), AnimationPlace.StartOfAnimation);
             SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity);
         }
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
@@ -598,13 +598,13 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (EtecoonIsWithinY(slot, samus, EtecoonNearbyDistance) &&
             EtecoonIsWithinX(slot, samus, EtecoonLongRunTriggerDistance))
         {
-            state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonProgram.RunningRight);
+            state.Playback = new(EtecoonAnimations.StartingWith(EtecoonProgram.RunningRight), AnimationPlace.StartOfAnimation);
             state.Function = EtecoonAiFunction.RunRightToLongJump;
         }
         else
         {
             SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
-            state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonAnimations.AfterSleep(state.Program.Program));
+            state.Playback = new(EtecoonAnimations.StartingWith(EtecoonAnimations.AfterSleep(Playing(state.Playback))), AnimationPlace.StartOfAnimation);
             state.Function = EtecoonAiFunction.TeachingJump;
             if (CoordinateAxis.Difference(samus.Position.X.Whole, 256) >= 0)
                 _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Etecoon, EtecoonJumpSound, priority: SoundRequestPriority.Normal);
@@ -743,14 +743,19 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         EtecoonEnemyState state,
         EtecoonProgram program)
     {
-        state.Program = AnimationProgramCursor<EtecoonProgram>.Start(program);
+        state.Playback = new(EtecoonAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
     }
 
+    /// <summary>The segment <paramref name="playback"/> is playing: the one its current phase plays, as a sleep rests in it.</summary>
+    private static EtecoonProgram Playing(AnimationPlayback<EtecoonProgram> playback) =>
+        playback.Animation.Phases[playback.Place.Phase].Segment;
+
     /// <summary>Advances Etecoon's typed animation.</summary>
     internal static void AdvanceEtecoonTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, EtecoonAnimations.Programs, EtecoonFrameDefinitions.ShownFrames.Of,
-            static (EtecoonEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
+        EnemyProgramAnimation.Advance(slot, EtecoonAnimations.Segments, EtecoonFrameDefinitions.ShownFrames.Of,
+            static (EtecoonEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            static (_, cue) => throw new InvalidOperationException($"A cue-free Etecoon animation raised {cue}."));
 
     /// <summary>Ports Etecoon's main AI.</summary>
     internal void RunEtecoonMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)

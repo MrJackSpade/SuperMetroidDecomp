@@ -36,8 +36,8 @@ public sealed class BeetomEnemyState
     public int ButtonCounter { get; internal set; }
     /// <summary>Controller input last observed by initialization or the attached counter; any differing input, including releases, decrements <see cref="ButtonCounter"/>.</summary>
     public ControllerButton PreviousController1Input { get; internal set; }
-    /// <summary>Where the typed animation (#641) resumes; installation also resets the common instruction timer and loop counter.</summary>
-    internal AnimationProgramCursor<BeetomProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<BeetomProgram> Playback { get; set; }
     /// <summary>Short-hop starting record index, the first multiple of four whose integrated quadratic speeds reach the short hop's height.</summary>
     public int InitialShortLeapYSpeedIndex { get; internal set; }
     /// <summary>Long-hop starting record index, the first multiple of five whose integrated quadratic speeds reach the long hop's height.</summary>

@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Enemies.FaceBlocks;
 /// <summary>The state of the Blue Brinstar face block.</summary>
 public sealed class BlueBrinstarFaceBlockEnemyState
 {
-    /// <summary>Where the animation resumes.</summary>
-    internal AnimationProgramCursor<BlueBrinstarFaceBlockProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<BlueBrinstarFaceBlockProgram> Playback { get; set; }
 
     /// <summary>
     /// Once set, the face has selected its directional animation and the main AI never performs the proximity test

@@ -6,21 +6,22 @@ using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Enemies.Boyon;
 
-/// <summary>#641: Boyon's typed programs, each matched step by step to its native bank-$A2 list.</summary>
+/// <summary>#641, #1600: Boyon's typed animations, each segment matched to its native bank-$A2 list and each animation to the lists' control flow.</summary>
 internal static class BoyonAnimationsVerification
 {
-    /// <summary>Every program matches its native list.</summary>
+    /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifyBoyonAnimations(SuperMetroidAddressSpace rom)
     {
-        int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, BoyonAnimations.Programs,
-            BoyonFrameToolingDefinitions.Spritemap,
-            word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
-            (word, operands, cue, at) =>
-            {
-                var instruction = Instructions[word];
-                AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
-                AssertEqual(0, operands.Length, $"{at}: operands");
-            });
-        Console.WriteLine($"  Boyon programs: {Entries.Length} programs ({steps} steps) match bank $A2.");
+        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
+            BoyonAnimations.Segments, BoyonAnimations.StartingAt, BoyonFrameToolingDefinitions.Spritemap,
+            new NativeEnemyCueRules<BoyonCue>(
+                word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
+                (word, operands, cue, at) =>
+                {
+                    var instruction = Instructions[word];
+                    AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
+                    AssertEqual(0, operands.Length, $"{at}: operands");
+                }));
+        Console.WriteLine($"  Boyon animations: {Entries.Length} segments ({beats} beats) and {BoyonAnimations.StartingAt.Count} animations match bank $A2.");
     }
 }

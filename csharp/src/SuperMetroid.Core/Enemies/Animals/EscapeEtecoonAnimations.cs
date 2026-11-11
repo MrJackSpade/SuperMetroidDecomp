@@ -10,14 +10,13 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// </summary>
 internal static class EscapeEtecoonAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<EscapeEtecoonProgram, EscapeEtecoonFrame, EscapeEtecoonCue> Programs { get; } = new(
-        new Dictionary<EscapeEtecoonProgram, AnimationProgramStep<EscapeEtecoonProgram, EscapeEtecoonFrame, EscapeEtecoonCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<EscapeEtecoonProgram, EscapeEtecoonFrame, EscapeEtecoonCue> Segments { get; } = new(
+        new Dictionary<EscapeEtecoonProgram, AnimationBeat<EscapeEtecoonFrame, EscapeEtecoonCue>[]>
     {
         [P.RunningLeftLowTide] =
         [
             Cue(new EscapeEtecoonCue.GoToIfAcidHigh(Target: P.RunningLeftHighTide)),
-            FallInto(P.RunningLeftLowTideLoop),
         ],
         [P.RunningLeftLowTideLoop] =
         [
@@ -25,7 +24,6 @@ internal static class EscapeEtecoonAnimations
             Show(1, 5),
             Show(2, 5),
             Show(1, 5),
-            GoTo(P.RunningLeftLowTideLoop),
         ],
         [P.RunningLeftHighTide] =
         [
@@ -33,12 +31,10 @@ internal static class EscapeEtecoonAnimations
             Show(1, 3),
             Show(2, 3),
             Show(1, 3),
-            GoTo(P.RunningLeftHighTide),
         ],
         [P.RunningRightLowTide] =
         [
             Cue(new EscapeEtecoonCue.GoToIfAcidHigh(Target: P.RunningRightHighTide)),
-            FallInto(P.RunningRightLowTideLoop),
         ],
         [P.RunningRightLowTideLoop] =
         [
@@ -46,7 +42,6 @@ internal static class EscapeEtecoonAnimations
             Show(4, 6),
             Show(5, 6),
             Show(4, 6),
-            GoTo(P.RunningRightLowTideLoop),
         ],
         [P.RunningRightHighTide] =
         [
@@ -54,12 +49,10 @@ internal static class EscapeEtecoonAnimations
             Show(4, 3),
             Show(5, 3),
             Show(4, 3),
-            GoTo(P.RunningRightHighTide),
         ],
         [P.RunningForEscape] =
         [
             Cue(new EscapeEtecoonCue.SetFrameBehavior(FrameBehavior: EscapeEtecoonFrameBehavior.EscapeRight)),
-            FallInto(P.RunningForEscapeLoop),
         ],
         [P.RunningForEscapeLoop] =
         [
@@ -67,7 +60,6 @@ internal static class EscapeEtecoonAnimations
             Show(4, 3),
             Show(5, 3),
             Show(4, 3),
-            GoTo(P.RunningForEscapeLoop),
         ],
         [P.Stationary] =
         [
@@ -75,13 +67,10 @@ internal static class EscapeEtecoonAnimations
             Show(7, 8),
             Show(9, 64),
             Show(8, 8),
-            GoTo(P.Stationary),
         ],
         [P.ExpressGratitudeThenEscape] =
         [
             Cue(new EscapeEtecoonCue.Command(K.ClearFrameBehavior)),
-            SetCounter(8),
-            FallInto(P.ExpressGratitudeThenEscapeLoop),
         ],
         [P.ExpressGratitudeThenEscapeLoop] =
         [
@@ -93,29 +82,32 @@ internal static class EscapeEtecoonAnimations
             Cue(new EscapeEtecoonCue.Move(Offset: -3)),
             Show(1, 8),
             Cue(new EscapeEtecoonCue.Move(Offset: -3)),
-            RepeatWhileCounting(P.ExpressGratitudeThenEscapeLoop),
             Show(6, 64),
             Show(7, 8),
-            GoTo(P.RunningForEscape),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<EscapeEtecoonProgram, Animation<EscapeEtecoonProgram>> StartingAt { get; } = new Dictionary<EscapeEtecoonProgram, Animation<EscapeEtecoonProgram>>
+    {
+        [P.RunningLeftLowTide] = new([new(P.RunningLeftLowTide, 0, 1, 1), new(P.RunningLeftLowTideLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.RunningLeftLowTideLoop] = new([new(P.RunningLeftLowTideLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.RunningLeftHighTide] = new([new(P.RunningLeftHighTide, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.RunningRightLowTide] = new([new(P.RunningRightLowTide, 0, 1, 1), new(P.RunningRightLowTideLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.RunningRightLowTideLoop] = new([new(P.RunningRightLowTideLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.RunningRightHighTide] = new([new(P.RunningRightHighTide, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.RunningForEscape] = new([new(P.RunningForEscape, 0, 1, 1), new(P.RunningForEscapeLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.RunningForEscapeLoop] = new([new(P.RunningForEscapeLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Stationary] = new([new(P.Stationary, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ExpressGratitudeThenEscape] = new([new(P.ExpressGratitudeThenEscape, 0, 1, 1), new(P.ExpressGratitudeThenEscapeLoop, 0, 8, 8), new(P.ExpressGratitudeThenEscapeLoop, 8, 2, 1), new(P.RunningForEscape, 0, 1, 1), new(P.RunningForEscapeLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(4)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<EscapeEtecoonProgram> StartingWith(EscapeEtecoonProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<EscapeEtecoonProgram, EscapeEtecoonFrame, EscapeEtecoonCue> Show(int pose, int duration) => AnimationProgramStep<EscapeEtecoonProgram, EscapeEtecoonFrame, EscapeEtecoonCue>.Show(new(pose), duration);
+    private static AnimationBeat<EscapeEtecoonFrame, EscapeEtecoonCue> Show(int pose, int duration) => new AnimationBeat<EscapeEtecoonFrame, EscapeEtecoonCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<EscapeEtecoonProgram, EscapeEtecoonFrame, EscapeEtecoonCue> Cue(EscapeEtecoonCue cue) => AnimationProgramStep<EscapeEtecoonProgram, EscapeEtecoonFrame, EscapeEtecoonCue>.Publish(cue);
-
-    /// <summary>Loads the loop counter with <paramref name="count"/>.</summary>
-    private static AnimationProgramStep<EscapeEtecoonProgram, EscapeEtecoonFrame, EscapeEtecoonCue> SetCounter(int count) => AnimationProgramStep<EscapeEtecoonProgram, EscapeEtecoonFrame, EscapeEtecoonCue>.SetCounter(count);
-
-    /// <summary>Repeats from <paramref name="program"/> while the loop counter counts down.</summary>
-    private static AnimationProgramStep<EscapeEtecoonProgram, EscapeEtecoonFrame, EscapeEtecoonCue> RepeatWhileCounting(EscapeEtecoonProgram program) => AnimationProgramStep<EscapeEtecoonProgram, EscapeEtecoonFrame, EscapeEtecoonCue>.RepeatWhileCounting(program);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<EscapeEtecoonProgram, EscapeEtecoonFrame, EscapeEtecoonCue> GoTo(EscapeEtecoonProgram program) => AnimationProgramStep<EscapeEtecoonProgram, EscapeEtecoonFrame, EscapeEtecoonCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<EscapeEtecoonProgram, EscapeEtecoonFrame, EscapeEtecoonCue> FallInto(EscapeEtecoonProgram program) => AnimationProgramStep<EscapeEtecoonProgram, EscapeEtecoonFrame, EscapeEtecoonCue>.FallInto(program);
-
+    private static AnimationBeat<EscapeEtecoonFrame, EscapeEtecoonCue> Cue(EscapeEtecoonCue cue) => new AnimationBeat<EscapeEtecoonFrame, EscapeEtecoonCue>.Event(cue);
 }

@@ -203,7 +203,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts the idle or bounce animation and restarts its instruction and auxiliary timers.</summary>
     private static void SetBoyonProgram(RoomEnemySlot slot, BoyonEnemyState state, BoyonProgram program)
     {
-        state.Program = AnimationProgramCursor<BoyonProgram>.Start(program);
+        state.Playback = new(BoyonAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
@@ -217,7 +217,9 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs Boyon's idle and bouncing loops as typed programs (#641).</summary>
     internal void AdvanceBoyonAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, BoyonAnimations.Programs, BoyonFrameDefinitions.ShownFrames.Of,
-            static (BoyonEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
-            (state, cue, _) => ApplyBoyonCue(slot, state, cue));
+        EnemyProgramAnimation.Advance(slot, BoyonAnimations.Segments, BoyonFrameDefinitions.ShownFrames.Of,
+            static (BoyonEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            (state, cue) => ApplyBoyonCue(slot, state, cue) is { } target
+                ? new AnimationContinuation<BoyonProgram>(BoyonAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                : null);
 }

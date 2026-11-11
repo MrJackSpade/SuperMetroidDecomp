@@ -31,8 +31,8 @@ internal static class DragonBehaviorVerification
                         EnemyInstructionRunner.ShownFrames(slot, 3), $"Dragon {program} pose");
                     break;
                 case DragonAnimationSelector.WingsFacingLeft or DragonAnimationSelector.WingsFacingRight:
-                    AssertEqual(EnemyInstructionRunner.ExpectedLoop(DragonAnimations.Programs, program, DragonFrameToolingDefinitions.Spritemap),
-                        EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(DragonAnimations.Programs, program)), $"Dragon {program} loop");
+                    AssertEqual(EnemyInstructionRunner.ExpectedLoop(DragonAnimations.Segments, program, DragonFrameToolingDefinitions.Spritemap),
+                        EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(DragonAnimations.Segments, program)), $"Dragon {program} loop");
                     break;
                 case DragonAnimationSelector.AttackingFacingLeft:
                 case DragonAnimationSelector.AttackingFacingRight:

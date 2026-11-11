@@ -41,22 +41,24 @@ internal static class DachoraInstructionProgramDefinitionsVerification
             (RoomEnemySystem enemies, RoomEnemySlot slot) = NewDachora(parameter);
             slot.Bind(EnemyDefinitionId.Dachora, slot.Definition);
             enemies.DachoraBehavior.InitializeDachora(slot);
-            AssertEqual(AnimationProgramCursor<DachoraProgram>.Start(expected), enemies.SlotTable.Slots[0].EntityState<DachoraEntity, DachoraEnemyState>()?.Program,
+            AssertEqual(new AnimationPlayback<DachoraProgram>(DachoraAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation), enemies.SlotTable.Slots[0].EntityState<DachoraEntity, DachoraEnemyState>()?.Playback,
                 $"Dachora initializer parameter ${parameter:X4}");
         }
 
         foreach (DachoraProgram program in Enum.GetValues<DachoraProgram>())
         {
-            if (DachoraAnimations.Programs.Steps(program)[^1] is not AnimationProgramStep<DachoraProgram, DachoraFrame, NoAnimationCue>.GoToStep last || last.Target != program)
+            // The self-looping animations: one phase of their own segment, played again and again.
+            if (!DachoraAnimations.StartingAt.TryGetValue(program, out Animation<DachoraProgram>? animation) ||
+                animation is not { Phases: [{ Plays: 1 } only], End: AnimationEnd.Loop { Phase: 0 } } || only.Segment != program)
                 continue;
             (RoomEnemySystem enemies, RoomEnemySlot slot) = NewDachora(0);
             slot.Bind(EnemyDefinitionId.Dachora, slot.Definition);
             enemies.DachoraBehavior.InitializeDachora(slot);
             DachoraEnemyState state = enemies.SlotTable.Slots[0].EntityState<DachoraEntity, DachoraEnemyState>() ?? throw new InvalidOperationException("The Dachora has no state.");
-            state.Program = AnimationProgramCursor<DachoraProgram>.Start(program);
+            state.Playback = new(DachoraAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             slot.FrameHold = WrappingCountdown.Start(1);
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(DachoraAnimations.Programs, program, DachoraFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(DachoraAnimations.Programs, program)),
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(DachoraAnimations.Segments, program, DachoraFrameToolingDefinitions.Spritemap),
+                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(DachoraAnimations.Segments, program)),
                 $"Dachora {program} loop");
         }
 
@@ -72,13 +74,13 @@ internal static class DachoraInstructionProgramDefinitionsVerification
             DachoraEnemyState state = enemies.SlotTable.Slots[0].EntityState<DachoraEntity, DachoraEnemyState>() ?? throw new InvalidOperationException("The Dachora has no state.");
             RoomLevelData empty = VerificationHelpersVerification.CreateEmptyRoom(new(16, 16));
             // One $1000 subspeed step from just below each threshold lands exactly on whole speeds four and eight.
-            state.Program = new AnimationProgramCursor<DachoraProgram>(slow, 3);
+            state.Playback = new(DachoraAnimations.StartingWith(slow), new AnimationPlace(0, 3));
             state.Speed = SignedSixteenSixteen.FromParts(3, 0xf000);
             enemies.DachoraBehavior.AccelerateDachora(slot, state, empty);
-            AssertEqual(new AnimationProgramCursor<DachoraProgram>(fast, 3), state.Program, $"Dachora {slow} speeds up at the same pose");
+            AssertEqual(new AnimationPlayback<DachoraProgram>(DachoraAnimations.StartingWith(fast), new AnimationPlace(0, 3)), state.Playback, $"Dachora {slow} speeds up at the same pose");
             state.Speed = SignedSixteenSixteen.FromParts(7, 0xf000);
             enemies.DachoraBehavior.AccelerateDachora(slot, state, empty);
-            AssertEqual(new AnimationProgramCursor<DachoraProgram>(fastest, 3), state.Program, $"Dachora {fast} speeds up at the same pose");
+            AssertEqual(new AnimationPlayback<DachoraProgram>(DachoraAnimations.StartingWith(fastest), new AnimationPlace(0, 3)), state.Playback, $"Dachora {fast} speeds up at the same pose");
         }
 
         AssertEqual(DachoraProgram.EchoRight, DachoraAnimations.AfterSleep(DachoraProgram.ChargeRight),

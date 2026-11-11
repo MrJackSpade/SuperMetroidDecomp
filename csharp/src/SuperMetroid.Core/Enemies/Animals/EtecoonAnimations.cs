@@ -9,19 +9,17 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// </summary>
 internal static class EtecoonAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<EtecoonProgram, EtecoonFrame, NoAnimationCue> Programs { get; } = new(
-        new Dictionary<EtecoonProgram, AnimationProgramStep<EtecoonProgram, EtecoonFrame, NoAnimationCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<EtecoonProgram, EtecoonFrame, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<EtecoonProgram, AnimationBeat<EtecoonFrame, NoAnimationCue>[]>
     {
         [P.LookRightAtSamusAndRunLeft] =
         [
             Show(12, 5),
-            Hold,
         ],
         [P.BeginRunningLeft] =
         [
             Show(13, 1),
-            FallInto(P.RunningLeft),
         ],
         [P.RunningLeft] =
         [
@@ -29,12 +27,10 @@ internal static class EtecoonAnimations
             Show(1, 5),
             Show(2, 5),
             Show(1, 5),
-            GoTo(P.RunningLeft),
         ],
         [P.WallJumpLeft] =
         [
             Show(7, 8),
-            FallInto(P.WallJumpLeftLoop),
         ],
         [P.WallJumpLeftLoop] =
         [
@@ -42,40 +38,33 @@ internal static class EtecoonAnimations
             Show(4, 3),
             Show(5, 3),
             Show(6, 3),
-            GoTo(P.WallJumpLeftLoop),
         ],
         [P.HoppingFacingLeft] =
         [
             Show(8, 1),
-            Hold,
         ],
         [P.ContinueHoppingFacingLeft] =
         [
             Show(9, 12),
             Show(10, 12),
-            FallInto(P.HitCeiling),
         ],
         [P.HitCeiling] =
         [
             Show(11, 6),
             Show(10, 12),
             Show(9, 12),
-            Hold,
         ],
         [P.WallJumpLeftEligible] =
         [
             Show(14, 1),
-            Hold,
         ],
         [P.LookLeftAtSamusAndRunRight] =
         [
             Show(29, 5),
-            Hold,
         ],
         [P.BeginRunningRight] =
         [
             Show(28, 1),
-            FallInto(P.RunningRight),
         ],
         [P.RunningRight] =
         [
@@ -83,12 +72,10 @@ internal static class EtecoonAnimations
             Show(16, 5),
             Show(17, 5),
             Show(16, 5),
-            GoTo(P.RunningRight),
         ],
         [P.WallJumpRight] =
         [
             Show(22, 8),
-            FallInto(P.JumpingRight),
         ],
         [P.JumpingRight] =
         [
@@ -96,12 +83,10 @@ internal static class EtecoonAnimations
             Show(19, 3),
             Show(20, 3),
             Show(21, 3),
-            GoTo(P.JumpingRight),
         ],
         [P.HoppingFacingRight] =
         [
             Show(23, 1),
-            Hold,
         ],
         [P.ContinueHoppingFacingRight] =
         [
@@ -110,22 +95,17 @@ internal static class EtecoonAnimations
             Show(26, 6),
             Show(25, 12),
             Show(24, 12),
-            Hold,
         ],
         [P.WallJumpRightEligible] =
         [
             Show(30, 1),
-            Hold,
         ],
         [P.Initial] =
         [
             Show(23, 8),
-            GoTo(P.Initial),
         ],
         [P.Flexing] =
         [
-            SetCounter(4),
-            FallInto(P.FlexingLoop),
         ],
         [P.FlexingLoop] =
         [
@@ -135,12 +115,37 @@ internal static class EtecoonAnimations
             Show(26, 8),
             Show(25, 8),
             Show(24, 8),
-            RepeatWhileCounting(P.FlexingLoop),
             Show(27, 32),
             Show(29, 32),
-            Hold,
         ],
     });
+
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<EtecoonProgram, Animation<EtecoonProgram>> StartingAt { get; } = new Dictionary<EtecoonProgram, Animation<EtecoonProgram>>
+    {
+        [P.LookRightAtSamusAndRunLeft] = new([new(P.LookRightAtSamusAndRunLeft, 0, 1, 1)], AnimationEnd.Holds),
+        [P.BeginRunningLeft] = new([new(P.BeginRunningLeft, 0, 1, 1), new(P.RunningLeft, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.RunningLeft] = new([new(P.RunningLeft, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.WallJumpLeft] = new([new(P.WallJumpLeft, 0, 1, 1), new(P.WallJumpLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.WallJumpLeftLoop] = new([new(P.WallJumpLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.HoppingFacingLeft] = new([new(P.HoppingFacingLeft, 0, 1, 1)], AnimationEnd.Holds),
+        [P.ContinueHoppingFacingLeft] = new([new(P.ContinueHoppingFacingLeft, 0, 2, 1), new(P.HitCeiling, 0, 3, 1)], AnimationEnd.Holds),
+        [P.HitCeiling] = new([new(P.HitCeiling, 0, 3, 1)], AnimationEnd.Holds),
+        [P.WallJumpLeftEligible] = new([new(P.WallJumpLeftEligible, 0, 1, 1)], AnimationEnd.Holds),
+        [P.LookLeftAtSamusAndRunRight] = new([new(P.LookLeftAtSamusAndRunRight, 0, 1, 1)], AnimationEnd.Holds),
+        [P.BeginRunningRight] = new([new(P.BeginRunningRight, 0, 1, 1), new(P.RunningRight, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.RunningRight] = new([new(P.RunningRight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.WallJumpRight] = new([new(P.WallJumpRight, 0, 1, 1), new(P.JumpingRight, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.JumpingRight] = new([new(P.JumpingRight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.HoppingFacingRight] = new([new(P.HoppingFacingRight, 0, 1, 1)], AnimationEnd.Holds),
+        [P.ContinueHoppingFacingRight] = new([new(P.ContinueHoppingFacingRight, 0, 5, 1)], AnimationEnd.Holds),
+        [P.WallJumpRightEligible] = new([new(P.WallJumpRightEligible, 0, 1, 1)], AnimationEnd.Holds),
+        [P.Initial] = new([new(P.Initial, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Flexing] = new([new(P.FlexingLoop, 0, 6, 4), new(P.FlexingLoop, 6, 2, 1)], AnimationEnd.Holds),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<EtecoonProgram> StartingWith(EtecoonProgram segment) => StartingAt[segment];
 
     /// <summary>The program a sleeping list resumes into when its owner steps the list past the sleep.</summary>
     internal static EtecoonProgram AfterSleep(EtecoonProgram program) => program switch
@@ -169,21 +174,5 @@ internal static class EtecoonAnimations
     };
 
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<EtecoonProgram, EtecoonFrame, NoAnimationCue> Show(int pose, int duration) => AnimationProgramStep<EtecoonProgram, EtecoonFrame, NoAnimationCue>.Show(new(pose), duration);
-
-    /// <summary>Loads the loop counter with <paramref name="count"/>.</summary>
-    private static AnimationProgramStep<EtecoonProgram, EtecoonFrame, NoAnimationCue> SetCounter(int count) => AnimationProgramStep<EtecoonProgram, EtecoonFrame, NoAnimationCue>.SetCounter(count);
-
-    /// <summary>Repeats from <paramref name="program"/> while the loop counter counts down.</summary>
-    private static AnimationProgramStep<EtecoonProgram, EtecoonFrame, NoAnimationCue> RepeatWhileCounting(EtecoonProgram program) => AnimationProgramStep<EtecoonProgram, EtecoonFrame, NoAnimationCue>.RepeatWhileCounting(program);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<EtecoonProgram, EtecoonFrame, NoAnimationCue> GoTo(EtecoonProgram program) => AnimationProgramStep<EtecoonProgram, EtecoonFrame, NoAnimationCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<EtecoonProgram, EtecoonFrame, NoAnimationCue> FallInto(EtecoonProgram program) => AnimationProgramStep<EtecoonProgram, EtecoonFrame, NoAnimationCue>.FallInto(program);
-
-    /// <summary>Holds the last frame, as the sleep does.</summary>
-    private static AnimationProgramStep<EtecoonProgram, EtecoonFrame, NoAnimationCue> Hold => AnimationProgramStep<EtecoonProgram, EtecoonFrame, NoAnimationCue>.Hold;
-
+    private static AnimationBeat<EtecoonFrame, NoAnimationCue> Show(int pose, int duration) => new AnimationBeat<EtecoonFrame, NoAnimationCue>.Frame(new(pose), duration);
 }

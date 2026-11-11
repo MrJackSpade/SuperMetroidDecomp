@@ -31,8 +31,8 @@ public sealed class HopperEnemyState
     /// </summary>
     public int YSpeedTableIndexDelta { get; internal set; }
 
-    /// <summary>Installed landed or jumping animation: where the typed program (#641) resumes.</summary>
-    internal AnimationProgramCursor<HopperProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<HopperProgram> Playback { get; set; }
     /// <summary>Initial quadratic record index, within the table's 95 records, calculated with step 3 and accumulated-height threshold 4096 using the game's odd-byte speed-word reads.</summary>
     public int SmallHopInitialYSpeedTableIndex { get; internal set; }
     /// <summary>Initial quadratic record index, within the table's 95 records, calculated with step 4 and accumulated-height threshold 12288 using the game's odd-byte speed-word reads.</summary>

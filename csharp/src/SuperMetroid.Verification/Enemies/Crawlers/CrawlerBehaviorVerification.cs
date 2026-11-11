@@ -49,18 +49,12 @@ internal static class CrawlerBehaviorVerification
             CrawlerEnemyState state = enemies.CrawlerStates[0] ?? throw new InvalidOperationException("The crawler has no state.");
             CrawlerProgram program = CrawlerSurfaceAnimations.ProgramFor(family, orientation);
             string context = $"{family} {orientation}";
-            AssertEqual(AnimationProgramCursor<CrawlerProgram>.Start(program), state.Program, $"{context} starts its surface animation");
+            AssertEqual(new AnimationPlayback<CrawlerProgram>(CrawlerAnimations.StartingWith(program), AnimationPlace.StartOfAnimation), state.Playback, $"{context} starts its surface animation");
 
-            CrawlerProgram loop = CrawlerAnimations.Programs.Steps(program)
-                .Select(step => step switch
-                {
-                    AnimationProgramStep<CrawlerProgram, CrawlerFrame, CrawlerCue>.FallIntoStep fallInto => (CrawlerProgram?)fallInto.Target,
-                    AnimationProgramStep<CrawlerProgram, CrawlerFrame, CrawlerCue>.GoToStep goTo => goTo.Target,
-                    _ => null,
-                })
-                .Single(target => target is not null) ?? throw new InvalidOperationException("A crawler loop names its target.");
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(CrawlerAnimations.Programs, loop, CrawlerFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(CrawlerAnimations.Programs, loop)), $"{context} loop");
+            // The surface animation runs on into the loop it then repeats.
+            CrawlerProgram loop = CrawlerAnimations.StartingWith(program).Phases[^1].Segment;
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(CrawlerAnimations.Segments, loop, CrawlerFrameToolingDefinitions.Spritemap),
+                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(CrawlerAnimations.Segments, loop)), $"{context} loop");
             bool sideWall = orientation is CrawlerSurfaceOrientation.UpsideRight or CrawlerSurfaceOrientation.UpsideLeft;
             CrawlerEnemyFunction expected = family == CrawlerAnimationFamily.HZoomer
                 ? sideWall ? CrawlerEnemyFunction.HZoomerCrawlingVertically : CrawlerEnemyFunction.HZoomerCrawlingHorizontally

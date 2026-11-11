@@ -61,7 +61,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
                 CreateSystem(MagdollitePart.Head);
             Install(slot, state, program);
             RunFrames(enemies, slot, 55);
-            AssertEqual(program, state.Program.Program,
+            AssertEqual(program, state.Playback.Animation.Phases[state.Playback.Place.Phase].Segment,
                 $"Magdollite {direction} idle remains inside its loop");
         }
 
@@ -117,9 +117,11 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
             (RoomEnemySystem enemies, RoomEnemySlot slot, MagdolliteEnemyState state) = CreateSystem(part);
             Install(slot, state, program);
             RunFrames(enemies, slot, 3);
-            // The cursor rests on the program's sleep step.
-            AssertEqual(program, state.Program.Program, $"Magdollite {name} stays in its program");
-            AssertTrue(MagdolliteAnimations.Programs.Steps(program)[state.Program.Position] is AnimationProgramStep<MagdolliteProgram, MagdolliteFrame, MagdolliteCue>.HoldStep, $"Magdollite {name} reaches terminal sleep");
+            // The playback rests past the last beat of an animation that holds there.
+            AnimationPlayback<MagdolliteProgram> playback = state.Playback;
+            AssertEqual(program, playback.Animation.Phases[playback.Place.Phase].Segment, $"Magdollite {name} stays in its program");
+            AssertTrue(playback.Animation.End is AnimationEnd.Hold && playback.Place.Phase == playback.Animation.Phases.Count - 1 &&
+                playback.Place.Beat == playback.Animation.Phases[^1].BeatCount, $"Magdollite {name} reaches terminal sleep");
         }
 
         CreateSystemResult CreateSystem(
@@ -144,7 +146,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
 
         static void Install(RoomEnemySlot slot, MagdolliteEnemyState state, MagdolliteProgram program)
         {
-            state.Program = AnimationProgramCursor<MagdolliteProgram>.Start(program);
+            state.Playback = new(MagdolliteAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             slot.FrameHold = WrappingCountdown.Start(1);
             slot.Timer = WrappingCountdown.Start(0);
         }

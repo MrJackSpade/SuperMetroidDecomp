@@ -8,7 +8,7 @@ internal static class BoyonAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params BoyonProgram[] programs) =>
-        programs.SelectMany(program => BoyonAnimations.Programs.Steps(program))
-            .OfType<AnimationProgramStep<BoyonProgram, BoyonFrame, BoyonCue>.ShowStep>()
-            .Select(step => BoyonFrameToolingDefinitions.Spritemap(step.Frame));
+        programs.SelectMany(program => BoyonAnimations.Segments.Beats(program))
+            .OfType<AnimationBeat<BoyonFrame, BoyonCue>.Frame>()
+            .Select(frame => BoyonFrameToolingDefinitions.Spritemap(frame.Shown));
 }

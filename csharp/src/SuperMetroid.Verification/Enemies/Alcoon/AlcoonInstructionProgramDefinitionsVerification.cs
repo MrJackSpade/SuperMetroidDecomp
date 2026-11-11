@@ -71,11 +71,12 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
             enemies.StepFrame(new RoomEnemyFrame { FrameCounter = enemies.StandaloneFrameCounter, Camera = new(cameraX, 0), TimeIsFrozen = false, Samus = samus, Level = assets.LevelData });
             foreach (RoomEnemySlot slot in enemies.SlotTable.Slots)
             {
-                // A cursor that has just passed a pose step is showing that pose.
+                // A playback that has just passed a frame beat is showing that pose.
                 if (slot.DefinitionId == EnemyDefinitionId.Alcoon &&
-                    enemies.AlcoonStates[slot.SlotIndex] is { Program: { Position: > 0 } cursor } &&
-                    AlcoonAnimations.Programs.Steps(cursor.Program)[cursor.Position - 1] is AnimationProgramStep<AlcoonProgram, AlcoonFrame, AlcoonCue>.ShowStep)
-                    reachedPoses.Add(new ReachedPose(cursor.Program, cursor.Position - 1));
+                    enemies.AlcoonStates[slot.SlotIndex] is { Playback: { Place.Beat: > 0 } playback } &&
+                    playback.Animation.Phases[playback.Place.Phase] is var phase &&
+                    AlcoonAnimations.Segments.Beats(phase.Segment)[phase.FirstBeat + playback.Place.Beat - 1] is AnimationBeat<AlcoonFrame, AlcoonCue>.Frame)
+                    reachedPoses.Add(new ReachedPose(phase.Segment, phase.FirstBeat + playback.Place.Beat - 1));
             }
 
             samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(actor.Position.X.Whole +
@@ -92,8 +93,8 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
         AssertTrue(sawLeftFireball && sawRightFireball,
             "real Alcoon programs execute fire callbacks in both facings");
         var poses = Enum.GetValues<AlcoonProgram>()
-            .SelectMany(program => AlcoonAnimations.Programs.Steps(program)
-                .Select((step, index) => new AlcoonInstructionProgramDefinitionsPose(Program:program, Step:index, Shows:step is AnimationProgramStep<AlcoonProgram, AlcoonFrame, AlcoonCue>.ShowStep)))
+            .SelectMany(program => AlcoonAnimations.Segments.Beats(program)
+                .Select((beat, index) => new AlcoonInstructionProgramDefinitionsPose(Program:program, Step:index, Shows:beat is AnimationBeat<AlcoonFrame, AlcoonCue>.Frame)))
             .Where(step => step.Shows)
             .Select(step => new ReachedPose(step.Program, step.Step))
             .ToHashSet();
@@ -102,8 +103,8 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
         AssertEqual(42, reachedPoses.Count, $"real Alcoon reaches every reachable pose; missing={missed}");
         AssertTrue(poses.Except(reachedPoses).All(pose =>
                 pose.Program is AlcoonProgram.FireLeft or AlcoonProgram.FireRight &&
-                AlcoonAnimations.Programs.Steps(pose.Program)[pose.Step - 1] is AnimationProgramStep<AlcoonProgram, AlcoonFrame, AlcoonCue>.CueStep cue &&
-                cue.Cue.Kind == AlcoonCueKind.StartWalking),
+                AlcoonAnimations.Segments.Beats(pose.Program)[pose.Step - 1] is AnimationBeat<AlcoonFrame, AlcoonCue>.Event cue &&
+                cue.Raised.Kind == AlcoonCueKind.StartWalking),
             "native start-walking cues skip the two trailing unreachable poses");
         Suite(nameof(AlcoonAnimationsVerification.VerifyAlcoonAnimations), () => AlcoonAnimationsVerification.VerifyAlcoonAnimations(rom));
 

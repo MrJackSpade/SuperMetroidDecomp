@@ -85,8 +85,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         Bind(slot, state);
 
-        state.Program = AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.ProgramFor(
-            animationFamily, orientation));
+        state.Playback = new(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.ProgramFor(
+            animationFamily, orientation)), AnimationPlace.StartOfAnimation);
         slot.Frame = EnemyFrameId.Empty;
         slot.FrameHold = WrappingCountdown.Start(1);
         state.Function = CrawlerEnemyFunction.InstructionPending;
@@ -132,8 +132,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         Bind(slot, state);
         CrawlerSurfaceOrientation orientation = settings.Orientation;
-        state.Program = AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.ProgramFor(
-            CrawlerAnimationFamily.HZoomer, orientation));
+        state.Playback = new(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.ProgramFor(
+            CrawlerAnimationFamily.HZoomer, orientation)), AnimationPlace.StartOfAnimation);
         slot.Frame = EnemyFrameId.Empty;
         slot.FrameHold = WrappingCountdown.Start(1);
         state.Velocity = SignedForBlockSide(settings.BlockSide, new EightEightVector<RoomPixels>(crawlSpeed, crawlSpeed));
@@ -290,7 +290,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         CrawlerEnemyState state,
         CrawlerProgram program)
     {
-        state.Program = AnimationProgramCursor<CrawlerProgram>.Start(program);
+        state.Playback = new(CrawlerAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
@@ -462,8 +462,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         // The orange Zoomer turns corners with its own selection; only the shared crawlers come here.
         if (state.SurfaceFamily is CrawlerAnimationFamily.HZoomer)
             throw new InvalidDataException("The orange Zoomer's animations are not a shared crawler surface family.");
-        state.Program = AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.ProgramFor(
-            state.SurfaceFamily, orientation));
+        state.Playback = new(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.ProgramFor(
+            state.SurfaceFamily, orientation)), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
@@ -539,7 +539,9 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the crawlers' surface animations as typed programs (#641).</summary>
     internal static void AdvanceCrawlerTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, CrawlerAnimations.Programs, CrawlerFrameDefinitions.ShownFrames.Of,
-            static (CrawlerEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
-            (state, cue, _) => ApplyCrawlerCue(state, cue));
+        EnemyProgramAnimation.Advance(slot, CrawlerAnimations.Segments, CrawlerFrameDefinitions.ShownFrames.Of,
+            static (CrawlerEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            (state, cue) => ApplyCrawlerCue(state, cue) is { } target
+                ? new AnimationContinuation<CrawlerProgram>(CrawlerAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                : null);
 }

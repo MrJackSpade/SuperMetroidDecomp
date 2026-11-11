@@ -6,16 +6,17 @@ using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Enemies.Kago;
 
-/// <summary>#641: Kago's typed programs, each matched step by step to its native bank-$A8 list.</summary>
+/// <summary>#641, #1600: Kago's typed animations, each segment matched to its native bank-$A8 list and each animation to the lists' control flow.</summary>
 internal static class KagoAnimationsVerification
 {
-    /// <summary>Every program matches its native list.</summary>
+    /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifyKagoAnimations(SuperMetroidAddressSpace rom)
     {
-        int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, KagoAnimations.Programs,
-            KagoFrameToolingDefinitions.Spritemap,
-            word => null,
-            (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions."));
-        Console.WriteLine($"  Kago programs: {Entries.Length} programs ({steps} steps) match bank $A8.");
+        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
+            KagoAnimations.Segments, KagoAnimations.StartingAt, KagoFrameToolingDefinitions.Spritemap,
+            new NativeEnemyCueRules<NoAnimationCue>(
+                word => null,
+                (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions.")));
+        Console.WriteLine($"  Kago animations: {Entries.Length} segments ({beats} beats) and {KagoAnimations.StartingAt.Count} animations match bank $A8.");
     }
 }

@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Enemies.Dragon;
 /// </summary>
 public sealed class DragonEnemyState
 {
-    /// <summary>Where the typed animation (#641) resumes.</summary>
-    internal AnimationProgramCursor<DragonProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<DragonProgram> Playback { get; set; }
 
     /// <summary>Population parameter one: false is a body; true is its cosmetic wing.</summary>
     public bool IsWing { get; internal set; }

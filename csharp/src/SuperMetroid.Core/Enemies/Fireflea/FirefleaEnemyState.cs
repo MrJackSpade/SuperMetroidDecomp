@@ -15,8 +15,8 @@ public sealed class FirefleaEnemyState
     /// <param name="slot">The slot the Fireflea occupies.</param>
     internal FirefleaEnemyState(RoomEnemySlot slot) => _slot = slot;
 
-    /// <summary>Where the animation resumes.</summary>
-    internal AnimationProgramCursor<FirefleaProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<FirefleaProgram> Playback { get; set; }
 
     /// <summary>
     /// The signed angular speed, its spawn speed toward its spawn sign, in 256ths of a turn per update with a fraction

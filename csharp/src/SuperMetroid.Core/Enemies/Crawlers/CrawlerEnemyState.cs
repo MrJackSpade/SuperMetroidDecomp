@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 /// </summary>
 public sealed class CrawlerEnemyState
 {
-    /// <summary>Where the animation resumes.</summary>
-    internal AnimationProgramCursor<CrawlerProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<CrawlerProgram> Playback { get; set; }
 
     /// <summary>
     /// Signed two's-complement 8.8 motion words. On horizontal surfaces X is the tangent and Y the floor/ceiling-probe

@@ -66,7 +66,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
 
         // The neutral animation is a one-frame neutral map followed by the common sleep. All
         // authored directional lists use the same neutral map as their first frame.
-        state.Program = AnimationProgramCursor<BlueBrinstarFaceBlockProgram>.Start(BlueBrinstarFaceBlockProgram.Initial);
+        state.Playback = new(BlueBrinstarFaceBlockAnimations.StartingWith(BlueBrinstarFaceBlockProgram.Initial), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 
@@ -116,9 +116,9 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         if (samusToTheLeft == state.FacesRight)
             return;
 
-        state.Program = AnimationProgramCursor<BlueBrinstarFaceBlockProgram>.Start(samusToTheLeft
+        state.Playback = new(BlueBrinstarFaceBlockAnimations.StartingWith(samusToTheLeft
             ? BlueBrinstarFaceBlockProgram.SamusLeft
-            : BlueBrinstarFaceBlockProgram.SamusRight);
+            : BlueBrinstarFaceBlockProgram.SamusRight), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         state.Activated = true;
@@ -176,9 +176,10 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         if (!EnemyProgramAnimation.Expire(slot))
             return;
         var state = RequireBlueBrinstarFaceBlockState(slot);
-        AnimationProgramCursor<BlueBrinstarFaceBlockProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, BlueBrinstarFaceBlockAnimations.Programs, ref cursor, BlueBrinstarFaceBlockFrameDefinitions.ShownFrames.Of);
-        state.Program = cursor;
+        AnimationPlayback<BlueBrinstarFaceBlockProgram> playback = state.Playback;
+        EnemyProgramAnimation.Play(slot, BlueBrinstarFaceBlockAnimations.Segments, ref playback, BlueBrinstarFaceBlockFrameDefinitions.ShownFrames.Of,
+            static cue => throw new InvalidOperationException($"A cue-free blue Brinstar face block animation raised {cue}."));
+        state.Playback = playback;
     }
 
     /// <summary>Runs the blue Brinstar face block's initialization AI.</summary>

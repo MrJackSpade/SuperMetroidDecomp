@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Enemies.Elevator;
 /// <summary>The state of the elevator enemy.</summary>
 public sealed class ElevatorEnemyState
 {
-    /// <summary>Where the typed animation (#641) resumes.</summary>
-    internal AnimationProgramCursor<ElevatorProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<ElevatorProgram> Playback { get; set; }
 
     /// <summary>The room-side resting height, captured before an arriving actor is moved to parameter 2; only Y is meaningful.</summary>
     public Position16<RoomPixels> RestingHeight { get; internal set; }

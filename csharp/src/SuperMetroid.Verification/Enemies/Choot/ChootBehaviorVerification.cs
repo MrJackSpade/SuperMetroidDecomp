@@ -29,7 +29,7 @@ internal static class ChootBehaviorVerification
         ChootBehavior.InitializeChoot(slot);
         ChootEnemyState state = enemies.ChootStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ChootStates[0].");
 
-        AssertEqual(AnimationProgramCursor<ChootProgram>.Start(ChootProgram.Idle), state.Program, "Choot initializer animation");
+        AssertEqual(new AnimationPlayback<ChootProgram>(ChootAnimations.StartingWith(ChootProgram.Idle), AnimationPlace.StartOfAnimation), state.Playback, "Choot initializer animation");
         ushort[] idle = ChootAnimationsConstants.Spritemaps(ChootProgram.Idle).ToArray();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([idle[0], idle[0]], [1, 1]),
             EnemyInstructionRunner.ShownFrames(slot, 3), "Choot idle pose");
@@ -37,7 +37,7 @@ internal static class ChootBehaviorVerification
 
         state.JumpDelayTimer = 0;
         ChootBehavior.PrepareChootJump(slot, state);
-        AssertEqual(AnimationProgramCursor<ChootProgram>.Start(ChootProgram.Jumping), state.Program,
+        AssertEqual(new AnimationPlayback<ChootProgram>(ChootAnimations.StartingWith(ChootProgram.Jumping), AnimationPlace.StartOfAnimation), state.Playback,
             "Choot real preparation handoff starts the jumping animation");
         ushort[] jumping = ChootAnimationsConstants.Spritemaps(ChootProgram.Jumping).ToArray();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([jumping[0], jumping[1], jumping[1]], [8, 1, 1]),
@@ -46,7 +46,7 @@ internal static class ChootBehaviorVerification
 
         state.YSpeedTableIndex = 1;
         ChootBehavior.RunChootJump(slot, state);
-        AssertEqual(AnimationProgramCursor<ChootProgram>.Start(ChootProgram.Falling), state.Program,
+        AssertEqual(new AnimationPlayback<ChootProgram>(ChootAnimations.StartingWith(ChootProgram.Falling), AnimationPlace.StartOfAnimation), state.Playback,
             "Choot real apex handoff starts the falling animation");
         ushort[] falling = ChootAnimationsConstants.Spritemaps(ChootProgram.Falling).ToArray();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([falling[0], falling[1], falling[1]], [8, 1, 1]),

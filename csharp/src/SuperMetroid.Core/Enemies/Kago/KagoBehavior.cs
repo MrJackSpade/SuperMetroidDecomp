@@ -54,7 +54,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
-        state.Program = AnimationProgramCursor<KagoProgram>.Start(KagoProgram.Slow);
+        state.Playback = new(KagoAnimations.StartingWith(KagoProgram.Slow), AnimationPlace.StartOfAnimation);
         state.Function = KagoEnemyFunction.InstallNoOp;
         state.DeathAnimationStarted = false;
         state.HitCounter = slot.SpawnSettings<KagoSpawnSettings>().HitCount;
@@ -88,7 +88,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!state.UsesFastAnimation)
         {
             state.UsesFastAnimation = true;
-            state.Program = AnimationProgramCursor<KagoProgram>.Start(KagoProgram.Fast);
+            state.Playback = new(KagoAnimations.StartingWith(KagoProgram.Fast), AnimationPlace.StartOfAnimation);
             slot.FrameHold = WrappingCountdown.Start(1);
         }
 
@@ -175,9 +175,10 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EnemyProgramAnimation.Expire(slot))
             return;
         KagoEnemyState state = slot.RequireSpeciesState<KagoEnemyState>();
-        AnimationProgramCursor<KagoProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, KagoAnimations.Programs, ref cursor, KagoFrameDefinitions.ShownFrames.Of);
-        state.Program = cursor;
+        AnimationPlayback<KagoProgram> playback = state.Playback;
+        EnemyProgramAnimation.Play(slot, KagoAnimations.Segments, ref playback, KagoFrameDefinitions.ShownFrames.Of,
+            static cue => throw new InvalidOperationException($"A cue-free Kago animation raised {cue}."));
+        state.Playback = playback;
     }
 
     /// <summary>Ports Kago's main AI.</summary>

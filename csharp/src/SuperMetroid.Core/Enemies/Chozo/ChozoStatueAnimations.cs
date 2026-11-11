@@ -10,15 +10,14 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// </summary>
 internal static class ChozoStatueAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<ChozoStatueProgram, ChozoStatueFrame, ChozoStatueCue> Programs { get; } = new(
-        new Dictionary<ChozoStatueProgram, AnimationProgramStep<ChozoStatueProgram, ChozoStatueFrame, ChozoStatueCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<ChozoStatueProgram, ChozoStatueFrame, ChozoStatueCue> Segments { get; } = new(
+        new Dictionary<ChozoStatueProgram, AnimationBeat<ChozoStatueFrame, ChozoStatueCue>[]>
     {
         [P.LowerNorfairInitial] =
         [
             Cue(new ChozoStatueCue.SetFrameBehavior(FrameBehavior: ChozoStatueFrameBehavior.WaitForLowerNorfairHandTrigger)),
             Show(17, 1),
-            Hold,
         ],
         [P.LowerNorfairActivated] =
         [
@@ -38,8 +37,6 @@ internal static class ChozoStatueAnimations
             Show(24, 12),
             Show(25, 96),
             Cue(new ChozoStatueCue.Command(K.StartLoweringAcid)),
-            SetCounter(5),
-            FallInto(P.LowerNorfairActivatedLoop),
         ],
         [P.LowerNorfairActivatedLoop] =
         [
@@ -49,7 +46,6 @@ internal static class ChozoStatueAnimations
             Show(25, 8),
             Show(24, 6),
             Show(23, 8),
-            RepeatWhileCounting(P.LowerNorfairActivatedLoop),
             Cue(new ChozoStatueCue.Command(K.ClearFrameBehavior)),
             Cue(new ChozoStatueCue.Move(CarryRecord: 19)),
             Show(20, 128),
@@ -61,13 +57,11 @@ internal static class ChozoStatueAnimations
             Show(17, 32),
             Cue(new ChozoStatueCue.Command(K.UnlockSamus)),
             Cue(new ChozoStatueCue.Command(K.SetLoweredAcidPosition)),
-            Hold,
         ],
         [P.WreckedShipInitial] =
         [
             Cue(new ChozoStatueCue.SetFrameBehavior(FrameBehavior: ChozoStatueFrameBehavior.WaitForWreckedShipHandTrigger)),
             Show(0, 1),
-            Hold,
         ],
         [P.WreckedShipActivated] =
         [
@@ -86,8 +80,6 @@ internal static class ChozoStatueAnimations
             Show(14, 10),
             Show(15, 12),
             Show(16, 128),
-            SetCounter(4),
-            FallInto(P.WreckedShipActivatedLoop),
         ],
         [P.WreckedShipActivatedLoop] =
         [
@@ -97,10 +89,7 @@ internal static class ChozoStatueAnimations
             Show(16, 8),
             Show(15, 6),
             Show(14, 8),
-            RepeatWhileCounting(P.WreckedShipActivatedLoop),
             Cue(new ChozoStatueCue.SetFrameBehavior(FrameBehavior: ChozoStatueFrameBehavior.Walking)),
-            SetCounter(16),
-            FallInto(P.WreckedShipActivatedLoop2),
         ],
         [P.WreckedShipActivatedLoop2] =
         [
@@ -130,7 +119,6 @@ internal static class ChozoStatueAnimations
             Cue(new ChozoStatueCue.Move(CarryRecord: 10)),
             Cue(new ChozoStatueCue.Footstep(Offset: new(0, 0))),
             Show(10, 6),
-            RepeatWhileCounting(P.WreckedShipActivatedLoop2),
             Cue(new ChozoStatueCue.Move(CarryRecord: 11)),
             Cue(new ChozoStatueCue.Footstep(Offset: new(-8, 0))),
             Show(11, 8),
@@ -153,26 +141,24 @@ internal static class ChozoStatueAnimations
             Cue(new ChozoStatueCue.Move(CarryRecord: 0)),
             Show(0, 32),
             Cue(new ChozoStatueCue.Command(K.ReleaseSamus)),
-            Hold,
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<ChozoStatueProgram, Animation<ChozoStatueProgram>> StartingAt { get; } = new Dictionary<ChozoStatueProgram, Animation<ChozoStatueProgram>>
+    {
+        [P.LowerNorfairInitial] = new([new(P.LowerNorfairInitial, 0, 2, 1)], AnimationEnd.Holds),
+        [P.LowerNorfairActivated] = new([new(P.LowerNorfairActivated, 0, 16, 1), new(P.LowerNorfairActivatedLoop, 0, 6, 5), new(P.LowerNorfairActivatedLoop, 6, 11, 1)], AnimationEnd.Holds),
+        [P.WreckedShipInitial] = new([new(P.WreckedShipInitial, 0, 2, 1)], AnimationEnd.Holds),
+        [P.WreckedShipActivated] = new([new(P.WreckedShipActivated, 0, 15, 1), new(P.WreckedShipActivatedLoop, 0, 6, 4), new(P.WreckedShipActivatedLoop, 6, 1, 1), new(P.WreckedShipActivatedLoop2, 0, 26, 16), new(P.WreckedShipActivatedLoop2, 26, 22, 1)], AnimationEnd.Holds),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<ChozoStatueProgram> StartingWith(ChozoStatueProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<ChozoStatueProgram, ChozoStatueFrame, ChozoStatueCue> Show(int pose, int duration) => AnimationProgramStep<ChozoStatueProgram, ChozoStatueFrame, ChozoStatueCue>.Show(new(pose), duration);
+    private static AnimationBeat<ChozoStatueFrame, ChozoStatueCue> Show(int pose, int duration) => new AnimationBeat<ChozoStatueFrame, ChozoStatueCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<ChozoStatueProgram, ChozoStatueFrame, ChozoStatueCue> Cue(ChozoStatueCue cue) => AnimationProgramStep<ChozoStatueProgram, ChozoStatueFrame, ChozoStatueCue>.Publish(cue);
-
-    /// <summary>Loads the loop counter with <paramref name="count"/>.</summary>
-    private static AnimationProgramStep<ChozoStatueProgram, ChozoStatueFrame, ChozoStatueCue> SetCounter(int count) => AnimationProgramStep<ChozoStatueProgram, ChozoStatueFrame, ChozoStatueCue>.SetCounter(count);
-
-    /// <summary>Repeats from <paramref name="program"/> while the loop counter counts down.</summary>
-    private static AnimationProgramStep<ChozoStatueProgram, ChozoStatueFrame, ChozoStatueCue> RepeatWhileCounting(ChozoStatueProgram program) => AnimationProgramStep<ChozoStatueProgram, ChozoStatueFrame, ChozoStatueCue>.RepeatWhileCounting(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<ChozoStatueProgram, ChozoStatueFrame, ChozoStatueCue> FallInto(ChozoStatueProgram program) => AnimationProgramStep<ChozoStatueProgram, ChozoStatueFrame, ChozoStatueCue>.FallInto(program);
-
-    /// <summary>Holds the last frame, as the sleep does.</summary>
-    private static AnimationProgramStep<ChozoStatueProgram, ChozoStatueFrame, ChozoStatueCue> Hold => AnimationProgramStep<ChozoStatueProgram, ChozoStatueFrame, ChozoStatueCue>.Hold;
-
+    private static AnimationBeat<ChozoStatueFrame, ChozoStatueCue> Cue(ChozoStatueCue cue) => new AnimationBeat<ChozoStatueFrame, ChozoStatueCue>.Event(cue);
 }

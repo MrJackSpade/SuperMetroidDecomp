@@ -214,11 +214,11 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(ZoaAnimations), "csharp/src/SuperMetroid.Core/Enemies/Zoa/ZoaAnimations.cs");
         RequireTypedFrames(NuclearWaffleAnimations.Programs, NuclearWaffleFrameToolingDefinitions.Spritemap, NuclearWaffleFrameToolingDefinitions.Bank,
             nameof(NuclearWaffleAnimations), "csharp/src/SuperMetroid.Core/Enemies/Nuclear/NuclearWaffleAnimations.cs");
-        RequireTypedFrames(FlyAnimations.Programs, FlyFrameToolingDefinitions.Spritemap, FlyFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(FlyAnimations.Segments, FlyFrameToolingDefinitions.Spritemap, FlyFrameToolingDefinitions.Bank,
             nameof(FlyAnimations), "csharp/src/SuperMetroid.Core/Enemies/Flies/FlyAnimations.cs");
-        RequireTypedFrames(KagoAnimations.Programs, KagoFrameToolingDefinitions.Spritemap, KagoFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(KagoAnimations.Segments, KagoFrameToolingDefinitions.Spritemap, KagoFrameToolingDefinitions.Bank,
             nameof(KagoAnimations), "csharp/src/SuperMetroid.Core/Enemies/Kago/KagoAnimations.cs");
-        RequireTypedFrames(KzanAnimations.Programs, KzanFrameToolingDefinitions.Spritemap, KzanFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(KzanAnimations.Segments, KzanFrameToolingDefinitions.Spritemap, KzanFrameToolingDefinitions.Bank,
             nameof(KzanAnimations), "csharp/src/SuperMetroid.Core/Enemies/Kzan/KzanAnimations.cs");
         RequireTypedFrames(PolypAnimations.Programs, PolypFrameToolingDefinitions.Spritemap, PolypFrameToolingDefinitions.Bank,
             nameof(PolypAnimations), "csharp/src/SuperMetroid.Core/Enemies/Polyp/PolypAnimations.cs");
@@ -226,31 +226,31 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(SbugAnimations), "csharp/src/SuperMetroid.Core/Enemies/Sbug/SbugAnimations.cs");
         RequireTypedFrames(WreckedShipGhostAnimations.Programs, WreckedShipGhostFrameToolingDefinitions.Spritemap, WreckedShipGhostFrameToolingDefinitions.Bank,
             nameof(WreckedShipGhostAnimations), "csharp/src/SuperMetroid.Core/Enemies/WreckedShip/WreckedShipGhostAnimations.cs");
-        RequireTypedFrames(FirefleaAnimations.Programs, FirefleaFrameToolingDefinitions.Spritemap, FirefleaFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(FirefleaAnimations.Segments, FirefleaFrameToolingDefinitions.Spritemap, FirefleaFrameToolingDefinitions.Bank,
             nameof(FirefleaAnimations), "csharp/src/SuperMetroid.Core/Enemies/Fireflea/FirefleaAnimations.cs");
-        RequireTypedFrames(AtomicAnimations.Programs, AtomicFrameToolingDefinitions.Spritemap, AtomicFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(AtomicAnimations.Segments, AtomicFrameToolingDefinitions.Spritemap, AtomicFrameToolingDefinitions.Bank,
             nameof(AtomicAnimations), "csharp/src/SuperMetroid.Core/Enemies/Atomic/AtomicAnimations.cs");
-        RequireTypedFrames(BullAnimations.Programs, BullFrameToolingDefinitions.Spritemap, BullFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(BullAnimations.Segments, BullFrameToolingDefinitions.Spritemap, BullFrameToolingDefinitions.Bank,
             nameof(BullAnimations), "csharp/src/SuperMetroid.Core/Enemies/Bull/BullAnimations.cs");
-        RequireTypedFrames(BoulderAnimations.Programs, BoulderFrameToolingDefinitions.Spritemap, BoulderFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(BoulderAnimations.Segments, BoulderFrameToolingDefinitions.Spritemap, BoulderFrameToolingDefinitions.Bank,
             nameof(BoulderAnimations), "csharp/src/SuperMetroid.Core/Enemies/Boulder/BoulderAnimations.cs");
-        RequireTypedFrames(ChootAnimations.Programs, ChootFrameToolingDefinitions.Spritemap, ChootFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(ChootAnimations.Segments, ChootFrameToolingDefinitions.Spritemap, ChootFrameToolingDefinitions.Bank,
             nameof(ChootAnimations), "csharp/src/SuperMetroid.Core/Enemies/Choot/ChootAnimations.cs");
         RequireTypedFrames(ShutterAnimations.Programs, ShutterFrameToolingDefinitions.Spritemap, ShutterFrameToolingDefinitions.Bank,
             nameof(ShutterAnimations), "csharp/src/SuperMetroid.Core/Enemies/Shutters/ShutterAnimations.cs");
-        RequireTypedFrames(ElevatorAnimations.Programs, ElevatorFrameToolingDefinitions.Spritemap, ElevatorFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(ElevatorAnimations.Segments, ElevatorFrameToolingDefinitions.Spritemap, ElevatorFrameToolingDefinitions.Bank,
             nameof(ElevatorAnimations), "csharp/src/SuperMetroid.Core/Enemies/Elevator/ElevatorAnimations.cs");
         RequireTypedFrames(WaverAnimations.Programs, WaverFrameToolingDefinitions.Spritemap, WaverFrameToolingDefinitions.Bank,
             nameof(WaverAnimations), "csharp/src/SuperMetroid.Core/Enemies/Waver/WaverAnimations.cs");
         RequireTypedFrames(NorfairLavaJumperAnimations.Programs, NorfairLavaJumperFrameToolingDefinitions.Spritemap, NorfairLavaJumperFrameToolingDefinitions.Bank,
             nameof(NorfairLavaJumperAnimations), "csharp/src/SuperMetroid.Core/Enemies/LavaJumpers/NorfairLavaJumperAnimations.cs");
-        RequireTypedFrames(DeadTourianAnimations.Programs, DeadTourianFrameToolingDefinitions.Spritemap, DeadTourianFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(DeadTourianAnimations.Segments, DeadTourianFrameToolingDefinitions.Spritemap, DeadTourianFrameToolingDefinitions.Bank,
             nameof(DeadTourianAnimations), "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadTourianAnimations.cs");
-        RequireTypedFrames(DeadTorizoAnimations.Programs, DeadTorizoFrameToolingDefinitions.Spritemap, DeadTorizoFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(DeadTorizoAnimations.Segments, DeadTorizoFrameToolingDefinitions.Spritemap, DeadTorizoFrameToolingDefinitions.Bank,
             nameof(DeadTorizoAnimations), "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadTorizoAnimations.cs");
-        RequireTypedFrames(HopperAnimations.Programs, HopperFrameToolingDefinitions.Spritemap, HopperFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(HopperAnimations.Segments, HopperFrameToolingDefinitions.Spritemap, HopperFrameToolingDefinitions.Bank,
             nameof(HopperAnimations), "csharp/src/SuperMetroid.Core/Enemies/Hoppers/HopperAnimations.cs");
-        RequireTypedFrames(MultiviolaAnimations.Programs, MultiviolaFrameToolingDefinitions.Spritemap, MultiviolaFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(MultiviolaAnimations.Segments, MultiviolaFrameToolingDefinitions.Spritemap, MultiviolaFrameToolingDefinitions.Bank,
             nameof(MultiviolaAnimations), "csharp/src/SuperMetroid.Core/Enemies/Crawlers/MultiviolaAnimations.cs");
         RequireTypedFrames(PipeBugAnimations.Programs, PipeBugFrameToolingDefinitions.Spritemap, PipeBugFrameToolingDefinitions.Bank,
             nameof(PipeBugAnimations), "csharp/src/SuperMetroid.Core/Enemies/PipeBugs/PipeBugAnimations.cs");
@@ -258,13 +258,13 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(OwtchAnimations), "csharp/src/SuperMetroid.Core/Enemies/Owtch/OwtchAnimations.cs");
         RequireTypedFrames(StokeAnimations.Programs, StokeFrameToolingDefinitions.Spritemap, StokeFrameToolingDefinitions.Bank,
             nameof(StokeAnimations), "csharp/src/SuperMetroid.Core/Enemies/Stoke/StokeAnimations.cs");
-        RequireTypedFrames(CacatacAnimations.Programs, CacatacFrameToolingDefinitions.Spritemap, CacatacFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(CacatacAnimations.Segments, CacatacFrameToolingDefinitions.Spritemap, CacatacFrameToolingDefinitions.Bank,
             nameof(CacatacAnimations), "csharp/src/SuperMetroid.Core/Enemies/Cacatac/CacatacAnimations.cs");
-        RequireTypedFrames(BlueBrinstarFaceBlockAnimations.Programs, BlueBrinstarFaceBlockFrameToolingDefinitions.Spritemap, BlueBrinstarFaceBlockFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(BlueBrinstarFaceBlockAnimations.Segments, BlueBrinstarFaceBlockFrameToolingDefinitions.Spritemap, BlueBrinstarFaceBlockFrameToolingDefinitions.Bank,
             nameof(BlueBrinstarFaceBlockAnimations), "csharp/src/SuperMetroid.Core/Enemies/FaceBlocks/BlueBrinstarFaceBlockAnimations.cs");
-        RequireTypedFrames(DragonAnimations.Programs, DragonFrameToolingDefinitions.Spritemap, DragonFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(DragonAnimations.Segments, DragonFrameToolingDefinitions.Spritemap, DragonFrameToolingDefinitions.Bank,
             nameof(DragonAnimations), "csharp/src/SuperMetroid.Core/Enemies/Dragon/DragonAnimations.cs");
-        RequireTypedFrames(CrawlerAnimations.Programs, CrawlerFrameToolingDefinitions.Spritemap, CrawlerFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(CrawlerAnimations.Segments, CrawlerFrameToolingDefinitions.Spritemap, CrawlerFrameToolingDefinitions.Bank,
             nameof(CrawlerAnimations), "csharp/src/SuperMetroid.Core/Enemies/Crawlers/CrawlerAnimations.cs");
         RequireTypedFrames(MorphBallEyeAnimations.Programs, MorphBallEyeFrameToolingDefinitions.Spritemap, MorphBallEyeFrameToolingDefinitions.Bank,
             nameof(MorphBallEyeAnimations), "csharp/src/SuperMetroid.Core/Enemies/MorphBallEye/MorphBallEyeAnimations.cs");
@@ -274,7 +274,7 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(MochtroidAnimations), "csharp/src/SuperMetroid.Core/Enemies/Metroids/MochtroidAnimations.cs");
         RequireTypedFrames(SkulteraAnimations.Programs, SkulteraFrameToolingDefinitions.Spritemap, SkulteraFrameToolingDefinitions.Bank,
             nameof(SkulteraAnimations), "csharp/src/SuperMetroid.Core/Enemies/Skultera/SkulteraAnimations.cs");
-        RequireTypedFrames(BoyonAnimations.Programs, BoyonFrameToolingDefinitions.Spritemap, BoyonFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(BoyonAnimations.Segments, BoyonFrameToolingDefinitions.Spritemap, BoyonFrameToolingDefinitions.Bank,
             nameof(BoyonAnimations), "csharp/src/SuperMetroid.Core/Enemies/Boyon/BoyonAnimations.cs");
         RequireTypedFrames(PowampAnimations.Programs, PowampFrameToolingDefinitions.Spritemap, PowampFrameToolingDefinitions.Bank,
             nameof(PowampAnimations), "csharp/src/SuperMetroid.Core/Enemies/Powamp/PowampAnimations.cs");
@@ -290,7 +290,7 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(RinkaAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/RinkaAnimations.cs");
         RequireTypedFrames(PlatformAnimations.Programs, PlatformFrameToolingDefinitions.Spritemap, PlatformFrameToolingDefinitions.Bank,
             nameof(PlatformAnimations), "csharp/src/SuperMetroid.Core/Enemies/Platforms/PlatformAnimations.cs");
-        RequireTypedFrames(EvirAnimations.Programs, EvirFrameToolingDefinitions.Spritemap, EvirFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(EvirAnimations.Segments, EvirFrameToolingDefinitions.Spritemap, EvirFrameToolingDefinitions.Bank,
             nameof(EvirAnimations), "csharp/src/SuperMetroid.Core/Enemies/Evir/EvirAnimations.cs");
         RequireTypedFrames(YappingMawAnimations.Programs, YappingMawFrameToolingDefinitions.Spritemap, YappingMawFrameToolingDefinitions.Bank,
             nameof(YappingMawAnimations), "csharp/src/SuperMetroid.Core/Enemies/YappingMaws/YappingMawAnimations.cs");
@@ -300,17 +300,17 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(NorfairRioAnimations), "csharp/src/SuperMetroid.Core/Enemies/Rios/NorfairRioAnimations.cs");
         RequireTypedFrames(LowerNorfairRioAnimations.Programs, LowerNorfairRioFrameToolingDefinitions.Spritemap, LowerNorfairRioFrameToolingDefinitions.Bank,
             nameof(LowerNorfairRioAnimations), "csharp/src/SuperMetroid.Core/Enemies/Rios/LowerNorfairRioAnimations.cs");
-        RequireTypedFrames(BeetomAnimations.Programs, BeetomFrameToolingDefinitions.Spritemap, BeetomFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(BeetomAnimations.Segments, BeetomFrameToolingDefinitions.Spritemap, BeetomFrameToolingDefinitions.Bank,
             nameof(BeetomAnimations), "csharp/src/SuperMetroid.Core/Enemies/Beetom/BeetomAnimations.cs");
-        RequireTypedFrames(AlcoonAnimations.Programs, AlcoonFrameToolingDefinitions.Spritemap, AlcoonFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(AlcoonAnimations.Segments, AlcoonFrameToolingDefinitions.Spritemap, AlcoonFrameToolingDefinitions.Bank,
             nameof(AlcoonAnimations), "csharp/src/SuperMetroid.Core/Enemies/Alcoon/AlcoonAnimations.cs");
-        RequireTypedFrames(FuneNamiheAnimations.Programs, FuneNamiheFrameToolingDefinitions.Spritemap, FuneNamiheFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(FuneNamiheAnimations.Segments, FuneNamiheFrameToolingDefinitions.Spritemap, FuneNamiheFrameToolingDefinitions.Bank,
             nameof(FuneNamiheAnimations), "csharp/src/SuperMetroid.Core/Enemies/FuneNamihe/FuneNamiheAnimations.cs");
-        RequireTypedFrames(DachoraAnimations.Programs, DachoraFrameToolingDefinitions.Spritemap, DachoraFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(DachoraAnimations.Segments, DachoraFrameToolingDefinitions.Spritemap, DachoraFrameToolingDefinitions.Bank,
             nameof(DachoraAnimations), "csharp/src/SuperMetroid.Core/Enemies/Animals/DachoraAnimations.cs");
-        RequireTypedFrames(EtecoonAnimations.Programs, EtecoonFrameToolingDefinitions.Spritemap, EtecoonFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(EtecoonAnimations.Segments, EtecoonFrameToolingDefinitions.Spritemap, EtecoonFrameToolingDefinitions.Bank,
             nameof(EtecoonAnimations), "csharp/src/SuperMetroid.Core/Enemies/Animals/EtecoonAnimations.cs");
-        RequireTypedFrames(HibashiAnimations.Programs, HibashiFrameToolingDefinitions.Spritemap, HibashiFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(HibashiAnimations.Segments, HibashiFrameToolingDefinitions.Spritemap, HibashiFrameToolingDefinitions.Bank,
             nameof(HibashiAnimations), "csharp/src/SuperMetroid.Core/Enemies/Hibashi/HibashiAnimations.cs");
         RequireTypedFrames(TourianEntranceStatueAnimations.Programs, frame => EnemyFrameCartridgeLookupTooling.Word(TourianEntranceStatueFrameDefinitions.ShownFrames.Of(frame)), TourianEntranceStatueFrameToolingDefinitions.Bank,
             nameof(TourianEntranceStatueAnimations), "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianEntranceStatueAnimations.cs");
@@ -320,13 +320,13 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(ShaktoolAnimations), "csharp/src/SuperMetroid.Core/Enemies/Shaktool/ShaktoolAnimations.cs");
         RequireTypedFrames(YardAnimations.Programs, YardFrameToolingDefinitions.Spritemap, YardFrameToolingDefinitions.Bank,
             nameof(YardAnimations), "csharp/src/SuperMetroid.Core/Enemies/Yard/YardAnimations.cs");
-        RequireTypedFrames(KiHunterAnimations.Programs, KiHunterFrameToolingDefinitions.Spritemap, KiHunterFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(KiHunterAnimations.Segments, KiHunterFrameToolingDefinitions.Spritemap, KiHunterFrameToolingDefinitions.Bank,
             nameof(KiHunterAnimations), "csharp/src/SuperMetroid.Core/Enemies/KiHunters/KiHunterAnimations.cs");
-        RequireTypedFrames(MagdolliteAnimations.Programs, MagdolliteFrameToolingDefinitions.Spritemap, MagdolliteFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(MagdolliteAnimations.Segments, MagdolliteFrameToolingDefinitions.Spritemap, MagdolliteFrameToolingDefinitions.Bank,
             nameof(MagdolliteAnimations), "csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdolliteAnimations.cs");
-        RequireTypedFrames(MamaTurtleAnimations.Programs, MamaTurtleFrameToolingDefinitions.Spritemap, MamaTurtleFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(MamaTurtleAnimations.Segments, MamaTurtleFrameToolingDefinitions.Spritemap, MamaTurtleFrameToolingDefinitions.Bank,
             nameof(MamaTurtleAnimations), "csharp/src/SuperMetroid.Core/Enemies/MamaTurtles/MamaTurtleAnimations.cs");
-        RequireTypedFrames(ChozoStatueAnimations.Programs, ChozoStatueFrameToolingDefinitions.Spritemap, ChozoStatueFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(ChozoStatueAnimations.Segments, ChozoStatueFrameToolingDefinitions.Spritemap, ChozoStatueFrameToolingDefinitions.Bank,
             nameof(ChozoStatueAnimations), "csharp/src/SuperMetroid.Core/Enemies/Chozo/ChozoStatueAnimations.cs");
         RequireTypedFrames(FakeKraidAnimations.Programs, FakeKraidFrameToolingDefinitions.Spritemap, FakeKraidFrameToolingDefinitions.Bank,
             nameof(FakeKraidAnimations), "csharp/src/SuperMetroid.Core/Bosses/Kraid/FakeKraidAnimations.cs");

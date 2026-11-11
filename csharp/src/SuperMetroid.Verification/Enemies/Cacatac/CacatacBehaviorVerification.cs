@@ -26,17 +26,17 @@ internal static class CacatacBehaviorVerification
             CacatacProgram idle = upsideUp ? CacatacProgram.UpsideUpIdle : CacatacProgram.UpsideDownIdle;
             CacatacProgram loop = upsideUp ? CacatacProgram.UpsideUpIdle : CacatacProgram.UpsideDownIdleLoop;
             (RoomEnemySystem enemies, RoomEnemySlot slot, CacatacEnemyState state) = Create(upsideUp);
-            AssertEqual(AnimationProgramCursor<CacatacProgram>.Start(idle), state.Program, $"Cacatac {orientation} starts idling");
+            AssertEqual(new AnimationPlayback<CacatacProgram>(CacatacAnimations.StartingWith(idle), AnimationPlace.StartOfAnimation), state.Playback, $"Cacatac {orientation} starts idling");
             state.Function = CacatacEnemyFunction.Stopped;
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(CacatacAnimations.Programs, loop, CacatacFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(CacatacAnimations.Programs, loop)), $"Cacatac {orientation} idle loop");
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(CacatacAnimations.Segments, loop, CacatacFrameToolingDefinitions.Spritemap),
+                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(CacatacAnimations.Segments, loop)), $"Cacatac {orientation} idle loop");
             AssertEqual(CacatacEnemyFunction.MovingLeft, state.Function, $"Cacatac {orientation} idle restores patrol");
 
             (enemies, slot, state) = Create(upsideUp);
             state.Function = CacatacEnemyFunction.Stopped;
             CacatacBehavior.SetCacatacProgram(slot, state, upsideUp ? CacatacProgram.UpsideUpAttack : CacatacProgram.UpsideDownAttack);
             EnemyInstructionRunner.ShownFrames(slot, 53);
-            AssertEqual(loop, state.Program.Program, $"Cacatac {orientation} attack returns to idle");
+            AssertEqual(loop, state.Playback.Animation.Phases[state.Playback.Place.Phase].Segment, $"Cacatac {orientation} attack returns to idle");
             AssertEqual(CacatacEnemyFunction.MovingLeft, state.Function, $"Cacatac {orientation} attack resumes patrol");
             AssertEqual<SoundEffectId?>(CacatacNativeValues.SpikeSound, enemies.Audio.PublishedSoundFrom(EnemySoundSource.Cacatac), $"Cacatac {orientation} attack plays the spike sound");
             CacatacSpikeDirection[] directions = upsideUp

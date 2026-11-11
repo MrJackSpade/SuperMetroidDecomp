@@ -71,8 +71,8 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             // Its intangibility property keeps the cosmetic record out of touch/shot collision passes.
             state.RequestedAnimation = DragonAnimationSelector.WingsFacingLeft;
             state.InstalledAnimation = DragonAnimationSelector.WingsFacingLeft;
-            state.Program = AnimationProgramCursor<DragonProgram>.Start(DragonPhases.Program(
-                DragonAnimationSelector.WingsFacingLeft));
+            state.Playback = new(DragonAnimations.StartingWith(DragonPhases.Program(
+                DragonAnimationSelector.WingsFacingLeft)), AnimationPlace.StartOfAnimation);
             slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
             state.Function = DragonEnemyFunction.WingNoOp;
             return;
@@ -80,8 +80,8 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.RequestedAnimation = DragonAnimationSelector.IdleFacingLeft;
         state.InstalledAnimation = DragonAnimationSelector.IdleFacingLeft;
-        state.Program = AnimationProgramCursor<DragonProgram>.Start(DragonPhases.Program(
-            DragonAnimationSelector.IdleFacingLeft));
+        state.Playback = new(DragonAnimations.StartingWith(DragonPhases.Program(
+            DragonAnimationSelector.IdleFacingLeft)), AnimationPlace.StartOfAnimation);
         state.Function = DragonEnemyFunction.WaitToRise;
     }
 
@@ -265,8 +265,8 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         state.InstalledAnimation = state.RequestedAnimation;
         state.ReinstallRequested = false;
-        state.Program = AnimationProgramCursor<DragonProgram>.Start(DragonPhases.Program(
-            state.RequestedAnimation));
+        state.Playback = new(DragonAnimations.StartingWith(DragonPhases.Program(
+            state.RequestedAnimation)), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
@@ -327,9 +327,11 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Dragon's typed animation.</summary>
     internal static void AdvanceDragonTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, DragonAnimations.Programs, DragonFrameDefinitions.ShownFrames.Of,
-            static (DragonEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
-            (state, cue, _) => ApplyDragonCue(slot, cue));
+        EnemyProgramAnimation.Advance(slot, DragonAnimations.Segments, DragonFrameDefinitions.ShownFrames.Of,
+            static (DragonEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            (state, cue) => ApplyDragonCue(slot, cue) is { } target
+                ? new AnimationContinuation<DragonProgram>(DragonAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                : null);
 
     /// <summary>Synchronizes wing and body state after a Dragon power-bomb reaction.</summary>
     internal void AddDragonPowerBombReactions(EnemySharedReactions table)

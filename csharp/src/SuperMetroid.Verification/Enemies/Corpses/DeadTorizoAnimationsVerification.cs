@@ -6,16 +6,17 @@ using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Enemies.Corpses;
 
-/// <summary>#641: Dead Torizo's typed programs, each matched step by step to its native bank-$A9 list.</summary>
+/// <summary>#641, #1600: Dead Torizo's typed animations, each segment matched to its native bank-$A9 list and each animation to the lists' control flow.</summary>
 internal static class DeadTorizoAnimationsVerification
 {
-    /// <summary>Every program matches its native list.</summary>
+    /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifyDeadTorizoAnimations(SuperMetroidAddressSpace rom)
     {
-        int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, DeadTorizoAnimations.Programs,
-            DeadTorizoFrameToolingDefinitions.Spritemap,
-            word => null,
-            (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions."));
-        Console.WriteLine($"  Dead Torizo programs: {Entries.Length} programs ({steps} steps) match bank $A9.");
+        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
+            DeadTorizoAnimations.Segments, DeadTorizoAnimations.StartingAt, DeadTorizoFrameToolingDefinitions.Spritemap,
+            new NativeEnemyCueRules<NoAnimationCue>(
+                word => null,
+                (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions.")));
+        Console.WriteLine($"  Dead Torizo animations: {Entries.Length} segments ({beats} beats) and {DeadTorizoAnimations.StartingAt.Count} animations match bank $A9.");
     }
 }

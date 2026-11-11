@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 /// <summary>The state of one Fune or Namihe, the two species that share this actor.</summary>
 public sealed class FuneNamiheEnemyState
 {
-    /// <summary>Where the typed animation (#641) resumes.</summary>
-    internal AnimationProgramCursor<FuneNamiheProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<FuneNamiheProgram> Playback { get; set; }
 
     /// <summary>Whether the spitting animation is selected rather than the idle one; waking selects it and the spit's finishing cue deselects it.</summary>
     public bool ShowsActiveAnimation { get; internal set; }

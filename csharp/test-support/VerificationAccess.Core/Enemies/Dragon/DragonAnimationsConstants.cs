@@ -8,7 +8,7 @@ internal static class DragonAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params DragonProgram[] programs) =>
-        programs.SelectMany(program => DragonAnimations.Programs.Steps(program))
-            .OfType<AnimationProgramStep<DragonProgram, DragonFrame, DragonCue>.ShowStep>()
-            .Select(step => DragonFrameToolingDefinitions.Spritemap(step.Frame));
+        programs.SelectMany(program => DragonAnimations.Segments.Beats(program))
+            .OfType<AnimationBeat<DragonFrame, DragonCue>.Frame>()
+            .Select(frame => DragonFrameToolingDefinitions.Spritemap(frame.Shown));
 }

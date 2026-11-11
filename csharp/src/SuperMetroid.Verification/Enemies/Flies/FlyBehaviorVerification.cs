@@ -26,8 +26,8 @@ internal static class FlyBehaviorVerification
             slot.Bind(definition, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
             FliesBehavior.InitializeFly(slot);
-            AssertEqual(AnimationProgramCursor<FlyProgram>.Start(FlyProgram.Flight),
-                (enemies.SlotTable.Slots[0].EntityState<FliesEntity, FlyEnemyState>() ?? throw new InvalidOperationException("The fly has no state.")).Program,
+            AssertEqual(new AnimationPlayback<FlyProgram>(FlyAnimations.StartingWith(FlyProgram.Flight), AnimationPlace.StartOfAnimation),
+                (enemies.SlotTable.Slots[0].EntityState<FliesEntity, FlyEnemyState>() ?? throw new InvalidOperationException("The fly has no state.")).Playback,
                 $"fly {definition} initializer animation");
             AssertEqual(expected, EnemyInstructionRunner.ShownFrames(slot, 9),
                 $"fly {definition} runs the flight loop");

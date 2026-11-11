@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// <summary>The state of an Etecoon.</summary>
 public sealed class EtecoonEnemyState
 {
-    /// <summary>Where the animation resumes.</summary>
-    internal AnimationProgramCursor<EtecoonProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<EtecoonProgram> Playback { get; set; }
 
     /// <summary>
     /// Signed 16.16 velocity in room pixels per update.

@@ -10,14 +10,13 @@ namespace SuperMetroid.Core.Enemies.Alcoon;
 /// </summary>
 internal static class AlcoonAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<AlcoonProgram, AlcoonFrame, AlcoonCue> Programs { get; } = new(
-        new Dictionary<AlcoonProgram, AnimationProgramStep<AlcoonProgram, AlcoonFrame, AlcoonCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<AlcoonProgram, AlcoonFrame, AlcoonCue> Segments { get; } = new(
+        new Dictionary<AlcoonProgram, AnimationBeat<AlcoonFrame, AlcoonCue>[]>
     {
         [P.WalkingLeft] =
         [
             Cue(new(K.Move)),
-            FallInto(P.WalkingLeftLoop),
         ],
         [P.WalkingLeftLoop] =
         [
@@ -28,7 +27,6 @@ internal static class AlcoonAnimations
             Show(2, 10),
             Cue(new(K.Step)),
             Show(3, 10),
-            GoTo(P.WalkingLeft),
         ],
         [P.FireLeft] =
         [
@@ -52,22 +50,18 @@ internal static class AlcoonAnimations
             Show(7, 40),
             Cue(new(K.StartWalking)),
             Show(7, 1),
-            FallInto(P.AirborneLeftLookingUp),
         ],
         [P.AirborneLeftLookingUp] =
         [
             Show(8, 32767),
-            Hold,
         ],
         [P.AirborneLeftLookingForward] =
         [
             Show(3, 32767),
-            Hold,
         ],
         [P.WalkingRight] =
         [
             Cue(new(K.Move)),
-            FallInto(P.WalkingRightLoop),
         ],
         [P.WalkingRightLoop] =
         [
@@ -78,7 +72,6 @@ internal static class AlcoonAnimations
             Show(11, 10),
             Cue(new(K.Step)),
             Show(12, 10),
-            GoTo(P.WalkingRight),
         ],
         [P.FireRight] =
         [
@@ -102,33 +95,38 @@ internal static class AlcoonAnimations
             Show(16, 40),
             Cue(new(K.StartWalking)),
             Show(16, 1),
-            FallInto(P.AirborneRightLookingUp),
         ],
         [P.AirborneRightLookingUp] =
         [
             Show(17, 32767),
-            Hold,
         ],
         [P.AirborneRightLookingForward] =
         [
             Show(12, 32767),
-            Hold,
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<AlcoonProgram, Animation<AlcoonProgram>> StartingAt { get; } = new Dictionary<AlcoonProgram, Animation<AlcoonProgram>>
+    {
+        [P.WalkingLeft] = new([new(P.WalkingLeft, 0, 1, 1), new(P.WalkingLeftLoop, 0, 7, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.WalkingLeftLoop] = new([new(P.WalkingLeftLoop, 0, 7, 1), new(P.WalkingLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.FireLeft] = new([new(P.FireLeft, 0, 20, 1), new(P.AirborneLeftLookingUp, 0, 1, 1)], AnimationEnd.Holds),
+        [P.AirborneLeftLookingUp] = new([new(P.AirborneLeftLookingUp, 0, 1, 1)], AnimationEnd.Holds),
+        [P.AirborneLeftLookingForward] = new([new(P.AirborneLeftLookingForward, 0, 1, 1)], AnimationEnd.Holds),
+        [P.WalkingRight] = new([new(P.WalkingRight, 0, 1, 1), new(P.WalkingRightLoop, 0, 7, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.WalkingRightLoop] = new([new(P.WalkingRightLoop, 0, 7, 1), new(P.WalkingRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.FireRight] = new([new(P.FireRight, 0, 20, 1), new(P.AirborneRightLookingUp, 0, 1, 1)], AnimationEnd.Holds),
+        [P.AirborneRightLookingUp] = new([new(P.AirborneRightLookingUp, 0, 1, 1)], AnimationEnd.Holds),
+        [P.AirborneRightLookingForward] = new([new(P.AirborneRightLookingForward, 0, 1, 1)], AnimationEnd.Holds),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<AlcoonProgram> StartingWith(AlcoonProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<AlcoonProgram, AlcoonFrame, AlcoonCue> Show(int pose, int duration) => AnimationProgramStep<AlcoonProgram, AlcoonFrame, AlcoonCue>.Show(new(pose), duration);
+    private static AnimationBeat<AlcoonFrame, AlcoonCue> Show(int pose, int duration) => new AnimationBeat<AlcoonFrame, AlcoonCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<AlcoonProgram, AlcoonFrame, AlcoonCue> Cue(AlcoonCue cue) => AnimationProgramStep<AlcoonProgram, AlcoonFrame, AlcoonCue>.Publish(cue);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<AlcoonProgram, AlcoonFrame, AlcoonCue> GoTo(AlcoonProgram program) => AnimationProgramStep<AlcoonProgram, AlcoonFrame, AlcoonCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<AlcoonProgram, AlcoonFrame, AlcoonCue> FallInto(AlcoonProgram program) => AnimationProgramStep<AlcoonProgram, AlcoonFrame, AlcoonCue>.FallInto(program);
-
-    /// <summary>Holds the last frame, as the sleep does.</summary>
-    private static AnimationProgramStep<AlcoonProgram, AlcoonFrame, AlcoonCue> Hold => AnimationProgramStep<AlcoonProgram, AlcoonFrame, AlcoonCue>.Hold;
-
+    private static AnimationBeat<AlcoonFrame, AlcoonCue> Cue(AlcoonCue cue) => new AnimationBeat<AlcoonFrame, AlcoonCue>.Event(cue);
 }

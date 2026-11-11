@@ -116,13 +116,13 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (state.IsWreckedShip)
         {
-            state.Program = AnimationProgramCursor<ChozoStatueProgram>.Start(ChozoStatueProgram.WreckedShipInitial);
+            state.Playback = new(ChozoStatueAnimations.StartingWith(ChozoStatueProgram.WreckedShipInitial), AnimationPlace.StartOfAnimation);
             PublishHardcodedChozoObject(RoomObjectHeaderId.WreckedShipChozoHand, ChozoStatueRoomDefinitions.WreckedShipHandBlock);
             PublishHardcodedChozoObject(RoomObjectHeaderId.BlockSlopeAccessForWreckedShipChozo, ChozoStatueRoomDefinitions.WreckedShipSlopeAccessBlock);
         }
         else
         {
-            state.Program = AnimationProgramCursor<ChozoStatueProgram>.Start(ChozoStatueProgram.LowerNorfairInitial);
+            state.Playback = new(ChozoStatueAnimations.StartingWith(ChozoStatueProgram.LowerNorfairInitial), AnimationPlace.StartOfAnimation);
             PublishHardcodedChozoObject(RoomObjectHeaderId.LowerNorfairChozoHand, ChozoStatueRoomDefinitions.LowerNorfairHandBlock);
         }
     }
@@ -189,7 +189,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             case ChozoStatueFrameBehavior.WaitForLowerNorfairHandTrigger:
                 if (state.HandTriggered)
                 {
-                    state.Program = AnimationProgramCursor<ChozoStatueProgram>.Start(ChozoStatueProgram.LowerNorfairActivated);
+                    state.Playback = new(ChozoStatueAnimations.StartingWith(ChozoStatueProgram.LowerNorfairActivated), AnimationPlace.StartOfAnimation);
                     statue.FrameHold = WrappingCountdown.Start(1);
                 }
                 return;
@@ -197,7 +197,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             case ChozoStatueFrameBehavior.WaitForWreckedShipHandTrigger:
                 if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss) && state.HandTriggered)
                 {
-                    state.Program = AnimationProgramCursor<ChozoStatueProgram>.Start(ChozoStatueProgram.WreckedShipActivated);
+                    state.Playback = new(ChozoStatueAnimations.StartingWith(ChozoStatueProgram.WreckedShipActivated), AnimationPlace.StartOfAnimation);
                     statue.FrameHold = WrappingCountdown.Start(1);
                 }
                 return;
@@ -400,7 +400,9 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances ChozoStatue's typed animation.</summary>
     internal void AdvanceChozoStatueTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>
-        EnemyProgramAnimation.Advance(slot, ChozoStatueAnimations.Programs, ChozoStatueFrameDefinitions.ShownFrames.Of,
-            static (ChozoStatueState state) => state.Program, static (state, cursor) => state.Program = cursor,
-            (state, cue, _) => ApplyChozoStatueCue(slot, cue, context.Samus, context.Level));
+        EnemyProgramAnimation.Advance(slot, ChozoStatueAnimations.Segments, ChozoStatueFrameDefinitions.ShownFrames.Of,
+            static (ChozoStatueState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            (state, cue) => ApplyChozoStatueCue(slot, cue, context.Samus, context.Level) is { } target
+                ? new AnimationContinuation<ChozoStatueProgram>(ChozoStatueAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                : null);
 }

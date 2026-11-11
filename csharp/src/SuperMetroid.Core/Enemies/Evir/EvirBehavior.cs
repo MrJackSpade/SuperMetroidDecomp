@@ -475,7 +475,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (state.RequestedProgram == state.InstalledProgram)
             return;
-        state.Program = AnimationProgramCursor<EvirProgram>.Start(state.RequestedProgram);
+        state.Playback = new(EvirAnimations.StartingWith(state.RequestedProgram), AnimationPlace.StartOfAnimation);
         state.InstalledProgram = state.RequestedProgram;
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
@@ -575,11 +575,13 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EnemyProgramAnimation.Expire(slot))
             return;
         var state = slot.RequireSpeciesState<EvirEnemyState>();
-        AnimationProgramCursor<EvirProgram> cursor = state.Program ??
+        AnimationPlayback<EvirProgram> playback = state.Playback ??
             throw new InvalidOperationException($"Evir slot {slot.SlotIndex} has no installed animation.");
-        EnemyProgramAnimation.Run(slot, EvirAnimations.Programs, ref cursor, EvirFrameDefinitions.ShownFrames.Of,
-                (cue, _) => ApplyEvirCue(slot, state, cue));
-        state.Program = cursor;
+        EnemyProgramAnimation.Play(slot, EvirAnimations.Segments, ref playback, EvirFrameDefinitions.ShownFrames.Of,
+            cue => ApplyEvirCue(slot, state, cue) is { } target
+                ? new AnimationContinuation<EvirProgram>(EvirAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                : null);
+        state.Playback = playback;
     }
 
     /// <summary>Preserves power-bomb callbacks on both body and arms, including relative aliases.</summary>

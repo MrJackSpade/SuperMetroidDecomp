@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Enemies.Kago;
 /// <summary>The state of the Kago.</summary>
 public sealed class KagoEnemyState
 {
-    /// <summary>Where the animation resumes.</summary>
-    internal AnimationProgramCursor<KagoProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<KagoProgram> Playback { get; set; }
 
     /// <summary>The current behaviour, installed at initialization and replaced on the first AI update.</summary>
     public KagoEnemyFunction? Function { get; internal set; }

@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// <summary>The state of the escape Etecoon.</summary>
 public sealed class EscapeEtecoonEnemyState
 {
-    /// <summary>The actor's typed program cursor.</summary>
-    internal AnimationProgramCursor<EscapeEtecoonProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<EscapeEtecoonProgram> Playback { get; set; }
 
 
     /// <summary>

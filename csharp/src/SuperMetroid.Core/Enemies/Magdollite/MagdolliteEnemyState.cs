@@ -13,8 +13,8 @@ public sealed class MagdolliteEnemyState
         Part = part;
     }
 
-    /// <summary>Where the animation resumes.</summary>
-    internal AnimationProgramCursor<MagdolliteProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<MagdolliteProgram> Playback { get; set; }
 
     /// <summary>The immutable head, arm, or hand role decoded from this physical enemy slot's population parameter one.</summary>
     public MagdollitePart Part { get; }

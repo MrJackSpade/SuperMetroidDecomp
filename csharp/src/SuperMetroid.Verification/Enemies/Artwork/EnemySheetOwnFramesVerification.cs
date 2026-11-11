@@ -112,7 +112,7 @@ internal static class EnemySheetOwnFramesVerification
             EnemyDefinitionId.Dessgeega, EnemyDefinitionId.DessgeegaLarge,
         ];
         return new("Sidehopper and Dessgeega", TableFrames(HopperFrameDefinitions.ShownFrames),
-            hoppers.ToDictionary<EnemyDefinitionId, EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>(definition => definition, definition => Reach(HopperAnimations.Programs, HopperFrameDefinitions.ShownFrames,
+            hoppers.ToDictionary<EnemyDefinitionId, EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>(definition => definition, definition => Reach(HopperAnimations.Segments, HopperAnimations.StartingAt, HopperFrameDefinitions.ShownFrames,
                 HopperAnimationDefinitions.Programs
                     .Where(entry => entry.Key.Variant == CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(definition).VariantIndex)
                     .Select(entry => entry.Value))));
@@ -123,8 +123,8 @@ internal static class EnemySheetOwnFramesVerification
         TableFrames(EscapeEtecoonFrameDefinitions.ShownFrames).Union(TableFrames(EscapeDachoraFrameDefinitions.ShownFrames)).ToHashSet(),
         new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
         {
-            [EnemyDefinitionId.EtecoonEscape] = Reach(EscapeEtecoonAnimations.Programs, EscapeEtecoonFrameDefinitions.ShownFrames,
-                Enum.GetValues<EscapeEtecoonProgram>()),
+            [EnemyDefinitionId.EtecoonEscape] = Reach(EscapeEtecoonAnimations.Segments, EscapeEtecoonAnimations.StartingAt, EscapeEtecoonFrameDefinitions.ShownFrames,
+                EscapeEtecoonAnimations.StartingAt.Keys),
             [EnemyDefinitionId.DachoraEscape] = Reach(EscapeDachoraAnimations.Programs, EscapeDachoraFrameDefinitions.ShownFrames,
                 Enum.GetValues<EscapeDachoraProgram>()),
         });
@@ -133,8 +133,8 @@ internal static class EnemySheetOwnFramesVerification
     private static EnemySheetOwnFrameFamily FuneAndNamihe() => new("Fune and Namihe", TableFrames(FuneNamiheFrameDefinitions.ShownFrames),
         new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
         {
-            [EnemyDefinitionId.Fune] = Reach(FuneNamiheAnimations.Programs, FuneNamiheFrameDefinitions.ShownFrames, PlacedFuneNamihePrograms(EnemyDefinitionId.Fune)),
-            [EnemyDefinitionId.Namihe] = Reach(FuneNamiheAnimations.Programs, FuneNamiheFrameDefinitions.ShownFrames, PlacedFuneNamihePrograms(EnemyDefinitionId.Namihe)),
+            [EnemyDefinitionId.Fune] = Reach(FuneNamiheAnimations.Segments, FuneNamiheAnimations.StartingAt, FuneNamiheFrameDefinitions.ShownFrames, PlacedFuneNamihePrograms(EnemyDefinitionId.Fune)),
+            [EnemyDefinitionId.Namihe] = Reach(FuneNamiheAnimations.Segments, FuneNamiheAnimations.StartingAt, FuneNamiheFrameDefinitions.ShownFrames, PlacedFuneNamihePrograms(EnemyDefinitionId.Namihe)),
         });
 
     /// <summary>The programs every room placement of <paramref name="definition"/> can select.</summary>
@@ -168,9 +168,9 @@ internal static class EnemySheetOwnFramesVerification
     private static EnemySheetOwnFrameFamily EvirFamily() => new("Evir", TableFrames(EvirFrameDefinitions.ShownFrames),
         new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
         {
-            [EnemyDefinitionId.Evir] = Reach(EvirAnimations.Programs, EvirFrameDefinitions.ShownFrames,
+            [EnemyDefinitionId.Evir] = Reach(EvirAnimations.Segments, EvirAnimations.StartingAt, EvirFrameDefinitions.ShownFrames,
                 [EvirProgram.BodyFacingLeft, EvirProgram.BodyFacingRight, EvirProgram.ArmsFacingLeft, EvirProgram.ArmsFacingRight]),
-            [EnemyDefinitionId.EvirProjectile] = Reach(EvirAnimations.Programs, EvirFrameDefinitions.ShownFrames,
+            [EnemyDefinitionId.EvirProjectile] = Reach(EvirAnimations.Segments, EvirAnimations.StartingAt, EvirFrameDefinitions.ShownFrames,
                 [EvirProgram.ProjectileNormal, EvirProgram.ProjectileRegenerating]),
         });
 
@@ -178,8 +178,8 @@ internal static class EnemySheetOwnFramesVerification
     private static EnemySheetOwnFrameFamily GunshipFamily() => new("gunship", TableFrames(GunshipFrameDefinitions.ShownFrames),
         new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
         {
-            [EnemyDefinitionId.ShipTop] = Reach(GunshipAnimations.Programs, GunshipFrameDefinitions.ShownFrames, [GunshipProgram.TopHull]),
-            [EnemyDefinitionId.ShipBottomEntrance] = Reach(GunshipAnimations.Programs, GunshipFrameDefinitions.ShownFrames,
+            [EnemyDefinitionId.ShipTop] = Reach(GunshipAnimations.Segments, GunshipAnimations.StartingAt, GunshipFrameDefinitions.ShownFrames, [GunshipProgram.TopHull]),
+            [EnemyDefinitionId.ShipBottomEntrance] = Reach(GunshipAnimations.Segments, GunshipAnimations.StartingAt, GunshipFrameDefinitions.ShownFrames,
                 [GunshipProgram.BottomHull, GunshipProgram.BottomEntrancePad, GunshipProgram.EntrancePadOpening, GunshipProgram.EntrancePadClosing]),
         });
 
@@ -187,12 +187,12 @@ internal static class EnemySheetOwnFramesVerification
     private static EnemySheetOwnFrameFamily TurtlesFamily() => new("turtles", TableFrames(MamaTurtleFrameDefinitions.ShownFrames),
         new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
         {
-            [EnemyDefinitionId.MamaTurtle] = Reach(MamaTurtleAnimations.Programs, MamaTurtleFrameDefinitions.ShownFrames,
+            [EnemyDefinitionId.MamaTurtle] = Reach(MamaTurtleAnimations.Segments, MamaTurtleAnimations.StartingAt, MamaTurtleFrameDefinitions.ShownFrames,
             [
                 MamaTurtleProgram.MamaAsleep, MamaTurtleProgram.MamaLeaveShellLeft, MamaTurtleProgram.MamaLeaveShellRight,
                 MamaTurtleProgram.MamaEnterShellLeft, MamaTurtleProgram.MamaEnterShellRight, MamaTurtleProgram.MamaSpinning,
             ]),
-            [EnemyDefinitionId.BabyTurtle] = Reach(MamaTurtleAnimations.Programs, MamaTurtleFrameDefinitions.ShownFrames,
+            [EnemyDefinitionId.BabyTurtle] = Reach(MamaTurtleAnimations.Segments, MamaTurtleAnimations.StartingAt, MamaTurtleFrameDefinitions.ShownFrames,
             [
                 MamaTurtleProgram.BabyCrawlingLeft, MamaTurtleProgram.BabyCrawlingRight, MamaTurtleProgram.BabyHidingLeft,
                 MamaTurtleProgram.BabyHidingRight, MamaTurtleProgram.BabySpinning, MamaTurtleProgram.BabyLeaveShellLeft,
@@ -230,7 +230,7 @@ internal static class EnemySheetOwnFramesVerification
         ];
         KiHunterProgram[] wings = [KiHunterProgram.WingsLeft, KiHunterProgram.WingsRight, KiHunterProgram.DetachedWings];
         return new("Ki-Hunter", TableFrames(KiHunterFrameDefinitions.ShownFrames),
-            KiHunterPartDefinitions.Parts.Keys.ToDictionary<EnemyDefinitionId, EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>(definition => definition, definition => Reach(KiHunterAnimations.Programs,
+            KiHunterPartDefinitions.Parts.Keys.ToDictionary<EnemyDefinitionId, EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>(definition => definition, definition => Reach(KiHunterAnimations.Segments, KiHunterAnimations.StartingAt,
                 KiHunterFrameDefinitions.ShownFrames,
                 KiHunterBehavior.IsKiHunterBodyDefinition(definition) ? body
                     : KiHunterBehavior.IsKiHunterWingDefinition(definition) ? wings

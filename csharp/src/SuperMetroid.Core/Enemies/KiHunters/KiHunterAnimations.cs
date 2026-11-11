@@ -10,9 +10,9 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 /// </summary>
 internal static class KiHunterAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<KiHunterProgram, KiHunterFrame, KiHunterCue> Programs { get; } = new(
-        new Dictionary<KiHunterProgram, AnimationProgramStep<KiHunterProgram, KiHunterFrame, KiHunterCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<KiHunterProgram, KiHunterFrame, KiHunterCue> Segments { get; } = new(
+        new Dictionary<KiHunterProgram, AnimationBeat<KiHunterFrame, KiHunterCue>[]>
     {
         [P.FlyingLeft] =
         [
@@ -20,7 +20,6 @@ internal static class KiHunterAnimations
             Show(1, 2),
             Show(2, 1),
             Cue(new(K.ReturnToFlying)),
-            FallInto(P.SwoopLeft),
         ],
         [P.SwoopLeft] =
         [
@@ -30,7 +29,6 @@ internal static class KiHunterAnimations
             Show(13, 2),
             Show(16, 2),
             Show(17, 32),
-            GoTo(P.FlyingLeft),
         ],
         [P.FlyingRight] =
         [
@@ -38,7 +36,6 @@ internal static class KiHunterAnimations
             Show(7, 2),
             Show(8, 1),
             Cue(new(K.ReturnToFlying)),
-            FallInto(P.SwoopRight),
         ],
         [P.SwoopRight] =
         [
@@ -48,26 +45,22 @@ internal static class KiHunterAnimations
             Show(18, 2),
             Show(21, 2),
             Show(22, 32),
-            GoTo(P.FlyingRight),
         ],
         [P.WingsLeft] =
         [
             Show(3, 2),
             Show(4, 2),
             Show(5, 1),
-            GoTo(P.WingsLeft),
         ],
         [P.WingsRight] =
         [
             Show(9, 2),
             Show(10, 2),
             Show(11, 1),
-            GoTo(P.WingsRight),
         ],
         [P.DetachedWings] =
         [
             Show(12, 1),
-            Hold,
         ],
         [P.JumpLeft] =
         [
@@ -78,7 +71,6 @@ internal static class KiHunterAnimations
             Show(23, 2),
             Cue(new(K.StartHop)),
             Show(26, 1),
-            Hold,
         ],
         [P.JumpRight] =
         [
@@ -89,7 +81,6 @@ internal static class KiHunterAnimations
             Show(27, 2),
             Cue(new(K.StartHop)),
             Show(30, 1),
-            Hold,
         ],
         [P.LandLeft] =
         [
@@ -99,7 +90,6 @@ internal static class KiHunterAnimations
             Show(24, 8),
             Cue(new(K.StartWinglessThinking)),
             Show(23, 1),
-            Hold,
         ],
         [P.LandRight] =
         [
@@ -109,7 +99,6 @@ internal static class KiHunterAnimations
             Show(28, 8),
             Cue(new(K.StartWinglessThinking)),
             Show(27, 1),
-            Hold,
         ],
         [P.SpitLeft] =
         [
@@ -121,7 +110,6 @@ internal static class KiHunterAnimations
             Show(35, 24),
             Cue(new(K.StartWinglessThinking)),
             Show(31, 1),
-            Hold,
         ],
         [P.SpitRight] =
         [
@@ -133,23 +121,33 @@ internal static class KiHunterAnimations
             Show(40, 24),
             Cue(new(K.StartWinglessThinking)),
             Show(36, 1),
-            Hold,
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<KiHunterProgram, Animation<KiHunterProgram>> StartingAt { get; } = new Dictionary<KiHunterProgram, Animation<KiHunterProgram>>
+    {
+        [P.FlyingLeft] = new([new(P.FlyingLeft, 0, 4, 1), new(P.SwoopLeft, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.SwoopLeft] = new([new(P.SwoopLeft, 0, 6, 1), new(P.FlyingLeft, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.FlyingRight] = new([new(P.FlyingRight, 0, 4, 1), new(P.SwoopRight, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.SwoopRight] = new([new(P.SwoopRight, 0, 6, 1), new(P.FlyingRight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.WingsLeft] = new([new(P.WingsLeft, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.WingsRight] = new([new(P.WingsRight, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.DetachedWings] = new([new(P.DetachedWings, 0, 1, 1)], AnimationEnd.Holds),
+        [P.JumpLeft] = new([new(P.JumpLeft, 0, 7, 1)], AnimationEnd.Holds),
+        [P.JumpRight] = new([new(P.JumpRight, 0, 7, 1)], AnimationEnd.Holds),
+        [P.LandLeft] = new([new(P.LandLeft, 0, 6, 1)], AnimationEnd.Holds),
+        [P.LandRight] = new([new(P.LandRight, 0, 6, 1)], AnimationEnd.Holds),
+        [P.SpitLeft] = new([new(P.SpitLeft, 0, 8, 1)], AnimationEnd.Holds),
+        [P.SpitRight] = new([new(P.SpitRight, 0, 8, 1)], AnimationEnd.Holds),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<KiHunterProgram> StartingWith(KiHunterProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<KiHunterProgram, KiHunterFrame, KiHunterCue> Show(int pose, int duration) => AnimationProgramStep<KiHunterProgram, KiHunterFrame, KiHunterCue>.Show(new(pose), duration);
+    private static AnimationBeat<KiHunterFrame, KiHunterCue> Show(int pose, int duration) => new AnimationBeat<KiHunterFrame, KiHunterCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<KiHunterProgram, KiHunterFrame, KiHunterCue> Cue(KiHunterCue cue) => AnimationProgramStep<KiHunterProgram, KiHunterFrame, KiHunterCue>.Publish(cue);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<KiHunterProgram, KiHunterFrame, KiHunterCue> GoTo(KiHunterProgram program) => AnimationProgramStep<KiHunterProgram, KiHunterFrame, KiHunterCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<KiHunterProgram, KiHunterFrame, KiHunterCue> FallInto(KiHunterProgram program) => AnimationProgramStep<KiHunterProgram, KiHunterFrame, KiHunterCue>.FallInto(program);
-
-    /// <summary>Holds the last frame, as the sleep does.</summary>
-    private static AnimationProgramStep<KiHunterProgram, KiHunterFrame, KiHunterCue> Hold => AnimationProgramStep<KiHunterProgram, KiHunterFrame, KiHunterCue>.Hold;
-
+    private static AnimationBeat<KiHunterFrame, KiHunterCue> Cue(KiHunterCue cue) => new AnimationBeat<KiHunterFrame, KiHunterCue>.Event(cue);
 }

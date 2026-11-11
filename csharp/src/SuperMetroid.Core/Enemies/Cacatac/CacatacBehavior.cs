@@ -159,7 +159,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts a patrol or attack animation on the next instruction tick.</summary>
     internal static void SetCacatacProgram(RoomEnemySlot slot, CacatacEnemyState state, CacatacProgram program)
     {
-        state.Program = AnimationProgramCursor<CacatacProgram>.Start(program);
+        state.Playback = new(CacatacAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
@@ -182,9 +182,11 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Cacatac's typed animation.</summary>
     internal void AdvanceCacatacTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, CacatacAnimations.Programs, CacatacFrameDefinitions.ShownFrames.Of,
-            static (CacatacEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
-            (state, cue, _) => ApplyCacatacCue(slot, state, cue));
+        EnemyProgramAnimation.Advance(slot, CacatacAnimations.Segments, CacatacFrameDefinitions.ShownFrames.Of,
+            static (CacatacEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            (state, cue) => ApplyCacatacCue(slot, state, cue) is { } target
+                ? new AnimationContinuation<CacatacProgram>(CacatacAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                : null);
 
     /// <summary>
     /// Spawns a spike projectile from the Cacatac and initializes it.

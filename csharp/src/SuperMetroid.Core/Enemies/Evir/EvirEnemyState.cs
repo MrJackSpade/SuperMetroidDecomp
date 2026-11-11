@@ -31,8 +31,8 @@ public sealed class EvirEnemyState
     internal EvirProgram? InstalledProgram { get; set; }
     /// <summary>The animation requested by the actor's current facing or projectile phase; a changed request restarts the instruction timer at one.</summary>
     internal EvirProgram RequestedProgram { get; set; }
-    /// <summary>Where this actor is in its animation.</summary>
-    internal AnimationProgramCursor<EvirProgram>? Program { get; set; }
+    /// <summary>The animation this actor plays and where it stands in it (#1600), once one is installed.</summary>
+    internal AnimationPlayback<EvirProgram>? Playback { get; set; }
     /// <summary>The body's downward vertical velocity per AI update, from the positive half of its linear-speed record.</summary>
     public SignedSixteenSixteen DownVelocity { get; internal set; }
     /// <summary>The body's upward vertical velocity per AI update, from the negative half of its linear-speed record.</summary>

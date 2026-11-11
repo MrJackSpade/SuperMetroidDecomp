@@ -60,14 +60,14 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Every part starts with the one-frame hitbox map. Only part zero replaces it with
         // the eruption animation and initializes the state-machine words below.
-        state.Program = AnimationProgramCursor<HibashiProgram>.Start(HibashiProgram.Hitbox);
+        state.Playback = new(HibashiAnimations.StartingWith(HibashiProgram.Hitbox), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         if (state.IsCollisionPart)
             return;
 
         _hitboxes.Place(slot, _slotTable.ListedAfter(slot, 1));
-        state.Program = AnimationProgramCursor<HibashiProgram>.Start(HibashiProgram.Graphics);
+        state.Playback = new(HibashiAnimations.StartingWith(HibashiProgram.Graphics), AnimationPlace.StartOfAnimation);
         state.Function = HibashiEnemyFunction.Inactive;
         state.SpawnHeight = new Position16<RoomPixels>(0, slot.Position.Y.Whole);
 
@@ -111,7 +111,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         state.ActivityFinished = false;
         graphics.FrameHold = WrappingCountdown.Start(1);
         graphics.Timer = WrappingCountdown.Start(0);
-        state.Program = AnimationProgramCursor<HibashiProgram>.Start(HibashiProgram.Graphics);
+        state.Playback = new(HibashiAnimations.StartingWith(HibashiProgram.Graphics), AnimationPlace.StartOfAnimation);
 
         // The invisibility property controls rendering only. The intangibility property controls admission to
         // Samus/projectile/grapple collision. The bottom remains visually invisible for the
@@ -182,7 +182,9 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Hibashi's typed animation.</summary>
     internal void AdvanceHibashiTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, HibashiAnimations.Programs, HibashiFrameDefinitions.ShownFrames.Of,
-            static (HibashiEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
-            (state, cue, _) => ApplyHibashiCue(slot, cue));
+        EnemyProgramAnimation.Advance(slot, HibashiAnimations.Segments, HibashiFrameDefinitions.ShownFrames.Of,
+            static (HibashiEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            (state, cue) => ApplyHibashiCue(slot, cue) is { } target
+                ? new AnimationContinuation<HibashiProgram>(HibashiAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                : null);
 }

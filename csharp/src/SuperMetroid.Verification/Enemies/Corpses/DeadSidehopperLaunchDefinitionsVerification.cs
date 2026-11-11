@@ -34,7 +34,7 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
                 state.DrainStage = drainStage;
                 state.JumpPhase = phase;
                 state.Velocity = new EightEightVector<RoomPixels>(0x1234, 0x1234);
-                state.Program = AnimationProgramCursor<DeadTourianProgram>.Start(DeadTourianProgram.SidehopperCorpse);
+                state.Playback = new(DeadTourianAnimations.StartingWith(DeadTourianProgram.SidehopperCorpse), AnimationPlace.StartOfAnimation);
                 slot.FrameHold = WrappingCountdown.Start(9);
                 slot.Timer = WrappingCountdown.Start(17);
                 dispatch(slot, state, null, null, default);
@@ -46,8 +46,8 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
                 AssertEqual(launch ? vy : (ushort)0x1234, state.Velocity.Y.RawValue, "Timer and drain gates control Y launch");
                 AssertEqual(expired ? (launch ? DeadSidehopperAiFunction.ActivatedMovement : DeadSidehopperAiFunction.Draining) : DeadSidehopperAiFunction.PostLandingDelay,
                     state.Function, "Exact launch versus transformation handoff");
-                AssertEqual(AnimationProgramCursor<DeadTourianProgram>.Start(launch ? DeadTourianProgram.SidehopperIdle : DeadTourianProgram.SidehopperCorpse),
-                    state.Program, "Launch restarts the alive-idle animation");
+                AssertEqual(new AnimationPlayback<DeadTourianProgram>(DeadTourianAnimations.StartingWith(launch ? DeadTourianProgram.SidehopperIdle : DeadTourianProgram.SidehopperCorpse), AnimationPlace.StartOfAnimation),
+                    state.Playback, "Launch restarts the alive-idle animation");
                 AssertEqual(launch ? (ushort)1 : (ushort)9, slot.FrameHold.RawValue, "Launch instruction timer");
                 AssertEqual(launch ? (ushort)0 : (ushort)17, slot.Timer.RawValue, "Launch clears instruction loop timer");
                 AssertEqual(phase, state.JumpPhase, "Launch does not advance landing-owned phase");

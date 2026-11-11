@@ -44,8 +44,8 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Single corpse state owned by enemy slot zero in the loaded room.</summary>
     internal DeadTorizoEnemyState? DeadTorizo { get; private set; }
-    /// <summary>Slot zero's typed corpse pose (#641), started before the corpse state exists.</summary>
-    private AnimationProgramCursor<DeadTorizoProgram> program;
+    /// <summary>Slot zero's typed corpse pose (#641, #1600), started before the corpse state exists.</summary>
+    private AnimationPlayback<DeadTorizoProgram> playback;
 
     /// <summary>Initializes the dead Torizo.</summary>
     internal void InitializeDeadTorizo(RoomEnemySlot slot)
@@ -58,7 +58,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         slot.Contact = slot.Contact.With(EnemyContact.SolidToSamus);
         slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
-        program = AnimationProgramCursor<DeadTorizoProgram>.Start(Corpses.DeadTorizoProgram.Stationary);
+        playback = new AnimationPlayback<DeadTorizoProgram>(DeadTorizoAnimations.StartingWith(Corpses.DeadTorizoProgram.Stationary), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 
@@ -280,7 +280,8 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
-        EnemyProgramAnimation.Run(slot, DeadTorizoAnimations.Programs, ref program, DeadTorizoFrameDefinitions.ShownFrames.Of);
+        EnemyProgramAnimation.Play(slot, DeadTorizoAnimations.Segments, ref playback, DeadTorizoFrameDefinitions.ShownFrames.Of,
+            static cue => throw new InvalidOperationException($"A cue-free dead Torizo animation raised {cue}."));
     }
 
     /// <summary>Ports DeadTorizo's main AI.</summary>

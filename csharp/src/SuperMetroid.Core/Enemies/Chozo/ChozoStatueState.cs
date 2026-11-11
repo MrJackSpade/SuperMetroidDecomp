@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// <summary>The state of a Chozo statue.</summary>
 public sealed class ChozoStatueState
 {
-    /// <summary>Where the animation resumes.</summary>
-    internal AnimationProgramCursor<ChozoStatueProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<ChozoStatueProgram> Playback { get; set; }
 
     /// <summary>The carry-motion record, 0 through 31, the statue last moved by.</summary>
     public int CarryRecord { get; internal set; }

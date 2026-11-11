@@ -30,25 +30,27 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
         foreach (EtecoonProgram program in Enum.GetValues<EtecoonProgram>())
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, EtecoonEnemyState state) = NewEtecoon();
-            AssertEqual(AnimationProgramCursor<EtecoonProgram>.Start(EtecoonProgram.Initial), state.Program, "real Etecoon initializer");
-            if (EtecoonAnimations.Programs.Steps(program)[^1] is not AnimationProgramStep<EtecoonProgram, EtecoonFrame, NoAnimationCue>.GoToStep last || last.Target != program)
+            AssertEqual(new AnimationPlayback<EtecoonProgram>(EtecoonAnimations.StartingWith(EtecoonProgram.Initial), AnimationPlace.StartOfAnimation), state.Playback, "real Etecoon initializer");
+            // The self-looping animations: one phase of their own segment, played again and again.
+            if (!EtecoonAnimations.StartingAt.TryGetValue(program, out Animation<EtecoonProgram>? animation) ||
+                animation is not { Phases: [{ Plays: 1 } only], End: AnimationEnd.Loop { Phase: 0 } } || only.Segment != program)
                 continue;
-            state.Program = AnimationProgramCursor<EtecoonProgram>.Start(program);
+            state.Playback = new(EtecoonAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             slot.FrameHold = WrappingCountdown.Start(1);
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(EtecoonAnimations.Programs, program, EtecoonFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(EtecoonAnimations.Programs, program)),
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(EtecoonAnimations.Segments, program, EtecoonFrameToolingDefinitions.Spritemap),
+                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(EtecoonAnimations.Segments, program)),
                 $"Etecoon {program} loop");
         }
 
         {
             // Four six-pose flex cycles, then two held poses: 4 x 6 x 8 + 2 x 32 updates reach the final sleep.
             (RoomEnemySystem enemies, RoomEnemySlot slot, EtecoonEnemyState state) = NewEtecoon();
-            state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonProgram.Flexing);
+            state.Playback = new(EtecoonAnimations.StartingWith(EtecoonProgram.Flexing), AnimationPlace.StartOfAnimation);
             slot.FrameHold = WrappingCountdown.Start(1);
             _ = EnemyInstructionRunner.ShownFrames(slot, 4 * 6 * 8 + 2 * 32);
-            AnimationProgramCursor<EtecoonProgram> held = state.Program;
+            AnimationPlayback<EtecoonProgram> held = state.Playback;
             _ = EnemyInstructionRunner.ShownFrames(slot, 8);
-            AssertEqual(held, state.Program, "Etecoon flex ends asleep");
+            AssertEqual(held, state.Playback, "Etecoon flex ends asleep");
             AssertEqual(EtecoonAnimationsTooling.Spritemaps(EtecoonProgram.FlexingLoop).Last(), slot.SpritemapPointer, "Etecoon flex ends on its last pose");
             AssertEqual((ushort)0, slot.Timer.RawValue, "Etecoon flex loop count expires");
         }

@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Enemies.Cacatac;
 /// </summary>
 public sealed class CacatacEnemyState
 {
-    /// <summary>Where the animation resumes.</summary>
-    internal AnimationProgramCursor<CacatacProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<CacatacProgram> Playback { get; set; }
 
     /// <summary>Signed 16.16 room-pixel displacement added to X on every rightward patrol update.</summary>
     public SignedSixteenSixteen RightVelocity { get; internal set; }

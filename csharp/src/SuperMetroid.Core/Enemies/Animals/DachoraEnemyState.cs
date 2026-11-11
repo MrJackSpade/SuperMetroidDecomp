@@ -14,8 +14,8 @@ public sealed class DachoraEnemyState
     /// <summary>The glow cycle: the speed or shine glow frame shown next and the updates before it (#1544).</summary>
     private DachoraGlowCycle _glowCycle;
 
-    /// <summary>Where the animation resumes.</summary>
-    internal AnimationProgramCursor<DachoraProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<DachoraProgram> Playback { get; set; }
 
     /// <summary>
     /// The signed 16.16 speed in pixels per update while running, falling or shinesparking, horizontal while running and

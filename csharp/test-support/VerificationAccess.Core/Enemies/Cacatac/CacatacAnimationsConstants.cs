@@ -8,7 +8,7 @@ internal static class CacatacAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params CacatacProgram[] programs) =>
-        programs.SelectMany(program => CacatacAnimations.Programs.Steps(program))
-            .OfType<AnimationProgramStep<CacatacProgram, CacatacFrame, CacatacCue>.ShowStep>()
-            .Select(step => CacatacFrameToolingDefinitions.Spritemap(step.Frame));
+        programs.SelectMany(program => CacatacAnimations.Segments.Beats(program))
+            .OfType<AnimationBeat<CacatacFrame, CacatacCue>.Frame>()
+            .Select(frame => CacatacFrameToolingDefinitions.Spritemap(frame.Shown));
 }

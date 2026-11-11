@@ -173,16 +173,18 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         ChootEnemyState state,
         ChootProgram program)
     {
-        state.Program = AnimationProgramCursor<ChootProgram>.Start(program);
+        state.Playback = new(ChootAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Advances Choot's typed animation.</summary>
     internal static void AdvanceChootTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, ChootAnimations.Programs, ChootFrameDefinitions.ShownFrames.Of,
-            static (ChootEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
-            (state, cue, _) => ApplyChootCue(slot, cue));
+        EnemyProgramAnimation.Advance(slot, ChootAnimations.Segments, ChootFrameDefinitions.ShownFrames.Of,
+            static (ChootEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            (state, cue) => ApplyChootCue(slot, cue) is { } target
+                ? new AnimationContinuation<ChootProgram>(ChootAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                : null);
 
     /// <summary>Carries out one cue of Choot's animation: each switches off-screen processing on or off.</summary>
     private static ChootProgram? ApplyChootCue(RoomEnemySlot slot, ChootCue cue)

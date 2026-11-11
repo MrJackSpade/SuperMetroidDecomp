@@ -9,21 +9,25 @@ namespace SuperMetroid.Core.Enemies.Kzan;
 /// </summary>
 internal static class KzanAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<KzanProgram, KzanFrame, NoAnimationCue> Programs { get; } = new(
-        new Dictionary<KzanProgram, AnimationProgramStep<KzanProgram, KzanFrame, NoAnimationCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<KzanProgram, KzanFrame, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<KzanProgram, AnimationBeat<KzanFrame, NoAnimationCue>[]>
     {
         [P.Idle] =
         [
             Show(0, 1),
-            Hold,
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<KzanProgram, Animation<KzanProgram>> StartingAt { get; } = new Dictionary<KzanProgram, Animation<KzanProgram>>
+    {
+        [P.Idle] = new([new(P.Idle, 0, 1, 1)], AnimationEnd.Holds),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<KzanProgram> StartingWith(KzanProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<KzanProgram, KzanFrame, NoAnimationCue> Show(int pose, int duration) => AnimationProgramStep<KzanProgram, KzanFrame, NoAnimationCue>.Show(new(pose), duration);
-
-    /// <summary>Holds the last frame, as the sleep does.</summary>
-    private static AnimationProgramStep<KzanProgram, KzanFrame, NoAnimationCue> Hold => AnimationProgramStep<KzanProgram, KzanFrame, NoAnimationCue>.Hold;
-
+    private static AnimationBeat<KzanFrame, NoAnimationCue> Show(int pose, int duration) => new AnimationBeat<KzanFrame, NoAnimationCue>.Frame(new(pose), duration);
 }

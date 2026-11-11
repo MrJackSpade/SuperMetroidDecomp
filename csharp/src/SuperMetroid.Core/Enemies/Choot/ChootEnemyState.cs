@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Enemies.Choot;
 /// </summary>
 public sealed class ChootEnemyState
 {
-    /// <summary>Where the typed animation (#641) resumes.</summary>
-    internal AnimationProgramCursor<ChootProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<ChootProgram> Playback { get; set; }
 
     /// <summary>The behaviour selected by Choot's main AI dispatcher.</summary>
     public ChootEnemyFunction? Function { get; internal set; }

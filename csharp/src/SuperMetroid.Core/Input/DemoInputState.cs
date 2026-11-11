@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Input;
 /// A demo's recorded-input playback, playing a <see cref="DemoRecording"/> (#1300, #1600).
 /// </summary>
 /// <remarks>
-/// The playback holds only the recording: where it is, how long the current input lasts and the controller words it
-/// publishes. What a demo watches for before each step (the title leaving, Samus reaching her scripted place) is its
+/// The playback holds only the recording: where it is, how long the current input lasts and the buttons it presses in
+/// the player's place. What a demo watches for before each step (the title leaving, Samus reaching her scripted place) is its
 /// owner's own state (#1554): the owner checks it while <see cref="IsPlaying"/>, may switch the playback to another
 /// recording, and then steps it; the recording's cues go to the owner. The playback's own frame hold gates the
 /// recording, so each input lasts exactly as long as its recorded input.
@@ -24,7 +24,7 @@ public sealed class DemoInputState
     /// <summary>Frames remaining in the active input record, wrapping at sixteen bits.</summary>
     public WrappingCountdown FrameHold { get; private set; }
 
-    /// <summary>Controller word currently replacing player-held input.</summary>
+    /// <summary>The buttons the demo currently holds in place of the player's held buttons.</summary>
     public ControllerButton Held { get; private set; }
 
     /// <summary>Controller edge word currently replacing newly pressed input.</summary>
@@ -86,7 +86,7 @@ public sealed class DemoInputState
     }
 
     /// <summary>
-    /// Plays one step of the recording and publishes the resulting controller words. The owner runs the recording's cues
+    /// Plays one step of the recording and presses the resulting buttons in the player's place. The owner runs the recording's cues
     /// in <paramref name="cue"/>. The owner checks what it watches for before this step, while <see cref="IsPlaying"/>.
     /// </summary>
     public void Step(Action<DemoInputCue> cue)
@@ -144,7 +144,7 @@ public sealed class DemoInputState
         Position = position with { NextRecord = position.NextRecord + 1 };
     }
 
-    /// <summary>Ends the demo's input: the recording is done and its controller words clear.</summary>
+    /// <summary>Ends the demo's input: the recording is done and the demo releases every button.</summary>
     private void EndInput()
     {
         Position = null;

@@ -4,35 +4,38 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
-/// The geometry and collision of the block draws Bomb Torizo's resident hand room object selects. What each frame shows is its
-/// installed picture (#1557).
+/// The block shape of each of the Bomb Torizo statue hand's two frames (#1608), around the hand's block. What each frame
+/// shows is its installed picture (#1557).
 /// </summary>
 internal static class BombTorizoHandObjectDrawDefinitions
 {
-    /// <summary>A cleared cell, air.</summary>
-    private const RoomCollisionType ClearedCell = RoomCollisionType.Air;
+    /// <summary>
+    /// The intact hand: eight solid blocks, the hand's block and the one right of it, the block left of it, the pair
+    /// above, and the three below from the left.
+    /// </summary>
+    private static readonly RoomBlockShape IntactHand = new(
+    [
+        new(new(0, -1), RoomCollisionType.SolidBlock), new(new(1, -1), RoomCollisionType.SolidBlock),
+        new(new(-1, 0), RoomCollisionType.SolidBlock), new(new(0, 0), RoomCollisionType.SolidBlock), new(new(1, 0), RoomCollisionType.SolidBlock),
+        new(new(-1, 1), RoomCollisionType.SolidBlock), new(new(0, 1), RoomCollisionType.SolidBlock), new(new(1, 1), RoomCollisionType.SolidBlock),
+    ]);
 
     /// <summary>
-    /// Each draw's horizontal strips in authored run order, each placed where it starts from the hand's block. Intact is
-    /// four strips of solid blocks: the origin pair, the left singleton, the upper pair and the lower triple. Cleared
-    /// splits the origin row into two halves, then clears the lower, top and upper rows of a four-by-four area.
+    /// The cleared hand: the four-by-four square of open blocks from two left of and two above the hand's block, which
+    /// covers every block of the intact hand.
     /// </summary>
-    internal static readonly Dictionary<BombTorizoHandDraw, RoomObjectBlockStrip[]> Strips = new()
+    private static readonly RoomBlockShape ClearedHand = new(
+    [
+        new(new(-2, -2), RoomCollisionType.Air), new(new(-1, -2), RoomCollisionType.Air), new(new(0, -2), RoomCollisionType.Air), new(new(1, -2), RoomCollisionType.Air),
+        new(new(-2, -1), RoomCollisionType.Air), new(new(-1, -1), RoomCollisionType.Air), new(new(0, -1), RoomCollisionType.Air), new(new(1, -1), RoomCollisionType.Air),
+        new(new(-2, 0), RoomCollisionType.Air), new(new(-1, 0), RoomCollisionType.Air), new(new(0, 0), RoomCollisionType.Air), new(new(1, 0), RoomCollisionType.Air),
+        new(new(-2, 1), RoomCollisionType.Air), new(new(-1, 1), RoomCollisionType.Air), new(new(0, 1), RoomCollisionType.Air), new(new(1, 1), RoomCollisionType.Air),
+    ]);
+
+    /// <summary>The block shape each of the hand's two frames draws.</summary>
+    internal static readonly Dictionary<BombTorizoHandDraw, RoomBlockShape> Shapes = new()
     {
-        [BombTorizoHandDraw.Intact] =
-        [
-            new(new(0, 0), [RoomCollisionType.SolidBlock, RoomCollisionType.SolidBlock]),
-            new(new(-1, 0), [RoomCollisionType.SolidBlock]),
-            new(new(0, -1), [RoomCollisionType.SolidBlock, RoomCollisionType.SolidBlock]),
-            new(new(-1, 1), [RoomCollisionType.SolidBlock, RoomCollisionType.SolidBlock, RoomCollisionType.SolidBlock]),
-        ],
-        [BombTorizoHandDraw.Cleared] =
-        [
-            new(new(0, 0), [ClearedCell, ClearedCell]),
-            new(new(-2, 0), [ClearedCell, ClearedCell]),
-            new(new(-2, 1), [ClearedCell, ClearedCell, ClearedCell, ClearedCell]),
-            new(new(-2, -2), [ClearedCell, ClearedCell, ClearedCell, ClearedCell]),
-            new(new(-2, -1), [ClearedCell, ClearedCell, ClearedCell, ClearedCell]),
-        ],
+        [BombTorizoHandDraw.Intact] = IntactHand,
+        [BombTorizoHandDraw.Cleared] = ClearedHand,
     };
 }

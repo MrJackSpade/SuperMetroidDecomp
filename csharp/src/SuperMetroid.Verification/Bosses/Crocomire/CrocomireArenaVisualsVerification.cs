@@ -61,9 +61,10 @@ internal static class CrocomireArenaVisualsVerification
             $"Crocomire visual mutation {mutation} allocates");
         var guard = NewCrocomireSourceGuard(new TestAddressSpace());
         roomObjects.Step(level);
-        int blockIndex = (3 + blockOffset.Y) * width + 5 + blockOffset.X;
+        Position16<RoomBlocks> block = new Position16<RoomBlocks>(5, 3) + blockOffset;
+        int blockIndex = level.GetBlockIndex(block);
         AssertEqual(physical,
-            level.GetCollisionBlockByIndex(blockIndex).Terrain,
+            level.GetCollisionBlock(block).Terrain,
             $"Crocomire visual mutation {mutation} retains physical block");
         AssertEqual(visual, level.DisplayedAppearance(blockIndex),
             $"Crocomire visual mutation {mutation} presents its tile");

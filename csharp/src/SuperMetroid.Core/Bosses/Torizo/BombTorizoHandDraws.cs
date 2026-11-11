@@ -1,45 +1,30 @@
-using SuperMetroid.Core.Rooms.LevelData;
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
-/// Bomb Torizo's hand block draws: which room-object draws are the hand's, the strips each lays from
-/// <see cref="BombTorizoHandObjectDrawDefinitions"/>.
+/// Bomb Torizo's hand block draws: which room-object draws are the hand's, and the block shape each draws, from
+/// <see cref="BombTorizoHandObjectDrawDefinitions"/>. What each frame shows is its installed picture (#1557).
 /// </summary>
 internal static class BombTorizoHandDraws
 {
-    /// <summary>
-    /// An intact or cleared hand draw: its strips in the original run order, each starting at its own offset from the
-    /// hand's block.
-    /// </summary>
-    internal readonly record struct Draw(BombTorizoHandDraw Frame)
+    /// <summary>The block shape of <paramref name="request"/> when it is the intact or cleared hand.</summary>
+    /// <param name="request">The draw to describe.</param>
+    /// <param name="shape">The frame's block shape; null when the draw is not the hand's.</param>
+    /// <returns>Whether the draw is one of the hand's frames.</returns>
+    /// <exception cref="InvalidOperationException">The draw is a hand frame with no shape.</exception>
+    internal static bool TryDescribe(RoomObjectDraw request, [MaybeNullWhen(false)] out RoomBlockShape shape)
     {
-        /// <summary>The draw's strips in authored run order.</summary>
-        private RoomObjectBlockStrip[] Strips => BombTorizoHandObjectDrawDefinitions.Strips[Frame];
-        /// <summary>Gets the number of horizontal strips in the selected draw list.</summary>
-        internal int RunCount => Strips.Length;
-        /// <summary>Gets the block count in a selected strip, rejecting an invalid run index.</summary>
-        internal int BlockCount(int run) => Strip(run).Cells.Length;
-        /// <summary>Where a strip starts, in blocks from the hand's block.</summary>
-        internal Offset16<RoomBlocks> Start(int run) => Strip(run).Start;
-        /// <summary>How one strip cell collides.</summary>
-        internal RoomCollisionType CollisionAt(int run, int cell)
+        if (request is not RoomObjectFrameDraw<BombTorizoHandDraw>)
         {
-            RoomObjectBlockStrip strip = Strip(run);
-            if ((uint)cell >= strip.Cells.Length) throw new ArgumentOutOfRangeException(nameof(cell));
-            return strip.Cells[cell];
+            shape = null;
+            return false;
         }
-        /// <summary>Selects a strip, rejecting indices outside the selected intact or cleared list.</summary>
-        private RoomObjectBlockStrip Strip(int run) =>
-            (uint)run < RunCount ? Strips[run] : throw new ArgumentOutOfRangeException(nameof(run));
-    }
-
-    /// <summary>Recognizes one of the two hand draws and returns its calculated descriptor.</summary>
-    internal static bool TryDescribe(RoomObjectDraw request, out Draw draw)
-    {
-        bool owned = request is RoomObjectFrameDraw<BombTorizoHandDraw>;
-        draw = owned ? new(RoomObjectDraw.FrameOf<BombTorizoHandDraw>(request, "BombTorizoHandDraw")) : default;
-        return owned;
+        BombTorizoHandDraw frame = RoomObjectDraw.FrameOf<BombTorizoHandDraw>(request, "BombTorizoHandDraw");
+        shape = BombTorizoHandObjectDrawDefinitions.Shapes.TryGetValue(frame, out RoomBlockShape? described)
+            ? described
+            : throw new InvalidOperationException($"Undefined {nameof(BombTorizoHandDraw)} {frame}.");
+        return true;
     }
 }

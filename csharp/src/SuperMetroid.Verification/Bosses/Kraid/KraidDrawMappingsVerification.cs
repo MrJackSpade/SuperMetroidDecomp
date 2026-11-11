@@ -52,28 +52,37 @@ internal static class KraidDrawMappingsVerification
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
         {
             bool exists = pointers.Contains((ushort)pointer);
-            AssertEqual(exists, KraidRoomObjectDraws.TryGet(NativeObjectDraws.At<KraidRoomDraw>((ushort)pointer), out var draw),
+            RoomObjectDraw native = NativeObjectDraws.At<KraidRoomDraw>((ushort)pointer);
+            AssertEqual(exists, KraidRoomObjectDraws.TryDescribe(native, out RoomBlockShape? shape),
                 "Kraid full draw-pointer domain");
             if (exists)
-                AssertEqual((ushort)pointer, RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(draw.Frame)), "Kraid draw address");
+                AssertEqual((ushort)pointer, RoomObjectDrawAddressCodec.Of(native), "Kraid draw address");
             else
-                AssertEqual(default(KraidRoomObjectDraws.Draw), draw, "Kraid draw default on miss");
+                AssertTrue(shape is null, "Kraid draw has no shape on miss");
         }
         foreach (int index in new[] { int.MinValue, -1, 10, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => RoomObjectKraidVisualFiles.All.ElementAt(index),
                 "Kraid draw ordinal bounds");
     }
 
-    /// <summary>Checks each native horizontal run count, exported run extent, and zero-displacement terminator.</summary>
+    /// <summary>
+    /// Checks each native horizontal run count, that each frame's block shape covers exactly that run's cells along the
+    /// row from the object's block and rejects a cell outside, the exported run extent, and the zero-displacement terminator.
+    /// </summary>
     internal static void VerifyKraidDrawShapes(SuperMetroidAddressSpace rom)
     {
         var exported = RoomObjectKraidVisualFiles.All.ToDictionary(draw => RoomObjectDrawAddressCodec.Of(draw.Draw));
         foreach (var expected in KraidDrawOracle())
         {
-            AssertTrue(KraidRoomObjectDraws.TryGet(NativeObjectDraws.At<KraidRoomDraw>(expected.Pointer), out var draw), "Kraid draw exists");
+            AssertTrue(KraidRoomObjectDraws.TryDescribe(NativeObjectDraws.At<KraidRoomDraw>(expected.Pointer), out RoomBlockShape? described), "Kraid draw exists");
+            RoomBlockShape shape = described ?? throw new InvalidOperationException($"Kraid frame {expected.Id} has no shape.");
             ushort directionCount = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | expected.Pointer);
             AssertEqual((ushort)expected.Count, directionCount, "Kraid native horizontal run count");
-            AssertEqual(expected.Count, draw.BlockCount, "Kraid calculated block count");
+            AssertEqual(expected.Count, shape.Cells.Count, "Kraid shape covers the run's cells");
+            for (int block = 0; block < expected.Count; block++)
+                AssertTrue(shape.Covers(new Offset16<RoomBlocks>(block, 0)), "Kraid shape covers each cell along the row");
+            foreach (Offset16<RoomBlocks> outside in new Offset16<RoomBlocks>[] { new(-1, 0), new(expected.Count, 0), new(0, -1), new(0, 1) })
+                AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(outside), "Kraid shape covers only its row's cells");
             AssertEqual(1, exported[expected.Pointer].Runs.Length, "Kraid export has one run");
             var run = exported[expected.Pointer].Runs.Span[0];
             AssertRunHeader(directionCount, run, "Kraid export direction/count");
@@ -113,19 +122,18 @@ internal static class KraidDrawMappingsVerification
         InstalledRoomObjectKraidVisuals pictures = InstalledRoomObjectKraidVisuals.Stock();
         foreach (var expected in definitions)
         {
-            AssertTrue(KraidRoomObjectDraws.TryGet(NativeObjectDraws.At<KraidRoomDraw>(expected.Pointer), out var draw), "Kraid word owner exists");
+            AssertTrue(KraidRoomObjectDraws.TryDescribe(NativeObjectDraws.At<KraidRoomDraw>(expected.Pointer), out RoomBlockShape? described), "Kraid word owner exists");
+            RoomBlockShape shape = described ?? throw new InvalidOperationException($"Kraid frame {expected.Id} has no shape.");
             for (int block = 0; block < expected.Count; block++)
             {
                 RoomTerrainBlock native = RoomLevelWordCodec.Decode(
                     CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | (expected.Pointer + 2 + block * 2)));
-                AssertEqual(native.Collision, draw.CollisionAt(block), "Kraid calculated collision matches the native level word");
+                AssertEqual(native.Collision, shape.CollisionAt(new Offset16<RoomBlocks>(block, 0)), "Kraid shape collision matches the native level word");
                 AssertEqual(native.Collision, exported[expected.Pointer].Runs.Span[0].Collisions.Span[block],
                     "Kraid materialized export collision");
                 AssertEqual(native.Appearance, pictures.Image(NativeObjectDraws.At<KraidRoomDraw>(expected.Pointer)).At(new Offset16<RoomBlocks>(block, 0)),
                     "Kraid installed picture shows the native level word's block");
             }
-            foreach (int block in new[] { int.MinValue, -1, expected.Count, int.MaxValue })
-                AssertThrows<ArgumentOutOfRangeException>(() => draw.CollisionAt(block), "Kraid computed block bounds");
         }
     }
 

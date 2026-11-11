@@ -68,9 +68,10 @@ internal static class KraidRoomVisualsVerification
             $"Kraid visual owner {mutation} allocates");
         var guard = NewKraidRoomSourceGuard(new TestAddressSpace());
         roomObjects.Step(level);
-        int blockIndex = 5 * width + 5 + blockOffset;
+        Position16<RoomBlocks> block = new(5 + blockOffset, 5);
+        int blockIndex = level.GetBlockIndex(block);
         AssertEqual(physicalWord,
-            level.GetCollisionBlockByIndex(blockIndex).Terrain,
+            level.GetCollisionBlock(block).Terrain,
             $"Kraid draw ${drawPointer:X4} retains physical block {blockOffset}");
         AssertEqual(visualWord,
             level.DisplayedAppearance(blockIndex),

@@ -18,7 +18,7 @@ public sealed class InstalledRoomObjectSporeSpawnCeilingVisuals
     /// <summary>The picture <paramref name="draw"/> shows.</summary>
     /// <exception cref="InvalidDataException">The draw is not one of the family's frames, or the installation lacks it.</exception>
     internal RoomObjectFrameImage Image(RoomObjectDraw draw) =>
-        SporeSpawnCeilingDraws.TryGetCollision(draw, out _)
+        SporeSpawnCeilingDraws.TryDescribe(draw, out _)
             ? Images.Image(draw)
             : throw new InvalidDataException($"Spore Spawn ceiling visuals lack frame {draw}.");
 }

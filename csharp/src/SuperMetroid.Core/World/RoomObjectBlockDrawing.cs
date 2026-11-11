@@ -80,13 +80,13 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
     /// <summary>Replaceable plant tiles; the three-run collision layout stays compiled.</summary>
     public InstalledRoomObjectSamusEaterVisuals? SamusEaterVisuals => _visuals.RoomObjectSamusEaterVisuals;
 
-    /// <summary>The installed picture of the nine-block vertical Botwoon wall clear; its compiled air-block collision remains unchanged.</summary>
+    /// <summary>The installed picture of the nine-block vertical Botwoon wall clear; its block shape owns placement and collision.</summary>
     public InstalledRoomObjectBotwoonWallVisuals? BotwoonWallVisuals => _visuals.RoomObjectBotwoonWallVisuals;
 
     /// <summary>The installed pictures of Kraid's ceiling and spike frames, distinct from the boss's private background body maps and from elevatube owners of the shared crumble draw.</summary>
     public InstalledRoomObjectKraidVisuals? KraidVisuals => _visuals.RoomObjectKraidVisuals;
 
-    /// <summary>The installed pictures of Crocomire's bridge-clear, crumble and invisible-wall frames; compiled draw runs still own block placement and collision.</summary>
+    /// <summary>The installed pictures of Crocomire's bridge-clear, crumble and invisible-wall frames; each frame's block shape owns placement and collision.</summary>
     public InstalledRoomObjectCrocomireVisuals? CrocomireVisuals => _visuals.RoomObjectCrocomireVisuals;
 
     /// <summary>Collectible art; compiled terrain retains collision.</summary>
@@ -138,11 +138,9 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
             DrawImageCell(level, draw, origin, Installed(SpeedBoosterVisuals, "Speed Booster").Image(draw), Offset16<RoomBlocks>.Zero, SpeedBoosterBlockObjectDrawDefinitions.BombRevealCollision);
             return;
         }
-        if (KraidRoomObjectDraws.TryGet(draw, out var kraidDraw))
+        if (KraidRoomObjectDraws.TryDescribe(draw, out RoomBlockShape? kraidRoom))
         {
-            RoomObjectFrameImage kraidRoom = Installed(KraidVisuals, "Kraid room").Image(draw);
-            for (int block = 0; block < kraidDraw.BlockCount; block++)
-                DrawImageCell(level, draw, origin, kraidRoom, new Offset16<RoomBlocks>(block, 0), kraidDraw.CollisionAt(block));
+            DrawShape(level, draw, origin, Installed(KraidVisuals, "Kraid room").Image(draw), kraidRoom);
             return;
         }
         if (draw == MaridiaElevatubeObjectDefinitions.BlockDraw)
@@ -150,13 +148,9 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
             DrawImageCell(level, draw, origin, Installed(MaridiaElevatubeVisuals, "Maridia elevatube").Image(draw), Offset16<RoomBlocks>.Zero, MaridiaElevatubeObjectDefinitions.Collision);
             return;
         }
-        if (CrocomireArenaDraws.TryDescribe(draw,
-                out var crocomireDraw))
+        if (CrocomireArenaDraws.TryDescribe(draw, out RoomBlockShape? crocomireArena))
         {
-            RoomObjectFrameImage arena = Installed(CrocomireVisuals, "Crocomire arena").Image(draw);
-            for (int run = 0; run < crocomireDraw.RunCount; run++)
-                for (int block = 0; block < crocomireDraw.BlocksPerRun; block++)
-                    DrawImageCell(level, draw, origin, arena, new Offset16<RoomBlocks>(crocomireDraw.Wall ? run : block, crocomireDraw.Wall ? block : 0), crocomireDraw.CollisionAt(run, block));
+            DrawShape(level, draw, origin, Installed(CrocomireVisuals, "Crocomire arena").Image(draw), crocomireArena);
             return;
         }
         if (MotherBrainFakeDeathDraws.TryDescribeBackground(draw, out var backgroundFakeDeath))
@@ -194,12 +188,9 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
                     DrawImageCell(level, draw, origin, floor, new Offset16<RoomBlocks>(column, row), TourianAccessObjectDrawDefinitions.Collision);
             return;
         }
-        if (SporeSpawnCeilingDraws.TryGetCollision(draw, out RoomCollisionType sporeCeilingCollision))
+        if (SporeSpawnCeilingDraws.TryDescribe(draw, out RoomBlockShape? sporeSpawnCeiling))
         {
-            RoomObjectFrameImage ceiling = Installed(SporeSpawnCeilingVisuals, "Spore Spawn ceiling").Image(draw);
-            for (int row = 0; row < 2; row++)
-                for (int column = 0; column < 2; column++)
-                    DrawImageCell(level, draw, origin, ceiling, new Offset16<RoomBlocks>(column, row), sporeCeilingCollision);
+            DrawShape(level, draw, origin, Installed(SporeSpawnCeilingVisuals, "Spore Spawn ceiling").Image(draw), sporeSpawnCeiling);
             return;
         }
         if (SamusEaterObjectDraws.TryDescribe(draw, out var samusEater))
@@ -210,11 +201,9 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
                     DrawImageCell(level, draw, origin, plant, samusEater.Start(run) + new Offset16<RoomBlocks>(block, 0), samusEater.CollisionAt(run, block));
             return;
         }
-        if (draw == BotwoonWallObjectDrawDefinitions.Clear)
+        if (BotwoonWallObjectDraws.TryDescribe(draw, out RoomBlockShape? botwoonWall))
         {
-            RoomObjectFrameImage wall = Installed(BotwoonWallVisuals, "Botwoon wall").Image(draw);
-            for (int row = 0; row < BotwoonWallObjectDrawDefinitions.BlockCount; row++)
-                DrawImageCell(level, draw, origin, wall, new Offset16<RoomBlocks>(0, row), BotwoonWallObjectDraws.CollisionAt(row));
+            DrawShape(level, draw, origin, Installed(BotwoonWallVisuals, "Botwoon wall").Image(draw), botwoonWall);
             return;
         }
         if (LinkedRestoreObjectFamily.TryDescribeAny(draw, out var linkedRestore))
@@ -303,12 +292,9 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
                 DrawImageCell(level, draw, origin, gateImage, new Offset16<RoomBlocks>(0, row), MotherBrainEscapeGateDraws.Draw.CollisionAt(row));
             return;
         }
-        if (BombTorizoHandDraws.TryDescribe(draw, out var bombTorizoHand))
+        if (BombTorizoHandDraws.TryDescribe(draw, out RoomBlockShape? bombTorizoHand))
         {
-            RoomObjectFrameImage hand = Installed(BombTorizoHandVisuals, "Bomb Torizo hand").Image(draw);
-            for (int run = 0; run < bombTorizoHand.RunCount; run++)
-                for (int cell = 0; cell < bombTorizoHand.BlockCount(run); cell++)
-                    DrawImageCell(level, draw, origin, hand, bombTorizoHand.Start(run) + new Offset16<RoomBlocks>(cell, 0), bombTorizoHand.CollisionAt(run, cell));
+            DrawShape(level, draw, origin, Installed(BombTorizoHandVisuals, "Bomb Torizo hand").Image(draw), bombTorizoHand);
             return;
         }
         if (DraygonCannonDraws.TryDescribe(draw, out RoomBlockShape? draygonCannon))

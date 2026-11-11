@@ -47,7 +47,10 @@ internal static class SporeSpawnCeilingObjectsVerification
                 "Spore ceiling frame selector bounds");
     }
 
-    /// <summary>Compares four two-by-two physical draw layouts and exact pointer ownership with the cartridge.</summary>
+    /// <summary>
+    /// Compares the four frames' two-by-two block shapes and the import's run form with the cartridge, checking exact
+    /// pointer ownership, that each shape covers exactly the square's four cells, and that it rejects a cell outside.
+    /// </summary>
     private static void VerifySporeSpawnCeilingDrawMapping(SuperMetroidAddressSpace rom)
     {
         RoomObjectShotBlockDrawDefinitions.DrawList[] draws =
@@ -60,22 +63,28 @@ internal static class SporeSpawnCeilingObjectsVerification
         {
             ushort pointer = (ushort)raw;
             int index = Array.IndexOf(pointers, pointer);
-            AssertEqual(index >= 0, SporeSpawnCeilingDraws.TryGetCollision(NativeObjectDraws.At<SporeSpawnCeilingDraw>(pointer), out RoomCollisionType collision), "Spore ceiling scalar ownership");
+            AssertEqual(index >= 0, SporeSpawnCeilingDraws.TryDescribe(NativeObjectDraws.At<SporeSpawnCeilingDraw>(pointer), out RoomBlockShape? described), "Spore ceiling shape ownership");
             AssertEqual(index >= 0, RoomObjectSporeSpawnCeilingVisualFiles.TryGet(NativeObjectDraws.At<SporeSpawnCeilingDraw>(pointer), out var dto), "Spore ceiling DTO ownership");
-            if (index < 0)
+            if (described is null)
             {
-                AssertEqual(default(RoomCollisionType), collision, "missing Spore ceiling scalar default");
+                AssertTrue(index < 0, "Spore ceiling frame has a shape");
                 AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), dto, "missing Spore ceiling DTO default");
                 continue;
             }
+            RoomBlockShape shape = described;
             AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(draws[index].Draw), "Spore ceiling native export order");
+            AssertEqual(4, shape.Cells.Count, "Spore ceiling shape covers exactly its two-by-two square");
+            foreach (Offset16<RoomBlocks> outside in new Offset16<RoomBlocks>[] { new(-1, 0), new(0, -1), new(2, 0), new(0, 2) })
+                AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(outside), "Spore ceiling shape covers only its square");
             for (int row = 0; row < 2; row++)
             for (int column = 0; column < 2; column++)
             {
                 RoomTerrainBlock native = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, 0x840000 | (pointer + row * 8 + column * 2 + 2)));
-                AssertEqual(native.Collision, collision, "Spore ceiling calculated collision covers each decoded native cell");
+                Offset16<RoomBlocks> place = new(column, row);
+                AssertEqual(native.Collision, shape.CollisionAt(place), "Spore ceiling shape collision covers each decoded native cell");
                 AssertEqual(native.Collision, dto.Runs.Span[row].Collisions.Span[column], "Spore ceiling direct DTO collision");
-                AssertEqual(native.Appearance, pictures.Image(dto.Draw).At(new Offset16<RoomBlocks>(column, row)), "Spore ceiling installed picture");
+                AssertEqual(place, dto.Runs.Span[row].CellAt(column), "Spore ceiling DTO places the native cell");
+                AssertEqual(native.Appearance, pictures.Image(dto.Draw).At(place), "Spore ceiling installed picture");
             }
         }
         foreach (RoomObjectShotBlockDrawDefinitions.DrawList draw in draws)
@@ -150,7 +159,7 @@ internal static class SporeSpawnCeilingObjectsVerification
                 for (int y = 30; y <= 31; y++)
                 for (int x = 7; x <= 8; x++)
                     AssertEqual(expected,
-                        level.GetCollisionBlockByIndex(y * width + x).Terrain,
+                        level.GetCollisionBlock(new Position16<RoomBlocks>(x, y)).Terrain,
                         $"Spore Spawn {(clear ? "clear" : "crumble")} frame {frame} ({x},{y})");
             }
             if (roomObjects.SlotTable.ActiveCount == 0)

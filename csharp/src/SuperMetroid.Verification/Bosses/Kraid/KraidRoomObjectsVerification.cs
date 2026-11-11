@@ -64,7 +64,7 @@ internal static class KraidRoomObjectsVerification
         AssertTrue(roomObjects.BossRoomMutations.KraidRoom.TrySpawn(level, new(new(5, 5), mutation)),
             $"Kraid mutation {mutation} allocates");
         AssertEqual(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock),
-            level.GetCollisionBlockByIndex(5 * width + 5).Terrain,
+            level.GetCollisionBlock(new Position16<RoomBlocks>(5, 5)).Terrain,
             $"Kraid mutation {mutation} setup preserves tile priority");
         var guard = NewKraidRoomSourceGuard(new TestAddressSpace());
         int deletionFrame = -1;
@@ -78,7 +78,7 @@ internal static class KraidRoomObjectsVerification
                 KraidRoomMutation.CrumbleCeilingIntoBackground3 or
                 KraidRoomMutation.CrumbleSpikes)
                 AssertEqual(RoomTerrainBlock.Of(0x180, BlockMirroring.None, RoomCollisionType.SolidBlock),
-                    level.GetCollisionBlockByIndex(5 * width + 5).Terrain,
+                    level.GetCollisionBlock(new Position16<RoomBlocks>(5, 5)).Terrain,
                     $"Kraid mutation {mutation} first crumble frame");
             if (roomObjects.SlotTable.ActiveCount == 0)
                 deletionFrame = frame;
@@ -94,7 +94,7 @@ internal static class KraidRoomObjectsVerification
                     ? RoomTerrainBlock.Of(offset % 2 == 0 ? 0x111 : 0x110, BlockMirroring.None, RoomCollisionType.Air)
                     : firstFinalWord;
             AssertEqual(expected,
-                level.GetCollisionBlockByIndex(5 * width + 5 + offset).Terrain,
+                level.GetCollisionBlock(new Position16<RoomBlocks>(5 + offset, 5)).Terrain,
                 $"Kraid mutation {mutation} final block {offset}");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,

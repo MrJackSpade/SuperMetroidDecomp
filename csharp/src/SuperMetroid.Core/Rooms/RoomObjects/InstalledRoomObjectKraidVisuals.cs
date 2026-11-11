@@ -16,7 +16,7 @@ public sealed class InstalledRoomObjectKraidVisuals
     /// <summary>The picture <paramref name="draw"/> shows.</summary>
     /// <exception cref="InvalidDataException">The draw is not one of the family's frames, or the installation lacks it.</exception>
     internal RoomObjectFrameImage Image(RoomObjectDraw draw) =>
-        KraidRoomObjectDraws.TryGet(draw, out _)
+        KraidRoomObjectDraws.TryDescribe(draw, out _)
             ? Images.Image(draw)
             : throw new InvalidDataException($"Kraid room visuals lack frame {draw}.");
 }

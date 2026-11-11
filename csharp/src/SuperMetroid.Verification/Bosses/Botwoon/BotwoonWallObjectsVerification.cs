@@ -39,14 +39,22 @@ internal static class BotwoonWallObjectsVerification
         foreach (RoomCollisionType collision in draw.Runs.Span[0].Collisions.Span)
             AssertCollision(collision);
         RoomObjectFrameImage picture = InstalledRoomObjectBotwoonWallVisuals.Stock().Image(draw.Draw);
+        if (!BotwoonWallObjectDraws.TryDescribe(draw.Draw, out RoomBlockShape? described))
+            throw new InvalidOperationException("Botwoon's wall clear has no shape.");
+        RoomBlockShape shape = described;
+        AssertEqual(9, shape.Cells.Count, "Botwoon clear shape covers exactly the column's nine cells");
         for (int index = 0; index < 9; index++)
         {
             RoomTerrainBlock native = RoomLevelWordCodec.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x849311 + index * 2));
-            AssertEqual(native.Collision, BotwoonWallObjectDraws.CollisionAt(index), "Botwoon calculated clear collision matches the native word");
-            AssertEqual(native.Appearance, picture.At(new Offset16<RoomBlocks>(0, index)), "Botwoon installed clear picture shows the native word's block");
+            Offset16<RoomBlocks> place = new(0, index);
+            AssertEqual(place, draw.Runs.Span[0].CellAt(index), "Botwoon clear run places the native word down its column");
+            AssertEqual(native.Collision, shape.CollisionAt(place), "Botwoon clear shape collision matches the native word");
+            AssertEqual(native.Appearance, picture.At(place), "Botwoon installed clear picture shows the native word's block");
         }
-        foreach (int index in new[] {int.MinValue,-1,9,int.MaxValue})
-            AssertThrows<ArgumentOutOfRangeException>(() => BotwoonWallObjectDraws.CollisionAt(index), "Botwoon fill rejects invalid block index");
+        foreach (Offset16<RoomBlocks> outside in new Offset16<RoomBlocks>[] { new(0, -1), new(0, 9), new(-1, 0), new(1, 0) })
+            AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(outside), "Botwoon clear shape covers only its column");
+        AssertTrue(!BotwoonWallObjectDraws.TryDescribe(ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, 0), out _),
+            "Botwoon's crumble frames are shot-block draws, not the wall's own");
         AssertEqual(rom.ReadCartridgeByte(0x840000 | cursor++),
             unchecked((byte)RoomObjectRunContinuationCodecConstants.X(draw, 0)),
             "Botwoon clear final X offset");
@@ -99,7 +107,7 @@ internal static class BotwoonWallObjectsVerification
             {
                 for (int y = 4; y <= 12; y++)
                     AssertEqual(RoomTerrainBlock.Of(0x0ff, BlockMirroring.None, RoomCollisionType.Air),
-                        level.GetCollisionBlockByIndex(y * width + 15).Terrain,
+                        level.GetCollisionBlock(new Position16<RoomBlocks>(15, y)).Terrain,
                         $"Botwoon clear row {y}");
             }
             if (!clear && frame >= 63 && frame <= 203 &&
@@ -115,7 +123,7 @@ internal static class BotwoonWallObjectsVerification
                     _ => BlankAirBlock.Value,
                 };
                 AssertEqual(appearance,
-                    level.GetCollisionBlockByIndex((4 + row) * width + 15).Terrain,
+                    level.GetCollisionBlock(new Position16<RoomBlocks>(15, 4 + row)).Terrain,
                     $"Botwoon crumble frame {frame}, row {row}");
                 if (row == 0 && phase == 0)
                 {

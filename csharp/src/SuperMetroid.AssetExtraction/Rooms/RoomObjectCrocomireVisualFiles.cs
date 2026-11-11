@@ -9,21 +9,6 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <summary>The installed pictures of Crocomire's five bridge and invisible-wall frames (#1557), and the published names that key them.</summary>
 public static class RoomObjectCrocomireVisualFiles
 {
-    /// <summary>The run layout the exported draw lists record for a bridge or wall draw.</summary>
-    extension(CrocomireArenaDraws.Draw shape)
-    {
-        /// <summary>Wall columns write down their column; the bridge writes along its row.</summary>
-        internal RoomObjectRunDirection Direction => shape.Wall ? RoomObjectRunDirection.Vertical : RoomObjectRunDirection.Horizontal;
-
-        /// <summary>Where a run starts: each wall column its run number of blocks right of the draw origin.</summary>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="run"/> is not one of the draw's runs.</exception>
-        internal Offset16<RoomBlocks> Start(int run)
-        {
-            if ((uint)run >= shape.RunCount) throw new ArgumentOutOfRangeException(nameof(run));
-            return new(run, 0);
-        }
-    }
-
     /// <summary>JSON filename for Crocomire bridge and invisible-wall visual layouts.</summary>
     public const string VisualFileName = "crocomire-arena.json";
 
@@ -58,16 +43,35 @@ public static class RoomObjectCrocomireVisualFiles
         }
     }
 
-    /// <summary>Builds the draw list of one bridge or wall draw with its run offsets.</summary>
+    /// <summary>
+    /// The draw list of one bridge or wall frame as the cartridge writes it: the runs of its draw list, each cell
+    /// colliding as the game's block shape for the frame says (#1608). The run form is the cartridge's; the game draws
+    /// the shape.
+    /// </summary>
     internal static bool TryGet(RoomObjectDraw draw, out RoomObjectShotBlockDrawDefinitions.DrawList list)
     {
-        bool found = CrocomireArenaDraws.TryDescribe(draw, out CrocomireArenaDraws.Draw shape);
-        list = found
-            ? RoomObjectDrawListExport.Runs(draw, shape.RunCount, _ => shape.BlocksPerRun, shape.CollisionAt,
-
-                _ => shape.Direction, run => shape.Start(run))
-            : default;
-        return found;
+        if (!CrocomireArenaDraws.TryDescribe(draw, out RoomBlockShape? described))
+        {
+            list = default;
+            return false;
+        }
+        RoomBlockShape shape = described;
+        // A wall is written as its three columns, each down from the wall's top row and started from the origin rather
+        // than from the column before. A bridge is written as the one run along its row.
+        Offset16<RoomBlocks> belowOrigin = new(0, 1);
+        Offset16<RoomBlocks>[] wallStarts = [new(0, 0), new(1, 0), new(2, 0)];
+        int wallColumnHeight = 8;
+        if (shape.Covers(belowOrigin))
+        {
+            list = RoomObjectDrawListExport.Runs(draw, wallStarts.Length, _ => wallColumnHeight,
+                (run, cell) => shape.CollisionAt(wallStarts[run] + new Offset16<RoomBlocks>(0, cell)),
+                _ => RoomObjectRunDirection.Vertical, run => wallStarts[run]);
+            return true;
+        }
+        list = RoomObjectDrawListExport.Runs(draw, 1, _ => shape.Cells.Count,
+            (_, cell) => shape.CollisionAt(new Offset16<RoomBlocks>(cell, 0)),
+            RoomObjectDrawListExport.Horizontal, _ => Offset16<RoomBlocks>.Zero);
+        return true;
     }
 
     /// <summary>Maps an arena draw to the published bridge or wall artwork key.</summary>

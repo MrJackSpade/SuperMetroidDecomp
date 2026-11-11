@@ -1,8 +1,8 @@
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -53,20 +53,24 @@ public static class RoomObjectSporeSpawnCeilingVisualFiles
             ? id
             : throw new InvalidOperationException($"Undefined SporeSpawnCeilingDraw {frame}.");
 
-    /// <summary>Builds the two-run square of a supported clear or crumble draw.</summary>
+    /// <summary>
+    /// The draw list of a clear or crumble frame as the cartridge writes it: the square's two rows, top row first, each
+    /// cell colliding as the game's block shape for the frame says (#1608). The run form is the cartridge's; the game
+    /// draws the shape.
+    /// </summary>
     internal static bool TryGet(RoomObjectDraw request, out RoomObjectShotBlockDrawDefinitions.DrawList list)
     {
-        if (SporeSpawnCeilingDraws.TryGetCollision(request, out RoomCollisionType collision))
+        if (!SporeSpawnCeilingDraws.TryDescribe(request, out RoomBlockShape? described))
         {
-            list = Square(request, collision);
-            return true;
+            list = default;
+            return false;
         }
-        list = default;
-        return false;
-    }
-
-    /// <summary>Repeats one collision kind across the two horizontal runs of the ceiling's two-by-two layout.</summary>
-    private static RoomObjectShotBlockDrawDefinitions.DrawList Square(RoomObjectDraw draw, RoomCollisionType collision) =>
-        RoomObjectDrawListExport.Runs(draw, 2, static _ => 2, (_, _) => collision,
+        RoomBlockShape shape = described;
+        int rows = 2;
+        int rowWidth = 2;
+        list = RoomObjectDrawListExport.Runs(request, rows, _ => rowWidth,
+            (run, cell) => shape.CollisionAt(RoomObjectDrawListExport.Stacked(run) + new Offset16<RoomBlocks>(cell, 0)),
             RoomObjectDrawListExport.Horizontal, RoomObjectDrawListExport.Stacked);
+        return true;
+    }
 }

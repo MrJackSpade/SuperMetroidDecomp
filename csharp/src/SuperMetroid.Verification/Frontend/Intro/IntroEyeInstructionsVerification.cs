@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -78,9 +79,12 @@ internal static class IntroEyeInstructionsVerification
                 if ((word & CinematicCodePointers.InstructionCommandBit) == 0)
                 {
                     int position = Word(pointer + 2);
-                    AssertEqual((int)IntroEyeAnimationDefinitions.PortraitCell.X, LittleEndianBytes.LowByte(checked((ushort)position)),
+                    // The record names the portrait character the eye's corner lies on; the port draws it at that character's pixel.
+                    AssertEqual((int)IntroEyeAnimationDefinitions.PortraitEyeCorner.X,
+                        LittleEndianBytes.LowByte(checked((ushort)position)) * CharacterCellConversions.CellPixels,
                         "native eye record draws at the portrait column");
-                    AssertEqual((int)IntroEyeAnimationDefinitions.PortraitCell.Y, LittleEndianBytes.HighByte(checked((ushort)position)),
+                    AssertEqual((int)IntroEyeAnimationDefinitions.PortraitEyeCorner.Y,
+                        LittleEndianBytes.HighByte(checked((ushort)position)) * CharacterCellConversions.CellPixels,
                         "native eye record draws at the portrait row");
                     int record = Word(pointer + 4) - FrontendSourceDefinitions.IntroEyeFrameRecords;
                     AssertTrue(record >= 0 && record % FrontendSourceDefinitions.IntroEyeFrameRecordStride == 0,

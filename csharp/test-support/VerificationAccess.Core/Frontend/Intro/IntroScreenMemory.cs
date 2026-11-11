@@ -102,8 +102,9 @@ internal static class IntroScreenMemory
         if (eye is not { } frame)
             return portrait;
         ReadOnlySpan<BackgroundTile> rectangle = sources.EyeFrames.FrameTiles((int)frame);
-        Position16<TilemapCells> corner = IntroEyeAnimationDefinitions.PortraitCell;
-        Extent16<TilemapCells> size = IntroArtworkExtentDefinitions.EyeFrameSize;
+        var corner = new Position16<CharacterCells>(IntroEyeAnimationDefinitions.PortraitEyeCorner.X / CharacterCellConversions.CellPixels,
+            IntroEyeAnimationDefinitions.PortraitEyeCorner.Y / CharacterCellConversions.CellPixels);
+        Extent16<CharacterCells> size = IntroArtworkExtentDefinitions.EyeFrameSize;
         for (int cell = 0; cell < rectangle.Length; cell++)
             portrait[(corner.Y + cell / size.X) * IntroCinematicDefinitions.Planes.Width + corner.X + cell % size.X] = rectangle[cell];
         return portrait;

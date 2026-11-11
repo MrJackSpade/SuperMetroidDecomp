@@ -10,10 +10,9 @@ internal static class MapFrameOpening
     /// <returns>A window of the one rectangle the opening covers.</returns>
     internal static ScreenWindow Window(Offset16<PlanePixels> frameScroll)
     {
-        int left = MapFrameDefinitions.OpeningCorner.X * ScreenGeometry.BackgroundTileSizePixels - frameScroll.X;
-        int top = MapFrameDefinitions.OpeningCorner.Y * ScreenGeometry.BackgroundTileSizePixels - frameScroll.Y;
+        int left = MapFrameDefinitions.OpeningCorner.X - frameScroll.X;
+        int top = MapFrameDefinitions.OpeningCorner.Y - frameScroll.Y;
         return ScreenWindow.Of(WindowRectangle.Spanning(left, top,
-            left + MapFrameDefinitions.OpeningSize.X * ScreenGeometry.BackgroundTileSizePixels - 1,
-            top + MapFrameDefinitions.OpeningSize.Y * ScreenGeometry.BackgroundTileSizePixels - 1));
+            left + MapFrameDefinitions.OpeningSize.X - 1, top + MapFrameDefinitions.OpeningSize.Y - 1));
     }
 }

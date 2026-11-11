@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 /// <param name="Size">The patch's width and height in cells.</param>
 /// <param name="First">The atlas patch's top-left tile, with its colour variant, priority and own mirroring.</param>
 /// <param name="Flips">The axes the whole patch is reflected on.</param>
-internal sealed record IntroBackgroundPatch(Position16<TilemapCells> Origin, Extent16<TilemapCells> Size, BackgroundTile First,
+internal sealed record IntroBackgroundPatch(Position16<CharacterCells> Origin, Extent16<CharacterCells> Size, BackgroundTile First,
     TileFlip Flips = TileFlip.None) : IntroBackgroundStroke
 {
     /// <inheritdoc/>

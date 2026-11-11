@@ -49,7 +49,7 @@ public static class GameOptionsPresentationExtractor
                     GameOptionsPageDefinitions.ControllerLabelCellCount * sizeof(ushort))));
         }
 
-        Position16<TilemapCells>[] controllerAnchors = Enumerable.Range(0, GameOptionsDefinitions.Rows.ControllerActionCount)
+        Position16<CharacterCells>[] controllerAnchors = Enumerable.Range(0, GameOptionsDefinitions.Rows.ControllerActionCount)
             .Select(GameOptionsPageCells.ControllerLabelAnchor)
             .ToArray();
         GameOptionsLanguageRegionDocument[] languageRegions =

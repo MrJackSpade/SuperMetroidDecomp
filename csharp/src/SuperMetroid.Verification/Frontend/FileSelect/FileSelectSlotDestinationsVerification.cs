@@ -47,8 +47,9 @@ internal static class FileSelectSlotDestinationsVerification
                 FileSelectSlotFieldDocument exported = (dataPage ? document.DataSlots : document.MainSlots)[slot];
                 if (field is FileSelectSlotField.Energy or FileSelectSlotField.TimeValue)
                 {
-                    Position16<TilemapCells> point = field == FileSelectSlotField.Energy ? exported.EnergyAnchor : exported.TimeValueAnchor;
-                    AssertEqual(expected, (point.Y * 32 + point.X) * 2, "extracted slot field anchor");
+                    // The exported anchor is the page pixel of the cell the cartridge's destination word names.
+                    Position16<PlanePixels> point = field == FileSelectSlotField.Energy ? exported.EnergyAnchor : exported.TimeValueAnchor;
+                    AssertEqual(new Position16<PlanePixels>(expected / 2 % 32 * 8, expected / 2 / 32 * 8), point, "extracted slot field anchor");
                 }
                 else
                 {

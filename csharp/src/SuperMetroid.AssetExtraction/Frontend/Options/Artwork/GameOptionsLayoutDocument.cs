@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 
@@ -23,7 +24,7 @@ public record GameOptionsLayoutDocument
     public required Dictionary<string, MapPresentationCell[]> ControllerLabels { get; init; }
     /// <summary>Seven controller-action glyph origins in action order, in tile units; each 3-by-2 label must fit the page.</summary>
     [JsonPropertyOrder(4)]
-    public required Position16<TilemapCells>[] ControllerLabelAnchors { get; init; }
+    public required Position16<CharacterCells>[] ControllerLabelAnchors { get; init; }
     /// <summary>Four nonempty, mutually disjoint primary-page cell regions whose palettes reflect the selected language.</summary>
     [JsonPropertyOrder(5)]
     public required GameOptionsLanguageRegionDocument[] LanguageRegions { get; init; }

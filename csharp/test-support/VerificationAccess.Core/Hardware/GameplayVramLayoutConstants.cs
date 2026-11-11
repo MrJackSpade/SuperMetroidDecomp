@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>Cartridge values and helpers of <see cref="GameplayVramLayout"/> that only verification reads.</summary>
@@ -18,7 +19,7 @@ internal static class GameplayVramLayoutConstants
         0x6000, 0x2000, "4-bpp OBJ characters (16 words each)", PpuMemoryLayout.Vram);
 
     /// <summary>BG1SC/BG2SC size bit 0 for rooms: two 32-by-32 screens side by side.</summary>
-    public static Extent16<TilemapCells> RoomTilemapSize =>
+    public static Extent16<CharacterCells> RoomTilemapSize =>
         new(2 * SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.WidthInTiles, SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.WidthInTiles);
     /// <summary>VMADD $5000-$57FF: BG1's two horizontal 32x32 tilemap screens (BG1SC=$51), the level ring.</summary>
     public static readonly PpuLayoutCell Bg1Tilemap = new(nameof(Bg1Tilemap), PpuLayoutRegion.Vram,

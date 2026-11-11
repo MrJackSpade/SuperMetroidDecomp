@@ -2,20 +2,28 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 
 /// <summary>File identity, schema names and fixed dimensions of the installed <c>file-select.json</c>.</summary>
 public static class FileSelectPresentationFormat
 {
-    /// <summary>Supported file-select presentation JSON schema version.</summary>
-    public const int Version = 1;
+    /// <summary>
+    /// Supported file-select presentation JSON schema version: 2 holds each slot field's and slot letter's anchor as the page
+    /// pixel the game shows it at.
+    /// </summary>
+    public const int Version = 2;
     /// <summary>Extracted JSON filename for menu pages, fields, sprite compositions, and layout.</summary>
     public const string FileName = "file-select.json";
+    /// <summary>Cells across each menu page.</summary>
+    public const int PageColumns = FileSelectPresentationDefinitions.PageWidthPixels / CharacterCellConversions.CellPixels;
+    /// <summary>Cells down each menu page.</summary>
+    public const int PageRows = FileSelectPresentationDefinitions.PageHeightPixels / CharacterCellConversions.CellPixels;
     /// <summary>Number of row-major tile cells required in each menu page.</summary>
-    public const int CellCount = FileSelectPresentationDefinitions.Width * FileSelectPresentationDefinitions.Height;
+    public const int CellCount = PageColumns * PageRows;
     /// <summary>Size of each menu tilemap page in tile cells.</summary>
-    public static Extent16<TilemapCells> PageSize => new(FileSelectPresentationDefinitions.Width, FileSelectPresentationDefinitions.Height);
+    public static Extent16<CharacterCells> PageSize => new(PageColumns, PageRows);
     /// <summary>Width in characters of the sheet addressed by authored background tile cells.</summary>
     public const int CharacterColumns = 32;
     /// <summary>Height in characters of the sheet addressed by authored background tile cells.</summary>

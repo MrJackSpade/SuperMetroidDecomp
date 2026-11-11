@@ -10,6 +10,7 @@ namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Compares D3D11 on the graphics device and the WARP reference's windowed-scene rendering across native PPU geometry and brightness cases.</summary>
 internal static class WindowSceneSmokeTests
@@ -27,7 +28,7 @@ internal static class WindowSceneSmokeTests
         }
         var parentMemory = Memory(3); var childMemory = Memory(7);
         var background = new PicturedPlaneLayer(VramPictureFixtures.Plane(parentMemory.Vram, parentMemory.Colors, 0x4000, 0x6000, TileInkDepth.SixteenColours,
-            new Extent16<TilemapCells>(32, 32)), new Offset16<PlanePixels>(3, 11));
+            new Extent16<CharacterCells>(32, 32)), new Offset16<PlanePixels>(3, 11));
         AffineFloor childFloor = AffineFloorFixtures.Floor(childMemory.Vram, childMemory.Colors);
         LayeredScene Child(byte brightness) => new(new FramePaint(childMemory.Paint.Backdrop), new DisplayLayer[] {
             new TurningFloorLayer(new FloorView(0.27, 1.05, new(128, 112), new(13, -11), FloorOverflowMode.Wrap), childFloor),

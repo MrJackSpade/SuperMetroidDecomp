@@ -553,11 +553,11 @@ internal static class LookupStream3Verification
                     ushort word = SnesBgTilemapWord.Create(cell.TileRow * MapTileAtlasFormat.TileColumns + cell.TileColumn,
                         cell.Palette, cell.Priority, (cell.FlipX ? TileFlip.Horizontal : TileFlip.None) |
                         (cell.FlipY ? TileFlip.Vertical : TileFlip.None)).Raw;
-                    AssertEqual(new FileSelectCompiledPatchCell(source.Offset - Position16<TilemapCells>.Zero, BackgroundTileWords.ToTile(word)), compiled.Cell(index),
+                    AssertEqual(new FileSelectCompiledPatchCell(source.Offset - Position16<CharacterCells>.Zero, BackgroundTileWords.ToTile(word)), compiled.Cell(index),
                         "file-select supplied order and coordinates");
                     expected[(3 + source.Y) * 32 + 4 + source.X] = word;
                 }
-                presentation.ApplyPatch(actual, patch, new Position16<TilemapCells>(4, 3));
+                presentation.ApplyPatch(actual, patch, new Position16<CharacterCells>(4, 3));
                 AssertTrue(BackgroundTileWordBytes.Words(actual).SequenceEqual(expected), "file-select exact stock patch placement");
             }
         }
@@ -609,7 +609,7 @@ internal static class LookupStream3Verification
         for (int action = 0; action < 7; action++)
         {
             ushort offset = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x82f639 + action * 2));
-            AssertEqual(new Position16<TilemapCells>(checked((ushort)(offset / 2 % 32)), checked((ushort)(offset / 2 / 32))),
+            AssertEqual(new Position16<CharacterCells>(checked((ushort)(offset / 2 % 32)), checked((ushort)(offset / 2 / 32))),
                 GameOptionsPageCells.ControllerAnchor(action), "native options label anchor");
         }
         foreach ((GameOptionsPage page, int address, int count) in new[]
@@ -657,7 +657,7 @@ internal static class LookupStream3Verification
             {
                 byte[] actual = presentation.CreatePageBytes(GameOptionsScreen.ControllerEnglish);
                 byte[] expected = (byte[])actual.Clone();
-                Position16<TilemapCells> point = document.ControllerLabelAnchors[action];
+                Position16<CharacterCells> point = document.ControllerLabelAnchors[action];
                 for (int cell = 0; cell < 6; cell++)
                 {
                     MapPresentationCell source = document.ControllerLabels[GameOptionsNames.ControllerLabelName(GameOptionsNames.ControllerLabelButton(button))][cell];
@@ -1064,7 +1064,7 @@ internal static class LookupStream3Verification
             bool digit = glyph < 10;
             int index = digit ? glyph : glyph - 10;
             ushort expected = (ushort)(digit ? 0x2060 + index : 0x206a + index);
-            var anchor = new Position16<TilemapCells>(4, 3);
+            var anchor = new Position16<CharacterCells>(4, 3);
             if (digit) fileSelect.WriteDigit(glyphTilemap, anchor, 2, index);
             else fileSelect.WriteSlotLetter(glyphTilemap, anchor, index);
             AssertEqual(expected, BackgroundTileWords.ToWord(glyphTilemap[3 * 32 + 4 + (digit ? 2 : 0)]), "stream 3 actual file-select calculated glyph write");

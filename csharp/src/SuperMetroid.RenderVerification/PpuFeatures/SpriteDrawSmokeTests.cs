@@ -120,7 +120,7 @@ internal static class SpriteDrawSmokeTests
             }
             var memory = FramePaint.FromNative(palette, draws.ToImmutable());
             PicturedPlane plane = VramPictureFixtures.Plane(vram, palette, GameplayVramLayout.Bg2TilemapWord, GameplayVramLayout.HudCharacterWord, TileInkDepth.SixteenColours,
-                new Extent16<TilemapCells>(32, 32));
+                new Extent16<CharacterCells>(32, 32));
             Check(memory, [], $"seeded scene {cases}");
             Check(memory, [new PicturedPlaneLayer(plane, new Offset16<PlanePixels>(3, 11))], $"seeded sprites over a plane {cases}");
         }

@@ -67,7 +67,7 @@ internal sealed class PauseScreen
     /// </summary>
     private static PlacedPlanePicture AtCorner(SpriteSheetFrame picture, PictureShading shading)
     {
-        PlacedPlanePicture atCorner = PlacedPlanePicture.AtCell(picture, default, shading);
+        PlacedPlanePicture atCorner = PlacedPlanePicture.WithOriginAt(picture, default, shading);
         return atCorner with { Corner = atCorner.Corner.WithY(atCorner.Corner.Y - PageRowsAboveScreen) };
     }
 

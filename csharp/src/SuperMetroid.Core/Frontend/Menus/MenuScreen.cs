@@ -47,22 +47,22 @@ internal sealed class MenuScreen
     }
 
     /// <summary>
-    /// A page showing the menus' pictures named in <paramref name="pictures"/>, each placed at its page cell in drawing order
-    /// (#1467): a field's picture lands where the game writes that field.
+    /// A page showing the menus' pictures named in <paramref name="pictures"/>, each with its origin on its page pixel, in
+    /// drawing order (#1467): a field's picture lands where the game shows that field.
     /// </summary>
     /// <exception cref="InvalidDataException">The installed menu pictures hold no such frame.</exception>
-    internal PicturedPlane CellPictures(IEnumerable<PlacedFrame> pictures)
+    internal PicturedPlane PlacedPictures(IEnumerable<PlacedFrame> pictures)
     {
         SpriteSheet sheet = Sheets.Get(SpriteSheetId.MenuPictures);
-        return new PicturedPlane([.. Ensure.NotNull(pictures).Select(placed => Place(sheet.Frame(placed.Frame), placed.Cell))]);
+        return new PicturedPlane([.. Ensure.NotNull(pictures).Select(placed => Place(sheet.Frame(placed.Frame), placed.Origin))]);
     }
 
     /// <summary>
-    /// <paramref name="picture"/> placed at page cell <paramref name="cell"/>, its origin on the cell's corner, in the
-    /// standard colours the import pre-coloured it in under the menu's colours (#1512).
+    /// <paramref name="picture"/> with its origin on page pixel <paramref name="origin"/>, in the standard colours the import
+    /// pre-coloured it in under the menu's colours (#1512).
     /// </summary>
-    private static PlacedPlanePicture Place(SpriteSheetFrame picture, Position16<TilemapCells> cell) =>
-        PlacedPlanePicture.AtCell(picture, cell, PictureShading.Standard);
+    private static PlacedPlanePicture Place(SpriteSheetFrame picture, Position16<PlanePixels> origin) =>
+        PlacedPlanePicture.WithOriginAt(picture, origin, PictureShading.Standard);
 
     /// <summary>The solid colour the screen shows where nothing is drawn (#1512): file select's, or the world map's selected area's.</summary>
     public RgbColor Backdrop { get; set; }

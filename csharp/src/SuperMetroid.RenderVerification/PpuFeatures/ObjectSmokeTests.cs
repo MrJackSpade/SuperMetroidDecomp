@@ -9,6 +9,7 @@ namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Compares the WARP reference and the graphics device's Direct3D sprite layers across sprite sizes, counts, a plane behind them, and overlap.</summary>
 internal static class ObjectSmokeTests
@@ -23,7 +24,7 @@ internal static class ObjectSmokeTests
         random.NextBytes(oam);
         RgbColor[] palette = Enumerable.Range(0, SnesCgram.ColorCount)
             .Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
-        PicturedPlane plane = VramPictureFixtures.Plane(vram, palette, 0x4000, 0x6000, TileInkDepth.SixteenColours, new Extent16<TilemapCells>(32, 32));
+        PicturedPlane plane = VramPictureFixtures.Plane(vram, palette, 0x4000, 0x6000, TileInkDepth.SixteenColours, new Extent16<CharacterCells>(32, 32));
         int cases = 0;
         for (int size = 0; size < 8; size++)
         foreach (int count in new[] { 0, 1, 37, 128 })

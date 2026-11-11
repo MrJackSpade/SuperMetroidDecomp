@@ -12,15 +12,14 @@ namespace SuperMetroid.Core.Rendering;
 public readonly record struct PlacedPlanePicture(SpriteSheetFrame Picture, Offset16<PlanePixels> Corner, PictureShading Shading)
 {
     /// <summary>
-    /// <paramref name="picture"/> placed at cell <paramref name="cell"/> of its plane, shown in <paramref name="shading"/>:
-    /// the point its frame names as its origin lands on the cell's corner, so a picture whose origin lies inside it reaches
-    /// left of or above the cell.
+    /// <paramref name="picture"/> placed with the point its frame names as its origin on plane pixel
+    /// <paramref name="origin"/>, shown in <paramref name="shading"/>: a picture whose origin lies inside it reaches left of
+    /// or above that pixel.
     /// </summary>
-    public static PlacedPlanePicture AtCell(SpriteSheetFrame picture, Position16<TilemapCells> cell, PictureShading shading)
+    public static PlacedPlanePicture WithOriginAt(SpriteSheetFrame picture, Position16<PlanePixels> origin, PictureShading shading)
     {
         Ensure.NotNull(picture);
         Ensure.NotNull(shading);
-        return new(picture, Offset16<PlanePixels>.Of(cell.X * ScreenGeometry.BackgroundTileSizePixels - picture.Origin.X,
-            cell.Y * ScreenGeometry.BackgroundTileSizePixels - picture.Origin.Y), shading);
+        return new(picture, Offset16<PlanePixels>.Of(origin.X - picture.Origin.X, origin.Y - picture.Origin.Y), shading);
     }
 }

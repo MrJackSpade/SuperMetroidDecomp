@@ -34,8 +34,8 @@ public abstract class FileSelectPresentation
             : throw new ArgumentOutOfRangeException(nameof(slot));
     }
 
-    /// <summary>Resolves a named dynamic field location in the menu tilemap.</summary>
-    internal Position16<TilemapCells> DynamicAnchor(FileSelectAnchor anchor) => placements.DynamicAnchors[anchor];
+    /// <summary>The page pixel a copy or clear prompt's slot letter is shown at.</summary>
+    internal Position16<PlanePixels> DynamicAnchor(FileSelectAnchor anchor) => placements.DynamicAnchors[anchor];
 
     /// <summary>Selects the cursor anchor from main, confirmation, or data-management layouts.</summary>
     internal Position16<SpritePixels> CursorPosition(FileSelectCursorPage page, int selected) =>

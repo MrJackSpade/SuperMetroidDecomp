@@ -173,13 +173,13 @@ public static class FileSelectPresentationExtractor
             DynamicAnchors = new(StringComparer.Ordinal)
             {
                 [FileSelectPresentationFormat.AnchorName(FileSelectAnchor.CopyDestinationSource)] =
-                    Point(FileSelectNativeLayout.CopyDestinationSourceLetterDestination),
+                    Shown(FileSelectNativeLayout.CopyDestinationSourceLetterDestination),
                 [FileSelectPresentationFormat.AnchorName(FileSelectAnchor.CopyConfirmSource)] =
-                    Point(FileSelectNativeLayout.CopyConfirmationSourceLetterDestination),
+                    Shown(FileSelectNativeLayout.CopyConfirmationSourceLetterDestination),
                 [FileSelectPresentationFormat.AnchorName(FileSelectAnchor.CopyConfirmDestination)] =
-                    Point(FileSelectNativeLayout.CopyConfirmationDestinationLetterDestination),
+                    Shown(FileSelectNativeLayout.CopyConfirmationDestinationLetterDestination),
                 [FileSelectPresentationFormat.AnchorName(FileSelectAnchor.ClearConfirmSource)] =
-                    Point(FileSelectNativeLayout.ClearConfirmationSourceLetterDestination),
+                    Shown(FileSelectNativeLayout.ClearConfirmationSourceLetterDestination),
             },
             ObjectPalette = MenuRenderDefinitions.ObjectPalette,
             CursorFrameDuration = MenuMissileAnimationDefinitions.FrameDuration,
@@ -263,7 +263,7 @@ public static class FileSelectPresentationExtractor
     /// <summary>Places a relative text patch at a tilemap byte anchor and rejects cells escaping the page.</summary>
     private static void Apply(ushort[] page, RawPatch patch, int byteOffset)
     {
-        Position16<TilemapCells> anchor = Point(byteOffset);
+        Position16<CharacterCells> anchor = Point(byteOffset);
         foreach (RawPatchCell cell in patch.Cells)
         {
             int index = FileSelectPresentationFormat.PageSize.RowMajorIndex(anchor + cell.Offset);
@@ -284,10 +284,10 @@ public static class FileSelectPresentationExtractor
     /// <summary>Derives one slot's energy, health, no-data, and time anchors from native tilemap offsets.</summary>
     private static FileSelectSlotFieldDocument Slot(int energyOffset, int timeOffset) => new()
     {
-        EnergyAnchor = Point(energyOffset),
-        HealthAnchor = Point(energyOffset + FileSelectNativeLayout.NextTilemapRowByteOffset + sizeof(ushort)),
-        NoDataAnchor = Point(energyOffset + FileSelectNativeLayout.NextTilemapRowByteOffset),
-        TimeValueAnchor = Point(timeOffset),
+        EnergyAnchor = Shown(energyOffset),
+        HealthAnchor = Shown(energyOffset + FileSelectNativeLayout.NextTilemapRowByteOffset + sizeof(ushort)),
+        NoDataAnchor = Shown(energyOffset + FileSelectNativeLayout.NextTilemapRowByteOffset),
+        TimeValueAnchor = Shown(timeOffset),
     };
 
     /// <summary>Converts a decoded text patch to editable tile cells and relative coordinates.</summary>
@@ -337,15 +337,18 @@ public static class FileSelectPresentationExtractor
     }
 
     /// <summary>Maps a tilemap byte offset to column and row within the file-select page width.</summary>
-    private static Position16<TilemapCells> Point(int byteOffset)
+    private static Position16<CharacterCells> Point(int byteOffset)
     {
         int cell = byteOffset / sizeof(ushort);
-        return new(checked((ushort)(cell % FileSelectPresentationDefinitions.Width)),
-            checked((ushort)(cell / FileSelectPresentationDefinitions.Width)));
+        return new(checked((ushort)(cell % FileSelectPresentationFormat.PageColumns)),
+            checked((ushort)(cell / FileSelectPresentationFormat.PageColumns)));
     }
+
+    /// <summary>The page pixel the game shows a field at whose tilemap byte offset is <paramref name="byteOffset"/>.</summary>
+    private static Position16<PlanePixels> Shown(int byteOffset) => Point(byteOffset).CornerPixel<PlanePixels>();
 
     /// <summary>Decoded relative tile cells from one native file-select text patch.</summary>
     private sealed record RawPatch(RawPatchCell[] Cells);
     /// <summary>One patch tile word and its row/column offset from the destination anchor.</summary>
-    private readonly record struct RawPatchCell(Offset16<TilemapCells> Offset, SnesBgTilemapWord Word);
+    private readonly record struct RawPatchCell(Offset16<CharacterCells> Offset, SnesBgTilemapWord Word);
 }

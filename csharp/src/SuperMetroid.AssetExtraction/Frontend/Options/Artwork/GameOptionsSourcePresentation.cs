@@ -30,7 +30,7 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
     /// <summary>Edited controller-button glyphs, keyed by button; a button absent here draws its native glyph.</summary>
     internal readonly Dictionary<ControllerButton, BackgroundTile[]> controllerLabels;
     /// <summary>Edited controller-label anchors by action, or null for the native destinations.</summary>
-    internal readonly Position16<TilemapCells>[]? controllerLabelAnchors;
+    internal readonly Position16<CharacterCells>[]? controllerLabelAnchors;
     /// <summary>Edited primary-language highlight regions, or null for the native regions.</summary>
     internal readonly GameOptionsLanguageRegionDocument[]? languageRegions;
     /// <summary>Edited special-setting visuals, or null for the native cells.</summary>
@@ -117,7 +117,7 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
     /// <summary>Each page cell of controller action <paramref name="action"/>'s label, with its place in the label's glyph.</summary>
     private IEnumerable<GameOptionsLabelCell> ControllerLabelCells(int action)
     {
-        Position16<TilemapCells> anchor = controllerLabelAnchors?[action] ?? GameOptionsPageCells.ControllerAnchor(action);
+        Position16<CharacterCells> anchor = controllerLabelAnchors?[action] ?? GameOptionsPageCells.ControllerAnchor(action);
         for (int row = 0; row < GameOptionsPageDefinitions.ControllerLabelHeight; row++)
         for (int column = 0; column < GameOptionsPageDefinitions.ControllerLabelWidth; column++)
             yield return new GameOptionsLabelCell((anchor.Y + row) * GameOptionsPageDefinitions.MenuTilemapWidth + anchor.X + column,
@@ -266,7 +266,7 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
             labels.Add(button, CompileCells(cells, $"options controller label {name}"));
         }
 
-        foreach (Position16<TilemapCells> anchor in document.ControllerLabelAnchors)
+        foreach (Position16<CharacterCells> anchor in document.ControllerLabelAnchors)
             ValidateTilePoint(anchor, "controller-label anchor", GameOptionsPageDefinitions.ControllerLabelSize);
         var claimedLanguageCells = new HashSet<int>();
         foreach (GameOptionsLanguageRegionDocument? region in document.LanguageRegions)
@@ -384,7 +384,7 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
     }
 
     /// <summary>Requires a controller-label rectangle to fit the 32-by-32 page.</summary>
-    private static void ValidateTilePoint(Position16<TilemapCells> point, string owner, Extent16<TilemapCells> size)
+    private static void ValidateTilePoint(Position16<CharacterCells> point, string owner, Extent16<CharacterCells> size)
     {
         if (point.X < 0 || point.Y < 0 ||
             point.X + size.X > GameOptionsPageDefinitions.MenuTilemapWidth ||

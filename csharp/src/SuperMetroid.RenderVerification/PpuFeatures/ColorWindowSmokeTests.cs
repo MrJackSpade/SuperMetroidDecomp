@@ -8,6 +8,7 @@ namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Compares Direct3D on the graphics device and the WARP reference for color windows, subscreen math, and message masks.</summary>
 internal static class ColorWindowSmokeTests
@@ -20,9 +21,9 @@ internal static class ColorWindowSmokeTests
         RgbColor[] palette = Enumerable.Range(0, 256).Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
         var memory = FramePaint.FromNativeGameplay(palette, []);
         SuperMetroid.Core.Assets.SpriteSheetFrame bg3 = FxOverlayFixtures.PlaneFromVram(vram, palette, 0x7ff8);
-        var background = new PicturedPlaneLayer(VramPictureFixtures.Plane(vram, palette, 0x4000, 0x6000, TileInkDepth.SixteenColours, new Extent16<TilemapCells>(32, 32)),
+        var background = new PicturedPlaneLayer(VramPictureFixtures.Plane(vram, palette, 0x4000, 0x6000, TileInkDepth.SixteenColours, new Extent16<CharacterCells>(32, 32)),
             new Offset16<PlanePixels>(3, 11));
-        PicturedPlane subscreen = VramPictureFixtures.Plane(vram, palette, 0x5800, 0x4000, TileInkDepth.FourColours, new Extent16<TilemapCells>(32, 32));
+        PicturedPlane subscreen = VramPictureFixtures.Plane(vram, palette, 0x5800, 0x4000, TileInkDepth.FourColours, new Extent16<CharacterCells>(32, 32));
         int count = 0;
         // Seeded windows of every shape kind (#1468), whole and stepped colours.
         for (int sample = 0; sample < 64; sample++)
@@ -69,7 +70,7 @@ internal static class ColorWindowSmokeTests
         foreach (bool masked in new[] { false, true })
         {
             var coverage = masked ? new PicturedPlaneLayer(VramPictureFixtures.Plane(vram, palette, 0x7ffe, 0x6000, TileInkDepth.SixteenColours,
-                new Extent16<TilemapCells>(width, height)), new Offset16<PlanePixels>(-1, 511)) : null;
+                new Extent16<CharacterCells>(width, height)), new Offset16<PlanePixels>(-1, 511)) : null;
             count++;
             var frame = new DisplayPacket(0, new LayeredScene(memory,
                 new DisplayLayer[] { background,

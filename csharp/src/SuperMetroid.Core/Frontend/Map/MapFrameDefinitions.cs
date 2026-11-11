@@ -6,9 +6,9 @@ namespace SuperMetroid.Core.Frontend.Map;
 /// </summary>
 internal static class MapFrameDefinitions
 {
-    /// <summary>The first cell inside the frame's border, on the frame's plane: the opening's top-left cell.</summary>
-    internal static readonly Position16<TilemapCells> OpeningCorner = new(1, 6);
+    /// <summary>The frame plane's pixel at the opening's upper-left corner, just inside the frame's border.</summary>
+    internal static readonly Position16<PlanePixels> OpeningCorner = new(8, 48);
 
-    /// <summary>The opening's width and height in cells; the border surrounds it on every side.</summary>
-    internal static readonly Extent16<TilemapCells> OpeningSize = new(30, 18);
+    /// <summary>The opening's width and height in pixels; the border surrounds it on every side.</summary>
+    internal static readonly Extent16<PlanePixels> OpeningSize = new(240, 144);
 }

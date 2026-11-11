@@ -95,18 +95,18 @@ internal static class GameplayHudArtworkAccess
                 tiles[row * columns + column] = image.Tiles[y * image.Size.X + x];
             }
         }
+    }
 
-        /// <summary>
-        /// The HUD cell <paramref name="placed"/>'s corner lies on, counting the static top row as row zero, as the
-        /// cartridge's HUD rows lay its words out.
-        /// </summary>
-        /// <exception cref="InvalidDataException">The image is not placed on a cell's corner.</exception>
-        private static Position16<CharacterCells> Cell(PlacedHudImage placed)
-        {
-            const int pixels = CharacterCellConversions.CellPixels;
-            if (placed.Corner.X % pixels != 0 || placed.Corner.Y % pixels != 0)
-                throw new InvalidDataException($"HUD image {placed.Image.FrameName} is placed at {placed.Corner}, between the HUD's cells.");
-            return new(placed.Corner.X / pixels, placed.Corner.Y / pixels);
-        }
+    /// <summary>
+    /// The HUD cell <paramref name="placed"/>'s corner lies on, counting the static top row as row zero, as the cartridge's
+    /// HUD rows lay its words out.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The image is not placed on a cell's corner.</exception>
+    private static Position16<CharacterCells> Cell(PlacedHudImage placed)
+    {
+        const int pixels = CharacterCellConversions.CellPixels;
+        if (placed.Corner.X % pixels != 0 || placed.Corner.Y % pixels != 0)
+            throw new InvalidDataException($"HUD image {placed.Image.FrameName} is placed at {placed.Corner}, between the HUD's cells.");
+        return new(placed.Corner.X / pixels, placed.Corner.Y / pixels);
     }
 }

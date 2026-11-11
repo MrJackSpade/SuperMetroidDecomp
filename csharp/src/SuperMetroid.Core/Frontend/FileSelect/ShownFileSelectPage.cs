@@ -18,8 +18,8 @@ internal sealed record ShownFileSelectPage(FileSelectPage Page, ImmutableArray<S
     internal bool Main => Page is FileSelectPage.MainWithData or FileSelectPage.MainEmpty;
 
     /// <summary>
-    /// The menus' pictures the page shows, in drawing order, each at the page cell it is placed at: the page, then each slot's
-    /// field, then the slot letters its copy or clear prompt names.
+    /// The menus' pictures the page shows, in drawing order, each at the page pixel it is placed at: the page, then each
+    /// slot's field, then the slot letters its copy or clear prompt names.
     /// </summary>
     /// <exception cref="InvalidDataException">A slot's energy tanks run past the page.</exception>
     internal IEnumerable<PlacedFrame> Pictures(FileSelectPresentation presentation)
@@ -64,21 +64,22 @@ internal sealed record ShownFileSelectPage(FileSelectPage Page, ImmutableArray<S
         yield return new PlacedFrame(FileSelectParts.DigitFrame(health % FileSelectFieldDefinitions.DigitBase), Right(layout.HealthAnchor, 1));
         int filled = save.Health / FileSelectEnergyTankDefinitions.EnergyPerTank;
         int tanks = save.MaxHealth / FileSelectEnergyTankDefinitions.EnergyPerTank;
-        // Tanks fill the row below ENERGY left to right, then each later row starts one row higher, back where the row
+        // Tanks fill the row below ENERGY left to right, then each later row starts one tank higher, back where the row
         // before it started, as the file-select energy draw walks the page.
-        int column = layout.EnergyAnchor.X + FileSelectEnergyTankDefinitions.ColumnOffset;
-        int row = layout.EnergyAnchor.Y + FileSelectEnergyTankDefinitions.RowOffset;
+        const int step = FileSelectEnergyTankDefinitions.TankPixels;
+        int x = layout.EnergyAnchor.X + FileSelectEnergyTankDefinitions.ColumnOffset * step;
+        int y = layout.EnergyAnchor.Y + FileSelectEnergyTankDefinitions.RowOffset * step;
         int rowRemaining = FileSelectEnergyTankDefinitions.FirstRowCount;
         for (int tank = 0; tank < tanks; tank++)
         {
-            if ((uint)column >= FileSelectPresentationDefinitions.Width || (uint)row >= FileSelectPresentationDefinitions.Height)
+            if ((uint)x >= FileSelectPresentationDefinitions.PageWidthPixels || (uint)y >= FileSelectPresentationDefinitions.PageHeightPixels)
                 throw new InvalidDataException("File-select energy tanks escaped the menu page.");
-            yield return new PlacedFrame(FileSelectParts.TankFrame(tank < filled, tens), new(column, row));
-            column++;
+            yield return new PlacedFrame(FileSelectParts.TankFrame(tank < filled, tens), new(x, y));
+            x += step;
             if (--rowRemaining == 0)
             {
-                column -= FileSelectEnergyTankDefinitions.RowRewindColumns;
-                row--;
+                x -= FileSelectEnergyTankDefinitions.RowRewindColumns * step;
+                y -= step;
                 rowRemaining = FileSelectEnergyTankDefinitions.WrappedRowCount;
             }
         }
@@ -91,7 +92,7 @@ internal sealed record ShownFileSelectPage(FileSelectPage Page, ImmutableArray<S
             Right(layout.TimeValueAnchor, FileSelectFieldDefinitions.ColonColumn + 2));
     }
 
-    /// <summary>The cell <paramref name="columns"/> to the right of <paramref name="anchor"/>.</summary>
-    private static Position16<TilemapCells> Right(Position16<TilemapCells> anchor, int columns) =>
-        new(anchor.X + columns, anchor.Y);
+    /// <summary>The page pixel <paramref name="glyphs"/> glyphs' widths right of <paramref name="anchor"/>.</summary>
+    private static Position16<PlanePixels> Right(Position16<PlanePixels> anchor, int glyphs) =>
+        anchor + new Offset16<PlanePixels>(glyphs * FileSelectFieldDefinitions.GlyphWidthPixels, 0);
 }

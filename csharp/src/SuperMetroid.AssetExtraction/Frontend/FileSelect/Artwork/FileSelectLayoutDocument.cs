@@ -2,12 +2,13 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 
 /// <summary>
-/// The file-select JSON's pages, fields and layout the game binds, with tile-space background fields and pixel-space
-/// sprite anchors. The document the import pipeline reads also holds the sprite compositions the file-select sheet is
+/// The file-select JSON's pages, fields and layout the game binds, with tile-space pages and patches and pixel-space
+/// field and sprite anchors. The document the import pipeline reads also holds the sprite compositions the file-select sheet is
 /// composed from (#1463); each member keeps its place in the document.
 /// </summary>
 /// <remarks>Init-only properties hold caller-owned mutable arrays and dictionaries. A loaded presentation parses its own document and compiles artwork from the supplied JSON stream.</remarks>
@@ -49,9 +50,9 @@ public record FileSelectLayoutDocument
     /// <summary>Three helmet origins in save-slot order, in screen pixels with X=0-511 and Y=0-255.</summary>
     [JsonPropertyOrder(13)]
     public required Position16<SpritePixels>[] HelmetAnchors { get; init; }
-    /// <summary>Exactly the four named copy/clear slot-letter anchors, in tile coordinates inside the 32-by-32 page.</summary>
+    /// <summary>Exactly the four named copy/clear slot-letter anchors, each the page pixel its letter is shown at.</summary>
     [JsonPropertyOrder(14)]
-    public required Dictionary<string, Position16<TilemapCells>> DynamicAnchors { get; init; }
+    public required Dictionary<string, Position16<PlanePixels>> DynamicAnchors { get; init; }
     /// <summary>OBJ palette selector 0-7 applied to border, cursor, and helmet compositions.</summary>
     [JsonPropertyOrder(15)]
     public required int ObjectPalette { get; init; }

@@ -123,7 +123,7 @@ public enum SpriteSheetId
     EndingCreditsRows,
     /// <summary>The post-credits pictures under the post-credits palette: the waiting backdrop, the logo, the panels and the typed glyphs (#1467).</summary>
     EndingPostCreditsPictures,
-    /// <summary>The wavy Samus transformation's four-colour picture under the post-credits palette (#1467).</summary>
+    /// <summary>The wavy Samus transformation's picture under the post-credits palette (#1467).</summary>
     EndingWavySamusPicture,
     /// <summary>The Zebes explosion's four maps' pictures under the explosion palette (#1467).</summary>
     EndingExplosionPictures,

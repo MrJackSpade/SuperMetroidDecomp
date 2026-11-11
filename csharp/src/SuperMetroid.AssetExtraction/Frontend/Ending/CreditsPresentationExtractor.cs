@@ -34,13 +34,14 @@ public static class CreditsPresentationExtractor
         for (int index = 0; index < lines.Length; index++)
         {
             CreditsLineDefinition definition = CreditsRoles.Lines[index];
-            RequireBlankRows(nativeRows, row, definition.BlankRowsBefore, CreditsRoleKeys.Of(index));
-            row += definition.BlankRowsBefore;
+            int blankRows = CreditsPresentation.RowsOf(definition.SpaceBefore);
+            RequireBlankRows(nativeRows, row, blankRows, CreditsRoleKeys.Of(index));
+            row += blankRows;
             lines[index] = DecodeLine(nativeRows, ref row, definition, CreditsRoleKeys.Of(index));
         }
-        RequireBlankRows(nativeRows, row, CreditsRollDefinitions.TrailingBlankRows,
-            "trailing credits gap");
-        row += CreditsRollDefinitions.TrailingBlankRows;
+        int trailingRows = CreditsPresentation.RowsOf(CreditsRollDefinitions.TrailingSpace);
+        RequireBlankRows(nativeRows, row, trailingRows, "trailing credits gap");
+        row += trailingRows;
         if (row != nativeRows.Length)
             throw new InvalidDataException($"Credits decoding consumed {row} of {nativeRows.Length} rows.");
 
@@ -64,7 +65,7 @@ public static class CreditsPresentationExtractor
                 $"Credits tilemap expanded to ${source.Length:X}, expected at least $2000.");
         }
 
-        var rows = new List<ushort[]>(CreditsRollDefinitions.ExpectedCompiledRows);
+        var rows = new List<ushort[]>(CreditsPresentationDefinitions.RowCount);
         int pointer = EndingSourceDefinitions.Credits.InitialInstruction;
         WrappingCountdown timer = WrappingCountdown.Start(0);
         for (int operation = 0; operation < EndingSourceDefinitions.Credits.MaximumOperations; operation++)
@@ -108,11 +109,11 @@ public static class CreditsPresentationExtractor
                     break;
                 case CreditsInstruction.EndCredits:
                 case CreditsInstruction.Delete:
-                    if (rows.Count != CreditsRollDefinitions.ExpectedCompiledRows)
+                    if (rows.Count != CreditsPresentationDefinitions.RowCount)
                     {
                         throw new InvalidDataException(
                             $"Native credits produced {rows.Count} rows, expected " +
-                            $"{CreditsRollDefinitions.ExpectedCompiledRows}.");
+                            $"{CreditsPresentationDefinitions.RowCount}.");
                     }
                     return rows.ToArray();
                 default:

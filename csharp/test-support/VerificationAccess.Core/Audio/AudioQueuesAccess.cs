@@ -6,6 +6,9 @@ internal static class AudioQueuesAccess
     /// <summary>Exposes music timing and each sound library's waiting requests and handshake.</summary>
     extension(AudioQueues self)
     {
+        /// <summary>The requests waiting in <paramref name="library"/>'s queue, oldest first; the next its handler asks for is the first.</summary>
+        internal IReadOnlyList<SoundEffectId> WaitingSounds(SoundEffectLibrary library) => self.SoundQueues[library].Waiting;
+
         /// <summary>
         /// The music handler's wait (the fetched request and the calls left before it is dispatched, or "fetch" when its
         /// next call fetches), the request the queue would hand it next, and whether the queue holds any request.

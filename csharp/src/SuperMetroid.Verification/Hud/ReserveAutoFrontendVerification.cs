@@ -162,9 +162,12 @@ internal static class ReserveAutoFrontendVerification
         audio.Reset(); game.StepCaptured(0);
         AssertTrue(!samus.HealthWarning.IsActive, "locked handler does not run ordinary health check");
         samus.Control.Unlock();
-        audio.Reset(); game.StepCaptured(0);
+        audio.Reset();
+        SoundRequestsMark unlockedMark = audio.MarkSoundRequestsForVerification(SoundEffectLibrary.Room);
+        game.StepCaptured(0);
         AssertTrue(samus.HealthWarning.IsActive, "ordinary gameplay acquires critical warning after unlock");
-        AssertTrue(Enumerable.Range(0, positions[2]).Any(i => queues[2, i] == SoundEffectCommands.Decode(SoundEffectLibrary.Room, 2)), "ordinary gameplay publishes actual warning command");
+        AssertTrue(audio.SoundsQueuedSinceForVerification(unlockedMark).Contains(SoundEffectCommands.Decode(SoundEffectLibrary.Room, 2)),
+            "ordinary gameplay publishes actual warning command");
         runtime.RoomLoader.InitializePostCeresZebesRoom();
         // The Zebes handoff installs a fresh Samus that carries over only the inventory.
         samus = runtime.Player.Samus;
@@ -175,10 +178,13 @@ internal static class ReserveAutoFrontendVerification
         shipPart.FunctionTimer = 100;
         (samus ?? throw new InvalidOperationException("Verification requires samus.")).HealthWarning.Update(99, audio);
         samus.Health = 30; samus.Control.EnterGunship();
-        audio.Reset(); game.StepCaptured(0);
+        audio.Reset();
+        SoundRequestsMark gunshipMark = audio.MarkSoundRequestsForVerification(SoundEffectLibrary.Room);
+        game.StepCaptured(0);
         AssertTrue(samus.Control.Mode.Beta == SamusBetaHandler.Gunship && samus.HealthWarning.IsActive,
             "gunship entry handler checks low health despite locked input");
-        AssertTrue(Enumerable.Range(0, positions[2]).Any(i => queues[2, i] == SoundEffectCommands.Decode(SoundEffectLibrary.Room, 2)), "gunship handler publishes warning audio");
+        AssertTrue(audio.SoundsQueuedSinceForVerification(gunshipMark).Contains(SoundEffectCommands.Decode(SoundEffectLibrary.Room, 2)),
+            "gunship handler publishes warning audio");
         Console.WriteLine("Automatic reserve frontend: nonfinal freeze and same-frame completion movement pass.");
     }
 

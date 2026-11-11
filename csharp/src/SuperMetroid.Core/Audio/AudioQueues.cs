@@ -20,7 +20,7 @@ public sealed class AudioQueues
     /// <summary>The music requests waiting for the music handler, each with its delay.</summary>
     internal readonly MusicQueue Music = new();
     /// <summary>Each sound library's own queue of waiting requests.</summary>
-    private readonly Dictionary<SoundEffectLibrary, SoundQueue> _soundQueues =
+    internal readonly Dictionary<SoundEffectLibrary, SoundQueue> SoundQueues =
         SoundEffectLibraries.InQueueOrder.ToDictionary(library => library, _ => new SoundQueue());
     /// <summary>The handshake each library's handler runs with its library, injected by the session's composition root.</summary>
     internal readonly SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId> SoundHandshakes;
@@ -73,15 +73,7 @@ public sealed class AudioQueues
     /// What the door transition waits on: true while any sound library has a request waiting in its queue. A request
     /// its handler has already taken and is only waiting for its library to accept does not keep the door waiting.
     /// </summary>
-    public bool HasQueuedSounds => _soundQueues.Values.Any(queue => queue.Count != 0);
-
-    /// <summary>
-    /// The requests waiting in <paramref name="library"/>'s queue, oldest first; the next its handler asks the library
-    /// for is the first. The view changes as requests are queued and taken.
-    /// </summary>
-    /// <param name="library">One of the sound libraries.</param>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="library"/> is not a sound library.</exception>
-    public IReadOnlyList<SoundEffectId> WaitingSounds(SoundEffectLibrary library) => QueueOf(library).Waiting;
+    public bool HasQueuedSounds => SoundQueues.Values.Any(queue => queue.Count != 0);
 
     /// <summary>Restores the audio queue state the game starts with at power-on.</summary>
     public void Reset()
@@ -89,7 +81,7 @@ public sealed class AudioQueues
         DoorTransitionSoundsDisabled = false;
         Music.Clear();
         PendingMusic = null;
-        foreach (SoundQueue queue in _soundQueues.Values)
+        foreach (SoundQueue queue in SoundQueues.Values)
             queue.Clear();
         SoundHandshakes.Reset();
         _soundHandlerDowntime = 0;
@@ -378,7 +370,7 @@ public sealed class AudioQueues
     /// <summary>The queue of <paramref name="library"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="library"/> is not a sound library.</exception>
     private SoundQueue QueueOf(SoundEffectLibrary library) =>
-        _soundQueues.TryGetValue(library, out SoundQueue? queue)
+        SoundQueues.TryGetValue(library, out SoundQueue? queue)
             ? queue
             : throw new ArgumentOutOfRangeException(nameof(library), library, "Unknown sound-effect library.");
 }

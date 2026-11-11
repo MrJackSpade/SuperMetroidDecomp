@@ -185,7 +185,7 @@ internal static class ProjectileInheritanceProbeVerification
         }
         var samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
-        samus.SelectedHudItem = SuperMetroid.Core.Saves.SaveSlotNumbering.SavedHudItem(weapon);
+        samus.SelectedHudItem = SuperMetroid.Diagnostics.Saves.SaveSlotNumbering.SavedHudItem(weapon);
         samus.Missiles = samus.MaxMissiles = 10;
         samus.SuperMissiles = samus.MaxSuperMissiles = 10;
         samus.Pose = SamusPoseId.FacingRightNormalPose;

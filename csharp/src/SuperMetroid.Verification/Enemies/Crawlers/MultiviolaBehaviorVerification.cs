@@ -30,12 +30,27 @@ internal static class MultiviolaBehaviorVerification
         Console.WriteLine("  Multiviola behavior: the initializer starts and runs its loop.");
     }
 
+    /// <summary>
+    /// Every heading bounces as the original's toggle of its quarter-turn bits does (#1607): a quarter turn's after a
+    /// wall, three quarters' after a floor or ceiling.
+    /// </summary>
+    internal static void VerifyMultiviolaBounce()
+    {
+        for (int heading = 0; heading < 256; heading++)
+        {
+            AssertEqual(new TrigonometryAngle(heading ^ 0x40), MultiviolaQuarterBounce.OffWall(new TrigonometryAngle(heading)), $"heading {heading} off a wall");
+            AssertEqual(new TrigonometryAngle(heading ^ 0xc0), MultiviolaQuarterBounce.OffFloorOrCeiling(new TrigonometryAngle(heading)), $"heading {heading} off a floor");
+        }
+        Console.WriteLine("  Multiviola bounce: all 256 headings bounce as the original's quarter-turn toggle.");
+    }
+
     /// <summary>Runs the Multiviola behavior check and program oracle against the local retail cartridge.</summary>
     [VerificationCommand("--multiviola-instruction-mechanics")]
     internal static int MultiviolaBehaviorCommand()
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyMultiviolaBehavior), () => VerifyMultiviolaBehavior());
+        Suite(nameof(VerifyMultiviolaBounce), () => VerifyMultiviolaBounce());
         Suite(nameof(MultiviolaAnimationsVerification.VerifyMultiviolaAnimations), () => MultiviolaAnimationsVerification.VerifyMultiviolaAnimations(rom));
         return 0;
     }

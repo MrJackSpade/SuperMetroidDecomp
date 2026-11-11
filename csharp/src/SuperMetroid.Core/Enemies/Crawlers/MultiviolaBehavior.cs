@@ -24,11 +24,6 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
         _terrain = terrain;
     }
 
-    /// <summary>Angle bits toggled after collision with a vertical surface.</summary>
-    private const int MultiviolaHorizontalReflection = 64;
-    /// <summary>Angle bits toggled after collision with a horizontal surface.</summary>
-    private const int MultiviolaVerticalReflection = 192;
-
     /// <summary>Initializes the Multiviola.</summary>
     internal static void InitializeMultiviola(RoomEnemySlot slot)
     {
@@ -75,10 +70,10 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
                 slot,
                 horizontalDisplacement))
         {
-            // Reflect across a vertical surface. As in retail, vertical movement is skipped
+            // Bounce off the wall. As in retail, vertical movement is skipped
             // on a horizontal collision, so a corner can consume two frames to reflect both
             // components instead of bouncing diagonally in a single host update.
-            state.Heading = Reflected(state.Heading, MultiviolaHorizontalReflection);
+            state.Heading = MultiviolaQuarterBounce.OffWall(state.Heading);
             return;
         }
 
@@ -87,11 +82,8 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
 
         SignedSixteenSixteen verticalDisplacement = state.Velocity.Y;
         if (_terrain.MoveEnemyVertically(level, slot, verticalDisplacement))
-            state.Heading = Reflected(state.Heading, MultiviolaVerticalReflection);
+            state.Heading = MultiviolaQuarterBounce.OffFloorOrCeiling(state.Heading);
     }
-
-    /// <summary>The heading with the reflection's angle bits toggled.</summary>
-    private static TrigonometryAngle Reflected(TrigonometryAngle heading, int reflection) => new(heading.RawValue ^ reflection);
 
     /// <summary>
     /// Recreates the shared unsigned |cos|/|sin| products of the heading and speed.

@@ -18,9 +18,9 @@ public abstract class FileSelectPresentation
     /// <param name="placements">The validated layout.</param>
     internal FileSelectPresentation(FileSelectPlacements placements) => this.placements = placements;
 
-    /// <summary>Menu updates per missile-cursor animation frame, in the range 1-65535.</summary>
+    /// <summary>Menu updates per missile-cursor animation frame, at least one.</summary>
     public int CursorFrameDuration => placements.CursorFrameDuration;
-    /// <summary>Menu updates per selected-slot helmet animation frame, in the range 1-65535.</summary>
+    /// <summary>Menu updates per selected-slot helmet animation frame, at least one.</summary>
     public int HelmetFrameDuration => placements.HelmetFrameDuration;
 
     /// <summary>Selects the main or data-management field anchors for one save slot.</summary>

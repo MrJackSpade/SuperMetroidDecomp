@@ -28,7 +28,7 @@ public abstract class GameOptionsPresentation
 
     /// <summary>Cursor origin used during phases without a cursor table, in screen pixels with X=0-511 and Y=0-255; the actor stays among the drawn sprites.</summary>
     public Position16<SpritePixels> HiddenCursor { get; }
-    /// <summary>Menu updates per frame of the four-frame looping missile cursor, in the range 1-65535.</summary>
+    /// <summary>Menu updates per frame of the four-frame looping missile cursor, at least one.</summary>
     public int CursorFrameDuration { get; }
 
     /// <summary>Gets the cursor origin for an authored page and selection row.</summary>

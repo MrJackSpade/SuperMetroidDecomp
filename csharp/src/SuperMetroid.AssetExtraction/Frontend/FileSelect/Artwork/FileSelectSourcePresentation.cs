@@ -197,9 +197,8 @@ public sealed class FileSelectSourcePresentation : FileSelectPresentation
             ValidatePagePoint(document.DynamicAnchors[name], $"{name} dynamic anchor");
         if ((uint)document.ObjectPalette >= MapPresentationFormat.PaletteCount)
             throw new InvalidDataException("File-select object palette must be 0..7.");
-        if (document.CursorFrameDuration is < 1 or > ushort.MaxValue ||
-            document.HelmetFrameDuration is < 1 or > ushort.MaxValue)
-            throw new InvalidDataException("File-select actor durations must be 1..65535.");
+        if (document.CursorFrameDuration < 1 || document.HelmetFrameDuration < 1)
+            throw new InvalidDataException("File-select actor durations must be at least one update.");
 
         var pages = FileSelectPresentationFormat.Pages.ToDictionary(page => page,
             page => CompilePage(document, FileSelectParts.PageName(page)));

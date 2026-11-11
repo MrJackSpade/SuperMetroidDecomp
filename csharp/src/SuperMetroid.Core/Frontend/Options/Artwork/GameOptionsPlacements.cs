@@ -12,6 +12,6 @@ internal sealed record GameOptionsPlacements
     public required IReadOnlyDictionary<GameOptionsPage, Position16<SpritePixels>[]> CursorAnchors { get; init; }
     /// <summary>Cursor origin for phases without a selection table, in screen pixels X=0-511 and Y=0-255.</summary>
     public required Position16<SpritePixels> HiddenCursor { get; init; }
-    /// <summary>Duration 1-65535 in menu updates for each looping cursor frame.</summary>
+    /// <summary>Duration in menu updates, at least one, of each looping cursor frame.</summary>
     public required int CursorFrameDuration { get; init; }
 }

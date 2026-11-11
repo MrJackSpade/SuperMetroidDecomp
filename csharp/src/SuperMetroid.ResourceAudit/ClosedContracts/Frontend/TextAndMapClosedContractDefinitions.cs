@@ -16,7 +16,6 @@ internal static class TextAndMapClosedContractDefinitions
              new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Intro/Artwork/IntroNarrationGlyphs.cs")]),
         new("SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingTextPresentation", "ending-text-complete-panels-and-sequences", ["BuildResultPanel", "BuildCopyrightPanel"],
             [new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Ending/Artwork/EndingTextLayoutDefinitions.cs"),
-             new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Ending/Artwork/EndingTextPanels.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Ending/Artwork/EndingTextPresentation.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Ending/Artwork/EndingTextDefinitions.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Ending/Artwork/EndingTextGlyphs.cs")]),

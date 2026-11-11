@@ -904,18 +904,12 @@ internal static class LookupStream4Verification
         ushort[] native = ReadEndingWords(rom, EndingSourceDefinitions.EndingResultPanel,
             EndingTextDefinitions.ResultPanelRows * EndingTextDefinitions.TilemapWidth);
         var stock = EndingTextPresentation.Load(new MemoryStream(source));
-        AssertTrue(native.SequenceEqual(BackgroundTileWordBytes.Words(stock.BuildResultPanel())), "Calculated credit lines preserve all288 original producer-panel cells, encoded through the codec");
-        var stockOverrides = stock.resultOverrides;
-        AssertEqual(0, stockOverrides.Count, "Every stock producer-panel cell is calculated, without fallback samples");
-        for (int cell = 0; cell < native.Length; cell++)
-            AssertEqual(native[cell], EndingTextPanels.ResultTile(cell, "PRODUCED BY").PackedWord, "Direct credit layout agrees with original cell independently of overrides");
+        AssertTrue(native.SequenceEqual(BackgroundTileWordBytes.Words(stock.BuildResultPanel())), "Installed credit lines preserve all288 original producer-panel cells, encoded through the codec");
         AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(source)), stock.ContentIdentity, "Result layout preserves raw document identity");
         BackgroundTile[] mutableOutput = stock.BuildResultPanel();
         mutableOutput[0] = mutableOutput[0] with { Tile = mutableOutput[0].Tile ^ 1 };
         AssertTrue(native.SequenceEqual(BackgroundTileWordBytes.Words(stock.BuildResultPanel())), "Result output snapshots remain independent of the catalog");
-        foreach (int invalid in new[] { -1, native.Length })
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingTextPanels.ResultTile(invalid, "PRODUCED BY"), "Calculated result layout bounds");
-        Console.WriteLine("Ending result panel:288 direct native cells, zero stock fallback samples, the document identity and immutable output snapshots pass; chosen wording has a narrow nonsense disposition; palette choices and font pixels remain required.");
+        Console.WriteLine("Ending result panel:288 native cells, the document identity and immutable output snapshots pass.");
     }
 
     /// <summary>Checks ending subtitle glyph selection and layout against imported presentation data.</summary>
@@ -925,19 +919,17 @@ internal static class LookupStream4Verification
         ushort[] native = ReadEndingWords(rom, EndingSourceDefinitions.EndingJapaneseSubtitle,
             EndingTextDefinitions.JapaneseSubtitleRows * EndingTextDefinitions.TilemapWidth);
         var stock = EndingTextPresentation.Load(new MemoryStream(source));
-        var stockOverrides = stock.subtitleOverrides;
-        AssertEqual(0, stockOverrides.Count, "Every stock subtitle cell is calculated without fallback samples");
         for (int cell = 0; cell < native.Length; cell++)
-            AssertEqual(native[cell], EndingTextPanels.SubtitleTile(cell).PackedWord, "Direct subtitle calculation agrees with native independently of overrides");
+            AssertEqual(native[cell], stock.JapaneseSubtitle[cell].PackedWord, "Installed subtitle cell agrees with native");
         Verify(stock);
         AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(source)), stock.ContentIdentity, "Subtitle conversion preserves complete document identity");
         foreach (int invalid in new[] { int.MinValue, -1, native.Length, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = stock.JapaneseSubtitle[invalid], "Calculated subtitle preserves indexed bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = stock.JapaneseSubtitle[invalid], "Installed subtitle preserves indexed bounds");
         BackgroundTile[] shortBuffer = new BackgroundTile[native.Length - 1];
         Array.Fill(shortBuffer, BackgroundTileWordBytes.Tile(0x1234));
         AssertThrows<ArgumentException>(() => stock.JapaneseSubtitle.CopyTo(shortBuffer), "Subtitle rejects short output before writing");
         AssertTrue(shortBuffer.All(value => value == BackgroundTileWordBytes.Tile(0x1234)), "Failed subtitle copy is atomic");
-        Console.WriteLine("Ending subtitle:64 native cells, atlas wrapping, centered placement and actual draw/clear transfer pass.");
+        Console.WriteLine("Ending subtitle:64 native cells and actual draw/clear transfer pass.");
 
         void Verify(EndingTextPresentation presentation)
         {

@@ -44,7 +44,7 @@ internal static class SpriteSheetFilesVerification
             // The body sheets are named from the body tables installed beside them, the pause sheet from the menus'
             // selector presentation, the intro sheet from the intro's compositions and the ending sheets from the ending's,
             // which extraction reads from the shared installation's content directory.
-            SpriteSheetFiles.Extract(bus, RepositoryInstallation.Installation.ContentDirectory, stock, SupportedCartridge.Sha256);
+            SpriteSheetFiles.Extract(bus, RepositoryInstallation.Installation.ContentDirectory, stock, SupportedCartridge.Sha256, new SheetPictureRegistry());
             // Composing the sheets again reproduces the installed files byte for byte.
             string installedDirectory = Path.Combine(RepositoryInstallation.Installation.ContentDirectory, GameInstallationLayout.SpriteSheetDirectoryName);
             string[] installedFiles = [.. Directory.GetFiles(installedDirectory).Select(Path.GetFileName).OfType<string>().Order(StringComparer.Ordinal)];

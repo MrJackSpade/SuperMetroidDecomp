@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.TestSupport.RepositoryInstallation;
@@ -22,7 +23,7 @@ internal static class RoomBlockSheetFilesVerification
             string content = RepositoryInstallation.Installation.ContentDirectory;
             string installed = Path.Combine(content, GameInstallationLayout.RoomBlockSheetDirectoryName);
             string composed = Path.Combine(scratch.FullName, GameInstallationLayout.RoomBlockSheetDirectoryName);
-            RoomBlockSheetFiles.Extract(content, composed, SupportedCartridge.Sha256);
+            RoomBlockSheetFiles.Extract(content, composed, SupportedCartridge.Sha256, new SheetPictureRegistry());
             string[] expected = [.. Directory.GetFiles(installed).Select(Path.GetFileName).OfType<string>().Order(StringComparer.Ordinal)];
             string[] actual = [.. Directory.GetFiles(composed).Select(Path.GetFileName).OfType<string>().Order(StringComparer.Ordinal)];
             AssertTrue(expected.SequenceEqual(actual), "the recomposed room block sheets are the installed files");

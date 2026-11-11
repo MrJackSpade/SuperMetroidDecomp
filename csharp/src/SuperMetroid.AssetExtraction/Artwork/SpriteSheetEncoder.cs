@@ -15,25 +15,36 @@ internal sealed class SpriteSheetEncoder : IDisposable
     /// <summary>The planes a laid-out sheet is painted on before it is encoded.</summary>
     private readonly SpriteSheetCanvas canvas = new();
 
+    /// <summary>The installation's rendered pictures, which refuse a picture rendered twice (#1635).</summary>
+    private readonly SheetPictureRegistry pictures;
+
+    /// <summary>Starts an encoder rendering into one installation's pictures.</summary>
+    /// <param name="pictures">The installation's rendered pictures, shared by every encoder of the run.</param>
+    internal SpriteSheetEncoder(SheetPictureRegistry pictures) => this.pictures = Ensure.NotNull(pictures);
+
     /// <summary>
     /// Paints a laid-out sheet on the reused canvas and encodes it, so a sheet that is only written needs no planes of
     /// its own (#1490).
     /// </summary>
-    internal EncodedSpriteSheet Encode(SpriteSheetLayout layout)
+    /// <param name="layout">The sheet's layout.</param>
+    /// <param name="sheet">Names the sheet if a picture on it was already rendered.</param>
+    internal EncodedSpriteSheet Encode(SpriteSheetLayout layout, string sheet)
     {
         Ensure.NotNull(layout);
         SpriteSheetPlanes planes = canvas.Cleared(layout.Size);
         SpriteSheetDocument manifest = layout.Paint(planes);
-        return Encode(planes, manifest);
+        return Encode(planes, manifest, sheet);
     }
 
     /// <summary>Paints a sheet of pictures already painted (#1513) on the reused canvas and encodes it.</summary>
-    internal EncodedSpriteSheet Encode(PictureSheetLayout layout)
+    /// <param name="layout">The sheet's pictures.</param>
+    /// <param name="sheet">Names the sheet if a picture on it was already rendered.</param>
+    internal EncodedSpriteSheet Encode(PictureSheetLayout layout, string sheet)
     {
         Ensure.NotNull(layout);
         SpriteSheetPlanes planes = canvas.Cleared(layout.Size);
         SpriteSheetDocument manifest = layout.Paint(planes);
-        return Encode(planes, manifest);
+        return Encode(planes, manifest, sheet);
     }
 
     /// <summary>
@@ -42,10 +53,13 @@ internal sealed class SpriteSheetEncoder : IDisposable
     /// </summary>
     /// <param name="planes">The sheet's pixel planes, composed against the cartridge's colours.</param>
     /// <param name="manifest">The sheet's composed manifest.</param>
-    internal EncodedSpriteSheet Encode(SpriteSheetPlanes planes, SpriteSheetDocument manifest)
+    /// <param name="sheet">Names the sheet if a picture on it was already rendered.</param>
+    /// <exception cref="InvalidDataException">A picture on the sheet was already rendered in this installation (#1635).</exception>
+    internal EncodedSpriteSheet Encode(SpriteSheetPlanes planes, SpriteSheetDocument manifest, string sheet)
     {
         Ensure.NotNull(manifest);
         InstalledSheet installed = InstalledSheetConversion.Install(manifest, planes.Size, planes.Pixels, planes.PaletteIndices);
+        pictures.Admit(sheet, planes.Size, installed);
         SpriteImagePixels pixels = installed.Pixels;
         return new EncodedSpriteSheet(
             RgbaPng.Encode(planes.Size, pixels.Pixels, png),

@@ -93,15 +93,18 @@ internal sealed class SpriteSheetStore
     /// worker reusing one encoder's buffers for every sheet it encodes, and written in the given order, so the files and
     /// the provenance manifest are the same as writing them one by one.
     /// </summary>
-    internal void WriteAll(IReadOnlyList<NamedComposedSheet> sheets)
+    /// <param name="sheets">The sheets, by name.</param>
+    /// <param name="pictures">The installation's rendered pictures, which refuse a picture rendered twice (#1635).</param>
+    internal void WriteAll(IReadOnlyList<NamedComposedSheet> sheets, SheetPictureRegistry pictures)
     {
         Ensure.NotNull(sheets);
+        Ensure.NotNull(pictures);
         var encoded = new EncodedSpriteSheet[sheets.Count];
-        Parallel.For(0, sheets.Count, () => new SpriteSheetEncoder(), (index, _, encoder) =>
+        Parallel.For(0, sheets.Count, () => new SpriteSheetEncoder(pictures), (index, _, encoder) =>
         {
             ComposedSpriteSheet sheet = Ensure.NotNull(sheets[index].Sheet);
             encoded[index] = encoder.Encode(new SpriteSheetPlanes(sheet.Size, sheet.Pixels, sheet.PaletteIndices),
-                sheet.Manifest);
+                sheet.Manifest, sheets[index].Name);
             return encoder;
         }, encoder => encoder.Dispose());
         for (int index = 0; index < sheets.Count; index++)

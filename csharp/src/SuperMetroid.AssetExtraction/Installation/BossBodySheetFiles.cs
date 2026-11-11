@@ -34,17 +34,20 @@ public static class BossBodySheetFiles
     /// <param name="content">Installed stock content holding the frames, characters and palettes the sheets compose from.</param>
     /// <param name="directory">Destination directory, created if absent.</param>
     /// <param name="sourceCartridgeSha256">Identity written into the provenance manifest.</param>
-    public static void Extract(string content, string directory, string sourceCartridgeSha256) =>
-        Write(BossBodySheetComposer.Compose(RoomBlockSheetInputs.Load(content)), directory, sourceCartridgeSha256);
+    /// <param name="pictures">The installation's rendered pictures, which refuse a picture rendered twice (#1635).</param>
+    internal static void Extract(string content, string directory, string sourceCartridgeSha256, SheetPictureRegistry pictures) =>
+        Write(BossBodySheetComposer.Compose(RoomBlockSheetInputs.Load(content)), directory, sourceCartridgeSha256, pictures);
 
     /// <summary>Writes composed <paramref name="sheets"/> and their manifest, as <see cref="Load"/> reads them.</summary>
     /// <param name="sheets">Every boss's composed body sheet.</param>
     /// <param name="directory">Destination directory, created if absent.</param>
     /// <param name="sourceCartridgeSha256">Identity written into the provenance manifest.</param>
-    internal static void Write(IReadOnlyList<ComposedBossBodySheet> sheets, string directory, string sourceCartridgeSha256)
+    /// <param name="pictures">The installation's rendered pictures, which refuse a picture rendered twice (#1635).</param>
+    internal static void Write(IReadOnlyList<ComposedBossBodySheet> sheets, string directory, string sourceCartridgeSha256,
+        SheetPictureRegistry pictures)
     {
         SpriteSheetStore store = SpriteSheetStore.Create(directory, ProvenanceFileName);
-        store.WriteAll([.. sheets.Select(sheet => new NamedComposedSheet(BossBodySheetComposer.SheetNameOf(sheet.Owner), sheet.Sheet))]);
+        store.WriteAll([.. sheets.Select(sheet => new NamedComposedSheet(BossBodySheetComposer.SheetNameOf(sheet.Owner), sheet.Sheet))], pictures);
         store.Finish(sourceCartridgeSha256);
         var manifest = new Manifest(ManifestVersion, sheets.ToDictionary(sheet => sheet.Owner.ToString(), sheet => (SheetDocument?)new SheetDocument(
             sheet.Frames.ToDictionary(frame => frame.Key, frame => (FrameDocument?)Document(frame.Value), StringComparer.Ordinal)),

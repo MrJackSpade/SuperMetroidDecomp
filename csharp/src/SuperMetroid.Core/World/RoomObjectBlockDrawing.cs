@@ -253,15 +253,10 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
                 DrawImageCell(level, draw, origin, part, new Offset16<RoomBlocks>(eyeDoor.Vertical ? 0 : cell, eyeDoor.Vertical ? cell : 0), eyeDoor.CollisionAt(cell));
             return;
         }
-        if (MotherBrainGlassDraws.TryDescribe(draw, out var motherBrainGlass))
+        if (MotherBrainGlassDraws.TryDescribe(draw, out RoomBlockShape? motherBrainGlass))
         {
-            RoomObjectFrameImage glass = Installed(_visuals.RoomObjectMotherBrainGlassVisuals, "Mother Brain glass").Images.Image(motherBrainGlass.Frame);
-            for (int run = 0; run < motherBrainGlass.RunCount; run++)
-            {
-                bool vertical = motherBrainGlass.Vertical(run);
-                for (int cell = 0; cell < motherBrainGlass.BlockCount(run); cell++)
-                    DrawImageCell(level, draw, origin, glass, motherBrainGlass.Start(run) + new Offset16<RoomBlocks>(vertical ? 0 : cell, vertical ? cell : 0), motherBrainGlass.CollisionAt(run, cell));
-            }
+            DrawShape(level, draw, origin, Installed(_visuals.RoomObjectMotherBrainGlassVisuals, "Mother Brain glass").Images
+                .Image(RoomObjectDraw.FrameOf<MotherBrainGlassDraw>(draw, "Mother Brain glass")), motherBrainGlass);
             return;
         }
         if (NoobTubeObjectDraws.TryDescribe(draw, out var noobTube))

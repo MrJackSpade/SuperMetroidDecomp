@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Rooms.RoomObjects;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -29,17 +30,43 @@ public static class RoomObjectMotherBrainGlassVisualFiles
     public static InstalledMotherBrainGlassFrames Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
-    /// <summary>Every glass frame's geometry, from the shapes the glass draws by.</summary>
+    /// <summary>
+    /// Every glass frame's geometry as the cartridge writes it: the runs of its draw list, each cell colliding as the
+    /// game's block shape for the frame says (#1608). The run form is the cartridge's; the game draws the shape.
+    /// </summary>
     private static Dictionary<MotherBrainGlassDraw, RoomObjectFrameLayout> Layouts()
     {
+        // The intact glass and a shifted pane's glass block are one-cell rows; every other run is a column. The pane's far
+        // columns start three, two and one blocks left of the glass block, lower where their top block is not drawn.
+        Offset16<RoomBlocks> origin = Offset16<RoomBlocks>.Zero;
+        RoomObjectShapeRun[] square = [RoomObjectShapeRun.Column(origin, 4), RoomObjectShapeRun.Column(new(-3, 0), 4),
+            RoomObjectShapeRun.Column(new(-2, 0), 4), RoomObjectShapeRun.Column(new(-1, 0), 4)];
+        RoomObjectShapeRun[] pane = [RoomObjectShapeRun.Column(origin, 4), RoomObjectShapeRun.Column(new(-1, 1), 2)];
+        var runs = new Dictionary<MotherBrainGlassDraw, RoomObjectShapeRun[]>
+        {
+            [MotherBrainGlassDraw.Initial] = [RoomObjectShapeRun.Row(origin, 1)],
+            [MotherBrainGlassDraw.PaneDamage1] = pane,
+            [MotherBrainGlassDraw.PaneDamage2] = pane,
+            [MotherBrainGlassDraw.PaneTransition] = [RoomObjectShapeRun.Column(origin, 3)],
+            [MotherBrainGlassDraw.ShiftedPane1] = [RoomObjectShapeRun.Row(origin, 1), RoomObjectShapeRun.Column(new(-3, 0), 4),
+                RoomObjectShapeRun.Column(new(-2, 1), 2)],
+            [MotherBrainGlassDraw.ShiftedPane2] = [RoomObjectShapeRun.Row(origin, 1), RoomObjectShapeRun.Column(new(-3, 1), 3),
+                RoomObjectShapeRun.Column(new(-2, 1), 2)],
+            [MotherBrainGlassDraw.ShiftedPane3] = [RoomObjectShapeRun.Row(origin, 1), RoomObjectShapeRun.Column(new(-3, 1), 2)],
+            [MotherBrainGlassDraw.Shatter1] = [RoomObjectShapeRun.Column(origin, 4), RoomObjectShapeRun.Column(new(-3, 0), 4),
+                RoomObjectShapeRun.Column(new(-2, 1), 2), RoomObjectShapeRun.Column(new(-1, 1), 2)],
+            [MotherBrainGlassDraw.Shatter2] = square,
+            [MotherBrainGlassDraw.Shatter3] = square,
+            [MotherBrainGlassDraw.Cleared] = square,
+        };
+
         var layouts = new Dictionary<MotherBrainGlassDraw, RoomObjectFrameLayout>();
         foreach (MotherBrainGlassDraw frame in Enum.GetValues<MotherBrainGlassDraw>())
         {
             RoomObjectDraw draw = RoomObjectDraw.Of(frame);
-            if (!MotherBrainGlassDraws.TryDescribe(draw, out MotherBrainGlassDraws.Draw shape))
+            if (!MotherBrainGlassDraws.TryDescribe(draw, out RoomBlockShape? shape))
                 throw new InvalidOperationException($"Mother Brain glass frame {frame} has no shape.");
-            layouts.Add(frame, RoomObjectFrameLayout.Of(draw, shape.RunCount, shape.BlockCount, shape.CollisionAt,
-                run => shape.Vertical(run) ? RoomObjectRunDirection.Vertical : RoomObjectRunDirection.Horizontal, shape.Start));
+            layouts.Add(frame, RoomObjectShapeRun.Layout(draw, shape, runs[frame]));
         }
         return layouts;
     }

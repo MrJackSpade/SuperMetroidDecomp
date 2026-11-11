@@ -15,32 +15,34 @@ internal static class LookupGlassLayoutsVerification
         new(0x9731, "pane-damage-2"), new(0x9745, "pane-transition"), new(0x974f, "shifted-pane-1"), new(0x9769, "shifted-pane-2"),
         new(0x9781, "shifted-pane-3"), new(0x978f, "shatter-1"), new(0x97b7, "shatter-2"), new(0x97e7, "shatter-3"), new(0x9817, "cleared")];
 
-    /// <summary>Checks which draws are the glass's, each frame's runs and continuations against the cartridge, and the shape bounds.</summary>
+    /// <summary>The number of cells each glass frame's block shape covers, in frame order: what its draw list writes.</summary>
+    private static readonly int[] CellCounts = [1, 6, 6, 3, 7, 6, 3, 12, 16, 16, 16];
+
+    /// <summary>
+    /// Checks which draws are the glass's, each frame's runs and continuations against the cartridge, and that each shape
+    /// covers its frame's cells only: the cells its draw list writes, inside the four-by-four square left of and below the
+    /// glass block.
+    /// </summary>
     internal static void VerifyGlassLayoutGeometry(SuperMetroidAddressSpace rom)
     {
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             bool owned = Frames.Any(frame => frame.Pointer == raw);
-            AssertEqual(owned, MotherBrainGlassDraws.TryDescribe(NativeObjectDraws.At<MotherBrainGlassDraw>(raw), out var shape), "Glass layout shape domain");
-            if (!owned) AssertEqual(default(MotherBrainGlassDraws.Draw), shape, "Glass layout missing shape");
+            AssertEqual(owned, MotherBrainGlassDraws.TryDescribe(NativeObjectDraws.At<MotherBrainGlassDraw>(raw), out RoomBlockShape? shape), "Glass layout shape domain");
+            if (!owned) AssertTrue(shape is null, "Glass layout missing shape");
         }
         AssertLayoutsAsNative(rom, RoomObjectMotherBrainGlassVisualFiles.Family, Frames, collision: false);
-        foreach (LookupEscapeGateStockFrame frame in Frames)
+        for (int index = 0; index < Frames.Length; index++)
         {
-            MotherBrainGlassDraws.TryDescribe(NativeObjectDraws.At<MotherBrainGlassDraw>(frame.Pointer), out var shape);
-            foreach (int invalid in new[] { int.MinValue, -1, shape.RunCount, int.MaxValue })
-            {
-                AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockCount(invalid), "Glass layout run bounds");
-                AssertThrows<ArgumentOutOfRangeException>(() => shape.Start(invalid), "Glass layout start bounds");
-                AssertThrows<ArgumentOutOfRangeException>(() => shape.Vertical(invalid), "Glass layout direction bounds");
-                AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(invalid, 0), "Glass layout collision run bounds");
-            }
-            for (int run = 0; run < shape.RunCount; run++)
-            {
-                int selectedRun = run;
-                foreach (int invalid in new[] { int.MinValue, -1, shape.BlockCount(run), int.MaxValue })
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(selectedRun, invalid), "Glass layout cell bounds");
-            }
+            LookupEscapeGateStockFrame frame = Frames[index];
+            if (!MotherBrainGlassDraws.TryDescribe(NativeObjectDraws.At<MotherBrainGlassDraw>(frame.Pointer), out RoomBlockShape? shape))
+                throw new InvalidOperationException($"Glass frame {frame.Id} has no shape.");
+            RoomBlockShape described = shape;
+            AssertEqual(CellCounts[index], described.Cells.Count, $"Glass shape {frame.Id} covers the cells its draw list writes");
+            AssertTrue(described.Cells.All(cell => cell.Cell.X is >= -3 and <= 0 && cell.Cell.Y is >= 0 and <= 3),
+                $"Glass shape {frame.Id} lies inside the glass's square");
+            foreach (Offset16<RoomBlocks> outside in new Offset16<RoomBlocks>[] { new(1, 0), new(0, -1), new(-4, 0), new(0, 4) })
+                AssertThrows<ArgumentOutOfRangeException>(() => described.CollisionAt(outside), "Glass shape covers only its cells");
         }
     }
 

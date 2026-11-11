@@ -354,10 +354,10 @@ internal static class MotherBrainNativeListAddresses
     }
 
     /// <summary>The cutscene Baby's opcodes: its two same-bank gotos.</summary>
-    private static Dictionary<ushort, NativeOp<MotherBrainBabyProgram, BabyMetroidFrame, NoAnimationCue>> BabyNativeOps { get; } = new()
+    private static Dictionary<ushort, NativeListOp<MotherBrainBabyProgram, NoAnimationCue>> BabyNativeOps { get; } = new()
     {
-        [0xcfb4] = new(0, (_, _) => [AnimationProgramStep<MotherBrainBabyProgram, BabyMetroidFrame, NoAnimationCue>.GoTo(MotherBrainBabyProgram.Initial)], true),
-        [0xcfca] = new(0, (_, _) => [AnimationProgramStep<MotherBrainBabyProgram, BabyMetroidFrame, NoAnimationCue>.GoTo(MotherBrainBabyProgram.DrainingMotherBrain)], true),
+        [0xcfb4] = new(0, (_, _) => new([], MotherBrainBabyProgram.Initial)),
+        [0xcfca] = new(0, (_, _) => new([], MotherBrainBabyProgram.DrainingMotherBrain)),
     };
 
     /// <summary>The Shitroid's opcodes: three gotos and the random remorse cry, whose goto operand is the remorse start; without the cry it goes to that operand.</summary>
@@ -379,9 +379,10 @@ internal static class MotherBrainNativeListAddresses
     internal static Dictionary<ushort, AnimationProgramCursor<MotherBrainHeadProgram>> CompareHead(IImportCartridgeSource cartridge) =>
         Walk(cartridge, MotherBrainBank, MotherBrainAnimations.Head, HeadEntries, frame => MotherBrainVisualDefinitionsConstants.Frame(frame.Index).Pointer, HeadNativeOps);
 
-    /// <summary>Compares the cutscene Baby's typed programs with their native lists.</summary>
-    internal static Dictionary<ushort, AnimationProgramCursor<MotherBrainBabyProgram>> CompareBaby(IImportCartridgeSource cartridge) =>
-        Walk(cartridge, MotherBrainBank, MotherBrainBabyAnimations.Programs, BabyEntries, frame => BabyMetroidVisualToolingDefinitions.Spritemap(frame.Index), BabyNativeOps);
+    /// <summary>Compares the cutscene Baby's typed segments and animations with their native lists.</summary>
+    internal static void CompareBaby(IImportCartridgeSource cartridge) =>
+        Lists(cartridge, MotherBrainBank, MotherBrainBabyAnimations.Segments, MotherBrainBabyAnimations.StartingAt, BabyEntries,
+            frame => BabyMetroidVisualToolingDefinitions.Spritemap(frame.Index), BabyNativeOps);
 
     /// <summary>Compares the Shitroid's typed segments and animations with their native lists.</summary>
     internal static void CompareShitroid(IImportCartridgeSource cartridge) =>

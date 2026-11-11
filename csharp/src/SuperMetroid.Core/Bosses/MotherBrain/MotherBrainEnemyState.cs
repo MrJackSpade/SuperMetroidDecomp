@@ -295,8 +295,8 @@ public sealed class MotherBrainEnemyState
     /// </summary>
     internal MotherBrainBabyProgram BabyAppliedProgram { get; set; }
 
-    /// <summary>Where the cutscene Baby's slot program resumes (#641).</summary>
-    internal AnimationProgramCursor<MotherBrainBabyProgram> BabyCursor { get; set; }
+    /// <summary>The cutscene Baby's slot animation and where it stands (#641, #1600).</summary>
+    internal AnimationPlayback<MotherBrainBabyProgram> BabyPlayback { get; set; } = MotherBrainBabyAnimations.Starting(default);
 
     /// <summary>
     /// Shared cry counter incremented by onion-ring collision and consumed by the

@@ -29,28 +29,28 @@ public readonly record struct FixedVector<TSpace>(SignedSixteenSixteen X, Signed
     /// <summary>Replaces the Y axis.</summary>
     public FixedVector<TSpace> WithY(SignedSixteenSixteen y) => this with { Y = y };
 
-    /// <summary>Replaces both whole words, keeping both fraction words.</summary>
+    /// <summary>Replaces both axes' whole pixels, keeping both fractions.</summary>
     public FixedVector<TSpace> WithWhole(Offset16<TSpace> whole) =>
         new(X.WithWholePixels(whole.X), Y.WithWholePixels(whole.Y));
 
-    /// <summary>Replaces only the X whole word, as game routines that store one half do.</summary>
+    /// <summary>Replaces only the X whole pixels, as game routines that set only the whole pixels do.</summary>
     public FixedVector<TSpace> WithWholeX(int wholePixels) => WithX(X.WithWholePixels(wholePixels));
 
-    /// <summary>Replaces only the Y whole word, as game routines that store one half do.</summary>
+    /// <summary>Replaces only the Y whole pixels, as game routines that set only the whole pixels do.</summary>
     public FixedVector<TSpace> WithWholeY(int wholePixels) => WithY(Y.WithWholePixels(wholePixels));
 
-    /// <summary>Replaces only the Y fraction word, as game routines that store one half do.</summary>
+    /// <summary>Replaces only the Y fraction, as game routines that set only the fraction do.</summary>
     public FixedVector<TSpace> WithFractionY(int fraction) => WithY(Y.WithFraction(fraction));
 
     /// <summary>Adds two displacements, carrying fractions and wrapping each axis at 32 bits.</summary>
     public static FixedVector<TSpace> operator +(FixedVector<TSpace> left, FixedVector<TSpace> right) =>
         new(left.X + right.X, left.Y + right.Y);
 
-    /// <summary>Adds whole pixels to each axis, wrapping each whole word at sixteen bits; fractions are unchanged.</summary>
+    /// <summary>Adds whole pixels to each axis, wrapping each axis's whole pixels at sixteen bits; fractions are unchanged.</summary>
     public static FixedVector<TSpace> operator +(FixedVector<TSpace> vector, Offset16<TSpace> wholePixels) =>
         vector + FromWholePixels(wholePixels);
 
-    /// <summary>Subtracts whole pixels from each axis, wrapping each whole word at sixteen bits; fractions are unchanged.</summary>
+    /// <summary>Subtracts whole pixels from each axis, wrapping each axis's whole pixels at sixteen bits; fractions are unchanged.</summary>
     public static FixedVector<TSpace> operator -(FixedVector<TSpace> vector, Offset16<TSpace> wholePixels) =>
         vector - FromWholePixels(wholePixels);
 

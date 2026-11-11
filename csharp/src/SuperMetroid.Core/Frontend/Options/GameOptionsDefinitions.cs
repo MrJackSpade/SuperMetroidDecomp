@@ -24,8 +24,6 @@ public static class GameOptionsDefinitions
         public const int PrimaryCount = 5;
         /// <summary>Assignable action rows of the controller page, zero through six.</summary>
         public const int ControllerActionCount = 7;
-        /// <summary>The controller page's Exit row; reaching it scrolls the page down.</summary>
-        public const int ControllerExit = 7;
         /// <summary>The controller page's Reset row, which restores the default buttons.</summary>
         public const int ControllerReset = 8;
         /// <summary>Rows of the controller page.</summary>

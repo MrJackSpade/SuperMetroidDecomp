@@ -86,8 +86,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         AttachBotwoon(head, state);
         head.SetSpeciesState(state);
         // The initializer installs the hidden program: the head starts hidden in its hole.
-        state.HeadProgram = BotwoonHeadProgram.Hidden;
-        state.HeadAnimationPosition = 0;
+        state.HeadPlayback = new(BotwoonAnimations.HeadStartingWith(BotwoonHeadProgram.Hidden), AnimationPlace.StartOfAnimation);
         head.FrameHold = WrappingCountdown.Start(1);
         head.Timer = WrappingCountdown.Start(0);
 
@@ -586,8 +585,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (program == state.HeadProgram)
             return;
-        state.HeadProgram = program;
-        state.HeadAnimationPosition = 0;
+        state.HeadPlayback = new(BotwoonAnimations.HeadStartingWith(program), AnimationPlace.StartOfAnimation);
         head.FrameHold = WrappingCountdown.Start(1);
         head.Timer = WrappingCountdown.Start(0);
     }
@@ -613,15 +611,17 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        var cursor = new AnimationProgramCursor<BotwoonHeadProgram>(state.HeadProgram, state.HeadAnimationPosition);
-        AnimationProgramAdvance<BotwoonHeadFrame> advance = BotwoonAnimations.HeadPrograms.Advance(ref cursor,
-            cue => ApplyBotwoonHeadCue(head, state, cue));
-        state.HeadAnimationPosition = cursor.Position;
+        AnimationPlace place = state.HeadPlayback.Place;
+        // No head animation counts its plays, so nothing reads or writes this counter.
+        WrappingCountdown uncounted = default;
+        AnimationShown<BotwoonHeadProgram, BotwoonHeadFrame> advance = BotwoonAnimations.HeadSegments.PlayToNextFrame(
+            state.HeadPlayback.Animation, ref place, ref uncounted, cue => ApplyBotwoonHeadCue(head, state, cue));
+        state.HeadPlayback = state.HeadPlayback with { Place = place };
         // A hold is the script's sleep: the timer wraps from zero and the last frame stays.
-        if (advance is AnimationProgramAdvance<BotwoonHeadFrame>.Hold)
+        if (advance is AnimationShown<BotwoonHeadProgram, BotwoonHeadFrame>.Held)
             return;
-        if (advance is not AnimationProgramAdvance<BotwoonHeadFrame>.Show shown)
-            throw new InvalidOperationException($"Botwoon's head program ended an update with {advance}.");
+        if (advance is not AnimationShown<BotwoonHeadProgram, BotwoonHeadFrame>.Frame shown)
+            throw new InvalidOperationException($"Botwoon's head animation ended an update with {advance}.");
         head.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
         head.Frame = BotwoonVisualDefinitions.HeadFrames.Of(shown.Frame);
         head.NewInstructionFrame = true;

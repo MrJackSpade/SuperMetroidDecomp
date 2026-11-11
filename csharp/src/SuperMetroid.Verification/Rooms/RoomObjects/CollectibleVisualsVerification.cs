@@ -44,7 +44,7 @@ internal static class CollectibleVisualsVerification
             var result = new CollectibleVisualsRenderResult(fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).Terrain,
                 fixture.Level.DisplayedAppearance(fixture.BlockIndex),
                 fixture.Level.DisplayedAppearance(fixture.BlockIndex));
-            AssertTrue(fixture.RoomObjects.CollectibleObjects.TryNotifyCollectibleTouch(fixture.BlockIndex),
+            AssertTrue(fixture.RoomObjects.CollectibleObjects.TryNotifyCollectibleTouch(fixture.Block),
                 "the item keeps its native touch trigger active");
             fixture.RoomObjects.Step(fixture.Level);
             AssertEqual(199, fixture.Samus.MaxHealth,
@@ -80,7 +80,7 @@ internal static class CollectibleVisualsVerification
             RoomObjectFixtures.VisualsOf(fixture.RoomObjects).RoomObjectCollectibleVisuals = stock;
             if (header == 0xef7f)
                 AssertTrue(fixture.RoomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(
-                        fixture.BlockIndex),
+                        fixture.Block),
                     "shot-block collectible accepts its native trigger");
             fixture.RoomObjects.Step(fixture.Level);
             AssertEqual(1, fixture.RoomObjects.CollectibleObjects.Collectibles.Count,

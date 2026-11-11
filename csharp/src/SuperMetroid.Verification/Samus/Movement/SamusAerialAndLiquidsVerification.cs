@@ -637,7 +637,7 @@ empty, screwRepeat, ControllerButton.A, 0, ControllerButton.A);
         roomObjects: screwBombObjects);
     AssertTrue(screwBombSamus.Position.Y.Whole != screwBombY,
         "Screw collision-bomb setup returns carry clear and preserves vertical travel");
-    AssertTrue(screwBombObjects.PopulationSlots.Any(slot => slot.BlockIndex == screwBombIndex),
+    AssertTrue(screwBombObjects.PopulationSlots.Any(slot => slot.Block == screwBombLevel.BlockAt(screwBombIndex)),
         "Screw vertical collision reacts at the exact BTS-4 block");
     AssertEqual(RoomTerrainBlock.Of(0x058, BlockMirroring.None, RoomCollisionType.Air),
         screwBombLevel.GetCollisionBlockByIndex(screwBombIndex).Terrain,

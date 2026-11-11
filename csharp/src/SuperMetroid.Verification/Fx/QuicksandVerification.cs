@@ -130,6 +130,7 @@ internal static class QuicksandVerification
             SignedSixteenSixteen displacement = SignedSixteenSixteen.FromRaw(0x28000);
             bool collided = SamusInsideBlockReactions.ReactCollision(
                 new(body, body.CollisionContactDamageIndex(null)),
+                level,
                 new RoomCollisionBlock(0, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), RoomBlockBehaviorCodec.Decode(0x80 + index)),
                 axis: Axis.Vertical,
                 ref displacement,
@@ -244,6 +245,7 @@ internal static class QuicksandVerification
     private static void VerifyQuicksandStationaryProbeLimitsNearReading()
     {
         int[] probes = [0x012880ab, -0x28000, 0x2f00, 0x3000, 0x30ff, 0x3100, 0x01000000, 0x0100ffff];
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes(new RoomTerrainBlock[1], new RoomBlockBehavior[1], new RoomBlockAppearance[1]), RoomLevelData.NothingBeyondGrid());
         foreach (int probe in probes)
         {
             int middle = (int)((uint)probe >> 8) & 0xffff;
@@ -256,6 +258,7 @@ internal static class QuicksandVerification
             SignedSixteenSixteen displacement = SignedSixteenSixteen.FromRaw(probe);
             SamusInsideBlockReactions.ReactCollision(
                 new(body, body.CollisionContactDamageIndex(null)),
+                level,
                 new RoomCollisionBlock(0, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), RoomBlockBehaviorCodec.Decode(0x80)),
                 axis: Axis.Vertical,
                 ref displacement,

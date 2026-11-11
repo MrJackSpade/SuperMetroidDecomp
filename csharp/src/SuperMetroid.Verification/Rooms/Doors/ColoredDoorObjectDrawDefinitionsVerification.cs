@@ -128,7 +128,7 @@ internal static class ColoredDoorObjectDrawDefinitionsVerification
             int hits = header >= RoomObjectHeaderId.RedDoorFacingLeft ? 5 : 1;
             for (int hit = 0; hit < hits; hit++)
             {
-                AssertTrue(roomObjects.TryNotifyColoredDoorHit(origin, accepted),
+                AssertTrue(roomObjects.TryNotifyColoredDoorHit(level.BlockAt(origin), accepted),
                     $"resident colored door {header} accepts hit {hit + 1}");
                 roomObjects.Step(level);
             }

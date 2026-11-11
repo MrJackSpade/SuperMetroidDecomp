@@ -298,7 +298,7 @@ internal static void VerifySamusStoredShineAndShinespark()
     AssertTrue(horizontal.Shinespark.Phase == ShinesparkPhase.Horizontal &&
         horizontal.Kinematics.Position.Y.RawValue == firstYBefore,
         "horizontal spark uses only block X movement without colliding");
-    AssertSequenceEqual(new[] { sparkBombBlockIndex }, shineBombObjects.ActiveObjectBlockIndices,
+    AssertSequenceEqual(new[] { new Position16<RoomBlocks>(10, 9) }, shineBombObjects.ActiveObjectBlocks,
         "horizontal spark breaks the BTS-7 block");
     AssertEqual(RoomTerrainBlock.Of(0x58, BlockMirroring.None, RoomCollisionType.Air),
         empty.GetCollisionBlockByIndex(sparkBombBlockIndex).Terrain,

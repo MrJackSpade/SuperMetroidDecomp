@@ -41,7 +41,7 @@ internal static class SamusEaterObjectDefinitionsVerification
             RoomObjectSlotSnapshot slot = roomObjects.PopulationSlots.Single();
             AssertEqual(0, slot.ProcessingPosition, "Samus Eater takes the first free slot in processing order");
             AssertEqual(headerPointer, slot.HeaderPointer, "Samus Eater header identity");
-            AssertEqual(5, slot.BlockIndex, "Samus Eater trigger block");
+            AssertEqual(new Position16<RoomBlocks>(1, 1), slot.Block, "Samus Eater trigger block");
             AssertTrue(slot.Behaviour is SamusEaterObject { Phase: SamusEaterPhase.Biting, Holding: false } eater && eater.Plant == definition,
                 "Samus Eater starts its typed bite");
             AssertEqual(

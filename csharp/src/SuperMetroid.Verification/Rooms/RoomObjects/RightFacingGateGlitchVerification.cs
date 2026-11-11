@@ -71,12 +71,12 @@ internal static class RightFacingGateGlitchVerification
             slot => slot.HeaderPointer == RoomObjectHeaderId.DownwardGateShotBlock);
         AssertEqual(32, original.Size.X, "Pink Brinstar Hopper room width");
         AssertEqual(32, original.Size.Y, "Pink Brinstar Hopper room height");
-        AssertEqual(0x0091, residentGate.BlockIndex, "Authored Pink Brinstar gate block");
+        AssertEqual(new Position16<RoomBlocks>(17, 4), residentGate.Block, "Authored Pink Brinstar gate block");
         AssertEqual((ushort)0x0002, shotBlock.RoomArgument,
             "Authored Pink Brinstar blue-right trigger table row");
 
-        int gateX = residentGate.BlockIndex % original.Size.X * 16;
-        int gateY = residentGate.BlockIndex / original.Size.X * 16;
+        int gateX = residentGate.Block.X * 16;
+        int gateY = residentGate.Block.Y * 16;
         int cameraX = gateX - 128;
         int cameraY = 0;
         // The authored population is an immutable import record, read from the cartridge once for every position.
@@ -206,7 +206,7 @@ internal static class RightFacingGateGlitchVerification
             slot => slot.HeaderPointer == RoomObjectHeaderId.DownwardGateShotBlock);
         AssertEqual(64, level.Size.X, "East Tunnel room width");
         AssertEqual(32, level.Size.Y, "East Tunnel room height");
-        AssertEqual(0x0156, gate.BlockIndex, "Authored East Tunnel gate block");
+        AssertEqual(new Position16<RoomBlocks>(22, 5), gate.Block, "Authored East Tunnel gate block");
         AssertEqual((ushort)0x000a, shotBlock.RoomArgument,
             "Authored East Tunnel green-right trigger table row");
 

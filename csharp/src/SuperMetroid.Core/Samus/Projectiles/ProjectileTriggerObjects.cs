@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Progression;
 
@@ -12,25 +11,21 @@ internal sealed class ProjectileTriggerObjects
     /// <summary>The room-object slots searched from highest index to lowest on a projectile hit.</summary>
     private readonly RoomObjectSlotTable _slotTable;
 
-    /// <summary>The room's level, which places a struck block.</summary>
-    private readonly RoomLevelData _level;
-
-    /// <summary>Binds the active room's room-object population and level for generic projectile collision dispatch.</summary>
-    internal ProjectileTriggerObjects(RoomObjectSlotTable slotTable, RoomLevelData level)
+    /// <summary>Binds the active room's room-object population for generic projectile collision dispatch.</summary>
+    internal ProjectileTriggerObjects(RoomObjectSlotTable slotTable)
     {
         _slotTable = slotTable;
-        _level = Ensure.NotNull(level);
     }
+
     /// <summary>
-    /// Publishes a projectile's hit on a resident-trigger block to the room object at <paramref name="blockIndex"/>: the
+    /// Publishes a projectile's hit on a resident-trigger block to the room object at <paramref name="block"/>: the
     /// highest-numbered active slot at that block receives the hit's family, whatever room object it holds. The grapple
     /// beam's touch (<see cref="SamusProjectileType.None"/>) arrives as a beam.
     /// </summary>
     public bool TryNotifyResidentProjectileHit(
-        int blockIndex,
+        Position16<RoomBlocks> block,
         SamusProjectileType projectileType)
     {
-        Position16<RoomBlocks> block = _level.BlockAt(blockIndex);
         // The search runs in processing order and accepts the first matching block regardless of its header. Preserve
         // that generality: reaction room objects and future translated actors must not be omitted from a family dispatcher.
         foreach (RoomObjectSlot slot in _slotTable.InProcessingOrder)

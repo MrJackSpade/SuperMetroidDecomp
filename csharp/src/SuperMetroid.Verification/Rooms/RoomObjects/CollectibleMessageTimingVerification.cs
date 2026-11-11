@@ -64,7 +64,7 @@ internal static class CollectibleMessageTimingVerification
         ushort[] beforeVisibleHud = VisibleHudWords();
         (RoomBlockCell Cell, SpriteSheetFrame? Picture) beforeTile = ShownBlock();
         ushort[] beforeHud = HudWords();
-        AssertTrue(runtime.RoomObjects.CollectibleObjects.TryNotifyCollectibleTouch(itemIndex), "reported pickup accepts contact");
+        AssertTrue(runtime.RoomObjects.CollectibleObjects.TryNotifyCollectibleTouch(item.Block), "reported pickup accepts contact");
         runtime.StepFrame(0);
         AssertTrue(runtime.MessageBox.IsActive, "pickup begins synchronous message");
         AssertEqual(199, samus.MaxHealth, "native grant precedes message return");

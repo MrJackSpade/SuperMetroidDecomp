@@ -92,7 +92,7 @@ internal static class EscapeRoomEffectsVerification
             AssertTrue(runtime.System.HasEvent(StoryEvent.CrittersEscaped), "live rescue room publishes escaped event");
             var door = runtime.RoomObjects.GreyDoorSnapshots.Single();
             AssertEqual(SuperMetroid.Core.Rooms.Doors.GreyDoorPhase.Flashing, door.Phase, "rescue unlocks exit door");
-            runtime.RoomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(door.BlockIndex, SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false));
+            runtime.RoomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(door.Block, SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false));
             for (int frame = 0; frame < 32; frame++) runtime.StepFrame(0);
             AssertEqual(0, runtime.RoomObjects.GreyDoorSnapshots.Count, "exit door finishes opening");
             var samus = runtime.Player.IntroducedSamus;

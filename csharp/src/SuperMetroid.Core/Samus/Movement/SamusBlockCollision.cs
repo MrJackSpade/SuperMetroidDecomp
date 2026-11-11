@@ -212,11 +212,11 @@ public static class SamusBlockCollision
                     case RoomCollisionType.SpecialAir:
                         // Sand's submerging callback clears vertical speed/gravity even
                         // when reached through the horizontal dispatcher.
-                        collided = SamusInsideBlockReactions.ReactCollision(new(state, state.CollisionContactDamageIndex(owner)), block, Axis.Horizontal,
+                        collided = SamusInsideBlockReactions.ReactCollision(new(state, state.CollisionContactDamageIndex(owner)), terrain.Level, block, Axis.Horizontal,
                             ref acceptedDisplacement, out _, move.BlockReactionDirection, terrain.RoomObjects);
                         if (collided) collisionBlock = block;
                         if (block.Behavior.Reaction == BlockReactionDefinitions.ScrollTrigger &&
-                            (terrain.RoomObjects is null || !terrain.RoomObjects.Scrolls.TryNotifyScrollTouch(block.Index)))
+                            (terrain.RoomObjects is null || !terrain.RoomObjects.Scrolls.TryNotifyScrollTouch(terrain.Level.BlockAt(block.Index))))
                         {
                             throw new InvalidOperationException(
                                 $"Scroll trigger block {block.Index} has no active scroll room-object owner; " +
@@ -245,7 +245,7 @@ public static class SamusBlockCollision
                         // shared item detector, whose setup triggers the item at this
                         // origin and returns carry clear; Samus therefore passes through
                         // rather than clipping against the item's visual block.
-                        if (terrain.RoomObjects is null || !terrain.RoomObjects.CollectibleObjects.TryNotifyCollectibleTouch(block.Index))
+                        if (terrain.RoomObjects is null || !terrain.RoomObjects.CollectibleObjects.TryNotifyCollectibleTouch(terrain.Level.BlockAt(block.Index)))
                         {
                             throw new InvalidOperationException(
                                 $"Collectible block {block.Index} has no active item room-object owner.");
@@ -279,7 +279,8 @@ public static class SamusBlockCollision
                             block.Behavior.TryGetStationAccess(out _) &&
                             (terrain.RoomObjects is null ||
                              !terrain.RoomObjects.Stations.TryNotifyStationCollision(
-                                 block.Index,
+                                 terrain.Level,
+                                 terrain.Level.BlockAt(block.Index),
                                  block.Behavior,
                                  state.CollisionPose.ForRoomCollision(),
                                  Axis.Horizontal,
@@ -564,13 +565,13 @@ public static class SamusBlockCollision
                 case RoomCollisionType.SpecialAir:
                     if (block.CollisionType == RoomCollisionType.SpecialAir)
                     {
-                        collided = SamusInsideBlockReactions.ReactCollision(new(state, state.CollisionContactDamageIndex(owner)), block, Axis.Vertical,
+                        collided = SamusInsideBlockReactions.ReactCollision(new(state, state.CollisionContactDamageIndex(owner)), terrain.Level, block, Axis.Vertical,
                             ref acceptedDisplacement, out bool touchedSand, move.BlockReactionDirection, terrain.RoomObjects);
                         sandContact |= touchedSand;
                     }
                     if (block.CollisionType == RoomCollisionType.SpecialAir &&
                         block.Behavior.Reaction == BlockReactionDefinitions.ScrollTrigger &&
-                        (terrain.RoomObjects is null || !terrain.RoomObjects.Scrolls.TryNotifyScrollTouch(block.Index)))
+                        (terrain.RoomObjects is null || !terrain.RoomObjects.Scrolls.TryNotifyScrollTouch(terrain.Level.BlockAt(block.Index))))
                     {
                         throw new InvalidOperationException(
                             $"Scroll trigger block {block.Index} has no active scroll room-object owner; " +
@@ -603,7 +604,7 @@ public static class SamusBlockCollision
 
                 case RoomCollisionType.SpecialBlock when
                     block.Behavior.Reaction == BlockReactionDefinitions.CollectibleTrigger:
-                    if (terrain.RoomObjects is null || !terrain.RoomObjects.CollectibleObjects.TryNotifyCollectibleTouch(block.Index))
+                    if (terrain.RoomObjects is null || !terrain.RoomObjects.CollectibleObjects.TryNotifyCollectibleTouch(terrain.Level.BlockAt(block.Index)))
                     {
                         throw new InvalidOperationException(
                             $"Collectible block {block.Index} has no active item room-object owner.");
@@ -664,7 +665,8 @@ public static class SamusBlockCollision
                         block.Behavior.TryGetStationAccess(out _) &&
                         (terrain.RoomObjects is null ||
                          !terrain.RoomObjects.Stations.TryNotifyStationCollision(
-                             block.Index,
+                             terrain.Level,
+                             terrain.Level.BlockAt(block.Index),
                              block.Behavior,
                              state.CollisionPose.ForRoomCollision(),
                              Axis.Vertical,

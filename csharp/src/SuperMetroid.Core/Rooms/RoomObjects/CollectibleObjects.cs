@@ -22,12 +22,9 @@ internal sealed class CollectibleObjects
     private readonly IRoomObjectDrawing _drawing;
     /// <summary>Enumerates active item room objects by slot ordinal.</summary>
     private readonly RoomObjectSlotTable _slotTable;
-    /// <summary>The room's level, which places a touched or struck block.</summary>
-    private readonly RoomLevelData _level;
-    /// <summary>Connects the collectibles to room state, drawing and the room's level.</summary>
-    internal CollectibleObjects(SharedGameState? system, IRoomSamusAccess? samus, IRoomFxMotion? roomFx, IRoomObjectDrawing drawing, RoomObjectSlotTable slotTable, RoomLevelData level)
+    /// <summary>Connects the collectibles to room state and drawing.</summary>
+    internal CollectibleObjects(SharedGameState? system, IRoomSamusAccess? samus, IRoomFxMotion? roomFx, IRoomObjectDrawing drawing, RoomObjectSlotTable slotTable)
     {
-        _level = Ensure.NotNull(level);
         _system = system;
         _samus = samus;
         _roomFx = roomFx;
@@ -116,9 +113,8 @@ internal sealed class CollectibleObjects
     /// finds the item room object sharing this block and arms its trigger timer;
     /// acquisition remains owned by the following room-object handler pass.
     /// </summary>
-    public bool TryNotifyCollectibleTouch(int blockIndex)
+    public bool TryNotifyCollectibleTouch(Position16<RoomBlocks> block)
     {
-        Position16<RoomBlocks> block = _level.BlockAt(blockIndex);
         foreach (RoomObjectSlot slot in _slotTable.Slots)
         {
             if (!slot.Active || slot.Block != block || slot.Behaviour is not CollectibleObject item)
@@ -146,9 +142,8 @@ internal sealed class CollectibleObjects
     /// collision producer and reduces it to the same trigger.
     /// </summary>
     public bool TryNotifyCollectibleProjectileHit(
-        int blockIndex)
+        Position16<RoomBlocks> block)
     {
-        Position16<RoomBlocks> block = _level.BlockAt(blockIndex);
         foreach (RoomObjectSlot slot in _slotTable.Slots)
         {
             if (!slot.Active || slot.Block != block || slot.Behaviour is not CollectibleObject item)

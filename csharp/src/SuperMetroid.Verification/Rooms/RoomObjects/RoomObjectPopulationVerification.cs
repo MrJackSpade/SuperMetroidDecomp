@@ -332,7 +332,7 @@ internal static class RoomObjectPopulationVerification
             "energy setup installs type-B right access");
         AssertEqual(0x49, RoomBlockBehaviorCodec.Encode(level.GetCollisionBlock(new(21, 8)).Behavior),
             "energy setup installs BTS $49");
-        AssertTrue(roomObjects.TryNotifyStationTouch(level.GetBlockIndex(new(21, 8)), 0x49),
+        AssertTrue(roomObjects.TryNotifyStationTouch(level, new(21, 8), 0x49),
             "generic BTS dispatcher locates energy-station parent");
         AssertTrue(samus.Control.AlphaLocked,
             "station access setup runs command six before its first PLM handler pass");
@@ -786,8 +786,8 @@ internal static class RoomObjectPopulationVerification
         RoomObjectSlotSnapshot[] slots = roomObjects.PopulationSlots.ToArray();
         AssertEqual(0, slots[0].ProcessingPosition,
             "off-room record is allocated before its setup callback");
-        AssertEqual(offRoomY * width + offRoomX, slots[0].BlockIndex,
-            "off-room record retains native unchecked row-major block index");
+        AssertEqual(level.BlockAt(offRoomY * width + offRoomX), slots[0].Block,
+            "off-room record sits on the block its column reaches in the following rows");
         AssertEqual(1, slots[1].ProcessingPosition,
             "following record is processed after it");
         AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.Air), level.GetCollisionBlockByIndex(width * height - 1).Terrain,
@@ -1141,11 +1141,11 @@ internal static class RoomObjectPopulationVerification
         AssertEqual(0x4d, RoomBlockBehaviorCodec.Encode(level.GetCollisionBlock(new(18, 6)).Behavior),
             "save station setup installs trigger BTS $4D");
 
-        AssertTrue(roomObjects.TryNotifyStationTouch(level.GetBlockIndex(new(7, 6)), 0x47),
+        AssertTrue(roomObjects.TryNotifyStationTouch(level, new(7, 6), 0x47),
             "map access resolves parent");
         AssertTrue(samus.Control.AlphaLocked,
             "map access setup locks Samus before the resident PLM advances");
-        AssertTrue(roomObjects.TryNotifyStationTouch(level.GetBlockIndex(new(13, 6)), 0x4b),
+        AssertTrue(roomObjects.TryNotifyStationTouch(level, new(13, 6), 0x4b),
             "missile access resolves parent");
         // Activation runs on the triggering pass plus 6 + $60 later passes.
         for (int frame = 0; frame < 102; frame++)
@@ -1181,7 +1181,7 @@ internal static class RoomObjectPopulationVerification
         AssertTrue(!samus.Control.AlphaLocked,
             "Samus stays released through the post-message retraction");
 
-        AssertTrue(roomObjects.TryNotifyStationTouch(level.GetBlockIndex(new(18, 6)), 0x4d),
+        AssertTrue(roomObjects.TryNotifyStationTouch(level, new(18, 6), 0x4d),
             "save trigger resolves its same-block parent");
         roomObjects.Step(level);
         AssertEqual(StationKind.Save, roomObjects.Stations.StationActivationEvents.Single().Kind,
@@ -1241,7 +1241,7 @@ internal static class RoomObjectPopulationVerification
             .SaveStationLockedOut,
             "save completion installs once-per-room-entry lockout");
 
-        AssertTrue(roomObjects.TryNotifyStationTouch(level.GetBlockIndex(new(18, 6)), 0x4d),
+        AssertTrue(roomObjects.TryNotifyStationTouch(level, new(18, 6), 0x4d),
             "locked save trigger remains a solid station block");
         roomObjects.Step(level);
         AssertEqual(0, roomObjects.Stations.StationActivationEvents.Count,

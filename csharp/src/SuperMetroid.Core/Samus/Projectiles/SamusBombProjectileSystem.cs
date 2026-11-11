@@ -869,7 +869,7 @@ public sealed class SamusBombProjectileSystem
         if (block.Behavior.Reaction == BlockReactionDefinitions.CollectibleTrigger &&
             block.CollisionType is RoomCollisionType.SpecialBlock or RoomCollisionType.ShootableBlock)
         {
-            _ = roomObjects?.CollectibleObjects.TryNotifyCollectibleProjectileHit(block.Index);
+            _ = roomObjects?.CollectibleObjects.TryNotifyCollectibleProjectileHit(level.BlockAt(block.Index));
             return;
         }
 
@@ -882,7 +882,7 @@ public sealed class SamusBombProjectileSystem
             block.Behavior.Reaction == BlockReactionDefinitions.ResidentObjectTrigger)
         {
             if (roomObjects is null ||
-                !roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.Index, projectileType))
+                !roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(level.BlockAt(block.Index), projectileType))
             {
                 throw new InvalidOperationException(
                     $"Bombed resident-trigger block {block.Index} has no active room-object owner.");

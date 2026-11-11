@@ -151,7 +151,7 @@ internal static class EyeDoorObjectDrawDefinitionsVerification
             roomObjects.EyeDoorSnapshots.Single(door => door.Component == EyeDoorComponent.Eye)
                 .FrameBehavior,
             $"{orientation} retail eye-door program arms its missile pre-instruction");
-        AssertTrue(roomObjects.TryNotifyColoredDoorHit(eyeBlock,
+        AssertTrue(roomObjects.TryNotifyColoredDoorHit(new(eyeX, eyeY),
                 SamusProjectileType.Of(SamusProjectileFamily.SuperMissile)),
             $"{orientation} retail eye door accepts a Super Missile collision");
         roomObjects.Step(level);

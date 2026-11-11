@@ -29,7 +29,7 @@ internal static class SpeedBoosterPickupVerification
             if (chozo)
             {
                 // The orb must be shot open before its item can be touched.
-                AssertTrue(fixture.RoomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(fixture.BlockIndex),
+                AssertTrue(fixture.RoomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(fixture.Block),
                     "Speed Booster orb accepts a projectile");
                 StepUntil(
                     () => fixture.RoomObjects.CollectiblePhases[0] == CollectiblePhase.Visible,
@@ -37,7 +37,7 @@ internal static class SpeedBoosterPickupVerification
                     maximumFrames: 20,
                     context: "Speed Booster orb burst");
             }
-            AssertTrue(fixture.RoomObjects.CollectibleObjects.TryNotifyCollectibleTouch(fixture.BlockIndex),
+            AssertTrue(fixture.RoomObjects.CollectibleObjects.TryNotifyCollectibleTouch(fixture.Block),
                 "Speed Booster pickup accepts contact");
             fixture.RoomObjects.Step(fixture.Level);
             AssertTrue(fixture.Samus.CollectedItems.HasAny(SamusEquipmentFlags.SpeedBooster),

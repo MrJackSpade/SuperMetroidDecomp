@@ -49,9 +49,6 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
     /// <summary>The game's event flags, which scripted room objects set.</summary>
     internal IGlobalEventFlags? Events { get; }
 
-    /// <summary>The room's level, which its room objects sit on.</summary>
-    internal RoomLevelData Level { get; }
-
     /// <summary>Forty word-indexed room-object slots shared by the room's object families.</summary>
     internal RoomObjectSlotTable SlotTable { get; }
 
@@ -133,14 +130,13 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
         Ensure.NotNull(room);
         Ensure.NotNull(services);
         Events = services.Events;
-        Level = room.Level;
         SlotTable = new RoomObjectSlotTable();
         Sounds = new RoomObjectSoundQueue();
         Drawing = new RoomObjectBlockDrawing(visuals);
-        ProjectileTriggers = new ProjectileTriggerObjects(SlotTable, room.Level);
+        ProjectileTriggers = new ProjectileTriggerObjects(SlotTable);
         BreakableTerrain = new EnemyBreakableTerrainObjects(SlotTable);
-        Quicksand = new QuicksandObjects(SlotTable, room.Level);
-        Scrolls = new ScrollObjects(SlotTable, room.Level);
+        Quicksand = new QuicksandObjects(SlotTable);
+        Scrolls = new ScrollObjects(SlotTable);
         WreckedShipTreadmill = new WreckedShipTreadmillObjects(SlotTable, Drawing);
         Shaktool = new ShaktoolObjects(services.Samus, services.Events, SlotTable);
         SamusEater = new SamusEaterObjects(services.Samus, SlotTable);
@@ -152,8 +148,8 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
         NoobTube = new NoobTubeObjects(services.Samus, services.Events, services.RoomFx, services.Earthquake, services.Enemies);
         Gates = new GateObjects(services.Samus, SlotTable, Sounds);
         MotherBrainGlass = new MotherBrainGlassObjects(services.Bosses, services.Events, Sounds);
-        Stations = new StationObjects(room.System, services.Samus, Drawing, SlotTable, Sounds, room.Level);
-        CollectibleObjects = new CollectibleObjects(room.System, services.Samus, services.RoomFx, Drawing, SlotTable, room.Level);
+        Stations = new StationObjects(room.System, services.Samus, Drawing, SlotTable, Sounds);
+        CollectibleObjects = new CollectibleObjects(room.System, services.Samus, services.RoomFx, Drawing, SlotTable);
         EyeDoors = new EyeDoorObjects(room.System, services.Samus, services.Enemies, Sounds);
         DoorObjects = new DoorObjects(room.System, SlotTable, Sounds);
         GreyDoors = new GreyDoorObjects(room.System, room.AreaIndex, services.TourianStatue, Sounds);

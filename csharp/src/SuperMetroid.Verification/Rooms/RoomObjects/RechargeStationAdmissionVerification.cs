@@ -37,7 +37,7 @@ internal static class RechargeStationAdmissionVerification
             RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(new SharedRandom()), AreaId.Crateria), RoomObjectPopulationImporter.Read(bus, 0x9000), new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
             int accessX = right ? 9 : 7;
             var behavior = RoomBlockBehaviorCodec.Decode(RoomBlockBehaviorCodec.Encode(level.GetCollisionBlock(new(checked((ushort)accessX), 8)).Behavior));
-            bool Touch() => roomObjects.Stations.TryNotifyStationCollision(level.GetBlockIndex(new(checked((ushort)accessX), 8)), behavior,
+            bool Touch() => roomObjects.Stations.TryNotifyStationCollision(level, new(accessX, 8), behavior,
                 (right ? SamusPoseId.RanIntoWallLeftPose : SamusPoseId.RanIntoWallRightPose).ForRoomCollision(),
                 Axis.Horizontal, movingPositive: !right);
             AssertTrue(Touch(), "full recharge station remains solid");

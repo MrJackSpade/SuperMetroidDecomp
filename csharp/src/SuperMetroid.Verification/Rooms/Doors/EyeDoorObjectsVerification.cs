@@ -173,7 +173,7 @@ internal static class EyeDoorObjectsVerification
             $"{orientation} open eye arms its missile wake");
 
         AssertTrue(roomObjects.TryNotifyColoredDoorHit(
-                eyeBlock,
+                new(eyeX, eyeY),
                 SamusProjectileType.None),
             $"{orientation} beam collision reaches resident eye");
         StepEyeDoorObjects(roomObjects, level);
@@ -188,7 +188,7 @@ internal static class EyeDoorObjectsVerification
         for (int hit = 0; hit < acceptedHits; hit++)
         {
             AssertTrue(roomObjects.TryNotifyColoredDoorHit(
-                    eyeBlock,
+                    new(eyeX, eyeY),
                     SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(projectileWord)),
                 $"{orientation} missile-family hit {hit + 1} reaches resident eye");
             StepEyeDoorObjects(roomObjects, level);

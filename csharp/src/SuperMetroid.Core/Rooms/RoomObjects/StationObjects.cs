@@ -23,13 +23,9 @@ internal sealed class StationObjects
     /// <summary>Queues extension, retraction, and save-animation sounds.</summary>
     private readonly RoomObjectSoundQueue _sounds;
 
-    /// <summary>The room's level, which places a touched access block.</summary>
-    private readonly RoomLevelData _level;
-
-    /// <summary>Connects station activation to room state, room-object drawing, resident slots, sound requests and the room's level.</summary>
-    internal StationObjects(SharedGameState? system, IRoomSamusAccess? samus, IRoomObjectDrawing drawing, RoomObjectSlotTable slotTable, RoomObjectSoundQueue sounds, RoomLevelData level)
+    /// <summary>Connects station activation to room state, room-object drawing, resident slots and sound requests.</summary>
+    internal StationObjects(SharedGameState? system, IRoomSamusAccess? samus, IRoomObjectDrawing drawing, RoomObjectSlotTable slotTable, RoomObjectSoundQueue sounds)
     {
-        _level = Ensure.NotNull(level);
         _system = system;
         _samus = samus;
         _drawing = drawing;
@@ -289,14 +285,22 @@ internal sealed class StationObjects
     }
 
     /// <summary>The station collision notice room collision dispatch sends with the block's behaviour.</summary>
+    /// <param name="level">The room's level, through whose blocks the step from the access block to its station runs.</param>
+    /// <param name="accessBlock">The access block Samus collided with.</param>
+    /// <param name="behavior">The access block's behaviour.</param>
+    /// <param name="collisionPose">Samus's pose as room collision reads it.</param>
+    /// <param name="axis">The axis Samus moved along.</param>
+    /// <param name="movingPositive">Whether Samus moved right or down.</param>
     public bool TryNotifyStationCollision(
-        int accessBlockIndex,
+        RoomLevelData level,
+        Position16<RoomBlocks> accessBlock,
         RoomBlockBehavior behavior,
         SamusCollisionPose collisionPose,
         Axis axis,
         bool movingPositive)
         => TryNotifyStationCollision(
-            accessBlockIndex,
+            level,
+            accessBlock,
             behavior,
             collisionPose,
             axis,
@@ -305,19 +309,20 @@ internal sealed class StationObjects
 
     /// <summary>Checks the entry pose and direction, then arms a matching resident station's room-object sequence.</summary>
     internal bool TryNotifyStationCollision(
-        int accessBlockIndex,
+        RoomLevelData level,
+        Position16<RoomBlocks> accessBlock,
         RoomBlockBehavior behavior,
         SamusCollisionPose collisionPose,
         Axis axis,
         bool movingPositive,
         StationSetupGate setupGate)
     {
+        Ensure.NotNull(level);
         if (!behavior.TryGetStationAccess(out StationAccessBehavior access))
             return false;
 
         // The access blocks sit beside their station on its row; the step to the station runs through the room's blocks in
         // reading order, as the station's setup placed them.
-        Position16<RoomBlocks> accessBlock = _level.BlockAt(accessBlockIndex);
         int columnsToStation = access switch
         {
             StationAccessBehavior.MapRight => -1,
@@ -327,7 +332,7 @@ internal sealed class StationObjects
             StationAccessBehavior.SaveFloor => 0,
             _ => throw new InvalidOperationException($"Undefined station access {access}."),
         };
-        Position16<RoomBlocks> stationBlock = _level.ObjectBlockStep(accessBlock, new Offset16<RoomBlocks>(columnsToStation, 0));
+        Position16<RoomBlocks> stationBlock = level.ObjectBlockStep(accessBlock, new Offset16<RoomBlocks>(columnsToStation, 0));
 
         foreach (RoomObjectSlot slot in _slotTable.Slots)
         {

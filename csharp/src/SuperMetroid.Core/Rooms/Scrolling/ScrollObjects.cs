@@ -10,14 +10,10 @@ internal sealed class ScrollObjects
     /// <summary>The room's objects, in the update order, searched for the trigger at a block.</summary>
     private readonly RoomObjectSlotTable _slotTable;
 
-    /// <summary>The room's level, which places a touched block.</summary>
-    private readonly RoomLevelData _level;
-
-    /// <summary>Binds the scroll triggers to the room's objects and its level.</summary>
-    internal ScrollObjects(RoomObjectSlotTable slotTable, RoomLevelData level)
+    /// <summary>Binds the scroll triggers to the room's objects.</summary>
+    internal ScrollObjects(RoomObjectSlotTable slotTable)
     {
         _slotTable = slotTable;
-        _level = Ensure.NotNull(level);
     }
 
     /// <summary>Every live room-authored scroll trigger, in place order.</summary>
@@ -29,15 +25,14 @@ internal sealed class ScrollObjects
     /// <summary>
     /// Applies the scroll trigger's touch to the already-resolved origin of its special-air trigger block.
     /// </summary>
-    /// <param name="blockIndex">Zero-based row-major 16x16 room-block index of the trigger origin, after any scroll-extension traversal.</param>
+    /// <param name="block">The room block of the trigger origin, after any scroll-extension traversal.</param>
     /// <returns>True when a live scroll trigger owns the block, including an already-touched one; false when none does.</returns>
     /// <remarks>
     /// The first touch makes the trigger's writes run on the next room-object update; further collision probes before
     /// then change nothing. The first trigger at the block in the update order takes the touch.
     /// </remarks>
-    public bool TryNotifyScrollTouch(int blockIndex)
+    public bool TryNotifyScrollTouch(Position16<RoomBlocks> block)
     {
-        Position16<RoomBlocks> block = _level.BlockAt(blockIndex);
         foreach (RoomObjectSlot slot in _slotTable.Slots)
         {
             if (!slot.Active || slot.Block != block || slot.Behaviour is not ScrollTriggerObject trigger)

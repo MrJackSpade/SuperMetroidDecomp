@@ -33,7 +33,7 @@ public static class SamusInsideBlockReactions
                 // this center wake-up lets a lower trigger win after the torso clears
                 // an upper trigger, without changing room-object slot priority.
                 if (centerPoint && block.Behavior.Reaction == BlockReactionDefinitions.ScrollTrigger &&
-                    (roomObjects is null || !roomObjects.Scrolls.TryNotifyScrollTouch(block.Index)))
+                    (roomObjects is null || !roomObjects.Scrolls.TryNotifyScrollTouch(level.BlockAt(block.Index))))
                     throw new InvalidOperationException($"Inside scroll trigger block {block.Index} has no active room-object owner.");
                 // The normal table contains conveyors; area-table entries below own
                 // sand. Both must be visited in the same bottom/center/top order.
@@ -53,7 +53,7 @@ public static class SamusInsideBlockReactions
                 ? reaction.Setup
                 : areaReaction.Setup;
             if (hasCompiledReaction && roomObjects is not null &&
-                !roomObjects.Quicksand.TrySpawnQuicksandReaction(block.Index, header))
+                !roomObjects.Quicksand.TrySpawnQuicksandReaction(level.BlockAt(block.Index), header))
             {
                 return;
             }
@@ -155,8 +155,16 @@ public static class SamusInsideBlockReactions
     /// separate from carry: downward movement grounds on sand without discarding
     /// its accepted sinking displacement. Pose-clearance probes consume carry only.
     /// </summary>
+    /// <param name="contact">Samus's body and contact damage.</param>
+    /// <param name="level">The room's level, which places the sand block a reaction sits on.</param>
+    /// <param name="block">The special-air block the collision scan reached.</param>
+    /// <param name="axis">The axis the scan moves along.</param>
+    /// <param name="displacement">The scan's accepted displacement, which sand can limit.</param>
+    /// <param name="surfaceContact">Whether Samus touched the sand's surface.</param>
+    /// <param name="blockReactionDirection">The direction the reaction sees, or null for the scan's own.</param>
+    /// <param name="roomObjects">The room's objects, where a sand reaction takes a place; null runs no spawn.</param>
     internal static bool ReactCollision(SamusCollisionContact contact,
-        RoomCollisionBlock block, Axis axis, ref SignedSixteenSixteen displacement, out bool surfaceContact,
+        RoomLevelData level, RoomCollisionBlock block, Axis axis, ref SignedSixteenSixteen displacement, out bool surfaceContact,
         SamusCollisionDirection? blockReactionDirection = null,
         ISamusRoomObjects? roomObjects = null)
     {
@@ -176,7 +184,7 @@ public static class SamusInsideBlockReactions
             ? reaction.Setup
             : areaReaction.Setup;
         if (hasCompiledReaction && roomObjects is not null &&
-            !roomObjects.Quicksand.TrySpawnQuicksandReaction(block.Index, header))
+            !roomObjects.Quicksand.TrySpawnQuicksandReaction(level.BlockAt(block.Index), header))
         {
             return false;
         }

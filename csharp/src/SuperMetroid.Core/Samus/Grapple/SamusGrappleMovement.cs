@@ -880,12 +880,12 @@ public static class SamusGrappleMovement
                         // Generic shot-trigger setup also belongs to the grapple table.
                         // Notify the resident actor with no weapon family; its own
                         // frame behaviour decides whether to reject the hit or wake up.
-                        if (!roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.Index, projectileType: SamusProjectileType.None))
+                        if (!roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(level.BlockAt(block.Index), projectileType: SamusProjectileType.None))
                             throw new InvalidOperationException(
                                 $"Grapple trigger block {block.Index} at ({resolvedX},{resolvedY}) has no resident room-object owner.");
                     }
                     else if (block.Behavior.Reaction == BlockReactionDefinitions.CollectibleTrigger)
-                        roomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(block.Index);
+                        roomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(level.BlockAt(block.Index));
                     else
                     {
                         try

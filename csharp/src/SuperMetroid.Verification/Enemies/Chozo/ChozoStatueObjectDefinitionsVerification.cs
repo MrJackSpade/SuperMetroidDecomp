@@ -98,7 +98,7 @@ internal static class ChozoStatueObjectDefinitionsVerification
             RoomObjectSlotSnapshot slot = roomObjects.PopulationSlots.Single();
             AssertEqual(0, slot.ProcessingPosition, "Chozo PLM takes the first free slot in processing order");
             AssertEqual(header, slot.HeaderPointer, "Chozo PLM header identity");
-            AssertEqual(4 * width + 3, slot.BlockIndex, "Chozo PLM requested block coordinate");
+            AssertEqual(new Position16<RoomBlocks>(3, 4), slot.Block, "Chozo PLM requested block coordinate");
             AssertTrue(header == RoomObjectHeaderId.LowerNorfairChozoHand
                     ? slot.Behaviour is LowerNorfairChozoHandObject { Phase: LowerNorfairChozoHandPhase.Starting }
                     : slot.Behaviour is TerrainChangeObject { Change: var started } && started == changes[header]
@@ -157,7 +157,7 @@ internal static class ChozoStatueObjectDefinitionsVerification
                 SamusProjectileType.Of(SamusProjectileFamily.PowerBomb), solidBlock: true),
             "a Power Bomb breaks the trigger block");
         AssertTrue(!roomObjects.BlockReactions.IsBrokenOpen(level.BlockAt(trigger)), "the trigger block is not broken open as its breakup starts");
-        bool breakupRunsFirst = roomObjects.PopulationSlots.Single(slot => slot.BlockIndex == trigger).ProcessingPosition
+        bool breakupRunsFirst = roomObjects.PopulationSlots.Single(slot => slot.Block == level.BlockAt(trigger)).ProcessingPosition
             < roomObjects.PopulationSlots.Single(slot => slot.Behaviour is LowerNorfairChozoHandObject).ProcessingPosition;
         BlockReactionChange breakup = BlockReactionChangeDefinitions.PermanentPowerBombBlock;
         int lastStageUpdate = breakup.FirstFrameDelay + breakup.Frames.SkipLast(1).Sum(frame => frame.Updates);

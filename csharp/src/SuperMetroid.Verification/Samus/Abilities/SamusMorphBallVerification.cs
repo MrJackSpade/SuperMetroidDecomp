@@ -1049,7 +1049,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     AssertEqual(RoomCollisionType.SolidBlock,
         reactionLevel.GetCollisionBlockByIndex(reactionParentIndex).CollisionType,
         "later left-arm reaction observes the synchronously mutated parent");
-    AssertTrue(reactionObjects.PopulationSlots.Any(slot => slot.BlockIndex == reactionParentIndex),
+    AssertTrue(reactionObjects.PopulationSlots.Any(slot => slot.Block == reactionLevel.BlockAt(reactionParentIndex)),
         "extension redirect installs its reaction PLM on the parent block");
     AssertEqual(1, reactionObjects.SlotTable.ActiveCount,
         "extension and later parent visit produce one native reaction PLM");
@@ -1112,7 +1112,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     AssertEqual(RoomCollisionType.ShootableBlock,
         integratedRevealLevel.GetCollisionBlockByIndex(integratedRevealIndex).CollisionType,
         "bomb dispatcher visits center shootable-solid parent");
-    AssertTrue(integratedRevealObjects.PopulationSlots.Any(slot => slot.BlockIndex == integratedRevealIndex),
+    AssertTrue(integratedRevealObjects.PopulationSlots.Any(slot => slot.Block == integratedRevealLevel.BlockAt(integratedRevealIndex)),
         "bomb dispatcher installs its reveal PLM on the center parent");
     AssertEqual(1, integratedRevealObjects.SlotTable.ActiveCount,
         "bomb dispatcher installs shootable reveal PLM");
@@ -1269,7 +1269,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         integratedPowerBombLevel.GetCollisionBlockByIndex(shotIndex).Terrain,
         "power-bomb fuse frame leaves gated block intact before radius scan");
     integratedPowerBombs.StepFrame(new SamusTerrain { Level = integratedPowerBombLevel, RoomObjects = integratedPowerBombObjects }, integratedPowerBombSamus, 0, 0);
-    AssertTrue(integratedPowerBombObjects.PopulationSlots.Any(slot => slot.BlockIndex == shotIndex),
+    AssertTrue(integratedPowerBombObjects.PopulationSlots.Any(slot => slot.Block == integratedPowerBombLevel.BlockAt(shotIndex)),
         "expanding power bomb visits BTS-eight shootable block");
     AssertEqual(RoomTerrainBlock.Of(0x057, BlockMirroring.None, RoomCollisionType.SolidBlock),
         integratedPowerBombLevel.GetCollisionBlockByIndex(shotIndex).Terrain,
@@ -1295,7 +1295,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
             collisionProbeLevel,
             collisionProbeObjects,
             position: new(48, 48));
-    AssertTrue(collisionProbeObjects.PopulationSlots.Any(slot => slot.BlockIndex == shotIndex),
+    AssertTrue(collisionProbeObjects.PopulationSlots.Any(slot => slot.Block == collisionProbeLevel.BlockAt(shotIndex)),
         "expanding power bomb visits native BTS-ten collision-probe entry");
     AssertEqual(4, collisionProbeObjects.SlotTable.ActiveCount,
         "zero-radius border visits its center four times and allocates four B974 PLMs");

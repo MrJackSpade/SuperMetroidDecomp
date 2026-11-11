@@ -67,7 +67,7 @@ internal static class IntroContentIdentityVerification
         foreach (Type type in new[]
         {
             typeof(IntroCinematicArtwork), typeof(IntroCinematicSourceArtwork), typeof(IntroEyeTilemapPresentation),
-            typeof(CeresFlightArtwork), typeof(CeresDestructionArtwork), typeof(ZebesRevealArtwork),
+            typeof(CeresFlightArtwork), typeof(CeresFlightCharacters), typeof(CeresDestructionArtwork), typeof(ZebesRevealArtwork),
             typeof(CeresFlightActorPlacements), typeof(CeresDestructionActorPlacements), typeof(CeresRevealActorPlacements),
             typeof(IntroCaretSpritePresentation), typeof(IntroMotherBrainSpritePresentation),
             typeof(IntroMotherBrainExplosionSpritePresentation), typeof(IntroRinkaSpritePresentation),

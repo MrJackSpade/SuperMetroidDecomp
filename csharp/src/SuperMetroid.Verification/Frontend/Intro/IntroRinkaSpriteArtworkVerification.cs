@@ -39,7 +39,7 @@ internal static class IntroRinkaSpriteArtworkVerification
     }
     /// <summary>Compares installed Rinka OAM with native art, live actors included, without rereading cartridge maps.</summary>
     internal static void VerifyIntroRinkaSpriteArtwork(SuperMetroidAddressSpace bus,
-        IntroCinematicArtwork stock, GameInstallation installation)
+        IntroCinematicSourceArtwork stock, GameInstallation installation)
     {
         const ushort x = 120;
         PictureShade palette = IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors);
@@ -61,7 +61,7 @@ internal static class IntroRinkaSpriteArtworkVerification
                 native.FinalizeFrame();
                 var installed = ScreenSpritesFixtures.Blank();
                 installed.BeginFrame();
-                CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(stock).RinkaSprites).Draw(definition.Pose, installed, new(x, y), palette);
+                CinematicSheetFixtures.Drawer(stock.RinkaSprites).Draw(definition.Pose, installed, new(x, y), palette);
                 installed.FinalizeFrame();
                 AssertTrue(installed.ImageEquals(native) &&
                         installed.LastFinalizedSpriteCount == native.LastFinalizedSpriteCount,
@@ -82,7 +82,7 @@ internal static class IntroRinkaSpriteArtworkVerification
             "intro Rinka first two-wave actors exist for installed artwork test");
         var stockOam = ScreenSpritesFixtures.Blank();
         stockOam.BeginFrame();
-        rinkas.Draw(stockOam, CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(stock).RinkaSprites));
+        rinkas.Draw(stockOam, CinematicSheetFixtures.Drawer(stock.RinkaSprites));
         stockOam.FinalizeFrame();
         var nativeLiveOam = new OamBuffer();
         nativeLiveOam.BeginFrame();

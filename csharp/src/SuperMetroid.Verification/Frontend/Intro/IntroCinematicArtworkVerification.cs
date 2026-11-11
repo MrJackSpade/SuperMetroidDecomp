@@ -61,15 +61,15 @@ internal static class IntroCinematicArtworkVerification
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
             Suite(nameof(VerifySamusAnimationDelayDefinitions), () => VerifySamusAnimationDelayDefinitions(bus));
             ImportIntroCinematicArtwork stock = IntroCinematicArtworkFiles.LoadForImport(installation.IntroCinematicDirectory);
-            AssertTrue(IntroCinematicSourceArtwork.Of(stock).BackgroundCharacters.Characters.Span.SequenceEqual(
+            AssertTrue(stock.BackgroundCharacters.Characters.Span.SequenceEqual(
                     RomDataReader.Decompress(bus, IntroCinematicSourceDefinitions.BackgroundCharacters,
                         maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundByteCount)),
                 "installed intro BG PNG preserves every native tile byte");
-            AssertTrue(IntroCinematicSourceArtwork.Of(stock).IntroObjectCharacters.Characters.Span.SequenceEqual(
+            AssertTrue(stock.IntroObjectCharacters.Characters.Span.SequenceEqual(
                     RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), IntroCinematicSourceDefinitions.IntroObjectCharacters,
                         IntroCinematicArtworkFormat.IntroObjectByteCount)),
                 "installed fixed intro OBJ PNG preserves every native tile byte");
-            AssertTrue(IntroCinematicSourceArtwork.Of(stock).CinematicObjectCharacters.Characters.Span.SequenceEqual(
+            AssertTrue(stock.CinematicObjectCharacters.Characters.Span.SequenceEqual(
                     RomDataReader.Decompress(bus, IntroCinematicSourceDefinitions.ObjectCharacters,
                         maximumOutputBytes: IntroCinematicArtworkFormat.CinematicObjectByteCount)),
                 "installed compressed cinematic OBJ PNG preserves every native tile byte");
@@ -263,7 +263,7 @@ internal static class IntroCinematicArtworkVerification
 
     /// <summary>Compares caret sprite compositions and blink behavior with native OAM output.</summary>
     private static void VerifyIntroCaretSpriteArtwork(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus,
-        IntroCinematicArtwork stock, GameInstallation installation)
+        IntroCinematicSourceArtwork stock, GameInstallation installation)
     {
         Suite(nameof(VerifyCinematicSpriteAnimations), () => VerifyCinematicSpriteAnimations(bus));
         const ushort originX = 8;
@@ -281,7 +281,7 @@ internal static class IntroCinematicArtworkVerification
             native.FinalizeFrame();
             var installed = ScreenSpritesFixtures.Blank();
             installed.BeginFrame();
-            CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(stock).CaretSprites).Draw(definition.Pose, installed,
+            CinematicSheetFixtures.Drawer(stock.CaretSprites).Draw(definition.Pose, installed,
                 new(originX, originY), palette);
             installed.FinalizeFrame();
             AssertTrue(installed.ImageEquals(native) &&
@@ -331,7 +331,7 @@ internal static class IntroCinematicArtworkVerification
 
     /// <summary>Checks the installed flashback collision source without rereading its cartridge bytes.</summary>
     private static void VerifyIntroMotherBrainCollision(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus,
-        IntroCinematicArtwork stock)
+        IntroCinematicSourceArtwork stock)
     {
         RoomTerrainBlock[] native = VerifyIntroMotherBrainCollisionSource(CartridgeImportSource.Require(bus));
         var guarded = NewIntroArtworkSourceReadGuard(bus);
@@ -348,7 +348,7 @@ internal static class IntroCinematicArtworkVerification
 
     /// <summary>Compares installed Mother Brain flashback sprite frames with the cartridge's OAM layout.</summary>
     private static void VerifyIntroMotherBrainSpriteArtwork(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus,
-        IntroCinematicArtwork stock)
+        IntroCinematicSourceArtwork stock)
     {
         // The cartridge oracle takes the sprite set Mother Brain's colouring resolves to as its attribute bits; the port's
         // draw takes the colouring itself.
@@ -368,7 +368,7 @@ internal static class IntroCinematicArtworkVerification
             native.FinalizeFrame();
             var installed = ScreenSpritesFixtures.Blank();
             installed.BeginFrame();
-            CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(stock).MotherBrainSprites).Draw(definition.Pose, installed,
+            CinematicSheetFixtures.Drawer(stock.MotherBrainSprites).Draw(definition.Pose, installed,
                 IntroMotherBrainSpriteState.Position.ToSpritePosition(),
                 IntroMotherBrainSpriteState.Colouring);
             installed.FinalizeFrame();
@@ -380,7 +380,7 @@ internal static class IntroCinematicArtworkVerification
 
     /// <summary>Checks explosion sprite compositions and rejects a document missing a named frame.</summary>
     private static void VerifyIntroMotherBrainExplosionSpriteArtwork(
-        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, IntroCinematicArtwork stock,
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, IntroCinematicSourceArtwork stock,
         GameInstallation installation)
     {
         const ushort x = 120;
@@ -398,7 +398,7 @@ internal static class IntroCinematicArtworkVerification
             native.FinalizeFrame();
             var installed = ScreenSpritesFixtures.Blank();
             installed.BeginFrame();
-            CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(stock).MotherBrainExplosionSprites).Draw(definition.Pose, installed,
+            CinematicSheetFixtures.Drawer(stock.MotherBrainExplosionSprites).Draw(definition.Pose, installed,
                 new(x, y), palette);
             installed.FinalizeFrame();
             AssertTrue(installed.ImageEquals(native) &&
@@ -416,7 +416,7 @@ internal static class IntroCinematicArtworkVerification
         explosions.Step(introCrossfadeTimer: 1);
         var stockOam = ScreenSpritesFixtures.Blank();
         stockOam.BeginFrame();
-        explosions.Draw(stockOam, CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(stock).MotherBrainExplosionSprites));
+        explosions.Draw(stockOam, CinematicSheetFixtures.Drawer(stock.MotherBrainExplosionSprites));
         stockOam.FinalizeFrame();
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "installed intro explosion actors never reread the twelve native compositions");

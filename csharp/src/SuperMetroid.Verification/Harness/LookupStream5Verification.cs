@@ -1612,7 +1612,7 @@ internal static class LookupStream5Verification
             content.Append("object-characters", catalog.ObjectCharacters.Span);
             content.AppendColors("backdrop", [stock.Backdrop]);
             content.Append("sprites", Convert.FromHexString(catalog.Sprites.ContentIdentity));
-            content.Append("actors", Convert.FromHexString(catalog.Actors.ContentIdentity));
+            content.Append("actors", Convert.FromHexString(catalog.Flight.Actors.ContentIdentity));
         });
         AssertEqual(expectedHash, catalog.ContentIdentity, "Ceres flight canonical hash covers its backdrop; its colours are the import's alone (#1544)");
         Console.WriteLine("Ceres flight palette:256 native colors,actual CGRAM,byte serialization and catalog identity pass.");

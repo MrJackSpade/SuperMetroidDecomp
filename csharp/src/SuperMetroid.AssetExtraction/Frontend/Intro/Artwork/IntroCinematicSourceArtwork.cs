@@ -1,5 +1,8 @@
 using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -8,20 +11,25 @@ using SuperMetroid.AssetExtraction.Rooms.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>
-/// The installed opening cinematic as the import pipeline reads it (#1463): beside the scene artwork the game binds, the
-/// tilemaps, character atlases and sprite compositions the intro, Ceres destruction and Zebes reveal sheets are composed
-/// from (#1467). Its colours are palette documents only the import reads (<see cref="ImportIntroCinematicArtwork"/>); this
-/// read leaves them unread and keeps their backdrops, which the backdrop document names (#1544).
+/// The installed opening cinematic as the import pipeline reads it (#1463, #1616): the tilemaps, character atlases and
+/// sprite compositions the intro, Ceres destruction and Zebes reveal sheets are composed from (#1467), beside what the game
+/// binds of it (<see cref="Cinematic"/>). Its colours are palette documents only the import reads
+/// (<see cref="ImportIntroCinematicArtwork"/>); this read leaves them unread and keeps their backdrops, which the backdrop
+/// document names (#1544).
 /// </summary>
-public class IntroCinematicSourceArtwork : IntroCinematicArtwork
+public class IntroCinematicSourceArtwork
 {
     /// <summary>Validates and retains the selected opening artwork.</summary>
     /// <param name="parts">The opening's scene artwork, character atlases and sprite compositions.</param>
     /// <exception cref="ArgumentNullException">A required atlas, presentation, or page collection is null.</exception>
     /// <exception cref="InvalidDataException">The scene pages, portrait or narration tilemaps are malformed.</exception>
     public IntroCinematicSourceArtwork(IntroCinematicArtworkParts parts)
-        : base(Ensure.NotNull(parts).Backdrop, parts.CeresFlight, parts.CeresDestruction)
     {
+        Ensure.NotNull(parts);
+        Backdrop = parts.Backdrop;
+        CeresFlight = Ensure.NotNull(parts.CeresFlight);
+        CeresDestruction = Ensure.NotNull(parts.CeresDestruction);
+        Cinematic = new IntroCinematicArtwork(Backdrop, CeresFlight.Flight, CeresDestruction);
         Ensure.NotNull(parts.BackgroundPages);
         if (parts.BackgroundPages.Count != IntroCinematicArtworkFormat.BackgroundPageCount)
             throw new InvalidDataException("Opening cinematic requires four ordered BG tilemap pages.");
@@ -65,6 +73,18 @@ public class IntroCinematicSourceArtwork : IntroCinematicArtwork
 
     /// <summary>Cells in one 32-by-32 opening tilemap page.</summary>
     private const int PageCells = 32 * 32;
+
+    /// <summary>What the game binds of the opening: its backdrop and the Ceres scenes' backdrop and actor placements.</summary>
+    public IntroCinematicArtwork Cinematic { get; }
+
+    /// <summary>The colour the opening shows where nothing is drawn, at full brightness: its first background colour (#1512).</summary>
+    public RgbColor Backdrop { get; }
+
+    /// <summary>The Ceres approach's characters, maps, compositions and placements.</summary>
+    public CeresFlightCharacters CeresFlight { get; }
+
+    /// <summary>The destruction and Zebes-reveal actors' placements.</summary>
+    public CeresDestructionArtwork CeresDestruction { get; }
 
     /// <summary>The four ordered 32x32 scene pages' installed tiles.</summary>
     public ReadOnlyMemory<BackgroundTile> BackgroundPages => backgroundPages;
@@ -145,9 +165,4 @@ public class IntroCinematicSourceArtwork : IntroCinematicArtwork
         content.Append("reveal-actors", Convert.FromHexString(CeresDestruction.RevealActors.ContentIdentity));
         content.Append("destruction-actors", Convert.FromHexString(CeresDestruction.DestructionActors.ContentIdentity));
     });
-
-    /// <summary>The import-side artwork <paramref name="intro"/> was read with.</summary>
-    /// <exception cref="InvalidDataException">The opening artwork was not read from installed artwork.</exception>
-    public static IntroCinematicSourceArtwork Of(IntroCinematicArtwork intro) => intro as IntroCinematicSourceArtwork
-        ?? throw new InvalidDataException("The opening cinematic artwork was not read from installed artwork.");
 }

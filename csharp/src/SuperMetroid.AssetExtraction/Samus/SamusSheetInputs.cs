@@ -27,7 +27,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <param name="ShadeSources">The colour tables her shades are pre-coloured from.</param>
 /// <param name="AnimationContinuation">What an animation frame past a pose's program reads, which decides the frames her body can show.</param>
 internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projectiles, SpriteArtwork StandardObjects,
-    GameplayBasePalette Palettes, IntroCinematicArtwork Intro, SamusBodyCharacterArtwork SamusBody,
+    GameplayBasePalette Palettes, IntroCinematicSourceArtwork Intro, SamusBodyCharacterArtwork SamusBody,
     SamusDeathTileAtlas DeathTiles, SamusShadeSources ShadeSources, LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> AnimationContinuation)
 {
     /// <summary>Loads the stock artwork and colour tables from installed content.</summary>

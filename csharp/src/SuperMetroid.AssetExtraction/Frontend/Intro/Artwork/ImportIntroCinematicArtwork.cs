@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
@@ -35,6 +34,6 @@ public sealed class ImportIntroCinematicArtwork : IntroCinematicSourceArtwork
 
     /// <summary>The import's read of <paramref name="intro"/>.</summary>
     /// <exception cref="InvalidDataException">The opening artwork was not read for the import.</exception>
-    public static ImportIntroCinematicArtwork Imported(IntroCinematicArtwork intro) => intro as ImportIntroCinematicArtwork
+    public static ImportIntroCinematicArtwork Imported(IntroCinematicSourceArtwork intro) => intro as ImportIntroCinematicArtwork
         ?? throw new InvalidDataException("The opening cinematic artwork was not read for the import, which alone reads its colours.");
 }

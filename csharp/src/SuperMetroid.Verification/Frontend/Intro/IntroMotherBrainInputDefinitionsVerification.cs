@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Input;
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using static SuperMetroid.Verification.Frontend.Intro.IntroCinematicArtworkVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Frontend.Intro;
@@ -13,7 +14,7 @@ internal static class IntroMotherBrainInputDefinitionsVerification
 {
     /// <summary>Compares every demo input edge, timer and list position with the native interpreter, then the live intro owner's first record.</summary>
     internal static void VerifyIntroMotherBrainDemoInput(SuperMetroidAddressSpace bus,
-        IntroCinematicArtwork stock)
+        IntroCinematicSourceArtwork stock)
     {
         ushort ReferenceWord(ushort pointer) => CartridgeImportSource.Require(bus).ReadCartridgeWord(DemoInputRomData.BankBase | pointer);
         var compiled = new DemoInputState();

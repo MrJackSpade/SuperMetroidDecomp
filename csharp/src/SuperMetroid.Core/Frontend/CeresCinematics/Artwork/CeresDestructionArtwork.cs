@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 /// <summary>
-/// Editable actor placements unique to the destruction of Ceres and the following Zebes reveal. The Ceres character
-/// sheets and the first two map slices are shared with <see cref="CeresFlightArtwork"/>; the destruction's maps and the
-/// Zebes reveal's tilemap and characters are the import's, which pictures the floor and the planet from them (#1467).
+/// Editable actor placements unique to the destruction of Ceres and the following Zebes reveal. The Ceres characters,
+/// the flight's map slices, the destruction's maps and the Zebes reveal's tilemap and characters are the import's, which
+/// pictures the floor and the planet from them (#1467, #1616).
 /// </summary>
 public sealed class CeresDestructionArtwork
 {

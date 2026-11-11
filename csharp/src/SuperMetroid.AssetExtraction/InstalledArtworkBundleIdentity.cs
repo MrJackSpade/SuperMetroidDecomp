@@ -13,24 +13,6 @@ namespace SuperMetroid.AssetExtraction;
 internal static class InstalledArtworkBundleIdentity
 {
 
-    /// <summary>The installed content identity of the Ceres flight artwork.</summary>
-    extension(CeresFlightArtwork artwork)
-    {
-        /// <summary>The identity the import pipeline computed for <paramref name="artwork"/>, which it read as a <see cref="CeresFlightCharacters"/>.</summary>
-        /// <exception cref="InvalidDataException">The Ceres flight artwork was not read from installed artwork.</exception>
-        public string ContentIdentity => artwork is CeresFlightCharacters installed ? installed.ContentIdentity
-            : throw new InvalidDataException("The Ceres flight artwork was not read from installed artwork.");
-    }
-
-    /// <summary>The installed content identity of the intro artwork.</summary>
-    extension(IntroCinematicArtwork artwork)
-    {
-        /// <summary>The identity the import pipeline computed for <paramref name="artwork"/>, which it read as a <see cref="IntroCinematicSourceArtwork"/>.</summary>
-        /// <exception cref="InvalidDataException">The intro artwork was not read from installed artwork.</exception>
-        public string ContentIdentity => artwork is IntroCinematicSourceArtwork installed ? installed.ContentIdentity
-            : throw new InvalidDataException("The intro artwork was not read from installed artwork.");
-    }
-
     /// <summary>The installed content identity of the Samus arm-cannon artwork.</summary>
     extension(InstalledSamusArmCannonArtwork artwork)
     {

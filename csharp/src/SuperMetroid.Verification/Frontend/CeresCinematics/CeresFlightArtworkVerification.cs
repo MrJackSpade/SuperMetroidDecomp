@@ -27,7 +27,7 @@ internal static class CeresFlightArtworkVerification
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
         ImportIntroCinematicArtwork intro = IntroCinematicArtworkFiles.LoadForImport(installation.IntroCinematicDirectory);
-        CeresFlightArtwork stock = intro.CeresFlight;
+        CeresFlightCharacters stock = intro.CeresFlight;
         AssertTrue(stock.FloorCharacters.Span.SequenceEqual(RomDataReader.Decompress(bus,
                 CeresCinematicSourceDefinitions.FlightFloorCharacters,
                 maximumOutputBytes: CeresFlightArtworkFileFormat.FloorByteCount)),
@@ -38,7 +38,7 @@ internal static class CeresFlightArtworkVerification
             "installed Ceres OBJ PNG preserves every native character byte");
         byte[] nativeMaps = RomDataReader.Decompress(bus, CeresCinematicSourceDefinitions.CeresTilemaps,
             maximumOutputBytes: 0x1000);
-        AssertTrue(CeresFlightCharacters.Of(stock).FloorMaps.Span.SequenceEqual(nativeMaps.AsSpan(0,
+        AssertTrue(stock.FloorMaps.Span.SequenceEqual(nativeMaps.AsSpan(0,
                 CeresFlightArtworkFileFormat.MapCellCount)),
             "installed front/rear Ceres maps preserve every consumed native byte");
         byte[] nativePalette = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
@@ -62,8 +62,8 @@ internal static class CeresFlightArtworkVerification
         CeresFlightCharacters reference = CeresFlightCharacters.Read(
             referenceCharacters, referenceMaps, referenceObjects, CeresFlightPaletteFile.Read(referencePalette).Backdrop,
             referenceSprites, referenceActors);
-        var native = new IntroCeresFlightState(AudioQueues.Standalone(), reference, sheets: CinematicSheetFixtures.WithFlight(reference));
-        var installed = new IntroCeresFlightState(AudioQueues.Standalone(), stock, sheets: CinematicSheetFixtures.WithFlight(stock));
+        var native = new IntroCeresFlightState(AudioQueues.Standalone(), reference.BoundCatalog, sheets: CinematicSheetFixtures.WithFlight(reference));
+        var installed = new IntroCeresFlightState(AudioQueues.Standalone(), stock.BoundCatalog, sheets: CinematicSheetFixtures.WithFlight(stock));
         var phases = new HashSet<IntroCeresFlightPhase>();
         for (int tick = 0; tick < 4000 && !native.Finished; tick++)
         {

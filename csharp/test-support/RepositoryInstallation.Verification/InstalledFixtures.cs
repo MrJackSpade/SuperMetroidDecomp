@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Frontend.Title;
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -92,7 +93,7 @@ internal static class InstalledFixtures
     private static readonly Lazy<InstalledSamusBodyArtwork> samusBody = Shared<InstalledSamusBodyArtwork>("Samus body", () => RepositoryInstallation.Installation.LoadSamusBodyArt());
 
     /// <summary>Lazy intro and Ceres-flight cinematic artwork.</summary>
-    private static readonly Lazy<IntroCinematicArtwork> introArtwork = Shared<IntroCinematicArtwork>("intro artwork", () => SuperMetroid.AssetExtraction.Frontend.Intro.IntroCinematicArtworkFiles.LoadForImport(RepositoryInstallation.Installation.IntroCinematicDirectory));
+    private static readonly Lazy<IntroCinematicSourceArtwork> introArtwork = Shared<IntroCinematicSourceArtwork>("intro artwork", () => SuperMetroid.AssetExtraction.Frontend.Intro.IntroCinematicArtworkFiles.LoadForImport(RepositoryInstallation.Installation.IntroCinematicDirectory));
 
     /// <summary>
     /// The installed ending Mode 7 floors, loaded once for the checks that compare the cartridge's floor loads (#1532); the
@@ -248,7 +249,7 @@ internal static class InstalledFixtures
     internal static InstalledSamusBodyArtwork SamusBody => samusBody.Value;
 
     /// <summary>The installation's intro cinematic artwork, loaded once per process.</summary>
-    internal static IntroCinematicArtwork IntroArtwork => introArtwork.Value;
+    internal static IntroCinematicSourceArtwork IntroArtwork => introArtwork.Value;
 
     /// <summary>The repository installation's ending object artwork, which only the import reads (#1616).</summary>
     internal static SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectSourceArtwork EndingObjects => endingObjects.Value;
@@ -286,17 +287,17 @@ internal static class InstalledFixtures
     internal static SamusState CreateSamus() => BindSamus(new SamusState(AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()));
 
     /// <summary>Creates Ceres destruction with installed cinematic art and fixed colors.</summary>
-    internal static CeresDestructionCinematicState CreateDestruction(AudioQueues? audio = null, IntroCinematicArtwork? artwork = null) =>
-        new(audio, Maps.PowerBombFixedColors, artwork ?? IntroArtwork,
+    internal static CeresDestructionCinematicState CreateDestruction(AudioQueues? audio = null, IntroCinematicSourceArtwork? artwork = null) =>
+        new(audio, Maps.PowerBombFixedColors, (artwork ?? IntroArtwork).BoundCatalog,
             spriteSheets: CinematicSheetFixtures.WithIntro(artwork ?? IntroArtwork));
 
     /// <summary>Creates an intro scene with installed character, projectile, narration, and hurt-color art.</summary>
     internal static IntroCinematicState CreateIntro(AudioQueues? audio = null,
-        IntroCinematicArtwork? characterArtwork = null,
+        IntroCinematicSourceArtwork? characterArtwork = null,
         InstalledSamusBodyArtwork? samusBodyArtwork = null)
     {
         var intro = new IntroCinematicState(new IntroCinematicOverreads(SamusOverreads, BossAndIntroOverreads.ShellFragmentFallPastCurve), audio,
-            characterArtwork ?? IntroArtwork, samusBodyArtwork ?? SamusBody)
+            (characterArtwork ?? IntroArtwork).BoundCatalog, samusBodyArtwork ?? SamusBody)
         {
             Random = new SharedRandom(),
             UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),

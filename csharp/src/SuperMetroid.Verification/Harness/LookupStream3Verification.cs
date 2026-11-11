@@ -2141,7 +2141,7 @@ internal static class LookupStream3Verification
         RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(BackgroundTileWordBytes.Of(stock.BackgroundPages.Span.Slice(index * 1024, 1024)))).ToArray();
         ImportIntroCinematicArtwork Copy(byte[] narration) => new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span)), InitialNarrationTilemap = Page(narration), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Backdrop = stock.Backdrop, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction, CeresDestructionMaps = stock.CeresDestructionMaps, ZebesReveal = stock.ZebesReveal, CeresDestructionSprites = stock.CeresDestructionSprites }, stock.Palette, stock.FlightPalette);
         AssertTrue(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span).AsSpan().SequenceEqual(native), "all 1024 initial narration words match native");
-        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), characterArtwork: stock)
+        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), characterArtwork: stock.BoundCatalog)
         {
             Random = new SharedRandom(),
             UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
@@ -2260,7 +2260,7 @@ internal static class LookupStream3Verification
         }
         AssertTrue(mismatches.Count == 0, "all 4096 installed background words match native: " + string.Join("; ", mismatches.Take(32)));
         AssertEqual(stock.ContentIdentity, Copy(native).ContentIdentity, "equivalent backgrounds preserve canonical hash");
-        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), characterArtwork: stock)
+        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), characterArtwork: stock.BoundCatalog)
         {
             Random = new SharedRandom(),
             UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
@@ -2375,7 +2375,7 @@ BranchesToSharedBody:true),
         ImportIntroCinematicArtwork Copy(byte[] portrait) => new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(portrait), InitialNarrationTilemap = Page(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span)), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Backdrop = stock.Backdrop, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction, CeresDestructionMaps = stock.CeresDestructionMaps, ZebesReveal = stock.ZebesReveal, CeresDestructionSprites = stock.CeresDestructionSprites }, stock.Palette, stock.FlightPalette);
         AssertTrue(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span).AsSpan().SequenceEqual(native), "all 1024 installed portrait words match native");
         AssertEqual(stock.ContentIdentity, Copy(native).ContentIdentity, "equivalent portrait preserves canonical hash");
-        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), characterArtwork: stock)
+        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), characterArtwork: stock.BoundCatalog)
         {
             Random = new SharedRandom(),
             UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),

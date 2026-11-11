@@ -30,7 +30,19 @@ public sealed class ImportAreaMapPresentation : InstalledAreaMapPresentation
         MotherBrainRoomColors = Ensure.NotNull(colours.MotherBrainRoomColors);
         RoomFxPaletteBlends = Ensure.NotNull(colours.RoomFxPaletteBlends);
         RoomPaletteFx = Ensure.NotNull(colours.RoomPaletteFx);
+        MotherBrainRainbowColours = Ensure.NotNull(colours.MotherBrainRainbow);
     }
+
+    /// <summary>
+    /// Mother Brain's rainbow, drain, revival, fake-death and restoration colours, which the import pre-colours her sheets
+    /// and body layer from (#1512). The game keeps only the beam backdrop's colours taken from them
+    /// (<see cref="AreaMapPresentation.MotherBrainRainbowPalette"/>).
+    /// </summary>
+    public InstalledMotherBrainRainbowPalette MotherBrainRainbowColours { get; }
+
+    /// <summary>The Mother Brain rainbow colours the import's map presentation <paramref name="maps"/> was read with.</summary>
+    /// <exception cref="InvalidOperationException">The presentation was not read for the import.</exception>
+    public static InstalledMotherBrainRainbowPalette MotherBrainRainbowColoursOf(AreaMapPresentation maps) => Imported(maps, "Mother Brain rainbow colours").MotherBrainRainbowColours;
 
     /// <summary>
     /// The palette-effect colours, which the import pre-colours the sheets each palette-effect record shows from (#1512,

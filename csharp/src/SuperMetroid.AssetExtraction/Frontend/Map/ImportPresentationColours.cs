@@ -22,6 +22,10 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// The palette-effect colours, which the sheets each palette-effect record shows are pre-coloured from (#1512, #1583); the
 /// game's read keeps only the backdrops of the space behind the exploding planet taken from them.
 /// </param>
+/// <param name="MotherBrainRainbow">
+/// Mother Brain's rainbow, drain, revival, fake-death and restoration colours, which her sheets and body layer are
+/// pre-coloured from (#1512); the game's read keeps only the beam backdrop's colours taken from them (#1616).
+/// </param>
 internal sealed record ImportPresentationColours(
     SamusMapColourTables SamusColours,
     TitlePalettePresentation TitlePalette,
@@ -31,4 +35,5 @@ internal sealed record ImportPresentationColours(
     MotherBrainHealthPalettePresentation MotherBrainHealthPalette,
     MotherBrainRoomColorPresentation MotherBrainRoomColors,
     RoomFxBlendInks RoomFxPaletteBlends,
-    RoomPaletteFxPresentation RoomPaletteFx);
+    RoomPaletteFxPresentation RoomPaletteFx,
+    InstalledMotherBrainRainbowPalette MotherBrainRainbow);

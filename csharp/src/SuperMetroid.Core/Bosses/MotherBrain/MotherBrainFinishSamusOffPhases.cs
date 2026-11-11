@@ -66,7 +66,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
         // direct pose assignment, so retain the separate instruction-stage delay.
         if (frame.RandomNumberSeed.Read(MotherBrainRandomDefinitions.FinishOffAttackRoll) < 4000)
         {
-            if ((frame.EnemyFrameCounter & 31) == 0)
+            if (MotherBrainCadenceDefinitions.FinishOffPostureEveryThirtySecondUpdate.IsDue(frame.EnemyFrameCounter))
                 requests.BodyPostureRequested = _state.MaybeRequestStandUpOrLeanDown(frame.RandomNumberSeed);
             return false;
         }

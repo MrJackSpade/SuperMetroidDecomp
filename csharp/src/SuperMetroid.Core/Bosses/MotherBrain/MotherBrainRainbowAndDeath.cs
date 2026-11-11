@@ -80,7 +80,7 @@ internal sealed class MotherBrainRainbowAndDeath
         if (bodyFade)
         {
             // ADF41C flickers the body and the background together on every call, not just palette ticks.
-            state.DeathHidesBodyLayer = (state.Body.FrameCounter & 1) == 0;
+            state.DeathHidesBodyLayer = MotherBrainCadenceDefinitions.DeathFadeHidesBodyEverySecondUpdate.IsDue(state.Body.FrameCounter);
             state.Body.Presence = state.DeathHidesBodyLayer
                 ? state.Body.Presence.With(EnemyPresence.Hidden)
                 : state.Body.Presence.Without(EnemyPresence.Hidden);
@@ -410,7 +410,7 @@ internal sealed class MotherBrainRainbowAndDeath
             MotherBrainBodyFunction.SecondPhaseRainbowFinishFiring or
             MotherBrainBodyFunction.SecondPhaseDrainedByBabyRegainBalance or
             MotherBrainBodyFunction.SecondPhaseDrainedByBabyFiringRainbowBeam;
-        if (!rainbowPhase || !step.ColoursRequested || (state.Body.FrameCounter & 2) == 0)
+        if (!rainbowPhase || !step.ColoursRequested || !MotherBrainCadenceDefinitions.RainbowColoursStep.IsSetIn(state.Body.FrameCounter))
             return;
 
         int frame = state.NextRainbowFrame;

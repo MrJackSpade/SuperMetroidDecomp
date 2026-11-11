@@ -167,8 +167,8 @@ internal sealed class MotherBrainAscent
     internal void RaiseMotherBrain(MotherBrainEnemyState state)
     {
         // The rise gates on the frame counter, not the separate byte-wide frame counter; the
-        // two advance together but are not aligned, so their low two bits differ.
-        if ((_frameContext.FrameCounter & 3) != 0)
+        // two advance together but are not aligned, so their places in the cadence differ.
+        if (!MotherBrainCadenceDefinitions.AscentStepEveryFourthUpdate.IsDue(_frameContext.FrameCounter))
             return;
 
         SpawnMotherBrainAscentDust(state);

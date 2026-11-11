@@ -55,7 +55,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The fastest the Shitroid approaches a latch, on each axis, in either direction.</summary>
     private static readonly SignedEightEight LatchMaximumSpeed = SignedEightEight.FromSignedRaw(1280);
 
-    /// <summary>Four authored feeding jitter offsets indexed by <c>frameCounter &amp; 6</c>.</summary>
+    /// <summary>Four authored feeding jitter offsets, stepped through by <see cref="MotherBrainCadenceDefinitions.ShitroidShakeStep"/>.</summary>
     private static readonly Offset16<RoomPixels>[] ShitroidShakeOffsets =
         [new(0, 0), new(-1, 1), new(0, -1), new(1, 1)];
 
@@ -405,7 +405,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private void DrainShitroidVictim(RoomEnemySlot slot, ShitroidEnemyState state)
     {
         RoomEnemySlot victim = RequireShitroidVictim(slot);
-        int shakeIndex = (slot.FrameCounter & 6) >> 1;
+        int shakeIndex = MotherBrainCadenceDefinitions.ShitroidShakeStep.Of(slot.FrameCounter);
         slot.Position = slot.Position.WithWhole(
             victim.Position.Whole + ShitroidShakeOffsets[shakeIndex] + new Offset16<RoomPixels>(0, -32));
         if (--state.StateTimer == 0)
@@ -485,7 +485,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (SamusSpeedMagnitude.IsAtLeast(ySpeed, 4))
             samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(2);
 
-        int shakeIndex = (slot.FrameCounter & 6) >> 1;
+        int shakeIndex = MotherBrainCadenceDefinitions.ShitroidShakeStep.Of(slot.FrameCounter);
         slot.Position = slot.Position.WithWhole(
             samus.Position.Whole + ShitroidShakeOffsets[shakeIndex] + new Offset16<RoomPixels>(xCarry, -20));
 

@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// the beam producer's firing step).
 /// </para>
 /// <para>
-/// <b>Evidence.</b> The original game's counters are words and bytes stepped with no clamp; the full-movie replays (the
+/// <b>Evidence:</b> the original game's counters are words and bytes stepped with no clamp; the full-movie replays (the
 /// Ridley full movie and the 13% SMV) step every counter here and match the recording on every update.
 /// </para>
 /// </summary>

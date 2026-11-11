@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using SuperMetroid.EnsureAnalyzer.Modules;
@@ -8,14 +9,16 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// <summary>
 /// Keeps Core's compatibility layer recognisable (#1401, SME6439). Hardware behaviour the game needs survives only as a
 /// compatibility service: a type in the <c>Compatibility</c> module, marked <c>[CompatibilityService]</c> with the
-/// gameplay behaviour it reproduces, owning typed state. The rule reports a type in the module or implementing one of its
-/// contracts without the mark, the mark on a type outside the module, and a memory-image field (an array, span or memory
-/// of bytes or words) on a marked type. See <c>docs/compatibility-layer.md</c>.
+/// gameplay behaviour it reproduces, owning typed state and documenting what in the original game shows that behaviour.
+/// The rule reports a type in the module or implementing one of its contracts without the mark, the mark on a type outside
+/// the module, a marked type whose XML documentation (its summary or remarks) states no <c>Evidence:</c> (#1612), and a
+/// memory-image field (an array, span or memory of bytes or words) on a marked type. See
+/// <c>docs/compatibility-layer.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class CompatibilityServiceAnalyzer : DiagnosticAnalyzer
 {
-    /// <summary>A compatibility type without its mark, a mark outside the layer, or a memory image on a service.</summary>
+    /// <summary>A compatibility type without its mark, a mark outside the layer, a service without evidence, or a memory image on a service.</summary>
     public const string CompatibilityServiceId = "SME6439";
 
     /// <summary>The namespace of Core's compatibility module.</summary>
@@ -23,6 +26,13 @@ public sealed class CompatibilityServiceAnalyzer : DiagnosticAnalyzer
 
     /// <summary>The attribute that marks a compatibility service and names the behaviour it reproduces.</summary>
     private const string AttributeName = "CompatibilityServiceAttribute";
+
+    /// <summary>The statement a service's documentation opens its evidence with.</summary>
+    private const string EvidenceStatement = "Evidence:";
+
+    /// <summary>The text of each summary and remarks section of a documentation comment.</summary>
+    private static readonly Regex DocumentationSection = new(@"<(summary|remarks)>(?<text>.*?)</\1>",
+        RegexOptions.CultureInvariant | RegexOptions.Singleline);
 
     private static readonly DiagnosticDescriptor Rule = new(
         CompatibilityServiceId,
@@ -32,7 +42,8 @@ public sealed class CompatibilityServiceAnalyzer : DiagnosticAnalyzer
         DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "A compatibility service lives in the Compatibility module, is marked [CompatibilityService] with the " +
-            "gameplay behaviour it reproduces, and owns typed state rather than a memory image (#1401).");
+            "gameplay behaviour it reproduces, states in its summary or remarks the evidence that shows that behaviour in the " +
+            "original game (an 'Evidence:' statement, #1612), and owns typed state rather than a memory image (#1401).");
 
     /// <inheritdoc/>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [Rule];
@@ -75,6 +86,12 @@ public sealed class CompatibilityServiceAnalyzer : DiagnosticAnalyzer
         }
         if (!marked)
             return;
+        if (!StatesEvidence(type, context.CancellationToken))
+        {
+            context.ReportDiagnostic(Diagnostic.Create(Rule, location,
+                $"'{type.Name}' is a compatibility service whose documentation states no evidence; say in its summary or remarks, " +
+                $"after '{EvidenceStatement}', what in the original game shows the behaviour it reproduces"));
+        }
         foreach (IFieldSymbol field in type.GetMembers().OfType<IFieldSymbol>())
         {
             if (!field.IsImplicitlyDeclared && IsMemoryImage(field.Type))
@@ -83,6 +100,20 @@ public sealed class CompatibilityServiceAnalyzer : DiagnosticAnalyzer
                     $"'{field.Name}' holds a memory image ({field.Type.ToDisplayString()}); a compatibility service owns typed state"));
             }
         }
+    }
+
+    /// <summary>Whether a marked type's summary or remarks carries an <c>Evidence:</c> statement.</summary>
+    private static bool StatesEvidence(INamedTypeSymbol type, CancellationToken cancellationToken)
+    {
+        string? documentation = type.GetDocumentationCommentXml(cancellationToken: cancellationToken);
+        if (string.IsNullOrEmpty(documentation))
+            return false;
+        foreach (Match section in DocumentationSection.Matches(documentation))
+        {
+            if (section.Groups["text"].Value.IndexOf(EvidenceStatement, StringComparison.Ordinal) >= 0)
+                return true;
+        }
+        return false;
     }
 
     /// <summary>Whether a type is declared in the compatibility module's namespace.</summary>

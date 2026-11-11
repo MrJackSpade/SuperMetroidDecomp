@@ -7,7 +7,12 @@ namespace SuperMetroid.Core.Compatibility;
 /// </summary>
 /// <typeparam name="TLibrary">A sound library.</typeparam>
 /// <typeparam name="TSound">The sound a library is asked for.</typeparam>
-/// <remarks>Stateless; every session shares <see cref="Instance"/>, and the clock it reads is the session's own.</remarks>
+/// <remarks>
+/// Stateless; every session shares <see cref="Instance"/>, and the clock it reads is the session's own. Evidence: the
+/// original game's sound handlers see a library's reply only once the sound program has read the request, which it does
+/// at its request checks on its own timer, never as the request is made; the sound acceptance clock check compares the
+/// acknowledgements the game session's clock reports on every update with a recording of the emulated sound program's.
+/// </remarks>
 [CompatibilityService("each update's sound handlers see the requests the session's clock has accepted")]
 public sealed class ClockedSoundAcceptance<TLibrary, TSound> : ISoundAcceptanceTiming<TLibrary, TSound>
     where TLibrary : struct, Enum

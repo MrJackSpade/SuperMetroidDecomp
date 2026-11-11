@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <see cref="Remaining"/> and tests the step in the same call.
 /// </para>
 /// <para>
-/// <b>Evidence.</b> The original game tests each timer, right after decrementing it, by zero or by sign; the full-movie
+/// <b>Evidence:</b> the original game tests each timer, right after decrementing it, by zero or by sign; the full-movie
 /// replays (the Ridley full movie and the 13% SMV) match the recording on every update with each owner's test taken
 /// from here.
 /// </para>

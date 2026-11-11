@@ -10,6 +10,12 @@ namespace SuperMetroid.Core.Compatibility;
 /// </summary>
 /// <typeparam name="TLibrary">A sound library.</typeparam>
 /// <typeparam name="TSound">The sound a library is asked for.</typeparam>
+/// <remarks>
+/// Reported by the sound acceptance clock after each update and read by the next update's sound handlers. Evidence: each
+/// of the original game's sound handlers compares its own library's reply with the request it waits on and moves on when
+/// they match; the sound acceptance clock check compares every library's reply on every update with a recording of the
+/// emulated sound program's, and the SMV replays trace each handler's state beside its queue.
+/// </remarks>
 [CompatibilityService("the request each sound library reports back as acknowledged")]
 public readonly struct SoundAcknowledgements<TLibrary, TSound> : IEquatable<SoundAcknowledgements<TLibrary, TSound>>
     where TLibrary : struct, Enum

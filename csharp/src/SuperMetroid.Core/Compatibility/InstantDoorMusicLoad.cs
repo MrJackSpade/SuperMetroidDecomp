@@ -1,6 +1,12 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>The game's own timing: music loads instantly, so no frame is counted while it loads.</summary>
+/// <remarks>
+/// Consulted once per door transition, when the transition starts the destination's music set. Evidence: the original
+/// music upload stalls the main loop, consuming no input and running no gameplay update until it finishes; the replay
+/// contract treats those frames as hardware lag, which the game eliminates, and a replay supplies the frames its
+/// recording counted through its own <see cref="IDoorMusicLoadFrames"/>.
+/// </remarks>
 [CompatibilityService("music loads instantly, so no frame is counted while it loads")]
 public sealed class InstantDoorMusicLoad : IDoorMusicLoadFrames
 {

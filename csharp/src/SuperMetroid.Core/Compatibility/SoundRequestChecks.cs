@@ -8,6 +8,12 @@ namespace SuperMetroid.Core.Compatibility;
 /// </summary>
 /// <typeparam name="TLibrary">A sound library.</typeparam>
 /// <typeparam name="TSound">The sound a library is asked for.</typeparam>
+/// <remarks>
+/// Made on each clock step that checks the requests. Evidence: the original sound program checks every library's request
+/// together, in a fixed order, when its request-check counter overflows, and a library with no request is checked as
+/// none; the sound acceptance clock check requires the session's sound starts to be exactly the changed requests a model
+/// of those checks sees.
+/// </remarks>
 [CompatibilityService("one clock step's request check of each sound library")]
 public readonly struct SoundRequestChecks<TLibrary, TSound> : IEquatable<SoundRequestChecks<TLibrary, TSound>>
     where TLibrary : struct, Enum

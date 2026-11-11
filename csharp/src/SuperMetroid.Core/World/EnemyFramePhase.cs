@@ -101,7 +101,7 @@ internal sealed class EnemyFramePhase
                 // Making Samus face forward ends by reloading the suit palette. The actor
                 // clears flare/projectile state, but cannot restore runtime-owned colours.
                 // Without this write, cancelling charge leaves its last flashing colors
-                // behind after the palette handler becomes inactive.
+                // behind after the charge colouring ends.
                 SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(_player.Colours, _player.IntroducedSamus.EquippedItems);
             }
             if (result.DraygonDiscardedSamusPoseRequests)

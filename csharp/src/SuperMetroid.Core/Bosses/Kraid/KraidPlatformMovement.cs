@@ -11,7 +11,7 @@ internal static class KraidPlatformMovement
 
     /// <summary>
     /// Minimum whole-pixel extra Samus X displacement. The game
-    /// clamps the whole word to -16 without changing the fractional word.
+    /// clamps the whole pixels to -16 without changing the subpixels.
     /// </summary>
     public const int MinimumCarryWholePixels = -16;
 }

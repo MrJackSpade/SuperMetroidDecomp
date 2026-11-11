@@ -5,12 +5,12 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>
 /// Creates the session's gameplay runtimes. Lifetime: a runtime lives from a selected-game, attract or saved-Ceres start
 /// until title, game over or soft reset; the immutable artwork it binds is host-owned and shared, and the frame clock and
-/// turning-floor residue it counts on belong to the session.
+/// unauthored Speed Booster cadence it counts on belong to the session.
 /// </summary>
 internal static class GameplayRuntimeFactory
 {
     /// <summary>
-    /// Constructs a runtime over the session's random-number word and performs the start handoff in the game's
+    /// Constructs a runtime over the session's random number generator and performs the start handoff in the game's
     /// order: the menu's camera position, then the artwork, then a selected game's menu choices.
     /// </summary>
     /// <param name="start">The handoff; a selected game must carry its options and an attract demo must not.</param>

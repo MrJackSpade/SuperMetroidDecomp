@@ -26,7 +26,7 @@ internal sealed class IntroBabyDiscoveryState
     internal readonly List<IntroEggParticle> eggParticles = [];
     /// <summary>Drops emitted as the baby rises past the hatch scanline.</summary>
     private readonly List<IntroEggSlimeDrop> slimeDrops = [];
-    /// <summary>The session's random-number word, which the demo's Samus animation draws from.</summary>
+    /// <summary>The session's random number generator, which the demo's Samus animation draws from.</summary>
     private readonly SharedRandom random;
     /// <summary>The installed steps the egg's shell fragments fall by past their gravity curve.</summary>
     private readonly ShellFragmentFallPastCurve shellFallPastCurve;
@@ -36,7 +36,7 @@ internal sealed class IntroBabyDiscoveryState
     internal readonly IntroDiscoverySprite confusedBaby;
 
     /// <summary>Sets up the scene's Samus state, partial room collision map, actors, and demo input list.</summary>
-    /// <param name="random">The session's random-number word, which the demo's Samus animation draws from.</param>
+    /// <param name="random">The session's random number generator, which the demo's Samus animation draws from.</param>
     /// <param name="audio">The audio owner the scene's sounds publish to, or null for none.</param>
     /// <param name="existingSamus">The flashback's Samus the scene carries on with.</param>
     /// <param name="shellFallPastCurve">The installed steps the egg's shell fragments fall by past their gravity curve.</param>

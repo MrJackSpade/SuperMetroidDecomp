@@ -43,15 +43,15 @@ public sealed class ShitroidEnemyState
     public int HoverTimer { get; internal set; }
 
     /// <summary>
-    /// Horizontal-lock accumulator (extended word 02): gains two each update the Shitroid is horizontally
+    /// Horizontal-lock accumulator: gains two each update the Shitroid is horizontally
     /// aligned with its target and loses one, never below zero, otherwise.
     /// </summary>
     public int HorizontalLockAccumulator { get; internal set; }
 
-    /// <summary>Whether the periodic Shitroid cry is enabled (extended word 04).</summary>
+    /// <summary>Whether the periodic Shitroid cry is enabled.</summary>
     public bool CryEnabled { get; internal set; }
 
-    /// <summary>Membrane pulses toward the next periodic cry, 0 through 3 (extended word 05).</summary>
+    /// <summary>Membrane pulses toward the next periodic cry, 0 through 3.</summary>
     public int CryCounter { get; internal set; }
 
     /// <summary>The membrane pulse phase last shown, or null before its first step (#1512).</summary>

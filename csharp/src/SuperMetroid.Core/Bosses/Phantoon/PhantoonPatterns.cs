@@ -242,7 +242,7 @@ internal sealed class PhantoonPatterns
     {
         if (PhantoonPresentation.TickPhantoonFunctionTimer(state.BodyState))
         {
-            // Variable B in the tentacle record is the damage accumulated during this
+            // The tentacles' round damage is the damage accumulated during this
             // opening. Clears it before deciding whether a shot requested a swoop.
             state.TentaclesState.RoundDamage = 0;
             if (!state.TentaclesState.SwoopRequested)

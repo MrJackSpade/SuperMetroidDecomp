@@ -207,8 +207,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// </summary>
     public void ApplyPhase2Or3ShotReaction(MotherBrainProjectileType projectileType)
     {
-        // The shot reaction masks the projectile type to three bits before indexing an eight-byte
-        // table. Validate the host enum so a caller cannot accidentally smuggle a larger
+        // The shot reaction knows only the eight projectile types it reacts to. Validate the
+        // host enum so a caller cannot accidentally smuggle a larger
         // value past that domain.
         MotherBrainShotReactionResult reaction =
             MotherBrainShotReaction.Resolve(State.Body.Form, projectileType, ThirdPhaseFight.Phase3WalkCounter);

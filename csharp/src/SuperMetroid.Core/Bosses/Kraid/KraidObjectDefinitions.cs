@@ -22,7 +22,7 @@ public static class KraidObjectDefinitions
     private static RoomObjectSpawnRequest<KraidRoomMutation> ClearSpikes => new(new(5, 27), KraidRoomMutation.ClearSpikes);
 
     /// <summary>
-    /// The nine calls of Kraid's ceiling crumble, indexed by Kraid variable F / 2: the ceiling callbacks
+    /// The nine calls of Kraid's ceiling crumble, indexed by how many ceiling rocks have fallen: the ceiling callbacks
     /// it selects. Each block lies directly above its paired rock center on row 18; column 2 uses the
     /// left-edge background, then odd and even columns alternate variants 2 and 3.
     /// </summary>

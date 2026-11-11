@@ -380,8 +380,8 @@ internal sealed class SamusPoseTransitionPhase
             animationTransitionApplied = true;
         }
 
-        // The wall-jump check publishes solid-vertical collision result five and returns
-        // carry set, preventing vertical motion. The matching command
+        // The wall-jump check publishes solid-vertical collision result five and reports
+        // a collision, preventing vertical motion. The matching command
         // installs the wall-jump pose, clears old momentum, and launches from fixed constants.
         if (!animationTransitionApplied &&
             _player.LastAerialSamusMovement is { WallJumpTriggered: true })
@@ -958,7 +958,7 @@ internal sealed class SamusPoseTransitionPhase
         else if (SamusPoseMetadata.IsDraygonGrabbedPose(frame.PoseAtFrameStart) &&
                  _player.ProspectiveSamusFallbackPose is { } draygonFallback)
         {
-            // Zero input uses pose-definition byte two, returning aimed/firing/
+            // Zero input uses the pose's fallback pose, returning aimed/firing/
             // struggling art to the neutral Draygon-grabbed poses without touching owner placement.
             SamusPoseMetadata.ApplyDraygonGrabbedPoseChange(samus, 
                 unchecked(draygonFallback));
@@ -1068,7 +1068,7 @@ internal sealed class SamusPoseTransitionPhase
         else if (SamusPoseMetadata.IsAimedRanIntoWallPose(frame.PoseAtFrameStart) &&
                  _player.ProspectiveSamusFallbackPose is { } wallFallback)
         {
-            // The aimed ran-into-wall poses store the plain ran-into-wall poses in pose-definition byte two. The stable
+            // The aimed ran-into-wall poses name the plain ran-into-wall poses as their fallback poses. The stable
             // target shares radius, animation list, and ran-into-wall cleanup physics.
             SamusGroundedPoseTransitions.ApplyGroundedAimTransition(samus, 
                 unchecked(wallFallback));

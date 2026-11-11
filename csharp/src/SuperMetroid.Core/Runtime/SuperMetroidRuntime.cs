@@ -150,7 +150,7 @@ internal sealed class SuperMetroidRuntime
     /// <see cref="BindArtwork"/> binds the rest.
     /// </param>
     /// <param name="session">
-    /// What the session keeps across its runtimes: the frame clock it shares with the frontend, the random-number word,
+    /// What the session keeps across its runtimes: the frame clock it shares with the frontend, the random number generator,
     /// the unauthored Speed Booster cadence its enemies and every Samus share, the power-on earthquake delay, the save
     /// confirmation's input cadence and the live and stored explored maps.
     /// </param>
@@ -285,7 +285,7 @@ internal sealed class SuperMetroidRuntime
         return requested;
     }
 
-    /// <summary>Shared random/event/input-filter state, over the session's random-number word.</summary>
+    /// <summary>Shared random/event/input-filter state, over the session's random number generator.</summary>
     public SharedGameState System { get; }
 
     /// <summary>The game time, which each save slot also records.</summary>
@@ -797,7 +797,7 @@ internal sealed class SuperMetroidRuntime
             if (samus.Grapple.SlowScrolling)
             {
                 // A fast grapple swing takes the slow camera branch, which leaves
-                // the camera speed words from the last normal frame in place.
+                // the camera speeds from the last normal frame in place.
                 camera.TrackGrappleSlowScrolling(currentCameraPoint.Whole, Freeze.TimeIsFrozen);
             }
             else

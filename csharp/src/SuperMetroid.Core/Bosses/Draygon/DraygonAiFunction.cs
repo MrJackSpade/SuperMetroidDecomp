@@ -18,7 +18,7 @@ public enum DraygonAiFunction
     SwoopRightDescending,
     /// <summary>Recalculates horizontal velocity toward the right exit for the ascending half.</summary>
     SwoopRightApex,
-    /// <summary>Traverses height samples forward and selects a leftward swoop or goop pass from the current RNG word.</summary>
+    /// <summary>Traverses height samples forward and selects a leftward swoop or goop pass from the current random number.</summary>
     SwoopRightAscending,
     /// <summary>Reuses the generated height table, aims leftward velocity at Samus, and installs left-facing graphics.</summary>
     SwoopLeftSetup,
@@ -26,7 +26,7 @@ public enum DraygonAiFunction
     SwoopLeftDescending,
     /// <summary>Recalculates horizontal velocity toward the left reset position for the ascending half.</summary>
     SwoopLeftApex,
-    /// <summary>Completes the leftward ascent, resets X, and selects a rightward swoop or goop pass from the current RNG word.</summary>
+    /// <summary>Completes the leftward ascent, resets X, and selects a rightward swoop or goop pass from the current random number.</summary>
     SwoopLeftAscending,
     /// <summary>Starts the one-pixel-per-frame rightward goop path at X=-80, Y=384.</summary>
     GoopRightSetup,

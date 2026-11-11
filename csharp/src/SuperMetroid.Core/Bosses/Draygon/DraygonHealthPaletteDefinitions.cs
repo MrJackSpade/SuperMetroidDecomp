@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>
-/// Compiled health-band policy for Draygon's palette handler. The selected color records
+/// Compiled health bands for Draygon's colouring as he takes damage. The selected color records
 /// remain presentation data; <see cref="DraygonHealthPalette"/> selects a band from these thresholds.
 /// </summary>
 internal static class DraygonHealthPaletteDefinitions

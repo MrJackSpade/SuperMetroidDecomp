@@ -1,14 +1,14 @@
 namespace SuperMetroid.Core.Frontend.Pause;
 
-/// <summary>Equipment-screen categories: the low byte of the selector index.</summary>
+/// <summary>Equipment-screen categories: the group of the equipment screen the selector is in.</summary>
 public enum PauseEquipmentCategory
 {
-    /// <summary>Reserve-tank controls, selector byte zero.</summary>
+    /// <summary>Reserve-tank controls, the first group.</summary>
     Reserves = 0,
-    /// <summary>Weapons category, selector byte one.</summary>
+    /// <summary>Weapons category, the second group.</summary>
     Beams = 1,
-    /// <summary>Suit category, selector byte two.</summary>
+    /// <summary>Suit category, the third group.</summary>
     Suits = 2,
-    /// <summary>Boots category, selector byte three.</summary>
+    /// <summary>Boots category, the fourth group.</summary>
     Boots = 3,
 }

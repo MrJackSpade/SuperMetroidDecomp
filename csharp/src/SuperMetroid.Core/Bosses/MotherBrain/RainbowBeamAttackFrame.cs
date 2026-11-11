@@ -3,10 +3,10 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>The frame counters, RNG and escape state one rainbow-beam attack step reads (#633).</summary>
 public sealed record RainbowBeamAttackFrame
 {
-    /// <summary>The enemy frame counter's current count; its low bits pace the beam's palette cadence.</summary>
+    /// <summary>The enemy frame counter's current count; its place in a short repeating cycle paces the beam's colour cadence.</summary>
     public required int EnemyFrameCounter { get; init; }
 
-    /// <summary>The main enemy pass counter's current count; its low bits pace ammunition drain and corpse dust sounds.</summary>
+    /// <summary>The main enemy pass counter's current count; its place in a short repeating cycle paces ammunition drain and corpse dust sounds.</summary>
     public required int MainEnemyExecutionCounter { get; init; }
 
     /// <summary>Power bomb active.</summary>

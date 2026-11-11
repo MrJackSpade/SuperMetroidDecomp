@@ -387,7 +387,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     internal bool RunThirdPhaseDeathBrainFallsToGround(MotherBrainRainbowBeamStepRequests requests)
     {
         // The fall treats FunctionTimer as unsigned 8.8 velocity: add 32, use only
-        // its high byte as this frame's whole-pixel displacement, and accumulate Y.
+        // its whole pixels as this frame's displacement, and accumulate Y.
         // Crossing 196 clamps the head and starts the brain's landing earthquake for 20 frames.
         _state.FunctionTimer += 32;
         int fallingDisplacement = UnsignedEightEight.Whole(_state.FunctionTimer);
@@ -492,8 +492,8 @@ internal sealed class MotherBrainThirdPhaseDeath
         if (corpseRotting.StillRotting)
             return false;
 
-        // Carry clear makes the brain invisible/non-solid, clears its
-        // second property word, and queues stop + escape music through the ordinary
+        // Once the corpse has rotted away the brain becomes invisible and non-solid, stops
+        // its animation and frame-hitbox collision, and queues stop + escape music through the ordinary
         // eight-frame-delay music queue. Twenty is loaded and immediately decremented
         // by the fallthrough into the next step, leaving observable timer nineteen now.
         BrainPresence = BrainPresence.With(EnemyPresence.Hidden);

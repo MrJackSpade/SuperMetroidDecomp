@@ -99,7 +99,7 @@ public sealed class TourianStatueSequence
     public bool Enabled { get; private set; }
     /// <summary>
     /// The whole part of the statues' 16.16 descent, which descends by a quarter pixel per
-    /// frame. As a signed 16.16 value its whole word floors toward negative infinity, so
+    /// frame. As a signed 16.16 value its whole pixels round toward negative infinity, so
     /// the first quarter-pixel step already reads -1. The descent stops at its authored distance, so the offset stays
     /// between minus that distance and zero.
     /// </summary>

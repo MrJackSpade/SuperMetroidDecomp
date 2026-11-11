@@ -55,7 +55,7 @@ internal sealed class AcceptedFrameBoundary
     /// </summary>
     [NonSerialized]
     private HudPictures? _hudPictures;
-    /// <summary>Supplies the loaded room, door, and scrolling sky whose register shadows are latched.</summary>
+    /// <summary>Supplies the loaded room, door, and scrolling sky whose scroll and display settings the accepted frame captures.</summary>
     private readonly ActiveRoomState _room;
 
     /// <summary>Supplies the suit pickup whose colour is latched.</summary>

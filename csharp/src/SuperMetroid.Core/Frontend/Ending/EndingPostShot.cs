@@ -51,8 +51,8 @@ internal sealed class EndingPostShot
     /// </summary>
     private static void ApplyFade(EndingColours colours, EndingFade group, int elapsed)
     {
-        // The 8.8 accumulator subtracts component<<3 on every call;
-        // taking the high byte is exactly floor(component * remaining / 32).
+        // The original fade lowers each colour component by a 32nd of its full value on every call;
+        // the whole part left is exactly floor(component * remaining / 32).
         colours.Fade(group, EndingPostShotDefinitions.FadeFrames - elapsed);
     }
 

@@ -615,7 +615,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Body.Shading = state.Colours.Sprites;
     }
 
-    /// <summary>Uses one RNG word to place a hardening dust burst and request its sound.</summary>
+    /// <summary>Draws one random number to place a hardening dust burst and request its sound.</summary>
     private void SpawnSporeSpawnHardeningDust(SporeSpawnEnemyState state)
     {
         int random = _room.Random.Generate();
@@ -625,7 +625,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         RequestSporeSpawnSound(SporeSpawnSoundDefinitions.HardeningDust);
     }
 
-    /// <summary>Uses one RNG word to place a dying explosion sprite and request its sound.</summary>
+    /// <summary>Draws one random number to place a dying explosion sprite and request its sound.</summary>
     private void SpawnSporeSpawnDyingExplosion(SporeSpawnEnemyState state)
     {
         int random = _room.Random.Generate();

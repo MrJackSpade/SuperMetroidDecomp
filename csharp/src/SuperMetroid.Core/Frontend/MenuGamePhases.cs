@@ -191,7 +191,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
         {
             // Starting a game publishes the Ceres state and reloads the slot in the same dispatch;
             // the Ceres loader runs on the next update. Gameplay owners are
-            // rebuilt from the save file, so only the live RNG word survives.
+            // rebuilt from the save file, so only the live random number survives.
             session.Close<GameOverMenuState>();
             session.ContinueSavedGame();
             session.ReleaseRuntime();

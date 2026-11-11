@@ -39,8 +39,8 @@ internal sealed class MotherBrainAscent
     /// <summary>Reveals her body and requests its first artwork transfer.</summary>
     internal void SetupMotherBrainPhaseTwoGraphics(MotherBrainEnemyState state)
     {
-        // The ascent installs colors 1..15 of the attack and back-leg palettes. Color zero
-        // belongs to the room backdrop and must remain untouched.
+        // The ascent installs the attack and back-leg palettes' colours, all but the backdrop colour,
+        // which belongs to the room and must remain untouched.
         state.Colours.ShowPhaseTwo();
         state.Function = MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Brain;
         // The transition reveals her body, its frame as her body last showed it, replacing the room's pipe background

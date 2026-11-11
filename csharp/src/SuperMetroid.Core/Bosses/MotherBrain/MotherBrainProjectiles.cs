@@ -417,8 +417,8 @@ internal sealed class MotherBrainProjectiles
             RoomEnemyProjectileKind.MotherBrainGlassShard,
             graphics: default);
 
-        // The shard's launch angle is the random word's low byte. It selects signed sine/cosine velocities, and its
-        // top four bits choose one of sixteen authored shard animation lists.
+        // The shard's launch angle is a random angle of 0 through 255. It selects signed sine/cosine velocities, and
+        // the sixteenth of a turn it lies in chooses one of sixteen authored shard animation lists.
         int angle = MotherBrainGlassShardDefinitions.LaunchAngle.Of(_room.Random.Generate());
         shard.Velocity = shard.Velocity.WithX(SignedEightEight.FromSignedRaw(Trigonometry.SignedNegativeCosineSample(angle + 64)));
         // A cosine sample lies within one pixel either way, so four times one stays within four.
@@ -444,8 +444,8 @@ internal sealed class MotherBrainProjectiles
     {
         shard.Position = shard.Position.Advance(shard.Velocity.ToSixteenSixteen());
 
-        // Tests the whole-coordinate high byte rather than camera visibility. A shard
-        // is deleted as soon as wrapped Y leaves page zero; X may freely leave the viewport.
+        // Tests which screen of the room its Y lies on rather than camera visibility. A shard
+        // is deleted as soon as wrapped Y leaves the top screen; X may freely leave the viewport.
         if (RoomGridConversions.PixelToScreen(shard.Position.Y.Whole) != 0)
         {
             shard.Delete();

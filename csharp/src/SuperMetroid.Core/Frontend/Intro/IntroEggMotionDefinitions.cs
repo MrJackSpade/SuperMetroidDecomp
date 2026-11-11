@@ -31,12 +31,12 @@ internal static class IntroEggMotionDefinitions
     /// steps the installed <see cref="ShellFragmentFallPastCurve"/> holds (#1500).
     /// </summary>
     /// <remarks>
-    /// Issues #625 and #977: all 38 high-word-first signed 16.16 records match
+    /// Issues #625 and #977: all 38 signed 16.16 records match
     /// the original data. For
     /// frame f=0..13, group g=f/7 and remainder r=f%7 give whole=(g-2)
     /// and fraction=0 when r=0, otherwise 57344-8192*r. For f=14..37,
-    /// the signed value is (f-14)*8192. The actor adds the fractional word
-    /// before the whole word, with carry. Independent position walks
+    /// the signed value is (f-14)*8192. The actor adds the subpixels
+    /// before the whole pixels, with carry. Independent position walks
     /// first ground fragments 0/1 at frame 40, 2/3 at 37, 4 at 36, and 5
     /// at 35. Only 0/1 therefore read frames 38..40, past the records.
     /// </remarks>

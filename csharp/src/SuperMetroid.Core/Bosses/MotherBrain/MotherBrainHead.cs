@@ -164,7 +164,7 @@ internal sealed class MotherBrainHead
         // The frame is published wherever it lies, above the screen included; the display clips it (#1587).
         Position16<ScreenPixels> screen = frame.World.ToScreen(camera);
 
-        // The head's sheet pictures each frame over what the encounter's uploads leave (#1392); her corpse's frame is drawn
+        // The head's sheet pictures each frame as the encounter's artwork changes leave it (#1392); her corpse's frame is drawn
         // whole through her corpse's own rows as its rot leaves them (#1539).
         _presentation.PublishSheetFrame(sprites, source, new EnemySheetDraw(EnemyDefinitionId.MotherBrainHead, EnemySheetDefinitions.FrameName(frame.Frame), screen)
             { Shading = frame.Shading, RotRows = _motherBrainEncounter.ShownCorpseRows });
@@ -358,8 +358,8 @@ internal sealed class MotherBrainHead
         RoomEnemySlot head = state.Head;
         state.NeckMovementEnabled = false;
 
-        // The bomb spawn writes an explicit mouth coordinate into the common
-        //  spawn scratch words, selects direction one (right), and invokes
+        // The bomb spawn gives an explicit mouth coordinate as the common
+        // spawn position, selects direction one (right), and invokes
         // the bomb's definition. The source header remains the head record, so the shared
         // initializer obtains Mother Brain's authored contact damage and
         // her parameter-one speed flag without any encounter-specific substitute.

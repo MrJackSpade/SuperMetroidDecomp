@@ -60,7 +60,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// installed flight's backdrop, which the engine flicker never recolours.
     /// </summary>
     internal RgbColor Backdrop { get; private set; }
-    /// <summary>The live actors' sprite entries over the sprite characters the uploads leave (#1358).</summary>
+    /// <summary>The live actors' sprite entries, drawn from the scene's current sheet (#1358).</summary>
     internal readonly ScreenSprites objects;
     /// <summary>Installed art, bound when the game is bound to its installed content.</summary>
     internal IntroCinematicArtwork? Artwork { get; private set; }
@@ -68,8 +68,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private InstalledSpriteSheets spriteSheets;
 
     /// <summary>
-    /// The actors' sheet over the sprite characters the uploads have left: the Ceres scene's until the Zebes reveal loads
-    /// its characters over them, then the reveal's.
+    /// The actors' sheet: the Ceres scene's until the Zebes reveal loads its own artwork in its place, then the
+    /// reveal's.
     /// </summary>
     private CeresSceneSpriteSheet Sprites => new(spriteSheets.Get(ZebesRevealed
         ? SpriteSheetId.ZebesRevealSprites : SpriteSheetId.CeresDestructionSprites));

@@ -107,7 +107,7 @@ internal sealed class GameplayActorDrawing
             if (!deathOwnsSamus && !drainedOwnsSamusPalette)
             {
                 // The palette update always runs charge/post-shot handling before dispatching the
-                // selected special Samus palette. Ordinary charged shots paint colors 1-15
+                // selected special Samus palette. Ordinary charged shots paint all of Samus's visible colours
                 // white for three calls and restore the suit on call four; Hyper shots
                 // step ten complete palettes on alternating calls before restore.
                 LastBeamChargePaletteStep = room.Projectiles.UpdateBeamChargePalette(
@@ -127,16 +127,16 @@ internal sealed class GameplayActorDrawing
                             SamusSpecialPaletteType.CrystalFlash ||
                         _player.Samus.Xray.SpecialPaletteKind == SamusSpecialPaletteType.Xray, BottomBoundarySubmerged = _player.Samus.LiquidPhysics.IsBottomBoundarySubmerged(_player.Samus) });
             }
-            // Palette handlers one and six run at the same palette-update dispatch point. They
-            // execute only when charge handling did not restore the suit.
+            // The shinespark colouring runs at the same palette-update dispatch point. It
+            // executes only when charge handling did not restore the suit.
             if (!deathOwnsSamus && !drainedOwnsSamusPalette && !chargeGlowRestoredNormalPalette)
             {
                 _player.Samus.Shinespark.UpdatePalette(
                     _player.Colours,
                     _player.Samus.EquippedItems);
             }
-            // Handler seven owns all sixteen of Samus's projectile colours during Crystal
-            // Flash. It is mutually exclusive with shinespark/X-ray special handlers but
+            // The Crystal Flash colouring owns all sixteen of Samus's projectile colours during Crystal
+            // Flash. It is mutually exclusive with the shinespark and X-ray colouring but
             // intentionally runs at the same palette-update dispatch point.
             if (!deathOwnsSamus && !drainedOwnsSamusPalette && !chargeGlowRestoredNormalPalette)
             {
@@ -144,7 +144,7 @@ internal sealed class GameplayActorDrawing
                     _player.Colours,
                     _player.Samus);
             }
-            // Handler eight changes only visor color four while active; its teardown
+            // The X-ray colouring changes only one of the visor's colours while active; its teardown
             // restores the complete Power/Varia/Gravity suit palette once.
             if (!deathOwnsSamus && !drainedOwnsSamusPalette && !chargeGlowRestoredNormalPalette)
             {
@@ -412,7 +412,7 @@ internal sealed class GameplayActorDrawing
     /// </summary>
     public SamusBeamChargePaletteStepResult LastBeamChargePaletteStep { get; internal set; }
 
-    /// <summary>Most recent ordinary visor color-cycle step.</summary>
+    /// <summary>Most recent step of the visor's ordinary colour cycle.</summary>
     public SamusVisorPaletteStepResult LastVisorPaletteStep { get; internal set; }
 
 

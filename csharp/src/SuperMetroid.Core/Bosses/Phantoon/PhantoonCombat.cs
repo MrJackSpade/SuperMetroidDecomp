@@ -551,8 +551,8 @@ internal sealed class PhantoonCombat
         TrigonometryAngle angle,
         int radius)
     {
-        // Unlike the common byte-table enemy sine routine, this callback uses a
-        // word sample. Its high byte preserves the exact full radius at cardinal angles.
+        // Unlike the common enemy sine, which never quite reaches one, this callback's
+        // sine reaches exactly one, so the flame lies at the exact full radius at cardinal angles.
         int xOffset = ReadPhantoonFlameComponent(angle, radius);
         int yOffset = ReadPhantoonFlameComponent(angle.TurnedBy(TrigonometryAngle.HalfTurn).TurnedBy(TrigonometryAngle.QuarterTurn), radius);
         flame.Position = flame.Position.WithWhole(new(CoordinateAxis.Wrap(body.Position.X.Whole + xOffset), CoordinateAxis.Wrap(body.Position.Y.Whole + 16 + yOffset)));

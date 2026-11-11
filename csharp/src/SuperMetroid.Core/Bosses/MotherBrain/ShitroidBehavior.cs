@@ -366,7 +366,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.CryEnabled = true;
     }
 
-    /// <summary>Writes high scroll bytes one and three while retaining and zero-extending the existing low bytes.</summary>
+    /// <summary>Gives the room's second and fourth screens <paramref name="highState"/>, rewriting the first and third with the scroll they already have.</summary>
     private void SetShitroidScrollPair(RoomScrollState highState)
     {
         RoomScrollState scroll0 = _room.Services.RoomScroll.Read(0);
@@ -476,9 +476,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         sharedProjectiles?.SetSharedCooldown(8);
         sharedProjectiles?.SetSharedBombCounter(5);
         samus.XSpeedDivisor = 2;
-        // The speed clamp leaves carry = (Y speed >= 4, unsigned) through the clamp and
-        // the shake-table loads; the X step adds Samus's X with no carry clear, so that carry is one
-        // extra pixel. The sign test reads only the sign of the difference.
+        // An unsigned Y speed of four or more moves the X step one extra pixel: the original speed clamp's
+        // comparison passes through the clamp and the shake-table loads into the X step's addition. The sign test reads only the sign of the difference.
         // A speed slowed past zero at the apex reads as below four by that sign, so it keeps its value (#1562).
         int ySpeed = samus.Kinematics.YSpeed.Whole;
         int xCarry = ySpeed >= 4 ? 1 : 0;

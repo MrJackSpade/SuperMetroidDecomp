@@ -116,7 +116,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// </summary>
     internal bool IsWaitingOutDisplayFrame => Phase is
         FileSelectPhase.EnterBlankScreenAfterFrameWait or FileSelectPhase.InitializeMainAfterFrameWait;
-    /// <summary>Advances one menu frame from a raw controller word.</summary>
+    /// <summary>Advances one menu frame from the held controller buttons.</summary>
     public void Step(ControllerButton controllerInput)
     {
         SavesChangedThisFrame = false;

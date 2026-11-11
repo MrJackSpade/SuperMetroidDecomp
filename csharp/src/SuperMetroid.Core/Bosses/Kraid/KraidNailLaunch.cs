@@ -3,14 +3,14 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <summary>Launches Kraid's second fingernail opposite its sibling's vertical travel.</summary>
 public static class KraidNailLaunch
 {
-    /// <summary>The launch velocity for a sibling moving at whole Y word <paramref name="siblingYWhole"/>.</summary>
+    /// <summary>The launch velocity for a sibling moving <paramref name="siblingYWhole"/> whole pixels a frame vertically.</summary>
     /// <remarks>
     /// Independently reviewed for #1165 against the nail launch selector
     /// and all eight records in the pinned NTSC J/U v1.0 source. The signed compare
-    /// tests the signed whole word: zero belongs to the nonnegative branch.
-    /// All 65,536 input words are supported. The three constant fields and the
-    /// sign-selected Y whole word have separate original-record proofs; no
-    /// random choice changes these words or requires a stored lookup.
+    /// tests the sibling's signed whole-pixel vertical speed: zero belongs to the nonnegative branch.
+    /// Every whole-pixel speed is supported. The three constant fields and the
+    /// sign-selected vertical speed have separate original-record proofs; no
+    /// random choice changes these speeds or requires a stored lookup.
     /// </remarks>
     public static FixedVector<RoomPixels> FromSiblingVelocity(int siblingYWhole) =>
         new(KraidNailLaunchDefinitions.Leftward,

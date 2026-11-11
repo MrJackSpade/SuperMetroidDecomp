@@ -23,8 +23,8 @@ internal sealed class FrontendSession
     /// <summary>Creates a reset-state session, reading the selected save slot and the earthquake rumble delay power-on gives.</summary>
     /// <param name="saves">The saves the session reads and writes for its whole lifetime.</param>
     /// <param name="assists">The assists the session plays under, or <see langword="null"/> for the unassisted game.</param>
-    /// <param name="hostServices">The hardware-timing policies the session runs against for its whole lifetime.</param>
-    /// <param name="random">The session's random-number word, which the frontend and every gameplay runtime share.</param>
+    /// <param name="hostServices">The compatibility services and display policy the session runs against for its whole lifetime.</param>
+    /// <param name="random">The session's random number generator, which the frontend and every gameplay runtime share.</param>
     internal FrontendSession(SaveSlotStore saves, GameplayAssists? assists,
         SuperMetroidGameHostServices hostServices, SharedRandom random)
     {
@@ -612,7 +612,7 @@ internal sealed class FrontendSession
     internal bool ResumesGameLoadingWait => GameLoading.Resumes;
     /// <summary>The downward elevator's wait before destination loading resumes.</summary>
     internal DownwardsElevatorWait DownwardsElevator { get; } = new();
-    /// <summary>The session's random-number word, which the frontend and every gameplay runtime share.</summary>
+    /// <summary>The session's random number generator, which the frontend and every gameplay runtime share.</summary>
     internal SharedRandom Random { get; }
     /// <summary>A soft reset discards every gameplay owner; the menu owners keep the random generator and the frame clock.</summary>
     internal void DiscardRuntime() => runtime = null;

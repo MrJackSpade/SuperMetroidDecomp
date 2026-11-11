@@ -235,7 +235,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void RunDraygonBodyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         // Draygon times turrets and smoke from the frame counter, never the separate
-        // byte-wide frame counter; only its low bits are tested.
+        // counter that wraps every 256 frames; only its place in a short repeating cycle is tested.
         RunDraygonBodyMain(slot, frame.Samus, _frameContext.FrameCounter);
     }
 

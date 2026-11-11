@@ -205,7 +205,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                 TransitionBrightness = 15;
             }
             bool mapStart = HandleStartButton(delayedPressed);
-            // Map arrows read the ordinary held controller word, not the delayed chrome
+            // Map arrows read the ordinary held controller buttons, not the delayed chrome
             // input. An accepted pulse keeps running after release, as in the game.
             if (MapScrollBounds.Step(heldInput ?? delayedHeldInput, ref mapScrollPosition))
                 audio?.QueueSound(SamusSound.MapScroll, priority: SoundRequestPriority.Normal);
@@ -633,8 +633,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                 SelectedReserveItem == PauseReserveItem.Mode;
             if (!modeRow)
                 throw new NotSupportedException(
-                    "A same-frame equipment toggle into a reserve row past the first writes work memory through stale " +
-                    "scratch words; reproducing it needs full memory emulation, which is outside the port's scope.");
+                    "A same-frame equipment toggle into a reserve row past the first corrupts unrelated game state; " +
+                    "reproducing it needs full memory emulation, which is outside the port's scope.");
             audio?.QueueSound(SamusSound.MenuConfirm, priority: SoundRequestPriority.Normal);
             SamusBombProjectileSlot last = (bombs ?? throw new InvalidOperationException(
                 "The first reserve row's same-frame toggle needs Samus's bomb slots.")).Slots[^1];

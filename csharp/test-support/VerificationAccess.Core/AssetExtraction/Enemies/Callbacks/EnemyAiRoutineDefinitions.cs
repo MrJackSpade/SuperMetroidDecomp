@@ -161,7 +161,7 @@ internal static class EnemyAiRoutineDefinitions
         /// <summary>Ceres steam touch callback at $A6:F03F.</summary>
         public static readonly SnesAddress CeresSteamTouch = new(Bank, 0xf03f);
         /// <summary>Ridley extended-spritemap touch callback at $A6:DF59.</summary>
-        public static readonly SnesAddress RidleyExtendedTouch = new(Bank, 0xdf59);
+        public static readonly SnesAddress RidleyFrameHitboxTouch = new(Bank, 0xdf59);
         /// <summary>Ridley shot callback at $A6:DF8A.</summary>
         public static readonly SnesAddress RidleyShot = new(Bank, 0xdf8a);
         /// <summary>Ridley Power Bomb callback at $A6:DFB2.</summary>

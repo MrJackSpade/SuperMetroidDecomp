@@ -13,7 +13,7 @@ internal static class RidleyCollisionDefinitions
     internal static readonly Offset16<RoomPixels> InteractionWindowMargin = new(32, 32);
 
     /// <summary>Every body rectangle's touch reaction: Ridley's extended-body contact.</summary>
-    internal const EnemyReaction BodyTouchReaction = EnemyReaction.RidleyExtendedTouch;
+    internal const EnemyReaction BodyTouchReaction = EnemyReaction.RidleyFrameHitboxTouch;
 
     /// <summary>Every body rectangle's shot reaction: Ridley's own shot reaction.</summary>
     internal const EnemyReaction BodyShotReaction = EnemyReaction.RidleyShot;

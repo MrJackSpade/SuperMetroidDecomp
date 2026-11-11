@@ -69,7 +69,7 @@ internal sealed class KraidCombat
         {
             AfterSuperMissileQuake = (in EnemyShotContext c) =>
             {
-                if (!c.UsesExtendedHitboxes ||
+                if (!c.UsesFrameHitboxes ||
                     c.HitboxShotAi is not (EnemyReaction.Ignore or EnemyReaction.KraidArmShot) ||
                     c.Enemy.DefinitionId == EnemyDefinitionId.KraidFoot &&
                         c.HitboxShotAi != EnemyReaction.Ignore)
@@ -79,7 +79,7 @@ internal sealed class KraidCombat
                         $"shot AI {c.HitboxShotAi?.ToString() ?? "(unnamed)"}.");
                 }
 
-                c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
+                c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
                 if (c.HitboxShotAi == EnemyReaction.KraidArmShot)
                     SpawnKraidArmShotExplosion(c.ProjectileType, c.Projectile.Position.Whole);
                 return true;

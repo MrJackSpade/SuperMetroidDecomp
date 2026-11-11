@@ -68,7 +68,7 @@ internal static class EnemyInteractionCallbacks
         [EnemyReaction.FakeKraidTouch] = EnemyAiRoutineDefinitions.BankA6.FakeKraidTouch,
         [EnemyReaction.FakeKraidShot] = EnemyAiRoutineDefinitions.BankA6.FakeKraidShot,
         [EnemyReaction.CeresSteamTouch] = EnemyAiRoutineDefinitions.BankA6.CeresSteamTouch,
-        [EnemyReaction.RidleyExtendedTouch] = EnemyAiRoutineDefinitions.BankA6.RidleyExtendedTouch,
+        [EnemyReaction.RidleyFrameHitboxTouch] = EnemyAiRoutineDefinitions.BankA6.RidleyFrameHitboxTouch,
         [EnemyReaction.RidleyShot] = EnemyAiRoutineDefinitions.BankA6.RidleyShot,
         [EnemyReaction.RidleyPowerBomb] = EnemyAiRoutineDefinitions.BankA6.RidleyPowerBomb,
         [EnemyReaction.ZebetiteTouch] = EnemyAiRoutineDefinitions.BankA6.ZebetiteTouch,

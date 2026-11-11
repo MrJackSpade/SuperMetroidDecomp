@@ -73,7 +73,7 @@ internal sealed class DraygonCombat
                                EnemyCollision.TouchAi(slot) == EnemyReaction.DraygonTouch,
             context =>
             {
-                if (!context.UsesExtendedHitboxes)
+                if (!context.UsesFrameHitboxes)
                     throw new InvalidDataException("Draygon requires his authored extended touch hitboxes.");
                 if (context.HitboxTouchAi == EnemyReaction.Ignore)
                     return; // The vulnerable eye rectangle is harmless to Samus.
@@ -201,13 +201,13 @@ internal sealed class DraygonCombat
         {
             BeforeSuperMissileQuake = (in EnemyShotContext c) =>
             {
-                if (!c.UsesExtendedHitboxes)
+                if (!c.UsesFrameHitboxes)
                     throw new InvalidDataException("Draygon requires his authored extended shot hitboxes.");
                 if (c.HitboxShotAi == EnemyReaction.DudShot)
                 {
                     // Body, claws, and shell use the shared common touch; only the first
                     // eye rectangle of the two eye-showing body frames reaches Draygon's damage callback.
-                    c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
+                    c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
                     _projectiles.CreateEnemyProjectileDudShot(c.Projectile);
                     return true;
                 }

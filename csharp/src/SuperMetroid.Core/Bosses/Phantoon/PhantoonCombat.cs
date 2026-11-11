@@ -169,7 +169,7 @@ internal sealed class PhantoonCombat
                 SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion)
                 continue;
 
-            if (!_collision.TryFindExtendedHitboxReaction(
+            if (!_collision.TryFindFrameHitboxReaction(
                     body,
                     projectile.Position.Whole,
                     projectile.Radius,
@@ -191,7 +191,7 @@ internal sealed class PhantoonCombat
                     PhantoonAiFunction.BeginFinalWavyDeath or PhantoonAiFunction.DyingFadeOut or PhantoonAiFunction.AlmostDead or
                     PhantoonAiFunction.Dead or PhantoonAiFunction.NoOperation)
             {
-                projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(
+                projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(
                     projectile,
                     body.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||
                         !projectile.Type.HasAnyBeam(SamusBeamFlags.Plasma));
@@ -208,7 +208,7 @@ internal sealed class PhantoonCombat
             // That callback's damage helper does not convert it into an explosion:
             // the projectile's frame behaviour owns the following-frame deletion, while
             // penetrating Plasma retains its type, direction, and animation.
-            projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(projectile,
+            projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(projectile,
                 body.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||
                 !projectileType.HasAnyBeam(SamusBeamFlags.Plasma));
 
@@ -629,7 +629,7 @@ internal sealed class PhantoonCombat
                                EnemyCollision.TouchAi(slot) == EnemyReaction.PhantoonTouch,
             context =>
             {
-                if (!context.UsesExtendedHitboxes)
+                if (!context.UsesFrameHitboxes)
                     throw new InvalidDataException("Phantoon requires his authored extended touch hitboxes.");
                 if (context.HitboxTouchAi == EnemyReaction.Ignore)
                     return;

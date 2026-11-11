@@ -68,11 +68,11 @@ internal sealed class RidleyInteractions
         {
             BeforeSuperMissileQuake = (in EnemyShotContext c) =>
             {
-                if (!c.UsesExtendedHitboxes || c.HitboxShotAi != EnemyReaction.RidleyShot)
+                if (!c.UsesFrameHitboxes || c.HitboxShotAi != EnemyReaction.RidleyShot)
                 {
                     throw new InvalidDataException(
                         $"Lower Norfair Ridley requires extended shot AI " +
-                        $"{EnemyReaction.RidleyShot}; extended={c.UsesExtendedHitboxes}, " +
+                        $"{EnemyReaction.RidleyShot}; extended={c.UsesFrameHitboxes}, " +
                         $"selected={c.HitboxShotAi?.ToString() ?? "(unnamed)"}, frame={c.Enemy.Frame}.");
                 }
                 return false;

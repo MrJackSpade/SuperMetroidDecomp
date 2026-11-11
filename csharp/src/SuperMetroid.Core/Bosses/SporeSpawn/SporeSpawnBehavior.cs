@@ -411,11 +411,11 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             AfterSuperMissileQuake = (in EnemyShotContext c) =>
             {
-                if (!c.UsesExtendedHitboxes)
+                if (!c.UsesFrameHitboxes)
                     throw new InvalidDataException("Spore Spawn requires its frames' hitboxes.");
                 if (c.HitboxShotAi == EnemyReaction.DudShot)
                 {
-                    c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
+                    c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
                     _projectiles.CreateEnemyProjectileDudShot(c.Projectile);
                     return true;
                 }
@@ -428,7 +428,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 {
                     // The extended collision walker has already selected the vulnerable
                     // core. The core's shot reaction rejects this projectile family before common damage.
-                    c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
+                    c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
                     return true;
                 }
                 return false;
@@ -445,7 +445,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                                EnemyCollision.TouchAi(slot) == EnemyReaction.SporeSpawnTouch,
             context =>
             {
-                if (!context.UsesExtendedHitboxes)
+                if (!context.UsesFrameHitboxes)
                     throw new InvalidDataException("Spore Spawn requires its frames' hitboxes.");
                 if (context.HitboxTouchAi == EnemyReaction.Ignore)
                     return;

@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
 internal sealed class DraygonEntity(DraygonBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IBossBodyFrames, IEnemyPrivateShotReaction
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IBossBodyFrames, IEnemyPrivateShotReaction
 {
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork = bossArtwork;
@@ -55,7 +55,7 @@ internal sealed class DraygonEntity(DraygonBehavior species, RoomEnemySlot slot,
 
     /// <summary>Only the body's contact and shots meet its own frames' hitboxes.</summary>
     public override EnemyCapabilities Capabilities =>
-        Slot.DefinitionId == EnemyDefinitionId.DraygonBody ? EnemyCapabilities.ExtendedSamusHitboxes | EnemyCapabilities.ExtendedProjectileHitboxes : EnemyCapabilities.None;
+        Slot.DefinitionId == EnemyDefinitionId.DraygonBody ? EnemyCapabilities.SamusFrameHitboxes | EnemyCapabilities.ProjectileFrameHitboxes : EnemyCapabilities.None;
 
     /// <summary>The body's shot reaction and its dud shot, which normal bombs dispatch like the common one.</summary>
     /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>

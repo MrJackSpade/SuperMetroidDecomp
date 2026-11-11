@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
 internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IEnemyNormalBombAdmission, IBossBodyFrames, IEnemyPrivateShotReaction
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyNormalBombAdmission, IBossBodyFrames, IEnemyPrivateShotReaction
 {
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork = bossArtwork;
@@ -60,7 +60,7 @@ internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemySlot s
 
     /// <summary>The body's and tongue's contact and shots both meet their own frames' hitboxes.</summary>
     public override EnemyCapabilities Capabilities =>
-        EnemyCapabilities.ExtendedSamusHitboxes | EnemyCapabilities.ExtendedProjectileHitboxes;
+        EnemyCapabilities.SamusFrameHitboxes | EnemyCapabilities.ProjectileFrameHitboxes;
 
     /// <summary>Crocomire's own hitbox shot reactions.</summary>
     /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>

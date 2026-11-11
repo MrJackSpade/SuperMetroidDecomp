@@ -513,7 +513,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>Runs the extended-hitbox shot callback, including collision marking before rejection or reflection.</summary>
     internal bool ResolveSpacePirateHitboxShot(in EnemyShotContext c)
     {
-        if (!c.UsesExtendedHitboxes)
+        if (!c.UsesFrameHitboxes)
             return false;
         PirateHitboxShotActions.PirateHitboxShotAction pirateAction = PirateHitboxShotActions.SelectPirateHitboxShotAction(c.Enemy, c.Projectile, c.HitboxShotAi);
         if (pirateAction != PirateHitboxShotActions.PirateHitboxShotAction.Normal)
@@ -522,7 +522,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             // selected callback runs. Normal hits get the equivalent lifecycle transition from TryStartEnemyImpact;
             // rejected and reflected hits return before that shared host path. The plasma-blocking enemy property also
             // forces the mark.
-            c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
+            c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
         }
         if (pirateAction == PirateHitboxShotActions.PirateHitboxShotAction.Ignore)
         {

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class KraidEntity(KraidBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IEnemyPrivateShotReaction
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => KraidPartDefinitions.Parts[Slot.DefinitionId] switch
@@ -53,8 +53,8 @@ internal sealed class KraidEntity(KraidBehavior species, RoomEnemySlot slot, Ene
     /// <summary>The arm's and foot's contact and shots meet their frames' hitboxes; only shots meet Kraid's body's; the lint and nails meet neither.</summary>
     public override EnemyCapabilities Capabilities =>
         Slot.DefinitionId is EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidFoot
-            ? EnemyCapabilities.ExtendedSamusHitboxes | EnemyCapabilities.ExtendedProjectileHitboxes
-            : Slot.DefinitionId == EnemyDefinitionId.Kraid ? EnemyCapabilities.ExtendedProjectileHitboxes : EnemyCapabilities.None;
+            ? EnemyCapabilities.SamusFrameHitboxes | EnemyCapabilities.ProjectileFrameHitboxes
+            : Slot.DefinitionId == EnemyDefinitionId.Kraid ? EnemyCapabilities.ProjectileFrameHitboxes : EnemyCapabilities.None;
 
     /// <summary>The arm's shot reaction, which normal bombs dispatch like the common one.</summary>
     /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>

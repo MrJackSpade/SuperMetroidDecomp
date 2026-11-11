@@ -18,7 +18,7 @@ internal static class EnemyFrameCartridgeLookupTooling
     /// $804F: the empty extended frame, whose one point hitbox at the origin shows the empty frame of an enemy colliding by
     /// its frames' hitboxes, at the same word in every enemy bank.
     /// </summary>
-    private const ushort EmptyFrameHitboxWord = 0x804f;
+    internal const ushort EmptyFrameHitboxWord = 0x804f;
 
     /// <summary>Each installed frame by where the cartridge stores it; the first composition in schema order wins a shared record.</summary>
     private static readonly Lazy<Dictionary<SnesAddress, EnemyFrameId>> FramesByLocation = new(Bind);
@@ -40,17 +40,6 @@ internal static class EnemyFrameCartridgeLookupTooling
 
     /// <summary>The bank-local word of the frame an enemy colliding by its radius shows, zero before it shows any.</summary>
     internal static ushort Word(EnemyFrameId? frame) => frame is { } shown ? Word(shown) : (ushort)0;
-
-    /// <summary>
-    /// The bank-local word <paramref name="frame"/> is stored at for an enemy colliding by its frames' hitboxes: the empty
-    /// frame is the point-hitbox record.
-    /// </summary>
-    internal static ushort FrameHitboxWord(EnemyFrameId frame) =>
-        frame == EnemyFrameId.Empty ? EmptyFrameHitboxWord : Word(frame);
-
-    /// <summary>The bank-local word of the frame an enemy shows, by how it collides, zero before it shows any.</summary>
-    internal static ushort Word(EnemyFrameId? frame, bool collidesByFrameHitboxes) => frame is not { } shown ? (ushort)0
-        : collidesByFrameHitboxes ? FrameHitboxWord(shown) : Word(shown);
 
     /// <summary>The enemy bank holding <paramref name="frame"/>; the shared empty frames belong to no single bank.</summary>
     internal static byte Bank(EnemyFrameId frame) => EnemyFrameCartridgeLookup.Of(frame).Bank;

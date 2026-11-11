@@ -121,7 +121,7 @@ public enum EnemyReaction
     /// <summary>Ceres steam touch reaction.</summary>
     CeresSteamTouch,
     /// <summary>Ridley's frame-hitbox touch reaction.</summary>
-    RidleyExtendedTouch,
+    RidleyFrameHitboxTouch,
     /// <summary>Ridley shot reaction.</summary>
     RidleyShot,
     /// <summary>Ridley Power Bomb reaction.</summary>

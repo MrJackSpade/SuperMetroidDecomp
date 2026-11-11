@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>An enemy whose frame-hitbox collision geometry is engine-owned rather than read from installed frames.</summary>
-internal interface IEnemyExtendedHitboxes : IEnemyEntity
+internal interface IEnemyFrameHitboxes : IEnemyEntity
 {
     /// <summary>
     /// The reaction of the first of the occupant's hitboxes the probe overlaps: true with the reaction, false when none

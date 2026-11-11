@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
 internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IBossBodyFrames, IEnemyContactHooks, IEnemyPrivateShotReaction
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IBossBodyFrames, IEnemyContactHooks, IEnemyPrivateShotReaction
 {
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork = bossArtwork;
@@ -67,7 +67,7 @@ internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemySlot slo
 
     /// <summary>Only Samus's contact meets the body's frames' hitboxes; its weapon collision is the encounter's own resolver.</summary>
     public override EnemyCapabilities Capabilities =>
-        Slot.DefinitionId == EnemyDefinitionId.PhantoonBody ? EnemyCapabilities.ExtendedSamusHitboxes : EnemyCapabilities.None;
+        Slot.DefinitionId == EnemyDefinitionId.PhantoonBody ? EnemyCapabilities.SamusFrameHitboxes : EnemyCapabilities.None;
 
     /// <summary>The body's shot reaction, which normal bombs dispatch like the common one.</summary>
     /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>

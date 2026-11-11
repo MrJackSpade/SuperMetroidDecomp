@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class NinjaSpacePirateEntity(NinjaSpacePirateBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IEnemyPrivateShotReaction
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => NinjaSpacePirateBehavior.InitializeNinjaSpacePirate;
@@ -21,7 +21,7 @@ internal sealed class NinjaSpacePirateEntity(NinjaSpacePirateBehavior species, R
 
     /// <summary>Pirate contact and shots both meet the Pirate's engine-owned frame hitboxes.</summary>
     public override EnemyCapabilities Capabilities =>
-        EnemyCapabilities.ExtendedSamusHitboxes | EnemyCapabilities.ExtendedProjectileHitboxes;
+        EnemyCapabilities.SamusFrameHitboxes | EnemyCapabilities.ProjectileFrameHitboxes;
 
     /// <summary>The Pirate shot reactions, which normal bombs dispatch like the common one.</summary>
     /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>

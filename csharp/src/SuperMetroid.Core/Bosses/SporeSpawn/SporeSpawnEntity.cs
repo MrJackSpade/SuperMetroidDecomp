@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class SporeSpawnEntity(SporeSpawnBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IEnemyPrivateShotReaction
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => species.InitializeSporeSpawn;
@@ -31,7 +31,7 @@ internal sealed class SporeSpawnEntity(SporeSpawnBehavior species, RoomEnemySlot
 
     /// <summary>Spore Spawn's contact and shots both meet its own frames' hitboxes.</summary>
     public override EnemyCapabilities Capabilities =>
-        EnemyCapabilities.ExtendedSamusHitboxes | EnemyCapabilities.ExtendedProjectileHitboxes;
+        EnemyCapabilities.SamusFrameHitboxes | EnemyCapabilities.ProjectileFrameHitboxes;
 
     /// <summary>Spore Spawn's shot reaction and its dud shot, which normal bombs dispatch like the common one.</summary>
     /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>

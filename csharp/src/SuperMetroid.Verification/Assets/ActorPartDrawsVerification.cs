@@ -59,7 +59,7 @@ internal static class ActorPartDrawsVerification
         pirate.CollidesByFrameHitboxes = true;
         pirate.Frame = frame;
         pirate.Position = pirate.Position.WithWhole(new(120, 110));
-        enemies.Drawing.Enqueue(pirate);
+        enemies.Drawing.Enqueue(pirate, reached: true);
 
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();

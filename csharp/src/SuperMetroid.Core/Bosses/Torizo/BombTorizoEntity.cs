@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class BombTorizoEntity(BombTorizoBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemySurroundingsInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IEnemyPrivateShotReaction
+    : CommonParticipationEnemyEntity(slot, common), IEnemySurroundingsInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
     public EnemySurroundingsInitializationAiHandler? FindSurroundingsInitialization() => species.Movement.RunBombTorizoInitializationAi;
@@ -32,7 +32,7 @@ internal sealed class BombTorizoEntity(BombTorizoBehavior species, RoomEnemySlot
 
     /// <summary>Both Torizos' contact and shots meet their own frames' hitboxes.</summary>
     public override EnemyCapabilities Capabilities =>
-        EnemyCapabilities.ExtendedSamusHitboxes | EnemyCapabilities.ExtendedProjectileHitboxes;
+        EnemyCapabilities.SamusFrameHitboxes | EnemyCapabilities.ProjectileFrameHitboxes;
 
     /// <summary>The Torizo shot reactions, which normal bombs dispatch like the common one; only Golden Torizo owns its own.</summary>
     /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>

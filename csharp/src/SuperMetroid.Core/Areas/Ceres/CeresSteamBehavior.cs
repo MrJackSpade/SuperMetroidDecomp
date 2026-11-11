@@ -155,11 +155,11 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
                 // Every visible steam frame stores the steam's touch reaction in its authored hitbox.
                 // The last two dispersal frames use an empty hitbox list and cannot reach
                 // this branch. Insisting on both facts keeps collision tied to the authored geometry.
-                if (!context.UsesExtendedHitboxes || context.HitboxTouchAi != EnemyReaction.CeresSteamTouch)
+                if (!context.UsesFrameHitboxes || context.HitboxTouchAi != EnemyReaction.CeresSteamTouch)
                 {
                     throw new InvalidDataException(
                         $"Ceres steam requires extended touch AI {EnemyReaction.CeresSteamTouch}; " +
-                        $"extended={context.UsesExtendedHitboxes}, selected={context.HitboxTouchAi?.ToString() ?? "(unnamed)"}, " +
+                        $"extended={context.UsesFrameHitboxes}, selected={context.HitboxTouchAi?.ToString() ?? "(unnamed)"}, " +
                         $"frame={context.Slot.Frame}.");
                 }
 

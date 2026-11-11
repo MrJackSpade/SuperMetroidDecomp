@@ -45,7 +45,7 @@ internal static class EnemyFormatDrawEntriesVerification
         ordinary.Bind(EnemyDefinitionId.Beetom, default(RoomEnemyDefinition));
         ordinary.Frame = ordinaryFrame;
         ordinary.Position = ordinary.Position.WithWhole(new(100, 80));
-        enemies.Drawing.Enqueue(enemies.SlotTable.Slots[0]);
+        enemies.Drawing.Enqueue(enemies.SlotTable.Slots[0], reached: true);
 
         // Extended enemy on layer one, showing a frame with several components.
         EnemyFrameId extendedFrame = EnemyDefinitionFrameDefinitions.Frames[EnemyDefinitionId.PirateGreenWalking]
@@ -56,7 +56,7 @@ internal static class EnemyFormatDrawEntriesVerification
         extended.Frame = extendedFrame;
         extended.FrameHold = WrappingCountdown.Start(7);
         extended.Position = extended.Position.WithWhole(new(120, 110));
-        enemies.Drawing.Enqueue(extended);
+        enemies.Drawing.Enqueue(extended, reached: true);
 
         // Enemy projectile in front of Samus, drawn from the set's spawned-object sheet: one whose picture there shows something
         // (#1513), as a picture showing nothing draws nothing.

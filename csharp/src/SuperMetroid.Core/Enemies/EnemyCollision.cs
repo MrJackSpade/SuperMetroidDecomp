@@ -86,7 +86,7 @@ internal sealed class EnemyCollision
             // overlap testing, so a distant actor with a map can legitimately clear it.
             if (slot.Frame is null)
                 continue;
-            bool usesFrameHitboxes = UsesExtendedSamusHitboxes(slot);
+            bool usesFrameHitboxes = UsesFrameHitboxesForSamus(slot);
             // Frame-hitbox entry withholds the touch the header excludes from its hitboxes before
             // resetting invulnerability. Ordinary radius entry resets first instead.
             if (usesFrameHitboxes && slot.Definition.TouchHitboxScan == EnemyHitboxScan.Withheld)
@@ -112,7 +112,7 @@ internal sealed class EnemyCollision
             EnemyReaction? hitboxTouchAi = TouchAi(slot);
             if (usesFrameHitboxes)
             {
-                overlapsSamus = TryFindExtendedHitboxReaction(
+                overlapsSamus = TryFindFrameHitboxReaction(
                     slot,
                     samus.Position.Whole,
                     samus.Kinematics.Radius,
@@ -219,7 +219,7 @@ internal sealed class EnemyCollision
                     continue;
                 }
 
-                bool usesFrameHitboxes = UsesExtendedProjectileHitboxes(enemy);
+                bool usesFrameHitboxes = UsesFrameHitboxesForProjectiles(enemy);
                 // The frame-hitbox shot test returns before testing any projectile while the enemy shows
                 // the empty frame. Its point hitbox remains live for Samus and
                 // bombs, whose frame-hitbox passes have no such check.
@@ -239,7 +239,7 @@ internal sealed class EnemyCollision
                 EnemyReaction? hitboxShotAi = ShotAi(enemy);
                 if (usesFrameHitboxes)
                 {
-                    overlapsProjectile = TryFindExtendedHitboxReaction(
+                    overlapsProjectile = TryFindFrameHitboxReaction(
                         enemy,
                         projectile.Position.Whole,
                         projectile.Radius,
@@ -480,7 +480,7 @@ internal sealed class EnemyCollision
 
                 EnemyReaction? selectedShotAi = ShotAi(enemy);
                 bool overlaps = usesFrameHitboxes
-                    ? TryFindExtendedHitboxReaction(
+                    ? TryFindFrameHitboxReaction(
                         enemy,
                         bomb.Position.Whole,
                         bomb.Radius,
@@ -785,7 +785,7 @@ internal sealed class EnemyCollision
     /// hitbox. One frame may hold several hitboxes, each signed bounds about the enemy's origin with its own touch and
     /// shot reactions.
     /// </summary>
-    internal bool TryFindExtendedHitboxReaction(
+    internal bool TryFindFrameHitboxReaction(
         RoomEnemySlot enemy,
         Position16<RoomPixels> targetPosition,
         Extent16<RoomPixels> targetRadius,
@@ -822,7 +822,7 @@ internal sealed class EnemyCollision
         }
 
         // A species with engine-owned geometry answers for its own frames; null means none covers this frame.
-        if (enemy.Entity is IEnemyExtendedHitboxes owner && owner.FindHitboxReaction(target, out reaction) is { } owned)
+        if (enemy.Entity is IEnemyFrameHitboxes owner && owner.FindHitboxReaction(target, out reaction) is { } owned)
             return owned;
 
         throw new InvalidDataException(
@@ -835,9 +835,9 @@ internal sealed class EnemyCollision
     /// from the shot set: Phantoon's frames' hitboxes meet Samus, while his own projectile resolver owns how shots meet
     /// him.
     /// </summary>
-    internal static bool UsesExtendedSamusHitboxes(RoomEnemySlot enemy) =>
+    internal static bool UsesFrameHitboxesForSamus(RoomEnemySlot enemy) =>
         enemy.CollidesByFrameHitboxes &&
-        (Capabilities(enemy) & EnemyCapabilities.ExtendedSamusHitboxes) != EnemyCapabilities.None;
+        (Capabilities(enemy) & EnemyCapabilities.SamusFrameHitboxes) != EnemyCapabilities.None;
 
     /// <summary>
     /// Identifies actors whose contact with Samus's shots is tested against their frames' hitboxes.
@@ -846,9 +846,9 @@ internal sealed class EnemyCollision
     /// encounter-specific geometry. Keeping this predicate beside the dispatcher gives data-backed probes the same
     /// boundary as gameplay.
     /// </summary>
-    internal static bool UsesExtendedProjectileHitboxes(RoomEnemySlot enemy) =>
+    internal static bool UsesFrameHitboxesForProjectiles(RoomEnemySlot enemy) =>
         enemy.CollidesByFrameHitboxes &&
-        (Capabilities(enemy) & EnemyCapabilities.ExtendedProjectileHitboxes) != EnemyCapabilities.None;
+        (Capabilities(enemy) & EnemyCapabilities.ProjectileFrameHitboxes) != EnemyCapabilities.None;
 
     /// <summary>The bound occupant's collision capabilities; an empty slot has none.</summary>
     private static EnemyCapabilities Capabilities(RoomEnemySlot enemy) =>

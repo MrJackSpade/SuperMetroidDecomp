@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal sealed class RidleyEntity(
     RidleyBehavior ridley, CeresRidleyBehavior ceres, RidleyEncounter encounter, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation,
-        IEnemyExtendedHitboxes, IEnemyContactHooks, IEnemyShotAdmission, IEnemyDrawHooks, IEnemyPrivateShotReaction
+        IEnemyFrameHitboxes, IEnemyContactHooks, IEnemyShotAdmission, IEnemyDrawHooks, IEnemyPrivateShotReaction
 {
     /// <summary>Whether the occupant is one of the two Ridley bodies rather than the breakup actor.</summary>
     private bool IsBody => Slot.DefinitionId is EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyCeres;
@@ -84,7 +84,7 @@ internal sealed class RidleyEntity(
     /// breakup actor's take neither.
     /// </summary>
     public override EnemyCapabilities Capabilities =>
-        Slot.DefinitionId == EnemyDefinitionId.Ridley ? EnemyCapabilities.ExtendedProjectileHitboxes : EnemyCapabilities.None;
+        Slot.DefinitionId == EnemyDefinitionId.Ridley ? EnemyCapabilities.ProjectileFrameHitboxes : EnemyCapabilities.None;
 
     /// <summary>Both Ridley bodies' shot reaction, which normal bombs dispatch like the common one.</summary>
     /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>

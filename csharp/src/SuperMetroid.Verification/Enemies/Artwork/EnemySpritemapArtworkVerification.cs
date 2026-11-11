@@ -507,7 +507,7 @@ internal static class EnemySpritemapArtworkVerification
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses };
             // The enemy draws as a room drawing it loads it: at its tile base and in its palette there.
             enemies.DrawUnder(SpawnedObjectFixtures.SetDrawing(definition));
-            enemies.Drawing.Enqueue(enemies.SlotTable.Slots[0]);
+            enemies.Drawing.Enqueue(enemies.SlotTable.Slots[0], reached: true);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(definition, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));

@@ -11,12 +11,12 @@ internal enum EnemyCapabilities
     /// Samus's contact with the enemy is tested against its frames' hitboxes. This differs deliberately from the shot
     /// set: Phantoon's frames' hitboxes meet Samus, while his own projectile resolver owns how shots meet him.
     /// </summary>
-    ExtendedSamusHitboxes = 1,
+    SamusFrameHitboxes = 1,
 
     /// <summary>
     /// Samus's shots are tested against the enemy's frames' hitboxes. <see cref="RoomEnemySlot.CollidesByFrameHitboxes"/>
     /// alone is not sufficient: enemies that collide by frame hitboxes may still meet Samus by their radius or by
     /// encounter-specific geometry.
     /// </summary>
-    ExtendedProjectileHitboxes = 2,
+    ProjectileFrameHitboxes = 2,
 }

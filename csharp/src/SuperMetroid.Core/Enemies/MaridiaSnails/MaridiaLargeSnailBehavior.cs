@@ -548,14 +548,14 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         {
             AfterSuperMissileQuake = (in EnemyShotContext c) =>
             {
-                if (!c.UsesExtendedHitboxes)
+                if (!c.UsesFrameHitboxes)
                     throw new InvalidDataException("Maridia Large Snail's shots no longer meet its frames' hitboxes.");
                 if (c.HitboxShotAi == EnemyReaction.Ignore)
                 {
                     // Frame-hitbox collision marks the projectile before calling the
                     // no-op. It does not run normal shot AI, create an impact, play the shot sound,
                     // or consult vulnerability for this protected shell component.
-                    c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
+                    c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
                     return true;
                 }
                 if (c.HitboxShotAi != EnemyReaction.MaridiaLargeSnailShot)
@@ -577,7 +577,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                                EnemyCollision.TouchAi(slot) == EnemyReaction.MaridiaLargeSnailNonDamagingTouch,
             context =>
             {
-                if (!context.UsesExtendedHitboxes)
+                if (!context.UsesFrameHitboxes)
                     throw new InvalidDataException("Maridia Large Snail's contact no longer meets its frames' hitboxes.");
                 if (context.HitboxTouchAi is not (
                         EnemyReaction.MaridiaLargeSnailDamagingTouch or

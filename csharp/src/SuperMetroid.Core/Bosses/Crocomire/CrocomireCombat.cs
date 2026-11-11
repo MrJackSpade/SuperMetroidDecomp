@@ -49,7 +49,7 @@ internal sealed class CrocomireCombat
         // Crocomire's header names no shot reaction; every live component supplies its own. Normal bombs
         // therefore reach the same hit counter, dust, or mouth reaction selected by the map.
         table.AddBombSpecial(c => c.Enemy.DefinitionId == EnemyDefinitionId.Crocomire &&
-                                  c.Enemy.Definition.Shot is null && c.UsesExtendedHitboxes &&
+                                  c.Enemy.Definition.Shot is null && c.UsesFrameHitboxes &&
                                   c.SelectedShotAi != EnemyReaction.NormalEnemyShot,
             c => ResolveCrocomireHitboxShot(c.Bomb.Type, c.Bomb.Position.Whole, c.SelectedShotAi));
     }
@@ -100,9 +100,9 @@ internal sealed class CrocomireCombat
             {
                 if (c.HitboxShotAi == EnemyReaction.NormalEnemyShot)
                     return false;
-                if (!c.UsesExtendedHitboxes)
+                if (!c.UsesFrameHitboxes)
                     throw new InvalidDataException("Crocomire's parts require collision by their frames' hitboxes.");
-                c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
+                c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
                 ResolveCrocomireHitboxShot(c.Projectile.Type, c.Projectile.Position.Whole, c.HitboxShotAi);
                 return true;
             },
@@ -118,7 +118,7 @@ internal sealed class CrocomireCombat
                                EnemyCollision.TouchAi(slot) == EnemyReaction.NormalEnemyTouch,
             context =>
             {
-                if (!context.UsesExtendedHitboxes)
+                if (!context.UsesFrameHitboxes)
                     throw new InvalidDataException("Crocomire's parts require collision by their frames' hitboxes.");
                 if (context.HitboxTouchAi == EnemyReaction.Ignore)
                     return; // The corpse's rectangles ignore Samus's touch.

@@ -48,9 +48,6 @@ internal sealed class EnemyDrawList
     /// <summary>Empties the queue before the enemy pass rebuilds it.</summary>
     internal void Clear() => _queued.Clear();
 
-    /// <summary>Queues <paramref name="enemy"/>, which the draw pass reaches, to show after the enemies already queued.</summary>
-    internal void Enqueue(RoomEnemySlot enemy) => Enqueue(enemy, reached: true);
-
     /// <summary>
     /// Queues <paramref name="enemy"/> to show after the enemies already queued; <paramref name="reached"/> tells whether
     /// the draw pass reaches it, which only a reached enemy's draw-pass side effects depend on.

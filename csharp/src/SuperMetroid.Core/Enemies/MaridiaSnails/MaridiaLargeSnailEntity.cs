@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class MaridiaLargeSnailEntity(MaridiaLargeSnailBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IEnemyPrivateShotReaction
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => MaridiaLargeSnailBehavior.InitializeMaridiaLargeSnail;
@@ -21,7 +21,7 @@ internal sealed class MaridiaLargeSnailEntity(MaridiaLargeSnailBehavior species,
 
     /// <summary>The large snail's contact and shots both meet its own frames' hitboxes.</summary>
     public override EnemyCapabilities Capabilities =>
-        EnemyCapabilities.ExtendedSamusHitboxes | EnemyCapabilities.ExtendedProjectileHitboxes;
+        EnemyCapabilities.SamusFrameHitboxes | EnemyCapabilities.ProjectileFrameHitboxes;
 
     /// <summary>The large snail's own shot reaction, which normal bombs dispatch like the common one.</summary>
     /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>

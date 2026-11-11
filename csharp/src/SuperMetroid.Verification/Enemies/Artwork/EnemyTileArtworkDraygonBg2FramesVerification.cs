@@ -211,7 +211,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
         // His fight attaches the body his body frames show on.
         BossBodyParts image = BossBodyCanvasFixtures.AttachBlank(enemies, InstalledFixtures.BossBodySheets, BossBodyOwner.Draygon);
-        enemies.Drawing.Enqueue(enemies.SlotTable.Slots[0]);
+        enemies.Drawing.Enqueue(enemies.SlotTable.Slots[0], reached: true);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.DraygonBody, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));

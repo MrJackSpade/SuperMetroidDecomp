@@ -78,7 +78,7 @@ internal static class BossDisplayBindingsFixtureVerification
             Actor.Contact = EnemyContact.None;
             Actor.Processing = EnemyProcessing.AnimationScript;
             Actor.Presence = EnemyPresence.None;
-            Enemies.Drawing.Enqueue(Actor);
+            Enemies.Drawing.Enqueue(Actor, reached: true);
             // The boss draws under the retail graphics set its room loads, whose sheets hold its frames.
             SpawnedObjectFixtures.LoadSetDrawing(Enemies, definition, Actor);
             // A boss that owns BG2 attaches its body layer as its initialisation does, before any of its frames draw on it.

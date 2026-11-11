@@ -13,7 +13,7 @@ internal static class ExtendedHitboxWalker
     /// <summary>Walks the slot's extended hitboxes and stores the reported reaction in the row's last element.</summary>
     internal static bool Find(RoomEnemySystem enemies, object?[] arguments)
     {
-        bool found = enemies.Collision.TryFindExtendedHitboxReaction(
+        bool found = enemies.Collision.TryFindFrameHitboxReaction(
             arguments[0] as RoomEnemySlot ?? throw new ArgumentException("Element 0 must be the enemy slot.", nameof(arguments)),
             Value<Position16<RoomPixels>>(arguments, 1),
             Value<Extent16<RoomPixels>>(arguments, 2),

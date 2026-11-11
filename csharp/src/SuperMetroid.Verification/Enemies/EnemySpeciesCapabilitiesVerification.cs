@@ -18,7 +18,7 @@ internal static class EnemySpeciesCapabilitiesVerification
 {
     /// <summary>Both extended-spritemap walkers: Samus contact and projectile collision.</summary>
     private const EnemyCapabilities BothWalkers =
-        EnemyCapabilities.ExtendedSamusHitboxes | EnemyCapabilities.ExtendedProjectileHitboxes;
+        EnemyCapabilities.SamusFrameHitboxes | EnemyCapabilities.ProjectileFrameHitboxes;
 
     /// <summary>The ordinary Pirate definitions: the wall, walking and ninja families in every colour.</summary>
     private static readonly EnemyDefinitionId[] OrdinaryPirates =
@@ -56,11 +56,11 @@ internal static class EnemySpeciesCapabilitiesVerification
             [EnemyDefinitionId.KraidArm] = BothWalkers,
             [EnemyDefinitionId.KraidFoot] = BothWalkers,
             [EnemyDefinitionId.DraygonBody] = BothWalkers,
-            [EnemyDefinitionId.PhantoonBody] = EnemyCapabilities.ExtendedSamusHitboxes,
-            [EnemyDefinitionId.Kraid] = EnemyCapabilities.ExtendedProjectileHitboxes,
-            [EnemyDefinitionId.Ridley] = EnemyCapabilities.ExtendedProjectileHitboxes,
-            [EnemyDefinitionId.MotherBrainBody] = EnemyCapabilities.ExtendedProjectileHitboxes,
-            [EnemyDefinitionId.MotherBrainHead] = EnemyCapabilities.ExtendedProjectileHitboxes,
+            [EnemyDefinitionId.PhantoonBody] = EnemyCapabilities.SamusFrameHitboxes,
+            [EnemyDefinitionId.Kraid] = EnemyCapabilities.ProjectileFrameHitboxes,
+            [EnemyDefinitionId.Ridley] = EnemyCapabilities.ProjectileFrameHitboxes,
+            [EnemyDefinitionId.MotherBrainBody] = EnemyCapabilities.ProjectileFrameHitboxes,
+            [EnemyDefinitionId.MotherBrainHead] = EnemyCapabilities.ProjectileFrameHitboxes,
         };
         foreach (EnemyDefinitionId pirate in OrdinaryPirates)
             expected.Add(pirate, BothWalkers);

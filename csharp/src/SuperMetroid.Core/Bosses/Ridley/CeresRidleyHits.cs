@@ -50,7 +50,7 @@ internal sealed class CeresRidleyHits
         foreach (SamusProjectile projectile in projectiles.Slots)
         {
             if (!projectile.HasEnemyCollisionPayload ||
-                !ExtendedSpritemapOverlapsRectangle(
+                !FrameHitboxesOverlapRectangle(
                     slot,
                     projectile.Position.Whole,
                     projectile.Radius))
@@ -170,7 +170,7 @@ internal sealed class CeresRidleyHits
             return false;
         }
 
-        if (!_collision.TryFindExtendedHitboxReaction(
+        if (!_collision.TryFindFrameHitboxReaction(
                 slot,
                 samus.Position.Whole,
                 samus.Kinematics.Radius,
@@ -180,11 +180,11 @@ internal sealed class CeresRidleyHits
             return false;
         }
 
-        if (touchAi != EnemyReaction.RidleyExtendedTouch)
+        if (touchAi != EnemyReaction.RidleyFrameHitboxTouch)
         {
             throw new InvalidDataException(
                 $"Ridley extended body selected touch AI {touchAi?.ToString() ?? "(unnamed)"}, expected " +
-                $"{EnemyReaction.RidleyExtendedTouch} from map {slot.Frame}.");
+                $"{EnemyReaction.RidleyFrameHitboxTouch} from map {slot.Frame}.");
         }
 
         // Ridley's touch enters the common no-death-check handler. That distinction matters for
@@ -203,7 +203,7 @@ internal sealed class CeresRidleyHits
     /// frame Ridley shows; the tiny 8x8 radius in Ridley's enemy header is not his
     /// body and must never be substituted for this data.
     /// </summary>
-    internal static bool ExtendedSpritemapOverlapsRectangle(
+    internal static bool FrameHitboxesOverlapRectangle(
         RoomEnemySlot slot,
         Position16<RoomPixels> subject,
         Extent16<RoomPixels> subjectRadius)

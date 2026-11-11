@@ -390,7 +390,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                 // callback in every retail hitbox. Keep the callback check explicit: silently
                 // treating a later family-specific attack box as ordinary body contact would
                 // recreate the exact radius-flattening bug this path is intended to remove.
-                if (context.UsesExtendedHitboxes && context.HitboxTouchAi != EnemyReaction.SpacePirateTouch)
+                if (context.UsesFrameHitboxes && context.HitboxTouchAi != EnemyReaction.SpacePirateTouch)
                 {
                     throw new InvalidDataException(
                         $"Space Pirate hitbox touch AI {context.HitboxTouchAi?.ToString() ?? "(unnamed)"} is not translated.");

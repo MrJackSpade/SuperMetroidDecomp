@@ -40,8 +40,10 @@ A picture is only its colours. Each pixel is RGBA:
 
 Whether a clear pixel shows is decided by the layer that draws it, not by the pixel:
 
-- A layer drawn opaque shows a clear pixel's RGB. Gameplay's HUD band is drawn this way.
+- A layer drawn opaque shows a clear pixel's RGB exactly as it is stored. Gameplay's HUD band is drawn this way.
 - A see-through layer shows whatever lies behind a clear pixel. The pause screen's HUD is drawn this way.
+
+A clear pixel's colour is never recoloured: no shade names it, and it has no colour key.
 
 No installed file names a colour by its place in the cartridge's colour table, and no file holds a cartridge colour word.
 
@@ -119,8 +121,8 @@ The fields are:
 
 ### Colour keys and shades
 
-A shade recolours a picture by colour. A colour key is a colour the picture's pixels hold, together with its recolour
-region: `{ "colour": "#rrggbb", "region": n }`.
+A shade recolours a picture by colour. A colour key is a colour the picture's visible (opaque) pixels hold, or the
+backdrop's colour, together with its recolour region: `{ "colour": "#rrggbb", "region": n }`. Clear pixels have no key.
 
 - Region 0 is the usual case: every pixel of that colour recolours alike.
 - A region number only orders the groups of one colour that recolour alike. It stands for nothing else.
@@ -138,10 +140,9 @@ omitted when false.
 
 ## The recolour-region map
 
-A sheet has a recolour-region map only when some of its pixels share a colour but some shade recolours them differently.
-For example, a Torizo's shell and body can share a colour that its golden transition turns into two different colours.
-The keys of the clear pixels that keep no colour also matter here: they are black, and no shade ever recolours them. So
-where a shade recolours an opaque black, the clear black pixels lie in a region of black of their own.
+A sheet has a recolour-region map only when some of its opaque pixels share a colour but some shade recolours them
+differently. For example, a Torizo's shell and body can share a colour that its golden transition turns into two
+different colours. Regions are worked out over the opaque pixels and the backdrop only.
 
 The file is `game/recolour-regions/<family>/<sheet>.regions`, format revision 1. It is JSON:
 
@@ -152,7 +153,8 @@ The file is `game/recolour-regions/<family>/<sheet>.regions`, format revision 1.
 - `width` and `height` are the image's size.
 - `rows` holds one entry per pixel row, from the top.
 - Each row is a run-length list of `region, count` pairs, read from the left. A row's counts add up to exactly `width`.
-- Every pixel's region applies to the pixel's own colour in the picture.
+- Every opaque pixel's region applies to the pixel's own colour in the picture. Clear pixels are written as region 0
+  and are never recoloured.
 
 ## The blend map
 

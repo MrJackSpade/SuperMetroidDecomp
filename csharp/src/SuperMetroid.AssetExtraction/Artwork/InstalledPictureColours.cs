@@ -32,8 +32,9 @@ public static class InstalledPictureColours
 
     /// <summary>
     /// Keeps where the colours of <paramref name="picture"/>, installed from a sheet composed as <paramref name="composed"/>
-    /// whose pixels were composed as <paramref name="paletteIndices"/>, came from: for each of its colour keys, the composed
-    /// indices of its pixels of that key, and the backdrop's index under the backdrop's key.
+    /// whose pixels were composed as <paramref name="paletteIndices"/>, came from: for each colour key of its visible pixels,
+    /// the composed indices of its pixels of that key, and the backdrop's index under the backdrop's key. A clear pixel is
+    /// never keyed.
     /// </summary>
     /// <exception cref="ArgumentException">The indices are not one per pixel of the picture.</exception>
     /// <exception cref="InvalidDataException">
@@ -56,18 +57,23 @@ public static class InstalledPictureColours
             throw new InvalidDataException($"Sheet {picture.Name} names palette bits {composed.PaletteBits} for a {composed.Palette} image.");
         Ensure.LengthEqual(paletteIndices, picture.Size.X * picture.Size.Y);
         var indices = new Dictionary<ColourKey, SortedSet<int>>();
-        foreach (ColourKey key in picture.ColourKeys)
-            indices.Add(key, []);
         for (int pixel = 0; pixel < paletteIndices.Length; pixel++)
         {
-            // A clear pixel that keeps no colour was composed as no colour of the table.
-            if (InstalledSheetConversion.KindOf(composed.Palette, paletteIndices[pixel]) != ComposedPixelKind.Transparent)
-                indices[picture.KeyAt(pixel)].Add(paletteIndices[pixel]);
+            if (InstalledSheetConversion.KindOf(composed.Palette, paletteIndices[pixel]) is ComposedPixelKind.Opaque or ComposedPixelKind.Blending)
+                IndicesOf(indices, picture.KeyAt(pixel)).Add(paletteIndices[pixel]);
         }
         if (picture.Backdrop is { } backdrop && composed.Backdrop is { } index)
-            indices[backdrop].Add(index);
+            IndicesOf(indices, backdrop).Add(index);
         Recorded.AddOrUpdate(picture, new InstalledPictureColourSources(composed.Palette, backgroundSets, composed.PaletteBits,
             indices.ToImmutableDictionary(entry => entry.Key, entry => entry.Value.ToImmutableArray())));
+    }
+
+    /// <summary>The indices found so far of <paramref name="key"/>, started empty where it is new.</summary>
+    private static SortedSet<int> IndicesOf(Dictionary<ColourKey, SortedSet<int>> indices, ColourKey key)
+    {
+        if (!indices.TryGetValue(key, out SortedSet<int>? found))
+            indices.Add(key, found = []);
+        return found;
     }
 
     /// <summary>What was recorded for <paramref name="picture"/>.</summary>

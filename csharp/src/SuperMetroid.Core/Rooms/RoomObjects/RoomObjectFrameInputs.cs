@@ -9,7 +9,7 @@ public readonly record struct RoomObjectFrameInputs
     /// <summary>Scrolls.</summary>
     public required RoomScrollGrid? Scrolls { get; init; }
 
-    /// <summary>The room's kill count (<see cref="Enemies.EnemyRoomStatus.EnemiesKilled"/>), 0 through 65535.</summary>
+    /// <summary>The enemies killed in the room so far (<see cref="Enemies.EnemyRoomStatus.EnemiesKilled"/>).</summary>
     public required int EnemyDeaths { get; init; }
 
     /// <summary>The room's kill-count requirement for enemy-clear triggers, 0 through 255.</summary>

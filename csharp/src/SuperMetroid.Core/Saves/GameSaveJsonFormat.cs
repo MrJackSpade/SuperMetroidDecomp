@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Saves;
 
-/// <summary>Stable identifiers and geometry for the human-readable game-save envelope.</summary>
+/// <summary>Stable identifiers of the human-readable game-save envelope.</summary>
 public static class GameSaveJsonFormat
 {
     /// <summary>
@@ -11,9 +11,6 @@ public static class GameSaveJsonFormat
     /// map by area (#1475). The hosts' legacy importer upgrades schemas one through six.
     /// </summary>
     public const int SchemaVersion = 7;
-
-    /// <summary>Bytes per legacy schema-one import page; never emitted by schemas two and three.</summary>
-    public const int PreservationPageSize = 256;
 
     /// <summary>Extension replacing the emulator-oriented <c>.srm</c> host file.</summary>
     public const string FileExtension = ".save.json";

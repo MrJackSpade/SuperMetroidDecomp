@@ -351,10 +351,13 @@ public static class LegacyGameSaveJson
         root.Remove("preservedUntranslatedSram");
     }
 
+    /// <summary>Bytes per page of the save image schema one preserved; no later schema has pages.</summary>
+    private const int PreservationPageSize = 256;
+
     /// <summary>Validates the older page-preservation format before upgrading named save data.</summary>
     private static byte[] DecodeLegacyPages(JsonArray pages)
     {
-        int size = GameSaveJsonFormat.PreservationPageSize;
+        int size = PreservationPageSize;
         int expectedPages = SaveRamLayout.ImageByteCount / size;
         if (pages.Count != expectedPages)
             throw new InvalidDataException($"preservedUntranslatedSram must contain {expectedPages} pages");

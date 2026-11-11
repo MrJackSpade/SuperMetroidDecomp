@@ -16,7 +16,7 @@ internal static class EnemyFrameLocationTooling
     }
 
     /// <summary>The cartridge location of a composition's frame.</summary>
-    extension(EnemySpritemapDefinition definition)
+    extension(EnemyFrameName definition)
     {
         /// <summary>The bank-local word the composition's frame is stored at.</summary>
         internal ushort Pointer => EnemyFrameCartridgeLookupTooling.Word(definition.Frame);

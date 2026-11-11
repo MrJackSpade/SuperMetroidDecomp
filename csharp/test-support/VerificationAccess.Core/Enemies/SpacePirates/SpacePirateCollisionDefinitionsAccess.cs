@@ -20,12 +20,12 @@ internal static class SpacePirateCollisionDefinitionsAccess
         internal static SpacePirateCollisionFrame Frame(int index)
         {
             KeyValuePair<EnemyFrameId, EnemyCollisionComponent[]> frame = SpacePirateCollisionDefinitions.Frames.ElementAt(index);
-            return new(EnemyFrameCartridgeLookupTooling.Word(frame.Key), frame.Value);
+            return new(EnemyFrameCartridgeLookupTooling.FrameHitboxWord(frame.Key), frame.Value);
         }
 
         /// <summary>The components of the frame at native address <paramref name="pointer"/>.</summary>
         internal static ReadOnlySpan<EnemyCollisionComponent> ComponentsAt(ushort pointer) =>
-            pointer == CommonEnemyEmptyExtendedFrameToolingDefinitionsConstants.Frame || RoomEnemySlotFrameAccess.Shows(SpacePiratesBank, pointer)
+            pointer == CommonEnemyEmptyFrameToolingDefinitionsConstants.Frame || RoomEnemySlotFrameAccess.Shows(SpacePiratesBank, pointer)
                 ? SpacePirateCollisionDefinitions.Frames.Of(RoomEnemySlotFrameAccess.FrameAt(SpacePiratesBank, pointer))
                 : throw new InvalidDataException($"Space Pirate collision frame $B2:{pointer:X4} is not compiled.");
     }

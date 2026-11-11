@@ -28,7 +28,7 @@ public static class EnemyExtendedFrameDocuments
         var identities = new Dictionary<string, EnemyFrameId>(StringComparer.Ordinal);
         // Display bindings stay within a family, judged by the frames' names.
         var familyNames = new Dictionary<EnemyFrameId, string>();
-        foreach (EnemySpritemapDefinition definition in expected)
+        foreach (EnemyFrameName definition in expected)
         {
             string authoredName = definition.Name;
             familyNames.Add(definition.Frame, definition.Name);

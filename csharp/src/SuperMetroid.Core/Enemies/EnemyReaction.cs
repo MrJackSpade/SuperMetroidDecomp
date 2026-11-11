@@ -120,7 +120,7 @@ public enum EnemyReaction
     FakeKraidShot,
     /// <summary>Ceres steam touch reaction.</summary>
     CeresSteamTouch,
-    /// <summary>Ridley extended-spritemap touch reaction.</summary>
+    /// <summary>Ridley's frame-hitbox touch reaction.</summary>
     RidleyExtendedTouch,
     /// <summary>Ridley shot reaction.</summary>
     RidleyShot,

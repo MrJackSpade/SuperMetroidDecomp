@@ -66,7 +66,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         AssertTrue(stock.Enemies.ExtendedFrames is not null,
             "installed enemy catalog contains extended visual compositions");
         var guard = NewExtendedVisualReadGuard(rom, out Action<byte, ushort> guardBlockFrame);
-        foreach (EnemySpritemapDefinition frame in EnemyExtendedFrameDefinitions.Frames)
+        foreach (EnemyFrameName frame in EnemyExtendedFrameDefinitions.Frames)
         {
             guardBlockFrame(frame.Bank, frame.Pointer);
             AssertTrue((stock.Enemies.ExtendedFrames ?? throw new InvalidOperationException("Verification requires stock.ExtendedFrames.")).TryGet(frame.Bank, frame.Pointer, out _),
@@ -101,7 +101,7 @@ internal static class EnemyExtendedFrameArtworkVerification
                 frame => frame.Name.StartsWith("ninja_pirate_", StringComparison.Ordinal)),
             "all ninja-Pirate visual frame identities are installed");
         var differing = new List<string>();
-        foreach (EnemySpritemapDefinition frame in EnemyExtendedFrameDefinitions.Frames)
+        foreach (EnemyFrameName frame in EnemyExtendedFrameDefinitions.Frames)
         {
             foreach ((ushort x, ushort y) in new VerifyInstalledEnemyExtendedFramesCase[]
                      {
@@ -281,7 +281,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         // whether his body draws in the hurt flash; this fixture's animation is off and its latch holds his own colours.
         if (slot.DefinitionId == EnemyDefinitionId.Ridley)
             enemies.RidleyEncounter.Ridley = new RidleyEnemyState();
-        slot.DrawsExtendedFrames = true;
+        slot.CollidesByFrameHitboxes = true;
         slot.Frame = frame;
         if (frame is { } shown)
             SpawnedObjectFixtures.ShowDrawnLooks(enemies, SuperMetroid.AssetExtraction.Enemies.FrameDrawings.Of(shown));

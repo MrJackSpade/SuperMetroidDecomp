@@ -187,30 +187,33 @@ internal static class AuditContractChecks
     private static void ConfirmEmptyFrameBoundary()
     {
         // Confirmation of the identified A8/B3 blank-frame false positives.
-        ushort empty = CommonEnemyEmptyExtendedFrameToolingDefinitions.EmptySpritemap;
-        Require(CommonEnemyEmptyExtendedFrameToolingDefinitions.HasEmptySpritemap(0xa8, empty) &&
-            CommonEnemyEmptyExtendedFrameToolingDefinitions.HasEmptySpritemap(0xb3, empty),
+        ushort empty = CommonEnemyEmptyFrameToolingDefinitions.EmptySpritemap;
+        Require(CommonEnemyEmptyFrameToolingDefinitions.HasEmptySpritemap(0xa8, empty) &&
+            CommonEnemyEmptyFrameToolingDefinitions.HasEmptySpritemap(0xb3, empty),
             "the two reported identities must be compiled no-op frames");
-        Require(!CommonEnemyEmptyExtendedFrameToolingDefinitions.HasEmptySpritemap(0xb5, empty) &&
-            !CommonEnemyEmptyExtendedFrameToolingDefinitions.HasEmptySpritemap(0xa8, unchecked((ushort)(empty + 1))),
+        Require(!CommonEnemyEmptyFrameToolingDefinitions.HasEmptySpritemap(0xb5, empty) &&
+            !CommonEnemyEmptyFrameToolingDefinitions.HasEmptySpritemap(0xa8, unchecked((ushort)(empty + 1))),
             "unsupported banks and neighboring pointers must not be classified as empty artwork");
         var exports = new ResourceIndex();
         exports.Add(ResourceDomains.EnemyDisplay, ResourceIndex.Address(0xa8, empty));
         Require(!exports.Contains(ResourceDomains.EnemySimple, ResourceIndex.Address(0xa8, empty)),
             "a compiled renderer no-op must not imply an installed catalog entry");
         const string renderer = "class Fixture { " +
-            "void Advance(EnemyFrameId[] frames) { foreach (EnemyFrameId frame in frames) " +
-            "prepared.Add(new PreparedEnemyDraw(frame, Pictured: !CommonEnemyEmptyFrames.DrawsNothing(frame))); } " +
+            "bool TryGetDisplay(EnemyFrameId frame, out bool pictured) { if (CommonEnemyEmptyFrames.DrawsNothing(frame)) { pictured = false; return true; } " +
+            "pictured = true; return true; } " +
+            "void Advance(EnemyFrameId[] frames) { foreach (EnemyFrameId shown in frames) { displays.TryGetDisplay(shown, out bool pictured); " +
+            "prepared.Add(new PreparedEnemyDraw(shown, pictured)); } } " +
             "void Draw() { foreach (PreparedEnemyDraw draw in prepared) { if (draw.Pictured) DrawArt(); } } }";
         bool Recognized(string text)
         {
             SyntaxTree tree = CSharpSyntaxTree.ParseText(text);
-            return CompiledEnemyDisplayAudit.HasNoOpBranch(CompiledEnemyDisplayAudit.Method(tree, "Advance"),
-                CompiledEnemyDisplayAudit.Method(tree, "Draw"));
+            return CompiledEnemyDisplayAudit.HasNoOpBranch(CompiledEnemyDisplayAudit.Method(tree, "TryGetDisplay"),
+                CompiledEnemyDisplayAudit.Method(tree, "Advance"), CompiledEnemyDisplayAudit.Method(tree, "Draw"));
         }
         Require(Recognized(renderer), "the precise reviewed no-op branch must be recognized");
         Require(!Recognized(renderer.Replace("if (draw.Pictured) DrawArt();", "DrawArt();", StringComparison.Ordinal)) &&
-            !Recognized(renderer.Replace("!CommonEnemyEmptyFrames.DrawsNothing(frame)", "true", StringComparison.Ordinal)) &&
+            !Recognized(renderer.Replace("{ pictured = false; return true; }", "{ pictured = true; return true; }", StringComparison.Ordinal)) &&
+            !Recognized(renderer.Replace("new PreparedEnemyDraw(shown, pictured)", "new PreparedEnemyDraw(shown, true)", StringComparison.Ordinal)) &&
             !Recognized(renderer.Replace("CommonEnemyEmptyFrames.DrawsNothing", "CommonEnemyEmptyFrames.DrawsSomething", StringComparison.Ordinal)),
             "changed behavior or identity arguments must invalidate the reviewed classification");
     }

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
 /// Immutable physical components and ordered touch/shot rectangles selected by
-/// the 22 Kraid-arm extended frames. The second ten frames
+/// the 22 Kraid-arm frames. The second ten frames
 /// reuse the first ten physical layouts but have independent editable sprite art.
 /// </summary>
 internal static class KraidArmCollisionDefinitions

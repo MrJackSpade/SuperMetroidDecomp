@@ -4,8 +4,8 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Owned collision for Mother Brain's extended frames, read by the
-/// shot and contact collision walkers for both the body and the head, whose dummy list keeps
+/// Owned collision for Mother Brain's frames, read by the
+/// shot and contact frame-hitbox tests for both the body and the head, whose dummy list keeps
 /// its dummy root for life. Each root lists component offsets, each with the hitbox list
 /// holding its rectangles; the sprite and body-layer art the same roots reference is replaceable.
 /// </summary>

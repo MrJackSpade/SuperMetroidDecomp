@@ -19,7 +19,7 @@ internal sealed class MaridiaLargeSnailEntity(MaridiaLargeSnailBehavior species,
     /// <inheritdoc/>
     public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) => MaridiaLargeSnailBehavior.FindHitboxReaction(Slot, probe, out reaction);
 
-    /// <summary>The large snail's contact and shots both enter the extended-spritemap walker over its own hitboxes.</summary>
+    /// <summary>The large snail's contact and shots both meet its own frames' hitboxes.</summary>
     public override EnemyCapabilities Capabilities =>
         EnemyCapabilities.ExtendedSamusHitboxes | EnemyCapabilities.ExtendedProjectileHitboxes;
 

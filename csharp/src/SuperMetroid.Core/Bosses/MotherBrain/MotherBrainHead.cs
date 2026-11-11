@@ -102,10 +102,8 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>
-    /// Draws her brain, and her neck when it is shown, after the ordinary enemy queues have
-    /// been written. The source is an ordinary spritemap even though the population
-    /// record carries the extended-spritemap property; routing it through the generic
-    /// extended parser is precisely the corruption her own brain draw avoids.
+    /// Draws her brain, and her neck when it is shown, after every queued enemy has been drawn. The brain is shown by
+    /// her own draw rather than the common enemy draw, although her population entry collides by its frames' hitboxes.
     /// </summary>
     internal void DrawMotherBrainBrainAndNeck(SpriteFrameBuffer sprites, Position16<RoomPixels> camera)
     {

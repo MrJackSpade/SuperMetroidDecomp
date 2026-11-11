@@ -12,7 +12,7 @@ internal static class BotwoonVisualDefinitionsConstants
     internal static ushort HeadSpritemap(BotwoonHeadFrame frame)
     {
         if (!frame.Visible)
-            return CommonEnemyEmptyExtendedFrameToolingDefinitions.EmptySpritemap;
+            return CommonEnemyEmptyFrameToolingDefinitions.EmptySpritemap;
         return frame.MouthOpen ? OpenMouth(frame.Facing) : ClosedMouth(frame.Facing);
     }
     /// <summary>The sixteen visible head frames as installed artwork, closed then open, in physical order.</summary>

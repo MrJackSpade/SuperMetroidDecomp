@@ -21,7 +21,7 @@ internal sealed class CeresSteamEntity(CeresSteamBehavior species, RoomEnemySlot
     /// <inheritdoc/>
     public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) => CeresSteamBehavior.FindHitboxReaction(Slot, probe, out reaction);
 
-    /// <summary>The steam's contact and shots both enter the extended-spritemap walker over its own hitboxes.</summary>
+    /// <summary>The steam's contact and shots both meet its own frames' hitboxes.</summary>
     public override EnemyCapabilities Capabilities =>
         EnemyCapabilities.ExtendedSamusHitboxes | EnemyCapabilities.ExtendedProjectileHitboxes;
 }

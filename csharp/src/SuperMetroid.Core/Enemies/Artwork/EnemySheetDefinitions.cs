@@ -11,7 +11,7 @@ public static class EnemySheetDefinitions
     /// <summary>The spawned-object sheet frame showing a frame an encounter draws itself (#1392).</summary>
     public static string EncounterFrameName(EnemyFrameId frame) => $"Encounter.{EnemyFrameSheetKeys.Of(frame)}";
 
-    /// <summary>The sheet frame showing an ordinary or extended enemy frame whole: its installed key (<see cref="EnemyFrameSheetKeys"/>), never its identity's name.</summary>
+    /// <summary>The sheet frame showing an enemy frame whole: its installed key (<see cref="EnemyFrameSheetKeys"/>), never its identity's name.</summary>
     public static string FrameName(EnemyFrameId frame) => EnemyFrameSheetKeys.Of(frame);
 
     /// <summary>The spawned-object sheet frame showing an enemy projectile frame.</summary>

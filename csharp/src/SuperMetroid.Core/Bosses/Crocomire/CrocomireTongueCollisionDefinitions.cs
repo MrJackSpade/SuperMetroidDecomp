@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// All nine extended frames selected by Crocomire's independently scheduled
+/// All nine frames selected by Crocomire's independently scheduled
 /// tongue actor. The four fight frames refer to one empty hitbox
 /// list; the five melting frames refer to another. Their sprite
 /// art is deliberately absent so presentation can be edited separately.

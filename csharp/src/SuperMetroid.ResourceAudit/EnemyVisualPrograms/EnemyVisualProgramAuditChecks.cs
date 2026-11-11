@@ -52,7 +52,7 @@ internal static class EnemyVisualProgramAuditChecks
                 .SequenceEqual([FixtureOperand]),
             "terminal frame operands cannot escape the independent inventory");
 
-        EnemySpritemapDefinition frame = EnemyCompositionSchemaTooling.Family("kzan_").Single();
+        EnemyFrameName frame = EnemyCompositionSchemaTooling.Family("kzan_").Single();
         ushort operand = FixtureOperand;
         var exports = new ResourceIndex();
         exports.Add(ResourceDomains.EnemyDisplay, ResourceIndex.Address(frame.Bank, frame.Pointer));

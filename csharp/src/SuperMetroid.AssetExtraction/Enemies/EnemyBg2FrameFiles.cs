@@ -23,12 +23,12 @@ internal static class EnemyBg2FrameFiles
     /// cartridge tilemap entry is decoded once into the editable cell of the tile it places.
     /// </summary>
     internal static byte[] Extract(ISnesAddressSpace bus,
-        ImmutableArray<EnemySpritemapDefinition> definitions, int version,
+        ImmutableArray<EnemyFrameName> definitions, int version,
         int maximumComponents, string family, bool allowMixedOam = false)
     {
         Ensure.NotNull(bus);
         var frames = new Dictionary<string, EnemyBg2WriteDocument[]>(StringComparer.Ordinal);
-        foreach (EnemySpritemapDefinition frame in definitions)
+        foreach (EnemyFrameName frame in definitions)
         {
             SnesAddress location = EnemyFrameCartridgeLookup.Of(frame.Frame);
             int bank = location.Bank;

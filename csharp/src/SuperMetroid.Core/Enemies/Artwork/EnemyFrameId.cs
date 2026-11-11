@@ -1,4015 +1,4016 @@
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
-/// The frames an enemy shows: every installed spritemap and extended frame in schema order, and the shared empty frames
-/// every enemy family repeats. Each is named for its owner and its place among that owner's frames (the pose, index or part
-/// its frame table selects it by); each cites its installed composition, whose name also gives its installed sheet key
-/// (<see cref="EnemyFrameSheetKeys"/>), so a frame's name never reaches a file.
+/// The frames an enemy shows: every installed enemy frame, and the empty frame every enemy family shares. Each is named for
+/// its owner and its place among that owner's frames (the pose, index or part its frame table selects it by); each cites
+/// the name the installed artwork gives it (<see cref="EnemyFrameNameDefinitions"/>), which also gives its installed sheet
+/// key (<see cref="EnemyFrameSheetKeys"/>), so a frame's identity never reaches a file.
 /// </summary>
 public enum EnemyFrameId
 {
-    /// <summary><c>boyon_idle_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>boyon_idle_0</c>.</summary>
     BoyonIdle0 = 1,
-    /// <summary><c>boyon_idle_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>boyon_idle_1</c>.</summary>
     BoyonIdle1,
-    /// <summary><c>boyon_idle_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>boyon_idle_2</c>.</summary>
     BoyonIdle2,
-    /// <summary><c>boyon_bounce_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>boyon_bounce_0</c>.</summary>
     BoyonBounce0,
-    /// <summary><c>boyon_bounce_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>boyon_bounce_1</c>.</summary>
     BoyonBounce1,
-    /// <summary><c>boyon_bounce_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>boyon_bounce_2</c>.</summary>
     BoyonBounce2,
-    /// <summary><c>boyon_bounce_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>boyon_bounce_3</c>.</summary>
     BoyonBounce3,
-    /// <summary><c>cacatac_upright_idle_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>cacatac_upright_idle_0</c>.</summary>
     CacatacUprightIdle0,
-    /// <summary><c>cacatac_upright_idle_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>cacatac_upright_idle_1</c>.</summary>
     CacatacUprightIdle1,
-    /// <summary><c>cacatac_upright_idle_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>cacatac_upright_idle_2</c>.</summary>
     CacatacUprightIdle2,
-    /// <summary><c>cacatac_upright_idle_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>cacatac_upright_idle_3</c>.</summary>
     CacatacUprightIdle3,
-    /// <summary><c>cacatac_upright_idle_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>cacatac_upright_idle_4</c>.</summary>
     CacatacUprightIdle4,
-    /// <summary><c>cacatac_upright_idle_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>cacatac_upright_idle_5</c>.</summary>
     CacatacUprightIdle5,
-    /// <summary><c>cacatac_upright_idle_6</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>cacatac_upright_idle_6</c>.</summary>
     CacatacUprightIdle6,
-    /// <summary><c>cacatac_upright_idle_7</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>cacatac_upright_idle_7</c>.</summary>
     CacatacUprightIdle7,
-    /// <summary><c>cacatac_upright_attack_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>cacatac_upright_attack_1</c>.</summary>
     CacatacUprightAttack1,
-    /// <summary><c>cacatac_upright_attack_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>cacatac_upright_attack_2</c>.</summary>
     CacatacUprightAttack2,
-    /// <summary><c>cacatac_inverted_idle_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>cacatac_inverted_idle_0</c>.</summary>
     CacatacInvertedIdle0,
-    /// <summary><c>cacatac_inverted_idle_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>cacatac_inverted_idle_1</c>.</summary>
     CacatacInvertedIdle1,
-    /// <summary><c>cacatac_inverted_idle_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>cacatac_inverted_idle_2</c>.</summary>
     CacatacInvertedIdle2,
-    /// <summary><c>cacatac_inverted_idle_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>cacatac_inverted_idle_3</c>.</summary>
     CacatacInvertedIdle3,
-    /// <summary><c>cacatac_inverted_idle_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>cacatac_inverted_idle_4</c>.</summary>
     CacatacInvertedIdle4,
-    /// <summary><c>cacatac_inverted_idle_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>cacatac_inverted_idle_5</c>.</summary>
     CacatacInvertedIdle5,
-    /// <summary><c>cacatac_inverted_idle_6</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>cacatac_inverted_idle_6</c>.</summary>
     CacatacInvertedIdle6,
-    /// <summary><c>cacatac_inverted_idle_7</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>cacatac_inverted_idle_7</c>.</summary>
     CacatacInvertedIdle7,
-    /// <summary><c>cacatac_inverted_attack_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>cacatac_inverted_attack_1</c>.</summary>
     CacatacInvertedAttack1,
-    /// <summary><c>cacatac_inverted_attack_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>cacatac_inverted_attack_2</c>.</summary>
     CacatacInvertedAttack2,
-    /// <summary><c>boulder_roll_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>boulder_roll_0</c>.</summary>
     BoulderRoll0,
-    /// <summary><c>boulder_roll_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>boulder_roll_1</c>.</summary>
     BoulderRoll1,
-    /// <summary><c>boulder_roll_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>boulder_roll_2</c>.</summary>
     BoulderRoll2,
-    /// <summary><c>boulder_roll_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>boulder_roll_3</c>.</summary>
     BoulderRoll3,
-    /// <summary><c>boulder_roll_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>boulder_roll_4</c>.</summary>
     BoulderRoll4,
-    /// <summary><c>boulder_roll_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>boulder_roll_5</c>.</summary>
     BoulderRoll5,
-    /// <summary><c>boulder_roll_6</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>boulder_roll_6</c>.</summary>
     BoulderRoll6,
-    /// <summary><c>boulder_roll_7</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>boulder_roll_7</c>.</summary>
     BoulderRoll7,
-    /// <summary><c>atomic_up_right_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>atomic_up_right_0</c>.</summary>
     AtomicUpRight0,
-    /// <summary><c>atomic_up_right_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>atomic_up_right_1</c>.</summary>
     AtomicUpRight1,
-    /// <summary><c>atomic_up_right_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>atomic_up_right_2</c>.</summary>
     AtomicUpRight2,
-    /// <summary><c>atomic_up_right_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>atomic_up_right_3</c>.</summary>
     AtomicUpRight3,
-    /// <summary><c>atomic_up_right_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>atomic_up_right_4</c>.</summary>
     AtomicUpRight4,
-    /// <summary><c>atomic_up_right_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>atomic_up_right_5</c>.</summary>
     AtomicUpRight5,
-    /// <summary><c>atomic_up_left_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>atomic_up_left_0</c>.</summary>
     AtomicUpLeft0,
-    /// <summary><c>atomic_up_left_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>atomic_up_left_1</c>.</summary>
     AtomicUpLeft1,
-    /// <summary><c>atomic_up_left_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>atomic_up_left_2</c>.</summary>
     AtomicUpLeft2,
-    /// <summary><c>atomic_up_left_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>atomic_up_left_3</c>.</summary>
     AtomicUpLeft3,
-    /// <summary><c>atomic_up_left_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>atomic_up_left_4</c>.</summary>
     AtomicUpLeft4,
-    /// <summary><c>atomic_up_left_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>atomic_up_left_5</c>.</summary>
     AtomicUpLeft5,
-    /// <summary><c>skultera_swim_left_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>skultera_swim_left_0</c>.</summary>
     SkulteraSwimLeft0,
-    /// <summary><c>skultera_swim_left_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>skultera_swim_left_1</c>.</summary>
     SkulteraSwimLeft1,
-    /// <summary><c>skultera_swim_left_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>skultera_swim_left_2</c>.</summary>
     SkulteraSwimLeft2,
-    /// <summary><c>skultera_turn_right_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>skultera_turn_right_0</c>.</summary>
     SkulteraTurnRight0,
-    /// <summary><c>skultera_turn_right_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>skultera_turn_right_1</c>.</summary>
     SkulteraTurnRight1,
-    /// <summary><c>skultera_turn_right_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>skultera_turn_right_2</c>.</summary>
     SkulteraTurnRight2,
-    /// <summary><c>skultera_turn_right_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>skultera_turn_right_3</c>.</summary>
     SkulteraTurnRight3,
-    /// <summary><c>skultera_turn_right_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>skultera_turn_right_4</c>.</summary>
     SkulteraTurnRight4,
-    /// <summary><c>skultera_turn_right_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>skultera_turn_right_5</c>.</summary>
     SkulteraTurnRight5,
-    /// <summary><c>skultera_turn_right_6</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>skultera_turn_right_6</c>.</summary>
     SkulteraTurnRight6,
-    /// <summary><c>skultera_turn_right_7</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>skultera_turn_right_7</c>.</summary>
     SkulteraTurnRight7,
-    /// <summary><c>skultera_swim_right_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>skultera_swim_right_0</c>.</summary>
     SkulteraSwimRight0,
-    /// <summary><c>skultera_swim_right_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>skultera_swim_right_1</c>.</summary>
     SkulteraSwimRight1,
-    /// <summary><c>skultera_swim_right_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>skultera_swim_right_2</c>.</summary>
     SkulteraSwimRight2,
-    /// <summary><c>skultera_turn_left_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>skultera_turn_left_0</c>.</summary>
     SkulteraTurnLeft0,
-    /// <summary><c>skultera_turn_left_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>skultera_turn_left_1</c>.</summary>
     SkulteraTurnLeft1,
-    /// <summary><c>skultera_turn_left_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>skultera_turn_left_2</c>.</summary>
     SkulteraTurnLeft2,
-    /// <summary><c>skultera_turn_left_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>skultera_turn_left_3</c>.</summary>
     SkulteraTurnLeft3,
-    /// <summary><c>skultera_turn_left_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>skultera_turn_left_4</c>.</summary>
     SkulteraTurnLeft4,
-    /// <summary><c>skultera_turn_left_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>skultera_turn_left_5</c>.</summary>
     SkulteraTurnLeft5,
-    /// <summary><c>skultera_turn_left_6</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>skultera_turn_left_6</c>.</summary>
     SkulteraTurnLeft6,
-    /// <summary><c>skultera_turn_left_7</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>skultera_turn_left_7</c>.</summary>
     SkulteraTurnLeft7,
-    /// <summary><c>waver_steady_left</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>waver_steady_left</c>.</summary>
     WaverSteadyLeft,
-    /// <summary><c>waver_steady_right</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>waver_steady_right</c>.</summary>
     WaverSteadyRight,
-    /// <summary><c>waver_spin_left_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>waver_spin_left_0</c>.</summary>
     WaverSpinLeft0,
-    /// <summary><c>waver_spin_left_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>waver_spin_left_1</c>.</summary>
     WaverSpinLeft1,
-    /// <summary><c>waver_spin_left_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>waver_spin_left_2</c>.</summary>
     WaverSpinLeft2,
-    /// <summary><c>waver_spin_left_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>waver_spin_left_3</c>.</summary>
     WaverSpinLeft3,
-    /// <summary><c>waver_spin_right_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>waver_spin_right_0</c>.</summary>
     WaverSpinRight0,
-    /// <summary><c>waver_spin_right_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>waver_spin_right_1</c>.</summary>
     WaverSpinRight1,
-    /// <summary><c>waver_spin_right_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>waver_spin_right_2</c>.</summary>
     WaverSpinRight2,
-    /// <summary><c>waver_spin_right_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>waver_spin_right_3</c>.</summary>
     WaverSpinRight3,
-    /// <summary><c>metaree_idle_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>metaree_idle_0</c>.</summary>
     MetareeIdle0,
-    /// <summary><c>metaree_idle_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>metaree_idle_1</c>.</summary>
     MetareeIdle1,
-    /// <summary><c>metaree_idle_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>metaree_idle_2</c>.</summary>
     MetareeIdle2,
-    /// <summary><c>metaree_idle_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>metaree_idle_3</c>.</summary>
     MetareeIdle3,
-    /// <summary><c>metaree_prepare_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>metaree_prepare_1</c>.</summary>
     MetareePrepare1,
-    /// <summary><c>skree_idle_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>skree_idle_0</c>.</summary>
     SkreeIdle0,
-    /// <summary><c>skree_idle_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>skree_idle_1</c>.</summary>
     SkreeIdle1,
-    /// <summary><c>skree_idle_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>skree_idle_2</c>.</summary>
     SkreeIdle2,
-    /// <summary><c>skree_idle_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>skree_idle_3</c>.</summary>
     SkreeIdle3,
-    /// <summary><c>skree_prepare_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>skree_prepare_1</c>.</summary>
     SkreePrepare1,
-    /// <summary><c>zoa_shoot_left_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zoa_shoot_left_0</c>.</summary>
     ZoaShootLeft0,
-    /// <summary><c>zoa_shoot_left_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zoa_shoot_left_1</c>.</summary>
     ZoaShootLeft1,
-    /// <summary><c>zoa_shoot_left_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zoa_shoot_left_2</c>.</summary>
     ZoaShootLeft2,
-    /// <summary><c>zoa_rise_left_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zoa_rise_left_0</c>.</summary>
     ZoaRiseLeft0,
-    /// <summary><c>zoa_rise_left_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zoa_rise_left_1</c>.</summary>
     ZoaRiseLeft1,
-    /// <summary><c>zoa_rise_left_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zoa_rise_left_2</c>.</summary>
     ZoaRiseLeft2,
-    /// <summary><c>zoa_shoot_right_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zoa_shoot_right_0</c>.</summary>
     ZoaShootRight0,
-    /// <summary><c>zoa_shoot_right_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zoa_shoot_right_1</c>.</summary>
     ZoaShootRight1,
-    /// <summary><c>zoa_shoot_right_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zoa_shoot_right_2</c>.</summary>
     ZoaShootRight2,
-    /// <summary><c>zoa_rise_right_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zoa_rise_right_0</c>.</summary>
     ZoaRiseRight0,
-    /// <summary><c>zoa_rise_right_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zoa_rise_right_1</c>.</summary>
     ZoaRiseRight1,
-    /// <summary><c>zoa_rise_right_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zoa_rise_right_2</c>.</summary>
     ZoaRiseRight2,
-    /// <summary><c>pipe_brinstar_normal_left_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_brinstar_normal_left_0</c>.</summary>
     PipeBrinstarNormalLeft0,
-    /// <summary><c>pipe_brinstar_normal_left_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_brinstar_normal_left_1</c>.</summary>
     PipeBrinstarNormalLeft1,
-    /// <summary><c>pipe_brinstar_normal_left_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_brinstar_normal_left_2</c>.</summary>
     PipeBrinstarNormalLeft2,
-    /// <summary><c>pipe_brinstar_normal_left_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_brinstar_normal_left_3</c>.</summary>
     PipeBrinstarNormalLeft3,
-    /// <summary><c>pipe_brinstar_normal_left_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_brinstar_normal_left_4</c>.</summary>
     PipeBrinstarNormalLeft4,
-    /// <summary><c>pipe_brinstar_normal_right_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_brinstar_normal_right_0</c>.</summary>
     PipeBrinstarNormalRight0,
-    /// <summary><c>pipe_brinstar_normal_right_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_brinstar_normal_right_1</c>.</summary>
     PipeBrinstarNormalRight1,
-    /// <summary><c>pipe_brinstar_normal_right_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_brinstar_normal_right_2</c>.</summary>
     PipeBrinstarNormalRight2,
-    /// <summary><c>pipe_brinstar_normal_right_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_brinstar_normal_right_3</c>.</summary>
     PipeBrinstarNormalRight3,
-    /// <summary><c>pipe_brinstar_normal_right_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_brinstar_normal_right_4</c>.</summary>
     PipeBrinstarNormalRight4,
-    /// <summary><c>pipe_brinstar_strong_shoot_left_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_brinstar_strong_shoot_left_0</c>.</summary>
     PipeBrinstarStrongShootLeft0,
-    /// <summary><c>pipe_brinstar_strong_shoot_left_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_brinstar_strong_shoot_left_1</c>.</summary>
     PipeBrinstarStrongShootLeft1,
-    /// <summary><c>pipe_brinstar_strong_shoot_left_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_brinstar_strong_shoot_left_2</c>.</summary>
     PipeBrinstarStrongShootLeft2,
-    /// <summary><c>pipe_brinstar_strong_rise_left_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_brinstar_strong_rise_left_0</c>.</summary>
     PipeBrinstarStrongRiseLeft0,
-    /// <summary><c>pipe_brinstar_strong_rise_left_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_brinstar_strong_rise_left_1</c>.</summary>
     PipeBrinstarStrongRiseLeft1,
-    /// <summary><c>pipe_brinstar_strong_rise_left_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_brinstar_strong_rise_left_2</c>.</summary>
     PipeBrinstarStrongRiseLeft2,
-    /// <summary><c>pipe_brinstar_strong_shoot_right_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_brinstar_strong_shoot_right_0</c>.</summary>
     PipeBrinstarStrongShootRight0,
-    /// <summary><c>pipe_brinstar_strong_shoot_right_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_brinstar_strong_shoot_right_1</c>.</summary>
     PipeBrinstarStrongShootRight1,
-    /// <summary><c>pipe_brinstar_strong_shoot_right_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_brinstar_strong_shoot_right_2</c>.</summary>
     PipeBrinstarStrongShootRight2,
-    /// <summary><c>pipe_brinstar_strong_rise_right_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_brinstar_strong_rise_right_0</c>.</summary>
     PipeBrinstarStrongRiseRight0,
-    /// <summary><c>pipe_brinstar_strong_rise_right_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_brinstar_strong_rise_right_1</c>.</summary>
     PipeBrinstarStrongRiseRight1,
-    /// <summary><c>pipe_brinstar_strong_rise_right_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_brinstar_strong_rise_right_2</c>.</summary>
     PipeBrinstarStrongRiseRight2,
-    /// <summary><c>pipe_norfair_left_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_norfair_left_0</c>.</summary>
     PipeNorfairLeft0,
-    /// <summary><c>pipe_norfair_left_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_norfair_left_1</c>.</summary>
     PipeNorfairLeft1,
-    /// <summary><c>pipe_norfair_left_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_norfair_left_2</c>.</summary>
     PipeNorfairLeft2,
-    /// <summary><c>pipe_norfair_left_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_norfair_left_3</c>.</summary>
     PipeNorfairLeft3,
-    /// <summary><c>pipe_norfair_left_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_norfair_left_4</c>.</summary>
     PipeNorfairLeft4,
-    /// <summary><c>pipe_norfair_right_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_norfair_right_0</c>.</summary>
     PipeNorfairRight0,
-    /// <summary><c>pipe_norfair_right_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_norfair_right_1</c>.</summary>
     PipeNorfairRight1,
-    /// <summary><c>pipe_norfair_right_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_norfair_right_2</c>.</summary>
     PipeNorfairRight2,
-    /// <summary><c>pipe_norfair_right_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_norfair_right_3</c>.</summary>
     PipeNorfairRight3,
-    /// <summary><c>pipe_norfair_right_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_norfair_right_4</c>.</summary>
     PipeNorfairRight4,
-    /// <summary><c>pipe_yellow_fly_left_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_yellow_fly_left_0</c>.</summary>
     PipeYellowFlyLeft0,
-    /// <summary><c>pipe_yellow_fly_left_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_yellow_fly_left_1</c>.</summary>
     PipeYellowFlyLeft1,
-    /// <summary><c>pipe_yellow_fly_left_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_yellow_fly_left_2</c>.</summary>
     PipeYellowFlyLeft2,
-    /// <summary><c>pipe_yellow_arc_left_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_yellow_arc_left_0</c>.</summary>
     PipeYellowArcLeft0,
-    /// <summary><c>pipe_yellow_arc_left_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_yellow_arc_left_1</c>.</summary>
     PipeYellowArcLeft1,
-    /// <summary><c>pipe_yellow_arc_left_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_yellow_arc_left_2</c>.</summary>
     PipeYellowArcLeft2,
-    /// <summary><c>pipe_yellow_fly_right_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_yellow_fly_right_0</c>.</summary>
     PipeYellowFlyRight0,
-    /// <summary><c>pipe_yellow_fly_right_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_yellow_fly_right_1</c>.</summary>
     PipeYellowFlyRight1,
-    /// <summary><c>pipe_yellow_fly_right_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_yellow_fly_right_2</c>.</summary>
     PipeYellowFlyRight2,
-    /// <summary><c>pipe_yellow_arc_right_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_yellow_arc_right_0</c>.</summary>
     PipeYellowArcRight0,
-    /// <summary><c>pipe_yellow_arc_right_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_yellow_arc_right_1</c>.</summary>
     PipeYellowArcRight1,
-    /// <summary><c>pipe_yellow_arc_right_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>pipe_yellow_arc_right_2</c>.</summary>
     PipeYellowArcRight2,
-    /// <summary><c>fake_kraid_walk_left_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fake_kraid_walk_left_0</c>.</summary>
     FakeKraidWalkLeft0,
-    /// <summary><c>fake_kraid_walk_left_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fake_kraid_walk_left_1</c>.</summary>
     FakeKraidWalkLeft1,
-    /// <summary><c>fake_kraid_walk_left_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fake_kraid_walk_left_2</c>.</summary>
     FakeKraidWalkLeft2,
-    /// <summary><c>fake_kraid_walk_left_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fake_kraid_walk_left_3</c>.</summary>
     FakeKraidWalkLeft3,
-    /// <summary><c>fake_kraid_spit_left_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fake_kraid_spit_left_0</c>.</summary>
     FakeKraidSpitLeft0,
-    /// <summary><c>fake_kraid_spit_left_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fake_kraid_spit_left_1</c>.</summary>
     FakeKraidSpitLeft1,
-    /// <summary><c>fake_kraid_spit_left_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fake_kraid_spit_left_2</c>.</summary>
     FakeKraidSpitLeft2,
-    /// <summary><c>fake_kraid_walk_right_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fake_kraid_walk_right_0</c>.</summary>
     FakeKraidWalkRight0,
-    /// <summary><c>fake_kraid_walk_right_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fake_kraid_walk_right_1</c>.</summary>
     FakeKraidWalkRight1,
-    /// <summary><c>fake_kraid_walk_right_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fake_kraid_walk_right_2</c>.</summary>
     FakeKraidWalkRight2,
-    /// <summary><c>fake_kraid_walk_right_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fake_kraid_walk_right_3</c>.</summary>
     FakeKraidWalkRight3,
-    /// <summary><c>fake_kraid_spit_right_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fake_kraid_spit_right_0</c>.</summary>
     FakeKraidSpitRight0,
-    /// <summary><c>fake_kraid_spit_right_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fake_kraid_spit_right_1</c>.</summary>
     FakeKraidSpitRight1,
-    /// <summary><c>fake_kraid_spit_right_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fake_kraid_spit_right_2</c>.</summary>
     FakeKraidSpitRight2,
-    /// <summary><c>kraid_nail_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_nail_0</c>.</summary>
     KraidNail0,
-    /// <summary><c>kraid_nail_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_nail_1</c>.</summary>
     KraidNail1,
-    /// <summary><c>kraid_nail_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_nail_2</c>.</summary>
     KraidNail2,
-    /// <summary><c>kraid_nail_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_nail_3</c>.</summary>
     KraidNail3,
-    /// <summary><c>kraid_nail_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_nail_4</c>.</summary>
     KraidNail4,
-    /// <summary><c>kraid_nail_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_nail_5</c>.</summary>
     KraidNail5,
-    /// <summary><c>kraid_nail_6</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_nail_6</c>.</summary>
     KraidNail6,
-    /// <summary><c>kraid_nail_7</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_nail_7</c>.</summary>
     KraidNail7,
-    /// <summary><c>owtch_left_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>owtch_left_0</c>.</summary>
     OwtchLeft0,
-    /// <summary><c>owtch_left_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>owtch_left_1</c>.</summary>
     OwtchLeft1,
-    /// <summary><c>owtch_left_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>owtch_left_2</c>.</summary>
     OwtchLeft2,
-    /// <summary><c>stoke_walk_left_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>stoke_walk_left_0</c>.</summary>
     StokeWalkLeft0,
-    /// <summary><c>stoke_walk_left_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>stoke_walk_left_1</c>.</summary>
     StokeWalkLeft1,
-    /// <summary><c>stoke_walk_left_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>stoke_walk_left_2</c>.</summary>
     StokeWalkLeft2,
-    /// <summary><c>stoke_walk_left_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>stoke_walk_left_3</c>.</summary>
     StokeWalkLeft3,
-    /// <summary><c>stoke_attack_left</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>stoke_attack_left</c>.</summary>
     StokeAttackLeft,
-    /// <summary><c>stoke_walk_right_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>stoke_walk_right_0</c>.</summary>
     StokeWalkRight0,
-    /// <summary><c>stoke_walk_right_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>stoke_walk_right_1</c>.</summary>
     StokeWalkRight1,
-    /// <summary><c>stoke_walk_right_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>stoke_walk_right_2</c>.</summary>
     StokeWalkRight2,
-    /// <summary><c>stoke_walk_right_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>stoke_walk_right_3</c>.</summary>
     StokeWalkRight3,
-    /// <summary><c>stoke_attack_right</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>stoke_attack_right</c>.</summary>
     StokeAttackRight,
-    /// <summary><c>ripper_shared_left_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ripper_shared_left_0</c>.</summary>
     RipperSharedLeft0,
-    /// <summary><c>ripper_shared_left_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ripper_shared_left_1</c>.</summary>
     RipperSharedLeft1,
-    /// <summary><c>ripper_shared_left_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ripper_shared_left_2</c>.</summary>
     RipperSharedLeft2,
-    /// <summary><c>ripper_shared_right_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ripper_shared_right_0</c>.</summary>
     RipperSharedRight0,
-    /// <summary><c>ripper_shared_right_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ripper_shared_right_1</c>.</summary>
     RipperSharedRight1,
-    /// <summary><c>ripper_shared_right_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ripper_shared_right_2</c>.</summary>
     RipperSharedRight2,
-    /// <summary><c>ripper_shared_frozen_left</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ripper_shared_frozen_left</c>.</summary>
     RipperSharedFrozenLeft,
-    /// <summary><c>ripper_shared_frozen_right</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ripper_shared_frozen_right</c>.</summary>
     RipperSharedFrozenRight,
-    /// <summary><c>ripper_left_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ripper_left_0</c>.</summary>
     RipperLeft0,
-    /// <summary><c>ripper_left_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ripper_left_1</c>.</summary>
     RipperLeft1,
-    /// <summary><c>ripper_left_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ripper_left_2</c>.</summary>
     RipperLeft2,
-    /// <summary><c>ripper_right_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ripper_right_0</c>.</summary>
     RipperRight0,
-    /// <summary><c>ripper_right_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ripper_right_1</c>.</summary>
     RipperRight1,
-    /// <summary><c>ripper_right_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ripper_right_2</c>.</summary>
     RipperRight2,
-    /// <summary><c>fireflea_cycle_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fireflea_cycle_0</c>.</summary>
     FirefleaCycle0,
-    /// <summary><c>fireflea_cycle_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fireflea_cycle_1</c>.</summary>
     FirefleaCycle1,
-    /// <summary><c>fireflea_cycle_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fireflea_cycle_2</c>.</summary>
     FirefleaCycle2,
-    /// <summary><c>fireflea_cycle_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fireflea_cycle_3</c>.</summary>
     FirefleaCycle3,
-    /// <summary><c>fireflea_cycle_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fireflea_cycle_4</c>.</summary>
     FirefleaCycle4,
-    /// <summary><c>fireflea_cycle_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fireflea_cycle_5</c>.</summary>
     FirefleaCycle5,
-    /// <summary><c>fireflea_cycle_6</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fireflea_cycle_6</c>.</summary>
     FirefleaCycle6,
-    /// <summary><c>fireflea_cycle_7</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fireflea_cycle_7</c>.</summary>
     FirefleaCycle7,
-    /// <summary><c>fireflea_cycle_8</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fireflea_cycle_8</c>.</summary>
     FirefleaCycle8,
-    /// <summary><c>fireflea_cycle_9</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fireflea_cycle_9</c>.</summary>
     FirefleaCycle9,
-    /// <summary><c>fireflea_cycle_10</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fireflea_cycle_10</c>.</summary>
     FirefleaCycle10,
-    /// <summary><c>fireflea_cycle_11</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fireflea_cycle_11</c>.</summary>
     FirefleaCycle11,
-    /// <summary><c>fireflea_cycle_12</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fireflea_cycle_12</c>.</summary>
     FirefleaCycle12,
-    /// <summary><c>fireflea_cycle_13</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fireflea_cycle_13</c>.</summary>
     FirefleaCycle13,
-    /// <summary><c>fireflea_cycle_14</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fireflea_cycle_14</c>.</summary>
     FirefleaCycle14,
-    /// <summary><c>fireflea_cycle_15</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fireflea_cycle_15</c>.</summary>
     FirefleaCycle15,
-    /// <summary><c>fireflea_cycle_16</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fireflea_cycle_16</c>.</summary>
     FirefleaCycle16,
-    /// <summary><c>fireflea_cycle_17</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fireflea_cycle_17</c>.</summary>
     FirefleaCycle17,
-    /// <summary><c>fireflea_cycle_18</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fireflea_cycle_18</c>.</summary>
     FirefleaCycle18,
-    /// <summary><c>fireflea_cycle_19</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fireflea_cycle_19</c>.</summary>
     FirefleaCycle19,
-    /// <summary><c>fireflea_cycle_20</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fireflea_cycle_20</c>.</summary>
     FirefleaCycle20,
-    /// <summary><c>magdollite_left_idle_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>magdollite_left_idle_0</c>.</summary>
     MagdolliteLeftIdle0,
-    /// <summary><c>magdollite_left_idle_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>magdollite_left_idle_1</c>.</summary>
     MagdolliteLeftIdle1,
-    /// <summary><c>magdollite_left_idle_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>magdollite_left_idle_2</c>.</summary>
     MagdolliteLeftIdle2,
-    /// <summary><c>magdollite_left_throw_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>magdollite_left_throw_0</c>.</summary>
     MagdolliteLeftThrow0,
-    /// <summary><c>magdollite_left_throw_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>magdollite_left_throw_1</c>.</summary>
     MagdolliteLeftThrow1,
-    /// <summary><c>magdollite_left_throw_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>magdollite_left_throw_2</c>.</summary>
     MagdolliteLeftThrow2,
-    /// <summary><c>magdollite_left_throw_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>magdollite_left_throw_3</c>.</summary>
     MagdolliteLeftThrow3,
-    /// <summary><c>magdollite_pillar_cap</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>magdollite_pillar_cap</c>.</summary>
     MagdollitePillarCap,
-    /// <summary><c>magdollite_left_submerge_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>magdollite_left_submerge_0</c>.</summary>
     MagdolliteLeftSubmerge0,
-    /// <summary><c>magdollite_left_submerge_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>magdollite_left_submerge_1</c>.</summary>
     MagdolliteLeftSubmerge1,
-    /// <summary><c>magdollite_left_submerge_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>magdollite_left_submerge_2</c>.</summary>
     MagdolliteLeftSubmerge2,
-    /// <summary><c>magdollite_right_idle_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>magdollite_right_idle_0</c>.</summary>
     MagdolliteRightIdle0,
-    /// <summary><c>magdollite_right_idle_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>magdollite_right_idle_1</c>.</summary>
     MagdolliteRightIdle1,
-    /// <summary><c>magdollite_right_idle_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>magdollite_right_idle_2</c>.</summary>
     MagdolliteRightIdle2,
-    /// <summary><c>magdollite_right_throw_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>magdollite_right_throw_0</c>.</summary>
     MagdolliteRightThrow0,
-    /// <summary><c>magdollite_right_throw_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>magdollite_right_throw_1</c>.</summary>
     MagdolliteRightThrow1,
-    /// <summary><c>magdollite_right_throw_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>magdollite_right_throw_2</c>.</summary>
     MagdolliteRightThrow2,
-    /// <summary><c>magdollite_right_throw_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>magdollite_right_throw_3</c>.</summary>
     MagdolliteRightThrow3,
-    /// <summary><c>magdollite_right_submerge_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>magdollite_right_submerge_0</c>.</summary>
     MagdolliteRightSubmerge0,
-    /// <summary><c>magdollite_right_submerge_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>magdollite_right_submerge_1</c>.</summary>
     MagdolliteRightSubmerge1,
-    /// <summary><c>magdollite_right_submerge_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>magdollite_right_submerge_2</c>.</summary>
     MagdolliteRightSubmerge2,
-    /// <summary><c>magdollite_pillar_phase_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>magdollite_pillar_phase_0</c>.</summary>
     MagdollitePillarPhase0,
-    /// <summary><c>magdollite_pillar_phase_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>magdollite_pillar_phase_1</c>.</summary>
     MagdollitePillarPhase1,
-    /// <summary><c>magdollite_pillar_phase_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>magdollite_pillar_phase_2</c>.</summary>
     MagdollitePillarPhase2,
-    /// <summary><c>magdollite_pillar_phase_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>magdollite_pillar_phase_3</c>.</summary>
     MagdollitePillarPhase3,
-    /// <summary><c>magdollite_pillar_phase_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>magdollite_pillar_phase_4</c>.</summary>
     MagdollitePillarPhase4,
-    /// <summary><c>magdollite_pillar_phase_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>magdollite_pillar_phase_5</c>.</summary>
     MagdollitePillarPhase5,
-    /// <summary><c>magdollite_pillar_phase_6</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>magdollite_pillar_phase_6</c>.</summary>
     MagdollitePillarPhase6,
-    /// <summary><c>magdollite_pillar_phase_7</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>magdollite_pillar_phase_7</c>.</summary>
     MagdollitePillarPhase7,
-    /// <summary><c>ceres_door_rotating_overlay</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_door_rotating_overlay</c>.</summary>
     CeresDoorRotatingOverlay,
-    /// <summary><c>ceres_door_left_hold</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_door_left_hold</c>.</summary>
     CeresDoorLeftHold,
-    /// <summary><c>ceres_door_left_transition_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_door_left_transition_0</c>.</summary>
     CeresDoorLeftTransition0,
-    /// <summary><c>ceres_door_left_transition_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_door_left_transition_1</c>.</summary>
     CeresDoorLeftTransition1,
-    /// <summary><c>ceres_door_left_transition_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_door_left_transition_2</c>.</summary>
     CeresDoorLeftTransition2,
-    /// <summary><c>ceres_door_left_transition_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_door_left_transition_3</c>.</summary>
     CeresDoorLeftTransition3,
-    /// <summary><c>ceres_door_right_hold</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_door_right_hold</c>.</summary>
     CeresDoorRightHold,
-    /// <summary><c>ceres_door_right_transition_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_door_right_transition_0</c>.</summary>
     CeresDoorRightTransition0,
-    /// <summary><c>ceres_door_right_transition_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_door_right_transition_1</c>.</summary>
     CeresDoorRightTransition1,
-    /// <summary><c>ceres_door_right_transition_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_door_right_transition_2</c>.</summary>
     CeresDoorRightTransition2,
-    /// <summary><c>ceres_door_right_transition_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_door_right_transition_3</c>.</summary>
     CeresDoorRightTransition3,
-    /// <summary><c>ceres_door_initial</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_door_initial</c>.</summary>
     CeresDoorInitial,
-    /// <summary><c>ceres_door_mode7_left_wall</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_door_mode7_left_wall</c>.</summary>
     CeresDoorTurningFloorLeftWall,
-    /// <summary><c>ceres_door_mode7_right_wall</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_door_mode7_right_wall</c>.</summary>
     CeresDoorTurningFloorRightWall,
-    /// <summary><c>ceres_door_ridley_private_overlay</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_door_ridley_private_overlay</c>.</summary>
     CeresDoorRidleyPrivateOverlay,
-    /// <summary><c>ceres_baby_horizontal</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_baby_horizontal</c>.</summary>
     CeresBabyHorizontal,
-    /// <summary><c>ceres_baby_round</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_baby_round</c>.</summary>
     CeresBabyRound,
-    /// <summary><c>ceres_baby_vertical</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_baby_vertical</c>.</summary>
     CeresBabyVertical,
-    /// <summary><c>rio_pose_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>rio_pose_0</c>.</summary>
     RioPose0,
-    /// <summary><c>rio_pose_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>rio_pose_1</c>.</summary>
     RioPose1,
-    /// <summary><c>rio_pose_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>rio_pose_2</c>.</summary>
     RioPose2,
-    /// <summary><c>rio_pose_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>rio_pose_3</c>.</summary>
     RioPose3,
-    /// <summary><c>rio_pose_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>rio_pose_4</c>.</summary>
     RioPose4,
-    /// <summary><c>rio_pose_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>rio_pose_5</c>.</summary>
     RioPose5,
-    /// <summary><c>rio_pose_6</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>rio_pose_6</c>.</summary>
     RioPose6,
-    /// <summary><c>rio_pose_7</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>rio_pose_7</c>.</summary>
     RioPose7,
-    /// <summary><c>lower_norfair_rio_pose_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>lower_norfair_rio_pose_0</c>.</summary>
     LowerNorfairRioPose0,
-    /// <summary><c>lower_norfair_rio_pose_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>lower_norfair_rio_pose_1</c>.</summary>
     LowerNorfairRioPose1,
-    /// <summary><c>lower_norfair_rio_pose_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>lower_norfair_rio_pose_2</c>.</summary>
     LowerNorfairRioPose2,
-    /// <summary><c>lower_norfair_rio_pose_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>lower_norfair_rio_pose_3</c>.</summary>
     LowerNorfairRioPose3,
-    /// <summary><c>lower_norfair_rio_pose_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>lower_norfair_rio_pose_4</c>.</summary>
     LowerNorfairRioPose4,
-    /// <summary><c>lower_norfair_rio_pose_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>lower_norfair_rio_pose_5</c>.</summary>
     LowerNorfairRioPose5,
-    /// <summary><c>lower_norfair_rio_pose_6</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>lower_norfair_rio_pose_6</c>.</summary>
     LowerNorfairRioPose6,
-    /// <summary><c>lower_norfair_rio_pose_7</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>lower_norfair_rio_pose_7</c>.</summary>
     LowerNorfairRioPose7,
-    /// <summary><c>lower_norfair_rio_pose_8</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>lower_norfair_rio_pose_8</c>.</summary>
     LowerNorfairRioPose8,
-    /// <summary><c>lower_norfair_rio_pose_9</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>lower_norfair_rio_pose_9</c>.</summary>
     LowerNorfairRioPose9,
-    /// <summary><c>lower_norfair_rio_pose_10</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>lower_norfair_rio_pose_10</c>.</summary>
     LowerNorfairRioPose10,
-    /// <summary><c>lower_norfair_rio_pose_11</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>lower_norfair_rio_pose_11</c>.</summary>
     LowerNorfairRioPose11,
-    /// <summary><c>lower_norfair_rio_pose_12</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>lower_norfair_rio_pose_12</c>.</summary>
     LowerNorfairRioPose12,
-    /// <summary><c>lower_norfair_rio_pose_13</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>lower_norfair_rio_pose_13</c>.</summary>
     LowerNorfairRioPose13,
-    /// <summary><c>lower_norfair_rio_pose_14</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>lower_norfair_rio_pose_14</c>.</summary>
     LowerNorfairRioPose14,
-    /// <summary><c>lower_norfair_rio_pose_15</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>lower_norfair_rio_pose_15</c>.</summary>
     LowerNorfairRioPose15,
-    /// <summary><c>lower_norfair_rio_pose_16</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>lower_norfair_rio_pose_16</c>.</summary>
     LowerNorfairRioPose16,
-    /// <summary><c>lower_norfair_rio_pose_17</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>lower_norfair_rio_pose_17</c>.</summary>
     LowerNorfairRioPose17,
-    /// <summary><c>norfair_rio_pose_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_0</c>.</summary>
     NorfairRioPose0,
-    /// <summary><c>norfair_rio_pose_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_1</c>.</summary>
     NorfairRioPose1,
-    /// <summary><c>norfair_rio_pose_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_2</c>.</summary>
     NorfairRioPose2,
-    /// <summary><c>norfair_rio_pose_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_3</c>.</summary>
     NorfairRioPose3,
-    /// <summary><c>norfair_rio_pose_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_4</c>.</summary>
     NorfairRioPose4,
-    /// <summary><c>norfair_rio_pose_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_5</c>.</summary>
     NorfairRioPose5,
-    /// <summary><c>norfair_rio_pose_6</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_6</c>.</summary>
     NorfairRioPose6,
-    /// <summary><c>norfair_rio_pose_7</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_7</c>.</summary>
     NorfairRioPose7,
-    /// <summary><c>norfair_rio_pose_8</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_8</c>.</summary>
     NorfairRioPose8,
-    /// <summary><c>norfair_rio_pose_9</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_9</c>.</summary>
     NorfairRioPose9,
-    /// <summary><c>norfair_rio_pose_10</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_10</c>.</summary>
     NorfairRioPose10,
-    /// <summary><c>norfair_rio_pose_11</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_11</c>.</summary>
     NorfairRioPose11,
-    /// <summary><c>norfair_rio_pose_12</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_12</c>.</summary>
     NorfairRioPose12,
-    /// <summary><c>norfair_rio_pose_13</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_13</c>.</summary>
     NorfairRioPose13,
-    /// <summary><c>norfair_rio_pose_14</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_14</c>.</summary>
     NorfairRioPose14,
-    /// <summary><c>norfair_rio_pose_15</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_15</c>.</summary>
     NorfairRioPose15,
-    /// <summary><c>norfair_rio_pose_16</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_16</c>.</summary>
     NorfairRioPose16,
-    /// <summary><c>norfair_rio_pose_17</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_17</c>.</summary>
     NorfairRioPose17,
-    /// <summary><c>norfair_rio_pose_18</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_18</c>.</summary>
     NorfairRioPose18,
-    /// <summary><c>norfair_rio_pose_19</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_19</c>.</summary>
     NorfairRioPose19,
-    /// <summary><c>puyo_ground_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>puyo_ground_0</c>.</summary>
     PuyoGround0,
-    /// <summary><c>puyo_ground_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>puyo_ground_1</c>.</summary>
     PuyoGround1,
-    /// <summary><c>puyo_ground_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>puyo_ground_2</c>.</summary>
     PuyoGround2,
-    /// <summary><c>puyo_air_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>puyo_air_0</c>.</summary>
     PuyoAir0,
-    /// <summary><c>puyo_air_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>puyo_air_1</c>.</summary>
     PuyoAir1,
-    /// <summary><c>puyo_air_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>puyo_air_2</c>.</summary>
     PuyoAir2,
-    /// <summary><c>puyo_air_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>puyo_air_3</c>.</summary>
     PuyoAir3,
-    /// <summary><c>puyo_air_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>puyo_air_4</c>.</summary>
     PuyoAir4,
-    /// <summary><c>bull_idle_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>bull_idle_0</c>.</summary>
     BullIdle0,
-    /// <summary><c>bull_idle_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>bull_idle_1</c>.</summary>
     BullIdle1,
-    /// <summary><c>bull_idle_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>bull_idle_2</c>.</summary>
     BullIdle2,
-    /// <summary><c>alcoon_left_walk_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>alcoon_left_walk_0</c>.</summary>
     AlcoonLeftWalk0,
-    /// <summary><c>alcoon_left_walk_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>alcoon_left_walk_1</c>.</summary>
     AlcoonLeftWalk1,
-    /// <summary><c>alcoon_left_walk_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>alcoon_left_walk_2</c>.</summary>
     AlcoonLeftWalk2,
-    /// <summary><c>alcoon_left_walk_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>alcoon_left_walk_3</c>.</summary>
     AlcoonLeftWalk3,
-    /// <summary><c>alcoon_left_fire_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>alcoon_left_fire_0</c>.</summary>
     AlcoonLeftFire0,
-    /// <summary><c>alcoon_left_fire_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>alcoon_left_fire_1</c>.</summary>
     AlcoonLeftFire1,
-    /// <summary><c>alcoon_left_fire_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>alcoon_left_fire_2</c>.</summary>
     AlcoonLeftFire2,
-    /// <summary><c>alcoon_left_fire_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>alcoon_left_fire_3</c>.</summary>
     AlcoonLeftFire3,
-    /// <summary><c>alcoon_left_air_up</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>alcoon_left_air_up</c>.</summary>
     AlcoonLeftAirUp,
-    /// <summary><c>alcoon_right_walk_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>alcoon_right_walk_0</c>.</summary>
     AlcoonRightWalk0,
-    /// <summary><c>alcoon_right_walk_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>alcoon_right_walk_1</c>.</summary>
     AlcoonRightWalk1,
-    /// <summary><c>alcoon_right_walk_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>alcoon_right_walk_2</c>.</summary>
     AlcoonRightWalk2,
-    /// <summary><c>alcoon_right_walk_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>alcoon_right_walk_3</c>.</summary>
     AlcoonRightWalk3,
-    /// <summary><c>alcoon_right_fire_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>alcoon_right_fire_0</c>.</summary>
     AlcoonRightFire0,
-    /// <summary><c>alcoon_right_fire_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>alcoon_right_fire_1</c>.</summary>
     AlcoonRightFire1,
-    /// <summary><c>alcoon_right_fire_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>alcoon_right_fire_2</c>.</summary>
     AlcoonRightFire2,
-    /// <summary><c>alcoon_right_fire_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>alcoon_right_fire_3</c>.</summary>
     AlcoonRightFire3,
-    /// <summary><c>alcoon_right_air_up</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>alcoon_right_air_up</c>.</summary>
     AlcoonRightAirUp,
-    /// <summary><c>beetom_left_crawl_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>beetom_left_crawl_0</c>.</summary>
     BeetomLeftCrawl0,
-    /// <summary><c>beetom_left_crawl_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>beetom_left_crawl_1</c>.</summary>
     BeetomLeftCrawl1,
-    /// <summary><c>beetom_left_crawl_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>beetom_left_crawl_2</c>.</summary>
     BeetomLeftCrawl2,
-    /// <summary><c>beetom_left_hop_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>beetom_left_hop_0</c>.</summary>
     BeetomLeftHop0,
-    /// <summary><c>beetom_left_hop_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>beetom_left_hop_1</c>.</summary>
     BeetomLeftHop1,
-    /// <summary><c>beetom_left_drain_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>beetom_left_drain_0</c>.</summary>
     BeetomLeftDrain0,
-    /// <summary><c>beetom_left_drain_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>beetom_left_drain_1</c>.</summary>
     BeetomLeftDrain1,
-    /// <summary><c>beetom_left_drain_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>beetom_left_drain_2</c>.</summary>
     BeetomLeftDrain2,
-    /// <summary><c>beetom_left_drain_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>beetom_left_drain_3</c>.</summary>
     BeetomLeftDrain3,
-    /// <summary><c>beetom_left_drain_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>beetom_left_drain_4</c>.</summary>
     BeetomLeftDrain4,
-    /// <summary><c>beetom_left_drain_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>beetom_left_drain_5</c>.</summary>
     BeetomLeftDrain5,
-    /// <summary><c>beetom_right_crawl_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>beetom_right_crawl_0</c>.</summary>
     BeetomRightCrawl0,
-    /// <summary><c>beetom_right_crawl_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>beetom_right_crawl_1</c>.</summary>
     BeetomRightCrawl1,
-    /// <summary><c>beetom_right_crawl_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>beetom_right_crawl_2</c>.</summary>
     BeetomRightCrawl2,
-    /// <summary><c>beetom_right_hop_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>beetom_right_hop_0</c>.</summary>
     BeetomRightHop0,
-    /// <summary><c>beetom_right_hop_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>beetom_right_hop_1</c>.</summary>
     BeetomRightHop1,
-    /// <summary><c>beetom_right_drain_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>beetom_right_drain_0</c>.</summary>
     BeetomRightDrain0,
-    /// <summary><c>beetom_right_drain_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>beetom_right_drain_1</c>.</summary>
     BeetomRightDrain1,
-    /// <summary><c>beetom_right_drain_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>beetom_right_drain_2</c>.</summary>
     BeetomRightDrain2,
-    /// <summary><c>beetom_right_drain_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>beetom_right_drain_3</c>.</summary>
     BeetomRightDrain3,
-    /// <summary><c>beetom_right_drain_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>beetom_right_drain_4</c>.</summary>
     BeetomRightDrain4,
-    /// <summary><c>beetom_right_drain_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>beetom_right_drain_5</c>.</summary>
     BeetomRightDrain5,
-    /// <summary><c>sidehopper_jump_floor</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sidehopper_jump_floor</c>.</summary>
     SidehopperJumpFloor,
-    /// <summary><c>sidehopper_land_floor_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sidehopper_land_floor_0</c>.</summary>
     SidehopperLandFloor0,
-    /// <summary><c>sidehopper_land_floor_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sidehopper_land_floor_1</c>.</summary>
     SidehopperLandFloor1,
-    /// <summary><c>sidehopper_jump_ceiling</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sidehopper_jump_ceiling</c>.</summary>
     SidehopperJumpCeiling,
-    /// <summary><c>sidehopper_land_ceiling_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sidehopper_land_ceiling_0</c>.</summary>
     SidehopperLandCeiling0,
-    /// <summary><c>sidehopper_land_ceiling_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sidehopper_land_ceiling_1</c>.</summary>
     SidehopperLandCeiling1,
-    /// <summary><c>dessgeega_jump_floor</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dessgeega_jump_floor</c>.</summary>
     DessgeegaJumpFloor,
-    /// <summary><c>dessgeega_land_floor_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dessgeega_land_floor_0</c>.</summary>
     DessgeegaLandFloor0,
-    /// <summary><c>dessgeega_land_floor_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dessgeega_land_floor_1</c>.</summary>
     DessgeegaLandFloor1,
-    /// <summary><c>dessgeega_jump_ceiling</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dessgeega_jump_ceiling</c>.</summary>
     DessgeegaJumpCeiling,
-    /// <summary><c>dessgeega_land_ceiling_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dessgeega_land_ceiling_0</c>.</summary>
     DessgeegaLandCeiling0,
-    /// <summary><c>dessgeega_land_ceiling_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dessgeega_land_ceiling_1</c>.</summary>
     DessgeegaLandCeiling1,
-    /// <summary><c>large_sidehopper_jump_floor</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>large_sidehopper_jump_floor</c>.</summary>
     LargeSidehopperJumpFloor,
-    /// <summary><c>large_sidehopper_land_floor_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>large_sidehopper_land_floor_0</c>.</summary>
     LargeSidehopperLandFloor0,
-    /// <summary><c>large_sidehopper_land_floor_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>large_sidehopper_land_floor_1</c>.</summary>
     LargeSidehopperLandFloor1,
-    /// <summary><c>large_sidehopper_jump_ceiling</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>large_sidehopper_jump_ceiling</c>.</summary>
     LargeSidehopperJumpCeiling,
-    /// <summary><c>large_sidehopper_land_ceiling_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>large_sidehopper_land_ceiling_0</c>.</summary>
     LargeSidehopperLandCeiling0,
-    /// <summary><c>large_sidehopper_land_ceiling_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>large_sidehopper_land_ceiling_1</c>.</summary>
     LargeSidehopperLandCeiling1,
-    /// <summary><c>large_dessgeega_jump_floor</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>large_dessgeega_jump_floor</c>.</summary>
     LargeDessgeegaJumpFloor,
-    /// <summary><c>large_dessgeega_land_floor_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>large_dessgeega_land_floor_0</c>.</summary>
     LargeDessgeegaLandFloor0,
-    /// <summary><c>large_dessgeega_land_floor_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>large_dessgeega_land_floor_1</c>.</summary>
     LargeDessgeegaLandFloor1,
-    /// <summary><c>large_dessgeega_jump_ceiling</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>large_dessgeega_jump_ceiling</c>.</summary>
     LargeDessgeegaJumpCeiling,
-    /// <summary><c>large_dessgeega_land_ceiling_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>large_dessgeega_land_ceiling_0</c>.</summary>
     LargeDessgeegaLandCeiling0,
-    /// <summary><c>large_dessgeega_land_ceiling_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>large_dessgeega_land_ceiling_1</c>.</summary>
     LargeDessgeegaLandCeiling1,
-    /// <summary><c>choot_idle</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>choot_idle</c>.</summary>
     ChootIdle,
-    /// <summary><c>choot_jump</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>choot_jump</c>.</summary>
     ChootJump,
-    /// <summary><c>choot_jump_apex</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>choot_jump_apex</c>.</summary>
     ChootJumpApex,
-    /// <summary><c>choot_fall_end</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>choot_fall_end</c>.</summary>
     ChootFallEnd,
-    /// <summary><c>hzoomer_upside_right_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hzoomer_upside_right_0</c>.</summary>
     HzoomerUpsideRight0,
-    /// <summary><c>hzoomer_upside_right_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hzoomer_upside_right_1</c>.</summary>
     HzoomerUpsideRight1,
-    /// <summary><c>hzoomer_upside_right_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hzoomer_upside_right_2</c>.</summary>
     HzoomerUpsideRight2,
-    /// <summary><c>hzoomer_upside_right_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hzoomer_upside_right_3</c>.</summary>
     HzoomerUpsideRight3,
-    /// <summary><c>hzoomer_upside_right_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hzoomer_upside_right_4</c>.</summary>
     HzoomerUpsideRight4,
-    /// <summary><c>hzoomer_upside_left_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hzoomer_upside_left_0</c>.</summary>
     HzoomerUpsideLeft0,
-    /// <summary><c>hzoomer_upside_left_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hzoomer_upside_left_1</c>.</summary>
     HzoomerUpsideLeft1,
-    /// <summary><c>hzoomer_upside_left_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hzoomer_upside_left_2</c>.</summary>
     HzoomerUpsideLeft2,
-    /// <summary><c>hzoomer_upside_left_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hzoomer_upside_left_3</c>.</summary>
     HzoomerUpsideLeft3,
-    /// <summary><c>hzoomer_upside_left_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hzoomer_upside_left_4</c>.</summary>
     HzoomerUpsideLeft4,
-    /// <summary><c>hzoomer_upside_down_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hzoomer_upside_down_0</c>.</summary>
     HzoomerUpsideDown0,
-    /// <summary><c>hzoomer_upside_down_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hzoomer_upside_down_1</c>.</summary>
     HzoomerUpsideDown1,
-    /// <summary><c>hzoomer_upside_down_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hzoomer_upside_down_2</c>.</summary>
     HzoomerUpsideDown2,
-    /// <summary><c>hzoomer_upside_down_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hzoomer_upside_down_3</c>.</summary>
     HzoomerUpsideDown3,
-    /// <summary><c>hzoomer_upside_down_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hzoomer_upside_down_4</c>.</summary>
     HzoomerUpsideDown4,
-    /// <summary><c>hzoomer_upside_up_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hzoomer_upside_up_0</c>.</summary>
     HzoomerUpsideUp0,
-    /// <summary><c>hzoomer_upside_up_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hzoomer_upside_up_1</c>.</summary>
     HzoomerUpsideUp1,
-    /// <summary><c>hzoomer_upside_up_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hzoomer_upside_up_2</c>.</summary>
     HzoomerUpsideUp2,
-    /// <summary><c>hzoomer_upside_up_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hzoomer_upside_up_3</c>.</summary>
     HzoomerUpsideUp3,
-    /// <summary><c>hzoomer_upside_up_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hzoomer_upside_up_4</c>.</summary>
     HzoomerUpsideUp4,
-    /// <summary><c>sbug_right_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sbug_right_0</c>.</summary>
     SbugRight0,
-    /// <summary><c>sbug_right_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sbug_right_1</c>.</summary>
     SbugRight1,
-    /// <summary><c>sbug_right_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sbug_right_2</c>.</summary>
     SbugRight2,
-    /// <summary><c>sbug_up_right_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sbug_up_right_0</c>.</summary>
     SbugUpRight0,
-    /// <summary><c>sbug_up_right_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sbug_up_right_1</c>.</summary>
     SbugUpRight1,
-    /// <summary><c>sbug_up_right_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sbug_up_right_2</c>.</summary>
     SbugUpRight2,
-    /// <summary><c>sbug_up_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sbug_up_0</c>.</summary>
     SbugUp0,
-    /// <summary><c>sbug_up_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sbug_up_1</c>.</summary>
     SbugUp1,
-    /// <summary><c>sbug_up_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sbug_up_2</c>.</summary>
     SbugUp2,
-    /// <summary><c>sbug_up_left_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sbug_up_left_0</c>.</summary>
     SbugUpLeft0,
-    /// <summary><c>sbug_up_left_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sbug_up_left_1</c>.</summary>
     SbugUpLeft1,
-    /// <summary><c>sbug_up_left_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sbug_up_left_2</c>.</summary>
     SbugUpLeft2,
-    /// <summary><c>sbug_left_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sbug_left_0</c>.</summary>
     SbugLeft0,
-    /// <summary><c>sbug_left_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sbug_left_1</c>.</summary>
     SbugLeft1,
-    /// <summary><c>sbug_left_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sbug_left_2</c>.</summary>
     SbugLeft2,
-    /// <summary><c>sbug_down_left_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sbug_down_left_0</c>.</summary>
     SbugDownLeft0,
-    /// <summary><c>sbug_down_left_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sbug_down_left_1</c>.</summary>
     SbugDownLeft1,
-    /// <summary><c>sbug_down_left_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sbug_down_left_2</c>.</summary>
     SbugDownLeft2,
-    /// <summary><c>sbug_down_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sbug_down_0</c>.</summary>
     SbugDown0,
-    /// <summary><c>sbug_down_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sbug_down_1</c>.</summary>
     SbugDown1,
-    /// <summary><c>sbug_down_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sbug_down_2</c>.</summary>
     SbugDown2,
-    /// <summary><c>sbug_down_right_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sbug_down_right_0</c>.</summary>
     SbugDownRight0,
-    /// <summary><c>sbug_down_right_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sbug_down_right_1</c>.</summary>
     SbugDownRight1,
-    /// <summary><c>sbug_down_right_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sbug_down_right_2</c>.</summary>
     SbugDownRight2,
-    /// <summary><c>fune_left_idle</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fune_left_idle</c>.</summary>
     FuneLeftIdle,
-    /// <summary><c>fune_left_active_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fune_left_active_0</c>.</summary>
     FuneLeftActive0,
-    /// <summary><c>fune_left_active_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fune_left_active_1</c>.</summary>
     FuneLeftActive1,
-    /// <summary><c>fune_left_active_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fune_left_active_2</c>.</summary>
     FuneLeftActive2,
-    /// <summary><c>fune_left_active_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fune_left_active_3</c>.</summary>
     FuneLeftActive3,
-    /// <summary><c>fune_right_idle</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fune_right_idle</c>.</summary>
     FuneRightIdle,
-    /// <summary><c>fune_right_active_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fune_right_active_0</c>.</summary>
     FuneRightActive0,
-    /// <summary><c>fune_right_active_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fune_right_active_1</c>.</summary>
     FuneRightActive1,
-    /// <summary><c>fune_right_active_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fune_right_active_2</c>.</summary>
     FuneRightActive2,
-    /// <summary><c>fune_right_active_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fune_right_active_3</c>.</summary>
     FuneRightActive3,
-    /// <summary><c>namihe_left_idle</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>namihe_left_idle</c>.</summary>
     NamiheLeftIdle,
-    /// <summary><c>namihe_left_active_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>namihe_left_active_0</c>.</summary>
     NamiheLeftActive0,
-    /// <summary><c>namihe_left_active_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>namihe_left_active_1</c>.</summary>
     NamiheLeftActive1,
-    /// <summary><c>namihe_left_active_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>namihe_left_active_2</c>.</summary>
     NamiheLeftActive2,
-    /// <summary><c>namihe_left_active_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>namihe_left_active_3</c>.</summary>
     NamiheLeftActive3,
-    /// <summary><c>namihe_left_active_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>namihe_left_active_4</c>.</summary>
     NamiheLeftActive4,
-    /// <summary><c>namihe_right_idle</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>namihe_right_idle</c>.</summary>
     NamiheRightIdle,
-    /// <summary><c>namihe_right_active_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>namihe_right_active_0</c>.</summary>
     NamiheRightActive0,
-    /// <summary><c>namihe_right_active_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>namihe_right_active_1</c>.</summary>
     NamiheRightActive1,
-    /// <summary><c>namihe_right_active_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>namihe_right_active_2</c>.</summary>
     NamiheRightActive2,
-    /// <summary><c>namihe_right_active_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>namihe_right_active_3</c>.</summary>
     NamiheRightActive3,
-    /// <summary><c>namihe_right_active_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>namihe_right_active_4</c>.</summary>
     NamiheRightActive4,
-    /// <summary><c>kamer_platform_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>kamer_platform_0</c>.</summary>
     KamerPlatform0,
-    /// <summary><c>kamer_platform_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>kamer_platform_1</c>.</summary>
     KamerPlatform1,
-    /// <summary><c>kamer_platform_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>kamer_platform_2</c>.</summary>
     KamerPlatform2,
-    /// <summary><c>kamer_platform_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>kamer_platform_3</c>.</summary>
     KamerPlatform3,
-    /// <summary><c>elevator_platform_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>elevator_platform_0</c>.</summary>
     ElevatorPlatform0,
-    /// <summary><c>elevator_platform_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>elevator_platform_1</c>.</summary>
     ElevatorPlatform1,
-    /// <summary><c>draygon_intro_evir_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_intro_evir_0</c>.</summary>
     DraygonIntroEvir0,
-    /// <summary><c>draygon_intro_evir_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_intro_evir_1</c>.</summary>
     DraygonIntroEvir1,
-    /// <summary><c>draygon_intro_evir_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_intro_evir_2</c>.</summary>
     DraygonIntroEvir2,
-    /// <summary><c>draygon_intro_evir_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_intro_evir_3</c>.</summary>
     DraygonIntroEvir3,
-    /// <summary><c>draygon_breath_bubble_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_breath_bubble_0</c>.</summary>
     DraygonBreathBubble0,
-    /// <summary><c>draygon_breath_bubble_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_breath_bubble_1</c>.</summary>
     DraygonBreathBubble1,
-    /// <summary><c>draygon_breath_bubble_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_breath_bubble_2</c>.</summary>
     DraygonBreathBubble2,
-    /// <summary><c>draygon_breath_bubble_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_breath_bubble_3</c>.</summary>
     DraygonBreathBubble3,
-    /// <summary><c>draygon_breath_bubble_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_breath_bubble_4</c>.</summary>
     DraygonBreathBubble4,
-    /// <summary><c>draygon_breath_bubble_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_breath_bubble_5</c>.</summary>
     DraygonBreathBubble5,
-    /// <summary><c>draygon_breath_bubble_6</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_breath_bubble_6</c>.</summary>
     DraygonBreathBubble6,
-    /// <summary><c>draygon_breath_bubble_7</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_breath_bubble_7</c>.</summary>
     DraygonBreathBubble7,
-    /// <summary><c>draygon_breath_bubble_8</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_breath_bubble_8</c>.</summary>
     DraygonBreathBubble8,
-    /// <summary><c>sprite_object_empty</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_empty</c>.</summary>
     SpriteObjectEmpty,
-    /// <summary><c>sprite_object_unused_object_30_frame_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_30_frame_0</c>.</summary>
     SpriteObjectUnusedObject30Frame0,
-    /// <summary><c>sprite_object_unused_object_30_frame_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_30_frame_1</c>.</summary>
     SpriteObjectUnusedObject30Frame1,
-    /// <summary><c>sprite_object_unused_object_30_frame_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_30_frame_2</c>.</summary>
     SpriteObjectUnusedObject30Frame2,
-    /// <summary><c>sprite_object_unused_object_31_frame_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_31_frame_0</c>.</summary>
     SpriteObjectUnusedObject31Frame0,
-    /// <summary><c>sprite_object_unused_object_31_frame_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_31_frame_1</c>.</summary>
     SpriteObjectUnusedObject31Frame1,
-    /// <summary><c>sprite_object_unused_object_31_frame_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_31_frame_2</c>.</summary>
     SpriteObjectUnusedObject31Frame2,
-    /// <summary><c>sprite_object_unused_object_32_frame_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_32_frame_0</c>.</summary>
     SpriteObjectUnusedObject32Frame0,
-    /// <summary><c>sprite_object_unused_object_32_frame_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_32_frame_1</c>.</summary>
     SpriteObjectUnusedObject32Frame1,
-    /// <summary><c>sprite_object_unused_object_32_frame_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_32_frame_2</c>.</summary>
     SpriteObjectUnusedObject32Frame2,
-    /// <summary><c>sprite_object_unused_object_33_frame_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_33_frame_0</c>.</summary>
     SpriteObjectUnusedObject33Frame0,
-    /// <summary><c>sprite_object_unused_object_33_frame_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_33_frame_1</c>.</summary>
     SpriteObjectUnusedObject33Frame1,
-    /// <summary><c>sprite_object_unused_object_33_frame_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_33_frame_2</c>.</summary>
     SpriteObjectUnusedObject33Frame2,
-    /// <summary><c>sprite_object_unused_object_34_frame_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_34_frame_0</c>.</summary>
     SpriteObjectUnusedObject34Frame0,
-    /// <summary><c>sprite_object_unused_object_34_frame_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_34_frame_1</c>.</summary>
     SpriteObjectUnusedObject34Frame1,
-    /// <summary><c>sprite_object_unused_object_34_frame_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_34_frame_2</c>.</summary>
     SpriteObjectUnusedObject34Frame2,
-    /// <summary><c>sprite_object_unused_object_35_frame_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_35_frame_0</c>.</summary>
     SpriteObjectUnusedObject35Frame0,
-    /// <summary><c>sprite_object_unused_object_35_frame_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_35_frame_1</c>.</summary>
     SpriteObjectUnusedObject35Frame1,
-    /// <summary><c>sprite_object_unused_object_35_frame_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_35_frame_2</c>.</summary>
     SpriteObjectUnusedObject35Frame2,
-    /// <summary><c>sprite_object_unused_object_36_frame_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_36_frame_0</c>.</summary>
     SpriteObjectUnusedObject36Frame0,
-    /// <summary><c>sprite_object_unused_object_36_frame_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_36_frame_1</c>.</summary>
     SpriteObjectUnusedObject36Frame1,
-    /// <summary><c>sprite_object_unused_object_36_frame_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_36_frame_2</c>.</summary>
     SpriteObjectUnusedObject36Frame2,
-    /// <summary><c>sprite_object_unused_object_37_frame_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_37_frame_0</c>.</summary>
     SpriteObjectUnusedObject37Frame0,
-    /// <summary><c>sprite_object_unused_object_37_frame_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_37_frame_1</c>.</summary>
     SpriteObjectUnusedObject37Frame1,
-    /// <summary><c>sprite_object_unused_object_37_frame_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_37_frame_2</c>.</summary>
     SpriteObjectUnusedObject37Frame2,
-    /// <summary><c>sprite_object_unused_rock_particles_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_rock_particles_0</c>.</summary>
     SpriteObjectUnusedRockParticles0,
-    /// <summary><c>sprite_object_unused_rock_particles_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_rock_particles_1</c>.</summary>
     SpriteObjectUnusedRockParticles1,
-    /// <summary><c>sprite_object_unused_rock_particles_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_rock_particles_2</c>.</summary>
     SpriteObjectUnusedRockParticles2,
-    /// <summary><c>sprite_object_unused_rock_particles_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_rock_particles_3</c>.</summary>
     SpriteObjectUnusedRockParticles3,
-    /// <summary><c>sprite_object_unused_rock_particles_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_rock_particles_4</c>.</summary>
     SpriteObjectUnusedRockParticles4,
-    /// <summary><c>sprite_object_unused_rock_particles_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_rock_particles_5</c>.</summary>
     SpriteObjectUnusedRockParticles5,
-    /// <summary><c>sprite_object_unused_rock_particles_6</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_rock_particles_6</c>.</summary>
     SpriteObjectUnusedRockParticles6,
-    /// <summary><c>sprite_object_unused_rock_particles_7</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_rock_particles_7</c>.</summary>
     SpriteObjectUnusedRockParticles7,
-    /// <summary><c>sprite_object_unused_rock_particles_8</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_rock_particles_8</c>.</summary>
     SpriteObjectUnusedRockParticles8,
-    /// <summary><c>sprite_object_unused_rock_particles_9</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_rock_particles_9</c>.</summary>
     SpriteObjectUnusedRockParticles9,
-    /// <summary><c>sprite_object_unused_rock_particles_10</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_rock_particles_10</c>.</summary>
     SpriteObjectUnusedRockParticles10,
-    /// <summary><c>sprite_object_unused_rock_particles_11</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_rock_particles_11</c>.</summary>
     SpriteObjectUnusedRockParticles11,
-    /// <summary><c>sprite_object_unused_rock_particles_12</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_rock_particles_12</c>.</summary>
     SpriteObjectUnusedRockParticles12,
-    /// <summary><c>sprite_object_unused_rock_particles_13</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_rock_particles_13</c>.</summary>
     SpriteObjectUnusedRockParticles13,
-    /// <summary><c>sprite_object_unused_rock_particles_14</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_rock_particles_14</c>.</summary>
     SpriteObjectUnusedRockParticles14,
-    /// <summary><c>sprite_object_unused_rock_particles_15</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_rock_particles_15</c>.</summary>
     SpriteObjectUnusedRockParticles15,
-    /// <summary><c>sprite_object_big_dust_cloud_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_big_dust_cloud_0</c>.</summary>
     SpriteObjectBigDustCloud0,
-    /// <summary><c>sprite_object_big_dust_cloud_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_big_dust_cloud_1</c>.</summary>
     SpriteObjectBigDustCloud1,
-    /// <summary><c>sprite_object_big_dust_cloud_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_big_dust_cloud_2</c>.</summary>
     SpriteObjectBigDustCloud2,
-    /// <summary><c>sprite_object_big_dust_cloud_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_big_dust_cloud_3</c>.</summary>
     SpriteObjectBigDustCloud3,
-    /// <summary><c>sprite_object_big_dust_cloud_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_big_dust_cloud_4</c>.</summary>
     SpriteObjectBigDustCloud4,
-    /// <summary><c>sprite_object_big_dust_cloud_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_big_dust_cloud_5</c>.</summary>
     SpriteObjectBigDustCloud5,
-    /// <summary><c>sprite_object_big_dust_cloud_6</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_big_dust_cloud_6</c>.</summary>
     SpriteObjectBigDustCloud6,
-    /// <summary><c>sprite_object_big_dust_cloud_7</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_big_dust_cloud_7</c>.</summary>
     SpriteObjectBigDustCloud7,
-    /// <summary><c>sprite_object_unused_dust_cloud_beam_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_dust_cloud_beam_0</c>.</summary>
     SpriteObjectUnusedDustCloudBeam0,
-    /// <summary><c>sprite_object_unused_dust_cloud_beam_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_dust_cloud_beam_1</c>.</summary>
     SpriteObjectUnusedDustCloudBeam1,
-    /// <summary><c>sprite_object_unused_dust_cloud_beam_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_dust_cloud_beam_2</c>.</summary>
     SpriteObjectUnusedDustCloudBeam2,
-    /// <summary><c>sprite_object_unused_dust_cloud_beam_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_dust_cloud_beam_3</c>.</summary>
     SpriteObjectUnusedDustCloudBeam3,
-    /// <summary><c>sprite_object_unused_dust_cloud_beam_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_dust_cloud_beam_4</c>.</summary>
     SpriteObjectUnusedDustCloudBeam4,
-    /// <summary><c>sprite_object_unused_dust_cloud_beam_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_dust_cloud_beam_5</c>.</summary>
     SpriteObjectUnusedDustCloudBeam5,
-    /// <summary><c>sprite_object_unused_dust_cloud_beam_6</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_dust_cloud_beam_6</c>.</summary>
     SpriteObjectUnusedDustCloudBeam6,
-    /// <summary><c>sprite_object_unused_dust_cloud_beam_7</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_dust_cloud_beam_7</c>.</summary>
     SpriteObjectUnusedDustCloudBeam7,
-    /// <summary><c>sprite_object_unused_save_station_electricity_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_save_station_electricity_0</c>.</summary>
     SpriteObjectUnusedSaveStationElectricity0,
-    /// <summary><c>sprite_object_unused_save_station_electricity_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_save_station_electricity_1</c>.</summary>
     SpriteObjectUnusedSaveStationElectricity1,
-    /// <summary><c>sprite_object_unused_save_station_electricity_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_save_station_electricity_2</c>.</summary>
     SpriteObjectUnusedSaveStationElectricity2,
-    /// <summary><c>sprite_object_unused_save_station_electricity_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_save_station_electricity_3</c>.</summary>
     SpriteObjectUnusedSaveStationElectricity3,
-    /// <summary><c>sprite_object_unused_save_station_electricity_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_save_station_electricity_4</c>.</summary>
     SpriteObjectUnusedSaveStationElectricity4,
-    /// <summary><c>sprite_object_unused_save_station_electricity_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_save_station_electricity_5</c>.</summary>
     SpriteObjectUnusedSaveStationElectricity5,
-    /// <summary><c>sprite_object_unused_save_station_electricity_6</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_save_station_electricity_6</c>.</summary>
     SpriteObjectUnusedSaveStationElectricity6,
-    /// <summary><c>sprite_object_unused_save_station_electricity_7</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_save_station_electricity_7</c>.</summary>
     SpriteObjectUnusedSaveStationElectricity7,
-    /// <summary><c>sprite_object_unused_vertical_gate_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_vertical_gate_0</c>.</summary>
     SpriteObjectUnusedVerticalGate0,
-    /// <summary><c>sprite_object_unused_vertical_gate_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_vertical_gate_1</c>.</summary>
     SpriteObjectUnusedVerticalGate1,
-    /// <summary><c>sprite_object_unused_vertical_gate_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_vertical_gate_2</c>.</summary>
     SpriteObjectUnusedVerticalGate2,
-    /// <summary><c>sprite_object_unused_vertical_gate_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_vertical_gate_3</c>.</summary>
     SpriteObjectUnusedVerticalGate3,
-    /// <summary><c>sprite_object_unused_vertical_gate_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_vertical_gate_4</c>.</summary>
     SpriteObjectUnusedVerticalGate4,
-    /// <summary><c>sprite_object_unused_vertical_gate_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_vertical_gate_5</c>.</summary>
     SpriteObjectUnusedVerticalGate5,
-    /// <summary><c>sprite_object_unused_vertical_gate_6</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_vertical_gate_6</c>.</summary>
     SpriteObjectUnusedVerticalGate6,
-    /// <summary><c>sprite_object_unused_vertical_gate_7</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_vertical_gate_7</c>.</summary>
     SpriteObjectUnusedVerticalGate7,
-    /// <summary><c>sprite_object_unused_beam_charge_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_beam_charge_0</c>.</summary>
     SpriteObjectUnusedBeamCharge0,
-    /// <summary><c>sprite_object_unused_beam_charge_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_beam_charge_1</c>.</summary>
     SpriteObjectUnusedBeamCharge1,
-    /// <summary><c>sprite_object_unused_beam_charge_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_beam_charge_2</c>.</summary>
     SpriteObjectUnusedBeamCharge2,
-    /// <summary><c>sprite_object_unused_beam_charge_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_beam_charge_3</c>.</summary>
     SpriteObjectUnusedBeamCharge3,
-    /// <summary><c>sprite_object_unused_mother_brain_elbow_particle_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_mother_brain_elbow_particle_0</c>.</summary>
     SpriteObjectUnusedMotherBrainElbowParticle0,
-    /// <summary><c>sprite_object_unused_mother_brain_elbow_particle_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_mother_brain_elbow_particle_1</c>.</summary>
     SpriteObjectUnusedMotherBrainElbowParticle1,
-    /// <summary><c>sprite_object_unused_mother_brain_elbow_particle_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_mother_brain_elbow_particle_2</c>.</summary>
     SpriteObjectUnusedMotherBrainElbowParticle2,
-    /// <summary><c>sprite_object_unused_mother_brain_elbow_particle_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_mother_brain_elbow_particle_3</c>.</summary>
     SpriteObjectUnusedMotherBrainElbowParticle3,
-    /// <summary><c>sprite_object_unused_mother_brain_elbow_particle_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_mother_brain_elbow_particle_4</c>.</summary>
     SpriteObjectUnusedMotherBrainElbowParticle4,
-    /// <summary><c>sprite_object_unused_mother_brain_elbow_particle_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_mother_brain_elbow_particle_5</c>.</summary>
     SpriteObjectUnusedMotherBrainElbowParticle5,
-    /// <summary><c>sprite_object_unused_mother_brain_elbow_energy_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_mother_brain_elbow_energy_0</c>.</summary>
     SpriteObjectUnusedMotherBrainElbowEnergy0,
-    /// <summary><c>sprite_object_unused_mother_brain_elbow_energy_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_mother_brain_elbow_energy_1</c>.</summary>
     SpriteObjectUnusedMotherBrainElbowEnergy1,
-    /// <summary><c>sprite_object_unused_mother_brain_elbow_energy_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_mother_brain_elbow_energy_2</c>.</summary>
     SpriteObjectUnusedMotherBrainElbowEnergy2,
-    /// <summary><c>sprite_object_unused_mother_brain_elbow_energy_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_mother_brain_elbow_energy_3</c>.</summary>
     SpriteObjectUnusedMotherBrainElbowEnergy3,
-    /// <summary><c>sprite_object_unused_mother_brain_elbow_energy_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_mother_brain_elbow_energy_4</c>.</summary>
     SpriteObjectUnusedMotherBrainElbowEnergy4,
-    /// <summary><c>sprite_object_unused_mother_brain_elbow_energy_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_mother_brain_elbow_energy_5</c>.</summary>
     SpriteObjectUnusedMotherBrainElbowEnergy5,
-    /// <summary><c>sprite_object_small_explosion_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_small_explosion_0</c>.</summary>
     SpriteObjectSmallExplosion0,
-    /// <summary><c>sprite_object_small_explosion_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_small_explosion_1</c>.</summary>
     SpriteObjectSmallExplosion1,
-    /// <summary><c>sprite_object_small_explosion_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_small_explosion_2</c>.</summary>
     SpriteObjectSmallExplosion2,
-    /// <summary><c>sprite_object_small_explosion_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_small_explosion_3</c>.</summary>
     SpriteObjectSmallExplosion3,
-    /// <summary><c>sprite_object_small_explosion_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_small_explosion_4</c>.</summary>
     SpriteObjectSmallExplosion4,
-    /// <summary><c>sprite_object_small_explosion_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_small_explosion_5</c>.</summary>
     SpriteObjectSmallExplosion5,
-    /// <summary><c>sprite_object_unused_bomb_explosion_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_bomb_explosion_0</c>.</summary>
     SpriteObjectUnusedBombExplosion0,
-    /// <summary><c>sprite_object_unused_bomb_explosion_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_bomb_explosion_1</c>.</summary>
     SpriteObjectUnusedBombExplosion1,
-    /// <summary><c>sprite_object_unused_bomb_explosion_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_bomb_explosion_2</c>.</summary>
     SpriteObjectUnusedBombExplosion2,
-    /// <summary><c>sprite_object_unused_bomb_explosion_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_bomb_explosion_3</c>.</summary>
     SpriteObjectUnusedBombExplosion3,
-    /// <summary><c>sprite_object_unused_bomb_explosion_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_bomb_explosion_4</c>.</summary>
     SpriteObjectUnusedBombExplosion4,
-    /// <summary><c>sprite_object_unused_beam_trail_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_beam_trail_0</c>.</summary>
     SpriteObjectUnusedBeamTrail0,
-    /// <summary><c>sprite_object_unused_beam_trail_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_beam_trail_1</c>.</summary>
     SpriteObjectUnusedBeamTrail1,
-    /// <summary><c>sprite_object_unused_beam_trail_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_beam_trail_2</c>.</summary>
     SpriteObjectUnusedBeamTrail2,
-    /// <summary><c>sprite_object_unused_beam_trail_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_beam_trail_3</c>.</summary>
     SpriteObjectUnusedBeamTrail3,
-    /// <summary><c>sprite_object_unused_power_bomb_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_power_bomb_0</c>.</summary>
     SpriteObjectUnusedPowerBomb0,
-    /// <summary><c>sprite_object_unused_power_bomb_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_power_bomb_1</c>.</summary>
     SpriteObjectUnusedPowerBomb1,
-    /// <summary><c>sprite_object_unused_power_bomb_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_power_bomb_2</c>.</summary>
     SpriteObjectUnusedPowerBomb2,
-    /// <summary><c>sprite_object_dud_shot_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_dud_shot_0</c>.</summary>
     SpriteObjectDudShot0,
-    /// <summary><c>sprite_object_dud_shot_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_dud_shot_1</c>.</summary>
     SpriteObjectDudShot1,
-    /// <summary><c>sprite_object_dud_shot_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_dud_shot_2</c>.</summary>
     SpriteObjectDudShot2,
-    /// <summary><c>sprite_object_dud_shot_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_dud_shot_3</c>.</summary>
     SpriteObjectDudShot3,
-    /// <summary><c>sprite_object_dud_shot_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_dud_shot_4</c>.</summary>
     SpriteObjectDudShot4,
-    /// <summary><c>sprite_object_dud_shot_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_dud_shot_5</c>.</summary>
     SpriteObjectDudShot5,
-    /// <summary><c>sprite_object_unused_elevator_pad_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_elevator_pad_0</c>.</summary>
     SpriteObjectUnusedElevatorPad0,
-    /// <summary><c>sprite_object_unused_elevator_pad_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_elevator_pad_1</c>.</summary>
     SpriteObjectUnusedElevatorPad1,
-    /// <summary><c>sprite_object_small_dust_cloud_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_small_dust_cloud_0</c>.</summary>
     SpriteObjectSmallDustCloud0,
-    /// <summary><c>sprite_object_small_dust_cloud_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_small_dust_cloud_1</c>.</summary>
     SpriteObjectSmallDustCloud1,
-    /// <summary><c>sprite_object_small_dust_cloud_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_small_dust_cloud_2</c>.</summary>
     SpriteObjectSmallDustCloud2,
-    /// <summary><c>sprite_object_small_dust_cloud_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_small_dust_cloud_3</c>.</summary>
     SpriteObjectSmallDustCloud3,
-    /// <summary><c>sprite_object_pirate_landing_dust_cloud_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_pirate_landing_dust_cloud_0</c>.</summary>
     SpriteObjectPirateLandingDustCloud0,
-    /// <summary><c>sprite_object_pirate_landing_dust_cloud_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_pirate_landing_dust_cloud_1</c>.</summary>
     SpriteObjectPirateLandingDustCloud1,
-    /// <summary><c>sprite_object_pirate_landing_dust_cloud_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_pirate_landing_dust_cloud_2</c>.</summary>
     SpriteObjectPirateLandingDustCloud2,
-    /// <summary><c>sprite_object_pirate_landing_dust_cloud_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_pirate_landing_dust_cloud_3</c>.</summary>
     SpriteObjectPirateLandingDustCloud3,
-    /// <summary><c>sprite_object_unused_eye_door_sweat_drop_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_eye_door_sweat_drop_0</c>.</summary>
     SpriteObjectUnusedEyeDoorSweatDrop0,
-    /// <summary><c>sprite_object_unused_eye_door_sweat_drop_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_eye_door_sweat_drop_1</c>.</summary>
     SpriteObjectUnusedEyeDoorSweatDrop1,
-    /// <summary><c>sprite_object_unused_eye_door_sweat_drop_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_eye_door_sweat_drop_2</c>.</summary>
     SpriteObjectUnusedEyeDoorSweatDrop2,
-    /// <summary><c>sprite_object_unused_eye_door_sweat_drop_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_eye_door_sweat_drop_3</c>.</summary>
     SpriteObjectUnusedEyeDoorSweatDrop3,
-    /// <summary><c>sprite_object_smoke_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_smoke_0</c>.</summary>
     SpriteObjectSmoke0,
-    /// <summary><c>sprite_object_smoke_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_smoke_1</c>.</summary>
     SpriteObjectSmoke1,
-    /// <summary><c>sprite_object_smoke_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_smoke_2</c>.</summary>
     SpriteObjectSmoke2,
-    /// <summary><c>sprite_object_smoke_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_smoke_3</c>.</summary>
     SpriteObjectSmoke3,
-    /// <summary><c>sprite_object_unused_small_energy_drop_object_13_frame_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_small_energy_drop_object_13_frame_0</c>.</summary>
     SpriteObjectUnusedSmallEnergyDropObject13Frame0,
-    /// <summary><c>sprite_object_unused_small_energy_drop_object_13_frame_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_small_energy_drop_object_13_frame_1</c>.</summary>
     SpriteObjectUnusedSmallEnergyDropObject13Frame1,
-    /// <summary><c>sprite_object_unused_small_energy_drop_object_13_frame_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_small_energy_drop_object_13_frame_2</c>.</summary>
     SpriteObjectUnusedSmallEnergyDropObject13Frame2,
-    /// <summary><c>sprite_object_unused_small_energy_drop_object_13_frame_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_small_energy_drop_object_13_frame_3</c>.</summary>
     SpriteObjectUnusedSmallEnergyDropObject13Frame3,
-    /// <summary><c>sprite_object_unused_big_energy_drop_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_big_energy_drop_0</c>.</summary>
     SpriteObjectUnusedBigEnergyDrop0,
-    /// <summary><c>sprite_object_unused_big_energy_drop_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_big_energy_drop_1</c>.</summary>
     SpriteObjectUnusedBigEnergyDrop1,
-    /// <summary><c>sprite_object_unused_big_energy_drop_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_big_energy_drop_2</c>.</summary>
     SpriteObjectUnusedBigEnergyDrop2,
-    /// <summary><c>sprite_object_unused_big_energy_drop_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_big_energy_drop_3</c>.</summary>
     SpriteObjectUnusedBigEnergyDrop3,
-    /// <summary><c>sprite_object_unused_bomb_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_bomb_0</c>.</summary>
     SpriteObjectUnusedBomb0,
-    /// <summary><c>sprite_object_unused_bomb_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_bomb_1</c>.</summary>
     SpriteObjectUnusedBomb1,
-    /// <summary><c>sprite_object_unused_bomb_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_bomb_2</c>.</summary>
     SpriteObjectUnusedBomb2,
-    /// <summary><c>sprite_object_unused_bomb_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_bomb_3</c>.</summary>
     SpriteObjectUnusedBomb3,
-    /// <summary><c>sprite_object_unused_small_energy_drop_object_16_frame_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_small_energy_drop_object_16_frame_0</c>.</summary>
     SpriteObjectUnusedSmallEnergyDropObject16Frame0,
-    /// <summary><c>sprite_object_unused_small_energy_drop_object_16_frame_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_small_energy_drop_object_16_frame_1</c>.</summary>
     SpriteObjectUnusedSmallEnergyDropObject16Frame1,
-    /// <summary><c>sprite_object_unused_small_energy_drop_object_16_frame_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_small_energy_drop_object_16_frame_2</c>.</summary>
     SpriteObjectUnusedSmallEnergyDropObject16Frame2,
-    /// <summary><c>sprite_object_big_explosion_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_big_explosion_0</c>.</summary>
     SpriteObjectBigExplosion0,
-    /// <summary><c>sprite_object_big_explosion_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_big_explosion_1</c>.</summary>
     SpriteObjectBigExplosion1,
-    /// <summary><c>sprite_object_big_explosion_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_big_explosion_2</c>.</summary>
     SpriteObjectBigExplosion2,
-    /// <summary><c>sprite_object_big_explosion_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_big_explosion_3</c>.</summary>
     SpriteObjectBigExplosion3,
-    /// <summary><c>sprite_object_big_explosion_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_big_explosion_4</c>.</summary>
     SpriteObjectBigExplosion4,
-    /// <summary><c>sprite_object_big_explosion_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_big_explosion_5</c>.</summary>
     SpriteObjectBigExplosion5,
-    /// <summary><c>sprite_object_unused_object_38_frame_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_38_frame_0</c>.</summary>
     SpriteObjectUnusedObject38Frame0,
-    /// <summary><c>sprite_object_unused_object_38_frame_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_38_frame_1</c>.</summary>
     SpriteObjectUnusedObject38Frame1,
-    /// <summary><c>sprite_object_unused_object_38_frame_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_38_frame_2</c>.</summary>
     SpriteObjectUnusedObject38Frame2,
-    /// <summary><c>sprite_object_unused_object_38_frame_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_38_frame_3</c>.</summary>
     SpriteObjectUnusedObject38Frame3,
-    /// <summary><c>sprite_object_unused_object_38_frame_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_38_frame_4</c>.</summary>
     SpriteObjectUnusedObject38Frame4,
-    /// <summary><c>sprite_object_unused_object_38_frame_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_38_frame_5</c>.</summary>
     SpriteObjectUnusedObject38Frame5,
-    /// <summary><c>sprite_object_unused_object_39_frame_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_39_frame_0</c>.</summary>
     SpriteObjectUnusedObject39Frame0,
-    /// <summary><c>sprite_object_unused_object_39_frame_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_39_frame_1</c>.</summary>
     SpriteObjectUnusedObject39Frame1,
-    /// <summary><c>sprite_object_unused_object_39_frame_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_39_frame_2</c>.</summary>
     SpriteObjectUnusedObject39Frame2,
-    /// <summary><c>sprite_object_unused_object_39_frame_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_39_frame_3</c>.</summary>
     SpriteObjectUnusedObject39Frame3,
-    /// <summary><c>sprite_object_unused_object_39_frame_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_39_frame_4</c>.</summary>
     SpriteObjectUnusedObject39Frame4,
-    /// <summary><c>sprite_object_unused_object_42</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_42</c>.</summary>
     SpriteObjectUnusedObject42,
-    /// <summary><c>sprite_object_unused_object_40_frame_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_40_frame_0</c>.</summary>
     SpriteObjectUnusedObject40Frame0,
-    /// <summary><c>sprite_object_unused_object_40_frame_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_40_frame_1</c>.</summary>
     SpriteObjectUnusedObject40Frame1,
-    /// <summary><c>sprite_object_unused_object_40_frame_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_40_frame_2</c>.</summary>
     SpriteObjectUnusedObject40Frame2,
-    /// <summary><c>sprite_object_unused_object_40_frame_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_40_frame_3</c>.</summary>
     SpriteObjectUnusedObject40Frame3,
-    /// <summary><c>sprite_object_unused_object_40_frame_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_40_frame_4</c>.</summary>
     SpriteObjectUnusedObject40Frame4,
-    /// <summary><c>sprite_object_unused_object_40_frame_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_40_frame_5</c>.</summary>
     SpriteObjectUnusedObject40Frame5,
-    /// <summary><c>sprite_object_unused_object_41_frame_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_41_frame_0</c>.</summary>
     SpriteObjectUnusedObject41Frame0,
-    /// <summary><c>sprite_object_unused_object_41_frame_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_41_frame_1</c>.</summary>
     SpriteObjectUnusedObject41Frame1,
-    /// <summary><c>sprite_object_unused_object_41_frame_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_41_frame_2</c>.</summary>
     SpriteObjectUnusedObject41Frame2,
-    /// <summary><c>sprite_object_unused_object_41_frame_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_41_frame_3</c>.</summary>
     SpriteObjectUnusedObject41Frame3,
-    /// <summary><c>sprite_object_unused_object_41_frame_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_41_frame_4</c>.</summary>
     SpriteObjectUnusedObject41Frame4,
-    /// <summary><c>sprite_object_puromi_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_0</c>.</summary>
     SpriteObjectPuromi0,
-    /// <summary><c>sprite_object_puromi_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_1</c>.</summary>
     SpriteObjectPuromi1,
-    /// <summary><c>sprite_object_puromi_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_2</c>.</summary>
     SpriteObjectPuromi2,
-    /// <summary><c>sprite_object_puromi_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_3</c>.</summary>
     SpriteObjectPuromi3,
-    /// <summary><c>sprite_object_puromi_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_4</c>.</summary>
     SpriteObjectPuromi4,
-    /// <summary><c>sprite_object_puromi_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_5</c>.</summary>
     SpriteObjectPuromi5,
-    /// <summary><c>sprite_object_puromi_6</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_6</c>.</summary>
     SpriteObjectPuromi6,
-    /// <summary><c>sprite_object_puromi_7</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_7</c>.</summary>
     SpriteObjectPuromi7,
-    /// <summary><c>sprite_object_puromi_right_explosion_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_right_explosion_0</c>.</summary>
     SpriteObjectPuromiRightExplosion0,
-    /// <summary><c>sprite_object_puromi_right_explosion_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_right_explosion_1</c>.</summary>
     SpriteObjectPuromiRightExplosion1,
-    /// <summary><c>sprite_object_puromi_right_explosion_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_right_explosion_2</c>.</summary>
     SpriteObjectPuromiRightExplosion2,
-    /// <summary><c>sprite_object_puromi_right_explosion_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_right_explosion_3</c>.</summary>
     SpriteObjectPuromiRightExplosion3,
-    /// <summary><c>sprite_object_puromi_right_explosion_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_right_explosion_4</c>.</summary>
     SpriteObjectPuromiRightExplosion4,
-    /// <summary><c>sprite_object_puromi_right_explosion_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_right_explosion_5</c>.</summary>
     SpriteObjectPuromiRightExplosion5,
-    /// <summary><c>sprite_object_puromi_right_explosion_6</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_right_explosion_6</c>.</summary>
     SpriteObjectPuromiRightExplosion6,
-    /// <summary><c>sprite_object_puromi_left_explosion_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_left_explosion_0</c>.</summary>
     SpriteObjectPuromiLeftExplosion0,
-    /// <summary><c>sprite_object_puromi_left_explosion_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_left_explosion_1</c>.</summary>
     SpriteObjectPuromiLeftExplosion1,
-    /// <summary><c>sprite_object_puromi_left_explosion_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_left_explosion_2</c>.</summary>
     SpriteObjectPuromiLeftExplosion2,
-    /// <summary><c>sprite_object_puromi_left_explosion_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_left_explosion_3</c>.</summary>
     SpriteObjectPuromiLeftExplosion3,
-    /// <summary><c>sprite_object_puromi_left_explosion_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_left_explosion_4</c>.</summary>
     SpriteObjectPuromiLeftExplosion4,
-    /// <summary><c>sprite_object_puromi_left_explosion_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_left_explosion_5</c>.</summary>
     SpriteObjectPuromiLeftExplosion5,
-    /// <summary><c>sprite_object_puromi_left_explosion_6</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_left_explosion_6</c>.</summary>
     SpriteObjectPuromiLeftExplosion6,
-    /// <summary><c>sprite_object_puromi_splash_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_splash_0</c>.</summary>
     SpriteObjectPuromiSplash0,
-    /// <summary><c>sprite_object_puromi_splash_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_splash_1</c>.</summary>
     SpriteObjectPuromiSplash1,
-    /// <summary><c>sprite_object_puromi_splash_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_splash_2</c>.</summary>
     SpriteObjectPuromiSplash2,
-    /// <summary><c>sprite_object_puromi_splash_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_splash_4</c>.</summary>
     SpriteObjectPuromiSplash4,
-    /// <summary><c>sprite_object_unused_object_47</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_47</c>.</summary>
     SpriteObjectUnusedObject47,
-    /// <summary><c>sprite_object_falling_spark_trail_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_falling_spark_trail_0</c>.</summary>
     SpriteObjectFallingSparkTrail0,
-    /// <summary><c>sprite_object_falling_spark_trail_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_falling_spark_trail_1</c>.</summary>
     SpriteObjectFallingSparkTrail1,
-    /// <summary><c>sprite_object_falling_spark_trail_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_falling_spark_trail_2</c>.</summary>
     SpriteObjectFallingSparkTrail2,
-    /// <summary><c>sprite_object_falling_spark_trail_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_falling_spark_trail_3</c>.</summary>
     SpriteObjectFallingSparkTrail3,
-    /// <summary><c>sprite_object_metroid_shell_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_shell_0</c>.</summary>
     SpriteObjectMetroidShell0,
-    /// <summary><c>sprite_object_metroid_shell_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_shell_1</c>.</summary>
     SpriteObjectMetroidShell1,
-    /// <summary><c>sprite_object_metroid_shell_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_shell_2</c>.</summary>
     SpriteObjectMetroidShell2,
-    /// <summary><c>sprite_object_unused_metroid_insides_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_metroid_insides_0</c>.</summary>
     SpriteObjectUnusedMetroidInsides0,
-    /// <summary><c>sprite_object_unused_metroid_insides_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_metroid_insides_1</c>.</summary>
     SpriteObjectUnusedMetroidInsides1,
-    /// <summary><c>sprite_object_unused_metroid_insides_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_metroid_insides_2</c>.</summary>
     SpriteObjectUnusedMetroidInsides2,
-    /// <summary><c>sprite_object_unused_metroid_insides_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_metroid_insides_3</c>.</summary>
     SpriteObjectUnusedMetroidInsides3,
-    /// <summary><c>sprite_object_metroid_electricity_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_0</c>.</summary>
     SpriteObjectMetroidElectricity0,
-    /// <summary><c>sprite_object_metroid_electricity_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_1</c>.</summary>
     SpriteObjectMetroidElectricity1,
-    /// <summary><c>sprite_object_metroid_electricity_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_2</c>.</summary>
     SpriteObjectMetroidElectricity2,
-    /// <summary><c>sprite_object_metroid_electricity_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_3</c>.</summary>
     SpriteObjectMetroidElectricity3,
-    /// <summary><c>sprite_object_metroid_electricity_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_4</c>.</summary>
     SpriteObjectMetroidElectricity4,
-    /// <summary><c>sprite_object_metroid_electricity_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_5</c>.</summary>
     SpriteObjectMetroidElectricity5,
-    /// <summary><c>sprite_object_metroid_electricity_6</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_6</c>.</summary>
     SpriteObjectMetroidElectricity6,
-    /// <summary><c>sprite_object_metroid_electricity_7</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_7</c>.</summary>
     SpriteObjectMetroidElectricity7,
-    /// <summary><c>sprite_object_metroid_electricity_8</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_8</c>.</summary>
     SpriteObjectMetroidElectricity8,
-    /// <summary><c>sprite_object_metroid_electricity_9</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_9</c>.</summary>
     SpriteObjectMetroidElectricity9,
-    /// <summary><c>sprite_object_metroid_electricity_10</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_10</c>.</summary>
     SpriteObjectMetroidElectricity10,
-    /// <summary><c>sprite_object_metroid_electricity_11</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_11</c>.</summary>
     SpriteObjectMetroidElectricity11,
-    /// <summary><c>sprite_object_metroid_electricity_12</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_12</c>.</summary>
     SpriteObjectMetroidElectricity12,
-    /// <summary><c>sprite_object_metroid_electricity_13</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_13</c>.</summary>
     SpriteObjectMetroidElectricity13,
-    /// <summary><c>sprite_object_metroid_electricity_14</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_14</c>.</summary>
     SpriteObjectMetroidElectricity14,
-    /// <summary><c>sprite_object_metroid_electricity_15</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_15</c>.</summary>
     SpriteObjectMetroidElectricity15,
-    /// <summary><c>sprite_object_metroid_electricity_16</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_16</c>.</summary>
     SpriteObjectMetroidElectricity16,
-    /// <summary><c>sprite_object_metroid_electricity_17</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_17</c>.</summary>
     SpriteObjectMetroidElectricity17,
-    /// <summary><c>sprite_object_metroid_electricity_18</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_18</c>.</summary>
     SpriteObjectMetroidElectricity18,
-    /// <summary><c>sprite_object_metroid_electricity_19</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_19</c>.</summary>
     SpriteObjectMetroidElectricity19,
-    /// <summary><c>sprite_object_metroid_electricity_20</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_20</c>.</summary>
     SpriteObjectMetroidElectricity20,
-    /// <summary><c>sprite_object_metroid_electricity_21</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_21</c>.</summary>
     SpriteObjectMetroidElectricity21,
-    /// <summary><c>sprite_object_metroid_electricity_22</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_22</c>.</summary>
     SpriteObjectMetroidElectricity22,
-    /// <summary><c>sprite_object_metroid_electricity_23</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_23</c>.</summary>
     SpriteObjectMetroidElectricity23,
-    /// <summary><c>sprite_object_enemy_shot_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_enemy_shot_0</c>.</summary>
     SpriteObjectEnemyShot0,
-    /// <summary><c>sprite_object_enemy_shot_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_enemy_shot_1</c>.</summary>
     SpriteObjectEnemyShot1,
-    /// <summary><c>sprite_object_enemy_shot_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_enemy_shot_2</c>.</summary>
     SpriteObjectEnemyShot2,
-    /// <summary><c>sprite_object_enemy_shot_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_enemy_shot_3</c>.</summary>
     SpriteObjectEnemyShot3,
-    /// <summary><c>sprite_object_yapping_maw_base_facing_down</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_yapping_maw_base_facing_down</c>.</summary>
     SpriteObjectYappingMawBaseFacingDown,
-    /// <summary><c>sprite_object_yapping_maw_base_facing_up</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_yapping_maw_base_facing_up</c>.</summary>
     SpriteObjectYappingMawBaseFacingUp,
-    /// <summary><c>sprite_object_unused_object_58_frame_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_58_frame_0</c>.</summary>
     SpriteObjectUnusedObject58Frame0,
-    /// <summary><c>sprite_object_unused_object_58_frame_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_58_frame_1</c>.</summary>
     SpriteObjectUnusedObject58Frame1,
-    /// <summary><c>sprite_object_unused_object_58_frame_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_58_frame_2</c>.</summary>
     SpriteObjectUnusedObject58Frame2,
-    /// <summary><c>sprite_object_unused_object_58_frame_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_58_frame_3</c>.</summary>
     SpriteObjectUnusedObject58Frame3,
-    /// <summary><c>sprite_object_unused_object_58_frame_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_58_frame_4</c>.</summary>
     SpriteObjectUnusedObject58Frame4,
-    /// <summary><c>sprite_object_unused_object_58_frame_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_58_frame_5</c>.</summary>
     SpriteObjectUnusedObject58Frame5,
-    /// <summary><c>sprite_object_unused_object_58_frame_6</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_58_frame_6</c>.</summary>
     SpriteObjectUnusedObject58Frame6,
-    /// <summary><c>sprite_object_unused_object_58_frame_7</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_58_frame_7</c>.</summary>
     SpriteObjectUnusedObject58Frame7,
-    /// <summary><c>sprite_object_evir_facing_right_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_evir_facing_right_0</c>.</summary>
     SpriteObjectEvirFacingRight0,
-    /// <summary><c>sprite_object_evir_facing_right_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_evir_facing_right_1</c>.</summary>
     SpriteObjectEvirFacingRight1,
-    /// <summary><c>sprite_object_evir_facing_right_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_evir_facing_right_2</c>.</summary>
     SpriteObjectEvirFacingRight2,
-    /// <summary><c>sprite_object_evir_facing_right_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_evir_facing_right_3</c>.</summary>
     SpriteObjectEvirFacingRight3,
-    /// <summary><c>sprite_object_draygon_foaming_at_the_mouth_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_draygon_foaming_at_the_mouth_0</c>.</summary>
     SpriteObjectDraygonFoamingAtTheMouth0,
-    /// <summary><c>sprite_object_draygon_foaming_at_the_mouth_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_draygon_foaming_at_the_mouth_1</c>.</summary>
     SpriteObjectDraygonFoamingAtTheMouth1,
-    /// <summary><c>sprite_object_draygon_foaming_at_the_mouth_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_draygon_foaming_at_the_mouth_2</c>.</summary>
     SpriteObjectDraygonFoamingAtTheMouth2,
-    /// <summary><c>sprite_object_draygon_foaming_at_the_mouth_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_draygon_foaming_at_the_mouth_3</c>.</summary>
     SpriteObjectDraygonFoamingAtTheMouth3,
-    /// <summary><c>sprite_object_draygon_foaming_at_the_mouth_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_draygon_foaming_at_the_mouth_4</c>.</summary>
     SpriteObjectDraygonFoamingAtTheMouth4,
-    /// <summary><c>sprite_object_draygon_foaming_at_the_mouth_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_draygon_foaming_at_the_mouth_5</c>.</summary>
     SpriteObjectDraygonFoamingAtTheMouth5,
-    /// <summary><c>sprite_object_draygon_foaming_at_the_mouth_6</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_draygon_foaming_at_the_mouth_6</c>.</summary>
     SpriteObjectDraygonFoamingAtTheMouth6,
-    /// <summary><c>sprite_object_draygon_foaming_at_the_mouth_7</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sprite_object_draygon_foaming_at_the_mouth_7</c>.</summary>
     SpriteObjectDraygonFoamingAtTheMouth7,
-    /// <summary><c>yapping_maw_pose_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_0</c>.</summary>
     YappingMawPose0,
-    /// <summary><c>yapping_maw_pose_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_1</c>.</summary>
     YappingMawPose1,
-    /// <summary><c>yapping_maw_pose_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_2</c>.</summary>
     YappingMawPose2,
-    /// <summary><c>yapping_maw_pose_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_3</c>.</summary>
     YappingMawPose3,
-    /// <summary><c>yapping_maw_pose_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_4</c>.</summary>
     YappingMawPose4,
-    /// <summary><c>yapping_maw_pose_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_5</c>.</summary>
     YappingMawPose5,
-    /// <summary><c>yapping_maw_pose_6</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_6</c>.</summary>
     YappingMawPose6,
-    /// <summary><c>yapping_maw_pose_7</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_7</c>.</summary>
     YappingMawPose7,
-    /// <summary><c>yapping_maw_pose_8</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_8</c>.</summary>
     YappingMawPose8,
-    /// <summary><c>yapping_maw_pose_9</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_9</c>.</summary>
     YappingMawPose9,
-    /// <summary><c>yapping_maw_pose_10</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_10</c>.</summary>
     YappingMawPose10,
-    /// <summary><c>yapping_maw_pose_11</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_11</c>.</summary>
     YappingMawPose11,
-    /// <summary><c>yapping_maw_pose_12</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_12</c>.</summary>
     YappingMawPose12,
-    /// <summary><c>yapping_maw_pose_13</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_13</c>.</summary>
     YappingMawPose13,
-    /// <summary><c>yapping_maw_pose_14</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_14</c>.</summary>
     YappingMawPose14,
-    /// <summary><c>yapping_maw_pose_15</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_15</c>.</summary>
     YappingMawPose15,
-    /// <summary><c>yapping_maw_pose_16</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_16</c>.</summary>
     YappingMawPose16,
-    /// <summary><c>yapping_maw_pose_17</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_17</c>.</summary>
     YappingMawPose17,
-    /// <summary><c>yapping_maw_pose_18</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_18</c>.</summary>
     YappingMawPose18,
-    /// <summary><c>yapping_maw_pose_19</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_19</c>.</summary>
     YappingMawPose19,
-    /// <summary><c>yapping_maw_pose_20</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_20</c>.</summary>
     YappingMawPose20,
-    /// <summary><c>yapping_maw_pose_21</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_21</c>.</summary>
     YappingMawPose21,
-    /// <summary><c>yapping_maw_pose_22</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_22</c>.</summary>
     YappingMawPose22,
-    /// <summary><c>yapping_maw_pose_23</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_23</c>.</summary>
     YappingMawPose23,
-    /// <summary><c>ki_hunter_pose_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_0</c>.</summary>
     KiHunterPose0,
-    /// <summary><c>ki_hunter_pose_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_1</c>.</summary>
     KiHunterPose1,
-    /// <summary><c>ki_hunter_pose_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_2</c>.</summary>
     KiHunterPose2,
-    /// <summary><c>ki_hunter_pose_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_3</c>.</summary>
     KiHunterPose3,
-    /// <summary><c>ki_hunter_pose_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_4</c>.</summary>
     KiHunterPose4,
-    /// <summary><c>ki_hunter_pose_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_5</c>.</summary>
     KiHunterPose5,
-    /// <summary><c>ki_hunter_pose_6</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_6</c>.</summary>
     KiHunterPose6,
-    /// <summary><c>ki_hunter_pose_7</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_7</c>.</summary>
     KiHunterPose7,
-    /// <summary><c>ki_hunter_pose_8</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_8</c>.</summary>
     KiHunterPose8,
-    /// <summary><c>ki_hunter_pose_9</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_9</c>.</summary>
     KiHunterPose9,
-    /// <summary><c>ki_hunter_pose_10</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_10</c>.</summary>
     KiHunterPose10,
-    /// <summary><c>ki_hunter_pose_11</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_11</c>.</summary>
     KiHunterPose11,
-    /// <summary><c>ki_hunter_pose_12</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_12</c>.</summary>
     KiHunterPose12,
-    /// <summary><c>ki_hunter_pose_13</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_13</c>.</summary>
     KiHunterPose13,
-    /// <summary><c>ki_hunter_pose_14</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_14</c>.</summary>
     KiHunterPose14,
-    /// <summary><c>ki_hunter_pose_15</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_15</c>.</summary>
     KiHunterPose15,
-    /// <summary><c>ki_hunter_pose_16</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_16</c>.</summary>
     KiHunterPose16,
-    /// <summary><c>ki_hunter_pose_17</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_17</c>.</summary>
     KiHunterPose17,
-    /// <summary><c>ki_hunter_pose_18</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_18</c>.</summary>
     KiHunterPose18,
-    /// <summary><c>ki_hunter_pose_19</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_19</c>.</summary>
     KiHunterPose19,
-    /// <summary><c>ki_hunter_pose_20</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_20</c>.</summary>
     KiHunterPose20,
-    /// <summary><c>ki_hunter_pose_21</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_21</c>.</summary>
     KiHunterPose21,
-    /// <summary><c>ki_hunter_pose_22</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_22</c>.</summary>
     KiHunterPose22,
-    /// <summary><c>ki_hunter_pose_23</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_23</c>.</summary>
     KiHunterPose23,
-    /// <summary><c>ki_hunter_pose_24</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_24</c>.</summary>
     KiHunterPose24,
-    /// <summary><c>ki_hunter_pose_25</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_25</c>.</summary>
     KiHunterPose25,
-    /// <summary><c>ki_hunter_pose_26</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_26</c>.</summary>
     KiHunterPose26,
-    /// <summary><c>ki_hunter_pose_27</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_27</c>.</summary>
     KiHunterPose27,
-    /// <summary><c>ki_hunter_pose_28</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_28</c>.</summary>
     KiHunterPose28,
-    /// <summary><c>ki_hunter_pose_29</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_29</c>.</summary>
     KiHunterPose29,
-    /// <summary><c>ki_hunter_pose_30</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_30</c>.</summary>
     KiHunterPose30,
-    /// <summary><c>ki_hunter_pose_31</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_31</c>.</summary>
     KiHunterPose31,
-    /// <summary><c>ki_hunter_pose_32</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_32</c>.</summary>
     KiHunterPose32,
-    /// <summary><c>ki_hunter_pose_33</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_33</c>.</summary>
     KiHunterPose33,
-    /// <summary><c>ki_hunter_pose_34</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_34</c>.</summary>
     KiHunterPose34,
-    /// <summary><c>ki_hunter_pose_35</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_35</c>.</summary>
     KiHunterPose35,
-    /// <summary><c>ki_hunter_pose_36</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_36</c>.</summary>
     KiHunterPose36,
-    /// <summary><c>ki_hunter_pose_37</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_37</c>.</summary>
     KiHunterPose37,
-    /// <summary><c>ki_hunter_pose_38</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_38</c>.</summary>
     KiHunterPose38,
-    /// <summary><c>ki_hunter_pose_39</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_39</c>.</summary>
     KiHunterPose39,
-    /// <summary><c>ki_hunter_pose_40</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_40</c>.</summary>
     KiHunterPose40,
-    /// <summary><c>mother_brain_head_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>mother_brain_head_0</c>.</summary>
     MotherBrainHead0,
-    /// <summary><c>mother_brain_head_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>mother_brain_head_1</c>.</summary>
     MotherBrainHead1,
-    /// <summary><c>mother_brain_head_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>mother_brain_head_2</c>.</summary>
     MotherBrainHead2,
-    /// <summary><c>mother_brain_head_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>mother_brain_head_3</c>.</summary>
     MotherBrainHead3,
-    /// <summary><c>mother_brain_head_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>mother_brain_head_4</c>.</summary>
     MotherBrainHead4,
-    /// <summary><c>mother_brain_neck_joint</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>mother_brain_neck_joint</c>.</summary>
     MotherBrainNeckJoint,
-    /// <summary><c>mother_brain_head_6</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>mother_brain_head_6</c>.</summary>
     MotherBrainHead6,
-    /// <summary><c>mother_brain_head_7</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>mother_brain_head_7</c>.</summary>
     MotherBrainHead7,
-    /// <summary><c>mother_brain_head_8</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>mother_brain_head_8</c>.</summary>
     MotherBrainHead8,
-    /// <summary><c>mother_brain_head_9</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>mother_brain_head_9</c>.</summary>
     MotherBrainHead9,
-    /// <summary><c>mother_brain_head_10</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>mother_brain_head_10</c>.</summary>
     MotherBrainHead10,
-    /// <summary><c>mother_brain_head_11</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>mother_brain_head_11</c>.</summary>
     MotherBrainHead11,
-    /// <summary><c>mother_brain_head_12</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>mother_brain_head_12</c>.</summary>
     MotherBrainHead12,
-    /// <summary><c>mother_brain_tube_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>mother_brain_tube_0</c>.</summary>
     MotherBrainTube0,
-    /// <summary><c>mother_brain_tube_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>mother_brain_tube_1</c>.</summary>
     MotherBrainTube1,
-    /// <summary><c>mother_brain_tube_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>mother_brain_tube_2</c>.</summary>
     MotherBrainTube2,
-    /// <summary><c>mother_brain_tube_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>mother_brain_tube_3</c>.</summary>
     MotherBrainTube3,
-    /// <summary><c>mother_brain_tube_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>mother_brain_tube_4</c>.</summary>
     MotherBrainTube4,
-    /// <summary><c>dead_torizo_corpse_hook</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dead_torizo_corpse_hook</c>.</summary>
     DeadTorizoCorpseHook,
-    /// <summary><c>ridley_tail_segment_small</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_tail_segment_small</c>.</summary>
     RidleyTailSegmentSmall,
-    /// <summary><c>ridley_tail_segment_medium</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_tail_segment_medium</c>.</summary>
     RidleyTailSegmentMedium,
-    /// <summary><c>ridley_tail_segment_large</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_tail_segment_large</c>.</summary>
     RidleyTailSegmentLarge,
-    /// <summary><c>ridley_tail_tip_12</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_tail_tip_12</c>.</summary>
     RidleyTailTip12,
-    /// <summary><c>ridley_tail_tip_11</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_tail_tip_11</c>.</summary>
     RidleyTailTip11,
-    /// <summary><c>ridley_tail_tip_10</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_tail_tip_10</c>.</summary>
     RidleyTailTip10,
-    /// <summary><c>ridley_tail_tip_9</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_tail_tip_9</c>.</summary>
     RidleyTailTip9,
-    /// <summary><c>ridley_tail_tip_8</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_tail_tip_8</c>.</summary>
     RidleyTailTip8,
-    /// <summary><c>ridley_tail_tip_7</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_tail_tip_7</c>.</summary>
     RidleyTailTip7,
-    /// <summary><c>ridley_tail_tip_6</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_tail_tip_6</c>.</summary>
     RidleyTailTip6,
-    /// <summary><c>ridley_tail_tip_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_tail_tip_5</c>.</summary>
     RidleyTailTip5,
-    /// <summary><c>ridley_tail_tip_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_tail_tip_4</c>.</summary>
     RidleyTailTip4,
-    /// <summary><c>ridley_tail_tip_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_tail_tip_3</c>.</summary>
     RidleyTailTip3,
-    /// <summary><c>ridley_tail_tip_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_tail_tip_2</c>.</summary>
     RidleyTailTip2,
-    /// <summary><c>ridley_tail_tip_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_tail_tip_1</c>.</summary>
     RidleyTailTip1,
-    /// <summary><c>ridley_tail_tip_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_tail_tip_0</c>.</summary>
     RidleyTailTip0,
-    /// <summary><c>ridley_tail_tip_15</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_tail_tip_15</c>.</summary>
     RidleyTailTip15,
-    /// <summary><c>ridley_tail_tip_14</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_tail_tip_14</c>.</summary>
     RidleyTailTip14,
-    /// <summary><c>ridley_tail_tip_13</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_tail_tip_13</c>.</summary>
     RidleyTailTip13,
-    /// <summary><c>ridley_wing_left_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_wing_left_0</c>.</summary>
     RidleyWingLeft0,
-    /// <summary><c>ridley_wing_left_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_wing_left_1</c>.</summary>
     RidleyWingLeft1,
-    /// <summary><c>ridley_wing_left_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_wing_left_2</c>.</summary>
     RidleyWingLeft2,
-    /// <summary><c>ridley_wing_left_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_wing_left_3</c>.</summary>
     RidleyWingLeft3,
-    /// <summary><c>ridley_wing_left_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_wing_left_4</c>.</summary>
     RidleyWingLeft4,
-    /// <summary><c>ridley_wing_left_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_wing_left_5</c>.</summary>
     RidleyWingLeft5,
-    /// <summary><c>ridley_wing_right_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_wing_right_0</c>.</summary>
     RidleyWingRight0,
-    /// <summary><c>ridley_wing_right_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_wing_right_1</c>.</summary>
     RidleyWingRight1,
-    /// <summary><c>ridley_wing_right_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_wing_right_2</c>.</summary>
     RidleyWingRight2,
-    /// <summary><c>ridley_wing_right_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_wing_right_3</c>.</summary>
     RidleyWingRight3,
-    /// <summary><c>ridley_wing_right_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_wing_right_4</c>.</summary>
     RidleyWingRight4,
-    /// <summary><c>ridley_wing_right_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_wing_right_5</c>.</summary>
     RidleyWingRight5,
-    /// <summary><c>sciser_upside_right_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sciser_upside_right_0</c>.</summary>
     SciserUpsideRight0,
-    /// <summary><c>sciser_upside_right_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sciser_upside_right_1</c>.</summary>
     SciserUpsideRight1,
-    /// <summary><c>sciser_upside_right_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sciser_upside_right_2</c>.</summary>
     SciserUpsideRight2,
-    /// <summary><c>sciser_upside_left_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sciser_upside_left_0</c>.</summary>
     SciserUpsideLeft0,
-    /// <summary><c>sciser_upside_left_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sciser_upside_left_1</c>.</summary>
     SciserUpsideLeft1,
-    /// <summary><c>sciser_upside_left_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sciser_upside_left_2</c>.</summary>
     SciserUpsideLeft2,
-    /// <summary><c>sciser_upside_down_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sciser_upside_down_0</c>.</summary>
     SciserUpsideDown0,
-    /// <summary><c>sciser_upside_down_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sciser_upside_down_1</c>.</summary>
     SciserUpsideDown1,
-    /// <summary><c>sciser_upside_down_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sciser_upside_down_2</c>.</summary>
     SciserUpsideDown2,
-    /// <summary><c>sciser_upside_up_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sciser_upside_up_0</c>.</summary>
     SciserUpsideUp0,
-    /// <summary><c>sciser_upside_up_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sciser_upside_up_1</c>.</summary>
     SciserUpsideUp1,
-    /// <summary><c>sciser_upside_up_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>sciser_upside_up_2</c>.</summary>
     SciserUpsideUp2,
-    /// <summary><c>fly_shared_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fly_shared_0</c>.</summary>
     FlyShared0,
-    /// <summary><c>fly_shared_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fly_shared_1</c>.</summary>
     FlyShared1,
-    /// <summary><c>fly_shared_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fly_shared_2</c>.</summary>
     FlyShared2,
-    /// <summary><c>fly_shared_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>fly_shared_3</c>.</summary>
     FlyShared3,
-    /// <summary><c>kago_cycle_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>kago_cycle_0</c>.</summary>
     KagoCycle0,
-    /// <summary><c>kago_cycle_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>kago_cycle_1</c>.</summary>
     KagoCycle1,
-    /// <summary><c>kago_cycle_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>kago_cycle_2</c>.</summary>
     KagoCycle2,
-    /// <summary><c>face_block_neutral</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>face_block_neutral</c>.</summary>
     FaceBlockNeutral,
-    /// <summary><c>face_block_samus_left_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>face_block_samus_left_1</c>.</summary>
     FaceBlockSamusLeft1,
-    /// <summary><c>face_block_samus_left_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>face_block_samus_left_2</c>.</summary>
     FaceBlockSamusLeft2,
-    /// <summary><c>face_block_samus_right_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>face_block_samus_right_1</c>.</summary>
     FaceBlockSamusRight1,
-    /// <summary><c>face_block_samus_right_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>face_block_samus_right_2</c>.</summary>
     FaceBlockSamusRight2,
-    /// <summary><c>morph_eye_active_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>morph_eye_active_0</c>.</summary>
     MorphEyeActive0,
-    /// <summary><c>morph_eye_active_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>morph_eye_active_1</c>.</summary>
     MorphEyeActive1,
-    /// <summary><c>morph_eye_active_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>morph_eye_active_2</c>.</summary>
     MorphEyeActive2,
-    /// <summary><c>morph_eye_active_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>morph_eye_active_3</c>.</summary>
     MorphEyeActive3,
-    /// <summary><c>morph_eye_active_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>morph_eye_active_4</c>.</summary>
     MorphEyeActive4,
-    /// <summary><c>morph_eye_active_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>morph_eye_active_5</c>.</summary>
     MorphEyeActive5,
-    /// <summary><c>morph_eye_active_6</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>morph_eye_active_6</c>.</summary>
     MorphEyeActive6,
-    /// <summary><c>morph_eye_active_7</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>morph_eye_active_7</c>.</summary>
     MorphEyeActive7,
-    /// <summary><c>morph_eye_active_8</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>morph_eye_active_8</c>.</summary>
     MorphEyeActive8,
-    /// <summary><c>morph_eye_active_9</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>morph_eye_active_9</c>.</summary>
     MorphEyeActive9,
-    /// <summary><c>morph_eye_active_10</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>morph_eye_active_10</c>.</summary>
     MorphEyeActive10,
-    /// <summary><c>morph_eye_active_11</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>morph_eye_active_11</c>.</summary>
     MorphEyeActive11,
-    /// <summary><c>morph_eye_active_12</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>morph_eye_active_12</c>.</summary>
     MorphEyeActive12,
-    /// <summary><c>morph_eye_active_13</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>morph_eye_active_13</c>.</summary>
     MorphEyeActive13,
-    /// <summary><c>morph_eye_right_transition</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>morph_eye_right_transition</c>.</summary>
     MorphEyeRightTransition,
-    /// <summary><c>morph_eye_right_closed</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>morph_eye_right_closed</c>.</summary>
     MorphEyeRightClosed,
-    /// <summary><c>morph_eye_left_transition</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>morph_eye_left_transition</c>.</summary>
     MorphEyeLeftTransition,
-    /// <summary><c>morph_eye_left_closed</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>morph_eye_left_closed</c>.</summary>
     MorphEyeLeftClosed,
-    /// <summary><c>morph_eye_mount_right</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>morph_eye_mount_right</c>.</summary>
     MorphEyeMountRight,
-    /// <summary><c>morph_eye_mount_down</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>morph_eye_mount_down</c>.</summary>
     MorphEyeMountDown,
-    /// <summary><c>morph_eye_mount_left</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>morph_eye_mount_left</c>.</summary>
     MorphEyeMountLeft,
-    /// <summary><c>morph_eye_mount_up</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>morph_eye_mount_up</c>.</summary>
     MorphEyeMountUp,
-    /// <summary><c>shutter_growing_10px</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>shutter_growing_10px</c>.</summary>
     ShutterGrowing10px,
-    /// <summary><c>shutter_growing_20px</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>shutter_growing_20px</c>.</summary>
     ShutterGrowing20px,
-    /// <summary><c>shutter_growing_30px</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>shutter_growing_30px</c>.</summary>
     ShutterGrowing30px,
-    /// <summary><c>shutter_vertical_40px</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>shutter_vertical_40px</c>.</summary>
     ShutterVertical40px,
-    /// <summary><c>shutter_horizontal</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>shutter_horizontal</c>.</summary>
     ShutterHorizontal,
-    /// <summary><c>metroid_body_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>metroid_body_0</c>.</summary>
     MetroidBody0,
-    /// <summary><c>metroid_body_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>metroid_body_1</c>.</summary>
     MetroidBody1,
-    /// <summary><c>metroid_body_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>metroid_body_2</c>.</summary>
     MetroidBody2,
-    /// <summary><c>metroid_body_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>metroid_body_3</c>.</summary>
     MetroidBody3,
-    /// <summary><c>shaktool_final_saw_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>shaktool_final_saw_0</c>.</summary>
     ShaktoolFinalSaw0,
-    /// <summary><c>shaktool_final_saw_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>shaktool_final_saw_1</c>.</summary>
     ShaktoolFinalSaw1,
-    /// <summary><c>shaktool_final_saw_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>shaktool_final_saw_2</c>.</summary>
     ShaktoolFinalSaw2,
-    /// <summary><c>shaktool_arm</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>shaktool_arm</c>.</summary>
     ShaktoolArm,
-    /// <summary><c>shaktool_head_left</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>shaktool_head_left</c>.</summary>
     ShaktoolHeadLeft,
-    /// <summary><c>shaktool_head_up_left</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>shaktool_head_up_left</c>.</summary>
     ShaktoolHeadUpLeft,
-    /// <summary><c>shaktool_head_up</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>shaktool_head_up</c>.</summary>
     ShaktoolHeadUp,
-    /// <summary><c>shaktool_head_up_right</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>shaktool_head_up_right</c>.</summary>
     ShaktoolHeadUpRight,
-    /// <summary><c>shaktool_head_right</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>shaktool_head_right</c>.</summary>
     ShaktoolHeadRight,
-    /// <summary><c>shaktool_head_down_right</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>shaktool_head_down_right</c>.</summary>
     ShaktoolHeadDownRight,
-    /// <summary><c>shaktool_head_down</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>shaktool_head_down</c>.</summary>
     ShaktoolHeadDown,
-    /// <summary><c>shaktool_head_down_left</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>shaktool_head_down_left</c>.</summary>
     ShaktoolHeadDownLeft,
-    /// <summary><c>shaktool_primary_saw_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>shaktool_primary_saw_0</c>.</summary>
     ShaktoolPrimarySaw0,
-    /// <summary><c>shaktool_primary_saw_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>shaktool_primary_saw_1</c>.</summary>
     ShaktoolPrimarySaw1,
-    /// <summary><c>shaktool_primary_saw_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>shaktool_primary_saw_2</c>.</summary>
     ShaktoolPrimarySaw2,
-    /// <summary><c>tripper_moving_left_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tripper_moving_left_0</c>.</summary>
     TripperMovingLeft0,
-    /// <summary><c>tripper_moving_left_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tripper_moving_left_1</c>.</summary>
     TripperMovingLeft1,
-    /// <summary><c>tripper_moving_left_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tripper_moving_left_2</c>.</summary>
     TripperMovingLeft2,
-    /// <summary><c>tripper_moving_right_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tripper_moving_right_0</c>.</summary>
     TripperMovingRight0,
-    /// <summary><c>tripper_moving_right_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tripper_moving_right_1</c>.</summary>
     TripperMovingRight1,
-    /// <summary><c>tripper_moving_right_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tripper_moving_right_2</c>.</summary>
     TripperMovingRight2,
-    /// <summary><c>tripper_still_moving_left_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tripper_still_moving_left_0</c>.</summary>
     TripperStillMovingLeft0,
-    /// <summary><c>tripper_still_moving_left_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tripper_still_moving_left_1</c>.</summary>
     TripperStillMovingLeft1,
-    /// <summary><c>tripper_still_moving_left_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tripper_still_moving_left_2</c>.</summary>
     TripperStillMovingLeft2,
-    /// <summary><c>tripper_still_moving_right_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tripper_still_moving_right_0</c>.</summary>
     TripperStillMovingRight0,
-    /// <summary><c>tripper_still_moving_right_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tripper_still_moving_right_1</c>.</summary>
     TripperStillMovingRight1,
-    /// <summary><c>tripper_still_moving_right_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tripper_still_moving_right_2</c>.</summary>
     TripperStillMovingRight2,
-    /// <summary><c>tripper_frozen_moving_left</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tripper_frozen_moving_left</c>.</summary>
     TripperFrozenMovingLeft,
-    /// <summary><c>tripper_frozen_moving_right</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tripper_frozen_moving_right</c>.</summary>
     TripperFrozenMovingRight,
-    /// <summary><c>tripper_kamer_platform_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tripper_kamer_platform_0</c>.</summary>
     TripperKamerPlatform0,
-    /// <summary><c>tripper_kamer_platform_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tripper_kamer_platform_1</c>.</summary>
     TripperKamerPlatform1,
-    /// <summary><c>tripper_kamer_platform_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tripper_kamer_platform_2</c>.</summary>
     TripperKamerPlatform2,
-    /// <summary><c>tripper_kamer_platform_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tripper_kamer_platform_3</c>.</summary>
     TripperKamerPlatform3,
-    /// <summary><c>dragon_body_idle_left</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dragon_body_idle_left</c>.</summary>
     DragonBodyIdleLeft,
-    /// <summary><c>dragon_wing_left_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dragon_wing_left_0</c>.</summary>
     DragonWingLeft0,
-    /// <summary><c>dragon_wing_left_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dragon_wing_left_1</c>.</summary>
     DragonWingLeft1,
-    /// <summary><c>dragon_body_idle_right</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dragon_body_idle_right</c>.</summary>
     DragonBodyIdleRight,
-    /// <summary><c>dragon_wing_right_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dragon_wing_right_0</c>.</summary>
     DragonWingRight0,
-    /// <summary><c>dragon_wing_right_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dragon_wing_right_1</c>.</summary>
     DragonWingRight1,
-    /// <summary><c>dragon_body_attack_left_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dragon_body_attack_left_0</c>.</summary>
     DragonBodyAttackLeft0,
-    /// <summary><c>dragon_body_attack_left_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dragon_body_attack_left_1</c>.</summary>
     DragonBodyAttackLeft1,
-    /// <summary><c>dragon_body_attack_left_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dragon_body_attack_left_2</c>.</summary>
     DragonBodyAttackLeft2,
-    /// <summary><c>dragon_body_attack_right_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dragon_body_attack_right_0</c>.</summary>
     DragonBodyAttackRight0,
-    /// <summary><c>dragon_body_attack_right_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dragon_body_attack_right_1</c>.</summary>
     DragonBodyAttackRight1,
-    /// <summary><c>dragon_body_attack_right_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dragon_body_attack_right_2</c>.</summary>
     DragonBodyAttackRight2,
-    /// <summary><c>multiviola_spin_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>multiviola_spin_0</c>.</summary>
     MultiviolaSpin0,
-    /// <summary><c>multiviola_spin_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>multiviola_spin_1</c>.</summary>
     MultiviolaSpin1,
-    /// <summary><c>multiviola_spin_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>multiviola_spin_2</c>.</summary>
     MultiviolaSpin2,
-    /// <summary><c>multiviola_spin_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>multiviola_spin_3</c>.</summary>
     MultiviolaSpin3,
-    /// <summary><c>multiviola_spin_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>multiviola_spin_4</c>.</summary>
     MultiviolaSpin4,
-    /// <summary><c>multiviola_spin_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>multiviola_spin_5</c>.</summary>
     MultiviolaSpin5,
-    /// <summary><c>multiviola_spin_6</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>multiviola_spin_6</c>.</summary>
     MultiviolaSpin6,
-    /// <summary><c>multiviola_spin_7</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>multiviola_spin_7</c>.</summary>
     MultiviolaSpin7,
-    /// <summary><c>norfair_lava_jumper_pose_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>norfair_lava_jumper_pose_1</c>.</summary>
     NorfairLavaJumperPose1,
-    /// <summary><c>norfair_lava_jumper_pose_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>norfair_lava_jumper_pose_2</c>.</summary>
     NorfairLavaJumperPose2,
-    /// <summary><c>norfair_lava_jumper_pose_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>norfair_lava_jumper_pose_3</c>.</summary>
     NorfairLavaJumperPose3,
-    /// <summary><c>norfair_lava_jumper_pose_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>norfair_lava_jumper_pose_4</c>.</summary>
     NorfairLavaJumperPose4,
-    /// <summary><c>norfair_lava_jumper_pose_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>norfair_lava_jumper_pose_5</c>.</summary>
     NorfairLavaJumperPose5,
-    /// <summary><c>norfair_lava_jumper_pose_6</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>norfair_lava_jumper_pose_6</c>.</summary>
     NorfairLavaJumperPose6,
-    /// <summary><c>norfair_lava_jumper_pose_7</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>norfair_lava_jumper_pose_7</c>.</summary>
     NorfairLavaJumperPose7,
-    /// <summary><c>norfair_lava_jumper_pose_8</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>norfair_lava_jumper_pose_8</c>.</summary>
     NorfairLavaJumperPose8,
-    /// <summary><c>norfair_lava_jumper_pose_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>norfair_lava_jumper_pose_0</c>.</summary>
     NorfairLavaJumperPose0,
-    /// <summary><c>norfair_lava_jumper_pose_10</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>norfair_lava_jumper_pose_10</c>.</summary>
     NorfairLavaJumperPose10,
-    /// <summary><c>norfair_lava_jumper_pose_9</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>norfair_lava_jumper_pose_9</c>.</summary>
     NorfairLavaJumperPose9,
-    /// <summary><c>chozo_statue_pose_17</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_17</c>.</summary>
     ChozoStatuePose17,
-    /// <summary><c>chozo_statue_pose_18</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_18</c>.</summary>
     ChozoStatuePose18,
-    /// <summary><c>chozo_statue_pose_19</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_19</c>.</summary>
     ChozoStatuePose19,
-    /// <summary><c>chozo_statue_pose_20</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_20</c>.</summary>
     ChozoStatuePose20,
-    /// <summary><c>chozo_statue_pose_21</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_21</c>.</summary>
     ChozoStatuePose21,
-    /// <summary><c>chozo_statue_pose_22</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_22</c>.</summary>
     ChozoStatuePose22,
-    /// <summary><c>chozo_statue_pose_23</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_23</c>.</summary>
     ChozoStatuePose23,
-    /// <summary><c>chozo_statue_pose_24</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_24</c>.</summary>
     ChozoStatuePose24,
-    /// <summary><c>chozo_statue_pose_25</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_25</c>.</summary>
     ChozoStatuePose25,
-    /// <summary><c>chozo_statue_pose_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_0</c>.</summary>
     ChozoStatuePose0,
-    /// <summary><c>chozo_statue_pose_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_1</c>.</summary>
     ChozoStatuePose1,
-    /// <summary><c>chozo_statue_pose_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_2</c>.</summary>
     ChozoStatuePose2,
-    /// <summary><c>chozo_statue_pose_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_3</c>.</summary>
     ChozoStatuePose3,
-    /// <summary><c>chozo_statue_pose_12</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_12</c>.</summary>
     ChozoStatuePose12,
-    /// <summary><c>chozo_statue_pose_13</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_13</c>.</summary>
     ChozoStatuePose13,
-    /// <summary><c>chozo_statue_pose_14</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_14</c>.</summary>
     ChozoStatuePose14,
-    /// <summary><c>chozo_statue_pose_15</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_15</c>.</summary>
     ChozoStatuePose15,
-    /// <summary><c>chozo_statue_pose_16</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_16</c>.</summary>
     ChozoStatuePose16,
-    /// <summary><c>chozo_statue_pose_11</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_11</c>.</summary>
     ChozoStatuePose11,
-    /// <summary><c>chozo_statue_pose_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_4</c>.</summary>
     ChozoStatuePose4,
-    /// <summary><c>chozo_statue_pose_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_5</c>.</summary>
     ChozoStatuePose5,
-    /// <summary><c>chozo_statue_pose_6</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_6</c>.</summary>
     ChozoStatuePose6,
-    /// <summary><c>chozo_statue_pose_7</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_7</c>.</summary>
     ChozoStatuePose7,
-    /// <summary><c>chozo_statue_pose_8</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_8</c>.</summary>
     ChozoStatuePose8,
-    /// <summary><c>chozo_statue_pose_9</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_9</c>.</summary>
     ChozoStatuePose9,
-    /// <summary><c>chozo_statue_pose_10</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_10</c>.</summary>
     ChozoStatuePose10,
-    /// <summary><c>viola_spin_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>viola_spin_0</c>.</summary>
     ViolaSpin0,
-    /// <summary><c>viola_spin_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>viola_spin_1</c>.</summary>
     ViolaSpin1,
-    /// <summary><c>viola_spin_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>viola_spin_2</c>.</summary>
     ViolaSpin2,
-    /// <summary><c>viola_spin_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>viola_spin_3</c>.</summary>
     ViolaSpin3,
-    /// <summary><c>viola_spin_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>viola_spin_4</c>.</summary>
     ViolaSpin4,
-    /// <summary><c>viola_spin_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>viola_spin_5</c>.</summary>
     ViolaSpin5,
-    /// <summary><c>viola_spin_6</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>viola_spin_6</c>.</summary>
     ViolaSpin6,
-    /// <summary><c>viola_spin_7</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>viola_spin_7</c>.</summary>
     ViolaSpin7,
-    /// <summary><c>rinka_spin_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>rinka_spin_0</c>.</summary>
     RinkaSpin0,
-    /// <summary><c>rinka_spin_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>rinka_spin_1</c>.</summary>
     RinkaSpin1,
-    /// <summary><c>rinka_spin_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>rinka_spin_2</c>.</summary>
     RinkaSpin2,
-    /// <summary><c>rinka_spin_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>rinka_spin_3</c>.</summary>
     RinkaSpin3,
-    /// <summary><c>rinka_spin_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>rinka_spin_4</c>.</summary>
     RinkaSpin4,
-    /// <summary><c>dead_torizo_stationary</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dead_torizo_stationary</c>.</summary>
     DeadTorizoStationary,
-    /// <summary><c>dead_zoomer_corpse_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dead_zoomer_corpse_0</c>.</summary>
     DeadZoomerCorpse0,
-    /// <summary><c>dead_zoomer_corpse_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dead_zoomer_corpse_2</c>.</summary>
     DeadZoomerCorpse2,
-    /// <summary><c>dead_zoomer_corpse_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dead_zoomer_corpse_4</c>.</summary>
     DeadZoomerCorpse4,
-    /// <summary><c>dead_ripper_corpse_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dead_ripper_corpse_0</c>.</summary>
     DeadRipperCorpse0,
-    /// <summary><c>dead_ripper_corpse_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dead_ripper_corpse_2</c>.</summary>
     DeadRipperCorpse2,
-    /// <summary><c>dead_skree_corpse_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dead_skree_corpse_0</c>.</summary>
     DeadSkreeCorpse0,
-    /// <summary><c>dead_skree_corpse_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dead_skree_corpse_2</c>.</summary>
     DeadSkreeCorpse2,
-    /// <summary><c>dead_skree_corpse_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dead_skree_corpse_4</c>.</summary>
     DeadSkreeCorpse4,
-    /// <summary><c>dead_sidehopper_hop_body</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dead_sidehopper_hop_body</c>.</summary>
     DeadSidehopperHopBody,
-    /// <summary><c>dead_sidehopper_hop_alt</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dead_sidehopper_hop_alt</c>.</summary>
     DeadSidehopperHopAlt,
-    /// <summary><c>dead_sidehopper_idle</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dead_sidehopper_idle</c>.</summary>
     DeadSidehopperIdle,
-    /// <summary><c>dead_sidehopper_corpse</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dead_sidehopper_corpse</c>.</summary>
     DeadSidehopperCorpse,
-    /// <summary><c>dead_sidehopper_initially_dead</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dead_sidehopper_initially_dead</c>.</summary>
     DeadSidehopperInitiallyDead,
-    /// <summary><c>mochtroid_flight_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>mochtroid_flight_0</c>.</summary>
     MochtroidFlight0,
-    /// <summary><c>mochtroid_flight_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>mochtroid_flight_1</c>.</summary>
     MochtroidFlight1,
-    /// <summary><c>mochtroid_flight_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>mochtroid_flight_2</c>.</summary>
     MochtroidFlight2,
-    /// <summary><c>mochtroid_attached_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>mochtroid_attached_0</c>.</summary>
     MochtroidAttached0,
-    /// <summary><c>mochtroid_attached_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>mochtroid_attached_1</c>.</summary>
     MochtroidAttached1,
-    /// <summary><c>mochtroid_attached_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>mochtroid_attached_2</c>.</summary>
     MochtroidAttached2,
-    /// <summary><c>evir_body_left_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>evir_body_left_0</c>.</summary>
     EvirBodyLeft0,
-    /// <summary><c>evir_body_left_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>evir_body_left_1</c>.</summary>
     EvirBodyLeft1,
-    /// <summary><c>evir_body_left_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>evir_body_left_2</c>.</summary>
     EvirBodyLeft2,
-    /// <summary><c>evir_body_left_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>evir_body_left_3</c>.</summary>
     EvirBodyLeft3,
-    /// <summary><c>evir_body_left_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>evir_body_left_4</c>.</summary>
     EvirBodyLeft4,
-    /// <summary><c>evir_body_left_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>evir_body_left_5</c>.</summary>
     EvirBodyLeft5,
-    /// <summary><c>evir_arms_left_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>evir_arms_left_0</c>.</summary>
     EvirArmsLeft0,
-    /// <summary><c>evir_arms_left_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>evir_arms_left_1</c>.</summary>
     EvirArmsLeft1,
-    /// <summary><c>evir_arms_left_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>evir_arms_left_2</c>.</summary>
     EvirArmsLeft2,
-    /// <summary><c>evir_arms_left_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>evir_arms_left_3</c>.</summary>
     EvirArmsLeft3,
-    /// <summary><c>evir_arms_left_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>evir_arms_left_4</c>.</summary>
     EvirArmsLeft4,
-    /// <summary><c>evir_body_right_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>evir_body_right_0</c>.</summary>
     EvirBodyRight0,
-    /// <summary><c>evir_body_right_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>evir_body_right_1</c>.</summary>
     EvirBodyRight1,
-    /// <summary><c>evir_body_right_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>evir_body_right_2</c>.</summary>
     EvirBodyRight2,
-    /// <summary><c>evir_body_right_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>evir_body_right_3</c>.</summary>
     EvirBodyRight3,
-    /// <summary><c>evir_body_right_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>evir_body_right_4</c>.</summary>
     EvirBodyRight4,
-    /// <summary><c>evir_body_right_5</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>evir_body_right_5</c>.</summary>
     EvirBodyRight5,
-    /// <summary><c>evir_arms_right_0</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>evir_arms_right_0</c>.</summary>
     EvirArmsRight0,
-    /// <summary><c>evir_arms_right_1</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>evir_arms_right_1</c>.</summary>
     EvirArmsRight1,
-    /// <summary><c>evir_arms_right_2</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>evir_arms_right_2</c>.</summary>
     EvirArmsRight2,
-    /// <summary><c>evir_arms_right_3</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>evir_arms_right_3</c>.</summary>
     EvirArmsRight3,
-    /// <summary><c>evir_arms_right_4</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>evir_arms_right_4</c>.</summary>
     EvirArmsRight4,
-    /// <summary><c>evir_projectile_flight</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>evir_projectile_flight</c>.</summary>
     EvirProjectileFlight,
-    /// <summary><c>evir_projectile_regenerating</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>evir_projectile_regenerating</c>.</summary>
     EvirProjectileRegenerating,
-    /// <summary><c>work_robot_left_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>work_robot_left_00</c>.</summary>
     WorkRobotLeft00,
-    /// <summary><c>work_robot_left_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>work_robot_left_01</c>.</summary>
     WorkRobotLeft01,
-    /// <summary><c>work_robot_left_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>work_robot_left_02</c>.</summary>
     WorkRobotLeft02,
-    /// <summary><c>work_robot_left_03</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>work_robot_left_03</c>.</summary>
     WorkRobotLeft03,
-    /// <summary><c>work_robot_left_04</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>work_robot_left_04</c>.</summary>
     WorkRobotLeft04,
-    /// <summary><c>work_robot_left_05</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>work_robot_left_05</c>.</summary>
     WorkRobotLeft05,
-    /// <summary><c>work_robot_left_06</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>work_robot_left_06</c>.</summary>
     WorkRobotLeft06,
-    /// <summary><c>work_robot_left_07</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>work_robot_left_07</c>.</summary>
     WorkRobotLeft07,
-    /// <summary><c>work_robot_left_08</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>work_robot_left_08</c>.</summary>
     WorkRobotLeft08,
-    /// <summary><c>work_robot_left_09</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>work_robot_left_09</c>.</summary>
     WorkRobotLeft09,
-    /// <summary><c>work_robot_left_10</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>work_robot_left_10</c>.</summary>
     WorkRobotLeft10,
-    /// <summary><c>work_robot_left_11</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>work_robot_left_11</c>.</summary>
     WorkRobotLeft11,
-    /// <summary><c>work_robot_right_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>work_robot_right_00</c>.</summary>
     WorkRobotRight00,
-    /// <summary><c>work_robot_right_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>work_robot_right_01</c>.</summary>
     WorkRobotRight01,
-    /// <summary><c>work_robot_right_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>work_robot_right_02</c>.</summary>
     WorkRobotRight02,
-    /// <summary><c>work_robot_right_03</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>work_robot_right_03</c>.</summary>
     WorkRobotRight03,
-    /// <summary><c>work_robot_right_04</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>work_robot_right_04</c>.</summary>
     WorkRobotRight04,
-    /// <summary><c>work_robot_right_05</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>work_robot_right_05</c>.</summary>
     WorkRobotRight05,
-    /// <summary><c>work_robot_right_06</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>work_robot_right_06</c>.</summary>
     WorkRobotRight06,
-    /// <summary><c>work_robot_right_07</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>work_robot_right_07</c>.</summary>
     WorkRobotRight07,
-    /// <summary><c>work_robot_right_08</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>work_robot_right_08</c>.</summary>
     WorkRobotRight08,
-    /// <summary><c>work_robot_right_09</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>work_robot_right_09</c>.</summary>
     WorkRobotRight09,
-    /// <summary><c>work_robot_right_10</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>work_robot_right_10</c>.</summary>
     WorkRobotRight10,
-    /// <summary><c>work_robot_right_11</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>work_robot_right_11</c>.</summary>
     WorkRobotRight11,
-    /// <summary><c>work_robot_unpowered_neutral</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>work_robot_unpowered_neutral</c>.</summary>
     WorkRobotUnpoweredNeutral,
-    /// <summary><c>work_robot_unpowered_left</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>work_robot_unpowered_left</c>.</summary>
     WorkRobotUnpoweredLeft,
-    /// <summary><c>work_robot_unpowered_right</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>work_robot_unpowered_right</c>.</summary>
     WorkRobotUnpoweredRight,
-    /// <summary><c>yard_outside_turn_right_up_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_outside_turn_right_up_00</c>.</summary>
     YardOutsideTurnRightUp00,
-    /// <summary><c>yard_outside_turn_right_up_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_outside_turn_right_up_01</c>.</summary>
     YardOutsideTurnRightUp01,
-    /// <summary><c>yard_outside_turn_right_up_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_outside_turn_right_up_02</c>.</summary>
     YardOutsideTurnRightUp02,
-    /// <summary><c>yard_crawl_top_left_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_crawl_top_left_00</c>.</summary>
     YardCrawlTopLeft00,
-    /// <summary><c>yard_crawl_top_left_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_crawl_top_left_01</c>.</summary>
     YardCrawlTopLeft01,
-    /// <summary><c>yard_crawl_top_left_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_crawl_top_left_02</c>.</summary>
     YardCrawlTopLeft02,
-    /// <summary><c>yard_outside_turn_top_left_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_outside_turn_top_left_00</c>.</summary>
     YardOutsideTurnTopLeft00,
-    /// <summary><c>yard_outside_turn_top_left_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_outside_turn_top_left_01</c>.</summary>
     YardOutsideTurnTopLeft01,
-    /// <summary><c>yard_outside_turn_top_left_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_outside_turn_top_left_02</c>.</summary>
     YardOutsideTurnTopLeft02,
-    /// <summary><c>yard_crawl_left_down_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_crawl_left_down_00</c>.</summary>
     YardCrawlLeftDown00,
-    /// <summary><c>yard_crawl_left_down_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_crawl_left_down_01</c>.</summary>
     YardCrawlLeftDown01,
-    /// <summary><c>yard_crawl_left_down_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_crawl_left_down_02</c>.</summary>
     YardCrawlLeftDown02,
-    /// <summary><c>yard_outside_turn_left_down_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_outside_turn_left_down_00</c>.</summary>
     YardOutsideTurnLeftDown00,
-    /// <summary><c>yard_outside_turn_left_down_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_outside_turn_left_down_01</c>.</summary>
     YardOutsideTurnLeftDown01,
-    /// <summary><c>yard_outside_turn_left_down_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_outside_turn_left_down_02</c>.</summary>
     YardOutsideTurnLeftDown02,
-    /// <summary><c>yard_crawl_bottom_right_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_crawl_bottom_right_00</c>.</summary>
     YardCrawlBottomRight00,
-    /// <summary><c>yard_crawl_bottom_right_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_crawl_bottom_right_01</c>.</summary>
     YardCrawlBottomRight01,
-    /// <summary><c>yard_crawl_bottom_right_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_crawl_bottom_right_02</c>.</summary>
     YardCrawlBottomRight02,
-    /// <summary><c>yard_outside_turn_bottom_right_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_outside_turn_bottom_right_00</c>.</summary>
     YardOutsideTurnBottomRight00,
-    /// <summary><c>yard_outside_turn_bottom_right_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_outside_turn_bottom_right_01</c>.</summary>
     YardOutsideTurnBottomRight01,
-    /// <summary><c>yard_outside_turn_bottom_right_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_outside_turn_bottom_right_02</c>.</summary>
     YardOutsideTurnBottomRight02,
-    /// <summary><c>yard_crawl_right_up_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_crawl_right_up_00</c>.</summary>
     YardCrawlRightUp00,
-    /// <summary><c>yard_crawl_right_up_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_crawl_right_up_01</c>.</summary>
     YardCrawlRightUp01,
-    /// <summary><c>yard_crawl_right_up_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_crawl_right_up_02</c>.</summary>
     YardCrawlRightUp02,
-    /// <summary><c>yard_outside_turn_left_up_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_outside_turn_left_up_00</c>.</summary>
     YardOutsideTurnLeftUp00,
-    /// <summary><c>yard_outside_turn_left_up_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_outside_turn_left_up_01</c>.</summary>
     YardOutsideTurnLeftUp01,
-    /// <summary><c>yard_outside_turn_left_up_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_outside_turn_left_up_02</c>.</summary>
     YardOutsideTurnLeftUp02,
-    /// <summary><c>yard_crawl_top_right_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_crawl_top_right_00</c>.</summary>
     YardCrawlTopRight00,
-    /// <summary><c>yard_crawl_top_right_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_crawl_top_right_01</c>.</summary>
     YardCrawlTopRight01,
-    /// <summary><c>yard_crawl_top_right_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_crawl_top_right_02</c>.</summary>
     YardCrawlTopRight02,
-    /// <summary><c>yard_outside_turn_top_right_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_outside_turn_top_right_00</c>.</summary>
     YardOutsideTurnTopRight00,
-    /// <summary><c>yard_outside_turn_top_right_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_outside_turn_top_right_01</c>.</summary>
     YardOutsideTurnTopRight01,
-    /// <summary><c>yard_outside_turn_top_right_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_outside_turn_top_right_02</c>.</summary>
     YardOutsideTurnTopRight02,
-    /// <summary><c>yard_crawl_right_down_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_crawl_right_down_00</c>.</summary>
     YardCrawlRightDown00,
-    /// <summary><c>yard_crawl_right_down_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_crawl_right_down_01</c>.</summary>
     YardCrawlRightDown01,
-    /// <summary><c>yard_crawl_right_down_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_crawl_right_down_02</c>.</summary>
     YardCrawlRightDown02,
-    /// <summary><c>yard_outside_turn_right_down_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_outside_turn_right_down_00</c>.</summary>
     YardOutsideTurnRightDown00,
-    /// <summary><c>yard_outside_turn_right_down_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_outside_turn_right_down_01</c>.</summary>
     YardOutsideTurnRightDown01,
-    /// <summary><c>yard_outside_turn_right_down_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_outside_turn_right_down_02</c>.</summary>
     YardOutsideTurnRightDown02,
-    /// <summary><c>yard_crawl_bottom_left_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_crawl_bottom_left_00</c>.</summary>
     YardCrawlBottomLeft00,
-    /// <summary><c>yard_crawl_bottom_left_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_crawl_bottom_left_01</c>.</summary>
     YardCrawlBottomLeft01,
-    /// <summary><c>yard_crawl_bottom_left_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_crawl_bottom_left_02</c>.</summary>
     YardCrawlBottomLeft02,
-    /// <summary><c>yard_outside_turn_bottom_left_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_outside_turn_bottom_left_00</c>.</summary>
     YardOutsideTurnBottomLeft00,
-    /// <summary><c>yard_outside_turn_bottom_left_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_outside_turn_bottom_left_01</c>.</summary>
     YardOutsideTurnBottomLeft01,
-    /// <summary><c>yard_outside_turn_bottom_left_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_outside_turn_bottom_left_02</c>.</summary>
     YardOutsideTurnBottomLeft02,
-    /// <summary><c>yard_crawl_left_up_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_crawl_left_up_00</c>.</summary>
     YardCrawlLeftUp00,
-    /// <summary><c>yard_crawl_left_up_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_crawl_left_up_01</c>.</summary>
     YardCrawlLeftUp01,
-    /// <summary><c>yard_crawl_left_up_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_crawl_left_up_02</c>.</summary>
     YardCrawlLeftUp02,
-    /// <summary><c>yard_inside_turn_top_left_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_inside_turn_top_left_00</c>.</summary>
     YardInsideTurnTopLeft00,
-    /// <summary><c>yard_inside_turn_top_left_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_inside_turn_top_left_01</c>.</summary>
     YardInsideTurnTopLeft01,
-    /// <summary><c>yard_inside_turn_top_left_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_inside_turn_top_left_02</c>.</summary>
     YardInsideTurnTopLeft02,
-    /// <summary><c>yard_inside_turn_right_up_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_inside_turn_right_up_00</c>.</summary>
     YardInsideTurnRightUp00,
-    /// <summary><c>yard_inside_turn_right_up_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_inside_turn_right_up_01</c>.</summary>
     YardInsideTurnRightUp01,
-    /// <summary><c>yard_inside_turn_right_up_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_inside_turn_right_up_02</c>.</summary>
     YardInsideTurnRightUp02,
-    /// <summary><c>yard_inside_turn_bottom_right_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_inside_turn_bottom_right_00</c>.</summary>
     YardInsideTurnBottomRight00,
-    /// <summary><c>yard_inside_turn_bottom_right_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_inside_turn_bottom_right_01</c>.</summary>
     YardInsideTurnBottomRight01,
-    /// <summary><c>yard_inside_turn_bottom_right_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_inside_turn_bottom_right_02</c>.</summary>
     YardInsideTurnBottomRight02,
-    /// <summary><c>yard_inside_turn_left_down_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_inside_turn_left_down_00</c>.</summary>
     YardInsideTurnLeftDown00,
-    /// <summary><c>yard_inside_turn_left_down_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_inside_turn_left_down_01</c>.</summary>
     YardInsideTurnLeftDown01,
-    /// <summary><c>yard_inside_turn_left_down_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_inside_turn_left_down_02</c>.</summary>
     YardInsideTurnLeftDown02,
-    /// <summary><c>yard_inside_turn_top_right_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_inside_turn_top_right_00</c>.</summary>
     YardInsideTurnTopRight00,
-    /// <summary><c>yard_inside_turn_top_right_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_inside_turn_top_right_01</c>.</summary>
     YardInsideTurnTopRight01,
-    /// <summary><c>yard_inside_turn_top_right_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_inside_turn_top_right_02</c>.</summary>
     YardInsideTurnTopRight02,
-    /// <summary><c>yard_inside_turn_left_up_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_inside_turn_left_up_00</c>.</summary>
     YardInsideTurnLeftUp00,
-    /// <summary><c>yard_inside_turn_left_up_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_inside_turn_left_up_01</c>.</summary>
     YardInsideTurnLeftUp01,
-    /// <summary><c>yard_inside_turn_left_up_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_inside_turn_left_up_02</c>.</summary>
     YardInsideTurnLeftUp02,
-    /// <summary><c>yard_inside_turn_bottom_left_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_inside_turn_bottom_left_00</c>.</summary>
     YardInsideTurnBottomLeft00,
-    /// <summary><c>yard_inside_turn_bottom_left_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_inside_turn_bottom_left_01</c>.</summary>
     YardInsideTurnBottomLeft01,
-    /// <summary><c>yard_inside_turn_bottom_left_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_inside_turn_bottom_left_02</c>.</summary>
     YardInsideTurnBottomLeft02,
-    /// <summary><c>yard_inside_turn_right_down_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_inside_turn_right_down_00</c>.</summary>
     YardInsideTurnRightDown00,
-    /// <summary><c>yard_inside_turn_right_down_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_inside_turn_right_down_01</c>.</summary>
     YardInsideTurnRightDown01,
-    /// <summary><c>yard_inside_turn_right_down_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_inside_turn_right_down_02</c>.</summary>
     YardInsideTurnRightDown02,
-    /// <summary><c>yard_hiding_top_left_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_hiding_top_left_00</c>.</summary>
     YardHidingTopLeft00,
-    /// <summary><c>yard_hiding_top_left_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_hiding_top_left_01</c>.</summary>
     YardHidingTopLeft01,
-    /// <summary><c>yard_hidden_top_left_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_hidden_top_left_00</c>.</summary>
     YardHiddenTopLeft00,
-    /// <summary><c>yard_hidden_top_left_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_hidden_top_left_01</c>.</summary>
     YardHiddenTopLeft01,
-    /// <summary><c>yard_hiding_bottom_left_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_hiding_bottom_left_00</c>.</summary>
     YardHidingBottomLeft00,
-    /// <summary><c>yard_hiding_bottom_left_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_hiding_bottom_left_01</c>.</summary>
     YardHidingBottomLeft01,
-    /// <summary><c>yard_hiding_bottom_left_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_hiding_bottom_left_02</c>.</summary>
     YardHidingBottomLeft02,
-    /// <summary><c>yard_hiding_bottom_left_03</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_hiding_bottom_left_03</c>.</summary>
     YardHidingBottomLeft03,
-    /// <summary><c>yard_hiding_bottom_right_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_hiding_bottom_right_00</c>.</summary>
     YardHidingBottomRight00,
-    /// <summary><c>yard_hiding_bottom_right_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_hiding_bottom_right_01</c>.</summary>
     YardHidingBottomRight01,
-    /// <summary><c>yard_hiding_bottom_right_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_hiding_bottom_right_02</c>.</summary>
     YardHidingBottomRight02,
-    /// <summary><c>yard_hiding_bottom_right_03</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_hiding_bottom_right_03</c>.</summary>
     YardHidingBottomRight03,
-    /// <summary><c>yard_hiding_top_right_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_hiding_top_right_00</c>.</summary>
     YardHidingTopRight00,
-    /// <summary><c>yard_hiding_top_right_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_hiding_top_right_01</c>.</summary>
     YardHidingTopRight01,
-    /// <summary><c>yard_hidden_top_right_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_hidden_top_right_00</c>.</summary>
     YardHiddenTopRight00,
-    /// <summary><c>yard_hidden_top_right_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_hidden_top_right_01</c>.</summary>
     YardHiddenTopRight01,
-    /// <summary><c>yard_hiding_right_up_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_hiding_right_up_00</c>.</summary>
     YardHidingRightUp00,
-    /// <summary><c>yard_hiding_right_up_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_hiding_right_up_01</c>.</summary>
     YardHidingRightUp01,
-    /// <summary><c>yard_hiding_right_up_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_hiding_right_up_02</c>.</summary>
     YardHidingRightUp02,
-    /// <summary><c>yard_hiding_right_up_03</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_hiding_right_up_03</c>.</summary>
     YardHidingRightUp03,
-    /// <summary><c>yard_hiding_left_up_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_hiding_left_up_00</c>.</summary>
     YardHidingLeftUp00,
-    /// <summary><c>yard_hiding_left_up_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_hiding_left_up_01</c>.</summary>
     YardHidingLeftUp01,
-    /// <summary><c>yard_hiding_left_up_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_hiding_left_up_02</c>.</summary>
     YardHidingLeftUp02,
-    /// <summary><c>yard_hiding_left_up_03</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_hiding_left_up_03</c>.</summary>
     YardHidingLeftUp03,
-    /// <summary><c>yard_hiding_left_down_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_hiding_left_down_00</c>.</summary>
     YardHidingLeftDown00,
-    /// <summary><c>yard_hiding_left_down_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_hiding_left_down_01</c>.</summary>
     YardHidingLeftDown01,
-    /// <summary><c>yard_hiding_left_down_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_hiding_left_down_02</c>.</summary>
     YardHidingLeftDown02,
-    /// <summary><c>yard_hiding_left_down_03</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_hiding_left_down_03</c>.</summary>
     YardHidingLeftDown03,
-    /// <summary><c>yard_hiding_right_down_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_hiding_right_down_00</c>.</summary>
     YardHidingRightDown00,
-    /// <summary><c>yard_hiding_right_down_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_hiding_right_down_01</c>.</summary>
     YardHidingRightDown01,
-    /// <summary><c>yard_hiding_right_down_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_hiding_right_down_02</c>.</summary>
     YardHidingRightDown02,
-    /// <summary><c>yard_hiding_right_down_03</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>yard_hiding_right_down_03</c>.</summary>
     YardHidingRightDown03,
-    /// <summary><c>botwoon_head_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>botwoon_head_00</c>.</summary>
     BotwoonHead00,
-    /// <summary><c>botwoon_head_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>botwoon_head_01</c>.</summary>
     BotwoonHead01,
-    /// <summary><c>botwoon_head_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>botwoon_head_02</c>.</summary>
     BotwoonHead02,
-    /// <summary><c>botwoon_head_03</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>botwoon_head_03</c>.</summary>
     BotwoonHead03,
-    /// <summary><c>botwoon_head_04</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>botwoon_head_04</c>.</summary>
     BotwoonHead04,
-    /// <summary><c>botwoon_head_05</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>botwoon_head_05</c>.</summary>
     BotwoonHead05,
-    /// <summary><c>botwoon_head_06</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>botwoon_head_06</c>.</summary>
     BotwoonHead06,
-    /// <summary><c>botwoon_head_07</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>botwoon_head_07</c>.</summary>
     BotwoonHead07,
-    /// <summary><c>botwoon_head_08</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>botwoon_head_08</c>.</summary>
     BotwoonHead08,
-    /// <summary><c>botwoon_head_09</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>botwoon_head_09</c>.</summary>
     BotwoonHead09,
-    /// <summary><c>botwoon_head_10</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>botwoon_head_10</c>.</summary>
     BotwoonHead10,
-    /// <summary><c>botwoon_head_11</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>botwoon_head_11</c>.</summary>
     BotwoonHead11,
-    /// <summary><c>botwoon_head_12</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>botwoon_head_12</c>.</summary>
     BotwoonHead12,
-    /// <summary><c>botwoon_head_13</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>botwoon_head_13</c>.</summary>
     BotwoonHead13,
-    /// <summary><c>botwoon_head_14</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>botwoon_head_14</c>.</summary>
     BotwoonHead14,
-    /// <summary><c>botwoon_head_15</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>botwoon_head_15</c>.</summary>
     BotwoonHead15,
-    /// <summary><c>gunship_entrance_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>gunship_entrance_00</c>.</summary>
     GunshipEntrance00,
-    /// <summary><c>gunship_entrance_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>gunship_entrance_01</c>.</summary>
     GunshipEntrance01,
-    /// <summary><c>gunship_entrance_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>gunship_entrance_02</c>.</summary>
     GunshipEntrance02,
-    /// <summary><c>gunship_entrance_03</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>gunship_entrance_03</c>.</summary>
     GunshipEntrance03,
-    /// <summary><c>gunship_entrance_04</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>gunship_entrance_04</c>.</summary>
     GunshipEntrance04,
-    /// <summary><c>gunship_entrance_05</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>gunship_entrance_05</c>.</summary>
     GunshipEntrance05,
-    /// <summary><c>gunship_entrance_06</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>gunship_entrance_06</c>.</summary>
     GunshipEntrance06,
-    /// <summary><c>gunship_entrance_07</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>gunship_entrance_07</c>.</summary>
     GunshipEntrance07,
-    /// <summary><c>gunship_entrance_08</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>gunship_entrance_08</c>.</summary>
     GunshipEntrance08,
-    /// <summary><c>gunship_entrance_09</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>gunship_entrance_09</c>.</summary>
     GunshipEntrance09,
-    /// <summary><c>gunship_entrance_10</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>gunship_entrance_10</c>.</summary>
     GunshipEntrance10,
-    /// <summary><c>gunship_top_hull</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>gunship_top_hull</c>.</summary>
     GunshipTopHull,
-    /// <summary><c>gunship_bottom_hull</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>gunship_bottom_hull</c>.</summary>
     GunshipBottomHull,
-    /// <summary><c>tatori_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tatori_00</c>.</summary>
     Tatori00,
-    /// <summary><c>tatori_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tatori_01</c>.</summary>
     Tatori01,
-    /// <summary><c>tatori_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tatori_02</c>.</summary>
     Tatori02,
-    /// <summary><c>tatori_03</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tatori_03</c>.</summary>
     Tatori03,
-    /// <summary><c>tatori_04</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tatori_04</c>.</summary>
     Tatori04,
-    /// <summary><c>tatori_05</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tatori_05</c>.</summary>
     Tatori05,
-    /// <summary><c>tatori_06</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tatori_06</c>.</summary>
     Tatori06,
-    /// <summary><c>tatori_07</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tatori_07</c>.</summary>
     Tatori07,
-    /// <summary><c>tatori_08</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tatori_08</c>.</summary>
     Tatori08,
-    /// <summary><c>tatori_09</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tatori_09</c>.</summary>
     Tatori09,
-    /// <summary><c>tatori_10</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tatori_10</c>.</summary>
     Tatori10,
-    /// <summary><c>tatori_11</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tatori_11</c>.</summary>
     Tatori11,
-    /// <summary><c>tatori_12</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tatori_12</c>.</summary>
     Tatori12,
-    /// <summary><c>tatori_13</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tatori_13</c>.</summary>
     Tatori13,
-    /// <summary><c>tatori_14</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tatori_14</c>.</summary>
     Tatori14,
-    /// <summary><c>tatori_15</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tatori_15</c>.</summary>
     Tatori15,
-    /// <summary><c>tatori_16</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tatori_16</c>.</summary>
     Tatori16,
-    /// <summary><c>tatori_17</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tatori_17</c>.</summary>
     Tatori17,
-    /// <summary><c>tatori_18</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tatori_18</c>.</summary>
     Tatori18,
-    /// <summary><c>tatori_19</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tatori_19</c>.</summary>
     Tatori19,
-    /// <summary><c>tatori_20</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tatori_20</c>.</summary>
     Tatori20,
-    /// <summary><c>tatori_21</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tatori_21</c>.</summary>
     Tatori21,
-    /// <summary><c>tatori_22</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tatori_22</c>.</summary>
     Tatori22,
-    /// <summary><c>tatori_23</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tatori_23</c>.</summary>
     Tatori23,
-    /// <summary><c>tatori_24</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tatori_24</c>.</summary>
     Tatori24,
-    /// <summary><c>tatori_25</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tatori_25</c>.</summary>
     Tatori25,
-    /// <summary><c>tatori_26</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tatori_26</c>.</summary>
     Tatori26,
-    /// <summary><c>tatori_27</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tatori_27</c>.</summary>
     Tatori27,
-    /// <summary><c>tatori_28</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>tatori_28</c>.</summary>
     Tatori28,
-    /// <summary><c>zero_crawler_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zero_crawler_00</c>.</summary>
     ZeroCrawler00,
-    /// <summary><c>zero_crawler_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zero_crawler_01</c>.</summary>
     ZeroCrawler01,
-    /// <summary><c>zero_crawler_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zero_crawler_02</c>.</summary>
     ZeroCrawler02,
-    /// <summary><c>zero_crawler_03</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zero_crawler_03</c>.</summary>
     ZeroCrawler03,
-    /// <summary><c>zero_crawler_04</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zero_crawler_04</c>.</summary>
     ZeroCrawler04,
-    /// <summary><c>zero_crawler_05</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zero_crawler_05</c>.</summary>
     ZeroCrawler05,
-    /// <summary><c>zero_crawler_06</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zero_crawler_06</c>.</summary>
     ZeroCrawler06,
-    /// <summary><c>zero_crawler_07</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zero_crawler_07</c>.</summary>
     ZeroCrawler07,
-    /// <summary><c>zero_crawler_08</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zero_crawler_08</c>.</summary>
     ZeroCrawler08,
-    /// <summary><c>zero_crawler_09</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zero_crawler_09</c>.</summary>
     ZeroCrawler09,
-    /// <summary><c>zero_crawler_10</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zero_crawler_10</c>.</summary>
     ZeroCrawler10,
-    /// <summary><c>zero_crawler_11</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zero_crawler_11</c>.</summary>
     ZeroCrawler11,
-    /// <summary><c>zero_crawler_12</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zero_crawler_12</c>.</summary>
     ZeroCrawler12,
-    /// <summary><c>zero_crawler_13</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zero_crawler_13</c>.</summary>
     ZeroCrawler13,
-    /// <summary><c>zero_crawler_14</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zero_crawler_14</c>.</summary>
     ZeroCrawler14,
-    /// <summary><c>zero_crawler_15</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zero_crawler_15</c>.</summary>
     ZeroCrawler15,
-    /// <summary><c>etecoon_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>etecoon_00</c>.</summary>
     Etecoon00,
-    /// <summary><c>etecoon_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>etecoon_01</c>.</summary>
     Etecoon01,
-    /// <summary><c>etecoon_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>etecoon_02</c>.</summary>
     Etecoon02,
-    /// <summary><c>etecoon_03</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>etecoon_03</c>.</summary>
     Etecoon03,
-    /// <summary><c>etecoon_04</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>etecoon_04</c>.</summary>
     Etecoon04,
-    /// <summary><c>etecoon_05</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>etecoon_05</c>.</summary>
     Etecoon05,
-    /// <summary><c>etecoon_06</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>etecoon_06</c>.</summary>
     Etecoon06,
-    /// <summary><c>etecoon_07</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>etecoon_07</c>.</summary>
     Etecoon07,
-    /// <summary><c>etecoon_08</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>etecoon_08</c>.</summary>
     Etecoon08,
-    /// <summary><c>etecoon_09</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>etecoon_09</c>.</summary>
     Etecoon09,
-    /// <summary><c>etecoon_10</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>etecoon_10</c>.</summary>
     Etecoon10,
-    /// <summary><c>etecoon_11</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>etecoon_11</c>.</summary>
     Etecoon11,
-    /// <summary><c>etecoon_12</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>etecoon_12</c>.</summary>
     Etecoon12,
-    /// <summary><c>etecoon_13</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>etecoon_13</c>.</summary>
     Etecoon13,
-    /// <summary><c>etecoon_14</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>etecoon_14</c>.</summary>
     Etecoon14,
-    /// <summary><c>etecoon_15</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>etecoon_15</c>.</summary>
     Etecoon15,
-    /// <summary><c>etecoon_16</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>etecoon_16</c>.</summary>
     Etecoon16,
-    /// <summary><c>etecoon_17</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>etecoon_17</c>.</summary>
     Etecoon17,
-    /// <summary><c>etecoon_18</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>etecoon_18</c>.</summary>
     Etecoon18,
-    /// <summary><c>etecoon_19</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>etecoon_19</c>.</summary>
     Etecoon19,
-    /// <summary><c>etecoon_20</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>etecoon_20</c>.</summary>
     Etecoon20,
-    /// <summary><c>etecoon_21</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>etecoon_21</c>.</summary>
     Etecoon21,
-    /// <summary><c>etecoon_22</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>etecoon_22</c>.</summary>
     Etecoon22,
-    /// <summary><c>etecoon_23</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>etecoon_23</c>.</summary>
     Etecoon23,
-    /// <summary><c>etecoon_24</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>etecoon_24</c>.</summary>
     Etecoon24,
-    /// <summary><c>etecoon_25</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>etecoon_25</c>.</summary>
     Etecoon25,
-    /// <summary><c>etecoon_26</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>etecoon_26</c>.</summary>
     Etecoon26,
-    /// <summary><c>etecoon_27</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>etecoon_27</c>.</summary>
     Etecoon27,
-    /// <summary><c>etecoon_28</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>etecoon_28</c>.</summary>
     Etecoon28,
-    /// <summary><c>etecoon_29</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>etecoon_29</c>.</summary>
     Etecoon29,
-    /// <summary><c>etecoon_30</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>etecoon_30</c>.</summary>
     Etecoon30,
-    /// <summary><c>dachora_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dachora_00</c>.</summary>
     Dachora00,
-    /// <summary><c>dachora_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dachora_01</c>.</summary>
     Dachora01,
-    /// <summary><c>dachora_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dachora_02</c>.</summary>
     Dachora02,
-    /// <summary><c>dachora_03</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dachora_03</c>.</summary>
     Dachora03,
-    /// <summary><c>dachora_04</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dachora_04</c>.</summary>
     Dachora04,
-    /// <summary><c>dachora_05</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dachora_05</c>.</summary>
     Dachora05,
-    /// <summary><c>dachora_06</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dachora_06</c>.</summary>
     Dachora06,
-    /// <summary><c>dachora_07</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dachora_07</c>.</summary>
     Dachora07,
-    /// <summary><c>dachora_08</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dachora_08</c>.</summary>
     Dachora08,
-    /// <summary><c>dachora_09</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dachora_09</c>.</summary>
     Dachora09,
-    /// <summary><c>dachora_10</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dachora_10</c>.</summary>
     Dachora10,
-    /// <summary><c>dachora_11</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dachora_11</c>.</summary>
     Dachora11,
-    /// <summary><c>dachora_12</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dachora_12</c>.</summary>
     Dachora12,
-    /// <summary><c>dachora_13</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dachora_13</c>.</summary>
     Dachora13,
-    /// <summary><c>dachora_14</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dachora_14</c>.</summary>
     Dachora14,
-    /// <summary><c>dachora_15</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dachora_15</c>.</summary>
     Dachora15,
-    /// <summary><c>dachora_16</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dachora_16</c>.</summary>
     Dachora16,
-    /// <summary><c>dachora_17</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dachora_17</c>.</summary>
     Dachora17,
-    /// <summary><c>dachora_18</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dachora_18</c>.</summary>
     Dachora18,
-    /// <summary><c>dachora_19</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dachora_19</c>.</summary>
     Dachora19,
-    /// <summary><c>dachora_20</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dachora_20</c>.</summary>
     Dachora20,
-    /// <summary><c>dachora_21</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dachora_21</c>.</summary>
     Dachora21,
-    /// <summary><c>dachora_22</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dachora_22</c>.</summary>
     Dachora22,
-    /// <summary><c>dachora_23</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dachora_23</c>.</summary>
     Dachora23,
-    /// <summary><c>dachora_24</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dachora_24</c>.</summary>
     Dachora24,
-    /// <summary><c>dachora_25</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dachora_25</c>.</summary>
     Dachora25,
-    /// <summary><c>dachora_26</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dachora_26</c>.</summary>
     Dachora26,
-    /// <summary><c>dachora_27</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dachora_27</c>.</summary>
     Dachora27,
-    /// <summary><c>dachora_28</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>dachora_28</c>.</summary>
     Dachora28,
-    /// <summary><c>escape_etecoon_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>escape_etecoon_00</c>.</summary>
     EscapeEtecoon00,
-    /// <summary><c>escape_etecoon_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>escape_etecoon_01</c>.</summary>
     EscapeEtecoon01,
-    /// <summary><c>escape_etecoon_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>escape_etecoon_02</c>.</summary>
     EscapeEtecoon02,
-    /// <summary><c>escape_etecoon_03</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>escape_etecoon_03</c>.</summary>
     EscapeEtecoon03,
-    /// <summary><c>escape_etecoon_04</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>escape_etecoon_04</c>.</summary>
     EscapeEtecoon04,
-    /// <summary><c>escape_etecoon_05</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>escape_etecoon_05</c>.</summary>
     EscapeEtecoon05,
-    /// <summary><c>escape_etecoon_06</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>escape_etecoon_06</c>.</summary>
     EscapeEtecoon06,
-    /// <summary><c>escape_etecoon_07</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>escape_etecoon_07</c>.</summary>
     EscapeEtecoon07,
-    /// <summary><c>escape_etecoon_08</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>escape_etecoon_08</c>.</summary>
     EscapeEtecoon08,
-    /// <summary><c>escape_etecoon_09</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>escape_etecoon_09</c>.</summary>
     EscapeEtecoon09,
-    /// <summary><c>escape_dachora_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>escape_dachora_00</c>.</summary>
     EscapeDachora00,
-    /// <summary><c>escape_dachora_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>escape_dachora_01</c>.</summary>
     EscapeDachora01,
-    /// <summary><c>escape_dachora_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>escape_dachora_02</c>.</summary>
     EscapeDachora02,
-    /// <summary><c>escape_dachora_03</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>escape_dachora_03</c>.</summary>
     EscapeDachora03,
-    /// <summary><c>escape_dachora_04</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>escape_dachora_04</c>.</summary>
     EscapeDachora04,
-    /// <summary><c>escape_dachora_05</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>escape_dachora_05</c>.</summary>
     EscapeDachora05,
-    /// <summary><c>escape_dachora_06</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>escape_dachora_06</c>.</summary>
     EscapeDachora06,
-    /// <summary><c>escape_dachora_07</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>escape_dachora_07</c>.</summary>
     EscapeDachora07,
-    /// <summary><c>escape_dachora_08</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>escape_dachora_08</c>.</summary>
     EscapeDachora08,
-    /// <summary><c>escape_dachora_09</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>escape_dachora_09</c>.</summary>
     EscapeDachora09,
-    /// <summary><c>escape_dachora_10</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>escape_dachora_10</c>.</summary>
     EscapeDachora10,
-    /// <summary><c>escape_dachora_11</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>escape_dachora_11</c>.</summary>
     EscapeDachora11,
-    /// <summary><c>hibashi_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hibashi_00</c>.</summary>
     Hibashi00,
-    /// <summary><c>hibashi_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hibashi_01</c>.</summary>
     Hibashi01,
-    /// <summary><c>hibashi_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hibashi_02</c>.</summary>
     Hibashi02,
-    /// <summary><c>hibashi_03</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hibashi_03</c>.</summary>
     Hibashi03,
-    /// <summary><c>hibashi_04</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hibashi_04</c>.</summary>
     Hibashi04,
-    /// <summary><c>hibashi_05</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hibashi_05</c>.</summary>
     Hibashi05,
-    /// <summary><c>hibashi_06</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hibashi_06</c>.</summary>
     Hibashi06,
-    /// <summary><c>hibashi_07</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hibashi_07</c>.</summary>
     Hibashi07,
-    /// <summary><c>hibashi_08</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hibashi_08</c>.</summary>
     Hibashi08,
-    /// <summary><c>hibashi_09</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hibashi_09</c>.</summary>
     Hibashi09,
-    /// <summary><c>hibashi_10</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hibashi_10</c>.</summary>
     Hibashi10,
-    /// <summary><c>hibashi_11</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hibashi_11</c>.</summary>
     Hibashi11,
-    /// <summary><c>hibashi_12</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hibashi_12</c>.</summary>
     Hibashi12,
-    /// <summary><c>hibashi_13</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hibashi_13</c>.</summary>
     Hibashi13,
-    /// <summary><c>hibashi_14</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hibashi_14</c>.</summary>
     Hibashi14,
-    /// <summary><c>hibashi_15</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hibashi_15</c>.</summary>
     Hibashi15,
-    /// <summary><c>hibashi_16</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hibashi_16</c>.</summary>
     Hibashi16,
-    /// <summary><c>hibashi_17</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hibashi_17</c>.</summary>
     Hibashi17,
-    /// <summary><c>hibashi_18</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hibashi_18</c>.</summary>
     Hibashi18,
-    /// <summary><c>hibashi_19</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hibashi_19</c>.</summary>
     Hibashi19,
-    /// <summary><c>hibashi_20</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hibashi_20</c>.</summary>
     Hibashi20,
-    /// <summary><c>hibashi_21</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hibashi_21</c>.</summary>
     Hibashi21,
-    /// <summary><c>hibashi_22</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>hibashi_22</c>.</summary>
     Hibashi22,
-    /// <summary><c>zebetite_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zebetite_00</c>.</summary>
     Zebetite00,
-    /// <summary><c>zebetite_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zebetite_01</c>.</summary>
     Zebetite01,
-    /// <summary><c>zebetite_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zebetite_02</c>.</summary>
     Zebetite02,
-    /// <summary><c>zebetite_03</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zebetite_03</c>.</summary>
     Zebetite03,
-    /// <summary><c>zebetite_04</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zebetite_04</c>.</summary>
     Zebetite04,
-    /// <summary><c>zebetite_05</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zebetite_05</c>.</summary>
     Zebetite05,
-    /// <summary><c>zebetite_06</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zebetite_06</c>.</summary>
     Zebetite06,
-    /// <summary><c>zebetite_07</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zebetite_07</c>.</summary>
     Zebetite07,
-    /// <summary><c>zebetite_08</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zebetite_08</c>.</summary>
     Zebetite08,
-    /// <summary><c>zebetite_09</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>zebetite_09</c>.</summary>
     Zebetite09,
-    /// <summary><c>wrecked_ship_ghost_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>wrecked_ship_ghost_00</c>.</summary>
     WreckedShipGhost00,
-    /// <summary><c>wrecked_ship_ghost_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>wrecked_ship_ghost_01</c>.</summary>
     WreckedShipGhost01,
-    /// <summary><c>wrecked_ship_ghost_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>wrecked_ship_ghost_02</c>.</summary>
     WreckedShipGhost02,
-    /// <summary><c>powamp_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>powamp_00</c>.</summary>
     Powamp00,
-    /// <summary><c>powamp_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>powamp_01</c>.</summary>
     Powamp01,
-    /// <summary><c>powamp_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>powamp_02</c>.</summary>
     Powamp02,
-    /// <summary><c>powamp_03</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>powamp_03</c>.</summary>
     Powamp03,
-    /// <summary><c>powamp_04</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>powamp_04</c>.</summary>
     Powamp04,
-    /// <summary><c>powamp_05</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>powamp_05</c>.</summary>
     Powamp05,
-    /// <summary><c>spark_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>spark_00</c>.</summary>
     Spark00,
-    /// <summary><c>spark_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>spark_01</c>.</summary>
     Spark01,
-    /// <summary><c>spark_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>spark_02</c>.</summary>
     Spark02,
-    /// <summary><c>spark_03</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>spark_03</c>.</summary>
     Spark03,
-    /// <summary><c>spark_04</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>spark_04</c>.</summary>
     Spark04,
-    /// <summary><c>spark_05</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>spark_05</c>.</summary>
     Spark05,
-    /// <summary><c>spark_06</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>spark_06</c>.</summary>
     Spark06,
-    /// <summary><c>spark_07</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>spark_07</c>.</summary>
     Spark07,
-    /// <summary><c>shitroid_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>shitroid_00</c>.</summary>
     Shitroid00,
-    /// <summary><c>shitroid_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>shitroid_01</c>.</summary>
     Shitroid01,
-    /// <summary><c>shitroid_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>shitroid_02</c>.</summary>
     Shitroid02,
-    /// <summary><c>kraid_lint_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_lint_00</c>.</summary>
     KraidLint00,
-    /// <summary><c>kraid_lint_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_lint_01</c>.</summary>
     KraidLint01,
-    /// <summary><c>nuclear_waffle_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>nuclear_waffle_00</c>.</summary>
     NuclearWaffle00,
-    /// <summary><c>nuclear_waffle_01</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>nuclear_waffle_01</c>.</summary>
     NuclearWaffle01,
-    /// <summary><c>nuclear_waffle_02</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>nuclear_waffle_02</c>.</summary>
     NuclearWaffle02,
-    /// <summary><c>nuclear_waffle_03</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>nuclear_waffle_03</c>.</summary>
     NuclearWaffle03,
-    /// <summary><c>nuclear_waffle_04</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>nuclear_waffle_04</c>.</summary>
     NuclearWaffle04,
-    /// <summary><c>nuclear_waffle_05</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>nuclear_waffle_05</c>.</summary>
     NuclearWaffle05,
-    /// <summary><c>nuclear_waffle_06</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>nuclear_waffle_06</c>.</summary>
     NuclearWaffle06,
-    /// <summary><c>nuclear_waffle_07</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>nuclear_waffle_07</c>.</summary>
     NuclearWaffle07,
-    /// <summary><c>kzan_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>kzan_00</c>.</summary>
     Kzan00,
-    /// <summary><c>polyp_00</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>polyp_00</c>.</summary>
     Polyp00,
-    /// <summary><c>ridley_breakup_legs_left</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_breakup_legs_left</c>.</summary>
     RidleyBreakupLegsLeft,
-    /// <summary><c>ridley_breakup_legs_right</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_breakup_legs_right</c>.</summary>
     RidleyBreakupLegsRight,
-    /// <summary><c>ridley_breakup_torso_left</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_breakup_torso_left</c>.</summary>
     RidleyBreakupTorsoLeft,
-    /// <summary><c>ridley_breakup_torso_right</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_breakup_torso_right</c>.</summary>
     RidleyBreakupTorsoRight,
-    /// <summary><c>ridley_breakup_head_left</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_breakup_head_left</c>.</summary>
     RidleyBreakupHeadLeft,
-    /// <summary><c>ridley_breakup_head_right</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_breakup_head_right</c>.</summary>
     RidleyBreakupHeadRight,
-    /// <summary><c>ridley_breakup_claw_left</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_breakup_claw_left</c>.</summary>
     RidleyBreakupClawLeft,
-    /// <summary><c>ridley_breakup_claw_right</c>, an installed spritemap.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_breakup_claw_right</c>.</summary>
     RidleyBreakupClawRight,
-    /// <summary><c>walking_pirate_flinch_left</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>walking_pirate_flinch_left</c>.</summary>
     WalkingPirateFlinchLeft,
-    /// <summary><c>walking_pirate_flinch_right</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>walking_pirate_flinch_right</c>.</summary>
     WalkingPirateFlinchRight,
-    /// <summary><c>walking_pirate_walk_left_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>walking_pirate_walk_left_0</c>.</summary>
     WalkingPirateWalkLeft0,
-    /// <summary><c>walking_pirate_walk_left_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>walking_pirate_walk_left_1</c>.</summary>
     WalkingPirateWalkLeft1,
-    /// <summary><c>walking_pirate_walk_left_2</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>walking_pirate_walk_left_2</c>.</summary>
     WalkingPirateWalkLeft2,
-    /// <summary><c>walking_pirate_walk_left_3</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>walking_pirate_walk_left_3</c>.</summary>
     WalkingPirateWalkLeft3,
-    /// <summary><c>walking_pirate_walk_left_4</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>walking_pirate_walk_left_4</c>.</summary>
     WalkingPirateWalkLeft4,
-    /// <summary><c>walking_pirate_walk_left_5</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>walking_pirate_walk_left_5</c>.</summary>
     WalkingPirateWalkLeft5,
-    /// <summary><c>walking_pirate_walk_left_6</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>walking_pirate_walk_left_6</c>.</summary>
     WalkingPirateWalkLeft6,
-    /// <summary><c>walking_pirate_walk_left_7</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>walking_pirate_walk_left_7</c>.</summary>
     WalkingPirateWalkLeft7,
-    /// <summary><c>walking_pirate_fire_left_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>walking_pirate_fire_left_0</c>.</summary>
     WalkingPirateFireLeft0,
-    /// <summary><c>walking_pirate_fire_left_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>walking_pirate_fire_left_1</c>.</summary>
     WalkingPirateFireLeft1,
-    /// <summary><c>walking_pirate_fire_left_2</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>walking_pirate_fire_left_2</c>.</summary>
     WalkingPirateFireLeft2,
-    /// <summary><c>walking_pirate_fire_left_3</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>walking_pirate_fire_left_3</c>.</summary>
     WalkingPirateFireLeft3,
-    /// <summary><c>walking_pirate_fire_left_4</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>walking_pirate_fire_left_4</c>.</summary>
     WalkingPirateFireLeft4,
-    /// <summary><c>walking_pirate_fire_left_5</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>walking_pirate_fire_left_5</c>.</summary>
     WalkingPirateFireLeft5,
-    /// <summary><c>walking_pirate_look_left_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>walking_pirate_look_left_0</c>.</summary>
     WalkingPirateLookLeft0,
-    /// <summary><c>walking_pirate_look_left_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>walking_pirate_look_left_1</c>.</summary>
     WalkingPirateLookLeft1,
-    /// <summary><c>walking_pirate_look_left_2</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>walking_pirate_look_left_2</c>.</summary>
     WalkingPirateLookLeft2,
-    /// <summary><c>walking_pirate_look_shared</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>walking_pirate_look_shared</c>.</summary>
     WalkingPirateLookShared,
-    /// <summary><c>walking_pirate_walk_right_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>walking_pirate_walk_right_0</c>.</summary>
     WalkingPirateWalkRight0,
-    /// <summary><c>walking_pirate_walk_right_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>walking_pirate_walk_right_1</c>.</summary>
     WalkingPirateWalkRight1,
-    /// <summary><c>walking_pirate_walk_right_2</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>walking_pirate_walk_right_2</c>.</summary>
     WalkingPirateWalkRight2,
-    /// <summary><c>walking_pirate_walk_right_3</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>walking_pirate_walk_right_3</c>.</summary>
     WalkingPirateWalkRight3,
-    /// <summary><c>walking_pirate_walk_right_4</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>walking_pirate_walk_right_4</c>.</summary>
     WalkingPirateWalkRight4,
-    /// <summary><c>walking_pirate_walk_right_5</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>walking_pirate_walk_right_5</c>.</summary>
     WalkingPirateWalkRight5,
-    /// <summary><c>walking_pirate_walk_right_6</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>walking_pirate_walk_right_6</c>.</summary>
     WalkingPirateWalkRight6,
-    /// <summary><c>walking_pirate_walk_right_7</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>walking_pirate_walk_right_7</c>.</summary>
     WalkingPirateWalkRight7,
-    /// <summary><c>walking_pirate_fire_right_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>walking_pirate_fire_right_0</c>.</summary>
     WalkingPirateFireRight0,
-    /// <summary><c>walking_pirate_fire_right_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>walking_pirate_fire_right_1</c>.</summary>
     WalkingPirateFireRight1,
-    /// <summary><c>walking_pirate_fire_right_2</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>walking_pirate_fire_right_2</c>.</summary>
     WalkingPirateFireRight2,
-    /// <summary><c>walking_pirate_fire_right_3</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>walking_pirate_fire_right_3</c>.</summary>
     WalkingPirateFireRight3,
-    /// <summary><c>walking_pirate_fire_right_4</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>walking_pirate_fire_right_4</c>.</summary>
     WalkingPirateFireRight4,
-    /// <summary><c>walking_pirate_fire_right_5</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>walking_pirate_fire_right_5</c>.</summary>
     WalkingPirateFireRight5,
-    /// <summary><c>walking_pirate_look_right_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>walking_pirate_look_right_0</c>.</summary>
     WalkingPirateLookRight0,
-    /// <summary><c>walking_pirate_look_right_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>walking_pirate_look_right_1</c>.</summary>
     WalkingPirateLookRight1,
-    /// <summary><c>walking_pirate_look_right_2</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>walking_pirate_look_right_2</c>.</summary>
     WalkingPirateLookRight2,
-    /// <summary><c>wall_pirate_fire_jump_left_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>wall_pirate_fire_jump_left_0</c>.</summary>
     WallPirateFireJumpLeft0,
-    /// <summary><c>wall_pirate_fire_jump_left_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>wall_pirate_fire_jump_left_1</c>.</summary>
     WallPirateFireJumpLeft1,
-    /// <summary><c>wall_pirate_fire_jump_left_2</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>wall_pirate_fire_jump_left_2</c>.</summary>
     WallPirateFireJumpLeft2,
-    /// <summary><c>wall_pirate_fire_jump_left_3</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>wall_pirate_fire_jump_left_3</c>.</summary>
     WallPirateFireJumpLeft3,
-    /// <summary><c>wall_pirate_climb_left_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>wall_pirate_climb_left_0</c>.</summary>
     WallPirateClimbLeft0,
-    /// <summary><c>wall_pirate_climb_left_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>wall_pirate_climb_left_1</c>.</summary>
     WallPirateClimbLeft1,
-    /// <summary><c>wall_pirate_climb_left_2</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>wall_pirate_climb_left_2</c>.</summary>
     WallPirateClimbLeft2,
-    /// <summary><c>wall_pirate_climb_left_3</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>wall_pirate_climb_left_3</c>.</summary>
     WallPirateClimbLeft3,
-    /// <summary><c>wall_pirate_climb_left_4</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>wall_pirate_climb_left_4</c>.</summary>
     WallPirateClimbLeft4,
-    /// <summary><c>wall_pirate_fire_jump_right_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>wall_pirate_fire_jump_right_0</c>.</summary>
     WallPirateFireJumpRight0,
-    /// <summary><c>wall_pirate_fire_jump_right_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>wall_pirate_fire_jump_right_1</c>.</summary>
     WallPirateFireJumpRight1,
-    /// <summary><c>wall_pirate_fire_jump_right_2</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>wall_pirate_fire_jump_right_2</c>.</summary>
     WallPirateFireJumpRight2,
-    /// <summary><c>wall_pirate_fire_jump_right_3</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>wall_pirate_fire_jump_right_3</c>.</summary>
     WallPirateFireJumpRight3,
-    /// <summary><c>wall_pirate_climb_right_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>wall_pirate_climb_right_0</c>.</summary>
     WallPirateClimbRight0,
-    /// <summary><c>wall_pirate_climb_right_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>wall_pirate_climb_right_1</c>.</summary>
     WallPirateClimbRight1,
-    /// <summary><c>wall_pirate_climb_right_2</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>wall_pirate_climb_right_2</c>.</summary>
     WallPirateClimbRight2,
-    /// <summary><c>wall_pirate_climb_right_3</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>wall_pirate_climb_right_3</c>.</summary>
     WallPirateClimbRight3,
-    /// <summary><c>wall_pirate_climb_right_4</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>wall_pirate_climb_right_4</c>.</summary>
     WallPirateClimbRight4,
-    /// <summary><c>ninja_pirate_pose_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_0</c>.</summary>
     NinjaPiratePose0,
-    /// <summary><c>ninja_pirate_pose_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_1</c>.</summary>
     NinjaPiratePose1,
-    /// <summary><c>ninja_pirate_pose_2</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_2</c>.</summary>
     NinjaPiratePose2,
-    /// <summary><c>ninja_pirate_pose_3</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_3</c>.</summary>
     NinjaPiratePose3,
-    /// <summary><c>ninja_pirate_pose_4</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_4</c>.</summary>
     NinjaPiratePose4,
-    /// <summary><c>ninja_pirate_pose_5</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_5</c>.</summary>
     NinjaPiratePose5,
-    /// <summary><c>ninja_pirate_pose_6</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_6</c>.</summary>
     NinjaPiratePose6,
-    /// <summary><c>ninja_pirate_pose_7</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_7</c>.</summary>
     NinjaPiratePose7,
-    /// <summary><c>ninja_pirate_pose_8</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_8</c>.</summary>
     NinjaPiratePose8,
-    /// <summary><c>ninja_pirate_pose_17</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_17</c>.</summary>
     NinjaPiratePose17,
-    /// <summary><c>ninja_pirate_pose_18</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_18</c>.</summary>
     NinjaPiratePose18,
-    /// <summary><c>ninja_pirate_pose_19</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_19</c>.</summary>
     NinjaPiratePose19,
-    /// <summary><c>ninja_pirate_pose_20</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_20</c>.</summary>
     NinjaPiratePose20,
-    /// <summary><c>ninja_pirate_pose_21</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_21</c>.</summary>
     NinjaPiratePose21,
-    /// <summary><c>ninja_pirate_pose_22</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_22</c>.</summary>
     NinjaPiratePose22,
-    /// <summary><c>ninja_pirate_pose_23</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_23</c>.</summary>
     NinjaPiratePose23,
-    /// <summary><c>ninja_pirate_pose_24</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_24</c>.</summary>
     NinjaPiratePose24,
-    /// <summary><c>ninja_pirate_pose_49</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_49</c>.</summary>
     NinjaPiratePose49,
-    /// <summary><c>ninja_pirate_pose_50</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_50</c>.</summary>
     NinjaPiratePose50,
-    /// <summary><c>ninja_pirate_pose_51</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_51</c>.</summary>
     NinjaPiratePose51,
-    /// <summary><c>ninja_pirate_pose_55</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_55</c>.</summary>
     NinjaPiratePose55,
-    /// <summary><c>ninja_pirate_pose_65</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_65</c>.</summary>
     NinjaPiratePose65,
-    /// <summary><c>ninja_pirate_pose_57</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_57</c>.</summary>
     NinjaPiratePose57,
-    /// <summary><c>ninja_pirate_pose_58</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_58</c>.</summary>
     NinjaPiratePose58,
-    /// <summary><c>ninja_pirate_pose_33</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_33</c>.</summary>
     NinjaPiratePose33,
-    /// <summary><c>ninja_pirate_pose_34</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_34</c>.</summary>
     NinjaPiratePose34,
-    /// <summary><c>ninja_pirate_pose_35</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_35</c>.</summary>
     NinjaPiratePose35,
-    /// <summary><c>ninja_pirate_pose_36</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_36</c>.</summary>
     NinjaPiratePose36,
-    /// <summary><c>ninja_pirate_pose_37</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_37</c>.</summary>
     NinjaPiratePose37,
-    /// <summary><c>ninja_pirate_pose_38</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_38</c>.</summary>
     NinjaPiratePose38,
-    /// <summary><c>ninja_pirate_pose_39</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_39</c>.</summary>
     NinjaPiratePose39,
-    /// <summary><c>ninja_pirate_pose_40</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_40</c>.</summary>
     NinjaPiratePose40,
-    /// <summary><c>ninja_pirate_pose_69</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_69</c>.</summary>
     NinjaPiratePose69,
-    /// <summary><c>ninja_pirate_pose_70</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_70</c>.</summary>
     NinjaPiratePose70,
-    /// <summary><c>ninja_pirate_pose_71</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_71</c>.</summary>
     NinjaPiratePose71,
-    /// <summary><c>ninja_pirate_pose_75</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_75</c>.</summary>
     NinjaPiratePose75,
-    /// <summary><c>ninja_pirate_pose_73</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_73</c>.</summary>
     NinjaPiratePose73,
-    /// <summary><c>ninja_pirate_pose_52</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_52</c>.</summary>
     NinjaPiratePose52,
-    /// <summary><c>ninja_pirate_pose_53</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_53</c>.</summary>
     NinjaPiratePose53,
-    /// <summary><c>ninja_pirate_pose_54</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_54</c>.</summary>
     NinjaPiratePose54,
-    /// <summary><c>ninja_pirate_pose_61</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_61</c>.</summary>
     NinjaPiratePose61,
-    /// <summary><c>ninja_pirate_pose_67</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_67</c>.</summary>
     NinjaPiratePose67,
-    /// <summary><c>ninja_pirate_pose_62</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_62</c>.</summary>
     NinjaPiratePose62,
-    /// <summary><c>ninja_pirate_pose_9</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_9</c>.</summary>
     NinjaPiratePose9,
-    /// <summary><c>ninja_pirate_pose_10</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_10</c>.</summary>
     NinjaPiratePose10,
-    /// <summary><c>ninja_pirate_pose_11</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_11</c>.</summary>
     NinjaPiratePose11,
-    /// <summary><c>ninja_pirate_pose_12</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_12</c>.</summary>
     NinjaPiratePose12,
-    /// <summary><c>ninja_pirate_pose_13</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_13</c>.</summary>
     NinjaPiratePose13,
-    /// <summary><c>ninja_pirate_pose_14</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_14</c>.</summary>
     NinjaPiratePose14,
-    /// <summary><c>ninja_pirate_pose_15</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_15</c>.</summary>
     NinjaPiratePose15,
-    /// <summary><c>ninja_pirate_pose_16</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_16</c>.</summary>
     NinjaPiratePose16,
-    /// <summary><c>ninja_pirate_pose_25</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_25</c>.</summary>
     NinjaPiratePose25,
-    /// <summary><c>ninja_pirate_pose_26</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_26</c>.</summary>
     NinjaPiratePose26,
-    /// <summary><c>ninja_pirate_pose_27</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_27</c>.</summary>
     NinjaPiratePose27,
-    /// <summary><c>ninja_pirate_pose_28</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_28</c>.</summary>
     NinjaPiratePose28,
-    /// <summary><c>ninja_pirate_pose_29</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_29</c>.</summary>
     NinjaPiratePose29,
-    /// <summary><c>ninja_pirate_pose_30</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_30</c>.</summary>
     NinjaPiratePose30,
-    /// <summary><c>ninja_pirate_pose_31</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_31</c>.</summary>
     NinjaPiratePose31,
-    /// <summary><c>ninja_pirate_pose_32</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_32</c>.</summary>
     NinjaPiratePose32,
-    /// <summary><c>ninja_pirate_pose_56</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_56</c>.</summary>
     NinjaPiratePose56,
-    /// <summary><c>ninja_pirate_pose_66</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_66</c>.</summary>
     NinjaPiratePose66,
-    /// <summary><c>ninja_pirate_pose_59</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_59</c>.</summary>
     NinjaPiratePose59,
-    /// <summary><c>ninja_pirate_pose_60</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_60</c>.</summary>
     NinjaPiratePose60,
-    /// <summary><c>ninja_pirate_pose_41</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_41</c>.</summary>
     NinjaPiratePose41,
-    /// <summary><c>ninja_pirate_pose_42</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_42</c>.</summary>
     NinjaPiratePose42,
-    /// <summary><c>ninja_pirate_pose_43</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_43</c>.</summary>
     NinjaPiratePose43,
-    /// <summary><c>ninja_pirate_pose_44</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_44</c>.</summary>
     NinjaPiratePose44,
-    /// <summary><c>ninja_pirate_pose_45</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_45</c>.</summary>
     NinjaPiratePose45,
-    /// <summary><c>ninja_pirate_pose_46</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_46</c>.</summary>
     NinjaPiratePose46,
-    /// <summary><c>ninja_pirate_pose_47</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_47</c>.</summary>
     NinjaPiratePose47,
-    /// <summary><c>ninja_pirate_pose_48</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_48</c>.</summary>
     NinjaPiratePose48,
-    /// <summary><c>ninja_pirate_pose_72</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_72</c>.</summary>
     NinjaPiratePose72,
-    /// <summary><c>ninja_pirate_pose_74</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_74</c>.</summary>
     NinjaPiratePose74,
-    /// <summary><c>ninja_pirate_pose_63</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_63</c>.</summary>
     NinjaPiratePose63,
-    /// <summary><c>ninja_pirate_pose_68</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_68</c>.</summary>
     NinjaPiratePose68,
-    /// <summary><c>ninja_pirate_pose_64</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_64</c>.</summary>
     NinjaPiratePose64,
-    /// <summary><c>ridley_body_left</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_body_left</c>.</summary>
     RidleyBodyLeft,
-    /// <summary><c>ridley_body_right</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_body_right</c>.</summary>
     RidleyBodyRight,
-    /// <summary><c>ridley_body_left_mouth_half_open</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_body_left_mouth_half_open</c>.</summary>
     RidleyBodyLeftMouthHalfOpen,
-    /// <summary><c>ridley_body_left_mouth_open</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_body_left_mouth_open</c>.</summary>
     RidleyBodyLeftMouthOpen,
-    /// <summary><c>ridley_body_right_mouth_half_open</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_body_right_mouth_half_open</c>.</summary>
     RidleyBodyRightMouthHalfOpen,
-    /// <summary><c>ridley_body_right_mouth_open</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_body_right_mouth_open</c>.</summary>
     RidleyBodyRightMouthOpen,
-    /// <summary><c>ridley_body_left_legs_half_extended</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_body_left_legs_half_extended</c>.</summary>
     RidleyBodyLeftLegsHalfExtended,
-    /// <summary><c>ridley_body_left_legs_extended</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_body_left_legs_extended</c>.</summary>
     RidleyBodyLeftLegsExtended,
-    /// <summary><c>ridley_body_right_legs_half_extended</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_body_right_legs_half_extended</c>.</summary>
     RidleyBodyRightLegsHalfExtended,
-    /// <summary><c>ridley_body_right_legs_extended</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_body_right_legs_extended</c>.</summary>
     RidleyBodyRightLegsExtended,
-    /// <summary><c>ridley_body_forward</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ridley_body_forward</c>.</summary>
     RidleyBodyForward,
-    /// <summary><c>draygon_frame_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_0</c>.</summary>
     DraygonFrame0,
-    /// <summary><c>draygon_frame_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_1</c>.</summary>
     DraygonFrame1,
-    /// <summary><c>draygon_frame_2</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_2</c>.</summary>
     DraygonFrame2,
-    /// <summary><c>draygon_frame_3</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_3</c>.</summary>
     DraygonFrame3,
-    /// <summary><c>draygon_frame_4</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_4</c>.</summary>
     DraygonFrame4,
-    /// <summary><c>draygon_frame_5</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_5</c>.</summary>
     DraygonFrame5,
-    /// <summary><c>draygon_frame_23</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_23</c>.</summary>
     DraygonFrame23,
-    /// <summary><c>draygon_frame_24</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_24</c>.</summary>
     DraygonFrame24,
-    /// <summary><c>draygon_frame_25</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_25</c>.</summary>
     DraygonFrame25,
-    /// <summary><c>draygon_frame_26</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_26</c>.</summary>
     DraygonFrame26,
-    /// <summary><c>draygon_frame_27</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_27</c>.</summary>
     DraygonFrame27,
-    /// <summary><c>draygon_frame_28</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_28</c>.</summary>
     DraygonFrame28,
-    /// <summary><c>draygon_frame_29</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_29</c>.</summary>
     DraygonFrame29,
-    /// <summary><c>draygon_frame_30</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_30</c>.</summary>
     DraygonFrame30,
-    /// <summary><c>draygon_frame_31</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_31</c>.</summary>
     DraygonFrame31,
-    /// <summary><c>draygon_frame_32</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_32</c>.</summary>
     DraygonFrame32,
-    /// <summary><c>draygon_frame_33</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_33</c>.</summary>
     DraygonFrame33,
-    /// <summary><c>draygon_frame_34</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_34</c>.</summary>
     DraygonFrame34,
-    /// <summary><c>draygon_frame_35</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_35</c>.</summary>
     DraygonFrame35,
-    /// <summary><c>draygon_frame_36</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_36</c>.</summary>
     DraygonFrame36,
-    /// <summary><c>draygon_frame_37</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_37</c>.</summary>
     DraygonFrame37,
-    /// <summary><c>draygon_frame_38</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_38</c>.</summary>
     DraygonFrame38,
-    /// <summary><c>draygon_frame_39</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_39</c>.</summary>
     DraygonFrame39,
-    /// <summary><c>draygon_frame_40</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_40</c>.</summary>
     DraygonFrame40,
-    /// <summary><c>draygon_frame_41</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_41</c>.</summary>
     DraygonFrame41,
-    /// <summary><c>draygon_frame_42</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_42</c>.</summary>
     DraygonFrame42,
-    /// <summary><c>draygon_frame_43</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_43</c>.</summary>
     DraygonFrame43,
-    /// <summary><c>draygon_frame_44</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_44</c>.</summary>
     DraygonFrame44,
-    /// <summary><c>draygon_frame_45</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_45</c>.</summary>
     DraygonFrame45,
-    /// <summary><c>draygon_frame_46</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_46</c>.</summary>
     DraygonFrame46,
-    /// <summary><c>draygon_frame_64</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_64</c>.</summary>
     DraygonFrame64,
-    /// <summary><c>draygon_frame_65</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_65</c>.</summary>
     DraygonFrame65,
-    /// <summary><c>draygon_frame_66</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_66</c>.</summary>
     DraygonFrame66,
-    /// <summary><c>draygon_frame_67</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_67</c>.</summary>
     DraygonFrame67,
-    /// <summary><c>draygon_frame_68</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_68</c>.</summary>
     DraygonFrame68,
-    /// <summary><c>draygon_frame_69</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_69</c>.</summary>
     DraygonFrame69,
-    /// <summary><c>draygon_frame_70</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_70</c>.</summary>
     DraygonFrame70,
-    /// <summary><c>draygon_frame_71</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_71</c>.</summary>
     DraygonFrame71,
-    /// <summary><c>draygon_frame_72</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_72</c>.</summary>
     DraygonFrame72,
-    /// <summary><c>draygon_frame_73</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_73</c>.</summary>
     DraygonFrame73,
-    /// <summary><c>draygon_frame_74</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_74</c>.</summary>
     DraygonFrame74,
-    /// <summary><c>draygon_frame_75</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_75</c>.</summary>
     DraygonFrame75,
-    /// <summary><c>draygon_frame_76</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_76</c>.</summary>
     DraygonFrame76,
-    /// <summary><c>draygon_frame_77</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_77</c>.</summary>
     DraygonFrame77,
-    /// <summary><c>draygon_frame_78</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_78</c>.</summary>
     DraygonFrame78,
-    /// <summary><c>draygon_frame_79</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_79</c>.</summary>
     DraygonFrame79,
-    /// <summary><c>draygon_frame_80</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_80</c>.</summary>
     DraygonFrame80,
-    /// <summary><c>draygon_frame_81</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_81</c>.</summary>
     DraygonFrame81,
-    /// <summary><c>spore_spawn_dead_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>spore_spawn_dead_0</c>.</summary>
     SporeSpawnDead0,
-    /// <summary><c>spore_spawn_closed_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>spore_spawn_closed_0</c>.</summary>
     SporeSpawnClosed0,
-    /// <summary><c>spore_spawn_opening_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>spore_spawn_opening_0</c>.</summary>
     SporeSpawnOpening0,
-    /// <summary><c>spore_spawn_opening_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>spore_spawn_opening_1</c>.</summary>
     SporeSpawnOpening1,
-    /// <summary><c>spore_spawn_opening_2</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>spore_spawn_opening_2</c>.</summary>
     SporeSpawnOpening2,
-    /// <summary><c>spore_spawn_opening_3</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>spore_spawn_opening_3</c>.</summary>
     SporeSpawnOpening3,
-    /// <summary><c>spore_spawn_opening_4</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>spore_spawn_opening_4</c>.</summary>
     SporeSpawnOpening4,
-    /// <summary><c>spore_spawn_opening_5</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>spore_spawn_opening_5</c>.</summary>
     SporeSpawnOpening5,
-    /// <summary><c>spore_spawn_opening_6</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>spore_spawn_opening_6</c>.</summary>
     SporeSpawnOpening6,
-    /// <summary><c>spore_spawn_open_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>spore_spawn_open_0</c>.</summary>
     SporeSpawnOpen0,
-    /// <summary><c>spore_spawn_open_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>spore_spawn_open_1</c>.</summary>
     SporeSpawnOpen1,
-    /// <summary><c>spore_spawn_open_2</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>spore_spawn_open_2</c>.</summary>
     SporeSpawnOpen2,
-    /// <summary><c>ceres_steam_pose_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_0</c>.</summary>
     CeresSteamPose0,
-    /// <summary><c>ceres_steam_pose_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_1</c>.</summary>
     CeresSteamPose1,
-    /// <summary><c>ceres_steam_pose_2</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_2</c>.</summary>
     CeresSteamPose2,
-    /// <summary><c>ceres_steam_pose_3</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_3</c>.</summary>
     CeresSteamPose3,
-    /// <summary><c>ceres_steam_pose_4</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_4</c>.</summary>
     CeresSteamPose4,
-    /// <summary><c>ceres_steam_pose_5</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_5</c>.</summary>
     CeresSteamPose5,
-    /// <summary><c>ceres_steam_pose_6</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_6</c>.</summary>
     CeresSteamPose6,
-    /// <summary><c>ceres_steam_pose_7</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_7</c>.</summary>
     CeresSteamPose7,
-    /// <summary><c>ceres_steam_pose_8</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_8</c>.</summary>
     CeresSteamPose8,
-    /// <summary><c>ceres_steam_pose_9</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_9</c>.</summary>
     CeresSteamPose9,
-    /// <summary><c>ceres_steam_pose_10</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_10</c>.</summary>
     CeresSteamPose10,
-    /// <summary><c>ceres_steam_pose_11</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_11</c>.</summary>
     CeresSteamPose11,
-    /// <summary><c>ceres_steam_pose_12</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_12</c>.</summary>
     CeresSteamPose12,
-    /// <summary><c>ceres_steam_pose_13</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_13</c>.</summary>
     CeresSteamPose13,
-    /// <summary><c>ceres_steam_pose_14</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_14</c>.</summary>
     CeresSteamPose14,
-    /// <summary><c>ceres_steam_pose_15</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_15</c>.</summary>
     CeresSteamPose15,
-    /// <summary><c>ceres_steam_pose_16</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_16</c>.</summary>
     CeresSteamPose16,
-    /// <summary><c>ceres_steam_pose_17</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_17</c>.</summary>
     CeresSteamPose17,
-    /// <summary><c>ceres_steam_pose_18</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_18</c>.</summary>
     CeresSteamPose18,
-    /// <summary><c>ceres_steam_pose_19</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_19</c>.</summary>
     CeresSteamPose19,
-    /// <summary><c>ceres_steam_pose_20</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_20</c>.</summary>
     CeresSteamPose20,
-    /// <summary><c>ceres_steam_pose_21</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_21</c>.</summary>
     CeresSteamPose21,
-    /// <summary><c>ceres_steam_pose_22</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_22</c>.</summary>
     CeresSteamPose22,
-    /// <summary><c>ceres_steam_pose_23</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_23</c>.</summary>
     CeresSteamPose23,
-    /// <summary><c>ceres_steam_pose_24</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_24</c>.</summary>
     CeresSteamPose24,
-    /// <summary><c>ceres_steam_pose_25</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_25</c>.</summary>
     CeresSteamPose25,
-    /// <summary><c>ceres_steam_pose_26</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_26</c>.</summary>
     CeresSteamPose26,
-    /// <summary><c>ceres_steam_pose_27</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_27</c>.</summary>
     CeresSteamPose27,
-    /// <summary><c>oum_pose_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>oum_pose_0</c>.</summary>
     OumPose0,
-    /// <summary><c>oum_pose_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>oum_pose_1</c>.</summary>
     OumPose1,
-    /// <summary><c>oum_pose_2</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>oum_pose_2</c>.</summary>
     OumPose2,
-    /// <summary><c>oum_pose_3</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>oum_pose_3</c>.</summary>
     OumPose3,
-    /// <summary><c>oum_pose_4</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>oum_pose_4</c>.</summary>
     OumPose4,
-    /// <summary><c>oum_pose_5</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>oum_pose_5</c>.</summary>
     OumPose5,
-    /// <summary><c>oum_pose_6</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>oum_pose_6</c>.</summary>
     OumPose6,
-    /// <summary><c>oum_pose_7</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>oum_pose_7</c>.</summary>
     OumPose7,
-    /// <summary><c>oum_pose_8</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>oum_pose_8</c>.</summary>
     OumPose8,
-    /// <summary><c>oum_pose_9</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>oum_pose_9</c>.</summary>
     OumPose9,
-    /// <summary><c>oum_pose_10</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>oum_pose_10</c>.</summary>
     OumPose10,
-    /// <summary><c>oum_pose_11</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>oum_pose_11</c>.</summary>
     OumPose11,
-    /// <summary><c>oum_pose_12</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>oum_pose_12</c>.</summary>
     OumPose12,
-    /// <summary><c>oum_pose_13</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>oum_pose_13</c>.</summary>
     OumPose13,
-    /// <summary><c>oum_pose_14</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>oum_pose_14</c>.</summary>
     OumPose14,
-    /// <summary><c>oum_pose_15</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>oum_pose_15</c>.</summary>
     OumPose15,
-    /// <summary><c>oum_pose_16</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>oum_pose_16</c>.</summary>
     OumPose16,
-    /// <summary><c>oum_pose_17</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>oum_pose_17</c>.</summary>
     OumPose17,
-    /// <summary><c>oum_pose_18</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>oum_pose_18</c>.</summary>
     OumPose18,
-    /// <summary><c>oum_pose_19</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>oum_pose_19</c>.</summary>
     OumPose19,
-    /// <summary><c>oum_pose_20</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>oum_pose_20</c>.</summary>
     OumPose20,
-    /// <summary><c>oum_pose_21</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>oum_pose_21</c>.</summary>
     OumPose21,
-    /// <summary><c>oum_pose_22</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>oum_pose_22</c>.</summary>
     OumPose22,
-    /// <summary><c>oum_pose_23</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>oum_pose_23</c>.</summary>
     OumPose23,
-    /// <summary><c>oum_pose_24</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>oum_pose_24</c>.</summary>
     OumPose24,
-    /// <summary><c>oum_pose_25</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>oum_pose_25</c>.</summary>
     OumPose25,
-    /// <summary><c>oum_pose_26</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>oum_pose_26</c>.</summary>
     OumPose26,
-    /// <summary><c>oum_pose_27</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>oum_pose_27</c>.</summary>
     OumPose27,
-    /// <summary><c>oum_pose_28</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>oum_pose_28</c>.</summary>
     OumPose28,
-    /// <summary><c>oum_pose_29</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>oum_pose_29</c>.</summary>
     OumPose29,
-    /// <summary><c>crocomire_tongue_fight_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_tongue_fight_0</c>.</summary>
     CrocomireTongueFight0,
-    /// <summary><c>crocomire_tongue_fight_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_tongue_fight_1</c>.</summary>
     CrocomireTongueFight1,
-    /// <summary><c>crocomire_tongue_fight_2</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_tongue_fight_2</c>.</summary>
     CrocomireTongueFight2,
-    /// <summary><c>crocomire_tongue_fight_3</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_tongue_fight_3</c>.</summary>
     CrocomireTongueFight3,
-    /// <summary><c>crocomire_tongue_melting_pose_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_tongue_melting_pose_0</c>.</summary>
     CrocomireTongueMeltingPose0,
-    /// <summary><c>crocomire_tongue_melting_pose_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_tongue_melting_pose_1</c>.</summary>
     CrocomireTongueMeltingPose1,
-    /// <summary><c>crocomire_tongue_melting_pose_2</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_tongue_melting_pose_2</c>.</summary>
     CrocomireTongueMeltingPose2,
-    /// <summary><c>crocomire_tongue_melting_pose_3</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_tongue_melting_pose_3</c>.</summary>
     CrocomireTongueMeltingPose3,
-    /// <summary><c>crocomire_tongue_melting_pose_4</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_tongue_melting_pose_4</c>.</summary>
     CrocomireTongueMeltingPose4,
-    /// <summary><c>crocomire_body_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_0</c>.</summary>
     CrocomireBody0,
-    /// <summary><c>crocomire_body_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_1</c>.</summary>
     CrocomireBody1,
-    /// <summary><c>crocomire_body_2</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_2</c>.</summary>
     CrocomireBody2,
-    /// <summary><c>crocomire_body_3</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_3</c>.</summary>
     CrocomireBody3,
-    /// <summary><c>crocomire_body_4</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_4</c>.</summary>
     CrocomireBody4,
-    /// <summary><c>crocomire_body_5</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_5</c>.</summary>
     CrocomireBody5,
-    /// <summary><c>crocomire_body_6</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_6</c>.</summary>
     CrocomireBody6,
-    /// <summary><c>crocomire_body_7</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_7</c>.</summary>
     CrocomireBody7,
-    /// <summary><c>crocomire_body_8</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_8</c>.</summary>
     CrocomireBody8,
-    /// <summary><c>crocomire_body_9</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_9</c>.</summary>
     CrocomireBody9,
-    /// <summary><c>crocomire_body_10</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_10</c>.</summary>
     CrocomireBody10,
-    /// <summary><c>crocomire_body_11</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_11</c>.</summary>
     CrocomireBody11,
-    /// <summary><c>crocomire_body_12</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_12</c>.</summary>
     CrocomireBody12,
-    /// <summary><c>crocomire_body_13</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_13</c>.</summary>
     CrocomireBody13,
-    /// <summary><c>crocomire_body_14</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_14</c>.</summary>
     CrocomireBody14,
-    /// <summary><c>crocomire_body_15</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_15</c>.</summary>
     CrocomireBody15,
-    /// <summary><c>crocomire_body_16</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_16</c>.</summary>
     CrocomireBody16,
-    /// <summary><c>crocomire_body_17</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_17</c>.</summary>
     CrocomireBody17,
-    /// <summary><c>crocomire_body_18</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_18</c>.</summary>
     CrocomireBody18,
-    /// <summary><c>crocomire_body_19</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_19</c>.</summary>
     CrocomireBody19,
-    /// <summary><c>crocomire_body_20</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_20</c>.</summary>
     CrocomireBody20,
-    /// <summary><c>crocomire_body_21</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_21</c>.</summary>
     CrocomireBody21,
-    /// <summary><c>crocomire_body_22</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_22</c>.</summary>
     CrocomireBody22,
-    /// <summary><c>crocomire_body_23</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_23</c>.</summary>
     CrocomireBody23,
-    /// <summary><c>crocomire_body_24</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_24</c>.</summary>
     CrocomireBody24,
-    /// <summary><c>crocomire_body_25</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_25</c>.</summary>
     CrocomireBody25,
-    /// <summary><c>crocomire_body_26</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_26</c>.</summary>
     CrocomireBody26,
-    /// <summary><c>crocomire_body_27</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_27</c>.</summary>
     CrocomireBody27,
-    /// <summary><c>crocomire_body_28</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_28</c>.</summary>
     CrocomireBody28,
-    /// <summary><c>crocomire_body_29</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_29</c>.</summary>
     CrocomireBody29,
-    /// <summary><c>crocomire_body_30</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_30</c>.</summary>
     CrocomireBody30,
-    /// <summary><c>crocomire_body_31</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_31</c>.</summary>
     CrocomireBody31,
-    /// <summary><c>crocomire_body_32</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_32</c>.</summary>
     CrocomireBody32,
-    /// <summary><c>crocomire_body_33</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_33</c>.</summary>
     CrocomireBody33,
-    /// <summary><c>crocomire_body_34</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_34</c>.</summary>
     CrocomireBody34,
-    /// <summary><c>crocomire_body_35</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_35</c>.</summary>
     CrocomireBody35,
-    /// <summary><c>crocomire_body_36</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_36</c>.</summary>
     CrocomireBody36,
-    /// <summary><c>crocomire_body_37</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_37</c>.</summary>
     CrocomireBody37,
-    /// <summary><c>crocomire_body_38</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_38</c>.</summary>
     CrocomireBody38,
-    /// <summary><c>crocomire_body_39</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_39</c>.</summary>
     CrocomireBody39,
-    /// <summary><c>crocomire_body_40</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_40</c>.</summary>
     CrocomireBody40,
-    /// <summary><c>crocomire_body_41</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_41</c>.</summary>
     CrocomireBody41,
-    /// <summary><c>crocomire_body_42</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_42</c>.</summary>
     CrocomireBody42,
-    /// <summary><c>crocomire_body_43</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_43</c>.</summary>
     CrocomireBody43,
-    /// <summary><c>crocomire_body_44</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_44</c>.</summary>
     CrocomireBody44,
-    /// <summary><c>crocomire_body_45</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_45</c>.</summary>
     CrocomireBody45,
-    /// <summary><c>crocomire_body_46</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_46</c>.</summary>
     CrocomireBody46,
-    /// <summary><c>crocomire_body_47</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_47</c>.</summary>
     CrocomireBody47,
-    /// <summary><c>crocomire_body_48</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_48</c>.</summary>
     CrocomireBody48,
-    /// <summary><c>crocomire_body_49</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_body_49</c>.</summary>
     CrocomireBody49,
-    /// <summary><c>bomb_torizo_dormant</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>bomb_torizo_dormant</c>.</summary>
     BombTorizoDormant,
-    /// <summary><c>golden_torizo_initial</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_initial</c>.</summary>
     GoldenTorizoInitial,
-    /// <summary><c>kraid_arm_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_arm_0</c>.</summary>
     KraidArm0,
-    /// <summary><c>kraid_arm_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_arm_1</c>.</summary>
     KraidArm1,
-    /// <summary><c>kraid_arm_2</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_arm_2</c>.</summary>
     KraidArm2,
-    /// <summary><c>kraid_arm_3</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_arm_3</c>.</summary>
     KraidArm3,
-    /// <summary><c>kraid_arm_4</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_arm_4</c>.</summary>
     KraidArm4,
-    /// <summary><c>kraid_arm_5</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_arm_5</c>.</summary>
     KraidArm5,
-    /// <summary><c>kraid_arm_6</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_arm_6</c>.</summary>
     KraidArm6,
-    /// <summary><c>kraid_arm_7</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_arm_7</c>.</summary>
     KraidArm7,
-    /// <summary><c>kraid_arm_8</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_arm_8</c>.</summary>
     KraidArm8,
-    /// <summary><c>kraid_arm_9</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_arm_9</c>.</summary>
     KraidArm9,
-    /// <summary><c>kraid_arm_10</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_arm_10</c>.</summary>
     KraidArm10,
-    /// <summary><c>kraid_arm_11</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_arm_11</c>.</summary>
     KraidArm11,
-    /// <summary><c>kraid_arm_12</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_arm_12</c>.</summary>
     KraidArm12,
-    /// <summary><c>kraid_arm_13</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_arm_13</c>.</summary>
     KraidArm13,
-    /// <summary><c>kraid_arm_14</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_arm_14</c>.</summary>
     KraidArm14,
-    /// <summary><c>kraid_arm_15</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_arm_15</c>.</summary>
     KraidArm15,
-    /// <summary><c>kraid_arm_16</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_arm_16</c>.</summary>
     KraidArm16,
-    /// <summary><c>kraid_arm_17</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_arm_17</c>.</summary>
     KraidArm17,
-    /// <summary><c>kraid_arm_18</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_arm_18</c>.</summary>
     KraidArm18,
-    /// <summary><c>kraid_arm_19</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_arm_19</c>.</summary>
     KraidArm19,
-    /// <summary><c>kraid_arm_20</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_arm_20</c>.</summary>
     KraidArm20,
-    /// <summary><c>kraid_arm_21</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_arm_21</c>.</summary>
     KraidArm21,
-    /// <summary><c>golden_torizo_awake_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_awake_0</c>.</summary>
     GoldenTorizoAwake0,
-    /// <summary><c>golden_torizo_awake_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_awake_1</c>.</summary>
     GoldenTorizoAwake1,
-    /// <summary><c>golden_torizo_awake_2</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_awake_2</c>.</summary>
     GoldenTorizoAwake2,
-    /// <summary><c>golden_torizo_awake_3</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_awake_3</c>.</summary>
     GoldenTorizoAwake3,
-    /// <summary><c>golden_torizo_awake_4</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_awake_4</c>.</summary>
     GoldenTorizoAwake4,
-    /// <summary><c>golden_torizo_awake_5</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_awake_5</c>.</summary>
     GoldenTorizoAwake5,
-    /// <summary><c>golden_torizo_walk_left_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_walk_left_0</c>.</summary>
     GoldenTorizoWalkLeft0,
-    /// <summary><c>golden_torizo_walk_left_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_walk_left_1</c>.</summary>
     GoldenTorizoWalkLeft1,
-    /// <summary><c>golden_torizo_walk_left_2</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_walk_left_2</c>.</summary>
     GoldenTorizoWalkLeft2,
-    /// <summary><c>golden_torizo_walk_left_3</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_walk_left_3</c>.</summary>
     GoldenTorizoWalkLeft3,
-    /// <summary><c>golden_torizo_walk_left_4</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_walk_left_4</c>.</summary>
     GoldenTorizoWalkLeft4,
-    /// <summary><c>golden_torizo_walk_left_5</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_walk_left_5</c>.</summary>
     GoldenTorizoWalkLeft5,
-    /// <summary><c>golden_torizo_walk_left_6</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_walk_left_6</c>.</summary>
     GoldenTorizoWalkLeft6,
-    /// <summary><c>golden_torizo_walk_left_7</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_walk_left_7</c>.</summary>
     GoldenTorizoWalkLeft7,
-    /// <summary><c>golden_torizo_walk_left_8</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_walk_left_8</c>.</summary>
     GoldenTorizoWalkLeft8,
-    /// <summary><c>golden_torizo_walk_left_9</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_walk_left_9</c>.</summary>
     GoldenTorizoWalkLeft9,
-    /// <summary><c>golden_torizo_rightward_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_rightward_0</c>.</summary>
     GoldenTorizoRightward0,
-    /// <summary><c>golden_torizo_rightward_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_rightward_1</c>.</summary>
     GoldenTorizoRightward1,
-    /// <summary><c>golden_torizo_rightward_2</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_rightward_2</c>.</summary>
     GoldenTorizoRightward2,
-    /// <summary><c>golden_torizo_rightward_3</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_rightward_3</c>.</summary>
     GoldenTorizoRightward3,
-    /// <summary><c>golden_torizo_rightward_4</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_rightward_4</c>.</summary>
     GoldenTorizoRightward4,
-    /// <summary><c>golden_torizo_rightward_5</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_rightward_5</c>.</summary>
     GoldenTorizoRightward5,
-    /// <summary><c>golden_torizo_rightward_6</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_rightward_6</c>.</summary>
     GoldenTorizoRightward6,
-    /// <summary><c>golden_torizo_rightward_7</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_rightward_7</c>.</summary>
     GoldenTorizoRightward7,
-    /// <summary><c>golden_torizo_rightward_8</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_rightward_8</c>.</summary>
     GoldenTorizoRightward8,
-    /// <summary><c>golden_torizo_rightward_9</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_rightward_9</c>.</summary>
     GoldenTorizoRightward9,
-    /// <summary><c>golden_torizo_rightward_10</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_rightward_10</c>.</summary>
     GoldenTorizoRightward10,
-    /// <summary><c>torizo_jump_back_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>torizo_jump_back_0</c>.</summary>
     TorizoJumpBack0,
-    /// <summary><c>torizo_jump_back_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>torizo_jump_back_1</c>.</summary>
     TorizoJumpBack1,
-    /// <summary><c>torizo_jump_back_2</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>torizo_jump_back_2</c>.</summary>
     TorizoJumpBack2,
-    /// <summary><c>golden_torizo_right_orb_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_right_orb_0</c>.</summary>
     GoldenTorizoRightOrb0,
-    /// <summary><c>golden_torizo_right_orb_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_right_orb_1</c>.</summary>
     GoldenTorizoRightOrb1,
-    /// <summary><c>golden_torizo_right_orb_2</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_right_orb_2</c>.</summary>
     GoldenTorizoRightOrb2,
-    /// <summary><c>golden_torizo_right_orb_3</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_right_orb_3</c>.</summary>
     GoldenTorizoRightOrb3,
-    /// <summary><c>golden_torizo_right_orb_4</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_right_orb_4</c>.</summary>
     GoldenTorizoRightOrb4,
-    /// <summary><c>golden_torizo_right_orb_5</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_right_orb_5</c>.</summary>
     GoldenTorizoRightOrb5,
-    /// <summary><c>golden_torizo_right_sonic_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_0</c>.</summary>
     GoldenTorizoRightSonic0,
-    /// <summary><c>golden_torizo_right_sonic_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_1</c>.</summary>
     GoldenTorizoRightSonic1,
-    /// <summary><c>golden_torizo_right_sonic_2</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_2</c>.</summary>
     GoldenTorizoRightSonic2,
-    /// <summary><c>golden_torizo_right_sonic_3</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_3</c>.</summary>
     GoldenTorizoRightSonic3,
-    /// <summary><c>golden_torizo_right_sonic_4</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_4</c>.</summary>
     GoldenTorizoRightSonic4,
-    /// <summary><c>golden_torizo_right_sonic_5</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_5</c>.</summary>
     GoldenTorizoRightSonic5,
-    /// <summary><c>golden_torizo_right_sonic_6</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_6</c>.</summary>
     GoldenTorizoRightSonic6,
-    /// <summary><c>golden_torizo_right_sonic_7</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_7</c>.</summary>
     GoldenTorizoRightSonic7,
-    /// <summary><c>golden_torizo_right_sonic_8</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_8</c>.</summary>
     GoldenTorizoRightSonic8,
-    /// <summary><c>golden_torizo_right_sonic_9</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_9</c>.</summary>
     GoldenTorizoRightSonic9,
-    /// <summary><c>golden_torizo_right_sonic_10</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_10</c>.</summary>
     GoldenTorizoRightSonic10,
-    /// <summary><c>golden_torizo_right_sonic_11</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_11</c>.</summary>
     GoldenTorizoRightSonic11,
-    /// <summary><c>golden_torizo_right_sonic_12</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_12</c>.</summary>
     GoldenTorizoRightSonic12,
-    /// <summary><c>golden_torizo_right_sonic_13</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_13</c>.</summary>
     GoldenTorizoRightSonic13,
-    /// <summary><c>golden_torizo_right_sonic_14</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_14</c>.</summary>
     GoldenTorizoRightSonic14,
-    /// <summary><c>golden_torizo_right_sonic_15</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_15</c>.</summary>
     GoldenTorizoRightSonic15,
-    /// <summary><c>golden_torizo_right_sonic_16</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_16</c>.</summary>
     GoldenTorizoRightSonic16,
-    /// <summary><c>golden_torizo_right_sonic_17</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_17</c>.</summary>
     GoldenTorizoRightSonic17,
-    /// <summary><c>golden_torizo_right_sonic_18</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_18</c>.</summary>
     GoldenTorizoRightSonic18,
-    /// <summary><c>golden_torizo_right_sonic_19</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_19</c>.</summary>
     GoldenTorizoRightSonic19,
-    /// <summary><c>golden_torizo_right_sonic_20</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_20</c>.</summary>
     GoldenTorizoRightSonic20,
-    /// <summary><c>torizo_falling_left</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>torizo_falling_left</c>.</summary>
     TorizoFallingLeft,
-    /// <summary><c>golden_torizo_left_foot_orb_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_left_foot_orb_0</c>.</summary>
     GoldenTorizoLeftFootOrb0,
-    /// <summary><c>golden_torizo_left_foot_orb_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_left_foot_orb_1</c>.</summary>
     GoldenTorizoLeftFootOrb1,
-    /// <summary><c>golden_torizo_left_foot_orb_2</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_left_foot_orb_2</c>.</summary>
     GoldenTorizoLeftFootOrb2,
-    /// <summary><c>golden_torizo_left_foot_orb_3</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_left_foot_orb_3</c>.</summary>
     GoldenTorizoLeftFootOrb3,
-    /// <summary><c>golden_torizo_left_foot_orb_4</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_left_foot_orb_4</c>.</summary>
     GoldenTorizoLeftFootOrb4,
-    /// <summary><c>torizo_jump_back_left_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>torizo_jump_back_left_0</c>.</summary>
     TorizoJumpBackLeft0,
-    /// <summary><c>torizo_jump_back_left_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>torizo_jump_back_left_1</c>.</summary>
     TorizoJumpBackLeft1,
-    /// <summary><c>golden_torizo_left_orb_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_left_orb_0</c>.</summary>
     GoldenTorizoLeftOrb0,
-    /// <summary><c>golden_torizo_left_orb_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_left_orb_1</c>.</summary>
     GoldenTorizoLeftOrb1,
-    /// <summary><c>golden_torizo_left_orb_2</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_left_orb_2</c>.</summary>
     GoldenTorizoLeftOrb2,
-    /// <summary><c>golden_torizo_left_orb_3</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_left_orb_3</c>.</summary>
     GoldenTorizoLeftOrb3,
-    /// <summary><c>golden_torizo_left_orb_4</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_left_orb_4</c>.</summary>
     GoldenTorizoLeftOrb4,
-    /// <summary><c>golden_torizo_left_orb_5</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_left_orb_5</c>.</summary>
     GoldenTorizoLeftOrb5,
-    /// <summary><c>golden_torizo_left_orb_6</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_left_orb_6</c>.</summary>
     GoldenTorizoLeftOrb6,
-    /// <summary><c>golden_torizo_left_orb_7</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_left_orb_7</c>.</summary>
     GoldenTorizoLeftOrb7,
-    /// <summary><c>golden_torizo_left_orb_8</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_left_orb_8</c>.</summary>
     GoldenTorizoLeftOrb8,
-    /// <summary><c>golden_torizo_left_orb_9</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_left_orb_9</c>.</summary>
     GoldenTorizoLeftOrb9,
-    /// <summary><c>golden_torizo_left_orb_10</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_left_orb_10</c>.</summary>
     GoldenTorizoLeftOrb10,
-    /// <summary><c>golden_torizo_left_orb_11</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>golden_torizo_left_orb_11</c>.</summary>
     GoldenTorizoLeftOrb11,
-    /// <summary><c>torizo_combat_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>torizo_combat_0</c>.</summary>
     TorizoCombat0,
-    /// <summary><c>torizo_combat_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>torizo_combat_1</c>.</summary>
     TorizoCombat1,
-    /// <summary><c>torizo_combat_2</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>torizo_combat_2</c>.</summary>
     TorizoCombat2,
-    /// <summary><c>torizo_combat_3</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>torizo_combat_3</c>.</summary>
     TorizoCombat3,
-    /// <summary><c>torizo_combat_4</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>torizo_combat_4</c>.</summary>
     TorizoCombat4,
-    /// <summary><c>torizo_combat_5</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>torizo_combat_5</c>.</summary>
     TorizoCombat5,
-    /// <summary><c>torizo_combat_6</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>torizo_combat_6</c>.</summary>
     TorizoCombat6,
-    /// <summary><c>torizo_combat_7</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>torizo_combat_7</c>.</summary>
     TorizoCombat7,
-    /// <summary><c>torizo_combat_8</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>torizo_combat_8</c>.</summary>
     TorizoCombat8,
-    /// <summary><c>torizo_combat_9</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>torizo_combat_9</c>.</summary>
     TorizoCombat9,
-    /// <summary><c>torizo_combat_10</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>torizo_combat_10</c>.</summary>
     TorizoCombat10,
-    /// <summary><c>torizo_combat_11</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>torizo_combat_11</c>.</summary>
     TorizoCombat11,
-    /// <summary><c>torizo_combat_12</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>torizo_combat_12</c>.</summary>
     TorizoCombat12,
-    /// <summary><c>torizo_combat_13</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>torizo_combat_13</c>.</summary>
     TorizoCombat13,
-    /// <summary><c>torizo_combat_14</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>torizo_combat_14</c>.</summary>
     TorizoCombat14,
-    /// <summary><c>torizo_combat_15</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>torizo_combat_15</c>.</summary>
     TorizoCombat15,
-    /// <summary><c>torizo_combat_16</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>torizo_combat_16</c>.</summary>
     TorizoCombat16,
-    /// <summary><c>torizo_combat_17</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>torizo_combat_17</c>.</summary>
     TorizoCombat17,
-    /// <summary><c>torizo_combat_18</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>torizo_combat_18</c>.</summary>
     TorizoCombat18,
-    /// <summary><c>torizo_combat_19</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>torizo_combat_19</c>.</summary>
     TorizoCombat19,
-    /// <summary><c>torizo_combat_20</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>torizo_combat_20</c>.</summary>
     TorizoCombat20,
-    /// <summary><c>torizo_combat_21</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>torizo_combat_21</c>.</summary>
     TorizoCombat21,
-    /// <summary><c>torizo_combat_22</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>torizo_combat_22</c>.</summary>
     TorizoCombat22,
-    /// <summary><c>torizo_combat_23</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>torizo_combat_23</c>.</summary>
     TorizoCombat23,
-    /// <summary><c>torizo_combat_24</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>torizo_combat_24</c>.</summary>
     TorizoCombat24,
-    /// <summary><c>torizo_combat_25</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>torizo_combat_25</c>.</summary>
     TorizoCombat25,
-    /// <summary><c>torizo_combat_26</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>torizo_combat_26</c>.</summary>
     TorizoCombat26,
-    /// <summary><c>mother_brain_body_oam_standing</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>mother_brain_body_oam_standing</c>.</summary>
     MotherBrainBodyStanding,
-    /// <summary><c>mother_brain_body_oam_walking_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>mother_brain_body_oam_walking_0</c>.</summary>
     MotherBrainBodyWalking0,
-    /// <summary><c>mother_brain_body_oam_walking_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>mother_brain_body_oam_walking_1</c>.</summary>
     MotherBrainBodyWalking1,
-    /// <summary><c>mother_brain_body_oam_walking_2</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>mother_brain_body_oam_walking_2</c>.</summary>
     MotherBrainBodyWalking2,
-    /// <summary><c>mother_brain_body_oam_walking_3</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>mother_brain_body_oam_walking_3</c>.</summary>
     MotherBrainBodyWalking3,
-    /// <summary><c>mother_brain_body_oam_walking_4</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>mother_brain_body_oam_walking_4</c>.</summary>
     MotherBrainBodyWalking4,
-    /// <summary><c>mother_brain_body_oam_walking_5</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>mother_brain_body_oam_walking_5</c>.</summary>
     MotherBrainBodyWalking5,
-    /// <summary><c>mother_brain_body_oam_walking_6</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>mother_brain_body_oam_walking_6</c>.</summary>
     MotherBrainBodyWalking6,
-    /// <summary><c>mother_brain_body_oam_walking_7</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>mother_brain_body_oam_walking_7</c>.</summary>
     MotherBrainBodyWalking7,
-    /// <summary><c>mother_brain_body_oam_crouched</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>mother_brain_body_oam_crouched</c>.</summary>
     MotherBrainBodyCrouched,
-    /// <summary><c>mother_brain_body_oam_uncrouching</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>mother_brain_body_oam_uncrouching</c>.</summary>
     MotherBrainBodyUncrouching,
-    /// <summary><c>mother_brain_body_oam_leaning_down</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>mother_brain_body_oam_leaning_down</c>.</summary>
     MotherBrainBodyLeaningDown,
-    /// <summary><c>mother_brain_body_oam_initial_dummy</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>mother_brain_body_oam_initial_dummy</c>.</summary>
     MotherBrainBodyInitialDummy,
-    /// <summary><c>mother_brain_body_oam_death_beam_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>mother_brain_body_oam_death_beam_0</c>.</summary>
     MotherBrainBodyDeathBeam0,
-    /// <summary><c>mother_brain_body_oam_death_beam_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>mother_brain_body_oam_death_beam_1</c>.</summary>
     MotherBrainBodyDeathBeam1,
-    /// <summary><c>mother_brain_body_oam_death_beam_2</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>mother_brain_body_oam_death_beam_2</c>.</summary>
     MotherBrainBodyDeathBeam2,
-    /// <summary><c>mother_brain_body_oam_death_beam_3</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>mother_brain_body_oam_death_beam_3</c>.</summary>
     MotherBrainBodyDeathBeam3,
-    /// <summary><c>phantoon_invulnerable_body_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>phantoon_invulnerable_body_0</c>.</summary>
     PhantoonInvulnerableBody0,
-    /// <summary><c>phantoon_full_hitbox_body_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>phantoon_full_hitbox_body_0</c>.</summary>
     PhantoonFullHitboxBody0,
-    /// <summary><c>phantoon_eye_hitbox_body_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>phantoon_eye_hitbox_body_0</c>.</summary>
     PhantoonEyeHitboxBody0,
-    /// <summary><c>phantoon_closed_eye_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>phantoon_closed_eye_0</c>.</summary>
     PhantoonClosedEye0,
-    /// <summary><c>phantoon_opening_eye_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>phantoon_opening_eye_0</c>.</summary>
     PhantoonOpeningEye0,
-    /// <summary><c>phantoon_opening_eye_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>phantoon_opening_eye_1</c>.</summary>
     PhantoonOpeningEye1,
-    /// <summary><c>phantoon_opening_eye_2</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>phantoon_opening_eye_2</c>.</summary>
     PhantoonOpeningEye2,
-    /// <summary><c>phantoon_centered_eye_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>phantoon_centered_eye_0</c>.</summary>
     PhantoonCenteredEye0,
-    /// <summary><c>phantoon_gaze_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>phantoon_gaze_0</c>.</summary>
     PhantoonGaze0,
-    /// <summary><c>phantoon_gaze_4</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>phantoon_gaze_4</c>.</summary>
     PhantoonGaze4,
-    /// <summary><c>phantoon_gaze_6</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>phantoon_gaze_6</c>.</summary>
     PhantoonGaze6,
-    /// <summary><c>phantoon_gaze_2</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>phantoon_gaze_2</c>.</summary>
     PhantoonGaze2,
-    /// <summary><c>phantoon_gaze_5</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>phantoon_gaze_5</c>.</summary>
     PhantoonGaze5,
-    /// <summary><c>phantoon_gaze_3</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>phantoon_gaze_3</c>.</summary>
     PhantoonGaze3,
-    /// <summary><c>phantoon_gaze_7</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>phantoon_gaze_7</c>.</summary>
     PhantoonGaze7,
-    /// <summary><c>phantoon_gaze_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>phantoon_gaze_1</c>.</summary>
     PhantoonGaze1,
-    /// <summary><c>phantoon_tentacle_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>phantoon_tentacle_0</c>.</summary>
     PhantoonTentacle0,
-    /// <summary><c>phantoon_tentacle_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>phantoon_tentacle_1</c>.</summary>
     PhantoonTentacle1,
-    /// <summary><c>phantoon_tentacle_2</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>phantoon_tentacle_2</c>.</summary>
     PhantoonTentacle2,
-    /// <summary><c>phantoon_mouth_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>phantoon_mouth_0</c>.</summary>
     PhantoonMouth0,
-    /// <summary><c>phantoon_mouth_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>phantoon_mouth_1</c>.</summary>
     PhantoonMouth1,
-    /// <summary><c>phantoon_mouth_2</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>phantoon_mouth_2</c>.</summary>
     PhantoonMouth2,
-    /// <summary><c>draygon_frame_6</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_6</c>.</summary>
     DraygonFrame6,
-    /// <summary><c>draygon_frame_7</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_7</c>.</summary>
     DraygonFrame7,
-    /// <summary><c>draygon_frame_8</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_8</c>.</summary>
     DraygonFrame8,
-    /// <summary><c>draygon_frame_9</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_9</c>.</summary>
     DraygonFrame9,
-    /// <summary><c>draygon_frame_10</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_10</c>.</summary>
     DraygonFrame10,
-    /// <summary><c>draygon_frame_11</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_11</c>.</summary>
     DraygonFrame11,
-    /// <summary><c>draygon_frame_12</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_12</c>.</summary>
     DraygonFrame12,
-    /// <summary><c>draygon_frame_13</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_13</c>.</summary>
     DraygonFrame13,
-    /// <summary><c>draygon_frame_14</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_14</c>.</summary>
     DraygonFrame14,
-    /// <summary><c>draygon_frame_15</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_15</c>.</summary>
     DraygonFrame15,
-    /// <summary><c>draygon_frame_16</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_16</c>.</summary>
     DraygonFrame16,
-    /// <summary><c>draygon_frame_17</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_17</c>.</summary>
     DraygonFrame17,
-    /// <summary><c>draygon_frame_18</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_18</c>.</summary>
     DraygonFrame18,
-    /// <summary><c>draygon_frame_19</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_19</c>.</summary>
     DraygonFrame19,
-    /// <summary><c>draygon_frame_20</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_20</c>.</summary>
     DraygonFrame20,
-    /// <summary><c>draygon_frame_21</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_21</c>.</summary>
     DraygonFrame21,
-    /// <summary><c>draygon_frame_22</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_22</c>.</summary>
     DraygonFrame22,
-    /// <summary><c>draygon_frame_47</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_47</c>.</summary>
     DraygonFrame47,
-    /// <summary><c>draygon_frame_48</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_48</c>.</summary>
     DraygonFrame48,
-    /// <summary><c>draygon_frame_49</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_49</c>.</summary>
     DraygonFrame49,
-    /// <summary><c>draygon_frame_50</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_50</c>.</summary>
     DraygonFrame50,
-    /// <summary><c>draygon_frame_51</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_51</c>.</summary>
     DraygonFrame51,
-    /// <summary><c>draygon_frame_52</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_52</c>.</summary>
     DraygonFrame52,
-    /// <summary><c>draygon_frame_53</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_53</c>.</summary>
     DraygonFrame53,
-    /// <summary><c>draygon_frame_54</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_54</c>.</summary>
     DraygonFrame54,
-    /// <summary><c>draygon_frame_55</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_55</c>.</summary>
     DraygonFrame55,
-    /// <summary><c>draygon_frame_56</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_56</c>.</summary>
     DraygonFrame56,
-    /// <summary><c>draygon_frame_57</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_57</c>.</summary>
     DraygonFrame57,
-    /// <summary><c>draygon_frame_58</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_58</c>.</summary>
     DraygonFrame58,
-    /// <summary><c>draygon_frame_59</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_59</c>.</summary>
     DraygonFrame59,
-    /// <summary><c>draygon_frame_60</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_60</c>.</summary>
     DraygonFrame60,
-    /// <summary><c>draygon_frame_61</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_61</c>.</summary>
     DraygonFrame61,
-    /// <summary><c>draygon_frame_62</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_62</c>.</summary>
     DraygonFrame62,
-    /// <summary><c>draygon_frame_63</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>draygon_frame_63</c>.</summary>
     DraygonFrame63,
-    /// <summary><c>crocomire_skeleton_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_0</c>.</summary>
     CrocomireSkeleton0,
-    /// <summary><c>crocomire_skeleton_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_1</c>.</summary>
     CrocomireSkeleton1,
-    /// <summary><c>crocomire_skeleton_2</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_2</c>.</summary>
     CrocomireSkeleton2,
-    /// <summary><c>crocomire_skeleton_3</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_3</c>.</summary>
     CrocomireSkeleton3,
-    /// <summary><c>crocomire_skeleton_4</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_4</c>.</summary>
     CrocomireSkeleton4,
-    /// <summary><c>crocomire_skeleton_5</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_5</c>.</summary>
     CrocomireSkeleton5,
-    /// <summary><c>crocomire_skeleton_6</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_6</c>.</summary>
     CrocomireSkeleton6,
-    /// <summary><c>crocomire_skeleton_7</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_7</c>.</summary>
     CrocomireSkeleton7,
-    /// <summary><c>crocomire_skeleton_8</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_8</c>.</summary>
     CrocomireSkeleton8,
-    /// <summary><c>crocomire_skeleton_9</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_9</c>.</summary>
     CrocomireSkeleton9,
-    /// <summary><c>crocomire_skeleton_10</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_10</c>.</summary>
     CrocomireSkeleton10,
-    /// <summary><c>crocomire_skeleton_11</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_11</c>.</summary>
     CrocomireSkeleton11,
-    /// <summary><c>crocomire_skeleton_12</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_12</c>.</summary>
     CrocomireSkeleton12,
-    /// <summary><c>crocomire_skeleton_13</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_13</c>.</summary>
     CrocomireSkeleton13,
-    /// <summary><c>crocomire_skeleton_14</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_14</c>.</summary>
     CrocomireSkeleton14,
-    /// <summary><c>crocomire_skeleton_15</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_15</c>.</summary>
     CrocomireSkeleton15,
-    /// <summary><c>crocomire_skeleton_16</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_16</c>.</summary>
     CrocomireSkeleton16,
-    /// <summary><c>crocomire_skeleton_17</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_17</c>.</summary>
     CrocomireSkeleton17,
-    /// <summary><c>crocomire_skeleton_18</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_18</c>.</summary>
     CrocomireSkeleton18,
-    /// <summary><c>crocomire_skeleton_19</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_19</c>.</summary>
     CrocomireSkeleton19,
-    /// <summary><c>crocomire_skeleton_20</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_20</c>.</summary>
     CrocomireSkeleton20,
-    /// <summary><c>crocomire_skeleton_21</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_21</c>.</summary>
     CrocomireSkeleton21,
-    /// <summary><c>crocomire_skeleton_22</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_22</c>.</summary>
     CrocomireSkeleton22,
-    /// <summary><c>crocomire_skeleton_23</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_23</c>.</summary>
     CrocomireSkeleton23,
-    /// <summary><c>crocomire_skeleton_24</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_24</c>.</summary>
     CrocomireSkeleton24,
-    /// <summary><c>crocomire_skeleton_25</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_25</c>.</summary>
     CrocomireSkeleton25,
-    /// <summary><c>crocomire_skeleton_26</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_26</c>.</summary>
     CrocomireSkeleton26,
-    /// <summary><c>crocomire_skeleton_27</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_27</c>.</summary>
     CrocomireSkeleton27,
-    /// <summary><c>crocomire_skeleton_28</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_28</c>.</summary>
     CrocomireSkeleton28,
-    /// <summary><c>crocomire_skeleton_29</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_29</c>.</summary>
     CrocomireSkeleton29,
-    /// <summary><c>crocomire_skeleton_30</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_30</c>.</summary>
     CrocomireSkeleton30,
-    /// <summary><c>crocomire_skeleton_31</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_31</c>.</summary>
     CrocomireSkeleton31,
-    /// <summary><c>crocomire_skeleton_32</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_32</c>.</summary>
     CrocomireSkeleton32,
-    /// <summary><c>kraid_foot_0</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_foot_0</c>.</summary>
     KraidFoot0,
-    /// <summary><c>kraid_foot_1</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_foot_1</c>.</summary>
     KraidFoot1,
-    /// <summary><c>kraid_foot_2</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_foot_2</c>.</summary>
     KraidFoot2,
-    /// <summary><c>kraid_foot_3</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_foot_3</c>.</summary>
     KraidFoot3,
-    /// <summary><c>kraid_foot_4</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_foot_4</c>.</summary>
     KraidFoot4,
-    /// <summary><c>kraid_foot_5</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_foot_5</c>.</summary>
     KraidFoot5,
-    /// <summary><c>kraid_foot_6</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_foot_6</c>.</summary>
     KraidFoot6,
-    /// <summary><c>kraid_foot_7</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_foot_7</c>.</summary>
     KraidFoot7,
-    /// <summary><c>kraid_foot_8</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_foot_8</c>.</summary>
     KraidFoot8,
-    /// <summary><c>kraid_foot_9</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_foot_9</c>.</summary>
     KraidFoot9,
-    /// <summary><c>kraid_foot_10</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_foot_10</c>.</summary>
     KraidFoot10,
-    /// <summary><c>kraid_foot_11</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_foot_11</c>.</summary>
     KraidFoot11,
-    /// <summary><c>kraid_foot_12</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_foot_12</c>.</summary>
     KraidFoot12,
-    /// <summary><c>kraid_foot_13</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_foot_13</c>.</summary>
     KraidFoot13,
-    /// <summary><c>kraid_foot_14</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_foot_14</c>.</summary>
     KraidFoot14,
-    /// <summary><c>kraid_foot_15</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_foot_15</c>.</summary>
     KraidFoot15,
-    /// <summary><c>kraid_foot_16</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_foot_16</c>.</summary>
     KraidFoot16,
-    /// <summary><c>kraid_foot_17</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_foot_17</c>.</summary>
     KraidFoot17,
-    /// <summary><c>kraid_foot_18</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_foot_18</c>.</summary>
     KraidFoot18,
-    /// <summary><c>kraid_foot_19</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_foot_19</c>.</summary>
     KraidFoot19,
-    /// <summary><c>kraid_foot_20</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_foot_20</c>.</summary>
     KraidFoot20,
-    /// <summary><c>kraid_foot_21</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_foot_21</c>.</summary>
     KraidFoot21,
-    /// <summary><c>kraid_foot_22</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_foot_22</c>.</summary>
     KraidFoot22,
-    /// <summary><c>kraid_foot_23</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_foot_23</c>.</summary>
     KraidFoot23,
-    /// <summary><c>kraid_foot_24</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_foot_24</c>.</summary>
     KraidFoot24,
-    /// <summary><c>kraid_foot_25</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_foot_25</c>.</summary>
     KraidFoot25,
-    /// <summary><c>kraid_foot_26</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_foot_26</c>.</summary>
     KraidFoot26,
-    /// <summary><c>kraid_foot_27</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_foot_27</c>.</summary>
     KraidFoot27,
-    /// <summary><c>kraid_foot_28</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_foot_28</c>.</summary>
     KraidFoot28,
-    /// <summary><c>kraid_foot_29</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_foot_29</c>.</summary>
     KraidFoot29,
-    /// <summary><c>kraid_foot_30</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_foot_30</c>.</summary>
     KraidFoot30,
-    /// <summary><c>kraid_foot_31</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_foot_31</c>.</summary>
     KraidFoot31,
-    /// <summary><c>kraid_foot_32</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_foot_32</c>.</summary>
     KraidFoot32,
-    /// <summary><c>kraid_foot_33</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_foot_33</c>.</summary>
     KraidFoot33,
-    /// <summary><c>kraid_foot_standing</c>, an installed extended frame.</summary>
+    /// <summary>The frame the installed artwork names <c>kraid_foot_standing</c>.</summary>
     KraidFootStanding,
-    /// <summary>The shared empty spritemap: an enemy showing it draws nothing.</summary>
+    /// <summary>
+    /// The empty frame every enemy family shares: an enemy showing it draws nothing, and one that collides by its frames'
+    /// hitboxes collides at the single point at its origin.
+    /// </summary>
     Empty,
-    /// <summary>The shared visually empty one-component extended frame.</summary>
-    EmptyExtended,
 }

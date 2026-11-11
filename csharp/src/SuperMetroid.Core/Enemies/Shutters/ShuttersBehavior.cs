@@ -88,7 +88,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.GrowthSpeed = settings.GrowthSpeed;
 
-        slot.DrawsExtendedFrames = false;
+        slot.CollidesByFrameHitboxes = false;
         slot.NewInstructionFrame = false;
         InstallGrowingShutterProgram(
             slot,
@@ -314,7 +314,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = HorizontalShutterFunction.Initial;
         state.MovingSamus = false;
         state.ShotActivated = false;
-        slot.DrawsExtendedFrames = false;
+        slot.CollidesByFrameHitboxes = false;
         slot.NewInstructionFrame = false;
         InstallHorizontalShutterProgram(slot, state);
     }
@@ -794,7 +794,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = VerticalShutterFunction.Initial;
         state.MovingSamus = false;
         state.ShotActivated = false;
-        slot.DrawsExtendedFrames = false;
+        slot.CollidesByFrameHitboxes = false;
         slot.NewInstructionFrame = false;
         InstallVerticalShutterProgram(
             slot,

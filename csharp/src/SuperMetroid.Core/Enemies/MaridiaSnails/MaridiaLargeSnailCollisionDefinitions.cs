@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
 /// <summary>
-/// Physical collision for Oum's 30 extended frames. Every frame
+/// Physical collision for Oum's 30 frames. Every frame
 /// has exactly one component at (0,0); only its hitbox-list
 /// changes. The editable sprite pieces and the three callback identities are
 /// intentionally separate from this catalog.

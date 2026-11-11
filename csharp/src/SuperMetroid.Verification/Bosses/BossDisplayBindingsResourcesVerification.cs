@@ -20,9 +20,9 @@ internal static class BossDisplayBindingsResourcesVerification
     /// <summary>Rejects missing resources and cross-boss bindings before VRAM writes.</summary>
     internal static void VerifyBossDisplayResources(BossDisplayDocuments stock)
     {
-        foreach ((EnemyDefinitionId definition, EnemySpritemapDefinition[] family) in BossDisplayDocuments.Families())
+        foreach ((EnemyDefinitionId definition, EnemyFrameName[] family) in BossDisplayDocuments.Families())
         {
-            EnemySpritemapDefinition frame = family.First(frame => stock.Writes(frame.Bank, frame.Pointer).Length != 0);
+            EnemyFrameName frame = family.First(frame => stock.Writes(frame.Bank, frame.Pointer).Length != 0);
             // The body's pictures are composed at install (#1466), so missing BG2 frames fail there, before anything draws.
             BossBodyOwner bodyOwner = BossDisplayFixture.BodyOwnerOf(definition)
                 ?? throw new InvalidOperationException($"{definition} writes BG2 frames without a body layer.");

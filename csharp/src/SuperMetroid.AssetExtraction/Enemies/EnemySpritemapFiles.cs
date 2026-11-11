@@ -19,7 +19,7 @@ internal static class EnemySpritemapFiles
     {
         Ensure.NotNull(bus);
         var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-        foreach (EnemySpritemapDefinition definition in EnemySpritemapDefinitions.Frames)
+        foreach (EnemyFrameName definition in EnemySpritemapDefinitions.Frames)
         {
             SnesAddress location = EnemyFrameCartridgeLookup.Of(definition.Frame);
             SpriteVisualPart[] parts = ExtractParts(bus, location.Bank, location.Offset);

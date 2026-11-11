@@ -31,7 +31,7 @@ internal static class EnemyBg2Frames
 
     /// <summary>Validates a complete named frame document and compiles its horizontal tile runs to BG2 destinations.</summary>
     internal static EnemyBg2FrameCatalog Load(Stream json,
-        ImmutableArray<EnemySpritemapDefinition> definitions, int version, string family)
+        ImmutableArray<EnemyFrameName> definitions, int version, string family)
     {
         Ensure.NotNull(json);
         EnemyBg2FrameDocument document;
@@ -42,7 +42,7 @@ internal static class EnemyBg2Frames
                 $"{family} BG2 frames require the current version and every named frame.");
 
         var frames = new Dictionary<EnemyFrameId, EnemyBg2TilemapWrite[]>();
-        foreach (EnemySpritemapDefinition frame in definitions)
+        foreach (EnemyFrameName frame in definitions)
         {
             if (!document.Frames.TryGetValue(frame.Name, out EnemyBg2WriteDocument[]? source) ||
                 source is null || source.Length is < 1 or >

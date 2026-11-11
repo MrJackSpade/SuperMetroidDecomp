@@ -21,8 +21,8 @@ internal sealed record MotherBrainLiveActorSnapshot
     /// <summary>Whether the body is drawn and still occupies its slot; fade completion hides it.</summary>
     public required SuperMetroid.Core.Enemies.EnemyPresence BodyPresence { get; init; }
 
-    /// <summary>Whether the body draws extended frames; cleared when the faded body becomes non-interactive.</summary>
-    public required bool BodyDrawsExtendedFrames { get; init; }
+    /// <summary>Whether the body collides by its frames' hitboxes; cleared when the faded body becomes non-interactive.</summary>
+    public required bool BodyCollidesByFrameHitboxes { get; init; }
 
     /// <summary>Whether the body's animation just installed a frame; cleared when the faded body becomes non-interactive.</summary>
     public required bool BodyNewInstructionFrame { get; init; }
@@ -42,8 +42,8 @@ internal sealed record MotherBrainLiveActorSnapshot
     /// <summary>Whether the brain is drawn and still occupies its slot; the end of rotting hides it.</summary>
     public required SuperMetroid.Core.Enemies.EnemyPresence BrainPresence { get; init; }
 
-    /// <summary>Whether the brain draws extended frames; cleared when the rot animation completes.</summary>
-    public required bool BrainDrawsExtendedFrames { get; init; }
+    /// <summary>Whether the brain collides by its frames' hitboxes; cleared when the rot animation completes.</summary>
+    public required bool BrainCollidesByFrameHitboxes { get; init; }
 
     /// <summary>Whether the brain's animation just installed a frame; cleared when the rot animation completes.</summary>
     public required bool BrainNewInstructionFrame { get; init; }

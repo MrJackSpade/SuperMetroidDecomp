@@ -190,7 +190,8 @@ internal static class ConsumerAudit
     private static string? Domain(string type, string method) => new PresentationMethod(type, method) switch
     {
         ("EnemySpritemapCatalog", "TryGetDisplay" or "TryGet") => ResourceDomains.EnemySimple,
-        ("EnemyExtendedFrameCatalog" or "EnemyExtendedFrameDisplayCatalog", "TryGetDisplay" or "GetDisplayFrame" or "TryGet") => ResourceDomains.EnemyExtended,
+        ("EnemyExtendedFrameCatalog", "TryGetDisplay" or "TryGet") => ResourceDomains.EnemyExtended,
+        ("EnemyFrameDisplays", "TryGetDisplay" or "GetDisplayFrame") => ResourceDomains.EnemyFrame,
         ("EnemyProjectileSpritemapCatalog", "GetProgramFrame") => ResourceDomains.EnemyProjectileProgram,
         ("EnemyProjectileSpritemapCatalog", "Get") => ResourceDomains.EnemyProjectileSprite,
         ("IPaletteFxColorSource" or "RoomPaletteFxPresentation", "TryReadColor") => ResourceDomains.PaletteFx,
@@ -227,7 +228,7 @@ internal static class ConsumerAudit
         // Match parameter identities, not textual argument order; named arguments
         // and constant casts remain compiler-resolved instead of regex guesses.
         if (semantic.GetOperation(call) is not Microsoft.CodeAnalysis.Operations.IInvocationOperation invocation) return null;
-        if (domain is ResourceDomains.EnemySimple or ResourceDomains.EnemyExtended)
+        if (domain is ResourceDomains.EnemySimple or ResourceDomains.EnemyExtended or ResourceDomains.EnemyFrame)
             return EnemyFrameKey(invocation);
         if (domain is ResourceDomains.SamusProjectile)
             return ProjectileSpriteKey(invocation);

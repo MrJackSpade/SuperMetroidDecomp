@@ -36,7 +36,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         AssertTrue(stock.Bosses.PhantoonBg2Frames is not null,
             "installed enemy art includes Phantoon BG2 frames");
         var identities = new HashSet<ushort>();
-        foreach (EnemySpritemapDefinition frame in PhantoonBg2FrameDefinitions.Frames)
+        foreach (EnemyFrameName frame in PhantoonBg2FrameDefinitions.Frames)
         {
             AssertTrue(identities.Add(frame.Pointer),
                 $"Phantoon frame {frame.Name} has a distinct physical selector");
@@ -125,7 +125,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         SuperMetroidAddressSpace rom, InstalledEnemyArtwork stock)
     {
         var checkedLists = new HashSet<ushort>();
-        foreach (EnemySpritemapDefinition frame in PhantoonBg2FrameDefinitions.Frames)
+        foreach (EnemyFrameName frame in PhantoonBg2FrameDefinitions.Frames)
         {
             int root = ((int)new SnesAddress(PhantoonBg2FrameDefinitionsConstants.Bank, frame.Pointer));
             System.Collections.Immutable.ImmutableArray<EnemyCollisionComponent> components =
@@ -210,7 +210,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.PhantoonBody, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.DrawsExtendedFrames = true;
+        slot.CollidesByFrameHitboxes = true;
         if (newInstructionFrame)
             slot.NewInstructionFrame = true;
         slot.SpritemapPointer = pointer;

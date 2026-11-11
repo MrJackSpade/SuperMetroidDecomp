@@ -50,7 +50,7 @@ internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemySl
         Slot.DefinitionId == EnemyDefinitionId.MotherBrainBody && MotherBrainBodyVisualDefinitions.BodyLayerFrames.Contains(selected)
             ? _bossArtwork.Body(BossBodyOwner.MotherBrain).Frame(selected) : null;
 
-    /// <summary>The body's and head's shots enter the extended-spritemap walker; their contact and the tubes' use the header radius.</summary>
+    /// <summary>Shots meet the body's and head's frames' hitboxes; their contact and the tubes' use the header radius.</summary>
     public override EnemyCapabilities Capabilities =>
         Slot.DefinitionId is EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead ? EnemyCapabilities.ExtendedProjectileHitboxes : EnemyCapabilities.None;
 

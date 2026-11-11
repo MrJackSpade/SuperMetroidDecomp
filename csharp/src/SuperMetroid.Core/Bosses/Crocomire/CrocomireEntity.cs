@@ -49,16 +49,16 @@ internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemySlot s
             CrocomireCombat.FindCrocomireTongueHitboxReaction(Slot, probe, out reaction);
     }
 
-    /// <summary>The Crocomire body takes normal bombs on its extended frames although its header names no shot reaction.</summary>
-    public bool AdmitsNormalBombs(bool usesExtendedHitboxes) =>
-        Slot.DefinitionId == EnemyDefinitionId.Crocomire && Slot.Definition.Shot is null && usesExtendedHitboxes;
+    /// <summary>The Crocomire body takes normal bombs on its frames' hitboxes although its header names no shot reaction.</summary>
+    public bool AdmitsNormalBombs(bool collidesByFrameHitboxes) =>
+        Slot.DefinitionId == EnemyDefinitionId.Crocomire && Slot.Definition.Shot is null && collidesByFrameHitboxes;
 
     /// <inheritdoc/>
     public BossBodyFrame? FindBodyFrame(EnemyFrameId selected) =>
         Slot.DefinitionId == EnemyDefinitionId.Crocomire && CrocomireBodyLayerFrameDefinitions.Frames.Contains(selected)
             ? _bossArtwork.Body(BossBodyOwner.Crocomire).Frame(selected) : null;
 
-    /// <summary>The body's and tongue's contact and shots both enter the extended-spritemap walker over their own hitboxes.</summary>
+    /// <summary>The body's and tongue's contact and shots both meet their own frames' hitboxes.</summary>
     public override EnemyCapabilities Capabilities =>
         EnemyCapabilities.ExtendedSamusHitboxes | EnemyCapabilities.ExtendedProjectileHitboxes;
 

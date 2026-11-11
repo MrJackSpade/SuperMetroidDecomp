@@ -52,7 +52,7 @@ internal static class EnemyFormatDrawEntriesVerification
             .First(frame => extendedFrames.TryGetDisplay(frame, out ReadOnlyMemory<EnemyExtendedDrawComponent> components) && components.Length > 1);
         RoomEnemySlot extended = enemies.SlotTable.Slots[1];
         extended.Bind(EnemyDefinitionId.PirateGreenWalking, default(RoomEnemyDefinition));
-        extended.DrawsExtendedFrames = true;
+        extended.CollidesByFrameHitboxes = true;
         extended.Frame = extendedFrame;
         extended.FrameHold = WrappingCountdown.Start(7);
         extended.Position = extended.Position.WithWhole(new(120, 110));

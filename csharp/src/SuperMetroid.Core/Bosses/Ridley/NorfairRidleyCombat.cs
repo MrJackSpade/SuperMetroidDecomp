@@ -58,7 +58,7 @@ internal sealed class NorfairRidleyCombat
             slot.Presence = slot.Presence.With(EnemyPresence.Deleted | EnemyPresence.Hidden);
             return;
         }
-        slot.DrawsExtendedFrames = true;
+        slot.CollidesByFrameHitboxes = true;
 
         // One property bit blocks Plasma Beam penetration. Its meaning is established
         // only for this boss, so preserve the raw bit instead of widening the shared enum.

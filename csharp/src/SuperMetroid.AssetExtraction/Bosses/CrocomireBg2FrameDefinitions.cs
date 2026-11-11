@@ -17,7 +17,7 @@ internal static class CrocomireBg2FrameDefinitions
     internal const string FileName = "crocomire-bg2-frames.json";
 
     /// <summary>The 42 body frames that carry BG2 components, in the compiled frame order.</summary>
-    internal static ImmutableArray<EnemySpritemapDefinition> Frames { get; } =
+    internal static ImmutableArray<EnemyFrameName> Frames { get; } =
     [
         new(EnemyFrameId.CrocomireBody0, "crocomire_body_0"),
         new(EnemyFrameId.CrocomireBody1, "crocomire_body_1"),

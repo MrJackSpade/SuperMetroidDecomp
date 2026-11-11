@@ -18,7 +18,7 @@ internal static class DraygonBg2FrameDefinitions
     internal const int MaximumComponents = 1;
 
     /// <summary>The 34 BG2 frames, left-facing then right-facing.</summary>
-    internal static ImmutableArray<EnemySpritemapDefinition> Frames { get; } =
+    internal static ImmutableArray<EnemyFrameName> Frames { get; } =
     [
         new(EnemyFrameId.DraygonFrame6, "draygon_frame_6"),
         new(EnemyFrameId.DraygonFrame7, "draygon_frame_7"),

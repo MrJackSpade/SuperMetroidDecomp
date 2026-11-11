@@ -21,19 +21,19 @@ internal static class EnemyExtendedFrameArtworkCommonEmptyVerification
         SuperMetroidAddressSpace rom, InstalledEnemyArtwork stock)
     {
         var blockedRom = NewCartridgeReadGuard(rom);
-        foreach (byte bank in CommonEnemyEmptyExtendedFrameDefinitionsTooling.SupportedBanks)
+        foreach (byte bank in CommonEnemyEmptyFrameDefinitionsTooling.SupportedBanks)
         {
-            int emptyOam = ((int)new SnesAddress(bank, CommonEnemyEmptyExtendedFrameToolingDefinitions.EmptySpritemap));
+            int emptyOam = ((int)new SnesAddress(bank, CommonEnemyEmptyFrameToolingDefinitions.EmptySpritemap));
             AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord(emptyOam),
                 $"bank ${bank:X2} shared ordinary empty OAM part count");
             // Exercise the ordinary draw entry point too: unlike the extended
             // $804F root below, enemies can select $804D directly during their
             // initialization. A full-ROM read guard proves this is compiled.
             var emptyDraw = new OamBuffer();
-            stock.Enemies.Spritemaps.DrawEnemySpritemap(emptyDraw, new NativeEnemySpritemapDraw { Bank = bank, Pointer = CommonEnemyEmptyExtendedFrameToolingDefinitions.EmptySpritemap, Origin = new Position16<SpritePixels>(0x0080, 0x0080), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = false, OriginYIsOnScreen = true });
+            stock.Enemies.Spritemaps.DrawEnemySpritemap(emptyDraw, new NativeEnemySpritemapDraw { Bank = bank, Pointer = CommonEnemyEmptyFrameToolingDefinitions.EmptySpritemap, Origin = new Position16<SpritePixels>(0x0080, 0x0080), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = false, OriginYIsOnScreen = true });
             AssertEqual(0, emptyDraw.NextByteOffset,
                 $"bank ${bank:X2} ordinary empty frame emits no OAM entries");
-            int root = ((int)new SnesAddress(bank, CommonEnemyEmptyExtendedFrameToolingDefinitionsConstants.Frame));
+            int root = ((int)new SnesAddress(bank, CommonEnemyEmptyFrameToolingDefinitionsConstants.Frame));
             AssertEqual((byte)1, rom.ReadCartridgeByte(root),
                 $"bank ${bank:X2} shared empty extended component count");
             AssertEqual((byte)0, rom.ReadCartridgeByte(root + 1),
@@ -41,47 +41,47 @@ internal static class EnemyExtendedFrameArtworkCommonEmptyVerification
             for (int offset = 2; offset < 6; offset++)
                 AssertEqual((byte)0, rom.ReadCartridgeByte(root + offset),
                     $"bank ${bank:X2} shared empty component offset byte {offset}");
-            AssertEqual(CommonEnemyEmptyExtendedFrameToolingDefinitions.EmptySpritemap,
+            AssertEqual(CommonEnemyEmptyFrameToolingDefinitions.EmptySpritemap,
                 CartridgeImportSource.Require(rom).ReadCartridgeWord((root + 6)),
                 $"bank ${bank:X2} shared empty OAM pointer");
-            AssertEqual(CommonEnemyEmptyExtendedFrameDefinitions.PointHitboxList,
+            AssertEqual(CommonEnemyEmptyFrameDefinitions.PointHitboxList,
                 CartridgeImportSource.Require(rom).ReadCartridgeWord((root + 8)),
                 $"bank ${bank:X2} shared empty hitbox pointer");
-            int hitbox = ((int)new SnesAddress(bank, CommonEnemyEmptyExtendedFrameDefinitions.PointHitboxList));
+            int hitbox = ((int)new SnesAddress(bank, CommonEnemyEmptyFrameDefinitions.PointHitboxList));
             AssertEqual((ushort)1, CartridgeImportSource.Require(rom).ReadCartridgeWord(hitbox),
                 $"bank ${bank:X2} shared point-hitbox count");
             for (int offset = 2; offset < 10; offset += 2)
                 AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((hitbox + offset)),
                     $"bank ${bank:X2} shared point bound {offset}");
-            AssertEqual(CommonEnemyEmptyExtendedFrameDefinitionsConstants.Callback(false),
+            AssertEqual(CommonEnemyEmptyFrameDefinitionsConstants.Callback(false),
                 CartridgeImportSource.Require(rom).ReadCartridgeWord((hitbox + 10)),
                 $"bank ${bank:X2} shared touch callback");
-            AssertEqual(CommonEnemyEmptyExtendedFrameDefinitionsConstants.Callback(true),
+            AssertEqual(CommonEnemyEmptyFrameDefinitionsConstants.Callback(true),
                 CartridgeImportSource.Require(rom).ReadCartridgeWord((hitbox + 12)),
                 $"bank ${bank:X2} shared shot callback");
 
             var visualGuard = NewExtendedVisualReadGuard(rom, out Action<byte, ushort> visualGuardBlockFrame);
             visualGuardBlockFrame(bank,
-                CommonEnemyEmptyExtendedFrameToolingDefinitionsConstants.Frame);
+                CommonEnemyEmptyFrameToolingDefinitionsConstants.Frame);
             OamBuffer native = DrawReferenceExtendedFrame(rom, bank,
-                CommonEnemyEmptyExtendedFrameToolingDefinitionsConstants.Frame, new(0x0080, 0x0080));
+                CommonEnemyEmptyFrameToolingDefinitionsConstants.Frame, new(0x0080, 0x0080));
             OamBuffer installed = DrawExtendedForBank(stock, bank,
-                CommonEnemyEmptyExtendedFrameToolingDefinitionsConstants.Frame, new(0x0080, 0x0080));
+                CommonEnemyEmptyFrameToolingDefinitionsConstants.Frame, new(0x0080, 0x0080));
             AssertTrue(native.ImageEquals(installed) &&
                 native.NextByteOffset == installed.NextByteOffset,
                 $"bank ${bank:X2} shared empty frame draws without ROM art reads");
             // Bank $A0 holds the shared records but no enemy, so no slot selects its frames.
             if (!RoomEnemyDefinitionNative.HoldsEnemy(bank))
                 continue;
-            AssertEqual(EnemyReactionAccess.Of(bank, CommonEnemyEmptyExtendedFrameDefinitionsConstants.Callback(false), shot: false),
+            AssertEqual(EnemyReactionAccess.Of(bank, CommonEnemyEmptyFrameDefinitionsConstants.Callback(false), shot: false),
                 FindSharedEmptyReaction(bank, selectShot: false),
                 $"bank ${bank:X2} shared point selects compiled touch reaction");
-            AssertEqual(EnemyReactionAccess.Of(bank, CommonEnemyEmptyExtendedFrameDefinitionsConstants.Callback(true), shot: true),
+            AssertEqual(EnemyReactionAccess.Of(bank, CommonEnemyEmptyFrameDefinitionsConstants.Callback(true), shot: true),
                 FindSharedEmptyReaction(bank, selectShot: true),
                 $"bank ${bank:X2} shared point selects compiled shot reaction");
         }
-        AssertTrue(!CommonEnemyEmptyExtendedFrameToolingDefinitions.HasEmptySpritemap(
-                0xb4, CommonEnemyEmptyExtendedFrameToolingDefinitions.EmptySpritemap),
+        AssertTrue(!CommonEnemyEmptyFrameToolingDefinitions.HasEmptySpritemap(
+                0xb4, CommonEnemyEmptyFrameToolingDefinitions.EmptySpritemap),
             "non-enemy bank does not inherit the shared empty OAM definition");
         Console.WriteLine("  Shared empty frames: 12 bank-local ordinary and extended records match the ROM; ordinary draw and extended draw/collision forbid cartridge reads.");
     }
@@ -94,7 +94,7 @@ internal static class EnemyExtendedFrameArtworkCommonEmptyVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         // The frame pointer names a frame of the bank the slot's enemy lives in.
         slot.Bind(RoomEnemyDefinitionNative.FirstInBank(bank), default(RoomEnemyDefinition));
-        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameToolingDefinitionsConstants.Frame;
+        slot.SpritemapPointer = CommonEnemyEmptyFrameToolingDefinitionsConstants.Frame;
         slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
         object?[] arguments =
             [slot, new Position16<RoomPixels>(0x0080, 0x0080), new Extent16<RoomPixels>(2, 2), selectShot, null];

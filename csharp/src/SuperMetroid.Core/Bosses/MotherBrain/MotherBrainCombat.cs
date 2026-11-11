@@ -245,7 +245,7 @@ internal sealed class MotherBrainCombat
     /// forms always run the recoil step: family five selects reaction zero, subtracting
     /// 256 from the walk/recoil accumulator with a signed-zero clamp. Fake-death
     /// form one then creates only a dud, while forms two and later enter common no-death
-    /// damage. The multibox caller already owns the bomb collision mark.
+    /// damage. The frame-hitbox caller already owns the bomb collision mark.
     /// </summary>
     private void ResolveMotherBrainHeadNormalBomb(
         RoomEnemySlot head,
@@ -290,7 +290,7 @@ internal sealed class MotherBrainCombat
     }
 
     /// <summary>Adds the body's bomb reactions to the AI dispatch table.</summary>
-    /// <remarks>The body callback is the dud shot. The multibox bomb walker has already marked the physical explosion, and
+    /// <remarks>The body callback is the dud shot. The frame-hitbox bomb walker has already marked the physical explosion, and
     /// the body callback performs no health, phase, or multipart-state work of its own.</remarks>
     internal static void AddMotherBrainBodyBombReactions(EnemySharedReactions table)
     {

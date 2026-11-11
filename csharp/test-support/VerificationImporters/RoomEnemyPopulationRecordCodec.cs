@@ -35,7 +35,7 @@ internal static class RoomEnemyPopulationRecordCodec
             state.Contact,
             state.Processing,
             state.Presence,
-            state.DrawsExtendedFrames,
+            state.CollidesByFrameHitboxes,
             settings);
     }
 
@@ -47,7 +47,7 @@ internal static class RoomEnemyPopulationRecordCodec
             record.Position.X, record.Position.Y, settings.Initialization,
             EnemyPropertyWordCodec.EncodePropertyWord(record.Contact, record.Processing, record.Presence) | settings.SpeciesPropertyBits,
             EnemyPropertyWordCodec.EncodeExtraPropertyWord(
-                EnemyPropertyState.None with { DrawsExtendedFrames = record.DrawsExtendedFrames }) | settings.ExtraProperties,
+                EnemyPropertyState.None with { CollidesByFrameHitboxes = record.CollidesByFrameHitboxes }) | settings.ExtraProperties,
             settings.Parameter1, settings.Parameter2);
     }
 }

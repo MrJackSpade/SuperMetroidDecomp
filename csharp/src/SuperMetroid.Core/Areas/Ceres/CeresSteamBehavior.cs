@@ -83,7 +83,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         // Both property changes are literal ORs performed by the initializer: normal instructions animate visibility,
         // while extended maps supply per-frame art and collision boxes whose geometry cannot be represented by header radii.
         slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
-        slot.DrawsExtendedFrames = true;
+        slot.CollidesByFrameHitboxes = true;
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         // The initializer selects the enemy projectiles' colours, which the import colours the steam's sheets in (#1512).

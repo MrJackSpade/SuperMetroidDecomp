@@ -1326,13 +1326,13 @@ internal static class LookupStream1Verification
     private static void VerifyLookupStream1CommonFrames(ISnesAddressSpace rom)
     {
         byte[] originalBanks = [0xa0, 0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7, 0xa8, 0xa9, 0xaa, 0xb2, 0xb3];
-        AssertTrue(originalBanks.SequenceEqual(CommonEnemyEmptyExtendedFrameDefinitionsTooling.SupportedBanks), "common empty-frame original bank order");
+        AssertTrue(originalBanks.SequenceEqual(CommonEnemyEmptyFrameDefinitionsTooling.SupportedBanks), "common empty-frame original bank order");
         for (int bank = 0; bank <= byte.MaxValue; bank++)
         {
             bool expected = originalBanks.Contains((byte)bank);
-            AssertEqual(expected, CommonEnemyEmptyExtendedFrameToolingDefinitionsConstants.HasFrame((byte)bank, 0x804f), "common empty extended-frame exact bank domain");
-            AssertEqual(expected, CommonEnemyEmptyExtendedFrameToolingDefinitions.HasEmptySpritemap((byte)bank, 0x804d), "common empty OAM exact bank domain");
-            AssertTrue(!CommonEnemyEmptyExtendedFrameToolingDefinitionsConstants.HasFrame((byte)bank, 0x8050), "common empty frame excludes neighboring pointer");
+            AssertEqual(expected, CommonEnemyEmptyFrameToolingDefinitionsConstants.HasFrame((byte)bank, 0x804f), "common empty extended-frame exact bank domain");
+            AssertEqual(expected, CommonEnemyEmptyFrameToolingDefinitions.HasEmptySpritemap((byte)bank, 0x804d), "common empty OAM exact bank domain");
+            AssertTrue(!CommonEnemyEmptyFrameToolingDefinitionsConstants.HasFrame((byte)bank, 0x8050), "common empty frame excludes neighboring pointer");
             if (expected)
             {
                 AssertEqual((byte)0, LookupStream1CommonFramesRomByte(rom, ((int)new SnesAddress(checked((byte)bank), checked(0x804d)))), "native common OAM has zero components");

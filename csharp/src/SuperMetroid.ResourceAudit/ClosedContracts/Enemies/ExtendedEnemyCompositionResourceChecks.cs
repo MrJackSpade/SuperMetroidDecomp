@@ -10,9 +10,9 @@ namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 internal static class ExtendedEnemyCompositionResourceChecks
 {
     /// <summary>Checks newly added frames load from a complete document.</summary>
-    internal static void Run(string family, EnemySpritemapDefinition[] selected, int previousCount)
+    internal static void Run(string family, EnemyFrameName[] selected, int previousCount)
     {
-        EnemySpritemapDefinition[] expected = EnemyExtendedFrameDefinitions.Frames.ToArray();
+        EnemyFrameName[] expected = EnemyExtendedFrameDefinitions.Frames.ToArray();
         EnemyExtendedFrameDocument document = CreateDocument();
         EnemyExtendedFrameCatalog stock = Load(document);
         foreach (var frame in selected) Confirm(stock, frame);
@@ -51,7 +51,7 @@ internal static class ExtendedEnemyCompositionResourceChecks
                 new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })));
 
     /// <summary>Checks a selected frame resolves to its expected component offset and single OAM part.</summary>
-    private static void Confirm(EnemyExtendedFrameCatalog catalog, EnemySpritemapDefinition frame)
+    private static void Confirm(EnemyExtendedFrameCatalog catalog, EnemyFrameName frame)
     {
         Require(catalog.TryGetDisplay(frame.Bank, frame.Pointer, out var components),
             $"extended sprite {frame.Bank:X2}:{frame.Pointer:X4} must have an installed display binding");

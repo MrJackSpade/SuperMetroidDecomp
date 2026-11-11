@@ -12,11 +12,11 @@ namespace SuperMetroid.AssetExtraction.World.Artwork;
 internal static class EnemyExtendedFrameBounds
 {
     /// <summary>These frames contain BG2 streams only; stock legitimately has no OAM components.</summary>
-    internal static bool IsBg2Only(EnemySpritemapDefinition frame) =>
+    internal static bool IsBg2Only(EnemyFrameName frame) =>
         PhantoonBodyLayerFrameDefinitions.Frames.Contains(frame.Frame) || DraygonBodyLayerFrameDefinitions.Frames.Contains(frame.Frame);
 
     /// <summary>Skeleton fragmentation needs thirteen components; all other sprite families retain their existing bound.</summary>
-    internal static int MaximumSpriteComponents(EnemySpritemapDefinition frame) =>
+    internal static int MaximumSpriteComponents(EnemyFrameName frame) =>
         CrocomireSkeletonVisualDefinitions.IsFrame(frame.Frame)
             ? CrocomireSkeletonVisualDefinitions.MaximumComponents : EnemyExtendedFrameDefinitions.MaximumComponents;
 }

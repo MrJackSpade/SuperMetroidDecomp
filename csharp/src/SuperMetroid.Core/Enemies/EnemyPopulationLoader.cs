@@ -56,13 +56,11 @@ internal sealed class EnemyPopulationLoader
                 _roomStatus.Boss = boss;
             _dispatch.RunInitializationAi(slot, surroundings);
 
-            // Enemy initialization deliberately clears the initialization AI's immediate map.
-            // Disable-Samus-collision actors receive the canonical empty map until their
-            // first animation tick replaces it. The gunship's properties disable Samus collision.
+            // Loading replaces whatever frame the initialization AI showed: an animated enemy shows the empty frame until
+            // its first animation tick replaces it, and one that collides by its frames' hitboxes collides at the point
+            // at its origin meanwhile. An enemy without an animation shows no frame.
             slot.Frame = slot.Processing.HasAny(EnemyProcessing.AnimationScript)
-                ? slot.DrawsExtendedFrames
-                    ? EnemyFrameId.EmptyExtended
-                    : EnemyFrameId.Empty
+                ? EnemyFrameId.Empty
                 : null;
 
         }

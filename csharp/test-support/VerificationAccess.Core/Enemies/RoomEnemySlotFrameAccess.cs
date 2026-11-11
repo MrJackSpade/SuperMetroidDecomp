@@ -11,7 +11,7 @@ internal static class RoomEnemySlotFrameAccess
 {
     /// <summary>Whether an installed composition shows native word <paramref name="word"/> in bank <paramref name="bank"/>.</summary>
     internal static bool Shows(byte bank, ushort word) =>
-        word != 0 && EnemyFrameCartridgeLookupTooling.TryFrameAt(bank, word) is not (null or EnemyFrameId.Empty or EnemyFrameId.EmptyExtended);
+        word != 0 && EnemyFrameCartridgeLookupTooling.TryFrameAt(bank, word) is not (null or EnemyFrameId.Empty);
 
     /// <summary>The frame shown by native word <paramref name="word"/> in bank <paramref name="bank"/>; zero shows none.</summary>
     internal static EnemyFrameId? FrameAt(byte bank, ushort word) => word == 0
@@ -25,10 +25,13 @@ internal static class RoomEnemySlotFrameAccess
     /// <summary>Native views of a slot.</summary>
     extension(RoomEnemySlot self)
     {
-        /// <summary>The bank-local word of the frame the slot shows, zero before it shows any.</summary>
+        /// <summary>
+        /// The bank-local word of the frame the slot shows, zero before it shows any: the empty frame of a slot colliding by
+        /// its frames' hitboxes is the point-hitbox record.
+        /// </summary>
         internal ushort SpritemapPointer
         {
-            get => EnemyFrameCartridgeLookupTooling.Word(self.Frame);
+            get => EnemyFrameCartridgeLookupTooling.Word(self.Frame, self.CollidesByFrameHitboxes);
             set
             {
                 // Zero shows no frame in any bank, so a free slot, which names no header, imports it too.

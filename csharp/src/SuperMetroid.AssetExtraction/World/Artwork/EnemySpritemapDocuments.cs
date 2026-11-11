@@ -35,7 +35,7 @@ public static class EnemySpritemapDocuments
         var frames = new Dictionary<EnemyFrameId, EnemySpritemapParts>();
         BabyMetroidSpriteParts? sharedBabyBody = null;
         var identities = new Dictionary<string, EnemyFrameId>(StringComparer.Ordinal);
-        foreach (EnemySpritemapDefinition frame in expected)
+        foreach (EnemyFrameName frame in expected)
         {
             string authoredName = frame.Name;
             if (!document.Frames.TryGetValue(authoredName, out SpriteVisualPart[]? visual) ||

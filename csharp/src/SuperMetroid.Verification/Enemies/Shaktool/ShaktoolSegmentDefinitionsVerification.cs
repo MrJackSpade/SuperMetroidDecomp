@@ -90,7 +90,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
     private static void VerifyShaktoolPropertySelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativePropertiesAddress,
             definition => checked((ushort)EnemyPropertyWordCodec.EncodePropertyWord(new EnemyPropertyState(
-                definition.Contact, definition.Processing, EnemyPresence.None, DrawsExtendedFrames: false, NewInstructionFrame: false))),
+                definition.Contact, definition.Processing, EnemyPresence.None, CollidesByFrameHitboxes: false, NewInstructionFrame: false))),
             "property selection"));
 
     /// <summary>Checks the initial orbit angle selected for all seven body segments.</summary>

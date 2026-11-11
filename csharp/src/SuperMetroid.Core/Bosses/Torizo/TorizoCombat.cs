@@ -26,7 +26,7 @@ internal sealed class TorizoCombat
 
     /// <summary>
     /// Dispatches an already-colliding normal bomb through Torizo's hitbox
-    /// callbacks. The multibox walker has already set
+    /// callbacks. The frame-hitbox walker has already set
     /// its explosion direction bit; this method owns only the species callback and its common
     /// no-death damage tail.
     /// </summary>

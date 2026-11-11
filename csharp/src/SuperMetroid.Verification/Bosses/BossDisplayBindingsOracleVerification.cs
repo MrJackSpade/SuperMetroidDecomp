@@ -22,7 +22,7 @@ internal static class BossDisplayBindingsOracleVerification
 {
     /// <summary>Independent bounded decode of the already inventoried native visual and collision records.</summary>
     internal static ReadBossDisplayOracleResult ReadBossDisplayOracle(
-        CartridgeImportAddressSpace source, EnemySpritemapDefinition frame, HashSet<int> checkedLists)
+        CartridgeImportAddressSpace source, EnemyFrameName frame, HashSet<int> checkedLists)
     {
         int Address(ushort pointer) => ((int)new SnesAddress(frame.Bank, pointer));
         int root = Address(frame.Pointer), count = source.ReadCartridgeByte(root);
@@ -95,7 +95,7 @@ internal static class BossDisplayBindingsOracleVerification
     }
 
     /// <summary>Selects compiled component offsets and each component's hitbox records for the frame's boss family.</summary>
-    private static BossPhysicalComponentsResult[] BossPhysicalComponents(EnemySpritemapDefinition frame) => frame.Bank switch
+    private static BossPhysicalComponentsResult[] BossPhysicalComponents(EnemyFrameName frame) => frame.Bank switch
     {
         CrocomireBg2FrameDefinitionsConstants.Bank => CrocomireBodyCollision.ComponentsAt(frame.Pointer)
             .SelectToArray(part => new BossPhysicalComponentsResult(part.Offset.X, part.Offset.Y,

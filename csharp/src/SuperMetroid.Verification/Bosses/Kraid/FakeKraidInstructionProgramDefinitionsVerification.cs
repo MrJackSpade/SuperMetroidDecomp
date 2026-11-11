@@ -36,7 +36,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
         ushort extraProperties = LittleEndianBytes.Word(FakeKraidInstructionProgramDefinitionsRomByte(rom, population + 10), FakeKraidInstructionProgramDefinitionsRomByte(rom, population + 11));
         AssertEqual(EnemyDefinitionId.MiniKraid, populationDefinition,
             "retail Fake Kraid population matches the installed visual family");
-        AssertTrue(!SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Decode(0, extraProperties).DrawsExtendedFrames,
+        AssertTrue(!SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Decode(0, extraProperties).CollidesByFrameHitboxes,
             "retail Fake Kraid uses ordinary OAM composition");
 
         Suite(nameof(FakeKraidAnimationsVerification.VerifyFakeKraidAnimations), () => FakeKraidAnimationsVerification.VerifyFakeKraidAnimations(rom));

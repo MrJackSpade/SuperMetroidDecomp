@@ -95,17 +95,17 @@ public sealed class RoomEnemySlot
     /// <summary>Whether the occupant is drawn, still occupies the slot and returns after a kill, initially the population entry's.</summary>
     public EnemyPresence Presence { get; internal set; }
     /// <summary>
-    /// Whether the occupant draws extended frames, which also admits it to drawing when its ordinary radius-based
-    /// visibility test would reject it; initially the population entry's.
+    /// Whether the occupant collides by its frames' hitboxes rather than by its radius, initially the population entry's.
+    /// The enemies' draw pass also reaches such an occupant wherever it is, not only when its radius puts it on screen.
     /// </summary>
-    public bool DrawsExtendedFrames { get; internal set; }
+    public bool CollidesByFrameHitboxes { get; internal set; }
     /// <summary>Set when the occupant's animation program installs a new timed frame.</summary>
     public bool NewInstructionFrame { get; internal set; }
     /// <summary>Which of the ordinary, hurt, frozen and grappled behaviours the enemy's update dispatches to.</summary>
     public EnemyAiStates AiStates { get; internal set; }
     /// <summary>Remaining health, initially the definition's and reduced by weapon damage.</summary>
     public int Health { get; internal set; }
-    /// <summary>The frame the enemy shows, an installed spritemap or extended frame; null before any.</summary>
+    /// <summary>The frame the enemy shows, an installed frame or the empty frame; null before any.</summary>
     public EnemyFrameId? Frame { get; internal set; }
     /// <summary>A loop or delay count the occupant's behaviour and animation keep; not an elapsed-frame counter.</summary>
     public WrappingCountdown Timer { get; internal set; }
@@ -166,7 +166,7 @@ public sealed class RoomEnemySlot
         Contact = EnemyContact.None;
         Processing = EnemyProcessing.None;
         Presence = EnemyPresence.None;
-        DrawsExtendedFrames = false;
+        CollidesByFrameHitboxes = false;
         NewInstructionFrame = false;
         Health = 0;
         AiStates = EnemyAiStates.None;

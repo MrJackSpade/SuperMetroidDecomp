@@ -200,7 +200,7 @@ internal sealed class CeresRidleyHits
     /// <summary>
     /// Shared port of the rectangle walk used by Samus contact and
     /// projectile contact. Every component offset and every rectangle comes from the
-    /// active extended spritemap; the tiny 8x8 radius in Ridley's enemy header is not his
+    /// frame Ridley shows; the tiny 8x8 radius in Ridley's enemy header is not his
     /// body and must never be substituted for this data.
     /// </summary>
     internal static bool ExtendedSpritemapOverlapsRectangle(

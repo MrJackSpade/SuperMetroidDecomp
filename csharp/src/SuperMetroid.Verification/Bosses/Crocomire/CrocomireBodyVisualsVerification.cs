@@ -111,7 +111,7 @@ internal static class CrocomireBodyVisualsVerification
             }
         }
 
-        foreach (EnemySpritemapDefinition frame in CrocomireBg2FrameDefinitions.Frames)
+        foreach (EnemyFrameName frame in CrocomireBg2FrameDefinitions.Frames)
         {
             AssertTrue((stock.Bosses.CrocomireBg2Frames ?? throw new InvalidOperationException("Verification requires stock.CrocomireBg2Frames.")).TryGet(frame.Pointer,
                     out ReadOnlyMemory<EnemyBg2TilemapWrite> installed),
@@ -187,7 +187,7 @@ internal static class CrocomireBodyVisualsVerification
             // He draws as his room draws him: at his tile base and in his palette there.
             enemies.DrawUnder(SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.Crocomire));
             slot.Shading = PictureShading.Standard;
-            slot.DrawsExtendedFrames = true;
+            slot.CollidesByFrameHitboxes = true;
             if (newFrame)
                 slot.NewInstructionFrame = true;
             slot.SpritemapPointer = pointer;

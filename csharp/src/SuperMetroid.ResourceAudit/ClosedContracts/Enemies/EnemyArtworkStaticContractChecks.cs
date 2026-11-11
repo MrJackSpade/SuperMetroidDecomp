@@ -33,7 +33,7 @@ internal static class EnemyArtworkStaticContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("EnemyArtworkFixture", sources,
-            platforms.Append(typeof(EnemyExtendedFrameDisplayCatalog).Assembly.Location).Append(typeof(SuperMetroid.AssetExtraction.Enemies.EnemyTileSourceArtwork).Assembly.Location).Distinct()
+            platforms.Append(typeof(EnemyFrameDisplays).Assembly.Location).Append(typeof(SuperMetroid.AssetExtraction.Enemies.EnemyTileSourceArtwork).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)

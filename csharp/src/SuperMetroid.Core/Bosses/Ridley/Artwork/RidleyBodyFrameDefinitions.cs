@@ -2,7 +2,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
-/// <summary>The presentation boundary of Ridley's body frames: the installed extended frame each one shows.</summary>
+/// <summary>The presentation boundary of Ridley's body frames: the installed frame each one shows.</summary>
 internal static class RidleyBodyFrameDefinitions
 {
     /// <summary>The installed frame each <see cref="RidleyCollisionDefinitions.BodyFrame"/> shows.</summary>

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies;
 
-/// <summary>An enemy whose extended-frame collision geometry is engine-owned rather than read from installed frames.</summary>
+/// <summary>An enemy whose frame-hitbox collision geometry is engine-owned rather than read from installed frames.</summary>
 internal interface IEnemyExtendedHitboxes : IEnemyEntity
 {
     /// <summary>

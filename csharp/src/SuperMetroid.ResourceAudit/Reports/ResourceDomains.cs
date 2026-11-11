@@ -9,6 +9,8 @@ internal static class ResourceDomains
     public const string EnemySimple = "enemy-simple-oam";
     /// <summary>Identity space for extended enemy display compositions.</summary>
     public const string EnemyExtended = "enemy-extended-display";
+    /// <summary>Identity space for every installed enemy frame as gameplay draws it, whichever document composes it.</summary>
+    public const string EnemyFrame = "enemy-frame-display";
     /// <summary>Identity space for enemy-projectile program frame operands in bank $86.</summary>
     public const string EnemyProjectileProgram = "enemy-projectile-program-frame";
     /// <summary>Identity space for enemy-projectile OAM spritemaps.</summary>

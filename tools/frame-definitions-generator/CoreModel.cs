@@ -29,8 +29,7 @@ internal sealed class CoreModel
         "EnemyProjectileDefinitionCatalog",
         "RoomSpriteObjectVisualDefinitions",
         "RoomSpriteObjectDefinitions",
-        "EnemySpritemapCompositions",
-        "EnemyExtendedFrameCompositions",
+        "EnemyFrameNameDefinitions",
     ];
 
     /// <summary>

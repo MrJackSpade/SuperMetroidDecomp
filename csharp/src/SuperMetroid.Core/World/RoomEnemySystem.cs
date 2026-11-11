@@ -1031,14 +1031,16 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                 }
             }
 
-            // The enemy pass queues ordinary-sprite actors only after AI and animation work.
-            // The two hide-drawing properties suppress drawing, while the always-queue extra property can
-            // force an otherwise off-screen actor into the queue. Gunship uses the normal
-            // radius-aware visibility test.
-            bool visible = slot.DrawsExtendedFrames ||
+            // The enemy pass queues each live enemy to show only after its AI and animation work; the two
+            // hide-drawing properties keep it from being shown. The draw pass reaches an enemy its radius puts on
+            // screen, and every enemy that collides by its frames' hitboxes wherever it is. Only a reached enemy's draw
+            // clears the value a Puyo's later ceiling strike reads, consumes its shake tick and shows its boss body
+            // frame, so which enemies are reached stays the game's; what is off screen is culled by the display.
+            // The gunship uses the radius test.
+            bool reached = slot.CollidesByFrameHitboxes ||
                 !EnemyProcessingWindow.EnemyWithNormalSpritesIsOffScreen(slot, frame.Camera);
-            if (visible && !slot.Presence.HasAny(EnemyPresence.Hidden | EnemyPresence.Deleted))
-                Drawing.Enqueue(slot);
+            if (!slot.Presence.HasAny(EnemyPresence.Hidden | EnemyPresence.Deleted))
+                Drawing.Enqueue(slot, reached);
 
             // The enemy pass performs this after the enemy has been admitted to its draw queue.
             // Keeping it here also makes the boss's latched draw palettes describe the
@@ -1195,7 +1197,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         CeresRidleyBehavior.Hits.AddCeresRidleyBombReactions(table);
         BombTorizoBehavior.Combat.AddBombTorizoBombReactions(table);
 
-        // The body's reaction makes a dud shot. The multibox bomb walker has already marked the physical explosion, and the
+        // The body's reaction makes a dud shot. The frame-hitbox bomb walker has already marked the physical explosion, and the
         // body callback performs no health, phase, or multipart-state work of its own.
         MotherBrainCombat.AddMotherBrainBodyBombReactions(table);
         MotherBrainBehavior.Combat.AddMotherBrainBombReactions(table);

@@ -22,7 +22,7 @@ internal static class TorizoInitializationDefinitionsVerification
                 CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeAnimationScripts + variant * 2), CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakePropertyMasks + variant * 2),
                 CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeXRadii + variant * 2), CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeYRadii + variant * 2)];
             var compiled = variant == 0 ? TorizoInitializationDefinitions.Bomb : TorizoInitializationDefinitions.Golden;
-            ushort[] actual = [compiled.Position.X, compiled.Position.Y, TorizoNativeListAddresses.Entry(compiled.Program), checked((ushort)EnemyPropertyWordCodec.EncodePropertyWord(new EnemyPropertyState(EnemyContact.None, compiled.Processing, EnemyPresence.None, DrawsExtendedFrames: false, NewInstructionFrame: false))), compiled.Radius.X, compiled.Radius.Y];
+            ushort[] actual = [compiled.Position.X, compiled.Position.Y, TorizoNativeListAddresses.Entry(compiled.Program), checked((ushort)EnemyPropertyWordCodec.EncodePropertyWord(new EnemyPropertyState(EnemyContact.None, compiled.Processing, EnemyPresence.None, CollidesByFrameHitboxes: false, NewInstructionFrame: false))), compiled.Radius.X, compiled.Radius.Y];
             AssertTrue(native.SequenceEqual(actual), "Every Torizo initialization record word matches ROM");
 
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
@@ -37,12 +37,12 @@ internal static class TorizoInitializationDefinitionsVerification
             for (int properties = 0; properties <= ushort.MaxValue; properties += 256)
             {
                 EnemyPropertyState population = EnemyPropertyWordCodec.Decode(properties, 0);
-                bool populationDrawsExtendedFrames = population.Contact.HasAny(EnemyContact.BlocksPlasmaBeam);
+                bool populationCollidesByFrameHitboxes = population.Contact.HasAny(EnemyContact.BlocksPlasmaBeam);
                 bool populationNewInstructionFrame = !population.Contact.HasAny(EnemyContact.SolidToSamus);
                 actor.Contact = population.Contact;
                 actor.Processing = population.Processing;
                 actor.Presence = population.Presence;
-                actor.DrawsExtendedFrames = populationDrawsExtendedFrames;
+                actor.CollidesByFrameHitboxes = populationCollidesByFrameHitboxes;
                 actor.NewInstructionFrame = populationNewInstructionFrame;
                 actor.Radius = new(0xffff, 0xffff);
                 actor.Position = new(new(0xffff, 0x1234), new(0xffff, 0xabcd));
@@ -63,7 +63,7 @@ internal static class TorizoInitializationDefinitionsVerification
                 AssertEqual(initialized.Presence, actor.Presence, "All population presence preserved by native OR");
                 AssertEqual(native[4], actor.Radius.X, "Real Torizo X hitbox radius");
                 AssertEqual(native[5], actor.Radius.Y, "Real Torizo Y hitbox radius");
-                AssertTrue(actor.DrawsExtendedFrames, "Torizo initialization draws extended frames");
+                AssertTrue(actor.CollidesByFrameHitboxes, "Torizo initialization collides by frame hitboxes");
                 AssertEqual(populationNewInstructionFrame, actor.NewInstructionFrame, "Extended map flag preserves the population's new-frame property");
                 AssertEqual((ushort)0x1234, actor.Position.X.Fraction, "Torizo initialization preserves X fraction");
                 AssertEqual((ushort)0xabcd, actor.Position.Y.Fraction, "Torizo initialization preserves Y fraction");

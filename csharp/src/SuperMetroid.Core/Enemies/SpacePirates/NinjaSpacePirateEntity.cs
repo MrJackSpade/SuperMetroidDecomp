@@ -19,7 +19,7 @@ internal sealed class NinjaSpacePirateEntity(NinjaSpacePirateBehavior species, R
     /// <inheritdoc/>
     public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) => SpacePirateHitboxes.Find(Slot, probe, out reaction);
 
-    /// <summary>Pirate contact and shots both enter the extended-spritemap walker over the Pirate's engine-owned hitboxes.</summary>
+    /// <summary>Pirate contact and shots both meet the Pirate's engine-owned frame hitboxes.</summary>
     public override EnemyCapabilities Capabilities =>
         EnemyCapabilities.ExtendedSamusHitboxes | EnemyCapabilities.ExtendedProjectileHitboxes;
 

@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// Samus-to-enemy interaction: touch, shot, bomb and power-bomb collision walks over the interactive
-/// enemies, extended hitboxes, vulnerability and freezing, and the dispatch into the registered reactions.
+/// enemies, frame hitboxes, vulnerability and freezing, and the dispatch into the registered reactions.
 /// </summary>
 [RoomLifetime]
 internal sealed class EnemyCollision
@@ -86,10 +86,10 @@ internal sealed class EnemyCollision
             // overlap testing, so a distant actor with a map can legitimately clear it.
             if (slot.Frame is null)
                 continue;
-            bool usesExtendedHitboxes = UsesExtendedSamusHitboxes(slot);
-            // Multibox entry withholds the touch the header excludes from its hitboxes before
+            bool usesFrameHitboxes = UsesExtendedSamusHitboxes(slot);
+            // Frame-hitbox entry withholds the touch the header excludes from its hitboxes before
             // resetting invulnerability. Ordinary radius entry resets first instead.
-            if (usesExtendedHitboxes && slot.Definition.TouchHitboxScan == EnemyHitboxScan.Withheld)
+            if (usesFrameHitboxes && slot.Definition.TouchHitboxScan == EnemyHitboxScan.Withheld)
                 continue;
             if (contactDamageIndex != SamusContactDamageIndex.None)
                 samus.InvincibilityTimer = WrappingCountdown.Start(0);
@@ -110,7 +110,7 @@ internal sealed class EnemyCollision
 
             bool overlapsSamus;
             EnemyReaction? hitboxTouchAi = TouchAi(slot);
-            if (usesExtendedHitboxes)
+            if (usesFrameHitboxes)
             {
                 overlapsSamus = TryFindExtendedHitboxReaction(
                     slot,
@@ -133,7 +133,7 @@ internal sealed class EnemyCollision
 
             // On the ordinary radius path a frozen enemy never runs its touch
             // AI, except the respawn placeholder. The extended-hitbox path has no such gate.
-            if (!usesExtendedHitboxes && slot.FrozenTimer != 0 &&
+            if (!usesFrameHitboxes && slot.FrozenTimer != 0 &&
                 slot.DefinitionId != EnemyDefinitionId.Respawn)
             {
                 continue;
@@ -144,7 +144,7 @@ internal sealed class EnemyCollision
                 samus,
                 controllerInput,
                 level,
-                usesExtendedHitboxes,
+                usesFrameHitboxes,
                 hitboxTouchAi,
                 contactDamageIndex));
             return true;
@@ -176,12 +176,12 @@ internal sealed class EnemyCollision
             if (onlyEnemy is not null && enemy != onlyEnemy)
                 continue;
 
-            // The shot pass likewise admits visually invisible actors, but rejects the
-            // engine's explicit empty frame and the ignore-Samus-collision property. Keeping
+            // The shot pass likewise admits visually invisible actors, but rejects an enemy that shows no frame or
+            // shows the empty frame while it collides by its radius, and the ignore-Samus-collision property. Keeping
             // these meanings separate mirrors the list/collision machinery. An actor
             // with no translated shot reaction is skipped.
             if (enemy.Entity is IEnemyShotAdmission admission && !admission.AdmitsShots() ||
-                CommonEnemyEmptyFrames.DrawsNothing(enemy.Frame) ||
+                CommonEnemyEmptyFrames.ShotsPass(enemy) ||
                 enemy.InvincibilityTimer != 0 ||
                 enemy.Presence.HasAny(EnemyPresence.Deleted) ||
                 enemy.Contact.HasAny(EnemyContact.IgnoresSamus) ||
@@ -219,14 +219,14 @@ internal sealed class EnemyCollision
                     continue;
                 }
 
-                bool usesExtendedHitboxes = UsesExtendedProjectileHitboxes(enemy);
-                // The extended shot walker returns before testing any projectile while the enemy shows
-                // the empty extended frame. Its point hitbox remains live for Samus and
-                // bombs, whose extended passes have no such check.
-                if (usesExtendedHitboxes &&
-                    CommonEnemyEmptyFrames.IsFrame(enemy.Frame))
+                bool usesFrameHitboxes = UsesExtendedProjectileHitboxes(enemy);
+                // The frame-hitbox shot test returns before testing any projectile while the enemy shows
+                // the empty frame. Its point hitbox remains live for Samus and
+                // bombs, whose frame-hitbox passes have no such check.
+                if (usesFrameHitboxes &&
+                    CommonEnemyEmptyFrames.CollidesAtOrigin(enemy))
                     continue;
-                if (usesExtendedHitboxes &&
+                if (usesFrameHitboxes &&
                     enemy.Definition.ShotHitboxScan == EnemyHitboxScan.Withheld)
                 {
                     // A header that withholds shots from its hitboxes means no overlap, no
@@ -237,7 +237,7 @@ internal sealed class EnemyCollision
 
                 bool overlapsProjectile;
                 EnemyReaction? hitboxShotAi = ShotAi(enemy);
-                if (usesExtendedHitboxes)
+                if (usesFrameHitboxes)
                 {
                     overlapsProjectile = TryFindExtendedHitboxReaction(
                         enemy,
@@ -268,7 +268,7 @@ internal sealed class EnemyCollision
                     projectileDamage,
                     projectileDirection,
                     family,
-                    usesExtendedHitboxes,
+                    usesFrameHitboxes,
                     hitboxShotAi)
                 {
                     StruckOccupant = enemy.OccupantStates,
@@ -280,9 +280,9 @@ internal sealed class EnemyCollision
                     break;
                 }
 
-                if (usesExtendedHitboxes && family == SamusProjectileFamily.SuperMissile)
+                if (usesFrameHitboxes && family == SamusProjectileFamily.SuperMissile)
                 {
-                    // The multibox prelude requests this earthquake before dispatching the
+                    // The frame-hitbox prelude requests this earthquake before dispatching the
                     // hitbox reaction, even when that reaction is the ignoring shell region.
                     _earthquake.Start(SuperMissileDefinitions.EnemyHitEarthquake, SuperMissileDefinitions.EarthquakeDuration);
                 }
@@ -443,18 +443,18 @@ internal sealed class EnemyCollision
             bool usesCommonShotAi = ShotAi(enemy) == EnemyReaction.NormalEnemyShot;
             bool usesIgnoreShotAi = ShotAi(enemy) == EnemyReaction.Ignore;
             bool usesTranslatedPrivateShotAi = IsTranslatedPrivateNormalBombShotAi(enemy, ShotAi(enemy));
-            bool usesExtendedHitboxes = enemy.DrawsExtendedFrames;
-            bool headerSuppressesMultiboxShotCollision = usesExtendedHitboxes &&
+            bool usesFrameHitboxes = enemy.CollidesByFrameHitboxes;
+            bool headerWithholdsFrameHitboxShots = usesFrameHitboxes &&
                 enemy.Definition.ShotHitboxScan == EnemyHitboxScan.Withheld;
             bool admittedByOccupant = enemy.Entity is IEnemyNormalBombAdmission admission &&
-                admission.AdmitsNormalBombs(usesExtendedHitboxes);
+                admission.AdmitsNormalBombs(usesFrameHitboxes);
             if ((!usesCommonShotAi && !usesIgnoreShotAi &&
                     !usesTranslatedPrivateShotAi && !admittedByOccupant) ||
                 enemy.Frame is null ||
                 enemy.InvincibilityTimer != 0 ||
                 enemy.Presence.HasAny(EnemyPresence.Deleted) ||
-                headerSuppressesMultiboxShotCollision ||
-                usesExtendedHitboxes &&
+                headerWithholdsFrameHitboxShots ||
+                usesFrameHitboxes &&
                     enemy.Contact.HasAny(EnemyContact.IgnoresSamus))
             {
                 continue;
@@ -464,12 +464,12 @@ internal sealed class EnemyCollision
             {
                 SamusProjectileFamily family = bomb.Type.Family;
 
-                // The ordinary-radius bomb pass admits an exploding normal bomb. The ordinary-radius
-                // handler also admits a spread bomb. The extended-frame
+                // The radius bomb pass admits an exploding normal bomb. The radius
+                // handler also admits a spread bomb. The frame-hitbox
                 // handler is narrower: it requires a bomb and a nonzero X word.
                 if (bomb.Type.IsNone ||
                     !bomb.BombTimer.IsZero ||
-                    (usesExtendedHitboxes
+                    (usesFrameHitboxes
                         ? family != SamusProjectileFamily.Bomb ||
                           bomb.Position.X.Whole == 0
                         : family != SamusProjectileFamily.Bomb &&
@@ -479,7 +479,7 @@ internal sealed class EnemyCollision
                 }
 
                 EnemyReaction? selectedShotAi = ShotAi(enemy);
-                bool overlaps = usesExtendedHitboxes
+                bool overlaps = usesFrameHitboxes
                     ? TryFindExtendedHitboxReaction(
                         enemy,
                         bomb.Position.Whole,
@@ -496,7 +496,7 @@ internal sealed class EnemyCollision
                     continue;
                 }
 
-                // Multibox actors dispatch the reaction stored in the selected hitbox,
+                // Frame-hitbox actors dispatch the reaction stored in the selected hitbox,
                 // not necessarily the definition header's. Do not turn a protected/private
                 // component into common damage merely because the header names the ordinary shot.
                 bool selectedIgnore = selectedShotAi == EnemyReaction.Ignore;
@@ -516,7 +516,7 @@ internal sealed class EnemyCollision
                     ordinaryProjectiles,
                     samus,
                     selectedShotAi,
-                    usesExtendedHitboxes)
+                    usesFrameHitboxes)
                 {
                     StruckOccupant = enemy.OccupantStates,
                 };
@@ -555,7 +555,7 @@ internal sealed class EnemyCollision
     }
 
     /// <summary>
-    /// Reports the private shot reactions whose normal-bomb path is translated. The occupant decides, because an extended
+    /// Reports the private shot reactions whose normal-bomb path is translated. The occupant decides, because a frame's
     /// hitbox may deliberately override its definition header with a different reaction.
     /// </summary>
     private static bool IsTranslatedPrivateNormalBombShotAi(
@@ -781,10 +781,9 @@ internal sealed class EnemyCollision
         bool PreventsLethalFreeze);
 
     /// <summary>
-    /// Walks the extended-frame structure and returns the
-    /// reaction belonging to the first overlapping hitbox. One displayed enemy frame may
-    /// contain several independently offset ordinary spritemaps; every component has a
-    /// hitbox list whose records are signed bounds plus touch and shot reactions.
+    /// Tests the hitboxes of the frame an enemy shows and returns the reaction belonging to the first overlapping
+    /// hitbox. One frame may hold several hitboxes, each signed bounds about the enemy's origin with its own touch and
+    /// shot reactions.
     /// </summary>
     internal bool TryFindExtendedHitboxReaction(
         RoomEnemySlot enemy,
@@ -795,9 +794,9 @@ internal sealed class EnemyCollision
     {
         reaction = null;
 
-        // Multibox collision walks every frame an actor shows, and only an actor that has
-        // shown none is skipped. The common visually empty extended frame still owns a point
-        // hitbox, so it enters the same collision walker as other extended frames.
+        // Frame-hitbox collision tests every frame an actor shows, and only an actor that has
+        // shown none is skipped. The empty frame still has a point hitbox for an enemy that
+        // collides by its frames' hitboxes, so it enters the same test as every other frame.
         if (enemy.Frame is null)
             return false;
 
@@ -811,9 +810,9 @@ internal sealed class EnemyCollision
             SelectsShot: contactKind == HitboxContactKind.Shot,
             ArtworkInstalled: _room.FrameDisplays is not null);
 
-        if (CommonEnemyEmptyFrames.IsFrame(enemy.Frame))
+        if (CommonEnemyEmptyFrames.CollidesAtOrigin(enemy))
         {
-            // The shared empty frame has a single zero-radius point at the
+            // The empty frame has a single zero-radius point at the
             // enemy origin. Run the same asymmetric overlap test before
             // selecting its common touch/shot reaction.
             if (!target.Overlaps(enemy.Position.X.Whole, enemy.Position.Y.Whole, enemy.Position.X.Whole, enemy.Position.Y.Whole))
@@ -832,26 +831,23 @@ internal sealed class EnemyCollision
     }
 
     /// <summary>
-    /// Identifies actors whose ordinary Samus-contact collision actually enters
-    /// the extended-frame touch walker. This differs deliberately from the shot
-    /// set: Phantoon uses authored component rectangles for touch, while its weapon collision
-    /// is owned by the encounter-specific projectile resolver.
+    /// Identifies actors whose contact with Samus is tested against their frames' hitboxes. This differs deliberately
+    /// from the shot set: Phantoon's frames' hitboxes meet Samus, while his own projectile resolver owns how shots meet
+    /// him.
     /// </summary>
     internal static bool UsesExtendedSamusHitboxes(RoomEnemySlot enemy) =>
-        enemy.DrawsExtendedFrames &&
+        enemy.CollidesByFrameHitboxes &&
         (Capabilities(enemy) & EnemyCapabilities.ExtendedSamusHitboxes) != EnemyCapabilities.None;
 
     /// <summary>
-    /// Identifies actors whose ordinary projectile collision actually enters
-    /// the extended-frame shot walker. <see cref="RoomEnemySlot.DrawsExtendedFrames"/> alone is not
-    /// sufficient: Mother Brain and several custom-drawn actors set it for scheduling or
-    /// rendering while their shot paths use a header radius or encounter-specific geometry.
-    /// Keeping this predicate beside the dispatcher gives data-backed probes the same boundary
-    /// as gameplay and prevents them from interpreting unrelated component metadata as a
-    /// hitbox.
+    /// Identifies actors whose contact with Samus's shots is tested against their frames' hitboxes.
+    /// <see cref="RoomEnemySlot.CollidesByFrameHitboxes"/> alone is not sufficient: Mother Brain and several
+    /// encounter-owned actors collide by frame hitboxes elsewhere while their shots meet a header radius or
+    /// encounter-specific geometry. Keeping this predicate beside the dispatcher gives data-backed probes the same
+    /// boundary as gameplay.
     /// </summary>
     internal static bool UsesExtendedProjectileHitboxes(RoomEnemySlot enemy) =>
-        enemy.DrawsExtendedFrames &&
+        enemy.CollidesByFrameHitboxes &&
         (Capabilities(enemy) & EnemyCapabilities.ExtendedProjectileHitboxes) != EnemyCapabilities.None;
 
     /// <summary>The bound occupant's collision capabilities; an empty slot has none.</summary>

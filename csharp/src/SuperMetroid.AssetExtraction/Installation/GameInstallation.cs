@@ -345,8 +345,8 @@ public sealed record GameInstallation(string Root)
             BossAndIntroOverreads = LoadBossAndIntroOverreads(),
             SpriteSheets = LoadSpriteSheets(),
             EnemySheets = LoadEnemySheets(),
-            EnemyFrameDisplays = (enemies.Enemies.ExtendedFrames ?? throw new InvalidDataException(
-                "The installed enemy artwork holds no extended frames.")).Displays,
+            EnemyFrameDisplays = enemies.Enemies.FrameDisplays ?? throw new InvalidDataException(
+                "The installed enemy artwork holds no enemy frames."),
             BossBodySheets = LoadBossBodySheets(),
         };
     }

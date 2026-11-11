@@ -1613,7 +1613,7 @@ internal static class LookupStream2Verification
     {
         var definitions = EnemyExtendedFrameDefinitions.Frames.ToArray();
         var document = new EnemyIdentityFixture().ExtendedDocument();
-        var selected = new EnemySpritemapDefinition[10];
+        var selected = new EnemyFrameName[10];
         int nativeBodyParts = 0;
         for (int phase = 0; phase < 10; phase++)
         {

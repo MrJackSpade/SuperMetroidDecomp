@@ -412,7 +412,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             AfterSuperMissileQuake = (in EnemyShotContext c) =>
             {
                 if (!c.UsesExtendedHitboxes)
-                    throw new InvalidDataException("Spore Spawn requires its authored extended-spritemap hitboxes.");
+                    throw new InvalidDataException("Spore Spawn requires its frames' hitboxes.");
                 if (c.HitboxShotAi == EnemyReaction.DudShot)
                 {
                     c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
@@ -446,7 +446,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             context =>
             {
                 if (!context.UsesExtendedHitboxes)
-                    throw new InvalidDataException("Spore Spawn requires its authored extended-spritemap hitboxes.");
+                    throw new InvalidDataException("Spore Spawn requires its frames' hitboxes.");
                 if (context.HitboxTouchAi == EnemyReaction.Ignore)
                     return;
                 if (context.HitboxTouchAi != EnemyReaction.SporeSpawnTouch)

@@ -171,7 +171,7 @@ internal static class SpacePirateCollisionDefinitions
     /// <summary>The walking, wall and ninja frames' authored component placements, and the common empty frame's.</summary>
     internal static EnemyFrameCollision<EnemyCollisionComponent> Frames { get; } = new()
     {
-        { EnemyFrameId.EmptyExtended, [new(new(0, 0), HitboxLists[0])] },
+        { EnemyFrameId.Empty, [new(new(0, 0), HitboxLists[0])] },
         { EnemyFrameId.WallPirateClimbLeft0, [new(new(0, 0), HitboxLists[10]), new(new(0, 0), HitboxLists[1])] },
         { EnemyFrameId.WallPirateClimbLeft1, [new(new(0, 0), HitboxLists[9]), new(new(0, 0), HitboxLists[2])] },
         { EnemyFrameId.WallPirateClimbLeft2, [new(new(0, 0), HitboxLists[8]), new(new(0, 0), HitboxLists[3])] },

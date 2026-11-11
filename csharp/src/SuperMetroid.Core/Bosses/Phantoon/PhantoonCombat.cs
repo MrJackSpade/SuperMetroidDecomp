@@ -147,7 +147,7 @@ internal sealed class PhantoonCombat
 
         RoomEnemySlot body = state.Body;
         if (body.DefinitionId != EnemyDefinitionId.PhantoonBody ||
-            CommonEnemyEmptyFrames.DrawsNothing(body.Frame) ||
+            CommonEnemyEmptyFrames.ShotsPass(body) ||
             body.InvincibilityTimer != 0 ||
             body.Presence.HasAny(EnemyPresence.Deleted) ||
             body.Contact.HasAny(EnemyContact.IgnoresSamus))
@@ -168,12 +168,6 @@ internal sealed class PhantoonCombat
             if (family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb or
                 SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion)
                 continue;
-
-            if (!body.DrawsExtendedFrames)
-            {
-                throw new InvalidDataException(
-                    "Phantoon lost the extended-spritemap property required by his hitboxes.");
-            }
 
             if (!_collision.TryFindExtendedHitboxReaction(
                     body,
@@ -655,7 +649,7 @@ internal sealed class PhantoonCombat
         if (!(PhantoonCombat.IsPhantoonPartDefinition(enemy.DefinitionId)))
             return null;
 
-        // Phantoon's extended frame roots include hitbox lists,
+        // Phantoon's frames include hitbox lists,
         // but its editable background tilemap writes must never become collision
         // data. Preserve the component and rectangle order from
         // the compiled definitions, including point no-ops.

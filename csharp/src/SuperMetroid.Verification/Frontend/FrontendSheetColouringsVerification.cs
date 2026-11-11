@@ -12,9 +12,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Verification.Assets;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
@@ -122,7 +120,7 @@ internal static class FrontendSheetColouringsVerification
     private static int CheckSheet(SpriteSheetId id, Dictionary<string, HashSet<int>> expected, List<string> findings)
     {
         SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(id);
-        RgbaPixel[] pixels = SheetPixelRules.PixelPlane(RepositoryInstallation.Installation.SpriteSheetDirectory, sheet.Image);
+        RgbaPixel[] pixels = sheet.Image.Pixels.ToArray();
         int frames = 0;
         foreach ((string name, SpriteSheetFrame frame) in sheet.frames.OrderBy(entry => entry.Key, StringComparer.Ordinal))
         {

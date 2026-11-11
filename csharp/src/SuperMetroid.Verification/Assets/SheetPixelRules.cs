@@ -1,18 +1,16 @@
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Assets;
 
 /// <summary>
-/// The pixel rule every installed sprite sheet's frames are held to (#1513), read from each sheet's installed picture:
+/// The pixel rule every installed sprite sheet's frames are held to (#1513), read from each loaded sheet's image as the
+/// loader assembles it from the picture store (#1635):
 /// <list type="bullet">
 /// <item><b>Empty frame.</b> A frame is empty when it has no rectangle, or when every pixel of its rectangle is clear, its
 /// alpha zero (#1633): the frame has no opaque pixel and draws nothing, so the draw path that names it should draw nothing
 /// instead.</item>
 /// </list>
-/// Each sheet's picture is read from its installed file once and dropped after its frames are checked, in parallel across
-/// sheets: the fixtures' images keep their decoded pixels once read, and every enemy sheet's held at once would cost
-/// gigabytes.
+/// Each image is checked once, however many of the sheets show it, in parallel across images.
 /// </summary>
 internal static class SheetPixelRules
 {
@@ -21,17 +19,15 @@ internal static class SheetPixelRules
     /// passed otherwise.
     /// </summary>
     /// <param name="family">The family the sheets belong to, which names them in the report.</param>
-    /// <param name="directory">The installed directory holding the sheets' files.</param>
     /// <param name="sheets">The family's installed sheets, each with the name it is reported by.</param>
-    internal static void Assert(string family, string directory, IReadOnlyList<LabelledSheet> sheets)
+    internal static void Assert(string family, IReadOnlyList<LabelledSheet> sheets)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(family);
-        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         ArgumentNullException.ThrowIfNull(sheets);
         AssertTrue(sheets.Count > 0, $"the installation holds {family} sheets");
         LabelledSheet[][] images = [.. sheets.GroupBy(sheet => sheet.Sheet.Image).Select(users => users.ToArray())];
         var findings = new ImageFindings[images.Length];
-        Parallel.For(0, images.Length, index => findings[index] = CheckImage(directory, images[index]));
+        Parallel.For(0, images.Length, index => findings[index] = CheckImage(images[index]));
         string[] empty = [.. findings.SelectMany(image => image.EmptyFrames)];
         AssertTrue(empty.Length == 0,
             $"{empty.Length} {family} sheet frames have no opaque pixel:{Environment.NewLine}{string.Join(Environment.NewLine, empty)}");
@@ -39,10 +35,9 @@ internal static class SheetPixelRules
     }
 
     /// <summary>Checks every frame cut from one image, which <paramref name="users"/> all show.</summary>
-    private static ImageFindings CheckImage(string directory, LabelledSheet[] users)
+    private static ImageFindings CheckImage(LabelledSheet[] users)
     {
         SpriteImage image = users[0].Sheet.Image;
-        RgbaPixel[] pixels = PixelPlane(directory, image);
         string owner = users.Length == 1 ? users[0].Label : $"{users[0].Label} and {users.Length - 1} more";
         var emptyFrames = new List<string>();
         var seen = new HashSet<string>(StringComparer.Ordinal);
@@ -52,16 +47,17 @@ internal static class SheetPixelRules
             {
                 if (!seen.Add(name))
                     continue;
-                if (!Draws(pixels, image, frame))
+                if (!Draws(image, frame))
                     emptyFrames.Add($"{owner} ({image.Name}) frame {name} has no opaque pixel");
             }
         }
         return new ImageFindings(seen.Count, emptyFrames);
     }
 
-    /// <summary>Whether <paramref name="frame"/> has any pixel that is not clear.</summary>
-    private static bool Draws(RgbaPixel[] pixels, SpriteImage image, SpriteSheetFrame frame)
+    /// <summary>Whether <paramref name="frame"/> of <paramref name="image"/> has any pixel that is not clear.</summary>
+    private static bool Draws(SpriteImage image, SpriteSheetFrame frame)
     {
+        ReadOnlySpan<RgbaPixel> pixels = image.Pixels;
         int width = image.Size.X;
         for (int row = 0; row < frame.Size.Y; row++)
         {
@@ -73,23 +69,6 @@ internal static class SheetPixelRules
             }
         }
         return false;
-    }
-
-    /// <summary>
-    /// The pixels of <paramref name="image"/>, row by row from the top, read from its installed picture file as the loader
-    /// reads it, without keeping them in the fixture's image.
-    /// </summary>
-    /// <exception cref="InvalidDataException">The picture is malformed or not the size of the sheet image.</exception>
-    internal static RgbaPixel[] PixelPlane(string directory, SpriteImage image)
-    {
-        string path = Path.Combine(directory, SpriteSheetStore.ImageFile(image.Name));
-        RgbaPixel[] plane;
-        Extent16<ImagePixels> size;
-        using (FileStream file = File.OpenRead(path))
-            plane = RgbaPng.Read(file, out size);
-        if (size != image.Size)
-            throw new InvalidDataException($"Sheet picture {path} is {size.X}x{size.Y}, not the size of {image}.");
-        return plane;
     }
 
     /// <summary>

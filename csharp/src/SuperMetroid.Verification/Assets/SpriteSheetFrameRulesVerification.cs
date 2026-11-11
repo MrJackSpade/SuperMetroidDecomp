@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -16,7 +15,7 @@ internal static class SpriteSheetFrameRulesVerification
 {
     /// <summary>Checks every installed sprite sheet's frames against the sheet pixel rules.</summary>
     internal static void VerifySpriteSheetFrameRules() =>
-        SheetPixelRules.Assert("sprite", RepositoryInstallation.Installation.SpriteSheetDirectory,
+        SheetPixelRules.Assert("sprite",
             [.. SpriteSheetDefinitions.Sheets.Select(sheet => new LabelledSheet(sheet.ToString(), InstalledFixtures.SpriteSheets.Get(sheet)))]);
 
     /// <summary>Runs the installed sprite sheets' pixel rules.</summary>

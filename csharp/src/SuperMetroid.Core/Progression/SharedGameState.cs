@@ -49,7 +49,7 @@ public sealed class SharedGameState
     /// <summary>The frame the save file found at power-on adds to every rising-liquid and Tourian-statue earthquake rumble's delay.</summary>
     public PowerOnEarthquakeSoundDelay EarthquakeSoundDelay { get; }
 
-    /// <summary>Restores the saved startup route from one checksummed save slot or a checkpoint.</summary>
+    /// <summary>Restores the saved startup route from one save slot or a checkpoint.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="route"/> is not a defined route.</exception>
     public void LoadSavedStartupRoute(SaveLoadingGameState route) =>
         SavedStartupRoute = Enum.IsDefined(route) ? route : throw new ArgumentOutOfRangeException(nameof(route), route, "Undefined startup route.");

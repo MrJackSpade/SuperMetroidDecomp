@@ -54,7 +54,7 @@ internal sealed class ShownFloorPairing
             ImmutableArray<ColourKey> keys = sheet.ColourKeys;
             for (int key = 0; key < shown.Length; key++)
             {
-                foreach (int index in InstalledPictureColoursConstants.ColouredIndicesOf(sheet, keys[key]))
+                foreach (int index in InstalledPictureColoursConstants.ComposedIndicesOf(sheet, keys[key]))
                     AssertEqual(MemoryColour(palette, index), shown[key],
                         $"memory floor picture {picture} shows its colour key {keys[key]} as the palette's colour at its composed index {index}");
             }
@@ -141,16 +141,19 @@ internal sealed class ShownFloorPairing
             for (int x = 0; x < picture.Size.X; x++)
             {
                 int pixel = source + x;
-                int value = composedIndices ? InstalledPictureColoursConstants.ComposedIndexAt(sheet, pixel)
+                // A clear pixel holds no colour key and shows no colour of its key (#1633).
+                bool clear = pixels[pixel].A == 0;
+                int value = clear ? -1
+                    : composedIndices ? InstalledPictureColoursConstants.ComposedIndexAt(sheet, pixel)
                     : sheet.PlaceOf(sheet.KeyAt(pixel)) ?? throw new InvalidOperationException($"{sheet} holds no key for its own pixel {pixel}.");
-                laid[target + x] = new LaidPixel(place, value, pixels[pixel].A == 0);
+                laid[target + x] = new LaidPixel(place, value, clear);
             }
         }
     }
 
     /// <summary>One floor point as a floor lays it.</summary>
     /// <param name="Picture">The place among the floor's pictures of the picture laid there.</param>
-    /// <param name="Value">The pixel's colour key place, or the palette index it was composed as.</param>
+    /// <param name="Value">The pixel's colour key place, or the palette index it was composed as; -1 for a clear pixel.</param>
     /// <param name="Clear">Whether the pixel is clear.</param>
     private readonly record struct LaidPixel(int Picture, int Value, bool Clear);
 }

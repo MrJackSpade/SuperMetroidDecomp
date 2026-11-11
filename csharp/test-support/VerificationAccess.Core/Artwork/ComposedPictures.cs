@@ -11,8 +11,9 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// #1633): the picture gets its pixels, maps and shades through <see cref="InstalledSheetConversion"/>, and where each of its
 /// colour keys and each of its pixels was composed from is recorded here, the import's knowledge, which no installed
 /// picture holds and only a check's native-colour oracle reads. An installed picture is never asked for its palette
-/// indices: a check that needs them composes the picture's sheet in-process (<see cref="RecordComposition"/>,
-/// <see cref="SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledSheetCompositions"/>).
+/// indices: a check that needs them composes the picture's sheet in-process
+/// (<see cref="SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledSheetCompositions"/>) and takes the
+/// composition whose pixels, installed, are the installed picture's (<see cref="SourceOf"/>).
 /// </summary>
 internal static class ComposedPictures
 {
@@ -61,23 +62,16 @@ internal static class ComposedPictures
     }
 
     /// <summary>
-    /// Records that <paramref name="installed"/>, a picture an installation holds, is the installed form of
-    /// <paramref name="composition"/>, its sheet composed again in-process: the composition is installed through
-    /// <see cref="InstalledSheetConversion"/> and its pixels compared with the installed picture's by colour, so the
-    /// composition's palette indices describe the installed picture's pixels.
+    /// Whether <paramref name="installed"/> shows the pixels and recolour regions <paramref name="composition"/> installs as
+    /// through <see cref="InstalledSheetConversion"/>.
     /// </summary>
-    /// <exception cref="InvalidDataException">The installed picture's pixels differ from its composition's, as an edited installation's do.</exception>
-    internal static void RecordComposition(SpriteImage installed, ComposedSpriteSheet composition)
+    private static bool Composes(SpriteImage installed, ComposedSpriteSheet composition)
     {
-        Ensure.NotNull(installed);
-        Ensure.NotNull(composition);
         if (composition.Size != installed.Size)
-            throw new InvalidDataException($"Installed picture {installed} is not the size of its composition, {composition.Size.X}x{composition.Size.Y}.");
+            return false;
         InstalledSheet converted = InstalledSheetConversion.Install(composition.Manifest, composition.Size, composition.Pixels, composition.PaletteIndices);
-        if (!installed.Pixels.SequenceEqual(converted.Pixels.Pixels)
-            || !installed.RecolourRegions.SequenceEqual(converted.Pixels.RecolourRegions ?? []))
-            throw new InvalidDataException($"Installed picture {installed} does not show the pixels its sheet composes; a check comparing it with the cartridge needs an unedited installation.");
-        Record(installed, composition.Manifest, composition.PaletteIndices);
+        return installed.Pixels.SequenceEqual(converted.Pixels.Pixels)
+            && installed.RecolourRegions.SequenceEqual(converted.Pixels.RecolourRegions ?? []);
     }
 
     /// <summary>
@@ -101,8 +95,13 @@ internal static class ComposedPictures
         if (composed.PaletteBits != 0 && (composed.Palette != SpriteImageColours.Sprite || composed.PaletteBits is < 0 or >= SpriteRows))
             throw new InvalidDataException($"Sheet {picture.Name} names palette bits {composed.PaletteBits} for a {composed.Palette} image.");
         var indices = new Dictionary<ColourKey, SortedSet<int>>();
+        ReadOnlySpan<RgbaPixel> pixels = picture.Pixels;
+        // Only visible pixels are keyed (#1633): a clear pixel is never recoloured and shows its stored colour.
         for (int pixel = 0; pixel < paletteIndices.Length; pixel++)
-            Add(indices, picture.KeyAt(pixel), paletteIndices[pixel]);
+        {
+            if (pixels[pixel].A != 0)
+                Add(indices, picture.KeyAt(pixel), paletteIndices[pixel]);
+        }
         if (picture.Backdrop is { } backdrop)
             Add(indices, backdrop, composed.Backdrop ?? throw new InvalidDataException($"Sheet {picture.Name} shows a backdrop its composition names no index of."));
         Sources.AddOrUpdate(picture, new ComposedPictureSource(composed, paletteIndices.ToArray(),
@@ -127,21 +126,32 @@ internal static class ComposedPictures
 
     /// <summary>
     /// What <paramref name="picture"/> was composed from: as a check recorded it, or, for a picture an installation holds,
-    /// as its sheet composes in-process (<see cref="SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledSheetCompositions"/>).
+    /// as its sheet composes in-process (<see cref="SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledSheetCompositions"/>):
+    /// the composition of its name whose pixels, installed through <see cref="InstalledSheetConversion"/>, are the picture's.
     /// </summary>
-    /// <exception cref="InvalidOperationException">No check recorded the picture and no installed family composes a sheet of its name.</exception>
+    /// <exception cref="InvalidOperationException">
+    /// No check recorded the picture and no installed family composes a sheet of its name showing its pixels, as an edited
+    /// installation's or an enemy sheet's does not.
+    /// </exception>
     internal static ComposedPictureSource SourceOf(SpriteImage picture)
     {
         Ensure.NotNull(picture);
         lock (Sources)
         {
-            if (!Sources.TryGetValue(picture, out ComposedPictureSource? source))
+            if (Sources.TryGetValue(picture, out ComposedPictureSource? source))
+                return source;
+            // An installed picture: its sheet is composed again, and the composition whose pixels it shows is its source.
+            foreach (ComposedSpriteSheet composition in SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledSheetCompositions.Compose(picture.Name))
             {
-                RecordComposition(picture, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledSheetCompositions.Compose(picture.Name));
-                source = Sources.TryGetValue(picture, out ComposedPictureSource? composed) ? composed
-                    : throw new InvalidOperationException($"Picture {picture.Name} was not recorded.");
+                if (Composes(picture, composition))
+                {
+                    Record(picture, composition.Manifest, composition.PaletteIndices);
+                    return Sources.TryGetValue(picture, out ComposedPictureSource? composed) ? composed
+                        : throw new InvalidOperationException($"Picture {picture.Name} was not recorded.");
+                }
             }
-            return source;
+            throw new InvalidOperationException(
+                $"Picture {picture.Name} was not composed by a check, and no installed family composes a sheet of its name showing its pixels.");
         }
     }
 }
@@ -150,8 +160,8 @@ internal static class ComposedPictures
 /// <param name="Composed">The composed manifest: the half of the colour table, the background sets and the palette bits.</param>
 /// <param name="PaletteIndices">Each pixel's composed palette index, row by row from the top.</param>
 /// <param name="ComposedIndices">
-/// Each colour key the picture holds (its pixels' keys and its backdrop's), with the palette indices, ascending, its pixels
-/// were composed as.
+/// Each colour key the picture holds (its visible pixels' keys and its backdrop's), with the palette indices, ascending, its
+/// pixels of that key were composed as.
 /// </param>
 internal sealed record ComposedPictureSource(SpriteSheetDocument Composed, byte[] PaletteIndices,
     ImmutableDictionary<ColourKey, ImmutableArray<int>> ComposedIndices)

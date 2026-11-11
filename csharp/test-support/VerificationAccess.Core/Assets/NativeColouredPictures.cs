@@ -18,9 +18,8 @@ internal static class NativeColouredPictures
     /// A copy of <paramref name="picture"/> whose pixels show the colours they show in <paramref name="nativeColours"/> under a
     /// draw ORing sprite row <paramref name="drawRow"/> into its parts; its name, size, pixel places and blend map are kept,
     /// so fixtures that pair an installed frame with its composition by name find the copy's too, and it has no shades. A
-    /// pixel composed as colour zero of a picture that colours zero nowhere
-    /// (<see cref="InstalledPictureColoursConstants.ColouredIndicesOf"/>) stays as it is; every other pixel shows the native
-    /// colour of its composed palette index, with its own alpha.
+    /// clear pixel stays as it is stored (#1633); every visible pixel shows the native colour of its composed palette
+    /// index, with its own alpha.
     /// </summary>
     /// <exception cref="ArgumentException">The image does not hold 256 colours.</exception>
     /// <exception cref="InvalidOperationException">The picture was not composed or recorded by a check.</exception>
@@ -30,14 +29,13 @@ internal static class NativeColouredPictures
         Ensure.NotNull(picture);
         Ensure.LengthEqual(nativeColours, ColorCount);
         ComposedPictureSource source = ComposedPictures.SourceOf(picture);
-        bool coloursZero = source.Composed.Palette == SpriteImageColours.TwoBppBackground;
         ReadOnlySpan<RgbaPixel> pixels = picture.Pixels;
         var shown = new RgbaPixel[pixels.Length];
         for (int pixel = 0; pixel < pixels.Length; pixel++)
         {
-            int index = source.PaletteIndices[pixel];
-            shown[pixel] = !coloursZero && index == 0 ? pixels[pixel]
-                : nativeColours[InstalledPictureColoursConstants.CartridgeColourOfIndex(picture, index, drawRow)].ToRgbaPixel() with { A = pixels[pixel].A };
+            shown[pixel] = pixels[pixel].A == 0 ? pixels[pixel]
+                : nativeColours[InstalledPictureColoursConstants.CartridgeColourOfIndex(picture, source.PaletteIndices[pixel], drawRow)].ToRgbaPixel()
+                    with { A = pixels[pixel].A };
         }
         ColourKey? backdrop = source.Composed.Backdrop is { } backdropIndex
             ? ColourKey.Of(nativeColours[InstalledPictureColoursConstants.CartridgeColourOfIndex(picture, backdropIndex, drawRow)])

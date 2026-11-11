@@ -15,24 +15,15 @@ internal static class InstalledPictureColoursConstants
     /// <summary>The colours of the cartridge's colour image.</summary>
     public const int CartridgeColourCount = 2 * GameplayColourPositionDefinitions.SetsColours;
 
-    /// <summary>The composed palette indices the pixels of <paramref name="key"/> of <paramref name="picture"/> were composed as, ascending.</summary>
+    /// <summary>
+    /// The composed palette indices the visible pixels of <paramref name="key"/> of <paramref name="picture"/> (or its
+    /// backdrop) were composed as, ascending.
+    /// </summary>
     /// <exception cref="InvalidOperationException">Nothing recorded where the picture was composed from.</exception>
     /// <exception cref="ArgumentException">The picture holds no such key.</exception>
     public static ImmutableArray<int> ComposedIndicesOf(SpriteImage picture, ColourKey key) =>
         ComposedPictures.SourceOf(Ensure.NotNull(picture)).ComposedIndices.TryGetValue(key, out ImmutableArray<int> indices) ? indices
             : throw new ArgumentException($"Picture {picture.Name} holds no colour key {key}.", nameof(key));
-
-    /// <summary>
-    /// The composed palette indices of <paramref name="key"/> of <paramref name="picture"/> that show a colour, ascending:
-    /// every one but colour zero of an image other than a HUD or room effect picture, which the cartridge draws transparent
-    /// and colours from nowhere.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">Nothing recorded where the picture was composed from.</exception>
-    public static ImmutableArray<int> ColouredIndicesOf(SpriteImage picture, ColourKey key)
-    {
-        SpriteImageColours palette = ComposedPictures.SourceOf(Ensure.NotNull(picture)).Palette;
-        return [.. ComposedIndicesOf(picture, key).Where(index => palette == SpriteImageColours.TwoBppBackground || index != 0)];
-    }
 
     /// <summary>
     /// The places in the cartridge's colour image of the colours <paramref name="key"/> of <paramref name="picture"/> was
@@ -41,7 +32,7 @@ internal static class InstalledPictureColoursConstants
     /// </summary>
     /// <exception cref="InvalidOperationException">Nothing recorded where the picture was composed from.</exception>
     public static ImmutableArray<int> CartridgeColoursOf(SpriteImage picture, ColourKey key, int drawRow = 0) =>
-        [.. ColouredIndicesOf(picture, key).Select(index => CartridgeColourOfIndex(picture, index, drawRow))];
+        [.. ComposedIndicesOf(picture, key).Select(index => CartridgeColourOfIndex(picture, index, drawRow))];
 
     /// <summary>
     /// The place in the cartridge's colour image a pixel of <paramref name="picture"/> composed as palette index
@@ -84,15 +75,14 @@ internal static class InstalledPictureColoursConstants
 
     /// <summary>
     /// The key of <paramref name="picture"/> whose pixels were composed as palette index <paramref name="index"/>, or null
-    /// where none of its pixels was or the index shows no colour (<see cref="ColouredIndicesOf"/>), so the picture does not
-    /// show that colour.
+    /// where none of its visible pixels was, so the picture does not show that colour.
     /// </summary>
     /// <exception cref="InvalidOperationException">Nothing recorded where the picture was composed from.</exception>
     public static ColourKey? KeyComposedAs(SpriteImage picture, int index)
     {
         foreach (ColourKey key in ComposedPictures.SourceOf(Ensure.NotNull(picture)).ComposedIndices.Keys)
         {
-            if (ColouredIndicesOf(picture, key).Contains(index))
+            if (ComposedIndicesOf(picture, key).Contains(index))
                 return key;
         }
         return null;
@@ -101,8 +91,8 @@ internal static class InstalledPictureColoursConstants
     /// <summary>
     /// <paramref name="shown"/>, one colour for each of <paramref name="picture"/>'s colour keys
     /// (<see cref="SpriteImage.ColourKeys"/>), laid out by each palette index the key was composed as, in a list as long as
-    /// the half of the colour table the picture was composed against; an index the picture has no pixel of, or that shows no
-    /// colour (<see cref="ColouredIndicesOf"/>), stays black.
+    /// the half of the colour table the picture was composed against; an index the picture has no visible pixel of stays
+    /// black.
     /// </summary>
     public static RgbColor[] ByComposedIndex(SpriteImage picture, ReadOnlySpan<RgbColor> shown)
     {
@@ -112,7 +102,7 @@ internal static class InstalledPictureColoursConstants
         var laid = new RgbColor[ImageColourGroup.ColourCountOf(ComposedPictures.SourceOf(picture).Palette)];
         for (int key = 0; key < keys.Length; key++)
         {
-            foreach (int index in ColouredIndicesOf(picture, keys[key]))
+            foreach (int index in ComposedIndicesOf(picture, keys[key]))
                 laid[index] = shown[key];
         }
         return laid;

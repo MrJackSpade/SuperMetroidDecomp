@@ -96,6 +96,12 @@ internal static class SpawnedArtHeldOnceVerification
                     writer.Write(pixel.B);
                     writer.Write(pixel.A);
                     writer.Write(!blending.IsEmpty && blending[at]);
+                    // A clear pixel holds no colour key: no shade recolours it (#1633).
+                    if (pixel.A == 0)
+                    {
+                        writer.Write(-1);
+                        continue;
+                    }
                     ColourKey key = image.KeyAt(at);
                     if (!orderOf.TryGetValue(key, out int order))
                         orderOf.Add(key, order = orderOf.Count);

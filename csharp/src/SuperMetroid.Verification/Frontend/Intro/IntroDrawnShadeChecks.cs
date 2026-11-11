@@ -26,7 +26,7 @@ internal static class IntroDrawnShadeChecks
         SpriteImage image = InstalledFixtures.SpriteSheets.Get(SpriteSheetId.IntroSprites).Image;
         PictureRecolouring shade = image.Shade(drawn);
         AssertTrue(!shade.Substitutions.IsEmpty && shade.Substitutions.All(substitution =>
-                InstalledPictureColoursConstants.ColouredIndicesOf(image, substitution.Replaced).All(index =>
+                InstalledPictureColoursConstants.ComposedIndicesOf(image, substitution.Replaced).All(index =>
                     substitution.Shown == sprites[row * ImageColourGroup.Colours + index % ImageColourGroup.Colours])),
             $"the intro sheet's {drawn.Key} shade shows the cartridge's sprite set {row}");
         return row;

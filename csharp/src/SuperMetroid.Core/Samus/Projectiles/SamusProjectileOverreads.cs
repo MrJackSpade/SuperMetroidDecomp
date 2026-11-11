@@ -7,7 +7,9 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>
 /// The compatibility services Samus's projectiles consult where their glitch paths read past the data the original game
 /// meant them to read (#1474, #1500): what the projectile system hands its trails, combos, firing, impacts, Chainsaw
-/// fuse and crash echoes as it builds them. Lifetime: the installation's, shared by every projectile system.
+/// fuse and crash echoes as it builds them, and the terrain a Wave shot's scan past the room's ceiling finds straddling
+/// two blocks, which it hands its terrain collision (#1612). Lifetime: the installation's, shared by every projectile
+/// system.
 /// </summary>
 public sealed class SamusProjectileOverreads
 {
@@ -19,6 +21,7 @@ public sealed class SamusProjectileOverreads
     /// <param name="postureAdmission">Whether the posture-transition admission admits weapons for a pose outside its table.</param>
     /// <param name="unauthoredBeamFiring">The speeds a Spazer and Plasma beam launches at and the cooldowns it waits.</param>
     /// <param name="drainedCrashDepartures">The angles a Shinespark crash finishing in a drained pose releases its echoes at.</param>
+    /// <param name="straddledTerrain">The terrain a Wave shot's scan past the room's ceiling finds straddling two blocks.</param>
     internal SamusProjectileOverreads(
         TrailStartPastPlacements<SamusProjectileProgram, ProjectileTrailPlacementList, ProjectileTrailPlacement> trailStarts,
         SpaceTimeProgressionOverwrite<SamusProjectileSegmentBeat, ProgressionOverwrite> spaceTimeOverwrite,
@@ -26,7 +29,8 @@ public sealed class SamusProjectileOverreads
         ChargeFlareDelaysBelowPrograms chargeFlareDelays,
         PostureAdmissionBeyondTransitions<SamusPoseId> postureAdmission,
         UnauthoredBeamFiring<SamusBeamCombination> unauthoredBeamFiring,
-        DrainedCrashEchoDepartures<SamusPoseId, ShinesparkDepartureAngles> drainedCrashDepartures)
+        DrainedCrashEchoDepartures<SamusPoseId, ShinesparkDepartureAngles> drainedCrashDepartures,
+        StraddledTerrain straddledTerrain)
     {
         TrailStarts = Ensure.NotNull(trailStarts);
         SpaceTimeOverwrite = Ensure.NotNull(spaceTimeOverwrite);
@@ -35,6 +39,7 @@ public sealed class SamusProjectileOverreads
         PostureAdmission = Ensure.NotNull(postureAdmission);
         UnauthoredBeamFiring = Ensure.NotNull(unauthoredBeamFiring);
         DrainedCrashDepartures = Ensure.NotNull(drainedCrashDepartures);
+        StraddledTerrain = Ensure.NotNull(straddledTerrain);
     }
 
     /// <summary>Where a projectile trail starts when its read passes its placement list.</summary>
@@ -57,4 +62,7 @@ public sealed class SamusProjectileOverreads
 
     /// <summary>The angles a Shinespark crash finishing in a drained pose releases its echoes at, read past its table.</summary>
     internal DrainedCrashEchoDepartures<SamusPoseId, ShinesparkDepartureAngles> DrainedCrashDepartures { get; }
+
+    /// <summary>The terrain a Wave shot's scan past the room's ceiling finds straddling two blocks.</summary>
+    internal StraddledTerrain StraddledTerrain { get; }
 }

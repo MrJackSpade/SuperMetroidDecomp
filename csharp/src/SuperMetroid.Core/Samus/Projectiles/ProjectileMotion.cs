@@ -148,10 +148,7 @@ internal sealed class ProjectileMotion
         // or clips the shot. The span scanners below now publish ordinary shootable-block
         // room objects while intentionally discarding their collision result, matching this fallthrough.
         if (MovesHorizontally(direction))
-        {
-            slot.Position = slot.Position.AdvanceX(slot.Velocity.X.ToSixteenSixteenDelta());
-            ProjectileTerrainCollision.ScanHorizontalWaveShotReactions(level, slot, roomObjects);
-        }
+            _terrainCollision.MoveWaveShotHorizontally(level, slot, roomObjects);
         if (MovesVertically(direction))
         {
             slot.Position = slot.Position.AdvanceY(slot.Velocity.Y.ToSixteenSixteenDelta());

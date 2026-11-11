@@ -35,8 +35,13 @@ public static class SamusOverreadFiles
 
     /// <summary>Validates the installed file's provenance and digest, then loads it.</summary>
     /// <param name="directory">Installed overread directory holding the file and its manifest.</param>
+    /// <param name="straddledTerrain">
+    /// The installed terrain a Wave shot's scan past the room's ceiling finds straddling two blocks, which the projectiles'
+    /// group of services carries (#1612).
+    /// </param>
     /// <exception cref="InvalidDataException">The manifest, digest, provenance or file shape is invalid.</exception>
-    public static SamusOverreadServices Load(string directory) => SamusOverreadServicesReader.Read(LoadDocument(directory));
+    public static SamusOverreadServices Load(string directory, StraddledTerrain straddledTerrain) =>
+        SamusOverreadServicesReader.Read(LoadDocument(directory), straddledTerrain);
 
     /// <summary>
     /// Loads the colours Samus's palette loaders read past their tables from a verified overread installation, which

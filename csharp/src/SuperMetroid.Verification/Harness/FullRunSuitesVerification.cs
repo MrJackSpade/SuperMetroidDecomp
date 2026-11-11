@@ -684,6 +684,8 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyWrapShotWidths), () => VerifyWrapShotWidths("csharp/test-fixtures/movement-release/wrap-width-409.csv")),
         new(nameof(VerifyCeilingWrapObjectTrace), () => VerifyCeilingWrapObjectTrace("csharp/test-fixtures/movement-release/ceiling-plm-410.csv")),
         new(nameof(VerifyKronicGateBeamCollision), () => VerifyKronicGateBeamCollision()),
+        new(nameof(SuperMetroid.Verification.Rooms.LevelData.StraddledTerrainVerification.VerifyStraddledTerrain),
+            SuperMetroid.Verification.Rooms.LevelData.StraddledTerrainVerification.VerifyStraddledTerrain),
         new(nameof(VerifyGateJumpTraces), () => VerifyGateJumpTraces()),
         new(nameof(VerifyRightFacingGateGlitches), () => VerifyRightFacingGateGlitches()),
         new(nameof(VerifyGreenHillGrappleSpeedGateGlitch), () => VerifyGreenHillGrappleSpeedGateGlitch()),

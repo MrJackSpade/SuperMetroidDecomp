@@ -54,7 +54,7 @@ internal static class PowampSpikeBehaviorVerification
 
     /// <summary>The typed program <paramref name="projectile"/> runs.</summary>
     private static PowampSpikeProgram ProgramOf(EnemyProjectile projectile) =>
-        projectile.Animation is PowampSpikeAnimation animation ? animation.Cursor.Program
+        projectile.Animation is PowampSpikeAnimation animation ? animation.PlayingSegment
             : throw new InvalidOperationException("The spike runs no typed program.");
 
     /// <summary>Runs the Powamp spike's program oracle and behavior suite.</summary>

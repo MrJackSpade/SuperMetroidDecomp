@@ -11,33 +11,35 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 /// </summary>
 internal static class PowampSpikeAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<PowampSpikeProgram, PowampSpikeFrame, EnemyProjectileCommonCue> Programs { get; } = new(
-        new Dictionary<PowampSpikeProgram, AnimationProgramStep<PowampSpikeProgram, PowampSpikeFrame, EnemyProjectileCommonCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<PowampSpikeProgram, PowampSpikeFrame, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<PowampSpikeProgram, AnimationBeat<PowampSpikeFrame, EnemyProjectileCommonCue>[]>
     {
         [P.Initial] =
         [
             Show(0, 6),
             Show(1, 6),
             Show(2, 6),
-            GoTo(P.Initial),
         ],
         [P.Delete] =
         [
             Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
-            Hold,
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<PowampSpikeProgram, Animation<PowampSpikeProgram>> StartingAt { get; } = new Dictionary<PowampSpikeProgram, Animation<PowampSpikeProgram>>
+    {
+        [P.Initial] = new([new(P.Initial, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Delete] = new([new(P.Delete, 0, 1, 1)], AnimationEnd.Holds),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<PowampSpikeProgram> StartingWith(PowampSpikeProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<PowampSpikeProgram, PowampSpikeFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => AnimationProgramStep<PowampSpikeProgram, PowampSpikeFrame, EnemyProjectileCommonCue>.Show(new(pose), duration);
+    private static AnimationBeat<PowampSpikeFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => new AnimationBeat<PowampSpikeFrame, EnemyProjectileCommonCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<PowampSpikeProgram, PowampSpikeFrame, EnemyProjectileCommonCue> Cue(EnemyProjectileCommonCue cue) => AnimationProgramStep<PowampSpikeProgram, PowampSpikeFrame, EnemyProjectileCommonCue>.Publish(cue);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<PowampSpikeProgram, PowampSpikeFrame, EnemyProjectileCommonCue> GoTo(PowampSpikeProgram program) => AnimationProgramStep<PowampSpikeProgram, PowampSpikeFrame, EnemyProjectileCommonCue>.GoTo(program);
-
-    /// <summary>Holds the last frame, as the sleep does.</summary>
-    private static AnimationProgramStep<PowampSpikeProgram, PowampSpikeFrame, EnemyProjectileCommonCue> Hold => AnimationProgramStep<PowampSpikeProgram, PowampSpikeFrame, EnemyProjectileCommonCue>.Hold;
+    private static AnimationBeat<PowampSpikeFrame, EnemyProjectileCommonCue> Cue(EnemyProjectileCommonCue cue) => new AnimationBeat<PowampSpikeFrame, EnemyProjectileCommonCue>.Event(cue);
 }

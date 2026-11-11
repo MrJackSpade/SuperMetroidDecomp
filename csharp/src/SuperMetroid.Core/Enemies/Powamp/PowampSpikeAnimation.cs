@@ -6,10 +6,13 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 
 /// <summary>Powamp spike's typed animation.</summary>
 internal sealed class PowampSpikeAnimation(PowampSpikeProgram program)
-    : EnemyProjectileProgramAnimation<PowampSpikeProgram, PowampSpikeFrame, EnemyProjectileCommonCue>(program)
+    : EnemyProjectileTypedAnimation<PowampSpikeProgram, PowampSpikeFrame, EnemyProjectileCommonCue>(PowampSpikeAnimations.StartingWith(program))
 {
     /// <inheritdoc/>
-    private protected override AnimationProgramSet<PowampSpikeProgram, PowampSpikeFrame, EnemyProjectileCommonCue> Programs => PowampSpikeAnimations.Programs;
+    private protected override AnimationSegments<PowampSpikeProgram, PowampSpikeFrame, EnemyProjectileCommonCue> Segments => PowampSpikeAnimations.Segments;
+
+    /// <inheritdoc/>
+    private protected override IReadOnlyDictionary<PowampSpikeProgram, Animation<PowampSpikeProgram>> StartingAt => PowampSpikeAnimations.StartingAt;
 
     /// <inheritdoc/>
     private protected override EnemyProjectileFrameId Present(PowampSpikeFrame frame) =>

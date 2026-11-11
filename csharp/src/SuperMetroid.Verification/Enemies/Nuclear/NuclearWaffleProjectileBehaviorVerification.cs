@@ -29,7 +29,7 @@ internal static class NuclearWaffleProjectileBehaviorVerification
         AssertEqual(4, links.Length, "the initializer spawns four body links");
         foreach (EnemyProjectile link in links)
         {
-            AssertTrue(link.Animation is NuclearWaffleProjectileAnimation { Cursor.Program: NuclearWaffleProjectileProgram.Initial }, "a body link starts its loop");
+            AssertTrue(link.Animation is NuclearWaffleProjectileAnimation { PlayingSegment: NuclearWaffleProjectileProgram.Initial }, "a body link starts its loop");
             (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, link,
                 NuclearWaffleProjectileNativeListAddresses.Entry(NuclearWaffleProjectileProgram.Initial), 120, "Nuclear Waffle body link");
             AssertTrue(!deleted, "a body link loops");

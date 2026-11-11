@@ -24,6 +24,6 @@ internal static class SpacePirateProjectileNativeListAddresses
     ];
 
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, SpacePirateProjectileAnimations.Programs,
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, SpacePirateProjectileAnimations.Segments, SpacePirateProjectileAnimations.StartingAt,
         frame => EnemyProjectileProgramFrameSources.Operand(SpacePirateProjectileFrameDefinitions.ShownProjectileFrames[frame]), SpacePirateProjectileCueRules.Rules);
 }

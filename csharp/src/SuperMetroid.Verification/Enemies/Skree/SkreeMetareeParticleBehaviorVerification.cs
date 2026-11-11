@@ -42,7 +42,7 @@ internal static class SkreeMetareeParticleBehaviorVerification
             AssertEqual(4, particles.Length, $"the {program} burst spawns four particles");
             foreach (EnemyProjectile particle in particles)
             {
-                AssertTrue(particle.Animation is SkreeMetareeParticleAnimation animation && animation.Cursor.Program == program,
+                AssertTrue(particle.Animation is SkreeMetareeParticleAnimation animation && animation.PlayingSegment == program,
                     $"the {particle.Kind} particle starts the {program} program");
                 // SpawnEprojInner copies the definition's properties: four contact damage.
                 AssertTrue(particle.CanDamageSamus && particle.Damage == 4 && particle.InvincibilityFrames == 96,

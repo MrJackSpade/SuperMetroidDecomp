@@ -10,20 +10,25 @@ namespace SuperMetroid.Core.Enemies.Polyp;
 /// </summary>
 internal static class PolypRockAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<PolypRockProgram, PolypRockFrame, EnemyProjectileCommonCue> Programs { get; } = new(
-        new Dictionary<PolypRockProgram, AnimationProgramStep<PolypRockProgram, PolypRockFrame, EnemyProjectileCommonCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<PolypRockProgram, PolypRockFrame, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<PolypRockProgram, AnimationBeat<PolypRockFrame, EnemyProjectileCommonCue>[]>
     {
         [P.Initial] =
         [
             Show(0, 1),
-            Hold,
         ],
     });
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<PolypRockProgram, PolypRockFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => AnimationProgramStep<PolypRockProgram, PolypRockFrame, EnemyProjectileCommonCue>.Show(new(pose), duration);
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<PolypRockProgram, Animation<PolypRockProgram>> StartingAt { get; } = new Dictionary<PolypRockProgram, Animation<PolypRockProgram>>
+    {
+        [P.Initial] = new([new(P.Initial, 0, 1, 1)], AnimationEnd.Holds),
+    };
 
-    /// <summary>Holds the last frame, as the sleep does.</summary>
-    private static AnimationProgramStep<PolypRockProgram, PolypRockFrame, EnemyProjectileCommonCue> Hold => AnimationProgramStep<PolypRockProgram, PolypRockFrame, EnemyProjectileCommonCue>.Hold;
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<PolypRockProgram> StartingWith(PolypRockProgram segment) => StartingAt[segment];
+
+    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<PolypRockFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => new AnimationBeat<PolypRockFrame, EnemyProjectileCommonCue>.Frame(new(pose), duration);
 }

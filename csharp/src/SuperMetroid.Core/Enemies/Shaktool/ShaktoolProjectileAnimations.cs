@@ -10,55 +10,57 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 /// </summary>
 internal static class ShaktoolProjectileAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<ShaktoolProjectileProgram, ShaktoolProjectileFrame, EnemyProjectileCommonCue> Programs { get; } = new(
-        new Dictionary<ShaktoolProjectileProgram, AnimationProgramStep<ShaktoolProjectileProgram, ShaktoolProjectileFrame, EnemyProjectileCommonCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<ShaktoolProjectileProgram, ShaktoolProjectileFrame, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<ShaktoolProjectileProgram, AnimationBeat<ShaktoolProjectileFrame, EnemyProjectileCommonCue>[]>
     {
         [P.Front] =
         [
             Show(0, 4),
             Show(1, 4),
-            FallInto(P.FrontLoop),
         ],
         [P.FrontLoop] =
         [
             Show(2, 119),
-            GoTo(P.FrontLoop),
         ],
         [P.Middle] =
         [
             Show(3, 6),
             Cue(new EnemyProjectileCommonCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.ShaktoolTrailingCircleFlight)),
             Show(4, 4),
-            FallInto(P.MiddleLoop),
         ],
         [P.MiddleLoop] =
         [
             Show(5, 119),
-            GoTo(P.MiddleLoop),
         ],
         [P.Back] =
         [
             Show(6, 10),
             Cue(new EnemyProjectileCommonCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.ShaktoolTrailingCircleFlight)),
-            FallInto(P.BackLoop),
         ],
         [P.BackLoop] =
         [
             Show(7, 119),
-            GoTo(P.BackLoop),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<ShaktoolProjectileProgram, Animation<ShaktoolProjectileProgram>> StartingAt { get; } = new Dictionary<ShaktoolProjectileProgram, Animation<ShaktoolProjectileProgram>>
+    {
+        [P.Front] = new([new(P.Front, 0, 2, 1), new(P.FrontLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.FrontLoop] = new([new(P.FrontLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Middle] = new([new(P.Middle, 0, 3, 1), new(P.MiddleLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.MiddleLoop] = new([new(P.MiddleLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Back] = new([new(P.Back, 0, 2, 1), new(P.BackLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.BackLoop] = new([new(P.BackLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<ShaktoolProjectileProgram> StartingWith(ShaktoolProjectileProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<ShaktoolProjectileProgram, ShaktoolProjectileFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => AnimationProgramStep<ShaktoolProjectileProgram, ShaktoolProjectileFrame, EnemyProjectileCommonCue>.Show(new(pose), duration);
+    private static AnimationBeat<ShaktoolProjectileFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => new AnimationBeat<ShaktoolProjectileFrame, EnemyProjectileCommonCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<ShaktoolProjectileProgram, ShaktoolProjectileFrame, EnemyProjectileCommonCue> Cue(EnemyProjectileCommonCue cue) => AnimationProgramStep<ShaktoolProjectileProgram, ShaktoolProjectileFrame, EnemyProjectileCommonCue>.Publish(cue);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<ShaktoolProjectileProgram, ShaktoolProjectileFrame, EnemyProjectileCommonCue> GoTo(ShaktoolProjectileProgram program) => AnimationProgramStep<ShaktoolProjectileProgram, ShaktoolProjectileFrame, EnemyProjectileCommonCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<ShaktoolProjectileProgram, ShaktoolProjectileFrame, EnemyProjectileCommonCue> FallInto(ShaktoolProjectileProgram program) => AnimationProgramStep<ShaktoolProjectileProgram, ShaktoolProjectileFrame, EnemyProjectileCommonCue>.FallInto(program);
+    private static AnimationBeat<ShaktoolProjectileFrame, EnemyProjectileCommonCue> Cue(EnemyProjectileCommonCue cue) => new AnimationBeat<ShaktoolProjectileFrame, EnemyProjectileCommonCue>.Event(cue);
 }

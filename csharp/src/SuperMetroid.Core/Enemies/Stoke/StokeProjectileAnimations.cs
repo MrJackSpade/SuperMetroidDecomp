@@ -10,21 +10,26 @@ namespace SuperMetroid.Core.Enemies.Stoke;
 /// </summary>
 internal static class StokeProjectileAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<StokeProjectileProgram, StokeProjectileFrame, EnemyProjectileCommonCue> Programs { get; } = new(
-        new Dictionary<StokeProjectileProgram, AnimationProgramStep<StokeProjectileProgram, StokeProjectileFrame, EnemyProjectileCommonCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<StokeProjectileProgram, StokeProjectileFrame, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<StokeProjectileProgram, AnimationBeat<StokeProjectileFrame, EnemyProjectileCommonCue>[]>
     {
         [P.Initial] =
         [
             Show(0, 16),
             Show(1, 16),
-            GoTo(P.Initial),
         ],
     });
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<StokeProjectileProgram, StokeProjectileFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => AnimationProgramStep<StokeProjectileProgram, StokeProjectileFrame, EnemyProjectileCommonCue>.Show(new(pose), duration);
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<StokeProjectileProgram, Animation<StokeProjectileProgram>> StartingAt { get; } = new Dictionary<StokeProjectileProgram, Animation<StokeProjectileProgram>>
+    {
+        [P.Initial] = new([new(P.Initial, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
+    };
 
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<StokeProjectileProgram, StokeProjectileFrame, EnemyProjectileCommonCue> GoTo(StokeProjectileProgram program) => AnimationProgramStep<StokeProjectileProgram, StokeProjectileFrame, EnemyProjectileCommonCue>.GoTo(program);
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<StokeProjectileProgram> StartingWith(StokeProjectileProgram segment) => StartingAt[segment];
+
+    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<StokeProjectileFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => new AnimationBeat<StokeProjectileFrame, EnemyProjectileCommonCue>.Frame(new(pose), duration);
 }

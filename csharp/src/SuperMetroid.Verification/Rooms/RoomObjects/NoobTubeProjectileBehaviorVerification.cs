@@ -35,7 +35,7 @@ internal static class NoobTubeProjectileBehaviorVerification
 
         RoomEnemySystem crackSystem = NewSystem();
         EnemyProjectile crack = Spawn(crackSystem, RoomEnemyProjectileKind.NoobTubeCrack, piece: null);
-        AssertTrue(crack.Animation is NoobTubeProjectileAnimation { Cursor.Program: NoobTubeProjectileProgram.Crack },
+        AssertTrue(crack.Animation is NoobTubeProjectileAnimation { PlayingSegment: NoobTubeProjectileProgram.Crack },
             "real n00b-tube crack producer starts the crack program");
         AssertEqual(48, RunThroughDeletion(crackSystem, crack, maximumTicks: 64),
             "n00b-tube crack completes 47 frames and its terminal deletion tick");
@@ -51,7 +51,7 @@ internal static class NoobTubeProjectileBehaviorVerification
         {
             RoomEnemySystem shardSystem = NewSystem();
             EnemyProjectile shard = Spawn(shardSystem, RoomEnemyProjectileKind.NoobTubeShard, piece);
-            AssertTrue(shard.Animation is NoobTubeProjectileAnimation animation && animation.Cursor.Program == shards[piece],
+            AssertTrue(shard.Animation is NoobTubeProjectileAnimation animation && animation.PlayingSegment == shards[piece],
                 $"real n00b-tube shard producer selects shard {piece}'s program");
             AssertEqual(305, RunThroughDeletion(shardSystem, shard, maximumTicks: 320),
                 $"n00b-tube shard {piece} completes both counted flicker phases");
@@ -61,7 +61,7 @@ internal static class NoobTubeProjectileBehaviorVerification
         {
             RoomEnemySystem bubbleSystem = NewSystem();
             EnemyProjectile bubble = Spawn(bubbleSystem, RoomEnemyProjectileKind.NoobTubeReleasedAirBubble, piece);
-            AssertTrue(bubble.Animation is NoobTubeProjectileAnimation { Cursor.Program: NoobTubeProjectileProgram.ReleasedAirBubble },
+            AssertTrue(bubble.Animation is NoobTubeProjectileAnimation { PlayingSegment: NoobTubeProjectileProgram.ReleasedAirBubble },
                 $"real released-air-bubble producer for bubble {piece} starts the bubble program");
             AssertEqual(16, RunThroughDeletion(bubbleSystem, bubble, maximumTicks: 24),
                 $"released-air bubble {piece} completes fifteen frames and deletion");
@@ -243,7 +243,7 @@ internal static class NoobTubeProjectileBehaviorVerification
             {
                 // A flicker program's list begins with its flicker command: odd frames show its first operand at the
                 // shard's column; even frames show the reflected operand mirrored across the tube, or hide the shard.
-                ushort entry = NoobTubeProjectileNativeListAddresses.Entry(animation.Cursor.Program);
+                ushort entry = NoobTubeProjectileNativeListAddresses.Entry(animation.PlayingSegment);
                 var command = (NativeEnemyProjectileInstruction)cartridge.ReadCartridgeWordFixedBank(NativeEnemyProjectileListDefinitions.ProjectileBank | entry);
                 bool oddFrame = (system.Projectiles.CurrentFrame8 & 1) != 0;
                 if (command == NativeEnemyProjectileInstruction.NoobTubeShardReflectFlicker)

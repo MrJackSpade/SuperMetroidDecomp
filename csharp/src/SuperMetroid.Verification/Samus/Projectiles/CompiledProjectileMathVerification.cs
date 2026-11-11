@@ -32,7 +32,8 @@ internal static class CompiledProjectileMathVerification
         var fly = new Func<int, int>(FliesBehavior.ReadSignedSineCosine);
         var eye = new Func<int, int>(index => EyeDoorBehavior.ReadEyeDoorAcceleration(index).SignedRawValue);
         var rio = new Func<byte, int>(angle => RioBehavior.ReadRioSignedSineCosineSample(new TrigonometryAngle(angle)).RawValue);
-        var shaktool = new Func<int, int>(index => ShaktoolBehavior.ReadShaktoolCommonSineSample(index).RawValue);
+        // The native view's index runs a quarter turn ahead of the angle it holds: its first 64 words are the negative cosine.
+        var shaktool = new Func<int, int>(index => ShaktoolBehavior.ReadShaktoolCommonSineSample(TrigonometryAngle.Wrapped(index - 64)).RawValue);
         var phantoon = new Func<ushort, ushort, int>((angle, radius) => PhantoonCombat.ReadPhantoonFlameComponent(new TrigonometryAngle(unchecked((byte)angle)), radius));
         var arc = new Action<EnemyProjectile, int>(NoobTubeBehavior.MoveNoobTubeProjectileHorizontallyAlongArc);
         var crocomire = new Func<byte, EightEightVector<RoomPixels>>(bearing => CrocomireCombat.CalculateCrocomireProjectileVelocity(new Bearing(bearing)));

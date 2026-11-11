@@ -14,11 +14,14 @@ internal static class ShaktoolOrbitAlgorithmVerification
             int address = EnemyMathReferenceData.ShaktoolOrbit + 2 * index;
             return unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
         }
+        // The native table's index runs a quarter turn behind the angle it holds: its first 64 words are the negative
+        // cosine, so word i holds the angle i + 192 within a turn.
         for (int index = 0; index < 320; index++)
         {
             short original = Original(index);
-            AssertEqual(original, ShaktoolOrbitTables.Sample(index), $"Original Shaktool word {index}");
-            decimal value = ShaktoolOrbitTables.UnquantizedSample(index);
+            TrigonometryAngle held = TrigonometryAngle.Wrapped(index + 192);
+            AssertEqual(original, ShaktoolOrbitTables.SampleAt(held), $"Original Shaktool word {index}");
+            decimal value = ShaktoolOrbitTables.UnquantizedSampleAt(held);
             const decimal error = 3072 * 0.0000000000000000001m;
             AssertEqual(original, decimal.Truncate(value - error), $"Orbit lower bound {index}");
             AssertEqual(original, decimal.Truncate(value + error), $"Orbit upper bound {index}");
@@ -28,8 +31,5 @@ internal static class ShaktoolOrbitAlgorithmVerification
                     SignedSixteenSixteen.FromRaw(EightEight.FromWhole(Original(angle + 64))),
                     SignedSixteenSixteen.FromRaw(EightEight.FromWhole(Original(angle)))),
                 ShaktoolOrbitTables.Displacement(new TrigonometryAngle((byte)angle)), $"Shaktool displacement {angle}");
-        foreach (int invalid in new[] { int.MinValue, -1, 320, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => ShaktoolOrbitTables.Sample(invalid),
-                $"Orbit invalid index {invalid}");
     }
 }

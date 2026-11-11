@@ -460,18 +460,15 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the one-frame sine movement helper.</summary>
     private static void MoveShaktoolSegmentForAnimation(RoomEnemySlot slot, TrigonometryAngle angle)
     {
-        // The decompilation names a 320-word view whose indices 64..319 are the game's
-        // 256-word table. Convert those full-view indices explicitly: X reads
-        // full[angle+64], while Y reads full[angle]. A naïve +64 on the authored table rotates
-        // both components by a quarter turn.
-        SignedEightEight xVelocity = ReadShaktoolCommonSineSample(angle.RawValue + 64);
-        SignedEightEight yVelocity = ReadShaktoolCommonSineSample(angle.RawValue);
+        // X reads the shared signed sine at the angle and Y the sine a quarter turn behind it, the negative cosine.
+        SignedEightEight xVelocity = ReadShaktoolCommonSineSample(angle);
+        SignedEightEight yVelocity = ReadShaktoolCommonSineSample(angle.TurnedBy(TrigonometryAngle.HalfTurn).TurnedBy(TrigonometryAngle.QuarterTurn));
         slot.Position = slot.Position.Advance(new(xVelocity.ToSixteenSixteenDelta(), yVelocity.ToSixteenSixteenDelta()));
     }
 
-    /// <summary>Maps the Shaktool orbit index into the shared signed enemy sine table.</summary>
-    internal static SignedEightEight ReadShaktoolCommonSineSample(int fullTableIndex) =>
-        SignedEightEight.FromSignedRaw(Trigonometry.SignedSine(TrigonometryAngle.Wrapped(fullTableIndex - 64)));
+    /// <summary>The shared signed enemy sine at <paramref name="angle"/>, in 256ths of a pixel.</summary>
+    internal static SignedEightEight ReadShaktoolCommonSineSample(TrigonometryAngle angle) =>
+        SignedEightEight.FromSignedRaw(Trigonometry.SignedSine(angle));
 
     /// <summary>
     /// Implements Shaktool's fatal-shot tail: a hit that kills one segment deletes the enemies the room lists first

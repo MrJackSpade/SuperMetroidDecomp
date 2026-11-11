@@ -102,18 +102,18 @@ public static class RoomObjectCollectibleVisualFiles
     /// <exception cref="InvalidDataException">A selector or a block pair's frame differs from the cartridge.</exception>
     private static void VerifyBlockPairs(ISnesAddressSpace bus)
     {
-        for (int pair = 0; pair < CollectibleBlockPairs.Count; pair++)
+        for (int selector = 0; selector < CollectibleBlockPairs.InTurn.Count; selector++)
         for (int animation = 0; animation < CollectiblePicture.Frames; animation++)
         {
             int table = animation == 0
                 ? RoomObjectDrawSourceDefinitions.CollectibleDynamicFrame0Table.Offset
                 : RoomObjectDrawSourceDefinitions.CollectibleDynamicFrame1Table.Offset;
-            int native = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(table + pair * 2)))));
+            int native = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(table + selector * 2)))));
             int compiled = RoomObjectDrawAddressCodec.Of(CollectibleObjectDraws.VisibleFrame(
-                InWorldCollectibleKind.Bombs, animation, pair));
+                InWorldCollectibleKind.Bombs, animation, CollectibleBlockPairs.InTurn[selector]));
             if (native != compiled)
                 throw new InvalidDataException(
-                    $"Collectible block pair selector $84:{table + pair * 2:X4} differs from the cartridge.");
+                    $"Collectible block pair selector $84:{table + selector * 2:X4} differs from the cartridge.");
         }
         foreach (RoomObjectCollectibleDrawFrame frame in All.Where(frame => !IsEditable(frame.Draw)))
         {

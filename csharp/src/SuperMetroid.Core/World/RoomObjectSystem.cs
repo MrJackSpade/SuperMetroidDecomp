@@ -125,7 +125,12 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
     /// <param name="room">The room the objects live in.</param>
     /// <param name="services">The room's service owners; each room-object family receives the ones it uses.</param>
     /// <param name="visuals">The host's installed room-object artwork.</param>
-    internal RoomObjectSystem(RoomObjectRoom room, RoomObjectServices services, RoomObjectVisuals visuals)
+    /// <param name="collectibleBlockPairs">
+    /// The room's own block pairs its collectibles that show their own picture take in turn, created with the system by
+    /// its builder so each room starts at the first pair.
+    /// </param>
+    internal RoomObjectSystem(RoomObjectRoom room, RoomObjectServices services, RoomObjectVisuals visuals,
+        CollectibleBlockPairs collectibleBlockPairs)
     {
         Ensure.NotNull(room);
         Ensure.NotNull(services);
@@ -149,7 +154,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
         Gates = new GateObjects(services.Samus, SlotTable, Sounds);
         MotherBrainGlass = new MotherBrainGlassObjects(services.Bosses, services.Events, Sounds);
         Stations = new StationObjects(room.System, services.Samus, Drawing, SlotTable, Sounds);
-        CollectibleObjects = new CollectibleObjects(room.System, services.Samus, services.RoomFx, Drawing, SlotTable);
+        CollectibleObjects = new CollectibleObjects(room.System, services.Samus, services.RoomFx, Drawing, SlotTable, collectibleBlockPairs);
         EyeDoors = new EyeDoorObjects(room.System, services.Samus, services.Enemies, Sounds);
         DoorObjects = new DoorObjects(room.System, SlotTable, Sounds);
         GreyDoors = new GreyDoorObjects(room.System, room.AreaIndex, services.TourianStatue, Sounds);

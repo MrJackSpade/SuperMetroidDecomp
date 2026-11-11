@@ -48,7 +48,7 @@ internal static class XrayRevealVisualInstallationVerification
         // The tanks' draws follow the four that reveal the item in each block pair (#1538).
         for (int tank = 0; tank < InstalledXrayOverlays.TankCount; tank++)
         {
-            ushort pointer = NativeWord(SamusSourceDefinitions.ItemDrawPointers.Value + (SuperMetroid.Core.Compatibility.CollectibleBlockPairs.Count + tank) * 2);
+            ushort pointer = NativeWord(SamusSourceDefinitions.ItemDrawPointers.Value + (SuperMetroid.Core.Compatibility.CollectibleBlockPairs.InTurn.Count + tank) * 2);
             InWorldCollectibleKind kind = InWorldCollectibleKind.EnergyTank + tank;
             AssertEqual(RoomLevelWordCodec.DecodeAppearance(NativeWord(SamusSourceDefinitions.XrayItemDrawBank.Value | (pointer + 2))),
                 overlays.TankMetatile(kind), $"stock X-ray {kind} reveal");

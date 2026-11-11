@@ -42,8 +42,10 @@ internal static class CollectiblePicturesVerification
     internal static void VerifyCollectiblePictures()
     {
         var pairs = new CollectibleBlockPairs();
-        int[] taken = [.. Enumerable.Range(0, Kinds.Length).Select(_ => pairs.Take())];
-        AssertTrue(taken.SequenceEqual([0, 1, 2, 3, 0]), "collectibles take the four block pairs in turn, the fifth taking the first again");
+        CollectibleBlockPairs.Pair[] taken = [.. Enumerable.Range(0, Kinds.Length).Select(_ => pairs.Take())];
+        AssertTrue(taken.SequenceEqual([CollectibleBlockPairs.Pair.First, CollectibleBlockPairs.Pair.Second,
+                CollectibleBlockPairs.Pair.Third, CollectibleBlockPairs.Pair.Fourth, CollectibleBlockPairs.Pair.First]),
+            "collectibles take the four block pairs in turn, the fifth taking the first again");
 
         var bus = new TestAddressSpace();
         CollectiblesVerification.SeedCollectibleRom(bus);
@@ -70,7 +72,7 @@ internal static class CollectiblePicturesVerification
         for (int item = 0; item < Kinds.Length; item++)
         {
             int blockIndex = size.RowMajorIndex(new Position16<RoomBlocks>((ushort)(item + 1), 1));
-            AssertEqual(RoomBlockAppearance.Of(FirstPairFirstFrameBlock + item % CollectibleBlockPairs.Count * 2),
+            AssertEqual(RoomBlockAppearance.Of(FirstPairFirstFrameBlock + item % CollectibleBlockPairs.InTurn.Count * 2),
                 level.GetCollisionBlockByIndex(blockIndex).Terrain.Appearance,
                 $"{Kinds[item]} writes its block pair's first-frame block into the terrain");
             AssertEqual(CollectibleCellPictures.DefinitionOf(new CollectiblePicture(Kinds[item], 0)),

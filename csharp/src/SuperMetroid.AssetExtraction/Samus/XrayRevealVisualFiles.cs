@@ -89,15 +89,16 @@ public static class XrayRevealVisualFiles
             .ToArray();
         // The first draws reveal the item set up in each block pair as that pair's first frame, which shows the item's own
         // picture; the port reveals such an item as its kind's first frame (#1538). The tanks' draws follow, in tank order.
-        for (int pair = 0; pair < CollectibleBlockPairs.Count; pair++)
+        for (int draw = 0; draw < CollectibleBlockPairs.InTurn.Count; draw++)
         {
+            CollectibleBlockPairs.Pair pair = CollectibleBlockPairs.InTurn[draw];
             RoomBlockAppearance firstFrame = CollectibleObjectDraws.TryGetBlockPairTerrain(CollectibleObjectDraws.VisibleFrame(InWorldCollectibleKind.Bombs, 0, pair),
                 out RoomTerrainBlock written) ? written.Appearance
                 : throw new InvalidOperationException($"Block pair {pair}'s first frame writes no block pair's terrain.");
-            if (ItemDrawAppearance(bus, pair) != firstFrame)
+            if (ItemDrawAppearance(bus, draw) != firstFrame)
                 throw new InvalidDataException($"The X-ray reveals the item in block pair {pair} other than by the pair's first frame.");
         }
-        RoomBlockAppearance[] tankMetatiles = Enumerable.Range(CollectibleBlockPairs.Count, InstalledXrayOverlays.TankCount)
+        RoomBlockAppearance[] tankMetatiles = Enumerable.Range(CollectibleBlockPairs.InTurn.Count, InstalledXrayOverlays.TankCount)
             .Select(index => ItemDrawAppearance(bus, index)).ToArray();
         XrayRoomOverlayEntry[] rooms = XrayRoomOverlaySources.Pointers
             .Select(pointer => ReadRoomOverlay(bus, pointer)).ToArray();

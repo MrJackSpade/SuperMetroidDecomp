@@ -13,24 +13,41 @@ namespace SuperMetroid.Core.Compatibility;
 /// </summary>
 /// <remarks>
 /// Taken by the room's collectible setup, once for each collectible that shows its own picture, as the room's object
-/// population loads. Evidence: the original item setup rotates a counter through four allocations and writes each
-/// item's frames as the blocks of its allocation; the collectible draw check compares the compiled frames of every pair
-/// with the original draw lists.
+/// population loads. Created by the room's loader with each room's room objects and handed to their collectibles, so
+/// each room starts at the first pair. Evidence: the original item setup rotates a counter through four allocations and
+/// writes each item's frames as the blocks of its allocation; the collectible draw check compares the compiled frames of
+/// every pair with the original draw lists.
 /// </remarks>
 [CompatibilityService("a room's collectibles that show their own picture write their frames into four pairs of terrain blocks taken in turn, whose numbers a Wave shot's straddled read sees")]
 public sealed class CollectibleBlockPairs
 {
-    /// <summary>The pairs collectibles take in turn.</summary>
-    public const int Count = 4;
-
-    /// <summary>The pair the next collectible takes.</summary>
-    private int next;
-
-    /// <summary>The pair the next collectible set up takes, zero through <see cref="Count"/> less one; the one after takes the following pair.</summary>
-    public int Take()
+    /// <summary>One of the four pairs of terrain blocks, named by its place in the turn the room's collectibles take them in.</summary>
+    public enum Pair
     {
-        int pair = next;
-        next = (next + 1) % Count;
+        /// <summary>The pair the room's first collectible that shows its own picture takes, and its fifth.</summary>
+        First,
+
+        /// <summary>The pair the room's second collectible that shows its own picture takes.</summary>
+        Second,
+
+        /// <summary>The pair the room's third collectible that shows its own picture takes.</summary>
+        Third,
+
+        /// <summary>The pair the room's fourth collectible that shows its own picture takes.</summary>
+        Fourth,
+    }
+
+    /// <summary>The pairs, in the turn the room's collectibles take them in.</summary>
+    public static IReadOnlyList<Pair> InTurn { get; } = [Pair.First, Pair.Second, Pair.Third, Pair.Fourth];
+
+    /// <summary>How far through <see cref="InTurn"/> the next collectible's pair lies.</summary>
+    private int _turn;
+
+    /// <summary>The pair the next collectible set up takes; the one after takes the following pair, the fourth's the first again.</summary>
+    public Pair Take()
+    {
+        Pair pair = InTurn[_turn];
+        _turn = (_turn + 1) % InTurn.Count;
         return pair;
     }
 }

@@ -22,20 +22,25 @@ internal sealed class CollectibleObjects
     private readonly IRoomObjectDrawing _drawing;
     /// <summary>Enumerates active item room objects by slot ordinal.</summary>
     private readonly RoomObjectSlotTable _slotTable;
-    /// <summary>Connects the collectibles to room state and drawing.</summary>
-    internal CollectibleObjects(SharedGameState? system, IRoomSamusAccess? samus, IRoomFxMotion? roomFx, IRoomObjectDrawing drawing, RoomObjectSlotTable slotTable)
+    /// <summary>
+    /// Connects the collectibles to room state and drawing, and to the room's block pairs, which its collectibles that
+    /// show their own picture take in turn.
+    /// </summary>
+    internal CollectibleObjects(SharedGameState? system, IRoomSamusAccess? samus, IRoomFxMotion? roomFx, IRoomObjectDrawing drawing, RoomObjectSlotTable slotTable,
+        CollectibleBlockPairs blockPairs)
     {
         _system = system;
         _samus = samus;
         _roomFx = roomFx;
         _drawing = drawing;
         _slotTable = slotTable;
+        _blockPairs = Ensure.NotNull(blockPairs);
     }
 
     /// <summary>Pickup events published by the current room-object handler pass.</summary>
     private readonly List<CollectiblePickupEvent> _collectiblePickupEvents = new();
     /// <summary>The terrain block pairs the room's collectibles that show their own picture take in turn.</summary>
-    private readonly CollectibleBlockPairs _blockPairs = new();
+    private readonly CollectibleBlockPairs _blockPairs;
     /// <summary>One-shot fanfare edge independent of the retained pickup event list.</summary>
     private bool _collectibleFanfareRequested;
     /// <summary>Delays the Speed Booster Chozo lava motion write until message return.</summary>
@@ -179,7 +184,7 @@ internal sealed class CollectibleObjects
         RoomCollisionBlock original = level.GetCollisionBlock(slot.Block);
         bool collected = slot.Argument is CollectedItemArgument placedItem &&
             system.HasCollectedItem(placedItem.Location);
-        int? blockPair = ShowsOwnPicture(kind) ? _blockPairs.Take() : null;
+        CollectibleBlockPairs.Pair? blockPair = ShowsOwnPicture(kind) ? _blockPairs.Take() : null;
 
         RoomTerrainBlock setup = original.Terrain.WithCollision(
             presentation == CollectiblePresentation.ShotBlock ? RoomCollisionType.ShootableBlock : RoomCollisionType.Air);

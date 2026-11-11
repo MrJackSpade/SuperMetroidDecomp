@@ -48,7 +48,7 @@ internal sealed class SpriteSheetEncoder : IDisposable
     internal EncodedSpriteSheet Encode(SpriteSheetPlanes planes, SpriteSheetDocument manifest)
     {
         Ensure.NotNull(manifest);
-        InstalledSheetLayers installed = InstalledSheetColouring.Install(manifest, planes.PaletteIndices, planes.FrontTiles);
+        InstalledSheetLayers installed = InstalledSheetColouring.Install(manifest, planes.PaletteIndices);
         byte[] image = RgbaPng.Encode(planes.Size, planes.Pixels, png);
         byte[] palette = RgbaPng.Encode(planes.Size, PaletteImage(installed.Inks), png);
         return new EncodedSpriteSheet(image, palette, SpriteSheetManifestWriter.Write(installed.Manifest));

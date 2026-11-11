@@ -10,9 +10,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// <param name="size">The sheet's width and height.</param>
 /// <param name="pixels">Each pixel's colour; zero alpha is transparent.</param>
 /// <param name="paletteIndices">Each pixel's colour group's place times sixteen plus its colour, zero where transparent.</param>
-/// <param name="frontTiles">One where the pixel lies in one of its layer's front tiles (#1514), zero elsewhere and for every pixel of an actor's frame.</param>
-internal readonly ref struct SpriteSheetPlanes(Extent16<ImagePixels> size, Span<RgbaPixel> pixels, Span<byte> paletteIndices,
-    Span<byte> frontTiles)
+internal readonly ref struct SpriteSheetPlanes(Extent16<ImagePixels> size, Span<RgbaPixel> pixels, Span<byte> paletteIndices)
 {
     /// <summary>The sheet's width and height.</summary>
     internal Extent16<ImagePixels> Size { get; } = size;
@@ -22,7 +20,4 @@ internal readonly ref struct SpriteSheetPlanes(Extent16<ImagePixels> size, Span<
 
     /// <summary>Each pixel's colour group's place times sixteen plus its colour, zero where transparent.</summary>
     internal Span<byte> PaletteIndices { get; } = paletteIndices;
-
-    /// <summary>One where the pixel lies in one of its layer's front tiles (#1514), zero elsewhere and for every pixel of an actor's frame.</summary>
-    internal Span<byte> FrontTiles { get; } = frontTiles;
 }

@@ -17,7 +17,9 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// tileset's rooms place that shows its own picture, pictured from the collectible's own graphics alone (#1538). No block
 /// is pictured over a collectible's graphics. Each picture is coloured with the tileset's standard background palette and
 /// named by <see cref="RoomBlockPictureNames"/> from the block's index and the inputs' values, or from the collectible's
-/// kind and frame; with the inputs each block depends on, which the room reads to choose among them.
+/// kind and frame; with the inputs each block depends on, which the room reads to choose among them. Each block, cell and
+/// background picture is installed as its two parts (#1634): the pixels of its back tiles under its own name and those of its
+/// front tiles under <see cref="PictureParts.InFront"/>'s, so the room's passes choose pictures rather than pixels.
 /// </summary>
 internal static class RoomBlockSheetComposer
 {
@@ -97,7 +99,7 @@ internal static class RoomBlockSheetComposer
         Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>> bytes = load.GroupBy(placement => placement.Identity)
             .ToDictionary(group => group.Key, group => group.First().Bytes);
         RgbColor[] colours = RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette));
-        var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(RoomBackgroundImageGeometry.PagePixels, checked((ushort)(background.Words.Length / RoomBackgroundImageGeometry.PageTiles * RoomTileCanvas.CharacterPixels))));
+        var canvas = new RoomTileCanvas(RoomBackgroundImageGeometry.ImageSize(background.Words.Length));
         ImageColourGroups groups = ImageColourGroups.None;
         for (int index = 0; index < background.Words.Length; index++)
         {
@@ -119,7 +121,7 @@ internal static class RoomBlockSheetComposer
                 ColourGroups = groups.ManifestMembers,
             },
         };
-        return new ComposedRoomBackground(canvas.ToRoomSheet(colours, frames), background.Words, cells);
+        return new ComposedRoomBackground(canvas.ToSplitRoomSheet(colours, frames), background.Words, cells);
     }
 
     /// <summary>
@@ -229,7 +231,7 @@ internal static class RoomBlockSheetComposer
             });
             index++;
         }
-        ComposedSpriteSheet sheet = canvas.ToRoomSheet(colours, frames);
+        ComposedSpriteSheet sheet = canvas.ToSplitRoomSheet(colours, frames);
         // The tileset's rooms show its first background colour where nothing is drawn (#1544).
         return new ComposedBlocks(sheet with { Manifest = sheet.Manifest with { Backdrop = RoomBackdropIndex } },
             new RoomBlockAppearances(tilesetInputs, spriteInputs), cells);

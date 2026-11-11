@@ -25,7 +25,7 @@ internal static class GameplayShadingProbe
             Backdrop = 0,
             Shades = roomShades.Distinct().ToImmutableDictionary(shade => shade, _ => new ShadeInks([], [])),
         };
-        return frame.Build(SpriteImageFixtures.Copied("Room", new(1, 1), [default], [SpriteImageInk.Transparent(frontTile: false)], colours))
+        return frame.Build(SpriteImageFixtures.Copied("Room", new(1, 1), [default], [SpriteImageInk.Transparent], colours))
             .Of(pictures);
     }
 }

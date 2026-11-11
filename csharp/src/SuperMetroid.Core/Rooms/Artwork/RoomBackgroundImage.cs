@@ -20,20 +20,34 @@ public sealed class RoomBackgroundImage
     /// <summary>Pixels along a cell's side.</summary>
     public const int CellPixels = 16;
 
-    /// <summary>Checks the picture is whole cells across and down, and that each changing cell lies in it once.</summary>
+    /// <summary>
+    /// Checks the image is whole cells across and down, that each installed part of its picture (#1634) is the image's size,
+    /// and that each changing cell lies in it once.
+    /// </summary>
+    /// <param name="name">The background's installed name.</param>
+    /// <param name="sheet">The image's sheet, which installs the picture's parts as <see cref="FrameName"/>'s.</param>
+    /// <param name="size">The image's width and height, which a part that shows nothing does not record.</param>
+    /// <param name="cells">The cells whose pictures change with the room's appearance inputs.</param>
     /// <exception cref="InvalidDataException">
-    /// The picture is not whole cells across and down, or a cell lies outside it or repeats.
+    /// The image is not whole cells across and down, a part of its picture is not its size, or a cell lies outside it or
+    /// repeats.
     /// </exception>
-    public RoomBackgroundImage(string name, SpriteSheet sheet, IEnumerable<RoomBackgroundCell> cells)
+    public RoomBackgroundImage(string name, SpriteSheet sheet, Extent16<ImagePixels> size, IEnumerable<RoomBackgroundCell> cells)
     {
         ArgumentException.ThrowIfNullOrEmpty(name);
-        SpriteSheetFrame picture = Ensure.NotNull(sheet).Frame(FrameName);
-        if (picture.Size.X == 0 || picture.Size.X % CellPixels != 0 || picture.Size.Y == 0 || picture.Size.Y % CellPixels != 0)
-            throw new InvalidDataException($"Room background {name} is {picture.Size.X}x{picture.Size.Y}, not whole cells across and down.");
+        if (size.X == 0 || size.X % CellPixels != 0 || size.Y == 0 || size.Y % CellPixels != 0)
+            throw new InvalidDataException($"Room background {name} is {size.X}x{size.Y}, not whole cells across and down.");
+        LayeredPicture picture = PictureParts.Of(Ensure.NotNull(sheet), FrameName);
+        foreach (SpriteSheetFrame part in picture.Parts)
+        {
+            if (part.Size != size)
+                throw new InvalidDataException($"Room background {name}'s picture has a {part.Size.X}x{part.Size.Y} part, not {size.X}x{size.Y}.");
+        }
         Name = name;
         Sheet = sheet;
         Picture = picture;
-        CellCount = picture.Size.X / CellPixels * (picture.Size.Y / CellPixels);
+        Size = size;
+        CellCount = size.X / CellPixels * (size.Y / CellPixels);
         Cells = [.. Ensure.NotNull(cells)];
         if (Cells.Any(cell => cell.Cell < 0 || cell.Cell >= CellCount) || Cells.DistinctBy(cell => cell.Cell).Count() != Cells.Count)
             throw new InvalidDataException($"Room background {name} records a changing cell outside its {CellCount} cells, or one twice.");
@@ -45,8 +59,14 @@ public sealed class RoomBackgroundImage
     /// <summary>The image's sheet.</summary>
     public SpriteSheet Sheet { get; }
 
-    /// <summary>The picture of the whole background.</summary>
-    public SpriteSheetFrame Picture { get; }
+    /// <summary>
+    /// The picture of the whole background, as its part drawn behind the actors passing in front of the room's back tiles
+    /// and its part drawn in front of them (#1634).
+    /// </summary>
+    public LayeredPicture Picture { get; }
+
+    /// <summary>The image's width and height.</summary>
+    public Extent16<ImagePixels> Size { get; }
 
     /// <summary>The image's 16x16 cells, row by row across the picture.</summary>
     public int CellCount { get; }

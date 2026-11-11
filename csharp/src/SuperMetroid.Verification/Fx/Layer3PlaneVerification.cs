@@ -98,7 +98,7 @@ internal static class Layer3PlaneVerification
         // The overlay shows the whole page from the row the cartridge writes it to, repeating every two pages (#1514).
         OverlayPicture overlay = layer.Picture ?? throw new InvalidOperationException("Water shows its page.");
         AssertTrue(ReferenceEquals(shownPage.Picture, overlay.Picture) && overlay.Source == Position16<ImagePixels>.Zero
-            && overlay.Size.Y == overlay.Picture.Size.Y
+            && overlay.Size.Y == overlay.Picture.Size?.Y
             && overlay.Place.Y == FxOverlayPlaneConstants.EffectPageFirstRow * 8
             && overlay.Repeat.Y == FxOverlayPlaneConstants.Rows * 8,
             "a liquid's overlay shows its whole page where the published plane holds it");

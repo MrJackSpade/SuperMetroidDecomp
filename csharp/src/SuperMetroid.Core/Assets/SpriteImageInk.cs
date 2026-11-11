@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// What one pixel of a <see cref="SpriteImage"/> is beside its pre-coloured colour (#1403, #1514, #1544): which of the
-/// image's own colours it shows, whether it is clear, whether it takes part in colour blends, and, for a picture of a
-/// layer's tiles, whether the tile it lies in is one of the layer's front tiles.
+/// What one pixel of a <see cref="SpriteImage"/> is beside its pre-coloured colour (#1403, #1544): which of the image's own
+/// colours it shows, whether it is clear, and whether it takes part in colour blends. A pixel is only a colour: what is drawn
+/// in front of the actors is a picture of its own (#1634, <see cref="PictureParts"/>), never a mark on a pixel.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -24,11 +24,8 @@ public readonly record struct SpriteImageInk
     /// <summary>The word's flag marking a clear pixel.</summary>
     private const int ClearFlag = ColouredFlag << 1;
 
-    /// <summary>The word's flag marking a front tile's pixel.</summary>
-    private const int FrontTileFlag = ClearFlag << 1;
-
     /// <summary>The word's flag marking a pixel that takes part in colour blends.</summary>
-    private const int BlendsFlag = FrontTileFlag << 1;
+    private const int BlendsFlag = ClearFlag << 1;
 
     /// <summary>The colour's place, with the flags above it.</summary>
     private readonly int fields;
@@ -36,9 +33,8 @@ public readonly record struct SpriteImageInk
     /// <summary>Records one pixel that has a colour of its image's.</summary>
     /// <param name="colour">The place among the image's colours of the colour the pixel shows.</param>
     /// <param name="kind">How the pixel shows its colour.</param>
-    /// <param name="frontTile">Whether the pixel lies in one of its layer's front tiles; false for every pixel of an actor's frame.</param>
     /// <exception cref="ArgumentOutOfRangeException">The colour's place is negative or past the largest an image holds, or the kind is not defined.</exception>
-    public SpriteImageInk(int colour, ColouredInkKind kind, bool frontTile)
+    public SpriteImageInk(int colour, ColouredInkKind kind)
     {
         Ensure.AtLeastZero(colour);
         ArgumentOutOfRangeException.ThrowIfGreaterThan(colour, ColourMaximum);
@@ -49,15 +45,14 @@ public readonly record struct SpriteImageInk
             ColouredInkKind.Blending => BlendsFlag,
             _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "A coloured pixel shows its colour clear, opaque or blending."),
         };
-        fields = colour | ColouredFlag | marks | (frontTile ? FrontTileFlag : 0);
+        fields = colour | ColouredFlag | marks;
     }
 
     /// <summary>Keeps a pixel's word as it is.</summary>
     private SpriteImageInk(int fields) => this.fields = fields;
 
     /// <summary>A transparent pixel: clear, with no colour.</summary>
-    /// <param name="frontTile">Whether the pixel lies in one of its layer's front tiles.</param>
-    public static SpriteImageInk Transparent(bool frontTile) => new(ClearFlag | (frontTile ? FrontTileFlag : 0));
+    public static SpriteImageInk Transparent { get; } = new(ClearFlag);
 
     /// <summary>The place among the image's colours of the colour the pixel shows; null for a transparent pixel.</summary>
     public int? Colour => (fields & ColouredFlag) != 0 ? fields & ColourMaximum : null;
@@ -67,13 +62,6 @@ public readonly record struct SpriteImageInk
 
     /// <summary>Whether the pixel is transparent: clear, with no colour of its own.</summary>
     public bool IsTransparent => (fields & ColouredFlag) == 0;
-
-    /// <summary>
-    /// Whether the pixel lies in one of its layer's front tiles (#1514). Which of a room's tiles are drawn in front of the
-    /// actors passing behind them is level design, decided tile by tile; the gameplay scene draws the room's back tiles and
-    /// its front tiles as layers of their own.
-    /// </summary>
-    public bool FrontTile => (fields & FrontTileFlag) != 0;
 
     /// <summary>
     /// Whether the pixel takes part in colour blends where it is drawn as an actor's (#1514): a glow or tint that blends the

@@ -15,7 +15,7 @@ public sealed class RoomBackgroundImageResolver(RoomBackgroundImage image, RoomB
     private readonly string[][] values = [.. image.Cells.Select(cell => new string[cell.Inputs.Length])];
 
     /// <summary>The cell pictures last resolved, null where the image shows.</summary>
-    private SpriteSheetFrame?[] cells = new SpriteSheetFrame?[image.CellCount];
+    private LayeredPicture?[] cells = new LayeredPicture?[image.CellCount];
 
     /// <summary>Whether a resolution has been made.</summary>
     private bool resolved;
@@ -29,7 +29,7 @@ public sealed class RoomBackgroundImageResolver(RoomBackgroundImage image, RoomB
     /// <exception cref="InvalidDataException">A cell whose inputs changed has no picture for their values.</exception>
     public RoomBackgroundImagePlane Resolve(RoomAppearanceView appearance, RoomBackgroundImagePlacement placement)
     {
-        SpriteSheetFrame?[]? next = resolved ? null : new SpriteSheetFrame?[Image.CellCount];
+        LayeredPicture?[]? next = resolved ? null : new LayeredPicture?[Image.CellCount];
         for (int index = 0; index < Image.Cells.Count; index++)
         {
             RoomBackgroundCell cell = Image.Cells[index];

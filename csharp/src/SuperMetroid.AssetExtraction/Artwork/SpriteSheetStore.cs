@@ -71,7 +71,7 @@ internal sealed class SpriteSheetStore
         Parallel.For(0, sheets.Count, () => new SpriteSheetEncoder(), (index, _, encoder) =>
         {
             ComposedSpriteSheet sheet = Ensure.NotNull(sheets[index].Sheet);
-            encoded[index] = encoder.Encode(new SpriteSheetPlanes(sheet.Size, sheet.Pixels, sheet.PaletteIndices, sheet.FrontTiles),
+            encoded[index] = encoder.Encode(new SpriteSheetPlanes(sheet.Size, sheet.Pixels, sheet.PaletteIndices),
                 sheet.Manifest);
             return encoder;
         }, encoder => encoder.Dispose());
@@ -150,7 +150,7 @@ internal sealed class SpriteSheetStore
 
     /// <summary>
     /// A sheet's palette map file name: each pixel's ink, as <see cref="InstalledSheetColouring.MapPixelOf"/> installs it
-    /// (#1544): the place of its colour among the image's own colours in red, whether it lies in a front tile, is clear and
+    /// (#1544): the place of its colour among the image's own colours in red, whether it is clear and whether it
     /// blends in green, opaque where it has a colour.
     /// </summary>
     internal static string PaletteFile(string name) => name + ".palette.png";

@@ -17,55 +17,71 @@ static const uint BlendHalves = 64, BlendSubtracts = 128;
 static const int RankActorsBehindRoom = 0, RankBackgroundBackTiles = 1, RankForegroundBackTiles = 2;
 static const int RankActorsBehindFrontTiles = 3, RankBackgroundFrontTiles = 4, RankForegroundFrontTiles = 5;
 static const int RankActorsInFront = 6;
-// The colour a shown picture's pixel draws, with whether it lies in a front tile, or nothing where no picture or a
-// transparent pixel lies.
-uint2 XraySample(bool shown, uint picture, uint2 within)
+// The colour a shown picture's pixel draws, or nothing where no picture or a transparent pixel lies.
+uint XraySample(bool shown, uint picture, uint2 within)
 {
-    uint2 sample = uint2(0, 0);
+    uint sample = 0;
     // Every background draws from pictures (#1403); a position without one shows nothing.
-    if (picture != 0)
+    if (shown && picture != 0)
     {
         // A block picture (#1392) keeps no row for its transparent pixels, which show nothing.
         uint index;
-        bool front;
-        uint colour = PicturePixel(picture, within, index, front);
-        if (shown && index != 0) sample = uint2(colour, front ? 1 : 0);
+        uint colour = PicturePixel(picture, within, index);
+        if (index != 0) sample = colour;
     }
     return sample;
 }
-// The effect overlay (FxOverlayPicture, #1514); a position it does not cover is transparent.
-uint2 XrayOverlay(uint2 position)
+// The colour part `part` (#1634) of the effect overlay (FxOverlayPicture, #1514) draws at a position; a position it does
+// not cover is transparent.
+uint XrayOverlayPart(uint2 position, uint part)
 {
     uint picture = 0;
     uint2 within = uint2(0, 0);
-    bool shown = FxOverlayPicture(position & 65535, within, picture);
+    bool shown = FxOverlayPicture(position & 65535, part, within, picture);
     return XraySample(shown, picture, within);
 }
-// A room layer (RoomTile), boss body, reveal or library background; a position the room does not cover is transparent.
-// Pictures written over the background cover it when roomSource carries SourceWrittenOverBackground.
-uint2 XrayBackground(uint roomSource, uint2 position)
+// The colour the effect overlay draws at a position, with whether it comes from its pictures' part drawn in front
+// (#1634): the in-front part's opaque pixel, otherwise the behind part's.
+uint2 XrayOverlay(uint2 position)
+{
+    uint inFront = XrayOverlayPart(position, PartInFront);
+    if ((inFront >> 24) != 0) return uint2(inFront, 1);
+    return uint2(XrayOverlayPart(position, PartBehind), 0);
+}
+// The colour part `part` (#1634) of a room layer (RoomTile), boss body, reveal or library background draws at a position;
+// a position the room does not cover is transparent. Pictures written over the background cover it when roomSource carries
+// SourceWrittenOverBackground.
+uint XrayBackgroundPart(uint roomSource, uint2 position, uint part)
 {
     uint entry = 0;
     uint picture = 0;
     uint2 within = uint2(0, 0);
     bool shown = true;
     uint source = roomSource & 255;
-    bool overlaid = (roomSource & SourceWrittenOverBackground) != 0 && WrittenOverBackgroundPicture(position & 65535, picture, within);
+    bool overlaid = (roomSource & SourceWrittenOverBackground) != 0 && WrittenOverBackgroundPicture(position & 65535, part, picture, within);
     if (!overlaid)
     {
         if (source == SourceBossBody)
         {
-            BossBodyPicture(position, within, picture);
+            BossBodyPicture(position, part, within, picture);
             shown = picture != 0;
         }
         else if (source == SourceXrayReveal)
-            shown = RevealPicture(position & 65535, picture, within);
+            shown = RevealPicture(position & 65535, part, picture, within);
         else if (source == SourceLibraryBackground)
-            shown = LibraryBackgroundPicture(position & 65535, picture, within);
+            shown = LibraryBackgroundPicture(position & 65535, part, picture, within);
         else
-            shown = RoomTile(source, position, entry, within, picture);
+            shown = RoomTile(source, position, part, entry, within, picture);
     }
     return XraySample(shown, picture, within);
+}
+// The colour a room layer, boss body, reveal or library background draws at a position, with whether it comes from the
+// pictures drawn in front (#1634): the in-front part's opaque pixel, otherwise the behind part's.
+uint2 XrayBackground(uint roomSource, uint2 position)
+{
+    uint inFront = XrayBackgroundPart(roomSource, position, PartInFront);
+    if ((inFront >> 24) != 0) return uint2(inFront, 1);
+    return uint2(XrayBackgroundPart(roomSource, position, PartBehind), 0);
 }
 
 // Keeps `candidate` as the frontmost thing when it is opaque and lies at or in front of the frontmost so far.
@@ -121,7 +137,7 @@ uint XrayGameplay(uint2 screen)
     if (!inside && (Level & source) != 0)
     {
         // OffsetX marks that layers lie behind what blends, Reserved3 which: the background, the overlay or both, the
-        // overlay's front tiles over the background and its back tiles under it.
+        // overlay's in-front pictures over the background and its behind pictures under it (#1634).
         uint behind = 0;
         if (OffsetX != 0 && (Reserved3 == BehindBackground || Reserved3 == BehindBackgroundAndOverlay))
             behind = XrayBackground(RoomSource, backgroundScreen + backgroundScroll).x;

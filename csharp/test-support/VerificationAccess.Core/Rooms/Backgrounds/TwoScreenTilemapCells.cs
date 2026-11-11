@@ -38,8 +38,8 @@ internal static class TwoScreenTilemapCells
         var laid = new BgTilePicture?[Count];
         foreach (PlacedWrittenPicture placed in pictures)
         {
-            for (int y = 0; y < placed.Picture.Size.Y; y += CellPixels)
-            for (int x = 0; x < placed.Picture.Size.X; x += CellPixels)
+            for (int y = 0; y < placed.Size.Y; y += CellPixels)
+            for (int x = 0; x < placed.Size.X; x += CellPixels)
                 laid[IndexOf(placed.Corner + new Offset16<PlanePixels>(x, y))] = new BgTilePicture(placed.Picture, new Position16<ImagePixels>(x, y));
         }
         return laid;

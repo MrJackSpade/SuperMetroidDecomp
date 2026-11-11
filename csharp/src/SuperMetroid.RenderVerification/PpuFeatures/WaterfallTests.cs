@@ -45,7 +45,7 @@ internal static class WaterfallTests
         oam[0] = 80; oam[1] = 64; oam[3] = 0x36;
         oam[4] = 96; oam[5] = 64; oam[7] = 0x38;
         var memory = FramePaint.FromOamGameplay(vram.Bytes, cgram.Colors, oam, 2, 0);
-        SuperMetroid.Core.Assets.SpriteSheetFrame plane = FxOverlayFixtures.PlaneFromVram(vram.Bytes, cgram.Colors, 0x1000);
+        SuperMetroid.Core.Assets.LayeredPicture plane = FxOverlayFixtures.PlaneFromVram(vram.Bytes, cgram.Colors, 0x1000);
         var registers = new GameplaySceneView(new Position16<RoomPixels>(0, 0), new Position16<BackgroundPixels>(0, 0),
             WaterfallRoomDisplayRules.ShownLayers);
         var bg3 = new OverlayBlendLayer(FxOverlayFixtures.Rows(plane, FxOverlayPlaneConstants.Rows / 2, 32), 32,

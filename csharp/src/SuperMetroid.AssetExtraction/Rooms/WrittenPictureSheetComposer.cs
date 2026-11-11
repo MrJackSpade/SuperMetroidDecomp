@@ -183,6 +183,9 @@ internal static class WrittenPictureSheetComposer
             pictures.Add(Shown(part, part.Name, [], []) ?? throw new InvalidDataException($"{sheetName} part {part.Name} reads a character its room loads nothing over."));
         }
         var inputsOf = new Dictionary<string, ImmutableArray<AppearanceInput>>(StringComparer.Ordinal);
+        // Each subject's pictures are installed as their two parts (#1634); the fixed parts and the frames cut from them, the
+        // HUD's images, are installed whole.
+        var split = new HashSet<string>(StringComparer.Ordinal);
         foreach (WrittenSubject subject in subjects)
         {
             ImmutableArray<AppearanceInput> depends = RoomAppearanceComposition.InputsOver(options.Set,
@@ -194,7 +197,10 @@ internal static class WrittenPictureSheetComposer
                 bool loaded = values.All(value => value == RoomAppearanceValues.Loaded);
                 ShownPicture? shown = Shown(subject, AppearancePictureNames.Of(subject.Name, depends, values), depends, values);
                 if (shown is not null)
+                {
                     pictures.Add(shown);
+                    split.Add(shown.Name);
+                }
                 else if (loaded)
                     throw new InvalidDataException($"{sheetName} picture {subject.Name} reads a character its room loads nothing over.");
             }
@@ -234,7 +240,8 @@ internal static class WrittenPictureSheetComposer
         }
         foreach (PartFrame frame in partFrames)
             frames.Add(frame.Name, Frame(canvas, partCorners[frame.Part] + (frame.Corner - Position16<ImagePixels>.Zero), frame.Size, layer));
-        return new ComposedWrittenPictureSheet(layer, tileset, canvas.ToRoomSheet(colours, frames, ColoursOf(layer)), inputsOf);
+        // A written picture covers its layer wherever it lies, so one that inks nothing is still installed (#1634).
+        return new ComposedWrittenPictureSheet(layer, tileset, canvas.ToSplitRoomSheet(colours, frames, ColoursOf(layer), split, keepsEmpty: true), inputsOf);
 
         // `subject`'s words as they show while `depends` take `values`, named `name`, laid from its top-left written tile;
         // null where a word's character shows nothing for them.

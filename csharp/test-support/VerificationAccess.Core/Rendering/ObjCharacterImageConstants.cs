@@ -55,8 +55,6 @@ internal static class ObjCharacterImageConstants
             var cellParts = ImmutableArray.CreateBuilder<SpriteFramePart>(cells);
             var pixels = new RgbaPixel[size.X * size.Y];
             var indices = new byte[pixels.Length];
-            // An actor's frame lies in no layer's front tile (#1514).
-            var frontTiles = new byte[pixels.Length];
             for (int cell = 0; cell < cells; cell++)
             {
                 SpriteScreenPart placed = composition.Place(part + cell);
@@ -77,7 +75,7 @@ internal static class ObjCharacterImageConstants
             // Each ink is the record's own palette row and colour, with no palette bits ORed in, installed as an installed
             // sheet's manifest would record it (#1512, #1544).
             SpriteImage image = ComposedPictures.Install($"frontend OAM record {index} ({Interlocked.Increment(ref pictured)})", new(size.X, size.Y),
-                pixels, indices, frontTiles, SpriteImageColours.Sprite, standard);
+                pixels, indices, SpriteImageColours.Sprite, standard);
             // A record is drawn whole at the depth its priority places it among a gameplay room's layers (#1514).
             var frame = new SpriteSheetFrame(image, default, new(size.X, size.Y), default) { Depth = DepthOfPriority[corner.Priority] };
             // The picture stands for the record's cells, as a composed sheet frame stands for its composition.

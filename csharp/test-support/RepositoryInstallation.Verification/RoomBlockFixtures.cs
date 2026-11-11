@@ -12,8 +12,9 @@ namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>
 /// Turns a fixture's block compositions and memory image into the block pictures a room plane draws (#1403): each
-/// block's four tile words painted from the four-bit characters in the image, mirrored, coloured and prioritised as
-/// each word says, as extraction paints a room's block sheet.
+/// block's four tile words painted from the four-bit characters in the image, mirrored and coloured as each word says, and
+/// installed as its part behind and its part in front as each word's priority says, as extraction installs a room's block
+/// sheet (#1634).
 /// </summary>
 internal static class RoomBlockFixtures
 {
@@ -29,11 +30,44 @@ internal static class RoomBlockFixtures
 
     /// <summary>
     /// The picture of each of <paramref name="definitions"/>' blocks, four tiles each, its characters read from <paramref name="characterWord"/>
-    /// in <paramref name="image"/> and coloured from <paramref name="palette"/>.
+    /// in <paramref name="image"/> and coloured from <paramref name="palette"/>, installed as its part behind and its part in
+    /// front as extraction installs a room's block sheet (#1634).
     /// </summary>
     /// <exception cref="ArgumentException">The definitions are not whole blocks.</exception>
     internal static RoomBlockPictureTable Pictures(ReadOnlySpan<BackgroundTile> definitions, ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette,
         int characterWord = 0)
+    {
+        PaintedBlocks painted = Paint(definitions, image, palette, characterWord);
+        ComposedSpriteSheet composed = painted.Canvas.ToSplitRoomSheet(painted.Colours, painted.Frames);
+        SpriteSheet sheet = SpriteSheetFileConstants.Load(composed.Manifest with { Backdrop = 0 }, "blocks-fixture",
+            composed.Size, composed.Pixels, composed.PaletteIndices);
+        var blocks = new RoomBlockSheet(default(TilesetDefinition), sheet, Appearances(painted.Count));
+        return new RoomBlockPictureTable(blocks, [.. Enumerable.Range(0, painted.Count).Select(block => (LayeredPicture?)blocks.Picture($"{block}"))]);
+    }
+
+    /// <summary>
+    /// The whole picture of each of <paramref name="definitions"/>' blocks, painted as <see cref="Pictures"/> paints them but
+    /// installed whole, front tiles and back tiles in one picture, as a boss body's pictures are (#1634).
+    /// </summary>
+    /// <exception cref="ArgumentException">The definitions are not whole blocks.</exception>
+    internal static SpriteSheetFrame[] WholePictures(ReadOnlySpan<BackgroundTile> definitions, ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette,
+        int characterWord = 0)
+    {
+        PaintedBlocks painted = Paint(definitions, image, palette, characterWord);
+        ComposedSpriteSheet composed = painted.Canvas.ToRoomSheet(painted.Colours, painted.Frames);
+        SpriteSheet sheet = SpriteSheetFileConstants.Load(composed.Manifest with { Backdrop = 0 }, "whole-blocks-fixture",
+            composed.Size, composed.Pixels, composed.PaletteIndices);
+        return [.. Enumerable.Range(0, painted.Count).Select(block => sheet.Frame($"{block}"))];
+    }
+
+    /// <summary>
+    /// Paints each of <paramref name="definitions"/>' blocks, four tiles each, its characters read from
+    /// <paramref name="characterWord"/> in <paramref name="image"/> and coloured from <paramref name="palette"/>, with a frame
+    /// named by its index.
+    /// </summary>
+    /// <exception cref="ArgumentException">The definitions are not whole blocks.</exception>
+    private static PaintedBlocks Paint(ReadOnlySpan<BackgroundTile> definitions, ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette,
+        int characterWord)
     {
         const int columns = 16, side = RoomBlockSheet.BlockPixels, tile = 8, characterWords = 16;
         if (definitions.IsEmpty || definitions.Length % BlockTiles != 0)
@@ -67,12 +101,15 @@ internal static class RoomBlockFixtures
                 ColourGroups = coloured.ManifestMembers,
             });
         }
-        ComposedSpriteSheet composed = canvas.ToRoomSheet(colours, frames);
-        SpriteSheet sheet = SpriteSheetFileConstants.Load(composed.Manifest with { Backdrop = 0 }, "blocks-fixture",
-            composed.Size, composed.Pixels, composed.PaletteIndices, composed.FrontTiles);
-        return new RoomBlockPictureTable(new RoomBlockSheet(default(TilesetDefinition), sheet, Appearances(count)),
-            [.. Enumerable.Range(0, count).Select(block => (SpriteSheetFrame?)sheet.Frame($"{block}"))]);
+        return new PaintedBlocks(canvas, colours, frames, count);
     }
+
+    /// <summary>A fixture's painted blocks: the canvas, the colours they were painted from, a frame for each and their count.</summary>
+    /// <param name="Canvas">The painted canvas.</param>
+    /// <param name="Colours">The colours the blocks were painted from.</param>
+    /// <param name="Frames">Each block's frame, named by its index.</param>
+    /// <param name="Count">The blocks painted.</param>
+    private sealed record PaintedBlocks(RoomTileCanvas Canvas, RgbColor[] Colours, Dictionary<string, SpriteSheetFrameDocument> Frames, int Count);
 
     /// <summary>
     /// The library background a fixture loaded into BG2 (#1403): the two tilemap pages at <paramref name="tilemapWord"/> in
@@ -114,11 +151,12 @@ internal static class RoomBlockFixtures
                 ColourGroups = coloured.ManifestMembers,
             },
         };
-        ComposedSpriteSheet composed = canvas.ToRoomSheet(colours, frames);
+        // The image is installed as its part behind and its part in front, as extraction installs a room's background (#1634).
+        ComposedSpriteSheet composed = canvas.ToSplitRoomSheet(colours, frames);
         SpriteSheet sheet = SpriteSheetFileConstants.Load(composed.Manifest, "loaded-background-fixture",
-            composed.Size, composed.Pixels, composed.PaletteIndices, composed.FrontTiles);
-        var background = new RoomBackgroundImage("loaded-background-fixture", sheet, []);
-        return new RoomBackgroundImagePlane(background, new SpriteSheetFrame?[background.CellCount],
+            composed.Size, composed.Pixels, composed.PaletteIndices);
+        var background = new RoomBackgroundImage("loaded-background-fixture", sheet, canvas.Size, []);
+        return new RoomBackgroundImagePlane(background, new LayeredPicture?[background.CellCount],
             pagesInOneColumn ? RoomBackgroundImagePlacement.Whole(background) : RoomBackgroundImagePlacement.HalvesSideBySide(background));
     }
 }

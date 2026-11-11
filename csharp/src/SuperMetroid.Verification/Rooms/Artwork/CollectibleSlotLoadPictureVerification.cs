@@ -30,8 +30,9 @@ internal static class CollectibleSlotLoadPictureVerification
             ImmutableArray<AppearanceInput> inputs = sheet.Inputs.Of(ReportedBlock, RoomBlockArtwork.Tileset);
             string[] loaded = [.. inputs.Select(_ => RoomAppearanceValues.Loaded)];
             string name = RoomBlockPictureNames.Of(ReportedBlock, RoomBlockArtwork.Tileset, inputs, loaded);
-            SpriteSheetFrame picture = sheet.Picture(name);
-            AssertEqual(RoomBlockSheet.BlockPixels, (int)picture.Size.X, $"{sheet.Sheet.Image.Name} picture {name} is one block wide");
+            // The picture is installed as its part behind and its part in front (#1634); the block shows something, so one is.
+            LayeredPicture picture = sheet.Picture(name);
+            AssertTrue(picture.Size is { X: RoomBlockSheet.BlockPixels }, $"{sheet.Sheet.Image.Name} picture {name} is one block wide");
         }
         Console.WriteLine($"Collectible block load picture: {sheets.Length} Upper Crateria sheet(s) hold block {ReportedBlock:X3}'s picture over the room's load.");
     }

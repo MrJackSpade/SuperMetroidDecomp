@@ -210,6 +210,6 @@ internal static class SamusBodySheetFixtures
     {
         ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(layout);
         return SpriteSheetFileConstants.Load(sheet.Manifest,
-            $"{SpriteSheetDefinitions.FileNames[id]}-{suffix}", sheet.Size, sheet.Pixels, sheet.PaletteIndices, sheet.FrontTiles);
+            $"{SpriteSheetDefinitions.FileNames[id]}-{suffix}", sheet.Size, sheet.Pixels, sheet.PaletteIndices);
     }
 }

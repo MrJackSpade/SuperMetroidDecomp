@@ -102,7 +102,6 @@ internal static class SpawnedArtHeldOnceVerification
                     writer.Write(pixel.A);
                     writer.Write(ink.Clear);
                     writer.Write(ink.Blends);
-                    writer.Write(ink.FrontTile);
                     if (ink.Colour is not int colour)
                     {
                         writer.Write(-1);

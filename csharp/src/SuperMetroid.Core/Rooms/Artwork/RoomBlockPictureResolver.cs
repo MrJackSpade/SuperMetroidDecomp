@@ -65,7 +65,7 @@ public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
             used = [.. Uses(foreground).Concat(background is null ? [] : Uses(background)).Concat(also).Distinct().Order()];
             values = [.. used.Select(block => new string[InputsOf(block, blockArtwork).Length])];
         }
-        SpriteSheetFrame?[]? pictures = fresh ? new SpriteSheetFrame?[CollectibleCellPictures.End] : null;
+        LayeredPicture?[]? pictures = fresh ? new LayeredPicture?[CollectibleCellPictures.End] : null;
         for (int index = 0; index < used.Length; index++)
         {
             int block = used[index];
@@ -108,7 +108,7 @@ public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
     /// <paramref name="blockValues"/>: a collectible's is its kind's alone, which nothing the room shows changes (#1538).
     /// </summary>
     /// <exception cref="InvalidDataException">A collectible shows in a room whose blocks show the sprites' artwork, where none lies.</exception>
-    private SpriteSheetFrame PictureOf(int definition, RoomBlockArtwork blockArtwork, ImmutableArray<AppearanceInput> inputs, string[] blockValues)
+    private LayeredPicture PictureOf(int definition, RoomBlockArtwork blockArtwork, ImmutableArray<AppearanceInput> inputs, string[] blockValues)
     {
         if (!CollectibleCellPictures.TryPictureOf(definition, out CollectiblePicture collectible))
             return Sheet.Picture(RoomBlockPictureNames.Of(definition, blockArtwork, inputs, blockValues));
@@ -117,9 +117,9 @@ public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
     }
 
     /// <summary>A copy of a table's pictures, for a table that changes in some.</summary>
-    private static SpriteSheetFrame?[] Copy(RoomBlockPictureTable previous)
+    private static LayeredPicture?[] Copy(RoomBlockPictureTable previous)
     {
-        var pictures = new SpriteSheetFrame?[previous.Blocks];
+        var pictures = new LayeredPicture?[previous.Blocks];
         for (int block = 0; block < pictures.Length; block++)
             pictures[block] = previous.Picture(block);
         return pictures;

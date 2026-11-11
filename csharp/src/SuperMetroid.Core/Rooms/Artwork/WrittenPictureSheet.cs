@@ -10,6 +10,8 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// for the effect overlay, each room effect's page and the HUD's images. Each is coloured with its own standard colours,
 /// pictured again for each value of the appearance inputs it depends on and named by <see cref="AppearancePictureNames"/>;
 /// with the inputs each picture depends on, which choose among them. A picture is placed in pixels, so it may be any size.
+/// Each picture is installed as its two parts (#1634, <see cref="PictureParts"/>): what of it lies behind the actors passing
+/// in front of the room's back tiles and what lies in front of them. The HUD's images are installed whole.
 /// </summary>
 public sealed class WrittenPictureSheet
 {
@@ -21,7 +23,7 @@ public sealed class WrittenPictureSheet
     /// <param name="tileset">The tileset whose rooms the pictures are written in.</param>
     /// <param name="sheet">The pictures.</param>
     /// <param name="inputs">The inputs each picture depends on, by the name its pictures begin with.</param>
-    /// <exception cref="InvalidDataException">A picture has no frame for the room's load.</exception>
+    /// <exception cref="InvalidDataException">A picture installs neither part of a frame for the room's load.</exception>
     public WrittenPictureSheet(WrittenPictureLayer layer, TilesetDefinition tileset, SpriteSheet sheet,
         IReadOnlyDictionary<string, ImmutableArray<AppearanceInput>> inputs)
     {
@@ -32,7 +34,7 @@ public sealed class WrittenPictureSheet
         foreach ((string picture, ImmutableArray<AppearanceInput> depends) in this.inputs)
         {
             string[] loaded = [.. Enumerable.Repeat(RoomAppearanceValues.Loaded, depends.Length)];
-            _ = sheet.Frame(AppearancePictureNames.Of(picture, depends, loaded));
+            _ = PictureParts.Of(sheet, AppearancePictureNames.Of(picture, depends, loaded));
         }
     }
 
@@ -50,17 +52,17 @@ public sealed class WrittenPictureSheet
 
     /// <summary>
     /// The picture of <paramref name="picture"/> while the room's appearance inputs take the values
-    /// <paramref name="appearance"/> reads.
+    /// <paramref name="appearance"/> reads, as its part behind and its part in front (#1634).
     /// </summary>
     /// <exception cref="InvalidDataException">The sheet pictures nothing by that name, or nothing for those values.</exception>
-    public SpriteSheetFrame Picture(string picture, RoomAppearanceView appearance)
+    public LayeredPicture Picture(string picture, RoomAppearanceView appearance)
     {
         if (!inputs.TryGetValue(Ensure.NotNull(picture), out ImmutableArray<AppearanceInput> depends))
             throw new InvalidDataException($"{Name} pictures nothing named {picture}.");
         var values = new string[depends.Length];
         for (int input = 0; input < depends.Length; input++)
             values[input] = appearance.ValueOf(depends[input]);
-        return Sheet.Frame(AppearancePictureNames.Of(picture, depends, values));
+        return PictureParts.Of(Sheet, AppearancePictureNames.Of(picture, depends, values));
     }
 
     /// <summary>

@@ -14,8 +14,8 @@ public sealed class WrittenPictureResolver(WrittenPictureSheet sheet)
     /// <summary>The overlay last resolved.</summary>
     private RoomWrittenOverlay? source;
 
-    /// <summary>The frame each written picture showed when last resolved.</summary>
-    private SpriteSheetFrame[] shown = [];
+    /// <summary>The picture each written picture showed when last resolved.</summary>
+    private LayeredPicture[] shown = [];
 
     /// <summary>The written pictures as last resolved for an overlay.</summary>
     private ImmutableArray<PlacedWrittenPicture> placedPictures;
@@ -34,7 +34,7 @@ public sealed class WrittenPictureResolver(WrittenPictureSheet sheet)
         Ensure.NotNull(overlay);
         if (Sheet.Layer != WrittenPictureLayer.WrittenOverRoom)
             throw new InvalidOperationException($"{Sheet.Name} pictures nothing written over the room's layers.");
-        SpriteSheetFrame[] frames = Frames(overlay.Pictures, appearance);
+        LayeredPicture[] frames = Frames(overlay.Pictures, appearance);
         if (Unchanged(overlay, frames))
             return placedPictures;
         var placed = ImmutableArray.CreateBuilder<PlacedWrittenPicture>(frames.Length);
@@ -46,21 +46,21 @@ public sealed class WrittenPictureResolver(WrittenPictureSheet sheet)
         return placedPictures;
     }
 
-    /// <summary>The frames each of <paramref name="placed"/> shows now.</summary>
-    private SpriteSheetFrame[] Frames(IReadOnlyList<WrittenPicture> placed, RoomAppearanceView appearance)
+    /// <summary>The pictures each of <paramref name="placed"/> shows now.</summary>
+    private LayeredPicture[] Frames(IReadOnlyList<WrittenPicture> placed, RoomAppearanceView appearance)
     {
-        var frames = new SpriteSheetFrame[placed.Count];
+        var frames = new LayeredPicture[placed.Count];
         for (int index = 0; index < placed.Count; index++)
             frames[index] = Sheet.Picture(placed[index].Picture, appearance);
         return frames;
     }
 
     /// <summary>Whether <paramref name="overlay"/> was last resolved and showed <paramref name="frames"/>.</summary>
-    private bool Unchanged(RoomWrittenOverlay overlay, SpriteSheetFrame[] frames)
+    private bool Unchanged(RoomWrittenOverlay overlay, LayeredPicture[] frames)
     {
         bool unchanged = ReferenceEquals(overlay, source) && shown.Length == frames.Length;
         for (int index = 0; unchanged && index < frames.Length; index++)
-            unchanged = ReferenceEquals(frames[index], shown[index]);
+            unchanged = Equals(frames[index], shown[index]);
         return unchanged;
     }
 }

@@ -15,9 +15,9 @@ public static class FxOverlayPagePictures
 
     /// <summary>
     /// The picture of the page room effect <paramref name="type"/> shows, from <paramref name="sheet"/>, while the room's
-    /// appearance inputs take the values <paramref name="appearance"/> reads.
+    /// appearance inputs take the values <paramref name="appearance"/> reads, as its part behind and its part in front (#1634).
     /// </summary>
     /// <exception cref="InvalidDataException">The sheet pictures no page of the effect, or none for those values.</exception>
-    public static SpriteSheetFrame Page(WrittenPictureSheet sheet, RoomFxType type, RoomAppearanceView appearance) =>
+    public static LayeredPicture Page(WrittenPictureSheet sheet, RoomFxType type, RoomAppearanceView appearance) =>
         Ensure.NotNull(sheet).Picture(PictureName(type), appearance);
 }

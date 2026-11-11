@@ -44,7 +44,7 @@ internal static class XrayGameplayTests
             var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
             oam[0] = 16; oam[1] = 64; oam[3] = (byte)(0x30 | palette << 1);
             var memory = FramePaint.FromOamGameplay(vram.Bytes, cgram.Colors, oam, 1, 0);
-            SuperMetroid.Core.Assets.SpriteSheetFrame plane = FxOverlayFixtures.PlaneFromVram(vram.Bytes, cgram.Colors, 0x1000);
+            SuperMetroid.Core.Assets.LayeredPicture plane = FxOverlayFixtures.PlaneFromVram(vram.Bytes, cgram.Colors, 0x1000);
             var registers = new GameplaySceneView(new Position16<RoomPixels>(0, 0), new Position16<BackgroundPixels>(0, 0),
                 ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
             // The X-ray's window covers the screen's right half (#1468).

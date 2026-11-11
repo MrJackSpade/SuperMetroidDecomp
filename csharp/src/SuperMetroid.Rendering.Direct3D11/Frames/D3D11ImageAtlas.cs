@@ -11,8 +11,7 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 /// The installed images a scene draws, as one texture (#1408): each sprite frame, block picture, background image and
 /// tile sheet a scene shows is copied in once, at a place it keeps while later scenes show it. Each texel holds the
 /// image's pre-coloured pixel and, beside it, the pixel's ink word (<see cref="InkWord"/>): the place of its colour among the
-/// image's own colours, whether it is clear, blends or lies in a front tile, so a shading recolours the image as it shows
-/// it (#1512, #1544) and a room's front tiles are drawn as their own layer (#1514).
+/// image's own colours, and whether it is clear or blends, so a shading recolours the image as it shows it (#1512, #1544).
 /// </summary>
 internal sealed class D3D11ImageAtlas : IDisposable
 {
@@ -22,8 +21,6 @@ internal sealed class D3D11ImageAtlas : IDisposable
     internal const uint ClearInk = 1u << 16;
     /// <summary>An ink word's bit marking a pixel with a colour of its image's, which a clear pixel shows where its layer is opaque.</summary>
     internal const uint ColouredInk = 1u << 17;
-    /// <summary>An ink word's bit marking a pixel that lies in one of its layer's front tiles (#1514).</summary>
-    internal const uint FrontTileInk = 1u << 8;
     /// <summary>An ink word's bit marking a pixel that takes part in colour blends where it is drawn as an actor's (#1544).</summary>
     internal const uint BlendsInk = 1u << 9;
     /// <summary>Words per texel: the colour, then the ink.</summary>
@@ -174,9 +171,9 @@ internal sealed class D3D11ImageAtlas : IDisposable
 
     /// <summary>
     /// The word the shaders read a pixel's ink from (#1544): the place of its colour among its image's colours, then
-    /// <see cref="FrontTileInk"/>, <see cref="BlendsInk"/>, <see cref="ClearInk"/> and <see cref="ColouredInk"/>.
+    /// <see cref="BlendsInk"/>, <see cref="ClearInk"/> and <see cref="ColouredInk"/>.
     /// </summary>
-    internal static uint InkWord(SpriteImageInk ink) => (uint)(ink.Colour ?? 0) | (ink.FrontTile ? FrontTileInk : 0)
+    internal static uint InkWord(SpriteImageInk ink) => (uint)(ink.Colour ?? 0)
         | (ink.Blends ? BlendsInk : 0) | (ink.Clear ? ClearInk : 0) | (ink.Colour is null ? 0 : ColouredInk);
 
     /// <summary>The sheet and region <paramref name="image"/> shows.</summary>

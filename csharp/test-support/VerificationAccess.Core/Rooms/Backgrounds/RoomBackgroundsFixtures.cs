@@ -107,7 +107,7 @@ internal static class RoomBackgroundsFixtures
         var parts = new List<ShownBossBodyPart>();
         for (int top = 0; top < rows; top += partRows)
         {
-            SpriteSheetFrame picture = blocks.Picture(random.Next(Definitions))
+            SpriteSheetFrame picture = blocks.Picture(random.Next(Definitions))?.Behind
                 ?? throw new InvalidOperationException("A seeded block has no picture.");
             Tile(parts, picture, CellCorner(top, 0, area), BodyColumns * BodyCellPixels, Math.Min(partRows, rows - top) * BodyCellPixels);
         }
@@ -132,7 +132,7 @@ internal static class RoomBackgroundsFixtures
         for (int index = 0; index < distinct.Length; index++)
         for (int corner = 0; corner < BlockTiles; corner++)
             definitions[index * BlockTiles + corner] = BackgroundTileWordBytes.Tile(distinct[index]);
-        RoomBlockPictureTable painted = RoomBlockFixtures.Pictures(definitions, image, palette, characterWord);
+        SpriteSheetFrame[] painted = RoomBlockFixtures.WholePictures(definitions, image, palette, characterWord);
         var parts = new List<ShownBossBodyPart>();
         for (int cell = 0; cell < words.Length;)
         {
@@ -141,8 +141,7 @@ internal static class RoomBackgroundsFixtures
             int first = cell, row = cell / BodyColumns;
             while (cell < words.Length && cell / BodyColumns == row && words[cell] == words[first])
                 cell++;
-            SpriteSheetFrame picture = painted.Picture(Array.IndexOf(distinct, words[first]))
-                ?? throw new InvalidOperationException("A painted word has no picture.");
+            SpriteSheetFrame picture = painted[Array.IndexOf(distinct, words[first])];
             Tile(parts, picture, CellCorner(row, first % BodyColumns, area), (cell - first) * BodyCellPixels, BodyCellPixels);
         }
         return new ShownBossBody([.. parts]);
@@ -158,8 +157,7 @@ internal static class RoomBackgroundsFixtures
     {
         var definition = new BackgroundTile[BlockTiles];
         definition.AsSpan().Fill(BackgroundTileWordBytes.Tile(word.Raw));
-        SpriteSheetFrame block = RoomBlockFixtures.Pictures(definition, image, palette, characterWord).Picture(0)
-            ?? throw new InvalidOperationException("The painted block has no picture.");
+        SpriteSheetFrame block = RoomBlockFixtures.WholePictures(definition, image, palette, characterWord)[0];
         var parts = new List<ShownBossBodyPart>();
         Tile(parts, block, default, area.X, area.Y);
         return new ShownBossBody([.. parts]);
@@ -224,13 +222,15 @@ internal static class RoomBackgroundsFixtures
     /// <summary>
     /// An effect overlay page of a seeded two-bit picture (#1392, #1403, #1514) as wide as the overlay and two pages tall,
     /// its pixels keeping colour zero's row, even 16-colour rows coloured as <paramref name="scene"/> is and odd ones
-    /// differently.
+    /// differently, with a seeded part behind and a seeded part in front (#1634).
     /// </summary>
     internal static FxOverlayPage SeededFxOverlay(Random random, RgbColor[] scene)
     {
         var size = new Extent16<ImagePixels>(FxOverlayPlaneConstants.Columns * 8, FxOverlayPlaneConstants.Rows * 8);
-        return new FxOverlayPage(SeededSheet(random, scene, size, new Dictionary<string, Position16<ImagePixels>> { ["overlay"] = default }, size,
-            "seeded overlay", SpriteImageColours.TwoBppBackground).Frame("overlay"));
+        SpriteSheet sheet = SeededSheet(random, scene, new Extent16<ImagePixels>(size.X, checked((ushort)(2 * size.Y))),
+            new Dictionary<string, Position16<ImagePixels>> { ["overlay"] = default, ["overlay in front"] = new(0, size.Y) }, size,
+            "seeded overlay", SpriteImageColours.TwoBppBackground);
+        return new FxOverlayPage(new LayeredPicture(sheet.Frame("overlay"), sheet.Frame("overlay in front")));
     }
 
     /// <summary>
@@ -250,16 +250,20 @@ internal static class RoomBackgroundsFixtures
 
     /// <summary>
     /// A seeded background image <paramref name="tileRows"/> 32-tile rows tall, about one cell in four rebound: its pages in
-    /// one column for a sky, side by side otherwise.
+    /// one column for a sky, side by side otherwise. Its picture's part behind and part in front are seeded apart (#1634).
     /// </summary>
     private static RoomBackgroundImagePlane SeededImage(Random random, RgbColor[] scene, int tileRows, bool sky = false)
     {
         RoomBlockPictureTable blocks = SeededPictures(random, scene);
         var size = new Extent16<ImagePixels>(RoomBackgroundImageGeometry.PagePixels, (ushort)(tileRows * 8));
-        SpriteSheet sheet = SeededSheet(random, scene, size, new Dictionary<string, Position16<ImagePixels>> { [RoomBackgroundImage.FrameName] = default },
-            size, "seeded background");
-        var image = new RoomBackgroundImage("seeded background", sheet, []);
-        var cells = new SpriteSheetFrame?[image.CellCount];
+        SpriteSheet sheet = SeededSheet(random, scene, new Extent16<ImagePixels>(size.X, checked((ushort)(2 * size.Y))),
+            new Dictionary<string, Position16<ImagePixels>>
+            {
+                [RoomBackgroundImage.FrameName] = default,
+                [PictureParts.InFront(RoomBackgroundImage.FrameName)] = new(0, size.Y),
+            }, size, "seeded background");
+        var image = new RoomBackgroundImage("seeded background", sheet, size, []);
+        var cells = new LayeredPicture?[image.CellCount];
         for (int cell = 0; cell < cells.Length; cell++)
             cells[cell] = random.Next(4) == 0 ? blocks.Picture(random.Next(Definitions)) : null;
         return new RoomBackgroundImagePlane(image, cells, sky ? RoomBackgroundImagePlacement.Whole(image) : RoomBackgroundImagePlacement.HalvesSideBySide(image));
@@ -269,9 +273,10 @@ internal static class RoomBackgroundsFixtures
     private const int SeededPictureCount = 16;
 
     /// <summary>
-    /// A seeded sheet of block pictures, some pixels transparent, of either tile priority and in every row, and a table
-    /// showing one of them for each definition. Even rows' standard colours are <paramref name="scene"/>'s, odd rows'
-    /// differ, so a renderer shows the pictures' own colours for some rows and the scene's for others.
+    /// A seeded sheet of block pictures, some pixels transparent and in every row, and a table showing one of them for each
+    /// definition behind and, for about half the definitions, another in front (#1634). Even rows' standard colours are
+    /// <paramref name="scene"/>'s, odd rows' differ, so a renderer shows the pictures' own colours for some rows and the
+    /// scene's for others.
     /// </summary>
     private static RoomBlockPictureTable SeededPictures(Random random, RgbColor[] scene)
     {
@@ -281,15 +286,18 @@ internal static class RoomBackgroundsFixtures
         for (int picture = 0; picture < SeededPictureCount; picture++)
             corners.Add($"{picture}", new Position16<ImagePixels>((ushort)(picture % columns * side), (ushort)(picture / columns * side)));
         SpriteSheet sheet = SeededSheet(random, scene, size, corners, new Extent16<ImagePixels>((ushort)side, (ushort)side), "seeded blocks");
-        var shown = new SpriteSheetFrame?[Definitions];
+        var shown = new LayeredPicture?[Definitions];
         for (int definition = 0; definition < shown.Length; definition++)
-            shown[definition] = sheet.Frame($"{random.Next(SeededPictureCount)}");
+        {
+            SpriteSheetFrame behind = sheet.Frame($"{random.Next(SeededPictureCount)}");
+            shown[definition] = new LayeredPicture(behind, random.Next(2) == 0 ? sheet.Frame($"{random.Next(SeededPictureCount)}") : null);
+        }
         return new RoomBlockPictureTable(new RoomBlockSheet(default(TilesetDefinition), sheet, RoomBlockFixtures.Appearances(Definitions)), shown);
     }
 
     /// <summary>
-    /// A seeded background-coloured sheet of <paramref name="size"/>: some pixels transparent, of either tile priority and in
-    /// every row, even rows' standard colours <paramref name="scene"/>'s and odd rows' different, with a
+    /// A seeded background-coloured sheet of <paramref name="size"/>: some pixels transparent and in every row, even rows'
+    /// standard colours <paramref name="scene"/>'s and odd rows' different, with a
     /// <paramref name="frameSize"/> frame at each of <paramref name="corners"/>.
     /// </summary>
     private static SpriteSheet SeededSheet(Random random, RgbColor[] scene, Extent16<ImagePixels> size,
@@ -304,7 +312,6 @@ internal static class RoomBackgroundsFixtures
         int pixels = size.X * size.Y;
         var image = new RgbaPixel[pixels];
         var indices = new byte[pixels];
-        var priorities = new byte[pixels];
         for (int pixel = 0; pixel < pixels; pixel++)
         {
             // A two-bit pixel keeps its row times four plus its colour, colour zero included and transparent.
@@ -312,7 +319,6 @@ internal static class RoomBackgroundsFixtures
             {
                 int twoBppRow = random.Next(8), colour = random.Next(4);
                 indices[pixel] = (byte)(twoBppRow * 4 + colour);
-                priorities[pixel] = (byte)random.Next(2);
                 if (colour == 0)
                     continue;
                 image[pixel] = RgbColor.FromWord(standard[indices[pixel]]).ToRgbaPixel();
@@ -323,7 +329,6 @@ internal static class RoomBackgroundsFixtures
             // A full-palette pixel names any of the 256 colours.
             int row = random.Next(fullPalette ? 16 : 8);
             indices[pixel] = (byte)(row * 16 + random.Next(1, 16));
-            priorities[pixel] = fullPalette ? (byte)0 : (byte)random.Next(2);
             image[pixel] = RgbColor.FromWord(standard[indices[pixel]]).ToRgbaPixel();
         }
         var frames = new Dictionary<string, SpriteSheetFrameDocument>();
@@ -350,8 +355,7 @@ internal static class RoomBackgroundsFixtures
             Backdrop = 0,
             Frames = frames,
         };
-        return SpriteSheetFileConstants.Load(document, name, size, image,
-            indices, priorities);
+        return SpriteSheetFileConstants.Load(document, name, size, image, indices);
     }
 
     /// <summary>

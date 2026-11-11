@@ -119,22 +119,14 @@ internal static class CeresRidleyPicturesVerification
             var word = new SnesBgTilemapWord((ushort)words[index]);
             BgTilePicture picture = shownCells[index]
                 ?? throw new InvalidOperationException($"The warning's word {index}, ${word.Raw:X4}, shows no picture.");
-            SpriteImage sheet = picture.Picture.Sheet;
+            // Each pixel lies in the part of the warning's picture its word's priority puts it in (#1634), the other part
+            // showing nothing there.
             for (int y = 0; y < CharacterPixels; y++)
+            for (int x = 0; x < CharacterPixels; x++)
             {
-                int address = word.CharacterIndex * CharacterBytes + (word.FlipVertically ? CharacterPixels - 1 - y : y) * 2;
-                for (int x = 0; x < CharacterPixels; x++)
-                {
-                    int bit = 7 - (word.FlipHorizontally ? CharacterPixels - 1 - x : x);
-                    int colour = (page[address] >> bit & 1) | (page[address + 1] >> bit & 1) << 1
-                        | (page[address + 16] >> bit & 1) << 2 | (page[address + 17] >> bit & 1) << 3;
-                    int pixel = (picture.Picture.Corner.Y + picture.Corner.Y + y) * sheet.Size.X + picture.Picture.Corner.X + picture.Corner.X + x;
-                    int expected = colour == 0 ? 0 : word.PaletteIndex * 16 + colour;
-                    int painted = InstalledPictureColoursConstants.ComposedIndexOf(sheet, sheet.Inks[pixel]);
-                    AssertTrue(painted == expected && (colour == 0 || sheet.Inks[pixel].FrontTile == word.HasPriority),
-                        $"The warning's word {index}, ${word.Raw:X4}, paints index {painted} front tile {sheet.Inks[pixel].FrontTile} " +
-                        $"at pixel ({x}, {y}), where its character paints index {expected}");
-                }
+                SuperMetroid.Verification.Rooms.Artwork.RoomBlockPicturesVerification.AssertPaintsTile(
+                    $"The warning's word {index} at pixel ({x}, {y})", page, word, x, y, picture.Picture,
+                    new Position16<ImagePixels>(picture.Corner.X + x, picture.Corner.Y + y));
             }
         }
         AssertTrue(written > 0, "Ceres Ridley's getaway writes its warning over BG1");
@@ -143,9 +135,6 @@ internal static class CeresRidleyPicturesVerification
 
     /// <summary>Pixels across and down a character.</summary>
     private const int CharacterPixels = 8;
-
-    /// <summary>Bytes of one four-bit character.</summary>
-    private const int CharacterBytes = 32;
 
     /// <summary>The sprites <paramref name="draw"/> publishes.</summary>
     private static ImmutableArray<SpriteDraw> Draw(Action<SpriteFrameBuffer> draw)

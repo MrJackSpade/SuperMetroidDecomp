@@ -623,7 +623,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (advance is not AnimationShown<BotwoonHeadProgram, BotwoonHeadFrame>.Frame shown)
             throw new InvalidOperationException($"Botwoon's head animation ended an update with {advance}.");
         head.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
-        head.Frame = BotwoonVisualDefinitions.HeadFrames.Of(shown.Frame);
+        head.Frame = BotwoonVisualDefinitions.HeadFrames.Of(shown.Shown);
         head.NewInstructionFrame = true;
     }
 

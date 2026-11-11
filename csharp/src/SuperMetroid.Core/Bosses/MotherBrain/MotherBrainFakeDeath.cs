@@ -283,7 +283,7 @@ internal sealed class MotherBrainFakeDeath
         tube.Radius = tubeBody.Radius;
         var state = new MotherBrainFallingTubeState
         {
-            Cursor = AnimationProgramCursor<MotherBrainTubePiece>.Start(piece),
+            Playback = MotherBrainTubeAnimations.Starting(piece),
             Function = piece == MotherBrainTubePiece.Main
                 ? MotherBrainTubeFunction.MainTube_WaitingToFall
                 : MotherBrainTubeFunction.NonMainTube,

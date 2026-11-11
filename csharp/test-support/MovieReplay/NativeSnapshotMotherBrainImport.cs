@@ -68,9 +68,12 @@ internal static class NativeSnapshotMotherBrainImport
             SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(slot.SlotIndex) + MovieDesyncMemory.EnemyAnimationScriptOffset);
         state.BodyCursor = body[AnimationScript(state.Body)];
         state.HeadSlotCursor = body[AnimationScript(state.Head)];
-        Dictionary<ushort, AnimationProgramCursor<MotherBrainTubePiece>> tubes = MotherBrainNativeListAddresses.CompareTubes(cartridge);
+        Dictionary<MotherBrainTubePiece, NativeEnemyList<MotherBrainTubePiece>> tubes = MotherBrainNativeListAddresses.CompareTubes(cartridge);
         foreach (RoomEnemySlot tube in runtime.Enemies.SlotTable.Slots.Where(slot => slot.DefinitionId == EnemyDefinitionId.MotherBrainTubes))
-            tube.RequireSpeciesState<MotherBrainFallingTubeState>().Cursor = tubes[AnimationScript(tube)];
+        {
+            tube.RequireSpeciesState<MotherBrainFallingTubeState>().Playback = NativeEnemyAnimationOracle.PlaybackAt(
+                tubes, MotherBrainNativeListAddresses.TubeEntries, MotherBrainTubeAnimations.StartingAt, AnimationScript(tube));
+        }
         state.BrainMainShakeTimer = W(MotherBrainMemory.BrainMainShakeTimer);
         state.DeleteTurretsAndRinkas = W(MotherBrainMemory.DeleteTurretsAndRinkas) != 0;
         state.NextRainbowFrame = DecodeNextRainbowFrame(W(MotherBrainMemory.RainbowPaletteIndex));

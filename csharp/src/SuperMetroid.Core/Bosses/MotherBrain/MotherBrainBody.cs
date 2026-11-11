@@ -61,34 +61,13 @@ internal sealed class MotherBrainBody
     /// </summary>
     internal static void AdvanceMotherBrainTubeAnimation(RoomEnemySlot tube)
     {
-        CountdownStep frameHold = tube.FrameHold.Decrement();
-        tube.FrameHold = frameHold.Remaining;
-        if (!frameHold.IsZero)
-        {
-            tube.NewInstructionFrame = false;
+        if (!EnemyProgramAnimation.Expire(tube))
             return;
-        }
-
         MotherBrainFallingTubeState tubeState = tube.RequireSpeciesState<MotherBrainFallingTubeState>();
-        AnimationProgramCursor<MotherBrainTubePiece> cursor = tubeState.Cursor;
-        WrappingCountdown counter = tube.Timer;
-        AnimationProgramAdvance<MotherBrainTubeFrame> advance = MotherBrainTubeAnimations.Programs.Advance(ref cursor, ref counter,
-            (cue, continuation) => throw new InvalidOperationException($"Falling-tube programs publish no cue {cue}."));
-        tube.Timer = counter;
-        tubeState.Cursor = cursor;
-        switch (advance)
-        {
-            case AnimationProgramAdvance<MotherBrainTubeFrame>.Show shown:
-                tube.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
-                tube.Frame = MotherBrainVisualDefinitions.TubeFrames.Of(shown.Frame);
-                tube.NewInstructionFrame = true;
-                return;
-            case AnimationProgramAdvance<MotherBrainTubeFrame>.Hold:
-                // The script's sleep: the timer wraps from zero and the pose stays.
-                return;
-            default:
-                throw new InvalidOperationException($"Falling-tube programs have no {advance} step.");
-        }
+        AnimationPlayback<MotherBrainTubePiece> playback = tubeState.Playback;
+        EnemyProgramAnimation.Play(tube, MotherBrainTubeAnimations.Segments, ref playback, MotherBrainVisualDefinitions.TubeFrames.Of,
+            cue => throw new InvalidOperationException($"Falling-tube animations raise no event {cue}."));
+        tubeState.Playback = playback;
     }
 
     /// <summary>Sets Mother Brain's body up when the room spawns it.</summary>

@@ -3,16 +3,17 @@ using P = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainTopTubeProgram;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Mother Brain's falling ceiling-tube programs (#641), in place of their lists: one pose, then hold.</summary>
+/// <summary>Mother Brain's falling ceiling-tube animations (#641, #1600), in place of their lists: one pose, held.</summary>
 internal static class MotherBrainTopTubeAnimations
 {
-    /// <summary>Every program; each shows its own tube.</summary>
-    internal static AnimationProgramSet<MotherBrainTopTubeProgram, MotherBrainTopTubeProgram, NoAnimationCue> Programs { get; } = new(
-        new Dictionary<MotherBrainTopTubeProgram, AnimationProgramStep<MotherBrainTopTubeProgram, MotherBrainTopTubeProgram, NoAnimationCue>[]>
-    {
-        [P.TopRight] = [AnimationProgramStep<P, P, NoAnimationCue>.Show(P.TopRight, 1), AnimationProgramStep<P, P, NoAnimationCue>.Hold],
-        [P.TopLeft] = [AnimationProgramStep<P, P, NoAnimationCue>.Show(P.TopLeft, 1), AnimationProgramStep<P, P, NoAnimationCue>.Hold],
-        [P.TopMiddleLeft] = [AnimationProgramStep<P, P, NoAnimationCue>.Show(P.TopMiddleLeft, 1), AnimationProgramStep<P, P, NoAnimationCue>.Hold],
-        [P.TopMiddleRight] = [AnimationProgramStep<P, P, NoAnimationCue>.Show(P.TopMiddleRight, 1), AnimationProgramStep<P, P, NoAnimationCue>.Hold],
-    });
+    /// <summary>Every segment; each shows its own tube.</summary>
+    internal static AnimationSegments<MotherBrainTopTubeProgram, MotherBrainTopTubeProgram, NoAnimationCue> Segments { get; } = new(
+        Enum.GetValues<P>().ToDictionary(tube => tube, tube => new AnimationBeat<P, NoAnimationCue>[]
+        {
+            new AnimationBeat<P, NoAnimationCue>.Frame(tube, 1),
+        }));
+
+    /// <summary>Each tube's animation: its pose, held.</summary>
+    internal static IReadOnlyDictionary<MotherBrainTopTubeProgram, Animation<MotherBrainTopTubeProgram>> StartingAt { get; } =
+        Enum.GetValues<P>().ToDictionary(tube => tube, tube => new Animation<P>([new(tube, 0, 1, 1)], AnimationEnd.Holds));
 }

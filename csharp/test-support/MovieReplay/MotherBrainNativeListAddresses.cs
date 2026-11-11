@@ -394,10 +394,11 @@ internal static class MotherBrainNativeListAddresses
         Lists(cartridge, ZebetiteBank, ZebetiteAnimations.Segments, ZebetiteAnimations.StartingAt, ZebetiteEntries,
             frame => ZebetiteVisualToolingDefinitions.Spritemap(frame.Index), new Dictionary<ushort, NativeListOp<ZebetiteProgram, NoAnimationCue>>());
 
-    /// <summary>Compares the falling tubes' typed programs with their native lists; returns each native record's typed cursor.</summary>
-    internal static Dictionary<ushort, AnimationProgramCursor<MotherBrainTubePiece>> CompareTubes(IImportCartridgeSource cartridge) =>
-        Walk(cartridge, MotherBrainBank, MotherBrainTubeAnimations.Programs, TubeEntries, frame => EnemyFrameCartridgeLookupTooling.Word(MotherBrainVisualDefinitions.TubeFrames.Of(frame)),
-            new Dictionary<ushort, NativeOp<MotherBrainTubePiece, MotherBrainTubeFrame, NoAnimationCue>>());
+    /// <summary>Compares the falling tubes' typed segments and animations with their native lists; returns each piece's native list.</summary>
+    internal static Dictionary<MotherBrainTubePiece, NativeEnemyList<MotherBrainTubePiece>> CompareTubes(IImportCartridgeSource cartridge) =>
+        Lists(cartridge, MotherBrainBank, MotherBrainTubeAnimations.Segments, MotherBrainTubeAnimations.StartingAt, TubeEntries,
+            frame => EnemyFrameCartridgeLookupTooling.Word(MotherBrainVisualDefinitions.TubeFrames.Of(frame)),
+            new Dictionary<ushort, NativeListOp<MotherBrainTubePiece, NoAnimationCue>>());
 
     /// <summary>Each glass program's native list in bank $86.</summary>
     internal static readonly Dictionary<MotherBrainGlassProgram, ushort> GlassEntries = new()

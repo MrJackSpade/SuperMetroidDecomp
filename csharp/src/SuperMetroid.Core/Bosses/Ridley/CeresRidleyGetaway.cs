@@ -148,7 +148,7 @@ internal sealed class CeresRidleyGetaway
 
         // The Baby capsule advances on every fourth frame of the frame counter using 0,1,2,1. The transfer
         // lists patch only the two two-byte rows occupied by that animation in the map.
-        if ((frameCounter & 3) == 0)
+        if (RidleyCadenceDefinitions.GetawayCapsuleStepEveryFourthUpdate.IsDue(frameCounter))
         {
             state.GetawayBabyFrame = (state.GetawayBabyFrame + 1) % 4;
             _room.Services.DrawFloor(CeresFloorAnimation.BabyFrameForPhase(state.GetawayBabyFrame));
@@ -156,7 +156,7 @@ internal sealed class CeresRidleyGetaway
 
         // The six sparse wing rows alternate on every eighth frame of the frame counter. Each wing frame's floor
         // update leaves behind the delays Samus's unauthored Speed Booster cadence runs on from then on.
-        if ((frameCounter & 7) == 0)
+        if (RidleyCadenceDefinitions.GetawayWingStepEveryEighthUpdate.IsDue(frameCounter))
         {
             state.GetawayWingFrame = (state.GetawayWingFrame + 1) % 2;
             CeresFloorAnimationFrame wing = state.GetawayWingFrame == 0
@@ -350,7 +350,7 @@ internal sealed class CeresRidleyGetaway
     /// <summary>Steps the three-colour alarm cycle of the warning's EMERGENCY title every fourth frame.</summary>
     internal static void UpdateCeresSelfDestructAlarm(RidleyEnemyState state, int frameCounter)
     {
-        if ((frameCounter & 3) != 0)
+        if (!RidleyCadenceDefinitions.SelfDestructAlarmStepEveryFourthUpdate.IsDue(frameCounter))
             return;
 
         state.SelfDestructAlarmStep = (state.SelfDestructAlarmStep + 1) % 16;

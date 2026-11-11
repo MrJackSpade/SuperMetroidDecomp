@@ -88,7 +88,7 @@ internal sealed class CeresRidleyHits
         // 14 only when that shift produced carry. In host terms this is precisely old bit
         // zero; testing bit one (or simply toggling the new value) changes repeated-hit
         // timing and eventually moves the escape threshold relative to the hurt palette.
-        slot.FlashTimer = slot.FlashTimer != 0 && (slot.FlashTimer % 2 != 0)
+        slot.FlashTimer = slot.FlashTimer != 0 && RidleyCadenceDefinitions.CeresHurtFlashOddCount.IsSetIn(slot.FlashTimer)
             ? 14
             : 13;
         state.HitCounter++;

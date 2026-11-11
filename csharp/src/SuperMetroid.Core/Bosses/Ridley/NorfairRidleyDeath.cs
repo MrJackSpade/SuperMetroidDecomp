@@ -271,11 +271,11 @@ internal sealed class NorfairRidleyDeath
     /// <summary>Runs the breakup actor's main AI: flicker, drag, gravity, movement, and lifetime.</summary>
     internal void RunNorfairRidleyExplosionMain(RoomEnemySlot fragment)
     {
-        if ((fragment.FrameCounter & 1) != 0)
+        if (RidleyCadenceDefinitions.BreakupFragmentHidden.IsSetIn(fragment.FrameCounter))
             fragment.Presence = fragment.Presence.With(EnemyPresence.Hidden);
         else
             fragment.Presence = fragment.Presence.Without(EnemyPresence.Hidden);
-        fragment.FrameCounter &= 1;
+        fragment.FrameCounter = RidleyCadenceDefinitions.BreakupFragmentHidden.Of(fragment.FrameCounter);
 
         RidleyExplosionFragmentState fragmentState = fragment.SpeciesState<RidleyExplosionFragmentState>()
             ?? throw new InvalidOperationException($"Ridley breakup fragment in slot {fragment.SlotIndex} has no state.");

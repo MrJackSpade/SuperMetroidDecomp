@@ -1,13 +1,15 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 
-namespace SuperMetroid.Core.Saves;
+namespace SuperMetroid.Diagnostics.Saves;
 
 /// <summary>
-/// The numbers a save keeps for a slot's HUD selection and reserve-tank mode: the HUD selection by its place in the
-/// selection ring, the reserve mode as none, AUTO or MANUAL counted from zero. The named JSON save and the legacy
-/// save-image codec read and write these numbers through it; the game itself holds only <see cref="HudItem"/> and
-/// <see cref="ReserveTankMode"/>.
+/// The numbers the cartridge's save and work memory keep for a slot's HUD selection and reserve-tank mode: the HUD
+/// selection by its place in the selection ring, the reserve mode as none, AUTO or MANUAL counted from zero. The
+/// cartridge save codec (<see cref="SaveRamCodec"/>), the upgrade of schema-six JSON saves
+/// (<see cref="LegacyGameSaveJson"/>) and the native-state checks read and write these numbers through it; the game
+/// itself holds only <see cref="HudItem"/> and <see cref="ReserveTankMode"/>.
 /// </summary>
 [EncodingOwner("save slot selection numbers")]
 public static class SaveSlotNumbering

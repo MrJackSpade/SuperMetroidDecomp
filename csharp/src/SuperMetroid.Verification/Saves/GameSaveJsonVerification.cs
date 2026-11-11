@@ -75,6 +75,12 @@ internal static class GameSaveJsonVerification
                    json.Contains("\"zebesAwake\"", StringComparison.OrdinalIgnoreCase) &&
                    json.Contains("\"exploredAreas\"", StringComparison.Ordinal),
             "JSON save exposes named checkpoint, event, and explored-map domains");
+        AssertTrue(json.Contains("\"reserveMode\": \"auto\"", StringComparison.Ordinal) &&
+                   json.Contains("\"hudItem\": \"superMissile\"", StringComparison.Ordinal),
+            "JSON save names the reserve-tank mode and the HUD selection");
+        AssertTrue(!json.Contains("cartridgeDebugFlag", StringComparison.Ordinal) &&
+                   !json.Contains("newFileMarker", StringComparison.Ordinal),
+            "JSON save keeps no setting the game never reads");
         AssertEqual(json, GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Deserialize(json)),
             "JSON save formatting and property order are deterministic");
 
@@ -96,6 +102,8 @@ internal static class GameSaveJsonVerification
         AssertTrue(restoredSlot.Progression.Events.Members.SequenceEqual([StoryEvent.ZebesAwake]),
             "JSON keeps the story events by name");
         AssertEqual(bindings, restoredSlot.ControllerBindings, "JSON controller bindings");
+        AssertEqual(ReserveTankMode.Auto, restoredSlot.ReserveMode, "JSON reserve-tank mode");
+        AssertEqual(HudItem.SuperMissile, restoredSlot.HudItem, "JSON HUD selection");
         AssertEqual(7, restoredSlot.GameTimeHours, "JSON game-time hours");
 
         AssertInvalidJsonSave(
@@ -215,9 +223,10 @@ internal static class GameSaveJsonVerification
 
     /// <summary>
     /// The JSON numbers the slot document now holds as <see cref="int"/> keep the range the schema always had: the
-    /// largest item-load count, debug value, dispatcher route and load station survive store, document, JSON, document
-    /// and store again with the same SRAM image, and a number outside its field's range is rejected at parse instead of
-    /// wrapping into the store.
+    /// largest item-load count and load station, the startup route and the named HUD selection and reserve-tank mode
+    /// survive store, document, JSON, document and store again with the same SRAM image, and a number outside its
+    /// field's range, a numbered selection or mode and a field the game never reads are rejected at parse instead of
+    /// reaching the store.
     /// </summary>
     internal static void VerifyWidenedSlotFieldsJsonRoundTrip()
     {
@@ -228,9 +237,9 @@ internal static class GameSaveJsonVerification
         SuperMetroidSaveSnapshot snapshot = SuperMetroidSaveSnapshot.Capture(samus, system,
             new SaveSnapshotContext { Area = AreaId.Maridia, SaveStation = SaveFieldValue.MaximumValue }) with
         {
-            DebugFlag = SaveFieldValue.MaximumValue,
-            NewFileMarker = 0,
             StartupRoute = SaveLoadingGameState.CeresDestruction,
+            HudItem = HudItem.XRay,
+            ReserveMode = ReserveTankMode.Manual,
         };
         store.SaveSlot(0, snapshot);
         byte[] sram = SaveRamCodec.Encode(store, maps);
@@ -238,8 +247,8 @@ internal static class GameSaveJsonVerification
         GameSaveJsonDocument document = GameSaveJsonCodec.Capture(store);
         GameSaveSlotJsonDocument slot = document.Slots[0] ?? throw new InvalidOperationException("JSON capture lost slot 0.");
         AssertEqual(SaveFieldValue.MaximumValue, slot.LoadedItemCount, "JSON carries the largest item-load count");
-        AssertEqual(SaveFieldValue.MaximumValue, slot.DebugMode, "JSON carries the largest debug value");
-        AssertEqual(0, slot.NewFileMarker, "JSON carries a zero new-file marker");
+        AssertEqual(HudItem.XRay, slot.HudItem, "JSON carries the last selection of the HUD ring");
+        AssertEqual(ReserveTankMode.Manual, slot.ReserveMode, "JSON carries the manual reserve-tank mode");
         AssertEqual(SaveLoadingGameState.CeresDestruction, slot.StartupRoute, "JSON names the save's startup route");
         AssertEqual(SaveFieldValue.MaximumValue, slot.Checkpoint.SaveStation, "JSON carries the largest load station");
         AssertEqual(7, slot.Resources.ReserveMissiles, "JSON carries the reserve-missile count");
@@ -254,7 +263,9 @@ internal static class GameSaveJsonVerification
             ? json.Replace(from, to, StringComparison.Ordinal)
             : throw new InvalidOperationException($"The fixture JSON lacks {from}.");
         AssertInvalidJsonSave(Replaced("\"loadedItemCount\": 65535", "\"loadedItemCount\": 65536"), "loadedItemCount");
-        AssertInvalidJsonSave(Replaced("\"newFileMarker\": 0", "\"newFileMarker\": -1"), "newFileMarker");
+        AssertInvalidJsonSave(Replaced("\"hudItem\": \"xRay\"", "\"hudItem\": 5"), "hudItem");
+        AssertInvalidJsonSave(Replaced("\"reserveMode\": \"manual\"", "\"reserveMode\": \"overflow\""), "reserveMode");
+        AssertInvalidJsonSave(Replaced("\"loadedItemCount\": 65535", "\"loadedItemCount\": 65535,\n      \"newFileMarker\": 1"), "newFileMarker");
         // Counts are signed words, which the cartridge drains below zero; only values outside the word are invalid.
         AssertInvalidJsonSave(Replaced("\"reserveMissiles\": 7", "\"reserveMissiles\": -32769"), "reserveMissiles");
         AssertInvalidJsonSave(Replaced("\"reserveMissiles\": 7", "\"reserveMissiles\": 32768"), "reserveMissiles");

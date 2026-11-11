@@ -106,9 +106,11 @@ internal static class SaveRamCodecVerification
     }
 
     /// <summary>
-    /// The slot fields saves now carry as <see cref="int"/> (item-load counter, clock, dispatcher route, checkpoint and
-    /// the two checksummed markers) hold every value their SRAM field can: the range's ends survive SRAM, store and SRAM
-    /// again byte for byte, and a value past the range is rejected instead of wrapping into the image.
+    /// The slot fields saves now carry as <see cref="int"/> (item-load counter, clock, dispatcher route and checkpoint)
+    /// hold every value their SRAM field can: the range's ends survive SRAM, store and SRAM again byte for byte, and a
+    /// value past the range is rejected instead of wrapping into the image. The debug build's placement-mode word and
+    /// the never-read word after it always encode as the words the game's own saves hold, whatever an imported image
+    /// held there.
     /// </summary>
     internal static void VerifyWidenedSlotFieldsRoundTrip()
     {
@@ -117,8 +119,6 @@ internal static class SaveRamCodecVerification
         SuperMetroidSaveSnapshot extremes = Snapshot(health: 61, area: AreaId.Brinstar) with
         {
             LoadedItemCount = SaveFieldValue.MaximumValue,
-            DebugFlag = SaveFieldValue.MaximumValue,
-            NewFileMarker = 0,
             StartupRoute = SaveLoadingGameState.CeresDestruction,
             SaveStation = SaveFieldValue.MaximumValue,
             Area = SaveFieldValue.MaximumValue,
@@ -134,8 +134,19 @@ internal static class SaveRamCodecVerification
             "SRAM -> store -> SRAM keeps the full-range slot fields byte for byte");
         SuperMetroidSaveSlot slot = decoded.ReadSlot(0) ?? throw new InvalidOperationException("The full-range slot failed its checksums.");
         AssertEqual(SaveFieldValue.MaximumValue, slot.LoadedItemCount, "the item-load counter decodes its largest value");
-        AssertEqual(SaveFieldValue.MaximumValue, slot.DebugFlag, "the debug value decodes its largest value");
-        AssertEqual(0, slot.NewFileMarker, "the new-file marker decodes zero");
+        AssertEqual(SaveRamLayout.DebugFlagSavedWord, SaveRamCodec.ReadSlotWord(image, 0, SaveRamLayout.DebugFlagOffset),
+            "a save holds the placement-mode word a new file stores");
+        AssertEqual(SaveRamLayout.NewFileMarkerSavedWord, SaveRamCodec.ReadSlotWord(image, 0, SaveRamLayout.NewFileMarkerOffset),
+            "a save holds the never-read word a new file stores");
+        // An imported image whose two unread words hold values the game never writes re-encodes with the game's words.
+        byte[] importedPayload = SaveRamCodec.EncodePayload(SaveRamCodec.ToSnapshot(slot), maps);
+        importedPayload[SaveRamLayout.DebugFlagOffset] = byte.MaxValue;
+        importedPayload[SaveRamLayout.DebugFlagOffset + 1] = byte.MaxValue;
+        importedPayload[SaveRamLayout.NewFileMarkerOffset] = 0;
+        byte[] importedImage = (byte[])image.Clone();
+        SaveRamCodec.WriteSlot(importedImage, 0, importedPayload);
+        AssertTrue(SaveRamCodec.Encode(SaveRamCodec.Decode(importedImage, maps), maps).SequenceEqual(image),
+            "an imported save's unread words are not carried; it re-encodes as the game would save it");
         AssertEqual(SaveLoadingGameState.CeresDestruction, slot.StartupRoute, "the startup route round-trips through its SRAM word");
         AssertEqual(SaveLoadingGameState.MainGame, SuperMetroid.AssetExtraction.Progression.SaveLoadingGameStateCodec.Route(SaveFieldValue.MaximumValue),
             "a dispatcher word the cartridge does not name resumes the main game");

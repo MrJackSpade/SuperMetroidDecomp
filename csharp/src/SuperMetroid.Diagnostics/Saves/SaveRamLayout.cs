@@ -139,11 +139,33 @@ public static class SaveRamLayout
     /// <summary>Slot-relative offset of the Boolean moonwalk option word at WRAM <c>$7E:D802</c>.</summary>
     public const int MoonwalkOffset = 0x0042;
 
-    /// <summary>Slot-relative offset of the cartridge debug-mode word at WRAM <c>$7E:D804</c>.</summary>
+    /// <summary>
+    /// Slot-relative offset of the debug build's Samus-placement-mode word at WRAM <c>$7E:D804</c>, a mirror of
+    /// <c>$09E6</c>. No retail routine reads or changes it; see <see cref="DebugFlagSavedWord"/>.
+    /// </summary>
     public const int DebugFlagOffset = 0x0044;
 
-    /// <summary>Slot-relative offset of the native new-file initialization marker at WRAM <c>$7E:D806</c>.</summary>
+    /// <summary>
+    /// Slot-relative offset of the word at WRAM <c>$7E:D806</c>, a mirror of <c>$09E8</c>, which a new file sets and
+    /// nothing in the cartridge reads; see <see cref="NewFileMarkerSavedWord"/>.
+    /// </summary>
     public const int NewFileMarkerOffset = 0x0046;
+
+    /// <summary>
+    /// The word every retail save stores at <see cref="DebugFlagOffset"/>. <c>NewSaveFile</c> stores one there
+    /// (<c>$81:B363-B366</c>), as the demo loader does (<c>$91:886F-8875</c>); the only routines that read or change it
+    /// are the demo recorder and the Samus-placement toggles (<c>$90:E759-E7AE</c>), which follow the retail build's <c>RTL</c> at
+    /// <c>$90:E758</c> and run only in a debug build. <c>SaveToSRAM</c> copies the word unchanged, so every save the
+    /// game writes holds the one a new file stored.
+    /// </summary>
+    public const ushort DebugFlagSavedWord = 0x0001;
+
+    /// <summary>
+    /// The word every retail save stores at <see cref="NewFileMarkerOffset"/>. <c>NewSaveFile</c> stores one there
+    /// (<c>$81:B369</c>), as the demo loader does (<c>$91:8872</c>); no routine reads it, so <c>SaveToSRAM</c> copies the
+    /// one a new file stored into every save the game writes.
+    /// </summary>
+    public const ushort NewFileMarkerSavedWord = 0x0001;
 
     /// <summary>Slot-relative offset of the Boolean HUD item-cancel option at WRAM <c>$7E:D808</c>.</summary>
     public const int IconCancelOffset = 0x0048;

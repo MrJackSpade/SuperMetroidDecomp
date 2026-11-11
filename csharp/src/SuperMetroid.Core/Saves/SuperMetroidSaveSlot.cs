@@ -60,17 +60,11 @@ public sealed record SuperMetroidSaveSlot(
     int SaveStation,
     int Area)
 {
-    /// <summary>The checksum-backed seven-action controller permutation.</summary>
+    /// <summary>The buttons of the seven configurable actions.</summary>
     public ControllerBindings ControllerBindings { get; init; } = ControllerBindings.Default;
 
     /// <summary>Whether the saved moonwalk setting is enabled.</summary>
     public bool MoonwalkEnabled { get; init; }
-
-    /// <summary>The checksummed debug value, carried unchanged.</summary>
-    public int DebugFlag { get; init; }
-
-    /// <summary>The checksummed new-file marker, carried unchanged.</summary>
-    public int NewFileMarker { get; init; }
 
     /// <summary>Whether the saved icon-cancel setting is enabled.</summary>
     public bool IconCancelEnabled { get; init; }

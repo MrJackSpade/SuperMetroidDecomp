@@ -14,8 +14,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// field with the completion signature word by word from the last (set when no slot is valid), <c>MainGameLoop</c>
 /// ($82:8948) brackets every pass with <c>PHP</c>/<c>PLP</c> so it keeps that carry, and the rumble's delay reload at
 /// $88:B245 adds with <c>ADC</c> without clearing it; the main-game-loop-carry check reproduces each power-on case. A
-/// legacy save image whose marker holds other bytes leaves the outcome its raw comparison gives until a save rewrites the
-/// mark; the host's save codec decides it.
+/// save file whose mark holds neither the completion mark nor the corrupt-file mark gives the outcome that comparison
+/// gives until a save rewrites the mark; the host that reads the save file decides it.
 /// </remarks>
 [CompatibilityService("the save file found at power-on adds one frame to every rising-liquid and Tourian-statue earthquake rumble's delay")]
 public sealed class PowerOnEarthquakeSoundDelay

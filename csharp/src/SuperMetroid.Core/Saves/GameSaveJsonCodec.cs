@@ -133,14 +133,12 @@ public static class GameSaveJsonCodec
             slot.ControllerBindings.ItemCancel,
             slot.ControllerBindings.AimUp,
             slot.ControllerBindings.AimDown),
-        ReserveMode = slot.ReserveMode.SavedNumber(),
-        HudItem = slot.HudItem.SavedNumber(),
+        ReserveMode = slot.ReserveMode,
+        HudItem = slot.HudItem,
         MoonwalkEnabled = slot.MoonwalkEnabled,
         IconCancelEnabled = slot.IconCancelEnabled,
         JapaneseText = slot.JapaneseText,
         LoadedItemCount = slot.LoadedItemCount,
-        DebugMode = slot.DebugFlag,
-        NewFileMarker = slot.NewFileMarker,
         StartupRoute = slot.StartupRoute,
         Progression = CaptureProgression(slot.Progression),
     };
@@ -179,14 +177,12 @@ public static class GameSaveJsonCodec
             IconCancelEnabled = slot.IconCancelEnabled,
             JapaneseText = slot.JapaneseText,
             LoadedItemCount = slot.LoadedItemCount,
-            DebugFlag = slot.DebugMode,
-            NewFileMarker = slot.NewFileMarker,
             StartupRoute = slot.StartupRoute,
             EquippedItems = slot.Inventory.EquippedItems,
             CollectedItems = slot.Inventory.CollectedItems,
             EquippedBeams = slot.Inventory.EquippedBeams,
             CollectedBeams = slot.Inventory.CollectedBeams,
-            ReserveMode = SaveSlotNumbering.SavedReserveMode(slot.ReserveMode),
+            ReserveMode = slot.ReserveMode,
             Health = slot.Resources.Health,
             MaxHealth = slot.Resources.MaxHealth,
             Missiles = slot.Resources.Missiles,
@@ -195,7 +191,7 @@ public static class GameSaveJsonCodec
             MaxSuperMissiles = slot.Resources.MaxSuperMissiles,
             PowerBombs = slot.Resources.PowerBombs,
             MaxPowerBombs = slot.Resources.MaxPowerBombs,
-            HudItem = SaveSlotNumbering.SavedHudItem(slot.HudItem),
+            HudItem = slot.HudItem,
             MaxReserveEnergy = slot.Resources.MaxReserveEnergy,
             ReserveEnergy = slot.Resources.ReserveEnergy,
             ReserveMissiles = slot.Resources.ReserveMissiles,
@@ -241,11 +237,11 @@ public static class GameSaveJsonCodec
             throw new InvalidDataException($"slots[{expectedSlot}] is missing a required domain object");
         _ = AreaIds.ToIndex(slot.Checkpoint.Area);
         RequireRange(slot.Checkpoint.SaveStation, SaveFieldValue.MaximumValue, expectedSlot, "checkpoint.saveStation");
-        RequireRange(slot.ReserveMode, SaveFieldValue.MaximumValue, expectedSlot, "reserveMode");
-        RequireRange(slot.HudItem, SaveFieldValue.MaximumValue, expectedSlot, "hudItem");
+        if (!Enum.IsDefined(slot.ReserveMode))
+            throw new InvalidDataException($"slots[{expectedSlot}].reserveMode names no reserve-tank mode");
+        if (!Enum.IsDefined(slot.HudItem))
+            throw new InvalidDataException($"slots[{expectedSlot}].hudItem names no HUD item");
         RequireRange(slot.LoadedItemCount, SaveFieldValue.MaximumValue, expectedSlot, "loadedItemCount");
-        RequireRange(slot.DebugMode, SaveFieldValue.MaximumValue, expectedSlot, "cartridgeDebugFlag");
-        RequireRange(slot.NewFileMarker, SaveFieldValue.MaximumValue, expectedSlot, "newFileMarker");
         if (!Enum.IsDefined(slot.StartupRoute))
             throw new InvalidDataException($"slots[{expectedSlot}].startupRoute names no startup route");
         SaveResourcesJsonDocument resources = slot.Resources;

@@ -30,8 +30,6 @@ internal static class SaveSlotRetention
         int gameTimeSeconds = SaveFieldValue.Require(snapshot.GameTimeSeconds, nameof(snapshot.GameTimeSeconds));
         int gameTimeMinutes = SaveFieldValue.Require(snapshot.GameTimeMinutes, nameof(snapshot.GameTimeMinutes));
         int gameTimeHours = SaveFieldValue.Require(snapshot.GameTimeHours, nameof(snapshot.GameTimeHours));
-        int debugFlag = SaveFieldValue.Require(snapshot.DebugFlag, nameof(snapshot.DebugFlag));
-        int newFileMarker = SaveFieldValue.Require(snapshot.NewFileMarker, nameof(snapshot.NewFileMarker));
 
         int saveStation = SaveFieldValue.Require(snapshot.SaveStation, nameof(snapshot.SaveStation));
         int area = SaveFieldValue.Require(snapshot.Area, nameof(snapshot.Area));
@@ -66,8 +64,6 @@ internal static class SaveSlotRetention
         {
             ControllerBindings = bindings,
             MoonwalkEnabled = snapshot.MoonwalkEnabled,
-            DebugFlag = debugFlag,
-            NewFileMarker = newFileMarker,
             IconCancelEnabled = snapshot.IconCancelEnabled,
             ReserveMissiles = reserveMissiles,
             JapaneseText = snapshot.JapaneseText,

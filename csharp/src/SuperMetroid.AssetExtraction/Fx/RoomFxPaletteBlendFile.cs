@@ -23,9 +23,9 @@ public static class RoomFxPaletteBlendFile
             document.Blends is null || document.Blends.Count != RoomFxPaletteBlendDocumentRules.Ids.Count())
             throw new InvalidDataException("Room-FX blend palettes require the supported version and all eight selections.");
 
-        return new(new RoomFxPaletteBlendParts { Lava = Compile(RoomFxPaletteBlend.Lava), LandingSiteRain = Compile(RoomFxPaletteBlend.LandingSiteRain), MaridiaWaterA = Compile(RoomFxPaletteBlend.MaridiaWaterA), WaterAndAcid = Compile(RoomFxPaletteBlend.WaterAndAcid), Fog = Compile(RoomFxPaletteBlend.Fog), MaridiaWaterB = Compile(RoomFxPaletteBlend.MaridiaWaterB), MaridiaWaterC = Compile(RoomFxPaletteBlend.MaridiaWaterC), MaridiaWaterD = Compile(RoomFxPaletteBlend.MaridiaWaterD) });
+        return new(RoomFxPaletteBlendDocumentRules.Ids.ToDictionary(id => id, Compile));
 
-        RoomFxBlendColors Compile(RoomFxPaletteBlend id)
+        RgbColor[] Compile(RoomFxPaletteBlend id)
         {
             if (!document.Blends.TryGetValue(RoomFxPaletteBlendDocumentRules.Key(id), out PaletteRgb5[]? colors) ||
                 colors is null || colors.Length != RoomFxPaletteBlendDefinitions.ColorCount)
@@ -39,7 +39,7 @@ public static class RoomFxPaletteBlendFile
                     throw new InvalidDataException($"Room-FX blend {id} color {index} requires RGB components from zero through 31.");
                 words[index] = color.ToRgbColor();
             }
-            return new(id, words[0], words[1], words[2]);
+            return words;
         }
     }
 

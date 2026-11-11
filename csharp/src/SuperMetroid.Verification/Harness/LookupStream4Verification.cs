@@ -335,7 +335,6 @@ internal static class LookupStream4Verification
     {
         byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
         var stock = RoomPaletteFxPresentationFile.Read(new MemoryStream(json));
-        var stored = stock.colors;
         var sites = new List<LookupStream4Site>();
         for (int owner = 0; owner < 3; owner++)
         {
@@ -346,18 +345,11 @@ internal static class LookupStream4Verification
             {
                 ushort pointer = (ushort)(first + frame * (colors + 2) * 2 + color * 2);
                 sites.Add(new LookupStream4Site(owner, frame, color, pointer));
-                AssertTrue(MaridiaEnvironmentalColors.TrySourcePointer(pointer, out ushort source), "native rotation domain");
-                AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | pointer), rom.ReadCartridgeWordFixedBank(0x8D0000 | source), "direct native color rotation relationship");
-                AssertEqual(owner != 1 && frame == 0, stored.ContainsKey(pointer), "exact16 required first-row source keys and zero stock fallbacks");
                 AssertTrue(stock.TryReadColor(pointer, out RgbColor installed), "installed environmental color resolves");
                 AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | pointer), installed, "native installed environmental color");
             }
         }
         AssertEqual(112, sites.Count, "native environmental color domain");
-        AssertEqual(16, sites.Count(site => stored.ContainsKey(site.Pointer)), "sixteen required first-row colors");
-        var pointers = stock.ColorPointers.Where(pointer => MaridiaEnvironmentalColors.TrySourcePointer(pointer, out _)).ToArray();
-        AssertEqual(112, pointers.Length, "environmental identities remain published");
-        AssertEqual(112, pointers.Distinct().Count(), "environmental identities remain unique");
         foreach (var definition in MaridiaEnvironmentalPaletteFxColorDefinitions.All)
         {
             var nativeBus = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> nativeBusPresentationReads);
@@ -378,10 +370,8 @@ internal static class LookupStream4Verification
             }
             AssertEqual(0, installedBusPresentationReads.Value, "installed environmental cycle performs zero live color reads");
             AssertTrue(installed.IsRunning(definition.DefinitionPointer), "environmental palette retains native loop behavior");
-            foreach (ushort pointer in new[] { definition.ProgramStart, definition.FirstFramePointer, (ushort)(definition.FramePointer(0) + definition.FrameByteCount - 2), definition.LoopInstructionPointer })
-                AssertTrue(!MaridiaEnvironmentalColors.TrySourcePointer(pointer, out _), "color rotation excludes mechanics words");
         }
-        Console.WriteLine("Maridia colors:112 native words,16 required inputs,96 rotated/shared colors and three actual installed cycles pass.");
+        Console.WriteLine("Maridia colors:112 installed native words and three actual installed cycles pass.");
     }
 
     /// <summary>Checks the planet text glyphs and placement data against cartridge definitions.</summary>
@@ -396,26 +386,15 @@ internal static class LookupStream4Verification
         }
         byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
         var stock = RoomPaletteFxPresentationFile.Read(new MemoryStream(json));
-        var stored = stock.colors;
-        int storedCount = 0;
         for (int owner = 0; owner < 2; owner++)
         for (int frame = 0; frame < 8; frame++)
         for (int color = 0; color < 3; color++)
         {
             ushort pointer = (ushort)((owner == 0 ? 0xC914 : 0xC96A) + frame * 10 + color * 2);
             AssertEqual(pointer, all[owner].ColorPointer(frame, color), "independent native timed-color layout");
-            AssertTrue(PlanetZebesTextColors.TryCalculate(pointer, stored, out RgbColor calculated), "native text interpolation domain");
-            AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | pointer), calculated, "direct calculated native text color");
-            bool required = owner == 0 && frame == 7;
-            AssertEqual(required, stored.ContainsKey(pointer), "exact three required text endpoints with no stock overrides");
-            if (stored.ContainsKey(pointer)) storedCount++;
             AssertTrue(stock.TryReadColor(pointer, out RgbColor installed), "installed text color available");
             AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | pointer), installed, "installed native text color");
         }
-        AssertEqual(3, storedCount, "three required selected endpoint colors");
-        var pointers = stock.ColorPointers.Where(pointer => PlanetZebesTextColors.TryCoordinates(pointer, out _, out _, out _)).ToArray();
-        AssertEqual(48, pointers.Length, "all text pointer identities remain published");
-        AssertEqual(48, pointers.Distinct().Count(), "text pointer identities are unique");
         foreach (var definition in all)
         {
             var nativeBus = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> nativeBusPresentationReads);
@@ -439,9 +418,7 @@ internal static class LookupStream4Verification
         }
         foreach (int invalid in new[] { -1, 2, int.MinValue, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => _ = all[invalid], "text owner bounds");
-        foreach (ushort pointer in new ushort[] { 0xC90E, 0xC912, 0xC91A, 0xC962, 0xC964, 0xC968, 0xC9B8 })
-            AssertTrue(!PlanetZebesTextColors.TryCoordinates(pointer, out _, out _, out _), "text color view excludes native mechanics");
-        Console.WriteLine("PLANET ZEBES:38 native mechanics words,48 exact colors,three required endpoints and both actual installed one-shot fades pass.");
+        Console.WriteLine("PLANET ZEBES:48 installed native colors and both actual installed one-shot fades pass.");
     }
 
     /// <summary>Checks Ceres fade phases, native color rows, and installed CGRAM exposure.</summary>
@@ -1649,50 +1626,36 @@ internal static class LookupStream4Verification
     /// <summary>Checks dark lightning palette rows and their source pointers against native values.</summary>
     private static void VerifyLookupStream4DarkLightningColors(ISnesAddressSpace rom)
     {
-        var program = CrateriaLightningColorDefinitions.DarkProgram;
+        var program = CrateriaLightningPaletteFxColorDefinitions.All.Single(item => item.Owner == CrateriaLightningPaletteOwner.UnusedDarkLightning);
         byte[] originalJson = RoomPaletteFxPresentationExtractor.Extract(rom);
         using var originalStream = new MemoryStream(originalJson);
         var original = RoomPaletteFxPresentationFile.Read(originalStream);
-        var stored = original.colors;
         for (int frame = 0; frame < 14; frame++)
         for (int index = 0; index < 7; index++)
         {
             ushort pointer = program.ColorPointer(frame, index);
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x8d0000 | pointer);
             AssertTrue(original.TryReadColor(pointer, out RgbColor actual), "dark lightning installed color exists");
-            AssertEqual(native, actual, "dark lightning calculated native RGB5");
-            AssertEqual(frame == 0, stored.ContainsKey(pointer), "dark lightning stores only unresolved base row");
+            AssertEqual(native, actual, "dark lightning installed native RGB5");
             AssertEqual(1, original.ColorPointers.Count(p => p == pointer), "dark lightning audit identity enumerates once");
-        }
-        for (int address = 0xec6e; address <= 0xed83; address++)
-        {
-            bool expected = Enumerable.Range(1, 13).Any(frame => Enumerable.Range(0, 7).Any(index => program.ColorPointer(frame, index) == address));
-            AssertEqual(expected, CrateriaLightningColors.TryCalculatedDarkColor((ushort)address, stored, out _), "dark lightning exact calculated address domain");
         }
     }
 
     /// <summary>Checks normal lightning palette rows and their source pointers against native values.</summary>
     private static void VerifyLookupStream4LightningColors(ISnesAddressSpace rom)
     {
-        var program = CrateriaLightningColorDefinitions.SurfaceProgram;
+        var program = CrateriaLightningPaletteFxColorDefinitions.All.Single(item => item.Owner == CrateriaLightningPaletteOwner.SurfaceLightning);
         byte[] originalJson = RoomPaletteFxPresentationExtractor.Extract(rom);
         using var originalStream = new MemoryStream(originalJson);
         var original = RoomPaletteFxPresentationFile.Read(originalStream);
-        var stored = original.colors;
         for (int frame = 0; frame < 13; frame++)
         for (int index = 0; index < 8; index++)
         {
             ushort pointer = program.ColorPointer(frame, index);
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x8d0000 | pointer);
             AssertTrue(original.TryReadColor(pointer, out RgbColor actual), "surface lightning installed color exists");
-            AssertEqual(native, actual, "surface lightning calculated native RGB5");
-            AssertTrue(!stored.ContainsKey(pointer), "surface lightning stock words are not stored");
+            AssertEqual(native, actual, "surface lightning installed native RGB5");
             AssertEqual(1, original.ColorPointers.Count(p => p == pointer), "surface lightning audit identity enumerates once");
-        }
-        for (int address = 0xeb3b; address <= 0xec58; address++)
-        {
-            bool expected = Enumerable.Range(0, 13).Any(frame => Enumerable.Range(0, 8).Any(index => program.ColorPointer(frame, index) == address));
-            AssertEqual(expected, CrateriaLightningColors.TryCalculatedColor((ushort)address, out _), "surface lightning exact color address domain");
         }
     }
 
@@ -1742,32 +1705,17 @@ internal static class LookupStream4Verification
         for (int frame = 0; frame < 8; frame++)
         for (int color = 0; color < 8; color++)
             native.Add((ushort)(0xe240 + 20 * frame + 2 * color), CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8de240 + 20 * frame + 2 * color)));
-        for (int raw = 0xe23e; raw <= 0xe2df; raw++)
-        {
-            ushort pointer = (ushort)raw;
-            bool owned = native.ContainsKey(pointer);
-            AssertEqual(owned, TourianStatueGreyPaint.TryCoordinates(pointer, out int frame, out int color), "stream4 statue exact color domain");
-            bool intermediate = owned && frame is > 0 and < 7;
-            AssertEqual(intermediate, TourianStatueGreyPaint.TryCalculatedColor(pointer, ToColors(native), out RgbColor calculated), "stream4 statue intermediate domain");
-            if (owned) AssertEqual((ushort)(0xe240 + 20 * frame + 2 * color), pointer, "stream4 statue color coordinates");
-            if (intermediate) AssertEqual(native[pointer], calculated, "stream4 every original statue interpolation sample");
-        }
         byte[] originalJson = RoomPaletteFxPresentationExtractor.Extract(rom);
         using var originalStream = new MemoryStream(originalJson);
         var original = RoomPaletteFxPresentationFile.Read(originalStream);
-        var stored = original.colors;
-        int storedStatueColors = 0;
         foreach (var pair in native)
         {
             AssertTrue(original.TryReadColor(pair.Key, out RgbColor value), "stream4 original statue color remains readable");
             AssertEqual(pair.Value, value, "stream4 loaded original statue color");
-            if (stored.ContainsKey(pair.Key)) storedStatueColors++;
         }
-        AssertEqual(16, storedStatueColors, "stream4 only endpoint rows stored, no generated intermediate cache");
         ushort[] keys = original.ColorPointers.Where(native.ContainsKey).ToArray();
         AssertEqual(64, keys.Length, "stream4 all statue pointers enumerable");
         AssertEqual(64, keys.Distinct().Count(), "stream4 statue pointer enumeration has no duplicates");
-        AssertTrue(!TourianStatueGreyPaint.TryCalculatedColor(0xe254, ToColors(new Dictionary<ushort, ushort>()), out _), "stream4 absent statue endpoints are not invented");
     }
 
     /// <summary>Checks the burial presentation constants against the cartridge layout.</summary>

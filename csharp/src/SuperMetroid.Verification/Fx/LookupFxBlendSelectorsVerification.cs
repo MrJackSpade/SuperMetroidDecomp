@@ -67,31 +67,19 @@ internal static class LookupFxBlendSelectorsVerification
             byte id = (byte)value;
             if (ids.Contains(id))
             {
-                var colors = stock.Resolve(FxNativeWords.PaletteBlend(id));
-                AssertEqual(3, colors.Length, "Exactly three loaded colors");
                 IReadOnlyList<RgbColor> inks = stock.Inks(FxNativeWords.PaletteBlend(id));
                 AssertEqual(3, inks.Count, "The selection loads all three layer-3 blend inks");
                 for (int color = 0; color < 3; color++)
-                {
-                    // Calculated stock black components have their own native proofs.
-                    if (color == 2 && id is not (0x22 or 0x62)) continue;
-                    ushort expected = ReadVerificationWord(rom, 0x89aa02 + id + 2 * color);
-                    int mask = color < 2 ? 0x7fff & ~OriginalFxPairCalculatedMask(id, color) : 0x001f;
-                    AssertEqual(expected & mask, colors[color].ToWord() & mask, "Native selector content");
-                    AssertEqual(expected & mask, inks[color].ToWord() & mask, "Layer 3's blend inks show the selected colors");
-                }
+                    AssertEqual(ReadVerificationWord(rom, 0x89aa02 + id + 2 * color), inks[color].ToWord(),
+                        "Layer 3's blend inks show the selection's installed native colors");
             }
-            else
+            else if (id == 0)
             {
-                AssertThrows<InvalidDataException>(() => { _ = stock.Resolve(FxNativeWords.PaletteBlend(id)); }, "Unknown resolve selector rejects including zero");
-                if (id == 0)
-                {
-                    IReadOnlyList<RgbColor> inks = stock.Inks(FxNativeWords.PaletteBlend(id));
-                    AssertEqual(1, inks.Count, "Zero loads only the third blend ink, leaving the first two as they were");
-                    AssertEqual(RgbColor.Black, inks[0], "Zero clears the third blend ink to black");
-                }
-                else AssertThrows<InvalidDataException>(() => { _ = stock.Inks(FxNativeWords.PaletteBlend(id)); }, "Unknown ink selector rejects");
+                IReadOnlyList<RgbColor> inks = stock.Inks(FxNativeWords.PaletteBlend(id));
+                AssertEqual(1, inks.Count, "Zero loads only the third blend ink, leaving the first two as they were");
+                AssertEqual(RgbColor.Black, inks[0], "Zero clears the third blend ink to black");
             }
+            else AssertThrows<InvalidDataException>(() => { _ = stock.Inks(FxNativeWords.PaletteBlend(id)); }, "Unknown ink selector rejects");
         }
         foreach (byte id in ids)
         {

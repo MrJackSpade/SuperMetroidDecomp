@@ -192,191 +192,20 @@ internal static class RoomPaletteFxPresentationVerification
             "fifty-five installed programs match native execution without color-source reads.");
     }
 
-    /// <summary>Checks the ending gunship's calculated palette samples against its native cycle.</summary>
+    /// <summary>Checks the ending gunship's installed palette colours and playback against its native cycle.</summary>
     internal static void VerifyExtractedEndingGunshipPaletteFxPresentation(
-        ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
-    {
-        Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(bus, presentation, "Zebes explosion gunship", new PaletteFxFamilyShape { FrameCount = 16, ColorsPerFrame = 16, ColorPointer = (frame, color) => (ushort)(0xd6c0 + frame * 36 + color * 2), Definitions = [0xe1e4], OnScreen = true }, 385));
-        var original = new Dictionary<ushort, ushort>();
-        var coordinates = new Dictionary<ushort, Coordinate>();
-        for (int frame = 0; frame < 16; frame++)
-        for (int color = 0; color < 16; color++)
-        {
-            ushort pointer = (ushort)(0xd6c0 + frame * 36 + color * 2);
-            original.Add(pointer, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8d0000 | pointer));
-            coordinates.Add(pointer, new Coordinate(frame, color));
-        }
-        // Restrict the input view to the actual remaining source values, ensuring
-        // the composed calculation works without generated endpoint/sample caches.
-        var inputs = original.Where(pair => coordinates[pair.Key].Frame == 15 || coordinates[pair.Key] == new Coordinate(7, 15))
-            .ToDictionary(pair => pair.Key, pair => pair.Value);
-        AssertEqual(17, inputs.Count, "gunship reveal independent source-color count");
-        ushort[] inputPointers = inputs.Keys.ToArray();
-        var inputView = new EndingGunshipPaletteInputView(PaletteFxColorAddressAccess.Keyed(ToColors(inputs)));
-        AssertTrue(inputPointers.ToHashSet().SetEquals(inputView.Pointers), "gunship input identities survive shared-channel calculation");
-        AssertEqual(17, inputView.Count, "gunship input view keeps its complete logical key count");
-        foreach (ushort pointer in inputPointers)
-            AssertEqual(original[pointer], inputView[PaletteFxColorAddressAccess.KeyAt(pointer)], "original gunship base word reconstructed from independent channels");
-        for (int raw = 0; raw <= ushort.MaxValue; raw++)
-        {
-            ushort pointer = (ushort)raw;
-            bool owned = coordinates.TryGetValue(pointer, out var expected);
-            AssertEqual(owned, EndingGunshipPaletteColors.TryCoordinates(pointer, out int frame, out int color),
-                "gunship exact original color-word ownership");
-            if (owned)
-            {
-                AssertEqual(expected.Frame, frame, "gunship original frame identity");
-                AssertEqual(expected.Color, color, "gunship original color column");
-            }
-            bool computed = owned && expected.Frame != 15 && expected != new Coordinate(7, 15);
-            AssertEqual(computed, EndingGunshipPaletteColors.TryCalculatedColor(pointer, inputView, out RgbColor calculated),
-                "gunship calculated color domain");
-            if (computed) AssertEqual(original[pointer], calculated, "gunship calculated color matches original ROM");
-        }
-        ushort[] identities = presentation.ColorPointers.Where(original.ContainsKey).ToArray();
-        AssertEqual(256, identities.Length, "gunship auditor identities include calculated colors");
-        AssertEqual(256, identities.Distinct().Count(), "gunship auditor identities are unique");
-        AssertTrue(!EndingGunshipPaletteColors.TryCalculatedColor(0xd6e4, ToColors(new Dictionary<ushort, ushort>()), out _),
-            "gunship does not invent missing interpolation inputs");
-    }
+        ISnesAddressSpace bus, RoomPaletteFxPresentation presentation) =>
+        VerifyInstalledPaletteFxFamily(bus, presentation, "Zebes explosion gunship", new PaletteFxFamilyShape { FrameCount = 16, ColorsPerFrame = 16, ColorPointer = (frame, color) => (ushort)(0xd6c0 + frame * 36 + color * 2), Definitions = [0xe1e4], OnScreen = true }, 385);
 
-    /// <summary>Checks post-credits logo glare ownership, calculated colors, and installed playback.</summary>
+    /// <summary>Checks the post-credits logo glare's installed colours and playback against its native cycle.</summary>
     internal static void VerifyExtractedLogoGlarePaletteFxPresentation(
-        ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
-    {
-        Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(bus, presentation, "post-credits icon glare", new PaletteFxFamilyShape { FrameCount = 14, ColorsPerFrame = 16, ColorPointer = (frame, color) => (ushort)(0xdf9a + frame * 36 + color * 2), Definitions = [0xe200], OnScreen = true }, 15));
-        var original = new Dictionary<ushort, ushort>();
-        var coordinates = new Dictionary<ushort, Coordinate>();
-        for (int frame = 0; frame < 14; frame++)
-        for (int color = 0; color < 16; color++)
-        {
-            ushort pointer = (ushort)(0xdf9a + frame * 36 + color * 2);
-            original.Add(pointer, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8d0000 | pointer));
-            coordinates.Add(pointer, new Coordinate(frame, color));
-        }
-        // The original words keyed by record colour once, for every address the domain sweep asks about.
-        Dictionary<PaletteFxColorKey, RgbColor> originalColors = PaletteFxColorAddressAccess.Keyed(ToColors(original));
-        for (int raw = 0; raw <= ushort.MaxValue; raw++)
-        {
-            ushort pointer = (ushort)raw;
-            bool owned = coordinates.TryGetValue(pointer, out var expected);
-            AssertEqual(owned, LogoGlarePaletteColors.TryCoordinates(pointer, out int frame, out int color),
-                "glare owns exact original color words, excluding controls and odd bytes");
-            if (owned)
-            {
-                AssertEqual(expected.Frame, frame, "glare original frame identity");
-                AssertEqual(expected.Color, color, "glare original color column");
-            }
-            bool computed = owned && expected.Frame < 13;
-            AssertEqual(computed, LogoGlarePaletteColors.TryCalculatedColor(pointer, originalColors, out RgbColor calculated),
-                "glare intermediate-color calculation domain");
-            if (computed) AssertEqual(original[pointer], calculated, "glare calculated word matches original ROM");
-        }
-        ushort[] identities = presentation.ColorPointers.Where(original.ContainsKey).ToArray();
-        AssertEqual(224, identities.Length, "glare computed and supplied identities remain enumerable");
-        AssertEqual(224, identities.Distinct().Count(), "glare identities have no duplicates");
-        AssertTrue(!LogoGlarePaletteColors.TryCalculatedColor(0xdf9a, ToColors(new Dictionary<ushort, ushort>()), out _),
-            "glare does not invent a missing base color");
-    }
+        ISnesAddressSpace bus, RoomPaletteFxPresentation presentation) =>
+        VerifyInstalledPaletteFxFamily(bus, presentation, "post-credits icon glare", new PaletteFxFamilyShape { FrameCount = 14, ColorsPerFrame = 16, ColorPointer = (frame, color) => (ushort)(0xdf9a + frame * 36 + color * 2), Definitions = [0xe200], OnScreen = true }, 15);
 
-    /// <summary>Checks Samus loading colors, endpoint channels, aliases, and installed cycle output.</summary>
+    /// <summary>Checks each Samus loading program's installed colours and playback against its native cycle.</summary>
     internal static void VerifyExtractedSamusLoadingPaletteFxPresentation(
         ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
     {
-        var stored = presentation.colors;
-        var inputView = presentation.loadingInputs;
-        ushort[] splitEndpoints = [0xdc7e, 0xdc80, 0xdba1, 0xdc94, 0xdd09, 0xdd0b, 0xddfa, 0xdf4c];
-        LoadingPaletteInputView.Channels[] endpointChannels =
-        [
-            inputView.powerDim1, inputView.powerDim2, inputView.powerBright9, inputView.powerDim12,
-            inputView.variaBright10, inputView.variaBright11, inputView.variaDim12, inputView.gravityDim2,
-        ];
-        int independentComponents = endpointChannels.Sum(channels =>
-            (channels.red is null ? 0 : 1) + (channels.green is null ? 0 : 1) + (channels.blue is null ? 0 : 1));
-        AssertEqual(9, independentComponents, "Stock endpoint words reduce to nine independent channel inputs");
-        var aliases = new Dictionary<ushort, ushort>();
-        List<RoomPaletteFxPresentationRow>? powerRows = null;
-        var tinted = new HashSet<ushort>();
-        foreach (int start in new[] { 0xdb62, 0xdcc8, 0xde2e })
-        {
-            var rows = new List<RoomPaletteFxPresentationRow>();
-            int cursor = start + 4;
-            for (int group = 0; group < 4; group++)
-            {
-                AssertEqual((ushort)0xc648, ReadVerificationWord(bus, 0x8d0000 | cursor), "Loading row decoder timer command");
-                cursor += 3;
-                for (int frame = 0; frame < 2; frame++)
-                {
-                    cursor += 2;
-                    rows.Add(new RoomPaletteFxPresentationRow(cursor, Enumerable.Range(0, 16).Select(color => ReadVerificationWord(bus, 0x8d0000 | (cursor + 2 * color))).ToArray()));
-                    cursor += 34;
-                }
-                AssertEqual((ushort)0xc639, ReadVerificationWord(bus, 0x8d0000 | cursor), "Loading row decoder replay command");
-                cursor += 4;
-            }
-            cursor += 2;
-            rows.Add(new RoomPaletteFxPresentationRow(cursor, Enumerable.Range(0, 16).Select(color => ReadVerificationWord(bus, 0x8d0000 | (cursor + 2 * color))).ToArray()));
-            if (start == 0xdb62) powerRows = rows;
-            foreach (int rowIndex in new[] { 1, 5, 7 })
-            foreach (int slot in start == 0xdb62 ? new[] { 3, 4, 5, 6, 7, 8, 13, 14, 15 } : start == 0xde2e ? new[] { 10, 11 } : Array.Empty<int>())
-                tinted.Add((ushort)(rows[rowIndex].Pointer + 2 * slot));
-            if (start == 0xdcc8)
-            foreach (int rowIndex in new[] { 1, 5, 7 })
-            foreach (int slot in rowIndex == 1 ? new[] { 1, 2 } : new[] { 1, 2, 10, 11 })
-                tinted.Add((ushort)(rows[rowIndex].Pointer + 2 * slot));
-            foreach (int rowIndex in new[] { 1, 5 })
-            foreach (int slot in start == 0xdb62 ? new[] { 1, 2, 10, 11, 12 } : start == 0xdcc8 ? new[] { 12 } : new[] { 2 })
-                tinted.Add((ushort)(rows[rowIndex].Pointer + 2 * slot));
-            if (start == 0xdb62)
-            {
-                foreach (int slot in new[] { 0, 9, 10, 11 }) tinted.Add((ushort)(rows[7].Pointer + 2 * slot));
-                tinted.Add((ushort)(rows[5].Pointer + 2 * 9));
-            }
-            foreach (var row in rows)
-            {
-                var original = rows.First(candidate => candidate.Colors.SequenceEqual(row.Colors));
-                for (int color = 0; color < 16; color++)
-                {
-                    ushort pointer = (ushort)(row.Pointer + 2 * color);
-                    ushort canonical = (ushort)(original.Pointer + 2 * color);
-                    var power = (powerRows ?? throw new InvalidOperationException("Verification requires powerRows."))[rows.IndexOf(original)];
-                    if (power.Colors[color] == row.Colors[color]) canonical = (ushort)(power.Pointer + 2 * color);
-                    if (start == 0xdcc8 && color == 0 && rows.IndexOf(original) == 0)
-                    {
-                        AssertEqual(row.Colors[0], powerRows[1].Colors[0], "Varia normal and Power bright transparent words match natively");
-                        canonical = (ushort)powerRows[1].Pointer;
-                    }
-                    aliases.Add(pointer, canonical);
-                    AssertTrue(presentation.TryReadColor(pointer, out RgbColor actual), "All native loading colors remain installed");
-                    AssertEqual(row.Colors[color], actual, "Loading color equals original payload");
-                    AssertEqual(pointer == canonical && !tinted.Contains(pointer) && !splitEndpoints.Contains(pointer), stored.ContainsKey(pointer), "Stock stores only independent suit/shade inputs");
-                }
-            }
-        }
-        AssertEqual(432, aliases.Count, "Loading color domain");
-        AssertEqual(62, tinted.Count, "Base tints, endpoint brightening and shared channels");
-        AssertEqual(25, aliases.Keys.Count(stored.ContainsKey), "Endpoint splitting and transparent sharing remove whole words");
-        foreach (int invalid in new[] { -1, 3, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => LoadingPaletteColors.TintColor(new RgbColor(0, 0, 0), invalid), "Tint shade rejects outside domain");
-        foreach (int invalid in new[] { -1, 3, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => LoadingPaletteColors.VariaTintColor(new RgbColor(0, 0, 0), invalid), "Varia tint shade rejects outside domain");
-        foreach (int invalid in new[] { -1, 2, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => LoadingPaletteColors.BrightenDimColor(new RgbColor(0, 0, 0), invalid, 0, false), "Dim brightening rejects invalid shade");
-        foreach (int invalid in new[] { -1, 32, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => LoadingPaletteColors.BrightenDimColor(new RgbColor(0, 0, 0), 0, invalid, false), "Dim brightening rejects invalid green peak");
-        AssertEqual(95, aliases.Count(item => item.Key == item.Value), "Shared suit and transparent colors reduce four-row inputs");
-        for (int address = 0; address <= ushort.MaxValue; address++)
-        {
-            bool expected = aliases.TryGetValue((ushort)address, out ushort canonical);
-            AssertEqual(expected, LoadingPaletteColors.TryCanonicalPointer((ushort)address, out ushort actual), "Complete loading color address domain");
-            AssertEqual(canonical, actual, "Original earliest identical row or unowned zero");
-            bool calculated = LoadingPaletteColors.TryCalculatedColor((ushort)address, inputView, out RgbColor tint);
-            AssertEqual(tinted.Contains((ushort)address), calculated, "Complete tint-only address domain");
-            AssertEqual(calculated ? ReadVerificationWord(bus, 0x8d0000 | address) : (ushort)0, tint, "Original tint word or unowned zero");
-        }
-        // The auditor's identities are enumerated once; each alias is then looked up among them.
-        HashSet<ushort> auditedPointers = [.. presentation.ColorPointers];
-        AssertTrue(aliases.Keys.All(auditedPointers.Contains), "Auditor includes calculated loading aliases");
         foreach (SamusLoadingSuitPaletteFxColorDefinition definition in
                  SamusLoadingSuitPaletteFxColorDefinitions.All)
         {
@@ -384,85 +213,10 @@ internal static class RoomPaletteFxPresentationVerification
         }
     }
 
-    /// <summary>Checks Samus heat palette derivation and suit cycles without runtime color-ROM reads.</summary>
+    /// <summary>Checks each Samus heat program's installed colours and suit cycle without runtime color-ROM reads.</summary>
     internal static void VerifyExtractedSamusHeatPaletteFxPresentation(
         ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
     {
-        var stored = presentation.colors;
-        var inputs = presentation.heatInputs;
-        foreach (int? channel in new[] { inputs.greenOverride, inputs.blueOverride, inputs.mixedBlueOverride })
-            AssertTrue(channel is null, "Stock endpoint channels are calculated, not stored overrides");
-        var expectedAliases = new Dictionary<ushort, ushort>();
-        foreach (int first in new[] { 0xe468, 0xe694, 0xe8c0 })
-        for (int phase = 0; phase < 16; phase++)
-        {
-            // Independently discover the first identical original row, not the
-            // mirrored formula under test. This reads only the identified native data.
-            int earliest = 0;
-            for (; earliest < phase; earliest++)
-            {
-                bool same = true;
-                for (int color = 0; color < 15; color++)
-                    same &= ReadVerificationWord(bus, 0x8d0000 | (first + phase * 34 + color * 2)) ==
-                        ReadVerificationWord(bus, 0x8d0000 | (first + earliest * 34 + color * 2));
-                if (same) break;
-            }
-            for (int color = 0; color < 15; color++)
-            {
-                ushort pointer = (ushort)(first + phase * 34 + color * 2);
-                ushort canonical = (ushort)(first + earliest * 34 + color * 2);
-                ushort power = (ushort)(0xe468 + earliest * 34 + color * 2);
-                if (first != 0xe468 && ReadVerificationWord(bus, 0x8d0000 | canonical) ==
-                    ReadVerificationWord(bus, 0x8d0000 | power)) canonical = power;
-                int canonicalFirst = canonical >= 0xe8c0 ? 0xe8c0 : canonical >= 0xe694 ? 0xe694 : 0xe468;
-                bool constant = true;
-                for (int sample = 1; sample < 16; sample++)
-                    constant &= ReadVerificationWord(bus, 0x8d0000 | (canonicalFirst + color * 2)) ==
-                        ReadVerificationWord(bus, 0x8d0000 | (canonicalFirst + sample * 34 + color * 2));
-                if (constant) canonical = (ushort)(canonicalFirst + color * 2);
-                expectedAliases.Add(pointer, canonical);
-
-            }
-        }
-        for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
-        {
-            bool owned = expectedAliases.TryGetValue((ushort)pointer, out ushort expected);
-            AssertEqual(owned, HeatPaletteColors.TryCanonicalPointer((ushort)pointer, out ushort actual),
-                "Every native color pointer/odd/control exclusion");
-            AssertEqual(expected, actual, "Original repeated-row alias or unowned zero");
-        }
-        AssertEqual(0, expectedAliases.Keys.Count(stored.ContainsKey), "No complete stock heat word remains stored");
-        var baseSources = new Dictionary<ushort, ushort>();
-        foreach (var (heat, loading, normal) in new VerifyExtractedSamusHeatPaletteFxPresentationCase[]
-            { new VerifyExtractedSamusHeatPaletteFxPresentationCase(0xe468, 0xdb6d, 0x9b9402), new VerifyExtractedSamusHeatPaletteFxPresentationCase(0xe694, 0xdcd3, 0x9b9522), new VerifyExtractedSamusHeatPaletteFxPresentationCase(0xe8c0, 0xde39, 0x9b9802) })
-        for (int color = 0; color < 15; color++)
-        {
-            ushort heatPointer = (ushort)(heat + 2 * color);
-            ushort loadingPointer = (ushort)(loading + 2 * color);
-            ushort native = ReadVerificationWord(bus, 0x8d0000 | heatPointer);
-            AssertEqual(native, ReadVerificationWord(bus, 0x8d0000 | loadingPointer), "Initial heat/loading suit colors share original art");
-            AssertEqual(native, ReadVerificationWord(bus, normal + 2 * color), "Independent normal suit palette corroborates source");
-            baseSources.Add(heatPointer, loadingPointer);
-        }
-        for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
-        {
-            bool owned = baseSources.TryGetValue((ushort)pointer, out ushort expected);
-            AssertEqual(owned, HeatPaletteColors.TryBasePalettePointer((ushort)pointer, out ushort actual), "Complete heat base-pointer domain");
-            AssertEqual(expected, actual, "Exact loading source or unowned zero");
-        }
-        foreach (ushort pointer in expectedAliases.Values.Distinct())
-        {
-            if (!HeatPaletteColors.TryCalculatedColor(pointer, inputs, out RgbColor calculated))
-            {
-                AssertTrue(inputs.ContainsKey(pointer), "Independent endpoint input remains available");
-                continue;
-            }
-            AssertEqual(ReadVerificationWord(bus, 0x8d0000 | pointer), calculated, "Every calculated shared-red color matches original");
-            AssertTrue(!stored.ContainsKey(pointer), "Calculated shared-red word is not cached");
-        }
-        // The audit's identities are enumerated once; each alias is then looked up among them.
-        HashSet<ushort> auditedPointers = [.. presentation.ColorPointers];
-        AssertTrue(expectedAliases.Keys.All(auditedPointers.Contains), "Audit enumeration includes removed aliases");
         foreach (PaletteFxHeatProgramDefinition definition in
                  PaletteFxHeatProgramMechanicsDefinitions.All)
         {

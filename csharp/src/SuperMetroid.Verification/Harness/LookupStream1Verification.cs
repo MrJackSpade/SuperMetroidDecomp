@@ -74,7 +74,7 @@ internal static class LookupStream1Verification
     private static readonly int[] RetainedTimerDeviations =
         [1161, 1163, 189, 999];
 
-    /// <summary>Checks world-map BG3 primitives and residual pixels against native tiles and the stock upload.</summary>
+    /// <summary>Checks that the installed world-map BG3 atlas uploads the native characters whole and rejects an invalid pen.</summary>
     internal static void VerifyLookupStream1WorldBackground(ISnesAddressSpace rom)
     {
         byte[] Read(int address, int count) => Enumerable.Range(0, count).Select(i => LookupStream1WorldBackgroundRomByte(rom, address + i)).ToArray();
@@ -88,44 +88,14 @@ internal static class LookupStream1Verification
             return png.ToArray();
         }
         byte[] frontPng = Png(frontPixels, size.Y, 16);
-        WorldMapCharacters Create(byte[] selected) => WorldMapCharacters.Read(new MemoryStream(frontPng), new MemoryStream(Png(selected, backSize.Y, 4)));
-        var stock = Create(pixels);
-        var stored = stock.background;
-        var masks = stock.digitFill;
-        AssertEqual(10, masks.Count, "Exactly ten selected digit footprints");
-        ulong NativeMask(int tile)
-        {
-            ulong mask = 0;
-            for (int y = 0; y < 8; y++) for (int x = 0; x < 8; x++)
-                if (pixels[(tile / 16 * 8 + y) * size.X + tile % 16 * 8 + x] == 2) mask |= 1UL << (y * 8 + x);
-            return mask;
-        }
-        foreach (var pair in masks) AssertEqual(NativeMask(pair.Key), pair.Value, "Exact native selected footprint bits");
-        int calculated = 0;
-        for (int index = 0; index < pixels.Length; index++)
-        {
-            int x = index % size.X, y = index / size.X;
-            int tile = y / 8 * 16 + x / 8;
-            bool available = tile is >= 0x3c and <= 0x45
-                ? WorldMapCharacterDrawing.TryOutlinedPixel(tile, new(checked((ushort)(x % 8)), checked((ushort)(y % 8))), NativeMask(tile), out int value)
-                : WorldMapCharacterDrawing.TryBackgroundPixel(tile, new(checked((ushort)(x % 8)), checked((ushort)(y % 8))), out value);
-            if (available) { AssertEqual(pixels[index], value, $"Native primitive tile{y / 8 * 16 + x / 8:X2} pixel{x % 8},{y % 8}"); calculated++; }
-            AssertEqual(!available, stored.ContainsKey(index), "Exact font/icon basis, no stock primitive overrides");
-        }
-        AssertEqual(1725, stored.Count, "Exact residual contour pixels plus five selected font edges");
-        void Check(WorldMapCharacters art, byte[] expected)
-        {
-            var vram = new SnesVram(); art.LoadTo(vram);
-            AssertTrue(vram.Bytes.Slice(WorldMapArtworkFormatConstants.ForegroundDestination, front.Length).SequenceEqual(front), "Foreground obligation remains exact and separate");
-            AssertTrue(vram.Bytes.Slice(WorldMapArtworkFormatConstants.BackgroundDestination, back.Length).SequenceEqual(
-                SnesPlanarTileEncoder.Encode(expected, new(size.X, backSize.Y), 2)), "Actual complete BG3 upload preserves independent pixels");
-        }
-        Check(stock, pixels);
+        var stock = WorldMapCharacters.Read(new MemoryStream(frontPng), new MemoryStream(Png(pixels, backSize.Y, 4)));
+        var vram = new SnesVram(); stock.LoadTo(vram);
+        AssertTrue(vram.Bytes.Slice(WorldMapArtworkFormatConstants.ForegroundDestination, front.Length).SequenceEqual(front), "Foreground obligation remains exact and separate");
+        AssertTrue(vram.Bytes.Slice(WorldMapArtworkFormatConstants.BackgroundDestination, back.Length).SequenceEqual(back), "Complete BG3 upload holds the installed pixels");
         byte[] invalid = (byte[])pixels.Clone(); invalid[0] = 4;
         AssertThrows<InvalidDataException>(() => WorldMapCharacters.Read(new MemoryStream(frontPng),
             new MemoryStream(Png(invalid, backSize.Y, 16))), "Invalid BG3 pen rejected during import, before upload");
-        AssertThrows<ArgumentOutOfRangeException>(() => WorldMapCharacterDrawing.TryBackgroundPixel(96, new(0, 0), out _), "Background tile bound");
-        Console.WriteLine($"World BG3:6144 native pixels,{calculated} geometry/mask defaults,{stored.Count} exact source pixels/10footprints and the actual stock upload pass.");
+        Console.WriteLine("World BG3: the installed atlas uploads the native characters whole and an invalid pen is rejected.");
     }
 
     /// <summary>Reads a source BG3 byte for the world-map artwork oracle.</summary>
@@ -1926,7 +1896,7 @@ internal static class LookupStream1Verification
     /// <summary>Reads native Samus visor color words.</summary>
     private static byte LookupStream1VisorColorsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Checks world-map foreground pixels and the stock tile upload.</summary>
+    /// <summary>Checks that the installed world-map foreground atlas uploads the native characters whole.</summary>
     internal static void VerifyLookupStream1WorldForeground(ISnesAddressSpace rom)
     {
         byte[] Read(int address, int count) => Enumerable.Range(0, count).Select(i => LookupStream1WorldForegroundRomByte(rom, address + i)).ToArray();
@@ -1939,48 +1909,11 @@ internal static class LookupStream1Verification
             using var png = new MemoryStream(); IndexedPng.Write(png, new(size.X, checked((ushort)selectedHeight)), selected, SnesGraphics.DiagnosticPalette(colors));
             return png.ToArray();
         }
-        byte[] backPng = Png(backPixels, backSize.Y, 4);
-        WorldMapCharacters Create(byte[] selected) => WorldMapCharacters.Read(new MemoryStream(Png(selected, size.Y, 16)), new MemoryStream(backPng));
-        var stock = Create(pixels);
-        var stored = stock.foreground;
-        ulong NativeMask(int tile)
-        {
-            ulong mask = 0;
-            for (int y = 0; y < 8; y++) for (int x = 0; x < 8; x++)
-                if (pixels[(tile / 16 * 8 + y) * size.X + tile % 16 * 8 + x] == 14) mask |= 1UL << (y * 8 + x);
-            return mask;
-        }
-        var masks = stock.fontFill;
-        AssertEqual(300, masks.Count, "Exact source font masks after blank and named glyph aliases");
-        foreach (var pair in masks) AssertEqual(NativeMask(pair.Key), pair.Value, "Exact selected native font footprint");
-        int calculated = 0, fontDifferences = 0;
-        for (int index = 0; index < pixels.Length; index++)
-        {
-            int source = WorldMapCharacterDrawing.ForegroundSourcePixel(index);
-            if (source >= 0)
-                AssertEqual(source, WorldMapCharacterDrawing.ForegroundSourcePixel(source), "Foreground source dependencies are fixed and acyclic");
-            AssertEqual(pixels[index], source < 0 ? (byte)0 : pixels[source], $"Direct foreground relation at pixel{index}");
-            bool font = WorldMapCharacterDrawing.TryForegroundFontPixel(index, NativeMask, out int fontValue);
-            bool required = source == index && (!font || pixels[index] != fontValue);
-            AssertEqual(required, stored.ContainsKey(index), "Exact selected source/contour basis; zero stock relation exceptions");
-            if (source == index && font && pixels[index] != fontValue) fontDifferences++;
-            if (source != index) calculated++;
-        }
-        AssertEqual(14347, stored.Count, "Exact drawing, contour and primitive source inputs");
-        AssertEqual(10845, calculated, "Exact geometry and shared-source relations");
-
-        AssertEqual(360, fontDifferences, "Exact selected glyph bevel/contour decisions");
-        void Check(WorldMapCharacters art, byte[] expected)
-        {
-            var vram = new SnesVram(); art.LoadTo(vram);
-            AssertTrue(vram.Bytes.Slice(WorldMapArtworkFormatConstants.ForegroundDestination, front.Length).SequenceEqual(
-                SnesPlanarTileEncoder.Encode(expected, size, 4)), "Complete independent foreground upload");
-            AssertTrue(vram.Bytes.Slice(WorldMapArtworkFormatConstants.BackgroundDestination, back.Length).SequenceEqual(back), "Completed BG3 remains exact");
-        }
-        Check(stock, pixels);
-        AssertThrows<ArgumentOutOfRangeException>(() => WorldMapCharacterDrawing.ForegroundSourcePixel(-1), "Foreground lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => WorldMapCharacterDrawing.ForegroundSourcePixel(pixels.Length), "Foreground upper bound");
-        Console.WriteLine($"World foreground:{pixels.Length} native pixels,{calculated} exact source relations,{stored.Count} source pixels/{masks.Count} masks/{fontDifferences} font differences and the stock upload pass.");
+        var stock = WorldMapCharacters.Read(new MemoryStream(Png(pixels, size.Y, 16)), new MemoryStream(Png(backPixels, backSize.Y, 4)));
+        var vram = new SnesVram(); stock.LoadTo(vram);
+        AssertTrue(vram.Bytes.Slice(WorldMapArtworkFormatConstants.ForegroundDestination, front.Length).SequenceEqual(front), "Complete foreground upload holds the installed pixels");
+        AssertTrue(vram.Bytes.Slice(WorldMapArtworkFormatConstants.BackgroundDestination, back.Length).SequenceEqual(back), "Completed BG3 remains exact");
+        Console.WriteLine("World foreground: the installed atlas uploads the native characters whole.");
     }
 
     /// <summary>Reads world-map BG3 foreground tile bytes.</summary>

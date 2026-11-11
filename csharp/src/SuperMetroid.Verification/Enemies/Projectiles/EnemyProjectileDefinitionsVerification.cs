@@ -445,7 +445,7 @@ internal static class EnemyProjectileDefinitionsVerification
                     _ => TorizoProjectileProgram.ChozoOrbShot,
                 };
                 AssertTrue(projectile.Animation is TorizoProjectileAnimation started
-                        && started.Cursor == AnimationProgramCursor<TorizoProjectileProgram>.Start(expected),
+                        && started.Playback == new AnimationPlayback<TorizoProjectileProgram>(TorizoProjectileAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation),
                     $"{kind} production shot starts the typed {expected} program");
                 AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }

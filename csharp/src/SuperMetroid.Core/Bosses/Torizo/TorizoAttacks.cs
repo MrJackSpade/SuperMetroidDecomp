@@ -180,10 +180,10 @@ internal sealed class TorizoAttacks
         }
     }
 
-    /// <summary>The program a Torizo projectile's typed animation is running.</summary>
+    /// <summary>The segment a Torizo projectile's typed animation stands in.</summary>
     private static TorizoProjectileProgram RunningTorizoProjectileProgram(EnemyProjectile projectile) =>
         projectile.Animation is TorizoProjectileAnimation animation
-            ? animation.Cursor.Program
+            ? animation.PlayingSegment
             : throw new InvalidOperationException($"Enemy projectile {projectile.Kind} is not running a Torizo program.");
 
     /// <summary>Requests the recurring hurt-state drool variant with randomized flight.</summary>

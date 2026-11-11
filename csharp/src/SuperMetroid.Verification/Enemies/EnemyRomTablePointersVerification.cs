@@ -141,7 +141,7 @@ internal static class EnemyRomTablePointersVerification
                 candidate => candidate.IsActive);
             AssertEqual(
                 facingRight ? TorizoProjectileProgram.SuperMissileRightInitial : TorizoProjectileProgram.SuperMissileLeftInitial,
-                (projectile.Animation as TorizoProjectileAnimation)?.Cursor.Program,
+                (projectile.Animation as TorizoProjectileAnimation)?.PlayingSegment,
                 $"Golden Torizo production reflected-Super selector {facingRight} avoids ROM");
         }
 

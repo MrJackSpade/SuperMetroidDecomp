@@ -63,7 +63,7 @@ internal sealed class RoomEarthquake
 
     /// <summary>Starts the earthquake: <paramref name="shake"/> for <paramref name="frames"/> frames, replacing what ran.</summary>
     /// <param name="shake">The shake to show.</param>
-    /// <param name="frames">The frames to shake, 0 through 65535; zero stops the earthquake.</param>
+    /// <param name="frames">The frames to shake, up to <see cref="WrappingCountdown.LongestStart"/>; zero stops the earthquake.</param>
     internal void Start(EarthquakeShake shake, int frames)
     {
         Shake = shake;
@@ -74,7 +74,7 @@ internal sealed class RoomEarthquake
     /// Runs the earthquake for <paramref name="frames"/> frames with the shake it already has, replacing its length and
     /// ending a continuous shake.
     /// </summary>
-    /// <param name="frames">The frames to shake, 0 through 65535; zero stops the earthquake.</param>
+    /// <param name="frames">The frames to shake, up to <see cref="WrappingCountdown.LongestStart"/>; zero stops the earthquake.</param>
     internal void RunFor(int frames)
     {
         _remaining = WrappingCountdown.Start(frames);

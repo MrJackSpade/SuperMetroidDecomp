@@ -8,27 +8,16 @@ namespace SuperMetroid.Core.Rendering;
 /// <see cref="ScrollAbove"/>, the scroll the plane was last levelled at. The backend's shader evaluates the stretch line
 /// by line; nothing keeps a table of lines.
 /// </summary>
-/// <param name="ScrollAbove">The vertical scroll the lines above the band show, 0 through 65535.</param>
-/// <param name="BaseScroll">The vertical scroll the band stretches from and the lines below it show, 0 through 65535.</param>
+/// <param name="ScrollAbove">
+/// The vertical scroll the lines above the band show, any whole number of rows: the plane repeats down its height, so a
+/// scroll and the same scroll a whole number of plane heights on show the same lines.
+/// </param>
+/// <param name="BaseScroll">The vertical scroll the band stretches from and the lines below it show, any whole number of rows.</param>
 /// <param name="FirstLine">The band's first screen line, 0 through the screen's height.</param>
 /// <param name="EndLine">The screen line after the band's last, <paramref name="FirstLine"/> through the screen's height.</param>
-/// <param name="Slope">The rows the band falls behind per line, in 1/65536ths of a row, 0 through 65535.</param>
+/// <param name="Slope">The rows the band falls behind per line, in 1/65536ths of a row, zero or more.</param>
 public sealed record ScrollStretch(int ScrollAbove, int BaseScroll, int FirstLine, int EndLine, int Slope) : LineScroll
 {
-    /// <summary>The vertical scroll the lines above the band show, 0 through 65535.</summary>
-    public int ScrollAbove
-    {
-        get;
-        init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    } = Ensure.BetweenInclusive(0, ushort.MaxValue, ScrollAbove);
-
-    /// <summary>The vertical scroll the band stretches from and the lines below it show, 0 through 65535.</summary>
-    public int BaseScroll
-    {
-        get;
-        init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    } = Ensure.BetweenInclusive(0, ushort.MaxValue, BaseScroll);
-
     /// <summary>The band's first screen line.</summary>
     public int FirstLine
     {
@@ -43,10 +32,10 @@ public sealed record ScrollStretch(int ScrollAbove, int BaseScroll, int FirstLin
         init => field = Ensure.BetweenInclusive(FirstLine, ScreenGeometry.ScreenHeightPixels, value);
     } = Ensure.BetweenInclusive(FirstLine, ScreenGeometry.ScreenHeightPixels, EndLine);
 
-    /// <summary>The rows the band falls behind per line, in 1/65536ths of a row.</summary>
+    /// <summary>The rows the band falls behind per line, in 1/65536ths of a row, zero or more.</summary>
     public int Slope
     {
         get;
-        init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    } = Ensure.BetweenInclusive(0, ushort.MaxValue, Slope);
+        init => field = Ensure.AtLeastZero(value);
+    } = Ensure.AtLeastZero(Slope);
 }

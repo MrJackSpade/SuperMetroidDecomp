@@ -345,7 +345,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 Check("PeriodicDamage", checked((ushort)samus.LiquidPhysics.PendingPeriodicDamage.Whole), NativeSnapshotMemory.PeriodicDamage);
                 // The recorded surface word is 65535 where the room has no lava or acid surface.
                 Check("Acid damage surface", checked((ushort)(samus.LiquidPhysics.LavaAcidSurfaceY ?? ushort.MaxValue)), NativeSnapshotMemory.AcidSurface);
-                Check("Liquid tide phase", checked((ushort)runtime.RoomFxOverlay.TidePhase), NativeSnapshotMemory.TidePhase);
+                Check("Liquid tide phase", runtime.RoomFxOverlay.TidePhase.RawValue, NativeSnapshotMemory.TidePhase);
             }
             Check("Samus X", samus.Position.X.Whole, NativeSnapshotMemory.X);
             Check("Samus X fraction", samus.Kinematics.Position.X.Fraction, NativeSnapshotMemory.XFraction);

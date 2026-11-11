@@ -764,16 +764,16 @@ internal static class EnemyTrigonometryVerification
             tide.LiquidOptions = option;
             for (int phase = 0; phase <= ushort.MaxValue; phase++)
             {
-                tide.TidePhase = (ushort)phase;
-                tide.TideFixedOffset = 12345;
+                tide.TidePhase = RotationAngle.FromRaw(phase);
+                tide.TideOffset = SignedSixteenSixteen.FromRaw(12345);
                 step();
                 short sample = Reference(RotationAngle.FromRaw(unchecked((ushort)phase)).ToTrigonometryAngle().RawValue);
                 bool small = (option & RoomLiquidOptions.SmallTide) != 0;
                 bool still = option == RoomLiquidOptions.None;
                 int scale = still ? 0 : small ? 8 : 32;
                 int delta = still ? 0 : small ? (sample >= 0 ? 288 : 192) : (sample >= 0 ? 224 : 128);
-                if (tide.TideFixedOffset != SixteenSixteen.FromEightEight(sample * scale) ||
-                    tide.TidePhase != unchecked((ushort)(phase + delta)))
+                if (tide.TideOffset.RawValue != SixteenSixteen.FromEightEight(sample * scale) ||
+                    tide.TidePhase.RawValue != unchecked((ushort)(phase + delta)))
                     throw new InvalidDataException($"Native tide differs at options={option}, phase={phase:X4}.");
             }
         }

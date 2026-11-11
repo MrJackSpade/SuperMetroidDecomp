@@ -31,7 +31,7 @@ public static class RoomEarthquakeDefinitions
         new(EarthquakeStrength.Medium, EarthquakeDirection.Horizontal, EarthquakeReach.ForegroundBackgroundAndEnemies);
 
     /// <summary>
-    /// Base delays between rising lava's or acid's repeated rumble sounds, in emission order. The live random
+    /// Base delays, in updates, between rising lava's or acid's repeated rumble sounds, in emission order. The live random
     /// <see cref="RisingLiquidSoundJitter"/> is added at each emission.
     /// </summary>
     /// <remarks>
@@ -44,7 +44,7 @@ public static class RoomEarthquakeDefinitions
     /// same rhythmic content, while replacing the rhythm changes sound cadence.
     /// This is the arbitrary-sequence/nonsense exception, not a cost or size exemption.
     /// </remarks>
-    public static ReadOnlySpan<ushort> RisingLiquidSoundBaseTimers =>
+    public static IReadOnlyList<int> RisingLiquidSoundBaseDelays { get; } =
         [1, 3, 2, 1, 1, 2, 2, 1];
 
     /// <summary>

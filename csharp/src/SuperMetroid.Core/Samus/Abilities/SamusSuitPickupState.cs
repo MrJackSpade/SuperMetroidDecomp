@@ -64,13 +64,17 @@ public sealed class SamusSuitPickupState
 
     /// <summary>
     /// Scanlines the beam has covered from each screen edge while it appears, or wiped while it shrinks: zero at
-    /// setup and again from the end of the curved widening until the shrinking stage starts, and never above 255.
+    /// setup and again from the end of the curved widening until the shrinking stage starts, and always fewer than the
+    /// beam's <see cref="SuitPickupBeamDefinitions.BeamLines"/>: each stage stops once it reaches 128, one update's
+    /// growth past it at most.
     /// </summary>
     private int _lightBeamScanlines;
 
     /// <summary>
     /// The beam's inclusive left screen column while it is a column or centre line (the uniform, curved,
-    /// dissipating and finishing stages); only X is meaningful. Its arithmetic wraps at the window's 256 columns.
+    /// dissipating and finishing stages); only X is meaningful. It always lies across the screen's width
+    /// (<see cref="ScreenColumn"/>): the widening stops its edges at the screen's sides, and the dissipation wraps them
+    /// round the row (<see cref="WrappedColumn"/>).
     /// </summary>
     private Position16<ScreenPixels> _lightBeamLeft;
 
@@ -263,8 +267,8 @@ public sealed class SamusSuitPickupState
         // The widening speed stays a few pixels per update, so the edges stay inside the screen row: the left one
         // stops below 97 long before it would pass zero.
         int amount = _lightBeamSpeed.WholePixels;
-        int left = Ensure.BetweenInclusive(0, byte.MaxValue, _lightBeamLeft.X) - amount;
-        int right = Ensure.BetweenInclusive(0, byte.MaxValue, _lightBeamRight.X) + amount;
+        int left = _lightBeamLeft.X - amount;
+        int right = _lightBeamRight.X + amount;
         _lightBeamLeft = ScreenColumn(left);
         _lightBeamRight = ScreenColumn(right);
         Beam = new(SamusSuitPickupBeamShape.Column, _lightBeamLeft, _lightBeamRight, 0);
@@ -282,20 +286,19 @@ public sealed class SamusSuitPickupState
         AdvanceColorTowardWhite();
 
         int amount = _lightBeamSpeed.WholePixels;
-        int oldLeft = Ensure.BetweenInclusive(0, byte.MaxValue, _lightBeamLeft.X);
-        int left = oldLeft - amount;
-        int right = Ensure.BetweenInclusive(0, byte.MaxValue, _lightBeamRight.X);
+        int left = _lightBeamLeft.X - amount;
+        int right = _lightBeamRight.X;
         // The zero test shares the negative-result clamp. Exact zero must also
-        // force the right endpoint to 255 or the reveal is delayed by a frame.
+        // force the right endpoint to the screen's rightmost column or the reveal is delayed by a frame.
         if (left <= 0)
         {
             left = 0;
-            right = byte.MaxValue;
+            right = SuitPickupBeamDefinitions.RightmostColumn;
         }
         else
         {
             int widenedRight = right + amount;
-            right = Math.Min(widenedRight, byte.MaxValue);
+            right = Math.Min(widenedRight, SuitPickupBeamDefinitions.RightmostColumn);
         }
         _lightBeamLeft = ScreenColumn(left);
         _lightBeamRight = ScreenColumn(right);
@@ -360,10 +363,10 @@ public sealed class SamusSuitPickupState
     /// <summary>Closes the single remaining center scanline until the threshold ends the effect.</summary>
     private void StepLightBeamDissipates()
     {
-        // The edges are screen columns that wrap around the row: the starting left column 255 wraps to 7 on the first
-        // call, which keeps the line closing until the left edge climbs back past 112.
-        int left = WrappedColumn(Ensure.BetweenInclusive(0, byte.MaxValue, _lightBeamLeft.X) + 8);
-        int right = WrappedColumn(Ensure.BetweenInclusive(0, byte.MaxValue, _lightBeamRight.X) - 8);
+        // The edges are screen columns that wrap around the row: the starting left edge at the rightmost column wraps
+        // to 7 on the first call, which keeps the line closing until the left edge climbs back past 112.
+        int left = WrappedColumn(_lightBeamLeft.X + 8);
+        int right = WrappedColumn(_lightBeamRight.X - 8);
         _lightBeamLeft = ScreenColumn(left);
         _lightBeamRight = ScreenColumn(right);
         Beam = new(SamusSuitPickupBeamShape.CenterLine, _lightBeamLeft, _lightBeamRight, 0);
@@ -393,14 +396,21 @@ public sealed class SamusSuitPickupState
         _lightBeamRight = edges.Right;
     }
 
-    /// <summary>The screen position of window column <paramref name="column"/>; only X is meaningful.</summary>
-    private static Position16<ScreenPixels> ScreenColumn(int column) => Position16<ScreenPixels>.Of(column, 0);
+    /// <summary>
+    /// The screen position of window column <paramref name="column"/>, which lies across the screen's width; only X is
+    /// meaningful.
+    /// </summary>
+    private static Position16<ScreenPixels> ScreenColumn(int column) =>
+        Position16<ScreenPixels>.Of(Ensure.BetweenInclusive(0, SuitPickupBeamDefinitions.RightmostColumn, column), 0);
 
-    /// <summary>The columns of a screen row, which a beam edge moved past either end wraps around.</summary>
-    private const int RowColumns = 256;
-
-    /// <summary>The screen column <paramref name="column"/> wraps to within the row.</summary>
-    private static int WrappedColumn(int column) => (column % RowColumns + RowColumns) % RowColumns;
+    /// <summary>
+    /// The screen column <paramref name="column"/> wraps to within the row: an edge moved past either side of the
+    /// screen continues from the other side. Gameplay-observable: the dissipation starts its left edge at the
+    /// rightmost column, and only because the first narrowing carries it round to column 7 does the line keep closing
+    /// until the left edge climbs back past 112, which is when the pickup finishes and releases Samus.
+    /// </summary>
+    private static int WrappedColumn(int column) =>
+        (column % ScreenGeometry.ScreenWidthPixels + ScreenGeometry.ScreenWidthPixels) % ScreenGeometry.ScreenWidthPixels;
 
     /// <summary>Raises each channel by two toward the white reveal colour.</summary>
     private void AdvanceColorTowardWhite() =>

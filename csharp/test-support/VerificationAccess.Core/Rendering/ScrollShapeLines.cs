@@ -52,8 +52,8 @@ internal static class ScrollShapeLines
     /// the base less the rows the band has fallen behind by that line, or the base below the band.
     /// </summary>
     internal static ushort StretchScroll(ScrollStretch stretch, int line) =>
-        line < stretch.FirstLine ? checked((ushort)stretch.ScrollAbove)
-        : line >= stretch.EndLine ? checked((ushort)stretch.BaseScroll)
+        line < stretch.FirstLine ? unchecked((ushort)stretch.ScrollAbove)
+        : line >= stretch.EndLine ? unchecked((ushort)stretch.BaseScroll)
         : unchecked((ushort)(stretch.BaseScroll - TimesSixteenSixteen(line - stretch.FirstLine, stretch.Slope)));
 
     /// <summary>
@@ -61,7 +61,7 @@ internal static class ScrollShapeLines
     /// sample the line reaches times the amplitude, rounded down; outside it, the base.
     /// </summary>
     internal static ushort SampledScroll(SampledScrollWave wave, int line) =>
-        line < wave.FirstLine || line >= wave.EndLine ? checked((ushort)wave.BaseScroll)
+        line < wave.FirstLine || line >= wave.EndLine ? unchecked((ushort)wave.BaseScroll)
         : unchecked((ushort)(wave.BaseScroll + EightEight.Multiply(wave.Samples[(wave.Phase + line) % wave.Period], wave.Amplitude)));
 
     /// <summary>The scroll <paramref name="bands"/> give screen line <paramref name="line"/>: the last band beginning on or above it, or the base above the first.</summary>
@@ -73,6 +73,6 @@ internal static class ScrollShapeLines
             if (band.FirstLine > line) break;
             scroll = band.Scroll;
         }
-        return checked((ushort)scroll);
+        return unchecked((ushort)scroll);
     }
 }

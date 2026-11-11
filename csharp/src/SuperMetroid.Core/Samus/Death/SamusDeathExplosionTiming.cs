@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Samus.Death;
 /// <summary>How long each step of the suit explosion shows.</summary>
 internal static class SamusDeathExplosionTiming
 {
-    /// <summary>Returns the fixed duration for one authored explosion-frame index.</summary>
-    public static ushort DurationForIndex(int index)
+    /// <summary>Returns the updates one authored explosion step shows.</summary>
+    public static int DurationForIndex(int index)
     {
         if (index is < 0 or >= RecordCount)
         {

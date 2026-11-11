@@ -32,14 +32,6 @@ public static class PauseReserveUiDefinitions
     public const int VerticalStartCell = 258 / 2, VerticalCount = 8, RowStrideCells = 64 / 2;
     /// <summary>First horizontal arrow cell and number of adjacent horizontal arrows.</summary>
     public const int HorizontalStartCell = 770 / 2, HorizontalCount = 2;
-    /// <summary>$82:BF06-BF0A selects MODE at interface tiles $119-11B with palette one and priority.</summary>
-    internal const int ModeGlyph = 281, ModePrefixWords = 3;
-    /// <summary>$82:BF0C-BF12 and BF22-BF28 share MANUAL at tiles $146-149, palette seven and priority.</summary>
-    internal const int ManualGlyph = 326;
-    /// <summary>$82:BF2A-BF30 selects AUTO at tiles $156-159, palette seven and priority.</summary>
-    internal const int AutoGlyph = 342;
-    /// <summary>$82:BF14-BF20 selects RESERVE TANK at tiles $80-86, palette seven and priority.</summary>
-    internal const int ReserveTankGlyph = 128;
 
     /// <summary>Every reserve label, in document order.</summary>
     public static IReadOnlyList<PauseReserveLabel> Labels { get; } = Enum.GetValues<PauseReserveLabel>();

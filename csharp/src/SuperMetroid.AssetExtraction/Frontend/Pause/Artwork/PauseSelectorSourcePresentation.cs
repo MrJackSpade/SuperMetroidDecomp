@@ -1,4 +1,6 @@
 using System.Text.Json;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Spatial;
 
@@ -6,15 +8,16 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>
 /// The installed equipment-selector presentation as the import pipeline reads it (#1463): beside the anchors, frame
-/// sequences and timing the game binds, each named frame's composition the pause sheet is composed from.
+/// sequences and timing the game binds, each named frame's composition the pause sheet is composed from, kept as
+/// installed (#1615).
 /// </summary>
 public sealed class PauseSelectorSourcePresentation : PauseSelectorPresentation
 {
-    /// <summary>Each named frame's recognised or authored composition.</summary>
-    internal readonly Dictionary<string, PauseSelectorVisual> visuals;
+    /// <summary>Each named frame's installed composition.</summary>
+    private readonly Dictionary<string, SpriteComposition> visuals;
 
     /// <summary>Retains the selector presentation, its frames' compositions and the sprite set they are composed in.</summary>
-    private PauseSelectorSourcePresentation(PauseSelectorParts parts, Dictionary<string, PauseSelectorVisual> visuals,
+    private PauseSelectorSourcePresentation(PauseSelectorParts parts, Dictionary<string, SpriteComposition> visuals,
         int spriteSet) : base(parts)
     {
         this.visuals = visuals;
@@ -24,26 +27,16 @@ public sealed class PauseSelectorSourcePresentation : PauseSelectorPresentation
     /// <summary>The sprite set the pause sheet composes every selector frame in.</summary>
     internal int SpriteSet { get; }
 
-    /// <summary>Every distinct visual the animation shows, in the order the animation first shows it.</summary>
-    internal IEnumerable<PauseSelectorVisual> Visuals => FrameNames.Select(name => visuals[name]);
+    /// <summary>
+    /// The name of every distinct frame the animation shows, in the order the animation first shows it: the reserve
+    /// category's phases, then the beam category's, then the equipment category's.
+    /// </summary>
+    internal IEnumerable<string> FrameNames => reserve.Concat(beam).Concat(equipment).Distinct(StringComparer.Ordinal);
 
-    /// <summary>The name of every distinct frame the animation shows: each category's base frame, then its authored phase frames.</summary>
-    internal IEnumerable<string> FrameNames =>
-        new[] { reserve, beam, equipment }.SelectMany(PhaseFrameNames).Distinct(StringComparer.Ordinal);
-
-    /// <summary>A category's base frame and each authored phase frame.</summary>
-    private static IEnumerable<string> PhaseFrameNames(PhaseFrames phases) =>
-        phases.Overrides is null ? [phases.basis] : [phases.basis, .. phases.Overrides.Values];
-
-    /// <summary>Retains a phase's frame in <paramref name="overrides"/> only when it differs from the category's base frame.</summary>
-    /// <param name="overrides">The category's authored phase frames, created on the first difference.</param>
-    /// <param name="basis">The category's base frame, shown by the first phase.</param>
-    /// <param name="phase">The animation phase.</param>
-    /// <param name="frame">The frame the phase shows.</param>
-    private static void Capture(ref Dictionary<int, string>? overrides, string basis, int phase, string frame)
-    {
-        if (!string.Equals(basis, frame, StringComparison.Ordinal)) (overrides ??= new()).Add(phase, frame);
-    }
+    /// <summary>The installed composition of the frame named <paramref name="name"/> as a whole frame of the pause sheet (#1392).</summary>
+    /// <param name="name">The installed frame name.</param>
+    /// <param name="frameName">The pause sheet's name for the frame.</param>
+    internal SpriteFrame Frame(string name, string frameName) => visuals[name].ToFrame(frameName, 0);
 
     /// <summary>Loads and validates equipment-selector anchors, frames, animation, palette, and timing.</summary>
     public static PauseSelectorSourcePresentation Load(Stream json)
@@ -65,14 +58,15 @@ public sealed class PauseSelectorSourcePresentation : PauseSelectorPresentation
                 throw new InvalidDataException($"Pause selector {name} requires screen coordinates X=0..255/Y=0..223.");
             anchors.Add(name, point);
         }
-        var frames = new Dictionary<string, PauseSelectorVisual>();
+        var frames = new Dictionary<string, SpriteComposition>();
         foreach (var frame in document.Frames)
         {
             if (string.IsNullOrWhiteSpace(frame.Key) || frame.Value is null) throw new InvalidDataException("Pause selector frame requires a name and parts.");
-            frames.Add(frame.Key, PauseSelectorVisual.Compile(frame.Value, frame.Key));
+            frames.Add(frame.Key, MenuSpriteCompiler.Compile(frame.Value, frame.Key));
         }
-        string? reserveBasis = null, beamBasis = null, equipmentBasis = null;
-        Dictionary<int, string>? reserveOverrides = null, beamOverrides = null, equipmentOverrides = null;
+        var reserve = new string[document.Animation.Length];
+        var beam = new string[document.Animation.Length];
+        var equipment = new string[document.Animation.Length];
         var durations = new int[document.Animation.Length];
         for (int i = 0; i < document.Animation.Length; i++)
         {
@@ -82,23 +76,13 @@ public sealed class PauseSelectorSourcePresentation : PauseSelectorPresentation
                 phase.Beam is null || !frames.ContainsKey(phase.Beam) ||
                 phase.Equipment is null || !frames.ContainsKey(phase.Equipment))
                 throw new InvalidDataException($"Pause selector phase {i} has invalid timing or an unknown frame.");
-            if (reserveBasis is null || beamBasis is null || equipmentBasis is null)
-            {
-                reserveBasis = phase.Reserve; beamBasis = phase.Beam; equipmentBasis = phase.Equipment;
-            }
-            else
-            {
-                Capture(ref reserveOverrides, reserveBasis, i, phase.Reserve);
-                Capture(ref beamOverrides, beamBasis, i, phase.Beam);
-                Capture(ref equipmentOverrides, equipmentBasis, i, phase.Equipment);
-            }
+            reserve[i] = phase.Reserve;
+            beam[i] = phase.Beam;
+            equipment[i] = phase.Equipment;
             durations[i] = phase.DurationTicks;
         }
-        if (reserveBasis is null || beamBasis is null || equipmentBasis is null)
-            throw new InvalidDataException("Pause selector animation requires at least one phase.");
-        return new(new PauseSelectorParts { Anchors = anchors, Reserve = new(reserveBasis, reserveOverrides),
-            Beam = new(beamBasis, beamOverrides), Equipment = new(equipmentBasis, equipmentOverrides), Durations = durations, InitialDuration = document.InitialDurationTicks },
-            frames, document.Palette);
+        return new(new PauseSelectorParts { Anchors = anchors, Reserve = reserve, Beam = beam, Equipment = equipment,
+            Durations = durations, InitialDuration = document.InitialDurationTicks }, frames, document.Palette);
     }
 
     /// <summary>Writes a pause-selector document as JSON.</summary>

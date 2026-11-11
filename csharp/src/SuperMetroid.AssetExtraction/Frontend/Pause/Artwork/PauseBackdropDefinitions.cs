@@ -21,24 +21,4 @@ public static class PauseBackdropDefinitions
     public const int ButtonRows = 16, ButtonCells = Columns * ButtonRows;
     /// <summary>$82:93C3 writes the label at BG2 word $38AA, 170 words into its page.</summary>
     public const int LabelCell = 170, LabelWords = 12;
-    /// <summary>$82:966F-9716 area letters use the contiguous uppercase font beginning at $30.</summary>
-    internal const int LetterA = 48;
-    /// <summary>$B6:E000 and label padding use blank glyph one, palette two and BG priority.</summary>
-    internal static readonly BackgroundTile BlankTile = new(1, 2, highPriority: true);
-    /// <summary>$B6:E140/E142/E152/E180: frame corner $BF, bar $BE, title end $BD and side $CF.</summary>
-    internal const int Corner = 191, Bar = 190, TitleEnd = 189, Side = 207;
-    /// <summary>$B6:E182: repeated inset background uses glyph $12, palette two without priority.</summary>
-    internal static readonly BackgroundTile InsetTile = new(18, 2, highPriority: false);
-    /// <summary>$82:966F-9716: area letters use palette six with BG priority.</summary>
-    internal const int LetterPalette = 6;
-    /// <summary>The frame, title and control glyphs use palette two with BG priority.</summary>
-    internal const int FramePalette = 2;
-    /// <summary>$B6:E642/E64A/E658/E660/E66C: L, MAP, EXIT, START and SAMUS control artwork origins.</summary>
-    internal const int ShoulderButton = 86, MapButton = 153, ExitButton = 184, StartButton = 149, SamusButton = 121;
-    /// <summary>$B6:E654/E66A: repeated vertical control separator character $7F.</summary>
-    internal const int ControlSeparator = 127;
-    /// <summary>$B6:E678: R-label upper glyph pair starts at $5C; its independent lower fragment remains pending.</summary>
-    internal const int RightButtonText = 92;
-    /// <summary>Control artwork is packed in sixteen-character atlas rows.</summary>
-    internal const int ControlAtlasStride = 16;
 }

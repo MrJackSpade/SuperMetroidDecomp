@@ -5,20 +5,20 @@ using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
-/// <summary>Editable label artwork and placement for the pause equipment page.</summary>
+/// <summary>Editable label artwork and placement for the pause equipment page, kept as installed (#1615).</summary>
 public sealed class PauseEquipmentLabelPresentation
 {
-    /// <summary>Each selector anchor retains only cells and placement that differ from stock pause artwork.</summary>
+    /// <summary>Each label's installed placement and tiles.</summary>
     private readonly Dictionary<PauseEquipmentLabelId, CompiledLabel> labels;
-    /// <summary>Edits to the nine-cell native blank strip used when inventory text is absent, by cell.</summary>
-    internal readonly Dictionary<int, BackgroundTile> blankEdits;
+    /// <summary>The installed nine-cell blank strip used when inventory text is absent.</summary>
+    private readonly BackgroundTile[] blank;
 
-    /// <summary>Captures compiled label differences and the disabled palette.</summary>
-    private PauseEquipmentLabelPresentation(Dictionary<PauseEquipmentLabelId, CompiledLabel> labels, Dictionary<int, BackgroundTile> blankEdits,
+    /// <summary>Keeps the installed labels, blank strip and disabled palette.</summary>
+    private PauseEquipmentLabelPresentation(Dictionary<PauseEquipmentLabelId, CompiledLabel> labels, BackgroundTile[] blank,
         int disabledPalette)
     {
         this.labels = labels;
-        this.blankEdits = blankEdits;
+        this.blank = blank;
         DisabledPalette = disabledPalette;
     }
 
@@ -67,7 +67,7 @@ public sealed class PauseEquipmentLabelPresentation
         }
     }
 
-    /// <summary>Validates and compiles pause-equipment-labels.json into placement and tile edits relative to the native $82:BF32-C01A label artwork.</summary>
+    /// <summary>Validates and compiles pause-equipment-labels.json into every label's placement and tiles.</summary>
     /// <param name="json">UTF-8 JSON source read from its current position to the end and left open.</param>
     /// <returns>Compiled inventory-label artwork independent of the mutable document collections and cartridge memory.</returns>
     /// <exception cref="InvalidDataException">The JSON, version, exact label set, cell references, placement, disabled palette, or permitted label/live-state footprints are invalid.</exception>
@@ -117,14 +117,10 @@ public sealed class PauseEquipmentLabelPresentation
                     if (!occupied.Add(cell)) throw new InvalidDataException($"Pause equipment label {key} overlaps another label.");
                 }
             }
-            compiled.Add(id, CompiledLabel.Load(id, destinationCell, PauseTileGrid.Compile(label.Cells, key)));
+            compiled.Add(id, new CompiledLabel(destinationCell, PauseTileGrid.Compile(label.Cells, key)));
         }
 
-        BackgroundTile[] blank = PauseTileGrid.Compile(document.Blank, "Equipment.Blank");
-        var blankEdits = new Dictionary<int, BackgroundTile>();
-        for (int cell = 0; cell < PauseEquipmentLabelArtworkDefinitions.EquipmentWords; cell++)
-            if (blank[cell] != default) blankEdits.Add(cell, blank[cell]);
-        return new(compiled, blankEdits, document.DisabledPalette);
+        return new(compiled, PauseTileGrid.Compile(document.Blank, "Equipment.Blank"), document.DisabledPalette);
     }
 
     /// <summary>Serializes the editable label schema to UTF-8 JSON and writes the bytes.</summary>
@@ -137,17 +133,9 @@ public sealed class PauseEquipmentLabelPresentation
     }
 
     /// <summary>
-    /// $82:C01A-C02B supplies nine empty cells. Uncollected labels and Hyper's
-    /// discarded beam slots clear their selected width; only explicit asset edits
-    /// need per-cell data. The source JSON remains the content-identity contract.
+    /// Uncollected labels and Hyper's discarded beam slots show the installed blank strip across their selected width.
     /// </summary>
-    private void WriteBlank(Span<BackgroundTile> destination)
-    {
-        destination.Clear();
-        foreach (KeyValuePair<int, BackgroundTile> edit in blankEdits)
-            if (edit.Key < destination.Length)
-                destination[edit.Key] = edit.Value;
-    }
+    private void WriteBlank(Span<BackgroundTile> destination) => blank.AsSpan(0, destination.Length).CopyTo(destination);
 
     /// <summary>Rejects partial tilemaps so fixed label destinations remain within the complete 32-by-32 pause tilemap.</summary>
     private static void ValidateTilemap(Span<BackgroundTile> tilemap)
@@ -163,31 +151,17 @@ public sealed class PauseEquipmentLabelPresentation
             tile = tile with { ColourVariant = palette };
     }
 
-    /// <summary>Stores placement and tile differences while resolving unchanged cells from stock label definitions.</summary>
-    private sealed class CompiledLabel(PauseEquipmentLabelId id, int? destinationEdit, Dictionary<int, BackgroundTile> edits)
+    /// <summary>One label's installed placement and tiles.</summary>
+    /// <param name="pageCell">The equipment-page cell the label's first tile shows in.</param>
+    /// <param name="tiles">The label's installed tiles, first to last.</param>
+    private sealed class CompiledLabel(int pageCell, BackgroundTile[] tiles)
     {
-        /// <summary>Returns the edited cell or the stock selector's equipment-page cell.</summary>
-        internal int PageCell => destinationEdit ?? PauseEquipmentLabelPlacement.PageCell(id);
-        /// <summary>Uses the native selector's width even when its authored strip has edited cells.</summary>
-        internal int CellCount => PauseEquipmentLabelPlacement.CellCount(id);
+        /// <summary>The installed equipment-page cell of the label's first tile.</summary>
+        internal int PageCell => pageCell;
+        /// <summary>The label strip's width, as installed.</summary>
+        internal int CellCount => tiles.Length;
 
-        /// <summary>Retains only tiles and destination coordinates that differ from the native selector.</summary>
-        internal static CompiledLabel Load(PauseEquipmentLabelId id, int destinationCell, ReadOnlySpan<BackgroundTile> tiles)
-        {
-            var edits = new Dictionary<int, BackgroundTile>();
-            for (int cell = 0; cell < tiles.Length; cell++)
-                if (tiles[cell] != PauseEquipmentLabelGlyphs.StockTile(id, cell)) edits.Add(cell, tiles[cell]);
-            int? changedDestination = destinationCell == PauseEquipmentLabelPlacement.PageCell(id)
-                ? null : destinationCell;
-            return new(id, changedDestination, edits);
-        }
-
-        /// <summary>Materializes edited cells over stock artwork for the requested prefix.</summary>
-        internal void CopyTo(Span<BackgroundTile> destination)
-        {
-            for (int cell = 0; cell < destination.Length; cell++)
-                destination[cell] = edits.TryGetValue(cell, out BackgroundTile edited) ? edited
-                    : PauseEquipmentLabelGlyphs.StockTile(id, cell);
-        }
+        /// <summary>Writes the label's first <paramref name="destination"/>-length tiles.</summary>
+        internal void CopyTo(Span<BackgroundTile> destination) => tiles.AsSpan(0, destination.Length).CopyTo(destination);
     }
 }

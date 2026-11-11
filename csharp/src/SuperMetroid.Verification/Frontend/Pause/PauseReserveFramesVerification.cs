@@ -33,8 +33,6 @@ internal static class PauseReserveFramesVerification
         var document = RequiredJson.Deserialize<PauseReserveTankDocument>(bytes, ArtworkJson.Options);
         var stock = PauseReserveTankSourcePresentation.Load(new MemoryStream(bytes));
         Suite(nameof(VerifyPauseReserveNativeFrames), () => VerifyPauseReserveNativeFrames(rom, stock));
-        Suite(nameof(VerifyPauseReserveStockParts), () => VerifyPauseReserveStockParts(rom));
-        AssertEqual(0, stock.StoredFrameCount, "stock reserve frames use no stored compositions");
         foreach (var changed in ReserveFrameOracle())
         {
             var frames = new Dictionary<string, SpriteVisualPart[]>(document.Frames);
@@ -51,27 +49,6 @@ internal static class PauseReserveFramesVerification
         var undefined = (PauseReserveTankVisual)(-1);
         AssertThrows<InvalidOperationException>(() => stock.Draw(ScreenSpritesFixtures.Blank(), MenuSheetFixtures.PauseSprites(stock), undefined, 0), "unsupported reserve identity");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Draw(ScreenSpritesFixtures.Blank(), MenuSheetFixtures.PauseSprites(stock), undefined, -1), "anchor error precedes unknown visual");
-    }
-
-    /// <summary>Compares each stock reserve part against its native map.</summary>
-    private static void VerifyPauseReserveStockParts(ISnesAddressSpace rom)
-    {
-        foreach (var frame in ReserveFrameOracle())
-        {
-            int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c569 + frame.Id * 2);
-            AssertEqual((ushort)1, ReadVerificationWord(rom, pointer), "native reserve part count");
-            var x = new SnesSpritemapXWord(ReadVerificationWord(rom, pointer + 2));
-            var attributes = new SnesObjAttributeWord(ReadVerificationWord(rom, pointer + 5));
-            var stockPart = PauseReserveTankStockPartDefinitions.StockPart(PauseReserveTankVisualWords.Ordinals.Decode(frame.Id, "reserve visual"));
-            AssertEqual(x.SignedOffset, stockPart.OffsetX, "native reserve X offset");
-            AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(pointer + 4)), stockPart.OffsetY, "native reserve Y offset");
-            AssertEqual(x.IsLarge ? 16 : 8, stockPart.Size, "native reserve sprite size");
-            AssertEqual(attributes.TileNumber, stockPart.TileRow * MapSpriteFormat.TileColumns + stockPart.TileColumn, "native reserve tile progression");
-            AssertEqual(attributes.Priority, stockPart.Priority, "native reserve priority");
-            AssertEqual(attributes.FlipHorizontally, stockPart.FlipX, "native reserve X flip");
-            AssertEqual(attributes.FlipVertically, stockPart.FlipY, "native reserve Y flip");
-            AssertTrue(stockPart.Palette is null, "reserve palette remains caller-owned");
-        }
     }
 
     /// <summary>

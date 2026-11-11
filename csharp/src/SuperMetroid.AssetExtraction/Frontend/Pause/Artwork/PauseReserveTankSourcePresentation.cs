@@ -1,6 +1,6 @@
-using System.Collections.Immutable;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Frontend.Menus;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Spatial;
@@ -10,15 +10,16 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>
 /// The installed reserve-strip presentation as the import pipeline reads it (#1463): beside the anchors and palette the
-/// game binds, the reserve visuals' compositions the pause sheet is composed from.
+/// game binds, the reserve visuals' compositions the pause sheet is composed from, kept as installed (#1615).
 /// </summary>
 public sealed class PauseReserveTankSourcePresentation : PauseReserveTankPresentation
 {
-    /// <summary>Edited sprite compositions for the ten native reserve visual roles.</summary>
-    internal readonly FrameSet frames;
+    /// <summary>The installed composition of each of the ten reserve visual roles.</summary>
+    private readonly Dictionary<PauseReserveTankVisual, SpriteComposition> frames;
 
     /// <summary>Stores the installed anchors, frame art, and the sprite set the strip's frames are composed in.</summary>
-    private PauseReserveTankSourcePresentation(Position16<SpritePixels>[] anchors, FrameSet frames, int spriteSet)
+    private PauseReserveTankSourcePresentation(Position16<SpritePixels>[] anchors,
+        Dictionary<PauseReserveTankVisual, SpriteComposition> frames, int spriteSet)
         : base(anchors)
     {
         this.frames = frames;
@@ -28,30 +29,11 @@ public sealed class PauseReserveTankSourcePresentation : PauseReserveTankPresent
     /// <summary>The sprite set the pause sheet composes every reserve-strip frame in.</summary>
     internal int SpriteSet { get; }
 
-    /// <summary>
-    /// One reserve visual as a whole frame (#1392): its authored composition, or the stock single character, which takes
-    /// its draw's palette.
-    /// </summary>
+    /// <summary>One reserve visual's installed composition as a whole frame (#1392).</summary>
     internal SpriteFrame ToFrame(PauseReserveTankVisual visual, string frameName) =>
-        Composition(visual) is { } composition ? composition.ToFrame(frameName, 0)
-            : new(frameName, [SpritePart.Single(PauseReserveTankStockPartDefinitions.StockTile(visual), 0, 3)
-                .ToFramePart(0, SpritePartFrames.StandardSizes, inheritPalette: true)]);
+        frames.TryGetValue(visual, out SpriteComposition? composition) ? composition.ToFrame(frameName, 0)
+            : throw new InvalidOperationException($"Undefined PauseReserveTankVisual {visual}.");
 
-    /// <summary>The authored composition of one reserve visual, or null where the stock character stands.</summary>
-    private SpriteComposition? Composition(PauseReserveTankVisual visual) => visual switch
-        {
-            PauseReserveTankVisual.Full => frames.Full,
-            PauseReserveTankVisual.EndCap => frames.EndCap,
-            PauseReserveTankVisual.Empty => frames.Empty,
-            PauseReserveTankVisual.Fill1 => frames.Fills[0],
-            PauseReserveTankVisual.Fill2 => frames.Fills[1],
-            PauseReserveTankVisual.Fill3 => frames.Fills[2],
-            PauseReserveTankVisual.Fill4 => frames.Fills[3],
-            PauseReserveTankVisual.Fill5 => frames.Fills[4],
-            PauseReserveTankVisual.Fill6 => frames.Fills[5],
-            PauseReserveTankVisual.Fill7 => frames.Fills[6],
-            _ => throw new InvalidOperationException($"Undefined PauseReserveTankVisual {visual}."),
-        };
     /// <summary>Loads and validates the reserve-strip palette, six anchors, and ten named sprite frames.</summary>
     /// <param name="json">The caller-owned stream containing the editable presentation document.</param>
     /// <returns>The validated reserve-tank presentation.</returns>
@@ -69,24 +51,16 @@ public sealed class PauseReserveTankSourcePresentation : PauseReserveTankPresent
         foreach (var point in document.Anchors)
             if (point.X is < 0 or > 255 || point.Y is < 0 or > 223)
                 throw new InvalidDataException("Reserve tank anchor requires screen coordinates X=0..255/Y=0..223.");
-        var frames = new FrameSet(Require("Full", PauseReserveTankVisual.Full), Require("EndCap", PauseReserveTankVisual.EndCap), Require("Empty", PauseReserveTankVisual.Empty),
-            [Require("Fill1", PauseReserveTankVisual.Fill1), Require("Fill2", PauseReserveTankVisual.Fill2), Require("Fill3", PauseReserveTankVisual.Fill3), Require("Fill4", PauseReserveTankVisual.Fill4), Require("Fill5", PauseReserveTankVisual.Fill5), Require("Fill6", PauseReserveTankVisual.Fill6), Require("Fill7", PauseReserveTankVisual.Fill7)]);
-        SpriteComposition? Require(string name, PauseReserveTankVisual identity)
+        var frames = new Dictionary<PauseReserveTankVisual, SpriteComposition>();
+        foreach (var frame in PauseReserveTankParts.Frames())
         {
-            if (!document.Frames.TryGetValue(name, out var parts) || parts is null)
-                throw new InvalidDataException($"Missing reserve tank frame {name}.");
-            return parts.Length == 1 && parts[0] == PauseReserveTankStockPartDefinitions.StockPart(identity)
-                ? null : MenuSpriteCompiler.Compile(parts, name);
+            if (!document.Frames.TryGetValue(frame.Name, out var parts) || parts is null)
+                throw new InvalidDataException($"Missing reserve tank frame {frame.Name}.");
+            frames.Add(frame.Id, MenuSpriteCompiler.Compile(parts, frame.Name));
         }
         return new(document.Anchors, frames, document.Palette);
     }
-    /// <summary>Distinct reserve strip roles selected by the native fill renderer.</summary>
-    /// <param name="Full">The full strip.</param>
-    /// <param name="EndCap">The strip's end cap.</param>
-    /// <param name="Empty">The empty strip.</param>
-    /// <param name="Fills">The seven partial-fill frames, indexed by fill level less one.</param>
-    internal sealed record FrameSet(SpriteComposition? Full, SpriteComposition? EndCap, SpriteComposition? Empty,
-        ImmutableArray<SpriteComposition?> Fills);
+
     /// <summary>Writes an editable reserve-tank presentation document as JSON.</summary>
     /// <param name="output">The caller-owned destination stream.</param>
     /// <param name="document">The presentation document to serialize.</param>

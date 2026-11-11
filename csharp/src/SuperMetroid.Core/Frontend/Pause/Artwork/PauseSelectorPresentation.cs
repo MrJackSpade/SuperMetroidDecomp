@@ -4,15 +4,16 @@ namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 
 /// <summary>
 /// The installed equipment-selector anchors, visual animation and timing; selection rules stay compiled. The installation
-/// is the anchors' and timing's only source (#1596). Each phase selects a frame of the installed pause sheet by name; the
-/// frames' compositions belong to the import pipeline that reads the installed presentation (#1463).
+/// is the anchors', frames' and timing's only source (#1596, #1615): each phase names, for each category, the frame of the
+/// installed pause sheet it shows. The frames' compositions belong to the import pipeline that reads the installed
+/// presentation (#1463).
 /// </summary>
 public abstract class PauseSelectorPresentation
 {
     /// <summary>The installed anchor of each equipment control, by its stable anchor name.</summary>
     internal readonly Dictionary<string, Position16<SpritePixels>> anchors;
-    /// <summary>Category frame sequences sharing their base frame unless a phase overrides it.</summary>
-    internal readonly PhaseFrames reserve, beam, equipment;
+    /// <summary>The frame each animation phase shows for a category, in phase order.</summary>
+    internal readonly string[] reserve, beam, equipment;
     /// <summary>The installed dwell of each animation phase, in ticks.</summary>
     internal readonly int[] durations;
     /// <summary>Dwell time before the selector enters its cyclic animation.</summary>
@@ -21,16 +22,21 @@ public abstract class PauseSelectorPresentation
     public int PhaseCount => durations.Length;
     /// <summary>Keeps the complete installed anchors, frame sequences and timing.</summary>
     /// <param name="parts">The validated selector anchors, frame sequences and timing.</param>
+    /// <exception cref="InvalidDataException">A category's frame sequence does not name a frame for every phase.</exception>
     internal PauseSelectorPresentation(PauseSelectorParts parts)
     {
         Ensure.NotNull(parts);
         anchors = new Dictionary<string, Position16<SpritePixels>>(parts.Anchors, StringComparer.Ordinal);
-        reserve = parts.Reserve;
-        beam = parts.Beam;
-        equipment = parts.Equipment;
         durations = [.. parts.Durations];
+        reserve = PhaseFrames(parts.Reserve, nameof(parts.Reserve));
+        beam = PhaseFrames(parts.Beam, nameof(parts.Beam));
+        equipment = PhaseFrames(parts.Equipment, nameof(parts.Equipment));
         InitialDurationTicks = parts.InitialDuration;
     }
+    /// <summary>A category's frame for every phase, rejected unless there is exactly one per phase.</summary>
+    private string[] PhaseFrames(IReadOnlyList<string> frames, string category) => frames.Count == durations.Length
+        ? [.. frames]
+        : throw new InvalidDataException($"The installed pause selector's {category} sequence names {frames.Count} frames for {durations.Length} phases.");
     /// <summary>The installed screen-pixel anchor of the category's item.</summary>
     /// <exception cref="InvalidDataException">The installation has no anchor for the item.</exception>
     public Position16<SpritePixels> Anchor(PauseEquipmentCategory category, int item)
@@ -57,38 +63,24 @@ public abstract class PauseSelectorPresentation
             PauseEquipmentCategory.Beams => beam,
             PauseEquipmentCategory.Suits or PauseEquipmentCategory.Boots => equipment,
             _ => throw new InvalidOperationException($"Undefined PauseEquipmentCategory {category}."),
-        }).Get(normalized);
+        })[normalized];
         Ensure.NotNull(entries).AddImage(Ensure.NotNull(sheet).Frame(PauseSelectorAnchors.SheetFrameName(frame)), point, PictureShading.Standard);
     }
-    /// <summary>The stock selector has zero sprite offsets in every phase: each category
-    /// holds its base frame. Only explicitly authored phase differences are retained.</summary>
-    /// <param name="basis">The base frame shared by phases without an authored override.</param>
-    /// <param name="overrides">The animation phases the import found selecting a different frame, or null.</param>
-    internal sealed class PhaseFrames(string basis, Dictionary<int, string>? overrides)
-    {
-        /// <summary>Base frame shared by phases without an authored override.</summary>
-        internal readonly string basis = basis;
-        /// <summary>Only animation phases selecting a different frame.</summary>
-        internal Dictionary<int, string>? Overrides { get; } = overrides;
-        /// <summary>Resolves an authored phase frame or falls back to the base frame.</summary>
-        public string Get(int phase) => Overrides is not null && Overrides.TryGetValue(phase, out var value)
-            ? value : basis;
-    }
 
-    /// <summary>Validated selector parts passed into the compact installed representation.</summary>
+    /// <summary>Validated selector parts passed into the installed representation.</summary>
     internal sealed record PauseSelectorParts
     {
         /// <summary>The installed anchor of each equipment control, by its stable anchor name.</summary>
         public required IReadOnlyDictionary<string, Position16<SpritePixels>> Anchors { get; init; }
 
-        /// <summary>Reserve category frame sequence.</summary>
-        public required PhaseFrames Reserve { get; init; }
+        /// <summary>The reserve category's frame for each phase, in phase order.</summary>
+        public required IReadOnlyList<string> Reserve { get; init; }
 
-        /// <summary>Beam category frame sequence.</summary>
-        public required PhaseFrames Beam { get; init; }
+        /// <summary>The beam category's frame for each phase, in phase order.</summary>
+        public required IReadOnlyList<string> Beam { get; init; }
 
-        /// <summary>Shared suit and boot category frame sequence.</summary>
-        public required PhaseFrames Equipment { get; init; }
+        /// <summary>The shared suit and boot category's frame for each phase, in phase order.</summary>
+        public required IReadOnlyList<string> Equipment { get; init; }
 
         /// <summary>Each animation phase's dwell in ticks, in phase order; its length is the cycle length.</summary>
         public required IReadOnlyList<int> Durations { get; init; }

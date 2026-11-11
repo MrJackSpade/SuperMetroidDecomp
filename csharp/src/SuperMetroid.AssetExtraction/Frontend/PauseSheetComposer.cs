@@ -36,10 +36,10 @@ internal static class PauseSheetComposer
         SpriteArtwork page = MapSpriteArtwork.Of(InstalledAreaMapPresentation.SpritesOf(maps)).Page;
         PauseReserveTankSourcePresentation tankSource = PauseReserveTankSourcePresentation.Of(tanks);
         PauseSelectorSourcePresentation selectorSource = PauseSelectorSourcePresentation.Of(selectors);
-        List<SheetFrameSource> frames = [.. selectorSource.Visuals.Select(visual =>
+        List<SheetFrameSource> frames = [.. selectorSource.FrameNames.Select(frame =>
         {
-            string name = PauseSelectorAnchors.SheetFrameName(visual.Name);
-            return new SheetFrameSource(name, visual.ToFrame(name), page, selectorSource.SpriteSet);
+            string name = PauseSelectorAnchors.SheetFrameName(frame);
+            return new SheetFrameSource(name, selectorSource.Frame(frame, name), page, selectorSource.SpriteSet);
         })];
         frames.AddRange(PauseReserveTankParts.Frames().Select(frame =>
         {

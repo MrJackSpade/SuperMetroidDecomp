@@ -99,8 +99,9 @@ public sealed class RidleyEnemyState
     public bool Roaring { get; internal set; }
     /// <summary>Gets the Ceres hover-cycle counter used to choose the next scripted attack; every attack resets it before it passes 124.</summary>
     public int HoverCounter { get; internal set; }
-    /// <summary>Where Ridley's typed body program resumes (#641).</summary>
-    internal AnimationProgramCursor<RidleyBodyProgram> BodyProgram { get; set; }
+    /// <summary>Ridley's playing body animation and where it stands (#641, #1600); before the first start, the initial animation.</summary>
+    internal AnimationPlayback<RidleyBodyProgram> BodyPlayback { get; set; } =
+        new(RidleyAnimations.StartingWith(RidleyBodyProgram.Initial), AnimationPlace.StartOfAnimation);
     /// <summary>Gets the claw-height pose Ridley's body program last selected: zero standing, one legs half extended, two legs extended.</summary>
     public int FeetDistanceIndex { get; internal set; }
     /// <summary>Gets the Ceres fireball attack's whole-pixel body anchor; firing motion aims at random jitter around this saved position.</summary>
@@ -154,8 +155,9 @@ public sealed class RidleyEnemyState
     /// <summary>Gets whether the terminal Lower Norfair death routine has written the persistent area-boss defeat bit.</summary>
     public bool BossDefeatPublished { get; internal set; }
 
-    /// <summary>The Ceres Baby's typed cutscene program, positioned after its current pose; owned separately from Ridley's body.</summary>
-    internal AnimationProgramCursor<CeresBabyProgram> BabyProgram { get; set; }
+    /// <summary>The Ceres Baby's playing cutscene animation, standing after its current pose; owned separately from Ridley's body.</summary>
+    internal AnimationPlayback<CeresBabyProgram> BabyPlayback { get; set; } =
+        new(CeresBabyAnimations.StartingWith(CeresBabyProgram.Initial), AnimationPlace.StartOfAnimation);
     /// <summary>How many draw updates the Baby's current pose lasts; zero before its program shows the first pose.</summary>
     internal int BabyPoseDuration { get; set; }
     /// <summary>Gets the Ceres Baby's elapsed draw-update count in its current pose, compared with the pose's duration and restarted at one.</summary>

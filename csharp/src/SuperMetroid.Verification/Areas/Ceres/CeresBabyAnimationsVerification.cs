@@ -8,61 +8,60 @@ using static SuperMetroid.Verification.Areas.Ceres.CeresBabyNativeListAddresses;
 namespace SuperMetroid.Verification.Areas.Ceres;
 
 /// <summary>
-/// #1290: the Ceres Baby's typed cutscene programs, each matched step by step to its private bank-$A6 draw list: every
-/// pose's duration and spritemap, every cue's branch target and shade, and the list's own goto.
+/// #1290, #1600: the Ceres Baby's typed cutscene animations, each segment matched beat by beat to its private bank-$A6
+/// draw list (every pose's duration and spritemap, every cue's branch target and shade) and each animation to the lists'
+/// control flow: the resting list's run on into the expressive list and that list's own goto.
 /// </summary>
 internal static class CeresBabyAnimationsVerification
 {
-    /// <summary>Both programs match their native lists.</summary>
+    /// <summary>Both segments match their native lists, and both animations the lists' control flow.</summary>
     internal static void VerifyCeresBabyAnimations(SuperMetroidAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
-        AssertEqual(Enum.GetValues<CeresBabyProgram>().Length, Entries.Length, "every Ceres Baby program has a native entry");
-        int steps = 0;
-        foreach ((CeresBabyProgram program, ushort entry) in Entries)
-            steps += Compare(cartridge, program, entry);
-        Console.WriteLine($"  Ceres Baby programs: {Entries.Length} programs ({steps} steps) match bank $A6.");
+        AssertEqual(Enum.GetValues<CeresBabyProgram>().Length, Entries.Length, "every Ceres Baby segment has a native entry");
+        Dictionary<CeresBabyProgram, NativeEnemyList<CeresBabyProgram>> lists =
+            Entries.ToDictionary(item => item.Program, item => Read(cartridge, item.Program, item.Entry));
+        NativeEnemyAnimationOracle.CompareAnimations(lists, CeresBabyAnimations.StartingAt);
+        Console.WriteLine($"  Ceres Baby animations: {Entries.Length} segments ({lists.Values.Sum(list => list.BeatAddresses.Length)} beats) match bank $A6.");
     }
 
-    /// <summary>Compares one program with its native list and returns its step count.</summary>
-    private static int Compare(IImportCartridgeSource cartridge, CeresBabyProgram program, ushort entry)
+    /// <summary>Reads one segment's native list, comparing each of its beats with the segment's.</summary>
+    private static NativeEnemyList<CeresBabyProgram> Read(IImportCartridgeSource cartridge, CeresBabyProgram segment, ushort entry)
     {
-        var steps = CeresBabyAnimations.Programs.Steps(program);
+        IReadOnlyList<AnimationBeat<CeresBabyPose, CeresBabyCue>> beats = CeresBabyAnimations.Segments.Beats(segment);
+        var addresses = new List<ushort>();
+        var controls = new List<NativeEnemyControl<CeresBabyProgram>>();
         ushort cursor = entry;
-        int index = 0;
         while (true)
         {
-            string at = $"Ceres Baby {program} at $A6:{cursor:X4}";
+            int beat = addresses.Count;
+            string at = $"Ceres Baby {segment} at $A6:{cursor:X4}";
             if (cursor != entry && Entries.Any(item => item.Entry == cursor))
             {
-                var fall = steps[index++];
-                var fallInto = AssertIs<AnimationProgramStep<CeresBabyProgram, CeresBabyPose, CeresBabyCue>.FallIntoStep>(fall, $"{at}: runs on into the next program");
-                AssertEqual(Entries.Single(item => item.Entry == cursor).Program, fallInto.Target, $"{at}: fall-through target");
+                controls.Add(new(NativeEnemyControlKind.RunOnIntoNext, beat, Entries.Single(item => item.Entry == cursor).Program, null, cursor));
                 break;
             }
             int address = (Bank << 16) | cursor;
             ushort word = cartridge.ReadCartridgeWord(address);
             ushort operand = cartridge.ReadCartridgeWord(address + 2);
-            AssertTrue(index < steps.Count, $"{at}: has a step");
-            var step = steps[index++];
-            cursor = unchecked((ushort)(cursor + 4));
             if ((word & NativeEnemyListDefinitions.InstructionBit) == 0)
             {
-                var show = AssertIs<AnimationProgramStep<CeresBabyProgram, CeresBabyPose, CeresBabyCue>.ShowStep>(step, $"{at}: pose");
+                var show = AssertIs<AnimationBeat<CeresBabyPose, CeresBabyCue>.Frame>(Beat(beat, at), $"{at}: pose");
                 AssertEqual(word, show.Duration, $"{at}: duration");
-                AssertEqual(operand, CeresBabyFrameDefinitionsConstants.Spritemap(show.Frame), $"{at}: spritemap");
+                AssertEqual(operand, CeresBabyFrameDefinitionsConstants.Spritemap(show.Shown), $"{at}: spritemap");
+                addresses.Add(cursor);
+                cursor = unchecked((ushort)(cursor + 4));
                 continue;
             }
             AssertTrue(Instructions.TryGetValue(word, out Type? cueType), $"{at}: native instruction ${word:X4} is known");
             if (cueType is null)
             {
-                var goTo = AssertIs<AnimationProgramStep<CeresBabyProgram, CeresBabyPose, CeresBabyCue>.GoToStep>(step, $"{at}: goto");
-                AssertEqual(operand, Entries.Single(item => item.Program == goTo.Target).Entry, $"{at}: goto target");
+                controls.Add(new(NativeEnemyControlKind.Goto, beat, Entries.Single(item => item.Entry == operand).Program, null, cursor));
                 break;
             }
-            var cueStep = AssertIs<AnimationProgramStep<CeresBabyProgram, CeresBabyPose, CeresBabyCue>.CueStep>(step, $"{at}: instruction");
-            AssertEqual(cueType, cueStep.Cue.GetType(), $"{at}: cue");
-            switch (cueStep.Cue)
+            var raised = AssertIs<AnimationBeat<CeresBabyPose, CeresBabyCue>.Event>(Beat(beat, at), $"{at}: instruction");
+            AssertEqual(cueType, raised.Raised.GetType(), $"{at}: cue");
+            switch (raised.Raised)
             {
                 case CeresBabyCue.UpdateColors updateColors:
                     AssertEqual(operand, ShadeOperands.Single(item => item.Shade == updateColors.Shade).Operand, $"{at}: shade");
@@ -74,10 +73,16 @@ internal static class CeresBabyAnimationsVerification
                     AssertEqual(operand, Entries.Single(item => item.Program == goToIfMoving.Target).Entry, $"{at}: branch target");
                     break;
                 default:
-                    throw new InvalidOperationException($"{at}: undefined Ceres Baby cue {cueStep.Cue}.");
+                    throw new InvalidOperationException($"{at}: undefined Ceres Baby cue {raised.Raised}.");
             }
+            addresses.Add(cursor);
+            cursor = unchecked((ushort)(cursor + 4));
         }
-        AssertEqual(steps.Count, index, $"Ceres Baby {program} ends where its native list does");
-        return steps.Count;
+        AssertEqual(beats.Count, addresses.Count, $"Ceres Baby {segment} ends where its native list does");
+        return new NativeEnemyList<CeresBabyProgram>([.. addresses], [.. controls]);
+
+        AnimationBeat<CeresBabyPose, CeresBabyCue> Beat(int beat, string at) => beat < beats.Count
+            ? beats[beat]
+            : throw new InvalidDataException($"{at}: the native list holds more beats than Ceres Baby {segment}.");
     }
 }

@@ -11,33 +11,48 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.TestSupport.MovieReplay;
 
 /// <summary>
-/// The ROM oracle of Ridley's typed body, breakup-fragment and fireball programs (#1287): each program matched step
-/// by step to its native list, yielding each typed step's native instruction address for
-/// <see cref="RidleyNativeInstructionPointers"/>.
+/// The ROM oracle of Ridley's typed body, breakup-fragment and fireball animations (#1287, #1600): each segment matched
+/// beat by beat to its native list and each animation to the lists' control flow, yielding each beat's native
+/// instruction address for <see cref="RidleyNativeInstructionPointers"/>.
 /// </summary>
 internal static class RidleyNativeProgramOracle
 {
-    /// <summary>Compares every body program with its native list and returns each typed step's native address.</summary>
-    internal static Dictionary<RidleyBodyProgram, ushort[]> BodyStepAddresses(IImportCartridgeSource cartridge) =>
-        BodyEntries.ToDictionary(item => item.Program, item => CompareBodyProgram(cartridge, item.Program, item.Entry));
+    /// <summary>Each body segment's native entry, in authored order.</summary>
+    internal static NativeProgramEntry<RidleyBodyProgram>[] BodyListEntries =>
+        [.. BodyEntries.Select(item => new NativeProgramEntry<RidleyBodyProgram>(item.Program, item.Entry))];
 
-    /// <summary>Compares one body program with its native list and returns each typed step's native address.</summary>
-    private static ushort[] CompareBodyProgram(IImportCartridgeSource cartridge, RidleyBodyProgram program, ushort entry)
+    /// <summary>Each fireball segment's native entry, in authored order.</summary>
+    internal static NativeProgramEntry<RidleyFireballProgram>[] FireballListEntries =>
+        [.. FireballEntries.Select(item => new NativeProgramEntry<RidleyFireballProgram>(item.Program, item.Entry))];
+
+    /// <summary>
+    /// Compares every body segment with its native list and every body animation with the lists' control flow, and
+    /// returns each list's beat and control addresses.
+    /// </summary>
+    internal static Dictionary<RidleyBodyProgram, NativeEnemyList<RidleyBodyProgram>> BodyLists(IImportCartridgeSource cartridge)
     {
-        var steps = RidleyAnimations.Programs.Steps(program);
-        var addresses = new ushort[steps.Count];
+        NativeEnemyAnimationOracle.RequireAuthoredOrder(BodyListEntries);
+        Dictionary<RidleyBodyProgram, NativeEnemyList<RidleyBodyProgram>> lists =
+            BodyEntries.ToDictionary(item => item.Program, item => ReadBodyList(cartridge, item.Program, item.Entry));
+        NativeEnemyAnimationOracle.CompareAnimations(lists, RidleyAnimations.StartingAt);
+        return lists;
+    }
+
+    /// <summary>Reads one body segment's native list, comparing each of its beats with the segment's.</summary>
+    private static NativeEnemyList<RidleyBodyProgram> ReadBodyList(IImportCartridgeSource cartridge, RidleyBodyProgram segment, ushort entry)
+    {
+        IReadOnlyList<AnimationBeat<RidleyCollisionDefinitions.BodyFrame, RidleyBodyCue>> beats = RidleyAnimations.Segments.Beats(segment);
+        var addresses = new List<ushort>();
+        var controls = new List<NativeEnemyControl<RidleyBodyProgram>>();
         ushort cursor = entry;
-        for (int index = 0; index < steps.Count; index++)
+        while (true)
         {
-            string at = $"Ridley {program} step {index}";
-            addresses[index] = cursor;
-            var step = steps[index];
+            int beat = addresses.Count;
+            string at = $"Ridley {segment} beat {beat}";
             if (cursor != entry && BodyProgramAt(cursor) is { } next)
             {
-                var fallInto = VerificationAssertions.AssertIs<AnimationProgramStep<RidleyBodyProgram, RidleyCollisionDefinitions.BodyFrame, RidleyBodyCue>.FallIntoStep>(step, $"{at}: runs on into the next authored program");
-                VerificationAssertions.AssertEqual(next, fallInto.Target, $"{at}: fall-through target");
-                VerificationAssertions.AssertEqual(steps.Count, index + 1, $"{at}: fall-through ends the program");
-                return addresses;
+                controls.Add(new(NativeEnemyControlKind.RunOnIntoNext, beat, next, null, cursor));
+                return Finish();
             }
             int address = (BodyBankNumber << 16) | cursor;
             ushort word = cartridge.ReadCartridgeWord(address);
@@ -45,20 +60,20 @@ internal static class RidleyNativeProgramOracle
             switch (NativeEnemyListDefinitions.Classify(word))
             {
                 case NativeEnemyListDefinitions.WordKind.Frame:
-                    var show = VerificationAssertions.AssertIs<AnimationProgramStep<RidleyBodyProgram, RidleyCollisionDefinitions.BodyFrame, RidleyBodyCue>.ShowStep>(step, $"{at}: frame");
-                    VerificationAssertions.AssertEqual(word, show.Duration, $"{at}: duration");
-                    VerificationAssertions.AssertEqual(RidleyCollisionDefinitions.BodyFrameAt(operand), (RidleyCollisionDefinitions.BodyFrame?)show.Frame, $"{at}: spritemap");
+                    var frame = VerificationAssertions.AssertIs<AnimationBeat<RidleyCollisionDefinitions.BodyFrame, RidleyBodyCue>.Frame>(Beat(beat, at), $"{at}: frame");
+                    VerificationAssertions.AssertEqual(word, frame.Duration, $"{at}: duration");
+                    VerificationAssertions.AssertEqual(RidleyCollisionDefinitions.BodyFrameAt(operand), (RidleyCollisionDefinitions.BodyFrame?)frame.Shown, $"{at}: spritemap");
+                    addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case NativeEnemyListDefinitions.WordKind.Sleep:
-                    VerificationAssertions.AssertTrue(step is AnimationProgramStep<RidleyBodyProgram, RidleyCollisionDefinitions.BodyFrame, RidleyBodyCue>.HoldStep, $"{at}: sleep");
-                    VerificationAssertions.AssertEqual(steps.Count, index + 1, $"{at}: sleep ends the program");
-                    return addresses;
+                    controls.Add(new(NativeEnemyControlKind.Sleep, beat, null, null, cursor));
+                    return Finish();
                 case NativeEnemyListDefinitions.WordKind.Callback:
                 {
                     VerificationAssertions.AssertTrue(BodyInstructions.TryGetValue(word, out var instruction), $"{at}: native instruction ${word:X4} is known");
-                    var cueStep = VerificationAssertions.AssertIs<AnimationProgramStep<RidleyBodyProgram, RidleyCollisionDefinitions.BodyFrame, RidleyBodyCue>.CueStep>(step, $"{at}: instruction");
-                    RidleyBodyCue cue = cueStep.Cue;
+                    var raised = VerificationAssertions.AssertIs<AnimationBeat<RidleyCollisionDefinitions.BodyFrame, RidleyBodyCue>.Event>(Beat(beat, at), $"{at}: instruction");
+                    RidleyBodyCue cue = raised.Raised;
                     instruction.Cue.Check(cue, at);
                     switch (cue)
                     {
@@ -81,6 +96,7 @@ internal static class RidleyNativeProgramOracle
                         default:
                             throw new InvalidOperationException($"Undefined Ridley body cue {cue}.");
                     }
+                    addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + 2 + 2 * instruction.Operands));
                     continue;
                 }
@@ -94,88 +110,122 @@ internal static class RidleyNativeProgramOracle
                     throw new InvalidOperationException($"Undefined {nameof(NativeEnemyListDefinitions.WordKind)}.");
             }
         }
-        throw new InvalidDataException($"Ridley {program} has steps past its native list.");
+
+        NativeEnemyList<RidleyBodyProgram> Finish()
+        {
+            VerificationAssertions.AssertEqual(beats.Count, addresses.Count, $"Ridley {segment}: its native list holds each of its beats");
+            return new NativeEnemyList<RidleyBodyProgram>([.. addresses], [.. controls]);
+        }
+
+        AnimationBeat<RidleyCollisionDefinitions.BodyFrame, RidleyBodyCue> Beat(int beat, string at) => beat < beats.Count
+            ? beats[beat]
+            : throw new InvalidDataException($"{at}: the native list holds more beats than Ridley {segment}.");
     }
 
     /// <summary>
-    /// Compares every breakup program with its six-byte native list: one frame and a sleep. A breakup program's
-    /// steps sit at the list entry and its sleep.
+    /// Compares every breakup segment and animation with its six-byte native list: one frame and a sleep. A breakup
+    /// animation stands at the list entry before its frame and at its sleep after.
     /// </summary>
-    internal static void BreakupStepAddresses(IImportCartridgeSource cartridge)
+    internal static void CompareBreakupLists(IImportCartridgeSource cartridge)
     {
         foreach (RidleyBreakupFrame frame in Enum.GetValues<RidleyBreakupFrame>())
         {
             ushort entry = BreakupList(frame);
             int address = (BodyBankNumber << 16) | entry;
-            var steps = RidleyBreakupAnimations.Programs.Steps(frame);
+            IReadOnlyList<AnimationBeat<RidleyBreakupFrame, NoAnimationCue>> beats = RidleyBreakupAnimations.Segments.Beats(frame);
             string at = $"Ridley breakup {frame}";
-            VerificationAssertions.AssertEqual(2, steps.Count, $"{at}: one frame and a hold");
-            var show = VerificationAssertions.AssertIs<AnimationProgramStep<RidleyBreakupFrame, RidleyBreakupFrame, NoAnimationCue>.ShowStep>(steps[0], $"{at}: frame");
+            VerificationAssertions.AssertEqual(1, beats.Count, $"{at}: one frame");
+            var show = VerificationAssertions.AssertIs<AnimationBeat<RidleyBreakupFrame, NoAnimationCue>.Frame>(beats[0], $"{at}: frame");
             VerificationAssertions.AssertEqual(cartridge.ReadCartridgeWord(address), show.Duration, $"{at}: duration");
-            VerificationAssertions.AssertEqual(cartridge.ReadCartridgeWord(address + 2), RidleyBreakupFrameDefinitionsConstants.Spritemap(show.Frame), $"{at}: spritemap");
+            VerificationAssertions.AssertEqual(cartridge.ReadCartridgeWord(address + 2), RidleyBreakupFrameDefinitionsConstants.Spritemap(show.Shown), $"{at}: spritemap");
             VerificationAssertions.AssertEqual(NativeEnemyListDefinitions.WordKind.Sleep, NativeEnemyListDefinitions.Classify(cartridge.ReadCartridgeWord(address + 4)), $"{at}: sleep");
-            VerificationAssertions.AssertTrue(steps[1] is AnimationProgramStep<RidleyBreakupFrame, RidleyBreakupFrame, NoAnimationCue>.HoldStep, $"{at}: hold");
+            Animation<RidleyBreakupFrame> animation = RidleyBreakupAnimations.StartingWith(frame);
+            VerificationAssertions.AssertTrue(animation.Phases.SequenceEqual([new AnimationPhase<RidleyBreakupFrame>(frame, 0, 1, 1)]) && animation.End == AnimationEnd.Holds,
+                $"{at}: the frame plays once and holds");
         }
     }
+
+    /// <summary>
+    /// The native instruction pointer of a breakup fragment's <paramref name="playback"/>: its list entry before its frame,
+    /// and the sleep after the frame record once shown.
+    /// </summary>
+    internal static ushort BreakupPointer(AnimationPlayback<RidleyBreakupFrame> playback) =>
+        checked((ushort)(BreakupList(BreakupFrameOf(playback)) + (playback.Place.Beat <= 0 ? 0 : 4)));
+
+    /// <summary>The breakup frame <paramref name="playback"/> shows.</summary>
+    internal static RidleyBreakupFrame BreakupFrameOf(AnimationPlayback<RidleyBreakupFrame> playback) =>
+        playback.Animation.Phases[playback.Place.Phase].Segment;
 
     /// <summary>The native list of breakup <paramref name="frame"/>.</summary>
     internal static ushort BreakupList(RidleyBreakupFrame frame) => BreakupEntry(frame);
 
-    /// <summary>Compares every fireball program with its native bank-$86 list and returns each typed step's native address.</summary>
-    internal static Dictionary<RidleyFireballProgram, ushort[]> FireballStepAddresses(IImportCartridgeSource cartridge) =>
-        FireballEntries.ToDictionary(item => item.Program, item => CompareFireballProgram(cartridge, item.Program, item.Entry));
-
-    /// <summary>Compares one fireball program with its native list and returns each typed step's native address.</summary>
-    private static ushort[] CompareFireballProgram(IImportCartridgeSource cartridge, RidleyFireballProgram program, ushort entry)
+    /// <summary>
+    /// Compares every fireball segment with its native bank-$86 list and every fireball animation with the lists' control
+    /// flow, and returns each list's beat and control addresses.
+    /// </summary>
+    internal static Dictionary<RidleyFireballProgram, NativeEnemyList<RidleyFireballProgram>> FireballLists(IImportCartridgeSource cartridge)
     {
-        var steps = RidleyFireballAnimations.Programs.Steps(program);
-        var addresses = new ushort[steps.Count];
+        NativeEnemyAnimationOracle.RequireAuthoredOrder(FireballListEntries);
+        Dictionary<RidleyFireballProgram, NativeEnemyList<RidleyFireballProgram>> lists =
+            FireballEntries.ToDictionary(item => item.Program, item => ReadFireballList(cartridge, item.Program, item.Entry));
+        NativeEnemyAnimationOracle.CompareAnimations(lists, RidleyFireballAnimations.StartingAt);
+        return lists;
+    }
+
+    /// <summary>
+    /// Reads one fireball segment's native list, comparing each of its beats with the segment's; the deletion ends the
+    /// list, and the pointer rests on it while the animation holds.
+    /// </summary>
+    private static NativeEnemyList<RidleyFireballProgram> ReadFireballList(IImportCartridgeSource cartridge, RidleyFireballProgram segment, ushort entry)
+    {
+        IReadOnlyList<AnimationBeat<RidleyFireballFrame, RidleyFireballCue>> beats = RidleyFireballAnimations.Segments.Beats(segment);
+        var addresses = new List<ushort>();
+        var controls = new List<NativeEnemyControl<RidleyFireballProgram>>();
         ushort cursor = entry;
-        for (int index = 0; index < steps.Count; index++)
+        while (true)
         {
-            string at = $"Ridley fireball {program} step {index}";
-            addresses[index] = cursor;
-            var step = steps[index];
+            int beat = addresses.Count;
+            string at = $"Ridley fireball {segment} beat {beat}";
             if (cursor != entry && FireballProgramAt(cursor) is { } next)
             {
-                var fallInto = VerificationAssertions.AssertIs<AnimationProgramStep<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue>.FallIntoStep>(step, $"{at}: runs on into the next authored program");
-                VerificationAssertions.AssertEqual(next, fallInto.Target, $"{at}: fall-through target");
-                VerificationAssertions.AssertEqual(steps.Count, index + 1, $"{at}: fall-through ends the program");
-                return addresses;
+                controls.Add(new(NativeEnemyControlKind.RunOnIntoNext, beat, next, null, cursor));
+                return Finish();
             }
             int address = NativeEnemyProjectileListDefinitions.ProjectileBank | cursor;
             ushort word = cartridge.ReadCartridgeWord(address);
             ushort operand = cartridge.ReadCartridgeWord(address + 2);
             if ((word & NativeEnemyListDefinitions.InstructionBit) == 0)
             {
-                var show = VerificationAssertions.AssertIs<AnimationProgramStep<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue>.ShowStep>(step, $"{at}: frame");
+                var show = VerificationAssertions.AssertIs<AnimationBeat<RidleyFireballFrame, RidleyFireballCue>.Frame>(Beat(beat, at), $"{at}: frame");
                 VerificationAssertions.AssertEqual(word, show.Duration, $"{at}: duration");
-                VerificationAssertions.AssertEqual(unchecked((ushort)(cursor + 2)), EnemyProjectileProgramFrameSources.Operand(RidleyFireballVisualDefinitions.ShownProjectileFrames[show.Frame]), $"{at}: presentation key");
+                VerificationAssertions.AssertEqual(unchecked((ushort)(cursor + 2)), EnemyProjectileProgramFrameSources.Operand(RidleyFireballVisualDefinitions.ShownProjectileFrames[show.Shown]), $"{at}: presentation key");
+                addresses.Add(cursor);
                 cursor = unchecked((ushort)(cursor + 4));
                 continue;
             }
             switch ((NativeEnemyProjectileInstruction)word)
             {
                 case NativeEnemyProjectileInstruction.ClearFrameBehavior:
-                    VerificationAssertions.AssertEqual(RidleyFireballCue.ClearFrameBehavior, VerificationAssertions.AssertIs<AnimationProgramStep<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue>.CueStep>(step, $"{at}: cue step").Cue, $"{at}: clear pre-instruction");
+                    VerificationAssertions.AssertEqual(RidleyFireballCue.ClearFrameBehavior, Raised(beat, at), $"{at}: clear pre-instruction");
+                    addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + 2));
                     continue;
                 case NativeEnemyProjectileInstruction.FrameBehaviorInY:
                     VerificationAssertions.AssertEqual(EnemyProjectileFrameBehavior.RidleyFireballFlight, EnemyProjectileFrameBehaviorAccess.FromWord(operand), $"{at}: the fireball's moving pre-instruction");
-                    VerificationAssertions.AssertEqual(RidleyFireballCue.BeginFlight, VerificationAssertions.AssertIs<AnimationProgramStep<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue>.CueStep>(step, $"{at}: cue step").Cue, $"{at}: begin flight");
+                    VerificationAssertions.AssertEqual(RidleyFireballCue.BeginFlight, Raised(beat, at), $"{at}: begin flight");
+                    addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case NativeEnemyProjectileInstruction.GotoY:
-                    var goTo = VerificationAssertions.AssertIs<AnimationProgramStep<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue>.GoToStep>(step, $"{at}: goto");
-                    VerificationAssertions.AssertEqual(FireballProgramAt(operand), goTo.Target, $"{at}: goto target");
-                    VerificationAssertions.AssertEqual(steps.Count, index + 1, $"{at}: goto ends the program");
-                    return addresses;
+                    controls.Add(new(NativeEnemyControlKind.Goto, beat,
+                        FireballProgramAt(operand) ?? throw new InvalidDataException($"{at}: ${operand:X4} is no segment's native entry."), null, cursor));
+                    return Finish();
                 case NativeEnemyProjectileInstruction.Delete:
-                    VerificationAssertions.AssertEqual(RidleyFireballCue.Delete, VerificationAssertions.AssertIs<AnimationProgramStep<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue>.CueStep>(step, $"{at}: cue step").Cue, $"{at}: delete");
-                    VerificationAssertions.AssertTrue(steps[index + 1] is AnimationProgramStep<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue>.HoldStep, $"{at}: deletion ends the program");
-                    VerificationAssertions.AssertEqual(steps.Count, index + 2, $"{at}: deletion ends the program");
-                    addresses[index + 1] = cursor;
-                    return addresses;
+                    VerificationAssertions.AssertEqual(RidleyFireballCue.Delete, Raised(beat, at), $"{at}: delete");
+                    addresses.Add(cursor);
+                    // The deletion ends the list; the pointer stays on it while the animation holds.
+                    controls.Add(new(NativeEnemyControlKind.Sleep, beat + 1, null, null, cursor));
+                    return Finish();
                 case NativeEnemyProjectileInstruction.Properties_OrY:
                 case NativeEnemyProjectileInstruction.Properties_AndY:
                 case NativeEnemyProjectileInstruction.UNUSED_Inst_EnemyProj_EnableCollisionWithSamusProj_868248:
@@ -260,13 +310,24 @@ internal static class RidleyNativeProgramOracle
                 case NativeEnemyProjectileInstruction.TourianStatueResetDustPosition:
                 default:
                     VerificationAssertions.AssertTrue(FireballCallbacks.TryGetValue(word, out RidleyFireballCue callback), $"{at}: native callback ${word:X4} is known");
-                    var cueStep = VerificationAssertions.AssertIs<AnimationProgramStep<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue>.CueStep>(step, $"{at}: callback");
-                    VerificationAssertions.AssertEqual(callback, cueStep.Cue, $"{at}: cue");
+                    VerificationAssertions.AssertEqual(callback, Raised(beat, at), $"{at}: cue");
+                    addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + 2));
                     continue;
             }
         }
-        throw new InvalidDataException($"Ridley fireball {program} has steps past its native list.");
-    }
 
+        NativeEnemyList<RidleyFireballProgram> Finish()
+        {
+            VerificationAssertions.AssertEqual(beats.Count, addresses.Count, $"Ridley fireball {segment}: its native list holds each of its beats");
+            return new NativeEnemyList<RidleyFireballProgram>([.. addresses], [.. controls]);
+        }
+
+        AnimationBeat<RidleyFireballFrame, RidleyFireballCue> Beat(int beat, string at) => beat < beats.Count
+            ? beats[beat]
+            : throw new InvalidDataException($"{at}: the native list holds more beats than Ridley fireball {segment}.");
+
+        RidleyFireballCue Raised(int beat, string at) =>
+            VerificationAssertions.AssertIs<AnimationBeat<RidleyFireballFrame, RidleyFireballCue>.Event>(Beat(beat, at), $"{at}: event").Raised;
+    }
 }

@@ -98,7 +98,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
         ushort W(int address) => memory.Word(address);
         var (bus, runtime, samus, game) = NativeSnapshotImport.ImportNativeSnapshot(memory.ToWorkRam(), ridleyMovie.InitialSaveRam);
         Game = game;
-        // Ridley's body, fragments and fireballs run typed programs (#1287); compare their cursors as native pointers.
+        // Ridley's body, fragments and fireballs play typed animations (#1287, #1600); compare their playbacks as native pointers.
         var pointers = new RidleyNativeInstructionPointers(CartridgeImportSource.Require(bus));
         RoomObjectSlot[] initialObjects = [.. runtime.RoomObjects.SlotTable.Slots];
         var checkedProjectileCompositions = new HashSet<CheckedProjectileComposition>();

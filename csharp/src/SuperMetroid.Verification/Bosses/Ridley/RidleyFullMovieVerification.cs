@@ -52,7 +52,7 @@ internal static class RidleyFullMovieVerification
             runtime.System.SetRandomNumber((ushort)sample.First);
             (state ?? throw new InvalidOperationException("Verification requires state.")).Roaring = sample.Second; state.FacingDirection = sample.Third;
             state.FunctionTimer = 20; samus.Pose = SamusPoseId.SpinJumpRightPose;
-            state.BodyProgram = pointers.BodyCursorAt(NativeSnapshotMemory.RidleyRightFlyingSleep);
+            state.BodyPlayback = pointers.BodyPlaybackAt(NativeSnapshotMemory.RidleyRightFlyingSleep);
             body.FrameHold = WrappingCountdown.Start(9); body.Timer = WrappingCountdown.Start(11);
             runtime.Enemies.RidleyBehavior.Combat.TickNorfairRidleyPogo(body, state, samus, VerticalDirection.Down);
             AssertEqual(sample.Fourth ? RidleyNativeInstructionPointers.BodyEntry(RidleyBodyProgram.Fireballing) : NativeSnapshotMemory.RidleyRightFlyingSleep,
@@ -603,7 +603,7 @@ internal static class RidleyFullMovieVerification
             var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(sample.X, 0)),
                 FrameHold = WrappingCountdown.Start(7), Timer = WrappingCountdown.Start(9) };
             var state = new RidleyEnemyState { FacingDirection = sample.Facing };
-            state.BodyProgram = pointers.BodyCursorAt(NativeSnapshotMemory.RidleyRightFlyingSleep);
+            state.BodyPlayback = pointers.BodyPlaybackAt(NativeSnapshotMemory.RidleyRightFlyingSleep);
             NorfairRidleyCombat.SelectNorfairRidleyFacingInstruction(slot, state);
             ushort expected = !sample.Turn ? NativeSnapshotMemory.RidleyRightFlyingSleep
                 : sample.Facing == RidleyFacing.Left ? RidleyNativeInstructionPointers.BodyEntry(RidleyBodyProgram.TurnFromLeftToRight)

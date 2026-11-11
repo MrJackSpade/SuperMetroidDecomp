@@ -255,9 +255,8 @@ internal sealed class NorfairRidleyDeath
             fragment.Position = fragment.Position.WithWhole(tail.Position);
             int tailTipOrientation =
                 TrigonometryAngle.Wrapped(tail.Angle + state.TailSegments[5].Angle + 8).RawValue / 16;
-            fragmentState.Program = AnimationProgramCursor<RidleyBreakupFrame>.Start(RidleyBreakup.SelectTailFrame(
-                part,
-                tailTipOrientation));
+            fragmentState.Playback = new AnimationPlayback<RidleyBreakupFrame>(
+                RidleyBreakupAnimations.StartingWith(RidleyBreakup.SelectTailFrame(part, tailTipOrientation)), AnimationPlace.StartOfAnimation);
             return;
         }
 
@@ -266,7 +265,7 @@ internal sealed class NorfairRidleyDeath
                 part,
                 facingRight: state.FacingDirection != RidleyFacing.Left);
         fragment.Position = fragment.Position.WithWhole(body.Position.Whole + bodyPart.Offset);
-        fragmentState.Program = AnimationProgramCursor<RidleyBreakupFrame>.Start(bodyPart.Frame);
+        fragmentState.Playback = new AnimationPlayback<RidleyBreakupFrame>(RidleyBreakupAnimations.StartingWith(bodyPart.Frame), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Runs the breakup actor's main AI: flicker, drag, gravity, movement, and lifetime.</summary>

@@ -44,7 +44,7 @@ internal static class RidleyBreakupProgramsVerification
         AssertEqual(RidleyGrabState.Released, state.GrabState, "Ridley death releases Samus before breakup");
         var fragments = enemies.SlotTable.Slots.Where(slot => slot.DefinitionId == EnemyDefinitionId.RidleyExplosion).ToArray();
         AssertEqual(12, fragments.Length, "Ridley death spawns all twelve body/tail fragments");
-        AssertEqual(RidleyBreakupFrame.TailTip1, fragments[0].RequireSpeciesState<RidleyExplosionFragmentState>().Program.Program,
+        AssertEqual(RidleyBreakupFrame.TailTip1, RidleyNativeProgramOracle.BreakupFrameOf(fragments[0].RequireSpeciesState<RidleyExplosionFragmentState>().Playback),
             "reported tail orientation selects the second tip pose ($A6:CA9B)");
         foreach (var fragment in fragments)
         {
@@ -63,12 +63,12 @@ internal static class RidleyBreakupProgramsVerification
             ushort expectedPointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(RidleyNativeListAddresses.BodyBankNumber << 16 | operand);
             var fragment = fragments[0];
             RidleyExplosionFragmentState fragmentState = fragment.RequireSpeciesState<RidleyExplosionFragmentState>();
-            fragmentState.Program = AnimationProgramCursor<RidleyBreakupFrame>.Start(frame);
+            fragmentState.Playback = new AnimationPlayback<RidleyBreakupFrame>(RidleyBreakupAnimations.StartingWith(frame), AnimationPlace.StartOfAnimation);
             fragment.FrameHold = WrappingCountdown.Start(1);
             process(fragment, null, null, Position16<RoomPixels>.Zero, 0);
             AssertEqual(expectedPointer, fragment.SpritemapPointer, "breakup selects native sprite");
             process(fragment, null, null, Position16<RoomPixels>.Zero, 0);
-            AssertEqual(1, fragmentState.Program.Position, "breakup sleeps after its one frame");
+            AssertEqual((ushort)(RidleyNativeProgramOracle.BreakupList(frame) + 4), RidleyNativeProgramOracle.BreakupPointer(fragmentState.Playback), "breakup sleeps after its one frame");
             var actual = new OamBuffer();
             stock.DrawEnemySpritemap(actual, new NativeEnemySpritemapDraw { Bank = 0xa6, Pointer = expectedPointer, Origin = new Position16<SpritePixels>(128, 112), PaletteBits = 0x0e00, BaseTileIndex = 0, ClipVerticalWrap = false, OriginYIsOnScreen = true });
             var expected = new OamBuffer();

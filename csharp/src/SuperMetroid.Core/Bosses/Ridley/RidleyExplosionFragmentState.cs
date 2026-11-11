@@ -11,6 +11,7 @@ internal sealed class RidleyExplosionFragmentState
     /// <summary>The updates the fragment lives, counted down past zero.</summary>
     public int Lifetime { get; internal set; }
 
-    /// <summary>Where the fragment's typed breakup program resumes (#641), set when it spawns.</summary>
-    internal AnimationProgramCursor<RidleyBreakupFrame> Program { get; set; }
+    /// <summary>The fragment's playing breakup animation and where it stands (#641, #1600), set when it spawns.</summary>
+    internal AnimationPlayback<RidleyBreakupFrame> Playback { get; set; } =
+        new(RidleyBreakupAnimations.StartingWith(RidleyBreakupFrame.TailSegmentSmall), AnimationPlace.StartOfAnimation);
 }

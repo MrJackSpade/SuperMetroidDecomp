@@ -227,16 +227,20 @@ internal sealed class CeresRidleyBabyScene
             return CeresBabyFrame(state.BabyCurrentPose);
         }
 
-        AnimationProgramCursor<CeresBabyProgram> cursor = state.BabyProgram;
+        Animation<CeresBabyProgram> animation = state.BabyPlayback.Animation;
+        AnimationPlace place = state.BabyPlayback.Place;
+        // The Baby's animations count no repeats, so nothing reads or writes this counter.
         WrappingCountdown counter = WrappingCountdown.Start(0);
-        AnimationProgramAdvance<CeresBabyPose> advance = CeresBabyAnimations.Programs.Advance(ref cursor, ref counter,
-            (cue, _) => ApplyCeresBabyCue(state, cue));
-        state.BabyProgram = cursor;
-        if (advance is not AnimationProgramAdvance<CeresBabyPose>.Show shown)
-            throw new InvalidOperationException($"The Ceres Baby's program ended a draw update with {advance}.");
+        AnimationShown<CeresBabyProgram, CeresBabyPose> outcome = CeresBabyAnimations.Segments.PlayToNextFrame(ref animation, ref place, ref counter,
+            cue => ApplyCeresBabyCue(state, cue) is { } target
+                ? new AnimationContinuation<CeresBabyProgram>(CeresBabyAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                : null);
+        state.BabyPlayback = new AnimationPlayback<CeresBabyProgram>(animation, place);
+        if (outcome is not AnimationShown<CeresBabyProgram, CeresBabyPose>.Frame shown)
+            throw new InvalidOperationException($"The Ceres Baby's animation ended a draw update with {outcome}.");
         state.BabyPoseDuration = shown.Duration;
         state.BabyFrameHold = 1;
-        state.BabyCurrentPose = shown.Frame;
+        state.BabyCurrentPose = shown.Shown;
         return CeresBabyFrame(state.BabyCurrentPose);
     }
 
@@ -244,7 +248,7 @@ internal sealed class CeresRidleyBabyScene
     private static EnemyFrameId? CeresBabyFrame(CeresBabyPose? pose) =>
         pose is { } shown ? CeresBabyFrameDefinitions.ShownFrames.Of(shown) : null;
 
-    /// <summary>Carries out one cue of the Baby's program, returning the program a branch continues at, or null to run on.</summary>
+    /// <summary>Carries out one cue of the Baby's animation, returning the segment whose animation a branch continues in, or null to play on.</summary>
     private CeresBabyProgram? ApplyCeresBabyCue(RidleyEnemyState state, CeresBabyCue cue)
     {
         switch (cue)

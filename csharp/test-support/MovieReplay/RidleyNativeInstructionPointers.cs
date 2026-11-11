@@ -7,34 +7,35 @@ using SuperMetroid.Core.World;
 namespace SuperMetroid.TestSupport.MovieReplay;
 
 /// <summary>
-/// Translates Ridley's typed program cursors to and from the native instruction pointers a recording holds (#1287),
-/// so replay comparisons keep checking the body's, fragments' and fireballs' animation state. Each typed step sits at
-/// the native instruction its ROM oracle matched it with; after a frame, both the cursor and the native pointer rest on
-/// the following instruction.
+/// Translates Ridley's typed playbacks to and from the native instruction pointers a recording holds (#1287, #1600),
+/// so replay comparisons keep checking the body's, fragments' and fireballs' animation state. Each beat sits at the
+/// native instruction its ROM oracle matched it with; after a frame, both the playback and the native pointer rest on
+/// the following instruction, and a play done after a list's last beat rests on the control instruction after it.
 /// </summary>
 internal sealed class RidleyNativeInstructionPointers
 {
-    /// <summary>Each body program's step addresses.</summary>
-    private readonly Dictionary<RidleyBodyProgram, ushort[]> body;
-    /// <summary>Each fireball program's step addresses.</summary>
-    private readonly Dictionary<RidleyFireballProgram, ushort[]> fireball;
+    /// <summary>Each body segment's beat and control addresses.</summary>
+    private readonly Dictionary<RidleyBodyProgram, NativeEnemyList<RidleyBodyProgram>> body;
+    /// <summary>Each fireball segment's beat and control addresses.</summary>
+    private readonly Dictionary<RidleyFireballProgram, NativeEnemyList<RidleyFireballProgram>> fireball;
     /// <summary>Each typed enemy-projectile family's pointer translation.</summary>
     private readonly Func<EnemyProjectileAnimation, ushort?>[] projectileFamilies;
     /// <summary>The source room's Pipe Bugs' pointer translation.</summary>
     private readonly PipeBugNativeInstructionPointers pipeBugs;
 
-    /// <summary>Walks every typed Ridley program beside its native list, failing on any mismatch.</summary>
+    /// <summary>Walks every typed Ridley segment and animation beside its native lists, failing on any mismatch.</summary>
     internal RidleyNativeInstructionPointers(IImportCartridgeSource cartridge)
     {
-        body = RidleyNativeProgramOracle.BodyStepAddresses(cartridge);
-        RidleyNativeProgramOracle.BreakupStepAddresses(cartridge);
-        fireball = RidleyNativeProgramOracle.FireballStepAddresses(cartridge);
+        body = RidleyNativeProgramOracle.BodyLists(cartridge);
+        RidleyNativeProgramOracle.CompareBreakupLists(cartridge);
+        fireball = RidleyNativeProgramOracle.FireballLists(cartridge);
         projectileFamilies = [.. NativeEnemyProjectileFamilies.All.Select(family => family.NativePointers(cartridge))];
         pipeBugs = new PipeBugNativeInstructionPointers(cartridge);
     }
 
-    /// <summary>The native instruction pointer of Ridley's body, from <paramref name="state"/>'s body cursor.</summary>
-    internal ushort Body(RidleyEnemyState state) => body[state.BodyProgram.Program][state.BodyProgram.Position];
+    /// <summary>The native instruction pointer of Ridley's body, from <paramref name="state"/>'s body playback.</summary>
+    internal ushort Body(RidleyEnemyState state) =>
+        NativeEnemyAnimationOracle.PointerOf(body, RidleyNativeProgramOracle.BodyListEntries, RidleyAnimations.StartingAt, state.BodyPlayback);
 
     /// <summary>The native entry point of body <paramref name="program"/>.</summary>
     internal static ushort BodyEntry(RidleyBodyProgram program) =>
@@ -56,9 +57,8 @@ internal sealed class RidleyNativeInstructionPointers
             return Body(RequireRidley(enemies));
         if (actor.DefinitionId == EnemyDefinitionId.RidleyExplosion)
         {
-            AnimationProgramCursor<RidleyBreakupFrame> cursor = actor.RequireSpeciesState<RidleyExplosionFragmentState>().Program;
             // A fragment's frame sits at its list entry and its hold at the sleep after the frame record.
-            return checked((ushort)(RidleyNativeProgramOracle.BreakupList(cursor.Program) + (cursor.Position == 0 ? 0 : 4)));
+            return RidleyNativeProgramOracle.BreakupPointer(actor.RequireSpeciesState<RidleyExplosionFragmentState>().Playback);
         }
         if (enemies.PipeBugStates[actor.SlotIndex] is { } pipeBug)
             return pipeBugs.Pointer(pipeBug.Playback);
@@ -72,25 +72,19 @@ internal sealed class RidleyNativeInstructionPointers
     internal ushort Projectile(EnemyProjectile projectile) => projectile.Animation switch
     {
         null => throw new InvalidOperationException($"Projectile {projectile.Kind} plays no program."),
-        RidleyFireballAnimation animation => fireball[animation.Cursor.Program][animation.Cursor.Position],
+        RidleyFireballAnimation animation => NativeEnemyAnimationOracle.PointerOf(fireball, RidleyNativeProgramOracle.FireballListEntries,
+            RidleyFireballAnimations.StartingAt, animation.Playback),
         { } animation => projectileFamilies.Select(family => family(animation)).SingleOrDefault(pointer => pointer is not null)
             ?? throw new InvalidOperationException(
                 $"Projectile {projectile.Kind} runs a typed {animation.GetType().Name}, which has no native-pointer translation."),
     };
 
-    /// <summary>The body cursor a recording's native pointer <paramref name="address"/> stands for: the program entry when it is one.</summary>
-    internal AnimationProgramCursor<RidleyBodyProgram> BodyCursorAt(ushort address)
-    {
-        if (RidleyNativeListAddresses.BodyProgramAt(address) is { } entry)
-            return AnimationProgramCursor<RidleyBodyProgram>.Start(entry);
-        var matches = body.SelectMany(program => program.Value.Select((step, position) => new RidleyNativeInstructionPointersMatch(program.Key, step, position)))
-            .Where(item => item.Step == address)
-            .Select(item => new AnimationProgramCursor<RidleyBodyProgram>(item.Key, item.Position))
-            .ToList();
-        return matches.Count == 1
-            ? matches[0]
-            : throw new InvalidDataException($"Native Ridley instruction pointer $A6:{address:X4} matches {matches.Count} typed steps.");
-    }
+    /// <summary>
+    /// The body playback a recording's native pointer <paramref name="address"/> stands for: the start of the animation
+    /// starting at a list whose entry it is, otherwise the beat or the list end it stands at.
+    /// </summary>
+    internal AnimationPlayback<RidleyBodyProgram> BodyPlaybackAt(ushort address) =>
+        NativeEnemyAnimationOracle.PlaybackAt(body, RidleyNativeProgramOracle.BodyListEntries, RidleyAnimations.StartingAt, address);
 
     /// <summary>Ridley's encounter state.</summary>
     private static RidleyEnemyState RequireRidley(RoomEnemySystem enemies) =>

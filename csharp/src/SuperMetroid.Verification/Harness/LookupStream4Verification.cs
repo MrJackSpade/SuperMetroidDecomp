@@ -2565,10 +2565,10 @@ internal static class LookupStream4Verification
             {
                 int cursor = 0xbf5d + phase * 8;
                 int row = (CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa60000 | (cursor + 2)) - 0xe1f1) / 30;
-                // The expressive loop's palette command for this phase is step 1 + 2 * phase, its pose the next step.
-                var state = new RidleyEnemyState { BabyProgram = new AnimationProgramCursor<CeresBabyProgram>(CeresBabyProgram.ExpressiveLoop, 1 + 2 * phase), BabyFrameHold = 1, BabyVerticalVelocity = SignedEightEight.FromSignedRaw(1) };
+                // The expressive loop's palette command for this phase is beat 1 + 2 * phase, its pose the next beat.
+                var state = new RidleyEnemyState { BabyPlayback = new AnimationPlayback<CeresBabyProgram>(CeresBabyAnimations.StartingWith(CeresBabyProgram.ExpressiveLoop), new AnimationPlace(0, 1 + 2 * phase)), BabyFrameHold = 1, BabyVerticalVelocity = SignedEightEight.FromSignedRaw(1) };
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa60000 | (cursor + 6)), advance(state), "Actual palette instruction selects matching native pose");
-                AssertEqual(new AnimationProgramCursor<CeresBabyProgram>(CeresBabyProgram.ExpressiveLoop, 3 + 2 * phase), state.BabyProgram, "Palette instruction runs on to its pose");
+                AssertEqual(new AnimationPlayback<CeresBabyProgram>(CeresBabyAnimations.StartingWith(CeresBabyProgram.ExpressiveLoop), new AnimationPlace(0, 3 + 2 * phase)), state.BabyPlayback, "Palette instruction runs on to its pose");
                 AssertEqual(1, state.BabyFrameHold, "The new pose starts its elapsed count at one");
                 ushort[] shown = RidleyLaidColours.Of(state, babySprites, [], 0);
                 for (int color = 0; color < 15; color++)

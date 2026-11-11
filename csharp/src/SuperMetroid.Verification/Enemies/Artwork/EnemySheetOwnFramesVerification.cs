@@ -296,12 +296,12 @@ internal static class EnemySheetOwnFramesVerification
     private static EnemySheetOwnFrameFamily RidleysFamily() => new("Ridley", TableFrames(RidleyBodyFrameDefinitions.ShownFrames),
         new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
         {
-            [EnemyDefinitionId.Ridley] = Reach(RidleyAnimations.Programs, RidleyBodyFrameDefinitions.ShownFrames,
+            [EnemyDefinitionId.Ridley] = Reach(RidleyAnimations.Segments, RidleyAnimations.StartingAt, RidleyBodyFrameDefinitions.ShownFrames,
             [
                 RidleyBodyProgram.Initial, RidleyBodyProgram.OpeningRoar, RidleyBodyProgram.TransitionToFlying, RidleyBodyProgram.Fireballing,
                 RidleyBodyProgram.TurnFromLeftToRight, RidleyBodyProgram.TurnFromRightToLeft, RidleyBodyProgram.DeathRoar,
             ], RidleyCueTargets),
-            [EnemyDefinitionId.RidleyCeres] = Reach(RidleyAnimations.Programs, RidleyBodyFrameDefinitions.ShownFrames,
+            [EnemyDefinitionId.RidleyCeres] = Reach(RidleyAnimations.Segments, RidleyAnimations.StartingAt, RidleyBodyFrameDefinitions.ShownFrames,
             [
                 RidleyBodyProgram.Initial, RidleyBodyProgram.OpeningRoar, RidleyBodyProgram.TransitionToFlying, RidleyBodyProgram.CeresLunge,
                 RidleyBodyProgram.RetrieveBabyMetroid, RidleyBodyProgram.Fireballing,
@@ -309,7 +309,7 @@ internal static class EnemySheetOwnFramesVerification
             [EnemyDefinitionId.RidleyExplosion] = new HashSet<EnemyFrameId>(),
         });
 
-    /// <summary>The body program a Ridley cue redirects to.</summary>
+    /// <summary>The body segment whose animation a Ridley cue redirects to.</summary>
     private static IEnumerable<RidleyBodyProgram> RidleyCueTargets(RidleyBodyCue cue) => cue switch
     {
         RidleyBodyCue.GoToUnlessFacingLeft redirect => [redirect.Target],

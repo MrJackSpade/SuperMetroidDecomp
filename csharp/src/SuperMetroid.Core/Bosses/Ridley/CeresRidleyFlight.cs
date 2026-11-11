@@ -70,7 +70,7 @@ internal sealed class CeresRidleyFlight
             Velocity = new EightEightVector<RoomPixels>(0, 0),
             MovementMinimum = Position16<RoomPixels>.Wrapped(40, -32),
             MovementMaximum = new Position16<RoomPixels>(224, 176),
-            BabyProgram = AnimationProgramCursor<CeresBabyProgram>.Start(CeresBabyProgram.Initial),
+            BabyPlayback = new AnimationPlayback<CeresBabyProgram>(CeresBabyAnimations.StartingWith(CeresBabyProgram.Initial), AnimationPlace.StartOfAnimation),
             BabyFrameHold = 1,
             BabyFunction = CeresBabyFunction.CarriedInArms,
             BabyCurrentPose = null,
@@ -527,10 +527,10 @@ internal sealed class CeresRidleyFlight
         state.FunctionTimer = 0;
     }
 
-    /// <summary>Restarts Ridley's enemy instruction cursor and frame timer at a selected list.</summary>
+    /// <summary>Restarts Ridley's body animation and frame timer at a selected list.</summary>
     internal static void StartRidleyProgram(RidleyEnemyState state, RoomEnemySlot slot, RidleyBodyProgram program)
     {
-        state.BodyProgram = AnimationProgramCursor<RidleyBodyProgram>.Start(program);
+        state.BodyPlayback = new AnimationPlayback<RidleyBodyProgram>(RidleyAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }

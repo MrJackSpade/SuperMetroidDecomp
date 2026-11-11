@@ -19,29 +19,4 @@ public static class FileSelectFieldTileDefinitions
     internal const int FilledTankTile = 152;
     /// <summary>$81:A0EC: the empty-tank tile, drawn in the installed health digit's colour variant.</summary>
     internal const int EmptyTankTile = 153;
-    /// <summary>$81:B4AC-B4C0, the literal small-font empty-slot label including its padding.</summary>
-    internal const string NoDataLabel = " NO DATA   ";
-    /// <summary>$81:B4B6: tile $6A is the small-font A; following alphabet glyphs are consecutive.</summary>
-    internal static readonly BackgroundTile SmallLetterA = new(106, 0, highPriority: true);
-    /// <summary>$81:B4B2 and B4BC-B4C0: the small-font space.</summary>
-    internal static readonly BackgroundTile SmallSpace = new(15, 0, highPriority: true);
-    /// <summary>$81:B496-B49A: three consecutive tiles composing the ENERGY label.</summary>
-    internal static readonly BackgroundTile EnergyLabelFirst = new(157, 0, highPriority: true);
-    /// <summary>$81:B49C: the separately placed final glyph of the ENERGY patch.</summary>
-    internal static readonly BackgroundTile EnergyLabelFinal = new(204, 0, highPriority: true);
-    /// <summary>$81:B4A8: the time-field colon glyph.</summary>
-    internal static readonly BackgroundTile TimeColonGlyph = new(140, 0, highPriority: true);
-    /// <summary>The ENERGY patch's cells: three consecutive label tiles and the final glyph.</summary>
-    internal const int EnergyLabelCells = 4;
-    /// <summary>The ENERGY patch's consecutive label tiles before its final glyph.</summary>
-    internal const int EnergyLabelConsecutiveCells = 3;
-
-    /// <summary>Native one-row patch extents at $81:B496, B4A8 and B4AC, excluding terminators.</summary>
-    internal static readonly IReadOnlyDictionary<FileSelectPatch, int> PatchCellCounts =
-        new Dictionary<FileSelectPatch, int>
-        {
-            [FileSelectPatch.Energy] = EnergyLabelCells,
-            [FileSelectPatch.TimeColon] = 1,
-            [FileSelectPatch.NoData] = NoDataLabel.Length,
-        };
 }

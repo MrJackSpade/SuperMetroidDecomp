@@ -500,13 +500,12 @@ internal static class LookupStream3Verification
         {
             string name = FileSelectParts.PatchName(patch);
             FileSelectCompiledPatch Compiled(FileSelectSourcePresentation value) => value.patches[patch];
-            AssertTrue(Compiled(stock).suppliedCells is null,
-                "file-select stock patch retains no cells " + name);
+            AssertEqual(count, Compiled(stock).Count, "file-select installed patch native cell count " + name);
             for (int index = 0; index < count; index++)
             {
                 ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + index * 2);
-                AssertEqual(new FileSelectCompiledPatchCell(new(checked((short)index), 0), BackgroundTileWords.ToTile(word)), FileSelectFieldTiles.PatchCell(patch, index),
-                    "file-select calculated patch exact native cell");
+                AssertEqual(new FileSelectCompiledPatchCell(new(checked((short)index), 0), BackgroundTileWords.ToTile(word)), Compiled(stock).Cell(index),
+                    "file-select installed patch exact native cell");
             }
             AssertEqual((byte)0xff, rom.ReadCartridgeByte(address + count * 2), "file-select native patch terminator low");
             AssertEqual((byte)0xff, rom.ReadCartridgeByte(address + count * 2 + 1), "file-select native patch terminator high");
@@ -1029,8 +1028,6 @@ internal static class LookupStream3Verification
             AssertEqual(rom.ReadCartridgeByte(0x9bc1c2 + angle), swingFrames.Resolve(new TrigonometryAngle((byte)angle)), "stream 3 native calculated swing art frame");
         byte[] fileSelectJson = SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(rom);
         var fileSelect = FileSelectSourcePresentation.Load(new MemoryStream(fileSelectJson));
-        foreach (object? sequence in new object?[] { fileSelect.digits, fileSelect.slotLetters })
-            AssertTrue(sequence is null, "stream 3 stock file-select glyph sequence discarded");
         var glyphTilemap = new BackgroundTile[1024];
         for (int glyph = 0; glyph < 13; glyph++)
         {

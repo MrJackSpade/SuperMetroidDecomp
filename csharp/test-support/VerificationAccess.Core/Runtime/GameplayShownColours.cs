@@ -34,7 +34,7 @@ internal static class GameplayShownColours
     /// <summary>
     /// The native colours <see cref="Of"/> composes for <paramref name="runtime"/>'s room: each background colour the HUD's
     /// pictures have, each the room's pictures have outside the HUD's colours, and Samus's suit row and her beams' row but
-    /// for each row's first colour, which a sprite's transparent ink stands for and no draw ever shows.
+    /// for each row's first colour, which a sprite's clear pixels are composed as and no draw ever shows.
     /// </summary>
     /// <remarks>
     /// The cartridge keeps the HUD's colours in the room's first colours and spares them from a door's fade, so a room

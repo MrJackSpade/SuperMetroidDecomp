@@ -39,7 +39,8 @@ internal static class RidleyCollisionDefinitionsAccess
     {
         /// <summary>Whether the frame at native address <paramref name="frame"/> is one of Ridley's body frames.</summary>
         internal static bool HasFrame(ushort frame) =>
-            RidleyCollision.HasFrame(RoomEnemySlotFrameAccess.TryFrameAt(NativeBank, frame));
+            RoomEnemySlotFrameAccess.TryFrameAt(NativeBank, frame) is { } shown &&
+            Artwork.RidleyBodyFrameDefinitions.ShownFrames.TryFind(shown, out _);
 
         /// <summary>The components of the body frame at native address <paramref name="frame"/>.</summary>
         internal static ImmutableArray<RidleyCollisionComponent> ComponentsAt(ushort frame) =>

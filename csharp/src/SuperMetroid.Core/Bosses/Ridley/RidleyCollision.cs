@@ -47,10 +47,6 @@ internal static class RidleyCollision
         return new(right ? origin.MirroredX() : origin, hitboxes);
     }
 
-    /// <summary>Whether <paramref name="frame"/> shows one of Ridley's eleven body frames.</summary>
-    internal static bool HasFrame(EnemyFrameId? frame) =>
-        frame is { } shown && RidleyBodyFrameDefinitions.ShownFrames.TryFind(shown, out _);
-
     /// <summary>The computed collision components of the body frame <paramref name="frame"/> shows.</summary>
     /// <exception cref="InvalidDataException"><paramref name="frame"/> shows no Ridley body frame.</exception>
     internal static ImmutableArray<RidleyCollisionComponent> ComponentsAt(EnemyFrameId? frame) =>

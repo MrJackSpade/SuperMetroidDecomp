@@ -10,7 +10,8 @@ internal static class CrocomireTongueCollisionDefinitionsAccess
     {
         /// <summary>Whether the frame at native address <paramref name="frame"/> is one of the tongue's.</summary>
         internal static bool HasFrame(ushort frame) =>
-            CrocomireTongueCollision.HasFrame(RoomEnemySlotFrameAccess.TryFrameAt(CrocomireTongueCollisionDefinitionsConstants.Bank, frame));
+            RoomEnemySlotFrameAccess.TryFrameAt(CrocomireTongueCollisionDefinitionsConstants.Bank, frame) is { } shown &&
+            Artwork.CrocomireTongueFrameDefinitions.ShownFrames.TryFind(shown, out _);
 
         /// <summary>The component of the tongue frame at native address <paramref name="frame"/>.</summary>
         internal static CrocomireTongueCollisionComponent ComponentAt(ushort frame) =>

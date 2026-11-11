@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="Projectiles">Samus's projectile owner, for collision preludes, impacts and reflection.</param>
 /// <param name="Samus">Samus, when the pass has one.</param>
 /// <param name="ProjectileType">The incoming projectile type, sampled before any impact rewrites it.</param>
-/// <param name="ProjectileDamage">The incoming projectile damage, a copy of the projectile's damage (0 through 65535).</param>
+/// <param name="ProjectileDamage">The incoming projectile damage, a copy of the projectile's damage.</param>
 /// <param name="ProjectileDirection">The incoming projectile's direction.</param>
 /// <param name="Family">The incoming projectile family.</param>
 /// <param name="UsesFrameHitboxes">Whether the overlap came from the enemy's authored extended hitboxes.</param>

@@ -208,9 +208,9 @@ internal sealed class EnemyProjectileEngine
                         : EnemyProjectileDeleteAnimation.Instance);
                     enemyProjectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
 
-                    // The game masks properties to their low twelve bits. The typed fields below are the
-                    // three high property bits represented by this runtime, so clearing
-                    // them is the exact structural equivalent rather than a Kago special.
+                    // A shot that destroys a projectile strips its behaviours and keeps only its damage: it no
+                    // longer blocks shots or outlasts touching Samus, and it harms her on contact, whatever its
+                    // definition said. Every destructible projectile is stripped alike, not only the Kago's.
                     enemyProjectile.BlocksSamusProjectiles = false;
                     enemyProjectile.PersistsOnSamusContact = false;
                     enemyProjectile.CanDamageSamus = true;

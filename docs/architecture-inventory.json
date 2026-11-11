@@ -60018,22 +60018,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.CoreAccess.extension(SuperMetroid.Core.World.EnemyDrawList)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/CoreAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.Core.CoreAccess.extension(SuperMetroid.Core.World.RoomEnemySystem)",
       "kind": "class",
       "scope": "test",
@@ -68162,19 +68146,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/EnemyDoorTransitionGates.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.EnemyDrawLayer",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemyDrawLayer.cs"
       ],
       "partial": "none",
       "disposition": "value"

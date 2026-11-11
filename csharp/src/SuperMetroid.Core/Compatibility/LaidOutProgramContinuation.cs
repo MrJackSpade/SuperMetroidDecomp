@@ -25,6 +25,12 @@ namespace SuperMetroid.Core.Compatibility;
 /// The transition poses whose programs these reads run through are never held themselves: their programs run under the
 /// pose that read into them.
 /// </para>
+/// <para>
+/// The typed animations whose gameplay reads which list a resting animation stands in (#1600) keep their lists' layout in
+/// the same terms: a list that runs on into the list authored after it, directly after its last beat, has that list as
+/// its successor, starting as many beats later, so a play resting after that beat reads the next list, as the original
+/// game's script pointer then rests at its entry.
+/// </para>
 /// </remarks>
 /// <typeparam name="TProgram">
 /// The identity of a program. Samus's programs are named by a pose that animates by each, so the identity keeps its

@@ -5,9 +5,9 @@ using P = SuperMetroid.Core.Frontend.Intro.CinematicSpriteProgram;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// Every cinematic sprite animation script as a typed program (#641), generated from the verified animation scripts: each frame
-/// shows a <see cref="CinematicSpritePose"/>, each owner instruction becomes a <see cref="CinematicSpriteCue"/>, and the
-/// shared delete stops the program.
+/// Every cinematic sprite animation script as typed segments and animations (#641, #1600), generated from the verified
+/// animation scripts: each frame shows a <see cref="CinematicSpritePose"/>, each owner instruction becomes a
+/// <see cref="CinematicSpriteCue"/>, and the shared delete ends the animation.
 /// </summary>
 internal static class CinematicSpriteAnimations
 {

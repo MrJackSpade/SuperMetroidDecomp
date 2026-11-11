@@ -1035,6 +1035,6 @@ false,             CrashSequenceFinished: true);
         if (enemy.Collided)
             return new BlockMoveResult(SignedSixteenSixteen.Zero, true, EnemyCollision: enemy);
 
-        return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = upwardDisplacement, ScanLeftToRight = (frameCounter & 1) == 0, CanBreakBombBlocks = true, IncludeSolidEnemies = false });
+        return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = upwardDisplacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), CanBreakBombBlocks = true, IncludeSolidEnemies = false });
     }
 }

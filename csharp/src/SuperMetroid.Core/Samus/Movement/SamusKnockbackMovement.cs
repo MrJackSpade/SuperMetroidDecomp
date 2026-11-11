@@ -439,7 +439,7 @@ level, targetPose, frameCounter, roomObjects))
         SignedSixteenSixteen requested = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
             samus.Kinematics,
             samus.HorizontalSpeed);
-        return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = requested, ScanLeftToRight = (frameCounter & 1) == 0 });
+        return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = requested, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
     }
 
 }

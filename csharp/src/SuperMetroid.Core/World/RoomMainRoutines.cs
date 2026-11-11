@@ -95,7 +95,7 @@ internal sealed class RoomMainRoutines
     /// from being mistaken for the original game-authored effect.
     /// </summary>
     internal static bool ShouldDrawSamusOnElevator(int frameCounter) =>
-        (frameCounter & 1) == 0;
+        SamusCadenceDefinitions.ElevatorRideDrawnEverySecondUpdate.IsDue(frameCounter);
 
     /// <summary>
     /// Executes the Falling Tile room main. It samples the existing RNG

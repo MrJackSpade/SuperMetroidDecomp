@@ -363,7 +363,7 @@ internal sealed class SamusPresentation
         bool bodyVisible = samus.KnockbackTimer != 0 ||
             samus.InvincibilityTimer.IsZero ||
             SamusInputSnapshot.HoldsShine(samus) ||
-            (frameCounter & 1) == 0;
+            !SamusCadenceDefinitions.InvincibilityFlickerHidden.IsSetIn(frameCounter);
         // A hidden body keeps the picture and origin it last drew, which the echoes repeat.
         if (!bodyVisible)
             return false;
@@ -453,7 +453,7 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>
-    /// On odd frames of the frame counter, draws both crash-orbit copies after
+    /// On the crash echoes' updates, draws both crash-orbit copies after
     /// the real Samus body using the current pose/frame spritemaps.
     /// </summary>
     public void DrawShinesparkCrashEchoes(SamusState samus, 
@@ -462,7 +462,7 @@ internal sealed class SamusPresentation
         int frameCounter)
     {
         Ensure.NotNull(sprites);
-        if ((frameCounter & 1) == 0 ||
+        if (!SamusCadenceDefinitions.CrashEchoesDrawnEverySecondUpdate.IsDue(frameCounter) ||
             samus.Shinespark.Phase is not (ShinesparkPhase.Crash or ShinesparkPhase.CrashEchoCircle))
         {
             return;
@@ -489,7 +489,7 @@ internal sealed class SamusPresentation
         int frameCounter)
     {
         Ensure.NotNull(sprites);
-        if ((frameCounter & 1) == 0)
+        if (!SamusCadenceDefinitions.CrashEchoesDrawnEverySecondUpdate.IsDue(frameCounter))
             return;
 
         // The second echo is drawn before the first. That ordering controls drawing priority when copies overlap.

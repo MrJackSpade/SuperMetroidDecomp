@@ -125,7 +125,7 @@ public static class SamusBombJumpMovement
         SignedSixteenSixteen displacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(
             state,
             -oldSpeed.AsDisplacement());
-        BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, state, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (frameCounter & 1) == 0 });
+        BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, state, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
         if (result.Collided)
         {
             state.YSpeed = default;

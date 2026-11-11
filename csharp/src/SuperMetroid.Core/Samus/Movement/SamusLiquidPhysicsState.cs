@@ -411,7 +411,7 @@ public sealed class SamusLiquidPhysicsState
                 ? SamusLiquidDamageDefinitions.Lava
                 : SamusLiquidDamageDefinitions.Acid;
             AccumulatePeriodicDamage(damageRate.SubDamage, damageRate.WholeDamage);
-            if ((frameCounter & 7) == 0 && samus.Health >= 71)
+            if (SamusCadenceDefinitions.LiquidDamageSoundEveryEighthUpdate.IsDue(frameCounter) && samus.Health >= 71)
                 QueueSound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Low);
 
             // Both lava and acid now share the delay-two submerged path.
@@ -725,7 +725,7 @@ public sealed class SamusLiquidPhysicsState
         // read untested.
         int mouthY = CoordinateAxis.Wrap(top - 24);
         if (CoordinateAxis.Difference(mouthY, UntestedWaterSurfaceLine) < 0 ||
-            (frameCounter & 127) != 0 ||
+            !SamusCadenceDefinitions.BreathBubbleEvery128thUpdate.IsDue(frameCounter) ||
             !EffectWaits.BubbleCanForm)
         {
             return;
@@ -758,7 +758,7 @@ public sealed class SamusLiquidPhysicsState
         EffectWaits.HoldBubbles(SamusParticleAnimations.UpdatesUntilFinished(SamusParticleKind.LavaSpray, step: 0, OneUpdateLate));
         _particles.SpawnLavaSpray(new(CoordinateAxis.Wrap(x - 6), surface), AtOnce, horizontalDrift: -1);
 
-        if ((frameCounter & 1) == 0)
+        if (SamusCadenceDefinitions.LavaSpraySoundEverySecondUpdate.IsDue(frameCounter))
             QueueSound(EnemySound.LiquidDamage, priority: SoundRequestPriority.Normal);
     }
 

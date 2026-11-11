@@ -137,7 +137,7 @@ public sealed class SamusCeresRidleyEjectionState
         // wrapper, this path adds no extra one-pixel downward bias.
         if (samus.Kinematics.YSpeed.Whole < TerminalDownwardSpeed)
             samus.Kinematics.YSpeed += samus.Kinematics.YAcceleration;
-        SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = samus.Kinematics.YSpeed.AsDisplacement(), ScanLeftToRight = (frameCounter & 1) == 0 });
+        SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = samus.Kinematics.YSpeed.AsDisplacement(), ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
 
         return new CeresRidleyEjectionResult();
     }

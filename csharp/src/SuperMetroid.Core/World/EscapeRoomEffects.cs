@@ -101,9 +101,11 @@ internal sealed class EscapeRoomEffects
             Position16<RoomPixels> explosion = new(
                 CoordinateAxis.Wrap(_room.Camera.PixelPosition.X + ZebesEscapeDefinitions.ExplosionScreenX.Of(random)),
                 CoordinateAxis.Wrap(_room.Camera.PixelPosition.Y + ZebesEscapeDefinitions.ExplosionScreenY.Of(random)));
-            int blockIndex = _room.LevelData.Size.RowMajorIndex(explosion.ToRoomBlock());
-            if (!nonblank || _room.LevelData.GetObjectCollisionBlockByIndex(blockIndex).Terrain.Appearance.Block != ZebesEscapeDefinitions.BlankTile)
-                enemies.RoomObjectSpawns.SpawnEscapeExplosion(explosion, _system.NextRandom(), nonblank ? CoordinateAxis.Wrap(blockIndex * 2) : 0);
+            Position16<RoomBlocks> block = explosion.ToRoomBlock();
+            // Outdoors an explosion goes off only over scenery, and one whose random choice leaves its kind open takes the kind
+            // its block's column selects, the four columns of every four repeating it.
+            if (!nonblank || !_room.LevelData.GetObjectCollisionBlock(block).Terrain.Appearance.ShowsNothing)
+                enemies.RoomObjectSpawns.SpawnEscapeExplosion(explosion, _system.NextRandom(), nonblank ? 2 * (block.X % 4) : 0);
         }
         if (nonblank) enemies.Earthquake.KeepShaking();
     }

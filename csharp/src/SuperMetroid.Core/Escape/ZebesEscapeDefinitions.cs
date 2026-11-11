@@ -53,8 +53,6 @@ public static class ZebesEscapeDefinitions
     /// </summary>
     internal static readonly RandomSampleField ExplosionChoice = new(0, 4);
 
-    /// <summary>The blank foreground tile outdoor explosions skip.</summary>
-    public const int BlankTile = 255;
 
     /// <summary>The strong horizontal shake of both layers, enemies included, Mainstreet's escape room shakes with.</summary>
     public static readonly EarthquakeShake MainstreetQuake =

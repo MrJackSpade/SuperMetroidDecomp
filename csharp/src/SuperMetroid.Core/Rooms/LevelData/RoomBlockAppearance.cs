@@ -8,6 +8,15 @@ public readonly record struct RoomBlockAppearance(int Block, BlockMirroring Mirr
     /// <summary>The highest block number a tileset's block set holds.</summary>
     public const int LastBlock = 1023;
 
+    /// <summary>
+    /// The empty block every tileset's block set shares: the room shows nothing there, as level data leaves open space and
+    /// a block Samus breaks becomes.
+    /// </summary>
+    private const int EmptyBlock = 255;
+
+    /// <summary>Whether the block shows nothing: the block set's empty block, however it is mirrored (#1610).</summary>
+    public bool ShowsNothing => Block == EmptyBlock;
+
     /// <summary>The block shown, 0 through <see cref="LastBlock"/>.</summary>
     public int Block
     {

@@ -74,7 +74,7 @@ internal static class FxDefinitionMigrationVerification
         AssertEqual(-1, LiquidEffects.HeatHorizontalWaveDisplacement(8), "horizontal heat-haze sample 8");
         AssertEqual(4, LavaAcidWaveDefinitions.VerticalWavePhaseDuration, "vertical heat-haze step");
         AssertEqual(0x70, LavaAcidWaveDefinitions.AmbientSoundPeriod, "lava sound period");
-        AssertEqual(288, LiquidTideDefinitions.SmallTidePositivePhaseDelta, "small tide rising phase step");
+        AssertEqual(288, LiquidTideDefinitions.SmallTidePositivePhaseDelta.RawValue, "small tide rising phase step");
         AssertEqual(0x0600, AtmosphereDriftDefinitions.RainVerticalVelocity, "rain fall");
         AssertEqual(-6 * 256, AtmosphereDrift.RainHorizontalVelocity(RainWind.StrongLeft), "strong left rain wind: six pixels left, in 1/256 pixel");
         AssertEqual(4 * 256, AtmosphereDrift.RainHorizontalVelocity(RainWind.GentleRight), "gentle right rain wind: four pixels right, in 1/256 pixel");

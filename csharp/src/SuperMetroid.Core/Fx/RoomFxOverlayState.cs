@@ -64,18 +64,15 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     private Offset16<OverlaySubpixels> rainWindVelocity;
     /// <summary>Previous camera point, used to make rain follow camera movement.</summary>
     private Position16<RoomPixels> previousCamera;
-    /// <summary>How many tide-phase units make one full turn of the negative-cosine lookup.</summary>
-    private const int TidePhasePeriod = 65536;
-
     /// <summary>The fraction a room load starts the liquid's surface at: half a pixel, centring the liquid on its whole line.</summary>
     private const int LoadedSurfaceFraction = 1 << 15;
     /// <summary>
-    /// Negative-cosine lookup phase for the liquid tide, 0 through 65535: its whole 1/256 turns select the sample, and
-    /// it returns to zero after a full turn through <see cref="AdvanceTidePhase"/>.
+    /// How far round its rise and fall the liquid's tide is: the surface sits at the negative cosine of this angle's whole
+    /// step, and <see cref="AdvanceTidePhase"/> turns it on, continuing round past a full turn.
     /// </summary>
-    internal int TidePhase { get; set; }
-    /// <summary>Signed fixed-point tide displacement added to the base surface.</summary>
-    internal int TideFixedOffset { get; set; }
+    internal RotationAngle TidePhase { get; set; }
+    /// <summary>How far the tide displaces the liquid surface from its base line, in pixels and subpixels.</summary>
+    internal SignedSixteenSixteen TideOffset { get; set; }
     /// <summary>
     /// Water's effect overlay surface drift: an 8.8 horizontal accumulator whose signed whole pixels offset the surface
     /// texture. Only X moves.
@@ -665,16 +662,15 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         if (!EarthquakeSoundTimer.IsNegative)
             return;
 
-        ReadOnlySpan<ushort> baseTimers =
-            RoomEarthquakeDefinitions.RisingLiquidSoundBaseTimers;
-        if ((uint)EarthquakeSoundSequenceIndex >= (uint)baseTimers.Length)
+        IReadOnlyList<int> baseDelays = RoomEarthquakeDefinitions.RisingLiquidSoundBaseDelays;
+        if ((uint)EarthquakeSoundSequenceIndex >= (uint)baseDelays.Count)
             EarthquakeSoundSequenceIndex = 0;
 
         soundRequests.Add(new SoundRequest(
             EnemySound.Lavaquake,
             Priority: SoundRequestPriority.Normal,
             SoundSuppressed: audioPowerBomb?.IsActive == true));
-        EarthquakeSoundTimer = WrappingCountdown.FromRaw(baseTimers[EarthquakeSoundSequenceIndex])
+        EarthquakeSoundTimer = WrappingCountdown.Start(baseDelays[EarthquakeSoundSequenceIndex])
             .AddFrames(RoomEarthquakeDefinitions.RisingLiquidSoundJitter.Of(randomNumber) + earthquakeSoundDelay.ExtraFrames);
         EarthquakeSoundSequenceIndex++;
     }
@@ -719,8 +715,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     internal void StepLiquidTide()
     {
         int scale;
-        int positiveDelta;
-        int negativeDelta;
+        RotationAngle positiveDelta;
+        RotationAngle negativeDelta;
         if ((LiquidOptions & RoomLiquidOptions.SmallTide) != RoomLiquidOptions.None)
         {
             scale = LiquidTideDefinitions.SmallTideScale;
@@ -735,18 +731,18 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         }
         else
         {
-            TideFixedOffset = 0;
+            TideOffset = SignedSixteenSixteen.Zero;
             return;
         }
 
-        // The tide indexes the negative-cosine prefix, not the sine origin.
-        int sample = Trigonometry.SignedNegativeCosineSample(Ensure.BetweenInclusive(0, byte.MaxValue, EightEight.WholeOf(TidePhase)));
-        TideFixedOffset = SixteenSixteen.FromEightEight(sample * scale);
+        // The tide follows the negative cosine of its phase, not the sine: the sine a quarter turn behind it.
+        int sample = Trigonometry.SignedSine((TidePhase - RotationAngle.QuarterTurn).ToTrigonometryAngle());
+        TideOffset = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(sample * scale);
         AdvanceTidePhase(sample >= 0 ? positiveDelta : negativeDelta);
     }
 
-    /// <summary>Moves the tide phase on by <paramref name="delta"/> units, returning to zero after a full turn.</summary>
-    private void AdvanceTidePhase(int delta) => TidePhase = (TidePhase + delta) % TidePhasePeriod;
+    /// <summary>Turns the tide phase on by <paramref name="delta"/>, continuing round past a full turn.</summary>
+    private void AdvanceTidePhase(RotationAngle delta) => TidePhase += delta;
 
     /// <summary>
     /// Adds signed fixed-point tide displacement to the base liquid surface, giving its signed line; a liquid with no
@@ -756,8 +752,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     private int? ComputeTidalYPosition()
     {
         if (BaseY is { } baseY)
-            return CoordinateAxis.AsSigned(baseY.MovedBy(SignedSixteenSixteen.FromRaw(TideFixedOffset)).Whole);
-        return TideFixedOffset == 0
+            return CoordinateAxis.AsSigned(baseY.MovedBy(TideOffset).Whole);
+        return TideOffset.IsZero
             ? null
             : throw new InvalidOperationException("A room liquid with no surface has a tide.");
     }
@@ -799,8 +795,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         rainWindVelocity = Offset16<OverlaySubpixels>.Zero;
         previousCamera = Position16<RoomPixels>.Zero;
         BaseY = new FixedCoordinate(0, LoadedSurfaceFraction);
-        TidePhase = 0;
-        TideFixedOffset = 0;
+        TidePhase = RotationAngle.Zero;
+        TideOffset = SignedSixteenSixteen.Zero;
         Surface = null;
         LiquidOptions = RoomLiquidOptions.None;
         waterDrift = Offset16<OverlaySubpixels>.Zero;

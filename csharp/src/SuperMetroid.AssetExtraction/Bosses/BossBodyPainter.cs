@@ -56,9 +56,32 @@ internal sealed class BossBodyPainter(BossBodyOwner owner, BossRoomCharacters ro
         }
         // A frame whose every cell's character inks only colour zero shows nothing: it has no picture, and the part showing
         // it is not drawn (#1513, #1540).
-        string? picture = ShowsAnything(frame) ? AddPicture(frame) : null;
-        if (!frames.TryAdd(frame.Name, new ComposedBossBodyFrame(frame.Name, picture, CornerOf(frame.Cells))))
+        bool shows = ShowsAnything(frame);
+        string? picture = shows ? AddPicture(frame) : null;
+        BossBodyDepth? depth = shows ? DepthOf(frame) : null;
+        if (!frames.TryAdd(frame.Name, new ComposedBossBodyFrame(frame.Name, picture, CornerOf(frame.Cells), depth)))
             throw new InvalidDataException($"{owner}'s body sheet repeats frame {frame.Name}.");
+    }
+
+    /// <summary>
+    /// The depth <paramref name="frame"/> is drawn at whole (#1634): in front of the sprites where every cell inking a colour
+    /// other than colour zero is written in its layer's upper tier, and behind them where none is. The tier is read here,
+    /// once; the installed picture carries none.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The frame's inking cells lie in both tiers, so it cannot be drawn whole at one depth.</exception>
+    private BossBodyDepth DepthOf(BossBodyFrameSource frame)
+    {
+        bool upper = false, lower = false;
+        foreach (BackgroundTile tile in frame.Cells.Values)
+        {
+            if (Character(tile.Tile, ShownUnder(frame, tile.Tile)).Span.IndexOfAnyExcept((byte)0) < 0)
+                continue;
+            upper |= tile.HighPriority;
+            lower |= !tile.HighPriority;
+        }
+        return upper && lower
+            ? throw new InvalidDataException($"{owner}'s body frame {frame.Name} is written partly in front of the sprites and partly behind them.")
+            : upper ? BossBodyDepth.InFrontOfSprites : BossBodyDepth.BehindSprites;
     }
 
     /// <summary>

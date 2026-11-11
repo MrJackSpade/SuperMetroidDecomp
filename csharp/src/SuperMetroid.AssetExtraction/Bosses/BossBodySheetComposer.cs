@@ -171,9 +171,10 @@ internal static class BossBodySheetComposer
 
     /// <summary>
     /// Kraid's frames (#1540): his body below his head, its upper half on the top-left screen of his layer and its lower
-    /// half on the bottom-left, and the head his body rises with on the upper half's top rows, each with and without the
-    /// priority his growth sets; and his head at each mouth stage on those same rows. Each mouth stage is written over every
-    /// one of those rows, so his head shows there alone and is a frame beside his body, never over it.
+    /// half on the bottom-left, and the head his body rises with on the upper half's top rows, each drawn behind the sprites
+    /// as he rises; and his head at each mouth stage on those same rows. His growth draws his body and the head it rises with
+    /// in front of the sprites, the same pictures at another depth (#1634), so neither is pictured again. Each mouth stage is
+    /// written over every one of those rows, so his head shows there alone and is a frame beside his body, never over it.
     /// </summary>
     private static IEnumerable<BossBodyFrameSource> KraidFrames(KraidBackgroundArtwork art)
     {
@@ -182,25 +183,14 @@ internal static class BossBodySheetComposer
         BackgroundTile[] lower = working[KraidWorkingMapDefinitions.LowerPageFirstCell..(KraidWorkingMapDefinitions.LowerPageFirstCell + KraidWorkingMapDefinitions.PageCells)];
         int lowerCell = LowerPageTopRow * BossBodySourceDefinitions.LayerColumns;
         const int headCells = KraidWorkingMapDefinitions.HeadImageCells;
-        foreach (KraidBodyAppearance appearance in new[] { KraidBodyAppearance.BehindSprites, KraidBodyAppearance.InFrontOfSprites })
-        {
-            BackgroundTile[] upperShown = InFront(upper, appearance == KraidBodyAppearance.InFrontOfSprites);
-            yield return BossBodyFrameSource.Written(KraidBodyFrameNames.RestingHead(appearance)
-                ?? throw new InvalidDataException("Kraid's body rises with no head."), 0, upperShown[..headCells]);
-            BossBodyFrameSource body = BossBodyFrameSource.Written(KraidBodyFrameNames.Of(appearance)
-                ?? throw new InvalidDataException("Kraid's body has no frame."), headCells, upperShown[headCells..]);
-            BackgroundTile[] lowerShown = InFront(lower, appearance == KraidBodyAppearance.InFrontOfSprites);
-            for (int index = 0; index < lowerShown.Length; index++)
-                body.Cells[lowerCell + index] = lowerShown[index];
-            yield return body;
-        }
+        yield return BossBodyFrameSource.Written(KraidBodyFrameNames.RestingHead, 0, upper[..headCells]);
+        BossBodyFrameSource body = BossBodyFrameSource.Written(KraidBodyFrameNames.Body, headCells, upper[headCells..]);
+        for (int index = 0; index < lower.Length; index++)
+            body.Cells[lowerCell + index] = lower[index];
+        yield return body;
         // Each installed head pose holds exactly the head's rows (KraidHeadTilemapAtlas), so it shows there alone.
         foreach (KraidHeadFrame head in KraidHeadTilemapFormat.HeadsByMouthStage)
             yield return BossBodyFrameSource.Written(KraidBodyFrameNames.Head(head.MouthStage), 0, art.HeadTiles(head));
-
-        // Kraid's page with every word's priority set, as his growth sets it, when the page is shown in front.
-        static BackgroundTile[] InFront(BackgroundTile[] page, bool inFront) =>
-            inFront ? [.. page.Select(tile => tile with { HighPriority = true })] : page;
     }
 
     /// <summary>

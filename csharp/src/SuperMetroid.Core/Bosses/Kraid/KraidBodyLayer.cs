@@ -51,14 +51,28 @@ internal sealed class KraidBodyLayer
 
     /// <summary>
     /// The body <paramref name="appearance"/> shows, drawn from <paramref name="sheet"/>: nothing while it is hidden, and
-    /// otherwise his body with <paramref name="head"/> above it once his head has shown a pose, and before that the head
-    /// his body rises with.
+    /// otherwise his body at the appearance's depth (#1634) with <paramref name="head"/> above it once his head has shown a
+    /// pose, and before that the head his body rises with, at his body's depth. A head pose is drawn at its own depth.
     /// </summary>
-    /// <exception cref="InvalidDataException">The sheet lacks a frame his body shows.</exception>
+    /// <exception cref="InvalidDataException">The sheet lacks a frame his body shows, or the appearance is undefined.</exception>
     private static BossBodyLayer Draw(KraidBodyAppearance appearance, KraidHeadFrame? head, BossBodySheet sheet)
     {
-        if (KraidBodyFrameNames.Of(appearance) is not { } body || KraidBodyFrameNames.RestingHead(appearance) is not { } resting)
+        if (DepthOf(appearance) is not { } depth)
             return BossBodyLayer.Empty;
-        return new BossBodyLayer([sheet.Frame(body), sheet.Frame(head is { } pose ? KraidBodyFrameNames.Head(pose.MouthStage) : resting)]);
+        return new BossBodyLayer([sheet.Frame(KraidBodyFrameNames.Body).At(depth),
+            head is { } pose ? sheet.Frame(KraidBodyFrameNames.Head(pose.MouthStage)) : sheet.Frame(KraidBodyFrameNames.RestingHead).At(depth)]);
     }
+
+    /// <summary>
+    /// The depth <paramref name="appearance"/> draws his body and the head it rises with at (#1634): behind the sprites as he
+    /// rises and fights small, in front of them once he has grown; null while his body is hidden.
+    /// </summary>
+    /// <exception cref="InvalidDataException"><paramref name="appearance"/> is undefined.</exception>
+    internal static BossBodyDepth? DepthOf(KraidBodyAppearance appearance) => appearance switch
+    {
+        KraidBodyAppearance.Hidden => null,
+        KraidBodyAppearance.BehindSprites => BossBodyDepth.BehindSprites,
+        KraidBodyAppearance.InFrontOfSprites => BossBodyDepth.InFrontOfSprites,
+        _ => throw new InvalidDataException($"Undefined Kraid body appearance {appearance}."),
+    };
 }

@@ -344,31 +344,36 @@ uint PicturePixel(uint picture, uint2 pixel, out uint index, out bool front)
     uint2 texel = Images.Load(int3(uint2(place & 65535, place >> 16) + pixel, 0));
     return TexelColour(texel, RoomLevels[picture + PictureColoursWord], index, front);
 }
+// A boss body part's depth (D3D11RoomLevelBuffer.DepthWord, #1634): drawn behind the sprites, or in front of them.
+static const uint BossBodyBehindSprites = 0, BossBodyInFrontOfSprites = 1;
+static const uint BossBodyPartWords = 4;
 // A boss body (ShownBossBody, #1466, #1514, #1540, #1609) at a scrolled position of its layer: its parts are placed on the
-// layer with nothing repeating beyond them, and layered in their table's order, each drawn over the parts before it. The frontmost part whose picture inks the position gives `picture` and `within`, its pixel there; where
-// no part inks it, the frontmost part reaching it gives its clear pixel, and a position no part reaches shows nothing.
-// Each part is three words: its picture's offset, the body pixel the picture's top-left corner lies on, and how much of
-// the picture shows across and down from that corner, each x below y. Every background sampler reads the boss through
-// this, so a blending pass shows the same body as an ordinary one (#1426).
-void BossBodyPicture(uint2 scrolled, out uint2 within, out uint picture)
+// layer with nothing repeating beyond them, and layered in their table's order, each drawn over the parts before it. The
+// frontmost part whose picture inks the position gives its picture and `within`, its pixel there; where no part inks it,
+// the frontmost part reaching it gives its clear pixel, and a position no part reaches shows nothing. Each part is drawn
+// whole at its depth (#1634): its picture is `parts.x` for a part drawn behind the sprites and `parts.y` for one drawn in
+// front of them, the other zero, so a pass drawing one depth shows only the parts at it.
+// Each part is four words: its picture's offset, the body pixel the picture's top-left corner lies on, how much of the
+// picture shows across and down from that corner, each x below y, and its depth. Every background sampler reads the boss
+// through this, so a blending pass shows the same body as an ordinary one (#1426).
+void BossBodyPicture(uint2 scrolled, out uint2 within, out uint2 parts)
 {
     uint table = RoomLevels[RoomBossBodyWord];
     uint2 position = scrolled & 65535;
-    picture = 0;
+    parts = uint2(0, 0);
     within = uint2(0, 0);
     for (uint part = RoomLevels[table]; part > 0; part--)
     {
-        uint record = table + 1 + (part - 1) * 3;
+        uint record = table + 1 + (part - 1) * BossBodyPartWords;
         uint corner = RoomLevels[record + 1], size = RoomLevels[record + 2];
         uint2 offset = position - uint2(corner & 65535, corner >> 16);
         if (offset.x >= (size & 65535) || offset.y >= (size >> 16)) continue;
         uint shown = RoomLevels[record];
         uint index;
-        bool front;
-        PicturePixel(shown, offset, index, front);
-        if (picture == 0 || index != 0)
+        PicturePixel(shown, offset, index);
+        if ((parts.x == 0 && parts.y == 0) || index != 0)
         {
-            picture = shown;
+            parts = RoomLevels[record + 3] == BossBodyInFrontOfSprites ? uint2(0, shown) : uint2(shown, 0);
             within = offset;
         }
         if (index != 0) return;

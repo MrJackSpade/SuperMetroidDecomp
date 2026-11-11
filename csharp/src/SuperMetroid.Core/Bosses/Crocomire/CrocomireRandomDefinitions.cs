@@ -7,10 +7,16 @@ internal static class CrocomireRandomDefinitions
     internal static readonly RandomSampleField AcidSmokeXOffset = new(0, 6);
 
     /// <summary>
-    /// Whether the acid smoke keeps its offset to the right of the body, bit one; when clear the offset is complemented
-    /// and the smoke rises to the left.
+    /// Whether the acid smoke keeps its offset to the right of the body, bit one; when clear the smoke rises to the
+    /// left, <see cref="AcidSmokeLeftExtraPixels"/> further from the body than its offset.
     /// </summary>
     internal static readonly RandomSampleField AcidSmokeOnRight = new(1, 1);
+
+    /// <summary>
+    /// How much further from the body acid smoke on the left rises than smoke on the right with the same offset: one
+    /// pixel, so the smoke on the left rises 1 through 64 pixels from the body's X.
+    /// </summary>
+    internal const int AcidSmokeLeftExtraPixels = 1;
 
     /// <summary>
     /// How far above the acid surface's line sixteen pixels down the smoke starts, 0 through 31 pixels: the sample's
@@ -32,4 +38,16 @@ internal static class CrocomireRandomDefinitions
 
     /// <summary>A random foot dust puff's distance from the body, 0 through 31 pixels on either side: the sample's bits 0-4.</summary>
     internal static readonly RandomSampleField FootDustOffset = new(0, 5);
+
+    /// <summary>
+    /// The roll that decides whether Crocomire starts a spit attack where his walk offers one: the sample's bits 0-11,
+    /// of which the lowest <see cref="ProjectileAttackRolls"/> start the attack.
+    /// </summary>
+    internal static readonly RandomSampleField ProjectileAttackRoll = new(0, 12);
+
+    /// <summary>
+    /// The values of <see cref="ProjectileAttackRoll"/>, 0 through 1023, that start a spit attack: a quarter of its
+    /// 4096, one chance in four.
+    /// </summary>
+    internal const int ProjectileAttackRolls = 1024;
 }

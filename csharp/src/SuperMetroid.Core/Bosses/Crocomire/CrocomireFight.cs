@@ -238,7 +238,7 @@ internal sealed class CrocomireFight
                 return RunCrocomireFightInstruction(state, samus, continuation);
 
             case CrocomireBodyCueKind.MaybeStartProjectileAttack:
-                if ((_access.ReadCrocomireRandom() & 4095) < 1024)
+                if (RollsProjectileAttack(_access.ReadCrocomireRandom()))
                 {
                     state.FightFunction = CrocomireFightFunction.ProjectileAttack;
                     state.ShotsSpat = 0;
@@ -310,6 +310,11 @@ internal sealed class CrocomireFight
                 throw new InvalidOperationException($"Undefined {nameof(CrocomireBodyCueKind)} {cue.Kind}.");
         }
     }
+
+    /// <summary>Whether Crocomire's one-in-four spit roll starts a spit attack where his walk offers one.</summary>
+    /// <param name="sample">The random sample, 0 through 65535.</param>
+    private static bool RollsProjectileAttack(int sample) =>
+        CrocomireRandomDefinitions.ProjectileAttackRoll.Of(sample) < CrocomireRandomDefinitions.ProjectileAttackRolls;
 
     /// <summary>Whether the body's left edge lies within 260 pixels right of the camera: the step-back moves' on-screen test.</summary>
     private static bool CrocomireBodyIsOnScreen(RoomEnemySlot body, int cameraX) =>

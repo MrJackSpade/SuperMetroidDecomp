@@ -109,11 +109,11 @@ internal sealed class CrocomireBodyLayer
         death.AcidSmokeTimer = 6;
 
         int random = _access.ReadCrocomireRandom();
-        // The offset is complemented, not negated, when bit one is clear; the smoke's X keeps
+        // Smoke on the left rises one pixel further from the body than its mirror on the right; the smoke's X keeps
         // sixteen bits where the offset is added.
         int xOffset = CrocomireRandomDefinitions.AcidSmokeXOffset.Of(random);
         if (!CrocomireRandomDefinitions.AcidSmokeOnRight.IsSetIn(random))
-            xOffset = ~xOffset;
+            xOffset = -(xOffset + CrocomireRandomDefinitions.AcidSmokeLeftExtraPixels);
         // Crocomire's room always has its acid surface, which its tide only moves.
         int acidY = samus is null
             ? 224

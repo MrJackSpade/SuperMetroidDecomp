@@ -281,9 +281,9 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         // The bounce picks one of the two dropped bounce heights from the same 0..7 value.
-        state.HopType = (NextPuyoRandom0To7(slot) & 1) == 0
-            ? PuyoHopType.DroppedSmall
-            : PuyoHopType.DroppedBig;
+        state.HopType = PuyoHopDefinitions.DroppedBounceIsBig.IsSetIn(NextPuyoRandom0To7(slot))
+            ? PuyoHopType.DroppedBig
+            : PuyoHopType.DroppedSmall;
         state.Function = PuyoEnemyFunction.Grounded;
     }
 

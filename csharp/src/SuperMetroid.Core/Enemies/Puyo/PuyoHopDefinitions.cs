@@ -20,4 +20,10 @@ public static class PuyoHopDefinitions
     /// continues past the field's last value from zero.
     /// </summary>
     internal static readonly RandomSampleField HopRoll = new(0, 3);
+
+    /// <summary>
+    /// Whether a dropped Puyo's bounce is the big one: bit zero of its <see cref="HopRoll"/> with the frame counter
+    /// added, set for <see cref="PuyoHopType.DroppedBig"/> and clear for <see cref="PuyoHopType.DroppedSmall"/>.
+    /// </summary>
+    internal static readonly RandomSampleField DroppedBounceIsBig = new(0, 1);
 }

@@ -302,10 +302,10 @@ internal sealed class KraidRise
         rock.StartAnimation(new KraidRockAnimation(kind == RoomEnemyProjectileKind.KraidRisingRockRight
             ? KraidRockProgram.RisingRightPose
             : KraidRockProgram.SharedPose));
-        // The rock initializer tests bit zero: clear complements the offset to the left.
+        // A rock on the left starts one pixel further from the body than its mirror on the right.
         int randomOffset = KraidRandomDefinitions.RisingRockOffset.Of(random);
         if (!KraidRandomDefinitions.RisingRockOffsetRight.IsSetIn(random))
-            randomOffset = CoordinateAxis.AsSigned(~randomOffset);
+            randomOffset = CoordinateAxis.AsSigned(-(randomOffset + KraidRandomDefinitions.RisingRockLeftExtraPixels));
         rock.Position = FixedPosition<RoomPixels>.FromWhole(new(CoordinateAxis.Wrap(body.Position.X.Whole + randomOffset), 432));
         rock.Velocity = new(SignedEightEight.FromSignedRaw(KraidRandomDefinitions.RisingRockXSpeedSteps.Of(random) * KraidRandomDefinitions.RisingRockXSpeedStep), SignedEightEight.FromSignedRaw(-1280));
         rock.Graphics = SpriteGraphics.SharedIn(KraidColours.RocksShading);

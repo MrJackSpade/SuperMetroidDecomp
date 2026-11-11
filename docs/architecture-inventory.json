@@ -127750,19 +127750,6 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Saves.SaveSlotNumbering",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Saves/SaveSlotNumbering.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Saves.SaveSlotRetention",
       "kind": "static class",
       "scope": "product",
@@ -132880,6 +132867,19 @@
       ],
       "partial": "none",
       "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Diagnostics.Saves.SaveSlotNumbering",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Diagnostics"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Diagnostics/Saves/SaveSlotNumbering.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Diagnostics.Sessions.InstalledGameSession",

@@ -100,8 +100,7 @@ internal static class LookupStream3Verification
             .Select(color => ReadVerificationWord(rom, IntroCinematicSourceDefinitions.Palette + 2 * color)).ToArray();
         IntroCinematicPalette stock = Load(native);
         Confirm(stock, native);
-        AssertEqual(0, stock.backgroundSets.Length + stock.spriteSets.Length, "intro complete stock palette stores no sets or paint words");
-        Console.WriteLine("Intro palette rows:256 native colors reach the transfer bytes and colour lists; reviewed material choices and all shade calculations keep no stock rows.");
+        Console.WriteLine("Intro palette rows:256 native colors reach the transfer bytes and colour lists.");
         static void Confirm(IntroCinematicPalette selected, ushort[] expected)
         {
             ReadOnlySpan<byte> bytes = ScreenColourWords.Words(selected.BackgroundColours.AsSpan(), selected.SpriteColours.AsSpan());

@@ -1819,7 +1819,7 @@ internal static class VerificationAssert
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ending logo fade oracle revision");
         Suite(nameof(VerifyEndingLogoPaletteFade), () => VerifyEndingLogoPaletteFade(rom));
-        Console.WriteLine("Ending logo fade: all512 original colors, computed transfers, independent edits and bounds pass.");
+        Console.WriteLine("Ending logo fade: all512 original colors, decoded transfers and bounds pass.");
         return 0;
     }
 

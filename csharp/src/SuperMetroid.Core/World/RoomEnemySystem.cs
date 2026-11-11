@@ -1197,7 +1197,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         CeresRidleyBehavior.Hits.AddCeresRidleyBombReactions(table);
         BombTorizoBehavior.Combat.AddBombTorizoBombReactions(table);
 
-        // The body's reaction makes a dud shot. The multibox bomb walker has already marked the physical explosion, and the
+        // The body's reaction makes a dud shot. The frame-hitbox bomb walker has already marked the physical explosion, and the
         // body callback performs no health, phase, or multipart-state work of its own.
         MotherBrainCombat.AddMotherBrainBodyBombReactions(table);
         MotherBrainBehavior.Combat.AddMotherBrainBombReactions(table);

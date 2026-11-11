@@ -52,7 +52,7 @@ internal sealed class KraidCombat
                 }
 
                 // The arm's shot reaction creates a room-graphics dust actor at the selected physical projectile
-                // coordinates, then returns to the multibox walker that has already recorded the hit's direction.
+                // coordinates, then returns to the frame-hitbox walker that has already recorded the hit's direction.
                 // Protected arm frames and every foot rectangle ignore the shot.
                 if (c.SelectedShotAi == EnemyReaction.KraidArmShot)
                     SpawnKraidArmShotExplosion(c.Bomb.Type, c.Bomb.Position.Whole);
@@ -321,7 +321,7 @@ internal sealed class KraidCombat
             KraidFootCollision.TryGetComponents(enemy.Frame, out var footComponents)))
             return null;
 
-        // Kraid's foot art is replaceable, but each extended frame
+        // Kraid's foot art is replaceable, but each frame
         // still places two physical components against one shared hitbox list.
         foreach (KraidCollisionComponent component in footComponents)
         {
@@ -350,7 +350,7 @@ internal sealed class KraidCombat
             KraidArmCollision.TryGetComponents(enemy.Frame, out var kraidComponents)))
             return null;
 
-        // Kraid's arm art is editable, but the extended spritemap
+        // Kraid's arm art is editable, but the frame
         // also carries a separate, ordered physical component stream.
         // Read that stream from the immutable definition catalog.
         foreach (KraidCollisionComponent component in kraidComponents)

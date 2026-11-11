@@ -29,7 +29,7 @@ internal sealed class SporeSpawnEntity(SporeSpawnBehavior species, RoomEnemySlot
     public override Action<EnemyBombContext>? FindBombSpecialAfterNoOp(EnemyBombContext context) =>
         context.SelectedShotAi == EnemyReaction.DudShot ? EnemyDudShot.Bomb : base.FindBombSpecialAfterNoOp(context);
 
-    /// <summary>Spore Spawn's contact and shots both enter the extended-spritemap walker over its own hitboxes.</summary>
+    /// <summary>Spore Spawn's contact and shots both meet its own frames' hitboxes.</summary>
     public override EnemyCapabilities Capabilities =>
         EnemyCapabilities.ExtendedSamusHitboxes | EnemyCapabilities.ExtendedProjectileHitboxes;
 

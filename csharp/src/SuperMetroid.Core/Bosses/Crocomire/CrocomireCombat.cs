@@ -101,7 +101,7 @@ internal sealed class CrocomireCombat
                 if (c.HitboxShotAi == EnemyReaction.NormalEnemyShot)
                     return false;
                 if (!c.UsesExtendedHitboxes)
-                    throw new InvalidDataException("Crocomire components require extended-spritemap collision.");
+                    throw new InvalidDataException("Crocomire's parts require collision by their frames' hitboxes.");
                 c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
                 ResolveCrocomireHitboxShot(c.Projectile.Type, c.Projectile.Position.Whole, c.HitboxShotAi);
                 return true;
@@ -119,7 +119,7 @@ internal sealed class CrocomireCombat
             context =>
             {
                 if (!context.UsesExtendedHitboxes)
-                    throw new InvalidDataException("Crocomire components require extended-spritemap collision.");
+                    throw new InvalidDataException("Crocomire's parts require collision by their frames' hitboxes.");
                 if (context.HitboxTouchAi == EnemyReaction.Ignore)
                     return; // The corpse's rectangles ignore Samus's touch.
                 if (context.HitboxTouchAi is not (
@@ -140,7 +140,7 @@ internal sealed class CrocomireCombat
             });
     }
 
-    /// <summary>Runs the shot reaction a Crocomire hitbox selected after multibox collision.</summary>
+    /// <summary>Runs the shot reaction a Crocomire hitbox selected after frame-hitbox collision.</summary>
     private void ResolveCrocomireHitboxShot(
         SamusProjectileType projectileType,
         Position16<RoomPixels> projectile,

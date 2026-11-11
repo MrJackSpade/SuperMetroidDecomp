@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies;
 /// room's encounters have played their artwork; the compatibility services its enemies consult, which it receives when it
 /// is built: the session's unauthored Speed Booster cadence, whose delays Ceres Ridley's getaway leaves behind, the
 /// installation's enemy and boss over-read services and the runtime's rainbow-beam camera checkpoint; and the host's
-/// installed enemy sheets and extended frame display bindings, which every room's enemies draw from.
+/// installed enemy sheets and enemy frame displays, which every room's enemies draw from.
 /// </summary>
 [ArchitectureReview("context-bag", "The enemy state that outlives each room and the installed enemy content every room binds: each member is session-lifetime state or installed data a room reads, not a service looked up.")]
 public sealed class EnemySession

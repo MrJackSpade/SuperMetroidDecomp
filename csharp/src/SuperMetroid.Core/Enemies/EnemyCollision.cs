@@ -86,10 +86,10 @@ internal sealed class EnemyCollision
             // overlap testing, so a distant actor with a map can legitimately clear it.
             if (slot.Frame is null)
                 continue;
-            bool usesExtendedHitboxes = UsesExtendedSamusHitboxes(slot);
-            // Multibox entry withholds the touch the header excludes from its hitboxes before
+            bool usesFrameHitboxes = UsesExtendedSamusHitboxes(slot);
+            // Frame-hitbox entry withholds the touch the header excludes from its hitboxes before
             // resetting invulnerability. Ordinary radius entry resets first instead.
-            if (usesExtendedHitboxes && slot.Definition.TouchHitboxScan == EnemyHitboxScan.Withheld)
+            if (usesFrameHitboxes && slot.Definition.TouchHitboxScan == EnemyHitboxScan.Withheld)
                 continue;
             if (contactDamageIndex != SamusContactDamageIndex.None)
                 samus.InvincibilityTimer = WrappingCountdown.Start(0);
@@ -110,7 +110,7 @@ internal sealed class EnemyCollision
 
             bool overlapsSamus;
             EnemyReaction? hitboxTouchAi = TouchAi(slot);
-            if (usesExtendedHitboxes)
+            if (usesFrameHitboxes)
             {
                 overlapsSamus = TryFindExtendedHitboxReaction(
                     slot,
@@ -133,7 +133,7 @@ internal sealed class EnemyCollision
 
             // On the ordinary radius path a frozen enemy never runs its touch
             // AI, except the respawn placeholder. The extended-hitbox path has no such gate.
-            if (!usesExtendedHitboxes && slot.FrozenTimer != 0 &&
+            if (!usesFrameHitboxes && slot.FrozenTimer != 0 &&
                 slot.DefinitionId != EnemyDefinitionId.Respawn)
             {
                 continue;
@@ -144,7 +144,7 @@ internal sealed class EnemyCollision
                 samus,
                 controllerInput,
                 level,
-                usesExtendedHitboxes,
+                usesFrameHitboxes,
                 hitboxTouchAi,
                 contactDamageIndex));
             return true;
@@ -219,14 +219,14 @@ internal sealed class EnemyCollision
                     continue;
                 }
 
-                bool usesExtendedHitboxes = UsesExtendedProjectileHitboxes(enemy);
+                bool usesFrameHitboxes = UsesExtendedProjectileHitboxes(enemy);
                 // The frame-hitbox shot test returns before testing any projectile while the enemy shows
                 // the empty frame. Its point hitbox remains live for Samus and
                 // bombs, whose frame-hitbox passes have no such check.
-                if (usesExtendedHitboxes &&
+                if (usesFrameHitboxes &&
                     CommonEnemyEmptyFrames.CollidesAtOrigin(enemy))
                     continue;
-                if (usesExtendedHitboxes &&
+                if (usesFrameHitboxes &&
                     enemy.Definition.ShotHitboxScan == EnemyHitboxScan.Withheld)
                 {
                     // A header that withholds shots from its hitboxes means no overlap, no
@@ -237,7 +237,7 @@ internal sealed class EnemyCollision
 
                 bool overlapsProjectile;
                 EnemyReaction? hitboxShotAi = ShotAi(enemy);
-                if (usesExtendedHitboxes)
+                if (usesFrameHitboxes)
                 {
                     overlapsProjectile = TryFindExtendedHitboxReaction(
                         enemy,
@@ -268,7 +268,7 @@ internal sealed class EnemyCollision
                     projectileDamage,
                     projectileDirection,
                     family,
-                    usesExtendedHitboxes,
+                    usesFrameHitboxes,
                     hitboxShotAi)
                 {
                     StruckOccupant = enemy.OccupantStates,
@@ -280,9 +280,9 @@ internal sealed class EnemyCollision
                     break;
                 }
 
-                if (usesExtendedHitboxes && family == SamusProjectileFamily.SuperMissile)
+                if (usesFrameHitboxes && family == SamusProjectileFamily.SuperMissile)
                 {
-                    // The multibox prelude requests this earthquake before dispatching the
+                    // The frame-hitbox prelude requests this earthquake before dispatching the
                     // hitbox reaction, even when that reaction is the ignoring shell region.
                     _earthquake.Start(SuperMissileDefinitions.EnemyHitEarthquake, SuperMissileDefinitions.EarthquakeDuration);
                 }
@@ -443,18 +443,18 @@ internal sealed class EnemyCollision
             bool usesCommonShotAi = ShotAi(enemy) == EnemyReaction.NormalEnemyShot;
             bool usesIgnoreShotAi = ShotAi(enemy) == EnemyReaction.Ignore;
             bool usesTranslatedPrivateShotAi = IsTranslatedPrivateNormalBombShotAi(enemy, ShotAi(enemy));
-            bool usesExtendedHitboxes = enemy.CollidesByFrameHitboxes;
-            bool headerSuppressesMultiboxShotCollision = usesExtendedHitboxes &&
+            bool usesFrameHitboxes = enemy.CollidesByFrameHitboxes;
+            bool headerWithholdsFrameHitboxShots = usesFrameHitboxes &&
                 enemy.Definition.ShotHitboxScan == EnemyHitboxScan.Withheld;
             bool admittedByOccupant = enemy.Entity is IEnemyNormalBombAdmission admission &&
-                admission.AdmitsNormalBombs(usesExtendedHitboxes);
+                admission.AdmitsNormalBombs(usesFrameHitboxes);
             if ((!usesCommonShotAi && !usesIgnoreShotAi &&
                     !usesTranslatedPrivateShotAi && !admittedByOccupant) ||
                 enemy.Frame is null ||
                 enemy.InvincibilityTimer != 0 ||
                 enemy.Presence.HasAny(EnemyPresence.Deleted) ||
-                headerSuppressesMultiboxShotCollision ||
-                usesExtendedHitboxes &&
+                headerWithholdsFrameHitboxShots ||
+                usesFrameHitboxes &&
                     enemy.Contact.HasAny(EnemyContact.IgnoresSamus))
             {
                 continue;
@@ -469,7 +469,7 @@ internal sealed class EnemyCollision
                 // handler is narrower: it requires a bomb and a nonzero X word.
                 if (bomb.Type.IsNone ||
                     !bomb.BombTimer.IsZero ||
-                    (usesExtendedHitboxes
+                    (usesFrameHitboxes
                         ? family != SamusProjectileFamily.Bomb ||
                           bomb.Position.X.Whole == 0
                         : family != SamusProjectileFamily.Bomb &&
@@ -479,7 +479,7 @@ internal sealed class EnemyCollision
                 }
 
                 EnemyReaction? selectedShotAi = ShotAi(enemy);
-                bool overlaps = usesExtendedHitboxes
+                bool overlaps = usesFrameHitboxes
                     ? TryFindExtendedHitboxReaction(
                         enemy,
                         bomb.Position.Whole,
@@ -496,7 +496,7 @@ internal sealed class EnemyCollision
                     continue;
                 }
 
-                // Multibox actors dispatch the reaction stored in the selected hitbox,
+                // Frame-hitbox actors dispatch the reaction stored in the selected hitbox,
                 // not necessarily the definition header's. Do not turn a protected/private
                 // component into common damage merely because the header names the ordinary shot.
                 bool selectedIgnore = selectedShotAi == EnemyReaction.Ignore;
@@ -516,7 +516,7 @@ internal sealed class EnemyCollision
                     ordinaryProjectiles,
                     samus,
                     selectedShotAi,
-                    usesExtendedHitboxes)
+                    usesFrameHitboxes)
                 {
                     StruckOccupant = enemy.OccupantStates,
                 };

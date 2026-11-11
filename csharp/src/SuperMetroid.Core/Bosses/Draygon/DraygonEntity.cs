@@ -53,7 +53,7 @@ internal sealed class DraygonEntity(DraygonBehavior species, RoomEnemySlot slot,
     public BossBodyFrame? FindBodyFrame(EnemyFrameId selected) =>
         DraygonBodyLayerFrameDefinitions.Frames.Contains(selected) ? _bossArtwork.Body(BossBodyOwner.Draygon).Frame(selected) : null;
 
-    /// <summary>Only the body's contact and shots enter the extended-spritemap walker over its own hitboxes.</summary>
+    /// <summary>Only the body's contact and shots meet its own frames' hitboxes.</summary>
     public override EnemyCapabilities Capabilities =>
         Slot.DefinitionId == EnemyDefinitionId.DraygonBody ? EnemyCapabilities.ExtendedSamusHitboxes | EnemyCapabilities.ExtendedProjectileHitboxes : EnemyCapabilities.None;
 

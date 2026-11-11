@@ -30,7 +30,7 @@ internal sealed class BombTorizoEntity(BombTorizoBehavior species, RoomEnemySlot
         return TorizoCombat.FindTorizoHitboxReaction(Slot, probe, out reaction);
     }
 
-    /// <summary>Both Torizos' contact and shots enter the extended-spritemap walker over their own hitboxes.</summary>
+    /// <summary>Both Torizos' contact and shots meet their own frames' hitboxes.</summary>
     public override EnemyCapabilities Capabilities =>
         EnemyCapabilities.ExtendedSamusHitboxes | EnemyCapabilities.ExtendedProjectileHitboxes;
 

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>
 /// The loaded room's bindings that <see cref="RoomEnemySystem"/> shares with the owners it composes: the room's
 /// enemy definition source, the game-state services its AI calls (including the enemy random source), and the
-/// host-installed extended frame display bindings.
+/// host-installed enemy frame displays.
 /// </summary>
 internal sealed class EnemyRoomBinding
 {

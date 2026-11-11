@@ -16,7 +16,7 @@ internal sealed class EnemyShotReaction(Func<RoomEnemySlot, bool> matches)
     /// <summary>Whether the enemy currently ignores every shot before any projectile is examined.</summary>
     internal Func<RoomEnemySlot, bool>? SkipsEnemy { get; init; }
 
-    /// <summary>Runs after the overlap is found, before the multibox Super Missile quake.</summary>
+    /// <summary>Runs after the overlap is found, before the frame-hitbox Super Missile quake.</summary>
     internal EnemyShotStage? BeforeSuperMissileQuake { get; init; }
 
     /// <summary>Runs after the Super Missile quake, before the shared literal no-op hitbox check.</summary>

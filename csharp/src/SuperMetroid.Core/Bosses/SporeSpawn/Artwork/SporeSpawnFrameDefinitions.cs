@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 
 /// <summary>
-/// The presentation boundary of Spore Spawn's body (#641): the extended spritemap each
+/// The presentation boundary of Spore Spawn's body (#641): the frame each
 /// <see cref="SporeSpawnFrame"/> shows. The opening and open poses are consecutive eighteen-byte roots.
 /// </summary>
 internal static class SporeSpawnFrameDefinitions

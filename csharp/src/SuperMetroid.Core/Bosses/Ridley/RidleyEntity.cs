@@ -80,7 +80,7 @@ internal sealed class RidleyEntity(
     }
 
     /// <summary>
-    /// Only Lower Norfair Ridley's shots enter the extended-spritemap walker; its contact, Ceres Ridley's collision and the
+    /// Only shots meet Lower Norfair Ridley's frames' hitboxes; its contact, Ceres Ridley's collision and the
     /// breakup actor's take neither.
     /// </summary>
     public override EnemyCapabilities Capabilities =>

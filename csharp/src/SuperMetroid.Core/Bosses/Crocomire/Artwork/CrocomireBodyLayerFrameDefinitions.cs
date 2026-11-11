@@ -2,7 +2,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
-/// <summary>The 42 fight-body frames Crocomire draws partly on his body layer (#1466); their sprite parts are among his extended frames.</summary>
+/// <summary>The 42 fight-body frames Crocomire draws partly on his body layer (#1466); their sprite parts are among his installed frames.</summary>
 internal static class CrocomireBodyLayerFrameDefinitions
 {
     /// <summary>The frames Crocomire draws on his body layer, each a frame of his installed body sheet.</summary>

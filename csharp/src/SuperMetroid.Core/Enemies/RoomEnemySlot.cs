@@ -105,7 +105,7 @@ public sealed class RoomEnemySlot
     public EnemyAiStates AiStates { get; internal set; }
     /// <summary>Remaining health, initially the definition's and reduced by weapon damage.</summary>
     public int Health { get; internal set; }
-    /// <summary>The frame the enemy shows, an installed spritemap or extended frame; null before any.</summary>
+    /// <summary>The frame the enemy shows, an installed frame or the empty frame; null before any.</summary>
     public EnemyFrameId? Frame { get; internal set; }
     /// <summary>A loop or delay count the occupant's behaviour and animation keep; not an elapsed-frame counter.</summary>
     public WrappingCountdown Timer { get; internal set; }

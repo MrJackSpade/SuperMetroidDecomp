@@ -649,7 +649,7 @@ internal sealed class PhantoonCombat
         if (!(PhantoonCombat.IsPhantoonPartDefinition(enemy.DefinitionId)))
             return null;
 
-        // Phantoon's extended frame roots include hitbox lists,
+        // Phantoon's frames include hitbox lists,
         // but its editable background tilemap writes must never become collision
         // data. Preserve the component and rectangle order from
         // the compiled definitions, including point no-ops.

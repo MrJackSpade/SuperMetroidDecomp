@@ -50,7 +50,7 @@ internal sealed class KraidEntity(KraidBehavior species, RoomEnemySlot slot, Ene
             KraidCombat.FindKraidArmHitboxReaction(Slot, probe, out reaction);
     }
 
-    /// <summary>The arm and foot take both extended-spritemap walkers; Kraid's body takes only the projectile walker; the lint and nails take neither.</summary>
+    /// <summary>The arm's and foot's contact and shots meet their frames' hitboxes; only shots meet Kraid's body's; the lint and nails meet neither.</summary>
     public override EnemyCapabilities Capabilities =>
         Slot.DefinitionId is EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidFoot
             ? EnemyCapabilities.ExtendedSamusHitboxes | EnemyCapabilities.ExtendedProjectileHitboxes

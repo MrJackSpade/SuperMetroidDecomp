@@ -58,7 +58,7 @@ internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemySlot s
         Slot.DefinitionId == EnemyDefinitionId.Crocomire && CrocomireBodyLayerFrameDefinitions.Frames.Contains(selected)
             ? _bossArtwork.Body(BossBodyOwner.Crocomire).Frame(selected) : null;
 
-    /// <summary>The body's and tongue's contact and shots both enter the extended-spritemap walker over their own hitboxes.</summary>
+    /// <summary>The body's and tongue's contact and shots both meet their own frames' hitboxes.</summary>
     public override EnemyCapabilities Capabilities =>
         EnemyCapabilities.ExtendedSamusHitboxes | EnemyCapabilities.ExtendedProjectileHitboxes;
 

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
 /// physical collision for all four Ceres steam directions. Each of the
-/// 28 extended frames has one zero-offset component. Its sprite-piece reference is deliberately
+/// 28 frames has one zero-offset component. Its sprite-piece reference is deliberately
 /// absent: installed sprite edits cannot change the damaging plume geometry.
 /// </summary>
 internal static class CeresSteamCollisionDefinitions

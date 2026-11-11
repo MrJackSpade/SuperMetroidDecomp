@@ -12,5 +12,5 @@ internal static class MotherBrainCollision
     internal static ReadOnlySpan<EnemyCollisionComponent> ComponentsAt(EnemyFrameId? frame) =>
         frame is { } shown && FrameComponents.TryGetValue(shown, out EnemyCollisionComponent[]? components)
             ? components
-            : throw new InvalidDataException($"Mother Brain has no extended frame {frame}.");
+            : throw new InvalidDataException($"Mother Brain has no frame {frame} with hitboxes.");
 }

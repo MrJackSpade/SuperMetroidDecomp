@@ -65,7 +65,7 @@ internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemySlot slo
     {
     }
 
-    /// <summary>Only the body's Samus contact enters the extended-spritemap walker; its weapon collision is the encounter's own resolver.</summary>
+    /// <summary>Only Samus's contact meets the body's frames' hitboxes; its weapon collision is the encounter's own resolver.</summary>
     public override EnemyCapabilities Capabilities =>
         Slot.DefinitionId == EnemyDefinitionId.PhantoonBody ? EnemyCapabilities.ExtendedSamusHitboxes : EnemyCapabilities.None;
 

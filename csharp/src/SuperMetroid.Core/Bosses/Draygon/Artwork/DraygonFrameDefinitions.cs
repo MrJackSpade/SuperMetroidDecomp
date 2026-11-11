@@ -4,7 +4,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 
 /// <summary>
-/// Draygon's presentation boundary (#641): the extended spritemaps its typed programs show, in authored order.
+/// Draygon's presentation boundary (#641): the frames its typed programs show, in authored order.
 /// Gameplay animates <see cref="DraygonFrame"/> indexes; only this catalog knows the spritemaps.
 /// Each facing authors 27 one-component roots (arms, body, eye), eight two-component tail roots, then the tail
 /// whip's roots in pairs of four, six and eight components.

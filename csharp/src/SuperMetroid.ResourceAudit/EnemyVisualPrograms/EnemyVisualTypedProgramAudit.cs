@@ -328,7 +328,7 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(MamaTurtleAnimations), "csharp/src/SuperMetroid.Core/Enemies/MamaTurtles/MamaTurtleAnimations.cs");
         RequireTypedFrames(ChozoStatueAnimations.Programs, ChozoStatueFrameToolingDefinitions.Spritemap, ChozoStatueFrameToolingDefinitions.Bank,
             nameof(ChozoStatueAnimations), "csharp/src/SuperMetroid.Core/Enemies/Chozo/ChozoStatueAnimations.cs");
-        RequireTypedFrames(FakeKraidAnimations.Programs, FakeKraidFrameToolingDefinitions.Spritemap, FakeKraidFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(FakeKraidAnimations.Segments, FakeKraidFrameToolingDefinitions.Spritemap, FakeKraidFrameToolingDefinitions.Bank,
             nameof(FakeKraidAnimations), "csharp/src/SuperMetroid.Core/Bosses/Kraid/FakeKraidAnimations.cs");
         RequireTypedFrames(WalkingSpacePirateAnimations.Programs, WalkingSpacePirateFrameToolingDefinitions.Spritemap, WalkingSpacePirateFrameToolingDefinitions.Bank,
             nameof(WalkingSpacePirateAnimations), "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/WalkingSpacePirateAnimations.cs");

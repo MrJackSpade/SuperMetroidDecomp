@@ -129,12 +129,12 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = WrappingCountdown.Start(0);
         state.WalkDelta = -4;
         state.FacingDelta = -4;
-        state.Program = AnimationProgramCursor<FakeKraidProgram>.Start(FakeKraidProgram.StepForwardsFacingLeft);
+        state.Playback = new AnimationPlayback<FakeKraidProgram>(FakeKraidAnimations.StartingWith(FakeKraidProgram.StepForwardsFacingLeft), AnimationPlace.StartOfAnimation);
         if (CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole) < 0)
         {
             state.WalkDelta = 4;
             state.FacingDelta = 4;
-            state.Program = AnimationProgramCursor<FakeKraidProgram>.Start(FakeKraidProgram.StepForwardsFacingRight);
+            state.Playback = new AnimationPlayback<FakeKraidProgram>(FakeKraidAnimations.StartingWith(FakeKraidProgram.StepForwardsFacingRight), AnimationPlace.StartOfAnimation);
         }
     }
 
@@ -412,9 +412,11 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances FakeKraid's typed animation.</summary>
     internal void AdvanceFakeKraidTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>
-        EnemyProgramAnimation.Advance(slot, FakeKraidAnimations.Programs, FakeKraidFrameDefinitions.ShownFrames.Of,
-            static (FakeKraidEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
-            (state, cue, _) => ApplyFakeKraidCue(slot, cue, context.Samus, context.Level, context.Camera));
+        EnemyProgramAnimation.Advance(slot, FakeKraidAnimations.Segments, FakeKraidFrameDefinitions.ShownFrames.Of,
+            static (FakeKraidEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            (_, cue) => ApplyFakeKraidCue(slot, cue, context.Samus, context.Level, context.Camera) is { } action
+                ? new AnimationContinuation<FakeKraidProgram>(FakeKraidAnimations.StartingWith(action), AnimationPlace.StartOfAnimation)
+                : null);
 
     /// <summary>Spawns Mini-Kraid's own explosion and four drops after a lethal power bomb.</summary>
     internal void AddFakeKraidPowerBombReactions(EnemySharedReactions table)

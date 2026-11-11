@@ -7,6 +7,6 @@ internal static class FakeKraidProjectileAnimationAccess
     extension(FakeKraidProjectileAnimation self)
     {
         /// <summary>The pose shown.</summary>
-        internal FakeKraidProjectilePose Pose => self.Cursor.Program;
+        internal FakeKraidProjectilePose Pose => self.PlayingSegment;
     }
 }

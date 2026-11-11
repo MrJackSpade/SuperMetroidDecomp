@@ -10,14 +10,13 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// </summary>
 internal static class FakeKraidAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<FakeKraidProgram, FakeKraidFrame, FakeKraidCue> Programs { get; } = new(
-        new Dictionary<FakeKraidProgram, AnimationProgramStep<FakeKraidProgram, FakeKraidFrame, FakeKraidCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<FakeKraidProgram, FakeKraidFrame, FakeKraidCue> Segments { get; } = new(
+        new Dictionary<FakeKraidProgram, AnimationBeat<FakeKraidFrame, FakeKraidCue>[]>
     {
         [P.ChooseActionFacingLeft] =
         [
             Cue(new(K.ChooseAction)),
-            FallInto(P.StepForwardsFacingLeft),
         ],
         [P.StepForwardsFacingLeft] =
         [
@@ -26,12 +25,10 @@ internal static class FakeKraidAnimations
             Show(2, 8),
             Show(3, 12),
             Cue(new(K.Move)),
-            GoTo(P.ChooseActionFacingLeft),
         ],
         [P.ChooseAlternateActionFacingLeft] =
         [
             Cue(new(K.ChooseAction)),
-            FallInto(P.StepBackwardsFacingLeft),
         ],
         [P.StepBackwardsFacingLeft] =
         [
@@ -40,7 +37,6 @@ internal static class FakeKraidAnimations
             Show(3, 12),
             Show(2, 8),
             Show(1, 12),
-            GoTo(P.ChooseAlternateActionFacingLeft),
         ],
         [P.FireSpitFacingLeft] =
         [
@@ -50,12 +46,10 @@ internal static class FakeKraidAnimations
             Cue(new(K.SpitLeft)),
             Show(6, 16),
             Show(5, 8),
-            GoTo(P.ChooseActionFacingLeft),
         ],
         [P.ChooseActionFacingRight] =
         [
             Cue(new(K.ChooseAction)),
-            FallInto(P.StepForwardsFacingRight),
         ],
         [P.StepForwardsFacingRight] =
         [
@@ -64,12 +58,10 @@ internal static class FakeKraidAnimations
             Show(9, 8),
             Show(10, 12),
             Cue(new(K.Move)),
-            GoTo(P.ChooseActionFacingRight),
         ],
         [P.ChooseAlternateActionFacingRight] =
         [
             Cue(new(K.ChooseAction)),
-            FallInto(P.StepBackwardsFacingRight),
         ],
         [P.StepBackwardsFacingRight] =
         [
@@ -78,7 +70,6 @@ internal static class FakeKraidAnimations
             Show(10, 12),
             Show(9, 8),
             Show(8, 12),
-            GoTo(P.ChooseAlternateActionFacingRight),
         ],
         [P.FireSpitFacingRight] =
         [
@@ -88,20 +79,30 @@ internal static class FakeKraidAnimations
             Cue(new(K.SpitRight)),
             Show(13, 16),
             Show(12, 8),
-            GoTo(P.ChooseActionFacingRight),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<FakeKraidProgram, Animation<FakeKraidProgram>> StartingAt { get; } = new Dictionary<FakeKraidProgram, Animation<FakeKraidProgram>>
+    {
+        [P.ChooseActionFacingLeft] = new([new(P.ChooseActionFacingLeft, 0, 1, 1), new(P.StepForwardsFacingLeft, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.StepForwardsFacingLeft] = new([new(P.StepForwardsFacingLeft, 0, 5, 1), new(P.ChooseActionFacingLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ChooseAlternateActionFacingLeft] = new([new(P.ChooseAlternateActionFacingLeft, 0, 1, 1), new(P.StepBackwardsFacingLeft, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.StepBackwardsFacingLeft] = new([new(P.StepBackwardsFacingLeft, 0, 5, 1), new(P.ChooseAlternateActionFacingLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.FireSpitFacingLeft] = new([new(P.FireSpitFacingLeft, 0, 6, 1), new(P.ChooseActionFacingLeft, 0, 1, 1), new(P.StepForwardsFacingLeft, 0, 5, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.ChooseActionFacingRight] = new([new(P.ChooseActionFacingRight, 0, 1, 1), new(P.StepForwardsFacingRight, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.StepForwardsFacingRight] = new([new(P.StepForwardsFacingRight, 0, 5, 1), new(P.ChooseActionFacingRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ChooseAlternateActionFacingRight] = new([new(P.ChooseAlternateActionFacingRight, 0, 1, 1), new(P.StepBackwardsFacingRight, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.StepBackwardsFacingRight] = new([new(P.StepBackwardsFacingRight, 0, 5, 1), new(P.ChooseAlternateActionFacingRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.FireSpitFacingRight] = new([new(P.FireSpitFacingRight, 0, 6, 1), new(P.ChooseActionFacingRight, 0, 1, 1), new(P.StepForwardsFacingRight, 0, 5, 1)], AnimationEnd.LoopsFrom(1)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<FakeKraidProgram> StartingWith(FakeKraidProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<FakeKraidProgram, FakeKraidFrame, FakeKraidCue> Show(int pose, int duration) => AnimationProgramStep<FakeKraidProgram, FakeKraidFrame, FakeKraidCue>.Show(new(pose), duration);
+    private static AnimationBeat<FakeKraidFrame, FakeKraidCue> Show(int pose, int duration) => new AnimationBeat<FakeKraidFrame, FakeKraidCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<FakeKraidProgram, FakeKraidFrame, FakeKraidCue> Cue(FakeKraidCue cue) => AnimationProgramStep<FakeKraidProgram, FakeKraidFrame, FakeKraidCue>.Publish(cue);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<FakeKraidProgram, FakeKraidFrame, FakeKraidCue> GoTo(FakeKraidProgram program) => AnimationProgramStep<FakeKraidProgram, FakeKraidFrame, FakeKraidCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<FakeKraidProgram, FakeKraidFrame, FakeKraidCue> FallInto(FakeKraidProgram program) => AnimationProgramStep<FakeKraidProgram, FakeKraidFrame, FakeKraidCue>.FallInto(program);
-
+    private static AnimationBeat<FakeKraidFrame, FakeKraidCue> Cue(FakeKraidCue cue) => new AnimationBeat<FakeKraidFrame, FakeKraidCue>.Event(cue);
 }

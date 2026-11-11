@@ -86,10 +86,10 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
                 out _,
                 out FakeKraidEnemyState state);
             AssertEqual(
-                AnimationProgramCursor<FakeKraidProgram>.Start(movingRight
+                new AnimationPlayback<FakeKraidProgram>(FakeKraidAnimations.StartingWith(movingRight
                     ? FakeKraidProgram.StepForwardsFacingRight
-                    : FakeKraidProgram.StepForwardsFacingLeft),
-                state.Program,
+                    : FakeKraidProgram.StepForwardsFacingLeft), AnimationPlace.StartOfAnimation),
+                state.Playback,
                 $"Fake Kraid initializer selects {(movingRight ? "right" : "left")} program");
         }
 
@@ -100,7 +100,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
                 out RoomEnemySlot slot,
                 out SamusState samus,
                 out FakeKraidEnemyState state);
-            state.Program = AnimationProgramCursor<FakeKraidProgram>.Start(program);
+            state.Playback = new AnimationPlayback<FakeKraidProgram>(FakeKraidAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             slot.FrameHold = WrappingCountdown.Start(1);
             state.WalkDelta = walkDelta;
             state.FacingDelta = movingRight ? (short)4 : (short)-4;
@@ -122,7 +122,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
                 out RoomEnemySlot slot,
                 out SamusState samus,
                 out FakeKraidEnemyState state);
-            state.Program = AnimationProgramCursor<FakeKraidProgram>.Start(program);
+            state.Playback = new AnimationPlayback<FakeKraidProgram>(FakeKraidAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             slot.FrameHold = WrappingCountdown.Start(1);
             state.WalkStepTimer = 0x0100;
             state.SpitDecisionTimer = 0x0100;
@@ -144,7 +144,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
                 out RoomEnemySlot slot,
                 out SamusState samus,
                 out FakeKraidEnemyState state);
-            state.Program = AnimationProgramCursor<FakeKraidProgram>.Start(program);
+            state.Playback = new AnimationPlayback<FakeKraidProgram>(FakeKraidAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             slot.FrameHold = WrappingCountdown.Start(1);
             state.WalkDelta = walkDelta;
             state.FacingDelta = movingRight ? (short)4 : (short)-4;

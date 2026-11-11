@@ -2,7 +2,7 @@
 
 namespace SuperMetroid.AssetExtraction.Bosses.SporeSpawn.Artwork;
 
-/// <summary>Cartridge values and helpers of <see cref="SporeSpawnColors"/> that only verification reads.</summary>
+/// <summary>Cartridge values and helpers of <see cref="SporeSpawnColorCatalog"/> that only verification reads.</summary>
 internal static class SporeSpawnColorsConstants
 {
     /// <summary>Resolves one death-script layer's packed RGB5 ink without writing a palette.</summary>

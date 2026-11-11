@@ -10,9 +10,9 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 /// <summary>
 /// The installed images a scene draws, as one texture (#1408): each sprite frame, block picture, background image and
 /// tile sheet a scene shows is copied in once, at a place it keeps while later scenes show it. Each texel holds the
-/// image's pixel and, beside it, the pixel's key word (<see cref="KeyWord"/>): the place of its colour key among the image's
-/// (<see cref="SpriteImage.ColourKeys"/>), so a shading recolours the image as it shows it (#1512, #1633), with whether the
-/// pixel is clear and whether it blends where it is drawn as a sprite.
+/// image's pixel and, beside it, the pixel's key word (<see cref="KeyWord"/>): for a visible pixel the place of its colour
+/// key among the image's (<see cref="SpriteImage.ColourKeys"/>), so a shading recolours the image as it shows it (#1512,
+/// #1633), with whether it blends where it is drawn as a sprite; for a clear pixel only that it is clear.
 /// </summary>
 internal sealed class D3D11ImageAtlas : IDisposable
 {
@@ -22,7 +22,7 @@ internal sealed class D3D11ImageAtlas : IDisposable
     internal const int MostColourKeys = 1 << 16;
     /// <summary>
     /// A key word's mark on a clear pixel, one whose alpha is zero (#1544, #1633): a see-through layer shows what lies behind
-    /// it, and a layer drawn opaque shows its key's colour.
+    /// it, and a layer drawn opaque shows its stored colour, unshaded. A clear pixel has no colour key.
     /// </summary>
     internal const uint ClearMark = 1u << 16;
     /// <summary>
@@ -178,29 +178,32 @@ internal sealed class D3D11ImageAtlas : IDisposable
     }
 
     /// <summary>
-    /// The word the shaders read beside sheet pixel <paramref name="pixel"/> of <paramref name="image"/> (#1633): the place of
-    /// the pixel's colour key among its sheet's (<see cref="SpriteImage.ColourKeys"/>) in the low sixteen bits, which every
-    /// pixel has, a clear one too; then <see cref="ClearMark"/> where the pixel's alpha is zero, and <see cref="BlendsMark"/>
-    /// where the frame blends or the sheet's blend map marks the pixel.
+    /// The word the shaders read beside sheet pixel <paramref name="pixel"/> of <paramref name="image"/> (#1633): for a clear
+    /// pixel, one whose alpha is zero, <see cref="ClearMark"/> alone, since a clear pixel is never recoloured and an opaque
+    /// layer shows its stored colour as it is; for a visible pixel, the place of its colour key among its sheet's
+    /// (<see cref="SpriteImage.ColourKeys"/>) in the low sixteen bits, with <see cref="BlendsMark"/> where the frame blends or
+    /// the sheet's blend map marks the pixel.
     /// </summary>
     /// <param name="image">The frame the pixel is copied in as part of.</param>
     /// <param name="pixel">The pixel, counted row by row from the top of the whole sheet.</param>
     /// <exception cref="InvalidDataException">
-    /// The sheet has more colour keys than a key word can place, or its keys do not hold the pixel's.
+    /// The sheet has more colour keys than a key word can place, or its keys do not hold a visible pixel's.
     /// </exception>
     internal static uint KeyWord(SpriteSheetFrame image, int pixel)
     {
         Ensure.NotNull(image);
         SpriteImage sheet = image.Sheet;
+        if (sheet.Pixels[pixel].A == 0)
+            return ClearMark;
         if (sheet.ColourKeys.Length > MostColourKeys)
             throw new InvalidDataException(
                 $"Sheet {sheet.Name} has {sheet.ColourKeys.Length} colour keys, more than the {MostColourKeys} a key word can place.");
         ColourKey key = sheet.KeyAt(pixel);
         int place = sheet.PlaceOf(key)
-            ?? throw new InvalidDataException($"Sheet {sheet.Name}'s colour keys do not hold {key}, the key of its pixel {pixel}.");
+            ?? throw new InvalidDataException($"Sheet {sheet.Name}'s colour keys do not hold {key}, the key of its visible pixel {pixel}.");
         ReadOnlySpan<bool> blending = sheet.Blending;
         bool blends = image.Blends || (!blending.IsEmpty && blending[pixel]);
-        return (uint)place | (sheet.Pixels[pixel].A == 0 ? ClearMark : 0) | (blends ? BlendsMark : 0);
+        return (uint)place | (blends ? BlendsMark : 0);
     }
 
     /// <summary>

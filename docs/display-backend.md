@@ -15,7 +15,7 @@ to the WARP reference.
 
 | Resource | Shader binding | What it holds |
 |---|---|---|
-| Image texture (`D3D11ImageAtlas`) | `Images`, t4 | Every installed image a scene draws: sprite frames, block pictures, background images, tile sheets, the message box. Each texel holds the image's pixel and its key word: the place of the pixel's colour key among the image's (`SpriteImage.ColourKeys`), whether the pixel is clear (its alpha is zero) and whether it blends where it is drawn as a sprite (its frame blends, or its sheet's blend map marks it). An image keeps its place while later scenes show it; a scene that does not fit empties the texture and lays its images tallest first on a skyline. |
+| Image texture (`D3D11ImageAtlas`) | `Images`, t4 | Every installed image a scene draws: sprite frames, block pictures, background images, tile sheets, the message box. Each texel holds the image's pixel and its key word: for a clear pixel (alpha zero) only that it is clear; for a visible pixel the place of its colour key among the image's (`SpriteImage.ColourKeys`) and whether it blends where it is drawn as a sprite (its frame blends, or its sheet's blend map marks it). An image keeps its place while later scenes show it; a scene that does not fit empties the texture and lays its images tallest first on a skyline. |
 | Floor image (`D3D11FloorImage`) | `Floor`, t5 | The perspective floor, 1024 pixels square, laid out from its tiles' pictures whenever the floor changes, with its first tile's picture beside it. |
 | Scene colours (`D3D11SceneColourBuffer`) | `Colours`, t0 | The backdrop, then one colour table per image and colouring: the colour each of the image's colour keys shows under the colouring's shading, in the keys' order. |
 | Sprite draws (`D3D11SpriteDrawBuffer`) | `SpriteDraws`, t1 | One record per whole-frame sprite draw (position, size, mirroring, depth among the room's layers, image place, colours), front to back: the paint's draws grouped by depth from the front back, then each sprite layer's. |
@@ -25,14 +25,14 @@ to the WARP reference.
 
 ## Colour
 
-A picture is only its colours (#1633): each pixel is an RGBA colour, alpha zero meaning clear. A pixel's colour key is
-its colour with its recolour region, which the sheet's recolour-region map gives where pixels of one colour recolour
-differently. A picture's pixel shows the colour its key shows under its colour slot's shading (`TexelColour`): the
+A picture is only its colours (#1633): each pixel is an RGBA colour, alpha zero meaning clear. A visible pixel's colour
+key is its colour with its recolour region, which the sheet's recolour-region map gives where pixels of one colour
+recolour differently. A visible pixel shows the colour its key shows under its colour slot's shading (`TexelColour`): the
 shading's shades overwrite the colours of the keys they name, then its colour effects change every key's colour, then its
 shades over the effects overwrite again (`PictureShading.KeyColours`). This is how glows, fades and tints recolour
-pre-coloured art. A see-through layer leaves clear pixels out; a layer drawn opaque (`HudLayer.DrawsOpaque`,
-`PicturedPlaneLayer.DrawsOpaque`) shows a clear pixel's key colour: the colour the pixel keeps of its own (the HUD band and
-room-effect art), or black where it keeps none.
+pre-coloured art. A clear pixel has no key and is never recoloured. A see-through layer leaves clear pixels out; a layer
+drawn opaque (`HudLayer.DrawsOpaque`, `PicturedPlaneLayer.DrawsOpaque`) shows a clear pixel's stored colour as it is: the
+colour the pixel keeps of its own (the HUD band and room-effect art), or black where it keeps none.
 
 A sprite draw's pixels show the image's own colours, or, where the draw is shaded, the colour its shading gives each
 pixel's key. A sprite pixel blends where its frame blends (`SpriteSheetFrame.Blends`), where its sheet's blend map marks
@@ -54,7 +54,7 @@ Each pass runs over the screen, or over a band of lines, in the order the scene 
 - **Layer.** Draws a tile layer: a room plane through its block grid, the sky's rows, the effect overlay, a boss body, the
   X-ray reveal, a library background, or a frontend layer's cells. Each pixel of the layer shows its picture's pixel at
   the scrolled position. Options: only its pictures' part behind or only their part in front (#1634), drawn opaque
-  (its clear pixels showing their key colours), a scroll per line, a mosaic that groups screen pixels into blocks before the
+  (its clear pixels showing their stored colours), a scroll per line, a mosaic that groups screen pixels into blocks before the
   line's scroll, and words written over the layer drawn on top.
 - **Room order.** A room composes, per band of lines with the same shown layers (`GameplaySceneLayer.Bands`), the
   gameplay scene's layers in `GameplaySceneLayer.Order` (#1514): the actors behind the room, the background's back tiles,

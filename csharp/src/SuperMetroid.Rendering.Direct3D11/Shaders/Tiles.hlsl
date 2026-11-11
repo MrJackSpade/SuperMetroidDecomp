@@ -339,14 +339,20 @@ uint3 Unpack(uint c) { return uint3(c & 255, (c >> 8) & 255, (c >> 16) & 255); }
 // The colour shown where nothing is drawn.
 uint Backdrop() { return Colours[0]; }
 // The colour an image texel shows when its image is coloured from colour slot `slot` (#1408, #1512, #1633): whether it is
-// opaque rather than clear (`index`), and the colour its colour key shows under the slot's shading. Every pixel has a key,
-// a clear one too: a see-through layer leaves a clear pixel out, and a layer drawn opaque shows its key's colour, the
-// colour the pixel keeps of its own or black (#1544). A pixel is only a colour: which pictures lie in front is the pass's
-// choice of pictures (#1634).
+// opaque rather than clear (`index`), and its colour. A visible pixel shows the colour its colour key shows under the
+// slot's shading. A clear pixel has no key and is never recoloured: a see-through layer leaves it out, and a layer drawn
+// opaque shows its stored colour as it is, the colour it keeps of its own or black (#1544). A pixel is only a colour:
+// which pictures lie in front is the pass's choice of pictures (#1634).
 uint TexelColour(uint2 texel, uint slot, out uint index)
 {
-    index = (texel.y & KeyClear) != 0 ? 0 : 1;
-    return Colours[Colours[1 + slot] + (texel.y & KeyPlaceMask)];
+    index = 0;
+    uint colour = texel.x | 0xff000000;
+    if ((texel.y & KeyClear) == 0)
+    {
+        index = 1;
+        colour = Colours[Colours[1 + slot] + (texel.y & KeyPlaceMask)];
+    }
+    return colour;
 }
 // A picture's pixel (#1392, #1408), as TexelColour colours it from the picture's colour slot.
 uint PicturePixel(uint picture, uint2 pixel, out uint index)
@@ -715,8 +721,8 @@ void Main(uint3 id : SV_DispatchThreadID)
     uint color;
     uint sampled;
     if (!LayerPixel(sampleScreen, scroll, id.xy, sampled, color)) return;
-    // A see-through layer leaves its clear pixels out; a layer drawn opaque shows a clear pixel's own colour, black where it
-    // keeps none (#1544, #1633).
+    // A see-through layer leaves its clear pixels out; a layer drawn opaque shows a clear pixel's stored colour, unshaded,
+    // black where it keeps none (#1544, #1633).
     if (color == 0 && TransparentZero != 0) return;
     if (Operation == OpAddLayerBehind)
     {

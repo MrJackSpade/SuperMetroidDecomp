@@ -20,38 +20,36 @@ internal static class PauseSheetComposer
 
 
     /// <summary>What the pause sheet composes.</summary>
-    internal static SpriteSheetSources Sources(AreaMapPresentation maps) =>
+    internal static SpriteSheetSources Sources(ImportAreaMapPresentation maps) =>
         Sources(Ensure.NotNull(maps).PauseSelectors, maps.PauseReserveTanks, maps);
 
     /// <summary>
     /// What the pause sheet composes from <paramref name="selectors"/> and <paramref name="tanks"/>, over the menus of
     /// <paramref name="maps"/>.
     /// </summary>
-    internal static SpriteSheetSources Sources(PauseSelectorPresentation selectors, PauseReserveTankPresentation tanks,
-        AreaMapPresentation maps)
+    internal static SpriteSheetSources Sources(PauseSelectorSourcePresentation selectors, PauseReserveTankSourcePresentation tanks,
+        ImportAreaMapPresentation maps)
     {
         Ensure.NotNull(selectors);
         Ensure.NotNull(tanks);
         Ensure.NotNull(maps);
-        SpriteArtwork page = MapSpriteArtwork.Of(InstalledAreaMapPresentation.SpritesOf(maps)).Page;
-        PauseReserveTankSourcePresentation tankSource = PauseReserveTankSourcePresentation.Of(tanks);
-        PauseSelectorSourcePresentation selectorSource = PauseSelectorSourcePresentation.Of(selectors);
-        List<SheetFrameSource> frames = [.. selectorSource.FrameNames.Select(frame =>
+        SpriteArtwork page = MapSpriteArtwork.Of(maps.Sprites).Page;
+        List<SheetFrameSource> frames = [.. selectors.FrameNames.Select(frame =>
         {
             string name = PauseSelectorAnchors.SheetFrameName(frame);
-            return new SheetFrameSource(name, selectorSource.Frame(frame, name), page, selectorSource.SpriteSet);
+            return new SheetFrameSource(name, selectors.Frame(frame, name), page, selectors.SpriteSet);
         })];
         frames.AddRange(PauseReserveTankParts.Frames().Select(frame =>
         {
             string name = PauseReserveTankParts.SheetFrameName(frame.Name);
-            return new SheetFrameSource(name, tankSource.ToFrame(frame.Id, name), page, tankSource.SpriteSet);
+            return new SheetFrameSource(name, tanks.ToFrame(frame.Id, name), page, tanks.SpriteSet);
         }));
-        return new SpriteSheetSources(frames, ImportAreaMapPresentation.PalettesOf(maps).Pause[SpriteColours..].ToArray(), ObjectSelectionCodec.Sizes(PauseSheetDefinitions.ObjectSelection),
+        return new SpriteSheetSources(frames, maps.Palettes.Pause[SpriteColours..].ToArray(), ObjectSelectionCodec.Sizes(PauseSheetDefinitions.ObjectSelection),
             PartsKeepOwnRows: true);
     }
 
     /// <summary>The frames the pause sheet of <paramref name="maps"/> holds.</summary>
-    internal static IEnumerable<string> FrameNames(AreaMapPresentation maps) =>
-        PauseSelectorSourcePresentation.Of(Ensure.NotNull(maps).PauseSelectors).FrameNames.Select(PauseSelectorAnchors.SheetFrameName)
+    internal static IEnumerable<string> FrameNames(InstalledAreaMapPresentation maps) =>
+        Ensure.NotNull(maps).PauseSelectors.FrameNames.Select(PauseSelectorAnchors.SheetFrameName)
             .Concat(PauseReserveTankParts.Frames().Select(frame => PauseReserveTankParts.SheetFrameName(frame.Name)));
 }

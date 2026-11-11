@@ -124,15 +124,15 @@ internal static class HudImageSheet
     /// (#1513). A tile naming a character beyond the HUD's shows nothing, as pause shows nothing there.
     /// </summary>
     /// <exception cref="InvalidDataException">Two map characters that picture one minimap cell paint different pixels.</exception>
-    internal static ComposedSpriteSheet ComposePause(AreaMapPresentation maps)
+    internal static ComposedSpriteSheet ComposePause(ImportAreaMapPresentation maps)
     {
         Ensure.NotNull(maps);
-        ReadOnlyMemory<byte> characters = MapCharacterArtwork.Of(maps).Hud.Bytes[..HudTileAtlasFormat.CharacterByteCount];
+        ReadOnlyMemory<byte> characters = maps.Characters.Hud.Bytes[..HudTileAtlasFormat.CharacterByteCount];
         MapCellCharacters.RequireOnePicturePerCell(new ScreenCharacters(TileInkDepth.FourColours).Place(0, characters));
-        HudSheetLayout layout = Layout(GameplayHudArtwork.Of(maps.GameplayHud), Maps(maps));
+        HudSheetLayout layout = Layout(maps.GameplayHud, Maps(maps.Game));
         const int cell = RoomTileCanvas.CharacterPixels;
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(ShelfCells * cell, checked((ushort)(layout.Rows * cell))));
-        RgbColor[] colours = ImportAreaMapPresentation.PalettesOf(maps).Pause[..ImageColourGroup.HalfColours].ToArray();
+        RgbColor[] colours = maps.Palettes.Pause[..ImageColourGroup.HalfColours].ToArray();
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
         foreach (HudSheetPlacement placed in layout.Placements)
         {

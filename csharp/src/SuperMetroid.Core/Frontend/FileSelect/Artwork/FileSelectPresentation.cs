@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Frontend.FileSelect.Artwork;
 /// Immutable file-select layout the game binds: each slot field's anchors, the copy and clear pages' slot-letter anchors,
 /// the cursor and helmet anchors and the frame durations. The pages, field patches and glyphs are pictures the import
 /// composes once (#1467); the actors are drawn from the installed file-select sheet, whose compositions belong to the
-/// import pipeline that reads the installed presentation (#1463). Save-file validation, menu navigation, copy/clear
-/// operations and fades remain compiled.
+/// import pipeline that reads the installed presentation and never reach the game (#1463, #1616). Save-file validation,
+/// menu navigation, copy/clear operations and fades remain compiled.
 /// </summary>
-public abstract class FileSelectPresentation
+public sealed class FileSelectPresentation
 {
     /// <summary>The slot fields, anchors and durations the import pipeline validated.</summary>
     private readonly FileSelectPlacements placements;

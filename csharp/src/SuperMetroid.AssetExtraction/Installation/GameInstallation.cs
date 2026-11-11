@@ -289,8 +289,11 @@ public sealed record GameInstallation(string Root)
     /// <summary>Loads the validated installed enemy, boss and area artwork.</summary>
     public InstalledEnemyArtwork LoadEnemyTiles() => EnemyTileArtworkFiles.Load(EnemyTileDirectory);
 
-    /// <summary>Loads the installed maps, exploration masks and menu presentation without a cartridge address space.</summary>
-    public AreaMapPresentation LoadMaps() => MapPresentationFiles.Load(MapDirectory);
+    /// <summary>
+    /// Loads the installed maps, exploration masks and menu presentation without a cartridge address space: the catalog the
+    /// game binds, after the whole installed presentation has been read and validated (#1616).
+    /// </summary>
+    public AreaMapPresentation LoadMaps() => MapPresentationFiles.Load(MapDirectory).Game;
 
     /// <summary>
     /// Loads every installed presentation catalog the frontend binds. Hosts pass the maps, projectile presentation and

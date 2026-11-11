@@ -8,6 +8,8 @@ using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Frontend.Title;
+using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -34,6 +36,11 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// <param name="IntroFont">The opening narration's font, which the narration pictures are composed from (#1583).</param>
 /// <param name="EndingFont">The ending's font, which the credits, post-credits and explosion pictures are composed from (#1583).</param>
 /// <param name="TitleGraphics">The title's characters and compositions, which the title and title floor sheets are composed from (#1583).</param>
+/// <param name="PauseSelectors">The equipment selectors' frame compositions with the anchors and timing the game binds (#1616).</param>
+/// <param name="PauseReserveTanks">The reserve strip's frame compositions with the anchors the game binds (#1616).</param>
+/// <param name="GameplayHud">The gameplay HUD's tiles with the layout the game binds (#1616).</param>
+/// <param name="GameOptions">The options screen's pages, labels and compositions with the anchors the game binds (#1616).</param>
+/// <param name="FileSelect">The file-select screen's pages, fields and compositions with the layout the game binds (#1616).</param>
 [ArchitectureReview("context-bag", "The source artwork documents an installed map presentation was read with; every member is immutable artwork data the import composes pictures from, not a service.")]
 internal sealed record InstalledPresentationSources(
     MapCharacterArtwork Characters,
@@ -50,4 +57,9 @@ internal sealed record InstalledPresentationSources(
     WorldMapCharacters WorldCharacters,
     IntroFontCharacters IntroFont,
     EndingFontCharacters EndingFont,
-    TitleGraphicsCharacters TitleGraphics);
+    TitleGraphicsCharacters TitleGraphics,
+    PauseSelectorSourcePresentation PauseSelectors,
+    PauseReserveTankSourcePresentation PauseReserveTanks,
+    GameplayHudArtwork GameplayHud,
+    GameOptionsSourcePresentation GameOptions,
+    FileSelectSourcePresentation FileSelect);

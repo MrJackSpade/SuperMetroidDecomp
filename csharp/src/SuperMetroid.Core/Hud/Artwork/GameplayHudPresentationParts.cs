@@ -9,9 +9,6 @@ namespace SuperMetroid.Core.Hud.Artwork;
 /// </summary>
 internal sealed record GameplayHudPresentationParts
 {
-    /// <summary>The SHA-256 identity of the selected HUD document.</summary>
-    public required string ContentIdentity { get; init; }
-
     /// <summary>The screen pixel each of the fourteen energy tanks' upper-left corner shows at.</summary>
     public required ImmutableArray<Position16<ScreenPixels>> EnergyTankCorners { get; init; }
 

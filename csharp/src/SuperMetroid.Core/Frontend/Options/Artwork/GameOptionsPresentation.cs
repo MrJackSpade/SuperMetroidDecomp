@@ -5,15 +5,15 @@ namespace SuperMetroid.Core.Frontend.Options.Artwork;
 /// <summary>
 /// Immutable options-screen anchors the game binds. The pages, controller labels, language highlights and toggle choices
 /// are pictures the import composes once and the game places by name (#1467); the heading and cursor are drawn from the
-/// installed options sheet, whose compositions belong to the import pipeline that reads the installed presentation
-/// (#1463). Navigation, binding swaps, toggles and fades remain application mechanics.
+/// installed options sheet, whose compositions belong to the import pipeline that reads the installed presentation and
+/// never reach the game (#1463, #1616). Navigation, binding swaps, toggles and fades remain application mechanics.
 /// </summary>
-public abstract class GameOptionsPresentation
+public sealed class GameOptionsPresentation
 {
     /// <summary>The installed heading anchors by menu layout.</summary>
-    internal readonly Dictionary<GameOptionsPage, Position16<SpritePixels>> headingAnchors;
+    private readonly Dictionary<GameOptionsPage, Position16<SpritePixels>> headingAnchors;
     /// <summary>The installed cursor anchors by menu layout.</summary>
-    internal readonly Dictionary<GameOptionsPage, Position16<SpritePixels>[]> cursorAnchors;
+    private readonly Dictionary<GameOptionsPage, Position16<SpritePixels>[]> cursorAnchors;
 
     /// <summary>Keeps the complete installed anchors; the installation is their only source (#1596).</summary>
     /// <param name="placements">The validated anchors and cursor duration.</param>

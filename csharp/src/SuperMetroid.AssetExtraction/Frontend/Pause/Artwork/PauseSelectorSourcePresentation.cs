@@ -7,22 +7,26 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>
-/// The installed equipment-selector presentation as the import pipeline reads it (#1463): beside the anchors, frame
-/// sequences and timing the game binds, each named frame's composition the pause sheet is composed from, kept as
-/// installed (#1615).
+/// The installed equipment-selector presentation as the import pipeline reads it (#1463): the anchors, frame sequences and
+/// timing the game binds (<see cref="Presentation"/>), and each named frame's composition the pause sheet is composed
+/// from, kept as installed (#1615), which the game never receives (#1616).
 /// </summary>
-public sealed class PauseSelectorSourcePresentation : PauseSelectorPresentation
+public sealed class PauseSelectorSourcePresentation
 {
     /// <summary>Each named frame's installed composition.</summary>
     private readonly Dictionary<string, SpriteComposition> visuals;
 
     /// <summary>Retains the selector presentation, its frames' compositions and the sprite set they are composed in.</summary>
-    private PauseSelectorSourcePresentation(PauseSelectorParts parts, Dictionary<string, SpriteComposition> visuals,
-        int spriteSet) : base(parts)
+    private PauseSelectorSourcePresentation(PauseSelectorPresentation presentation, Dictionary<string, SpriteComposition> visuals,
+        int spriteSet)
     {
+        Presentation = presentation;
         this.visuals = visuals;
         SpriteSet = spriteSet;
     }
+
+    /// <summary>The anchors, frame sequences and timing the game binds.</summary>
+    public PauseSelectorPresentation Presentation { get; }
 
     /// <summary>The sprite set the pause sheet composes every selector frame in.</summary>
     internal int SpriteSet { get; }
@@ -31,7 +35,8 @@ public sealed class PauseSelectorSourcePresentation : PauseSelectorPresentation
     /// The name of every distinct frame the animation shows, in the order the animation first shows it: the reserve
     /// category's phases, then the beam category's, then the equipment category's.
     /// </summary>
-    internal IEnumerable<string> FrameNames => reserve.Concat(beam).Concat(equipment).Distinct(StringComparer.Ordinal);
+    internal IEnumerable<string> FrameNames =>
+        Presentation.reserve.Concat(Presentation.beam).Concat(Presentation.equipment).Distinct(StringComparer.Ordinal);
 
     /// <summary>The installed composition of the frame named <paramref name="name"/> as a whole frame of the pause sheet (#1392).</summary>
     /// <param name="name">The installed frame name.</param>
@@ -81,8 +86,8 @@ public sealed class PauseSelectorSourcePresentation : PauseSelectorPresentation
             equipment[i] = phase.Equipment;
             durations[i] = phase.DurationTicks;
         }
-        return new(new PauseSelectorParts { Anchors = anchors, Reserve = reserve, Beam = beam, Equipment = equipment,
-            Durations = durations, InitialDuration = document.InitialDurationTicks }, frames, document.Palette);
+        return new(new PauseSelectorPresentation(new PauseSelectorPresentation.PauseSelectorParts { Anchors = anchors, Reserve = reserve,
+            Beam = beam, Equipment = equipment, Durations = durations, InitialDuration = document.InitialDurationTicks }), frames, document.Palette);
     }
 
     /// <summary>Writes a pause-selector document as JSON.</summary>
@@ -91,9 +96,4 @@ public sealed class PauseSelectorSourcePresentation : PauseSelectorPresentation
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
         output.Write(bytes);
     }
-
-    /// <summary>The import-side presentation <paramref name="selectors"/> was read with.</summary>
-    /// <exception cref="InvalidDataException">The selector presentation was not read from installed artwork.</exception>
-    public static PauseSelectorSourcePresentation Of(PauseSelectorPresentation selectors) => selectors as PauseSelectorSourcePresentation
-        ?? throw new InvalidDataException("The pause selector presentation was not read from installed artwork.");
 }

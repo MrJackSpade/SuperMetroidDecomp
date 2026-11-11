@@ -13,10 +13,11 @@ using SuperMetroid.AssetExtraction.Map.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 
 /// <summary>
-/// The installed options presentation as the import pipeline reads it (#1463): beside the pages, labels, highlight
-/// regions and anchors the game binds, the heading and cursor compositions the options sheet is composed from.
+/// The installed options presentation as the import pipeline reads it (#1463): the anchors the game binds
+/// (<see cref="Presentation"/>), and the pages, labels, highlight regions and the heading and cursor compositions the
+/// options sheets are composed from, which the game never receives (#1616).
 /// </summary>
-public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
+public sealed class GameOptionsSourcePresentation
 {
     /// <summary>Each menu layout's heading sprite.</summary>
     internal readonly Dictionary<GameOptionsPage, SpriteComposition> headingSprites;
@@ -36,6 +37,9 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
     /// <summary>The installed special-setting choice cells, keyed by toggle.</summary>
     private readonly Dictionary<GameOptionsToggle, GameOptionsToggleVisualDocument> specialToggles;
 
+    /// <summary>The heading and cursor anchors and the cursor's timing the game binds.</summary>
+    public GameOptionsPresentation Presentation { get; }
+
     /// <summary>Uppercase SHA-256 digest of the loaded JSON bytes, identifying selected artwork and layout including their encoding.</summary>
     public string ContentIdentity { get; }
 
@@ -45,7 +49,8 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
     /// <summary>Retains the compiled presentation, its complete installed geometry, and its compositions.</summary>
     private GameOptionsSourcePresentation(GameOptionsPresentationDocument document, GameOptionsPages pages,
         GameOptionsSprites sprites, string contentIdentity)
-        : base(new GameOptionsPlacements
+    {
+        Presentation = new GameOptionsPresentation(new GameOptionsPlacements
         {
             HeadingAnchors = GameOptionsPresentationFormat.MenuPages.ToDictionary(
                 page => page, page => document.HeadingAnchors[GameOptionsPresentationFormat.MenuName(page)]),
@@ -53,8 +58,7 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
                 page => page, page => document.CursorAnchors[GameOptionsPresentationFormat.MenuName(page)]),
             HiddenCursor = document.HiddenCursor,
             CursorFrameDuration = document.CursorFrameDuration,
-        })
-    {
+        });
         ContentIdentity = contentIdentity;
         CursorPalette = document.CursorPalette;
         this.pages = pages.Pages;
@@ -302,11 +306,6 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
         output.Write(bytes);
     }
-
-    /// <summary>The import-side presentation <paramref name="options"/> was read with.</summary>
-    /// <exception cref="InvalidDataException">The options presentation was not read from installed artwork.</exception>
-    public static GameOptionsSourcePresentation Of(GameOptionsPresentation options) => options as GameOptionsSourcePresentation
-        ?? throw new InvalidDataException("The options presentation was not read from installed artwork.");
 
     /// <summary>Compiles the 1024-cell page the document names <paramref name="name"/>.</summary>
     private static BackgroundTile[] CompilePage(GameOptionsPresentationDocument document, string name)

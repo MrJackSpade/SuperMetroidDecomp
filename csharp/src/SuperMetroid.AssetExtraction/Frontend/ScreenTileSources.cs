@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
-using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 
@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// <param name="endingObjects">Reads the ending's object artwork.</param>
 /// <param name="endingPalettes">Reads the ending's palettes.</param>
 /// <param name="endingMode7">Reads the ending's Mode 7 artwork.</param>
-internal sealed class ScreenTileSources(Func<AreaMapPresentation> maps, Func<IntroCinematicArtwork> intro,
+internal sealed class ScreenTileSources(Func<ImportAreaMapPresentation> maps, Func<IntroCinematicArtwork> intro,
     Func<EndingObjectArtwork> endingObjects, Func<EndingPaletteSet> endingPalettes, Func<EndingFloorCharacters> endingMode7)
 {
     /// <summary>The ending's Mode 7 artwork, once read.</summary>
@@ -34,13 +34,13 @@ internal sealed class ScreenTileSources(Func<AreaMapPresentation> maps, Func<Int
     internal EndingPaletteSet EndingPalettes => endingPalettes.Value;
 
     /// <summary>The menus' presentation, once read.</summary>
-    private readonly Lazy<AreaMapPresentation> maps = new(maps);
+    private readonly Lazy<ImportAreaMapPresentation> maps = new(maps);
 
     /// <summary>The opening cinematic's artwork, once read.</summary>
     private readonly Lazy<IntroCinematicArtwork> intro = new(intro);
 
     /// <summary>The menus' presentation.</summary>
-    internal AreaMapPresentation Maps => maps.Value;
+    internal ImportAreaMapPresentation Maps => maps.Value;
 
     /// <summary>The opening cinematic's artwork.</summary>
     internal IntroCinematicArtwork Intro => intro.Value;

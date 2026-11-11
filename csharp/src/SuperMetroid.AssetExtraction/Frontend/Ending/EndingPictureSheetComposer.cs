@@ -60,7 +60,7 @@ internal static class EndingPictureSheetComposer
     {
         PictureSheet pictures = Ensure.Listed(PictureSheets, sheet);
         ComposedSpriteSheet composed = pictures.Compose(Ensure.NotNull(sources));
-        IReadOnlyList<SheetShade> shades = EndingScreenShades.Pictures(EndingScreenShades.Screen(sources.EndingPalettes, ImportAreaMapPresentation.RoomPaletteFxOf(sources.Maps)),
+        IReadOnlyList<SheetShade> shades = EndingScreenShades.Pictures(EndingScreenShades.Screen(sources.EndingPalettes, sources.Maps.RoomPaletteFx),
             pictures.Scenery);
         return composed with { Manifest = composed.Manifest with { Shades = SheetShade.Documents(shades) } };
     }
@@ -93,9 +93,9 @@ internal static class EndingPictureSheetComposer
     /// <summary>The credits roll's staff lines, one picture each as high as the line, under the credits palette.</summary>
     private static ComposedSpriteSheet ComposeCredits(ScreenTileSources sources)
     {
-        AreaMapPresentation maps = sources.Maps;
-        CreditsPresentation credits = InstalledAreaMapPresentation.StaffCreditsOf(maps);
-        ReadOnlySpan<byte> font = InstalledAreaMapPresentation.EndingFontOf(maps).Characters.Span[..EndingTransferExtentDefinitions.FontCharacterBytes];
+        ImportAreaMapPresentation maps = sources.Maps;
+        CreditsPresentation credits = maps.StaffCredits;
+        ReadOnlySpan<byte> font = maps.EndingFont.Characters.Span[..EndingTransferExtentDefinitions.FontCharacterBytes];
         RequireBlank(font);
         var characters = new Characters(RoomTileCanvas.CharacterBytes);
         characters.Load(EndingTextLayerDefinitions.FontFirstCharacter, font);
@@ -151,8 +151,8 @@ internal static class EndingPictureSheetComposer
     private static ComposedSpriteSheet ComposePostCredits(ScreenTileSources sources)
     {
         EndingObjectSourceArtwork objects = sources.EndingObjects;
-        EndingTextPresentation text = InstalledAreaMapPresentation.EndingTextOf(sources.Maps);
-        ReadOnlySpan<byte> font = InstalledAreaMapPresentation.EndingFontOf(sources.Maps).Characters.Span;
+        EndingTextPresentation text = sources.Maps.EndingTextPresentation;
+        ReadOnlySpan<byte> font = sources.Maps.EndingFont.Characters.Span;
         RequireBlank(font);
         // The waiting layer shows the waiting characters; the logo layer, the logo's.
         var waiting = new Characters(RoomTileCanvas.CharacterBytes);

@@ -11,10 +11,4 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// <param name="Map">The map screens' characters.</param>
 /// <param name="Hud">The HUD's characters.</param>
 /// <param name="Pause">The pause interface's characters.</param>
-public sealed record MapCharacterArtwork(MapTileCharacters Map, HudTileAtlas Hud, MapTileCharacters Pause)
-{
-    /// <summary>The characters <paramref name="maps"/> was read with.</summary>
-    /// <exception cref="InvalidDataException">The presentation was not read from installed artwork.</exception>
-    public static MapCharacterArtwork Of(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.Characters
-        ?? throw new InvalidDataException("The map presentation was not read from installed artwork.");
-}
+public sealed record MapCharacterArtwork(MapTileCharacters Map, HudTileAtlas Hud, MapTileCharacters Pause);

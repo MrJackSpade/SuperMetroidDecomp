@@ -19,27 +19,26 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 internal static class MenuPictureSheet
 {
     /// <summary>Every picture the sheet holds, in sheet order.</summary>
-    internal static IReadOnlyList<ScreenPictureSubject> Subjects(AreaMapPresentation maps)
+    internal static IReadOnlyList<ScreenPictureSubject> Subjects(InstalledAreaMapPresentation maps)
     {
         Ensure.NotNull(maps);
-        return [GameOverSourcePresentation.Of(maps.GameOver).PageSubject(), .. GameOptionsSourcePresentation.Of(maps.GameOptions).Subjects(),
-            .. FileSelectSourcePresentation.Of(maps.FileSelect).Subjects()];
+        return [GameOverSourcePresentation.Of(maps.Game.GameOver).PageSubject(), .. maps.GameOptions.Subjects(), .. maps.FileSelect.Subjects()];
     }
 
     /// <summary>The characters the menus' pages name: the world foreground's, then the map's after them.</summary>
-    internal static ScreenCharacters Characters(AreaMapPresentation maps)
+    internal static ScreenCharacters Characters(InstalledAreaMapPresentation maps)
     {
         Ensure.NotNull(maps);
         int mapBytes = MapScreenDefinitions.MapTileCount * RoomTileCanvas.CharacterBytes;
         return new ScreenCharacters(TileInkDepth.SixteenColours)
-            .Place(MenuTileSetDefinitions.WorldForegroundFirstTile, InstalledAreaMapPresentation.WorldCharactersOf(maps).ForegroundCharacters())
-            .Place(MenuTileSetDefinitions.MenuMapFirstTile, MapCharacterArtwork.Of(maps).Map.Characters[..mapBytes].ToArray());
+            .Place(MenuTileSetDefinitions.WorldForegroundFirstTile, maps.WorldCharacters.ForegroundCharacters())
+            .Place(MenuTileSetDefinitions.MenuMapFirstTile, maps.Characters.Map.Characters[..mapBytes].ToArray());
     }
 
     /// <summary>Composes the sheet.</summary>
-    internal static ComposedSpriteSheet Compose(AreaMapPresentation maps) =>
-        ScreenPictureSheetComposer.Compose(Subjects(maps), Characters(maps), ImportAreaMapPresentation.PalettesOf(maps).FileSelect);
+    internal static ComposedSpriteSheet Compose(ImportAreaMapPresentation maps) =>
+        ScreenPictureSheetComposer.Compose(Subjects(maps), Characters(maps), maps.Palettes.FileSelect);
 
     /// <summary>The frames the sheet must hold: one per picture.</summary>
-    internal static IEnumerable<string> FrameNames(AreaMapPresentation maps) => Subjects(maps).Select(subject => subject.Name);
+    internal static IEnumerable<string> FrameNames(InstalledAreaMapPresentation maps) => Subjects(maps).Select(subject => subject.Name);
 }

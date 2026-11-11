@@ -20,7 +20,7 @@ internal static class MessageBoxSheetComposer
     internal static ComposedSpriteSheet Compose(RoomBlockSheetInputs inputs, TilesetDefinition tileset)
     {
         Ensure.NotNull(inputs);
-        GameplayMessageArtwork messages = GameplayMessageArtwork.Of(inputs.Maps);
+        GameplayMessageArtwork messages = inputs.Maps.Messages;
         RgbColor[] colours = RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette));
         colours[MessageBoxColourDefinitions.LightInk] = MessageBoxColourDefinitions.Light;
         colours[MessageBoxColourDefinitions.DarkInk] = MessageBoxColourDefinitions.Dark;

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rooms.LevelData;
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>A table of room block compositions, shared by the graphics sets that build their rooms from it.</summary>
 public enum RoomBlockSet

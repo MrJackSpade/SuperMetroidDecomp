@@ -14,6 +14,6 @@ public static class RoomStaticPaletteFormat
     public const int ByteCount = ColorCount * ColourWordCodec.ByteCount;
 
     /// <summary>The editable JSON file name of a room palette.</summary>
-    public static string FileName(SuperMetroid.Core.Rooms.LevelData.RoomPaletteSet set) =>
+    public static string FileName(RoomPaletteSet set) =>
         $"room-palette-{SuperMetroid.AssetExtraction.Assets.InstalledArtworkNames.Hyphenated(set.ToString())}.json";
 }

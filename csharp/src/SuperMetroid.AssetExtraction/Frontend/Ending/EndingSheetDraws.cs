@@ -24,7 +24,7 @@ internal sealed class EndingSheetDraws
     /// <summary>Records every pose <paramref name="program"/> shows, through every program it goes or falls into, as drawn in <paramref name="colouring"/>.</summary>
     internal void AddProgram(CinematicSpriteFamily family, CinematicSpriteProgram program, EndingSpriteColouring colouring)
     {
-        foreach (CinematicSpritePose pose in CinematicSpriteAnimations.Programs.FramesFrom(program))
+        foreach (CinematicSpritePose pose in CinematicSpriteAnimations.Segments.FramesFrom(CinematicSpriteAnimations.StartingWith(program)))
             AddPose(family, pose, colouring);
     }
 

@@ -115,6 +115,16 @@ internal static class NativeEnemyAnimationOracle
     }
 
     /// <summary>
+    /// The segments whose native list runs on into the list authored next directly after its last beat, with no control
+    /// instruction between: a play resting after that beat already stands at the next list's entry (#1600).
+    /// </summary>
+    internal static HashSet<TSegment> RunsOnIntoNextAfterLastBeat<TSegment>(IReadOnlyDictionary<TSegment, NativeEnemyList<TSegment>> lists)
+        where TSegment : struct, Enum =>
+        [.. Ensure.NotNull(lists).Where(pair => pair.Value.BeatAddresses.Length > 0
+                && pair.Value.Controls.FirstOrDefault(control => control.AfterBeat == pair.Value.BeatAddresses.Length) is { Kind: NativeEnemyControlKind.RunOnIntoNext })
+            .Select(pair => pair.Key)];
+
+    /// <summary>
     /// The native instruction pointer <paramref name="playback"/> stands for: the start segment's entry before the
     /// animation's first play, the native address of the phase beat it plays next, or, at the end of a phase's play, the
     /// control instruction the pointer rests on after the phase's last beat (the next list's entry where the list runs on
@@ -222,14 +232,18 @@ internal static class NativeEnemyAnimationOracle
         TSegment segment = start;
         int runStart = 0, plays = firstPlays;
         int? pending = null;
+        // A run entered after a counter load counts the owner's counter even when the load is one and it plays once.
+        bool counted = false;
         for (int guard = 0; guard < 100000; guard++)
         {
             foreach (NativeEnemyControl<TSegment> control in lists[segment].Controls)
             {
                 if (control.AfterBeat > runStart)
-                    phases.Add(new(segment, runStart, control.AfterBeat - runStart, plays));
+                    phases.Add(new(segment, runStart, control.AfterBeat - runStart, plays,
+                        counted && plays == 1 ? AnimationPhaseCounting.EveryPlay : AnimationPhaseCounting.RepeatsOnly));
                 runStart = control.AfterBeat;
                 plays = 1;
+                counted = false;
                 switch (control.Kind)
                 {
                     case NativeEnemyControlKind.SetCounter:
@@ -250,6 +264,7 @@ internal static class NativeEnemyAnimationOracle
                         segment = target;
                         runStart = 0;
                         plays = pending ?? 1;
+                        counted = pending is not null;
                         pending = null;
                         break;
                     default:

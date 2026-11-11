@@ -122,7 +122,7 @@ internal static class CinematicSheetColouringsVerification
         var sets = new Dictionary<int, HashSet<int>>();
         foreach (CeresDrawnProgram actor in actors)
         {
-            foreach (CinematicSpritePose pose in CinematicSpriteAnimations.Programs.FramesFrom(actor.Program))
+            foreach (CinematicSpritePose pose in CinematicSpriteAnimations.Segments.FramesFrom(CinematicSpriteAnimations.StartingWith(actor.Program)))
             {
                 if (pose == CinematicSpritePose.Blank)
                     continue;

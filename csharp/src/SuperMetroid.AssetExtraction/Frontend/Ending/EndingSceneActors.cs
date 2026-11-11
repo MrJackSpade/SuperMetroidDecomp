@@ -107,17 +107,15 @@ internal static class EndingSceneActors
     {
         draws.AddProgram(CinematicSpriteFamily.EndingReward, EndingRewardJump.FallingProgram, EndingRewardJump.FallingColouring);
         EndingSpriteColouring landing = EndingRewardJump.FallingColouring;
-        foreach (AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue> step in
-            CinematicSpriteAnimations.Programs.Steps(EndingRewardJump.LandingProgram))
+        if (CinematicSpriteAnimations.StartingWith(EndingRewardJump.LandingProgram).Phases.Any(phase => phase.Segment != EndingRewardJump.LandingProgram))
+            throw new InvalidDataException("The landing animation runs on into another segment, whose colourings the shooting sheet does not follow.");
+        foreach (AnimationBeat<CinematicSpritePose, CinematicSpriteCue> beat in CinematicSpriteAnimations.Segments.Beats(EndingRewardJump.LandingProgram))
         {
-            if (step is AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>.CueStep cue
-                && cue.Cue.Kind == EndingRewardJump.ShootCue)
+            if (beat is AnimationBeat<CinematicSpritePose, CinematicSpriteCue>.Event raised
+                && raised.Raised.Kind == EndingRewardJump.ShootCue)
                 landing = EndingRewardJump.ShootingColouring;
-            else if (step is AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>.ShowStep shown)
-                draws.AddPose(CinematicSpriteFamily.EndingReward, shown.Frame, landing);
-            else if (step is AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>.GoToStep
-                or AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>.FallIntoStep)
-                throw new InvalidDataException("The landing program runs on into another program, whose colourings the shooting sheet does not follow.");
+            else if (beat is AnimationBeat<CinematicSpritePose, CinematicSpriteCue>.Frame shown)
+                draws.AddPose(CinematicSpriteFamily.EndingReward, shown.Shown, landing);
         }
         for (int actor = 0; actor < EndingLogoDefinitions.ActorKinds.Length; actor++)
             draws.AddProgram(CinematicSpriteFamily.EndingLogo, EndingLogoActors.Actor(actor).Program, EndingLogoDefinitions.Colouring);

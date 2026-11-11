@@ -20,7 +20,7 @@ internal sealed record CinematicShownFrames(CinematicSpriteFamily Family, IReadO
         var shown = new HashSet<CinematicSpritePose>();
         foreach (CinematicSpriteProgram program in programs)
         {
-            foreach (CinematicSpritePose pose in CinematicSpriteAnimations.Programs.FramesFrom(program))
+            foreach (CinematicSpritePose pose in CinematicSpriteAnimations.Segments.FramesFrom(CinematicSpriteAnimations.StartingWith(program)))
             {
                 if (pose != CinematicSpritePose.Blank)
                     shown.Add(pose);

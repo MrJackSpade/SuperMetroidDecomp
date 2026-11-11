@@ -1,12 +1,13 @@
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// A cinematic sprite object: its position, colouring and frame behaviour, running one of the typed
-/// <see cref="CinematicSpriteProgram"/>s (#641) where the generic cinematic sprite handler ran its animation script.
+/// A cinematic sprite object: its position, colouring and frame behaviour, playing one of the typed cinematic sprite
+/// animations (#641, #1600) where the generic cinematic sprite handler ran its animation script.
 /// </summary>
 /// <remarks>
 /// The shared frame-behaviour install is carried out here; every other cue goes to the owner that steps the actor, and
@@ -16,7 +17,7 @@ internal sealed class IntroDiscoverySprite
 {
     /// <summary>
     /// Countdown before the next sprite instruction is decoded; setup may stagger the first frame. A hold leaves it at
-    /// zero, so it keeps counting past zero and the program resumes when the countdown comes round to zero again.
+    /// zero, so it keeps counting past zero and the animation resumes when the countdown comes round to zero again.
     /// </summary>
     private WrappingCountdown frameHold = WrappingCountdown.Start(1);
 
@@ -28,10 +29,10 @@ internal sealed class IntroDiscoverySprite
     {
         Position = new(new(position.X, 0), new(position.Y, 0));
         Colouring = colouring;
-        Program = AnimationProgramCursor<CinematicSpriteProgram>.Start(program);
+        Playback = new AnimationPlayback<CinematicSpriteProgram>(CinematicSpriteAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
     }
 
-    /// <summary>Cleared when the program's delete step retires the actor.</summary>
+    /// <summary>Cleared when the animation's end retires the actor.</summary>
     public bool IsActive { get; private set; } = true;
 
     /// <summary>The whole and subpixel words of the sprite's position on both axes.</summary>
@@ -50,31 +51,34 @@ internal sealed class IntroDiscoverySprite
     /// <summary>Applies a cinematic callback's change of the colours the actor draws in.</summary>
     public void SetColouring(PictureShade colouring) => Colouring = colouring;
 
-    /// <summary>The pose the program most recently showed; null before its first frame and after deletion.</summary>
+    /// <summary>The pose the animation most recently showed; null before its first frame and after deletion.</summary>
     internal CinematicSpritePose? Pose { get; private set; }
 
-    /// <summary>Where the actor's program resumes.</summary>
-    internal AnimationProgramCursor<CinematicSpriteProgram> Program { get; private set; }
-
-    /// <summary>The program the actor is running.</summary>
-    internal CinematicSpriteProgram CurrentProgram => CinematicSpriteAnimations.Programs.ResidentProgram(Program);
+    /// <summary>The actor's animation and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<CinematicSpriteProgram> Playback { get; private set; }
 
     /// <summary>
-    /// The count the program's counted loops repeat by: a set-counter step loads it and a repeat-while-counting step
-    /// counts it down. Only those steps change it; it starts at zero.
+    /// The segment the actor's animation rests in, by the lists' layout: resting after the last frame of a list that runs
+    /// on into the next, it already stands in the next (<see cref="CinematicSpriteAnimations.Layout"/>).
+    /// </summary>
+    internal CinematicSpriteProgram CurrentProgram => AnimationListLayout.ResidentSegment(CinematicSpriteAnimations.Layout, CinematicSpriteAnimations.StartingAt, Playback);
+
+    /// <summary>
+    /// The count the animation's counted phases repeat by: a counted phase loads it as it starts and each of its plays
+    /// counts it down. Only those phases change it; it starts at zero.
     /// </summary>
     internal WrappingCountdown LoopCountdown { get; private set; } = WrappingCountdown.Start(0);
 
     /// <summary>The frame behaviour the actor runs, or none.</summary>
     internal CinematicSpriteFrameBehavior? FrameBehavior { get; private set; }
 
-    /// <summary>The frame behaviour the actor's program installed, until an owner installs its own.</summary>
+    /// <summary>The frame behaviour the actor's animation installed, until an owner installs its own.</summary>
     internal CinematicSpriteFrameBehavior? ListFrameBehavior { get; private set; }
 
-    /// <summary>Starts <paramref name="program"/> on the next handler call, discarding the old frame countdown.</summary>
+    /// <summary>Starts the animation of <paramref name="program"/> on the next handler call, discarding the old frame countdown.</summary>
     public void Start(CinematicSpriteProgram program)
     {
-        Program = AnimationProgramCursor<CinematicSpriteProgram>.Start(program);
+        Playback = new AnimationPlayback<CinematicSpriteProgram>(CinematicSpriteAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         frameHold = WrappingCountdown.Start(1);
     }
 
@@ -84,7 +88,7 @@ internal sealed class IntroDiscoverySprite
     /// share one list but must begin on staggered frames.
     /// </summary>
     /// <remarks>
-    /// This is deliberately not <see cref="LoopCountdown"/>, which only the program's counted loops use; conflating the
+    /// This is deliberately not <see cref="LoopCountdown"/>, which only the animation's counted phases use; conflating the
     /// two makes a delayed actor interpret its first frame immediately while merely changing an unrelated loop count.
     /// </remarks>
     public void DelayFirstInstruction(int frames)
@@ -109,8 +113,8 @@ internal sealed class IntroDiscoverySprite
     }
 
     /// <summary>
-    /// Advances one generic cinematic-sprite handler call: when the frame expires, runs the program until it shows a
-    /// frame, holds or stops. Owner cues go to <paramref name="ownerCue"/>; a program that publishes one with no owner
+    /// Advances one generic cinematic-sprite handler call: when the frame expires, plays the animation on until it shows a
+    /// frame, holds or ends. Owner cues go to <paramref name="ownerCue"/>; an animation that raises one with no owner
     /// fails.
     /// </summary>
     public void Step(Action<CinematicSpriteCueKind>? ownerCue = null)
@@ -123,29 +127,26 @@ internal sealed class IntroDiscoverySprite
         if (!hold.IsZero)
             return;
 
-        AnimationProgramCursor<CinematicSpriteProgram> cursor = Program;
-        WrappingCountdown counter = LoopCountdown;
-        AnimationProgramAdvance<CinematicSpritePose> advance = CinematicSpriteAnimations.Programs.Advance(ref cursor, ref counter,
-            (cue, _) =>
-            {
-                ApplyCue(cue, ownerCue);
-                return null;
-            });
-        Program = cursor;
-        LoopCountdown = counter;
-        switch (advance)
+        Animation<CinematicSpriteProgram> animation = Playback.Animation;
+        AnimationPlace place = Playback.Place;
+        WrappingCountdown repeats = LoopCountdown;
+        AnimationShown<CinematicSpriteProgram, CinematicSpritePose> shown = CinematicSpriteAnimations.Segments.PlayToNextFrame(
+            animation, ref place, ref repeats, cue => ApplyCue(cue, ownerCue));
+        Playback = new AnimationPlayback<CinematicSpriteProgram>(animation, place);
+        LoopCountdown = repeats;
+        switch (shown)
         {
-            case AnimationProgramAdvance<CinematicSpritePose>.Show shown:
-                frameHold = WrappingCountdown.Start(shown.Duration);
-                Pose = shown.Frame;
+            case AnimationShown<CinematicSpriteProgram, CinematicSpritePose>.Frame frame:
+                frameHold = WrappingCountdown.Start(frame.Duration);
+                Pose = frame.Shown;
                 return;
-            case AnimationProgramAdvance<CinematicSpritePose>.Hold:
+            case AnimationShown<CinematicSpriteProgram, CinematicSpritePose>.Held:
                 return;
-            case AnimationProgramAdvance<CinematicSpritePose>.Stop:
+            case AnimationShown<CinematicSpriteProgram, CinematicSpritePose>.Ended:
                 Delete();
                 return;
             default:
-                throw new InvalidOperationException($"A cinematic sprite program ended an update with {advance}.");
+                throw new InvalidOperationException($"A cinematic sprite animation ended an update with {shown}.");
         }
     }
 
@@ -159,7 +160,7 @@ internal sealed class IntroDiscoverySprite
             return;
         }
         (ownerCue ?? throw new InvalidOperationException(
-            $"Cinematic sprite program {CurrentProgram} published {cue.Kind} with no owner to carry it out."))(cue.Kind);
+            $"Cinematic sprite animation in {CurrentProgram} raised {cue.Kind} with no owner to carry it out."))(cue.Kind);
     }
 
     /// <summary>

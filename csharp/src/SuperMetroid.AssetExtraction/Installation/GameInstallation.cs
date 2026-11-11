@@ -127,6 +127,10 @@ public sealed record GameInstallation(string Root)
     public string BossBodySheetDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.BossBodySheetDirectoryName);
     /// <summary>Loads every boss's installed pre-assembled body sheet (#1466).</summary>
     public BossBodySheets LoadBossBodySheets() => BossBodySheetFiles.Load(BossBodySheetDirectory);
+    /// <summary>The sheets' recolour-region maps, a folder per sheet family (#1633).</summary>
+    public string RecolourRegionDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RecolourRegionDirectoryName);
+    /// <summary>The sprite-drawn sheets' blend maps, a folder per sheet family (#1633).</summary>
+    public string BlendMapDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.BlendMapDirectoryName);
     /// <summary>Stock visual room-block references under the replaceable content tree.</summary>
     public string RoomVisualLayoutDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomVisualLayoutDirectoryName);
     /// <summary>Visual room-block references independent of native collision and BTS.</summary>

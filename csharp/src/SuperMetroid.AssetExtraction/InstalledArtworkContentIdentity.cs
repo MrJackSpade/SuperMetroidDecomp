@@ -48,13 +48,6 @@ internal static class InstalledArtworkContentIdentity
                 {
                     content.AppendName("picture", picture);
                     content.AppendName("held on", frame.Sheet.Name);
-                    // Where the variant composed a picture held once from, where that differs from its sheet's record (#1544).
-                    if (InstalledPictureColours.FrameSourceOf(frame) is { } source)
-                    {
-                        content.Append("composed palette bits", source.PaletteBits);
-                        content.Append("composed from", System.Runtime.InteropServices.MemoryMarshal.AsBytes(source.SheetInks.AsSpan()));
-                        content.Append("composed as", System.Runtime.InteropServices.MemoryMarshal.AsBytes(source.Inks.AsSpan()));
-                    }
                 }
                 foreach (string picture in variant.Sheet.empty.Order(StringComparer.Ordinal))
                     content.AppendName("shows nothing", picture);
@@ -91,34 +84,33 @@ internal static class InstalledArtworkContentIdentity
         });
     }
 
-    /// <summary>A sprite sheet's pixels and frames in a content identity.</summary>
+    /// <summary>A sprite sheet's pixels, maps, shades and frames in a content identity.</summary>
     extension(SpriteSheet sheet)
     {
-        /// <summary>Appends the sheet's pixels and frames to a content identity, frames in name order.</summary>
+        /// <summary>
+        /// Appends the sheet to a content identity as it is installed (#1633): its pixels, its recolour-region and blend maps,
+        /// its backdrop's colour key, each shade's substitutions and blending in shade order, and its frames in name order.
+        /// </summary>
         internal void AppendIdentity(SelectedPresentationHash content)
         {
-            content.AppendName("sheet", sheet.Image.Name);
-            content.AppendName("palette", InstalledPictureColours.SetsOf(sheet.Image).Palette.ToString());
-            foreach (InstalledBackgroundSet set in InstalledPictureColours.BackgroundSetsOf(sheet.Image))
-                content.AppendName("background set", set.ToString());
-            content.Append("palette bits", InstalledPictureColours.PaletteBitsOf(sheet.Image));
-            content.Append("composed indices", System.Runtime.InteropServices.MemoryMarshal.AsBytes(InstalledPictureColours.SetsOf(sheet.Image).Inks.AsSpan()));
-            content.Append("width", sheet.Image.Size.X);
-            content.Append("height", sheet.Image.Size.Y);
-            content.Append("pixels", System.Runtime.InteropServices.MemoryMarshal.AsBytes(sheet.Image.Pixels));
-            // Each ink field is identified as its own plane, as the image was installed.
-            ReadOnlySpan<SpriteImageInk> inks = sheet.Image.Inks;
-            content.AppendBytes("colours", inks.SelectToArray(ink => ink.Colour ?? 0));
-            content.AppendBytes("transparent", inks.SelectToArray(ink => ink.IsTransparent ? 1 : 0));
-            content.AppendBytes("clear", inks.SelectToArray(ink => ink.Clear ? 1 : 0));
-            content.AppendBytes("blends", inks.SelectToArray(ink => ink.Blends ? 1 : 0));
-            content.Append("standard colours", System.Runtime.InteropServices.MemoryMarshal.AsBytes(sheet.Image.StandardColours));
-            content.Append("backdrop", sheet.Image.Backdrop ?? -1);
-            foreach ((PictureShade shade, ShadeInks shown) in sheet.Image.Shades.OrderBy(pair => pair.Key.Key, StringComparer.Ordinal))
+            SpriteImage image = sheet.Image;
+            content.AppendName("sheet", image.Name);
+            content.Append("width", image.Size.X);
+            content.Append("height", image.Size.Y);
+            content.Append("pixels", System.Runtime.InteropServices.MemoryMarshal.AsBytes(image.Pixels));
+            content.Append("recolour regions", System.Runtime.InteropServices.MemoryMarshal.AsBytes(image.RecolourRegions));
+            content.Append("blend map", System.Runtime.InteropServices.MemoryMarshal.AsBytes(image.Blending));
+            if (image.Backdrop is { } backdrop)
+                AppendKey(content, "backdrop", backdrop);
+            foreach ((PictureShade shade, PictureRecolouring shown) in image.Shades.OrderBy(pair => pair.Key.Key, StringComparer.Ordinal))
             {
                 content.AppendName("shade", shade.Key);
-                content.Append("shade inks", System.Runtime.InteropServices.MemoryMarshal.AsBytes(shown.Inks.AsSpan()));
-                content.Append("shade colours", System.Runtime.InteropServices.MemoryMarshal.AsBytes(shown.Colours.AsSpan()));
+                content.Append("shade blends", shown.Blends ? 1 : 0);
+                foreach (KeyedSubstitution substitution in shown.Substitutions)
+                {
+                    AppendKey(content, "recolours", substitution.Replaced);
+                    content.AppendName("shows", InstalledColourText.Format(substitution.Shown));
+                }
             }
             foreach (string name in sheet.FrameNames.Order(StringComparer.Ordinal))
             {
@@ -131,8 +123,16 @@ internal static class InstalledArtworkContentIdentity
                 content.Append("origin x", frame.Origin.X);
                 content.Append("origin y", frame.Origin.Y);
                 content.AppendName("depth", frame.Depth?.ToString() ?? "none");
+                content.Append("blends", frame.Blends ? 1 : 0);
             }
         }
+    }
+
+    /// <summary>Appends colour key <paramref name="key"/> to a content identity as the manifest writes it.</summary>
+    private static void AppendKey(SelectedPresentationHash content, string label, ColourKey key)
+    {
+        content.AppendName(label, InstalledColourText.Format(key.Colour));
+        content.Append(label + " region", key.Region);
     }
 
     /// <summary>The installed content identity of a <see cref="InstalledRoomArtwork"/>.</summary>

@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Installation;
 
 /// <summary>
 /// Installs the pre-coloured room artwork (#1392, #1466): each tileset's block sheet, the appearance inputs each tileset's
-/// blocks depend on, and each library background's image, each as an image, palette map and pictures, the tilemap words
+/// blocks depend on, and each library background's image, each as an image and pictures, with its recolour-region map where it needs one (#1633), the tilemap words
 /// each background pictures with the inputs its changing cells depend on, the written picture sheets with the inputs each
 /// picture depends on, each Ceres tileset's turning floor (#1467), and the provenance of their hashes. A player edits a sheet's or image's installed file in place.
 /// </summary>

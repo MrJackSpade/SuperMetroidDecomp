@@ -134,7 +134,8 @@ internal sealed class SheetPicture
                 writer.Write(colour.B);
                 writer.Write(colour.A);
                 int ink = inks[pixel];
-                if (InstalledSheetColouring.ShownKindOf(SpriteImageColours.Sprite, ink) is not { } kind)
+                ComposedPixelKind kind = InstalledSheetConversion.KindOf(SpriteImageColours.Sprite, ink);
+                if (kind == ComposedPixelKind.Transparent)
                 {
                     writer.Write("transparent");
                     continue;

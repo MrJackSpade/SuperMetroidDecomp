@@ -4,7 +4,7 @@ using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
 
-/// <summary>One frame in an installed sprite sheet manifest (#1544).</summary>
+/// <summary>One frame in an installed sprite sheet manifest (#1544, #1633).</summary>
 public sealed record InstalledSheetFrameDocument
 {
     /// <summary>The frame rectangle's top-left pixel on the sheet.</summary>
@@ -23,4 +23,12 @@ public sealed record InstalledSheetFrameDocument
     [JsonConverter(typeof(JsonStringEnumConverter<ActorDepth>))]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ActorDepth? Depth { get; init; }
+
+    /// <summary>
+    /// Whether every pixel of the frame blends with what lies behind it when drawn as a sprite (#1633), as
+    /// <see cref="SpriteSheetFrame.Blends"/> keeps it; absent for a frame that does not, and for every frame of a sheet not
+    /// drawn as sprites.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool Blends { get; init; }
 }

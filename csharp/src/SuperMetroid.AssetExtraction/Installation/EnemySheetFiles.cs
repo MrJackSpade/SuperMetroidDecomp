@@ -11,14 +11,17 @@ using SuperMetroid.Core.World.RoomStates;
 namespace SuperMetroid.AssetExtraction.Installation;
 
 /// <summary>
-/// Installs the pre-coloured enemy sheets (#1392, #1599): each distinct sheet's image, palette map and frames, the manifest
+/// Installs the pre-coloured enemy sheets (#1392, #1599, #1633): each distinct sheet's image, frames and maps, the manifest
 /// naming every variant of each enemy and of each owner's spawned objects and the variants each population draws, and the
 /// provenance of their hashes. A player edits a sheet's installed files in place.
 /// </summary>
 public static class EnemySheetFiles
 {
-    /// <summary>The manifest revision this build reads.</summary>
-    public const int ManifestVersion = 25;
+    /// <summary>
+    /// The manifest revision this build reads: 26 no longer records where a variant composed a picture held once from, as
+    /// nothing installed names a palette index (#1633).
+    /// </summary>
+    public const int ManifestVersion = 26;
 
     /// <summary>The manifest naming each variant's sheets and the variants each population draws.</summary>
     public const string ManifestFileName = "enemy-sheets.json";
@@ -97,9 +100,7 @@ public static class EnemySheetFiles
                 frameChanges))];
             HashSet<string> blank = Empty(entry.Empty, $"spawned-object variant {name}", pictures);
             string resolution = $"{entry.Sheet}/{string.Join("/", entry.CommonPictures.OrderBy(held => held.Key, StringComparer.Ordinal)
-                .Select(held => $"{held.Key}:{string.Join(",", held.Value)}"))}/{string.Join(",", blank.Order(StringComparer.Ordinal))}/{string.Join("/",
-                (entry.FrameSources ?? []).OrderBy(source => source.Key, StringComparer.Ordinal).Select(source =>
-                    $"{source.Key}:{source.Value.PaletteBits}:{string.Join(",", source.Value.SheetInks)}:{string.Join(",", source.Value.Inks)}"))}";
+                .Select(held => $"{held.Key}:{string.Join(",", held.Value)}"))}/{string.Join(",", blank.Order(StringComparer.Ordinal))}";
             HashSet<string> shown = [.. pictures.Where(picture => !blank.Contains(picture))];
             if (!resolved.TryGetValue(resolution, out SpawnedObjectSheet? sheet))
                 resolved.Add(resolution, sheet = SpawnedPictures(entry, loaded, shown, blank, $"spawned-object variant {name}"));
@@ -182,18 +183,7 @@ public static class EnemySheetFiles
         SpriteSheet? own = entry.Sheet is { } name ? loaded[name] : null;
         if (own is null ? particular.Length > 0 : !own.HoldsExactly(particular))
             throw new InvalidDataException($"Spawned-object sheet {entry.Sheet ?? "(none)"} does not hold exactly the pictures particular to {owner}'s objects.");
-        var pictures = new SpawnedObjectSheet(own, common, empty);
-        // A picture held once is sourced as its first holder composed it; where this variant composed it elsewhere, the
-        // variant draws its own frame of the same rectangle, which keeps where it composed it from (#1544).
-        foreach ((string picture, InstalledFrameSource source) in entry.FrameSources ?? [])
-        {
-            if (!pictures.frames.TryGetValue(picture, out SpriteSheetFrame? held))
-                throw new InvalidDataException($"Enemy sheet manifest names where {owner} composed picture {picture} from, but draws no such picture.");
-            SpriteSheetFrame drawn = held with { };
-            pictures.frames[picture] = drawn;
-            InstalledPictureColours.RecordFrame(drawn, source);
-        }
-        return pictures;
+        return new SpawnedObjectSheet(own, common, empty);
     }
 
     /// <summary>

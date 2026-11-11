@@ -7,19 +7,14 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// Holds the spawned-object sheets' common art once (#1513, owner flags 20 and 28). Every graphics set's spawned-object
 /// sheets picture the explosions, drops, projectiles and sprite objects its spawners show, so the common ones were pictured
 /// again on every set's sheet. Each laid-out sheet is painted and cut into its pictures; a picture is known by what a draw of
-/// it shows (<see cref="SheetPictureLook"/>, #1544): its pixels' colours and marks and what each shade it can be drawn in
-/// shows of those colours, not the rows or palette bits they were composed from, as the installed image names its own
-/// colours. A picture two or more sheets hold is common: it is held once, on a common sheet, under every frame name those
-/// sheets show it as, painted and sourced as the first sheet holding it paints it, with every shade any holder names. Common
+/// it shows (<see cref="SheetPictureLook"/>, #1544): its pixels' colours and how each shows, and what each shade it can be
+/// drawn in shows of those colours, not the rows or palette bits they were composed from, as the installed image is only
+/// its colours (#1633). A picture two or more sheets hold is common: it is held once, on a common sheet, under every frame
+/// name those sheets show it as, painted as the first sheet holding it paints it, with every shade any holder names. Common
 /// pictures whose colourings agree on every group and palette bit they share are held on one common sheet, whose composed
-/// indices and source record they then share. A sheet keeps only the pictures no other sheet holds, and has no sheet of
-/// its own when it holds none.
-/// <para>
-/// A holder may have composed a picture's colours from other rows or palette bits than those it is painted and sourced
-/// as, since one look says only what a draw shows: that holder's colours lie elsewhere in its colour table. Each frame a
-/// sheet shows such a picture as names where that sheet composed its colours from (<see cref="InstalledFrameSource"/>), so
-/// the import's record of where every frame's colours came from stays exact while the picture is held once (#1544).
-/// </para>
+/// indices they then share. A sheet keeps only the pictures no other sheet holds, and has no sheet of its own when it holds
+/// none. A holder may have composed a picture's colours from other rows or palette bits than those it is painted as, since
+/// one look says only what a draw shows; the draw shows the same picture either way.
 /// </summary>
 internal static class SpawnedObjectSheetSharing
 {
@@ -38,12 +33,9 @@ internal static class SpawnedObjectSheetSharing
         var pictures = new List<HeldPicture>();
         var pictureOf = new Dictionary<string, HeldPicture>(StringComparer.Ordinal);
         var held = new Dictionary<string, HeldPicture>[painted.Length];
-        // Each sheet's frames whose colours it composed from other places than the picture it shows them as is sourced from.
-        var sources = new Dictionary<string, InstalledFrameSource>[painted.Length];
         for (int sheet = 0; sheet < painted.Length; sheet++)
         {
             held[sheet] = new Dictionary<string, HeldPicture>(StringComparer.Ordinal);
-            sources[sheet] = new Dictionary<string, InstalledFrameSource>(StringComparer.Ordinal);
             foreach ((string name, SheetPicture picture) in painted[sheet].Frames)
             {
                 SheetPictureColouring colouring = SheetPictureColouring.Of(painted[sheet].Document, picture.Rows);
@@ -55,8 +47,6 @@ internal static class SpawnedObjectSheetSharing
                 }
                 shown.HeldBy(sheet, name, colouring, look);
                 held[sheet].Add(name, shown);
-                if (shown.SourceIn(colouring, look) is { } source)
-                    sources[sheet].Add(name, source);
             }
         }
         // Each common picture joins the first common sheet whose colouring agrees with its own, or starts the next.
@@ -98,7 +88,7 @@ internal static class SpawnedObjectSheetSharing
         {
             shares[sheet] = new SpawnedSheetShare(own[sheet] is { } plan ? encodedOf[plan] : null,
                 held[sheet].Where(frame => frame.Value.IsCommon)
-                    .ToDictionary(frame => frame.Key, frame => frame.Value.CommonSheet, StringComparer.Ordinal), sources[sheet]);
+                    .ToDictionary(frame => frame.Key, frame => frame.Value.CommonSheet, StringComparer.Ordinal));
         }
         return new SharedSpawnedSheets([.. common.Select(plan => encodedOf[plan])], shares);
     }
@@ -130,8 +120,8 @@ internal static class SpawnedObjectSheetSharing
         internal SheetPicture Picture { get; }
 
         /// <summary>
-        /// Its first holder's colouring over the groups it uses, which is where the import's source record says its colours
-        /// came from, with every shade any sheet holding it names, so every shade it can be drawn in stays installed beside it.
+        /// Its first holder's colouring over the groups it uses, with every shade any sheet holding it names, so every shade
+        /// it can be drawn in stays installed beside it.
         /// </summary>
         internal SheetPictureColouring Colouring { get; private set; }
 
@@ -157,15 +147,6 @@ internal static class SpawnedObjectSheetSharing
                 Names.Add(name);
             Colouring = Colouring.WithShadesOf(colouring, shownAs.ShownInks, look.ShownInks);
         }
-
-        /// <summary>
-        /// Where a holder coloured as <paramref name="colouring"/>, where the picture looks as <paramref name="shownAs"/>,
-        /// composed the picture's colours from, or none when it composed them from the places the picture is sourced from:
-        /// its first holder's palette indices and palette bits, which the record of the sheet holding it names.
-        /// </summary>
-        internal InstalledFrameSource? SourceIn(SheetPictureColouring colouring, SheetPictureLook shownAs) =>
-            colouring.PaletteBits == Colouring.PaletteBits && shownAs.ShownInks.SequenceEqual(look.ShownInks) ? null
-                : new InstalledFrameSource { PaletteBits = colouring.PaletteBits, SheetInks = [.. look.ShownInks], Inks = [.. shownAs.ShownInks] };
     }
 
     /// <summary>The pictures one installed sheet will hold, in order, and the colouring they agree on.</summary>

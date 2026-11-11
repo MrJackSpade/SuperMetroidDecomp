@@ -12,9 +12,6 @@ internal sealed class SpriteSheetEncoder : IDisposable
     /// <summary>The PNG encoder's rows and compressed stream.</summary>
     private readonly RgbaPngBuffers png = new();
 
-    /// <summary>The palette map of the sheet being encoded.</summary>
-    private RgbaPixel[] paletteImage = [];
-
     /// <summary>The planes a laid-out sheet is painted on before it is encoded.</summary>
     private readonly SpriteSheetCanvas canvas = new();
 
@@ -40,32 +37,21 @@ internal sealed class SpriteSheetEncoder : IDisposable
     }
 
     /// <summary>
-    /// Encodes one composed sheet as the import installs it (#1544): its image, the palette map of each pixel's ink, naming
-    /// its colour by its place among the image's own colours, and the manifest of those colours and the frames.
+    /// Encodes one composed sheet as the import installs it (#1633): its image of pixels that are only their colours, its
+    /// manifest of frames, shades by colour key and backdrop, and the recolour-region and blend maps it needs.
     /// </summary>
     /// <param name="planes">The sheet's pixel planes, composed against the cartridge's colours.</param>
     /// <param name="manifest">The sheet's composed manifest.</param>
     internal EncodedSpriteSheet Encode(SpriteSheetPlanes planes, SpriteSheetDocument manifest)
     {
         Ensure.NotNull(manifest);
-        InstalledSheetLayers installed = InstalledSheetColouring.Install(manifest, planes.PaletteIndices);
-        byte[] image = RgbaPng.Encode(planes.Size, planes.Pixels, png);
-        byte[] palette = RgbaPng.Encode(planes.Size, PaletteImage(installed.Inks), png);
-        return new EncodedSpriteSheet(image, palette, SpriteSheetManifestWriter.Write(installed.Manifest));
-    }
-
-    /// <summary>
-    /// The palette map: each pixel's ink as <see cref="InstalledSheetColouring.MapPixelOf"/> installs it. It is laid out in
-    /// the reused image buffer, valid until the next sheet.
-    /// </summary>
-    private ReadOnlySpan<RgbaPixel> PaletteImage(ReadOnlySpan<SpriteImageInk> inks)
-    {
-        if (paletteImage.Length < inks.Length)
-            paletteImage = new RgbaPixel[inks.Length];
-        Span<RgbaPixel> pixels = paletteImage.AsSpan(0, inks.Length);
-        for (int pixel = 0; pixel < inks.Length; pixel++)
-            pixels[pixel] = InstalledSheetColouring.MapPixelOf(inks[pixel]);
-        return pixels;
+        InstalledSheet installed = InstalledSheetConversion.Install(manifest, planes.Size, planes.Pixels, planes.PaletteIndices);
+        SpriteImagePixels pixels = installed.Pixels;
+        return new EncodedSpriteSheet(
+            RgbaPng.Encode(planes.Size, pixels.Pixels, png),
+            SpriteSheetManifestWriter.Write(installed.Manifest),
+            pixels.RecolourRegions is { } regions ? RecolourRegionMapFile.Encode(planes.Size, regions) : null,
+            pixels.Blending is { } blending ? BlendMapFile.Encode(planes.Size, blending) : null);
     }
 
     /// <inheritdoc />

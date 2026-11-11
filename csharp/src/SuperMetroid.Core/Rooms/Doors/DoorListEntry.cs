@@ -6,10 +6,9 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// <see cref="ElevatorPseudoDoor.MaridiaTourian"/>).
 /// </summary>
 /// <remarks>
-/// The game tells them apart by the high bit of the entry's destination: a pseudo-door's is zero, so collision
-/// treats the block as solid and
-/// arms the elevator instead of publishing a transition. Its other ten bytes overlap the
-/// neighbouring physical record and are never consumed, so no header is modeled for it.
+/// The game tells them apart by the entry's destination: a pseudo-door leads to no room, so collision treats the
+/// block as solid and arms the elevator instead of publishing a transition. Nothing else of a pseudo-door is ever
+/// read, so no header is modeled for it.
 /// </remarks>
 public readonly record struct DoorListEntry
 {

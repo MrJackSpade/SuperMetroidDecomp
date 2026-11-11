@@ -10,9 +10,9 @@ namespace SuperMetroid.Core.Enemies.YappingMaws;
 /// </summary>
 internal static class YappingMawAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<YappingMawProgram, YappingMawFrame, YappingMawCue> Programs { get; } = new(
-        new Dictionary<YappingMawProgram, AnimationProgramStep<YappingMawProgram, YappingMawFrame, YappingMawCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<YappingMawProgram, YappingMawFrame, YappingMawCue> Segments { get; } = new(
+        new Dictionary<YappingMawProgram, AnimationBeat<YappingMawFrame, YappingMawCue>[]>
     {
         [P.AttackingUp] =
         [
@@ -21,7 +21,6 @@ internal static class YappingMawAnimations
             Cue(new(K.PlayBiteSound)),
             Show(2, 80),
             Show(1, 3),
-            GoTo(P.AttackingUp),
         ],
         [P.AttackingUpRight] =
         [
@@ -30,7 +29,6 @@ internal static class YappingMawAnimations
             Cue(new(K.PlayBiteSound)),
             Show(5, 80),
             Show(4, 3),
-            GoTo(P.AttackingUpRight),
         ],
         [P.AttackingRight] =
         [
@@ -39,7 +37,6 @@ internal static class YappingMawAnimations
             Cue(new(K.PlayBiteSound)),
             Show(8, 80),
             Show(7, 3),
-            GoTo(P.AttackingRight),
         ],
         [P.AttackingDownRight] =
         [
@@ -48,7 +45,6 @@ internal static class YappingMawAnimations
             Cue(new(K.PlayBiteSound)),
             Show(11, 80),
             Show(10, 3),
-            GoTo(P.AttackingDownRight),
         ],
         [P.AttackingDown] =
         [
@@ -57,7 +53,6 @@ internal static class YappingMawAnimations
             Cue(new(K.PlayBiteSound)),
             Show(14, 80),
             Show(13, 3),
-            GoTo(P.AttackingDown),
         ],
         [P.AttackingDownLeft] =
         [
@@ -66,7 +61,6 @@ internal static class YappingMawAnimations
             Cue(new(K.PlayBiteSound)),
             Show(17, 80),
             Show(16, 3),
-            GoTo(P.AttackingDownLeft),
         ],
         [P.AttackingLeft] =
         [
@@ -75,7 +69,6 @@ internal static class YappingMawAnimations
             Cue(new(K.PlayBiteSound)),
             Show(20, 80),
             Show(19, 3),
-            GoTo(P.AttackingLeft),
         ],
         [P.AttackingUpLeft] =
         [
@@ -84,18 +77,15 @@ internal static class YappingMawAnimations
             Cue(new(K.PlayBiteSound)),
             Show(23, 80),
             Show(22, 3),
-            GoTo(P.AttackingUpLeft),
         ],
         [P.CooldownUpRight] =
         [
             Cue(new(K.HoldSamusUpRight)),
             Show(5, 4),
-            FallInto(P.CooldownUp),
         ],
         [P.CooldownUp] =
         [
             Cue(new(K.HoldSamusUp)),
-            FallInto(P.CooldownUpLoop),
         ],
         [P.CooldownUpLoop] =
         [
@@ -104,14 +94,12 @@ internal static class YappingMawAnimations
             Show(0, 5),
             Show(1, 3),
             Cue(new(K.PlayBiteSound)),
-            GoTo(P.CooldownUpLoop),
         ],
         [P.CooldownUpLeft] =
         [
             Cue(new(K.HoldSamusUpLeft)),
             Show(23, 4),
             Cue(new(K.HoldSamusUp)),
-            FallInto(P.CooldownUpLeftLoop),
         ],
         [P.CooldownUpLeftLoop] =
         [
@@ -120,18 +108,15 @@ internal static class YappingMawAnimations
             Show(0, 5),
             Show(1, 3),
             Cue(new(K.PlayBiteSound)),
-            GoTo(P.CooldownUpLeftLoop),
         ],
         [P.CooldownDownRight] =
         [
             Cue(new(K.HoldSamusDownRight)),
             Show(11, 4),
-            FallInto(P.CooldownDown),
         ],
         [P.CooldownDown] =
         [
             Cue(new(K.HoldSamusDown)),
-            FallInto(P.CooldownDownLoop),
         ],
         [P.CooldownDownLoop] =
         [
@@ -140,14 +125,12 @@ internal static class YappingMawAnimations
             Show(12, 5),
             Show(13, 3),
             Cue(new(K.PlayBiteSound)),
-            GoTo(P.CooldownDownLoop),
         ],
         [P.CooldownDownLeft] =
         [
             Cue(new(K.HoldSamusDownLeft)),
             Show(17, 4),
             Cue(new(K.HoldSamusDown)),
-            FallInto(P.CooldownDownLeftLoop),
         ],
         [P.CooldownDownLeftLoop] =
         [
@@ -156,20 +139,38 @@ internal static class YappingMawAnimations
             Show(12, 5),
             Show(13, 3),
             Cue(new(K.PlayBiteSound)),
-            GoTo(P.CooldownDownLeftLoop),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<YappingMawProgram, Animation<YappingMawProgram>> StartingAt { get; } = new Dictionary<YappingMawProgram, Animation<YappingMawProgram>>
+    {
+        [P.AttackingUp] = new([new(P.AttackingUp, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.AttackingUpRight] = new([new(P.AttackingUpRight, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.AttackingRight] = new([new(P.AttackingRight, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.AttackingDownRight] = new([new(P.AttackingDownRight, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.AttackingDown] = new([new(P.AttackingDown, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.AttackingDownLeft] = new([new(P.AttackingDownLeft, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.AttackingLeft] = new([new(P.AttackingLeft, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.AttackingUpLeft] = new([new(P.AttackingUpLeft, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.CooldownUpRight] = new([new(P.CooldownUpRight, 0, 2, 1), new(P.CooldownUp, 0, 1, 1), new(P.CooldownUpLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(2)),
+        [P.CooldownUp] = new([new(P.CooldownUp, 0, 1, 1), new(P.CooldownUpLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.CooldownUpLoop] = new([new(P.CooldownUpLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.CooldownUpLeft] = new([new(P.CooldownUpLeft, 0, 3, 1), new(P.CooldownUpLeftLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.CooldownUpLeftLoop] = new([new(P.CooldownUpLeftLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.CooldownDownRight] = new([new(P.CooldownDownRight, 0, 2, 1), new(P.CooldownDown, 0, 1, 1), new(P.CooldownDownLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(2)),
+        [P.CooldownDown] = new([new(P.CooldownDown, 0, 1, 1), new(P.CooldownDownLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.CooldownDownLoop] = new([new(P.CooldownDownLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.CooldownDownLeft] = new([new(P.CooldownDownLeft, 0, 3, 1), new(P.CooldownDownLeftLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.CooldownDownLeftLoop] = new([new(P.CooldownDownLeftLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<YappingMawProgram> StartingWith(YappingMawProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<YappingMawProgram, YappingMawFrame, YappingMawCue> Show(int pose, int duration) => AnimationProgramStep<YappingMawProgram, YappingMawFrame, YappingMawCue>.Show(new(pose), duration);
+    private static AnimationBeat<YappingMawFrame, YappingMawCue> Show(int pose, int duration) => new AnimationBeat<YappingMawFrame, YappingMawCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<YappingMawProgram, YappingMawFrame, YappingMawCue> Cue(YappingMawCue cue) => AnimationProgramStep<YappingMawProgram, YappingMawFrame, YappingMawCue>.Publish(cue);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<YappingMawProgram, YappingMawFrame, YappingMawCue> GoTo(YappingMawProgram program) => AnimationProgramStep<YappingMawProgram, YappingMawFrame, YappingMawCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<YappingMawProgram, YappingMawFrame, YappingMawCue> FallInto(YappingMawProgram program) => AnimationProgramStep<YappingMawProgram, YappingMawFrame, YappingMawCue>.FallInto(program);
-
+    private static AnimationBeat<YappingMawFrame, YappingMawCue> Cue(YappingMawCue cue) => new AnimationBeat<YappingMawFrame, YappingMawCue>.Event(cue);
 }

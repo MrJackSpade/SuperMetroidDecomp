@@ -10,14 +10,13 @@ namespace SuperMetroid.Core.Enemies.LavaJumpers;
 /// </summary>
 internal static class NorfairLavaJumperAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<NorfairLavaJumperProgram, NorfairLavaJumperFrame, NorfairLavaJumperCue> Programs { get; } = new(
-        new Dictionary<NorfairLavaJumperProgram, AnimationProgramStep<NorfairLavaJumperProgram, NorfairLavaJumperFrame, NorfairLavaJumperCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<NorfairLavaJumperProgram, NorfairLavaJumperFrame, NorfairLavaJumperCue> Segments { get; } = new(
+        new Dictionary<NorfairLavaJumperProgram, AnimationBeat<NorfairLavaJumperFrame, NorfairLavaJumperCue>[]>
     {
         [P.Hidden] =
         [
             Show(1, 1),
-            Hold,
         ],
         [P.Jump] =
         [
@@ -29,14 +28,11 @@ internal static class NorfairLavaJumperAnimations
             Show(6, 10),
             Show(7, 1),
             Cue(new(K.FinishAnimation)),
-            Hold,
         ],
         [P.Follower] =
         [
             Show(8, 1),
             Show(0, 1),
-            SetCounter(1),
-            FallInto(P.FollowerLoop),
         ],
         [P.FollowerLoop] =
         [
@@ -44,30 +40,23 @@ internal static class NorfairLavaJumperAnimations
             Show(0, 1),
             Show(9, 1),
             Show(0, 1),
-            RepeatWhileCounting(P.FollowerLoop),
-            GoTo(P.Follower),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<NorfairLavaJumperProgram, Animation<NorfairLavaJumperProgram>> StartingAt { get; } = new Dictionary<NorfairLavaJumperProgram, Animation<NorfairLavaJumperProgram>>
+    {
+        [P.Hidden] = new([new(P.Hidden, 0, 1, 1)], AnimationEnd.Holds),
+        [P.Jump] = new([new(P.Jump, 0, 8, 1)], AnimationEnd.Holds),
+        [P.Follower] = new([new(P.Follower, 0, 2, 1), new(P.FollowerLoop, 0, 4, 1, AnimationPhaseCounting.EveryPlay)], AnimationEnd.LoopsFrom(0)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<NorfairLavaJumperProgram> StartingWith(NorfairLavaJumperProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<NorfairLavaJumperProgram, NorfairLavaJumperFrame, NorfairLavaJumperCue> Show(int pose, int duration) => AnimationProgramStep<NorfairLavaJumperProgram, NorfairLavaJumperFrame, NorfairLavaJumperCue>.Show(new(pose), duration);
+    private static AnimationBeat<NorfairLavaJumperFrame, NorfairLavaJumperCue> Show(int pose, int duration) => new AnimationBeat<NorfairLavaJumperFrame, NorfairLavaJumperCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<NorfairLavaJumperProgram, NorfairLavaJumperFrame, NorfairLavaJumperCue> Cue(NorfairLavaJumperCue cue) => AnimationProgramStep<NorfairLavaJumperProgram, NorfairLavaJumperFrame, NorfairLavaJumperCue>.Publish(cue);
-
-    /// <summary>Loads the loop counter with <paramref name="count"/>.</summary>
-    private static AnimationProgramStep<NorfairLavaJumperProgram, NorfairLavaJumperFrame, NorfairLavaJumperCue> SetCounter(int count) => AnimationProgramStep<NorfairLavaJumperProgram, NorfairLavaJumperFrame, NorfairLavaJumperCue>.SetCounter(count);
-
-    /// <summary>Repeats from <paramref name="program"/> while the loop counter counts down.</summary>
-    private static AnimationProgramStep<NorfairLavaJumperProgram, NorfairLavaJumperFrame, NorfairLavaJumperCue> RepeatWhileCounting(NorfairLavaJumperProgram program) => AnimationProgramStep<NorfairLavaJumperProgram, NorfairLavaJumperFrame, NorfairLavaJumperCue>.RepeatWhileCounting(program);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<NorfairLavaJumperProgram, NorfairLavaJumperFrame, NorfairLavaJumperCue> GoTo(NorfairLavaJumperProgram program) => AnimationProgramStep<NorfairLavaJumperProgram, NorfairLavaJumperFrame, NorfairLavaJumperCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<NorfairLavaJumperProgram, NorfairLavaJumperFrame, NorfairLavaJumperCue> FallInto(NorfairLavaJumperProgram program) => AnimationProgramStep<NorfairLavaJumperProgram, NorfairLavaJumperFrame, NorfairLavaJumperCue>.FallInto(program);
-
-    /// <summary>Holds the last frame, as the sleep does.</summary>
-    private static AnimationProgramStep<NorfairLavaJumperProgram, NorfairLavaJumperFrame, NorfairLavaJumperCue> Hold => AnimationProgramStep<NorfairLavaJumperProgram, NorfairLavaJumperFrame, NorfairLavaJumperCue>.Hold;
-
+    private static AnimationBeat<NorfairLavaJumperFrame, NorfairLavaJumperCue> Cue(NorfairLavaJumperCue cue) => new AnimationBeat<NorfairLavaJumperFrame, NorfairLavaJumperCue>.Event(cue);
 }

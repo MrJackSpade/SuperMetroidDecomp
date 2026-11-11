@@ -77,6 +77,9 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
             if (place.Beat == AnimationPlace.NotEntered)
                 place = Enter(animation, place.Phase, ref repeats);
             AnimationPhase<TSegment> phase = animation.Phases[place.Phase];
+            // A held animation stays held: its last play is done and counts nothing again.
+            if (place.Beat > phase.BeatCount)
+                return AnimationShown<TSegment, TFrame>.Held.Instance;
             if (place.Beat < phase.BeatCount)
             {
                 int beat = phase.FirstBeat + place.Beat;
@@ -117,6 +120,7 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
                 case AnimationEnd.Stop:
                     return AnimationShown<TSegment, TFrame>.Ended.Instance;
                 case AnimationEnd.Hold:
+                    place = AnimationPlace.HoldingIn(place.Phase, phase.BeatCount);
                     return AnimationShown<TSegment, TFrame>.Held.Instance;
                 case AnimationEnd.Loop loop:
                     place = Enter(animation, loop.Phase, ref repeats);

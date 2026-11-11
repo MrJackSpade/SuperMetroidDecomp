@@ -140,14 +140,14 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         state.LoadedAsDefeated = _room.Services.Bosses.IsDefeated(BossBits.AreaMiniBoss);
         if (state.LoadedAsDefeated)
         {
-            state.BodyProgram = AnimationProgramCursor<SporeSpawnBodyProgram>.Start(SporeSpawnBodyProgram.InitialDead);
+            state.BodyPlayback = new AnimationPlayback<SporeSpawnBodyProgram>(SporeSpawnAnimations.StartingWith(SporeSpawnBodyProgram.InitialDead), AnimationPlace.StartOfAnimation);
             body.Contact = body.Contact.With(EnemyContact.SolidToSamus);
             UpdateSporeSpawnStalks(state);
             PublishSporeSpawnObject(SporeSpawnCeilingMutation.Clear);
             return;
         }
 
-        state.BodyProgram = AnimationProgramCursor<SporeSpawnBodyProgram>.Start(SporeSpawnBodyProgram.InitialAlive);
+        state.BodyPlayback = new AnimationPlayback<SporeSpawnBodyProgram>(SporeSpawnAnimations.StartingWith(SporeSpawnBodyProgram.InitialAlive), AnimationPlace.StartOfAnimation);
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole - 128);
 
         // `flag_process_all_enemies = FFFF` is a global activity override, not an
@@ -198,7 +198,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + 1);
         if (CoordinateAxis.Difference(body.Position.Y.Whole, SporeSpawnDeathCenterY) >= 0)
         {
-            state.BodyProgram = AnimationProgramCursor<SporeSpawnBodyProgram>.Start(SporeSpawnBodyProgram.FightStarted);
+            state.BodyPlayback = new AnimationPlayback<SporeSpawnBodyProgram>(SporeSpawnAnimations.StartingWith(SporeSpawnBodyProgram.FightStarted), AnimationPlace.StartOfAnimation);
             body.FrameHold = WrappingCountdown.Start(1);
         }
 
@@ -386,21 +386,21 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         RunSporeSpawnMain(slot, RequireSporeSpawnState(slot));
     }
 
-    /// <summary>Runs Spore Spawn's body program where the enemy instruction interpreter would.</summary>
+    /// <summary>Plays Spore Spawn's body animation where the enemy instruction interpreter would run its list.</summary>
     internal void AdvanceSporeSpawnAnimation(RoomEnemySlot body)
     {
         if (!EnemyProgramAnimation.Expire(body))
             return;
         SporeSpawnEnemyState state = RequireSporeSpawnState(body);
-        AnimationProgramCursor<SporeSpawnBodyProgram> cursor = state.BodyProgram;
+        AnimationPlayback<SporeSpawnBodyProgram> playback = state.BodyPlayback;
         // The open-pulse and death-burst repeats count the body's timer word, as the timer commands do.
-        EnemyProgramAnimation.Run(body, SporeSpawnAnimations.Programs, ref cursor, SporeSpawnFrameDefinitions.ShownFrames.Of,
-            (cue, continuation) =>
+        EnemyProgramAnimation.Play(body, SporeSpawnAnimations.Segments, ref playback, SporeSpawnFrameDefinitions.ShownFrames.Of,
+            cue =>
             {
                 ApplySporeSpawnCue(body, state, cue);
                 return null;
             });
-        state.BodyProgram = cursor;
+        state.BodyPlayback = playback;
     }
 
     /// <summary>Restricts core-hitbox damage to accepted projectile families and handles boss death.</summary>
@@ -488,7 +488,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 state.AngleDelta = -state.AngleDelta;
                 state.Damaged = true;
-                state.BodyProgram = AnimationProgramCursor<SporeSpawnBodyProgram>.Start(SporeSpawnBodyProgram.CloseAndMove);
+                state.BodyPlayback = new AnimationPlayback<SporeSpawnBodyProgram>(SporeSpawnAnimations.StartingWith(SporeSpawnBodyProgram.CloseAndMove), AnimationPlace.StartOfAnimation);
                 body.FrameHold = WrappingCountdown.Start(1);
 
                 int healthFrame = body.Health >= 770
@@ -533,7 +533,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         for (int projectileSlot = 0; projectileSlot <= 13; projectileSlot++)
             _projectiles.EnemyProjectiles[projectileSlot].Delete();
 
-        state.BodyProgram = AnimationProgramCursor<SporeSpawnBodyProgram>.Start(SporeSpawnBodyProgram.Death);
+        state.BodyPlayback = new AnimationPlayback<SporeSpawnBodyProgram>(SporeSpawnAnimations.StartingWith(SporeSpawnBodyProgram.Death), AnimationPlace.StartOfAnimation);
         body.FrameHold = WrappingCountdown.Start(1);
         _room.Services.Bosses.SetDefeated(BossBits.AreaMiniBoss);
         state.ScrollClampHookActive = false;

@@ -35,29 +35,26 @@ internal static class SporeSpawnAnimations
     private static readonly int[] OpeningDurations = [8, 8, 8, 7, 7, 6, 1];
 
     /// <summary>Every body program.</summary>
-    internal static AnimationProgramSet<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue> Programs { get; } = new(
-        new Dictionary<SporeSpawnBodyProgram, AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>[]>
+    internal static AnimationSegments<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue> Segments { get; } = new(
+        new Dictionary<SporeSpawnBodyProgram, AnimationBeat<SporeSpawnFrame, SporeSpawnCue>[]>
     {
         [P.InitialDead] =
         [
             Cue(new SporeSpawnCue.LoadDeathTargetPalette(DeathPaletteStep: DeathPaletteSteps - 1)),
             Function(SporeSpawnFunction.Idle),
             Show(new(F.Dead, 0), 1),
-            Hold,
         ],
         [P.InitialAlive] =
         [
             Show(new(F.Closed, 0), DescentWait),
             Function(SporeSpawnFunction.Descending),
             Show(new(F.Closed, 0), 1),
-            Hold,
         ],
         [P.FightStarted] =
         [
             Cue(new SporeSpawnCue.SetMaxXRadiusAndAngleDelta(MaximumXRadius: FirstMaximumXRadius, AngleDelta: 1)),
             Function(SporeSpawnFunction.Moving),
             Show(new(F.Closed, 0), FirstSway),
-            FallInto(P.OpenAndStop),
         ],
         [P.OpenAndStop] =
         [
@@ -67,8 +64,6 @@ internal static class SporeSpawnAnimations
             .. Enumerable.Range(0, OpeningDurations.Length).Select(pose => Show(new(F.Opening, pose), OpeningDurations[pose])),
             Cue(new SporeSpawnCue.Command(K.ClearDamagedFlag)),
             Function(SporeSpawnFunction.Idle),
-            AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.SetCounter(OpenPulseRepeats),
-            FallInto(P.OpenPulse),
         ],
         [P.OpenPulse] =
         [
@@ -76,8 +71,6 @@ internal static class SporeSpawnAnimations
             Show(new(F.Open, 1), PoseDuration),
             Show(new(F.Open, 2), PoseDuration),
             Show(new(F.Open, 1), PoseDuration),
-            AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.RepeatWhileCounting(P.OpenPulse),
-            FallInto(P.CloseAndMove),
         ],
         [P.CloseAndMove] =
         [
@@ -89,33 +82,26 @@ internal static class SporeSpawnAnimations
             Show(new(F.Closed, 0), ClosedSway),
             Cue(new SporeSpawnCue.SetSporeGeneration(SporeGenerationSuppressed: true)),
             Show(new(F.Closed, 0), SporingSway),
-            AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.GoTo(P.OpenAndStop),
         ],
         [P.Death] =
         [
             Function(SporeSpawnFunction.SetupDeath),
             Show(new(F.Opening, 5), 1),
             Function(SporeSpawnFunction.Dying),
-            AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.SetCounter(DeathBurstRepeats),
-            FallInto(P.DyingExplosions),
         ],
         [P.DyingExplosions] =
         [
             Show(new(F.Opening, 5), 1),
             Cue(new SporeSpawnCue.Command(K.SpawnDyingExplosion)),
-            AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.Wait(DeathBurstWait),
-            AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.RepeatWhileCounting(P.DyingExplosions),
+            Wait(DeathBurstWait),
             .. Closing(),
             Show(new(F.Dead, 0), 1),
             Cue(new SporeSpawnCue.Command(K.Harden)),
-            AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.SetCounter(DeathBurstRepeats),
-            FallInto(P.Hardening),
         ],
         [P.Hardening] =
         [
             Cue(new SporeSpawnCue.Command(K.SpawnHardeningDust)),
-            AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.Wait(DeathBurstWait),
-            AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.RepeatWhileCounting(P.Hardening),
+            Wait(DeathBurstWait),
             .. Enumerable.Range(0, DeathPaletteSteps).SelectMany(step => new[]
             {
                 Cue(new SporeSpawnCue.LoadDeathPalette(DeathPaletteStep: step)),
@@ -123,31 +109,37 @@ internal static class SporeSpawnAnimations
                 Show(new(F.Dead, 0), FadeStepDuration),
             }),
             Cue(new SporeSpawnCue.Command(K.RequestDeathDrops)),
-            Hold,
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<SporeSpawnBodyProgram, Animation<SporeSpawnBodyProgram>> StartingAt { get; } = new Dictionary<SporeSpawnBodyProgram, Animation<SporeSpawnBodyProgram>>
+    {
+        [P.InitialDead] = new([new(P.InitialDead, 0, 3, 1)], AnimationEnd.Holds),
+        [P.InitialAlive] = new([new(P.InitialAlive, 0, 3, 1)], AnimationEnd.Holds),
+        [P.FightStarted] = new([new(P.FightStarted, 0, 3, 1), new(P.OpenAndStop, 0, Segments.Beats(P.OpenAndStop).Count, 1), new(P.OpenPulse, 0, 4, OpenPulseRepeats), new(P.CloseAndMove, 0, Segments.Beats(P.CloseAndMove).Count, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.OpenAndStop] = new([new(P.OpenAndStop, 0, Segments.Beats(P.OpenAndStop).Count, 1), new(P.OpenPulse, 0, 4, OpenPulseRepeats), new(P.CloseAndMove, 0, Segments.Beats(P.CloseAndMove).Count, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.CloseAndMove] = new([new(P.CloseAndMove, 0, Segments.Beats(P.CloseAndMove).Count, 1), new(P.OpenAndStop, 0, Segments.Beats(P.OpenAndStop).Count, 1), new(P.OpenPulse, 0, 4, OpenPulseRepeats)], AnimationEnd.LoopsFrom(0)),
+        [P.Death] = new([new(P.Death, 0, 3, 1), new(P.DyingExplosions, 0, 3, DeathBurstRepeats), new(P.DyingExplosions, 3, Segments.Beats(P.DyingExplosions).Count - 3, 1), new(P.Hardening, 0, 2, DeathBurstRepeats), new(P.Hardening, 2, Segments.Beats(P.Hardening).Count - 2, 1)], AnimationEnd.Holds),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<SporeSpawnBodyProgram> StartingWith(SporeSpawnBodyProgram segment) => StartingAt[segment];
+
     /// <summary>The six closing poses, from the second-to-last opening pose back to the first.</summary>
-    private static IEnumerable<AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>> Closing() =>
+    private static IEnumerable<AnimationBeat<SporeSpawnFrame, SporeSpawnCue>> Closing() =>
         Enumerable.Range(0, OpeningDurations.Length - 1).Reverse().Select(pose => Show(new(F.Opening, pose), PoseDuration));
 
     /// <summary>Selects <paramref name="function"/> as the main-AI function.</summary>
-    private static AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue> Function(SporeSpawnFunction function) =>
+    private static AnimationBeat<SporeSpawnFrame, SporeSpawnCue> Function(SporeSpawnFunction function) =>
         Cue(new SporeSpawnCue.SetFunction(Function: function));
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue> Cue(SporeSpawnCue cue) =>
-        AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.Publish(cue);
+    private static AnimationBeat<SporeSpawnFrame, SporeSpawnCue> Cue(SporeSpawnCue cue) =>
+        new AnimationBeat<SporeSpawnFrame, SporeSpawnCue>.Event(cue);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue> Show(SporeSpawnFrame frame, int duration) =>
-        AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.Show(frame, duration);
+    private static AnimationBeat<SporeSpawnFrame, SporeSpawnCue> Show(SporeSpawnFrame frame, int duration) =>
+        new AnimationBeat<SporeSpawnFrame, SporeSpawnCue>.Frame(frame, duration);
 
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue> FallInto(SporeSpawnBodyProgram program) =>
-        AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.FallInto(program);
-
-    /// <summary>Holds the last frame, as the script's sleep does.</summary>
-    private static AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue> Hold =>
-        AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.Hold;
 }

@@ -309,7 +309,7 @@ internal static class EnemyProjectileDefinitionsVerification
                     _ => SporeSpawnProjectileProgram.SpawnerClosed,
                 };
                 AssertTrue(projectile.Animation is SporeSpawnProjectileAnimation started
-                        && started.Cursor == AnimationProgramCursor<SporeSpawnProjectileProgram>.Start(expected),
+                        && started.Playback == new AnimationPlayback<SporeSpawnProjectileProgram>(SporeSpawnProjectileAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation),
                     $"{kind} production shot starts the typed {expected} program");
                 AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }

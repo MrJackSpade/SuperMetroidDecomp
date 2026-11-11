@@ -64,13 +64,15 @@ internal static class DoorEntryEnemySoundVerification
         }
         AssertTrue(selected, "the Ki Hunter room has an exit");
         var audio = game.AudioForVerification;
-        int start = audio.SoundQueueForVerification(1).Next;
+        SoundRequestsMark start = audio.MarkSoundRequestsForVerification(SoundEffectLibrary.Enemies);
         game.GameState = SuperMetroidGameState.HitDoorBlock;
         game.Step(0);
 
-        AssertEqual<SoundEffectId?>(EnemySound.AcidSpit, audio.SoundQueueEntryForVerification(1, start),
+        IReadOnlyList<SoundEffectId> queued = audio.SoundsQueuedSinceForVerification(start);
+        AssertTrue(queued.Count >= 2, "the entry frame queues at least the enemy sound and the door's cancel");
+        AssertEqual<SoundEffectId>(EnemySound.AcidSpit, queued[0],
             "the entry frame's enemy pass queues the spit first");
-        AssertEqual<SoundEffectId?>(EnemySound.Silence, audio.SoundQueueEntryForVerification(1, (start + 1) & 0x0f),
+        AssertEqual<SoundEffectId>(EnemySound.Silence, queued[1],
             "the door's library-two cancel follows the enemy sound");
         Console.WriteLine("Door entry enemy sound: the entry frame's enemy sounds precede the door's cancel and DisableSounds.");
     }

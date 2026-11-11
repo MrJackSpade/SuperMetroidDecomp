@@ -69,15 +69,15 @@ internal static class PauseReserveManualVerification
             pause.Step(0, ControllerButton.Up);
             pause.Step(0, ControllerButton.Down);
             audio.Reset();
-            var positions = audio.SoundWritePositions;
-            var queues = audio.SoundQueues;
+            // The standalone pause's audio is never advanced, so the room library's queue keeps every request since the reset.
+            IReadOnlyList<SoundEffectId> roomRequests = audio.WaitingSounds(SoundEffectLibrary.Room);
             int count = startingHealth == 98 ? 1 : 10;
             for (int frame = 0; frame < count; frame++)
             {
                 pause.Step(0, frame == 0 ? ControllerButton.A : 0);
                 // The shared pause palette loop also uses library three. Count
-                // refill identities, not unrelated requests in the same ring.
-                int refills = Enumerable.Range(0, positions[2]).Count(i => queues[2, i] == SoundEffectCommands.Decode(SoundEffectLibrary.Room, 0x2d));
+                // refill identities, not unrelated requests in the same queue.
+                int refills = roomRequests.Count(sound => sound == SoundEffectCommands.Decode(SoundEffectLibrary.Room, 0x2d));
                 AssertEqual(frame < 8 ? 1 : 2, refills, "refill sound published on transfer calls zero and eight");
                 AssertEqual(Math.Min(99, startingHealth + frame + 1), samus.Health, "manual energy progression");
                 if (frame == 0 && startingHealth == 20)

@@ -65,7 +65,7 @@ internal static class HostIndependentAudioAcknowledgementsVerification
         StepAll();
         foreach (SuperMetroidGame game in sessions)
             AssertEqual(SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.Phase.AwaitingAcceptance,
-                game.AudioForVerification.SoundQueueForVerification(1).State,
+                game.AudioForVerification.SoundQueueForVerification(SoundEffectLibrary.Enemies).State,
                 "library 2 waits for its echo before the door");
 
         foreach (SuperMetroidGame game in sessions)
@@ -78,10 +78,10 @@ internal static class HostIndependentAudioAcknowledgementsVerification
                 $"door phase after door frame {frame}");
             AssertEqual(silent.AudioForVerification.HasQueuedSounds, playing.AudioForVerification.HasQueuedSounds,
                 $"queued sounds after door frame {frame}");
-            for (int library = 0; library < 3; library++)
+            foreach (SoundEffectLibrary library in SoundEffectLibraries.InQueueOrder)
                 AssertEqual(silent.AudioForVerification.SoundQueueForVerification(library),
                     playing.AudioForVerification.SoundQueueForVerification(library),
-                    $"library {library + 1} queue after door frame {frame}");
+                    $"{library} library queue after door frame {frame}");
             if (silentLeftSoundWait < 0 && silent.DoorTransitionPhaseForVerification > DoorTransitionPhase.WaitForSoundQueues)
                 silentLeftSoundWait = frame;
         }

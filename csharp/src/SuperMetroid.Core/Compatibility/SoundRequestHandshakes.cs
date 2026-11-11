@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// sound-handler call of an update's audio dispatch, after the music handler, against what each library reports as
 /// accepted to that update (<see cref="ISoundAcceptanceTiming{TLibrary, TSound}"/>). Evidence: the original's per-library
 /// sound handlers, whose four-state handshake and two-call withdrawal hold the SMV replays trace beside each library's
-/// queue positions on every update (the movie desync comparison prints both), and whose timing the Ridley full-movie and
+/// waiting requests on every update (the movie desync comparison prints both), and whose timing the Ridley full-movie and
 /// 13% replays depend on through the door transition's wait for empty queues.
 /// </remarks>
 [CompatibilityService("each sound library's request is repeated until accepted, held and withdrawn, and the withdrawal repeated until accepted, before the library's next queued sound is requested")]

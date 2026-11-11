@@ -61,15 +61,15 @@ internal static class MovieDesyncComparison
         Console.WriteLine("  music port   " + game.AudioForVerification.MusicQueueForVerification());
         Console.WriteLine($"  music native {Word(memory, 0x063b) / 2:X}/{Word(memory, 0x0639) / 2:X} t={Word(memory, 0x063f):X} d=" +
             string.Join(",", Enumerable.Range(0, 8).Select(slot => Word(memory, 0x0629 + 2 * slot).ToString("X"))));
-        string Queues(Func<int, SoundQueueState> read) => string.Join(" ",
-            Enumerable.Range(0, 3).Select(queue => read(queue)).Select(q => $"{q.Start:X}/{q.Next:X}/{q.State}"));
-        Console.WriteLine("  sfx port   " + Queues(queue =>
+        // Each library's waiting requests and handshake phase. The cartridge keeps each queue as a sixteen-position ring
+        // ($0643 start, $0646 next, $0649 handler state), so its waiting count is the ring distance from start to next.
+        Console.WriteLine("  sfx port   " + string.Join(" ", SoundEffectLibraries.InQueueOrder.Select(library =>
         {
-            var q = game.AudioForVerification.SoundQueueForVerification(queue);
-            return new SoundQueueState(q.Start, q.Next, q.State);
-        }));
-        Console.WriteLine("  sfx native " + Queues(queue =>
-            new SoundQueueState(memory[0x0643 + queue], memory[0x0646 + queue], SoundQueueState.PhaseFromNative(memory[0x0649 + queue]))));
+            SoundQueueState q = game.AudioForVerification.SoundQueueForVerification(library);
+            return $"{q.Waiting.Length:X}/{q.State}";
+        })));
+        Console.WriteLine("  sfx native " + string.Join(" ", Enumerable.Range(0, 3).Select(queue =>
+            $"{(memory[0x0646 + queue] - memory[0x0643 + queue]) & 0x0f:X}/{SoundQueueState.PhaseFromNative(memory[0x0649 + queue])}")));
         if (game.RuntimeForVerification?.Enemies is { } traceEnemies)
         {
             // $1997 IDs, $1A4B X, $1A93 Y: one word per slot.

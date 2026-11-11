@@ -23,16 +23,9 @@ public sealed class AudioQueues
     /// <summary>Per-entry frame delays paired with queued music requests.</summary>
     internal readonly MusicQueueDelay[] MusicDelays =
         new MusicQueueDelay[AudioQueueDefinitions.MusicCapacity];
-    /// <summary>Three independent unread sound rings, one per sound library; a position holds no sound until one is queued there.</summary>
-    internal readonly SoundEffectId?[,] SoundQueues = new SoundEffectId?[
-        SoundEffectLibraries.Count,
-        AudioQueueDefinitions.SoundCapacity];
-    /// <summary>Next unread position in each library's SFX ring.</summary>
-    internal readonly int[] SoundReadPositions =
-        new int[SoundEffectLibraries.Count];
-    /// <summary>Next insertion position in each library's SFX ring.</summary>
-    internal readonly int[] SoundWritePositions =
-        new int[SoundEffectLibraries.Count];
+    /// <summary>Each sound library's own queue of waiting requests.</summary>
+    private readonly Dictionary<SoundEffectLibrary, SoundQueue> _soundQueues =
+        SoundEffectLibraries.InQueueOrder.ToDictionary(library => library, _ => new SoundQueue());
     /// <summary>The handshake each library's handler runs with its library, injected by the session's composition root.</summary>
     internal readonly SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId> SoundHandshakes;
 
@@ -84,24 +77,18 @@ public sealed class AudioQueues
     public bool HasQueuedMusic => MusicDelays.Any(delay => delay.Updates != 0);
 
     /// <summary>
-    /// Exact door-transition predicate: true while any of the
-    /// three sixteen-entry SFX rings has an unread request. An already-dequeued request that
-    /// is merely waiting for its library's acknowledgement does not keep the door wait alive.
+    /// What the door transition waits on: true while any sound library has a request waiting in its queue. A request
+    /// its handler has already taken and is only waiting for its library to accept does not keep the door waiting.
     /// </summary>
-    public bool HasQueuedSounds
-    {
-        get
-        {
-            for (int library = 0; library < SoundEffectLibraries.Count; library++)
-            {
-                if (UnreadSounds(library) != 0)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-    }
+    public bool HasQueuedSounds => _soundQueues.Values.Any(queue => queue.Count != 0);
+
+    /// <summary>
+    /// The requests waiting in <paramref name="library"/>'s queue, oldest first; the next its handler asks the library
+    /// for is the first. The view changes as requests are queued and taken.
+    /// </summary>
+    /// <param name="library">One of the sound libraries.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="library"/> is not a sound library.</exception>
+    public IReadOnlyList<SoundEffectId> WaitingSounds(SoundEffectLibrary library) => QueueOf(library).Waiting;
 
     /// <summary>Restores the audio queue state the game starts with at power-on.</summary>
     public void Reset()
@@ -109,9 +96,8 @@ public sealed class AudioQueues
         DoorTransitionSoundsDisabled = false;
         Array.Fill(_musicEntries, MusicRequest.Stop);
         Array.Clear(MusicDelays);
-        Array.Clear(SoundQueues);
-        Array.Clear(SoundReadPositions);
-        Array.Clear(SoundWritePositions);
+        foreach (SoundQueue queue in _soundQueues.Values)
+            queue.Clear();
         SoundHandshakes.Reset();
         MusicReadPosition = 0;
         MusicWritePosition = 0;
@@ -260,19 +246,15 @@ public sealed class AudioQueues
     public SoundQueueAdmission QueueSound(
         SoundEffectId soundEffect, SoundRequestPriority priority, bool soundSuppressed = false)
     {
-        int queue = SoundEffectLibraries.ToQueueIndex(soundEffect.Library);
-        SoundQueueAdmission admission = SoundQueueAdmission.For(UnreadSounds(queue), priority);
+        SoundQueue queue = QueueOf(soundEffect.Library);
+        SoundQueueAdmission admission = SoundQueueAdmission.For(queue.Count, priority);
         if (!admission.IsAdmitted || soundSuppressed || DoorTransitionSoundsDisabled)
             return admission;
 
-        // The ring never fills here: a full ring holds fifteen unread requests, and every priority admits at most fifteen,
-        // so the occupancy test above has already rejected the request. The game's full-ring branch, which keeps
-        // the higher-priority of two requests in the last free position, is unreachable.
-        int write = SoundWritePositions[queue];
-        int next = NextSoundPosition(write);
-        SoundQueues[queue, write] = soundEffect;
-        SoundWritePositions[queue] = next;
-        SoundQueues[queue, next] = null;
+        // Every priority turns a request away once fifteen wait, so an admitted request always finds room: the game's
+        // handling of a request arriving at a queue with no room, which keeps the higher-priority of the two, is never
+        // reached.
+        queue.Add(soundEffect);
         return admission;
     }
 
@@ -385,20 +367,16 @@ public sealed class AudioQueues
             return;
         }
 
-        for (int queue = 0; queue < SoundEffectLibraries.Count; queue++)
-            HandleSoundEffectQueue(
-                queue,
-                acknowledgements[SoundEffectLibraries.FromQueueIndex(queue)],
-                requests);
+        foreach (SoundEffectLibrary library in SoundEffectLibraries.InQueueOrder)
+            HandleSoundEffectQueue(library, acknowledgements[library], requests);
     }
 
-    /// <summary>Runs one handler call of <paramref name="queue"/>'s library handshake and does what the call asks of the queue.</summary>
+    /// <summary>Runs one handler call of <paramref name="library"/>'s handshake and does what the call asks of its queue.</summary>
     private void HandleSoundEffectQueue(
-        int queue,
+        SoundEffectLibrary library,
         SoundAcknowledgement<SoundEffectId> acknowledgement,
         List<AudioRequest> requests)
     {
-        SoundEffectLibrary library = SoundEffectLibraries.FromQueueIndex(queue);
         SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandlerStep step = SoundHandshakes.Advance(library, acknowledgement);
         switch (step)
         {
@@ -406,7 +384,7 @@ public sealed class AudioQueues
                 break;
 
             case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandlerStep.RequestNext:
-                SendNextSound(queue, requests);
+                SendNextSound(library, requests);
                 break;
 
             case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandlerStep.RepeatRequest:
@@ -422,34 +400,23 @@ public sealed class AudioQueues
         }
     }
 
-    /// <summary>Dequeues one unread sound request, asks its library for it, and starts awaiting its acceptance.</summary>
-    private void SendNextSound(int queue, List<AudioRequest> requests)
+    /// <summary>Takes <paramref name="library"/>'s oldest waiting request, if one waits, asks the library for it, and starts awaiting its acceptance.</summary>
+    private void SendNextSound(SoundEffectLibrary library, List<AudioRequest> requests)
     {
-        if (SoundReadPositions[queue] == SoundWritePositions[queue])
+        if (QueueOf(library).TakeOldest() is not SoundEffectId sound)
             return;
 
-        int read = SoundReadPositions[queue];
-        SoundEffectId? sound = SoundQueues[queue, read];
-        SoundEffectLibrary library = SoundEffectLibraries.FromQueueIndex(queue);
         requests.Add(AudioRequest.ForSound(library, sound));
         SoundHandshakes.Requested(library, sound);
-        SoundReadPositions[queue] = NextSoundPosition(read);
     }
 
-    /// <summary>The sound ring position after <paramref name="position"/>, wrapping to the first at the ring's capacity.</summary>
-    /// <param name="position">A sound ring position, below <see cref="AudioQueueDefinitions.SoundCapacity"/>.</param>
-    internal static int NextSoundPosition(int position) => (position + 1) % AudioQueueDefinitions.SoundCapacity;
+    /// <summary>The queue of <paramref name="library"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="library"/> is not a sound library.</exception>
+    private SoundQueue QueueOf(SoundEffectLibrary library) =>
+        _soundQueues.TryGetValue(library, out SoundQueue? queue)
+            ? queue
+            : throw new ArgumentOutOfRangeException(nameof(library), library, "Unknown sound-effect library.");
 
     /// <summary>The music queue slot after <paramref name="position"/>, wrapping to the first at the queue's capacity.</summary>
     private static int NextMusicPosition(int position) => (position + 1) % AudioQueueDefinitions.MusicCapacity;
-
-    /// <summary>
-    /// The unread requests in <paramref name="library"/>'s sound ring: the positions from its read position up to its
-    /// write position, counted around the ring.
-    /// </summary>
-    private int UnreadSounds(int library)
-    {
-        int distance = (SoundWritePositions[library] - SoundReadPositions[library]) % AudioQueueDefinitions.SoundCapacity;
-        return distance < 0 ? distance + AudioQueueDefinitions.SoundCapacity : distance;
-    }
 }

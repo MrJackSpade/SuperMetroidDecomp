@@ -50,8 +50,8 @@ internal static class GameOverRomDataVerification
                 babyMenu.Phase = GameOverMenuPhase.FadeIn;
             }
         }
-        var queues = babyAudio.SoundQueues;
-        var writes = babyAudio.SoundWritePositions;
+        // The standalone menu's audio is never advanced, so its room-library queue keeps every request the menu made.
+        IReadOnlyList<SoundEffectId> roomRequests = babyAudio.WaitingSounds(SoundEffectLibrary.Room);
         ushort pointer = GameOverBabyAnimationDefinitions.FirstPointer;
         // Record order in the native stream is the program's step identity.
         int step = 0;
@@ -76,8 +76,8 @@ internal static class GameOverRomDataVerification
                     AssertEqual((byte)0xa9, rom.ReadCartridgeByte(0x820000 | command),
                         "game-over reference cry starts with LDA immediate");
                     StepBaby();
-                    // Library-three slot zero holds index zero's CancelAll request.
-                    AssertEqual((SoundEffectId?)SoundEffectCommands.Decode(SoundEffectLibrary.Room, (byte)rom.ReadCartridgeWordFixedBank(0x820000 | (ushort)(command + 1))), queues[2, cries + 1],
+                    // Library three's first request is index zero's CancelAll request.
+                    AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Room, (byte)rom.ReadCartridgeWordFixedBank(0x820000 | (ushort)(command + 1))), roomRequests[cries + 1],
                         "game-over cry queues the exact native library-three effect");
                     cries++;
                     next += 2;
@@ -95,7 +95,7 @@ internal static class GameOverRomDataVerification
             AssertEqual(rom.ReadCartridgeWordFixedBank(0x820000 | (ushort)(pointer + 2)),
                 GameOverBabyAnimationDefinitions.NativeSpritemap(babyMenu.BabyFrame),
                 "game-over live pose matches independent ROM stream spritemap each tick");
-            AssertEqual((byte)(cries + 1), writes[2], "game-over cry queue changes only at native handoffs");
+            AssertEqual(cries + 1, roomRequests.Count, "game-over cry queue changes only at native handoffs");
         }
         AssertTrue(looped, "game-over Baby reaches the native end marker and loops");
         AssertEqual(60, records, "game-over loop visits all sixty native frame records");

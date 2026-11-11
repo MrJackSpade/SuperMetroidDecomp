@@ -52,16 +52,14 @@ internal static class SaveStationSoundVerification
         for (int frame = 0; frame < 900 && soundFrame < 0; frame++)
         {
             audio.Reset();
+            SoundRequestsMark samusMark = audio.MarkSoundRequestsForVerification(SoundEffectLibrary.Samus);
             // A on alternate frames gives the message box a fresh press on each of its read frames.
             ControllerButton input = runtime.MessageBox.IsActive && frame % 2 == 0 ? ControllerButton.A : ControllerButton.None;
             game.StepCaptured(input);
             if (messageFrame < 0 && runtime.MessageBox.IsActive)
                 messageFrame = frame;
-            for (int index = 0; index < audio.SoundWritePositions[0]; index++)
-            {
-                if (audio.SoundQueues[0, index] == SamusSound.Saving)
-                    soundFrame = frame;
-            }
+            if (audio.SoundsQueuedSinceForVerification(samusMark).Contains(SamusSound.Saving))
+                soundFrame = frame;
         }
         AssertTrue(messageFrame >= 0, "landing on the save station opens the save message");
         AssertTrue(soundFrame >= 0, "accepting the save publishes library-one sound $2E");

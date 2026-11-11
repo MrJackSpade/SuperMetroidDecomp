@@ -6,9 +6,6 @@ public static class AudioQueueDefinitions
     /// <summary>Music requests the music queue holds, each with its own delay.</summary>
     public const int MusicCapacity = 8;
 
-    /// <summary>Positions in each sound queue's ring: its most waiting requests plus the one kept empty to tell a full ring from an empty one.</summary>
-    public const int SoundCapacity = SoundQueueAdmission.MaximumOccupancy + 1;
-
     /// <summary>The shortest music delay, in music-handler calls; shorter requested delays are lengthened to it.</summary>
     public const int MinimumMusicDelayFrames = 8;
 

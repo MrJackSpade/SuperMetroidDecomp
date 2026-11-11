@@ -56,17 +56,17 @@ internal static class DoorEntryShotBindingVerification
             }
             AssertTrue(selected, "the Ceres start room has an exit");
             var audio = game.AudioForVerification;
-            int start = audio.SoundQueueForVerification(0).Next;
+            SoundRequestsMark start = audio.MarkSoundRequestsForVerification(SoundEffectLibrary.Samus);
             game.GameState = SuperMetroidGameState.HitDoorBlock;
             game.Step(held);
 
             AssertEqual(DoorTransitionPhase.WaitForSoundQueues, game.DoorTransitionPhaseForVerification,
                 "the entry frame begins the door sound wait");
-            int next = audio.SoundQueueForVerification(0).Next;
-            AssertEqual(cancels, next != start,
+            IReadOnlyList<SoundEffectId> queued = audio.SoundsQueuedSinceForVerification(start);
+            AssertEqual(cancels, queued.Count != 0,
                 $"physical {held} with shot bound to Y {(cancels ? "queues" : "does not queue")} the library-one cancel");
             if (cancels)
-                AssertEqual<SoundEffectId?>(SamusSound.Silence, audio.SoundQueueEntryForVerification(0, start),
+                AssertEqual<SoundEffectId>(SamusSound.Silence, queued[0],
                     "the queued library-one request is the cancel");
         }
         Console.WriteLine("Door entry shot binding: the library-one cancel follows the shot binding, not physical X.");

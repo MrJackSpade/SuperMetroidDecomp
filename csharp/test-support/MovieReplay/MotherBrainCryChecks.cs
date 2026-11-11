@@ -6,21 +6,19 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 /// <summary>
 /// The #1275 Mother Brain glitch movie's own check: it counts her library-two cries ($6F low, $7E high: the stretching,
 /// recoil, drool, onion-ring, bomb and Baby-attack head lists). Every cry the cartridge starts, by the APU's current
-/// library-two sound, must be one the game publishes (#1391). One instance follows one replay.
+/// library-two sound, must be one the game publishes (#1391): the port's counterpart is the request the enemies' library
+/// handler has asked its library for and not yet withdrawn, read at the same checkpoints. One instance follows one replay.
 /// </summary>
 internal sealed class MotherBrainCryChecks : IConvertedMovieChecks
 {
-    /// <summary>The enemies' library's sound queue, where her cries wait.</summary>
-    private static readonly int CryQueue = SoundEffectLibraries.ToQueueIndex(SoundEffectLibrary.Enemies);
-
     /// <summary>Cries the port has published so far.</summary>
     private int cries;
 
     /// <summary>Cries the cartridge has started so far.</summary>
     private int nativeCries;
 
-    /// <summary>The library-two write position the port's queue had at the previous checkpoint.</summary>
-    private int lastWrite = -1;
+    /// <summary>The enemies' library request the port's handler held at the previous checkpoint, or none.</summary>
+    private SoundEffectId? lastRequested;
 
     /// <summary>The library-two sound the cartridge last sent to the APU at the previous checkpoint.</summary>
     private byte nativeCurrent;
@@ -39,16 +37,13 @@ internal sealed class MotherBrainCryChecks : IConvertedMovieChecks
         if (!ReferenceEquals(audio, game.Session.audio))
         {
             audio = game.Session.audio;
-            lastWrite = audio.SoundWritePositions[CryQueue];
+            lastRequested = audio.SoundHandshakes.Awaited(SoundEffectLibrary.Enemies);
         }
-        int write = audio.SoundWritePositions[CryQueue];
-        for (int index = lastWrite; index != write; index = AudioQueues.NextSoundPosition(index))
-        {
-            if (audio.SoundQueues[CryQueue, index] is SoundEffectId cry &&
-                (cry == EnemySound.MotherBrainLowCry || cry == EnemySound.MotherBrainHighCry))
-                cries++;
-        }
-        lastWrite = write;
+        SoundEffectId? requested = audio.SoundHandshakes.Awaited(SoundEffectLibrary.Enemies);
+        if (requested != lastRequested && requested is SoundEffectId cry &&
+            (cry == EnemySound.MotherBrainLowCry || cry == EnemySound.MotherBrainHighCry))
+            cries++;
+        lastRequested = requested;
         return [];
     }
 

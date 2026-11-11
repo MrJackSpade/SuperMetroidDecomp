@@ -197,8 +197,8 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Alternate transition countdown retained between scientist and text phases.</summary>
     private WrappingCountdown introCrossfadeCounter;
     /// <summary>
-    /// The shared Samus systems' frame counter: the updates the cinematic has run, counted from zero at its creation,
-    /// returning to zero every 65536 updates exactly as the game's counter does.
+    /// The shared Samus systems' frame counter: the updates the cinematic has run, counted from zero at its creation. The
+    /// intro reaches the title long before the original counter's 65536-update wrap, so it is a plain count.
     /// </summary>
     private int frameCounter;
     /// <summary>How bright the narration screen is; the intro starts blanked and fades each narration page in and out.</summary>
@@ -269,7 +269,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // skipping both the options menu and the first narration page.
         controller.Latch(controllerInput);
         bool explosionsExistedBeforeThisFrame = FlashbackMotherBrainExplosions is not null;
-        frameCounter = WrappingCounter.IncrementCount(frameCounter);
+        frameCounter++;
         switch (Phase)
         {
             case IntroCinematicPhase.Initial:
@@ -1089,7 +1089,7 @@ level, samus, frameCounter);
         if (FlashbackMotherBrain.IsVisible && FlashbackMotherBrain.Pose is { } motherBrainPose &&
             motherBrainPose != CinematicSpritePose.Blank)
         {
-            // An intro Samus display of 65535 makes the intro's sprite draw put Samus first and cinematic
+            // A negative intro Samus display makes the intro's sprite draw put Samus first and cinematic
             // actors afterward. Retaining that drawing order preserves overlap wins.
             IntroSprites(CinematicSpriteFamily.IntroMotherBrain).Draw(
                 motherBrainPose, objectSprites,

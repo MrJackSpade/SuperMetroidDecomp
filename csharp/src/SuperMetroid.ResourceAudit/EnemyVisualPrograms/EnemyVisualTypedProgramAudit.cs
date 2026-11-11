@@ -224,7 +224,7 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(PolypAnimations), "csharp/src/SuperMetroid.Core/Enemies/Polyp/PolypAnimations.cs");
         RequireSegmentFrames(SbugAnimations.Segments, SbugFrameToolingDefinitions.Spritemap, SbugFrameToolingDefinitions.Bank,
             nameof(SbugAnimations), "csharp/src/SuperMetroid.Core/Enemies/Sbug/SbugAnimations.cs");
-        RequireTypedFrames(WreckedShipGhostAnimations.Programs, WreckedShipGhostFrameToolingDefinitions.Spritemap, WreckedShipGhostFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(WreckedShipGhostAnimations.Segments, WreckedShipGhostFrameToolingDefinitions.Spritemap, WreckedShipGhostFrameToolingDefinitions.Bank,
             nameof(WreckedShipGhostAnimations), "csharp/src/SuperMetroid.Core/Enemies/WreckedShip/WreckedShipGhostAnimations.cs");
         RequireTypedFrames(FirefleaAnimations.Programs, FirefleaFrameToolingDefinitions.Spritemap, FirefleaFrameToolingDefinitions.Bank,
             nameof(FirefleaAnimations), "csharp/src/SuperMetroid.Core/Enemies/Fireflea/FirefleaAnimations.cs");

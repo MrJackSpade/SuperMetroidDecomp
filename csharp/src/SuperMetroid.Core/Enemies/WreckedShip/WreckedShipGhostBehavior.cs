@@ -56,7 +56,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
 
         var state = new WreckedShipGhostEnemyState
         {
-            Program = AnimationProgramCursor<WreckedShipGhostProgram>.Start(WreckedShipGhostProgram.Floating),
+            Playback = new(WreckedShipGhostAnimations.StartingWith(WreckedShipGhostProgram.Floating), AnimationPlace.StartOfAnimation),
             Function = WreckedShipGhostAiFunction.InitialInvisibleDelay,
             PhaseTimer = WreckedShipGhostInitialDelay,
         };
@@ -351,8 +351,9 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
 
     /// <summary>Advances the Wrecked Ship ghost's typed animation.</summary>
     internal static void AdvanceWreckedShipGhostTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, WreckedShipGhostAnimations.Programs, WreckedShipGhostFrameDefinitions.ShownFrames.Of,
-            static (WreckedShipGhostEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
+        EnemyProgramAnimation.Advance(slot, WreckedShipGhostAnimations.Segments, WreckedShipGhostFrameDefinitions.ShownFrames.Of,
+            static (WreckedShipGhostEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            static (_, cue) => throw new InvalidOperationException($"The Wrecked Ship ghost's cue-free animation raised {cue}."));
 
     /// <summary>Runs the Wrecked Ship ghost's main AI.</summary>
     internal static void RunWreckedShipGhostMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)

@@ -9,23 +9,27 @@ namespace SuperMetroid.Core.Enemies.WreckedShip;
 /// </summary>
 internal static class WreckedShipGhostAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<WreckedShipGhostProgram, WreckedShipGhostFrame, NoAnimationCue> Programs { get; } = new(
-        new Dictionary<WreckedShipGhostProgram, AnimationProgramStep<WreckedShipGhostProgram, WreckedShipGhostFrame, NoAnimationCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<WreckedShipGhostProgram, WreckedShipGhostFrame, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<WreckedShipGhostProgram, AnimationBeat<WreckedShipGhostFrame, NoAnimationCue>[]>
     {
         [P.Floating] =
         [
             Show(0, 16),
             Show(1, 16),
             Show(2, 16),
-            GoTo(P.Floating),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<WreckedShipGhostProgram, Animation<WreckedShipGhostProgram>> StartingAt { get; } = new Dictionary<WreckedShipGhostProgram, Animation<WreckedShipGhostProgram>>
+    {
+        [P.Floating] = new([new(P.Floating, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<WreckedShipGhostProgram> StartingWith(WreckedShipGhostProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<WreckedShipGhostProgram, WreckedShipGhostFrame, NoAnimationCue> Show(int pose, int duration) => AnimationProgramStep<WreckedShipGhostProgram, WreckedShipGhostFrame, NoAnimationCue>.Show(new(pose), duration);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<WreckedShipGhostProgram, WreckedShipGhostFrame, NoAnimationCue> GoTo(WreckedShipGhostProgram program) => AnimationProgramStep<WreckedShipGhostProgram, WreckedShipGhostFrame, NoAnimationCue>.GoTo(program);
-
+    private static AnimationBeat<WreckedShipGhostFrame, NoAnimationCue> Show(int pose, int duration) => new AnimationBeat<WreckedShipGhostFrame, NoAnimationCue>.Frame(new(pose), duration);
 }

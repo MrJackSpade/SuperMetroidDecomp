@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 
 /// <summary>
 /// Composes the options sheet (#1392): each page heading and cursor frame over the menu sprite page in the cursor
-/// palette, coloured as the screen loads the menu palette. The Japanese text palette recolours it through its palette map.
+/// palette, coloured as the screen loads the menu palette. The Japanese text colours recolour it through its shade.
 /// </summary>
 internal static class GameOptionsSheetComposer
 {

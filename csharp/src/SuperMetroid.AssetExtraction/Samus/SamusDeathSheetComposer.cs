@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
 /// Composes the sheet of Samus's suit explosion (#1392): each frame's spritemap, facing right and left, over the death
-/// characters, coloured as Samus's other sheets are; the death palette recolours it through its palette map.
+/// characters, coloured as Samus's other sheets are; the death colours recolour it through its shades.
 /// </summary>
 internal static class SamusDeathSheetComposer
 {

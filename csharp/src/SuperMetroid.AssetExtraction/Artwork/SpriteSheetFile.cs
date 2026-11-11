@@ -1,22 +1,22 @@
 using System.Collections.Immutable;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
 
-/// <summary>Reads an installed sprite sheet's frame manifest and cuts its frames from the sheet image (#1502).</summary>
+/// <summary>Reads an installed sprite sheet's frame manifest and cuts its frames from the sheet image (#1502, #1633).</summary>
 public static class SpriteSheetFile
 {
     /// <summary>
-    /// The manifest schema revision this reader reads: 12 names each colour effect's shades by its colour group and
-    /// animation and each step by the frame's place in that animation (#1598); 13 marks no pixel as lying in a front tile, a
-    /// picture of a layer's tiles being installed as its part behind and its part in front instead (#1634).
+    /// The manifest schema revision this reader reads: 13 marks no pixel as lying in a front tile, a picture of a layer's
+    /// tiles being installed as its part behind and its part in front instead (#1634); 14 names no colour by a place: its
+    /// shades recolour by colour key, its backdrop is a colour key, each frame says whether it blends, and it says which maps
+    /// the sheet has (#1633).
     /// </summary>
-    public const int Version = 13;
+    public const int Version = 14;
 
     /// <summary>
     /// Camel-case manifest fields; unknown fields are rejected. The import writes manifests with the same settings, unindented:
@@ -31,56 +31,73 @@ public static class SpriteSheetFile
     };
 
     /// <summary>
-    /// Reads a sheet manifest and cuts its frames from a sheet image whose layers <paramref name="decode"/> produces
-    /// when the image is first drawn (#1430).
+    /// Reads a sheet manifest and cuts its frames from a sheet image whose pixels and maps <paramref name="decode"/> produces
+    /// from the manifest when the image is first drawn (#1430).
     /// </summary>
-    /// <param name="manifest">The frame list and the image's own colours.</param>
+    /// <param name="manifest">The frame list, the shades and the maps the sheet has.</param>
     /// <param name="name">The sheet's installed name.</param>
     /// <param name="size">The image's width and height.</param>
-    /// <param name="decode">Produces the image's pixels and inks.</param>
+    /// <param name="decode">Produces the image's pixels and the maps the manifest says it has.</param>
     /// <exception cref="InvalidDataException">The manifest is malformed, of another revision, or places a frame off the image.</exception>
-    public static SpriteSheet Load(Stream manifest, string name, Extent16<ImagePixels> size, Func<SpriteImageLayers> decode)
+    public static SpriteSheet Load(Stream manifest, string name, Extent16<ImagePixels> size, Func<InstalledSheetDocument, SpriteImagePixels> decode)
     {
+        Ensure.NotNull(decode);
         InstalledSheetDocument document = ReadDocument(manifest, name);
         SpriteImage image;
         try
         {
-            image = new SpriteImage(name, size, ColoursOf(document), decode);
+            image = new SpriteImage(name, size, ColoursOf(document), () => decode(document));
         }
         catch (ArgumentException error)
         {
             throw new InvalidDataException($"Sprite sheet {name}: {error.Message}", error);
         }
-        InstalledPictureColours.Record(image, document.Source);
         return CutFrames(document, name, image);
     }
 
     /// <summary>Reads and checks a sheet manifest.</summary>
-    /// <exception cref="InvalidDataException">
-    /// The manifest is malformed or of another revision, or does not say where each of its colours came from.
-    /// </exception>
+    /// <exception cref="InvalidDataException">The manifest is malformed or of another revision.</exception>
     internal static InstalledSheetDocument ReadDocument(Stream manifest, string name)
     {
         InstalledSheetDocument document = JsonAssetDocument.Read<InstalledSheetDocument>(manifest, Options, $"sprite sheet {name}");
         if (document.Version != Version)
             throw new InvalidDataException($"Sprite sheet {name} has manifest revision {document.Version}, not {Version}.");
-        if (document.Colours is null || document.Source is null || document.Source.Inks is null || document.Source.Inks.Length != document.Colours.Length)
-            throw new InvalidDataException($"Sprite sheet {name} does not say where each of its {document.Colours?.Length ?? 0} colours came from.");
         return document;
     }
 
-    /// <summary>The image's own colours, its shades and its scene's backdrop, as a sheet manifest names them.</summary>
-    internal static PictureColours ColoursOf(InstalledSheetDocument document) =>
-        new([.. Ensure.NotNull(document).Colours.Select(RgbColor.FromWord)])
+    /// <summary>The shades the image is pre-coloured in and its scene's backdrop, as a sheet manifest names them by colour key (#1633).</summary>
+    /// <exception cref="InvalidDataException">
+    /// A shade lists no colours, or a shade or the backdrop names a colour not written as <c>#rrggbb</c>, a negative region,
+    /// or one key twice.
+    /// </exception>
+    internal static PictureColours ColoursOf(InstalledSheetDocument document)
+    {
+        Ensure.NotNull(document);
+        var shades = ImmutableDictionary.CreateBuilder<PictureShade, PictureRecolouring>();
+        foreach ((string key, InstalledSheetShadeDocument? shade) in document.Shades ?? [])
         {
-            Backdrop = document.Backdrop,
-            Shades = (document.Shades ?? []).ToImmutableDictionary(
-                shade => PictureShade.FromKey(shade.Key),
-                shade => new ShadeInks([.. shade.Value.Inks], [.. shade.Value.Colours.Select(RgbColor.FromWord)])
+            string context = $"Sprite sheet shade {key}";
+            if (shade is null || shade.Substitutions is not { } substitutions)
+                throw new InvalidDataException($"{context} lists no colours.");
+            try
+            {
+                shades.Add(PictureShade.FromKey(key), new PictureRecolouring([.. substitutions.Select(substitution =>
+                    (substitution ?? throw new InvalidDataException($"{context} names a null colour.")).ToSubstitution(context))])
                 {
-                    Blends = shade.Value.ColourMath,
-                }),
+                    Blends = shade.Blends,
+                });
+            }
+            catch (ArgumentException error)
+            {
+                throw new InvalidDataException($"{context}: {error.Message}", error);
+            }
+        }
+        return new PictureColours
+        {
+            Backdrop = document.Backdrop?.ToKey("Sprite sheet backdrop"),
+            Shades = shades.ToImmutable(),
         };
+    }
 
     /// <summary>Cuts a manifest's frames from the sheet image and keeps the names of the frames that show nothing.</summary>
     /// <exception cref="InvalidDataException">
@@ -117,6 +134,7 @@ public static class SpriteSheetFile
             return new SpriteSheetFrame(image, document.Corner, document.Size, document.Origin)
             {
                 Depth = document.Depth,
+                Blends = document.Blends,
             };
         }
         catch (ArgumentException error)

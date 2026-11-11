@@ -10,7 +10,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Installation;
 
 /// <summary>
-/// Installs the pre-assembled boss body sheets (#1466, #1515, #1540): each boss's sheet as an image, palette map and frames,
+/// Installs the pre-assembled boss body sheets (#1466, #1515, #1540): each boss's sheet as an image and frames, with its recolour-region map where it needs one (#1633),
 /// the manifest naming each frame's whole picture and where it lies on the body's area, and the provenance of their
 /// hashes. A player edits a sheet's installed files in place.
 /// </summary>

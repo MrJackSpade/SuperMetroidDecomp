@@ -117,9 +117,6 @@ internal static class EnemySheetComposer
                 {
                     Sheet = own,
                     CommonPictures = commonPictures,
-                    FrameSources = share.Sources.Count == 0 ? null
-                        : share.Sources.OrderBy(source => source.Key, StringComparer.Ordinal)
-                            .ToDictionary(source => source.Key, source => source.Value, StringComparer.Ordinal),
                     Palette = plan.Palette,
                     Owner = SpawnedObjectOwnerNames.Name(plan.Owner),
                     Spawners = [.. plan.Spawners.Select(enemy => enemy.ToString())],
@@ -282,10 +279,11 @@ internal static class EnemySheetComposer
             return name;
         }
 
-        /// <summary>A sheet's content hash, which sheets with the same files share.</summary>
+        /// <summary>A sheet's content hash, which sheets with the same files, maps included, share.</summary>
         private static string Fingerprint(EncodedSpriteSheet sheet) =>
-            Convert.ToHexString(SHA256.HashData(sheet.Image)) + Convert.ToHexString(SHA256.HashData(sheet.Palette))
-            + Convert.ToHexString(SHA256.HashData(sheet.Frames));
+            Convert.ToHexString(SHA256.HashData(sheet.Image)) + Convert.ToHexString(SHA256.HashData(sheet.Frames))
+            + "/" + (sheet.RecolourRegions is { } regions ? Convert.ToHexString(SHA256.HashData(regions)) : "none")
+            + "/" + (sheet.BlendMap is { } blending ? Convert.ToHexString(SHA256.HashData(blending)) : "none");
     }
 
     /// <summary>

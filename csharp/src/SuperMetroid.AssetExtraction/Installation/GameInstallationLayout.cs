@@ -51,6 +51,16 @@ public static class GameInstallationLayout
     public const string RoomBlockSheetDirectoryName = "room-block-sheets";
     /// <summary>Pre-assembled boss body sheets, one per boss (#1466).</summary>
     public const string BossBodySheetDirectoryName = "boss-body-sheets";
+    /// <summary>
+    /// Content child directory for the sheets' recolour-region maps (#1633), apart from the pictures: one folder per sheet
+    /// family, named as the family's directory, holding a <c>.regions</c> map for each sheet that needs one.
+    /// </summary>
+    public const string RecolourRegionDirectoryName = "recolour-regions";
+    /// <summary>
+    /// Content child directory for the sprite-drawn sheets' blend maps (#1633), apart from the pictures: one folder per sheet
+    /// family, named as the family's directory, holding a <c>.blendmap</c> map for each sheet that needs one.
+    /// </summary>
+    public const string BlendMapDirectoryName = "blend-maps";
     /// <summary>Content child directory shared by background tilemaps and sky tilemaps.</summary>
     public const string RoomBackgroundTilemapDirectoryName = "room-backgrounds";
     /// <summary>Content child directory for visual room-block references independent of native collision and BTS.</summary>
@@ -118,7 +128,7 @@ public static class GameInstallationLayout
     /// <summary>Receipt filename within stock content, recording the installation format and source cartridge digest.</summary>
     public const string ReceiptFileName = "installation.json";
     /// <summary>Current installation-receipt version; content whose receipt names another is extracted again before opening.</summary>
-    public const int FormatVersion = 264;
+    public const int FormatVersion = 265;
     /// <summary>Backup of the previously published stock game tree during an atomic install.</summary>
     internal const string PreviousDirectoryName = ".game.previous";
     /// <summary>Prefix for a stock tree being prepared before publication.</summary>

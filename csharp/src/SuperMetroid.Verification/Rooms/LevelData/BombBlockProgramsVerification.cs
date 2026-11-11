@@ -228,7 +228,7 @@ internal static class BombBlockProgramsVerification
             words[blockIndex] = RoomTerrainBlock.Of(0x321, BlockMirroring.None, RoomCollisionType.BombableBlock);
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid());
             var roomObjects = RoomObjectFixtures.Unbound(new RoomObjectVisuals { RoomObjectShotBlockVisuals = visuals, RoomObjectSetupBlocks = InstalledRoomObjectSetupBlocks.Stock() });
-            AssertTrue(roomObjects.TrySpawnCollisionBombBlock(level, blockIndex, 0),
+            AssertTrue(roomObjects.TrySpawnCollisionBombBlock(level, level.BlockAt(blockIndex), 0),
                 "bomb visual test installs the real collision-triggered PLM");
             roomObjects.Step(level);
             return new BombBlockProgramsRenderResult(level.GetCollisionBlockByIndex(blockIndex).Terrain,
@@ -251,7 +251,7 @@ internal static class BombBlockProgramsVerification
             words[blockIndex] = RoomTerrainBlock.Of(0x321, BlockMirroring.None, RoomCollisionType.BombableBlock);
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid());
             var roomObjects = RoomObjectFixtures.Unbound();
-            AssertTrue(roomObjects.TrySpawnCollisionBombBlock(level, blockIndex, 1),
+            AssertTrue(roomObjects.TrySpawnCollisionBombBlock(level, level.BlockAt(blockIndex), 1),
                 "restored-art test installs linked respawning bomb block");
             var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
             for (int frame = 0; frame < 420; frame++)
@@ -302,12 +302,12 @@ internal static class BombBlockProgramsVerification
         bool spawned = producer switch
         {
             BombBlockProducer.Collision =>
-                roomObjects.TrySpawnCollisionBombBlock(level, blockIndex, behavior),
+                roomObjects.TrySpawnCollisionBombBlock(level, level.BlockAt(blockIndex), behavior),
             BombBlockProducer.Bomb =>
-                roomObjects.TrySpawnBombReactionBlock(level, blockIndex, behavior,
+                roomObjects.TrySpawnBombReactionBlock(level, level.BlockAt(blockIndex), behavior,
                     SamusProjectileType.Of(SamusProjectileFamily.Bomb)),
             BombBlockProducer.PowerBomb =>
-                roomObjects.TrySpawnBombReactionBlock(level, blockIndex, behavior,
+                roomObjects.TrySpawnBombReactionBlock(level, level.BlockAt(blockIndex), behavior,
                     SamusProjectileType.Of(SamusProjectileFamily.PowerBomb)),
             _ => throw new ArgumentOutOfRangeException(nameof(producer)),
         };

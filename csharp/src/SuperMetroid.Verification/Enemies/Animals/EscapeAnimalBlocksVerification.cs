@@ -31,7 +31,7 @@ internal static class EscapeAnimalBlocksVerification
         // The real escape room population installs event ownership; its grey door may
         // continue stepping alongside the rescue animation, as it does in gameplay.
         RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Crateria), RoomObjectPopulationImporter.Read(bus, 0x8412), new RoomObjectServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => true }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent } });
-        int origin = level.GetBlockIndex(new(15, 10));
+        var origin = new Position16<RoomBlocks>(15, 10);
         roomObjects.EscapeAnimals.SetupCrittersEscapeBlock(level, origin);
         AssertEqual(0x4f, RoomBlockBehaviorCodec.Encode(level.GetCollisionBlock(new(15, 10)).Behavior), "rescue origin has the critters-escape behaviour");
         for (int y = 11; y <= 12; y++)

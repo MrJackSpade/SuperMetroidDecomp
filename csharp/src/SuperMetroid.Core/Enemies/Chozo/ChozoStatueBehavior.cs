@@ -129,7 +129,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     /// trigger. Collision/pose/item admission remains the room object's responsibility; once
     /// admitted, both trigger setups write parameter one and disable Samus controls.
     /// </summary>
-    public void ActivateChozoStatueHandTrigger(RoomLevelData level, int? collisionBlockIndex = null)
+    public void ActivateChozoStatueHandTrigger(RoomLevelData level, Position16<RoomBlocks>? handBlock = null)
     {
         Ensure.NotNull(level);
         _room.EnsureLoaded();
@@ -140,13 +140,13 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         ChozoStatueState state = statue.RequireSpeciesState<ChozoStatueState>();
         int triggerBlockX = state.IsWreckedShip ? ChozoStatueRoomDefinitions.WreckedShipHandBlock.X : ChozoStatueRoomDefinitions.LowerNorfairTriggerX;
         int triggerBlockY = state.IsWreckedShip ? ChozoStatueRoomDefinitions.WreckedShipHandBlock.Y : ChozoStatueRoomDefinitions.LowerNorfairTriggerY;
-        int triggerBlockIndex = collisionBlockIndex ?? level.GetBlockIndex(new(CoordinateAxis.Wrap(triggerBlockX), CoordinateAxis.Wrap(triggerBlockY)));
-        RoomCollisionBlock triggerBlock = level.GetCollisionBlockByIndex(triggerBlockIndex);
+        Position16<RoomBlocks> triggerPosition = handBlock ?? level.GridBlock(new(CoordinateAxis.Wrap(triggerBlockX), CoordinateAxis.Wrap(triggerBlockY)));
+        RoomCollisionBlock triggerBlock = level.GetCollisionBlock(triggerPosition);
 
         // Both setup routines clear only the block's collision kind. Its behaviour and
         // appearance survive until their subsequently spawned hardcoded room object runs.
         level.SetTerrain(
-            triggerBlockIndex,
+            triggerPosition,
             triggerBlock.Terrain.WithCollision(RoomCollisionType.Air));
         state.HandTriggered = true;
         DisableChozoStatueSamusControls();

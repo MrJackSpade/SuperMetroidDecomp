@@ -962,7 +962,7 @@ internal sealed class RoomLoader
             roomObjects.Shaktool.TrySpawnShaktoolRoomController(destinationCamera.Scrolls);
         if (room.State.SetupCallback == RoomSetupCallback.TurnWallIntoShotBlocksDuringEscape)
             roomObjects.EscapeAnimals.SetupCrittersEscapeBlock(assets.LevelData,
-                assets.LevelData.GetBlockIndex(new(EscapeAnimalWallDefinitions.WallX, EscapeAnimalWallDefinitions.WallY)));
+                assets.LevelData.GridBlock(new(EscapeAnimalWallDefinitions.WallX, EscapeAnimalWallDefinitions.WallY)));
         // The Climb's escape setup spawns the fake-wall room object; the spawn silently drops it when all
         // forty slots are occupied.
         if (room.State.SetupCallback == RoomSetupCallback.AutoDestroyWallDuringEscape)

@@ -52,7 +52,7 @@ internal static class BlueDoorObjectDrawDefinitionsVerification
             // A blue cap's closing turns into the grey door's frames too, so the fixture binds every installed picture (#1557).
             var roomObjects = RoomObjectFixtures.Unbound();
             RoomBlockBehavior behavior = RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(orientation));
-            AssertTrue(roomObjects.DoorObjects.TrySpawnBlueDoorOpening(level, origin, behavior,
+            AssertTrue(roomObjects.DoorObjects.TrySpawnBlueDoorOpening(level, level.BlockAt(origin), behavior,
                 SamusProjectileType.None),
                 $"{orientation} blue door allocates its native opening actor");
             var guarded = NewBlueDoorDrawReadGuard(rom, lists);

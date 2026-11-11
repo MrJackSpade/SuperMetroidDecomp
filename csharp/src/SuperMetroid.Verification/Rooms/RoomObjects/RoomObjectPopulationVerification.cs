@@ -241,7 +241,7 @@ internal static class RoomObjectPopulationVerification
         // A shot blue cap at the door's block has no closing: the transition fails loudly rather than skipping it.
         RoomLevelData blueLevel = CreateRoom(new(8, 8), new RoomTerrainBlock[64], new RoomBlockBehavior[64]);
         var blueObjects = RoomObjectFixtures.Unbound();
-        AssertTrue(blueObjects.DoorObjects.TrySpawnBlueDoorOpening(blueLevel, blueLevel.GetBlockIndex(new(1, 1)),
+        AssertTrue(blueObjects.DoorObjects.TrySpawnBlueDoorOpening(blueLevel, new(1, 1),
                 RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Left)), SamusProjectileType.None),
             "a shot blue cap stands at the door's block");
         var blueDoor = new DoorDefinition(

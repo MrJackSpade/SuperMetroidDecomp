@@ -92,7 +92,7 @@ internal static class GModeGateGlitchVerification
         {
             AssertTrue(roomObjects.BlockReactions.TrySpawnProjectileShotBlock(
                     level,
-                    level.GetBlockIndex(gate.Block),
+                    gate.Block,
                     DownwardGateDefinitions.ClosedGateBehavior,
                     SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false),
                     solidBlock: true),
@@ -257,7 +257,7 @@ internal static class GModeGateGlitchVerification
         var freeObjects = RoomObjectFixtures.Unbound();
         AssertTrue(freeObjects.DoorObjects.TrySpawnBlueDoorOpening(
                 freeLevel,
-                doorIndex,
+                freeLevel.BlockAt(doorIndex),
                 RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Right)),
                 SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false)),
             "G-Mode shot at a blue door allocates its inert opening actor while a slot remains");
@@ -272,7 +272,7 @@ internal static class GModeGateGlitchVerification
         FillSuspendedObjectPool(fullObjects);
         AssertTrue(!fullObjects.DoorObjects.TrySpawnBlueDoorOpening(
                 fullLevel,
-                doorIndex,
+                fullLevel.BlockAt(doorIndex),
                 RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Right)),
                 SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false)),
             "overloaded G-Mode PLM pool drops a blue-door opening request");

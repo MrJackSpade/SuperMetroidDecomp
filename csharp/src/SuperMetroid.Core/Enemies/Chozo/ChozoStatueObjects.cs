@@ -67,7 +67,7 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
         {
             IEnemyObjectRequests hands = _chozoHands ??
                 throw new InvalidOperationException("Chozo hand has no bound enemy room-object requests.");
-            hands.ActivateChozoStatueHandTrigger(level, block.Index);
+            hands.ActivateChozoStatueHandTrigger(level, reaction.Block);
             // The nested hardcoded spawn occurs while the reaction slot is occupied.
             hands.ApplyPendingChozoStatueObjects(level, this);
         }

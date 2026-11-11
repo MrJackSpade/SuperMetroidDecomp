@@ -16,8 +16,8 @@ internal sealed class EnemyObjectRequests(ChozoStatueBehavior chozoStatue, Downw
         chozoStatue.ApplyPendingChozoStatueObjects(level, chozoStatueObjects);
 
     /// <inheritdoc/>
-    public void ActivateChozoStatueHandTrigger(RoomLevelData level, int collisionBlockIndex) =>
-        chozoStatue.ActivateChozoStatueHandTrigger(level, collisionBlockIndex);
+    public void ActivateChozoStatueHandTrigger(RoomLevelData level, Position16<RoomBlocks> handBlock) =>
+        chozoStatue.ActivateChozoStatueHandTrigger(level, handBlock);
 
     /// <inheritdoc/>
     public void ApplyDownwardGateProjectileRequest(DownwardGateProjectileRequest request) =>

@@ -353,7 +353,7 @@ internal sealed class ProjectileTerrainCollision
                 // Gate setup ends the caller's span and forces its collision counter.
                 // A full room-object pool skips setup entirely, so it must not end the scan.
                 endSpan = roomObjects?.BlockReactions.TrySpawnProjectileShotBlock(
-                    level, block.Index, block.Behavior, slot.Type,
+                    level, level.BlockAt(block.Index), block.Behavior, slot.Type,
                     block.CollisionType == RoomCollisionType.ShootableBlock) == true;
                 return block.CollisionType == RoomCollisionType.ShootableBlock;
             }
@@ -438,7 +438,7 @@ internal sealed class ProjectileTerrainCollision
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Behavior.TryGetDownwardGateTrigger(out _))
         {
-            roomObjects.Gates.TrySpawnDownwardGateTrigger(level, block.Index, block.Behavior, slot.Type);
+            roomObjects.Gates.TrySpawnDownwardGateTrigger(level, level.BlockAt(block.Index), block.Behavior, slot.Type);
             return;
         }
 
@@ -460,7 +460,7 @@ internal sealed class ProjectileTerrainCollision
         {
             roomObjects.DoorObjects.TrySpawnBlueDoorOpening(
                 level,
-                block.Index,
+                level.BlockAt(block.Index),
                 block.Behavior,
                 slot.Type);
             return;
@@ -480,7 +480,7 @@ internal sealed class ProjectileTerrainCollision
         {
             roomObjects.BlockReactions.TrySpawnProjectileShotBlock(
                 level,
-                block.Index,
+                level.BlockAt(block.Index),
                 block.Behavior,
                 slot.Type,
                 solidBlock: block.CollisionType == RoomCollisionType.ShootableBlock);

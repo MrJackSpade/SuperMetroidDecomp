@@ -52,7 +52,7 @@ internal static void VerifyBreakableGrappleObjects()
     // on the following pass because DrawPLMBlock deliberately seeded timer one.
     RoomLevelData respawning = CreateLevel(1);
     var respawningObjects = RoomObjectFixtures.Unbound();
-    AssertTrue(respawningObjects.TrySpawnBreakableGrappleBlock(respawning, blockIndex, 1),
+    AssertTrue(respawningObjects.TrySpawnBreakableGrappleBlock(respawning, respawning.BlockAt(blockIndex), 1),
         "respawning grapple PLM occupies a native slot");
     AssertEqual(0, RoomBlockBehaviorCodec.Encode(respawning.GetCollisionBlockByIndex(blockIndex).Behavior),
         "CFB5 clears breakable grapple BTS immediately");
@@ -99,7 +99,7 @@ internal static void VerifyBreakableGrappleObjects()
     // BTS two uses the shorter 120-frame delay and never restores the saved word/BTS.
     RoomLevelData permanent = CreateLevel(2);
     var permanentObjects = RoomObjectFixtures.Unbound();
-    AssertTrue(permanentObjects.TrySpawnBreakableGrappleBlock(permanent, blockIndex, 2),
+    AssertTrue(permanentObjects.TrySpawnBreakableGrappleBlock(permanent, permanent.BlockAt(blockIndex), 2),
         "nonrespawning grapple PLM occupies a native slot");
     permanentObjects.Step(permanent);
     StepMany(permanentObjects,permanent, 119);
@@ -131,7 +131,7 @@ internal static void VerifyBreakableGrappleObjects()
     RoomLevelData respawning2x2 = CreateBombLevel(3);
     var respawning2x2Objects = RoomObjectFixtures.Unbound();
     AssertTrue(respawning2x2Objects.TrySpawnCollisionBombBlock(
-        respawning2x2, blockIndex, behavior: 3),
+        respawning2x2, respawning2x2.BlockAt(blockIndex), behavior: 3),
         "BTS-3 collision setup occupies a native PLM slot");
     AssertEqual(RoomTerrainBlock.Of(0x058, BlockMirroring.None, RoomCollisionType.Air), respawning2x2.GetCollisionBlockByIndex(blockIndex).Terrain,
         "CE83 synchronously installs the native air-type bomb-parent visual");
@@ -164,7 +164,7 @@ internal static void VerifyBreakableGrappleObjects()
     RoomLevelData permanent1x2 = CreateBombLevel(6);
     var permanent1x2Objects = RoomObjectFixtures.Unbound();
     AssertTrue(permanent1x2Objects.TrySpawnCollisionBombBlock(
-        permanent1x2, blockIndex, behavior: 6),
+        permanent1x2, permanent1x2.BlockAt(blockIndex), behavior: 6),
         "BTS-6 collision setup occupies a native PLM slot");
     permanent1x2Objects.Step(permanent1x2);
     AssertEqual(RoomTerrainBlock.Of(0x053, BlockMirroring.None, RoomCollisionType.Air), permanent1x2.GetCollisionBlock(new(3, 3)).Terrain,

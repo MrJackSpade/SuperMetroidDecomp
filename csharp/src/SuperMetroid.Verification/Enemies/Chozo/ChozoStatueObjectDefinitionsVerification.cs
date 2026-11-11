@@ -134,7 +134,7 @@ internal static class ChozoStatueObjectDefinitionsVerification
     private static void VerifyLowerNorfairHandTrigger()
     {
         RoomLevelData level = CreateEmptyRoom(new(48, 32));
-        int trigger = level.GetBlockIndex(new(ChozoStatueRoomDefinitions.LowerNorfairTriggerX, ChozoStatueRoomDefinitions.LowerNorfairTriggerY));
+        var trigger = new Position16<RoomBlocks>(ChozoStatueRoomDefinitions.LowerNorfairTriggerX, ChozoStatueRoomDefinitions.LowerNorfairTriggerY);
         level.SetTerrain(trigger, RoomTerrainBlock.Of(0x1f4, BlockMirroring.None, RoomCollisionType.ShootableBlock));
         RoomObjectSystem roomObjects = RoomObjectFixtures.Bound(
             new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(new SharedRandom()), AreaId.Norfair),
@@ -156,8 +156,8 @@ internal static class ChozoStatueObjectDefinitionsVerification
         AssertTrue(roomObjects.TrySpawnProjectileShotBlock(level, trigger, permanentPowerBombBlock,
                 SamusProjectileType.Of(SamusProjectileFamily.PowerBomb), solidBlock: true),
             "a Power Bomb breaks the trigger block");
-        AssertTrue(!roomObjects.BlockReactions.IsBrokenOpen(level.BlockAt(trigger)), "the trigger block is not broken open as its breakup starts");
-        bool breakupRunsFirst = roomObjects.PopulationSlots.Single(slot => slot.Block == level.BlockAt(trigger)).ProcessingPosition
+        AssertTrue(!roomObjects.BlockReactions.IsBrokenOpen(trigger), "the trigger block is not broken open as its breakup starts");
+        bool breakupRunsFirst = roomObjects.PopulationSlots.Single(slot => slot.Block == trigger).ProcessingPosition
             < roomObjects.PopulationSlots.Single(slot => slot.Behaviour is LowerNorfairChozoHandObject).ProcessingPosition;
         BlockReactionChange breakup = BlockReactionChangeDefinitions.PermanentPowerBombBlock;
         int lastStageUpdate = breakup.FirstFrameDelay + breakup.Frames.SkipLast(1).Sum(frame => frame.Updates);
@@ -168,18 +168,18 @@ internal static class ChozoStatueObjectDefinitionsVerification
             roomObjects.Step(level);
             AssertTrue(LowerNorfairHand(roomObjects) is { Phase: LowerNorfairChozoHandPhase.Waiting },
                 $"Lower Norfair hand still waits on update {update} of the trigger block's breakup");
-            AssertEqual(update >= lastStageUpdate, roomObjects.BlockReactions.IsBrokenOpen(level.BlockAt(trigger)),
+            AssertEqual(update >= lastStageUpdate, roomObjects.BlockReactions.IsBrokenOpen(trigger),
                 $"the trigger block stands broken open from its breakup's last stage, update {update}");
             // The stock breakup's last stage is the first to show blank air, so the cartridge's comparison could not fire
             // before it.
-            AssertEqual(update >= lastStageUpdate, level.GetCollisionBlockByIndex(trigger).Terrain == BlankAirBlock.Value,
+            AssertEqual(update >= lastStageUpdate, level.GetCollisionBlock(trigger).Terrain == BlankAirBlock.Value,
                 $"the trigger block first shows blank air on its breakup's last stage, update {update}");
         }
 
         roomObjects.Step(level);
         AssertTrue(LowerNorfairHand(roomObjects) is null,
             $"Lower Norfair hand leaves on update {firingUpdate}, its first turn after the breakup's last stage");
-        RoomCollisionBlock handBlock = level.GetCollisionBlockByIndex(trigger);
+        RoomCollisionBlock handBlock = level.GetCollisionBlock(trigger);
         AssertEqual(RoomCollisionType.SpecialBlock, handBlock.CollisionType, "the triggered hand makes its trigger block special");
         AssertEqual(ChozoStatueRoomDefinitions.LowerNorfairHandBehavior, handBlock.Behavior,
             "the triggered hand gives its trigger block the hand's behaviour");

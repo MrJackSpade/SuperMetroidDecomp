@@ -164,7 +164,7 @@ internal static class DownwardGateObjectsVerification
             "compiled initial gate draw installs the second solid column word");
         AssertTrue(roomObjects.Gates.TrySpawnDownwardGateTrigger(
                 level,
-                gateBlockIndex - 1,
+                level.BlockAt(gateBlockIndex - 1),
                 level.GetCollisionBlockByIndex(gateBlockIndex - 1).Behavior,
                 SamusProjectileType.Beam(SamusBeamCombination.Spazer, charged: false)),
             "power beam reaches the sleeping blue gate");
@@ -196,7 +196,7 @@ internal static class DownwardGateObjectsVerification
 
         AssertTrue(roomObjects.Gates.TrySpawnDownwardGateTrigger(
                 level,
-                gateBlockIndex - 1,
+                level.BlockAt(gateBlockIndex - 1),
                 level.GetCollisionBlockByIndex(gateBlockIndex - 1).Behavior,
                 SamusProjectileType.Beam(SamusBeamCombination.Spazer, charged: false)),
             "second power beam reaches the sleeping open blue gate");
@@ -231,7 +231,7 @@ internal static class DownwardGateObjectsVerification
             ? gateBlockIndex - 1
             : gateBlockIndex + 1;
         RoomBlockBehavior bts = level.GetCollisionBlockByIndex(triggerBlockIndex).Behavior;
-        AssertTrue(roomObjects.Gates.TrySpawnDownwardGateTrigger(level, triggerBlockIndex, bts, SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(projectile)),
+        AssertTrue(roomObjects.Gates.TrySpawnDownwardGateTrigger(level, level.BlockAt(triggerBlockIndex), bts, SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(projectile)),
             $"{trigger} is claimed by the gate dispatcher");
         RoomObjectSlotSnapshot gate = roomObjects.PopulationSlots.Single(slot =>
             slot.HeaderPointer == RoomObjectHeaderId.DownwardGate);

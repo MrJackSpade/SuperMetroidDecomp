@@ -34,7 +34,7 @@ internal sealed class BlockReactionObjects
     /// <summary>Starts a respawning or permanent grapple-block program while preserving its original terrain for restoration.</summary>
     public bool TrySpawnBreakableGrappleBlock(
         RoomLevelData level,
-        int blockIndex,
+        Position16<RoomBlocks> position,
         RoomBlockBehavior behavior)
     {
         Ensure.NotNull(level);
@@ -47,8 +47,8 @@ internal sealed class BlockReactionObjects
         if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
             return false;
 
-        RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-        slot.Block = level.BlockAt(blockIndex);
+        RoomCollisionBlock block = level.GetCollisionBlock(position);
+        slot.Block = position;
         slot.RestoreTerrain = block.Terrain;
         slot.Become(respawning
             ? new RespawningGrappleBlockObject()
@@ -57,14 +57,14 @@ internal sealed class BlockReactionObjects
         // The setup saves the complete original block but clears only its behaviour. It deliberately leaves the
         // Grapple-block collision intact until the first room-object pass later in this same gameplay frame draws the intact
         // Grapple block.
-        level.SetBehavior(blockIndex, RoomBlockBehavior.None);
+        level.SetBehavior(position, RoomBlockBehavior.None);
         return true;
     }
 
     /// <summary>Starts a timed collision bomb block and substitutes its parent appearance before the first room-object pass.</summary>
     public bool TrySpawnCollisionBombBlock(
         RoomLevelData level,
-        int blockIndex,
+        Position16<RoomBlocks> position,
         RoomBlockBehavior behavior)
     {
         Ensure.NotNull(level);
@@ -81,15 +81,15 @@ internal sealed class BlockReactionObjects
         if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
             return false;
 
-        RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-        slot.Block = level.BlockAt(blockIndex);
+        RoomCollisionBlock block = level.GetCollisionBlock(position);
+        slot.Block = position;
 
         // This is not the original appearance. The setup deliberately replaces the block and its mirroring with the
         // bomb-block parent; multi-block restorations then add extension blocks around this parent.
         RoomBlockAppearance parent = _drawing.SetupBlock(RoomObjectSetupBlock.BombBlockParent);
         slot.RestoreTerrain = new RoomTerrainBlock(parent, block.CollisionType);
         slot.Become(new BlockReactionObject(BlockReactionChanges.CollisionBomb(behavior.Reaction.Entry)));
-        level.SetTerrain(blockIndex, new RoomTerrainBlock(parent, RoomCollisionType.Air));
+        level.SetTerrain(position, new RoomTerrainBlock(parent, RoomCollisionType.Air));
         return true;
     }
 
@@ -106,7 +106,7 @@ internal sealed class BlockReactionObjects
     /// </remarks>
     public bool TrySpawnSamusContactCrumbleBlock(
         RoomLevelData level,
-        int blockIndex,
+        Position16<RoomBlocks> position,
         RoomBlockBehavior behavior)
     {
         Ensure.NotNull(level);
@@ -120,15 +120,15 @@ internal sealed class BlockReactionObjects
         if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
             return false;
 
-        RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
+        RoomCollisionBlock block = level.GetCollisionBlock(position);
         slot.Header =
             RoomObjectHeaders.ContactCrumbleByReactionIndex(behavior.Reaction.Entry);
-        slot.Block = level.BlockAt(blockIndex);
+        slot.Block = position;
         // The struck block keeps only its collision; the parent shows unmirrored, whatever the block's mirroring (#1581).
         RoomTerrainBlock restore = block.Terrain.WithAppearance(_drawing.SetupBlock(RoomObjectSetupBlock.CrumbleBlockParent));
         slot.RestoreTerrain = restore;
         slot.Become(new BlockReactionObject(BlockReactionChanges.ContactCrumble(behavior.Reaction.Entry)));
-        level.SetTerrain(blockIndex, restore.WithCollision(RoomCollisionType.SolidBlock));
+        level.SetTerrain(position, restore.WithCollision(RoomCollisionType.SolidBlock));
         return true;
     }
 
@@ -146,7 +146,7 @@ internal sealed class BlockReactionObjects
     /// <returns>True when contact passes: accepted setup, or an exhausted room-object pool.</returns>
     public bool TrySpawnSamusSpeedBoosterBlock(
         RoomLevelData level,
-        int blockIndex,
+        Position16<RoomBlocks> position,
         RoomBlockBehavior behavior,
         IRoomSamus samus)
     {
@@ -174,21 +174,21 @@ internal sealed class BlockReactionObjects
         if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
             return false;
 
-        RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
+        RoomCollisionBlock block = level.GetCollisionBlock(position);
         slot.Header = definition.Header;
-        slot.Block = level.BlockAt(blockIndex);
+        slot.Block = position;
         // The struck block keeps only its collision; the parent shows unmirrored, whatever the block's mirroring (#1581).
         RoomTerrainBlock restore = block.Terrain.WithAppearance(_drawing.SetupBlock(RoomObjectSetupBlock.SpeedBoosterBlockParent));
         slot.RestoreTerrain = restore;
         slot.Become(new BlockReactionObject(definition.Change));
-        level.SetTerrain(blockIndex, restore.WithCollision(RoomCollisionType.Air));
+        level.SetTerrain(position, restore.WithCollision(RoomCollisionType.Air));
         return true;
     }
 
     /// <summary>Selects the normal-bomb or Power Bomb reaction list; only the latter executes its packed sound instruction.</summary>
     public bool TrySpawnBombReactionBlock(
         RoomLevelData level,
-        int blockIndex,
+        Position16<RoomBlocks> position,
         RoomBlockBehavior behavior,
         SamusProjectileType projectileType)
     {
@@ -213,8 +213,8 @@ internal sealed class BlockReactionObjects
         if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
             return false;
 
-        RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-        slot.Block = level.BlockAt(blockIndex);
+        RoomCollisionBlock block = level.GetCollisionBlock(position);
+        slot.Block = position;
 
         if (!behavior.Reaction.IsCommonEntryBelow(8))
         {
@@ -232,21 +232,21 @@ internal sealed class BlockReactionObjects
             ? BlockReactionChanges.BombBreak(behavior.Reaction.Entry)
             : BlockReactionChanges.ReactionBomb(behavior.Reaction.Entry)));
 
-        level.SetTerrain(blockIndex, restore.Deactivated());
+        level.SetTerrain(position, restore.Deactivated());
         return true;
     }
 
     /// <summary>Selects a shot-block room object by behaviour, weapon family, area table, and air-versus-solid collision semantics.</summary>
     public bool TrySpawnProjectileShotBlock(
         RoomLevelData level,
-        int blockIndex,
+        Position16<RoomBlocks> position,
         RoomBlockBehavior behavior,
         SamusProjectileType projectileType,
         bool solidBlock)
     {
         Ensure.NotNull(level);
         if (behavior == EscapeAnimalWallDefinitions.ReactionBehavior)
-            return _escapeAnimals.TrySpawnCrittersEscapeReaction(level, blockIndex, projectileType);
+            return _escapeAnimals.TrySpawnCrittersEscapeReaction(level, position, projectileType);
         bool areaDependent = behavior.Reaction.IsAreaSpecific;
         if (areaDependent && !behavior.Reaction.IsAreaEntryBelow(8))
         {
@@ -285,8 +285,8 @@ internal sealed class BlockReactionObjects
         if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
             return false;
 
-        RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-        slot.Block = level.BlockAt(blockIndex);
+        RoomCollisionBlock block = level.GetCollisionBlock(position);
+        slot.Block = position;
 
         switch (reaction)
         {
@@ -314,7 +314,7 @@ internal sealed class BlockReactionObjects
                 // The deactivating setup keeps no restore block: these breaks are permanent. The current block loses its
                 // shootable collision before the first animated breaking frame runs later in this pass.
                 slot.Become(new BlockReactionObject(BlockReactionChanges.PermanentShot(ShotBlockReactions.BreakShape(behavior.Reaction))));
-                level.SetTerrain(blockIndex, block.Terrain.Deactivated());
+                level.SetTerrain(position, block.Terrain.Deactivated());
                 return true;
 
             case ShotBlockReaction.RespawningPowerBombBreak:
@@ -369,7 +369,7 @@ internal sealed class BlockReactionObjects
     /// <summary>Dispatches normal-bomb special blocks through the area-independent or Brinstar reaction table.</summary>
     public bool TrySpawnBombedSpecialBlock(
         RoomLevelData level,
-        int blockIndex,
+        Position16<RoomBlocks> position,
         RoomBlockBehavior behavior,
         AreaId areaIndex,
         SamusProjectileType projectileType)
@@ -411,7 +411,7 @@ internal sealed class BlockReactionObjects
         if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
             return false;
 
-        slot.Block = level.BlockAt(blockIndex);
+        slot.Block = position;
         slot.Become(new BlockReactionObject(change));
         return true;
     }

@@ -597,7 +597,7 @@ internal sealed class EnemyTerrain
     {
         if (!EnemyBreakableTerrain.IsEnemyBreakable(block.Behavior)) return true;
         var roomObjects = _collisionObjects ?? throw new InvalidOperationException("Enemy-breakable terrain requires the active room-object owner.");
-        roomObjects.TrySpawnEnemyBreakableBlock(level, blockIndex);
+        roomObjects.TrySpawnEnemyBreakableBlock(level, level.BlockAt(blockIndex));
         return false; // The block reaction reports no collision even if the room-object pool was full.
     }
 

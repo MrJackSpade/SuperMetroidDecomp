@@ -266,7 +266,7 @@ public static class SamusBlockCollision
                             terrain.RoomObjects is not null &&
                             terrain.RoomObjects.BlockReactions.TrySpawnSamusSpeedBoosterBlock(
                                 terrain.Level,
-                                block.Index,
+                                terrain.Level.BlockAt(block.Index),
                                 block.Behavior,
                                 speedBoostingSamus.RoomView))
                         {
@@ -324,7 +324,7 @@ public static class SamusBlockCollision
                         // Every contact that breaks a bomb block starts its block reaction, which runs the breakup
                         // and grows the block back (#1582).
                         bool spawned = RoomObjectsBreaking(terrain, block.Index).BlockReactions
-                            .TrySpawnCollisionBombBlock(terrain.Level, block.Index, block.Behavior);
+                            .TrySpawnCollisionBombBlock(terrain.Level, terrain.Level.BlockAt(block.Index), block.Behavior);
                         if (spawned)
                             brokenBombBlock ??= block;
                         break;
@@ -630,7 +630,7 @@ public static class SamusBlockCollision
                         terrain.RoomObjects is not null &&
                         terrain.RoomObjects.BlockReactions.TrySpawnSamusSpeedBoosterBlock(
                             terrain.Level,
-                            block.Index,
+                            terrain.Level.BlockAt(block.Index),
                             block.Behavior,
                             speedBoostingSamus.RoomView))
                     {
@@ -655,7 +655,7 @@ public static class SamusBlockCollision
                         // type-eight solid), and this downward scan remains clipped.
                         if (!terrain.RoomObjects.BlockReactions.TrySpawnSamusContactCrumbleBlock(
                                 terrain.Level,
-                                block.Index,
+                                terrain.Level.BlockAt(block.Index),
                                 block.Behavior))
                             break;
                     }
@@ -708,7 +708,7 @@ public static class SamusBlockCollision
                             $"Collision bomb block {block.Index} has invalid behaviour ({block.Behavior}).");
                     }
                     RoomObjectsBreaking(terrain, block.Index).BlockReactions
-                        .TrySpawnCollisionBombBlock(terrain.Level, block.Index, block.Behavior);
+                        .TrySpawnCollisionBombBlock(terrain.Level, terrain.Level.BlockAt(block.Index), block.Behavior);
                     break;
 
                 case RoomCollisionType.HorizontalExtension:
@@ -773,7 +773,7 @@ public static class SamusBlockCollision
         // must never turn this non-solid cell into a movement obstruction.
         if (block.Behavior.Reaction.IsAreaSpecific || !CanBreakCollisionBombBlock(owner, explicitAdmission))
             return;
-        RoomObjectsBreaking(terrain, block.Index).BlockReactions.TrySpawnCollisionBombBlock(terrain.Level, block.Index, block.Behavior);
+        RoomObjectsBreaking(terrain, block.Index).BlockReactions.TrySpawnCollisionBombBlock(terrain.Level, terrain.Level.BlockAt(block.Index), block.Behavior);
     }
 
     /// <summary>

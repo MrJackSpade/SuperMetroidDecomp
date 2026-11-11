@@ -906,7 +906,7 @@ public sealed class SamusBombProjectileSystem
             }
             roomObjects.DoorObjects.TrySpawnBlueDoorOpening(
                 level,
-                block.Index,
+                level.BlockAt(block.Index),
                 block.Behavior,
                 projectileType);
             return;
@@ -957,7 +957,7 @@ public sealed class SamusBombProjectileSystem
             // or type-$0 word before the caller proceeds to its next border/cross member.
             roomObjects.BlockReactions.TrySpawnBombReactionBlock(
                 level,
-                block.Index,
+                level.BlockAt(block.Index),
                 block.Behavior,
                 projectileType);
             return;
@@ -977,7 +977,7 @@ public sealed class SamusBombProjectileSystem
                 }
                 roomObjects.Gates.TrySpawnDownwardGateTrigger(
                     level,
-                    block.Index,
+                    level.BlockAt(block.Index),
                     block.Behavior,
                     projectileType);
                 return;
@@ -1014,7 +1014,7 @@ public sealed class SamusBombProjectileSystem
 
             roomObjects.BlockReactions.TrySpawnProjectileShotBlock(
                 level,
-                block.Index,
+                level.BlockAt(block.Index),
                 block.Behavior,
                 projectileType,
                 solidBlock: block.CollisionType == RoomCollisionType.ShootableBlock);
@@ -1032,7 +1032,7 @@ public sealed class SamusBombProjectileSystem
 
             roomObjects.BlockReactions.TrySpawnBombedSpecialBlock(
                 level,
-                block.Index,
+                level.BlockAt(block.Index),
                 block.Behavior,
                 areaIndex,
                 projectileType);

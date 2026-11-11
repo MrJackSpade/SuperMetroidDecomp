@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Enemies;
 /// is built: the installation's enemy and boss over-read services and the runtime's rainbow-beam camera checkpoint; and
 /// the host's installed enemy sheets and enemy frame displays, which every room's enemies draw from.
 /// </summary>
-[ArchitectureReview("context-bag", "The enemy state that outlives each room and the installed enemy content every room binds: each member is session-lifetime state or installed data a room reads, not a service looked up.")]
 public sealed class EnemySession
 {
     /// <summary>

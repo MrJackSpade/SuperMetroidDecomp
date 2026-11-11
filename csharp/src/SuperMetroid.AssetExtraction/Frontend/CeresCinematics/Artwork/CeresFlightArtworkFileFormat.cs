@@ -3,8 +3,11 @@ namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 /// <summary>File identities and exact geometry of the installed Ceres approach artwork.</summary>
 public static class CeresFlightArtworkFileFormat
 {
-    /// <summary>Required schema revision of the paired front/rear map document.</summary>
-    public const int Version = 1;
+    /// <summary>
+    /// Required schema revision of the paired front/rear map document: 2 names its views' tiles for the camera's views
+    /// (#1634).
+    /// </summary>
+    public const int Version = 2;
     /// <summary>Indexed PNG filename for the shared gunship/Ceres chunky Mode-7 characters.</summary>
     public const string FloorFileName = "ceres-flight-mode7-characters.png";
     /// <summary>JSON filename for the two ordered approach map slices, distinct from the later destruction map slice.</summary>

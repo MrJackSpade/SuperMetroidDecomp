@@ -14,8 +14,11 @@ public sealed record CeresFlightMapDocument
     public required int Width { get; init; }
     /// <summary>Host editing-array height in tile cells; must be 24 for each view.</summary>
     public required int Height { get; init; }
-    /// <summary>Front-view tile indices $00-$FF in ordered native upload-byte sequence; exactly 768 entries, preceding the rear slice.</summary>
-    public required int[] FrontTiles { get; init; }
+    /// <summary>
+    /// Front-view tile indices $00-$FF in ordered native upload-byte sequence, the view the approach shows first; exactly 768
+    /// entries, preceding the rear slice. Named for the camera's view, not a draw depth (#1634).
+    /// </summary>
+    public required int[] FrontViewTiles { get; init; }
     /// <summary>Rear-view tile indices $00-$FF in ordered native upload-byte sequence; exactly 768 entries, selected after the initial camera approach.</summary>
-    public required int[] RearTiles { get; init; }
+    public required int[] RearViewTiles { get; init; }
 }

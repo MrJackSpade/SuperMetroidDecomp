@@ -66,7 +66,7 @@ internal static class VramPictureFixtures
     /// <summary>
     /// A plane showing one picture, at its origin, of the <paramref name="size"/> tilemap at <paramref name="tilemapWord"/> in
     /// <paramref name="image"/> over its <paramref name="depth"/> characters from <paramref name="characterWord"/>, coloured
-    /// from <paramref name="palette"/>: each cell's tile in its colour variant, mirroring and priority tier.
+    /// from <paramref name="palette"/>: each cell's tile in its colour variant and mirroring, the picture installed whole (#1634).
     /// </summary>
     internal static PicturedPlane Plane(ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette, int tilemapWord, int characterWord, TileInkDepth depth,
         Extent16<CharacterCells> size)
@@ -80,8 +80,8 @@ internal static class VramPictureFixtures
     /// <summary>
     /// A <paramref name="size"/> grid whose cells show the tilemap at <paramref name="tilemapWord"/> in
     /// <paramref name="image"/> over its <paramref name="depth"/> characters from <paramref name="characterWord"/>, coloured
-    /// from <paramref name="palette"/>: each cell the unmirrored picture of its tile in its colour variant and priority tier,
-    /// which the grid mirrors as the cell does.
+    /// from <paramref name="palette"/>: each cell the unmirrored picture of its tile in its colour variant, installed whole
+    /// (#1634), which the grid mirrors as the cell does.
     /// </summary>
     internal static PictureGrid Grid(ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette, int tilemapWord, int characterWord, TileInkDepth depth,
         Extent16<CharacterCells> size)

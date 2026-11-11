@@ -17,9 +17,10 @@ internal static class KraidBodyFixtures
         BackgroundTileWordBytes.Words(KraidWorkingMap.Compose(Art(artwork)));
 
     /// <summary>
-    /// The tilemap entries <paramref name="state"/>'s body shows with <paramref name="artwork"/> (#1515, #1540): his body as it
-    /// appears and, while it shows, his head's current pose above it or, before his head shows one, the head his body rises
-    /// with, as the import's frames of Kraid's body sheet write them, over his blank.
+    /// The tilemap entries <paramref name="state"/>'s body shows with <paramref name="artwork"/> (#1515, #1540): while it
+    /// shows, his body and his head's current pose above it or, before his head shows one, the head his body rises with, as
+    /// the import's frames of Kraid's body sheet write them, over his blank. His body and the head it rises with are one
+    /// frame each, whatever depth his appearance draws them at (#1634).
     /// </summary>
     internal static ushort[] Shown(BossSourceArtwork artwork, KraidEnemyState state)
     {
@@ -28,15 +29,14 @@ internal static class KraidBodyFixtures
         var words = new ushort[Enemies.BossBodies.BossBodyWords.KraidLayerRows * BossBodySourceDefinitions.LayerColumns];
         words.AsSpan().Fill(KraidWorkingMapDefinitions.BlankTile.PackedWord);
         KraidBodyAppearance appearance = state.BodyShown ? state.BodyAppearance : KraidBodyAppearance.Hidden;
-        foreach (string? name in new[]
+        if (appearance == KraidBodyAppearance.Hidden)
+            return words;
+        foreach (string name in new[]
         {
-            KraidBodyFrameNames.Of(appearance),
-            state.DisplayedHeadFrame is { } head && appearance != KraidBodyAppearance.Hidden ? KraidBodyFrameNames.Head(head.MouthStage)
-                : KraidBodyFrameNames.RestingHead(appearance),
+            KraidBodyFrameNames.Body,
+            state.DisplayedHeadFrame is { } head ? KraidBodyFrameNames.Head(head.MouthStage) : KraidBodyFrameNames.RestingHead,
         })
         {
-            if (name is null)
-                continue;
             foreach ((int cell, BackgroundTile tile) in frames[name].Cells)
                 words[cell] = tile.PackedWord;
         }

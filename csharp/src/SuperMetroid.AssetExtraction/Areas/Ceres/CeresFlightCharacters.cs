@@ -115,9 +115,9 @@ public sealed class CeresFlightCharacters : CeresFlightArtwork
         byte[] map = new byte[2 * CeresFlightArtworkFileFormat.MapCellsPerView];
         for (int index = 0; index < CeresFlightArtworkFileFormat.MapCellsPerView; index++)
         {
-            map[index] = checked((byte)document.FrontTiles[index]);
+            map[index] = checked((byte)document.FrontViewTiles[index]);
             map[CeresFlightArtworkFileFormat.MapCellsPerView + index] =
-                checked((byte)document.RearTiles[index]);
+                checked((byte)document.RearViewTiles[index]);
         }
         return map;
     }
@@ -149,7 +149,7 @@ public sealed class CeresFlightCharacters : CeresFlightArtwork
         if (document.Version != CeresFlightArtworkFileFormat.Version ||
             document.Width != CeresFlightArtworkFileFormat.MapWidth ||
             document.Height != CeresFlightArtworkFileFormat.MapHeight ||
-            !ValidView(document.FrontTiles) || !ValidView(document.RearTiles))
+            !ValidView(document.FrontViewTiles) || !ValidView(document.RearViewTiles))
             throw new InvalidDataException(
                 "Ceres flight map requires two ordered 32x24 arrays of eight-bit tile indexes.");
         return document;

@@ -9,8 +9,9 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 
 /// <summary>
 /// Pre-assembles and pre-colours a frontend screen's pictures (#1467): each subject's tiles painted once from the screen's
-/// characters under the screen's standard palette, in each tile's colour variant, mirroring and priority tier, packed onto
-/// shelves across one sheet. Each frame's origin is the page's corner, so the game places a page's pictures at the page's
+/// characters under the screen's standard palette, in each tile's colour variant and mirroring, packed onto shelves across
+/// one sheet. Each picture is installed whole: a screen draws every tile of it in one pass, so no tile lies in front of
+/// another (#1634). Each frame's origin is the page's corner, so the game places a page's pictures at the page's
 /// corner and each lands where the cartridge's page shows it.
 /// </summary>
 internal static class ScreenPictureSheetComposer
@@ -152,8 +153,9 @@ internal static class ScreenPictureSheetComposer
 
     /// <summary>
     /// What <paramref name="subject"/> paints, spelled for telling pictures apart: its size and each cell's colour variant,
-    /// mirroring, tier and the pixels of the character it shows over <paramref name="characters"/>, wherever that character
-    /// lies; a cell painting nothing is spelled empty.
+    /// mirroring and the pixels of the character it shows over <paramref name="characters"/>, wherever that character lies,
+    /// whichever tier the cell is written in, since a whole picture keeps none (#1634); a cell painting nothing is spelled
+    /// empty.
     /// </summary>
     private static string Content(ScreenPictureSubject subject, ScreenCharacters characters)
     {
@@ -165,7 +167,7 @@ internal static class ScreenPictureSheetComposer
             if (cell is not { } tile || !characters.TryCharacter(tile.Tile, out ReadOnlySpan<byte> character))
                 continue;
             content.Append(tile.ColourVariant).Append(tile.FlipHorizontally ? 'h' : '-').Append(tile.FlipVertically ? 'v' : '-')
-                .Append(tile.HighPriority ? 'p' : '-').Append(Convert.ToBase64String(character));
+                .Append(Convert.ToBase64String(character));
         }
         return content.ToString();
     }

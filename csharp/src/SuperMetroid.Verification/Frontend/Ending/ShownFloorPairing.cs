@@ -113,7 +113,10 @@ internal sealed class ShownFloorPairing
     private static PictureShading ShadingOf(AffineFloor floor) =>
         floor.Shading ?? throw new InvalidOperationException("A frontend screen's turning floor names its shading.");
 
-    /// <summary>Whether <paramref name="first"/> and <paramref name="second"/> are drawn alike but for their colours.</summary>
+    /// <summary>
+    /// Whether <paramref name="first"/> and <paramref name="second"/> are drawn alike but for their colours: a floor's pixel
+    /// is only a colour, with no draw depth of its own (#1634).
+    /// </summary>
     private static bool SameKind(SpriteImageInk first, SpriteImageInk second) =>
         first.IsTransparent == second.IsTransparent && first.Clear == second.Clear && first.Blends == second.Blends;
 

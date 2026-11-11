@@ -15,21 +15,21 @@ public sealed record BossBodyLayer(ImmutableArray<BossBodyFrame> Frames, int? Sh
     public static BossBodyLayer Empty { get; } = new([]);
 
     /// <summary>
-    /// The body as the frame shows it: each frame's picture, in draw order, cut at <see cref="ShownAbove"/>. A frame showing
-    /// nothing draws no part.
+    /// The body as the frame shows it: each frame's picture, in draw order, cut at <see cref="ShownAbove"/>, at the frame's
+    /// depth (#1634). A frame showing nothing draws no part.
     /// </summary>
     public ShownBossBody Show()
     {
         var parts = ImmutableArray.CreateBuilder<ShownBossBodyPart>(Frames.Length);
         foreach (BossBodyFrame frame in Frames)
         {
-            if (frame.Picture is not { } picture)
+            if (frame.Picture is not { } picture || frame.Depth is not { } depth)
                 continue;
             int height = ShownAbove is { } shownAbove
                 ? Math.Min(picture.Size.Y, Math.Max(shownAbove, 0) - frame.Corner.Y)
                 : picture.Size.Y;
             if (height > 0)
-                parts.Add(new ShownBossBodyPart(picture, frame.Corner, new Extent16<BackgroundPixels>(picture.Size.X, height)));
+                parts.Add(new ShownBossBodyPart(picture, frame.Corner, new Extent16<BackgroundPixels>(picture.Size.X, height), depth));
         }
         return new(parts.ToImmutable());
     }

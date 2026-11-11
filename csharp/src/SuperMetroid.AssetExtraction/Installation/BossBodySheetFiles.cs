@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Rooms;
@@ -22,12 +23,12 @@ public static class BossBodySheetFiles
     public const string ManifestFileName = "boss-bodies.json";
 
     /// <summary>
-    /// The manifest's schema revision: 5 names each frame's one whole picture and where it lies on the body's area, a part
-    /// drawn over the parts before it with no rectangles it covers (#1540), Kraid's body below his head and the head it
-    /// rises with as frames of their own; with no cell footprints, blank (#1515) or pieces of pictures laid over a frame
-    /// (#1513).
+    /// The manifest's schema revision: 6 names each frame's one whole picture, where it lies on the body's area and the
+    /// depth it is drawn at (#1634), a part drawn over the parts before it with no rectangles it covers (#1540), Kraid's body
+    /// below his head and the head it rises with as one frame each; with no cell footprints, blank (#1515), pieces of
+    /// pictures laid over a frame (#1513) or frames pictured again to be drawn in front of the sprites.
     /// </summary>
-    private const int ManifestVersion = 5;
+    private const int ManifestVersion = 6;
 
     /// <summary>Composes and writes every boss's body sheet.</summary>
     /// <param name="content">Installed stock content holding the frames, characters and palettes the sheets compose from.</param>
@@ -79,18 +80,23 @@ public static class BossBodySheetFiles
     }
 
     /// <summary>The manifest entry of <paramref name="frame"/>.</summary>
-    private static FrameDocument Document(ComposedBossBodyFrame frame) => new(frame.Picture, frame.Corner);
+    private static FrameDocument Document(ComposedBossBodyFrame frame) => new(frame.Picture, frame.Corner, frame.Depth);
 
     /// <summary>
     /// The frame named <paramref name="name"/> that <paramref name="document"/> describes, its picture cut from
-    /// <paramref name="sheet"/>; a frame naming no picture shows nothing, and the part showing it is not drawn (#1513).
+    /// <paramref name="sheet"/> and drawn at the depth it names (#1634); a frame naming no picture shows nothing, has no
+    /// depth, and the part showing it is not drawn (#1513).
     /// </summary>
-    /// <exception cref="InvalidDataException">The entry is missing or places its picture nowhere.</exception>
+    /// <exception cref="InvalidDataException">
+    /// The entry is missing, places its picture nowhere, names a picture without a defined depth, or a depth without a picture.
+    /// </exception>
     private static BossBodyFrame Frame(SpriteSheet sheet, string name, FrameDocument? document, string manifestPath)
     {
         if (document is not { Corner: { } corner })
             throw new InvalidDataException($"Boss body manifest {manifestPath} frame {name} is incomplete.");
-        return new BossBodyFrame(name, document.Picture is null ? null : sheet.Frame(document.Picture), corner);
+        if (document.Picture is null != document.Depth is null || document.Depth is { } depth && !Enum.IsDefined(depth))
+            throw new InvalidDataException($"Boss body manifest {manifestPath} frame {name} needs a defined depth exactly when it names a picture.");
+        return new BossBodyFrame(name, document.Picture is null ? null : sheet.Frame(document.Picture), corner, document.Depth);
     }
 
     /// <summary>The manifest: each boss's sheet, by boss.</summary>
@@ -102,10 +108,13 @@ public static class BossBodySheetFiles
     /// <param name="Frames">Each frame, by frame name.</param>
     private sealed record SheetDocument(Dictionary<string, FrameDocument?>? Frames);
 
-    /// <summary>One frame: its whole picture and where it lies.</summary>
+    /// <summary>One frame: its whole picture, where it lies and the depth it is drawn at.</summary>
     /// <param name="Picture">The sheet frame of its picture, or null for a frame that paints nothing.</param>
     /// <param name="Corner">The body pixel its picture's top-left corner lies on.</param>
-    private sealed record FrameDocument(string? Picture, Position16<BackgroundPixels>? Corner);
+    /// <param name="Depth">The depth its picture is drawn at, by name (#1634), or null for a frame that paints nothing.</param>
+    private sealed record FrameDocument(string? Picture, Position16<BackgroundPixels>? Corner,
+        [property: JsonConverter(typeof(JsonStringEnumConverter<BossBodyDepth>))]
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] BossBodyDepth? Depth);
 
     /// <summary>Stable camel-case manifest fields.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()

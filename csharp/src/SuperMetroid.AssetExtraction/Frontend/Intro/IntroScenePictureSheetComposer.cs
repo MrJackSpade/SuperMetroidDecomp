@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
 /// <summary>
 /// Composes the opening cinematic's scene pictures once (#1467): each scene page, Samus's portrait and each eye frame, over
-/// the scene characters under the cinematic's palette, each pixel in the priority tier its tile gave it. A tile naming a
+/// the scene characters under the cinematic's palette, each installed whole (#1634). A tile naming a
 /// character past those the cinematic loads shows nothing, as the scene planes showed nothing there. The sheet holds a shade
 /// for every cross-fade level of each faded colour group (#1512).
 /// </summary>

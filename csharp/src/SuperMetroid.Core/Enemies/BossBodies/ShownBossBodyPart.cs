@@ -4,9 +4,12 @@ namespace SuperMetroid.Core.Enemies.BossBodies;
 
 /// <summary>
 /// One part of a boss body as a gameplay frame shows it (#1466, #1514, #1540): a pre-coloured picture placed on the body's
-/// layer, cut to the part of it that shows, as the acid cuts Crocomire's sinking body.
+/// layer, cut to the part of it that shows, as the acid cuts Crocomire's sinking body, and drawn whole at its depth among the
+/// room's layers (#1634).
 /// </summary>
 /// <param name="Picture">The picture.</param>
 /// <param name="Corner">The body pixel the picture's top-left corner lies on.</param>
 /// <param name="Size">How much of the picture shows, across and down from its top-left corner.</param>
-public sealed record ShownBossBodyPart(SpriteSheetFrame Picture, Position16<BackgroundPixels> Corner, Extent16<BackgroundPixels> Size);
+/// <param name="Depth">The depth the picture is drawn at.</param>
+public sealed record ShownBossBodyPart(SpriteSheetFrame Picture, Position16<BackgroundPixels> Corner, Extent16<BackgroundPixels> Size,
+    BossBodyDepth Depth);

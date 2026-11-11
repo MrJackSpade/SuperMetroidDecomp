@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 /// <summary>
 /// Composes the Ceres cinematics' background pictures once (#1467): each SPACE COLONY caption letter and the katakana
 /// caption over the flight's object characters, and the Zebes planet over the characters the destruction leaves once the
-/// reveal loads its own, all under the flight's palette, each pixel in the priority tier its tile gave it.
+/// reveal loads its own, all under the flight's palette, each installed whole (#1634).
 /// </summary>
 internal static class CeresCinematicPictureSheetComposer
 {

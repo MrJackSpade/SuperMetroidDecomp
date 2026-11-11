@@ -64,14 +64,14 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// </summary>
     private const int FloorSheetsWord = WrittenOverBackgroundWord + 1;
     /// <summary>
-    /// Header word of a boss body's parts (#1352, #1466, #1514, #1540), or zero without one: the count of parts, the area the
-    /// body covers, x below y, then three words for each part in draw order, the first beneath the others: its picture's
-    /// offset, the body pixel the picture's top-left corner lies on, and how much of the picture shows from that corner,
-    /// each x below y.
+    /// Header word of a boss body's parts (#1352, #1466, #1514, #1540), or zero without one: the count of parts, then four
+    /// words for each part in draw order, the first beneath the others: its picture's offset, the body pixel the picture's
+    /// top-left corner lies on, how much of the picture shows from that corner, each x below y, and the depth it is drawn at
+    /// (<see cref="DepthWord"/>, #1634).
     /// </summary>
     private const int BossBodyWord = FloorSheetsWord + 1;
     /// <summary>Words of a boss body part's record.</summary>
-    private const int BossBodyPartWords = 3;
+    private const int BossBodyPartWords = 4;
     /// <summary>
     /// Header word of the X-ray reveal, or zero without one (#1392, #1514): the foreground pixel its first block lies on, x
     /// below y, then each block row by row, its picture's two parts' offsets (#1634), the first with the block's arrangement
@@ -448,8 +448,21 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             upload[record] = (uint)pictureWords[new(part.Picture, D3D11PictureColouring.BossBody)];
             upload[record + 1] = D3D11ConstantPacking.Halves(part.Corner.X, part.Corner.Y);
             upload[record + 2] = D3D11ConstantPacking.Halves(part.Size.X, part.Size.Y);
+            upload[record + 3] = DepthWord(part.Depth);
         }
     }
+
+    /// <summary>
+    /// The word a boss body part's depth packs as (#1634), which Tiles.hlsl's BossBodyBehindSprites and
+    /// BossBodyInFrontOfSprites name.
+    /// </summary>
+    /// <exception cref="InvalidOperationException"><paramref name="depth"/> is not a defined depth.</exception>
+    internal static uint DepthWord(BossBodyDepth depth) => depth switch
+    {
+        BossBodyDepth.BehindSprites => 0,
+        BossBodyDepth.InFrontOfSprites => 1,
+        _ => throw new InvalidOperationException($"Undefined boss body depth {depth}."),
+    };
 
     /// <summary>
     /// Packs <paramref name="hud"/>'s placed pictures from <paramref name="offset"/>, as <see cref="HudWord"/> describes: the

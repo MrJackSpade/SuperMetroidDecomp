@@ -163,7 +163,7 @@ internal static class IntroContentIdentityVerification
             {
                 Version = CeresFlightArtworkFileFormat.Version, Width = CeresFlightArtworkFileFormat.MapWidth,
                 Height = CeresFlightArtworkFileFormat.MapHeight,
-                FrontTiles = FlightMap("flight-front-map"), RearTiles = FlightMap("flight-rear-map"),
+                FrontViewTiles = FlightMap("flight-front-map"), RearViewTiles = FlightMap("flight-rear-map"),
             }),
             Png("flight-objects", CeresFlightArtworkFileFormat.ObjectWidth, CeresFlightArtworkFileFormat.ObjectHeight, 16),
             Backdrop("flight-backdrop"),

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Video;
@@ -21,8 +22,10 @@ namespace SuperMetroid.Verification.Bosses;
 /// before: each pixel the ink of the frame whose cells last reach it, a later frame's over an earlier's, nothing where that
 /// frame paints nothing and nothing below the row the body shows above. Crocomire's melt replaces his body frame and each
 /// dissolve step replaces the last; the acid cuts his sunk body; Kraid's head pose shows alone on the rows the head his body
-/// rises with fills before it; Phantoon's eye shows in his body's socket. A part showing a frame that paints nothing is not
-/// drawn and hides nothing beneath it.
+/// rises with fills before it; Phantoon's eye shows in his body's socket. Each pixel shows at the depth the cartridge's word
+/// for its cell draws it at (#1634): in front of the sprites where the word is in its layer's upper tier, as Kraid's growth
+/// writes every word of his body and the head it rises with, and behind them elsewhere. A part showing a frame that paints
+/// nothing is not drawn and hides nothing beneath it.
 /// </summary>
 internal static class BossBodyLayeredPartsVerification
 {
@@ -87,7 +90,8 @@ internal static class BossBodyLayeredPartsVerification
 
     /// <summary>
     /// Kraid's body in each appearance, with the head it rises with and then with each head pose, as his body layer draws
-    /// it. Returns the bodies compared.
+    /// it: his growth writes every word of his body and the head it rises with in the upper tier, which draws them in front of
+    /// the sprites (#1634), and leaves each head pose's words as they are. Returns the bodies compared.
     /// </summary>
     private static int CheckKraidHead(BossSourceArtwork frames, BossBodySheets sheets)
     {
@@ -108,7 +112,8 @@ internal static class BossBodyLayeredPartsVerification
                 BossBodyLayer layer = enemies.KraidBehavior.BodyLayer.CaptureBodyLayer()
                     ?? throw new InvalidOperationException("Kraid showing his body layer draws his body.");
                 AssertEqual(2, layer.Frames.Length, $"Kraid's {appearance} body shows his body and one head");
-                AssertLayered(layer, sources, KraidCanvas, $"Kraid's {appearance} body with head {head?.MouthStage.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "risen with it"}");
+                AssertLayered(layer, sources, KraidCanvas, $"Kraid's {appearance} body with head {head?.MouthStage.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "risen with it"}",
+                    appearance == KraidBodyAppearance.InFrontOfSprites ? [KraidBodyFrameNames.Body, KraidBodyFrameNames.RestingHead] : []);
                 compared++;
             }
         }
@@ -147,11 +152,12 @@ internal static class BossBodyLayeredPartsVerification
     private static void CheckPartShowingNothing(BossBodySheet sheet)
     {
         BossBodyFrame body = sheet.Frame(EnemyFrameId.CrocomireBody0);
-        var nothing = new BossBodyFrame("Nothing", picture: null, body.Corner);
+        var nothing = new BossBodyFrame("Nothing", picture: null, body.Corner, depth: null);
         ShownBossBody shown = new BossBodyLayer([body, nothing]).Show();
         SpriteSheetFrame picture = body.Picture ?? throw new InvalidOperationException("Crocomire's body frame has a picture.");
-        AssertTrue(shown.Parts.Length == 1 && shown.Parts[0] == new ShownBossBodyPart(picture, body.Corner, new Extent16<BackgroundPixels>(picture.Size.X, picture.Size.Y)),
-            "a part showing nothing is not drawn, and the body beneath it shows whole");
+        BossBodyDepth depth = body.Depth ?? throw new InvalidOperationException("Crocomire's body frame has a depth.");
+        AssertTrue(shown.Parts.Length == 1 && shown.Parts[0] == new ShownBossBodyPart(picture, body.Corner, new Extent16<BackgroundPixels>(picture.Size.X, picture.Size.Y), depth),
+            "a part showing nothing is not drawn, and the body beneath it shows whole at its depth");
     }
 
     /// <summary>The canvas the checks compose a body on whose room shows two screens of it side by side.</summary>
@@ -162,12 +168,14 @@ internal static class BossBodyLayeredPartsVerification
 
     /// <summary>
     /// Fails unless <paramref name="layer"/>'s parts, layered on <paramref name="area"/>, show at every pixel what its frames
-    /// composed there.
+    /// composed there, at the depth the word composing it draws it at; the frames named in <paramref name="raised"/> are
+    /// written with every word in the upper tier, as Kraid's growth writes his body.
     /// </summary>
-    private static void AssertLayered(BossBodyLayer layer, Dictionary<string, BossBodyFrameSource> sources, Extent16<BackgroundPixels> area, string context)
+    private static void AssertLayered(BossBodyLayer layer, Dictionary<string, BossBodyFrameSource> sources, Extent16<BackgroundPixels> area, string context,
+        string[]? raised = null)
     {
-        SpriteImageInk?[] composed = Composed(layer, sources, area);
-        SpriteImageInk?[] layered = Layered(layer.Show(), area);
+        ShownPixel?[] composed = Composed(layer, sources, area, raised ?? []);
+        ShownPixel?[] layered = Layered(layer.Show(), area);
         int differing = 0, first = -1;
         for (int pixel = 0; pixel < composed.Length; pixel++)
         {
@@ -184,38 +192,50 @@ internal static class BossBodyLayeredPartsVerification
 
     /// <summary>
     /// What <paramref name="layer"/>'s frames compose on <paramref name="area"/>: each pixel shows the ink of the frame whose
-    /// cells last reach it, a later frame's over an earlier's; nothing where that frame paints nothing, at or below the row
-    /// the body shows above, or where no frame reaches.
+    /// cells last reach it, a later frame's over an earlier's, at the depth its cell's word draws it at, in front of the
+    /// sprites where the word is in the upper tier or the frame is one of <paramref name="raised"/>; nothing where that frame
+    /// paints nothing, at or below the row the body shows above, or where no frame reaches.
     /// </summary>
-    private static SpriteImageInk?[] Composed(BossBodyLayer layer, Dictionary<string, BossBodyFrameSource> sources, Extent16<BackgroundPixels> area)
+    private static ShownPixel?[] Composed(BossBodyLayer layer, Dictionary<string, BossBodyFrameSource> sources, Extent16<BackgroundPixels> area,
+        string[] raised)
     {
         var owners = new BossBodyFrame?[area.X * area.Y];
+        var depths = new BossBodyDepth[owners.Length];
         foreach (BossBodyFrame frame in layer.Frames)
         {
             BossBodyFrameSource source = sources.TryGetValue(frame.Name, out BossBodyFrameSource? found) ? found
                 : throw new InvalidOperationException($"No installed frame composes {frame.Name}.");
-            foreach (int cell in source.Cells.Keys)
+            bool inFront = raised.Contains(frame.Name, StringComparer.Ordinal);
+            foreach ((int cell, BackgroundTile tile) in source.Cells)
             {
                 Position16<BackgroundPixels> at = BossBodyPainter.PixelOf(cell);
+                BossBodyDepth depth = inFront || tile.HighPriority ? BossBodyDepth.InFrontOfSprites : BossBodyDepth.BehindSprites;
                 for (int y = at.Y; y < at.Y + CellPixels && y < area.Y; y++)
                 for (int x = at.X; x < at.X + CellPixels && x < area.X; x++)
+                {
                     owners[y * area.X + x] = frame;
+                    depths[y * area.X + x] = depth;
+                }
             }
         }
-        var inks = new SpriteImageInk?[owners.Length];
+        var shown = new ShownPixel?[owners.Length];
         for (int pixel = 0; pixel < owners.Length; pixel++)
         {
             int x = pixel % area.X, y = pixel / area.X;
-            if (owners[pixel] is { Picture: { } picture } frame && (layer.ShownAbove is not { } shownAbove || y < shownAbove))
-                inks[pixel] = InkAt(picture, x - frame.Corner.X, y - frame.Corner.Y);
+            if (owners[pixel] is { Picture: { } picture } frame && (layer.ShownAbove is not { } shownAbove || y < shownAbove)
+                && InkAt(picture, x - frame.Corner.X, y - frame.Corner.Y) is { } ink)
+                shown[pixel] = new ShownPixel(ink, depths[pixel]);
         }
-        return inks;
+        return shown;
     }
 
-    /// <summary>What <paramref name="shown"/>'s parts show on <paramref name="area"/>: each pixel the ink of the frontmost part inking it.</summary>
-    private static SpriteImageInk?[] Layered(ShownBossBody shown, Extent16<BackgroundPixels> area)
+    /// <summary>
+    /// What <paramref name="shown"/>'s parts show on <paramref name="area"/>: each pixel the ink of the frontmost part inking
+    /// it, at that part's depth.
+    /// </summary>
+    private static ShownPixel?[] Layered(ShownBossBody shown, Extent16<BackgroundPixels> area)
     {
-        var inks = new SpriteImageInk?[area.X * area.Y];
+        var pixels = new ShownPixel?[area.X * area.Y];
         foreach (ShownBossBodyPart part in shown.Parts)
         {
             for (int y = 0; y < part.Size.Y; y++)
@@ -225,12 +245,17 @@ internal static class BossBodyLayeredPartsVerification
                 {
                     // A part reaching past the canvas shows nothing there to compare.
                     if (part.Corner.X + x < area.X && part.Corner.Y + y < area.Y)
-                        inks[(part.Corner.Y + y) * area.X + part.Corner.X + x] = ink;
+                        pixels[(part.Corner.Y + y) * area.X + part.Corner.X + x] = new ShownPixel(ink, part.Depth);
                 }
             }
         }
-        return inks;
+        return pixels;
     }
+
+    /// <summary>A pixel a body shows: its ink and the depth it is drawn at (#1634).</summary>
+    /// <param name="Ink">The pixel's ink.</param>
+    /// <param name="Depth">The depth it is drawn at.</param>
+    private readonly record struct ShownPixel(SpriteImageInk Ink, BossBodyDepth Depth);
 
     /// <summary>The ink of <paramref name="picture"/>'s pixel at <paramref name="x"/>, <paramref name="y"/>, or null where it shows nothing.</summary>
     private static SpriteImageInk? InkAt(SpriteSheetFrame picture, int x, int y)

@@ -362,35 +362,44 @@ uint PicturePixel(uint picture, uint2 pixel, out uint index)
     uint2 texel = Images.Load(int3(uint2(place & 65535, place >> 16) + pixel, 0));
     return TexelColour(texel, RoomLevels[picture + PictureColoursWord], index);
 }
+// A boss body part's depth (D3D11RoomLevelBuffer.DepthWord, #1634): drawn behind the sprites, or in front of them.
+static const uint BossBodyBehindSprites = 0, BossBodyInFrontOfSprites = 1;
+static const uint BossBodyPartWords = 4;
 // A boss body (ShownBossBody, #1466, #1514, #1540, #1609) at a scrolled position of its layer: its parts are placed on the
-// layer with nothing repeating beyond them, and layered in their table's order, each drawn over the parts before it. The frontmost part whose picture inks the position gives `picture` and `within`, its pixel there; where
-// no part inks it, the frontmost part reaching it gives its clear pixel, and a position no part reaches shows nothing.
-// Each part is three words: its picture's offset, the body pixel the picture's top-left corner lies on, and how much of
-// the picture shows across and down from that corner, each x below y. Every background sampler reads the boss through
-// this, so a blending pass shows the same body as an ordinary one (#1426).
-void BossBodyPicture(uint2 scrolled, out uint2 within, out uint picture)
+// layer with nothing repeating beyond them, and layered in their table's order, each drawn over the parts before it. The
+// frontmost part whose picture inks the position shows there, its pixel `within`; where no part inks it, the frontmost part
+// reaching it gives its clear pixel, and a position no part reaches shows nothing. Each boss part is drawn whole at its
+// depth (#1634): its picture is the layer's behind part (`part` PartBehind) for a boss part drawn behind the sprites and
+// its in-front part (PartInFront) for one drawn in front of them, so `picture` is the shown boss part's picture when its
+// depth is the one `part` asks for, and zero otherwise.
+// Each boss part is four words: its picture's offset, the body pixel the picture's top-left corner lies on, how much of
+// the picture shows across and down from that corner, each x below y, and its depth. Every background sampler reads the
+// boss through this, so a blending pass shows the same body as an ordinary one (#1426).
+void BossBodyPicture(uint2 scrolled, uint part, out uint2 within, out uint picture)
 {
     uint table = RoomLevels[RoomBossBodyWord];
     uint2 position = scrolled & 65535;
-    picture = 0;
+    uint shownPicture = 0, shownDepth = BossBodyBehindSprites;
     within = uint2(0, 0);
-    for (uint part = RoomLevels[table]; part > 0; part--)
+    for (uint placed = RoomLevels[table]; placed > 0; placed--)
     {
-        uint record = table + 1 + (part - 1) * 3;
+        uint record = table + 1 + (placed - 1) * BossBodyPartWords;
         uint corner = RoomLevels[record + 1], size = RoomLevels[record + 2];
         uint2 offset = position - uint2(corner & 65535, corner >> 16);
         if (offset.x >= (size & 65535) || offset.y >= (size >> 16)) continue;
         uint shown = RoomLevels[record];
         uint index;
-        bool front;
-        PicturePixel(shown, offset, index, front);
-        if (picture == 0 || index != 0)
+        PicturePixel(shown, offset, index);
+        if (shownPicture == 0 || index != 0)
         {
-            picture = shown;
+            shownPicture = shown;
+            shownDepth = RoomLevels[record + 3];
             within = offset;
         }
-        if (index != 0) return;
+        if (index != 0) break;
     }
+    uint askedDepth = part == PartInFront ? BossBodyInFrontOfSprites : BossBodyBehindSprites;
+    picture = shownDepth == askedDepth ? shownPicture : 0;
 }
 
 /// A pass's described line scrolls (#1468, D3D11LineScrolls): LineScrolls' first four rows are slots, each one axis of

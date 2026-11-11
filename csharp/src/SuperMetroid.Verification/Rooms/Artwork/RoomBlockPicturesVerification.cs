@@ -362,9 +362,11 @@ internal static class RoomBlockPicturesVerification
             {
                 Position16<BackgroundPixels> at = BossBodyPainter.PixelOf(cell);
                 var word = new SnesBgTilemapWord(tile.PackedWord);
+                bool inks = false;
                 for (int y = 0; y < CharacterPixels; y++)
                 for (int x = 0; x < CharacterPixels; x++)
                 {
+                    inks |= TileColour(vram, word, x, y) != 0;
                     // A frame that paints nothing has no picture: the tile it writes there paints nothing (#1513).
                     if (shown.Picture is { } picture)
                         AssertPaintsTile($"{owner} {shown.Name} cell {cell} pixel ({x}, {y})", vram, word, x, y, picture,
@@ -373,6 +375,11 @@ internal static class RoomBlockPicturesVerification
                         AssertTrue(TileColour(vram, word, x, y) == 0,
                             $"{owner} {shown.Name} clears cell {cell}, where tile ${word.Raw:X4} paints pixel ({x}, {y})");
                 }
+                // The frame is drawn whole at the depth the tier of every word it paints with names (#1634): in front of the
+                // sprites for the upper tier, behind them for the lower.
+                if (inks)
+                    AssertTrue(shown.Depth == (word.HasPriority ? BossBodyDepth.InFrontOfSprites : BossBodyDepth.BehindSprites),
+                        $"{owner} {shown.Name} is drawn {shown.Depth}, but its tile ${word.Raw:X4} at cell {cell} is written in the {(word.HasPriority ? "upper" : "lower")} tier");
             }
             frames++;
         }

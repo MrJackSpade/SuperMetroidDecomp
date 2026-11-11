@@ -16,7 +16,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// Composes the ending's background picture sheets (#1467): the import executes the ending's character and map loads once
 /// and paints each picture the ending's scenes select, the credits roll's staff lines, the waiting backdrop, the logo, the
 /// result and copyright panels, the typed glyphs, the wavy Samus and the explosion's maps, each pre-coloured under the
-/// palette its scene loads and each pixel in the priority tier its map word gave it.
+/// palette its scene loads and each installed whole (#1634).
 /// </summary>
 internal static class EndingPictureSheetComposer
 {

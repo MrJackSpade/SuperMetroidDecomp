@@ -98,7 +98,7 @@ internal static class RoomBackgroundsFixtures
     /// <summary>
     /// A seeded boss body of <paramref name="rows"/> eight-pixel rows (#1466, #1514, #1515, #1540) whose screens of rows cover
     /// <paramref name="area"/> left to right and then downward: every four rows a seeded block picture tiled across them,
-    /// one part for each place of it.
+    /// one part for each place of each of its parts, at that part's depth (#1634).
     /// </summary>
     internal static ShownBossBody SeededBody(Random random, RgbColor[] scene, int rows, Extent16<BackgroundPixels> area)
     {
@@ -107,7 +107,7 @@ internal static class RoomBackgroundsFixtures
         var parts = new List<ShownBossBodyPart>();
         for (int top = 0; top < rows; top += partRows)
         {
-            SpriteSheetFrame picture = blocks.Picture(random.Next(Definitions))?.Behind
+            LayeredPicture picture = blocks.Picture(random.Next(Definitions))
                 ?? throw new InvalidOperationException("A seeded block has no picture.");
             Tile(parts, picture, CellCorner(top, 0, area), BodyColumns * BodyCellPixels, Math.Min(partRows, rows - top) * BodyCellPixels);
         }
@@ -141,7 +141,7 @@ internal static class RoomBackgroundsFixtures
             int first = cell, row = cell / BodyColumns;
             while (cell < words.Length && cell / BodyColumns == row && words[cell] == words[first])
                 cell++;
-            SpriteSheetFrame picture = painted[Array.IndexOf(distinct, words[first])];
+            var picture = new LayeredPicture(painted[Array.IndexOf(distinct, words[first])], InFront: null);
             Tile(parts, picture, CellCorner(row, first % BodyColumns, area), (cell - first) * BodyCellPixels, BodyCellPixels);
         }
         return new ShownBossBody([.. parts]);
@@ -157,7 +157,7 @@ internal static class RoomBackgroundsFixtures
     {
         var definition = new BackgroundTile[BlockTiles];
         definition.AsSpan().Fill(BackgroundTileWordBytes.Tile(word.Raw));
-        SpriteSheetFrame block = RoomBlockFixtures.WholePictures(definition, image, palette, characterWord)[0];
+        var block = new LayeredPicture(RoomBlockFixtures.WholePictures(definition, image, palette, characterWord)[0], InFront: null);
         var parts = new List<ShownBossBodyPart>();
         Tile(parts, block, default, area.X, area.Y);
         return new ShownBossBody([.. parts]);
@@ -183,15 +183,23 @@ internal static class RoomBackgroundsFixtures
 
     /// <summary>
     /// Adds the parts that tile <paramref name="picture"/> over the <paramref name="width"/> by <paramref name="height"/>
-    /// pixels from <paramref name="corner"/>, from the picture's top-left corner, each cut where the rectangle ends.
+    /// pixels from <paramref name="corner"/>, from the picture's top-left corner, each cut where the rectangle ends: at each
+    /// place its part drawn behind the sprites, then its part drawn in front of them (#1634), which share no pixel. A picture
+    /// showing nothing adds no part.
     /// </summary>
-    private static void Tile(List<ShownBossBodyPart> parts, SpriteSheetFrame picture, Position16<BackgroundPixels> corner, int width, int height)
+    private static void Tile(List<ShownBossBodyPart> parts, LayeredPicture picture, Position16<BackgroundPixels> corner, int width, int height)
     {
-        for (int y = 0; y < height; y += picture.Size.Y)
-        for (int x = 0; x < width; x += picture.Size.X)
+        if (picture.Size is not { } size)
+            return;
+        for (int y = 0; y < height; y += size.Y)
+        for (int x = 0; x < width; x += size.X)
         {
-            parts.Add(new ShownBossBodyPart(picture, new Position16<BackgroundPixels>(corner.X + x, corner.Y + y),
-                new Extent16<BackgroundPixels>(Math.Min(picture.Size.X, width - x), Math.Min(picture.Size.Y, height - y))));
+            var at = new Position16<BackgroundPixels>(corner.X + x, corner.Y + y);
+            var shown = new Extent16<BackgroundPixels>(Math.Min(size.X, width - x), Math.Min(size.Y, height - y));
+            if (picture.Behind is { } behind)
+                parts.Add(new ShownBossBodyPart(behind, at, shown, BossBodyDepth.BehindSprites));
+            if (picture.InFront is { } inFront)
+                parts.Add(new ShownBossBodyPart(inFront, at, shown, BossBodyDepth.InFrontOfSprites));
         }
     }
 

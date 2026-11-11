@@ -7,7 +7,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>
-/// One painted picture cut from a sheet (#1513): its rectangle's pixels, inks and front-tile marks, with the origin, colour
+/// One painted picture cut from a sheet (#1513): its rectangle's pixels and inks, with the origin, colour
 /// groups and depth its frame document names, so it can be laid on another sheet and drawn as it was. What it shows in each
 /// shade is its sheet's colouring over <see cref="Rows"/>, which it does not hold.
 /// </summary>
@@ -22,12 +22,9 @@ internal sealed class SheetPicture
     /// <summary>Each pixel's colour group's place times sixteen plus its colour, zero where transparent.</summary>
     private readonly byte[] inks;
 
-    /// <summary>One where the pixel lies in one of its layer's front tiles, zero elsewhere.</summary>
-    private readonly byte[] frontTiles;
-
     /// <summary>Keeps a picture's planes and frame document fields.</summary>
     private SheetPicture(Extent16<ImagePixels> size, Offset16<ImagePixels> origin, ImageColourGroups colourGroups, ActorDepth? depth,
-        RgbaPixel[] pixels, byte[] inks, byte[] frontTiles)
+        RgbaPixel[] pixels, byte[] inks)
     {
         Size = size;
         Origin = origin;
@@ -35,7 +32,6 @@ internal sealed class SheetPicture
         Depth = depth;
         this.pixels = pixels;
         this.inks = inks;
-        this.frontTiles = frontTiles;
         ImageColourGroups rows = colourGroups;
         foreach (int ink in inks)
         {
@@ -65,7 +61,7 @@ internal sealed class SheetPicture
     internal ImageColourGroups Rows { get; }
 
     /// <summary>
-    /// A hash of the rectangle alone: its size and each pixel's colour, ink and front-tile mark. Pictures with one such
+    /// A hash of the rectangle alone: its size and each pixel's colour and ink. Pictures with one such
     /// hash are one rectangle of a sheet, whatever origin, colour groups and depth each of their frames names (#1513).
     /// </summary>
     internal string Pixels { get; }
@@ -81,15 +77,13 @@ internal sealed class SheetPicture
         int area = size.X * size.Y;
         var pixels = new RgbaPixel[area];
         var inks = new byte[area];
-        var frontTiles = new byte[area];
         for (int row = 0; row < size.Y; row++)
         {
             int from = (frame.Corner.Y + row) * planes.Size.X + frame.Corner.X;
             planes.Pixels.Slice(from, size.X).CopyTo(pixels.AsSpan(row * size.X, size.X));
             planes.PaletteIndices.Slice(from, size.X).CopyTo(inks.AsSpan(row * size.X, size.X));
-            planes.FrontTiles.Slice(from, size.X).CopyTo(frontTiles.AsSpan(row * size.X, size.X));
         }
-        return new SheetPicture(size, frame.Origin, ImageColourGroups.FromManifest(frame.ColourGroups), frame.Depth, pixels, inks, frontTiles);
+        return new SheetPicture(size, frame.Origin, ImageColourGroups.FromManifest(frame.ColourGroups), frame.Depth, pixels, inks);
     }
 
     /// <summary>Copies the picture onto <paramref name="planes"/> with its rectangle's top-left pixel at <paramref name="corner"/>.</summary>
@@ -100,7 +94,6 @@ internal sealed class SheetPicture
             int to = (corner.Y + row) * planes.Size.X + corner.X;
             pixels.AsSpan(row * Size.X, Size.X).CopyTo(planes.Pixels.Slice(to, Size.X));
             inks.AsSpan(row * Size.X, Size.X).CopyTo(planes.PaletteIndices.Slice(to, Size.X));
-            frontTiles.AsSpan(row * Size.X, Size.X).CopyTo(planes.FrontTiles.Slice(to, Size.X));
         }
     }
 
@@ -116,7 +109,7 @@ internal sealed class SheetPicture
 
     /// <summary>
     /// What a draw of the picture shows in <paramref name="colouring"/>, its sprite sheet's colouring over <see cref="Rows"/>
-    /// (#1544): its size, origin and depth, each pixel's colour, front-tile mark and how it shows its colour once installed,
+    /// (#1544): its size, origin and depth, each pixel's colour and how it shows its colour once installed,
     /// the colour it shows named by the order the picture first shows its colours, and the colouring's colours and shades over
     /// those colours. Its palette indices and colour groups are left out, as the installed image names its own colours.
     /// </summary>
@@ -140,7 +133,6 @@ internal sealed class SheetPicture
                 writer.Write(colour.G);
                 writer.Write(colour.B);
                 writer.Write(colour.A);
-                writer.Write(frontTiles[pixel]);
                 int ink = inks[pixel];
                 if (InstalledSheetColouring.ShownKindOf(SpriteImageColours.Sprite, ink) is not { } kind)
                 {
@@ -170,7 +162,6 @@ internal sealed class SheetPicture
             writer.Write(Size.Y);
             writer.Write(System.Runtime.InteropServices.MemoryMarshal.AsBytes(pixels.AsSpan()));
             writer.Write(inks);
-            writer.Write(frontTiles);
         }
         return Convert.ToHexString(SHA256.HashData(stream.GetBuffer().AsSpan(0, checked((int)stream.Length))));
     }

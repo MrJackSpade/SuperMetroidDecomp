@@ -120,7 +120,6 @@ internal static class InstalledArtworkContentIdentity
                 content.Append("shade inks", System.Runtime.InteropServices.MemoryMarshal.AsBytes(shown.Inks.AsSpan()));
                 content.Append("shade colours", System.Runtime.InteropServices.MemoryMarshal.AsBytes(shown.Colours.AsSpan()));
             }
-            content.AppendBytes("front tiles", inks.SelectToArray(ink => ink.FrontTile ? 1 : 0));
             foreach (string name in sheet.FrameNames.Order(StringComparer.Ordinal))
             {
                 SpriteSheetFrame frame = sheet.Frame(name);

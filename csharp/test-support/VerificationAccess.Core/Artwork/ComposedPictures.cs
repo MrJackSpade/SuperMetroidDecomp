@@ -16,13 +16,12 @@ internal static class ComposedPictures
     /// <param name="size">The picture's width and height.</param>
     /// <param name="pixels">The composed pixels.</param>
     /// <param name="paletteIndices">Each pixel's composed palette index.</param>
-    /// <param name="frontTiles">One where a pixel lies in one of its layer's front tiles, zero elsewhere.</param>
     /// <param name="composed">The composed manifest, whose colours, shades and backdrop the picture installs.</param>
     /// <param name="installed">The installed manifest, whose frames a sheet cuts.</param>
     internal static SpriteImage Install(string name, Extent16<ImagePixels> size, ReadOnlySpan<RgbaPixel> pixels,
-        ReadOnlySpan<byte> paletteIndices, ReadOnlySpan<byte> frontTiles, SpriteSheetDocument composed, out InstalledSheetDocument installed)
+        ReadOnlySpan<byte> paletteIndices, SpriteSheetDocument composed, out InstalledSheetDocument installed)
     {
-        InstalledSheetLayers layers = InstalledSheetColouring.Install(composed, paletteIndices, frontTiles);
+        InstalledSheetLayers layers = InstalledSheetColouring.Install(composed, paletteIndices);
         installed = layers.Manifest;
         SpriteImage image = SpriteImageFixtures.Copied(name, size, pixels, layers.Inks, SpriteSheetFile.ColoursOf(layers.Manifest));
         InstalledPictureColours.Record(image, layers.Manifest.Source);
@@ -35,8 +34,8 @@ internal static class ComposedPictures
     /// it.
     /// </summary>
     internal static SpriteImage Install(string name, Extent16<ImagePixels> size, ReadOnlySpan<RgbaPixel> pixels,
-        ReadOnlySpan<byte> paletteIndices, ReadOnlySpan<byte> frontTiles, SpriteImageColours palette, ReadOnlySpan<RgbColor> table) =>
-        Install(name, size, pixels, paletteIndices, frontTiles, Composed(palette, table), out _);
+        ReadOnlySpan<byte> paletteIndices, SpriteImageColours palette, ReadOnlySpan<RgbColor> table) =>
+        Install(name, size, pixels, paletteIndices, Composed(palette, table), out _);
 
     /// <summary>A frameless composed manifest of <paramref name="table"/>, the colours of <paramref name="palette"/>'s half.</summary>
     internal static SpriteSheetDocument Composed(SpriteImageColours palette, ReadOnlySpan<RgbColor> table)

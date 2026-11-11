@@ -13,9 +13,10 @@ public static class SpriteSheetFile
 {
     /// <summary>
     /// The manifest schema revision this reader reads: 12 names each colour effect's shades by its colour group and
-    /// animation and each step by the frame's place in that animation (#1598).
+    /// animation and each step by the frame's place in that animation (#1598); 13 marks no pixel as lying in a front tile, a
+    /// picture of a layer's tiles being installed as its part behind and its part in front instead (#1634).
     /// </summary>
-    public const int Version = 12;
+    public const int Version = 13;
 
     /// <summary>
     /// Camel-case manifest fields; unknown fields are rejected. The import writes manifests with the same settings, unindented:

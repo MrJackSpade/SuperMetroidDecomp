@@ -22,9 +22,6 @@ internal static class InstalledSheetColouring
     /// </summary>
     private const int FirstBlendingGroup = 4;
 
-    /// <summary>The palette map's green-channel bit marking a pixel that lies in one of its layer's front tiles (#1514).</summary>
-    private const int FrontTileMark = 1;
-
     /// <summary>The palette map's green-channel bit marking a clear pixel.</summary>
     private const int ClearMark = 2;
 
@@ -33,16 +30,14 @@ internal static class InstalledSheetColouring
 
     /// <summary>
     /// The installed manifest and each pixel's ink of a sheet composed as <paramref name="composed"/>, whose pixels were
-    /// composed as <paramref name="paletteIndices"/> and marked as lying in front tiles by <paramref name="frontTiles"/>.
+    /// composed as <paramref name="paletteIndices"/>.
     /// </summary>
     /// <exception cref="InvalidDataException">
-    /// The composed manifest names the wrong number of colours, a pixel or the backdrop names a palette index past them, or
-    /// a front-tile mark is neither zero nor one.
+    /// The composed manifest names the wrong number of colours, or a pixel or the backdrop names a palette index past them.
     /// </exception>
-    internal static InstalledSheetLayers Install(SpriteSheetDocument composed, ReadOnlySpan<byte> paletteIndices, ReadOnlySpan<byte> frontTiles)
+    internal static InstalledSheetLayers Install(SpriteSheetDocument composed, ReadOnlySpan<byte> paletteIndices)
     {
         Ensure.NotNull(composed);
-        Ensure.LengthEqual(frontTiles, paletteIndices.Length);
         int tableColours = ImageColourGroup.ColourCountOf(composed.Palette);
         if (composed.Colours is null || composed.Colours.Length != tableColours)
             throw new InvalidDataException($"A {composed.Palette} sheet names {composed.Colours?.Length ?? 0} colours, not {tableColours}.");
@@ -72,12 +67,9 @@ internal static class InstalledSheetColouring
         var inks = new SpriteImageInk[paletteIndices.Length];
         for (int pixel = 0; pixel < inks.Length; pixel++)
         {
-            int front = frontTiles[pixel];
-            if (front > 1)
-                throw new InvalidDataException($"A sheet marks a pixel's front tile {front}; a pixel lies in a front tile (one) or not (zero).");
             int index = paletteIndices[pixel];
-            inks[pixel] = ShownKindOf(composed.Palette, index) is { } kind ? new SpriteImageInk(placeOf[index], kind, front != 0)
-                : SpriteImageInk.Transparent(front != 0);
+            inks[pixel] = ShownKindOf(composed.Palette, index) is { } kind ? new SpriteImageInk(placeOf[index], kind)
+                : SpriteImageInk.Transparent;
         }
         var manifest = new InstalledSheetDocument
         {
@@ -101,17 +93,13 @@ internal static class InstalledSheetColouring
     /// <summary>The palette map pixel that installs <paramref name="ink"/>: its colour's place in red, its marks in green, opaque where it has a colour.</summary>
     internal static RgbaPixel MapPixelOf(SpriteImageInk ink) => new(
         checked((byte)(ink.Colour ?? 0)),
-        (byte)((ink.FrontTile ? FrontTileMark : 0) | (ink.Clear ? ClearMark : 0) | (ink.Blends ? BlendsMark : 0)),
+        (byte)((ink.Clear ? ClearMark : 0) | (ink.Blends ? BlendsMark : 0)),
         0,
         ink.IsTransparent ? (byte)0 : byte.MaxValue);
 
     /// <summary>The ink a palette map pixel installs: transparent where the map pixel is, otherwise the colour its red names.</summary>
-    internal static SpriteImageInk InkOf(RgbaPixel mapPixel)
-    {
-        bool front = (mapPixel.G & FrontTileMark) != 0;
-        return mapPixel.A == 0 ? SpriteImageInk.Transparent(front)
-            : new SpriteImageInk(mapPixel.R, MarkedKind(mapPixel.G), front);
-    }
+    internal static SpriteImageInk InkOf(RgbaPixel mapPixel) =>
+        mapPixel.A == 0 ? SpriteImageInk.Transparent : new SpriteImageInk(mapPixel.R, MarkedKind(mapPixel.G));
 
     /// <summary>
     /// How a pixel of a <paramref name="palette"/> sheet composed as <paramref name="index"/> shows its colour once installed,

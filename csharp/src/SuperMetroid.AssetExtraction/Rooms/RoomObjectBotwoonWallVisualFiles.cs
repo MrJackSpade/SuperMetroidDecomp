@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -33,15 +34,21 @@ public static class RoomObjectBotwoonWallVisualFiles
         ? "clear-wall"
         : throw new InvalidDataException($"Botwoon wall draw {draw} has no visual ID.");
 
-    /// <summary>The nine-block vertical clear draw, built from the blocks the game writes.</summary>
+    /// <summary>
+    /// The wall clear's draw list as the cartridge writes it: one run down the column from the wall's top block, each cell
+    /// colliding as the game's block shape for the clear says (#1608). The run form is the cartridge's; the game draws
+    /// the shape.
+    /// </summary>
     internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All
     {
         get
         {
-            var collisions = new RoomCollisionType[BotwoonWallObjectDrawDefinitions.BlockCount];
-            for (int index = 0; index < collisions.Length; index++) collisions[index] = BotwoonWallObjectDraws.CollisionAt(index);
-            yield return RoomObjectDrawListExport.SingleRun(BotwoonWallObjectDrawDefinitions.Clear, RoomObjectRunDirection.Vertical, collisions);
-
+            RoomObjectDraw draw = BotwoonWallObjectDrawDefinitions.Clear;
+            if (!BotwoonWallObjectDraws.TryDescribe(draw, out RoomBlockShape? shape))
+                throw new InvalidOperationException("Botwoon's wall clear has no shape.");
+            var collisions = new RoomCollisionType[shape.Cells.Count];
+            for (int cell = 0; cell < collisions.Length; cell++) collisions[cell] = shape.CollisionAt(new Offset16<RoomBlocks>(0, cell));
+            yield return RoomObjectDrawListExport.SingleRun(draw, RoomObjectRunDirection.Vertical, collisions);
         }
     }
 }

@@ -80,7 +80,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
     /// <summary>Replaceable plant tiles; the three-run collision layout stays compiled.</summary>
     public InstalledRoomObjectSamusEaterVisuals? SamusEaterVisuals => _visuals.RoomObjectSamusEaterVisuals;
 
-    /// <summary>The installed picture of the nine-block vertical Botwoon wall clear; its compiled air-block collision remains unchanged.</summary>
+    /// <summary>The installed picture of the nine-block vertical Botwoon wall clear; its block shape owns placement and collision.</summary>
     public InstalledRoomObjectBotwoonWallVisuals? BotwoonWallVisuals => _visuals.RoomObjectBotwoonWallVisuals;
 
     /// <summary>The installed pictures of Kraid's ceiling and spike frames, distinct from the boss's private background body maps and from elevatube owners of the shared crumble draw.</summary>
@@ -201,11 +201,9 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
                     DrawImageCell(level, draw, origin, plant, samusEater.Start(run) + new Offset16<RoomBlocks>(block, 0), samusEater.CollisionAt(run, block));
             return;
         }
-        if (draw == BotwoonWallObjectDrawDefinitions.Clear)
+        if (BotwoonWallObjectDraws.TryDescribe(draw, out RoomBlockShape? botwoonWall))
         {
-            RoomObjectFrameImage wall = Installed(BotwoonWallVisuals, "Botwoon wall").Image(draw);
-            for (int row = 0; row < BotwoonWallObjectDrawDefinitions.BlockCount; row++)
-                DrawImageCell(level, draw, origin, wall, new Offset16<RoomBlocks>(0, row), BotwoonWallObjectDraws.CollisionAt(row));
+            DrawShape(level, draw, origin, Installed(BotwoonWallVisuals, "Botwoon wall").Image(draw), botwoonWall);
             return;
         }
         if (LinkedRestoreObjectFamily.TryDescribeAny(draw, out var linkedRestore))

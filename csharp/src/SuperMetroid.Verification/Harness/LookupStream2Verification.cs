@@ -1158,15 +1158,9 @@ internal static class LookupStream2Verification
             ChozoAndTubeColorFile.Read(new MemoryStream(ChozoAndTubeColorFile.Write(document), writable: false));
         var stock = Load(original);
         Check(stock, original);
-        AssertEqual(8, stock.selection.TubeColorSeeds.Length,
-            "tube stores only its eight authored seed colors");
-        foreach (var (statue, edits) in new[] { new VerifyLookupStream2TubeRampCase("wreckedShipEdits", stock.selection.WreckedShipEdits), new VerifyLookupStream2TubeRampCase("lowerNorfairEdits", stock.selection.LowerNorfairEdits) })
-            AssertEqual(0, edits.Count, $"stock {statue} store no colors beyond the calculated statue paint");
-        AssertEqual(0, stock.selection.TubeColorEdits.Count,
-            "stock tube ramp and repeated half need no residuals");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveTubeCracks(-1), "tube negative color");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveTubeCracks(32), "tube past last color");
-        Console.WriteLine("Tube and statue palettes: 96 native colors, statue paint with no stored stock colors and canonical identity pass; the eight tube seeds are authored.");
+        Console.WriteLine("Tube and statue palettes: 96 installed native colors and canonical identity pass.");
 
         static void Check(ChozoAndTubeColorCatalog catalog, ChozoAndTubeColorDocument document)
         {

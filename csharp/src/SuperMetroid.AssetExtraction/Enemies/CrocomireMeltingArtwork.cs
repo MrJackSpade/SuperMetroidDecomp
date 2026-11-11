@@ -19,27 +19,27 @@ public sealed class CrocomireMeltingArtwork
         {
             content.Append("first", first.Characters.Span);
             content.Append("second", second.Characters.Span);
-            content.AppendTiles("first-map", firstTilemap.Tiles());
-            content.AppendTiles("second-map", secondTilemap.Tiles());
+            content.AppendTiles("first-map", firstTilemap);
+            content.AppendTiles("second-map", secondTilemap);
         });
 
     /// <summary>Installed planar character data for the first overlapping melt pass.</summary>
     internal readonly RoomCharacterAtlas first;
     /// <summary>Installed planar character data for the second, eroded melt pass.</summary>
     internal readonly RoomCharacterAtlas second;
-    /// <summary>Validated BG2 references for the first illustration.</summary>
-    private readonly CrocomireMeltingTilemap firstTilemap;
-    /// <summary>Validated BG2 references for the second illustration.</summary>
-    private readonly CrocomireMeltingTilemap secondTilemap;
+    /// <summary>The installed BG2 references for the first illustration.</summary>
+    private readonly BackgroundTile[] firstTilemap;
+    /// <summary>The installed BG2 references for the second illustration.</summary>
+    private readonly BackgroundTile[] secondTilemap;
 
-    /// <summary>Retains compiled sheets and tilemaps, distinguishing the second illustration's layout.</summary>
+    /// <summary>Keeps the installed sheets and both complete installed tilemaps.</summary>
     private CrocomireMeltingArtwork(RoomCharacterAtlas first, RoomCharacterAtlas second,
         BackgroundTile[] firstTilemap, BackgroundTile[] secondTilemap)
     {
         this.first = first;
         this.second = second;
-        this.firstTilemap = new(CrocomireMeltingIllustration.First, firstTilemap);
-        this.secondTilemap = new(CrocomireMeltingIllustration.Second, secondTilemap);
+        this.firstTilemap = firstTilemap;
+        this.secondTilemap = secondTilemap;
     }
 
     /// <summary>Combines both installed character sheets and tile layouts into one installed snapshot.</summary>
@@ -75,8 +75,8 @@ public sealed class CrocomireMeltingArtwork
     /// <summary>Returns only the visual tile references, never melt control or hitboxes.</summary>
     internal ReadOnlySpan<BackgroundTile> Tilemap(CrocomireMeltingIllustration illustration) => illustration switch
     {
-        CrocomireMeltingIllustration.First => firstTilemap.Tiles(),
-        CrocomireMeltingIllustration.Second => secondTilemap.Tiles(),
+        CrocomireMeltingIllustration.First => firstTilemap,
+        CrocomireMeltingIllustration.Second => secondTilemap,
         _ => throw new InvalidDataException(
             $"Crocomire melt tilemap {illustration} is not installed."),
     };

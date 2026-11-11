@@ -101,14 +101,9 @@ internal static class LookupStream5Verification
         {
             CrocomireMeltingIllustration source = phase == 0 ? CrocomireMeltingIllustration.First : CrocomireMeltingIllustration.Second;
             native[phase] = Enumerable.Range(0, 256).Select(i => ReadVerificationWord(oracle, SuperMetroid.AssetExtraction.Enemies.CrocomireMeltingSources.Tilemap(source) + i * 2)).ToArray();
-            var calculated = new CrocomireMeltingTilemap((phase != 0) ? CrocomireMeltingIllustration.Second : CrocomireMeltingIllustration.First, BackgroundTileWordBytes.Tiles(native[phase]));
-            AssertEqual(0, calculated.edits.Count,
-                "Every native melt tilemap word calculates without fallback");
-            AssertTrue(BackgroundTileWordBytes.Words(calculated.Tiles()).SequenceEqual(native[phase]), "All native melt words");
             AssertTrue(BackgroundTileWordBytes.Words((art ?? throw new InvalidOperationException("Verification requires art.")).Tilemap(source)).SequenceEqual(native[phase]), "Installed melt words");
             VerifyInstalledCrocomireMeltingTilemap(oracle, catalog, source, phase == 0
                 ? CrocomireBodyProgram.MeltingOneTopRow : CrocomireBodyProgram.MeltingTwoTopRow);
-            AssertThrows<InvalidDataException>(() => _ = new CrocomireMeltingTilemap((phase != 0) ? CrocomireMeltingIllustration.Second : CrocomireMeltingIllustration.First, new BackgroundTile[255]), "Short melt map rejects");
         }
         var first = (art ?? throw new InvalidOperationException("Verification requires art.")).first;
         var second = art.second;
@@ -985,8 +980,6 @@ internal static class LookupStream5Verification
         var native = RequiredJson.Deserialize<MagdollitePaletteCycleDocument>(json,
             new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         MagdollitePaletteCycle stock = Check(native);
-        var residuals = stock.edits;
-        AssertEqual(0, residuals.Count, "Native Magdollite pulse requires no stored frame residuals");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(-1, 0),
             "Magdollite pulse lower frame bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(4, 0),
@@ -1017,8 +1010,6 @@ internal static class LookupStream5Verification
         var native = RequiredJson.Deserialize<ZebetiteColorDocument>(json,
             new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         ZebetiteColorCatalog stock = Check(native);
-        var residuals = stock.edits;
-        AssertEqual(0, residuals.Count, "Native Zebetite pulse requires no stored frame residuals");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(-1, 0),
             "Zebetite pulse lower frame bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(8, 0),

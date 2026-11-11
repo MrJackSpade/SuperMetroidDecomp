@@ -8,6 +8,9 @@ namespace SuperMetroid.Verification.Rooms.RoomObjects;
 /// <summary>Checks collectible PLM visual selectors and phase bounds against native draw operands.</summary>
 internal static class LookupCollectibleSelectorsVerification
 {
+    /// <summary>Every block pair a tank's draw is checked against, and none: a tank's frames are its kind's own blocks.</summary>
+    private static readonly CollectibleBlockPairs.Pair?[] TankBlockPairs = [null, .. CollectibleBlockPairs.InTurn];
+
     /// <summary>Checks the four orb animation phases and rejects invalid phase indices.</summary>
     internal static void VerifyCollectibleOrbSelector(SuperMetroidAddressSpace rom)
     {
@@ -40,13 +43,13 @@ internal static class LookupCollectibleSelectorsVerification
         for (int kind = 0; kind < starts.Length; kind++)
         {
             for (int phase = 0; phase < 2; phase++)
-                foreach (int unusedSlot in new[] {int.MinValue,-1,0,1,2,3,4,int.MaxValue})
+                foreach (CollectibleBlockPairs.Pair? unusedPair in TankBlockPairs)
                     AssertEqual(ReadCollectibleDrawWord(rom, (ushort)(starts[kind] + phase * 4)),
-                        RoomObjectDrawAddressCodec.Of(CollectibleObjectDraws.VisibleFrame((InWorldCollectibleKind)kind,phase,unusedSlot)),
+                        RoomObjectDrawAddressCodec.Of(CollectibleObjectDraws.VisibleFrame((InWorldCollectibleKind)kind,phase,unusedPair)),
                         "Collectible native tank draw independent of block pair");
             foreach (int bad in new[] {int.MinValue,-1,2,3,int.MaxValue})
                 AssertThrows<InvalidDataException>(() => CollectibleObjectDraws.VisibleFrame(
-                    (InWorldCollectibleKind)kind,bad,0), "Collectible tank phase bounds");
+                    (InWorldCollectibleKind)kind,bad,CollectibleBlockPairs.Pair.First), "Collectible tank phase bounds");
         }
     }
 
@@ -58,17 +61,18 @@ internal static class LookupCollectibleSelectorsVerification
         {
             for (int phase = 0; phase < 2; phase++)
             {
-                for (int slot = 0; slot < 4; slot++)
-                    AssertEqual(ReadCollectibleDrawWord(rom, (ushort)((phase == 0 ? 0xe05f : 0xe077) + slot * 2)),
-                        RoomObjectDrawAddressCodec.Of(CollectibleObjectDraws.VisibleFrame((InWorldCollectibleKind)kind,phase,slot)),
+                // The pairs in turn select the table's selectors in order.
+                for (int selector = 0; selector < CollectibleBlockPairs.InTurn.Count; selector++)
+                    AssertEqual(ReadCollectibleDrawWord(rom, (ushort)((phase == 0 ? 0xe05f : 0xe077) + selector * 2)),
+                        RoomObjectDrawAddressCodec.Of(CollectibleObjectDraws.VisibleFrame((InWorldCollectibleKind)kind,phase,CollectibleBlockPairs.InTurn[selector])),
                         "Collectible native block pair draw");
-                foreach (int bad in new[] {int.MinValue,-1,4,5,int.MaxValue})
-                    AssertThrows<InvalidDataException>(() => CollectibleObjectDraws.VisibleFrame(
-                        (InWorldCollectibleKind)kind,phase,bad), "Collectible block pair bounds");
+                // A typed pair cannot lie outside the four, so the bound left is an item that took no pair at all.
+                AssertThrows<InvalidDataException>(() => CollectibleObjectDraws.VisibleFrame(
+                    (InWorldCollectibleKind)kind,phase,null), "Collectible item without a block pair");
             }
             foreach (int bad in new[] {int.MinValue,-1,2,3,int.MaxValue})
                 AssertThrows<InvalidDataException>(() => CollectibleObjectDraws.VisibleFrame(
-                    (InWorldCollectibleKind)kind,bad,0), "Collectible dynamic phase bounds");
+                    (InWorldCollectibleKind)kind,bad,CollectibleBlockPairs.Pair.First), "Collectible dynamic phase bounds");
         }
     }
 }

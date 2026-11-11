@@ -5,6 +5,11 @@ namespace SuperMetroid.Core.Compatibility;
 /// The cartridge draws a choice by masking its random word; a catalog names the field the choice reads instead of the
 /// mask, and this type is the one place that reads a field from a sample.
 /// </summary>
+/// <remarks>
+/// Read at every random choice's draw, through the named field for what it chooses. Evidence: each choice's original
+/// masking and shifting of the shared random word, which a field reproduces bit for bit; the SMV replays compare the random
+/// value and every outcome it drives on every update.
+/// </remarks>
 /// <param name="Shift">The position of the field's lowest bit in the sample.</param>
 /// <param name="Width">How many bits the field holds, 0 through 16; a field of no bits reads zero, a choice with one outcome.</param>
 [EncodingOwner("random sample bit fields")]

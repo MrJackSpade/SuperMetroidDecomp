@@ -10,7 +10,10 @@ namespace SuperMetroid.Core.Compatibility;
 /// <remarks>
 /// Kept apart from <see cref="RandomSampleField"/>: a counter field is a schedule the counter steps through, not a
 /// random choice, and naming it for the random sample would misname every counter it reads. A counter read here may be
-/// signed; its field is read in two's complement, exactly as the original's bits read it.
+/// signed; its field is read in two's complement, exactly as the original's bits read it. Read at every alternating or
+/// cycling choice, through the named field its family's catalog gives for what the phase shows or decides. Evidence:
+/// each phase's original masking and shifting of its counter, which a field reproduces bit for bit; the SMV replays
+/// compare the counters and what their phases show and decide on every update.
 /// </remarks>
 /// <param name="Shift">The position of the field's lowest bit in the counter.</param>
 /// <param name="Width">How many bits the field holds, 1 through 15.</param>

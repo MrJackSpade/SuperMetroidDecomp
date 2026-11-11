@@ -33,7 +33,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// enemy's AI, a projectile's pre-instruction, a frontend phase's update) and tests the step there.
 /// </para>
 /// <para>
-/// <b>Evidence.</b> The original game's timers are sixteen-bit words its routines decrement and test by sign or by zero,
+/// <b>Evidence:</b> the original game's timers are sixteen-bit words its routines decrement and test by sign or by zero,
 /// with no clamp; the full-movie replays (the Ridley full movie and the 13% SMV) step every enemy, boss, Samus and frontend
 /// countdown through this type and match the recording on every update. The wrap itself is observable where a timer is
 /// stepped from zero: the Ceres hall's debris waits as long as the elevator shaft's last turn step reads as a countdown

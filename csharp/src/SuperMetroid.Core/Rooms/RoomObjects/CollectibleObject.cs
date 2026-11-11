@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal sealed class CollectibleObject(
     InWorldCollectibleKind kind,
     CollectiblePresentation presentation,
-    int? blockPair,
+    CollectibleBlockPairs.Pair? blockPair,
     CollectiblePhase phase) : RoomObjectBehaviour
 {
     /// <summary>Inventory or capacity item granted when this item is collected.</summary>
@@ -30,7 +30,7 @@ internal sealed class CollectibleObject(
     /// The terrain block pair an item that shows its own picture writes its frames into (<see cref="CollectibleBlockPairs"/>);
     /// null for a tank, whose frames are its kind's own blocks.
     /// </summary>
-    public int? BlockPair { get; } = blockPair;
+    public CollectibleBlockPairs.Pair? BlockPair { get; } = blockPair;
     /// <summary>Current reveal, visible, message, empty, or respawn phase.</summary>
     public CollectiblePhase Phase { get; set; } = phase;
     /// <summary>Updates remaining before the item's next image.</summary>

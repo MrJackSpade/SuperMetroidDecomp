@@ -9,6 +9,7 @@ using SuperMetroid.Core.Enemies.Beetom;
 using SuperMetroid.Core.Enemies.Bull;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.Gunship;
+using SuperMetroid.Core.Enemies.Shaktool;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
@@ -959,7 +960,9 @@ internal sealed class RoomLoader
             Earthquake = roomObjectServices,
             Enemies = roomObjectServices,
         };
-        var roomObjects = new RoomObjectSystem(roomObjectRoom, roomObjectBindings, _shotBlockVisuals);
+        // Each room's room objects get their own collectible block pairs: the room's first collectible that shows its own
+        // picture takes the first pair.
+        var roomObjects = new RoomObjectSystem(roomObjectRoom, roomObjectBindings, _shotBlockVisuals, new CollectibleBlockPairs());
         scope.RoomObjects = roomObjects;
         roomObjects.Sounds.BindPowerBombAudio(bombs.PowerBombExplosion.Activity);
         var areaServices = new RoomEnemyRuntimeServices(_system, _room, _player, roomObjects, _display, progress);
@@ -1002,7 +1005,7 @@ internal sealed class RoomLoader
 
         // The destination's enemies load with the door-transition gates clear; their projectile places start from what
         // the outgoing room's left (RoomHandOver).
-        // Each enemy system gets its own compatibility services: the sweep, the slots and the sprite-object places start
+        // Each enemy system gets its own compatibility services: the sweep, the Shaktool chain, the slots and the sprite-object places start
         // with no earlier kill, occupant or taken place, and a Puyo's ceiling turn starts from what loading the beams'
         // colours above left. The fade step count and the boost cadence outlive the room and are handed on.
         var compatibility = new RoomEnemyCompatibility
@@ -1014,6 +1017,7 @@ internal sealed class RoomLoader
             SpriteObjectPlaces = new SpriteObjectPlaces(),
             FadeStepCount = _fadeStepCount,
             UnauthoredBoostCadence = _unauthoredBoostCadence,
+            KilledShaktoolSegment = new KilledShaktoolSegment<RoomEnemySlot, ShaktoolSegmentState>(),
         };
         var enemies = new RoomEnemySystem(_enemySession, compatibility, CompiledRoomEnemyDefinitions.Instance, areaServices,
             _bossArtwork);

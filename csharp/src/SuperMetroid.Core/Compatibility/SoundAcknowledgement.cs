@@ -6,6 +6,13 @@ namespace SuperMetroid.Core.Compatibility;
 /// (<see cref="SoundAcceptanceClock{TLibrary, TSound}"/>).
 /// </summary>
 /// <typeparam name="TSound">The sound a library is asked for.</typeparam>
+/// <remarks>
+/// Built by the sound acceptance clock at each acknowledgement; read by the sound queues' request handshakes every update.
+/// Evidence: the original sound program replies to each library's handler with the request it last acted on, or with
+/// nothing, and while new music loads the library that reports music loads replies with the load instead, which no
+/// request matches; the sound
+/// acceptance clock check compares these replies on every update with a recording of the emulated sound program's.
+/// </remarks>
 [CompatibilityService("what one sound library reports back as acknowledged")]
 public readonly record struct SoundAcknowledgement<TSound>
     where TSound : struct, IEquatable<TSound>

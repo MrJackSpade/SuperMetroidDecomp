@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Beetom;
 using SuperMetroid.Core.Enemies.Bull;
+using SuperMetroid.Core.Enemies.Shaktool;
 
 namespace SuperMetroid.Core.World;
 
@@ -30,5 +31,6 @@ internal static class RoomEnemyCompatibilityFixtures
         SpriteObjectPlaces = new SpriteObjectPlaces(),
         FadeStepCount = fadeStepCount,
         UnauthoredBoostCadence = unauthoredBoostCadence,
+        KilledShaktoolSegment = new KilledShaktoolSegment<RoomEnemySlot, ShaktoolSegmentState>(),
     };
 }

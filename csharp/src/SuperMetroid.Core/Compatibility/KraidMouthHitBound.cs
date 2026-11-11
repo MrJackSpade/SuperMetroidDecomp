@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// and double close-range damage. How the original game stored the projectile is not otherwise observable.
 /// </summary>
 /// <remarks>
-/// Consulted by Kraid's inner-mouth pass after each accepted hit, before the next projectile is tested. The original
-/// game reused the working word that held the hitting projectile's identity as the mouth rectangle's bottom; the Kraid
+/// Consulted by Kraid's inner-mouth pass after each accepted hit, before the next projectile is tested. Evidence: the
+/// original game reused the working word that held the hitting projectile's identity as the mouth rectangle's bottom; the Kraid
 /// mouth damage checks and the Kraid recorded movie confirm the bound left by charged beams, missiles and Super Missiles.
 /// Three parts the identity also held are not reproduced. The beam combination moved the bound by at most fifteen
 /// pixels: no missile or bomb carries beams, every beam that hits the mouth is charged, and every beam's bound, its

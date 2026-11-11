@@ -1,12 +1,14 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Beetom;
 using SuperMetroid.Core.Enemies.Bull;
+using SuperMetroid.Core.Enemies.Shaktool;
 
 namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// The compatibility services a room's enemy system consults. The room's own services the room's loader creates fresh
-/// with each enemy system it builds, and they live exactly as long as that system: a room's power-bomb sweep, its slots
-/// and its sprite-object places start with no earlier kill, no earlier occupant and no place taken. The services that
+/// with each enemy system it builds, and they live exactly as long as that system: a room's power-bomb sweep, its Shaktool
+/// chain, its slots and its sprite-object places start with no earlier kill, no earlier occupant and no place taken. The services that
 /// outlive every room, the runtime's shared fade step count and the session's unauthored Speed Booster cadence, the loader
 /// hands on to every enemy system it builds.
 /// </summary>
@@ -44,4 +46,10 @@ internal sealed class RoomEnemyCompatibility
     /// every later Samus; it outlives every room and every runtime.
     /// </summary>
     public required UnauthoredBoostCadence UnauthoredBoostCadence { get; init; }
+
+    /// <summary>
+    /// The Shaktool segment a hit last killed, whose emptied remains the rest of its chain reads for the rest of that
+    /// update; a new one holds no kill.
+    /// </summary>
+    public required KilledShaktoolSegment<RoomEnemySlot, ShaktoolSegmentState> KilledShaktoolSegment { get; init; }
 }

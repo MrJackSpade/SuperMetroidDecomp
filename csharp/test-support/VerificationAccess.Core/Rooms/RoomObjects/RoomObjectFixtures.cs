@@ -47,7 +47,7 @@ internal static class RoomObjectFixtures
         visuals.RoomObjectMotherBrainFakeDeathVisuals ??= MotherBrainFakeDeathFrames.Value;
         var room = (RoomObjectRoom)RuntimeHelpers.GetUninitializedObject(typeof(RoomObjectRoom));
         var services = (RoomObjectServices)RuntimeHelpers.GetUninitializedObject(typeof(RoomObjectServices));
-        var roomObjects = new RoomObjectSystem(room, services, visuals);
+        var roomObjects = new RoomObjectSystem(room, services, visuals, new CollectibleBlockPairs());
         visualsByFixture.Add(roomObjects, visuals);
         return roomObjects;
     }
@@ -56,7 +56,7 @@ internal static class RoomObjectFixtures
     internal static RoomObjectSystem Bound(RoomObjectRoom room, RoomObjectServices services, RoomObjectSystem fixture)
     {
         RoomObjectVisuals visuals = VisualsOf(fixture);
-        var roomObjects = new RoomObjectSystem(room, services, visuals);
+        var roomObjects = new RoomObjectSystem(room, services, visuals, new CollectibleBlockPairs());
         visualsByFixture.Add(roomObjects, visuals);
         return roomObjects;
     }

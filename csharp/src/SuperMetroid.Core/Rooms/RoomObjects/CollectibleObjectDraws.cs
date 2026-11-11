@@ -36,7 +36,7 @@ internal static class CollectibleObjectDraws
         DrawGroup.Orb => 3,
         DrawGroup.OrbBurst => 1,
         DrawGroup.Tank => 8,
-        DrawGroup.OwnPicture => CollectibleBlockPairs.Count * 2,
+        DrawGroup.OwnPicture => CollectibleBlockPairs.InTurn.Count * 2,
         DrawGroup.ShotReveal => 3,
         _ => throw new InvalidOperationException($"Undefined {nameof(DrawGroup)} {group}."),
     };
@@ -80,7 +80,7 @@ internal static class CollectibleObjectDraws
     /// picture took (<see cref="CollectibleBlockPairs"/>): two draws each.
     /// </summary>
     internal static RoomObjectFrameDraw<Draw> VisibleFrame(InWorldCollectibleKind kind,
-        int animationIndex, int? blockPair)
+        int animationIndex, CollectibleBlockPairs.Pair? blockPair)
     {
         if ((uint)animationIndex >= 2)
             throw new InvalidDataException(
@@ -88,9 +88,21 @@ internal static class CollectibleObjectDraws
         int tank = Array.IndexOf(TankKinds, kind);
         if (tank >= 0)
             return RoomObjectDraw.Of(new Draw(DrawGroup.Tank, tank * 2 + animationIndex));
-        if (blockPair is not { } pair || pair is < 0 or >= CollectibleBlockPairs.Count)
-            throw new InvalidDataException(
-                $"Collectible {kind} block pair {blockPair} is not one of the {CollectibleBlockPairs.Count} pairs.");
-        return RoomObjectDraw.Of(new Draw(DrawGroup.OwnPicture, pair * 2 + animationIndex));
+        if (blockPair is not { } pair)
+            throw new InvalidDataException($"Collectible {kind} shows its own picture but took no block pair.");
+        return RoomObjectDraw.Of(new Draw(DrawGroup.OwnPicture, FirstOwnPictureFrame(pair) + animationIndex));
     }
+
+    /// <summary>
+    /// The first of the two frames under the item's own picture that <paramref name="pair"/>'s collectible writes: each
+    /// pair's two frames follow the previous pair's, in the turn the room's collectibles take the pairs in.
+    /// </summary>
+    private static int FirstOwnPictureFrame(CollectibleBlockPairs.Pair pair) => pair switch
+    {
+        CollectibleBlockPairs.Pair.First => 0,
+        CollectibleBlockPairs.Pair.Second => 2,
+        CollectibleBlockPairs.Pair.Third => 4,
+        CollectibleBlockPairs.Pair.Fourth => 6,
+        _ => throw new InvalidDataException($"Undefined collectible block pair {pair}."),
+    };
 }

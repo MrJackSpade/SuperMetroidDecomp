@@ -1,6 +1,12 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>The cooldowns one beam combination's shots set the shared shot timer to, in updates (#1506).</summary>
+/// <remarks>
+/// Consulted when a Spazer and Plasma beam is fired, as the shared shot timer is set. Evidence: the original fire
+/// routines set the shared shot timer from three cooldown rows indexed by the beam combination, an uncharged, a charged
+/// and a held-fire row, and a Spazer and Plasma combination reads past the end of each; the projectile cooldown check
+/// compares each combination's three cooldowns with the values the original fire routines read.
+/// </remarks>
 /// <param name="Uncharged">After an uncharged shot fired with Charge equipped or on a fresh press.</param>
 /// <param name="Charged">After a charged shot.</param>
 /// <param name="HeldFire">After an uncharged shot repeated by holding the button without Charge.</param>

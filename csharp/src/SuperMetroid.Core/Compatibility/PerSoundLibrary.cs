@@ -10,7 +10,12 @@ namespace SuperMetroid.Core.Compatibility;
 /// </summary>
 /// <typeparam name="TLibrary">A sound library; the set finds a library by equality and never reads its value.</typeparam>
 /// <typeparam name="TValue">What each library holds.</typeparam>
-/// <remarks>Built once per acknowledgement or request check by the <see cref="SoundAcceptanceClock{TLibrary, TSound}"/>; its evidence is the clock's.</remarks>
+/// <remarks>
+/// Built once per acknowledgement or request check by the <see cref="SoundAcceptanceClock{TLibrary, TSound}"/>. Evidence:
+/// the original game and sound program pass each library's request and reply through that library's own channel, so
+/// one library's reply never stands for another's; the sound acceptance clock check compares every library's
+/// acknowledgement on every update with a recording of the emulated sound program's.
+/// </remarks>
 [CompatibilityService("one value for each sound library, keyed by the library")]
 public readonly struct PerSoundLibrary<TLibrary, TValue> : IEquatable<PerSoundLibrary<TLibrary, TValue>>
     where TLibrary : struct, Enum

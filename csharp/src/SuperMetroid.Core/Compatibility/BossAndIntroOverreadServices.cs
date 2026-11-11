@@ -7,6 +7,12 @@ namespace SuperMetroid.Core.Compatibility;
 /// boss's service to that boss's fight; the opening cinematic hands the shell's to its fragments. Lifetime: the
 /// installation's, shared by every runtime and cinematic of the session.
 /// </summary>
+/// <remarks>
+/// Evidence: in the original game Kraid's fingernail contour walk, Crocomire's spit-shot aiming and a falling egg-shell
+/// fragment's gravity curve each index their authored table with no count, so a nail above every ledge, the volley's
+/// tenth shot and a fragment that falls past the curve read the data after it; the Kraid nail contour, Crocomire tenth
+/// shot and intro egg motion checks decode that data from the player's game and compare it with the services held here.
+/// </remarks>
 [CompatibilityService("Kraid's fingernails, Crocomire's volley and the intro egg shell read what lies past their authored data")]
 public sealed class BossAndIntroOverreadServices
 {

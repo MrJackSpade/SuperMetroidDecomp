@@ -841,7 +841,7 @@ public static class SamusGrappleMovement
                             throw new InvalidOperationException(
                                 "Breakable grapple acquisition requires a ISamusRoomObjects.");
                         }
-                        if (!roomObjects.BlockReactions.TrySpawnBreakableGrappleBlock(level, block.Index, block.Behavior))
+                        if (!roomObjects.BlockReactions.TrySpawnBreakableGrappleBlock(level, level.BlockAt(block.Index), block.Behavior))
                         {
                             throw new InvalidOperationException(
                                 "All 40 room-object slots are occupied during grapple acquisition.");
@@ -872,27 +872,27 @@ public static class SamusGrappleMovement
                     // blue door setup's power-bomb rejection; the ordinary opening owner
                     // supplies all four cap tiles, timing, collision changes, and sound.
                     if (block.Behavior.TryGetDownwardGateTrigger(out _))
-                        roomObjects.Gates.TrySpawnDownwardGateTrigger(level, block.Index, block.Behavior, projectileType: SamusProjectileType.None);
+                        roomObjects.Gates.TrySpawnDownwardGateTrigger(level, level.BlockAt(block.Index), block.Behavior, projectileType: SamusProjectileType.None);
                     else if (block.Behavior.TryGetBlueDoorOrientation(out _))
-                        roomObjects.DoorObjects.TrySpawnBlueDoorOpening(level, block.Index, block.Behavior, projectileType: SamusProjectileType.None);
+                        roomObjects.DoorObjects.TrySpawnBlueDoorOpening(level, level.BlockAt(block.Index), block.Behavior, projectileType: SamusProjectileType.None);
                     else if (block.Behavior.Reaction == BlockReactionDefinitions.ResidentObjectTrigger)
                     {
                         // Generic shot-trigger setup also belongs to the grapple table.
                         // Notify the resident actor with no weapon family; its own
                         // frame behaviour decides whether to reject the hit or wake up.
-                        if (!roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.Index, projectileType: SamusProjectileType.None))
+                        if (!roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(level.BlockAt(block.Index), projectileType: SamusProjectileType.None))
                             throw new InvalidOperationException(
                                 $"Grapple trigger block {block.Index} at ({resolvedX},{resolvedY}) has no resident room-object owner.");
                     }
                     else if (block.Behavior.Reaction == BlockReactionDefinitions.CollectibleTrigger)
-                        roomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(block.Index);
+                        roomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(level.BlockAt(block.Index));
                     else
                     {
                         try
                         {
                             roomObjects.BlockReactions.TrySpawnProjectileShotBlock(
                                 level,
-                                block.Index,
+                                level.BlockAt(block.Index),
                                 block.Behavior,
                                 projectileType: SamusProjectileType.None,
                                 solidBlock: block.CollisionType == RoomCollisionType.ShootableBlock);

@@ -64,14 +64,14 @@ internal static class DraygonCannonObjectsVerification
             "pre-destroyed cannon immediately writes its bank-$A5 control word");
         AssertDestroyedCannon(level, preDestroyedBlock, roomWidth, "pre-destroyed cannon");
 
-        AssertTrue(roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(rightBlock, SamusProjectileType.None),
+        AssertTrue(roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(level.BlockAt(rightBlock), SamusProjectileType.None),
             "beam collision reaches the right cannon PLM");
         StepDraygonCannonObjects(roomObjects, level);
         AssertEqual(1, disabledWords.Count, "beam cannot damage a Draygon cannon");
 
         for (int hit = 0; hit < 3; hit++)
         {
-            AssertTrue(roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(rightBlock, SamusProjectileType.Of(SamusProjectileFamily.Missile)),
+            AssertTrue(roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(level.BlockAt(rightBlock), SamusProjectileType.Of(SamusProjectileFamily.Missile)),
                 $"missile hit {hit + 1} reaches right cannon");
             SettleDraygonCannonHit(roomObjects, level);
         }
@@ -79,7 +79,7 @@ internal static class DraygonCannonObjectsVerification
             "third missile disables the lower-left firing word");
         AssertDestroyedCannon(level, rightBlock, roomWidth, "right cannon");
 
-        AssertTrue(roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(upperLeftBlock, SamusProjectileType.Of(SamusProjectileFamily.SuperMissile)),
+        AssertTrue(roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(level.BlockAt(upperLeftBlock), SamusProjectileType.Of(SamusProjectileFamily.SuperMissile)),
             "Super Missile collision reaches left cannon");
         SettleDraygonCannonHit(roomObjects, level);
         AssertTrue(disabledWords.Contains(DraygonWallCannon.UpperRight),

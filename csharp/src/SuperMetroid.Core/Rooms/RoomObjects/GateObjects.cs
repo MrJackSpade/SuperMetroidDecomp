@@ -98,7 +98,7 @@ internal sealed class GateObjects
     /// <summary>Runs the gate-trigger shot dispatcher and wakes its adjacent gate.</summary>
     public bool TrySpawnDownwardGateTrigger(
         RoomLevelData level,
-        int blockIndex,
+        Position16<RoomBlocks> position,
         RoomBlockBehavior bts,
         SamusProjectileType projectileType)
     {
@@ -112,7 +112,7 @@ internal sealed class GateObjects
         if (_slotTable.SpawnAtCurrentBlock() is not { } temporary)
             return true;
         temporary.Header = HeaderForGateTrigger(trigger);
-        temporary.Block = level.BlockAt(blockIndex);
+        temporary.Block = position;
 
         bool accepted = GateTriggerAcceptsProjectile(trigger, projectileType);
         if (!accepted)

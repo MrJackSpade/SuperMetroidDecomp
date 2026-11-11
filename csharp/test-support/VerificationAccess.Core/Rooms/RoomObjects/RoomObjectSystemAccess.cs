@@ -69,7 +69,7 @@ internal static class RoomObjectSystemAccess
                 .Where(entry => entry.Door is not null)
                 .Select(entry => new ColoredDoorObjectSnapshot(
                     entry.Slot.Header,
-                    self.Level.Size.RowMajorIndex(entry.Slot.Block),
+                    entry.Slot.Block,
                     entry.Slot.NativeRoomArgument,
                     (entry.Door ?? throw new InvalidOperationException("Verification requires entry.door.")).Color,
                     entry.Door.Orientation,
@@ -83,7 +83,7 @@ internal static class RoomObjectSystemAccess
                 .Where(entry => entry.Door is not null)
                 .Select(entry => new GreyDoorObjectSnapshot(
                     entry.Slot.Header,
-                    self.Level.Size.RowMajorIndex(entry.Slot.Block),
+                    entry.Slot.Block,
                     entry.Slot.NativeRoomArgument,
                     (entry.Door ?? throw new InvalidOperationException("Verification requires entry.door.")).Orientation,
                     entry.Door.Condition,
@@ -97,7 +97,7 @@ internal static class RoomObjectSystemAccess
                 .Where(entry => entry.Door is not null || entry.Part is not null)
                 .Select(entry => new EyeDoorObjectSnapshot(
                     entry.Slot.Header,
-                    self.Level.Size.RowMajorIndex(entry.Slot.Block),
+                    entry.Slot.Block,
                     entry.Slot.NativeRoomArgument,
                     entry.Door is not null ? EyeDoorComponent.Eye
                         : (entry.Part ?? throw new InvalidOperationException("Verification requires an eye-door part.")).Component,
@@ -112,13 +112,13 @@ internal static class RoomObjectSystemAccess
         /// Publishes a projectile hit to a resident coloured or grey cap through the production trigger. A cap whose shot
         /// wake is gone (opening, closing or converted) no longer reacts, so the hit is refused.
         /// </summary>
-        internal bool TryNotifyColoredDoorHit(int blockIndex, SamusProjectileType projectileType)
+        internal bool TryNotifyColoredDoorHit(Position16<RoomBlocks> block, SamusProjectileType projectileType)
         {
-            if (self.TryNotifyEyeDoorHit(blockIndex, projectileType))
+            if (self.TryNotifyEyeDoorHit(block, projectileType))
                 return true;
             foreach (var slot in ActiveSlots(self))
             {
-                bool? takesShots = self.Level.Size.RowMajorIndex(slot.Block) != blockIndex ? null : slot.Behaviour switch
+                bool? takesShots = slot.Block != block ? null : slot.Behaviour switch
                 {
                     ColoredDoorObject colored => colored.TakesShots,
                     GreyDoorObject grey => grey.Waits != GreyDoorWait.Nothing,
@@ -128,7 +128,7 @@ internal static class RoomObjectSystemAccess
                     continue;
                 if (!reached)
                     return false;
-                return self.ProjectileTriggers.TryNotifyResidentProjectileHit(blockIndex, projectileType);
+                return self.ProjectileTriggers.TryNotifyResidentProjectileHit(block, projectileType);
             }
             return false;
         }
@@ -163,12 +163,12 @@ internal static class RoomObjectSystemAccess
         /// block. The following PLM pre-instruction performs the missile-family filtering.
         /// </summary>
         internal bool TryNotifyEyeDoorHit(
-            int blockIndex,
+            Position16<RoomBlocks> block,
             SamusProjectileType projectileType)
         {
             foreach (var slot in self.SlotTable.Slots)
             {
-                if (!slot.Active || self.Level.Size.RowMajorIndex(slot.Block) != blockIndex || slot.Behaviour is not EyeDoorEyeObject)
+                if (!slot.Active || slot.Block != block || slot.Behaviour is not EyeDoorEyeObject)
                     continue;
 
                 // The pending hit is single. A later collision before the eye's update replaces it rather than
@@ -193,7 +193,7 @@ internal static class RoomObjectSystemAccess
                 .Select(entry => new RoomObjectSlotSnapshot(
                     ProcessingPosition: entry.Index,
                     HeaderPointer: entry.Slot.Header,
-                    BlockIndex: self.Level.Size.RowMajorIndex(entry.Slot.Block),
+                    Block: entry.Slot.Block,
                     RoomArgument: entry.Slot.NativeRoomArgument,
                     ProjectileHit: entry.Slot.ProjectileHit,
                     Behaviour: entry.Slot.Behaviour,
@@ -204,12 +204,12 @@ internal static class RoomObjectSystemAccess
         /// Publishes contact with BTS $47-$4D to its resident station. This is the same generic
         /// type-$B collision seam used by item and scroll PLMs; no room identity participates.
         /// </summary>
-        internal bool TryNotifyStationTouch(int accessBlockIndex, byte behavior)
-            => self.TryNotifyStationTouch(accessBlockIndex, RoomBlockBehaviorCodec.Decode(behavior));
+        internal bool TryNotifyStationTouch(RoomLevelData level, Position16<RoomBlocks> accessBlock, byte behavior)
+            => self.TryNotifyStationTouch(level, accessBlock, RoomBlockBehaviorCodec.Decode(behavior));
 
         /// <summary>Typed BTS overload used by room collision dispatch.</summary>
-        internal bool TryNotifyStationTouch(int accessBlockIndex, RoomBlockBehavior behavior)
-            => self.Stations.TryNotifyStationCollision(accessBlockIndex, behavior, SamusPoseId.LastUnauthoredPose.ForRoomCollision(), Axis.Horizontal, true, StationSetupGate.Bypassed);
+        internal bool TryNotifyStationTouch(RoomLevelData level, Position16<RoomBlocks> accessBlock, RoomBlockBehavior behavior)
+            => self.Stations.TryNotifyStationCollision(level, accessBlock, behavior, SamusPoseId.LastUnauthoredPose.ForRoomCollision(), Axis.Horizontal, true, StationSetupGate.Bypassed);
 
         /// <summary>
         /// Runs setup <c>$84:CFB5</c> for BTS one or two and installs the corresponding PLM.
@@ -217,11 +217,11 @@ internal static class RoomObjectSystemAccess
         /// <returns>False only when every PLM slot is occupied.</returns>
         internal bool TrySpawnBreakableGrappleBlock(
             RoomLevelData level,
-            int blockIndex,
+            Position16<RoomBlocks> position,
             byte behavior)
             => self.BlockReactions.TrySpawnBreakableGrappleBlock(
                 level,
-                blockIndex,
+                position,
                 RoomBlockBehaviorCodec.Decode(behavior));
 
         /// <summary>
@@ -241,9 +241,9 @@ internal static class RoomObjectSystemAccess
         /// </returns>
         internal bool TrySpawnCollisionBombBlock(
             RoomLevelData level,
-            int blockIndex,
+            Position16<RoomBlocks> position,
             byte behavior)
-            => self.BlockReactions.TrySpawnCollisionBombBlock(level, blockIndex, RoomBlockBehaviorCodec.Decode(behavior));
+            => self.BlockReactions.TrySpawnCollisionBombBlock(level, position, RoomBlockBehaviorCodec.Decode(behavior));
 
         /// <summary>
         /// Spawns the bank-$84 shot/bombed/grappled-reaction PLM selected by bombable BTS.
@@ -266,12 +266,12 @@ internal static class RoomObjectSystemAccess
         /// <returns>False only when every PLM slot is occupied.</returns>
         internal bool TrySpawnBombReactionBlock(
             RoomLevelData level,
-            int blockIndex,
+            Position16<RoomBlocks> position,
             byte behavior,
             SamusProjectileType projectileType)
             => self.BlockReactions.TrySpawnBombReactionBlock(
                 level,
-                blockIndex,
+                position,
                 RoomBlockBehaviorCodec.Decode(behavior),
                 projectileType);
 
@@ -291,19 +291,19 @@ internal static class RoomObjectSystemAccess
         /// </remarks>
         internal bool TrySpawnBombedShootableBlock(
             RoomLevelData level,
-            int blockIndex,
+            Position16<RoomBlocks> position,
             byte behavior,
             SamusProjectileType projectileType)
             => self.TrySpawnBombedShootableBlock(
                 level,
-                blockIndex,
+                position,
                 RoomBlockBehaviorCodec.Decode(behavior),
                 projectileType);
 
         /// <summary>Typed BTS overload used by bomb collision dispatch.</summary>
         internal bool TrySpawnBombedShootableBlock(
             RoomLevelData level,
-            int blockIndex,
+            Position16<RoomBlocks> position,
             RoomBlockBehavior bts,
             SamusProjectileType projectileType)
         {
@@ -333,8 +333,8 @@ internal static class RoomObjectSystemAccess
             if (self.SlotTable.SpawnAtCurrentBlock() is not { } slot)
                 return false;
 
-            RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-            slot.Block = level.BlockAt(blockIndex);
+            RoomCollisionBlock block = level.GetCollisionBlock(position);
+            slot.Block = position;
 
             if (areaDependent)
             {
@@ -352,7 +352,7 @@ internal static class RoomObjectSystemAccess
                 RoomTerrainBlock restore = block.Terrain.WithAppearance(self.Drawing.SetupBlock(RoomObjectSetupBlock.ShotBlockParent));
                 slot.RestoreTerrain = restore;
                 slot.Become(new BlockReactionObject(BlockReactionChanges.RespawningShot(ShotBlockReactions.BreakShape(bts.Reaction))));
-                level.SetTerrain(blockIndex, restore.Deactivated());
+                level.SetTerrain(position, restore.Deactivated());
                 return true;
             }
 
@@ -362,7 +362,7 @@ internal static class RoomObjectSystemAccess
                 // ordinary air and a shootable block into a solid block until the same-frame program draws its first
                 // breaking frame.
                 slot.Become(new BlockReactionObject(BlockReactionChanges.PermanentShot(ShotBlockReactions.BreakShape(bts.Reaction))));
-                level.SetTerrain(blockIndex, block.Terrain.Deactivated());
+                level.SetTerrain(position, block.Terrain.Deactivated());
                 return true;
             }
 
@@ -406,13 +406,13 @@ internal static class RoomObjectSystemAccess
         /// </remarks>
         internal bool TrySpawnProjectileShotBlock(
             RoomLevelData level,
-            int blockIndex,
+            Position16<RoomBlocks> position,
             byte behavior,
             SamusProjectileType projectileType,
             bool solidBlock)
             => self.BlockReactions.TrySpawnProjectileShotBlock(
                 level,
-                blockIndex,
+                position,
                 RoomBlockBehaviorCodec.Decode(behavior),
                 projectileType,
                 solidBlock);
@@ -433,13 +433,13 @@ internal static class RoomObjectSystemAccess
         /// </remarks>
         internal bool TrySpawnBombedSpecialBlock(
             RoomLevelData level,
-            int blockIndex,
+            Position16<RoomBlocks> position,
             byte behavior,
             AreaId areaIndex,
             SamusProjectileType projectileType)
             => self.BlockReactions.TrySpawnBombedSpecialBlock(
                 level,
-                blockIndex,
+                position,
                 RoomBlockBehaviorCodec.Decode(behavior),
                 areaIndex,
                 projectileType);

@@ -124,7 +124,7 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
                 roomObjects.Step(level);
                 AssertEqual(GreyDoorPhase.Flashing, roomObjects.GreyDoorSnapshots.Single().Phase,
                     $"resident grey door {header} unlocks after boss event");
-                AssertTrue(roomObjects.TryNotifyColoredDoorHit(origin,
+                AssertTrue(roomObjects.TryNotifyColoredDoorHit(level.BlockAt(origin),
                         SamusProjectileType.None),
                     $"resident grey door {header} accepts a beam hit");
                 roomObjects.Step(level);
@@ -202,7 +202,7 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
         room.RoomObjects.Step(room.Level);
         AssertEqual(GreyDoorPhase.Flashing, room.RoomObjects.GreyDoorSnapshots.Single().Phase,
             "Bomb Torizo defeat unlocks the special grey door");
-        AssertTrue(room.RoomObjects.TryNotifyColoredDoorHit(origin, SamusProjectileType.None),
+        AssertTrue(room.RoomObjects.TryNotifyColoredDoorHit(room.Level.BlockAt(origin), SamusProjectileType.None),
             "Bomb Torizo grey door accepts a post-unlock beam hit");
         room.RoomObjects.Step(room.Level);
         AssertEqual(GreyDoorPhase.Opening, room.RoomObjects.GreyDoorSnapshots.Single().Phase,

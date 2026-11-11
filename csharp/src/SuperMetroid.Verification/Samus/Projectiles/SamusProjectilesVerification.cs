@@ -1292,7 +1292,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         "resident colored-door loader allocates red door actor");
     residentDoorObjects.Step(residentDoorLevel);
 
-    AssertTrue(residentDoorObjects.TryNotifyColoredDoorHit(residentDoorBlock, SamusProjectileType.None),
+    AssertTrue(residentDoorObjects.TryNotifyColoredDoorHit(new(5, 3), SamusProjectileType.None),
         "resident red door receives power-beam family for native rejection");
     residentDoorObjects.Step(residentDoorLevel);
     AssertTrue(residentDoorObjects.Sounds.SoundRequests.Contains(new SoundRequest(EnemySound.DudShotOnDoor, SoundRequestPriority.Normal)),
@@ -1302,7 +1302,7 @@ internal static void VerifySamusPowerBeamProjectiles()
 
     for (int hit = 1; hit <= 5; hit++)
     {
-        AssertTrue(residentDoorObjects.TryNotifyColoredDoorHit(residentDoorBlock, SamusProjectileType.Of(SamusProjectileFamily.Missile)),
+        AssertTrue(residentDoorObjects.TryNotifyColoredDoorHit(new(5, 3), SamusProjectileType.Of(SamusProjectileFamily.Missile)),
             $"red door accepts missile collision {hit}");
         residentDoorObjects.Step(residentDoorLevel);
     }
@@ -1313,13 +1313,13 @@ internal static void VerifySamusPowerBeamProjectiles()
         "red door retains exact five-missile threshold");
     AssertTrue(residentDoorSystem.HasOpenedDoorBit(residentDoorArgument),
         "opening instruction persists room-argument door bit");
-    AssertTrue(!residentDoorObjects.TryNotifyColoredDoorHit(residentDoorBlock, SamusProjectileType.Of(SamusProjectileFamily.Missile)),
+    AssertTrue(!residentDoorObjects.TryNotifyColoredDoorHit(new(5, 3), SamusProjectileType.Of(SamusProjectileFamily.Missile)),
         "opening door no longer runs projectile pre-instruction");
 
     residentDoorObjects = RoomObjectFixtures.Unbound();
     AssertEqual(0, residentDoorObjects.ColoredDoors.Count,
         "room reset discards resident colored-door actors");
-    AssertTrue(!residentDoorObjects.TryNotifyColoredDoorHit(residentDoorBlock, SamusProjectileType.Of(SamusProjectileFamily.Missile)),
+    AssertTrue(!residentDoorObjects.TryNotifyColoredDoorHit(new(5, 3), SamusProjectileType.Of(SamusProjectileFamily.Missile)),
         "room reset cannot leak a hit into the discarded population");
 
     var reopenedWords = new RoomTerrainBlock[16 * 16];
@@ -1366,7 +1366,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         "grey-door setup removes condition selector before persistence checks");
 
     greyDoorObjects.Step(greyDoorLevel, enemyDeaths: 1, enemyDeathQuota: 2);
-    AssertTrue(greyDoorObjects.TryNotifyColoredDoorHit(greyDoorBlock, SamusProjectileType.None),
+    AssertTrue(greyDoorObjects.TryNotifyColoredDoorHit(new(2, 6), SamusProjectileType.None),
         "shared BTS $44 collision publishes power-beam hit to grey door");
     greyDoorObjects.Step(greyDoorLevel, enemyDeaths: 1, enemyDeathQuota: 2);
     AssertTrue(greyDoorObjects.Sounds.SoundRequests.Contains(new SoundRequest(EnemySound.DudShotOnDoor, SoundRequestPriority.Normal)),
@@ -1376,7 +1376,7 @@ internal static void VerifySamusPowerBeamProjectiles()
 
     // Publish a second hit on the exact quota-completion frame. BE01 clears the PLM shot
     // timer while selecting its activation link, so this impact must not persist/open it.
-    AssertTrue(greyDoorObjects.TryNotifyColoredDoorHit(greyDoorBlock, SamusProjectileType.None),
+    AssertTrue(greyDoorObjects.TryNotifyColoredDoorHit(new(2, 6), SamusProjectileType.None),
         "quota-completion frame can observe a colliding shot");
     greyDoorObjects.Step(greyDoorLevel, enemyDeaths: 2, enemyDeathQuota: 2);
     AssertTrue(greyDoorSystem.HasEvent(StoryEvent.ZebesAwake),
@@ -1386,7 +1386,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertTrue(!greyDoorSystem.HasOpenedDoorBit(greyDoorPersistedArgument),
         "quota-completion hit is cleared rather than opening grey door");
 
-    AssertTrue(greyDoorObjects.TryNotifyColoredDoorHit(greyDoorBlock, SamusProjectileType.None),
+    AssertTrue(greyDoorObjects.TryNotifyColoredDoorHit(new(2, 6), SamusProjectileType.None),
         "later shot reaches flashing grey door's installed shot pre-instruction");
     greyDoorObjects.Step(greyDoorLevel, enemyDeaths: 2, enemyDeathQuota: 2);
     AssertEqual(GreyDoorPhase.Opening, greyDoorObjects.GreyDoorSnapshots.Single().Phase,

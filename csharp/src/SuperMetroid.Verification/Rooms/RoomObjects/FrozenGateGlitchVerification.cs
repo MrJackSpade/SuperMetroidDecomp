@@ -77,7 +77,7 @@ internal static class FrozenGateGlitchVerification
         RoomObjectSystem roomObjects = runtime.RoomObjects;
         RoomObjectSlotSnapshot gate = roomObjects.PopulationSlots.Single(slot =>
             slot.HeaderPointer == RoomObjectHeaderId.DownwardGate);
-        AssertEqual(FrozenGateBlockIndex, gate.BlockIndex,
+        AssertEqual(level.BlockAt(FrozenGateBlockIndex), gate.Block,
             "Caterpillar retail downward gate block");
 
         RoomEnemySlot[] zeros = runtime.Enemies.SlotTable.Slots

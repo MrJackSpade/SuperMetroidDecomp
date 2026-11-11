@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// <summary>Verification view of a resident grey-door PLM slot.</summary>
 internal readonly record struct GreyDoorObjectSnapshot(
     RoomObjectHeaderId Header,
-    int BlockIndex,
+    Position16<RoomBlocks> Block,
     ushort RoomArgument,
     ColoredDoorOrientation Orientation,
     GreyDoorCondition Condition,

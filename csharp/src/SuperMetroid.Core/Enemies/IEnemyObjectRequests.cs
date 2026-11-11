@@ -11,7 +11,7 @@ internal interface IEnemyObjectRequests
     void ApplyPendingChozoStatueObjects(RoomLevelData level, ChozoStatueObjects chozoStatueObjects);
 
     /// <summary>Starts the Chozo statue's hand sequence from the hand block Samus landed on.</summary>
-    void ActivateChozoStatueHandTrigger(RoomLevelData level, int collisionBlockIndex);
+    void ActivateChozoStatueHandTrigger(RoomLevelData level, Position16<RoomBlocks> handBlock);
 
     /// <summary>Spawns or wakes the downward gate's projectile a gate room object requested.</summary>
     void ApplyDownwardGateProjectileRequest(DownwardGateProjectileRequest request);

@@ -172,7 +172,7 @@ internal sealed class DoorObjects
     /// </remarks>
     public bool TrySpawnBlueDoorOpening(
         RoomLevelData level,
-        int blockIndex,
+        Position16<RoomBlocks> position,
         RoomBlockBehavior behavior,
         SamusProjectileType projectileType)
     {
@@ -203,7 +203,7 @@ internal sealed class DoorObjects
             return false;
 
         slot.Header = blueDoorHeader;
-        slot.Block = level.BlockAt(blockIndex);
+        slot.Block = position;
         slot.Become(new BlueDoorCapObject(orientation, BlueDoorCapPhase.Opening));
         // The spawn leaves the argument the game's first door, the Landing Site's green door, which a later closing
         // check reads: once that door has been opened for good, the spawned blue door never closes.
@@ -212,8 +212,8 @@ internal sealed class DoorObjects
 
         // This is a direct terrain write, not a cap draw. The cap's first draw comes on its next update, while collision
         // sees the solid block at once.
-        level.SetTerrain(blockIndex,
-            level.GetCollisionBlockByIndex(blockIndex).Terrain.WithCollision(RoomCollisionType.SolidBlock));
+        level.SetTerrain(position,
+            level.GetCollisionBlock(position).Terrain.WithCollision(RoomCollisionType.SolidBlock));
         return true;
     }
 }

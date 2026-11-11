@@ -222,7 +222,7 @@ internal static class ContactCrumbleProgramsVerification
             words[blockIndex] = RoomTerrainBlock.Of(0x321, BlockMirroring.None, RoomCollisionType.SpecialBlock);
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid());
             var roomObjects = RoomObjectFixtures.Unbound(new RoomObjectVisuals { RoomObjectShotBlockVisuals = visuals, RoomObjectSetupBlocks = InstalledRoomObjectSetupBlocks.Stock() });
-            AssertTrue(roomObjects.BlockReactions.TrySpawnSamusContactCrumbleBlock(level, blockIndex,
+            AssertTrue(roomObjects.BlockReactions.TrySpawnSamusContactCrumbleBlock(level, level.BlockAt(blockIndex),
                     RoomBlockBehaviorCodec.Decode(0)),
                 "visual test installs the real contact-crumble PLM");
             var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
@@ -250,7 +250,7 @@ internal static class ContactCrumbleProgramsVerification
             words[blockIndex] = RoomTerrainBlock.Of(0x321, BlockMirroring.None, RoomCollisionType.SpecialBlock);
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid());
             var roomObjects = RoomObjectFixtures.Unbound();
-            AssertTrue(roomObjects.BlockReactions.TrySpawnSamusContactCrumbleBlock(level, blockIndex,
+            AssertTrue(roomObjects.BlockReactions.TrySpawnSamusContactCrumbleBlock(level, level.BlockAt(blockIndex),
                     RoomBlockBehaviorCodec.Decode(1)),
                 "restored-art test installs linked contact-crumble PLM");
             var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
@@ -299,7 +299,7 @@ internal static class ContactCrumbleProgramsVerification
         behaviors[blockIndex] = RoomBlockBehaviorCodec.Decode(bts);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, behaviors, new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid());
         var roomObjects = RoomObjectFixtures.Unbound();
-        AssertTrue(roomObjects.BlockReactions.TrySpawnSamusContactCrumbleBlock(level, blockIndex,
+        AssertTrue(roomObjects.BlockReactions.TrySpawnSamusContactCrumbleBlock(level, level.BlockAt(blockIndex),
                 RoomBlockBehaviorCodec.Decode(bts)),
             $"contact-crumble BTS {bts} installs its native program");
         return new ContactCrumbleFixture(level, roomObjects);

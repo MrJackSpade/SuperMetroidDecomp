@@ -8,8 +8,11 @@ internal static class ChozoStatueRoomDefinitions
     /// <summary>The base height the Wrecked Ship statue's draining acid settles at, in room pixels.</summary>
     public const int LoweredAcidY = 722;
 
-    /// <summary>The first of the two slope blocks the Wrecked Ship statue opens and closes, as a block index in its room.</summary>
-    public const int FirstSlopeBlockIndex = 2820;
+    /// <summary>
+    /// The first of the two slope blocks the Wrecked Ship statue opens and closes in the Bowling Alley; the second is the
+    /// block to its right, on the same row.
+    /// </summary>
+    public static readonly Position16<RoomBlocks> FirstSlopeBlock = new(36, 29);
 
     /// <summary>The slope shape written at the first slope block.</summary>
     public static readonly RoomBlockBehavior FirstSlopeBehavior = RoomBlockBehavior.Sloping(new SlopeGeometry(18, BlockMirroring.None));

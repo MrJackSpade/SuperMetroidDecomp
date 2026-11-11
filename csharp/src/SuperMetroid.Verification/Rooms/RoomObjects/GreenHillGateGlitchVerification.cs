@@ -79,7 +79,7 @@ internal static class GreenHillGateGlitchVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.GreenHillZone);
         RoomObjectSlotSnapshot gate = runtime.RoomObjects.PopulationSlots.Single(slot =>
             slot.HeaderPointer == RoomObjectHeaderId.DownwardGate);
-        AssertEqual(0x1be4, gate.BlockIndex, "authored Green Hill gate block");
+        AssertEqual(runtime.Room.LoadedLevelData.BlockAt(0x1be4), gate.Block, "authored Green Hill gate block");
         RoomObjectSlotSnapshot trigger = runtime.RoomObjects.PopulationSlots.Single(slot =>
             slot.HeaderPointer == RoomObjectHeaderId.DownwardGateShotBlock);
         AssertEqual((ushort)0, trigger.RoomArgument,

@@ -57,7 +57,7 @@ internal static class CollectiblesVerification
             if (bts is > 0x3f and not 0x4e) continue;
             var emptyLevel = CreateRoom(new(16, 16), new RoomTerrainBlock[256], new RoomBlockBehavior[256]);
             var unusedObjects = RoomObjectFixtures.Unbound();
-            AssertTrue(unusedObjects.TrySpawnProjectileShotBlock(emptyLevel, 0, (byte)bts, SamusProjectileType.None, true),
+            AssertTrue(unusedObjects.TrySpawnProjectileShotBlock(emptyLevel, Position16<RoomBlocks>.Zero, (byte)bts, SamusProjectileType.None, true),
                 "unused shootable entry allocates native nothing PLM");
             AssertEqual(1, unusedObjects.SlotTable.ActiveCount, "nothing PLM retains its provisional slot");
             AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.Air), emptyLevel.GetCollisionBlockByIndex(0).Terrain, "nothing PLM leaves terrain unchanged");
@@ -94,7 +94,7 @@ internal static class CollectiblesVerification
                     $"{kind} shows its own picture's first frame");
             }
             RoomTerrainBlock visibleItemWord = fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).Terrain;
-            AssertTrue(fixture.RoomObjects.CollectibleObjects.TryNotifyCollectibleTouch(fixture.BlockIndex),
+            AssertTrue(fixture.RoomObjects.CollectibleObjects.TryNotifyCollectibleTouch(fixture.Block),
                 $"{kind} visible block accepts Samus contact");
             fixture.RoomObjects.Step(fixture.Level);
 
@@ -123,7 +123,7 @@ internal static class CollectiblesVerification
             AssertTrue(
                 fixture.RoomObjects.TrySpawnBombedSpecialBlock(
                     fixture.Level,
-                    fixture.BlockIndex,
+                    fixture.Block,
                     behavior: 8,
                     areaIndex: AreaId.Crateria,
                     projectileType: SamusProjectileType.Of(SamusProjectileFamily.Bomb)),
@@ -169,7 +169,7 @@ internal static class CollectiblesVerification
         AssertEqual(CollectiblePhase.Visible, orb.RoomObjects.CollectiblePhases[0],
             "Chozo burst exposes the item");
         RoomTerrainBlock orbItemWord = orb.Level.GetCollisionBlockByIndex(orb.BlockIndex).Terrain;
-        AssertTrue(orb.RoomObjects.CollectibleObjects.TryNotifyCollectibleTouch(orb.BlockIndex),
+        AssertTrue(orb.RoomObjects.CollectibleObjects.TryNotifyCollectibleTouch(orb.Block),
             "exposed Chozo item accepts touch");
         orb.RoomObjects.Step(orb.Level);
         AssertTrue(orb.System.HasCollectedItemBit(79),
@@ -195,7 +195,7 @@ internal static class CollectiblesVerification
         CollectibleFixture shot = LoadCollectible(bus, header: unchecked(0xef7f + (int)InWorldCollectibleKind.MissileTank * 4), roomArgument: 150, precollected: false);
         AssertEqual(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.ShootableBlock), shot.Level.GetCollisionBlockByIndex(shot.BlockIndex).Terrain,
             "shot-item setup installs type-C concealed block");
-        AssertTrue(shot.RoomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(shot.BlockIndex),
+        AssertTrue(shot.RoomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(shot.Block),
             "concealed shot item accepts projectile reaction");
         StepUntil(
             () => shot.RoomObjects.CollectiblePhases[0] == CollectiblePhase.ShotBlockVisible,
@@ -203,7 +203,7 @@ internal static class CollectiblesVerification
             maximumFrames: 20,
             context: "shot item reveal");
         RoomTerrainBlock shotItemWord = shot.Level.GetCollisionBlockByIndex(shot.BlockIndex).Terrain;
-        AssertTrue(shot.RoomObjects.CollectibleObjects.TryNotifyCollectibleTouch(shot.BlockIndex),
+        AssertTrue(shot.RoomObjects.CollectibleObjects.TryNotifyCollectibleTouch(shot.Block),
             "revealed shot item accepts Samus contact");
         shot.RoomObjects.Step(shot.Level);
         AssertEqual(5, shot.Samus.MaxMissiles, "shot item grants missile capacity");
@@ -906,7 +906,11 @@ internal static class CollectiblesVerification
         SharedGameState System,
         SamusState Samus,
         int BlockIndex,
-        RoomAppearance Appearance);
+        RoomAppearance Appearance)
+    {
+        /// <summary>The room block the item lies at, where Samus touches it and shots strike it.</summary>
+        internal Position16<RoomBlocks> Block => Level.BlockAt(BlockIndex);
+    }
 
     /// <summary>Synthetic cartridge with the suit-pickup fade curve and distinct suit palette first words.</summary>
     private static TestAddressSpace CreateSuitPickupCartridge()

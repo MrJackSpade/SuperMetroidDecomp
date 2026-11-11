@@ -341,7 +341,7 @@ internal static class ShotBlockObjectProgramsVerification
         {
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid());
             var roomObjects = RoomObjectFixtures.Unbound(new RoomObjectVisuals { RoomObjectShotBlockVisuals = visuals, RoomObjectSetupBlocks = InstalledRoomObjectSetupBlocks.Stock() });
-            AssertTrue(roomObjects.TrySpawnProjectileShotBlock(level, block, 0, SamusProjectileType.None, true),
+            AssertTrue(roomObjects.TrySpawnProjectileShotBlock(level, level.BlockAt(block), 0, SamusProjectileType.None, true),
                 "visual-only test allocates the production shot-block PLM");
             roomObjects.Step(level);
             return new ShotBlockObjectProgramsRenderResult(level.GetCollisionBlockByIndex(block).Terrain,
@@ -392,7 +392,7 @@ internal static class ShotBlockObjectProgramsVerification
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid());
         var roomObjects = RoomObjectFixtures.Unbound();
         AssertTrue(roomObjects.TrySpawnProjectileShotBlock(
-                level, blockIndex, behavior, SamusProjectileType.None, solidBlock: true),
+                level, level.BlockAt(blockIndex), behavior, SamusProjectileType.None, solidBlock: true),
             $"shot-block BTS {behavior} allocates its native PLM program");
         return new ShotBlockFixture(level, roomObjects);
     }

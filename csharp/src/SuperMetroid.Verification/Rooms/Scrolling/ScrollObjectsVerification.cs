@@ -44,10 +44,10 @@ internal static class ScrollObjectsVerification
         AssertEqual(1, roomObjects.Scrolls.Snapshots.Count,
             "extension setup consumes no persistent PLM slot");
 
-        int origin = level.GetBlockIndex(new(3, 3));
-        AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SpecialAir), level.GetCollisionBlockByIndex(origin).Terrain,
+        var origin = new Position16<RoomBlocks>(3, 3);
+        AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SpecialAir), level.GetCollisionBlock(origin).Terrain,
             "scroll trigger setup installs special air");
-        AssertEqual(RoomBlockBehavior.Reacting(BlockReactionDefinitions.ScrollTrigger), level.GetCollisionBlockByIndex(origin).Behavior,
+        AssertEqual(RoomBlockBehavior.Reacting(BlockReactionDefinitions.ScrollTrigger), level.GetCollisionBlock(origin).Behavior,
             "scroll trigger setup installs the scroll-trigger behaviour");
         AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.HorizontalExtension), level.GetCollisionBlock(new(4, 3)).Terrain,
             "right extension setup installs a horizontal extension");

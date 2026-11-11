@@ -72,7 +72,7 @@ internal static class GateJumpTraceVerification
     /// </summary>
     private static ushort NativeGateInstruction(ISnesAddressSpace bus, RoomObjectSlotSnapshot gate) =>
         RoomObjectProgramsVerification.DownwardGateNativeInstruction(bus, gate.Behaviour as DownwardGateObject
-            ?? throw new InvalidDataException($"Gate at block {gate.BlockIndex} is no typed gate."));
+            ?? throw new InvalidDataException($"Gate at block {gate.Block} is no typed gate."));
 
     /// <summary>Runs the focused gate-jump trace verification command.</summary>
     [VerificationCommand("--gate-jump-traces")]

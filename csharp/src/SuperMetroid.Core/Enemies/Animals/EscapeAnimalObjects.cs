@@ -23,13 +23,12 @@ internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
         _slotTable = slotTable;
         _drawing = Ensure.NotNull(drawing);
     }
-    /// <summary>Makes the three-block rescue wall shootable, preserving artwork.</summary>
-    public void SetupCrittersEscapeBlock(RoomLevelData level, int blockIndex)
+    /// <summary>Makes the three-block rescue wall standing down from <paramref name="origin"/> shootable, preserving artwork.</summary>
+    public void SetupCrittersEscapeBlock(RoomLevelData level, Position16<RoomBlocks> origin)
     {
         // Hardcoded spawn cannot execute setup when every room-object slot is occupied.
         if (_slotTable.IsFull)
             throw new InvalidOperationException("Animal rescue wall setup has no free room-object slot.");
-        Position16<RoomBlocks> origin = level.BlockAt(blockIndex);
         RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, origin, EscapeAnimalWallDefinitions.OriginCollisionType,
             EscapeAnimalWallDefinitions.ReactionBehavior);
         for (int row = 1; row <= 2; row++)
@@ -64,7 +63,7 @@ internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
     }
 
     /// <summary>Spawns the rescue wall's reaction and schedules its authored animation/event list in slot order.</summary>
-    public bool TrySpawnCrittersEscapeReaction(RoomLevelData level, int blockIndex,
+    public bool TrySpawnCrittersEscapeReaction(RoomLevelData level, Position16<RoomBlocks> position,
         SamusProjectileType projectileType)
     {
         // The grapple beam's touch is rejected; every projectile, beams and bombs alike, is accepted.
@@ -73,13 +72,13 @@ internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
         if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
             return false;
 
-        slot.Block = level.BlockAt(blockIndex);
+        slot.Block = position;
         slot.Become(new CritterWallBreakthroughObject());
-        RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
+        RoomCollisionBlock block = level.GetCollisionBlock(position);
         // The reaction shows the struck wall's installed picture over the wall's collision type; until its list runs, the
         // block is deactivated, staying solid only when it was. The wall breaks open for good, so it saves no block to
         // restore.
-        level.SetTerrain(blockIndex, block.Terrain.WithAppearance(_drawing.SetupBlock(RoomObjectSetupBlock.CritterWallStruck)).Deactivated());
+        level.SetTerrain(position, block.Terrain.WithAppearance(_drawing.SetupBlock(RoomObjectSetupBlock.CritterWallStruck)).Deactivated());
         return true;
     }
 }

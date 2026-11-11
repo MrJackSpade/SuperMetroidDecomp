@@ -333,7 +333,7 @@ internal sealed class ProjectileTerrainCollision
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Behavior.Reaction == BlockReactionDefinitions.CollectibleTrigger)
         {
-            _ = roomObjects?.CollectibleObjects.TryNotifyCollectibleProjectileHit(block.Index);
+            _ = roomObjects?.CollectibleObjects.TryNotifyCollectibleProjectileHit(level.BlockAt(block.Index));
             return true;
         }
 
@@ -342,7 +342,7 @@ internal sealed class ProjectileTerrainCollision
         if (block.CollisionType == RoomCollisionType.SolidBlock &&
             block.Behavior.Reaction == BlockReactionDefinitions.ResidentObjectTrigger)
         {
-            NotifyResidentProjectileHit(roomObjects, block, slot.Type);
+            NotifyResidentProjectileHit(level, roomObjects, block, slot.Type);
             return true;
         }
 
@@ -353,7 +353,7 @@ internal sealed class ProjectileTerrainCollision
                 // Gate setup ends the caller's span and forces its collision counter.
                 // A full room-object pool skips setup entirely, so it must not end the scan.
                 endSpan = roomObjects?.BlockReactions.TrySpawnProjectileShotBlock(
-                    level, block.Index, block.Behavior, slot.Type,
+                    level, level.BlockAt(block.Index), block.Behavior, slot.Type,
                     block.CollisionType == RoomCollisionType.ShootableBlock) == true;
                 return block.CollisionType == RoomCollisionType.ShootableBlock;
             }
@@ -438,7 +438,7 @@ internal sealed class ProjectileTerrainCollision
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Behavior.TryGetDownwardGateTrigger(out _))
         {
-            roomObjects.Gates.TrySpawnDownwardGateTrigger(level, block.Index, block.Behavior, slot.Type);
+            roomObjects.Gates.TrySpawnDownwardGateTrigger(level, level.BlockAt(block.Index), block.Behavior, slot.Type);
             return;
         }
 
@@ -447,7 +447,7 @@ internal sealed class ProjectileTerrainCollision
         // after the generic shot trigger publishes the projectile type.
         if (block.Behavior.Reaction == BlockReactionDefinitions.ResidentObjectTrigger)
         {
-            NotifyResidentProjectileHit(roomObjects, block, slot.Type);
+            NotifyResidentProjectileHit(level, roomObjects, block, slot.Type);
             return;
         }
 
@@ -460,7 +460,7 @@ internal sealed class ProjectileTerrainCollision
         {
             roomObjects.DoorObjects.TrySpawnBlueDoorOpening(
                 level,
-                block.Index,
+                level.BlockAt(block.Index),
                 block.Behavior,
                 slot.Type);
             return;
@@ -480,7 +480,7 @@ internal sealed class ProjectileTerrainCollision
         {
             roomObjects.BlockReactions.TrySpawnProjectileShotBlock(
                 level,
-                block.Index,
+                level.BlockAt(block.Index),
                 block.Behavior,
                 slot.Type,
                 solidBlock: block.CollisionType == RoomCollisionType.ShootableBlock);
@@ -489,12 +489,13 @@ internal sealed class ProjectileTerrainCollision
 
     /// <summary>Publishes the projectile type to the room object occupying a resident-trigger block and fails if none owns it.</summary>
     private static void NotifyResidentProjectileHit(
+        RoomLevelData level,
         ISamusRoomObjects? roomObjects,
         RoomCollisionBlock block,
         SamusProjectileType projectileType)
     {
         if (roomObjects is not null &&
-            roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.Index, projectileType))
+            roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(level.BlockAt(block.Index), projectileType))
         {
             return;
         }

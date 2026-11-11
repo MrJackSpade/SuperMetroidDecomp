@@ -28,7 +28,7 @@ internal static class BotwoonObjectIdentityVerification
             AssertTrue(roomObjects.BossRoomMutations.BotwoonWall.TrySpawn(assets.LevelData, mutation), "Botwoon slot allocation succeeds until full");
             var slot = roomObjects.PopulationSlots.Single(slot => slot.ProcessingPosition == i);
             AssertEqual(RoomObjectHeaderId.None, slot.HeaderPointer, "a Botwoon wall carries no header identity");
-            AssertEqual(assets.LevelData.GetBlockIndex(new(15, 4)), slot.BlockIndex, "hardcoded Botwoon placement");
+            AssertEqual(new Position16<RoomBlocks>(15, 4), slot.Block, "hardcoded Botwoon placement");
             TerrainChange expectedChange = (i & 1) == 0 ? BotwoonWallMutationDefinitions.Clear : BotwoonWallMutationDefinitions.Crumble;
             AssertTrue(slot.Behaviour is TerrainChangeObject { Change: var change } && change == expectedChange,
                 "header-specific Botwoon change");

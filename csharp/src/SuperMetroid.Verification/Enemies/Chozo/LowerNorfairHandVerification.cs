@@ -34,7 +34,7 @@ internal static class LowerNorfairHandVerification
         runtime.StepFrame(0);
         var level = runtime.Room.LoadedLevelData;
         var hand = level.GetCollisionBlock(new(4, 8));
-        AssertTrue(runtime.RoomObjects.BlockReactions.TrySpawnProjectileShotBlock(level, hand.Index,
+        AssertTrue(runtime.RoomObjects.BlockReactions.TrySpawnProjectileShotBlock(level, level.BlockAt(hand.Index),
             hand.Behavior, SamusProjectileType.Of(SamusProjectileFamily.PowerBomb), true), "power bomb breaks the retail hand cover");
         for (int frame = 0; frame < 30; frame++) runtime.StepFrame(0);
         hand = level.GetCollisionBlock(new(4, 8));

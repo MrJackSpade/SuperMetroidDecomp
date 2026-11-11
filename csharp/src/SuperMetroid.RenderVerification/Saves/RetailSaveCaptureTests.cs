@@ -37,9 +37,9 @@ internal static class RetailSaveCaptureTests
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.AnimationFrame = 0;
         SamusPoseMetadata.RefreshCollisionRadii(samus); SamusPresentation.InitializeAnimation(samus);
-        samus.Position = samus.Position.WithWhole(new((ushort)(station.BlockIndex % level.Size.X * 16 + 13), (ushort)(station.BlockIndex / level.Size.X * 16 - samus.Kinematics.Radius.Y)));
+        samus.Position = samus.Position.WithWhole(new((ushort)(station.Block.X * 16 + 13), (ushort)(station.Block.Y * 16 - samus.Kinematics.Radius.Y)));
         samus.Control.Unlock();
-        if (!runtime.RoomObjects.Stations.TryNotifyStationCollision(station.BlockIndex, RoomBlockBehavior.Reacting(BlockReactionDefinitions.StationAccesses.ReactionFor(StationAccessBehavior.SaveFloor)),
+        if (!runtime.RoomObjects.Stations.TryNotifyStationCollision(level, station.Block, RoomBlockBehavior.Reacting(BlockReactionDefinitions.StationAccesses.ReactionFor(StationAccessBehavior.SaveFloor)),
             samus.Pose.ForRoomCollision(), Axis.Vertical, movingPositive: true))
             throw new InvalidOperationException("Save fixture could not trigger resident station.");
         bool confirmation = false, electricity = false, completion = false, finished = false;

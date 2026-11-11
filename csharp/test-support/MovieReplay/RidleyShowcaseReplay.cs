@@ -603,7 +603,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     bool active = roomObjectSlots.TryGetValue(slotIndex, out var slot);
                     Check($"PLM {slotIndex} header", active ? RoomObjectNativeWords.Word(slot.HeaderPointer) : (ushort)0, NativeSnapshotMemory.RoomObjectHeaders + offset);
                     if (!active || W(NativeSnapshotMemory.RoomObjectHeaders + offset) == 0) continue;
-                    var greyDoor = runtime.RoomObjects.GreyDoorSnapshots.FirstOrDefault(door => door.Header == slot.HeaderPointer && door.BlockIndex == slot.BlockIndex);
+                    var greyDoor = runtime.RoomObjects.GreyDoorSnapshots.FirstOrDefault(door => door.Header == slot.HeaderPointer && door.Block == slot.Block);
                     VerificationAssertions.AssertTrue(greyDoor.Header != RoomObjectHeaderId.None,
                         $"Movie PLM {slot.HeaderPointer} needs a family-variable coverage mapping");
                     GreyDoorObject typedDoor = greyDoor.Door;
@@ -629,7 +629,9 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     if (typedDoor.Waits != GreyDoorWait.Nothing)
                         Check($"PLM {slotIndex} grey-door wake", typedDoor.Waits == GreyDoorWait.Condition ? greyLists.Activate : greyLists.Hit,
                             NativeSnapshotMemory.RoomObjectLinkInstruction + offset);
-                    Check($"PLM {slotIndex} BlockIndex", unchecked((ushort)(slot.BlockIndex * 2)), NativeSnapshotMemory.RoomObjectBlockIndex + offset);
+                    // The movie's memory records the block as its row-major index in bytes; the port's place is its position.
+                    RoomLevelData objectLevel = runtime.Room.LevelData ?? throw new InvalidDataException("Missing active room level data.");
+                    Check($"PLM {slotIndex} BlockIndex", unchecked((ushort)(objectLevel.Size.RowMajorIndex(slot.Block) * 2)), NativeSnapshotMemory.RoomObjectBlockIndex + offset);
                     Check($"PLM {slotIndex} grey-door wait", DoorsNativeWords.GreyDoorWaitWord(typedDoor.Waits, typedDoor.Condition),
                         NativeSnapshotMemory.RoomObjectFrameBehavior + offset);
                     // The cartridge keeps a pending projectile hit in the loop counter's storage; a pending hit is

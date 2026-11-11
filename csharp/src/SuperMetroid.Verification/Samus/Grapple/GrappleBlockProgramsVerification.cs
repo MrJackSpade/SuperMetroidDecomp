@@ -183,7 +183,7 @@ internal static class GrappleBlockProgramsVerification
             words[blockIndex] = RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.GrappleBlock);
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid());
             var roomObjects = RoomObjectFixtures.Unbound(new RoomObjectVisuals { RoomObjectGrappleBlockVisuals = visuals });
-            AssertTrue(roomObjects.TrySpawnBreakableGrappleBlock(level, blockIndex, 1),
+            AssertTrue(roomObjects.TrySpawnBreakableGrappleBlock(level, level.BlockAt(blockIndex), 1),
                 "visual test starts the real respawning Grapple PLM");
             roomObjects.Step(level);
             return new GrappleBlockProgramsRenderResult(level.GetCollisionBlockByIndex(blockIndex).Terrain,
@@ -231,7 +231,7 @@ internal static class GrappleBlockProgramsVerification
         words[blockIndex] = RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.GrappleBlock);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid());
         var roomObjects = RoomObjectFixtures.Unbound();
-        AssertTrue(roomObjects.TrySpawnBreakableGrappleBlock(level, blockIndex, bts),
+        AssertTrue(roomObjects.TrySpawnBreakableGrappleBlock(level, level.BlockAt(blockIndex), bts),
             $"Grapple BTS {bts} installs its native program");
         return new GrappleBlockFixture(level, roomObjects);
     }

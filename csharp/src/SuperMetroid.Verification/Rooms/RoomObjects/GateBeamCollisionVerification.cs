@@ -72,7 +72,7 @@ internal static class GateBeamCollisionVerification
             var roomObjects = RoomObjectFixtures.Unbound();
             if (full)
                 for (int i = 0; i < 40; i++)
-                    AssertTrue(roomObjects.TrySpawnProjectileShotBlock(level, first, 0x10, SamusProjectileType.None, true), "Fill gate probe pool");
+                    AssertTrue(roomObjects.TrySpawnProjectileShotBlock(level, level.BlockAt(first), 0x10, SamusProjectileType.None, true), "Fill gate probe pool");
             var shot = new SamusProjectile(0) { Position = new(new(33, 0), new(33, 0)),
                 Radius = new(17, 17), Velocity = new(-1, -1) };
             bool result = false;

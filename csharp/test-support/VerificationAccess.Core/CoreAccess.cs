@@ -240,7 +240,7 @@ internal static class CoreAccess
                     .Select((slot, position) => new IndexedObjectSlot(slot, position))
                     .Where(entry => entry.Slot.Active)
                     .SelectMany(entry => entry.Slot.Behaviour is StationObject station
-                        ? [new StationObjectSnapshot(entry.Index, roomObjects.Level.Size.RowMajorIndex(entry.Slot.Block), entry.Slot.NativeRoomArgument,
+                        ? [new StationObjectSnapshot(entry.Index, entry.Slot.Block, entry.Slot.NativeRoomArgument,
                             station.Kind, station.Triggered, station.SavePhase, lockedOut)]
                         : Array.Empty<StationObjectSnapshot>())
                     .ToArray();
@@ -338,18 +338,18 @@ internal static class CoreAccess
     extension(RoomObjectSystem roomObjects)
     {
         /// <summary>
-        /// Whether the live scroll trigger at <paramref name="blockIndex"/> has been touched and has its writes still to
+        /// Whether the live scroll trigger at <paramref name="block"/> has been touched and has its writes still to
         /// run. Throws unless exactly one live scroll trigger owns that block.
         /// </summary>
-        internal bool ScrollObjectTriggered(int blockIndex)
+        internal bool ScrollObjectTriggered(Position16<RoomBlocks> block)
         {
             ScrollTriggerObject[] owners = [.. roomObjects.SlotTable.Slots
-                .Where(slot => slot.Active && roomObjects.Level.Size.RowMajorIndex(slot.Block) == blockIndex)
+                .Where(slot => slot.Active && slot.Block == block)
                 .Select(slot => slot.Behaviour)
                 .OfType<ScrollTriggerObject>()];
             if (owners.Length != 1)
                 throw new InvalidOperationException(
-                    $"Expected one live scroll PLM at block {blockIndex}; found {owners.Length}.");
+                    $"Expected one live scroll PLM at block {block}; found {owners.Length}.");
             return owners[0].Triggered;
         }
     }
@@ -371,10 +371,10 @@ internal static class CoreAccess
     /// <summary>Lists active PLM block positions and collectible phases and artwork in slot order.</summary>
     extension(RoomObjectSystem self)
     {
-        /// <summary>Block index of every active PLM, by slot ordinal.</summary>
-        internal IReadOnlyList<int> ActiveObjectBlockIndices =>
+        /// <summary>The room block of every active PLM, by slot ordinal.</summary>
+        internal IReadOnlyList<Position16<RoomBlocks>> ActiveObjectBlocks =>
         [
-            .. Group4ActiveObjectSlots(self).Select(slot => self.Level.Size.RowMajorIndex(slot.Block)),
+            .. Group4ActiveObjectSlots(self).Select(slot => slot.Block),
         ];
 
         /// <summary>Phase of every permanent-item PLM, in the same order as <see cref="CollectibleObjects.Collectibles"/>.</summary>

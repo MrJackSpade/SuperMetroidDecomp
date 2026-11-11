@@ -45,12 +45,12 @@ internal static class CompiledScrollObjectProgramsVerification
             size: new Extent16<RoomScreens>(4, 4),
             lastRowState: RoomScrollState.RedBoundary);
         scrolls.SetCell(0, RoomScrollState.RedBoundary);
-        AssertTrue(roomObjects.Scrolls.TryNotifyScrollTouch(level.GetBlockIndex(new(8, 13))),
+        AssertTrue(roomObjects.Scrolls.TryNotifyScrollTouch(new(8, 13)),
             "retail scroll trigger wakes at its authored coordinate");
         roomObjects.Step(level, scrolls);
         AssertEqual(RoomScrollState.Green, scrolls.ReadState(0),
             "compiled retail scroll program mutates the intended cell");
-        AssertTrue(!roomObjects.ScrollObjectTriggered(level.GetBlockIndex(new(8, 13))),
+        AssertTrue(!roomObjects.ScrollObjectTriggered(new(8, 13)),
             "retail scroll trigger returns to resident sleep");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "retail scroll PLM did not read any compiled program from the ROM bus");

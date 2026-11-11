@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// empty table takes position zero.
 /// </param>
 /// <param name="HeaderPointer">The PLM's header identity.</param>
-/// <param name="BlockIndex">The room block the PLM is placed at.</param>
+/// <param name="Block">The room block the PLM is placed at.</param>
 /// <param name="RoomArgument">The room argument the PLM was placed with.</param>
 /// <param name="ProjectileHit">The projectile hit the PLM recorded, if any.</param>
 /// <param name="Behaviour">The typed room object the place holds, if any (#1554); it runs no animation.</param>
@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal readonly record struct RoomObjectSlotSnapshot(
     int ProcessingPosition,
     RoomObjectHeaderId HeaderPointer,
-    int BlockIndex,
+    Position16<RoomBlocks> Block,
     ushort RoomArgument,
     ResidentObjectProjectileHit? ProjectileHit,
     RoomObjectBehaviour? Behaviour,

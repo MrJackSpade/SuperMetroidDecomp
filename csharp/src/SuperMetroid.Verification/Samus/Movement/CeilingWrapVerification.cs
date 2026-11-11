@@ -35,7 +35,7 @@ internal static class CeilingWrapVerification
             for (int call = 0; call < 45; call++)
             {
                 system.TerrainCollision.RunInitialBeamCollision(level, shot, roomObjects, true, powerBomb);
-                int owner = roomObjects.SlotTable.ActiveCount == 0 ? 0 : roomObjects.PopulationSlots[0].BlockIndex * 2;
+                int owner = roomObjects.SlotTable.ActiveCount == 0 ? 0 : level.Size.RowMajorIndex(roomObjects.PopulationSlots[0].Block) * 2;
                 string actual = $"{tileX},{call},{roomObjects.SlotTable.ActiveCount},{owner:X4},{RoomLevelWordEncoder.Encode(level.GetCollisionBlockByIndex(tileX).Terrain):X4},{RoomLevelWordEncoder.Encode(level.GetCollisionBlockByIndex(tileX + 1).Terrain):X4}";
                 string expected = native[cursor++];
                 if (actual != expected && mismatches++ < 8)

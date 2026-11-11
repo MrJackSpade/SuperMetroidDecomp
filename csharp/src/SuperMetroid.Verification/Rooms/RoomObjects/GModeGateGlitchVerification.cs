@@ -92,7 +92,7 @@ internal static class GModeGateGlitchVerification
         {
             AssertTrue(roomObjects.BlockReactions.TrySpawnProjectileShotBlock(
                     level,
-                    gate.BlockIndex,
+                    gate.Block,
                     DownwardGateDefinitions.ClosedGateBehavior,
                     SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false),
                     solidBlock: true),
@@ -257,7 +257,7 @@ internal static class GModeGateGlitchVerification
         var freeObjects = RoomObjectFixtures.Unbound();
         AssertTrue(freeObjects.DoorObjects.TrySpawnBlueDoorOpening(
                 freeLevel,
-                doorIndex,
+                freeLevel.BlockAt(doorIndex),
                 RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Right)),
                 SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false)),
             "G-Mode shot at a blue door allocates its inert opening actor while a slot remains");
@@ -272,7 +272,7 @@ internal static class GModeGateGlitchVerification
         FillSuspendedObjectPool(fullObjects);
         AssertTrue(!fullObjects.DoorObjects.TrySpawnBlueDoorOpening(
                 fullLevel,
-                doorIndex,
+                fullLevel.BlockAt(doorIndex),
                 RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Right)),
                 SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false)),
             "overloaded G-Mode PLM pool drops a blue-door opening request");
@@ -379,8 +379,9 @@ internal static class GModeGateGlitchVerification
         var roomObjects = RoomObjectFixtures.Unbound();
         RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(new SharedRandom()), AreaId.Crateria), RoomObjectPopulationImporter.Read(bus, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
 
-        int accessBlock = level.GetBlockIndex(new(stationX + 1, stationY));
+        var accessBlock = new Position16<RoomBlocks>(stationX + 1, stationY);
         AssertTrue(roomObjects.TryNotifyStationTouch(
+                level,
                 accessBlock,
                 RoomBlockBehavior.Reacting(BlockReactionDefinitions.StationAccesses.ReactionFor(StationAccessBehavior.EnergyRight))),
             "G-Mode fixture reaches the resident Energy Station through its real access setup");
@@ -408,7 +409,7 @@ internal static class GModeGateGlitchVerification
         SeedCollectibleRom(bus);
         CollectibleFixture fixture = LoadCollectible(bus, header: 0xeed7, roomArgument: 17, precollected: false);
         fixture.RoomObjects.Step(fixture.Level);
-        AssertTrue(fixture.RoomObjects.CollectibleObjects.TryNotifyCollectibleTouch(fixture.BlockIndex),
+        AssertTrue(fixture.RoomObjects.CollectibleObjects.TryNotifyCollectibleTouch(fixture.Block),
             "direct G-Mode contact records the visible item's native trigger");
 
         fixture.Samus.Position = fixture.Samus.Position.WithWhole(new(0x0200, 0x0200));
@@ -435,7 +436,7 @@ internal static class GModeGateGlitchVerification
         const byte blockX = 2;
         const byte blockY = 2;
         const int width = 16;
-        int blockIndex = blockY * width + blockX;
+        var block = new Position16<RoomBlocks>(blockX, blockY);
         SeedRoomObjectPopulation(bus, population,
         [
             0x0c, 0xd7, blockX, blockY, 0x00, 0x00,
@@ -453,7 +454,7 @@ internal static class GModeGateGlitchVerification
         StepNoobTube(roomObjects, level);
 
         AssertTrue(roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(
-                blockIndex,
+                block,
                 SamusBombProjectileSystem.PowerBombType),
             "Power Bomb publishes its hit to the intact glass-tube resident");
         AssertEqual(new ResidentObjectProjectileHit(SamusProjectileFamily.PowerBomb), (roomObjects.PopulationSlots.Single().Behaviour as NoobTubeObject)?.PendingHit,
@@ -475,7 +476,7 @@ internal static class GModeGateGlitchVerification
         for (int slot = 0; slot < 40; slot++)
         {
             AssertTrue(roomObjects.Quicksand.TrySpawnQuicksandReaction(
-                    blockIndex: 0,
+                    block: Position16<RoomBlocks>.Zero,
                     header: RoomObjectHeaderId.InsideReactionQuicksandSurface),
                 $"G-Mode fixture allocates suspended PLM slot {slot}");
         }

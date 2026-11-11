@@ -18,18 +18,18 @@ internal sealed class EnemyBreakableTerrainObjects
     /// Spawns the breakable block's break: take a place, clear the block's collision at once and keep its artwork until
     /// the break draws. A full room skips the setup and reports failure.
     /// </summary>
-    public bool TrySpawnEnemyBreakableBlock(RoomLevelData level, int blockIndex)
+    public bool TrySpawnEnemyBreakableBlock(RoomLevelData level, Position16<RoomBlocks> position)
     {
         Ensure.NotNull(level);
-        RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
+        RoomCollisionBlock block = level.GetCollisionBlock(position);
         // Full-pool allocation skips setup. Its caller still returns carry clear.
         if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
             return false;
 
         slot.Header = RoomObjectHeaderId.EnemyBreakableBlock;
-        slot.Block = level.BlockAt(blockIndex);
+        slot.Block = position;
         slot.Become(new TerrainChangeObject(ScriptedTerrainChangeDefinitions.EnemyBreakableBlockBreak));
-        level.SetTerrain(blockIndex, block.Terrain.WithCollision(RoomCollisionType.Air));
+        level.SetTerrain(position, block.Terrain.WithCollision(RoomCollisionType.Air));
         return true;
     }
 }

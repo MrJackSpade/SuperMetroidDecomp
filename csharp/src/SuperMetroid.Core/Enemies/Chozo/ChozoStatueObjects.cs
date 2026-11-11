@@ -67,7 +67,7 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
         {
             IEnemyObjectRequests hands = _chozoHands ??
                 throw new InvalidOperationException("Chozo hand has no bound enemy room-object requests.");
-            hands.ActivateChozoStatueHandTrigger(level, block.Index);
+            hands.ActivateChozoStatueHandTrigger(level, reaction.Block);
             // The nested hardcoded spawn occurs while the reaction slot is occupied.
             hands.ApplyPendingChozoStatueObjects(level, this);
         }
@@ -121,20 +121,24 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
     /// <summary>Turns the Wrecked Ship Chozo spikes into slopes.</summary>
     internal static void TransformSpikesToSlopes(RoomLevelData level)
     {
-        WriteChozoBlock(level, level.BlockAt(ChozoStatueRoomDefinitions.FirstSlopeBlockIndex),
+        WriteChozoBlock(level, ChozoStatueRoomDefinitions.FirstSlopeBlock,
             RoomCollisionType.Slope, ChozoStatueRoomDefinitions.FirstSlopeBehavior);
-        WriteChozoBlock(level, level.BlockAt(ChozoStatueRoomDefinitions.FirstSlopeBlockIndex + 1),
+        WriteChozoBlock(level, SecondSlopeBlock,
             RoomCollisionType.Slope, ChozoStatueRoomDefinitions.SecondSlopeBehavior);
     }
 
     /// <summary>Turns the Wrecked Ship Chozo slopes back into spikes.</summary>
     internal static void RevertSlopesToSpikes(RoomLevelData level)
     {
-        WriteChozoBlock(level, level.BlockAt(ChozoStatueRoomDefinitions.FirstSlopeBlockIndex),
+        WriteChozoBlock(level, ChozoStatueRoomDefinitions.FirstSlopeBlock,
             RoomCollisionType.SpikeBlock, RoomBlockBehavior.None);
-        WriteChozoBlock(level, level.BlockAt(ChozoStatueRoomDefinitions.FirstSlopeBlockIndex + 1),
+        WriteChozoBlock(level, SecondSlopeBlock,
             RoomCollisionType.SpikeBlock, RoomBlockBehavior.None);
     }
+
+    /// <summary>The second slope block, to the right of the first.</summary>
+    private static Position16<RoomBlocks> SecondSlopeBlock =>
+        ChozoStatueRoomDefinitions.FirstSlopeBlock + new Offset16<RoomBlocks>(1, 0);
 
     /// <summary>Moves the Lower Norfair acid to its lowered height.</summary>
     internal void SetLoweredAcidHeight() =>

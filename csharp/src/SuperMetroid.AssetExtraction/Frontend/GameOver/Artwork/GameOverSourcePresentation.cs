@@ -129,10 +129,10 @@ public sealed class GameOverSourcePresentation : GameOverPresentation
         }
 
         var babySprites = Enum.GetValues<GameOverBabyFrame>().ToDictionary(frame => frame,
-            frame => GameOverSpriteParts.CalculateBabyIfMatching(frame, CompileSprite(document, GameOverPresentationNames.BabyFrameName(frame))));
-        SpriteComposition eggSprite = GameOverSpriteParts.CalculateEggIfMatching(CompileSprite(document, GameOverPresentationDefinitions.EggFrame));
+            frame => CompileSprite(document, GameOverPresentationNames.BabyFrameName(frame)));
+        SpriteComposition eggSprite = CompileSprite(document, GameOverPresentationDefinitions.EggFrame);
         SpriteComposition[] cursorSprites = [.. Enumerable.Range(0, GameOverPresentationDefinitions.CursorFrameCount).Select(frame =>
-            MenuCursorParts.CalculateIfMatching(frame, CompileSprite(document, GameOverPresentationNames.CursorFrameName(frame))))];
+            CompileSprite(document, GameOverPresentationNames.CursorFrameName(frame)))];
 
         var palettes = new Dictionary<GameOverBabyPalette, RgbColor[]>();
         foreach (GameOverBabyPalette palette in Enum.GetValues<GameOverBabyPalette>())

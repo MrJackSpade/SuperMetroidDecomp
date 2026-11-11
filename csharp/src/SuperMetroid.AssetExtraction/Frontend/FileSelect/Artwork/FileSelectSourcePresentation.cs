@@ -35,8 +35,8 @@ public sealed class FileSelectSourcePresentation : FileSelectPresentation
         this.pages = pages.Foreground;
         background = pages.Background;
         patches = pages.Patches;
-        digits = PreserveEditedGlyphs(glyphs.Digits, FileSelectFieldTileDefinitions.DigitTileBase);
-        slotLetters = PreserveEditedGlyphs(glyphs.SlotLetters, FileSelectFieldTileDefinitions.SamusLetterTileBase);
+        digits = glyphs.Digits;
+        slotLetters = glyphs.SlotLetters;
         borderSprites = sprites.Borders;
         cursorSprites = sprites.Cursors;
         helmetSprites = sprites.Helmets;
@@ -71,28 +71,19 @@ public sealed class FileSelectSourcePresentation : FileSelectPresentation
     private readonly BackgroundTile[] background;
     /// <summary>Each slot-field patch.</summary>
     internal readonly Dictionary<FileSelectPatch, FileSelectCompiledPatch> patches;
-    /// <summary>Edited digit glyphs, or null when every digit is the native consecutive glyph.</summary>
-    internal readonly BackgroundTile[]? digits;
-    /// <summary>Edited slot-letter glyphs, or null when every letter is the native consecutive glyph.</summary>
-    internal readonly BackgroundTile[]? slotLetters;
+    /// <summary>The installed digit glyphs, zero to nine.</summary>
+    private readonly BackgroundTile[] digits;
+    /// <summary>The installed slot-letter glyphs, one per save slot.</summary>
+    private readonly BackgroundTile[] slotLetters;
 
-    /// <summary>Returns null when every glyph matches its stock consecutive tile.</summary>
-    private static BackgroundTile[]? PreserveEditedGlyphs(BackgroundTile[] values, BackgroundTile first)
-    {
-        for (int index = 0; index < values.Length; index++)
-            if (values[index] != first with { Tile = first.Tile + index })
-                return values;
-        return null;
-    }
-
-    /// <summary>The tile of decimal digit <paramref name="digit"/>, using edited glyph art when supplied.</summary>
+    /// <summary>The installed tile of decimal digit <paramref name="digit"/>.</summary>
     internal BackgroundTile Digit(int digit) => (uint)digit < FileSelectPresentationDefinitions.DigitCount
-        ? digits is null ? FileSelectFieldTiles.Digit(digit) : digits[digit]
+        ? digits[digit]
         : throw new ArgumentOutOfRangeException(nameof(digit));
 
-    /// <summary>The tile of save slot <paramref name="slot"/>'s letter, using edited glyph art when supplied.</summary>
+    /// <summary>The installed tile of save slot <paramref name="slot"/>'s letter.</summary>
     internal BackgroundTile SlotLetter(int slot) => (uint)slot < FileSelectPresentationDefinitions.SlotLetterCount
-        ? slotLetters is null ? FileSelectFieldTiles.SlotLetter(slot) : slotLetters[slot]
+        ? slotLetters[slot]
         : throw new ArgumentOutOfRangeException(nameof(slot));
 
     /// <summary>The energy tank's tile, filled or empty, in the colour variant of health tens digit <paramref name="tensDigit"/>.</summary>
@@ -224,7 +215,7 @@ public sealed class FileSelectSourcePresentation : FileSelectPresentation
                 compiled[index] = new(cell.Offset - Position16<CharacterCells>.Zero,
                     CompileCell(cell.Cell, $"file-select patch {name} cell {index}"));
             }
-            patches.Add(kind, new(kind, compiled));
+            patches.Add(kind, new(compiled));
         }
 
         BackgroundTile[] digits = document.Digits.Select((cell, index) =>
@@ -232,12 +223,11 @@ public sealed class FileSelectSourcePresentation : FileSelectPresentation
         BackgroundTile[] letters = document.SlotLetters.Select((cell, index) =>
             CompileCell(cell, $"file-select slot letter {index}")).ToArray();
         var borderSprites = FileSelectPresentationFormat.Borders.ToDictionary(border => border,
-            border => MenuHeadingBorder.CalculateIfMatching(Ensure.Listed(FileSelectSpriteDefinitions.Headings, border),
-                MenuBorderParts.CalculateIfMatching(CompileSprite(document, FileSelectParts.BorderSpriteName(border)))));
+            border => CompileSprite(document, FileSelectParts.BorderSpriteName(border)));
         SpriteComposition[] cursorSprites = [.. Enumerable.Range(0, FileSelectPresentationFormat.CursorFrameCount).Select(frame =>
-            MenuCursorParts.CalculateIfMatching(frame, CompileSprite(document, FileSelectParts.CursorSpriteName(frame))))];
+            CompileSprite(document, FileSelectParts.CursorSpriteName(frame)))];
         SpriteComposition[] helmetSprites = [.. Enumerable.Range(0, FileSelectPresentationFormat.HelmetFrameCount).Select(frame =>
-            FileSelectHelmetParts.CalculateIfMatching(frame, CompileSprite(document, FileSelectParts.HelmetSpriteName(frame))))];
+            CompileSprite(document, FileSelectParts.HelmetSpriteName(frame)))];
 
         foreach (FileSelectSlotFieldDocument slot in document.MainSlots.Concat(document.DataSlots))
             ValidateSlot(slot);

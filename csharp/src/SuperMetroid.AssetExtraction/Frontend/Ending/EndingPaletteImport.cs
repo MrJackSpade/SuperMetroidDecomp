@@ -46,10 +46,10 @@ internal static class EndingPaletteImport
             colours[index] = RgbColor.FromWord(checked((ushort)word));
         }
         if (count == ScreenColourImage.ColorCount)
-            return EndingPaletteRecognition.FromScreen(colours);
+            return EndingPaletteResources.FromScreen(colours);
         return id == EndingPaletteId.LogoCrossfade
-            ? EndingPaletteRecognition.FromCrossfade(EndingLogoCrossfadeImage.Decode(colours))
-            : EndingPaletteRecognition.FromRun(colours);
+            ? EndingPaletteResources.FromCrossfade(EndingLogoCrossfadeImage.Decode(colours))
+            : EndingPaletteResources.FromRun(colours);
     }
 
     /// <summary>

@@ -24,7 +24,7 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.Verification.Frontend.Ending;
 
-/// <summary>Compares compiled ending-logo actors, sprite relationships, and palette timing with cartridge execution.</summary>
+/// <summary>Compares compiled ending-logo actors, sprite compositions, and palette timing with cartridge execution.</summary>
 internal static class EndingLogoVerification
 {
     /// <summary>Steps the logo, comparing its crossfade palettes with the cartridge tables and its timing with the native scene.</summary>
@@ -81,7 +81,7 @@ internal static class EndingLogoVerification
         Console.WriteLine($"  Logo: {fadeStart} actor frames, sixteen exact palette pairs, {poses.Count} OAM poses.");
     }
 
-    /// <summary>Checks logo frame operands, sprite relationships, and instruction cursors against cartridge words.</summary>
+    /// <summary>Checks logo frame operands, their compositions' OAM, and instruction cursors against cartridge words.</summary>
     internal static void VerifyEndingLogoPrograms(ISnesAddressSpace bus)
     {
         ushort[] operands = [0xee5f, 0xee67, 0xee73, 0xee77, 0xee7b, 0xee8d, 0xee91, 0xee95];
@@ -89,14 +89,6 @@ internal static class EndingLogoVerification
             "circle-left-1", "circle-left-2", "circle-left-3"];
         var catalog = EndingLogoSpriteDefinitions.Frames;
         AssertEqual(8, catalog.Count, "logo frame count");
-        SpriteComposition ReadComposition(int index)
-        {
-            var definition = catalog[index];
-            return IntroCinematicSpriteCompiler.Compile(IntroCinematicSpriteFrameExtractor.Extract(
-                bus, CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name), definition.Name);
-        }
-        SpriteComposition upper = ReadComposition(0).CalculateIfMatching(new EndingLogoUpperParts()),
-            completeRight = EndingLogoWrapParts.CalculateIfMatching(ReadComposition(4));
         for (int i = 0; i < operands.Length; i++)
         {
             int operand = 0x8b0000 | operands[i];
@@ -106,7 +98,7 @@ internal static class EndingLogoVerification
             AssertEqual(pointer, CinematicSpritemapSources.Of(catalog[i].Pose), "logo frame address from original instruction operand");
             AssertEqual(count, catalog[i].StockPartCount, "logo part count from original OAM header");
             AssertEqual(names[i], catalog[i].Name, "logo published asset key");
-            VerifyEndingLogoRelatedParts(bus, i, catalog[i], upper, completeRight);
+            VerifyEndingLogoComposition(bus, catalog[i]);
         }
         AssertTrue(catalog.Select(frame => frame.Name).SequenceEqual(names), "logo catalog enumeration order");
         foreach (int invalid in new[] { int.MinValue, -1, 8, int.MaxValue })
@@ -115,47 +107,24 @@ internal static class EndingLogoVerification
         }
     }
 
-    /// <summary>Checks calculated stock logo sprite relationships and native OAM placement.</summary>
-    private static void VerifyEndingLogoRelatedParts(ISnesAddressSpace bus, int frame,
-        CinematicSpriteFrameDefinition definition, SpriteComposition upper, SpriteComposition completeRight)
+    /// <summary>Checks the extracted logo composition draws the native OAM placement.</summary>
+    private static void VerifyEndingLogoComposition(ISnesAddressSpace bus, CinematicSpriteFrameDefinition definition)
     {
         SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(bus,
             CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name);
         SpriteComposition supplied = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
-        if (frame == 4)
-        {
-            for (int index = 0; index < visual.Length; index++)
-            {
-                var choice = EndingLogoWrapParts.StockSelection(index);
-                int originalTile = visual[index].TileRow * 16 + visual[index].TileColumn;
-                AssertEqual(originalTile, choice.Tile, "original wrap tile selection");
-                AssertEqual(originalTile == 0x48 && visual[index].Size == 8, choice.Cropped, "original cropped cap selection");
-            }
-            foreach (int invalid in new[] { int.MinValue, -1, 25, int.MaxValue })
-                AssertThrows<ArgumentOutOfRangeException>(() => EndingLogoWrapParts.StockSelection(invalid), "wrap selection bounds");
-        }
-        SpriteComposition Calculate(SpriteComposition value) => frame == 0
-            ? value.CalculateIfMatching(new EndingLogoUpperParts())
-            : frame == 4 ? EndingLogoWrapParts.CalculateIfMatching(value)
-            : EndingLogoRelatedParts.CalculateIfMatching(frame, value, upper, completeRight);
-        SpriteComposition calculated = Calculate(supplied);
-        AssertTrue(!ReferenceEquals(supplied, calculated), "logo calculated relationship selection");
-        string Identity(SpriteComposition value) => SelectedPresentationHash.Create("logo-related", value.AppendIdentity);
-        AssertEqual(Identity(supplied), Identity(calculated), "all original logo related fields and ordering");
         foreach (ushort y in new ushort[] { 72, 0xfff8 })
         {
             var originalOam = new OamBuffer();
-            var calculatedOam = new OamBuffer();
-            originalOam.BeginFrame(); calculatedOam.BeginFrame();
+            var compiledOam = new OamBuffer();
+            originalOam.BeginFrame(); compiledOam.BeginFrame();
             DrawImportedSpritemap(bus, originalOam, 0x8c0000 | CinematicSpritemapSources.Of(definition.Pose), new(120, y), 0x0800, originIsOnScreen: y == 72);
-            if (y == 72) calculated.DrawOnScreen(calculatedOam, new(120, y), 0x0800);
-            else calculated.DrawOffScreen(calculatedOam, new(120, y), 0x0800);
-            originalOam.FinalizeFrame(); calculatedOam.FinalizeFrame();
-            AssertTrue(originalOam.ImageEquals(calculatedOam),
-                "logo relationship preserves native OAM and clipping");
+            if (y == 72) supplied.DrawOnScreen(compiledOam, new(120, y), 0x0800);
+            else supplied.DrawOffScreen(compiledOam, new(120, y), 0x0800);
+            originalOam.FinalizeFrame(); compiledOam.FinalizeFrame();
+            AssertTrue(originalOam.ImageEquals(compiledOam),
+                "logo composition preserves native OAM and clipping");
         }
-        foreach (int invalid in new[] { int.MinValue, -1, calculated.PartCount, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = calculated.Part(invalid), "logo part bounds");
     }
 
     /// <summary>Checks the four logo actor definitions, origins, and palette pointer bounds.</summary>

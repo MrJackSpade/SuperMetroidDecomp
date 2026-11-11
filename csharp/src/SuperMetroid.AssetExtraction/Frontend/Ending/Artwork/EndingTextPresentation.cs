@@ -9,37 +9,29 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 /// <summary>Editable, bounded post-credit labels with cinematic behavior kept in code.</summary>
 public sealed class EndingTextPresentation
 {
-    /// <summary>Result-panel cells that differ from the stock layout after replacing the producer label.</summary>
-    internal readonly Dictionary<int, BackgroundTile> resultOverrides = new();
-    /// <summary>Producer label used when rebuilding unmodified result-panel cells.</summary>
-    private readonly string resultText;
+    /// <summary>The installed result panel's tiles, with the installed producer label written in.</summary>
+    private readonly BackgroundTile[] resultPanel;
     /// <summary>Compiled large-font copyright tiles returned by the panel builder.</summary>
     private readonly BackgroundTile[] copyrightPanel;
-    /// <summary>Japanese subtitle cells whose tiles override the stock calculated layout.</summary>
-    internal readonly Dictionary<int, BackgroundTile> subtitleOverrides = new();
+    /// <summary>The installed Japanese subtitle's tiles.</summary>
+    private readonly BackgroundTile[] japaneseSubtitle;
     /// <summary>Glyph placements for the item-percentage typewriter sequence.</summary>
     internal readonly EndingTextCharacter[] percentage;
     /// <summary>Glyph placements for the final message typewriter sequence.</summary>
     internal readonly EndingTextCharacter[] finalMessage;
 
-    /// <summary>Separates editable panel cells from calculated stock tiles and retains compiled ending glyphs.</summary>
+    /// <summary>Retains the installed panels and the compiled ending glyphs.</summary>
     private EndingTextPresentation(
         BackgroundTile[] resultPanel,
         BackgroundTile[] copyrightPanel,
         BackgroundTile[] japaneseSubtitle,
         EndingTextCharacter[] percentage,
         EndingTextCharacter[] finalMessage,
-        string resultText,
         string contentIdentity)
     {
-        this.resultText = resultText;
-        for (int cell = 0; cell < resultPanel.Length; cell++)
-            if (resultPanel[cell] != EndingTextPanels.ResultTile(cell, resultText))
-                resultOverrides.Add(cell, resultPanel[cell]);
+        this.resultPanel = resultPanel;
         this.copyrightPanel = copyrightPanel;
-        for (int cell = 0; cell < japaneseSubtitle.Length; cell++)
-            if (japaneseSubtitle[cell] != EndingTextPanels.SubtitleTile(cell))
-                subtitleOverrides.Add(cell, japaneseSubtitle[cell]);
+        this.japaneseSubtitle = [.. japaneseSubtitle];
         this.percentage = percentage;
         this.finalMessage = finalMessage;
         ContentIdentity = contentIdentity;
@@ -47,36 +39,26 @@ public sealed class EndingTextPresentation
 
     /// <summary>Uppercase SHA-256 hexadecimal digest of the original JSON bytes, including formatting, used to identify the loaded presentation.</summary>
     public string ContentIdentity { get; }
-    /// <summary>Builds fresh 9-by-32 row-major tiles for the result credits, replacing the producer label and preserving independent template edits from native panel $8C:DC9B.</summary>
-    public BackgroundTile[] BuildResultPanel()
-    {
-        var output = new BackgroundTile[EndingTextLayoutDefinitions.ResultCellCount];
-        for (int cell = 0; cell < output.Length; cell++)
-            output[cell] = resultOverrides.GetValueOrDefault(cell, EndingTextPanels.ResultTile(cell, resultText));
-        return output;
-    }
+    /// <summary>Builds fresh 9-by-32 row-major tiles for the result credits: the installed panel of native panel $8C:DC9B with the installed producer label.</summary>
+    public BackgroundTile[] BuildResultPanel() => resultPanel.ToArray();
     /// <summary>Returns fresh 2-by-32 row-major tiles containing the configured large year and company labels in the layout of native panel $8C:DEDB.</summary>
     public BackgroundTile[] BuildCopyrightPanel() => copyrightPanel.ToArray();
-    /// <summary>Gets the 2-by-32 Japanese subtitle tiles corresponding to $8C:DF5B, with supplied tile edits applied to the calculated stock layout.</summary>
+    /// <summary>Gets the installed 2-by-32 Japanese subtitle tiles corresponding to $8C:DF5B.</summary>
     public SubtitleSequence JapaneseSubtitle => new(this);
 
-    /// <summary>Calculated subtitle cells, with independent supplied edits taking precedence.</summary>
+    /// <summary>The installed subtitle cells.</summary>
     public readonly struct SubtitleSequence : IReadOnlyList<BackgroundTile>
     {
-        /// <summary>Presentation whose stock subtitle and tile overrides supply this view.</summary>
+        /// <summary>Presentation whose installed subtitle supplies this view.</summary>
         private readonly EndingTextPresentation owner;
         /// <summary>Creates a read-only view of the presentation's resolved Japanese subtitle cells.</summary>
         internal SubtitleSequence(EndingTextPresentation owner) => this.owner = owner;
         /// <summary>Number of row-major subtitle tiles: two rows of 32 cells.</summary>
         public int Count => EndingTextLayoutDefinitions.SubtitleCellCount;
-        /// <summary>Gets the tile at a zero-based row-major index from 0 through 63, honoring a supplied edit before the stock glyph layout.</summary>
-        public BackgroundTile this[int index]
-        {
-            get
-            {
-                return owner.subtitleOverrides.GetValueOrDefault(index, EndingTextPanels.SubtitleTile(index));
-            }
-        }
+        /// <summary>Gets the installed tile at a zero-based row-major index from 0 through 63.</summary>
+        public BackgroundTile this[int index] => (uint)index < (uint)Count
+            ? owner.japaneseSubtitle[index]
+            : throw new ArgumentOutOfRangeException(nameof(index));
         /// <summary>Enumerates the resolved tiles from the first row's left edge through the second row's right edge.</summary>
         public IEnumerator<BackgroundTile> GetEnumerator()
         {
@@ -89,7 +71,7 @@ public sealed class EndingTextPresentation
     /// <summary>The characters the ending's typewriter types, which the game reads instead of this presentation (#1467).</summary>
     public EndingTypewriterText Typewriter() => new([.. percentage], [.. finalMessage]);
 
-    /// <summary>Loads and validates <c>ending-text.json</c>, compiling bounded labels and retaining result/subtitle tile edits without importing cinematic timers or instructions.</summary>
+    /// <summary>Loads and validates <c>ending-text.json</c>, compiling bounded labels and keeping the installed result and subtitle tiles, without importing cinematic timers or instructions.</summary>
     /// <param name="json">UTF-8 JSON read from the current stream position to its end; the stream remains open.</param>
     /// <returns>A presentation with validated dimensions and glyphs, compiled text sequences, and an identity derived from the source bytes.</returns>
     /// <exception cref="InvalidDataException">The JSON, version, template dimensions, text lengths, or supported glyphs are invalid.</exception>
@@ -139,7 +121,7 @@ public sealed class EndingTextPresentation
             EndingTextDefinitions.FinalMessage, "final message");
         return new(result, copyright,
             document.JapaneseSubtitle,
-            percentage, final, document.ResultPanel.Text, Convert.ToHexString(SHA256.HashData(source)));
+            percentage, final, Convert.ToHexString(SHA256.HashData(source)));
     }
 
     /// <summary>Serializes an editable ending-text document as UTF-8 JSON.</summary>

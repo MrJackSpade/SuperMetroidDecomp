@@ -27,10 +27,7 @@ internal static class IntroScientistFrameCatalogVerification
         AssertEqual(0x8d6f, pointer, "original record chain ends at catalog boundary");
         AssertEqual(IntroCaretSpriteDefinitions.Visible.Pose, frames[9].Pose, "last scientist record aliases the shared caret");
         foreach (int invalid in new[] { int.MinValue, -1, 10, int.MaxValue })
-        {
             AssertThrows<IndexOutOfRangeException>(() => { _ = frames[invalid]; }, "scientist catalog boundary");
-            AssertThrows<ArgumentOutOfRangeException>(() => IntroScientistSpritePoses.FramePose(invalid), "scientist pointer boundary");
-        }
         AssertTrue(frames.SequenceEqual(frames.ToArray()), "scientist catalog enumeration agrees with indexing");
     }
 

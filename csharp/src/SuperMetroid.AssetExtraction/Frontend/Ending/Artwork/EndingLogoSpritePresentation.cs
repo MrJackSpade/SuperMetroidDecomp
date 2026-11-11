@@ -14,7 +14,7 @@ public sealed class EndingLogoSpritePresentation : ICinematicSpriteFrames
     /// <summary>Compiled compositions indexed by the poses that show them.</summary>
     private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
 
-    /// <summary>Retains the validated frame set after related logo parts have been calculated.</summary>
+    /// <summary>Retains every installed composition, compiled as installed.</summary>
     private EndingLogoSpritePresentation(Dictionary<CinematicSpritePose, SpriteComposition> frames) =>
         this.frames = frames;
 
@@ -50,15 +50,6 @@ public sealed class EndingLogoSpritePresentation : ICinematicSpriteFrames
                     $"Ending logo frame {definition.Name} is missing.");
             frames.Add(definition.Pose,
                 IntroCinematicSpriteCompiler.Compile(visual, definition.Name));
-        }
-        SpriteComposition upper = frames[definitions[0].Pose].CalculateIfMatching(new EndingLogoUpperParts());
-        frames[definitions[0].Pose] = upper;
-        SpriteComposition completeRight = EndingLogoWrapParts.CalculateIfMatching(frames[definitions[4].Pose]);
-        frames[definitions[4].Pose] = completeRight;
-        for (int index = 0; index < definitions.Count; index++)
-        {
-            CinematicSpritePose pose = definitions[index].Pose;
-            frames[pose] = EndingLogoRelatedParts.CalculateIfMatching(index, frames[pose], upper, completeRight);
         }
         return new EndingLogoSpritePresentation(frames);
     }

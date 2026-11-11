@@ -11,30 +11,24 @@ using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Frontend.Intro.Artwork;
 
-/// <summary>Checks calculated intro Confused Baby sprites against imported parts and native OAM.</summary>
+/// <summary>Checks the extracted intro Confused Baby compositions draw the native OAM.</summary>
 internal static class IntroConfusedBabyPartsVerification
 {
     /// <summary>Compares stock parts and drawing at visible and wrapped origins.</summary>
     internal static void VerifyIntroConfusedBabyParts(ISnesAddressSpace rom)
     {
-        string Identity(SpriteComposition value) => SelectedPresentationHash.Create("ConfusedBaby", value.AppendIdentity);
         foreach (var definition in IntroDiscoveryActorSpriteDefinitions.Frames.Skip(16).Take(3))
         {
             SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(rom, CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name);
             SpriteComposition source = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
-            SpriteComposition result = IntroConfusedBabyParts.CalculateIfMatching(definition.Pose, source);
-            AssertTrue(!ReferenceEquals(source, result), "original ConfusedBaby selects calculated parts");
-            AssertEqual(Identity(source), Identity(result), "all original ConfusedBaby compiled fields");
-            foreach (int invalid in new[] { -1, result.PartCount, int.MaxValue })
-                AssertThrows<ArgumentOutOfRangeException>(() => result.Part(invalid), "calculated ConfusedBaby part bounds");
             foreach (ushort y in new ushort[] { 72, 0xfff8 })
             {
                 var native = new OamBuffer(); native.BeginFrame();
                 DrawImportedSpritemap(rom, native, 0x8c0000 + CinematicSpritemapSources.Of(definition.Pose), new(120, y), 0x0e00, originIsOnScreen: y == 72);
                 native.FinalizeFrame();
                 var actual = new OamBuffer(); actual.BeginFrame();
-                if (y == 72) result.DrawOnScreen(actual, new(120, y), 0x0e00);
-                else result.DrawOffScreen(actual, new(120, y), 0x0e00);
+                if (y == 72) source.DrawOnScreen(actual, new(120, y), 0x0e00);
+                else source.DrawOffScreen(actual, new(120, y), 0x0e00);
                 actual.FinalizeFrame();
                 AssertTrue(native.ImageEquals(actual)
                     && native.LastFinalizedSpriteCount == actual.LastFinalizedSpriteCount, "native ConfusedBaby OAM at visible and wrapped origins");

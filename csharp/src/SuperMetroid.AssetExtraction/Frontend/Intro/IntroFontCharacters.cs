@@ -24,16 +24,15 @@ public sealed class IntroFontCharacters
     /// <summary>Required PNG height in pixels.</summary>
     public const int Height = IntroFontAtlasFormat.TileCount / TilesPerRow * IntroFontAtlasFormat.TileSize;
 
-    /// <summary>Installed planar bytes only when the supplied font differs from the compiled native glyphs.</summary>
-    internal readonly byte[]? suppliedCharacters;
+    /// <summary>The installed font's planar characters.</summary>
+    private readonly byte[] characters;
 
-    /// <summary>Stores edited font bytes while allowing an exact native match to use the compiled glyph source.</summary>
+    /// <summary>Retains the installed font's planar characters.</summary>
     /// <param name="characters">The font's planar characters.</param>
-    internal IntroFontCharacters(byte[] characters) =>
-        suppliedCharacters = characters.SequenceEqual(IntroFontGlyphDefinitions.Compile()) ? null : characters;
+    internal IntroFontCharacters(byte[] characters) => this.characters = characters;
 
     /// <summary>Gets the 2,304-byte SNES two-bit planar characters of all 144 narration glyph tiles.</summary>
-    public ReadOnlyMemory<byte> Characters => suppliedCharacters ?? IntroFontGlyphDefinitions.Compile();
+    public ReadOnlyMemory<byte> Characters => characters;
 
     /// <summary>Loads the indexed opening-font PNG and compiles it to native two-bit planar tiles.</summary>
     /// <param name="png">Caller-owned indexed PNG stream.</param>

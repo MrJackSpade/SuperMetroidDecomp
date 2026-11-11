@@ -12,7 +12,7 @@ using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Frontend.Ending;
 
-/// <summary>Checks ending reward actor bytecode and calculated Samus sprite compositions against cartridge data.</summary>
+/// <summary>Checks ending reward actor bytecode and the extracted Samus sprite compositions against cartridge data.</summary>
 internal static class EndingRewardInstructionsVerification
 {
     /// <summary>Compares all 37 reward artwork identities and their compositions with the cartridge.</summary>
@@ -49,82 +49,30 @@ internal static class EndingRewardInstructionsVerification
             AssertEqual(pointer, CinematicSpritemapSources.Of(catalog[i].Pose), "reward original frame pointer");
             AssertEqual(count, catalog[i].StockPartCount, "reward original OAM part count");
             AssertEqual(names[i], catalog[i].Name, "reward published artwork key");
-            VerifyEndingRewardCalculatedParts(bus, catalog[i]);
+            VerifyEndingRewardComposition(bus, catalog[i]);
         }
         AssertTrue(catalog.Select(frame => frame.Name).SequenceEqual(names), "reward catalog enumeration order");
         foreach (int invalid in new[] { int.MinValue, -1, 37, int.MaxValue })
-        {
             AssertThrows<IndexOutOfRangeException>(() => _ = catalog[invalid], "reward catalog bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingRewardSpritePoses.FramePose((EndingRewardSpriteFrame)invalid), "reward frame bounds");
-        }
     }
 
-    /// <summary>Checks a reward frame's calculated layout against its extracted composition and OAM clipping.</summary>
-    private static void VerifyEndingRewardCalculatedParts(ISnesAddressSpace bus, CinematicSpriteFrameDefinition definition)
+    /// <summary>Checks a reward frame's extracted composition draws the native OAM and clipping.</summary>
+    private static void VerifyEndingRewardComposition(ISnesAddressSpace bus, CinematicSpriteFrameDefinition definition)
     {
         SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(bus,
             CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name);
         SpriteComposition supplied = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
-        SpriteComposition Calculate(SpriteComposition value)
-        {
-            value = EndingRewardHeadParts.CalculateIfMatching(definition.Pose, value);
-            value = EndingRewardStandingParts.CalculateIfMatching(definition.Pose, value);
-            value = EndingRewardPrepareJumpParts.CalculateIfMatching(definition.Pose, value);
-            value = EndingRewardJumpParts.CalculateIfMatching(definition.Pose, value);
-            value = EndingRewardSuitlessGridParts.CalculateIfMatching(definition.Pose, value);
-            value = EndingRewardSuitlessStandingParts.CalculateIfMatching(definition.Pose, value);
-            value = EndingRewardShootingSceneParts.CalculateIfMatching(definition.Pose, value);
-            value = EndingRewardArmParts.CalculateIfMatching(definition.Pose, value);
-            return EndingRewardHairParts.CalculateIfMatching(definition.Pose, value);
-        }
-        SpriteComposition calculated = Calculate(supplied);
-        bool isArm = EndingRewardSpriteFrameSeries.Arm.Any(arm => EndingRewardSpritePoses.FramePose(arm) == definition.Pose);
-        AssertTrue(!ReferenceEquals(supplied, calculated), "original reward composition uses calculated layout");
-        string Identity(SpriteComposition value) => SelectedPresentationHash.Create("reward-head", value.AppendIdentity);
-        AssertEqual(Identity(supplied), Identity(calculated), "original reward composition fields and ordering");
-        if (new[] { EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame2, EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame3,
-                EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame4 }.Any(hair => EndingRewardSpritePoses.FramePose(hair) == definition.Pose))
-        {
-            var opposite = EndingRewardHairParts.OppositeForearm(new Offset16<SpritePixels>(checked((short)visual[2].OffsetX), checked((short)visual[2].OffsetY)));
-            AssertEqual(visual[3].OffsetX, opposite.X, "original hair forearm reflection X");
-            AssertEqual(visual[3].OffsetY, opposite.Y, "original hair forearm registration Y");
-        }
-        if (isArm)
-        {
-            int shoulder = visual.Length - 3;
-            EndingRewardSpriteFrame pose = EndingRewardSpriteFrame.SamusArmFromEndingFrame1;
-            while (EndingRewardSpritePoses.FramePose(pose) != definition.Pose) pose++;
-            for (int piece = 0; piece < shoulder; piece++)
-                AssertEqual(visual[piece].TileRow * 16 + visual[piece].TileColumn,
-                    EndingRewardArmParts.StockTile(pose, piece), "original arm tile selection");
-            foreach (int invalid in new[] { int.MinValue, -1, shoulder, int.MaxValue })
-                AssertThrows<ArgumentOutOfRangeException>(() => EndingRewardArmParts.StockTile(pose, invalid), "arm tile selection bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingRewardArmParts.StockTile(EndingRewardSpriteFrame.SamusHeadFromEndingFrame1, 0), "arm tile pose bounds");
-            if (pose == EndingRewardSpriteFrame.SamusArmFromEndingFrame2)
-            {
-                for (int piece = 0; piece < shoulder; piece++)
-                {
-                    var offset = EndingRewardArmParts.SplitOffset(piece);
-                    AssertEqual(visual[piece].OffsetX, visual[1].OffsetX + offset.X, "original split-arm grid X");
-                    AssertEqual(visual[piece].OffsetY, visual[1].OffsetY + offset.Y, "original split-arm grid Y");
-                }
-                foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
-                    AssertThrows<ArgumentOutOfRangeException>(() => EndingRewardArmParts.SplitOffset(invalid), "split-arm piece bounds");
-            }
-        }
         foreach (ushort y in new ushort[] { 72, 0xfff8 })
         {
             var originalOam = new OamBuffer();
-            var calculatedOam = new OamBuffer();
-            originalOam.BeginFrame(); calculatedOam.BeginFrame();
+            var compiledOam = new OamBuffer();
+            originalOam.BeginFrame(); compiledOam.BeginFrame();
             DrawImportedSpritemap(bus, originalOam, 0x8c0000 | CinematicSpritemapSources.Of(definition.Pose), new(120, y), 0x0800, originIsOnScreen: y == 72);
-            if (y == 72) calculated.DrawOnScreen(calculatedOam, new(120, y), 0x0800);
-            else calculated.DrawOffScreen(calculatedOam, new(120, y), 0x0800);
-            originalOam.FinalizeFrame(); calculatedOam.FinalizeFrame();
-            AssertTrue(originalOam.ImageEquals(calculatedOam),
+            if (y == 72) supplied.DrawOnScreen(compiledOam, new(120, y), 0x0800);
+            else supplied.DrawOffScreen(compiledOam, new(120, y), 0x0800);
+            originalOam.FinalizeFrame(); compiledOam.FinalizeFrame();
+            AssertTrue(originalOam.ImageEquals(compiledOam),
                 "reward composition preserves native OAM and clipping");
         }
-        foreach (int invalid in new[] { int.MinValue, -1, calculated.PartCount, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = calculated.Part(invalid), "reward composition part bounds");
     }
 }

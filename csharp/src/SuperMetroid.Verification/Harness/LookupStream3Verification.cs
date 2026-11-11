@@ -100,8 +100,7 @@ internal static class LookupStream3Verification
             .Select(color => ReadVerificationWord(rom, IntroCinematicSourceDefinitions.Palette + 2 * color)).ToArray();
         IntroCinematicPalette stock = Load(native);
         Confirm(stock, native);
-        AssertEqual(0, stock.backgroundSets.Length + stock.spriteSets.Length, "intro complete stock palette stores no sets or paint words");
-        Console.WriteLine("Intro palette rows:256 native colors reach the transfer bytes and colour lists; reviewed material choices and all shade calculations keep no stock rows.");
+        Console.WriteLine("Intro palette rows:256 native colors reach the transfer bytes and colour lists.");
         static void Confirm(IntroCinematicPalette selected, ushort[] expected)
         {
             ReadOnlySpan<byte> bytes = ScreenColourWords.Words(selected.BackgroundColours.AsSpan(), selected.SpriteColours.AsSpan());
@@ -130,18 +129,10 @@ internal static class LookupStream3Verification
         ushort[][] native = Enumerable.Range(0, 4).Select(frame => Enumerable.Range(0, 6)
             .Select(cell => ReadVerificationWord(rom, 0x8cd785 + 16 * frame + 2 * cell)).ToArray()).ToArray();
         IntroEyeTilemapPresentation stock = Load(native);
-        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        foreach (var rectangle in stock.frames)
-        {
-            AssertTrue(rectangle.supplied is null,
-                "stock eye rectangle stores no native word payload");
-            AssertTrue(!MetadataShape.DeclaresField(rectangle.GetType(), "origin", fields),
-                "stock eye rectangle no longer stores independent origin words");
-        }
         Confirm(stock, native);
         AssertThrows<ArgumentOutOfRangeException>(() => stock.FrameTiles(-1).ToArray(), "negative eye frame");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.FrameTiles(4).ToArray(), "upper eye frame");
-        Console.WriteLine("Intro eye rectangles:24 native cells, the content identity and bounds pass; actual portrait draw copies pass; only reviewed patch identities/display policy remain.");
+        Console.WriteLine("Intro eye rectangles:24 native cells, the content identity and bounds pass; actual portrait draw copies pass.");
 
         static void Confirm(IntroEyeTilemapPresentation selected, ushort[][] expected)
         {
@@ -197,9 +188,7 @@ internal static class LookupStream3Verification
             native[index] = ReadVerificationWord(rom, IntroCinematicSourceDefinitions.FinalTextLine + 2 * index);
         IntroFinalLineTilemap stock = Load(native);
         AssertTrue(native.SequenceEqual(BackgroundTileWordBytes.Words(stock.Tiles.Span)), "all128 native intro divider cells");
-        AssertTrue(stock.suppliedTiles is null,
-            "native divider retains no generated lookup");
-        Console.WriteLine("Japanese subtitle staging:128 native cells pass; only reviewed display policy remains.");
+        Console.WriteLine("Japanese subtitle staging:128 native cells pass.");
 
         static IntroFinalLineTilemap Load(ushort[] words)
         {
@@ -247,8 +236,6 @@ internal static class LookupStream3Verification
             string name = GameOptionsNames.HeadingSpriteName(page);
             var original = Read();
             var stock = Load(original)[page];
-            AssertTrue(stock.parts is MenuHeadingBorder,
-                "native heading stores only semantic title identity instead of supplied bounds/order/style");
             AssertEqual(count, stock.PartCount, "native perimeter count");
             Confirm(stock, original.Sprites[name]);
             var presentation = GameOptionsSourcePresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(original, ArtworkJson.Options)));
@@ -297,8 +284,6 @@ internal static class LookupStream3Verification
             string name = FileSelectParts.BorderSpriteName(border);
             var original = Read();
             var stock = Load(original)[border];
-            AssertTrue(stock.parts is MenuHeadingBorder,
-                "native file border uses semantic title and calculated perimeter");
             AssertEqual(count, stock.PartCount, "native perimeter count");
             Confirm(stock, original.Sprites[name]);
             var presentation = FileSelectSourcePresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(original, ArtworkJson.Options)));
@@ -367,12 +352,6 @@ internal static class LookupStream3Verification
         int nativeCharacters = 0;
         foreach (var source in IntroNarrationScriptSources.Pages)
         {
-            var selected = (IntroNarrationPresentation.NarrationPage)stock.GetLines(source.Id);
-            AssertTrue(selected.supplied is null,
-                "native narration calculates line boundaries and rows");
-            string text = selected.text ?? throw new InvalidOperationException("native narration keeps its reviewed page text");
-            AssertEqual(source.Id == IntroNarrationPageId.Page1 ? 1 : 0, text.Count(character => character == '\n'),
-                "narration retains only the one independently chosen hard break");
             var expected = new List<IntroNarrationCharacter>();
             int cursor = 0x8c0000 | (source.InstructionPointer + 8);
             while ((CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor) & 0x8000) == 0)
@@ -383,7 +362,7 @@ internal static class LookupStream3Verification
                 expected.Add(new(LittleEndianBytes.LowByte(position), LittleEndianBytes.HighByte(position), IntroNarrationGlyphTiles.DecodeGlyph(glyphTile)));
                 cursor += 6;
             }
-            AssertTrue(stock.Compile(source.Id).SequenceEqual(expected), "calculated narration matches every native glyph/column/row record");
+            AssertTrue(stock.Compile(source.Id).SequenceEqual(expected), "installed narration matches every native glyph/column/row record");
             nativeCharacters += expected.Count;
             AssertThrows<ArgumentOutOfRangeException>(() => _ = stock.GetLines(source.Id)[-1], "narration line lower bound");
             AssertThrows<ArgumentOutOfRangeException>(() => _ = stock.GetLines(source.Id)[stock.GetLines(source.Id).Count], "narration line upper bound");
@@ -426,9 +405,6 @@ internal static class LookupStream3Verification
             for (int part = 0; part < expected.PartCount; part++)
                 AssertEqual(expected.Part(part), actual.Part(part), "menu composition exact ordered geometry, tiles, attributes and palette inheritance");
         }
-        static bool Calculated(SpriteComposition composition) =>
-            composition.parts is not CompiledSpritePart[];
-
         byte[] imported = SuperMetroid.AssetExtraction.Frontend.GameOverPresentationExtractor.Extract(rom);
         GameOverPresentationDocument Read() => RequiredJson.Deserialize<GameOverPresentationDocument>(imported, ArtworkJson.Options);
         GameOverSourcePresentation Load(GameOverPresentationDocument document) => GameOverSourcePresentation.Load(new MemoryStream(
@@ -460,8 +436,6 @@ internal static class LookupStream3Verification
         }
         foreach (string name in GameOverPresentationFormat.SpriteNames)
         {
-            if (name == GameOverPresentationNames.CursorFrameName(0)) for (int part = 0; part < 2; part++) AssertEqual(stock[name].Part(part), new MenuCursorParts(MenuMissileSpritemaps.SpritemapId(0) - 0x34)[part], "exact first cursor candidate part");
-            AssertTrue(Calculated(stock[name]), "stock game-over geometry retains no full part array " + name);
             Confirm(stock[name], original.Sprites[name]);
             // A part whose footprint leaves the sheet is a malformed document the import rejects.
             var malformed = Read();
@@ -480,7 +454,6 @@ internal static class LookupStream3Verification
                 string name = GameOverPresentationNames.CursorFrameName(frame);
                 var node = RequiredJson.Parse(json);
                 var parts = RequiredJson.Deserialize<SpriteVisualPart[]>(node.Required("sprites").Required(name).ToJsonString(), ArtworkJson.Options);
-                AssertTrue(Calculated(presentation[frame]), "shared menu cursor caller uses calculated geometry");
                 Confirm(presentation[frame], parts);
             }
         }
@@ -527,13 +500,12 @@ internal static class LookupStream3Verification
         {
             string name = FileSelectParts.PatchName(patch);
             FileSelectCompiledPatch Compiled(FileSelectSourcePresentation value) => value.patches[patch];
-            AssertTrue(Compiled(stock).suppliedCells is null,
-                "file-select stock patch retains no cells " + name);
+            AssertEqual(count, Compiled(stock).Count, "file-select installed patch native cell count " + name);
             for (int index = 0; index < count; index++)
             {
                 ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + index * 2);
-                AssertEqual(new FileSelectCompiledPatchCell(new(checked((short)index), 0), BackgroundTileWords.ToTile(word)), FileSelectFieldTiles.PatchCell(patch, index),
-                    "file-select calculated patch exact native cell");
+                AssertEqual(new FileSelectCompiledPatchCell(new(checked((short)index), 0), BackgroundTileWords.ToTile(word)), Compiled(stock).Cell(index),
+                    "file-select installed patch exact native cell");
             }
             AssertEqual((byte)0xff, rom.ReadCartridgeByte(address + count * 2), "file-select native patch terminator low");
             AssertEqual((byte)0xff, rom.ReadCartridgeByte(address + count * 2 + 1), "file-select native patch terminator high");
@@ -600,17 +572,11 @@ internal static class LookupStream3Verification
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
         var stock = ReadDocument();
         var loaded = Load(stock);
-        foreach (var (field, geometry) in new VerifyStream3OptionsGeometryCase[]
-        {
-            new VerifyStream3OptionsGeometryCase("controllerLabelAnchors", loaded.controllerLabelAnchors), new VerifyStream3OptionsGeometryCase("languageRegions", loaded.languageRegions),
-            new VerifyStream3OptionsGeometryCase("specialToggles", loaded.specialToggles),
-        })
-            AssertTrue(geometry is null, "stock options geometry calculates " + field);
         for (int action = 0; action < 7; action++)
         {
             ushort offset = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x82f639 + action * 2));
             AssertEqual(new Position16<CharacterCells>(checked((ushort)(offset / 2 % 32)), checked((ushort)(offset / 2 / 32))),
-                GameOptionsPageCells.ControllerAnchor(action), "native options label anchor");
+                loaded.controllerLabelAnchors[action], "native options label anchor");
         }
         foreach ((GameOptionsPage page, int address, int count) in new[]
         {
@@ -621,12 +587,10 @@ internal static class LookupStream3Verification
             for (int row = 0; row < count; row++)
                 AssertEqual(new Position16<SpritePixels>(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + row * 4)), CartridgeImportSource.Require(rom).ReadCartridgeWord((address + row * 4 + 2))),
                     loaded.CursorPosition(page, row), "native options cursor anchor");
-        var stockLabels = loaded.controllerLabels;
-        AssertEqual(0, stockLabels.Count, "options stock button glyphs retain no tilemap rows");
         for (int button = 0; button < 7; button++)
         for (int cell = 0; cell < 6; cell++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x82f659 + button * 12 + cell * 2)),
-                BackgroundTileWords.ToWord(GameOptionsPageCells.ControllerLabelTile(GameOptionsNames.ControllerLabelButton(button), cell)),
+                BackgroundTileWords.ToWord(loaded.controllerLabels[GameOptionsNames.ControllerLabelButton(button)][cell]),
                 "native options glyph composition preserves each tile and flip");
         Confirm(stock, loaded);
 
@@ -1056,8 +1020,6 @@ internal static class LookupStream3Verification
             AssertEqual(rom.ReadCartridgeByte(0x9bc1c2 + angle), swingFrames.Resolve(new TrigonometryAngle((byte)angle)), "stream 3 native calculated swing art frame");
         byte[] fileSelectJson = SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(rom);
         var fileSelect = FileSelectSourcePresentation.Load(new MemoryStream(fileSelectJson));
-        foreach (object? sequence in new object?[] { fileSelect.digits, fileSelect.slotLetters })
-            AssertTrue(sequence is null, "stream 3 stock file-select glyph sequence discarded");
         var glyphTilemap = new BackgroundTile[1024];
         for (int glyph = 0; glyph < 13; glyph++)
         {
@@ -2181,7 +2143,6 @@ internal static class LookupStream3Verification
         RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(BackgroundTileWordBytes.Of(stock.BackgroundPages.Span.Slice(index * 1024, 1024)))).ToArray();
         ImportIntroCinematicArtwork Copy(byte[] narration) => new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span)), InitialNarrationTilemap = Page(narration), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Backdrop = stock.Backdrop, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction, CeresDestructionMaps = stock.CeresDestructionMaps, ZebesReveal = stock.ZebesReveal, CeresDestructionSprites = stock.CeresDestructionSprites }, stock.Palette, stock.FlightPalette);
         AssertTrue(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span).AsSpan().SequenceEqual(native), "all 1024 initial narration words match native");
-        AssertTrue(stock.suppliedInitialNarration is null, "stock initial narration stores no page array");
         var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), characterArtwork: stock)
         {
             Random = new SharedRandom(),
@@ -2194,7 +2155,7 @@ internal static class LookupStream3Verification
             "the opening's shown memory holds the installed font, which matches the cartridge's");
         AssertTrue(intro.ShownVram().AsSpan(
             (IntroVramLayout.NarrationTilemap.Offset * 2), native.Length).SequenceEqual(native),
-            "actual opening constructor transfers calculated narration to native VRAM destination");
+            "actual opening constructor transfers installed narration to native VRAM destination");
         intro.SetupFirstIllustratedPage();
         var subtitleUpload = intro.ShownVram().AsSpan(
             (IntroVramLayout.NarrationTilemap.Offset * 2) + IntroNarrationPictures.FinalLineRow * IntroCinematicDefinitions.Planes.Width * 2,
@@ -2205,8 +2166,8 @@ internal static class LookupStream3Verification
         AssertEqual(stock.ContentIdentity, Copy(native).ContentIdentity, "equivalent stock bundle preserves canonical identity");
         BackgroundTile[] first = stock.InitialNarrationTilemap.ToArray();
         first[0] = first[0] with { Tile = first[0].Tile ^ 1 };
-        AssertTrue(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span).AsSpan().SequenceEqual(native), "calculated page is not a mutable cached table");
-        Console.WriteLine("Initial narration: 1024 native words, empty stock storage and canonical bundle identity pass.");
+        AssertTrue(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span).AsSpan().SequenceEqual(native), "installed page is not mutated through a copy");
+        Console.WriteLine("Initial narration: 1024 native words and canonical bundle identity pass.");
     }
 
     /// <summary>Checks file-select sprite compositions and border parts against native OAM data.</summary>
@@ -2224,8 +2185,6 @@ internal static class LookupStream3Verification
         {
             string name = FileSelectParts.HelmetSpriteName(frame);
             var composition = Composition(stock, frame);
-            AssertTrue(composition.parts is FileSelectHelmetParts,
-                "stock helmet retains semantic frame only");
             Confirm(stock, original, frame);
             int pointer = ReadVerificationWord(rom, 0x82c569 + FileSelectHelmetSpritemaps.SpritemapId(frame) * 2);
             int address = 0x820000 | pointer;
@@ -2269,33 +2228,14 @@ internal static class LookupStream3Verification
         byte[] native = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
             IntroCinematicSourceDefinitions.FontOne, maximumOutputBytes: IntroFontAtlasFormat.ByteCount);
         var stock = IntroFontCharacters.Read(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
-        AssertTrue(stock.Characters.Span.SequenceEqual(native), "144 calculated font tiles match native 2304 bytes");
-        AssertTrue(stock.suppliedCharacters is null, "native font retains no planar output array");
+        AssertTrue(stock.Characters.Span.SequenceEqual(native), "144 installed font tiles match native 2304 bytes");
         byte[] output = stock.Characters.ToArray();
         output[0] ^= 1;
-        AssertTrue(stock.Characters.Span.SequenceEqual(native), "font output is freshly calculated");
-        int additions = 0, removals = 0;
-        for (int tile = 0; tile < 144; tile++)
-        {
-            int glyph = tile < 48 ? tile : 48 + (tile - 48) / 32 * 32 + (tile - 48) % 16;
-            int dy = tile < 48 ? 0 : (tile - 48) % 32 / 16 * 8;
-            for (int y = 0; y < 8; y++)
-            for (int x = 0; x < 8; x++)
-            {
-                int gx = glyph == 0x26 ? x - 1 : x;
-                int source = glyph == 0x26 ? 0x24 : glyph;
-                if (gx < 0) continue;
-                var point = new Position16<ImagePixels>((ushort)gx, (ushort)(y + dy));
-                if (IntroFontGlyphDefinitions.AddedContour(source, point)) additions++;
-                if (IntroFontGlyphDefinitions.RemovedContour(source, point)) removals++;
-            }
-        }
-        AssertEqual(4, additions, "only four authored outline additions");
-        AssertEqual(91, removals, "only 91 authored corner removals including derived period alias");
+        AssertTrue(stock.Characters.Span.SequenceEqual(native), "installed font is not mutated through a copy");
         for (int y = 0; y < 8; y++)
         for (int plane = 0; plane < 2; plane++)
             AssertEqual((byte)(native[0x24 * 16 + y * 2 + plane] >> 1), native[0x26 * 16 + y * 2 + plane], "whole period drawing shifts right one pixel");
-        Console.WriteLine("Intro font: 144 native tiles/2304 bytes, four outline additions/91 removals, exact period alias and no stock output storage pass.");
+        Console.WriteLine("Intro font: 144 native tiles/2304 bytes and the exact period alias pass.");
     }
 
     /// <summary>Checks intro background map pages against decompressed ROM.</summary>
@@ -2313,16 +2253,14 @@ internal static class LookupStream3Verification
             RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(background.AsSpan(index * 2048, 2048).ToArray())).ToArray();
             return new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span)), InitialNarrationTilemap = Page(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span)), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Backdrop = stock.Backdrop, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction, CeresDestructionMaps = stock.CeresDestructionMaps, ZebesReveal = stock.ZebesReveal, CeresDestructionSprites = stock.CeresDestructionSprites }, stock.Palette, stock.FlightPalette);
         }
-        byte[] calculated = BackgroundTileWordBytes.Of(IntroBackgroundPages.Compile());
+        byte[] installed = BackgroundTileWordBytes.Of(stock.BackgroundPages.Span);
         var mismatches = new List<string>();
         for (int cell = 0; cell < native.Length / 2; cell++)
         {
-            ushort expected = BitConverter.ToUInt16(native, cell * 2), actual = BitConverter.ToUInt16(calculated, cell * 2);
+            ushort expected = BitConverter.ToUInt16(native, cell * 2), actual = BitConverter.ToUInt16(installed, cell * 2);
             if (expected != actual) mismatches.Add($"page{cell / 1024} ({cell % 32},{cell % 1024 / 32}) expected{expected:X4}/actual{actual:X4}");
         }
-        AssertTrue(mismatches.Count == 0, "all 4096 background words match native: " + string.Join("; ", mismatches.Take(32)));
-        AssertTrue(stock.suppliedBackgroundPages is null,
-            "native background pages store no output array");
+        AssertTrue(mismatches.Count == 0, "all 4096 installed background words match native: " + string.Join("; ", mismatches.Take(32)));
         AssertEqual(stock.ContentIdentity, Copy(native).ContentIdentity, "equivalent backgrounds preserve canonical hash");
         var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), characterArtwork: stock)
         {
@@ -2331,8 +2269,8 @@ internal static class LookupStream3Verification
         };
         AssertTrue(intro.ShownVram().AsSpan(
             (IntroVramLayout.BackgroundPages.Offset * 2), native.Length).SequenceEqual(native),
-            "actual opening constructor uploads all four calculated background pages");
-        Console.WriteLine("Intro backgrounds: 4096 native words, owned fallback, canonical hash and actual four-page VRAM upload pass.");
+            "actual opening constructor uploads all four installed background pages");
+        Console.WriteLine("Intro backgrounds: 4096 native words, canonical hash and actual four-page VRAM upload pass.");
     }
 
     /// <summary>Checks all 27 Work Robot frame identities and their native spritemap ordering.</summary>
@@ -2437,9 +2375,7 @@ BranchesToSharedBody:true),
         static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new(BackgroundTileWordBytes.Tiles(bytes));
         RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(BackgroundTileWordBytes.Of(stock.BackgroundPages.Span.Slice(index * 1024, 1024)))).ToArray();
         ImportIntroCinematicArtwork Copy(byte[] portrait) => new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(portrait), InitialNarrationTilemap = Page(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span)), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Backdrop = stock.Backdrop, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction, CeresDestructionMaps = stock.CeresDestructionMaps, ZebesReveal = stock.ZebesReveal, CeresDestructionSprites = stock.CeresDestructionSprites }, stock.Palette, stock.FlightPalette);
-        AssertTrue(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span).AsSpan().SequenceEqual(native), "all 1024 calculated portrait words match native");
-        AssertTrue(stock.suppliedPortrait is null,
-            "native portrait stores no output word array");
+        AssertTrue(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span).AsSpan().SequenceEqual(native), "all 1024 installed portrait words match native");
         AssertEqual(stock.ContentIdentity, Copy(native).ContentIdentity, "equivalent portrait preserves canonical hash");
         var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), characterArtwork: stock)
         {
@@ -2448,8 +2384,8 @@ BranchesToSharedBody:true),
         };
         AssertTrue(intro.ShownVram().AsSpan(
             (IntroVramLayout.PortraitTilemap.Offset * 2), native.Length).SequenceEqual(native),
-            "actual opening constructor uploads calculated portrait map");
-        Console.WriteLine("Portrait map: 1024 native words, owned fallback, canonical hash and actual VRAM upload pass.");
+            "actual opening constructor uploads installed portrait map");
+        Console.WriteLine("Portrait map: 1024 native words, canonical hash and actual VRAM upload pass.");
     }
 
     /// <summary>Runs the retail-ROM room-flash color and mirror comparison from the command line.</summary>

@@ -29,7 +29,7 @@ public sealed class EndingCompletionTextSpritePresentation : ICinematicSpriteFra
 
     /// <summary>Loads version-1 <c>ending-completion-text-sprites.json</c>, requiring all 56 named compositions and validating each ordered part's offsets, tile region, size, palette, and priority.</summary>
     /// <param name="json">Caller-owned JSON stream consumed from its current position and left open; unknown and duplicate properties are rejected.</param>
-    /// <returns>Compiled editable compositions, using calculated stock letter parts only when every supplied visual field matches.</returns>
+    /// <returns>Every installed composition, compiled as installed.</returns>
     public static EndingCompletionTextSpritePresentation Load(Stream json)
     {
         Ensure.NotNull(json);
@@ -42,16 +42,13 @@ public sealed class EndingCompletionTextSpritePresentation : ICinematicSpriteFra
             throw new InvalidDataException(
                 $"Ending completion text requires exactly {definitions.Count} named visual frames.");
         var frames = new Dictionary<CinematicSpritePose, SpriteComposition>();
-        for (int index = 0; index < definitions.Count; index++)
+        foreach (CinematicSpriteFrameDefinition definition in definitions)
         {
-            CinematicSpriteFrameDefinition definition = definitions[index];
             if (!document.Frames.TryGetValue(definition.Name, out SpriteVisualPart[]? visual) ||
                 visual is null)
                 throw new InvalidDataException(
                     $"Ending completion text frame {definition.Name} is missing.");
-            frames.Add(definition.Pose,
-                IntroCinematicSpriteCompiler.Compile(visual, definition.Name)
-                    .CalculateIfMatching(new EndingCompletionTextParts(index)));
+            frames.Add(definition.Pose, IntroCinematicSpriteCompiler.Compile(visual, definition.Name));
         }
         return new EndingCompletionTextSpritePresentation(frames);
     }

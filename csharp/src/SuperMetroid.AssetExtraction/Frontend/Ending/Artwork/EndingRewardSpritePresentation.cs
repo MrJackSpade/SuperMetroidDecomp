@@ -46,17 +46,7 @@ public sealed class EndingRewardSpritePresentation : ICinematicSpriteFrames
                 visual is null)
                 throw new InvalidDataException(
                     $"Ending reward frame {definition.Name} is missing.");
-            SpriteComposition composition = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
-            composition = EndingRewardHeadParts.CalculateIfMatching(definition.Pose, composition);
-            composition = EndingRewardStandingParts.CalculateIfMatching(definition.Pose, composition);
-            composition = EndingRewardPrepareJumpParts.CalculateIfMatching(definition.Pose, composition);
-            composition = EndingRewardJumpParts.CalculateIfMatching(definition.Pose, composition);
-            composition = EndingRewardSuitlessGridParts.CalculateIfMatching(definition.Pose, composition);
-            composition = EndingRewardSuitlessStandingParts.CalculateIfMatching(definition.Pose, composition);
-            composition = EndingRewardShootingSceneParts.CalculateIfMatching(definition.Pose, composition);
-            composition = EndingRewardArmParts.CalculateIfMatching(definition.Pose, composition);
-            composition = EndingRewardHairParts.CalculateIfMatching(definition.Pose, composition);
-            frames.Add(definition.Pose, composition);
+            frames.Add(definition.Pose, IntroCinematicSpriteCompiler.Compile(visual, definition.Name));
         }
         return new EndingRewardSpritePresentation(frames);
     }

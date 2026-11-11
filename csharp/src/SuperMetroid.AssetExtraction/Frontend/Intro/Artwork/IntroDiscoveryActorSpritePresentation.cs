@@ -45,13 +45,7 @@ public sealed class IntroDiscoveryActorSpritePresentation : ICinematicSpriteFram
             if (!document.Frames.TryGetValue(definition.Name, out SpriteVisualPart[]? visual) ||
                 visual is null)
                 throw new InvalidDataException($"Intro discovery actor frame {definition.Name} is missing.");
-            SpriteComposition compiled = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
-            compiled = IntroEggRockingParts.CalculateIfMatching(definition.Pose, compiled);
-            compiled = IntroEggCrackingParts.CalculateIfMatching(definition.Pose, compiled);
-            frames.Add(definition.Pose,
-                IntroConfusedBabyParts.CalculateIfMatching(definition.Pose,
-                    IntroEggRemnantParts.CalculateIfMatching(definition.Pose,
-                        compiled)));
+            frames.Add(definition.Pose, IntroCinematicSpriteCompiler.Compile(visual, definition.Name));
         }
         return new IntroDiscoveryActorSpritePresentation(frames);
     }

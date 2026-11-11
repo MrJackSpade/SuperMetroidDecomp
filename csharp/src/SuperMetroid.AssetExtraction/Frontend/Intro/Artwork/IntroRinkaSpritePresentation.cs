@@ -45,9 +45,7 @@ public sealed class IntroRinkaSpritePresentation : ICinematicSpriteFrames
             if (!document.Frames.TryGetValue(definition.Name, out SpriteVisualPart[]? visual) ||
                 visual is null)
                 throw new InvalidDataException($"Intro Rinka frame {definition.Name} is missing.");
-            frames.Add(definition.Pose,
-                IntroRinkaParts.CalculateIfMatching(definition.Pose,
-                    IntroCinematicSpriteCompiler.Compile(visual, definition.Name)));
+            frames.Add(definition.Pose, IntroCinematicSpriteCompiler.Compile(visual, definition.Name));
         }
         return new IntroRinkaSpritePresentation(frames);
     }

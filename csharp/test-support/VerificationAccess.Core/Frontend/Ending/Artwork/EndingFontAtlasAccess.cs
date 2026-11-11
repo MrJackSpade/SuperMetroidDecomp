@@ -16,9 +16,7 @@ internal static class EndingFontAtlasAccess
             if (planar.Length != EndingFontAtlasFormat.ByteCount)
                 throw new InvalidDataException(
                     $"Ending font contains {planar.Length} planar bytes; expected {EndingFontAtlasFormat.ByteCount}.");
-            byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, EndingFontAtlasFormat.BitsPerPixel,
-                EndingFontAtlasFormat.TilesPerRow, out _);
-            return new EndingFontCharacters(pixels);
+            return new EndingFontCharacters(planar.ToArray());
         }
     }
 }

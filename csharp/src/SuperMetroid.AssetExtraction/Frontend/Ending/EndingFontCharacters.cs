@@ -4,36 +4,21 @@ using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>
-/// The installed ending font as the import pipeline reads it (#1409): its selected glyph pixels, held as the calculable
-/// glyph footprint and the pixels that differ from it, compiled to SNES 4-bpp characters for the ending's sheets.
+/// The installed ending font as the import pipeline reads it (#1409): its selected glyph pixels, compiled to SNES 4-bpp
+/// characters for the ending's sheets and kept as installed.
 /// </summary>
 public sealed class EndingFontCharacters
 {
-    /// <summary>Selected fill-ink footprint for calculable alphabet and digit outlines.</summary>
-    internal readonly HashSet<int> glyphFootprint = new();
-    /// <summary>Required native cutouts, other artwork, and supplied differences from calculated ink.</summary>
-    internal readonly Dictionary<int, byte> pixels = new();
-    /// <summary>Separates calculable glyph ink from independently required or edited pixels.</summary>
-    /// <param name="supplied">The font's row-major pixel indices.</param>
-    internal EndingFontCharacters(byte[] supplied)
-    {
-        for (int pixel = 0; pixel < supplied.Length; pixel++)
-            if (EndingFontAtlasFormat.IsOutlinedAlphabetPixel(pixel) && supplied[pixel] == EndingFontAtlasFormat.GlyphFillInk)
-                glyphFootprint.Add(pixel);
-        for (int pixel = 0; pixel < supplied.Length; pixel++)
-            if (!EndingFontAtlasFormat.TryCalculatedPixel(pixel, glyphFootprint, out int calculated)
-                || supplied[pixel] != calculated) pixels[pixel] = supplied[pixel];
-    }
-    /// <summary>Materializes a new $1400-byte SNES 4-bpp transfer containing all 160 selected font/subtitle tiles in atlas order, without retaining a packed-transfer cache.</summary>
-    public ReadOnlyMemory<byte> Characters => SnesPlanarTileEncoder.Encode(
-        Enumerable.Range(0, EndingFontAtlasFormat.Width * EndingFontAtlasFormat.Height)
-            .Select(Pixel).ToArray(),
-        new(EndingFontAtlasFormat.Width, EndingFontAtlasFormat.Height), EndingFontAtlasFormat.BitsPerPixel);
+    /// <summary>The installed font's 4-bpp characters.</summary>
+    private readonly byte[] characters;
 
-    /// <summary>Resolves one selected atlas pixel from retained artwork or its glyph outline rule.</summary>
-    private byte Pixel(int pixel) => pixels.ContainsKey(pixel) ? pixels[pixel]
-        : EndingFontAtlasFormat.TryCalculatedPixel(pixel, glyphFootprint, out int calculated) ? (byte)calculated
-        : throw new InvalidOperationException("Required ending font pixel is absent.");
+    /// <summary>Retains the installed font's 4-bpp characters.</summary>
+    /// <param name="characters">The $1400-byte transfer of all 160 font and subtitle tiles in atlas order.</param>
+    internal EndingFontCharacters(byte[] characters) => this.characters = characters;
+
+    /// <summary>The $1400-byte SNES 4-bpp transfer containing all 160 selected font/subtitle tiles in atlas order.</summary>
+    public ReadOnlyMemory<byte> Characters => characters;
+
     /// <summary>Loads the 128x80 indexed ending-font sheet and validates its sixteen-color index range and native transfer size, preserving supplied artwork rather than matching PNG RGB colors.</summary>
     /// <param name="png">Noninterlaced indexed PNG stream at its current position, read through the image end and left open.</param>
     /// <returns>Selected font artwork for credits, result text, and the post-shot subtitle; displayed colors remain palette-owned.</returns>
@@ -48,6 +33,6 @@ public sealed class EndingFontCharacters
         if (planar.Length != EndingFontAtlasFormat.ByteCount)
             throw new InvalidDataException(
                 $"Ending font compiled to {planar.Length} bytes; expected {EndingFontAtlasFormat.ByteCount}.");
-        return new(image.Pixels);
+        return new(planar);
     }
 }

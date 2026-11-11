@@ -47,9 +47,7 @@ public sealed class IntroMotherBrainExplosionSpritePresentation : ICinematicSpri
                 visual is null)
                 throw new InvalidDataException(
                     $"Intro Mother Brain explosion frame {definition.Name} is missing.");
-            frames.Add(definition.Pose,
-                IntroMotherBrainExplosionParts.CalculateIfMatching(definition.Pose,
-                    IntroCinematicSpriteCompiler.Compile(visual, definition.Name)));
+            frames.Add(definition.Pose, IntroCinematicSpriteCompiler.Compile(visual, definition.Name));
         }
         return new IntroMotherBrainExplosionSpritePresentation(frames);
     }

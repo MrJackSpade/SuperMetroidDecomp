@@ -65,11 +65,12 @@ internal sealed class KraidLimbs
     }
 
     /// <summary>
-    /// The program a part's stored cursor belongs to. A cursor resting on a fall-through already belongs to the next
-    /// program, as the part's program position then lies inside it.
+    /// The segment a part's animation rests in. Resting after the last beat of a list that runs on into the next, it
+    /// already rests in the next, as the part's script position then lies inside it.
     /// </summary>
     private KraidPartProgram KraidPartResidentProgram(RoomEnemySlot part) =>
-        KraidAnimations.Programs.ResidentProgram(_access.Part(part).Cursor);
+        BossAnimationResidence.ResidentSegment(KraidAnimations.Segments, KraidAnimations.StartingAt, KraidAnimations.RunsOnInto,
+            _access.Part(part).Playback);
 
     /// <summary>
     /// Runs a Kraid part's program where the enemy instruction interpreter would: the frame expires on the update
@@ -80,10 +81,12 @@ internal sealed class KraidLimbs
         if (!EnemyProgramAnimation.Expire(part))
             return;
         KraidPartState partState = _access.Part(part);
-        AnimationProgramCursor<KraidPartProgram> cursor = partState.Cursor;
-        EnemyProgramAnimation.Run(part, KraidAnimations.Programs, ref cursor, KraidPartFrameDefinitions.ShownFrames.Of,
-            (cue, continuation) => ApplyKraidPartCue(cue));
-        partState.Cursor = cursor;
+        AnimationPlayback<KraidPartProgram> playback = partState.Playback;
+        EnemyProgramAnimation.Play(part, KraidAnimations.Segments, ref playback, KraidPartFrameDefinitions.ShownFrames.Of,
+            cue => ApplyKraidPartCue(cue) is { } started
+                ? new AnimationContinuation<KraidPartProgram>(KraidAnimations.StartingWith(started), AnimationPlace.StartOfAnimation)
+                : null);
+        partState.Playback = playback;
     }
 
     /// <summary>Carries out one cue of a Kraid part program.</summary>
@@ -122,7 +125,7 @@ internal sealed class KraidLimbs
         if (state.ThinkingTimer != 0 && --state.ThinkingTimer == 0)
         {
             state.BodyState.Function = KraidAiFunction.MouthOpenReaction;
-            state.HeadProgram = KraidHeadAnimations.RoarAfterEntryFrame;
+            state.HeadPlayback = KraidHeadAnimations.RoarAfterEntryFrame;
             state.BodyState.HeadTimer = KraidHeadAnimations.RoarEntryDuration;
         }
     }
@@ -137,8 +140,8 @@ internal sealed class KraidLimbs
         state.BodyState.FunctionTimer = 180;
         state.BodyState.NextFunction = KraidAiFunction.GrowReleaseCamera;
 
-        KraidHeadGrowthResume resume = KraidHeadAnimations.ReadsAt(state.HeadProgram).Growth;
-        state.HeadProgram = KraidHeadAnimations.GrowthResumeCursor(resume);
+        KraidHeadGrowthResume resume = KraidHeadAnimations.ReadsAt(state.HeadPlayback).Growth;
+        state.HeadPlayback = KraidHeadAnimations.GrowthResumePlayback(resume);
         state.BodyState.HeadTimer = KraidHeadAnimations.GrowthResumeDelay(resume);
         _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), 340);
 

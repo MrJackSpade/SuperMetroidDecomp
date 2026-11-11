@@ -148,37 +148,35 @@ internal sealed class KraidHead
     }
 
     /// <summary>
-    /// Runs Kraid's head program to its next pose: cries on the way are announced, and a pose installs its duration as
-    /// the head timer and shows its image; a program's end leaves the cursor there.
+    /// Plays Kraid's head animation to its next pose: cries on the way are announced, and a pose installs its duration as
+    /// the head timer and shows its image; at its list's end the animation holds there.
     /// </summary>
     internal KraidHeadProgramResult ExecuteKraidHeadInstruction(KraidEnemyState state)
     {
-        AnimationProgramCursor<KraidHeadProgram> cursor = state.HeadProgram ?? throw new InvalidDataException(
-            "Kraid's head program has not been started.");
-        WrappingCountdown unusedLoopCounter = default;
-        AnimationProgramAdvance<KraidHeadFrame> advance = KraidHeadAnimations.Programs.AdvanceTo(
-            ref cursor, ref unusedLoopCounter, (cue, _) =>
-            {
-                PublishKraidHeadCue(cue, state);
-                return null;
-            });
-        state.HeadProgram = cursor;
-        switch (advance)
+        AnimationPlayback<KraidHeadProgram> playback = state.HeadPlayback ?? throw new InvalidDataException(
+            "Kraid's head animation has not been started.");
+        AnimationPlace place = playback.Place;
+        // The head's animations count no repeats, so nothing reads or writes this counter.
+        WrappingCountdown repeats = WrappingCountdown.Start(0);
+        AnimationShown<KraidHeadProgram, KraidHeadFrame> outcome = KraidHeadAnimations.Segments.PlayToNextFrame(
+            playback.Animation, ref place, ref repeats, cue => PublishKraidHeadCue(cue, state));
+        state.HeadPlayback = playback with { Place = place };
+        switch (outcome)
         {
-            case AnimationProgramAdvance<KraidHeadFrame>.Hold:
+            case AnimationShown<KraidHeadProgram, KraidHeadFrame>.Held:
                 return KraidHeadProgramResult.ProgramEnded;
 
-            case AnimationProgramAdvance<KraidHeadFrame>.Show shown:
+            case AnimationShown<KraidHeadProgram, KraidHeadFrame>.Frame shown:
                 state.BodyState.HeadTimer = shown.Duration;
                 // His body layer shows the pose over his body from here (#1515).
-                state.DisplayedHeadFrame = shown.Frame;
+                state.DisplayedHeadFrame = shown.Shown;
                 return KraidHeadProgramResult.PoseShown;
 
-            case AnimationProgramAdvance<KraidHeadFrame>.Wait or AnimationProgramAdvance<KraidHeadFrame>.Stop:
-                throw new InvalidOperationException($"Kraid's head programs never {advance}.");
+            case AnimationShown<KraidHeadProgram, KraidHeadFrame>.Paused or AnimationShown<KraidHeadProgram, KraidHeadFrame>.Ended:
+                throw new InvalidOperationException($"Kraid's head animations never reach {outcome}.");
 
             default:
-                throw new InvalidOperationException($"Undefined animation program advance {advance}.");
+                throw new InvalidOperationException($"Undefined animation outcome {outcome}.");
         }
     }
 
@@ -226,7 +224,7 @@ internal sealed class KraidHead
     internal void InitializeKraidEyeGlow(KraidEnemyState state)
     {
         state.BodyState.Function = KraidAiFunction.GlowEye;
-        state.HeadProgram = KraidHeadAnimations.EyeGlowAfterEntryFrame;
+        state.HeadPlayback = KraidHeadAnimations.EyeGlowAfterEntryFrame;
         state.BodyState.HeadTimer = KraidHeadAnimations.EyeGlowEntryDuration;
         GlowKraidEye(state);
     }
@@ -248,7 +246,7 @@ internal sealed class KraidHead
         if (unglowed)
         {
             state.BodyState.Function = KraidAiFunction.MouthOpenReaction;
-            state.HeadProgram = KraidHeadAnimations.RoarAfterEntryFrame;
+            state.HeadPlayback = KraidHeadAnimations.RoarAfterEntryFrame;
             state.BodyState.HeadTimer = KraidHeadAnimations.RoarEntryDuration;
         }
     }

@@ -47,7 +47,8 @@ internal sealed class KraidEncounterAccess
 
     /// <summary>Installs <paramref name="program"/> as the part's program, from its start; the caller sets the timer.</summary>
     internal void SetKraidPartProgram(RoomEnemySlot part, KraidPartProgram program) =>
-        _parts.StateOf(RequireKraidState(part), part).Cursor = AnimationProgramCursor<KraidPartProgram>.Start(program);
+        _parts.StateOf(RequireKraidState(part), part).Playback =
+            new AnimationPlayback<KraidPartProgram>(KraidAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
 
     /// <summary>Sets a part's program and runs its first instruction on the next frame.</summary>
     internal void StartKraidPartProgram(RoomEnemySlot part, KraidPartProgram program)

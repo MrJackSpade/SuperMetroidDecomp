@@ -5,7 +5,8 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 
 /// <summary>
 /// The cartridge's own Kraid head lists, decoded independently of production, and the translation between their native
-/// cursors and <see cref="KraidHeadAnimations"/>' typed cursors. The four lists lie back to back from $A7:96D2 to the
+/// cursors and <see cref="KraidHeadAnimations"/>' typed playbacks (#1600): a record before a step is the head animation
+/// standing before that beat, and a list's terminator is the animation holding after its last. The four lists lie back to back from $A7:96D2 to the
 /// mouth shapes at $A7:9788; each ends in a $FFFF terminator. A timed pose is eight bytes (duration, tilemap, outer and
 /// inner mouth shapes); a cry is a two-byte call. Only verification and the native snapshot import know these addresses.
 /// </summary>
@@ -29,7 +30,7 @@ internal sealed class KraidHeadNativeCursors
     /// <summary>The native terminator word that ends a list.</summary>
     internal const ushort Terminator = 0xffff;
 
-    /// <summary>Every native record, in cartridge order, beside the typed cursor that stands for it.</summary>
+    /// <summary>Every native record, in cartridge order, beside the typed playback that stands for it.</summary>
     internal IReadOnlyList<KraidHeadNativeRecord> Records { get; }
 
     /// <summary>Decodes the four native head lists from <paramref name="rom"/>.</summary>
@@ -43,7 +44,11 @@ internal sealed class KraidHeadNativeCursors
         {
             ushort opcode = Word(pointer);
             bool pose = opcode < 0x8000;
-            records.Add(new((ushort)pointer, new(Enum.GetValues<KraidHeadProgram>()[program], position), opcode,
+            KraidHeadProgram list = Enum.GetValues<KraidHeadProgram>()[program];
+            AnimationPlayback<KraidHeadProgram> playback = opcode == Terminator
+                ? new(KraidHeadAnimations.StartingWith(list), AnimationPlace.HoldingIn(0, position))
+                : KraidHeadAnimations.At(list, position);
+            records.Add(new((ushort)pointer, playback, opcode,
                 pose ? Word(pointer + 2) : (ushort)0, pose ? Word(pointer + 4) : (ushort)0, pose ? Word(pointer + 6) : (ushort)0,
                 opcode is RoarCryCall or DyingCryCall ? Word(opcode + 2) : (ushort)0));
             pointer += pose ? 8 : 2;
@@ -59,19 +64,24 @@ internal sealed class KraidHeadNativeCursors
         Records = records;
     }
 
-    /// <summary>The typed cursor native pointer <paramref name="pointer"/> stands for, or null when it is no record's start.</summary>
-    internal AnimationProgramCursor<KraidHeadProgram>? TryCursorAt(ushort pointer) =>
-        Records.FirstOrDefault(record => record.Pointer == pointer) is { Pointer: not 0 } record ? record.Cursor : null;
+    /// <summary>The typed playback native pointer <paramref name="pointer"/> stands for, or null when it is no record's start.</summary>
+    internal AnimationPlayback<KraidHeadProgram>? TryPlaybackAt(ushort pointer) =>
+        Records.FirstOrDefault(record => record.Pointer == pointer) is { Pointer: not 0 } record ? record.Playback : null;
 
-    /// <summary>The typed cursor native pointer <paramref name="pointer"/> stands for.</summary>
-    internal AnimationProgramCursor<KraidHeadProgram> CursorAt(ushort pointer) => TryCursorAt(pointer)
+    /// <summary>The typed playback native pointer <paramref name="pointer"/> stands for.</summary>
+    internal AnimationPlayback<KraidHeadProgram> PlaybackAt(ushort pointer) => TryPlaybackAt(pointer)
         ?? throw new InvalidDataException($"Native Kraid head pointer $A7:{pointer:X4} is no record's start.");
 
-    /// <summary>The native pointer <paramref name="cursor"/> stands for.</summary>
-    internal ushort PointerAt(AnimationProgramCursor<KraidHeadProgram> cursor) =>
-        Records.Single(record => record.Cursor == cursor).Pointer;
+    /// <summary>
+    /// The native pointer <paramref name="playback"/> stands for: its record's, a play done after its last beat standing
+    /// at the list's terminator whether or not it has held there yet.
+    /// </summary>
+    internal ushort PointerAt(AnimationPlayback<KraidHeadProgram> playback) => RecordAt(playback).Pointer;
 
-    /// <summary>The native record <paramref name="cursor"/> stands for.</summary>
-    internal KraidHeadNativeRecord RecordAt(AnimationProgramCursor<KraidHeadProgram> cursor) =>
-        Records.Single(record => record.Cursor == cursor);
+    /// <summary>The native record <paramref name="playback"/> stands for.</summary>
+    internal KraidHeadNativeRecord RecordAt(AnimationPlayback<KraidHeadProgram> playback)
+    {
+        KraidHeadListPosition position = KraidHeadAnimations.PositionOf(playback);
+        return Records.Single(record => KraidHeadAnimations.PositionOf(record.Playback) == position);
+    }
 }

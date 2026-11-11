@@ -279,7 +279,7 @@ internal sealed class KraidRise
             _parts.NailStateOf(state, nail).FunctionTimer = nailDelay;
             nailDelay += 64;
         }
-        state.HeadProgram = KraidHeadAnimations.RoarAfterEntryFrame;
+        state.HeadPlayback = KraidHeadAnimations.RoarAfterEntryFrame;
         state.WalkTarget = new Position16<RoomPixels>(288, 0);
         RoomEnemySlot foot = _parts.Foot;
         state.FootState.Function = KraidAiFunction.FootSecondPhaseWalkToStart;
@@ -381,7 +381,7 @@ internal sealed class KraidRise
                     // The rise's last step does not leave execution at the fight setup.
                     // That setup immediately installs the thinking function, seeds the random thinking
                     // timer and selects the roar list for the first attack.
-                    state.HeadProgram = KraidHeadAnimations.RoarAfterEntryFrame;
+                    state.HeadPlayback = KraidHeadAnimations.RoarAfterEntryFrame;
                     _head.SetupKraidFirstPhaseThinking(body, state);
 
                     // The foot owns first-phase lunges independently of the body thinker.

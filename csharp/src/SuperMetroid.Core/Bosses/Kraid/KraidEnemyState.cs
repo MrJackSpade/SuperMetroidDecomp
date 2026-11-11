@@ -84,10 +84,10 @@ public sealed class KraidEnemyState
     internal KraidHeadFrame? DisplayedHeadFrame { get; set; }
 
     /// <summary>
-    /// Where Kraid's head program resumes; its timer is the body's head countdown. Null until the first attack, glow
-    /// or death installs a program.
+    /// Kraid's playing head animation and where it stands; its timer is the body's head countdown. Null until the first
+    /// attack, glow or death installs an animation.
     /// </summary>
-    internal AnimationProgramCursor<KraidHeadProgram>? HeadProgram { get; set; }
+    internal AnimationPlayback<KraidHeadProgram>? HeadPlayback { get; set; }
 
     /// <summary>Moves the hurt-palette phase one step toward zero; the caller has established the phase is running.</summary>
     internal void StepHurtFrameDown() => HurtFrame = HurtFrame > 0

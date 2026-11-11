@@ -43,13 +43,13 @@ internal static class KraidGrowthCommandCursorVerification
         body.Bind(EnemyDefinitionId.Kraid, body.Definition);
         state.InitialHealth = 1000;
         body.Health = 874;
-        state.HeadProgram = native.CursorAt(0x96e2);
+        state.HeadPlayback = native.PlaybackAt(0x96e2);
         execute(state);
-        AssertEqual(native.CursorAt(0x96ea), state.HeadProgram, "head interpreter leaves the next cursor on the roar command");
+        AssertEqual(native.PlaybackAt(0x96ea), state.HeadPlayback, "head interpreter leaves the next cursor on the roar command");
         KraidHeadFrame? displayed = state.DisplayedHeadFrame;
         state.FootState.Function = KraidAiFunction.FootPrepareFirstPhaseLunge;
         footMain(foot, 0);
-        AssertEqual(native.CursorAt(0x96f4), state.HeadProgram, "native command-cursor growth resumes at the closing-mouth frame");
+        AssertEqual(native.PlaybackAt(0x96f4), state.HeadPlayback, "native command-cursor growth resumes at the closing-mouth frame");
         AssertEqual(64, state.BodyState.HeadTimer, "native quick-kill growth delay is preserved");
         AssertEqual(displayed, state.DisplayedHeadFrame, "growth selection does not advance the displayed head");
         AssertEqual(KraidAiFunction.GrowReleaseCamera, state.BodyState.NextFunction, "growth schedules camera release");
@@ -64,8 +64,8 @@ internal static class KraidGrowthCommandCursorVerification
             int address = 0xa70000 | (record.Pointer + 2);
             ushort word = LittleEndianBytes.Word(KraidGrowthCommandCursorRomByte(rom, address), KraidGrowthCommandCursorRomByte(rom, address + 1));
             (ushort pointer, ushort timer) = KraidContourCaseMappingsVerification.NativeKraidGrowthResume(rom, word);
-            KraidHeadGrowthResume resume = KraidHeadAnimations.ReadsAt(record.Cursor).Growth;
-            AssertEqual(native.CursorAt(pointer), KraidHeadAnimations.GrowthResumeCursor(resume),
+            KraidHeadGrowthResume resume = KraidHeadAnimations.ReadsAt(record.Playback).Growth;
+            AssertEqual(pointer, native.PointerAt(KraidHeadAnimations.GrowthResumePlayback(resume)),
                 $"native growth resume cursor from ${record.Pointer:X4}");
             AssertEqual(timer, KraidHeadAnimations.GrowthResumeDelay(resume), $"native growth resume delay from ${record.Pointer:X4}");
         }

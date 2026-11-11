@@ -193,7 +193,7 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(CrocomireBodyAnimations), "csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireBodyAnimations.cs");
         RequireSegmentFrames(DraygonAnimations.Segments, frame => DraygonFrameToolingDefinitions.Spritemap(frame), DraygonBg2FrameToolingDefinitions.Bank,
             nameof(DraygonAnimations), "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonAnimations.cs");
-        RequireTypedFrames(KraidAnimations.Programs, frame => KraidPartFrameToolingDefinitions.Spritemap(frame), KraidLintVisualDefinitions.Bank,
+        RequireSegmentFrames(KraidAnimations.Segments, frame => KraidPartFrameToolingDefinitions.Spritemap(frame), KraidLintVisualDefinitions.Bank,
             nameof(KraidAnimations), "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidAnimations.cs");
         RequireTypedFrames(MotherBrainAnimations.Body, frame => EnemyFrameCartridgeLookupTooling.Word(MotherBrainBodyVisualDefinitions.ShownFrames.Of(frame)), MotherBrainBodyVisualToolingDefinitions.Bank,
             nameof(MotherBrainAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainAnimations.cs");
@@ -337,7 +337,7 @@ internal static class EnemyVisualTypedProgramAudit
         RequireSegmentFrames(NinjaSpacePirateAnimations.Segments, NinjaSpacePirateFrameToolingDefinitions.Spritemap, NinjaSpacePirateFrameToolingDefinitions.Bank,
             nameof(NinjaSpacePirateAnimations), "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/NinjaSpacePirateAnimations.cs");
         int headPoses = Enum.GetValues<KraidHeadProgram>().Sum(program =>
-            KraidHeadAnimations.Programs.Steps(program).Count(step => step is AnimationProgramStep<KraidHeadProgram, KraidHeadFrame, KraidHeadCue>.ShowStep));
+            KraidHeadAnimations.Segments.Beats(program).Count(beat => beat is AnimationBeat<KraidHeadFrame, KraidHeadCue>.Frame));
         for (int pose = 0; pose < headPoses; pose++)
             report.Consumers.Add(new(nameof(KraidHeadAnimations),
                 "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidHeadAnimations.cs",

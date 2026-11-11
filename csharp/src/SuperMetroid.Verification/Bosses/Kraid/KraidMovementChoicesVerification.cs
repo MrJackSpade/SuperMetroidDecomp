@@ -102,8 +102,8 @@ internal static class KraidMovementChoicesVerification
                 AssertEqual(expected.ThinkTimer, part.ThinkTimer, "Actual thinking delay includes weighted final choice");
                 AssertEqual((right ? KraidAiFunction.FootSecondPhaseWalkingRight : KraidAiFunction.FootSecondPhaseWalkingLeft), state.FootState.Function, "Native signed walking direction");
                 AssertEqual(
-                    AnimationProgramCursor<KraidPartProgram>.Start(right ? KraidPartProgram.FootWalkingBackward : KraidPartProgram.FootWalkingForward),
-                    state.FootState.Cursor,
+                    new AnimationPlayback<KraidPartProgram>(KraidAnimations.StartingWith(right ? KraidPartProgram.FootWalkingBackward : KraidPartProgram.FootWalkingForward), AnimationPlace.StartOfAnimation),
+                    state.FootState.Playback,
                     "Chosen direction starts matching animation");
                 AssertEqual((ushort)1, foot.FrameHold.RawValue, "Choice restarts animation timer");
                 AssertEqual(1, reads, "Choice reads current RNG once");

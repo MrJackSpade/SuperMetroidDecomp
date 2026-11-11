@@ -45,20 +45,20 @@ internal static class KraidHeadInstructionsVerification
             enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
             Func<KraidEnemyState, KraidHeadProgramResult> execute = enemies.KraidBehavior.Head.ExecuteKraidHeadInstruction;
             RoomEnemySlot body = enemies.SlotTable.Slots[0];
-            var state = new KraidEnemyState { HeadProgram = record.Cursor };
+            var state = new KraidEnemyState { HeadPlayback = record.Playback };
 
             KraidHeadProgramResult result = execute(state);
             if (record.IsTerminator)
             {
                 AssertEqual(KraidHeadProgramResult.ProgramEnded, result, $"Kraid terminator ${record.Pointer:X4} result");
-                AssertEqual(record.Cursor, state.HeadProgram, $"Kraid terminator ${record.Pointer:X4} keeps cursor");
+                AssertEqual(record.Playback, state.HeadPlayback, $"Kraid terminator ${record.Pointer:X4} keeps its holding place");
             }
             else
             {
                 // A cry runs on into the pose authored after it.
                 KraidHeadNativeRecord displayed = record.IsPose
                     ? record
-                    : native.RecordAt(native.CursorAt(unchecked((ushort)(record.Pointer + 2))));
+                    : native.RecordAt(native.PlaybackAt(unchecked((ushort)(record.Pointer + 2))));
                 AssertEqual(KraidHeadProgramResult.PoseShown, result, $"Kraid command ${record.Pointer:X4} reaches timed frame");
                 AssertEqual(displayed.Opcode, state.BodyState.HeadTimer, $"Kraid command ${record.Pointer:X4} installs duration");
                 KraidHeadFrame shown = state.DisplayedHeadFrame
@@ -66,7 +66,7 @@ internal static class KraidHeadInstructionsVerification
                 AssertEqual(displayed.Tilemap, KraidHeadFrameDefinitions.PresentationKey(shown),
                     $"Kraid command ${record.Pointer:X4} displays its pose's image");
                 AssertEqual(displayed.OuterShape, KraidNativeWords.MouthHitboxes.Word(shown.VulnerableShape), $"Kraid command ${record.Pointer:X4} outer shape");
-                AssertEqual(native.CursorAt(unchecked((ushort)(displayed.Pointer + 8))), state.HeadProgram,
+                AssertEqual(unchecked((ushort)(displayed.Pointer + 8)), native.PointerAt(state.HeadPlayback ?? throw new InvalidOperationException("Verification requires a started Kraid head.")),
                     $"Kraid command ${record.Pointer:X4} advances cursor");
             }
 

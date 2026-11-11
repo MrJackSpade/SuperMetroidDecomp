@@ -37,9 +37,9 @@ internal static class KraidReportedCollisionsVerification
             state.BodyState.Function = KraidAiFunction.MainloopThinking;
             state.ThinkingTimer = 100;
             // The closed case starts the roar; the open case stands just past the roar cry, on the fully open pose.
-            state.HeadProgram = closed
-                ? AnimationProgramCursor<KraidHeadProgram>.Start(KraidHeadProgram.Roar)
-                : new AnimationProgramCursor<KraidHeadProgram>(KraidHeadProgram.Roar, 4);
+            state.HeadPlayback = closed
+                ? KraidHeadAnimations.At(KraidHeadProgram.Roar, 0)
+                : KraidHeadAnimations.At(KraidHeadProgram.Roar, 4);
             runtime.Enemies.KraidBehavior.Head.ExecuteKraidHeadInstruction(state);
             bool marked = false;
             bool spawned = false;
@@ -106,7 +106,7 @@ internal static class KraidReportedCollisionsVerification
             state.BodyState.Function = KraidAiFunction.RaiseBody;
             state.DisplayedHeadFrame = null;
             runtime.Enemies.KraidBehavior.Rise.RunKraidRiseFunction(body, state, samus);
-            AssertEqual((AnimationProgramCursor<KraidHeadProgram>?)KraidHeadAnimations.RoarAfterEntryFrame, state.HeadProgram, "Rise selects native next head cursor");
+            AssertEqual((AnimationPlayback<KraidHeadProgram>?)KraidHeadAnimations.RoarAfterEntryFrame, state.HeadPlayback, "Rise selects native next head cursor");
             var shot = runtime.Projectiles.Slots[0];
             shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Spazer, charged: false); shot.Damage = 40;
             shot.Position = shot.Position.WithWhole(new(200, (ushort)(body.Position.Y.Whole - 106)));

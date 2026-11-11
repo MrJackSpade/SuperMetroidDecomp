@@ -30,47 +30,52 @@ internal static class KraidHeadCommandMappingVerification
 
         foreach (KraidHeadProgram program in Enum.GetValues<KraidHeadProgram>())
         {
-            IReadOnlyList<AnimationProgramStep<KraidHeadProgram, KraidHeadFrame, KraidHeadCue>> steps =
-                KraidHeadAnimations.Programs.Steps(program);
-            KraidHeadNativeRecord[] records = [.. native.Records.Where(record => record.Cursor.Program == program)];
-            AssertEqual(records.Length, steps.Count, $"{program} has one typed step per native record");
+            IReadOnlyList<AnimationBeat<KraidHeadFrame, KraidHeadCue>> beats = KraidHeadAnimations.Segments.Beats(program);
+            KraidHeadNativeRecord[] records = [.. native.Records.Where(record => KraidHeadAnimations.PositionOf(record.Playback).Program == program)];
+            AssertEqual(records.Length, beats.Count + 1, $"{program} has one typed beat per native record before its terminator");
+            Animation<KraidHeadProgram> animation = KraidHeadAnimations.StartingWith(program);
+            AssertTrue(animation.Phases.SequenceEqual([new AnimationPhase<KraidHeadProgram>(program, 0, beats.Count, 1)]) && animation.End == AnimationEnd.Holds,
+                $"{program}'s animation plays its list once and holds at its terminator");
             for (int position = 0; position < records.Length; position++)
             {
                 KraidHeadNativeRecord record = records[position];
-                AnimationProgramStep<KraidHeadProgram, KraidHeadFrame, KraidHeadCue> step = steps[position];
                 string at = $"{program}[{position}] at $A7:{record.Pointer:X4}";
+                AssertEqual(new KraidHeadListPosition(program, position), KraidHeadAnimations.PositionOf(record.Playback), $"{at} stands at its list step");
                 if (record.IsPose)
                 {
-                    var show = AssertIs<AnimationProgramStep<KraidHeadProgram, KraidHeadFrame, KraidHeadCue>.ShowStep>(step, $"{at} shows a pose");
+                    var show = AssertIs<AnimationBeat<KraidHeadFrame, KraidHeadCue>.Frame>(beats[position], $"{at} shows a pose");
                     AssertEqual(record.Opcode, show.Duration, $"{at} pose duration");
-                    AssertEqual(stageTilemaps.IndexOf(record.Tilemap), show.Frame.MouthStage, $"{at} mouth stage");
-                    AssertEqual(record.Tilemap, KraidHeadFrameDefinitions.PresentationKey(show.Frame), $"{at} head image");
-                    AssertEqual(record.OuterShape, KraidNativeWords.MouthHitboxes.Word(show.Frame.VulnerableShape), $"{at} vulnerable shape");
+                    AssertEqual(stageTilemaps.IndexOf(record.Tilemap), show.Shown.MouthStage, $"{at} mouth stage");
+                    AssertEqual(record.Tilemap, KraidHeadFrameDefinitions.PresentationKey(show.Shown), $"{at} head image");
+                    AssertEqual(record.OuterShape, KraidNativeWords.MouthHitboxes.Word(show.Shown.VulnerableShape), $"{at} vulnerable shape");
                     AssertEqual(record.InnerShape,
-                        show.Frame.InvulnerableShape is { } inner ? KraidNativeWords.MouthHitboxes.Word(inner) : ushort.MaxValue,
+                        show.Shown.InvulnerableShape is { } inner ? KraidNativeWords.MouthHitboxes.Word(inner) : ushort.MaxValue,
                         $"{at} invulnerable shape");
                 }
                 else if (record.IsTerminator)
-                    AssertTrue(step is AnimationProgramStep<KraidHeadProgram, KraidHeadFrame, KraidHeadCue>.HoldStep, $"{at} ends the program");
+                {
+                    AssertEqual(beats.Count, position, $"{at} ends the list after its last beat");
+                    AssertEqual(AnimationPlace.HoldingIn(0, beats.Count), record.Playback.Place, $"{at} holds the animation");
+                }
                 else
                 {
-                    var cueStep = AssertIs<AnimationProgramStep<KraidHeadProgram, KraidHeadFrame, KraidHeadCue>.CueStep>(step, $"{at} cries");
+                    var cueStep = AssertIs<AnimationBeat<KraidHeadFrame, KraidHeadCue>.Event>(beats[position], $"{at} cries");
                     (KraidHeadCue cue, SoundEffectId sound) = record.Opcode switch
                     {
                         KraidHeadNativeCursors.RoarCryCall => new VerifyKraidHeadCommandMappingCase(KraidHeadCue.Roar, KraidSoundDefinitions.HeadRoar),
                         KraidHeadNativeCursors.DyingCryCall => new VerifyKraidHeadCommandMappingCase(KraidHeadCue.DyingCry, KraidSoundDefinitions.HeadDyingCry),
                         _ => throw new InvalidDataException($"{at}: unknown native head command ${record.Opcode:X4}."),
                     };
-                    AssertEqual(cue, cueStep.Cue, $"{at} cry");
+                    AssertEqual(cue, cueStep.Raised, $"{at} cry");
                     AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, (byte)record.Sound), sound,
                         $"{at} cry sound: the import decodes the native byte to the definition's sound");
                 }
 
-                KraidHeadCursorReads reads = KraidHeadAnimations.ReadsAt(record.Cursor);
+                KraidHeadCursorReads reads = KraidHeadAnimations.ReadsAt(record.Playback);
                 AssertEqual(NativeMouthRead(native, record.Pointer - 4), reads.Outer, $"{at} outer mouth read four bytes back");
                 AssertEqual(NativeMouthRead(native, record.Pointer - 2), reads.Inner, $"{at} inner mouth read two bytes back");
                 (ushort resumePointer, ushort resumeTimer) = NativeKraidGrowthResume(rom, Word(record.Pointer + 2));
-                AssertEqual(native.CursorAt(resumePointer), KraidHeadAnimations.GrowthResumeCursor(reads.Growth),
+                AssertEqual(resumePointer, native.PointerAt(KraidHeadAnimations.GrowthResumePlayback(reads.Growth)),
                     $"{at} growth resume cursor");
                 AssertEqual(resumeTimer, KraidHeadAnimations.GrowthResumeDelay(reads.Growth), $"{at} growth resume delay");
             }

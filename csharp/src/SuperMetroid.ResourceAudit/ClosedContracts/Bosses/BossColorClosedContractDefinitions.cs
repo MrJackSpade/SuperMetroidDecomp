@@ -24,8 +24,6 @@ internal static class BossColorClosedContractDefinitions
         new("SuperMetroid.AssetExtraction.Areas.Tourian.Artwork.TourianStatuePalettes", "tourian-statue-v1-complete-eye-palettes",
             ["ResolveEye", "BaseColor", "StatueColor", "GreyColor"],
             [new("csharp/src/SuperMetroid.AssetExtraction/Areas/Tourian/Artwork/TourianStatuePalettes.cs"),
-             new("csharp/src/SuperMetroid.AssetExtraction/Areas/Tourian/Artwork/TourianStatuePaintDefinitions.cs"),
-             new("csharp/src/SuperMetroid.AssetExtraction/Areas/Tourian/Artwork/TourianStatuePaint.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Areas/Tourian/Artwork/TourianStatueColorDefinitions.cs")]),
     ];
 }

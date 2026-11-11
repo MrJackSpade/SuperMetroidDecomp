@@ -6,10 +6,13 @@ namespace SuperMetroid.Core.Enemies.Cacatac;
 
 /// <summary>Cacatac spike's typed animation.</summary>
 internal sealed class CacatacProjectileAnimation(CacatacProjectileProgram program)
-    : EnemyProjectileProgramAnimation<CacatacProjectileProgram, CacatacProjectileFrame, EnemyProjectileCommonCue>(program)
+    : EnemyProjectileTypedAnimation<CacatacProjectileProgram, CacatacProjectileFrame, EnemyProjectileCommonCue>(CacatacProjectileAnimations.StartingWith(program))
 {
     /// <inheritdoc/>
-    private protected override AnimationProgramSet<CacatacProjectileProgram, CacatacProjectileFrame, EnemyProjectileCommonCue> Programs => CacatacProjectileAnimations.Programs;
+    private protected override AnimationSegments<CacatacProjectileProgram, CacatacProjectileFrame, EnemyProjectileCommonCue> Segments => CacatacProjectileAnimations.Segments;
+
+    /// <inheritdoc/>
+    private protected override IReadOnlyDictionary<CacatacProjectileProgram, Animation<CacatacProjectileProgram>> StartingAt => CacatacProjectileAnimations.StartingAt;
 
     /// <inheritdoc/>
     private protected override EnemyProjectileFrameId Present(CacatacProjectileFrame frame) =>

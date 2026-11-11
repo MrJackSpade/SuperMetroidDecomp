@@ -11,21 +11,18 @@ namespace SuperMetroid.Core.Enemies.Deaths;
 /// </summary>
 internal static class EnemyDeathProjectileAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<EnemyDeathProjectileProgram, EnemyDeathProjectileFrame, EnemyDeathProjectileCue> Programs { get; } = new(
-        new Dictionary<EnemyDeathProjectileProgram, AnimationProgramStep<EnemyDeathProjectileProgram, EnemyDeathProjectileFrame, EnemyDeathProjectileCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<EnemyDeathProjectileProgram, EnemyDeathProjectileFrame, EnemyDeathProjectileCue> Segments { get; } = new(
+        new Dictionary<EnemyDeathProjectileProgram, AnimationBeat<EnemyDeathProjectileFrame, EnemyDeathProjectileCue>[]>
     {
         [P.RespawnTail] =
         [
             Show(0, 64),
             Cue(new(K.HandleRespawningEnemy)),
             Cue(new(K.Delete)),
-            Hold,
         ],
         [P.BigExplosion] =
         [
-            SetCounter(5),
-            FallInto(P.BigExplosionLoop),
         ],
         [P.BigExplosionLoop] =
         [
@@ -33,14 +30,10 @@ internal static class EnemyDeathProjectileAnimations
             Cue(new(K.SpawnSpriteWithin16, SpriteObject: RoomSpriteObjectKind.Smoke)),
             Show(1, 8),
             Cue(new(K.PlaySmallExplosionSound)),
-            RepeatWhileCounting(P.BigExplosionLoop),
             Cue(new(K.BecomePickup)),
-            Hold,
         ],
         [P.MiniKraidExplosion] =
         [
-            SetCounter(16),
-            FallInto(P.MiniKraidExplosionLoop),
         ],
         [P.MiniKraidExplosionLoop] =
         [
@@ -49,9 +42,7 @@ internal static class EnemyDeathProjectileAnimations
             Cue(new(K.SpawnSpriteWithin32, SpriteObject: RoomSpriteObjectKind.DustCloud)),
             Show(2, 8),
             Cue(new(K.PlaySmallExplosionSound)),
-            RepeatWhileCounting(P.MiniKraidExplosionLoop),
             Cue(new(K.BecomePickup)),
-            Hold,
         ],
         [P.NormalExplosion] =
         [
@@ -63,7 +54,6 @@ internal static class EnemyDeathProjectileAnimations
             Show(7, 5),
             Show(8, 5),
             Cue(new(K.BecomePickup)),
-            Hold,
         ],
         [P.SmallExplosion] =
         [
@@ -75,7 +65,6 @@ internal static class EnemyDeathProjectileAnimations
             Show(13, 5),
             Show(14, 6),
             Cue(new(K.BecomePickup)),
-            Hold,
         ],
         [P.SmallEnergy] =
         [
@@ -83,7 +72,6 @@ internal static class EnemyDeathProjectileAnimations
             Show(32, 8),
             Show(33, 8),
             Show(34, 8),
-            GoTo(P.SmallEnergy),
         ],
         [P.BigEnergy] =
         [
@@ -91,19 +79,16 @@ internal static class EnemyDeathProjectileAnimations
             Show(36, 8),
             Show(37, 8),
             Show(38, 8),
-            GoTo(P.BigEnergy),
         ],
         [P.Missiles] =
         [
             Show(39, 5),
             Show(40, 5),
-            GoTo(P.Missiles),
         ],
         [P.SuperMissiles] =
         [
             Show(41, 5),
             Show(42, 5),
-            GoTo(P.SuperMissiles),
         ],
         [P.PowerBombs] =
         [
@@ -111,7 +96,6 @@ internal static class EnemyDeathProjectileAnimations
             Show(44, 5),
             Show(45, 5),
             Show(46, 5),
-            GoTo(P.PowerBombs),
         ],
         [P.KilledBySamusContact] =
         [
@@ -133,28 +117,31 @@ internal static class EnemyDeathProjectileAnimations
             Show(29, 2),
             Show(30, 2),
             Cue(new(K.BecomePickup)),
-            Hold,
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<EnemyDeathProjectileProgram, Animation<EnemyDeathProjectileProgram>> StartingAt { get; } = new Dictionary<EnemyDeathProjectileProgram, Animation<EnemyDeathProjectileProgram>>
+    {
+        [P.RespawnTail] = new([new(P.RespawnTail, 0, 3, 1)], AnimationEnd.Holds),
+        [P.BigExplosion] = new([new(P.BigExplosionLoop, 0, 4, 5), new(P.BigExplosionLoop, 4, 1, 1)], AnimationEnd.Holds),
+        [P.MiniKraidExplosion] = new([new(P.MiniKraidExplosionLoop, 0, 5, 16), new(P.MiniKraidExplosionLoop, 5, 1, 1)], AnimationEnd.Holds),
+        [P.NormalExplosion] = new([new(P.NormalExplosion, 0, 8, 1)], AnimationEnd.Holds),
+        [P.SmallExplosion] = new([new(P.SmallExplosion, 0, 8, 1)], AnimationEnd.Holds),
+        [P.SmallEnergy] = new([new(P.SmallEnergy, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.BigEnergy] = new([new(P.BigEnergy, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Missiles] = new([new(P.Missiles, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.SuperMissiles] = new([new(P.SuperMissiles, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.PowerBombs] = new([new(P.PowerBombs, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.KilledBySamusContact] = new([new(P.KilledBySamusContact, 0, 18, 1)], AnimationEnd.Holds),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<EnemyDeathProjectileProgram> StartingWith(EnemyDeathProjectileProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<EnemyDeathProjectileProgram, EnemyDeathProjectileFrame, EnemyDeathProjectileCue> Show(int pose, int duration) => AnimationProgramStep<EnemyDeathProjectileProgram, EnemyDeathProjectileFrame, EnemyDeathProjectileCue>.Show(new(pose), duration);
+    private static AnimationBeat<EnemyDeathProjectileFrame, EnemyDeathProjectileCue> Show(int pose, int duration) => new AnimationBeat<EnemyDeathProjectileFrame, EnemyDeathProjectileCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<EnemyDeathProjectileProgram, EnemyDeathProjectileFrame, EnemyDeathProjectileCue> Cue(EnemyDeathProjectileCue cue) => AnimationProgramStep<EnemyDeathProjectileProgram, EnemyDeathProjectileFrame, EnemyDeathProjectileCue>.Publish(cue);
-
-    /// <summary>Loads the loop counter with <paramref name="count"/>.</summary>
-    private static AnimationProgramStep<EnemyDeathProjectileProgram, EnemyDeathProjectileFrame, EnemyDeathProjectileCue> SetCounter(int count) => AnimationProgramStep<EnemyDeathProjectileProgram, EnemyDeathProjectileFrame, EnemyDeathProjectileCue>.SetCounter(count);
-
-    /// <summary>Repeats from <paramref name="program"/> while the loop counter counts down.</summary>
-    private static AnimationProgramStep<EnemyDeathProjectileProgram, EnemyDeathProjectileFrame, EnemyDeathProjectileCue> RepeatWhileCounting(EnemyDeathProjectileProgram program) => AnimationProgramStep<EnemyDeathProjectileProgram, EnemyDeathProjectileFrame, EnemyDeathProjectileCue>.RepeatWhileCounting(program);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<EnemyDeathProjectileProgram, EnemyDeathProjectileFrame, EnemyDeathProjectileCue> GoTo(EnemyDeathProjectileProgram program) => AnimationProgramStep<EnemyDeathProjectileProgram, EnemyDeathProjectileFrame, EnemyDeathProjectileCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<EnemyDeathProjectileProgram, EnemyDeathProjectileFrame, EnemyDeathProjectileCue> FallInto(EnemyDeathProjectileProgram program) => AnimationProgramStep<EnemyDeathProjectileProgram, EnemyDeathProjectileFrame, EnemyDeathProjectileCue>.FallInto(program);
-
-    /// <summary>Holds the last frame, as the sleep does.</summary>
-    private static AnimationProgramStep<EnemyDeathProjectileProgram, EnemyDeathProjectileFrame, EnemyDeathProjectileCue> Hold => AnimationProgramStep<EnemyDeathProjectileProgram, EnemyDeathProjectileFrame, EnemyDeathProjectileCue>.Hold;
+    private static AnimationBeat<EnemyDeathProjectileFrame, EnemyDeathProjectileCue> Cue(EnemyDeathProjectileCue cue) => new AnimationBeat<EnemyDeathProjectileFrame, EnemyDeathProjectileCue>.Event(cue);
 }

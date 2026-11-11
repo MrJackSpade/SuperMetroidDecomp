@@ -63,7 +63,8 @@ internal static class AnimationListLayout
         if (animation.Phases.Count == 0 || playback.Place == AnimationPlace.StartOfAnimation)
             return startingAt.Single(pair => ReferenceEquals(pair.Value, animation)).Key;
         AnimationPhase<TSegment> phase = animation.Phases[playback.Place.Phase];
-        int next = phase.FirstBeat + Math.Max(playback.Place.Beat, 0);
+        // A hold rests after the phase's last beat, as the end of its play does.
+        int next = phase.FirstBeat + Math.Clamp(playback.Place.Beat, 0, phase.BeatCount);
         return layout.ReadPast(phase.Segment, next) is { } read ? read.Program : phase.Segment;
     }
 }

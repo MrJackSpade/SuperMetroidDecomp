@@ -10,9 +10,9 @@ namespace SuperMetroid.Core.Enemies.Alcoon;
 /// </summary>
 internal static class AlcoonFireballAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<AlcoonFireballProgram, AlcoonFireballFrame, EnemyProjectileCommonCue> Programs { get; } = new(
-        new Dictionary<AlcoonFireballProgram, AnimationProgramStep<AlcoonFireballProgram, AlcoonFireballFrame, EnemyProjectileCommonCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<AlcoonFireballProgram, AlcoonFireballFrame, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<AlcoonFireballProgram, AnimationBeat<AlcoonFireballFrame, EnemyProjectileCommonCue>[]>
     {
         [P.Initial] =
         [
@@ -20,13 +20,18 @@ internal static class AlcoonFireballAnimations
             Show(1, 3),
             Show(2, 3),
             Show(3, 3),
-            GoTo(P.Initial),
         ],
     });
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<AlcoonFireballProgram, AlcoonFireballFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => AnimationProgramStep<AlcoonFireballProgram, AlcoonFireballFrame, EnemyProjectileCommonCue>.Show(new(pose), duration);
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<AlcoonFireballProgram, Animation<AlcoonFireballProgram>> StartingAt { get; } = new Dictionary<AlcoonFireballProgram, Animation<AlcoonFireballProgram>>
+    {
+        [P.Initial] = new([new(P.Initial, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+    };
 
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<AlcoonFireballProgram, AlcoonFireballFrame, EnemyProjectileCommonCue> GoTo(AlcoonFireballProgram program) => AnimationProgramStep<AlcoonFireballProgram, AlcoonFireballFrame, EnemyProjectileCommonCue>.GoTo(program);
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<AlcoonFireballProgram> StartingWith(AlcoonFireballProgram segment) => StartingAt[segment];
+
+    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<AlcoonFireballFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => new AnimationBeat<AlcoonFireballFrame, EnemyProjectileCommonCue>.Frame(new(pose), duration);
 }

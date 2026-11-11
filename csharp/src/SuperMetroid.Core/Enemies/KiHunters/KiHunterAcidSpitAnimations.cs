@@ -11,9 +11,9 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 /// </summary>
 internal static class KiHunterAcidSpitAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<KiHunterAcidSpitProgram, KiHunterAcidSpitFrame, EnemyProjectileCommonCue> Programs { get; } = new(
-        new Dictionary<KiHunterAcidSpitProgram, AnimationProgramStep<KiHunterAcidSpitProgram, KiHunterAcidSpitFrame, EnemyProjectileCommonCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<KiHunterAcidSpitProgram, KiHunterAcidSpitFrame, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<KiHunterAcidSpitProgram, AnimationBeat<KiHunterAcidSpitFrame, EnemyProjectileCommonCue>[]>
     {
         [P.Left] =
         [
@@ -25,7 +25,6 @@ internal static class KiHunterAcidSpitAnimations
             Cue(new EnemyProjectileCommonCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.KiHunterAcidLaunchLeft)),
             Show(5, 1),
             Show(6, 1),
-            Hold,
         ],
         [P.HitFloor] =
         [
@@ -36,7 +35,6 @@ internal static class KiHunterAcidSpitAnimations
             Show(10, 8),
             Show(11, 8),
             Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
-            Hold,
         ],
         [P.Right] =
         [
@@ -48,16 +46,23 @@ internal static class KiHunterAcidSpitAnimations
             Cue(new EnemyProjectileCommonCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.KiHunterAcidLaunchRight)),
             Show(17, 1),
             Show(18, 1),
-            Hold,
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<KiHunterAcidSpitProgram, Animation<KiHunterAcidSpitProgram>> StartingAt { get; } = new Dictionary<KiHunterAcidSpitProgram, Animation<KiHunterAcidSpitProgram>>
+    {
+        [P.Left] = new([new(P.Left, 0, 8, 1)], AnimationEnd.Holds),
+        [P.HitFloor] = new([new(P.HitFloor, 0, 7, 1)], AnimationEnd.Holds),
+        [P.Right] = new([new(P.Right, 0, 8, 1)], AnimationEnd.Holds),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<KiHunterAcidSpitProgram> StartingWith(KiHunterAcidSpitProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<KiHunterAcidSpitProgram, KiHunterAcidSpitFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => AnimationProgramStep<KiHunterAcidSpitProgram, KiHunterAcidSpitFrame, EnemyProjectileCommonCue>.Show(new(pose), duration);
+    private static AnimationBeat<KiHunterAcidSpitFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => new AnimationBeat<KiHunterAcidSpitFrame, EnemyProjectileCommonCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<KiHunterAcidSpitProgram, KiHunterAcidSpitFrame, EnemyProjectileCommonCue> Cue(EnemyProjectileCommonCue cue) => AnimationProgramStep<KiHunterAcidSpitProgram, KiHunterAcidSpitFrame, EnemyProjectileCommonCue>.Publish(cue);
-
-    /// <summary>Holds the last frame, as the sleep does.</summary>
-    private static AnimationProgramStep<KiHunterAcidSpitProgram, KiHunterAcidSpitFrame, EnemyProjectileCommonCue> Hold => AnimationProgramStep<KiHunterAcidSpitProgram, KiHunterAcidSpitFrame, EnemyProjectileCommonCue>.Hold;
+    private static AnimationBeat<KiHunterAcidSpitFrame, EnemyProjectileCommonCue> Cue(EnemyProjectileCommonCue cue) => new AnimationBeat<KiHunterAcidSpitFrame, EnemyProjectileCommonCue>.Event(cue);
 }

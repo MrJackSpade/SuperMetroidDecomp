@@ -33,7 +33,7 @@ internal static class MagdolliteLavaBehaviorVerification
         foreach ((ushort direction, MagdolliteLavaProgram program) in new VerifyMagdolliteLavaBehaviorCase[] { new VerifyMagdolliteLavaBehaviorCase(0, MagdolliteLavaProgram.Left), new VerifyMagdolliteLavaBehaviorCase(1, MagdolliteLavaProgram.Right) })
         {
             EnemyProjectile lava = Find(direction);
-            AssertTrue(lava.Animation is MagdolliteLavaAnimation animation && animation.Cursor.Program == program, $"direction {direction} starts {program}");
+            AssertTrue(lava.Animation is MagdolliteLavaAnimation animation && animation.PlayingSegment == program, $"direction {direction} starts {program}");
             (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, lava, MagdolliteLavaNativeListAddresses.Entry(program), 6, program.ToString());
             AssertTrue(!deleted, $"{program} holds its frame");
         }

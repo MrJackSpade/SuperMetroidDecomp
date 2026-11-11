@@ -12,9 +12,9 @@ namespace SuperMetroid.Core.Enemies.EyeDoor;
 /// </summary>
 internal static class EyeDoorProjectileAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<EyeDoorProjectileProgram, EyeDoorProjectileFrame, EyeDoorProjectileCue> Programs { get; } = new(
-        new Dictionary<EyeDoorProjectileProgram, AnimationProgramStep<EyeDoorProjectileProgram, EyeDoorProjectileFrame, EyeDoorProjectileCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<EyeDoorProjectileProgram, EyeDoorProjectileFrame, EyeDoorProjectileCue> Segments { get; } = new(
+        new Dictionary<EyeDoorProjectileProgram, AnimationBeat<EyeDoorProjectileFrame, EyeDoorProjectileCue>[]>
     {
         [P.Initial] =
         [
@@ -23,12 +23,10 @@ internal static class EyeDoorProjectileAnimations
             Show(2, 2),
             Cue(new(K.AimAtSamus)),
             Cue(new(K.SetFrameBehavior, FrameBehavior: EnemyProjectileFrameBehavior.EyeDoorShotFlight)),
-            FallInto(P.FlyingLoop),
         ],
         [P.FlyingLoop] =
         [
             Show(3, 16),
-            GoTo(P.FlyingLoop),
         ],
         [P.Impact] =
         [
@@ -37,7 +35,6 @@ internal static class EyeDoorProjectileAnimations
             Show(5, 3),
             Show(6, 4),
             Cue(new(K.Delete)),
-            Hold,
         ],
         [P.Shot] =
         [
@@ -46,22 +43,24 @@ internal static class EyeDoorProjectileAnimations
             Show(9, 4),
             Show(10, 4),
             Cue(new(K.Delete)),
-            Hold,
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<EyeDoorProjectileProgram, Animation<EyeDoorProjectileProgram>> StartingAt { get; } = new Dictionary<EyeDoorProjectileProgram, Animation<EyeDoorProjectileProgram>>
+    {
+        [P.Initial] = new([new(P.Initial, 0, 5, 1), new(P.FlyingLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.FlyingLoop] = new([new(P.FlyingLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Impact] = new([new(P.Impact, 0, 5, 1)], AnimationEnd.Holds),
+        [P.Shot] = new([new(P.Shot, 0, 5, 1)], AnimationEnd.Holds),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<EyeDoorProjectileProgram> StartingWith(EyeDoorProjectileProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<EyeDoorProjectileProgram, EyeDoorProjectileFrame, EyeDoorProjectileCue> Show(int pose, int duration) => AnimationProgramStep<EyeDoorProjectileProgram, EyeDoorProjectileFrame, EyeDoorProjectileCue>.Show(new(pose), duration);
+    private static AnimationBeat<EyeDoorProjectileFrame, EyeDoorProjectileCue> Show(int pose, int duration) => new AnimationBeat<EyeDoorProjectileFrame, EyeDoorProjectileCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<EyeDoorProjectileProgram, EyeDoorProjectileFrame, EyeDoorProjectileCue> Cue(EyeDoorProjectileCue cue) => AnimationProgramStep<EyeDoorProjectileProgram, EyeDoorProjectileFrame, EyeDoorProjectileCue>.Publish(cue);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<EyeDoorProjectileProgram, EyeDoorProjectileFrame, EyeDoorProjectileCue> GoTo(EyeDoorProjectileProgram program) => AnimationProgramStep<EyeDoorProjectileProgram, EyeDoorProjectileFrame, EyeDoorProjectileCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<EyeDoorProjectileProgram, EyeDoorProjectileFrame, EyeDoorProjectileCue> FallInto(EyeDoorProjectileProgram program) => AnimationProgramStep<EyeDoorProjectileProgram, EyeDoorProjectileFrame, EyeDoorProjectileCue>.FallInto(program);
-
-    /// <summary>Holds the last frame, as the sleep does.</summary>
-    private static AnimationProgramStep<EyeDoorProjectileProgram, EyeDoorProjectileFrame, EyeDoorProjectileCue> Hold => AnimationProgramStep<EyeDoorProjectileProgram, EyeDoorProjectileFrame, EyeDoorProjectileCue>.Hold;
+    private static AnimationBeat<EyeDoorProjectileFrame, EyeDoorProjectileCue> Cue(EyeDoorProjectileCue cue) => new AnimationBeat<EyeDoorProjectileFrame, EyeDoorProjectileCue>.Event(cue);
 }

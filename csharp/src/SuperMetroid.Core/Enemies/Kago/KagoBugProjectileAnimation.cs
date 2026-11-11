@@ -6,10 +6,13 @@ namespace SuperMetroid.Core.Enemies.Kago;
 
 /// <summary>Kago bug's typed animation.</summary>
 internal sealed class KagoBugProjectileAnimation(KagoBugProjectileProgram program)
-    : EnemyProjectileProgramAnimation<KagoBugProjectileProgram, KagoBugProjectileFrame, KagoBugProjectileCue>(program)
+    : EnemyProjectileTypedAnimation<KagoBugProjectileProgram, KagoBugProjectileFrame, KagoBugProjectileCue>(KagoBugProjectileAnimations.StartingWith(program))
 {
     /// <inheritdoc/>
-    private protected override AnimationProgramSet<KagoBugProjectileProgram, KagoBugProjectileFrame, KagoBugProjectileCue> Programs => KagoBugProjectileAnimations.Programs;
+    private protected override AnimationSegments<KagoBugProjectileProgram, KagoBugProjectileFrame, KagoBugProjectileCue> Segments => KagoBugProjectileAnimations.Segments;
+
+    /// <inheritdoc/>
+    private protected override IReadOnlyDictionary<KagoBugProjectileProgram, Animation<KagoBugProjectileProgram>> StartingAt => KagoBugProjectileAnimations.StartingAt;
 
     /// <inheritdoc/>
     private protected override EnemyProjectileFrameId Present(KagoBugProjectileFrame frame) =>

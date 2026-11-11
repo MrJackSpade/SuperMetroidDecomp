@@ -32,7 +32,7 @@ internal static class EyeDoorProjectileBehaviorVerification
         EnemyProjectile shot = enemies.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.EyeDoorProjectile);
         shot.Position = shot.Position.WithWhole(new(64, 32));
-        AssertTrue(shot.Animation is EyeDoorProjectileAnimation { Cursor.Program: EyeDoorProjectileProgram.Initial }, "the shot starts its flight");
+        AssertTrue(shot.Animation is EyeDoorProjectileAnimation { PlayingSegment: EyeDoorProjectileProgram.Initial }, "the shot starts its flight");
         (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, shot,
             EyeDoorProjectileNativeListAddresses.Entry(EyeDoorProjectileProgram.Initial), 60, "eye-door flight");
         AssertTrue(!deleted, "the flight loops");

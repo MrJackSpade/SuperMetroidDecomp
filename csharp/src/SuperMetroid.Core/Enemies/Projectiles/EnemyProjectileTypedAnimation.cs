@@ -25,8 +25,13 @@ internal abstract class EnemyProjectileTypedAnimation<TSegment, TFrame, TEvent> 
     /// <summary>The animation playing and where it stands; an imported projectile resumes where its recording stood.</summary>
     internal AnimationPlayback<TSegment> Playback { get; set; }
 
-    /// <summary>The segment the playing phase plays: the one its next play shows a frame of, or rests in.</summary>
-    internal TSegment PlayingSegment => Playback.Animation.Phases[Playback.Place.Phase].Segment;
+    /// <summary>
+    /// The segment the animation stands in: before its first play, or in an animation of no phase, the segment it starts
+    /// at; otherwise the segment its playing phase plays, the one its next play shows a frame of, or rests in.
+    /// </summary>
+    internal TSegment PlayingSegment => Playback.Place == AnimationPlace.StartOfAnimation || Playback.Animation.Phases.Count == 0
+        ? StartingAt.Single(pair => ReferenceEquals(pair.Value, Playback.Animation)).Key
+        : Playback.Animation.Phases[Playback.Place.Phase].Segment;
 
     /// <summary>The family's segments.</summary>
     private protected abstract AnimationSegments<TSegment, TFrame, TEvent> Segments { get; }

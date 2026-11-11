@@ -11,9 +11,9 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// </summary>
 internal static class ChozoTourianDustAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<ChozoTourianDustProgram, ChozoTourianDustFrame, EnemyProjectileCommonCue> Programs { get; } = new(
-        new Dictionary<ChozoTourianDustProgram, AnimationProgramStep<ChozoTourianDustProgram, ChozoTourianDustFrame, EnemyProjectileCommonCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<ChozoTourianDustProgram, ChozoTourianDustFrame, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<ChozoTourianDustProgram, AnimationBeat<ChozoTourianDustFrame, EnemyProjectileCommonCue>[]>
     {
         [P.Footsteps] =
         [
@@ -23,7 +23,6 @@ internal static class ChozoTourianDustAnimations
             Show(2, 2),
             Show(3, 2),
             Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
-            Hold,
         ],
         [P.SpikeClearingExplosions] =
         [
@@ -35,12 +34,9 @@ internal static class ChozoTourianDustAnimations
             Show(8, 5),
             Show(9, 5),
             Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
-            Hold,
         ],
         [P.TourianDescentDust] =
         [
-            SetCounter(64),
-            FallInto(P.TourianDescentDustLoop),
         ],
         [P.TourianDescentDustLoop] =
         [
@@ -50,27 +46,24 @@ internal static class ChozoTourianDustAnimations
             Show(11, 2),
             Show(12, 2),
             Show(13, 2),
-            RepeatWhileCounting(P.TourianDescentDustLoop),
             Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
-            Hold,
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<ChozoTourianDustProgram, Animation<ChozoTourianDustProgram>> StartingAt { get; } = new Dictionary<ChozoTourianDustProgram, Animation<ChozoTourianDustProgram>>
+    {
+        [P.Footsteps] = new([new(P.Footsteps, 0, 6, 1)], AnimationEnd.Holds),
+        [P.SpikeClearingExplosions] = new([new(P.SpikeClearingExplosions, 0, 8, 1)], AnimationEnd.Holds),
+        [P.TourianDescentDust] = new([new(P.TourianDescentDustLoop, 0, 6, 64), new(P.TourianDescentDustLoop, 6, 1, 1)], AnimationEnd.Holds),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<ChozoTourianDustProgram> StartingWith(ChozoTourianDustProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<ChozoTourianDustProgram, ChozoTourianDustFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => AnimationProgramStep<ChozoTourianDustProgram, ChozoTourianDustFrame, EnemyProjectileCommonCue>.Show(new(pose), duration);
+    private static AnimationBeat<ChozoTourianDustFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => new AnimationBeat<ChozoTourianDustFrame, EnemyProjectileCommonCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<ChozoTourianDustProgram, ChozoTourianDustFrame, EnemyProjectileCommonCue> Cue(EnemyProjectileCommonCue cue) => AnimationProgramStep<ChozoTourianDustProgram, ChozoTourianDustFrame, EnemyProjectileCommonCue>.Publish(cue);
-
-    /// <summary>Loads the loop counter with <paramref name="count"/>.</summary>
-    private static AnimationProgramStep<ChozoTourianDustProgram, ChozoTourianDustFrame, EnemyProjectileCommonCue> SetCounter(int count) => AnimationProgramStep<ChozoTourianDustProgram, ChozoTourianDustFrame, EnemyProjectileCommonCue>.SetCounter(count);
-
-    /// <summary>Repeats from <paramref name="program"/> while the loop counter counts down.</summary>
-    private static AnimationProgramStep<ChozoTourianDustProgram, ChozoTourianDustFrame, EnemyProjectileCommonCue> RepeatWhileCounting(ChozoTourianDustProgram program) => AnimationProgramStep<ChozoTourianDustProgram, ChozoTourianDustFrame, EnemyProjectileCommonCue>.RepeatWhileCounting(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<ChozoTourianDustProgram, ChozoTourianDustFrame, EnemyProjectileCommonCue> FallInto(ChozoTourianDustProgram program) => AnimationProgramStep<ChozoTourianDustProgram, ChozoTourianDustFrame, EnemyProjectileCommonCue>.FallInto(program);
-
-    /// <summary>Holds the last frame, as the sleep does.</summary>
-    private static AnimationProgramStep<ChozoTourianDustProgram, ChozoTourianDustFrame, EnemyProjectileCommonCue> Hold => AnimationProgramStep<ChozoTourianDustProgram, ChozoTourianDustFrame, EnemyProjectileCommonCue>.Hold;
+    private static AnimationBeat<ChozoTourianDustFrame, EnemyProjectileCommonCue> Cue(EnemyProjectileCommonCue cue) => new AnimationBeat<ChozoTourianDustFrame, EnemyProjectileCommonCue>.Event(cue);
 }

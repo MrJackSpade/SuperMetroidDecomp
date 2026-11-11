@@ -10,65 +10,70 @@ namespace SuperMetroid.Core.Enemies.Cacatac;
 /// </summary>
 internal static class CacatacProjectileAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<CacatacProjectileProgram, CacatacProjectileFrame, EnemyProjectileCommonCue> Programs { get; } = new(
-        new Dictionary<CacatacProjectileProgram, AnimationProgramStep<CacatacProjectileProgram, CacatacProjectileFrame, EnemyProjectileCommonCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<CacatacProjectileProgram, CacatacProjectileFrame, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<CacatacProjectileProgram, AnimationBeat<CacatacProjectileFrame, EnemyProjectileCommonCue>[]>
     {
         [P.LeftFacingUp] =
         [
             Show(0, 1),
-            Hold,
         ],
         [P.UpLeft] =
         [
             Show(1, 1),
-            Hold,
         ],
         [P.Up] =
         [
             Show(2, 1),
-            Hold,
         ],
         [P.UpRight] =
         [
             Show(3, 1),
-            Hold,
         ],
         [P.RightFacingUp] =
         [
             Show(4, 1),
-            Hold,
         ],
         [P.LeftFacingDown] =
         [
             Show(5, 1),
-            Hold,
         ],
         [P.DownLeft] =
         [
             Show(6, 1),
-            Hold,
         ],
         [P.Down] =
         [
             Show(7, 1),
-            Hold,
         ],
         [P.DownRight] =
         [
             Show(8, 1),
-            Hold,
         ],
         [P.RightFacingDown] =
         [
             Show(9, 1),
-            Hold,
         ],
     });
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<CacatacProjectileProgram, CacatacProjectileFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => AnimationProgramStep<CacatacProjectileProgram, CacatacProjectileFrame, EnemyProjectileCommonCue>.Show(new(pose), duration);
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<CacatacProjectileProgram, Animation<CacatacProjectileProgram>> StartingAt { get; } = new Dictionary<CacatacProjectileProgram, Animation<CacatacProjectileProgram>>
+    {
+        [P.LeftFacingUp] = new([new(P.LeftFacingUp, 0, 1, 1)], AnimationEnd.Holds),
+        [P.UpLeft] = new([new(P.UpLeft, 0, 1, 1)], AnimationEnd.Holds),
+        [P.Up] = new([new(P.Up, 0, 1, 1)], AnimationEnd.Holds),
+        [P.UpRight] = new([new(P.UpRight, 0, 1, 1)], AnimationEnd.Holds),
+        [P.RightFacingUp] = new([new(P.RightFacingUp, 0, 1, 1)], AnimationEnd.Holds),
+        [P.LeftFacingDown] = new([new(P.LeftFacingDown, 0, 1, 1)], AnimationEnd.Holds),
+        [P.DownLeft] = new([new(P.DownLeft, 0, 1, 1)], AnimationEnd.Holds),
+        [P.Down] = new([new(P.Down, 0, 1, 1)], AnimationEnd.Holds),
+        [P.DownRight] = new([new(P.DownRight, 0, 1, 1)], AnimationEnd.Holds),
+        [P.RightFacingDown] = new([new(P.RightFacingDown, 0, 1, 1)], AnimationEnd.Holds),
+    };
 
-    /// <summary>Holds the last frame, as the sleep does.</summary>
-    private static AnimationProgramStep<CacatacProjectileProgram, CacatacProjectileFrame, EnemyProjectileCommonCue> Hold => AnimationProgramStep<CacatacProjectileProgram, CacatacProjectileFrame, EnemyProjectileCommonCue>.Hold;
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<CacatacProjectileProgram> StartingWith(CacatacProjectileProgram segment) => StartingAt[segment];
+
+    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<CacatacProjectileFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => new AnimationBeat<CacatacProjectileFrame, EnemyProjectileCommonCue>.Frame(new(pose), duration);
 }

@@ -6,10 +6,13 @@ namespace SuperMetroid.Core.Enemies.Alcoon;
 
 /// <summary>Alcoon fireball's typed animation.</summary>
 internal sealed class AlcoonFireballAnimation(AlcoonFireballProgram program)
-    : EnemyProjectileProgramAnimation<AlcoonFireballProgram, AlcoonFireballFrame, EnemyProjectileCommonCue>(program)
+    : EnemyProjectileTypedAnimation<AlcoonFireballProgram, AlcoonFireballFrame, EnemyProjectileCommonCue>(AlcoonFireballAnimations.StartingWith(program))
 {
     /// <inheritdoc/>
-    private protected override AnimationProgramSet<AlcoonFireballProgram, AlcoonFireballFrame, EnemyProjectileCommonCue> Programs => AlcoonFireballAnimations.Programs;
+    private protected override AnimationSegments<AlcoonFireballProgram, AlcoonFireballFrame, EnemyProjectileCommonCue> Segments => AlcoonFireballAnimations.Segments;
+
+    /// <inheritdoc/>
+    private protected override IReadOnlyDictionary<AlcoonFireballProgram, Animation<AlcoonFireballProgram>> StartingAt => AlcoonFireballAnimations.StartingAt;
 
     /// <inheritdoc/>
     private protected override EnemyProjectileFrameId Present(AlcoonFireballFrame frame) =>

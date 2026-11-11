@@ -41,7 +41,7 @@ internal static class AlcoonFireballBehaviorVerification
         AssertEqual(6, fireballs.Length, "all three fire commands spawn in both facings");
         foreach (EnemyProjectile fireball in fireballs)
         {
-            AssertTrue(fireball.Animation is AlcoonFireballAnimation { Cursor.Program: AlcoonFireballProgram.Initial }, "a fireball starts its typed program");
+            AssertTrue(fireball.Animation is AlcoonFireballAnimation { PlayingSegment: AlcoonFireballProgram.Initial }, "a fireball starts its typed program");
             (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, fireball,
                 NativeEnemyProjectileProgramOracle.EntryOf(AlcoonFireballNativeListAddresses.Entries, AlcoonFireballProgram.Initial), 30, "Alcoon fireball");
             AssertTrue(!deleted, "a fireball loops until it is shot or leaves");

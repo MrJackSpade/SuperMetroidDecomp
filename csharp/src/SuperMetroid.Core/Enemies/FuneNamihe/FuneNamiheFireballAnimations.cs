@@ -10,29 +10,34 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 /// </summary>
 internal static class FuneNamiheFireballAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<FuneNamiheFireballProgram, FuneNamiheFireballFrame, EnemyProjectileCommonCue> Programs { get; } = new(
-        new Dictionary<FuneNamiheFireballProgram, AnimationProgramStep<FuneNamiheFireballProgram, FuneNamiheFireballFrame, EnemyProjectileCommonCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<FuneNamiheFireballProgram, FuneNamiheFireballFrame, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<FuneNamiheFireballProgram, AnimationBeat<FuneNamiheFireballFrame, EnemyProjectileCommonCue>[]>
     {
         [P.Left] =
         [
             Show(0, 5),
             Show(1, 5),
             Show(2, 5),
-            GoTo(P.Left),
         ],
         [P.Right] =
         [
             Show(3, 5),
             Show(4, 5),
             Show(5, 5),
-            GoTo(P.Right),
         ],
     });
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<FuneNamiheFireballProgram, FuneNamiheFireballFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => AnimationProgramStep<FuneNamiheFireballProgram, FuneNamiheFireballFrame, EnemyProjectileCommonCue>.Show(new(pose), duration);
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<FuneNamiheFireballProgram, Animation<FuneNamiheFireballProgram>> StartingAt { get; } = new Dictionary<FuneNamiheFireballProgram, Animation<FuneNamiheFireballProgram>>
+    {
+        [P.Left] = new([new(P.Left, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Right] = new([new(P.Right, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
+    };
 
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<FuneNamiheFireballProgram, FuneNamiheFireballFrame, EnemyProjectileCommonCue> GoTo(FuneNamiheFireballProgram program) => AnimationProgramStep<FuneNamiheFireballProgram, FuneNamiheFireballFrame, EnemyProjectileCommonCue>.GoTo(program);
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<FuneNamiheFireballProgram> StartingWith(FuneNamiheFireballProgram segment) => StartingAt[segment];
+
+    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<FuneNamiheFireballFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => new AnimationBeat<FuneNamiheFireballFrame, EnemyProjectileCommonCue>.Frame(new(pose), duration);
 }

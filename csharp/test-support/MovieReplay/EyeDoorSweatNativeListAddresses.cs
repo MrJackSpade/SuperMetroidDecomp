@@ -25,5 +25,5 @@ internal static class EyeDoorSweatNativeListAddresses
     internal static ushort Entry(EyeDoorSweatProgram program) => NativeEnemyProjectileProgramOracle.EntryOf(Entries, program);
 
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, EyeDoorSweatAnimations.Programs, (frame => EnemyProjectileProgramFrameSources.Operand(EyeDoorSweatFrameDefinitions.ShownProjectileFrames[frame])), NativeEnemyProjectileCommonCues.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, EyeDoorSweatAnimations.Segments, EyeDoorSweatAnimations.StartingAt, (frame => EnemyProjectileProgramFrameSources.Operand(EyeDoorSweatFrameDefinitions.ShownProjectileFrames[frame])), NativeEnemyProjectileCommonCues.Rules);
 }

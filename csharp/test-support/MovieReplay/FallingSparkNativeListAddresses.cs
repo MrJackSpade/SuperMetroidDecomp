@@ -21,5 +21,5 @@ internal static class FallingSparkNativeListAddresses
     internal static readonly MotherBrainEffectNativeListAddressesExtent Extent = new MotherBrainEffectNativeListAddressesExtent(0xf353, 0xf391);
 
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, FallingSparkAnimations.Programs, (frame => EnemyProjectileProgramFrameSources.Operand(FallingSparkFrameDefinitions.ShownProjectileFrames[frame])), NativeEnemyProjectileCommonCues.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, FallingSparkAnimations.Segments, FallingSparkAnimations.StartingAt, (frame => EnemyProjectileProgramFrameSources.Operand(FallingSparkFrameDefinitions.ShownProjectileFrames[frame])), NativeEnemyProjectileCommonCues.Rules);
 }

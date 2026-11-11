@@ -212,8 +212,12 @@ internal static class NativeEnemyAnimationOracle
                     continue;
                 if (!atEnd && found.Beat >= phase.FirstBeat && found.Beat < phase.FirstBeat + phase.BeatCount)
                     return new AnimationPlayback<TSegment>(animation, new AnimationPlace(index, found.Beat - phase.FirstBeat));
+                // A pointer resting on a sleep holds the phase's last frame; one resting on a goto, repeat or stop ends its play.
                 if (atEnd && found.Beat == phase.FirstBeat + phase.BeatCount)
-                    return new AnimationPlayback<TSegment>(animation, new AnimationPlace(index, phase.BeatCount));
+                    return new AnimationPlayback<TSegment>(animation,
+                        lists[found.Segment].Controls.First(control => control.AfterBeat == found.Beat).Kind == NativeEnemyControlKind.Sleep
+                            ? AnimationPlace.HoldingIn(index, phase.BeatCount)
+                            : new AnimationPlace(index, phase.BeatCount));
             }
         }
         throw new InvalidDataException($"Native {typeof(TSegment).Name} instruction pointer ${nativePointer:X4} stands at {found}, which no typed animation plays.");

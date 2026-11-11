@@ -100,8 +100,10 @@ internal static class RoomShakeDefinitionsVerification
         AssertTrue(enemies.Earthquake.IsShakingWith(light, 30), "a producer's start ends the continuous shake");
 
         var unshaken = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        AssertThrows<InvalidOperationException>(() => unshaken.Earthquake.RunFor(4),
-            "an earthquake cannot be run on before any producer gives the room a shake");
+        // A room no producer has shaken runs on with the shake a new game starts with (#1594).
+        unshaken.Earthquake.RunFor(4);
+        AssertTrue(unshaken.Earthquake.IsShakingWith(RoomEarthquakeDefinitions.UnshakenRoomShake, 4),
+            "an earthquake run on before any producer gives the room a shake shows the shake a new game starts with");
 
         Console.WriteLine(
             "Room shake definitions: all 216 cartridge words and 144 real background/projectile phase selections pass with both source tables forbidden.");

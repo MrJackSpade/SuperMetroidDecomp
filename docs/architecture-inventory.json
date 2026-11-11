@@ -1347,6 +1347,32 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Artwork.AnimationSegmentFrames",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/AnimationSegmentFrames.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Artwork.AnimationSegmentFrames.extension\u003CTSegment, TFrame, TEvent\u003E(SuperMetroid.Core.Programs.AnimationSegments\u003CTSegment, TFrame, TEvent\u003E)",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/AnimationSegmentFrames.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Artwork.BackgroundTile",
       "kind": "record struct",
       "scope": "product",
@@ -104174,6 +104200,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Programs/AnimationPhase.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Programs.AnimationPhaseCounting",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Programs/AnimationPhaseCounting.cs"
       ],
       "partial": "none",
       "disposition": "value"

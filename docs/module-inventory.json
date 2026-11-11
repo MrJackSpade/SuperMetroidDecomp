@@ -24,7 +24,7 @@
     {
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
-      "files": 2065,
+      "files": 2066,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Areas",
@@ -282,7 +282,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Programs",
       "role": "production",
-      "files": 14,
+      "files": 15,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Compatibility"
@@ -2083,6 +2083,19 @@
         "SuperMetroid.AssetExtraction"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Programs"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Artwork/AnimationSegmentFrames.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Artwork",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Programs"
       ]
     },
@@ -64540,6 +64553,16 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Programs/AnimationPhaseCounting.cs",
+      "module": "csharp/src/SuperMetroid.Core/Programs",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Programs",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Programs/AnimationPlace.cs",
       "module": "csharp/src/SuperMetroid.Core/Programs",
       "role": "production",
@@ -98968,6 +98991,7 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/MovieReplay"
       ]
@@ -99204,6 +99228,7 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/MovieReplay"
       ]
@@ -100563,6 +100588,7 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/MovieReplay"
       ]
@@ -100742,6 +100768,7 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/MovieReplay"
       ]
@@ -100942,6 +100969,7 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/MovieReplay"
       ]
@@ -101710,6 +101738,7 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/MovieReplay"
       ]
@@ -102140,6 +102169,7 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/MovieReplay"
       ]
@@ -102474,6 +102504,7 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/MovieReplay"
       ]
@@ -103445,6 +103476,7 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/MovieReplay"
       ]
@@ -103645,6 +103677,7 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/MovieReplay"
       ]
@@ -103803,6 +103836,7 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/MovieReplay"
       ]
@@ -104041,6 +104075,7 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Programs",
         "csharp/test-support/MovieReplay",
         "csharp/test-support/VerificationAccess.Core"
       ]
@@ -104437,6 +104472,7 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/MovieReplay"
       ]
@@ -104735,6 +104771,7 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/MovieReplay"
       ]
@@ -105591,6 +105628,7 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/MovieReplay"
       ]
@@ -105694,6 +105732,7 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/MovieReplay"
       ]
@@ -105842,6 +105881,7 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/MovieReplay"
       ]
@@ -106288,6 +106328,7 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/MovieReplay"
       ]
@@ -106404,6 +106445,7 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/MovieReplay"
       ]
@@ -106746,6 +106788,7 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/MovieReplay"
       ]
@@ -107162,6 +107205,7 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/MovieReplay"
       ]
@@ -107268,6 +107312,7 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/MovieReplay"
       ]
@@ -107576,6 +107621,7 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/MovieReplay"
       ]
@@ -109191,6 +109237,7 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/MovieReplay"
       ]

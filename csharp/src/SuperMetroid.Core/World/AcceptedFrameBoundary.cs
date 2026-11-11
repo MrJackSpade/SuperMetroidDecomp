@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Bosses.Ridley;
-using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Rooms.Scrolling;

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Verification.Areas.Escape;
 using static SuperMetroid.Verification.Rooms.RoomObjects.InstalledFramePictureAssertions;
+using static SuperMetroid.Verification.Rooms.RoomObjects.RoomBlockShapeAssertions;
 
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
@@ -15,13 +16,9 @@ internal static class LookupGlassLayoutsVerification
         new(0x9731, "pane-damage-2"), new(0x9745, "pane-transition"), new(0x974f, "shifted-pane-1"), new(0x9769, "shifted-pane-2"),
         new(0x9781, "shifted-pane-3"), new(0x978f, "shatter-1"), new(0x97b7, "shatter-2"), new(0x97e7, "shatter-3"), new(0x9817, "cleared")];
 
-    /// <summary>The number of cells each glass frame's block shape covers, in frame order: what its draw list writes.</summary>
-    private static readonly int[] CellCounts = [1, 6, 6, 3, 7, 6, 3, 12, 16, 16, 16];
-
     /// <summary>
     /// Checks which draws are the glass's, each frame's runs and continuations against the cartridge, and that each shape
-    /// covers its frame's cells only: the cells its draw list writes, inside the four-by-four square left of and below the
-    /// glass block.
+    /// covers exactly the cells its draw list writes, inside the four-by-four square left of and below the glass block.
     /// </summary>
     internal static void VerifyGlassLayoutGeometry(SuperMetroidAddressSpace rom)
     {
@@ -32,17 +29,14 @@ internal static class LookupGlassLayoutsVerification
             if (!owned) AssertTrue(shape is null, "Glass layout missing shape");
         }
         AssertLayoutsAsNative(rom, RoomObjectMotherBrainGlassVisualFiles.Family, Frames, collision: false);
-        for (int index = 0; index < Frames.Length; index++)
+        foreach (LookupEscapeGateStockFrame frame in Frames)
         {
-            LookupEscapeGateStockFrame frame = Frames[index];
             if (!MotherBrainGlassDraws.TryDescribe(NativeObjectDraws.At<MotherBrainGlassDraw>(frame.Pointer), out RoomBlockShape? shape))
                 throw new InvalidOperationException($"Glass frame {frame.Id} has no shape.");
             RoomBlockShape described = shape;
-            AssertEqual(CellCounts[index], described.Cells.Count, $"Glass shape {frame.Id} covers the cells its draw list writes");
+            AssertShapeAsNative(rom, described, frame.Pointer, frame.Id);
             AssertTrue(described.Cells.All(cell => cell.Cell.X is >= -3 and <= 0 && cell.Cell.Y is >= 0 and <= 3),
                 $"Glass shape {frame.Id} lies inside the glass's square");
-            foreach (Offset16<RoomBlocks> outside in new Offset16<RoomBlocks>[] { new(1, 0), new(0, -1), new(-4, 0), new(0, 4) })
-                AssertThrows<ArgumentOutOfRangeException>(() => described.CollisionAt(outside), "Glass shape covers only its cells");
         }
     }
 

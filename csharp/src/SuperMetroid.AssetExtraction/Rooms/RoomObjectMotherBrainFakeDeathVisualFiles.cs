@@ -33,27 +33,51 @@ public static class RoomObjectMotherBrainFakeDeathVisualFiles
     public static InstalledMotherBrainFakeDeathFrames Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
-    /// <summary>Every fake-death room frame's geometry, from the shapes the room's changes draw by.</summary>
+    /// <summary>
+    /// Every fake-death room frame's geometry as the cartridge writes it: the runs of its draw list, each cell colliding as
+    /// the game's block shape for the frame says (#1608). The run form is the cartridge's; the game draws the shape.
+    /// </summary>
     private static Dictionary<MotherBrainFakeDeathDraw, RoomObjectFrameLayout> Layouts()
     {
+        // The mural and solid rows are one thirteen-cell row. The wall writes the origin and the block below it, then the
+        // block above; the door writes its left column, then its right. A tube clear writes its column, the middle pair its
+        // right column after, and a side tube its one centreward cell after.
+        Offset16<RoomBlocks> origin = Offset16<RoomBlocks>.Zero;
+        RoomObjectShapeRun[] row = [RoomObjectShapeRun.Row(origin, 13)];
+        var runs = new Dictionary<MotherBrainFakeDeathDraw, RoomObjectShapeRun[]>
+        {
+            [MotherBrainFakeDeathDraw.FillWall] = [RoomObjectShapeRun.Column(origin, 2), RoomObjectShapeRun.Column(new(0, -1), 1)],
+            [MotherBrainFakeDeathDraw.EscapeDoor] = [RoomObjectShapeRun.Column(origin, 4), RoomObjectShapeRun.Column(new(1, 0), 4)],
+            [MotherBrainFakeDeathDraw.MuralRow1] = row,
+            [MotherBrainFakeDeathDraw.MuralRow2] = row,
+            [MotherBrainFakeDeathDraw.MuralRow3] = row,
+            [MotherBrainFakeDeathDraw.MuralRow4] = row,
+            [MotherBrainFakeDeathDraw.MuralRow5] = row,
+            [MotherBrainFakeDeathDraw.MuralRow6] = row,
+            [MotherBrainFakeDeathDraw.MuralRow7] = row,
+            [MotherBrainFakeDeathDraw.MuralRow8] = row,
+            [MotherBrainFakeDeathDraw.MuralRow9] = row,
+            [MotherBrainFakeDeathDraw.MuralRow10] = row,
+            [MotherBrainFakeDeathDraw.MuralRow11] = row,
+            [MotherBrainFakeDeathDraw.MuralRow12] = row,
+            [MotherBrainFakeDeathDraw.UnusedFirstSolidRow] = row,
+            [MotherBrainFakeDeathDraw.UnusedSecondSolidRow] = row,
+            [MotherBrainFakeDeathDraw.ClearCeilingBlock] = [RoomObjectShapeRun.Column(origin, 2)],
+            [MotherBrainFakeDeathDraw.ClearCeilingTube] = [RoomObjectShapeRun.Column(origin, 5)],
+            [MotherBrainFakeDeathDraw.ClearBottomMiddleSideTube] = [RoomObjectShapeRun.Column(origin, 4)],
+            [MotherBrainFakeDeathDraw.ClearBottomMiddleTubes] = [RoomObjectShapeRun.Column(origin, 7), RoomObjectShapeRun.Column(new(1, 0), 7)],
+            [MotherBrainFakeDeathDraw.ClearBottomLeftTube] = [RoomObjectShapeRun.Column(origin, 5), RoomObjectShapeRun.Row(new(1, 0), 1)],
+            [MotherBrainFakeDeathDraw.ClearBottomRightTube] = [RoomObjectShapeRun.Column(origin, 5), RoomObjectShapeRun.Row(new(-1, 0), 1)],
+        };
+
         var layouts = new Dictionary<MotherBrainFakeDeathDraw, RoomObjectFrameLayout>();
         foreach (MotherBrainFakeDeathDraw frame in Enum.GetValues<MotherBrainFakeDeathDraw>())
-            layouts.Add(frame, Layout(RoomObjectDraw.Of(frame)));
+        {
+            RoomObjectDraw draw = RoomObjectDraw.Of(frame);
+            if (!MotherBrainFakeDeathDraws.TryDescribe(draw, out RoomBlockShape? shape))
+                throw new InvalidOperationException($"Mother Brain fake-death frame {frame} has no shape.");
+            layouts.Add(frame, RoomObjectShapeRun.Layout(draw, shape, runs[frame]));
+        }
         return layouts;
-    }
-
-    /// <summary>The geometry of a mural row, a boundary or a fill row or tube clear.</summary>
-    private static RoomObjectFrameLayout Layout(RoomObjectDraw draw)
-    {
-        if (MotherBrainFakeDeathDraws.TryDescribeBackground(draw, out MotherBrainFakeDeathDraws.BackgroundDraw row))
-            return RoomObjectFrameLayout.Of(draw, 1, static _ => MotherBrainFakeDeathObjectDrawDefinitions.BackgroundWidth,
-                (_, column) => row.CollisionAt(column), RoomObjectDrawListExport.Horizontal, static _ => Offset16<RoomBlocks>.Zero);
-        if (MotherBrainFakeDeathDraws.TryDescribeBoundary(draw, out MotherBrainFakeDeathDraws.BoundaryDraw boundary))
-            return RoomObjectFrameLayout.Of(draw, MotherBrainFakeDeathDraws.BoundaryDraw.RunCount, boundary.Count, boundary.CollisionAt,
-                static _ => RoomObjectRunDirection.Vertical, boundary.Start);
-        if (MotherBrainFakeDeathDraws.TryDescribeRegular(draw, out MotherBrainFakeDeathDraws.RegularDraw regular))
-            return RoomObjectFrameLayout.Of(draw, regular.RunCount, regular.Count, regular.CollisionAt,
-                run => regular.Vertical(run) ? RoomObjectRunDirection.Vertical : RoomObjectRunDirection.Horizontal, regular.Start);
-        throw new InvalidOperationException($"Mother Brain fake-death frame {draw} has no shape.");
     }
 }

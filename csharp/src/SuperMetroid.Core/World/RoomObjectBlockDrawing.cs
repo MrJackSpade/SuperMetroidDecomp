@@ -271,11 +271,10 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
                     DrawImageCell(level, draw, origin, gatePicture, gate.Start(run) + new Offset16<RoomBlocks>(gate.Column ? 0 : cell, gate.Column ? cell : 0), gate.CollisionAt(run, cell));
             return;
         }
-        if (MotherBrainEscapeGateDraws.TryDescribe(draw, out var escapeGate))
+        if (MotherBrainEscapeGateDraws.TryDescribe(draw, out RoomBlockShape? escapeGate))
         {
-            RoomObjectFrameImage gateImage = Installed(_visuals.RoomObjectEscapeGateVisuals, "Mother Brain escape gate").Images.Image(escapeGate.Frame);
-            for (int row = 0; row < MotherBrainEscapeGateObjectDrawDefinitions.Height; row++)
-                DrawImageCell(level, draw, origin, gateImage, new Offset16<RoomBlocks>(0, row), MotherBrainEscapeGateDraws.Draw.CollisionAt(row));
+            DrawShape(level, draw, origin, Installed(_visuals.RoomObjectEscapeGateVisuals, "Mother Brain escape gate").Images
+                .Image(RoomObjectDraw.FrameOf<MotherBrainEscapeGateDraw>(draw, "Mother Brain escape gate")), escapeGate);
             return;
         }
         if (BombTorizoHandDraws.TryDescribe(draw, out var bombTorizoHand))

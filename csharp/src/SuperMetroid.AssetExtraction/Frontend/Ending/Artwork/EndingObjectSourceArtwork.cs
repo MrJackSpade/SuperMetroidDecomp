@@ -7,10 +7,11 @@ using SuperMetroid.AssetExtraction.Rooms.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>
-/// The installed ending object artwork as the import pipeline reads it (#1463): beside the tilemaps the game binds, the
-/// character atlases and sprite compositions the ending's sheets are composed from.
+/// The installed ending object artwork, which only the import pipeline reads (#1463, #1616): the character atlases,
+/// tilemaps and sprite compositions the ending's sheets and pictures are composed from. The game draws those sheets and
+/// binds none of this artwork.
 /// </summary>
-public sealed class EndingObjectSourceArtwork : EndingObjectArtwork
+public sealed class EndingObjectSourceArtwork
 {
     /// <summary>Validates and retains the selected ending artwork and compositions.</summary>
     /// <param name="parts">The ending's object character atlases, tilemaps and sprite presentations (#633).</param>
@@ -128,9 +129,4 @@ public sealed class EndingObjectSourceArtwork : EndingObjectArtwork
         content.Append("reward-sprites", Convert.FromHexString(RewardSprites.ContentIdentity));
         content.Append("logo-sprites", Convert.FromHexString(LogoSprites.ContentIdentity));
     });
-
-    /// <summary>The import-side artwork <paramref name="objects"/> was read with.</summary>
-    /// <exception cref="InvalidDataException">The ending artwork was not read from installed artwork.</exception>
-    public static EndingObjectSourceArtwork Of(EndingObjectArtwork objects) => objects as EndingObjectSourceArtwork
-        ?? throw new InvalidDataException("The ending object artwork was not read from installed artwork.");
 }

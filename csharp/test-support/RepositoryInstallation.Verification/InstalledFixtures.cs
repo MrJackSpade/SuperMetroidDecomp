@@ -250,6 +250,9 @@ internal static class InstalledFixtures
     /// <summary>The installation's intro cinematic artwork, loaded once per process.</summary>
     internal static IntroCinematicArtwork IntroArtwork => introArtwork.Value;
 
+    /// <summary>The repository installation's ending object artwork, which only the import reads (#1616).</summary>
+    internal static SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectSourceArtwork EndingObjects => endingObjects.Value;
+
     /// <summary>
     /// Creates a Samus projectile system with installed frame bindings, bound to an earthquake of its own as a room binds
     /// its projectiles to the room's, so Super Missile impacts have an earthquake to start.
@@ -309,7 +312,6 @@ internal static class InstalledFixtures
         ushort gameTimeHours, ushort gameTimeMinutes, EndingInventorySnapshot inventory = default, bool japaneseText = false)
     {
         var ending = new EndingCreditsState(audio, new EndingCreditsSetup { GameTimeHours = gameTimeHours, GameTimeMinutes = gameTimeMinutes, Inventory = inventory, JapaneseText = japaneseText, EndingText = Maps.EndingText });
-        ending.Flyaway.BindFlightArtwork(IntroArtwork.CeresFlight);
         ending.InstalledArtwork.BindFixtureObjectArtwork(endingObjects.Value);
         ending.InstalledArtwork.BindBackdrops(endingBackdrops.Value);
         ending.InstalledArtwork.BindSpaceBackdrops(Maps.EndingSpaceBackdrops);

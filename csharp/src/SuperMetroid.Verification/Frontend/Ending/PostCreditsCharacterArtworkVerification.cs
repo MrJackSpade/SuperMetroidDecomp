@@ -6,6 +6,7 @@ using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.TestSupport.FrameRendering;
 
@@ -17,7 +18,7 @@ internal static class PostCreditsCharacterArtworkVerification
     /// <summary>Checks native versus installed VRAM and rendered pixels across the suitless post-shot handoff and all four logo actors.</summary>
     internal static void VerifyPostCreditsCharacterArtwork(GameInstallation installation)
     {
-        EndingObjectArtwork stock = installation.LoadEndingObjectArt();
+        EndingObjectSourceArtwork stock = installation.LoadEndingObjectArt();
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
         foreach (ushort hours in new ushort[] { 2, 3, 10 })
         {

@@ -20,7 +20,7 @@ internal static class EndingCompletionTextSpriteArtworkVerification
 {
     /// <summary>Compares every installed completion frame at on-screen and wrapped off-screen anchors.</summary>
     internal static void VerifyEndingCompletionTextSpriteArtwork(ISnesAddressSpace bus,
-        EndingObjectArtwork stock)
+        EndingObjectSourceArtwork stock)
     {
         foreach (CinematicSpriteFrameDefinition frame in
             EndingCompletionTextSpriteDefinitions.Frames)
@@ -40,7 +40,7 @@ internal static class EndingCompletionTextSpriteArtworkVerification
                 nativeOam.FinalizeFrame();
                 var installedOam = ScreenSpritesFixtures.Blank();
                 installedOam.BeginFrame();
-                CinematicSheetFixtures.Drawer(EndingObjectSourceArtwork.Of(stock).CompletionTextSprites).Draw(frame.Pose, installedOam,
+                CinematicSheetFixtures.Drawer(stock.CompletionTextSprites).Draw(frame.Pose, installedOam,
                     new(120, y), EndingShades.Drawn(EndingSpriteColouring.ShootingStars));
                 installedOam.FinalizeFrame();
                 AssertTrue(nativeOam.ImageEquals(installedOam) &&

@@ -20,7 +20,7 @@ internal static class EndingRewardSpriteArtworkVerification
 {
     /// <summary>Compares every installed reward frame at screen and wrapped off-screen origins.</summary>
     internal static void VerifyEndingRewardSpriteArtwork(ISnesAddressSpace bus,
-        EndingObjectArtwork stock)
+        EndingObjectSourceArtwork stock)
     {
         foreach (CinematicSpriteFrameDefinition frame in EndingRewardSpriteDefinitions.Frames)
         {
@@ -39,7 +39,7 @@ internal static class EndingRewardSpriteArtworkVerification
                 nativeOam.FinalizeFrame();
                 var installedOam = ScreenSpritesFixtures.Blank();
                 installedOam.BeginFrame();
-                CinematicSheetFixtures.Drawer(EndingObjectSourceArtwork.Of(stock).RewardSprites).Draw(frame.Pose, installedOam,
+                CinematicSheetFixtures.Drawer(stock.RewardSprites).Draw(frame.Pose, installedOam,
                     new(120, y), EndingShades.Drawn(EndingSpriteColouring.ShootingStars));
                 installedOam.FinalizeFrame();
                 AssertTrue(nativeOam.ImageEquals(installedOam) &&

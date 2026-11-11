@@ -25,7 +25,6 @@ internal static class EndingFlyawayArtworkVerification
         var installedAudio = AudioQueues.Standalone();
         var native = CreateRetailEndingFixture(nativeAudio, 0, 0);
         var installed = CreateRetailEndingFixture(installedAudio, 0, 0);
-        installed.Flyaway.BindFlightArtwork(installation.LoadIntroCinematicArt().CeresFlight);
         int holdUpdates = 0;
         for (int frame = 0; frame < 10000 &&
             native.Stage.Phase != EndingCreditsPhase.PlanetEscapeFast; frame++)
@@ -64,7 +63,6 @@ internal static class EndingFlyawayArtworkVerification
         var loadGuard = NewIntroArtworkSourceReadGuard(loadBus);
         var loadAudio = AudioQueues.Standalone();
         var restored = CreateRetailEndingFixture(loadAudio, 0, 0);
-        restored.Flyaway.BindFlightArtwork(installation.LoadIntroCinematicArt().CeresFlight);
         for (int frame = 0; frame < 10000 &&
             restored.Stage.Phase != EndingCreditsPhase.ZebesExplosionHold; frame++)
         {

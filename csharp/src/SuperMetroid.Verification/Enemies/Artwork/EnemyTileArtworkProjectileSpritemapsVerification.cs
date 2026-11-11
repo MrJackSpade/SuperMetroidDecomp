@@ -734,8 +734,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             slot.State = new NoobTubeDebrisState(column: 128);
             slot.Position = slot.Position.WithWhole(new(128, 96));
             slot.Graphics = SpawnedGraphics;
-            // The first shard's flying loop opens with its reflecting flicker.
-            slot.StartAnimation(new NoobTubeProjectileAnimation(NoobTubeProjectileProgram.Shard0Loop));
+            // The first shard's animation opens on its flying loop, whose first beat is the reflecting flicker.
+            slot.StartAnimation(new NoobTubeProjectileAnimation(NoobTubeProjectileProgram.Shard0));
             enemies.Projectiles.ProcessEnemyProjectileInstructions(slot, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), Position16<RoomPixels>.Zero);
             // It draws from the sheets a set spawning it composes from this artwork.
             slot.Graphics = SpawnedObjectFixtures.LoadSetSpawning(enemies,

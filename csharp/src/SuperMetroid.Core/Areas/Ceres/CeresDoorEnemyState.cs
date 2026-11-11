@@ -17,26 +17,14 @@ internal sealed class CeresDoorEnemyState
     public bool HandsDrawingToRidley { get; internal set; }
 
     /// <summary>
-    /// Calls left in the elevator door's destruction rumble, decremented each call; the call that wraps it below zero
-    /// ends the destruction.
+    /// Calls left in the elevator door's destruction rumble, 48 when it starts and decremented each call; the call that
+    /// takes it below zero ends the destruction, which never counts it again.
     /// </summary>
-    public int RumbleCallsLeft
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    public int RumbleCallsLeft { get; internal set; }
 
-    /// <summary>Calls left before the next destruction explosion, decremented each call and reloaded when it wraps.</summary>
-    public int ExplosionIntervalLeft
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    /// <summary>Calls left before the next destruction explosion, decremented each call and reloaded once it runs below zero.</summary>
+    public int ExplosionIntervalLeft { get; internal set; }
 
-    /// <summary>The destruction explosion position the next burst uses, counting down through the authored positions.</summary>
-    public int ExplosionPositionIndex
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    /// <summary>The destruction explosion position the next burst uses, counting down through the authored positions and starting again from the last.</summary>
+    public int ExplosionPositionIndex { get; internal set; }
 }

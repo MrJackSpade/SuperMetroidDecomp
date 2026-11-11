@@ -244,11 +244,12 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
     internal void RunCeresDoorRumbleAndExplosions(RoomEnemySlot slot)
     {
         CeresDoorEnemyState state = slot.RequireSpeciesState<CeresDoorEnemyState>();
-        CountdownStep rumble = WrappingCounter.Decrement(Ensure.BetweenInclusive(0, ushort.MaxValue, state.RumbleCallsLeft));
-        state.RumbleCallsLeft = rumble.Remaining.RemainingFrames;
-        if (rumble.IsNegative)
+        // The counters are small counts that each run below zero only once before the call ends the destruction or
+        // reloads them, so nothing reaches a word's range.
+        state.RumbleCallsLeft--;
+        if (state.RumbleCallsLeft < 0)
         {
-            // The 49th call underflows zero to -1. The door hides, returns
+            // The 49th call takes zero to -1. The door hides, returns
             // it to the perpetual elevator-animation function, and publishes its destruction so the
             // room's turning-floor controller begins the rotation after Ridley's escape.
             slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
@@ -258,20 +259,16 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
             return;
         }
 
-        CountdownStep interval = WrappingCounter.Decrement(Ensure.BetweenInclusive(0, ushort.MaxValue, state.ExplosionIntervalLeft));
-        state.ExplosionIntervalLeft = interval.Remaining.RemainingFrames;
-        if (!interval.IsNegative)
+        state.ExplosionIntervalLeft--;
+        if (state.ExplosionIntervalLeft >= 0)
             return;
 
         state.ExplosionIntervalLeft = CeresDoorRumbleInterval;
-        CountdownStep burst = WrappingCounter.Decrement(Ensure.BetweenInclusive(0, ushort.MaxValue, state.ExplosionPositionIndex));
-        state.ExplosionPositionIndex = burst.IsNegative ? CeresDoorRumbleGeometryDefinitions.Count - 1 : burst.Remaining.RemainingFrames;
+        state.ExplosionPositionIndex = state.ExplosionPositionIndex == 0
+            ? CeresDoorRumbleGeometryDefinitions.Count - 1
+            : state.ExplosionPositionIndex - 1;
 
-        Offset16<RoomPixels> burstOffset = CeresDoorRumble.Offset(state.ExplosionPositionIndex);
-        int xOffset = burstOffset.X;
-        int yOffset = burstOffset.Y;
-        Position16<RoomPixels> explosion = new(
-            CoordinateAxis.Wrap(slot.Position.X.Whole + xOffset), CoordinateAxis.Wrap(slot.Position.Y.Whole + yOffset));
+        Position16<RoomPixels> explosion = slot.Position.Whole + CeresDoorRumble.Offset(state.ExplosionPositionIndex);
 
         // The shared random sequence advances exactly once per explosion. Values below 16384
         // select the large explosion; all other values select animation three (smoke).

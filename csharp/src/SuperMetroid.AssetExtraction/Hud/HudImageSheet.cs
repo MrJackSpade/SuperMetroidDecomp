@@ -24,7 +24,7 @@ namespace SuperMetroid.AssetExtraction.Hud;
 internal static class HudImageSheet
 {
     /// <summary>Cells across a sheet's shelves: the HUD's width.</summary>
-    private const int ShelfCells = GameplayHudDefinitions.Width;
+    private const int ShelfCells = GameplayHudDocumentDefinitions.Columns;
 
     /// <summary>
     /// Every image the HUD can place with <paramref name="maps"/>' cells on its minimap, in a stable order: the minimap
@@ -40,7 +40,7 @@ internal static class HudImageSheet
         for (int numeral = 0; numeral < GameplayHudDefinitions.Numerals; numeral++)
             images.Add(new HudAmmoDigitImage(numeral));
         HudIconShade?[] shades = [null, .. Enum.GetValues<HudIconShade>().Select(shade => (HudIconShade?)shade)];
-        for (int item = 0; item < GameplayHudDefinitions.ItemCount; item++)
+        foreach (HudIcon item in GameplayHudDefinitions.Icons)
         {
             foreach (HudIconCover cover in Enum.GetValues<HudIconCover>())
             {
@@ -106,7 +106,7 @@ internal static class HudImageSheet
             }
             int shelf = shelves.Count - 1;
             shelves[shelf] = Math.Max(shelves[shelf], tiles.Size.Y);
-            var placement = new HudSheetPlacement(tiles, shelf, new Position16<TilemapCells>((ushort)column, 0));
+            var placement = new HudSheetPlacement(tiles, shelf, new Position16<CharacterCells>((ushort)column, 0));
             placedTiles.Add(shown, placement);
             placements.Add(placement);
             column += tiles.Size.X;
@@ -136,16 +136,16 @@ internal static class HudImageSheet
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
         foreach (HudSheetPlacement placed in layout.Placements)
         {
-            var corner = new Position16<TilemapCells>(placed.Cell.X, checked((ushort)(layout.ShelfTop(placed.Shelf) + placed.Cell.Y)));
+            var corner = new Position16<CharacterCells>(placed.Cell.X, checked((ushort)(layout.ShelfTop(placed.Shelf) + placed.Cell.Y)));
             HudImageTiles image = placed.Image;
             for (int y = 0; y < image.Size.Y; y++)
             for (int x = 0; x < image.Size.X; x++)
-                Paint(new Position16<TilemapCells>((ushort)(corner.X + x), (ushort)(corner.Y + y)), image.Tiles[y * image.Size.X + x]);
+                Paint(new Position16<CharacterCells>((ushort)(corner.X + x), (ushort)(corner.Y + y)), image.Tiles[y * image.Size.X + x]);
             frames.Add(image.Image.FrameName, WrittenPictureSheetComposer.Frame(canvas, Pixels(corner), Pixels(image.Size), WrittenPictureLayer.FxOverlayAndHud));
         }
         return canvas.ToSheet(colours, frames, SpriteImageColours.TwoBppBackground);
 
-        void Paint(Position16<TilemapCells> at, BackgroundTile tile)
+        void Paint(Position16<CharacterCells> at, BackgroundTile tile)
         {
             int start = tile.Tile * RoomTileCanvas.TwoBppCharacterBytes;
             if (start + RoomTileCanvas.TwoBppCharacterBytes > characters.Length)
@@ -155,10 +155,10 @@ internal static class HudImageSheet
     }
 
     /// <summary>The pixel corner of cell <paramref name="cell"/>.</summary>
-    internal static Position16<ImagePixels> Pixels(Position16<TilemapCells> cell) =>
+    internal static Position16<ImagePixels> Pixels(Position16<CharacterCells> cell) =>
         new(checked((ushort)(cell.X * RoomTileCanvas.CharacterPixels)), checked((ushort)(cell.Y * RoomTileCanvas.CharacterPixels)));
 
     /// <summary>The pixel size of <paramref name="size"/> cells.</summary>
-    internal static Extent16<ImagePixels> Pixels(Extent16<TilemapCells> size) =>
+    internal static Extent16<ImagePixels> Pixels(Extent16<CharacterCells> size) =>
         new(checked((ushort)(size.X * RoomTileCanvas.CharacterPixels)), checked((ushort)(size.Y * RoomTileCanvas.CharacterPixels)));
 }

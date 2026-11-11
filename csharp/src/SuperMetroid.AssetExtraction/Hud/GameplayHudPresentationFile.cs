@@ -71,7 +71,7 @@ public static class GameplayHudPresentationFile
             string name = GameplayHudDefinitions.IconNames[item];
             GameplayHudIconDocument icon = document.Icons[name] ?? throw new InvalidDataException($"Gameplay HUD icon {name} is null.");
             int width = GameplayHudStockDefinitions.IconWidths[item];
-            Position16<TilemapCells> anchor = ValidateAnchor(icon.Anchor, new(checked((ushort)width), GameplayHudIcon.Height), $"{name} icon");
+            Position16<CharacterCells> anchor = ValidateAnchor(icon.Anchor, new(checked((ushort)width), GameplayHudIcon.Height), $"{name} icon");
             icons.Add(new GameplayHudIcon(anchor, width, CompileCells(icon.Cells, width * GameplayHudIcon.Height, $"{name} icon")));
         }
         var minimapHidden = MapTileWords.HudBlank;
@@ -96,7 +96,7 @@ public static class GameplayHudPresentationFile
             SelectedPalette = ValidatePalette(document.SelectedPalette, nameof(document.SelectedPalette)),
             DeselectedPalette = ValidatePalette(document.DeselectedPalette, nameof(document.DeselectedPalette)),
             Icons = icons.MoveToImmutable(),
-            MinimapAnchor = ValidateAnchor(document.MinimapAnchor, GameplayHudPresentation.MinimapSize, "minimap"),
+            MinimapAnchor = ValidateAnchor(document.MinimapAnchor, MinimapCells, "minimap"),
             MinimapHidden = minimapHidden.ToTile(),
             MinimapUnexploredColourVariant = minimapHidden.ForHud(explored: false).PaletteIndex,
             MinimapExploredColourVariant = minimapHidden.ForHud(explored: true).PaletteIndex,
@@ -109,27 +109,27 @@ public static class GameplayHudPresentationFile
     /// <summary>Rejects overlap among icons, tanks, digits, AUTO cells, and minimap cells.</summary>
     private static void ValidateDistinctDynamicCells(GameplayHudArtworkParts parts)
     {
-        var owners = new Dictionary<Position16<TilemapCells>, string>();
-        void Own(Position16<TilemapCells> cell, string owner)
+        var owners = new Dictionary<Position16<CharacterCells>, string>();
+        void Own(Position16<CharacterCells> cell, string owner)
         {
             if (!owners.TryAdd(cell, owner))
                 throw new InvalidDataException($"Gameplay HUD {owner} overlaps {owners[cell]} at cell {GameplayHudDocumentDefinitions.Size.RowMajorIndex(cell)}.");
         }
-        void OwnRun(Position16<TilemapCells> anchor, int width, int height, string owner)
+        void OwnRun(Position16<CharacterCells> anchor, int width, int height, string owner)
         {
             for (int y = 0; y < height; y++)
             for (int x = 0; x < width; x++)
-                Own(anchor + new Offset16<TilemapCells>(checked((short)x), checked((short)y)), owner);
+                Own(anchor + new Offset16<CharacterCells>(checked((short)x), checked((short)y)), owner);
         }
         for (int item = 0; item < GameplayHudDefinitions.ItemCount; item++)
             OwnRun(parts.Icons[item].Anchor, parts.Icons[item].Width, GameplayHudIcon.Height, GameplayHudDefinitions.IconNames[item]);
-        foreach (Position16<TilemapCells> tank in parts.EnergyTankCells) Own(tank, "energy tank");
-        foreach (Position16<TilemapCells> cell in parts.AutoReserveCells) Own(cell, "AUTO indicator");
+        foreach (Position16<CharacterCells> tank in parts.EnergyTankCells) Own(tank, "energy tank");
+        foreach (Position16<CharacterCells> cell in parts.AutoReserveCells) Own(cell, "AUTO indicator");
         OwnRun(parts.HealthAnchor, 2, 1, "health digits");
         OwnRun(parts.MissileAmmoAnchor, 3, 1, "missile digits");
         OwnRun(parts.SuperMissileAmmoAnchor, 2, 1, "Super Missile digits");
         OwnRun(parts.PowerBombAmmoAnchor, 2, 1, "Power Bomb digits");
-        OwnRun(parts.MinimapAnchor, GameplayHudPresentation.MinimapSize.X, GameplayHudPresentation.MinimapSize.Y, "minimap");
+        OwnRun(parts.MinimapAnchor, MinimapCells.X, MinimapCells.Y, "minimap");
     }
 
     /// <summary>Requires the expected cell count and decodes each authored cell's tile.</summary>
@@ -153,21 +153,24 @@ public static class GameplayHudPresentationFile
     }
 
     /// <summary>Validates the complete anchor array of one-cell elements.</summary>
-    private static ImmutableArray<Position16<TilemapCells>> CompileAnchors(Position16<TilemapCells>[]? anchors, int count, string name)
+    private static ImmutableArray<Position16<CharacterCells>> CompileAnchors(Position16<CharacterCells>[]? anchors, int count, string name)
     {
         if (anchors is null || anchors.Length != count)
             throw new InvalidDataException($"Gameplay HUD {name} requires exactly {count} anchors.");
-        var result = ImmutableArray.CreateBuilder<Position16<TilemapCells>>(count);
+        var result = ImmutableArray.CreateBuilder<Position16<CharacterCells>>(count);
         for (int index = 0; index < count; index++)
             result.Add(ValidateAnchor(anchors[index], new(1, 1), $"{name} {index}"));
         return result.MoveToImmutable();
     }
 
+    /// <summary>The cells the minimap covers: one for each of its area-map squares.</summary>
+    private static Extent16<CharacterCells> MinimapCells => new(GameplayHudPresentation.MinimapSize.X, GameplayHudPresentation.MinimapSize.Y);
+
     /// <summary>Ensures an anchored rectangle fits within the mutable 32-by-3 HUD tilemap.</summary>
-    private static Position16<TilemapCells> ValidateAnchor(Position16<TilemapCells> anchor, Extent16<TilemapCells> size, string name)
+    private static Position16<CharacterCells> ValidateAnchor(Position16<CharacterCells> anchor, Extent16<CharacterCells> size, string name)
     {
         if (anchor.X < 0 || anchor.Y < 0 ||
-            anchor.X + size.X > GameplayHudDefinitions.Width || anchor.Y + size.Y > GameplayHudDefinitions.Height)
+            anchor.X + size.X > GameplayHudDocumentDefinitions.Columns || anchor.Y + size.Y > GameplayHudDocumentDefinitions.DrawnRows)
             throw new InvalidDataException($"Gameplay HUD {name} lies outside the 32x3 mutable tilemap.");
         return anchor;
     }

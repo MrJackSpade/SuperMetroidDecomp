@@ -27,7 +27,7 @@ internal static class VramTilemapImage
     /// whole 32-cell screens one after another, left to right then top to bottom, as rows from the top-left cell.
     /// </summary>
     /// <exception cref="ArgumentException">The tilemap does not hold every cell of the map, or the map is not whole screens.</exception>
-    internal static BackgroundTile[] Rows(ReadOnlySpan<BackgroundTile> screens, Extent16<TilemapCells> size)
+    internal static BackgroundTile[] Rows(ReadOnlySpan<BackgroundTile> screens, Extent16<CharacterCells> size)
     {
         Ensure.LengthEqual(screens, size.X * size.Y);
         if (size.X % ScreenCells != 0 || size.Y % ScreenCells != 0)
@@ -52,7 +52,7 @@ internal static class VramTilemapImage
     /// <paramref name="priority"/> tier draw, or every cell when it is null, and <paramref name="backdrop"/> shows elsewhere.
     /// </summary>
     /// <exception cref="ArgumentException">The image is not a whole memory image, or the tilemap does not fill the map.</exception>
-    internal static RgbaPixel[] Draw(ReadOnlySpan<BackgroundTile> rows, Extent16<TilemapCells> size, ReadOnlySpan<byte> image, int characterWord,
+    internal static RgbaPixel[] Draw(ReadOnlySpan<BackgroundTile> rows, Extent16<CharacterCells> size, ReadOnlySpan<byte> image, int characterWord,
         TileInkDepth depth, ReadOnlySpan<RgbColor> colours, Offset16<PlanePixels> scroll, bool? priority, RgbColor backdrop)
     {
         Ensure.LengthEqual(image, SnesVram.ByteCount);

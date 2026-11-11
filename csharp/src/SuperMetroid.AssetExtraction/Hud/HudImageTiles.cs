@@ -9,4 +9,4 @@ namespace SuperMetroid.AssetExtraction.Hud;
 /// <param name="Image">The image.</param>
 /// <param name="Size">Its size in HUD cells.</param>
 /// <param name="Tiles">The tile each of its cells shows, row by row.</param>
-internal sealed record HudImageTiles(HudImage Image, Extent16<TilemapCells> Size, ImmutableArray<BackgroundTile> Tiles);
+internal sealed record HudImageTiles(HudImage Image, Extent16<CharacterCells> Size, ImmutableArray<BackgroundTile> Tiles);

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Hud;
 
@@ -18,7 +19,7 @@ public sealed record GameplayHudPresentationDocument
     /// <summary>Gets the palette index used for a deselected item.</summary>
     public required int DeselectedPalette { get; init; }
     /// <summary>Gets the upper-left coordinate of the minimap output region.</summary>
-    public required Position16<TilemapCells> MinimapAnchor { get; init; }
+    public required Position16<CharacterCells> MinimapAnchor { get; init; }
     /// <summary>Gets the energy-tank visuals and anchors.</summary>
     public required GameplayHudEnergyTankDocument EnergyTanks { get; init; }
     /// <summary>Gets the health and ammunition digit visuals and anchors.</summary>

@@ -38,7 +38,7 @@ internal static class MapPictureSheets
                     ordered.Add(cell);
             }
         }
-        Extent16<TilemapCells> one = new(1, 1);
+        Extent16<CharacterCells> one = new(1, 1);
         foreach (MapCell cell in ordered)
         foreach (MapCellShade shade in Enum.GetValues<MapCellShade>())
         {

@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.Core.Spatial;
@@ -104,9 +105,9 @@ public sealed class FileSelectSourcePresentation : FileSelectPresentation
     /// </summary>
     internal IEnumerable<ScreenPictureSubject> Subjects()
     {
-        yield return ScreenPictureSubject.Page(FileSelectParts.BackgroundFrame, background, FileSelectPresentationDefinitions.Width);
+        yield return ScreenPictureSubject.Page(FileSelectParts.BackgroundFrame, background, FileSelectPresentationFormat.PageColumns);
         foreach (FileSelectPage page in FileSelectPresentationFormat.Pages)
-            yield return ScreenPictureSubject.Page(FileSelectParts.PageFrame(page), pages[page], FileSelectPresentationDefinitions.Width);
+            yield return ScreenPictureSubject.Page(FileSelectParts.PageFrame(page), pages[page], FileSelectPresentationFormat.PageColumns);
         foreach (ScreenPictureSubject field in FieldSubjects())
             yield return field;
     }
@@ -117,14 +118,14 @@ public sealed class FileSelectSourcePresentation : FileSelectPresentation
     /// </summary>
     internal IEnumerable<ScreenPictureSubject> FieldSubjects()
     {
-        Extent16<TilemapCells> cell = new(1, 1);
+        Extent16<CharacterCells> cell = new(1, 1);
         foreach (FileSelectPatch name in FileSelectPresentationFormat.Patches)
         {
             FileSelectCompiledPatch patch = patches[name];
             FileSelectCompiledPatchCell[] cells = [.. Enumerable.Range(0, patch.Count).Select(patch.Cell)];
             int left = cells.Min(each => each.Offset.X), top = cells.Min(each => each.Offset.Y);
             int right = cells.Max(each => each.Offset.X), bottom = cells.Max(each => each.Offset.Y);
-            var size = new Extent16<TilemapCells>(checked((ushort)(right - left + 1)), checked((ushort)(bottom - top + 1)));
+            var size = new Extent16<CharacterCells>(checked((ushort)(right - left + 1)), checked((ushort)(bottom - top + 1)));
             var tiles = new BackgroundTile?[size.X * size.Y];
             foreach (FileSelectCompiledPatchCell each in cells)
                 tiles[(each.Offset.Y - top) * size.X + each.Offset.X - left] = each.Tile;
@@ -193,7 +194,7 @@ public sealed class FileSelectSourcePresentation : FileSelectPresentation
         foreach (string name in FileSelectPresentationFormat.Borders.Select(FileSelectPresentationFormat.BorderName))
             ValidatePoint(document.BorderAnchors[name], $"{name} border");
         foreach (string name in FileSelectPresentationFormat.Anchors.Select(FileSelectPresentationFormat.AnchorName))
-            ValidateTilePoint(document.DynamicAnchors[name], $"{name} dynamic anchor");
+            ValidatePagePoint(document.DynamicAnchors[name], $"{name} dynamic anchor");
         if ((uint)document.ObjectPalette >= MapPresentationFormat.PaletteCount)
             throw new InvalidDataException("File-select object palette must be 0..7.");
         if (document.CursorFrameDuration is < 1 or > ushort.MaxValue ||
@@ -211,7 +212,7 @@ public sealed class FileSelectSourcePresentation : FileSelectPresentation
                 throw new InvalidDataException($"File-select patch {name} is null.");
             if (patch.Cells is null || patch.Cells.Length == 0)
                 throw new InvalidDataException($"File-select patch {name} is empty.");
-            var claimed = new HashSet<Position16<TilemapCells>>();
+            var claimed = new HashSet<Position16<CharacterCells>>();
             var compiled = new FileSelectCompiledPatchCell[patch.Cells.Length];
             for (int index = 0; index < compiled.Length; index++)
             {
@@ -221,7 +222,7 @@ public sealed class FileSelectSourcePresentation : FileSelectPresentation
                     !claimed.Add(cell.Offset))
                     throw new InvalidDataException(
                         $"File-select patch {name} contains an invalid or duplicate coordinate.");
-                compiled[index] = new(cell.Offset - Position16<TilemapCells>.Zero,
+                compiled[index] = new(cell.Offset - Position16<CharacterCells>.Zero,
                     CompileCell(cell.Cell, $"file-select patch {name} cell {index}"));
             }
             patches.Add(kind, new(kind, compiled));
@@ -261,7 +262,7 @@ public sealed class FileSelectSourcePresentation : FileSelectPresentation
     public static FileSelectSourcePresentation Of(FileSelectPresentation fileSelect) => fileSelect as FileSelectSourcePresentation
         ?? throw new InvalidDataException("The file-select presentation was not read from installed artwork.");
 
-    /// <summary>Rejects authored field patches or time digits that would escape the 32-by-32 page.</summary>
+    /// <summary>Rejects authored field patches or time digits that would escape the page.</summary>
     private static void ValidatePatchPlacements(
         FileSelectPresentationDocument document,
         Dictionary<FileSelectPatch, FileSelectCompiledPatch> patches)
@@ -270,19 +271,20 @@ public sealed class FileSelectSourcePresentation : FileSelectPresentation
         {
             ValidatePatch(slot.EnergyAnchor, patches[FileSelectPatch.Energy]);
             ValidatePatch(slot.NoDataAnchor, patches[FileSelectPatch.NoData]);
-            ValidatePatch(slot.TimeValueAnchor + new Offset16<TilemapCells>(2, 0),
+            const int glyph = FileSelectFieldDefinitions.GlyphWidthPixels;
+            ValidatePatch(slot.TimeValueAnchor + new Offset16<PlanePixels>(FileSelectFieldDefinitions.ColonColumn * glyph, 0),
                 patches[FileSelectPatch.TimeColon]);
-            if (slot.TimeValueAnchor.X + 5 > FileSelectPresentationDefinitions.Width)
+            if (slot.TimeValueAnchor.X + TimeGlyphs * glyph > FileSelectPresentationDefinitions.PageWidthPixels)
                 throw new InvalidDataException("File-select time field escapes its page.");
         }
 
-        static void ValidatePatch(Position16<TilemapCells> anchor, FileSelectCompiledPatch patch)
+        static void ValidatePatch(Position16<PlanePixels> anchor, FileSelectCompiledPatch patch)
         {
             for (int index = 0; index < patch.Count; index++)
             {
-                Position16<TilemapCells> placed = anchor + patch.Cell(index).Offset;
-                if (placed.X >= FileSelectPresentationDefinitions.Width ||
-                    placed.Y >= FileSelectPresentationDefinitions.Height)
+                Position16<PlanePixels> placed = anchor + patch.Cell(index).Offset.PixelOffset<PlanePixels>();
+                if (placed.X >= FileSelectPresentationDefinitions.PageWidthPixels ||
+                    placed.Y >= FileSelectPresentationDefinitions.PageHeightPixels)
                     throw new InvalidDataException("File-select patch placement escapes its page.");
             }
         }
@@ -327,10 +329,10 @@ public sealed class FileSelectSourcePresentation : FileSelectPresentation
     {
         if (slot is null)
             throw new InvalidDataException("File-select slot layout is null.");
-        ValidateTilePoint(slot.EnergyAnchor, "slot energy");
-        ValidateTilePoint(slot.HealthAnchor, "slot health");
-        ValidateTilePoint(slot.NoDataAnchor, "slot no-data");
-        ValidateTilePoint(slot.TimeValueAnchor, "slot time");
+        ValidatePagePoint(slot.EnergyAnchor, "slot energy");
+        ValidatePagePoint(slot.HealthAnchor, "slot health");
+        ValidatePagePoint(slot.NoDataAnchor, "slot no-data");
+        ValidatePagePoint(slot.TimeValueAnchor, "slot time");
     }
 
     /// <summary>Requires an exact number of valid OAM pixel anchors for a menu layout.</summary>
@@ -351,12 +353,15 @@ public sealed class FileSelectSourcePresentation : FileSelectPresentation
                 $"File-select {owner} requires X=0..511 and Y=0..255.");
     }
 
-    /// <summary>Restricts a dynamic field anchor to the 32-by-32 tilemap.</summary>
-    private static void ValidateTilePoint(Position16<TilemapCells> point, string owner)
+    /// <summary>The glyphs of a slot's HH:MM time: two hour digits, the colon and two minute digits.</summary>
+    private const int TimeGlyphs = 5;
+
+    /// <summary>Restricts a dynamic field anchor to a pixel of the page.</summary>
+    private static void ValidatePagePoint(Position16<PlanePixels> point, string owner)
     {
-        if (!FileSelectPresentationFormat.PageSize.Contains(point))
+        if (point.X >= FileSelectPresentationDefinitions.PageWidthPixels || point.Y >= FileSelectPresentationDefinitions.PageHeightPixels)
             throw new InvalidDataException(
-                $"File-select {owner} requires a coordinate inside the 32x32 page.");
+                $"File-select {owner} requires a pixel inside the {FileSelectPresentationDefinitions.PageWidthPixels}x{FileSelectPresentationDefinitions.PageHeightPixels} page.");
     }
 
     /// <summary>Requires the authored dictionary to contain precisely the schema's named entries.</summary>

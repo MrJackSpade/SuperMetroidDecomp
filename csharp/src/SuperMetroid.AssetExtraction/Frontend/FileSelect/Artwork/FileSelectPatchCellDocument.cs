@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 
@@ -9,7 +10,7 @@ public sealed record FileSelectPatchCellDocument
 {
     /// <summary>The authored tile offset from the patch's placement anchor.</summary>
     [System.Text.Json.Serialization.JsonIgnore]
-    public Position16<TilemapCells> Offset => new(X, Y);
+    public Position16<CharacterCells> Offset => new(X, Y);
     /// <summary>Nonnegative horizontal tile offset from the patch's placement anchor.</summary>
     public required int X { get; init; }
     /// <summary>Nonnegative vertical tile offset from the patch's placement anchor.</summary>

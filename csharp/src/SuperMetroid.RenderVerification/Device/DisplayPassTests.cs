@@ -11,6 +11,7 @@ namespace SuperMetroid.RenderVerification.Device;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Checks the D3D11 display scaler, GPU timing boundaries, and compute reuse after display.</summary>
 internal static class DisplayPassTests
@@ -25,7 +26,7 @@ internal static class DisplayPassTests
         RgbColor[] palette = Enumerable.Range(0, SnesCgram.ColorCount)
             .Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
         var packet = new DisplayPacket(0, new LayeredScene(FramePaint.FromNative(palette, []),
-            [new PicturedPlaneLayer(VramPictureFixtures.Plane(vram, palette, 0x4000, 0x6000, TileInkDepth.SixteenColours, new Extent16<TilemapCells>(32, 32)),
+            [new PicturedPlaneLayer(VramPictureFixtures.Plane(vram, palette, 0x4000, 0x6000, TileInkDepth.SixteenColours, new Extent16<CharacterCells>(32, 32)),
                 new Offset16<PlanePixels>(3, 11))], 15));
         var native = DisplayRendering.Render(packet);
         int count = 0;

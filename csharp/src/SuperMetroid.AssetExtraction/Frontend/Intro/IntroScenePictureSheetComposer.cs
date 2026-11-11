@@ -34,7 +34,7 @@ internal static class IntroScenePictureSheetComposer
         int planeCells = cells * cells;
         IntroScenePage[] pages = Enum.GetValues<IntroScenePage>();
         IntroEyeFrame[] eyes = Enum.GetValues<IntroEyeFrame>();
-        Extent16<TilemapCells> eye = IntroArtworkExtentDefinitions.EyeFrameSize;
+        Extent16<CharacterCells> eye = IntroArtworkExtentDefinitions.EyeFrameSize;
         int width = Math.Max(cells, eyes.Length * eye.X) * CharacterPixels;
         int height = ((pages.Length + 1) * cells + eye.Y) * CharacterPixels;
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(checked((ushort)width), checked((ushort)height)));

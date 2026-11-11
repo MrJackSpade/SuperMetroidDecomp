@@ -3,22 +3,22 @@ using System.Collections.Immutable;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
-/// A grid of equal cells each showing an installed picture or nothing (#1467), as an area map shows its cells: row by row
-/// from the top-left cell, which lies on the grid's origin; outside its cells the grid shows nothing and does not repeat
-/// (#1555). Equal to another showing the same pictures the same way in every cell, so an unchanged map keeps the backend's
-/// packing.
+/// A grid of equal squares each showing an installed picture or nothing (#1467), as an area map shows its squares: row by
+/// row from the top-left square, which lies on the grid's origin; outside its squares the grid shows nothing and does not
+/// repeat (#1555). Equal to another showing the same pictures the same way in every square, so an unchanged map keeps the
+/// backend's packing.
 /// </summary>
 public sealed class PictureGrid : IEquatable<PictureGrid>
 {
-    /// <summary>Pixels along each side of a cell.</summary>
+    /// <summary>Pixels along each side of a square.</summary>
     public const int CellPixels = ScreenGeometry.BackgroundTileSizePixels;
 
     /// <summary>Keeps the grid's cells.</summary>
-    /// <param name="size">The grid's width and height in cells.</param>
-    /// <param name="cells">Each cell's picture, or none, row by row.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The grid has no cells along an axis.</exception>
-    /// <exception cref="ArgumentException">The cells do not fill the grid, or a picture is not one cell in size.</exception>
-    public PictureGrid(Extent16<TilemapCells> size, ImmutableArray<GridPicture?> cells)
+    /// <param name="size">The grid's width and height in area-map squares.</param>
+    /// <param name="cells">Each square's picture, or none, row by row.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The grid has no squares along an axis.</exception>
+    /// <exception cref="ArgumentException">The squares do not fill the grid, or a picture is not one square in size.</exception>
+    public PictureGrid(Extent16<MapTiles> size, ImmutableArray<GridPicture?> cells)
     {
         Ensure.BetweenInclusive(1, ushort.MaxValue, size.X);
         Ensure.BetweenInclusive(1, ushort.MaxValue, size.Y);
@@ -28,16 +28,16 @@ public sealed class PictureGrid : IEquatable<PictureGrid>
         foreach (GridPicture? cell in cells)
         {
             if (cell is { } shown && (shown.Picture.Size.X != CellPixels || shown.Picture.Size.Y != CellPixels))
-                throw new ArgumentException($"A grid cell's picture is {shown.Picture.Size.X}x{shown.Picture.Size.Y}, not one {CellPixels}-pixel cell.", nameof(cells));
+                throw new ArgumentException($"A grid cell's picture is {shown.Picture.Size.X}x{shown.Picture.Size.Y}, not one {CellPixels}-pixel square.", nameof(cells));
         }
         Size = size;
         Cells = cells;
     }
 
-    /// <summary>The grid's width and height in cells.</summary>
-    public Extent16<TilemapCells> Size { get; }
+    /// <summary>The grid's width and height in area-map squares.</summary>
+    public Extent16<MapTiles> Size { get; }
 
-    /// <summary>Each cell's picture, or none, row by row.</summary>
+    /// <summary>Each square's picture, or none, row by row.</summary>
     public ImmutableArray<GridPicture?> Cells { get; }
 
     /// <inheritdoc />

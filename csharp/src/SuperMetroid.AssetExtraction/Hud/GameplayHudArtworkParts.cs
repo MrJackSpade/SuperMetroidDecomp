@@ -29,7 +29,7 @@ internal sealed record GameplayHudArtworkParts
     public required BackgroundTile EmptyEnergyTank { get; init; }
 
     /// <summary>The cell each of the fourteen energy tanks sits in.</summary>
-    public required ImmutableArray<Position16<TilemapCells>> EnergyTankCells { get; init; }
+    public required ImmutableArray<Position16<CharacterCells>> EnergyTankCells { get; init; }
 
     /// <summary>The energy count's tiles for the numerals zero through nine.</summary>
     public required ImmutableArray<BackgroundTile> HealthDigits { get; init; }
@@ -38,16 +38,16 @@ internal sealed record GameplayHudArtworkParts
     public required ImmutableArray<BackgroundTile> AmmoDigits { get; init; }
 
     /// <summary>The cell the energy count's first digit sits in.</summary>
-    public required Position16<TilemapCells> HealthAnchor { get; init; }
+    public required Position16<CharacterCells> HealthAnchor { get; init; }
 
     /// <summary>The cell the missile count's first digit sits in.</summary>
-    public required Position16<TilemapCells> MissileAmmoAnchor { get; init; }
+    public required Position16<CharacterCells> MissileAmmoAnchor { get; init; }
 
     /// <summary>The cell the Super Missile count's first digit sits in.</summary>
-    public required Position16<TilemapCells> SuperMissileAmmoAnchor { get; init; }
+    public required Position16<CharacterCells> SuperMissileAmmoAnchor { get; init; }
 
     /// <summary>The cell the Power Bomb count's first digit sits in.</summary>
-    public required Position16<TilemapCells> PowerBombAmmoAnchor { get; init; }
+    public required Position16<CharacterCells> PowerBombAmmoAnchor { get; init; }
 
     /// <summary>The AUTO indicator's six tiles with energy in reserve.</summary>
     public required ImmutableArray<BackgroundTile> AutoReserveFilled { get; init; }
@@ -56,7 +56,7 @@ internal sealed record GameplayHudArtworkParts
     public required ImmutableArray<BackgroundTile> AutoReserveEmpty { get; init; }
 
     /// <summary>The cell each of the AUTO indicator's six tiles sits in.</summary>
-    public required ImmutableArray<Position16<TilemapCells>> AutoReserveCells { get; init; }
+    public required ImmutableArray<Position16<CharacterCells>> AutoReserveCells { get; init; }
 
     /// <summary>The colour variant the selected item's icon is shown in.</summary>
     public required int SelectedPalette { get; init; }
@@ -68,7 +68,7 @@ internal sealed record GameplayHudArtworkParts
     public required ImmutableArray<GameplayHudIcon> Icons { get; init; }
 
     /// <summary>The cell the minimap's upper-left cell sits in.</summary>
-    public required Position16<TilemapCells> MinimapAnchor { get; init; }
+    public required Position16<CharacterCells> MinimapAnchor { get; init; }
 
     /// <summary>The tile the minimap shows for a cell nothing reveals.</summary>
     public required BackgroundTile MinimapHidden { get; init; }

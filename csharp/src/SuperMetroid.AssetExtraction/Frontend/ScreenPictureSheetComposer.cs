@@ -94,11 +94,11 @@ internal static class ScreenPictureSheetComposer
             pictureOf[index] = picture;
         }
         // Pictures are packed onto shelves across the sheet, each shelf as tall as its tallest picture.
-        var corners = new Position16<TilemapCells>[pictured.Count];
+        var corners = new Position16<CharacterCells>[pictured.Count];
         int x = 0, y = 0, shelfRows = 0, widest = 1;
         for (int index = 0; index < pictured.Count; index++)
         {
-            Extent16<TilemapCells> size = pictured[index].Size;
+            Extent16<CharacterCells> size = pictured[index].Size;
             if (x + size.X > PackedTiles)
             {
                 y += shelfRows;
@@ -121,7 +121,7 @@ internal static class ScreenPictureSheetComposer
         for (int index = 0; index < pictured.Count; index++)
         {
             ScreenPictureSubject subject = pictured[index];
-            Position16<TilemapCells> corner = corners[index];
+            Position16<CharacterCells> corner = corners[index];
             for (int cell = 0; cell < subject.Tiles.Length; cell++)
             {
                 if (subject.Tiles[cell] is not { } tile || !characters.TryCharacter(tile.Tile, out ReadOnlySpan<byte> character))

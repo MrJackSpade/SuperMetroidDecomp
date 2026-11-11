@@ -20,8 +20,8 @@ public sealed record FileSelectPlacements
     public required Position16<SpritePixels>[] ConfirmationCursorAnchors { get; init; }
     /// <summary>Three helmet origins in save-slot order, in screen pixels.</summary>
     public required Position16<SpritePixels>[] HelmetAnchors { get; init; }
-    /// <summary>Each copy or clear page's slot-letter anchor, in tile cells inside the page.</summary>
-    public required IReadOnlyDictionary<FileSelectAnchor, Position16<TilemapCells>> DynamicAnchors { get; init; }
+    /// <summary>The page pixel each copy or clear page's slot letter is shown at.</summary>
+    public required IReadOnlyDictionary<FileSelectAnchor, Position16<PlanePixels>> DynamicAnchors { get; init; }
     /// <summary>Menu updates per missile-cursor animation frame, in the range 1-65535.</summary>
     public required int CursorFrameDuration { get; init; }
     /// <summary>Menu updates per selected-slot helmet animation frame, in the range 1-65535.</summary>

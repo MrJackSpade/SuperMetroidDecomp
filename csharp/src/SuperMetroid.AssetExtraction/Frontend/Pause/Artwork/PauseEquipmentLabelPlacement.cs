@@ -3,6 +3,7 @@ using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Spatial;
 using static SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.PauseEquipmentLabelArtworkDefinitions;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
@@ -37,11 +38,11 @@ internal static class PauseEquipmentLabelPlacement
     private static readonly Lazy<Dictionary<PauseEquipmentLabelId, int>> pageCells = new(() =>
         PauseEquipmentLabelTiles.Labels().ToDictionary(label => label.Label, label =>
         {
-            Position16<TilemapCells> first = label.Category switch
+            Position16<CharacterCells> first = label.Category switch
             {
-                PauseEquipmentCategory.Beams => new Position16<TilemapCells>(4, 16),
-                PauseEquipmentCategory.Suits => new Position16<TilemapCells>(21, 9 + (label.Item >= 2 ? 2 : 0)),
-                PauseEquipmentCategory.Boots => new Position16<TilemapCells>(21, 19),
+                PauseEquipmentCategory.Beams => new Position16<CharacterCells>(4, 16),
+                PauseEquipmentCategory.Suits => new Position16<CharacterCells>(21, 9 + (label.Item >= 2 ? 2 : 0)),
+                PauseEquipmentCategory.Boots => new Position16<CharacterCells>(21, 19),
                 PauseEquipmentCategory.Reserves => throw new InvalidDataException("Reserve controls have no equipment label strip."),
                 _ => throw new InvalidDataException("Unknown equipment label category."),
             };

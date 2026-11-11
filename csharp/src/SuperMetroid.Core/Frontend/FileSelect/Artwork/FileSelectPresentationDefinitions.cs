@@ -3,10 +3,10 @@ namespace SuperMetroid.Core.Frontend.FileSelect.Artwork;
 /// <summary>The file-select menu's page dimensions, glyph counts and the names its pieces are pictured under.</summary>
 public static class FileSelectPresentationDefinitions
 {
-    /// <summary>Width of each menu tilemap page in tile cells.</summary>
-    public const int Width = 32;
-    /// <summary>Height of each menu tilemap page in tile cells.</summary>
-    public const int Height = 32;
+    /// <summary>The width in pixels of each page file select shows.</summary>
+    public const int PageWidthPixels = 256;
+    /// <summary>The height in pixels of each page file select shows.</summary>
+    public const int PageHeightPixels = 256;
     /// <summary>Ten consecutive digit cells in the import's digit glyphs.</summary>
     public const int DigitCount = 10;
     /// <summary>Three consecutive save-slot letters in the import's slot-letter glyphs.</summary>

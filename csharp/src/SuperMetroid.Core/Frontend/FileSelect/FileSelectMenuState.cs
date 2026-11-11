@@ -218,7 +218,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             "File select requires installed menu presentation assets.")).FileSelect;
         // The backdrop, the page, its slots' fields and its slot letters are the menus' pictures (#1467).
         return MenuRenderSnapshotCapture.Capture(screen, screen.PagePictures(FileSelectParts.BackgroundFrame),
-            screen.CellPictures(ShownPage.Pictures(presentation)), 0, brightness.Level);
+            screen.PlacedPictures(ShownPage.Pictures(presentation)), 0, brightness.Level);
     }
 
     /// <summary>Builds the current border, missile, helmet, and optional copy-arrow sprite entries from menu phase.</summary>

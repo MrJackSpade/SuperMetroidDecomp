@@ -58,11 +58,11 @@ public static class GameOptionsPageCells
     }
 
     /// <summary>$82:F639 controller label boxes: three tile rows per action.</summary>
-    internal static Position16<TilemapCells> ControllerAnchor(int action) => ControllerLabelAnchor(action);
+    internal static Position16<CharacterCells> ControllerAnchor(int action) => ControllerLabelAnchor(action);
 
     /// <summary>The page cell of each controller-action label's upper-left cell, action 0..6, each three rows below the last.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The action is outside the seven assignable rows.</exception>
-    public static Position16<TilemapCells> ControllerLabelAnchor(int action)
+    public static Position16<CharacterCells> ControllerLabelAnchor(int action)
     {
         if ((uint)action >= GameOptionsDefinitions.Rows.ControllerActionCount) throw new ArgumentOutOfRangeException(nameof(action));
         return new(ControllerLabels.AnchorColumn, checked((ushort)(ControllerLabels.FirstAnchorRow + ControllerLabels.AnchorRowSpacing * action)));

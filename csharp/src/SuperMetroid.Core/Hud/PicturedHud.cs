@@ -17,11 +17,10 @@ public sealed class PicturedHud
     {
         if (pictures.IsDefault)
             throw new ArgumentException("A pictured HUD needs its placements.", nameof(pictures));
-        const int cell = GameplayHudDefinitions.CellPixels;
         foreach (PlacedHudPicture placed in pictures)
         {
             Extent16<ImagePixels> size = Ensure.NotNull(placed.Picture).Size;
-            if (placed.Corner.X + size.X > GameplayHudDefinitions.Width * cell || placed.Corner.Y + size.Y > GameplayHudDefinitions.Rows * cell)
+            if (placed.Corner.X + size.X > GameplayHudDefinitions.WidthPixels || placed.Corner.Y + size.Y > GameplayHudDefinitions.HeightPixels)
                 throw new ArgumentException($"The HUD picture placed at {placed.Corner} runs past the HUD's edge.", nameof(pictures));
         }
         Pictures = pictures;

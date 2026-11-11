@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.GameOver;
 
@@ -8,5 +9,5 @@ namespace SuperMetroid.AssetExtraction.Frontend.GameOver;
 /// <param name="Description">Human-readable text-element identity for extraction diagnostics, not the encoded tile-word payload.</param>
 public readonly record struct GameOverTextStream(
     GameOverTextElement Element,
-    Position16<TilemapCells> Origin,
+    Position16<CharacterCells> Origin,
     string Description);

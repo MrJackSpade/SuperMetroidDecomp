@@ -8,6 +8,7 @@ namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Compares Direct3D pictured-background and color-math output with the WARP reference.</summary>
 internal static class TileSmokeTests
@@ -27,7 +28,7 @@ internal static class TileSmokeTests
         foreach (ushort width in new ushort[] { 32, 64 })
         foreach (ushort height in new ushort[] { 32, 64 })
         {
-            var size = new Extent16<TilemapCells>(width, height);
+            var size = new Extent16<CharacterCells>(width, height);
             PicturedPlane plane = VramPictureFixtures.Plane(bytes, palette, 0x7ffe, 0x6000, TileInkDepth.SixteenColours, size);
             // A grid draws each cell's unmirrored picture mirrored as the cell is, so it exercises the backend's mirroring.
             PictureGrid grid = VramPictureFixtures.Grid(bytes, palette, 0x7ffe, 0x6000, TileInkDepth.SixteenColours, size);
@@ -40,16 +41,16 @@ internal static class TileSmokeTests
                     "4bpp grid within a window");
             }
         }
-        PicturedPlane font = VramPictureFixtures.Plane(bytes, palette, 0x7fff, 0x7ff8, TileInkDepth.FourColours, new Extent16<TilemapCells>(32, 32));
-        PictureGrid fontGrid = VramPictureFixtures.Grid(bytes, palette, 0x7fff, 0x7ff8, TileInkDepth.FourColours, new Extent16<TilemapCells>(32, 32));
+        PicturedPlane font = VramPictureFixtures.Plane(bytes, palette, 0x7fff, 0x7ff8, TileInkDepth.FourColours, new Extent16<CharacterCells>(32, 32));
+        PictureGrid fontGrid = VramPictureFixtures.Grid(bytes, palette, 0x7fff, 0x7ff8, TileInkDepth.FourColours, new Extent16<CharacterCells>(32, 32));
         foreach (short scroll in new short[] { 0, 1, 223, 255, -1 })
         {
             Check([new PicturedPlaneLayer(font, new Offset16<PlanePixels>(0, scroll))], "2bpp plane vertical scroll");
             Check([new PictureGridLayer(fontGrid, new Offset16<PlanePixels>(0, scroll))], "2bpp grid vertical scroll/mirroring");
         }
-        PicturedPlane lower = VramPictureFixtures.Plane(bytes, palette, 0x4000, 0, TileInkDepth.SixteenColours, new Extent16<TilemapCells>(64, 32));
-        PicturedPlane upper = VramPictureFixtures.Plane(bytes, palette, 0x4800, 0x6000, TileInkDepth.SixteenColours, new Extent16<TilemapCells>(32, 64));
-        PicturedPlane text = VramPictureFixtures.Plane(bytes, palette, 0x5800, 0x4000, TileInkDepth.FourColours, new Extent16<TilemapCells>(32, 32));
+        PicturedPlane lower = VramPictureFixtures.Plane(bytes, palette, 0x4000, 0, TileInkDepth.SixteenColours, new Extent16<CharacterCells>(64, 32));
+        PicturedPlane upper = VramPictureFixtures.Plane(bytes, palette, 0x4800, 0x6000, TileInkDepth.SixteenColours, new Extent16<CharacterCells>(32, 64));
+        PicturedPlane text = VramPictureFixtures.Plane(bytes, palette, 0x5800, 0x4000, TileInkDepth.FourColours, new Extent16<CharacterCells>(32, 32));
         for (byte brightness = 0; brightness <= 15; brightness++)
             Check([
                 new PicturedPlaneLayer(lower, new Offset16<PlanePixels>(3, 11)),
@@ -89,7 +90,7 @@ internal static class TileSmokeTests
         palette[3 * 16 + 2] = new RgbColor(255, 0, 0); palette[3 * 16 + 10] = new RgbColor(0, 0, 255);
         var memory = FramePaint.FromNative(palette, []);
         var frame = new DisplayPacket(0, new LayeredScene(memory,
-            new DisplayLayer[] { new PictureGridLayer(VramPictureFixtures.Grid(vram, palette, 0x4000, 0x6000, TileInkDepth.SixteenColours, new Extent16<TilemapCells>(32, 32)),
+            new DisplayLayer[] { new PictureGridLayer(VramPictureFixtures.Grid(vram, palette, 0x4000, 0x6000, TileInkDepth.SixteenColours, new Extent16<CharacterCells>(32, 32)),
                 Offset16<PlanePixels>.Zero) }, 15));
         var expected = DisplayRendering.Render(frame);
         if (expected[0] != new RgbaPixel(255, 0, 0))

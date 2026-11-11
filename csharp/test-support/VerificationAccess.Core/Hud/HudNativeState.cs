@@ -38,7 +38,7 @@ internal static class HudNativeState
             var cells = new MinimapCell[columns * GameplayHudPresentation.MinimapSize.Y];
             for (int index = 0; index < cells.Length; index++)
             {
-                var output = new Position16<TilemapCells>(checked((ushort)(index % columns)), checked((ushort)(index / columns)));
+                var output = new Position16<MapTiles>(checked((ushort)(index % columns)), checked((ushort)(index / columns)));
                 cells[index] = Decode(new MapTileWord(words[GameplayHudArtwork.Of(artwork).MinimapCellIndex(output)]));
             }
             hud.Minimap = [.. cells];

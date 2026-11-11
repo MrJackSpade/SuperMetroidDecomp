@@ -1,14 +1,14 @@
 namespace SuperMetroid.Core.Frontend.FileSelect.Artwork;
 
-/// <summary>Dynamic display-field anchors for one save slot; all coordinates are tiles inside a 32-by-32 page.</summary>
+/// <summary>Where one save slot's field is shown: each anchor is the page pixel a picture's origin lands on.</summary>
 public sealed record FileSelectSlotFieldDocument
 {
-    /// <summary>Origin of the ENERGY label patch; the engine also derives energy-tank placement from this anchor.</summary>
-    public required Position16<TilemapCells> EnergyAnchor { get; init; }
-    /// <summary>Origin of the two decimal health digits, written at horizontal offsets zero and one.</summary>
-    public required Position16<TilemapCells> HealthAnchor { get; init; }
-    /// <summary>Origin of the empty-slot NO DATA patch, used when the slot contains no valid save.</summary>
-    public required Position16<TilemapCells> NoDataAnchor { get; init; }
-    /// <summary>Origin of the five-tile HH:MM field: hour digits at offsets 0-1, colon at 2, and minute digits at 3-4.</summary>
-    public required Position16<TilemapCells> TimeValueAnchor { get; init; }
+    /// <summary>Where the ENERGY label is shown; the slot's energy tanks are shown from it.</summary>
+    public required Position16<PlanePixels> EnergyAnchor { get; init; }
+    /// <summary>Where the first of the two health digits is shown; the second follows one digit's width right.</summary>
+    public required Position16<PlanePixels> HealthAnchor { get; init; }
+    /// <summary>Where NO DATA is shown, when the slot holds no save.</summary>
+    public required Position16<PlanePixels> NoDataAnchor { get; init; }
+    /// <summary>Where the HH:MM time's first hour digit is shown; the colon and minutes follow, one glyph's width apart.</summary>
+    public required Position16<PlanePixels> TimeValueAnchor { get; init; }
 }

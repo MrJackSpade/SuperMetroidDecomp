@@ -21,14 +21,14 @@ internal static class VramPictureFixtures
     private const string MapFrame = "map";
 
     /// <summary>The size of a grid cell's picture.</summary>
-    private static readonly Extent16<TilemapCells> CellSize = new(1, 1);
+    private static readonly Extent16<CharacterCells> CellSize = new(1, 1);
 
     /// <summary>
     /// The cells of the <paramref name="size"/> tilemap at <paramref name="tilemapWord"/> in <paramref name="image"/>, row by
     /// row from the top-left cell, read as a background reads a map of whole screens, VRAM addresses wrapping.
     /// </summary>
     /// <exception cref="ArgumentException">The image is not a whole memory image.</exception>
-    internal static BackgroundTile[] Tilemap(ReadOnlySpan<byte> image, int tilemapWord, Extent16<TilemapCells> size)
+    internal static BackgroundTile[] Tilemap(ReadOnlySpan<byte> image, int tilemapWord, Extent16<CharacterCells> size)
     {
         Ensure.LengthEqual(image, SnesVram.ByteCount);
         var geometry = new BgTilemapGeometry(size);
@@ -38,7 +38,7 @@ internal static class VramPictureFixtures
             for (int x = 0; x < size.X; x++)
             {
                 int offset = SnesVramAddressingConstants.ByteOffsetOfWord(geometry.EntryWordAddress(VramWordRange.Require(tilemapWord),
-                    new Position16<TilemapCells>((ushort)x, (ushort)y)));
+                    new Position16<CharacterCells>((ushort)x, (ushort)y)));
                 var word = new SnesBgTilemapWord(LittleEndianBytes.Word(image[offset], image[offset + 1]));
                 cells[y * size.X + x] = new BackgroundTile(word.CharacterIndex, word.PaletteIndex, word.FlipHorizontally, word.FlipVertically, word.HasPriority);
             }
@@ -69,7 +69,7 @@ internal static class VramPictureFixtures
     /// from <paramref name="palette"/>: each cell's tile in its colour variant, mirroring and priority tier.
     /// </summary>
     internal static PicturedPlane Plane(ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette, int tilemapWord, int characterWord, TileInkDepth depth,
-        Extent16<TilemapCells> size)
+        Extent16<CharacterCells> size)
     {
         BackgroundTile[] cells = Tilemap(image, tilemapWord, size);
         SpriteSheet sheet = Load(ScreenPictureSheetComposerConstants.ComposeRoom([ScreenPictureSubject.Page(MapFrame, cells, size.X)],
@@ -84,14 +84,15 @@ internal static class VramPictureFixtures
     /// which the grid mirrors as the cell does.
     /// </summary>
     internal static PictureGrid Grid(ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette, int tilemapWord, int characterWord, TileInkDepth depth,
-        Extent16<TilemapCells> size)
+        Extent16<CharacterCells> size)
     {
         BackgroundTile[] cells = Tilemap(image, tilemapWord, size);
         BackgroundTile[] unmirrored = [.. cells.Select(Unmirrored).Distinct()];
         SpriteSheet sheet = Load(ScreenPictureSheetComposerConstants.ComposeRoom(
             [.. unmirrored.Select(tile => ScreenPictureSubject.Block(CellFrame(tile), default, CellSize, [tile]))],
             Characters(image, characterWord, depth), palette), $"vram-grid-{tilemapWord:X4}-{characterWord:X4}-{depth}");
-        return new PictureGrid(size, [.. cells.Select(cell => (GridPicture?)new GridPicture(sheet.Frame(CellFrame(Unmirrored(cell))), cell.Flip, PictureShading.Standard))]);
+        // The grid counts its squares as an area map does; each square shows one of the tilemap's cells.
+        return new PictureGrid(new Extent16<MapTiles>(size.X, size.Y), [.. cells.Select(cell => (GridPicture?)new GridPicture(sheet.Frame(CellFrame(Unmirrored(cell))), cell.Flip, PictureShading.Standard))]);
     }
 
     /// <summary><paramref name="tile"/> without its mirroring.</summary>

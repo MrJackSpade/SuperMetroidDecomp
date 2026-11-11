@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Core.Hardware;
 
@@ -11,7 +12,7 @@ namespace SuperMetroid.Core.Hardware;
 public readonly record struct BgTilemapGeometry
 {
     /// <summary>Validates a tilemap of 32 or 64 characters on each axis.</summary>
-    public BgTilemapGeometry(Extent16<TilemapCells> sizeInCharacters)
+    public BgTilemapGeometry(Extent16<CharacterCells> sizeInCharacters)
     {
         int widthInCharacters = sizeInCharacters.X, heightInCharacters = sizeInCharacters.Y;
         if (widthInCharacters is not (SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.WidthInTiles or 2 * SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.WidthInTiles))
@@ -22,7 +23,7 @@ public readonly record struct BgTilemapGeometry
     }
 
     /// <summary>Characters across and down the whole map.</summary>
-    public Extent16<TilemapCells> SizeInCharacters { get; }
+    public Extent16<CharacterCells> SizeInCharacters { get; }
 
     /// <summary>Wraps a scrolled horizontal pixel into the map; scrolling past either edge repeats the map.</summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -37,7 +38,7 @@ public readonly record struct BgTilemapGeometry
     /// entry's row and column within that screen, wrapped onto the VRAM bus.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int EntryWordAddress(int tilemapBaseWord, Position16<TilemapCells> character)
+    public int EntryWordAddress(int tilemapBaseWord, Position16<CharacterCells> character)
     {
         const int screenSize = SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.WidthInTiles;
         int characterX = character.X, characterY = character.Y;

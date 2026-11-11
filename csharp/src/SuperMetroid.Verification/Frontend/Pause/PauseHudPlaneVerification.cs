@@ -51,9 +51,9 @@ internal static class PauseHudPlaneVerification
     /// </summary>
     private static ShownHud Hud(int numeral) => new([
         new PlacedHudImage(HudTopRowImage.Instance, new(0, 0)),
-        new PlacedHudImage(HudTemplateImage.Instance, new(0, 1)),
-        new PlacedHudImage(new HudEnergyDigitImage(numeral), new(4, 3)),
-        new PlacedHudImage(new HudEnergyDigitImage(numeral), new(5, 3)),
+        new PlacedHudImage(HudTemplateImage.Instance, new(0, 8)),
+        new PlacedHudImage(new HudEnergyDigitImage(numeral), new(32, 24)),
+        new PlacedHudImage(new HudEnergyDigitImage(numeral), new(40, 24)),
     ]);
 
     /// <summary>The HUD rows of pause's captured BG3 tilemap.</summary>

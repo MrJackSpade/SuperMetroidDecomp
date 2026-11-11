@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 
@@ -29,7 +30,7 @@ public static class GameOptionsPageDefinitions
     /// <summary>Six row-major tile cells required for each controller-button glyph patch.</summary>
     public const int ControllerLabelCellCount = ControllerLabelWidth * ControllerLabelHeight;
     /// <summary>Size of one controller-label glyph patch in tile cells.</summary>
-    public static Extent16<TilemapCells> ControllerLabelSize => new(ControllerLabelWidth, ControllerLabelHeight);
+    public static Extent16<CharacterCells> ControllerLabelSize => new(ControllerLabelWidth, ControllerLabelHeight);
 
     /// <summary>$82:F665 ButtonTilemaps_A: upper-left A glyph; right half mirrors it.</summary>
     internal const int AButtonTile = 144;

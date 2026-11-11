@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// <param name="Offset">The cells from the point the game places the picture at (a page's corner, or a field's anchor) to its top-left cell.</param>
 /// <param name="Size">The picture's width and height in cells.</param>
 /// <param name="Tiles">Its tiles row by row; none where it paints nothing.</param>
-internal sealed record ScreenPictureSubject(string Name, Offset16<TilemapCells> Offset, Extent16<TilemapCells> Size, BackgroundTile?[] Tiles)
+internal sealed record ScreenPictureSubject(string Name, Offset16<CharacterCells> Offset, Extent16<CharacterCells> Size, BackgroundTile?[] Tiles)
 {
     /// <summary>The whole of <paramref name="page"/>, <paramref name="width"/> cells across, except <paramref name="omitted"/> cells.</summary>
     /// <exception cref="ArgumentException">The page is not whole rows.</exception>
@@ -57,7 +57,7 @@ internal sealed record ScreenPictureSubject(string Name, Offset16<TilemapCells> 
 
     /// <summary>A <paramref name="size"/> block of <paramref name="tiles"/>, row by row, whose top-left cell lies <paramref name="offset"/> from where the game places it.</summary>
     /// <exception cref="ArgumentException">The tiles do not fill the block.</exception>
-    internal static ScreenPictureSubject Block(string name, Offset16<TilemapCells> offset, Extent16<TilemapCells> size, ReadOnlySpan<BackgroundTile> tiles)
+    internal static ScreenPictureSubject Block(string name, Offset16<CharacterCells> offset, Extent16<CharacterCells> size, ReadOnlySpan<BackgroundTile> tiles)
     {
         Ensure.LengthEqual(tiles, size.X * size.Y);
         var painted = new BackgroundTile?[tiles.Length];

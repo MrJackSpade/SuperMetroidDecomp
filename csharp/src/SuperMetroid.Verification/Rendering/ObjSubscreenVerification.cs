@@ -7,6 +7,7 @@ using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Verification.Rendering;
 
@@ -133,7 +134,7 @@ internal static class ObjSubscreenVerification
         colors[0] = 31;
         colors[20] = 31 << 10;
         // The subscreen and its coverage picture the one-screen maps at a tilemap word, read as the fixture stands when drawn.
-        PicturedPlane Plane(int tilemapWord) => VramPictureFixtures.Plane(vram, ToColors(colors), tilemapWord, 0, TileInkDepth.SixteenColours, new Extent16<TilemapCells>(32, 32));
+        PicturedPlane Plane(int tilemapWord) => VramPictureFixtures.Plane(vram, ToColors(colors), tilemapWord, 0, TileInkDepth.SixteenColours, new Extent16<CharacterCells>(32, 32));
         var memory = FramePaint.FromNative(ToColors(colors), []);
         var packet = new DisplayPacket(0, new LayeredScene(memory,
             new DisplayLayer[] { new AddedPicturedPlaneLayer(Plane(0x7000)) }, 15));

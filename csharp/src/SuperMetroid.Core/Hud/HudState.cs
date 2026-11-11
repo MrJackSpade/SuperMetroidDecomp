@@ -232,11 +232,12 @@ public sealed class HudState
         if (!IsInitialized)
             return new ShownHud(images.ToImmutable());
         images.Add(GameplayHudPresentation.Template);
-        for (int item = 0; item < GameplayHudDefinitions.ItemCount; item++)
+        for (int order = 0; order < GameplayHudDefinitions.ItemCount; order++)
         {
+            HudIcon item = GameplayHudDefinitions.Icons[order];
             bool held = Holds(item);
             // The selected item's icon shows the selected shade, every other held item's the shade the selection leaves.
-            HudIconShade? shade = values.SelectedItem == GameplayHudDefinitions.IconItems[item] ? HudIconShade.Selected
+            HudIconShade? shade = values.SelectedItem == GameplayHudDefinitions.IconItems[order] ? HudIconShade.Selected
                 : held ? HudIconShade.Deselected : null;
             if (art.Icon(item, held, shade) is { } icon)
                 images.Add(icon);
@@ -247,11 +248,11 @@ public sealed class HudState
             images.Add(art.EnergyTank(tank, tank < fullTanks ? HudEnergyTank.Full : HudEnergyTank.Empty));
         images.AddRange(art.EnergyCount(values.Health % 100));
         if (values.MaxMissiles != 0)
-            images.AddRange(art.Ammo(0, values.Missiles));
+            images.AddRange(art.Ammo(HudAmmoCounter.Missiles, values.Missiles));
         if (values.MaxSuperMissiles != 0)
-            images.AddRange(art.Ammo(1, values.SuperMissiles));
+            images.AddRange(art.Ammo(HudAmmoCounter.SuperMissiles, values.SuperMissiles));
         if (values.MaxPowerBombs != 0)
-            images.AddRange(art.Ammo(2, values.PowerBombs));
+            images.AddRange(art.Ammo(HudAmmoCounter.PowerBombs, values.PowerBombs));
         // AUTO shows its arrows filled or empty; the pause screen's switch to manual (the only way manual is reached)
         // clears its cells; before the first reserve tank the template shows.
         HudReserveIndicator? reserve = values.ReserveMode switch
@@ -269,14 +270,14 @@ public sealed class HudState
         return new ShownHud(images.ToImmutable());
     }
 
-    /// <summary>Whether Samus holds item icon <paramref name="itemIndex"/>'s item, in <see cref="GameplayHudDefinitions.IconNames"/> order.</summary>
-    private bool Holds(int itemIndex) => itemIndex switch
+    /// <summary>Whether Samus holds the item <paramref name="icon"/> shows.</summary>
+    private bool Holds(HudIcon icon) => icon switch
     {
-        0 => values.MaxMissiles != 0,
-        1 => values.MaxSuperMissiles != 0,
-        2 => values.MaxPowerBombs != 0,
-        3 => values.EquippedItems.HasAny(SamusEquipmentFlags.GrappleBeam),
-        4 => values.EquippedItems.HasAny(SamusEquipmentFlags.XrayScope),
-        _ => throw new ArgumentOutOfRangeException(nameof(itemIndex)),
+        HudIcon.Missile => values.MaxMissiles != 0,
+        HudIcon.SuperMissile => values.MaxSuperMissiles != 0,
+        HudIcon.PowerBomb => values.MaxPowerBombs != 0,
+        HudIcon.Grapple => values.EquippedItems.HasAny(SamusEquipmentFlags.GrappleBeam),
+        HudIcon.XRay => values.EquippedItems.HasAny(SamusEquipmentFlags.XrayScope),
+        _ => throw new ArgumentOutOfRangeException(nameof(icon), icon, "Undefined item icon."),
     };
 }

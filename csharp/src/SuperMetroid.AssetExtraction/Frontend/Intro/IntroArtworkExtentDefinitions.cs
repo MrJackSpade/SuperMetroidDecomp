@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
@@ -21,5 +22,5 @@ internal static class IntroArtworkExtentDefinitions
     internal const int FinalLineWordCount = 128;
 
     /// <summary>Portrait-eye rectangle size in tiles: three columns by two rows.</summary>
-    internal static Extent16<TilemapCells> EyeFrameSize => new(3, 2);
+    internal static Extent16<CharacterCells> EyeFrameSize => new(3, 2);
 }

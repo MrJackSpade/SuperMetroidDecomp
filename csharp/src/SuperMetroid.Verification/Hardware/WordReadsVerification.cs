@@ -3,6 +3,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Verification.Hardware;
 
@@ -90,16 +91,16 @@ internal static class WordReadsVerification
     private static void VerifyBackgroundFormatModel()
     {
         // BGSC screen blocks run top-left, top-right, bottom-left, bottom-right, $400 words each.
-        var wide = new BgTilemapGeometry(new Extent16<TilemapCells>(64, 32));
-        var tall = new BgTilemapGeometry(new Extent16<TilemapCells>(32, 64));
-        var four = new BgTilemapGeometry(new Extent16<TilemapCells>(64, 64));
-        AssertEqual(0x5000 + 0x0400 + 3 * 32 + 1, wide.EntryWordAddress(0x5000, new Position16<TilemapCells>(33, 3)), "64x32: right screen");
-        AssertEqual(0x5000 + 0x0400 + 2 * 32 + 5, tall.EntryWordAddress(0x5000, new Position16<TilemapCells>(5, 34)), "32x64: lower screen");
-        AssertEqual(0x4000 + 3 * 0x0400 + 31 * 32 + 31, four.EntryWordAddress(0x4000, new Position16<TilemapCells>(63, 63)), "64x64: bottom-right");
-        AssertEqual(0x0000 + 2, wide.EntryWordAddress(0x7ffe, new Position16<TilemapCells>(4, 0)), "entry addresses wrap on the 15-bit VRAM bus");
+        var wide = new BgTilemapGeometry(new Extent16<CharacterCells>(64, 32));
+        var tall = new BgTilemapGeometry(new Extent16<CharacterCells>(32, 64));
+        var four = new BgTilemapGeometry(new Extent16<CharacterCells>(64, 64));
+        AssertEqual(0x5000 + 0x0400 + 3 * 32 + 1, wide.EntryWordAddress(0x5000, new Position16<CharacterCells>(33, 3)), "64x32: right screen");
+        AssertEqual(0x5000 + 0x0400 + 2 * 32 + 5, tall.EntryWordAddress(0x5000, new Position16<CharacterCells>(5, 34)), "32x64: lower screen");
+        AssertEqual(0x4000 + 3 * 0x0400 + 31 * 32 + 31, four.EntryWordAddress(0x4000, new Position16<CharacterCells>(63, 63)), "64x64: bottom-right");
+        AssertEqual(0x0000 + 2, wide.EntryWordAddress(0x7ffe, new Position16<CharacterCells>(4, 0)), "entry addresses wrap on the 15-bit VRAM bus");
         AssertEqual(5, wide.WrapX(512 + 5), "64-wide map wraps at 512 pixels");
         AssertEqual(255, wide.WrapY(-1), "32-tall map wraps below zero to its last line");
-        AssertThrows<ArgumentOutOfRangeException>(() => new BgTilemapGeometry(new Extent16<TilemapCells>(48, 32)), "tilemaps are one or two screens");
+        AssertThrows<ArgumentOutOfRangeException>(() => new BgTilemapGeometry(new Extent16<CharacterCells>(48, 32)), "tilemaps are one or two screens");
 
         // One 4-bpp character row with each plane drawing a different column: pixel n's color is 2^plane.
         var vram = new byte[SnesVram.WordCount * SnesVramAddressingConstants.BytesPerWord];

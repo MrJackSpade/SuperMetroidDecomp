@@ -201,8 +201,8 @@ internal static class RidleyExplosionDefinitionsVerification
                 fragment.Clear();
                 fragment.SetSpawnParameter1(EnemyDefinitionId.RidleyExplosion, parameter);
                 state.FacingDirection = facingIndex == 0 ? RidleyFacing.Left : RidleyFacing.Turning;
-                state.TailSegments[5].Angle = 0;
-                state.TailSegments[6].Angle = unchecked((ushort)(orientation << 4));
+                state.TailSegments[5].Angle = RidleyTailAngle.StraightDown;
+                state.TailSegments[6].Angle = RidleyTailAngle.FromStepsFromStraightDown(orientation << 4);
 
                 initialize(fragment, body, state);
 

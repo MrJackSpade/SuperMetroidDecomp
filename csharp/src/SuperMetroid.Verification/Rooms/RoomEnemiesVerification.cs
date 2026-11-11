@@ -1017,9 +1017,9 @@ internal static void VerifyCeresRidleyRoomEntry()
         segment.Active = true;
         segment.StaggerAngle = null;
         segment.Clockwise = true;
-        segment.TargetDistance = 0;
+        segment.TargetDistance = null;
     }
-    state.TailSegments[0].Angle = 0x4000;
+    state.TailSegments[0].Angle = RidleyTailAngle.StraightDown;
     state.ClockwiseWhipTarget = null;
     state.CounterClockwiseWhipTarget = null;
     state.Function = RidleyAiFunction.CeresLungeSetup;
@@ -1031,7 +1031,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         "Ceres Ridley lunge installs cartridge tail-whip target");
     AssertEqual(8, state.TailAngleDelta,
         "Ceres Ridley aimed whip uses eight-angle step");
-    AssertTrue(state.TailSegments.Skip(1).Any(segment => segment.TargetDistance == 0x0c00),
+    AssertTrue(state.TailSegments.Skip(1).Any(segment => segment.TargetDistance == SignedEightEight.FromParts(12, 0)),
         "Ceres Ridley lunge extends articulated tail segments");
 
     const int roomWidth = 32;

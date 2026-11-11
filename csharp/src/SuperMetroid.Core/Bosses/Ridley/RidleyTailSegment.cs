@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <summary>
 /// One of the seven logical tail entries initialized by Ridley's tail initialization. The tail
 /// is shared by Ceres Ridley and Lower Norfair Ridley; encounter-specific controllers only
-/// change these common targets and activation words.
+/// change these common targets and activation flags.
 /// </summary>
 public sealed class RidleyTailSegment
 {
@@ -19,24 +19,22 @@ public sealed class RidleyTailSegment
     /// <summary>Gets whether this segment moves clockwise, toward decreasing angles; otherwise it moves counterclockwise.</summary>
     public bool Clockwise { get; internal set; }
     /// <summary>
-    /// Gets the live 8.8 distance (1/256 pixels) from the preceding tail anchor, between half a pixel under its rest length
-    /// and its whip maximum; its whole part supplies the pixels used for offset composition.
+    /// Gets the live distance from the preceding tail anchor, between half a pixel under its rest length and its whip
+    /// maximum; its whole pixels supply the offset composition.
     /// </summary>
-    public int Distance { get; internal set; }
+    public SignedEightEight Distance { get; internal set; }
 
     /// <summary>
-    /// Gets the 8.8 distance this segment is extending toward for a whip, stab or bounce, or zero while it is not extending.
+    /// Gets the distance this segment is extending toward for a whip, stab or bounce, or null while it is not extending.
     /// It is stored separately from the live distance and cleared once the live distance passes it.
     /// </summary>
-    public int TargetDistance { get; internal set; }
+    public SignedEightEight? TargetDistance { get; internal set; }
 
     /// <summary>
-    /// Gets the tail angle in 1/256 turns, counted without wrapping: its remainder modulo 256 indexes the sine table, and
-    /// the whole value orders angles across the turn boundary for the clamp and whip-target comparisons. Every producer
-    /// keeps it near 64 whole turns (straight down is 16384): initialization, the facing clamps, the whip targets and the
-    /// mirror about 32768, so it stays within 0 through 32767 and no write wraps.
+    /// Gets the link's angle, counted from straight down without wrapping: its direction within the turn aims the link,
+    /// and the whole count orders angles across the turn boundary for the clamp and whip-target comparisons.
     /// </summary>
-    public int Angle { get; internal set; }
+    public RidleyTailAngle Angle { get; internal set; }
     /// <summary>Gets the signed whole-pixel displacement from the preceding anchor.</summary>
     public Offset16<RoomPixels> Offset { get; internal set; }
     /// <summary>Gets the composed room position used for drawing and tail contact.</summary>

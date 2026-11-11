@@ -85,7 +85,7 @@ internal sealed class CeresRidleyFlight
             ClockwiseWhipTarget = null,
             CounterClockwiseWhipTarget = null,
             TailWhipRequest = 0,
-            TailExtensionSpeed = 240,
+            TailExtensionSpeed = RidleyTailDefinitions.StandardExtensionSpeed,
             IdealInterSegmentTailAngle = RidleyTailDefinitions.IdealInterSegmentSpacing,
             TailSegments = RidleyTail.CreateInitialRidleyTailSegments(),
         };

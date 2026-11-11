@@ -85,7 +85,7 @@ internal sealed class NorfairRidleyCombat
             TailMaximumCounterClockwiseAngle = RidleyTailDefinitions.InitialMaximumCounterClockwise,
             ClockwiseWhipTarget = null,
             CounterClockwiseWhipTarget = null,
-            TailExtensionSpeed = 240,
+            TailExtensionSpeed = RidleyTailDefinitions.StandardExtensionSpeed,
             IdealInterSegmentTailAngle = RidleyTailDefinitions.IdealInterSegmentSpacing,
             TailSegments = RidleyTail.CreateInitialRidleyTailSegments(),
         };
@@ -224,7 +224,7 @@ internal sealed class NorfairRidleyCombat
     /// <summary>Resets tail extension and enters the ground fireball/pogo setup.</summary>
     internal static void BeginNorfairRidleyGroundAttack(RidleyEnemyState state)
     {
-        state.TailExtensionSpeed = 240;
+        state.TailExtensionSpeed = RidleyTailDefinitions.StandardExtensionSpeed;
         state.IdealInterSegmentTailAngle = 16;
         state.TailFunctionIndex = RidleyTailFunction.Neutral;
         state.Function = RidleyAiFunction.NorfairFireballMoveToSide;

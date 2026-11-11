@@ -37,7 +37,7 @@ internal static class RidleyBreakupProgramsVerification
         {
             GrabState = RidleyGrabState.CarryingSamus, FunctionTimer = 0,
             TailSegments = Enumerable.Range(0, 7).Select(index => new RidleyTailSegment
-                { Angle = index == 6 ? (ushort)0x10 : (ushort)0, Position = new Position16<RoomPixels>(128, 128) }).ToArray(),
+                { Angle = RidleyTailAngle.FromStepsFromStraightDown(index == 6 ? 16 : 0), Position = new Position16<RoomPixels>(128, 128) }).ToArray(),
         };
         enemies.RidleyEncounter.Ridley = state;
         death(body, state, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()));

@@ -38,5 +38,10 @@ internal static class GameInstallationAccess
         public string RoomCharacterDirectory => Path.Combine(self.ContentDirectory, GameInstallationLayout.RoomCharacterDirectoryName);
         /// <summary>Stock background tilemaps, including sky tilemaps, under the replaceable content tree.</summary>
         public string RoomBackgroundTilemapDirectory => Path.Combine(self.ContentDirectory, GameInstallationLayout.RoomBackgroundTilemapDirectoryName);
+        /// <summary>
+        /// The installed picture store (#1635): every picture the sheets show, each written once, on pages the player edits in
+        /// place, an edit changing the picture for every sheet that shows it.
+        /// </summary>
+        public string PictureStoreDirectory => Path.Combine(self.ContentDirectory, GameInstallationLayoutConstants.PictureStoreDirectoryName);
     }
 }

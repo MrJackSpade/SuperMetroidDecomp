@@ -72,7 +72,7 @@ internal sealed class InstalledPictureStore
         byte[] provenance = File.ReadAllBytes(Path.Combine(full, PictureStoreFiles.ProvenanceFileName));
         lock (gate)
         {
-            if (opened.TryGetValue(full, out InstalledPictureStore? store) && store.provenance.AsSpan().SequenceEqual(provenance))
+            if (opened.TryGetValue(full, out InstalledPictureStore? store) && store.provenance.SequenceEqual(provenance))
                 return store;
             store = new InstalledPictureStore(full, provenance);
             opened[full] = store;

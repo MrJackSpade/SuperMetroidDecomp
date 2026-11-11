@@ -52,11 +52,6 @@ public static class GameInstallationLayout
     /// <summary>Pre-assembled boss body sheets, one per boss (#1466).</summary>
     public const string BossBodySheetDirectoryName = "boss-body-sheets";
     /// <summary>
-    /// The picture store (#1635): every picture the sheets show, each written once, on shelf-packed pages that every sheet
-    /// manifest names its frames' pictures on (<see cref="PictureStoreFiles"/>).
-    /// </summary>
-    public const string PictureStoreDirectoryName = PictureStoreFiles.DirectoryName;
-    /// <summary>
     /// Content child directory for the picture store's recolour-region maps (#1633, #1635), apart from the pictures: its
     /// <c>pictures</c> folder holds a <c>.regions</c> map for each page holding a picture whose pixels of one colour recolour
     /// differently.

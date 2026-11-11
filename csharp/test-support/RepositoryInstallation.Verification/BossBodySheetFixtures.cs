@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using System.Runtime.CompilerServices;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -56,9 +57,8 @@ internal static class BossBodySheetFixtures
         // pictures in a picture store beside it, which the loader assembles the sheet's image from.
         string content = Path.Combine(Path.GetFullPath("csharp/test-temp"), "boss-bodies-" + Guid.NewGuid().ToString("N"));
         string directory = Path.Combine(content, GameInstallationLayout.BossBodySheetDirectoryName);
-        var families = new InstalledSheetFamilies();
-        BossBodySheetFiles.Write([sheet], directory, families);
-        PictureStoreFiles.Write(content, families.Composed(), SupportedCartridge.Sha256);
+        InstalledSheetFamily family = BossBodySheetFiles.Write([sheet], directory);
+        PictureStoreWriter.Write(content, [family], SupportedCartridge.Sha256);
         BossBodySheet own = BossBodySheetFiles.LoadEach(directory).Single();
         return new BossBodyArtworkFixture(frames, new BossBodySheets(Enum.GetValues<BossBodyOwner>()
             .Select(boss => boss == owner ? own : InstalledFixtures.BossBodySheets.Of(boss))));

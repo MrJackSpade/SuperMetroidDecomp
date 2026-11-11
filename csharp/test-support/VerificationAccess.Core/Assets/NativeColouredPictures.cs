@@ -4,9 +4,10 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// Verification's native colour oracle (#1512): a copy of a port picture whose standard colours are the colours its inks
-/// show in a native 256-colour image, drawn in <see cref="PictureShading.Standard"/>. Where each ink lies in that image is
-/// the import's knowledge (<see cref="InstalledPictureColours"/>); production pictures are only ever shaded.
+/// Verification's native colour oracle (#1512, #1633): a copy of a port picture whose pixels show the colours they show in a
+/// native 256-colour image, drawn in <see cref="PictureShading.Standard"/>. Where each pixel's colour lies in that image is
+/// the import's knowledge, which a check records for the pictures it composes (<see cref="ComposedPictures"/>); production
+/// pictures are only ever shaded.
 /// </summary>
 internal static class NativeColouredPictures
 {
@@ -14,35 +15,37 @@ internal static class NativeColouredPictures
     internal const int ColorCount = InstalledPictureColoursConstants.CartridgeColourCount;
 
     /// <summary>
-    /// A copy of <paramref name="frame"/>'s sheet whose standard colours are the colours its inks show in
-    /// <paramref name="nativeColours"/> under a draw of the frame ORing sprite row <paramref name="drawRow"/> into its parts;
-    /// its name, pixels, inks and priorities are kept, so fixtures that pair an installed frame with its composition by name
-    /// find the copy's too, and it has no shades. Each colour the frame shows is taken from where the holder drawing the
-    /// frame composed it (#1544): a picture held once on a common sheet is sourced as its first holder composed it, and
-    /// another holder's colours may lie elsewhere in its colour table.
+    /// A copy of <paramref name="picture"/> whose pixels show the colours they show in <paramref name="nativeColours"/> under a
+    /// draw ORing sprite row <paramref name="drawRow"/> into its parts; its name, size, pixel places and blend map are kept,
+    /// so fixtures that pair an installed frame with its composition by name find the copy's too, and it has no shades. A
+    /// pixel composed as colour zero of a picture that colours zero nowhere
+    /// (<see cref="InstalledPictureColoursConstants.ColouredIndicesOf"/>) stays as it is; every other pixel shows the native
+    /// colour of its composed palette index, with its own alpha.
     /// </summary>
     /// <exception cref="ArgumentException">The image does not hold 256 colours.</exception>
-    [WholeImageFixture("a picture coloured from a 256-colour native colour image as a frame's holder composed it")]
-    internal static SpriteImage OfHolder(SpriteSheetFrame frame, ReadOnlySpan<RgbColor> nativeColours, int drawRow)
+    /// <exception cref="InvalidOperationException">The picture was not composed or recorded by a check.</exception>
+    [WholeImageFixture("a picture coloured from a 256-colour native colour image")]
+    internal static SpriteImage OfSheet(SpriteImage picture, ReadOnlySpan<RgbColor> nativeColours, int drawRow)
     {
-        Ensure.NotNull(frame);
+        Ensure.NotNull(picture);
         Ensure.LengthEqual(nativeColours, ColorCount);
-        SpriteImage picture = frame.Sheet;
-        var standard = new RgbColor[picture.StandardColours.Length];
-        for (int ink = 0; ink < standard.Length; ink++)
-            standard[ink] = nativeColours[InstalledPictureColoursConstants.CartridgeColourOf(frame, ink, drawRow)];
+        ComposedPictureSource source = ComposedPictures.SourceOf(picture);
+        bool coloursZero = source.Composed.Palette == SpriteImageColours.TwoBppBackground;
         ReadOnlySpan<RgbaPixel> pixels = picture.Pixels;
-        ReadOnlySpan<SpriteImageInk> inks = picture.Inks;
         var shown = new RgbaPixel[pixels.Length];
         for (int pixel = 0; pixel < pixels.Length; pixel++)
         {
-            // A transparent pixel stays transparent; every other pixel shows its colour's native colour.
-            shown[pixel] = pixels[pixel].A == 0 || inks[pixel].Colour is not int colour ? pixels[pixel]
-                : standard[colour].ToRgbaPixel() with { A = pixels[pixel].A };
+            int index = source.PaletteIndices[pixel];
+            shown[pixel] = !coloursZero && index == 0 ? pixels[pixel]
+                : nativeColours[InstalledPictureColoursConstants.CartridgeColourOfIndex(picture, index, drawRow)].ToRgbaPixel() with { A = pixels[pixel].A };
         }
-        SpriteImage copy = SpriteImageFixtures.Copied(picture.Name, picture.Size, shown, inks,
-            new PictureColours([.. standard]) { Backdrop = picture.Backdrop });
-        InstalledPictureColoursConstants.RecordAs(copy, picture);
+        ColourKey? backdrop = source.Composed.Backdrop is { } backdropIndex
+            ? ColourKey.Of(nativeColours[InstalledPictureColoursConstants.CartridgeColourOfIndex(picture, backdropIndex, drawRow)])
+            : null;
+        bool[]? blending = picture.Blending.IsEmpty ? null : picture.Blending.ToArray();
+        SpriteImage copy = SpriteImageFixtures.Copied(picture.Name, picture.Size, new SpriteImagePixels(shown, RecolourRegions: null, blending),
+            new PictureColours { Backdrop = backdrop });
+        ComposedPictures.RecordAs(copy, picture);
         return copy;
     }
 
@@ -60,46 +63,43 @@ internal static class NativeColouredPictures
 
     /// <summary>
     /// <paramref name="frame"/> cut from <paramref name="picture"/>, a native-coloured copy of its sheet, at the frame's depth
-    /// (#1514), keeping where the frame's holder composed its colours from when that differs from the sheet's record (#1544).
+    /// (#1514) and blending as the frame does (#1633).
     /// </summary>
     internal static SpriteSheetFrame Of(SpriteSheetFrame frame, SpriteImage picture)
     {
         Ensure.NotNull(frame);
         Ensure.NotNull(picture);
-        var copy = new SpriteSheetFrame(picture, frame.Corner, frame.Size, frame.Origin) { Depth = frame.Depth };
-        if (InstalledPictureColours.FrameSourceOf(frame) is { } source)
-            InstalledPictureColours.RecordFrame(copy, source);
-        return copy;
+        return new SpriteSheetFrame(picture, frame.Corner, frame.Size, frame.Origin) { Depth = frame.Depth, Blends = frame.Blends };
     }
 
-    /// <summary>
-    /// Which native-coloured copy <paramref name="draw"/> draws from: its sheet's, coloured where its frame's holder composed
-    /// the frame's colours when that differs from the sheet's record (#1544), under the row its colouring ORs in.
-    /// </summary>
-    private static (SpriteImage Sheet, InstalledFrameSource? Source, int Row) CopyOf(ImageSpriteDraw draw) =>
-        (draw.Image.Sheet, InstalledPictureColours.FrameSourceOf(draw.Image), DrawRow(draw));
+    /// <summary>Which native-coloured copy <paramref name="draw"/> draws from: its sheet's, under the row its colouring ORs in.</summary>
+    private static SheetCopy CopyOf(ImageSpriteDraw draw) => new(draw.Image.Sheet, DrawRow(draw));
 
     /// <summary>
-    /// The native 256-colour image <paramref name="picture"/> shows under <paramref name="shading"/>: each of its colours
-    /// under the shading at the place the import says it was coloured from; the places no colour names stay black.
+    /// The native 256-colour image <paramref name="picture"/> shows under <paramref name="shading"/>: each of its colour keys
+    /// under the shading at every place the import says it was coloured from; the places no key names stay black.
     /// </summary>
     internal static RgbColor[] ShownIn(SpriteImage picture, PictureShading shading)
     {
         Ensure.NotNull(picture);
-        RgbColor[] inks = Ensure.NotNull(shading).InkColours(picture);
+        RgbColor[] shown = Ensure.NotNull(shading).KeyColours(picture);
+        ImmutableArray<ColourKey> keys = picture.ColourKeys;
         var image = new RgbColor[ColorCount];
-        for (int ink = 0; ink < inks.Length; ink++)
-            image[InstalledPictureColoursConstants.CartridgeColourOf(picture, ink)] = inks[ink];
+        for (int key = 0; key < shown.Length; key++)
+        {
+            foreach (int place in InstalledPictureColoursConstants.CartridgeColoursOf(picture, keys[key]))
+                image[place] = shown[key];
+        }
         return image;
     }
 
     /// <summary><paramref name="frame"/> cut from a copy of its sheet coloured from <paramref name="nativeColours"/>.</summary>
     internal static SpriteSheetFrame Of(SpriteSheetFrame frame, ReadOnlySpan<RgbColor> nativeColours) =>
-        Of(frame, OfHolder(frame, nativeColours, drawRow: 0));
+        Of(frame, OfSheet(Ensure.NotNull(frame).Sheet, nativeColours, drawRow: 0));
 
     /// <summary>
     /// <paramref name="draws"/>, each drawing its picture's copy coloured from <paramref name="nativeColours"/> in its
-    /// standard shading; each sheet is copied once.
+    /// standard shading; each sheet is copied once per draw row.
     /// </summary>
     /// <exception cref="ArgumentException">A draw is missing or does not draw a picture.</exception>
     internal static ImmutableArray<SpriteDraw> Draws(ImmutableArray<SpriteDraw> draws, ReadOnlySpan<RgbColor> nativeColours)
@@ -112,16 +112,13 @@ internal static class NativeColouredPictures
             images.Add(draw as ImageSpriteDraw
                 ?? throw new ArgumentException($"Sprite draw {draw} draws no picture.", nameof(draws)));
         }
-        // A frontend draw's colouring is the row the cartridge ORs into every part (#1512); each sheet is copied once per row,
-        // and once more per row for each frame whose holder composed its colours elsewhere than the sheet's record (#1544).
-        var holders = new Dictionary<(SpriteImage Sheet, InstalledFrameSource? Source, int Row), SpriteSheetFrame>();
+        // A frontend draw's colouring is the row the cartridge ORs into every part (#1512); each sheet is copied once per row.
+        var copies = new Dictionary<SheetCopy, SpriteImage>();
         foreach (ImageSpriteDraw image in images)
-            holders.TryAdd(CopyOf(image), image.Image);
-        var copies = new Dictionary<(SpriteImage Sheet, InstalledFrameSource? Source, int Row), SpriteImage>();
-        foreach (((SpriteImage Sheet, InstalledFrameSource? Source, int Row) key, SpriteSheetFrame holder) in holders)
         {
-            SpriteImage copy = OfHolder(holder, nativeColours, key.Row);
-            copies.Add(key, copy);
+            SheetCopy key = CopyOf(image);
+            if (!copies.ContainsKey(key))
+                copies.Add(key, OfSheet(key.Sheet, nativeColours, key.Row));
         }
         var shown = ImmutableArray.CreateBuilder<SpriteDraw>(draws.Length);
         foreach (ImageSpriteDraw image in images)
@@ -134,4 +131,9 @@ internal static class NativeColouredPictures
         }
         return shown.MoveToImmutable();
     }
+
+    /// <summary>One native-coloured copy of a sheet.</summary>
+    /// <param name="Sheet">The sheet copied.</param>
+    /// <param name="Row">The sprite row its draws OR into every part.</param>
+    private readonly record struct SheetCopy(SpriteImage Sheet, int Row);
 }

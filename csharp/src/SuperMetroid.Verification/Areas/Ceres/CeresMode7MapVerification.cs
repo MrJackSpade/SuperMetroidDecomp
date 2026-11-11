@@ -41,7 +41,7 @@ internal static class CeresMode7MapVerification
             {
                 int tile = map[y / 8 * (AffineFloor.SidePixels / 8) + x / 8];
                 int expected = pixels[tile * 64 + y % 8 * 8 + x % 8];
-                if (InstalledPictureColoursConstants.ComposedIndexOf(image, image.Inks[(first.Image.Corner.Y + y) * image.Size.X + first.Image.Corner.X + x]) != expected)
+                if (InstalledPictureColoursConstants.ComposedIndexAt(image, (first.Image.Corner.Y + y) * image.Size.X + first.Image.Corner.X + x) != expected)
                     mismatches++;
             }
         }

@@ -9,11 +9,11 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>
 /// Holds every installed enemy and spawned-object sheet to the rule that a sheet holds each picture once (#1513): two of
-/// a sheet's rectangles never show the same picture, the same size and the same ink at every pixel. Frames showing one
+/// a sheet's rectangles never show the same picture, the same size and the same pixel at every place. Frames showing one
 /// picture, whatever origin each is drawn from (Kraid's foot, which his walk moves by its origin, or a crawler's frames
 /// that one pose shows at two places), name one rectangle; a sheet repeating a picture shows the same artwork over and
-/// over. Each image's pictures are read from its installed ink plane, which records the colour of the colour set every
-/// pixel inks, so two rectangles alike there are alike under every shade too.
+/// over. Each image's pictures are spelled by every pixel's colour, alpha, recolour region and blending (#1633), so
+/// two rectangles alike there are alike under every shade too.
 /// </summary>
 internal static class EnemySheetPicturesHeldOnceVerification
 {
@@ -29,10 +29,9 @@ internal static class EnemySheetPicturesHeldOnceVerification
         sheets.AddRange(InstalledFixtures.EnemySheets.spawnedVariants.OrderBy(entry => entry.Key, StringComparer.Ordinal)
             .SelectMany(entry => entry.Value.Sheet.Sheets.Select(sheet => new LabelledSheet($"spawned {entry.Key}", sheet))));
         AssertTrue(sheets.Count > 0, "the installation holds enemy sheets");
-        string directory = RepositoryInstallation.Installation.EnemySheetDirectory;
         LabelledSheet[][] images = [.. sheets.GroupBy(sheet => sheet.Sheet.Image).Select(users => users.ToArray())];
         var findings = new ImagePictures[images.Length];
-        Parallel.For(0, images.Length, index => findings[index] = Pictures(directory, images[index]));
+        Parallel.For(0, images.Length, index => findings[index] = Pictures(images[index]));
         string[] repeated = [.. findings.SelectMany(image => image.Repeated)];
         AssertTrue(repeated.Length == 0,
             $"{repeated.Length} pictures are held more than once on an installed enemy or spawned-object sheet:"
@@ -41,10 +40,9 @@ internal static class EnemySheetPicturesHeldOnceVerification
     }
 
     /// <summary>The pictures of one image, which <paramref name="users"/> all show, and each picture it holds more than once.</summary>
-    private static ImagePictures Pictures(string directory, LabelledSheet[] users)
+    private static ImagePictures Pictures(LabelledSheet[] users)
     {
         SpriteImage image = users[0].Sheet.Image;
-        SpriteImageInk[] inks = SheetInkRules.InkPlane(directory, image);
         string owner = users.Length == 1 ? users[0].Label : $"{users[0].Label} and {users.Length - 1} more";
         // Each rectangle the image's frames name, with the frames naming it.
         var rectangles = new Dictionary<SheetRectangle, SortedSet<string>>();
@@ -65,7 +63,7 @@ internal static class EnemySheetPicturesHeldOnceVerification
         foreach ((SheetRectangle rectangle, SortedSet<string> names) in rectangles
             .OrderBy(entry => entry.Key.Corner.Y).ThenBy(entry => entry.Key.Corner.X))
         {
-            string picture = Picture(inks, image.Size.X, rectangle);
+            string picture = SheetPixelRules.Spelled(image, rectangle.Corner, rectangle.Size);
             if (!holders.TryGetValue(picture, out List<string>? held))
                 holders.Add(picture, held = []);
             held.Add($"({rectangle.Corner.X}, {rectangle.Corner.Y}) {string.Join("/", names)}");
@@ -74,17 +72,6 @@ internal static class EnemySheetPicturesHeldOnceVerification
             $"{owner} ({image.Name}) holds one {held.Count}-times picture at {string.Join(", ", held.Take(NamedExamples))}"
             + (held.Count > NamedExamples ? ", ..." : ""))];
         return new ImagePictures(holders.Count, repeated);
-    }
-
-    /// <summary>The picture a rectangle holds, spelled for telling pictures apart: its size and the ink of each of its pixels.</summary>
-    private static string Picture(SpriteImageInk[] inks, int width, SheetRectangle rectangle)
-    {
-        Position16<ImagePixels> corner = rectangle.Corner;
-        Extent16<ImagePixels> size = rectangle.Size;
-        var pixels = new SpriteImageInk[size.X * size.Y];
-        for (int row = 0; row < size.Y; row++)
-            inks.AsSpan((corner.Y + row) * width + corner.X, size.X).CopyTo(pixels.AsSpan(row * size.X));
-        return $"{size.X}x{size.Y} {Convert.ToBase64String(SheetInkRules.MapBytes(pixels))}";
     }
 
     /// <summary>A rectangle of a sheet image that frames name.</summary>

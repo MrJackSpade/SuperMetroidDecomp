@@ -20,12 +20,13 @@ internal static class GameplayShadingProbe
         ArgumentNullException.ThrowIfNull(roomShades);
         var frame = new GameplayShadingBuilder();
         source.ShadeGameplay(frame);
-        var colours = new PictureColours([RgbColor.Black])
+        var colours = new PictureColours
         {
-            Backdrop = 0,
-            Shades = roomShades.Distinct().ToImmutableDictionary(shade => shade, _ => new ShadeInks([], [])),
+            Backdrop = ColourKey.Of(RgbColor.Black),
+            Shades = roomShades.Distinct().ToImmutableDictionary(shade => shade, _ => new PictureRecolouring([])),
         };
-        return frame.Build(SpriteImageFixtures.Copied("Room", new(1, 1), [default], [SpriteImageInk.Transparent], colours))
+        // The one pixel is clear and keeps black, the backdrop's colour, which no shade recolours.
+        return frame.Build(SpriteImageFixtures.Copied("Room", new(1, 1), [default(RgbaPixel)], colours))
             .Of(pictures);
     }
 }

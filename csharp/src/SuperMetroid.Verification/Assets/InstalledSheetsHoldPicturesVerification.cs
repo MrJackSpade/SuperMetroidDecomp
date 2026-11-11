@@ -9,7 +9,7 @@ namespace SuperMetroid.Verification.Assets;
 /// <summary>
 /// Holds every installed sheet to the rule that a sheet exists only to show pictures (#1513): no installed sprite, enemy,
 /// spawned-object or boss body sheet holds no picture at all. A sheet whose owner draws nothing has nothing to install; the
-/// frame rules of <see cref="SheetInkRules"/> only look at the frames a sheet holds, so an empty sheet passes them.
+/// frame rules of <see cref="SheetPixelRules"/> only look at the frames a sheet holds, so an empty sheet passes them.
 /// </summary>
 internal static class InstalledSheetsHoldPicturesVerification
 {

@@ -9,13 +9,13 @@ namespace SuperMetroid.Verification.Bosses;
 
 /// <summary>
 /// Holds every installed boss body sheet to the sheet pixel rule (#1513): no frame is empty, as
-/// <see cref="SheetInkRules"/> defines it.
+/// <see cref="SheetPixelRules"/> defines it.
 /// </summary>
 internal static class BossBodySheetFrameRulesVerification
 {
     /// <summary>Checks every installed boss body sheet's frames against the sheet pixel rules.</summary>
     internal static void VerifyBossBodySheetInks() =>
-        SheetInkRules.Assert("boss body", RepositoryInstallation.Installation.BossBodySheetDirectory,
+        SheetPixelRules.Assert("boss body", RepositoryInstallation.Installation.BossBodySheetDirectory,
             [.. Enum.GetValues<BossBodyOwner>().Select(owner => new LabelledSheet(owner.ToString(), InstalledFixtures.BossBodySheets.Of(owner).Sheet))]);
 
     /// <summary>Runs the installed boss body sheets' pixel rules.</summary>

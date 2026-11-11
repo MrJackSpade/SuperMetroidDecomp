@@ -5,153 +5,142 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
 
-/// <summary>Cartridge values and helpers of <see cref="InstalledPictureColours"/> that only verification reads.</summary>
+/// <summary>
+/// Cartridge values and helpers of <see cref="InstalledPictureColours"/> that only verification reads (#1633): where in the
+/// cartridge's colour image each colour key of a picture a check composed was coloured from. A key may have been composed
+/// from several palette indices, each of which the port shows alike; a check compares every one.
+/// </summary>
 internal static class InstalledPictureColoursConstants
 {
     /// <summary>The colours of the cartridge's colour image.</summary>
     public const int CartridgeColourCount = 2 * GameplayColourPositionDefinitions.SetsColours;
 
-    /// <summary>The place in the cartridge's colour image of the colour <paramref name="picture"/>'s own colour <paramref name="colour"/> was coloured from.</summary>
-    /// <param name="picture">An installed picture.</param>
-    /// <param name="colour">The place of one of the picture's own colours.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The picture has no such colour.</exception>
-    /// <exception cref="InvalidOperationException">The picture was not loaded from an installed sheet manifest.</exception>
-    public static int CartridgeColourOf(SpriteImage picture, int colour) => CartridgeColourOf(picture, colour, drawRow: 0);
+    /// <summary>The composed palette indices the pixels of <paramref name="key"/> of <paramref name="picture"/> were composed as, ascending.</summary>
+    /// <exception cref="InvalidOperationException">Nothing recorded where the picture was composed from.</exception>
+    /// <exception cref="ArgumentException">The picture holds no such key.</exception>
+    public static ImmutableArray<int> ComposedIndicesOf(SpriteImage picture, ColourKey key) =>
+        InstalledPictureColours.SetsOf(Ensure.NotNull(picture)).ComposedIndices.TryGetValue(key, out ImmutableArray<int> indices) ? indices
+            : throw new ArgumentException($"Picture {picture.Name} holds no colour key {key}.", nameof(key));
 
     /// <summary>
-    /// The native colour <paramref name="colour"/> of <paramref name="picture"/> shows when a draw ORs sprite row
-    /// <paramref name="drawRow"/> into its parts, as a frontend draw's colouring does (#1512).
+    /// The composed palette indices of <paramref name="key"/> of <paramref name="picture"/> that show a colour, ascending:
+    /// every one but colour zero of an image other than a HUD or room effect picture, which the cartridge draws transparent
+    /// and colours from nowhere.
     /// </summary>
-    public static int CartridgeColourOf(SpriteImage picture, int colour, int drawRow) =>
-        CartridgeColourOf(picture, InstalledPictureColours.SetsOf(Ensure.NotNull(picture)), colour, drawRow);
-
-    /// <summary>
-    /// The native colour the colour <paramref name="colour"/> of <paramref name="frame"/>'s sheet shows in a draw of the frame
-    /// ORing sprite row <paramref name="drawRow"/> into its parts, where the frame's holder composed it (#1544): a picture held
-    /// once on a common sheet is sourced as its first holder composed it, and another holder's colours may lie elsewhere.
-    /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">The sheet has no such colour.</exception>
-    /// <exception cref="InvalidOperationException">The frame's sheet was not loaded from an installed sheet manifest.</exception>
-    public static int CartridgeColourOf(SpriteSheetFrame frame, int colour, int drawRow) =>
-        CartridgeColourOf(Ensure.NotNull(frame).Sheet, SourcesOf(frame), colour, drawRow);
-
-    /// <summary>The composed palette index the colour <paramref name="colour"/> of <paramref name="frame"/>'s sheet came from, where the frame's holder composed it (#1544).</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The sheet has no such colour.</exception>
-    public static int ComposedIndexOf(SpriteSheetFrame frame, int colour)
+    /// <exception cref="InvalidOperationException">Nothing recorded where the picture was composed from.</exception>
+    public static ImmutableArray<int> ColouredIndicesOf(SpriteImage picture, ColourKey key)
     {
-        ImmutableArray<int> inks = SourcesOf(Ensure.NotNull(frame)).Inks;
-        return inks[Ensure.BetweenInclusive(0, inks.Length - 1, colour)];
+        SpriteImageColours palette = InstalledPictureColours.SetsOf(Ensure.NotNull(picture)).Palette;
+        return [.. ComposedIndicesOf(picture, key).Where(index => palette == SpriteImageColours.TwoBppBackground || index != 0)];
     }
 
     /// <summary>
-    /// Where the colours <paramref name="frame"/> shows came from, for the holder drawing it (#1544): its sheet's record, with
-    /// each colour the frame's own record names sourced as the holder composed it. The sheet's other colours, which the frame
-    /// does not show, keep the sheet's indices and say nothing of the frame.
+    /// The places in the cartridge's colour image of the colours <paramref name="key"/> of <paramref name="picture"/> was
+    /// coloured from, when a draw ORs sprite row <paramref name="drawRow"/> into its parts, as a frontend draw's colouring
+    /// does (#1512).
     /// </summary>
-    private static InstalledPictureColourSources SourcesOf(SpriteSheetFrame frame)
-    {
-        InstalledPictureColourSources sheet = InstalledPictureColours.SetsOf(frame.Sheet);
-        if (InstalledPictureColours.FrameSourceOf(frame) is not { } source)
-            return sheet;
-        ImmutableArray<int>.Builder inks = sheet.Inks.ToBuilder();
-        for (int colour = 0; colour < source.SheetInks.Length; colour++)
-            inks[sheet.Inks.IndexOf(source.SheetInks[colour])] = source.Inks[colour];
-        return sheet with { PaletteBits = source.PaletteBits, Inks = inks.ToImmutable() };
-    }
+    /// <exception cref="InvalidOperationException">Nothing recorded where the picture was composed from.</exception>
+    public static ImmutableArray<int> CartridgeColoursOf(SpriteImage picture, ColourKey key, int drawRow = 0) =>
+        [.. ColouredIndicesOf(picture, key).Select(index => CartridgeColourOfIndex(picture, index, drawRow))];
 
-    /// <summary>The native colour <paramref name="colour"/> of <paramref name="picture"/> shows, coloured from <paramref name="sources"/>.</summary>
-    private static int CartridgeColourOf(SpriteImage picture, InstalledPictureColourSources sources, int colour, int drawRow)
+    /// <summary>
+    /// The place in the cartridge's colour image a pixel of <paramref name="picture"/> composed as palette index
+    /// <paramref name="index"/> is coloured from, when a draw ORs sprite row <paramref name="drawRow"/> into its parts.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Nothing recorded where the picture was composed from.</exception>
+    public static int CartridgeColourOfIndex(SpriteImage picture, int index, int drawRow = 0)
     {
-        int ink = sources.Inks[Ensure.BetweenInclusive(0, sources.Inks.Length - 1, colour)];
+        InstalledPictureColourSources sources = InstalledPictureColours.SetsOf(Ensure.NotNull(picture));
+        Ensure.BetweenInclusive(0, ImageColourGroup.ColourCountOf(sources.Palette) - 1, index);
         return sources.Palette switch
         {
-            // A sprite ink is its part's own row and colour, drawn from that row with the sheet's palette bits ORed in.
+            // A sprite index is its part's own row and colour, drawn from that row with the sheet's palette bits ORed in.
             SpriteImageColours.Sprite => GameplayColourPositionDefinitions.SpriteSetsFirst
-                + ((ink / GameplayColourPositionDefinitions.SetColours) | sources.PaletteBits | drawRow) * GameplayColourPositionDefinitions.SetColours
-                + ink % GameplayColourPositionDefinitions.SetColours,
-            SpriteImageColours.FullPalette => GameplayColourPositionDefinitions.BackgroundSetsFirst + ink,
-            SpriteImageColours.Background or SpriteImageColours.TwoBppBackground => BackgroundColourOf(picture, ink),
+                + ((index / GameplayColourPositionDefinitions.SetColours) | sources.PaletteBits | drawRow) * GameplayColourPositionDefinitions.SetColours
+                + index % GameplayColourPositionDefinitions.SetColours,
+            SpriteImageColours.FullPalette => GameplayColourPositionDefinitions.BackgroundSetsFirst + index,
+            SpriteImageColours.Background or SpriteImageColours.TwoBppBackground => BackgroundColourOf(sources, index),
             _ => throw new InvalidDataException($"Image {picture.Name} names an unknown colouring {sources.Palette}."),
         };
     }
 
     /// <summary>The place in the cartridge's colour image of a background picture's composed palette index: in its group's installed set, or in its group's own place.</summary>
-    internal static int BackgroundColourOf(SpriteImage picture, int ink)
+    private static int BackgroundColourOf(InstalledPictureColourSources sources, int index)
     {
-        ImmutableArray<InstalledBackgroundSet> sets = InstalledPictureColours.SetsOf(picture).Sets;
-        int group = ink / GameplayColourPositionDefinitions.SetColours;
+        ImmutableArray<InstalledBackgroundSet> sets = sources.Sets;
+        int group = index / GameplayColourPositionDefinitions.SetColours;
         int set = sets.IsEmpty ? group : Array.IndexOf(InstalledBackgroundSetPositionDefinitions.InCartridgeOrder, sets[group]);
         return GameplayColourPositionDefinitions.BackgroundSetsFirst + set * GameplayColourPositionDefinitions.SetColours
-            + ink % GameplayColourPositionDefinitions.SetColours;
+            + index % GameplayColourPositionDefinitions.SetColours;
     }
 
-    /// <summary>The composed palette index <paramref name="picture"/>'s own colour at <paramref name="colour"/> came from.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The picture has no such colour.</exception>
-    public static int ComposedIndexOf(SpriteImage picture, int colour)
+    /// <summary>The composed palette index pixel <paramref name="pixel"/> of <paramref name="picture"/> was composed as.</summary>
+    /// <exception cref="InvalidOperationException">The picture was not composed or recorded by a check.</exception>
+    public static int ComposedIndexAt(SpriteImage picture, int pixel)
     {
-        ImmutableArray<int> inks = InstalledPictureColours.SetsOf(picture).Inks;
-        return inks[Ensure.BetweenInclusive(0, inks.Length - 1, colour)];
-    }
-
-    /// <summary>The composed palette index of a pixel inked <paramref name="ink"/>: its colour's, or zero for a transparent pixel.</summary>
-    public static int ComposedIndexOf(SpriteImage picture, SpriteImageInk ink) =>
-        ink.Colour is int colour ? ComposedIndexOf(picture, colour) : 0;
-
-    /// <summary>
-    /// The place among <paramref name="picture"/>'s own colours of the colour composed as palette index
-    /// <paramref name="index"/>, or null where none of its pixels shows that colour, so the picture does not have it.
-    /// </summary>
-    public static int? ColourComposedAs(SpriteImage picture, int index)
-    {
-        int place = InstalledPictureColours.SetsOf(picture).Inks.IndexOf(index);
-        return place < 0 ? null : place;
+        byte[] indices = ComposedPictures.SourceOf(picture).PaletteIndices;
+        return indices[Ensure.BetweenInclusive(0, indices.Length - 1, pixel)];
     }
 
     /// <summary>
-    /// <paramref name="colours"/>, one colour for each of <paramref name="picture"/>'s own colours, laid out by the composed
-    /// palette index each came from in a list as long as the half of the colour table the picture was composed against;
-    /// an index the picture has no colour of stays black.
+    /// The key of <paramref name="picture"/> whose pixels were composed as palette index <paramref name="index"/>, or null
+    /// where none of its pixels was or the index shows no colour (<see cref="ColouredIndicesOf"/>), so the picture does not
+    /// show that colour.
     /// </summary>
-    public static RgbColor[] ByComposedIndex(SpriteImage picture, ReadOnlySpan<RgbColor> colours)
+    /// <exception cref="InvalidOperationException">Nothing recorded where the picture was composed from.</exception>
+    public static ColourKey? KeyComposedAs(SpriteImage picture, int index)
     {
-        InstalledPictureColourSources sources = InstalledPictureColours.SetsOf(picture);
-        Ensure.LengthEqual(colours, sources.Inks.Length);
-        var laid = new RgbColor[ImageColourGroup.ColourCountOf(sources.Palette)];
-        for (int colour = 0; colour < colours.Length; colour++)
-            laid[sources.Inks[colour]] = colours[colour];
+        foreach (ColourKey key in InstalledPictureColours.SetsOf(Ensure.NotNull(picture)).ComposedIndices.Keys)
+        {
+            if (ColouredIndicesOf(picture, key).Contains(index))
+                return key;
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// <paramref name="shown"/>, one colour for each of <paramref name="picture"/>'s colour keys
+    /// (<see cref="SpriteImage.ColourKeys"/>), laid out by each palette index the key was composed as, in a list as long as
+    /// the half of the colour table the picture was composed against; an index the picture has no pixel of, or that shows no
+    /// colour (<see cref="ColouredIndicesOf"/>), stays black.
+    /// </summary>
+    public static RgbColor[] ByComposedIndex(SpriteImage picture, ReadOnlySpan<RgbColor> shown)
+    {
+        Ensure.NotNull(picture);
+        ImmutableArray<ColourKey> keys = picture.ColourKeys;
+        Ensure.LengthEqual(shown, keys.Length);
+        var laid = new RgbColor[ImageColourGroup.ColourCountOf(InstalledPictureColours.SetsOf(picture).Palette)];
+        for (int key = 0; key < keys.Length; key++)
+        {
+            foreach (int index in ColouredIndicesOf(picture, keys[key]))
+                laid[index] = shown[key];
+        }
         return laid;
     }
 
-    /// <summary><paramref name="picture"/>'s standard colours laid out by composed palette index, as <see cref="ByComposedIndex"/> lays them out.</summary>
-    public static RgbColor[] ComposedColours(SpriteImage picture) => ByComposedIndex(picture, Ensure.NotNull(picture).StandardColours);
+    /// <summary><paramref name="picture"/>'s own colours laid out by composed palette index, as <see cref="ByComposedIndex"/> lays them out.</summary>
+    public static RgbColor[] ComposedColours(SpriteImage picture) =>
+        ByComposedIndex(picture, [.. Ensure.NotNull(picture).ColourKeys.Select(key => key.Colour)]);
 
     /// <summary>
-    /// Whether each of <paramref name="picture"/>'s colours shows, in <paramref name="shown"/>, the colour of
-    /// <paramref name="native"/>, a whole native colour image, at the place it was coloured from.
+    /// Whether each of <paramref name="picture"/>'s colour keys shows, in <paramref name="shown"/> (one colour per key), the
+    /// colour of <paramref name="native"/>, a whole native colour image, at every place it was coloured from
+    /// (<see cref="CartridgeColoursOf"/>).
     /// </summary>
     public static bool ShowsNativeColours(SpriteImage picture, ReadOnlySpan<RgbColor> shown, ReadOnlySpan<RgbColor> native)
     {
         Ensure.NotNull(picture);
-        Ensure.LengthEqual(shown, picture.StandardColours.Length);
+        ImmutableArray<ColourKey> keys = picture.ColourKeys;
+        Ensure.LengthEqual(shown, keys.Length);
         Ensure.LengthEqual(native, CartridgeColourCount);
-        for (int colour = 0; colour < shown.Length; colour++)
+        for (int key = 0; key < keys.Length; key++)
         {
-            if (shown[colour] != native[CartridgeColourOf(picture, colour)])
-                return false;
+            foreach (int place in CartridgeColoursOf(picture, keys[key]))
+            {
+                if (shown[key] != native[place])
+                    return false;
+            }
         }
         return true;
-    }
-
-    /// <summary>Records for <paramref name="copy"/> the source <paramref name="picture"/>'s manifest named.</summary>
-    public static void RecordAs(SpriteImage copy, SpriteImage picture)
-    {
-        InstalledPictureColourSources sources = InstalledPictureColours.SetsOf(picture);
-        InstalledPictureColours.Record(copy, new InstalledSheetSource
-        {
-            Palette = sources.Palette,
-            PaletteBits = sources.PaletteBits,
-            BackgroundSets = sources.Sets.IsEmpty ? null : [.. sources.Sets],
-            Inks = [.. sources.Inks],
-        });
     }
 }

@@ -9,7 +9,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>
-/// Holds every installed enemy sheet to the sheet rule (#1513): no frame is empty, as <see cref="SheetInkRules"/>
+/// Holds every installed enemy sheet to the sheet rule (#1513): no frame is empty, as <see cref="SheetPixelRules"/>
 /// defines it. Each sheet's frame set is the one its enemy's frame table names, every frame
 /// one whole picture, which loading the installation already requires.
 /// </summary>
@@ -21,7 +21,7 @@ internal static class EnemySheetFrameRulesVerification
 
     /// <summary>Checks every installed enemy sheet's frames against the sheet pixel rules.</summary>
     internal static void VerifyEnemySheetInks() =>
-        SheetInkRules.Assert("enemy", RepositoryInstallation.Installation.EnemySheetDirectory,
+        SheetPixelRules.Assert("enemy", RepositoryInstallation.Installation.EnemySheetDirectory,
             [.. Sheets.Select(entry => new LabelledSheet(entry.Key, entry.Value.Sheet))]);
 
     /// <summary>Runs the installed enemy sheets' pixel rules.</summary>

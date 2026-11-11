@@ -27,19 +27,19 @@ public sealed class DemoInputState
     /// <summary>The buttons the demo currently holds in place of the player's held buttons.</summary>
     public ControllerButton Held { get; private set; }
 
-    /// <summary>Controller edge word currently replacing newly pressed input.</summary>
+    /// <summary>The buttons the demo currently presses anew in place of the player's newly pressed buttons.</summary>
     public ControllerButton NewlyPressed { get; private set; }
 
-    /// <summary>Previous demo-held word retained by the publication seam.</summary>
+    /// <summary>The buttons the demo held on the previous step.</summary>
     public ControllerButton PreviousHeld { get; private set; }
 
-    /// <summary>Previous demo-edge word retained by the publication seam.</summary>
+    /// <summary>The buttons the demo newly pressed on the previous step.</summary>
     public ControllerButton PreviousNewlyPressed { get; private set; }
 
-    /// <summary>The held word published before this step, which Samus's input filter reads as the previous held input.</summary>
+    /// <summary>The held buttons pressed before this step, which Samus's input filter reads as the previous held input.</summary>
     public ControllerButton PublishedPreviousHeld { get; private set; }
 
-    /// <summary>The edge word published before this step, which Samus's input filter reads as the previous new input.</summary>
+    /// <summary>The newly pressed buttons pressed before this step, which Samus's input filter reads as the previous new input.</summary>
     public ControllerButton PublishedPreviousNewlyPressed { get; private set; }
 
     /// <summary>
@@ -103,8 +103,8 @@ public sealed class DemoInputState
         if (frameHold.IsZero)
             PlayNextInput(position, cue);
 
-        // Publishing hands the old demo words to the drawing-input history before it
-        // replaces the live joypad words and remembers the newly produced pair.
+        // Pressing hands the demo's previous buttons to the drawing-input history before it
+        // replaces the live held and newly pressed buttons and remembers the new ones.
         PublishedPreviousHeld = PreviousHeld;
         PublishedPreviousNewlyPressed = PreviousNewlyPressed;
         PreviousHeld = Held;

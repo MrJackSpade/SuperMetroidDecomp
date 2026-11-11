@@ -70,10 +70,6 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 /// <summary>Cartridge-oracle checks for the first group of compiled gameplay and presentation catalogs.</summary>
 internal static class LookupStream1Verification
 {
-    /// <summary>The four escape-timer pixels whose native values still deviate from the calculated shapes.</summary>
-    private static readonly int[] RetainedTimerDeviations =
-        [1161, 1163, 189, 999];
-
     /// <summary>Checks that the installed world-map BG3 atlas uploads the native characters whole and rejects an invalid pen.</summary>
     internal static void VerifyLookupStream1WorldBackground(ISnesAddressSpace rom)
     {
@@ -410,86 +406,11 @@ internal static class LookupStream1Verification
     internal static void VerifyLookupStream1TimerGlyphs(ISnesAddressSpace rom)
     {
         byte[] png = EscapeTimerTileAtlasExtractor.Extract(rom);
-        var image = IndexedPng.Read(new MemoryStream(png), new(200, 8));
         byte[] native = Enumerable.Range(0, 800).Select(index => LookupStream1TimerGlyphsRomByte(rom, 0xb0c000 + index)).ToArray();
         var stock = EscapeTimerCharacters.Read(new MemoryStream(png));
-        HashSet<int> Fill(EscapeTimerCharacters value) => value.fillPixels;
-        Dictionary<int, byte> Overrides(EscapeTimerCharacters value) => value.pixelOverrides;
-        Dictionary<int, bool> FillOverrides(EscapeTimerCharacters value) => value.fillOverrides;
-        bool DefaultFill(int pixel, out bool fill)
-        {
-            int tile = pixel % 200 / 8, x = pixel % 8, y = pixel / 200 + (tile >= 10 ? 8 : 0);
-            if (tile >= 22)
-            {
-                int labelX = (tile - 22) * 8 + x, labelY = pixel / 200;
-                fill = labelX is >= 0 and <= 5 && (labelY == 1 || labelY is >= 2 and <= 5 && labelX is 2 or 3) ||
-                    labelX is 7 or 8 && labelY is >= 1 and <= 5 ||
-                    labelX is >= 18 and <= 22 && (labelY is 1 or 5 ||
-                        labelX is 18 or 19 && labelY is >= 2 and <= 4 || labelY == 3 && labelX <= 21);
-                return labelX is <= 5 or 7 or 8 or >= 18 and <= 22;
-            }
-            fill = x is 3 or 4 && y is >= 1 and <= 13 || x == 2 && y is 2 or 3 || x is >= 2 and <= 5 && y is 12 or 13;
-            if (tile is 0 or 10)
-            {
-                fill = x is >= 1 and <= 6 && y is >= 1 and <= 13 &&
-                    !((x == 1 || x == 6) && (y == 1 || y == 13)) &&
-                    !(x is >= 3 and <= 4 && y is >= 3 and <= 11);
-            }
-            if (tile == 8)
-            {
-                fill = x is >= 1 and <= 6 && y is >= 1 and <= 7 &&
-                    !((x == 1 || x == 6) && (y == 1 || y == 7)) &&
-                    !(x is >= 3 and <= 4 && y is >= 3 and <= 5);
-            }
-            if (tile is 2 or 12)
-            {
-                fill = y == 1 && x is >= 2 and <= 5 ||
-                    y == 2 && x is >= 1 and <= 6 ||
-                    y is 3 or 4 && x is 1 or 2 or 5 or 6 ||
-                    y == 5 && x is 5 or 6 ||
-                    y == 6 && x is >= 4 and <= 6 ||
-                    y == 7 && x is >= 3 and <= 5 ||
-                    y == 8 && x is 3 or 4 ||
-                    y == 9 && x is >= 2 and <= 4 ||
-                    y == 10 && x is 2 or 3 ||
-                    y == 11 && x is >= 1 and <= 3 ||
-                    y is 12 or 13 && x is >= 1 and <= 6;
-            }
-            if (tile is 7 or 17)
-            {
-                fill = y is 1 or 2 && x is >= 1 and <= 6 || y is >= 10 and <= 13 && x is 2 or 3;
-                return y is < 3 or >= 10;
-            }
-            return tile is 0 or 1 or 2 or 8 or 10 or 11 or 12;
-        }
-        byte Ink(int pixel) => (byte)(pixel % 200 / 8 < 22 ? 1 : 2);
-        int Source(int pixel)
-        {
-            int tile = pixel % 200 / 8, x = pixel % 8, y = pixel / 200;
-            if (tile is 16 or 18) tile = 10;
-            if (tile == 10 && y <= 6) { tile = 0; y = 6 - y; }
-            if ((tile == 0 || tile == 8) && x >= 4) x = 7 - x;
-            if (tile == 21) { tile = 20; if (x >= 4) x -= 3; }
-            return y * 200 + tile * 8 + x;
-        }
         byte[] Transfer(EscapeTimerCharacters value) => EscapeTimerTilePageTransfers.Resolve(value, InstalledArtworkId.EscapeTimerFirstTiles).Span
             .ConcatToArray(EscapeTimerTilePageTransfers.Resolve(value, InstalledArtworkId.EscapeTimerSecondTiles).Span);
         AssertTrue(Transfer(stock).SequenceEqual(native), "Both reconstructed timer pages match all800 native planar bytes");
-        AssertEqual(275, Fill(stock).Count, "Exact retained timer fill footprint after calculated digit and label shapes");
-        AssertEqual(0, FillOverrides(stock).Count, "Zero stock calculated-footprint overrides");
-        AssertTrue(Overrides(stock).Keys.ToHashSet().SetEquals(RetainedTimerDeviations), "Exact four still-retained native deviations");
-        for (int index = 0; index < 1600; index++)
-        {
-            bool fill = image.Pixels[index] == Ink(index);
-            bool calculated = DefaultFill(index, out bool expectedFill);
-            AssertEqual(calculated, EscapeTimerGlyphs.TryDefaultFill(index, out bool productionFill), "Exact digit/T/I/E footprint domain");
-            if (calculated) { AssertEqual(fill, expectedFill, "Direct native three-part digit/T/I/E footprint"); AssertEqual(fill, productionFill, "Direct calculated digit/T/I/E footprint"); }
-            AssertEqual(Source(index) == index && !calculated && fill, Fill(stock).Contains(index), "Exact retained stock footprint membership");
-            AssertEqual(Source(index), EscapeTimerGlyphs.SourcePixel(index), "Exact native shared lower-half pixel domain");
-            if (Source(index) != index) AssertEqual(image.Pixels[index], image.Pixels[Source(index)], "Direct native repeated lower-half pixel");
-            else if (!fill && !Overrides(stock).ContainsKey(index))
-                AssertEqual(image.Pixels[index], EscapeTimerGlyphs.Outline(index, pixel => image.Pixels[pixel] == Ink(pixel)), "Direct native calculated outline/transparency");
-        }
         var queue = new VramWriteQueue(); stock.QueueTo(queue);
         AssertEqual(2, queue.Entries.Count, "Original two-page queue count");
         AssertEqual(512, queue.Entries[0].SizeInBytes, "First page size");
@@ -973,10 +894,9 @@ internal static class LookupStream1Verification
         ushort Word(int address) => LittleEndianBytes.Word(LookupStream1TimerLayoutRomByte(rom, address), LookupStream1TimerLayoutRomByte(rom, address + 1));
         byte[] json = EscapeTimerPresentationExtractor.Extract();
         var stock = EscapeTimerPresentationFile.Load(new MemoryStream(json));
-        AssertEqual(0, stock.anchors.Count, "Timer stock stores no calculated anchor fallbacks");
         int[] anchorImmediates = [0x809f73, 0x809f7c, 0x809f85, 0x809f8e];
         foreach (EscapeTimerAnchor anchor in EscapeTimerLayoutDefinitions.Anchors)
-            AssertEqual(new Offset16<SpritePixels>(unchecked((short)Word(anchorImmediates[(int)anchor])), 0), EscapeTimerComposition.DefaultAnchor(anchor), "Timer centered anchor matches native renderer immediate");
+            AssertEqual(new Offset16<SpritePixels>(unchecked((short)Word(anchorImmediates[(int)anchor])), 0), stock.anchors[anchor], "Installed timer anchor matches native renderer immediate");
         SpriteSheet sheet = EscapeTimerDrawChecks.Sheet(rom);
         SpriteArtwork characters = EscapeTimerCharacters.Read(new MemoryStream(
             SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerTileAtlasExtractor.Extract(rom))).Artwork;
@@ -989,7 +909,7 @@ internal static class LookupStream1Verification
             EscapeTimerDrawChecks.AssertSamePixels(native, EscapeTimerDrawChecks.Draw(timer, stock, sheet), characters, rom,
                 $"Decimal glyph {digit} paints the native sprites' pixels");
         }
-        Console.WriteLine("Escape timer layout: 4 native anchors, zero stock dictionaries, and 10 decimal glyphs pixel-exact from the sheet pass.");
+        Console.WriteLine("Escape timer layout: 4 installed native anchors and 10 decimal glyphs pixel-exact from the sheet pass.");
     }
 
     /// <summary>Reads native escape timer OAM layout bytes.</summary>

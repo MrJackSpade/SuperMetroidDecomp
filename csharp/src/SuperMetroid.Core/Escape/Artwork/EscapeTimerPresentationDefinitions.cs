@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Escape.Artwork;
 
-/// <summary>Stable sheet frame names and stock anchors for the escape timer presentation.</summary>
+/// <summary>Stable sheet frame names for the escape timer presentation.</summary>
 public static class EscapeTimerPresentationDefinitions
 {
     /// <summary>The sheet frame name of the TIME label and both separators.</summary>
@@ -28,20 +28,4 @@ public static class EscapeTimerPresentationDefinitions
         [EscapeTimerGlyph.Digit8] = "Digit.8",
         [EscapeTimerGlyph.Digit9] = "Digit.9",
     };
-
-    /// <summary>Decimal glyphs are eight pixels wide.</summary>
-    private const int GlyphWidth = 8;
-
-    /// <summary>Three two-digit groups separated by one cell, centered across eight cells.</summary>
-    internal static readonly IReadOnlyDictionary<EscapeTimerAnchor, Offset16<SpritePixels>> DefaultAnchors =
-        new Dictionary<EscapeTimerAnchor, Offset16<SpritePixels>>
-        {
-            [EscapeTimerAnchor.Label] = new(0, 0),
-            [EscapeTimerAnchor.Minutes] = GroupAnchor(0),
-            [EscapeTimerAnchor.Seconds] = GroupAnchor(1),
-            [EscapeTimerAnchor.Centiseconds] = GroupAnchor(2),
-        };
-
-    /// <summary>The tens-digit origin of the <paramref name="group"/>th two-digit group.</summary>
-    private static Offset16<SpritePixels> GroupAnchor(int group) => new((3 * group * 2 - 7) * GlyphWidth / 2, 0);
 }

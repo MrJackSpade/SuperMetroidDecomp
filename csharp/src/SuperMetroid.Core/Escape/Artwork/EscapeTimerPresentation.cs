@@ -8,12 +8,16 @@ public sealed class EscapeTimerPresentation
     /// <summary>The base of the decimal digits each pair shows.</summary>
     private const int DigitBase = 10;
 
-    /// <summary>Only edited screen-relative offsets; stock anchors are calculated when absent.</summary>
+    /// <summary>Every anchor's installed screen-relative offset from the timer's origin.</summary>
     internal readonly Dictionary<EscapeTimerAnchor, Offset16<SpritePixels>> anchors;
 
-    /// <summary>Retains the anchor overrides and digit spacing the import pipeline validated.</summary>
+    /// <summary>Holds every installed anchor and the digit spacing the import pipeline validated.</summary>
+    /// <exception cref="InvalidDataException">An anchor has no installed offset.</exception>
     internal EscapeTimerPresentation(Dictionary<EscapeTimerAnchor, Offset16<SpritePixels>> anchors, int digitSpacing)
     {
+        foreach (EscapeTimerAnchor anchor in Enum.GetValues<EscapeTimerAnchor>())
+            if (!anchors.ContainsKey(anchor))
+                throw new InvalidDataException($"The escape timer's installed layout has no {anchor} anchor.");
         this.anchors = anchors;
         DigitSpacing = digitSpacing;
     }
@@ -55,7 +59,6 @@ public sealed class EscapeTimerPresentation
             { Shading = PictureShading.Standard });
     }
 
-    /// <summary>Resolves an edited timer anchor or its calculated stock position.</summary>
-    private Offset16<SpritePixels> Anchor(EscapeTimerAnchor anchor) => anchors.TryGetValue(anchor, out var supplied)
-        ? supplied : EscapeTimerComposition.DefaultAnchor(anchor);
+    /// <summary>The installed offset of <paramref name="anchor"/>.</summary>
+    private Offset16<SpritePixels> Anchor(EscapeTimerAnchor anchor) => anchors[anchor];
 }

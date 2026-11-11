@@ -9,7 +9,7 @@ public static class EscapeTimerPresentationFile
 {
     /// <summary>Validates an authored timer layout.</summary>
     /// <param name="json">UTF-8 JSON read from the current position to the end; the caller retains ownership of the stream.</param>
-    /// <returns>A presentation that retains edited anchors, using calculated stock anchors for entries that match them.</returns>
+    /// <returns>A presentation holding every installed anchor and the installed digit spacing.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
     /// <exception cref="InvalidDataException">JSON is malformed, of another revision, or has missing or out-of-range anchors or spacing.</exception>
     public static EscapeTimerPresentation Load(Stream json)
@@ -39,7 +39,7 @@ public static class EscapeTimerPresentationFile
             Offset16<SpritePixels> point = document.Anchors[EscapeTimerLayoutNames.AnchorName(anchor)];
             if (point.X is < -256 or > 255 || point.Y is < -224 or > 223)
                 throw new InvalidDataException($"Escape timer anchor {anchor} is outside the supported screen-relative range.");
-            if (point != EscapeTimerComposition.DefaultAnchor(anchor)) anchors.Add(anchor, point);
+            anchors.Add(anchor, point);
         }
         return new(anchors, document.DigitSpacing);
     }

@@ -12,8 +12,6 @@ internal static class AreaMapClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Map/Artwork/AreaMapPresentationAsset.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Map/AreaMapStockRules.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Areas/Escape/EscapeTimerCharacters.cs"),
-             new("csharp/src/SuperMetroid.AssetExtraction/Areas/Escape/EscapeTimerGlyphDefinitions.cs"),
-             new("csharp/src/SuperMetroid.AssetExtraction/Areas/Escape/EscapeTimerGlyphs.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Artwork/IInstalledArtworkContent.cs")]),
     ];
 }

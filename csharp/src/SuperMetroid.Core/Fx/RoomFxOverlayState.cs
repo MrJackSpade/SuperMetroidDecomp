@@ -766,17 +766,30 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     private bool UsesLavaAcidHorizontalWave =>
         (LiquidOptions & RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave) != RoomLiquidOptions.None;
 
-    /// <summary>Computes effect overlay vertical scroll from the liquid surface relative to camera Y; none shows nothing.</summary>
+    /// <summary>The overlay's lines in its surface band, above the liquid's body.</summary>
+    private const int SurfaceBandLines = 256;
+
+    /// <summary>The lines in which the liquid's body below its surface repeats.</summary>
+    private const int LiquidBodyRepeatLines = 32;
+
+    /// <summary>
+    /// Computes the effect overlay's vertical scroll from the liquid surface relative to the camera's top; none shows nothing.
+    /// A surface below the camera's top scrolls the overlay up from the last line of its surface band, so the surface lies
+    /// where it is; a surface at or above the camera's top shows the liquid's body, the band after the surface band, at the
+    /// place in its repeat that the lines the surface lies above the camera reach.
+    /// </summary>
     private static int ComputeLiquidVerticalScroll(int? surfaceY, int cameraY)
     {
         if (surfaceY is not int line || line < 0)
             return 0;
-        int relative = CoordinateAxis.Difference(line, cameraY);
-        if (relative <= 0)
-            return ((relative ^ 31) & 31) | 256;
-        // A surface below the camera's top scrolls the overlay up from the last line of its 256-line band.
-        return relative < 256
-            ? 255 - relative
+        int belowCameraTop = CoordinateAxis.Difference(line, cameraY);
+        if (belowCameraTop <= 0)
+        {
+            int aboveCameraTop = -belowCameraTop;
+            return SurfaceBandLines + (aboveCameraTop + LiquidBodyRepeatLines - 1) % LiquidBodyRepeatLines;
+        }
+        return belowCameraTop < SurfaceBandLines
+            ? SurfaceBandLines - 1 - belowCameraTop
             : 0;
     }
 

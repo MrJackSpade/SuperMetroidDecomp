@@ -66,17 +66,6 @@ public sealed class PhantoonEnemyState
     internal static AnimationPlayback<PhantoonPartProgram> Starting(PhantoonPartProgram program) =>
         new(PhantoonAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
 
-    /// <summary>
-    /// The program <paramref name="part"/> is playing: the segment its playing phase plays, or, before its first play,
-    /// the one its animation starts at.
-    /// </summary>
-    /// <exception cref="InvalidOperationException"><paramref name="part"/> is not one of Phantoon's parts.</exception>
-    internal PhantoonPartProgram PlayingProgram(RoomEnemySlot part)
-    {
-        AnimationPlayback<PhantoonPartProgram> playback = PartPlayback(part);
-        return playback.Animation.Phases[playback.Place.Phase].Segment;
-    }
-
     /// <summary>The animation playback of <paramref name="part"/>, which is Phantoon's body or one of his attached parts.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="part"/> is not one of Phantoon's parts.</exception>
     internal ref AnimationPlayback<PhantoonPartProgram> PartPlayback(RoomEnemySlot part)

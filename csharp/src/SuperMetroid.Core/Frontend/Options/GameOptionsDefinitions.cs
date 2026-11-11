@@ -1,9 +1,8 @@
 namespace SuperMetroid.Core.Frontend.Options;
 
 /// <summary>
-/// The options screen's fixed layout and timing: page geometry, fades and scrolling, row counts, cursor anchors and
-/// heading anchors. <see cref="GameOptionsLayout"/> derives each row's
-/// position from them.
+/// The options screen's fixed layout and timing: page geometry, fades and scrolling and row counts. The cursor's and
+/// headings' anchors are installed (#1615).
 /// </summary>
 public static class GameOptionsDefinitions
 {
@@ -33,45 +32,5 @@ public static class GameOptionsDefinitions
         public const int ControllerCount = 9;
         /// <summary>Rows of the special-settings page.</summary>
         public const int SpecialCount = 3;
-    }
-
-    /// <summary>The cursor missile's anchors, in screen pixels.</summary>
-    public static class Cursors
-    {
-        /// <summary>The primary page's cursor column.</summary>
-        public const int PrimaryX = 24;
-        /// <summary>The controller page's cursor column.</summary>
-        public const int ControllerX = 40;
-        /// <summary>The special page's cursor column.</summary>
-        public const int SpecialX = 16;
-        /// <summary>The primary page's first row.</summary>
-        public const int PrimaryFirstY = 56;
-        /// <summary>Pixels between primary rows.</summary>
-        public const int PrimaryRowSpacing = 32;
-        /// <summary>How far the primary page's rows from the third on sit above the even spacing: the authored gap.</summary>
-        public const int PrimaryLowerRowsRaise = 8;
-        /// <summary>The first primary row the raise applies to.</summary>
-        public const int PrimaryFirstRaisedRow = 2;
-        /// <summary>The controller page's first row.</summary>
-        public const int ControllerFirstY = 48;
-        /// <summary>Pixels between controller rows; Exit and Reset sit higher by the page's scroll.</summary>
-        public const int ControllerRowSpacing = 24;
-        /// <summary>The special page's first row.</summary>
-        public const int SpecialFirstY = 64;
-        /// <summary>Pixels between special rows.</summary>
-        public const int SpecialRowSpacing = 48;
-    }
-
-    /// <summary>The page headings' anchors, in screen pixels.</summary>
-    public static class Headings
-    {
-        /// <summary>The row every heading's top edge is at.</summary>
-        public const int HeadingY = 16;
-        /// <summary>The primary page heading's column.</summary>
-        public const int PrimaryX = 124;
-        /// <summary>The controller page heading's column.</summary>
-        public const int ControllerX = 132;
-        /// <summary>The special page heading's column.</summary>
-        public const int SpecialX = 128;
     }
 }

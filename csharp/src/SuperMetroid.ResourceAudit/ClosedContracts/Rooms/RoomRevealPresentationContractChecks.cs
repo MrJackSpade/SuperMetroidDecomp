@@ -79,7 +79,8 @@ internal static class RoomRevealPresentationContractChecks
         var overlays = new InstalledXrayOverlays(Enumerable.Repeat(RoomBlockAppearance.Of(0), InstalledXrayOverlays.TankCount),
             XrayRoomOverlayDefinitions.All.Select(overlay => new XrayRoomOverlayTiles(overlay,
                 [new XrayRoomOverlayVisual(Position16<RoomBlocks>.Of(0, 0), RoomBlockAppearance.Of(0))])));
-        var catalog = new InstalledXrayReveals(entries, overlays);
+        // The block a backward extension exit shows is installed with them (#1615).
+        var catalog = new InstalledXrayReveals(entries, overlays, extensionExitBlock: 5);
         Require(catalog.Apply(RoomCollisionType.ShootableBlock, RoomBlockBehaviorCodec.Decode(2)) is { } tall &&
             tall.Command == XrayRevealCommand.CopyTall && tall.TopLeft == 1 && tall.BottomLeft == 3,
             "one identity must select the compiled command and the matching installed operands");

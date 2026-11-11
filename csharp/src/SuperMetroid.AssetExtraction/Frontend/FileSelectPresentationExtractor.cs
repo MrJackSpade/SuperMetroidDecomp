@@ -182,8 +182,8 @@ public static class FileSelectPresentationExtractor
                     Shown(FileSelectNativeLayout.ClearConfirmationSourceLetterDestination),
             },
             ObjectPalette = MenuRenderDefinitions.ObjectPalette,
-            CursorFrameDuration = MenuMissileAnimationDefinitions.FrameDuration,
-            HelmetFrameDuration = FileSelectHelmetAnimation.FrameDuration,
+            CursorFrameDuration = MenuAnimationTimings.MissileFrameDuration(bus),
+            HelmetFrameDuration = MenuAnimationTimings.HelmetFrameDuration(bus),
         });
         return output.ToArray();
 

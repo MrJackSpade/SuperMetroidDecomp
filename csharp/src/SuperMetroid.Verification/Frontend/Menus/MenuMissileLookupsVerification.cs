@@ -2,6 +2,7 @@ using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Menus;
+using SuperMetroid.AssetExtraction.Frontend;
 
 namespace SuperMetroid.Verification.Frontend.Menus;
 
@@ -23,11 +24,11 @@ internal static class MenuMissileLookupsVerification
                 $"menu missile invalid frame {frame}");
     }
 
-    /// <summary>Compares the compiled duration used for each of the four menu missile frames with bank-$82 words.</summary>
+    /// <summary>Compares the duration the import installs for the menu missile's frames with each of the four bank-$82 words.</summary>
     internal static void VerifyMenuMissileDurations(ISnesAddressSpace rom)
     {
+        int installed = MenuAnimationTimings.MissileFrameDuration(rom);
         for (int frame = 0; frame < 4; frame++)
-            AssertEqual(ReadVerificationWord(rom, 0x82baaa + frame * 2),
-                MenuMissileAnimationDefinitions.FrameDuration, $"menu missile duration {frame}");
+            AssertEqual((int)ReadVerificationWord(rom, 0x82baaa + frame * 2), installed, $"menu missile duration {frame}");
     }
 }

@@ -82,26 +82,20 @@ public static class GameOptionsPresentationExtractor
                 MenuSpriteExtractor.Read(bus, MenuMissileSpritemaps.SpritemapId(frame)));
         }
 
+        // The headings' and cursor's anchors are read from the cartridge's page setups and cursor tables; the game keeps no
+        // copy of them (#1615).
+        int headingRow = Word(GameOptionsSourceDefinitions.HeadingRowOperand);
         var headings = new Dictionary<string, Position16<SpritePixels>>(StringComparer.Ordinal)
         {
-            [GameOptionsPresentationFormat.MenuName(GameOptionsPage.Primary)] = new(
-                GameOptionsPositions.HeadingX(GameOptionsPage.Primary),
-                GameOptionsDefinitions.Headings.HeadingY),
-            [GameOptionsPresentationFormat.MenuName(GameOptionsPage.Controller)] = new(
-                GameOptionsPositions.HeadingX(GameOptionsPage.Controller),
-                GameOptionsDefinitions.Headings.HeadingY),
-            [GameOptionsPresentationFormat.MenuName(GameOptionsPage.Special)] = new(
-                GameOptionsPositions.HeadingX(GameOptionsPage.Special),
-                GameOptionsDefinitions.Headings.HeadingY),
+            [GameOptionsPresentationFormat.MenuName(GameOptionsPage.Primary)] = Heading(GameOptionsPage.Primary),
+            [GameOptionsPresentationFormat.MenuName(GameOptionsPage.Controller)] = Heading(GameOptionsPage.Controller),
+            [GameOptionsPresentationFormat.MenuName(GameOptionsPage.Special)] = Heading(GameOptionsPage.Special),
         };
         var cursors = new Dictionary<string, Position16<SpritePixels>[]>(StringComparer.Ordinal)
         {
-            [GameOptionsPresentationFormat.MenuName(GameOptionsPage.Primary)] = Points(
-                GameOptionsDefinitions.Cursors.PrimaryX, GameOptionsDefinitions.Rows.PrimaryCount, GameOptionsPositions.PrimaryY),
-            [GameOptionsPresentationFormat.MenuName(GameOptionsPage.Controller)] = Points(
-                GameOptionsDefinitions.Cursors.ControllerX, GameOptionsDefinitions.Rows.ControllerCount, GameOptionsPositions.ControllerY),
-            [GameOptionsPresentationFormat.MenuName(GameOptionsPage.Special)] = Points(
-                GameOptionsDefinitions.Cursors.SpecialX, GameOptionsDefinitions.Rows.SpecialCount, GameOptionsPositions.SpecialY),
+            [GameOptionsPresentationFormat.MenuName(GameOptionsPage.Primary)] = Cursor(GameOptionsPage.Primary, GameOptionsDefinitions.Rows.PrimaryCount),
+            [GameOptionsPresentationFormat.MenuName(GameOptionsPage.Controller)] = Cursor(GameOptionsPage.Controller, GameOptionsDefinitions.Rows.ControllerCount),
+            [GameOptionsPresentationFormat.MenuName(GameOptionsPage.Special)] = Cursor(GameOptionsPage.Special, GameOptionsDefinitions.Rows.SpecialCount),
         };
 
         using var output = new MemoryStream();
@@ -120,7 +114,7 @@ public static class GameOptionsPresentationExtractor
             SelectedPalette = GameOptionsPageDefinitions.TilePalettes.Selected,
             UnselectedPalette = GameOptionsPageDefinitions.TilePalettes.Unselected,
             CursorPalette = MenuRenderDefinitions.ObjectPalette,
-            CursorFrameDuration = MenuMissileAnimationDefinitions.FrameDuration,
+            CursorFrameDuration = MenuAnimationTimings.MissileFrameDuration(bus),
         });
         return output.ToArray();
 
@@ -135,6 +129,20 @@ public static class GameOptionsPresentationExtractor
                     $"${bytes.Length:X} bytes, expected ${GameOptionsSourceDefinitions.TilemapByteCount:X}.");
             }
             return Cells(bytes);
+        }
+
+        int Word(int address) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+
+        Position16<SpritePixels> Heading(GameOptionsPage page) =>
+            Position16<SpritePixels>.Of(Word(GameOptionsSourceDefinitions.HeadingColumnOperands[page]), headingRow);
+
+        Position16<SpritePixels>[] Cursor(GameOptionsPage page, int rows)
+        {
+            var result = new Position16<SpritePixels>[rows];
+            for (int row = 0; row < rows; row++)
+                result[row] = Position16<SpritePixels>.Of(GameOptionsSourceDefinitions.CursorColumns[page],
+                    Word(GameOptionsSourceDefinitions.CursorRowTables[page] + GameOptionsSourceDefinitions.CursorRowStride * row));
+            return result;
         }
     }
 
@@ -159,15 +167,6 @@ public static class GameOptionsPresentationExtractor
             };
         }
         return cells;
-    }
-
-    /// <summary>Builds row-specific cursor anchors at one native horizontal coordinate.</summary>
-    private static Position16<SpritePixels>[] Points(int x, int count, Func<int, int> rowY)
-    {
-        var result = new Position16<SpritePixels>[count];
-        for (int index = 0; index < result.Length; index++)
-            result[index] = Position16<SpritePixels>.Of(x, rowY(index));
-        return result;
     }
 
     /// <summary>Expands a native byte span into consecutive tile-cell indices.</summary>

@@ -261,6 +261,7 @@ internal static class InstalledArtworkContentIdentity
                 content.Append("bottom left", visual.BottomLeft);
                 content.Append("bottom right", visual.BottomRight);
             }
+            content.Append("extension exit", reveals.ExtensionExitBlock);
             content.Append("overlays", Convert.FromHexString(reveals.Overlays.ContentIdentity));
         });
     }

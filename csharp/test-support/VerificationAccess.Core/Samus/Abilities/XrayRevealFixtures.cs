@@ -23,9 +23,9 @@ internal static class XrayRevealFixtures
 
     /// <summary>
     /// Complete reveal pictures whose blocks <paramref name="shown"/> chooses per command, with overlays that reveal no special
-    /// room and show block zero for every tank.
+    /// room and show block zero for every tank, and the cartridge's blank block where an extension chain leaves the room.
     /// </summary>
     internal static InstalledXrayReveals Complete(Func<XrayRevealCommand, XrayRevealVisualBlocks> shown) =>
         new(EveryDrawable(shown), InstalledXrayOverlays.FromOverlaysForVerification(
-            Enumerable.Repeat(RoomBlockAppearance.Of(0), InstalledXrayOverlays.TankCount), []));
+            Enumerable.Repeat(RoomBlockAppearance.Of(0), InstalledXrayOverlays.TankCount), []), XrayRevealTableWords.BlankMetatile);
 }

@@ -35,6 +35,7 @@ internal static class GameplayContentIdentityVerification
             new VerifyGameplayContentIdentityCase("xray-bottom-left", GameInstallationLayout.XrayRevealVisualDirectoryName),
             new VerifyGameplayContentIdentityCase("xray-bottom-right", GameInstallationLayout.XrayRevealVisualDirectoryName),
             new VerifyGameplayContentIdentityCase("xray-item", GameInstallationLayout.XrayRevealVisualDirectoryName),
+            new VerifyGameplayContentIdentityCase("xray-extension-exit", GameInstallationLayout.XrayRevealVisualDirectoryName),
             new VerifyGameplayContentIdentityCase("overlay-x", GameInstallationLayout.XrayRevealVisualDirectoryName),
             new VerifyGameplayContentIdentityCase("overlay-y", GameInstallationLayout.XrayRevealVisualDirectoryName),
             new VerifyGameplayContentIdentityCase("overlay-word", GameInstallationLayout.XrayRevealVisualDirectoryName),
@@ -58,7 +59,7 @@ internal static class GameplayContentIdentityVerification
         AssertEqual(baseline[GameInstallationLayout.StandardObjectDirectoryName],
             CreateGameplayIdentityFixture("png-colors")[GameInstallationLayout.StandardObjectDirectoryName],
             "PNG display colors do not change decoded tile indices");
-        Console.WriteLine("  Shared gameplay content: sprite pixels, all X-ray operands, items, " +
+        Console.WriteLine("  Shared gameplay content: sprite pixels, all X-ray operands, the extension exit, items, " +
             "room overlay positions/order, canonical records and host warnings pass without a ROM.");
     }
 
@@ -107,7 +108,8 @@ internal static class GameplayContentIdentityVerification
         XrayRoomOverlayTiles[] rooms =
             [new(FirstFixtureOverlay, tiles), new(SecondFixtureOverlay, new XrayRoomOverlayVisual[] { new(new(8, 9), RoomBlockAppearance.Of(10)) })];
         var overlays = InstalledXrayOverlays.FromOverlaysForVerification(items, reverse ? rooms.Reverse() : rooms);
-        var xray = new InstalledXrayReveals(reverse ? entries.AsEnumerable().Reverse() : entries, overlays);
+        var xray = new InstalledXrayReveals(reverse ? entries.AsEnumerable().Reverse() : entries, overlays,
+            edit == "xray-extension-exit" ? XrayRevealTableWords.BlankMetatile - 1 : XrayRevealTableWords.BlankMetatile);
         return GameplayPresentationIdentity.Create(sprites, xray);
     }
 

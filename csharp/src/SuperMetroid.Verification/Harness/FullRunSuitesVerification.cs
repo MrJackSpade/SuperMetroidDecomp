@@ -567,6 +567,9 @@ internal static class FullRunSuitesVerification
             SuperMetroid.Verification.Frontend.FrontendSheetColouringsVerification.VerifyEndingSheetsHoldDrawnFrames),
         new(nameof(SuperMetroid.Verification.Assets.SheetPicturesHeldOnceVerification.VerifySheetPicturesHeldOnce),
             SuperMetroid.Verification.Assets.SheetPicturesHeldOnceVerification.VerifySheetPicturesHeldOnce),
+        // A picture two sheets show is stored once (#1635).
+        new(nameof(SuperMetroid.Verification.Assets.PictureStoreSharingVerification.VerifySharedPictureStoredOnce),
+            SuperMetroid.Verification.Assets.PictureStoreSharingVerification.VerifySharedPictureStoredOnce),
         new(nameof(SuperMetroid.Verification.Assets.SheetPictureIdentitiesVerification.VerifyCellPicturesNamedByDomain),
             SuperMetroid.Verification.Assets.SheetPictureIdentitiesVerification.VerifyCellPicturesNamedByDomain),
         new(nameof(SuperMetroid.Verification.Frontend.TypedTextGlyphsVerification.VerifyTypedStepsNotPicturedWhole),

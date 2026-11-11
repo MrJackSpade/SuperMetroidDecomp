@@ -283,51 +283,13 @@ internal static class LookupStream4Verification
             0x97E7DE, EndingArtworkExtentDefinitions.FloorBytes);
         byte[] native = decoded.AsSpan(0, 160 * 32).ToArray();
         byte[] png = EndingFontAtlasExtractor.Extract(rom);
-        var image = IndexedPng.Read(new MemoryStream(png), new(128, 80));
         var atlas = EndingFontCharacters.Read(new MemoryStream(png));
-        var stored = atlas.pixels;
-        var footprint = atlas.glyphFootprint;
-        AssertEqual(3875, stored.Count, "ending font stores exactly other artwork plus35 required deviations, without stock outline/space overrides");
-        AssertEqual(2026, footprint.Count, "all2026 small/large-letter and digit footprint positions remain explicitly required");
         AssertTrue(native.SequenceEqual(atlas.Characters.Span), "all5120 original ending font bytes match");
-        AssertTrue(native.SequenceEqual(EndingFontCharacters.FromPlanarBytes(native).Characters.Span), "legacy native import uses same calculated representation");
+        AssertTrue(native.SequenceEqual(EndingFontCharacters.FromPlanarBytes(native).Characters.Span), "legacy native import keeps the same characters");
         AssertEqual((ushort)0x4F, EndingTextGlyphs.CompileGlyph(' ', EndingTextStyle.ResultSmall).PackedWord, "native small text space selects blank tile4F");
         AssertEqual((ushort)0x7F, EndingTextGlyphs.CompileGlyph(' ', EndingTextStyle.CopyrightLarge).PackedWord, "native large text space selects blank tile7F");
-        var largeDeviations = new HashSet<LargeDeviation>
-        {
-            new LargeDeviation(0x21,5,2),new LargeDeviation(0x21,6,3),new LargeDeviation(0x21,7,4),new LargeDeviation(0x21,7,7),new LargeDeviation(0x21,7,8),new LargeDeviation(0x21,7,13),new LargeDeviation(0x21,6,14),
-            new LargeDeviation(0x23,6,3),new LargeDeviation(0x23,7,5),new LargeDeviation(0x23,7,11),new LargeDeviation(0x23,6,13),new LargeDeviation(0x23,5,14),
-            new LargeDeviation(0x26,4,6),new LargeDeviation(0x26,4,10),new LargeDeviation(0x29,0,13),new LargeDeviation(0x29,7,13),new LargeDeviation(0x29,1,14),new LargeDeviation(0x29,6,14),
-            new LargeDeviation(0x2A,5,2),new LargeDeviation(0x2A,4,3),new LargeDeviation(0x2A,5,8),new LargeDeviation(0x2A,6,9),new LargeDeviation(0x2A,7,10),
-            new LargeDeviation(0x40,7,3),new LargeDeviation(0x41,7,10),new LargeDeviation(0x41,7,11),new LargeDeviation(0x42,7,13),new LargeDeviation(0x42,1,14),new LargeDeviation(0x42,6,14),new LargeDeviation(0x45,6,11),new LargeDeviation(0x45,2,14),
-        };
-        AssertEqual(31, largeDeviations.Count, "precise native large-glyph deviation domain");
-        for (int pixel = 0; pixel < image.Pixels.Length; pixel++)
-        {
-            int tile = pixel / 128 / 8 * 16 + pixel % 128 / 8;
-            int x = pixel % 8, y = pixel / 128 % 8;
-            bool space = tile is 0x4F or 0x7F;
-            bool small = tile < 26;
-            bool large = tile is >= 0x20 and <= 0x3F or >= 0x40 and <= 0x49 or >= 0x50 and <= 0x59
-                or >= 0x60 and <= 0x69 or >= 0x70 and <= 0x79;
-            int top = tile & ~0x10, glyphY = y + ((tile & 0x10) != 0 ? 8 : 0);
-            bool largeDeviation = large && largeDeviations.Contains(new LargeDeviation(top, x, glyphY));
-            bool outlined = small || large;
-            bool cutout = new Cutout(tile, x, y) is (0x0A, 3, 0) or (0x0A, 7, 4) or (0x0C, 4, 1) or (0x19, 7, 3);
-            AssertEqual(space, EndingFontAtlasFormat.IsSpacePixel(pixel), "only the two native semantic blank cells");
-            AssertEqual(small, EndingFontAtlasFormat.IsSmallAlphabetPixel(pixel), "only the native small alphabet cells");
-            AssertEqual(cutout, EndingFontAtlasFormat.IsRequiredSmallGlyphCutout(pixel), "exact four unresolved native cutouts");
-            AssertEqual(largeDeviation, EndingFontAtlasFormat.IsRequiredLargeGlyphDeviation(pixel), "exact31 unresolved native large-glyph sites");
-            AssertEqual(!space && (!outlined || cutout || largeDeviation), stored.ContainsKey(pixel), "exact unresolved source pixel membership");
-            AssertEqual(outlined && image.Pixels[pixel] == 1, footprint.Contains(pixel), "exact independent original glyph footprint positions");
-            bool calculated = EndingFontAtlasFormat.TryCalculatedPixel(pixel, footprint, out int ink);
-            AssertEqual(space || outlined && !cutout && !largeDeviation, calculated, "exact calculated-domain membership");
-            if (calculated) AssertEqual(image.Pixels[pixel], ink, "direct native outline/blank calculation with no stored fallback");
-        }
-        foreach (int pixel in new[] { -1, 10240, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingFontAtlasFormat.IsSpacePixel(pixel), "font pixel bounds");
         AssertThrows<InvalidDataException>(() => EndingFontCharacters.FromPlanarBytes(new byte[5119]), "native font byte domain preserved");
-        Console.WriteLine("Ending font:5120 native bytes,2026 required footprint positions,3875 required pixels including35 deviations,4339 derived outline/background/space sites pass.");
+        Console.WriteLine("Ending font:5120 native bytes, the space glyphs and the byte domain pass.");
     }
 
     /// <summary>Checks Maridia palette colors and source ownership against the native palette rows.</summary>

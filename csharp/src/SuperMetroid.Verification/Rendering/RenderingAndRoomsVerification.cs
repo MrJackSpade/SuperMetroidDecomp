@@ -965,11 +965,11 @@ internal static void VerifyBg2ScreenLayout()
             // The view names the background pixel the screen's top shows: the row below a camera at row zero (#1514).
             new GameplaySceneView(new Position16<RoomPixels>(0, 0), GameplaySceneView.ShownAtScreenTop(new Position16<BackgroundPixels>(0, 0)),
                 ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites),
-            // Kraid's body is the 64x64 map he loads at $4000, drawn from its pictures (#1403).
+            // Kraid's body is the 64x64 map he loads at $4000, 512 pixels square, drawn from its pictures (#1403).
             RoomBackgroundsFixtures.Blank() with
             {
                 BossBody = RoomBackgroundsFixtures.BodyFromTilemap(gameplayVram.Bytes, gameplayCgram.Colors, kraidBg2BaseWord,
-                    new Extent16<TilemapCells>(64, 64)),
+                    new Extent16<BackgroundPixels>(512, 512)),
             }));
     AssertEqual(new RgbaPixel(255, 0, 0),
         gameplayFrame[DisplayScreen.HudHeight * DisplayScreen.Width],

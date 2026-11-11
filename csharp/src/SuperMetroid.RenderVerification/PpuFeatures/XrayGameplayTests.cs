@@ -94,7 +94,7 @@ internal static class XrayGameplayTests
                     if (blackBody) bodyColors[2] = RgbColor.Black;
                     var bodyBackgrounds = RoomBackgroundsFixtures.Uniform(vram.Bytes, bodyColors, new(1));
                     var bodyRooms = bossImage
-                        ? bodyBackgrounds with { BossBody = RoomBackgroundsFixtures.UniformBody(new(2), new(64, 32), vram.Bytes, bodyColors) }
+                        ? bodyBackgrounds with { BossBody = RoomBackgroundsFixtures.UniformBody(new(2), new(512, 256), vram.Bytes, bodyColors) }
                         : bodyBackgrounds;
                     var additive = new GameplayBlendLayer(new(registers with
                     {

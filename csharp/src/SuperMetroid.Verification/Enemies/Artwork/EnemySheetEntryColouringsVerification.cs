@@ -38,12 +38,12 @@ internal static class EnemySheetEntryColouringsVerification
             sheets++;
             SpriteSheet sheet = variant.Sheet;
             SpriteImage image = sheet.Image;
-            HashSet<ColourKey> inked = PaintedKeys(image, sheet);
+            HashSet<ColourKey> painted = PaintedKeys(image, sheet);
             foreach (PictureShade shade in EntryColourings[enemy].Shades)
             {
                 foreach (KeyedSubstitution substitution in image.Shade(shade).Substitutions)
                 {
-                    if (inked.Contains(substitution.Replaced) && substitution.Replaced.Colour != substitution.Shown)
+                    if (painted.Contains(substitution.Replaced) && substitution.Replaced.Colour != substitution.Shown)
                         failures.Add($"{variant.Name} ({image.Name}) shows colour key {substitution.Replaced}, "
                             + $"which its entry colouring {shade.Key} draws as {substitution.Shown}");
                 }
@@ -59,7 +59,7 @@ internal static class EnemySheetEntryColouringsVerification
     private static HashSet<ColourKey> PaintedKeys(SpriteImage image, SpriteSheet sheet)
     {
         ReadOnlySpan<RgbaPixel> pixels = image.Pixels;
-        var inked = new HashSet<ColourKey>();
+        var painted = new HashSet<ColourKey>();
         foreach (SpriteSheetFrame frame in sheet.frames.Values)
         {
             for (int row = 0; row < frame.Size.Y; row++)
@@ -68,11 +68,11 @@ internal static class EnemySheetEntryColouringsVerification
                 {
                     int pixel = (frame.Corner.Y + row) * image.Size.X + frame.Corner.X + column;
                     if (pixels[pixel].A != 0)
-                        inked.Add(image.KeyAt(pixel));
+                        painted.Add(image.KeyAt(pixel));
                 }
             }
         }
-        return inked;
+        return painted;
     }
 
     /// <summary>Runs the entry-colouring rule of the installed enemy sheets.</summary>

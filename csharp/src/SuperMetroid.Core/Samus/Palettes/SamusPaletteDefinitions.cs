@@ -12,7 +12,7 @@ public static class SamusPaletteDefinitions
     /// <summary>Shared visor colors used by room animation and the X-ray Scope.</summary>
     public static class Visor
     {
-        /// <summary>Timer reloaded after one visor color is copied.</summary>
+        /// <summary>Timer reloaded after each visor shade is shown.</summary>
         public const int FrameDelay = 5;
         /// <summary>The first visor shade of the three-shade steady visor cycle; the shades before it widen the X-ray beam.</summary>
         public const int CycleFirstShade = 3;
@@ -20,7 +20,7 @@ public static class SamusPaletteDefinitions
         public const int CycleEndShade = 6;
     }
 
-    /// <summary>The suit-and-phase lists the special full-body palette handlers select their cycle palettes from.</summary>
+    /// <summary>The suit-and-phase lists the special full-body suit colourings select their cycle palettes from.</summary>
     public static class FullBodyCycles
     {
         /// <summary>Number of full-body Hyper Beam palettes.</summary>
@@ -70,8 +70,8 @@ public static class SamusPaletteDefinitions
     /// <summary>Two independently timed palette streams used by Crystal Flash.</summary>
     /// <remarks>
     /// The stock body colors are six ten-colour cycle steps,
-    /// <c>r = 0..5</c>. Color zero is always
-    /// 14336; colors 1..9 in each step are the same grayscale colour
+    /// <c>r = 0..5</c>. The first colour is always
+    /// 14336; the other nine in each step are the same grayscale colour
     /// with every channel at <c>16 + floor(11*min(r,6-r)/3)</c>. This yields channel
     /// levels 16, 19, 23, 27, 23, 19 and matches all 60 colours in the
     /// original data. The body colour program selects steps

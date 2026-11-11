@@ -324,11 +324,11 @@ internal sealed class BeamFiring
             SamusBeamCallbackDefinition callback =
                 SamusBeamCallbacks.Resolve(charged, beamType);
             // The callbacks with no translation are Spazer and Plasma combinations whose table read lands outside
-            // the game's code: on work memory or an unconnected region. The game then executes
+            // the game's code: on the game's live state or an unconnected region. The game then executes
             // whatever those bytes hold, which only full memory and processor emulation could reproduce, so the
             // port rejects the shot under the emulation scope limit (#1500).
             slot.FrameBehavior = callback.Translated ?? throw new NotSupportedException(
-                $"Beam callback {callback.Callback} executes work memory or an unconnected region as code; " +
+                $"Beam callback {callback.Callback} executes the game's live state or an unconnected region as code; " +
                 "reproducing it needs full memory and processor emulation, which is outside the port's scope.");
             InitializePowerBeamVelocity(samus.ProjectileInheritance, slot, _unauthoredFiring);
         }

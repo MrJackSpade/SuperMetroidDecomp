@@ -257,7 +257,7 @@ public static class SamusAerialMovement
             roomObjects);
         if (wall.Triggered)
         {
-            // Carry set at the wall-jump check skips gravity, so gravity and vertical displacement
+            // A triggered wall-jump check skips gravity, so gravity and vertical displacement
             // do not execute on the trigger frame. Runtime pose handling consumes command
             // five after movement and installs the wall-jump pose with the authored launch speed.
             return new AerialMovementResult(
@@ -559,7 +559,7 @@ public static class SamusAerialMovement
             samus,
             frameCounter,
             roomObjects: roomObjects);
-        // Reads the whole word: any downward pass, or a ceiling hit, ends the
+        // Reads the full collision result: any downward pass, or a ceiling hit, ends the
         // special handler. Only a free upward pass keeps it for another frame.
         if (samus.SolidVerticalCollisionResult != SamusVerticalCollisionResult.None)
             restoreNormalHandler = true;

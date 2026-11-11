@@ -43,9 +43,9 @@ internal sealed class SamusHudSelection
         }
         else if ((controllerNewInput & switchMask) != ControllerButton.None)
         {
-            // The selection ring wraps after X-ray and repeatedly invokes the selected
-            // handler while it returns carry set. The loop always terminates because
-            // entry zero is the unconditional Nothing handler.
+            // The selection ring wraps after X-ray and keeps advancing while the selected
+            // item is unavailable. The loop always terminates because the first item,
+            // Nothing, is always available.
             do
             {
                 samus.SelectedHudItem = HudItems.Next(samus.SelectedHudItem);

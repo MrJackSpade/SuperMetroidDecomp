@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 internal static class SamusVerticalMotionDefinitions
 {
     /// <summary>
-    /// YSpeed/YSubSpeedWhenBouncingInMorphBall; the second rebound subtracts one from the whole word, and
+    /// The upward speed of the Morph Ball's first rebound; the second rebound is one pixel per frame slower, and
     /// both NTSC rebounds have zero fractional speed.
     /// </summary>
     internal static UnsignedSixteenSixteen BallBounceSpeed { get; } = new(1, 0);

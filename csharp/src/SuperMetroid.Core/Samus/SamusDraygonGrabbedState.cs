@@ -126,7 +126,7 @@ public sealed class SamusDraygonGrabbedState
         samus.Position = samus.Position.WithWhole(ownerPosition + new Offset16<RoomPixels>(draygonFacingRight ? 8 : -8, 40));
 
         // The routine writes whole positions only. It does not clear subpositions,
-        // so preserving the split low words is intentional even though the actor overwrites
+        // so preserving the subpositions is intentional even though the actor overwrites
         // the visible whole coordinates on every owner update.
         return new DraygonOwnerPlacement();
     }

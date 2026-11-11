@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
 /// The Samus projectiles' programs (#1301). Generated from the verified animation scripts:
-/// each eight-byte timed record shows a <see cref="SamusProjectileFrame"/> for its duration, and the lists' gotos and
+/// each timed step shows a <see cref="SamusProjectileFrame"/> for its duration, and the lists' gotos and
 /// deletes end their programs.
 /// </summary>
 internal static class SamusProjectileAnimations

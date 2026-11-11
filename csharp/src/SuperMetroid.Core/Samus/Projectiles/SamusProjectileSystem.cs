@@ -183,8 +183,8 @@ public sealed class SamusProjectileSystem
     /// modeled Samus palette.
     /// </summary>
     /// <remarks>
-    /// This belongs to the Samus palette handler, not charge-flare drawing. It edits
-    /// palette colors 192-207, which the next displayed frame shows, so the same colors
+    /// This belongs to Samus's suit colouring, not charge-flare drawing. It changes
+    /// Samus's colours, which the next displayed frame shows, so the same colours
     /// are written at this phase.
     /// The runtime executes special Speed Booster/Screw/Shinespark/Crystal Flash/X-ray
     /// handlers afterward unless glow expiry returns the normal-suit restoration action.
@@ -302,7 +302,7 @@ public sealed class SamusProjectileSystem
     /// </summary>
     /// <param name="terrain">SamusTerrain</param>
     /// <param name="samus">Mutable player owner supplying pose, equipment, charge, and HUD selection.</param>
-    /// <param name="buttons">The controller words Samus's projectile producer reads: held buttons, this frame's new presses, and the previous frame's new presses (#633).</param>
+    /// <param name="buttons">The buttons Samus's projectile producer reads: held buttons, this frame's new presses, and the previous frame's new presses (#633).</param>
     /// <param name="cameraPosition">Horizontal and vertical camera origin in whole room pixels, used by projectile offscreen handling.</param>
     /// <param name="sharedProjectiles">
     /// Bomb-slot owner carrying the shared projectile cooldown. The runtime steps that

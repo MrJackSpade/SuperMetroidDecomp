@@ -1,5 +1,5 @@
 namespace SuperMetroid.Core.Samus.Movement;
 
-/// <summary>Value and carry returned by the deceleration-disallowed base-speed calculation.</summary>
+/// <summary>The base speed the deceleration-disallowed calculation produces, and whether it reached its maximum.</summary>
 [IndependentFlag("whether the speed reached its maximum, a fact of the step")]
 public readonly record struct AerialBaseSpeedResult(UnsignedSixteenSixteen Speed, bool ReachedMaximum);

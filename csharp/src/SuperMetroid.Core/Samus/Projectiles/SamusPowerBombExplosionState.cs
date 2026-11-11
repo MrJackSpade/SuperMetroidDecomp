@@ -371,7 +371,7 @@ public sealed class SamusPowerBombExplosionState
             IsActive = false;
             PreExplosionRadius = PowerBombRadius.Zero;
             ExplosionRadius = PowerBombRadius.Zero;
-            // Cleanup does not clear the shared radius-speed word. Retain it
+            // Cleanup does not clear the shared radius growth speed. Retain it
             // until the next pre-explosion setup, as on the game.
             Shape = null;
             RenderedShape = null;

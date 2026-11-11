@@ -20,14 +20,14 @@ public sealed class SharedGameState
     /// Creates the shared state over the session's random-number generator, for a session whose power-on adds no rumble
     /// delay and whose explored maps are its own.
     /// </summary>
-    /// <param name="random">The session's random-number word, which this state reads and advances.</param>
+    /// <param name="random">The session's random-number generator, which this state draws from and advances.</param>
     public SharedGameState(SharedRandom random)
         : this(random, PowerOnEarthquakeSoundDelay.None, StoredExploredMapLoads.PowerOn())
     {
     }
 
     /// <summary>Creates the shared state over the session's random-number generator, rumble delay and stored explored maps.</summary>
-    /// <param name="random">The session's random-number word, which this state reads and advances.</param>
+    /// <param name="random">The session's random-number generator, which this state draws from and advances.</param>
     /// <param name="earthquakeSoundDelay">The frame the save file found at power-on adds to every earthquake rumble's delay.</param>
     /// <param name="storedExploredMaps">The session's live and stored explored maps, which outlive each runtime.</param>
     public SharedGameState(SharedRandom random, PowerOnEarthquakeSoundDelay earthquakeSoundDelay, StoredExploredMaps<AreaId> storedExploredMaps)

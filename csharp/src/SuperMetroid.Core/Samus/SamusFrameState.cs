@@ -71,7 +71,7 @@ internal sealed class SamusFrameState
 
     /// <summary>
     /// No-button fallback selected when the pose handling cancels the grapple. This is
-    /// separate from <see cref="SamusFrameState.ProspectiveSamusPose"/> because no six-byte table entry wins.
+    /// separate from <see cref="SamusFrameState.ProspectiveSamusPose"/> because no transition table entry wins.
     /// </summary>
     public SamusPoseId? ProspectiveSamusFallbackPose { get; internal set; }
 

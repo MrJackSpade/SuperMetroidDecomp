@@ -120,8 +120,8 @@ public static class SamusBlockCollision
         if (!collided && !acceptedDisplacement.IsZero)
         {
             // The target center and leading boundary are calculated once, before a slope
-            // handler is allowed to scale ci_r18_r20. This slightly surprising ordering is
-            // exactly how the horizontal block collision initializes its collision-info scratch words.
+            // is allowed to scale the move's distance. This slightly surprising ordering is
+            // exactly how the horizontal block collision sets up its collision probe.
             int targetCenter = state.Position.X.MovedBy(acceptedDisplacement).Whole;
             int leadingBoundary = !acceptedDisplacement.IsNegative
                 ? CoordinateAxis.Wrap(state.Radius.X + targetCenter - 1)
@@ -182,9 +182,9 @@ public static class SamusBlockCollision
                     case RoomCollisionType.DoorBlock:
                         // Resolves behaviour through the current room's door
                         // list. A normal destination publishes the door, enters
-                        // the door-transition game state, and returns carry clear, so this scan must allow
-                        // Samus into the doorway. Elevator pseudo-destinations have bit 15
-                        // clear and fall through to the ordinary solid clipping routine.
+                        // the door-transition game state, and reports no collision, so this scan must allow
+                        // Samus into the doorway. Elevator pseudo-destinations are not doors
+                        // and fall through to the ordinary solid clipping.
                         DoorListEntry horizontalDoor = terrain.Level.ResolveDoorCollision(
                             block.Behavior,
                             state.CollisionPose.ForRoomCollision(),
@@ -243,7 +243,7 @@ public static class SamusBlockCollision
                         block.Behavior.Reaction == BlockReactionDefinitions.CollectibleTrigger:
                         // Visible item frames are special blocks of the item-frame behaviour. Block collision spawns the
                         // shared item detector, whose setup triggers the item at this
-                        // origin and returns carry clear; Samus therefore passes through
+                        // origin and reports no collision; Samus therefore passes through
                         // rather than clipping against the item's visual block.
                         if (terrain.RoomObjects is null || !terrain.RoomObjects.CollectibleObjects.TryNotifyCollectibleTouch(terrain.Level.BlockAt(block.Index)))
                         {
@@ -300,10 +300,10 @@ public static class SamusBlockCollision
 
                     case RoomCollisionType.BombableBlock:
                         // Indexes the collision-bomb-block room-object table with behaviour
-                        // 0..7. Its setup returns carry (solid) unless Samus
+                        // 0..7. Its setup reports the block solid unless Samus
                         // is speed boosting, screw attacking, or in ShinesparkHorizontalRightPose through ShinesparkDiagonalLeftPose. On an
                         // accepted break it installs the air-type bomb-parent visual and
-                        // returns carry clear, so this scan continues through the new air.
+                        // reports no collision, so this scan continues through the new air.
                         if (terrain.RoomObjects?.Quicksand.IsAllocationFull == true)
                             break;
                         if (block.Behavior.Reaction.IsAreaSpecific || !CanBreakCollisionBombBlock(owner, move.CanBreakBombBlocks))
@@ -525,7 +525,7 @@ public static class SamusBlockCollision
                         blockX,
                         acceptedDisplacement,
                         targetCenter,
-                        // The game tests the direction's low bit: right, down and the non-directional
+                        // Right, down and the non-directional
                         // probe react as a floor, left and up as a ceiling.
                         reactsDownward: move.BlockReactionDirection is { } reactionDirection
                             ? reactionDirection is SamusCollisionDirection.Right or SamusCollisionDirection.Down or
@@ -650,7 +650,7 @@ public static class SamusBlockCollision
                                 $"({block.Behavior}) requires an active room-object owner.");
                         }
 
-                        // Always returns carry set for the contact crumble. Setup removes
+                        // The contact crumble always reports the block solid. Setup removes
                         // the special collision nibble immediately (leaving the block
                         // type-eight solid), and this downward scan remains clipped.
                         if (!terrain.RoomObjects.BlockReactions.TrySpawnSamusContactCrumbleBlock(
@@ -1079,9 +1079,9 @@ public static class SamusBlockCollision
     }
 
     /// <summary>
-    /// Follows collision-extension blocks exactly like the block dispatcher's redispatch
-    /// loop. Type `$5` adds signed behaviour horizontally; type `$D` adds signed behaviour rows.
-    /// A zero behaviour returns carry clear immediately and therefore behaves as air.
+    /// Follows collision-extension blocks exactly as block collision does: a horizontal extension
+    /// moves its signed behaviour in blocks along the row; a vertical extension moves it in rows.
+    /// A zero behaviour reports no collision immediately and therefore behaves as air.
     /// </summary>
     internal static bool TryResolveExtension(
         RoomLevelData level,

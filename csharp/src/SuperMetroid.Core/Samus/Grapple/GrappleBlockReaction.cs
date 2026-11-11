@@ -1,17 +1,17 @@
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>
-/// What the grapple block-reaction dispatcher reports for the block at the beam's endpoint. The game
-/// returns it as carry (a collision) and overflow (a connection); carry clear with overflow set is never produced.
+/// What the grapple block reaction reports for the block at the beam's endpoint: the beam passes, stops, or latches.
+/// A block that latches the beam always stops it too; a latch without a stop is never produced.
 /// </summary>
 internal enum GrappleBlockReaction
 {
-    /// <summary>The beam passes through (carry clear).</summary>
+    /// <summary>The beam passes through.</summary>
     Passes,
 
-    /// <summary>The block is solid to the beam, which stops it (carry set, overflow clear).</summary>
+    /// <summary>The block is solid to the beam, which stops it without latching.</summary>
     Solid,
 
-    /// <summary>The beam latches onto the block (carry and overflow set).</summary>
+    /// <summary>The beam latches onto the block, which also stops it.</summary>
     Connects,
 }

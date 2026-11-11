@@ -19,7 +19,7 @@ public sealed class HyperBeamPaletteFxState
     /// <summary>The colours the Hyper Beam palette program names, which its object checks the program against.</summary>
     private const PaletteFxColours ProgramColours = PaletteFxColours.HyperBeam;
 
-    /// <summary>Where the Hyper Beam's colour animation resumes between palette handler calls.</summary>
+    /// <summary>Where the Hyper Beam's colour animation resumes between updates.</summary>
     internal AnimationPlace Place { get; private set; }
 
     /// <summary>True after controller function three has spawned the object.</summary>
@@ -91,7 +91,7 @@ public sealed class HyperBeamPaletteFxState
             cue =>
             {
                 if (cue != new PaletteFxCue.SetColours(ProgramColours))
-                    throw new InvalidDataException($"The Hyper Beam's colour animation raised {cue}, which its object does not carry out.");
+                    throw new InvalidDataException($"The Hyper Beam's colour animation raised {cue}, which its object does not perform.");
             });
         Place = place;
         if (next is not AnimationShown<PaletteFxProgram, int>.Frame shown)

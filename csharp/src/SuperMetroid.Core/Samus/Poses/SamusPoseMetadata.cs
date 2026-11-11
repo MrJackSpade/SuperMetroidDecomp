@@ -65,7 +65,7 @@ internal static class SamusPoseMetadata
         ReadFacingDirection(pose) == SamusFacingDirection.Left;
 
     /// <summary>
-    /// Reads and validates pose-definition byte one, the exclusive movement dispatcher.
+    /// Reads and validates the current pose's movement type, which selects the one movement Samus runs.
     /// </summary>
     public static SamusMovementType ReadMovementType(SamusState samus)
     {
@@ -80,7 +80,7 @@ internal static class SamusPoseMetadata
         ReadMovementType(samus);
 
     /// <summary>
-    /// Reads pose-definition byte one for a prospective pose without mutating Samus.
+    /// Reads a prospective pose's movement type without mutating Samus.
     /// Values beyond the complete retail dispatcher are corrupt pose metadata and
     /// fail here, before they can be mistaken for a valid gameplay state downstream.
     /// </summary>
@@ -92,8 +92,8 @@ internal static class SamusPoseMetadata
         ReadMovementType(pose);
 
     /// <summary>
-    /// Reads pose-definition byte two, the pose selected by the pose-definition fallback when no
-    /// controller bits are held and the transition table therefore is not consulted.
+    /// Reads the current pose's no-input pose: the pose selected when no buttons are held and the
+    /// transition table therefore is not consulted.
     /// </summary>
     public static SamusPoseId ReadNoInputFallbackPose(SamusState samus)
     {
@@ -113,7 +113,7 @@ internal static class SamusPoseMetadata
     public static SamusPoseAim ReadAim(SamusPoseId pose) => SamusPoseAims.Read(pose);
 
     /// <summary>
-    /// Reads signed pose-definition byte four for presentation, including Grapple's flare.
+    /// Reads the pose's signed vertical drawing offset for presentation, including Grapple's flare.
     /// Physical beam/Grapple origins use their separate compiled correction; replacing
     /// artwork must not shift a projectile's collision position.
     /// </summary>

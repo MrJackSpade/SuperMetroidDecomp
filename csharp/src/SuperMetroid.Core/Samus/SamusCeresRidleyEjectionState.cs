@@ -39,10 +39,10 @@ public sealed class SamusCeresRidleyEjectionState
         IsActive = true;
         InitializationPending = true;
 
-        // Writes the shove into the one physical movement-handler word. An
-        // uncrashed ordinary spark consequently retains its boost words as Blue Suit. If
-        // the overwritten handler was Crystal Flash's raise/drain/finish routine, its
-        // independent palette handler and empty pose-input handler survive instead. Neither
+        // The shove replaces Samus's one movement handler. An
+        // uncrashed ordinary spark consequently keeps its boost as Blue Suit. If
+        // the replaced handler was Crystal Flash's raise/drain/finish, its
+        // independent suit colouring and empty pose-input handler survive instead. Neither
         // displaced movement owner can resume after Ridley's shove ends.
         samus.Shinespark.RelinquishMovementHandler();
         samus.CrystalFlash.RelinquishMovementHandler();

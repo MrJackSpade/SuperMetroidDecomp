@@ -122,7 +122,7 @@ public static class SamusKnockbackMovement
 
         // Enemy contact has already established the knockback timer before the knockback check selects a pose.
         // Turning, grapple, current knockback, damage boost, and special-movement bodies all
-        // return carry clear: they retain the timer/flicker but do not install the knockback handler.
+        // refuse knockback: they retain the timer/flicker but do not install the knockback handler.
         samus.KnockbackTimer = launch.KnockbackTimer;
         if (suppressesKnockback)
             return false;

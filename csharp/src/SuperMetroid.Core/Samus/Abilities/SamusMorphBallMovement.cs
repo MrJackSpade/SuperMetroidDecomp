@@ -316,7 +316,7 @@ level, samus, controllerInput, frameCounter, roomObjects, SamusMovementType.Spri
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
 
         // The transition handler deliberately supplies zero base speed but still uses pose direction,
-        // collision, and the already-published total-speed words.
+        // collision, and the total speed already worked out this update.
         var requestedHorizontal = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed: default);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
         if (horizontal.Collided)

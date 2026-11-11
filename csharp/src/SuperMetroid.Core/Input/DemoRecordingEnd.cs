@@ -8,7 +8,7 @@ public abstract record DemoRecordingEnd
     {
     }
 
-    /// <summary>The demo's input ends: its controller words clear.</summary>
+    /// <summary>The demo's input ends: the demo releases every button.</summary>
     public static DemoRecordingEnd Stops { get; } = new Stop();
 
     /// <summary>Tells the owner <paramref name="signal"/>, then the demo's input ends.</summary>

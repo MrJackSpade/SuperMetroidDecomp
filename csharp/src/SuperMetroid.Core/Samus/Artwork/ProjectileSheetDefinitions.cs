@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// </summary>
 public static class ProjectileSheetDefinitions
 {
-    /// <summary>The frame a trail side shows before its first pose: the cleared attribute word, sprite character 0.</summary>
+    /// <summary>The frame a trail side shows before its first pose: the sheet's first image, unflipped and in its default colours.</summary>
     public const string UnshownTrailFrame = "Trail.Unshown";
 
     /// <summary>

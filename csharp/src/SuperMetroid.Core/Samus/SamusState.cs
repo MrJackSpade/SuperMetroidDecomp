@@ -38,7 +38,7 @@ public sealed class SamusState
     /// <summary>The <see cref="SamusPresentation"/> owner of this SamusState.</summary>
     internal SamusPresentation Presentation { get; }
 
-    /// <summary>Current one-byte pose index.</summary>
+    /// <summary>Samus's current pose.</summary>
     /// <remarks>
     /// An ordinary write also models the pose initializer, publishing the
     /// pose's direction and movement type to <see cref="InitializedPose"/>. Only the
@@ -78,8 +78,8 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// Set when a Samus command returns carry set during enemy AI: running the command
-    /// then clears every prospective pose and command, so this frame's pending
+    /// Set when a Samus command run during enemy AI cancels the pending pose transition: the command
+    /// clears every prospective pose and command, so this frame's pending
     /// transition is not committed. The runtime consumes it before the pose update.
     /// </summary>
     public bool PendingPoseTransitionCancelled { get; private set; }
@@ -433,7 +433,7 @@ public sealed class SamusState
     public SamusArmCannonState ArmCannon { get; } = new();
 
     /// <summary>
-    /// Packed five-call visor color cycle used only by backdrop-blending rooms.
+    /// The room's visor shade cycle, advancing every five updates, used only by backdrop-blending rooms.
     /// </summary>
     public SamusVisorPaletteState VisorPalette { get; } = new();
 

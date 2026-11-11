@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Samus.Palettes;
 /// </summary>
 /// <remarks>
 /// The caller must first dispatch any nonzero super-special palette flag, just as the
-/// game's palette handler does. Runtime satisfies that contract by allowing the drained/rainbow
+/// game's suit colouring does. Runtime satisfies that contract by allowing the drained/rainbow
 /// handler to return before this routine. All remaining special palettes run earlier and
 /// this routine therefore has final priority over charge, Speed Booster, shinespark,
 /// Crystal Flash, and X-ray colors during its first six calls.

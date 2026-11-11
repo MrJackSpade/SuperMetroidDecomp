@@ -5,12 +5,12 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
-/// Samus position, subposition, radius, and vertical-speed words consumed by
-/// room collision.
+/// Samus's position, subposition, radius and vertical speed, which room collision
+/// reads.
 /// </summary>
 /// <remarks>
-/// Positions keep their whole and subpixel words because collision intentionally
-/// overwrites individual halves (for example, a right wall sets X subposition to 65535).
+/// Positions keep their whole pixels and subpixels apart because collision intentionally
+/// sets each on its own (for example, a right wall sets X subposition to 65535).
 /// Collapsing this state to floats would erase those observable edge semantics.
 /// </remarks>
 public sealed class SamusKinematicsState

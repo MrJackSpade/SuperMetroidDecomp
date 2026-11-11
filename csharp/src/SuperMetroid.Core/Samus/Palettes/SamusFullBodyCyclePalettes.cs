@@ -4,7 +4,7 @@ using static SuperMetroid.Core.Samus.Palettes.SamusPaletteDefinitions.FullBodyCy
 
 namespace SuperMetroid.Core.Samus.Palettes;
 
-/// <summary>Which cycle palette the special full-body palette handlers select for a suit and cycle step.</summary>
+/// <summary>Which cycle palette the special full-body suit colourings select for a suit and cycle step.</summary>
 public static class SamusFullBodyCyclePalettes
 {
     /// <summary>The cycle palette the special Super-palette flash alternates with normal suit colors, the Speed Booster family's last shade.</summary>

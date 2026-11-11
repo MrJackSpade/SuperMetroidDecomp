@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <summary>The three phases of Crystal Flash's handler.</summary>
 public enum CrystalFlashPhase
 {
-    /// <summary>No Crystal Flash movement handler is installed; its palette handler may still await the separate restoration pass.</summary>
+    /// <summary>Crystal Flash does not move Samus; its suit colouring may still be waiting to restore her normal colours.</summary>
     Inactive,
     /// <summary>Samus rises: her whole Y position goes up two pixels for ten calls, then the raised center is captured and the bubble effect is requested.</summary>
     Raising,

@@ -60,7 +60,7 @@ public sealed class SamusShinesparkState
     public bool LaunchSoundSuppressed { get; private set; }
     /// <summary>Queue guard shared by the two adjacent crash-entry sound calls.</summary>
     public bool CrashSoundSuppressed { get; private set; }
-    /// <summary>Special-palette handler this owner installs: none, stored shine, or shinesparking.</summary>
+    /// <summary>The special suit colouring the shine runs: none, the stored shine's, or the shinespark's.</summary>
     public SamusSpecialPaletteType PaletteType { get; private set; }
 
     /// <summary>The special-palette timer: 180 stored, 60 windup, and 15 during active motion.</summary>
@@ -200,9 +200,9 @@ public sealed class SamusShinesparkState
     public ShinesparkCrashEcho SecondReleasedEcho { get; } = new();
 
     /// <summary>
-    /// Starting the X-ray scope clears the special-palette timer and replaces the shared
-    /// special-palette handler with X-Ray. Relinquish this owner's palette state so
-    /// it cannot keep ticking or repaint over the newly installed visor palette.
+    /// Starting the X-ray scope clears the special suit-colouring timer and X-ray's colouring
+    /// takes over Samus's suit. Release the shine's colouring so it cannot keep ticking or
+    /// repaint over the visor's new colours.
     /// </summary>
     internal void RelinquishPaletteToXray()
     {
@@ -283,12 +283,12 @@ public sealed class SamusShinesparkState
             }
         }
 
-        // The windup replaces the movement and palette handlers. Flash's live
+        // The windup takes over Samus's movement and suit colouring. Flash's live
         // palette timer can admit this launch even after its movement was interrupted.
         samus.CrystalFlash.RelinquishMovementHandler();
         samus.CrystalFlash.RelinquishPaletteHandler();
         // A Reserve-Mode X-Ray cone effect survives, but directional spark setup replaces
-        // the same shared special-palette dispatcher with handler six.
+        // X-ray's suit colouring with the shinespark's.
         samus.Xray.RelinquishPaletteHandler();
 
         // These are literal writes. Stage four remains published during windup even
@@ -685,8 +685,8 @@ false);
     }
 
     /// <summary>
-    /// Runs palette handler one or six, including normal restoration
-    /// when its signed countdown expires.
+    /// Runs the stored shine's or the shinespark's suit colouring, restoring Samus's
+    /// normal colours when its signed countdown expires.
     /// </summary>
     public bool UpdatePalette(SamusColours colours, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems)
     {

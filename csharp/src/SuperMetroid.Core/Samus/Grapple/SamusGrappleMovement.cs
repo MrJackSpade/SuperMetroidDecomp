@@ -789,9 +789,9 @@ public static class SamusGrappleMovement
                 case RoomCollisionType.SpikeBlock:
                     // The grapple block reaction selects a grapple-reaction room object by the low seven
                     // behaviour bits. A negative behaviour rejects the beam. Every ordinary entry uses
-                    // the empty reaction (carry set, overflow clear) and immediately deletes; behaviour
+                    // the empty reaction, which stops the beam without latching, and immediately deletes; behaviour
                     // three alone uses Draygon's broken-turret setup, which adds
-                    // one whole periodic-damage unit and returns carry+overflow to connect.
+                    // one whole periodic-damage unit and latches the beam.
                     if (block.Behavior.Reaction.IsAreaSpecific)
                         return GrappleBlockReaction.Passes;
                     if (block.Behavior.Reaction == GrappleBlockReactionDefinitions.BrokenTurretSpike)
@@ -917,7 +917,7 @@ public static class SamusGrappleMovement
 
                 case RoomCollisionType.BombableBlock:
                     // The solid twin performs the same rejected setup but independently
-                    // returns carry set from its collision reaction.
+                    // reports the block solid to the beam from its collision reaction.
                     return GrappleBlockReaction.Solid;
 
                 default:
@@ -1043,7 +1043,7 @@ public static class SamusGrappleMovement
         {
             // The swinging and stuck tails publish special prospective command 9/10. They do not
             // execute the pose commands inline. A super-special command can therefore keep
-            // the old pose and every speed word while the Grapple function remains live.
+            // the old pose and every one of Samus's speeds while the Grapple function remains live.
             return new GrappleMovementResult(
                 grapple.Phase,
                 OwnsMovement: false,
@@ -1100,7 +1100,7 @@ public static class SamusGrappleMovement
         }
 
         // The connection pose commands 9 and 10 share one tail. Speed-booster bookkeeping
-        // has no host field yet, but every modeled speed word cleared there is reset here.
+        // has no host field yet, but every modeled speed cleared there is reset here.
         // AccelerationMode is deliberately retained: the common tail does not write it.
         samus.HorizontalSpeed.BaseSpeed = default;
         samus.HorizontalSpeed.ExtraRunSpeed = default;

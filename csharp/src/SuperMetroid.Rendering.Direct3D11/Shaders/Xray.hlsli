@@ -41,12 +41,22 @@ uint XrayOverlayPart(uint2 position, uint part)
     return XraySample(shown, picture, within);
 }
 // The colour the effect overlay draws at a position, with whether it comes from its pictures' part drawn in front
-// (#1634): the in-front part's opaque pixel, otherwise the behind part's.
+// (#1634): the in-front part's opaque pixel, otherwise the behind part's. The parts are looked up in one loop body: WARP,
+// the render checks' reference device, misreads the overlay record's first word when the lookup is emitted twice in a row.
 uint2 XrayOverlay(uint2 position)
 {
-    uint inFront = XrayOverlayPart(position, PartInFront);
-    if ((inFront >> 24) != 0) return uint2(inFront, 1);
-    return uint2(XrayOverlayPart(position, PartBehind), 0);
+    uint2 shown = uint2(0, 0);
+    [loop] for (uint step = 0; step < PictureParts; step++)
+    {
+        uint part = step == 0 ? PartInFront : PartBehind;
+        uint colour = XrayOverlayPart(position, part);
+        if ((colour >> 24) != 0)
+        {
+            shown = uint2(colour, part == PartInFront ? 1 : 0);
+            break;
+        }
+    }
+    return shown;
 }
 // The colour part `part` (#1634) of a room layer (RoomTile), boss body, reveal or library background draws at a position;
 // a position the room does not cover is transparent. Pictures written over the background cover it when roomSource carries

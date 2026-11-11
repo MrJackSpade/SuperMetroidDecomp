@@ -24,12 +24,14 @@ public sealed record LayeredPicture(SpriteSheetFrame? Behind, SpriteSheetFrame? 
 
     /// <summary>The parts' width and height, or null for a picture that shows nothing.</summary>
     /// <exception cref="InvalidDataException">The two parts differ in size.</exception>
-    public Extent16<ImagePixels>? Size => (Behind, InFront) switch
+    public Extent16<ImagePixels>? Size
     {
-        (null, null) => null,
-        ({ } behind, null) => behind.Size,
-        (null, { } inFront) => inFront.Size,
-        ({ } behind, { } inFront) => behind.Size == inFront.Size ? behind.Size
-            : throw new InvalidDataException($"A picture's behind part is {behind.Size.X}x{behind.Size.Y} and its in-front part {inFront.Size.X}x{inFront.Size.Y}."),
-    };
+        get
+        {
+            if (Behind is { } behind && InFront is { } inFront && behind.Size != inFront.Size)
+                throw new InvalidDataException(
+                    $"A picture's behind part is {behind.Size.X}x{behind.Size.Y} and its in-front part {inFront.Size.X}x{inFront.Size.Y}.");
+            return Behind?.Size ?? InFront?.Size;
+        }
+    }
 }

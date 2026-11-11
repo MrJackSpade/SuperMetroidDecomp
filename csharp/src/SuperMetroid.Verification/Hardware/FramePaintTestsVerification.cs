@@ -21,7 +21,7 @@ internal static class FramePaintTestsVerification
         // installed sprite sheet's would be, with no palette bits, so a capture colours its colours from the cartridge
         // colours as the loader's pictures are (#1512, #1544).
         byte[] indices = [.. Enumerable.Range(0, ImageColourGroup.HalfColours).Select(index => (byte)index)];
-        SpriteImage image = ComposedPictures.Install("Fixture", new(16, 8), new RgbaPixel[indices.Length], indices, new byte[indices.Length],
+        SpriteImage image = ComposedPictures.Install("Fixture", new(16, 8), new RgbaPixel[indices.Length], indices,
             SpriteImageColours.Sprite, new RgbColor[ImageColourGroup.HalfColours]);
         sprites.BeginFrame();
         sprites.Add(new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer), new SpriteSheetFrame(image, default, new(16, 8), default),

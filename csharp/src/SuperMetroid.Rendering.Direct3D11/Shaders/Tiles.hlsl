@@ -524,7 +524,7 @@ bool SourcePicture(uint part, uint2 sampleScreen, uint2 scroll, uint2 screen, ou
     within = uint2(0, 0);
     uint2 scrolled = (sampleScreen + scroll) & 65535;
     uint source = RoomSource & 255;
-    bool shown;
+    bool shown = false;
     if ((RoomSource & SourceWrittenOverBackground) != 0 && WrittenOverBackgroundPicture(scrolled, part, picture, within))
         shown = true;
     else if (source == SourceFxOverlay)
@@ -560,22 +560,28 @@ bool LayerPixel(uint2 sampleScreen, uint2 scroll, uint2 screen, out uint colour,
 {
     colour = 0;
     index = 0;
-    uint2 within;
-    uint picture;
+    uint2 within = uint2(0, 0);
+    uint picture = 0;
+    bool found = false;
     bool inFront = DrawnDepth != DrawsBehindPart && SourcePicture(PartInFront, sampleScreen, scroll, screen, within, picture);
     if (inFront)
     {
         colour = PicturePixel(picture, within, index);
-        if (DrawnDepth == DrawsInFrontPart || index != 0) return true;
+        found = true;
     }
-    if (DrawnDepth == DrawsInFrontPart) return false;
-    if (SourcePicture(PartBehind, sampleScreen, scroll, screen, within, picture))
+    // The behind part shows unless only the in-front part is drawn or the in-front part's pixel is opaque; where only the
+    // in-front part lies here and its pixel shows nothing, that clear pixel stands.
+    if (DrawnDepth != DrawsInFrontPart && !(inFront && index != 0))
     {
-        colour = PicturePixel(picture, within, index);
-        return true;
+        uint2 behindWithin = uint2(0, 0);
+        uint behindPicture = 0;
+        if (SourcePicture(PartBehind, sampleScreen, scroll, screen, behindWithin, behindPicture))
+        {
+            colour = PicturePixel(behindPicture, behindWithin, index);
+            found = true;
+        }
     }
-    // Only the in-front part lies here, and its pixel shows nothing.
-    return inFront;
+    return found;
 }
 
 [numthreads(8, 8, 1)]

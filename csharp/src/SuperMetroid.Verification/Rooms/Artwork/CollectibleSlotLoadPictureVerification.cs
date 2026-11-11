@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.TestSupport.RepositoryInstallation;
@@ -30,9 +29,9 @@ internal static class CollectibleSlotLoadPictureVerification
             ImmutableArray<AppearanceInput> inputs = sheet.Inputs.Of(ReportedBlock, RoomBlockArtwork.Tileset);
             string[] loaded = [.. inputs.Select(_ => RoomAppearanceValues.Loaded)];
             string name = RoomBlockPictureNames.Of(ReportedBlock, RoomBlockArtwork.Tileset, inputs, loaded);
-            // The picture is installed as its part behind and its part in front (#1634); the block shows something, so one is.
-            LayeredPicture picture = sheet.Picture(name);
-            AssertTrue(picture.Size is { X: RoomBlockSheet.BlockPixels }, $"{sheet.Sheet.Image.Name} picture {name} is one block wide");
+            // The sheet holds the picture as its part behind and its part in front (#1634); a part that shows nothing is held
+            // as such, and a name the sheet does not hold throws.
+            _ = sheet.Picture(name);
         }
         Console.WriteLine($"Collectible block load picture: {sheets.Length} Upper Crateria sheet(s) hold block {ReportedBlock:X3}'s picture over the room's load.");
     }

@@ -326,16 +326,16 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
                 int from = (frame.Corner.Y + y) * Width + frame.Corner.X + x;
                 int to = (corner.Y + y) * width + corner.X + x;
                 bool opaque = Pixels[from].A != 0;
-                byte nothing = twoBit ? (byte)(PaletteIndices[from] - PaletteIndices[from] % TwoBppRowColours) : (byte)0;
+                int nothing = twoBit ? PaletteIndices[from] - (PaletteIndices[from] % TwoBppRowColours) : 0;
                 if (opaque && FrontTiles[from] != 0)
                 {
                     pixels[to] = Pixels[from];
                     paletteIndices[to] = PaletteIndices[from];
                     pixels[from] = default;
-                    paletteIndices[from] = nothing;
+                    paletteIndices[from] = checked((byte)nothing);
                 }
                 else if (opaque)
-                    paletteIndices[to] = nothing;
+                    paletteIndices[to] = checked((byte)nothing);
                 else
                     paletteIndices[to] = PaletteIndices[from];
             }

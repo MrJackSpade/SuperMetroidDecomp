@@ -149,12 +149,11 @@ internal static class InstalledSheetConversion
         var manifest = new InstalledSheetDocument
         {
             Version = SpriteSheetFile.Version,
+            Size = size,
             Backdrop = composed.Backdrop is { } scene ? InstalledColourKeyDocument.Of(new ColourKey(table[scene], regionOf[scene])) : null,
             Shades = installedShades,
             Frames = frames,
             Blank = composed.Blank,
-            RecolourRegions = mapped,
-            BlendMap = mixed,
         };
         return new InstalledSheet(manifest, new SpriteImagePixels(shown, recolourRegions, mixed ? blending : null));
     }

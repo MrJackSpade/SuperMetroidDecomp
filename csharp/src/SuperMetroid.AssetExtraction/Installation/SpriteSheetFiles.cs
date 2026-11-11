@@ -28,25 +28,27 @@ using SuperMetroid.Core.Frontend.Title;
 namespace SuperMetroid.AssetExtraction.Installation;
 
 /// <summary>
-/// Installs the pre-coloured sprite sheets (#1392): for each sheet an RGBA PNG and its frame manifest, with a provenance
-/// manifest of their hashes. A player edits the installed files in place.
+/// Installs the pre-coloured sprite sheets (#1392, #1635): for each sheet its frame manifest, with a provenance manifest of
+/// their hashes, its pictures held in the installation's picture store (<see cref="PictureStoreFiles"/>). A player edits the
+/// installed files in place.
 /// </summary>
 public static class SpriteSheetFiles
 {
     /// <summary>The provenance manifest's file name.</summary>
     public const string ManifestFileName = "sprite-sheets.json";
 
-    /// <summary>Composes and writes every sheet.</summary>
+    /// <summary>
+    /// Composes every sheet as the installation holds it, in the sheets' own order, for the picture store to write
+    /// (<see cref="PictureStoreFiles"/>, #1635).
+    /// </summary>
     /// <param name="bus">Cartridge source for frames no installed artwork holds and for the ending's colours (#1544).</param>
     /// <param name="content">Installed stock content holding the characters, compositions and colours the sheets compose from.</param>
-    /// <param name="directory">Destination directory, created if absent.</param>
-    /// <param name="sourceCartridgeSha256">Identity written into the manifest.</param>
-    /// <param name="pictures">The installation's rendered pictures, which refuse a picture rendered twice (#1635).</param>
-    internal static void Extract(ISnesAddressSpace bus, string content, string directory, string sourceCartridgeSha256, SheetPictureRegistry pictures)
+    /// <param name="directory">The family's directory, which the picture store writes the sheet manifests into.</param>
+    internal static InstalledSheetFamily Extract(ISnesAddressSpace bus, string content, string directory)
     {
         Ensure.NotNull(bus);
         ArgumentException.ThrowIfNullOrWhiteSpace(content);
-        SpriteSheetStore store = SpriteSheetStore.Create(directory, ManifestFileName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         // The ending's colours and the escape timer's sheet read the cartridge bus, so they are read on this thread; every
         // other sheet composes from the installed sources and those colours in parallel (#1530), each into its own place,
         // so the order stays the sheets' own.
@@ -63,12 +65,12 @@ public static class SpriteSheetFiles
             if (sheets[index] == SpriteSheetId.EscapeTimer)
                 composed[index] = EscapeTimerSheetComposer.Compose(bus);
         }
-        store.WriteAll([.. sheets.Select((sheet, index) => new NamedComposedSheet(SpriteSheetDefinitions.FileNames[sheet], composed[index]))], pictures);
-        store.Finish(sourceCartridgeSha256);
+        return InstalledSheetFamily.Install(directory, ManifestFileName,
+            [.. sheets.Select((sheet, index) => new NamedComposedSheet(SpriteSheetDefinitions.FileNames[sheet], composed[index]))]);
     }
 
-    /// <summary>Checks the installed files against their manifest and loads every sheet.</summary>
-    /// <exception cref="InvalidDataException">The manifest, an image or a frame manifest is invalid.</exception>
+    /// <summary>Checks the installed files against their manifest and loads every sheet, its pictures from the picture store.</summary>
+    /// <exception cref="InvalidDataException">The manifest, a frame manifest or the picture store is invalid.</exception>
     public static InstalledSpriteSheets Load(string directory)
     {
         SpriteSheetStore store = SpriteSheetStore.Open(directory, ManifestFileName, SpriteSheetDefinitions.Sheets.Count);

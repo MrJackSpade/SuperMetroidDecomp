@@ -8,4 +8,4 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// </summary>
 /// <param name="Own">The sheet of the pictures no other spawned-object sheet holds; none when every picture is common.</param>
 /// <param name="Common">For each picture held on a common sheet, by picture name, that sheet's place among the common sheets.</param>
-internal sealed record SpawnedSheetShare(EncodedSpriteSheet? Own, Dictionary<string, int> Common);
+internal sealed record SpawnedSheetShare(InstalledSheet? Own, Dictionary<string, int> Common);

@@ -52,13 +52,19 @@ public static class GameInstallationLayout
     /// <summary>Pre-assembled boss body sheets, one per boss (#1466).</summary>
     public const string BossBodySheetDirectoryName = "boss-body-sheets";
     /// <summary>
-    /// Content child directory for the sheets' recolour-region maps (#1633), apart from the pictures: one folder per sheet
-    /// family, named as the family's directory, holding a <c>.regions</c> map for each sheet that needs one.
+    /// The picture store (#1635): every picture the sheets show, each written once, on shelf-packed pages that every sheet
+    /// manifest names its frames' pictures on (<see cref="PictureStoreFiles"/>).
+    /// </summary>
+    public const string PictureStoreDirectoryName = PictureStoreFiles.DirectoryName;
+    /// <summary>
+    /// Content child directory for the picture store's recolour-region maps (#1633, #1635), apart from the pictures: its
+    /// <c>pictures</c> folder holds a <c>.regions</c> map for each page holding a picture whose pixels of one colour recolour
+    /// differently.
     /// </summary>
     public const string RecolourRegionDirectoryName = "recolour-regions";
     /// <summary>
-    /// Content child directory for the sprite-drawn sheets' blend maps (#1633), apart from the pictures: one folder per sheet
-    /// family, named as the family's directory, holding a <c>.blendmap</c> map for each sheet that needs one.
+    /// Content child directory for the picture store's blend maps (#1633, #1635), apart from the pictures: its
+    /// <c>pictures</c> folder holds a <c>.blendmap</c> map for each page holding a picture that blends in its pixels.
     /// </summary>
     public const string BlendMapDirectoryName = "blend-maps";
     /// <summary>Content child directory shared by background tilemaps and sky tilemaps.</summary>
@@ -128,7 +134,7 @@ public static class GameInstallationLayout
     /// <summary>Receipt filename within stock content, recording the installation format and source cartridge digest.</summary>
     public const string ReceiptFileName = "installation.json";
     /// <summary>Current installation-receipt version; content whose receipt names another is extracted again before opening.</summary>
-    public const int FormatVersion = 265;
+    public const int FormatVersion = 266;
     /// <summary>Backup of the previously published stock game tree during an atomic install.</summary>
     internal const string PreviousDirectoryName = ".game.previous";
     /// <summary>Prefix for a stock tree being prepared before publication.</summary>

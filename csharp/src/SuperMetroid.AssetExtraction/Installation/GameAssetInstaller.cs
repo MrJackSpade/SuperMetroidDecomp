@@ -151,7 +151,8 @@ public static class GameAssetInstaller
     /// <summary>
     /// Installs every component into <paramref name="staging"/> (#1530): every extraction and standalone component at once,
     /// as each reads only the cartridge and its own directory, then every composition component at once as soon as the
-    /// extraction components it reads have finished, while any standalone component may still run. Reports are serialized,
+    /// extraction components it reads have finished, while any standalone component may still run, and then the picture
+    /// store once every composition component has composed its sheets (#1635). Reports are serialized,
     /// so a progress listener sees one at a time. A failure cancels the rest, which are awaited; every failure that was not
     /// the cancellation is rethrown, the first as it was thrown when it is the only one.
     /// </summary>
@@ -159,23 +160,23 @@ public static class GameAssetInstaller
     {
         using var failed = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         IProgress<string>? reports = progress is null ? null : new SerializedProgress(progress);
-        // Every sheet composer of the run renders into one set of pictures, which refuses a picture rendered twice (#1635).
-        var pictures = new SheetPictureRegistry();
+        // Every sheet composer of the run adds its sheets to the run's families, whose pictures the store writes once (#1635).
+        var families = new InstalledSheetFamilies();
         // Each component runs on a thread of its own, so it starts at once rather than queueing behind the parallel work
         // inside the components already running.
         Task Start(InstallerComponent component) => Task.Factory.StartNew(() =>
         {
-            try { InstallComponent(rom, staging, component, pictures, failed.Token, reports); }
+            try { InstallComponent(rom, staging, component, families, failed.Token, reports); }
             catch { failed.Cancel(); throw; }
         }, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
-        InstallerComponent[] first = [.. Components.Where(component => component.Kind != InstallerComponentKind.Composition)];
+        InstallerComponent[] first = [.. Components.Where(component => component.Kind is InstallerComponentKind.Extraction or InstallerComponentKind.Standalone)];
         Task[] firstTasks = [.. first.Select(Start)];
         Task extracted = Task.WhenAll(firstTasks.Where((_, index) => first[index].Kind == InstallerComponentKind.Extraction));
         // Composition starts only once every extraction component it reads has finished, and not at all after a failure.
-        Task composition = extracted.ContinueWith(done => done.IsCompletedSuccessfully
-            ? Task.WhenAll(Components.Where(component => component.Kind == InstallerComponentKind.Composition).Select(Start))
-            : Task.CompletedTask, CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.Default).Unwrap();
-        Task[] all = [.. firstTasks, composition];
+        Task composition = After(extracted, InstallerComponentKind.Composition);
+        // The picture store starts only once every sheet family is composed, and not at all after a failure.
+        Task store = After(composition, InstallerComponentKind.PictureStore);
+        Task[] all = [.. firstTasks, composition, store];
         Task.WhenAll(all).ContinueWith(static _ => { }, CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.Default)
             .Wait(CancellationToken.None);
         // A component stopped by another's failure reports the cancellation, which is not a failure of its own.
@@ -186,10 +187,15 @@ public static class GameAssetInstaller
         if (failures.Length > 1)
             throw new AggregateException(failures);
         cancellationToken.ThrowIfCancellationRequested();
+
+        // Every component of kind, all at once, once preceding has finished, and none after it failed.
+        Task After(Task preceding, InstallerComponentKind kind) => preceding.ContinueWith(done => done.IsCompletedSuccessfully
+            ? Task.WhenAll(Components.Where(component => component.Kind == kind).Select(Start))
+            : Task.CompletedTask, CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.Default).Unwrap();
     }
 
     /// <summary>Extracts each step of <paramref name="component"/> into its directory under <paramref name="staging"/>.</summary>
-    private static void InstallComponent(byte[] rom, string staging, InstallerComponent component, SheetPictureRegistry pictures,
+    private static void InstallComponent(byte[] rom, string staging, InstallerComponent component, InstalledSheetFamilies families,
         CancellationToken cancellationToken, IProgress<string>? progress)
     {
         string directory = Path.Combine(staging, component.DirectoryName);
@@ -197,7 +203,7 @@ public static class GameAssetInstaller
         {
             progress?.Report(step.Progress);
             cancellationToken.ThrowIfCancellationRequested();
-            step.Extract(new CartridgeImportAddressSpace(rom), directory, pictures, cancellationToken);
+            step.Extract(new CartridgeImportAddressSpace(rom), directory, families, cancellationToken);
         }
     }
 
@@ -223,7 +229,7 @@ public static class GameAssetInstaller
     /// <summary>One extraction stage: its progress text and extractor.</summary>
     private sealed record InstallerStep(
         string Progress,
-        Action<CartridgeImportAddressSpace, string, SheetPictureRegistry, CancellationToken> Extract);
+        Action<CartridgeImportAddressSpace, string, InstalledSheetFamilies, CancellationToken> Extract);
 
     /// <summary>
     /// One extracted-content directory, and what it reads, which decides what it installs alongside (#1530). Extraction is
@@ -257,9 +263,9 @@ public static class GameAssetInstaller
     private static InstallerStep Step(string progress, Action<CartridgeImportAddressSpace, string> extract) =>
         new(progress, (bus, directory, _, _) => extract(bus, directory));
 
-    /// <summary>Adapts a sheet composition into one installer stage, rendering into the run's pictures (#1635).</summary>
-    private static InstallerStep SheetStep(string progress, Action<CartridgeImportAddressSpace, string, SheetPictureRegistry> compose) =>
-        new(progress, (bus, directory, pictures, _) => compose(bus, directory, pictures));
+    /// <summary>Adapts a sheet composition or the picture store into one installer stage over the run's sheet families (#1635).</summary>
+    private static InstallerStep SheetStep(string progress, Action<CartridgeImportAddressSpace, string, InstalledSheetFamilies> compose) =>
+        new(progress, (bus, directory, families, _) => compose(bus, directory, families));
 
     /// <summary>The installation a component directory belongs to.</summary>
     /// <exception cref="InvalidOperationException">The directory has no installation above it.</exception>
@@ -268,7 +274,8 @@ public static class GameAssetInstaller
 
     /// <summary>
     /// Every extracted-content component, in extraction order. The sheets come last: they compose from the stock
-    /// artwork every earlier component has installed beside them.
+    /// artwork every earlier component has installed beside them, and the picture store, after them, writes their pictures
+    /// and manifests (#1635).
     /// </summary>
     private static readonly InstallerComponent[] Components =
     [
@@ -376,13 +383,15 @@ public static class GameAssetInstaller
         new(GameInstallationLayout.XrayRevealVisualDirectoryName,
             Step("Extracting X-ray reveal visuals...", (bus, d) => XrayRevealVisualFiles.Extract(bus, d, SupportedCartridge.Sha256))),
         new(GameInstallationLayout.SpriteSheetDirectoryName, InstallerComponentKind.Composition,
-            SheetStep("Composing sprite sheets...", (bus, d, pictures) => SpriteSheetFiles.Extract(bus, InstallationOf(d), d, SupportedCartridge.Sha256, pictures))),
+            SheetStep("Composing sprite sheets...", (bus, d, families) => families.Add(SpriteSheetFiles.Extract(bus, InstallationOf(d), d)))),
         new(GameInstallationLayout.RoomBlockSheetDirectoryName, InstallerComponentKind.Composition,
-            SheetStep("Composing room block sheets...", (_, d, pictures) => RoomBlockSheetFiles.Extract(InstallationOf(d), d, SupportedCartridge.Sha256, pictures))),
+            SheetStep("Composing room block sheets...", (_, d, families) => families.Add(RoomBlockSheetFiles.Extract(InstallationOf(d), d)))),
         new(GameInstallationLayout.BossBodySheetDirectoryName, InstallerComponentKind.Composition,
-            SheetStep("Composing boss body sheets...", (_, d, pictures) => BossBodySheetFiles.Extract(InstallationOf(d), d, SupportedCartridge.Sha256, pictures))),
+            SheetStep("Composing boss body sheets...", (_, d, families) => families.Add(BossBodySheetFiles.Extract(InstallationOf(d), d)))),
         new(GameInstallationLayout.EnemySheetDirectoryName, InstallerComponentKind.Composition,
-            SheetStep("Composing enemy sheets...", (_, d, pictures) => EnemySheetFiles.Extract(InstallationOf(d), d, SupportedCartridge.Sha256, pictures))),
+            SheetStep("Composing enemy sheets...", (_, d, families) => families.Add(EnemySheetFiles.Extract(InstallationOf(d), d)))),
+        new(PictureStoreFiles.DirectoryName, InstallerComponentKind.PictureStore,
+            SheetStep("Writing the picture store...", (_, d, families) => PictureStoreWriter.Write(InstallationOf(d), families.Every(), SupportedCartridge.Sha256))),
     ];
 
     /// <summary>Why <paramref name="receipt"/> does not name this importer's format and source, or null when it does.</summary>

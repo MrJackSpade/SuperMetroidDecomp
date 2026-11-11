@@ -11,7 +11,8 @@ using SuperMetroid.Core.World.RoomStates;
 namespace SuperMetroid.AssetExtraction.Installation;
 
 /// <summary>
-/// Installs the pre-coloured enemy sheets (#1392, #1599, #1633): each distinct sheet's image, frames and maps, the manifest
+/// Installs the pre-coloured enemy sheets (#1392, #1599, #1633, #1635): each distinct sheet's manifest, its pictures held in
+/// the installation's picture store, the manifest
 /// naming every variant of each enemy and of each owner's spawned objects and the variants each population draws, and the
 /// provenance of their hashes. A player edits a sheet's installed files in place.
 /// </summary>
@@ -32,20 +33,20 @@ public static class EnemySheetFiles
     /// <summary>The provenance manifest's file name.</summary>
     public const string ProvenanceFileName = "enemy-sheets-provenance.json";
 
-    /// <summary>Composes and writes every enemy sheet and the variant manifest.</summary>
+    /// <summary>
+    /// Composes every enemy sheet and writes the variant manifest; the sheets are returned for the picture store to write
+    /// (<see cref="PictureStoreFiles"/>, #1635).
+    /// </summary>
     /// <param name="content">Installed stock content holding the tiles, compositions and colours the sheets compose from.</param>
-    /// <param name="directory">Destination directory, created if absent.</param>
-    /// <param name="sourceCartridgeSha256">Identity written into the provenance manifest.</param>
-    /// <param name="pictures">The installation's rendered pictures, which refuse a picture rendered twice (#1635).</param>
-    internal static void Extract(string content, string directory, string sourceCartridgeSha256, SheetPictureRegistry pictures)
+    /// <param name="directory">The family's directory, created if absent.</param>
+    internal static InstalledSheetFamily Extract(string content, string directory)
     {
-        EnemySheetComposition composition = EnemySheetComposer.Compose(EnemySheetInputs.Load(content), pictures);
-        SpriteSheetStore store = SpriteSheetStore.Create(directory, ProvenanceFileName);
-        foreach (KeyValuePair<string, EncodedSpriteSheet> sheet in composition.Sheets)
-            store.Write(sheet.Key, sheet.Value);
-        store.Finish(sourceCartridgeSha256);
+        EnemySheetComposition composition = EnemySheetComposer.Compose(EnemySheetInputs.Load(content));
+        Directory.CreateDirectory(directory);
         File.WriteAllBytes(Path.Combine(directory, ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(composition.Manifest, JsonOptions));
+        return new InstalledSheetFamily(directory, ProvenanceFileName,
+            [.. composition.Sheets.Select(sheet => new NamedInstalledSheet(sheet.Key, sheet.Value))]);
     }
 
     /// <summary>

@@ -4,8 +4,8 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>
-/// The pixel planes one thread reuses for every sheet it paints and encodes before painting the next (#1490), grown to
-/// the largest sheet painted so far, so a sheet that is encoded and dropped costs no planes of its own. Not shared
+/// The pixel planes one thread reuses for every sheet it paints and converts before painting the next (#1490), grown to
+/// the largest sheet painted so far, so a sheet that is converted and dropped costs no planes of its own. Not shared
 /// between threads.
 /// </summary>
 internal sealed class SpriteSheetCanvas

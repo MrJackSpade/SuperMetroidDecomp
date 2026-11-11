@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Spatial;
@@ -10,9 +11,9 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Installation;
 
 /// <summary>
-/// Installs the pre-assembled boss body sheets (#1466, #1515, #1540): each boss's sheet as an image and frames, with its recolour-region map where it needs one (#1633),
-/// the manifest naming each frame's whole picture and where it lies on the body's area, and the provenance of their
-/// hashes. A player edits a sheet's installed files in place.
+/// Installs the pre-assembled boss body sheets (#1466, #1515, #1540, #1635): each boss's sheet manifest, its pictures held in
+/// the installation's picture store, the manifest naming each frame's whole picture and where it lies on the body's area,
+/// and the provenance of their hashes. A player edits a sheet's installed files in place.
 /// </summary>
 public static class BossBodySheetFiles
 {
@@ -30,33 +31,35 @@ public static class BossBodySheetFiles
     /// </summary>
     private const int ManifestVersion = 6;
 
-    /// <summary>Composes and writes every boss's body sheet.</summary>
+    /// <summary>
+    /// Composes every boss's body sheet and writes their manifest; the sheets are returned for the picture store to write
+    /// (<see cref="PictureStoreFiles"/>, #1635).
+    /// </summary>
     /// <param name="content">Installed stock content holding the frames, characters and palettes the sheets compose from.</param>
-    /// <param name="directory">Destination directory, created if absent.</param>
-    /// <param name="sourceCartridgeSha256">Identity written into the provenance manifest.</param>
-    /// <param name="pictures">The installation's rendered pictures, which refuse a picture rendered twice (#1635).</param>
-    internal static void Extract(string content, string directory, string sourceCartridgeSha256, SheetPictureRegistry pictures) =>
-        Write(BossBodySheetComposer.Compose(RoomBlockSheetInputs.Load(content)), directory, sourceCartridgeSha256, pictures);
+    /// <param name="directory">The family's directory, created if absent.</param>
+    internal static InstalledSheetFamily Extract(string content, string directory) =>
+        Write(BossBodySheetComposer.Compose(RoomBlockSheetInputs.Load(content)), directory);
 
-    /// <summary>Writes composed <paramref name="sheets"/> and their manifest, as <see cref="Load"/> reads them.</summary>
+    /// <summary>
+    /// Writes the manifest of composed <paramref name="sheets"/> and gives the sheets as the installation holds them, which
+    /// <see cref="Load"/> reads once the picture store has written them (#1635).
+    /// </summary>
     /// <param name="sheets">Every boss's composed body sheet.</param>
-    /// <param name="directory">Destination directory, created if absent.</param>
-    /// <param name="sourceCartridgeSha256">Identity written into the provenance manifest.</param>
-    /// <param name="pictures">The installation's rendered pictures, which refuse a picture rendered twice (#1635).</param>
-    internal static void Write(IReadOnlyList<ComposedBossBodySheet> sheets, string directory, string sourceCartridgeSha256,
-        SheetPictureRegistry pictures)
+    /// <param name="directory">The family's directory, created if absent.</param>
+    internal static InstalledSheetFamily Write(IReadOnlyList<ComposedBossBodySheet> sheets, string directory)
     {
-        SpriteSheetStore store = SpriteSheetStore.Create(directory, ProvenanceFileName);
-        store.WriteAll([.. sheets.Select(sheet => new NamedComposedSheet(BossBodySheetComposer.SheetNameOf(sheet.Owner), sheet.Sheet))], pictures);
-        store.Finish(sourceCartridgeSha256);
+        Ensure.NotNull(sheets);
+        Directory.CreateDirectory(directory);
         var manifest = new Manifest(ManifestVersion, sheets.ToDictionary(sheet => sheet.Owner.ToString(), sheet => (SheetDocument?)new SheetDocument(
             sheet.Frames.ToDictionary(frame => frame.Key, frame => (FrameDocument?)Document(frame.Value), StringComparer.Ordinal)),
             StringComparer.Ordinal));
         File.WriteAllBytes(Path.Combine(directory, ManifestFileName), JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
+        return InstalledSheetFamily.Install(directory, ProvenanceFileName,
+            [.. sheets.Select(sheet => new NamedComposedSheet(BossBodySheetComposer.SheetNameOf(sheet.Owner), sheet.Sheet))]);
     }
 
-    /// <summary>Loads every boss's body sheet from the installed files.</summary>
-    /// <exception cref="InvalidDataException">The manifest, an image or a frame manifest is invalid, or a boss has no sheet.</exception>
+    /// <summary>Loads every boss's body sheet from the installed files, its pictures from the picture store.</summary>
+    /// <exception cref="InvalidDataException">The manifest, a sheet manifest or the picture store is invalid, or a boss has no sheet.</exception>
     public static BossBodySheets Load(string directory) => new(LoadEach(directory));
 
     /// <summary>Loads the body sheet of each boss the files hold, which may be fewer than every boss.</summary>

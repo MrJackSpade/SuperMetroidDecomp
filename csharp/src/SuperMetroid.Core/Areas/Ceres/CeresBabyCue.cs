@@ -19,7 +19,7 @@ internal abstract record CeresBabyCue
     internal sealed record UpdateColors(CeresBabyShade Shade) : CeresBabyCue;
 
     /// <summary>
-    /// Cries, or, while the baby is still and the live random word's low bit is set, continues silently at the target.
+    /// Cries, or, while the baby is still and the game's current random number is odd, continues silently at the target.
     /// </summary>
     /// <param name="Target">The program a branch continues at.</param>
     internal sealed record CryOrGoTo(CeresBabyProgram Target) : CeresBabyCue;

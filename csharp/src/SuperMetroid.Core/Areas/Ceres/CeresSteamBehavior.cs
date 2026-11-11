@@ -185,8 +185,8 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         if (!(CeresSteamCollisionDefinitions.Frames.Contains(enemy.Frame) || probe.ArtworkInstalled))
             return null;
 
-        // The high byte of each steam frame's component header is drawing
-        // metadata, not an extra component. Both damaging rectangles and
+        // A steam frame's drawing details are not another component: only its
+        // listed components damage Samus. Both damaging rectangles and
         // reactions remain fixed even if its installed sprite pieces are edited.
         foreach (CeresSteamCollisionComponent component in
                  CeresSteamCollisionDefinitions.Frames.Of(enemy.Frame))

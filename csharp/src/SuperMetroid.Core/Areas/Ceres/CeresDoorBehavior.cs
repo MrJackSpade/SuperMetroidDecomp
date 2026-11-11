@@ -29,7 +29,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
     private readonly RoomEarthquake _earthquake;
     /// <summary>Queues the door's opening and destruction sounds.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Shows the pre-explosion overlay's characters over the room's sprite characters.</summary>
+    /// <summary>Shows the door's pre-explosion overlay look over its ordinary artwork.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Spawns smoke or explosion effects around the shaking door.</summary>
     private readonly EnemyProjectileEngine _projectiles;

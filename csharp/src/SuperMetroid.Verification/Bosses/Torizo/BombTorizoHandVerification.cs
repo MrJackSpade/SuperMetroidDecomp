@@ -53,9 +53,9 @@ internal static class BombTorizoHandVerification
         // First pass draws the closed hand; second installs D33B and reaches sleep. Many
         // additional passes prove that neither a countdown nor host wall clock bypasses it.
         roomObjects.Step(level);
-        int handOrigin = level.GetBlockIndex(new(13, 11));
+        Position16<RoomBlocks> handOrigin = new(13, 11);
         AssertEqual(RoomTerrainBlock.Of(0x65, BlockMirroring.None, RoomCollisionType.SolidBlock),
-            level.GetCollisionBlockByIndex(handOrigin).Terrain,
+            level.GetCollisionBlock(handOrigin).Terrain,
             "Bomb Torizo hand draws the cartridge's terrain block");
         AssertEqual(RoomTerrainBlock.Of(0x64, BlockMirroring.None, RoomCollisionType.SolidBlock), level.GetCollisionBlock(new(12, 11)).Terrain,
             "multi-run hand geometry retains the second native run");
@@ -100,7 +100,7 @@ internal static class BombTorizoHandVerification
         AssertTrue(!roomObjects.BombTorizoHand.HasActiveHeader(RoomObjectHeaderId.BombTorizoHand),
             "final delete removes header seen by Torizo AI");
         AssertEqual(RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.Air),
-            level.GetCollisionBlockByIndex(handOrigin).Terrain,
+            level.GetCollisionBlock(handOrigin).Terrain,
             "five-run cleared hand removes its physical origin block");
         AssertEqual(1, roomObjects.BombTorizoHand.MusicRequests.Count,
             "terminal hand pass queues one music command");

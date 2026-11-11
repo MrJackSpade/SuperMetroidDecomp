@@ -111,7 +111,7 @@ internal static class PauseMenuFixtureVerification
             InstalledAreaMapPresentation.HighlightColoursOf(stock), InstalledAreaMapPresentation.EscapeTimerTilesOf(stock),
             InstalledAreaMapPresentation.RoomFxAnimatedTilesOf(stock), InstalledAreaMapPresentation.WorldCharactersOf(stock),
             InstalledAreaMapPresentation.IntroFontOf(stock), InstalledAreaMapPresentation.EndingFontOf(stock),
-            InstalledAreaMapPresentation.TitleGraphicsOf(stock)),
+            InstalledAreaMapPresentation.TitleGraphicsOf(stock)) { GameOver = InstalledAreaMapPresentation.GameOverSourceOf(stock) },
             new ImportPresentationColours(ImportAreaMapPresentation.SamusColoursOf(stock), ImportAreaMapPresentation.TitlePaletteOf(stock),
                 palettes, ImportAreaMapPresentation.CeresRidleyColorsOf(stock), ImportAreaMapPresentation.CeresRidleyFloorColorsOf(stock),
                 ImportAreaMapPresentation.MotherBrainHealthPaletteOf(stock), ImportAreaMapPresentation.MotherBrainRoomColorsOf(stock),

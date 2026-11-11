@@ -159,7 +159,7 @@ internal static class EndingObjectArtworkVerification
                 nativeOam.FinalizeFrame();
                 var installedOam = ScreenSpritesFixtures.Blank();
                 installedOam.BeginFrame();
-                CinematicSheetFixtures.Drawer(EndingObjectSourceArtwork.Of(stock).CloudSprites).Draw(definition.Pose, installedOam,
+                CinematicSheetFixtures.Drawer(stock.CloudSprites).Draw(definition.Pose, installedOam,
                     new(120, y), EndingShades.Drawn(EndingSpriteColouring.ShootingStars));
                 installedOam.FinalizeFrame();
                 AssertTrue(nativeOam.ImageEquals(installedOam) &&

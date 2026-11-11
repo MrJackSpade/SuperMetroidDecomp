@@ -29,6 +29,6 @@ internal static class ScreenPaletteColours
 
     /// <summary>The Ceres flight's colours, which only the import's read of the opening <paramref name="intro"/> holds (#1544).</summary>
     /// <exception cref="InvalidDataException">The opening was not read for the import.</exception>
-    internal static ReadOnlySpan<RgbColor> FlightColours(IntroCinematicArtwork intro) =>
+    internal static ReadOnlySpan<RgbColor> FlightColours(IntroCinematicSourceArtwork intro) =>
         ImportIntroCinematicArtwork.Imported(intro).FlightPalette.Colours.AsSpan();
 }

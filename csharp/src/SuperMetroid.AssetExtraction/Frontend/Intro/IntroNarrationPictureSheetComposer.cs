@@ -36,7 +36,7 @@ internal static class IntroNarrationPictureSheetComposer
     private const int CharacterBytes = IntroFontAtlasFormat.ByteCount / IntroFontAtlasFormat.TileCount;
 
     /// <summary>Composes the sheet from the installed intro artwork and narration font.</summary>
-    internal static ComposedSpriteSheet Compose(IntroCinematicArtwork intro, IntroFontCharacters font)
+    internal static ComposedSpriteSheet Compose(IntroCinematicSourceArtwork intro, IntroFontCharacters font)
     {
         Ensure.NotNull(intro);
         byte[] whole = new byte[IntroTileSetDefinitions.FontFirstTile * CharacterBytes + IntroFontAtlasFormat.ByteCount];
@@ -51,8 +51,8 @@ internal static class IntroNarrationPictureSheetComposer
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(checked((ushort)(cells * CharacterPixels)), checked((ushort)((letterTop + letterRows) * CharacterPixels))));
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal)
         {
-            [IntroNarrationPictures.FirstCard] = PaintRect(canvas, 0, 0, cells, IntroCinematicSourceArtwork.Of(intro).InitialNarrationTilemap.Span[..IntroArtworkExtentDefinitions.NarrationTilemapCells], whole, colours),
-            [IntroNarrationPictures.FinalLine] = PaintRect(canvas, 0, cells, cells, IntroCinematicSourceArtwork.Of(intro).FinalLine.Tiles.Span[..IntroArtworkExtentDefinitions.FinalLineWordCount], blanked, colours),
+            [IntroNarrationPictures.FirstCard] = PaintRect(canvas, 0, 0, cells, intro.InitialNarrationTilemap.Span[..IntroArtworkExtentDefinitions.NarrationTilemapCells], whole, colours),
+            [IntroNarrationPictures.FinalLine] = PaintRect(canvas, 0, cells, cells, intro.FinalLine.Tiles.Span[..IntroArtworkExtentDefinitions.FinalLineWordCount], blanked, colours),
         };
         // Each letter is composed in the first colour variant; the variant its typing or glow gives it is a shade (#1512).
         for (int index = 0; index < letters.Length; index++)

@@ -14,6 +14,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Audio;
@@ -98,6 +99,13 @@ public sealed record GameInstallation(string Root)
     public string StandardObjectDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.StandardObjectDirectoryName);
     /// <summary>Validates and loads the installed common OBJ sheet for the shared character transfer.</summary>
     public RoomCharacterAtlas LoadStandardObjects() => StandardObjectArtworkFiles.Load(StandardObjectDirectory);
+    /// <summary>Loads the installed artwork only the import reads, which the installed content's identity covers (#1616).</summary>
+    public InstalledArtworkSources LoadArtworkSources() => new()
+    {
+        StandardObjects = LoadStandardObjects(),
+        Intro = LoadIntroCinematicArt(),
+        EndingObjects = LoadEndingObjectArt(),
+    };
     /// <summary>Installed projectile artwork and presentation selectors, which the player edits in place.</summary>
     public string ProjectileDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.ProjectileDirectoryName);
     /// <summary>Installed Samus body PNGs and visual selectors, which the player edits in place.</summary>
@@ -106,12 +114,15 @@ public sealed record GameInstallation(string Root)
     public InstalledSamusBodyArtwork LoadSamusBodyArt() => SamusBodyArtworkFiles.Load(SamusBodyDirectory);
     /// <summary>Installed opening-cinematic artwork, which the player edits in place.</summary>
     public string IntroCinematicDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.IntroCinematicDirectoryName);
-    /// <summary>Loads the installed opening-cinematic artwork.</summary>
+    /// <summary>Loads the installed opening-cinematic artwork, which only the import reads.</summary>
     public IntroCinematicSourceArtwork LoadIntroCinematicArt() =>
         IntroCinematicArtworkFiles.Load(IntroCinematicDirectory);
+    /// <summary>Loads what the game binds of the installed opening cinematic: its backdrops and the Ceres scenes' placements (#1616).</summary>
+    public IntroCinematicArtwork LoadIntroCinematic() =>
+        IntroCinematicArtworkFiles.LoadCinematic(IntroCinematicDirectory);
     /// <summary>Installed ending sprite artwork, which the player edits in place.</summary>
     public string EndingObjectDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EndingObjectDirectoryName);
-    /// <summary>Loads the installed ending OBJ artwork.</summary>
+    /// <summary>Loads the installed ending OBJ artwork, which only the import reads.</summary>
     public EndingObjectSourceArtwork LoadEndingObjectArt() =>
         EndingObjectArtworkFiles.Load(EndingObjectDirectory);
     /// <summary>Installed ending scene backdrops, which the player edits in place (#1544).</summary>
@@ -304,10 +315,9 @@ public sealed record GameInstallation(string Root)
         return new GameArtwork
         {
             MapPresentation = maps,
-            IntroCinematicArt = LoadIntroCinematicArt(),
+            IntroCinematicArt = LoadIntroCinematic(),
             SamusBodyArt = LoadSamusBodyArt(),
 
-            EndingObjectArt = LoadEndingObjectArt(),
             EndingBackdrops = LoadEndingBackdrops(),
             RoomBlockSheets = LoadRoomBlockSheets(),
             RoomVisualLayouts = LoadRoomVisualLayouts(),

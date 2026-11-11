@@ -62,7 +62,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     internal RgbColor Backdrop { get; private set; }
     /// <summary>The live actors' sprite entries, drawn from the scene's current sheet (#1358).</summary>
     internal readonly ScreenSprites objects;
-    /// <summary>Installed art, bound when the game is bound to its installed content.</summary>
+    /// <summary>The installed backdrops and actor placements, bound when the game is bound to its installed content (#1616).</summary>
     internal IntroCinematicArtwork? Artwork { get; private set; }
     /// <summary>The installed sprite sheets the Ceres and Zebes actors draw from; artwork, never saved.</summary>
     private InstalledSpriteSheets spriteSheets;

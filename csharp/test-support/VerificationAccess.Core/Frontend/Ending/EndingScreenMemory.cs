@@ -17,7 +17,7 @@ internal static class EndingScreenMemory
 {
     /// <summary>The image <paramref name="loads"/> leave over the bound artwork.</summary>
     [WholeImageFixture("the ending's VRAM image")]
-    internal static byte[] Compose(EndingScreenLoads loads, EndingFloorCharacters? floor, CeresFlightArtwork? flight, EndingObjectArtwork? objects,
+    internal static byte[] Compose(EndingScreenLoads loads, EndingFloorCharacters? floor, CeresFlightCharacters? flight, EndingObjectSourceArtwork? objects,
         EndingFontCharacters? font, EndingReward reward)
     {
         ArgumentNullException.ThrowIfNull(loads);
@@ -57,20 +57,20 @@ internal static class EndingScreenMemory
     private const int FlyawayChunks = 16;
 
     /// <summary>One of the sixteen flyaway chunks: the first half load floor characters, the rest the padded map.</summary>
-    private static void Flyaway(SnesVram vram, int index, CeresFlightArtwork? flight)
+    private static void Flyaway(SnesVram vram, int index, CeresFlightCharacters? flight)
     {
-        CeresFlightArtwork content = flight ?? throw new InvalidOperationException("Ending flyaway requires installed flight artwork.");
+        CeresFlightCharacters content = flight ?? throw new InvalidOperationException("Ending flyaway requires installed flight artwork.");
         int chunkBytes = EndingArtworkExtentDefinitionsConstants.FlyawayChunkBytes;
         int chunksPerLane = EndingArtworkExtentDefinitions.FloorBytes / chunkBytes;
         int offset = index % chunksPerLane * chunkBytes;
         var mode7 = new Mode7Vram(vram);
         if (index < chunksPerLane)
         {
-            mode7.LoadCharacters(CeresFlightCharacters.Of(content).FloorCharacters.Span.Slice(offset, chunkBytes), offset);
+            mode7.LoadCharacters(content.FloorCharacters.Span.Slice(offset, chunkBytes), offset);
             return;
         }
         var map = new byte[EndingArtworkExtentDefinitions.FloorBytes];
-        CeresFlightCharacters.Of(content).FloorMaps.Span[..EndingArtworkExtentDefinitions.FlyawayMapDataBytes].CopyTo(map);
+        content.FloorMaps.Span[..EndingArtworkExtentDefinitions.FlyawayMapDataBytes].CopyTo(map);
         map.AsSpan(EndingArtworkExtentDefinitions.FlyawayMapDataBytes).Fill(EndingArtworkExtentDefinitions.FlyawayBlankTile);
         mode7.LoadMap(map.AsSpan(offset, chunkBytes), offset);
     }

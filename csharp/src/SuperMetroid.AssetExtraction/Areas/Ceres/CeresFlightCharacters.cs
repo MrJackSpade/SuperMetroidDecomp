@@ -9,12 +9,13 @@ using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
 /// <summary>
-/// The installed approach to Ceres as the import pipeline reads it (#1409): its Mode 7 floor characters as chunky 8-bit
-/// pixels and its OBJ characters as SNES 4-bpp planar bytes, which the flight sheets compose from, beside the maps and
-/// compositions. Its colours are a palette document only the import reads (<see cref="ImportIntroCinematicArtwork.FlightPalette"/>);
-/// the game keeps their backdrop, which the opening's backdrop document names (#1544).
+/// The installed approach to Ceres as the import pipeline reads it (#1409, #1616): its Mode 7 floor characters as chunky
+/// 8-bit pixels and its OBJ characters as SNES 4-bpp planar bytes, which the flight sheets compose from, beside the maps,
+/// compositions and what the game binds of it (<see cref="Flight"/>). Its colours are a palette document only the import
+/// reads (<see cref="ImportIntroCinematicArtwork.FlightPalette"/>); the game keeps their backdrop, which the opening's
+/// backdrop document names (#1544).
 /// </summary>
-public sealed class CeresFlightCharacters : CeresFlightArtwork
+public sealed class CeresFlightCharacters
 {
     /// <summary>Retains compiled characters and selected backdrop, OAM, and actor resources.</summary>
     /// <param name="floorCharacters">The chunky Mode 7 floor characters.</param>
@@ -26,13 +27,16 @@ public sealed class CeresFlightCharacters : CeresFlightArtwork
     private CeresFlightCharacters(byte[] floorCharacters, byte[] floorMaps,
         byte[] objectCharacters, RgbColor backdrop,
         CeresFlightSpritePresentation sprites, CeresFlightActorPlacements actors)
-        : base(backdrop, actors)
     {
+        Flight = new CeresFlightArtwork(backdrop, actors);
         FloorCharacters = floorCharacters;
         FloorMaps = floorMaps;
         ObjectCharacters = objectCharacters;
         Sprites = sprites;
     }
+
+    /// <summary>What the game binds of the approach: its backdrop and the rear-view actors' placements.</summary>
+    public CeresFlightArtwork Flight { get; }
 
     /// <summary>Selected six-frame compositions for stars, station, asteroids, and vortex, shared with the Ceres destruction scene's sheets.</summary>
     public CeresFlightSpritePresentation Sprites { get; }
@@ -56,9 +60,9 @@ public sealed class CeresFlightCharacters : CeresFlightArtwork
         content.Append("mode7-characters", FloorCharacters.Span);
         content.Append("mode7-maps", FloorMaps.Span);
         content.Append("object-characters", ObjectCharacters.Span);
-        content.AppendColors("backdrop", [Backdrop]);
+        content.AppendColors("backdrop", [Flight.Backdrop]);
         content.Append("sprites", Convert.FromHexString(Sprites.ContentIdentity));
-        content.Append("actors", Convert.FromHexString(Actors.ContentIdentity));
+        content.Append("actors", Convert.FromHexString(Flight.Actors.ContentIdentity));
     });
 
     /// <summary>Compiles the selected Ceres approach resources into native character, map, and actor presentation data.</summary>
@@ -99,11 +103,6 @@ public sealed class CeresFlightCharacters : CeresFlightArtwork
             CeresFlightSpritePresentation.Load(spritesJson),
             CeresFlightActorLayoutFile.Read(actorsJson));
     }
-
-    /// <summary>The characters <paramref name="flight"/> was read with.</summary>
-    /// <exception cref="InvalidDataException">The flight artwork was not read from installed artwork.</exception>
-    public static CeresFlightCharacters Of(CeresFlightArtwork flight) => flight as CeresFlightCharacters
-        ?? throw new InvalidDataException("The Ceres flight artwork was not read from installed artwork.");
 
     /// <summary>Reads both ordered 768-byte front and rear map slices from a version-one map document.</summary>
     /// <param name="mapJson">Version-one document containing both ordered 768-byte front/rear map slices.</param>

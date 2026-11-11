@@ -39,7 +39,7 @@ internal static class GenericSpriteArtworkVerification
         GameInstallation installation = RepositoryInstallation.Installation;
         var reference = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         AreaMapPresentation maps = installation.LoadMaps();
-        IntroCinematicArtwork introArtwork = installation.LoadIntroCinematicArt();
+        IntroCinematicSourceArtwork introArtwork = installation.LoadIntroCinematicArt();
         InstalledProjectilePresentation projectiles = installation.LoadProjectiles();
         InstalledSamusBodyArtwork body = installation.LoadSamusBodyArt();
 
@@ -92,7 +92,7 @@ internal static class GenericSpriteArtworkVerification
         EqualSprites(expected, title.objects, "title copyright owner parity");
 
         var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve),
-            characterArtwork: introArtwork,
+            characterArtwork: introArtwork.BoundCatalog,
             samusBodyArtwork: body)
         {
             Random = new SharedRandom(),
@@ -135,7 +135,7 @@ internal static class GenericSpriteArtworkVerification
         explosions.SpawnFourthHitExplosions();
         explosions.Step(introCrossfadeTimer: 1);
         var actual = ScreenSpritesFixtures.Blank(); actual.BeginFrame();
-        explosions.Draw(actual, CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(introArtwork).MotherBrainExplosionSprites));
+        explosions.Draw(actual, CinematicSheetFixtures.Drawer(introArtwork.MotherBrainExplosionSprites));
         actual.FinalizeFrame();
         expected = new OamBuffer();
         expected.BeginFrame();

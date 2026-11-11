@@ -128,7 +128,7 @@ internal static class EndingContentIdentityVerification
         // digest would needlessly change the exact debugger-object layout of older save states.
         foreach (Type type in new[]
         {
-            typeof(EndingObjectArtwork), typeof(EndingFloorCharacters), typeof(EndingBackdrops),
+            typeof(EndingObjectSourceArtwork), typeof(EndingFloorCharacters), typeof(EndingBackdrops),
             typeof(EndingCloudSpritePresentation), typeof(EndingExplosionSpritePresentation),
             typeof(EndingCompletionTextSpritePresentation), typeof(EndingRewardSpritePresentation),
             typeof(EndingLogoSpritePresentation),

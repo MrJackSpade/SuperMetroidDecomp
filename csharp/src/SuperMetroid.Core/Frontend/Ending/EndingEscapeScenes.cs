@@ -39,7 +39,6 @@ internal sealed class EndingEscapeScenes
     internal void SetupEscapeSceneA()
     {
         _stage.LoadColours(EndingColourLoad.Escape);
-        _artwork.RequireEscapeCloudArtwork();
         sprites.Clear();
         _stage.SpawnSprite(EndingActorDefinitions.EscapeACloudRightTop, EndingSpriteRole.CloudRightA);
         _stage.SpawnSprite(EndingActorDefinitions.EscapeACloudLeftTop, EndingSpriteRole.CloudLeftA);
@@ -63,7 +62,6 @@ internal sealed class EndingEscapeScenes
     {
         _stage.ResetPaletteFx();
         _stage.PaletteFxSystem.Start(EndingPaletteFxDefinitions.GreyClouds, 0);
-        _artwork.RequireEscapeCloudArtwork();
         sprites.Clear();
         _stage.SpawnSprite(EndingActorDefinitions.EscapeBCloudTopA, EndingSpriteRole.CloudTopA);
         _stage.SpawnSprite(EndingActorDefinitions.EscapeBCloudTopB, EndingSpriteRole.CloudTopB);

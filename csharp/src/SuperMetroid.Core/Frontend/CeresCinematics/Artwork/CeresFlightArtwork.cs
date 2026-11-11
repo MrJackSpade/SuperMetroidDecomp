@@ -3,13 +3,12 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 /// <summary>
-/// The installed approach to Ceres (#1409): its backdrop and actor placements.
-/// The installed flight sheets picture the floors, characters and actor compositions in the flight's colours (#1512);
-/// their maps, pixels, parts and palette belong to the import pipeline that reads the installed artwork, which also names
-/// the content's identity (#1463, #1467).
-/// Flight motion, artwork load order and the SPACE COLONY letter script remain compiled logic.
+/// What the game reads of the installed approach to Ceres (#1409, #1616): its backdrop and actor placements. The installed
+/// flight sheets picture the floors, characters and actor compositions in the flight's colours (#1512); the maps, pixels,
+/// parts and palette they are composed from are the import pipeline's, which also names the content's identity (#1463,
+/// #1467). Flight motion, artwork load order and the SPACE COLONY letter script remain compiled logic.
 /// </summary>
-public abstract class CeresFlightArtwork
+public sealed class CeresFlightArtwork
 {
     /// <summary>Retains the selected backdrop and actor resources.</summary>
     /// <param name="backdrop">The colour the Ceres scenes show behind every layer once they load the flight's colours.</param>

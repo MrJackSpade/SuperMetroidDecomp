@@ -13,25 +13,21 @@ internal sealed class EndingZebesExplosion
     private readonly List<EndingSprite> sprites ;
     /// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, palettes, the shared sprites and stars, and the artwork they share.</summary>
     private readonly EndingStage _stage;
-    /// <summary>The gunship's flight from Zebes: the planet escape's speeds, the stars, the fade and the flight artwork.</summary>
+    /// <summary>The gunship's flight from Zebes: the planet escape's speeds, the stars and the fade.</summary>
     private readonly EndingFlyaway _flyaway;
-    /// <summary>The ending's installed artwork: its text, font, staff credits, turning floor, object and palette assets.</summary>
-    private readonly EndingArtwork _artwork;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal EndingZebesExplosion(EndingScreen screen, List<EndingSprite> sprites, EndingStage stage, EndingFlyaway flyaway, EndingArtwork artwork)
+    internal EndingZebesExplosion(EndingScreen screen, List<EndingSprite> sprites, EndingStage stage, EndingFlyaway flyaway)
     {
         this.screen = screen;
         this.sprites = sprites;
         _stage = stage;
         _flyaway = flyaway;
-        _artwork = artwork;
     }
 
-    /// <summary>Requires the planet explosion's sprite art and starts its palette crossfade.</summary>
+    /// <summary>Starts the planet explosion's palette crossfade and spawns its actors.</summary>
     internal void SetupZebesExplosion()
     {
-        _artwork.RequireExplosionArtwork();
         _stage.LoadColours(EndingColourLoad.Explosion);
         sprites.Clear();
         _stage.SpawnSprite(EndingActorDefinitions.ExplodingZebes, EndingSpriteRole.ExplodingZebes);

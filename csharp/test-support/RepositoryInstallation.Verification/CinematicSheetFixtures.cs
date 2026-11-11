@@ -30,12 +30,12 @@ internal static class CinematicSheetFixtures
     private static readonly ConditionalWeakTable<object, string> identities = new();
 
     /// <summary>The content identity of <paramref name="intro"/>, which covers every artwork its sheets compose from.</summary>
-    private static string Identity(IntroCinematicArtwork intro) =>
-        identities.GetValue(intro, key => IntroCinematicSourceArtwork.Of((IntroCinematicArtwork)key).ContentIdentity);
+    private static string Identity(IntroCinematicSourceArtwork intro) =>
+        identities.GetValue(intro, key => ((IntroCinematicSourceArtwork)key).ContentIdentity);
 
     /// <summary>The content identity of <paramref name="flight"/>, which covers every artwork its sheets compose from.</summary>
-    private static string Identity(CeresFlightArtwork flight) =>
-        identities.GetValue(flight, key => ((CeresFlightArtwork)key).ContentIdentity);
+    private static string Identity(CeresFlightCharacters flight) =>
+        identities.GetValue(flight, key => ((CeresFlightCharacters)key).ContentIdentity);
 
     /// <summary>Drawers already composed, by presentation.</summary>
     private static readonly ConditionalWeakTable<object, CinematicSpriteSheet> drawers = new();
@@ -44,7 +44,7 @@ internal static class CinematicSheetFixtures
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, SpriteSheet> flights = new(StringComparer.Ordinal);
 
     /// <summary>The Ceres flight sheet <paramref name="flight"/> composes.</summary>
-    internal static SpriteSheet CeresFlight(CeresFlightArtwork flight)
+    internal static SpriteSheet CeresFlight(CeresFlightCharacters flight)
     {
         ArgumentNullException.ThrowIfNull(flight);
         return Identity(flight) == Identity(InstalledFixtures.IntroArtwork.CeresFlight)
@@ -55,20 +55,20 @@ internal static class CinematicSheetFixtures
 
     extension(CeresDestructionCinematicState self)
     {
-        /// <summary>Binds <paramref name="intro"/> and the sheets it composes, as the game rebinds both.</summary>
-        internal void BindFixtureDestructionArtwork(IntroCinematicArtwork intro)
+        /// <summary>Binds the catalog of <paramref name="intro"/> and the sheets it composes, as the game rebinds both.</summary>
+        internal void BindFixtureDestructionArtwork(IntroCinematicSourceArtwork intro)
         {
-            self.BindArtwork(intro);
+            self.BindArtwork(intro.BoundCatalog);
             self.BindSpriteSheets(WithIntro(intro));
         }
     }
 
     extension(IntroCeresFlightState self)
     {
-        /// <summary>Binds <paramref name="flight"/> and the sheets it composes, as the game rebinds both.</summary>
-        internal void BindFixtureFlightArtwork(CeresFlightArtwork flight)
+        /// <summary>Binds the catalog of <paramref name="flight"/> and the sheets it composes, as the game rebinds both.</summary>
+        internal void BindFixtureFlightArtwork(CeresFlightCharacters flight)
         {
-            self.BindArtwork(flight);
+            self.BindArtwork(flight.BoundCatalog);
             self.BindSheets(WithFlight(flight));
         }
     }
@@ -77,20 +77,20 @@ internal static class CinematicSheetFixtures
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, InstalledSpriteSheets> flightSheets = new(StringComparer.Ordinal);
 
     /// <summary>The installed sheets with the Ceres flight sheet, caption pictures and floor <paramref name="flight"/> composes.</summary>
-    internal static InstalledSpriteSheets WithFlight(CeresFlightArtwork flight)
+    internal static InstalledSpriteSheets WithFlight(CeresFlightCharacters flight)
     {
         ArgumentNullException.ThrowIfNull(flight);
         return Identity(flight) == Identity(InstalledFixtures.IntroArtwork.CeresFlight) ? InstalledFixtures.SpriteSheets
             : flightSheets.GetOrAdd(Identity(flight), _ =>
             {
-                CeresFlightArtwork key = flight;
+                CeresFlightCharacters key = flight;
                 var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(id => id, InstalledFixtures.SpriteSheets.Get);
                 sheets[SpriteSheetId.CeresFlightSprites] = CeresFlight(key);
                 // The caption is painted from the flight's characters and palette, so edited flight art recomposes it.
                 sheets[SpriteSheetId.CeresCinematicPictures] = LoadTiles(SpriteSheetId.CeresCinematicPictures,
                     CeresCinematicPictureSheetComposer.Compose(key, InstalledFixtures.IntroArtwork), $"flight-{RuntimeHelpers.GetHashCode(key):X8}");
                 sheets[SpriteSheetId.CeresFloor] = LoadTiles(SpriteSheetId.CeresFloor,
-                    FrontendFloorSheetComposer.Ceres(key, IntroCinematicSourceArtwork.Of(InstalledFixtures.IntroArtwork).CeresDestructionMaps,
+                    FrontendFloorSheetComposer.Ceres(key, InstalledFixtures.IntroArtwork.CeresDestructionMaps,
                         ImportIntroCinematicArtwork.Imported(InstalledFixtures.IntroArtwork).FlightPalette, ImportAreaMapPresentation.RoomPaletteFxOf(InstalledFixtures.Maps)), $"flight-{RuntimeHelpers.GetHashCode(key):X8}");
                 return new InstalledSpriteSheets(sheets);
             });
@@ -115,13 +115,13 @@ internal static class CinematicSheetFixtures
             $"{SpriteSheetDefinitions.FileNames[id]}-fixture-{fixture}", tiles.Size, tiles.Pixels, tiles.PaletteIndices, tiles.FrontTiles);
 
     /// <summary>The installed sheets with the intro sheet <paramref name="intro"/> composes.</summary>
-    internal static InstalledSpriteSheets WithIntro(IntroCinematicArtwork intro)
+    internal static InstalledSpriteSheets WithIntro(IntroCinematicSourceArtwork intro)
     {
         ArgumentNullException.ThrowIfNull(intro);
         return Identity(intro) == Identity(InstalledFixtures.IntroArtwork) ? InstalledFixtures.SpriteSheets
             : intros.GetOrAdd(Identity(intro), _ =>
             {
-                IntroCinematicArtwork key = intro;
+                IntroCinematicSourceArtwork key = intro;
                 var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(id => id, InstalledFixtures.SpriteSheets.Get);
                 sheets[SpriteSheetId.IntroSprites] = Load(IntroSpriteSheetComposer.Sources(key), $"intro-fixture-{RuntimeHelpers.GetHashCode(key):X8}");
                 sheets[SpriteSheetId.CeresFlightSprites] = CeresFlight(key.CeresFlight);
@@ -145,10 +145,10 @@ internal static class CinematicSheetFixtures
 
     extension(IntroCinematicState self)
     {
-        /// <summary>Binds <paramref name="intro"/> and the sheets with the intro sheet it composes, as the game rebinds both.</summary>
-        internal void BindFixtureIntroArtwork(IntroCinematicArtwork intro)
+        /// <summary>Binds the catalog of <paramref name="intro"/> and the sheets with the intro sheet it composes, as the game rebinds both.</summary>
+        internal void BindFixtureIntroArtwork(IntroCinematicSourceArtwork intro)
         {
-            self.BindCharacterArtwork(intro);
+            self.BindCharacterArtwork(intro.BoundCatalog);
             self.BindSpriteSheets(WithIntro(intro));
         }
     }
@@ -174,7 +174,7 @@ internal static class CinematicSheetFixtures
     /// </summary>
     private static SpriteSheetSources DrawerSources(ICinematicSpriteFrames frames)
     {
-        IntroCinematicArtwork intro = InstalledFixtures.IntroArtwork;
+        IntroCinematicSourceArtwork intro = InstalledFixtures.IntroArtwork;
         if (frames.Family is CinematicSpriteFamily.IntroDiscoveryActor or CinematicSpriteFamily.IntroEggEffect or CinematicSpriteFamily.IntroRinka
             or CinematicSpriteFamily.IntroScientist or CinematicSpriteFamily.IntroMotherBrain or CinematicSpriteFamily.IntroMotherBrainExplosion
             or CinematicSpriteFamily.IntroCaret)

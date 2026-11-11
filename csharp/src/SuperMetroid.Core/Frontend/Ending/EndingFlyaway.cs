@@ -1,12 +1,11 @@
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Rooms;
 
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>The gunship's flight from Zebes: the planet escape's speeds, the stars, the fade and the flight artwork.</summary>
+/// <summary>The gunship's flight from Zebes: the planet escape's speeds, the stars and the fade.</summary>
 [RoomScopeBoundary("A cinematic scene that owns its own palette FX for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed class EndingFlyaway
 {
@@ -143,12 +142,6 @@ internal sealed class EndingFlyaway
         flyawayFadeCountdown = EndingFlyawayFadeDefinitions.Interval;
     }
 
-    /// <summary>The ending's first flyaway reuses the Ceres approach's artwork.</summary>
-    internal void BindFlightArtwork(CeresFlightArtwork? value)
-    {
-        FlightArtwork = value;
-    }
-
     /// <summary>Restores the explosion's background colours as the explosion's hold begins (#1467).</summary>
     internal void PrepareFlyaway()
     {
@@ -156,7 +149,4 @@ internal sealed class EndingFlyaway
         // the sprites and their colours stay as they are through the hold.
         _stage.LoadColours(EndingColourLoad.ExplosionBackgrounds);
     }
-
-    /// <summary>The gunship flight's installed artwork.</summary>
-    internal CeresFlightArtwork? FlightArtwork { get; private set; }
 }

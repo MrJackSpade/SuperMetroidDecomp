@@ -86,9 +86,9 @@ internal static class EndingScreenImage
     /// <summary>An installed map's tiles as the little-endian tilemap words a transfer writes.</summary>
     internal static byte[] MapBytes(RoomBackgroundTilemapAtlas map) => BackgroundTileWords.ToBytes(map.Tiles.Span);
 
-    /// <summary>The bound OBJ artwork as the import pipeline read it, with its character atlases and maps.</summary>
+    /// <summary>The installed OBJ artwork the transfers read, with its character atlases and maps.</summary>
     private static EndingObjectSourceArtwork Objects(EndingTransferArtwork artwork) =>
-        EndingObjectSourceArtwork.Of(artwork.Objects ?? throw new InvalidOperationException("Ending objects require installed artwork."));
+        artwork.Objects ?? throw new InvalidOperationException("Ending objects require installed artwork.");
 
     /// <summary>The bound ending font.</summary>
     private static EndingFontCharacters Font(EndingTransferArtwork artwork) =>

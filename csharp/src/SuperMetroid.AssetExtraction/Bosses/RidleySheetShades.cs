@@ -99,7 +99,7 @@ internal static class RidleySheetShades
         {
             int shown = step;
             shades.Add(SheetShade.Run(RidleyShades.Alarm(shown), TilesFifth + 1,
-                Colours(CeresRidleyColorFormat.AlarmColorCount, colour => ceres.selection.Alarm.Resolve(shown, colour))));
+                Colours(CeresRidleyColorFormat.AlarmColorCount, colour => ceres.ResolveAlarm(shown, colour))));
         }
         return shades;
     }
@@ -113,19 +113,19 @@ internal static class RidleySheetShades
         Ensure.NotNull(ceres);
         var shades = new List<SheetShade>
         {
-            SheetShade.Run(RidleyShades.CeresStart, StartFirstInk, Colours(CeresRidleyColorFormat.StartColorCount, ceres.selection.Start.Resolve)),
+            SheetShade.Run(RidleyShades.CeresStart, StartFirstInk, Colours(CeresRidleyColorFormat.StartColorCount, ceres.ResolveStart)),
             SheetShade.Run(RidleyShades.CeresHidden, OwnRow + 1, new RgbColor[Group - 1]),
         };
         for (int shade = 0; shade < CeresRidleyColorFormat.EyeFadeShadeCount; shade++)
         {
             int shown = shade;
             shades.Add(SheetShade.Run(RidleyShades.EyeFade(shown), OwnRow + EyeFirstColour,
-                Colours(CeresRidleyColorFormat.EyeFadeColorCount, colour => ceres.selection.EyeFade.Resolve(shown, colour))));
+                Colours(CeresRidleyColorFormat.EyeFadeColorCount, colour => ceres.ResolveEyeFade(shown, colour))));
         }
         for (int shade = 0; shade < CeresRidleyPaletteDefinitions.BodyFadeShadeCount; shade++)
         {
             int shown = shade;
-            RgbColor[] body = Colours(CeresRidleyColorFormat.BodyFadeColorCount, colour => ceres.selection.BodyFade.Resolve(shown, colour));
+            RgbColor[] body = Colours(CeresRidleyColorFormat.BodyFadeColorCount, colour => ceres.ResolveBodyFade(shown, colour));
             shades.Add(new SheetShade(RidleyShades.BodyFade(shown),
                 [.. Enumerable.Range(ShadowRow + 1, body.Length), .. Enumerable.Range(OwnRow + 1, body.Length)], [.. body, .. body]));
         }
@@ -133,11 +133,11 @@ internal static class RidleySheetShades
         {
             int shown = band;
             shades.Add(SheetShade.Run(RidleyShades.Health(shown), OwnRow + 1,
-                Colours(CeresRidleyColorFormat.HealthColorCount, colour => ceres.selection.Health.Resolve(shown, colour))));
+                Colours(CeresRidleyColorFormat.HealthColorCount, colour => ceres.ResolveHealth(shown, colour))));
         }
         foreach (CeresBabyShade baby in Enum.GetValues<CeresBabyShade>())
             shades.Add(SheetShade.Run(RidleyShades.Baby(baby), BabyRow + 1,
-                Colours(CeresRidleyColorFormat.BabyColorCount, colour => ceres.selection.Baby.Resolve(baby, colour))));
+                Colours(CeresRidleyColorFormat.BabyColorCount, colour => ceres.ResolveBaby(baby, colour))));
         return shades;
     }
 
@@ -145,7 +145,7 @@ internal static class RidleySheetShades
     internal static IReadOnlyList<SheetShade> NorfairSprites(NorfairRidleyColorCatalog norfair)
     {
         Ensure.NotNull(norfair);
-        return [SheetShade.Run(RidleyShades.NorfairStart, StartFirstInk, Colours(NorfairRidleyColorFormat.InitialColorCount, norfair.selection.Initial.ColorAt)),
+        return [SheetShade.Run(RidleyShades.NorfairStart, StartFirstInk, Colours(NorfairRidleyColorFormat.InitialColorCount, norfair.ResolveInitial)),
             SheetShade.Run(RidleyShades.NorfairHidden, OwnRow + 1, new RgbColor[Group - 1])];
     }
 
@@ -163,7 +163,7 @@ internal static class RidleySheetShades
         {
             int shown = step;
             shades.Add(SheetShade.Run(RidleyShades.FloorZoom(shown), TilesFourth + 1,
-                Colours(CeresRidleyColorFormat.GetawayZoomColorCount, colour => CeresRidleyFloorShades.Resolve(floor.steps, shown, colour))));
+                Colours(CeresRidleyColorFormat.GetawayZoomColorCount, colour => floor.Resolve(shown, colour))));
         }
         return shades;
     }
@@ -177,7 +177,7 @@ internal static class RidleySheetShades
         {
             int shown = step;
             shades.Add(SheetShade.Run(RidleyShades.NorfairReveal(shown), OwnRow + 1,
-                Colours(NorfairRidleyColorFormat.RevealColorCount, colour => norfair.selection.Reveal.ColorAt(shown, colour))));
+                Colours(NorfairRidleyColorFormat.RevealColorCount, colour => norfair.ResolveReveal(shown, colour))));
         }
         return shades;
     }

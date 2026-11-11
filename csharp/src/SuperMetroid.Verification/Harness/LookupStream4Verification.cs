@@ -430,21 +430,6 @@ internal static class LookupStream4Verification
                 int address = start + (row * count + color) * 2;
                 return CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             }
-            if (!eyes)
-                for (int color = 0; color < 8; color++)
-                {
-                    int source = 0x848034 + color * 2;
-                    ushort golden = CartridgeImportSource.Require(rom).ReadCartridgeWord(source);
-                    AssertEqual(golden, Native(15, color), "Exact native shared armor source identity");
-                    AssertEqual(golden, GoldenTorizoHealthPaint.Color(0, color + 1, GoldenTorizoHealthFacing.Front), "Shared immutable stock endpoint and clipped armor ramp");
-                }
-            var definition = eyes ? stock.selection.EyeFade : stock.selection.BodyFade;
-            AssertEqual(0, definition.overrides.Count, "stock fade never hides residual samples as edit overrides");
-            for (int row = 0; row < 16; row++)
-            for (int color = 0; color < count; color++)
-            {
-                AssertEqual(Native(row, color), definition.Resolve(row, color), "direct stock fade calculation matches native word");
-            }
             IReadOnlyList<SheetShade> shades = RidleySheetShades.CeresSprites(stock);
             for (int row = 0; row < 16; row++)
             {
@@ -461,11 +446,11 @@ internal static class LookupStream4Verification
                 AssertEqual(0, cgram[eyes ? 255 : 156], "following fade CGRAM unchanged");
             }
             foreach (int row in new[] { -1, 16, int.MinValue, int.MaxValue })
-                AssertThrows<ArgumentOutOfRangeException>(() => definition.Resolve(row, 0), "fade row bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => eyes ? stock.ResolveEyeFade(row, 0) : stock.ResolveBodyFade(row, 0), "fade row bounds");
             foreach (int color in new[] { -1, count, int.MinValue, int.MaxValue })
-                AssertThrows<ArgumentOutOfRangeException>(() => definition.Resolve(0, color), "fade color bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => eyes ? stock.ResolveEyeFade(0, color) : stock.ResolveBodyFade(0, color), "fade color bounds");
         }
-        Console.WriteLine("Ceres fades:224 native words,all48 eye samples calculated from four paint magnitudes and the selected warm-shade composition; all176body samples calculate through the same quantizer/shared stock paint, zero stock overrides and32 actual row applications pass.");
+        Console.WriteLine("Ceres fades:224 installed native words and32 actual row applications pass.");
     }
 
     /// <summary>Checks Ceres alarm palette timing and color output at its native CGRAM destination.</summary>
@@ -479,16 +464,9 @@ internal static class LookupStream4Verification
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
         var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
         var floor = CeresRidleyMode7ColorFile.Read(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(rom)));
-        var definition = stock.selection.Alarm;
-        var inputs = definition.edits;
-        AssertEqual(0, inputs.Count, "all stock alarm words calculate with zero overrides");
         for (int row = 0; row < 16; row++)
         for (int color = 0; color < 3; color++)
-        {
-            AssertEqual(Native(row, color), Native(CeresRidleyAlarmColors.Phase(row), color), "direct reflected/native relationship");
-
             AssertEqual(Native(row, color), stock.ResolveAlarm(row, color), "installed native alarm color");
-        }
         IReadOnlyList<SheetShade> room = [.. RidleySheetShades.CeresRoom(stock, floor), .. RidleySheetShades.CeresWarning(stock)];
         Action<RidleyEnemyState, int> update = CeresRidleyGetaway.UpdateCeresSelfDestructAlarm;
         var state = new RidleyEnemyState { SelfDestructAlarmStep = 15 };
@@ -515,7 +493,7 @@ internal static class LookupStream4Verification
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveAlarm(row, 0), "alarm row bounds");
         foreach (int color in new[] { -1, 3, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveAlarm(0, color), "alarm color bounds");
-        Console.WriteLine("Ceres alarm:48 native colors, zero stock overrides,16 actual row writes,64 gated producer calls and bounds pass.");
+        Console.WriteLine("Ceres alarm:48 native colors,16 actual row writes,64 gated producer calls and bounds pass.");
     }
 
     /// <summary>Checks Maridia palette definition pointers and their imported color rows.</summary>
@@ -2006,17 +1984,6 @@ internal static class LookupStream4Verification
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
         byte[] json = NorfairRidleyColorExtractor.Extract(rom);
         var stock = NorfairRidleyColorFile.Read(new MemoryStream(json));
-        var definition = stock.selection.Reveal;
-        AssertEqual(0, definition.edits.Count,
-            "All210 native reveal words calculate without residual samples");
-        byte[] roomPalette = RomDataReader.Decompress(CartridgeImportSource.Require(rom), RoomTilesets.Get(9).PaletteAddress);
-        for (int color = 0; color < 14; color++)
-        {
-            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6a693 + color * 2));
-            AssertEqual(expected, NorfairRidleyRevealPaint.Endpoint(color), "Exact immutable room material endpoint");
-            AssertEqual(expected, LittleEndianBytes.Word(roomPalette[(113 + color) * 2], roomPalette[(113 + color) * 2 + 1]),
-                "Identical room-theme9 occurrence remains separately accounted");
-        }
         {
             var document = RequiredJson.Deserialize<NorfairRidleyColorDocument>(json, ArtworkJson.Options);
             var selected = NorfairRidleyColorFile.Read(new MemoryStream(NorfairRidleyColorFile.Write(document)));
@@ -2073,24 +2040,16 @@ internal static class LookupStream4Verification
         }
         foreach (int color in new[] { -1, 14, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveReveal(0, color), "Original reveal color domain");
-        Console.WriteLine("Norfair reveal:210 native words/14 shared room endpoints/zero overrides,the hash,full row copies,real producer calls/cadence/terminator and domain checks pass.");
+        Console.WriteLine("Norfair reveal:210 installed native words,the hash,full row copies,real producer calls/cadence/terminator and domain checks pass.");
     }
 
     /// <summary>Checks Norfair initial palette state and its installed CGRAM colors.</summary>
     internal static void VerifyLookupStream4NorfairInitial(ISnesAddressSpace rom)
     {
-        ushort[] Read(int address, int count) => Enumerable.Range(0, count).Select(i => CartridgeImportSource.Require(rom).ReadCartridgeWord((address + i * 2))).ToArray();
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
-        static void NoEdits<TCell>(Dictionary<TCell, RgbColor> edits) where TCell : notnull =>
-            AssertEqual(0, edits.Count, "Native material has no unexplained output overrides");
         byte[] json = NorfairRidleyColorExtractor.Extract(rom);
         var original = RequiredJson.Deserialize<NorfairRidleyColorDocument>(json, ArtworkJson.Options);
         var stock = NorfairRidleyColorFile.Read(new MemoryStream(json));
-        var initial = stock.selection.Initial;
-        var armor = initial.armor;
-        var organ = initial.organ;
-        NoEdits(initial.edits); NoEdits(armor.edits); NoEdits(organ.edits);
-        NoEdits(armor.warm.edits);
         for (int color = 0; color < 15; color++)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6f50e + color * 2)), stock.ResolveInitial(color + 1), "Exact escape material occurrence");
@@ -2133,24 +2092,9 @@ internal static class LookupStream4Verification
                         shown[color], "Actual initializer copies both targets then clears separate reveal ranges");
             }
         }
-        ushort[] normalWords = Read(0xa6f4ee, 15), escapeWords = Read(0xa6f50e, 15);
-        var normalStock = CeresDoorPaintRecognition.Normal(ToColors(normalWords));
-        NoEdits(normalStock.edits); NoEdits(normalStock.WarmTargets.edits);
-        {
-            ushort[] normal = normalWords.ToArray(), escape = escapeWords.ToArray();
-            var normalProvider = CeresDoorPaintRecognition.Normal(ToColors(normal));
-            var dependentEscape = CeresDoorPaintRecognition.Escape(ToColors(escape), normalProvider);
-            var standaloneEscape = CeresDoorPaintRecognition.Escape(ToColors(escape));
-            for (int color = 0; color < 15; color++)
-            {
-                AssertEqual(normal[color], normalProvider.ColorAt(color), "Normal shared extraction");
-                AssertEqual(escape[color], dependentEscape.ColorAt(color), "Escape occurrence with the normal provider");
-                AssertEqual(escape[color], standaloneEscape.ColorAt(color), "Standalone escape operation preserves exact colors");
-            }
-        }
         foreach (int color in new[] { -1, 32, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveInitial(color), "Initial existing array-domain contract");
-        Console.WriteLine("Norfair initial:32 native words,30 shared material identities,zero stock overrides,the hash,full copy,the real initializer,normal/escape paint and210 reveal words pass.");
+        Console.WriteLine("Norfair initial:32 installed native words,the hash,full copy,the real initializer and210 reveal words pass.");
     }
 
     /// <summary>Checks Botwoon color progression and installed CGRAM slots against native rows.</summary>
@@ -2350,9 +2294,6 @@ internal static class LookupStream4Verification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xA6F4EC + color * 2)), stock.ResolveStart(color), "Native normal door material occurrence");
         for (int color = 0; color < 15; color++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xA6E1F1 + color * 2)), stock.ResolveStart(17 + color), "Native Baby initial identity");
-        var definition = stock.selection.Start;
-        var edits = definition.edits;
-        AssertEqual(0, edits.Count, "No native start residuals hidden as edits");
         {
             IReadOnlyList<SheetShade> shades = RidleySheetShades.CeresSprites(stock);
             ushort[] cgram = BossShadeColours.Lay(BossShadeColours.Filled(0x1234), shades, RidleyShades.CeresStart, BossShadeColours.Sprites);
@@ -2370,7 +2311,7 @@ internal static class LookupStream4Verification
         }
         foreach (int color in new[] { -1, 32, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveStart(color), "Start domain");
-        Console.WriteLine("Ceres start:32 native words,16 door/15 Baby aliases,zero native overrides,full start and Baby copies,bounds/null pass; Baby paint uses its separate reviewed owner.");
+        Console.WriteLine("Ceres start:32 native words,16 door/15 Baby occurrences,full start and Baby copies and bounds pass.");
     }
 
     /// <summary>Checks Ceres Baby palette phases and installed CGRAM colors.</summary>
@@ -2385,18 +2326,8 @@ internal static class LookupStream4Verification
         }
         // Each shade shows the native Baby row of the same rank: resting, then the horizontal, round and vertical poses.
         CeresBabyShade[] shadeOfRow = [CeresBabyShade.Resting, CeresBabyShade.HorizontalSquish, CeresBabyShade.Round, CeresBabyShade.VerticalSquish];
-        var definition = stock.selection.Baby;
-        var overrides = definition.edits;
-        AssertEqual(0, overrides.Count, "No unexplained native Baby residuals");
-        for (int color = 0; color < 3; color++)
-        {
-            int address = 0xa6e464 + color * 2;
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), Native(0, color + 4), "Exact native membrane/organ source identities");
-        }
-        foreach (var source in new[] { new VerifyLookupStream4CeresBabyCase(Address:0xa994e6, Color:9), new VerifyLookupStream4CeresBabyCase(Address:0xa994ea, Color:11) })
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(source.Address), Native(0, source.Color), "Exact native shared fang source identities");
         for (int row = 0; row < 4; row++) for (int color = 0; color < 15; color++)
-            AssertEqual(Native(row, color), stock.ResolveBaby(shadeOfRow[row], color), "All60 native Baby colors calculate");
+            AssertEqual(Native(row, color), stock.ResolveBaby(shadeOfRow[row], color), "All60 installed native Baby colors");
         for (int row = 0; row < 4; row++)
         {
             ushort[] cgram = BossShadeColours.Lay(BossShadeColours.Filled(0x1234), RidleySheetShades.CeresSprites(stock), RidleyShades.Baby(shadeOfRow[row]), BossShadeColours.Sprites);
@@ -2423,7 +2354,7 @@ internal static class LookupStream4Verification
         }
         foreach (int color in new[] { -1, 15, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBaby(CeresBabyShade.Resting, color), "Baby color domain");
-        Console.WriteLine("Ceres Baby:60 native colors,zero native overrides,actual15-color copies,12 native interpreter shape selections pass.");
+        Console.WriteLine("Ceres Baby:60 native colors,actual15-color copies,12 native interpreter shape selections pass.");
     }
 
     /// <summary>Checks shared Ceres retreat colors and phase ownership against cartridge rows.</summary>
@@ -2432,8 +2363,6 @@ internal static class LookupStream4Verification
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
         var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
         var floor = CeresRidleyMode7ColorFile.Read(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(rom)));
-        var stored = stock.selection.RetreatShared;
-        AssertEqual(0, stored.Count, "No native retreat shared paints retained");
         for (int color = 0; color < 8; color++)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6aa01 + color * 2)), stock.ResolveRetreatShared(color), "Native shared retreat colors");
@@ -2456,7 +2385,7 @@ internal static class LookupStream4Verification
         }
         foreach (int color in new[] { -1, 8, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveRetreatShared(color), "Retreat shared domain");
-        Console.WriteLine("Ceres shared retreat:8 native identities,zero stock values,exact dual-domain copies/bounds/null pass.");
+        Console.WriteLine("Ceres shared retreat:8 native identities,exact dual-domain copies and bounds pass.");
     }
 
     /// <summary>Checks Ceres zoom and retreat palette phases in their native order.</summary>
@@ -2465,11 +2394,6 @@ internal static class LookupStream4Verification
         byte[] zoomJson = CeresRidleyMode7ColorExtractor.Extract(rom);
         var zoomStock = CeresRidleyMode7ColorFile.Read(new MemoryStream(zoomJson));
         var ceresStock = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorExtractor.Extract(rom)));
-        var zoomDefinition = zoomStock.steps;
-        var zoomEdits = zoomDefinition.edits;
-        AssertEqual(0, zoomEdits.Count, "All native zoom words calculate without residuals");
-        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x848050), CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6b123), "Native neutral contour identity shared with Golden Torizo");
-        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6b123), GoldenTorizoHealthPaint.Color(0, 15, GoldenTorizoHealthFacing.Front), "Existing immutable neutral source owner");
         {
             var selected = zoomStock;
             var ridley = new RidleyEnemyState();
@@ -2485,14 +2409,12 @@ internal static class LookupStream4Verification
                         ? CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b107 + row * 32 + (color - 81) * 2))
                         : (ushort)0x1234;
                     AssertEqual(expected, cgram[color], "Actual native high-byte zoom selection");
-                    if (color is >= 81 and < 96) AssertEqual(expected, selected.Resolve(row, color - 81), "Calculated zoom resolver matches actual copy");
+                    if (color is >= 81 and < 96) AssertEqual(expected, selected.Resolve(row, color - 81), "Installed zoom colour matches actual copy");
                 }
             }
         }
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
         var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
-        var retreatEdits = stock.selection.RetreatBg;
-        AssertEqual(0, retreatEdits.Count, "All native retreat background words calculate");
         {
             var selected = stock;
             ushort[] cgram = BossShadeColours.Filled(0x1234);
@@ -2517,7 +2439,7 @@ internal static class LookupStream4Verification
         AssertThrows<ArgumentOutOfRangeException>(() => zoomStock.Resolve(9, 0), "Zoom upper row bound");
         AssertThrows<ArgumentOutOfRangeException>(() => zoomStock.Resolve(0, 15), "Zoom upper color bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveRetreatBg(15), "Retreat upper color bound");
-        Console.WriteLine("Ceres zoom/retreat:150 native words,zero stock overrides,actual zoom selections/retreat copies,domains/null pass.");
+        Console.WriteLine("Ceres zoom/retreat:150 native words,actual zoom selections/retreat copies and domains pass.");
     }
 
     /// <summary>Checks Ceres health-dependent palette phases and installed CGRAM output.</summary>
@@ -2530,9 +2452,6 @@ internal static class LookupStream4Verification
             int a = 0xa6e46a + (row * 14 + color) * 2;
             return CartridgeImportSource.Require(rom).ReadCartridgeWord(a);
         }
-        var definition = stock.selection.Health;
-        var overrides = definition.edits;
-        AssertEqual(0, overrides.Count, "All42 native health colors calculate");
         {
             IReadOnlyList<SheetShade> shades = RidleySheetShades.CeresSprites(stock);
             for (int row = 0; row < 3; row++)
@@ -2578,7 +2497,7 @@ internal static class LookupStream4Verification
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(row, 0), "Health row bounds");
         foreach (int color in new[] { -1, 14, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(0, color), "Health color bounds");
-        Console.WriteLine("Ridley health:42 native words,zero stock overrides,actual copies,18 actual encounter selections and bounds/null pass.");
+        Console.WriteLine("Ridley health:42 native words,actual copies,18 actual encounter selections and bounds/null pass.");
     }
 
     /// <summary>Checks HUD anchor coordinates and cell placement against native layout data.</summary>

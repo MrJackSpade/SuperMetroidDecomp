@@ -183,13 +183,13 @@ internal static class BossColourContentIdentity
             SelectedPresentationHash.Create("NorfairRidleyColorCatalog-v1", content =>
             {
                 Span<RgbColor> initialWords = stackalloc RgbColor[NorfairRidleyColorFormat.InitialColorCount];
-                for (int color = 0; color < initialWords.Length; color++) initialWords[color] = colors.selection.Initial.ColorAt(color);
+                for (int color = 0; color < initialWords.Length; color++) initialWords[color] = colors.ResolveInitial(color);
                 content.AppendColors("initial", initialWords);
                 RgbColor[][] revealWords = new RgbColor[NorfairRidleyPaletteDefinitions.RevealStepCount][];
                 for (int step = 0; step < revealWords.Length; step++)
                 {
                     revealWords[step] = new RgbColor[NorfairRidleyColorFormat.RevealColorCount];
-                    for (int color = 0; color < revealWords[step].Length; color++) revealWords[step][color] = colors.selection.Reveal.ColorAt(step, color);
+                    for (int color = 0; color < revealWords[step].Length; color++) revealWords[step][color] = colors.ResolveReveal(step, color);
                 }
                 content.AppendColorFrames("reveal", revealWords);
             });

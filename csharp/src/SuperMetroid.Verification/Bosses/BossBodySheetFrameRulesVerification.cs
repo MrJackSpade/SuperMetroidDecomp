@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Enemies.BossBodies;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Assets;
 using SuperMetroid.Verification.Harness;
@@ -15,7 +14,7 @@ internal static class BossBodySheetFrameRulesVerification
 {
     /// <summary>Checks every installed boss body sheet's frames against the sheet pixel rules.</summary>
     internal static void VerifyBossBodySheetInks() =>
-        SheetPixelRules.Assert("boss body", RepositoryInstallation.Installation.BossBodySheetDirectory,
+        SheetPixelRules.Assert("boss body",
             [.. Enum.GetValues<BossBodyOwner>().Select(owner => new LabelledSheet(owner.ToString(), InstalledFixtures.BossBodySheets.Of(owner).Sheet))]);
 
     /// <summary>Runs the installed boss body sheets' pixel rules.</summary>

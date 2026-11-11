@@ -1,8 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.BossBodies;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Verification.Assets;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
@@ -23,14 +21,13 @@ internal static class BossBodyEnclosedCellsVerification
     /// <summary>Fails, naming every boss body picture with a clear cell enclosed by its outline.</summary>
     internal static void VerifyBossBodyEnclosedCells()
     {
-        string directory = RepositoryInstallation.Installation.BossBodySheetDirectory;
         var findings = new List<string>();
         int pictures = 0;
         foreach (BossBodyOwner owner in Enum.GetValues<BossBodyOwner>())
         {
             SpriteSheet sheet = InstalledFixtures.BossBodySheets.Of(owner).Sheet;
             SpriteImage image = sheet.Image;
-            bool[] clear = Array.ConvertAll(SheetPixelRules.PixelPlane(directory, image), pixel => pixel.A == 0);
+            bool[] clear = Array.ConvertAll(image.Pixels.ToArray(), pixel => pixel.A == 0);
             foreach ((string name, SpriteSheetFrame frame) in sheet.frames.OrderBy(entry => entry.Key, StringComparer.Ordinal))
             {
                 pictures++;

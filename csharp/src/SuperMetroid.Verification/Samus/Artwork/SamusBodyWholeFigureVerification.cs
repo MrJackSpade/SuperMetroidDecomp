@@ -3,9 +3,7 @@ using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Verification.Assets;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
@@ -52,7 +50,7 @@ internal static class SamusBodyWholeFigureVerification
     {
         SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(SpriteSheetId.SamusBody);
         SpriteImage image = sheet.Image;
-        var opaque = new OpaquePixels(SheetPixelRules.PixelPlane(RepositoryInstallation.Installation.SpriteSheetDirectory, image), image.Size.X);
+        var opaque = new OpaquePixels(image.Pixels.ToArray(), image.Size.X);
 
         InstalledSamusBodyArtwork body = InstalledFixtures.SamusBody;
         SamusSpritemapSources spritemaps = body.Source.Spritemaps;

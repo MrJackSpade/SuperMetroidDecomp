@@ -6,9 +6,7 @@ using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Verification.Assets;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
@@ -80,7 +78,7 @@ internal static class CinematicSheetColouringsVerification
             SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(id);
             Dictionary<int, HashSet<int>> ceres = CeresSheets.TryGetValue(id, out Func<IEnumerable<CeresDrawnProgram>>? actors)
                 ? CeresPoseSets(actors()) : new();
-            RgbaPixel[] pixels = SheetPixelRules.PixelPlane(RepositoryInstallation.Installation.SpriteSheetDirectory, sheet.Image);
+            RgbaPixel[] pixels = sheet.Image.Pixels.ToArray();
             foreach ((string name, SpriteSheetFrame frame) in sheet.frames.OrderBy(entry => entry.Key, StringComparer.Ordinal))
             {
                 frames++;

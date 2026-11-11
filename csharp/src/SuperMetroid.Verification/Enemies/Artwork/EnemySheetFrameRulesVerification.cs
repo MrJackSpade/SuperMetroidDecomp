@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Assets;
 using SuperMetroid.Verification.Harness;
@@ -21,7 +20,7 @@ internal static class EnemySheetFrameRulesVerification
 
     /// <summary>Checks every installed enemy sheet's frames against the sheet pixel rules.</summary>
     internal static void VerifyEnemySheetInks() =>
-        SheetPixelRules.Assert("enemy", RepositoryInstallation.Installation.EnemySheetDirectory,
+        SheetPixelRules.Assert("enemy",
             [.. Sheets.Select(entry => new LabelledSheet(entry.Key, entry.Value.Sheet))]);
 
     /// <summary>Runs the installed enemy sheets' pixel rules.</summary>

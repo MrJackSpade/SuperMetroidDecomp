@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Assets;
 using SuperMetroid.Verification.Harness;
@@ -15,7 +14,7 @@ internal static class SpawnedObjectSheetFrameRulesVerification
 {
     /// <summary>Checks every installed spawned-object sheet's frames against the sheet pixel rules.</summary>
     internal static void VerifySpawnedObjectSheetInks() =>
-        SheetPixelRules.Assert("spawned-object", RepositoryInstallation.Installation.EnemySheetDirectory,
+        SheetPixelRules.Assert("spawned-object",
             [.. InstalledFixtures.EnemySheets.spawnedVariants.OrderBy(entry => entry.Key, StringComparer.Ordinal)
                 .SelectMany(entry => entry.Value.Sheet.Sheets.Select(sheet => new LabelledSheet($"spawned {entry.Key}", sheet)))]);
 

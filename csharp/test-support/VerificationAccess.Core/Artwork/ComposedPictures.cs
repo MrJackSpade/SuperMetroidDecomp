@@ -89,15 +89,16 @@ internal static class ComposedPictures
 
     /// <summary>
     /// Whether <paramref name="installed"/> shows the pixels and recolour regions <paramref name="composition"/> installs as
-    /// through <see cref="InstalledSheetConversion"/>.
+    /// through <see cref="InstalledSheetConversion"/>, assembled from its pictures as the loader assembles an installed
+    /// sheet's image from the picture store (<see cref="AssembledSheetImages"/>).
     /// </summary>
     private static bool Composes(SpriteImage installed, ComposedSpriteSheet composition)
     {
         if (composition.Size != installed.Size)
             return false;
         InstalledSheet converted = InstalledSheetConversion.Install(composition.Manifest, composition.Size, composition.Pixels, composition.PaletteIndices);
-        return installed.Pixels.SequenceEqual(converted.Pixels.Pixels)
-            && installed.RecolourRegions.SequenceEqual(converted.Pixels.RecolourRegions ?? []);
+        SpriteImagePixels assembled = AssembledSheetImages.Assemble(converted, composition.Size);
+        return AssembledSheetImages.HoldsPixels(installed, assembled) && AssembledSheetImages.HoldsRecolourRegions(installed, assembled);
     }
 
     /// <summary>

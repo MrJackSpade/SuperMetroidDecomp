@@ -190,12 +190,9 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
                     DrawImageCell(level, draw, origin, floor, new Offset16<RoomBlocks>(column, row), TourianAccessObjectDrawDefinitions.Collision);
             return;
         }
-        if (SporeSpawnCeilingDraws.TryGetCollision(draw, out RoomCollisionType sporeCeilingCollision))
+        if (SporeSpawnCeilingDraws.TryDescribe(draw, out RoomBlockShape? sporeSpawnCeiling))
         {
-            RoomObjectFrameImage ceiling = Installed(SporeSpawnCeilingVisuals, "Spore Spawn ceiling").Image(draw);
-            for (int row = 0; row < 2; row++)
-                for (int column = 0; column < 2; column++)
-                    DrawImageCell(level, draw, origin, ceiling, new Offset16<RoomBlocks>(column, row), sporeCeilingCollision);
+            DrawShape(level, draw, origin, Installed(SporeSpawnCeilingVisuals, "Spore Spawn ceiling").Image(draw), sporeSpawnCeiling);
             return;
         }
         if (SamusEaterObjectDraws.TryDescribe(draw, out var samusEater))

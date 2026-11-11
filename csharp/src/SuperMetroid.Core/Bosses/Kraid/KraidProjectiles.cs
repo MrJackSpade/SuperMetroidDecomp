@@ -159,7 +159,8 @@ internal sealed class KraidProjectiles
             CoordinateAxis.Difference(samus.Position.Y.Whole - samus.Kinematics.Radius.Y -
                 lint.Position.Y.Whole, KraidContactDefinitions.LintBottom) >= 0)
             return;
-        int push = ~(samus.Kinematics.Radius.X + KraidContactDefinitions.LintPush) +
+        // The lint pushes Samus left until her body clears its edge by its push distance and one pixel more.
+        int push = -(samus.Kinematics.Radius.X + KraidContactDefinitions.LintPush + KraidContactDefinitions.LintPushClearancePixels) +
             samus.Kinematics.ExtraDisplacement.X.WholePixels;
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeX(
             Math.Min(push, KraidContactDefinitions.LintPush));

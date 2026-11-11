@@ -46,15 +46,15 @@ internal static class PauseReserveFramesVerification
         foreach (ushort invalid in new ushort[] { 0, 0x1a, 0x1c, 0x1d, 0x1e, 0x28, ushort.MaxValue })
             AssertEqual(false, PauseReserveTankVisualWords.Ordinals.TryDecode(invalid, out _), "unsupported native reserve identity");
         var undefined = (PauseReserveTankVisual)(-1);
-        AssertThrows<InvalidOperationException>(() => stock.Draw(ScreenSpritesFixtures.Blank(), MenuSheetFixtures.PauseSprites(stock), undefined, 0), "unsupported reserve identity");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.Draw(ScreenSpritesFixtures.Blank(), MenuSheetFixtures.PauseSprites(stock), undefined, -1), "anchor error precedes unknown visual");
+        AssertThrows<InvalidOperationException>(() => stock.Presentation.Draw(ScreenSpritesFixtures.Blank(), MenuSheetFixtures.PauseSprites(stock), undefined, 0), "unsupported reserve identity");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Presentation.Draw(ScreenSpritesFixtures.Blank(), MenuSheetFixtures.PauseSprites(stock), undefined, -1), "anchor error precedes unknown visual");
     }
 
     /// <summary>
     /// Checks native role and partial-fill selectors for all reserve frames; the object limit that cuts a frame short in a
     /// nearly full sprite buffer is not replicated (#1513).
     /// </summary>
-    internal static void VerifyPauseReserveNativeFrames(ISnesAddressSpace rom, PauseReserveTankPresentation presentation)
+    internal static void VerifyPauseReserveNativeFrames(ISnesAddressSpace rom, PauseReserveTankSourcePresentation presentation)
     {
         foreach (var (site, identity) in new[] { new VerifyPauseReserveNativeFramesCase(0x82b305, 0x1b), new VerifyPauseReserveNativeFramesCase(0x82b37d, 0x20), new VerifyPauseReserveNativeFramesCase(0x82b396, 0x1f) })
         {
@@ -72,7 +72,7 @@ internal static class PauseReserveFramesVerification
             int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c569 + frame.Id * 2);
             DrawImportedSpritemap(rom, expected, pointer, new(x, y), 0x600);
             SpriteSheet sheet = MenuSheetFixtures.PauseSprites(presentation);
-            presentation.Draw(actual, sheet, PauseReserveTankVisualWords.Ordinals.Decode(frame.Id, "reserve visual"), index);
+            presentation.Presentation.Draw(actual, sheet, PauseReserveTankVisualWords.Ordinals.Decode(frame.Id, "reserve visual"), index);
             expected.FinalizeFrame(); actual.FinalizeFrame();
             AssertTrue(expected.ImageEquals(actual),
                 "native reserve frame selection, OAM attributes and ordering");

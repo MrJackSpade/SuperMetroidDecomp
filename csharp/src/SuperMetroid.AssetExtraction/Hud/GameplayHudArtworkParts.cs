@@ -10,9 +10,6 @@ namespace SuperMetroid.AssetExtraction.Hud;
 /// </summary>
 internal sealed record GameplayHudArtworkParts
 {
-    /// <summary>The SHA-256 identity of the selected HUD document.</summary>
-    public required string ContentIdentity { get; init; }
-
     /// <summary>The static row above the three rows the HUD draws, one tile per column.</summary>
     public required ImmutableArray<BackgroundTile> TopRow { get; init; }
 

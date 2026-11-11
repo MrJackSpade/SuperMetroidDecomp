@@ -54,7 +54,7 @@ internal static class MapScreensVerification
         Console.WriteLine("Map screen resources: six native world/room VRAM and pixel comparisons and the guarded full menu pass.");
 
         static FileSelectAreaMapGraphics World(ISnesAddressSpace addressSpace, AreaMapPresentation catalog, int area) =>
-            new(area, catalog.Backdrops, MenuSheetFixtures.ForFileSelectMap(catalog));
+            new(area, catalog.Backdrops, MenuSheetFixtures.ForFileSelectMap(InstalledFixtures.ImportOf(catalog)));
     }
 
     /// <summary>Forbids runtime cartridge reads across all migrated world pages, room frames, labels, and map character sheets.</summary>

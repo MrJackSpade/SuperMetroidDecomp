@@ -52,8 +52,8 @@ internal static class TreadmillVisualVerification
             // render places over the room's characters where the cartridge copies it.
             ArtworkAnimation treadmill = AnimatedTileFrames.Of(rightwards
                 ? AnimatedTileObject.WreckedShipTreadmillRightwards : AnimatedTileObject.WreckedShipTreadmillLeftwards);
-            RoomFxAnimatedTileAtlas animatedTiles = InstalledAreaMapPresentation.RoomFxAnimatedTilesOf(runtime.Artwork.MapPresentation
-                ?? throw new InvalidOperationException("The runtime has no installed presentation."));
+            RoomFxAnimatedTileAtlas animatedTiles = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportOf(runtime.Artwork.MapPresentation
+                ?? throw new InvalidOperationException("The runtime has no installed presentation.")).RoomFxAnimatedTiles;
             for (int frame = 0; frame < 12; frame++)
             {
                 ArtworkFrame? latched = runtime.Room.LoadedScope.ArtworkFrames.TryShown(treadmill, out ArtworkFrame selected) ? selected : null;

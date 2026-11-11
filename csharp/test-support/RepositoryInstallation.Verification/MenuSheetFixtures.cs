@@ -27,38 +27,51 @@ namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 internal static class MenuSheetFixtures
 {
     /// <summary>Sheets already composed, by presentation.</summary>
-    private static readonly ConditionalWeakTable<AreaMapPresentation, InstalledSpriteSheets> composed = new();
+    private static readonly ConditionalWeakTable<ImportAreaMapPresentation, InstalledSpriteSheets> composed = new();
 
-    /// <summary>The installed sheets with the menu sheets <paramref name="maps"/> composes.</summary>
+    /// <summary>
+    /// The installed sheets, which the installation's menus draw from; a fixture presentation's menu sheets are composed
+    /// from the import's read of it (<see cref="For(ImportAreaMapPresentation)"/>), since the game's catalog holds none of
+    /// the artwork they are pictured from (#1616).
+    /// </summary>
+    /// <exception cref="InvalidOperationException"><paramref name="maps"/> is not the installation's presentation.</exception>
     internal static InstalledSpriteSheets For(AreaMapPresentation maps)
     {
         ArgumentNullException.ThrowIfNull(maps);
-        return maps.ContentIdentity == InstalledFixtures.Maps.ContentIdentity ? InstalledFixtures.SpriteSheets : composed.GetValue(maps, Compose);
+        return maps.ContentIdentity == InstalledFixtures.Maps.ContentIdentity ? InstalledFixtures.SpriteSheets
+            : throw new InvalidOperationException("A fixture presentation's menu sheets are composed from the import's read of it; pass that read.");
+    }
+
+    /// <summary>The installed sheets with the menu sheets <paramref name="maps"/> composes.</summary>
+    internal static InstalledSpriteSheets For(ImportAreaMapPresentation maps)
+    {
+        ArgumentNullException.ThrowIfNull(maps);
+        return maps.Game.ContentIdentity == InstalledFixtures.Maps.ContentIdentity ? InstalledFixtures.SpriteSheets : composed.GetValue(maps, Compose);
     }
 
     /// <summary>File-select sheets already composed, by presentation.</summary>
-    private static readonly ConditionalWeakTable<FileSelectPresentation, SpriteSheet> fileSelects = new();
+    private static readonly ConditionalWeakTable<FileSelectSourcePresentation, SpriteSheet> fileSelects = new();
 
     /// <summary>The file-select sheet <paramref name="fileSelect"/> composes over the installation's menus.</summary>
-    internal static SpriteSheet FileSelect(FileSelectPresentation fileSelect)
+    internal static SpriteSheet FileSelect(FileSelectSourcePresentation fileSelect)
     {
         ArgumentNullException.ThrowIfNull(fileSelect);
-        return FileSelectSourcePresentation.Of(fileSelect).ContentIdentity == FileSelectSourcePresentation.Of(InstalledFixtures.Maps.FileSelect).ContentIdentity
+        return fileSelect.ContentIdentity == InstalledFixtures.ImportMaps.FileSelect.ContentIdentity
             ? InstalledFixtures.SpriteSheets.Get(SpriteSheetId.FileSelect)
-            : fileSelects.GetValue(fileSelect, key => Load(SpriteSheetId.FileSelect, FileSelectSheetComposer.Sources(key, InstalledFixtures.Maps),
+            : fileSelects.GetValue(fileSelect, key => Load(SpriteSheetId.FileSelect, FileSelectSheetComposer.Sources(key, InstalledFixtures.ImportMaps),
                 $"presentation-{RuntimeHelpers.GetHashCode(key):X8}"));
     }
 
     /// <summary>Options sheets already composed, by presentation.</summary>
-    private static readonly ConditionalWeakTable<GameOptionsPresentation, SpriteSheet> options = new();
+    private static readonly ConditionalWeakTable<GameOptionsSourcePresentation, SpriteSheet> options = new();
 
     /// <summary>The options sheet <paramref name="presentation"/> composes over the installation's menus.</summary>
-    internal static SpriteSheet GameOptions(GameOptionsPresentation presentation)
+    internal static SpriteSheet GameOptions(GameOptionsSourcePresentation presentation)
     {
         ArgumentNullException.ThrowIfNull(presentation);
-        return GameOptionsSourcePresentation.Of(presentation).ContentIdentity == GameOptionsSourcePresentation.Of(InstalledFixtures.Maps.GameOptions).ContentIdentity
+        return presentation.ContentIdentity == InstalledFixtures.ImportMaps.GameOptions.ContentIdentity
             ? InstalledFixtures.SpriteSheets.Get(SpriteSheetId.GameOptions)
-            : options.GetValue(presentation, key => Load(SpriteSheetId.GameOptions, GameOptionsSheetComposer.Sources(key, InstalledFixtures.Maps),
+            : options.GetValue(presentation, key => Load(SpriteSheetId.GameOptions, GameOptionsSheetComposer.Sources(key, InstalledFixtures.ImportMaps),
                 $"presentation-{RuntimeHelpers.GetHashCode(key):X8}"));
     }
 
@@ -69,37 +82,37 @@ internal static class MenuSheetFixtures
     internal static SpriteSheet MapSprites(MapSpriteCompositions catalog)
     {
         ArgumentNullException.ThrowIfNull(catalog);
-        return ReferenceEquals(catalog, InstalledAreaMapPresentation.SpritesOf(InstalledFixtures.Maps))
+        return ReferenceEquals(catalog, InstalledFixtures.ImportMaps.Sprites)
             ? InstalledFixtures.SpriteSheets.Get(SpriteSheetId.MapSprites)
-            : mapSprites.GetValue(catalog, key => Load(SpriteSheetId.MapSprites, MapSpriteSheetComposer.Sources(key, InstalledFixtures.Maps),
+            : mapSprites.GetValue(catalog, key => Load(SpriteSheetId.MapSprites, MapSpriteSheetComposer.Sources(key, InstalledFixtures.ImportMaps),
                 $"catalog-{RuntimeHelpers.GetHashCode(key):X8}"));
     }
 
     /// <summary>Pause sheets already composed, by selector presentation.</summary>
-    private static readonly ConditionalWeakTable<PauseSelectorPresentation, SpriteSheet> pauseSprites = new();
+    private static readonly ConditionalWeakTable<PauseSelectorSourcePresentation, SpriteSheet> pauseSprites = new();
 
     /// <summary>The pause sheet <paramref name="selectors"/> composes beside the installation's reserve strip.</summary>
-    internal static SpriteSheet PauseSprites(PauseSelectorPresentation selectors)
+    internal static SpriteSheet PauseSprites(PauseSelectorSourcePresentation selectors)
     {
         ArgumentNullException.ThrowIfNull(selectors);
-        return ReferenceEquals(selectors, InstalledFixtures.Maps.PauseSelectors)
+        return ReferenceEquals(selectors, InstalledFixtures.ImportMaps.PauseSelectors)
             ? InstalledFixtures.SpriteSheets.Get(SpriteSheetId.PauseSprites)
             : pauseSprites.GetValue(selectors, key => Load(SpriteSheetId.PauseSprites,
-                PauseSheetComposer.Sources(key, InstalledFixtures.Maps.PauseReserveTanks, InstalledFixtures.Maps),
+                PauseSheetComposer.Sources(key, InstalledFixtures.ImportMaps.PauseReserveTanks, InstalledFixtures.ImportMaps),
                 $"selectors-{RuntimeHelpers.GetHashCode(key):X8}"));
     }
 
     /// <summary>Pause sheets already composed, by reserve-strip presentation.</summary>
-    private static readonly ConditionalWeakTable<PauseReserveTankPresentation, SpriteSheet> pauseTanks = new();
+    private static readonly ConditionalWeakTable<PauseReserveTankSourcePresentation, SpriteSheet> pauseTanks = new();
 
     /// <summary>The pause sheet <paramref name="tanks"/> composes beside the installation's selectors.</summary>
-    internal static SpriteSheet PauseSprites(PauseReserveTankPresentation tanks)
+    internal static SpriteSheet PauseSprites(PauseReserveTankSourcePresentation tanks)
     {
         ArgumentNullException.ThrowIfNull(tanks);
-        return ReferenceEquals(tanks, InstalledFixtures.Maps.PauseReserveTanks)
+        return ReferenceEquals(tanks, InstalledFixtures.ImportMaps.PauseReserveTanks)
             ? InstalledFixtures.SpriteSheets.Get(SpriteSheetId.PauseSprites)
             : pauseTanks.GetValue(tanks, key => Load(SpriteSheetId.PauseSprites,
-                PauseSheetComposer.Sources(InstalledFixtures.Maps.PauseSelectors, key, InstalledFixtures.Maps),
+                PauseSheetComposer.Sources(InstalledFixtures.ImportMaps.PauseSelectors, key, InstalledFixtures.ImportMaps),
                 $"tanks-{RuntimeHelpers.GetHashCode(key):X8}"));
     }
 
@@ -113,7 +126,7 @@ internal static class MenuSheetFixtures
     internal static InstalledSpriteSheets WithTitle(TitleGraphicsCharacters graphics)
     {
         ArgumentNullException.ThrowIfNull(graphics);
-        return ReferenceEquals(graphics, InstalledAreaMapPresentation.TitleGraphicsOf(InstalledFixtures.Maps)) || ShowsStockTitle(graphics) ? InstalledFixtures.SpriteSheets
+        return ReferenceEquals(graphics, InstalledFixtures.ImportMaps.TitleGraphics) || ShowsStockTitle(graphics) ? InstalledFixtures.SpriteSheets
             : titles.GetValue(graphics, ComposedTitle);
     }
 
@@ -144,11 +157,11 @@ internal static class MenuSheetFixtures
     private static InstalledSpriteSheets ComposeTitle(TitleGraphicsCharacters graphics)
     {
         var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(id => id, InstalledFixtures.SpriteSheets.Get);
-        sheets[SpriteSheetId.Title] = Load(SpriteSheetId.Title, TitleSheetComposer.Sources(graphics, ImportAreaMapPresentation.TitlePaletteOf(InstalledFixtures.Maps)),
+        sheets[SpriteSheetId.Title] = Load(SpriteSheetId.Title, TitleSheetComposer.Sources(graphics, InstalledFixtures.ImportMaps.TitlePalette),
             $"title-{RuntimeHelpers.GetHashCode(graphics):X8}");
         // The title's floor is composed from these graphics (#1392, #1467).
         sheets[SpriteSheetId.TitleFloor] = LoadTiles(SpriteSheetId.TitleFloor,
-            FrontendFloorSheetComposer.Title(graphics, ImportAreaMapPresentation.TitlePaletteOf(InstalledFixtures.Maps)), $"title-{RuntimeHelpers.GetHashCode(graphics):X8}");
+            FrontendFloorSheetComposer.Title(graphics, InstalledFixtures.ImportMaps.TitlePalette), $"title-{RuntimeHelpers.GetHashCode(graphics):X8}");
         return new InstalledSpriteSheets(sheets);
     }
 
@@ -160,7 +173,7 @@ internal static class MenuSheetFixtures
     /// whose sheets are the installed sheets.
     /// </summary>
     private static bool ShowsStockTitle(TitleGraphicsCharacters graphics) =>
-        SameTitleContent(graphics, InstalledAreaMapPresentation.TitleGraphicsOf(InstalledFixtures.Maps));
+        SameTitleContent(graphics, InstalledFixtures.ImportMaps.TitleGraphics);
 
     /// <summary>
     /// Whether two title graphics hold the same content: the floor map, the floor, object and Baby characters, and every
@@ -181,10 +194,10 @@ internal static class MenuSheetFixtures
     internal static InstalledSpriteSheets WithTitle(TitlePalettePresentation palette)
     {
         ArgumentNullException.ThrowIfNull(palette);
-        return ReferenceEquals(palette, ImportAreaMapPresentation.TitlePaletteOf(InstalledFixtures.Maps)) ? InstalledFixtures.SpriteSheets
+        return ReferenceEquals(palette, InstalledFixtures.ImportMaps.TitlePalette) ? InstalledFixtures.SpriteSheets
             : titlePalettes.GetValue(palette, key =>
             {
-                TitleGraphicsCharacters graphics = InstalledAreaMapPresentation.TitleGraphicsOf(InstalledFixtures.Maps);
+                TitleGraphicsCharacters graphics = InstalledFixtures.ImportMaps.TitleGraphics;
                 var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(id => id, InstalledFixtures.SpriteSheets.Get);
                 sheets[SpriteSheetId.Title] = Load(SpriteSheetId.Title, TitleSheetComposer.Sources(graphics, key),
                     $"title-palette-{RuntimeHelpers.GetHashCode(key):X8}");
@@ -200,7 +213,7 @@ internal static class MenuSheetFixtures
             $"{SpriteSheetDefinitions.FileNames[id]}-fixture-{fixture}", tiles.Size, tiles.Pixels, tiles.PaletteIndices, tiles.FrontTiles);
 
     /// <summary>File-select map sheets already composed, by presentation.</summary>
-    private static readonly ConditionalWeakTable<AreaMapPresentation, InstalledSpriteSheets> fileSelectMaps = new();
+    private static readonly ConditionalWeakTable<ImportAreaMapPresentation, InstalledSpriteSheets> fileSelectMaps = new();
 
     /// <summary>
     /// The sheets the file-select map draws from (#1532): the installed sheets for the installation's presentation, otherwise
@@ -208,10 +221,10 @@ internal static class MenuSheetFixtures
     /// menu and room-map pictures and each area's world-map pages. A screen that asks for any other sheet fails, so a fixture
     /// presentation's map screens never compose the pause, title and other menus' sheets they never draw.
     /// </summary>
-    internal static InstalledSpriteSheets ForFileSelectMap(AreaMapPresentation maps)
+    internal static InstalledSpriteSheets ForFileSelectMap(ImportAreaMapPresentation maps)
     {
         ArgumentNullException.ThrowIfNull(maps);
-        return maps.ContentIdentity == InstalledFixtures.Maps.ContentIdentity ? InstalledFixtures.SpriteSheets
+        return maps.Game.ContentIdentity == InstalledFixtures.Maps.ContentIdentity ? InstalledFixtures.SpriteSheets
             : fileSelectMaps.GetValue(maps, key =>
             {
                 var sheets = new Dictionary<SpriteSheetId, SpriteSheet>();
@@ -221,7 +234,7 @@ internal static class MenuSheetFixtures
     }
 
     /// <summary>Composes and registers a fixture presentation's menu sheets beside the installed others.</summary>
-    private static InstalledSpriteSheets Compose(AreaMapPresentation maps)
+    private static InstalledSpriteSheets Compose(ImportAreaMapPresentation maps)
     {
         var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(id => id, InstalledFixtures.SpriteSheets.Get);
         foreach ((SpriteSheetId id, SpriteSheetSources sources) in new[]
@@ -246,7 +259,7 @@ internal static class MenuSheetFixtures
     /// with: its map sprites, the menus' and room maps' pictures and each area's world-map pages, each named for
     /// <paramref name="fixture"/>.
     /// </summary>
-    private static void ComposeFileSelectMapSheets(AreaMapPresentation maps, Dictionary<SpriteSheetId, SpriteSheet> sheets, string fixture)
+    private static void ComposeFileSelectMapSheets(ImportAreaMapPresentation maps, Dictionary<SpriteSheetId, SpriteSheet> sheets, string fixture)
     {
         sheets[SpriteSheetId.MapSprites] = Load(SpriteSheetId.MapSprites, MapSpriteSheetComposer.Sources(maps), fixture);
         // The menus' pages and the pictures placed over them are pictured from the maps' presentation (#1467).

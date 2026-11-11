@@ -62,11 +62,11 @@ internal static class RidleySheetShades
 
     /// <summary>The shades of both encounters' rooms' pictures.</summary>
     /// <exception cref="InvalidDataException">An encounter's colours are not installed.</exception>
-    internal static IReadOnlyList<SheetShade> Room(AreaMapPresentation maps, BossSourceArtwork bosses)
+    internal static IReadOnlyList<SheetShade> Room(ImportAreaMapPresentation maps, BossSourceArtwork bosses)
     {
         Ensure.NotNull(maps);
         Ensure.NotNull(bosses);
-        return [.. CeresRoom(ImportAreaMapPresentation.CeresRidleyColorsOf(maps), ImportAreaMapPresentation.CeresRidleyFloorColorsOf(maps)),
+        return [.. CeresRoom(maps.CeresRidleyColors, maps.CeresRidleyFloorColors),
             .. NorfairRoom(bosses.NorfairRidleyColors ?? throw Missing("Norfair Ridley"))];
     }
 

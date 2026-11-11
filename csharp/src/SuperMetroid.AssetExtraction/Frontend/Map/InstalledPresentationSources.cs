@@ -9,13 +9,16 @@ using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>
 /// The source artwork an installed map presentation was read with, which only the import composes pictures from (#1466,
-/// #1467): the game reads none of it. The colours only the import pre-colours sheets from are not among them: the game's
-/// read leaves them unread (#1544, <see cref="ImportPresentationColours"/>).
+/// #1467): the game reads none of it, only the catalogs the selector, reserve-strip, HUD, options and file-select sources
+/// build for it (#1616). The colours only the import pre-colours sheets from are not among them: the game's read leaves
+/// them unread (#1544, <see cref="ImportPresentationColours"/>).
 /// </summary>
 /// <param name="Characters">The characters the map screens, the pause interface and the HUD are pictured from.</param>
 /// <param name="Messages">The editable gameplay messages, whose words compose each message box image.</param>
@@ -35,6 +38,11 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// <param name="IntroFont">The opening narration's font, which the narration pictures are composed from (#1583).</param>
 /// <param name="EndingFont">The ending's font, which the credits, post-credits and explosion pictures are composed from (#1583).</param>
 /// <param name="TitleGraphics">The title's characters and compositions, which the title and title floor sheets are composed from (#1583).</param>
+/// <param name="PauseSelectors">The equipment selectors' frame compositions with the anchors and timing the game binds (#1616).</param>
+/// <param name="PauseReserveTanks">The reserve strip's frame compositions with the anchors the game binds (#1616).</param>
+/// <param name="GameplayHud">The gameplay HUD's tiles with the layout the game binds (#1616).</param>
+/// <param name="GameOptions">The options screen's pages, labels and compositions with the anchors the game binds (#1616).</param>
+/// <param name="FileSelect">The file-select screen's pages, fields and compositions with the layout the game binds (#1616).</param>
 [ArchitectureReview("context-bag", "The source artwork documents an installed map presentation was read with; every member is immutable artwork data the import composes pictures from, not a service.")]
 internal sealed record InstalledPresentationSources(
     MapCharacterArtwork Characters,
@@ -51,7 +59,12 @@ internal sealed record InstalledPresentationSources(
     WorldMapCharacters WorldCharacters,
     IntroFontCharacters IntroFont,
     EndingFontCharacters EndingFont,
-    TitleGraphicsCharacters TitleGraphics)
+    TitleGraphicsCharacters TitleGraphics,
+    PauseSelectorSourcePresentation PauseSelectors,
+    PauseReserveTankSourcePresentation PauseReserveTanks,
+    GameplayHudArtwork GameplayHud,
+    GameOptionsSourcePresentation GameOptions,
+    FileSelectSourcePresentation FileSelect)
 {
     /// <summary>The game-over page's tiles, compositions and palette selectors, which the menus' pictures and the game-over sheet are composed from (#1616).</summary>
     public required GameOverSourcePresentation GameOver { get; init; }

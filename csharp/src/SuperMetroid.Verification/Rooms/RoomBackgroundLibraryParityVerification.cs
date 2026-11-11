@@ -30,7 +30,7 @@ internal static class RoomBackgroundLibraryParityVerification
         RoomBackgroundTilemaps backgrounds = installed.LoadRoomBackgroundTilemaps();
         RoomSkyTilemaps skies = installed.LoadRoomSkyTilemaps();
         RoomCharacterAtlases characters = installed.LoadRoomCharacters();
-        HudTileAtlas hud = MapCharacterArtwork.Of(installed.LoadMaps()).Hud;
+        HudTileAtlas hud = MapPresentationFiles.Load(installed.MapDirectory).Characters.Hud;
         int cases = 0;
 
         foreach (LibraryBackgroundProgram program in LibraryBackgroundSourceDefinitions.All)

@@ -12,11 +12,11 @@ internal static class FileSelectMenuStateAccess
     {
         /// <summary>
         /// The page the menu shows, laid out as the cartridge's tilemap words from <paramref name="maps"/>' sources of the
-        /// pictures it places (#1467), for cartridge-layout verification; <paramref name="maps"/> is the presentation the menu
-        /// was built with.
+        /// pictures it places (#1467), for cartridge-layout verification; <paramref name="maps"/> is the import's read of the
+        /// presentation the menu was built with (#1616).
         /// </summary>
-        internal ushort[] BackgroundTilemap(AreaMapPresentation maps) =>
-            BackgroundTileWordBytes.Words(FileSelectSourcePresentation.Of(Ensure.NotNull(maps).FileSelect).LayOut(self.ShownPage));
+        internal ushort[] BackgroundTilemap(SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentation maps) =>
+            BackgroundTileWordBytes.Words(Ensure.NotNull(maps).FileSelect.LayOut(self.ShownPage));
 
         /// <summary>Selected helmet frame retained through the fade into loading/options.</summary>
         internal int SelectedHelmetFrame => self.HelmetAnimationFrame;

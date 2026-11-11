@@ -6,9 +6,9 @@ namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 /// The installed equipment-selector anchors, visual animation and timing; selection rules stay compiled. The installation
 /// is the anchors', frames' and timing's only source (#1596, #1615): each phase names, for each category, the frame of the
 /// installed pause sheet it shows. The frames' compositions belong to the import pipeline that reads the installed
-/// presentation (#1463).
+/// presentation and never reach the game (#1463, #1616).
 /// </summary>
-public abstract class PauseSelectorPresentation
+public sealed class PauseSelectorPresentation
 {
     /// <summary>The installed anchor of each equipment control, by its stable anchor name.</summary>
     internal readonly Dictionary<string, Position16<SpritePixels>> anchors;

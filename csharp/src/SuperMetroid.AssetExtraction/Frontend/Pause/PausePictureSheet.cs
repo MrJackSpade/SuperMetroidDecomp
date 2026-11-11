@@ -22,7 +22,7 @@ internal static class PausePictureSheet
     private const int Columns = PauseBackdropDefinitions.Columns;
 
     /// <summary>Every picture the sheet holds.</summary>
-    internal static IEnumerable<ScreenPictureSubject> Subjects(AreaMapPresentation maps)
+    internal static IEnumerable<ScreenPictureSubject> Subjects(InstalledAreaMapPresentation maps)
     {
         Ensure.NotNull(maps);
         foreach (ScreenPictureSubject cell in MapPictureSheets.CellSubjects(maps))
@@ -32,7 +32,7 @@ internal static class PausePictureSheet
         {
             AreaId area = AreaIds.At(index);
             var backdrop = new BackgroundTile[PauseBackdropDefinitions.Cells];
-            InstalledAreaMapPresentation.PauseOf(maps).Backdrops.LoadTo(backdrop, area);
+            maps.Pause.Backdrops.LoadTo(backdrop, area);
             yield return ScreenPictureSubject.Page(PauseFramePictures.BackdropFrame(area), backdrop, Columns, buttonCells);
         }
         BackgroundTile[] buttons = ButtonRows(maps);
@@ -61,9 +61,9 @@ internal static class PausePictureSheet
             .SelectMany(span => Enumerable.Range(span.Word, span.Count));
 
     /// <summary>The button page's two shown rows laid where the frame shows them, on an otherwise empty frame.</summary>
-    internal static BackgroundTile[] ButtonRows(AreaMapPresentation maps)
+    internal static BackgroundTile[] ButtonRows(InstalledAreaMapPresentation maps)
     {
-        BackgroundTile[] page = InstalledAreaMapPresentation.PauseOf(maps).Backdrops.CreateButtonTilemap();
+        BackgroundTile[] page = maps.Pause.Backdrops.CreateButtonTilemap();
         var rows = new BackgroundTile[PauseBackdropDefinitions.Cells];
         page.AsSpan(PauseFrameDefinitions.ButtonSourceFirstRow * Columns, PauseFrameDefinitions.ButtonRowCount * Columns)
             .CopyTo(rows.AsSpan(PauseFrameDefinitions.ButtonRowsFirstRow * Columns));
@@ -79,9 +79,9 @@ internal static class PausePictureSheet
     };
 
     /// <summary>The map characters and the pause interface characters after them.</summary>
-    internal static ScreenCharacters Characters(AreaMapPresentation maps)
+    internal static ScreenCharacters Characters(InstalledAreaMapPresentation maps)
     {
-        MapCharacterArtwork characters = MapCharacterArtwork.Of(Ensure.NotNull(maps));
+        MapCharacterArtwork characters = Ensure.NotNull(maps).Characters;
         int bytes = MapScreenDefinitions.MapTileCount * RoomTileCanvas.CharacterBytes;
         return new ScreenCharacters(TileInkDepth.SixteenColours)
             .Place(PauseTileSetDefinitions.MapFirstTile, characters.Map.Characters[..bytes].ToArray())
@@ -94,14 +94,14 @@ internal static class PausePictureSheet
     /// pause screen names the shade its arrow shows in. A picture whose cells the page data leaves clear, such as a blank
     /// label or a map cell's empty shape, shows nothing and is held without a picture (#1513).
     /// </remarks>
-    internal static ComposedSpriteSheet Compose(AreaMapPresentation maps)
+    internal static ComposedSpriteSheet Compose(ImportAreaMapPresentation maps)
     {
-        MapPictureSheets.RequireCellsPicturedOnce(maps, ImportAreaMapPresentation.PalettesOf(maps).Pause);
-        ComposedSpriteSheet sheet = ScreenPictureSheetComposer.ComposeHoldingBlanks([.. Subjects(maps)], Characters(maps), ImportAreaMapPresentation.PalettesOf(maps).Pause);
-        PauseReserveArrowColours arrow = InstalledAreaMapPresentation.PauseOf(maps).ReserveUi.ArrowColours;
+        MapPictureSheets.RequireCellsPicturedOnce(maps, maps.Palettes.Pause);
+        ComposedSpriteSheet sheet = ScreenPictureSheetComposer.ComposeHoldingBlanks([.. Subjects(maps)], Characters(maps), maps.Palettes.Pause);
+        PauseReserveArrowColours arrow = maps.Pause.ReserveUi.ArrowColours;
         return sheet with { Manifest = sheet.Manifest with { Shades = SheetShade.Documents([.. arrow.Shades()]) } };
     }
 
     /// <summary>The frames the sheet must hold.</summary>
-    internal static IEnumerable<string> FrameNames(AreaMapPresentation maps) => Subjects(maps).Select(subject => subject.Name);
+    internal static IEnumerable<string> FrameNames(InstalledAreaMapPresentation maps) => Subjects(maps).Select(subject => subject.Name);
 }

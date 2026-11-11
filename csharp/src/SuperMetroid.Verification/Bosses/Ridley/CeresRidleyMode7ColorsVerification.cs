@@ -65,7 +65,7 @@ internal static class CeresRidleyMode7ColorsVerification
             // The colours the encounter shows are the import's shades of the installed colours, laid as the getaway laid them (#1512).
             RgbColor[] cgram = RidleyLaidColours.Ceres(ridley, original);
             for (int color = 0; color < CeresRidleyColorFormat.GetawayZoomColorCount; color++)
-                AssertEqual(ImportAreaMapPresentation.CeresRidleyFloorColorsOf(original).Resolve(row, color),
+                AssertEqual(InstalledFixtures.ImportOf(original).CeresRidleyFloorColors.Resolve(row, color),
                     cgram[CeresRidleyPaletteDefinitionsConstants.Mode7ZoomCgramIndex + color],
                     $"Ceres Mode-7 frame {index}, row {row}, color {color}");
         }

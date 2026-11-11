@@ -54,7 +54,7 @@ internal static class IntroScreenMemory
     {
         IntroCinematicSourceArtwork artwork = (intro.CharacterArtwork ?? throw new InvalidOperationException(
             "Opening cinematic rendering requires installed artwork.")).ImportSource;
-        IntroFontCharacters font = InstalledAreaMapPresentation.IntroFontOf(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps);
+        IntroFontCharacters font = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportMaps.IntroFont;
         return Compose(Characters(artwork, font, intro.CurrentObjects is not null), PortraitTiles(artwork, intro.CurrentObjects?.EyeFrame),
             NarrationTiles(intro.narrationText, intro.CurrentObjects is null, artwork));
     }

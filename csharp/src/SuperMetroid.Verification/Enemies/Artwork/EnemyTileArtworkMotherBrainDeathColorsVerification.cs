@@ -85,8 +85,8 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
             address => $"Live Mother Brain death read migrated ROM ${address:X6}.");
         // The import pre-colours her body layer and her sprites in each death fade step and her detached brain in each step
         // of the corpse's fade, from the installed colours (#1512).
-        IReadOnlyList<SheetShade> background = MotherBrainSheetShades.BodyLayer(InstalledFixtures.Maps, stock.Bosses);
-        IReadOnlyList<SheetShade> sprites = MotherBrainSheetShades.Sprites(InstalledFixtures.Maps, stock.Bosses);
+        IReadOnlyList<SheetShade> background = MotherBrainSheetShades.BodyLayer(InstalledFixtures.ImportMaps, stock.Bosses);
+        IReadOnlyList<SheetShade> sprites = MotherBrainSheetShades.Sprites(InstalledFixtures.ImportMaps, stock.Bosses);
         ushort[] Shown(PictureShade shade)
         {
             ushort[] colours = BossShadeColours.Filled(0x1234);

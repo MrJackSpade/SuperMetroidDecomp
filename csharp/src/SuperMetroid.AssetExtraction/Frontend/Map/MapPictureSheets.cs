@@ -22,14 +22,14 @@ internal static class MapPictureSheets
     /// The picture of each cell any area map can show, each once in each shade: the empty cell the map screens show where
     /// nothing is revealed, then every area's cells, each pictured from the map character that pictures it (#1513).
     /// </summary>
-    internal static IEnumerable<ScreenPictureSubject> CellSubjects(AreaMapPresentation maps)
+    internal static IEnumerable<ScreenPictureSubject> CellSubjects(InstalledAreaMapPresentation maps)
     {
         Ensure.NotNull(maps);
         var cells = new HashSet<MapCell> { MapCell.Empty };
         var ordered = new List<MapCell> { MapCell.Empty };
         for (int index = 0; index < AreaIds.RetailCount; index++)
         {
-            IAreaMapView map = maps.Get(AreaIds.At(index));
+            IAreaMapView map = maps.Game.Get(AreaIds.At(index));
             for (int y = 0; y < AreaMapSize.HeightInTiles; y++)
             for (int x = 0; x < AreaMapSize.WidthInTiles; x++)
             {
@@ -52,7 +52,7 @@ internal static class MapPictureSheets
     /// cell a retail map stores explored to show alike in either shade under <paramref name="palette"/> (#1513).
     /// </summary>
     /// <exception cref="InvalidDataException">A cell's sources paint different pixels, or a stored-explored cell shows differently by shade.</exception>
-    internal static void RequireCellsPicturedOnce(AreaMapPresentation maps, ReadOnlySpan<RgbColor> palette)
+    internal static void RequireCellsPicturedOnce(InstalledAreaMapPresentation maps, ReadOnlySpan<RgbColor> palette)
     {
         ScreenCharacters characters = MapCharacters(maps);
         MapCellCharacters.RequireOnePicturePerCell(characters);
@@ -60,27 +60,27 @@ internal static class MapPictureSheets
     }
 
     /// <summary>The map characters, from tile zero, as the room maps and the pause map name them.</summary>
-    internal static ScreenCharacters MapCharacters(AreaMapPresentation maps)
+    internal static ScreenCharacters MapCharacters(InstalledAreaMapPresentation maps)
     {
         int bytes = MapScreenDefinitions.MapTileCount * RoomTileCanvas.CharacterBytes;
-        return new ScreenCharacters(TileInkDepth.SixteenColours).Place(0, MapCharacterArtwork.Of(Ensure.NotNull(maps)).Map.Characters[..bytes].ToArray());
+        return new ScreenCharacters(TileInkDepth.SixteenColours).Place(0, Ensure.NotNull(maps).Characters.Map.Characters[..bytes].ToArray());
     }
 
     /// <summary>
     /// The room maps' sheet under the file-select palette: every map cell and each Zebes area's room frame, a picture
     /// painting no pixel, such as the empty map cell, held without a picture as showing nothing (#1513).
     /// </summary>
-    internal static ComposedSpriteSheet ComposeRoomMap(AreaMapPresentation maps)
+    internal static ComposedSpriteSheet ComposeRoomMap(ImportAreaMapPresentation maps)
     {
-        ReadOnlySpan<RgbColor> palette = ImportAreaMapPresentation.PalettesOf(maps).FileSelect;
+        ReadOnlySpan<RgbColor> palette = maps.Palettes.FileSelect;
         RequireCellsPicturedOnce(maps, palette);
         return ScreenPictureSheetComposer.ComposeHoldingBlanks([.. RoomMapSubjects(maps)], MapCharacters(maps), palette);
     }
 
     /// <summary>The room maps' pictures: every map cell, then each Zebes area's room frame.</summary>
-    internal static IEnumerable<ScreenPictureSubject> RoomMapSubjects(AreaMapPresentation maps)
+    internal static IEnumerable<ScreenPictureSubject> RoomMapSubjects(InstalledAreaMapPresentation maps)
     {
-        MapScreenPresentation screens = InstalledAreaMapPresentation.ScreensOf(maps);
+        MapScreenPresentation screens = maps.Screens;
         foreach (ScreenPictureSubject cell in CellSubjects(maps))
             yield return cell;
         foreach (AreaId area in AreaIds.Zebes)
@@ -90,21 +90,21 @@ internal static class MapPictureSheets
     /// <summary>
     /// <paramref name="area"/>'s world-map foreground sheet under its world-map palette: the world map's foreground page.
     /// </summary>
-    internal static ComposedSpriteSheet ComposeWorldForeground(AreaMapPresentation maps, AreaId area) =>
+    internal static ComposedSpriteSheet ComposeWorldForeground(ImportAreaMapPresentation maps, AreaId area) =>
         ScreenPictureSheetComposer.Compose(
-            [ScreenPictureSubject.Page(AreaMapPictures.WorldForegroundFrame, InstalledAreaMapPresentation.ScreensOf(maps).Page(MapScreenDefinitions.WorldForeground),
+            [ScreenPictureSubject.Page(AreaMapPictures.WorldForegroundFrame, maps.Screens.Page(MapScreenDefinitions.WorldForeground),
                 MapScreenDefinitions.PageColumns)],
-            new ScreenCharacters(TileInkDepth.SixteenColours).Place(0, InstalledAreaMapPresentation.WorldCharactersOf(maps).ForegroundCharacters()),
-            ImportAreaMapPresentation.PalettesOf(maps).World(area));
+            new ScreenCharacters(TileInkDepth.SixteenColours).Place(0, maps.WorldCharacters.ForegroundCharacters()),
+            maps.Palettes.World(area));
 
     /// <summary><paramref name="area"/>'s world-map background sheet under its world-map palette: its background page.</summary>
-    internal static ComposedSpriteSheet ComposeWorldBackground(AreaMapPresentation maps, AreaId area) =>
+    internal static ComposedSpriteSheet ComposeWorldBackground(ImportAreaMapPresentation maps, AreaId area) =>
         ScreenPictureSheetComposer.Compose(
-            [ScreenPictureSubject.Page(AreaMapPictures.WorldBackgroundFrame, InstalledAreaMapPresentation.ScreensOf(maps).Page(MapScreenDefinitions.WorldBackground(area)),
+            [ScreenPictureSubject.Page(AreaMapPictures.WorldBackgroundFrame, maps.Screens.Page(MapScreenDefinitions.WorldBackground(area)),
                 MapScreenDefinitions.PageColumns)],
-            new ScreenCharacters(TileInkDepth.FourColours).Place(0, InstalledAreaMapPresentation.WorldCharactersOf(maps).BackgroundCharacters()),
-            ImportAreaMapPresentation.PalettesOf(maps).World(area));
+            new ScreenCharacters(TileInkDepth.FourColours).Place(0, maps.WorldCharacters.BackgroundCharacters()),
+            maps.Palettes.World(area));
 
     /// <summary>The frames a room-map sheet must hold.</summary>
-    internal static IEnumerable<string> RoomMapFrameNames(AreaMapPresentation maps) => RoomMapSubjects(maps).Select(subject => subject.Name);
+    internal static IEnumerable<string> RoomMapFrameNames(InstalledAreaMapPresentation maps) => RoomMapSubjects(maps).Select(subject => subject.Name);
 }

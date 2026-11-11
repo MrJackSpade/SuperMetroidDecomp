@@ -341,8 +341,8 @@ internal static class MapPresentationVerification
         try
         {
             foreach (string name in importColours) File.Delete(Path.Combine(stock, name));
-            AreaMapPresentation game = MapPresentationFiles.Load(stock);
-            AssertEqual(original.ContentIdentity, game.ContentIdentity, "the game's read reads no colour document only the import reads");
+            InstalledAreaMapPresentation game = MapPresentationFiles.Load(stock);
+            AssertEqual(original.ContentIdentity, game.Game.ContentIdentity, "the game's read reads no colour document only the import reads");
             AssertTrue(game is not ImportAreaMapPresentation, "the game's read holds none of the import's colours");
             AssertThrows<FileNotFoundException>(() => MapPresentationFiles.LoadForImport(stock), "the import's read requires its colour documents");
         }
@@ -590,7 +590,7 @@ internal static class MapPresentationVerification
         {
             int band = MotherBrainHealthPalette.Band(health);
             SnesCgram native = MotherBrainLook.OfHealth(extracted, band);
-            SnesCgram installed = MotherBrainLook.OfHealth(ImportAreaMapPresentation.MotherBrainHealthPaletteOf(original), band);
+            SnesCgram installed = MotherBrainLook.OfHealth(InstalledFixtures.ImportOf(original).MotherBrainHealthPalette, band);
             AssertTrue(new CgramPalettes(native).ImageEquals(new CgramPalettes(installed)),
                 $"Mother Brain health {health} stock colors exactly match the native three-copy output");
             AssertEqual(0, installed.Colors[MotherBrainColorDestinations.BrainColor - 1],

@@ -38,7 +38,8 @@ internal static class GenericSpriteArtworkVerification
     {
         GameInstallation installation = RepositoryInstallation.Installation;
         var reference = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
-        AreaMapPresentation maps = installation.LoadMaps();
+        InstalledAreaMapPresentation installedMaps = MapPresentationFiles.Load(installation.MapDirectory);
+        AreaMapPresentation maps = installedMaps.Game;
         IntroCinematicSourceArtwork introArtwork = installation.LoadIntroCinematicArt();
         InstalledProjectilePresentation projectiles = installation.LoadProjectiles();
         InstalledSamusBodyArtwork body = installation.LoadSamusBodyArt();
@@ -46,7 +47,7 @@ internal static class GenericSpriteArtworkVerification
         // Reference decoding is confined to this diagnostic. The production renderer
         // receives mutable memory only and the installed sprite composition catalog.
         var title = new TitleSequenceState(titleGradientPresentation: maps.TitleGradient,
-            titleBackdrop: maps.TitleBackdrop, spriteSheets: MenuSheetFixtures.WithTitle(InstalledAreaMapPresentation.TitleGraphicsOf(maps)));
+            titleBackdrop: maps.TitleBackdrop, spriteSheets: MenuSheetFixtures.WithTitle(installedMaps.TitleGraphics));
         var document = RequiredJson.Deserialize<TitleFloorMapDocument>(File.ReadAllBytes(
             Path.Combine(installation.MapDirectory, TitleGraphicsFormat.FloorMapFile)),
             ArtworkJson.Options);

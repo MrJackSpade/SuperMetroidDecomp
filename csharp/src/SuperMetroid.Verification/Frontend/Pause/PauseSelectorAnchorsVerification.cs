@@ -45,7 +45,7 @@ internal static class PauseSelectorAnchorsVerification
             .Append("Beam.Hyper").ToArray()));
         byte[] bytes = PauseSelectorExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<PauseSelectorDocument>(bytes, ArtworkJson.Options);
-        var stock = PauseSelectorSourcePresentation.Load(new MemoryStream(bytes));
+        PauseSelectorPresentation stock = PauseSelectorSourcePresentation.Load(new MemoryStream(bytes)).Presentation;
         Suite(nameof(VerifyPauseSelectorAnchorField), () => VerifyPauseSelectorAnchorField(rom, document, stock, horizontal: true));
         Suite(nameof(VerifyPauseSelectorAnchorField), () => VerifyPauseSelectorAnchorField(rom, document, stock, horizontal: false));
         foreach (PauseEquipmentCategory category in new[] { (PauseEquipmentCategory)4, (PauseEquipmentCategory)byte.MaxValue })

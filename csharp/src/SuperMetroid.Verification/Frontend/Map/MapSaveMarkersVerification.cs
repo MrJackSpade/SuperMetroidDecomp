@@ -122,7 +122,7 @@ internal static class MapSaveMarkersVerification
         byte[] Draw(FileSelectStationMarker marker)
         {
             var oam = ScreenSpritesFixtures.Blank(); oam.BeginFrame();
-            marker.Draw(oam, new(24, 8), MenuSheetFixtures.MapSprites(InstalledAreaMapPresentation.SpritesOf(original)));
+            marker.Draw(oam, new(24, 8), MenuSheetFixtures.MapSprites(InstalledFixtures.ImportOf(original).Sprites));
             oam.FinalizeFrame();
             return oam.LowTable.ConcatToArray(oam.HighTable);
         }

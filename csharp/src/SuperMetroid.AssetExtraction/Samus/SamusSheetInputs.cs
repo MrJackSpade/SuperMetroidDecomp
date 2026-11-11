@@ -40,8 +40,8 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
         GameplayBasePalette palettes = GameplayBasePaletteFiles.Load(Path.Combine(content, GameInstallationLayout.GameplayBasePaletteDirectoryName));
         ImportIntroCinematicArtwork intro = IntroCinematicArtworkFiles.LoadForImport(Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName));
         // Her colour tables are the ones the map presentation was read with, edits included.
-        AreaMapPresentation maps = MapPresentationFiles.LoadForImport(map);
-        SamusMapColourTables tables = ImportAreaMapPresentation.SamusColoursOf(maps);
+        ImportAreaMapPresentation maps = MapPresentationFiles.LoadForImport(map);
+        SamusMapColourTables tables = maps.SamusColours;
         string overreads = Path.Combine(content, GameInstallationLayout.SamusOverreadDirectoryName);
         SamusOverrunColours overruns = SamusOverreadFiles.LoadColours(overreads);
         var sources = new SamusShadeSources(
@@ -60,7 +60,7 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
             tables.CrystalFlash,
             projectiles.BeamTiles.HyperBeamFxColors ?? throw new InvalidDataException("Samus's sheets require the installed Hyper Beam colours."),
             SamusDeathPaletteArtworkFiles.Load(samusBody),
-            ImportAreaMapPresentation.RoomPaletteFxOf(maps));
+            maps.RoomPaletteFx);
         return new(
             projectiles,
             LoadStandardObjects(content),

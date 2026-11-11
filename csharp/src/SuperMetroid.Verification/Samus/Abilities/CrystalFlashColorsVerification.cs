@@ -56,7 +56,7 @@ internal static class CrystalFlashColorsVerification
         var guard = NewCrystalFlashColorReadGuard(rom);
         var samusColours = new SamusColours();
         // Crystal Flash names body and bubble shades (#1512); the import resolves them from the installed colours.
-        var installedSources = InstalledFixtures.SamusShadeSources with { CrystalFlash = ImportAreaMapPresentation.SamusColoursOf(original).CrystalFlash };
+        var installedSources = InstalledFixtures.SamusShadeSources with { CrystalFlash = InstalledFixtures.ImportOf(original).SamusColours.CrystalFlash };
         int duration = CrystalFlashPaletteTimingDefinitions.AuthoredDuration;
         int calls = CrystalFlashColorFormat.BodyFrameCount * duration;
         for (int call = 0; call < calls; call++)
@@ -66,11 +66,11 @@ internal static class CrystalFlashColorsVerification
             int bodyFrame = call / duration;
             int bubbleFrame = call / 5 % CrystalFlashColorFormat.BubbleFrameCount;
             for (int color = 0; color < CrystalFlashColorFormat.BodyColorCount; color++)
-                AssertEqual(ImportAreaMapPresentation.SamusColoursOf(original).CrystalFlash.ResolveBody(bodyFrame, color),
+                AssertEqual(InstalledFixtures.ImportOf(original).SamusColours.CrystalFlash.ResolveBody(bodyFrame, color),
                     samusColours.ShownBeams(installedSources)[color],
                     $"Crystal Flash body call {call}, color {color} reaches CGRAM");
             for (int color = 0; color < CrystalFlashColorFormat.BubbleColorCount; color++)
-                AssertEqual(ImportAreaMapPresentation.SamusColoursOf(original).CrystalFlash.ResolveBubble(bubbleFrame, color),
+                AssertEqual(InstalledFixtures.ImportOf(original).SamusColours.CrystalFlash.ResolveBubble(bubbleFrame, color),
                     samusColours.ShownBeams(installedSources)[SamusPaletteDefinitionsCrystalFlashConstants.BubbleCgramStart - SamusPaletteDefinitionsCrystalFlashConstants.BodyCgramStart + color],
                     $"Crystal Flash bubble call {call}, color {color} reaches CGRAM");
         }

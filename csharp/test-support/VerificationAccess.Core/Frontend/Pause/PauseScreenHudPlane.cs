@@ -16,14 +16,18 @@ internal static class PauseScreenHudPlane
     /// <summary>The pause screen's HUD plane.</summary>
     extension(PauseScreen screen)
     {
-        /// <summary>The HUD plane's tiles across both screens, row by row.</summary>
+        /// <summary>
+        /// The HUD plane's tiles across both screens, row by row, laid out from the tiles of the installed HUD artwork the
+        /// screen's presentation was read with (#1616).
+        /// </summary>
         internal BackgroundTile[] Bg3Tiles
         {
             get
             {
                 var tiles = new BackgroundTile[PlaneCells];
                 tiles.AsSpan().Fill(PauseHudPlaneDefinitions.ClearedCell);
-                GameplayHudArtwork.Of(screen.Artwork.GameplayHud).RowsOver(screen.Hud, PauseHudPlaneDefinitions.ClearedCell).CopyTo(tiles, 0);
+                SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportOf(screen.Artwork).GameplayHud
+                    .RowsOver(screen.Hud, PauseHudPlaneDefinitions.ClearedCell).CopyTo(tiles, 0);
                 return tiles;
             }
         }

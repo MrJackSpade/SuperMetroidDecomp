@@ -47,7 +47,7 @@ internal static class CeresEnginePaletteBindingVerification
         for (int frame = 0; frame < 4; frame++)
         {
             game.Step(0);
-            AssertEqual(nativeColors[frame % nativeColors.Length], EngineColour(scene, CinematicSheetFixtures.CeresFloor(ImportAreaMapPresentation.RoomPaletteFxOf(stock))),
+            AssertEqual(nativeColors[frame % nativeColors.Length], EngineColour(scene, CinematicSheetFixtures.CeresFloor(InstalledFixtures.ImportOf(stock).RoomPaletteFx)),
                 $"#1150 stock engine color and native one-frame cadence, tick {frame}");
         }
 
@@ -70,8 +70,8 @@ internal static class CeresEnginePaletteBindingVerification
             game.Step(0);
             restored.Step(0);
             AssertEqual(scene.EngineShading, restoredScene.EngineShading, "palette rebind preserves the flicker's record");
-            AssertEqual(EngineColour(scene, CinematicSheetFixtures.CeresFloor(ImportAreaMapPresentation.RoomPaletteFxOf(stock))),
-                EngineColour(restoredScene, CinematicSheetFixtures.CeresFloor(ImportAreaMapPresentation.RoomPaletteFxOf(stock))),
+            AssertEqual(EngineColour(scene, CinematicSheetFixtures.CeresFloor(InstalledFixtures.ImportOf(stock).RoomPaletteFx)),
+                EngineColour(restoredScene, CinematicSheetFixtures.CeresFloor(InstalledFixtures.ImportOf(stock).RoomPaletteFx)),
                 $"#1150 the restored scene shows the running scene's engine colour, tick {frame}");
             AssertEqual(scene.Phase, restoredScene.Phase, "palette rebind preserves cinematic phase");
             AssertEqual(scene.Zoom, restoredScene.Zoom, "palette rebind preserves camera scale");
@@ -84,7 +84,7 @@ internal static class CeresEnginePaletteBindingVerification
         // Its reconstruction must receive the rebound provider too.
         restoredScene.PaletteFx = null;
         restored.Step(0);
-        AssertEqual(nativeColors[0], EngineColour(restoredScene, CinematicSheetFixtures.CeresFloor(ImportAreaMapPresentation.RoomPaletteFxOf(stock))),
+        AssertEqual(nativeColors[0], EngineColour(restoredScene, CinematicSheetFixtures.CeresFloor(InstalledFixtures.ImportOf(stock).RoomPaletteFx)),
             "#1150 reconstructed palette owner shows the program's first record again");
         Console.WriteLine("#1150: stock engine flicker record cadence, restored-state rebind, unchanged scene clock/camera and legacy-owner reconstruction pass.");
 

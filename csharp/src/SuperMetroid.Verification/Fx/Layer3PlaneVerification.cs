@@ -36,22 +36,21 @@ internal static class Layer3PlaneVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        GameplayHudArtwork artwork = GameplayHudArtwork.Of((runtime.Artwork.MapPresentation ?? throw new InvalidOperationException(
-            "The retail fixture installs the HUD artwork.")).GameplayHud);
+        GameplayHudArtwork artwork = runtime.InstalledHudArtwork;
         ShownHud first = runtime.AcceptedHud;
         ushort[] firstWords = runtime.AcceptedHudWords;
         ushort[] topRow = BackgroundTileWordBytes.Words(artwork.TopRowTiles());
         AssertTrue(firstWords[..FxOverlayPlaneConstants.Columns].SequenceEqual(topRow), "row zero is the HUD's static top row");
-        AssertTrue(firstWords[FxOverlayPlaneConstants.Columns..(FxOverlayPlaneConstants.HudRows * FxOverlayPlaneConstants.Columns)].SequenceEqual(runtime.Hud.TileWords),
+        AssertTrue(firstWords[FxOverlayPlaneConstants.Columns..(FxOverlayPlaneConstants.HudRows * FxOverlayPlaneConstants.Columns)].SequenceEqual(runtime.Hud.TileWords(runtime.InstalledHudArtwork)),
             "rows one through three are the rows the HUD's values draw");
 
         // A HUD change reaches the next NMI's plane; the published one keeps its rows. Lost energy redraws the energy
         // count with digits the HUD's artwork shows, so the NMI can picture them (#1392).
-        ushort[] before = runtime.Hud.TileWords;
+        ushort[] before = runtime.Hud.TileWords(runtime.InstalledHudArtwork);
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Health = samus.Health == 42 ? 37 : 42;
         runtime.Hud.UpdateGameplayCounters(samus);
-        ushort[] after = runtime.Hud.TileWords;
+        ushort[] after = runtime.Hud.TileWords(runtime.InstalledHudArtwork);
         int cell = Enumerable.Range(0, after.Length).First(index => after[index] != before[index]);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertEqual(after[cell], runtime.AcceptedHudWords[FxOverlayPlaneConstants.Columns + cell], "the next NMI's HUD shows the HUD change");
@@ -73,7 +72,7 @@ internal static class Layer3PlaneVerification
         // The plane names the water page (#1466); the installed pages spell the words the cartridge writes for it.
         FxOverlayPlane shownPlane = water.EffectPlane;
         AssertEqual<RoomFxType?>(RoomFxType.Water, shownPlane.EffectPage, "the room's BG3 plane shows the water page");
-        RoomFxLayer3Pages pages = InstalledAreaMapPresentation.RoomFxPagesOf(InstalledFixtures.Maps);
+        RoomFxLayer3Pages pages = InstalledFixtures.ImportMaps.RoomFxPages;
         ushort[] plane = shownPlane.WordsIn(pages);
         ReadOnlySpan<byte> page = pages.ResolveBytes(RoomFxType.Water);
         for (int row = FxOverlayPlaneConstants.HudRows; row < FxOverlayPlaneConstants.Rows; row++)

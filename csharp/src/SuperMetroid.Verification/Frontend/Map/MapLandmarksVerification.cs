@@ -33,9 +33,9 @@ internal static class MapLandmarksVerification
             var native = new FileSelectMapIcons(system, area);
             var installed = new FileSelectMapIcons(system, area);
             native.BindLandmarks(original.Landmarks);
-            native.BindSprites(MenuSheetFixtures.MapSprites(InstalledAreaMapPresentation.SpritesOf(original)));
+            native.BindSprites(MenuSheetFixtures.MapSprites(InstalledFixtures.ImportOf(original).Sprites));
             installed.BindLandmarks(original.Landmarks);
-            installed.BindSprites(MenuSheetFixtures.MapSprites(InstalledAreaMapPresentation.SpritesOf(original)));
+            installed.BindSprites(MenuSheetFixtures.MapSprites(InstalledFixtures.ImportOf(original).Sprites));
             AssertTrue(Draw(native, area).SequenceEqual(Draw(installed, area)), $"landmark OAM {area}/{bits}/{downloaded}");
             AssertEqual(bosses, system.GetBossBits(area), "landmark drawing preserves boss state");
             AssertEqual(downloaded, system.HasAreaMap(area), "landmark drawing preserves map acquisition");

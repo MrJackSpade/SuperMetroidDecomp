@@ -63,7 +63,7 @@ internal static class SuperMetroidRuntimeVramAccess
             var artwork = new BgArtworkBytes();
             artwork.WithRoomCharacters(self.Artwork.RoomCharacterArt);
             if (self.Artwork.MapPresentation is SuperMetroid.Core.Frontend.Map.Artwork.AreaMapPresentation presentation)
-                artwork.WithHud(SuperMetroid.AssetExtraction.Frontend.Map.MapCharacterArtwork.Of(presentation).Hud);
+                artwork.WithHud(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportOf(presentation).Characters.Hud);
             // Kraid's backdrop is the installation's, which the runtime's installed sheets are composed from (#1583).
             if (SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossArtwork.KraidBackground is { } kraid)
                 artwork.WithKraidBackground(kraid);

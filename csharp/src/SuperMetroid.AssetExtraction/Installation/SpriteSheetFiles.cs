@@ -79,7 +79,7 @@ public static class SpriteSheetFiles
             ?? throw new ArgumentException($"Directory {directory} has no installation above it.", nameof(directory));
         var body = new Lazy<IReadOnlyList<string>>(() => SamusBodySheetComposer.FrameNames(content));
         // The pause sheet is named from the stock selector presentation installed beside it.
-        var maps = new Lazy<AreaMapPresentation>(() => MapPresentationFiles.Load(
+        var maps = new Lazy<InstalledAreaMapPresentation>(() => MapPresentationFiles.Load(
             Path.Combine(content, GameInstallationLayout.MapDirectoryName)));
         // The intro sheet is named from the stock intro compositions installed beside it.
         var intro = new Lazy<IntroCinematicSourceArtwork>(() => IntroCinematicArtworkFiles.Load(
@@ -123,7 +123,7 @@ public static class SpriteSheetFiles
     /// <param name="ending">The ending's sprite artwork, whose compositions name the ending sheets' frames.</param>
     /// <param name="projectiles">The projectile frame bindings, whose compositions name the projectile sheets' frames.</param>
     internal static IEnumerable<string> FrameNames(SpriteSheetId sheet, Lazy<IReadOnlyList<string>> body,
-        Lazy<AreaMapPresentation> maps, Lazy<IntroCinematicSourceArtwork> intro, Lazy<EndingObjectSourceArtwork> ending,
+        Lazy<InstalledAreaMapPresentation> maps, Lazy<IntroCinematicSourceArtwork> intro, Lazy<EndingObjectSourceArtwork> ending,
         Lazy<InstalledProjectileFrameBindings> projectiles) => sheet switch
     {
         SpriteSheetId.IntroScenePictures => IntroScenePictureSheetComposer.FrameNames,
@@ -149,7 +149,7 @@ public static class SpriteSheetFiles
         SpriteSheetId.GameOptions => GameOptionsPresentationFormat.SheetFrames,
         SpriteSheetId.MapSprites => MapSpriteArtwork.SheetFrames,
         SpriteSheetId.PauseSprites => PauseSheetComposer.FrameNames(maps.Value),
-        SpriteSheetId.PauseHud => HudImageSheet.PauseFrameNames(maps.Value),
+        SpriteSheetId.PauseHud => HudImageSheet.PauseFrameNames(maps.Value.Game),
         SpriteSheetId.MenuPictures => MenuPictureSheet.FrameNames(maps.Value),
         SpriteSheetId.RoomMapPictures => MapPictureSheets.RoomMapFrameNames(maps.Value),
         SpriteSheetId.PausePictures => PausePictureSheet.FrameNames(maps.Value),

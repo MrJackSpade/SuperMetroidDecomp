@@ -89,13 +89,13 @@ internal static class MotherBrainSheetShades
     /// spawns, from her installed colours in <paramref name="maps"/> and <paramref name="bosses"/>.
     /// </summary>
     /// <exception cref="InvalidDataException">Her colours are not installed.</exception>
-    internal static IReadOnlyList<SheetShade> Sprites(AreaMapPresentation? maps, BossSourceArtwork bosses)
+    internal static IReadOnlyList<SheetShade> Sprites(ImportAreaMapPresentation? maps, BossSourceArtwork bosses)
     {
         Ensure.NotNull(bosses);
-        AreaMapPresentation presentation = maps ?? throw Missing("Mother Brain's map-installed colours");
-        MotherBrainHealthPalettePresentation health = ImportAreaMapPresentation.MotherBrainHealthPaletteOf(presentation);
-        MotherBrainRainbowPalettePresentation rainbow = presentation.MotherBrainRainbowPalette;
-        MotherBrainRoomColorPresentation room = ImportAreaMapPresentation.MotherBrainRoomColorsOf(presentation);
+        ImportAreaMapPresentation presentation = maps ?? throw Missing("Mother Brain's map-installed colours");
+        MotherBrainHealthPalettePresentation health = presentation.MotherBrainHealthPalette;
+        MotherBrainRainbowPalettePresentation rainbow = presentation.Game.MotherBrainRainbowPalette;
+        MotherBrainRoomColorPresentation room = presentation.MotherBrainRoomColors;
         MotherBrainDeathColorCatalog death = bosses.MotherBrainDeathColors ?? throw Missing("Mother Brain's death colours");
         BabyMetroidCutsceneColorCatalog baby = bosses.BabyMetroidCutsceneColors ?? throw Missing("the Baby's cutscene colours");
 
@@ -128,12 +128,12 @@ internal static class MotherBrainSheetShades
 
     /// <summary>The shades of her body layer: her body's health bands, rainbow, grey and death fades.</summary>
     /// <exception cref="InvalidDataException">Her colours are not installed.</exception>
-    internal static IReadOnlyList<SheetShade> BodyLayer(AreaMapPresentation maps, BossSourceArtwork bosses)
+    internal static IReadOnlyList<SheetShade> BodyLayer(ImportAreaMapPresentation maps, BossSourceArtwork bosses)
     {
         Ensure.NotNull(maps);
         Ensure.NotNull(bosses);
-        MotherBrainHealthPalettePresentation health = ImportAreaMapPresentation.MotherBrainHealthPaletteOf(maps);
-        MotherBrainRainbowPalettePresentation rainbow = maps.MotherBrainRainbowPalette;
+        MotherBrainHealthPalettePresentation health = maps.MotherBrainHealthPalette;
+        MotherBrainRainbowPalettePresentation rainbow = maps.Game.MotherBrainRainbowPalette;
         MotherBrainDeathColorCatalog death = bosses.MotherBrainDeathColors ?? throw Missing("Mother Brain's death colours");
         var shades = new List<SheetShade>([.. HealthBackground(health), .. RainbowBackground(rainbow)]);
         for (int frame = 0; frame < death.BodyFadeFrameCount; frame++)
@@ -145,10 +145,10 @@ internal static class MotherBrainSheetShades
     }
 
     /// <summary>The shades her fight lays over her room's pictures: its flash and steady colours, and its lights going out and recovering.</summary>
-    internal static IReadOnlyList<SheetShade> Room(AreaMapPresentation maps)
+    internal static IReadOnlyList<SheetShade> Room(ImportAreaMapPresentation maps)
     {
         Ensure.NotNull(maps);
-        return RoomBackground(ImportAreaMapPresentation.MotherBrainRoomColorsOf(maps));
+        return RoomBackground(maps.MotherBrainRoomColors);
     }
 
     /// <summary>The sprite shades of her health bands: her brain's and rear legs' colours in each.</summary>

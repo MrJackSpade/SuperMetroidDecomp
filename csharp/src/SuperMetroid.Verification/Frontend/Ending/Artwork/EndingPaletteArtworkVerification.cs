@@ -139,7 +139,7 @@ internal static class EndingPaletteArtworkVerification
         bool rejectAllCartridgeReads = false;
         var guardedBus = NewEndingPaletteSourceReadGuard(
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"),
-            ImportAreaMapPresentation.RoomPaletteFxOf(MapPresentationFiles.LoadForImport(installation.MapDirectory)), () => rejectAllCartridgeReads);
+            (MapPresentationFiles.LoadForImport(installation.MapDirectory)).RoomPaletteFx, () => rejectAllCartridgeReads);
         var nativeAudio = AudioQueues.Standalone();
         var installedAudio = AudioQueues.Standalone();
         var nativeState = CreateRetailEndingFixture(nativeAudio, 2, 59);
@@ -211,7 +211,7 @@ internal static class EndingPaletteArtworkVerification
     {
         // The import pre-colours the logo's first sprite colours and each crossfade step from the decoded colours
         // (#1512, #1544): each shade holds the cartridge's colours, the step's background colours before its sprite colours.
-        IReadOnlyList<SheetShade> shades = EndingScreenShades.Screen(decoded, ImportAreaMapPresentation.RoomPaletteFxOf(InstalledFixtures.Maps));
+        IReadOnlyList<SheetShade> shades = EndingScreenShades.Screen(decoded, InstalledFixtures.ImportMaps.RoomPaletteFx);
         byte[] nativeInitial = EndingPaletteImport.ReadNativePalette(nativeBus,
             EndingPaletteId.LogoInitial, EndingPaletteImport.ColorCount(EndingPaletteId.LogoInitial));
         SheetShade initial = shades.Single(shade => shade.Shade == EndingShades.Loaded(EndingColourLoad.LogoInitial));

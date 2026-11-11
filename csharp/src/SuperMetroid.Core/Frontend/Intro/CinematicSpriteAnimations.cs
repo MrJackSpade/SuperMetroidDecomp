@@ -818,34 +818,31 @@ internal static class CinematicSpriteAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<CinematicSpriteProgram> StartingWith(CinematicSpriteProgram segment) => StartingAt[segment];
 
-    /// <summary>The segments whose list runs on into the list authored next, directly after its last beat.</summary>
-    internal static IReadOnlySet<CinematicSpriteProgram> RunOnIntoNext { get; } = new HashSet<CinematicSpriteProgram>
-    {
-        P.IntroMotherBrainStartPage2,
-        P.MetroidEggShaking,
-        P.MetroidEggHatchedFrame2,
-        P.BabyMetroidBeingDeliveredLoop,
-        P.BabyMetroidBeingExaminedLoop,
-        P.IntroRinka,
-        P.ZebesExplosionLava,
-        P.ZebesExplosionRightStars,
-        P.OperationWasText,
-        P.CompletedSuccessfullyText,
-        P.ClearTimeText,
-        P.SuitlessJump,
-        P.SuitedJump,
-        P.HelmetJump,
-        P.HeadJump,
-        P.LogoUpperCircle,
-        P.LogoLowerCircle,
-    };
-
     /// <summary>
-    /// How the lists are laid out (#1600): each of <see cref="RunOnIntoNext"/> continues into the list authored after it,
-    /// so a sprite resting after its last frame already stands in the next.
+    /// The segment each list that runs on into the list authored next, directly after its last beat, continues into: a
+    /// sprite resting after that beat already stands in the next.
     /// </summary>
-    internal static Compatibility.LaidOutProgramContinuation<CinematicSpriteProgram, AnimationBeat<CinematicSpritePose, CinematicSpriteCue>> Layout { get; } =
-        Gameplay.AnimationListContinuation.RunningOn(Segments, RunOnIntoNext);
+    internal static IReadOnlyDictionary<CinematicSpriteProgram, CinematicSpriteProgram> RunsOnInto { get; } =
+        new Dictionary<CinematicSpriteProgram, CinematicSpriteProgram>
+    {
+        [P.IntroMotherBrainStartPage2] = P.IntroMotherBrainPageTwo,
+        [P.MetroidEggShaking] = P.MetroidEggHatchedFrame2,
+        [P.MetroidEggHatchedFrame2] = P.MetroidEggHatched,
+        [P.BabyMetroidBeingDeliveredLoop] = P.BabyMetroidDelivered,
+        [P.BabyMetroidBeingExaminedLoop] = P.BabyMetroidExamined,
+        [P.IntroRinka] = P.IntroRinkaMoving,
+        [P.ZebesExplosionLava] = P.ZebesExplosionLavaLoop,
+        [P.ZebesExplosionRightStars] = P.ZebesExplosionLeftStars,
+        [P.OperationWasText] = P.OperationWasTextHold,
+        [P.CompletedSuccessfullyText] = P.CompletedSuccessfullyTextHold,
+        [P.ClearTimeText] = P.ClearTimeTextHold,
+        [P.SuitlessJump] = P.SuitlessJumpFlight,
+        [P.SuitedJump] = P.SuitedJumpFlight,
+        [P.HelmetJump] = P.HelmetFlight,
+        [P.HeadJump] = P.HeadFlight,
+        [P.LogoUpperCircle] = P.LogoUpperCircleLoop,
+        [P.LogoLowerCircle] = P.LogoLowerCircleLoop,
+    };
 
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<CinematicSpritePose, CinematicSpriteCue> Show(int pose, int duration) => new AnimationBeat<CinematicSpritePose, CinematicSpriteCue>.Frame(new(pose), duration);

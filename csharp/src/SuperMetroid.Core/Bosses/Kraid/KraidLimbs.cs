@@ -69,7 +69,7 @@ internal sealed class KraidLimbs
     /// already rests in the next, as the part's script position then lies inside it.
     /// </summary>
     private KraidPartProgram KraidPartResidentProgram(RoomEnemySlot part) =>
-        BossAnimationResidence.ResidentSegment(KraidAnimations.Segments, KraidAnimations.StartingAt, KraidAnimations.RunsOnInto,
+        AnimationResidence.ResidentSegment(KraidAnimations.Segments, KraidAnimations.StartingAt, KraidAnimations.RunsOnInto,
             _access.Part(part).Playback);
 
     /// <summary>

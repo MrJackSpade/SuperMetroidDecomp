@@ -61,8 +61,14 @@ internal static class CinematicSpriteAnimationsVerification
         Dictionary<CinematicSpriteProgram, NativeEnemyList<CinematicSpriteProgram>> lists =
             Entries.ToDictionary(item => item.Program, item => ReadList(cartridge, item.Program, item.Entry));
         NativeEnemyAnimationOracle.CompareAnimations(lists, CinematicSpriteAnimations.StartingAt);
-        AssertTrue(NativeEnemyAnimationOracle.RunsOnIntoNextAfterLastBeat(lists).SetEquals(CinematicSpriteAnimations.RunOnIntoNext),
-            "the lists that run on into the next authored list, directly after their last beat, are the typed layout's");
+        HashSet<CinematicSpriteProgram> runOn = NativeEnemyAnimationOracle.RunsOnIntoNextAfterLastBeat(lists);
+        AssertTrue(runOn.SetEquals(CinematicSpriteAnimations.RunsOnInto.Keys),
+            "the lists that run on into the next authored list, directly after their last beat, are the typed run-ons");
+        foreach (CinematicSpriteProgram segment in runOn)
+        {
+            AssertEqual(lists[segment].Controls.Single(control => control.Kind == NativeEnemyControlKind.RunOnIntoNext).Target,
+                (CinematicSpriteProgram?)CinematicSpriteAnimations.RunsOnInto[segment], $"{segment} runs on into the list authored next");
+        }
         int beats = lists.Values.Sum(list => list.BeatAddresses.Length), updates = 0;
         foreach (CinematicSpriteNativeListAddressesEntry item in Entries.Where(item => CinematicSpriteAnimations.StartingAt.ContainsKey(item.Program)))
             updates += ComparePlayback(cartridge, item.Program, item.Entry);

@@ -43,7 +43,7 @@ public sealed class CrocomireEnemyState
 
     /// <summary>The segment <paramref name="playback"/>, a body animation, rests in.</summary>
     internal static CrocomireBodyProgram ResidentSegment(AnimationPlayback<CrocomireBodyProgram> playback) =>
-        BossAnimationResidence.ResidentSegment(CrocomireBodyAnimations.Segments, CrocomireBodyAnimations.StartingAt, CrocomireBodyAnimations.RunsOnInto, playback);
+        AnimationResidence.ResidentSegment(CrocomireBodyAnimations.Segments, CrocomireBodyAnimations.StartingAt, CrocomireBodyAnimations.RunsOnInto, playback);
 
     /// <summary>The camera position the last main update saw; its X places his body layer and decides whether the body is on screen.</summary>
     internal Position16<RoomPixels> Camera { get; set; }

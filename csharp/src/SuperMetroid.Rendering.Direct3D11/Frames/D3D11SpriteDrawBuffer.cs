@@ -10,9 +10,9 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 /// Sprites.hlsl draws from its image in the image texture. Word 0 holds the record count, then six words per draw in
 /// front-to-back order (position, extent, flags with the draw's depth among the room's layers (#1514), the image's place in
 /// the texture, the first colour word, the first corpse-row word), then, for each draw whose shading changes its picture's colours, the colour of each of its
-/// picture's inks under that shading, then, for each rotting corpse's draw (#1539), its table of rows: the image row each
+/// sheet's colour keys under that shading (#1633), then, for each rotting corpse's draw (#1539), its table of rows: the image row each
 /// of the image's rows shows across the whole image, or <see cref="ClearedRow"/> where the rot has cleared it. Which of a sprite's pixels blend
-/// is what its image says of each pixel (#1544). The GPU buffer grows to fit the largest frame seen.
+/// is what its frame and its sheet's blend map say (#1633), or every pixel where its shading blends. The GPU buffer grows to fit the largest frame seen.
 /// </summary>
 internal sealed class D3D11SpriteDrawBuffer : IDisposable
 {
@@ -28,7 +28,7 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
     private const uint FlipXFlag = 1;
     /// <summary>Flags bit mirroring a record vertically.</summary>
     private const uint FlipYFlag = 2;
-    /// <summary>Flags bit marking a draw whose pixels show its shading's ink colours rather than its image's own.</summary>
+    /// <summary>Flags bit marking a draw whose pixels show the colours its shading gives their keys rather than their own.</summary>
     private const uint RecolourFlag = 1 << 9;
     /// <summary>Flags bit marking a draw whose shading blends over every part (#1512).</summary>
     private const uint ShadingBlendsFlag = 1 << 10;
@@ -38,8 +38,8 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
     /// <summary>Device that owns the buffer.</summary>
     private readonly ID3D11Device device;
 
-    /// <summary>The ink colours of each shaded draw the last <see cref="Pack"/> packed; reused across frames.</summary>
-    private readonly List<RgbColor[]?> shadedInks = [];
+    /// <summary>The colour each key of each shaded draw's sheet shows, as the last <see cref="Pack"/> packed them; reused across frames.</summary>
+    private readonly List<RgbColor[]?> shadedColours = [];
 
     /// <summary>Creates the initial buffer on the render owner's device.</summary>
     internal D3D11SpriteDrawBuffer(ID3D11Device device)
@@ -79,14 +79,14 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
         if (depths.Length != draws.Length)
             throw new ArgumentException("Each packed sprite draw needs its depth.", nameof(depths));
         int words = HeaderWords + draws.Length * RecordWords;
-        shadedInks.Clear();
+        shadedColours.Clear();
         foreach (SpriteDraw draw in draws)
         {
             (ImageSpriteDraw image, PictureShading shading) = Shaded(draw);
-            // A draw in its picture's standard colours shows the image's pre-coloured pixels and packs no colours.
-            RgbColor[]? inks = shading.IsStandard ? null : shading.InkColours(image.Image.Sheet);
-            shadedInks.Add(inks);
-            words += (inks?.Length ?? 0) + CorpseRotWords(image);
+            // A draw in its picture's own colours shows the image's pixels as they are and packs no colours.
+            RgbColor[]? keyColours = shading.IsStandard ? null : shading.KeyColours(image.Image.Sheet);
+            shadedColours.Add(keyColours);
+            words += (keyColours?.Length ?? 0) + CorpseRotWords(image);
         }
         if (words > Upload.Length)
         {
@@ -100,21 +100,21 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
         int colourWords = HeaderWords + draws.Length * RecordWords;
         // Each rotting corpse's table of rows follows every draw's colours.
         int rowWords = colourWords;
-        foreach (RgbColor[]? inks in shadedInks)
-            rowWords += inks?.Length ?? 0;
+        foreach (RgbColor[]? keyColours in shadedColours)
+            rowWords += keyColours?.Length ?? 0;
         for (int index = 0; index < draws.Length; index++)
         {
             var image = (ImageSpriteDraw)draws[index];
             int colours = 0;
-            if (shadedInks[index] is { } inks)
+            if (shadedColours[index] is { } keyColours)
             {
                 colours = colourWords;
-                for (int ink = 0; ink < inks.Length; ink++)
+                for (int key = 0; key < keyColours.Length; key++)
                 {
-                    RgbaPixel shown = inks[ink].ToRgbaPixel();
-                    upload[colourWords + ink] = D3D11ConstantPacking.Bytes(shown.R, shown.G, shown.B, byte.MaxValue);
+                    RgbaPixel shown = keyColours[key].ToRgbaPixel();
+                    upload[colourWords + key] = D3D11ConstantPacking.Bytes(shown.R, shown.G, shown.B, byte.MaxValue);
                 }
-                colourWords += inks.Length;
+                colourWords += keyColours.Length;
             }
             int rows = 0;
             if (CorpseRotOf(image) is { } rot)
@@ -171,7 +171,7 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
             return false;
         foreach (PictureShade shade in shading.Shades)
         {
-            if (draw.Image.Sheet.Shades.TryGetValue(shade, out ShadeInks? inks) && inks.Blends)
+            if (draw.Image.Sheet.Shades.TryGetValue(shade, out PictureRecolouring? recolouring) && recolouring.Blends)
                 return true;
         }
         return false;

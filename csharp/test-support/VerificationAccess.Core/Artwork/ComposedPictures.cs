@@ -97,7 +97,7 @@ internal static class ComposedPictures
         if (composition.Size != installed.Size)
             return false;
         InstalledSheet converted = InstalledSheetConversion.Install(composition.Manifest, composition.Size, composition.Pixels, composition.PaletteIndices);
-        SpriteImagePixels assembled = AssembledSheetImages.Assemble(converted, composition.Size);
+        SpriteImagePixels assembled = AssembledSheetImages.Assemble(converted);
         return AssembledSheetImages.HoldsPixels(installed, assembled) && AssembledSheetImages.HoldsRecolourRegions(installed, assembled);
     }
 

@@ -13,40 +13,29 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 internal static class AssembledSheetImages
 {
     /// <summary>
-    /// The image the loader assembles for <paramref name="converted"/>, a sheet of <paramref name="size"/> pixels: every pixel
-    /// clear black, in recolour region zero and not blending, except each frame rectangle holding a pixel that is not clear,
-    /// which shows the converted pixels, regions and blending there. A frame whose every pixel is clear shows nothing, is no
-    /// picture, and the installation stores nothing for it.
+    /// The image the loader assembles for <paramref name="converted"/>, of the size its manifest names: every pixel clear
+    /// black, in recolour region zero and not blending, except each frame's rectangle, which shows the converted pixels,
+    /// regions and blending there, copied as the installation copies a picture (<see cref="InstalledImagePlanes.CopyTo"/>).
+    /// A rectangle that holds only clear black pixels in region zero, blending nowhere, is stored nowhere and stays as the
+    /// image starts, which copying it leaves alike.
     /// </summary>
-    /// <exception cref="ArgumentException">The converted planes are not one entry per pixel of <paramref name="size"/>.</exception>
-    internal static SpriteImagePixels Assemble(InstalledSheet converted, Extent16<ImagePixels> size)
+    /// <exception cref="ArgumentException">The converted pixels are not one per pixel of the manifest's size, or a frame leaves the image.</exception>
+    internal static SpriteImagePixels Assemble(InstalledSheet converted)
     {
         Ensure.NotNull(converted);
-        SpriteImagePixels source = Ensure.NotNull(converted.Pixels);
-        int area = size.X * size.Y;
-        Ensure.LengthEqual(source.Pixels, area);
-        if (source.RecolourRegions is { } sourceRegions)
-            Ensure.LengthEqual(sourceRegions, area);
-        if (source.Blending is { } sourceBlending)
-            Ensure.LengthEqual(sourceBlending, area);
-        var pixels = new RgbaPixel[area];
-        int[]? regions = source.RecolourRegions is null ? null : new int[area];
-        bool[]? blending = source.Blending is null ? null : new bool[area];
+        InstalledImagePlanes source = converted.Image;
+        int area = source.Size.X * source.Size.Y;
+        Ensure.LengthEqual(Ensure.NotNull(source.Planes).Pixels, area);
+        var assembled = new InstalledImagePlanes(new SpriteImagePixels(new RgbaPixel[area],
+            source.Planes.RecolourRegions is null ? null : new int[area],
+            source.Planes.Blending is null ? null : new bool[area]), source.Size);
         foreach (InstalledSheetFrameDocument frame in converted.Manifest.Frames.Values)
         {
-            if (frame.Size.X == 0 || frame.Size.Y == 0 || !Shows(source.Pixels, size, frame))
-                continue;
-            for (int row = 0; row < frame.Size.Y; row++)
-            {
-                int line = (frame.Corner.Y + row) * size.X + frame.Corner.X;
-                Array.Copy(source.Pixels, line, pixels, line, frame.Size.X);
-                if (regions is not null && source.RecolourRegions is { } fromRegions)
-                    Array.Copy(fromRegions, line, regions, line, frame.Size.X);
-                if (blending is not null && source.Blending is { } fromBlending)
-                    Array.Copy(fromBlending, line, blending, line, frame.Size.X);
-            }
+            var rectangle = new FrameRectangle(frame.Corner, frame.Size);
+            if (!rectangle.IsEmpty)
+                source.CopyTo(rectangle, assembled, frame.Corner);
         }
-        return new SpriteImagePixels(pixels, regions, blending);
+        return assembled.Planes;
     }
 
     /// <summary>Whether <paramref name="installed"/> holds exactly the pixels of <paramref name="assembled"/>.</summary>
@@ -77,20 +66,5 @@ internal static class AssembledSheetImages
                 return false;
         }
         return true;
-    }
-
-    /// <summary>Whether any pixel of <paramref name="frame"/>'s rectangle of <paramref name="pixels"/> is not clear.</summary>
-    private static bool Shows(RgbaPixel[] pixels, Extent16<ImagePixels> size, InstalledSheetFrameDocument frame)
-    {
-        for (int row = 0; row < frame.Size.Y; row++)
-        {
-            int line = (frame.Corner.Y + row) * size.X + frame.Corner.X;
-            for (int column = 0; column < frame.Size.X; column++)
-            {
-                if (pixels[line + column].A != 0)
-                    return true;
-            }
-        }
-        return false;
     }
 }

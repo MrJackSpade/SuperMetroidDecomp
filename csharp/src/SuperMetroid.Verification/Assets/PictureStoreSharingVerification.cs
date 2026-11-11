@@ -60,7 +60,7 @@ internal static class PictureStoreSharingVerification
     private static InstalledPictureReferenceDocument StoredPictureOf(GameInstallation installation, MessageBoxSheet messages, string frame)
     {
         InstalledSheetDocument document;
-        using (FileStream manifest = File.OpenRead(Path.Combine(installation.RoomBlockSheetDirectory, messages.Name + ".json")))
+        using (FileStream manifest = File.OpenRead(Path.Combine(installation.RoomBlockSheetDirectory, SpriteSheetStore.FrameFile(messages.Name))))
             document = SpriteSheetFile.ReadDocument(manifest, messages.Name);
         InstalledSheetFrameDocument entry = document.Frames.TryGetValue(frame, out InstalledSheetFrameDocument? listed) ? listed
             : throw new InvalidOperationException($"Verification failed: {messages.Name}'s manifest lists no frame {frame}.");

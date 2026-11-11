@@ -169,7 +169,7 @@ internal sealed class PhantoonCombat
                 SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion)
                 continue;
 
-            if (!_collision.TryFindFrameHitboxReaction(
+            if (!EnemyCollision.TryFindFrameHitboxReaction(
                     body,
                     projectile.Position.Whole,
                     projectile.Radius,

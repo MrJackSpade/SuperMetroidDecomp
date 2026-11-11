@@ -193,7 +193,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
         object?[] arguments =
             [slot, target, new Extent16<RoomPixels>(2, 2), selectShot, null];
-        bool found = ExtendedHitboxWalker.Find(enemies, arguments);
+        bool found = ExtendedHitboxWalker.Find(arguments);
         return found ? ExtendedHitboxWalker.Reaction(arguments) : null;
     }
 

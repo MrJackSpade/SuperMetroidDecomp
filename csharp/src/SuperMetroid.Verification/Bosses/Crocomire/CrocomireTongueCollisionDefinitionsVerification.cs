@@ -118,7 +118,7 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
                 object?[] compiledArguments =
                     [compiledSlot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(0, 0), shot != 0, (ushort)0];
                 bool nativeHit = ReferenceExtendedCollision(rom, CrocomireTongueCollisionDefinitionsConstants.Bank, nativeArguments);
-                bool compiledHit = ExtendedHitboxWalker.Find(compiled, compiledArguments);
+                bool compiledHit = ExtendedHitboxWalker.Find(compiledArguments);
                 AssertEqual(nativeHit, compiledHit,
                     $"Crocomire tongue $A4:{frame:X4} overlap {x:X4},{y:X4}, shot={shot}");
                 AssertEqual(ExtendedHitboxWalker.NativeReaction(CrocomireTongueCollisionDefinitionsConstants.Bank, nativeArguments),

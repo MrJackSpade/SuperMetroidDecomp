@@ -84,7 +84,7 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
                 object?[] compiledArguments =
                     [compiledSlot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(8, 8), shot, (ushort)0];
                 bool nativeHit = ReferenceExtendedCollision(rom, CrocomireBodyCollision.Bank, nativeArguments);
-                bool compiledHit = ExtendedHitboxWalker.Find(compiled, compiledArguments);
+                bool compiledHit = ExtendedHitboxWalker.Find(compiledArguments);
                 AssertEqual(nativeHit, compiledHit,
                     $"Crocomire $A4:{frame:X4} overlap {x:X4},{y:X4}, shot={shot}");
                 AssertEqual(ExtendedHitboxWalker.NativeReaction(CrocomireBodyCollision.Bank, nativeArguments),

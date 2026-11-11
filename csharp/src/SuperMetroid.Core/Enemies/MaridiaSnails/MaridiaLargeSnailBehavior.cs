@@ -597,12 +597,11 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             });
     }
 
-    /// <summary>The reaction of the first of the occupant's hitboxes the probe overlaps, or null outside its compiled frames.</summary>
+    /// <summary>The reaction of the first of the occupant's hitboxes the probe overlaps on the frame it shows.</summary>
+    /// <exception cref="InvalidDataException">The frame shown has no compiled Oum collision.</exception>
     internal static bool? FindHitboxReaction(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
         reaction = null;
-        if (!(MaridiaLargeSnailCollisionDefinitions.Frames.Contains(enemy.Frame) || probe.ArtworkInstalled))
-            return null;
 
         // Oum's 30 frames each have one (0,0) component, but the
         // ordered regions change with roll and attack direction. Keep

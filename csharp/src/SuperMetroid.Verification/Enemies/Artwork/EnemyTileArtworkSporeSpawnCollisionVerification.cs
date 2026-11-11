@@ -69,7 +69,7 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
                 object?[] installedArguments =
                     [installedSlot, new Position16<RoomPixels>(targetX, targetY), new Extent16<RoomPixels>(2, 2), shot != 0, (ushort)0];
                 bool nativeFound = NativeCallback(root, targetX, targetY, shot != 0, out ushort nativeCallback);
-                bool installedFound = ExtendedHitboxWalker.Find(installed, installedArguments);
+                bool installedFound = ExtendedHitboxWalker.Find(installedArguments);
                 AssertEqual(nativeFound, installedFound,
                     $"Spore Spawn frame {frame.Pointer:X4} native overlap at {x},{y}, shot={shot}");
                 AssertEqual(EnemyReactionAccess.Of(0xa5, nativeCallback, shot != 0),

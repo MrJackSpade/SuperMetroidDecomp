@@ -785,7 +785,7 @@ internal sealed class EnemyCollision
     /// hitbox. One frame may hold several hitboxes, each signed bounds about the enemy's origin with its own touch and
     /// shot reactions.
     /// </summary>
-    internal bool TryFindFrameHitboxReaction(
+    internal static bool TryFindFrameHitboxReaction(
         RoomEnemySlot enemy,
         Position16<RoomPixels> targetPosition,
         Extent16<RoomPixels> targetRadius,
@@ -807,8 +807,7 @@ internal sealed class EnemyCollision
             BottomRight: new(
                 CoordinateAxis.Wrap(targetPosition.X + targetRadius.X),
                 CoordinateAxis.Wrap(targetPosition.Y + targetRadius.Y)),
-            SelectsShot: contactKind == HitboxContactKind.Shot,
-            ArtworkInstalled: _room.FrameDisplays is not null);
+            SelectsShot: contactKind == HitboxContactKind.Shot);
 
         if (CommonEnemyEmptyFrames.CollidesAtOrigin(enemy))
         {

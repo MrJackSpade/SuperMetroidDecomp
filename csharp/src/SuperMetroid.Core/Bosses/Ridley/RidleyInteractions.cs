@@ -91,13 +91,12 @@ internal sealed class RidleyInteractions
         });
     }
 
-    /// <summary>The reaction of the first Ridley hitbox the probe overlaps, or null outside its compiled frames.</summary>
+    /// <summary>The reaction of the first Ridley hitbox the probe overlaps, or null when the occupant is not Ridley.</summary>
+    /// <exception cref="InvalidDataException">Ridley's frame has no compiled collision.</exception>
     internal static bool? FindRidleyHitboxReaction(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
         reaction = null;
-        if (!(RidleyInteractions.IsRidleyDefinition(enemy.DefinitionId) &&
-            (RidleyCollision.HasFrame(enemy.Frame) ||
-            probe.ArtworkInstalled)))
+        if (!RidleyInteractions.IsRidleyDefinition(enemy.DefinitionId))
             return null;
 
         // The sprite component offsets in an installed composition are editable.

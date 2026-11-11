@@ -113,7 +113,7 @@ internal static class RidleyCollisionDefinitionsVerification
                         [compiledSlot, new Position16<RoomPixels>(xs[xi], ys[yi]), new Extent16<RoomPixels>(radiusX, radiusY), shot != 0, (ushort)0];
                         bool nativeHit = NativeCallback(frame, new Position16<RoomPixels>(originX, originY), new Position16<RoomPixels>(xs[xi], ys[yi]),
                             new Extent16<RoomPixels>(radiusX, radiusY), shot != 0, out ushort nativeCallback);
-                        bool compiledHit = ExtendedHitboxWalker.Find(compiled, compiledArguments);
+                        bool compiledHit = ExtendedHitboxWalker.Find(compiledArguments);
                         AssertEqual(nativeHit, compiledHit,
                             $"Ridley $A6:{frame:X4} overlap {xi},{yi}, shot={shot}");
                         AssertEqual(EnemyReactionAccess.Of(0xa6, nativeCallback, shot != 0),

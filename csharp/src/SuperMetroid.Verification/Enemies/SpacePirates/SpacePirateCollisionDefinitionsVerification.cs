@@ -256,7 +256,7 @@ internal static class SpacePirateCollisionDefinitionsVerification
             bool native = slot.DefinitionId == (EnemyDefinitionId)0xffff;
             bool hit = native
                 ? ReferenceExtendedCollision(rom, SpacePirateFrameBank, arguments)
-                : ExtendedHitboxWalker.Find(enemies, arguments);
+                : ExtendedHitboxWalker.Find(arguments);
             return new HitboxResult(hit, native
                 ? ExtendedHitboxWalker.NativeReaction(SpacePirateFrameBank, arguments)
                 : ExtendedHitboxWalker.Reaction(arguments));

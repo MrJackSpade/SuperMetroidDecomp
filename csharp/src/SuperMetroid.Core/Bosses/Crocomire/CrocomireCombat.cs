@@ -440,13 +440,12 @@ internal sealed class CrocomireCombat
     
     }
 
-    /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
-    internal static bool? FindCrocomireTongueHitboxReaction(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    /// <summary>The reaction of the first hitbox the probe overlaps on the tongue's frame, or null when the occupant is not the tongue.</summary>
+    /// <exception cref="InvalidDataException">The tongue's frame has no compiled collision.</exception>
+    internal static bool? FindCrocomireTongueHitboxReaction(RoomEnemySlot enemy, out EnemyReaction? reaction)
     {
         reaction = null;
-        if (!(enemy.DefinitionId == EnemyDefinitionId.CrocomireTongue &&
-            (CrocomireTongueCollision.HasFrame(enemy.Frame) ||
-            probe.ArtworkInstalled)))
+        if (enemy.DefinitionId != EnemyDefinitionId.CrocomireTongue)
             return null;
 
         // These nine selected frames have one component each, but both

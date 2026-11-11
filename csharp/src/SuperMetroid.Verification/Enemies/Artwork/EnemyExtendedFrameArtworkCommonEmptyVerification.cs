@@ -100,7 +100,7 @@ internal static class EnemyExtendedFrameArtworkCommonEmptyVerification
         slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
         object?[] arguments =
             [slot, new Position16<RoomPixels>(0x0080, 0x0080), new Extent16<RoomPixels>(2, 2), selectShot, null];
-        bool found = ExtendedHitboxWalker.Find(enemies, arguments);
+        bool found = ExtendedHitboxWalker.Find(arguments);
         AssertTrue(found, "shared empty extended point overlaps its origin");
         return ExtendedHitboxWalker.Reaction(arguments);
     }

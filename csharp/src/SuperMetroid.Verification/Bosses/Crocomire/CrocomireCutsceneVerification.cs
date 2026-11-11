@@ -29,7 +29,7 @@ internal static class CrocomireCutsceneVerification
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.SpritemapPointer = 0xe6bc;
         object?[] arguments = [slot, Position16<RoomPixels>.Zero, new Extent16<RoomPixels>(8, 8), false, (ushort)0];
-        AssertTrue(!ExtendedHitboxWalker.Find(enemies, arguments), "river corpse has native empty collision");
+        AssertTrue(!ExtendedHitboxWalker.Find(arguments), "river corpse has native empty collision");
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (var frame in CrocomireSkeletonVisualDefinitions.Frames)
         {
@@ -68,7 +68,7 @@ internal static class CrocomireCutsceneVerification
                     foreach (bool shot in new[] { false, true })
                     {
                         object?[] hit = [slot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(0, 0), shot, (ushort)0];
-                        AssertTrue(ExtendedHitboxWalker.Find(enemies, hit), "corpse physical component is visited");
+                        AssertTrue(ExtendedHitboxWalker.Find(hit), "corpse physical component is visited");
                         AssertEqual((EnemyReaction?)(shot ? box.Shot : box.Touch), ExtendedHitboxWalker.Reaction(hit), "corpse selects native reaction");
                     }
                 }
@@ -77,7 +77,7 @@ internal static class CrocomireCutsceneVerification
             if (!anyHitbox)
             {
                 object?[] empty = [slot, slot.Position.Whole, new Extent16<RoomPixels>(100, 100), true, (ushort)0];
-                AssertTrue(!ExtendedHitboxWalker.Find(enemies, empty), "native empty corpse geometry remains non-colliding");
+                AssertTrue(!ExtendedHitboxWalker.Find(empty), "native empty corpse geometry remains non-colliding");
             }
         }
         Console.WriteLine("Crocomire reported E6BC corpse frame resolves empty collision without cartridge reads.");

@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Harness;
 
@@ -11,9 +10,9 @@ namespace SuperMetroid.Verification.Harness;
 internal static class ExtendedHitboxWalker
 {
     /// <summary>Walks the slot's extended hitboxes and stores the reported reaction in the row's last element.</summary>
-    internal static bool Find(RoomEnemySystem enemies, object?[] arguments)
+    internal static bool Find(object?[] arguments)
     {
-        bool found = enemies.Collision.TryFindFrameHitboxReaction(
+        bool found = EnemyCollision.TryFindFrameHitboxReaction(
             arguments[0] as RoomEnemySlot ?? throw new ArgumentException("Element 0 must be the enemy slot.", nameof(arguments)),
             Value<Position16<RoomPixels>>(arguments, 1),
             Value<Extent16<RoomPixels>>(arguments, 2),

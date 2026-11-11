@@ -118,7 +118,7 @@ internal static class CeresSteamCollisionDefinitionsVerification
                     object?[] compiledArguments =
                         [compiledSlot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(0, 0), shot != 0, (ushort)0];
                     bool nativeHit = NativeHit(frame, originX, originY, x, y, shot != 0, out ushort nativeCallback);
-                    bool compiledHit = ExtendedHitboxWalker.Find(compiled, compiledArguments);
+                    bool compiledHit = ExtendedHitboxWalker.Find(compiledArguments);
                     AssertEqual(nativeHit, compiledHit,
                         $"Ceres steam $A6:{frame:X4} overlap {x:X4},{y:X4}, shot={shot}");
                     AssertEqual(EnemyReactionAccess.Of(0xa6, nativeCallback, shot != 0),

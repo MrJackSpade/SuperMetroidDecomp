@@ -172,7 +172,7 @@ internal sealed class CeresRidleyHits
             return false;
         }
 
-        if (!_collision.TryFindFrameHitboxReaction(
+        if (!EnemyCollision.TryFindFrameHitboxReaction(
                 slot,
                 samus.Position.Whole,
                 samus.Kinematics.Radius,

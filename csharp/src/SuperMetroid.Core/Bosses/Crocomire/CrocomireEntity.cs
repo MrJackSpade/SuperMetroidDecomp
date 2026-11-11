@@ -46,7 +46,7 @@ internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemySlot s
     {
         reaction = null;
         return CrocomireCombat.FindCrocomireBodyHitboxReaction(Slot, probe, out reaction) ??
-            CrocomireCombat.FindCrocomireTongueHitboxReaction(Slot, probe, out reaction);
+            CrocomireCombat.FindCrocomireTongueHitboxReaction(Slot, out reaction);
     }
 
     /// <summary>The Crocomire body takes normal bombs on its frames' hitboxes although its header names no shot reaction.</summary>

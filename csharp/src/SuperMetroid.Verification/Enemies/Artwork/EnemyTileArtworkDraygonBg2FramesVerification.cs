@@ -177,7 +177,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
             slot.SpritemapPointer = pointer;
             object?[] arguments =
                 [slot, new Position16<RoomPixels>(0x100, 0x100), new Extent16<RoomPixels>(0, 0), true, (ushort)0];
-            bool found = ExtendedHitboxWalker.Find(enemies, arguments);
+            bool found = ExtendedHitboxWalker.Find(arguments);
             AssertEqual(pointer != 0xa36b, found,
                 $"Draygon frame {pointer:X4} shot overlap without ROM reads");
             if (found)

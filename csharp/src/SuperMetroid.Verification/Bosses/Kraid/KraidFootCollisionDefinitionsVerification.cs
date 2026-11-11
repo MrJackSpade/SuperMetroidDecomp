@@ -71,7 +71,7 @@ internal static class KraidFootCollisionDefinitionsVerification
                     object?[] installedArguments =
                         [installedFoot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(0, 0), shot != 0, (ushort)0];
                     bool nativeHit = NativeHit(frame, originX, originY, x, y, shot != 0, out ushort nativeCallback);
-                    bool installedHit = ExtendedHitboxWalker.Find(installed, installedArguments);
+                    bool installedHit = ExtendedHitboxWalker.Find(installedArguments);
                     AssertEqual(nativeHit, installedHit,
                         $"Kraid foot $A7:{frame:X4} overlap {x:X4},{y:X4}, shot={shot}");
                     AssertEqual(EnemyReactionAccess.Of(0xa7, nativeCallback, shot != 0),

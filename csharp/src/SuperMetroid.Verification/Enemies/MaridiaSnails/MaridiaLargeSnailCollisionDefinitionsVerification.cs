@@ -103,7 +103,7 @@ internal static class MaridiaLargeSnailCollisionDefinitionsVerification
                         object?[] compiledArguments =
                             [compiledSlot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(0, 0), shot != 0, (ushort)0];
                         bool nativeHit = ReferenceExtendedCollision(rom, MaridiaLargeSnailCollisionDefinitions.Bank, nativeArguments);
-                        bool compiledHit = ExtendedHitboxWalker.Find(compiled, compiledArguments);
+                        bool compiledHit = ExtendedHitboxWalker.Find(compiledArguments);
                         AssertEqual(nativeHit, compiledHit,
                             $"Oum $A2:{frame:X4} overlap {x:X4},{y:X4}, shot={shot}");
                         AssertEqual(ExtendedHitboxWalker.NativeReaction(MaridiaLargeSnailCollisionDefinitions.Bank, nativeArguments),

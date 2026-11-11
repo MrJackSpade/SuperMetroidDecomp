@@ -178,12 +178,11 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
                                                      EnemyCollision.ShotAi(enemy) == EnemyReaction.Ignore));
     }
 
-    /// <summary>The reaction of the first of the occupant's hitboxes the probe overlaps, or null outside its compiled frames.</summary>
+    /// <summary>The reaction of the first of the occupant's hitboxes the probe overlaps on the frame it shows.</summary>
+    /// <exception cref="InvalidDataException">The frame shown has no compiled steam collision.</exception>
     internal static bool? FindHitboxReaction(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
         reaction = null;
-        if (!(CeresSteamCollisionDefinitions.Frames.Contains(enemy.Frame) || probe.ArtworkInstalled))
-            return null;
 
         // A steam frame's drawing details are not another component: only its
         // listed components damage Samus. Both damaging rectangles and

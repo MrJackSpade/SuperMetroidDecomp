@@ -13,6 +13,9 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 /// </summary>
 internal static class NativeEnemyProjectileProgramOracle
 {
+    /// <summary>The longest duration a native frame command gives, which a list follows with a rest to hold a frame.</summary>
+    private const ushort NativeHeldFrameDuration = 0x7fff;
+
     /// <summary>The program whose native list starts at <paramref name="address"/>, if one does.</summary>
     private static TProgram? ProgramAt<TProgram>(NativeProgramEntry<TProgram>[] entries, ushort address)
         where TProgram : struct, Enum =>
@@ -113,6 +116,23 @@ internal static class NativeEnemyProjectileProgramOracle
             int address = NativeEnemyProjectileListDefinitions.ProjectileBank | cursor;
             ushort word = cartridge.ReadCartridgeWord(address);
             ushort operand = cartridge.ReadCartridgeWord(address + 2);
+            if ((word & NativeEnemyListDefinitions.InstructionBit) == 0 && addresses.Count < beats.Count &&
+                beats[addresses.Count] is AnimationBeat<TFrame, TEvent>.HeldFrame held)
+            {
+                // A typed held frame stands for the list's longest frame followed at once by its sleep, or by a goto to its
+                // own list's entry when it is the list's only frame, which shows the same frame again (#1607).
+                bool firstBeat = addresses.Count == 0;
+                _ = Next("held frame");
+                VerificationAssertions.AssertEqual(NativeHeldFrameDuration, word, $"{at}: a held frame's native duration");
+                VerificationAssertions.AssertEqual(unchecked((ushort)(cursor + 2)), presentationKey(held.Shown), $"{at}: held frame's presentation key");
+                var following = (NativeEnemyProjectileInstruction)cartridge.ReadCartridgeWord(address + 4);
+                ushort followingOperand = cartridge.ReadCartridgeWord(address + 6);
+                VerificationAssertions.AssertTrue(following == NativeEnemyProjectileInstruction.Sleep ||
+                    (following == NativeEnemyProjectileInstruction.GotoY && followingOperand == entry && firstBeat),
+                    $"{at}: a held frame's native frame is followed by a sleep or by a goto back to the frame");
+                cursor = unchecked((ushort)(cursor + 4));
+                continue;
+            }
             if ((word & NativeEnemyListDefinitions.InstructionBit) == 0)
             {
                 var frame = VerificationAssertions.AssertIs<AnimationBeat<TFrame, TEvent>.Frame>(Next("frame"), $"{at}: frame");

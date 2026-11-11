@@ -244,9 +244,9 @@ internal static class EnemySheetOwnFramesVerification
     private static EnemySheetOwnFrameFamily WorkRobotsFamily() => new("work robot", TableFrames(WorkRobotFrameDefinitions.ShownFrames),
         new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
         {
-            [EnemyDefinitionId.RobotNoPower] = Reach(WorkRobotAnimations.Programs, WorkRobotFrameDefinitions.ShownFrames,
+            [EnemyDefinitionId.RobotNoPower] = Reach(WorkRobotAnimations.Segments, WorkRobotAnimations.StartingAt, WorkRobotFrameDefinitions.ShownFrames,
                 [WorkRobotProgram.NoPowerNeutral, WorkRobotProgram.NoPowerLeaningLeft, WorkRobotProgram.NoPowerLeaningRight]),
-            [EnemyDefinitionId.Robot] = Reach(WorkRobotAnimations.Programs, WorkRobotFrameDefinitions.ShownFrames,
+            [EnemyDefinitionId.Robot] = Reach(WorkRobotAnimations.Segments, WorkRobotAnimations.StartingAt, WorkRobotFrameDefinitions.ShownFrames,
                 Enum.GetValues<WorkRobotProgram>()),
         });
 

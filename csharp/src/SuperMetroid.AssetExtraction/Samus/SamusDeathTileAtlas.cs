@@ -3,50 +3,24 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Editable four-bit characters of Samus's suit explosion as she dies, from which its pre-coloured sheet is composed.</summary>
-/// <remarks>The remaining 151 source tiles retain only the reviewed selected anatomical,
-/// hair, suit-rupture and spark contours/pen membership of the extracted explosion. Pose and
-/// timer select this drawing; generating its exact human figure and shading would
-/// require re-embedding the chosen image. Six blank allocation tiles and three shared
-/// patches calculate separately. This narrow bitmap exception excludes palettes,
-/// OAM placement, sequence timing and every other atlas.</remarks>
 public sealed class SamusDeathTileAtlas
 {
-    /// <summary>Independently supplied source bytes; padding and repeated patches are resolved on demand.</summary>
-    internal readonly Dictionary<int, byte> sourceBytes;
+    /// <summary>The installed explosion characters, in atlas order.</summary>
+    private readonly byte[] planar;
 
-    /// <summary>Validates the five pages and retains bytes that differ from their source relation.</summary>
+    /// <summary>Validates the five pages and keeps every installed byte.</summary>
     private SamusDeathTileAtlas(byte[] planar)
     {
         if (planar.Length != SamusDeathTileAtlasFormat.TotalByteCount)
             throw new InvalidDataException("Samus death tile atlas has the wrong size.");
-        sourceBytes = Enumerable.Range(0, planar.Length)
-            .Where(index => SamusDeathTileAtlasFormat.SourceByte(index) is int source &&
-                (source == index || planar[index] != (source < 0 ? 0 : planar[source])))
-            .ToDictionary(index => index, index => planar[index]);
+        this.planar = planar;
     }
 
     /// <summary>SHA-256 of all five selected death-explosion character pages.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(SamusDeathTileAtlas),
-        content => content.Append("death characters", ReadRange(0, SamusDeathTileAtlasFormat.TotalByteCount)));
+        content => content.Append("death characters", planar));
 
-    /// <summary>Resolves an edited character byte through named repeats or transparent padding.</summary>
-    private byte ReadByte(int index)
-    {
-        if (sourceBytes.ContainsKey(index)) return sourceBytes[index];
-        int source = SamusDeathTileAtlasFormat.SourceByte(index);
-        return source < 0 ? (byte)0 : source != index ? ReadByte(source)
-            : throw new InvalidDataException("Death artwork source byte is unavailable.");
-    }
-
-    /// <summary>Materializes a contiguous run of atlas bytes.</summary>
-    private byte[] ReadRange(int first, int count)
-    {
-        var bytes = new byte[count];
-        for (int index = 0; index < count; index++) bytes[index] = ReadByte(first + index);
-        return bytes;
-    }
-
-    /// <summary>Loads the 64-by-160 indexed PNG and encodes its palette indices as 4-bpp characters in atlas order, retaining independently edited source bytes.</summary>
+    /// <summary>Loads the 64-by-160 indexed PNG and encodes its palette indices as 4-bpp characters in atlas order.</summary>
     /// <param name="png">Caller-owned artwork stream; pixel indices are pens 0..15, not final colours.</param>
     /// <returns>Installed explosion characters, without changing animation timing or palettes.</returns>
     public static SamusDeathTileAtlas Load(Stream png)
@@ -65,7 +39,7 @@ public sealed class SamusDeathTileAtlas
     {
         var characters = new byte[SamusDeathTileAtlasFormat.TotalByteCount];
         for (int index = 0; index < characters.Length; index++)
-            characters[SamusDeathTileAtlasFormat.ExplosionByte(index)] = ReadByte(index);
+            characters[SamusDeathTileAtlasFormat.ExplosionByte(index)] = planar[index];
         return new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.SamusDeathExplosion), characters);
     }
 }

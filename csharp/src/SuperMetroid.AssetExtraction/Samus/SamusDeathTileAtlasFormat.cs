@@ -8,21 +8,6 @@ namespace SuperMetroid.AssetExtraction.Samus;
 public static class SamusDeathTileAtlasFormat
 {
     /// <summary>
-    /// The atlas byte whose value <paramref name="index"/> takes: <paramref name="index"/> itself for a character with
-    /// its own bitmap, the byte of the character it repeats for one of three repeated anatomy patches, or -1 for one of
-    /// six unused transparent padding characters.
-    /// </summary>
-    internal static int SourceByte(int index)
-    {
-        if ((uint)index >= TotalByteCount) throw new ArgumentOutOfRangeException(nameof(index));
-        int explosionByte = ExplosionByte(index);
-        int character = explosionByte / CharacterByteCount;
-        if (TransparentPaddingCharacters.Contains(character)) return -1;
-        if (!RepeatedCharacters.TryGetValue(character, out int source)) return index;
-        return AtlasByte(source * CharacterByteCount + explosionByte % CharacterByteCount);
-    }
-
-    /// <summary>
     /// The byte of the explosion's characters, in the order its spritemaps name them, that atlas byte
     /// <paramref name="atlasIndex"/> holds.
     /// </summary>
@@ -38,20 +23,6 @@ public static class SamusDeathTileAtlasFormat
         if ((uint)atlasPage >= SegmentCount) throw new ArgumentOutOfRangeException(nameof(atlasPage));
         return (atlasPage + 1) % SegmentCount;
     }
-
-    /// <summary>The atlas byte holding explosion byte <paramref name="explosionByte"/>.</summary>
-    private static int AtlasByte(int explosionByte) =>
-        (explosionByte / PageByteCount + SegmentCount - 1) % SegmentCount * PageByteCount + explosionByte % PageByteCount;
-
-    /// <summary>Explosion characters no spritemap names: transparent padding inside the pages.</summary>
-    private static readonly HashSet<int> TransparentPaddingCharacters = [72, 83, 91, 105, 146, 151];
-
-    /// <summary>
-    /// Explosion characters that repeat another character's bitmap, by the character they repeat: the phase-seven
-    /// hair tip repeats the phase-six upper-right hair tip, the outer arm shared by late phases six and eight repeats
-    /// the outer-arm character, and the phase-eight torso patch repeats the phase-six upper-left torso.
-    /// </summary>
-    private static readonly Dictionary<int, int> RepeatedCharacters = new() { [123] = 102, [132] = 124, [157] = 133 };
 
     /// <summary>Indexed PNG filename for the death-explosion characters.</summary>
     public const string ArtworkFileName = "samus-death-explosion.png";

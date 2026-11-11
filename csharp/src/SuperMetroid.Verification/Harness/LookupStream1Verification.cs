@@ -112,7 +112,6 @@ internal static class LookupStream1Verification
             png.Position = 0;
             return SamusDeathTileAtlas.Load(png);
         }
-        Dictionary<int, byte> Stored(SamusDeathTileAtlas art) => art.sourceBytes;
         void Check(SamusDeathTileAtlas art, byte[] expected)
         {
             ReadOnlySpan<byte> explosion = art.Explosion.Characters;
@@ -126,14 +125,7 @@ internal static class LookupStream1Verification
         AssertTrue(stock.Explosion.Characters.SequenceEqual(Enumerable.Range(0, SamusDeathTileAtlasFormat.TotalByteCount)
                 .Select(offset => LookupStream1DeathPixelsRomByte(rom, explosionCharacters + offset)).ToArray()),
             "Stock explosion characters equal the native characters in spritemap order");
-        AssertEqual(151 * 32, Stored(stock).Count, "Exact151 source tiles, no stock padding/repetition overrides");
-        for (int index = 0; index < native.Length; index++)
-        {
-            int source = SamusDeathTileAtlasFormat.SourceByte(index);
-            AssertEqual(native[index], source < 0 ? (byte)0 : native[source], "Direct native padding/patch relation");
-            AssertEqual(source == index, Stored(stock).ContainsKey(index), "Exact retained source-byte membership");
-        }
-        Console.WriteLine("Death atlas:5120 native bytes,151 exact source tiles,zero stock relation overrides,the canonical stock hash and explosion character order pass.");
+        Console.WriteLine("Death atlas:5120 installed native bytes,the canonical stock hash and explosion character order pass.");
     }
 
     /// <summary>Reads a native Samus death tile byte for exact atlas comparison.</summary>

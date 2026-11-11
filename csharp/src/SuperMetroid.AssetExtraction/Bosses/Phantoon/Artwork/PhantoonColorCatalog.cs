@@ -30,7 +30,7 @@ public sealed class PhantoonColorCatalog
         this.fadeOut = new InstalledColourRows(fadeOut, PhantoonColorFormat.FadeOutCount, "Phantoon fade-out");
         if (powerOn.Count != PhantoonColorFormat.PoweredParts.Length)
             throw new InvalidDataException("The power-on targets must name exactly the parts the power-on fades.");
-        this.powerOn = [];
+        this.powerOn = new Dictionary<WreckedShipPoweredPart, InstalledColourRows>();
         foreach (WreckedShipPoweredPart part in PhantoonColorFormat.PoweredParts)
             this.powerOn.Add(part, new InstalledColourRows(powerOn.TryGetValue(part, out RgbColor[]? colours)
                     ? colours

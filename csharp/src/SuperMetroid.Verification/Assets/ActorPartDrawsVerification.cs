@@ -56,7 +56,7 @@ internal static class ActorPartDrawsVerification
             .First(shown => compositions.TryGetDisplay(shown, out ReadOnlyMemory<EnemyExtendedDrawComponent> pieces) && pieces.Length > 1);
         RoomEnemySlot pirate = enemies.SlotTable.Slots[0];
         pirate.Bind(EnemyDefinitionId.PirateGreenWalking, default(RoomEnemyDefinition));
-        pirate.DrawsExtendedFrames = true;
+        pirate.CollidesByFrameHitboxes = true;
         pirate.Frame = frame;
         pirate.Position = pirate.Position.WithWhole(new(120, 110));
         enemies.Drawing.Enqueue(pirate);

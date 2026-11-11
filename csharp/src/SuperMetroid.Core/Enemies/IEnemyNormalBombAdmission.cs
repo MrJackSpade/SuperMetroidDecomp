@@ -4,6 +4,6 @@ namespace SuperMetroid.Core.Enemies;
 internal interface IEnemyNormalBombAdmission : IEnemyEntity
 {
     /// <summary>Whether the normal-bomb walker admits the occupant this frame.</summary>
-    /// <param name="usesExtendedHitboxes">Whether the occupant's current frame is an extended spritemap.</param>
-    bool AdmitsNormalBombs(bool usesExtendedHitboxes);
+    /// <param name="collidesByFrameHitboxes">Whether the occupant collides by its frames' hitboxes.</param>
+    bool AdmitsNormalBombs(bool collidesByFrameHitboxes);
 }

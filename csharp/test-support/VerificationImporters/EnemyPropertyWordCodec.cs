@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
 /// The codec between an enemy's typed <see cref="EnemyContact"/>, <see cref="EnemyProcessing"/>,
-/// <see cref="EnemyPresence"/>, extended-frame drawing and new-frame flag and the two property words the cartridge
+/// <see cref="EnemyPresence"/>, frame-hitbox collision and new-frame flag and the two property words the cartridge
 /// stores them in (#1472, #1549), for the checks, fixtures and native-snapshot imports that compare with native memory.
 /// The members' values are arbitrary: each property-word bit is named here against its member of the three enums, and
 /// the extra-property word's two bits against the two flags; every conversion walks these tables bit by bit. The property
@@ -41,14 +41,14 @@ internal static class EnemyPropertyWordCodec
         [EnemyPresence.RespawnsIfKilled] = 1 << 14,
     };
 
-    /// <summary>The extra-property word's bit for <see cref="RoomEnemySlot.DrawsExtendedFrames"/>.</summary>
-    private const int DrawsExtendedFramesBit = 1 << 2;
+    /// <summary>The extra-property word's bit for <see cref="RoomEnemySlot.CollidesByFrameHitboxes"/>.</summary>
+    private const int CollidesByFrameHitboxesBit = 1 << 2;
 
     /// <summary>The extra-property word's bit for <see cref="RoomEnemySlot.NewInstructionFrame"/>.</summary>
     private const int NewInstructionFrameBit = 1 << 15;
 
     /// <summary>The extra-property word's named bits.</summary>
-    private const int ExtraBits = DrawsExtendedFramesBit | NewInstructionFrameBit;
+    private const int ExtraBits = CollidesByFrameHitboxesBit | NewInstructionFrameBit;
 
     /// <summary>The property word holding these engine properties, with a clear low byte.</summary>
     /// <exception cref="ArgumentOutOfRangeException">A value holds a bit no member names.</exception>
@@ -66,7 +66,7 @@ internal static class EnemyPropertyWordCodec
 
     /// <summary>The extra-property word holding <paramref name="state"/>'s two flags.</summary>
     public static int EncodeExtraPropertyWord(EnemyPropertyState state) =>
-        (state.DrawsExtendedFrames ? DrawsExtendedFramesBit : 0) | (state.NewInstructionFrame ? NewInstructionFrameBit : 0);
+        (state.CollidesByFrameHitboxes ? CollidesByFrameHitboxesBit : 0) | (state.NewInstructionFrame ? NewInstructionFrameBit : 0);
 
     /// <summary>The extra-property word holding <paramref name="slot"/>'s two flags.</summary>
     public static int EncodeExtraPropertyWord(RoomEnemySlot slot) => EncodeExtraPropertyWord(EnemyPropertyState.Of(slot));
@@ -112,7 +112,7 @@ internal static class EnemyPropertyWordCodec
             if ((propertyWord & entry.Value) != 0)
                 presence |= entry.Key;
         return new EnemyPropertyState(contact, processing, presence,
-            DrawsExtendedFrames: (extraPropertyWord & DrawsExtendedFramesBit) != 0,
+            CollidesByFrameHitboxes: (extraPropertyWord & CollidesByFrameHitboxesBit) != 0,
             NewInstructionFrame: (extraPropertyWord & NewInstructionFrameBit) != 0);
     }
 

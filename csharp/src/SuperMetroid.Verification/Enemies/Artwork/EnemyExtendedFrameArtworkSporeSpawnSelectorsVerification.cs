@@ -142,7 +142,7 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
     {
         SporeSpawnEnemyState state = (system.SporeSpawn ?? throw new InvalidOperationException("Verification requires system.SporeSpawn."));
         var properties = new SuperMetroid.AssetExtraction.Enemies.EnemyPropertyState(
-            slot.Contact, slot.Processing, slot.Presence, slot.DrawsExtendedFrames, slot.NewInstructionFrame);
+            slot.Contact, slot.Processing, slot.Presence, slot.CollidesByFrameHitboxes, slot.NewInstructionFrame);
         return new SporeSpawnProgramFrame(
             NativeBodyInstruction(steps, state), slot.FrameHold.RawValue,
             slot.SpritemapPointer, slot.Position.Whole,

@@ -8,16 +8,15 @@ internal enum EnemyCapabilities
     None = 0,
 
     /// <summary>
-    /// Ordinary Samus contact enters the extended-frame touch walker. This differs deliberately from the shot
-    /// set: Phantoon uses authored component rectangles for touch, while its weapon collision is owned by the
-    /// encounter-specific projectile resolver.
+    /// Samus's contact with the enemy is tested against its frames' hitboxes. This differs deliberately from the shot
+    /// set: Phantoon's frames' hitboxes meet Samus, while his own projectile resolver owns how shots meet him.
     /// </summary>
     ExtendedSamusHitboxes = 1,
 
     /// <summary>
-    /// Ordinary projectile collision enters the extended-frame shot walker. <see cref="RoomEnemySlot.DrawsExtendedFrames"/>
-    /// alone is not sufficient: Mother Brain and several custom-drawn actors set it for scheduling or rendering while their shot
-    /// paths use a header radius or encounter-specific geometry.
+    /// Samus's shots are tested against the enemy's frames' hitboxes. <see cref="RoomEnemySlot.CollidesByFrameHitboxes"/>
+    /// alone is not sufficient: enemies that collide by frame hitboxes may still meet Samus by their radius or by
+    /// encounter-specific geometry.
     /// </summary>
     ExtendedProjectileHitboxes = 2,
 }

@@ -28,8 +28,8 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// <summary>Whether the body is drawn and still occupies its slot; fade completion hides it.</summary>
     public EnemyPresence BodyPresence { get; internal set; }
 
-    /// <summary>Whether the body draws extended frames; cleared when the faded body becomes non-interactive.</summary>
-    public bool BodyDrawsExtendedFrames { get; internal set; }
+    /// <summary>Whether the body collides by its frames' hitboxes; cleared when the faded body becomes non-interactive.</summary>
+    public bool BodyCollidesByFrameHitboxes { get; internal set; }
 
     /// <summary>Whether the body's animation just installed a frame; cleared when the faded body becomes non-interactive.</summary>
     public bool BodyNewInstructionFrame { get; internal set; }
@@ -43,8 +43,8 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// <summary>Whether the brain is drawn and still occupies its slot; the end of rotting hides it.</summary>
     public EnemyPresence BrainPresence { get; internal set; }
 
-    /// <summary>Whether the brain draws extended frames; cleared when the rot animation completes.</summary>
-    public bool BrainDrawsExtendedFrames { get; internal set; }
+    /// <summary>Whether the brain collides by its frames' hitboxes; cleared when the rot animation completes.</summary>
+    public bool BrainCollidesByFrameHitboxes { get; internal set; }
 
     /// <summary>Whether the brain's animation just installed a frame; cleared when the rot animation completes.</summary>
     public bool BrainNewInstructionFrame { get; internal set; }
@@ -343,7 +343,7 @@ internal sealed class MotherBrainThirdPhaseDeath
                 BodyClearRequested = true;
                 BodyPresence = BodyPresence.With(EnemyPresence.Hidden);
                 BodyProcessing = BodyProcessing.Without(EnemyProcessing.AnimationScript);
-                BodyDrawsExtendedFrames = false;
+                BodyCollidesByFrameHitboxes = false;
                 BodyNewInstructionFrame = false;
                 _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathFinalFewExplosions;
                 _state.FunctionTimer = 16;
@@ -498,7 +498,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         // by the fallthrough into the next step, leaving observable timer nineteen now.
         BrainPresence = BrainPresence.With(EnemyPresence.Hidden);
         BrainProcessing = BrainProcessing.Without(EnemyProcessing.AnimationScript);
-        BrainDrawsExtendedFrames = false;
+        BrainCollidesByFrameHitboxes = false;
         BrainNewInstructionFrame = false;
         requests.MusicStopQueued = true;   // Queue the music stop.
         requests.EscapeMusicQueued = true; // Queue the escape music.

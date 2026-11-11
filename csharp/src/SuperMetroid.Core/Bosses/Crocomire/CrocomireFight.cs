@@ -89,7 +89,7 @@ internal sealed class CrocomireFight
         // On the living branch only.
         _zebetiteBehavior.CameraDistance = CameraDistanceMode.BossTracking;
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.Initial);
-        slot.DrawsExtendedFrames = true;
+        slot.CollidesByFrameHitboxes = true;
         _room.Services.RoomScroll.Write(0, RoomScrollState.RedBoundary);
         _room.Services.RoomScroll.Write(1, RoomScrollState.RedBoundary);
 
@@ -111,7 +111,7 @@ internal sealed class CrocomireFight
             throw new InvalidOperationException("Crocomire's tongue initialized before its body.");
         state.Tongue = slot;
         CrocomireBodyLayer.StartCrocomireTongueProgram(state, CrocomireTongueProgram.Fight, WrappingCountdown.Start(1));
-        slot.DrawsExtendedFrames = true;
+        slot.CollidesByFrameHitboxes = true;
         var tongueState = new CrocomireTongueState { BodyXOffset = CrocomireBehavior.CrocomireTongueBodyXOffset };
         slot.SetSpeciesState(tongueState);
         slot.Shading = state.Body.Shading;

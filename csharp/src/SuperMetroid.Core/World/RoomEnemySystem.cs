@@ -1035,7 +1035,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
             // The two hide-drawing properties suppress drawing, while the always-queue extra property can
             // force an otherwise off-screen actor into the queue. Gunship uses the normal
             // radius-aware visibility test.
-            bool visible = slot.DrawsExtendedFrames ||
+            bool visible = slot.CollidesByFrameHitboxes ||
                 !EnemyProcessingWindow.EnemyWithNormalSpritesIsOffScreen(slot, frame.Camera);
             if (visible && !slot.Presence.HasAny(EnemyPresence.Hidden | EnemyPresence.Deleted))
                 Drawing.Enqueue(slot);

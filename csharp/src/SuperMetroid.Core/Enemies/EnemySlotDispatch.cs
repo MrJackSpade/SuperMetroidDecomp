@@ -43,7 +43,7 @@ internal sealed class EnemySlotDispatch : IEnemyDispatch
         slot.Contact = population.Contact;
         slot.Processing = population.Processing;
         slot.Presence = population.Presence;
-        slot.DrawsExtendedFrames = population.DrawsExtendedFrames;
+        slot.CollidesByFrameHitboxes = population.CollidesByFrameHitboxes;
         slot.NewInstructionFrame = false;
         slot.AiStates = EnemyAiStates.None;
         slot.Timer = WrappingCountdown.Start(0);

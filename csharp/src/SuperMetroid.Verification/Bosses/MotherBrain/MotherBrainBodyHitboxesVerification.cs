@@ -27,7 +27,7 @@ internal static class MotherBrainBodyHitboxesVerification
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         RoomEnemySlot body = state.Body;
         RoomEnemySlot head = state.Head;
-        AssertTrue(body.DrawsExtendedFrames,
+        AssertTrue(body.CollidesByFrameHitboxes,
             "the body is an extended-spritemap enemy");
 
         // The movie's frame: walking body at ($3E,$90) on root $A174 with phase-three

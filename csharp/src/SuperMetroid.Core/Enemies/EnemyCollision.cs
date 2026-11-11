@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// Samus-to-enemy interaction: touch, shot, bomb and power-bomb collision walks over the interactive
-/// enemies, extended hitboxes, vulnerability and freezing, and the dispatch into the registered reactions.
+/// enemies, frame hitboxes, vulnerability and freezing, and the dispatch into the registered reactions.
 /// </summary>
 [RoomLifetime]
 internal sealed class EnemyCollision
@@ -443,7 +443,7 @@ internal sealed class EnemyCollision
             bool usesCommonShotAi = ShotAi(enemy) == EnemyReaction.NormalEnemyShot;
             bool usesIgnoreShotAi = ShotAi(enemy) == EnemyReaction.Ignore;
             bool usesTranslatedPrivateShotAi = IsTranslatedPrivateNormalBombShotAi(enemy, ShotAi(enemy));
-            bool usesExtendedHitboxes = enemy.DrawsExtendedFrames;
+            bool usesExtendedHitboxes = enemy.CollidesByFrameHitboxes;
             bool headerSuppressesMultiboxShotCollision = usesExtendedHitboxes &&
                 enemy.Definition.ShotHitboxScan == EnemyHitboxScan.Withheld;
             bool admittedByOccupant = enemy.Entity is IEnemyNormalBombAdmission admission &&
@@ -464,8 +464,8 @@ internal sealed class EnemyCollision
             {
                 SamusProjectileFamily family = bomb.Type.Family;
 
-                // The ordinary-radius bomb pass admits an exploding normal bomb. The ordinary-radius
-                // handler also admits a spread bomb. The extended-frame
+                // The radius bomb pass admits an exploding normal bomb. The radius
+                // handler also admits a spread bomb. The frame-hitbox
                 // handler is narrower: it requires a bomb and a nonzero X word.
                 if (bomb.Type.IsNone ||
                     !bomb.BombTimer.IsZero ||
@@ -555,7 +555,7 @@ internal sealed class EnemyCollision
     }
 
     /// <summary>
-    /// Reports the private shot reactions whose normal-bomb path is translated. The occupant decides, because an extended
+    /// Reports the private shot reactions whose normal-bomb path is translated. The occupant decides, because a frame's
     /// hitbox may deliberately override its definition header with a different reaction.
     /// </summary>
     private static bool IsTranslatedPrivateNormalBombShotAi(
@@ -781,10 +781,9 @@ internal sealed class EnemyCollision
         bool PreventsLethalFreeze);
 
     /// <summary>
-    /// Walks the extended-frame structure and returns the
-    /// reaction belonging to the first overlapping hitbox. One displayed enemy frame may
-    /// contain several independently offset ordinary spritemaps; every component has a
-    /// hitbox list whose records are signed bounds plus touch and shot reactions.
+    /// Tests the hitboxes of the frame an enemy shows and returns the reaction belonging to the first overlapping
+    /// hitbox. One frame may hold several hitboxes, each signed bounds about the enemy's origin with its own touch and
+    /// shot reactions.
     /// </summary>
     internal bool TryFindExtendedHitboxReaction(
         RoomEnemySlot enemy,
@@ -832,26 +831,23 @@ internal sealed class EnemyCollision
     }
 
     /// <summary>
-    /// Identifies actors whose ordinary Samus-contact collision actually enters
-    /// the extended-frame touch walker. This differs deliberately from the shot
-    /// set: Phantoon uses authored component rectangles for touch, while its weapon collision
-    /// is owned by the encounter-specific projectile resolver.
+    /// Identifies actors whose contact with Samus is tested against their frames' hitboxes. This differs deliberately
+    /// from the shot set: Phantoon's frames' hitboxes meet Samus, while his own projectile resolver owns how shots meet
+    /// him.
     /// </summary>
     internal static bool UsesExtendedSamusHitboxes(RoomEnemySlot enemy) =>
-        enemy.DrawsExtendedFrames &&
+        enemy.CollidesByFrameHitboxes &&
         (Capabilities(enemy) & EnemyCapabilities.ExtendedSamusHitboxes) != EnemyCapabilities.None;
 
     /// <summary>
-    /// Identifies actors whose ordinary projectile collision actually enters
-    /// the extended-frame shot walker. <see cref="RoomEnemySlot.DrawsExtendedFrames"/> alone is not
-    /// sufficient: Mother Brain and several custom-drawn actors set it for scheduling or
-    /// rendering while their shot paths use a header radius or encounter-specific geometry.
-    /// Keeping this predicate beside the dispatcher gives data-backed probes the same boundary
-    /// as gameplay and prevents them from interpreting unrelated component metadata as a
-    /// hitbox.
+    /// Identifies actors whose contact with Samus's shots is tested against their frames' hitboxes.
+    /// <see cref="RoomEnemySlot.CollidesByFrameHitboxes"/> alone is not sufficient: Mother Brain and several
+    /// encounter-owned actors collide by frame hitboxes elsewhere while their shots meet a header radius or
+    /// encounter-specific geometry. Keeping this predicate beside the dispatcher gives data-backed probes the same
+    /// boundary as gameplay.
     /// </summary>
     internal static bool UsesExtendedProjectileHitboxes(RoomEnemySlot enemy) =>
-        enemy.DrawsExtendedFrames &&
+        enemy.CollidesByFrameHitboxes &&
         (Capabilities(enemy) & EnemyCapabilities.ExtendedProjectileHitboxes) != EnemyCapabilities.None;
 
     /// <summary>The bound occupant's collision capabilities; an empty slot has none.</summary>

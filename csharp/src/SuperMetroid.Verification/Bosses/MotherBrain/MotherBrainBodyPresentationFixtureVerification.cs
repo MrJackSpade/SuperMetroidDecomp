@@ -55,7 +55,7 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         internal void SetFrame(ushort frame, bool fresh)
         {
             Body.SpritemapPointer = frame;
-            Body.DrawsExtendedFrames = true;
+            Body.CollidesByFrameHitboxes = true;
             Body.NewInstructionFrame = fresh;
         }
 

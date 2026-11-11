@@ -549,7 +549,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             AfterSuperMissileQuake = (in EnemyShotContext c) =>
             {
                 if (!c.UsesExtendedHitboxes)
-                    throw new InvalidDataException("Maridia Large Snail lost its required extended-spritemap property.");
+                    throw new InvalidDataException("Maridia Large Snail's shots no longer meet its frames' hitboxes.");
                 if (c.HitboxShotAi == EnemyReaction.Ignore)
                 {
                     // Multibox collision marks the projectile before calling the
@@ -578,7 +578,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             context =>
             {
                 if (!context.UsesExtendedHitboxes)
-                    throw new InvalidDataException("Maridia Large Snail lost its required extended-spritemap property.");
+                    throw new InvalidDataException("Maridia Large Snail's contact no longer meets its frames' hitboxes.");
                 if (context.HitboxTouchAi is not (
                         EnemyReaction.MaridiaLargeSnailDamagingTouch or
                         EnemyReaction.MaridiaLargeSnailNonDamagingTouch))

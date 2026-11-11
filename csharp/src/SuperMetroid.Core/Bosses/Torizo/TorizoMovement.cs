@@ -69,7 +69,7 @@ internal sealed class TorizoMovement
         torizo.Position = torizo.Position.WithWhole(definition.Position);
         state.BodyPlayback = TorizoAnimations.Start(definition.Program);
         torizo.Processing = torizo.Processing.With(definition.Processing);
-        torizo.DrawsExtendedFrames = true;
+        torizo.CollidesByFrameHitboxes = true;
         torizo.Radius = definition.Radius;
         torizo.FrameHold = WrappingCountdown.Start(1);
         torizo.Timer = WrappingCountdown.Start(0);

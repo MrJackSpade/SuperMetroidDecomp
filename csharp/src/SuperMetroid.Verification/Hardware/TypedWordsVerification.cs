@@ -369,7 +369,7 @@ internal static void VerifyTypedNativeWords()
     AssertEqual(EnemyPresence.None, enemyPresence, "enemy presence operations clear the named flags");
     AssertEqual(EnemyProcessing.None, enemyProcessing, "enemy processing operations clear the named flags");
     var enemyProperties = new SuperMetroid.AssetExtraction.Enemies.EnemyPropertyState(
-        enemyContact, enemyProcessing, enemyPresence, DrawsExtendedFrames: true, NewInstructionFrame: false);
+        enemyContact, enemyProcessing, enemyPresence, CollidesByFrameHitboxes: true, NewInstructionFrame: false);
     AssertEqual(enemyProperties, SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Decode(
         SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EncodePropertyWord(enemyProperties),
         SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EncodeExtraPropertyWord(enemyProperties)),

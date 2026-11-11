@@ -281,7 +281,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         // whether his body draws in the hurt flash; this fixture's animation is off and its latch holds his own colours.
         if (slot.DefinitionId == EnemyDefinitionId.Ridley)
             enemies.RidleyEncounter.Ridley = new RidleyEnemyState();
-        slot.DrawsExtendedFrames = true;
+        slot.CollidesByFrameHitboxes = true;
         slot.Frame = frame;
         if (frame is { } shown)
             SpawnedObjectFixtures.ShowDrawnLooks(enemies, SuperMetroid.AssetExtraction.Enemies.FrameDrawings.Of(shown));

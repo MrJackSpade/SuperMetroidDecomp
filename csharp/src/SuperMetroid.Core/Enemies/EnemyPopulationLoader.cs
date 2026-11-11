@@ -60,7 +60,7 @@ internal sealed class EnemyPopulationLoader
             // Disable-Samus-collision actors receive the canonical empty map until their
             // first animation tick replaces it. The gunship's properties disable Samus collision.
             slot.Frame = slot.Processing.HasAny(EnemyProcessing.AnimationScript)
-                ? slot.DrawsExtendedFrames
+                ? slot.CollidesByFrameHitboxes
                     ? EnemyFrameId.EmptyExtended
                     : EnemyFrameId.Empty
                 : null;

@@ -123,14 +123,14 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         ThirdPhaseDeath.BodyContact = actor.BodyContact;
         ThirdPhaseDeath.BodyProcessing = actor.BodyProcessing;
         ThirdPhaseDeath.BodyPresence = actor.BodyPresence;
-        ThirdPhaseDeath.BodyDrawsExtendedFrames = actor.BodyDrawsExtendedFrames;
+        ThirdPhaseDeath.BodyCollidesByFrameHitboxes = actor.BodyCollidesByFrameHitboxes;
         ThirdPhaseDeath.BodyNewInstructionFrame = actor.BodyNewInstructionFrame;
         State.BrainPosition = actor.Brain;
         State.BrainHealth = actor.BrainHealth;
         ThirdPhaseDeath.BrainContact = actor.BrainContact;
         ThirdPhaseDeath.BrainProcessing = actor.BrainProcessing;
         ThirdPhaseDeath.BrainPresence = actor.BrainPresence;
-        ThirdPhaseDeath.BrainDrawsExtendedFrames = actor.BrainDrawsExtendedFrames;
+        ThirdPhaseDeath.BrainCollidesByFrameHitboxes = actor.BrainCollidesByFrameHitboxes;
         ThirdPhaseDeath.BrainNewInstructionFrame = actor.BrainNewInstructionFrame;
         LowerNeckAngle = actor.LowerNeckAngle;
         UpperNeckAngle = actor.UpperNeckAngle;

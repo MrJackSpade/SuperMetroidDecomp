@@ -213,7 +213,7 @@ internal sealed class NorfairRidleyDeath
                 Contact: EnemyContact.IgnoresSamus,
                 Processing: EnemyProcessing.AnimationScript | EnemyProcessing.OffScreen,
                 Presence: EnemyPresence.None,
-                DrawsExtendedFrames: false,
+                CollidesByFrameHitboxes: false,
                 SpawnSettings: new RidleyExplosionSpawnSettings(part));
             // The explosion's initialization AI starts each part from the still-live shared Ridley joints.
             if (_dispatch.SpawnEnemy(population) is null)

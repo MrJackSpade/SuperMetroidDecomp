@@ -111,7 +111,7 @@ internal static class BossDisplayBindingsFixtureVerification
         internal void SetFrame(ushort frame, bool fresh)
         {
             Actor.SpritemapPointer = frame;
-            Actor.DrawsExtendedFrames = true;
+            Actor.CollidesByFrameHitboxes = true;
             Actor.NewInstructionFrame = fresh;
         }
 

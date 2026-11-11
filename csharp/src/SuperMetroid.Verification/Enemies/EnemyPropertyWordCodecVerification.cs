@@ -30,7 +30,7 @@ internal static class EnemyPropertyWordCodecVerification
             AssertRoundTrips(EnemyPropertyState.None with { Presence = flag }, $"presence {flag}");
             AssertEqual(flag, flag.With(EnemyPresence.Deleted).Without(EnemyPresence.Deleted).With(flag), $"flag operations keep {flag}");
         }
-        AssertRoundTrips(EnemyPropertyState.None with { DrawsExtendedFrames = true }, "extended-frame drawing");
+        AssertRoundTrips(EnemyPropertyState.None with { CollidesByFrameHitboxes = true }, "frame-hitbox collision");
         AssertRoundTrips(EnemyPropertyState.None with { NewInstructionFrame = true }, "the new-frame flag");
 
         for (int bit = 8; bit < 16; bit++)

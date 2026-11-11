@@ -169,12 +169,6 @@ internal sealed class PhantoonCombat
                 SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion)
                 continue;
 
-            if (!body.DrawsExtendedFrames)
-            {
-                throw new InvalidDataException(
-                    "Phantoon lost the extended-spritemap property required by his hitboxes.");
-            }
-
             if (!_collision.TryFindExtendedHitboxReaction(
                     body,
                     projectile.Position.Whole,

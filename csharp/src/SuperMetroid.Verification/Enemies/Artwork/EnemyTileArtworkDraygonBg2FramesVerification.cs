@@ -215,7 +215,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.DraygonBody, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.DrawsExtendedFrames = true;
+        slot.CollidesByFrameHitboxes = true;
         if (newInstructionFrame)
             slot.NewInstructionFrame = true;
         slot.SpritemapPointer = pointer;

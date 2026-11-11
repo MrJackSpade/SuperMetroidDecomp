@@ -83,7 +83,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 slot.Contact = population.Contact;
                 slot.Processing = population.Processing;
                 slot.Presence = population.Presence;
-                slot.DrawsExtendedFrames = population.DrawsExtendedFrames;
+                slot.CollidesByFrameHitboxes = population.CollidesByFrameHitboxes;
                 slot.NewInstructionFrame = false;
 
                 slot.FrameHold = WrappingCountdown.Start(1);

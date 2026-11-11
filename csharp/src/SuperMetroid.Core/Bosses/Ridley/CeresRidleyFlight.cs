@@ -48,7 +48,7 @@ internal sealed class CeresRidleyFlight
         // Ceres Ridley's initialization clears the shared boss tilemap workspace, disables the minimap, and
         // marks the room explored. Those consumers are not yet represented by RoomEnemySystem;
         // every actor-owned write that follows is retained below.
-        slot.DrawsExtendedFrames = true;
+        slot.CollidesByFrameHitboxes = true;
 
         // Two property bits are proven by the initializer, but the first has not yet
         // been given a cross-enemy semantic name. Preserve it raw; the intangible bit already has the
@@ -589,7 +589,7 @@ internal sealed class CeresRidleyFlight
             Contact: EnemyContact.None,
             Processing: EnemyProcessing.AnimationScript | EnemyProcessing.OffScreen,
             Presence: EnemyPresence.Hidden,
-            DrawsExtendedFrames: false,
+            CollidesByFrameHitboxes: false,
             SpawnSettings: new CeresDoorSpawnSettings(variant));
         _dispatch.InitializeSlotFromDefinition(wall, population, definition);
         _dispatch.RunInitializationAi(wall, EnemySpawnSurroundings.None);

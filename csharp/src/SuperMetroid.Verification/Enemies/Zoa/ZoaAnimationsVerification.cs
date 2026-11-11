@@ -6,21 +6,22 @@ using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Enemies.Zoa;
 
-/// <summary>#641: Zoa's typed programs, each matched step by step to its native bank-$A3 list.</summary>
+/// <summary>#641: Zoa's typed animations (#1600), each segment matched to its native bank-$A3 list and each animation to the lists' control flow.</summary>
 internal static class ZoaAnimationsVerification
 {
-    /// <summary>Every program matches its native list.</summary>
+    /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifyZoaAnimations(SuperMetroidAddressSpace rom)
     {
-        int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, ZoaAnimations.Programs,
-            ZoaFrameToolingDefinitions.Spritemap,
-            word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
-            (word, operands, cue, at) =>
-            {
-                var instruction = Instructions[word];
-                AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
-                AssertEqual(0, operands.Length, $"{at}: operands");
-            });
-        Console.WriteLine($"  Zoa programs: {Entries.Length} programs ({steps} steps) match bank $A3.");
+        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
+            ZoaAnimations.Segments, ZoaAnimations.StartingAt, ZoaFrameToolingDefinitions.Spritemap,
+            new NativeEnemyCueRules<ZoaCue>(
+                word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
+                (word, operands, cue, at) =>
+                {
+                    var instruction = Instructions[word];
+                    AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
+                    AssertEqual(0, operands.Length, $"{at}: operands");
+                }));
+        Console.WriteLine($"  Zoa animations: {Entries.Length} segments ({beats} beats) and {ZoaAnimations.StartingAt.Count} animations match bank $A3.");
     }
 }

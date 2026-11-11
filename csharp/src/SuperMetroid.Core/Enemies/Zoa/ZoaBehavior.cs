@@ -19,14 +19,18 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EnemyProgramAnimation.Expire(slot))
             return;
         ZoaEnemyState state = slot.RequireSpeciesState<ZoaEnemyState>();
-        AnimationProgramCursor<ZoaProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, ZoaAnimations.Programs, ref cursor, ZoaFrameDefinitions.ShownFrames.Of,
-            (cue, _) => ApplyZoaCue(state, cue));
-        state.Program = cursor;
+        AnimationPlayback<ZoaProgram> playback = state.Playback;
+        EnemyProgramAnimation.Play(slot, ZoaAnimations.Segments, ref playback, ZoaFrameDefinitions.ShownFrames.Of,
+            cue =>
+            {
+                ApplyZoaCue(state, cue);
+                return null;
+            });
+        state.Playback = playback;
     }
 
     /// <summary>Carries out one cue of Zoa's animation: each selects the horizontal shot speed.</summary>
-    private static ZoaProgram? ApplyZoaCue(ZoaEnemyState state, ZoaCue cue)
+    private static void ApplyZoaCue(ZoaEnemyState state, ZoaCue cue)
     {
         state.ShotSpeedStage = cue.Kind switch
         {
@@ -35,7 +39,6 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
             ZoaCueKind.SetSpeedStage3 => 3,
             _ => throw new InvalidOperationException($"Undefined {nameof(ZoaCueKind)} {cue.Kind}."),
         };
-        return null;
     }
 
     /// <summary>Samus must be within 128 horizontal pixels before a hidden Zoa rises.</summary>
@@ -60,7 +63,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The initializer installs list zero directly while also setting “previous” to
         // zero. Consequently the later change detector is deliberately a no-op at rest.
-        state.Program = AnimationProgramCursor<ZoaProgram>.Start(ZoaPrograms.Program(ZoaAnimationSelector.None));
+        state.Playback = new(ZoaAnimations.StartingWith(ZoaPrograms.Program(ZoaAnimationSelector.None)), AnimationPlace.StartOfAnimation);
         slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
     }
 
@@ -172,7 +175,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.AnimationScriptTableIndex == state.PreviousAnimationScriptTableIndex)
             return;
         state.PreviousAnimationScriptTableIndex = state.AnimationScriptTableIndex;
-        state.Program = AnimationProgramCursor<ZoaProgram>.Start(ZoaPrograms.Program(state.AnimationScriptTableIndex));
+        state.Playback = new(ZoaAnimations.StartingWith(ZoaPrograms.Program(state.AnimationScriptTableIndex)), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }

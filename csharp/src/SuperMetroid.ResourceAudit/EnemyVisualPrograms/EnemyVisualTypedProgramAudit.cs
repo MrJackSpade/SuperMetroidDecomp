@@ -210,7 +210,7 @@ internal static class EnemyVisualTypedProgramAudit
 
         RequireSegmentFrames(RipperAnimations.Segments, RipperFrameToolingDefinitions.Spritemap, RipperFrameToolingDefinitions.Bank,
             nameof(RipperAnimations), "csharp/src/SuperMetroid.Core/Enemies/Ripper/RipperAnimations.cs");
-        RequireTypedFrames(ZoaAnimations.Programs, ZoaFrameToolingDefinitions.Spritemap, ZoaFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(ZoaAnimations.Segments, ZoaFrameToolingDefinitions.Spritemap, ZoaFrameToolingDefinitions.Bank,
             nameof(ZoaAnimations), "csharp/src/SuperMetroid.Core/Enemies/Zoa/ZoaAnimations.cs");
         RequireSegmentFrames(NuclearWaffleAnimations.Segments, NuclearWaffleFrameToolingDefinitions.Spritemap, NuclearWaffleFrameToolingDefinitions.Bank,
             nameof(NuclearWaffleAnimations), "csharp/src/SuperMetroid.Core/Enemies/Nuclear/NuclearWaffleAnimations.cs");

@@ -296,12 +296,9 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
                 DrawImageCell(level, draw, origin, gateImage, new Offset16<RoomBlocks>(0, row), MotherBrainEscapeGateDraws.Draw.CollisionAt(row));
             return;
         }
-        if (BombTorizoHandDraws.TryDescribe(draw, out var bombTorizoHand))
+        if (BombTorizoHandDraws.TryDescribe(draw, out RoomBlockShape? bombTorizoHand))
         {
-            RoomObjectFrameImage hand = Installed(BombTorizoHandVisuals, "Bomb Torizo hand").Image(draw);
-            for (int run = 0; run < bombTorizoHand.RunCount; run++)
-                for (int cell = 0; cell < bombTorizoHand.BlockCount(run); cell++)
-                    DrawImageCell(level, draw, origin, hand, bombTorizoHand.Start(run) + new Offset16<RoomBlocks>(cell, 0), bombTorizoHand.CollisionAt(run, cell));
+            DrawShape(level, draw, origin, Installed(BombTorizoHandVisuals, "Bomb Torizo hand").Image(draw), bombTorizoHand);
             return;
         }
         if (DraygonCannonDraws.TryDescribe(draw, out RoomBlockShape? draygonCannon))

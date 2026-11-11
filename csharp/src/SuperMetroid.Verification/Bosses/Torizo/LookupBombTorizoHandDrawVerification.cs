@@ -36,11 +36,11 @@ internal static class LookupBombTorizoHandDrawVerification
             {
                 ushort pointer = (ushort)raw;
                 bool owned = pointers.Contains(pointer);
-                AssertEqual(owned, BombTorizoHandDraws.TryDescribe(NativeObjectDraws.At<BombTorizoHandDraw>(pointer), out var shape), "Torizo hand descriptor domain");
+                AssertEqual(owned, BombTorizoHandDraws.TryDescribe(NativeObjectDraws.At<BombTorizoHandDraw>(pointer), out RoomBlockShape? shape), "Torizo hand shape domain");
                 AssertEqual(owned, RoomObjectBombTorizoHandVisualFiles.TryGet(NativeObjectDraws.At<BombTorizoHandDraw>(pointer), out var dto), "Torizo hand DTO domain");
                 if (!owned)
                 {
-                    AssertEqual(default(BombTorizoHandDraws.Draw), shape, "Torizo hand missing descriptor");
+                    AssertTrue(shape is null, "Torizo hand missing shape");
                     AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), dto, "Torizo hand missing DTO");
                     AssertThrows<InvalidDataException>(() => RoomObjectBombTorizoHandVisualFiles.VisualId(NativeObjectDraws.At<BombTorizoHandDraw>(pointer)), "Torizo hand missing ID");
                 }
@@ -52,8 +52,11 @@ internal static class LookupBombTorizoHandDrawVerification
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            BombTorizoHandDraws.TryDescribe(NativeObjectDraws.At<BombTorizoHandDraw>(pointer), out var shape);
+            if (!BombTorizoHandDraws.TryDescribe(NativeObjectDraws.At<BombTorizoHandDraw>(pointer), out RoomBlockShape? described))
+                throw new InvalidOperationException($"Torizo hand frame {ids[index]} has no shape.");
+            RoomBlockShape shape = described;
             RoomObjectBombTorizoHandVisualFiles.TryGet(NativeObjectDraws.At<BombTorizoHandDraw>(pointer), out var dto);
+            int frameCells = 0;
             AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(exported[index].Draw), "Torizo hand original export order");
             AssertEqual(ids[index], RoomObjectBombTorizoHandVisualFiles.VisualId(NativeObjectDraws.At<BombTorizoHandDraw>(pointer)), "Torizo hand published identity");
             RoomObjectDraw byId = RoomObjectBombTorizoHandVisualFiles.Family.Ids.Single(pair => pair.Value == ids[index]).Key;
@@ -67,25 +70,25 @@ internal static class LookupBombTorizoHandDrawVerification
                 AssertTrue(count is > 0 and < 0x8000, "Torizo hand original horizontal run");
                 if (field == 0)
                 {
-                    AssertEqual(count, shape.BlockCount(run), "Torizo hand native run width");
-                    AssertEqual(x, shape.Start(run).X, "Torizo hand original origin-relative X");
-                    AssertEqual(y, shape.Start(run).Y, "Torizo hand original origin-relative Y");
                     foreach (var frame in new[] {dto,exported[index],exported.Single(entry => entry.Draw == byId)})
                     {
                         AssertRunHeader(count, frame.Runs.Span[run], "Torizo hand DTO direction/count");
                         AssertEqual(count, frame.Runs.Span[run].Count, "Torizo hand DTO width");
+                        AssertEqual(x, frame.Runs.Span[run].Start.X, "Torizo hand original origin-relative X");
+                        AssertEqual(y, frame.Runs.Span[run].Start.Y, "Torizo hand original origin-relative Y");
                     }
-                    foreach (int bad in new[] {int.MinValue,-1,count,int.MaxValue})
-                        AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(run,bad), "Torizo hand cell bounds");
+                    for (int word = 0; word < count; word++)
+                        AssertTrue(shape.Covers(dto.Runs.Span[run].CellAt(word)), "Torizo hand shape covers every cell its list writes");
                 }
                 for (int word = 0; word < count; word++, cursor += 2)
                 {
+                    frameCells++;
                     if (field != 0)
                     {
                         RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, 0x840000 | cursor));
                         RoomObjectFrameImage picture = pictures.Image(NativeObjectDraws.At<BombTorizoHandDraw>(pointer));
                         Offset16<RoomBlocks> place = dto.Runs.Span[run].CellAt(word);
-                        AssertCellField(field, expected, shape.CollisionAt(run,word), picture, place, "Torizo hand original calculated field");
+                        AssertCellField(field, expected, shape.CollisionAt(place), picture, place, "Torizo hand original shape field");
                         AssertCellField(field, expected, dto.Runs.Span[run].Collisions.Span[word], picture, place, "Torizo hand original DTO field");
                         AssertCellField(field, expected, exported[index].Runs.Span[run].Collisions.Span[word], picture, exported[index].Runs.Span[run].CellAt(word), "Torizo hand original export field");
                     }
@@ -105,15 +108,14 @@ internal static class LookupBombTorizoHandDrawVerification
                 if (x == 0 && y == 0) break;
             }
             AssertEqual(index == 0 ? 0x9897 : 0x98d1, cursor, "Torizo hand native record end");
-            AssertEqual(run, shape.RunCount, "Torizo hand native run count");
             AssertEqual(run, dto.Runs.Length, "Torizo hand DTO run count");
             AssertEqual(run, exported[index].Runs.Length, "Torizo hand export run count");
             if (field == 0)
-            foreach (int bad in new[] {int.MinValue,-1,run,int.MaxValue})
             {
-                AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(bad,0), "Torizo hand run bounds");
-
-                AssertThrows<ArgumentOutOfRangeException>(() => shape.Start(bad), "Torizo hand start bounds");
+                // The list writes no cell twice, so the shape covers exactly the cells it writes.
+                AssertEqual(frameCells, shape.Cells.Count, "Torizo hand shape covers exactly the cells its list writes");
+                foreach (Offset16<RoomBlocks> outside in new Offset16<RoomBlocks>[] { new(-3, 0), new(2, 0), new(0, -3), new(0, 2), new(-2, 2), new(1, -3) })
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(outside), "Torizo hand shape covers only its cells");
             }
         }
         AssertEqual(24, cells, "Torizo hand complete native cell domain");

@@ -247,8 +247,6 @@ internal static class LookupStream3Verification
             string name = GameOptionsNames.HeadingSpriteName(page);
             var original = Read();
             var stock = Load(original)[page];
-            AssertTrue(stock.parts is MenuHeadingBorder,
-                "native heading stores only semantic title identity instead of supplied bounds/order/style");
             AssertEqual(count, stock.PartCount, "native perimeter count");
             Confirm(stock, original.Sprites[name]);
             var presentation = GameOptionsSourcePresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(original, ArtworkJson.Options)));
@@ -297,8 +295,6 @@ internal static class LookupStream3Verification
             string name = FileSelectParts.BorderSpriteName(border);
             var original = Read();
             var stock = Load(original)[border];
-            AssertTrue(stock.parts is MenuHeadingBorder,
-                "native file border uses semantic title and calculated perimeter");
             AssertEqual(count, stock.PartCount, "native perimeter count");
             Confirm(stock, original.Sprites[name]);
             var presentation = FileSelectSourcePresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(original, ArtworkJson.Options)));
@@ -426,9 +422,6 @@ internal static class LookupStream3Verification
             for (int part = 0; part < expected.PartCount; part++)
                 AssertEqual(expected.Part(part), actual.Part(part), "menu composition exact ordered geometry, tiles, attributes and palette inheritance");
         }
-        static bool Calculated(SpriteComposition composition) =>
-            composition.parts is not CompiledSpritePart[];
-
         byte[] imported = SuperMetroid.AssetExtraction.Frontend.GameOverPresentationExtractor.Extract(rom);
         GameOverPresentationDocument Read() => RequiredJson.Deserialize<GameOverPresentationDocument>(imported, ArtworkJson.Options);
         GameOverSourcePresentation Load(GameOverPresentationDocument document) => GameOverSourcePresentation.Load(new MemoryStream(
@@ -460,8 +453,6 @@ internal static class LookupStream3Verification
         }
         foreach (string name in GameOverPresentationFormat.SpriteNames)
         {
-            if (name == GameOverPresentationNames.CursorFrameName(0)) for (int part = 0; part < 2; part++) AssertEqual(stock[name].Part(part), new MenuCursorParts(MenuMissileSpritemaps.SpritemapId(0) - 0x34)[part], "exact first cursor candidate part");
-            AssertTrue(Calculated(stock[name]), "stock game-over geometry retains no full part array " + name);
             Confirm(stock[name], original.Sprites[name]);
             // A part whose footprint leaves the sheet is a malformed document the import rejects.
             var malformed = Read();
@@ -480,7 +471,6 @@ internal static class LookupStream3Verification
                 string name = GameOverPresentationNames.CursorFrameName(frame);
                 var node = RequiredJson.Parse(json);
                 var parts = RequiredJson.Deserialize<SpriteVisualPart[]>(node.Required("sprites").Required(name).ToJsonString(), ArtworkJson.Options);
-                AssertTrue(Calculated(presentation[frame]), "shared menu cursor caller uses calculated geometry");
                 Confirm(presentation[frame], parts);
             }
         }
@@ -2415,8 +2405,6 @@ internal static class LookupStream3Verification
         {
             string name = FileSelectParts.HelmetSpriteName(frame);
             var composition = Composition(stock, frame);
-            AssertTrue(composition.parts is FileSelectHelmetParts,
-                "stock helmet retains semantic frame only");
             Confirm(stock, original, frame);
             int pointer = ReadVerificationWord(rom, 0x82c569 + FileSelectHelmetSpritemaps.SpritemapId(frame) * 2);
             int address = 0x820000 | pointer;

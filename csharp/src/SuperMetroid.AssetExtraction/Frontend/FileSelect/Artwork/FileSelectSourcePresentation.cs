@@ -232,12 +232,11 @@ public sealed class FileSelectSourcePresentation : FileSelectPresentation
         BackgroundTile[] letters = document.SlotLetters.Select((cell, index) =>
             CompileCell(cell, $"file-select slot letter {index}")).ToArray();
         var borderSprites = FileSelectPresentationFormat.Borders.ToDictionary(border => border,
-            border => MenuHeadingBorder.CalculateIfMatching(Ensure.Listed(FileSelectSpriteDefinitions.Headings, border),
-                MenuBorderParts.CalculateIfMatching(CompileSprite(document, FileSelectParts.BorderSpriteName(border)))));
+            border => CompileSprite(document, FileSelectParts.BorderSpriteName(border)));
         SpriteComposition[] cursorSprites = [.. Enumerable.Range(0, FileSelectPresentationFormat.CursorFrameCount).Select(frame =>
-            MenuCursorParts.CalculateIfMatching(frame, CompileSprite(document, FileSelectParts.CursorSpriteName(frame))))];
+            CompileSprite(document, FileSelectParts.CursorSpriteName(frame)))];
         SpriteComposition[] helmetSprites = [.. Enumerable.Range(0, FileSelectPresentationFormat.HelmetFrameCount).Select(frame =>
-            FileSelectHelmetParts.CalculateIfMatching(frame, CompileSprite(document, FileSelectParts.HelmetSpriteName(frame))))];
+            CompileSprite(document, FileSelectParts.HelmetSpriteName(frame)))];
 
         foreach (FileSelectSlotFieldDocument slot in document.MainSlots.Concat(document.DataSlots))
             ValidateSlot(slot);

@@ -288,11 +288,9 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
         }
 
         var headingSprites = GameOptionsPresentationFormat.MenuPages.ToDictionary(page => page,
-            page => MenuHeadingBorder.CalculateIfMatching(Ensure.Listed(GameOptionsSpriteDefinitions.Headings, page),
-                MenuBorderParts.CalculateIfMatching(CompileSprite(document, GameOptionsNames.HeadingSpriteName(page)))));
+            page => CompileSprite(document, GameOptionsNames.HeadingSpriteName(page)));
         SpriteComposition[] cursorSprites = [.. Enumerable.Range(0, GameOptionsPresentationFormat.CursorFrameCount)
-            .Select(frame => MenuCursorParts.CalculateIfMatching(frame,
-                CompileSprite(document, GameOptionsNames.CursorSpriteName(frame))))];
+            .Select(frame => CompileSprite(document, GameOptionsNames.CursorSpriteName(frame)))];
         foreach (GameOptionsPage page in GameOptionsPresentationFormat.MenuPages)
         {
             string name = GameOptionsPresentationFormat.MenuName(page);

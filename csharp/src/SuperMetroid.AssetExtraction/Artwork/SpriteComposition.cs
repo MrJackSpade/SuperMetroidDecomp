@@ -10,18 +10,11 @@ public sealed class SpriteComposition
     internal readonly IReadOnlyList<CompiledSpritePart> parts;
     /// <summary>Copies authored parts so later document edits cannot alter a compiled composition.</summary>
     internal SpriteComposition(CompiledSpritePart[] parts) => this.parts = (CompiledSpritePart[])parts.Clone();
-    /// <summary>Retains an already immutable calculated view without another array copy.</summary>
-    private SpriteComposition(IReadOnlyList<CompiledSpritePart> parts) => this.parts = parts;
     /// <summary>Number of parts drawn in composition order.</summary>
     [IntegerQuantity("number of sprite parts in the composition")]
     internal int PartCount => parts.Count;
     /// <summary>Selects one part by its drawing ordinal.</summary>
     internal CompiledSpritePart Part(int index) => parts[index];
-
-    /// <summary>Use an immutable calculated view only when every supplied visual field matches.
-    /// Independently edited compositions retain their compiled parts.</summary>
-    internal SpriteComposition CalculateIfMatching(IReadOnlyList<CompiledSpritePart> calculated) =>
-        parts.SequenceEqual(calculated) ? new SpriteComposition(calculated) : this;
 
     /// <summary>Hashes only compiled visual fields, preserving the draw order and palette inheritance.</summary>
     internal void AppendIdentity(SelectedPresentationHash content)

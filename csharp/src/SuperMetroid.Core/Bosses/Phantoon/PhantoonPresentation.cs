@@ -23,7 +23,7 @@ internal sealed class PhantoonPresentation
         PhantoonEnemyState state,
         int denominator)
     {
-        if ((_frameContext.FrameCounter & 1) != 0 || state.EyeState.FadeComplete)
+        if (!PhantoonCadenceDefinitions.FadeStepEverySecondUpdate.IsDue(_frameContext.FrameCounter) || state.EyeState.FadeComplete)
             return;
 
         state.EyeState.FadeDenominator = denominator;

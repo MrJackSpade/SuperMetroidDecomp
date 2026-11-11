@@ -294,7 +294,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         PhantoonTentaclesState tentacles = state.TentaclesState;
         bool restoreHealthPalette = body.FlashTimer == 8 ||
-            (body.FrameCounter & 2) == 0 && tentacles.HurtFlashShown;
+            !PhantoonCadenceDefinitions.HurtFlashShown.IsSetIn(body.FrameCounter) && tentacles.HurtFlashShown;
         if (restoreHealthPalette)
         {
             CopyPhantoonHealthPalette(body);
@@ -302,7 +302,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if ((body.FrameCounter & 2) == 0 || tentacles.HurtFlashShown)
+        if (!PhantoonCadenceDefinitions.HurtFlashShown.IsSetIn(body.FrameCounter) || tentacles.HurtFlashShown)
             return;
 
         state.Colours.Show(PhantoonBodyLook.White);

@@ -387,7 +387,7 @@ internal sealed class PhantoonCombat
             orbit.StartDelay--;
         }
         // The orbit reads the frame counter that wraps at 65536.
-        else if ((_projectiles.CurrentFrame16 & 1) != 0)
+        else if (PhantoonCadenceDefinitions.OrbitClosesEverySecondUpdate.IsDue(_projectiles.CurrentFrame16))
         {
             orbit.Radius--;
             if (orbit.Radius == 0)
@@ -443,7 +443,8 @@ internal sealed class PhantoonCombat
         flame.Position = flame.Position.WithWrappedWholeY(flame.Position.Y.Whole - 8);
         flame.Velocity = flame.Velocity.WithY(SignedEightEight.FromSignedRaw(-768));
         // The flame's drift reads the frame counter that wraps at 65536.
-        flame.Velocity = flame.Velocity.WithX(SignedEightEight.FromSignedRaw((frameCounter & 1) == 0 ? 128 : -128));
+        flame.Velocity = flame.Velocity.WithX(SignedEightEight.FromSignedRaw(
+            PhantoonCadenceDefinitions.RisingFlameDriftsLeft.IsSetIn(frameCounter) ? -128 : 128));
     }
 
     /// <summary>Advances the flame's post-impact bounce motion.</summary>

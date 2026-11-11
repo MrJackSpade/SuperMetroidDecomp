@@ -11,7 +11,4 @@ internal static class PhantoonDeathDefinitions
 
     /// <summary>The death mosaic's largest block size in screen pixels, after which it stops growing.</summary>
     internal const int FinalMosaicSize = 16;
-
-    /// <summary>The frames between successive growth steps of the death mosaic.</summary>
-    internal const int MosaicGrowthInterval = 16;
 }

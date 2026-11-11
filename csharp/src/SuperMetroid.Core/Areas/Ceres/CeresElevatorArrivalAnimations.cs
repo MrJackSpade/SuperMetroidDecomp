@@ -5,33 +5,41 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
-/// The Ceres elevator arrival projectiles' typed programs (#641): the pad alternates two poses and the platform holds
+/// The Ceres elevator arrival projectiles' typed animations (#641, #1600): the pad alternates two poses and the platform holds
 /// one, each for one update at a time, until landing redirects both to the delete.
 /// </summary>
 internal static class CeresElevatorArrivalAnimations
 {
-    /// <summary>Every arrival program.</summary>
-    internal static AnimationProgramSet<CeresElevatorArrivalProgram, CeresElevatorArrivalPose, NoAnimationCue> Programs { get; } = new(
-        new Dictionary<CeresElevatorArrivalProgram, AnimationProgramStep<CeresElevatorArrivalProgram, CeresElevatorArrivalPose, NoAnimationCue>[]>
+    /// <summary>Every arrival segment's beats.</summary>
+    internal static AnimationSegments<CeresElevatorArrivalProgram, CeresElevatorArrivalPose, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<CeresElevatorArrivalProgram, AnimationBeat<CeresElevatorArrivalPose, NoAnimationCue>[]>
     {
         [P.Pad] =
         [
             Show(CeresElevatorArrivalPose.PadFirst, 1),
             Show(CeresElevatorArrivalPose.PadSecond, 1),
-            AnimationProgramStep<CeresElevatorArrivalProgram, CeresElevatorArrivalPose, NoAnimationCue>.GoTo(P.Pad),
         ],
         [P.Platform] =
         [
             Show(CeresElevatorArrivalPose.Platform, 1),
-            AnimationProgramStep<CeresElevatorArrivalProgram, CeresElevatorArrivalPose, NoAnimationCue>.GoTo(P.Platform),
         ],
-        [P.Delete] = [AnimationProgramStep<CeresElevatorArrivalProgram, CeresElevatorArrivalPose, NoAnimationCue>.Stop],
+        [P.Delete] = [],
     });
 
+    /// <summary>The animation that starts at each segment: the pad and platform loop, and the delete ends at once.</summary>
+    internal static IReadOnlyDictionary<CeresElevatorArrivalProgram, Animation<CeresElevatorArrivalProgram>> StartingAt { get; } = new Dictionary<CeresElevatorArrivalProgram, Animation<CeresElevatorArrivalProgram>>
+    {
+        [P.Pad] = new([new(P.Pad, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Platform] = new([new(P.Platform, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Delete] = new([], AnimationEnd.Stops),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<CeresElevatorArrivalProgram> StartingWith(CeresElevatorArrivalProgram segment) => StartingAt[segment];
+
     /// <summary>Shows <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<CeresElevatorArrivalProgram, CeresElevatorArrivalPose, NoAnimationCue> Show(
-        CeresElevatorArrivalPose pose, int duration) =>
-        AnimationProgramStep<CeresElevatorArrivalProgram, CeresElevatorArrivalPose, NoAnimationCue>.Show(pose, duration);
+    private static AnimationBeat<CeresElevatorArrivalPose, NoAnimationCue> Show(CeresElevatorArrivalPose pose, int duration) =>
+        new AnimationBeat<CeresElevatorArrivalPose, NoAnimationCue>.Frame(pose, duration);
 
     /// <summary>The composition each arrival pose shows (<see cref="CeresElevatorArrivalDefinitions.Frames"/>).</summary>
     internal static EnemyProjectileFrameId Frame(CeresElevatorArrivalPose pose) => Ensure.Listed(CeresElevatorArrivalDefinitions.Frames, pose);

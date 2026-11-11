@@ -6,10 +6,13 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>Magdollite lava's typed animation.</summary>
 internal sealed class MagdolliteLavaAnimation(MagdolliteLavaProgram program)
-    : EnemyProjectileProgramAnimation<MagdolliteLavaProgram, MagdolliteLavaFrame, MagdolliteLavaCue>(program)
+    : EnemyProjectileTypedAnimation<MagdolliteLavaProgram, MagdolliteLavaFrame, MagdolliteLavaCue>(MagdolliteLavaAnimations.StartingWith(program))
 {
     /// <inheritdoc/>
-    private protected override AnimationProgramSet<MagdolliteLavaProgram, MagdolliteLavaFrame, MagdolliteLavaCue> Programs => MagdolliteLavaAnimations.Programs;
+    private protected override AnimationSegments<MagdolliteLavaProgram, MagdolliteLavaFrame, MagdolliteLavaCue> Segments => MagdolliteLavaAnimations.Segments;
+
+    /// <inheritdoc/>
+    private protected override IReadOnlyDictionary<MagdolliteLavaProgram, Animation<MagdolliteLavaProgram>> StartingAt => MagdolliteLavaAnimations.StartingAt;
 
     /// <inheritdoc/>
     private protected override EnemyProjectileFrameId Present(MagdolliteLavaFrame frame) =>

@@ -5,15 +5,15 @@ using P = SuperMetroid.Core.Frontend.Intro.CinematicSpriteProgram;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// Every cinematic sprite animation script as a typed program (#641), generated from the verified animation scripts: each frame
-/// shows a <see cref="CinematicSpritePose"/>, each owner instruction becomes a <see cref="CinematicSpriteCue"/>, and the
-/// shared delete stops the program.
+/// Every cinematic sprite animation script as typed segments and animations (#641, #1600), generated from the verified
+/// animation scripts: each frame shows a <see cref="CinematicSpritePose"/>, each owner instruction becomes a
+/// <see cref="CinematicSpriteCue"/>, and the shared delete ends the animation.
 /// </summary>
 internal static class CinematicSpriteAnimations
 {
     /// <summary>Every cinematic sprite program.</summary>
-    internal static AnimationProgramSet<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue> Programs { get; } = new(
-        new Dictionary<CinematicSpriteProgram, AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>[]>
+    internal static AnimationSegments<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue> Segments { get; } = new(
+        new Dictionary<CinematicSpriteProgram, AnimationBeat<CinematicSpritePose, CinematicSpriteCue>[]>
     {
         [P.IntroMotherBrain] =
         [
@@ -21,13 +21,11 @@ internal static class CinematicSpriteAnimations
             Show(1, 16),
             Show(2, 16),
             Show(1, 16),
-            GoTo(P.IntroMotherBrain),
         ],
         [P.IntroMotherBrainStartPage2] =
         [
             Cue(new(K.StartIntroPage2)),
             Cue(new(K.SetFrameBehavior, CinematicSpriteFrameBehavior.IntroMotherBrainCrossFading)),
-            FallInto(P.IntroMotherBrainPageTwo),
         ],
         [P.IntroMotherBrainPageTwo] =
         [
@@ -35,18 +33,14 @@ internal static class CinematicSpriteAnimations
             Show(1, 16),
             Show(2, 16),
             Show(1, 16),
-            GoTo(P.IntroMotherBrainPageTwo),
         ],
         [P.MetroidEgg] =
         [
             Show(3, 5),
-            GoTo(P.MetroidEgg),
         ],
         [P.MetroidEggHatching] =
         [
             Show(3, 32),
-            SetCounter(4),
-            FallInto(P.MetroidEggShaking),
         ],
         [P.MetroidEggShaking] =
         [
@@ -54,7 +48,6 @@ internal static class CinematicSpriteAnimations
             Show(4, 5),
             Show(3, 5),
             Show(5, 5),
-            RepeatWhileCounting(P.MetroidEggShaking),
             Show(3, 10),
             Show(6, 10),
             Show(7, 10),
@@ -64,7 +57,6 @@ internal static class CinematicSpriteAnimations
             Show(11, 80),
             Cue(new(K.SpawnParticles)),
             Show(12, 10),
-            FallInto(P.MetroidEggHatchedFrame2),
         ],
         [P.MetroidEggHatchedFrame2] =
         [
@@ -76,17 +68,13 @@ internal static class CinematicSpriteAnimations
             Show(18, 320),
             Cue(new(K.StartIntroPage3)),
             Cue(new(K.SetFrameBehavior, CinematicSpriteFrameBehavior.MetroidEggDeleteAfterCrossFade)),
-            FallInto(P.MetroidEggHatched),
         ],
         [P.MetroidEggHatched] =
         [
             Show(18, 80),
-            GoTo(P.MetroidEggHatched),
         ],
         [P.BabyMetroidBeingDelivered] =
         [
-            SetCounter(10),
-            FallInto(P.BabyMetroidBeingDeliveredLoop),
         ],
         [P.BabyMetroidBeingDeliveredLoop] =
         [
@@ -94,9 +82,7 @@ internal static class CinematicSpriteAnimations
             Show(20, 10),
             Show(21, 10),
             Show(20, 10),
-            RepeatWhileCounting(P.BabyMetroidBeingDeliveredLoop),
             Cue(new(K.StartIntroPage4)),
-            FallInto(P.BabyMetroidDelivered),
         ],
         [P.BabyMetroidDelivered] =
         [
@@ -104,12 +90,9 @@ internal static class CinematicSpriteAnimations
             Show(20, 10),
             Show(21, 10),
             Show(20, 10),
-            GoTo(P.BabyMetroidDelivered),
         ],
         [P.BabyMetroidBeingExamined] =
         [
-            SetCounter(10),
-            FallInto(P.BabyMetroidBeingExaminedLoop),
         ],
         [P.BabyMetroidBeingExaminedLoop] =
         [
@@ -117,9 +100,7 @@ internal static class CinematicSpriteAnimations
             Show(23, 10),
             Show(24, 10),
             Show(23, 10),
-            RepeatWhileCounting(P.BabyMetroidBeingExaminedLoop),
             Cue(new(K.StartIntroPage5)),
-            FallInto(P.BabyMetroidExamined),
         ],
         [P.BabyMetroidExamined] =
         [
@@ -127,18 +108,15 @@ internal static class CinematicSpriteAnimations
             Show(23, 10),
             Show(24, 10),
             Show(23, 10),
-            GoTo(P.BabyMetroidExamined),
         ],
         [P.IntroTextCaret] =
         [
             Show(25, 5),
-            GoTo(P.IntroTextCaret),
         ],
         [P.IntroTextCaretBlink] =
         [
             Show(25, 5),
             Show(26, 5),
-            GoTo(P.IntroTextCaretBlink),
         ],
         [P.IntroScientistArrow] =
         [
@@ -146,12 +124,10 @@ internal static class CinematicSpriteAnimations
             Show(28, 10),
             Show(29, 10),
             Show(28, 10),
-            GoTo(P.IntroScientistArrow),
         ],
         [P.IntroScientistArrowDelayed] =
         [
             Show(26, 60),
-            GoTo(P.IntroScientistArrow),
         ],
         [P.ConfusedBabyMetroid] =
         [
@@ -159,33 +135,27 @@ internal static class CinematicSpriteAnimations
             Show(31, 10),
             Show(32, 10),
             Show(31, 10),
-            GoTo(P.ConfusedBabyMetroid),
         ],
         [P.CeresDestructionLargeAsteroid] =
         [
             Show(33, 10),
-            GoTo(P.CeresDestructionLargeAsteroid),
         ],
         [P.CeresUnderAttack] =
         [
             Show(34, 10),
-            GoTo(P.CeresUnderAttack),
         ],
         [P.CeresSmallAsteroid] =
         [
             Show(35, 10),
-            GoTo(P.CeresSmallAsteroid),
         ],
         [P.CeresVortex] =
         [
             Show(36, 1),
             Show(37, 1),
-            GoTo(P.CeresVortex),
         ],
         [P.ZebesPlanet] =
         [
             Show(38, 10),
-            GoTo(P.ZebesPlanet),
         ],
         [P.ZebesTitle] =
         [
@@ -197,12 +167,10 @@ internal static class CinematicSpriteAnimations
             Cue(new(K.FadeOutZebesText)),
             Show(39, 96),
             Cue(new(K.StartFlyingToZebes)),
-            Stop,
         ],
         [P.ZebesJapaneseTitle] =
         [
             Show(40, 192),
-            Stop,
         ],
         [P.CeresSmallExplosion] =
         [
@@ -212,12 +180,9 @@ internal static class CinematicSpriteAnimations
             Show(44, 3),
             Show(45, 3),
             Show(46, 3),
-            Stop,
         ],
         [P.CeresRepeatingSmallExplosion] =
         [
-            SetCounter(6),
-            FallInto(P.CeresRepeatingSmallExplosionLoop),
         ],
         [P.CeresRepeatingSmallExplosionLoop] =
         [
@@ -228,13 +193,9 @@ internal static class CinematicSpriteAnimations
             Show(45, 3),
             Show(46, 3),
             Show(26, 16),
-            RepeatWhileCounting(P.CeresRepeatingSmallExplosionLoop),
-            Stop,
         ],
         [P.CeresLargeExplosion] =
         [
-            SetCounter(7),
-            FallInto(P.CeresLargeExplosionLoop),
         ],
         [P.CeresLargeExplosionLoop] =
         [
@@ -243,43 +204,34 @@ internal static class CinematicSpriteAnimations
             Show(49, 5),
             Show(50, 5),
             Show(26, 8),
-            RepeatWhileCounting(P.CeresLargeExplosionLoop),
-            Stop,
         ],
         [P.MetroidEggParticle1] =
         [
             Show(51, 1),
-            GoTo(P.MetroidEggParticle1),
         ],
         [P.MetroidEggParticle2] =
         [
             Show(52, 1),
-            GoTo(P.MetroidEggParticle2),
         ],
         [P.MetroidEggParticle3] =
         [
             Show(53, 1),
-            GoTo(P.MetroidEggParticle3),
         ],
         [P.MetroidEggParticle4] =
         [
             Show(54, 1),
-            GoTo(P.MetroidEggParticle4),
         ],
         [P.MetroidEggParticle5] =
         [
             Show(55, 1),
-            GoTo(P.MetroidEggParticle5),
         ],
         [P.MetroidEggParticle6] =
         [
             Show(56, 1),
-            GoTo(P.MetroidEggParticle6),
         ],
         [P.MetroidEggParticle7] =
         [
             Show(57, 1),
-            GoTo(P.MetroidEggParticle7),
         ],
         [P.MetroidEggParticleHitGround] =
         [
@@ -287,32 +239,26 @@ internal static class CinematicSpriteAnimations
             Show(59, 10),
             Show(60, 10),
             Show(61, 10),
-            Stop,
         ],
         [P.ZebesStarSheet0] =
         [
             Show(62, 10),
-            GoTo(P.ZebesStarSheet0),
         ],
         [P.ZebesStarSheet1] =
         [
             Show(63, 10),
-            GoTo(P.ZebesStarSheet1),
         ],
         [P.ZebesStarSheet2] =
         [
             Show(64, 10),
-            GoTo(P.ZebesStarSheet2),
         ],
         [P.ZebesStarSheet3] =
         [
             Show(65, 10),
-            GoTo(P.ZebesStarSheet3),
         ],
         [P.CeresStars] =
         [
             Show(66, 10),
-            GoTo(P.CeresStars),
         ],
         [P.IntroMotherBrainExplosionBig] =
         [
@@ -323,7 +269,6 @@ internal static class CinematicSpriteAnimations
             Show(71, 6),
             Show(72, 6),
             Show(26, 16),
-            GoTo(P.IntroMotherBrainExplosionBig),
         ],
         [P.IntroMotherBrainExplosionSmall] =
         [
@@ -334,7 +279,6 @@ internal static class CinematicSpriteAnimations
             Show(45, 3),
             Show(46, 3),
             Show(26, 16),
-            GoTo(P.IntroMotherBrainExplosionSmall),
         ],
         [P.IntroRinka] =
         [
@@ -342,7 +286,6 @@ internal static class CinematicSpriteAnimations
             Show(74, 10),
             Show(75, 10),
             Cue(new(K.StartRinkaMoving)),
-            FallInto(P.IntroRinkaMoving),
         ],
         [P.IntroRinkaMoving] =
         [
@@ -350,7 +293,6 @@ internal static class CinematicSpriteAnimations
             Show(73, 10),
             Show(74, 10),
             Show(75, 10),
-            GoTo(P.IntroRinkaMoving),
         ],
         [P.IntroRinkaSpawner] =
         [
@@ -358,7 +300,6 @@ internal static class CinematicSpriteAnimations
             Cue(new(K.SpawnRinkas0And1)),
             Show(26, 128),
             Cue(new(K.SpawnRinkas2And3)),
-            Stop,
         ],
         [P.CeresStationBlast] =
         [
@@ -368,7 +309,6 @@ internal static class CinematicSpriteAnimations
             Show(79, 5),
             Show(80, 5),
             Show(81, 5),
-            Stop,
         ],
         [P.CeresExplosionSpawner] =
         [
@@ -378,21 +318,16 @@ internal static class CinematicSpriteAnimations
             Cue(new(K.SetFrameBehavior, CinematicSpriteFrameBehavior.CeresExplosionSpawnerRepeating)),
             Show(26, 64),
             Cue(new(K.SpawnFinalExplosionWave)),
-            Stop,
         ],
         [P.CeresLargeAsteroid] =
         [
             Show(82, 10),
-            GoTo(P.CeresLargeAsteroid),
         ],
         [P.Delete] =
         [
-            Stop,
         ],
         [P.ZebesExplosionPlanet] =
         [
-            SetCounter(5),
-            FallInto(P.ZebesExplosionPlanetLoop),
         ],
         [P.ZebesExplosionPlanetLoop] =
         [
@@ -400,14 +335,12 @@ internal static class CinematicSpriteAnimations
             Show(84, 13),
             Show(85, 13),
             Show(86, 13),
-            RepeatWhileCounting(P.ZebesExplosionPlanetLoop),
             Cue(new(K.FadeExplosionPalette)),
             Show(87, 32),
             Show(88, 32),
             Show(89, 32),
             Show(90, 32),
             Cue(new(K.SpawnExplosionSilhouette)),
-            Stop,
         ],
         [P.ZebesExplosionGlow] =
         [
@@ -415,29 +348,24 @@ internal static class CinematicSpriteAnimations
             Show(92, 16),
             Show(93, 16),
             Show(92, 16),
-            GoTo(P.ZebesExplosionGlow),
         ],
         [P.ZebesExplosionStars] =
         [
             Show(94, 16),
-            GoTo(P.ZebesExplosionStars),
         ],
         [P.ZebesExplosionLava] =
         [
             Show(26, 156),
-            FallInto(P.ZebesExplosionLavaLoop),
         ],
         [P.ZebesExplosionLavaLoop] =
         [
             Show(95, 10),
             Show(96, 10),
-            GoTo(P.ZebesExplosionLavaLoop),
         ],
         [P.ZebesExplosionSilhouette] =
         [
             Show(97, 8),
             Cue(new(K.StartZebesExplosion)),
-            Stop,
         ],
         [P.ZebesExplosionRightStars] =
         [
@@ -446,17 +374,14 @@ internal static class CinematicSpriteAnimations
             Show(94, 332),
             Cue(new(K.EndZebesExplosion)),
             Cue(new(K.SetFrameBehavior, CinematicSpriteFrameBehavior.ZebesExplosionStarsWaitForFlyaway)),
-            FallInto(P.ZebesExplosionLeftStars),
         ],
         [P.ZebesExplosionLeftStars] =
         [
             Show(94, 16),
-            GoTo(P.ZebesExplosionLeftStars),
         ],
         [P.ZebesExplosionAfterglow] =
         [
             Show(98, 16),
-            GoTo(P.ZebesExplosionAfterglow),
         ],
         [P.OperationWasText] =
         [
@@ -476,12 +401,10 @@ internal static class CinematicSpriteAnimations
             Show(112, 8),
             Show(113, 15),
             Cue(new(K.SpawnCompletedText)),
-            FallInto(P.OperationWasTextHold),
         ],
         [P.OperationWasTextHold] =
         [
             Show(113, 15),
-            GoTo(P.OperationWasTextHold),
         ],
         [P.CompletedSuccessfullyText] =
         [
@@ -507,12 +430,10 @@ internal static class CinematicSpriteAnimations
             Show(133, 8),
             Show(134, 15),
             Cue(new(K.SpawnClearTime)),
-            FallInto(P.CompletedSuccessfullyTextHold),
         ],
         [P.CompletedSuccessfullyTextHold] =
         [
             Show(134, 8),
-            GoTo(P.CompletedSuccessfullyTextHold),
         ],
         [P.ClearTimeText] =
         [
@@ -536,67 +457,54 @@ internal static class CinematicSpriteAnimations
             Cue(new(K.SpawnMinutesUnits)),
             Show(143, 128),
             Cue(new(K.TransitionToCredits)),
-            FallInto(P.ClearTimeTextHold),
         ],
         [P.ClearTimeTextHold] =
         [
             Show(143, 15),
-            GoTo(P.ClearTimeTextHold),
         ],
         [P.ClearTimeDigit0] =
         [
             Show(144, 8),
-            GoTo(P.ClearTimeDigit0),
         ],
         [P.ClearTimeDigit1] =
         [
             Show(145, 8),
-            GoTo(P.ClearTimeDigit1),
         ],
         [P.ClearTimeDigit2] =
         [
             Show(146, 8),
-            GoTo(P.ClearTimeDigit2),
         ],
         [P.ClearTimeDigit3] =
         [
             Show(147, 8),
-            GoTo(P.ClearTimeDigit3),
         ],
         [P.ClearTimeDigit4] =
         [
             Show(148, 8),
-            GoTo(P.ClearTimeDigit4),
         ],
         [P.ClearTimeDigit5] =
         [
             Show(149, 8),
-            GoTo(P.ClearTimeDigit5),
         ],
         [P.ClearTimeDigit6] =
         [
             Show(150, 8),
-            GoTo(P.ClearTimeDigit6),
         ],
         [P.ClearTimeDigit7] =
         [
             Show(151, 8),
-            GoTo(P.ClearTimeDigit7),
         ],
         [P.ClearTimeDigit8] =
         [
             Show(152, 8),
-            GoTo(P.ClearTimeDigit8),
         ],
         [P.ClearTimeDigit9] =
         [
             Show(153, 8),
-            GoTo(P.ClearTimeDigit9),
         ],
         [P.ClearTimeColon] =
         [
             Show(154, 8),
-            GoTo(P.ClearTimeColon),
         ],
         [P.EndingAnimalEscape] =
         [
@@ -604,47 +512,38 @@ internal static class CinematicSpriteAnimations
             Show(156, 1),
             Show(157, 1),
             Show(158, 1),
-            GoTo(P.EndingAnimalEscape),
         ],
         [P.EndingCloud0] =
         [
             Show(159, 1),
-            GoTo(P.EndingCloud0),
         ],
         [P.EndingCloud1] =
         [
             Show(160, 1),
-            GoTo(P.EndingCloud1),
         ],
         [P.EndingCloud2] =
         [
             Show(161, 1),
-            GoTo(P.EndingCloud2),
         ],
         [P.EndingCloud3] =
         [
             Show(162, 1),
-            GoTo(P.EndingCloud3),
         ],
         [P.EndingCloud4] =
         [
             Show(163, 1),
-            GoTo(P.EndingCloud4),
         ],
         [P.EndingCloud5] =
         [
             Show(164, 1),
-            GoTo(P.EndingCloud5),
         ],
         [P.SuitlessIdle] =
         [
             Show(165, 128),
-            GoTo(P.SuitlessIdle),
         ],
         [P.SuitlessLegsIdle] =
         [
             Show(166, 128),
-            GoTo(P.SuitlessLegsIdle),
         ],
         [P.HairRelease] =
         [
@@ -659,7 +558,6 @@ internal static class CinematicSpriteAnimations
             Show(174, 10),
             Show(175, 48),
             Cue(new(K.SpawnSuitlessJump)),
-            Stop,
         ],
         [P.HairReleaseLegs] =
         [
@@ -672,7 +570,6 @@ internal static class CinematicSpriteAnimations
             Show(166, 9),
             Show(166, 16),
             Show(166, 10),
-            Stop,
         ],
         [P.SuitlessJump] =
         [
@@ -680,17 +577,14 @@ internal static class CinematicSpriteAnimations
             Show(176, 10),
             Cue(new(K.Launch)),
             Cue(new(K.SetFrameBehavior, CinematicSpriteFrameBehavior.RewardBodyFlight)),
-            FallInto(P.SuitlessJumpFlight),
         ],
         [P.SuitlessJumpFlight] =
         [
             Show(177, 48),
-            GoTo(P.SuitlessJumpFlight),
         ],
         [P.Falling] =
         [
             Show(178, 10),
-            GoTo(P.Falling),
         ],
         [P.Landing] =
         [
@@ -699,28 +593,23 @@ internal static class CinematicSpriteAnimations
             Show(181, 48),
             Cue(new(K.Shoot)),
             Show(181, 128),
-            Stop,
         ],
         [P.SuitedIdle] =
         [
             Show(182, 10),
-            GoTo(P.SuitedIdle),
         ],
         [P.HelmetIdle] =
         [
             Show(183, 10),
-            GoTo(P.HelmetIdle),
         ],
         [P.HeadIdle] =
         [
             Show(184, 10),
-            GoTo(P.HeadIdle),
         ],
         [P.GestureBody] =
         [
             Show(182, 64),
             Show(185, 264),
-            Stop,
         ],
         [P.GestureArm] =
         [
@@ -739,12 +628,10 @@ internal static class CinematicSpriteAnimations
             Show(188, 5),
             Show(187, 112),
             Cue(new(K.SpawnSuitedJump)),
-            Stop,
         ],
         [P.GestureHelmet] =
         [
             Show(183, 328),
-            Stop,
         ],
         [P.GestureHead] =
         [
@@ -752,7 +639,6 @@ internal static class CinematicSpriteAnimations
             Show(194, 5),
             Show(195, 5),
             Show(196, 190),
-            Stop,
         ],
         [P.SuitedJump] =
         [
@@ -761,44 +647,36 @@ internal static class CinematicSpriteAnimations
             Cue(new(K.LaunchHead)),
             Cue(new(K.Launch)),
             Cue(new(K.SetFrameBehavior, CinematicSpriteFrameBehavior.RewardBodyFlight)),
-            FallInto(P.SuitedJumpFlight),
         ],
         [P.SuitedJumpFlight] =
         [
             Show(198, 5),
-            GoTo(P.SuitedJumpFlight),
         ],
         [P.HelmetJump] =
         [
             Show(199, 10),
             Cue(new(K.SetFrameBehavior, CinematicSpriteFrameBehavior.RewardHeadFlight)),
-            FallInto(P.HelmetFlight),
         ],
         [P.HelmetFlight] =
         [
             Show(200, 5),
-            GoTo(P.HelmetFlight),
         ],
         [P.HeadJump] =
         [
             Show(201, 10),
             Cue(new(K.SetFrameBehavior, CinematicSpriteFrameBehavior.RewardHeadFlight)),
-            FallInto(P.HeadFlight),
         ],
         [P.HeadFlight] =
         [
             Show(201, 5),
-            GoTo(P.HeadFlight),
         ],
         [P.LogoUpperS] =
         [
             Show(202, 10),
-            GoTo(P.LogoUpperS),
         ],
         [P.LogoLowerS] =
         [
             Show(203, 10),
-            GoTo(P.LogoLowerS),
         ],
         [P.LogoUpperCircle] =
         [
@@ -807,45 +685,171 @@ internal static class CinematicSpriteAnimations
             Show(205, 5),
             Show(206, 64),
             Cue(new(K.GreyOut)),
-            FallInto(P.LogoUpperCircleLoop),
         ],
         [P.LogoUpperCircleLoop] =
         [
             Show(206, 5),
-            GoTo(P.LogoUpperCircleLoop),
         ],
         [P.LogoLowerCircle] =
         [
             Show(26, 96),
             Show(207, 5),
             Show(208, 5),
-            FallInto(P.LogoLowerCircleLoop),
         ],
         [P.LogoLowerCircleLoop] =
         [
             Show(209, 5),
-            GoTo(P.LogoLowerCircleLoop),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<CinematicSpriteProgram, Animation<CinematicSpriteProgram>> StartingAt { get; } = new Dictionary<CinematicSpriteProgram, Animation<CinematicSpriteProgram>>
+    {
+        [P.IntroMotherBrain] = new([new(P.IntroMotherBrain, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.IntroMotherBrainStartPage2] = new([new(P.IntroMotherBrainStartPage2, 0, 2, 1), new(P.IntroMotherBrainPageTwo, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.IntroMotherBrainPageTwo] = new([new(P.IntroMotherBrainPageTwo, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.MetroidEgg] = new([new(P.MetroidEgg, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.MetroidEggHatching] = new([new(P.MetroidEggHatching, 0, 1, 1), new(P.MetroidEggShaking, 0, 4, 4), new(P.MetroidEggShaking, 4, 9, 1), new(P.MetroidEggHatchedFrame2, 0, 8, 1), new(P.MetroidEggHatched, 0, 1, 1)], AnimationEnd.LoopsFrom(4)),
+        [P.MetroidEggHatchedFrame2] = new([new(P.MetroidEggHatchedFrame2, 0, 8, 1), new(P.MetroidEggHatched, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.MetroidEggHatched] = new([new(P.MetroidEggHatched, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.BabyMetroidBeingDelivered] = new([new(P.BabyMetroidBeingDeliveredLoop, 0, 4, 10), new(P.BabyMetroidBeingDeliveredLoop, 4, 1, 1), new(P.BabyMetroidDelivered, 0, 4, 1)], AnimationEnd.LoopsFrom(2)),
+        [P.BabyMetroidDelivered] = new([new(P.BabyMetroidDelivered, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.BabyMetroidBeingExamined] = new([new(P.BabyMetroidBeingExaminedLoop, 0, 4, 10), new(P.BabyMetroidBeingExaminedLoop, 4, 1, 1), new(P.BabyMetroidExamined, 0, 4, 1)], AnimationEnd.LoopsFrom(2)),
+        [P.BabyMetroidExamined] = new([new(P.BabyMetroidExamined, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.IntroTextCaret] = new([new(P.IntroTextCaret, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.IntroTextCaretBlink] = new([new(P.IntroTextCaretBlink, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.IntroScientistArrow] = new([new(P.IntroScientistArrow, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.IntroScientistArrowDelayed] = new([new(P.IntroScientistArrowDelayed, 0, 1, 1), new(P.IntroScientistArrow, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.ConfusedBabyMetroid] = new([new(P.ConfusedBabyMetroid, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.CeresDestructionLargeAsteroid] = new([new(P.CeresDestructionLargeAsteroid, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.CeresUnderAttack] = new([new(P.CeresUnderAttack, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.CeresSmallAsteroid] = new([new(P.CeresSmallAsteroid, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.CeresVortex] = new([new(P.CeresVortex, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ZebesPlanet] = new([new(P.ZebesPlanet, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ZebesTitle] = new([new(P.ZebesTitle, 0, 8, 1)], AnimationEnd.Stops),
+        [P.ZebesJapaneseTitle] = new([new(P.ZebesJapaneseTitle, 0, 1, 1)], AnimationEnd.Stops),
+        [P.CeresSmallExplosion] = new([new(P.CeresSmallExplosion, 0, 6, 1)], AnimationEnd.Stops),
+        [P.CeresRepeatingSmallExplosion] = new([new(P.CeresRepeatingSmallExplosionLoop, 0, 7, 6)], AnimationEnd.Stops),
+        [P.CeresLargeExplosion] = new([new(P.CeresLargeExplosionLoop, 0, 5, 7)], AnimationEnd.Stops),
+        [P.MetroidEggParticle1] = new([new(P.MetroidEggParticle1, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.MetroidEggParticle2] = new([new(P.MetroidEggParticle2, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.MetroidEggParticle3] = new([new(P.MetroidEggParticle3, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.MetroidEggParticle4] = new([new(P.MetroidEggParticle4, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.MetroidEggParticle5] = new([new(P.MetroidEggParticle5, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.MetroidEggParticle6] = new([new(P.MetroidEggParticle6, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.MetroidEggParticle7] = new([new(P.MetroidEggParticle7, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.MetroidEggParticleHitGround] = new([new(P.MetroidEggParticleHitGround, 0, 4, 1)], AnimationEnd.Stops),
+        [P.ZebesStarSheet0] = new([new(P.ZebesStarSheet0, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ZebesStarSheet1] = new([new(P.ZebesStarSheet1, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ZebesStarSheet2] = new([new(P.ZebesStarSheet2, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ZebesStarSheet3] = new([new(P.ZebesStarSheet3, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.CeresStars] = new([new(P.CeresStars, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.IntroMotherBrainExplosionBig] = new([new(P.IntroMotherBrainExplosionBig, 0, 7, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.IntroMotherBrainExplosionSmall] = new([new(P.IntroMotherBrainExplosionSmall, 0, 7, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.IntroRinka] = new([new(P.IntroRinka, 0, 4, 1), new(P.IntroRinkaMoving, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.IntroRinkaMoving] = new([new(P.IntroRinkaMoving, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.IntroRinkaSpawner] = new([new(P.IntroRinkaSpawner, 0, 4, 1)], AnimationEnd.Stops),
+        [P.CeresStationBlast] = new([new(P.CeresStationBlast, 0, 6, 1)], AnimationEnd.Stops),
+        [P.CeresExplosionSpawner] = new([new(P.CeresExplosionSpawner, 0, 6, 1)], AnimationEnd.Stops),
+        [P.CeresLargeAsteroid] = new([new(P.CeresLargeAsteroid, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Delete] = new([], AnimationEnd.Stops),
+        [P.ZebesExplosionPlanet] = new([new(P.ZebesExplosionPlanetLoop, 0, 4, 5), new(P.ZebesExplosionPlanetLoop, 4, 6, 1)], AnimationEnd.Stops),
+        [P.ZebesExplosionGlow] = new([new(P.ZebesExplosionGlow, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ZebesExplosionStars] = new([new(P.ZebesExplosionStars, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ZebesExplosionLava] = new([new(P.ZebesExplosionLava, 0, 1, 1), new(P.ZebesExplosionLavaLoop, 0, 2, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.ZebesExplosionLavaLoop] = new([new(P.ZebesExplosionLavaLoop, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ZebesExplosionSilhouette] = new([new(P.ZebesExplosionSilhouette, 0, 2, 1)], AnimationEnd.Stops),
+        [P.ZebesExplosionRightStars] = new([new(P.ZebesExplosionRightStars, 0, 5, 1), new(P.ZebesExplosionLeftStars, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.ZebesExplosionLeftStars] = new([new(P.ZebesExplosionLeftStars, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ZebesExplosionAfterglow] = new([new(P.ZebesExplosionAfterglow, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.OperationWasText] = new([new(P.OperationWasText, 0, 16, 1), new(P.OperationWasTextHold, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.OperationWasTextHold] = new([new(P.OperationWasTextHold, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.CompletedSuccessfullyText] = new([new(P.CompletedSuccessfullyText, 0, 22, 1), new(P.CompletedSuccessfullyTextHold, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.CompletedSuccessfullyTextHold] = new([new(P.CompletedSuccessfullyTextHold, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ClearTimeText] = new([new(P.ClearTimeText, 0, 20, 1), new(P.ClearTimeTextHold, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.ClearTimeTextHold] = new([new(P.ClearTimeTextHold, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ClearTimeDigit0] = new([new(P.ClearTimeDigit0, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ClearTimeDigit1] = new([new(P.ClearTimeDigit1, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ClearTimeDigit2] = new([new(P.ClearTimeDigit2, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ClearTimeDigit3] = new([new(P.ClearTimeDigit3, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ClearTimeDigit4] = new([new(P.ClearTimeDigit4, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ClearTimeDigit5] = new([new(P.ClearTimeDigit5, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ClearTimeDigit6] = new([new(P.ClearTimeDigit6, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ClearTimeDigit7] = new([new(P.ClearTimeDigit7, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ClearTimeDigit8] = new([new(P.ClearTimeDigit8, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ClearTimeDigit9] = new([new(P.ClearTimeDigit9, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ClearTimeColon] = new([new(P.ClearTimeColon, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.EndingAnimalEscape] = new([new(P.EndingAnimalEscape, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.EndingCloud0] = new([new(P.EndingCloud0, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.EndingCloud1] = new([new(P.EndingCloud1, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.EndingCloud2] = new([new(P.EndingCloud2, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.EndingCloud3] = new([new(P.EndingCloud3, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.EndingCloud4] = new([new(P.EndingCloud4, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.EndingCloud5] = new([new(P.EndingCloud5, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.SuitlessIdle] = new([new(P.SuitlessIdle, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.SuitlessLegsIdle] = new([new(P.SuitlessLegsIdle, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.HairRelease] = new([new(P.HairRelease, 0, 11, 1)], AnimationEnd.Stops),
+        [P.HairReleaseLegs] = new([new(P.HairReleaseLegs, 0, 9, 1)], AnimationEnd.Stops),
+        [P.SuitlessJump] = new([new(P.SuitlessJump, 0, 4, 1), new(P.SuitlessJumpFlight, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.SuitlessJumpFlight] = new([new(P.SuitlessJumpFlight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Falling] = new([new(P.Falling, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Landing] = new([new(P.Landing, 0, 5, 1)], AnimationEnd.Stops),
+        [P.SuitedIdle] = new([new(P.SuitedIdle, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.HelmetIdle] = new([new(P.HelmetIdle, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.HeadIdle] = new([new(P.HeadIdle, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.GestureBody] = new([new(P.GestureBody, 0, 2, 1)], AnimationEnd.Stops),
+        [P.GestureArm] = new([new(P.GestureArm, 0, 15, 1)], AnimationEnd.Stops),
+        [P.GestureHelmet] = new([new(P.GestureHelmet, 0, 1, 1)], AnimationEnd.Stops),
+        [P.GestureHead] = new([new(P.GestureHead, 0, 4, 1)], AnimationEnd.Stops),
+        [P.SuitedJump] = new([new(P.SuitedJump, 0, 5, 1), new(P.SuitedJumpFlight, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.SuitedJumpFlight] = new([new(P.SuitedJumpFlight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.HelmetJump] = new([new(P.HelmetJump, 0, 2, 1), new(P.HelmetFlight, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.HelmetFlight] = new([new(P.HelmetFlight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.HeadJump] = new([new(P.HeadJump, 0, 2, 1), new(P.HeadFlight, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.HeadFlight] = new([new(P.HeadFlight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.LogoUpperS] = new([new(P.LogoUpperS, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.LogoLowerS] = new([new(P.LogoLowerS, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.LogoUpperCircle] = new([new(P.LogoUpperCircle, 0, 5, 1), new(P.LogoUpperCircleLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.LogoUpperCircleLoop] = new([new(P.LogoUpperCircleLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.LogoLowerCircle] = new([new(P.LogoLowerCircle, 0, 3, 1), new(P.LogoLowerCircleLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.LogoLowerCircleLoop] = new([new(P.LogoLowerCircleLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<CinematicSpriteProgram> StartingWith(CinematicSpriteProgram segment) => StartingAt[segment];
+
+    /// <summary>The segments whose list runs on into the list authored next, directly after its last beat.</summary>
+    internal static IReadOnlySet<CinematicSpriteProgram> RunOnIntoNext { get; } = new HashSet<CinematicSpriteProgram>
+    {
+        P.IntroMotherBrainStartPage2,
+        P.MetroidEggShaking,
+        P.MetroidEggHatchedFrame2,
+        P.BabyMetroidBeingDeliveredLoop,
+        P.BabyMetroidBeingExaminedLoop,
+        P.IntroRinka,
+        P.ZebesExplosionLava,
+        P.ZebesExplosionRightStars,
+        P.OperationWasText,
+        P.CompletedSuccessfullyText,
+        P.ClearTimeText,
+        P.SuitlessJump,
+        P.SuitedJump,
+        P.HelmetJump,
+        P.HeadJump,
+        P.LogoUpperCircle,
+        P.LogoLowerCircle,
+    };
+
+    /// <summary>
+    /// How the lists are laid out (#1600): each of <see cref="RunOnIntoNext"/> continues into the list authored after it,
+    /// so a sprite resting after its last frame already stands in the next.
+    /// </summary>
+    internal static Compatibility.LaidOutProgramContinuation<CinematicSpriteProgram, AnimationBeat<CinematicSpritePose, CinematicSpriteCue>> Layout { get; } =
+        Gameplay.AnimationListLayout.RunningOn(Segments, RunOnIntoNext);
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue> Show(int pose, int duration) => AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>.Show(new(pose), duration);
+    private static AnimationBeat<CinematicSpritePose, CinematicSpriteCue> Show(int pose, int duration) => new AnimationBeat<CinematicSpritePose, CinematicSpriteCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue> Cue(CinematicSpriteCue cue) => AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>.Publish(cue);
-
-    /// <summary>Loads the actor's loop counter with <paramref name="count"/>.</summary>
-    private static AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue> SetCounter(int count) => AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>.SetCounter(count);
-
-    /// <summary>Repeats from <paramref name="program"/> while the loop counter counts down.</summary>
-    private static AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue> RepeatWhileCounting(CinematicSpriteProgram program) => AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>.RepeatWhileCounting(program);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue> GoTo(CinematicSpriteProgram program) => AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue> FallInto(CinematicSpriteProgram program) => AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>.FallInto(program);
-
-    /// <summary>Deletes the actor.</summary>
-    private static AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue> Stop => AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>.Stop;
+    private static AnimationBeat<CinematicSpritePose, CinematicSpriteCue> Cue(CinematicSpriteCue cue) => new AnimationBeat<CinematicSpritePose, CinematicSpriteCue>.Event(cue);
 }

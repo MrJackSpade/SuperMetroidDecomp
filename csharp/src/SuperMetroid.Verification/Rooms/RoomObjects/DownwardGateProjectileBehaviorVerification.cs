@@ -27,7 +27,7 @@ internal static class DownwardGateProjectileBehaviorVerification
         EnemyProjectile gate = enemies.Projectiles.EnemyProjectiles[0];
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(gate, RoomEnemyProjectileKind.DownwardGateMoving,
             SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard);
-        AssertTrue(gate.Animation is DownwardGateProjectileAnimation { Cursor.Program: DownwardGateProjectileProgram.Moving }, "the moving gate starts its program");
+        AssertTrue(gate.Animation is DownwardGateProjectileAnimation { PlayingSegment: DownwardGateProjectileProgram.Moving }, "the moving gate starts its program");
         // The gate's spawn gives it its state; this fixture initializes the projectile directly, so it gives it here.
         gate.State = new DownwardGateState(0);
 
@@ -40,13 +40,13 @@ internal static class DownwardGateProjectileBehaviorVerification
             if (deleted)
                 break;
             current = gate.Animation is DownwardGateProjectileAnimation sleeping
-                ? sleeping.Cursor.Program
+                ? sleeping.PlayingSegment
                 : throw new InvalidOperationException("The gate lost its typed program.");
             gate.StateOf<DownwardGateState>().TravelSinceBlock = DownwardGateDefinitions.OneBlockDistance - 1;
             gate.Velocity = gate.Velocity.WithY(new SignedEightEight(256));
             DownwardGateBehavior.RunDownwardGateProjectileMovement(gate);
             DownwardGateProjectileProgram resumed = DownwardGateProjectileAnimations.Resumption[current];
-            AssertTrue(gate.Animation is DownwardGateProjectileAnimation next && next.Cursor.Program == resumed, $"a block's travel resumes {current} with {resumed}");
+            AssertTrue(gate.Animation is DownwardGateProjectileAnimation next && next.PlayingSegment == resumed, $"a block's travel resumes {current} with {resumed}");
             AssertEqual((ushort)1, gate.FrameHold.RawValue, $"{resumed} wakes on the same pass");
             current = resumed;
             resumes++;

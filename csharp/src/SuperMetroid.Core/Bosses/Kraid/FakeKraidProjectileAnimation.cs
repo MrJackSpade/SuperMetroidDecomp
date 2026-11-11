@@ -3,30 +3,35 @@ using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>A Fake Kraid spit or spike's typed program: it shows its pose, then holds as the script's sleep does.</summary>
+/// <summary>A Fake Kraid spit or spike's typed animation: it shows its pose, then holds as the script's sleep does.</summary>
 /// <param name="pose">The pose to show.</param>
 internal sealed class FakeKraidProjectileAnimation(FakeKraidProjectilePose pose)
-    : EnemyProjectileProgramAnimation<FakeKraidProjectilePose, FakeKraidProjectilePose, NoAnimationCue>(pose)
+    : EnemyProjectileTypedAnimation<FakeKraidProjectilePose, FakeKraidProjectilePose, NoAnimationCue>(PoseAnimations[pose])
 {
 
     /// <inheritdoc/>
-    private protected override AnimationProgramSet<FakeKraidProjectilePose, FakeKraidProjectilePose, NoAnimationCue> Programs => PosePrograms;
+    private protected override AnimationSegments<FakeKraidProjectilePose, FakeKraidProjectilePose, NoAnimationCue> Segments => PoseSegments;
+
+    /// <inheritdoc/>
+    private protected override IReadOnlyDictionary<FakeKraidProjectilePose, Animation<FakeKraidProjectilePose>> StartingAt => PoseAnimations;
 
     /// <inheritdoc/>
     private protected override EnemyProjectileFrameId Present(FakeKraidProjectilePose frame) =>
         ShownProjectileFrames[frame];
 
     /// <summary>
-    /// Each pose's program: the spit and the left
-    /// and right spikes each show their pose for the authored duration, then sleep.
+    /// Each pose's segment: the spit and the left and right spikes each show their pose for the authored duration.
     /// </summary>
-    private static AnimationProgramSet<FakeKraidProjectilePose, FakeKraidProjectilePose, NoAnimationCue> PosePrograms { get; } = new(
-        Enum.GetValues<FakeKraidProjectilePose>().ToDictionary(pose => pose, pose => new[]
+    private static AnimationSegments<FakeKraidProjectilePose, FakeKraidProjectilePose, NoAnimationCue> PoseSegments { get; } = new(
+        Enum.GetValues<FakeKraidProjectilePose>().ToDictionary(pose => pose, pose => new AnimationBeat<FakeKraidProjectilePose, NoAnimationCue>[]
         {
-            AnimationProgramStep<FakeKraidProjectilePose, FakeKraidProjectilePose, NoAnimationCue>.Show(
-                pose, FakeKraidProjectileInstructionProgramDefinitions.PoseDuration),
-            AnimationProgramStep<FakeKraidProjectilePose, FakeKraidProjectilePose, NoAnimationCue>.Hold,
+            new AnimationBeat<FakeKraidProjectilePose, NoAnimationCue>.Frame(pose, FakeKraidProjectileInstructionProgramDefinitions.PoseDuration),
         }));
+
+    /// <summary>Each pose's animation: its segment once, then a hold, as the script's sleep does.</summary>
+    private static IReadOnlyDictionary<FakeKraidProjectilePose, Animation<FakeKraidProjectilePose>> PoseAnimations { get; } =
+        Enum.GetValues<FakeKraidProjectilePose>().ToDictionary(pose => pose,
+            pose => new Animation<FakeKraidProjectilePose>([new(pose, 0, 1, 1)], AnimationEnd.Holds));
 
     /// <summary>The projectile frame each frame of the family shows.</summary>
     internal static IReadOnlyDictionary<FakeKraidProjectilePose, EnemyProjectileFrameId> ShownProjectileFrames { get; } =

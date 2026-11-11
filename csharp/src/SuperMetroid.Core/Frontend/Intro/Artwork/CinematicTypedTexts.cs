@@ -19,14 +19,14 @@ internal sealed class CinematicTypedTexts
         foreach (CinematicSpriteProgram program in Ensure.NotNull(programs))
         {
             var typed = new List<CinematicSpritePose>();
-            foreach (AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue> step in CinematicSpriteAnimations.Programs.Steps(program))
+            foreach (AnimationBeat<CinematicSpritePose, CinematicSpriteCue> beat in CinematicSpriteAnimations.Segments.Beats(program))
             {
-                if (step is not AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>.ShowStep shown
-                    || shown.Frame == CinematicSpritePose.Blank || typed.Contains(shown.Frame))
+                if (beat is not AnimationBeat<CinematicSpritePose, CinematicSpriteCue>.Frame shown
+                    || shown.Shown == CinematicSpritePose.Blank || typed.Contains(shown.Shown))
                     continue;
-                if (!steps.TryAdd(shown.Frame, new CinematicTypedStep(program, typed.Count)))
-                    throw new InvalidDataException($"Pose {shown.Frame.Index} is a step of two typed texts.");
-                typed.Add(shown.Frame);
+                if (!steps.TryAdd(shown.Shown, new CinematicTypedStep(program, typed.Count)))
+                    throw new InvalidDataException($"Pose {shown.Shown.Index} is a step of two typed texts.");
+                typed.Add(shown.Shown);
             }
         }
     }

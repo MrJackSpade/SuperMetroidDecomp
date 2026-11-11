@@ -8,6 +8,6 @@ internal static class EnemyDeathProjectilePrograms
 {
     /// <summary>The death or drop program <paramref name="projectile"/> runs.</summary>
     internal static EnemyDeathProjectileProgram ProgramOf(EnemyProjectile projectile) =>
-        projectile.Animation is EnemyDeathProjectileAnimation animation ? animation.Cursor.Program
+        projectile.Animation is EnemyDeathProjectileAnimation animation ? animation.PlayingSegment
             : throw new InvalidOperationException($"Projectile {projectile.Place} runs no death or drop program.");
 }

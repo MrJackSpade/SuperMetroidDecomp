@@ -10,38 +10,33 @@ namespace SuperMetroid.Core.Enemies.Kago;
 /// </summary>
 internal static class KagoBugProjectileAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<KagoBugProjectileProgram, KagoBugProjectileFrame, KagoBugProjectileCue> Programs { get; } = new(
-        new Dictionary<KagoBugProjectileProgram, AnimationProgramStep<KagoBugProjectileProgram, KagoBugProjectileFrame, KagoBugProjectileCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<KagoBugProjectileProgram, KagoBugProjectileFrame, KagoBugProjectileCue> Segments { get; } = new(
+        new Dictionary<KagoBugProjectileProgram, AnimationBeat<KagoBugProjectileFrame, KagoBugProjectileCue>[]>
     {
         [P.SharedDelete] =
         [
             Cue(new(K.Delete)),
-            Hold,
         ],
         [P.Landed] =
         [
             Show(0, 5),
             Cue(new(K.StartIdle)),
             Show(1, 32767),
-            GoTo(P.Landed),
         ],
         [P.Falling] =
         [
             Show(2, 32767),
-            GoTo(P.Falling),
         ],
         [P.JumpStart] =
         [
             Show(3, 16),
             Show(4, 5),
             Cue(new(K.StartJump)),
-            FallInto(P.JumpLoop),
         ],
         [P.JumpLoop] =
         [
             Show(5, 32767),
-            GoTo(P.JumpLoop),
         ],
         [P.Shot] =
         [
@@ -52,22 +47,26 @@ internal static class KagoBugProjectileAnimations
             Show(9, 4),
             Show(10, 4),
             Cue(new(K.SpawnDrop)),
-            GoTo(P.SharedDelete),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<KagoBugProjectileProgram, Animation<KagoBugProjectileProgram>> StartingAt { get; } = new Dictionary<KagoBugProjectileProgram, Animation<KagoBugProjectileProgram>>
+    {
+        [P.SharedDelete] = new([new(P.SharedDelete, 0, 1, 1)], AnimationEnd.Holds),
+        [P.Landed] = new([new(P.Landed, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Falling] = new([new(P.Falling, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.JumpStart] = new([new(P.JumpStart, 0, 3, 1), new(P.JumpLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.JumpLoop] = new([new(P.JumpLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Shot] = new([new(P.Shot, 0, 7, 1), new(P.SharedDelete, 0, 1, 1)], AnimationEnd.Holds),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<KagoBugProjectileProgram> StartingWith(KagoBugProjectileProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<KagoBugProjectileProgram, KagoBugProjectileFrame, KagoBugProjectileCue> Show(int pose, int duration) => AnimationProgramStep<KagoBugProjectileProgram, KagoBugProjectileFrame, KagoBugProjectileCue>.Show(new(pose), duration);
+    private static AnimationBeat<KagoBugProjectileFrame, KagoBugProjectileCue> Show(int pose, int duration) => new AnimationBeat<KagoBugProjectileFrame, KagoBugProjectileCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<KagoBugProjectileProgram, KagoBugProjectileFrame, KagoBugProjectileCue> Cue(KagoBugProjectileCue cue) => AnimationProgramStep<KagoBugProjectileProgram, KagoBugProjectileFrame, KagoBugProjectileCue>.Publish(cue);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<KagoBugProjectileProgram, KagoBugProjectileFrame, KagoBugProjectileCue> GoTo(KagoBugProjectileProgram program) => AnimationProgramStep<KagoBugProjectileProgram, KagoBugProjectileFrame, KagoBugProjectileCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<KagoBugProjectileProgram, KagoBugProjectileFrame, KagoBugProjectileCue> FallInto(KagoBugProjectileProgram program) => AnimationProgramStep<KagoBugProjectileProgram, KagoBugProjectileFrame, KagoBugProjectileCue>.FallInto(program);
-
-    /// <summary>Holds the last frame, as the sleep does.</summary>
-    private static AnimationProgramStep<KagoBugProjectileProgram, KagoBugProjectileFrame, KagoBugProjectileCue> Hold => AnimationProgramStep<KagoBugProjectileProgram, KagoBugProjectileFrame, KagoBugProjectileCue>.Hold;
+    private static AnimationBeat<KagoBugProjectileFrame, KagoBugProjectileCue> Cue(KagoBugProjectileCue cue) => new AnimationBeat<KagoBugProjectileFrame, KagoBugProjectileCue>.Event(cue);
 }

@@ -17,10 +17,13 @@ internal static class SporeSpawnProjectileAnimations
     internal const int SporePoseCount = 3;
 
     /// <summary>Every projectile program.</summary>
-    internal static AnimationProgramSet<SporeSpawnProjectileProgram, SporeSpawnProjectileFrame, SporeSpawnProjectileCue> Programs { get; } = new(
-        new Dictionary<SporeSpawnProjectileProgram, AnimationProgramStep<SporeSpawnProjectileProgram, SporeSpawnProjectileFrame, SporeSpawnProjectileCue>[]>
+    internal static AnimationSegments<SporeSpawnProjectileProgram, SporeSpawnProjectileFrame, SporeSpawnProjectileCue> Segments { get; } = new(
+        new Dictionary<SporeSpawnProjectileProgram, AnimationBeat<SporeSpawnProjectileFrame, SporeSpawnProjectileCue>[]>
     {
-        [P.SpawnerClosed] = [Show(P.SpawnerClosed, 0, 1), Hold],
+        [P.SpawnerClosed] =
+        [
+            Show(P.SpawnerClosed, 0, 1),
+        ],
         [P.SpawnerRelease] =
         [
             Show(P.SpawnerRelease, 0, ReleaseDurations[0]),
@@ -29,14 +32,15 @@ internal static class SporeSpawnProjectileAnimations
             Show(P.SpawnerRelease, 2, ReleaseDurations[2]),
             Show(P.SpawnerRelease, 3, ReleaseDurations[3]),
             Show(P.SpawnerRelease, 4, ReleaseDurations[4]),
-            Hold,
         ],
         [P.Spore] =
         [
             .. Enumerable.Range(0, SporePoseCount).Select(phase => Show(P.Spore, phase, SporeDuration)),
-            AnimationProgramStep<SporeSpawnProjectileProgram, SporeSpawnProjectileFrame, SporeSpawnProjectileCue>.GoTo(P.Spore),
         ],
-        [P.Stalk] = [Show(P.Stalk, 0, SporeDuration), Hold],
+        [P.Stalk] =
+        [
+            Show(P.Stalk, 0, SporeDuration),
+        ],
         [P.SporeShot] =
         [
             Show(P.SporeShot, 0, ShotDurations[0]),
@@ -50,20 +54,29 @@ internal static class SporeSpawnProjectileAnimations
             Show(P.SporeShot, 6, ShotDurations[6]),
             Cue(C.RequestDrop),
             Cue(C.Delete),
-            Hold,
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<SporeSpawnProjectileProgram, Animation<SporeSpawnProjectileProgram>> StartingAt { get; } = new Dictionary<SporeSpawnProjectileProgram, Animation<SporeSpawnProjectileProgram>>
+    {
+        [P.SpawnerClosed] = new([new(P.SpawnerClosed, 0, 1, 1)], AnimationEnd.Holds),
+        [P.SpawnerRelease] = new([new(P.SpawnerRelease, 0, 6, 1)], AnimationEnd.Holds),
+        [P.Spore] = new([new(P.Spore, 0, Segments.Beats(P.Spore).Count, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Stalk] = new([new(P.Stalk, 0, 1, 1)], AnimationEnd.Holds),
+        [P.SporeShot] = new([new(P.SporeShot, 0, 11, 1)], AnimationEnd.Holds),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<SporeSpawnProjectileProgram> StartingWith(SporeSpawnProjectileProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="phase"/> of <paramref name="program"/>'s run for <paramref name="duration"/> passes.</summary>
-    private static AnimationProgramStep<SporeSpawnProjectileProgram, SporeSpawnProjectileFrame, SporeSpawnProjectileCue> Show(
+    private static AnimationBeat<SporeSpawnProjectileFrame, SporeSpawnProjectileCue> Show(
         SporeSpawnProjectileProgram program, int phase, int duration) =>
-        AnimationProgramStep<SporeSpawnProjectileProgram, SporeSpawnProjectileFrame, SporeSpawnProjectileCue>.Show(new(program, phase), duration);
+        new AnimationBeat<SporeSpawnProjectileFrame, SporeSpawnProjectileCue>.Frame(new(program, phase), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<SporeSpawnProjectileProgram, SporeSpawnProjectileFrame, SporeSpawnProjectileCue> Cue(SporeSpawnProjectileCue cue) =>
-        AnimationProgramStep<SporeSpawnProjectileProgram, SporeSpawnProjectileFrame, SporeSpawnProjectileCue>.Publish(cue);
+    private static AnimationBeat<SporeSpawnProjectileFrame, SporeSpawnProjectileCue> Cue(SporeSpawnProjectileCue cue) =>
+        new AnimationBeat<SporeSpawnProjectileFrame, SporeSpawnProjectileCue>.Event(cue);
 
-    /// <summary>Holds the last frame, as the script's sleep and deletion do.</summary>
-    private static AnimationProgramStep<SporeSpawnProjectileProgram, SporeSpawnProjectileFrame, SporeSpawnProjectileCue> Hold =>
-        AnimationProgramStep<SporeSpawnProjectileProgram, SporeSpawnProjectileFrame, SporeSpawnProjectileCue>.Hold;
 }

@@ -45,9 +45,9 @@ internal static void VerifyCeresDestructionCinematic()
     AssertEqual(0, delayedExplosion.LoopCountdown.RemainingFrames,
         "instruction delay does not overwrite cinematic loop countdown");
     delayedExplosion.Step();
-    AssertEqual<CinematicSpritePose?>(AssertIs<AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>.ShowStep>(CinematicSpriteAnimations.Programs.Steps(CinematicSpriteProgram.CeresSmallExplosion)[0], "first explosion step").Frame,
+    AssertEqual<CinematicSpritePose?>(AssertIs<AnimationBeat<CinematicSpritePose, CinematicSpriteCue>.Frame>(CinematicSpriteAnimations.Segments.Beats(CinematicSpriteProgram.CeresSmallExplosion)[0], "first explosion beat").Shown,
         delayedExplosion.Pose, "third handler call shows the delayed explosion's first frame");
-    AssertEqual(new AnimationProgramCursor<CinematicSpriteProgram>(CinematicSpriteProgram.CeresSmallExplosion, 1), delayedExplosion.Program,
+    AssertEqual(new AnimationPlayback<CinematicSpriteProgram>(CinematicSpriteAnimations.StartingWith(CinematicSpriteProgram.CeresSmallExplosion), new AnimationPlace(0, 1)), delayedExplosion.Playback,
         "third handler call consumes the first delayed explosion frame");
 
     var fixtureBus = new CartridgeImportAddressSpace(rom);

@@ -14,11 +14,9 @@ internal sealed class IntroCinematicObjectSystem
     private readonly AudioQueues? audio;
     /// <summary>The narration text the typewriter types into and its glows recolour (#1467).</summary>
     private readonly IntroNarrationText text;
-    /// <summary>Where the persistent portrait eye's program resumes when its frame expires.</summary>
-    private AnimationProgramCursor<IntroEyeProgram> eyeProgram =
-        AnimationProgramCursor<IntroEyeProgram>.Start(IntroEyeProgram.Blinking);
-    /// <summary>Where the portrait eye's blink program resumes.</summary>
-    internal AnimationProgramCursor<IntroEyeProgram> EyeProgram { get => eyeProgram; private set => eyeProgram = value; }
+    /// <summary>The persistent portrait eye's animation and where it stands in it, played on when its frame expires (#1600).</summary>
+    internal AnimationPlayback<IntroEyeProgram> EyePlayback { get; private set; } =
+        new(IntroEyeAnimations.StartingWith(IntroEyeProgram.Blinking), AnimationPlace.StartOfAnimation);
     /// <summary>Countdown before the eye shows its program's next frame.</summary>
     internal int EyeFrameHold { get; private set; } = 1;
     /// <summary>Countdown for initial marker, glyph, or final page hold.</summary>
@@ -157,8 +155,8 @@ internal sealed class IntroCinematicObjectSystem
         ResetCaret();
 
         // The eye's frame behaviour observes the page-six cinematic function and permanently changes the eye
-        // object to its closed/half-open/deadpan program.
-        EyeProgram = AnimationProgramCursor<IntroEyeProgram>.Start(IntroEyeProgram.FinalPageClosing);
+        // object to its closed/half-open/deadpan animation.
+        EyePlayback = new AnimationPlayback<IntroEyeProgram>(IntroEyeAnimations.StartingWith(IntroEyeProgram.FinalPageClosing), AnimationPlace.StartOfAnimation);
         EyeFrameHold = 1;
     }
 
@@ -307,7 +305,7 @@ internal sealed class IntroCinematicObjectSystem
     }
 
     /// <summary>
-    /// Advances the portrait eye one cinematic update: when its frame expires, the program shows its next frame for
+    /// Advances the portrait eye one cinematic update: when its frame expires, the animation shows its next frame for
     /// that frame's duration and the portrait shows the frame's picture.
     /// </summary>
     private void StepEye()
@@ -315,14 +313,17 @@ internal sealed class IntroCinematicObjectSystem
         if (--EyeFrameHold != 0)
             return;
 
-        // The eye programs load no loop counter; the program set still takes one.
-        WrappingCountdown loopCounter = default;
-        AnimationProgramAdvance<IntroEyeFrame> advance = IntroEyeAnimations.Programs.Advance(
-            ref eyeProgram, ref loopCounter, static (_, _) => null);
-        if (advance is not AnimationProgramAdvance<IntroEyeFrame>.Show shown)
-            throw new InvalidOperationException($"The intro eye program {EyeProgram.Program} ended an update with {advance}.");
-        EyeFrameHold = shown.Duration;
-        ShowEyeFrame(shown.Frame);
+        // The eye animations play no counted phase; the play still takes a repeat counter.
+        WrappingCountdown repeats = default;
+        AnimationPlace place = EyePlayback.Place;
+        AnimationShown<IntroEyeProgram, IntroEyeFrame> shown = IntroEyeAnimations.Segments.PlayToNextFrame(
+            EyePlayback.Animation, ref place, ref repeats,
+            static cue => throw new InvalidOperationException($"The intro eye animations raise no event; got {cue}."));
+        EyePlayback = EyePlayback with { Place = place };
+        if (shown is not AnimationShown<IntroEyeProgram, IntroEyeFrame>.Frame frame)
+            throw new InvalidOperationException($"The intro eye animation ended an update with {shown}.");
+        EyeFrameHold = frame.Duration;
+        ShowEyeFrame(frame.Shown);
     }
 
     /// <summary>Shows <paramref name="frame"/> on the portrait.</summary>

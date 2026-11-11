@@ -309,7 +309,7 @@ internal static class EnemyProjectileDefinitionsVerification
                     _ => SporeSpawnProjectileProgram.SpawnerClosed,
                 };
                 AssertTrue(projectile.Animation is SporeSpawnProjectileAnimation started
-                        && started.Cursor == AnimationProgramCursor<SporeSpawnProjectileProgram>.Start(expected),
+                        && started.Playback == new AnimationPlayback<SporeSpawnProjectileProgram>(SporeSpawnProjectileAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation),
                     $"{kind} production shot starts the typed {expected} program");
                 AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }
@@ -459,28 +459,28 @@ internal static class EnemyProjectileDefinitionsVerification
             else if (kind == RoomEnemyProjectileKind.KagoBug)
             {
                 // The bug's shot list spawns its drop; it is typed with its programs (#1292).
-                AssertTrue(projectile.Animation is KagoBugProjectileAnimation { Cursor.Program: KagoBugProjectileProgram.Shot },
+                AssertTrue(projectile.Animation is KagoBugProjectileAnimation { PlayingSegment: KagoBugProjectileProgram.Shot },
                     $"{kind} production shot starts the typed shot program");
                 AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }
             else if (kind == RoomEnemyProjectileKind.DraygonWallTurret)
             {
                 // A shot wall turret runs the shared misc-dust small explosion (#1292).
-                AssertTrue(projectile.Animation is MiscDustProjectileAnimation { Cursor.Program: MiscDustProjectileProgram.SmallExplosion },
+                AssertTrue(projectile.Animation is MiscDustProjectileAnimation { PlayingSegment: MiscDustProjectileProgram.SmallExplosion },
                     $"{kind} production shot starts the typed small explosion");
                 AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }
             else if (kind == RoomEnemyProjectileKind.EyeDoorProjectile)
             {
                 // The eye-door shot's shot list is typed with its programs (#1292).
-                AssertTrue(projectile.Animation is EyeDoorProjectileAnimation { Cursor.Program: EyeDoorProjectileProgram.Shot },
+                AssertTrue(projectile.Animation is EyeDoorProjectileAnimation { PlayingSegment: EyeDoorProjectileProgram.Shot },
                     $"{kind} production shot starts the typed shot program");
                 AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }
             else if (kind == RoomEnemyProjectileKind.LavaThrownByMagdollite)
             {
                 // The lava's shot list drops its pickup; it is typed with its programs (#1291).
-                AssertTrue(projectile.Animation is MagdolliteLavaAnimation { Cursor.Program: MagdolliteLavaProgram.Shot },
+                AssertTrue(projectile.Animation is MagdolliteLavaAnimation { PlayingSegment: MagdolliteLavaProgram.Shot },
                     $"{kind} production shot starts the typed shot program");
                 AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }

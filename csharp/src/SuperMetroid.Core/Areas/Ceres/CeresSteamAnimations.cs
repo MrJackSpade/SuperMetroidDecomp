@@ -10,23 +10,21 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// </summary>
 internal static class CeresSteamAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<CeresSteamProgram, CeresSteamFrame, CeresSteamCue> Programs { get; } = new(
-        new Dictionary<CeresSteamProgram, AnimationProgramStep<CeresSteamProgram, CeresSteamFrame, CeresSteamCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<CeresSteamProgram, CeresSteamFrame, CeresSteamCue> Segments { get; } = new(
+        new Dictionary<CeresSteamProgram, AnimationBeat<CeresSteamFrame, CeresSteamCue>[]>
     {
         [P.Up] =
         [
             Cue(new CeresSteamCue.Command(K.Vanish)),
             Show(0, 1),
             Cue(new CeresSteamCue.CountDownToActivation(P.Up, P.UpLoop2)),
-            FallInto(P.UpLoop),
         ],
         [P.UpLoop] =
         [
             Cue(new CeresSteamCue.Command(K.Vanish)),
             Show(0, 64),
             Cue(new CeresSteamCue.Command(K.Appear)),
-            FallInto(P.UpLoop2),
         ],
         [P.UpLoop2] =
         [
@@ -37,21 +35,18 @@ internal static class CeresSteamAnimations
             Show(4, 3),
             Show(5, 3),
             Show(6, 3),
-            GoTo(P.UpLoop),
         ],
         [P.Left] =
         [
             Cue(new CeresSteamCue.Command(K.Vanish)),
             Show(7, 1),
             Cue(new CeresSteamCue.CountDownToActivation(P.Left, P.LeftLoop2)),
-            FallInto(P.LeftLoop),
         ],
         [P.LeftLoop] =
         [
             Cue(new CeresSteamCue.Command(K.Vanish)),
             Show(7, 64),
             Cue(new CeresSteamCue.Command(K.Appear)),
-            FallInto(P.LeftLoop2),
         ],
         [P.LeftLoop2] =
         [
@@ -62,21 +57,18 @@ internal static class CeresSteamAnimations
             Show(11, 3),
             Show(12, 3),
             Show(13, 3),
-            GoTo(P.LeftLoop),
         ],
         [P.Down] =
         [
             Cue(new CeresSteamCue.Command(K.Vanish)),
             Show(14, 1),
             Cue(new CeresSteamCue.CountDownToActivation(P.Down, P.DownLoop2)),
-            FallInto(P.DownLoop),
         ],
         [P.DownLoop] =
         [
             Cue(new CeresSteamCue.Command(K.Vanish)),
             Show(14, 64),
             Cue(new CeresSteamCue.Command(K.Appear)),
-            FallInto(P.DownLoop2),
         ],
         [P.DownLoop2] =
         [
@@ -87,21 +79,18 @@ internal static class CeresSteamAnimations
             Show(18, 3),
             Show(19, 3),
             Show(20, 3),
-            GoTo(P.DownLoop),
         ],
         [P.Right] =
         [
             Cue(new CeresSteamCue.Command(K.Vanish)),
             Show(21, 1),
             Cue(new CeresSteamCue.CountDownToActivation(P.Right, P.RightLoop2)),
-            FallInto(P.RightLoop),
         ],
         [P.RightLoop] =
         [
             Cue(new CeresSteamCue.Command(K.Vanish)),
             Show(21, 64),
             Cue(new CeresSteamCue.Command(K.Appear)),
-            FallInto(P.RightLoop2),
         ],
         [P.RightLoop2] =
         [
@@ -112,20 +101,32 @@ internal static class CeresSteamAnimations
             Show(25, 3),
             Show(26, 3),
             Show(27, 3),
-            GoTo(P.RightLoop),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<CeresSteamProgram, Animation<CeresSteamProgram>> StartingAt { get; } = new Dictionary<CeresSteamProgram, Animation<CeresSteamProgram>>
+    {
+        [P.Up] = new([new(P.Up, 0, 3, 1), new(P.UpLoop, 0, 3, 1), new(P.UpLoop2, 0, 7, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.UpLoop] = new([new(P.UpLoop, 0, 3, 1), new(P.UpLoop2, 0, 7, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.UpLoop2] = new([new(P.UpLoop2, 0, 7, 1), new(P.UpLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Left] = new([new(P.Left, 0, 3, 1), new(P.LeftLoop, 0, 3, 1), new(P.LeftLoop2, 0, 7, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.LeftLoop] = new([new(P.LeftLoop, 0, 3, 1), new(P.LeftLoop2, 0, 7, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.LeftLoop2] = new([new(P.LeftLoop2, 0, 7, 1), new(P.LeftLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Down] = new([new(P.Down, 0, 3, 1), new(P.DownLoop, 0, 3, 1), new(P.DownLoop2, 0, 7, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.DownLoop] = new([new(P.DownLoop, 0, 3, 1), new(P.DownLoop2, 0, 7, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.DownLoop2] = new([new(P.DownLoop2, 0, 7, 1), new(P.DownLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Right] = new([new(P.Right, 0, 3, 1), new(P.RightLoop, 0, 3, 1), new(P.RightLoop2, 0, 7, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.RightLoop] = new([new(P.RightLoop, 0, 3, 1), new(P.RightLoop2, 0, 7, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.RightLoop2] = new([new(P.RightLoop2, 0, 7, 1), new(P.RightLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<CeresSteamProgram> StartingWith(CeresSteamProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<CeresSteamProgram, CeresSteamFrame, CeresSteamCue> Show(int pose, int duration) => AnimationProgramStep<CeresSteamProgram, CeresSteamFrame, CeresSteamCue>.Show(new(pose), duration);
+    private static AnimationBeat<CeresSteamFrame, CeresSteamCue> Show(int pose, int duration) => new AnimationBeat<CeresSteamFrame, CeresSteamCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<CeresSteamProgram, CeresSteamFrame, CeresSteamCue> Cue(CeresSteamCue cue) => AnimationProgramStep<CeresSteamProgram, CeresSteamFrame, CeresSteamCue>.Publish(cue);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<CeresSteamProgram, CeresSteamFrame, CeresSteamCue> GoTo(CeresSteamProgram program) => AnimationProgramStep<CeresSteamProgram, CeresSteamFrame, CeresSteamCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<CeresSteamProgram, CeresSteamFrame, CeresSteamCue> FallInto(CeresSteamProgram program) => AnimationProgramStep<CeresSteamProgram, CeresSteamFrame, CeresSteamCue>.FallInto(program);
-
+    private static AnimationBeat<CeresSteamFrame, CeresSteamCue> Cue(CeresSteamCue cue) => new AnimationBeat<CeresSteamFrame, CeresSteamCue>.Event(cue);
 }

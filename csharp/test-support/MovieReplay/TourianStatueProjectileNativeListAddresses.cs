@@ -74,8 +74,13 @@ internal static class TourianStatueProjectileNativeListAddresses
         cue => cue is TourianStatueProjectileCue.Command { Kind: TourianStatueProjectileCueKind.Delete },
         EndsAt: address => address == ParticleListEnd);
 
-    /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, TourianStatueProjectileAnimations.Programs,
-        frame => EnemyProjectileProgramFrameSources.Operand(TourianStatueProjectileFrameDefinitions.ShownProjectileFrames[frame]), Rules);
+    /// <summary>
+    /// The family's typed animations beside their native lists. A particle starts its counted list directly, with the
+    /// counter its spawn cleared.
+    /// </summary>
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, TourianStatueProjectileAnimations.Segments,
+        TourianStatueProjectileAnimations.StartingAt,
+        frame => EnemyProjectileProgramFrameSources.Operand(TourianStatueProjectileFrameDefinitions.ShownProjectileFrames[frame]), Rules,
+        startsWithClearedCounter: new HashSet<TourianStatueProjectileProgram> { TourianStatueProjectileProgram.Particle });
 
 }

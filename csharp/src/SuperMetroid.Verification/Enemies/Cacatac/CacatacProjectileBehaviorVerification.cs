@@ -25,7 +25,7 @@ internal static class CacatacProjectileBehaviorVerification
             enemies.CacatacBehavior.SpawnCacatacSpike(source, direction);
             EnemyProjectile spike = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.CacatacSpike);
             CacatacProjectileProgram program = CacatacSpikes.Program(direction);
-            AssertTrue(spike.Animation is CacatacProjectileAnimation animation && animation.Cursor.Program == program, $"a {direction} spike starts {program}");
+            AssertTrue(spike.Animation is CacatacProjectileAnimation animation && animation.PlayingSegment == program, $"a {direction} spike starts {program}");
             (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, spike, CacatacProjectileNativeListAddresses.Entry(program), 8, direction.ToString());
             AssertTrue(!deleted, $"the {direction} spike holds its pose");
         }

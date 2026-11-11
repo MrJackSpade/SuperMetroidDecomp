@@ -6,10 +6,13 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>Chozo/Tourian dust's typed animation.</summary>
 internal sealed class ChozoTourianDustAnimation(ChozoTourianDustProgram program)
-    : EnemyProjectileProgramAnimation<ChozoTourianDustProgram, ChozoTourianDustFrame, EnemyProjectileCommonCue>(program)
+    : EnemyProjectileTypedAnimation<ChozoTourianDustProgram, ChozoTourianDustFrame, EnemyProjectileCommonCue>(ChozoTourianDustAnimations.StartingWith(program))
 {
     /// <inheritdoc/>
-    private protected override AnimationProgramSet<ChozoTourianDustProgram, ChozoTourianDustFrame, EnemyProjectileCommonCue> Programs => ChozoTourianDustAnimations.Programs;
+    private protected override AnimationSegments<ChozoTourianDustProgram, ChozoTourianDustFrame, EnemyProjectileCommonCue> Segments => ChozoTourianDustAnimations.Segments;
+
+    /// <inheritdoc/>
+    private protected override IReadOnlyDictionary<ChozoTourianDustProgram, Animation<ChozoTourianDustProgram>> StartingAt => ChozoTourianDustAnimations.StartingAt;
 
     /// <inheritdoc/>
     private protected override EnemyProjectileFrameId Present(ChozoTourianDustFrame frame) =>

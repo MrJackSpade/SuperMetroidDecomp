@@ -71,7 +71,7 @@ internal static class DragonFireballBehaviorVerification
 
     /// <summary>The typed program <paramref name="projectile"/> runs.</summary>
     private static DragonFireballProgram ProgramOf(EnemyProjectile projectile) =>
-        projectile.Animation is DragonFireballAnimation animation ? animation.Cursor.Program
+        projectile.Animation is DragonFireballAnimation animation ? animation.PlayingSegment
             : throw new InvalidOperationException("The fireball runs no typed program.");
 
     /// <summary>Runs Dragon's fireball program oracle and behavior suite.</summary>

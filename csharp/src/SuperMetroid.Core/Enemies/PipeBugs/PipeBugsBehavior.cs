@@ -68,9 +68,9 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.RespawnDelay = BrinstarPipeBugRespawnFrames;
         state.RequestedAnimation = PipeBugAnimationSelector.RisingFacingLeft;
         state.InstalledAnimation = PipeBugAnimationSelector.RisingFacingLeft;
-        state.Program = AnimationProgramCursor<PipeBugProgram>.Start(PipeBugPrograms.BrinstarProgram(
+        state.Playback = new AnimationPlayback<PipeBugProgram>(PipeBugAnimations.StartingWith(PipeBugPrograms.BrinstarProgram(
             strong: slot.SpawnSettings<BrinstarPipeBugSpawnSettings>().Kind == BrinstarPipeBugKind.Strong,
-            PipeBugAnimationSelector.RisingFacingLeft));
+            PipeBugAnimationSelector.RisingFacingLeft)), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Initializes the Norfair Pipe Bug.</summary>
@@ -88,7 +88,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.FormationCounter = 0;
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
-        state.Program = AnimationProgramCursor<PipeBugProgram>.Start(PipeBugProgram.GametRisingLeft);
+        state.Playback = new AnimationPlayback<PipeBugProgram>(PipeBugAnimations.StartingWith(PipeBugProgram.GametRisingLeft), AnimationPlace.StartOfAnimation);
         state.Function = PipeBugEnemyFunction.NorfairWaitForFormation;
     }
 
@@ -100,10 +100,10 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.WithFractionX(0).WithFractionY(0);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
-        state.Program = AnimationProgramCursor<PipeBugProgram>.Start(
+        state.Playback = new AnimationPlayback<PipeBugProgram>(PipeBugAnimations.StartingWith(
             slot.SpawnSettings<YellowPipeBugSpawnSettings>().Facing == HorizontalDirection.Left
                 ? PipeBugProgram.GeegaFlyingLeft
-                : PipeBugProgram.GeegaFlyingRight);
+                : PipeBugProgram.GeegaFlyingRight), AnimationPlace.StartOfAnimation);
 
         // The spawn settings name the speed the bug flies at.
         SignedSixteenSixteen speed = slot.SpawnSettings<YellowPipeBugSpawnSettings>().Speed;
@@ -302,9 +302,9 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.RequestedAnimation == state.InstalledAnimation)
             return;
         state.InstalledAnimation = state.RequestedAnimation;
-        state.Program = AnimationProgramCursor<PipeBugProgram>.Start(PipeBugPrograms.BrinstarProgram(
+        state.Playback = new AnimationPlayback<PipeBugProgram>(PipeBugAnimations.StartingWith(PipeBugPrograms.BrinstarProgram(
             strong: slot.SpawnSettings<BrinstarPipeBugSpawnSettings>().Kind == BrinstarPipeBugKind.Strong,
-            state.RequestedAnimation));
+            state.RequestedAnimation)), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
@@ -352,9 +352,9 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (member.SpeciesState<PipeBugEnemyState>() is not { } memberState)
                 continue;
-            memberState.Program = AnimationProgramCursor<PipeBugProgram>.Start(samusIsRight
+            memberState.Playback = new AnimationPlayback<PipeBugProgram>(PipeBugAnimations.StartingWith(samusIsRight
                 ? PipeBugProgram.GametRisingRight
-                : PipeBugProgram.GametRisingLeft);
+                : PipeBugProgram.GametRisingLeft), AnimationPlace.StartOfAnimation);
             memberState.Function = PipeBugEnemyFunction.NorfairRise;
         }
 
@@ -426,12 +426,12 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) >= 0)
         {
             state.Function = PipeBugEnemyFunction.NorfairFlyRight;
-            state.Program = AnimationProgramCursor<PipeBugProgram>.Start(PipeBugProgram.GametFlyingRight);
+            state.Playback = new AnimationPlayback<PipeBugProgram>(PipeBugAnimations.StartingWith(PipeBugProgram.GametFlyingRight), AnimationPlace.StartOfAnimation);
         }
         else
         {
             state.Function = PipeBugEnemyFunction.NorfairFlyLeft;
-            state.Program = AnimationProgramCursor<PipeBugProgram>.Start(PipeBugProgram.GametFlyingLeft);
+            state.Playback = new AnimationPlayback<PipeBugProgram>(PipeBugAnimations.StartingWith(PipeBugProgram.GametFlyingLeft), AnimationPlace.StartOfAnimation);
         }
     }
 
@@ -503,12 +503,12 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = WrappingCountdown.Start(0);
         if (slot.SpawnSettings<YellowPipeBugSpawnSettings>().Facing == HorizontalDirection.Left)
         {
-            state.Program = AnimationProgramCursor<PipeBugProgram>.Start(PipeBugProgram.GeegaFlyingLeft);
+            state.Playback = new AnimationPlayback<PipeBugProgram>(PipeBugAnimations.StartingWith(PipeBugProgram.GeegaFlyingLeft), AnimationPlace.StartOfAnimation);
             state.Function = PipeBugEnemyFunction.YellowFlyLeft;
         }
         else
         {
-            state.Program = AnimationProgramCursor<PipeBugProgram>.Start(PipeBugProgram.GeegaFlyingRight);
+            state.Playback = new AnimationPlayback<PipeBugProgram>(PipeBugAnimations.StartingWith(PipeBugProgram.GeegaFlyingRight), AnimationPlace.StartOfAnimation);
             state.Function = PipeBugEnemyFunction.YellowFlyRight;
         }
     }
@@ -605,10 +605,10 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.ArcCompleted = false;
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
-        state.Program = AnimationProgramCursor<PipeBugProgram>.Start(
+        state.Playback = new AnimationPlayback<PipeBugProgram>(PipeBugAnimations.StartingWith(
             slot.SpawnSettings<YellowPipeBugSpawnSettings>().Facing == HorizontalDirection.Left
                 ? PipeBugProgram.GeegaFlyingLeft
-                : PipeBugProgram.GeegaFlyingRight);
+                : PipeBugProgram.GeegaFlyingRight), AnimationPlace.StartOfAnimation);
         slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
         return true;
     }
@@ -661,7 +661,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Restarts an animation at timer one and clears its animation frame timer.</summary>
     internal static void InstallPipeBugProgram(RoomEnemySlot slot, PipeBugEnemyState state, PipeBugProgram program)
     {
-        state.Program = AnimationProgramCursor<PipeBugProgram>.Start(program);
+        state.Playback = new AnimationPlayback<PipeBugProgram>(PipeBugAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
@@ -675,8 +675,9 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances PipeBugs's typed animation.</summary>
     internal static void AdvancePipeBugsTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, PipeBugAnimations.Programs, PipeBugFrameDefinitions.ShownFrames.Of,
-            static (PipeBugEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
+        EnemyProgramAnimation.Advance(slot, PipeBugAnimations.Segments, PipeBugFrameDefinitions.ShownFrames.Of,
+            static (PipeBugEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            static (_, cue) => throw new InvalidOperationException($"A Pipe Bug animation raised {cue}, though its lists raise no events."));
 
     /// <summary>Ports PipeBugs's main AI.</summary>
     internal void RunPipeBugsMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)

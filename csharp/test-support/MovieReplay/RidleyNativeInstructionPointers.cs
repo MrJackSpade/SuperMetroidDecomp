@@ -61,7 +61,7 @@ internal sealed class RidleyNativeInstructionPointers
             return checked((ushort)(RidleyNativeProgramOracle.BreakupList(cursor.Program) + (cursor.Position == 0 ? 0 : 4)));
         }
         if (enemies.PipeBugStates[actor.SlotIndex] is { } pipeBug)
-            return pipeBugs.Pointer(pipeBug.Program);
+            return pipeBugs.Pointer(pipeBug.Playback);
         return null;
     }
 

@@ -10,13 +10,11 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 internal static class GunshipDustAnimations
 {
     /// <summary>Every dust program.</summary>
-    internal static AnimationProgramSet<GunshipDustProgram, GunshipDustFrame, GunshipDustCue> Programs { get; } = new(
-        new Dictionary<GunshipDustProgram, AnimationProgramStep<GunshipDustProgram, GunshipDustFrame, GunshipDustCue>[]>
+    internal static AnimationSegments<GunshipDustProgram, GunshipDustFrame, GunshipDustCue> Segments { get; } = new(
+        new Dictionary<GunshipDustProgram, AnimationBeat<GunshipDustFrame, GunshipDustCue>[]>
     {
         [P.RightInner] =
         [
-            SetCounter(1),
-            FallInto(P.RightInnerLoop),
         ],
         [P.RightInnerLoop] =
         [
@@ -28,14 +26,10 @@ internal static class GunshipDustAnimations
             Show(P.RightInnerLoop, 5, 10),
             Show(P.RightInnerLoop, 6, 10),
             Show(P.RightInnerLoop, 7, 10),
-            RepeatWhileCounting(P.RightInnerLoop),
             Cue(GunshipDustCue.Delete),
-            Hold,
         ],
         [P.RightMiddle] =
         [
-            SetCounter(1),
-            FallInto(P.RightMiddleLoop),
         ],
         [P.RightMiddleLoop] =
         [
@@ -47,14 +41,10 @@ internal static class GunshipDustAnimations
             Show(P.RightMiddleLoop, 5, 8),
             Show(P.RightMiddleLoop, 6, 8),
             Show(P.RightMiddleLoop, 7, 8),
-            RepeatWhileCounting(P.RightMiddleLoop),
             Cue(GunshipDustCue.Delete),
-            Hold,
         ],
         [P.RightOuter] =
         [
-            SetCounter(1),
-            FallInto(P.RightOuterLoop),
         ],
         [P.RightOuterLoop] =
         [
@@ -65,14 +55,10 @@ internal static class GunshipDustAnimations
             Show(P.RightOuterLoop, 4, 13),
             Show(P.RightOuterLoop, 5, 13),
             Show(P.RightOuterLoop, 6, 13),
-            RepeatWhileCounting(P.RightOuterLoop),
             Cue(GunshipDustCue.Delete),
-            Hold,
         ],
         [P.LeftInner] =
         [
-            SetCounter(1),
-            FallInto(P.LeftInnerLoop),
         ],
         [P.LeftInnerLoop] =
         [
@@ -84,14 +70,10 @@ internal static class GunshipDustAnimations
             Show(P.LeftInnerLoop, 5, 10),
             Show(P.LeftInnerLoop, 6, 10),
             Show(P.LeftInnerLoop, 7, 10),
-            RepeatWhileCounting(P.LeftInnerLoop),
             Cue(GunshipDustCue.Delete),
-            Hold,
         ],
         [P.LeftMiddle] =
         [
-            SetCounter(1),
-            FallInto(P.LeftMiddleLoop),
         ],
         [P.LeftMiddleLoop] =
         [
@@ -103,14 +85,10 @@ internal static class GunshipDustAnimations
             Show(P.LeftMiddleLoop, 5, 8),
             Show(P.LeftMiddleLoop, 6, 8),
             Show(P.LeftMiddleLoop, 7, 8),
-            RepeatWhileCounting(P.LeftMiddleLoop),
             Cue(GunshipDustCue.Delete),
-            Hold,
         ],
         [P.LeftOuter] =
         [
-            SetCounter(1),
-            FallInto(P.LeftOuterLoop),
         ],
         [P.LeftOuterLoop] =
         [
@@ -121,27 +99,27 @@ internal static class GunshipDustAnimations
             Show(P.LeftOuterLoop, 4, 13),
             Show(P.LeftOuterLoop, 5, 13),
             Show(P.LeftOuterLoop, 6, 13),
-            RepeatWhileCounting(P.LeftOuterLoop),
             Cue(GunshipDustCue.Delete),
-            Hold,
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<GunshipDustProgram, Animation<GunshipDustProgram>> StartingAt { get; } = new Dictionary<GunshipDustProgram, Animation<GunshipDustProgram>>
+    {
+        [P.RightInner] = new([new(P.RightInnerLoop, 0, 8, 1, AnimationPhaseCounting.EveryPlay), new(P.RightInnerLoop, 8, 1, 1)], AnimationEnd.Holds),
+        [P.RightMiddle] = new([new(P.RightMiddleLoop, 0, 8, 1, AnimationPhaseCounting.EveryPlay), new(P.RightMiddleLoop, 8, 1, 1)], AnimationEnd.Holds),
+        [P.RightOuter] = new([new(P.RightOuterLoop, 0, 7, 1, AnimationPhaseCounting.EveryPlay), new(P.RightOuterLoop, 7, 1, 1)], AnimationEnd.Holds),
+        [P.LeftInner] = new([new(P.LeftInnerLoop, 0, 8, 1, AnimationPhaseCounting.EveryPlay), new(P.LeftInnerLoop, 8, 1, 1)], AnimationEnd.Holds),
+        [P.LeftMiddle] = new([new(P.LeftMiddleLoop, 0, 8, 1, AnimationPhaseCounting.EveryPlay), new(P.LeftMiddleLoop, 8, 1, 1)], AnimationEnd.Holds),
+        [P.LeftOuter] = new([new(P.LeftOuterLoop, 0, 7, 1, AnimationPhaseCounting.EveryPlay), new(P.LeftOuterLoop, 7, 1, 1)], AnimationEnd.Holds),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<GunshipDustProgram> StartingWith(GunshipDustProgram segment) => StartingAt[segment];
+
     /// <summary>Shows <paramref name="program"/>'s pose <paramref name="phase"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<GunshipDustProgram, GunshipDustFrame, GunshipDustCue> Show(GunshipDustProgram program, int phase, int duration) => AnimationProgramStep<GunshipDustProgram, GunshipDustFrame, GunshipDustCue>.Show(new(program, phase), duration);
+    private static AnimationBeat<GunshipDustFrame, GunshipDustCue> Show(GunshipDustProgram program, int phase, int duration) => new AnimationBeat<GunshipDustFrame, GunshipDustCue>.Frame(new(program, phase), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<GunshipDustProgram, GunshipDustFrame, GunshipDustCue> Cue(GunshipDustCue cue) => AnimationProgramStep<GunshipDustProgram, GunshipDustFrame, GunshipDustCue>.Publish(cue);
-
-    /// <summary>Loads the general timer with <paramref name="count"/>.</summary>
-    private static AnimationProgramStep<GunshipDustProgram, GunshipDustFrame, GunshipDustCue> SetCounter(int count) => AnimationProgramStep<GunshipDustProgram, GunshipDustFrame, GunshipDustCue>.SetCounter(count);
-
-    /// <summary>Counts the general timer down, repeating <paramref name="program"/> while it is nonzero.</summary>
-    private static AnimationProgramStep<GunshipDustProgram, GunshipDustFrame, GunshipDustCue> RepeatWhileCounting(GunshipDustProgram program) => AnimationProgramStep<GunshipDustProgram, GunshipDustFrame, GunshipDustCue>.RepeatWhileCounting(program);
-
-    /// <summary>Runs on into <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<GunshipDustProgram, GunshipDustFrame, GunshipDustCue> FallInto(GunshipDustProgram program) => AnimationProgramStep<GunshipDustProgram, GunshipDustFrame, GunshipDustCue>.FallInto(program);
-
-    /// <summary>Holds the last frame.</summary>
-    private static AnimationProgramStep<GunshipDustProgram, GunshipDustFrame, GunshipDustCue> Hold => AnimationProgramStep<GunshipDustProgram, GunshipDustFrame, GunshipDustCue>.Hold;
+    private static AnimationBeat<GunshipDustFrame, GunshipDustCue> Cue(GunshipDustCue cue) => new AnimationBeat<GunshipDustFrame, GunshipDustCue>.Event(cue);
 }

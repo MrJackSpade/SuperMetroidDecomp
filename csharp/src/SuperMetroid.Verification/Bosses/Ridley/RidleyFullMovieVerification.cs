@@ -462,7 +462,7 @@ internal static class RidleyFullMovieVerification
         AssertEqual(RoomEnemyProjectileKind.MiscDustExplosion, dust.Kind, "native tail impact allocates highest free slot");
         AssertEqual((ushort)4, dust.Position.X.Whole, "native tail impact dust X");
         AssertEqual((ushort)130, dust.Position.Y.Whole, "native tail impact dust Y includes twelve-pixel offset");
-        AssertTrue(dust.Animation is MiscDustProjectileAnimation { Cursor.Program: MiscDustProjectileProgram.SmallDustCloud }, "native impact selects variant nine");
+        AssertTrue(dust.Animation is MiscDustProjectileAnimation { PlayingSegment: MiscDustProjectileProgram.SmallDustCloud }, "native impact selects variant nine");
         AssertTrue(runtime.Enemies.Audio.SoundRequests.Any(request => request.SoundEffect == EnemySound.Quake && request.Priority.Requests == 6), "native impact queues the quake sound");
         Console.WriteLine("Ridley tail impact: native dust slot, position, instruction variant and sound pass.");
     }
@@ -756,13 +756,13 @@ internal static class RidleyFullMovieVerification
         AssertEqual(EnemyDefinitionId.Zebbo, actor.DefinitionId, "native source-room pipe bug");
         var pipeBugPointers = new PipeBugNativeInstructionPointers(CartridgeImportSource.Require(bus));
         PipeBugEnemyState pipeBug = runtime.Enemies.PipeBugStates[6] ?? throw new InvalidOperationException("The source-room pipe bug has no state.");
-        pipeBug.Program = pipeBugPointers.CursorAt(NativeSnapshotMemory.PipeBugBeforeFadeInstruction);
+        pipeBug.Playback = pipeBugPointers.PlaybackAt(NativeSnapshotMemory.PipeBugBeforeFadeInstruction);
         actor.FrameHold = WrappingCountdown.Start(1);
         actor.SpritemapPointer = NativeSnapshotMemory.PipeBugBeforeFadeSpritemap;
         game.Step(0);
         AssertEqual(0xadd4, runtime.System.RandomNumber, "first source fade advances native HDMA/RNG");
         AssertEqual(0xa4e2, runtime.Clock.Counter, "fade accepts exactly one NMI per update");
-        AssertEqual(NativeSnapshotMemory.PipeBugAfterFadeInstruction, pipeBugPointers.Pointer(pipeBug.Program), "fade advances the native enemy instruction");
+        AssertEqual(NativeSnapshotMemory.PipeBugAfterFadeInstruction, pipeBugPointers.Pointer(pipeBug.Playback), "fade advances the native enemy instruction");
         AssertEqual(NativeSnapshotMemory.PipeBugAfterFadeSpritemap, actor.SpritemapPointer, "fade changes to the native enemy sprite");
         AssertEqual((ushort)2, actor.FrameHold.RawValue, "fade installs the native visual duration");
         int fadeSteps = 0;

@@ -6,10 +6,13 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>Downward gate's typed animation.</summary>
 internal sealed class DownwardGateProjectileAnimation(DownwardGateProjectileProgram program)
-    : EnemyProjectileProgramAnimation<DownwardGateProjectileProgram, DownwardGateProjectileFrame, DownwardGateProjectileCue>(program)
+    : EnemyProjectileTypedAnimation<DownwardGateProjectileProgram, DownwardGateProjectileFrame, DownwardGateProjectileCue>(DownwardGateProjectileAnimations.StartingWith(program))
 {
     /// <inheritdoc/>
-    private protected override AnimationProgramSet<DownwardGateProjectileProgram, DownwardGateProjectileFrame, DownwardGateProjectileCue> Programs => DownwardGateProjectileAnimations.Programs;
+    private protected override AnimationSegments<DownwardGateProjectileProgram, DownwardGateProjectileFrame, DownwardGateProjectileCue> Segments => DownwardGateProjectileAnimations.Segments;
+
+    /// <inheritdoc/>
+    private protected override IReadOnlyDictionary<DownwardGateProjectileProgram, Animation<DownwardGateProjectileProgram>> StartingAt => DownwardGateProjectileAnimations.StartingAt;
 
     /// <inheritdoc/>
     private protected override EnemyProjectileFrameId Present(DownwardGateProjectileFrame frame) =>

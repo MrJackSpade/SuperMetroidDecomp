@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal static class IntroEyeAnimations
 {
     /// <summary>Every portrait-eye program.</summary>
-    internal static AnimationProgramSet<IntroEyeProgram, IntroEyeFrame, NoAnimationCue> Programs { get; } = new(
-        new Dictionary<IntroEyeProgram, AnimationProgramStep<IntroEyeProgram, IntroEyeFrame, NoAnimationCue>[]>
+    internal static AnimationSegments<IntroEyeProgram, IntroEyeFrame, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<IntroEyeProgram, AnimationBeat<IntroEyeFrame, NoAnimationCue>[]>
     {
         [P.Blinking] =
         [
@@ -25,30 +25,30 @@ internal static class IntroEyeAnimations
             Show(E.HalfOpen, 8),
             Show(E.Closed, 8),
             Show(E.HalfOpen, 8),
-            GoTo(P.Blinking),
         ],
         [P.FinalPageClosing] =
         [
             Show(E.Closed, 64),
             Show(E.HalfOpen, 8),
-            FallInto(P.FinalPageDeadpan),
         ],
         [P.FinalPageDeadpan] =
         [
             Show(E.Deadpan, 16),
-            GoTo(P.FinalPageDeadpan),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<IntroEyeProgram, Animation<IntroEyeProgram>> StartingAt { get; } = new Dictionary<IntroEyeProgram, Animation<IntroEyeProgram>>
+    {
+        [P.Blinking] = new([new(P.Blinking, 0, 8, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.FinalPageClosing] = new([new(P.FinalPageClosing, 0, 2, 1), new(P.FinalPageDeadpan, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.FinalPageDeadpan] = new([new(P.FinalPageDeadpan, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<IntroEyeProgram> StartingWith(IntroEyeProgram segment) => StartingAt[segment];
+
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<IntroEyeProgram, IntroEyeFrame, NoAnimationCue> Show(IntroEyeFrame frame, int duration) =>
-        AnimationProgramStep<IntroEyeProgram, IntroEyeFrame, NoAnimationCue>.Show(frame, duration);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<IntroEyeProgram, IntroEyeFrame, NoAnimationCue> GoTo(IntroEyeProgram program) =>
-        AnimationProgramStep<IntroEyeProgram, IntroEyeFrame, NoAnimationCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, the program authored next.</summary>
-    private static AnimationProgramStep<IntroEyeProgram, IntroEyeFrame, NoAnimationCue> FallInto(IntroEyeProgram program) =>
-        AnimationProgramStep<IntroEyeProgram, IntroEyeFrame, NoAnimationCue>.FallInto(program);
+    private static AnimationBeat<IntroEyeFrame, NoAnimationCue> Show(IntroEyeFrame frame, int duration) =>
+        new AnimationBeat<IntroEyeFrame, NoAnimationCue>.Frame(frame, duration);
 }

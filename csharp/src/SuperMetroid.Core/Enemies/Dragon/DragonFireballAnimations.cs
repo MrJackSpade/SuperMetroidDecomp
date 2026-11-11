@@ -10,39 +10,44 @@ namespace SuperMetroid.Core.Enemies.Dragon;
 /// </summary>
 internal static class DragonFireballAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<DragonFireballProgram, DragonFireballFrame, EnemyProjectileCommonCue> Programs { get; } = new(
-        new Dictionary<DragonFireballProgram, AnimationProgramStep<DragonFireballProgram, DragonFireballFrame, EnemyProjectileCommonCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<DragonFireballProgram, DragonFireballFrame, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<DragonFireballProgram, AnimationBeat<DragonFireballFrame, EnemyProjectileCommonCue>[]>
     {
         [P.RisingLeft] =
         [
             Show(0, 5),
             Show(1, 5),
-            GoTo(P.RisingLeft),
         ],
         [P.RisingRight] =
         [
             Show(2, 5),
             Show(3, 5),
-            GoTo(P.RisingRight),
         ],
         [P.FallingLeft] =
         [
             Show(4, 5),
             Show(5, 5),
-            GoTo(P.FallingLeft),
         ],
         [P.FallingRight] =
         [
             Show(6, 5),
             Show(7, 5),
-            GoTo(P.FallingRight),
         ],
     });
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<DragonFireballProgram, DragonFireballFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => AnimationProgramStep<DragonFireballProgram, DragonFireballFrame, EnemyProjectileCommonCue>.Show(new(pose), duration);
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<DragonFireballProgram, Animation<DragonFireballProgram>> StartingAt { get; } = new Dictionary<DragonFireballProgram, Animation<DragonFireballProgram>>
+    {
+        [P.RisingLeft] = new([new(P.RisingLeft, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.RisingRight] = new([new(P.RisingRight, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.FallingLeft] = new([new(P.FallingLeft, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.FallingRight] = new([new(P.FallingRight, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
+    };
 
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<DragonFireballProgram, DragonFireballFrame, EnemyProjectileCommonCue> GoTo(DragonFireballProgram program) => AnimationProgramStep<DragonFireballProgram, DragonFireballFrame, EnemyProjectileCommonCue>.GoTo(program);
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<DragonFireballProgram> StartingWith(DragonFireballProgram segment) => StartingAt[segment];
+
+    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<DragonFireballFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => new AnimationBeat<DragonFireballFrame, EnemyProjectileCommonCue>.Frame(new(pose), duration);
 }

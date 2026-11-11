@@ -10,41 +10,43 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// </summary>
 internal static class MagdolliteLavaAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<MagdolliteLavaProgram, MagdolliteLavaFrame, MagdolliteLavaCue> Programs { get; } = new(
-        new Dictionary<MagdolliteLavaProgram, AnimationProgramStep<MagdolliteLavaProgram, MagdolliteLavaFrame, MagdolliteLavaCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<MagdolliteLavaProgram, MagdolliteLavaFrame, MagdolliteLavaCue> Segments { get; } = new(
+        new Dictionary<MagdolliteLavaProgram, AnimationBeat<MagdolliteLavaFrame, MagdolliteLavaCue>[]>
     {
         [P.SharedDelete] =
         [
             Cue(new(K.Delete)),
-            Hold,
         ],
         [P.Left] =
         [
             Show(0, 1),
-            Hold,
         ],
         [P.Right] =
         [
             Show(1, 1),
-            Hold,
         ],
         [P.Shot] =
         [
             Cue(new(K.SpawnDrops)),
-            GoTo(P.SharedDelete),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<MagdolliteLavaProgram, Animation<MagdolliteLavaProgram>> StartingAt { get; } = new Dictionary<MagdolliteLavaProgram, Animation<MagdolliteLavaProgram>>
+    {
+        [P.SharedDelete] = new([new(P.SharedDelete, 0, 1, 1)], AnimationEnd.Holds),
+        [P.Left] = new([new(P.Left, 0, 1, 1)], AnimationEnd.Holds),
+        [P.Right] = new([new(P.Right, 0, 1, 1)], AnimationEnd.Holds),
+        [P.Shot] = new([new(P.Shot, 0, 1, 1), new(P.SharedDelete, 0, 1, 1)], AnimationEnd.Holds),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<MagdolliteLavaProgram> StartingWith(MagdolliteLavaProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<MagdolliteLavaProgram, MagdolliteLavaFrame, MagdolliteLavaCue> Show(int pose, int duration) => AnimationProgramStep<MagdolliteLavaProgram, MagdolliteLavaFrame, MagdolliteLavaCue>.Show(new(pose), duration);
+    private static AnimationBeat<MagdolliteLavaFrame, MagdolliteLavaCue> Show(int pose, int duration) => new AnimationBeat<MagdolliteLavaFrame, MagdolliteLavaCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<MagdolliteLavaProgram, MagdolliteLavaFrame, MagdolliteLavaCue> Cue(MagdolliteLavaCue cue) => AnimationProgramStep<MagdolliteLavaProgram, MagdolliteLavaFrame, MagdolliteLavaCue>.Publish(cue);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<MagdolliteLavaProgram, MagdolliteLavaFrame, MagdolliteLavaCue> GoTo(MagdolliteLavaProgram program) => AnimationProgramStep<MagdolliteLavaProgram, MagdolliteLavaFrame, MagdolliteLavaCue>.GoTo(program);
-
-    /// <summary>Holds the last frame, as the sleep does.</summary>
-    private static AnimationProgramStep<MagdolliteLavaProgram, MagdolliteLavaFrame, MagdolliteLavaCue> Hold => AnimationProgramStep<MagdolliteLavaProgram, MagdolliteLavaFrame, MagdolliteLavaCue>.Hold;
+    private static AnimationBeat<MagdolliteLavaFrame, MagdolliteLavaCue> Cue(MagdolliteLavaCue cue) => new AnimationBeat<MagdolliteLavaFrame, MagdolliteLavaCue>.Event(cue);
 }

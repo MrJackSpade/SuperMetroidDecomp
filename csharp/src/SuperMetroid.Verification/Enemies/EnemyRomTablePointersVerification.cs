@@ -121,9 +121,10 @@ internal static class EnemyRomTablePointersVerification
             slot.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, parameter);
             slot.Bind(EnemyDefinitionId.TourianStatue, slot.Definition);
             system.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(slot);
-            AssertEqual(
-                AnimationProgramCursor<TourianEntranceStatueProgram>.Start(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.TourianStatue(parameter)),
-                slot.RequireSpeciesState<TourianEntranceStatueState>().Program,
+            // The statues' animations stop at once and so compare equal; the one started is told apart by identity.
+            AnimationPlayback<TourianEntranceStatueProgram> started = slot.RequireSpeciesState<TourianEntranceStatueState>().Playback;
+            AssertTrue(ReferenceEquals(TourianEntranceStatueAnimations.StartingWith(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.TourianStatue(parameter)), started.Animation)
+                && started.Place == AnimationPlace.StartOfAnimation,
                 $"Tourian statue production initializer {parameter} avoids selector ROM");
         }
 

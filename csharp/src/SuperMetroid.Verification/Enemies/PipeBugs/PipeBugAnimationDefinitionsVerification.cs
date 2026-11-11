@@ -27,10 +27,10 @@ internal static class PipeBugAnimationDefinitionsVerification
             initializedSlot.SetSpawnParameter1(EnemyDefinitionId.Zeb, strong ? (ushort)1 : (ushort)0);
             initializedSlot.Position = initializedSlot.Position.WithWhole(new(0x0100, 0x0080));
             PipeBugsBehavior.InitializeBrinstarPipeBug(initializedSlot);
-            AssertEqual(AnimationProgramCursor<PipeBugProgram>.Start(PipeBugPrograms.BrinstarProgram(
+            AssertEqual(new AnimationPlayback<PipeBugProgram>(PipeBugAnimations.StartingWith(PipeBugPrograms.BrinstarProgram(
                     strong,
-                    PipeBugAnimationSelector.RisingFacingLeft)),
-                (initializedEnemies.PipeBugStates[0] ?? throw new InvalidOperationException("Verification requires a Pipe Bug state.")).Program,
+                    PipeBugAnimationSelector.RisingFacingLeft)), AnimationPlace.StartOfAnimation),
+                (initializedEnemies.PipeBugStates[0] ?? throw new InvalidOperationException("Verification requires a Pipe Bug state.")).Playback,
                 $"production {(strong ? "strong" : "normal")} Pipe Bug initialization");
 
             for (int index = 0; index < 4; index++)
@@ -57,7 +57,7 @@ internal static class PipeBugAnimationDefinitionsVerification
                 PipeBugsBehavior.SelectBrinstarPipeBugAnimation(slot, state);
                 AssertEqual(selector, state.InstalledAnimation,
                     $"production {(strong ? "strong" : "normal")} Pipe Bug selector {selector}");
-                AssertEqual(AnimationProgramCursor<PipeBugProgram>.Start(PipeBugPrograms.BrinstarProgram(strong, selector)), state.Program,
+                AssertEqual(new AnimationPlayback<PipeBugProgram>(PipeBugAnimations.StartingWith(PipeBugPrograms.BrinstarProgram(strong, selector)), AnimationPlace.StartOfAnimation), state.Playback,
                     $"production {(strong ? "strong" : "normal")} Pipe Bug animation {selector}");
                 AssertEqual(1, slot.FrameHold.RawValue,
                     $"production {(strong ? "strong" : "normal")} Pipe Bug timer {selector}");

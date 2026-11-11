@@ -6,10 +6,13 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 
 /// <summary>Ki-Hunter acid spit's typed animation.</summary>
 internal sealed class KiHunterAcidSpitAnimation(KiHunterAcidSpitProgram program)
-    : EnemyProjectileProgramAnimation<KiHunterAcidSpitProgram, KiHunterAcidSpitFrame, EnemyProjectileCommonCue>(program)
+    : EnemyProjectileTypedAnimation<KiHunterAcidSpitProgram, KiHunterAcidSpitFrame, EnemyProjectileCommonCue>(KiHunterAcidSpitAnimations.StartingWith(program))
 {
     /// <inheritdoc/>
-    private protected override AnimationProgramSet<KiHunterAcidSpitProgram, KiHunterAcidSpitFrame, EnemyProjectileCommonCue> Programs => KiHunterAcidSpitAnimations.Programs;
+    private protected override AnimationSegments<KiHunterAcidSpitProgram, KiHunterAcidSpitFrame, EnemyProjectileCommonCue> Segments => KiHunterAcidSpitAnimations.Segments;
+
+    /// <inheritdoc/>
+    private protected override IReadOnlyDictionary<KiHunterAcidSpitProgram, Animation<KiHunterAcidSpitProgram>> StartingAt => KiHunterAcidSpitAnimations.StartingAt;
 
     /// <inheritdoc/>
     private protected override EnemyProjectileFrameId Present(KiHunterAcidSpitFrame frame) =>

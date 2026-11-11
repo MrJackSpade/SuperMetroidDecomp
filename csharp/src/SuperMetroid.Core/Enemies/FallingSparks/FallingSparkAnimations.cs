@@ -11,16 +11,15 @@ namespace SuperMetroid.Core.Enemies.FallingSparks;
 /// </summary>
 internal static class FallingSparkAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<FallingSparkProgram, FallingSparkFrame, EnemyProjectileCommonCue> Programs { get; } = new(
-        new Dictionary<FallingSparkProgram, AnimationProgramStep<FallingSparkProgram, FallingSparkFrame, EnemyProjectileCommonCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<FallingSparkProgram, FallingSparkFrame, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<FallingSparkProgram, AnimationBeat<FallingSparkFrame, EnemyProjectileCommonCue>[]>
     {
         [P.Falling] =
         [
             Show(0, 3),
             Show(1, 3),
             Show(2, 3),
-            GoTo(P.Falling),
         ],
         [P.HitFloor] =
         [
@@ -36,19 +35,22 @@ internal static class FallingSparkAnimations
             Show(12, 1),
             Show(13, 1),
             Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
-            Hold,
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<FallingSparkProgram, Animation<FallingSparkProgram>> StartingAt { get; } = new Dictionary<FallingSparkProgram, Animation<FallingSparkProgram>>
+    {
+        [P.Falling] = new([new(P.Falling, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.HitFloor] = new([new(P.HitFloor, 0, 12, 1)], AnimationEnd.Holds),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<FallingSparkProgram> StartingWith(FallingSparkProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<FallingSparkProgram, FallingSparkFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => AnimationProgramStep<FallingSparkProgram, FallingSparkFrame, EnemyProjectileCommonCue>.Show(new(pose), duration);
+    private static AnimationBeat<FallingSparkFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => new AnimationBeat<FallingSparkFrame, EnemyProjectileCommonCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<FallingSparkProgram, FallingSparkFrame, EnemyProjectileCommonCue> Cue(EnemyProjectileCommonCue cue) => AnimationProgramStep<FallingSparkProgram, FallingSparkFrame, EnemyProjectileCommonCue>.Publish(cue);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<FallingSparkProgram, FallingSparkFrame, EnemyProjectileCommonCue> GoTo(FallingSparkProgram program) => AnimationProgramStep<FallingSparkProgram, FallingSparkFrame, EnemyProjectileCommonCue>.GoTo(program);
-
-    /// <summary>Holds the last frame, as the sleep does.</summary>
-    private static AnimationProgramStep<FallingSparkProgram, FallingSparkFrame, EnemyProjectileCommonCue> Hold => AnimationProgramStep<FallingSparkProgram, FallingSparkFrame, EnemyProjectileCommonCue>.Hold;
+    private static AnimationBeat<FallingSparkFrame, EnemyProjectileCommonCue> Cue(EnemyProjectileCommonCue cue) => new AnimationBeat<FallingSparkFrame, EnemyProjectileCommonCue>.Event(cue);
 }

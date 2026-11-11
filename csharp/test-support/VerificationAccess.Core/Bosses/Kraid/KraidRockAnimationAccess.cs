@@ -9,6 +9,6 @@ internal static class KraidRockAnimationAccess
     extension(KraidRockAnimation self)
     {
         /// <summary>The program played.</summary>
-        internal KraidRockProgram Program => self.Cursor.Program;
+        internal KraidRockProgram Program => self.PlayingSegment;
     }
 }

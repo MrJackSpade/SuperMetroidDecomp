@@ -47,7 +47,7 @@ internal static class FallingSparkBehaviorVerification
 
     /// <summary>The typed program <paramref name="projectile"/> runs.</summary>
     private static FallingSparkProgram ProgramOf(EnemyProjectile projectile) =>
-        projectile.Animation is FallingSparkAnimation animation ? animation.Cursor.Program
+        projectile.Animation is FallingSparkAnimation animation ? animation.PlayingSegment
             : throw new InvalidOperationException("The spark runs no typed program.");
 
     /// <summary>Runs the falling spark's program oracle and behavior suite.</summary>

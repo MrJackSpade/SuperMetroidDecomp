@@ -46,7 +46,7 @@ internal static class CacatacProjectileDefinitionsVerification
             spawn(source, direction);
             EnemyProjectile actual = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.CacatacSpike);
-            AssertTrue(actual.Animation is CacatacProjectileAnimation { Cursor.Program: var spawned } &&
+            AssertTrue(actual.Animation is CacatacProjectileAnimation { PlayingSegment: var spawned } &&
                     CacatacProjectileNativeListAddresses.Entry(spawned) == native,
                 $"spawned Cacatac instruction {direction}");
             // A spike moves toward each side its direction names, at the negative speed toward left or up and the

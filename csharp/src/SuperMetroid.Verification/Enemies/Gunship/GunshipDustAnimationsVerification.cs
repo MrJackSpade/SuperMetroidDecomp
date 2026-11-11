@@ -33,7 +33,7 @@ internal static class GunshipDustAnimationsVerification
             enemies.Projectiles.SpawnGunshipLiftoffDustCloud(GunshipDustDefinitions.LiftoffClouds[cloud], new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()));
             EnemyProjectile dust = enemies.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.GunshipLiftoffDustCloud);
             GunshipDustProgram program = GunshipDustDefinitions.LiftoffClouds[cloud].Program;
-            AssertTrue(dust.Animation is GunshipDustAnimation started && started.Cursor == AnimationProgramCursor<GunshipDustProgram>.Start(program),
+            AssertTrue(dust.Animation is GunshipDustAnimation started && started.Playback == new AnimationPlayback<GunshipDustProgram>(GunshipDustAnimations.StartingWith(program), AnimationPlace.StartOfAnimation),
                 $"dust cloud {cloud} starts {program}");
             AssertEqual(Entry(program), cartridge.ReadCartridgeWord(SpawnListWord(cloud)), $"dust cloud {cloud} names the native list");
             (bool deleted, int compared) = NativeEnemyProjectileParity.Compare(cartridge, enemies, dust, Entry(program), 256, $"gunship dust {program}");
@@ -42,9 +42,9 @@ internal static class GunshipDustAnimationsVerification
         }
 
         var shown = Enum.GetValues<GunshipDustProgram>()
-            .SelectMany(program => GunshipDustAnimations.Programs.Steps(program))
-            .OfType<AnimationProgramStep<GunshipDustProgram, GunshipDustFrame, GunshipDustCue>.ShowStep>()
-            .Select(step => step.Frame).ToHashSet();
+            .SelectMany(program => GunshipDustAnimations.Segments.Beats(program))
+            .OfType<AnimationBeat<GunshipDustFrame, GunshipDustCue>.Frame>()
+            .Select(frame => frame.Shown).ToHashSet();
         AssertTrue(shown.SetEquals(GunshipDustVisualDefinitions.Frames), "the dust programs show exactly the installed frames");
         Console.WriteLine($"  gunship dust programs: 6 spawns ({updates} updates, {shown.Count} installed frames) match bank $86.");
     }

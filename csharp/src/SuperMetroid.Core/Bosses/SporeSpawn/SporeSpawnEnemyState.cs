@@ -19,8 +19,8 @@ public sealed class SporeSpawnEnemyState
     public RoomEnemySlot Body { get; }
     /// <summary>Current main-AI function, its variable A.</summary>
     public SporeSpawnFunction Function { get; internal set; }
-    /// <summary>Where the body's typed program resumes (#641).</summary>
-    internal AnimationProgramCursor<SporeSpawnBodyProgram> BodyProgram { get; set; }
+    /// <summary>The body's animation and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<SporeSpawnBodyProgram> BodyPlayback { get; set; }
     /// <summary>
     /// Fixed stalk interpolation anchor in room pixels: the spawn body's X and a Y 72 pixels
     /// above it.

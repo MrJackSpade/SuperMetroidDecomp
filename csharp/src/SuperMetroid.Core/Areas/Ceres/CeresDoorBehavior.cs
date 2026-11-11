@@ -62,16 +62,18 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
             frame.Shade(GameplayPictures.Room, CeresDoorShades.ElevatorRoomGlow(step));
     }
 
-    /// <summary>Runs a door's typed program where the enemy instruction interpreter would.</summary>
+    /// <summary>Plays a door's typed animation where the enemy instruction interpreter would run its list.</summary>
     private void AdvanceCeresDoorAnimation(RoomEnemySlot slot, SamusState? samus)
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
         CeresDoorEnemyState state = slot.RequireSpeciesState<CeresDoorEnemyState>();
-        AnimationProgramCursor<CeresDoorProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, CeresDoorAnimations.Programs, ref cursor, CeresDoorFrameDefinitions.ShownFrames.Of,
-            (cue, _) => ApplyCeresDoorCue(slot, samus, cue));
-        state.Program = cursor;
+        AnimationPlayback<CeresDoorProgram> playback = state.Playback;
+        EnemyProgramAnimation.Play(slot, CeresDoorAnimations.Segments, ref playback, CeresDoorFrameDefinitions.ShownFrames.Of,
+            cue => ApplyCeresDoorCue(slot, samus, cue) is { } target
+                ? new AnimationContinuation<CeresDoorProgram>(CeresDoorAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                : null);
+        state.Playback = playback;
     }
 
     /// <summary>Carries out one cue of a door's program, returning the program a branch continues at, or null to run on.</summary>
@@ -153,7 +155,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
         var state = new CeresDoorEnemyState
         {
             Function = initialization.MainFunction,
-            Program = AnimationProgramCursor<CeresDoorProgram>.Start(initialization.Program),
+            Playback = new AnimationPlayback<CeresDoorProgram>(CeresDoorAnimations.StartingWith(initialization.Program), AnimationPlace.StartOfAnimation),
         };
         slot.SetSpeciesState(state);
 

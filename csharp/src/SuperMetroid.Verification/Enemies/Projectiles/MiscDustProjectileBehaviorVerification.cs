@@ -37,13 +37,13 @@ internal static class MiscDustProjectileBehaviorVerification
             EnemyProjectile dust = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.MiscDustExplosion);
             MiscDustProjectileProgram program = MiscDustProjectiles.Program(animation);
-            AssertTrue(dust.Animation is MiscDustProjectileAnimation started && started.Cursor.Program == program,
+            AssertTrue(dust.Animation is MiscDustProjectileAnimation started && started.PlayingSegment == program,
                 $"misc-dust animation {animation} starts {program}");
 
             if (animation == MiscDustAnimation.UnusedLoopingElevatorPad)
             {
                 RunForcedTicks(rom, enemies, dust, samus, 4);
-                AssertTrue(dust.IsActive && dust.Animation is MiscDustProjectileAnimation { Cursor.Program: MiscDustProjectileProgram.LoopingElevatorPad },
+                AssertTrue(dust.IsActive && dust.Animation is MiscDustProjectileAnimation { PlayingSegment: MiscDustProjectileProgram.LoopingElevatorPad },
                     "room-system looping misc-dust animation keeps looping its program");
                 continue;
             }
@@ -72,7 +72,7 @@ internal static class MiscDustProjectileBehaviorVerification
             EnemyProjectile smoke = smokeEnemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.EyeDoorSmoke);
             MiscDustProjectileProgram expected = MiscDustProjectiles.Program(animation);
-            AssertTrue(smoke.Animation is MiscDustProjectileAnimation started && started.Cursor.Program == expected,
+            AssertTrue(smoke.Animation is MiscDustProjectileAnimation started && started.PlayingSegment == expected,
                 $"Eye Door {puff} starts {expected}");
             int smokeCalls = 0;
             while (smoke.IsActive && smokeCalls < 40)

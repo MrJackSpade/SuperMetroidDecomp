@@ -4,19 +4,21 @@ using static SuperMetroid.Verification.Areas.Tourian.TourianEntranceStatueNative
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Verification.Areas.Tourian;
 
-/// <summary>#641: the Tourian entrance statue's typed programs, each matched step by step to its native bank-$AA list.</summary>
+/// <summary>#641, #1600: the Tourian entrance statue's typed animations, each segment matched to its native bank-$AA list.</summary>
 internal static class TourianEntranceStatueAnimationsVerification
 {
-    /// <summary>Every program matches its native list.</summary>
+    /// <summary>Every segment matches its native list and every animation the lists' control flow.</summary>
     internal static void VerifyTourianEntranceStatueAnimations(SuperMetroidAddressSpace rom)
     {
-        int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, TourianEntranceStatueAnimations.Programs,
+        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, TourianEntranceStatueAnimations.Segments,
+            TourianEntranceStatueAnimations.StartingAt,
             frame => EnemyFrameCartridgeLookupTooling.Word(TourianEntranceStatueFrameDefinitions.ShownFrames.Of(frame)),
-            word => null,
-            (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions."));
-        Console.WriteLine($"  Tourian entrance statue programs: {Entries.Length} programs ({steps} steps) match bank $AA.");
+            new NativeEnemyCueRules<NoAnimationCue>(word => null,
+                (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions.")));
+        Console.WriteLine($"  Tourian entrance statue animations: {Entries.Length} segments ({beats} beats) match bank $AA.");
     }
 }

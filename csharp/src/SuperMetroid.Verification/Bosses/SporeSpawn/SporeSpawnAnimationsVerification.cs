@@ -21,10 +21,10 @@ using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.MovieReplay.Verification;
 
 /// <summary>
-/// #1288: Spore Spawn's typed body and projectile programs against the retail cartridge. Each body program must
-/// match its native list step by step (the walk also yields each step's native instruction address, so replays and
-/// traces can compare typed cursors with native pointers), and each projectile program must match its bank-$86 list
-/// update by update.
+/// #1288, #1600: Spore Spawn's typed body and projectile animations against the retail cartridge. Each body segment
+/// must match its native list beat by beat and each body animation the lists' control flow (the walk also yields each
+/// beat's native instruction address, so replays and traces can compare typed playbacks with native pointers), and each
+/// projectile animation must match its bank-$86 list update by update.
 /// </summary>
 internal static class SporeSpawnAnimationsVerification
 {
@@ -36,131 +36,81 @@ internal static class SporeSpawnAnimationsVerification
         for (int index = 0; index < BodyEntries.Length; index++)
             AssertEqual((SporeSpawnBodyProgram)index, BodyEntries[index].Program, "the Spore Spawn body programs are declared in authored order");
         AssertTrue(BodyEntries.Zip(BodyEntries.Skip(1), (first, second) => first.Entry < second.Entry).All(ascends => ascends), "native Spore Spawn body entries ascend");
-        var body = BodyStepAddresses(cartridge);
+        var body = BodyLists(cartridge);
         int updates = VerifyProjectilePrograms(rom);
         AssertEqual(SporeSpawnProjectileVisualDefinitions.ProjectileFrameCount, SporeSpawnProjectileVisualDefinitions.ProjectileFrames.Count,
             "the projectile catalog lists every frame");
-        Console.WriteLine($"  Spore Spawn programs: {body.Count} body programs ({body.Values.Sum(steps => steps.Length)} steps) match bank $A5, " +
+        Console.WriteLine($"  Spore Spawn animations: {body.Count} body segments ({body.Values.Sum(list => list.BeatAddresses.Length)} beats) match bank $A5, " +
             $"and {ProjectileEntries.Length} projectile programs match bank $86 over {updates} updates.");
     }
 
-    /// <summary>Compares every body program with its native list and returns each typed step's native address.</summary>
-    internal static Dictionary<SporeSpawnBodyProgram, ushort[]> BodyStepAddresses(IImportCartridgeSource cartridge) =>
-        BodyEntries.ToDictionary(item => item.Program, item => CompareBodyProgram(cartridge, item.Program, item.Entry));
+    /// <summary>Each body segment's native entry, in authored order.</summary>
+    private static NativeProgramEntry<SporeSpawnBodyProgram>[] BodyListEntries =>
+        [.. BodyEntries.Select(item => new NativeProgramEntry<SporeSpawnBodyProgram>(item.Program, item.Entry))];
 
-    /// <summary>Compares one body program with its native list and returns each typed step's native address.</summary>
-    private static ushort[] CompareBodyProgram(IImportCartridgeSource cartridge, SporeSpawnBodyProgram program, ushort entry)
+    /// <summary>
+    /// Compares every body segment with its native list and every body animation with the lists' control flow, and
+    /// returns each list's beat and control addresses, which translate a typed playback to the native pointer.
+    /// </summary>
+    internal static Dictionary<SporeSpawnBodyProgram, NativeEnemyList<SporeSpawnBodyProgram>> BodyLists(IImportCartridgeSource cartridge)
     {
-        var steps = SporeSpawnAnimations.Programs.Steps(program);
-        var addresses = new ushort[steps.Count];
-        ushort cursor = entry;
-        for (int index = 0; index < steps.Count; index++)
+        Dictionary<SporeSpawnBodyProgram, NativeEnemyList<SporeSpawnBodyProgram>> lists = NativeEnemyAnimationOracle.Lists(cartridge, BodyBankNumber,
+            BodyListEntries, SporeSpawnAnimations.Segments, SporeSpawnFrameDefinitionsConstants.Spritemap,
+            new NativeEnemyCueRules<SporeSpawnCue>(
+                word => BodyInstructions.TryGetValue(word, out var instruction) ? instruction.Operands : null,
+                (word, operands, cue, at) => CompareBodyCue(cartridge, word, operands, cue, at)));
+        NativeEnemyAnimationOracle.CompareAnimations(lists, SporeSpawnAnimations.StartingAt);
+        return lists;
+    }
+
+    /// <summary>Compares one native body instruction's operands with the cue it became.</summary>
+    private static void CompareBodyCue(IImportCartridgeSource cartridge, ushort word, ushort[] operands, SporeSpawnCue cue, string at)
+    {
+        BodyInstructions[word].Cue.Check(cue, at);
+        switch (cue)
         {
-            string at = $"Spore Spawn {program} step {index}";
-            addresses[index] = cursor;
-            var step = steps[index];
-            if (cursor != entry && BodyProgramAt(cursor) is { } next)
-            {
-                var fallInto = AssertIs<AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.FallIntoStep>(step, $"{at}: runs on into the next authored program");
-                AssertEqual(next, fallInto.Target, $"{at}: fall-through target");
-                AssertEqual(steps.Count, index + 1, $"{at}: fall-through ends the program");
-                return addresses;
-            }
-            int address = (BodyBankNumber << 16) | cursor;
-            ushort word = cartridge.ReadCartridgeWord(address);
-            ushort operand = cartridge.ReadCartridgeWord(address + 2);
-            switch (NativeEnemyListDefinitions.Classify(word))
-            {
-                case NativeEnemyListDefinitions.WordKind.Frame:
-                    var show = AssertIs<AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.ShowStep>(step, $"{at}: frame");
-                    AssertEqual(word, show.Duration, $"{at}: duration");
-                    AssertEqual(operand, SporeSpawnFrameDefinitionsConstants.Spritemap(show.Frame), $"{at}: spritemap");
-                    cursor = unchecked((ushort)(cursor + 4));
-                    continue;
-                case NativeEnemyListDefinitions.WordKind.Sleep:
-                    AssertTrue(step is AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.HoldStep, $"{at}: sleep");
-                    AssertEqual(steps.Count, index + 1, $"{at}: sleep ends the program");
-                    return addresses;
-                case NativeEnemyListDefinitions.WordKind.GoTo:
-                    var goTo = AssertIs<AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.GoToStep>(step, $"{at}: goto");
-                    AssertEqual(BodyProgramAt(operand), goTo.Target, $"{at}: goto target");
-                    AssertEqual(steps.Count, index + 1, $"{at}: goto ends the program");
-                    return addresses;
-                case NativeEnemyListDefinitions.WordKind.SetCounter:
-                    var setCounter = AssertIs<AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.SetCounterStep>(step, $"{at}: counter load");
-                    AssertEqual(operand, setCounter.Count, $"{at}: counter");
-                    cursor = unchecked((ushort)(cursor + 4));
-                    continue;
-                case NativeEnemyListDefinitions.WordKind.RepeatWhileCounting:
-                    var repeat = AssertIs<AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.RepeatWhileCountingStep>(step, $"{at}: counted repeat");
-                    AssertEqual(BodyProgramAt(operand), repeat.Target, $"{at}: repeat target");
-                    cursor = unchecked((ushort)(cursor + 4));
-                    continue;
-                case NativeEnemyListDefinitions.WordKind.Wait:
-                    var wait = AssertIs<AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.WaitStep>(step, $"{at}: wait");
-                    AssertEqual(operand, wait.Duration, $"{at}: wait length");
-                    cursor = unchecked((ushort)(cursor + 4));
-                    continue;
-                case NativeEnemyListDefinitions.WordKind.Callback:
-                {
-                    AssertTrue(BodyInstructions.TryGetValue(word, out var instruction), $"{at}: native instruction ${word:X4} is known");
-                    var cueStep = AssertIs<AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.CueStep>(step, $"{at}: instruction");
-                    SporeSpawnCue cue = cueStep.Cue;
-                    instruction.Cue.Check(cue, at);
-                    switch (cue)
-                    {
-                        case SporeSpawnCue.SetFunction setFunction:
-                            AssertEqual(operand, SporeSpawnNativeWords.SporeSpawnFunctions.Word(setFunction.Function), $"{at}: the cartridge's routine word names the cue's function");
-                            break;
-                        case SporeSpawnCue.SetMaxXRadiusAndAngleDelta sway:
-                            AssertEqual(operand, sway.MaximumXRadius, $"{at}: maximum X radius in pixels");
-                            AssertEqual(unchecked((short)cartridge.ReadCartridgeWord(address + 4)), sway.AngleDelta, $"{at}: signed angle delta");
-                            break;
-                        case SporeSpawnCue.SetSporeGeneration setSporeGeneration:
-                            AssertEqual(operand != 0, setSporeGeneration.SporeGenerationSuppressed, $"{at}: spore generation stopped");
-                            break;
-                        case SporeSpawnCue.QueueSound queueSound:
-                            AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, operand), queueSound.Sound, $"{at}: library-two sound");
-                            break;
-                        case SporeSpawnCue.LoadDeathPalette loadDeathPalette:
-                            AssertEqual(operand, checked((ushort)(loadDeathPalette.DeathPaletteStep * SporeSpawnSourceDefinitions.ImageBytes)), $"{at}: the cartridge's byte offset names the cue's death image");
-                            break;
-                        case SporeSpawnCue.LoadDeathTargetPalette loadDeathTargetPalette:
-                            AssertEqual(operand, checked((ushort)(loadDeathTargetPalette.DeathPaletteStep * SporeSpawnSourceDefinitions.ImageBytes)), $"{at}: the cartridge's byte offset names the cue's death image");
-                            break;
-                        case SporeSpawnCue.Command:
-                            break;
-                        default:
-                            throw new InvalidOperationException($"Undefined Spore Spawn cue {cue}.");
-                    }
-                    cursor = unchecked((ushort)(cursor + 2 + 2 * instruction.Operands));
-                    continue;
-                }
-                case NativeEnemyListDefinitions.WordKind.Stop:
-                    throw new InvalidDataException($"{at}: Spore Spawn's body lists use no stops.");
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(NativeEnemyListDefinitions.WordKind)}.");
-            }
+            case SporeSpawnCue.SetFunction setFunction:
+                AssertEqual(operands[0], SporeSpawnNativeWords.SporeSpawnFunctions.Word(setFunction.Function), $"{at}: the cartridge's routine word names the cue's function");
+                break;
+            case SporeSpawnCue.SetMaxXRadiusAndAngleDelta sway:
+                AssertEqual(operands[0], sway.MaximumXRadius, $"{at}: maximum X radius in pixels");
+                AssertEqual(unchecked((short)operands[1]), sway.AngleDelta, $"{at}: signed angle delta");
+                break;
+            case SporeSpawnCue.SetSporeGeneration setSporeGeneration:
+                AssertEqual(operands[0] != 0, setSporeGeneration.SporeGenerationSuppressed, $"{at}: spore generation stopped");
+                break;
+            case SporeSpawnCue.QueueSound queueSound:
+                AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, operands[0]), queueSound.Sound, $"{at}: library-two sound");
+                break;
+            case SporeSpawnCue.LoadDeathPalette loadDeathPalette:
+                AssertEqual(operands[0], checked((ushort)(loadDeathPalette.DeathPaletteStep * SporeSpawnSourceDefinitions.ImageBytes)), $"{at}: the cartridge's byte offset names the cue's death image");
+                break;
+            case SporeSpawnCue.LoadDeathTargetPalette loadDeathTargetPalette:
+                AssertEqual(operands[0], checked((ushort)(loadDeathTargetPalette.DeathPaletteStep * SporeSpawnSourceDefinitions.ImageBytes)), $"{at}: the cartridge's byte offset names the cue's death image");
+                break;
+            case SporeSpawnCue.Command:
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined Spore Spawn cue {cue}.");
         }
-        throw new InvalidDataException($"Spore Spawn {program} has steps past its native list.");
     }
 
     /// <summary>
-    /// The spritemaps Spore Spawn's body programs show; <see cref="CompareBodyProgram"/> confirms each equals the
+    /// The spritemaps Spore Spawn's body segments show; <see cref="BodyLists"/> confirms each equals the
     /// native list's operand.
     /// </summary>
     internal static HashSet<ushort> BodySpritemaps() =>
-        [.. BodyEntries.SelectMany(item => SporeSpawnAnimations.Programs.Steps(item.Program))
-            .OfType<AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.ShowStep>()
-            .Select(step => SporeSpawnFrameDefinitionsConstants.Spritemap(step.Frame))];
+        [.. BodyEntries.SelectMany(item => SporeSpawnAnimations.Segments.Beats(item.Program))
+            .OfType<AnimationBeat<SporeSpawnFrame, SporeSpawnCue>.Frame>()
+            .Select(frame => SporeSpawnFrameDefinitionsConstants.Spritemap(frame.Shown))];
 
     /// <summary>The frames Spore Spawn's body programs show, counting each native frame record once.</summary>
     internal static int BodyFrameRecordCount =>
-        BodyEntries.Sum(item => SporeSpawnAnimations.Programs.Steps(item.Program).Count(step => step is AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.ShowStep));
+        BodyEntries.Sum(item => SporeSpawnAnimations.Segments.Beats(item.Program).Count(beat => beat is AnimationBeat<SporeSpawnFrame, SporeSpawnCue>.Frame));
 
-    /// <summary>The native instruction pointer of Spore Spawn's body, translated from its typed cursor.</summary>
-    internal static ushort NativeBodyInstruction(Dictionary<SporeSpawnBodyProgram, ushort[]> steps, SporeSpawnEnemyState state) =>
-        steps[state.BodyProgram.Program][state.BodyProgram.Position];
+    /// <summary>The native instruction pointer of Spore Spawn's body, translated from its typed playback.</summary>
+    internal static ushort NativeBodyInstruction(Dictionary<SporeSpawnBodyProgram, NativeEnemyList<SporeSpawnBodyProgram>> lists, SporeSpawnEnemyState state) =>
+        NativeEnemyAnimationOracle.PointerOf(lists, BodyListEntries, SporeSpawnAnimations.StartingAt, state.BodyPlayback);
 
     /// <summary>
     /// Runs every projectile program on a real spore beside its native list, comparing timer, frame, deletion, the
@@ -176,7 +126,7 @@ internal static class SporeSpawnAnimationsVerification
             enemies.SporeSpawnBehavior.SpawnSporeSpawnSpore(new(128, 256));
             EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.SporeSpawnSpore);
             AssertTrue(projectile.Animation is SporeSpawnProjectileAnimation started &&
-                started.Cursor == AnimationProgramCursor<SporeSpawnProjectileProgram>.Start(SporeSpawnProjectileProgram.Spore),
+                started.Playback == new AnimationPlayback<SporeSpawnProjectileProgram>(SporeSpawnProjectileAnimations.StartingWith(SporeSpawnProjectileProgram.Spore), AnimationPlace.StartOfAnimation),
                 "the real spore producer starts the falling-spore program");
             projectile.StartAnimation(new SporeSpawnProjectileAnimation(program));
             var native = new NativeEnemyProjectileListReader(entry, projectile.FrameHold.RawValue);
@@ -236,7 +186,7 @@ internal static class SporeSpawnAnimationsVerification
             MovementCenter = body.Position.Whole,
             MaximumXRadius = 48,
             AngleDelta = 1,
-            BodyProgram = AnimationProgramCursor<SporeSpawnBodyProgram>.Start(program),
+            BodyPlayback = new AnimationPlayback<SporeSpawnBodyProgram>(SporeSpawnAnimations.StartingWith(program), AnimationPlace.StartOfAnimation),
         };
         enemies.VerificationServices().NextRandom = () => 4660;
         enemies.DeathsAndDrops.BindSamus(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Health = 99, MaxHealth = 99 });

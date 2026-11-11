@@ -7,10 +7,13 @@ namespace SuperMetroid.Core.Enemies.EyeDoor;
 
 /// <summary>The eye-door sweat drop's typed animation.</summary>
 internal sealed class EyeDoorSweatAnimation(EyeDoorSweatProgram program)
-    : EnemyProjectileProgramAnimation<EyeDoorSweatProgram, EyeDoorSweatFrame, EnemyProjectileCommonCue>(program)
+    : EnemyProjectileTypedAnimation<EyeDoorSweatProgram, EyeDoorSweatFrame, EnemyProjectileCommonCue>(EyeDoorSweatAnimations.StartingWith(program))
 {
     /// <inheritdoc/>
-    private protected override AnimationProgramSet<EyeDoorSweatProgram, EyeDoorSweatFrame, EnemyProjectileCommonCue> Programs => EyeDoorSweatAnimations.Programs;
+    private protected override AnimationSegments<EyeDoorSweatProgram, EyeDoorSweatFrame, EnemyProjectileCommonCue> Segments => EyeDoorSweatAnimations.Segments;
+
+    /// <inheritdoc/>
+    private protected override IReadOnlyDictionary<EyeDoorSweatProgram, Animation<EyeDoorSweatProgram>> StartingAt => EyeDoorSweatAnimations.StartingAt;
 
     /// <inheritdoc/>
     private protected override EnemyProjectileFrameId Present(EyeDoorSweatFrame frame) =>

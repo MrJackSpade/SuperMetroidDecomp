@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.Verification.Bosses.SporeSpawn.SporeSpawnAnimationsVerification;
 using SuperMetroid.Verification.Bosses.SporeSpawn;
@@ -34,7 +35,7 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
         int framesCompared = 0;
         var allNativeSelectors = new HashSet<ushort>();
         // Spore Spawn's body runs typed programs (#1288); its cursor is compared as the native pointer it stands for.
-        var steps = BodyStepAddresses(CartridgeImportSource.Require(rom));
+        var steps = BodyLists(CartridgeImportSource.Require(rom));
         foreach ((SporeSpawnBodyProgram program, int frames) in programs)
         {
             ushort pointer = SporeSpawnNativeListAddresses.BodyEntry(program);
@@ -137,7 +138,7 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
     }
     /// <summary>Captures the live state compared with one native Spore Spawn instruction tick.</summary>
     private static SporeSpawnProgramFrame CaptureSporeSpawnProgramFrame(
-        RoomEnemySystem system, RoomEnemySlot slot, Dictionary<SporeSpawnBodyProgram, ushort[]> steps)
+        RoomEnemySystem system, RoomEnemySlot slot, Dictionary<SporeSpawnBodyProgram, NativeEnemyList<SporeSpawnBodyProgram>> steps)
     {
         SporeSpawnEnemyState state = (system.SporeSpawn ?? throw new InvalidOperationException("Verification requires system.SporeSpawn."));
         var properties = new SuperMetroid.AssetExtraction.Enemies.EnemyPropertyState(

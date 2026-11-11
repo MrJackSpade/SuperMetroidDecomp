@@ -61,7 +61,7 @@ internal static class KiHunterAcidSpitBehaviorVerification
 
     /// <summary>The typed program <paramref name="projectile"/> runs.</summary>
     private static KiHunterAcidSpitProgram ProgramOf(EnemyProjectile projectile) =>
-        projectile.Animation is KiHunterAcidSpitAnimation animation ? animation.Cursor.Program
+        projectile.Animation is KiHunterAcidSpitAnimation animation ? animation.PlayingSegment
             : throw new InvalidOperationException("The spit runs no typed program.");
 
     /// <summary>Runs the Ki-Hunter acid's program oracle and behavior suite.</summary>

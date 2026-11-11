@@ -35,13 +35,13 @@ internal static class EyeDoorSweatBehaviorVerification
         var request = new EyeDoorProjectileRequest(EyeDoorProjectileDefinition.Sweat, Facing: EyeDoorOrientation.Right, RoomObjectBlockIndex: 4 * roomWidth + 7, Door: SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(0));
         enemies.EyeDoorBehavior.SpawnEyeDoorProjectile(request, roomWidth, new SharedGameState(new SharedRandom()));
         EnemyProjectile sweat = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.EyeDoorSweat);
-        AssertTrue(sweat.Animation is EyeDoorSweatAnimation { Cursor.Program: EyeDoorSweatProgram.Falling }, "the sweat starts its fall");
+        AssertTrue(sweat.Animation is EyeDoorSweatAnimation { PlayingSegment: EyeDoorSweatProgram.Falling }, "the sweat starts its fall");
         (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, sweat,
             EyeDoorSweatNativeListAddresses.Entry(EyeDoorSweatProgram.Falling), 20, "eye-door sweat fall");
         AssertTrue(!deleted, "the fall loops");
 
         EyeDoorBehavior.RunEyeDoorSweatFrameBehavior(sweat, level);
-        AssertTrue(sweat.Animation is EyeDoorSweatAnimation { Cursor.Program: EyeDoorSweatProgram.HitFloor }, "the floor collision starts the splash");
+        AssertTrue(sweat.Animation is EyeDoorSweatAnimation { PlayingSegment: EyeDoorSweatProgram.HitFloor }, "the floor collision starts the splash");
         AssertEqual(EnemyProjectileFrameBehavior.Stationary, sweat.FrameBehavior,
             "the splash stops the drop with the native inert pre-instruction");
         AssertEqual((ushort)76, sweat.Position.Y.Whole, "the splash applies the native four-pixel floor correction");

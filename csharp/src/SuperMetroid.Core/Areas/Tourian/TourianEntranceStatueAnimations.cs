@@ -9,24 +9,29 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// </summary>
 internal static class TourianEntranceStatueAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<TourianEntranceStatueProgram, TourianEntranceStatueFrame, NoAnimationCue> Programs { get; } = new(
-        new Dictionary<TourianEntranceStatueProgram, AnimationProgramStep<TourianEntranceStatueProgram, TourianEntranceStatueFrame, NoAnimationCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<TourianEntranceStatueProgram, TourianEntranceStatueFrame, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<TourianEntranceStatueProgram, AnimationBeat<TourianEntranceStatueFrame, NoAnimationCue>[]>
     {
         [P.Ridley] =
         [
-            Stop,
         ],
         [P.Phantoon] =
         [
-            Stop,
         ],
         [P.BaseDecoration] =
         [
-            Stop,
         ],
     });
 
-    /// <summary>Ends the actor's program, as the stop does.</summary>
-    private static AnimationProgramStep<TourianEntranceStatueProgram, TourianEntranceStatueFrame, NoAnimationCue> Stop => AnimationProgramStep<TourianEntranceStatueProgram, TourianEntranceStatueFrame, NoAnimationCue>.Stop;
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<TourianEntranceStatueProgram, Animation<TourianEntranceStatueProgram>> StartingAt { get; } = new Dictionary<TourianEntranceStatueProgram, Animation<TourianEntranceStatueProgram>>
+    {
+        [P.Ridley] = new([], AnimationEnd.Stops),
+        [P.Phantoon] = new([], AnimationEnd.Stops),
+        [P.BaseDecoration] = new([], AnimationEnd.Stops),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<TourianEntranceStatueProgram> StartingWith(TourianEntranceStatueProgram segment) => StartingAt[segment];
 }

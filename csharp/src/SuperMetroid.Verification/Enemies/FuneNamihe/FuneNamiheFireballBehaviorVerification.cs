@@ -38,7 +38,7 @@ internal static class FuneNamiheFireballBehaviorVerification
                 enemies.FuneNamiheBehavior.SpawnFuneNamiheFireball(source, movingRight ? HorizontalDirection.Right : HorizontalDirection.Left, kind);
                 EnemyProjectile fireball = enemies.Projectiles.EnemyProjectiles.Single(candidate => candidate.Kind == kind);
                 FuneNamiheFireballProgram program = movingRight ? FuneNamiheFireballProgram.Right : FuneNamiheFireballProgram.Left;
-                AssertTrue(fireball.Animation is FuneNamiheFireballAnimation animation && animation.Cursor.Program == program,
+                AssertTrue(fireball.Animation is FuneNamiheFireballAnimation animation && animation.PlayingSegment == program,
                     $"the {kind} fireball moving {(movingRight ? "right" : "left")} starts {program}");
                 (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, fireball,
                     NativeEnemyProjectileProgramOracle.EntryOf(FuneNamiheFireballNativeListAddresses.Entries, program), 30, $"{kind} {program}");

@@ -218,9 +218,9 @@ internal static class FrontendSheetColouringsVerification
             // A typed text is drawn as the glyphs typed so far, each glyph in the text's colouring; the colon is drawn whole.
             if (text.Program == EndingActorDefinitions.ClearTimeColon.Program)
                 continue;
-            int glyphs = CinematicSpriteAnimations.Programs.Steps(text.Program)
-                .OfType<AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>.ShowStep>()
-                .Select(step => step.Frame).Where(pose => pose != CinematicSpritePose.Blank).Distinct().Count();
+            int glyphs = CinematicSpriteAnimations.Segments.Beats(text.Program)
+                .OfType<AnimationBeat<CinematicSpritePose, CinematicSpriteCue>.Frame>()
+                .Select(frame => frame.Shown).Where(pose => pose != CinematicSpritePose.Blank).Distinct().Count();
             for (int glyph = 0; glyph < glyphs; glyph++)
                 Add(sets, TypedTextSpriteSheet.GlyphFrameName(CinematicSpriteFamily.EndingCompletionText, text.Program, glyph), EndingScreenInks.SpriteSet(text.Colouring));
         }
@@ -260,14 +260,14 @@ internal static class FrontendSheetColouringsVerification
         // (EndingRewardJump); the logo's four actors draw in the logo's colouring (EndingLogo).
         AddProgram(sets, CinematicSpriteFamily.EndingReward, CinematicSpriteProgram.Falling, EndingSpriteColouring.FallingSamus);
         EndingSpriteColouring landing = EndingSpriteColouring.FallingSamus;
-        foreach (AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue> step in
-            CinematicSpriteAnimations.Programs.Steps(CinematicSpriteProgram.Landing))
+        foreach (AnimationBeat<CinematicSpritePose, CinematicSpriteCue> beat in
+            CinematicSpriteAnimations.Segments.Beats(CinematicSpriteProgram.Landing))
         {
-            if (step is AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>.CueStep { Cue.Kind: CinematicSpriteCueKind.Shoot })
+            if (beat is AnimationBeat<CinematicSpritePose, CinematicSpriteCue>.Event { Raised.Kind: CinematicSpriteCueKind.Shoot })
                 landing = EndingSpriteColouring.ShootingSamus;
-            else if (step is AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>.ShowStep shown
-                && shown.Frame != CinematicSpritePose.Blank)
-                Add(sets, $"{CinematicSpriteFamily.EndingReward}.{shown.Frame.Index}", EndingScreenInks.SpriteSet(landing));
+            else if (beat is AnimationBeat<CinematicSpritePose, CinematicSpriteCue>.Frame shown
+                && shown.Shown != CinematicSpritePose.Blank)
+                Add(sets, $"{CinematicSpriteFamily.EndingReward}.{shown.Shown.Index}", EndingScreenInks.SpriteSet(landing));
         }
         for (int actor = 0; actor < EndingLogoDefinitions.ActorKinds.Length; actor++)
             AddProgram(sets, CinematicSpriteFamily.EndingLogo, EndingLogoActors.Actor(actor).Program, EndingSpriteColouring.Logo);
@@ -295,7 +295,7 @@ internal static class FrontendSheetColouringsVerification
     private static void AddProgram(Dictionary<string, HashSet<int>> sets, CinematicSpriteFamily family, CinematicSpriteProgram program,
         EndingSpriteColouring colouring)
     {
-        foreach (CinematicSpritePose pose in CinematicSpriteAnimations.Programs.FramesFrom(program))
+        foreach (CinematicSpritePose pose in CinematicSpriteAnimations.Segments.FramesOf(CinematicSpriteAnimations.StartingWith(program)))
         {
             if (pose != CinematicSpritePose.Blank)
                 Add(sets, $"{family}.{pose.Index}", EndingScreenInks.SpriteSet(colouring));

@@ -147,10 +147,10 @@ different colours. Regions are worked out over the opaque pixels and the backdro
 The file is `game/recolour-regions/<family>/<sheet>.regions`, format revision 1. It is JSON:
 
 ```json
-{ "version": 1, "width": 64, "height": 2, "rows": [ [0, 40, 1, 24], [0, 64] ] }
+{ "version": 1, "size": { "x": 64, "y": 2 }, "rows": [ [0, 40, 1, 24], [0, 64] ] }
 ```
 
-- `width` and `height` are the image's size.
+- `size` is the image's width (`x`) and height (`y`).
 - `rows` holds one entry per pixel row, from the top.
 - Each row is a run-length list of `region, count` pairs, read from the left. A row's counts add up to exactly `width`.
 - Every opaque pixel's region applies to the pixel's own colour in the picture. Clear pixels are written as region 0
@@ -164,10 +164,10 @@ others.
 The file is `game/blend-maps/<family>/<sheet>.blendmap`, format revision 1. It is JSON:
 
 ```json
-{ "version": 1, "width": 64, "height": 2, "rows": [ [3, 5, 20, 2], [] ] }
+{ "version": 1, "size": { "x": 64, "y": 2 }, "rows": [ [3, 5, 20, 2], [] ] }
 ```
 
-- `width` and `height` are the image's size.
+- `size` is the image's width (`x`) and height (`y`).
 - `rows` holds one entry per pixel row, from the top.
 - Each row lists its runs of blending pixels from the left as `start, count` pairs. The runs are in order, do not
   overlap, and stay inside the row.

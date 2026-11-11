@@ -38,7 +38,7 @@ internal static class NativeColouredPictures
                     with { A = pixels[pixel].A };
         }
         ColourKey? backdrop = source.Composed.Backdrop is { } backdropIndex
-            ? ColourKey.Of(nativeColours[InstalledPictureColoursConstants.CartridgeColourOfIndex(picture, backdropIndex, drawRow)])
+            ? ColourKeyConstants.Of(nativeColours[InstalledPictureColoursConstants.CartridgeColourOfIndex(picture, backdropIndex, drawRow)])
             : null;
         bool[]? blending = picture.Blending.IsEmpty ? null : picture.Blending.ToArray();
         SpriteImage copy = SpriteImageFixtures.Copied(picture.Name, picture.Size, new SpriteImagePixels(shown, RecolourRegions: null, blending),
@@ -112,11 +112,10 @@ internal static class NativeColouredPictures
         }
         // A frontend draw's colouring is the row the cartridge ORs into every part (#1512); each sheet is copied once per row.
         var copies = new Dictionary<SheetCopy, SpriteImage>();
-        foreach (ImageSpriteDraw image in images)
+        foreach (SheetCopy key in images.Select(CopyOf).Distinct())
         {
-            SheetCopy key = CopyOf(image);
-            if (!copies.ContainsKey(key))
-                copies.Add(key, OfSheet(key.Sheet, nativeColours, key.Row));
+            SpriteImage copy = OfSheet(key.Sheet, nativeColours, key.Row);
+            copies.Add(key, copy);
         }
         var shown = ImmutableArray.CreateBuilder<SpriteDraw>(draws.Length);
         foreach (ImageSpriteDraw image in images)

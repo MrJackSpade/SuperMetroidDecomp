@@ -497,10 +497,12 @@ for its place among the seven, `scrolling-sky-page-{0-6}.json`.
 
 Sprites are moving to finished images. A sprite family that has moved is drawn from a pre-coloured
 sheet in `game/sprite-sheets`: an RGBA PNG (`{family}.png`, transparent where alpha is zero) and its
-frame list (`{family}.json`: each frame's rectangle on the sheet, its origin, whether it takes part
-in colour math, and the colours it was coloured with), and a palette map (`{family}.palette.png`: each
-pixel's sprite palette row and colour, in red) that lets in-game palette effects such as flashes recolour
-the sheet. Edit these files in place; an
+frame list (`{family}.json`: each frame's rectangle on the sheet, its origin, whether it blends, and the
+shades it is pre-coloured in, each a list of colours shown in place of the sheet's own). A sheet whose pixels
+of one colour recolour differently, or whose pictures blend in some pixels only, also has a map in its own
+folder (`game/recolour-regions`, `game/blend-maps`); see `docs/installed-pictures.md`. A clear pixel keeps
+its colour under alpha zero, so an editor must not rewrite the RGB of transparent pixels. Edit these files
+in place; an
 edited frame list must keep every frame the family draws. The escape countdown (`escape-timer`) is drawn
 this way, as are Samus's projectiles, bombs, charge flare and trails: one sheet per beam combination
 (`projectiles-power`, `projectiles-plasma-ice-wave` and so on), whose characters and beam colours differ,

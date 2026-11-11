@@ -11,6 +11,4 @@ namespace SuperMetroid.Core.Assets;
 /// <param name="Region">The recolour region the pixels lie in among the picture's pixels of <paramref name="Colour"/>.</param>
 public readonly record struct ColourKey(RgbColor Colour, int Region)
 {
-    /// <summary>The key of the pixels of <paramref name="colour"/> in a picture that recolours each colour alike.</summary>
-    public static ColourKey Of(RgbColor colour) => new(colour, 0);
 }

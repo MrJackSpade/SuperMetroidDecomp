@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.TorizoLandingLifetimeVerification;

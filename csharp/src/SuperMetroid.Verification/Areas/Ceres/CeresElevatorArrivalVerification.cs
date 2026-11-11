@@ -88,6 +88,26 @@ internal static class CeresElevatorArrivalVerification
         VerificationAssertions.AssertEqual((byte)0x8f, rom.ReadCartridgeByte(0x828130), "the new-game clear stores a long address");
         VerificationAssertions.AssertEqual((byte)0x7e, rom.ReadCartridgeByte(0x828133), "the new-game clear stores into work RAM");
         int spriteColour = (cartridge.ReadCartridgeWord(0x828131) - NativeSnapshotMemory.PaletteBuffer) / sizeof(ushort) - SpriteColoursFirst;
+        // On the cartridge the concealer's shade clears one of the sprite colours, so in the sheet its set composes it shows black
+        // exactly the colour keys whose pixels were composed as that colour. The sheet composed in-process knows the index each
+        // pixel was composed as (#1544, #1633).
+        RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetLists.Of(SuperMetroid.Core.World.RoomStates.CeresRoomStateDefinitions.CeresElevDefault);
+        SpriteImage[] composed = [.. EnemySheetFixtures.ComposedSpawnedSheets(set).Select(sheet => sheet.Image)
+            .Where(image => image.Shades.ContainsKey(CeresElevatorShades.ConcealerCleared))];
+        VerificationAssertions.AssertTrue(composed.Length > 0, "the Ceres elevator's graphics set composes a spawned sheet pre-coloured in the concealer's shade");
+        foreach (SpriteImage sheet in composed)
+        {
+            ColourKey[] cleared = [.. sheet.ColourKeys
+                .Where(key => SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.ComposedIndicesOf(sheet, key).Contains(spriteColour))
+                .OrderBy(Spelled, StringComparer.Ordinal)];
+            KeyedSubstitution[] entries = [.. sheet.Shade(CeresElevatorShades.ConcealerCleared).Substitutions];
+            ColourKey[] recoloured = [.. entries.Select(entry => entry.Replaced).OrderBy(Spelled, StringComparer.Ordinal)];
+            VerificationAssertions.AssertTrue(cleared.Length > 0 && recoloured.SequenceEqual(cleared) && entries.All(entry => entry.Shown == RgbColor.Black),
+                $"the concealer's shade shows exactly the cartridge's cleared sprite colour {spriteColour} of {sheet.Name} black: the keys composed "
+                + $"as it are [{string.Join(", ", cleared)}], and it recolours [{string.Join(", ", entries.Select(entry => entry.Replaced))}] to "
+                + $"[{string.Join(", ", entries.Select(entry => entry.Shown))}]");
+        }
+        // The arrival draws the installed pictures, some of whose pixels the installed concealer's shade shows black.
         var frame = new SpriteFrameBuffer();
         frame.BeginFrame();
         arrival.Draw(frame, SpawnedObjectFixtures.Presentation(SuperMetroid.Core.World.RoomStates.CeresRoomStateDefinitions.CeresElevDefault),
@@ -99,19 +119,9 @@ internal static class CeresElevatorArrivalVerification
         {
             SpriteSheetFrame picture = ((ImageSpriteDraw)draw).Image;
             SpriteImage sheet = picture.Sheet;
-            // The colour keys the draw's picture shows, and of them those whose pixels were composed as the cleared colour;
-            // the sheet's other keys belong to the other pictures it holds (#1544, #1633).
-            Dictionary<ColourKey, SortedSet<int>> shown = ShownKeys(picture);
-            ColourKey[] cleared = [.. shown.Where(entry => entry.Value.Contains(spriteColour)).Select(entry => entry.Key).OrderBy(Spelled, StringComparer.Ordinal)];
-            showsCleared |= cleared.Length > 0;
-            PictureRecolouring shade = sheet.Shade(CeresElevatorShades.ConcealerCleared);
-            KeyedSubstitution[] entries = [.. shade.Substitutions.Where(substitution => shown.ContainsKey(substitution.Replaced))];
-            ColourKey[] recoloured = [.. entries.Select(entry => entry.Replaced).OrderBy(Spelled, StringComparer.Ordinal)];
-            RgbColor[] colours = [.. entries.Select(entry => entry.Shown)];
-            VerificationAssertions.AssertTrue(recoloured.SequenceEqual(cleared) && colours.All(colour => colour == RgbColor.Black),
-                $"the concealer's shade shows exactly the cartridge's cleared sprite colour {spriteColour} of {draw} black: of its picture's keys "
-                + $"composed as [{string.Join(", ", shown.Select(entry => $"{entry.Key}: {string.Join("/", entry.Value)}"))}] it recolours "
-                + $"[{string.Join(", ", entries.Select(entry => entry.Replaced))}] to [{string.Join(", ", colours)}]");
+            HashSet<ColourKey> blackened = [.. sheet.Shade(CeresElevatorShades.ConcealerCleared).Substitutions
+                .Where(entry => entry.Shown == RgbColor.Black).Select(entry => entry.Replaced)];
+            showsCleared |= ShownKeys(picture).Any(blackened.Contains);
         }
         VerificationAssertions.AssertTrue(showsCleared,
             $"an arrival draw shows the cartridge's cleared sprite colour {spriteColour}, the concealer's solid pixels");
@@ -120,27 +130,20 @@ internal static class CeresElevatorArrivalVerification
     /// <summary>A colour key spelled for ordering keys in a failure.</summary>
     private static string Spelled(ColourKey key) => key.ToString();
 
-    /// <summary>
-    /// The colour keys <paramref name="picture"/>'s opaque pixels show, each with the composed palette indices the picture's
-    /// pixels of that key were composed as.
-    /// </summary>
-    private static Dictionary<ColourKey, SortedSet<int>> ShownKeys(SpriteSheetFrame picture)
+    /// <summary>The colour keys <paramref name="picture"/>'s opaque pixels show.</summary>
+    private static HashSet<ColourKey> ShownKeys(SpriteSheetFrame picture)
     {
         SpriteImage sheet = picture.Sheet;
         ReadOnlySpan<RgbaPixel> pixels = sheet.Pixels;
         int width = sheet.Size.X;
-        var shown = new Dictionary<ColourKey, SortedSet<int>>();
+        var shown = new HashSet<ColourKey>();
         for (int row = 0; row < picture.Size.Y; row++)
         {
             int line = (picture.Corner.Y + row) * width + picture.Corner.X;
             for (int column = 0; column < picture.Size.X; column++)
             {
-                if (pixels[line + column].A == 0)
-                    continue;
-                ColourKey key = sheet.KeyAt(line + column);
-                if (!shown.TryGetValue(key, out SortedSet<int>? indices))
-                    shown.Add(key, indices = []);
-                indices.Add(SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.ComposedIndexAt(sheet, line + column));
+                if (pixels[line + column].A != 0)
+                    shown.Add(sheet.KeyAt(line + column));
             }
         }
         return shown;

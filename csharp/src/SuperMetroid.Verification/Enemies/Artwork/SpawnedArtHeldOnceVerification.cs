@@ -1,9 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

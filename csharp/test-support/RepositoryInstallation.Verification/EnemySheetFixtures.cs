@@ -49,6 +49,20 @@ internal static class EnemySheetFixtures
         return SpriteSheetFileConstants.Load(sheet.Manifest, $"Spawned-{owner}-{set.Name}", sheet.Size, sheet.Pixels, sheet.PaletteIndices);
     }
 
+    /// <summary>
+    /// Every spawned-object sheet graphics set <paramref name="set"/> draws, one for each owner of its spawned objects, composed
+    /// in-process as <see cref="ComposedSpawnedSheet"/> composes one owner's.
+    /// </summary>
+    internal static IEnumerable<SpriteSheet> ComposedSpawnedSheets(RoomEnemyGraphicsSetDefinition set)
+    {
+        ArgumentNullException.ThrowIfNull(set);
+        foreach (SpawnedObjectSheetSource source in EnemySheetComposer.Sources(Inputs, set).Spawned)
+        {
+            ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(source.Sources, 0, 0);
+            yield return SpriteSheetFileConstants.Load(sheet.Manifest, $"Spawned-{source.Plan.Owner}-{set.Name}", sheet.Size, sheet.Pixels, sheet.PaletteIndices);
+        }
+    }
+
     /// <summary>Sheets already composed, by enemy artwork.</summary>
     private static readonly ConditionalWeakTable<EnemyTileSourceArtwork, ComposedOnDemand> composed = new();
 

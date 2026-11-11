@@ -70,17 +70,6 @@ internal sealed class SelectedPresentationHash
         Append(label, bytes);
     }
 
-    /// <summary>Adds a sequence of eight-bit values, one byte each.</summary>
-    /// <param name="label">The field's label.</param>
-    /// <param name="values">The values, each 0 through 255; any other value is rejected.</param>
-    public void AppendBytes(string label, ReadOnlySpan<int> values)
-    {
-        var bytes = new byte[values.Length];
-        for (int index = 0; index < values.Length; index++)
-            bytes[index] = checked((byte)Ensure.BetweenInclusive(0, byte.MaxValue, values[index]));
-        Append(label, bytes);
-    }
-
     /// <summary>Adds a sequence of 16-bit values in little-endian order.</summary>
     /// <param name="label">The field's label.</param>
     /// <param name="words">The values, each 0 through 65535; any other value is rejected.</param>

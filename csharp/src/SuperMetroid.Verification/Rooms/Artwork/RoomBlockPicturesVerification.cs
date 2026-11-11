@@ -157,7 +157,7 @@ internal static class RoomBlockPicturesVerification
         SpriteImage sheet = picture.Sheet;
         int at = At(picture, pixel);
         // The message is built only for a failing pixel, since every checked pixel comes through here.
-        if (!(Painted(sheet, at) == expected && (colour == 0 || sheet.Pixels[at] == StandardOf(sheet, expected).ToRgbaPixel())))
+        if (!(colour == 0 ? sheet.Pixels[at].A == 0 : ShowsIndex(sheet, at, expected)))
             AssertTrue(false, $"{context}: the picture paints index {Painted(sheet, at)} where tile ${word.Raw:X4} paints {expected}");
     }
 
@@ -190,14 +190,12 @@ internal static class RoomBlockPicturesVerification
             return PaintsNothing(picture.Behind, pixel) && PaintsNothing(picture.InFront, pixel);
         if (shown is null)
             return false;
-        int at = At(shown, pixel);
-        return Painted(shown.Sheet, at) == expected && shown.Sheet.Pixels[at] == StandardOf(shown.Sheet, expected).ToRgbaPixel()
-            && PaintsNothing(other, pixel);
+        return ShowsIndex(shown.Sheet, At(shown, pixel), expected) && PaintsNothing(other, pixel);
     }
 
     /// <summary>Whether <paramref name="part"/> shows nothing at <paramref name="pixel"/>: it is not installed, or its pixel there is transparent.</summary>
     private static bool PaintsNothing(SpriteSheetFrame? part, Position16<ImagePixels> pixel) =>
-        part is null || Painted(part.Sheet, At(part, pixel)) == 0;
+        part is null || part.Sheet.Pixels[At(part, pixel)].A == 0;
 
     /// <summary>
     /// Whether two-bit <paramref name="picture"/> paints, at <paramref name="pixel"/>, what a tile in front when
@@ -210,20 +208,14 @@ internal static class RoomBlockPicturesVerification
         SpriteSheetFrame? shown = inFront ? picture.InFront : picture.Behind;
         SpriteSheetFrame? other = inFront ? picture.Behind : picture.InFront;
         if (expected == clear)
-            return picture.Parts.Any() && picture.Parts.All(part => PaintsClear(part, pixel, clear));
+            return picture.Parts.Any() && picture.Parts.All(part => PaintsClear(part, pixel));
         if (shown is null)
             return false;
-        int at = At(shown, pixel);
-        return Painted(shown.Sheet, at) == expected && shown.Sheet.Pixels[at] == StandardOf(shown.Sheet, expected).ToRgbaPixel()
-            && (other is null || PaintsClear(other, pixel, clear));
+        return ShowsIndex(shown.Sheet, At(shown, pixel), expected) && (other is null || PaintsClear(other, pixel));
     }
 
-    /// <summary>Whether two-bit <paramref name="part"/>'s pixel at <paramref name="pixel"/> is clear, as palette index <paramref name="clear"/>.</summary>
-    private static bool PaintsClear(SpriteSheetFrame part, Position16<ImagePixels> pixel, int clear)
-    {
-        int at = At(part, pixel);
-        return Painted(part.Sheet, at) == clear && part.Sheet.Pixels[at].A == 0;
-    }
+    /// <summary>Whether two-bit <paramref name="part"/>'s pixel at <paramref name="pixel"/> is clear.</summary>
+    private static bool PaintsClear(SpriteSheetFrame part, Position16<ImagePixels> pixel) => part.Sheet.Pixels[At(part, pixel)].A == 0;
 
     /// <summary>The place in <paramref name="part"/>'s sheet of the pixel at <paramref name="pixel"/> of its rectangle.</summary>
     private static int At(SpriteSheetFrame part, Position16<ImagePixels> pixel) =>
@@ -236,6 +228,15 @@ internal static class RoomBlockPicturesVerification
 
     /// <summary>The part of its picture <paramref name="word"/>'s priority puts its pixels in, for a failure's message.</summary>
     private static string PartOf(SnesBgTilemapWord word) => word.HasPriority ? "in front" : "behind";
+
+    /// <summary>
+    /// Whether <paramref name="sheet"/>'s pixel at <paramref name="at"/> is opaque and shows the colour key the import composed
+    /// palette index <paramref name="index"/> into (#1633): the index's colour, recoloured by every shade as the index is.
+    /// Pictures that differ only in where their colours came from are held once, so a pixel is checked by the colour it
+    /// shows, not by the index of the frame that holds its picture.
+    /// </summary>
+    private static bool ShowsIndex(SpriteImage sheet, int at, int index) =>
+        sheet.Pixels[at].A != 0 && InstalledPictureColoursConstants.KeyComposedAs(sheet, index) is { } key && sheet.KeyAt(at) == key;
 
     /// <summary>The palette index the import composed <paramref name="sheet"/>'s pixel at <paramref name="at"/> as (#1544); zero for a transparent pixel.</summary>
     private static int Painted(SpriteImage sheet, int at) => InstalledPictureColoursConstants.ComposedIndexAt(sheet, at);

@@ -1191,6 +1191,32 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Artwork.BlendMapFile",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/BlendMapFile.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Artwork.BlendMapFile.Document",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/BlendMapFile.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Artwork.CharacterCellConversions",
       "kind": "static class",
       "scope": "product",
@@ -1282,6 +1308,22 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Artwork.ComposedPictureSource",
+      "kind": "record",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Artwork/ComposedPictures.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Artwork.ComposedPictures",
       "kind": "static class",
       "scope": "test",
@@ -1296,6 +1338,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Artwork.ComposedPixelKind",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/ComposedPixelKind.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Artwork.ComposedSpriteSheet",
@@ -1571,6 +1626,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Artwork.InstalledColourKeyDocument",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/InstalledColourKeyDocument.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Artwork.InstalledColourRows",
       "kind": "class",
       "scope": "product",
@@ -1584,30 +1652,56 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Artwork.InstalledFrameSource",
+      "type": "SuperMetroid.AssetExtraction.Artwork.InstalledColourSubstitutionDocument",
       "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.AssetExtraction"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Artwork/InstalledFrameSource.cs"
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/InstalledColourSubstitutionDocument.cs"
       ],
       "partial": "none",
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Artwork.InstalledPictureColourSources",
-      "kind": "record",
+      "type": "SuperMetroid.AssetExtraction.Artwork.InstalledColourText",
+      "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.AssetExtraction"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Artwork/InstalledPictureColourSources.cs"
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/InstalledColourText.cs"
       ],
       "partial": "none",
-      "disposition": "record"
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Artwork.InstalledFrameSharing",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/InstalledFrameSharing.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Artwork.InstalledFrameSharing.Rectangle",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/InstalledFrameSharing.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Artwork.InstalledPictureColours",
@@ -1620,7 +1714,7 @@
         "csharp/src/SuperMetroid.AssetExtraction/Artwork/InstalledPictureColours.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants",
@@ -1639,17 +1733,43 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Artwork.InstalledSheetColouring",
+      "type": "SuperMetroid.AssetExtraction.Artwork.InstalledSheet",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/InstalledSheet.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Artwork.InstalledSheetConversion",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.AssetExtraction"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Artwork/InstalledSheetColouring.cs"
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/InstalledSheetConversion.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Artwork.InstalledSheetConversion.FrameBlending",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/InstalledSheetConversion.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Artwork.InstalledSheetDocument",
@@ -1678,27 +1798,14 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Artwork.InstalledSheetLayers",
+      "type": "SuperMetroid.AssetExtraction.Artwork.InstalledSheetShadeDocument",
       "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.AssetExtraction"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Artwork/InstalledSheetLayers.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Artwork.InstalledSheetSource",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Artwork/InstalledSheetSource.cs"
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/InstalledSheetShadeDocument.cs"
       ],
       "partial": "none",
       "disposition": "record"
@@ -1845,6 +1952,32 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Artwork.RecolourRegionMapFile",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/RecolourRegionMapFile.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Artwork.RecolourRegionMapFile.Document",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/RecolourRegionMapFile.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Artwork.Rgb5Rows",
@@ -34865,6 +34998,35 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.Core.Assets.ColourKey",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Assets/ColourKey.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Assets.ColourKeyConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Assets/ColourKeyConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Assets.ColourLevel",
       "kind": "record",
       "scope": "product",
@@ -34889,19 +35051,6 @@
       ],
       "partial": "none",
       "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Assets.ColouredInkKind",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Assets/ColouredInkKind.cs"
-      ],
-      "partial": "none",
-      "disposition": "constructor-parameters"
     },
     {
       "type": "SuperMetroid.Core.Assets.CorpseRotPicture",
@@ -35179,6 +35328,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Assets.KeyedSubstitution",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Assets/KeyedSubstitution.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Assets.LayeredPicture",
       "kind": "record",
       "scope": "product",
@@ -35206,6 +35368,22 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Assets.NativeColouredPictures.SheetCopy",
+      "kind": "record struct",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Assets/NativeColouredPictures.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Assets.NativeSpriteGraphicsWords",
@@ -35357,6 +35535,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Assets.PictureRecolouring",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Assets/PictureRecolouring.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Assets.PictureShade",
@@ -35569,19 +35760,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Assets.ShadeInks",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Assets/ShadeInks.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
       "type": "SuperMetroid.Core.Assets.SmCompressionCodesConstants",
       "kind": "static class",
       "scope": "test",
@@ -35765,6 +35943,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Assets.SpriteImage.DecodedImage",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Assets/SpriteImage.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Assets.SpriteImageFixtures",
       "kind": "static class",
       "scope": "test",
@@ -35781,27 +35972,14 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Assets.SpriteImageInk",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Assets/SpriteImageInk.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Assets.SpriteImageLayers",
+      "type": "SuperMetroid.Core.Assets.SpriteImagePixels",
       "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Assets/SpriteImageLayers.cs"
+        "csharp/src/SuperMetroid.Core/Assets/SpriteImagePixels.cs"
       ],
       "partial": "none",
       "disposition": "record"
@@ -101158,7 +101336,7 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Rendering.ShownPictureInks",
+      "type": "SuperMetroid.Core.Rendering.ShownPictureKeys",
       "kind": "record",
       "scope": "test",
       "assemblies": [
@@ -136641,6 +136819,22 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledSheetCompositions",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/RepositoryInstallation.Verification/InstalledSheetCompositions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.TestSupport.RepositoryInstallation.Verification.MenuArtworkFixtures",
       "kind": "static class",
       "scope": "test",
@@ -139101,32 +139295,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Assets.SheetInkRules",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Assets/SheetInkRules.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Assets.SheetInkRules.ImageFindings",
-      "kind": "record",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Assets/SheetInkRules.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
       "type": "SuperMetroid.Verification.Assets.SheetPictureIdentitiesVerification",
       "kind": "static class",
       "scope": "test",
@@ -139164,6 +139332,32 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Verification.Assets.SheetPixelRules",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Assets/SheetPixelRules.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Assets.SheetPixelRules.ImageFindings",
+      "kind": "record",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Assets/SheetPixelRules.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Verification.Assets.SpriteSheetFilesVerification",
@@ -154428,19 +154622,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Verification.Frontend.Ending.ShownFloorInkPair",
-      "kind": "record struct",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Frontend/Ending/ShownFloorInkPair.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Verification.Frontend.Ending.ShownFloorPairing",
       "kind": "class",
       "scope": "test",
@@ -154452,6 +154633,32 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Verification.Frontend.Ending.ShownFloorPairing.LaidPixel",
+      "kind": "record struct",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Frontend/Ending/ShownFloorPairing.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Verification.Frontend.Ending.ShownFloorPixelPair",
+      "kind": "record struct",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Frontend/Ending/ShownFloorPixelPair.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Verification.Frontend.Ending.VerifyEndingCompletionTextInstructionsCase",

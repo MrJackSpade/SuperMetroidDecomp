@@ -49,6 +49,32 @@ internal static class ComposedPictures
         ReadOnlySpan<byte> paletteIndices, SpriteImageColours palette, ReadOnlySpan<RgbColor> table) =>
         Install(name, size, pixels, paletteIndices, Composed(palette, table), out _);
 
+    /// <summary>
+    /// The whole of <paramref name="pixels"/> as one installed frame, composed as <see cref="Install(string, Extent16{ImagePixels}, ReadOnlySpan{RgbaPixel}, ReadOnlySpan{byte}, SpriteImageColours, ReadOnlySpan{RgbColor})"/>
+    /// composes it: the import decides, as for any sprite sheet's frame, whether the frame blends wholly or its picture
+    /// carries a blend map (#1633).
+    /// </summary>
+    internal static SpriteSheetFrame InstallWhole(string name, Extent16<ImagePixels> size, ReadOnlySpan<RgbaPixel> pixels,
+        ReadOnlySpan<byte> paletteIndices, SpriteImageColours palette, ReadOnlySpan<RgbColor> table)
+    {
+        const string whole = "whole";
+        ImageColourGroups groups = ImageColourGroups.None;
+        foreach (byte index in paletteIndices)
+        {
+            if (index % 16 != 0)
+                groups = groups.With(ImageColourGroup.OfInk(index));
+        }
+        SpriteSheetDocument composed = Composed(palette, table) with
+        {
+            Frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal)
+            {
+                [whole] = new SpriteSheetFrameDocument { Corner = default, Size = size, Origin = default, ColourGroups = groups.ManifestMembers },
+            },
+        };
+        SpriteImage image = Install(name, size, pixels, paletteIndices, composed, out InstalledSheetDocument installed);
+        return SpriteSheetFile.CutFrames(installed, name, image).Frame(whole);
+    }
+
     /// <summary>A frameless composed manifest of <paramref name="table"/>, the colours of <paramref name="palette"/>'s half.</summary>
     internal static SpriteSheetDocument Composed(SpriteImageColours palette, ReadOnlySpan<RgbColor> table)
     {
@@ -140,19 +166,28 @@ internal static class ComposedPictures
         {
             if (Sources.TryGetValue(picture, out ComposedPictureSource? source))
                 return source;
-            // An installed picture: its sheet is composed again, and the composition whose pixels it shows is its source.
-            foreach (ComposedSpriteSheet composition in SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledSheetCompositions.Compose(picture.Name))
-            {
-                if (Composes(picture, composition))
-                {
-                    Record(picture, composition.Manifest, composition.PaletteIndices);
-                    return Sources.TryGetValue(picture, out ComposedPictureSource? composed) ? composed
-                        : throw new InvalidOperationException($"Picture {picture.Name} was not recorded.");
-                }
-            }
-            throw new InvalidOperationException(
-                $"Picture {picture.Name} was not composed by a check, and no installed family composes a sheet of its name showing its pixels.");
+            // An installed picture: its sheet is composed again, and the composition whose pixels it shows is its source. The
+            // composition is built once per process for every check that reads the picture, so it is a shared fixture load.
+            return SuperMetroid.TestSupport.RepositoryInstallation.SharedFixtureTiming.Load($"Fixture: composed source of {picture.Name}",
+                () => InstalledSourceOf(picture));
         }
+    }
+
+    /// <summary>Composes <paramref name="picture"/>'s installed sheet again and records the composition whose pixels it shows.</summary>
+    /// <exception cref="InvalidOperationException">No installed family composes a sheet of the picture's name showing its pixels.</exception>
+    private static ComposedPictureSource InstalledSourceOf(SpriteImage picture)
+    {
+        foreach (ComposedSpriteSheet composition in SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledSheetCompositions.Compose(picture.Name))
+        {
+            if (Composes(picture, composition))
+            {
+                Record(picture, composition.Manifest, composition.PaletteIndices);
+                return Sources.TryGetValue(picture, out ComposedPictureSource? composed) ? composed
+                    : throw new InvalidOperationException($"Picture {picture.Name} was not recorded.");
+            }
+        }
+        throw new InvalidOperationException(
+            $"Picture {picture.Name} was not composed by a check, and no installed family composes a sheet of its name showing its pixels.");
     }
 }
 

@@ -24,9 +24,9 @@ internal static class InstalledColourText
     internal static RgbColor Parse(string? text, string context)
     {
         if (text is not { Length: Length } || text[0] != '#' ||
-            !byte.TryParse(text.AsSpan(1, 2), NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture, out byte red) ||
-            !byte.TryParse(text.AsSpan(3, 2), NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture, out byte green) ||
-            !byte.TryParse(text.AsSpan(5, 2), NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture, out byte blue))
+            !int.TryParse(text.AsSpan(1, 2), NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture, out int red) ||
+            !int.TryParse(text.AsSpan(3, 2), NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture, out int green) ||
+            !int.TryParse(text.AsSpan(5, 2), NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture, out int blue))
         {
             throw new InvalidDataException($"{Ensure.NotNull(context)} names colour \"{text}\", not one written as #rrggbb.");
         }

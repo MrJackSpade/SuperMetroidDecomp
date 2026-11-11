@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -78,14 +79,25 @@ internal static class InstalledPictureColoursConstants
     /// where none of its visible pixels was, so the picture does not show that colour.
     /// </summary>
     /// <exception cref="InvalidOperationException">Nothing recorded where the picture was composed from.</exception>
-    public static ColourKey? KeyComposedAs(SpriteImage picture, int index)
+    public static ColourKey? KeyComposedAs(SpriteImage picture, int index) =>
+        KeysByIndex.GetValue(Ensure.NotNull(picture), KeysByIndexOf).TryGetValue(index, out ColourKey key) ? key : null;
+
+    /// <summary>Each picture's colour key by the composed palette index its pixels of that key were composed as, built once per picture.</summary>
+    private static readonly ConditionalWeakTable<SpriteImage, Dictionary<int, ColourKey>> KeysByIndex = [];
+
+    /// <summary>The colour key each composed palette index of <paramref name="picture"/> was composed into; an index lies in one key.</summary>
+    private static Dictionary<int, ColourKey> KeysByIndexOf(SpriteImage picture)
     {
-        foreach (ColourKey key in ComposedPictures.SourceOf(Ensure.NotNull(picture)).ComposedIndices.Keys)
+        var keys = new Dictionary<int, ColourKey>();
+        foreach ((ColourKey key, ImmutableArray<int> indices) in ComposedPictures.SourceOf(picture).ComposedIndices)
         {
-            if (ComposedIndicesOf(picture, key).Contains(index))
-                return key;
+            foreach (int index in indices)
+            {
+                if (!keys.TryAdd(index, key))
+                    throw new InvalidDataException($"Picture {picture.Name} composed palette index {index} into two colour keys.");
+            }
         }
-        return null;
+        return keys;
     }
 
     /// <summary>

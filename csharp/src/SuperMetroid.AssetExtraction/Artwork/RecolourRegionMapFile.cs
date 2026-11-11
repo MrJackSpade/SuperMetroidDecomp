@@ -45,7 +45,7 @@ internal static class RecolourRegionMapFile
             }
             rows[y] = [.. runs];
         }
-        return JsonSerializer.SerializeToUtf8Bytes(new Document(Version, size.X, size.Y, rows), Options);
+        return JsonSerializer.SerializeToUtf8Bytes(new Document(Version, size, rows), Options);
     }
 
     /// <summary>The region of each pixel of an image of <paramref name="size"/> that <paramref name="bytes"/>, its map, holds.</summary>
@@ -60,7 +60,7 @@ internal static class RecolourRegionMapFile
         Document document = JsonAssetDocument.Read<Document>(new MemoryStream(bytes, writable: false), Options, $"recolour-region map {name}");
         if (document.Version != Version)
             throw new InvalidDataException($"Recolour-region map {name} has revision {document.Version}, not {Version}.");
-        if (document.Width != size.X || document.Height != size.Y || document.Rows is null || document.Rows.Length != size.Y)
+        if (document.Size != size || document.Rows is null || document.Rows.Length != size.Y)
             throw new InvalidDataException($"Recolour-region map {name} is not {size.X}x{size.Y}, the size of its image.");
         var regions = new int[size.X * size.Y];
         for (int y = 0; y < size.Y; y++)
@@ -93,8 +93,7 @@ internal static class RecolourRegionMapFile
 
     /// <summary>The map document.</summary>
     /// <param name="Version">The format revision.</param>
-    /// <param name="Width">The image's width.</param>
-    /// <param name="Height">The image's height.</param>
+    /// <param name="Size">The image's width and height.</param>
     /// <param name="Rows">Each row's runs, region then count.</param>
-    private sealed record Document(int Version, int Width, int Height, int[][] Rows);
+    private sealed record Document(int Version, Extent16<ImagePixels> Size, int[][] Rows);
 }

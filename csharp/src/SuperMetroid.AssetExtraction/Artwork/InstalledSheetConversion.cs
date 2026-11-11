@@ -126,8 +126,8 @@ internal static class InstalledSheetConversion
         bool mapped = regionsOf.Values.Any(regions => regions.Count > 1);
         int[]? recolourRegions = mapped ? [.. groupOf.Select(group => group == Unkeyed ? 0 : regionOf[group])] : null;
         Dictionary<string, InstalledSheetShadeDocument>? installedShades = shades.Length == 0 ? null
-            : shades.Select((shade, place) => (shade.Key, Document: Installed(shade.Value, written[place], keys, keyGroups)))
-                .ToDictionary(shade => shade.Key, shade => shade.Document, StringComparer.Ordinal);
+            : Enumerable.Range(0, shades.Length).ToDictionary(place => shades[place].Key,
+                place => Installed(shades[place].Value, written[place], keys, keyGroups), StringComparer.Ordinal);
         bool drawnAsSprites = composed.Palette == SpriteImageColours.Sprite;
         bool mixed = false;
         var frames = new Dictionary<string, InstalledSheetFrameDocument>(StringComparer.Ordinal);
@@ -136,15 +136,16 @@ internal static class InstalledSheetConversion
             bool blends = false;
             if (drawnAsSprites)
             {
-                (int opaque, int blendingPixels) = BlendingOf(frame, name, size, shown, blending);
-                blends = opaque > 0 && blendingPixels == opaque;
-                mixed |= blendingPixels > 0 && blendingPixels < opaque;
+                FrameBlending frameBlending = BlendingOf(frame, name, size, shown, blending);
+                blends = frameBlending.Wholly;
+                mixed |= frameBlending.InPart;
             }
             frames.Add(name, new InstalledSheetFrameDocument
             {
                 Corner = frame.Corner, Size = frame.Size, Origin = frame.Origin, Depth = frame.Depth, Blends = blends,
             });
         }
+        InstalledFrameSharing.Share(frames, size, shown, recolourRegions, blending);
         var manifest = new InstalledSheetDocument
         {
             Version = SpriteSheetFile.Version,
@@ -217,7 +218,7 @@ internal static class InstalledSheetConversion
 
     /// <summary>How many of <paramref name="frame"/>'s pixels are opaque and how many of those blend.</summary>
     /// <exception cref="InvalidDataException">The frame leaves the sheet.</exception>
-    private static (int Opaque, int Blending) BlendingOf(SpriteSheetFrameDocument frame, string name, Extent16<ImagePixels> size,
+    private static FrameBlending BlendingOf(SpriteSheetFrameDocument frame, string name, Extent16<ImagePixels> size,
         RgbaPixel[] shown, bool[] blending)
     {
         if (frame.Corner.X + frame.Size.X > size.X || frame.Corner.Y + frame.Size.Y > size.Y)
@@ -235,6 +236,18 @@ internal static class InstalledSheetConversion
                     blends++;
             }
         }
-        return (opaque, blends);
+        return new FrameBlending(opaque, blends);
+    }
+
+    /// <summary>How many of a frame's pixels are opaque and how many of those blend when it is drawn as a sprite.</summary>
+    /// <param name="Opaque">The frame's opaque pixels.</param>
+    /// <param name="Blending">Its opaque pixels that blend.</param>
+    private sealed record FrameBlending(int Opaque, int Blending)
+    {
+        /// <summary>Whether the frame has opaque pixels and every one blends.</summary>
+        public bool Wholly => Opaque > 0 && Blending == Opaque;
+
+        /// <summary>Whether some of the frame's opaque pixels blend and others do not.</summary>
+        public bool InPart => Blending > 0 && Blending < Opaque;
     }
 }

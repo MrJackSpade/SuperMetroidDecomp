@@ -30,12 +30,15 @@ internal static class InstalledSheetCompositions
         new SpriteSheetSourceCatalog(RepositoryInstallation.Installation.ContentDirectory, EndingPaletteImport.Read(Cartridge.Value)));
 
     /// <summary>Each boss body sheet, composed by its installed name.</summary>
-    private static readonly Lazy<Dictionary<string, ComposedSpriteSheet>> BossBodies = new(() =>
-        BossBodySheetComposer.Compose(RoomBlockSheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory))
-            .ToDictionary(sheet => BossBodySheetComposer.SheetNameOf(sheet.Owner), sheet => sheet.Sheet, StringComparer.Ordinal));
+    private static readonly Lazy<Dictionary<string, ComposedSpriteSheet>> BossBodies = new(() => SharedFixtureTiming.Load("Fixture: boss body sheet compositions",
+        () => BossBodySheetComposer.Compose(RoomBlockSheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory))
+            .ToDictionary(sheet => BossBodySheetComposer.SheetNameOf(sheet.Owner), sheet => sheet.Sheet, StringComparer.Ordinal)));
 
     /// <summary>Each room sheet (blocks, backgrounds, written and effect pictures, message boxes, floors), composed by its installed name.</summary>
-    private static readonly Lazy<Dictionary<string, ComposedSpriteSheet>> Rooms = new(() =>
+    private static readonly Lazy<Dictionary<string, ComposedSpriteSheet>> Rooms = new(() => SharedFixtureTiming.Load("Fixture: room sheet compositions", ComposeRooms));
+
+    /// <summary>Every room sheet the installation holds, composed in-process by its installed name.</summary>
+    private static Dictionary<string, ComposedSpriteSheet> ComposeRooms()
     {
         RoomSheetComposition composition = RoomBlockSheetComposer.Compose(RoomBlockSheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory));
         var sheets = new Dictionary<string, ComposedSpriteSheet>(StringComparer.Ordinal);
@@ -50,7 +53,7 @@ internal static class InstalledSheetCompositions
         foreach ((TilesetDefinition tileset, ComposedSpriteSheet sheet) in composition.Floors)
             sheets.Add(RoomFloorSheet.NameOf(tileset), sheet);
         return sheets;
-    });
+    }
 
     /// <summary>
     /// The compositions of every installed sheet named <paramref name="name"/>, in the families' order: sprite sheets, boss
@@ -62,10 +65,16 @@ internal static class InstalledSheetCompositions
         foreach ((SpriteSheetId id, string fileName) in SpriteSheetDefinitions.FileNames)
         {
             if (string.Equals(fileName, name, StringComparison.Ordinal))
+            {
                 yield return id == SpriteSheetId.EscapeTimer ? EscapeTimerSheetComposer.Compose(Cartridge.Value) : SpriteSheets.Value.Compose(id);
+                yield break;
+            }
         }
         if (Enum.GetValues<BossBodyOwner>().Any(owner => string.Equals(BossBodySheetComposer.SheetNameOf(owner), name, StringComparison.Ordinal)))
+        {
             yield return BossBodies.Value[name];
+            yield break;
+        }
         if (Rooms.Value.TryGetValue(name, out ComposedSpriteSheet? room))
             yield return room;
     }

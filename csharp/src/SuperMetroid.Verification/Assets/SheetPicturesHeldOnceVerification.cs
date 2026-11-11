@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

@@ -44,7 +44,7 @@ internal static class BlendMapFile
             }
             rows[y] = [.. runs];
         }
-        return JsonSerializer.SerializeToUtf8Bytes(new Document(Version, size.X, size.Y, rows), Options);
+        return JsonSerializer.SerializeToUtf8Bytes(new Document(Version, size, rows), Options);
     }
 
     /// <summary>Which pixels of an image of <paramref name="size"/> blend, as <paramref name="bytes"/>, its map, says.</summary>
@@ -59,7 +59,7 @@ internal static class BlendMapFile
         Document document = JsonAssetDocument.Read<Document>(new MemoryStream(bytes, writable: false), Options, $"blend map {name}");
         if (document.Version != Version)
             throw new InvalidDataException($"Blend map {name} has revision {document.Version}, not {Version}.");
-        if (document.Width != size.X || document.Height != size.Y || document.Rows is null || document.Rows.Length != size.Y)
+        if (document.Size != size || document.Rows is null || document.Rows.Length != size.Y)
             throw new InvalidDataException($"Blend map {name} is not {size.X}x{size.Y}, the size of its image.");
         var blending = new bool[size.X * size.Y];
         for (int y = 0; y < size.Y; y++)
@@ -90,8 +90,7 @@ internal static class BlendMapFile
 
     /// <summary>The map document.</summary>
     /// <param name="Version">The format revision.</param>
-    /// <param name="Width">The image's width.</param>
-    /// <param name="Height">The image's height.</param>
+    /// <param name="Size">The image's width and height.</param>
     /// <param name="Rows">Each row's runs of blending pixels, first pixel then length.</param>
-    private sealed record Document(int Version, int Width, int Height, int[][] Rows);
+    private sealed record Document(int Version, Extent16<ImagePixels> Size, int[][] Rows);
 }

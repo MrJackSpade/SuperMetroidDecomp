@@ -22,7 +22,7 @@ internal static class GameplayShadingProbe
         source.ShadeGameplay(frame);
         var colours = new PictureColours
         {
-            Backdrop = ColourKey.Of(RgbColor.Black),
+            Backdrop = ColourKeyConstants.Of(RgbColor.Black),
             Shades = roomShades.Distinct().ToImmutableDictionary(shade => shade, _ => new PictureRecolouring([])),
         };
         // The one pixel is clear and keeps black, the backdrop's colour, which no shade recolours.

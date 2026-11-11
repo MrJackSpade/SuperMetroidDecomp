@@ -24,7 +24,7 @@
     {
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
-      "files": 1731,
+      "files": 1736,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Areas",
@@ -938,7 +938,7 @@
     {
       "module": "csharp/test-support/RepositoryInstallation.Verification",
       "role": "verification-support",
-      "files": 32,
+      "files": 33,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -1027,7 +1027,7 @@
     {
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
-      "files": 1114,
+      "files": 1115,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -1948,6 +1948,19 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Artwork/BlendMapFile.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Artwork",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Spatial"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.AssetExtraction/Artwork/CharacterCellConversions.cs",
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
@@ -2018,6 +2031,15 @@
     },
     {
       "path": "csharp/src/SuperMetroid.AssetExtraction/Artwork/CompiledSpritePart.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Artwork",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Artwork/ComposedPixelKind.cs",
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
       "namespace": "SuperMetroid.AssetExtraction.Artwork",
@@ -2210,6 +2232,18 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Artwork/InstalledColourKeyDocument.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Artwork",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Assets"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.AssetExtraction/Artwork/InstalledColourRows.cs",
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
@@ -2222,21 +2256,42 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.AssetExtraction/Artwork/InstalledFrameSource.cs",
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Artwork/InstalledColourSubstitutionDocument.cs",
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
       "namespace": "SuperMetroid.AssetExtraction.Artwork",
       "assemblies": [
         "SuperMetroid.AssetExtraction"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Assets"
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.AssetExtraction/Artwork/InstalledPictureColourSources.cs",
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Artwork/InstalledColourText.cs",
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
       "namespace": "SuperMetroid.AssetExtraction.Artwork",
       "assemblies": [
         "SuperMetroid.AssetExtraction"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Assets"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Artwork/InstalledFrameSharing.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Artwork",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Assets",
+        "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
     {
@@ -2246,14 +2301,22 @@
       "namespace": "SuperMetroid.AssetExtraction.Artwork",
       "assemblies": [
         "SuperMetroid.AssetExtraction"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Artwork/InstalledSheet.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Artwork",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Assets"
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.AssetExtraction/Artwork/InstalledSheetColouring.cs",
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Artwork/InstalledSheetConversion.cs",
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
       "namespace": "SuperMetroid.AssetExtraction.Artwork",
@@ -2262,7 +2325,8 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
-        "csharp/src/SuperMetroid.Core/Assets"
+        "csharp/src/SuperMetroid.Core/Assets",
+        "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
     {
@@ -2288,19 +2352,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.AssetExtraction/Artwork/InstalledSheetLayers.cs",
-      "module": "csharp/src/SuperMetroid.AssetExtraction",
-      "role": "production",
-      "namespace": "SuperMetroid.AssetExtraction.Artwork",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Assets"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.AssetExtraction/Artwork/InstalledSheetSource.cs",
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Artwork/InstalledSheetShadeDocument.cs",
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
       "namespace": "SuperMetroid.AssetExtraction.Artwork",
@@ -2415,6 +2467,19 @@
       "namespace": "SuperMetroid.AssetExtraction.Artwork",
       "assemblies": [
         "SuperMetroid.AssetExtraction"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Artwork/RecolourRegionMapFile.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Artwork",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
     {
@@ -22697,6 +22762,16 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Assets/ColourKey.cs",
+      "module": "csharp/src/SuperMetroid.Core/Assets",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Assets",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Assets/ColourLevel.cs",
       "module": "csharp/src/SuperMetroid.Core/Assets",
       "role": "production",
@@ -22711,16 +22786,6 @@
     },
     {
       "path": "csharp/src/SuperMetroid.Core/Assets/ColourSubstitution.cs",
-      "module": "csharp/src/SuperMetroid.Core/Assets",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Assets",
-      "layer": "Foundation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Assets/ColouredInkKind.cs",
       "module": "csharp/src/SuperMetroid.Core/Assets",
       "role": "production",
       "namespace": "SuperMetroid.Core.Assets",
@@ -22909,6 +22974,16 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Assets/KeyedSubstitution.cs",
+      "module": "csharp/src/SuperMetroid.Core/Assets",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Assets",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Assets/LayeredPicture.cs",
       "module": "csharp/src/SuperMetroid.Core/Assets",
       "role": "production",
@@ -22955,6 +23030,16 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Assets/PictureRecolouring.cs",
+      "module": "csharp/src/SuperMetroid.Core/Assets",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Assets",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
       ]
     },
     {
@@ -23038,16 +23123,6 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Assets/ShadeInks.cs",
-      "module": "csharp/src/SuperMetroid.Core/Assets",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Assets",
-      "layer": "Foundation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
       "path": "csharp/src/SuperMetroid.Core/Assets/SpriteDraw.cs",
       "module": "csharp/src/SuperMetroid.Core/Assets",
       "role": "production",
@@ -23088,20 +23163,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Assets/SpriteImageInk.cs",
-      "module": "csharp/src/SuperMetroid.Core/Assets",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Assets",
-      "layer": "Foundation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Assets/SpriteImageLayers.cs",
+      "path": "csharp/src/SuperMetroid.Core/Assets/SpriteImagePixels.cs",
       "module": "csharp/src/SuperMetroid.Core/Assets",
       "role": "production",
       "namespace": "SuperMetroid.Core.Assets",
@@ -88463,21 +88525,6 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Verification/Assets/SheetInkRules.cs",
-      "module": "csharp/src/SuperMetroid.Verification",
-      "role": "verification",
-      "namespace": "SuperMetroid.Verification.Assets",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.AssetExtraction",
-        "csharp/src/SuperMetroid.Core/Assets",
-        "csharp/src/SuperMetroid.Core/Spatial",
-        "csharp/test-support/Assertions"
-      ]
-    },
-    {
       "path": "csharp/src/SuperMetroid.Verification/Assets/SheetPictureIdentitiesVerification.cs",
       "module": "csharp/src/SuperMetroid.Verification",
       "role": "verification",
@@ -88505,8 +88552,22 @@
         "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Spatial",
         "csharp/test-support/Assertions",
-        "csharp/test-support/RepositoryInstallation",
         "csharp/test-support/RepositoryInstallation.Verification"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Verification/Assets/SheetPixelRules.cs",
+      "module": "csharp/src/SuperMetroid.Verification",
+      "role": "verification",
+      "namespace": "SuperMetroid.Verification.Assets",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Assets",
+        "csharp/src/SuperMetroid.Core/Spatial",
+        "csharp/test-support/Assertions"
       ]
     },
     {
@@ -96384,13 +96445,11 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Bosses",
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Spatial",
         "csharp/test-support/Assertions",
-        "csharp/test-support/RepositoryInstallation",
         "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core"
       ]
@@ -96468,12 +96527,10 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Spatial",
         "csharp/test-support/Assertions",
-        "csharp/test-support/RepositoryInstallation",
         "csharp/test-support/RepositoryInstallation.Verification"
       ]
     },
@@ -97247,12 +97304,10 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Spatial",
         "csharp/test-support/Assertions",
-        "csharp/test-support/RepositoryInstallation",
         "csharp/test-support/RepositoryInstallation.Verification"
       ]
     },
@@ -107778,18 +107833,6 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Verification/Frontend/Ending/ShownFloorInkPair.cs",
-      "module": "csharp/src/SuperMetroid.Verification",
-      "role": "verification",
-      "namespace": "SuperMetroid.Verification.Frontend.Ending",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Assets"
-      ]
-    },
-    {
       "path": "csharp/src/SuperMetroid.Verification/Frontend/Ending/ShownFloorPairing.cs",
       "module": "csharp/src/SuperMetroid.Verification",
       "role": "verification",
@@ -107806,6 +107849,15 @@
         "csharp/test-support/Assertions",
         "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Verification/Frontend/Ending/ShownFloorPixelPair.cs",
+      "module": "csharp/src/SuperMetroid.Verification",
+      "role": "verification",
+      "namespace": "SuperMetroid.Verification.Frontend.Ending",
+      "assemblies": [
+        "SuperMetroid.Verification"
       ]
     },
     {
@@ -126158,6 +126210,26 @@
       ]
     },
     {
+      "path": "csharp/test-support/RepositoryInstallation.Verification/InstalledSheetCompositions.cs",
+      "module": "csharp/test-support/RepositoryInstallation.Verification",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.TestSupport.RepositoryInstallation.Verification",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Assets",
+        "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Rooms",
+        "csharp/src/SuperMetroid.Tooling",
+        "csharp/test-support/RepositoryInstallation"
+      ]
+    },
+    {
       "path": "csharp/test-support/RepositoryInstallation.Verification/MenuArtworkFixtures.cs",
       "module": "csharp/test-support/RepositoryInstallation.Verification",
       "role": "verification-support",
@@ -127134,7 +127206,9 @@
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Assets",
-        "csharp/src/SuperMetroid.Core/Spatial"
+        "csharp/src/SuperMetroid.Core/Spatial",
+        "csharp/test-support/RepositoryInstallation",
+        "csharp/test-support/RepositoryInstallation.Verification"
       ]
     },
     {
@@ -128089,6 +128163,22 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/Assets/ColourKeyConstants.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Assets",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Assets"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/Assets/FadeLevelColourAccess.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -128387,6 +128477,7 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Spatial"
       ]

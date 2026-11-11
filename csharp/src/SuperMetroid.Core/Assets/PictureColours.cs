@@ -8,8 +8,6 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed record PictureColours
 {
-    /// <summary>No shades and no backdrop.</summary>
-    public static PictureColours None { get; } = new();
 
     /// <summary>Each shade the image is pre-coloured in, by the shade that names it.</summary>
     public ImmutableDictionary<PictureShade, PictureRecolouring> Shades { get; init; } = ImmutableDictionary<PictureShade, PictureRecolouring>.Empty;

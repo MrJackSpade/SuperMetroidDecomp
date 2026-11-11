@@ -25,7 +25,7 @@ internal static class SpawnedObjectSheetSharing
 {
     /// <summary>The installed sheets <paramref name="layouts"/>, each a distinct laid-out spawned-object sheet, share out to.</summary>
     /// <exception cref="InvalidDataException">A sheet's pictures cannot be cut out, or a sheet does not fit on one image.</exception>
-    internal static SharedSpawnedSheets Share(List<SpriteSheetLayout> layouts)
+    internal static SharedSpawnedSheets Share(List<SpriteSheetLayout> layouts, SheetPictureRegistry rendered)
     {
         Ensure.NotNull(layouts);
         var painted = new PaintedSheet[layouts.Count];
@@ -85,9 +85,9 @@ internal static class SpawnedObjectSheetSharing
         }
         PictureSheetPlan[] plans = [.. common, .. own.OfType<PictureSheetPlan>()];
         var encoded = new EncodedSpriteSheet[plans.Length];
-        Parallel.For(0, plans.Length, () => new SpriteSheetEncoder(), (index, _, encoder) =>
+        Parallel.For(0, plans.Length, () => new SpriteSheetEncoder(rendered), (index, _, encoder) =>
         {
-            encoded[index] = encoder.Encode(plans[index].Layout());
+            encoded[index] = encoder.Encode(plans[index].Layout(), plans[index].Sheet);
             return encoder;
         }, encoder => encoder.Dispose());
         var encodedOf = new Dictionary<PictureSheetPlan, EncodedSpriteSheet>(ReferenceEqualityComparer.Instance);
@@ -177,8 +177,8 @@ internal static class SpawnedObjectSheetSharing
         /// <summary>Every frame name the pictures are shown as.</summary>
         private readonly HashSet<string> names = new(StringComparer.Ordinal);
 
-        /// <summary>Names the sheet in failures.</summary>
-        private readonly string sheet;
+        /// <summary>Names the sheet in failures, here and in the installation's rendered pictures (#1635).</summary>
+        internal string Sheet { get; }
 
         /// <summary>The colouring every picture taken so far agrees on.</summary>
         private SheetPictureColouring colouring;
@@ -186,7 +186,7 @@ internal static class SpawnedObjectSheetSharing
         /// <summary>Starts a sheet with <paramref name="first"/>.</summary>
         internal PictureSheetPlan(HeldPicture first, string sheet)
         {
-            this.sheet = sheet;
+            Sheet = sheet;
             colouring = first.Colouring;
             Add(first);
         }
@@ -209,12 +209,12 @@ internal static class SpawnedObjectSheetSharing
         internal void Take(HeldPicture picture)
         {
             if (!TryTake(picture))
-                throw new InvalidOperationException($"Frame {picture.Names[0]} of {sheet} clashes with the sheet's other pictures.");
+                throw new InvalidOperationException($"Frame {picture.Names[0]} of {Sheet} clashes with the sheet's other pictures.");
         }
 
         /// <summary>The sheet's layout.</summary>
         internal PictureSheetLayout Layout() =>
-            new([.. pictures.Select(picture => new NamedSheetPicture(picture.Picture, picture.Names))], colouring, sheet);
+            new([.. pictures.Select(picture => new NamedSheetPicture(picture.Picture, picture.Names))], colouring, Sheet);
 
         /// <summary>Adds a picture and its frame names.</summary>
         private void Add(HeldPicture picture)

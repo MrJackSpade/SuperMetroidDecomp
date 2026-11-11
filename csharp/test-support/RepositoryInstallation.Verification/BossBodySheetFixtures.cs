@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using System.Runtime.CompilerServices;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -53,7 +54,7 @@ internal static class BossBodySheetFixtures
         // Only this boss's frames differ from the installation's, so only its sheet is composed; the rest are installed.
         ComposedBossBodySheet sheet = BossBodySheetComposer.Compose(inputs.Value with { Bosses = frames }, owner);
         string directory = Path.Combine(Path.GetFullPath("csharp/test-temp"), "boss-bodies-" + Guid.NewGuid().ToString("N"));
-        BossBodySheetFiles.Write([sheet], directory, SupportedCartridge.Sha256);
+        BossBodySheetFiles.Write([sheet], directory, SupportedCartridge.Sha256, new SheetPictureRegistry());
         BossBodySheet own = BossBodySheetFiles.LoadEach(directory).Single();
         return new BossBodyArtworkFixture(frames, new BossBodySheets(Enum.GetValues<BossBodyOwner>()
             .Select(boss => boss == owner ? own : InstalledFixtures.BossBodySheets.Of(boss))));

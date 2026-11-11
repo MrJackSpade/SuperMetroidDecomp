@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.AssetExtraction.Bosses;
@@ -158,11 +159,13 @@ public static class GameAssetInstaller
     {
         using var failed = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         IProgress<string>? reports = progress is null ? null : new SerializedProgress(progress);
+        // Every sheet composer of the run renders into one set of pictures, which refuses a picture rendered twice (#1635).
+        var pictures = new SheetPictureRegistry();
         // Each component runs on a thread of its own, so it starts at once rather than queueing behind the parallel work
         // inside the components already running.
         Task Start(InstallerComponent component) => Task.Factory.StartNew(() =>
         {
-            try { InstallComponent(rom, staging, component, failed.Token, reports); }
+            try { InstallComponent(rom, staging, component, pictures, failed.Token, reports); }
             catch { failed.Cancel(); throw; }
         }, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         InstallerComponent[] first = [.. Components.Where(component => component.Kind != InstallerComponentKind.Composition)];
@@ -186,7 +189,7 @@ public static class GameAssetInstaller
     }
 
     /// <summary>Extracts each step of <paramref name="component"/> into its directory under <paramref name="staging"/>.</summary>
-    private static void InstallComponent(byte[] rom, string staging, InstallerComponent component,
+    private static void InstallComponent(byte[] rom, string staging, InstallerComponent component, SheetPictureRegistry pictures,
         CancellationToken cancellationToken, IProgress<string>? progress)
     {
         string directory = Path.Combine(staging, component.DirectoryName);
@@ -194,7 +197,7 @@ public static class GameAssetInstaller
         {
             progress?.Report(step.Progress);
             cancellationToken.ThrowIfCancellationRequested();
-            step.Extract(new CartridgeImportAddressSpace(rom), directory, cancellationToken);
+            step.Extract(new CartridgeImportAddressSpace(rom), directory, pictures, cancellationToken);
         }
     }
 
@@ -220,7 +223,7 @@ public static class GameAssetInstaller
     /// <summary>One extraction stage: its progress text and extractor.</summary>
     private sealed record InstallerStep(
         string Progress,
-        Action<CartridgeImportAddressSpace, string, CancellationToken> Extract);
+        Action<CartridgeImportAddressSpace, string, SheetPictureRegistry, CancellationToken> Extract);
 
     /// <summary>
     /// One extracted-content directory, and what it reads, which decides what it installs alongside (#1530). Extraction is
@@ -252,7 +255,11 @@ public static class GameAssetInstaller
 
     /// <summary>Adapts an extraction without cancellation parameters into one installer stage.</summary>
     private static InstallerStep Step(string progress, Action<CartridgeImportAddressSpace, string> extract) =>
-        new(progress, (bus, directory, _) => extract(bus, directory));
+        new(progress, (bus, directory, _, _) => extract(bus, directory));
+
+    /// <summary>Adapts a sheet composition into one installer stage, rendering into the run's pictures (#1635).</summary>
+    private static InstallerStep SheetStep(string progress, Action<CartridgeImportAddressSpace, string, SheetPictureRegistry> compose) =>
+        new(progress, (bus, directory, pictures, _) => compose(bus, directory, pictures));
 
     /// <summary>The installation a component directory belongs to.</summary>
     /// <exception cref="InvalidOperationException">The directory has no installation above it.</exception>
@@ -270,7 +277,7 @@ public static class GameAssetInstaller
             Step("Rendering audio clips…", (_, d) => AudioClipExporter.Export(d))),
         new(GameInstallationLayout.MapDirectoryName,
             new InstallerStep("Extracting map presentation...",
-                (bus, d, cancellation) => MapPresentationExtractor.Extract(bus, d, SupportedCartridge.Sha256, cancellation))),
+                (bus, d, _, cancellation) => MapPresentationExtractor.Extract(bus, d, SupportedCartridge.Sha256, cancellation))),
         new(GameInstallationLayout.GameplayBasePaletteDirectoryName,
             Step("Extracting gameplay base palettes...", (bus, d) => GameplayBasePaletteFiles.Extract(bus, d, SupportedCartridge.Sha256))),
         new(GameInstallationLayout.SamusOverreadDirectoryName,
@@ -369,13 +376,13 @@ public static class GameAssetInstaller
         new(GameInstallationLayout.XrayRevealVisualDirectoryName,
             Step("Extracting X-ray reveal visuals...", (bus, d) => XrayRevealVisualFiles.Extract(bus, d, SupportedCartridge.Sha256))),
         new(GameInstallationLayout.SpriteSheetDirectoryName, InstallerComponentKind.Composition,
-            Step("Composing sprite sheets...", (bus, d) => SpriteSheetFiles.Extract(bus, InstallationOf(d), d, SupportedCartridge.Sha256))),
+            SheetStep("Composing sprite sheets...", (bus, d, pictures) => SpriteSheetFiles.Extract(bus, InstallationOf(d), d, SupportedCartridge.Sha256, pictures))),
         new(GameInstallationLayout.RoomBlockSheetDirectoryName, InstallerComponentKind.Composition,
-            Step("Composing room block sheets...", (_, d) => RoomBlockSheetFiles.Extract(InstallationOf(d), d, SupportedCartridge.Sha256))),
+            SheetStep("Composing room block sheets...", (_, d, pictures) => RoomBlockSheetFiles.Extract(InstallationOf(d), d, SupportedCartridge.Sha256, pictures))),
         new(GameInstallationLayout.BossBodySheetDirectoryName, InstallerComponentKind.Composition,
-            Step("Composing boss body sheets...", (_, d) => BossBodySheetFiles.Extract(InstallationOf(d), d, SupportedCartridge.Sha256))),
+            SheetStep("Composing boss body sheets...", (_, d, pictures) => BossBodySheetFiles.Extract(InstallationOf(d), d, SupportedCartridge.Sha256, pictures))),
         new(GameInstallationLayout.EnemySheetDirectoryName, InstallerComponentKind.Composition,
-            Step("Composing enemy sheets...", (_, d) => EnemySheetFiles.Extract(InstallationOf(d), d, SupportedCartridge.Sha256))),
+            SheetStep("Composing enemy sheets...", (_, d, pictures) => EnemySheetFiles.Extract(InstallationOf(d), d, SupportedCartridge.Sha256, pictures))),
     ];
 
     /// <summary>Why <paramref name="receipt"/> does not name this importer's format and source, or null when it does.</summary>

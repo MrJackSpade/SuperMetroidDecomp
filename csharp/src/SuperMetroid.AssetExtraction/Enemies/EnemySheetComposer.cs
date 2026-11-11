@@ -38,7 +38,7 @@ internal static class EnemySheetComposer
     /// order, the session start's first, whose variants are the standard ones: a sheet or variant the same as an earlier one
     /// takes its name. Each population is then named the variants of the set its rooms draw under.
     /// </summary>
-    internal static EnemySheetComposition Compose(EnemySheetInputs inputs)
+    internal static EnemySheetComposition Compose(EnemySheetInputs inputs, SheetPictureRegistry pictures)
     {
         Ensure.NotNull(inputs);
         var layouts = new List<SpriteSheetLayout>();
@@ -67,12 +67,12 @@ internal static class EnemySheetComposer
                     source.LookChanges, source.CorpsePictures, source.Empty))]));
         }
         var encoded = new EncodedSpriteSheet[layouts.Count];
-        Parallel.For(0, layouts.Count, () => new SpriteSheetEncoder(), (index, _, encoder) =>
+        Parallel.For(0, layouts.Count, () => new SpriteSheetEncoder(pictures), (index, _, encoder) =>
         {
-            encoded[index] = encoder.Encode(layouts[index]);
+            encoded[index] = encoder.Encode(layouts[index], $"enemy sheet layout {index}");
             return encoder;
         }, encoder => encoder.Dispose());
-        SharedSpawnedSheets shared = SpawnedObjectSheetSharing.Share(spawnedLayouts);
+        SharedSpawnedSheets shared = SpawnedObjectSheetSharing.Share(spawnedLayouts, pictures);
         var names = new SheetNames();
         var variants = new VariantNames<EnemyVariantDocument>(document => JsonSerializer.Serialize(document));
         var spawnedVariants = new VariantNames<SpawnedObjectSheetDocument>(document => JsonSerializer.Serialize(document));

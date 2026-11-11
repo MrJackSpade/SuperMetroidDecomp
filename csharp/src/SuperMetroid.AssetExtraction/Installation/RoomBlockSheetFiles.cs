@@ -52,7 +52,8 @@ public static class RoomBlockSheetFiles
     /// <param name="content">Installed stock content holding the characters, definitions, palettes, tilemaps and uploads the sheets compose from.</param>
     /// <param name="directory">Destination directory, created if absent.</param>
     /// <param name="sourceCartridgeSha256">Identity written into the provenance manifest.</param>
-    public static void Extract(string content, string directory, string sourceCartridgeSha256)
+    /// <param name="pictures">The installation's rendered pictures, which refuse a picture rendered twice (#1635).</param>
+    internal static void Extract(string content, string directory, string sourceCartridgeSha256, SheetPictureRegistry pictures)
     {
         RoomSheetComposition composition = RoomBlockSheetComposer.Compose(RoomBlockSheetInputs.Load(content));
         SpriteSheetStore store = SpriteSheetStore.Create(directory, ProvenanceFileName);
@@ -65,7 +66,7 @@ public static class RoomBlockSheetFiles
             .. writtenSheets.Select(written => new NamedComposedSheet(WrittenPictureSheet.NameOf(written.Layer, written.Tileset), written.Sheet)),
             .. composition.MessageBoxes.Select(entry => new NamedComposedSheet(MessageBoxSheet.NameOf(entry.Key), entry.Value)),
             .. composition.Floors.Select(entry => new NamedComposedSheet(RoomFloorSheet.NameOf(entry.Key), entry.Value)),
-        ]);
+        ], pictures);
         store.Finish(sourceCartridgeSha256);
         File.WriteAllBytes(Path.Combine(directory, FloorManifestFileName), JsonSerializer.SerializeToUtf8Bytes(
             new FloorManifest(FloorManifestVersion, [.. composition.Floors.Keys.Select(RoomBlockSheet.NameOf).Order(StringComparer.Ordinal)]),

@@ -41,7 +41,8 @@ public static class SpriteSheetFiles
     /// <param name="content">Installed stock content holding the characters, compositions and colours the sheets compose from.</param>
     /// <param name="directory">Destination directory, created if absent.</param>
     /// <param name="sourceCartridgeSha256">Identity written into the manifest.</param>
-    public static void Extract(ISnesAddressSpace bus, string content, string directory, string sourceCartridgeSha256)
+    /// <param name="pictures">The installation's rendered pictures, which refuse a picture rendered twice (#1635).</param>
+    internal static void Extract(ISnesAddressSpace bus, string content, string directory, string sourceCartridgeSha256, SheetPictureRegistry pictures)
     {
         Ensure.NotNull(bus);
         ArgumentException.ThrowIfNullOrWhiteSpace(content);
@@ -62,7 +63,7 @@ public static class SpriteSheetFiles
             if (sheets[index] == SpriteSheetId.EscapeTimer)
                 composed[index] = EscapeTimerSheetComposer.Compose(bus);
         }
-        store.WriteAll([.. sheets.Select((sheet, index) => new NamedComposedSheet(SpriteSheetDefinitions.FileNames[sheet], composed[index]))]);
+        store.WriteAll([.. sheets.Select((sheet, index) => new NamedComposedSheet(SpriteSheetDefinitions.FileNames[sheet], composed[index]))], pictures);
         store.Finish(sourceCartridgeSha256);
     }
 

@@ -259,7 +259,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 
         UpdateSporeSpawnStalks(state);
         // The cadence tests the frame counter that wraps at 65536, not the separate one that wraps at 256.
-        if (_frameContext.FrameCounter % 16 == 0)
+        if (SporeSpawnCadenceDefinitions.IdleDustEverySixteenthUpdate.IsDue(_frameContext.FrameCounter))
         {
             int random = _room.Random.Generate();
             _ = _spriteObjects.SpawnRoomSpriteObject(

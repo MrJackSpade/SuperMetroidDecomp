@@ -24,19 +24,9 @@ public static class BotwoonColorFile
         if (document.Health is null ||
             document.Health.Length != BotwoonHealthBandDefinitions.BandCount)
             throw new InvalidDataException("Botwoon colors require eight health bands.");
-        return new(Health(document.Health.Select((frame, index) =>
-            Compile(frame, index)).ToArray()));
-    }
-
-    /// <summary>Retains source colors only where they differ from the eight-band health ramp.</summary>
-    private static BotwoonHealthPaint Health(RgbColor[][] healthBands)
-    {
-        var edits = new Dictionary<PaintColour, RgbColor>();
-        for (int band = 0; band < BotwoonHealthBandDefinitions.BandCount; band++)
-            for (int color = 0; color < BotwoonColorFormat.ColorsPerPalette; color++)
-                if (healthBands[band][color] != BotwoonHealthPaint.Calculate(band, color))
-                    edits.Add(new PaintColour(band, color), healthBands[band][color]);
-        return new BotwoonHealthPaint(edits);
+        return new(new InstalledColourRows(document.Health.Select((frame, index) =>
+            Compile(frame, index)).ToArray(), BotwoonHealthBandDefinitions.BandCount, BotwoonColorFormat.ColorsPerPalette,
+            "Botwoon health bands"));
     }
 
     /// <summary>Serializes a Botwoon color document as UTF-8 JSON.</summary>

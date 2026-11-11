@@ -1497,24 +1497,10 @@ internal static class LookupStream2Verification
             DeathArm = ReadSource(KraidPaletteSource.DeathArm),
         };
         var stock = KraidColorFile.Read(new MemoryStream(KraidColorFile.Write(document)));
-        object health = stock.sources[KraidPaletteSource.Health];
-        object secondary = stock.sources[KraidPaletteSource.Secondary];
-        AssertTrue(ReferenceEquals(health, secondary), "Identical Kraid secondary colors share calculated primary source");
-        foreach (var (name, band) in new VerifyLookupStream2KraidRampsCase[]
-                 { new VerifyLookupStream2KraidRampsCase("health", stock.sources[KraidPaletteSource.Health]), new VerifyLookupStream2KraidRampsCase("roomBackdrop", stock.sources[KraidPaletteSource.RoomBackdrop]), new VerifyLookupStream2KraidRampsCase("initialTarget", stock.sources[KraidPaletteSource.InitialTarget]), new VerifyLookupStream2KraidRampsCase("deathArm", stock.sources[KraidPaletteSource.DeathArm]) })
-        {
-            int deviations = band switch
-            {
-                KraidStockBand stored => stored.deviations.Count,
-                KraidHealthBands palette => palette.deviations.Count,
-                _ => throw new InvalidDataException($"Stock Kraid {name} is not a deviation-storing band."),
-            };
-            AssertEqual(0, deviations, $"Stock Kraid {name} stores no colors beyond the calculated paint");
-        }
         foreach (KraidPaletteSource source in Enum.GetValues<KraidPaletteSource>())
         for (int index = 0; index < KraidPalettes.ColorCount(source); index++)
             AssertEqual(ReadVerificationWord(rom, KraidPaletteSources.SourceAddress(source) + 2 * index),
-                KraidPaint.Color(source, index), $"Kraid {source} stock paint {index}");
+                stock.Resolve(source, index), $"Kraid {source} installed colour {index}");
         Check(stock, document);
         string expectedIdentity = SelectedPresentationHash.Create("enemy-kraid-colors-v1", content =>
         {
@@ -1527,7 +1513,7 @@ internal static class LookupStream2Verification
         AssertEqual(expectedIdentity, stock.ContentIdentity, "Calculated Kraid colors preserve canonical content identity");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(KraidPaletteSource.Health, -1), "Kraid calculated lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(KraidPaletteSource.Secondary, 144), "Kraid calculated upper bound");
-        Console.WriteLine("Stream 2 Kraid colors: all 336 stock words calculate from paint with no stored stock colors; source sharing and canonical identity pass.");
+        Console.WriteLine("Stream 2 Kraid colors: all 336 installed words match the cartridge; canonical identity passes.");
 
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
         static PaletteRgb5[] Source(KraidColorDocument value, KraidPaletteSource source) => source switch

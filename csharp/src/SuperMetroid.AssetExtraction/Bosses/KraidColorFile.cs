@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// <summary>Reads and writes the installed Kraid colour document.</summary>
 public static class KraidColorFile
 {
-    /// <summary>Validates and compiles all five Kraid RGB5 sources, preserving independent authored edits while leaving health-band selection and fade timing to the boss mechanics.</summary>
+    /// <summary>Validates all five Kraid RGB5 sources and keeps them as installed, leaving health-band selection and fade timing to the boss mechanics.</summary>
     /// <param name="json">UTF-8 JSON source consumed from its current position and left open; property names are matched case-insensitively.</param>
     /// <returns>Compiled packed-color catalog detached from the document arrays.</returns>
     /// <exception cref="ArgumentNullException">The source stream is null.</exception>
@@ -23,12 +23,14 @@ public static class KraidColorFile
         document = JsonAssetDocument.Read<KraidColorDocument>(json, JsonOptions, "Kraid colors");
         if (document.Version != KraidColorFormat.Version)
             throw new InvalidDataException("Kraid colors require the supported version.");
-        return new(KraidColorEdits.Sources(
-            Compile(document.RoomBackdrop, KraidPaletteSource.RoomBackdrop),
-            Compile(document.InitialTarget, KraidPaletteSource.InitialTarget),
-            Compile(document.Health, KraidPaletteSource.Health),
-            Compile(document.Secondary, KraidPaletteSource.Secondary),
-            Compile(document.DeathArm, KraidPaletteSource.DeathArm)));
+        return new(new Dictionary<KraidPaletteSource, RgbColor[]>
+        {
+            [KraidPaletteSource.RoomBackdrop] = Compile(document.RoomBackdrop, KraidPaletteSource.RoomBackdrop),
+            [KraidPaletteSource.InitialTarget] = Compile(document.InitialTarget, KraidPaletteSource.InitialTarget),
+            [KraidPaletteSource.Health] = Compile(document.Health, KraidPaletteSource.Health),
+            [KraidPaletteSource.Secondary] = Compile(document.Secondary, KraidPaletteSource.Secondary),
+            [KraidPaletteSource.DeathArm] = Compile(document.DeathArm, KraidPaletteSource.DeathArm),
+        });
     }
 
     /// <summary>Serializes the five editable sources to indented camel-case UTF-8 JSON.</summary>

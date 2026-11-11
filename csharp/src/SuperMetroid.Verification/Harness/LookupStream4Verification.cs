@@ -90,10 +90,6 @@ namespace SuperMetroid.Verification.Harness;
 /// <summary>Compares stream-four imported definitions and runtime consumers with pinned cartridge data.</summary>
 internal static class LookupStream4Verification
 {
-    /// <summary>Background colours 14 and 15, which follow colours 1-11 in the required fade sites.</summary>
-    private static readonly int[] UpperBackgroundColors =
-        [14, 15];
-
     /// <summary>Checks every foreground explosion palette hold, CGRAM exposure, deletion, and star handoff tick.</summary>
     internal static void VerifyLookupStream4ForegroundCadence(CartridgeImportAddressSpace rom)
     {
@@ -633,28 +629,10 @@ internal static class LookupStream4Verification
         ushort[][] native = Enumerable.Range(0, 4)
             .Select(frame => Enumerable.Range(0, 16).Select(color => CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e379 + frame * 32 + color * 2))).ToArray())
             .ToArray();
-        // Independent oracle: colors 0 and 9..15 of rows 1 and 2 interpolate rows 0 and 3.
-        static bool Calculated(int frame, int color) => frame is 1 or 2 && (color == 0 || color >= 9);
-        static ushort Expected(ushort[][] rows, int frame, int color)
-        {
-            if (!Calculated(frame, color)) return rows[frame][color];
-            if (color == 0) return rows[3][0];
-            int value = 0;
-            for (int shift = 0; shift <= 10; shift += 5)
-                value |= ((rows[0][color] >> shift & 31) * (3 - frame) + (rows[3][color] >> shift & 31) * frame + 1) / 3 << shift;
-            return (ushort)value;
-        }
-        for (int frame = 0; frame < 4; frame++)
-        for (int color = 0; color < 16; color++)
-            AssertEqual(native[frame][color], Expected(native, frame, color), $"Native health row {frame} color {color} follows the interpolation");
-
         byte[] source = SporeSpawnColorExtractor.Extract(rom);
         var stock = SporeSpawnColorFile.Read(new MemoryStream(source));
-        var rows = stock.selection.Health;
-        var edits = rows.intermediateEdits;
-        AssertEqual(0, edits.Count, "Stock intermediate health colors store nothing beyond the interpolation");
         Check(stock, native);
-        Console.WriteLine("Spore health ramp: all64 native colors and 14 calculated intermediate cells with no stored stock values pass.");
+        Console.WriteLine("Spore health: all64 installed native colors pass.");
 
         static void Check(SporeSpawnColorCatalog catalog, ushort[][] expected)
         {
@@ -669,14 +647,10 @@ internal static class LookupStream4Verification
     {
         byte[] source = SporeSpawnColorExtractor.Extract(rom);
         var stock = SporeSpawnColorFile.Read(new MemoryStream(source));
-        var values = stock.selection.Spores;
-        AssertEqual(0, values.Count, "Stock spores retain no duplicate healthy-body colors");
-        for (int color = 0; color < 16; color++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e379 + color * 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e359 + color * 2)), "Original separate spore and healthy-body rows have identical coloring");
         Verify(stock);
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveSpore(invalid), "Spore alias color bounds remain exact");
-        Console.WriteLine("Spore healthy-palette alias: all16 native words, zero stock overrides and the canonical identity pass.");
+        Console.WriteLine("Spore colours: all16 installed native words and the canonical identity pass.");
 
         void Verify(SporeSpawnColorCatalog catalog)
         {
@@ -705,38 +679,14 @@ internal static class LookupStream4Verification
     /// <summary>Checks Spore Spawn level-fade phases and their source palette rows.</summary>
     internal static void VerifyLookupStream4SporeLevelFade(ISnesAddressSpace rom)
     {
-        byte[] palette = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(
-            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(rom), SporeSpawnDeathColorDefinitions.OriginalRoomPaletteSource);
-        RgbColor[] basis = SporeSpawnDeathColorDefinitions.InitialRoomLevelColors;
-        AssertEqual(12, basis.Length, "Level fade retains twelve required original room-color sites");
         byte[] source = SporeSpawnColorExtractor.Extract(rom);
         var stock = SporeSpawnColorFile.Read(new MemoryStream(source));
-        var values = stock.selection.DeathLevel;
-        AssertEqual(40, values.Count, "Level fade stores28 unresolved trajectory words and12 other final colors");
-        for (int color = 0; color < 16; color++)
-        {
-            bool unresolved = color is 0 or 7 or 11 or 15;
-            if (!unresolved)
-            {
-                int offset = SporeSpawnDeathColorDefinitions.LevelPaletteByteOffset + color * 2;
-                AssertEqual(LittleEndianBytes.Word(palette[offset], palette[offset + 1]),
-                    SporeSpawnDeathFade.InitialLevelColor(color), "Level basis matches exact original decoded room color");
-            }
-            for (int frame = 0; frame < 7; frame++)
-            {
-                AssertEqual(frame == 6 || unresolved, values.ContainsKey(new PaintColour(frame, color)), "Only explicit unresolved columns and final colors remain stored");
-                bool calculated = SporeSpawnDeathFade.TryLevelColor(RgbColor.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e5b9 + color * 2)))), frame, color, out RgbColor value);
-                AssertEqual(!unresolved, calculated, "Required trajectories are never disguised as calculated defaults");
-                if (calculated)
-                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e4f9 + frame * 32 + color * 2)), value, "Direct level interpolation matches original native words");
-            }
-        }
         Verify(stock);
         foreach (int invalid in new[] { int.MinValue, -1, 7, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveDeathLevel(invalid, 0), "Level frame bounds remain exact");
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveDeathLevel(0, invalid), "Level color bounds remain exact");
-        Console.WriteLine("Spore level fade: twelve required room-color sites, forty required death words and72 calculated interiors; native values, exact basis and identity pass.");
+        Console.WriteLine("Spore level fade: all112 installed native words and the identity pass.");
 
         void Verify(SporeSpawnColorCatalog catalog)
         {
@@ -764,34 +714,14 @@ internal static class LookupStream4Verification
     /// <summary>Checks Spore Spawn background-fade stages against native palette words.</summary>
     internal static void VerifyLookupStream4SporeBackgroundFade(ISnesAddressSpace rom)
     {
-        byte[] palette = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(
-            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(rom), SporeSpawnDeathColorDefinitions.OriginalRoomPaletteSource);
-        RgbColor[] basis = SporeSpawnDeathColorDefinitions.InitialRoomBackgroundColors;
-        AssertEqual(13, basis.Length, "Background fade retains exactly thirteen required original room-color sites");
-        foreach (int color in Enumerable.Range(1, 11).Concat(UpperBackgroundColors))
-        {
-            int offset = SporeSpawnDeathColorDefinitions.BackgroundPaletteByteOffset + color * 2;
-            AssertEqual(LittleEndianBytes.Word(palette[offset], palette[offset + 1]),
-                SporeSpawnDeathFade.InitialBackgroundColor(color), "Every required initial color matches the original decoded room palette");
-        }
         byte[] source = SporeSpawnColorExtractor.Extract(rom);
         var stock = SporeSpawnColorFile.Read(new MemoryStream(source));
-        var values = stock.selection.DeathBackground;
-        AssertEqual(16, values.Count, "Stock background fade stores exactly sixteen required final words");
-        for (int frame = 0; frame < 7; frame++)
-            for (int color = 0; color < 16; color++)
-            {
-                AssertEqual(frame == 6, values.ContainsKey(new PaintColour(frame, color)), "Stock background has no interior fallback samples");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e5d9 + frame * 32 + color * 2)),
-                    SporeSpawnDeathFade.BackgroundColor(RgbColor.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e699 + color * 2)))), frame, color),
-                    "Direct background calculation matches every original word independently of catalog loading");
-            }
         Verify(stock);
         foreach (int invalid in new[] { int.MinValue, -1, 7, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveDeathBackground(invalid, 0), "Background frame bounds remain exact");
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveDeathBackground(0, invalid), "Background color bounds remain exact");
-        Console.WriteLine("Spore background fade: thirteen required room-color sites and sixteen final words; all112 native defaults, exact stored basis and the identity pass.");
+        Console.WriteLine("Spore background fade: all112 installed native words and the identity pass.");
 
         void Verify(SporeSpawnColorCatalog catalog)
         {
@@ -824,24 +754,12 @@ internal static class LookupStream4Verification
     {
         byte[] source = SporeSpawnColorExtractor.Extract(rom);
         var stock = SporeSpawnColorFile.Read(new MemoryStream(source));
-        var values = stock.selection.DeathSprite;
-        AssertEqual(16, values.Count, "Stock sprite fade stores only sixteen final colors; initial colors share required critical-health row");
-        for (int frame = 0; frame < 8; frame++)
-            for (int color = 0; color < 16; color++)
-            {
-                AssertEqual(frame == 7, values.ContainsKey(new PaintColour(frame, color)), "Only final endpoint row remains stored in stock fade");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e3f9 + frame * 32 + color * 2)),
-                    SporeSpawnColors.CalculateDeathSpriteColor(RgbColor.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e3f9 + color * 2)))), RgbColor.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e4d9 + color * 2)))), frame),
-                    "Direct channel interpolation equals every original sprite death word without loading fallback samples");
-            }
-        for (int color = 0; color < 16; color++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e3d9 + color * 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e3f9 + color * 2)), "Death fade starts at original critical-health coloring");
         Verify(stock);
         foreach (int invalid in new[] { int.MinValue, -1, 8, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveDeathSprite(invalid, 0), "Sprite fade frame bounds remain exact");
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveDeathSprite(0, invalid), "Sprite fade color bounds remain exact");
-        Console.WriteLine("Spore sprite fade: sixteen required final words, shared critical-health endpoint and96 interpolated words; direct native defaults, sparse basis and canonical identity pass.");
+        Console.WriteLine("Spore sprite fade: all128 installed native words and canonical identity pass.");
 
         void Verify(SporeSpawnColorCatalog catalog)
         {
@@ -1835,12 +1753,6 @@ internal static class LookupStream4Verification
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
         byte[] json = DraygonColorExtractor.Extract(rom);
         var stock = DraygonColorFile.Read(new MemoryStream(json));
-        var intro = stock.selection.Intro;
-        var primary = intro.primary;
-        var surface = intro.surface;
-        AssertEqual(0,primary.edits.Count,"Intro primary zero native overrides");
-        AssertEqual(0,surface.edits.Count,"Intro surface zero native overrides");
-        AssertEqual<object?>(null,intro.clearEdit,"Intro clear has no native override");
         {
             var document=RequiredJson.Deserialize<DraygonColorDocument>(json,ArtworkJson.Options);
             var selected=DraygonColorFile.Read(new MemoryStream(DraygonColorFile.Write(document)));
@@ -1877,13 +1789,8 @@ internal static class LookupStream4Verification
                 AssertEqual(DraygonAiFunction.IntroInitialDelay,(enemies.DraygonBehavior.Parts.Draygon ?? throw new InvalidOperationException("Verification requires enemies.DraygonBehavior.Draygon.")).Function,"Actual initializer phase");
             }
         }
-        ushort[] escape=Enumerable.Range(0,15).Select(index=>CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6f50e+index*2))).ToArray();
-        {
-            var paint=CeresDoorPaintRecognition.Escape(ToColors(escape));
-            for(int color=0;color<15;color++)AssertEqual(escape[color],paint.ColorAt(color),"Shared extraction preserves all escape channels");
-        }
         foreach(int invalid in new[]{-1,25,int.MinValue,int.MaxValue})AssertThrows<ArgumentOutOfRangeException>(()=>stock.ResolveIntro(invalid),"Original intro domain");
-        Console.WriteLine("Draygon intro:25native aliases/zero overrides,the hash and full copy,the actual initializer,the shared escape paint and bounds pass.");
+        Console.WriteLine("Draygon intro:25 native colours,the hash and full copy,the actual initializer and bounds pass.");
     }
 
     /// <summary>Checks Draygon sprite palette stages and their installed CGRAM output.</summary>
@@ -1892,8 +1799,6 @@ internal static class LookupStream4Verification
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
         byte[] json = DraygonColorExtractor.Extract(rom);
         var stock = DraygonColorFile.Read(new MemoryStream(json));
-        var material = stock.selection.Sprite;
-        AssertEqual(0,material.edits.Count,"Shared native sprite material has zero overrides");
         {
             var document=RequiredJson.Deserialize<DraygonColorDocument>(json,ArtworkJson.Options);
             var selected=DraygonColorFile.Read(new MemoryStream(DraygonColorFile.Write(document)));
@@ -1937,7 +1842,7 @@ internal static class LookupStream4Verification
             }
         }
         foreach(int invalid in new[]{-1,16,int.MinValue,int.MaxValue})AssertThrows<ArgumentOutOfRangeException>(()=>stock.ResolveSprite(invalid),"Original sprite domain");
-        Console.WriteLine("Draygon sprite:16native aliases/zero overrides,the hash,normal-white copies,actual hurt producer calls,background+intro words and bounds pass.");
+        Console.WriteLine("Draygon sprite:16 native colours,the hash,normal-white copies,actual hurt producer calls,background+intro words and bounds pass.");
     }
 
     /// <summary>Checks Draygon background palette stages and their installed CGRAM output.</summary>
@@ -1946,8 +1851,6 @@ internal static class LookupStream4Verification
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
         byte[] json = DraygonColorExtractor.Extract(rom);
         var stock = DraygonColorFile.Read(new MemoryStream(json));
-        var material = stock.selection.Background;
-        AssertEqual(0,material.edits.Count,"All16 background colors calculate without unexplained stock overrides");
         {
             var document = RequiredJson.Deserialize<DraygonColorDocument>(json,ArtworkJson.Options);
             var selected = DraygonColorFile.Read(new MemoryStream(DraygonColorFile.Write(document)));
@@ -1991,7 +1894,7 @@ internal static class LookupStream4Verification
             }
         }
         foreach(int invalid in new[]{-1,16,int.MinValue,int.MaxValue}) AssertThrows<ArgumentOutOfRangeException>(()=>stock.ResolveBackground(invalid),"Original background domain");
-        Console.WriteLine("Draygon background:16native/zero overrides,the hash/aliases,normal-white copies,actual hurt producer calls/belly overwrite/bounds pass.");
+        Console.WriteLine("Draygon background:16 native colours,the hash,normal-white copies,actual hurt producer calls/belly overwrite/bounds pass.");
     }
 
     /// <summary>Checks Draygon health-driven palette selection and installed CGRAM output.</summary>
@@ -2048,7 +1951,7 @@ internal static class LookupStream4Verification
                 }
             }
         }
-        Console.WriteLine("Draygon health:32 native colors/zero overrides,the hash,full copies,actual health and hurt calls/held band/restore pass.");
+        Console.WriteLine("Draygon health:32 native colors,the hash,full copies,actual health and hurt calls/held band/restore pass.");
     }
     /// <summary>Checks imported Draygon color rows against the native palette source.</summary>
     private static void VerifyLookupStream4DraygonColors(ISnesAddressSpace rom)
@@ -2056,9 +1959,6 @@ internal static class LookupStream4Verification
         byte[] original = DraygonColorExtractor.Extract(rom);
         var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         var stock = DraygonColorFile.Read(new MemoryStream(original));
-        AssertEqual(0, stock.selection.WhiteFlash.Count, "Draygon stock flash is calculated without stored colors");
-        var health = stock.selection.HealthBands;
-        AssertEqual(0, health.edits.Count, "All native Draygon health colors calculate without overrides");
         {
             var document = RequiredJson.Deserialize<DraygonColorDocument>(original, options);
             var catalog = DraygonColorFile.Read(new MemoryStream(DraygonColorFile.Write(document)));
@@ -2259,9 +2159,6 @@ internal static class LookupStream4Verification
         byte[] original = BotwoonColorExtractor.Extract(rom);
         var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         var stock = BotwoonColorFile.Read(new MemoryStream(original));
-        var paint = stock.health;
-        int stored = paint.edits.Count;
-        AssertEqual(0, stored, "Botwoon all stock channels calculate with zero overrides");
         for (int color = 0; color < 16; color++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb39319 + color * 2)), stock.HealthColor(0, color), "native initial/header alias remains exact");
         {
@@ -2314,7 +2211,7 @@ internal static class LookupStream4Verification
             AssertThrows<ArgumentOutOfRangeException>(() => stock.HealthColor(invalid, 0), "Botwoon health band domain");
         foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.HealthColor(0, invalid), "Botwoon health color domain");
-        Console.WriteLine("Botwoon complete paint:128 native outputs,16 initial aliases,zero stock overrides,the hash identity,actual threshold/copy/completed calls and native-read guard pass.");
+        Console.WriteLine("Botwoon installed colours:128 native outputs,16 initial aliases,the hash identity,actual threshold/copy/completed calls and native-read guard pass.");
     }
 
     /// <summary>Checks Oum instruction-list boundaries and pointer order against the cartridge.</summary>

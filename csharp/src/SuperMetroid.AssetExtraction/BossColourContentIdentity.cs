@@ -64,13 +64,13 @@ internal static class BossColourContentIdentity
             SelectedPresentationHash.Create("DraygonColorCatalog-v1", content =>
             {
                 Span<RgbColor> introWords = stackalloc RgbColor[DraygonColorDefinitions.IntroCount];
-                for (int color = 0; color < introWords.Length; color++) introWords[color] = colors.selection.Intro.Color(color);
+                for (int color = 0; color < introWords.Length; color++) introWords[color] = colors.ResolveIntro(color);
                 content.AppendColors("intro", introWords);
                 Span<RgbColor> backgroundWords = stackalloc RgbColor[DraygonColorDefinitions.BackgroundCount];
-                for (int color = 0; color < backgroundWords.Length; color++) backgroundWords[color] = colors.selection.Background.Color(color);
+                for (int color = 0; color < backgroundWords.Length; color++) backgroundWords[color] = colors.ResolveBackground(color);
                 content.AppendColors("background", backgroundWords);
                 Span<RgbColor> spriteWords = stackalloc RgbColor[DraygonColorDefinitions.SpriteCount];
-                for (int color = 0; color < spriteWords.Length; color++) spriteWords[color] = colors.selection.Sprite.Color(color);
+                for (int color = 0; color < spriteWords.Length; color++) spriteWords[color] = colors.ResolveSprite(color);
                 content.AppendColors("sprite", spriteWords);
                 Span<RgbColor> flash = stackalloc RgbColor[DraygonColorDefinitions.WhiteFlashCount];
                 for (int color = 0; color < flash.Length; color++) flash[color] = colors.ResolveWhiteFlash(color);
@@ -161,9 +161,9 @@ internal static class BossColourContentIdentity
                 Span<RgbColor> target = stackalloc RgbColor[PhantoonColorFormat.FadeOutCount];
                 for (int color = 0; color < target.Length; color++) target[color] = colors.ResolveFadeOut(color);
                 content.AppendColors("fadeOut", target);
-                var power = new List<RgbColor>(PhantoonColorFormat.PoweredParts.Length * SuperMetroid.AssetExtraction.Enemies.Artwork.WreckedShipPowerPaintDefinitions.PartColourCount);
+                var power = new List<RgbColor>(PhantoonColorFormat.PoweredParts.Length * PhantoonColorFormat.PoweredPartColourCount);
                 foreach (WreckedShipPoweredPart part in PhantoonColorFormat.PoweredParts)
-                    for (int color = 0; color < SuperMetroid.AssetExtraction.Enemies.Artwork.WreckedShipPowerPaintDefinitions.PartColourCount; color++) power.Add(colors.ResolvePowerOn(part, color));
+                    for (int color = 0; color < PhantoonColorFormat.PoweredPartColourCount; color++) power.Add(colors.ResolvePowerOn(part, color));
                 content.AppendColors("powerOn", power.ToArray());
                 var frames = new RgbColor[PhantoonColorDefinitions.HealthBandCount][];
                 for (int band = 0; band < frames.Length; band++)
@@ -205,7 +205,7 @@ internal static class BossColourContentIdentity
                 content.AppendColors("spores", Enumerable.Range(0, SporeSpawnColorFormat.ColorsPerFrame).Select(colors.ResolveSpore).ToArray());
                 content.AppendColorFrames("health", Enumerable.Range(0, SporeSpawnColorDefinitions.HealthFrameCount)
                     .Select(frame => Enumerable.Range(0, SporeSpawnColorFormat.ColorsPerFrame)
-                        .Select(color => colors.selection.Health.Resolve(frame, color)).ToArray()).ToArray());
+                        .Select(color => colors.ResolveHealth(frame, color)).ToArray()).ToArray());
                 content.AppendColorFrames("deathSprite", Enumerable.Range(0, SporeSpawnColorFormat.DeathSpriteFrameCount)
                     .Select(frame => Enumerable.Range(0, SporeSpawnColorFormat.ColorsPerFrame)
                         .Select(color => colors.ResolveDeathSprite(frame, color)).ToArray()).ToArray());

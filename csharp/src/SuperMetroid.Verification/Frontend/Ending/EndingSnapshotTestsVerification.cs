@@ -365,7 +365,7 @@ internal static class EndingSnapshotTestsVerification
                         RgbColor native = RgbColor.FromWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8ce7e9 + color * 2));
                         ShownColourSource[] wrong = [.. blankSources[color].Where(source => source.Colour != native)];
                         AssertTrue(wrong.Length == 0, $"native end-credits Intro4 palette colour {color} ({native}): " +
-                            string.Join("; ", wrong.Select(source => $"{source.Picture} ink {source.Ink} under {source.Shading} shows {source.Colour}")));
+                            string.Join("; ", wrong.Select(source => $"{source.Picture} colour key {source.Key} under {source.Shading} shows {source.Colour}")));
                     }
                     byte[] reward = RomDataReader.Decompress(bus, hours < 3 ? 0x97b957 : 0x979803, 0x8000);
                     var shownLegacy8 = legacy.ShownVram();

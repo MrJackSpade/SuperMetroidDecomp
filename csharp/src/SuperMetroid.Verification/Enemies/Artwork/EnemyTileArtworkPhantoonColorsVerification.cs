@@ -153,8 +153,8 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
     {
         var frame = new GameplayShadingBuilder();
         state.Colours.ShadeGameplay(frame);
-        return frame.Build(SpriteImageFixtures.Copied("Room", new(1, 1), [default], [SpriteImageInk.Transparent],
-            new PictureColours([RgbColor.Black]) { Backdrop = 0 }))
+        return frame.Build(SpriteImageFixtures.Copied("Room", new(1, 1), [default(RgbaPixel)],
+            new PictureColours { Backdrop = ColourKey.Of(RgbColor.Black) }))
             .Of(GameplayPictures.BossBody).Shades.Single();
     }
 

@@ -15,7 +15,7 @@ namespace SuperMetroid.Verification.Enemies.Magdollite;
 
 /// <summary>
 /// Checks the Magdollite glow shades the import paints on an installed Magdollite sheet (#1512): under each glow frame's
-/// shade, the four glow inks of the Magdollite's row show the cartridge's colours for that frame, and every other ink of
+/// shade, the four glow colours of the Magdollite's row show the cartridge's colours for that frame, and every other colour of
 /// the row keeps the sheet's standard colour.
 /// </summary>
 internal static class MagdolliteShadeContentVerification
@@ -34,11 +34,11 @@ internal static class MagdolliteShadeContentVerification
         RgbColor[] standard = InstalledPictureColoursConstants.ComposedColours(image);
         for (int frame = 0; frame < MagdolliteShades.GlowFrames; frame++)
         {
-            RgbColor[] inks = InstalledPictureColoursConstants.ByComposedIndex(image,
-                PictureShading.Shaded(MagdolliteShades.Glow(frame)).InkColours(image));
+            RgbColor[] shown = InstalledPictureColoursConstants.ByComposedIndex(image,
+                PictureShading.Shaded(MagdolliteShades.Glow(frame)).KeyColours(image));
             for (int color = 0; color < LoadedSetColours.RowColours; color++)
             {
-                if (InstalledPictureColoursConstants.ColourComposedAs(image, first + color) is null)
+                if (InstalledPictureColoursConstants.KeyComposedAs(image, first + color) is null)
                     continue;
                 int glow = color - MagdollitePaletteCycle.FirstAnimatedColor;
                 if (glow is >= 0 and < MagdollitePaletteCycle.AnimatedColorCount)
@@ -46,13 +46,13 @@ internal static class MagdolliteShadeContentVerification
                     int source = EnemySpeciesSourceDefinitions.Magdollite.CycleColors +
                         (frame * EnemySpeciesSourceDefinitions.Magdollite.RowColors + color) * EnemySpeciesSourceDefinitions.ColorWordBytes;
                     int word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), source);
-                    AssertEqual(new FadeLevelColour(word & 31, word >> 5 & 31, word >> 10 & 31).ToColour(), inks[first + color],
-                        $"{set.Name} Magdollite glow frame {frame} ink {color} shows the cartridge's colour");
+                    AssertEqual(new FadeLevelColour(word & 31, word >> 5 & 31, word >> 10 & 31).ToColour(), shown[first + color],
+                        $"{set.Name} Magdollite glow frame {frame} colour {color} shows the cartridge's colour");
                 }
                 else
                 {
-                    AssertEqual(standard[first + color], inks[first + color],
-                        $"{set.Name} Magdollite glow frame {frame} leaves ink {color} its standard colour");
+                    AssertEqual(standard[first + color], shown[first + color],
+                        $"{set.Name} Magdollite glow frame {frame} leaves colour {color} its standard colour");
                 }
             }
         }

@@ -81,10 +81,10 @@ internal static class UploadedPictureChecks
                 }
                 else if (entry != 0)
                 {
-                    // A sheet's ink is its part's own row and colour; the draw ORs the sheet's palette bits into that row (#1512).
-                    entry = InstalledPictureColoursConstants.CartridgeColourOf(image.Image.Sheet,
-                        InstalledPictureColoursConstants.ColourComposedAs(image.Image.Sheet, entry) ?? throw new InvalidDataException(
-                            $"{message}: {image} inks palette index {entry}, none of its sheet's colours.")) - GameplayColourPositionDefinitions.SpriteSetsFirst;
+                    // A sheet's palette index is its part's own row and colour; the draw ORs the sheet's palette bits into that row (#1512).
+                    if (InstalledPictureColoursConstants.KeyComposedAs(image.Image.Sheet, entry) is null)
+                        throw new InvalidDataException($"{message}: {image} paints palette index {entry}, none of its sheet's colours.");
+                    entry = InstalledPictureColoursConstants.CartridgeColourOfIndex(image.Image.Sheet, entry) - GameplayColourPositionDefinitions.SpriteSetsFirst;
                 }
                 if (entry != 0)
                     actual.Ink(screenX, screenY, entry);

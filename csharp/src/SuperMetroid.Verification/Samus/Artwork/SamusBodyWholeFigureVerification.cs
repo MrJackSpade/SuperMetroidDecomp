@@ -13,14 +13,14 @@ namespace SuperMetroid.Verification.Samus.Artwork;
 
 /// <summary>
 /// Holds every frame of the installed Samus body sheet to the whole-Samus rule (owner rulings on #1513: no sprite sheet
-/// frame shows half a Samus, and sheets are checked automatically), read from the sheet's installed ink plane.
+/// frame shows half a Samus, and sheets are checked automatically), read from the sheet's installed picture's alpha.
 /// <list type="bullet">
 /// <item><b>One figure.</b> A frame's opaque pixels form exactly one figure of meaningful size: grouping pixels that lie
 /// within <see cref="FigureReach"/> pixels of each other horizontally and vertically, exactly one group holds at least
 /// <see cref="MeaningfulPixels"/> pixels. A frame of scattered bodies, a Screw Attack outline without Samus, a pair of
 /// legs beside a torso or a frame showing nothing fails.</item>
 /// <item><b>Both halves.</b> Each picture frame the body shows is drawn by its pose's own halves rule, and each half the
-/// rule draws whose pose-half table holds a composition there must ink a pixel inside that composition's parts on the
+/// rule draws whose pose-half table holds a composition there must paint a pixel inside that composition's parts on the
 /// frame: a frame drawn without the legs or the top its rule shows fails. A half whose table holds no composition at the
 /// frame is drawn empty by the game too (the right-facing drained crouch's third frame is its curled top alone), and the
 /// one-figure rule vouches for such a frame.</item>
@@ -52,7 +52,7 @@ internal static class SamusBodyWholeFigureVerification
     {
         SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(SpriteSheetId.SamusBody);
         SpriteImage image = sheet.Image;
-        var opaque = new OpaquePixels(SheetInkRules.InkPlane(RepositoryInstallation.Installation.SpriteSheetDirectory, image), image.Size.X);
+        var opaque = new OpaquePixels(SheetPixelRules.PixelPlane(RepositoryInstallation.Installation.SpriteSheetDirectory, image), image.Size.X);
 
         InstalledSamusBodyArtwork body = InstalledFixtures.SamusBody;
         SamusSpritemapSources spritemaps = body.Source.Spritemaps;
@@ -78,7 +78,7 @@ internal static class SamusBodyWholeFigureVerification
             SamusBodyHalfFrame[] halves = drawn.Bottom is { } lower ? [drawn.Top, lower] : [drawn.Top];
             foreach (SamusBodyHalfFrame half in halves)
             {
-                if (spritemaps.TryGetFrame(half, out SpriteFrame? composition) && !opaque.InksWithin(frame, composition))
+                if (spritemaps.TryGetFrame(half, out SpriteFrame? composition) && !opaque.PaintsWithin(frame, composition))
                     findings.Add($"frame {name} ({drawer}) lacks its {half.Half} half, which its pose's own rule draws");
             }
         }
@@ -137,19 +137,19 @@ internal static class SamusBodyWholeFigureVerification
     }
 
     /// <summary>Which pixels of the body sheet's image are not clear.</summary>
-    /// <param name="inks">The ink of each pixel of the image, row by row from the top.</param>
+    /// <param name="pixels">Each pixel of the image, row by row from the top.</param>
     /// <param name="width">The image's width.</param>
-    private sealed class OpaquePixels(SpriteImageInk[] inks, int width)
+    private sealed class OpaquePixels(RgbaPixel[] pixels, int width)
     {
         /// <summary>Whether the frame-local pixel at (<paramref name="x"/>, <paramref name="y"/>) of <paramref name="frame"/> is opaque.</summary>
         private bool IsOpaque(SpriteSheetFrame frame, int x, int y) =>
-            !inks[(frame.Corner.Y + y) * width + frame.Corner.X + x].Clear;
+            pixels[(frame.Corner.Y + y) * width + frame.Corner.X + x].A != 0;
 
         /// <summary>
-        /// Whether <paramref name="frame"/> inks a pixel inside any part of <paramref name="composition"/>, placed from the
+        /// Whether <paramref name="frame"/> paints a pixel inside any part of <paramref name="composition"/>, placed from the
         /// frame's origin.
         /// </summary>
-        internal bool InksWithin(SpriteSheetFrame frame, SpriteFrame composition)
+        internal bool PaintsWithin(SpriteSheetFrame frame, SpriteFrame composition)
         {
             foreach (SpriteFramePart part in composition.Parts)
             {

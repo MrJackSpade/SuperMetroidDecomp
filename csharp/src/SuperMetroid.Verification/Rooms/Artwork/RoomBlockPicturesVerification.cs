@@ -238,13 +238,13 @@ internal static class RoomBlockPicturesVerification
     private static string PartOf(SnesBgTilemapWord word) => word.HasPriority ? "in front" : "behind";
 
     /// <summary>The palette index the import composed <paramref name="sheet"/>'s pixel at <paramref name="at"/> as (#1544); zero for a transparent pixel.</summary>
-    private static int Painted(SpriteImage sheet, int at) => InstalledPictureColoursConstants.ComposedIndexOf(sheet, sheet.Inks[at]);
+    private static int Painted(SpriteImage sheet, int at) => InstalledPictureColoursConstants.ComposedIndexAt(sheet, at);
 
-    /// <summary>The standard colour of <paramref name="sheet"/>'s own colour composed as palette index <paramref name="index"/>.</summary>
-    /// <exception cref="InvalidDataException">The sheet has no colour composed as that index.</exception>
+    /// <summary>The colour <paramref name="sheet"/>'s pixels composed as palette index <paramref name="index"/> hold (#1633).</summary>
+    /// <exception cref="InvalidDataException">The sheet has no pixel composed as that index.</exception>
     private static RgbColor StandardOf(SpriteImage sheet, int index) =>
-        sheet.StandardColours[InstalledPictureColoursConstants.ColourComposedAs(sheet, index)
-            ?? throw new InvalidDataException($"{sheet} has no colour composed as palette index {index}.")];
+        (InstalledPictureColoursConstants.KeyComposedAs(sheet, index)
+            ?? throw new InvalidDataException($"{sheet} has no colour composed as palette index {index}.")).Colour;
 
     /// <summary>The colour, within its palette row, that <paramref name="word"/>'s tile paints at (<paramref name="x"/>, <paramref name="y"/>) over <paramref name="vram"/>'s characters.</summary>
     private static int TileColour(ReadOnlySpan<byte> vram, SnesBgTilemapWord word, int x, int y)

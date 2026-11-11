@@ -93,7 +93,7 @@ internal static class EndingCloudPlacementVerification
             var pixels = ending.Render();
             int differs = pixels.ToArray().Zip(expected, (live, native) => live != native).ToList().IndexOf(true);
             AssertTrue(differs < 0, $"scene B cloud positions/motion frame {frame} ({ending.Stage.Phase})" + (differs < 0 ? ""
-                : $": pixel ({differs % 256},{differs / 256}) live {pixels[differs]}, native {expected[differs]}; live trace " + EndingPlanetBoundaryVerification.SpriteInkTrace(actual, differs % 256, differs / 256) + "; native trace " + EndingPlanetBoundaryVerification.SpriteInkTrace(new LayeredScene(expectedMemory, actual.Layers, actual.Brightness), differs % 256, differs / 256) + "; live draws " +
+                : $": pixel ({differs % 256},{differs / 256}) live {pixels[differs]}, native {expected[differs]}; live trace " + EndingPlanetBoundaryVerification.SpritePixelTrace(actual, differs % 256, differs / 256) + "; native trace " + EndingPlanetBoundaryVerification.SpritePixelTrace(new LayeredScene(expectedMemory, actual.Layers, actual.Brightness), differs % 256, differs / 256) + "; live draws " +
                     string.Join(", ", actual.Paint.SpriteDraws.OfType<ImageSpriteDraw>().Select(draw =>
                         $"{draw.Image.Size.X}x{draw.Image.Size.Y} at {draw.Corner.X},{draw.Corner.Y}")) + "; native objects " +
                     string.Join(", ", Enumerable.Range(0, oam.LastFinalizedSpriteCount).Select(index => oam.GetEntry(index)).Select(entry =>

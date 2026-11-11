@@ -38,14 +38,14 @@ internal static class GameOverBabyColorsVerification
         {
             // The sheet's colours laid out by the palette index each was composed as (#1544).
             RgbColor[] shaded = SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.ByComposedIndex(babySheet,
-                PictureShading.Shaded(GameOverBabyShades.Colours((GameOverBabyPalette)phase)).InkColours(babySheet));
+                PictureShading.Shaded(GameOverBabyShades.Colours((GameOverBabyPalette)phase)).KeyColours(babySheet));
             RgbColor[] loaded = presentation.BabyPaint.Colours((GameOverBabyPalette)phase);
             for (int ink = 0; ink < 16; ink++)
             {
                 ushort expected = ReadVerificationWord(rom, 0x82bd97 + phase * 32 + ink * 2);
                 AssertEqual(expected, catalog.Read((GameOverBabyPalette)phase, ink), "original Baby color");
                 AssertEqual(expected, loaded[ink], "Baby colours the import shades the sheet in");
-                if (ink != 0 && SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.ColourComposedAs(babySheet, 64 + ink) is not null)
+                if (ink != 0 && SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.KeyComposedAs(babySheet, 64 + ink) is not null)
                     AssertEqual(expected, shaded[64 + ink], "installed Baby shade");
             }
         }

@@ -19,7 +19,7 @@ namespace SuperMetroid.Verification.Bosses;
 
 /// <summary>
 /// Confirms a boss body's parts, layered in draw order (#1540), draw what the frames they show composed on the boss's layer
-/// before: each pixel the ink of the frame whose cells last reach it, a later frame's over an earlier's, nothing where that
+/// before: each pixel the colour key of the frame whose cells last reach it, a later frame's over an earlier's, nothing where that
 /// frame paints nothing and nothing below the row the body shows above. Crocomire's melt replaces his body frame and each
 /// dissolve step replaces the last; the acid cuts his sunk body; Kraid's head pose shows alone on the rows the head his body
 /// rises with fills before it; Phantoon's eye shows in his body's socket. Each pixel shows at the depth the cartridge's word
@@ -191,7 +191,7 @@ internal static class BossBodyLayeredPartsVerification
     }
 
     /// <summary>
-    /// What <paramref name="layer"/>'s frames compose on <paramref name="area"/>: each pixel shows the ink of the frame whose
+    /// What <paramref name="layer"/>'s frames compose on <paramref name="area"/>: each pixel shows the colour key of the frame whose
     /// cells last reach it, a later frame's over an earlier's, at the depth its cell's word draws it at, in front of the
     /// sprites where the word is in the upper tier or the frame is one of <paramref name="raised"/>; nothing where that frame
     /// paints nothing, at or below the row the body shows above, or where no frame reaches.
@@ -223,14 +223,14 @@ internal static class BossBodyLayeredPartsVerification
         {
             int x = pixel % area.X, y = pixel / area.X;
             if (owners[pixel] is { Picture: { } picture } frame && (layer.ShownAbove is not { } shownAbove || y < shownAbove)
-                && InkAt(picture, x - frame.Corner.X, y - frame.Corner.Y) is { } ink)
-                shown[pixel] = new ShownPixel(ink, depths[pixel]);
+                && KeyAt(picture, x - frame.Corner.X, y - frame.Corner.Y) is { } key)
+                shown[pixel] = new ShownPixel(key, depths[pixel]);
         }
         return shown;
     }
 
     /// <summary>
-    /// What <paramref name="shown"/>'s parts show on <paramref name="area"/>: each pixel the ink of the frontmost part inking
+    /// What <paramref name="shown"/>'s parts show on <paramref name="area"/>: each pixel the colour key of the frontmost part painting
     /// it, at that part's depth.
     /// </summary>
     private static ShownPixel?[] Layered(ShownBossBody shown, Extent16<BackgroundPixels> area)
@@ -241,30 +241,30 @@ internal static class BossBodyLayeredPartsVerification
             for (int y = 0; y < part.Size.Y; y++)
             for (int x = 0; x < part.Size.X; x++)
             {
-                if (InkAt(part.Picture, x, y) is { } ink)
+                if (KeyAt(part.Picture, x, y) is { } key)
                 {
                     // A part reaching past the canvas shows nothing there to compare.
                     if (part.Corner.X + x < area.X && part.Corner.Y + y < area.Y)
-                        pixels[(part.Corner.Y + y) * area.X + part.Corner.X + x] = new ShownPixel(ink, part.Depth);
+                        pixels[(part.Corner.Y + y) * area.X + part.Corner.X + x] = new ShownPixel(key, part.Depth);
                 }
             }
         }
         return pixels;
     }
 
-    /// <summary>A pixel a body shows: its ink and the depth it is drawn at (#1634).</summary>
-    /// <param name="Ink">The pixel's ink.</param>
+    /// <summary>A pixel a body shows: its colour key and the depth it is drawn at (#1634, #1633).</summary>
+    /// <param name="Key">The pixel's colour with its recolour region.</param>
     /// <param name="Depth">The depth it is drawn at.</param>
-    private readonly record struct ShownPixel(SpriteImageInk Ink, BossBodyDepth Depth);
+    private readonly record struct ShownPixel(ColourKey Key, BossBodyDepth Depth);
 
-    /// <summary>The ink of <paramref name="picture"/>'s pixel at <paramref name="x"/>, <paramref name="y"/>, or null where it shows nothing.</summary>
-    private static SpriteImageInk? InkAt(SpriteSheetFrame picture, int x, int y)
+    /// <summary>The colour key of <paramref name="picture"/>'s pixel at <paramref name="x"/>, <paramref name="y"/>, or null where it is clear.</summary>
+    private static ColourKey? KeyAt(SpriteSheetFrame picture, int x, int y)
     {
         if (x < 0 || y < 0 || x >= picture.Size.X || y >= picture.Size.Y)
             throw new InvalidOperationException($"Pixel ({x}, {y}) lies off a {picture.Size.X}x{picture.Size.Y} picture.");
         SpriteImage image = picture.Sheet;
-        SpriteImageInk ink = image.Inks[(picture.Corner.Y + y) * image.Size.X + picture.Corner.X + x];
-        return ink.Clear ? null : ink;
+        int pixel = (picture.Corner.Y + y) * image.Size.X + picture.Corner.X + x;
+        return image.Pixels[pixel].A == 0 ? null : image.KeyAt(pixel);
     }
 
     /// <summary>The frames <paramref name="frames"/> compose <paramref name="owner"/>'s sheet from, by name.</summary>

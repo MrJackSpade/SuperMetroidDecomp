@@ -80,15 +80,15 @@ internal static class CinematicSheetColouringsVerification
             SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(id);
             Dictionary<int, HashSet<int>> ceres = CeresSheets.TryGetValue(id, out Func<IEnumerable<CeresDrawnProgram>>? actors)
                 ? CeresPoseSets(actors()) : new();
-            SpriteImageInk[] inks = SheetInkRules.InkPlane(RepositoryInstallation.Installation.SpriteSheetDirectory, sheet.Image);
+            RgbaPixel[] pixels = SheetPixelRules.PixelPlane(RepositoryInstallation.Installation.SpriteSheetDirectory, sheet.Image);
             foreach ((string name, SpriteSheetFrame frame) in sheet.frames.OrderBy(entry => entry.Key, StringComparer.Ordinal))
             {
                 frames++;
                 HashSet<int> sets = id == SpriteSheetId.IntroSprites ? IntroSets(name) : CeresSets(ceres, name);
-                SortedSet<int> foreign = ForeignSets(inks, sheet.Image, frame, sets);
+                SortedSet<int> foreign = ForeignSets(pixels, sheet.Image, frame, sets);
                 if (foreign.Count > 0)
                 {
-                    findings.Add($"{id} frame {name} inks sprite sets {string.Join(", ", foreign)}, not its colourings' "
+                    findings.Add($"{id} frame {name} paints sprite sets {string.Join(", ", foreign)}, not its colourings' "
                         + $"{(sets.Count == 0 ? "(none)" : string.Join(", ", sets.Order()))}");
                 }
             }
@@ -176,7 +176,7 @@ internal static class CinematicSheetColouringsVerification
     }
 
     /// <summary>The sprite sets outside <paramref name="sets"/> that <paramref name="frame"/>'s shown pixels ink, in rising order.</summary>
-    private static SortedSet<int> ForeignSets(SpriteImageInk[] inks, SpriteImage image, SpriteSheetFrame frame, HashSet<int> sets)
+    private static SortedSet<int> ForeignSets(RgbaPixel[] pixels, SpriteImage image, SpriteSheetFrame frame, HashSet<int> sets)
     {
         var foreign = new SortedSet<int>();
         int width = image.Size.X;
@@ -185,11 +185,10 @@ internal static class CinematicSheetColouringsVerification
             int line = (frame.Corner.Y + row) * width + frame.Corner.X;
             for (int column = 0; column < frame.Size.X; column++)
             {
-                SpriteImageInk ink = inks[line + column];
-                if (ink.Clear)
+                if (pixels[line + column].A == 0)
                     continue;
                 // The set the import coloured the pixel's colour from (#1544).
-                int set = InstalledPictureColoursConstants.ComposedIndexOf(image, ink) / SetColours;
+                int set = InstalledPictureColoursConstants.ComposedIndexAt(image, line + column) / SetColours;
                 if (!sets.Contains(set))
                     foreign.Add(set);
             }

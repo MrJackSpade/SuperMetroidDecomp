@@ -9,10 +9,10 @@ internal static class ImageSpriteDrawAccess
         /// <summary>
         /// The composed palette index of the image pixel shown at <paramref name="cell"/> (#1544): its colour group's place
         /// times sixteen plus its colour; zero, the transparent colour, for a transparent pixel or where a rotting corpse's
-        /// rot has cleared the row (#1539).
+        /// rot has cleared the row (#1539). The index is the import's record of a picture a check composed (#1633).
         /// </summary>
         public int PaletteIndexAt(Position16<ScreenPixels> cell) => self.SheetIndex(cell) is int index
-            ? SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.ComposedIndexOf(self.Image.Sheet, self.Image.Sheet.Inks[index])
+            ? SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.ComposedIndexAt(self.Image.Sheet, index)
             : 0;
         /// <summary>
         /// Where on the sheet the pixel shown at <paramref name="cell"/> lies, as the renderer samples it: through a rotting

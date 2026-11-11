@@ -6,7 +6,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>
-/// Cartridge values and helpers of <see cref="InstalledPictureColours"/> that only verification reads (#1633): where in the
+/// Cartridge values and helpers of <see cref="ComposedPictures"/> that only verification reads (#1633): where in the
 /// cartridge's colour image each colour key of a picture a check composed was coloured from. A key may have been composed
 /// from several palette indices, each of which the port shows alike; a check compares every one.
 /// </summary>
@@ -19,7 +19,7 @@ internal static class InstalledPictureColoursConstants
     /// <exception cref="InvalidOperationException">Nothing recorded where the picture was composed from.</exception>
     /// <exception cref="ArgumentException">The picture holds no such key.</exception>
     public static ImmutableArray<int> ComposedIndicesOf(SpriteImage picture, ColourKey key) =>
-        InstalledPictureColours.SetsOf(Ensure.NotNull(picture)).ComposedIndices.TryGetValue(key, out ImmutableArray<int> indices) ? indices
+        ComposedPictures.SourceOf(Ensure.NotNull(picture)).ComposedIndices.TryGetValue(key, out ImmutableArray<int> indices) ? indices
             : throw new ArgumentException($"Picture {picture.Name} holds no colour key {key}.", nameof(key));
 
     /// <summary>
@@ -30,7 +30,7 @@ internal static class InstalledPictureColoursConstants
     /// <exception cref="InvalidOperationException">Nothing recorded where the picture was composed from.</exception>
     public static ImmutableArray<int> ColouredIndicesOf(SpriteImage picture, ColourKey key)
     {
-        SpriteImageColours palette = InstalledPictureColours.SetsOf(Ensure.NotNull(picture)).Palette;
+        SpriteImageColours palette = ComposedPictures.SourceOf(Ensure.NotNull(picture)).Palette;
         return [.. ComposedIndicesOf(picture, key).Where(index => palette == SpriteImageColours.TwoBppBackground || index != 0)];
     }
 
@@ -50,7 +50,7 @@ internal static class InstalledPictureColoursConstants
     /// <exception cref="InvalidOperationException">Nothing recorded where the picture was composed from.</exception>
     public static int CartridgeColourOfIndex(SpriteImage picture, int index, int drawRow = 0)
     {
-        InstalledPictureColourSources sources = InstalledPictureColours.SetsOf(Ensure.NotNull(picture));
+        ComposedPictureSource sources = ComposedPictures.SourceOf(Ensure.NotNull(picture));
         Ensure.BetweenInclusive(0, ImageColourGroup.ColourCountOf(sources.Palette) - 1, index);
         return sources.Palette switch
         {
@@ -65,7 +65,7 @@ internal static class InstalledPictureColoursConstants
     }
 
     /// <summary>The place in the cartridge's colour image of a background picture's composed palette index: in its group's installed set, or in its group's own place.</summary>
-    private static int BackgroundColourOf(InstalledPictureColourSources sources, int index)
+    private static int BackgroundColourOf(ComposedPictureSource sources, int index)
     {
         ImmutableArray<InstalledBackgroundSet> sets = sources.Sets;
         int group = index / GameplayColourPositionDefinitions.SetColours;
@@ -90,7 +90,7 @@ internal static class InstalledPictureColoursConstants
     /// <exception cref="InvalidOperationException">Nothing recorded where the picture was composed from.</exception>
     public static ColourKey? KeyComposedAs(SpriteImage picture, int index)
     {
-        foreach (ColourKey key in InstalledPictureColours.SetsOf(Ensure.NotNull(picture)).ComposedIndices.Keys)
+        foreach (ColourKey key in ComposedPictures.SourceOf(Ensure.NotNull(picture)).ComposedIndices.Keys)
         {
             if (ColouredIndicesOf(picture, key).Contains(index))
                 return key;
@@ -109,7 +109,7 @@ internal static class InstalledPictureColoursConstants
         Ensure.NotNull(picture);
         ImmutableArray<ColourKey> keys = picture.ColourKeys;
         Ensure.LengthEqual(shown, keys.Length);
-        var laid = new RgbColor[ImageColourGroup.ColourCountOf(InstalledPictureColours.SetsOf(picture).Palette)];
+        var laid = new RgbColor[ImageColourGroup.ColourCountOf(ComposedPictures.SourceOf(picture).Palette)];
         for (int key = 0; key < keys.Length; key++)
         {
             foreach (int index in ColouredIndicesOf(picture, keys[key]))

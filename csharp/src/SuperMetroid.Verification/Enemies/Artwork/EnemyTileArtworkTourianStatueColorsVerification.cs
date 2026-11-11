@@ -72,8 +72,8 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         var guard = NewTourianStatueColorGuard(bus, forbidden);
         // The places of the native image the scene sheet holds a colour for (#1544): a sheet holds only the colours its
         // pictures show, so a native write to any other place shows nothing in the port.
-        HashSet<int> sceneHeld = [.. Enumerable.Range(0, statueSheet.StandardColours.Length)
-            .Select(colour => SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.CartridgeColourOf(statueSheet, colour))];
+        HashSet<int> sceneHeld = [.. statueSheet.ColourKeys
+            .SelectMany(key => SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.CartridgeColoursOf(statueSheet, key))];
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
         {
             RoomEnemySystem installed = CreateEnemy(stock);

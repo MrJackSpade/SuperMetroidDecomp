@@ -57,7 +57,7 @@ internal static class NativeColouredPictures
     /// the frontend colouring the shading names for a sprite picture, zero for any other.
     /// </summary>
     internal static int DrawRow(SpriteImage picture, PictureShading? shading) =>
-        InstalledPictureColours.SetsOf(Ensure.NotNull(picture)).Palette == SpriteImageColours.Sprite
+        ComposedPictures.SourceOf(Ensure.NotNull(picture)).Palette == SpriteImageColours.Sprite
             ? SuperMetroid.TestSupport.RepositoryInstallation.Verification.DrawnShadeRows.RowOf(shading) ?? 0
             : 0;
 

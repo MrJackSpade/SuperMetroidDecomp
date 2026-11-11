@@ -51,9 +51,9 @@ internal static class GameplayShownColours
             .. Enumerable.Range(SamusSuitFirst + 1, RowColours - 1), .. Enumerable.Range(SamusBeamsFirst + 1, RowColours - 1)];
     }
 
-    /// <summary>The place in the native image each of <paramref name="picture"/>'s own colours was coloured from.</summary>
-    private static IEnumerable<int> Places(SpriteImage picture) => Enumerable.Range(0, picture.StandardColours.Length)
-        .Select(colour => SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.CartridgeColourOf(picture, colour));
+    /// <summary>The places in the native image each of <paramref name="picture"/>'s colour keys was coloured from.</summary>
+    private static IEnumerable<int> Places(SpriteImage picture) => picture.ColourKeys
+        .SelectMany(key => SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.CartridgeColoursOf(picture, key));
 
     /// <summary>The colours <paramref name="runtime"/>'s published frame shows, with Samus's from <paramref name="sources"/>.</summary>
     /// <exception cref="InvalidOperationException">The published frame names no gameplay shading.</exception>
@@ -78,17 +78,20 @@ internal static class GameplayShownColours
         return image;
     }
 
-    /// <summary>Lays each of <paramref name="picture"/>'s colours under <paramref name="shading"/> at the place it was coloured from.</summary>
+    /// <summary>Lays each of <paramref name="picture"/>'s colour keys under <paramref name="shading"/> at every place it was coloured from.</summary>
     /// <exception cref="InvalidDataException">A colour lies outside the background colours.</exception>
     private static void Lay(RgbColor[] image, SpriteImage picture, PictureShading shading)
     {
-        RgbColor[] colours = shading.InkColours(picture);
-        for (int colour = 0; colour < colours.Length; colour++)
+        RgbColor[] colours = shading.KeyColours(picture);
+        System.Collections.Immutable.ImmutableArray<ColourKey> keys = picture.ColourKeys;
+        for (int key = 0; key < colours.Length; key++)
         {
-            int place = SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.CartridgeColourOf(picture, colour);
-            if (place >= BackgroundColours)
-                throw new InvalidDataException($"Picture {picture.Name}'s colour {colour} lies at {place}, outside the background colours.");
-            image[place] = colours[colour];
+            foreach (int place in SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.CartridgeColoursOf(picture, keys[key]))
+            {
+                if (place >= BackgroundColours)
+                    throw new InvalidDataException($"Picture {picture.Name}'s colour key {keys[key]} lies at {place}, outside the background colours.");
+                image[place] = colours[key];
+            }
         }
     }
 

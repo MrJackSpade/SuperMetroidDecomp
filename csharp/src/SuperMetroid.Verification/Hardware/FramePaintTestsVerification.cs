@@ -57,9 +57,11 @@ internal static class FramePaintTestsVerification
         Console.WriteLine("Frame paint: CGRAM parity, draw retention, ownership and size checks passed.");
 
         // A native frame shows native colour 0 as its backdrop and draws each picture as a copy coloured from the native
-        // image (#1512): the fixture's sprite picture takes the sprite half but its transparent first colour.
+        // image (#1512): the fixture's sprite picture takes the sprite half but its transparent first colour, its colour keys
+        // in the order its pixels show them, which is the order of their palette indices (#1633).
         static RgbColor[] Shown(FramePaint paint) =>
-            [paint.Backdrop, .. paint.SpriteDraws.Cast<ImageSpriteDraw>().SelectMany(draw => draw.Image.Sheet.StandardColours.ToArray())];
+            [paint.Backdrop, .. paint.SpriteDraws.Cast<ImageSpriteDraw>().SelectMany(draw => draw.Image.Sheet.ColourKeys
+                .Where(key => !InstalledPictureColoursConstants.ColouredIndicesOf(draw.Image.Sheet, key).IsEmpty).Select(key => key.Colour))];
         static RgbColor[] NativeShown(RgbColor[] native) => [native[0], .. native.AsSpan(SnesCgram.ColorCount / 2 + 1)];
 
         // A native-coloured frame draws a copy of each picture (#1512), so a draw is known by its source and where, in order.

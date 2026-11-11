@@ -878,7 +878,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     ushort[] Shown() => SuperMetroid.Verification.Bosses.Ridley.RidleyLaidColours.Of(state, ridleySprites, ridleyRoom, 0);
     AssertEqual(0x00ba, ridley.Position.X.Whole, "Ceres Ridley init X");
     AssertEqual(0x00a9, ridley.Position.Y.Whole, "Ceres Ridley init Y overrides population Y");
-    AssertEqual(AnimationProgramCursor<RidleyBodyProgram>.Start(RidleyBodyProgram.Initial), state.BodyProgram, "Ceres Ridley starts its initial program");
+    AssertEqual(new AnimationPlayback<RidleyBodyProgram>(RidleyAnimations.StartingWith(RidleyBodyProgram.Initial), AnimationPlace.StartOfAnimation), state.BodyPlayback, "Ceres Ridley starts its initial animation");
     AssertEqual(state.Colours.SpriteShading(flashing: false), state.CommonDrawShading, "Ceres Ridley's own colours");
     AssertEqual(7, ridley.PaletteRowIn(enemies), "Ceres Ridley dedicated OBJ palette row");
     // Native $3C00: ignores Samus, blocks the Plasma Beam, and processes off screen with its animation script.

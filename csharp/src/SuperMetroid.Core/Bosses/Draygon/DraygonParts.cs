@@ -67,7 +67,7 @@ internal sealed class DraygonParts
         };
         body.SetSpeciesState(Draygon);
         body.Shading = Draygon.Colours.Sprites;
-        Draygon.SetCursor(body, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.BodyFacingLeftIdle));
+        Draygon.StartAnimation(body, DraygonProgram.BodyFacingLeftIdle);
         Draygon.DisabledCannons.Add(DraygonWallCannon.UnusedBottom);
     }
 
@@ -85,13 +85,13 @@ internal sealed class DraygonParts
                 var eyeState = new DraygonEyeState { Function = DraygonEyeFunction.Inert };
                 part.SetSpeciesState(eyeState);
                 state.Eye = part;
-                state.SetCursor(part, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.EyeFacingLeftIdle));
+                state.StartAnimation(part, DraygonProgram.EyeFacingLeftIdle);
                 return;
 
             case DraygonPart.Tail:
                 state.Tail = part;
                 part.Shading = state.Colours.Sprites;
-                state.SetCursor(part, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.TailFacingLeftInitialFakeWhip));
+                state.StartAnimation(part, DraygonProgram.TailFacingLeftInitialFakeWhip);
                 return;
 
             case DraygonPart.Arms:
@@ -100,7 +100,7 @@ internal sealed class DraygonParts
                 part.Shading = state.Colours.Sprites;
                 part.Layer = EnemyDrawLayer.Of(2);
                 state.Arms = part;
-                state.SetCursor(part, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.ArmsFacingLeftIdle));
+                state.StartAnimation(part, DraygonProgram.ArmsFacingLeftIdle);
                 return;
 
             case DraygonPart.Body:
@@ -140,7 +140,7 @@ internal sealed class DraygonParts
     {
         DraygonEnemyState state = Draygon ??
             throw new InvalidDataException("Draygon program started without encounter state.");
-        state.SetCursor(part, AnimationProgramCursor<DraygonProgram>.Start(program));
+        state.StartAnimation(part, program);
         part.FrameHold = WrappingCountdown.Start(1);
     }
 
@@ -161,87 +161,93 @@ internal sealed class DraygonParts
             return;
         }
 
-        AnimationProgramCursor<DraygonProgram> cursor = state.Cursor(part);
+        AnimationPlayback<DraygonProgram> playback = state.Playback(part);
+        Animation<DraygonProgram> animation = playback.Animation;
+        AnimationPlace place = playback.Place;
         WrappingCountdown counter = part.Timer;
-        AnimationProgramAdvance<DraygonFrame> advance = DraygonAnimations.Programs.Advance(ref cursor, ref counter,
-            (cue, continuation) => ApplyDraygonCue(state, part, samus, cue));
+        AnimationShown<DraygonProgram, DraygonFrame> shown = DraygonAnimations.Segments.PlayToNextFrame(ref animation, ref place, ref counter,
+            cue =>
+            {
+                ApplyDraygonCue(state, part, samus, cue);
+                return null;
+            });
         part.Timer = counter;
-        switch (advance)
+        switch (shown)
         {
-            case AnimationProgramAdvance<DraygonFrame>.Show shown:
-                state.SetCursor(part, cursor);
-                part.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
-                part.Frame = DraygonFrameDefinitions.ShownFrames.Of(shown.Frame);
+            case AnimationShown<DraygonProgram, DraygonFrame>.Frame frame:
+                state.SetPlayback(part, new AnimationPlayback<DraygonProgram>(animation, place));
+                part.FrameHold = WrappingCountdown.FromRaw(frame.Duration);
+                part.Frame = DraygonFrameDefinitions.ShownFrames.Of(frame.Shown);
                 part.NewInstructionFrame = true;
                 return;
-            case AnimationProgramAdvance<DraygonFrame>.Wait waiting:
-                state.SetCursor(part, cursor);
-                part.FrameHold = WrappingCountdown.FromRaw(waiting.Duration);
+            case AnimationShown<DraygonProgram, DraygonFrame>.Paused paused:
+                state.SetPlayback(part, new AnimationPlayback<DraygonProgram>(animation, place));
+                part.FrameHold = WrappingCountdown.FromRaw(paused.Duration);
                 return;
-            case AnimationProgramAdvance<DraygonFrame>.Hold:
+            case AnimationShown<DraygonProgram, DraygonFrame>.Held:
                 // The script's sleep: the timer wraps from zero and the last frame stays.
-                state.SetCursor(part, cursor);
+                state.SetPlayback(part, new AnimationPlayback<DraygonProgram>(animation, place));
                 return;
-            case AnimationProgramAdvance<DraygonFrame>.Stop:
-                // The stop deletes the part and leaves its program position unwritten.
+            case AnimationShown<DraygonProgram, DraygonFrame>.Ended:
+                // The end deletes the part and leaves its animation's place unwritten.
                 part.Presence = part.Presence.With(EnemyPresence.Deleted);
                 return;
             default:
-                throw new InvalidOperationException($"Undefined animation program advance {advance}.");
+                throw new InvalidOperationException($"Undefined animation outcome {shown}.");
         }
     }
 
     /// <summary>
-    /// Carries out one cue of a Draygon program run by <paramref name="part"/>. Program starts write the parts'
-    /// stored cursors, so the running part's own write is replaced when its update ends, as the program runner's
+    /// Carries out one cue of a Draygon program run by <paramref name="part"/>. Animation starts write the parts'
+    /// stored playbacks, so the running part's own write is replaced when its update ends, as the program runner's
     /// final store of the running part's position replaces it.
     /// </summary>
-    /// <returns>Always null: Draygon's cues never redirect the running program.</returns>
-    private DraygonProgram? ApplyDraygonCue(DraygonEnemyState state, RoomEnemySlot part, SamusState? samus, DraygonCue cue)
+    /// <remarks>Draygon's cues never continue the running part's play elsewhere.</remarks>
+    private void ApplyDraygonCue(DraygonEnemyState state, RoomEnemySlot part, SamusState? samus, DraygonCue cue)
     {
         switch (cue)
         {
             case DraygonCue.StartPartPrograms start:
-                state.SetCursor(state.Body, AnimationProgramCursor<DraygonProgram>.Start(start.Body));
-                state.SetCursor(RequirePart(state.Eye), AnimationProgramCursor<DraygonProgram>.Start(start.Eye));
-                state.SetCursor(RequirePart(state.Tail), AnimationProgramCursor<DraygonProgram>.Start(start.Tail));
-                state.SetCursor(RequirePart(state.Arms), AnimationProgramCursor<DraygonProgram>.Start(start.Arms));
+                state.StartAnimation(state.Body, start.Body);
+                state.StartAnimation(RequirePart(state.Eye), start.Eye);
+                state.StartAnimation(RequirePart(state.Tail), start.Tail);
+                state.StartAnimation(RequirePart(state.Arms), start.Arms);
                 state.Arms.FrameHold = WrappingCountdown.Start(1);
                 state.Tail.FrameHold = WrappingCountdown.Start(1);
                 state.Eye.FrameHold = WrappingCountdown.Start(1);
                 state.Body.FrameHold = WrappingCountdown.Start(1);
-                return null;
+                return;
             case DraygonCue.SetEyeFunction eyeFunction:
                 (RequirePart(state.Eye)).RequireSpeciesState<DraygonEyeState>().Function = eyeFunction.Function;
-                return null;
+                return;
             case DraygonCue.SetOwnEyeFunction ownFunction:
                 part.RequireSpeciesState<DraygonEyeState>().Function = ownFunction.Function;
-                return null;
+                return;
             case DraygonCue.DisplaceBodyGraphics displace:
                 state.BodyGraphicsDisplacement = displace.Offset;
-                return null;
+                return;
             case DraygonCue.QueueSound sound:
                 RequestDraygonSound(sound.Sound);
-                return null;
+                return;
             case DraygonCue.SpawnDyingObject dying:
                 SpawnRandomDyingDraygonObject(state, dying.Kind);
-                return null;
+                return;
             case DraygonCue.ParalyseTailAndArms:
                 StartDraygonProgram(RequirePart(state.Tail), DraygonProgram.Sleep);
                 StartDraygonProgram(RequirePart(state.Arms), DraygonProgram.Sleep);
-                return null;
+                return;
             case DraygonCue.SetBodyIntangible:
                 state.Body.Contact = state.Body.Contact.With(EnemyContact.IgnoresSamus);
-                return null;
+                return;
             case DraygonCue.SetBodyFunction bodyFunction:
                 state.Function = bodyFunction.Function;
-                return null;
+                return;
             case DraygonCue.TailWhipHit:
                 ApplyDraygonTailWhipHit(state, samus);
-                return null;
+                return;
             case DraygonCue.SpawnGoop goop:
                 SpawnDraygonGoop(state, goop.Direction == HorizontalDirection.Right);
-                return null;
+                return;
             default:
                 throw new InvalidOperationException($"Undefined Draygon cue {cue}.");
         }

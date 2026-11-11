@@ -26,7 +26,7 @@ internal sealed class RidleyBodyAnimation
     }
 
     /// <summary>
-    /// Runs Ridley's body program where the enemy instruction interpreter would: the frame expires on the update its
+    /// Plays Ridley's body animation where the enemy instruction interpreter would: the frame expires on the update its
     /// timer would, and a newly shown frame raises the new-frame flag.
     /// </summary>
     internal void AdvanceRidleyBodyAnimation(RoomEnemySlot slot, SamusState? samus)
@@ -34,14 +34,16 @@ internal sealed class RidleyBodyAnimation
         if (!EnemyProgramAnimation.Expire(slot))
             return;
         RidleyEnemyState state = _ridleyEncounter.RequireRidley(slot);
-        AnimationProgramCursor<RidleyBodyProgram> cursor = state.BodyProgram;
+        AnimationPlayback<RidleyBodyProgram> playback = state.BodyPlayback;
         // Ridley's body lists load no loop counter.
-        EnemyProgramAnimation.Run(slot, RidleyAnimations.Programs, ref cursor, RidleyBodyFrameDefinitions.ShownFrames.Of,
-            (cue, continuation) => ApplyRidleyBodyCue(slot, state, samus, cue));
-        state.BodyProgram = cursor;
+        EnemyProgramAnimation.Play(slot, RidleyAnimations.Segments, ref playback, RidleyBodyFrameDefinitions.ShownFrames.Of,
+            cue => ApplyRidleyBodyCue(slot, state, samus, cue) is { } target
+                ? new AnimationContinuation<RidleyBodyProgram>(RidleyAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                : null);
+        state.BodyPlayback = playback;
     }
 
-    /// <summary>Carries out one cue of Ridley's body program, returning the program a goto cue continues at.</summary>
+    /// <summary>Carries out one cue of Ridley's body animation, returning the segment whose animation a goto cue continues in.</summary>
     internal RidleyBodyProgram? ApplyRidleyBodyCue(RoomEnemySlot slot, RidleyEnemyState state, SamusState? samus, RidleyBodyCue cue)
     {
         switch (cue)
@@ -135,9 +137,9 @@ internal sealed class RidleyBodyAnimation
         if (!EnemyProgramAnimation.Expire(fragment))
             return;
         RidleyExplosionFragmentState state = fragment.RequireSpeciesState<RidleyExplosionFragmentState>();
-        AnimationProgramCursor<RidleyBreakupFrame> cursor = state.Program;
-        EnemyProgramAnimation.Run(fragment, RidleyBreakupAnimations.Programs, ref cursor, RidleyBreakupFrameDefinitions.ShownFrames.Of,
-            (cue, continuation) => throw new InvalidOperationException("Ridley's breakup programs publish no cues."));
-        state.Program = cursor;
+        AnimationPlayback<RidleyBreakupFrame> playback = state.Playback;
+        EnemyProgramAnimation.Play(fragment, RidleyBreakupAnimations.Segments, ref playback, RidleyBreakupFrameDefinitions.ShownFrames.Of,
+            cue => throw new InvalidOperationException("Ridley's breakup animations raise no events."));
+        state.Playback = playback;
     }
 }

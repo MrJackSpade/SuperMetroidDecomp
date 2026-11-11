@@ -5,15 +5,15 @@ using F = SuperMetroid.Core.Areas.Ceres.CeresBabyPose;
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
-/// The Ceres Baby Metroid's typed cutscene programs (#641), in place of its private draw lists
+/// The Ceres Baby Metroid's typed cutscene animations (#641, #1600), in place of its private draw lists
 /// (its resting and expressive cutscene loops). The baby squishes through horizontal, round and vertical poses;
 /// while it moves, the expressive loop also pulses its palette and cries.
 /// </summary>
 internal static class CeresBabyAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<P, F, CeresBabyCue> Programs { get; } = new(
-        new Dictionary<P, AnimationProgramStep<P, F, CeresBabyCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<P, F, CeresBabyCue> Segments { get; } = new(
+        new Dictionary<P, AnimationBeat<F, CeresBabyCue>[]>
     {
         [P.Initial] =
         [
@@ -21,7 +21,6 @@ internal static class CeresBabyAnimations
             .. SquishCycle,
             Cue(new CeresBabyCue.GoToIfMoving(Target: P.ExpressiveLoop)),
             .. SquishCycle,
-            FallInto(P.ExpressiveLoop),
         ],
         [P.ExpressiveLoop] =
         [
@@ -33,12 +32,27 @@ internal static class CeresBabyAnimations
             }),
             Cue(new CeresBabyCue.UpdateColors(Shade: CeresBabyShade.Resting)),
             Cue(new CeresBabyCue.GoToIfMoving(Target: P.ExpressiveLoop)),
-            GoTo(P.Initial),
         ],
     });
 
+    /// <summary>
+    /// The animation that starts at each segment: the resting loop runs on into the expressive loop, which goes back to the
+    /// resting loop.
+    /// </summary>
+    internal static IReadOnlyDictionary<P, Animation<P>> StartingAt { get; } = new Dictionary<P, Animation<P>>
+    {
+        [P.Initial] = new([Whole(P.Initial), Whole(P.ExpressiveLoop)], AnimationEnd.LoopsFrom(0)),
+        [P.ExpressiveLoop] = new([Whole(P.ExpressiveLoop), Whole(P.Initial)], AnimationEnd.LoopsFrom(0)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<P> StartingWith(P segment) => StartingAt[segment];
+
+    /// <summary>A phase playing every beat of <paramref name="segment"/> once.</summary>
+    private static AnimationPhase<P> Whole(P segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
+
     /// <summary>The ten-update horizontal, round, vertical, round squish.</summary>
-    private static AnimationProgramStep<P, F, CeresBabyCue>[] SquishCycle =>
+    private static AnimationBeat<F, CeresBabyCue>[] SquishCycle =>
         [Show(F.Horizontal, 10), Show(F.Round, 10), Show(F.Vertical, 10), Show(F.Round, 10)];
 
     /// <summary>The expressive loop's twelve poses: the squish cycle three times, held two updates plus the distance from the fifth.</summary>
@@ -63,18 +77,10 @@ internal static class CeresBabyAnimations
     };
 
     /// <summary>Shows <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<P, F, CeresBabyCue> Show(F pose, int duration) =>
-        AnimationProgramStep<P, F, CeresBabyCue>.Show(pose, duration);
+    private static AnimationBeat<F, CeresBabyCue> Show(F pose, int duration) =>
+        new AnimationBeat<F, CeresBabyCue>.Frame(pose, duration);
 
-    /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<P, F, CeresBabyCue> Cue(CeresBabyCue cue) =>
-        AnimationProgramStep<P, F, CeresBabyCue>.Publish(cue);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<P, F, CeresBabyCue> GoTo(P program) =>
-        AnimationProgramStep<P, F, CeresBabyCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<P, F, CeresBabyCue> FallInto(P program) =>
-        AnimationProgramStep<P, F, CeresBabyCue>.FallInto(program);
+    /// <summary>Raises <paramref name="cue"/>.</summary>
+    private static AnimationBeat<F, CeresBabyCue> Cue(CeresBabyCue cue) =>
+        new AnimationBeat<F, CeresBabyCue>.Event(cue);
 }

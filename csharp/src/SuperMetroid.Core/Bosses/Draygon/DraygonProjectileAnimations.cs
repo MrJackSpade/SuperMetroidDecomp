@@ -3,7 +3,7 @@ using P = SuperMetroid.Core.Bosses.Draygon.DraygonProjectileProgram;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
-/// <summary>Draygon's typed projectile programs (#641).</summary>
+/// <summary>Draygon's typed projectile animations (#641, #1600): the goop's and wall-turret shot's segments, and the animation starting at each.</summary>
 internal static class DraygonProjectileAnimations
 {
     /// <summary>Frames in the goop loop.</summary>
@@ -18,43 +18,50 @@ internal static class DraygonProjectileAnimations
     /// <summary>The bloom's frame durations: two forming ramps, the second a tick faster, then four charging frames.</summary>
     private static readonly int[] BloomDurations = [5, 4, 3, 3, 3, 3, 4, 3, 2, 2, 2, 2, 10, 10, 10, 10];
 
-    /// <summary>Every goop and wall-turret program.</summary>
-    internal static AnimationProgramSet<DraygonProjectileProgram, DraygonProjectileFrame, DraygonProjectileCue> Programs { get; } = new(
-        new Dictionary<DraygonProjectileProgram, AnimationProgramStep<DraygonProjectileProgram, DraygonProjectileFrame, DraygonProjectileCue>[]>
+    /// <summary>Every goop and wall-turret segment's beats.</summary>
+    internal static AnimationSegments<DraygonProjectileProgram, DraygonProjectileFrame, DraygonProjectileCue> Segments { get; } = new(
+        new Dictionary<DraygonProjectileProgram, AnimationBeat<DraygonProjectileFrame, DraygonProjectileCue>[]>
         {
-            [P.GoopTouch] = [Cue(DraygonProjectileCue.StickToSamus), FallInto(P.Goop)],
-            [P.Goop] = [.. Frames(DraygonProjectileFrameKind.Goop, GoopPhaseCount, _ => 10), GoTo(P.Goop)],
+            [P.GoopTouch] = [Cue(DraygonProjectileCue.StickToSamus)],
+            [P.Goop] = [.. Frames(DraygonProjectileFrameKind.Goop, GoopPhaseCount, _ => 10)],
             [P.GoopShot] =
             [
                 .. Frames(DraygonProjectileFrameKind.GoopShot, GoopShotPhaseCount, _ => 8),
                 Cue(DraygonProjectileCue.SpawnDrops),
                 Cue(DraygonProjectileCue.Delete),
-                AnimationProgramStep<DraygonProjectileProgram, DraygonProjectileFrame, DraygonProjectileCue>.Hold,
             ],
             [P.WallTurretBloom] =
             [
                 .. Frames(DraygonProjectileFrameKind.WallTurretBloom, BloomPhaseCount, phase => BloomDurations[phase]),
                 Cue(DraygonProjectileCue.Fire),
-                FallInto(P.WallTurretFlight),
             ],
-            [P.WallTurretFlight] = [.. Frames(DraygonProjectileFrameKind.WallTurretFlight, FlightPhaseCount, _ => 8), GoTo(P.WallTurretFlight)],
+            [P.WallTurretFlight] = [.. Frames(DraygonProjectileFrameKind.WallTurretFlight, FlightPhaseCount, _ => 8)],
         });
 
-    /// <summary>Runs on into <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<DraygonProjectileProgram, DraygonProjectileFrame, DraygonProjectileCue> FallInto(DraygonProjectileProgram program) =>
-        AnimationProgramStep<DraygonProjectileProgram, DraygonProjectileFrame, DraygonProjectileCue>.FallInto(program);
+    /// <summary>
+    /// The animation that starts at each segment: the touch runs on into the goop loop, the burst holds after its deletion,
+    /// and the bloom fires and runs on into the flight loop.
+    /// </summary>
+    internal static IReadOnlyDictionary<DraygonProjectileProgram, Animation<DraygonProjectileProgram>> StartingAt { get; } =
+        new Dictionary<DraygonProjectileProgram, Animation<DraygonProjectileProgram>>
+        {
+            [P.GoopTouch] = new([new(P.GoopTouch, 0, 1, 1), new(P.Goop, 0, GoopPhaseCount, 1)], AnimationEnd.LoopsFrom(1)),
+            [P.Goop] = new([new(P.Goop, 0, GoopPhaseCount, 1)], AnimationEnd.LoopsFrom(0)),
+            [P.GoopShot] = new([new(P.GoopShot, 0, GoopShotPhaseCount + 2, 1)], AnimationEnd.Holds),
+            [P.WallTurretBloom] = new([new(P.WallTurretBloom, 0, BloomPhaseCount + 1, 1), new(P.WallTurretFlight, 0, FlightPhaseCount, 1)], AnimationEnd.LoopsFrom(1)),
+            [P.WallTurretFlight] = new([new(P.WallTurretFlight, 0, FlightPhaseCount, 1)], AnimationEnd.LoopsFrom(0)),
+        };
 
-    /// <summary>Continues at the start of <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<DraygonProjectileProgram, DraygonProjectileFrame, DraygonProjectileCue> GoTo(DraygonProjectileProgram program) =>
-        AnimationProgramStep<DraygonProjectileProgram, DraygonProjectileFrame, DraygonProjectileCue>.GoTo(program);
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<DraygonProjectileProgram> StartingWith(DraygonProjectileProgram segment) => StartingAt[segment];
 
-    /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<DraygonProjectileProgram, DraygonProjectileFrame, DraygonProjectileCue> Cue(DraygonProjectileCue cue) =>
-        AnimationProgramStep<DraygonProjectileProgram, DraygonProjectileFrame, DraygonProjectileCue>.Publish(cue);
+    /// <summary>Raises <paramref name="cue"/>.</summary>
+    private static AnimationBeat<DraygonProjectileFrame, DraygonProjectileCue> Cue(DraygonProjectileCue cue) =>
+        new AnimationBeat<DraygonProjectileFrame, DraygonProjectileCue>.Event(cue);
 
     /// <summary>Shows <paramref name="count"/> consecutive frames of <paramref name="kind"/>.</summary>
-    private static IEnumerable<AnimationProgramStep<DraygonProjectileProgram, DraygonProjectileFrame, DraygonProjectileCue>> Frames(
+    private static IEnumerable<AnimationBeat<DraygonProjectileFrame, DraygonProjectileCue>> Frames(
         DraygonProjectileFrameKind kind, int count, Func<int, int> duration) =>
         Enumerable.Range(0, count).Select(phase =>
-            AnimationProgramStep<DraygonProjectileProgram, DraygonProjectileFrame, DraygonProjectileCue>.Show(new(kind, phase), duration(phase)));
+            (AnimationBeat<DraygonProjectileFrame, DraygonProjectileCue>)new AnimationBeat<DraygonProjectileFrame, DraygonProjectileCue>.Frame(new(kind, phase), duration(phase)));
 }

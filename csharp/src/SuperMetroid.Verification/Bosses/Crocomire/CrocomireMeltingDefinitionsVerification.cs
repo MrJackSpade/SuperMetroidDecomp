@@ -187,7 +187,7 @@ internal static class CrocomireMeltingDefinitionsVerification
         };
 
         initialize(state);
-        AssertEqual(bodyProgram, state.BodyCursor.Program,
+        AssertEqual(CrocomireBodyAnimations.StartingWith(bodyProgram), state.BodyPlayback.Animation,
             $"installed Crocomire melt tilemap ${sourceAddress:X6} body program");
         AssertEqual(CrocomireDeathPhase.CrumbleBridgeAndSink, state.DeathPhase,
             $"installed Crocomire melt tilemap ${sourceAddress:X6} phase timing");

@@ -6,11 +6,15 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>A Draygon goop's or wall-turret shot's typed animation.</summary>
 internal sealed class DraygonProjectileAnimation(DraygonProjectileProgram program)
-    : EnemyProjectileProgramAnimation<DraygonProjectileProgram, DraygonProjectileFrame, DraygonProjectileCue>(program)
+    : EnemyProjectileTypedAnimation<DraygonProjectileProgram, DraygonProjectileFrame, DraygonProjectileCue>(DraygonProjectileAnimations.StartingWith(program))
 {
     /// <inheritdoc/>
-    private protected override AnimationProgramSet<DraygonProjectileProgram, DraygonProjectileFrame, DraygonProjectileCue> Programs =>
-        DraygonProjectileAnimations.Programs;
+    private protected override AnimationSegments<DraygonProjectileProgram, DraygonProjectileFrame, DraygonProjectileCue> Segments =>
+        DraygonProjectileAnimations.Segments;
+
+    /// <inheritdoc/>
+    private protected override IReadOnlyDictionary<DraygonProjectileProgram, Animation<DraygonProjectileProgram>> StartingAt =>
+        DraygonProjectileAnimations.StartingAt;
 
     /// <inheritdoc/>
     private protected override EnemyProjectileFrameId Present(DraygonProjectileFrame frame) =>

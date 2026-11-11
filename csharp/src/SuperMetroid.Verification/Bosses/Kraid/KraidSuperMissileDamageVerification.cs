@@ -40,7 +40,7 @@ internal static class KraidSuperMissileDamageVerification
         var body=runtime.Enemies.SlotTable.Slots[0];
         var state= runtime.Enemies.KraidBehavior.Access.Kraid ?? throw new InvalidOperationException("Verification requires runtime.Enemies.KraidBehavior.Kraid.");
         state.BodyState.Function=KraidAiFunction.MainAttackWithMouthOpen;
-        state.HeadProgram=RoarPastOpenPose;state.BodyState.HeadTimer=64;
+        state.HeadPlayback=RoarPastOpenPose;state.BodyState.HeadTimer=64;
         state.DisplayedHeadFrame = FullyOpenRoarFrame();
         var terrain=new RoomTerrainBlock[32*64];for(int i=32*32;i<33*32;i++)terrain[i]=RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
         var scope = runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.");
@@ -106,7 +106,7 @@ internal static class KraidSuperMissileDamageVerification
     private static KraidHeadFrame FullyOpenRoarFrame() => KraidHeadFrame.Open;
 
     /// <summary>The roar cursor just past its fully open pose, where the native cursor stands during the open-mouth attack.</summary>
-    private static SuperMetroid.Core.Programs.AnimationProgramCursor<KraidHeadProgram> RoarPastOpenPose { get; } = new(KraidHeadProgram.Roar, 5);
+    private static SuperMetroid.Core.Programs.AnimationPlayback<KraidHeadProgram> RoarPastOpenPose => KraidHeadAnimations.At(KraidHeadProgram.Roar, 5);
 
     /// <summary>Checks count-bounded traversal, inactive slot handling, scratch-word rejection, and adjacent bomb slots.</summary>
     private static void VerifyKraidCollisionSlotOrder(ISnesAddressSpace bus,
@@ -120,7 +120,7 @@ internal static class KraidSuperMissileDamageVerification
             body.Position = body.Position.WithWhole(new(176, 592));
             body.Health = 1000;
             state.BodyState.Function = KraidAiFunction.MainAttackWithMouthOpen;
-            state.HeadProgram = RoarPastOpenPose;
+            state.HeadPlayback = RoarPastOpenPose;
             state.DisplayedHeadFrame = FullyOpenRoarFrame();
         }
         void Place(int index)

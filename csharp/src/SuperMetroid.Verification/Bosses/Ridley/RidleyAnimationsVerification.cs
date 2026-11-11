@@ -31,16 +31,16 @@ internal static class RidleyAnimationsVerification
         AssertTrue(BodyEntries.Zip(BodyEntries.Skip(1), (first, second) => first.Entry < second.Entry).All(ascends => ascends), "native Ridley body entries ascend");
         AssertEqual(Enum.GetValues<RidleyFireballProgram>().Length, FireballEntries.Length, "every typed fireball program has a native entry");
 
-        var body = RidleyNativeProgramOracle.BodyStepAddresses(cartridge);
-        RidleyNativeProgramOracle.BreakupStepAddresses(cartridge);
-        var fireball = RidleyNativeProgramOracle.FireballStepAddresses(cartridge);
+        var body = RidleyNativeProgramOracle.BodyLists(cartridge);
+        RidleyNativeProgramOracle.CompareBreakupLists(cartridge);
+        var fireball = RidleyNativeProgramOracle.FireballLists(cartridge);
         AssertEqual(RidleyFireballVisualDefinitions.ProjectileFrameCount, RidleyFireballVisualDefinitions.ProjectileFrames.Count,
             "the fireball catalog lists every frame");
 
         VerifyFacingBranch();
         VerifyLowEnergyBranch();
-        Console.WriteLine($"  Ridley programs: {body.Count} body programs ({body.Values.Sum(steps => steps.Length)} steps), " +
-            $"{Enum.GetValues<RidleyBreakupFrame>().Length} breakup programs and {fireball.Count} fireball programs match their native lists; " +
+        Console.WriteLine($"  Ridley animations: {body.Count} body segments ({body.Values.Sum(list => list.BeatAddresses.Length)} beats), " +
+            $"{Enum.GetValues<RidleyBreakupFrame>().Length} breakup segments and {fireball.Count} fireball segments match their native lists; " +
             "the facing and low-energy branches redirect natively.");
     }
 
@@ -68,7 +68,7 @@ internal static class RidleyAnimationsVerification
         (_, RidleyEnemyState state, RoomEnemySlot body) = NewRidley(EnemyDefinitionId.Ridley, RidleyFacing.Right);
         CeresRidleyFlight.StartRidleyProgram(state, body, RidleyBodyProgram.OpeningRoar);
         Pass(body, samus: null);
-        AssertEqual(RidleyBodyProgram.OpeningRoarFacingRight, state.BodyProgram.Program, "a right-facing Ridley roars facing right");
+        AssertEqual(RidleyAnimations.StartingWith(RidleyBodyProgram.OpeningRoarFacingRight), state.BodyPlayback.Animation, "a right-facing Ridley roars facing right");
         AssertEqual((RidleyCollisionDefinitions.BodyFrame?)RidleyCollisionDefinitions.BodyFrame.Right,
             RidleyCollisionDefinitions.BodyFrameAt(body.SpritemapPointer), "the right-facing roar shows its first frame at once");
         AssertEqual((ushort)6, body.FrameHold.RawValue, "the right-facing roar's first frame lasts six updates");
@@ -76,7 +76,7 @@ internal static class RidleyAnimationsVerification
         (_, state, body) = NewRidley(EnemyDefinitionId.Ridley, RidleyFacing.Left);
         CeresRidleyFlight.StartRidleyProgram(state, body, RidleyBodyProgram.OpeningRoar);
         Pass(body, samus: null);
-        AssertEqual(RidleyBodyProgram.OpeningRoar, state.BodyProgram.Program, "a left-facing Ridley keeps the left-facing roar");
+        AssertEqual(RidleyAnimations.StartingWith(RidleyBodyProgram.OpeningRoar), state.BodyPlayback.Animation, "a left-facing Ridley keeps the left-facing roar");
         AssertEqual((RidleyCollisionDefinitions.BodyFrame?)RidleyCollisionDefinitions.BodyFrame.Left, RidleyCollisionDefinitions.BodyFrameAt(body.SpritemapPointer), "the left-facing roar shows its first frame");
     }
 
@@ -90,7 +90,7 @@ internal static class RidleyAnimationsVerification
         state.Roaring = true;
         CeresRidleyFlight.StartRidleyProgram(state, body, RidleyBodyProgram.Fireballing);
         Pass(body, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Health = 29 });
-        AssertEqual(RidleyBodyProgram.FireballingEnd, state.BodyProgram.Program, "low energy in Ceres skips to the fireballing tail");
+        AssertEqual(RidleyAnimations.StartingWith(RidleyBodyProgram.FireballingEnd), state.BodyPlayback.Animation, "low energy in Ceres skips to the fireballing tail");
         AssertEqual(8, state.FunctionTimer, "low energy shortens the hover to eight updates");
         AssertTrue(!state.Roaring, "the fireballing tail clears the roaring flag");
         AssertEqual((RidleyCollisionDefinitions.BodyFrame?)RidleyCollisionDefinitions.BodyFrame.Left, RidleyCollisionDefinitions.BodyFrameAt(body.SpritemapPointer), "the tail shows the standing pose");
@@ -98,12 +98,12 @@ internal static class RidleyAnimationsVerification
         (_, state, body) = NewRidley(EnemyDefinitionId.RidleyCeres, RidleyFacing.Left);
         CeresRidleyFlight.StartRidleyProgram(state, body, RidleyBodyProgram.Fireballing);
         Pass(body, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Health = 30 });
-        AssertEqual(RidleyBodyProgram.Fireballing, state.BodyProgram.Program, "thirty energy keeps the full fireballing");
+        AssertEqual(RidleyAnimations.StartingWith(RidleyBodyProgram.Fireballing), state.BodyPlayback.Animation, "thirty energy keeps the full fireballing");
 
         (_, state, body) = NewRidley(EnemyDefinitionId.Ridley, RidleyFacing.Left);
         CeresRidleyFlight.StartRidleyProgram(state, body, RidleyBodyProgram.Fireballing);
         Pass(body, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Health = 1 });
-        AssertEqual(RidleyBodyProgram.Fireballing, state.BodyProgram.Program, "Lower Norfair Ridley ignores Samus's energy");
+        AssertEqual(RidleyAnimations.StartingWith(RidleyBodyProgram.Fireballing), state.BodyPlayback.Animation, "Lower Norfair Ridley ignores Samus's energy");
     }
 
     /// <summary>Runs Ridley's program parity check against the repository cartridge.</summary>

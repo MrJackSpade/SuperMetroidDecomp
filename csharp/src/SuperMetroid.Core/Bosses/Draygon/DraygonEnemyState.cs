@@ -28,17 +28,21 @@ public sealed class DraygonEnemyState
 
     /// <summary>His body, which owns encounter movement, health, and the body-function dispatcher, and runs first.</summary>
     public RoomEnemySlot Body { get; }
-    /// <summary>Where each part's typed program resumes, keyed by the part's record.</summary>
-    private readonly Dictionary<RoomEnemySlot, AnimationProgramCursor<DraygonProgram>> _cursors = new(ReferenceEqualityComparer.Instance);
+    /// <summary>Each part's playing animation and where it stands, keyed by the part's record.</summary>
+    private readonly Dictionary<RoomEnemySlot, AnimationPlayback<DraygonProgram>> _playbacks = new(ReferenceEqualityComparer.Instance);
 
-    /// <summary>Where <paramref name="part"/>'s program resumes.</summary>
-    internal AnimationProgramCursor<DraygonProgram> Cursor(RoomEnemySlot part) =>
-        _cursors.TryGetValue(part, out AnimationProgramCursor<DraygonProgram> cursor)
-            ? cursor
-            : throw new InvalidOperationException("A Draygon part has no program.");
+    /// <summary><paramref name="part"/>'s playing animation and where it stands.</summary>
+    internal AnimationPlayback<DraygonProgram> Playback(RoomEnemySlot part) =>
+        _playbacks.TryGetValue(part, out AnimationPlayback<DraygonProgram> playback)
+            ? playback
+            : throw new InvalidOperationException("A Draygon part has no animation.");
 
-    /// <summary>Sets where <paramref name="part"/>'s program resumes.</summary>
-    internal void SetCursor(RoomEnemySlot part, AnimationProgramCursor<DraygonProgram> cursor) => _cursors[Ensure.NotNull(part)] = cursor;
+    /// <summary>Sets <paramref name="part"/>'s playing animation and where it stands.</summary>
+    internal void SetPlayback(RoomEnemySlot part, AnimationPlayback<DraygonProgram> playback) => _playbacks[Ensure.NotNull(part)] = playback;
+
+    /// <summary>Starts the animation beginning at <paramref name="segment"/> on <paramref name="part"/>, before its first play.</summary>
+    internal void StartAnimation(RoomEnemySlot part, DraygonProgram segment) =>
+        SetPlayback(part, new AnimationPlayback<DraygonProgram>(DraygonAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation));
 
     /// <summary>His eye, attached by its initializer; tracks Samus using coordinates copied from the body.</summary>
     public RoomEnemySlot Eye { get => field ?? throw new InvalidOperationException("Draygon's eye part is not attached; part initialization attaches it."); internal set; }

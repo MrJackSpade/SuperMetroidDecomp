@@ -27,11 +27,11 @@ internal static class RidleyClawOffsetsVerification
             AssertEqual(y[pose], RidleyClawOffsets.ReadY(pose), "Each claw-height pose reads its authored claw Y word");
         foreach (int undefined in new[] { -1, 3, 4, ushort.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => RidleyClawOffsets.ReadY(undefined), "Ridley has only three claw-height poses");
-        // The body programs' cues select exactly the authored poses, so no gameplay path reaches past the table.
+        // The body segments' cues select exactly the authored poses, so no gameplay path reaches past the table.
         foreach (RidleyBodyProgram program in Enum.GetValues<RidleyBodyProgram>())
-        foreach (var step in RidleyAnimations.Programs.Steps(program))
+        foreach (var beat in RidleyAnimations.Segments.Beats(program))
         {
-            if (step is not AnimationProgramStep<RidleyBodyProgram, RidleyCollisionDefinitions.BodyFrame, RidleyBodyCue>.CueStep { Cue: RidleyBodyCue.SetFeetDistance feet })
+            if (beat is not AnimationBeat<RidleyCollisionDefinitions.BodyFrame, RidleyBodyCue>.Event { Raised: RidleyBodyCue.SetFeetDistance feet })
                 continue;
             AssertTrue((uint)feet.FeetDistanceIndex < 3,
                 $"Ridley {program} selects claw-height pose {feet.FeetDistanceIndex}");

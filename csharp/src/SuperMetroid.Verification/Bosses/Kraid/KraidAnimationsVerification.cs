@@ -17,15 +17,16 @@ using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.MovieReplay.Verification;
 
 /// <summary>
-/// #1284: Kraid's typed foot, arm, lint, fingernail and rock programs against the retail cartridge. The typed part
-/// programs must match the native bank-$A7 lists step by step; the runner must switch the arm to its slow swing
-/// exactly as the native callback does; and the rocks must match their bank-$86 lists update by update.
+/// #1284, #1600: Kraid's typed foot, arm, lint, fingernail and rock animations against the retail cartridge. Each part
+/// segment must match its native bank-$A7 list beat by beat and each part animation the lists' control flow; the runner
+/// must switch the arm to its slow swing exactly as the native callback does; and the rocks must match their bank-$86
+/// lists update by update.
 /// </summary>
 internal static class KraidAnimationsVerification
 {
     /// <summary>
-    /// Every part program's typed steps equal its native list, the arm switches to its slow swing below half health,
-    /// and the arm and foot collision tables still cover every typed frame.
+    /// Every part segment's beats equal its native list and every part animation follows the lists' control flow, the
+    /// arm switches to its slow swing below half health, and the arm and foot collision tables still cover every typed frame.
     /// </summary>
     internal static void VerifyKraidPartAnimations(SuperMetroidAddressSpace rom)
     {
@@ -35,31 +36,43 @@ internal static class KraidAnimationsVerification
             AssertEqual((KraidPartProgram)index, PartEntries[index].Program, "the Kraid part programs are declared in authored order");
         AssertTrue(PartEntriesAscend, "native Kraid part entries ascend");
 
-        int stepCount = 0;
-        foreach ((KraidPartProgram program, ushort entry) in PartEntries)
-            stepCount += CompareProgram(cartridge, program, entry);
+        Dictionary<KraidPartProgram, NativeEnemyList<KraidPartProgram>> lists =
+            PartEntries.ToDictionary(item => item.Program, item => ReadPartList(cartridge, item.Program, item.Entry));
+        NativeEnemyAnimationOracle.CompareAnimations(lists, KraidAnimations.StartingAt);
+        HashSet<KraidPartProgram> runOn = NativeEnemyAnimationOracle.RunsOnIntoNextAfterLastBeat(lists);
+        AssertTrue(runOn.SetEquals(KraidAnimations.RunsOnInto.Keys), "the run-on segments are the lists that run on into the next after their last beat");
+        foreach (KraidPartProgram segment in runOn)
+        {
+            AssertEqual(lists[segment].Controls.Single(control => control.Kind == NativeEnemyControlKind.RunOnIntoNext).Target, (KraidPartProgram?)KraidAnimations.RunsOnInto[segment],
+                $"{segment} runs on into the list authored next");
+        }
 
         VerifyArmSpeedSwitch();
         Suite(nameof(VerifyKraidArmCollisionDefinitions), () => VerifyKraidArmCollisionDefinitions(rom));
         Suite(nameof(VerifyKraidFootCollisionDefinitions), () => VerifyKraidFootCollisionDefinitions());
-        Console.WriteLine($"  Kraid part programs: {PartEntries.Length} programs and {stepCount} steps match bank $A7; the arm's slow-swing switch matches the native callback.");
+        Console.WriteLine($"  Kraid part animations: {PartEntries.Length} segments and {lists.Values.Sum(list => list.BeatAddresses.Length)} beats match bank $A7, " +
+            "and every animation its lists' control flow; the arm's slow-swing switch matches the native callback.");
     }
 
-    /// <summary>Compares one typed part program with its native list and returns its typed step count.</summary>
-    private static int CompareProgram(IImportCartridgeSource cartridge, KraidPartProgram program, ushort entry)
+    /// <summary>
+    /// Reads one part segment's native list, comparing each of its beats with the segment's, and returns each beat's
+    /// native address and the list's gotos, sleeps and runs on into the next authored list. The no-operation callback
+    /// has no beat.
+    /// </summary>
+    private static NativeEnemyList<KraidPartProgram> ReadPartList(IImportCartridgeSource cartridge, KraidPartProgram segment, ushort entry)
     {
-        var steps = KraidAnimations.Programs.Steps(program);
+        IReadOnlyList<AnimationBeat<KraidPartFrame, KraidPartCue>> beats = KraidAnimations.Segments.Beats(segment);
+        var addresses = new List<ushort>();
+        var controls = new List<NativeEnemyControl<KraidPartProgram>>();
         ushort cursor = entry;
-        int index = 0;
         for (int command = 0; command < 512; command++)
         {
-            string at = $"Kraid {program} step {index}";
+            int beat = addresses.Count;
+            string at = $"Kraid {segment} beat {beat}";
             if (cursor != entry && PartProgramAt(cursor) is { } next)
             {
-                var fallInto = AssertIs<AnimationProgramStep<KraidPartProgram, KraidPartFrame, KraidPartCue>.FallIntoStep>(steps[index], $"{at}: runs on into the next authored program");
-                AssertEqual(next, fallInto.Target, $"{at}: fall-through target");
-                AssertEqual(steps.Count, index + 1, $"{at}: fall-through ends the program");
-                return steps.Count;
+                controls.Add(new(NativeEnemyControlKind.RunOnIntoNext, beat, next, null, cursor));
+                return Finish();
             }
             int address = (PartBankNumber << 16) | cursor;
             ushort word = cartridge.ReadCartridgeWord(address);
@@ -67,29 +80,30 @@ internal static class KraidAnimationsVerification
             switch (NativeEnemyListDefinitions.Classify(word))
             {
                 case NativeEnemyListDefinitions.WordKind.Frame:
-                    var show = AssertIs<AnimationProgramStep<KraidPartProgram, KraidPartFrame, KraidPartCue>.ShowStep>(steps[index], $"{at}: frame");
-                    AssertEqual(word, show.Duration, $"{at}: duration");
-                    AssertEqual(operand, KraidPartFrameToolingDefinitions.Spritemap(show.Frame), $"{at}: spritemap");
+                    var frame = AssertIs<AnimationBeat<KraidPartFrame, KraidPartCue>.Frame>(Beat(beat, at), $"{at}: frame");
+                    AssertEqual(word, frame.Duration, $"{at}: duration");
+                    AssertEqual(operand, KraidPartFrameToolingDefinitions.Spritemap(frame.Shown), $"{at}: spritemap");
+                    addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + 4));
-                    index++;
                     continue;
                 case NativeEnemyListDefinitions.WordKind.GoTo:
-                    var goTo = AssertIs<AnimationProgramStep<KraidPartProgram, KraidPartFrame, KraidPartCue>.GoToStep>(steps[index], $"{at}: goto");
-                    AssertEqual(PartProgramAt(operand), goTo.Target, $"{at}: goto target");
-                    AssertEqual(steps.Count, index + 1, $"{at}: goto ends the program");
-                    return steps.Count;
+                    controls.Add(new(NativeEnemyControlKind.Goto, beat,
+                        PartProgramAt(operand) ?? throw new InvalidDataException($"{at}: ${operand:X4} is no segment's native entry."), null, cursor));
+                    return Finish();
                 case NativeEnemyListDefinitions.WordKind.Sleep:
-                    AssertTrue(steps[index] is AnimationProgramStep<KraidPartProgram, KraidPartFrame, KraidPartCue>.HoldStep, $"{at}: sleep");
-                    AssertEqual(steps.Count, index + 1, $"{at}: sleep ends the program");
-                    return steps.Count;
+                    controls.Add(new(NativeEnemyControlKind.Sleep, beat, null, null, cursor));
+                    return Finish();
                 case NativeEnemyListDefinitions.WordKind.Callback:
                     AssertTrue(PartCallbacks.TryGetValue(word, out KraidPartCue? cue), $"{at}: native callback ${word:X4} is known");
-                    cursor = unchecked((ushort)(cursor + 2));
                     if (cue is not { } expected)
-                        continue; // The no-operation callback has no typed step.
-                    var cueStep = AssertIs<AnimationProgramStep<KraidPartProgram, KraidPartFrame, KraidPartCue>.CueStep>(steps[index], $"{at}: callback");
-                    AssertEqual(expected, cueStep.Cue, $"{at}: cue");
-                    index++;
+                    {
+                        cursor = unchecked((ushort)(cursor + 2));
+                        continue; // The no-operation callback has no beat.
+                    }
+                    var raised = AssertIs<AnimationBeat<KraidPartFrame, KraidPartCue>.Event>(Beat(beat, at), $"{at}: callback");
+                    AssertEqual(expected, raised.Raised, $"{at}: cue");
+                    addresses.Add(cursor);
+                    cursor = unchecked((ushort)(cursor + 2));
                     continue;
                 case NativeEnemyListDefinitions.WordKind.Stop:
                 case NativeEnemyListDefinitions.WordKind.SetCounter:
@@ -100,7 +114,17 @@ internal static class KraidAnimationsVerification
                     throw new InvalidOperationException($"Undefined {nameof(NativeEnemyListDefinitions.WordKind)}.");
             }
         }
-        throw new InvalidDataException($"Kraid {program} ran past its native list.");
+        throw new InvalidDataException($"Kraid {segment} ran past its native list.");
+
+        NativeEnemyList<KraidPartProgram> Finish()
+        {
+            AssertEqual(beats.Count, addresses.Count, $"Kraid {segment}: its native list holds each of its beats");
+            return new NativeEnemyList<KraidPartProgram>([.. addresses], [.. controls]);
+        }
+
+        AnimationBeat<KraidPartFrame, KraidPartCue> Beat(int beat, string at) => beat < beats.Count
+            ? beats[beat]
+            : throw new InvalidDataException($"{at}: the native list holds more beats than Kraid {segment}.");
     }
 
     /// <summary>Creates Kraid's body and arm in a fresh enemy system.</summary>
@@ -124,27 +148,37 @@ internal static class KraidAnimationsVerification
     {
         (_, KraidEnemyState state, RoomEnemySlot body, RoomEnemySlot arm) = NewKraid();
         body.Health = 104;
-        state.ArmState.Cursor = AnimationProgramCursor<KraidPartProgram>.Start(KraidPartProgram.ArmNormalPause);
+        state.ArmState.Playback = Started(KraidPartProgram.ArmNormalPause);
         arm.FrameHold = WrappingCountdown.Start(1);
         Pass(arm);
         Pass(arm, forceExpiry: true);
-        AssertEqual(KraidPartProgram.ArmNormal, state.ArmState.Cursor.Program, "a healthy arm loops its normal swing");
+        AssertEqual(KraidAnimations.StartingWith(KraidPartProgram.ArmNormalPause), state.ArmState.Playback.Animation, "a healthy arm plays on in its pause's loop");
+        AssertEqual(KraidPartProgram.ArmNormal, PlayingSegment(state.ArmState.Playback), "a healthy arm loops its normal swing");
 
         body.Health = 51;
-        state.ArmState.Cursor = AnimationProgramCursor<KraidPartProgram>.Start(KraidPartProgram.ArmNormalPause);
+        state.ArmState.Playback = Started(KraidPartProgram.ArmNormalPause);
         arm.FrameHold = WrappingCountdown.Start(1);
         Pass(arm);
         Pass(arm, forceExpiry: true);
-        AssertEqual(KraidPartProgram.ArmSlow, state.ArmState.Cursor.Program, "below half health the pause starts the slow swing");
+        AssertEqual(KraidAnimations.StartingWith(KraidPartProgram.ArmSlow), state.ArmState.Playback.Animation, "below half health the pause starts the slow swing");
         AssertEqual(KraidPartFrameToolingDefinitions.Spritemap(new KraidPartFrame(KraidPartFrameKind.Arm, 0)), arm.SpritemapPointer, "the slow swing's first frame shows at once");
         AssertEqual((ushort)8, arm.FrameHold.RawValue, "the slow swing's first frame lasts eight updates");
 
-        state.ArmState.Cursor = new(KraidPartProgram.ArmSlow, KraidAnimations.Programs.Steps(KraidPartProgram.ArmSlow).Count - 3);
+        state.ArmState.Playback = new(KraidAnimations.StartingWith(KraidPartProgram.ArmSlow),
+            new AnimationPlace(0, KraidAnimations.Segments.Beats(KraidPartProgram.ArmSlow).Count - 2));
         arm.FrameHold = WrappingCountdown.Start(1);
         Pass(arm);
         Pass(arm, forceExpiry: true);
-        AssertEqual(KraidPartProgram.ArmSlow, state.ArmState.Cursor.Program, "a slow arm's callback keeps the slow swing");
+        AssertEqual(KraidAnimations.StartingWith(KraidPartProgram.ArmSlow), state.ArmState.Playback.Animation, "a slow arm's callback keeps the slow swing");
     }
+
+    /// <summary>The part animation starting at <paramref name="segment"/>, before its first play.</summary>
+    private static AnimationPlayback<KraidPartProgram> Started(KraidPartProgram segment) =>
+        new(KraidAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
+
+    /// <summary>The segment <paramref name="playback"/>'s playing phase plays.</summary>
+    private static KraidPartProgram PlayingSegment(AnimationPlayback<KraidPartProgram> playback) =>
+        playback.Animation.Phases[playback.Place.Phase].Segment;
 
     /// <summary>Runs one arm update, optionally expiring the current frame first.</summary>
     private static void Pass(RoomEnemySlot part, bool forceExpiry = false)

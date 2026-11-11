@@ -17,15 +17,16 @@ using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.MovieReplay.Verification;
 
 /// <summary>
-/// #1283: Draygon's typed body, eye, tail, arms and projectile programs against the retail cartridge. The typed
-/// programs must match the native bank-$A5 and bank-$86 lists step by step, and the real runner must match them
-/// update by update: timers, frames, the loop counter, cues, part starts and deletion.
+/// #1283, #1600: Draygon's typed body, eye, tail, arms and projectile animations against the retail cartridge. Each
+/// segment must match its native bank-$A5 or bank-$86 list beat by beat and each animation the lists' control flow, and
+/// the real runner must match them update by update: timers, frames, the loop counter, cues, part starts and deletion.
 /// </summary>
 internal static class DraygonAnimationsVerification
 {
     /// <summary>
-    /// Every part program's typed steps equal its native list; the runner then plays the reset that starts all four
-    /// parts and the dying sequence, with its counted explosions, beside the native list.
+    /// Every part segment's beats equal its native list and every animation follows the lists' control flow; the runner
+    /// then plays the reset that starts all four parts and the dying sequence, with its counted explosions, beside the
+    /// native list.
     /// </summary>
     internal static void VerifyDraygonAnimations(ISnesAddressSpace rom)
     {
@@ -36,33 +37,38 @@ internal static class DraygonAnimationsVerification
         AssertTrue(EntriesAscend, "native Draygon entries ascend");
 
         var drawn = new HashSet<ushort>();
-        int stepCount = 0;
-        foreach ((DraygonProgram program, ushort entry) in Entries)
-            stepCount += CompareProgram(cartridge, program, entry, drawn);
-        AssertEqual(DraygonFrameToolingDefinitions.FrameCount, drawn.Count, "the Draygon programs draw every catalog frame");
+        Dictionary<DraygonProgram, NativeEnemyList<DraygonProgram>> lists =
+            Entries.ToDictionary(item => item.Program, item => ReadList(cartridge, item.Program, item.Entry, drawn));
+        NativeEnemyAnimationOracle.CompareAnimations(lists, DraygonAnimations.StartingAt);
+        int beatCount = lists.Values.Sum(list => list.BeatAddresses.Length);
+        AssertEqual(DraygonFrameToolingDefinitions.FrameCount, drawn.Count, "the Draygon segments draw every catalog frame");
         for (int index = 0; index < DraygonFrameToolingDefinitions.FrameCount; index++)
             AssertTrue(drawn.Contains(DraygonFrameToolingDefinitions.Spritemap(new DraygonFrame(index))), $"Draygon catalog frame {index} is drawn by a native list");
 
         VerifyReset();
         VerifyDying(cartridge);
-        Console.WriteLine($"  Draygon programs: {Entries.Length} programs and {stepCount} steps match bank $A5; the reset and dying sequence match the runner.");
+        Console.WriteLine($"  Draygon animations: {Entries.Length} segments and {beatCount} beats match bank $A5, and every animation its lists' control flow; the reset and dying sequence match the runner.");
     }
 
-    /// <summary>Compares one typed program with its native list and returns its step count.</summary>
-    private static int CompareProgram(IImportCartridgeSource cartridge, DraygonProgram program, ushort entry, HashSet<ushort> drawn)
+    /// <summary>
+    /// Reads one segment's native list, comparing each of its beats with the segment's, and returns each beat's native
+    /// address and the list's control instructions (sleeps, stops, gotos, counter loads, counted repeats and runs on into
+    /// the next authored list), which <see cref="NativeEnemyAnimationOracle.CompareAnimations"/> matches with the animations.
+    /// </summary>
+    private static NativeEnemyList<DraygonProgram> ReadList(IImportCartridgeSource cartridge, DraygonProgram segment, ushort entry, HashSet<ushort> drawn)
     {
-        var steps = DraygonAnimations.Programs.Steps(program);
+        IReadOnlyList<AnimationBeat<DraygonFrame, DraygonCue>> beats = DraygonAnimations.Segments.Beats(segment);
+        var addresses = new List<ushort>();
+        var controls = new List<NativeEnemyControl<DraygonProgram>>();
         ushort cursor = entry;
-        for (int index = 0; index < steps.Count; index++)
+        while (true)
         {
-            var step = steps[index];
-            string at = $"Draygon {program} step {index}";
-            if (index > 0 && ProgramAt(cursor) is { } next)
+            int beat = addresses.Count;
+            string at = $"Draygon {segment} beat {beat}";
+            if (cursor != entry && ProgramAt(cursor) is { } next)
             {
-                var fallInto = AssertIs<AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue>.FallIntoStep>(step, $"{at}: runs on into the next authored program");
-                AssertEqual(next, fallInto.Target, $"{at}: fall-through target");
-                AssertEqual(steps.Count, index + 1, $"{at}: fall-through ends the program");
-                return steps.Count;
+                controls.Add(new(NativeEnemyControlKind.RunOnIntoNext, beat, next, null, cursor));
+                return Finish();
             }
 
             cursor = SkipHudSplitCallbacks(cartridge, cursor);
@@ -72,38 +78,36 @@ internal static class DraygonAnimationsVerification
             switch (NativeEnemyListDefinitions.Classify(word))
             {
                 case NativeEnemyListDefinitions.WordKind.Frame:
-                    var show = AssertIs<AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue>.ShowStep>(step, $"{at}: frame");
-                    AssertEqual(word, show.Duration, $"{at}: duration");
-                    AssertEqual(operand, DraygonFrameToolingDefinitions.Spritemap(show.Frame), $"{at}: spritemap");
+                    var frame = AssertIs<AnimationBeat<DraygonFrame, DraygonCue>.Frame>(Beat(beat, at), $"{at}: frame");
+                    AssertEqual(word, frame.Duration, $"{at}: duration");
+                    AssertEqual(operand, DraygonFrameToolingDefinitions.Spritemap(frame.Shown), $"{at}: spritemap");
                     drawn.Add(operand);
+                    addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case NativeEnemyListDefinitions.WordKind.GoTo:
-                    var goTo = AssertIs<AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue>.GoToStep>(step, $"{at}: goto");
-                    AssertEqual(ProgramAt(operand), goTo.Target, $"{at}: goto target");
-                    AssertEqual(steps.Count, index + 1, $"{at}: goto ends the program");
-                    return steps.Count;
+                    controls.Add(new(NativeEnemyControlKind.Goto, beat,
+                        ProgramAt(operand) ?? throw new InvalidDataException($"{at}: ${operand:X4} is no segment's native entry."), null, cursor));
+                    return Finish();
                 case NativeEnemyListDefinitions.WordKind.Sleep:
-                    AssertTrue(step is AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue>.HoldStep, $"{at}: sleep");
-                    AssertEqual(steps.Count, index + 1, $"{at}: sleep ends the program");
-                    return steps.Count;
+                    controls.Add(new(NativeEnemyControlKind.Sleep, beat, null, null, cursor));
+                    return Finish();
                 case NativeEnemyListDefinitions.WordKind.Stop:
-                    AssertTrue(step is AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue>.StopStep, $"{at}: stop");
-                    AssertEqual(steps.Count, index + 1, $"{at}: stop ends the program");
-                    return steps.Count;
+                    controls.Add(new(NativeEnemyControlKind.Stop, beat, null, null, cursor));
+                    return Finish();
                 case NativeEnemyListDefinitions.WordKind.SetCounter:
-                    var setCounter = AssertIs<AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue>.SetCounterStep>(step, $"{at}: counter load");
-                    AssertEqual(operand, setCounter.Count, $"{at}: repeat count");
+                    controls.Add(new(NativeEnemyControlKind.SetCounter, beat, null, operand, cursor));
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case NativeEnemyListDefinitions.WordKind.RepeatWhileCounting:
-                    var repeat = AssertIs<AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue>.RepeatWhileCountingStep>(step, $"{at}: counted repeat");
-                    AssertEqual(ProgramAt(operand), repeat.Target, $"{at}: repeat target");
+                    AssertEqual<DraygonProgram?>(segment, ProgramAt(operand), $"{at}: a counted repeat replays its own list");
+                    controls.Add(new(NativeEnemyControlKind.Repeat, beat, segment, null, cursor));
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case NativeEnemyListDefinitions.WordKind.Wait:
-                    var wait = AssertIs<AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue>.WaitStep>(step, $"{at}: wait");
-                    AssertEqual(operand, wait.Duration, $"{at}: wait length");
+                    var pause = AssertIs<AnimationBeat<DraygonFrame, DraygonCue>.Pause>(Beat(beat, at), $"{at}: wait");
+                    AssertEqual(operand, pause.Duration, $"{at}: wait length");
+                    addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case NativeEnemyListDefinitions.WordKind.Callback:
@@ -112,8 +116,9 @@ internal static class DraygonAnimationsVerification
                     var operands = new ushort[count];
                     for (int operandIndex = 0; operandIndex < count; operandIndex++)
                         operands[operandIndex] = cartridge.ReadCartridgeWord(address + 2 + 2 * operandIndex);
-                    var cueStep = AssertIs<AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue>.CueStep>(step, $"{at}: callback");
-                    AssertEqual(CueOf(word, operands), cueStep.Cue, $"{at}: cue");
+                    var raised = AssertIs<AnimationBeat<DraygonFrame, DraygonCue>.Event>(Beat(beat, at), $"{at}: callback");
+                    AssertEqual(CueOf(word, operands), raised.Raised, $"{at}: cue");
+                    addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + 2 + 2 * count));
                     continue;
                 }
@@ -121,7 +126,16 @@ internal static class DraygonAnimationsVerification
                     throw new InvalidOperationException($"Undefined {nameof(NativeEnemyListDefinitions.WordKind)}.");
             }
         }
-        throw new InvalidDataException($"Draygon {program} ran past its typed steps.");
+
+        NativeEnemyList<DraygonProgram> Finish()
+        {
+            AssertEqual(beats.Count, addresses.Count, $"Draygon {segment}: its native list holds each of its beats");
+            return new NativeEnemyList<DraygonProgram>([.. addresses], [.. controls]);
+        }
+
+        AnimationBeat<DraygonFrame, DraygonCue> Beat(int beat, string at) => beat < beats.Count
+            ? beats[beat]
+            : throw new InvalidDataException($"{at}: the native list holds more beats than Draygon {segment}.");
     }
 
     /// <summary>
@@ -154,12 +168,16 @@ internal static class DraygonAnimationsVerification
         state.Tail.Bind(EnemyDefinitionId.DraygonTail, state.Tail.Definition);
         state.Arms.Bind(EnemyDefinitionId.DraygonArms, state.Arms.Definition);
         foreach (RoomEnemySlot part in new[] { body, state.Eye, state.Tail, state.Arms })
-            state.SetCursor(part, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.Sleep));
+            state.StartAnimation(part, DraygonProgram.Sleep);
         enemies.DraygonBehavior.Parts.Draygon = state;
         enemies.VerificationServices().NextRandom = () => 4660;
         enemies.VerificationServices().ReadRandom = () => 4660;
         return new NewDraygonResult(enemies, state);
     }
+
+    /// <summary>The animation starting at <paramref name="segment"/>, before its first play.</summary>
+    private static AnimationPlayback<DraygonProgram> Started(DraygonProgram segment) =>
+        new(DraygonAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
 
     /// <summary>Runs one update of <paramref name="part"/> through the production interpreter.</summary>
     private static void Pass(RoomEnemySlot part) =>
@@ -172,15 +190,16 @@ internal static class DraygonAnimationsVerification
     private static void VerifyReset()
     {
         (_, DraygonEnemyState state) = NewDraygon();
-        state.SetCursor(state.Body, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.BodyFacingRightReset));
+        state.StartAnimation(state.Body, DraygonProgram.BodyFacingRightReset);
         state.Body.FrameHold = WrappingCountdown.Start(1);
         Pass(state.Body);
-        AssertEqual(AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.EyeFacingRightIdle), state.Cursor(state.Eye), "the reset starts the eye");
-        AssertEqual(AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.TailFacingRightIdle), state.Cursor(state.Tail), "the reset starts the tail");
-        AssertEqual(AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.ArmsFacingRightIdle), state.Cursor(state.Arms), "the reset starts the arms");
+        AssertEqual(Started(DraygonProgram.EyeFacingRightIdle), state.Playback(state.Eye), "the reset starts the eye");
+        AssertEqual(Started(DraygonProgram.TailFacingRightIdle), state.Playback(state.Tail), "the reset starts the tail");
+        AssertEqual(Started(DraygonProgram.ArmsFacingRightIdle), state.Playback(state.Arms), "the reset starts the arms");
         foreach (RoomEnemySlot part in new[] { state.Eye, state.Tail, state.Arms })
             AssertEqual((ushort)1, part.FrameHold.RawValue, "the reset's started parts run on their next update");
-        AssertEqual(DraygonProgram.BodyFacingRightReset, state.Cursor(state.Body).Program, "the body's own frame keeps it in the reset");
+        AssertEqual(new AnimationPlayback<DraygonProgram>(DraygonAnimations.StartingWith(DraygonProgram.BodyFacingRightReset), new AnimationPlace(0, 3)),
+            state.Playback(state.Body), "the body's own frame keeps it in the reset, after its frame");
         AssertEqual(DraygonFrameToolingDefinitions.Spritemap(new DraygonFrame(63)), state.Body.SpritemapPointer, "the reset shows the right-facing body frame");
         AssertEqual<DraygonEyeFunction?>(DraygonEyeFunction.FacingRight, state.Eye.SpeciesState<DraygonEyeState>()?.Function, "the reset gives the eye its tracking function");
     }
@@ -194,7 +213,7 @@ internal static class DraygonAnimationsVerification
     {
         (RoomEnemySystem enemies, DraygonEnemyState state) = NewDraygon();
         RoomEnemySlot arms = state.Arms;
-        state.SetCursor(arms, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.ArmsFacingLeftDying));
+        state.StartAnimation(arms, DraygonProgram.ArmsFacingLeftDying);
         arms.FrameHold = WrappingCountdown.Start(1);
         var native = new NativeEnemyListReader(BodyBankNumber, Entry(DraygonProgram.ArmsFacingLeftDying), 1, OperandWords);
         bool paralysed = false;
@@ -216,8 +235,9 @@ internal static class DraygonAnimationsVerification
             if (cues.Any(cue => cue is DraygonCue.ParalyseTailAndArms))
             {
                 paralysed = true;
-                AssertEqual(AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.Sleep), state.Cursor(state.Tail), $"{at}: the tail sleeps");
-                AssertEqual(DraygonProgram.BodyDyingExplosionsLoop, state.Cursor(arms).Program,
+                AssertEqual(Started(DraygonProgram.Sleep), state.Playback(state.Tail), $"{at}: the tail sleeps");
+                AnimationPlayback<DraygonProgram> armsPlayback = state.Playback(arms);
+                AssertEqual(DraygonProgram.BodyDyingExplosionsLoop, armsPlayback.Animation.Phases[armsPlayback.Place.Phase].Segment,
                     $"{at}: the running arms keep their own program, as the native final store replaces the paralysis");
             }
         }
@@ -226,22 +246,24 @@ internal static class DraygonAnimationsVerification
     }
 
     /// <summary>
-    /// Every projectile program's typed steps equal its native bank-$86 list, and the goop touch sticks the goop to
-    /// Samus and shows its first frame in the same update.
+    /// Every projectile segment's beats equal its native bank-$86 list and every projectile animation follows the lists'
+    /// control flow, and the goop touch sticks the goop to Samus and shows its first frame in the same update.
     /// </summary>
     internal static void VerifyDraygonProjectileAnimations(ISnesAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
-        AssertEqual(Enum.GetValues<DraygonProjectileProgram>().Length, ProjectileEntries.Length, "every projectile program has a native entry");
-        foreach ((DraygonProjectileProgram program, ushort entry) in ProjectileEntries)
-            CompareProjectileProgram(cartridge, program, entry);
+        AssertEqual(Enum.GetValues<DraygonProjectileProgram>().Length, ProjectileEntries.Length, "every projectile segment has a native entry");
+        Dictionary<DraygonProjectileProgram, NativeEnemyList<DraygonProjectileProgram>> projectileLists =
+            ProjectileEntries.ToDictionary(item => item.Program, item => ReadProjectileList(cartridge, item.Program, item.Entry));
+        NativeEnemyAnimationOracle.CompareAnimations(projectileLists, DraygonProjectileAnimations.StartingAt);
         AssertEqual(DraygonProjectileVisualDefinitions.ProjectileFrameCount, DraygonProjectileVisualDefinitions.ProjectileFrames.Count,
             "the projectile catalog lists every frame");
 
         (RoomEnemySystem enemies, DraygonEnemyState state) = NewDraygon();
         enemies.DraygonBehavior.Parts.SpawnDraygonGoop(state, movingRight: true);
         EnemyProjectile goop = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.DraygonGoop);
-        AssertTrue(goop.Animation is DraygonProjectileAnimation, "the real goop producer starts the typed goop program");
+        AssertTrue(goop.Animation is DraygonProjectileAnimation { PlayingSegment: DraygonProjectileProgram.Goop },
+            "the real goop producer starts the typed goop loop");
         goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileProgram.GoopTouch));
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
         enemies.Projectiles.ProcessEnemyProjectileInstructions(goop, samus, Position16<RoomPixels>.Zero);
@@ -252,28 +274,34 @@ internal static class DraygonAnimationsVerification
         Console.WriteLine("  Draygon projectile programs: goop, burst, touch, bloom and flight match bank $86; the touch sticks the goop at once.");
     }
 
-    /// <summary>Compares one typed projectile program with its native bank-$86 list.</summary>
-    private static void CompareProjectileProgram(IImportCartridgeSource cartridge, DraygonProjectileProgram program, ushort entry)
+    /// <summary>
+    /// Reads one projectile segment's native bank-$86 list, comparing each of its beats with the segment's, and returns
+    /// its beats' addresses and control instructions; a goto into the shared deletion list continues with its deletion,
+    /// after which the animation holds.
+    /// </summary>
+    private static NativeEnemyList<DraygonProjectileProgram> ReadProjectileList(IImportCartridgeSource cartridge, DraygonProjectileProgram segment, ushort entry)
     {
-        var steps = DraygonProjectileAnimations.Programs.Steps(program);
+        IReadOnlyList<AnimationBeat<DraygonProjectileFrame, DraygonProjectileCue>> beats = DraygonProjectileAnimations.Segments.Beats(segment);
+        var addresses = new List<ushort>();
+        var controls = new List<NativeEnemyControl<DraygonProjectileProgram>>();
         ushort cursor = entry;
-        for (int index = 0; index < steps.Count; index++)
+        while (true)
         {
-            var step = steps[index];
-            string at = $"Draygon projectile {program} step {index}";
-            if (index > 0 && ProjectileProgramAt(cursor) is { } next)
+            int beat = addresses.Count;
+            string at = $"Draygon projectile {segment} beat {beat}";
+            if (cursor != entry && ProjectileProgramAt(cursor) is { } next)
             {
-                var fallInto = AssertIs<AnimationProgramStep<DraygonProjectileProgram, DraygonProjectileFrame, DraygonProjectileCue>.FallIntoStep>(step, $"{at}: runs on into the next authored program");
-                AssertEqual(next, fallInto.Target, $"{at}: fall-through target");
-                return;
+                controls.Add(new(NativeEnemyControlKind.RunOnIntoNext, beat, next, null, cursor));
+                return Finish();
             }
             ushort word = cartridge.ReadCartridgeWord(ProjectileBank | cursor);
             ushort operand = cartridge.ReadCartridgeWord(ProjectileBank | (cursor + 2));
             if ((word & NativeEnemyListDefinitions.InstructionBit) == 0)
             {
-                var show = AssertIs<AnimationProgramStep<DraygonProjectileProgram, DraygonProjectileFrame, DraygonProjectileCue>.ShowStep>(step, $"{at}: frame");
-                AssertEqual(word, show.Duration, $"{at}: duration");
-                AssertEqual(unchecked((ushort)(cursor + 2)), EnemyProjectileProgramFrameSources.Operand(DraygonProjectileVisualDefinitions.ShownProjectileFrames[show.Frame]), $"{at}: frame operand");
+                var frame = AssertIs<AnimationBeat<DraygonProjectileFrame, DraygonProjectileCue>.Frame>(Beat(beat, at), $"{at}: frame");
+                AssertEqual(word, frame.Duration, $"{at}: duration");
+                AssertEqual(unchecked((ushort)(cursor + 2)), EnemyProjectileProgramFrameSources.Operand(DraygonProjectileVisualDefinitions.ShownProjectileFrames[frame.Shown]), $"{at}: frame operand");
+                addresses.Add(cursor);
                 cursor = unchecked((ushort)(cursor + 4));
                 continue;
             }
@@ -281,26 +309,35 @@ internal static class DraygonAnimationsVerification
             {
                 if (ProjectileProgramAt(operand) is { } target)
                 {
-                    var goTo = AssertIs<AnimationProgramStep<DraygonProjectileProgram, DraygonProjectileFrame, DraygonProjectileCue>.GoToStep>(step, $"{at}: goto");
-                    AssertEqual(target, goTo.Target, $"{at}: goto target");
-                    return;
+                    controls.Add(new(NativeEnemyControlKind.Goto, beat, target, null, cursor));
+                    return Finish();
                 }
                 // A goto into the shared deletion list continues with its delete instruction.
                 cursor = operand;
-                index--;
                 continue;
             }
             AssertTrue(ProjectileCallbacks.TryGetValue(word, out DraygonProjectileCue cue), $"{at}: native callback ${word:X4} is known");
-            var cueStep = AssertIs<AnimationProgramStep<DraygonProjectileProgram, DraygonProjectileFrame, DraygonProjectileCue>.CueStep>(step, $"{at}: callback");
-            AssertEqual(cue, cueStep.Cue, $"{at}: cue");
+            var raised = AssertIs<AnimationBeat<DraygonProjectileFrame, DraygonProjectileCue>.Event>(Beat(beat, at), $"{at}: callback");
+            AssertEqual(cue, raised.Raised, $"{at}: cue");
+            addresses.Add(cursor);
+            cursor = unchecked((ushort)(cursor + 2));
             if (cue == DraygonProjectileCue.Delete)
             {
-                AssertTrue(steps[index + 1] is AnimationProgramStep<DraygonProjectileProgram, DraygonProjectileFrame, DraygonProjectileCue>.HoldStep, $"{at}: nothing follows the deletion");
-                return;
+                // Nothing follows the deletion: the animation holds there.
+                controls.Add(new(NativeEnemyControlKind.Sleep, beat + 1, null, null, cursor));
+                return Finish();
             }
-            cursor = unchecked((ushort)(cursor + 2));
         }
-        throw new InvalidDataException($"Draygon projectile {program} ran past its typed steps.");
+
+        NativeEnemyList<DraygonProjectileProgram> Finish()
+        {
+            AssertEqual(beats.Count, addresses.Count, $"Draygon projectile {segment}: its native list holds each of its beats");
+            return new NativeEnemyList<DraygonProjectileProgram>([.. addresses], [.. controls]);
+        }
+
+        AnimationBeat<DraygonProjectileFrame, DraygonProjectileCue> Beat(int beat, string at) => beat < beats.Count
+            ? beats[beat]
+            : throw new InvalidDataException($"{at}: the native list holds more beats than Draygon projectile {segment}.");
     }
 
     /// <summary>Runs Draygon's program parity check against the repository cartridge.</summary>

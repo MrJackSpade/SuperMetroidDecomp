@@ -4,8 +4,8 @@ using P = SuperMetroid.Core.Bosses.Kraid.KraidHeadProgram;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// Kraid's head programs (#641) as typed steps, and what collision and growth read at each step. The head shows a
-/// pose for its duration, cries between poses and holds at each program's end; the body's head timer gates every
+/// Kraid's head animations (#641, #1600), and what collision and growth read at each step of each list. The head shows
+/// a pose for its duration, cries between poses and holds at each list's end; the body's head timer gates every
 /// advance. Checked against the game's head animations by the head-animation verification.
 /// </summary>
 internal static class KraidHeadAnimations
@@ -25,18 +25,21 @@ internal static class KraidHeadAnimations
     /// <summary>How long the attack roar holds its wide-open pose, in updates; growth restarts the head with this delay.</summary>
     private const int RoarOpenDuration = 64;
 
-    /// <summary>The attack roar, past its entry pose. Each installer starts its program here with the entry pose's duration and leaves the head image as it was.</summary>
-    internal static AnimationProgramCursor<KraidHeadProgram> RoarAfterEntryFrame { get; } = new(P.Roar, 1);
+    /// <summary>
+    /// The attack roar, past its entry pose. Each installer starts its animation here with the entry pose's duration and
+    /// leaves the head image as it was.
+    /// </summary>
+    internal static AnimationPlayback<KraidHeadProgram> RoarAfterEntryFrame => At(P.Roar, 1);
 
     /// <summary>The eye glow, past its entry pose.</summary>
-    internal static AnimationProgramCursor<KraidHeadProgram> EyeGlowAfterEntryFrame { get; } = new(P.EyeGlow, 1);
+    internal static AnimationPlayback<KraidHeadProgram> EyeGlowAfterEntryFrame => At(P.EyeGlow, 1);
 
     /// <summary>The death cry, past its entry pose.</summary>
-    internal static AnimationProgramCursor<KraidHeadProgram> DeathAfterEntryFrame { get; } = new(P.Death, 1);
+    internal static AnimationPlayback<KraidHeadProgram> DeathAfterEntryFrame => At(P.Death, 1);
 
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<KraidHeadProgram, KraidHeadFrame, KraidHeadCue> Programs { get; } = new(
-        new Dictionary<KraidHeadProgram, AnimationProgramStep<KraidHeadProgram, KraidHeadFrame, KraidHeadCue>[]>
+    /// <summary>Every head segment's beats: its poses for their durations and the cries between them.</summary>
+    internal static AnimationSegments<KraidHeadProgram, KraidHeadFrame, KraidHeadCue> Segments { get; } = new(
+        new Dictionary<KraidHeadProgram, AnimationBeat<KraidHeadFrame, KraidHeadCue>[]>
     {
         [P.Roar] =
         [
@@ -48,7 +51,6 @@ internal static class KraidHeadAnimations
             Show(KraidHeadFrame.Wider, RoarClosingDuration),
             Show(KraidHeadFrame.Opening, RoarClosingDuration),
             Show(KraidHeadFrame.Closed, RoarClosingDuration),
-            Hold,
         ],
         [P.DyingRoar] =
         [
@@ -60,14 +62,12 @@ internal static class KraidHeadAnimations
             Show(KraidHeadFrame.Wider, 20),
             Show(KraidHeadFrame.Opening, 20),
             Show(KraidHeadFrame.Closed, 20),
-            Hold,
         ],
         [P.EyeGlow] =
         [
             Show(KraidHeadFrame.Closed, EyeGlowEntryDuration),
             Show(KraidHeadFrame.Opening, 10),
             Show(KraidHeadFrame.Closed, EyeGlowEntryDuration),
-            Hold,
         ],
         [P.Death] =
         [
@@ -76,12 +76,40 @@ internal static class KraidHeadAnimations
             Show(KraidHeadFrame.Wider, DeathEntryDuration),
             Cue(KraidHeadCue.DyingCry),
             Show(KraidHeadFrame.Open, 64),
-            Hold,
         ],
     });
 
+    /// <summary>Each head animation: its segment played once, then a hold on its last pose, as each list's end does.</summary>
+    internal static IReadOnlyDictionary<KraidHeadProgram, Animation<KraidHeadProgram>> StartingAt { get; } = new Dictionary<KraidHeadProgram, Animation<KraidHeadProgram>>
+    {
+        [P.Roar] = new([new(P.Roar, 0, 8, 1)], AnimationEnd.Holds),
+        [P.DyingRoar] = new([new(P.DyingRoar, 0, 8, 1)], AnimationEnd.Holds),
+        [P.EyeGlow] = new([new(P.EyeGlow, 0, 3, 1)], AnimationEnd.Holds),
+        [P.Death] = new([new(P.Death, 0, 5, 1)], AnimationEnd.Holds),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<KraidHeadProgram> StartingWith(KraidHeadProgram segment) => StartingAt[segment];
+
     /// <summary>
-    /// What collision and growth read at each cursor of each program, one entry per step. The first entry of every
+    /// The head animation of <paramref name="program"/> standing before beat <paramref name="position"/> of its one phase;
+    /// at the beat count, its play is done and the next play holds.
+    /// </summary>
+    internal static AnimationPlayback<KraidHeadProgram> At(KraidHeadProgram program, int position) =>
+        new(StartingWith(program), new AnimationPlace(0, position));
+
+    /// <summary>
+    /// Where <paramref name="playback"/> stands in its head list: the program its one phase plays, and the step its play
+    /// reaches next, the list's end standing for a play that is done or holds there.
+    /// </summary>
+    internal static KraidHeadListPosition PositionOf(AnimationPlayback<KraidHeadProgram> playback)
+    {
+        AnimationPhase<KraidHeadProgram> phase = playback.Animation.Phases[playback.Place.Phase];
+        return new(phase.Segment, phase.FirstBeat + Math.Clamp(playback.Place.Beat, 0, phase.BeatCount));
+    }
+
+    /// <summary>
+    /// What collision and growth read at each step of each list, one entry per step, the last at the list's end. The first entry of every
     /// program but the roar looks into the end of the program authored before it, whose last pose is the closed mouth.
     /// </summary>
     private static readonly Dictionary<KraidHeadProgram, KraidHeadCursorReads[]> Reads = new()
@@ -128,47 +156,48 @@ internal static class KraidHeadAnimations
         ],
     };
 
-    /// <summary>What collision and growth read at <paramref name="cursor"/>; a head that never started has no pose to read.</summary>
-    internal static KraidHeadCursorReads ReadsAt(AnimationProgramCursor<KraidHeadProgram>? cursor)
+    /// <summary>What collision and growth read where <paramref name="playback"/> stands; a head that never started has no pose to read.</summary>
+    internal static KraidHeadCursorReads ReadsAt(AnimationPlayback<KraidHeadProgram>? playback)
     {
-        AnimationProgramCursor<KraidHeadProgram> started = cursor ?? throw new InvalidDataException(
-            "Kraid's head program has not started, so its mouth and growth reads have no pose to look at.");
-        KraidHeadCursorReads[] reads = Reads[started.Program];
-        return (uint)started.Position < (uint)reads.Length
-            ? reads[started.Position]
-            : throw new InvalidOperationException($"Kraid head cursor {started} is outside its program.");
+        AnimationPlayback<KraidHeadProgram> started = playback ?? throw new InvalidDataException(
+            "Kraid's head animation has not started, so its mouth and growth reads have no pose to look at.");
+        KraidHeadListPosition position = PositionOf(started);
+        KraidHeadCursorReads[] reads = Reads[position.Program];
+        return (uint)position.Step < (uint)reads.Length
+            ? reads[position.Step]
+            : throw new InvalidOperationException($"Kraid head place {position} is outside its list.");
     }
 
-    /// <summary>The outer mouth shape body hits are tested against at <paramref name="cursor"/>.</summary>
-    internal static KraidMouthHitbox OuterMouthAt(AnimationProgramCursor<KraidHeadProgram>? cursor)
+    /// <summary>The outer mouth shape body hits are tested against where <paramref name="playback"/> stands.</summary>
+    internal static KraidMouthHitbox OuterMouthAt(AnimationPlayback<KraidHeadProgram>? playback)
     {
-        KraidMouthShapeRead read = ReadsAt(cursor).Outer;
+        KraidMouthShapeRead read = ReadsAt(playback).Outer;
         return read.Kind == KraidMouthShapeReadKind.Shape
             ? read.Shape
-            : throw new InvalidDataException($"Kraid's outer mouth read at {cursor} finds {read.Kind}, not a mouth shape.");
+            : throw new InvalidDataException($"Kraid's outer mouth read at {(playback is { } head ? PositionOf(head).ToString() : "no place")} finds {read.Kind}, not a mouth shape.");
     }
 
-    /// <summary>The inner mouth shape mouth hits are tested against at <paramref name="cursor"/>, or null when the pose has none.</summary>
-    internal static KraidMouthHitbox? InnerMouthAt(AnimationProgramCursor<KraidHeadProgram>? cursor)
+    /// <summary>The inner mouth shape mouth hits are tested against where <paramref name="playback"/> stands, or null when the pose has none.</summary>
+    internal static KraidMouthHitbox? InnerMouthAt(AnimationPlayback<KraidHeadProgram>? playback)
     {
-        KraidMouthShapeRead read = ReadsAt(cursor).Inner;
+        KraidMouthShapeRead read = ReadsAt(playback).Inner;
         return read.Kind switch
         {
             KraidMouthShapeReadKind.Shape => read.Shape,
             KraidMouthShapeReadKind.NoShape => null,
             KraidMouthShapeReadKind.OutsideHeadFrames => throw new InvalidDataException(
-                $"Kraid's inner mouth read at {cursor} lands outside every head pose."),
+                $"Kraid's inner mouth read at {(playback is { } head ? PositionOf(head).ToString() : "no place")} lands outside every head pose."),
             _ => throw new InvalidOperationException($"Undefined {nameof(KraidMouthShapeReadKind)} {read.Kind}."),
         };
     }
 
-    /// <summary>The roar cursor growth restarts the head at.</summary>
-    internal static AnimationProgramCursor<KraidHeadProgram> GrowthResumeCursor(KraidHeadGrowthResume resume) => resume switch
+    /// <summary>The roar place growth restarts the head at.</summary>
+    internal static AnimationPlayback<KraidHeadProgram> GrowthResumePlayback(KraidHeadGrowthResume resume) => resume switch
     {
-        KraidHeadGrowthResume.NextFrameClosed => new(P.Roar, 8),
-        KraidHeadGrowthResume.NextFrameOpening => new(P.Roar, 7),
-        KraidHeadGrowthResume.NextFrameWider => new(P.Roar, 6),
-        KraidHeadGrowthResume.NextStepOther => new(P.Roar, 5),
+        KraidHeadGrowthResume.NextFrameClosed => At(P.Roar, 8),
+        KraidHeadGrowthResume.NextFrameOpening => At(P.Roar, 7),
+        KraidHeadGrowthResume.NextFrameWider => At(P.Roar, 6),
+        KraidHeadGrowthResume.NextStepOther => At(P.Roar, 5),
         _ => throw new InvalidOperationException($"Undefined {nameof(KraidHeadGrowthResume)} {resume}."),
     };
 
@@ -197,14 +226,10 @@ internal static class KraidHeadAnimations
         new(KraidMouthShapeRead.InvulnerableOf(frame), KraidMouthShapeRead.OutsideHeadFrames, growth);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<KraidHeadProgram, KraidHeadFrame, KraidHeadCue> Show(KraidHeadFrame frame, int duration) =>
-        AnimationProgramStep<KraidHeadProgram, KraidHeadFrame, KraidHeadCue>.Show(frame, duration);
+    private static AnimationBeat<KraidHeadFrame, KraidHeadCue> Show(KraidHeadFrame frame, int duration) =>
+        new AnimationBeat<KraidHeadFrame, KraidHeadCue>.Frame(frame, duration);
 
     /// <summary>Announces <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<KraidHeadProgram, KraidHeadFrame, KraidHeadCue> Cue(KraidHeadCue cue) =>
-        AnimationProgramStep<KraidHeadProgram, KraidHeadFrame, KraidHeadCue>.Publish(cue);
-
-    /// <summary>Holds the last pose, as a program's end does.</summary>
-    private static AnimationProgramStep<KraidHeadProgram, KraidHeadFrame, KraidHeadCue> Hold =>
-        AnimationProgramStep<KraidHeadProgram, KraidHeadFrame, KraidHeadCue>.Hold;
+    private static AnimationBeat<KraidHeadFrame, KraidHeadCue> Cue(KraidHeadCue cue) =>
+        new AnimationBeat<KraidHeadFrame, KraidHeadCue>.Event(cue);
 }

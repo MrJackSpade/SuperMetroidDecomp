@@ -14,8 +14,6 @@ internal static class CrocomireNativeListAddresses
 {
     /// <summary>Crocomire's instruction bank, $A4.</summary>
     internal const byte BodyBankNumber = 0xa4;
-    /// <summary>Crocomire's instruction bank, $A4, as a long-address base.</summary>
-    internal const int BodyBank = 0xa40000;
     /// <summary>The bank-$86 projectile instruction lists, as a long-address base.</summary>
     internal const int ProjectileBank = 0x860000;
     /// <summary>The bank-$86 opcodes a Crocomire projectile list uses besides frames.</summary>
@@ -114,10 +112,6 @@ internal static class CrocomireNativeListAddresses
     ];
     /// <summary>The native entry point of <paramref name="program"/>.</summary>
     internal static ushort BodyEntry(CrocomireBodyProgram program) => BodyEntries.Single(item => item.Program == program).Entry;
-
-    /// <summary>The body program whose native list starts at <paramref name="address"/>, if one does.</summary>
-    internal static CrocomireBodyProgram? BodyProgramAt(ushort address) =>
-        BodyEntries.Where(item => item.Entry == address).Select(item => (CrocomireBodyProgram?)item.Program).SingleOrDefault();
 
     /// <summary>Whether the native entries ascend, so the typed declaration order is the authored order.</summary>
     internal static bool BodyEntriesAscend => BodyEntries.Zip(BodyEntries.Skip(1), (first, second) => first.Entry < second.Entry).All(ascends => ascends);

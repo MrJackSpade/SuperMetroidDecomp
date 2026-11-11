@@ -10,8 +10,9 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// </summary>
 public abstract class KraidPartState
 {
-    /// <summary>Where the part's typed program resumes.</summary>
-    internal AnimationProgramCursor<KraidPartProgram> Cursor { get; set; }
+    /// <summary>The part's playing animation and where it stands; before the first start, the foot's initial animation.</summary>
+    internal AnimationPlayback<KraidPartProgram> Playback { get; set; } =
+        new(KraidAnimations.StartingWith(KraidPartProgram.FootInitial), AnimationPlace.StartOfAnimation);
 
     /// <summary>
     /// Gets the function a part's function timer installs when it expires. The original game keeps the foot's in the

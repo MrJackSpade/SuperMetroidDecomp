@@ -4,22 +4,20 @@ using P = SuperMetroid.Core.Bosses.Kraid.KraidPartProgram;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>Kraid's typed part programs (#641).</summary>
+/// <summary>Kraid's typed part animations (#641, #1600): each foot, arm, lint and fingernail segment's beats, and the animation starting at each.</summary>
 internal static class KraidAnimations
 {
-    /// <summary>Every foot, arm, lint and fingernail program.</summary>
-    internal static AnimationProgramSet<KraidPartProgram, KraidPartFrame, KraidPartCue> Programs { get; } = new(
-        new Dictionary<KraidPartProgram, AnimationProgramStep<KraidPartProgram, KraidPartFrame, KraidPartCue>[]>
+    /// <summary>Every foot, arm, lint and fingernail segment's beats.</summary>
+    internal static AnimationSegments<KraidPartProgram, KraidPartFrame, KraidPartCue> Segments { get; } = new(
+        new Dictionary<KraidPartProgram, AnimationBeat<KraidPartFrame, KraidPartCue>[]>
     {
         [P.FootInitial] =
         [
             Show(FootStanding(), 32767),
-            Hold,
         ],
         [P.FootNeutral] =
         [
             Show(Foot(0), 32767),
-            Hold,
         ],
         [P.FootWalkingForward] =
         [
@@ -82,11 +80,9 @@ internal static class KraidAnimations
             Cue(K.StepLeft),
             Show(Foot(31), 1),
             Show(Foot(0), 1),
-            FallInto(P.FootWalkingForwardFinished),
         ],
         [P.FootWalkingForwardFinished] =
         [
-            Hold,
         ],
         [P.FootLungeForward] =
         [
@@ -149,11 +145,9 @@ internal static class KraidAnimations
             Show(Foot(31), 1),
             Cue(K.StepLeft),
             Show(Foot(0), 1),
-            FallInto(P.FootLungeForwardFinished),
         ],
         [P.FootLungeForwardFinished] =
         [
-            Hold,
         ],
         [P.FootWalkingBackward] =
         [
@@ -212,11 +206,9 @@ internal static class KraidAnimations
             Show(Foot(3), 1),
             Show(Foot(2), 1),
             Show(Foot(1), 1),
-            FallInto(P.FootWalkingBackwardLoop),
         ],
         [P.FootWalkingBackwardLoop] =
         [
-            GoTo(P.FootWalkingBackward),
         ],
         [P.ArmNormal] =
         [
@@ -237,13 +229,11 @@ internal static class KraidAnimations
             Show(Arm(3), 6),
             Show(Arm(2), 6),
             Show(Arm(1), 6),
-            FallInto(P.ArmNormalPause),
         ],
         [P.ArmNormalPause] =
         [
             Show(Arm(0), 32),
             Cue(K.SlowArmBelowHalfHealth),
-            GoTo(P.ArmNormal),
         ],
         [P.ArmSlow] =
         [
@@ -266,7 +256,6 @@ internal static class KraidAnimations
             Show(Arm(1), 8),
             Show(Arm(0), 48),
             Cue(K.SlowArmBelowHalfHealth),
-            GoTo(P.ArmSlow),
         ],
         [P.ArmRisingOrSinking] =
         [
@@ -288,24 +277,20 @@ internal static class KraidAnimations
             Show(Arm(12), 6),
             Show(Arm(11), 6),
             Show(Arm(10), 32),
-            GoTo(P.ArmRisingOrSinking),
         ],
         [P.ArmDyingOrPreparingToLunge] =
         [
             Show(Arm(0), 6),
             Show(Arm(20), 6),
             Show(Arm(21), 32767),
-            Hold,
         ],
         [P.LintInitial] =
         [
             Show(Lint(0), 32767),
-            Hold,
         ],
         [P.LintPostGrowth] =
         [
             Show(Lint(1), 32767),
-            Hold,
         ],
         [P.NailLoop] =
         [
@@ -317,9 +302,44 @@ internal static class KraidAnimations
             Show(Nail(5), 3),
             Show(Nail(6), 3),
             Show(Nail(7), 3),
-            GoTo(P.NailLoop),
         ],
     });
+
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<KraidPartProgram, Animation<KraidPartProgram>> StartingAt { get; } = new Dictionary<KraidPartProgram, Animation<KraidPartProgram>>
+    {
+        [P.FootInitial] = new([new(P.FootInitial, 0, 1, 1)], AnimationEnd.Holds),
+        [P.FootNeutral] = new([new(P.FootNeutral, 0, 1, 1)], AnimationEnd.Holds),
+        [P.FootWalkingForward] = new([new(P.FootWalkingForward, 0, 59, 1)], AnimationEnd.Holds),
+        [P.FootWalkingForwardFinished] = new([], AnimationEnd.Holds),
+        [P.FootLungeForward] = new([new(P.FootLungeForward, 0, 59, 1)], AnimationEnd.Holds),
+        [P.FootLungeForwardFinished] = new([], AnimationEnd.Holds),
+        [P.FootWalkingBackward] = new([new(P.FootWalkingBackward, 0, 55, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.FootWalkingBackwardLoop] = new([new(P.FootWalkingBackward, 0, 55, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ArmNormal] = new([new(P.ArmNormal, 0, 17, 1), new(P.ArmNormalPause, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ArmNormalPause] = new([new(P.ArmNormalPause, 0, 2, 1), new(P.ArmNormal, 0, 17, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ArmSlow] = new([new(P.ArmSlow, 0, 19, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ArmRisingOrSinking] = new([new(P.ArmRisingOrSinking, 0, 18, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ArmDyingOrPreparingToLunge] = new([new(P.ArmDyingOrPreparingToLunge, 0, 3, 1)], AnimationEnd.Holds),
+        [P.LintInitial] = new([new(P.LintInitial, 0, 1, 1)], AnimationEnd.Holds),
+        [P.LintPostGrowth] = new([new(P.LintPostGrowth, 0, 1, 1)], AnimationEnd.Holds),
+        [P.NailLoop] = new([new(P.NailLoop, 0, 8, 1)], AnimationEnd.LoopsFrom(0)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<KraidPartProgram> StartingWith(KraidPartProgram segment) => StartingAt[segment];
+
+    /// <summary>
+    /// The segment each list that runs on into the list authored next, directly after its last beat, continues into: a
+    /// part resting after that beat already stands in the next, which Kraid's arm and foot routines compare.
+    /// </summary>
+    internal static IReadOnlyDictionary<KraidPartProgram, KraidPartProgram> RunsOnInto { get; } = new Dictionary<KraidPartProgram, KraidPartProgram>
+    {
+        [P.FootWalkingForward] = P.FootWalkingForwardFinished,
+        [P.FootLungeForward] = P.FootLungeForwardFinished,
+        [P.FootWalkingBackward] = P.FootWalkingBackwardLoop,
+        [P.ArmNormal] = P.ArmNormalPause,
+    };
 
     /// <summary>The foot's standing pose.</summary>
     private static KraidPartFrame FootStanding() => new(KraidPartFrameKind.FootStanding, 0);
@@ -337,22 +357,10 @@ internal static class KraidAnimations
     private static KraidPartFrame Nail(int index) => new(KraidPartFrameKind.Nail, index);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<KraidPartProgram, KraidPartFrame, KraidPartCue> Show(KraidPartFrame frame, int duration) =>
-        AnimationProgramStep<KraidPartProgram, KraidPartFrame, KraidPartCue>.Show(frame, duration);
+    private static AnimationBeat<KraidPartFrame, KraidPartCue> Show(KraidPartFrame frame, int duration) =>
+        new AnimationBeat<KraidPartFrame, KraidPartCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<KraidPartProgram, KraidPartFrame, KraidPartCue> Cue(KraidPartCue cue) =>
-        AnimationProgramStep<KraidPartProgram, KraidPartFrame, KraidPartCue>.Publish(cue);
-
-    /// <summary>Continues at the start of <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<KraidPartProgram, KraidPartFrame, KraidPartCue> GoTo(KraidPartProgram program) =>
-        AnimationProgramStep<KraidPartProgram, KraidPartFrame, KraidPartCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<KraidPartProgram, KraidPartFrame, KraidPartCue> FallInto(KraidPartProgram program) =>
-        AnimationProgramStep<KraidPartProgram, KraidPartFrame, KraidPartCue>.FallInto(program);
-
-    /// <summary>Holds the last frame: the script's sleep.</summary>
-    private static AnimationProgramStep<KraidPartProgram, KraidPartFrame, KraidPartCue> Hold =>
-        AnimationProgramStep<KraidPartProgram, KraidPartFrame, KraidPartCue>.Hold;
+    private static AnimationBeat<KraidPartFrame, KraidPartCue> Cue(KraidPartCue cue) =>
+        new AnimationBeat<KraidPartFrame, KraidPartCue>.Event(cue);
 }

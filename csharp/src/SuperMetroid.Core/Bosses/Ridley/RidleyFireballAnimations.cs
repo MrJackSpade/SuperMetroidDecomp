@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Bosses.Ridley.RidleyFireballProgram;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>Ridley's typed fireball and afterburn programs (#641), in place of their lists.</summary>
+/// <summary>Ridley's typed fireball and afterburn animations (#641, #1600), in place of their lists.</summary>
 internal static class RidleyFireballAnimations
 {
     /// <summary>Poses in the flight loop.</summary>
@@ -20,9 +20,9 @@ internal static class RidleyFireballAnimations
     /// <summary>Each afterburn pose's dwell.</summary>
     private const int AfterburnDuration = 5;
 
-    /// <summary>Every fireball and afterburn program.</summary>
-    internal static AnimationProgramSet<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue> Programs { get; } = new(
-        new Dictionary<RidleyFireballProgram, AnimationProgramStep<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue>[]>
+    /// <summary>Every fireball and afterburn segment's beats.</summary>
+    internal static AnimationSegments<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue> Segments { get; } = new(
+        new Dictionary<RidleyFireballProgram, AnimationBeat<RidleyFireballFrame, RidleyFireballCue>[]>
     {
         [P.Fireball] =
         [
@@ -30,13 +30,8 @@ internal static class RidleyFireballAnimations
             Show(new(K.Launch, 0), LaunchDuration),
             Cue(C.BeginFlight),
             Show(new(K.Launch, 1), LaunchDuration),
-            FallInto(P.FireballLoop),
         ],
-        [P.FireballLoop] =
-        [
-            .. Enumerable.Range(0, FlightPoseCount).Select(phase => Show(new(K.Flight, phase), FlightDuration)),
-            GoTo(P.FireballLoop),
-        ],
+        [P.FireballLoop] = [.. Enumerable.Range(0, FlightPoseCount).Select(phase => Show(new(K.Flight, phase), FlightDuration))],
         [P.AfterburnFinal] = Afterburn(K.AfterburnFinal, spawn: null),
         [P.HorizontalCenter] = Afterburn(K.HorizontalCenter, C.SpawnHorizontalAfterburns),
         [P.VerticalCenter] = Afterburn(K.VerticalCenter, C.SpawnVerticalAfterburns),
@@ -44,36 +39,48 @@ internal static class RidleyFireballAnimations
     });
 
     /// <summary>
-    /// An afterburn run: it stops moving, shows five poses (publishing <paramref name="spawn"/> after the first, when
-    /// it has one) and deletes itself.
+    /// The animation that starts at each segment: the launch runs on into the flight loop, and each afterburn run holds
+    /// after its deletion.
     /// </summary>
-    private static AnimationProgramStep<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue>[] Afterburn(K kind, C? spawn)
+    internal static IReadOnlyDictionary<RidleyFireballProgram, Animation<RidleyFireballProgram>> StartingAt { get; } =
+        new Dictionary<RidleyFireballProgram, Animation<RidleyFireballProgram>>
+        {
+            [P.Fireball] = new([Whole(P.Fireball), Whole(P.FireballLoop)], AnimationEnd.LoopsFrom(1)),
+            [P.FireballLoop] = new([Whole(P.FireballLoop)], AnimationEnd.LoopsFrom(0)),
+            [P.AfterburnFinal] = new([Whole(P.AfterburnFinal)], AnimationEnd.Holds),
+            [P.HorizontalCenter] = new([Whole(P.HorizontalCenter)], AnimationEnd.Holds),
+            [P.VerticalCenter] = new([Whole(P.VerticalCenter)], AnimationEnd.Holds),
+            [P.DirectionalAfterburn] = new([Whole(P.DirectionalAfterburn)], AnimationEnd.Holds),
+        };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<RidleyFireballProgram> StartingWith(RidleyFireballProgram segment) => StartingAt[segment];
+
+    /// <summary>A phase playing every beat of <paramref name="segment"/> once.</summary>
+    private static AnimationPhase<RidleyFireballProgram> Whole(RidleyFireballProgram segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
+
+    /// <summary>
+    /// An afterburn run: it stops moving, shows five poses (raising <paramref name="spawn"/> after the first, when it has
+    /// one) and deletes itself.
+    /// </summary>
+    private static AnimationBeat<RidleyFireballFrame, RidleyFireballCue>[] Afterburn(K kind, C? spawn)
     {
-        var steps = new List<AnimationProgramStep<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue>> { Cue(C.ClearFrameBehavior) };
+        var beats = new List<AnimationBeat<RidleyFireballFrame, RidleyFireballCue>> { Cue(C.ClearFrameBehavior) };
         for (int phase = 0; phase < AfterburnPoseCount; phase++)
         {
-            steps.Add(Show(new(kind, phase), AfterburnDuration));
+            beats.Add(Show(new(kind, phase), AfterburnDuration));
             if (phase == 0 && spawn is { } cue)
-                steps.Add(Cue(cue));
+                beats.Add(Cue(cue));
         }
-        steps.Add(Cue(C.Delete));
-        steps.Add(AnimationProgramStep<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue>.Hold);
-        return [.. steps];
+        beats.Add(Cue(C.Delete));
+        return [.. beats];
     }
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> passes.</summary>
-    private static AnimationProgramStep<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue> Show(RidleyFireballFrame frame, int duration) =>
-        AnimationProgramStep<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue>.Show(frame, duration);
+    private static AnimationBeat<RidleyFireballFrame, RidleyFireballCue> Show(RidleyFireballFrame frame, int duration) =>
+        new AnimationBeat<RidleyFireballFrame, RidleyFireballCue>.Frame(frame, duration);
 
-    /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue> Cue(RidleyFireballCue cue) =>
-        AnimationProgramStep<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue>.Publish(cue);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue> GoTo(RidleyFireballProgram program) =>
-        AnimationProgramStep<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue> FallInto(RidleyFireballProgram program) =>
-        AnimationProgramStep<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue>.FallInto(program);
+    /// <summary>Raises <paramref name="cue"/>.</summary>
+    private static AnimationBeat<RidleyFireballFrame, RidleyFireballCue> Cue(RidleyFireballCue cue) =>
+        new AnimationBeat<RidleyFireballFrame, RidleyFireballCue>.Event(cue);
 }

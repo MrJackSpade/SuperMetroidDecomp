@@ -2,7 +2,7 @@
 
 /// <summary>
 /// Stateless enemy arithmetic shared by the species routines: trigonometry angles, whole-pixel velocity
-/// steps and sine/cosine products by radii of 0 through 255.
+/// steps and sine/cosine products by short radii (<see cref="ShortCircleProduct"/>).
 /// </summary>
 internal static class EnemyMath
 {
@@ -83,18 +83,12 @@ internal static class EnemyMath
         CoordinateAxis.Distance(firstCoordinate, secondCoordinate) < limit;
 
     /// <summary>
-    /// Computes the integer result of the short sine multiplication. The
-    /// game multiplies an unsigned table sample of 0 through 255 by the radius within 256, then negates the
-    /// integer and fractional parts independently for angles in the second half of the turn. Returning
-    /// <c>-floor(product / 256)</c> therefore preserves its documented negative-fraction bug;
-    /// <c>Math.Sin</c> or a normal fixed-point negation would disagree by one pixel.
+    /// The whole pixels of the short sine product (<see cref="ReadEightBitSineFixedProduct"/>): in the turn's second half
+    /// the reversed whole pixels of the first half's product, as <see cref="ShortCircleProduct.Reversed"/> leaves them, so
+    /// <c>Math.Sin</c> or a true fixed-point reversal would disagree by one pixel.
     /// </summary>
-    internal static int ReadEightBitSineProduct(TrigonometryAngle angle, int radius)
-    {
-        int sample = Trigonometry.EightBitHalfWave(angle.HalfWaveIndex);
-        int magnitude = EightEight.Multiply(sample, RadiusMultiplierOperand(radius));
-        return angle.IsInSecondHalf ? -magnitude : magnitude;
-    }
+    internal static int ReadEightBitSineProduct(TrigonometryAngle angle, int radius) =>
+        ReadEightBitSineFixedProduct(angle, radius).WholePixels;
 
     /// <summary>Computes the short cosine multiplication.</summary>
     internal static int ReadEightBitCosineProduct(TrigonometryAngle angle, int radius) =>
@@ -113,21 +107,20 @@ internal static class EnemyMath
         ReadEightBitNegativeSineProduct(angle, radius));
 
     /// <summary>
-    /// Returns the complete signed 16.16 result produced by the short sine
-    /// multiplier, including its independent whole/fraction negation bug. Evir needs both
-    /// parts for projectile motion; callers that only need pixels use the helpers above.
+    /// The point at <paramref name="radius"/> pixels along <paramref name="angle"/>'s sine, in whole pixels and fraction:
+    /// a half-wave sample of 0 through 255 times the radius the short circle product uses, in 256ths of a pixel, reversed
+    /// in the turn's second half as <see cref="ShortCircleProduct"/> reverses it. Evir needs both parts for its spit's
+    /// motion; callers that only need pixels use the helpers above.
     /// </summary>
     internal static SignedSixteenSixteen ReadEightBitSineFixedProduct(
         TrigonometryAngle angle,
         int radius)
     {
-        // A half-wave byte times a radius byte is below 65,536, so the product needs no wrap.
+        // A half-wave sample below 256 times a radius below 256 is below 65,536, so the product needs no wrap.
         int sample = Trigonometry.EightBitHalfWave(angle.HalfWaveIndex);
         SignedSixteenSixteen product = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(
-            sample * RadiusMultiplierOperand(radius));
-        // The game negates each word independently instead of carrying the
-        // fractional increment into the whole word. Preserve that documented quirk.
-        return angle.IsInSecondHalf ? product.NegatedPartsSeparately() : product;
+            sample * ShortCircleProduct.RadiusInUse(radius));
+        return angle.IsInSecondHalf ? ShortCircleProduct.Reversed(product) : product;
     }
 
     /// <summary>Rotates the fixed sine multiplication by a quarter turn for cosine, retaining its negative-fraction behavior.</summary>
@@ -193,13 +186,4 @@ internal static class EnemyMath
     /// <summary>Multiplies a signed sine-table sample by speed with the game's fixed-point rounding.</summary>
     internal static SignedEightEight MultiplySineSample(int speed, TrigonometryAngle angle) =>
         Trigonometry.MultiplySignedSine(speed, angle);
-
-    /// <summary>The span of a short multiplication's operand or result: values past it continue from zero.</summary>
-    private const int OperandSpan = 256;
-
-    /// <summary>
-    /// The multiplier operand of 0 through 255 a radius, zero or more, supplies: the short sine multiplication
-    /// takes only its place within 256, so a radius of 256 or more continues from zero.
-    /// </summary>
-    private static int RadiusMultiplierOperand(int radius) => Ensure.AtLeastZero(radius) % OperandSpan;
 }

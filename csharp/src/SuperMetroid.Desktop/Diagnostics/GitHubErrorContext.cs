@@ -4,7 +4,7 @@ namespace SuperMetroid.Desktop.Diagnostics;
 /// <summary>Debugger context captured at a recoverable desktop-host error boundary.</summary>
 public sealed record GitHubErrorContext(
     string Boundary,
-    ushort? FrameNumber = null,
+    int? FrameNumber = null,
     string? GameState = null,
     string? Phase = null,
     ControllerButton? ControllerInput = null,

@@ -134,12 +134,11 @@ public sealed class SuperMetroidGame
     /// <summary>The phase the game is in.</summary>
     public SuperMetroidGameState GameState { get => Session.GameState; internal set => Session.GameState = value; }
 
-    /// <summary>The wrapping count of updates the game has run, 0 through 65535.</summary>
-    public int FrameNumber
-    {
-        get;
-        private set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    /// <summary>
+    /// The number of updates the game has run. Hosts and diagnostics name frames by it; no gameplay reads it, so it counts
+    /// on without the original frame counter's wrap.
+    /// </summary>
+    public int FrameNumber { get; private set; }
 
     /// <summary>The active room, exposed for door-transition watches, or null before gameplay.</summary>
     public RoomHeaderDefinition? GameplayActiveRoom => Session.Runtime?.Room.ActiveRoom?.Definition;
@@ -182,7 +181,7 @@ public sealed class SuperMetroidGame
         if (doorAudioDispatch && prologueMusicRequests.Any(request => request is AudioRequest.ChangeMusicDataSet))
             Session.GameplayRuntime.Clock.CountDoorMusicLoad(Session.HostServices.DoorMusicLoadFrames);
         var gameplayAudio = new GameplayAudioFramePublication(Session.audio);
-        FrameNumber = WrappingCounter.IncrementCount(FrameNumber);
+        FrameNumber = checked(FrameNumber + 1);
         Session.display.BeginUpdate(FrameNumber);
         if (Session.Runtime is null)
             Session.frameClock.AdvanceAcceptedFrame();

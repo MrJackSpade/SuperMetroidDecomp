@@ -11,7 +11,7 @@ internal enum DebuggerStateVersion
     /// and the build's exact object-graph layout, with the SPC player inside the game's audio
     /// session rather than beside the game, and the room, its state and the game state named in the header instead of
     /// addressed or numbered; the host's bound content named by its path instead of held, and enums stored by member
-    /// name (#1507).
+    /// name (#1507); the header's frame number a whole update count rather than a wrapping 16-bit counter (#1607).
     /// </summary>
-    Current = 11,
+    Current = 12,
 }

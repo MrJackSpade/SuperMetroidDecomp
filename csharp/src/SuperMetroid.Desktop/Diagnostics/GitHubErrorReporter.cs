@@ -274,11 +274,11 @@ public sealed class GitHubErrorReporter : IDisposable
         return body.ToString();
     }
 
-    /// <summary>Adds an optional 16-bit runtime field in four-digit hexadecimal form.</summary>
-    private static void AppendHexContext(StringBuilder body, string name, ushort? value)
+    /// <summary>Adds an optional runtime field in hexadecimal form of at least four digits.</summary>
+    private static void AppendHexContext(StringBuilder body, string name, int? value)
     {
-        if (value is ushort word)
-            body.Append("- ").Append(name).Append(": $").AppendLine(word.ToString("X4"));
+        if (value is int number)
+            body.Append("- ").Append(name).Append(": $").AppendLine(number.ToString("X4"));
     }
 
     /// <summary>One item the serial worker consumes: an exception occurrence or a flush marker.</summary>

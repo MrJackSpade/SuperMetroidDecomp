@@ -10,6 +10,12 @@ namespace SuperMetroid.Core.Enemies.Kago;
 /// </summary>
 internal static class KagoBugProjectileAnimations
 {
+    /// <summary>
+    /// The updates a bug's idle, falling or jumping pose shows before its animation plays on (#1607): the landed pose
+    /// then starts the landing again, and the falling and jumping poses show themselves again.
+    /// </summary>
+    private const int LongestPose = 32767;
+
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<KagoBugProjectileProgram, KagoBugProjectileFrame, KagoBugProjectileCue> Segments { get; } = new(
         new Dictionary<KagoBugProjectileProgram, AnimationBeat<KagoBugProjectileFrame, KagoBugProjectileCue>[]>
@@ -22,11 +28,11 @@ internal static class KagoBugProjectileAnimations
         [
             Show(0, 5),
             Cue(new(K.StartIdle)),
-            Show(1, 32767),
+            Show(1, LongestPose),
         ],
         [P.Falling] =
         [
-            Show(2, 32767),
+            Show(2, LongestPose),
         ],
         [P.JumpStart] =
         [
@@ -36,7 +42,7 @@ internal static class KagoBugProjectileAnimations
         ],
         [P.JumpLoop] =
         [
-            Show(5, 32767),
+            Show(5, LongestPose),
         ],
         [P.Shot] =
         [

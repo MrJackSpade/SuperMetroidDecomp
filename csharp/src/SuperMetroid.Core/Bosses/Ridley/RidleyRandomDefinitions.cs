@@ -30,6 +30,6 @@ internal static class RidleyRandomDefinitions
     /// <summary>Ridley's roll for a tail whip, taken at 240 or more: 0 through 255 from the sample.</summary>
     internal static readonly RandomSampleField TailWhipRoll = new(0, 8);
 
-    /// <summary>Ceres Ridley's roll for changing his tail's curliness, taken only at 255: the sample's upper byte.</summary>
+    /// <summary>Ceres Ridley's roll for changing his tail's curliness, taken only at 255: the sample's bits 8-15.</summary>
     internal static readonly RandomSampleField TailCurlinessRoll = new(8, 8);
 }

@@ -21,7 +21,7 @@ internal static class DraygonRandomDefinitions
     /// <summary>A sinking Draygon's smoke X across its 128-pixel strip from X 192: the sample's bits 0-6.</summary>
     internal static readonly RandomSampleField DeathSmokeX = new(0, 7);
 
-    /// <summary>A sinking Draygon's smoke Y down its 64-pixel band from Y 400: the sample's bits 8-13, from its upper random byte.</summary>
+    /// <summary>A sinking Draygon's smoke Y down its 64-pixel band from Y 400: the sample's bits 8-13.</summary>
     internal static readonly RandomSampleField DeathSmokeY = new(8, 6);
 
     /// <summary>A dying Draygon's sprite scatter across 128 pixels centred on its body's X: the sample's bits 0-6.</summary>

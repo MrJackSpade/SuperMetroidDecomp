@@ -86,6 +86,20 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The program's storage and machine vocabulary #1558 left out (#1611): a record's generic variables, words and bytes
+    /// named by where they are stored, palette colours and handlers by number, tile transfers and characters, tilemap cells
+    /// and pages, register shadows and work memory, scanline numbers and raw bits.
+    /// </summary>
+    private static readonly Regex StorageProse = new(
+        @"\b[Vv]ariable [A-F]\b|\bextended words?\b|\binit[12]\b|\bunrelated bytes\b" +
+        @"|\b(?:level|draw|controller|random-number|RNG|scratch|speed|whole|attribute|pose-definition|population|parameter|property)\s+(?:words?|bytes?)\b" +
+        @"|\b(?:one|two|three|four|six|eight|sixteen|[0-9]+)-byte\b|\bodd-byte\b|\b(?:high|low) (?:bit|byte|word)s?\b|\bcarry (?:flags?|bits?|set|clear|returned|out)\b|\b(?:on|with|without|by) the carry\b|\bthe carry returned\b" +
+        @"|\bcolou?rs? [0-9]+(?:\s*(?:-|through|to)\s*[0-9]+)?\b|\bpalette handlers?\b|\bhandler (?:one|two|three|four|five|six|seven|eight|nine|ten|[0-9]+)\b|\bvisor colou?r\b" +
+        @"|\btile (?:transfers?|uploaders?|uploads?)\b|\b(?:sheet|sprite) characters?\b|\buploads? leave\b|\btransfer lists?\b|\btile cells?\b|\btilemap pages?\b|\b[0-9]+-by-[0-9]+ pages?\b" +
+        @"|\bregister shadows?\b|\b(?:liquid|shadow|hardware) registers?\b|\bhardware[-\s]timing\b|\bwork memory\b|\bstaging surfaces?\b|\b(?:transfer|turning-floor) residue\b|\bscanline [0-9]+\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// The machine's memories and layers, read case-sensitively so ordinary words are not matched: save RAM, RAM, the
     /// sprite layer's OBJ and the four background layers (#1528).
     /// </summary>
@@ -180,6 +194,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : HardwareTerms.Match(text) is { Success: true } term ? term.Value
             : ProgramProse.Match(text) is { Success: true } program ? program.Value
             : CpuProse.Match(text) is { Success: true } cpu ? cpu.Value
+            : StorageProse.Match(text) is { Success: true } storage ? storage.Value
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;
         if (word is null || IsInHardwareOwner(owner))

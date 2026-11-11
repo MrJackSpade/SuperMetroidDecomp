@@ -64,6 +64,31 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { // passed through A\n }", "('through A')");
         Expect("class P { /// <summary>Drawn in palette seven.</summary>\nint F => 0; }", "('palette seven')");
         Expect("class P { // drawn at priority three\n }", "('priority three')");
+        // Storage and machine vocabulary #1558 left out (#1611).
+        Expect("class P { /// <summary>Kept in variable E.</summary>\nint F => 0; }", "('variable E')");
+        Expect("class P { // extended word 08 holds it\n }", "('extended word')");
+        Expect("class P { // init1 packs two unrelated bytes\n }", "('init1')");
+        Expect("class P { /// <summary>The level words of the room.</summary>\nint F => 0; }", "('level words')");
+        Expect("class P { // the six-byte input record\n }", "('six-byte')");
+        Expect("class P { // keep the high bit raw\n }", "('high bit')");
+        Expect("class P { // the random-number word and the carry\n }", "('random-number word')");
+        Expect("class P { // paints colors 1-15 white\n }", "('colors 1-15')");
+        Expect("class P { // palette handlers one and six run here\n }", "('palette handlers')");
+        Expect("class P { // Handler seven owns them\n }", "('Handler seven')");
+        Expect("class P { // the animation tile transfers run\n }", "('tile transfers')");
+        Expect("class P { // sprite character 0\n }", "('sprite character')");
+        Expect("class P { /// <summary>Width of each page in tile cells.</summary>\nint F => 0; }", "('tile cells')");
+        Expect("class P { // a 32-by-32 page\n }", "('32-by-32 page')");
+        Expect("class P { // the register shadows hold it\n }", "('register shadows')");
+        Expect("class P { // the liquid registers move\n }", "('liquid registers')");
+        Expect("class P { // kept in work memory\n }", "('work memory')");
+        Expect("class P { // stops at scanline 224\n }", "('scanline 224')");
+        Expect("class P { // the wait branches on the carry it returns\n }", "('on the carry')");
+        Expect("class P { // leaves the carry flag set\n }", "('carry flag')");
+        Expect("class P { /// <summary>Draygon's carry spiral; the carry orbit grows as Ridley's carry ends.</summary>\nint F => 0; }");
+        // Game prose using the same words is not storage vocabulary.
+        Expect("class P { /// <summary>Samus carries a variable speed; the carry over to the next room keeps it.</summary>\nint F => 0; }");
+        Expect("class P { /// <summary>The Speed Booster residue stays; the eight colours fade.</summary>\nint F => 0; }");
         // A compound name in a comment is a routine label unless Core's code spells it (#1558).
         Expect("class P { // as EnemyMain does\n }", "('EnemyMain')");
         Expect("class P { // set by InitAI\n }", "('InitAI')");

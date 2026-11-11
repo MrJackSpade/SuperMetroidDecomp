@@ -12,7 +12,7 @@ internal static class MotherBrainRandomDefinitions
     /// <summary>The Shitroid's hover roll: the sample's bits 0-11; 4064 or more restarts its hover.</summary>
     internal static readonly RandomSampleField ShitroidHoverRoll = new(0, 12);
 
-    /// <summary>Whether a dust cloud of Mother Brain's ascent is the short big cloud: the sample's bit eight, from its upper random byte.</summary>
+    /// <summary>Whether a dust cloud of Mother Brain's ascent is the short big cloud: the sample's bit eight.</summary>
     internal static readonly RandomSampleField AscentDustBig = new(8, 1);
 
     /// <summary>The phase-three neutral hold roll: the sample's bits 0-11; below 3776 holds the neutral pose again.</summary>
@@ -33,7 +33,7 @@ internal static class MotherBrainRandomDefinitions
     /// <summary>Whether phase three's forward inch waits two updates longer: the sample's bit one.</summary>
     internal static readonly RandomSampleField ForwardInchLongerDelay = new(1, 1);
 
-    /// <summary>A fired hand beam's scatter speed, 0 through 7 whole pixels: the sample's bits 8-10, from its upper random byte.</summary>
+    /// <summary>A fired hand beam's scatter speed, 0 through 7 whole pixels: the sample's bits 8-10.</summary>
     internal static readonly RandomSampleField HandBeamScatterSpeed = new(8, 3);
 
     /// <summary>The roll her attack choice compares against its thresholds: 0 through 255 from the sample.</summary>

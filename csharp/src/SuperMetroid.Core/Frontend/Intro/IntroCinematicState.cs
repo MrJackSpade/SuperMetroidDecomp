@@ -1013,7 +1013,7 @@ level, samus, frameCounter);
         // invincibility flicker remains independently enforced by Samus.Draw.
         SamusHurtFlashPalette.Update(flashbackSamusColours, samus, demoInput);
 
-        // The cinematic dispatcher ages the two hit words after both Samus state handlers, but before the
+        // The cinematic ages Samus's two hurt timers after both of her state updates, but before the
         // cinematic-object walker can publish a new Rinka collision later in this frame.
         samus.DecrementHurtTimers();
     }

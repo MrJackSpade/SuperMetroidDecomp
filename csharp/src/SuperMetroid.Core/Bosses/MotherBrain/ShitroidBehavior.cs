@@ -356,9 +356,9 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (CoordinateAxis.Difference(_shitroidCamera.X, 513) >= 0)
             return;
 
-        // Writes the camera's X directly and zero-extends scroll bytes zero and two
-        // into their adjacent bytes. The paired calls below preserve the observable four
-        // byte scroll array without pretending that this is ordinary camera tracking.
+        // Puts the camera at X 512 directly, then rescrolls the room's four screens as the wall entrance does: the second
+        // and fourth take the red boundary, the first and third keep the scroll they have. This is not ordinary camera
+        // tracking.
         _frameResults.CameraXOverride = 512;
         SetShitroidScrollPair(RoomScrollState.RedBoundary);
         QueueShitroidWallObjects(ShitroidWallMutation.Create);

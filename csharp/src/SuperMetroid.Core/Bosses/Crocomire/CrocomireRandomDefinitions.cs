@@ -20,7 +20,7 @@ internal static class CrocomireRandomDefinitions
 
     /// <summary>
     /// How far above the acid surface's line sixteen pixels down the smoke starts, 0 through 31 pixels: the sample's
-    /// bits 8-12, from its upper random byte.
+    /// bits 8-12.
     /// </summary>
     internal static readonly RandomSampleField AcidSmokeRise = new(8, 5);
 

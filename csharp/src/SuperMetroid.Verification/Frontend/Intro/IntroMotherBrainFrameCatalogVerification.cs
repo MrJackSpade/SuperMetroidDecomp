@@ -21,13 +21,8 @@ internal static class IntroMotherBrainFrameCatalogVerification
             AssertEqual(count, IntroMotherBrainSpriteDefinitions.StockPartCount, "original nine-part frame");
             AssertEqual($"mother-brain-frame-{frame}", frames[frame].Name, "published frame key");
         }
-        AssertEqual(frames[1].Pose, IntroMotherBrainSpritePoses.FramePose(1), "second frame pose");
-        AssertEqual(frames[2].Pose, IntroMotherBrainSpritePoses.FramePose(2), "third frame pose");
         foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
-        {
             AssertThrows<IndexOutOfRangeException>(() => { _ = frames[invalid]; }, "frame catalog bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => IntroMotherBrainSpritePoses.FramePose(invalid), "frame pointer bounds");
-        }
         AssertTrue(frames.SequenceEqual(frames.ToArray()), "frame enumeration matches indexing");
     }
 

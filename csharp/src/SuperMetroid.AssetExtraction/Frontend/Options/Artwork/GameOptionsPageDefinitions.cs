@@ -4,9 +4,8 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 
 /// <summary>
-/// The options pages as the cartridge lays them out (#1467): their cells, the controller labels' boxes and glyph atlas
-/// cells, the language-label rows and toggle choice boxes the cartridge recolours, and the palettes it recolours them
-/// with. Only the import reads them; it pictures each page, label, language highlight and toggle choice once, and the
+/// The options pages as the cartridge lays them out (#1467): their cells, the controller labels' boxes, the
+/// language-label rows and toggle choice boxes the cartridge recolours, and the palettes it recolours them with. Only the import reads them; it pictures each page, label, language highlight and toggle choice once, and the
 /// game places those pictures.
 /// </summary>
 public static class GameOptionsPageDefinitions
@@ -31,27 +30,6 @@ public static class GameOptionsPageDefinitions
     public const int ControllerLabelCellCount = ControllerLabelWidth * ControllerLabelHeight;
     /// <summary>Size of one controller-label glyph patch in tile cells.</summary>
     public static Extent16<CharacterCells> ControllerLabelSize => new(ControllerLabelWidth, ControllerLabelHeight);
-
-    /// <summary>$82:F665 ButtonTilemaps_A: upper-left A glyph; right half mirrors it.</summary>
-    internal const int AButtonTile = 144;
-    /// <summary>$82:F671 ButtonTilemaps_B: upper-left B glyph; right half is next in atlas.</summary>
-    internal const int BButtonTile = 145;
-    /// <summary>$82:F659 ButtonTilemaps_X: diagonal half; opposite half flips both axes.</summary>
-    internal const int XButtonTile = 147;
-    /// <summary>$82:F689 ButtonTilemaps_Y: upper-left Y glyph; right half mirrors it.</summary>
-    internal const int YButtonTile = 148;
-    /// <summary>$82:F67D ButtonTilemaps_Select: three consecutive tiles per atlas row.</summary>
-    internal const int SelectButtonTile = 149;
-    /// <summary>$82:F695/F6A1 ButtonTilemaps_L/R: common shoulder outline corner.</summary>
-    internal const int ShoulderCornerTile = 154;
-    /// <summary>$82:F697 ButtonTilemaps_L: central L glyph; lower half follows one atlas row.</summary>
-    internal const int LeftShoulderTile = 155;
-    /// <summary>$82:F6A3 ButtonTilemaps_R: central R glyph; lower half follows one atlas row.</summary>
-    internal const int RightShoulderTile = 156;
-    /// <summary>$82:F65D and sibling two-column labels pad the third column with tile $0F.</summary>
-    internal const int ButtonPaddingTile = 15;
-    /// <summary>$82:F659-F6AC glyph upper/lower halves occupy adjacent 16-character atlas rows.</summary>
-    internal const int ButtonAtlasRowStride = 16;
 
     /// <summary>The controller page's button-label boxes.</summary>
     public static class ControllerLabels

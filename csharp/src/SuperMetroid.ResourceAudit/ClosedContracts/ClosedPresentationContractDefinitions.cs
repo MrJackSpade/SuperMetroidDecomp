@@ -58,13 +58,8 @@ internal static class ClosedPresentationContractDefinitions
             ["Slot", "CursorPosition",
                 "DrawCursor", "DrawHelmet", "DynamicAnchor", "DrawBorder"],
             [new("csharp/src/SuperMetroid.Core/Frontend/FileSelect/Artwork/FileSelectPresentation.cs"),
-             new("csharp/src/SuperMetroid.AssetExtraction/Frontend/FileSelect/Artwork/FileSelectHelmetParts.cs"),
-             new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Menus/MenuHeadingBorder.cs"),
-             new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Menus/MenuHeadingBorderDefinitions.cs"),
-             new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Menus/MenuBorderParts.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Map/Artwork/MapSpriteCompositions.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Menus/MenuMissileAnimationDefinitions.cs"),
-             new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Menus/MenuMissileSpritemaps.cs"),
-             new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Menus/MenuCursorParts.cs")]),
+             new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Menus/MenuMissileSpritemaps.cs")]),
     ];
 }

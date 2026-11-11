@@ -14,31 +14,25 @@ using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Frontend.Intro.Artwork;
 
-/// <summary>Checks calculated intro scientist sprites against native OAM and the caret artwork.</summary>
+/// <summary>Checks the extracted intro scientist compositions draw the native OAM, and the caret loader draws its composition.</summary>
 internal static class IntroScientistPartsVerification
 {
     /// <summary>Compares stock parts at visible and wrapped origins and the stock caret through its loader.</summary>
     internal static void VerifyIntroScientistParts(ISnesAddressSpace rom)
     {
-        string Identity(SpriteComposition value) => SelectedPresentationHash.Create("Scientist", value.AppendIdentity);
         foreach (var definition in IntroScientistSpriteDefinitions.Frames)
         {
             SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(rom, CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name);
             CheckCaretLoader(definition.Pose, visual);
             SpriteComposition source = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
-            SpriteComposition result = IntroScientistParts.CalculateIfMatching(definition.Pose, source);
-            AssertTrue(!ReferenceEquals(source, result), "original Scientist selects calculated parts");
-            AssertEqual(Identity(source), Identity(result), "all original Scientist compiled fields");
-            foreach (int invalid in new[] { -1, result.PartCount, int.MaxValue })
-                AssertThrows<ArgumentOutOfRangeException>(() => result.Part(invalid), "calculated Scientist part bounds");
             foreach (ushort y in new ushort[] { 72, 0xfff8 })
             {
                 var native = new OamBuffer(); native.BeginFrame();
                 DrawImportedSpritemap(rom, native, 0x8c0000 + CinematicSpritemapSources.Of(definition.Pose), new(120, y), 0x0c00, originIsOnScreen: y == 72);
                 native.FinalizeFrame();
                 var actual = new OamBuffer(); actual.BeginFrame();
-                if (y == 72) result.DrawOnScreen(actual, new(120, y), 0x0c00);
-                else result.DrawOffScreen(actual, new(120, y), 0x0c00);
+                if (y == 72) source.DrawOnScreen(actual, new(120, y), 0x0c00);
+                else source.DrawOffScreen(actual, new(120, y), 0x0c00);
                 actual.FinalizeFrame();
                 AssertTrue(native.ImageEquals(actual)
                     && native.LastFinalizedSpriteCount == actual.LastFinalizedSpriteCount, "native Scientist OAM at visible and wrapped origins");

@@ -8,58 +8,11 @@ namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 
 /// <summary>
 /// Lays out the options pages' dynamic cells as the cartridge does (<see cref="GameOptionsPageDefinitions"/>, #1467): each
-/// controller label's glyph cells and box, the language-label rows and the toggle choice boxes the cartridge recolours.
-/// The import cuts each picture of them from the pages; the game never addresses a page cell.
+/// controller label's box, the language-label rows and the toggle choice boxes the cartridge recolours, which the import
+/// writes into the installed presentation. The game never addresses a page cell.
 /// </summary>
 public static class GameOptionsPageCells
 {
-    /// <summary>Builds the native button glyph from its letter, atlas rows and geometric reflections.</summary>
-    internal static BackgroundTile ControllerLabelTile(ControllerButton label, int cell)
-    {
-        if ((uint)cell >= ControllerLabelCellCount) throw new ArgumentOutOfRangeException(nameof(cell));
-        int row = cell / ControllerLabelWidth;
-        int column = cell % ControllerLabelWidth;
-        int tile;
-        TileFlip flips = TileFlip.None;
-        switch (label)
-        {
-            case ControllerButton.A:
-            case ControllerButton.Y:
-                tile = column == 2 ? ButtonPaddingTile : (label == ControllerButton.A ? AButtonTile : YButtonTile) + row * ButtonAtlasRowStride;
-                if (column == 1) flips = TileFlip.Horizontal;
-                break;
-            case ControllerButton.X:
-                tile = column == 2 ? ButtonPaddingTile : XButtonTile + (row ^ column) * ButtonAtlasRowStride;
-                if (column == 1) flips = TileFlip.Horizontal | TileFlip.Vertical;
-                break;
-            case ControllerButton.B:
-                tile = column == 2 ? ButtonPaddingTile : BButtonTile + column + row * ButtonAtlasRowStride;
-                break;
-            case ControllerButton.Select:
-                tile = SelectButtonTile + column + row * ButtonAtlasRowStride;
-                break;
-            case ControllerButton.L:
-            case ControllerButton.R:
-                tile = column == 1 ? (label == ControllerButton.L ? LeftShoulderTile : RightShoulderTile) + row * ButtonAtlasRowStride : ShoulderCornerTile;
-                if (column != 1)
-                    flips = (row == 1 ? TileFlip.Vertical : TileFlip.None)
-                        | (column == 2 ? TileFlip.Horizontal : TileFlip.None);
-                break;
-            case ControllerButton.None:
-            case ControllerButton.Right:
-            case ControllerButton.Left:
-            case ControllerButton.Down:
-            case ControllerButton.Up:
-            case ControllerButton.Start:
-            default:
-                throw new ArgumentOutOfRangeException(nameof(label));
-        }
-        return new BackgroundTile(tile, 0, highPriority: false, flips);
-    }
-
-    /// <summary>$82:F639 controller label boxes: three tile rows per action.</summary>
-    internal static Position16<CharacterCells> ControllerAnchor(int action) => ControllerLabelAnchor(action);
-
     /// <summary>The page cell of each controller-action label's upper-left cell, action 0..6, each three rows below the last.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The action is outside the seven assignable rows.</exception>
     public static Position16<CharacterCells> ControllerLabelAnchor(int action)
@@ -84,14 +37,6 @@ public static class GameOptionsPageCells
             HighlightWhenJapanese: language != 0);
     }
 
-    /// <summary>$82:EDF2..EE51 language highlight calls cover consecutive tile words in two text rows.</summary>
-    internal static IEnumerable<int> LanguageCells(int index)
-    {
-        GameOptionsLanguagePaletteRegion region = LanguagePaletteRegion(index);
-        for (int word = 0; word < region.ByteCount / sizeof(ushort); word++)
-            yield return region.ByteOffset / sizeof(ushort) + word;
-    }
-
     /// <summary>The Icon Cancel toggle's choice boxes.</summary>
     public static GameOptionsToggleLayout IconCancel => ToggleLayout(SpecialRowIndex(GameOptionsSpecialRow.IconCancel));
 
@@ -113,21 +58,5 @@ public static class GameOptionsPageCells
         int origin = SpecialToggles.FirstByteOffset + SpecialToggles.SettingRowSpacing * rowStride * setting;
         int choiceStride = SpecialToggles.ChoiceCellSpacing * sizeof(ushort);
         return new(origin, origin + rowStride, origin + choiceStride, origin + rowStride + choiceStride);
-    }
-
-    /// <summary>$82:F149..F158 special-setting choice boxes: two rows of six words.</summary>
-    internal static IEnumerable<int> ToggleCells(GameOptionsToggle toggle, GameOptionsToggleState state)
-    {
-        GameOptionsToggleLayout layout = toggle switch
-        {
-            GameOptionsToggle.IconCancel => IconCancel,
-            GameOptionsToggle.Moonwalk => Moonwalk,
-            _ => throw new ArgumentOutOfRangeException(nameof(toggle)),
-        };
-        int first = state == GameOptionsToggleState.Enabled ? layout.EnabledTop : layout.DisabledTop;
-        int second = state == GameOptionsToggleState.Enabled ? layout.EnabledBottom : layout.DisabledBottom;
-        for (int row = 0; row < 2; row++)
-        for (int word = 0; word < SpecialToggles.PaletteRegionByteCount / sizeof(ushort); word++)
-            yield return (row == 0 ? first : second) / sizeof(ushort) + word;
     }
 }

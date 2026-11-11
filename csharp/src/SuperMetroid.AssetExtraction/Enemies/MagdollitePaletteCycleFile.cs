@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <summary>Reads and writes the installed Magdollite palette cycle document.</summary>
 public static class MagdollitePaletteCycleFile
 {
-    /// <summary>Validates and compiles the four RGB5 glow rows, preserving independent edits rather than requiring all later rows to rotate the first.</summary>
+    /// <summary>Validates the four installed RGB5 glow rows and keeps them as installed.</summary>
     /// <param name="json">UTF-8 JSON source consumed from its current position and left open.</param>
     /// <returns>Compiled palette-cycle colors detached from the mutable document arrays.</returns>
     /// <exception cref="ArgumentNullException">The source stream is null.</exception>
@@ -43,14 +43,8 @@ public static class MagdollitePaletteCycleFile
                 compiled[frame][color] = rgb.ToRgbColor();
             }
         }
-        RgbColor[] colors = compiled[0];
-        var edits = new Dictionary<ColourStep, RgbColor>();
-        // Later frames rotate the first frame left one color per frame; keep only the cells that deviate.
-        for (int frame = 1; frame < compiled.Length; frame++)
-            for (int color = 0; color < colors.Length; color++)
-                if (compiled[frame][color] != colors[(color + frame) % colors.Length])
-                    edits.Add(new ColourStep(frame, color), compiled[frame][color]);
-        return new MagdollitePaletteCycle(colors, edits);
+        return new MagdollitePaletteCycle(new InstalledColourRows(compiled, MagdolliteShades.GlowFrames,
+            MagdollitePaletteCycle.AnimatedColorCount, "Magdollite palette cycle"));
     }
 
     /// <summary>Serializes the editable glow cycle to indented camel-case UTF-8 JSON.</summary>

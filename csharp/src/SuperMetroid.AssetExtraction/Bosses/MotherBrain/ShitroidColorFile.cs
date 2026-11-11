@@ -11,7 +11,7 @@ public static class ShitroidColorFile
 {
     /// <summary>Loads <c>shitroid-colors.json</c>, requiring version 1, eight four-color pulse frames, three sixteen-color targets, and RGB5 channels from 0 through 31.</summary>
     /// <param name="json">Caller-owned JSON stream consumed from its current position and left open; unknown and duplicate properties are rejected.</param>
-    /// <returns>Compiled colors retaining independently edited frames and targets exactly, sharing the calculated stock pulse only when all samples agree.</returns>
+    /// <returns>Every installed pulse phase and target, kept as installed.</returns>
     public static ShitroidColorCatalog Read(Stream json)
     {
         Ensure.NotNull(json);
@@ -22,13 +22,13 @@ public static class ShitroidColorFile
         if (document.Normal is null ||
             document.Normal.Length != ShitroidColorDefinitions.NormalFrameCount)
             throw new InvalidDataException("Shitroid normal cycle requires eight frames.");
-        return new(BabyAndShitroidColorRecognition.Shitroid(document.Normal.Select((frame, index) =>
+        return new(document.Normal.Select((frame, index) =>
                 Compile(frame, ShitroidColorDefinitions.NormalColorsPerFrame,
                     $"normal frame {index}")).ToArray(),
             Compile(document.Sidehopper, ShitroidColorDefinitions.TargetColorCount, "sidehopper"),
             Compile(document.Shitroid, ShitroidColorDefinitions.TargetColorCount, "Shitroid"),
             Compile(document.DeadSidehopper, ShitroidColorDefinitions.TargetColorCount,
-                "dead sidehopper")));
+                "dead sidehopper"));
     }
 
     /// <summary>Serializes the editable color document as indented camel-case UTF-8 JSON.</summary>

@@ -25,9 +25,6 @@ internal static class IntroMotherBrainExplosionProgramsVerification
         }
         foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => { _ = frames[invalid]; }, "explosion catalog bounds");
-        foreach (int invalid in new[] { -1, 6, int.MaxValue })
-        foreach (bool big in new[] { false, true })
-            AssertThrows<ArgumentOutOfRangeException>(() => IntroMotherBrainExplosionPoses.FramePose(big, invalid), "explosion pointer bounds");
         AssertTrue(frames.SequenceEqual(frames.ToArray()), "explosion enumeration preserves indexed order");
     }
 

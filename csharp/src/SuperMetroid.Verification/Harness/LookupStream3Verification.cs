@@ -100,8 +100,7 @@ internal static class LookupStream3Verification
             .Select(color => ReadVerificationWord(rom, IntroCinematicSourceDefinitions.Palette + 2 * color)).ToArray();
         IntroCinematicPalette stock = Load(native);
         Confirm(stock, native);
-        AssertEqual(0, stock.backgroundSets.Length + stock.spriteSets.Length, "intro complete stock palette stores no sets or paint words");
-        Console.WriteLine("Intro palette rows:256 native colors reach the transfer bytes and colour lists; reviewed material choices and all shade calculations keep no stock rows.");
+        Console.WriteLine("Intro palette rows:256 native colors reach the transfer bytes and colour lists.");
         static void Confirm(IntroCinematicPalette selected, ushort[] expected)
         {
             ReadOnlySpan<byte> bytes = ScreenColourWords.Words(selected.BackgroundColours.AsSpan(), selected.SpriteColours.AsSpan());
@@ -130,18 +129,10 @@ internal static class LookupStream3Verification
         ushort[][] native = Enumerable.Range(0, 4).Select(frame => Enumerable.Range(0, 6)
             .Select(cell => ReadVerificationWord(rom, 0x8cd785 + 16 * frame + 2 * cell)).ToArray()).ToArray();
         IntroEyeTilemapPresentation stock = Load(native);
-        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        foreach (var rectangle in stock.frames)
-        {
-            AssertTrue(rectangle.supplied is null,
-                "stock eye rectangle stores no native word payload");
-            AssertTrue(!MetadataShape.DeclaresField(rectangle.GetType(), "origin", fields),
-                "stock eye rectangle no longer stores independent origin words");
-        }
         Confirm(stock, native);
         AssertThrows<ArgumentOutOfRangeException>(() => stock.FrameTiles(-1).ToArray(), "negative eye frame");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.FrameTiles(4).ToArray(), "upper eye frame");
-        Console.WriteLine("Intro eye rectangles:24 native cells, the content identity and bounds pass; actual portrait draw copies pass; only reviewed patch identities/display policy remain.");
+        Console.WriteLine("Intro eye rectangles:24 native cells, the content identity and bounds pass; actual portrait draw copies pass.");
 
         static void Confirm(IntroEyeTilemapPresentation selected, ushort[][] expected)
         {
@@ -197,9 +188,7 @@ internal static class LookupStream3Verification
             native[index] = ReadVerificationWord(rom, IntroCinematicSourceDefinitions.FinalTextLine + 2 * index);
         IntroFinalLineTilemap stock = Load(native);
         AssertTrue(native.SequenceEqual(BackgroundTileWordBytes.Words(stock.Tiles.Span)), "all128 native intro divider cells");
-        AssertTrue(stock.suppliedTiles is null,
-            "native divider retains no generated lookup");
-        Console.WriteLine("Japanese subtitle staging:128 native cells pass; only reviewed display policy remains.");
+        Console.WriteLine("Japanese subtitle staging:128 native cells pass.");
 
         static IntroFinalLineTilemap Load(ushort[] words)
         {
@@ -247,8 +236,6 @@ internal static class LookupStream3Verification
             string name = GameOptionsNames.HeadingSpriteName(page);
             var original = Read();
             var stock = Load(original)[page];
-            AssertTrue(stock.parts is MenuHeadingBorder,
-                "native heading stores only semantic title identity instead of supplied bounds/order/style");
             AssertEqual(count, stock.PartCount, "native perimeter count");
             Confirm(stock, original.Sprites[name]);
             var presentation = GameOptionsSourcePresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(original, ArtworkJson.Options)));
@@ -297,8 +284,6 @@ internal static class LookupStream3Verification
             string name = FileSelectParts.BorderSpriteName(border);
             var original = Read();
             var stock = Load(original)[border];
-            AssertTrue(stock.parts is MenuHeadingBorder,
-                "native file border uses semantic title and calculated perimeter");
             AssertEqual(count, stock.PartCount, "native perimeter count");
             Confirm(stock, original.Sprites[name]);
             var presentation = FileSelectSourcePresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(original, ArtworkJson.Options)));
@@ -367,12 +352,6 @@ internal static class LookupStream3Verification
         int nativeCharacters = 0;
         foreach (var source in IntroNarrationScriptSources.Pages)
         {
-            var selected = (IntroNarrationPresentation.NarrationPage)stock.GetLines(source.Id);
-            AssertTrue(selected.supplied is null,
-                "native narration calculates line boundaries and rows");
-            string text = selected.text ?? throw new InvalidOperationException("native narration keeps its reviewed page text");
-            AssertEqual(source.Id == IntroNarrationPageId.Page1 ? 1 : 0, text.Count(character => character == '\n'),
-                "narration retains only the one independently chosen hard break");
             var expected = new List<IntroNarrationCharacter>();
             int cursor = 0x8c0000 | (source.InstructionPointer + 8);
             while ((CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor) & 0x8000) == 0)
@@ -383,7 +362,7 @@ internal static class LookupStream3Verification
                 expected.Add(new(LittleEndianBytes.LowByte(position), LittleEndianBytes.HighByte(position), IntroNarrationGlyphTiles.DecodeGlyph(glyphTile)));
                 cursor += 6;
             }
-            AssertTrue(stock.Compile(source.Id).SequenceEqual(expected), "calculated narration matches every native glyph/column/row record");
+            AssertTrue(stock.Compile(source.Id).SequenceEqual(expected), "installed narration matches every native glyph/column/row record");
             nativeCharacters += expected.Count;
             AssertThrows<ArgumentOutOfRangeException>(() => _ = stock.GetLines(source.Id)[-1], "narration line lower bound");
             AssertThrows<ArgumentOutOfRangeException>(() => _ = stock.GetLines(source.Id)[stock.GetLines(source.Id).Count], "narration line upper bound");
@@ -426,9 +405,6 @@ internal static class LookupStream3Verification
             for (int part = 0; part < expected.PartCount; part++)
                 AssertEqual(expected.Part(part), actual.Part(part), "menu composition exact ordered geometry, tiles, attributes and palette inheritance");
         }
-        static bool Calculated(SpriteComposition composition) =>
-            composition.parts is not CompiledSpritePart[];
-
         byte[] imported = SuperMetroid.AssetExtraction.Frontend.GameOverPresentationExtractor.Extract(rom);
         GameOverPresentationDocument Read() => RequiredJson.Deserialize<GameOverPresentationDocument>(imported, ArtworkJson.Options);
         GameOverSourcePresentation Load(GameOverPresentationDocument document) => GameOverSourcePresentation.Load(new MemoryStream(
@@ -460,8 +436,6 @@ internal static class LookupStream3Verification
         }
         foreach (string name in GameOverPresentationFormat.SpriteNames)
         {
-            if (name == GameOverPresentationNames.CursorFrameName(0)) for (int part = 0; part < 2; part++) AssertEqual(stock[name].Part(part), new MenuCursorParts(MenuMissileSpritemaps.SpritemapId(0) - 0x34)[part], "exact first cursor candidate part");
-            AssertTrue(Calculated(stock[name]), "stock game-over geometry retains no full part array " + name);
             Confirm(stock[name], original.Sprites[name]);
             // A part whose footprint leaves the sheet is a malformed document the import rejects.
             var malformed = Read();
@@ -480,7 +454,6 @@ internal static class LookupStream3Verification
                 string name = GameOverPresentationNames.CursorFrameName(frame);
                 var node = RequiredJson.Parse(json);
                 var parts = RequiredJson.Deserialize<SpriteVisualPart[]>(node.Required("sprites").Required(name).ToJsonString(), ArtworkJson.Options);
-                AssertTrue(Calculated(presentation[frame]), "shared menu cursor caller uses calculated geometry");
                 Confirm(presentation[frame], parts);
             }
         }
@@ -527,13 +500,12 @@ internal static class LookupStream3Verification
         {
             string name = FileSelectParts.PatchName(patch);
             FileSelectCompiledPatch Compiled(FileSelectSourcePresentation value) => value.patches[patch];
-            AssertTrue(Compiled(stock).suppliedCells is null,
-                "file-select stock patch retains no cells " + name);
+            AssertEqual(count, Compiled(stock).Count, "file-select installed patch native cell count " + name);
             for (int index = 0; index < count; index++)
             {
                 ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + index * 2);
-                AssertEqual(new FileSelectCompiledPatchCell(new(checked((short)index), 0), BackgroundTileWords.ToTile(word)), FileSelectFieldTiles.PatchCell(patch, index),
-                    "file-select calculated patch exact native cell");
+                AssertEqual(new FileSelectCompiledPatchCell(new(checked((short)index), 0), BackgroundTileWords.ToTile(word)), Compiled(stock).Cell(index),
+                    "file-select installed patch exact native cell");
             }
             AssertEqual((byte)0xff, rom.ReadCartridgeByte(address + count * 2), "file-select native patch terminator low");
             AssertEqual((byte)0xff, rom.ReadCartridgeByte(address + count * 2 + 1), "file-select native patch terminator high");
@@ -600,17 +572,11 @@ internal static class LookupStream3Verification
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
         var stock = ReadDocument();
         var loaded = Load(stock);
-        foreach (var (field, geometry) in new VerifyStream3OptionsGeometryCase[]
-        {
-            new VerifyStream3OptionsGeometryCase("controllerLabelAnchors", loaded.controllerLabelAnchors), new VerifyStream3OptionsGeometryCase("languageRegions", loaded.languageRegions),
-            new VerifyStream3OptionsGeometryCase("specialToggles", loaded.specialToggles),
-        })
-            AssertTrue(geometry is null, "stock options geometry calculates " + field);
         for (int action = 0; action < 7; action++)
         {
             ushort offset = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x82f639 + action * 2));
             AssertEqual(new Position16<CharacterCells>(checked((ushort)(offset / 2 % 32)), checked((ushort)(offset / 2 / 32))),
-                GameOptionsPageCells.ControllerAnchor(action), "native options label anchor");
+                loaded.controllerLabelAnchors[action], "native options label anchor");
         }
         foreach ((GameOptionsPage page, int address, int count) in new[]
         {
@@ -621,12 +587,10 @@ internal static class LookupStream3Verification
             for (int row = 0; row < count; row++)
                 AssertEqual(new Position16<SpritePixels>(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + row * 4)), CartridgeImportSource.Require(rom).ReadCartridgeWord((address + row * 4 + 2))),
                     loaded.CursorPosition(page, row), "native options cursor anchor");
-        var stockLabels = loaded.controllerLabels;
-        AssertEqual(0, stockLabels.Count, "options stock button glyphs retain no tilemap rows");
         for (int button = 0; button < 7; button++)
         for (int cell = 0; cell < 6; cell++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x82f659 + button * 12 + cell * 2)),
-                BackgroundTileWords.ToWord(GameOptionsPageCells.ControllerLabelTile(GameOptionsNames.ControllerLabelButton(button), cell)),
+                BackgroundTileWords.ToWord(loaded.controllerLabels[GameOptionsNames.ControllerLabelButton(button)][cell]),
                 "native options glyph composition preserves each tile and flip");
         Confirm(stock, loaded);
 
@@ -1056,8 +1020,6 @@ internal static class LookupStream3Verification
             AssertEqual(rom.ReadCartridgeByte(0x9bc1c2 + angle), swingFrames.Resolve(new TrigonometryAngle((byte)angle)), "stream 3 native calculated swing art frame");
         byte[] fileSelectJson = SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(rom);
         var fileSelect = FileSelectSourcePresentation.Load(new MemoryStream(fileSelectJson));
-        foreach (object? sequence in new object?[] { fileSelect.digits, fileSelect.slotLetters })
-            AssertTrue(sequence is null, "stream 3 stock file-select glyph sequence discarded");
         var glyphTilemap = new BackgroundTile[1024];
         for (int glyph = 0; glyph < 13; glyph++)
         {
@@ -1351,17 +1313,6 @@ internal static class LookupStream3Verification
         }
         var stock = Load();
         Check(stock);
-        var selectedSidehopper = stock.selection.Sidehopper;
-        AssertEqual(0, selectedSidehopper.independentOrSupplied.Length,
-            "stream 3 complete standalone Sidehopper target keeps no stock color array");
-        var selectedCorpse = stock.selection.DeadSidehopper;
-        AssertEqual(0, selectedCorpse.independentOrSupplied.Length,
-            "stream 3 complete standalone corpse target keeps no stock color array");
-        var pulse = stock.selection.Normal;
-        AssertTrue(pulse.supplied is null, "stream 3 Shitroid original pulse rows discarded");
-        AssertTrue(!MetadataShape.Fields(pulse.GetType(), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
-            .Any(field => field.FieldType == typeof(uint[]) || field.FieldType == typeof(ushort) || field.FieldType == typeof(RgbColor)),
-            "stream 3 Shitroid pulse owns no duplicate paint origins or floor words");
         for (int color = 0; color < 15; color++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa994d4 + color * 2)), stock.TargetColor(ShitroidColorTarget.Shitroid, color + 1),
                 "stream 3 native Baby/Shitroid palette duplication");
@@ -1492,70 +1443,9 @@ internal static class LookupStream3Verification
             }
         }
         CheckRevival(stock);
-        var revivalFade = stock.fromGrey;
-        var revivalOverrides = revivalFade.suppliedOverrides;
-        AssertEqual(0, revivalOverrides.Count, "revival calculates all words with one reviewed tissue-shade hold");
-        AssertEqual(Word(revival[1].Body[10]), Word(revival[2].Body[10]),
-            "native revival EE80 repeats EEA6 without an independently stored paint word");
-        foreach (var endpoint in new[] { revivalFade.first, revivalFade.last })
-        {
-            AssertTrue(endpoint.Body.supplied is null,
-                "revival endpoint body reuses reviewed health/drained paint calculations");
-            AssertTrue(endpoint.backLegs is null,
-                "revival rear endpoint calculates from reviewed normal/half-shadow paint");
-        }
-        // Each revival endpoint must take the shared branch, reading its trailing ink from the rainbow rear source or its own drained or normal rear.
-        foreach (var endpoint in new[] { revivalFade.first, revivalFade.last })
-        {
-            AssertTrue(endpoint.rearSource is not null || endpoint.rearKind is SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRearPaintKind.Drained or SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRearPaintKind.NormalSubset,
-                "revival trailing endpoint shares its calculated rear highlight");
-        }
         CheckRainbow(stock);
-        var fakeFade = stock.fakeDeathToGrey;
-        foreach (var endpoint in new[] { fakeFade.first, fakeFade.last })
-            AssertTrue(endpoint.Body.supplied is null,
-                "stream 3 fake-death endpoints reuse approved normal/drained cortex paint without stored rows");
-        var drainFade = stock.toGrey;
-        var drainEnd = drainFade.last;
-        var drainBody = drainEnd.Body;
-        var drainedPaint = drainBody.drained;
-        AssertTrue((drainedPaint ?? throw new InvalidOperationException("Verification requires drainedPaint.")).supplied is null, "stream 3 drained final gray body palette has no stored row");
-        var normalFrame = stock.normal;
-        var normalBody = normalFrame.Body;
-        AssertTrue(normalBody.supplied is null,
-            "stream 3 normal body calculates from shared health paint without a stored row");
-        AssertTrue(normalFrame.backLegs is null,
-            "stream 3 normal rear palette calculates from shared health lighting without a stored row");
-        var storedRainbow = stock.rainbow;
-        InstalledMotherBrainRainbowPalette.BodyColors RainbowBody(int phase) => storedRainbow[phase].Body;
-        if (RainbowBody(0).redOrigin is not { } redBasis)
-            throw new InvalidOperationException("native rainbow actually selects calculated red-origin shades");
-        int independentChannels = 0;
-        foreach (int phase in new[] { 1, 2, 5, 6, 7 })
-        {
-            if (RainbowBody(phase).sharedChannels is not { } sharing)
-                throw new InvalidOperationException($"rainbow phase {phase} actually uses shared channels");
-            independentChannels += sharing.independent.inputs.Length;
-        }
-        AssertEqual(28, independentChannels, "remaining independently supplied channels outside red-origin basis");
-        foreach (int phase in new[] { 3, 4, 8, 9 })
-            AssertTrue(RainbowBody(phase).tintSource is not null,
-                $"rainbow phase {phase} actually uses exact whole-palette tint");
-        var drainStart = drainFade.first;
-        AssertTrue(ReferenceEquals(drainStart.Body, RainbowBody(6)),
-            "stream 3 drain body starts from the exact matching rainbow phase-six source");
-        AssertTrue(ReferenceEquals(drainStart.rearSource, storedRainbow[6]),
-            "stream 3 drain rear and trailing start share only matching rainbow content");
-        AssertTrue(drainEnd.backLegs is null,
-            "stream 3 drained rear endpoint calculates from approved normal rear lighting");
-        AssertTrue((drainEnd.rearKind is SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRearPaintKind.Drained or SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRearPaintKind.NormalSubset) && drainEnd.TrailingColor == drainEnd.Leg(1),
-            "stream 3 drained trailing word reuses its rear highlight without a stored value");
-        foreach (var frame in storedRainbow)
-            AssertTrue(frame.backLegs is null, "stream 3 rainbow shadow tables discarded");
         foreach (int invalid in new[] { -1, 10, int.MaxValue })
             AssertThrows<InvalidDataException>(() => stock.ApplyRainbow(new SnesCgram(), invalid), "stream 3 rainbow bounds");
-        foreach (var fade in new[] { stock.toGrey, stock.fakeDeathToGrey })
-            AssertTrue(fade.supplied is null, "stream 3 drain stock intermediate rows discarded");
         foreach (int invalid in new[] { -1, 8, int.MaxValue })
         {
             AssertThrows<InvalidDataException>(() => stock.ApplyToGrey(new SnesCgram(), invalid), "stream 3 drain bounds");
@@ -1603,33 +1493,6 @@ internal static class LookupStream3Verification
         }
         var stock = Load();
         Check(stock);
-        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        var selectedInitial = stock.selection.Initial;
-        AssertTrue(selectedInitial.supplied is null,
-            "stream 3 Baby initial calculates from reviewed paints without a stock color array");
-        var selectedFade = stock.selection.Fade;
-        AssertTrue(selectedFade.supplied is null,
-            "stream 3 original Baby fade discards its stored frame table");
-        AssertEqual(0, MetadataShape.Fields(selectedFade.GetType(), fields).Count(field => field.FieldType == typeof(ushort) || field.FieldType == typeof(ushort[]) || field.FieldType == typeof(RgbColor) || field.FieldType == typeof(RgbColor[])), "stream 3 Baby fade keeps no stock endpoint payload");
-        static ushort ScaleHealth(ushort value, int remaining)
-        {
-            int result = 0;
-            for (int channel = 0; channel < 3; channel++)
-                result |= (((value >> (5 * channel) & 31) * remaining / 7) << (5 * channel));
-            return (ushort)result;
-        }
-        for (int color = 0; color < 14; color++)
-        {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xade8f0 + 2 * color)), ScaleHealth((BabyMetroidFade.Endpoint(color)).ToWord(), 6),
-                "stream 3 reviewed final-health endpoint reproduces original undisplayed fade step");
-            int healthAddress = color < 4 ? 0xade870 + 2 * color :
-                color < 9 ? 0xade8d8 + 2 * (color - 4) : 0xade878 + 2 * (color - 9);
-            ushort nativeHealth = CartridgeImportSource.Require(rom).ReadCartridgeWord(healthAddress);
-            AssertEqual(nativeHealth, BabyMetroidFade.Endpoint(color), "stream 3 exact native final-health endpoint");
-            for (int frame = 0; frame < fade.Length; frame++)
-                AssertEqual(fade[frame][color], ScaleHealth(nativeHealth, 5 - frame),
-                    "stream 3 native final health colors produce the exact seven-part fade");
-        }
         foreach (int invalid in new[] { -1, 0, 7, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.FadeColor(invalid, 0), "stream 3 Baby fade frame bounds");
         foreach (int invalid in new[] { -1, 14, int.MaxValue })
@@ -1692,19 +1555,6 @@ internal static class LookupStream3Verification
         }
         var stock = Load();
         Check(stock);
-        foreach (var fade in new[] { stock.selection.BodyFade, stock.selection.LegFade, stock.selection.CorpseFade })
-        {
-            AssertTrue(fade.first is null,
-                "stream 3 death starts reuse calculated health state three without stored endpoint rows");
-            AssertTrue(fade.supplied is null,
-                "stream 3 original death fade discards its stored frame table");
-            if (ReferenceEquals(fade, stock.selection.CorpseFade))
-            {
-                var endpoint = fade.last ?? throw new InvalidOperationException("stream 3 corpse fade has a final gray endpoint");
-                AssertTrue(endpoint.supplied is null, "stream 3 corpse final gray palette has no stored row");
-                AssertEqual(0, endpoint[14], "stream 3 corpse neutral black endpoint");
-            }
-        }
         foreach (int invalid in new[] { -1, 16, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => stock.BodyColor(invalid, 0), "stream 3 body fade frame bounds");
@@ -1806,8 +1656,6 @@ internal static class LookupStream3Verification
         }
         var stock = Load();
         Check(stock);
-        AssertTrue(stock.frames is null,
-            "stream 3 original Work Robot colors discard their stored frame table");
         foreach (int invalid in new[] { -1, 6, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(invalid, 0),
                 "stream 3 Work Robot frame bounds");
@@ -1821,20 +1669,6 @@ internal static class LookupStream3Verification
     {
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainHealthPaletteExtractor.Extract(rom);
         var stock = MotherBrainHealthPaletteFile.Read(new MemoryStream(json));
-        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        foreach (var palette in new[] { stock.body, stock.backLegs })
-        {
-            AssertTrue(palette.supplied is null,
-                "stream 3 native health tint has no stored intermediate rows");
-            var basis = palette.basis;
-            AssertTrue(basis.supplied is null,
-                "stream 3 native health shade ramps calculated from paint endpoints");
-            AssertEqual(6, MetadataShape.Fields(basis.GetType(), flags).Count(field => field.FieldType == typeof(RgbColor)),
-                "stream 3 health base exposes only six possible paint anchors");
-            RgbColor[] anchors = [basis.highlight, basis.midtone, basis.shadow, basis.brown];
-            AssertTrue(ReferenceEquals(palette, stock.body) ? anchors.All(value => value != RgbColor.Black) : anchors.All(value => value == RgbColor.Black),
-                "stream 3 stock rear palette stores no independent paint colors");
-        }
         // Mother Brain shows her health band as a shade (#1512); the import pre-colours each band's shade of her brain and
         // rear legs on her sprite sheets, and of her body on the room's background, from the installed health palette.
         static (RgbColor[] Brain, RgbColor[] RearLegs, RgbColor[] Body) Shown(MotherBrainHealthPalettePresentation health, int band)
@@ -1873,15 +1707,6 @@ internal static class LookupStream3Verification
     {
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
         var stock = MotherBrainRoomColorFile.Read(new MemoryStream(json));
-        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        var fade = stock.recoveryLights;
-        AssertTrue(fade.supplied is null,
-            "stream 3 stock recovery light rows discarded");
-        AssertTrue(ReferenceEquals(fade.finalRoom,
-            stock.finalRoom),
-            "stream 3 recovery endpoint reuses the final room palette");
-        AssertEqual(0, MetadataShape.Fields(fade.GetType(), flags).Count(field => field.FieldType == typeof(ushort) || field.FieldType == typeof(RgbColor)),
-            "stream 3 reviewed recovery paints reside only in their domain catalog");
         for (int frame = 0; frame < 7; frame++)
         {
             var actual = new SnesCgram();
@@ -1902,15 +1727,6 @@ internal static class LookupStream3Verification
     {
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
         var stock = MotherBrainRoomColorFile.Read(new MemoryStream(json));
-        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        var flash = stock.flash;
-        AssertTrue(flash.supplied is null,
-            "stream 3 stock flash rows discarded");
-        AssertTrue(ReferenceEquals(flash.basis,
-            stock.finalRoom),
-            "stream 3 stock flash reuses final room paint basis");
-        AssertEqual(0, MetadataShape.Fields(flash.GetType(), flags).Count(field => field.FieldType == typeof(ushort) || field.FieldType == typeof(RgbColor)),
-            "stream 3 room flash keeps no per-instance selected paint");
         for (int frame = 0; frame < MotherBrainRoomPaletteProgramDefinitions.FlashFrameCount; frame++)
         {
             ushort entry = checked((ushort)(SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomFlashSourceDefinitions.FlashList + frame * SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomFlashSourceDefinitions.FlashEntryBytes));
@@ -2007,8 +1823,6 @@ internal static class LookupStream3Verification
     {
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
         var stock = MotherBrainRoomColorFile.Read(new MemoryStream(json));
-        AssertTrue(stock.phaseTwoRearLeg is null,
-            "stream 3 phase-two rear uses approved calculated health basis without stored rows");
         var phaseTwo = new SnesCgram();
         stock.ApplyPhaseTwoInitial(phaseTwo);
         for (int color = 0; color < 15; color++)
@@ -2075,16 +1889,6 @@ internal static class LookupStream3Verification
         }
         var stock = Load();
         Check(stock);
-        foreach (var palette in new[] { stock.families[EnemyAuxiliaryPalette.FaceBlock], stock.families[EnemyAuxiliaryPalette.DeadSidehopper], stock.families[EnemyAuxiliaryPalette.GoldenTorizoBody], stock.families[EnemyAuxiliaryPalette.GoldenTorizoBelly] })
-        {
-            AssertTrue(palette.supplied is null,
-                "stream 3 calculated auxiliary cycles have no stored frame rows");
-            foreach (RgbColor[] endpoint in new[] { palette.first, palette.last })
-                AssertEqual(0, endpoint.Length,
-                    "stream 3 complete auxiliary palette keeps no stock endpoint arrays");
-            AssertTrue(palette.corpse is null,
-                "stream 3 complete auxiliary palette keeps no stock corpse array");
-        }
         foreach (int invalid in new[] { -1, 8, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(EnemyAuxiliaryPalette.GoldenTorizoBody, invalid, 0), "stream 3 Torizo band bounds");
         foreach (int invalid in new[] { -1, 16, int.MaxValue })
@@ -2154,18 +1958,14 @@ internal static class LookupStream3Verification
         foreach (var frame in selected)
         {
             AssertTrue(stock.TryGetDisplay(frame.Bank, frame.Pointer, out var parts), "stream 3 Baby display view");
-            AssertTrue(parts is BabyMetroidSpriteParts, "stream 3 stock Baby full part arrays are discarded");
-            var baby = (BabyMetroidSpriteParts)parts;
-            AssertEqual(baby.sharedBody is not null ? 6 : 15, baby.halfParts.Length,
-                "stream 3 Baby shares nine upper-body halves and stores independent lower halves");
             var nativeOam = new OamBuffer();
             var calculatedOam = new OamBuffer();
             DrawImportedEnemySpritemap(rom, nativeOam, new NativeEnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(128, 128), PaletteBits = 0, BaseTileIndex = 0 });
             calculatedOam.AddEnemySpritemap(parts, new Position16<SpritePixels>(128, 128), 0, 0);
             AssertTrue(nativeOam.ImageEquals(calculatedOam),
-                "stream 3 calculated Baby view matches native OAM drawing");
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = parts[-1], "stream 3 calculated part lower bound");
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = parts[30], "stream 3 calculated part upper bound");
+                "stream 3 installed Baby view matches native OAM drawing");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = parts[-1], "stream 3 installed part lower bound");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = parts[30], "stream 3 installed part upper bound");
         }
     }
     /// <summary>Checks the phase-two attack palette's live colors and rear-leg routing without stored stock rows.</summary>
@@ -2174,9 +1974,6 @@ internal static class LookupStream3Verification
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
         var document = RequiredJson.Parse(json);
         var stock = MotherBrainRoomColorFile.Read(new MemoryStream(json));
-        var attack = stock.phaseTwoAttack;
-        AssertTrue(attack.supplied is null,
-            "stock attack palette calculates every color without a stored row");
         var native = new SnesCgram();
         stock.ApplyPhaseTwoInitial(native);
         for (int color = 0; color < MotherBrainRoomColorGeometry.PhaseTwoColors; color++)
@@ -2212,10 +2009,6 @@ internal static class LookupStream3Verification
         MotherBrainRoomColorPresentation Load() => MotherBrainRoomColorFile.Read(new MemoryStream(
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
         var stock = Load();
-        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        var finalRoom = stock.finalRoom;
-        AssertTrue(finalRoom.supplied is null, "final-room stock has no supplied output array");
-        AssertEqual(0, MetadataShape.Fields(finalRoom.GetType(), fields).Count(field => field.FieldType == typeof(ushort)), "final-room paint choices live only in reviewed catalog");
         for (int color = 0; color < document.FinalRoom.Length; color++)
         {
             int address = MotherBrainSourceDefinitions.RoomColors.FlashBank + SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomFlashSourceDefinitions.FinalPalette + color * sizeof(ushort);
@@ -2274,24 +2067,6 @@ internal static class LookupStream3Verification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(tubeAddress), Word((document.InitialTubeProjectile ?? throw new InvalidOperationException("Verification requires document.InitialTubeProjectile."))[color]), "tube direct native color");
         }
         Confirm(stock, document);
-        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        foreach (var (name, supplied) in new VerifyStream3OptionsGeometryCase[]
-        {
-            new VerifyStream3OptionsGeometryCase("finalRoom", stock.finalRoom.supplied),
-            new VerifyStream3OptionsGeometryCase("phaseTwoAttack", stock.phaseTwoAttack.supplied),
-            new VerifyStream3OptionsGeometryCase("initialGlassShard", stock.initialGlassShard.supplied),
-            new VerifyStream3OptionsGeometryCase("initialTubeProjectile", stock.initialTubeProjectile.supplied),
-        })
-            AssertTrue(supplied is null, "stream 3 room initial palette calculates dependent stock shades: " + name);
-        var finalRoom = stock.finalRoom;
-        AssertEqual(0, MetadataShape.Fields(finalRoom.GetType(), fields).Count(field => field.FieldType == typeof(ushort)),
-            "final room calculates from reviewed catalog choices without per-instance paint words");
-        var attack = stock.phaseTwoAttack;
-        AssertTrue(!MetadataShape.Fields(attack.GetType(), fields).Any(field => field.FieldType == typeof(ushort)),
-            "stock attack keeps no duplicated scalar paint endpoints");
-        var glass = stock.initialGlassShard;
-        AssertTrue(!MetadataShape.Fields(glass.GetType(), fields).Any(field => field.FieldType == typeof(ushort)),
-            "stock glass keeps no duplicated scalar paint endpoint");
 
         static ushort Word(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
         static void Confirm(MotherBrainRoomColorPresentation palette, MotherBrainRoomColorDocument expected)
@@ -2325,10 +2100,6 @@ internal static class LookupStream3Verification
         var liveDocument = RequiredJson.Parse(SuperMetroid.AssetExtraction.Bosses.MotherBrain.ShitroidColorExtractor.Extract(rom));
         var stock = LoadBaby(babyDocument);
         var liveStock = LoadLive(liveDocument);
-        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        var initial = stock.selection.Initial;
-        AssertTrue(initial.supplied is null, "Baby stock initial has no stored color array");
-        AssertEqual(0, MetadataShape.Fields(initial.GetType(), fields).Count(field => field.FieldType == typeof(ushort)), "Baby initial paint choices reside only in dedicated catalog");
         for (int color = 0; color < BabyMetroidCutsceneColorFormat.InitialColorCount; color++)
         {
             int address = MotherBrainSourceDefinitions.BabyMetroid.InitialColors + color * sizeof(ushort);
@@ -2372,7 +2143,6 @@ internal static class LookupStream3Verification
         RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(BackgroundTileWordBytes.Of(stock.BackgroundPages.Span.Slice(index * 1024, 1024)))).ToArray();
         ImportIntroCinematicArtwork Copy(byte[] narration) => new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span)), InitialNarrationTilemap = Page(narration), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Backdrop = stock.Backdrop, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction, CeresDestructionMaps = stock.CeresDestructionMaps, ZebesReveal = stock.ZebesReveal, CeresDestructionSprites = stock.CeresDestructionSprites }, stock.Palette, stock.FlightPalette);
         AssertTrue(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span).AsSpan().SequenceEqual(native), "all 1024 initial narration words match native");
-        AssertTrue(stock.suppliedInitialNarration is null, "stock initial narration stores no page array");
         var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), characterArtwork: stock)
         {
             Random = new SharedRandom(),
@@ -2385,7 +2155,7 @@ internal static class LookupStream3Verification
             "the opening's shown memory holds the installed font, which matches the cartridge's");
         AssertTrue(intro.ShownVram().AsSpan(
             (IntroVramLayout.NarrationTilemap.Offset * 2), native.Length).SequenceEqual(native),
-            "actual opening constructor transfers calculated narration to native VRAM destination");
+            "actual opening constructor transfers installed narration to native VRAM destination");
         intro.SetupFirstIllustratedPage();
         var subtitleUpload = intro.ShownVram().AsSpan(
             (IntroVramLayout.NarrationTilemap.Offset * 2) + IntroNarrationPictures.FinalLineRow * IntroCinematicDefinitions.Planes.Width * 2,
@@ -2396,8 +2166,8 @@ internal static class LookupStream3Verification
         AssertEqual(stock.ContentIdentity, Copy(native).ContentIdentity, "equivalent stock bundle preserves canonical identity");
         BackgroundTile[] first = stock.InitialNarrationTilemap.ToArray();
         first[0] = first[0] with { Tile = first[0].Tile ^ 1 };
-        AssertTrue(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span).AsSpan().SequenceEqual(native), "calculated page is not a mutable cached table");
-        Console.WriteLine("Initial narration: 1024 native words, empty stock storage and canonical bundle identity pass.");
+        AssertTrue(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span).AsSpan().SequenceEqual(native), "installed page is not mutated through a copy");
+        Console.WriteLine("Initial narration: 1024 native words and canonical bundle identity pass.");
     }
 
     /// <summary>Checks file-select sprite compositions and border parts against native OAM data.</summary>
@@ -2415,8 +2185,6 @@ internal static class LookupStream3Verification
         {
             string name = FileSelectParts.HelmetSpriteName(frame);
             var composition = Composition(stock, frame);
-            AssertTrue(composition.parts is FileSelectHelmetParts,
-                "stock helmet retains semantic frame only");
             Confirm(stock, original, frame);
             int pointer = ReadVerificationWord(rom, 0x82c569 + FileSelectHelmetSpritemaps.SpritemapId(frame) * 2);
             int address = 0x820000 | pointer;
@@ -2460,33 +2228,14 @@ internal static class LookupStream3Verification
         byte[] native = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
             IntroCinematicSourceDefinitions.FontOne, maximumOutputBytes: IntroFontAtlasFormat.ByteCount);
         var stock = IntroFontCharacters.Read(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
-        AssertTrue(stock.Characters.Span.SequenceEqual(native), "144 calculated font tiles match native 2304 bytes");
-        AssertTrue(stock.suppliedCharacters is null, "native font retains no planar output array");
+        AssertTrue(stock.Characters.Span.SequenceEqual(native), "144 installed font tiles match native 2304 bytes");
         byte[] output = stock.Characters.ToArray();
         output[0] ^= 1;
-        AssertTrue(stock.Characters.Span.SequenceEqual(native), "font output is freshly calculated");
-        int additions = 0, removals = 0;
-        for (int tile = 0; tile < 144; tile++)
-        {
-            int glyph = tile < 48 ? tile : 48 + (tile - 48) / 32 * 32 + (tile - 48) % 16;
-            int dy = tile < 48 ? 0 : (tile - 48) % 32 / 16 * 8;
-            for (int y = 0; y < 8; y++)
-            for (int x = 0; x < 8; x++)
-            {
-                int gx = glyph == 0x26 ? x - 1 : x;
-                int source = glyph == 0x26 ? 0x24 : glyph;
-                if (gx < 0) continue;
-                var point = new Position16<ImagePixels>((ushort)gx, (ushort)(y + dy));
-                if (IntroFontGlyphDefinitions.AddedContour(source, point)) additions++;
-                if (IntroFontGlyphDefinitions.RemovedContour(source, point)) removals++;
-            }
-        }
-        AssertEqual(4, additions, "only four authored outline additions");
-        AssertEqual(91, removals, "only 91 authored corner removals including derived period alias");
+        AssertTrue(stock.Characters.Span.SequenceEqual(native), "installed font is not mutated through a copy");
         for (int y = 0; y < 8; y++)
         for (int plane = 0; plane < 2; plane++)
             AssertEqual((byte)(native[0x24 * 16 + y * 2 + plane] >> 1), native[0x26 * 16 + y * 2 + plane], "whole period drawing shifts right one pixel");
-        Console.WriteLine("Intro font: 144 native tiles/2304 bytes, four outline additions/91 removals, exact period alias and no stock output storage pass.");
+        Console.WriteLine("Intro font: 144 native tiles/2304 bytes and the exact period alias pass.");
     }
 
     /// <summary>Checks intro background map pages against decompressed ROM.</summary>
@@ -2504,16 +2253,14 @@ internal static class LookupStream3Verification
             RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(background.AsSpan(index * 2048, 2048).ToArray())).ToArray();
             return new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span)), InitialNarrationTilemap = Page(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span)), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Backdrop = stock.Backdrop, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction, CeresDestructionMaps = stock.CeresDestructionMaps, ZebesReveal = stock.ZebesReveal, CeresDestructionSprites = stock.CeresDestructionSprites }, stock.Palette, stock.FlightPalette);
         }
-        byte[] calculated = BackgroundTileWordBytes.Of(IntroBackgroundPages.Compile());
+        byte[] installed = BackgroundTileWordBytes.Of(stock.BackgroundPages.Span);
         var mismatches = new List<string>();
         for (int cell = 0; cell < native.Length / 2; cell++)
         {
-            ushort expected = BitConverter.ToUInt16(native, cell * 2), actual = BitConverter.ToUInt16(calculated, cell * 2);
+            ushort expected = BitConverter.ToUInt16(native, cell * 2), actual = BitConverter.ToUInt16(installed, cell * 2);
             if (expected != actual) mismatches.Add($"page{cell / 1024} ({cell % 32},{cell % 1024 / 32}) expected{expected:X4}/actual{actual:X4}");
         }
-        AssertTrue(mismatches.Count == 0, "all 4096 background words match native: " + string.Join("; ", mismatches.Take(32)));
-        AssertTrue(stock.suppliedBackgroundPages is null,
-            "native background pages store no output array");
+        AssertTrue(mismatches.Count == 0, "all 4096 installed background words match native: " + string.Join("; ", mismatches.Take(32)));
         AssertEqual(stock.ContentIdentity, Copy(native).ContentIdentity, "equivalent backgrounds preserve canonical hash");
         var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), characterArtwork: stock)
         {
@@ -2522,8 +2269,8 @@ internal static class LookupStream3Verification
         };
         AssertTrue(intro.ShownVram().AsSpan(
             (IntroVramLayout.BackgroundPages.Offset * 2), native.Length).SequenceEqual(native),
-            "actual opening constructor uploads all four calculated background pages");
-        Console.WriteLine("Intro backgrounds: 4096 native words, owned fallback, canonical hash and actual four-page VRAM upload pass.");
+            "actual opening constructor uploads all four installed background pages");
+        Console.WriteLine("Intro backgrounds: 4096 native words, canonical hash and actual four-page VRAM upload pass.");
     }
 
     /// <summary>Checks all 27 Work Robot frame identities and their native spritemap ordering.</summary>
@@ -2628,9 +2375,7 @@ BranchesToSharedBody:true),
         static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new(BackgroundTileWordBytes.Tiles(bytes));
         RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(BackgroundTileWordBytes.Of(stock.BackgroundPages.Span.Slice(index * 1024, 1024)))).ToArray();
         ImportIntroCinematicArtwork Copy(byte[] portrait) => new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(portrait), InitialNarrationTilemap = Page(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span)), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Backdrop = stock.Backdrop, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction, CeresDestructionMaps = stock.CeresDestructionMaps, ZebesReveal = stock.ZebesReveal, CeresDestructionSprites = stock.CeresDestructionSprites }, stock.Palette, stock.FlightPalette);
-        AssertTrue(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span).AsSpan().SequenceEqual(native), "all 1024 calculated portrait words match native");
-        AssertTrue(stock.suppliedPortrait is null,
-            "native portrait stores no output word array");
+        AssertTrue(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span).AsSpan().SequenceEqual(native), "all 1024 installed portrait words match native");
         AssertEqual(stock.ContentIdentity, Copy(native).ContentIdentity, "equivalent portrait preserves canonical hash");
         var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), characterArtwork: stock)
         {
@@ -2639,8 +2384,8 @@ BranchesToSharedBody:true),
         };
         AssertTrue(intro.ShownVram().AsSpan(
             (IntroVramLayout.PortraitTilemap.Offset * 2), native.Length).SequenceEqual(native),
-            "actual opening constructor uploads calculated portrait map");
-        Console.WriteLine("Portrait map: 1024 native words, owned fallback, canonical hash and actual VRAM upload pass.");
+            "actual opening constructor uploads installed portrait map");
+        Console.WriteLine("Portrait map: 1024 native words, canonical hash and actual VRAM upload pass.");
     }
 
     /// <summary>Runs the retail-ROM room-flash color and mirror comparison from the command line.</summary>

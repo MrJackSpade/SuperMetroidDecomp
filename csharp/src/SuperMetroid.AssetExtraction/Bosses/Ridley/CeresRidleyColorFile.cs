@@ -13,7 +13,7 @@ public static class CeresRidleyColorFile
 {
     /// <summary>Compiles RGB5 JSON into a validated immutable color catalog, rejecting unknown/duplicate properties, unsupported versions, wrong row dimensions, and channels outside 0..31.</summary>
     /// <param name="json">JSON input read from its current position; the caller retains ownership of the stream.</param>
-    /// <returns>A catalog retaining independent supplied color edits while calculating unchanged shared paint and fade relationships.</returns>
+    /// <returns>A catalog keeping every installed colour family as installed.</returns>
     public static CeresRidleyColorCatalog Read(Stream json)
     {
         Ensure.NotNull(json);
@@ -35,11 +35,7 @@ public static class CeresRidleyColorFile
             "retreat shared");
         CeresBabyShadeColours baby = CompileShades(document.BabyShades
             ?? throw new InvalidDataException("Ceres Ridley Baby requires its shades."));
-        return new CeresRidleyColorCatalog(CeresRidleyColorSelectionBuilder.Select(new CeresRidleySuppliedColors
-        {
-            Start = start, EyeFade = eyeFade, BodyFade = bodyFade, Health = health, Alarm = alarm,
-            RetreatBg = retreatBg, RetreatShared = retreatShared, Baby = baby,
-        }));
+        return new CeresRidleyColorCatalog(start, eyeFade, bodyFade, health, alarm, retreatBg, retreatShared, baby);
     }
 
     /// <summary>Serializes a complete current-version color document as indented camel-case UTF-8 JSON.</summary>

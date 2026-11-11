@@ -21,6 +21,12 @@ internal static class IntroNarrationTilemapConstants
     /// <summary>The blank cell around the final text line: the blank glyph, colour variant seven.</summary>
     internal static BackgroundTile FinalBlank { get; } = new(0x029, 7, highPriority: false);
 
+    /// <summary>
+    /// $8B:A6B7: the staging map's border and margin cell, the Japanese narration layout's blank glyph in colour variant
+    /// seven, in front.
+    /// </summary>
+    internal static BackgroundTile Margin { get; } = new(0x029, 7, highPriority: true);
+
     /// <summary>Cells from the upper to the lower Japanese blank region.</summary>
     internal const int JapaneseBlankBottomDelta = 896;
 

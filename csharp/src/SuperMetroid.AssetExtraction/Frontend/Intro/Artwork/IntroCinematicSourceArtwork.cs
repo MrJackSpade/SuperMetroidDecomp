@@ -34,14 +34,9 @@ public class IntroCinematicSourceArtwork : IntroCinematicArtwork
                 throw new InvalidDataException($"Opening BG page {index} must contain one 32x32 tilemap.");
             page.Tiles.Span.CopyTo(pages.AsSpan(index * PageCells, PageCells));
         }
-        if (!pages.SequenceEqual(IntroBackgroundPages.Compile()))
-            suppliedBackgroundPages = pages;
-        ReadOnlyMemory<BackgroundTile> portrait = RequirePage(parts.PortraitTilemap, "portrait");
-        if (!portrait.Span.SequenceEqual(IntroPortraitPage.Compile()))
-            suppliedPortrait = portrait.ToArray();
-        ReadOnlyMemory<BackgroundTile> narration = RequirePage(parts.InitialNarrationTilemap, "initial narration");
-        if (!narration.Span.SequenceEqual(IntroInitialNarrationPage.Compile()))
-            suppliedInitialNarration = narration.ToArray();
+        backgroundPages = pages;
+        portrait = RequirePage(parts.PortraitTilemap, "portrait").ToArray();
+        initialNarration = RequirePage(parts.InitialNarrationTilemap, "initial narration").ToArray();
         FinalLine = Ensure.NotNull(parts.FinalLine);
         EyeFrames = Ensure.NotNull(parts.EyeFrames);
         CeresDestructionMaps = Ensure.NotNull(parts.CeresDestructionMaps);
@@ -71,18 +66,18 @@ public class IntroCinematicSourceArtwork : IntroCinematicArtwork
     /// <summary>Cells in one 32-by-32 opening tilemap page.</summary>
     private const int PageCells = 32 * 32;
 
-    /// <summary>The four ordered 32x32 scene pages' tiles.</summary>
-    public ReadOnlyMemory<BackgroundTile> BackgroundPages => suppliedBackgroundPages ?? IntroBackgroundPages.Compile();
-    /// <summary>Only selected scene pages differing from the compiled intro layout.</summary>
-    internal readonly BackgroundTile[]? suppliedBackgroundPages;
-    /// <summary>The Samus-head portrait's tiles.</summary>
-    public ReadOnlyMemory<BackgroundTile> PortraitTilemap => suppliedPortrait ?? IntroPortraitPage.Compile();
-    /// <summary>Copied portrait page when authoring differs from the compiled stock map.</summary>
-    internal readonly BackgroundTile[]? suppliedPortrait;
-    /// <summary>The first, pre-typewriter narration card's tiles.</summary>
-    public ReadOnlyMemory<BackgroundTile> InitialNarrationTilemap => suppliedInitialNarration ?? IntroInitialNarrationPage.Compile();
-    /// <summary>Copied pre-typewriter narration page when authoring differs from stock.</summary>
-    internal readonly BackgroundTile[]? suppliedInitialNarration;
+    /// <summary>The four ordered 32x32 scene pages' installed tiles.</summary>
+    public ReadOnlyMemory<BackgroundTile> BackgroundPages => backgroundPages;
+    /// <summary>The four installed scene pages, one after another.</summary>
+    private readonly BackgroundTile[] backgroundPages;
+    /// <summary>The Samus-head portrait's installed tiles.</summary>
+    public ReadOnlyMemory<BackgroundTile> PortraitTilemap => portrait;
+    /// <summary>The installed portrait page.</summary>
+    private readonly BackgroundTile[] portrait;
+    /// <summary>The first, pre-typewriter narration card's installed tiles.</summary>
+    public ReadOnlyMemory<BackgroundTile> InitialNarrationTilemap => initialNarration;
+    /// <summary>The installed pre-typewriter narration page.</summary>
+    private readonly BackgroundTile[] initialNarration;
     /// <summary>Four BG3 rows mapping Japanese subtitle glyph staging beneath illustrated-page text.</summary>
     public IntroFinalLineTilemap FinalLine { get; }
     /// <summary>Four editable Samus-portrait eye rectangles, without their blink timing.</summary>

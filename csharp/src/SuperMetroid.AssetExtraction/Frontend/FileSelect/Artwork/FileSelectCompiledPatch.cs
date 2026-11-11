@@ -2,34 +2,17 @@ using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 
-/// <summary>Retains edited patch cells while deriving unchanged cells from compiled stock definitions.</summary>
+/// <summary>One slot-field patch's installed cells.</summary>
 internal sealed class FileSelectCompiledPatch
 {
-    /// <summary>Schema identity used to reconstruct a stock patch.</summary>
-    private readonly FileSelectPatch name;
-    /// <summary>Edited cells, or null when every cell equals the compiled stock patch.</summary>
-    internal readonly FileSelectCompiledPatchCell[]? suppliedCells;
+    /// <summary>The installed cells in placement order.</summary>
+    private readonly FileSelectCompiledPatchCell[] cells;
 
-    /// <summary>Compares authored cells with stock definitions to avoid storing unchanged artwork.</summary>
-    internal FileSelectCompiledPatch(FileSelectPatch name, FileSelectCompiledPatchCell[] cells)
-    {
-        this.name = name;
-        if (cells.Length != FileSelectFieldTiles.PatchCellCount(name))
-        {
-            suppliedCells = cells;
-            return;
-        }
-        for (int index = 0; index < cells.Length; index++)
-            if (cells[index] != FileSelectFieldTiles.PatchCell(name, index))
-            {
-                suppliedCells = cells;
-                return;
-            }
-    }
+    /// <summary>Retains the patch's installed cells.</summary>
+    internal FileSelectCompiledPatch(FileSelectCompiledPatchCell[] cells) => this.cells = cells;
 
-    /// <summary>Cell count from edited art or the stock patch catalog.</summary>
-    internal int Count => suppliedCells?.Length ?? FileSelectFieldTiles.PatchCellCount(name);
-    /// <summary>Reads an edited cell or falls back to the corresponding stock cell.</summary>
-    internal FileSelectCompiledPatchCell Cell(int index) => suppliedCells is null
-        ? FileSelectFieldTiles.PatchCell(name, index) : suppliedCells[index];
+    /// <summary>The number of installed cells.</summary>
+    internal int Count => cells.Length;
+    /// <summary>The installed cell at <paramref name="index"/>.</summary>
+    internal FileSelectCompiledPatchCell Cell(int index) => cells[index];
 }

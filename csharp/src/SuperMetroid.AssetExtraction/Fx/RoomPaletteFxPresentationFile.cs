@@ -10,9 +10,9 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// <summary>Reads and writes the installed room palette-effect colour document.</summary>
 public static class RoomPaletteFxPresentationFile
 {
-    /// <summary>Validates editable palette-FX frames and compiles their RGB5 colors into the native bank-$8D color lookup.</summary>
+    /// <summary>Validates the installed palette-FX frames and keeps every RGB5 colour as installed, by the record colour it is.</summary>
     /// <param name="json">The UTF-8 JSON presentation stream with the required frame counts and RGB components from zero through thirty-one.</param>
-    /// <returns>A color source preserving independent edits while reconstructing matching shared or calculated samples on demand.</returns>
+    /// <returns>A color source holding the complete installed colour set.</returns>
     /// <exception cref="InvalidDataException">The schema version, required frame geometry, or a color component is invalid.</exception>
     public static RoomPaletteFxPresentation Read(Stream json)
     {
@@ -235,7 +235,7 @@ public static class RoomPaletteFxPresentationFile
         }
         ValidateAndCompile("Crateria and Brinstar beacon flash", document.BeaconFlashing, BeaconPaletteFxColorDefinitions.ColorFrames, colors);
 
-        return RoomPaletteFxColorRecognition.Create(colors);
+        return new RoomPaletteFxPresentation(colors);
     }
 
     /// <summary>Serializes a current-version presentation document to the destination.</summary>

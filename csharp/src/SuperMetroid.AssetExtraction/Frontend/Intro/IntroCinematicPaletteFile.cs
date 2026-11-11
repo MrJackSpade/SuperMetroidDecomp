@@ -16,7 +16,7 @@ public static class IntroCinematicPaletteFile
     /// <summary>Editable JSON filename for the opening narration's complete full-precision palette.</summary>
     public const string FileName = "intro-narration-palette.json";
 
-    /// <summary>Validates 256 ordered RGB5 colors and compiles their little-endian BGR555 image, calculating stock/shared shade relationships only when supplied colors match them.</summary>
+    /// <summary>Validates 256 ordered RGB5 colors and keeps them as installed: the background sets, then the sprite sets.</summary>
     /// <param name="json">Caller-owned stream containing the supported editable opening-palette document.</param>
     /// <returns>The installed palette used for opening setup and subsequent cinematic fade targets, without changing fade scheduling.</returns>
     /// <exception cref="InvalidDataException">The schema version, complete color count, or RGB components are invalid.</exception>
@@ -38,7 +38,7 @@ public static class IntroCinematicPaletteFile
                     $"Opening palette color {index} requires red, green and blue in 0..31.");
             image[index] = color.ToRgbColor();
         }
-        return IntroCinematicPaletteRecognition.Recognise(image);
+        return new IntroCinematicPalette(image);
     }
 
     /// <summary>Serializes the complete opening palette as UTF-8 JSON.</summary>

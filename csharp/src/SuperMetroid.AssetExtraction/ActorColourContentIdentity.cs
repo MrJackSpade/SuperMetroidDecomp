@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -94,7 +95,8 @@ internal static class ActorColourContentIdentity
         public string ContentIdentity =>
             SelectedPresentationHash.Create("DachoraColorCatalog-v1", content =>
             {
-                content.AppendColors("normal", colors.selection.Normal);
+                content.AppendColors("normal", Enumerable.Range(0, DachoraColorFormat.ColorsPerFrame)
+                    .Select(color => colors.Resolve(DachoraColourPhase.Default, 0, color)).ToArray());
                 content.AppendColorFrames("speed", DachoraFrames(colors, DachoraColourPhase.Speed));
                 content.AppendColorFrames("shine", DachoraFrames(colors, DachoraColourPhase.Shine));
             });
@@ -110,13 +112,13 @@ internal static class ActorColourContentIdentity
                 Span<RgbColor> frameColours = stackalloc RgbColor[16];
                 for (int tag = 0; tag < EnemyAuxiliaryColorDefinitions.All.Length; tag++)
                 {
-                    EnemyAuxiliaryColourFrames family = EnemyAuxiliaryColors.FamilyFor(colors, EnemyAuxiliaryColorDefinitions.All[tag].Id);
+                    InstalledColourRows family = colors.Family(EnemyAuxiliaryColorDefinitions.All[tag].Id);
                     content.Append("palette", tag);
-                    content.Append("frames", family.FrameCount);
-                    for (int frame = 0; frame < family.FrameCount; frame++)
+                    content.Append("frames", family.RowCount);
+                    for (int frame = 0; frame < family.RowCount; frame++)
                     {
-                        for (int color = 0; color < family.ColorCount; color++) frameColours[color] = family.Color(frame, color);
-                        content.AppendColors("row", frameColours[..family.ColorCount]);
+                        for (int color = 0; color < family.ColoursPerRow; color++) frameColours[color] = family.Colour(frame, color);
+                        content.AppendColors("row", frameColours[..family.ColoursPerRow]);
                     }
                 }
             });
@@ -124,11 +126,11 @@ internal static class ActorColourContentIdentity
 
     /// <summary>Expands a statue variant into its ordered 32-color palette image for identity hashing.</summary>
     private static RgbColor[] StatueColours(ChozoAndTubeColorCatalog colors, ChozoStatuePalette palette) =>
-        Enumerable.Range(0, ChozoAndTubeColorDefinitions.ColorCount).Select(color => ChozoAndTubeColors.Statue(colors, palette, color)).ToArray();
+        Enumerable.Range(0, ChozoAndTubeColorDefinitions.ColorCount).Select(color => colors.ResolveStatue(palette, color)).ToArray();
 
     /// <summary>Materializes four selected animated frames for stable content hashing.</summary>
     private static RgbColor[][] DachoraFrames(DachoraColorCatalog colors, DachoraColourPhase phase) =>
         Enumerable.Range(0, DachoraColorDefinitions.AnimatedFrameCount)
             .Select(frame => Enumerable.Range(0, DachoraColorFormat.ColorsPerFrame)
-                .Select(color => DachoraColors.Resolve(colors, phase, frame, color)).ToArray()).ToArray();
+                .Select(color => colors.Resolve(phase, frame, color)).ToArray()).ToArray();
 }

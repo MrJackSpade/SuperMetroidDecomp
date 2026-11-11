@@ -21,14 +21,14 @@ public static class DraygonColorFile
         if (document.HealthBands is null ||
             document.HealthBands.Length != DraygonColorDefinitions.HealthBandCount)
             throw new InvalidDataException("Draygon colors require eight health bands.");
-        return new(DraygonColorEdits.Select(
+        return new(
             Compile(document.Intro, DraygonColorDefinitions.IntroCount, "intro"),
             Compile(document.Background, DraygonColorDefinitions.BackgroundCount, "background"),
             Compile(document.Sprite, DraygonColorDefinitions.SpriteCount, "sprite"),
             Compile(document.WhiteFlash, DraygonColorDefinitions.WhiteFlashCount, "white flash"),
             document.HealthBands.Select((band, index) =>
                 Compile(band, DraygonColorDefinitions.HealthBandColorCount,
-                    $"health band {index}")).ToArray()));
+                    $"health band {index}")).ToArray());
     }
 
     /// <summary>Serializes a Draygon color document as indented camel-case JSON.</summary>

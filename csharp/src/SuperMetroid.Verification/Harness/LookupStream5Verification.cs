@@ -101,14 +101,9 @@ internal static class LookupStream5Verification
         {
             CrocomireMeltingIllustration source = phase == 0 ? CrocomireMeltingIllustration.First : CrocomireMeltingIllustration.Second;
             native[phase] = Enumerable.Range(0, 256).Select(i => ReadVerificationWord(oracle, SuperMetroid.AssetExtraction.Enemies.CrocomireMeltingSources.Tilemap(source) + i * 2)).ToArray();
-            var calculated = new CrocomireMeltingTilemap((phase != 0) ? CrocomireMeltingIllustration.Second : CrocomireMeltingIllustration.First, BackgroundTileWordBytes.Tiles(native[phase]));
-            AssertEqual(0, calculated.edits.Count,
-                "Every native melt tilemap word calculates without fallback");
-            AssertTrue(BackgroundTileWordBytes.Words(calculated.Tiles()).SequenceEqual(native[phase]), "All native melt words");
             AssertTrue(BackgroundTileWordBytes.Words((art ?? throw new InvalidOperationException("Verification requires art.")).Tilemap(source)).SequenceEqual(native[phase]), "Installed melt words");
             VerifyInstalledCrocomireMeltingTilemap(oracle, catalog, source, phase == 0
                 ? CrocomireBodyProgram.MeltingOneTopRow : CrocomireBodyProgram.MeltingTwoTopRow);
-            AssertThrows<InvalidDataException>(() => _ = new CrocomireMeltingTilemap((phase != 0) ? CrocomireMeltingIllustration.Second : CrocomireMeltingIllustration.First, new BackgroundTile[255]), "Short melt map rejects");
         }
         var first = (art ?? throw new InvalidOperationException("Verification requires art.")).first;
         var second = art.second;
@@ -419,24 +414,21 @@ internal static class LookupStream5Verification
         byte[] json = SuperMetroid.AssetExtraction.Areas.Ceres.CeresEscapeOverlayTilemapFiles.Extract(rom);
         var document = RequiredJson.Deserialize<CeresEscapeOverlayTilemapDocument>(json, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
         CeresEscapeOverlays stock = Check(document);
-        var edits = stock.edits;
-        AssertEqual(0, edits.Count, "All native Ceres glyph words calculate without overrides");
         int words = 0;
         foreach (var page in CeresEscapeOverlayPages.All)
         {
+            AssertTrue(stock.TryResolve(page, out ReadOnlyMemory<BackgroundTile> installed), "Every subtitle page is installed");
             for (int index = 0; index < page.WordCount; index++)
             {
                 ushort native = ReadVerificationWord(rom, CeresEscapeNativeSources.OverlaySource(page) + index * 2);
-                AssertEqual(native, CeresEscapeWarningGlyphs.StockTile(page, index).PackedWord, "Native calculated subtitle glyph/style");
+                AssertEqual(native, installed.Span[index].PackedWord, "Native installed subtitle glyph/style");
                 words++;
             }
             AssertTrue(!stock.TryResolveNative(CeresEscapeNativeSources.OverlaySource(page), page.WordCount * 2 - 1, out _), "Changed transfer extent rejected");
-            AssertThrows<ArgumentOutOfRangeException>(() => CeresEscapeWarningGlyphs.StockTile(page, -1), "Glyph lower bound");
-            AssertThrows<ArgumentOutOfRangeException>(() => CeresEscapeWarningGlyphs.StockTile(page, page.WordCount), "Glyph upper bound");
         }
         AssertTrue(!stock.TryResolve(default, out _), "Unknown subtitle page rejected");
         AssertEqual(55, words, "Native subtitle word count");
-        Console.WriteLine("Ceres overlay glyphs: 55 native words, zero stock overrides, exact original hash and transfer domains pass.");
+        Console.WriteLine("Ceres overlay glyphs: 55 native words, exact original hash and transfer domains pass.");
 
         CeresEscapeOverlays Check(CeresEscapeOverlayTilemapDocument source)
         {
@@ -494,12 +486,8 @@ internal static class LookupStream5Verification
                 bands[band][color] = new PaletteRgb5 { Red = native & 31, Green = native >> 5 & 31, Blue = native >> 10 & 31 };
             }
         }
-        CrocomireColorCatalog stock = Check();
-        AssertTrue(!MetadataShape.DeclaresField(typeof(CrocomireColorCatalog), "paint", BindingFlags.Instance | BindingFlags.NonPublic), "Stock palette storage has been removed");
-        var edits = stock.edits;
-        AssertTrue(!MetadataShape.Fields(typeof(CrocomirePaintDefinitions), BindingFlags.Static | BindingFlags.NonPublic).Any(field => field.FieldType.IsArray), "Material calculation does not cache an output palette");
-        AssertEqual(0, edits.Count, "All 73 stock inks calculate without overrides");
-        Console.WriteLine("Crocomire material paint: 73 native colors, zero stock palette/overrides, actual CGRAM, hash and bounds pass.");
+        _ = Check();
+        Console.WriteLine("Crocomire installed colours: 73 native colors, actual CGRAM, hash and bounds pass.");
 
         CrocomireColorCatalog Check()
         {
@@ -737,26 +725,15 @@ internal static class LookupStream5Verification
         PhantoonColorDocument document = RequiredJson.Deserialize<PhantoonColorDocument>(bytes,
             new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase });
         PhantoonColorCatalog stock = Check(document);
-        var edits = stock.selection.FadeOutEdits;
-        AssertEqual(0, edits.Count, "Stock fade stores no target table");
         for (int color = 0; color < PhantoonColorFormat.FadeOutCount; color++)
         {
             AssertEqual(ReadVerificationWord(rom, PhantoonSourceDefinitions.FadeOutColors + color * 2), stock.ResolveFadeOut(color), "Native black fade endpoint");
         }
-        var healthEdits = stock.selection.HealthEdits;
-        AssertEqual(0, healthEdits.Count, "All health colors calculate without stock overrides");
-        AssertTrue(!MetadataShape.DeclaresField(typeof(PhantoonColorCatalog), "requiredHealthChannels", BindingFlags.Instance | BindingFlags.NonPublic),
-            "No per-channel native residual samples remain");
-        AssertTrue(!MetadataShape.DeclaresField(typeof(PhantoonColorCatalog), "healthyPaint", BindingFlags.Instance | BindingFlags.NonPublic),
-            "No stock healthy palette remains stored");
         for (int band = 0; band < PhantoonColorDefinitions.HealthBandCount; band++)
         for (int color = 0; color < PhantoonColorFormat.HealthBandColorCount; color++)
         {
             AssertEqual(ReadVerificationWord(rom, PhantoonSourceDefinitions.HealthBandColors + (band * 16 + color) * 2), stock.ResolveHealth(band, color), "Native health RGB equality");
         }
-        var powerEdits = stock.selection.PowerEdits;
-        AssertTrue(!MetadataShape.DeclaresField(typeof(PhantoonColorCatalog), "requiredPowerColors", BindingFlags.Instance | BindingFlags.NonPublic), "Power targets retain no stock color dictionary");
-        AssertEqual(0, powerEdits.Count, "Native power targets have no unexplained overrides");
         for (int color = 0; color < PhantoonSourceDefinitions.PowerOnColourCount; color++)
         {
             AssertEqual(ReadVerificationWord(rom, PhantoonSourceDefinitions.PowerOnColors + color * 2), stock.ResolvePowerOnAtNative(color), "Native power shade equality");
@@ -770,7 +747,7 @@ internal static class LookupStream5Verification
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(0, 16), "Health color upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveFadeOut(-1), "Fade lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveFadeOut(16), "Fade upper bound");
-        Console.WriteLine("Phantoon colors: 16 native fade targets, 128 health colors, zero stored healthy palette/residual samples or stock overrides, 112 power colors, the hash and bounds pass.");
+        Console.WriteLine("Phantoon colors: 16 native fade targets, 128 health colors, 112 power colors, the hash and bounds pass.");
 
         static PhantoonColorCatalog Check(PhantoonColorDocument source)
         {
@@ -1000,8 +977,6 @@ internal static class LookupStream5Verification
         var native = RequiredJson.Deserialize<MagdollitePaletteCycleDocument>(json,
             new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         MagdollitePaletteCycle stock = Check(native);
-        var residuals = stock.edits;
-        AssertEqual(0, residuals.Count, "Native Magdollite pulse requires no stored frame residuals");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(-1, 0),
             "Magdollite pulse lower frame bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(4, 0),
@@ -1032,8 +1007,6 @@ internal static class LookupStream5Verification
         var native = RequiredJson.Deserialize<ZebetiteColorDocument>(json,
             new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         ZebetiteColorCatalog stock = Check(native);
-        var residuals = stock.edits;
-        AssertEqual(0, residuals.Count, "Native Zebetite pulse requires no stored frame residuals");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(-1, 0),
             "Zebetite pulse lower frame bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(8, 0),
@@ -1353,17 +1326,9 @@ internal static class LookupStream5Verification
             new MemoryStream(pngBytes),new MemoryStream(CeresDoorVisualFiles.Write(value)));
         var stock = Load(document);
         Check(stock,document);
-        var animation = stock.Visuals.animation;
-        var escape = stock.Visuals.escape;
-        AssertEqual(0, animation.seedEdits.Count,
-            "stock animation seeds derive from the normal paint");
-        AssertEqual(0, animation.edits.Count,
-            "stock animation phases require no cell storage");
-        AssertEqual(0, escape.edits.Count,
-            "stock escape colors derive from the normal paint");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Visuals.AnimationColor(-1, 0),"Ceres animation lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Visuals.AnimationColor(8, 0),"Ceres animation upper bound");
-        Console.WriteLine("Stream 5 Ceres door ramp:48 native colors, six shared setup slots and the canonical identity pass; stock seeds, phases and escape colors store no edits.");
+        Console.WriteLine("Stream 5 Ceres door ramp:48 native colors and the canonical identity pass.");
 
         PaletteRgb5[] Colors(int source,int count) => Enumerable.Range(0,count).Select(index =>
         {
@@ -1388,7 +1353,7 @@ internal static class LookupStream5Verification
                 content.AppendWords("escape",expected.Escape.Select(Pack).ToArray());
                 content.AppendWordFrames("animation",expected.Animation.Select(row=>row.Select(Pack).ToArray()).ToArray());
             });
-            AssertEqual(identity,source.ContentIdentity,"Ceres calculated colors preserve canonical resource identity");
+            AssertEqual(identity,source.ContentIdentity,"Ceres installed colors preserve canonical resource identity");
         }
     }
     /// <summary>Checks the extraction's corpse row upload lists and the sand geometry bounds.</summary>
@@ -1695,24 +1660,16 @@ internal static class LookupStream5Verification
         byte[] planar = Enumerable.Range(0, CeresDoorVisualFormat.CharacterBytes).Select(i => rom.ReadCartridgeByte(CeresSourceDefinitions.Door.Characters + i)).ToArray();
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);
         using var png = new MemoryStream(); IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        CeresDoorNormalPaint stock = Check();
-        AssertEqual(13, stock.paint.Count, "Thirteen local material seeds remain after shared warm extraction");
-        string[] warmSeeds = ["highlightBlue", "amberRed", "amberGreen", "red", "goldRed", "goldGreen", "goldBlue"];
-        AssertTrue(warmSeeds.Order(StringComparer.Ordinal).SequenceEqual(MetadataShape.Fields(typeof(CeresDoorWarmTargetPaint), flags)
-            .Where(field => field.FieldType == typeof(int)).Select(field => field.Name).Order(StringComparer.Ordinal)), "Seven exact shared warm material inputs");
-        AssertEqual(0, stock.WarmTargets.edits.Count, "Shared native warm shades need no overrides");
-        AssertEqual(0, stock.edits.Count, "Native calculated channels need no unexplained overrides");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ColorAt(-1), "Normal lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ColorAt(15), "Normal upper bound");
-        Console.WriteLine("Ceres normal: fifteen native colors, thirteen local plus seven shared seeds/zero overrides,two actual initializers, hash and bounds pass.");
+        CeresDoorVisuals stock = Check();
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.NormalColor(-1), "Normal lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.NormalColor(15), "Normal upper bound");
+        Console.WriteLine("Ceres normal: fifteen native colors,two actual initializers, hash and bounds pass.");
 
-        CeresDoorNormalPaint Check()
+        CeresDoorVisuals Check()
         {
             ushort Pack(PaletteRgb5 c) => (ushort)(c.Red | c.Green << 5 | c.Blue << 10);
-            var basis = CeresDoorPaintRecognition.Normal(ToColors(document.Normal.Select(Pack).ToArray()));
             var visual = CeresDoorVisualFiles.Read(new MemoryStream(png.ToArray()), new MemoryStream(CeresDoorVisualFiles.Write(document)));
-            for (int color = 0; color < 15; color++) AssertEqual(Pack(document.Normal[color]), basis.ColorAt(color), "Every supplied normal channel");
+            for (int color = 0; color < 15; color++) AssertEqual(Pack(document.Normal[color]), visual.Visuals.NormalColor(color), "Every installed normal channel");
             foreach (ushort variant in new ushort[] { 0, 3 })
             {
                 var system = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()) { TileArtwork = EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }) };
@@ -1726,8 +1683,8 @@ internal static class LookupStream5Verification
                 content.Append("tiles", planar); content.AppendWords("normal", document.Normal.Select(Pack).ToArray()); content.AppendWords("escape", document.Escape.Select(Pack).ToArray());
                 content.AppendWordFrames("animation", document.Animation.Select(row => row.Select(Pack).ToArray()).ToArray());
             });
-            AssertEqual(identity, visual.ContentIdentity, "Normal paint keeps the escape/animation and canonical hash");
-            return basis;
+            AssertEqual(identity, visual.ContentIdentity, "Normal colours keep the escape/animation and canonical hash");
+            return visual.Visuals;
         }
     }
 
@@ -1747,22 +1704,16 @@ internal static class LookupStream5Verification
         byte[] planar = Enumerable.Range(0, CeresDoorVisualFormat.CharacterBytes).Select(i => rom.ReadCartridgeByte(CeresSourceDefinitions.Door.Characters + i)).ToArray();
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);
         using var png = new MemoryStream(); IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
-        CeresDoorEscapePaint stock = Check();
-        // The highlight/edge/outline levels live in the surface paint the escape palette composes.
-        object surface = stock.surface;
-        AssertEqual(4, (((CeresDoorEscapeSurfacePaint)surface).highlightAndEdgeLevels).Length, "Four selected highlight/edge/outline levels");
-        AssertEqual(0, stock.edits.Count, "Native calculated channels need no unexplained overrides");
-        AssertEqual(0, (((CeresDoorEscapeSurfacePaint)surface).edits).Count, "Native calculated surface channels need no unexplained overrides");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ColorAt(-1), "Escape lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ColorAt(15), "Escape upper bound");
-        Console.WriteLine("Ceres escape: fifteen native colors, eight paint seeds/zero overrides,two actual escape initializers, hash and bounds pass.");
+        CeresDoorVisuals stock = Check();
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.EscapeColor(-1), "Escape lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.EscapeColor(15), "Escape upper bound");
+        Console.WriteLine("Ceres escape: fifteen native colors,two actual escape initializers, hash and bounds pass.");
 
-        CeresDoorEscapePaint Check()
+        CeresDoorVisuals Check()
         {
             ushort Pack(PaletteRgb5 c) => (ushort)(c.Red | c.Green << 5 | c.Blue << 10);
-            var basis = CeresDoorPaintRecognition.Escape(ToColors(document.Escape.Select(Pack).ToArray()), CeresDoorPaintRecognition.Normal(ToColors(document.Normal.Select(Pack).ToArray())));
             var visual = CeresDoorVisualFiles.Read(new MemoryStream(png.ToArray()), new MemoryStream(CeresDoorVisualFiles.Write(document)));
-            for (int color = 0; color < 15; color++) AssertEqual(Pack(document.Escape[color]), basis.ColorAt(color), "Every supplied escape channel");
+            for (int color = 0; color < 15; color++) AssertEqual(Pack(document.Escape[color]), visual.Visuals.EscapeColor(color), "Every installed escape channel");
             foreach (ushort variant in new ushort[] { 0, 3 })
             {
                 var system = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()) { RidleyEncounter = { CeresStatus = CeresEscapeStatus.SelfDestructStarted }, TileArtwork = EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }) };
@@ -1776,8 +1727,8 @@ internal static class LookupStream5Verification
                 content.Append("tiles", planar); content.AppendWords("normal", document.Normal.Select(Pack).ToArray()); content.AppendWords("escape", document.Escape.Select(Pack).ToArray());
                 content.AppendWordFrames("animation", document.Animation.Select(row => row.Select(Pack).ToArray()).ToArray());
             });
-            AssertEqual(identity, visual.ContentIdentity, "Escape paint keeps the normal/animation and canonical hash");
-            return basis;
+            AssertEqual(identity, visual.ContentIdentity, "Escape colours keep the normal/animation and canonical hash");
+            return visual.Visuals;
         }
     }
 
@@ -1797,24 +1748,19 @@ internal static class LookupStream5Verification
         byte[] planar = Enumerable.Range(0, CeresDoorVisualFormat.CharacterBytes).Select(i => rom.ReadCartridgeByte(CeresSourceDefinitions.Door.Characters + i)).ToArray();
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);
         using var png = new MemoryStream(); IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
-        CeresDoorAnimationPaint stock = Check();
-        AssertEqual(17, stock.firstSeedBlue, "Selected beacon blue");
-        AssertEqual(14, stock.dimMiddleAmberRed, "Selected dim amber red");
-        foreach (int overrides in new[] { stock.seedEdits.Count, stock.edits.Count })
-            AssertEqual(0, overrides, "All native beacon dependencies calculate without overrides");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ColorAt(-1, 0), "Beacon row lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ColorAt(8, 0), "Beacon row upper bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ColorAt(0, -1), "Beacon color lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ColorAt(0, 6), "Beacon color upper bound");
-        Console.WriteLine("Ceres beacon:48native colors/zero stock overrides,the64-tick row selection cycle, hash and bounds pass.");
+        CeresDoorVisuals stock = Check();
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.AnimationColor(-1, 0), "Beacon row lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.AnimationColor(8, 0), "Beacon row upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.AnimationColor(0, -1), "Beacon color lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.AnimationColor(0, 6), "Beacon color upper bound");
+        Console.WriteLine("Ceres beacon:48native colors,the64-tick row selection cycle, hash and bounds pass.");
 
-        CeresDoorAnimationPaint Check()
+        CeresDoorVisuals Check()
         {
             ushort Pack(PaletteRgb5 c) => (ushort)(c.Red | c.Green << 5 | c.Blue << 10);
-            var basis = CeresDoorPaintRecognition.Animation(ToColors(document.Animation.Select(row => row.Select(Pack).ToArray()).ToArray()), CeresDoorPaintRecognition.Normal(ToColors(document.Normal.Select(Pack).ToArray())));
             var visual = CeresDoorVisualFiles.Read(new MemoryStream(png.ToArray()), new MemoryStream(CeresDoorVisualFiles.Write(document)));
             for (int row = 0; row < 8; row++) for (int color = 0; color < 6; color++)
-                AssertEqual(Pack(document.Animation[row][color]), basis.ColorAt(row, color), "Every supplied beacon channel");
+                AssertEqual(Pack(document.Animation[row][color]), visual.Visuals.AnimationColor(row, color), "Every installed beacon channel");
             var system = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new StandaloneRoomEnemyServices(() => 0) { Floor = RoomBackgroundsFixtures.CeresFloor() }) { TileArtwork = EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }) };
             system.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
             RoomEnemySlot door = system.SlotTable.Slots[0];
@@ -1830,8 +1776,8 @@ internal static class LookupStream5Verification
                 content.Append("tiles", planar); content.AppendWords("normal", document.Normal.Select(Pack).ToArray()); content.AppendWords("escape", document.Escape.Select(Pack).ToArray());
                 content.AppendWordFrames("animation", document.Animation.Select(row => row.Select(Pack).ToArray()).ToArray());
             });
-            AssertEqual(identity, visual.ContentIdentity, "Beacon paint keeps the normal/escape/platform and canonical hash");
-            return basis;
+            AssertEqual(identity, visual.ContentIdentity, "Beacon colours keep the normal/escape/platform and canonical hash");
+            return visual.Visuals;
         }
     }
 

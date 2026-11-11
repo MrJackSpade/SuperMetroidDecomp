@@ -33,7 +33,6 @@ public static class EnemySpritemapDocuments
                 "Enemy compositions require the current version and every named frame.");
 
         var frames = new Dictionary<EnemyFrameId, EnemySpritemapParts>();
-        BabyMetroidSpriteParts? sharedBabyBody = null;
         var identities = new Dictionary<string, EnemyFrameId>(StringComparer.Ordinal);
         foreach (EnemyFrameName frame in expected)
         {
@@ -42,9 +41,7 @@ public static class EnemySpritemapDocuments
                 visual is null || visual.Length > EnemySpritemapCompiler.MaximumParts)
                 throw new InvalidDataException(
                     $"Enemy composition {authoredName} is missing or exceeds OAM capacity.");
-            EnemySpritemapParts parts = BabyMetroidSpriteParts.Compile(frame.Frame,
-                EnemySpritemapCompiler.CompileParts(visual, frame.Name), ref sharedBabyBody);
-            parts = ChozoStrideArtwork.Compile(frame.Frame, parts);
+            EnemySpritemapParts parts = EnemySpritemapParts.FromOwnedArray(EnemySpritemapCompiler.CompileParts(visual, frame.Name));
             if (!frames.TryAdd(frame.Frame, parts))
                 throw new InvalidDataException(
                     $"Enemy composition {frame.Name} repeats a visual identity.");

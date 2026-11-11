@@ -60,7 +60,7 @@ internal static class EndingObjectArtworkVerification
         }
     }
 
-    /// <summary>Compares the six cloud compositions and grids with native OAM.</summary>
+    /// <summary>Compares the six cloud compositions with native OAM.</summary>
     internal static void VerifyEndingCloudDefinitions(ISnesAddressSpace bus)
     {
         string[] names = ["scene-b-upper-a", "scene-b-upper-b", "scene-b-lower-a", "scene-b-lower-b", "scene-a-right", "scene-a-left"];
@@ -77,32 +77,22 @@ internal static class EndingObjectArtworkVerification
             AssertEqual(names[index], catalog[index].Name, "cloud published asset key");
             SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(bus, map, count, names[index]);
             SpriteComposition supplied = IntroCinematicSpriteCompiler.Compile(visual, names[index]);
-            var grid = new EndingCloudGridParts((EndingCloudSpriteDefinitions.Role)index);
-            SpriteComposition calculated = supplied.CalculateIfMatching(grid);
-            AssertTrue(!ReferenceEquals(supplied, calculated), "all original cloud parts use calculated grid");
-            string Identity(SpriteComposition value) => SelectedPresentationHash.Create("cloud", value.AppendIdentity);
-            AssertEqual(Identity(supplied), Identity(calculated), "cloud grid complete visual identity");
             foreach (ushort y in new ushort[] { 72, 0xfff8 })
             {
                 var originalOam = new OamBuffer();
-                var calculatedOam = new OamBuffer();
-                originalOam.BeginFrame(); calculatedOam.BeginFrame();
+                var compiledOam = new OamBuffer();
+                originalOam.BeginFrame(); compiledOam.BeginFrame();
                 DrawImportedSpritemap(bus, originalOam, header, new(120, y), 0x0800, originIsOnScreen: y == 72);
-                if (y == 72) calculated.DrawOnScreen(calculatedOam, new(120, y), 0x0800);
-                else calculated.DrawOffScreen(calculatedOam, new(120, y), 0x0800);
-                originalOam.FinalizeFrame(); calculatedOam.FinalizeFrame();
-                AssertTrue(originalOam.ImageEquals(calculatedOam),
-                    "cloud grid preserves native OAM and clipping");
+                if (y == 72) supplied.DrawOnScreen(compiledOam, new(120, y), 0x0800);
+                else supplied.DrawOffScreen(compiledOam, new(120, y), 0x0800);
+                originalOam.FinalizeFrame(); compiledOam.FinalizeFrame();
+                AssertTrue(originalOam.ImageEquals(compiledOam),
+                    "cloud composition preserves native OAM and clipping");
             }
-            foreach (int invalid in new[] { int.MinValue, -1, count, int.MaxValue })
-                AssertThrows<ArgumentOutOfRangeException>(() => _ = grid[invalid], "cloud grid part bounds");
         }
         AssertTrue(catalog.Select(frame => frame.Name).SequenceEqual(names), "cloud catalog enumeration order");
         foreach (int invalid in new[] { int.MinValue, -1, 6, int.MaxValue })
-        {
             AssertThrows<ArgumentOutOfRangeException>(() => _ = catalog[invalid], "cloud catalog bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = new EndingCloudGridParts((EndingCloudSpriteDefinitions.Role)invalid), "cloud grid role bounds");
-        }
     }
 
     /// <summary>Checks ending OBJ sheets, sprite actors, backgrounds, and guarded runtime reads.</summary>

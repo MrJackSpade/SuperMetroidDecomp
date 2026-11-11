@@ -24,10 +24,7 @@ internal static class IntroEggEffectProgramsVerification
                 LittleEndianBytes.Word(IntroEggEffectFrameCatalogRomByte(rom, 0x8c0000 + pointer), IntroEggEffectFrameCatalogRomByte(rom, 0x8c0001 + pointer)), "original one-part egg-effect record");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 11, int.MaxValue })
-        {
             AssertThrows<IndexOutOfRangeException>(() => { _ = frames[invalid]; }, "egg-effect catalog boundary");
-            AssertThrows<ArgumentOutOfRangeException>(() => IntroEggEffectSpritePoses.FramePose(invalid), "egg-effect pointer boundary");
-        }
         AssertTrue(frames.SequenceEqual(frames.ToArray()), "egg-effect enumeration order");
     }
 

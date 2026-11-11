@@ -46,9 +46,7 @@ public sealed class IntroScientistSpritePresentation : ICinematicSpriteFrames
                 visual is null)
                 throw new InvalidDataException(
                     $"Intro scientist sprite frame {definition.Name} is missing.");
-            frames.Add(definition.Pose,
-                IntroScientistParts.CalculateIfMatching(definition.Pose,
-                    IntroCinematicSpriteCompiler.Compile(visual, definition.Name)));
+            frames.Add(definition.Pose, IntroCinematicSpriteCompiler.Compile(visual, definition.Name));
         }
         return new IntroScientistSpritePresentation(frames);
     }

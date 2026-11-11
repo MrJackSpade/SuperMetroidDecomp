@@ -73,8 +73,8 @@ internal static class IntroScreenMemory
         Array.Fill(tiles, IntroNarrationTilemapConstants.Blank);
         for (int index = 0; index < IntroNarrationTilemapConstants.GameplayBlankStartIndex; index++)
         {
-            tiles[index] = IntroFinalLineTilemapFormat.MarginTile;
-            tiles[index + IntroNarrationTilemapConstants.JapaneseBlankBottomDelta] = IntroFinalLineTilemapFormat.MarginTile;
+            tiles[index] = IntroNarrationTilemapConstants.Margin;
+            tiles[index + IntroNarrationTilemapConstants.JapaneseBlankBottomDelta] = IntroNarrationTilemapConstants.Margin;
         }
         IntroCinematicSourceArtwork.Of(artwork).FinalLine.Tiles.Span[..IntroArtworkExtentDefinitions.FinalLineWordCount].CopyTo(tiles.AsSpan(IntroNarrationTilemapConstants.FinalLineFirstCell));
         tiles[IntroNarrationTilemapConstants.FinalBlankLeftIndex] = IntroNarrationTilemapConstants.FinalBlank;

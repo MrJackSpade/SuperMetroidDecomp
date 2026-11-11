@@ -45,9 +45,7 @@ public sealed class IntroCaretSpritePresentation : ICinematicSpriteFrames
             if (!document.Frames.TryGetValue(definition.Name, out SpriteVisualPart[]? visual) ||
                 visual is null || visual.Length > IntroCaretSpriteDefinitions.MaximumParts)
                 throw new InvalidDataException($"Opening caret frame {definition.Name} is missing or too large.");
-            frames.Add(definition.Pose,
-                IntroScientistParts.CalculateIfMatching(definition.Pose,
-                    IntroCinematicSpriteCompiler.Compile(visual, definition.Name)));
+            frames.Add(definition.Pose, IntroCinematicSpriteCompiler.Compile(visual, definition.Name));
         }
         return new IntroCaretSpritePresentation(frames);
     }

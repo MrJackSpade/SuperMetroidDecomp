@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 /// <summary>Reads and writes the installed cutscene Baby Metroid colour document.</summary>
 public static class BabyMetroidCutsceneColorFile
 {
-    /// <summary>Compiles initial and fade RGB5 artwork from installed JSON, retaining edits independently of the calculated native color compositions.</summary>
+    /// <summary>Reads the installed initial and fade RGB5 artwork, keeping every colour as installed.</summary>
     /// <param name="json">UTF-8 JSON input read from its current position; the stream remains open.</param>
     /// <returns>A catalog whose private compiled images are independent of the source document's mutable arrays.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
@@ -25,11 +25,11 @@ public static class BabyMetroidCutsceneColorFile
         if (document.Fade is null ||
             document.Fade.Length != BabyMetroidCutsceneColorDefinitions.FadeFrameCount)
             throw new InvalidDataException("Cutscene Baby fade requires six displayed frames.");
-        return new(BabyAndShitroidColorRecognition.Cutscene(Compile(document.Initial,
+        return new(Compile(document.Initial,
                 BabyMetroidCutsceneColorFormat.InitialColorCount, "initial"),
             document.Fade.Select((frame, index) => Compile(frame,
                 BabyMetroidCutsceneColorFormat.FadeColorCount,
-                $"fade frame {index + 1}")).ToArray()));
+                $"fade frame {index + 1}")).ToArray());
     }
 
     /// <summary>Serializes editable artwork as indented, camel-case UTF-8 JSON.</summary>

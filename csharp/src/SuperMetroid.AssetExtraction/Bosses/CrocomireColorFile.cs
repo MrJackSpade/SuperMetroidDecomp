@@ -12,7 +12,7 @@ public static class CrocomireColorFile
 {
     /// <summary>Loads version-1 <c>crocomire-colors.json</c>, validating the five native transfer lengths and RGB5 channel bounds while keeping hurt-flash and death transitions in actor code.</summary>
     /// <param name="json">Caller-owned JSON stream consumed from its current position and left open; unknown and duplicate properties are rejected.</param>
-    /// <returns>Selected compiled inks, preserving independent supplied edits even where stock source transfers overlap.</returns>
+    /// <returns>Every transfer's installed colours, kept as installed even where stock source transfers overlap.</returns>
     public static CrocomireColorCatalog Read(Stream json)
     {
         Ensure.NotNull(json);
@@ -20,7 +20,7 @@ public static class CrocomireColorFile
         document = JsonAssetDocument.Read<CrocomireColorDocument>(json, ArtworkJson.Options, "Crocomire color");
         if (document.Version != CrocomireColorFormat.Version)
             throw new InvalidDataException("Crocomire colors require the supported version.");
-        return new(Edits(new()
+        return new(new()
         {
             [CrocomireColorCatalog.Band.FightBody] =
                 Compile(document.FightBody, CrocomireColorDefinitions.FightBodyCount, "fight body"),
@@ -32,20 +32,7 @@ public static class CrocomireColorFile
                 Compile(document.SkeletonArm, CrocomireColorDefinitions.SkeletonArmCount, "skeleton arm"),
             [CrocomireColorCatalog.Band.WallSpikes] =
                 Compile(document.WallSpikes, CrocomireColorDefinitions.WallSpikesCount, "wall spikes"),
-        }));
-    }
-
-    /// <summary>Keeps each supplied color of every band that differs from its calculated stock paint.</summary>
-    private static Dictionary<CrocomireColorKey, RgbColor> Edits(Dictionary<CrocomireColorCatalog.Band, RgbColor[]> supplied)
-    {
-        var edits = new Dictionary<CrocomireColorKey, RgbColor>();
-        foreach ((CrocomireColorCatalog.Band band, RgbColor[] colors) in supplied)
-        {
-            for (int color = 0; color < colors.Length; color++)
-                if (colors[color] != CrocomireColorCatalog.StockPaint[band](color))
-                    edits.Add(new CrocomireColorKey(band, color), colors[color]);
-        }
-        return edits;
+        });
     }
 
     /// <summary>Serializes the five editable color bands as indented camel-case UTF-8 JSON.</summary>

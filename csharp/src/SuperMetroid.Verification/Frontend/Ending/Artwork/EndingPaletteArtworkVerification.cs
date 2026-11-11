@@ -21,7 +21,7 @@ namespace SuperMetroid.Verification.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>
-/// Checks the ending colours the import decodes (#1544): their cartridge sources, the logo's calculated fade, the installed
+/// Checks the ending colours the import decodes (#1544): their cartridge sources, the logo's decoded fade, the installed
 /// scene backdrops, and an installed ending that reads no colour from the cartridge.
 /// </summary>
 internal static class EndingPaletteArtworkVerification
@@ -33,7 +33,6 @@ internal static class EndingPaletteArtworkVerification
     internal static void VerifyEndingLogoPaletteFade(CartridgeImportAddressSpace rom)
     {
         var original = new byte[512 * 2];
-        var colors = new PaletteRgb5[512];
         // The original pointer list and reverse-copy operand order are the oracle.
         // Neither the production source selector nor the proposed arithmetic supplies it.
         for (int step = 0; step < 16; step++)
@@ -45,31 +44,13 @@ internal static class EndingPaletteArtworkVerification
             int index = step * 32 + palette * 16 + color;
             original[index * 2] = (byte)word;
             original[index * 2 + 1] = LittleEndianBytes.HighByte(word);
-            colors[index] = new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
         }
-        var background = new ushort[16];
-        for (int color = 0; color < 16; color++) background[color] = rom.ReadCartridgeWord((0x8cf1e9 + color * 2));
-        EndingLogoBackgroundPalette gradient = EndingLogoBackgroundPalette.TryCreate(ToColors(background))
-            ?? throw new InvalidOperationException("Original logo background must use a computed grey gradient.");
-        for (int color = 0; color < 16; color++)
-            AssertEqual(background[color], gradient.Color(color), "all original logo endpoint shades computed exactly");
-        foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => gradient.Color(invalid), "logo background gradient bounds");
-        EndingLogoPaletteFade fade = EndingPaletteRecognition.LogoFade(EndingLogoPaletteFadeAccess.DecodeWords(original))
-            ?? throw new InvalidOperationException("Original logo fade must use computed interpolation.");
         EndingPalette loaded = EndingPaletteImport.Read(rom)[EndingPaletteId.LogoCrossfade];
-        int remaindersSeen = 0;
         for (int index = 0; index < 512; index++)
         {
             ushort expected = LittleEndianBytes.Word(original[index * 2], original[index * 2 + 1]);
-            AssertEqual(expected, fade.Color(index), "all original logo fade colors computed exactly");
-            AssertEqual(expected, loaded.CrossfadeColorAt(index), "computed fade reaches the decoded crossfade");
-            int palette = index / 16 % 2, step = index / 32;
-            PaletteRgb5 endpoint = colors[(palette == 0 ? 15 * 32 : 16) + index % 16];
-            foreach (int channel in new[] { endpoint.Red, endpoint.Green, endpoint.Blue })
-                remaindersSeen |= 1 << (channel * (palette == 0 ? step : 15 - step) % 15);
+            AssertEqual(expected, loaded.CrossfadeColorAt(index), "every native logo fade colour reaches the decoded crossfade");
         }
-        AssertEqual(0x7fff, remaindersSeen, "original data exercises every quantization remainder");
         // The logo reads each step's colours by layer; the native resource holds each step's background colours, then its
         // sprite colours.
         for (int step = 0; step < 16; step++)
@@ -78,15 +59,12 @@ internal static class EndingPaletteArtworkVerification
             int offset = (step * 32 + color) * 2;
             AssertEqual(LittleEndianBytes.Word(original[offset], original[offset + 1]),
                 loaded.LogoCrossfadeColour(step, color < 16 ? EndingLogoLayer.Background : EndingLogoLayer.Sprites, color % 16),
-                "computed fade step colour by layer");
+                "decoded fade step colour by layer");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 512, int.MaxValue })
-        {
-            AssertThrows<ArgumentOutOfRangeException>(() => fade.Color(invalid), "computed fade index domain");
             AssertThrows<ArgumentOutOfRangeException>(() => loaded.CrossfadeColorAt(invalid), "decoded fade index domain");
-        }
-        AssertThrows<ArgumentOutOfRangeException>(() => loaded.LogoCrossfadeColour(16, EndingLogoLayer.Background, 0), "computed fade step bounds");
-        AssertThrows<ArgumentOutOfRangeException>(() => loaded.LogoCrossfadeColour(0, EndingLogoLayer.Sprites, 16), "computed fade colour bounds");
+        AssertThrows<ArgumentOutOfRangeException>(() => loaded.LogoCrossfadeColour(16, EndingLogoLayer.Background, 0), "decoded fade step bounds");
+        AssertThrows<ArgumentOutOfRangeException>(() => loaded.LogoCrossfadeColour(0, EndingLogoLayer.Sprites, 16), "decoded fade colour bounds");
         AssertEqual(512, loaded.Colours.Length, "decoded fade holds every crossfade colour");
     }
 

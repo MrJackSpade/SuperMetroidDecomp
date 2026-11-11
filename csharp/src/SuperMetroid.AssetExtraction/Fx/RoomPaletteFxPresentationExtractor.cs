@@ -18,9 +18,9 @@ internal static class RoomPaletteFxPresentationExtractor
         RoomPaletteFxPresentationFile.Write(json, new RoomPaletteFxPresentationDocument
         {
             Version = RoomPaletteFxPresentationFormat.Version,
-            SamusHeatPowerSuit = ExtractFrames(HeatPaletteColors.ColorFrames(PaletteFxHeatSuit.Power)),
-            SamusHeatVariaSuit = ExtractFrames(HeatPaletteColors.ColorFrames(PaletteFxHeatSuit.Varia)),
-            SamusHeatGravitySuit = ExtractFrames(HeatPaletteColors.ColorFrames(PaletteFxHeatSuit.Gravity)),
+            SamusHeatPowerSuit = ExtractFrames(Heat(PaletteFxHeatSuit.Power)),
+            SamusHeatVariaSuit = ExtractFrames(Heat(PaletteFxHeatSuit.Varia)),
+            SamusHeatGravitySuit = ExtractFrames(Heat(PaletteFxHeatSuit.Gravity)),
             NorfairForegroundAndHeatPhase = ExtractFrames(Norfair(NorfairEnvironmentalPaletteOwner.ForegroundAndHeatPhase)),
             NorfairGreenForeground = ExtractFrames(Norfair(NorfairEnvironmentalPaletteOwner.GreenForeground)),
             NorfairPurpleForeground = ExtractFrames(Norfair(NorfairEnvironmentalPaletteOwner.PurpleForeground)),
@@ -65,9 +65,9 @@ internal static class RoomPaletteFxPresentationExtractor
             ZebesExplosionGreyClouds = ExtractFrames(ZebesExplosionLayerFadePaletteFxColorDefinitions.All.Single(
                 item => item.Owner == ZebesExplosionLayerFadePaletteFxProgramOwner.GreyClouds).ColorFrames),
             ZebesExplosionGunship = ExtractFrames(ZebesExplosionGunshipPaletteFxColorDefinitions.ColorFrames),
-            SamusLoadingPowerSuit = ExtractFrames(LoadingPaletteColors.ColorFrames(PaletteFxHeatSuit.Power)),
-            SamusLoadingVariaSuit = ExtractFrames(LoadingPaletteColors.ColorFrames(PaletteFxHeatSuit.Varia)),
-            SamusLoadingGravitySuit = ExtractFrames(LoadingPaletteColors.ColorFrames(PaletteFxHeatSuit.Gravity)),
+            SamusLoadingPowerSuit = ExtractFrames(Loading(SamusLoadingSuitPaletteFxProgramOwner.PowerSuit)),
+            SamusLoadingVariaSuit = ExtractFrames(Loading(SamusLoadingSuitPaletteFxProgramOwner.VariaSuit)),
+            SamusLoadingGravitySuit = ExtractFrames(Loading(SamusLoadingSuitPaletteFxProgramOwner.GravitySuit)),
             PostCreditsIconGlare = ExtractFrames(PostCreditsIconGlarePaletteFxColorDefinitions.ColorFrames),
             TourianEscapeShutter = ExtractFrames(TourianEscapeRedFlashPaletteFxColorDefinitions.All.Single(
                 item => item.Owner == TourianEscapeRedFlashPaletteOwner.Shutter).ColorFrames),
@@ -93,6 +93,12 @@ internal static class RoomPaletteFxPresentationExtractor
 
         static PaletteFxColorFrames Maridia(MaridiaEnvironmentalPaletteOwner owner) =>
             MaridiaEnvironmentalPaletteFxColorDefinitions.All.Single(item => item.Owner == owner).ColorFrames;
+
+        static PaletteFxColorFrames Heat(PaletteFxHeatSuit suit) =>
+            PaletteFxHeatProgramMechanicsDefinitions.All.Single(item => item.Suit == suit).ColorFrames;
+
+        static PaletteFxColorFrames Loading(SamusLoadingSuitPaletteFxProgramOwner owner) =>
+            SamusLoadingSuitPaletteFxColorDefinitions.All.Single(item => item.Owner == owner).ColorFrames;
 
         PaletteRgb5[][] ExtractFrames(PaletteFxColorFrames colorFrames) => PaletteFxColorExtraction.ReadFrames(bus, colorFrames);
     }

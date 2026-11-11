@@ -12,7 +12,7 @@ public static class SporeSpawnColorFile
 {
     /// <summary>Loads version-1 <c>spore-spawn-colors.json</c>, validating exact palette-row dimensions and RGB5 channels from 0 through 31 while keeping health thresholds and death timing in boss code.</summary>
     /// <param name="json">Caller-owned stream consumed from its current position and left open; unknown and duplicate properties are rejected.</param>
-    /// <returns>Compiled colors retaining independent edits and using calculated shared colors or fade samples only where supplied values agree.</returns>
+    /// <returns>Every installed colour set, kept as installed.</returns>
     public static SporeSpawnColorCatalog Read(Stream json)
     {
         Ensure.NotNull(json);
@@ -20,7 +20,7 @@ public static class SporeSpawnColorFile
         document = JsonAssetDocument.Read<SporeSpawnColorDocument>(json, ArtworkJson.Options, "Spore Spawn color");
         if (document.Version != SporeSpawnColorFormat.Version)
             throw new InvalidDataException("Spore Spawn colors require the supported version.");
-        return new(SporeSpawnColorEdits.Select(
+        return new(
             Compile(document.Spores, "spores"),
             CompileFrames(document.Health, SporeSpawnColorDefinitions.HealthFrameCount, "health"),
             CompileFrames(document.DeathSprite, SporeSpawnColorFormat.DeathSpriteFrameCount,
@@ -28,7 +28,7 @@ public static class SporeSpawnColorFile
             CompileFrames(document.DeathLevel, SporeSpawnColorFormat.DeathSceneFrameCount,
                 "death level"),
             CompileFrames(document.DeathBackground, SporeSpawnColorFormat.DeathSceneFrameCount,
-                "death background")));
+                "death background"));
     }
 
     /// <summary>Serializes the editable palette document as indented camel-case UTF-8 JSON.</summary>

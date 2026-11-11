@@ -37,7 +37,7 @@ public sealed class ShownHud
     /// </summary>
     /// <param name="drawn">The HUD gameplay shows now.</param>
     public ShownHud WithDrawnRowsOf(ShownHud drawn) => new([
-        .. Images.Where(placed => InTopRow(placed)),
+        .. Images.Where(InTopRow),
         .. Ensure.NotNull(drawn).Images.Where(placed => !InTopRow(placed)),
     ]);
 

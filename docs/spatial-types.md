@@ -47,6 +47,7 @@ different types; moving between spaces is always a named conversion.
 | `MapPixels` | Area-map plane pixels (eight per tile): map scroll offsets, scroll bounds and map marker/arrow positions. |
 | `FloorPixels` | Coordinates on a turning, scaling floor image, and the centre it turns about. |
 | `CharacterPixels` | Pixels inside one eight-by-eight character cell. |
+| `CharacterCells` | Import only: cells of a decoded grid of characters (the cartridge's tilemaps, the editable tile documents); the import turns a cell into the pixel the game places a picture at. |
 | `ImagePixels` | Host raster pixels: decoded images, artwork atlases and other host images. |
 | `DisplayPixels` | Host window/swapchain pixels after presentation scaling. |
 

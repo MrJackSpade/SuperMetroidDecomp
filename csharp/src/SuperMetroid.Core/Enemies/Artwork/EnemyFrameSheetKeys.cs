@@ -19,13 +19,12 @@ internal static class EnemyFrameSheetKeys
         ? key
         : throw new ArgumentOutOfRangeException(nameof(frame), frame, "The frame has no installed composition.");
 
-    /// <summary>Keys every installed composition, and the two shared empty frames by their own names.</summary>
+    /// <summary>Keys every installed composition, and the shared empty frame by its own name.</summary>
     private static FrozenDictionary<EnemyFrameId, string> Build()
     {
         var keys = new Dictionary<EnemyFrameId, string>
         {
             [EnemyFrameId.Empty] = "Empty",
-            [EnemyFrameId.EmptyExtended] = "EmptyExtended",
         };
         foreach (EnemySpritemapDefinition composition in EnemySpritemapCompositions.All.Concat(EnemyExtendedFrameCompositions.All))
             keys.Add(composition.Frame, PascalCase(composition.Name));

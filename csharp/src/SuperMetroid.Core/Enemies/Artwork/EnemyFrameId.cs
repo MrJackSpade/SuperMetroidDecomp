@@ -4008,8 +4008,9 @@ public enum EnemyFrameId
     KraidFoot33,
     /// <summary><c>kraid_foot_standing</c>, an installed extended frame.</summary>
     KraidFootStanding,
-    /// <summary>The shared empty spritemap: an enemy showing it draws nothing.</summary>
+    /// <summary>
+    /// The empty frame every enemy family shares: an enemy showing it draws nothing, and one that collides by its frames'
+    /// hitboxes collides at the single point at its origin.
+    /// </summary>
     Empty,
-    /// <summary>The shared visually empty one-component extended frame.</summary>
-    EmptyExtended,
 }

@@ -176,12 +176,12 @@ internal sealed class EnemyCollision
             if (onlyEnemy is not null && enemy != onlyEnemy)
                 continue;
 
-            // The shot pass likewise admits visually invisible actors, but rejects the
-            // engine's explicit empty frame and the ignore-Samus-collision property. Keeping
+            // The shot pass likewise admits visually invisible actors, but rejects an enemy that shows no frame or
+            // shows the empty frame while it collides by its radius, and the ignore-Samus-collision property. Keeping
             // these meanings separate mirrors the list/collision machinery. An actor
             // with no translated shot reaction is skipped.
             if (enemy.Entity is IEnemyShotAdmission admission && !admission.AdmitsShots() ||
-                CommonEnemyEmptyFrames.DrawsNothing(enemy.Frame) ||
+                CommonEnemyEmptyFrames.ShotsPass(enemy) ||
                 enemy.InvincibilityTimer != 0 ||
                 enemy.Presence.HasAny(EnemyPresence.Deleted) ||
                 enemy.Contact.HasAny(EnemyContact.IgnoresSamus) ||
@@ -220,11 +220,11 @@ internal sealed class EnemyCollision
                 }
 
                 bool usesExtendedHitboxes = UsesExtendedProjectileHitboxes(enemy);
-                // The extended shot walker returns before testing any projectile while the enemy shows
-                // the empty extended frame. Its point hitbox remains live for Samus and
-                // bombs, whose extended passes have no such check.
+                // The frame-hitbox shot test returns before testing any projectile while the enemy shows
+                // the empty frame. Its point hitbox remains live for Samus and
+                // bombs, whose frame-hitbox passes have no such check.
                 if (usesExtendedHitboxes &&
-                    CommonEnemyEmptyFrames.IsFrame(enemy.Frame))
+                    CommonEnemyEmptyFrames.CollidesAtOrigin(enemy))
                     continue;
                 if (usesExtendedHitboxes &&
                     enemy.Definition.ShotHitboxScan == EnemyHitboxScan.Withheld)
@@ -794,9 +794,9 @@ internal sealed class EnemyCollision
     {
         reaction = null;
 
-        // Multibox collision walks every frame an actor shows, and only an actor that has
-        // shown none is skipped. The common visually empty extended frame still owns a point
-        // hitbox, so it enters the same collision walker as other extended frames.
+        // Frame-hitbox collision tests every frame an actor shows, and only an actor that has
+        // shown none is skipped. The empty frame still has a point hitbox for an enemy that
+        // collides by its frames' hitboxes, so it enters the same test as every other frame.
         if (enemy.Frame is null)
             return false;
 
@@ -810,9 +810,9 @@ internal sealed class EnemyCollision
             SelectsShot: contactKind == HitboxContactKind.Shot,
             ArtworkInstalled: _room.FrameDisplays is not null);
 
-        if (CommonEnemyEmptyFrames.IsFrame(enemy.Frame))
+        if (CommonEnemyEmptyFrames.CollidesAtOrigin(enemy))
         {
-            // The shared empty frame has a single zero-radius point at the
+            // The empty frame has a single zero-radius point at the
             // enemy origin. Run the same asymmetric overlap test before
             // selecting its common touch/shot reaction.
             if (!target.Overlaps(enemy.Position.X.Whole, enemy.Position.Y.Whole, enemy.Position.X.Whole, enemy.Position.Y.Whole))

@@ -14,10 +14,10 @@ internal static class CompiledEnemyDisplayAudit
     {
         const string path = "csharp/src/SuperMetroid.Core/World/EnemyDrawList.cs";
         SyntaxTreeGuard(root, path);
-        foreach (byte bank in CommonEnemyEmptyExtendedFrameDefinitionsTooling.SupportedBanks)
+        foreach (byte bank in CommonEnemyEmptyFrameDefinitionsTooling.SupportedBanks)
         {
-            ushort pointer = CommonEnemyEmptyExtendedFrameToolingDefinitions.EmptySpritemap;
-            if (!CommonEnemyEmptyExtendedFrameToolingDefinitions.HasEmptySpritemap(bank, pointer))
+            ushort pointer = CommonEnemyEmptyFrameToolingDefinitions.EmptySpritemap;
+            if (!CommonEnemyEmptyFrameToolingDefinitions.HasEmptySpritemap(bank, pointer))
                 throw new InvalidDataException("The compiled empty-frame bank list disagrees with its production predicate.");
             string key = ResourceIndex.Address(bank, pointer);
             exports.Add(ResourceDomains.EnemyDisplay, key);

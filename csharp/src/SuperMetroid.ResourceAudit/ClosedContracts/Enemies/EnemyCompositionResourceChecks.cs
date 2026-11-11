@@ -33,7 +33,7 @@ internal static class EnemyCompositionResourceChecks
         var pointers = new HashSet<ushort>();
         foreach (ushort pointer in spritemaps)
         {
-            if (CommonEnemyEmptyExtendedFrameToolingDefinitions.HasEmptySpritemap(bank, pointer)) continue;
+            if (CommonEnemyEmptyFrameToolingDefinitions.HasEmptySpritemap(bank, pointer)) continue;
             pointers.Add(pointer);
         }
         EnemySpritemapDefinition[] expected = EnemySpritemapDefinitions.Frames.ToArray();

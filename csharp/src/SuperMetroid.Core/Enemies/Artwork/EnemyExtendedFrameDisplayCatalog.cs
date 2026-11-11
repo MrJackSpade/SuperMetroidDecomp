@@ -20,7 +20,7 @@ public sealed class EnemyExtendedFrameDisplayCatalog
 
     /// <summary>
     /// Whether the frame gameplay shows is displayed through an installed extended frame, and whether the displayed frame
-    /// has a sprite picture: a frame drawn only on the boss body layer, and the shared empty extended frame, have none.
+    /// has a sprite picture: a frame drawn only on the boss body layer, and the empty frame, have none.
     /// </summary>
     internal bool TryGetDisplay(EnemyFrameId frame, out bool pictured) =>
         EnemyExtendedFrameDisplays.TryGetDisplay(this, frame, out pictured);

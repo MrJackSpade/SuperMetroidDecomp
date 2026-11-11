@@ -40,7 +40,7 @@ internal static class EnemyDisplayArtworkContractChecks
         EnemyExtendedFrameCatalog extended = EnemyExtendedFrameDocuments.Load(Json(extendedDocument));
         EnemySpritemapDefinition extendedId = EnemyExtendedFrameDefinitions.Frames.First();
         Require(extended.TryGetDisplay(extendedId.Frame, out var components) && components.Length == 1 &&
-            extended.TryGetDisplay(EnemyFrameId.EmptyExtended, out components) && components.IsEmpty,
+            extended.TryGetDisplay(EnemyFrameId.Empty, out components) && components.IsEmpty,
             "installed extended binding and compiled empty fallback");
         extendedBindings[extendedId.Name] = "unowned-target";
         Reject(() => EnemyExtendedFrameDocuments.Load(Json(extendedDocument)), "unowned extended display target");
@@ -65,7 +65,7 @@ internal static class EnemyDisplayArtworkContractChecks
                     extended.TryGetDisplay(EnemyFrameId.{{extended.Frame}}, out _);
                     extended.TryGetDisplay(EnemyFrameId.{{simple.Frame}}, out _);
                     extended.TryGetDisplay(frame, out _);
-                    extended.TryGetDisplay(EnemyFrameId.EmptyExtended, out _);
+                    extended.TryGetDisplay(EnemyFrameId.Empty, out _);
                 }
             }
             """, path: "fixture-enemy-display-consumer.cs");

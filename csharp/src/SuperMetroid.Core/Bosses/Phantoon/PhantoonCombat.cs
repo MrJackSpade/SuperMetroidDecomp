@@ -147,7 +147,7 @@ internal sealed class PhantoonCombat
 
         RoomEnemySlot body = state.Body;
         if (body.DefinitionId != EnemyDefinitionId.PhantoonBody ||
-            CommonEnemyEmptyFrames.DrawsNothing(body.Frame) ||
+            CommonEnemyEmptyFrames.ShotsPass(body) ||
             body.InvincibilityTimer != 0 ||
             body.Presence.HasAny(EnemyPresence.Deleted) ||
             body.Contact.HasAny(EnemyContact.IgnoresSamus))

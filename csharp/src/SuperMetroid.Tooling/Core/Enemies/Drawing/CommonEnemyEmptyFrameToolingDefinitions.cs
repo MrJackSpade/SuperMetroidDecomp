@@ -1,8 +1,8 @@
 ﻿
 namespace SuperMetroid.Core.Enemies.Drawing;
 
-/// <summary>Development-tool members of <see cref="CommonEnemyEmptyExtendedFrameDefinitions"/>; never linked by player hosts.</summary>
-internal static class CommonEnemyEmptyExtendedFrameToolingDefinitions
+/// <summary>Development-tool members of <see cref="CommonEnemyEmptyFrameDefinitions"/>; never linked by player hosts.</summary>
+internal static class CommonEnemyEmptyFrameToolingDefinitions
 {
     /// <summary>
     /// The empty spritemap at $804D, at the same offset in every enemy bank (<c>Spritemap_Common_Nothing</c>): an actor

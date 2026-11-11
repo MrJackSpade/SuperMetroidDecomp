@@ -9,12 +9,12 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 internal static class EnemyExtendedFrameDisplays
 {
     /// <summary>
-    /// Finds the installed frame <paramref name="frame"/> draws. The shared empty extended frame draws nothing, so it
-    /// resolves without a stored frame before any editable drawing is needed.
+    /// Finds the installed frame <paramref name="frame"/> draws. The empty frame draws nothing, so it resolves without a
+    /// stored frame before any editable drawing is needed.
     /// </summary>
     internal static bool TryResolve(EnemyExtendedFrameDisplayCatalog catalog, EnemyFrameId frame, out EnemyFrameId? stored)
     {
-        if (CommonEnemyEmptyFrames.IsFrame(frame))
+        if (CommonEnemyEmptyFrames.DrawsNothing(frame))
         {
             stored = null;
             return true;

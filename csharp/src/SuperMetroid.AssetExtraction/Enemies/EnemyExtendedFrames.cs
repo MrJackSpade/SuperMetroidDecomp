@@ -45,7 +45,7 @@ internal static class EnemyExtendedFrames
         Components(catalog, EnemyExtendedFrameDisplays.TryResolveDisplay(catalog.Displays, frame, out EnemyFrameId? stored), stored, out components);
 
     /// <summary>
-    /// The components of a frame the placements resolved: the stored frame's, none for the shared empty extended frame
+    /// The components of a frame the placements resolved: the stored frame's, none for the empty frame
     /// (resolved without a stored frame), or nothing when the frame is not installed.
     /// </summary>
     internal static bool Components(EnemyExtendedFrameCatalog catalog, bool resolved, EnemyFrameId? stored,

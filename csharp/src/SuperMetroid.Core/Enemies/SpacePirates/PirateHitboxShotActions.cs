@@ -16,7 +16,7 @@ internal static class PirateHitboxShotActions
         SamusProjectile projectile,
         EnemyReaction? hitboxShotAi)
     {
-        // The empty extended map still has a real point hitbox. Its common callback
+        // The empty frame still has a real point hitbox for a pirate. Its common callback
         // bypasses the Ninja-specific armor tests; it must not be rejected as unknown.
         if (hitboxShotAi is EnemyReaction.SpacePirateShot or EnemyReaction.NormalEnemyShot)
             return PirateHitboxShotAction.Normal;

@@ -392,7 +392,7 @@ internal static class EnemySpritemapArtworkVerification
         AssertEqual(NorfairLavaJumperVisualDefinitions.FrameCount,
             lavaJumperFrames.Count,
             "Norfair lava jumper has eleven distinct installed identities");
-        AssertTrue(lavaJumperFrames.Contains(CommonEnemyEmptyExtendedFrameToolingDefinitions.EmptySpritemap),
+        AssertTrue(lavaJumperFrames.Contains(CommonEnemyEmptyFrameToolingDefinitions.EmptySpritemap),
             "Norfair lava jumper retains its native bank-local empty frame");
         AssertTrue(NorfairLavaJumperAnimationsConstants.Spritemaps(Enum.GetValues<NorfairLavaJumperProgram>()).ToHashSet().SetEquals(lavaJumperFrames),
             "every installed lava-jumper frame is shown by a typed program");

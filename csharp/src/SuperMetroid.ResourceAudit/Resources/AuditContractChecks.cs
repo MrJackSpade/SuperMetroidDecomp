@@ -187,12 +187,12 @@ internal static class AuditContractChecks
     private static void ConfirmEmptyFrameBoundary()
     {
         // Confirmation of the identified A8/B3 blank-frame false positives.
-        ushort empty = CommonEnemyEmptyExtendedFrameToolingDefinitions.EmptySpritemap;
-        Require(CommonEnemyEmptyExtendedFrameToolingDefinitions.HasEmptySpritemap(0xa8, empty) &&
-            CommonEnemyEmptyExtendedFrameToolingDefinitions.HasEmptySpritemap(0xb3, empty),
+        ushort empty = CommonEnemyEmptyFrameToolingDefinitions.EmptySpritemap;
+        Require(CommonEnemyEmptyFrameToolingDefinitions.HasEmptySpritemap(0xa8, empty) &&
+            CommonEnemyEmptyFrameToolingDefinitions.HasEmptySpritemap(0xb3, empty),
             "the two reported identities must be compiled no-op frames");
-        Require(!CommonEnemyEmptyExtendedFrameToolingDefinitions.HasEmptySpritemap(0xb5, empty) &&
-            !CommonEnemyEmptyExtendedFrameToolingDefinitions.HasEmptySpritemap(0xa8, unchecked((ushort)(empty + 1))),
+        Require(!CommonEnemyEmptyFrameToolingDefinitions.HasEmptySpritemap(0xb5, empty) &&
+            !CommonEnemyEmptyFrameToolingDefinitions.HasEmptySpritemap(0xa8, unchecked((ushort)(empty + 1))),
             "unsupported banks and neighboring pointers must not be classified as empty artwork");
         var exports = new ResourceIndex();
         exports.Add(ResourceDomains.EnemyDisplay, ResourceIndex.Address(0xa8, empty));

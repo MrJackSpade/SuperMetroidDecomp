@@ -25,7 +25,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out Waver's one animation cue.</summary>
-    private static WaverProgram? ApplyWaverCue(WaverEnemyState state, WaverCue cue)
+    private static void ApplyWaverCue(WaverEnemyState state, WaverCue cue)
     {
         switch (cue.Kind)
         {
@@ -33,7 +33,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
                 // The four-frame spin hands its completion back to main AI rather than
                 // going on to the steady animation itself.
                 state.SpinFinished = true;
-                return null;
+                return;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(WaverCueKind)} {cue.Kind}.");
         }
@@ -63,7 +63,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The initializer first installs the left steady animation and then asks for the spawn's facing. Only
         // right-facing spawns therefore change it; left-facing spawns ask for the installed one and keep it.
-        state.Program = AnimationProgramCursor<WaverProgram>.Start(WaverProgram.SteadyFacingLeft);
+        state.Playback = new(WaverAnimations.StartingWith(WaverProgram.SteadyFacingLeft), AnimationPlace.StartOfAnimation);
         SetWaverProgram(slot, state);
     }
 
@@ -131,7 +131,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.InstalledAnimation = requested;
-        state.Program = AnimationProgramCursor<WaverProgram>.Start(requested);
+        state.Playback = new(WaverAnimations.StartingWith(requested), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
@@ -144,7 +144,11 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Waver's typed animation.</summary>
     internal static void AdvanceWaverTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, WaverAnimations.Programs, WaverFrameDefinitions.ShownFrames.Of,
-            static (WaverEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
-            (state, cue, _) => ApplyWaverCue(state, cue));
+        EnemyProgramAnimation.Advance(slot, WaverAnimations.Segments, WaverFrameDefinitions.ShownFrames.Of,
+            static (WaverEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            (state, cue) =>
+            {
+                ApplyWaverCue(state, cue);
+                return null;
+            });
 }

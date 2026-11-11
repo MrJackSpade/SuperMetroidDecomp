@@ -146,7 +146,7 @@ internal static class YardDirectionDefinitionsVerification
         string name,
         bool assertMovementFunction)
     {
-        AssertEqual(AnimationProgramCursor<YardProgram>.Start(expected.CrawlingProgram), state.Program,
+        AssertEqual(new AnimationPlayback<YardProgram>(YardAnimations.StartingWith(expected.CrawlingProgram), AnimationPlace.StartOfAnimation), state.Playback,
             $"{name} crawling list");
         AssertEqual(expected.BlockSide, state.BlockSide,
             $"{name} block side");
@@ -167,7 +167,7 @@ internal static class YardDirectionDefinitionsVerification
         YardAirborneInstructionDefinition expected,
         string name)
     {
-        AssertEqual(AnimationProgramCursor<YardProgram>.Start(expected.VisibleProgram), state.Program,
+        AssertEqual(new AnimationPlayback<YardProgram>(YardAnimations.StartingWith(expected.VisibleProgram), AnimationPlace.StartOfAnimation), state.Playback,
             $"{name} visible list");
         AssertEqual((YardProgram?)expected.HidingProgram, state.HidingProgram,
             $"{name} hiding list");

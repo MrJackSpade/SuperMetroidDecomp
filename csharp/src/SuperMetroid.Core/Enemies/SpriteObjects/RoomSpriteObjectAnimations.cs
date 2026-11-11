@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.SpriteObjects;
 internal static class RoomSpriteObjectAnimations
 {
     /// <summary>Every room sprite-object program.</summary>
-    internal static AnimationProgramSet<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue> Programs { get; } = new(
-        new Dictionary<RoomSpriteObjectProgram, AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue>[]>
+    internal static AnimationSegments<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<RoomSpriteObjectProgram, AnimationBeat<RoomSpriteObjectFrame, NoAnimationCue>[]>
     {
         [P.DraygonFoamingAtTheMouth] =
         [
@@ -25,7 +25,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.DraygonFoamingAtTheMouth5, 8),
             Show(F.DraygonFoamingAtTheMouth6, 9),
             Show(F.DraygonFoamingAtTheMouth7, 9),
-            Stop,
         ],
         [P.SmallExplosion] =
         [
@@ -35,7 +34,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.SmallExplosion3, 5),
             Show(F.SmallExplosion4, 5),
             Show(F.SmallExplosion5, 6),
-            Stop,
         ],
         [P.DudShot] =
         [
@@ -45,7 +43,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.DudShot3, 4),
             Show(F.DudShot4, 4),
             Show(F.DudShot5, 4),
-            Stop,
         ],
         [P.SmallDudShot] =
         [
@@ -54,7 +51,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.SmallDustCloud1, 5),
             Show(F.SmallDustCloud2, 5),
             Show(F.SmallDustCloud3, 5),
-            Stop,
         ],
         [P.SpacePirateLandingDustCloud] =
         [
@@ -62,7 +58,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.PirateLandingDustCloud1, 3),
             Show(F.PirateLandingDustCloud2, 3),
             Show(F.PirateLandingDustCloud3, 3),
-            Stop,
         ],
         [P.Smoke] =
         [
@@ -70,7 +65,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.Smoke1, 8),
             Show(F.Smoke2, 8),
             Show(F.Smoke3, 8),
-            Stop,
         ],
         [P.BigExplosion] =
         [
@@ -80,7 +74,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.BigExplosion3, 5),
             Show(F.BigExplosion4, 5),
             Show(F.BigExplosion5, 5),
-            Stop,
         ],
         [P.ShortBigDustCloud] =
         [
@@ -88,7 +81,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.BigDustCloud1, 2),
             Show(F.BigDustCloud2, 2),
             Show(F.BigDustCloud3, 2),
-            Stop,
         ],
         [P.BigDustCloud] =
         [
@@ -100,7 +92,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.BigDustCloud5, 5),
             Show(F.BigDustCloud6, 5),
             Show(F.BigDustCloud7, 5),
-            Stop,
         ],
         [P.ShortDraygonBreathBubbles] =
         [
@@ -113,7 +104,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.ShortDraygonBreathBubbles6, 3),
             Show(F.ShortDraygonBreathBubbles7, 3),
             Show(F.ShortDraygonBreathBubbles8, 3),
-            Stop,
         ],
         [P.PuromiBody] =
         [
@@ -129,7 +119,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.Puromi2, 3),
             Show(F.Puromi3, 3),
             Show(F.Puromi7, 3),
-            GoTo(P.PuromiBody),
         ],
         [P.PuromiRightExplosion] =
         [
@@ -140,7 +129,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.PuromiRightExplosion4, 2),
             Show(F.PuromiRightExplosion5, 2),
             Show(F.PuromiRightExplosion6, 2),
-            Stop,
         ],
         [P.PuromiLeftExplosion] =
         [
@@ -151,7 +139,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.PuromiLeftExplosion4, 2),
             Show(F.PuromiLeftExplosion5, 2),
             Show(F.PuromiLeftExplosion6, 2),
-            Stop,
         ],
         [P.PuromiSplash] =
         [
@@ -160,7 +147,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.PuromiSplash1, 2),
             Show(F.PuromiSplash2, 2),
             Show(F.PuromiSplash4, 2),
-            Stop,
         ],
         [P.FallingSparkTrail] =
         [
@@ -168,7 +154,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.FallingSparkTrail1, 3),
             Show(F.FallingSparkTrail2, 3),
             Show(F.FallingSparkTrail3, 3),
-            Stop,
         ],
         [P.MetroidElectricity] =
         [
@@ -203,7 +188,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.MetroidElectricity20, 3),
             Show(F.MetroidElectricity19, 2),
             Show(F.SpriteObjectDrawInstEmpty, 7),
-            FallInto(P.Unused33),
         ],
         [P.Unused33] =
         [
@@ -238,7 +222,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.MetroidElectricity3, 3),
             Show(F.MetroidElectricity4, 4),
             Show(F.MetroidElectricity5, 2),
-            GoTo(P.Unused33),
         ],
         [P.MetroidShell] =
         [
@@ -274,7 +257,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.SpriteObjectDrawInstEmpty, 1),
             Show(F.MetroidShell0, 1),
             Show(F.SpriteObjectDrawInstEmpty, 1),
-            FallInto(P.Unused35),
         ],
         [P.Unused35] =
         [
@@ -308,17 +290,14 @@ internal static class RoomSpriteObjectAnimations
             Show(F.SpriteObjectDrawInstEmpty, 1),
             Show(F.MetroidShell2, 1),
             Show(F.SpriteObjectDrawInstEmpty, 1),
-            GoTo(P.Unused35),
         ],
         [P.YappingMawBaseFacingDown] =
         [
             Show(F.YappingMawBaseFacingDown, 1),
-            Hold,
         ],
         [P.YappingMawBaseFacingUp] =
         [
             Show(F.YappingMawBaseFacingUp, 1),
-            Hold,
         ],
         [P.EvirFacingLeft] =
         [
@@ -326,7 +305,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.EvirFacingLeft1, 10),
             Show(F.EvirFacingLeft2, 10),
             Show(F.EvirFacingLeft3, 10),
-            GoTo(P.EvirFacingLeft),
         ],
         [P.EvirFacingRight] =
         [
@@ -334,22 +312,40 @@ internal static class RoomSpriteObjectAnimations
             Show(F.EvirFacingRight1, 10),
             Show(F.EvirFacingRight2, 10),
             Show(F.EvirFacingRight3, 10),
-            GoTo(P.EvirFacingRight),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<RoomSpriteObjectProgram, Animation<RoomSpriteObjectProgram>> StartingAt { get; } = new Dictionary<RoomSpriteObjectProgram, Animation<RoomSpriteObjectProgram>>
+    {
+        [P.DraygonFoamingAtTheMouth] = new([new(P.DraygonFoamingAtTheMouth, 0, 8, 1)], AnimationEnd.Stops),
+        [P.SmallExplosion] = new([new(P.SmallExplosion, 0, 6, 1)], AnimationEnd.Stops),
+        [P.DudShot] = new([new(P.DudShot, 0, 6, 1)], AnimationEnd.Stops),
+        [P.SmallDudShot] = new([new(P.SmallDudShot, 0, 5, 1)], AnimationEnd.Stops),
+        [P.SpacePirateLandingDustCloud] = new([new(P.SpacePirateLandingDustCloud, 0, 4, 1)], AnimationEnd.Stops),
+        [P.Smoke] = new([new(P.Smoke, 0, 4, 1)], AnimationEnd.Stops),
+        [P.BigExplosion] = new([new(P.BigExplosion, 0, 6, 1)], AnimationEnd.Stops),
+        [P.ShortBigDustCloud] = new([new(P.ShortBigDustCloud, 0, 4, 1)], AnimationEnd.Stops),
+        [P.BigDustCloud] = new([new(P.BigDustCloud, 0, 8, 1)], AnimationEnd.Stops),
+        [P.ShortDraygonBreathBubbles] = new([new(P.ShortDraygonBreathBubbles, 0, 9, 1)], AnimationEnd.Stops),
+        [P.PuromiBody] = new([new(P.PuromiBody, 0, 12, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.PuromiRightExplosion] = new([new(P.PuromiRightExplosion, 0, 7, 1)], AnimationEnd.Stops),
+        [P.PuromiLeftExplosion] = new([new(P.PuromiLeftExplosion, 0, 7, 1)], AnimationEnd.Stops),
+        [P.PuromiSplash] = new([new(P.PuromiSplash, 0, 5, 1)], AnimationEnd.Stops),
+        [P.FallingSparkTrail] = new([new(P.FallingSparkTrail, 0, 4, 1)], AnimationEnd.Stops),
+        [P.MetroidElectricity] = new([new(P.MetroidElectricity, 0, 31, 1), new(P.Unused33, 0, 31, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.Unused33] = new([new(P.Unused33, 0, 31, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.MetroidShell] = new([new(P.MetroidShell, 0, 32, 1), new(P.Unused35, 0, 30, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.Unused35] = new([new(P.Unused35, 0, 30, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.YappingMawBaseFacingDown] = new([new(P.YappingMawBaseFacingDown, 0, 1, 1)], AnimationEnd.Holds),
+        [P.YappingMawBaseFacingUp] = new([new(P.YappingMawBaseFacingUp, 0, 1, 1)], AnimationEnd.Holds),
+        [P.EvirFacingLeft] = new([new(P.EvirFacingLeft, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.EvirFacingRight] = new([new(P.EvirFacingRight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<RoomSpriteObjectProgram> StartingWith(RoomSpriteObjectProgram segment) => StartingAt[segment];
+
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue> Show(RoomSpriteObjectFrame frame, int duration) => AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue>.Show(frame, duration);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue> GoTo(RoomSpriteObjectProgram program) => AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue> FallInto(RoomSpriteObjectProgram program) => AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue>.FallInto(program);
-
-    /// <summary>Keeps the last frame.</summary>
-    private static AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue> Hold => AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue>.Hold;
-
-    /// <summary>Deletes the object.</summary>
-    private static AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue> Stop => AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue>.Stop;
+    private static AnimationBeat<RoomSpriteObjectFrame, NoAnimationCue> Show(RoomSpriteObjectFrame frame, int duration) => new AnimationBeat<RoomSpriteObjectFrame, NoAnimationCue>.Frame(frame, duration);
 }

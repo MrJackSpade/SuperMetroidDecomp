@@ -22,12 +22,12 @@ internal static class PuyoInstructionProgramDefinitionsVerification
     internal static void VerifyPuyoInstructionProgramDefinitions(InstalledEnemyArtwork? artwork = null)
     {
         (RoomEnemySystem enemies, RoomEnemySlot slot, PuyoEnemyState state) = Create(artwork);
-        AssertEqual(AnimationProgramCursor<PuyoProgram>.Start(PuyoProgram.GroundedFast), state.Program, "Puyo starts on its fast grounded loop");
+        AssertEqual(new AnimationPlayback<PuyoProgram>(PuyoAnimations.StartingWith(PuyoProgram.GroundedFast), AnimationPlace.StartOfAnimation), state.Playback, "Puyo starts on its fast grounded loop");
         foreach (PuyoProgram loop in new[] { PuyoProgram.GroundedFast, PuyoProgram.GroundedMedium, PuyoProgram.GroundedSlow })
         {
             Start(slot, state, loop);
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(PuyoAnimations.Programs, loop, PuyoFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(PuyoAnimations.Programs, loop)), $"Puyo {loop} loop");
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(PuyoAnimations.Segments, loop, PuyoFrameToolingDefinitions.Spritemap),
+                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(PuyoAnimations.Segments, loop)), $"Puyo {loop} loop");
         }
         foreach (PuyoProgram pose in new[] { PuyoProgram.RightFrame0LeftFrame4, PuyoProgram.RightFrame1LeftFrame3, PuyoProgram.Frame2,
                      PuyoProgram.RightFrame3LeftFrame1, PuyoProgram.RightFrame4LeftFrame0 })
@@ -58,7 +58,7 @@ internal static class PuyoInstructionProgramDefinitionsVerification
     /// <summary>Starts <paramref name="program"/> with its first step due on the next update.</summary>
     private static void Start(RoomEnemySlot slot, PuyoEnemyState state, PuyoProgram program)
     {
-        state.Program = AnimationProgramCursor<PuyoProgram>.Start(program);
+        state.Playback = new(PuyoAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }

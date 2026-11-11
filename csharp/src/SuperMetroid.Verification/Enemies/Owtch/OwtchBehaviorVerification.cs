@@ -32,11 +32,11 @@ internal static class OwtchBehaviorVerification
             OwtchBehavior.InitializeOwtch(slot);
             OwtchEnemyState state = enemies.OwtchStates[0] ?? throw new InvalidOperationException("Owtch has no state.");
             OwtchProgram started = initial == OwtchBehaviorState.MovingLeft ? OwtchProgram.MovingLeft : OwtchProgram.MovingRight;
-            AssertEqual(AnimationProgramCursor<OwtchProgram>.Start(started), state.Program, $"Owtch state {initial} starts {started}");
+            AssertEqual(new AnimationPlayback<OwtchProgram>(OwtchAnimations.StartingWith(started), AnimationPlace.StartOfAnimation), state.Playback, $"Owtch state {initial} starts {started}");
 
-            state.Program = AnimationProgramCursor<OwtchProgram>.Start(program);
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(OwtchAnimations.Programs, loop, OwtchFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(OwtchAnimations.Programs, loop)), $"Owtch {program} loop");
+            state.Playback = new(OwtchAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(OwtchAnimations.Segments, loop, OwtchFrameToolingDefinitions.Spritemap),
+                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(OwtchAnimations.Segments, loop)), $"Owtch {program} loop");
             AssertEqual(walking, state.Behavior, $"Owtch {program} cue sets main AI's direction");
         }
         Console.WriteLine("  Owtch behavior: the initializer picks each facing, the cues set the walking direction and the loops run on time.");

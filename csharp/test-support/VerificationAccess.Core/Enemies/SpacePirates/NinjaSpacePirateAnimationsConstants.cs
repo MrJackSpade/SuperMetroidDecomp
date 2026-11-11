@@ -9,7 +9,7 @@ internal static class NinjaSpacePirateAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params NinjaSpacePirateProgram[] programs) =>
-        programs.SelectMany(program => NinjaSpacePirateAnimations.Programs.Steps(program))
-            .OfType<AnimationProgramStep<P, NinjaSpacePirateFrame, NinjaSpacePirateCue>.ShowStep>()
-            .Select(step => NinjaSpacePirateFrameToolingDefinitions.Spritemap(step.Frame));
+        programs.SelectMany(program => NinjaSpacePirateAnimations.Segments.Beats(program))
+            .OfType<AnimationBeat<NinjaSpacePirateFrame, NinjaSpacePirateCue>.Frame>()
+            .Select(frame => NinjaSpacePirateFrameToolingDefinitions.Spritemap(frame.Shown));
 }

@@ -10,9 +10,9 @@ namespace SuperMetroid.Core.Enemies.Yard;
 /// </summary>
 internal static class YardAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<YardProgram, YardFrame, YardCue> Programs { get; } = new(
-        new Dictionary<YardProgram, AnimationProgramStep<YardProgram, YardFrame, YardCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<YardProgram, YardFrame, YardCue> Segments { get; } = new(
+        new Dictionary<YardProgram, AnimationBeat<YardFrame, YardCue>[]>
     {
         [P.OutsideTurnUpsideRightMovingUp] =
         [
@@ -22,7 +22,6 @@ internal static class YardAnimations
             Show(22, 4),
             Show(23, 7),
             Cue(new YardCue.MoveBy(new(-4, -8))),
-            FallInto(P.CrawlingUpsideUpMovingLeft),
         ],
         [P.CrawlingUpsideUpMovingLeft] =
         [
@@ -32,7 +31,6 @@ internal static class YardAnimations
             Show(0, 9),
             Show(1, 13),
             Show(2, 9),
-            GoTo(P.CrawlingUpsideUpMovingLeft),
         ],
         [P.OutsideTurnUpsideUpMovingLeft] =
         [
@@ -42,7 +40,6 @@ internal static class YardAnimations
             Show(4, 4),
             Show(5, 7),
             Cue(new YardCue.MoveBy(new(-8, 4))),
-            FallInto(P.CrawlingUpsideLeftMovingDown),
         ],
         [P.CrawlingUpsideLeftMovingDown] =
         [
@@ -52,7 +49,6 @@ internal static class YardAnimations
             Show(6, 9),
             Show(7, 13),
             Show(8, 9),
-            GoTo(P.CrawlingUpsideLeftMovingDown),
         ],
         [P.OutsideTurnUpsideLeftMovingDown] =
         [
@@ -62,7 +58,6 @@ internal static class YardAnimations
             Show(10, 4),
             Show(11, 7),
             Cue(new YardCue.MoveBy(new(4, 8))),
-            FallInto(P.CrawlingUpsideDownMovingRight),
         ],
         [P.CrawlingUpsideDownMovingRight] =
         [
@@ -72,7 +67,6 @@ internal static class YardAnimations
             Show(12, 9),
             Show(13, 13),
             Show(14, 9),
-            GoTo(P.CrawlingUpsideDownMovingRight),
         ],
         [P.OutsideTurnUpsideDownMovingRight] =
         [
@@ -82,7 +76,6 @@ internal static class YardAnimations
             Show(16, 4),
             Show(17, 7),
             Cue(new YardCue.MoveBy(new(8, -4))),
-            FallInto(P.CrawlingUpsideRightMovingUp),
         ],
         [P.CrawlingUpsideRightMovingUp] =
         [
@@ -92,7 +85,6 @@ internal static class YardAnimations
             Show(18, 9),
             Show(19, 13),
             Show(20, 9),
-            GoTo(P.CrawlingUpsideRightMovingUp),
         ],
         [P.OutsideTurnUpsideLeftMovingUp] =
         [
@@ -102,7 +94,6 @@ internal static class YardAnimations
             Show(54, 4),
             Show(55, 7),
             Cue(new YardCue.MoveBy(new(4, -8))),
-            FallInto(P.CrawlingUpsideUpMovingRight),
         ],
         [P.CrawlingUpsideUpMovingRight] =
         [
@@ -112,7 +103,6 @@ internal static class YardAnimations
             Show(32, 9),
             Show(33, 13),
             Show(34, 9),
-            GoTo(P.CrawlingUpsideUpMovingRight),
         ],
         [P.OutsideTurnUpsideUpMovingRight] =
         [
@@ -122,7 +112,6 @@ internal static class YardAnimations
             Show(36, 4),
             Show(37, 7),
             Cue(new YardCue.MoveBy(new(8, 4))),
-            FallInto(P.CrawlingUpsideRightMovingDown),
         ],
         [P.CrawlingUpsideRightMovingDown] =
         [
@@ -132,7 +121,6 @@ internal static class YardAnimations
             Show(38, 9),
             Show(39, 13),
             Show(40, 9),
-            GoTo(P.CrawlingUpsideRightMovingDown),
         ],
         [P.OutsideTurnUpsideRightMovingDown] =
         [
@@ -142,7 +130,6 @@ internal static class YardAnimations
             Show(42, 4),
             Show(43, 7),
             Cue(new YardCue.MoveBy(new(-4, 8))),
-            FallInto(P.CrawlingUpsideDownMovingLeft),
         ],
         [P.CrawlingUpsideDownMovingLeft] =
         [
@@ -152,7 +139,6 @@ internal static class YardAnimations
             Show(44, 9),
             Show(45, 13),
             Show(46, 9),
-            GoTo(P.CrawlingUpsideDownMovingLeft),
         ],
         [P.OutsideTurnUpsideDownMovingLeft] =
         [
@@ -162,7 +148,6 @@ internal static class YardAnimations
             Show(48, 4),
             Show(49, 7),
             Cue(new YardCue.MoveBy(new(-8, -4))),
-            FallInto(P.CrawlingUpsideLeftMovingUp),
         ],
         [P.CrawlingUpsideLeftMovingUp] =
         [
@@ -172,7 +157,6 @@ internal static class YardAnimations
             Show(50, 9),
             Show(51, 13),
             Show(52, 9),
-            GoTo(P.CrawlingUpsideLeftMovingUp),
         ],
         [P.InsideTurnUpsideUpMovingLeft] =
         [
@@ -181,7 +165,6 @@ internal static class YardAnimations
             Show(64, 7),
             Show(65, 4),
             Show(66, 7),
-            GoTo(P.CrawlingUpsideRightMovingUp),
         ],
         [P.InsideTurnUpsideRightMovingUp] =
         [
@@ -190,7 +173,6 @@ internal static class YardAnimations
             Show(67, 7),
             Show(68, 4),
             Show(69, 7),
-            GoTo(P.CrawlingUpsideDownMovingRight),
         ],
         [P.InsideTurnUpsideDownMovingRight] =
         [
@@ -199,7 +181,6 @@ internal static class YardAnimations
             Show(70, 7),
             Show(71, 4),
             Show(72, 7),
-            GoTo(P.CrawlingUpsideLeftMovingDown),
         ],
         [P.InsideTurnUpsideLeftMovingDown] =
         [
@@ -208,7 +189,6 @@ internal static class YardAnimations
             Show(73, 7),
             Show(74, 4),
             Show(75, 7),
-            GoTo(P.CrawlingUpsideUpMovingLeft),
         ],
         [P.InsideTurnUpsideUpMovingRight] =
         [
@@ -217,7 +197,6 @@ internal static class YardAnimations
             Show(84, 7),
             Show(85, 4),
             Show(86, 7),
-            GoTo(P.CrawlingUpsideLeftMovingUp),
         ],
         [P.InsideTurnUpsideLeftMovingUp] =
         [
@@ -226,7 +205,6 @@ internal static class YardAnimations
             Show(87, 7),
             Show(88, 4),
             Show(89, 7),
-            GoTo(P.CrawlingUpsideDownMovingLeft),
         ],
         [P.InsideTurnUpsideDownMovingLeft] =
         [
@@ -235,7 +213,6 @@ internal static class YardAnimations
             Show(90, 7),
             Show(91, 4),
             Show(92, 7),
-            GoTo(P.CrawlingUpsideRightMovingDown),
         ],
         [P.InsideTurnUpsideRightMovingDown] =
         [
@@ -244,7 +221,6 @@ internal static class YardAnimations
             Show(93, 7),
             Show(94, 4),
             Show(95, 7),
-            GoTo(P.CrawlingUpsideUpMovingRight),
         ],
         [P.HidingUpsideUpMovingLeft] =
         [
@@ -252,13 +228,11 @@ internal static class YardAnimations
             Show(24, 5),
             Show(25, 1),
             Cue(new YardCue.Command(K.RepeatPreviousPoseUnlessContinuing)),
-            FallInto(P.HiddenUpsideUpMovingLeft),
         ],
         [P.HiddenUpsideUpMovingLeft] =
         [
             Show(76, 48),
             Show(77, 16),
-            GoTo(P.CrawlingUpsideUpMovingLeft),
         ],
         [P.HidingUpsideDownMovingLeft] =
         [
@@ -268,7 +242,6 @@ internal static class YardAnimations
             Cue(new YardCue.Command(K.RepeatPreviousPoseUnlessContinuing)),
             Show(100, 48),
             Show(101, 16),
-            GoTo(P.CrawlingUpsideDownMovingLeft),
         ],
         [P.HidingUpsideDownMovingRight] =
         [
@@ -278,7 +251,6 @@ internal static class YardAnimations
             Cue(new YardCue.Command(K.RepeatPreviousPoseUnlessContinuing)),
             Show(80, 48),
             Show(81, 16),
-            GoTo(P.CrawlingUpsideDownMovingRight),
         ],
         [P.HidingUpsideUpMovingRight] =
         [
@@ -286,13 +258,11 @@ internal static class YardAnimations
             Show(56, 5),
             Show(57, 1),
             Cue(new YardCue.Command(K.RepeatPreviousPoseUnlessContinuing)),
-            FallInto(P.HiddenUpsideUpMovingRight),
         ],
         [P.HiddenUpsideUpMovingRight] =
         [
             Show(96, 48),
             Show(97, 16),
-            GoTo(P.CrawlingUpsideUpMovingRight),
         ],
         [P.HidingUpsideRightMovingUp] =
         [
@@ -302,7 +272,6 @@ internal static class YardAnimations
             Cue(new YardCue.Command(K.RepeatPreviousPoseUnlessContinuing)),
             Show(78, 48),
             Show(79, 16),
-            GoTo(P.CrawlingUpsideRightMovingUp),
         ],
         [P.HidingUpsideLeftMovingUp] =
         [
@@ -312,7 +281,6 @@ internal static class YardAnimations
             Cue(new YardCue.Command(K.RepeatPreviousPoseUnlessContinuing)),
             Show(98, 48),
             Show(99, 16),
-            GoTo(P.CrawlingUpsideLeftMovingUp),
         ],
         [P.HidingUpsideLeftMovingDown] =
         [
@@ -322,7 +290,6 @@ internal static class YardAnimations
             Cue(new YardCue.Command(K.RepeatPreviousPoseUnlessContinuing)),
             Show(82, 48),
             Show(83, 16),
-            GoTo(P.CrawlingUpsideLeftMovingDown),
         ],
         [P.HidingUpsideRightMovingDown] =
         [
@@ -332,46 +299,80 @@ internal static class YardAnimations
             Cue(new YardCue.Command(K.RepeatPreviousPoseUnlessContinuing)),
             Show(102, 48),
             Show(103, 16),
-            GoTo(P.CrawlingUpsideRightMovingDown),
         ],
         [P.AirborneFacingLeft] =
         [
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.Airborne)),
             Show(31, 3),
-            FallInto(P.AirborneFacingLeftLoop),
         ],
         [P.AirborneFacingLeftLoop] =
         [
             Show(27, 3),
             Show(29, 3),
             Show(31, 3),
-            GoTo(P.AirborneFacingLeftLoop),
         ],
         [P.AirborneFacingRight] =
         [
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.Airborne)),
             Show(63, 3),
-            FallInto(P.AirborneFacingRightLoop),
         ],
         [P.AirborneFacingRightLoop] =
         [
             Show(59, 3),
             Show(61, 3),
             Show(63, 3),
-            GoTo(P.AirborneFacingRightLoop),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<YardProgram, Animation<YardProgram>> StartingAt { get; } = new Dictionary<YardProgram, Animation<YardProgram>>
+    {
+        [P.OutsideTurnUpsideRightMovingUp] = new([new(P.OutsideTurnUpsideRightMovingUp, 0, 6, 1), new(P.CrawlingUpsideUpMovingLeft, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.CrawlingUpsideUpMovingLeft] = new([new(P.CrawlingUpsideUpMovingLeft, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.OutsideTurnUpsideUpMovingLeft] = new([new(P.OutsideTurnUpsideUpMovingLeft, 0, 6, 1), new(P.CrawlingUpsideLeftMovingDown, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.CrawlingUpsideLeftMovingDown] = new([new(P.CrawlingUpsideLeftMovingDown, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.OutsideTurnUpsideLeftMovingDown] = new([new(P.OutsideTurnUpsideLeftMovingDown, 0, 6, 1), new(P.CrawlingUpsideDownMovingRight, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.CrawlingUpsideDownMovingRight] = new([new(P.CrawlingUpsideDownMovingRight, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.OutsideTurnUpsideDownMovingRight] = new([new(P.OutsideTurnUpsideDownMovingRight, 0, 6, 1), new(P.CrawlingUpsideRightMovingUp, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.CrawlingUpsideRightMovingUp] = new([new(P.CrawlingUpsideRightMovingUp, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.OutsideTurnUpsideLeftMovingUp] = new([new(P.OutsideTurnUpsideLeftMovingUp, 0, 6, 1), new(P.CrawlingUpsideUpMovingRight, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.CrawlingUpsideUpMovingRight] = new([new(P.CrawlingUpsideUpMovingRight, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.OutsideTurnUpsideUpMovingRight] = new([new(P.OutsideTurnUpsideUpMovingRight, 0, 6, 1), new(P.CrawlingUpsideRightMovingDown, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.CrawlingUpsideRightMovingDown] = new([new(P.CrawlingUpsideRightMovingDown, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.OutsideTurnUpsideRightMovingDown] = new([new(P.OutsideTurnUpsideRightMovingDown, 0, 6, 1), new(P.CrawlingUpsideDownMovingLeft, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.CrawlingUpsideDownMovingLeft] = new([new(P.CrawlingUpsideDownMovingLeft, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.OutsideTurnUpsideDownMovingLeft] = new([new(P.OutsideTurnUpsideDownMovingLeft, 0, 6, 1), new(P.CrawlingUpsideLeftMovingUp, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.CrawlingUpsideLeftMovingUp] = new([new(P.CrawlingUpsideLeftMovingUp, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.InsideTurnUpsideUpMovingLeft] = new([new(P.InsideTurnUpsideUpMovingLeft, 0, 5, 1), new(P.CrawlingUpsideRightMovingUp, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.InsideTurnUpsideRightMovingUp] = new([new(P.InsideTurnUpsideRightMovingUp, 0, 5, 1), new(P.CrawlingUpsideDownMovingRight, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.InsideTurnUpsideDownMovingRight] = new([new(P.InsideTurnUpsideDownMovingRight, 0, 5, 1), new(P.CrawlingUpsideLeftMovingDown, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.InsideTurnUpsideLeftMovingDown] = new([new(P.InsideTurnUpsideLeftMovingDown, 0, 5, 1), new(P.CrawlingUpsideUpMovingLeft, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.InsideTurnUpsideUpMovingRight] = new([new(P.InsideTurnUpsideUpMovingRight, 0, 5, 1), new(P.CrawlingUpsideLeftMovingUp, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.InsideTurnUpsideLeftMovingUp] = new([new(P.InsideTurnUpsideLeftMovingUp, 0, 5, 1), new(P.CrawlingUpsideDownMovingLeft, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.InsideTurnUpsideDownMovingLeft] = new([new(P.InsideTurnUpsideDownMovingLeft, 0, 5, 1), new(P.CrawlingUpsideRightMovingDown, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.InsideTurnUpsideRightMovingDown] = new([new(P.InsideTurnUpsideRightMovingDown, 0, 5, 1), new(P.CrawlingUpsideUpMovingRight, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.HidingUpsideUpMovingLeft] = new([new(P.HidingUpsideUpMovingLeft, 0, 4, 1), new(P.HiddenUpsideUpMovingLeft, 0, 2, 1), new(P.CrawlingUpsideUpMovingLeft, 0, 6, 1)], AnimationEnd.LoopsFrom(2)),
+        [P.HiddenUpsideUpMovingLeft] = new([new(P.HiddenUpsideUpMovingLeft, 0, 2, 1), new(P.CrawlingUpsideUpMovingLeft, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.HidingUpsideDownMovingLeft] = new([new(P.HidingUpsideDownMovingLeft, 0, 6, 1), new(P.CrawlingUpsideDownMovingLeft, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.HidingUpsideDownMovingRight] = new([new(P.HidingUpsideDownMovingRight, 0, 6, 1), new(P.CrawlingUpsideDownMovingRight, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.HidingUpsideUpMovingRight] = new([new(P.HidingUpsideUpMovingRight, 0, 4, 1), new(P.HiddenUpsideUpMovingRight, 0, 2, 1), new(P.CrawlingUpsideUpMovingRight, 0, 6, 1)], AnimationEnd.LoopsFrom(2)),
+        [P.HiddenUpsideUpMovingRight] = new([new(P.HiddenUpsideUpMovingRight, 0, 2, 1), new(P.CrawlingUpsideUpMovingRight, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.HidingUpsideRightMovingUp] = new([new(P.HidingUpsideRightMovingUp, 0, 6, 1), new(P.CrawlingUpsideRightMovingUp, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.HidingUpsideLeftMovingUp] = new([new(P.HidingUpsideLeftMovingUp, 0, 6, 1), new(P.CrawlingUpsideLeftMovingUp, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.HidingUpsideLeftMovingDown] = new([new(P.HidingUpsideLeftMovingDown, 0, 6, 1), new(P.CrawlingUpsideLeftMovingDown, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.HidingUpsideRightMovingDown] = new([new(P.HidingUpsideRightMovingDown, 0, 6, 1), new(P.CrawlingUpsideRightMovingDown, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.AirborneFacingLeft] = new([new(P.AirborneFacingLeft, 0, 2, 1), new(P.AirborneFacingLeftLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.AirborneFacingLeftLoop] = new([new(P.AirborneFacingLeftLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.AirborneFacingRight] = new([new(P.AirborneFacingRight, 0, 2, 1), new(P.AirborneFacingRightLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.AirborneFacingRightLoop] = new([new(P.AirborneFacingRightLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<YardProgram> StartingWith(YardProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<YardProgram, YardFrame, YardCue> Show(int pose, int duration) => AnimationProgramStep<YardProgram, YardFrame, YardCue>.Show(new(pose), duration);
+    private static AnimationBeat<YardFrame, YardCue> Show(int pose, int duration) => new AnimationBeat<YardFrame, YardCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<YardProgram, YardFrame, YardCue> Cue(YardCue cue) => AnimationProgramStep<YardProgram, YardFrame, YardCue>.Publish(cue);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<YardProgram, YardFrame, YardCue> GoTo(YardProgram program) => AnimationProgramStep<YardProgram, YardFrame, YardCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<YardProgram, YardFrame, YardCue> FallInto(YardProgram program) => AnimationProgramStep<YardProgram, YardFrame, YardCue>.FallInto(program);
-
+    private static AnimationBeat<YardFrame, YardCue> Cue(YardCue cue) => new AnimationBeat<YardFrame, YardCue>.Event(cue);
 }

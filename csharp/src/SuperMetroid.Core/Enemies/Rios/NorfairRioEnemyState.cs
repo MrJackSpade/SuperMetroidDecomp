@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// <summary>The state of one Norfair Rio, parent or flame follower.</summary>
 public sealed class NorfairRioEnemyState
 {
-    /// <summary>Where the animation resumes.</summary>
-    internal AnimationProgramCursor<NorfairRioProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<NorfairRioProgram> Playback { get; set; }
 
     /// <summary>The last animation installed by function seven.</summary>
     internal NorfairRioProgram InstalledProgram { get; set; }

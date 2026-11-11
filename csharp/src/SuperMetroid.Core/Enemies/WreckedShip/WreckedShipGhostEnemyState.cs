@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Enemies.WreckedShip;
 /// <summary>The state of the Wrecked Ship ghost, with its extra values.</summary>
 public sealed class WreckedShipGhostEnemyState
 {
-    /// <summary>Where the animation resumes.</summary>
-    internal AnimationProgramCursor<WreckedShipGhostProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<WreckedShipGhostProgram> Playback { get; set; }
 
     /// <summary>The current behaviour.</summary>
     public WreckedShipGhostAiFunction? Function { get; internal set; }

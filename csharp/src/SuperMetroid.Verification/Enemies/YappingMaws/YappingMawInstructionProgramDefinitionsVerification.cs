@@ -33,8 +33,8 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
                 NewYappingMawInstructionSystem(entry);
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(YappingMawAnimations.Programs, entry, YappingMawFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(YappingMawAnimations.Programs, entry)),
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(YappingMawAnimations.Segments, entry, YappingMawFrameToolingDefinitions.Spritemap),
+                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(YappingMawAnimations.Segments, entry)),
                 $"Yapping Maw attack direction {direction} loop");
             AssertEqual<SoundEffectId?>(EnemySound.YappingMaw, enemies.Audio.PublishedSoundFrom(EnemySoundSource.YappingMaw),
                 $"Yapping Maw attack direction {direction} publishes its sound");
@@ -99,7 +99,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
             YappingMawEnemyState state = enemies.YappingMawStates[0] ??
                 throw new InvalidOperationException(
                     $"Yapping Maw {name} initializer did not publish typed state.");
-            AssertEqual(AnimationProgramCursor<YappingMawProgram>.Start(expected), state.Program,
+            AssertEqual(new AnimationPlayback<YappingMawProgram>(YappingMawAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation), state.Playback,
                 $"Yapping Maw {name} initializer program");
             AssertEqual(4, state.BodyProjectiles.Count(projectile => projectile is not null),
                 $"Yapping Maw {name} initializer body links");
@@ -178,7 +178,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         slot.Bind(EnemyDefinitionId.YappingMaw, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.FrameHold = WrappingCountdown.Start(1);
-        var state = new YappingMawEnemyState(slot) { Program = AnimationProgramCursor<YappingMawProgram>.Start(entry) };
+        var state = new YappingMawEnemyState(slot) { Playback = new(YappingMawAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation) };
         slot.SetSpeciesState(state);
         return new NewInitializedYappingMawResult(enemies, slot, state);
     }

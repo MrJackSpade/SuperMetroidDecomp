@@ -38,8 +38,8 @@ internal static class SparkMovementDefinitionsVerification
             slot.SetSpawnParameter2(EnemyDefinitionId.Spark, 5);
             enemies.SparkBehavior.InitializeSpark(slot);
             SparkEnemyState state = enemies.SparkStates[0] ?? throw new InvalidOperationException("Spark has no state.");
-            AssertEqual(AnimationProgramCursor<SparkProgram>.Start(definition.Program),
-                state.Program, $"Spark production animation selector {selector}");
+            AssertEqual(new AnimationPlayback<SparkProgram>(SparkAnimations.StartingWith(definition.Program), AnimationPlace.StartOfAnimation),
+                state.Playback, $"Spark production animation selector {selector}");
             AssertEqual(nativeFunction, state.Function, $"Spark production function selector {selector}");
         }
         foreach (int unauthored in new[] { 3, 4, 0xffff })
@@ -50,19 +50,23 @@ internal static class SparkMovementDefinitionsVerification
         foreach (SparkProgram loop in new[] { SparkProgram.Active, SparkProgram.Emitter })
         {
             (RoomEnemySystem loopSystem, RoomEnemySlot loopSlot, _) = Start(loop, intangible: false);
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(SparkAnimations.Programs, loop, SparkFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(loopSlot, EnemyInstructionRunner.LoopUpdates(SparkAnimations.Programs, loop)), $"Spark {loop} loop");
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(SparkAnimations.Segments, loop, SparkFrameToolingDefinitions.Spritemap),
+                EnemyInstructionRunner.ShownFrames(loopSlot, EnemyInstructionRunner.LoopUpdates(SparkAnimations.Segments, loop)), $"Spark {loop} loop");
         }
         (RoomEnemySystem onSystem, RoomEnemySlot on, SparkEnemyState onState) = Start(SparkProgram.FlickerOn, intangible: true);
         EnemyInstructionRunner.ShownFrames(on, 1);
         AssertTrue(!on.Contact.HasAny(EnemyContact.IgnoresSamus), "Spark flicker-on makes the actor tangible before its first flash");
         EnemyInstructionRunner.ShownFrames(on, 40);
-        AssertEqual(SparkProgram.Active, onState.Program?.Program, "Spark flicker-on runs into the active loop");
+        AssertEqual<SparkProgram?>(SparkProgram.Active, StandsIn(onState.Playback), "Spark flicker-on runs into the active loop");
         (RoomEnemySystem outSystem, RoomEnemySlot off, SparkEnemyState offState) = Start(SparkProgram.FlickerOut, intangible: false);
         EnemyInstructionRunner.ShownFrames(off, 40);
         AssertTrue(off.Contact.HasAny(EnemyContact.IgnoresSamus), "Spark flicker-out makes the actor intangible");
-        AssertEqual(SparkProgram.FlickerOut, offState.Program?.Program, "Spark flicker-out holds");
+        AssertEqual<SparkProgram?>(SparkProgram.FlickerOut, StandsIn(offState.Playback), "Spark flicker-out holds");
         Console.WriteLine("  Spark: three native selections, the unauthored-state rejection, both loops and both flickers with their collision cues pass.");
+
+        // The segment a playback stands in: the segment of the phase it plays.
+        static SparkProgram? StandsIn(AnimationPlayback<SparkProgram>? playback) =>
+            playback is { } playing ? playing.Animation.Phases[playing.Place.Phase].Segment : null;
     }
 
     /// <summary>A Spark running <paramref name="program"/> from its first step.</summary>
@@ -76,7 +80,7 @@ internal static class SparkMovementDefinitionsVerification
         slot.SetSpawnSettings(new SparkSpawnSettings(Start: SparkMovementDefinitions.AlwaysActive, BaseFunctionTime: 0));
         enemies.SparkBehavior.InitializeSpark(slot);
         SparkEnemyState state = enemies.SparkStates[0] ?? throw new InvalidOperationException("Spark has no state.");
-        state.Program = AnimationProgramCursor<SparkProgram>.Start(program);
+        state.Playback = new(SparkAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Contact = intangible ? EnemyContact.IgnoresSamus : EnemyContact.None;
         slot.Processing = EnemyProcessing.None;

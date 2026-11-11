@@ -8,7 +8,7 @@ internal static class MochtroidAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params MochtroidProgram[] programs) =>
-        programs.SelectMany(program => MochtroidAnimations.Programs.Steps(program))
-            .OfType<AnimationProgramStep<MochtroidProgram, MochtroidFrame, NoAnimationCue>.ShowStep>()
-            .Select(step => MochtroidFrameToolingDefinitions.Spritemap(step.Frame));
+        programs.SelectMany(program => MochtroidAnimations.Segments.Beats(program))
+            .OfType<AnimationBeat<MochtroidFrame, NoAnimationCue>.Frame>()
+            .Select(frame => MochtroidFrameToolingDefinitions.Spritemap(frame.Shown));
 }

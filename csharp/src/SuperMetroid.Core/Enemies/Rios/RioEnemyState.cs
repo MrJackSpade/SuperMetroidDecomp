@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// <summary>The state of one Rio.</summary>
 public sealed class RioEnemyState
 {
-    /// <summary>Where the typed animation (#641) resumes.</summary>
-    internal AnimationProgramCursor<RioProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<RioProgram> Playback { get; set; }
 
     /// <summary>Signed 8.8 horizontal dive velocity retained while the hovering phase temporarily stops X.</summary>
     public SignedEightEight SavedHorizontalVelocity { get; internal set; }

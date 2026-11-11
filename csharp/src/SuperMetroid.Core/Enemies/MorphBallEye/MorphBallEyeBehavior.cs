@@ -54,16 +54,16 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // The placement's facing is fixed by its mounting, not a live facing test.
             state.Function = MorphBallEyeAiFunction.WaitForSamus;
-            state.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start(settings.Facing == HorizontalDirection.Right
+            state.Playback = new(MorphBallEyeAnimations.StartingWith(settings.Facing == HorizontalDirection.Right
                 ? MorphBallEyeProgram.FacingRightClosed
-                : MorphBallEyeProgram.FacingLeftClosed);
+                : MorphBallEyeProgram.FacingLeftClosed), AnimationPlace.StartOfAnimation);
             return;
         }
 
         var mount = MorphBallEyeGeometry.Mount(settings.MountSide);
         slot.Position += mount.Offset;
         state.Function = MorphBallEyeAiFunction.MountNoOp;
-        state.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start(mount.Program);
+        state.Playback = new(MorphBallEyeAnimations.StartingWith(mount.Program), AnimationPlace.StartOfAnimation);
 
         // A mount clears any beam when the room loads, so a prior room's reveal never
         // shows in this one.
@@ -117,9 +117,9 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.FunctionTimer = EyeTransitionDuration;
         eye.FrameHold = WrappingCountdown.Start(1);
-        state.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start(eye.SpawnSettings<MorphBallEyeSpawnSettings>().Facing == HorizontalDirection.Right
+        state.Playback = new(MorphBallEyeAnimations.StartingWith(eye.SpawnSettings<MorphBallEyeSpawnSettings>().Facing == HorizontalDirection.Right
             ? MorphBallEyeProgram.FacingRightActivating
-            : MorphBallEyeProgram.FacingLeftActivating);
+            : MorphBallEyeProgram.FacingLeftActivating), AnimationPlace.StartOfAnimation);
         state.Function = MorphBallEyeAiFunction.Activating;
     }
 
@@ -154,9 +154,9 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
             _audio.RequestSoundAtUpdateEnd(EnemySoundSource.MorphBallEye, EnemySoundEffectDefinitions.EyeDeactivationSound, priority: SoundRequestPriority.Normal);
             state.IsActivated = false;
             state.FunctionTimer = EyeTransitionDuration;
-            state.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start(eye.SpawnSettings<MorphBallEyeSpawnSettings>().Facing == HorizontalDirection.Right
+            state.Playback = new(MorphBallEyeAnimations.StartingWith(eye.SpawnSettings<MorphBallEyeSpawnSettings>().Facing == HorizontalDirection.Right
                 ? MorphBallEyeProgram.FacingRightDeactivating
-                : MorphBallEyeProgram.FacingLeftDeactivating);
+                : MorphBallEyeProgram.FacingLeftDeactivating), AnimationPlace.StartOfAnimation);
             state.Function = MorphBallEyeAiFunction.Deactivating;
             eye.FrameHold = WrappingCountdown.Start(1);
             return;
@@ -166,8 +166,9 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The resume point is the high angle nibble shifted down by two, one four-byte record per
         // pose: the tracking loop resumes at the pose for the arc of the turn the angle lies in.
-        state.Program = new AnimationProgramCursor<MorphBallEyeProgram>(MorphBallEyeProgram.Active,
-            state.Angle.Sector(MorphBallEyeBeamDefinitions.TrackingPoses));
+        Animation<MorphBallEyeProgram> tracking = MorphBallEyeAnimations.StartingWith(MorphBallEyeProgram.Active);
+        state.Playback = new(tracking, AnimationSegments<MorphBallEyeProgram, MorphBallEyeFrame, NoAnimationCue>.PlaceOf(tracking,
+            MorphBallEyeProgram.Active, state.Angle.Sector(MorphBallEyeBeamDefinitions.TrackingPoses)));
         eye.FrameHold = WrappingCountdown.Start(1);
     }
 
@@ -302,8 +303,9 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances MorphBallEye's typed animation.</summary>
     internal static void AdvanceMorphBallEyeTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, MorphBallEyeAnimations.Programs, MorphBallEyeFrameDefinitions.ShownFrames.Of,
-            static (MorphBallEyeEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
+        EnemyProgramAnimation.Advance(slot, MorphBallEyeAnimations.Segments, MorphBallEyeFrameDefinitions.ShownFrames.Of,
+            static (MorphBallEyeEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            static (state, cue) => throw new InvalidOperationException($"The Morph Ball eye's cue-free animation raised {cue}."));
 
     /// <summary>Ports MorphBallEye's main AI.</summary>
     internal void RunMorphBallEyeMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)

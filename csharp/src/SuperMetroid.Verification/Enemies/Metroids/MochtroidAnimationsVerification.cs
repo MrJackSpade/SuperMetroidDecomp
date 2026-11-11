@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.Metroids.MochtroidNativeListAddresses;
 using SuperMetroid.Core.Enemies.Metroids;
@@ -6,16 +7,20 @@ using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Enemies.Metroids;
 
-/// <summary>#641: Mochtroid's typed programs, each matched step by step to its native bank-$A3 list.</summary>
+/// <summary>
+/// #641, #1600: Mochtroid's typed animations, each segment matched to its native bank-$A3 list and each animation to
+/// the lists' control flow.
+/// </summary>
 internal static class MochtroidAnimationsVerification
 {
-    /// <summary>Every program matches its native list.</summary>
+    /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifyMochtroidAnimations(SuperMetroidAddressSpace rom)
     {
-        int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, MochtroidAnimations.Programs,
-            MochtroidFrameToolingDefinitions.Spritemap,
-            word => null,
-            (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions."));
-        Console.WriteLine($"  Mochtroid programs: {Entries.Length} programs ({steps} steps) match bank $A3.");
+        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
+            MochtroidAnimations.Segments, MochtroidAnimations.StartingAt, MochtroidFrameToolingDefinitions.Spritemap,
+            new NativeEnemyCueRules<NoAnimationCue>(
+                word => null,
+                (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions.")));
+        Console.WriteLine($"  Mochtroid animations: {Entries.Length} segments ({beats} beats) and {MochtroidAnimations.StartingAt.Count} animations match bank $A3.");
     }
 }

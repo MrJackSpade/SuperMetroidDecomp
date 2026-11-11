@@ -28,32 +28,32 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
         Suite(nameof(VerifyProgram), () => VerifyProgram(
             WalkingSpacePirateProgram.WalkingLeft,
             frames: 81,
-            expectedCursor: new AnimationProgramCursor<WalkingSpacePirateProgram>(WalkingSpacePirateProgram.WalkingLeftLoop, 1),
+            expectedSegment: WalkingSpacePirateProgram.WalkingLeftLoop,
             expectedFunction: WalkingSpacePirateFunction.WalkingLeft));
         Suite(nameof(VerifyProgram), () => VerifyProgram(
             WalkingSpacePirateProgram.WalkingRight,
             frames: 81,
-            expectedCursor: new AnimationProgramCursor<WalkingSpacePirateProgram>(WalkingSpacePirateProgram.WalkingRightLoop, 1),
+            expectedSegment: WalkingSpacePirateProgram.WalkingRightLoop,
             expectedFunction: WalkingSpacePirateFunction.WalkingRight));
         Suite(nameof(VerifyProgram), () => VerifyProgram(
             WalkingSpacePirateProgram.FlinchFacingLeft,
             frames: 17,
-            expectedCursor: new AnimationProgramCursor<WalkingSpacePirateProgram>(WalkingSpacePirateProgram.WalkingLeftLoop, 1),
+            expectedSegment: WalkingSpacePirateProgram.WalkingLeftLoop,
             expectedFunction: WalkingSpacePirateFunction.WalkingLeft));
         Suite(nameof(VerifyProgram), () => VerifyProgram(
             WalkingSpacePirateProgram.FlinchFacingRight,
             frames: 17,
-            expectedCursor: new AnimationProgramCursor<WalkingSpacePirateProgram>(WalkingSpacePirateProgram.WalkingRightLoop, 1),
+            expectedSegment: WalkingSpacePirateProgram.WalkingRightLoop,
             expectedFunction: WalkingSpacePirateFunction.WalkingRight));
         Suite(nameof(VerifyProgram), () => VerifyProgram(
             WalkingSpacePirateProgram.LookingFacingLeft,
             frames: 125,
-            expectedCursor: new AnimationProgramCursor<WalkingSpacePirateProgram>(WalkingSpacePirateProgram.WalkingRightLoop, 1),
+            expectedSegment: WalkingSpacePirateProgram.WalkingRightLoop,
             expectedFunction: WalkingSpacePirateFunction.WalkingRight));
         Suite(nameof(VerifyProgram), () => VerifyProgram(
             WalkingSpacePirateProgram.LookingFacingRight,
             frames: 125,
-            expectedCursor: new AnimationProgramCursor<WalkingSpacePirateProgram>(WalkingSpacePirateProgram.WalkingLeftLoop, 1),
+            expectedSegment: WalkingSpacePirateProgram.WalkingLeftLoop,
             expectedFunction: WalkingSpacePirateFunction.WalkingLeft));
         Suite(nameof(VerifyAttack), () => VerifyAttack(movingRight: false));
         Suite(nameof(VerifyAttack), () => VerifyAttack(movingRight: true));
@@ -65,16 +65,16 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
             WalkingSpacePirateProgram program = movingRight
                 ? WalkingSpacePirateProgram.FireLasersRight
                 : WalkingSpacePirateProgram.FireLasersLeft;
-            var expectedCursor = movingRight
-                ? new AnimationProgramCursor<WalkingSpacePirateProgram>(WalkingSpacePirateProgram.FireLasersRight, 2)
-                : new AnimationProgramCursor<WalkingSpacePirateProgram>(WalkingSpacePirateProgram.FireLasersLeft, 2);
+            // The movement choice continues the attack at its own start, which has run its function cue and shown its
+            // first pose again.
+            var expected = new AnimationPlayback<WalkingSpacePirateProgram>(WalkingSpacePirateAnimations.StartingWith(program), PlaceOf(program, program, 2));
             (RoomEnemySystem enemies, RoomEnemySlot slot,
                 WalkingSpacePirateEnemyState state, SamusState samus) = CreateSystem();
             samus.Position = samus.Position.WithWholeX(movingRight ? (ushort)0x0180 : (ushort)0x0080);
-            state.Program = AnimationProgramCursor<WalkingSpacePirateProgram>.Start(program);
+            state.Playback = new(WalkingSpacePirateAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             slot.FrameHold = WrappingCountdown.Start(1);
             RunFrames(enemies, slot, samus, 113);
-            AssertEqual(expectedCursor, state.Program,
+            AssertEqual(expected, state.Playback,
                 $"walking Pirate {(movingRight ? "right" : "left")} attack loops");
             AssertEqual(3, state.SpawnedLaserCount,
                 $"walking Pirate {(movingRight ? "right" : "left")} laser count");
@@ -85,19 +85,24 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
         void VerifyProgram(
             WalkingSpacePirateProgram program,
             int frames,
-            AnimationProgramCursor<WalkingSpacePirateProgram> expectedCursor,
+            WalkingSpacePirateProgram expectedSegment,
             WalkingSpacePirateFunction expectedFunction)
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot,
                 WalkingSpacePirateEnemyState state, SamusState samus) = CreateSystem();
-            state.Program = AnimationProgramCursor<WalkingSpacePirateProgram>.Start(program);
+            state.Playback = new(WalkingSpacePirateAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             slot.FrameHold = WrappingCountdown.Start(1);
             RunFrames(enemies, slot, samus, frames);
-            AssertEqual(expectedCursor, state.Program,
-                $"walking Pirate program {program} cursor");
+            // The walk loop has shown its first pose and stands before its second.
+            AssertEqual(new AnimationPlayback<WalkingSpacePirateProgram>(WalkingSpacePirateAnimations.StartingWith(program), PlaceOf(program, expectedSegment, 1)), state.Playback,
+                $"walking Pirate program {program} playback");
             AssertEqual(expectedFunction, state.Function,
                 $"walking Pirate program {program} function");
         }
+
+        // The place in the animation starting at start whose next beat is the segment's beat.
+        static AnimationPlace PlaceOf(WalkingSpacePirateProgram start, WalkingSpacePirateProgram segment, int beat) =>
+            AnimationSegments<WalkingSpacePirateProgram, WalkingSpacePirateFrame, WalkingSpacePirateCue>.PlaceOf(WalkingSpacePirateAnimations.StartingWith(start), segment, beat);
 
         WalkingSpacePirateInstructionProgramDefinitionsCreateSystemResult CreateSystem()
         {

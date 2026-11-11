@@ -51,7 +51,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The Rio's setup writes the list directly rather than calling the animation installer. The installed animation must
         // therefore remain none until the first behavioral transition installs a new list.
-        state.Program = AnimationProgramCursor<RioProgram>.Start(RioProgram.Idle);
+        state.Playback = new(RioAnimations.StartingWith(RioProgram.Idle), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
@@ -209,7 +209,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of the Rio's animations: telling main AI the animation has finished.</summary>
-    private static RioProgram? ApplyRioCue(RioEnemyState state, RioCue cue)
+    private static void ApplyRioCue(RioEnemyState state, RioCue cue)
     {
         switch (cue.Kind)
         {
@@ -219,7 +219,6 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
             default:
                 throw new InvalidOperationException($"Undefined {nameof(RioCueKind)} {cue.Kind}.");
         }
-        return null;
     }
 
     /// <summary>Installs an animation only when it actually changes.</summary>
@@ -230,7 +229,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProgramAnimation.InstallOnce(slot, state.InstalledProgram, program, installed =>
         {
             state.InstalledProgram = installed;
-            state.Program = AnimationProgramCursor<RioProgram>.Start(installed);
+            state.Playback = new(RioAnimations.StartingWith(installed), AnimationPlace.StartOfAnimation);
         });
 
     /// <summary>Reverses vertical velocity after collision and enters the rebound phase.</summary>
@@ -267,7 +266,11 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Rio's typed animation.</summary>
     internal static void AdvanceRioTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, RioAnimations.Programs, RioFrameDefinitions.ShownFrames.Of,
-            static (RioEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
-            (state, cue, _) => ApplyRioCue(state, cue));
+        EnemyProgramAnimation.Advance(slot, RioAnimations.Segments, RioFrameDefinitions.ShownFrames.Of,
+            static (RioEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            (state, cue) =>
+            {
+                ApplyRioCue(state, cue);
+                return null;
+            });
 }

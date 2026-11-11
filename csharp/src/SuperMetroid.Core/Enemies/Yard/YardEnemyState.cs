@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Enemies.Yard;
 /// <summary>The state of a Yard. Names follow what each word does rather than generic extension indexes.</summary>
 public sealed class YardEnemyState
 {
-    /// <summary>Where the animation resumes.</summary>
-    internal AnimationProgramCursor<YardProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<YardProgram> Playback { get; set; }
 
     /// <summary>
     /// Signed 8.8 horizontal and vertical crawl velocity, each axis used either tangentially or as a normal-axis

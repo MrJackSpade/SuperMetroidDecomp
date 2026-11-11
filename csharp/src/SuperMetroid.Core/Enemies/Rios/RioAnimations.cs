@@ -10,15 +10,14 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// </summary>
 internal static class RioAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<RioProgram, RioFrame, RioCue> Programs { get; } = new(
-        new Dictionary<RioProgram, AnimationProgramStep<RioProgram, RioFrame, RioCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<RioProgram, RioFrame, RioCue> Segments { get; } = new(
+        new Dictionary<RioProgram, AnimationBeat<RioFrame, RioCue>[]>
     {
         [P.Idle] =
         [
             Show(0, 4),
             Show(1, 4),
-            FallInto(P.PostSwoopIdle),
         ],
         [P.PostSwoopIdle] =
         [
@@ -32,7 +31,6 @@ internal static class RioAnimations
             Show(3, 4),
             Show(2, 4),
             Show(3, 4),
-            GoTo(P.Idle),
         ],
         [P.SwoopingPart1] =
         [
@@ -42,13 +40,11 @@ internal static class RioAnimations
             Show(5, 3),
             Show(6, 3),
             Cue(new(K.AnimationFinished)),
-            Hold,
         ],
         [P.SwoopingPart2] =
         [
             Show(7, 3),
             Show(6, 3),
-            GoTo(P.SwoopingPart2),
         ],
         [P.SwoopCooldown] =
         [
@@ -58,23 +54,25 @@ internal static class RioAnimations
             Show(3, 3),
             Show(2, 3),
             Cue(new(K.AnimationFinished)),
-            Hold,
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<RioProgram, Animation<RioProgram>> StartingAt { get; } = new Dictionary<RioProgram, Animation<RioProgram>>
+    {
+        [P.Idle] = new([new(P.Idle, 0, 2, 1), new(P.PostSwoopIdle, 0, 10, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.PostSwoopIdle] = new([new(P.PostSwoopIdle, 0, 10, 1), new(P.Idle, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.SwoopingPart1] = new([new(P.SwoopingPart1, 0, 6, 1)], AnimationEnd.Holds),
+        [P.SwoopingPart2] = new([new(P.SwoopingPart2, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.SwoopCooldown] = new([new(P.SwoopCooldown, 0, 6, 1)], AnimationEnd.Holds),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<RioProgram> StartingWith(RioProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<RioProgram, RioFrame, RioCue> Show(int pose, int duration) => AnimationProgramStep<RioProgram, RioFrame, RioCue>.Show(new(pose), duration);
+    private static AnimationBeat<RioFrame, RioCue> Show(int pose, int duration) => new AnimationBeat<RioFrame, RioCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<RioProgram, RioFrame, RioCue> Cue(RioCue cue) => AnimationProgramStep<RioProgram, RioFrame, RioCue>.Publish(cue);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<RioProgram, RioFrame, RioCue> GoTo(RioProgram program) => AnimationProgramStep<RioProgram, RioFrame, RioCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<RioProgram, RioFrame, RioCue> FallInto(RioProgram program) => AnimationProgramStep<RioProgram, RioFrame, RioCue>.FallInto(program);
-
-    /// <summary>Holds the last frame, as the sleep does.</summary>
-    private static AnimationProgramStep<RioProgram, RioFrame, RioCue> Hold => AnimationProgramStep<RioProgram, RioFrame, RioCue>.Hold;
-
+    private static AnimationBeat<RioFrame, RioCue> Cue(RioCue cue) => new AnimationBeat<RioFrame, RioCue>.Event(cue);
 }

@@ -47,8 +47,8 @@ internal static class ShaktoolInstructionDefinitionsVerification
             orient(center, centerState);
             AssertEqual(bucket, centerState.OrientationBucket,
                 $"Shaktool production orientation bucket {bucket:X2}");
-            AssertEqual(AnimationProgramCursor<ShaktoolProgram>.Start(ShaktoolPrograms.ForOrientationBucket(bucket)),
-                centerState.Program,
+            AssertEqual(new AnimationPlayback<ShaktoolProgram>(ShaktoolAnimations.StartingWith(ShaktoolPrograms.ForOrientationBucket(bucket)), AnimationPlace.StartOfAnimation),
+                centerState.Playback,
                 $"Shaktool production orientation list {bucket:X2}");
         }
 
@@ -58,8 +58,8 @@ internal static class ShaktoolInstructionDefinitionsVerification
         reverse(tail, (tailState), tail.Position.Whole);
         for (int index = 0; index < 7; index++)
         {
-            AssertEqual(AnimationProgramCursor<ShaktoolProgram>.Start(ShaktoolPrograms.CollisionForSegment(index)),
-                (enemies.ShaktoolSegments[index] ?? throw new InvalidOperationException("Verification requires a Shaktool segment.")).Program,
+            AssertEqual(new AnimationPlayback<ShaktoolProgram>(ShaktoolAnimations.StartingWith(ShaktoolPrograms.CollisionForSegment(index)), AnimationPlace.StartOfAnimation),
+                (enemies.ShaktoolSegments[index] ?? throw new InvalidOperationException("Verification requires a Shaktool segment.")).Playback,
                 $"Shaktool production collision list {index}");
         }
 
@@ -104,8 +104,8 @@ internal static class ShaktoolInstructionDefinitionsVerification
         for (int index = 0; index < steadyPrograms.Length; index++)
         {
             int slotIndex = Math.Min(index, 6);
-            (enemies.ShaktoolSegments[slotIndex] ?? throw new InvalidOperationException("Verification requires a Shaktool segment.")).Program =
-                AnimationProgramCursor<ShaktoolProgram>.Start(steadyPrograms[index]);
+            (enemies.ShaktoolSegments[slotIndex] ?? throw new InvalidOperationException("Verification requires a Shaktool segment.")).Playback =
+                new(ShaktoolAnimations.StartingWith(steadyPrograms[index]), AnimationPlace.StartOfAnimation);
             RunForcedShaktoolInstructions(enemies.SlotTable.Slots[slotIndex], 5);
         }
 

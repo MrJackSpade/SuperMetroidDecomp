@@ -9,9 +9,9 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 /// </summary>
 internal static class MochtroidAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<MochtroidProgram, MochtroidFrame, NoAnimationCue> Programs { get; } = new(
-        new Dictionary<MochtroidProgram, AnimationProgramStep<MochtroidProgram, MochtroidFrame, NoAnimationCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<MochtroidProgram, MochtroidFrame, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<MochtroidProgram, AnimationBeat<MochtroidFrame, NoAnimationCue>[]>
     {
         [P.FreeFlight] =
         [
@@ -19,7 +19,6 @@ internal static class MochtroidAnimations
             Show(1, 14),
             Show(2, 14),
             Show(1, 14),
-            GoTo(P.FreeFlight),
         ],
         [P.Attached] =
         [
@@ -27,14 +26,19 @@ internal static class MochtroidAnimations
             Show(4, 5),
             Show(5, 5),
             Show(4, 5),
-            GoTo(P.Attached),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<MochtroidProgram, Animation<MochtroidProgram>> StartingAt { get; } = new Dictionary<MochtroidProgram, Animation<MochtroidProgram>>
+    {
+        [P.FreeFlight] = new([new(P.FreeFlight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Attached] = new([new(P.Attached, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<MochtroidProgram> StartingWith(MochtroidProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<MochtroidProgram, MochtroidFrame, NoAnimationCue> Show(int pose, int duration) => AnimationProgramStep<MochtroidProgram, MochtroidFrame, NoAnimationCue>.Show(new(pose), duration);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<MochtroidProgram, MochtroidFrame, NoAnimationCue> GoTo(MochtroidProgram program) => AnimationProgramStep<MochtroidProgram, MochtroidFrame, NoAnimationCue>.GoTo(program);
-
+    private static AnimationBeat<MochtroidFrame, NoAnimationCue> Show(int pose, int duration) => new AnimationBeat<MochtroidFrame, NoAnimationCue>.Frame(new(pose), duration);
 }

@@ -8,7 +8,7 @@ internal static class RioAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params RioProgram[] programs) =>
-        programs.SelectMany(program => RioAnimations.Programs.Steps(program))
-            .OfType<AnimationProgramStep<RioProgram, RioFrame, RioCue>.ShowStep>()
-            .Select(step => RioFrameToolingDefinitions.Spritemap(step.Frame));
+        programs.SelectMany(program => RioAnimations.Segments.Beats(program))
+            .OfType<AnimationBeat<RioFrame, RioCue>.Frame>()
+            .Select(frame => RioFrameToolingDefinitions.Spritemap(frame.Shown));
 }

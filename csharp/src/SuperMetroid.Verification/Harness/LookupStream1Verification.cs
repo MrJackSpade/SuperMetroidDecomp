@@ -262,13 +262,13 @@ internal static class LookupStream1Verification
             body.Position = body.Position.WithWholeY(100);
             var slot = isBody ? body : balloon;
             PowampEnemyState slotState = slot.RequireSpeciesState<PowampEnemyState>();
-            slotState.Program = AnimationProgramCursor<PowampProgram>.Start(root switch
+            slotState.Playback = new(PowampAnimations.StartingWith(root switch
             {
                 0xc163 => PowampProgram.BodyFast,
                 0xc173 => PowampProgram.BodySlow,
                 0xc183 => PowampProgram.BalloonInflate0,
                 _ => PowampProgram.BalloonStartSinking,
-            });
+            }), AnimationPlace.StartOfAnimation);
             var pair = new PowampBalloon(balloon, balloon.RequireSpeciesState<PowampEnemyState>());
             slot.FrameHold = WrappingCountdown.Start(1);
             object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
@@ -328,7 +328,7 @@ internal static class LookupStream1Verification
             slot.FrameHold = WrappingCountdown.Start(1);
             enemies.SlotTable.Slots[0].SetSpeciesState(new MetroidEnemyState(new RoomSpriteObject(RoomSpriteObjectKind.MetroidOuterBodyA, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard), new RoomSpriteObject(RoomSpriteObjectKind.MetroidOuterBodyB, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard))
             {
-                Program = AnimationProgramCursor<MetroidProgram>.Start(chasing ? MetroidProgram.ChasingSamus : MetroidProgram.DrainingSamus),
+                Playback = new(MetroidAnimations.StartingWith(chasing ? MetroidProgram.ChasingSamus : MetroidProgram.DrainingSamus), AnimationPlace.StartOfAnimation),
             });
             object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
             for (int record = 0; record < records; record++)

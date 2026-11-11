@@ -28,7 +28,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of the platforms' animations: each publishes the horizontal direction main AI moves in.</summary>
-    private static PlatformProgram? ApplyPlatformCue(RoomEnemySlot slot, PlatformCue cue)
+    private static void ApplyPlatformCue(RoomEnemySlot slot, PlatformCue cue)
     {
         switch (cue.Kind)
         {
@@ -43,7 +43,6 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             default:
                 throw new InvalidOperationException($"Undefined {nameof(PlatformCueKind)} {cue.Kind}.");
         }
-        return null;
     }
 
 
@@ -64,8 +63,8 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         PlatformSpawnSettings settings = slot.SpawnSettings<PlatformSpawnSettings>();
         state.XMovement = settings.Movement;
 
-        state.Program = AnimationProgramCursor<PlatformProgram>.Start(PlatformPrograms.SelectProgram(
-            isKamer, axis: Axis.Horizontal, state.XMovement));
+        state.Playback = new(PlatformAnimations.StartingWith(PlatformPrograms.SelectProgram(
+            isKamer, axis: Axis.Horizontal, state.XMovement)), AnimationPlace.StartOfAnimation);
 
         // The spawn settings name the speed the platform moves at.
         state.RightSpeed = settings.Speed;
@@ -316,7 +315,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts the selected animation with a one-tick instruction timer.</summary>
     private static void InstallPlatformProgram(RoomEnemySlot slot, PlatformEnemyState state, PlatformProgram program)
     {
-        state.Program = AnimationProgramCursor<PlatformProgram>.Start(program);
+        state.Playback = new(PlatformAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
@@ -351,9 +350,13 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Platforms's typed animation.</summary>
     internal static void AdvancePlatformsTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, PlatformAnimations.Programs, PlatformFrameDefinitions.ShownFrames.Of,
-            static (PlatformEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
-            (state, cue, _) => ApplyPlatformCue(slot, cue));
+        EnemyProgramAnimation.Advance(slot, PlatformAnimations.Segments, PlatformFrameDefinitions.ShownFrames.Of,
+            static (PlatformEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            (state, cue) =>
+            {
+                ApplyPlatformCue(slot, cue);
+                return null;
+            });
 
     /// <summary>Applies Tripper's direction-specific frozen map after a successful common shot freeze.</summary>
     internal static void AddPlatformsShotReactions(EnemySharedReactions table)

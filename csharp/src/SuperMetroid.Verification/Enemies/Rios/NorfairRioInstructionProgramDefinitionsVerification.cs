@@ -70,8 +70,8 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
         parent.Bind(parent.DefinitionId, default(RoomEnemyDefinition));
         parent.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
         enemies.NorfairRioBehavior.InitializeNorfairRio(parent);
-        AssertEqual(AnimationProgramCursor<NorfairRioProgram>.Start(NorfairRioProgram.Idle),
-            enemies.SlotTable.Slots[0].EntityState<NorfairRioEntity, NorfairRioEnemyState>()?.Program,
+        AssertEqual(new AnimationPlayback<NorfairRioProgram>(NorfairRioAnimations.StartingWith(NorfairRioProgram.Idle), AnimationPlace.StartOfAnimation),
+            enemies.SlotTable.Slots[0].EntityState<NorfairRioEntity, NorfairRioEnemyState>()?.Playback,
             "Norfair Rio parent initializer selects idle");
 
         RoomEnemySlot follower = enemies.SlotTable.Slots[1];
@@ -79,8 +79,8 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
         follower.Bind(follower.DefinitionId, default(RoomEnemyDefinition));
         follower.SetSpawnParameter1(EnemyDefinitionId.Geruta, 0x8000);
         enemies.NorfairRioBehavior.InitializeNorfairRio(follower);
-        AssertEqual(AnimationProgramCursor<NorfairRioProgram>.Start(NorfairRioProgram.FlamesAscending),
-            enemies.SlotTable.Slots[1].EntityState<NorfairRioEntity, NorfairRioEnemyState>()?.Program,
+        AssertEqual(new AnimationPlayback<NorfairRioProgram>(NorfairRioAnimations.StartingWith(NorfairRioProgram.FlamesAscending), AnimationPlace.StartOfAnimation),
+            enemies.SlotTable.Slots[1].EntityState<NorfairRioEntity, NorfairRioEnemyState>()?.Playback,
             "Norfair Rio follower initializer selects ascending flames");
     }
 
@@ -94,7 +94,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
         slot.Bind(EnemyDefinitionId.Geruta, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.FrameHold = WrappingCountdown.Start(1);
-        var state = new NorfairRioEnemyState { Program = AnimationProgramCursor<NorfairRioProgram>.Start(entry) };
+        var state = new NorfairRioEnemyState { Playback = new(NorfairRioAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation) };
         slot.SetSpeciesState(state);
         return new NewNorfairRioInstructionSystemResult(enemies, slot, state);
     }

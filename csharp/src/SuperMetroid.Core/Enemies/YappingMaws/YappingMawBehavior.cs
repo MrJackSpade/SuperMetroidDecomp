@@ -46,7 +46,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of the Yapping Maw's animations: holding a grabbed Samus at a mouth offset, or the bite sound.</summary>
-    private YappingMawProgram? ApplyYappingMawCue(YappingMawEnemyState state, YappingMawCue cue)
+    private void ApplyYappingMawCue(YappingMawEnemyState state, YappingMawCue cue)
     {
         switch (cue.Kind)
         {
@@ -74,7 +74,6 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             default:
                 throw new InvalidOperationException($"Undefined {nameof(YappingMawCueKind)} {cue.Kind}.");
         }
-        return null;
     }
 
     /// <summary>Minimum separation used before moving Samus to the extended mouth.</summary>
@@ -98,9 +97,9 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         slot.SetSpeciesState(state);
 
-        state.Program = AnimationProgramCursor<YappingMawProgram>.Start(slot.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
+        state.Playback = new(YappingMawAnimations.StartingWith(slot.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
             ? YappingMawProgram.AttackingDown
-            : YappingMawProgram.AttackingUp);
+            : YappingMawProgram.AttackingUp), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 
@@ -229,7 +228,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         int direction = Bearing.Wrapped(state.AimAngle.RawValue + 16).RawValue / 32;
         YappingMawAim aim = YappingMawAnimationDefinitions.Aims.At(direction);
         state.Aim = aim;
-        state.Program = AnimationProgramCursor<YappingMawProgram>.Start(YappingMawBites.AttackForDirection(aim));
+        state.Playback = new(YappingMawAnimations.StartingWith(YappingMawBites.AttackForDirection(aim)), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 
@@ -315,25 +314,25 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         bool skipHeldPlacement = false;
         if (slot.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Up)
         {
-            state.Program = AnimationProgramCursor<YappingMawProgram>.Start(state.Aim switch
+            state.Playback = new(YappingMawAnimations.StartingWith(state.Aim switch
             {
                 YappingMawAim.Right => YappingMawProgram.CooldownUpRight,
                 YappingMawAim.Left => YappingMawProgram.CooldownUpLeft,
                 YappingMawAim.Up or YappingMawAim.UpRight or YappingMawAim.DownRight or YappingMawAim.Down or
                     YappingMawAim.DownLeft or YappingMawAim.UpLeft => YappingMawProgram.CooldownUp,
                 _ => throw new InvalidOperationException($"Yapping Maw aim {state.Aim} is not an aim."),
-            });
+            }), AnimationPlace.StartOfAnimation);
         }
         else
         {
-            state.Program = AnimationProgramCursor<YappingMawProgram>.Start(state.Aim switch
+            state.Playback = new(YappingMawAnimations.StartingWith(state.Aim switch
             {
                 YappingMawAim.Right => YappingMawProgram.CooldownDownRight,
                 YappingMawAim.Left => YappingMawProgram.CooldownDownLeft,
                 YappingMawAim.Up or YappingMawAim.UpRight or YappingMawAim.DownRight or YappingMawAim.Down or
                     YappingMawAim.DownLeft or YappingMawAim.UpLeft => YappingMawProgram.CooldownDown,
                 _ => throw new InvalidOperationException($"Yapping Maw aim {state.Aim} is not an aim."),
-            });
+            }), AnimationPlace.StartOfAnimation);
             skipHeldPlacement = state.Aim is not (YappingMawAim.Right or YappingMawAim.Left);
         }
         slot.FrameHold = WrappingCountdown.Start(1);
@@ -619,9 +618,13 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances YappingMaw's typed animation.</summary>
     internal void AdvanceYappingMawTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, YappingMawAnimations.Programs, YappingMawFrameDefinitions.ShownFrames.Of,
-            static (YappingMawEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
-            (state, cue, _) => ApplyYappingMawCue(state, cue));
+        EnemyProgramAnimation.Advance(slot, YappingMawAnimations.Segments, YappingMawFrameDefinitions.ShownFrames.Of,
+            static (YappingMawEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            (state, cue) =>
+            {
+                ApplyYappingMawCue(state, cue);
+                return null;
+            });
 
     /// <summary>Handles frozen release and death cleanup after common shot damage.</summary>
     internal static void AddYappingMawShotReactions(EnemySharedReactions table)

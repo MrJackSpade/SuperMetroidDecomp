@@ -402,7 +402,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.InstalledProgram = state.RequestedProgram;
-        state.Program = AnimationProgramCursor<SbugProgram>.Start(state.RequestedProgram.Value);
+        state.Playback = new(SbugAnimations.StartingWith(state.RequestedProgram.Value), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
@@ -415,8 +415,9 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Sbug's typed animation.</summary>
     internal static void AdvanceSbugTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, SbugAnimations.Programs, SbugFrameDefinitions.ShownFrames.Of,
-            static (SbugEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
+        EnemyProgramAnimation.Advance(slot, SbugAnimations.Segments, SbugFrameDefinitions.ShownFrames.Of,
+            static (SbugEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            static (_, cue) => throw new InvalidOperationException($"Sbug's cue-free animation raised {cue}."));
 
     /// <summary>Ports Sbug's main AI.</summary>
     internal void RunSbugMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)

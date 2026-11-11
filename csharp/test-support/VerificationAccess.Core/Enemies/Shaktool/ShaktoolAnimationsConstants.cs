@@ -8,7 +8,7 @@ internal static class ShaktoolAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params ShaktoolProgram[] programs) =>
-        programs.SelectMany(program => ShaktoolAnimations.Programs.Steps(program))
-            .OfType<AnimationProgramStep<ShaktoolProgram, ShaktoolFrame, ShaktoolCue>.ShowStep>()
-            .Select(step => ShaktoolFrameToolingDefinitions.Spritemap(step.Frame));
+        programs.SelectMany(program => ShaktoolAnimations.Segments.Beats(program))
+            .OfType<AnimationBeat<ShaktoolFrame, ShaktoolCue>.Frame>()
+            .Select(frame => ShaktoolFrameToolingDefinitions.Spritemap(frame.Shown));
 }

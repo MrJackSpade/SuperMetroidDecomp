@@ -10,14 +10,13 @@ namespace SuperMetroid.Core.Enemies.Stoke;
 /// </summary>
 internal static class StokeAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<StokeProgram, StokeFrame, StokeCue> Programs { get; } = new(
-        new Dictionary<StokeProgram, AnimationProgramStep<StokeProgram, StokeFrame, StokeCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<StokeProgram, StokeFrame, StokeCue> Segments { get; } = new(
+        new Dictionary<StokeProgram, AnimationBeat<StokeFrame, StokeCue>[]>
     {
         [P.MovingLeft] =
         [
             Cue(new(K.SetMovingLeft)),
-            FallInto(P.MovingLeftLoop),
         ],
         [P.MovingLeftLoop] =
         [
@@ -25,19 +24,16 @@ internal static class StokeAnimations
             Show(1, 16),
             Show(2, 8),
             Show(3, 8),
-            GoTo(P.MovingLeftLoop),
         ],
         [P.AttackingLeft] =
         [
             Show(2, 16),
             Cue(new(K.SpawnFireball, FireballDirection: StokeDirection.Left)),
             Show(4, 16),
-            GoTo(P.MovingLeft),
         ],
         [P.MovingRight] =
         [
             Cue(new(K.SetMovingRight)),
-            FallInto(P.MovingRightLoop),
         ],
         [P.MovingRightLoop] =
         [
@@ -45,27 +41,32 @@ internal static class StokeAnimations
             Show(6, 16),
             Show(7, 8),
             Show(8, 8),
-            GoTo(P.MovingRightLoop),
         ],
         [P.AttackingRight] =
         [
             Show(7, 16),
             Cue(new(K.SpawnFireball, FireballDirection: StokeDirection.Right)),
             Show(9, 16),
-            GoTo(P.MovingRight),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<StokeProgram, Animation<StokeProgram>> StartingAt { get; } = new Dictionary<StokeProgram, Animation<StokeProgram>>
+    {
+        [P.MovingLeft] = new([new(P.MovingLeft, 0, 1, 1), new(P.MovingLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.MovingLeftLoop] = new([new(P.MovingLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.AttackingLeft] = new([new(P.AttackingLeft, 0, 3, 1), new(P.MovingLeft, 0, 1, 1), new(P.MovingLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(2)),
+        [P.MovingRight] = new([new(P.MovingRight, 0, 1, 1), new(P.MovingRightLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.MovingRightLoop] = new([new(P.MovingRightLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.AttackingRight] = new([new(P.AttackingRight, 0, 3, 1), new(P.MovingRight, 0, 1, 1), new(P.MovingRightLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(2)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<StokeProgram> StartingWith(StokeProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<StokeProgram, StokeFrame, StokeCue> Show(int pose, int duration) => AnimationProgramStep<StokeProgram, StokeFrame, StokeCue>.Show(new(pose), duration);
+    private static AnimationBeat<StokeFrame, StokeCue> Show(int pose, int duration) => new AnimationBeat<StokeFrame, StokeCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<StokeProgram, StokeFrame, StokeCue> Cue(StokeCue cue) => AnimationProgramStep<StokeProgram, StokeFrame, StokeCue>.Publish(cue);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<StokeProgram, StokeFrame, StokeCue> GoTo(StokeProgram program) => AnimationProgramStep<StokeProgram, StokeFrame, StokeCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<StokeProgram, StokeFrame, StokeCue> FallInto(StokeProgram program) => AnimationProgramStep<StokeProgram, StokeFrame, StokeCue>.FallInto(program);
-
+    private static AnimationBeat<StokeFrame, StokeCue> Cue(StokeCue cue) => new AnimationBeat<StokeFrame, StokeCue>.Event(cue);
 }

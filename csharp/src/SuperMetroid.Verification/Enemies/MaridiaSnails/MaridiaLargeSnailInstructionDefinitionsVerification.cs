@@ -37,7 +37,8 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
             slot.Timer = WrappingCountdown.Start(0x5678);
             MaridiaLargeSnailBehavior.InstallMaridiaLargeSnailAnimationScript(slot, state);
             AssertEqual(animationIndex, state.InstalledAnimationScriptIndex, $"Oum installed selector {animationIndex}");
-            AssertEqual(AnimationProgramCursor<MaridiaLargeSnailProgram>.Start(program), state.Program, $"Oum installed animation {animationIndex}");
+            AssertTrue(ReferenceEquals(MaridiaLargeSnailAnimations.StartingWith(program), state.Playback.Animation) &&
+                state.Playback.Place == AnimationPlace.StartOfAnimation, $"Oum installed animation {animationIndex}");
             AssertEqual((ushort)1, slot.FrameHold.RawValue, $"Oum instruction timer {animationIndex}");
             AssertEqual((ushort)0, slot.Timer.RawValue, $"Oum general timer {animationIndex}");
         }
@@ -46,7 +47,8 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
         foreach (MaridiaLargeSnailProgram attack in new[] { MaridiaLargeSnailProgram.FacingLeftAttacking, MaridiaLargeSnailProgram.FacingRightAttacking })
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, MaridiaLargeSnailEnemyState state) = Create();
-            AssertEqual(AnimationProgramCursor<MaridiaLargeSnailProgram>.Start(MaridiaLargeSnailProgram.FacingLeftIdle), state.Program, "Oum starts left-facing idle");
+            AssertTrue(ReferenceEquals(MaridiaLargeSnailAnimations.StartingWith(MaridiaLargeSnailProgram.FacingLeftIdle), state.Playback.Animation) &&
+                state.Playback.Place == AnimationPlace.StartOfAnimation, "Oum starts left-facing idle");
             Start(slot, state, attack);
             int[] holds = [16, 16, 16, 2, 3, 4, 2, 3, 1, 3, 2, 1, 18];
             AssertEqual(EnemyInstructionRunner.ExpectedFrames(MaridiaLargeSnailAnimationsConstants.Spritemaps(attack), holds),
@@ -71,8 +73,8 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
             EnemyInstructionRunner.ShownFrames(slot, 7);
             AssertTrue(!state.AttackAllowsRotation, $"Oum {roll} closes the attack-rotation window one pose later");
             Start(slot, state, roll);
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(MaridiaLargeSnailAnimations.Programs, roll, MaridiaLargeSnailFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(MaridiaLargeSnailAnimations.Programs, roll)), $"Oum {roll} loop");
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(MaridiaLargeSnailAnimations.Segments, roll, MaridiaLargeSnailFrameToolingDefinitions.Spritemap),
+                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(MaridiaLargeSnailAnimations.Segments, roll)), $"Oum {roll} loop");
         }
         Console.WriteLine("Maridia Large Snail: eight native selectors, installs, both attacks' splash and completion, and all four rolls' rotation windows and loops pass.");
     }
@@ -91,7 +93,7 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
     /// <summary>Starts <paramref name="program"/> with its first step due on the next update.</summary>
     private static void Start(RoomEnemySlot slot, MaridiaLargeSnailEnemyState state, MaridiaLargeSnailProgram program)
     {
-        state.Program = AnimationProgramCursor<MaridiaLargeSnailProgram>.Start(program);
+        state.Playback = new(MaridiaLargeSnailAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }

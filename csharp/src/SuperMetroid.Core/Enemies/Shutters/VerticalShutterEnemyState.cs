@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// </summary>
 public sealed class VerticalShutterEnemyState
 {
-    /// <summary>Where the animation resumes.</summary>
-    internal AnimationProgramCursor<ShutterProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<ShutterProgram> Playback { get; set; }
 
     /// <summary>
     /// The dispatcher behaviour, shared by shootable/destroyable shutters and the Kamer vertical platform.

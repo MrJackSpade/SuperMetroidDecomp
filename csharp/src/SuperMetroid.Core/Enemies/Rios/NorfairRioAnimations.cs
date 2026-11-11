@@ -10,9 +10,9 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// </summary>
 internal static class NorfairRioAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<NorfairRioProgram, NorfairRioFrame, NorfairRioCue> Programs { get; } = new(
-        new Dictionary<NorfairRioProgram, AnimationProgramStep<NorfairRioProgram, NorfairRioFrame, NorfairRioCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<NorfairRioProgram, NorfairRioFrame, NorfairRioCue> Segments { get; } = new(
+        new Dictionary<NorfairRioProgram, AnimationBeat<NorfairRioFrame, NorfairRioCue>[]>
     {
         [P.Idle] =
         [
@@ -21,7 +21,6 @@ internal static class NorfairRioAnimations
             Show(0, 18),
             Show(1, 13),
             Show(2, 18),
-            GoTo(P.Idle),
         ],
         [P.StartDescending] =
         [
@@ -38,7 +37,6 @@ internal static class NorfairRioAnimations
             Cue(new(K.FlamesAtMinus16)),
             Show(13, 1),
             Cue(new(K.SwoopStartFinished)),
-            Hold,
         ],
         [P.Descending] =
         [
@@ -47,7 +45,6 @@ internal static class NorfairRioAnimations
             Show(7, 5),
             Show(8, 8),
             Show(7, 6),
-            GoTo(P.Descending),
         ],
         [P.StartAscending] =
         [
@@ -68,7 +65,6 @@ internal static class NorfairRioAnimations
             Cue(new(K.FlamesAt12)),
             Show(2, 1),
             Cue(new(K.SwoopStartFinished)),
-            Hold,
         ],
         [P.Ascending] =
         [
@@ -77,7 +73,6 @@ internal static class NorfairRioAnimations
             Show(15, 5),
             Show(16, 8),
             Show(15, 6),
-            GoTo(P.Ascending),
         ],
         [P.FlamesAscending] =
         [
@@ -85,7 +80,6 @@ internal static class NorfairRioAnimations
             Show(4, 5),
             Show(5, 8),
             Show(4, 6),
-            GoTo(P.FlamesAscending),
         ],
         [P.FlamesDescending] =
         [
@@ -93,20 +87,27 @@ internal static class NorfairRioAnimations
             Show(18, 5),
             Show(19, 8),
             Show(18, 6),
-            GoTo(P.FlamesDescending),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<NorfairRioProgram, Animation<NorfairRioProgram>> StartingAt { get; } = new Dictionary<NorfairRioProgram, Animation<NorfairRioProgram>>
+    {
+        [P.Idle] = new([new(P.Idle, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.StartDescending] = new([new(P.StartDescending, 0, 13, 1)], AnimationEnd.Holds),
+        [P.Descending] = new([new(P.Descending, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.StartAscending] = new([new(P.StartAscending, 0, 17, 1)], AnimationEnd.Holds),
+        [P.Ascending] = new([new(P.Ascending, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.FlamesAscending] = new([new(P.FlamesAscending, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.FlamesDescending] = new([new(P.FlamesDescending, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<NorfairRioProgram> StartingWith(NorfairRioProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<NorfairRioProgram, NorfairRioFrame, NorfairRioCue> Show(int pose, int duration) => AnimationProgramStep<NorfairRioProgram, NorfairRioFrame, NorfairRioCue>.Show(new(pose), duration);
+    private static AnimationBeat<NorfairRioFrame, NorfairRioCue> Show(int pose, int duration) => new AnimationBeat<NorfairRioFrame, NorfairRioCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<NorfairRioProgram, NorfairRioFrame, NorfairRioCue> Cue(NorfairRioCue cue) => AnimationProgramStep<NorfairRioProgram, NorfairRioFrame, NorfairRioCue>.Publish(cue);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<NorfairRioProgram, NorfairRioFrame, NorfairRioCue> GoTo(NorfairRioProgram program) => AnimationProgramStep<NorfairRioProgram, NorfairRioFrame, NorfairRioCue>.GoTo(program);
-
-    /// <summary>Holds the last frame, as the sleep does.</summary>
-    private static AnimationProgramStep<NorfairRioProgram, NorfairRioFrame, NorfairRioCue> Hold => AnimationProgramStep<NorfairRioProgram, NorfairRioFrame, NorfairRioCue>.Hold;
-
+    private static AnimationBeat<NorfairRioFrame, NorfairRioCue> Cue(NorfairRioCue cue) => new AnimationBeat<NorfairRioFrame, NorfairRioCue>.Event(cue);
 }

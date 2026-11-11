@@ -107,10 +107,10 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         // independent projectile-flinch option and must not accidentally select right art.
         WalkingSpacePirateSpawnSettings settings = slot.SpawnSettings<WalkingSpacePirateSpawnSettings>();
         WalkingSpacePirateOptions options = settings.Options;
-        state.Program = AnimationProgramCursor<WalkingSpacePirateProgram>.Start(
+        state.Playback = new(WalkingSpacePirateAnimations.StartingWith(
             (options & WalkingSpacePirateOptions.StartsFacingRight) != WalkingSpacePirateOptions.None
             ? WalkingSpacePirateProgram.WalkingRight
-            : WalkingSpacePirateProgram.WalkingLeft);
+            : WalkingSpacePirateProgram.WalkingLeft), AnimationPlace.StartOfAnimation);
         state.Function = WalkingSpacePirateFunction.NoOperation;
 
         // The game's additions wrap past 65535. A modded patrol radius can therefore straddle the
@@ -325,7 +325,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         WalkingSpacePirateEnemyState state,
         WalkingSpacePirateProgram program)
     {
-        state.Program = AnimationProgramCursor<WalkingSpacePirateProgram>.Start(program);
+        state.Playback = new(WalkingSpacePirateAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
     }
 
@@ -502,10 +502,12 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         if (!EnemyProgramAnimation.Expire(slot))
             return;
         var state = RequireWalkingSpacePirateState(slot);
-        AnimationProgramCursor<WalkingSpacePirateProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, WalkingSpacePirateAnimations.Programs, ref cursor, WalkingSpacePirateFrameDefinitions.ShownFrames.Of,
-                (cue, _) => ApplyWalkingSpacePirateCue(slot, cue, context.Samus));
-        state.Program = cursor;
+        AnimationPlayback<WalkingSpacePirateProgram> playback = state.Playback;
+        EnemyProgramAnimation.Play(slot, WalkingSpacePirateAnimations.Segments, ref playback, WalkingSpacePirateFrameDefinitions.ShownFrames.Of,
+            cue => ApplyWalkingSpacePirateCue(slot, cue, context.Samus) is { } continuesAt
+                ? new AnimationContinuation<WalkingSpacePirateProgram>(WalkingSpacePirateAnimations.StartingWith(continuesAt), AnimationPlace.StartOfAnimation)
+                : null);
+        state.Playback = playback;
     }
 
     /// <summary>Runs the extended-hitbox shot callback, including collision marking before rejection or reflection.</summary>

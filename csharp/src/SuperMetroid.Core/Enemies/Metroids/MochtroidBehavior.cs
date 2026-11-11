@@ -186,7 +186,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProgramAnimation.InstallOnce(slot, state.InstalledProgram, program, installed =>
         {
             state.InstalledProgram = installed;
-            state.Program = AnimationProgramCursor<MochtroidProgram>.Start(installed);
+            state.Playback = new(MochtroidAnimations.StartingWith(installed), AnimationPlace.StartOfAnimation);
         });
 
     /// <summary>Resolves the family-specific portion of a Mochtroid's touch.</summary>
@@ -250,8 +250,9 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Mochtroid's typed animation.</summary>
     internal static void AdvanceMochtroidTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, MochtroidAnimations.Programs, MochtroidFrameDefinitions.ShownFrames.Of,
-            static (MochtroidEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
+        EnemyProgramAnimation.Advance(slot, MochtroidAnimations.Segments, MochtroidFrameDefinitions.ShownFrames.Of,
+            static (MochtroidEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            static (state, cue) => throw new InvalidOperationException($"Mochtroid's cue-free animation raised {cue}."));
 
     /// <summary>Ports Mochtroid's main AI.</summary>
     internal void RunMochtroidMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)

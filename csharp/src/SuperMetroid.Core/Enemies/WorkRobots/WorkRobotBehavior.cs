@@ -97,7 +97,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
         slot.FrameHold = WrappingCountdown.Start(4);
         slot.Timer = WrappingCountdown.Start(0);
-        state.Program = AnimationProgramCursor<WorkRobotProgram>.Start(WorkRobotProgram.Initial);
+        state.Playback = new(WorkRobotAnimations.StartingWith(WorkRobotProgram.Initial), AnimationPlace.StartOfAnimation);
         state.LaserVelocity = WorkRobotFacingLeftVelocity;
         state.LaserCooldown = WrappingCountdown.Start(0);
 
@@ -123,7 +123,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Powered = false;
 
         // The placement names the unpowered pose the robot holds.
-        state.Program = AnimationProgramCursor<WorkRobotProgram>.Start(slot.SpawnSettings<WorkRobotSpawnSettings>().Pose);
+        state.Playback = new(WorkRobotAnimations.StartingWith(slot.SpawnSettings<WorkRobotSpawnSettings>().Pose), AnimationPlace.StartOfAnimation);
         slot.Contact = slot.Contact.With(EnemyContact.SolidToSamus);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
@@ -328,15 +328,15 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         bool facingLeft = state.LaserVelocity.X.IsNegative;
         if (facingLeft)
         {
-            state.Program = AnimationProgramCursor<WorkRobotProgram>.Start(samus.Position.X.Whole < robot.Position.X.Whole
+            state.Playback = new(WorkRobotAnimations.StartingWith(samus.Position.X.Whole < robot.Position.X.Whole
                 ? WorkRobotProgram.FacingLeftShotSamusAhead
-                : WorkRobotProgram.FacingLeftShotSamusBehind);
+                : WorkRobotProgram.FacingLeftShotSamusBehind), AnimationPlace.StartOfAnimation);
         }
         else
         {
-            state.Program = AnimationProgramCursor<WorkRobotProgram>.Start(samus.Position.X.Whole >= robot.Position.X.Whole
+            state.Playback = new(WorkRobotAnimations.StartingWith(samus.Position.X.Whole >= robot.Position.X.Whole
                 ? WorkRobotProgram.FacingRightShotSamusAhead
-                : WorkRobotProgram.FacingRightShotSamusBehind);
+                : WorkRobotProgram.FacingRightShotSamusBehind), AnimationPlace.StartOfAnimation);
         }
         robot.FrameHold = WrappingCountdown.Start(1);
         state.LaserCooldown = state.LaserCooldown.AddFrames(64);
@@ -395,9 +395,11 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances WorkRobot's typed animation.</summary>
     internal void AdvanceWorkRobotTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>
-        EnemyProgramAnimation.Advance(slot, WorkRobotAnimations.Programs, WorkRobotFrameDefinitions.ShownFrames.Of,
-            static (WorkRobotEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
-            (state, cue, _) => ApplyWorkRobotCue(slot, state, context, cue));
+        EnemyProgramAnimation.Advance(slot, WorkRobotAnimations.Segments, WorkRobotFrameDefinitions.ShownFrames.Of,
+            static (WorkRobotEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            (state, cue) => ApplyWorkRobotCue(slot, state, context, cue) is { } continuesAt
+                ? new AnimationContinuation<WorkRobotProgram>(WorkRobotAnimations.StartingWith(continuesAt), AnimationPlace.StartOfAnimation)
+                : null);
 
     /// <summary>Applies the powered robot's accepted-impact recoil tail after common projectile shots.</summary>
     internal void AddWorkRobotShotReactions(EnemySharedReactions table)

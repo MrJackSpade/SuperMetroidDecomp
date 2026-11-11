@@ -8,7 +8,7 @@ internal static class ZoaAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params ZoaProgram[] programs) =>
-        programs.SelectMany(program => ZoaAnimations.Programs.Steps(program))
-            .OfType<AnimationProgramStep<ZoaProgram, ZoaFrame, ZoaCue>.ShowStep>()
-            .Select(step => ZoaFrameToolingDefinitions.Spritemap(step.Frame));
+        programs.SelectMany(program => ZoaAnimations.Segments.Beats(program))
+            .OfType<AnimationBeat<ZoaFrame, ZoaCue>.Frame>()
+            .Select(frame => ZoaFrameToolingDefinitions.Spritemap(frame.Shown));
 }

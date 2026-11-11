@@ -9,9 +9,9 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 /// </summary>
 internal static class MorphBallEyeAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<MorphBallEyeProgram, MorphBallEyeFrame, NoAnimationCue> Programs { get; } = new(
-        new Dictionary<MorphBallEyeProgram, AnimationProgramStep<MorphBallEyeProgram, MorphBallEyeFrame, NoAnimationCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<MorphBallEyeProgram, MorphBallEyeFrame, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<MorphBallEyeProgram, AnimationBeat<MorphBallEyeFrame, NoAnimationCue>[]>
     {
         [P.Active] =
         [
@@ -31,31 +31,26 @@ internal static class MorphBallEyeAnimations
             Show(1, 10),
             Show(0, 10),
             Show(0, 10),
-            GoTo(P.Active),
         ],
         [P.FacingRightDeactivating] =
         [
             Show(15, 8),
             Show(3, 48),
             Show(15, 5),
-            FallInto(P.FacingRightClosed),
         ],
         [P.FacingRightClosed] =
         [
             Show(14, 48),
-            Hold,
         ],
         [P.FacingLeftDeactivating] =
         [
             Show(17, 8),
             Show(10, 48),
             Show(17, 5),
-            FallInto(P.FacingLeftClosed),
         ],
         [P.FacingLeftClosed] =
         [
             Show(16, 48),
-            Hold,
         ],
         [P.FacingRightActivating] =
         [
@@ -63,7 +58,6 @@ internal static class MorphBallEyeAnimations
             Show(15, 5),
             Show(3, 48),
             Show(15, 8),
-            Hold,
         ],
         [P.FacingLeftActivating] =
         [
@@ -71,40 +65,44 @@ internal static class MorphBallEyeAnimations
             Show(17, 5),
             Show(10, 48),
             Show(17, 8),
-            Hold,
         ],
         [P.MountFacingRight] =
         [
             Show(18, 1),
-            Hold,
         ],
         [P.MountFacingDown] =
         [
             Show(19, 1),
-            Hold,
         ],
         [P.MountFacingLeft] =
         [
             Show(20, 1),
-            Hold,
         ],
         [P.MountFacingUp] =
         [
             Show(21, 1),
-            Hold,
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<MorphBallEyeProgram, Animation<MorphBallEyeProgram>> StartingAt { get; } = new Dictionary<MorphBallEyeProgram, Animation<MorphBallEyeProgram>>
+    {
+        [P.Active] = new([new(P.Active, 0, 16, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.FacingRightDeactivating] = new([new(P.FacingRightDeactivating, 0, 3, 1), new(P.FacingRightClosed, 0, 1, 1)], AnimationEnd.Holds),
+        [P.FacingRightClosed] = new([new(P.FacingRightClosed, 0, 1, 1)], AnimationEnd.Holds),
+        [P.FacingLeftDeactivating] = new([new(P.FacingLeftDeactivating, 0, 3, 1), new(P.FacingLeftClosed, 0, 1, 1)], AnimationEnd.Holds),
+        [P.FacingLeftClosed] = new([new(P.FacingLeftClosed, 0, 1, 1)], AnimationEnd.Holds),
+        [P.FacingRightActivating] = new([new(P.FacingRightActivating, 0, 4, 1)], AnimationEnd.Holds),
+        [P.FacingLeftActivating] = new([new(P.FacingLeftActivating, 0, 4, 1)], AnimationEnd.Holds),
+        [P.MountFacingRight] = new([new(P.MountFacingRight, 0, 1, 1)], AnimationEnd.Holds),
+        [P.MountFacingDown] = new([new(P.MountFacingDown, 0, 1, 1)], AnimationEnd.Holds),
+        [P.MountFacingLeft] = new([new(P.MountFacingLeft, 0, 1, 1)], AnimationEnd.Holds),
+        [P.MountFacingUp] = new([new(P.MountFacingUp, 0, 1, 1)], AnimationEnd.Holds),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<MorphBallEyeProgram> StartingWith(MorphBallEyeProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<MorphBallEyeProgram, MorphBallEyeFrame, NoAnimationCue> Show(int pose, int duration) => AnimationProgramStep<MorphBallEyeProgram, MorphBallEyeFrame, NoAnimationCue>.Show(new(pose), duration);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<MorphBallEyeProgram, MorphBallEyeFrame, NoAnimationCue> GoTo(MorphBallEyeProgram program) => AnimationProgramStep<MorphBallEyeProgram, MorphBallEyeFrame, NoAnimationCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<MorphBallEyeProgram, MorphBallEyeFrame, NoAnimationCue> FallInto(MorphBallEyeProgram program) => AnimationProgramStep<MorphBallEyeProgram, MorphBallEyeFrame, NoAnimationCue>.FallInto(program);
-
-    /// <summary>Holds the last frame, as the sleep does.</summary>
-    private static AnimationProgramStep<MorphBallEyeProgram, MorphBallEyeFrame, NoAnimationCue> Hold => AnimationProgramStep<MorphBallEyeProgram, MorphBallEyeFrame, NoAnimationCue>.Hold;
-
+    private static AnimationBeat<MorphBallEyeFrame, NoAnimationCue> Show(int pose, int duration) => new AnimationBeat<MorphBallEyeFrame, NoAnimationCue>.Frame(new(pose), duration);
 }

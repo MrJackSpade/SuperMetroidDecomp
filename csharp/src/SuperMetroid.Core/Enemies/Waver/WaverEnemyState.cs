@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Enemies.Waver;
 /// <summary>The state of one Waver: its horizontal velocity, wave phase and animation selection.</summary>
 public sealed class WaverEnemyState
 {
-    /// <summary>Where the typed animation (#641) resumes.</summary>
-    internal AnimationProgramCursor<WaverProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<WaverProgram> Playback { get; set; }
 
     /// <summary>Signed 16.16 horizontal displacement per update, one and a half pixels either way; a wall negates it.</summary>
     public SignedSixteenSixteen XVelocity { get; internal set; }

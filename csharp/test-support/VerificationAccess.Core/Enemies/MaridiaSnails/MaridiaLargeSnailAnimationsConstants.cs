@@ -8,7 +8,7 @@ internal static class MaridiaLargeSnailAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params MaridiaLargeSnailProgram[] programs) =>
-        programs.SelectMany(program => MaridiaLargeSnailAnimations.Programs.Steps(program))
-            .OfType<AnimationProgramStep<MaridiaLargeSnailProgram, MaridiaLargeSnailFrame, MaridiaLargeSnailCue>.ShowStep>()
-            .Select(step => MaridiaLargeSnailFrameToolingDefinitions.Spritemap(step.Frame));
+        programs.SelectMany(program => MaridiaLargeSnailAnimations.Segments.Beats(program))
+            .OfType<AnimationBeat<MaridiaLargeSnailFrame, MaridiaLargeSnailCue>.Frame>()
+            .Select(frame => MaridiaLargeSnailFrameToolingDefinitions.Spritemap(frame.Shown));
 }

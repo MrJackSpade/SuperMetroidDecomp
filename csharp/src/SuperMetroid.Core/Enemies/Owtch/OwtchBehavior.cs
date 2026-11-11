@@ -22,7 +22,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of Owtch's animations: each sets the walking direction main AI applies.</summary>
-    private static OwtchProgram? ApplyOwtchCue(OwtchEnemyState state, OwtchCue cue)
+    private static void ApplyOwtchCue(OwtchEnemyState state, OwtchCue cue)
     {
         switch (cue.Kind)
         {
@@ -35,7 +35,6 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
             default:
                 throw new InvalidOperationException($"Undefined {nameof(OwtchCueKind)} {cue.Kind}.");
         }
-        return null;
     }
 
     /// <summary>Owtch sinks sixteen whole pixels below its walking height.</summary>
@@ -185,7 +184,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Restarts the selected facing animation at its first step.</summary>
     private static void SetOwtchProgram(RoomEnemySlot slot, OwtchEnemyState state, OwtchProgram program)
     {
-        state.Program = AnimationProgramCursor<OwtchProgram>.Start(program);
+        state.Playback = new(OwtchAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
@@ -209,9 +208,13 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Owtch's typed animation.</summary>
     internal static void AdvanceOwtchTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, OwtchAnimations.Programs, OwtchFrameDefinitions.ShownFrames.Of,
-            static (OwtchEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
-            (state, cue, _) => ApplyOwtchCue(state, cue));
+        EnemyProgramAnimation.Advance(slot, OwtchAnimations.Segments, OwtchFrameDefinitions.ShownFrames.Of,
+            static (OwtchEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            (state, cue) =>
+            {
+                ApplyOwtchCue(state, cue);
+                return null;
+            });
 
     /// <summary>Preserves collision marking while rejecting ordinary shots against Owtch's shell.</summary>
     internal static void AddOwtchShotReactions(EnemySharedReactions table)

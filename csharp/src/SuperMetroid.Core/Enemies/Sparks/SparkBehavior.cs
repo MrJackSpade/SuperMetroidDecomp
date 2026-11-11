@@ -37,7 +37,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of Spark's animations.</summary>
-    private static SparkProgram? ApplySparkCue(RoomEnemySlot slot, SparkCue cue)
+    private static void ApplySparkCue(RoomEnemySlot slot, SparkCue cue)
     {
         switch (cue.Kind)
         {
@@ -54,7 +54,6 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
             default:
                 throw new InvalidOperationException($"Undefined {nameof(SparkCueKind)} {cue.Kind}.");
         }
-        return null;
     }
 
     /// <summary>Initializes the Spark.</summary>
@@ -69,7 +68,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
         SetSparkFunctionTimer(state, additionalTime: 0);
 
         slot.FrameHold = WrappingCountdown.Start(1);
-        state.Program = AnimationProgramCursor<SparkProgram>.Start(definition.Program);
+        state.Playback = new(SparkAnimations.StartingWith(definition.Program), AnimationPlace.StartOfAnimation);
         slot.Timer = WrappingCountdown.Start(0);
         // Spark keeps its population properties: the original initializer's extra property change before Phantoon's
         // defeat is exempt under the emulation scope limits (owner decision on #1318).
@@ -142,7 +141,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Selects an animation and makes its first step due on the next pass.</summary>
     private static void InstallSparkProgram(RoomEnemySlot slot, SparkEnemyState state, SparkProgram program)
     {
-        state.Program = AnimationProgramCursor<SparkProgram>.Start(program);
+        state.Playback = new(SparkAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
     }
 
@@ -158,10 +157,14 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EnemyProgramAnimation.Expire(slot))
             return;
         SparkEnemyState state = slot.RequireSpeciesState<SparkEnemyState>();
-        AnimationProgramCursor<SparkProgram> cursor = state.Program ?? throw new InvalidOperationException(
+        AnimationPlayback<SparkProgram> playback = state.Playback ?? throw new InvalidOperationException(
             "Spark animation runs before the Spark is initialized.");
-        EnemyProgramAnimation.Run(slot, SparkAnimations.Programs, ref cursor, SparkFrameDefinitions.ShownFrames.Of,
-            (cue, _) => ApplySparkCue(slot, cue));
-        state.Program = cursor;
+        EnemyProgramAnimation.Play(slot, SparkAnimations.Segments, ref playback, SparkFrameDefinitions.ShownFrames.Of,
+            cue =>
+            {
+                ApplySparkCue(slot, cue);
+                return null;
+            });
+        state.Playback = playback;
     }
 }

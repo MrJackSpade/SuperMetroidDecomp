@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Enemies.Stoke;
 /// <summary>The state of one Stoke: its walking speeds, facing and behaviour.</summary>
 public sealed class StokeEnemyState
 {
-    /// <summary>Where the typed animation (#641) resumes.</summary>
-    internal AnimationProgramCursor<StokeProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<StokeProgram> Playback { get; set; }
 
     /// <summary>Signed 16.16 room-pixel displacement per walking update to the right, from the positive half of the population's linear-speed record.</summary>
     public SignedSixteenSixteen RightVelocity { get; internal set; }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.Shutters.ShutterNativeListAddresses;
 using SuperMetroid.Core.Enemies.Shutters;
@@ -6,16 +7,17 @@ using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Enemies.Shutters;
 
-/// <summary>#641: the shutters' and Kamer's typed programs, each matched step by step to its native bank-$A2 list.</summary>
+/// <summary>#641: the shutters' and Kamer's typed animations (#1600), each segment matched to its native bank-$A2 list and each animation to the lists' control flow.</summary>
 internal static class ShutterAnimationsVerification
 {
-    /// <summary>Every program matches its native list.</summary>
+    /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifyShutterAnimations(SuperMetroidAddressSpace rom)
     {
-        int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, ShutterAnimations.Programs,
-            ShutterFrameToolingDefinitions.Spritemap,
-            word => null,
-            (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions."));
-        Console.WriteLine($"  shutter programs: {Entries.Length} programs ({steps} steps) match bank $A2.");
+        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
+            ShutterAnimations.Segments, ShutterAnimations.StartingAt, ShutterFrameToolingDefinitions.Spritemap,
+            new NativeEnemyCueRules<NoAnimationCue>(
+                word => null,
+                (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions.")));
+        Console.WriteLine($"  shutter animations: {Entries.Length} segments ({beats} beats) and {ShutterAnimations.StartingAt.Count} animations match bank $A2.");
     }
 }

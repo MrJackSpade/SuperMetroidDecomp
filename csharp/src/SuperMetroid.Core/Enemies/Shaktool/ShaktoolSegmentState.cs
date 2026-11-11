@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 /// <summary>The state of one of Shaktool's seven linked segments.</summary>
 public sealed class ShaktoolSegmentState
 {
-    /// <summary>Where the typed animation (#641) resumes.</summary>
-    internal AnimationProgramCursor<ShaktoolProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<ShaktoolProgram> Playback { get; set; }
     /// <summary>The chain's target heading, also advanced during straightening and used by attack movement cues.</summary>
     public RotationAngle TargetAngle { get; internal set; }
     /// <summary>The angle around the immediately preceding segment; its table index selects the orbit displacement.</summary>

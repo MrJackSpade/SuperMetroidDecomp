@@ -10,34 +10,29 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 /// </summary>
 internal static class WorkRobotAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<WorkRobotProgram, WorkRobotFrame, WorkRobotCue> Programs { get; } = new(
-        new Dictionary<WorkRobotProgram, AnimationProgramStep<WorkRobotProgram, WorkRobotFrame, WorkRobotCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<WorkRobotProgram, WorkRobotFrame, WorkRobotCue> Segments { get; } = new(
+        new Dictionary<WorkRobotProgram, AnimationBeat<WorkRobotFrame, WorkRobotCue>[]>
     {
         [P.NoPowerNeutral] =
         [
             Show(25, 32767),
-            Hold,
         ],
         [P.NoPowerLeaningLeft] =
         [
             Show(24, 32767),
-            Hold,
         ],
         [P.NoPowerLeaningRight] =
         [
             Show(26, 32767),
-            Hold,
         ],
         [P.Initial] =
         [
             Show(1, 32),
-            FallInto(P.FacingLeftWalkingForwards),
         ],
         [P.FacingLeftWalkingForwards] =
         [
             Show(1, 1),
-            FallInto(P.FacingLeftWalkingForwardsLoop),
         ],
         [P.FacingLeftWalkingForwardsLoop] =
         [
@@ -65,7 +60,6 @@ internal static class WorkRobotAnimations
             Show(0, 1),
             Cue(new(K.TryLaserDownLeft)),
             Show(0, 9),
-            GoTo(P.FacingLeftWalkingForwardsLoop),
         ],
         [P.FacingLeftHitWallMovingForwards] =
         [
@@ -106,7 +100,6 @@ internal static class WorkRobotAnimations
             Show(1, 10),
             Show(0, 10),
             Cue(new(K.WalkRight)),
-            FallInto(P.FacingLeftShotSamusAhead),
         ],
         [P.FacingLeftShotSamusAhead] =
         [
@@ -146,7 +139,6 @@ internal static class WorkRobotAnimations
             Show(1, 5),
             Show(0, 5),
             Cue(new(K.WalkRight)),
-            FallInto(P.FacingLeftShotSamusBehind),
         ],
         [P.FacingLeftShotSamusBehind] =
         [
@@ -189,13 +181,11 @@ internal static class WorkRobotAnimations
             Cue(new(K.LeftForward)),
             Show(0, 5),
             Cue(new(K.WalkLeft)),
-            FallInto(P.FacingLeftShotLaserDownLeft),
         ],
         [P.FacingLeftShotLaserDownLeft] =
         [
             Show(0, 5),
             Show(11, 2),
-            GoTo(P.FacingLeftLaserShotRecoil),
         ],
         [P.FacingLeftShotLaserLeft] =
         [
@@ -204,7 +194,6 @@ internal static class WorkRobotAnimations
             Cue(new(K.LeftBackwardWatchingLedges)),
             Cue(new(K.Footstep)),
             Show(11, 10),
-            GoTo(P.FacingLeftLaserShotRecoil),
         ],
         [P.FacingLeftShotLaserUpLeft] =
         [
@@ -215,7 +204,6 @@ internal static class WorkRobotAnimations
             Cue(new(K.LeftBackwardWatchingLedges)),
             Cue(new(K.Footstep)),
             Show(11, 4),
-            FallInto(P.FacingLeftLaserShotRecoil),
         ],
         [P.FacingLeftLaserShotRecoil] =
         [
@@ -233,7 +221,6 @@ internal static class WorkRobotAnimations
             Show(3, 10),
             Show(2, 96),
             Cue(new(K.CountDownLaserCooldown)),
-            GoTo(P.FacingLeftWalkingForwards),
         ],
         [P.ApproachingFallRight] =
         [
@@ -241,12 +228,10 @@ internal static class WorkRobotAnimations
             Show(13, 10),
             Show(14, 10),
             Cue(new(K.CountDownLaserCooldown)),
-            GoTo(P.FacingLeftWalkingForwards),
         ],
         [P.FacingRightWalkingForwards] =
         [
             Show(12, 1),
-            FallInto(P.FacingRightWalkingForwardsLoop),
         ],
         [P.FacingRightWalkingForwardsLoop] =
         [
@@ -275,7 +260,6 @@ internal static class WorkRobotAnimations
             Cue(new(K.Footstep)),
             Show(23, 10),
             Cue(new(K.RightForwardWatchingLedges)),
-            GoTo(P.FacingRightWalkingForwardsLoop),
         ],
         [P.FacingRightHitWallMovingForwards] =
         [
@@ -316,7 +300,6 @@ internal static class WorkRobotAnimations
             Show(13, 10),
             Show(12, 10),
             Cue(new(K.WalkLeft)),
-            FallInto(P.FacingRightShotSamusAhead),
         ],
         [P.FacingRightShotSamusAhead] =
         [
@@ -357,7 +340,6 @@ internal static class WorkRobotAnimations
             Show(13, 5),
             Show(12, 5),
             Cue(new(K.WalkLeft)),
-            FallInto(P.FacingRightShotSamusBehind),
         ],
         [P.FacingRightShotSamusBehind] =
         [
@@ -401,13 +383,11 @@ internal static class WorkRobotAnimations
             Show(23, 5),
             Cue(new(K.RightForward)),
             Cue(new(K.WalkRight)),
-            FallInto(P.FacingRightShotLaserDownRight),
         ],
         [P.FacingRightShotLaserDownRight] =
         [
             Show(12, 5),
             Show(23, 2),
-            GoTo(P.FacingRightLaserShotRecoil),
         ],
         [P.FacingRightShotLaserRight] =
         [
@@ -416,7 +396,6 @@ internal static class WorkRobotAnimations
             Cue(new(K.Footstep)),
             Cue(new(K.RightBackwardWatchingLedges)),
             Show(23, 10),
-            GoTo(P.FacingRightLaserShotRecoil),
         ],
         [P.FacingRightShotLaserUpRight] =
         [
@@ -427,7 +406,6 @@ internal static class WorkRobotAnimations
             Cue(new(K.Footstep)),
             Cue(new(K.RightBackwardWatchingLedges)),
             Show(23, 4),
-            FallInto(P.FacingRightLaserShotRecoil),
         ],
         [P.FacingRightLaserShotRecoil] =
         [
@@ -444,7 +422,6 @@ internal static class WorkRobotAnimations
             Show(16, 10),
             Show(15, 10),
             Show(14, 96),
-            GoTo(P.FacingRightWalkingForwards),
         ],
         [P.ApproachingFallLeft] =
         [
@@ -452,23 +429,44 @@ internal static class WorkRobotAnimations
             Show(1, 10),
             Show(2, 10),
             Cue(new(K.CountDownLaserCooldown)),
-            GoTo(P.FacingRightWalkingForwards),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<WorkRobotProgram, Animation<WorkRobotProgram>> StartingAt { get; } = new Dictionary<WorkRobotProgram, Animation<WorkRobotProgram>>
+    {
+        [P.NoPowerNeutral] = new([new(P.NoPowerNeutral, 0, 1, 1)], AnimationEnd.Holds),
+        [P.NoPowerLeaningLeft] = new([new(P.NoPowerLeaningLeft, 0, 1, 1)], AnimationEnd.Holds),
+        [P.NoPowerLeaningRight] = new([new(P.NoPowerLeaningRight, 0, 1, 1)], AnimationEnd.Holds),
+        [P.Initial] = new([new(P.Initial, 0, 1, 1), new(P.FacingLeftWalkingForwards, 0, 1, 1), new(P.FacingLeftWalkingForwardsLoop, 0, 24, 1)], AnimationEnd.LoopsFrom(2)),
+        [P.FacingLeftWalkingForwards] = new([new(P.FacingLeftWalkingForwards, 0, 1, 1), new(P.FacingLeftWalkingForwardsLoop, 0, 24, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.FacingLeftWalkingForwardsLoop] = new([new(P.FacingLeftWalkingForwardsLoop, 0, 24, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.FacingLeftHitWallMovingForwards] = new([new(P.FacingLeftHitWallMovingForwards, 0, 37, 1), new(P.FacingLeftShotSamusAhead, 0, 36, 1), new(P.FacingLeftShotSamusBehind, 0, 39, 1), new(P.FacingLeftShotLaserDownLeft, 0, 2, 1), new(P.FacingLeftLaserShotRecoil, 0, 14, 1), new(P.FacingLeftWalkingForwards, 0, 1, 1), new(P.FacingLeftWalkingForwardsLoop, 0, 24, 1)], AnimationEnd.LoopsFrom(6)),
+        [P.FacingLeftShotSamusAhead] = new([new(P.FacingLeftShotSamusAhead, 0, 36, 1), new(P.FacingLeftShotSamusBehind, 0, 39, 1), new(P.FacingLeftShotLaserDownLeft, 0, 2, 1), new(P.FacingLeftLaserShotRecoil, 0, 14, 1), new(P.FacingLeftWalkingForwards, 0, 1, 1), new(P.FacingLeftWalkingForwardsLoop, 0, 24, 1)], AnimationEnd.LoopsFrom(5)),
+        [P.FacingLeftShotSamusBehind] = new([new(P.FacingLeftShotSamusBehind, 0, 39, 1), new(P.FacingLeftShotLaserDownLeft, 0, 2, 1), new(P.FacingLeftLaserShotRecoil, 0, 14, 1), new(P.FacingLeftWalkingForwards, 0, 1, 1), new(P.FacingLeftWalkingForwardsLoop, 0, 24, 1)], AnimationEnd.LoopsFrom(4)),
+        [P.FacingLeftShotLaserDownLeft] = new([new(P.FacingLeftShotLaserDownLeft, 0, 2, 1), new(P.FacingLeftLaserShotRecoil, 0, 14, 1), new(P.FacingLeftWalkingForwards, 0, 1, 1), new(P.FacingLeftWalkingForwardsLoop, 0, 24, 1)], AnimationEnd.LoopsFrom(3)),
+        [P.FacingLeftShotLaserLeft] = new([new(P.FacingLeftShotLaserLeft, 0, 5, 1), new(P.FacingLeftLaserShotRecoil, 0, 14, 1), new(P.FacingLeftWalkingForwards, 0, 1, 1), new(P.FacingLeftWalkingForwardsLoop, 0, 24, 1)], AnimationEnd.LoopsFrom(3)),
+        [P.FacingLeftShotLaserUpLeft] = new([new(P.FacingLeftShotLaserUpLeft, 0, 7, 1), new(P.FacingLeftLaserShotRecoil, 0, 14, 1), new(P.FacingLeftWalkingForwards, 0, 1, 1), new(P.FacingLeftWalkingForwardsLoop, 0, 24, 1)], AnimationEnd.LoopsFrom(3)),
+        [P.FacingLeftLaserShotRecoil] = new([new(P.FacingLeftLaserShotRecoil, 0, 14, 1), new(P.FacingLeftWalkingForwards, 0, 1, 1), new(P.FacingLeftWalkingForwardsLoop, 0, 24, 1)], AnimationEnd.LoopsFrom(2)),
+        [P.ApproachingFallRight] = new([new(P.ApproachingFallRight, 0, 4, 1), new(P.FacingLeftWalkingForwards, 0, 1, 1), new(P.FacingLeftWalkingForwardsLoop, 0, 24, 1)], AnimationEnd.LoopsFrom(2)),
+        [P.FacingRightWalkingForwards] = new([new(P.FacingRightWalkingForwards, 0, 1, 1), new(P.FacingRightWalkingForwardsLoop, 0, 25, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.FacingRightWalkingForwardsLoop] = new([new(P.FacingRightWalkingForwardsLoop, 0, 25, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.FacingRightHitWallMovingForwards] = new([new(P.FacingRightHitWallMovingForwards, 0, 37, 1), new(P.FacingRightShotSamusAhead, 0, 37, 1), new(P.FacingRightShotSamusBehind, 0, 40, 1), new(P.FacingRightShotLaserDownRight, 0, 2, 1), new(P.FacingRightLaserShotRecoil, 0, 13, 1), new(P.FacingRightWalkingForwards, 0, 1, 1), new(P.FacingRightWalkingForwardsLoop, 0, 25, 1)], AnimationEnd.LoopsFrom(6)),
+        [P.FacingRightShotSamusAhead] = new([new(P.FacingRightShotSamusAhead, 0, 37, 1), new(P.FacingRightShotSamusBehind, 0, 40, 1), new(P.FacingRightShotLaserDownRight, 0, 2, 1), new(P.FacingRightLaserShotRecoil, 0, 13, 1), new(P.FacingRightWalkingForwards, 0, 1, 1), new(P.FacingRightWalkingForwardsLoop, 0, 25, 1)], AnimationEnd.LoopsFrom(5)),
+        [P.FacingRightShotSamusBehind] = new([new(P.FacingRightShotSamusBehind, 0, 40, 1), new(P.FacingRightShotLaserDownRight, 0, 2, 1), new(P.FacingRightLaserShotRecoil, 0, 13, 1), new(P.FacingRightWalkingForwards, 0, 1, 1), new(P.FacingRightWalkingForwardsLoop, 0, 25, 1)], AnimationEnd.LoopsFrom(4)),
+        [P.FacingRightShotLaserDownRight] = new([new(P.FacingRightShotLaserDownRight, 0, 2, 1), new(P.FacingRightLaserShotRecoil, 0, 13, 1), new(P.FacingRightWalkingForwards, 0, 1, 1), new(P.FacingRightWalkingForwardsLoop, 0, 25, 1)], AnimationEnd.LoopsFrom(3)),
+        [P.FacingRightShotLaserRight] = new([new(P.FacingRightShotLaserRight, 0, 5, 1), new(P.FacingRightLaserShotRecoil, 0, 13, 1), new(P.FacingRightWalkingForwards, 0, 1, 1), new(P.FacingRightWalkingForwardsLoop, 0, 25, 1)], AnimationEnd.LoopsFrom(3)),
+        [P.FacingRightShotLaserUpRight] = new([new(P.FacingRightShotLaserUpRight, 0, 7, 1), new(P.FacingRightLaserShotRecoil, 0, 13, 1), new(P.FacingRightWalkingForwards, 0, 1, 1), new(P.FacingRightWalkingForwardsLoop, 0, 25, 1)], AnimationEnd.LoopsFrom(3)),
+        [P.FacingRightLaserShotRecoil] = new([new(P.FacingRightLaserShotRecoil, 0, 13, 1), new(P.FacingRightWalkingForwards, 0, 1, 1), new(P.FacingRightWalkingForwardsLoop, 0, 25, 1)], AnimationEnd.LoopsFrom(2)),
+        [P.ApproachingFallLeft] = new([new(P.ApproachingFallLeft, 0, 4, 1), new(P.FacingRightWalkingForwards, 0, 1, 1), new(P.FacingRightWalkingForwardsLoop, 0, 25, 1)], AnimationEnd.LoopsFrom(2)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<WorkRobotProgram> StartingWith(WorkRobotProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<WorkRobotProgram, WorkRobotFrame, WorkRobotCue> Show(int pose, int duration) => AnimationProgramStep<WorkRobotProgram, WorkRobotFrame, WorkRobotCue>.Show(new(pose), duration);
+    private static AnimationBeat<WorkRobotFrame, WorkRobotCue> Show(int pose, int duration) => new AnimationBeat<WorkRobotFrame, WorkRobotCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<WorkRobotProgram, WorkRobotFrame, WorkRobotCue> Cue(WorkRobotCue cue) => AnimationProgramStep<WorkRobotProgram, WorkRobotFrame, WorkRobotCue>.Publish(cue);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<WorkRobotProgram, WorkRobotFrame, WorkRobotCue> GoTo(WorkRobotProgram program) => AnimationProgramStep<WorkRobotProgram, WorkRobotFrame, WorkRobotCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<WorkRobotProgram, WorkRobotFrame, WorkRobotCue> FallInto(WorkRobotProgram program) => AnimationProgramStep<WorkRobotProgram, WorkRobotFrame, WorkRobotCue>.FallInto(program);
-
-    /// <summary>Holds the last frame, as the sleep does.</summary>
-    private static AnimationProgramStep<WorkRobotProgram, WorkRobotFrame, WorkRobotCue> Hold => AnimationProgramStep<WorkRobotProgram, WorkRobotFrame, WorkRobotCue>.Hold;
-
+    private static AnimationBeat<WorkRobotFrame, WorkRobotCue> Cue(WorkRobotCue cue) => new AnimationBeat<WorkRobotFrame, WorkRobotCue>.Event(cue);
 }

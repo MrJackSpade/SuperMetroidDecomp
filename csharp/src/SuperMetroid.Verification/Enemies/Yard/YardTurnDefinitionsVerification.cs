@@ -104,7 +104,7 @@ internal static class YardTurnDefinitionsVerification
             var state = new YardEnemyState()
             {
                 // A hiding animation is never a turn's result, so the assertion sees the turn's own choice.
-                Program = AnimationProgramCursor<YardProgram>.Start(YardProgram.HidingUpsideUpMovingLeft),
+                Playback = new(YardAnimations.StartingWith(YardProgram.HidingUpsideUpMovingLeft), AnimationPlace.StartOfAnimation),
                 MovementFunction = movement,
                 TurnTransitionDisabled = disabled,
                 CrawlingVelocity = new EightEightVector<RoomPixels>(0x0100, 0x0100),
@@ -112,7 +112,7 @@ internal static class YardTurnDefinitionsVerification
 
             run(slot, state, level);
 
-            AssertEqual(AnimationProgramCursor<YardProgram>.Start(expectedProgram), state.Program,
+            AssertEqual(new AnimationPlayback<YardProgram>(YardAnimations.StartingWith(expectedProgram), AnimationPlace.StartOfAnimation), state.Playback,
                 $"{context} production instruction");
             AssertTrue(state.TurnTransitionDisabled,
                 $"{context} disables the next turn transition");

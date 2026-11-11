@@ -305,7 +305,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         PowampEnemyState state,
         PowampBalloon balloon)
     {
-        (bool sinking, int shownPoses) = PowampBalloonPhase(balloon.State.Program);
+        (bool sinking, int shownPoses) = PowampBalloonPhase(balloon.State.Playback);
         if (sinking && shownPoses != 1)
         {
             // A balloon that had sunk through two poses restarts inflate stage one, and one that had sunk through three
@@ -429,7 +429,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Positions the balloon above the body using its current inflate or sink animation phase.</summary>
     internal static void AlignPowampBalloonY(RoomEnemySlot body, PowampBalloon balloon)
     {
-        (bool sinking, int shownPoses) = PowampBalloonPhase(balloon.State.Program);
+        (bool sinking, int shownPoses) = PowampBalloonPhase(balloon.State.Playback);
         // The balloon sits at the height of the latest pose it has shown; before its first pose shows, it sits at the
         // first pose's height.
         int pose = shownPoses == 0 ? 0 : shownPoses - 1;
@@ -437,20 +437,26 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Whether the balloon is in its sink sequence and how many of that sequence's poses it has shown. The
-    /// animation position the AI reads is the sequence's first animation plus one step per shown pose; the deflated and
-    /// second inflate lists continue those sequences.
+    /// Whether the balloon is in its sink sequence and how many of that sequence's poses it has shown. The AI reads the
+    /// segment the balloon's animation stands in and how many of its poses it has passed; the deflated and second inflate
+    /// segments continue those sequences, so their poses count after the sequence's earlier ones.
     /// </summary>
-    internal static PowampBalloonState PowampBalloonPhase(AnimationProgramCursor<PowampProgram> cursor) => cursor.Program switch
+    internal static PowampBalloonState PowampBalloonPhase(AnimationPlayback<PowampProgram> playback)
     {
-        PowampProgram.BalloonInflate0 => new PowampBalloonState(false, cursor.Position),
-        PowampProgram.BalloonInflate1 => new PowampBalloonState(false, 1 + cursor.Position),
-        PowampProgram.BalloonStartSinking => new PowampBalloonState(true, cursor.Position),
-        PowampProgram.BalloonDeflated => new PowampBalloonState(true, 2 + cursor.Position),
-        PowampProgram.BodyFast or
-            PowampProgram.BodySlow => throw new InvalidOperationException($"Powamp balloon runs body animation {cursor.Program}."),
-        _ => throw new InvalidOperationException($"Powamp balloon runs body animation {cursor.Program}."),
-    };
+        AnimationPhase<PowampProgram> phase = playback.Animation.Phases[playback.Place.Phase];
+        // A phase the play has not entered yet has shown none of its poses.
+        int passed = phase.FirstBeat + (playback.Place.Beat == AnimationPlace.NotEntered ? 0 : playback.Place.Beat);
+        return phase.Segment switch
+        {
+            PowampProgram.BalloonInflate0 => new PowampBalloonState(false, passed),
+            PowampProgram.BalloonInflate1 => new PowampBalloonState(false, 1 + passed),
+            PowampProgram.BalloonStartSinking => new PowampBalloonState(true, passed),
+            PowampProgram.BalloonDeflated => new PowampBalloonState(true, 2 + passed),
+            PowampProgram.BodyFast or
+                PowampProgram.BodySlow => throw new InvalidOperationException($"Powamp balloon runs body animation {phase.Segment}."),
+            _ => throw new InvalidOperationException($"Powamp balloon runs body animation {phase.Segment}."),
+        };
+    }
 
     /// <summary>Switches the balloon to its sinking art and begins the deflation timer.</summary>
     private static void StartPowampDeflating(PowampEnemyState state, PowampBalloon balloon)
@@ -475,7 +481,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Restarts a body or balloon animation on the next interpreter pass.</summary>
     private static void SetPowampProgram(RoomEnemySlot slot, PowampEnemyState state, PowampProgram program)
     {
-        state.Program = AnimationProgramCursor<PowampProgram>.Start(program);
+        state.Playback = new(PowampAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
@@ -520,8 +526,9 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Powamp's typed animation.</summary>
     internal static void AdvancePowampTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, PowampAnimations.Programs, PowampFrameDefinitions.ShownFrames.Of,
-            static (PowampEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
+        EnemyProgramAnimation.Advance(slot, PowampAnimations.Segments, PowampFrameDefinitions.ShownFrames.Of,
+            static (PowampEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            static (_, cue) => throw new InvalidOperationException($"Powamp's cue-free animation raised {cue}."));
 
     /// <summary>Ports Powamp's main AI.</summary>
     internal void RunPowampMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)

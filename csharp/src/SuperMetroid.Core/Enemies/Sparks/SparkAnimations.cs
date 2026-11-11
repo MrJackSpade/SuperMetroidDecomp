@@ -10,9 +10,9 @@ namespace SuperMetroid.Core.Enemies.Sparks;
 /// </summary>
 internal static class SparkAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<SparkProgram, SparkFrame, SparkCue> Programs { get; } = new(
-        new Dictionary<SparkProgram, AnimationProgramStep<SparkProgram, SparkFrame, SparkCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<SparkProgram, SparkFrame, SparkCue> Segments { get; } = new(
+        new Dictionary<SparkProgram, AnimationBeat<SparkFrame, SparkCue>[]>
     {
         [P.FlickerOn] =
         [
@@ -27,7 +27,6 @@ internal static class SparkAnimations
             Show(0, 1),
             Show(7, 2),
             Show(8, 2),
-            FallInto(P.Active),
         ],
         [P.Active] =
         [
@@ -35,7 +34,6 @@ internal static class SparkAnimations
             Show(2, 3),
             Show(3, 3),
             Show(4, 3),
-            GoTo(P.Active),
         ],
         [P.FlickerOut] =
         [
@@ -48,7 +46,6 @@ internal static class SparkAnimations
             Show(7, 1),
             Show(0, 1),
             Cue(new(K.BecomeIntangible)),
-            Hold,
         ],
         [P.Emitter] =
         [
@@ -56,23 +53,24 @@ internal static class SparkAnimations
             Show(6, 3),
             Show(7, 3),
             Show(8, 3),
-            GoTo(P.Emitter),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<SparkProgram, Animation<SparkProgram>> StartingAt { get; } = new Dictionary<SparkProgram, Animation<SparkProgram>>
+    {
+        [P.FlickerOn] = new([new(P.FlickerOn, 0, 11, 1), new(P.Active, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.Active] = new([new(P.Active, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.FlickerOut] = new([new(P.FlickerOut, 0, 9, 1)], AnimationEnd.Holds),
+        [P.Emitter] = new([new(P.Emitter, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<SparkProgram> StartingWith(SparkProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<SparkProgram, SparkFrame, SparkCue> Show(int pose, int duration) => AnimationProgramStep<SparkProgram, SparkFrame, SparkCue>.Show(new(pose), duration);
+    private static AnimationBeat<SparkFrame, SparkCue> Show(int pose, int duration) => new AnimationBeat<SparkFrame, SparkCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<SparkProgram, SparkFrame, SparkCue> Cue(SparkCue cue) => AnimationProgramStep<SparkProgram, SparkFrame, SparkCue>.Publish(cue);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<SparkProgram, SparkFrame, SparkCue> GoTo(SparkProgram program) => AnimationProgramStep<SparkProgram, SparkFrame, SparkCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<SparkProgram, SparkFrame, SparkCue> FallInto(SparkProgram program) => AnimationProgramStep<SparkProgram, SparkFrame, SparkCue>.FallInto(program);
-
-    /// <summary>Holds the last frame, as the sleep does.</summary>
-    private static AnimationProgramStep<SparkProgram, SparkFrame, SparkCue> Hold => AnimationProgramStep<SparkProgram, SparkFrame, SparkCue>.Hold;
-
+    private static AnimationBeat<SparkFrame, SparkCue> Cue(SparkCue cue) => new AnimationBeat<SparkFrame, SparkCue>.Event(cue);
 }

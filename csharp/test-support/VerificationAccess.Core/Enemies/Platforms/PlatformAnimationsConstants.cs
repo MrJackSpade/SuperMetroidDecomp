@@ -8,7 +8,7 @@ internal static class PlatformAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params PlatformProgram[] programs) =>
-        programs.SelectMany(program => PlatformAnimations.Programs.Steps(program))
-            .OfType<AnimationProgramStep<PlatformProgram, PlatformFrame, PlatformCue>.ShowStep>()
-            .Select(step => PlatformFrameToolingDefinitions.Spritemap(step.Frame));
+        programs.SelectMany(program => PlatformAnimations.Segments.Beats(program))
+            .OfType<AnimationBeat<PlatformFrame, PlatformCue>.Frame>()
+            .Select(frame => PlatformFrameToolingDefinitions.Spritemap(frame.Shown));
 }

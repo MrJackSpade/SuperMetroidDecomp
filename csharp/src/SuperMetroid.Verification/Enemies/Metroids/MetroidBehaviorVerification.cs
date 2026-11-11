@@ -27,16 +27,17 @@ internal static class MetroidBehaviorVerification
         slot.SetSpawnWords(EnemyDefinitionId.Metroid, words => words);
         enemies.MetroidBehavior.InitializeMetroid(slot);
         MetroidEnemyState state = enemies.MetroidStates[0] ?? throw new InvalidOperationException("The Metroid has no state.");
-        AssertEqual(AnimationProgramCursor<MetroidProgram>.Start(MetroidProgram.ChasingSamus), state.Program, "the Metroid starts chasing");
+        AssertEqual(new AnimationPlayback<MetroidProgram>(MetroidAnimations.StartingWith(MetroidProgram.ChasingSamus), AnimationPlace.StartOfAnimation),
+            state.Playback, "the Metroid starts chasing");
 
         foreach ((MetroidProgram loop, int cries) in new[] { new VerifyMetroidBehaviorCase(MetroidProgram.ChasingSamus, 1), new VerifyMetroidBehaviorCase(MetroidProgram.DrainingSamus, 0) })
         {
             int randomCalls = 0;
             enemies.VerificationServices().NextRandom = () => { randomCalls++; return 0; };
-            state.Program = AnimationProgramCursor<MetroidProgram>.Start(loop);
+            state.Playback = new(MetroidAnimations.StartingWith(loop), AnimationPlace.StartOfAnimation);
             slot.FrameHold = WrappingCountdown.Start(1);
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(MetroidAnimations.Programs, loop, MetroidFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(MetroidAnimations.Programs, loop)), $"Metroid {loop} loop");
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(MetroidAnimations.Segments, loop, MetroidFrameToolingDefinitions.Spritemap),
+                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(MetroidAnimations.Segments, loop)), $"Metroid {loop} loop");
             AssertEqual(cries, randomCalls, $"Metroid {loop} loop's RNG use");
             AssertTrue(enemies.Audio.PublishedSoundFrom(EnemySoundSource.Metroid) is not null, $"Metroid {loop} loop plays its sound");
         }

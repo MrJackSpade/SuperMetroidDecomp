@@ -31,7 +31,7 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
 
         foreach (WorkRobotProgram program in Enum.GetValues<WorkRobotProgram>())
         {
-            state.Program = AnimationProgramCursor<WorkRobotProgram>.Start(program);
+            state.Playback = new(WorkRobotAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             for (int call = 0; call < 400; call++)
             {
                 robot.FrameHold = WrappingCountdown.Start(1);
@@ -56,7 +56,7 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
         robot.Bind(EnemyDefinitionId.Robot, robot.Definition);
         robot.Bind(robot.DefinitionId, default(RoomEnemyDefinition));
         robot.Radius = new(8, 16);
-        var state = new WorkRobotEnemyState() { Powered = true, Program = AnimationProgramCursor<WorkRobotProgram>.Start(WorkRobotProgram.Initial) };
+        var state = new WorkRobotEnemyState() { Powered = true, Playback = new(WorkRobotAnimations.StartingWith(WorkRobotProgram.Initial), AnimationPlace.StartOfAnimation) };
         robot.SetSpeciesState(state);
         return enemies;
     }

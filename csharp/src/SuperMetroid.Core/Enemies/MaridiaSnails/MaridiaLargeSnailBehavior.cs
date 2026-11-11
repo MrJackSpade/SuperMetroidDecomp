@@ -89,7 +89,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         // The initial left-facing animation intentionally disagrees with installed selector zero,
         // whose table entry is right-facing idle. Because installing the snail's animation suppresses equal
         // selectors, this oddity is observable until Samus first selects a different index.
-        state.Program = AnimationProgramCursor<MaridiaLargeSnailProgram>.Start(MaridiaLargeSnailProgram.FacingLeftIdle);
+        state.Playback = new(MaridiaLargeSnailAnimations.StartingWith(MaridiaLargeSnailProgram.FacingLeftIdle), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>
@@ -443,7 +443,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     }
 
     /// <summary>Carries out one cue of Oum's animations: the splash sound, attack completion and the attack-rotation window.</summary>
-    private MaridiaLargeSnailProgram? ApplyMaridiaLargeSnailCue(MaridiaLargeSnailEnemyState state, MaridiaLargeSnailCue cue)
+    private void ApplyMaridiaLargeSnailCue(MaridiaLargeSnailEnemyState state, MaridiaLargeSnailCue cue)
     {
         switch (cue.Kind)
         {
@@ -462,7 +462,6 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             default:
                 throw new InvalidOperationException($"Undefined {nameof(MaridiaLargeSnailCueKind)} {cue.Kind}.");
         }
-        return null;
     }
 
     /// <summary>Starts one of eight Oum animations only when the requested index changes.</summary>
@@ -480,8 +479,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         }
 
         state.InstalledAnimationScriptIndex = state.RequestedAnimationScriptIndex;
-        state.Program = AnimationProgramCursor<MaridiaLargeSnailProgram>.Start(MaridiaLargeSnailPrograms
-            .Program(state.RequestedAnimationScriptIndex));
+        state.Playback = new(MaridiaLargeSnailAnimations.StartingWith(MaridiaLargeSnailPrograms
+            .Program(state.RequestedAnimationScriptIndex)), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
@@ -533,9 +532,13 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
 
     /// <summary>Advances MaridiaLargeSnail's typed animation.</summary>
     internal void AdvanceMaridiaLargeSnailTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, MaridiaLargeSnailAnimations.Programs, MaridiaLargeSnailFrameDefinitions.ShownFrames.Of,
-            static (MaridiaLargeSnailEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
-            (state, cue, _) => ApplyMaridiaLargeSnailCue(state, cue));
+        EnemyProgramAnimation.Advance(slot, MaridiaLargeSnailAnimations.Segments, MaridiaLargeSnailFrameDefinitions.ShownFrames.Of,
+            static (MaridiaLargeSnailEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            (state, cue) =>
+            {
+                ApplyMaridiaLargeSnailCue(state, cue);
+                return null;
+            });
 
     /// <summary>Preserves protected-shell no-op hits and runs common damage only for vulnerable hitboxes.</summary>
     internal void AddMaridiaLargeSnailShotReactions(EnemySharedReactions table)

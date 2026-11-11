@@ -47,7 +47,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of the Metroid's animations: each pulse loop ends with a sound.</summary>
-    private MetroidProgram? ApplyMetroidCue(MetroidCue cue)
+    private void ApplyMetroidCue(MetroidCue cue)
     {
         switch (cue.Kind)
         {
@@ -63,7 +63,6 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             default:
                 throw new InvalidOperationException($"Undefined {nameof(MetroidCueKind)} {cue.Kind}.");
         }
-        return null;
     }
 
     /// <summary>Freeze lifetime once Ice damage exhausts the Metroid's threshold.</summary>
@@ -98,7 +97,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             IceDamageToFreeze = slot.SpawnSettings<MetroidSpawnSettings>().IceDamageToFreeze,
         };
         slot.SetSpeciesState(state);
-        state.Program = AnimationProgramCursor<MetroidProgram>.Start(MetroidProgram.ChasingSamus);
+        state.Playback = new(MetroidAnimations.StartingWith(MetroidProgram.ChasingSamus), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Runs a Metroid's per-frame behaviour and its four-entry movement dispatch.</summary>
@@ -442,7 +441,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Restarts a Metroid animation at timer one after its function changes.</summary>
     private static void SetMetroidProgram(RoomEnemySlot slot, MetroidEnemyState state, MetroidProgram program)
     {
-        state.Program = AnimationProgramCursor<MetroidProgram>.Start(program);
+        state.Playback = new(MetroidAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
     }
 
@@ -471,9 +470,13 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Metroid's typed animation.</summary>
     internal void AdvanceMetroidTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, MetroidAnimations.Programs, MetroidFrameDefinitions.ShownFrames.Of,
-            static (MetroidEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
-            (state, cue, _) => ApplyMetroidCue(cue));
+        EnemyProgramAnimation.Advance(slot, MetroidAnimations.Segments, MetroidFrameDefinitions.ShownFrames.Of,
+            static (MetroidEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            (state, cue) =>
+            {
+                ApplyMetroidCue(cue);
+                return null;
+            });
 
     /// <summary>Registers the Metroid Power Bomb callback that clears its outer body before generic death.</summary>
     internal static void AddMetroidPowerBombReactions(EnemySharedReactions table)

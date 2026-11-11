@@ -84,7 +84,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         state.OrbitAngle = definition.InitialOrbitAngle;
 
         // The segment's definition names the animation it starts.
-        state.Program = AnimationProgramCursor<ShaktoolProgram>.Start(definition.InitialProgram);
+        state.Playback = new(ShaktoolAnimations.StartingWith(definition.InitialProgram), AnimationPlace.StartOfAnimation);
         slot.Layer = definition.Layer;
 
         // The leading saw is the chain's fixed anchor. Every later segment's curious drawing-queue
@@ -183,8 +183,8 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         int directionBucket = heading.Sector(ShaktoolOrbitDefinitions.OrientationBuckets) *
             (RotationAngle.StepsPerTurn / ShaktoolOrbitDefinitions.OrientationBuckets);
         state.OrientationBucket = directionBucket;
-        state.Program = AnimationProgramCursor<ShaktoolProgram>.Start(
-            ShaktoolPrograms.ForOrientationBucket(directionBucket));
+        state.Playback = new(ShaktoolAnimations.StartingWith(
+            ShaktoolPrograms.ForOrientationBucket(directionBucket)), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
     }
 
@@ -292,8 +292,8 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             ShaktoolSegmentState segmentState = RequireShaktoolState(segment);
             CalculateShaktoolAngularVelocity(segmentState);
             segmentState.FrameBehavior = ShaktoolFrameBehavior.Idle;
-            segmentState.Program = AnimationProgramCursor<ShaktoolProgram>.Start(
-                ShaktoolPrograms.CollisionForSegment(index));
+            segmentState.Playback = new(ShaktoolAnimations.StartingWith(
+                ShaktoolPrograms.CollisionForSegment(index)), AnimationPlace.StartOfAnimation);
             segment.FrameHold = WrappingCountdown.Start(1);
         }
     }
@@ -405,7 +405,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             $"Enemy slot {slot.SlotIndex} has no initialized Shaktool state.");
 
     /// <summary>Carries out one cue of a Shaktool segment's animation.</summary>
-    internal ShaktoolProgram? ApplyShaktoolCue(RoomEnemySlot slot, ShaktoolSegmentState state, ShaktoolCue cue)
+    internal void ApplyShaktoolCue(RoomEnemySlot slot, ShaktoolSegmentState state, ShaktoolCue cue)
     {
         switch (cue.Kind)
         {
@@ -453,8 +453,6 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             default:
                 throw new InvalidOperationException($"Undefined {nameof(ShaktoolCueKind)} {cue.Kind}.");
         }
-
-        return null;
     }
 
     /// <summary>Runs the one-frame sine movement helper.</summary>
@@ -526,10 +524,14 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EnemyProgramAnimation.Expire(slot))
             return;
         var state = RequireShaktoolState(slot);
-        AnimationProgramCursor<ShaktoolProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, ShaktoolAnimations.Programs, ref cursor, ShaktoolFrameDefinitions.ShownFrames.Of,
-                (cue, _) => ApplyShaktoolCue(slot, state, cue));
-        state.Program = cursor;
+        AnimationPlayback<ShaktoolProgram> playback = state.Playback;
+        EnemyProgramAnimation.Play(slot, ShaktoolAnimations.Segments, ref playback, ShaktoolFrameDefinitions.ShownFrames.Of,
+            cue =>
+            {
+                ApplyShaktoolCue(slot, state, cue);
+                return null;
+            });
+        state.Playback = playback;
     }
 
     /// <summary>Shaktool contact is the common normal-enemy touch, death animation included.</summary>

@@ -10,26 +10,23 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// </summary>
 internal static class WalkingSpacePirateAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<WalkingSpacePirateProgram, WalkingSpacePirateFrame, WalkingSpacePirateCue> Programs { get; } = new(
-        new Dictionary<WalkingSpacePirateProgram, AnimationProgramStep<WalkingSpacePirateProgram, WalkingSpacePirateFrame, WalkingSpacePirateCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<WalkingSpacePirateProgram, WalkingSpacePirateFrame, WalkingSpacePirateCue> Segments { get; } = new(
+        new Dictionary<WalkingSpacePirateProgram, AnimationBeat<WalkingSpacePirateFrame, WalkingSpacePirateCue>[]>
     {
         [P.FlinchFacingLeft] =
         [
             Cue(new WalkingSpacePirateCue.SetFunction(Function: WalkingSpacePirateFunction.NoOperation)),
             Show(35, 16),
-            GoTo(P.WalkingLeft),
         ],
         [P.FlinchFacingRight] =
         [
             Cue(new WalkingSpacePirateCue.SetFunction(Function: WalkingSpacePirateFunction.NoOperation)),
             Show(36, 16),
-            GoTo(P.WalkingRight),
         ],
         [P.WalkingLeft] =
         [
             Cue(new WalkingSpacePirateCue.SetFunction(Function: WalkingSpacePirateFunction.WalkingLeft)),
-            FallInto(P.WalkingLeftLoop),
         ],
         [P.WalkingLeftLoop] =
         [
@@ -41,7 +38,6 @@ internal static class WalkingSpacePirateAnimations
             Show(5, 10),
             Show(6, 10),
             Show(7, 10),
-            GoTo(P.WalkingLeftLoop),
         ],
         [P.FireLasersLeft] =
         [
@@ -60,7 +56,6 @@ internal static class WalkingSpacePirateAnimations
             Show(18, 8),
             Show(17, 8),
             Cue(new WalkingSpacePirateCue.Command(K.ChooseMovement)),
-            FallInto(P.LookingFacingLeft),
         ],
         [P.LookingFacingLeft] =
         [
@@ -71,12 +66,10 @@ internal static class WalkingSpacePirateAnimations
             Show(29, 10),
             Show(28, 32),
             Show(34, 8),
-            GoTo(P.WalkingRight),
         ],
         [P.WalkingRight] =
         [
             Cue(new WalkingSpacePirateCue.SetFunction(Function: WalkingSpacePirateFunction.WalkingRight)),
-            FallInto(P.WalkingRightLoop),
         ],
         [P.WalkingRightLoop] =
         [
@@ -88,7 +81,6 @@ internal static class WalkingSpacePirateAnimations
             Show(13, 10),
             Show(14, 10),
             Show(15, 10),
-            GoTo(P.WalkingRightLoop),
         ],
         [P.FireLasersRight] =
         [
@@ -107,7 +99,6 @@ internal static class WalkingSpacePirateAnimations
             Show(24, 8),
             Show(23, 8),
             Cue(new WalkingSpacePirateCue.Command(K.ChooseMovement)),
-            FallInto(P.LookingFacingRight),
         ],
         [P.LookingFacingRight] =
         [
@@ -118,20 +109,30 @@ internal static class WalkingSpacePirateAnimations
             Show(32, 10),
             Show(31, 32),
             Show(34, 8),
-            GoTo(P.WalkingLeft),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<WalkingSpacePirateProgram, Animation<WalkingSpacePirateProgram>> StartingAt { get; } = new Dictionary<WalkingSpacePirateProgram, Animation<WalkingSpacePirateProgram>>
+    {
+        [P.FlinchFacingLeft] = new([new(P.FlinchFacingLeft, 0, 2, 1), new(P.WalkingLeft, 0, 1, 1), new(P.WalkingLeftLoop, 0, 8, 1)], AnimationEnd.LoopsFrom(2)),
+        [P.FlinchFacingRight] = new([new(P.FlinchFacingRight, 0, 2, 1), new(P.WalkingRight, 0, 1, 1), new(P.WalkingRightLoop, 0, 8, 1)], AnimationEnd.LoopsFrom(2)),
+        [P.WalkingLeft] = new([new(P.WalkingLeft, 0, 1, 1), new(P.WalkingLeftLoop, 0, 8, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.WalkingLeftLoop] = new([new(P.WalkingLeftLoop, 0, 8, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.FireLasersLeft] = new([new(P.FireLasersLeft, 0, 15, 1), new(P.LookingFacingLeft, 0, 7, 1), new(P.WalkingRight, 0, 1, 1), new(P.WalkingRightLoop, 0, 8, 1)], AnimationEnd.LoopsFrom(3)),
+        [P.LookingFacingLeft] = new([new(P.LookingFacingLeft, 0, 7, 1), new(P.WalkingRight, 0, 1, 1), new(P.WalkingRightLoop, 0, 8, 1)], AnimationEnd.LoopsFrom(2)),
+        [P.WalkingRight] = new([new(P.WalkingRight, 0, 1, 1), new(P.WalkingRightLoop, 0, 8, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.WalkingRightLoop] = new([new(P.WalkingRightLoop, 0, 8, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.FireLasersRight] = new([new(P.FireLasersRight, 0, 15, 1), new(P.LookingFacingRight, 0, 7, 1), new(P.WalkingLeft, 0, 1, 1), new(P.WalkingLeftLoop, 0, 8, 1)], AnimationEnd.LoopsFrom(3)),
+        [P.LookingFacingRight] = new([new(P.LookingFacingRight, 0, 7, 1), new(P.WalkingLeft, 0, 1, 1), new(P.WalkingLeftLoop, 0, 8, 1)], AnimationEnd.LoopsFrom(2)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<WalkingSpacePirateProgram> StartingWith(WalkingSpacePirateProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<WalkingSpacePirateProgram, WalkingSpacePirateFrame, WalkingSpacePirateCue> Show(int pose, int duration) => AnimationProgramStep<WalkingSpacePirateProgram, WalkingSpacePirateFrame, WalkingSpacePirateCue>.Show(new(pose), duration);
+    private static AnimationBeat<WalkingSpacePirateFrame, WalkingSpacePirateCue> Show(int pose, int duration) => new AnimationBeat<WalkingSpacePirateFrame, WalkingSpacePirateCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<WalkingSpacePirateProgram, WalkingSpacePirateFrame, WalkingSpacePirateCue> Cue(WalkingSpacePirateCue cue) => AnimationProgramStep<WalkingSpacePirateProgram, WalkingSpacePirateFrame, WalkingSpacePirateCue>.Publish(cue);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<WalkingSpacePirateProgram, WalkingSpacePirateFrame, WalkingSpacePirateCue> GoTo(WalkingSpacePirateProgram program) => AnimationProgramStep<WalkingSpacePirateProgram, WalkingSpacePirateFrame, WalkingSpacePirateCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<WalkingSpacePirateProgram, WalkingSpacePirateFrame, WalkingSpacePirateCue> FallInto(WalkingSpacePirateProgram program) => AnimationProgramStep<WalkingSpacePirateProgram, WalkingSpacePirateFrame, WalkingSpacePirateCue>.FallInto(program);
-
+    private static AnimationBeat<WalkingSpacePirateFrame, WalkingSpacePirateCue> Cue(WalkingSpacePirateCue cue) => new AnimationBeat<WalkingSpacePirateFrame, WalkingSpacePirateCue>.Event(cue);
 }

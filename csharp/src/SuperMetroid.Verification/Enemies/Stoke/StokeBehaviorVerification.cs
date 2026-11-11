@@ -26,15 +26,15 @@ internal static class StokeBehaviorVerification
                  })
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, StokeEnemyState state) = Create(direction == StokeDirection.Left ? StokeDirection.Right : StokeDirection.Left);
-            state.Program = AnimationProgramCursor<StokeProgram>.Start(walk);
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(StokeAnimations.Programs, loop, StokeFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(StokeAnimations.Programs, loop)), $"Stoke {walk} loop");
+            state.Playback = new(StokeAnimations.StartingWith(walk), AnimationPlace.StartOfAnimation);
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(StokeAnimations.Segments, loop, StokeFrameToolingDefinitions.Spritemap),
+                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(StokeAnimations.Segments, loop)), $"Stoke {walk} loop");
             AssertEqual(direction, state.Direction, $"Stoke {walk} cue sets the direction");
             AssertEqual(function, state.Function, $"Stoke {walk} cue sets the walking function");
 
             (enemies, slot, state) = Create(direction);
             state.Function = StokeAiFunction.IdleDuringAttack;
-            state.Program = AnimationProgramCursor<StokeProgram>.Start(attack);
+            state.Playback = new(StokeAnimations.StartingWith(attack), AnimationPlace.StartOfAnimation);
             ushort[] attackFrames = StokeAnimationsConstants.Spritemaps(attack).ToArray();
             AssertEqual(EnemyInstructionRunner.ExpectedFrames(attackFrames, [16, 16]),
                 EnemyInstructionRunner.ShownFrames(slot, 32), $"Stoke {attack} poses");

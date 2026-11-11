@@ -18,7 +18,7 @@ public sealed class RoomSpriteObject
         Kind = kind;
         Position = FixedPosition<RoomPixels>.FromWhole(position);
         Graphics = graphics;
-        Cursor = AnimationProgramCursor<RoomSpriteObjectProgram>.Start(RoomSpriteObjectDefinitions.Programs[kind]);
+        Playback = new(RoomSpriteObjectAnimations.StartingWith(RoomSpriteObjectDefinitions.Programs[kind]), AnimationPlace.StartOfAnimation);
         AdvanceProgram();
     }
 
@@ -26,7 +26,7 @@ public sealed class RoomSpriteObject
     public RoomSpriteObjectKind Kind { get; }
 
     /// <summary>Whether the object still runs its program; once it ends it never runs or shows again.</summary>
-    public bool IsActive => Cursor is not null;
+    public bool IsActive => Playback is not null;
 
     /// <summary>
     /// The 16.16 room position, converted to screen coordinates by subtracting the camera when drawn. Most
@@ -38,8 +38,8 @@ public sealed class RoomSpriteObject
     /// <summary>The sheet characters and colours the object draws with.</summary>
     public SpriteGraphics Graphics { get; internal set; }
 
-    /// <summary>Where the object's program resumes, or null once it has ended.</summary>
-    internal AnimationProgramCursor<RoomSpriteObjectProgram>? Cursor { get; private set; }
+    /// <summary>The animation the object plays and where it stands in it (#1600), or null once it has ended.</summary>
+    internal AnimationPlayback<RoomSpriteObjectProgram>? Playback { get; private set; }
 
     /// <summary>Updates left showing <see cref="Frame"/> before the program moves on; not counted while the object <see cref="Holds"/>.</summary>
     public int Timer { get; private set; }
@@ -54,7 +54,7 @@ public sealed class RoomSpriteObject
     public bool UpdatesDisabled { get; internal set; }
 
     /// <summary>Ends the object: it stops running and showing.</summary>
-    internal void End() => Cursor = null;
+    internal void End() => Playback = null;
 
     /// <summary>Counts one update off the shown frame and moves the program on when it runs out, unless updates are disabled or the object holds.</summary>
     internal void Step()
@@ -66,52 +66,54 @@ public sealed class RoomSpriteObject
     }
 
     /// <summary>
-    /// Runs the program to its next frame: a timed frame installs its frame and duration, the hold keeps the frame for
-    /// good, and delete ends the object.
+    /// Plays the animation to its next frame: a frame installs itself and its duration, the hold keeps the frame for good,
+    /// and the animation's end ends the object. The animations count no repeats and raise no events.
     /// </summary>
     private void AdvanceProgram()
     {
-        AnimationProgramCursor<RoomSpriteObjectProgram> cursor = Cursor ?? throw new InvalidOperationException(
-            $"Sprite object {Kind} has no program to advance.");
-        WrappingCountdown counter = default;
-        AnimationProgramAdvance<RoomSpriteObjectFrame> advance =
-            RoomSpriteObjectAnimations.Programs.Advance(ref cursor, ref counter, static (_, _) => null);
-        switch (advance)
+        AnimationPlayback<RoomSpriteObjectProgram> playback = Playback ?? throw new InvalidOperationException(
+            $"Sprite object {Kind} has no animation to play.");
+        Animation<RoomSpriteObjectProgram> animation = playback.Animation;
+        AnimationPlace place = playback.Place;
+        WrappingCountdown repeats = default;
+        AnimationShown<RoomSpriteObjectProgram, RoomSpriteObjectFrame> shown = RoomSpriteObjectAnimations.Segments.PlayToNextFrame(
+            ref animation, ref place, ref repeats,
+            raised => throw new InvalidOperationException($"Sprite object {Kind}'s event-free animation raised {raised}."));
+        switch (shown)
         {
-            case AnimationProgramAdvance<RoomSpriteObjectFrame>.Show shown:
-                Cursor = cursor;
-                Frame = shown.Frame;
-                Timer = shown.Duration;
+            case AnimationShown<RoomSpriteObjectProgram, RoomSpriteObjectFrame>.Frame frame:
+                Playback = new(animation, place);
+                Frame = frame.Shown;
+                Timer = frame.Duration;
                 return;
-            case AnimationProgramAdvance<RoomSpriteObjectFrame>.Hold:
-                Cursor = cursor;
+            case AnimationShown<RoomSpriteObjectProgram, RoomSpriteObjectFrame>.Held:
+                Playback = new(animation, place);
                 Holds = true;
                 return;
-            case AnimationProgramAdvance<RoomSpriteObjectFrame>.Stop:
+            case AnimationShown<RoomSpriteObjectProgram, RoomSpriteObjectFrame>.Ended:
                 End();
                 return;
             default:
-                throw new InvalidOperationException($"Sprite object program {cursor.Program} advanced with {advance}.");
+                throw new InvalidOperationException($"Sprite object {Kind}'s animation reached {shown}.");
         }
     }
 
     /// <summary>
-    /// Points the object at <paramref name="program"/> past its first frame and shows that frame, keeping the current
-    /// countdown: the frozen Metroid shell shows the program's first frame without reloading the timer, so the next
-    /// expiry continues at the program's second step.
+    /// Points the object at the animation starting at <paramref name="program"/>, past its first frame, and shows that
+    /// frame, keeping the current countdown: the frozen Metroid shell shows the animation's first frame without reloading
+    /// the timer, so the next expiry continues at the animation's second beat.
     /// </summary>
-    /// <param name="program">The program the object plays from now on.</param>
+    /// <param name="program">The segment whose animation the object plays from now on.</param>
     internal void ShowFirstFrameKeepingTimer(RoomSpriteObjectProgram program)
     {
         if (!IsActive)
             throw new InvalidOperationException($"Sprite object {Kind} has ended and shows no frame.");
         if (Holds)
             throw new InvalidOperationException($"Sprite object {Kind} holds its frame and has no countdown to keep.");
-        AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue> first =
-            RoomSpriteObjectAnimations.Programs.Steps(program)[0];
-        if (first is not AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue>.ShowStep show)
-            throw new InvalidOperationException($"Sprite object program {program} does not begin with a timed frame.");
-        Cursor = new(program, 1);
-        Frame = show.Frame;
+        if (RoomSpriteObjectAnimations.Segments.Beats(program)[0] is not AnimationBeat<RoomSpriteObjectFrame, NoAnimationCue>.Frame first)
+            throw new InvalidOperationException($"Sprite object animation {program} does not begin with a timed frame.");
+        // The animation's first phase plays the segment from its first beat: past that beat is the phase's second.
+        Playback = new(RoomSpriteObjectAnimations.StartingWith(program), new AnimationPlace(0, 1));
+        Frame = first.Shown;
     }
 }

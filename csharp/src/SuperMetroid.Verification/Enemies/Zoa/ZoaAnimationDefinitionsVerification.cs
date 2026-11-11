@@ -125,8 +125,8 @@ internal static class ZoaAnimationDefinitionsVerification
             $"{context} requested selector");
         AssertEqual(expected, state.PreviousAnimationScriptTableIndex,
             $"{context} installed selector");
-        AssertEqual(AnimationProgramCursor<ZoaProgram>.Start(ZoaPrograms.Program(expected)),
-            state.Program,
+        AssertEqual(new AnimationPlayback<ZoaProgram>(ZoaAnimations.StartingWith(ZoaPrograms.Program(expected)), AnimationPlace.StartOfAnimation),
+            state.Playback,
             $"{context} animation");
         AssertEqual(1, slot.FrameHold.RawValue, $"{context} instruction timer");
         AssertEqual(0, slot.Timer.RawValue, $"{context} loop timer");

@@ -14,8 +14,8 @@ public sealed class YappingMawEnemyState
     /// <summary>Binds extended tongue and grab state to the live mouth enemy slot.</summary>
     internal YappingMawEnemyState(RoomEnemySlot owner) => Owner = owner;
 
-    /// <summary>Where the animation resumes.</summary>
-    internal AnimationProgramCursor<YappingMawProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<YappingMawProgram> Playback { get; set; }
 
     /// <summary>Physical enemy slot representing the moving mouth, distinct from the four body-projectile slots and the stationary root sprite object.</summary>
     public RoomEnemySlot Owner { get; }

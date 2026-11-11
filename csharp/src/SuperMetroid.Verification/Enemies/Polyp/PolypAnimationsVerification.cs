@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.Polyp.PolypNativeListAddresses;
 using SuperMetroid.Core.Enemies.Polyp;
@@ -6,16 +7,17 @@ using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Enemies.Polyp;
 
-/// <summary>#641: Polyp's typed programs, each matched step by step to its native bank-$A2 list.</summary>
+/// <summary>#641: Polyp's typed animations (#1600), each segment matched to its native bank-$A2 list and each animation to the lists' control flow.</summary>
 internal static class PolypAnimationsVerification
 {
-    /// <summary>Every program matches its native list.</summary>
+    /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifyPolypAnimations(SuperMetroidAddressSpace rom)
     {
-        int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, PolypAnimations.Programs,
-            PolypFrameToolingDefinitions.Spritemap,
-            word => null,
-            (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions."));
-        Console.WriteLine($"  Polyp programs: {Entries.Length} programs ({steps} steps) match bank $A2.");
+        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
+            PolypAnimations.Segments, PolypAnimations.StartingAt, PolypFrameToolingDefinitions.Spritemap,
+            new NativeEnemyCueRules<NoAnimationCue>(
+                word => null,
+                (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions.")));
+        Console.WriteLine($"  Polyp animations: {Entries.Length} segments ({beats} beats) and {PolypAnimations.StartingAt.Count} animations match bank $A2.");
     }
 }

@@ -33,7 +33,7 @@ internal static class WorkRobotInitialSelectionVerification
             slot.SetSpawnParameter1(EnemyDefinitionId.Robot, parameter);
             var state = new WorkRobotEnemyState();
             system.WorkRobotBehavior.InitializeWorkRobotNoPower(slot, state);
-            AssertEqual(AnimationProgramCursor<WorkRobotProgram>.Start(expected), state.Program,
+            AssertEqual(new AnimationPlayback<WorkRobotProgram>(WorkRobotAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation), state.Playback,
                 $"Work Robot production selection {parameter} without cartridge access");
         }
         AssertThrows<InvalidDataException>(() => SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.WorkRobotPose(3),

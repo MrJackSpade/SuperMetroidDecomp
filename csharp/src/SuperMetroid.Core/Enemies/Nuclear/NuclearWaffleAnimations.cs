@@ -9,9 +9,9 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 /// </summary>
 internal static class NuclearWaffleAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<NuclearWaffleProgram, NuclearWaffleFrame, NoAnimationCue> Programs { get; } = new(
-        new Dictionary<NuclearWaffleProgram, AnimationProgramStep<NuclearWaffleProgram, NuclearWaffleFrame, NoAnimationCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<NuclearWaffleProgram, NuclearWaffleFrame, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<NuclearWaffleProgram, AnimationBeat<NuclearWaffleFrame, NoAnimationCue>[]>
     {
         [P.BodyLoop] =
         [
@@ -27,14 +27,18 @@ internal static class NuclearWaffleAnimations
             Show(2, 3),
             Show(3, 3),
             Show(7, 3),
-            GoTo(P.BodyLoop),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<NuclearWaffleProgram, Animation<NuclearWaffleProgram>> StartingAt { get; } = new Dictionary<NuclearWaffleProgram, Animation<NuclearWaffleProgram>>
+    {
+        [P.BodyLoop] = new([new(P.BodyLoop, 0, 12, 1)], AnimationEnd.LoopsFrom(0)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<NuclearWaffleProgram> StartingWith(NuclearWaffleProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<NuclearWaffleProgram, NuclearWaffleFrame, NoAnimationCue> Show(int pose, int duration) => AnimationProgramStep<NuclearWaffleProgram, NuclearWaffleFrame, NoAnimationCue>.Show(new(pose), duration);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<NuclearWaffleProgram, NuclearWaffleFrame, NoAnimationCue> GoTo(NuclearWaffleProgram program) => AnimationProgramStep<NuclearWaffleProgram, NuclearWaffleFrame, NoAnimationCue>.GoTo(program);
-
+    private static AnimationBeat<NuclearWaffleFrame, NoAnimationCue> Show(int pose, int duration) => new AnimationBeat<NuclearWaffleFrame, NoAnimationCue>.Frame(new(pose), duration);
 }

@@ -9,9 +9,9 @@ namespace SuperMetroid.Core.Enemies.Ripper;
 /// </summary>
 internal static class RipperAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<RipperProgram, RipperFrame, NoAnimationCue> Programs { get; } = new(
-        new Dictionary<RipperProgram, AnimationProgramStep<RipperProgram, RipperFrame, NoAnimationCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<RipperProgram, RipperFrame, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<RipperProgram, AnimationBeat<RipperFrame, NoAnimationCue>[]>
     {
         [P.GRipperMovingLeft] =
         [
@@ -19,7 +19,6 @@ internal static class RipperAnimations
             Show(1, 7),
             Show(0, 8),
             Show(2, 7),
-            GoTo(P.GRipperMovingLeft),
         ],
         [P.GRipperMovingRight] =
         [
@@ -27,7 +26,6 @@ internal static class RipperAnimations
             Show(4, 7),
             Show(3, 8),
             Show(5, 7),
-            GoTo(P.GRipperMovingRight),
         ],
         [P.Ripper2MovingRight] =
         [
@@ -35,7 +33,6 @@ internal static class RipperAnimations
             Show(1, 7),
             Show(0, 8),
             Show(2, 7),
-            GoTo(P.Ripper2MovingRight),
         ],
         [P.Ripper2MovingLeft] =
         [
@@ -43,7 +40,6 @@ internal static class RipperAnimations
             Show(4, 7),
             Show(3, 8),
             Show(5, 7),
-            GoTo(P.Ripper2MovingLeft),
         ],
         [P.RipperMovingRight] =
         [
@@ -51,7 +47,6 @@ internal static class RipperAnimations
             Show(10, 7),
             Show(9, 8),
             Show(11, 7),
-            GoTo(P.RipperMovingRight),
         ],
         [P.RipperMovingLeft] =
         [
@@ -59,14 +54,23 @@ internal static class RipperAnimations
             Show(7, 7),
             Show(6, 8),
             Show(8, 7),
-            GoTo(P.RipperMovingLeft),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<RipperProgram, Animation<RipperProgram>> StartingAt { get; } = new Dictionary<RipperProgram, Animation<RipperProgram>>
+    {
+        [P.GRipperMovingLeft] = new([new(P.GRipperMovingLeft, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.GRipperMovingRight] = new([new(P.GRipperMovingRight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Ripper2MovingRight] = new([new(P.Ripper2MovingRight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Ripper2MovingLeft] = new([new(P.Ripper2MovingLeft, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.RipperMovingRight] = new([new(P.RipperMovingRight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.RipperMovingLeft] = new([new(P.RipperMovingLeft, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<RipperProgram> StartingWith(RipperProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<RipperProgram, RipperFrame, NoAnimationCue> Show(int pose, int duration) => AnimationProgramStep<RipperProgram, RipperFrame, NoAnimationCue>.Show(new(pose), duration);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<RipperProgram, RipperFrame, NoAnimationCue> GoTo(RipperProgram program) => AnimationProgramStep<RipperProgram, RipperFrame, NoAnimationCue>.GoTo(program);
-
+    private static AnimationBeat<RipperFrame, NoAnimationCue> Show(int pose, int duration) => new AnimationBeat<RipperFrame, NoAnimationCue>.Frame(new(pose), duration);
 }

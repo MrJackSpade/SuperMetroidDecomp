@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// </summary>
 public sealed class LowerNorfairRioEnemyState
 {
-    /// <summary>Where the animation resumes.</summary>
-    internal AnimationProgramCursor<LowerNorfairRioProgram> Program { get; set; }
+    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<LowerNorfairRioProgram> Playback { get; set; }
 
     /// <summary>The last animation installed for this actor; distinct from the advancing cursor and prevents timer resets when the same animation is requested again.</summary>
     internal LowerNorfairRioProgram InstalledProgram { get; set; }

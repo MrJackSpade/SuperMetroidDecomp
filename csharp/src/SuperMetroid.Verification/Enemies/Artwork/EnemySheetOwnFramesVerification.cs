@@ -157,9 +157,9 @@ internal static class EnemySheetOwnFramesVerification
         return new("Tripper and Kamer", TableFrames(PlatformFrameDefinitions.ShownFrames).Union(frozen).ToHashSet(),
             new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
             {
-                [EnemyDefinitionId.Kamer2] = Reach(PlatformAnimations.Programs, PlatformFrameDefinitions.ShownFrames,
+                [EnemyDefinitionId.Kamer2] = Reach(PlatformAnimations.Segments, PlatformAnimations.StartingAt, PlatformFrameDefinitions.ShownFrames,
                     PlatformAnimationDefinitions.Programs.Where(entry => entry.Key.Kamer).Select(entry => entry.Value)),
-                [EnemyDefinitionId.Tripper] = With(Reach(PlatformAnimations.Programs, PlatformFrameDefinitions.ShownFrames,
+                [EnemyDefinitionId.Tripper] = With(Reach(PlatformAnimations.Segments, PlatformAnimations.StartingAt, PlatformFrameDefinitions.ShownFrames,
                     PlatformAnimationDefinitions.Programs.Where(entry => !entry.Key.Kamer).Select(entry => entry.Value)), frozen),
             });
     }
@@ -210,11 +210,11 @@ internal static class EnemySheetOwnFramesVerification
         return new("Ripper", TableFrames(RipperFrameDefinitions.ShownFrames).Union(frozen).ToHashSet(),
             new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
             {
-                [EnemyDefinitionId.GRipper] = With(Reach(RipperAnimations.Programs, RipperFrameDefinitions.ShownFrames,
+                [EnemyDefinitionId.GRipper] = With(Reach(RipperAnimations.Segments, RipperAnimations.StartingAt, RipperFrameDefinitions.ShownFrames,
                     [RipperProgram.GRipperMovingLeft, RipperProgram.GRipperMovingRight]), frozen),
-                [EnemyDefinitionId.Ripper2] = With(Reach(RipperAnimations.Programs, RipperFrameDefinitions.ShownFrames,
+                [EnemyDefinitionId.Ripper2] = With(Reach(RipperAnimations.Segments, RipperAnimations.StartingAt, RipperFrameDefinitions.ShownFrames,
                     [RipperProgram.Ripper2MovingLeft, RipperProgram.Ripper2MovingRight]), frozen),
-                [EnemyDefinitionId.Ripper] = Reach(RipperAnimations.Programs, RipperFrameDefinitions.ShownFrames,
+                [EnemyDefinitionId.Ripper] = Reach(RipperAnimations.Segments, RipperAnimations.StartingAt, RipperFrameDefinitions.ShownFrames,
                     [RipperProgram.RipperMovingLeft, RipperProgram.RipperMovingRight]),
             });
     }
@@ -244,9 +244,9 @@ internal static class EnemySheetOwnFramesVerification
     private static EnemySheetOwnFrameFamily WorkRobotsFamily() => new("work robot", TableFrames(WorkRobotFrameDefinitions.ShownFrames),
         new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
         {
-            [EnemyDefinitionId.RobotNoPower] = Reach(WorkRobotAnimations.Programs, WorkRobotFrameDefinitions.ShownFrames,
+            [EnemyDefinitionId.RobotNoPower] = Reach(WorkRobotAnimations.Segments, WorkRobotAnimations.StartingAt, WorkRobotFrameDefinitions.ShownFrames,
                 [WorkRobotProgram.NoPowerNeutral, WorkRobotProgram.NoPowerLeaningLeft, WorkRobotProgram.NoPowerLeaningRight]),
-            [EnemyDefinitionId.Robot] = Reach(WorkRobotAnimations.Programs, WorkRobotFrameDefinitions.ShownFrames,
+            [EnemyDefinitionId.Robot] = Reach(WorkRobotAnimations.Segments, WorkRobotAnimations.StartingAt, WorkRobotFrameDefinitions.ShownFrames,
                 Enum.GetValues<WorkRobotProgram>()),
         });
 

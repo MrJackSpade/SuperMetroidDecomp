@@ -16,15 +16,15 @@ internal static class WorkRobotAnimations
     {
         [P.NoPowerNeutral] =
         [
-            Show(25, 32767),
+            Hold(25),
         ],
         [P.NoPowerLeaningLeft] =
         [
-            Show(24, 32767),
+            Hold(24),
         ],
         [P.NoPowerLeaningRight] =
         [
-            Show(26, 32767),
+            Hold(26),
         ],
         [P.Initial] =
         [
@@ -466,6 +466,9 @@ internal static class WorkRobotAnimations
 
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<WorkRobotFrame, WorkRobotCue> Show(int pose, int duration) => new AnimationBeat<WorkRobotFrame, WorkRobotCue>.Frame(new(pose), duration);
+
+    /// <summary>Shows pose <paramref name="pose"/> for good: the animation rests on it until its owner plays another (#1607).</summary>
+    private static AnimationBeat<WorkRobotFrame, WorkRobotCue> Hold(int pose) => new AnimationBeat<WorkRobotFrame, WorkRobotCue>.HeldFrame(new(pose));
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationBeat<WorkRobotFrame, WorkRobotCue> Cue(WorkRobotCue cue) => new AnimationBeat<WorkRobotFrame, WorkRobotCue>.Event(cue);

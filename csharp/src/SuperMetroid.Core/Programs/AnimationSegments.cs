@@ -29,8 +29,11 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
     {
     }
 
-    /// <summary>Creates the segments; every one of <paramref name="required"/> must be present.</summary>
-    /// <exception cref="ArgumentException">A required segment is missing.</exception>
+    /// <summary>
+    /// Creates the segments; every one of <paramref name="required"/> must be present, and a held frame must end its
+    /// segment, since nothing plays after it.
+    /// </summary>
+    /// <exception cref="ArgumentException">A required segment is missing, or a segment plays on past a held frame.</exception>
     internal AnimationSegments(IReadOnlyDictionary<TSegment, AnimationBeat<TFrame, TEvent>[]> segments, IEnumerable<TSegment> required)
     {
         Ensure.NotNull(segments);
@@ -38,6 +41,11 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
         {
             if (!segments.ContainsKey(segment))
                 throw new ArgumentException($"Animation segment {segment} has no beats.", nameof(segments));
+        }
+        foreach (KeyValuePair<TSegment, AnimationBeat<TFrame, TEvent>[]> segment in segments)
+        {
+            if (segment.Value.SkipLast(1).Any(beat => beat is AnimationBeat<TFrame, TEvent>.HeldFrame))
+                throw new ArgumentException($"Animation segment {segment.Key} plays on past its held frame.", nameof(segments));
         }
         beats = segments.ToDictionary(pair => pair.Key, pair => pair.Value);
     }
@@ -133,6 +141,10 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
                 {
                     case AnimationBeat<TFrame, TEvent>.Frame frame:
                         return new AnimationShown<TSegment, TFrame>.Frame(phase.Segment, frame.Shown, frame.Duration);
+                    case AnimationBeat<TFrame, TEvent>.HeldFrame held:
+                        // The animation rests on a held frame for good: its play is done where it stands.
+                        place = AnimationPlace.HoldingIn(place.Phase, phase.BeatCount);
+                        return new AnimationShown<TSegment, TFrame>.HeldFrame(phase.Segment, held.Shown);
                     case AnimationBeat<TFrame, TEvent>.Pause pause:
                         return new AnimationShown<TSegment, TFrame>.Paused(pause.Duration);
                     case AnimationBeat<TFrame, TEvent>.Event raised:

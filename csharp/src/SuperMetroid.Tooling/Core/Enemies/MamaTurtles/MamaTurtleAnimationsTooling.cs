@@ -9,6 +9,6 @@ internal static class MamaTurtleAnimationsTooling
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params MamaTurtleProgram[] programs) =>
         programs.SelectMany(program => MamaTurtleAnimations.Segments.Beats(program))
-            .OfType<AnimationBeat<MamaTurtleFrame, MamaTurtleCue>.Frame>()
-            .Select(frame => MamaTurtleFrameToolingDefinitions.Spritemap(frame.Shown));
+            .Select(beat => beat.ShownFrame).OfType<MamaTurtleFrame>()
+            .Select(frame => MamaTurtleFrameToolingDefinitions.Spritemap(frame));
 }

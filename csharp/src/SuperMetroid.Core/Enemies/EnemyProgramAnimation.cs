@@ -63,7 +63,8 @@ internal static class EnemyProgramAnimation
 
     /// <summary>
     /// Plays <paramref name="playback"/> on to its next frame after the slot's frame expired (#1600): a frame becomes the
-    /// slot's frame for its duration, a pause holds the slot's frame for its own, a hold leaves the slot as it is, and the
+    /// slot's frame for its duration, a held frame becomes it for good (#1607), a pause holds the slot's frame for its own, a
+    /// hold leaves the slot as it is, and the
     /// animation's end deletes the enemy. The enemy's timer word is the animation's repeat counter, which only its counted
     /// phases load and count down.
     /// </summary>
@@ -112,6 +113,11 @@ internal static class EnemyProgramAnimation
             case AnimationShown<TSegment, TFrame>.Frame shownFrame:
                 slot.FrameHold = WrappingCountdown.FromRaw(shownFrame.Duration);
                 slot.Frame = frame(shownFrame.Shown);
+                slot.NewInstructionFrame = true;
+                return;
+            case AnimationShown<TSegment, TFrame>.HeldFrame held:
+                // The timer is the hold's from now on, left to wrap from zero as a held animation's is: no later expiry plays anything.
+                slot.Frame = frame(held.Shown);
                 slot.NewInstructionFrame = true;
                 return;
             case AnimationShown<TSegment, TFrame>.Paused paused:

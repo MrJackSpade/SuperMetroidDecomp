@@ -15,12 +15,15 @@ internal static class AnimationSegmentFrames
         where TFrame : struct
         where TEvent : notnull
     {
-        /// <summary>Every frame <paramref name="animation"/> can show, each once: the frames of each phase's run of beats.</summary>
+        /// <summary>
+        /// Every frame <paramref name="animation"/> can show, each once: the frames, held ones included, of each phase's run
+        /// of beats.
+        /// </summary>
         internal IEnumerable<TFrame> FramesOf(Animation<TSegment> animation) =>
             Ensure.NotNull(animation).Phases
                 .SelectMany(phase => segments.Beats(phase.Segment).Skip(phase.FirstBeat).Take(phase.BeatCount))
-                .OfType<AnimationBeat<TFrame, TEvent>.Frame>()
-                .Select(frame => frame.Shown)
+                .Select(beat => beat.ShownFrame)
+                .OfType<TFrame>()
                 .Distinct();
     }
 }

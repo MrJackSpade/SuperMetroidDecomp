@@ -8,7 +8,7 @@ using SuperMetroid.Core.Earthquakes;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// Game-owned room effect selected by one sixteen-byte FX record.
+/// Game-owned room effect selected by the room's effect record for the door Samus entered by.
 /// </summary>
 /// <remarks>
 /// Every room effect shares the base/target position, packed 8.8 Y velocity, and
@@ -41,10 +41,10 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     public RoomVisorAnimation VisorAnimation { get; private set; }
 
-    /// <summary>The effect whose authored page the room's effect overlay plane shows, chosen when the room loaded; null when it shows none.</summary>
+    /// <summary>The effect whose authored page the room's effect overlay shows, chosen when the room loaded; null when it shows none.</summary>
     public RoomFxType? EffectPageType { get; private set; }
 
-    /// <summary>The effect overlay plane the room shows (#1348, #1466): the cleared picture, with its effect's page picture when it has one.</summary>
+    /// <summary>The effect overlay the room shows (#1348, #1466, #1601): its effect's page when it has one, otherwise nothing.</summary>
     public FxOverlayPlane EffectPlane => FxOverlayPlane.Of(EffectPageType);
 
     /// <summary>
@@ -150,7 +150,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>The effect overlay's live scroll.</summary>
     public Position16<OverlayPixels> Scroll { get; private set; }
 
-    /// <summary>Whether the translated effect supplies a gameplay-region effect overlay plane.</summary>
+    /// <summary>Whether the room's effect shows its page on the effect overlay over the gameplay area.</summary>
     public bool IsRenderable => ShowsPage(Type);
 
     /// <summary>Whether a room of effect <paramref name="type"/> shows the effect's authored page on the effect overlay.</summary>
@@ -206,7 +206,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
     /// <summary>
     /// Selects the door's FX record and initializes the liquid and palette state shared by room effects and room objects.
-    /// The effect overlay plane the room shows is cleared under the HUD with the effect's page from row 31 (<see cref="FxOverlayPlane"/>).
+    /// From then until Samus leaves the room, the effect overlay shows the effect's page where <see cref="FxOverlayPageDefinitions"/>
+    /// places it, or nothing for an effect without one (<see cref="FxOverlayPlane"/>).
     /// </summary>
     private void SelectRecord(RoomFxLoadSource source)
     {
@@ -232,7 +233,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         if (!IsRenderable)
             return;
 
-        // The room shows this effect's page under the HUD until the next room.
+        // The room shows this effect's page until Samus leaves it.
         EffectPageType = Type;
 
         if (RoomFxTypes.UsesWater(Type))
@@ -361,8 +362,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             return;
 
         // The shared animated-tiles handler runs independently of the per-line effect's
-        // per-frame step. In particular, lava/acid need this transfer before their effect overlay
-        // tilemap can name anything other than stale standard-HUD characters.
+        // per-frame step. In particular, lava and acid select the animation frame their page
+        // shows here, before the surface step that follows.
         animatedTiles.Step(frames);
 
         if (LiquidMotionStopped && MovesLiquidBeforeMainLoop)
@@ -550,7 +551,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
     /// <summary>
     /// Runs the visible outputs of the lava/acid effect and its heat haze. The liquid
-    /// surface and the effect overlay plane follow the room camera, while one of two sixteen-scanline background
+    /// surface and the effect overlay follow the room camera, while one of two sixteen-scanline background
     /// waveforms rotates at the cadence selected by the record's liquid-options byte.
     /// </summary>
     private void StepLavaAcid(

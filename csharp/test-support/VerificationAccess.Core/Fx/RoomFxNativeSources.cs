@@ -69,14 +69,6 @@ internal static class RoomFxNativeSources
     /// </summary>
     public const ushort FullScreenAtmosphereTilemapBaseWord = 0x5c00;
 
-    /// <summary>The liquid BG3 tilemap: one screen wide, two screens tall (32 by 64 characters).</summary>
-    public static Extent16<TilemapCells> LiquidTilemapSize =>
-        new(SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.WidthInTiles, 2 * SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.WidthInTiles);
-
-    /// <summary>Rain and fog's BG3 tilemap: one 32-by-32 screen.</summary>
-    public static Extent16<TilemapCells> FullScreenAtmosphereTilemapSize =>
-        new(SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.WidthInTiles, SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.WidthInTiles);
-
     /// <summary>
     /// First word cleared by <c>Clear_FX_Tilemap</c> at $82:E566 and
     /// <c>ClearFXTilemap</c> at $80:A29C before a room's effect tilemap is uploaded.

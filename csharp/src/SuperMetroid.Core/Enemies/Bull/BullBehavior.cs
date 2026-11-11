@@ -72,7 +72,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (samus is null)
                     throw new InvalidOperationException("Bull targeting requires the active Samus actor.");
                 state.AngleToSamus = CalculateBullAngleToSamus(slot, samus);
-                state.Angle = state.AngleToSamus.ToTrigonometryAngle().RawValue;
+                state.Angle = state.AngleToSamus.ToTrigonometryAngle();
                 state.Function = BullEnemyFunction.Accelerating;
                 state.AccelerationDelta = BullAccelerationDelta;
                 return;
@@ -107,8 +107,9 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Converts the signed displacement to Samus into Bull's bearing, a quarter turn behind the game's zero-up angle.</summary>
     private static RotationAngle CalculateBullAngleToSamus(RoomEnemySlot slot, SamusState samus) =>
-        RotationAngle.WrappedSteps(EnemyMath.CalculateBearing(
-            new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ToMirroredTableAngle().RawValue - EnemyTrigonometryAngleDefinitions.QuarterTurn);
+        EnemyMath.CalculateBearing(
+            new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole)))
+            .ToMirroredTableAngle().TurnedBySteps(-EnemyTrigonometryAngleDefinitions.QuarterTurn).ToAngle();
 
     /// <summary>Increases acceleration and speed only when the configured interval expires.</summary>
     private static void AccelerateBull(BullEnemyState state)
@@ -138,12 +139,9 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.AngleToSamus = CalculateBullAngleToSamus(slot, samus);
 
-        // The off-target test measures the turn from the heading to Samus's bearing. A turn of a half turn or more
-        // the positive way counts the short way round, but a turn of more than a half turn the negative way counts the
-        // long way: the game's sign extension leaves that difference large. A turn of 48 units or more is off target.
-        int turn = state.AngleToSamus.ToTrigonometryAngle().RawValue - state.Angle;
-        int measuredTurn = turn >= TrigonometryAngle.HalfTurn.RawValue ? RotationAngle.StepsPerTurn - turn : Math.Abs(turn);
-        if (measuredTurn < 48)
+        // The off-target test measures the turn from the heading to Samus's bearing as the game reckons it
+        // (BullOffTargetTurn). A turn of 48 of the angle's 256ths or more is off target.
+        if (BullOffTargetTurn.Of(state.Angle, state.AngleToSamus.ToTrigonometryAngle()) < 48)
             return;
 
         state.Function = BullEnemyFunction.Decelerating;
@@ -155,11 +153,11 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         slot.Position = slot.Position.WithX(AddBullComponent(
             slot.Position.X,
-            ReadBullSignedSine(TrigonometryAngle.Wrapped(state.Angle + EnemyTrigonometryAngleDefinitions.QuarterTurn)),
+            ReadBullSignedSine(state.Angle.TurnedBy(TrigonometryAngle.QuarterTurn)),
             state.Speed));
         slot.Position = slot.Position.WithY(AddBullComponent(
             slot.Position.Y,
-            ReadBullSignedSine(new TrigonometryAngle(state.Angle)),
+            ReadBullSignedSine(state.Angle),
             state.Speed));
     }
 

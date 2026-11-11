@@ -81,7 +81,7 @@ internal static class FamilyTrigonometryVerification
         foreach (int speed in WordBoundarySamples())
         {
             bull.Position = new(new(FixedCoordinate.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)), new(FixedCoordinate.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)));
-            bullState.Angle = angle;
+            bullState.Angle = new TrigonometryAngle(angle);
             bullState.Speed = (ushort)speed;
             bullMove(bull, bullState);
             uint x = bull.Position.X.RawValue;

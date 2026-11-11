@@ -1194,7 +1194,7 @@ internal static class LookupStream1Verification
             AssertEqual(Word(0xa8d897 + 4 * index), intervals.Deceleration, "stream1 Bull deceleration interval");
         }
         foreach (SamusProjectileDirection direction in SamusProjectileDirectionCodec.InAimOrder)
-            AssertEqual(Word(0xa8d871 + 2 * direction.ToAimIndex()), BullMotion.ShotAngle(direction), "stream1 Bull compass angle");
+            AssertEqual(new TrigonometryAngle(Word(0xa8d871 + 2 * direction.ToAimIndex())), BullMotion.ShotAngle(direction), "stream1 Bull compass angle");
         AssertThrows<InvalidDataException>(() => EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Bull, PopulationWords.Parameters(13, 0)), "stream1 Bull invalid interval");
         for (byte index = 0; index < 6; index++)
             AssertEqual(Word(0xa29f36 + 2 * index), CacatacTravelDistance(index), "stream1 Cacatac patrol blocks");

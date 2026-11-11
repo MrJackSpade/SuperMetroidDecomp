@@ -7,5 +7,5 @@ namespace SuperMetroid.Core.Enemies.Bull;
 public static class BullMotion
 {
     /// <summary>The compass angle an immune shot fired in <paramref name="direction"/> moves the Bull at.</summary>
-    internal static int ShotAngle(SamusProjectileDirection direction) => ShotAngles.For(direction);
+    internal static TrigonometryAngle ShotAngle(SamusProjectileDirection direction) => ShotAngles.For(direction);
 }

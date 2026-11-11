@@ -7,7 +7,8 @@ public static class BullMovementDefinitions
 {
     /// <summary>
     /// The compass angle a shot in each direction moves the Bull at: up and down whichever way Samus faces, and each
-    /// distinct direction a 32-unit octant from its neighbours.
+    /// distinct direction an eighth of a turn (32 of the angle's 256ths) from its neighbours.
     /// </summary>
-    internal static readonly SamusProjectileDirectionMap<int> ShotAngles = new(192, 224, 0, 32, 64, 64, 96, 128, 160, 192);
+    internal static readonly SamusProjectileDirectionMap<TrigonometryAngle> ShotAngles = new(
+        new(192), new(224), new(0), new(32), new(64), new(64), new(96), new(128), new(160), new(192));
 }

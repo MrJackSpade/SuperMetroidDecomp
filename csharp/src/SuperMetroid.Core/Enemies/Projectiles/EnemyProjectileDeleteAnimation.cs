@@ -16,12 +16,9 @@ internal sealed class EnemyProjectileDeleteAnimation : EnemyProjectileAnimation
     }
 
     /// <inheritdoc/>
-    private protected override bool TryShowNextFrame(
-        EnemyProjectileCueContext context, EnemyProjectileHandlerTable handlers, out int duration, out EnemyProjectileFrameId frame)
+    private protected override EnemyProjectileFrameStep NextFrame(EnemyProjectileCueContext context, EnemyProjectileHandlerTable handlers)
     {
         context.Projectile.Delete();
-        duration = 0;
-        frame = default;
-        return false;
+        return EnemyProjectileFrameStep.Rests;
     }
 }

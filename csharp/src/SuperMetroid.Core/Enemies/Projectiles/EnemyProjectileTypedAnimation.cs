@@ -3,8 +3,8 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
-/// A projectile animation that plays a family's typed animations (#1600): frames with durations, events, counted phases
-/// and a hold. Each event goes to the handler its family registered with
+/// A projectile animation that plays a family's typed animations (#1600): frames with durations, frames held for good
+/// (#1607), events, counted phases and a hold. Each event goes to the handler its family registered with
 /// <see cref="EnemyProjectileHandlerTable.AddCue{TCue}"/>, or with
 /// <see cref="EnemyProjectileHandlerTable.AddBranchingCue{TProgram, TCue}"/> when its reaction continues the play in the
 /// animation starting at another segment, as a conditional goto does. Counted phases count the projectile's
@@ -43,8 +43,7 @@ internal abstract class EnemyProjectileTypedAnimation<TSegment, TFrame, TEvent> 
     private protected abstract EnemyProjectileFrameId Present(TFrame frame);
 
     /// <summary>Plays the animation on to its next frame, raising each event in the family's registered handler.</summary>
-    private protected sealed override bool TryShowNextFrame(
-        EnemyProjectileCueContext context, EnemyProjectileHandlerTable handlers, out int duration, out EnemyProjectileFrameId frame)
+    private protected sealed override EnemyProjectileFrameStep NextFrame(EnemyProjectileCueContext context, EnemyProjectileHandlerTable handlers)
     {
         EnemyProjectile projectile = context.Projectile;
         Animation<TSegment> animation = Playback.Animation;
@@ -61,13 +60,11 @@ internal abstract class EnemyProjectileTypedAnimation<TSegment, TFrame, TEvent> 
         switch (shown)
         {
             case AnimationShown<TSegment, TFrame>.Frame shownFrame:
-                duration = shownFrame.Duration;
-                frame = Present(shownFrame.Shown);
-                return true;
+                return new EnemyProjectileFrameStep.Show(Present(shownFrame.Shown), shownFrame.Duration);
+            case AnimationShown<TSegment, TFrame>.HeldFrame held:
+                return new EnemyProjectileFrameStep.ShowForGood(Present(held.Shown));
             case AnimationShown<TSegment, TFrame>.Held:
-                duration = 0;
-                frame = default;
-                return false;
+                return EnemyProjectileFrameStep.Rests;
             case AnimationShown<TSegment, TFrame>.Paused:
             case AnimationShown<TSegment, TFrame>.Ended:
             default:

@@ -11,7 +11,7 @@ public static class MotherBrainRoomColorFile
 {
     /// <summary>Validates and compiles fake-death flash, room-entry, phase-two and recovery color artwork without retaining the document's mutable RGB5 arrays.</summary>
     /// <param name="json">UTF-8 JSON read from its current position to the end and left open.</param>
-    /// <returns>Selected native color words, with calculated representations used only where their complete output matches the supplied artwork.</returns>
+    /// <returns>Every installed colour set, kept as installed.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
     /// <exception cref="InvalidDataException">JSON is invalid or ambiguous, the version is unsupported, array sizes are wrong, or a required color is null or outside RGB5 range.</exception>
     public static MotherBrainRoomColorPresentation Read(Stream json)
@@ -27,7 +27,7 @@ public static class MotherBrainRoomColorFile
             flash[index] = Compile(document.Flash[index], MotherBrainRoomColorGeometry.SliceColors * 2,
                 $"flash row {index}");
         RgbColor[] finalRoom = Compile(document.FinalRoom, MotherBrainRoomColorGeometry.SliceColors * 2, "final room");
-        return MotherBrainRoomColorRecognition.Create(new MotherBrainRoomColours
+        return new MotherBrainRoomColorPresentation(new MotherBrainRoomColours
         {
             Flash = flash,
             FinalRoom = finalRoom,

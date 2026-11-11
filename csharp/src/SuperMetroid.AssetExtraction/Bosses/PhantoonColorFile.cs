@@ -14,7 +14,7 @@ public static class PhantoonColorFile
 {
     /// <summary>Loads and validates Phantoon's health, fade-out, and ship-power RGB5 sources.</summary>
     /// <param name="json">Caller-owned stream containing the color document.</param>
-    /// <returns>The compiled color catalog.</returns>
+    /// <returns>The installed color catalog, every set kept as installed.</returns>
     public static PhantoonColorCatalog Read(Stream json)
     {
         Ensure.NotNull(json);
@@ -25,12 +25,12 @@ public static class PhantoonColorFile
         if (document.HealthBands is null ||
             document.HealthBands.Length != PhantoonColorDefinitions.HealthBandCount)
             throw new InvalidDataException("Phantoon colors require eight health palettes.");
-        return new(PhantoonColorEdits.Select(
+        return new(
             document.HealthBands.Select((band, index) =>
                 Compile(band, PhantoonColorFormat.HealthBandColorCount,
                     $"health palette {index}")).ToArray(),
             Compile(document.FadeOut, PhantoonColorFormat.FadeOutCount, "fade-out"),
-            PowerOnByPart(Compile(document.PowerOn, PhantoonSourceDefinitions.PowerOnColourCount, "power-on"))));
+            PowerOnByPart(Compile(document.PowerOn, PhantoonSourceDefinitions.PowerOnColourCount, "power-on")));
     }
 
     /// <summary>
@@ -40,9 +40,9 @@ public static class PhantoonColorFile
     private static Dictionary<WreckedShipPoweredPart, RgbColor[]> PowerOnByPart(RgbColor[] colours)
     {
         var parts = new Dictionary<WreckedShipPoweredPart, RgbColor[]>();
-        for (int first = 0; first < colours.Length; first += SuperMetroid.AssetExtraction.Enemies.Artwork.WreckedShipPowerPaintDefinitions.PartColourCount)
-            parts.Add(PhantoonColorFormat.PoweredParts[first / SuperMetroid.AssetExtraction.Enemies.Artwork.WreckedShipPowerPaintDefinitions.PartColourCount],
-                colours[first..(first + SuperMetroid.AssetExtraction.Enemies.Artwork.WreckedShipPowerPaintDefinitions.PartColourCount)]);
+        for (int first = 0; first < colours.Length; first += PhantoonColorFormat.PoweredPartColourCount)
+            parts.Add(PhantoonColorFormat.PoweredParts[first / PhantoonColorFormat.PoweredPartColourCount],
+                colours[first..(first + PhantoonColorFormat.PoweredPartColourCount)]);
         return parts;
     }
 

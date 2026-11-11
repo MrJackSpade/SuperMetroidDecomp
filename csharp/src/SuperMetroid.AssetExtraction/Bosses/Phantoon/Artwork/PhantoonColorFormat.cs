@@ -15,6 +15,9 @@ public static class PhantoonColorFormat
     /// <summary>The colours of the materialization fade-out target.</summary>
     public const int FadeOutCount = 16;
 
+    /// <summary>The colours of each powered part's target: one colour group's sixteen.</summary>
+    public const int PoweredPartColourCount = 16;
+
     /// <summary>
     /// The parts of the Wrecked Ship its power-on fades after Phantoon's death (#1464, #1512), in the order the
     /// installed targets list them. Each fades all of its colours toward its own target colours.

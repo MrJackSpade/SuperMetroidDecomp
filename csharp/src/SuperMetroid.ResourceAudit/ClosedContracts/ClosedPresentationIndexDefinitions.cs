@@ -52,7 +52,7 @@ internal static class ClosedPresentationIndexDefinitions
         ("PhantoonColorCatalog", "ResolveHealth", "band") => new(0, PhantoonColorDefinitions.HealthBandCount),
         ("PhantoonColorCatalog", "ResolveHealth", "color") => new(0, PhantoonColorFormat.HealthBandColorCount),
         ("PhantoonColorCatalog", "ResolveFadeOut", "color") => new(0, PhantoonColorFormat.FadeOutCount),
-        ("PhantoonColorCatalog", "ResolvePowerOn", "color") => new(0, SuperMetroid.AssetExtraction.Enemies.Artwork.WreckedShipPowerPaintDefinitions.PartColourCount),
+        ("PhantoonColorCatalog", "ResolvePowerOn", "color") => new(0, SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork.PhantoonColorFormat.PoweredPartColourCount),
         ("TourianStatuePalettes", "ResolveEye", "glow") => new(0, TourianStatueColorDefinitions.EyeGlowCount),
         ("TourianStatuePalettes", "ResolveEye", "color") => new(0, TourianStatueColorDefinitions.EyeColorCount),
         ("SporeSpawnColorCatalog", "ResolveSpore" or "ResolveHealth", "color") => new(0, SporeSpawnColorFormat.ColorsPerFrame),

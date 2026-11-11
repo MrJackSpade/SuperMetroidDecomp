@@ -41,7 +41,7 @@ internal static class PaletteFxProgramLayoutAccess
     {
         /// <summary>The bank-$8D record <paramref name="suit"/>'s program shows at <paramref name="phase"/>.</summary>
         internal static ushort Resolve(PaletteFxHeatSuit suit, ushort phase) =>
-            PaletteFxColorLayoutAccess.RecordAddress(SuperMetroid.AssetExtraction.Fx.Artwork.HeatPaletteColors.ColorFrames(suit).Frame(phase));
+            PaletteFxColorLayoutAccess.RecordAddress(PaletteFxHeatProgramMechanicsDefinitions.All.Single(item => item.Suit == suit).ColorFrames.Frame(phase));
     }
 
     /// <summary>Crateria lightning's native list structure.</summary>

@@ -2,10 +2,7 @@ using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Areas.Ceres.LookupCeresDefaultTintsVerification;
-using static SuperMetroid.Verification.Fx.LookupFxBlendBlackColorsVerification;
 using static SuperMetroid.Verification.Fx.LookupFxBlendSelectorsVerification;
-using static SuperMetroid.Verification.Fx.LookupFxPairColorsVerification;
-using static SuperMetroid.Verification.Fx.LookupFxWeatherBlueVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.Artwork;
@@ -39,32 +36,21 @@ internal static class RoomFxPaletteBlendsVerification
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "FX blend oracle revision");
         Suite(nameof(VerifyFxBlendSelectorIdentities), () => VerifyFxBlendSelectorIdentities());
         Suite(nameof(VerifyFxBlendSourceAddresses), () => VerifyFxBlendSourceAddresses(rom));
-        RoomFxBlendInks catalog = RoomFxPaletteBlendFile.Read(
-            new MemoryStream(RoomFxPaletteBlendExtractor.Extract(NewBlackBlendSourceGuard(new DerivedBlendSourceGuard(rom)))));
+        RoomFxBlendInks catalog = RoomFxPaletteBlendFile.Read(new MemoryStream(RoomFxPaletteBlendExtractor.Extract(rom)));
         // The Ceres haze's tints are scene colours the import installs (#1544).
         CeresHazeTints haze = RetailPresentationFixtureVerification.RetailPresentationFixture().CeresHaze;
         Suite(nameof(VerifyCeresDefaultRed), () => VerifyCeresDefaultRed(rom, haze));
         Suite(nameof(VerifyCeresDefaultGreen), () => VerifyCeresDefaultGreen(rom, haze));
         Suite(nameof(VerifyCeresDefaultBlue), () => VerifyCeresDefaultBlue(rom, haze));
         Suite(nameof(VerifyCeresDefaultTintStructure), () => VerifyCeresDefaultTintStructure(rom));
-        Suite(nameof(VerifyFxBlendBlackRed), () => VerifyFxBlendBlackRed(rom, catalog));
-        Suite(nameof(VerifyFxBlendBlackGreen), () => VerifyFxBlendBlackGreen(rom, catalog));
-        Suite(nameof(VerifyFxBlendBlackBlue), () => VerifyFxBlendBlackBlue(rom, catalog));
-        Suite(nameof(VerifyFxBlendBlackStorage), () => VerifyFxBlendBlackStorage(catalog));
-        Suite(nameof(VerifyFxPairRed), () => VerifyFxPairRed(rom, catalog));
-        Suite(nameof(VerifyFxPairGreen), () => VerifyFxPairGreen(rom, catalog));
-        Suite(nameof(VerifyFxPairBlue), () => VerifyFxPairBlue(rom, catalog));
-        Suite(nameof(VerifyFxPairStorage), () => VerifyFxPairStorage(rom));
-        Suite(nameof(VerifyFxWeatherThirdGreen), () => VerifyFxWeatherThirdGreen(rom, catalog));
-        Suite(nameof(VerifyFxWeatherThirdBlue), () => VerifyFxWeatherThirdBlue(rom, catalog));
         Suite(nameof(VerifyFxBlendPageDispatch), () => VerifyFxBlendPageDispatch(rom, catalog));
         foreach (RoomFxPaletteBlend id in RoomFxPaletteBlendDocumentRules.Ids)
         {
-            ReadOnlySpan<RgbColor> compiled = catalog.Resolve(id);
+            IReadOnlyList<RgbColor> compiled = catalog.Inks(id);
             // The layer-3 pictures' shade of the blend holds its three colours over the blend inks (#1512).
             SheetShade shade = BlendShade(catalog, id);
             AssertEqual(RoomFxNativeSources.PaletteBlendDestinationIndex, shade.Inks[0], $"room-FX blend {id} shades the blend inks");
-            for (int index = 0; index < compiled.Length; index++)
+            for (int index = 0; index < compiled.Count; index++)
                 AssertEqual(compiled[index], shade.Colours[index], $"room-FX blend {id} shade colour {index}");
 
             (RoomFxOverlayState state, CartridgeReadGuard bus) = ConstructBlendLoad(id);

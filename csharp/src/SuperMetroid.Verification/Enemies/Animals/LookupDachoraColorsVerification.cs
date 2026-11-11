@@ -10,8 +10,7 @@ namespace SuperMetroid.Verification.Enemies.Animals;
 internal static class LookupDachoraColorsVerification
 {
     /// <summary>
-    /// #1165: Dachora's speed and shine frames calculate from the normal colors. Confirms every
-    /// native word and that the stock install stores no speed/shine colors.
+    /// Confirms every installed Dachora colour equals its native word.
     /// </summary>
     internal static void VerifyLookupDachoraColors(ISnesAddressSpace rom)
     {
@@ -23,14 +22,12 @@ internal static class LookupDachoraColorsVerification
 
         byte[] source = DachoraColorExtractor.Extract(rom);
         var stock = DachoraColorFile.Read(new MemoryStream(source));
-        AssertEqual(0, stock.selection.SpeedEdits.Count + stock.selection.ShineEdits.Count,
-            "Stock Dachora speed and shine frames store no colors beyond the calculation");
         Check(stock, normal, speed, shine);
 
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(DachoraColourPhase.Speed, 4, 0), "Speed frame bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(DachoraColourPhase.Default, 1, 0), "Default frame bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(DachoraColourPhase.Shine, 0, 16), "Color bound");
-        Console.WriteLine("Dachora colors: all 144 native words, 128 calculated speed/shine colors with no stored stock values pass.");
+        Console.WriteLine("Dachora colors: all 144 installed native words pass.");
 
         static void Check(DachoraColorCatalog catalog, ushort[] normal, ushort[][] speed, ushort[][] shine)
         {

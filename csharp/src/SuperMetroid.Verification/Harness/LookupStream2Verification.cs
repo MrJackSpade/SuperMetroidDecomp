@@ -95,8 +95,6 @@ internal static class LookupStream2Verification
         };
         var selected = definitions.Where(frame => nativeIdentities.Contains(((int)new SnesAddress(frame.Bank, frame.Pointer)))).ToArray();
         AssertEqual(8, selected.Length, "Eight native Chozo stride composition identities");
-        for (int pose = 0; pose < nativeIdentities.Length; pose++)
-            AssertEqual(nativeIdentities[pose], ChozoStrideGeometryDefinitions.NativePoseIdentity(pose), "Chozo counted-record identity geometry");
         foreach (var frame in selected)
         {
             int source = ((int)new SnesAddress(frame.Bank, frame.Pointer));
@@ -147,14 +145,12 @@ internal static class LookupStream2Verification
         Check(stock);
         foreach (var frame in selected)
         {
-            AssertTrue(stock.TryGet(frame.Bank, frame.Pointer, out var parts), "Chozo stock frame exists");
-            AssertEqual("FootParts", parts.GetType().Name, "Chozo stock foot coordinates use shared calculated owner");
+            AssertTrue(stock.TryGet(frame.Bank, frame.Pointer, out _), "Chozo stock frame exists");
         }
         AssertEqual(ChozoCarry.Read(5).Velocity, (short)-0x300, "Chozo carry mechanics velocity");
         AssertEqual(ChozoCarry.Read(6).Velocity, (short)-0xe00, "Chozo late support displacement");
         Suite(nameof(VerifyCompiledStatueWalking), () => VerifyCompiledStatueWalking(rom));
         AssertThrows<ArgumentOutOfRangeException>(() => ChozoStride.SupportFootX(4), "Chozo support-phase upper bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => ChozoStrideGeometryDefinitions.NativePoseIdentity(-1), "Chozo pose lower bound");
         Console.WriteLine("Chozo shared geometry:174 native parts,eight stock views,hash/display order and existing96-word/actual carry checks pass; shape and two movement-policy inputs remain documented.");
     }
 
@@ -1097,15 +1093,9 @@ internal static class LookupStream2Verification
             ChozoAndTubeColorFile.Read(new MemoryStream(ChozoAndTubeColorFile.Write(document), writable: false));
         var stock = Load(original);
         Check(stock, original);
-        AssertEqual(8, stock.selection.TubeColorSeeds.Length,
-            "tube stores only its eight authored seed colors");
-        foreach (var (statue, edits) in new[] { new VerifyLookupStream2TubeRampCase("wreckedShipEdits", stock.selection.WreckedShipEdits), new VerifyLookupStream2TubeRampCase("lowerNorfairEdits", stock.selection.LowerNorfairEdits) })
-            AssertEqual(0, edits.Count, $"stock {statue} store no colors beyond the calculated statue paint");
-        AssertEqual(0, stock.selection.TubeColorEdits.Count,
-            "stock tube ramp and repeated half need no residuals");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveTubeCracks(-1), "tube negative color");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveTubeCracks(32), "tube past last color");
-        Console.WriteLine("Tube and statue palettes: 96 native colors, statue paint with no stored stock colors and canonical identity pass; the eight tube seeds are authored.");
+        Console.WriteLine("Tube and statue palettes: 96 installed native colors and canonical identity pass.");
 
         static void Check(ChozoAndTubeColorCatalog catalog, ChozoAndTubeColorDocument document)
         {
@@ -1432,24 +1422,10 @@ internal static class LookupStream2Verification
             DeathArm = ReadSource(KraidPaletteSource.DeathArm),
         };
         var stock = KraidColorFile.Read(new MemoryStream(KraidColorFile.Write(document)));
-        object health = stock.sources[KraidPaletteSource.Health];
-        object secondary = stock.sources[KraidPaletteSource.Secondary];
-        AssertTrue(ReferenceEquals(health, secondary), "Identical Kraid secondary colors share calculated primary source");
-        foreach (var (name, band) in new VerifyLookupStream2KraidRampsCase[]
-                 { new VerifyLookupStream2KraidRampsCase("health", stock.sources[KraidPaletteSource.Health]), new VerifyLookupStream2KraidRampsCase("roomBackdrop", stock.sources[KraidPaletteSource.RoomBackdrop]), new VerifyLookupStream2KraidRampsCase("initialTarget", stock.sources[KraidPaletteSource.InitialTarget]), new VerifyLookupStream2KraidRampsCase("deathArm", stock.sources[KraidPaletteSource.DeathArm]) })
-        {
-            int deviations = band switch
-            {
-                KraidStockBand stored => stored.deviations.Count,
-                KraidHealthBands palette => palette.deviations.Count,
-                _ => throw new InvalidDataException($"Stock Kraid {name} is not a deviation-storing band."),
-            };
-            AssertEqual(0, deviations, $"Stock Kraid {name} stores no colors beyond the calculated paint");
-        }
         foreach (KraidPaletteSource source in Enum.GetValues<KraidPaletteSource>())
         for (int index = 0; index < KraidPalettes.ColorCount(source); index++)
             AssertEqual(ReadVerificationWord(rom, KraidPaletteSources.SourceAddress(source) + 2 * index),
-                KraidPaint.Color(source, index), $"Kraid {source} stock paint {index}");
+                stock.Resolve(source, index), $"Kraid {source} installed colour {index}");
         Check(stock, document);
         string expectedIdentity = SelectedPresentationHash.Create("enemy-kraid-colors-v1", content =>
         {
@@ -1462,7 +1438,7 @@ internal static class LookupStream2Verification
         AssertEqual(expectedIdentity, stock.ContentIdentity, "Calculated Kraid colors preserve canonical content identity");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(KraidPaletteSource.Health, -1), "Kraid calculated lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(KraidPaletteSource.Secondary, 144), "Kraid calculated upper bound");
-        Console.WriteLine("Stream 2 Kraid colors: all 336 stock words calculate from paint with no stored stock colors; source sharing and canonical identity pass.");
+        Console.WriteLine("Stream 2 Kraid colors: all 336 installed words match the cartridge; canonical identity passes.");
 
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
         static PaletteRgb5[] Source(KraidColorDocument value, KraidPaletteSource source) => source switch
@@ -1553,7 +1529,6 @@ internal static class LookupStream2Verification
         for (int phase = 0; phase < 10; phase++)
         {
             int identity = 0xaaa4fa + 34 * phase;
-            AssertEqual(identity, GoldenTorizoStrideGeometryDefinitions.NativeFrameIdentity(phase), "Golden Torizo native extended-record geometry");
             var frame = definitions.Single(frame => (((int)new SnesAddress(frame.Bank, frame.Pointer))) == identity);
             selected[phase] = frame;
             AssertEqual((ushort)4, CartridgeImportSource.Require(rom).ReadCartridgeWord(identity), "Golden Torizo four native visual components");
@@ -1636,8 +1611,7 @@ internal static class LookupStream2Verification
         var stock = Load(); Check(stock);
         foreach (var frame in selected)
         {
-            AssertTrue(stock.TryGet(frame.Bank, frame.Pointer, out var components), "Golden Torizo native identity stays installed");
-            AssertEqual("FootParts", components.Span[2].Parts.GetType().Name, "Golden Torizo stock foot strips use shared geometry");
+            AssertTrue(stock.TryGet(frame.Bank, frame.Pointer, out _), "Golden Torizo native identity stays installed");
         }
         for (int step = 0; step < GoldenTorizoWalk.StepCount; step++)
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(0xaad59a + step * 2)), GoldenTorizoWalk.Velocity(step), "Golden Torizo walking steps match native");

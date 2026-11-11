@@ -22,9 +22,9 @@ public static class DachoraColorFile
         document = JsonAssetDocument.Read<DachoraColorDocument>(json, ArtworkJson.Options, "Dachora color");
         if (document.Version != DachoraColorFormat.Version)
             throw new InvalidDataException("Dachora colors require the supported version.");
-        return new(DachoraColorEdits.Select(Compile(document.Normal, "normal"),
+        return new(Compile(document.Normal, "normal"),
             CompileFrames(document.Speed, "speed"),
-            CompileFrames(document.Shine, "shine")));
+            CompileFrames(document.Shine, "shine"));
     }
 
     /// <summary>Serializes the editable palettes as indented camel-case UTF-8 JSON.</summary>

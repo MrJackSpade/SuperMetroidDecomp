@@ -47,7 +47,7 @@ public static class EnemyAuxiliaryColorFiles
 
     /// <summary>Loads all four named palette families at the supported version, validating each definition's row/color counts and RGB5 channels 0..31 while rejecting duplicate or unknown properties; compiles owned rows independently of cartridge storage.</summary>
     /// <param name="source">UTF-8 JSON stream containing enum-named palette families; integer enum identities are not accepted.</param>
-    /// <returns>The immutable auxiliary-color catalog, retaining supplied rows when they differ from calculated stock relationships.</returns>
+    /// <returns>The immutable auxiliary-color catalog, keeping every installed row as installed.</returns>
     public static EnemyAuxiliaryColorCatalog Read(Stream source)
     {
         Ensure.NotNull(source);
@@ -63,7 +63,7 @@ public static class EnemyAuxiliaryColorFiles
         if (document.Version != EnemyAuxiliaryColorFormat.Version || document.Palettes is null ||
             document.Palettes.Count != EnemyAuxiliaryColorDefinitions.All.Length)
             throw new InvalidDataException("Enemy auxiliary colors require version one and all four named palettes.");
-        var result = new Dictionary<EnemyAuxiliaryPalette, RgbColor[][]>();
+        var result = new Dictionary<EnemyAuxiliaryPalette, InstalledColourRows>();
         foreach (EnemyAuxiliaryPaletteDefinition definition in EnemyAuxiliaryColorDefinitions.All)
         {
             if (!document.Palettes.TryGetValue(definition.Id, out PaletteRgb5[][]? rows) ||
@@ -84,9 +84,9 @@ public static class EnemyAuxiliaryColorFiles
                     compiled[frame][color] = rgb.ToRgbColor();
                 }
             }
-            result.Add(definition.Id, compiled);
+            result.Add(definition.Id, new InstalledColourRows(compiled, definition.FrameCount, definition.ColorCount, $"Palette {definition.Id}"));
         }
-        return new EnemyAuxiliaryColorCatalog(EnemyAuxiliaryColorFrameRecognition.Recognize(result));
+        return new EnemyAuxiliaryColorCatalog(result);
     }
 
     /// <summary>Serializes the auxiliary-color document as indented camel-case UTF-8 JSON with named palette identities.</summary>

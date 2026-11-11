@@ -15,7 +15,7 @@ public static class MotherBrainDeathColorFile
     /// <summary>The corpse-head fade images, shown in order while the corpse rots away.</summary>
     public const int CorpseFadeFrameCount = 8;
 
-    /// <summary>Validates and compiles the death-fade RGB5 document, retaining edited images independently of the health-palette presentation.</summary>
+    /// <summary>Validates the installed death-fade RGB5 document and keeps every frame as installed.</summary>
     /// <param name="json">UTF-8 JSON source consumed from its current position and left open.</param>
     /// <returns>Compiled color catalog detached from the deserialized document arrays.</returns>
     /// <exception cref="ArgumentNullException">The source stream is null.</exception>
@@ -28,7 +28,7 @@ public static class MotherBrainDeathColorFile
         if (document.Version != MotherBrainDeathColorFormat.Version)
             throw new InvalidDataException(
                 "Mother Brain death colors require the supported version.");
-        return new(MotherBrainDeathColorEdits.Select(CompileFrames(document.BodyFade,
+        return new(CompileFrames(document.BodyFade,
                 BodyFadeFrameCount,
                 MotherBrainDeathColorFormat.BodyColorCount, "body fade"),
             CompileFrames(document.LegFade,
@@ -36,7 +36,7 @@ public static class MotherBrainDeathColorFile
                 MotherBrainDeathColorFormat.BodyColorCount, "leg fade"),
             CompileFrames(document.CorpseFade,
                 CorpseFadeFrameCount,
-                MotherBrainDeathColorFormat.CorpseColorCount, "corpse fade")));
+                MotherBrainDeathColorFormat.CorpseColorCount, "corpse fade"));
     }
 
     /// <summary>Serializes the editable death-color document to indented camel-case UTF-8 JSON.</summary>

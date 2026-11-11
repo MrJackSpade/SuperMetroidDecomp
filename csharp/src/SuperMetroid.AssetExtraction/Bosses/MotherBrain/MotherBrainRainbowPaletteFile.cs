@@ -18,62 +18,60 @@ public static class MotherBrainRainbowPaletteFile
 
     /// <summary>Loads and compiles bounded RGB5 rainbow, drain, revival, restoration, and beam-backdrop colors; validates frame geometry and channels without importing engine timers or signed loop terminators.</summary>
     /// <param name="json">Caller-owned <c>mother-brain-rainbow-palette.json</c> stream, read from its current position and left open.</param>
-    /// <returns>Compiled colors retaining independent edits while sharing calculated native color relationships when their supplied values agree.</returns>
+    /// <returns>Every installed phase, kept as installed.</returns>
     public static InstalledMotherBrainRainbowPalette Read(Stream json)
     {
         MotherBrainRainbowPaletteDocument document = JsonAssetDocument.Read<MotherBrainRainbowPaletteDocument>(
             json, ArtworkJson.Options, "Mother Brain rainbow palette");
         if (document.Version != Version)
             throw new InvalidDataException("Unsupported Mother Brain rainbow palette version.");
-        return MotherBrainRainbowPaletteRecognition.Create(new MotherBrainRainbowPaletteColours
-        {
-            Rainbow = CompileFrames(document.Rainbow, MotherBrainRainbowPaletteFormat.RainbowFrameCount,
+        return new InstalledMotherBrainRainbowPalette(
+            CompileFrames(document.Rainbow, MotherBrainRainbowPaletteFormat.RainbowFrameCount,
                 MotherBrainRainbowPaletteGeometry.ColorCount,
                 MotherBrainRainbowPaletteGeometry.ColorCount, MotherBrainTrailingColor.Absent, nameof(document.Rainbow)),
-            ToGrey = CompileFrames(document.ToGrey, MotherBrainRainbowPaletteGeometry.GreyFrameCount,
+            new InstalledMotherBrainRainbowPalette.PaletteFade(CompileFrames(document.ToGrey, MotherBrainRainbowPaletteGeometry.GreyFrameCount,
                 MotherBrainRainbowPaletteGeometry.DrainedColors,
-                MotherBrainRainbowPaletteGeometry.BackLegCount, MotherBrainTrailingColor.Required, nameof(document.ToGrey)),
-            FromGrey = CompileFrames(document.FromGrey, MotherBrainRainbowPaletteGeometry.GreyFrameCount,
+                MotherBrainRainbowPaletteGeometry.BackLegCount, MotherBrainTrailingColor.Required, nameof(document.ToGrey))),
+            new InstalledMotherBrainRainbowPalette.PaletteFade(CompileFrames(document.FromGrey, MotherBrainRainbowPaletteGeometry.GreyFrameCount,
                 MotherBrainRainbowPaletteGeometry.RevivalColors,
-                MotherBrainRainbowPaletteGeometry.BackLegCount, MotherBrainTrailingColor.Required, nameof(document.FromGrey)),
-            FakeDeathToGrey = CompileFakeDeathFrames(document.FakeDeathToGrey),
-            Normal = CompileFrames([document.Normal], 1, MotherBrainRainbowPaletteGeometry.ColorCount,
+                MotherBrainRainbowPaletteGeometry.BackLegCount, MotherBrainTrailingColor.Required, nameof(document.FromGrey))),
+            new InstalledMotherBrainRainbowPalette.PaletteFade(CompileFakeDeathFrames(document.FakeDeathToGrey)),
+            CompileFrames([document.Normal], 1, MotherBrainRainbowPaletteGeometry.ColorCount,
                 MotherBrainRainbowPaletteGeometry.ColorCount, MotherBrainTrailingColor.Absent, nameof(document.Normal))[0],
-            BeamInitial = CompileColor(document.BeamInitial, nameof(document.BeamInitial)),
-            BeamCycle = CompileColors(document.BeamCycle, MotherBrainRainbowPaletteGeometry.BeamCycleColorCount,
-                nameof(document.BeamCycle)),
-        });
+            CompileColor(document.BeamInitial, nameof(document.BeamInitial)),
+            CompileColors(document.BeamCycle, MotherBrainRainbowPaletteGeometry.BeamCycleColorCount,
+                nameof(document.BeamCycle)));
     }
 
     /// <summary>Requires eight three-ink brain frames, with no rear-leg or trailing color.</summary>
-    private static RgbColor[][] CompileFakeDeathFrames(PaletteRgb5[][]? source)
+    private static InstalledMotherBrainRainbowPalette.PaletteFrame[] CompileFakeDeathFrames(PaletteRgb5[][]? source)
     {
         if (source is null || source.Length != MotherBrainFakeDeathPaletteDefinitions.FrameCount)
             throw new InvalidDataException("Mother Brain fake-death fade requires eight frames.");
-        var frames = new RgbColor[source.Length][];
+        var frames = new InstalledMotherBrainRainbowPalette.PaletteFrame[source.Length];
         for (int frame = 0; frame < source.Length; frame++)
-            frames[frame] = CompileColors(source[frame],
-                MotherBrainRainbowPaletteGeometry.FakeDeathColors, $"fake-death frame {frame}");
+            frames[frame] = new(CompileColors(source[frame],
+                MotherBrainRainbowPaletteGeometry.FakeDeathColors, $"fake-death frame {frame}"), []);
         return frames;
     }
 
     /// <summary>Validates palette geometry and whether this sequence carries a trailing WRAM word.</summary>
-    private static MotherBrainPaletteFrameColours[] CompileFrames(MotherBrainRainbowPaletteFrameDocument[]? source,
+    private static InstalledMotherBrainRainbowPalette.PaletteFrame[] CompileFrames(MotherBrainRainbowPaletteFrameDocument[]? source,
         int count, int bodyCount, int legCount, MotherBrainTrailingColor trailing, string name)
     {
         if (source is null || source.Length != count)
             throw new InvalidDataException($"Mother Brain {name} requires {count} frames.");
-        var frames = new MotherBrainPaletteFrameColours[count];
+        var frames = new InstalledMotherBrainRainbowPalette.PaletteFrame[count];
         for (int frame = 0; frame < count; frame++)
         {
             MotherBrainRainbowPaletteFrameDocument? item = source[frame];
             if (item is null || (item.TrailingColor is null) != (trailing == MotherBrainTrailingColor.Absent))
                 throw new InvalidDataException($"Mother Brain {name} frame {frame} has an invalid trailing color.");
-            frames[frame] = new MotherBrainPaletteFrameColours(
+            if (item.TrailingColor is not null)
+                _ = CompileColor(item.TrailingColor, $"{name} frame {frame} trailing color");
+            frames[frame] = new InstalledMotherBrainRainbowPalette.PaletteFrame(
                 CompileColors(item.Body, bodyCount, $"{name} frame {frame} body"),
-                CompileColors(item.BackLegs, legCount, $"{name} frame {frame} back legs"),
-                item.TrailingColor is null ? null : CompileColor(item.TrailingColor,
-                    $"{name} frame {frame} trailing color"));
+                CompileColors(item.BackLegs, legCount, $"{name} frame {frame} back legs"));
         }
         return frames;
     }

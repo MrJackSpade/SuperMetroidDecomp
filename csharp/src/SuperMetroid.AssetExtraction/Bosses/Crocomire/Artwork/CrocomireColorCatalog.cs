@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
 
 /// <summary>
-/// Editable Crocomire fight, wall, projectile, skeleton-arm, and wall-spike RGB5 colors.
+/// Crocomire's installed fight, wall, projectile, skeleton-arm, and wall-spike RGB5 colors, each transfer kept as installed.
 /// Phase transitions and the white hurt-flash decision remain engine-owned.
 /// </summary>
 public sealed class CrocomireColorCatalog
@@ -15,7 +15,7 @@ public sealed class CrocomireColorCatalog
         FightBody,
         /// <summary>Seventeen wall colors loaded during fight initialization.</summary>
         InitialWall,
-        /// <summary>Sixteen projectile colors loaded after the wall colours, with independent overlap edits.</summary>
+        /// <summary>Sixteen projectile colors loaded after the wall colours, kept as installed where it overlaps them.</summary>
         InitialProjectile,
         /// <summary>Sixteen skeleton-arm colors installed when the wall break begins.</summary>
         SkeletonArm,
@@ -23,17 +23,7 @@ public sealed class CrocomireColorCatalog
         WallSpikes,
     }
 
-    /// <summary>Each named material's calculated paint; supplied edits never alias across fields.</summary>
-    internal static readonly Dictionary<Band, Func<int, RgbColor>> StockPaint = new()
-    {
-        [Band.FightBody] = CrocomirePaint.FightBody,
-        [Band.InitialWall] = CrocomirePaint.InitialWall,
-        [Band.InitialProjectile] = CrocomirePaint.InitialProjectile,
-        [Band.SkeletonArm] = CrocomirePaint.SkeletonArm,
-        [Band.WallSpikes] = CrocomirePaint.WallSpikes,
-    };
-
-    /// <summary>The transfer length of each Crocomire material role.</summary>
+    /// <summary>The colours each transfer holds.</summary>
     internal static readonly Dictionary<Band, int> Counts = new()
     {
         [Band.FightBody] = CrocomireColorDefinitions.FightBodyCount,
@@ -43,13 +33,25 @@ public sealed class CrocomireColorCatalog
         [Band.WallSpikes] = CrocomireColorDefinitions.WallSpikesCount,
     };
 
-    /// <summary>Independently supplied differences; every unedited stock ink is calculated.</summary>
-    internal readonly Dictionary<CrocomireColorKey, RgbColor> edits;
+    /// <summary>Each transfer's installed colours.</summary>
+    private readonly Dictionary<Band, RgbColor[]> transfers;
 
-    /// <summary>Retains only colors that differ from their calculated material paint.</summary>
-    /// <param name="edits">The supplied colours the import found differing from their calculated material paint.</param>
-    internal CrocomireColorCatalog(Dictionary<CrocomireColorKey, RgbColor> edits) => this.edits = edits;
+    /// <summary>Keeps every transfer's complete installed colours.</summary>
+    /// <param name="transfers">Each of the five transfers' colours, as installed.</param>
+    /// <exception cref="InvalidDataException">A transfer is missing or holds another number of colours.</exception>
+    internal CrocomireColorCatalog(Dictionary<Band, RgbColor[]> transfers)
+    {
+        foreach ((Band band, int count) in Counts)
+            if (!transfers.TryGetValue(band, out RgbColor[]? colours) || colours.Length != count)
+                throw new InvalidDataException($"Crocomire {band} requires {count} installed colors.");
+        this.transfers = transfers.ToDictionary(pair => pair.Key, pair => (RgbColor[])pair.Value.Clone());
+    }
 
-    /// <summary>Returns an edited color or calculates the corresponding stock paint.</summary>
-    internal RgbColor Get(Band band, int index) => CrocomirePalette.Get(edits, band, index);
+    /// <summary>The installed colour <paramref name="index"/> of transfer <paramref name="band"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside the transfer.</exception>
+    internal RgbColor Get(Band band, int index)
+    {
+        RgbColor[] colours = transfers[band];
+        return (uint)index < (uint)colours.Length ? colours[index] : throw new ArgumentOutOfRangeException(nameof(index));
+    }
 }

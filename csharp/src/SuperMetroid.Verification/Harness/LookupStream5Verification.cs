@@ -101,14 +101,9 @@ internal static class LookupStream5Verification
         {
             CrocomireMeltingIllustration source = phase == 0 ? CrocomireMeltingIllustration.First : CrocomireMeltingIllustration.Second;
             native[phase] = Enumerable.Range(0, 256).Select(i => ReadVerificationWord(oracle, SuperMetroid.AssetExtraction.Enemies.CrocomireMeltingSources.Tilemap(source) + i * 2)).ToArray();
-            var calculated = new CrocomireMeltingTilemap((phase != 0) ? CrocomireMeltingIllustration.Second : CrocomireMeltingIllustration.First, BackgroundTileWordBytes.Tiles(native[phase]));
-            AssertEqual(0, calculated.edits.Count,
-                "Every native melt tilemap word calculates without fallback");
-            AssertTrue(BackgroundTileWordBytes.Words(calculated.Tiles()).SequenceEqual(native[phase]), "All native melt words");
             AssertTrue(BackgroundTileWordBytes.Words((art ?? throw new InvalidOperationException("Verification requires art.")).Tilemap(source)).SequenceEqual(native[phase]), "Installed melt words");
             VerifyInstalledCrocomireMeltingTilemap(oracle, catalog, source, phase == 0
                 ? CrocomireBodyProgram.MeltingOneTopRow : CrocomireBodyProgram.MeltingTwoTopRow);
-            AssertThrows<InvalidDataException>(() => _ = new CrocomireMeltingTilemap((phase != 0) ? CrocomireMeltingIllustration.Second : CrocomireMeltingIllustration.First, new BackgroundTile[255]), "Short melt map rejects");
         }
         var first = (art ?? throw new InvalidOperationException("Verification requires art.")).first;
         var second = art.second;
@@ -494,12 +489,8 @@ internal static class LookupStream5Verification
                 bands[band][color] = new PaletteRgb5 { Red = native & 31, Green = native >> 5 & 31, Blue = native >> 10 & 31 };
             }
         }
-        CrocomireColorCatalog stock = Check();
-        AssertTrue(!MetadataShape.DeclaresField(typeof(CrocomireColorCatalog), "paint", BindingFlags.Instance | BindingFlags.NonPublic), "Stock palette storage has been removed");
-        var edits = stock.edits;
-        AssertTrue(!MetadataShape.Fields(typeof(CrocomirePaintDefinitions), BindingFlags.Static | BindingFlags.NonPublic).Any(field => field.FieldType.IsArray), "Material calculation does not cache an output palette");
-        AssertEqual(0, edits.Count, "All 73 stock inks calculate without overrides");
-        Console.WriteLine("Crocomire material paint: 73 native colors, zero stock palette/overrides, actual CGRAM, hash and bounds pass.");
+        _ = Check();
+        Console.WriteLine("Crocomire installed colours: 73 native colors, actual CGRAM, hash and bounds pass.");
 
         CrocomireColorCatalog Check()
         {
@@ -737,26 +728,15 @@ internal static class LookupStream5Verification
         PhantoonColorDocument document = RequiredJson.Deserialize<PhantoonColorDocument>(bytes,
             new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase });
         PhantoonColorCatalog stock = Check(document);
-        var edits = stock.selection.FadeOutEdits;
-        AssertEqual(0, edits.Count, "Stock fade stores no target table");
         for (int color = 0; color < PhantoonColorFormat.FadeOutCount; color++)
         {
             AssertEqual(ReadVerificationWord(rom, PhantoonSourceDefinitions.FadeOutColors + color * 2), stock.ResolveFadeOut(color), "Native black fade endpoint");
         }
-        var healthEdits = stock.selection.HealthEdits;
-        AssertEqual(0, healthEdits.Count, "All health colors calculate without stock overrides");
-        AssertTrue(!MetadataShape.DeclaresField(typeof(PhantoonColorCatalog), "requiredHealthChannels", BindingFlags.Instance | BindingFlags.NonPublic),
-            "No per-channel native residual samples remain");
-        AssertTrue(!MetadataShape.DeclaresField(typeof(PhantoonColorCatalog), "healthyPaint", BindingFlags.Instance | BindingFlags.NonPublic),
-            "No stock healthy palette remains stored");
         for (int band = 0; band < PhantoonColorDefinitions.HealthBandCount; band++)
         for (int color = 0; color < PhantoonColorFormat.HealthBandColorCount; color++)
         {
             AssertEqual(ReadVerificationWord(rom, PhantoonSourceDefinitions.HealthBandColors + (band * 16 + color) * 2), stock.ResolveHealth(band, color), "Native health RGB equality");
         }
-        var powerEdits = stock.selection.PowerEdits;
-        AssertTrue(!MetadataShape.DeclaresField(typeof(PhantoonColorCatalog), "requiredPowerColors", BindingFlags.Instance | BindingFlags.NonPublic), "Power targets retain no stock color dictionary");
-        AssertEqual(0, powerEdits.Count, "Native power targets have no unexplained overrides");
         for (int color = 0; color < PhantoonSourceDefinitions.PowerOnColourCount; color++)
         {
             AssertEqual(ReadVerificationWord(rom, PhantoonSourceDefinitions.PowerOnColors + color * 2), stock.ResolvePowerOnAtNative(color), "Native power shade equality");
@@ -770,7 +750,7 @@ internal static class LookupStream5Verification
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(0, 16), "Health color upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveFadeOut(-1), "Fade lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveFadeOut(16), "Fade upper bound");
-        Console.WriteLine("Phantoon colors: 16 native fade targets, 128 health colors, zero stored healthy palette/residual samples or stock overrides, 112 power colors, the hash and bounds pass.");
+        Console.WriteLine("Phantoon colors: 16 native fade targets, 128 health colors, 112 power colors, the hash and bounds pass.");
 
         static PhantoonColorCatalog Check(PhantoonColorDocument source)
         {
@@ -1000,8 +980,6 @@ internal static class LookupStream5Verification
         var native = RequiredJson.Deserialize<MagdollitePaletteCycleDocument>(json,
             new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         MagdollitePaletteCycle stock = Check(native);
-        var residuals = stock.edits;
-        AssertEqual(0, residuals.Count, "Native Magdollite pulse requires no stored frame residuals");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(-1, 0),
             "Magdollite pulse lower frame bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(4, 0),
@@ -1032,8 +1010,6 @@ internal static class LookupStream5Verification
         var native = RequiredJson.Deserialize<ZebetiteColorDocument>(json,
             new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         ZebetiteColorCatalog stock = Check(native);
-        var residuals = stock.edits;
-        AssertEqual(0, residuals.Count, "Native Zebetite pulse requires no stored frame residuals");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(-1, 0),
             "Zebetite pulse lower frame bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(8, 0),

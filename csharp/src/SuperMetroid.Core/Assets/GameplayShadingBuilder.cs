@@ -43,10 +43,10 @@ public sealed class GameplayShadingBuilder
     public GameplayShading Build(SpriteImage roomColours)
     {
         Ensure.NotNull(roomColours);
-        int backdrop = roomColours.Backdrop
+        ColourKey backdrop = roomColours.Backdrop
             ?? throw new InvalidDataException($"Room picture {roomColours.Name} names no backdrop colour for its scene.");
         var built = new GameplayShading(RgbColor.Black, shadings.ToImmutableDictionary(), fade);
-        return built.WithBackdrop(built.Of(GameplayPictures.Room).InkColours(roomColours)[backdrop]);
+        return built.WithBackdrop(built.Of(GameplayPictures.Room).Shown(roomColours, backdrop));
     }
 
     /// <summary>Checks that <paramref name="pictures"/> is a group of gameplay pictures.</summary>

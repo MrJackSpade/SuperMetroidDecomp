@@ -39,6 +39,13 @@ public sealed record SpriteSheetFrame
     /// </summary>
     public ActorDepth? Depth { get; init; }
 
+    /// <summary>
+    /// Whether every pixel of the frame blends with what lies behind it when drawn as a sprite (#1633): a property of the
+    /// picture the draw shows. A frame whose pixels blend in part reads its sheet's blend map (<see cref="SpriteImage.Blending"/>)
+    /// instead, and is false here.
+    /// </summary>
+    public bool Blends { get; init; }
+
     /// <summary>Whether the frame is empty: a frame of no parts, which draws nothing.</summary>
     public bool IsEmpty => Size.X == 0;
 }

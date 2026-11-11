@@ -78,7 +78,6 @@ internal static class EnemyAnimationIsolationFixtureVerification
             Actor.Bind(Actor.DefinitionId, RoomEnemyHeaders.Get(Actor.DefinitionId));
             Actor.Health = Actor.Definition.Health;
             Actor.Radius = new(Actor.Definition.Radius.X, Actor.Definition.Radius.Y);
-            Actor.Layer = Actor.Definition.Layer;
             Actor.Position = Actor.Position.WithWhole(new(128, (ushort)(FloorY - Actor.Radius.Y - 12)));
             Actor.Contact = EnemyContact.None;
             Actor.Processing = EnemyProcessing.AnimationScript | EnemyProcessing.OffScreen;
@@ -108,7 +107,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
         {
             var oam = new OamBuffer();
             oam.BeginFrame();
-            Enemies.Drawing.DrawLayersAsOam(oam, new(0, 0), 0, 7);
+            Enemies.Drawing.DrawAsOam(oam, new(0, 0));
             Enemies.DrawEnemyProjectiles(oam, Position16<RoomPixels>.Zero);
             return oam;
         }
@@ -117,8 +116,8 @@ internal static class EnemyAnimationIsolationFixtureVerification
         internal void DrawInto(SpriteFrameBuffer frame)
         {
             Enemies.Room.EnsureLoaded();
-            Enemies.Drawing.AdvanceLayers(new(0, 0), 0, 7);
-            Enemies.Drawing.DrawLayers(frame, new(0, 0), 0, 7);
+            Enemies.Drawing.Advance(new(0, 0));
+            Enemies.Drawing.Draw(frame, new(0, 0));
             Enemies.SpriteObjects.DrawRoomSpriteObjects(frame, Position16<RoomPixels>.Zero);
             Enemies.Projectiles.DrawEnemyProjectilesAt(frame, Position16<RoomPixels>.Zero, EnemyProjectileDepth.InFrontOfSamus, timeIsFrozen: false);
             Enemies.Projectiles.DrawEnemyProjectilesAt(frame, Position16<RoomPixels>.Zero, EnemyProjectileDepth.BehindSamus, timeIsFrozen: false);

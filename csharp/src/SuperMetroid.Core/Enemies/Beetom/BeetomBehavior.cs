@@ -491,7 +491,6 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 : BeetomEnemyFunction.StartDrainingLeft;
             state.AttachedToSamus = true;
             state.ButtonCounter = BeetomMashCount;
-            slot.Layer = EnemyDrawLayer.Of(2);
         }
 
         if (samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None)

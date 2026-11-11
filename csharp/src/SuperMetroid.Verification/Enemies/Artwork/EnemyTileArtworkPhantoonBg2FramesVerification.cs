@@ -206,7 +206,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
         // His fight attaches the body his body frames show on.
         BossBodyParts image = BossBodyCanvasFixtures.AttachBlank(enemies, InstalledFixtures.BossBodySheets, BossBodyOwner.Phantoon);
-        enemies.Drawing.Enqueue(EnemyDrawLayer.Of(0), enemies.SlotTable.Slots[0]);
+        enemies.Drawing.Enqueue(enemies.SlotTable.Slots[0]);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.PhantoonBody, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
@@ -215,7 +215,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
             slot.NewInstructionFrame = true;
         slot.SpritemapPointer = pointer;
         slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
-        enemies.Drawing.DrawLayersAsOam(new OamBuffer(), new(0, 0), 0, 0);
+        enemies.Drawing.DrawAsOam(new OamBuffer(), new(0, 0));
         return BossBodyCanvasFixtures.AsVram(image, BossBodyOwner.Phantoon, art.Bosses, PhantoonBg2FrameDefinitions.VramBase, vram.Bytes.Length);
     }
 }

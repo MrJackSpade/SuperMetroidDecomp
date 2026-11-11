@@ -525,7 +525,6 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 Check(owner + " PaletteRow", NativeSpriteGraphicsWords.PaletteBits(actor.PaletteRowIn(runtime.Enemies)), address + 30);
                 // The port's slots carry no tile index (#1513); the index the import composes the occupant's sheet at is compared.
                 Check(owner + " TileIndexBase", actor.NativeTileBaseIn(runtime.Enemies), address + 32);
-                Check(owner + " Layer", actor.Layer.Order, address + 34);
                 Check(owner + " FlashTimer", actor.FlashTimer, address + 36);
                 Check(owner + " FrozenTimer", actor.FrozenTimer, address + 38);
                 Check(owner + " InvincibilityTimer", actor.InvincibilityTimer, address + 40);

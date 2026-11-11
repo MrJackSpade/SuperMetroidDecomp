@@ -33,8 +33,8 @@ internal static class FirefleaEyeVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
-        runtime.Enemies.Drawing.AdvanceLayers(new(cameraX, cameraY), 0, 7);
-        runtime.Enemies.Drawing.DrawLayers(sprites, new(cameraX, cameraY), 0, 7);
+        runtime.Enemies.Drawing.Advance(new(cameraX, cameraY));
+        runtime.Enemies.Drawing.Draw(sprites, new(cameraX, cameraY));
         sprites.FinalizeFrame();
         AssertTrue(sprites.Draws.Length > 0, "retail rock eye emits sprites");
         // The eye shows its own picture's colours under the shading its draw publishes (#1512, #1544). The gameplay colour

@@ -69,13 +69,13 @@ internal sealed class GameplayActorDrawing
             room.Projectiles.DrawExplosions(_sprites, _room.Camera.PixelPosition, ProjectileArtwork);
         }
 
-        // Enemy projectiles in front of Samus follow bomb/projectile explosions and precede the
-        // layer loop reaching Samus at layer three. Room-specific actors may draw in front of Samus
+        // Enemy projectiles in front of Samus follow bomb/projectile explosions and precede Samus's
+        // draw. Room-specific actors may draw in front of Samus
         // here without teaching the reusable Landing Site runtime how to own enemies.
         if (!deathOwnsSamus && !_player.Samus.Xray.AreEnemyProjectilesSuspended)
         {
             // The Ceres elevator is drawn in front of Samus, as both its definitions are. Projectiles in front of
-            // Samus are drawn here, before enemy layers zero through two and Samus.
+            // Samus are drawn here, before Samus.
             _room.CeresElevatorArrival?.Draw(_sprites, room.Enemies.Presentation, _room.Camera.PixelPosition);
             if (room.Enemies.IsLoaded)
             {
@@ -83,15 +83,6 @@ internal sealed class GameplayActorDrawing
                     _sprites,
                     _room.Camera.PixelPosition, _freeze.TimeIsFrozen);
             }
-        }
-
-        // The global layer loop emits layers zero through two before its phase-three
-        // drawing of Samus and her projectiles. Landing Site's gunship definition selects
-        // layer two, so its hull correctly precedes (and can sit behind) Samus's sprites.
-        if (!deathOwnsSamus && room.Enemies.IsLoaded)
-        {
-            room.Enemies.Drawing.AdvanceLayers(_room.Camera.PixelPosition, 0, 2);
-            room.Enemies.Drawing.DrawLayers(_sprites, _room.Camera.PixelPosition, 0, 2);
         }
 
         if (paletteEffects == SamusPaletteEffects.Advance)
@@ -376,10 +367,9 @@ internal sealed class GameplayActorDrawing
 
         if (!deathOwnsSamus && room.Enemies.IsLoaded)
         {
-            // At phase three Samus/room.Projectiles are emitted before enemy layer three;
-            // ordinary enemy layers four and five follow without another insertion.
-            room.Enemies.Drawing.AdvanceLayers(_room.Camera.PixelPosition, 3, 5);
-            room.Enemies.Drawing.DrawLayers(_sprites, _room.Camera.PixelPosition, 3, 5);
+            // The enemies draw after Samus and her projectiles, each at its frame's depth.
+            room.Enemies.Drawing.Advance(_room.Camera.PixelPosition);
+            room.Enemies.Drawing.Draw(_sprites, _room.Camera.PixelPosition);
         }
 
         if (!deathOwnsSamus && room.Enemies.IsLoaded &&
@@ -388,12 +378,6 @@ internal sealed class GameplayActorDrawing
             room.Enemies.Projectiles.DrawEnemyProjectilesBehindSamus(
                 _sprites,
                 _room.Camera.PixelPosition, _freeze.TimeIsFrozen);
-        }
-
-        if (!deathOwnsSamus && room.Enemies.IsLoaded)
-        {
-            room.Enemies.Drawing.AdvanceLayers(_room.Camera.PixelPosition, 6, 7);
-            room.Enemies.Drawing.DrawLayers(_sprites, _room.Camera.PixelPosition, 6, 7);
         }
 
         if (!deathOwnsSamus && room.Enemies.IsLoaded && room.Enemies.DisplaySources.Draygon is { } draygon)

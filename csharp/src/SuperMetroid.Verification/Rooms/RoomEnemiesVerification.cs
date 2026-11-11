@@ -548,14 +548,14 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     var steadyOam = new OamBuffer();
     ripper.ShakeTimer = 0;
     steadyOam.BeginFrame();
-    enemies.Drawing.DrawLayersAsOam(steadyOam, new(0, 0), 0, 7);
+    enemies.Drawing.DrawAsOam(steadyOam, new(0, 0));
     steadyOam.FinalizeFrame();
     int steadyX = steadyOam.GetEntry(0).Position.X;
     var shakenOam = new OamBuffer();
     ripper.FrameCounter = 0;
     ripper.ShakeTimer = 2;
     shakenOam.BeginFrame();
-    enemies.Drawing.DrawLayersAsOam(shakenOam, new(0, 0), 0, 7);
+    enemies.Drawing.DrawAsOam(shakenOam, new(0, 0));
     shakenOam.FinalizeFrame();
     AssertEqual(steadyX + 1, shakenOam.GetEntry(0).Position.X,
         "enemy shake frame-counter bit one clear adds one X pixel");
@@ -564,7 +564,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     ripper.FrameCounter = 2;
     ripper.ShakeTimer = 2;
     shakenOam.BeginFrame();
-    enemies.Drawing.DrawLayersAsOam(shakenOam, new(0, 0), 0, 7);
+    enemies.Drawing.DrawAsOam(shakenOam, new(0, 0));
     shakenOam.FinalizeFrame();
     AssertEqual(steadyX - 1, shakenOam.GetEntry(0).Position.X,
         "enemy shake frame-counter bit one set subtracts one X pixel");

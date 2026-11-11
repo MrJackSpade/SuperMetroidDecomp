@@ -59,12 +59,12 @@ internal static class ActorPartDrawsVerification
         pirate.DrawsExtendedFrames = true;
         pirate.Frame = frame;
         pirate.Position = pirate.Position.WithWhole(new(120, 110));
-        enemies.Drawing.Enqueue(EnemyDrawLayer.Of(0), pirate);
+        enemies.Drawing.Enqueue(pirate);
 
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
-        enemies.Drawing.AdvanceLayers(Position16<RoomPixels>.Zero, 0, 7);
-        enemies.Drawing.DrawLayers(sprites, Position16<RoomPixels>.Zero, 0, 7);
+        enemies.Drawing.Advance(Position16<RoomPixels>.Zero);
+        enemies.Drawing.Draw(sprites, Position16<RoomPixels>.Zero);
         sprites.FinalizeFrame();
         AssertEqual(1, sprites.Draws.Length, $"the pirate showing {frame} publishes one draw");
         IReadOnlyList<string> violations = PublishedPartDraws.Violations(sprites.Draws);

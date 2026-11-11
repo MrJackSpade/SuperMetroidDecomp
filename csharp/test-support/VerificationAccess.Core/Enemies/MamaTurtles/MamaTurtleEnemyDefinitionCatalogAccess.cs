@@ -23,7 +23,6 @@ internal static class MamaTurtleEnemyDefinitionCatalogAccess
         Shot: EnemyReaction.NormalEnemyShot,
         TouchHitboxScan: EnemyHitboxScan.Scanned,
         ShotHitboxScan: EnemyHitboxScan.Scanned,
-        Layer: EnemyDrawLayer.Of(5),
         DropChances: new EnemyDropChances(80, 80, 80, 5, 5, 5),
         Vulnerability: EnemyVulnerabilityDefinitions.Invulnerable);
 
@@ -46,7 +45,6 @@ internal static class MamaTurtleEnemyDefinitionCatalogAccess
         Shot: EnemyReaction.BabyTurtleShot,
         TouchHitboxScan: EnemyHitboxScan.Scanned,
         ShotHitboxScan: EnemyHitboxScan.Scanned,
-        Layer: EnemyDrawLayer.Of(5),
         DropChances: new EnemyDropChances(80, 80, 80, 5, 5, 5),
         Vulnerability: EnemyVulnerabilityDefinitions.Invulnerable);
 

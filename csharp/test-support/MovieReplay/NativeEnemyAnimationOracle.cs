@@ -359,7 +359,7 @@ internal static class NativeEnemyAnimationOracle
         where TFrame : struct
         where TEvent : notnull
     {
-        (Func<ushort, int?> operandWords, Action<ushort, ushort[], TEvent, string> compareCue, Func<TEvent, bool>? endsList) = rules;
+        (Func<ushort, int?> operandWords, Action<ushort, ushort[], TEvent, string> compareCue, Func<TEvent, bool>? endsList, Func<ushort, bool>? omitted) = rules;
         IReadOnlyList<AnimationBeat<TFrame, TEvent>> beats = segments.Beats(segment);
         var addresses = new List<ushort>();
         var controls = new List<NativeEnemyControl<TSegment>>();
@@ -400,6 +400,11 @@ internal static class NativeEnemyAnimationOracle
                 {
                     VerificationAssertions.AssertTrue(operandWords(word) is not null, $"{at}: native instruction ${word:X4} is known");
                     int count = operandWords(word) ?? 0;
+                    if (omitted?.Invoke(word) == true)
+                    {
+                        cursor = unchecked((ushort)(cursor + 2 + 2 * count));
+                        continue;
+                    }
                     var raised = VerificationAssertions.AssertIs<AnimationBeat<TFrame, TEvent>.Event>(Beat(beat, at), $"{at}: instruction");
                     ushort[] operands = [.. Enumerable.Range(0, count).Select(item => cartridge.ReadCartridgeWord(address + 2 + 2 * item))];
                     compareCue(word, operands, raised.Raised, at);

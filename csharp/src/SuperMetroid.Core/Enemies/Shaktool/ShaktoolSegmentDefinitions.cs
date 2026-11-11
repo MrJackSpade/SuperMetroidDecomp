@@ -15,43 +15,43 @@ internal static class ShaktoolSegmentDefinitions
     /// <summary>The leading saw: the chain's fixed anchor, in its first slot.</summary>
     internal static readonly ShaktoolSegmentDefinition LeadingSaw =
         new(EnemyProcessing.OffScreen | EnemyProcessing.AnimationScript, EnemyContact.None, 0,
-            RotationAngle.FromRaw(0), ShaktoolProgram.SawHandPrimaryPiece, EnemyDrawLayer.Of(2),
+            RotationAngle.FromRaw(0), ShaktoolProgram.SawHandPrimaryPiece,
             ShaktoolFrameBehavior.Idle, 0);
 
     /// <summary>The arm segment after the leading saw.</summary>
     internal static readonly ShaktoolSegmentDefinition FirstArm =
         new(EnemyProcessing.OffScreen | EnemyProcessing.AnimationScript, EnemyContact.IgnoresSamus, 1,
-            RotationAngle.NormalizeRaw(-2048 * 1), ShaktoolProgram.ArmPieceNormal, EnemyDrawLayer.Of(4),
+            RotationAngle.NormalizeRaw(-2048 * 1), ShaktoolProgram.ArmPieceNormal,
             ShaktoolFrameBehavior.OrbitPreviousSegment, 32);
 
     /// <summary>The arm segment before the head.</summary>
     internal static readonly ShaktoolSegmentDefinition SecondArm =
         new(EnemyProcessing.OffScreen | EnemyProcessing.AnimationScript, EnemyContact.IgnoresSamus, 2,
-            RotationAngle.NormalizeRaw(-2048 * 3), ShaktoolProgram.ArmPieceNormal, EnemyDrawLayer.Of(4),
+            RotationAngle.NormalizeRaw(-2048 * 3), ShaktoolProgram.ArmPieceNormal,
             ShaktoolFrameBehavior.OrbitPreviousSegment, 96);
 
     /// <summary>The head at the chain's centre, which orients itself along the chain.</summary>
     internal static readonly ShaktoolSegmentDefinition Head =
         new(EnemyProcessing.OffScreen | EnemyProcessing.AnimationScript, EnemyContact.IgnoresSamus, 3,
-            RotationAngle.NormalizeRaw(-2048 * 6), ShaktoolProgram.HeadAimingDown, EnemyDrawLayer.Of(2),
+            RotationAngle.NormalizeRaw(-2048 * 6), ShaktoolProgram.HeadAimingDown,
             ShaktoolFrameBehavior.OrbitAndOrientCenter, 192);
 
     /// <summary>The arm segment after the head.</summary>
     internal static readonly ShaktoolSegmentDefinition ThirdArm =
         new(EnemyProcessing.OffScreen | EnemyProcessing.AnimationScript, EnemyContact.IgnoresSamus, 4,
-            RotationAngle.NormalizeRaw(-2048 * 10), ShaktoolProgram.ArmPieceNormal, EnemyDrawLayer.Of(4),
+            RotationAngle.NormalizeRaw(-2048 * 10), ShaktoolProgram.ArmPieceNormal,
             ShaktoolFrameBehavior.OrbitPreviousSegment, 320);
 
     /// <summary>The arm segment before the trailing saw.</summary>
     internal static readonly ShaktoolSegmentDefinition FourthArm =
         new(EnemyProcessing.OffScreen | EnemyProcessing.AnimationScript, EnemyContact.IgnoresSamus, 5,
-            RotationAngle.NormalizeRaw(-2048 * 13), ShaktoolProgram.ArmPieceNormal, EnemyDrawLayer.Of(4),
+            RotationAngle.NormalizeRaw(-2048 * 13), ShaktoolProgram.ArmPieceNormal,
             ShaktoolFrameBehavior.OrbitPreviousSegment, 416);
 
     /// <summary>The trailing saw, which drives the chain and reverses it at walls.</summary>
     internal static readonly ShaktoolSegmentDefinition TrailingSaw =
         new(EnemyProcessing.OffScreen | EnemyProcessing.AnimationScript, EnemyContact.None, 6,
-            RotationAngle.NormalizeRaw(-2048 * 15), ShaktoolProgram.SawHandPrimaryPiece, EnemyDrawLayer.Of(2),
+            RotationAngle.NormalizeRaw(-2048 * 15), ShaktoolProgram.SawHandPrimaryPiece,
             ShaktoolFrameBehavior.DriveTailAndReverseAtWalls, 480);
 
     /// <summary>The seven segments in chain order, leading saw first.</summary>

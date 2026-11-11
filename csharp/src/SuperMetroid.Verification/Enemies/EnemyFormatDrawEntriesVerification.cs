@@ -45,7 +45,7 @@ internal static class EnemyFormatDrawEntriesVerification
         ordinary.Bind(EnemyDefinitionId.Beetom, default(RoomEnemyDefinition));
         ordinary.Frame = ordinaryFrame;
         ordinary.Position = ordinary.Position.WithWhole(new(100, 80));
-        enemies.Drawing.Enqueue(EnemyDrawLayer.Of(0), enemies.SlotTable.Slots[0]);
+        enemies.Drawing.Enqueue(enemies.SlotTable.Slots[0]);
 
         // Extended enemy on layer one, showing a frame with several components.
         EnemyFrameId extendedFrame = EnemyDefinitionFrameDefinitions.Frames[EnemyDefinitionId.PirateGreenWalking]
@@ -56,7 +56,7 @@ internal static class EnemyFormatDrawEntriesVerification
         extended.Frame = extendedFrame;
         extended.FrameHold = WrappingCountdown.Start(7);
         extended.Position = extended.Position.WithWhole(new(120, 110));
-        enemies.Drawing.Enqueue(EnemyDrawLayer.Of(1), extended);
+        enemies.Drawing.Enqueue(extended);
 
         // Enemy projectile in front of Samus, drawn from the set's spawned-object sheet: one whose picture there shows something
         // (#1513), as a picture showing nothing draws nothing.
@@ -72,8 +72,8 @@ internal static class EnemyFormatDrawEntriesVerification
 
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
-        enemies.Drawing.AdvanceLayers(Position16<RoomPixels>.Zero, 0, 7);
-        enemies.Drawing.DrawLayers(sprites, Position16<RoomPixels>.Zero, 0, 7);
+        enemies.Drawing.Advance(Position16<RoomPixels>.Zero);
+        enemies.Drawing.Draw(sprites, Position16<RoomPixels>.Zero);
         enemies.Projectiles.DrawEnemyProjectilesAt(sprites, Position16<RoomPixels>.Zero, EnemyProjectileDepth.InFrontOfSamus, false);
         sprites.FinalizeFrame();
         SpriteDraw[] draws = [.. sprites.Draws];
@@ -98,8 +98,8 @@ internal static class EnemyFormatDrawEntriesVerification
         // An enemy drawn in another look shows its frame under that look's shading (#1512).
         ordinary.Shading = EnemyShades.FrozenLook;
         sprites.BeginFrame();
-        enemies.Drawing.AdvanceLayers(Position16<RoomPixels>.Zero, 0, 0);
-        enemies.Drawing.DrawLayers(sprites, Position16<RoomPixels>.Zero, 0, 0);
+        enemies.Drawing.Advance(Position16<RoomPixels>.Zero);
+        enemies.Drawing.Draw(sprites, Position16<RoomPixels>.Zero);
         sprites.FinalizeFrame();
         AssertImage(sprites.Draws[0], new SpriteSource(SpriteSourceKind.Enemy, 0), beetomSheet.Frame(EnemySheetDefinitions.FrameName(ordinaryFrame)),
             new(100, 80), EnemyShades.FrozenLook, "Ordinary enemy in another look");
@@ -108,12 +108,12 @@ internal static class EnemyFormatDrawEntriesVerification
         // The shake tick belongs to the advance: it is consumed identically whether or not the frame is drawn.
         ordinary.FrameCounter = 0;
         ordinary.ShakeTimer = 2;
-        enemies.Drawing.AdvanceLayers(Position16<RoomPixels>.Zero, 0, 7);
+        enemies.Drawing.Advance(Position16<RoomPixels>.Zero);
         int undisplayed = ordinary.ShakeTimer;
         ordinary.ShakeTimer = 2;
         sprites.BeginFrame();
-        enemies.Drawing.AdvanceLayers(Position16<RoomPixels>.Zero, 0, 7);
-        enemies.Drawing.DrawLayers(sprites, Position16<RoomPixels>.Zero, 0, 7);
+        enemies.Drawing.Advance(Position16<RoomPixels>.Zero);
+        enemies.Drawing.Draw(sprites, Position16<RoomPixels>.Zero);
         sprites.FinalizeFrame();
         AssertEqual(1, undisplayed, "An undrawn frame consumes one shake tick");
         AssertEqual(undisplayed, ordinary.ShakeTimer, "A drawn frame consumes the same shake tick");

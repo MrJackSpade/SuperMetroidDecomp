@@ -25,11 +25,11 @@ internal static class CompiledEnemyDisplayAudit
         }
     }
 
-    /// <summary>Requires the reviewed no-op branch in DrawLayers before treating compiled empty frames as renderer-owned resources.</summary>
+    /// <summary>Requires the reviewed no-op branch in Draw before treating compiled empty frames as renderer-owned resources.</summary>
     private static void SyntaxTreeGuard(string root, string path)
     {
         var tree = CSharpSyntaxTree.ParseText(File.ReadAllText(Path.Combine(root, path)));
-        if (!HasNoOpBranch(Method(tree, "AdvanceLayers"), Method(tree, "DrawLayers")))
+        if (!HasNoOpBranch(Method(tree, "Advance"), Method(tree, "Draw")))
             throw new InvalidDataException("The compiled empty-OAM renderer contract changed; review the resource audit adapter.");
     }
 

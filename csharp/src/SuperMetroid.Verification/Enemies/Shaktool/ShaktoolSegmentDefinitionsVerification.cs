@@ -19,7 +19,6 @@ internal static class ShaktoolSegmentDefinitionsVerification
         Suite(nameof(VerifyShaktoolPropertySelection), () => VerifyShaktoolPropertySelection(rom));
         Suite(nameof(VerifyShaktoolOwnerOffsetAlgorithm), () => VerifyShaktoolOwnerOffsetAlgorithm(rom));
         Suite(nameof(VerifyShaktoolInitialInstructionSelection), () => VerifyShaktoolInitialInstructionSelection(rom));
-        Suite(nameof(VerifyShaktoolLayerSelection), () => VerifyShaktoolLayerSelection(rom));
         Suite(nameof(VerifyShaktoolCallbackSelection), () => VerifyShaktoolCallbackSelection(rom));
         Suite(nameof(VerifyShaktoolInitialAngleAlgorithm), () => VerifyShaktoolInitialAngleAlgorithm(rom));
         var definitions = new ShaktoolSegmentDefinition[7];
@@ -60,8 +59,6 @@ internal static class ShaktoolSegmentDefinitionsVerification
                 $"Shaktool production orbit angle {index}");
             AssertEqual(new AnimationPlayback<ShaktoolProgram>(ShaktoolAnimations.StartingWith(definition.InitialProgram), AnimationPlace.StartOfAnimation), state.Playback,
                 $"Shaktool production initial list {index}");
-            AssertEqual(definition.Layer, slot.Layer,
-                $"Shaktool production layer {index}");
             AssertEqual((ushort)1, slot.FrameHold.RawValue,
                 $"Shaktool production instruction timer {index}");
         }
@@ -110,11 +107,6 @@ internal static class ShaktoolSegmentDefinitionsVerification
     private static void VerifyShaktoolInitialInstructionSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeInstructionAddress,
             definition => NativeEnemyAnimationOracle.EntryOf(ShaktoolNativeListAddresses.Entries, definition.InitialProgram), "initial instruction selection"));
-
-    /// <summary>Checks the rendering layer assigned to each segment at initialization.</summary>
-    private static void VerifyShaktoolLayerSelection(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeLayerAddress,
-            definition => definition.Layer.Order, "layer selection"));
 
     /// <summary>Checks that each segment's initial pre-instruction is the one its cartridge callback word stands for.</summary>
     private static void VerifyShaktoolCallbackSelection(SuperMetroidAddressSpace rom)

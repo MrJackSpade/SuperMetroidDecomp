@@ -85,7 +85,6 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The segment's definition names the animation it starts.
         state.Playback = new(ShaktoolAnimations.StartingWith(definition.InitialProgram), AnimationPlace.StartOfAnimation);
-        slot.Layer = definition.Layer;
 
         // The leading saw is the chain's fixed anchor. Every later segment's curious drawing-queue
         // read aliases the preceding enemy record's X/sub-X/Y/sub-Y words. Express

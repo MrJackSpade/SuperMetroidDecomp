@@ -7,6 +7,5 @@ internal readonly record struct ShaktoolSegmentDefinition(
     int OwnerSlotDistance,
     RotationAngle InitialOrbitAngle,
     ShaktoolProgram InitialProgram,
-    EnemyDrawLayer Layer,
     ShaktoolFrameBehavior FrameBehavior,
     int AngularVelocity);

@@ -89,10 +89,8 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         if (isArms)
         {
             // The second record is not a second creature. It is the arms, which always
-            // reads facing and position from the immediately prior
-            // body record. Retail gives it layer four so the two maps compose correctly.
+            // reads facing and position from the immediately prior body record.
             PositionEvirArms(slot, state, update: EvirArmsUpdate.Initialization);
-            slot.Layer = EnemyDrawLayer.Of(4);
         }
         else
         {

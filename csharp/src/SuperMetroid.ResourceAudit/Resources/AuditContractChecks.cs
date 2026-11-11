@@ -199,14 +199,14 @@ internal static class AuditContractChecks
         Require(!exports.Contains(ResourceDomains.EnemySimple, ResourceIndex.Address(0xa8, empty)),
             "a compiled renderer no-op must not imply an installed catalog entry");
         const string renderer = "class Fixture { " +
-            "void AdvanceLayers(EnemyFrameId[] frames) { foreach (EnemyFrameId frame in frames) " +
+            "void Advance(EnemyFrameId[] frames) { foreach (EnemyFrameId frame in frames) " +
             "prepared.Add(new PreparedEnemyDraw(frame, Pictured: !CommonEnemyEmptyFrames.DrawsNothing(frame))); } " +
-            "void DrawLayers() { foreach (PreparedEnemyDraw draw in prepared) { if (draw.Pictured) DrawArt(); } } }";
+            "void Draw() { foreach (PreparedEnemyDraw draw in prepared) { if (draw.Pictured) DrawArt(); } } }";
         bool Recognized(string text)
         {
             SyntaxTree tree = CSharpSyntaxTree.ParseText(text);
-            return CompiledEnemyDisplayAudit.HasNoOpBranch(CompiledEnemyDisplayAudit.Method(tree, "AdvanceLayers"),
-                CompiledEnemyDisplayAudit.Method(tree, "DrawLayers"));
+            return CompiledEnemyDisplayAudit.HasNoOpBranch(CompiledEnemyDisplayAudit.Method(tree, "Advance"),
+                CompiledEnemyDisplayAudit.Method(tree, "Draw"));
         }
         Require(Recognized(renderer), "the precise reviewed no-op branch must be recognized");
         Require(!Recognized(renderer.Replace("if (draw.Pictured) DrawArt();", "DrawArt();", StringComparison.Ordinal)) &&

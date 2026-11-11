@@ -111,9 +111,6 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         statue.SetSpeciesState(state);
         _statue = statue;
 
-        // The statue draws on the lowest layer, as every retail room shows it.
-        statue.Layer = EnemyDrawLayer.Of(0);
-
         if (state.IsWreckedShip)
         {
             state.Playback = new(ChozoStatueAnimations.StartingWith(ChozoStatueProgram.WreckedShipInitial), AnimationPlace.StartOfAnimation);

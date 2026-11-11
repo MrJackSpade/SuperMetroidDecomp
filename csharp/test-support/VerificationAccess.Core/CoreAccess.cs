@@ -177,13 +177,6 @@ internal static class CoreAccess
             SamusGrappleMovement.ConnectAcceptedFiringCore(samus, grapple, previousPosition, anchor, GrapplePoseChange.Immediate);
     }
 
-    /// <summary>Observes per-priority enemy draw queues before OAM construction.</summary>
-    extension(EnemyDrawList drawing)
-    {
-        /// <summary>The per-layer native draw queues the last enemy pass built, in layer order.</summary>
-        internal IReadOnlyList<List<RoomEnemySlot>> QueuesForVerification => drawing.DrawQueues;
-    }
-
     /// <summary>Rebinds enemy fixtures and inspects Kraid collision, statue requests, and pirate slot state.</summary>
     extension(RoomEnemySystem enemies)
     {

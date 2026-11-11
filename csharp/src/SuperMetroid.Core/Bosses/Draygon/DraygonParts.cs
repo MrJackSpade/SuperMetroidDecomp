@@ -98,7 +98,6 @@ internal sealed class DraygonParts
                 // Body init briefly writes a body function before this record exists. Retail part init
                 // clears that lost write and installs the ordinary idle loop.
                 part.Shading = state.Colours.Sprites;
-                part.Layer = EnemyDrawLayer.Of(2);
                 state.Arms = part;
                 state.StartAnimation(part, DraygonProgram.ArmsFacingLeftIdle);
                 return;

@@ -477,8 +477,8 @@ internal static class EnemySpritemapArtworkVerification
             bool stands = room.ImageEquals(nativeRoom) || SpriteFrameBufferAccess.DrawnStandsFor(sprites =>
                 {
                     RoomEnemySystem redrawn = drawnRoom ?? throw new InvalidOperationException("Verification requires the drawn room.");
-                    redrawn.Drawing.AdvanceLayers(new(0, 0), 0, 0);
-                    redrawn.Drawing.DrawLayers(sprites, new(0, 0), 0, 0);
+                    redrawn.Drawing.Advance(new(0, 0));
+                    redrawn.Drawing.Draw(sprites, new(0, 0));
                 }, nativeRoom);
             if (!stands)
                 differing.Add($"{frame.Name} (drawn by {owner}): native {OamRecords(nativeRoom)}, installed {OamRecords(room)}");
@@ -507,7 +507,7 @@ internal static class EnemySpritemapArtworkVerification
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses };
             // The enemy draws as a room drawing it loads it: at its tile base and in its palette there.
             enemies.DrawUnder(SpawnedObjectFixtures.SetDrawing(definition));
-            enemies.Drawing.Enqueue(EnemyDrawLayer.Of(0), enemies.SlotTable.Slots[0]);
+            enemies.Drawing.Enqueue(enemies.SlotTable.Slots[0]);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(definition, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
@@ -623,7 +623,7 @@ internal static class EnemySpritemapArtworkVerification
             slot.Timer = WrappingCountdown.Start(9);
             slot.Position = slot.Position.WithWhole(new(0x0040, 0x0080));
             var oam = new OamBuffer();
-            enemies.Drawing.DrawLayersAsOam(oam, new(0, 0), 0, 0);
+            enemies.Drawing.DrawAsOam(oam, new(0, 0));
             inspect?.Invoke(slot, enemies);
             return oam;
         }

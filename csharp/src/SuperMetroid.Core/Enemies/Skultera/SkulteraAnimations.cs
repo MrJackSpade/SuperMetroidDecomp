@@ -14,10 +14,7 @@ internal static class SkulteraAnimations
     internal static AnimationSegments<SkulteraProgram, SkulteraFrame, SkulteraCue> Segments { get; } = new(
         new Dictionary<SkulteraProgram, AnimationBeat<SkulteraFrame, SkulteraCue>[]>
     {
-        [P.SwimmingLeft] =
-        [
-            Cue(new(K.DrawBelowScenery)),
-        ],
+        [P.SwimmingLeft] = [],
         [P.SwimmingLeftLoop] =
         [
             Show(0, 14),
@@ -36,10 +33,7 @@ internal static class SkulteraAnimations
             Show(10, 13),
             Cue(new(K.FinishTurn)),
         ],
-        [P.SwimmingRight] =
-        [
-            Cue(new(K.DrawAboveScenery)),
-        ],
+        [P.SwimmingRight] = [],
         [P.SwimmingRightLoop] =
         [
             Show(11, 14),
@@ -63,10 +57,10 @@ internal static class SkulteraAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<SkulteraProgram, Animation<SkulteraProgram>> StartingAt { get; } = new Dictionary<SkulteraProgram, Animation<SkulteraProgram>>
     {
-        [P.SwimmingLeft] = new([new(P.SwimmingLeft, 0, 1, 1), new(P.SwimmingLeftLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.SwimmingLeft] = new([new(P.SwimmingLeftLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
         [P.SwimmingLeftLoop] = new([new(P.SwimmingLeftLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
         [P.TurningRight] = new([new(P.TurningRight, 0, 9, 1)], AnimationEnd.Holds),
-        [P.SwimmingRight] = new([new(P.SwimmingRight, 0, 1, 1), new(P.SwimmingRightLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.SwimmingRight] = new([new(P.SwimmingRightLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
         [P.SwimmingRightLoop] = new([new(P.SwimmingRightLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
         [P.TurningLeft] = new([new(P.TurningLeft, 0, 9, 1)], AnimationEnd.Holds),
     };

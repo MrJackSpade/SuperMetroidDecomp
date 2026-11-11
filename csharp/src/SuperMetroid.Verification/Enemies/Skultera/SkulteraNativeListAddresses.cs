@@ -24,11 +24,15 @@ internal static class SkulteraNativeListAddresses
         new NativeProgramEntry<SkulteraProgram>(SkulteraProgram.TurningLeft, 0x9072),
     ];
 
+    /// <summary>
+    /// The native routines that set the fish's sprite draw layer (#1602): their only effect was the order its sprites were
+    /// written in, which the port does not keep, so its animations have no event for them.
+    /// </summary>
+    internal static readonly HashSet<ushort> OmittedInstructions = [0x9096, 0x90a0];
+
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
     internal static readonly Dictionary<ushort, SkulteraNativeListAddressesInstruction> Instructions = new()
     {
-        [0x9096] = new SkulteraNativeListAddressesInstruction(SkulteraCueKind.DrawAboveScenery, ""),
-        [0x90a0] = new SkulteraNativeListAddressesInstruction(SkulteraCueKind.DrawBelowScenery, ""),
         [0x90aa] = new SkulteraNativeListAddressesInstruction(SkulteraCueKind.FinishTurn, ""),
     };
 }

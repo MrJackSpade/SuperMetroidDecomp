@@ -78,7 +78,6 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 slot.Bind(slot.DefinitionId, definition);
                 slot.Radius = new(definition.Radius.X, definition.Radius.Y);
                 slot.Health = definition.Health;
-                slot.Layer = definition.Layer;
                 slot.Position = slot.Position.WithWhole(new(population.Position.X, population.Position.Y));
                 slot.SetSpawnSettings(population.SpawnSettings);
                 slot.Contact = population.Contact;

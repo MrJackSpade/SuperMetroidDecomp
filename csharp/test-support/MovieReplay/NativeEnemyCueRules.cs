@@ -7,8 +7,13 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 /// Whether a cue always continues elsewhere, so the port ends its program there with an unreachable hold and the native
 /// list's following bytes, never executed, are not compared; null when no cue does.
 /// </param>
+/// <param name="Omitted">
+/// Whether a native instruction has no event in the typed animations because its only effect is presentation the port
+/// does not keep (#1602); the oracle reads past it without a beat. Null when the owner omits none.
+/// </param>
 internal sealed record NativeEnemyCueRules<TCue>(
     Func<ushort, int?> OperandWords,
     Action<ushort, ushort[], TCue, string> CompareCue,
-    Func<TCue, bool>? EndsList = null)
+    Func<TCue, bool>? EndsList = null,
+    Func<ushort, bool>? Omitted = null)
     where TCue : notnull;

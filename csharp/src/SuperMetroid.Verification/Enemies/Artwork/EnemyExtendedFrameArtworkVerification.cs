@@ -266,7 +266,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art?.Enemies, BossArtwork = art?.Bosses };
         // A boss frame names its body frame through the installed body sheets (#1466), as a room loading the boss binds them.
         enemies.BossArtworkBinding.BodySheets = BossBodySheetFixtures.Stock.Sheets;
-        enemies.Drawing.Enqueue(EnemyDrawLayer.Of(0), enemies.SlotTable.Slots[0]);
+        enemies.Drawing.Enqueue(enemies.SlotTable.Slots[0]);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         EnemyFrameId? frame = RoomEnemySlotFrameAccess.TryFrameAt(bank, pointer);
         slot.Bind(ExtendedFrameShower(frame), slot.Definition);
@@ -288,7 +288,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         slot.FrameHold = WrappingCountdown.Start(7);
         slot.Position = slot.Position.WithWhole(position);
         var oam = new OamBuffer();
-        enemies.Drawing.DrawLayersAsOam(oam, new(0, 0), 0, 0);
+        enemies.Drawing.DrawAsOam(oam, new(0, 0));
         inspect?.Invoke(slot, enemies);
         return oam;
     }

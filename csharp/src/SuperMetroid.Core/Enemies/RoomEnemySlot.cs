@@ -122,8 +122,6 @@ public sealed class RoomEnemySlot
         get;
         internal set => field = Ensure.NotNull(value);
     } = PictureShading.Standard;
-    /// <summary>The layer the enemy draws on, initially the definition's; enemies draw layer by layer.</summary>
-    public EnemyDrawLayer Layer { get; internal set; }
     /// <summary>The hurt flash's remaining updates; the flash alternates the enemy's colours and its end ends hurt dispatch.</summary>
     [IntegerQuantity("updates of hurt flash left; Phantoon restores his colours on the eighth")]
     public int FlashTimer { get; internal set; }
@@ -178,7 +176,6 @@ public sealed class RoomEnemySlot
         Frame = null;
         FrozenTimer = 0;
         FlashTimer = 0;
-        Layer = default;
         Shading = PictureShading.Standard;
         FrameCounter = 0;
         ShakeTimer = 0;

@@ -201,7 +201,7 @@ internal static class EnemyDefinitionsVerification
             EnemyInteractionCallbacks.DecodeShot(bank, Word(50)),
             EnemyInteractionCallbacks.HitboxScan(Word(48)),
             EnemyInteractionCallbacks.HitboxScan(Word(50)),
-            EnemyDrawLayer.Of(Byte(57)), EnemyHeaderTables.DropChances(cartridge, Word(58)), EnemyHeaderTables.Vulnerability(cartridge, Word(60)));
+            EnemyHeaderTables.DropChances(cartridge, Word(58)), EnemyHeaderTables.Vulnerability(cartridge, Word(60)));
     }
 
     /// <summary>Reads the bank-qualified words of a native enemy header that the decoded definition replaces.</summary>

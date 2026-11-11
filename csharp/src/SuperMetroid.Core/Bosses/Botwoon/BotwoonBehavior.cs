@@ -538,14 +538,12 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             BotwoonHeadProgram program;
             if (state.InsideHole)
             {
-                head.Layer = EnemyDrawLayer.Of(7);
                 // The head becomes intangible while it travels inside the wall.
                 head.Contact = head.Contact.With(EnemyContact.IgnoresSamus);
                 program = BotwoonHeadProgram.Hidden;
             }
             else
             {
-                head.Layer = EnemyDrawLayer.Of(2);
                 // Collision is restored once the head is outside.
                 head.Contact = head.Contact.Without(EnemyContact.IgnoresSamus);
                 program = BotwoonHeadProgram.MovingToward(EnemyMath.CalculateBearing(moved));
@@ -566,7 +564,6 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         BotwoonEnemyState state,
         SamusState samus)
     {
-        head.Layer = EnemyDrawLayer.Of(2);
         Bearing bearing = EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(samus.Position.X.Whole, head.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, head.Position.Y.Whole)));
         InstallBotwoonHeadProgram(head, state, BotwoonHeadProgram.SpittingToward(bearing));

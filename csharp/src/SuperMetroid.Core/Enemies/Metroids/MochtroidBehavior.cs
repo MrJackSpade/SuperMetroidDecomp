@@ -58,7 +58,6 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
             MovementMode = MochtroidMovementMode.NotTouchingSamus,
         };
         slot.SetSpeciesState(state);
-        slot.Layer = EnemyDrawLayer.Of(2);
         SetMochtroidProgram(
             slot, state, MochtroidProgram.FreeFlight);
     }

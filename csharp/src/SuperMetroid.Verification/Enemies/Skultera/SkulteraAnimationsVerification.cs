@@ -15,13 +15,14 @@ internal static class SkulteraAnimationsVerification
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             SkulteraAnimations.Segments, SkulteraAnimations.StartingAt, SkulteraFrameToolingDefinitions.Spritemap,
             new NativeEnemyCueRules<SkulteraCue>(
-                word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
+                word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : OmittedInstructions.Contains(word) ? 0 : null,
                 (word, operands, cue, at) =>
                 {
                     var instruction = Instructions[word];
                     AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
                     AssertEqual(0, operands.Length, $"{at}: operands");
-                }));
+                },
+                Omitted: OmittedInstructions.Contains));
         Console.WriteLine($"  Skultera animations: {Entries.Length} segments ({beats} beats) and {SkulteraAnimations.StartingAt.Count} animations match bank $A3.");
     }
 }

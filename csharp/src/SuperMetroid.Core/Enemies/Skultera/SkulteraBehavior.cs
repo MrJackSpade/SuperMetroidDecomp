@@ -25,19 +25,10 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of Skultera's animations.</summary>
-    private static void ApplySkulteraCue(RoomEnemySlot slot, SkulteraEnemyState state, SkulteraCue cue)
+    private static void ApplySkulteraCue(SkulteraEnemyState state, SkulteraCue cue)
     {
         switch (cue.Kind)
         {
-            case SkulteraCueKind.DrawAboveScenery:
-                // The right-facing swim promotes the fish above foreground scenery only after its first
-                // animation tick, exactly like the game.
-                slot.Layer = EnemyDrawLayer.Of(6);
-                break;
-            case SkulteraCueKind.DrawBelowScenery:
-                // The left-facing swim draws below the matching scenery layer.
-                slot.Layer = EnemyDrawLayer.Of(2);
-                break;
             case SkulteraCueKind.FinishTurn:
                 // Turns sleep immediately after publishing this flag. Main AI consumes it on the following frame
                 // and starts the steady swim.
@@ -196,7 +187,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
             static (SkulteraEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {
-                ApplySkulteraCue(slot, state, cue);
+                ApplySkulteraCue(state, cue);
                 return null;
             });
 }

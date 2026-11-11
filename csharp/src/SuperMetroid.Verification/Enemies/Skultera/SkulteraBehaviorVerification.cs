@@ -10,19 +10,19 @@ namespace SuperMetroid.Verification.Enemies.Skultera;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks Skultera's swims, the layer each sets, and its turns' timing and completion cue.</summary>
+/// <summary>Checks Skultera's swims and its turns' timing and completion cue.</summary>
 internal static class SkulteraBehaviorVerification
 {
     /// <summary>
-    /// The real initializer starts the swim its parameter faces; the left swim draws on layer two and the right on
-    /// layer six, each looping on time; each turn shows its eight mirrored poses and then flags the turn finished.
+    /// The real initializer starts the swim its parameter faces, each looping on time; each turn shows its eight mirrored
+    /// poses and then flags the turn finished.
     /// </summary>
     internal static void VerifySkulteraBehavior()
     {
-        foreach ((bool startsLeft, SkulteraProgram swim, SkulteraProgram loop, ushort layer, SkulteraProgram turn) in new[]
+        foreach ((bool startsLeft, SkulteraProgram swim, SkulteraProgram loop, SkulteraProgram turn) in new[]
                  {
-                     new VerifySkulteraBehaviorCase(true, SkulteraProgram.SwimmingLeft, SkulteraProgram.SwimmingLeftLoop, 2, SkulteraProgram.TurningRight),
-                     new VerifySkulteraBehaviorCase(false, SkulteraProgram.SwimmingRight, SkulteraProgram.SwimmingRightLoop, 6, SkulteraProgram.TurningLeft),
+                     new VerifySkulteraBehaviorCase(true, SkulteraProgram.SwimmingLeft, SkulteraProgram.SwimmingLeftLoop, SkulteraProgram.TurningRight),
+                     new VerifySkulteraBehaviorCase(false, SkulteraProgram.SwimmingRight, SkulteraProgram.SwimmingRightLoop, SkulteraProgram.TurningLeft),
                  })
         {
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
@@ -37,7 +37,6 @@ internal static class SkulteraBehaviorVerification
             AssertEqual(new AnimationPlayback<SkulteraProgram>(SkulteraAnimations.StartingWith(swim), AnimationPlace.StartOfAnimation), state.Playback, $"Skultera starts {swim}");
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(SkulteraAnimations.Segments, loop, SkulteraFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(SkulteraAnimations.Segments, loop)), $"Skultera {swim} loop");
-            AssertEqual(EnemyDrawLayer.Of(layer), slot.Layer, $"Skultera {swim} draws on layer {layer}");
 
             SkulteraBehavior.BeginSkulteraTurn(slot, state, startsLeft);
             AssertEqual(new AnimationPlayback<SkulteraProgram>(SkulteraAnimations.StartingWith(turn), AnimationPlace.StartOfAnimation), state.Playback, $"Skultera {swim} begins {turn}");

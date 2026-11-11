@@ -78,7 +78,7 @@ internal static class BossDisplayBindingsFixtureVerification
             Actor.Contact = EnemyContact.None;
             Actor.Processing = EnemyProcessing.AnimationScript;
             Actor.Presence = EnemyPresence.None;
-            Enemies.Drawing.Enqueue(EnemyDrawLayer.Of(0), Actor);
+            Enemies.Drawing.Enqueue(Actor);
             // The boss draws under the retail graphics set its room loads, whose sheets hold its frames.
             SpawnedObjectFixtures.LoadSetDrawing(Enemies, definition, Actor);
             // A boss that owns BG2 attaches its body layer as its initialisation does, before any of its frames draw on it.
@@ -119,15 +119,15 @@ internal static class BossDisplayBindingsFixtureVerification
         internal OamBuffer Draw()
         {
             var result = new OamBuffer(); result.BeginFrame();
-            Enemies.Drawing.DrawLayersAsOam(result, new(0, 0), 0, 0);
+            Enemies.Drawing.DrawAsOam(result, new(0, 0));
             return result;
         }
 
         /// <summary>Runs the production enemy drawing path once, publishing into <paramref name="frame"/>.</summary>
         internal void DrawInto(SpriteFrameBuffer frame)
         {
-            Enemies.Drawing.AdvanceLayers(new(0, 0), 0, 0);
-            Enemies.Drawing.DrawLayers(frame, new(0, 0), 0, 0);
+            Enemies.Drawing.Advance(new(0, 0));
+            Enemies.Drawing.Draw(frame, new(0, 0));
         }
 
 

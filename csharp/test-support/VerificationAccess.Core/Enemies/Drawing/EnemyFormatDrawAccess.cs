@@ -38,10 +38,10 @@ internal static class EnemyFormatDrawAccess
     extension(EnemyDrawList drawing)
     {
         /// <summary>Advances and draws an inclusive layer range, appending its OAM image to <paramref name="oam"/>.</summary>
-        internal void DrawLayersAsOam(OamBuffer oam, Position16<RoomPixels> camera, int firstLayer, int lastLayer)
+        internal void DrawAsOam(OamBuffer oam, Position16<RoomPixels> camera)
         {
-            drawing.AdvanceLayers(camera, firstLayer, lastLayer);
-            oam.AppendDrawn(frame => drawing.DrawLayers(frame, camera, firstLayer, lastLayer));
+            drawing.Advance(camera);
+            oam.AppendDrawn(frame => drawing.Draw(frame, camera));
         }
     }
 

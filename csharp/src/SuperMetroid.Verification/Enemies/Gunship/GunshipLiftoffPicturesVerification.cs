@@ -57,8 +57,8 @@ internal static class GunshipLiftoffPicturesVerification
             SpriteArtwork live = EnemySheetFixtures.LivePage(set, reached);
             var sprites = new SpriteFrameBuffer();
             sprites.BeginFrame();
-            runtime.Enemies.Drawing.AdvanceLayers(camera, 0, 7);
-            runtime.Enemies.Drawing.DrawLayers(sprites, camera, 0, 7);
+            runtime.Enemies.Drawing.Advance(camera);
+            runtime.Enemies.Drawing.Draw(sprites, camera);
             sprites.FinalizeFrame();
             foreach (RoomEnemySlot part in new[] { top, bottom })
             {

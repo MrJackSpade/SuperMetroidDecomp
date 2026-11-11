@@ -1038,7 +1038,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
             bool visible = slot.DrawsExtendedFrames ||
                 !EnemyProcessingWindow.EnemyWithNormalSpritesIsOffScreen(slot, frame.Camera);
             if (visible && !slot.Presence.HasAny(EnemyPresence.Hidden | EnemyPresence.Deleted))
-                Drawing.Enqueue(slot.Layer, slot);
+                Drawing.Enqueue(slot);
 
             // The enemy pass performs this after the enemy has been admitted to its draw queue.
             // Keeping it here also makes the boss's latched draw palettes describe the

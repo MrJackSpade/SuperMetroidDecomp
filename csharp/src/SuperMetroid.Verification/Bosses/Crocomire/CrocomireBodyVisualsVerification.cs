@@ -180,7 +180,7 @@ internal static class CrocomireBodyVisualsVerification
             enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
             // His fight binds the installed body sheets and attaches the body his body frames show on.
             BossBodyParts image = BossBodyCanvasFixtures.AttachBlank(enemies, InstalledFixtures.BossBodySheets, BossBodyOwner.Crocomire);
-            enemies.Drawing.Enqueue(EnemyDrawLayer.Of(0), enemies.SlotTable.Slots[0]);
+            enemies.Drawing.Enqueue(enemies.SlotTable.Slots[0]);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Crocomire, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
@@ -193,7 +193,7 @@ internal static class CrocomireBodyVisualsVerification
             slot.SpritemapPointer = pointer;
             slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
             var oam = new OamBuffer();
-            enemies.Drawing.DrawLayersAsOam(oam, new(0, 0), 0, 0);
+            enemies.Drawing.DrawAsOam(oam, new(0, 0));
             return new DrawNativeResult(oam, BossBodyCanvasFixtures.AsVram(image, BossBodyOwner.Crocomire, art.Bosses, EnemyBg2FrameLayoutConstants.VramBase, vram.Bytes.Length));
         }
     }

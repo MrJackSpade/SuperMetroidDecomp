@@ -268,7 +268,7 @@ public sealed class BabyMetroidCutsceneState
                 break;
 
             case BabyMetroidCutscenePhase.CurveTowardMotherBrainHead:
-                UpdateSpeedAndAngle(angleDelta: -384, targetAngle: RotationAngle.FromRaw(45056), targetSpeed: 2560);
+                UpdateSpeedAndAngle(angleDelta: -384, targetAngle: RotationAngle.FromSteps(176), targetSpeed: 2560);
                 if (--FunctionTimer < 0)
                 {
                     Phase = BabyMetroidCutscenePhase.GetRightUpInMotherBrainsFace;
@@ -277,7 +277,7 @@ public sealed class BabyMetroidCutsceneState
                 break;
 
             case BabyMetroidCutscenePhase.GetRightUpInMotherBrainsFace:
-                UpdateSpeedAndAngle(angleDelta: -1536, targetAngle: RotationAngle.FromRaw(33280), targetSpeed: 3584);
+                UpdateSpeedAndAngle(angleDelta: -1536, targetAngle: RotationAngle.FromSteps(130), targetSpeed: 3584);
                 brainCollision = CollidesWithRectangle(
                     head,
                     TargetRadius);

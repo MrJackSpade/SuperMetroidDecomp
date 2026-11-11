@@ -10,16 +10,16 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class MotherBrainNeckKinematics
 {
     /// <summary>Lowest angle the lower neck bobs down to before reversing upward.</summary>
-    private static readonly RotationAngle LowerBobFloor = RotationAngle.FromRaw(10240);
+    private static readonly RotationAngle LowerBobFloor = RotationAngle.FromSteps(40);
 
     /// <summary>Highest angle the lower neck reaches, both bobbing up and raising one way.</summary>
-    private static readonly RotationAngle LowerCeiling = RotationAngle.FromRaw(36864);
+    private static readonly RotationAngle LowerCeiling = RotationAngle.FromSteps(144);
 
     /// <summary>Angle at which a one-way lowering of the lower neck stops.</summary>
-    private static readonly RotationAngle LowerFloor = RotationAngle.FromRaw(12288);
+    private static readonly RotationAngle LowerFloor = RotationAngle.FromSteps(48);
 
     /// <summary>Lowest angle the upper neck reaches, both bobbing down and lowering one way.</summary>
-    private static readonly RotationAngle UpperFloor = RotationAngle.FromRaw(8192);
+    private static readonly RotationAngle UpperFloor = RotationAngle.FromSteps(32);
 
     /// <summary>How far the upper neck's raised limit leads the lower neck's angle, in 8.8 angle units.</summary>
     private const int UpperLeadOverLower = 2048;

@@ -69,7 +69,7 @@ internal sealed class CeresRidleyGetaway
         state.GetawayActive = true;
         state.GetawayFinished = false;
         state.GetawayFrameIndex = 0;
-        state.FloorAngle = RotationAngle.FromRaw(1);
+        state.FloorAngle = RotationAngle.FromSteps(0, 1);
         state.FloorOffset = new Offset16<FloorPixels>(-128, 32);
         state.FloorZoom = 2048;
         state.FloorCenter = new Position16<FloorPixels>(64, 64);

@@ -105,6 +105,9 @@ internal static class MapPictureSheets
             new ScreenCharacters(TileInkDepth.FourColours).Place(0, InstalledAreaMapPresentation.WorldCharactersOf(maps).BackgroundCharacters()),
             ImportAreaMapPresentation.PalettesOf(maps).World(area));
 
-    /// <summary>The frames a room-map sheet must hold.</summary>
-    internal static IEnumerable<string> RoomMapFrameNames(AreaMapPresentation maps) => RoomMapSubjects(maps).Select(subject => subject.Name);
+    /// <summary>The frames a room-map sheet must hold: each picture's two parts (#1634), its sixteen-colour pictures' parts.</summary>
+    internal static IEnumerable<string> RoomMapFrameNames(AreaMapPresentation maps) => ScreenPictureSheetComposer.PartNames(RoomMapSubjects(maps).Select(subject => subject.Name));
+
+    /// <summary>The frames an area's world-map foreground sheet must hold: its page's two parts, a sixteen-colour picture's (#1634).</summary>
+    internal static IEnumerable<string> WorldForegroundFrameNames => ScreenPictureSheetComposer.PartNames([AreaMapPictures.WorldForegroundFrame]);
 }

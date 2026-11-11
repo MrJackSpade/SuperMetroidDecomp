@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
 /// <summary>
 /// The Ceres cinematics' background pictures (#1467): each SPACE COLONY caption letter, the katakana caption and the Zebes
-/// planet, which the import composes once under the flight's palette. The scenes place the pictures their state shows on
-/// a plane, each at its cell.
+/// planet, which the import composes once under the flight's palette, each as its part drawn behind and its part drawn in
+/// front (#1634). The scenes place the pictures their state shows on a plane, each at its cell.
 /// </summary>
 public static class CeresCinematicPictures
 {
@@ -30,10 +30,10 @@ public static class CeresCinematicPictures
         SpriteSheet sheet = Ensure.NotNull(sheets).Get(SpriteSheetId.CeresCinematicPictures);
         var placed = ImmutableArray.CreateBuilder<PlacedPlanePicture>();
         for (int letter = 0; letter < letters; letter++)
-            placed.Add(new(sheet.Frame(CaptionLetter(letter)), new Offset16<PlanePixels>(SpaceColonyCaption.Left(letter), SpaceColonyCaptionDefinitions.Top),
+            placed.Add(new(PictureParts.Of(sheet, CaptionLetter(letter)), new Offset16<PlanePixels>(SpaceColonyCaption.Left(letter), SpaceColonyCaptionDefinitions.Top),
                 PictureShading.Standard));
         if (japanese)
-            placed.Add(new(sheet.Frame(JapaneseCaption), new Offset16<PlanePixels>(SpaceColonyCaptionDefinitions.JapaneseLeft, SpaceColonyCaptionDefinitions.JapaneseTop),
+            placed.Add(new(PictureParts.Of(sheet, JapaneseCaption), new Offset16<PlanePixels>(SpaceColonyCaptionDefinitions.JapaneseLeft, SpaceColonyCaptionDefinitions.JapaneseTop),
                 PictureShading.Standard));
         return new PicturedPlane(placed.ToImmutable());
     }
@@ -44,7 +44,7 @@ public static class CeresCinematicPictures
     /// </summary>
     internal static PicturedPlane Zebes(InstalledSpriteSheets sheets, bool revealed) => new(
         revealed
-            ? [new PlacedPlanePicture(Ensure.NotNull(sheets).Get(SpriteSheetId.CeresCinematicPictures).Frame(ZebesPlanet), default,
+            ? [new PlacedPlanePicture(PictureParts.Of(Ensure.NotNull(sheets).Get(SpriteSheetId.CeresCinematicPictures), ZebesPlanet), default,
                 PictureShading.Standard)]
             : []);
 }

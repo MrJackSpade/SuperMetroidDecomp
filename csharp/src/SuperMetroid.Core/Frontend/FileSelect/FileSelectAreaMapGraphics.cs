@@ -142,14 +142,17 @@ public sealed class FileSelectAreaMapGraphics
     /// <param name="glow">Where the background glows: over the whole screen, or only over the foreground.</param>
     internal LayeredScene CaptureBackgrounds(AreaMapBackgroundGlow glow)
     {
-        // The foreground and the area's background are their pictures in the area's world-map colours (#1467, #1512).
+        // The foreground and the area's background are their pictures in the area's world-map colours (#1467, #1512): the
+        // foreground as its part drawn behind and its part drawn in front (#1634), the background, which keeps a colour at
+        // every pixel, installed whole and drawn as its plane's part behind.
         InstalledSpriteSheets sheets = worldSheets ?? throw new InvalidOperationException("The world map's pictures are bound when the game is bound to its installed content.");
         AreaId area = AreaIds.At(SelectedArea);
         var foreground = new PicturedPlaneLayer(new PicturedPlane(
-            [new PlacedPlanePicture(sheets.Get(ScreenTileSheetDefinitions.AreaMapForegrounds[area]).Frame(AreaMapPictures.WorldForegroundFrame), Offset16<PlanePixels>.Zero, PictureShading.Standard)]),
+            [new PlacedPlanePicture(PictureParts.Of(sheets.Get(ScreenTileSheetDefinitions.AreaMapForegrounds[area]), AreaMapPictures.WorldForegroundFrame), Offset16<PlanePixels>.Zero, PictureShading.Standard)]),
             Offset16<PlanePixels>.Zero);
         var background = new PicturedPlane(
-            [new PlacedPlanePicture(sheets.Get(ScreenTileSheetDefinitions.AreaMapBackgrounds[area]).Frame(AreaMapPictures.WorldBackgroundFrame), Offset16<PlanePixels>.Zero, PictureShading.Standard)]);
+            [new PlacedPlanePicture(new LayeredPicture(sheets.Get(ScreenTileSheetDefinitions.AreaMapBackgrounds[area]).Frame(AreaMapPictures.WorldBackgroundFrame), InFront: null),
+                Offset16<PlanePixels>.Zero, PictureShading.Standard)]);
         return new(screen.Paint(), new DisplayLayer[] {
             foreground,
             new AddedPicturedPlaneLayer(background, GlowsOver(glow, foreground)) }, DisplayBrightness.Full);

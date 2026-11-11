@@ -96,11 +96,10 @@ public sealed class FileSelectRoomMapGraphics
         var layers = new List<DisplayLayer>();
         // The frame is the area's installed room-frame picture and the map a grid of its cells' pictures (#1467).
         SpriteSheet pictures = roomPictures ?? throw new InvalidOperationException("The room map's pictures are bound when the game is bound to its installed content.");
-        // A room frame the sheet holds as showing nothing is not placed (#1513).
+        // A room frame the sheet holds as showing nothing is not placed (#1513); one that shows something is its part drawn
+        // behind and its part drawn in front (#1634).
         string roomFrame = AreaMapPictures.RoomFrameName(icons.MapArea);
-        PlacedPlanePicture[] framePictures = pictures.ShowsNothing(roomFrame) ? []
-            : [new PlacedPlanePicture(pictures.Frame(roomFrame), Offset16<PlanePixels>.Zero, PictureShading.Standard)];
-        var frame = new PicturedPlane([.. framePictures]);
+        var frame = PicturedPlane.Showing([new PlacedPlanePicture(PictureParts.Of(pictures, roomFrame), Offset16<PlanePixels>.Zero, PictureShading.Standard)]);
         var frameScroll = new Offset16<PlanePixels>(0, FileSelectMapDefinitions.RoomFrameVerticalScroll);
         // The room map scrolls through its frame's opening, the frame's border around it (#1514): each picture is drawn
         // whole, and the per-tile priority tiers that once interleaved the two are a presentation quirk the port does not keep.

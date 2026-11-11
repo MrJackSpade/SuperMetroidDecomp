@@ -16,7 +16,8 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// Composes the ending's background picture sheets (#1467): the import executes the ending's character and map loads once
 /// and paints each picture the ending's scenes select, the credits roll's staff lines, the waiting backdrop, the logo, the
 /// result and copyright panels, the typed glyphs, the wavy Samus and the explosion's maps, each pre-coloured under the
-/// palette its scene loads and each pixel in the priority tier its map word gave it.
+/// palette its scene loads. Each sixteen-colour picture is installed as its two parts (#1634): the pixels its back tiles
+/// paint and those its front tiles paint; the wavy Samus keeps a colour at every pixel and is installed whole.
 /// </summary>
 internal static class EndingPictureSheetComposer
 {
@@ -38,14 +39,15 @@ internal static class EndingPictureSheetComposer
     /// <summary>Each ending picture sheet: how it is composed and the frames it holds.</summary>
     private static readonly IReadOnlyDictionary<SpriteSheetId, PictureSheet> PictureSheets = new Dictionary<SpriteSheetId, PictureSheet>
     {
-        [SpriteSheetId.EndingCreditsRows] = new(ComposeCredits, () => CreditsRollLines.Lines.Select(line => line.Picture), [EndingScenery.CreditsRows]),
-        [SpriteSheetId.EndingPostCreditsPictures] = new(ComposePostCredits, () =>
+        [SpriteSheetId.EndingCreditsRows] = new(ComposeCredits, () => ScreenPictureSheetComposer.PartNames(CreditsRollLines.Lines.Select(line => line.Picture)),
+            [EndingScenery.CreditsRows]),
+        [SpriteSheetId.EndingPostCreditsPictures] = new(ComposePostCredits, () => ScreenPictureSheetComposer.PartNames(
             [EndingPictureNames.WaitingBackdrop, EndingPictureNames.Logo, EndingPictureNames.ResultPanel, EndingPictureNames.CopyrightPanel,
-                EndingPictureNames.JapaneseSubtitle, .. Glyphs().Select(glyph => glyph.Name)],
+                EndingPictureNames.JapaneseSubtitle, .. Glyphs().Select(glyph => glyph.Name)]),
             [EndingScenery.WaitingBackdrop, EndingScenery.LogoPicture, EndingScenery.PostCreditsText]),
         [SpriteSheetId.EndingWavySamusPicture] = new(ComposeWavySamus, () => [EndingPictureNames.WavySamus], [EndingScenery.WavySamus]),
-        [SpriteSheetId.EndingExplosionPictures] = new(ComposeExplosion, () => Enum.GetValues<EndingObjectFragmentId>().Select(EndingPictureNames.ExplosionMap),
-            [EndingScenery.ExplosionPictures]),
+        [SpriteSheetId.EndingExplosionPictures] = new(ComposeExplosion, () => ScreenPictureSheetComposer.PartNames(
+            Enum.GetValues<EndingObjectFragmentId>().Select(EndingPictureNames.ExplosionMap)), [EndingScenery.ExplosionPictures]),
     };
 
     /// <summary>The ending's picture sheets.</summary>
@@ -131,7 +133,7 @@ internal static class EndingPictureSheetComposer
             }
             frames.Add(lines[index].Picture, WrittenPictureSheetComposer.Frame(canvas, sheetTop, rows.Length, WrittenPictureLayer.WrittenOverRoom));
         }
-        return canvas.ToSheet(colours, frames, SpriteImageColours.Background);
+        return canvas.ToSplitSheet(colours, frames, SpriteImageColours.Background);
     }
 
     /// <summary>The cartridge's credits rows <paramref name="line"/> covers on the roll, top first.</summary>
@@ -199,7 +201,7 @@ internal static class EndingPictureSheetComposer
                 new Extent16<ImagePixels>(CharacterPixels, checked((ushort)(glyph.Words.Length * CharacterPixels))), WrittenPictureLayer.WrittenOverRoom));
             left += CharacterPixels;
         }
-        return canvas.ToSheet(colours, frames, SpriteImageColours.Background);
+        return canvas.ToSplitSheet(colours, frames, SpriteImageColours.Background);
 
         // Paints the `rows`-row picture `name` from `words` over `characters` at the next free row of the sheet.
         void Paint(string name, ReadOnlySpan<BackgroundTile> words, int rows, Characters characters)
@@ -243,7 +245,7 @@ internal static class EndingPictureSheetComposer
             PaintMap(canvas, index * ScreenSize.Y, objects.Fragment(maps[index]).Tiles.Span, characters, colours);
             frames.Add(EndingPictureNames.ExplosionMap(maps[index]), WrittenPictureSheetComposer.Frame(canvas, index * ScreenCells, ScreenCells, WrittenPictureLayer.WrittenOverRoom));
         }
-        return canvas.ToSheet(colours, frames, SpriteImageColours.Background);
+        return canvas.ToSplitSheet(colours, frames, SpriteImageColours.Background);
     }
 
     /// <summary>Paints <paramref name="words"/>, rows of a screen's width, from pixel row <paramref name="top"/>.</summary>

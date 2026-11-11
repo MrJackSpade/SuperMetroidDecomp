@@ -153,7 +153,7 @@ public static class SpriteSheetFiles
         SpriteSheetId.PausePictures => PausePictureSheet.FrameNames(maps.Value),
         SpriteSheetId.AreaMapForegroundCrateria or SpriteSheetId.AreaMapForegroundBrinstar or
             SpriteSheetId.AreaMapForegroundNorfair or SpriteSheetId.AreaMapForegroundWreckedShip or
-            SpriteSheetId.AreaMapForegroundMaridia or SpriteSheetId.AreaMapForegroundTourian => [AreaMapPictures.WorldForegroundFrame],
+            SpriteSheetId.AreaMapForegroundMaridia or SpriteSheetId.AreaMapForegroundTourian => MapPictureSheets.WorldForegroundFrameNames,
         SpriteSheetId.AreaMapBackgroundCrateria or SpriteSheetId.AreaMapBackgroundBrinstar or
             SpriteSheetId.AreaMapBackgroundNorfair or SpriteSheetId.AreaMapBackgroundWreckedShip or
             SpriteSheetId.AreaMapBackgroundMaridia or SpriteSheetId.AreaMapBackgroundTourian => [AreaMapPictures.WorldBackgroundFrame],

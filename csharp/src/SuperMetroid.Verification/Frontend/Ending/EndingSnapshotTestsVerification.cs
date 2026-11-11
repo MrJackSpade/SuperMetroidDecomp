@@ -411,7 +411,10 @@ internal static class EndingSnapshotTestsVerification
         Console.WriteLine($"  Ending snapshots: {samples} sampled frames cover escape, credits and all three reward branches.");
     }
 
-    /// <summary>Whether <paramref name="plane"/> shows exactly the installed picture <paramref name="picture"/> of <paramref name="sheet"/> (#1467).</summary>
+    /// <summary>
+    /// Whether <paramref name="plane"/> shows exactly the installed picture <paramref name="picture"/> of <paramref name="sheet"/>
+    /// (#1467), both its parts (#1634).
+    /// </summary>
     private static bool ShowsOnly(EndingCreditsState ending, PicturedPlane plane, SpriteSheetId sheet, string picture) =>
-        plane.Pictures is [var only] && only.Picture == ending.InstalledArtwork.SpriteSheet(sheet).Frame(picture);
+        plane.Pictures is [var only] && only.Picture == PictureParts.Of(ending.InstalledArtwork.SpriteSheet(sheet), picture);
 }

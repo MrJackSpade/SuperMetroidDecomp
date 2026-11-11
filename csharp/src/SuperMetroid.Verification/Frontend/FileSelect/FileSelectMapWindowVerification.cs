@@ -141,8 +141,7 @@ internal static class FileSelectMapWindowVerification
             graphics.SelectArea(area);
             // The selected area's pictures show the colours the import pre-coloured its world-map sheet in (#1512).
             var areaId = SuperMetroid.Core.Progression.AreaIds.At(area);
-            SpriteImage foreground = MenuSheetFixtures.For(maps).Get(SuperMetroid.Core.Frontend.Artwork.ScreenTileSheetDefinitions.AreaMapForegrounds[areaId])
-                .Frame(SuperMetroid.Core.Frontend.Map.AreaMapPictures.WorldForegroundFrame).Sheet;
+            SpriteImage foreground = MenuSheetFixtures.For(maps).Get(SuperMetroid.Core.Frontend.Artwork.ScreenTileSheetDefinitions.AreaMapForegrounds[areaId]).Image;
             // The sheet's colours laid out by the palette index each was composed as (#1544).
             RgbColor[] standard = SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.ComposedColours(foreground);
             AssertEqual(activeColors[area], standard[indices[area]], $"area {area} active map color");

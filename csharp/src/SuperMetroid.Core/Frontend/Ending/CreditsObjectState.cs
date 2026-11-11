@@ -53,7 +53,7 @@ internal sealed class CreditsObjectState
         Ensure.NotNull(shading);
         var placed = ImmutableArray.CreateBuilder<PlacedPlanePicture>(CreditsRollLines.Lines.Length);
         foreach (CreditsRollLine line in CreditsRollLines.Lines)
-            placed.Add(new PlacedPlanePicture(lines.Frame(line.Picture), Offset16<PlanePixels>.Of(0, StartDistance + line.Top), shading));
-        return new PicturedPlane(placed.MoveToImmutable());
+            placed.Add(new PlacedPlanePicture(PictureParts.Of(lines, line.Picture), Offset16<PlanePixels>.Of(0, StartDistance + line.Top), shading));
+        return PicturedPlane.Showing(placed.MoveToImmutable());
     }
 }

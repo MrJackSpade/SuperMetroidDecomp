@@ -74,11 +74,11 @@ internal static class MenuScreenPublicationVerification
         SpriteSheet fileSelectPictures = MenuSheetFixtures.For(maps).Get(SpriteSheetId.MenuPictures);
         LayeredScene fileSelectScene = fileSelect.CaptureRenderSnapshot();
         AssertTrue(fileSelectScene.Layers.Length == 3 && fileSelectScene.Layers[0] is PicturedPlaneLayer { Plane.Pictures: [{ } fileBackdrop] } &&
-            fileBackdrop.Picture.Equals(fileSelectPictures.Frame(FileSelectParts.BackgroundFrame)) && fileSelectScene.Layers[2] is SpritesLayer,
+            fileBackdrop.Picture == PictureParts.Of(fileSelectPictures, FileSelectParts.BackgroundFrame) && fileSelectScene.Layers[2] is SpritesLayer,
             "file select shows its backdrop's picture under its page and sprites");
         AssertTrue(fileSelectScene.Layers[1] is PicturedPlaneLayer { Plane.Pictures: { } filePage } && filePage.Length > 1 &&
-            filePage[0].Picture.Equals(fileSelectPictures.Frame(FileSelectParts.PageFrame(FileSelectPage.MainWithData))) &&
-            filePage.Any(placed => placed.Picture.Equals(fileSelectPictures.Frame(FileSelectParts.PatchFrame(FileSelectPatch.Energy)))),
+            filePage[0].Picture == PictureParts.Of(fileSelectPictures, FileSelectParts.PageFrame(FileSelectPage.MainWithData)) &&
+            filePage.Any(placed => placed.Picture == PictureParts.Of(fileSelectPictures, FileSelectParts.PatchFrame(FileSelectPatch.Energy))),
             "file select shows the main page with the saved slot's ENERGY field");
         AssertEqual(maps.Backdrops.FileSelect, fileSelectScene.Paint.Backdrop, "file select shows its own backdrop");
         AssertTrue(fileSelectScene.Layers.ToArray().OfType<PicturedPlaneLayer>().All(layer => layer.Plane.Pictures.All(placed => placed.Shading == PictureShading.Standard)),
@@ -93,12 +93,12 @@ internal static class MenuScreenPublicationVerification
         SpriteSheet menuPictures = optionsSheets.Get(SpriteSheetId.MenuPictures);
         LayeredScene optionsScene = options.CaptureRenderSnapshot();
         AssertTrue(optionsScene.Layers.Length == 3 && optionsScene.Layers[0] is PicturedPlaneLayer { Plane.Pictures: [{ } backdrop] } &&
-            ReferenceEquals(backdrop.Picture, menuPictures.Frame(GameOptionsNames.BackgroundFrame)) && optionsScene.Layers[2] is SpritesLayer,
+            backdrop.Picture == PictureParts.Of(menuPictures, GameOptionsNames.BackgroundFrame) && optionsScene.Layers[2] is SpritesLayer,
             "options shows its backdrop's picture under its page and sprites");
         AssertTrue(optionsScene.Layers[1] is PicturedPlaneLayer { Plane.Pictures: { } page } && page.Length == 1 + GameOptionsDefinitions.LanguagePaletteRegionCount &&
-            ReferenceEquals(page[0].Picture, menuPictures.Frame(GameOptionsNames.PageFrame(GameOptionsScreen.Primary))) &&
+            page[0].Picture == PictureParts.Of(menuPictures, GameOptionsNames.PageFrame(GameOptionsScreen.Primary)) &&
             Enumerable.Range(0, GameOptionsDefinitions.LanguagePaletteRegionCount).All(region =>
-                ReferenceEquals(page[1 + region].Picture, menuPictures.Frame(GameOptionsNames.LanguageFrame(region, japanese: false)))),
+                page[1 + region].Picture == PictureParts.Of(menuPictures, GameOptionsNames.LanguageFrame(region, japanese: false))),
             "options shows the primary page with its language rows highlighting English");
         AssertEqual(maps.Backdrops.FileSelect, optionsScene.Paint.Backdrop, "options shows its own backdrop");
         AssertTrue(optionsScene.SpriteDraws.OfType<ImageSpriteDraw>().All(draw => draw.Shading == PictureShading.Standard),
@@ -112,7 +112,7 @@ internal static class MenuScreenPublicationVerification
         // Game over shows one picture of its whole page at the page's corner, under the sprites (#1467).
         LayeredScene gameOverScene = gameOver.CaptureRenderSnapshot();
         AssertTrue(gameOverScene.Layers.Length == 2 && gameOverScene.Layers[0] is PicturedPlaneLayer { Plane.Pictures: [{ } gameOverPage] } &&
-            ReferenceEquals(gameOverPage.Picture, gameOverSheets.Get(SpriteSheetId.MenuPictures).Frame(SuperMetroid.Core.Frontend.GameOver.Artwork.GameOverPresentationDefinitions.PageFrame)) &&
+            gameOverPage.Picture == PictureParts.Of(gameOverSheets.Get(SpriteSheetId.MenuPictures), SuperMetroid.Core.Frontend.GameOver.Artwork.GameOverPresentationDefinitions.PageFrame) &&
             gameOverPage.Corner == default && gameOverScene.Layers[1] is SpritesLayer, "game over shows its page's picture under its sprites");
         AssertEqual(maps.Backdrops.FileSelect, gameOverScene.Paint.Backdrop, "game over shows its own backdrop");
         AssertTrue(gameOverScene.SpriteDraws.OfType<ImageSpriteDraw>().Any(draw =>

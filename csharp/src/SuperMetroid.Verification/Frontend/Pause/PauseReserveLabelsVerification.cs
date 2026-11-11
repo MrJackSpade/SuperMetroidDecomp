@@ -67,11 +67,12 @@ internal static class PauseReserveLabelsVerification
                 $"reserve label characters match native ownership/mode ({capacity}/{mode})");
             var nativeColours = new SnesCgram();
             CartridgePaletteImporter.LoadToCgram(nativeColours, bus, MapSourceDefinitions.Artwork.PauseColors);
-            foreach (PlacedPlanePicture placed in snapshot.Layers.ToArray().OfType<PicturedPlaneLayer>().SelectMany(layer => layer.Plane.Pictures)
-                .Where(placed => placed.Shading == PictureShading.Standard))
-                AssertTrue(SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.ShowsNativeColours(placed.Picture.Sheet,
-                        PictureShading.Standard.InkColours(placed.Picture.Sheet), nativeColours.Colors),
-                    $"pause picture {placed.Picture.Sheet.Name} shows the cartridge's pause colours ({capacity}/{mode})");
+            // Each part of each picture (#1634) shows the cartridge's colours.
+            foreach (SpriteSheetFrame part in snapshot.Layers.ToArray().OfType<PicturedPlaneLayer>().SelectMany(layer => layer.Plane.Pictures)
+                .Where(placed => placed.Shading == PictureShading.Standard).SelectMany(placed => placed.Picture.Parts))
+                AssertTrue(SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.ShowsNativeColours(part.Sheet,
+                        PictureShading.Standard.InkColours(part.Sheet), nativeColours.Colors),
+                    $"pause picture {part.Sheet.Name} shows the cartridge's pause colours ({capacity}/{mode})");
             var expectedPixels = DisplayRendering.Render(snapshot.WithNativeColours(PauseShownColours.Of(pause)));
             var actualPixels = pause.Render();
 

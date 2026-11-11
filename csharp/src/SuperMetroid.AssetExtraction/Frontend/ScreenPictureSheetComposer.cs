@@ -9,9 +9,11 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 
 /// <summary>
 /// Pre-assembles and pre-colours a frontend screen's pictures (#1467): each subject's tiles painted once from the screen's
-/// characters under the screen's standard palette, in each tile's colour variant, mirroring and priority tier, packed onto
-/// shelves across one sheet. Each frame's origin is the page's corner, so the game places a page's pictures at the page's
-/// corner and each lands where the cartridge's page shows it.
+/// characters under the screen's standard palette, in each tile's colour variant and mirroring, packed onto shelves across
+/// one sheet. A sixteen-colour screen's picture is installed as its two parts (#1634, <see cref="PictureParts"/>): the
+/// pixels its back tiles paint under its own name and those its front tiles paint under its in-front part's; a four-colour
+/// screen keeps a colour at every pixel, so its pictures are installed whole. Each frame's origin is the page's corner, so
+/// the game places a page's pictures at the page's corner and each lands where the cartridge's page shows it.
 /// </summary>
 internal static class ScreenPictureSheetComposer
 {
@@ -21,19 +23,32 @@ internal static class ScreenPictureSheetComposer
     /// <summary>The tiles across the widest sheet the installation holds.</summary>
     private const int PackedTiles = RgbaPng.MaximumDimension / TilePixels;
 
-    /// <summary>Composes the sheet picturing <paramref name="subjects"/> over <paramref name="characters"/> under <paramref name="palette"/>.</summary>
+    /// <summary>
+    /// Composes the sheet picturing <paramref name="subjects"/> over <paramref name="characters"/> under
+    /// <paramref name="palette"/>: each picture as its two parts over sixteen-colour characters (#1634), whole over
+    /// four-colour ones.
+    /// </summary>
     /// <exception cref="InvalidDataException">Two subjects share a name, or the pictures need more than one sheet.</exception>
     internal static ComposedSpriteSheet Compose(IReadOnlyList<ScreenPictureSubject> subjects, ScreenCharacters characters, ReadOnlySpan<RgbColor> palette)
     {
         PaintedScreen painted = Paint(subjects, characters, palette);
-        return painted.Canvas.ToSheet(painted.Colours, painted.Frames, characters.Colours);
+        return characters.Depth == TileInkDepth.SixteenColours
+            ? painted.Canvas.ToSplitSheet(painted.Colours, painted.Frames, characters.Colours)
+            : painted.Canvas.ToSheet(painted.Colours, painted.Frames, characters.Colours);
     }
 
     /// <summary>
+    /// The frame names a sheet installing each of <paramref name="pictures"/> as its two parts holds (#1634): each picture's
+    /// own name, its behind part's, and its in-front part's, each held as a picture or as one that shows nothing.
+    /// </summary>
+    internal static IEnumerable<string> PartNames(IEnumerable<string> pictures) =>
+        Ensure.NotNull(pictures).SelectMany(name => (string[])[name, PictureParts.InFront(name)]);
+
+    /// <summary>
     /// Composes the sheet picturing <paramref name="subjects"/> as <see cref="Compose"/> does, except that a subject painting
-    /// no pixel over <paramref name="characters"/> shows nothing: the sheet holds it without a picture, and the screen draws
-    /// nothing for it (#1513). Whether a subject shows anything follows from the installed page data and characters, so
-    /// the import decides it here.
+    /// no pixel over <paramref name="characters"/> shows nothing: the sheet holds it, and over sixteen-colour characters both
+    /// its parts (#1634), without a picture, and the screen draws nothing for it (#1513). Whether a subject shows anything
+    /// follows from the installed page data and characters, so the import decides it here.
     /// </summary>
     /// <exception cref="InvalidDataException">Two subjects share a name, or the pictures need more than one sheet.</exception>
     internal static ComposedSpriteSheet ComposeHoldingBlanks(IReadOnlyList<ScreenPictureSubject> subjects, ScreenCharacters characters,
@@ -51,7 +66,10 @@ internal static class ScreenPictureSheetComposer
                 blank.Add(subject.Name);
         }
         ComposedSpriteSheet sheet = Compose(pictured, characters, palette);
-        return blank.Count == 0 ? sheet : sheet with { Manifest = sheet.Manifest with { Blank = [.. blank] } };
+        if (blank.Count == 0)
+            return sheet;
+        IEnumerable<string> held = characters.Depth == TileInkDepth.SixteenColours ? PartNames(blank) : blank;
+        return sheet with { Manifest = sheet.Manifest with { Blank = [.. sheet.Manifest.Blank ?? [], .. held] } };
     }
 
     /// <summary>Whether any cell of <paramref name="subject"/> paints a pixel other than colour zero over <paramref name="characters"/>.</summary>
@@ -152,8 +170,8 @@ internal static class ScreenPictureSheetComposer
 
     /// <summary>
     /// What <paramref name="subject"/> paints, spelled for telling pictures apart: its size and each cell's colour variant,
-    /// mirroring, tier and the pixels of the character it shows over <paramref name="characters"/>, wherever that character
-    /// lies; a cell painting nothing is spelled empty.
+    /// mirroring, tier, which decides the part of the picture it paints (#1634), and the pixels of the character it shows over
+    /// <paramref name="characters"/>, wherever that character lies; a cell painting nothing is spelled empty.
     /// </summary>
     private static string Content(ScreenPictureSubject subject, ScreenCharacters characters)
     {

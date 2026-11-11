@@ -252,7 +252,9 @@ public static class GameplayDisplayCapture
     private static TurningRoomScenery? Scenery(ImmutableArray<PerspectiveFloorScenery> scenery, Position16<RoomPixels> camera)
     {
         if (scenery.IsDefaultOrEmpty) return null;
-        ImmutableArray<PlacedPlanePicture> placed = [.. scenery.Select(picture => new PlacedPlanePicture(picture.Picture,
+        // Each scenery picture is installed whole, none of it in front of the actors (#1634): its plane draws it as its part
+        // behind.
+        ImmutableArray<PlacedPlanePicture> placed = [.. scenery.Select(picture => new PlacedPlanePicture(new LayeredPicture(picture.Picture, InFront: null),
             Offset16<PlanePixels>.Of(picture.Point.X - picture.Picture.Origin.X, picture.Point.Y - picture.Picture.Origin.Y),
             picture.Shading))];
         return new(new PicturedPlane(placed), camera.AsPlaneOffset());

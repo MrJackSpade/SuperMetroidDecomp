@@ -40,15 +40,17 @@ static const uint SourceForeground = 1, SourceBackground = 2, SourceSky = 3, Sou
 static const uint SourceBossBody = 6, SourceXrayReveal = 7, SourceLibraryBackground = 8;
 // The HUD's placed pictures (PicturedHud, #1466), at the HUD's place at the top of the screen.
 static const uint SourceHud = 10;
-// A pictured plane (PicturedPlane, #1467, #1555), its table's word in TilemapWord: the count of its pictures, then two
-// words each in drawing order, the picture's offset and its upper-left plane pixel, x below y, each a signed half. The
-// plane does not repeat.
+// A pictured plane (PicturedPlane, #1467, #1555), its table's word in TilemapWord: the count of its pictures, then three
+// words each in drawing order, the picture's two parts' offsets (behind, then in front, #1634; zero for a part that shows
+// nothing) and its upper-left plane pixel, x below y, each a signed half. The plane does not repeat.
 static const uint SourcePicturedPlane = 11;
+static const uint PlanePictureWords = 3, PlaneCornerWord = 2;
 // A frontend picture grid (PictureGridLayer, #1467), its table at room level word `TilemapWord`: its width and height in
-// cells, x below y, then a word per cell row by row, its one-cell picture's offset (zero for none) with its horizontal and
-// vertical mirroring in bits 30 and 31. The grid does not repeat (#1555).
+// cells, x below y, then two words per cell row by row, its one-cell picture's two parts' offsets (behind, then in front,
+// #1634; both zero for none), the first with the cell's horizontal and vertical mirroring in bits 30 and 31. The grid does
+// not repeat (#1555).
 static const uint SourcePictureGrid = 12;
-static const uint GridFlipX = 1073741824, GridFlipY = 2147483648, GridPictureMask = 1073741823;
+static const uint GridFlipX = 1073741824, GridFlipY = 2147483648, GridPictureMask = 1073741823, GridCellWords = 2;
 static const uint SourceWrittenOverBackground = 256;
 static const uint RoomRecordWords = 6, RoomDoorSlot = 2, RoomDoorWindowWord = 18, RoomOverlayWord = 19;
 static const uint RoomFxOverlayWord = 20, RoomWrittenOverBackgroundWord = 21, RoomFloorSheetsWord = 22, RoomBossBodyWord = 23, RoomXrayRevealWord = 24;
@@ -62,7 +64,8 @@ static const uint RoomSkyImageWord = 26;
 // The image of the message box the frame shows (#1392).
 static const uint RoomMessagePictureWord = 27;
 // The HUD's placed pictures (#1466): their count, then two words each in drawing order, the picture's offset and its
-// upper-left screen pixel, x below y.
+// upper-left screen pixel, x below y. The HUD's pictures keep a colour at every pixel and are installed whole (#1634): each
+// is the HUD's part behind, and the HUD has no part in front.
 static const uint RoomHudWord = 28;
 // The X-ray reveal (XrayRevealPlane, #1514): the foreground pixel its first block lies on, x below y, then 17 block columns
 // by 16 rows, each its picture's offset with its arrangement in the top four bits: as defined, mirrored horizontally,
@@ -139,14 +142,15 @@ bool FxOverlayPicture(uint2 scrolled, out uint2 within, out uint picture)
     within = uint2(source & 65535, source >> 16) + offset;
     return true;
 }
-// The HUD's picture at a screen position (#1466): the last placed picture covering it, as `picture`, with `within` its
-// pixel there; false where no picture covers it, which shows nothing.
-bool HudPicture(uint2 screen, out uint2 within, out uint picture)
+// Part `part` of the HUD's picture at a screen position (#1466, #1634): the last placed picture covering it, as `picture`,
+// with `within` its pixel there; false where no picture covers it, which shows nothing, and for the part in front, which the
+// HUD's whole pictures do not have.
+bool HudPicture(uint2 screen, uint part, out uint2 within, out uint picture)
 {
     picture = 0;
     within = uint2(0, 0);
     uint table = RoomLevels[RoomHudWord];
-    if (table == 0) return false;
+    if (table == 0 || part == PartInFront) return false;
     for (uint placed = RoomLevels[table]; placed > 0; placed--)
     {
         uint record = table + 1 + (placed - 1) * 2;
@@ -174,28 +178,31 @@ int2 PlanePosition(uint2 screen, uint2 scroll)
 {
     return int2(screen) + SignedHalves((scroll.x & 65535) | (scroll.y << 16));
 }
-// A pictured plane's picture at a plane position (#1467, #1555): the last placed picture covering it, as `picture`, with
-// `within` its pixel there; false where none does. The plane does not repeat.
-bool PlanePicture(uint table, int2 position, out uint2 within, out uint picture)
+// Part `part` of a pictured plane's picture at a plane position (#1467, #1555, #1634): of the last placed picture covering
+// it, its part as `picture`, with `within` its pixel there; false where none covers it, or where the covering picture has
+// no such part, which leaves the pictures beneath it covered. Both parts of a picture are one size. The plane does not
+// repeat.
+bool PlanePicture(uint table, int2 position, uint part, out uint2 within, out uint picture)
 {
     picture = 0;
     within = uint2(0, 0);
     for (uint placed = RoomLevels[table]; placed > 0; placed--)
     {
-        uint record = table + 1 + (placed - 1) * 2;
-        uint shown = RoomLevels[record];
-        int2 offset = position - SignedHalves(RoomLevels[record + 1]);
-        uint extent = RoomLevels[shown + PictureSizeWord];
+        uint record = table + 1 + (placed - 1) * PlanePictureWords;
+        uint behind = RoomLevels[record + PartBehind], inFront = RoomLevels[record + PartInFront];
+        int2 offset = position - SignedHalves(RoomLevels[record + PlaneCornerWord]);
+        uint extent = RoomLevels[(behind != 0 ? behind : inFront) + PictureSizeWord];
         if (offset.x < 0 || offset.y < 0 || offset.x >= int(extent & 65535) || offset.y >= int(extent >> 16)) continue;
-        picture = shown;
+        picture = part == PartInFront ? inFront : behind;
         within = uint2(offset);
-        return true;
+        return picture != 0;
     }
     return false;
 }
-// The cell picture of a picture grid (#1467, #1555) at a plane position, as `picture`, with `within` its pixel there,
-// mirrored as the cell mirrors it; false off the grid's cells, which do not repeat, and where the cell shows nothing.
-bool GridPicture(uint table, int2 scrolled, out uint2 within, out uint picture)
+// Part `part` of the cell picture of a picture grid (#1467, #1555, #1634) at a plane position, as `picture`, with
+// `within` its pixel there, mirrored as the cell mirrors it; false off the grid's cells, which do not repeat, and where the
+// cell shows nothing of that part.
+bool GridPicture(uint table, int2 scrolled, uint part, out uint2 within, out uint picture)
 {
     picture = 0;
     within = uint2(0, 0);
@@ -204,10 +211,11 @@ bool GridPicture(uint table, int2 scrolled, out uint2 within, out uint picture)
     if (scrolled.x < 0 || scrolled.y < 0 || scrolled.x >= cells.x * 8 || scrolled.y >= cells.y * 8) return false;
     uint2 position = uint2(scrolled);
     uint2 cell = position >> 3;
-    uint entry = RoomLevels[table + 1 + cell.y * uint(cells.x) + cell.x];
-    picture = entry & GridPictureMask;
-    within = uint2((entry & GridFlipX) != 0 ? 7 - (position.x & 7) : position.x & 7,
-        (entry & GridFlipY) != 0 ? 7 - (position.y & 7) : position.y & 7);
+    uint record = table + 1 + (cell.y * uint(cells.x) + cell.x) * GridCellWords;
+    uint mirroring = RoomLevels[record];
+    picture = RoomLevels[record + (part == PartInFront ? PartInFront : PartBehind)] & GridPictureMask;
+    within = uint2((mirroring & GridFlipX) != 0 ? 7 - (position.x & 7) : position.x & 7,
+        (mirroring & GridFlipY) != 0 ? 7 - (position.y & 7) : position.y & 7);
     return picture != 0;
 }
 // A picture written over a room's layer (RoomOverlayPictures, #1403, #1514) at a scrolled position of that layer, from the
@@ -349,35 +357,39 @@ static const uint BossBodyBehindSprites = 0, BossBodyInFrontOfSprites = 1;
 static const uint BossBodyPartWords = 4;
 // A boss body (ShownBossBody, #1466, #1514, #1540, #1609) at a scrolled position of its layer: its parts are placed on the
 // layer with nothing repeating beyond them, and layered in their table's order, each drawn over the parts before it. The
-// frontmost part whose picture inks the position gives its picture and `within`, its pixel there; where no part inks it,
-// the frontmost part reaching it gives its clear pixel, and a position no part reaches shows nothing. Each part is drawn
-// whole at its depth (#1634): its picture is `parts.x` for a part drawn behind the sprites and `parts.y` for one drawn in
-// front of them, the other zero, so a pass drawing one depth shows only the parts at it.
-// Each part is four words: its picture's offset, the body pixel the picture's top-left corner lies on, how much of the
-// picture shows across and down from that corner, each x below y, and its depth. Every background sampler reads the boss
-// through this, so a blending pass shows the same body as an ordinary one (#1426).
-void BossBodyPicture(uint2 scrolled, out uint2 within, out uint2 parts)
+// frontmost part whose picture inks the position shows there, its pixel `within`; where no part inks it, the frontmost part
+// reaching it gives its clear pixel, and a position no part reaches shows nothing. Each boss part is drawn whole at its
+// depth (#1634): its picture is the layer's behind part (`part` PartBehind) for a boss part drawn behind the sprites and
+// its in-front part (PartInFront) for one drawn in front of them, so `picture` is the shown boss part's picture when its
+// depth is the one `part` asks for, and zero otherwise.
+// Each boss part is four words: its picture's offset, the body pixel the picture's top-left corner lies on, how much of
+// the picture shows across and down from that corner, each x below y, and its depth. Every background sampler reads the
+// boss through this, so a blending pass shows the same body as an ordinary one (#1426).
+void BossBodyPicture(uint2 scrolled, uint part, out uint2 within, out uint picture)
 {
     uint table = RoomLevels[RoomBossBodyWord];
     uint2 position = scrolled & 65535;
-    parts = uint2(0, 0);
+    uint shownPicture = 0, shownDepth = BossBodyBehindSprites;
     within = uint2(0, 0);
-    for (uint part = RoomLevels[table]; part > 0; part--)
+    for (uint placed = RoomLevels[table]; placed > 0; placed--)
     {
-        uint record = table + 1 + (part - 1) * BossBodyPartWords;
+        uint record = table + 1 + (placed - 1) * BossBodyPartWords;
         uint corner = RoomLevels[record + 1], size = RoomLevels[record + 2];
         uint2 offset = position - uint2(corner & 65535, corner >> 16);
         if (offset.x >= (size & 65535) || offset.y >= (size >> 16)) continue;
         uint shown = RoomLevels[record];
         uint index;
         PicturePixel(shown, offset, index);
-        if ((parts.x == 0 && parts.y == 0) || index != 0)
+        if (shownPicture == 0 || index != 0)
         {
-            parts = RoomLevels[record + 3] == BossBodyInFrontOfSprites ? uint2(0, shown) : uint2(shown, 0);
+            shownPicture = shown;
+            shownDepth = RoomLevels[record + 3];
             within = offset;
         }
-        if (index != 0) return;
+        if (index != 0) break;
     }
+    uint askedDepth = part == PartInFront ? BossBodyInFrontOfSprites : BossBodyBehindSprites;
+    picture = shownDepth == askedDepth ? shownPicture : 0;
 }
 
 /// A pass's described line scrolls (#1468, D3D11LineScrolls): LineScrolls' first four rows are slots, each one axis of

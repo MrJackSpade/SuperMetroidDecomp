@@ -102,6 +102,6 @@ internal static class PausePictureSheet
         return sheet with { Manifest = sheet.Manifest with { Shades = SheetShade.Documents([.. arrow.Shades()]) } };
     }
 
-    /// <summary>The frames the sheet must hold.</summary>
-    internal static IEnumerable<string> FrameNames(AreaMapPresentation maps) => Subjects(maps).Select(subject => subject.Name);
+    /// <summary>The frames the sheet must hold: each picture's two parts (#1634), its sixteen-colour pictures' parts.</summary>
+    internal static IEnumerable<string> FrameNames(AreaMapPresentation maps) => ScreenPictureSheetComposer.PartNames(Subjects(maps).Select(subject => subject.Name));
 }

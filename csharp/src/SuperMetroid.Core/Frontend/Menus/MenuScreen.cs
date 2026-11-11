@@ -34,7 +34,8 @@ internal sealed class MenuScreen
     /// <summary>
     /// A page showing the menus' pictures named <paramref name="frames"/>, each placed at the page's corner in drawing order,
     /// a later one over an earlier one (#1467): each lands where the game's page shows it, and the page shows nothing
-    /// beyond its pictures (#1555).
+    /// beyond its pictures (#1555). Each is its part drawn behind and its part drawn in front (#1634); one both of whose
+    /// parts show nothing is not placed (#1513).
     /// </summary>
     /// <exception cref="InvalidDataException">The installed menu pictures hold no such frame.</exception>
     internal PicturedPlane PagePictures(params ReadOnlySpan<string> frames)
@@ -42,26 +43,33 @@ internal sealed class MenuScreen
         SpriteSheet pictures = Sheets.Get(SpriteSheetId.MenuPictures);
         var placed = ImmutableArray.CreateBuilder<PlacedPlanePicture>(frames.Length);
         foreach (string frame in frames)
-            placed.Add(Place(pictures.Frame(frame), default));
-        return new PicturedPlane(placed.MoveToImmutable());
+        {
+            if (PictureParts.Of(pictures, frame) is { Size: not null } picture)
+                placed.Add(Place(picture, default));
+        }
+        return new PicturedPlane(placed.ToImmutable());
     }
 
     /// <summary>
     /// A page showing the menus' pictures named in <paramref name="pictures"/>, each with its origin on its page pixel, in
-    /// drawing order (#1467): a field's picture lands where the game shows that field.
+    /// drawing order (#1467): a field's picture lands where the game shows that field. Each is its part drawn behind and its
+    /// part drawn in front (#1634); one both of whose parts show nothing is not placed (#1513).
     /// </summary>
     /// <exception cref="InvalidDataException">The installed menu pictures hold no such frame.</exception>
     internal PicturedPlane PlacedPictures(IEnumerable<PlacedFrame> pictures)
     {
         SpriteSheet sheet = Sheets.Get(SpriteSheetId.MenuPictures);
-        return new PicturedPlane([.. Ensure.NotNull(pictures).Select(placed => Place(sheet.Frame(placed.Frame), placed.Origin))]);
+        return new PicturedPlane([.. Ensure.NotNull(pictures)
+            .Select(placed => (placed.Origin, Picture: PictureParts.Of(sheet, placed.Frame)))
+            .Where(shown => shown.Picture.Size is not null)
+            .Select(shown => Place(shown.Picture, shown.Origin))]);
     }
 
     /// <summary>
     /// <paramref name="picture"/> with its origin on page pixel <paramref name="origin"/>, in the standard colours the import
     /// pre-coloured it in under the menu's colours (#1512).
     /// </summary>
-    private static PlacedPlanePicture Place(SpriteSheetFrame picture, Position16<PlanePixels> origin) =>
+    private static PlacedPlanePicture Place(LayeredPicture picture, Position16<PlanePixels> origin) =>
         PlacedPlanePicture.WithOriginAt(picture, origin, PictureShading.Standard);
 
     /// <summary>The solid colour the screen shows where nothing is drawn (#1512): file select's, or the world map's selected area's.</summary>

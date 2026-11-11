@@ -27,7 +27,7 @@ public static class ZebetiteColorFile
         WriteIndented = true,
     };
 
-    /// <summary>Loads all eight two-color pulse rows, rejecting duplicate or unknown properties, unsupported versions, incorrect dimensions, and RGB5 channels outside 0..31; preserves each supplied color edit independently of the stock symmetric pulse.</summary>
+    /// <summary>Loads all eight two-color pulse rows, rejecting duplicate or unknown properties, unsupported versions, incorrect dimensions, and RGB5 channels outside 0..31; keeps every colour as installed.</summary>
     /// <param name="json">UTF-8 JSON stream containing the versioned Zebetite color document.</param>
     /// <returns>The validated immutable barrier-color catalog.</returns>
     public static ZebetiteColorCatalog Read(Stream json)
@@ -63,18 +63,7 @@ public static class ZebetiteColorFile
                 frames[frame][color] = rgb.ToRgbColor();
             }
         }
-        return new(Edits(frames));
-    }
-
-    /// <summary>Keeps the selected pulse colours that differ from the calculated pulse.</summary>
-    private static Dictionary<PaintColour, RgbColor> Edits(RgbColor[][] frames)
-    {
-        var edits = new Dictionary<PaintColour, RgbColor>();
-        for (int frame = 0; frame < frames.Length; frame++)
-            for (int color = 0; color < frames[frame].Length; color++)
-                if (frames[frame][color] != ZebetitePulsePaint.Color(frame, color))
-                    edits.Add(new PaintColour(frame, color), frames[frame][color]);
-        return edits;
+        return new(frames);
     }
 
     /// <summary>Serializes a Zebetite color document as indented camel-case UTF-8 JSON.</summary>

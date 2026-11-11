@@ -63,7 +63,7 @@ public static class EnemyAuxiliaryColorFiles
         if (document.Version != EnemyAuxiliaryColorFormat.Version || document.Palettes is null ||
             document.Palettes.Count != EnemyAuxiliaryColorDefinitions.All.Length)
             throw new InvalidDataException("Enemy auxiliary colors require version one and all four named palettes.");
-        var result = new Dictionary<EnemyAuxiliaryPalette, RgbColor[][]>();
+        var result = new Dictionary<EnemyAuxiliaryPalette, InstalledColourRows>();
         foreach (EnemyAuxiliaryPaletteDefinition definition in EnemyAuxiliaryColorDefinitions.All)
         {
             if (!document.Palettes.TryGetValue(definition.Id, out PaletteRgb5[][]? rows) ||
@@ -84,9 +84,9 @@ public static class EnemyAuxiliaryColorFiles
                     compiled[frame][color] = rgb.ToRgbColor();
                 }
             }
-            result.Add(definition.Id, compiled);
+            result.Add(definition.Id, new InstalledColourRows(compiled, definition.FrameCount, definition.ColorCount, $"Palette {definition.Id}"));
         }
-        return new EnemyAuxiliaryColorCatalog(EnemyAuxiliaryColorFrameRecognition.Recognize(result));
+        return new EnemyAuxiliaryColorCatalog(result);
     }
 
     /// <summary>Serializes the auxiliary-color document as indented camel-case UTF-8 JSON with named palette identities.</summary>

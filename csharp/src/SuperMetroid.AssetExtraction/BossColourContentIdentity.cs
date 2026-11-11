@@ -107,8 +107,16 @@ internal static class BossColourContentIdentity
         public string ContentIdentity =>
             SelectedPresentationHash.Create("BabyMetroidCutsceneColorCatalog-v1", content =>
             {
-                colors.selection.Initial.AppendIdentity(content);
-                colors.selection.Fade.AppendIdentity(content);
+                Span<RgbColor> initial = stackalloc RgbColor[BabyMetroidCutsceneColorFormat.InitialColorCount];
+                for (int color = 0; color < initial.Length; color++) initial[color] = colors.InitialColor(color);
+                content.AppendColors("initial", initial);
+                content.Append("fade", BabyMetroidCutsceneColorDefinitions.FadeFrameCount);
+                Span<RgbColor> frameColors = stackalloc RgbColor[BabyMetroidCutsceneColorFormat.FadeColorCount];
+                for (int frame = 0; frame < BabyMetroidCutsceneColorDefinitions.FadeFrameCount; frame++)
+                {
+                    for (int color = 0; color < frameColors.Length; color++) frameColors[color] = colors.FadeColor(frame + 1, color);
+                    content.AppendColors("row", frameColors);
+                }
             });
     }
 
@@ -119,9 +127,9 @@ internal static class BossColourContentIdentity
         public string ContentIdentity =>
             SelectedPresentationHash.Create("MotherBrainDeathColorCatalog-v2", content =>
             {
-                colors.selection.BodyFade.AppendIdentity(content, "bodyFade");
-                colors.selection.LegFade.AppendIdentity(content, "legFade");
-                colors.selection.CorpseFade.AppendIdentity(content, "corpseFade");
+                AppendFade(content, "bodyFade", MotherBrainDeathColorFile.BodyFadeFrameCount, MotherBrainDeathColorFormat.BodyColorCount, colors.BodyColor);
+                AppendFade(content, "legFade", MotherBrainDeathColorFile.BodyFadeFrameCount, MotherBrainDeathColorFormat.BodyColorCount, colors.LegColor);
+                AppendFade(content, "corpseFade", MotherBrainDeathColorFile.CorpseFadeFrameCount, MotherBrainDeathColorFormat.CorpseColorCount, colors.CorpseColor);
             });
     }
 
@@ -133,13 +141,13 @@ internal static class BossColourContentIdentity
             SelectedPresentationHash.Create("ShitroidColorCatalog-v1", content =>
             {
                 Span<RgbColor> selectedSidehopper = stackalloc RgbColor[ShitroidColorDefinitions.TargetColorCount];
-                for (int color = 0; color < selectedSidehopper.Length; color++) selectedSidehopper[color] = colors.selection.Sidehopper.Resolve(color);
+                for (int color = 0; color < selectedSidehopper.Length; color++) selectedSidehopper[color] = colors.TargetColor(ShitroidColorTarget.Sidehopper, color);
                 content.AppendColors("sidehopper", selectedSidehopper);
                 Span<RgbColor> selectedShitroid = stackalloc RgbColor[ShitroidColorDefinitions.TargetColorCount];
                 for (int color = 0; color < selectedShitroid.Length; color++) selectedShitroid[color] = colors.TargetColor(ShitroidColorTarget.Shitroid, color);
                 content.AppendColors("shitroid", selectedShitroid);
                 Span<RgbColor> selectedCorpse = stackalloc RgbColor[ShitroidColorDefinitions.TargetColorCount];
-                for (int color = 0; color < selectedCorpse.Length; color++) selectedCorpse[color] = colors.selection.DeadSidehopper.Resolve(color);
+                for (int color = 0; color < selectedCorpse.Length; color++) selectedCorpse[color] = colors.TargetColor(ShitroidColorTarget.DeadSidehopper, color);
                 content.AppendColors("deadSidehopper", selectedCorpse);
                 content.Append("normal", ShitroidColorDefinitions.NormalFrameCount);
                 for (int frame = 0; frame < ShitroidColorDefinitions.NormalFrameCount; frame++)
@@ -229,54 +237,22 @@ internal static class BossColourContentIdentity
                 Span<RgbColor> frameColors = stackalloc RgbColor[ZebetiteColorFormat.ColorsPerFrame];
                 for (int frame = 0; frame < ZebetiteColorFormat.FrameCount; frame++)
                 {
-                    for (int color = 0; color < frameColors.Length; color++) frameColors[color] = ZebetitePulse.Resolve(colors.edits, frame, color);
+                    for (int color = 0; color < frameColors.Length; color++) frameColors[color] = colors.Resolve(frame, color);
                     content.AppendColors("row", frameColors);
                 }
             });
     }
 
-    /// <summary>The cutscene Baby fade's frames in a content identity.</summary>
-    extension(BabyMetroidFade fade)
+    /// <summary>Appends one Mother Brain death fade's installed frames to a content identity, labelled <paramref name="label"/>.</summary>
+    private static void AppendFade(SelectedPresentationHash content, string label, int frameCount, int colorCount, Func<int, int, RgbColor> colour)
     {
-        /// <summary>Hashes the six resolved frames so and equivalent supplied artwork share an identity.</summary>
-        internal void AppendIdentity(SelectedPresentationHash content)
+        content.Append(label, frameCount);
+        Span<RgbColor> frameColors = stackalloc RgbColor[colorCount];
+        for (int frame = 0; frame < frameCount; frame++)
         {
-            content.Append("fade", BabyMetroidCutsceneColorDefinitions.FadeFrameCount);
-            Span<RgbColor> frameColors = stackalloc RgbColor[BabyMetroidCutsceneColorFormat.FadeColorCount];
-            for (int frame = 0; frame < BabyMetroidCutsceneColorDefinitions.FadeFrameCount; frame++)
-            {
-                for (int color = 0; color < frameColors.Length; color++) frameColors[color] = fade.Resolve(frame, color);
-                content.AppendColors("row", frameColors);
-            }
-        }
-    }
-
-    /// <summary>The cutscene Baby's initial colours in a content identity.</summary>
-    extension(BabyMetroidInitialPalette palette)
-    {
-        /// <summary>Hashes all resolved initial colors so supplied edits affect presentation identity.</summary>
-        internal void AppendIdentity(SelectedPresentationHash content)
-        {
-            Span<RgbColor> colors = stackalloc RgbColor[BabyMetroidCutsceneColorFormat.InitialColorCount];
-            for (int color = 0; color < colors.Length; color++) colors[color] = palette.Resolve(color);
-            content.AppendColors("initial", colors);
-        }
-    }
-
-    /// <summary>A Mother Brain death fade's frames in a content identity.</summary>
-    extension(MotherBrainDeathFade fade)
-    {
-        /// <summary>Appends resolved stage colors to the identity independent of storage representation.</summary>
-        internal void AppendIdentity(SelectedPresentationHash content, string label)
-        {
-            content.Append(label, fade.FrameCount);
-            Span<RgbColor> frameColors = stackalloc RgbColor[fade.ColorCount];
-            for (int frame = 0; frame < fade.FrameCount; frame++)
-            {
-                for (int color = 0; color < fade.ColorCount; color++)
-                    frameColors[color] = fade.Resolve(frame, color);
-                content.AppendColors("row", frameColors);
-            }
+            for (int color = 0; color < colorCount; color++)
+                frameColors[color] = colour(frame, color);
+            content.AppendColors("row", frameColors);
         }
     }
 

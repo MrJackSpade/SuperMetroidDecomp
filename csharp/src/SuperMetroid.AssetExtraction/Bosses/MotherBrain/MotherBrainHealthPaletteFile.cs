@@ -25,8 +25,11 @@ public static class MotherBrainHealthPaletteFile
             json, ArtworkJson.Options, "Mother Brain health palette");
         if (document.Version != Version)
             throw new InvalidDataException("Unsupported Mother Brain health palette version.");
-        return MotherBrainHealthPaletteRecognition.Create(Convert(document.Body, nameof(document.Body)),
-            Convert(document.BackLegs, nameof(document.BackLegs)));
+        return new MotherBrainHealthPalettePresentation(Rows(document.Body, nameof(document.Body)),
+            Rows(document.BackLegs, nameof(document.BackLegs)));
+
+        static InstalledColourRows Rows(PaletteRgb5[][]? frames, string name) => new(Convert(frames, name),
+            MotherBrainHealthPaletteFormat.StateCount, MotherBrainRainbowPaletteGeometry.ColorCount, $"Mother Brain {name}");
 
         static RgbColor[][] Convert(PaletteRgb5[][]? frames, string name)
         {

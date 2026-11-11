@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -110,13 +111,13 @@ internal static class ActorColourContentIdentity
                 Span<RgbColor> frameColours = stackalloc RgbColor[16];
                 for (int tag = 0; tag < EnemyAuxiliaryColorDefinitions.All.Length; tag++)
                 {
-                    EnemyAuxiliaryColourFrames family = EnemyAuxiliaryColors.FamilyFor(colors, EnemyAuxiliaryColorDefinitions.All[tag].Id);
+                    InstalledColourRows family = colors.Family(EnemyAuxiliaryColorDefinitions.All[tag].Id);
                     content.Append("palette", tag);
-                    content.Append("frames", family.FrameCount);
-                    for (int frame = 0; frame < family.FrameCount; frame++)
+                    content.Append("frames", family.RowCount);
+                    for (int frame = 0; frame < family.RowCount; frame++)
                     {
-                        for (int color = 0; color < family.ColorCount; color++) frameColours[color] = family.Color(frame, color);
-                        content.AppendColors("row", frameColours[..family.ColorCount]);
+                        for (int color = 0; color < family.ColoursPerRow; color++) frameColours[color] = family.Colour(frame, color);
+                        content.AppendColors("row", frameColours[..family.ColoursPerRow]);
                     }
                 }
             });

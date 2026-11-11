@@ -1351,17 +1351,6 @@ internal static class LookupStream3Verification
         }
         var stock = Load();
         Check(stock);
-        var selectedSidehopper = stock.selection.Sidehopper;
-        AssertEqual(0, selectedSidehopper.independentOrSupplied.Length,
-            "stream 3 complete standalone Sidehopper target keeps no stock color array");
-        var selectedCorpse = stock.selection.DeadSidehopper;
-        AssertEqual(0, selectedCorpse.independentOrSupplied.Length,
-            "stream 3 complete standalone corpse target keeps no stock color array");
-        var pulse = stock.selection.Normal;
-        AssertTrue(pulse.supplied is null, "stream 3 Shitroid original pulse rows discarded");
-        AssertTrue(!MetadataShape.Fields(pulse.GetType(), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
-            .Any(field => field.FieldType == typeof(uint[]) || field.FieldType == typeof(ushort) || field.FieldType == typeof(RgbColor)),
-            "stream 3 Shitroid pulse owns no duplicate paint origins or floor words");
         for (int color = 0; color < 15; color++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa994d4 + color * 2)), stock.TargetColor(ShitroidColorTarget.Shitroid, color + 1),
                 "stream 3 native Baby/Shitroid palette duplication");
@@ -1492,70 +1481,9 @@ internal static class LookupStream3Verification
             }
         }
         CheckRevival(stock);
-        var revivalFade = stock.fromGrey;
-        var revivalOverrides = revivalFade.suppliedOverrides;
-        AssertEqual(0, revivalOverrides.Count, "revival calculates all words with one reviewed tissue-shade hold");
-        AssertEqual(Word(revival[1].Body[10]), Word(revival[2].Body[10]),
-            "native revival EE80 repeats EEA6 without an independently stored paint word");
-        foreach (var endpoint in new[] { revivalFade.first, revivalFade.last })
-        {
-            AssertTrue(endpoint.Body.supplied is null,
-                "revival endpoint body reuses reviewed health/drained paint calculations");
-            AssertTrue(endpoint.backLegs is null,
-                "revival rear endpoint calculates from reviewed normal/half-shadow paint");
-        }
-        // Each revival endpoint must take the shared branch, reading its trailing ink from the rainbow rear source or its own drained or normal rear.
-        foreach (var endpoint in new[] { revivalFade.first, revivalFade.last })
-        {
-            AssertTrue(endpoint.rearSource is not null || endpoint.rearKind is SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRearPaintKind.Drained or SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRearPaintKind.NormalSubset,
-                "revival trailing endpoint shares its calculated rear highlight");
-        }
         CheckRainbow(stock);
-        var fakeFade = stock.fakeDeathToGrey;
-        foreach (var endpoint in new[] { fakeFade.first, fakeFade.last })
-            AssertTrue(endpoint.Body.supplied is null,
-                "stream 3 fake-death endpoints reuse approved normal/drained cortex paint without stored rows");
-        var drainFade = stock.toGrey;
-        var drainEnd = drainFade.last;
-        var drainBody = drainEnd.Body;
-        var drainedPaint = drainBody.drained;
-        AssertTrue((drainedPaint ?? throw new InvalidOperationException("Verification requires drainedPaint.")).supplied is null, "stream 3 drained final gray body palette has no stored row");
-        var normalFrame = stock.normal;
-        var normalBody = normalFrame.Body;
-        AssertTrue(normalBody.supplied is null,
-            "stream 3 normal body calculates from shared health paint without a stored row");
-        AssertTrue(normalFrame.backLegs is null,
-            "stream 3 normal rear palette calculates from shared health lighting without a stored row");
-        var storedRainbow = stock.rainbow;
-        InstalledMotherBrainRainbowPalette.BodyColors RainbowBody(int phase) => storedRainbow[phase].Body;
-        if (RainbowBody(0).redOrigin is not { } redBasis)
-            throw new InvalidOperationException("native rainbow actually selects calculated red-origin shades");
-        int independentChannels = 0;
-        foreach (int phase in new[] { 1, 2, 5, 6, 7 })
-        {
-            if (RainbowBody(phase).sharedChannels is not { } sharing)
-                throw new InvalidOperationException($"rainbow phase {phase} actually uses shared channels");
-            independentChannels += sharing.independent.inputs.Length;
-        }
-        AssertEqual(28, independentChannels, "remaining independently supplied channels outside red-origin basis");
-        foreach (int phase in new[] { 3, 4, 8, 9 })
-            AssertTrue(RainbowBody(phase).tintSource is not null,
-                $"rainbow phase {phase} actually uses exact whole-palette tint");
-        var drainStart = drainFade.first;
-        AssertTrue(ReferenceEquals(drainStart.Body, RainbowBody(6)),
-            "stream 3 drain body starts from the exact matching rainbow phase-six source");
-        AssertTrue(ReferenceEquals(drainStart.rearSource, storedRainbow[6]),
-            "stream 3 drain rear and trailing start share only matching rainbow content");
-        AssertTrue(drainEnd.backLegs is null,
-            "stream 3 drained rear endpoint calculates from approved normal rear lighting");
-        AssertTrue((drainEnd.rearKind is SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRearPaintKind.Drained or SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRearPaintKind.NormalSubset) && drainEnd.TrailingColor == drainEnd.Leg(1),
-            "stream 3 drained trailing word reuses its rear highlight without a stored value");
-        foreach (var frame in storedRainbow)
-            AssertTrue(frame.backLegs is null, "stream 3 rainbow shadow tables discarded");
         foreach (int invalid in new[] { -1, 10, int.MaxValue })
             AssertThrows<InvalidDataException>(() => stock.ApplyRainbow(new SnesCgram(), invalid), "stream 3 rainbow bounds");
-        foreach (var fade in new[] { stock.toGrey, stock.fakeDeathToGrey })
-            AssertTrue(fade.supplied is null, "stream 3 drain stock intermediate rows discarded");
         foreach (int invalid in new[] { -1, 8, int.MaxValue })
         {
             AssertThrows<InvalidDataException>(() => stock.ApplyToGrey(new SnesCgram(), invalid), "stream 3 drain bounds");
@@ -1603,33 +1531,6 @@ internal static class LookupStream3Verification
         }
         var stock = Load();
         Check(stock);
-        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        var selectedInitial = stock.selection.Initial;
-        AssertTrue(selectedInitial.supplied is null,
-            "stream 3 Baby initial calculates from reviewed paints without a stock color array");
-        var selectedFade = stock.selection.Fade;
-        AssertTrue(selectedFade.supplied is null,
-            "stream 3 original Baby fade discards its stored frame table");
-        AssertEqual(0, MetadataShape.Fields(selectedFade.GetType(), fields).Count(field => field.FieldType == typeof(ushort) || field.FieldType == typeof(ushort[]) || field.FieldType == typeof(RgbColor) || field.FieldType == typeof(RgbColor[])), "stream 3 Baby fade keeps no stock endpoint payload");
-        static ushort ScaleHealth(ushort value, int remaining)
-        {
-            int result = 0;
-            for (int channel = 0; channel < 3; channel++)
-                result |= (((value >> (5 * channel) & 31) * remaining / 7) << (5 * channel));
-            return (ushort)result;
-        }
-        for (int color = 0; color < 14; color++)
-        {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xade8f0 + 2 * color)), ScaleHealth((BabyMetroidFade.Endpoint(color)).ToWord(), 6),
-                "stream 3 reviewed final-health endpoint reproduces original undisplayed fade step");
-            int healthAddress = color < 4 ? 0xade870 + 2 * color :
-                color < 9 ? 0xade8d8 + 2 * (color - 4) : 0xade878 + 2 * (color - 9);
-            ushort nativeHealth = CartridgeImportSource.Require(rom).ReadCartridgeWord(healthAddress);
-            AssertEqual(nativeHealth, BabyMetroidFade.Endpoint(color), "stream 3 exact native final-health endpoint");
-            for (int frame = 0; frame < fade.Length; frame++)
-                AssertEqual(fade[frame][color], ScaleHealth(nativeHealth, 5 - frame),
-                    "stream 3 native final health colors produce the exact seven-part fade");
-        }
         foreach (int invalid in new[] { -1, 0, 7, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.FadeColor(invalid, 0), "stream 3 Baby fade frame bounds");
         foreach (int invalid in new[] { -1, 14, int.MaxValue })
@@ -1692,19 +1593,6 @@ internal static class LookupStream3Verification
         }
         var stock = Load();
         Check(stock);
-        foreach (var fade in new[] { stock.selection.BodyFade, stock.selection.LegFade, stock.selection.CorpseFade })
-        {
-            AssertTrue(fade.first is null,
-                "stream 3 death starts reuse calculated health state three without stored endpoint rows");
-            AssertTrue(fade.supplied is null,
-                "stream 3 original death fade discards its stored frame table");
-            if (ReferenceEquals(fade, stock.selection.CorpseFade))
-            {
-                var endpoint = fade.last ?? throw new InvalidOperationException("stream 3 corpse fade has a final gray endpoint");
-                AssertTrue(endpoint.supplied is null, "stream 3 corpse final gray palette has no stored row");
-                AssertEqual(0, endpoint[14], "stream 3 corpse neutral black endpoint");
-            }
-        }
         foreach (int invalid in new[] { -1, 16, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => stock.BodyColor(invalid, 0), "stream 3 body fade frame bounds");
@@ -1806,8 +1694,6 @@ internal static class LookupStream3Verification
         }
         var stock = Load();
         Check(stock);
-        AssertTrue(stock.frames is null,
-            "stream 3 original Work Robot colors discard their stored frame table");
         foreach (int invalid in new[] { -1, 6, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(invalid, 0),
                 "stream 3 Work Robot frame bounds");
@@ -1821,20 +1707,6 @@ internal static class LookupStream3Verification
     {
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainHealthPaletteExtractor.Extract(rom);
         var stock = MotherBrainHealthPaletteFile.Read(new MemoryStream(json));
-        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        foreach (var palette in new[] { stock.body, stock.backLegs })
-        {
-            AssertTrue(palette.supplied is null,
-                "stream 3 native health tint has no stored intermediate rows");
-            var basis = palette.basis;
-            AssertTrue(basis.supplied is null,
-                "stream 3 native health shade ramps calculated from paint endpoints");
-            AssertEqual(6, MetadataShape.Fields(basis.GetType(), flags).Count(field => field.FieldType == typeof(RgbColor)),
-                "stream 3 health base exposes only six possible paint anchors");
-            RgbColor[] anchors = [basis.highlight, basis.midtone, basis.shadow, basis.brown];
-            AssertTrue(ReferenceEquals(palette, stock.body) ? anchors.All(value => value != RgbColor.Black) : anchors.All(value => value == RgbColor.Black),
-                "stream 3 stock rear palette stores no independent paint colors");
-        }
         // Mother Brain shows her health band as a shade (#1512); the import pre-colours each band's shade of her brain and
         // rear legs on her sprite sheets, and of her body on the room's background, from the installed health palette.
         static (RgbColor[] Brain, RgbColor[] RearLegs, RgbColor[] Body) Shown(MotherBrainHealthPalettePresentation health, int band)
@@ -1873,15 +1745,6 @@ internal static class LookupStream3Verification
     {
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
         var stock = MotherBrainRoomColorFile.Read(new MemoryStream(json));
-        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        var fade = stock.recoveryLights;
-        AssertTrue(fade.supplied is null,
-            "stream 3 stock recovery light rows discarded");
-        AssertTrue(ReferenceEquals(fade.finalRoom,
-            stock.finalRoom),
-            "stream 3 recovery endpoint reuses the final room palette");
-        AssertEqual(0, MetadataShape.Fields(fade.GetType(), flags).Count(field => field.FieldType == typeof(ushort) || field.FieldType == typeof(RgbColor)),
-            "stream 3 reviewed recovery paints reside only in their domain catalog");
         for (int frame = 0; frame < 7; frame++)
         {
             var actual = new SnesCgram();
@@ -1902,15 +1765,6 @@ internal static class LookupStream3Verification
     {
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
         var stock = MotherBrainRoomColorFile.Read(new MemoryStream(json));
-        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        var flash = stock.flash;
-        AssertTrue(flash.supplied is null,
-            "stream 3 stock flash rows discarded");
-        AssertTrue(ReferenceEquals(flash.basis,
-            stock.finalRoom),
-            "stream 3 stock flash reuses final room paint basis");
-        AssertEqual(0, MetadataShape.Fields(flash.GetType(), flags).Count(field => field.FieldType == typeof(ushort) || field.FieldType == typeof(RgbColor)),
-            "stream 3 room flash keeps no per-instance selected paint");
         for (int frame = 0; frame < MotherBrainRoomPaletteProgramDefinitions.FlashFrameCount; frame++)
         {
             ushort entry = checked((ushort)(SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomFlashSourceDefinitions.FlashList + frame * SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomFlashSourceDefinitions.FlashEntryBytes));
@@ -2007,8 +1861,6 @@ internal static class LookupStream3Verification
     {
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
         var stock = MotherBrainRoomColorFile.Read(new MemoryStream(json));
-        AssertTrue(stock.phaseTwoRearLeg is null,
-            "stream 3 phase-two rear uses approved calculated health basis without stored rows");
         var phaseTwo = new SnesCgram();
         stock.ApplyPhaseTwoInitial(phaseTwo);
         for (int color = 0; color < 15; color++)
@@ -2075,16 +1927,6 @@ internal static class LookupStream3Verification
         }
         var stock = Load();
         Check(stock);
-        foreach (var palette in new[] { stock.families[EnemyAuxiliaryPalette.FaceBlock], stock.families[EnemyAuxiliaryPalette.DeadSidehopper], stock.families[EnemyAuxiliaryPalette.GoldenTorizoBody], stock.families[EnemyAuxiliaryPalette.GoldenTorizoBelly] })
-        {
-            AssertTrue(palette.supplied is null,
-                "stream 3 calculated auxiliary cycles have no stored frame rows");
-            foreach (RgbColor[] endpoint in new[] { palette.first, palette.last })
-                AssertEqual(0, endpoint.Length,
-                    "stream 3 complete auxiliary palette keeps no stock endpoint arrays");
-            AssertTrue(palette.corpse is null,
-                "stream 3 complete auxiliary palette keeps no stock corpse array");
-        }
         foreach (int invalid in new[] { -1, 8, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(EnemyAuxiliaryPalette.GoldenTorizoBody, invalid, 0), "stream 3 Torizo band bounds");
         foreach (int invalid in new[] { -1, 16, int.MaxValue })
@@ -2174,9 +2016,6 @@ internal static class LookupStream3Verification
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
         var document = RequiredJson.Parse(json);
         var stock = MotherBrainRoomColorFile.Read(new MemoryStream(json));
-        var attack = stock.phaseTwoAttack;
-        AssertTrue(attack.supplied is null,
-            "stock attack palette calculates every color without a stored row");
         var native = new SnesCgram();
         stock.ApplyPhaseTwoInitial(native);
         for (int color = 0; color < MotherBrainRoomColorGeometry.PhaseTwoColors; color++)
@@ -2212,10 +2051,6 @@ internal static class LookupStream3Verification
         MotherBrainRoomColorPresentation Load() => MotherBrainRoomColorFile.Read(new MemoryStream(
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
         var stock = Load();
-        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        var finalRoom = stock.finalRoom;
-        AssertTrue(finalRoom.supplied is null, "final-room stock has no supplied output array");
-        AssertEqual(0, MetadataShape.Fields(finalRoom.GetType(), fields).Count(field => field.FieldType == typeof(ushort)), "final-room paint choices live only in reviewed catalog");
         for (int color = 0; color < document.FinalRoom.Length; color++)
         {
             int address = MotherBrainSourceDefinitions.RoomColors.FlashBank + SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomFlashSourceDefinitions.FinalPalette + color * sizeof(ushort);
@@ -2274,24 +2109,6 @@ internal static class LookupStream3Verification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(tubeAddress), Word((document.InitialTubeProjectile ?? throw new InvalidOperationException("Verification requires document.InitialTubeProjectile."))[color]), "tube direct native color");
         }
         Confirm(stock, document);
-        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        foreach (var (name, supplied) in new VerifyStream3OptionsGeometryCase[]
-        {
-            new VerifyStream3OptionsGeometryCase("finalRoom", stock.finalRoom.supplied),
-            new VerifyStream3OptionsGeometryCase("phaseTwoAttack", stock.phaseTwoAttack.supplied),
-            new VerifyStream3OptionsGeometryCase("initialGlassShard", stock.initialGlassShard.supplied),
-            new VerifyStream3OptionsGeometryCase("initialTubeProjectile", stock.initialTubeProjectile.supplied),
-        })
-            AssertTrue(supplied is null, "stream 3 room initial palette calculates dependent stock shades: " + name);
-        var finalRoom = stock.finalRoom;
-        AssertEqual(0, MetadataShape.Fields(finalRoom.GetType(), fields).Count(field => field.FieldType == typeof(ushort)),
-            "final room calculates from reviewed catalog choices without per-instance paint words");
-        var attack = stock.phaseTwoAttack;
-        AssertTrue(!MetadataShape.Fields(attack.GetType(), fields).Any(field => field.FieldType == typeof(ushort)),
-            "stock attack keeps no duplicated scalar paint endpoints");
-        var glass = stock.initialGlassShard;
-        AssertTrue(!MetadataShape.Fields(glass.GetType(), fields).Any(field => field.FieldType == typeof(ushort)),
-            "stock glass keeps no duplicated scalar paint endpoint");
 
         static ushort Word(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
         static void Confirm(MotherBrainRoomColorPresentation palette, MotherBrainRoomColorDocument expected)
@@ -2325,10 +2142,6 @@ internal static class LookupStream3Verification
         var liveDocument = RequiredJson.Parse(SuperMetroid.AssetExtraction.Bosses.MotherBrain.ShitroidColorExtractor.Extract(rom));
         var stock = LoadBaby(babyDocument);
         var liveStock = LoadLive(liveDocument);
-        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        var initial = stock.selection.Initial;
-        AssertTrue(initial.supplied is null, "Baby stock initial has no stored color array");
-        AssertEqual(0, MetadataShape.Fields(initial.GetType(), fields).Count(field => field.FieldType == typeof(ushort)), "Baby initial paint choices reside only in dedicated catalog");
         for (int color = 0; color < BabyMetroidCutsceneColorFormat.InitialColorCount; color++)
         {
             int address = MotherBrainSourceDefinitions.BabyMetroid.InitialColors + color * sizeof(ushort);

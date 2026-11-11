@@ -25,17 +25,22 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The chain and neighbours each segment found when it was placed.</summary>
     private readonly EnemyPartLinks<ShaktoolChainPlaces> _chains = new();
     /// <summary>The segment a hit last killed, whose remains the rest of its chain reads for the rest of that update.</summary>
-    private readonly KilledShaktoolSegment<RoomEnemySlot, ShaktoolSegmentState> _killedSegment = new();
+    private readonly KilledShaktoolSegment<RoomEnemySlot, ShaktoolSegmentState> _killedSegment;
     /// <summary>Runs common contact behavior for the segment hitboxes.</summary>
     private readonly EnemyCollision _collision;
 
-    /// <summary>Binds collision, projectile, and slot owners for a room's Shaktool chain.</summary>
-    internal ShaktoolBehavior(EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemySlotTable slotTable, EnemyCollision collision)
+    /// <summary>
+    /// Binds collision, projectile, and slot owners for a room's Shaktool chain, and the room's record of the segment a
+    /// hit last killed.
+    /// </summary>
+    internal ShaktoolBehavior(EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemySlotTable slotTable, EnemyCollision collision,
+        KilledShaktoolSegment<RoomEnemySlot, ShaktoolSegmentState> killedSegment)
     {
         _terrain = terrain;
         _projectiles = projectiles;
         _slotTable = slotTable;
         _collision = collision;
+        _killedSegment = Ensure.NotNull(killedSegment);
     }
 
     /// <summary>Head, five middle segments, and tail occupy consecutive enemy slots.</summary>

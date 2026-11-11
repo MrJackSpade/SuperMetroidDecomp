@@ -1,12 +1,14 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Beetom;
 using SuperMetroid.Core.Enemies.Bull;
+using SuperMetroid.Core.Enemies.Shaktool;
 
 namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// The compatibility services a room's enemy system consults. The room's loader creates a fresh set with each enemy
-/// system it builds, and the set lives exactly as long as that system: a room's power-bomb sweep and its slots start
-/// with no earlier kill and no earlier occupant.
+/// system it builds, and the set lives exactly as long as that system: a room's power-bomb sweep, its Shaktool chain
+/// and its slots start with no earlier kill and no earlier occupant.
 /// </summary>
 internal sealed class RoomEnemyCompatibility
 {
@@ -24,4 +26,10 @@ internal sealed class RoomEnemyCompatibility
     /// one holds what the room's load leaves.
     /// </summary>
     public required PuyoCeilingTurnFromLastDraw PuyoCeilingTurn { get; init; }
+
+    /// <summary>
+    /// The Shaktool segment a hit last killed, whose emptied remains the rest of its chain reads for the rest of that
+    /// update; a new one holds no kill.
+    /// </summary>
+    public required KilledShaktoolSegment<RoomEnemySlot, ShaktoolSegmentState> KilledShaktoolSegment { get; init; }
 }

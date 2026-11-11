@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Beetom;
 using SuperMetroid.Core.Enemies.Bull;
+using SuperMetroid.Core.Enemies.Shaktool;
 
 namespace SuperMetroid.Core.World;
 
@@ -14,5 +15,6 @@ internal static class RoomEnemyCompatibilityFixtures
         BullInheritance = new SlotInheritance<BullEnemyState>(EnemySlotOrder.Capacity),
         BeetomInheritance = new SlotInheritance<BeetomEnemyState>(EnemySlotOrder.Capacity),
         PuyoCeilingTurn = new PuyoCeilingTurnFromLastDraw(),
+        KilledShaktoolSegment = new KilledShaktoolSegment<RoomEnemySlot, ShaktoolSegmentState>(),
     };
 }

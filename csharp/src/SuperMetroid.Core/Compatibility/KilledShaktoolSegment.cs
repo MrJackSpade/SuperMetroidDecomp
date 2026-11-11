@@ -10,7 +10,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// Recorded by the chain's fatal-shot reaction, once per kill, and consulted whenever a segment of the chain reaches
 /// another for the rest of that update. The deleted chain leaves the room before the next update, so nothing reads the
 /// remains after it. Evidence: the chain's routines address their neighbours' enemy records without testing them, and
-/// the kill clears the killed segment's record. Created with each room's Shaktool behaviour, for its room.
+/// the kill clears the killed segment's record. Created by the room's loader with each room's enemy services and handed
+/// to that room's Shaktool behaviour, so each room starts with no kill.
 /// </remarks>
 /// <typeparam name="TPlace">An enemy place.</typeparam>
 /// <typeparam name="TSegment">The state of one chain segment; a new one is the emptied segment.</typeparam>

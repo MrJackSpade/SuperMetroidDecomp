@@ -127,7 +127,7 @@ internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomO
     private void Destroy(RoomObjectSlot place, RoomObjectStepContext context)
     {
         context.RoomObjects.Bosses().DraygonCannons.DisableCannon(Cannon);
-        DraygonCannonObjects.WriteDestroyedTerrain(context.Level, place.BlockIndex);
+        DraygonCannonObjects.WriteDestroyedTerrain(context.Level, place.Block);
         Destroyed = true;
         _frame = 0;
         Show(place, context, _look.Smoke[0], DraygonCannonPhase.Smoking);

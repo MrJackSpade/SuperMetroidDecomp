@@ -58,7 +58,7 @@ internal static class RoomObjectPopulationInputBoundaryVerification
         AssertTrue(roomObjects.Scrolls.TryNotifyScrollTouch(level.GetBlockIndex(new(3, 3))), "typed trigger wakes at its placement");
         roomObjects.Step(level, scrolls);
         AssertEqual(RoomScrollState.Green, scrolls.ReadState(1), "decoded pairs mutate the intended live scroll cell");
-        AssertTrue(!roomObjects.ScrollObjectTriggered(roomObjects.Scrolls.Snapshots[0].BlockIndex), "decoded trigger returns to sleep after its last write");
+        AssertTrue(!roomObjects.ScrollObjectTriggered(level.GetBlockIndex(roomObjects.Scrolls.Snapshots[0].Block)), "decoded trigger returns to sleep after its last write");
 
         AssertThrows<InvalidDataException>(() => new RoomObjectPopulation($"$8F:{0x9000:X4}",
             [trigger with { ScrollProgram = [new(RoomScrollGrid.KeptCellCount, RoomScrollState.Blue)] }]),

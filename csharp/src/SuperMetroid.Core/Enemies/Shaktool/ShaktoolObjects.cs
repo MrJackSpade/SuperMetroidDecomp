@@ -32,7 +32,7 @@ internal sealed class ShaktoolObjects
             return false;
 
         slot.Header = RoomObjectHeaderId.ShaktoolRoomController;
-        slot.BlockIndex = 0;
+        slot.Block = Position16<RoomBlocks>.Zero;
         slot.Become(new ShaktoolRoomControllerObject(_samus, _events));
         for (int cell = 0; cell < ShaktoolRoomDefinitions.ScrollCellCount; cell++)
             scrolls.SetCell(cell, cell == 0 ? RoomScrollState.Blue : RoomScrollState.RedBoundary);

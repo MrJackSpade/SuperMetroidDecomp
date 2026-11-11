@@ -251,7 +251,7 @@ internal static class NoobTubeObjectVerification
         enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(0x9600), BgArtworkFixtures.For(new SnesVram())) { Level = level, Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) });
 
         foreach (NoobTubeProjectileRequest request in requests)
-            enemies.NoobTubeBehavior.SpawnNoobTubeProjectile(request, level.Size.X);
+            enemies.NoobTubeBehavior.SpawnNoobTubeProjectile(request);
         AssertEqual(17, enemies.ActiveEnemyProjectileCount,
             "complete n00b-tube burst fits the native eighteen-slot projectile pool");
 
@@ -300,8 +300,8 @@ internal static class NoobTubeObjectVerification
         AssertEqual(0x0074, lastBubble.Position.Y.Whole,
             "last bubble uses its final absolute PLM-origin offset");
 
-        AssertTrue(requests.All(request => request.RoomObjectBlockIndex == blockIndex),
-            "every burst actor retains the executing PLM block index");
+        AssertTrue(requests.All(request => request.RoomObjectBlock == level.BlockAt(blockIndex)),
+            "every burst actor retains the executing PLM block");
     }
 
     /// <summary>Confirms event $0B skips every one-shot effect on subsequent room loads.</summary>

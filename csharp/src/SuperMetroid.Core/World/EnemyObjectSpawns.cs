@@ -30,12 +30,12 @@ internal sealed class EnemyObjectSpawns(
     EscapeExplosionsBehavior escapeExplosions) : IEnemyObjectSpawns
 {
     /// <inheritdoc/>
-    public void SpawnNoobTubeProjectile(NoobTubeProjectileRequest request, int roomWidthInBlocks) =>
-        noobTube.SpawnNoobTubeProjectile(request, roomWidthInBlocks);
+    public void SpawnNoobTubeProjectile(NoobTubeProjectileRequest request) =>
+        noobTube.SpawnNoobTubeProjectile(request);
 
     /// <inheritdoc/>
-    public void SpawnEyeDoorProjectile(EyeDoorProjectileRequest request, int roomWidthInBlocks, SharedGameState system) =>
-        eyeDoor.SpawnEyeDoorProjectile(request, roomWidthInBlocks, system);
+    public void SpawnEyeDoorProjectile(EyeDoorProjectileRequest request, SharedGameState system) =>
+        eyeDoor.SpawnEyeDoorProjectile(request, system);
 
     /// <inheritdoc/>
     public void SpawnOldTourianEscapeShaftWallExplosion() => oldTourianWall.SpawnOldTourianEscapeShaftWallExplosion();

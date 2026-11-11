@@ -53,15 +53,14 @@ internal static class EyeDoorObjectsVerification
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => { randomAdvances++; return 0x7777; }) { ReadRandom = () => 0x3412 });
         enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(0x9600), BgArtworkFixtures.For(new SnesVram())) { Level = level, Samus = samus });
         var system = new SharedGameState(new SharedRandom());
-        int roomObjectBlock = 4 * 16 + 7;
+        Position16<RoomBlocks> roomObjectBlock = new(7, 4);
 
         enemies.EyeDoorBehavior.SpawnEyeDoorProjectile(
             new EyeDoorProjectileRequest(
                 EyeDoorProjectileDefinition.Projectile,
                 Facing: EyeDoorOrientation.Left,
-                RoomObjectBlockIndex: roomObjectBlock,
+                RoomObjectBlock: roomObjectBlock,
                 Door: SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(5)),
-            roomWidthInBlocks: 16,
             system);
         EnemyProjectile attack = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.EyeDoorProjectile);
@@ -87,9 +86,8 @@ internal static class EyeDoorObjectsVerification
             new EyeDoorProjectileRequest(
                 EyeDoorProjectileDefinition.Sweat,
                 Facing: EyeDoorOrientation.Right,
-                RoomObjectBlockIndex: roomObjectBlock,
+                RoomObjectBlock: roomObjectBlock,
                 Door: SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(5)),
-            roomWidthInBlocks: 16,
             system);
         EnemyProjectile sweat = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.EyeDoorSweat);
@@ -102,9 +100,8 @@ internal static class EyeDoorObjectsVerification
             new EyeDoorProjectileRequest(
                 EyeDoorProjectileDefinition.ScatteredSmoke,
                 Facing: EyeDoorOrientation.Left,
-                RoomObjectBlockIndex: roomObjectBlock,
+                RoomObjectBlock: roomObjectBlock,
                 Door: SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(5)),
-            roomWidthInBlocks: 16,
             system);
         EnemyProjectile smoke = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.EyeDoorSmoke);
@@ -169,7 +166,7 @@ internal static class EyeDoorObjectsVerification
             StepEyeDoorObjects(roomObjects, level);
         EyeDoorProjectileRequest shot = effects.First(effect => effect.Definition == EyeDoorProjectileDefinition.Projectile);
         AssertEqual(orientation, shot.Facing, $"{orientation} attack carries the eye's facing");
-        AssertEqual(eyeBlock, shot.RoomObjectBlockIndex, $"{orientation} attack leaves the eye's block");
+        AssertEqual(new Position16<RoomBlocks>(eyeX, eyeY), shot.RoomObjectBlock, $"{orientation} attack leaves the eye's block");
         AssertTrue(ReferenceEquals(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(doorBit), shot.Door), $"{orientation} attack carries the door");
         AssertEqual(DoorsNativeWords.EyeDoorMissileWake,
             roomObjects.EyeDoorSnapshots.Single(door => door.Component == EyeDoorComponent.Eye).FrameBehavior,

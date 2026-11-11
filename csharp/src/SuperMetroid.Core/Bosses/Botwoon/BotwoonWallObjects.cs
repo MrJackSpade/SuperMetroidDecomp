@@ -10,33 +10,35 @@ internal sealed class BotwoonWallObjects(RoomObjectSlotTable slotTable)
 {
     /// <summary>
     /// Spawns the wall room object performing <paramref name="mutation"/> at the wall's top block, in the first free slot of the
-    /// room's processing order.
+    /// room's processing order. The wall is known by what it does (its terrain change, or
+    /// <see cref="BotwoonWallCrumbleObject"/>), never by a room-object identity.
     /// </summary>
     /// <remarks>
     /// The clear has an empty setup and clears an already-defeated room on the next update. The crumble's setup holds
     /// it for 64 updates; it then crumbles nine rows of four four-update images, moving one block down between rows.
     /// </remarks>
-    /// <returns>False only when every room-object slot is occupied; nothing is spawned then.</returns>
+    /// <returns>
+    /// False when every room-object slot is occupied; nothing is spawned then (<see cref="RoomObjectSlotTable"/>'s full-room
+    /// rule).
+    /// </returns>
     public bool TrySpawn(RoomLevelData level, BotwoonWallMutation mutation)
     {
         Ensure.NotNull(level);
-        RoomObjectHeaderId roomObject = Ensure.Listed(RoomObjects, mutation);
-
-        // Resolve the block through the level so a malformed fixture cannot install a wall whose later vertical draws
-        // fall outside the room.
-        int blockIndex = level.GetBlockIndex(Block);
-        if (slotTable.SpawnHardcoded() is not { } slot)
-            return false;
-
-        slot.BlockIndex = blockIndex;
-        // The place keeps the wall's identity for owner queries and mixed populations.
-        slot.Header = roomObject;
-        slot.Become(mutation switch
+        RoomObjectBehaviour wall = mutation switch
         {
             BotwoonWallMutation.Clear => new TerrainChangeObject(BotwoonWallMutationDefinitions.Clear),
             BotwoonWallMutation.Crumble => new BotwoonWallCrumbleObject(),
             _ => throw new ArgumentOutOfRangeException(nameof(mutation), mutation, null),
-        });
+        };
+
+        // Resolve the block through the level so a malformed fixture cannot install a wall whose later vertical draws
+        // fall outside the room.
+        Position16<RoomBlocks> block = level.GridBlock(Block);
+        if (slotTable.SpawnHardcoded() is not { } slot)
+            return false;
+
+        slot.Block = block;
+        slot.Become(wall);
         return true;
     }
 }

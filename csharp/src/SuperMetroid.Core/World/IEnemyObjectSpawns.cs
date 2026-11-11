@@ -11,10 +11,10 @@ namespace SuperMetroid.Core.World;
 internal interface IEnemyObjectSpawns
 {
     /// <summary>Spawns a n00b-tube projectile.</summary>
-    void SpawnNoobTubeProjectile(NoobTubeProjectileRequest request, int roomWidthInBlocks);
+    void SpawnNoobTubeProjectile(NoobTubeProjectileRequest request);
 
     /// <summary>Spawns an eye-door projectile.</summary>
-    void SpawnEyeDoorProjectile(EyeDoorProjectileRequest request, int roomWidthInBlocks, SharedGameState system);
+    void SpawnEyeDoorProjectile(EyeDoorProjectileRequest request, SharedGameState system);
 
     /// <summary>Spawns the old Tourian escape-shaft wall's explosion.</summary>
     void SpawnOldTourianEscapeShaftWallExplosion();

@@ -11,7 +11,7 @@ internal sealed class RespawningGrappleBlockObject() : BlockReactionObject(Block
     private protected override void RestoreBlock(RoomObjectSlot place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
-        context.Level.SetBehavior(place.BlockIndex, BlockReactionObjectDefinitions.RespawningGrappleBehavior);
+        context.Level.SetBehavior(place.Block, BlockReactionObjectDefinitions.RespawningGrappleBehavior);
         base.RestoreBlock(place, context);
     }
 }

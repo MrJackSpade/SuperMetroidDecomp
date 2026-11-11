@@ -6,11 +6,11 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// What a downward gate's actor keeps: the room block of the gate it draws, so the gate can wake it again, and how far it
 /// has moved toward its next block.
 /// </summary>
-/// <param name="roomObjectBlockIndex">The gate's room block, counted row by row.</param>
-internal sealed class DownwardGateState(int roomObjectBlockIndex) : EnemyProjectileState
+/// <param name="roomObjectBlock">The gate's room block.</param>
+internal sealed class DownwardGateState(Position16<RoomBlocks> roomObjectBlock) : EnemyProjectileState
 {
-    /// <summary>The gate's room block, counted row by row.</summary>
-    internal int RoomObjectBlockIndex { get; } = Ensure.AtLeastZero(roomObjectBlockIndex);
+    /// <summary>The gate's room block.</summary>
+    internal Position16<RoomBlocks> RoomObjectBlock { get; } = roomObjectBlock;
 
     /// <summary>
     /// How far the gate has moved since it last advanced a block, in 256ths of a pixel; it advances a block, and starts

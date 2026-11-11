@@ -65,13 +65,13 @@ internal sealed class GreyDoorObjects
         _system ?? throw new InvalidOperationException("A resident grey door has no progression-state owner.");
 
     /// <summary>Installs the resident projectile-trigger collision type while preserving the block's appearance.</summary>
-    private static void ApplyGreyDoorSetup(RoomLevelData level, int blockIndex)
+    private static void ApplyGreyDoorSetup(RoomLevelData level, Position16<RoomBlocks> block)
     {
         // Grey and coloured doors' setups share the exact same collision write.
         // Preserve the authored appearance while replacing only collision and behaviour.
-        level.SetTerrain(blockIndex,
-            level.GetCollisionBlockByIndex(blockIndex).Terrain.WithCollision(RoomCollisionType.ShootableBlock));
-        level.SetBehavior(blockIndex, RoomBlockBehavior.Reacting(BlockReactionDefinitions.ResidentObjectTrigger));
+        level.SetTerrain(block,
+            level.GetCollisionBlock(block).Terrain.WithCollision(RoomCollisionType.ShootableBlock));
+        level.SetBehavior(block, RoomBlockBehavior.Reacting(BlockReactionDefinitions.ResidentObjectTrigger));
     }
 
     /// <summary>
@@ -93,7 +93,7 @@ internal sealed class GreyDoorObjects
 
         GreyDoorCondition condition = GreyDoorConditions.AtTableIndex(argument.ConditionIndex);
         slot.Argument = argument.Door;
-        ApplyGreyDoorSetup(level, slot.BlockIndex);
+        ApplyGreyDoorSetup(level, slot.Block);
         var variant = new GreyDoorVariant(orientation, BombTorizo: slot.Header == RoomObjectHeaderId.BombTorizoGreyDoor);
         slot.Become(new GreyDoorObject(variant, condition));
     }

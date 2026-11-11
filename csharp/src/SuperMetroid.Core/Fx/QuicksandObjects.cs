@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Rooms.RoomObjects;
+﻿using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Fx;
 
@@ -9,10 +10,14 @@ internal sealed class QuicksandObjects
     private readonly RoomObjectSlotTable _slotTable;
 
     /// <summary>Binds quicksand reactions to the room's shared room-object slots.</summary>
-    internal QuicksandObjects(RoomObjectSlotTable slotTable)
+    internal QuicksandObjects(RoomObjectSlotTable slotTable, RoomLevelData level)
     {
         _slotTable = slotTable;
+        _level = Ensure.NotNull(level);
     }
+
+    /// <summary>The room's level, which places the sand block a reaction sits on.</summary>
+    private readonly RoomLevelData _level;
     /// <summary>True when all forty room-object slots are occupied.</summary>
     public bool IsAllocationFull => _slotTable.IsFull;
 
@@ -37,7 +42,7 @@ internal sealed class QuicksandObjects
             return false;
 
         slot.Header = header;
-        slot.BlockIndex = blockIndex;
+        slot.Block = _level.BlockAt(blockIndex);
         slot.Become(new TerrainChangeObject(definition.Change));
         return true;
     }

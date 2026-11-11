@@ -9,16 +9,20 @@ internal sealed class ScrollObjects
     /// <summary>The room's objects, in the update order, searched for the trigger at a block.</summary>
     private readonly RoomObjectSlotTable _slotTable;
 
-    /// <summary>Binds the scroll triggers to the room's objects.</summary>
-    internal ScrollObjects(RoomObjectSlotTable slotTable)
+    /// <summary>The room's level, which places a touched block.</summary>
+    private readonly RoomLevelData _level;
+
+    /// <summary>Binds the scroll triggers to the room's objects and its level.</summary>
+    internal ScrollObjects(RoomObjectSlotTable slotTable, RoomLevelData level)
     {
         _slotTable = slotTable;
+        _level = Ensure.NotNull(level);
     }
 
     /// <summary>Every live room-authored scroll trigger, in place order.</summary>
     public IReadOnlyList<ScrollObjectSnapshot> Snapshots => _slotTable.Slots
         .Where(slot => slot.Active && slot.Behaviour is ScrollTriggerObject)
-        .Select(slot => new ScrollObjectSnapshot(slot.BlockIndex))
+        .Select(slot => new ScrollObjectSnapshot(slot.Block))
         .ToArray();
 
     /// <summary>
@@ -32,9 +36,10 @@ internal sealed class ScrollObjects
     /// </remarks>
     public bool TryNotifyScrollTouch(int blockIndex)
     {
+        Position16<RoomBlocks> block = _level.BlockAt(blockIndex);
         foreach (RoomObjectSlot slot in _slotTable.Slots)
         {
-            if (!slot.Active || slot.BlockIndex != blockIndex || slot.Behaviour is not ScrollTriggerObject trigger)
+            if (!slot.Active || slot.Block != block || slot.Behaviour is not ScrollTriggerObject trigger)
                 continue;
             trigger.Touch();
             return true;
@@ -54,9 +59,9 @@ internal sealed class ScrollObjects
                 ? extension
                 : throw new InvalidOperationException($"Room object {header} is neither a scroll trigger nor a scroll extension.");
             level.SetTerrain(
-                slot.BlockIndex,
-                level.GetCollisionBlockByIndex(slot.BlockIndex).Terrain.WithCollision(collisionType));
-            level.SetBehavior(slot.BlockIndex, RoomBlockBehavior.Extending(offset));
+                slot.Block,
+                level.GetCollisionBlock(slot.Block).Terrain.WithCollision(collisionType));
+            level.SetBehavior(slot.Block, RoomBlockBehavior.Extending(offset));
 
             // An extension's whole effect is its setup, which removes it at once: the following authored record takes
             // its place.
@@ -66,6 +71,6 @@ internal sealed class ScrollObjects
 
         var trigger = new ScrollTriggerObject(program, compiledProgram);
         slot.Become(trigger);
-        trigger.Rest(level, slot.BlockIndex);
+        trigger.Rest(level, slot.Block);
     }
 }

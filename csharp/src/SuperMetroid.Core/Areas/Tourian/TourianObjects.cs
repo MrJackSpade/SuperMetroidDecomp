@@ -31,7 +31,7 @@ internal sealed class TourianObjects
     {
         Ensure.NotNull(slot);
         slot.Become(new MetroidRoomClearanceObject(MetroidsClearedEvents.ResolveEvent((slot.Argument as MetroidRoomArgument
-            ?? throw new InvalidDataException($"Metroids-cleared room object at block {slot.BlockIndex} was placed without its entry.")).Entry)));
+            ?? throw new InvalidDataException($"Metroids-cleared room object at block {slot.Block} was placed without its entry.")).Entry)));
     }
 
     /// <summary>
@@ -42,12 +42,12 @@ internal sealed class TourianObjects
     public bool TrySpawnOldTourianEscapeShaftWall(RoomLevelData level)
     {
         Ensure.NotNull(level);
-        int blockIndex = level.GetBlockIndex(
+        Position16<RoomBlocks> block = level.GridBlock(
             new(OldTourianEscapeShaftWallObjectDefinitions.BlockX, OldTourianEscapeShaftWallObjectDefinitions.BlockY));
         if (_slotTable.SpawnHardcoded() is not { } slot)
             return false;
 
-        slot.BlockIndex = blockIndex;
+        slot.Block = block;
         slot.Header = RoomObjectHeaderId.OldTourianEscapeShaftFakeWall;
         DoorObjects.SetupDoorTransitionDeactivatedSlot(level, slot);
         slot.Become(new OldTourianWallObject(_samus, _enemies));
@@ -61,7 +61,7 @@ internal sealed class TourianObjects
             return false;
 
         slot.Header = definition.Header;
-        slot.BlockIndex = level.GetBlockIndex(new(6, 12));
+        slot.Block = level.GridBlock(new(6, 12));
         slot.Become(new TerrainChangeObject(definition.Change));
         return true;
     }

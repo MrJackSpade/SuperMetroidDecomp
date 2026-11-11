@@ -6,16 +6,16 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal static class RoomObjectLevelWrites
 {
     /// <summary>Writes <paramref name="terrain"/> at a block, which shows the terrain's own picture.</summary>
-    internal static void DrawTerrain(RoomLevelData level, int blockIndex, RoomTerrainBlock terrain) =>
-        level.SetObjectTerrain(blockIndex, terrain);
+    internal static void DrawTerrain(RoomLevelData level, Position16<RoomBlocks> block, RoomTerrainBlock terrain) =>
+        level.SetObjectTerrain(block, terrain);
 
     /// <summary>
     /// Replaces a block's collision kind and behaviour, keeping its appearance, as a room object converts the block it sits on.
     /// </summary>
-    internal static void WriteObjectCollisionAndBehavior(RoomLevelData level, int blockIndex, RoomCollisionType collision, RoomBlockBehavior behavior)
+    internal static void WriteObjectCollisionAndBehavior(RoomLevelData level, Position16<RoomBlocks> block, RoomCollisionType collision, RoomBlockBehavior behavior)
     {
-        RoomTerrainBlock original = level.GetObjectCollisionBlockByIndex(blockIndex).Terrain;
-        level.SetObjectTerrain(blockIndex, original.WithCollision(collision));
-        level.SetObjectBehavior(blockIndex, behavior);
+        RoomTerrainBlock original = level.GetObjectCollisionBlock(block).Terrain;
+        level.SetObjectTerrain(block, original.WithCollision(collision));
+        level.SetObjectBehavior(block, behavior);
     }
 }

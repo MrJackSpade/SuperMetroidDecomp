@@ -1,15 +1,16 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// What a room object is: the thing a room population places, a door, item or block reaction leaves, or a boss or
-/// scripted scene spawns. The values are arbitrary and nothing reads them (#1414): a family recognises its objects by
-/// member, and verification translates the original game's identities through its own table. <see cref="None"/> marks
-/// a place in the room's update order that holds no identified object.
+/// What a room object is: the thing a room population places, a door, item or block reaction leaves, or a scripted
+/// scene spawns. The values are arbitrary and nothing reads them (#1414): a family recognises its objects by member, and
+/// verification translates the original game's identities through its own table. <see cref="None"/> marks a place in
+/// the room's update order that holds no identified object.
 /// </summary>
 /// <remarks>
 /// The exposed, Chozo-orb and concealed shot-block items each name one object per <see cref="InWorldCollectibleKind"/>;
-/// doors name one object per colour and facing. Mother Brain's fake death requests her mural-row and tube objects by
-/// these identities.
+/// doors name one object per colour and facing. A boss's change to its room (a wall, ceiling, bridge, platform, mural
+/// row or tube) has no identity here (#1608): its spawner places it by what it does, and its typed room object is how
+/// the room finds it.
 /// </remarks>
 public enum RoomObjectHeaderId
 {
@@ -39,66 +40,6 @@ public enum RoomObjectHeaderId
 
     /// <summary>The Wrecked Ship entrance treadmill, when Samus enters from the east.</summary>
     WreckedShipEntranceTreadmillFromEast,
-
-    /// <summary>The block wall Mother Brain's room raises behind Samus when the fight starts.</summary>
-    FillMotherBrainsWall,
-
-    /// <summary>The escape door Mother Brain's death blows open.</summary>
-    MotherBrainsRoomEscapeDoor,
-
-    /// <summary>The top row of the mural behind Mother Brain's tank, redrawn as she rises from her fake death.</summary>
-    MotherBrainMuralRow1,
-
-    /// <summary>The second row of the mural behind Mother Brain's tank.</summary>
-    MotherBrainMuralRow2,
-
-    /// <summary>The third row of the mural behind Mother Brain's tank.</summary>
-    MotherBrainMuralRow3,
-
-    /// <summary>The fourth row of the mural behind Mother Brain's tank.</summary>
-    MotherBrainMuralRow4,
-
-    /// <summary>The fifth row of the mural behind Mother Brain's tank.</summary>
-    MotherBrainMuralRow5,
-
-    /// <summary>The sixth row of the mural behind Mother Brain's tank.</summary>
-    MotherBrainMuralRow6,
-
-    /// <summary>The seventh row of the mural behind Mother Brain's tank.</summary>
-    MotherBrainMuralRow7,
-
-    /// <summary>The eighth row of the mural behind Mother Brain's tank.</summary>
-    MotherBrainMuralRow8,
-
-    /// <summary>The ninth row of the mural behind Mother Brain's tank.</summary>
-    MotherBrainMuralRow9,
-
-    /// <summary>The tenth row of the mural behind Mother Brain's tank.</summary>
-    MotherBrainMuralRow10,
-
-    /// <summary>The eleventh row of the mural behind Mother Brain's tank.</summary>
-    MotherBrainMuralRow11,
-
-    /// <summary>The bottom row of the mural behind Mother Brain's tank.</summary>
-    MotherBrainMuralRow12,
-
-    /// <summary>Clears the ceiling block above Mother Brain's tank as her fake death begins.</summary>
-    ClearMotherBrainCeilingBlock,
-
-    /// <summary>Clears the ceiling tube above Mother Brain's tank as it collapses.</summary>
-    ClearMotherBrainCeilingTube,
-
-    /// <summary>Clears one of the side tubes beside the middle of Mother Brain's floor as it collapses.</summary>
-    ClearMotherBrainBottomMiddleSideTube,
-
-    /// <summary>Clears the middle tubes of Mother Brain's floor as they collapse.</summary>
-    ClearMotherBrainBottomMiddleTubes,
-
-    /// <summary>Clears the left tube of Mother Brain's floor as it collapses.</summary>
-    ClearMotherBrainBottomLeftTube,
-
-    /// <summary>Clears the right tube of Mother Brain's floor as it collapses.</summary>
-    ClearMotherBrainBottomRightTube,
 
     /// <summary>The Brinstar plant that bites Samus from the floor when she stands inside it.</summary>
     InsideReactionBrinstarFloorPlant,
@@ -148,27 +89,6 @@ public enum RoomObjectHeaderId
     /// <summary>Maridia's fast sandfall, when Samus touches it.</summary>
     CollisionReactionSandFallsFast,
 
-    /// <summary>Clears the bridge of Crocomire's room after his death.</summary>
-    ClearCrocomireBridge,
-
-    /// <summary>Crumbles one block of Crocomire's bridge as he falls through it.</summary>
-    CrumbleCrocomireBridgeBlock,
-
-    /// <summary>Clears one block of Crocomire's bridge.</summary>
-    ClearCrocomireBridgeBlock,
-
-    /// <summary>Clears the invisible wall that holds Samus in Crocomire's fight.</summary>
-    ClearCrocomireInvisibleWall,
-
-    /// <summary>Raises the invisible wall that holds Samus in Crocomire's fight.</summary>
-    CreateCrocomireInvisibleWall,
-
-    /// <summary>Clears the invisible wall of the Baby Metroid's encounter.</summary>
-    ClearBabyMetroidInvisibleWall,
-
-    /// <summary>Raises the invisible wall of the Baby Metroid's encounter.</summary>
-    CreateBabyMetroidInvisibleWall,
-
     /// <summary>A save station.</summary>
     SaveStation,
 
@@ -183,36 +103,6 @@ public enum RoomObjectHeaderId
 
     /// <summary>Restores Phantoon's arena door after the fight.</summary>
     RestorePhantoonDoorAfterBossFight,
-
-    /// <summary>Clears the wall Botwoon breaks through.</summary>
-    ClearBotwoonWall,
-
-    /// <summary>Crumbles the wall Botwoon breaks through.</summary>
-    CrumbleBotwoonWall,
-
-    /// <summary>Crumbles a ceiling block as Kraid rises, leaving the first background behind it.</summary>
-    CrumbleKraidCeilingIntoBackground1,
-
-    /// <summary>Crumbles a platform block as Kraid sinks, leaving the first floor background.</summary>
-    CrumbleKraidPlatformVariant1,
-
-    /// <summary>Crumbles a ceiling block as Kraid rises, leaving the second background behind it.</summary>
-    CrumbleKraidCeilingIntoBackground2,
-
-    /// <summary>Crumbles a platform block as Kraid sinks, leaving the second floor background.</summary>
-    CrumbleKraidPlatformVariant2,
-
-    /// <summary>Crumbles a ceiling block as Kraid rises, leaving the third background behind it.</summary>
-    CrumbleKraidCeilingIntoBackground3,
-
-    /// <summary>Clears the ceiling of a Kraid room loaded after his defeat.</summary>
-    ClearKraidCeiling,
-
-    /// <summary>Clears the spikes of a Kraid room loaded after his defeat.</summary>
-    ClearKraidSpikes,
-
-    /// <summary>Crumbles the spikes of Kraid's floor as he dies.</summary>
-    CrumbleKraidSpikes,
 
     /// <summary>The lava quake of the Speed Booster room's escape, once the Speed Booster is taken.</summary>
     SpeedBoosterEscape,

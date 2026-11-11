@@ -16,19 +16,17 @@ public static class XrayRevealOverlays
     /// installed reveal block; every other item shows its kind's own picture's first frame (#1538), whatever was set up
     /// before it.
     /// </summary>
-    /// <param name="level">The room, whose size places the overlays' blocks.</param>
     /// <param name="blocks">The revealed blocks, as <see cref="XrayRevealMap.Build"/> lays them out.</param>
     /// <param name="items">The room's collectibles.</param>
     /// <param name="system">The collected-item record.</param>
     /// <param name="roomOverlay">The room state's special overlay, or null.</param>
     /// <param name="foregroundPosition">Camera position, which places the overlays on screen.</param>
     /// <param name="visuals">Installed reveal art.</param>
-    public static void Apply(RoomLevelData level, Span<RevealedBlock?> blocks,
+    public static void Apply(Span<RevealedBlock?> blocks,
         IReadOnlyList<CollectibleObjectSnapshot> items, SharedGameState system,
         XrayRoomOverlayDefinition? roomOverlay, Position16<RoomPixels> foregroundPosition,
         InstalledXrayReveals visuals)
     {
-        Ensure.NotNull(level);
         Ensure.LengthEqual(blocks, XrayRevealArea.BlockCount);
         InstalledXrayOverlays overlays = Ensure.NotNull(visuals).Overlays;
         for (int i = items.Count - 1; i >= 0; i--)
@@ -38,7 +36,7 @@ public static class XrayRevealOverlays
             RevealedBlock revealed = CollectibleObjects.ShowsOwnPicture(item.Kind)
                 ? new RevealedBlock(CollectibleCellPictures.DefinitionOf(new CollectiblePicture(item.Kind, 0)), RevealedBlockArrangement.AsDefined)
                 : Arranged(overlays.TankMetatile(item.Kind));
-            Write(blocks, revealed, level.Size.CellAtRowMajorIndex(item.BlockIndex), foregroundPosition);
+            Write(blocks, revealed, item.Block, foregroundPosition);
         }
         if (roomOverlay is null) return;
         foreach (XrayRoomOverlayVisual tile in overlays.RoomTiles(roomOverlay))

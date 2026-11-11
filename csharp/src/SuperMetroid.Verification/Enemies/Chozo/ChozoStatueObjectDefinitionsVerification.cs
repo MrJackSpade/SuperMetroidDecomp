@@ -156,7 +156,7 @@ internal static class ChozoStatueObjectDefinitionsVerification
         AssertTrue(roomObjects.TrySpawnProjectileShotBlock(level, trigger, permanentPowerBombBlock,
                 SamusProjectileType.Of(SamusProjectileFamily.PowerBomb), solidBlock: true),
             "a Power Bomb breaks the trigger block");
-        AssertTrue(!roomObjects.BlockReactions.IsBrokenOpen(trigger), "the trigger block is not broken open as its breakup starts");
+        AssertTrue(!roomObjects.BlockReactions.IsBrokenOpen(level.BlockAt(trigger)), "the trigger block is not broken open as its breakup starts");
         bool breakupRunsFirst = roomObjects.PopulationSlots.Single(slot => slot.BlockIndex == trigger).ProcessingPosition
             < roomObjects.PopulationSlots.Single(slot => slot.Behaviour is LowerNorfairChozoHandObject).ProcessingPosition;
         BlockReactionChange breakup = BlockReactionChangeDefinitions.PermanentPowerBombBlock;
@@ -168,7 +168,7 @@ internal static class ChozoStatueObjectDefinitionsVerification
             roomObjects.Step(level);
             AssertTrue(LowerNorfairHand(roomObjects) is { Phase: LowerNorfairChozoHandPhase.Waiting },
                 $"Lower Norfair hand still waits on update {update} of the trigger block's breakup");
-            AssertEqual(update >= lastStageUpdate, roomObjects.BlockReactions.IsBrokenOpen(trigger),
+            AssertEqual(update >= lastStageUpdate, roomObjects.BlockReactions.IsBrokenOpen(level.BlockAt(trigger)),
                 $"the trigger block stands broken open from its breakup's last stage, update {update}");
             // The stock breakup's last stage is the first to show blank air, so the cartridge's comparison could not fire
             // before it.

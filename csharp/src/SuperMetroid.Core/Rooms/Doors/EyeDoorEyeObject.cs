@@ -207,5 +207,5 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation) : Sequenc
 
     /// <summary>Whether Samus stands within <paramref name="reach"/> of the eye.</summary>
     private static bool IsSamusNear(RoomObjectSlot place, RoomObjectStepContext context, Extent16<RoomBlocks> reach) =>
-        context.RoomObjects.EyeDoors.IsSamusNear(context.Level, place, reach);
+        context.RoomObjects.EyeDoors.IsSamusNear(place, reach);
 }

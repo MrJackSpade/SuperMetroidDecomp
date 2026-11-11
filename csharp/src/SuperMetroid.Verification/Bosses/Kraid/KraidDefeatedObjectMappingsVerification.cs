@@ -18,7 +18,7 @@ internal static class KraidDefeatedObjectMappingsVerification
 
     /// <summary>Compares the native two-byte PLM header identities for both post-fight operations.</summary>
     internal static void VerifyKraidDefeatedObjectHeaders(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifyKraidDefeatedObjectField), () => VerifyKraidDefeatedObjectField(rom, 2, request => RoomObjectNativeWords.Word(KraidRoomMutationDefinitions.RoomObjects[request.RoomObject])));
+        Suite(nameof(VerifyKraidDefeatedObjectField), () => VerifyKraidDefeatedObjectField(rom, 2, request => KraidNativeWords.RoomMutations.Word(request.RoomObject)));
 
     /// <summary>Checks the selected field in native request order and rejects indexes outside the two operations.</summary>
     private static void VerifyKraidDefeatedObjectField(SuperMetroidAddressSpace rom, int offset,

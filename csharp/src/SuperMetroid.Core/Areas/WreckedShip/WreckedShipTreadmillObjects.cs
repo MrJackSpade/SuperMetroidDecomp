@@ -43,7 +43,7 @@ internal sealed class WreckedShipTreadmillObjects
                 nameof(direction), direction, "Unknown Wrecked Ship treadmill direction."),
         };
 
-        int origin = level.GetBlockIndex(
+        Position16<RoomBlocks> origin = level.GridBlock(
             new(WreckedShipTreadmillBlockDefinitions.BlockX, WreckedShipTreadmillBlockDefinitions.BlockY));
         EnsureHorizontalRangeFits(level, origin, WreckedShipTreadmillBlockDefinitions.BlockCount);
 
@@ -51,16 +51,13 @@ internal sealed class WreckedShipTreadmillObjects
             return false;
 
         slot.Header = header;
-        slot.BlockIndex = origin;
+        slot.Block = origin;
         slot.Become(new WreckedShipTreadmillObject(direction, areaBossDefeated));
 
         // The setup writes the idle row's installed picture as air and deliberately leaves the blocks' behaviour alone.
         var idle = new RoomTerrainBlock(_drawing.SetupBlock(RoomObjectSetupBlock.TreadmillIdle), WreckedShipTreadmillBlockDefinitions.IdleCollision);
         for (int offset = 0; offset < WreckedShipTreadmillBlockDefinitions.BlockCount; offset++)
-        {
-            int blockIndex = origin + offset;
-            level.SetTerrain(blockIndex, idle);
-        }
+            level.SetTerrain(origin + new Offset16<RoomBlocks>(offset, 0), idle);
         return true;
     }
 
@@ -72,13 +69,13 @@ internal sealed class WreckedShipTreadmillObjects
     public bool TrySpawnMaridiaElevatube(RoomLevelData level)
     {
         Ensure.NotNull(level);
-        int blockIndex = level.GetBlockIndex(MaridiaElevatubeDefinitions.RoomObjectBlock);
+        Position16<RoomBlocks> block = level.GridBlock(MaridiaElevatubeDefinitions.RoomObjectBlock);
 
         if (_slotTable.SpawnHardcoded() is not { } slot)
             return false;
 
         slot.Header = RoomObjectHeaderId.MaridiaElevatube;
-        slot.BlockIndex = blockIndex;
+        slot.Block = block;
         slot.Become(new MaridiaElevatubeObject());
         return true;
     }
@@ -88,7 +85,7 @@ internal sealed class WreckedShipTreadmillObjects
     /// <param name="origin">The row's first block.</param>
     /// <param name="direction">The belt's push direction.</param>
     /// <param name="drawing">The installed pictures, which give what the running row shows.</param>
-    internal static void RunBelt(RoomLevelData level, int origin, WreckedShipTreadmillDirection direction, IRoomObjectDrawing drawing)
+    internal static void RunBelt(RoomLevelData level, Position16<RoomBlocks> origin, WreckedShipTreadmillDirection direction, IRoomObjectDrawing drawing)
     {
         Ensure.NotNull(level);
         Ensure.NotNull(drawing);
@@ -100,9 +97,9 @@ internal sealed class WreckedShipTreadmillObjects
         var running = new RoomTerrainBlock(drawing.SetupBlock(RoomObjectSetupBlock.TreadmillRunning), WreckedShipTreadmillBlockDefinitions.RunningCollision);
         for (int offset = 0; offset < WreckedShipTreadmillBlockDefinitions.BlockCount; offset++)
         {
-            int blockIndex = origin + offset;
-            level.SetTerrain(blockIndex, running);
-            level.SetBehavior(blockIndex, rightwards
+            Position16<RoomBlocks> block = origin + new Offset16<RoomBlocks>(offset, 0);
+            level.SetTerrain(block, running);
+            level.SetBehavior(block, rightwards
                 ? WreckedShipTreadmillBlockDefinitions.RightwardsBehavior
                 : WreckedShipTreadmillBlockDefinitions.LeftwardsBehavior);
         }
@@ -111,11 +108,11 @@ internal sealed class WreckedShipTreadmillObjects
     /// <summary>Rejects a treadmill row that would wrap into the next room block row.</summary>
     private static void EnsureHorizontalRangeFits(
         RoomLevelData level,
-        int origin,
+        Position16<RoomBlocks> origin,
         int count)
     {
-        int originX = origin % level.Size.X;
-        int originY = origin / level.Size.X;
+        int originX = origin.X;
+        int originY = origin.Y;
         if (originX + count <= level.Size.X)
             return;
         throw new InvalidDataException(

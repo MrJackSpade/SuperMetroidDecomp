@@ -46,7 +46,7 @@ internal sealed class ScrollTriggerObject : RoomObjectBehaviour
         else
             foreach (RoomScrollWrite write in Writes ?? throw new InvalidOperationException("A scroll trigger lost its writes."))
                 scrolls.SetCell(write.Index, write.State);
-        Rest(context.Level, place.BlockIndex);
+        Rest(context.Level, place.Block);
     }
 
     /// <summary>
@@ -54,12 +54,12 @@ internal sealed class ScrollTriggerObject : RoomObjectBehaviour
     /// after its writes.
     /// </summary>
     /// <param name="level">The room's level data.</param>
-    /// <param name="blockIndex">The trigger's block.</param>
-    internal void Rest(RoomLevelData level, int blockIndex)
+    /// <param name="block">The trigger's block.</param>
+    internal void Rest(RoomLevelData level, Position16<RoomBlocks> block)
     {
         Ensure.NotNull(level);
         Triggered = false;
-        level.SetTerrain(blockIndex, level.GetCollisionBlockByIndex(blockIndex).Terrain.WithCollision(RoomCollisionType.SpecialAir));
-        level.SetBehavior(blockIndex, RoomBlockBehavior.Reacting(BlockReactionDefinitions.ScrollTrigger));
+        level.SetTerrain(block, level.GetCollisionBlock(block).Terrain.WithCollision(RoomCollisionType.SpecialAir));
+        level.SetBehavior(block, RoomBlockBehavior.Reacting(BlockReactionDefinitions.ScrollTrigger));
     }
 }

@@ -240,7 +240,7 @@ internal static class CoreAccess
                     .Select((slot, position) => new IndexedObjectSlot(slot, position))
                     .Where(entry => entry.Slot.Active)
                     .SelectMany(entry => entry.Slot.Behaviour is StationObject station
-                        ? [new StationObjectSnapshot(entry.Index, entry.Slot.BlockIndex, entry.Slot.NativeRoomArgument,
+                        ? [new StationObjectSnapshot(entry.Index, roomObjects.Level.Size.RowMajorIndex(entry.Slot.Block), entry.Slot.NativeRoomArgument,
                             station.Kind, station.Triggered, station.SavePhase, lockedOut)]
                         : Array.Empty<StationObjectSnapshot>())
                     .ToArray();
@@ -344,7 +344,7 @@ internal static class CoreAccess
         internal bool ScrollObjectTriggered(int blockIndex)
         {
             ScrollTriggerObject[] owners = [.. roomObjects.SlotTable.Slots
-                .Where(slot => slot.Active && slot.BlockIndex == blockIndex)
+                .Where(slot => slot.Active && roomObjects.Level.Size.RowMajorIndex(slot.Block) == blockIndex)
                 .Select(slot => slot.Behaviour)
                 .OfType<ScrollTriggerObject>()];
             if (owners.Length != 1)
@@ -374,7 +374,7 @@ internal static class CoreAccess
         /// <summary>Block index of every active PLM, by slot ordinal.</summary>
         internal IReadOnlyList<int> ActiveObjectBlockIndices =>
         [
-            .. Group4ActiveObjectSlots(self).Select(slot => slot.BlockIndex),
+            .. Group4ActiveObjectSlots(self).Select(slot => self.Level.Size.RowMajorIndex(slot.Block)),
         ];
 
         /// <summary>Phase of every permanent-item PLM, in the same order as <see cref="CollectibleObjects.Collectibles"/>.</summary>

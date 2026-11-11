@@ -215,8 +215,7 @@ internal static class NoobTubeProjectileBehaviorVerification
                 _ => throw new ArgumentOutOfRangeException(nameof(kind)),
             };
             system.NoobTubeBehavior.SpawnNoobTubeProjectile(
-                new NoobTubeProjectileRequest(definition, piece, RoomObjectBlockIndex: 42),
-                roomWidthInBlocks: 16);
+                new NoobTubeProjectileRequest(definition, piece, RoomObjectBlock: new(10, 2)));
             return system.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == kind);
         }
 

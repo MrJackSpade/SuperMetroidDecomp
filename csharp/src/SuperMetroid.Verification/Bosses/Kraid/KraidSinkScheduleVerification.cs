@@ -32,7 +32,7 @@ internal static class KraidSinkScheduleVerification
         Suite(nameof(VerifyKraidSinkObjectField), () => VerifyKraidSinkObjectField(rom, callbacks, 18, request => request.Block.Y));
     /// <summary>Checks native PLM header words selected by the sink callbacks.</summary>
     private static void VerifyKraidSinkObjectHeaders(SuperMetroidAddressSpace rom, IEnumerable<ushort> callbacks) =>
-        Suite(nameof(VerifyKraidSinkObjectField), () => VerifyKraidSinkObjectField(rom, callbacks, 19, request => RoomObjectNativeWords.Word(KraidRoomMutationDefinitions.RoomObjects[request.RoomObject])));
+        Suite(nameof(VerifyKraidSinkObjectField), () => VerifyKraidSinkObjectField(rom, callbacks, 19, request => KraidNativeWords.RoomMutations.Word(request.RoomObject)));
 
     /// <summary>Compares one inline PLM field across the six mutating callbacks and excludes the empty RTS.</summary>
     private static void VerifyKraidSinkObjectField(SuperMetroidAddressSpace rom, IEnumerable<ushort> callbacks,
@@ -136,7 +136,7 @@ internal static class KraidSinkScheduleVerification
             if (!crumble) continue;
             int code = 0xa70000 | callback;
             AssertEqual(new Position16<RoomBlocks>(KraidSinkScheduleRomByte(rom, code + 17), KraidSinkScheduleRomByte(rom, code + 18)), requests[0].Block, "Native callback inline PLM block");
-            AssertEqual(RoomObjectNativeWords.Header(Word(code + 19)), KraidRoomMutationDefinitions.RoomObjects[requests[0].RoomObject], "Native callback inline PLM identity");
+            AssertEqual(KraidNativeWords.RoomMutations.Decode(Word(code + 19), "Kraid room-mutation PLM header"), requests[0].RoomObject, "Native callback inline PLM identity");
         }
         Console.WriteLine("Kraid sink schedule: all 65536 Y coordinates, native callbacks, emitted rocks and inline PLM arguments match with schedule reads forbidden.");
     }

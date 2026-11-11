@@ -28,16 +28,14 @@ internal sealed class EyeDoorBehavior
 
     /// <summary>
     /// Replays spawning a projectile with room graphics and the definition-specific initializer selected
-    /// by the eye-door room object's program. The room object's block index and room argument are retained
+    /// by the eye-door room object's program. The room object's block and room argument are retained
     /// because the game initializers read both directly from their spawning room object.
     /// </summary>
     public void SpawnEyeDoorProjectile(
         EyeDoorProjectileRequest request,
-        int roomWidthInBlocks,
         SharedGameState system)
     {
         _room.EnsureLoaded();
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(roomWidthInBlocks);
         Ensure.NotNull(system);
 
         RoomEnemyProjectileKind kind = request.Definition switch
@@ -59,9 +57,7 @@ internal sealed class EyeDoorBehavior
         _eyeDoorProjectileSystem = system;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphics: default);
 
-        var block = new Position16<RoomBlocks>(
-            request.RoomObjectBlockIndex % roomWidthInBlocks,
-            request.RoomObjectBlockIndex / roomWidthInBlocks);
+        Position16<RoomBlocks> block = request.RoomObjectBlock;
         switch (kind)
         {
             case RoomEnemyProjectileKind.EyeDoorProjectile:
@@ -221,7 +217,7 @@ internal sealed class EyeDoorBehavior
             _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorOrientation)} {request.Facing}."),
         };
         projectile.State = new EyeDoorShotState(request.Door ?? throw new InvalidOperationException(
-            $"The eye-door attack at block {request.RoomObjectBlockIndex} was spawned without its door."));
+            $"The eye-door attack at block {request.RoomObjectBlock} was spawned without its door."));
         projectile.Position = projectile.Position.WithWhole(block.ToRoomPixels() + origin);
     }
 

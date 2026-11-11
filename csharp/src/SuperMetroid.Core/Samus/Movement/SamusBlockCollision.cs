@@ -220,7 +220,7 @@ public static class SamusBlockCollision
                         {
                             throw new InvalidOperationException(
                                 $"Scroll trigger block {block.Index} has no active scroll room-object owner; " +
-                                $"live=[{string.Join(',', terrain.RoomObjects?.Scrolls.Snapshots.Select(scroll => scroll.BlockIndex) ?? [])}].");
+                                $"live=[{string.Join(',', terrain.RoomObjects?.Scrolls.Snapshots.Select(scroll => scroll.Block) ?? [])}].");
                         }
                         break;
 
@@ -283,8 +283,7 @@ public static class SamusBlockCollision
                                  block.Behavior,
                                  state.CollisionPose.ForRoomCollision(),
                                  Axis.Horizontal,
-                                 movingPositive: acceptedDisplacement.IsPositive,
-                                 roomWidthInBlocks: terrain.Level.Size.X)))
+                                 movingPositive: acceptedDisplacement.IsPositive)))
                         {
                             throw new InvalidOperationException(
                                 $"Station access block {block.Index} behaviour ({block.Behavior}) " +
@@ -575,7 +574,7 @@ public static class SamusBlockCollision
                     {
                         throw new InvalidOperationException(
                             $"Scroll trigger block {block.Index} has no active scroll room-object owner; " +
-                            $"live=[{string.Join(',', terrain.RoomObjects?.Scrolls.Snapshots.Select(scroll => scroll.BlockIndex) ?? [])}].");
+                            $"live=[{string.Join(',', terrain.RoomObjects?.Scrolls.Snapshots.Select(scroll => scroll.Block) ?? [])}].");
                     }
                     // Scroll wake-up itself remains carry-clear; sand has a separate
                     // carry/contact contract handled above.
@@ -669,8 +668,7 @@ public static class SamusBlockCollision
                              block.Behavior,
                              state.CollisionPose.ForRoomCollision(),
                              Axis.Vertical,
-                             movingPositive: acceptedDisplacement.IsPositive,
-                             roomWidthInBlocks: terrain.Level.Size.X)))
+                             movingPositive: acceptedDisplacement.IsPositive)))
                     {
                         throw new InvalidOperationException(
                             $"Station access block {block.Index} behaviour ({block.Behavior}) " +

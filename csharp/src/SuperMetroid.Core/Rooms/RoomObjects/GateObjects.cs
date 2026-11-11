@@ -9,18 +9,15 @@ internal sealed class GateObjects
 {
     /// <summary>Samus as the room reads and changes her.</summary>
     private readonly IRoomSamusAccess? _samus;
-    /// <summary>The room's level, whose width locates a gate's column.</summary>
-    private readonly RoomLevelData? _level;
     /// <summary>Fixed room-object pool used for temporary shot triggers and resident gates.</summary>
     private readonly RoomObjectSlotTable _slotTable;
     /// <summary>Sound queue receiving accepted gate wake and rejected-shot effects.</summary>
     private readonly RoomObjectSoundQueue _sounds;
 
     /// <summary>Binds the gate room-object owner to the active room, slot pool, and sound queue.</summary>
-    internal GateObjects(IRoomSamusAccess? samus, RoomLevelData? level, RoomObjectSlotTable slotTable, RoomObjectSoundQueue sounds)
+    internal GateObjects(IRoomSamusAccess? samus, RoomObjectSlotTable slotTable, RoomObjectSoundQueue sounds)
     {
         _samus = samus;
-        _level = level;
         _slotTable = slotTable;
         _sounds = sounds;
     }
@@ -50,30 +47,30 @@ internal sealed class GateObjects
         // authored terrain.
         for (int row = 0; row < DownwardGateDefinitions.GateHeightInBlocks; row++)
         {
-            int blockIndex = checked(slot.BlockIndex + row * level.Size.X);
-            _ = level.GetCollisionBlockByIndex(blockIndex);
-            level.SetBehavior(blockIndex, DownwardGateDefinitions.ClosedGateBehavior);
+            Position16<RoomBlocks> block = slot.Block + new Offset16<RoomBlocks>(0, row);
+            _ = level.GetCollisionBlock(block);
+            level.SetBehavior(block, DownwardGateDefinitions.ClosedGateBehavior);
         }
 
         _downwardGateProjectileRequests.Add(new DownwardGateProjectileRequest(
             DownwardGateProjectileOperation.Spawn,
             DownwardGateProjectileKind.Closed,
-            slot.BlockIndex));
+            slot.Block));
     }
 
     /// <summary>Installs a side trigger's selected program and its authored neighboring shot block.</summary>
     internal static void SetupDownwardGateShotBlock(RoomLevelData level, RoomObjectSlot slot)
     {
         DownwardGateShotBlockDefinition definition = DownwardGateShotBlock((slot.Argument as GateTriggerArgument
-            ?? throw new InvalidDataException($"Downward gate shot block at block {slot.BlockIndex} was placed without its trigger.")).Trigger);
+            ?? throw new InvalidDataException($"Downward gate shot block at block {slot.Block} was placed without its trigger.")).Trigger);
         slot.Become(new TerrainChangeObject(definition.Change));
 
         // The setup performs independent left and right writes even though every authored row installs exactly one
         // side. Preserve that ordering instead of deriving the side from the trigger.
         if (definition.LeftCollision is { } left)
-            WriteDownwardGateShotBlock(level, slot.BlockIndex - 1, left, definition.Trigger);
+            WriteDownwardGateShotBlock(level, level.ObjectBlockStep(slot.Block, new Offset16<RoomBlocks>(-1, 0)), left, definition.Trigger);
         if (definition.RightCollision is { } right)
-            WriteDownwardGateShotBlock(level, slot.BlockIndex + 1, right, definition.Trigger);
+            WriteDownwardGateShotBlock(level, level.ObjectBlockStep(slot.Block, new Offset16<RoomBlocks>(1, 0)), right, definition.Trigger);
     }
 
     /// <summary>
@@ -90,11 +87,11 @@ internal sealed class GateObjects
     /// shows (#1580): the trigger's shot-block draw covers it on the object's first update.
     /// </summary>
     /// <remarks>The trigger's reaction selects its color and side.</remarks>
-    private static void WriteDownwardGateShotBlock(RoomLevelData level, int blockIndex, RoomCollisionType collision,
+    private static void WriteDownwardGateShotBlock(RoomLevelData level, Position16<RoomBlocks> block, RoomCollisionType collision,
         DownwardGateTriggerBehavior trigger)
     {
-        _ = level.GetCollisionBlockByIndex(blockIndex);
-        RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, blockIndex, collision,
+        _ = level.GetCollisionBlock(block);
+        RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, block, collision,
             RoomBlockBehavior.Reacting(BlockReactionDefinitions.DownwardGateTriggers.ReactionFor(trigger)));
     }
 
@@ -115,7 +112,7 @@ internal sealed class GateObjects
         if (_slotTable.SpawnAtCurrentBlock() is not { } temporary)
             return true;
         temporary.Header = HeaderForGateTrigger(trigger);
-        temporary.BlockIndex = blockIndex;
+        temporary.Block = level.BlockAt(blockIndex);
 
         bool accepted = GateTriggerAcceptsProjectile(trigger, projectileType);
         if (!accepted)
@@ -131,12 +128,12 @@ internal sealed class GateObjects
             return true;
         }
 
-        int gateBlockIndex = IsLeftTrigger(trigger) ? blockIndex + 1 : blockIndex - 1;
+        Position16<RoomBlocks> gateBlock = level.ObjectBlockStep(temporary.Block, new Offset16<RoomBlocks>(IsLeftTrigger(trigger) ? 1 : -1, 0));
         DownwardGateObject? gate = null;
         foreach (RoomObjectSlot candidate in _slotTable.InProcessingOrder)
         {
             if (candidate.Active && candidate.Behaviour is DownwardGateObject resident &&
-                candidate.BlockIndex == gateBlockIndex)
+                candidate.Block == gateBlock)
             {
                 gate = resident;
                 break;
@@ -146,7 +143,7 @@ internal sealed class GateObjects
         {
             temporary.Clear();
             throw new InvalidDataException(
-                $"Downward gate trigger block {blockIndex} has no adjacent resident gate at {gateBlockIndex}.");
+                $"Downward gate trigger block {temporary.Block} has no adjacent resident gate at {gateBlock}.");
         }
 
         // Repeated accepted hits before the gate wakes do not accumulate extra close cycles.
@@ -158,14 +155,14 @@ internal sealed class GateObjects
     /// <summary>Requests the moving gate projectile that slides the gate down from the slot's block.</summary>
     internal void SpawnMovingGateProjectile(RoomObjectSlot slot) =>
         _downwardGateProjectileRequests.Add(new DownwardGateProjectileRequest(
-            DownwardGateProjectileOperation.Spawn, DownwardGateProjectileKind.Moving, slot.BlockIndex));
+            DownwardGateProjectileOperation.Spawn, DownwardGateProjectileKind.Moving, slot.Block));
 
     /// <summary>
     /// Wakes the gate projectile spawned for this gate's cell, so it slides back up.
     /// </summary>
     internal void WakeGateProjectile(RoomObjectSlot slot) =>
         _downwardGateProjectileRequests.Add(new DownwardGateProjectileRequest(
-            DownwardGateProjectileOperation.Wake, Kind: null, slot.BlockIndex));
+            DownwardGateProjectileOperation.Wake, Kind: null, slot.Block));
 
     /// <summary>Moves buffered rejected-shot sounds into the room sound queue in emission order.</summary>
     internal void PublishPendingDownwardGateSounds()
@@ -180,10 +177,8 @@ internal sealed class GateObjects
         IRoomSamus? samus = _samus?.Current;
         if (samus is null)
             return false;
-        if (_level is not { Size.X: > 0 } level)
-            throw new InvalidOperationException("Downward gate has no active room width.");
-        int gateX = slot.BlockIndex % level.Size.X;
-        int gateY = slot.BlockIndex / level.Size.X;
+        int gateX = slot.Block.X;
+        int gateY = slot.Block.Y;
         return (samus.Position.X.Whole >> 4) == gateX &&
             CoordinateAxis.Wrap((samus.Position.Y.Whole >> 4) - gateY) <
                 DownwardGateDefinitions.GateHeightInBlocks;

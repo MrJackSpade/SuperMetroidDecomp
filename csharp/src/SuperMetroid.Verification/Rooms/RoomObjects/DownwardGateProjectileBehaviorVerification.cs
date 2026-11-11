@@ -29,7 +29,7 @@ internal static class DownwardGateProjectileBehaviorVerification
             SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard);
         AssertTrue(gate.Animation is DownwardGateProjectileAnimation { PlayingSegment: DownwardGateProjectileProgram.Moving }, "the moving gate starts its program");
         // The gate's spawn gives it its state; this fixture initializes the projectile directly, so it gives it here.
-        gate.State = new DownwardGateState(0);
+        gate.State = new DownwardGateState(Position16<RoomBlocks>.Zero);
 
         DownwardGateProjectileProgram current = DownwardGateProjectileProgram.Moving;
         int resumes = 0;

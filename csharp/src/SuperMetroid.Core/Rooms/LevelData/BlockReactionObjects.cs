@@ -17,7 +17,7 @@ internal sealed class BlockReactionObjects
     /// The blocks broken open: each is the block a breakup started at, whose breakup has shown its last stage and has not
     /// grown back since.
     /// </summary>
-    private readonly HashSet<int> _brokenOpenBlocks = [];
+    private readonly HashSet<Position16<RoomBlocks>> _brokenOpenBlocks = [];
 
     /// <summary>What the parent blocks the setups write show: their installed pictures (#1580).</summary>
     private readonly IRoomObjectDrawing _drawing;
@@ -48,7 +48,7 @@ internal sealed class BlockReactionObjects
             return false;
 
         RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-        slot.BlockIndex = blockIndex;
+        slot.Block = level.BlockAt(blockIndex);
         slot.RestoreTerrain = block.Terrain;
         slot.Become(respawning
             ? new RespawningGrappleBlockObject()
@@ -82,7 +82,7 @@ internal sealed class BlockReactionObjects
             return false;
 
         RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-        slot.BlockIndex = blockIndex;
+        slot.Block = level.BlockAt(blockIndex);
 
         // This is not the original appearance. The setup deliberately replaces the block and its mirroring with the
         // bomb-block parent; multi-block restorations then add extension blocks around this parent.
@@ -123,7 +123,7 @@ internal sealed class BlockReactionObjects
         RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
         slot.Header =
             RoomObjectHeaders.ContactCrumbleByReactionIndex(behavior.Reaction.Entry);
-        slot.BlockIndex = blockIndex;
+        slot.Block = level.BlockAt(blockIndex);
         // The struck block keeps only its collision; the parent shows unmirrored, whatever the block's mirroring (#1581).
         RoomTerrainBlock restore = block.Terrain.WithAppearance(_drawing.SetupBlock(RoomObjectSetupBlock.CrumbleBlockParent));
         slot.RestoreTerrain = restore;
@@ -176,7 +176,7 @@ internal sealed class BlockReactionObjects
 
         RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
         slot.Header = definition.Header;
-        slot.BlockIndex = blockIndex;
+        slot.Block = level.BlockAt(blockIndex);
         // The struck block keeps only its collision; the parent shows unmirrored, whatever the block's mirroring (#1581).
         RoomTerrainBlock restore = block.Terrain.WithAppearance(_drawing.SetupBlock(RoomObjectSetupBlock.SpeedBoosterBlockParent));
         slot.RestoreTerrain = restore;
@@ -214,7 +214,7 @@ internal sealed class BlockReactionObjects
             return false;
 
         RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-        slot.BlockIndex = blockIndex;
+        slot.Block = level.BlockAt(blockIndex);
 
         if (!behavior.Reaction.IsCommonEntryBelow(8))
         {
@@ -286,7 +286,7 @@ internal sealed class BlockReactionObjects
             return false;
 
         RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-        slot.BlockIndex = blockIndex;
+        slot.Block = level.BlockAt(blockIndex);
 
         switch (reaction)
         {
@@ -411,7 +411,7 @@ internal sealed class BlockReactionObjects
         if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
             return false;
 
-        slot.BlockIndex = blockIndex;
+        slot.Block = level.BlockAt(blockIndex);
         slot.Become(new BlockReactionObject(change));
         return true;
     }
@@ -420,21 +420,21 @@ internal sealed class BlockReactionObjects
     /// Records the image a block reaction has just shown at its block: a breakup's last stage breaks the block open, and
     /// any other image, or the block's saved terrain restored as it grows back, closes it again.
     /// </summary>
-    /// <param name="blockIndex">The reaction's block.</param>
+    /// <param name="block">The reaction's block.</param>
     /// <param name="draw">The image's draw; null when the image restored the block's saved terrain.</param>
-    internal void RecordImageShown(int blockIndex, RoomObjectDraw? draw)
+    internal void RecordImageShown(Position16<RoomBlocks> block, RoomObjectDraw? draw)
     {
         if (draw is RoomObjectFrameDraw<ShotBlockObjectDraws.Draw> { Frame.BreaksOpen: true })
-            _brokenOpenBlocks.Add(blockIndex);
+            _brokenOpenBlocks.Add(block);
         else
-            _brokenOpenBlocks.Remove(blockIndex);
+            _brokenOpenBlocks.Remove(block);
     }
 
     /// <summary>
-    /// Whether a breakup that started at <paramref name="blockIndex"/> has shown its last stage, breaking the block open,
+    /// Whether a breakup that started at <paramref name="block"/> has shown its last stage, breaking the block open,
     /// and the block has not grown back since.
     /// </summary>
-    internal bool IsBrokenOpen(int blockIndex) => _brokenOpenBlocks.Contains(blockIndex);
+    internal bool IsBrokenOpen(Position16<RoomBlocks> block) => _brokenOpenBlocks.Contains(block);
 
     /// <summary>
     /// Runs a breaking shot reaction's setup that keeps the struck block's collision kind under <paramref name="parent"/>'s
@@ -446,6 +446,6 @@ internal sealed class BlockReactionObjects
         RoomTerrainBlock restore = block.Terrain.WithAppearance(_drawing.SetupBlock(parent));
         slot.RestoreTerrain = restore;
         slot.Become(reaction);
-        level.SetTerrain(slot.BlockIndex, restore.Deactivated());
+        level.SetTerrain(slot.Block, restore.Deactivated());
     }
 }

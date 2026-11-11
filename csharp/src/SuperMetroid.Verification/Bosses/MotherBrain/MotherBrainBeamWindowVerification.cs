@@ -88,7 +88,7 @@ internal static class MotherBrainBeamWindowVerification
         AssertEqual(installedColours.BeamInitialColor, beam.Color, "new attack resets HDMA color");
         foreach (byte angle in new byte[] { 32, 96, 128, 160, 0, 224 })
         {
-            beam.Step(true, new(100, 95), RotationAngle.FromSteps(angle), 512, default);
+            beam.Step(true, new(100, 95), RotationAngle.FromSteps(angle), Width(2), default);
             bool up = angle is 96 or 128 or 160;
             MotherBrainRainbowBeamGeometry geometry = beam.Geometry ?? throw new InvalidOperationException("The beam resolved its geometry.");
             AssertEqual(ScreenWindow.Of(new WindowCone(Offset16<ScreenPixels>.Of(114, 100), 128 - geometry.EdgeB, 128 - geometry.EdgeA),
@@ -97,7 +97,7 @@ internal static class MotherBrainBeamWindowVerification
                 $"quadrant {angle} stays on its ray side of the mouth");
         }
         MotherBrainRainbowBeamGeometry? retained = beam.Geometry;
-        beam.Step(true, new(100, 95), RotationAngle.ThreeQuarterTurn, 512, default);
+        beam.Step(true, new(100, 95), RotationAngle.ThreeQuarterTurn, Width(2), default);
         AssertEqual(retained, beam.Geometry, "native left-axis RTS preserves prior geometry");
         beam.Step(true, new(356, 95), RotationAngle.QuarterTurn, Width(64), new(256, 0));
         AssertEqual(114, (beam.Geometry ?? throw new InvalidOperationException("Verification requires beam.Geometry.")).MouthScreenX, "the mouth lies on the screen at its room X less the camera's");
@@ -118,15 +118,15 @@ internal static class MotherBrainBeamWindowVerification
         var beam = new MotherBrainRainbowBeamEffect { PresentationColors = colors };
         beam.Step(true, new(100, 95), RotationAngle.FromSteps(128), Width(32), default);
         ScreenWindow up = Cone(beam.RenderSnapshot);
-        beam.Step(true, new(100, 95), RotationAngle.ThreeQuarterTurn, 512, default);
+        beam.Step(true, new(100, 95), RotationAngle.ThreeQuarterTurn, Width(2), default);
         AssertEqual(up, Cone(beam.RenderSnapshot), "retain keeps the previous cone");
         beam.Step(false, default, default, 0, default);
-        beam.Step(true, new(40, 150), RotationAngle.ThreeQuarterTurn, 512, default);
+        beam.Step(true, new(40, 150), RotationAngle.ThreeQuarterTurn, Width(2), default);
         AssertEqual(up, Cone(beam.RenderSnapshot), "retain after reactivation still shows the cone from the earlier attack");
     }
 
     /// <summary>Native 8.8 angular-width word for a whole number of 256-unit-turn table units.</summary>
-    private static ushort Width(int wholeTableUnits) => (ushort)EightEight.FromWhole(wholeTableUnits);
+    private static RotationAngle Width(int steps) => RotationAngle.FromSteps(steps);
 
     /// <summary>The window an active beam is captured with.</summary>
     private static ScreenWindow Cone(MotherBrainRainbowBeamRenderSnapshot beam) =>

@@ -30,10 +30,10 @@ public sealed class MotherBrainRainbowBeamEffect
     /// <param name="active">Enemy-owned enable state; false disables drawing without advancing color or resolving geometry, and a later activation restarts the color cycle.</param>
     /// <param name="head">Head enemy's whole-pixel room position. The mouth lies fourteen pixels right of it and five below, and must lie strictly between work-area scanlines 32 and 232.</param>
     /// <param name="angle">Beam center aim; only its 256-unit-turn table index is used when computing the two wrapping edge angles.</param>
-    /// <param name="angularWidth">Angular width in 8.8 table units, an eighth through three eighths of a turn; its whole part is halved with integer truncation to obtain each edge's displacement in 256-unit-turn table units.</param>
+    /// <param name="angularWidth">Angular width; its whole steps are halved with integer truncation to obtain each edge's displacement in steps.</param>
     /// <param name="camera">The camera's whole-pixel room position, which places the mouth on the screen.</param>
     public void Step(bool active, Position16<RoomPixels> head,
-        RotationAngle angle, int angularWidth, Position16<RoomPixels> camera)
+        RotationAngle angle, RotationAngle angularWidth, Position16<RoomPixels> camera)
     {
         if (!active)
         {
@@ -62,9 +62,9 @@ public sealed class MotherBrainRainbowBeamEffect
 
     /// <summary>Resolves the beam's cone from its two angular edges, using quadrant dispatch and mouth offsets.</summary>
     private void ResolveGeometry(Position16<RoomPixels> head, Position16<RoomPixels> camera,
-        RotationAngle angle, int angularWidth)
+        RotationAngle angle, RotationAngle angularWidth)
     {
-        int halfWidth = EightEight.WholeOf(Ensure.AtLeastZero(angularWidth)) / 2;
+        int halfWidth = angularWidth.ToTrigonometryAngle().RawValue / 2;
         int a = angle.ToTrigonometryAngle().TurnedBySteps(-halfWidth).RawValue;
         int b = angle.ToTrigonometryAngle().TurnedBySteps(halfWidth).RawValue;
         int quadrant = (a / TrigonometryAngle.QuarterTurn.RawValue) * 4 + b / TrigonometryAngle.QuarterTurn.RawValue;

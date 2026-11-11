@@ -19,8 +19,20 @@ internal sealed class MotherBrainRainbowAttackPhases
         _state = state;
     }
 
-    /// <summary>Rainbow-beam angular width in 8.8 table units, initialized and floored and capped.</summary>
-    public int AngularWidth { get; internal set; }
+    /// <summary>
+    /// Rainbow-beam angular width: two steps of a 256-step turn when the beam starts, widening by one and a half steps up
+    /// to twelve and narrowing back to two as it shuts down.
+    /// </summary>
+    public RotationAngle AngularWidth { get; internal set; }
+
+    /// <summary>The beam's starting and narrowest width: two steps.</summary>
+    private static readonly RotationAngle NarrowestWidth = RotationAngle.FromSteps(2);
+
+    /// <summary>The beam's widest width: twelve steps.</summary>
+    private static readonly RotationAngle WidestWidth = RotationAngle.FromSteps(12);
+
+    /// <summary>How far one widening or narrowing changes the width: one and a half steps.</summary>
+    private static readonly RotationAngle WidthStep = RotationAngle.FromSteps(1, 128);
 
     /// <summary>Sound queue attempts left, counted down until it runs past zero. Six produces seven queue attempts.</summary>
     public int SoundQueueCount { get; internal set; }
@@ -45,7 +57,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         Ensure.NotNull(samus);
 
         _state.SetHeadProgram(MotherBrainHeadProgram.FiringRainbowBeam);
-        AngularWidth = 512;
+        AngularWidth = NarrowestWidth;
         ExplosionIndex = 0;
         ExplosionTimer = 0;
         SoundQueueCount = 6;
@@ -85,10 +97,11 @@ internal sealed class MotherBrainRainbowAttackPhases
     internal MotherBrainWalkResult RequestWalkForwardReallySlow(int targetX) =>
         _state.MakeBodyWalkForwards(targetX, MotherBrainBodyProgram.WalkForwardReallySlow);
 
-    /// <summary>Widens the beam by 384 up to 3072 and refreshes its angle toward Samus.</summary>
+    /// <summary>Widens the beam by one and a half steps up to twelve and refreshes its angle toward Samus.</summary>
     private void IncreaseWidthAndAim(SamusState samus)
     {
-        AngularWidth = Math.Min(AngularWidth + 384, 3072);
+        RotationAngle widened = AngularWidth + WidthStep;
+        AngularWidth = widened > WidestWidth ? WidestWidth : widened;
         AimBeamAtSamus(samus);
     }
 
@@ -384,12 +397,12 @@ internal sealed class MotherBrainRainbowAttackPhases
             growth: MotherBrainRainbowBeamGrowth.FullWidth,
             requests);
 
-        // The finish narrows first, then compares the signed result with
-        // an eighth of a turn. Width is pinned only after it crosses below that floor.
-        AngularWidth -= 384;
-        if (AngularWidth < 512)
+        // The finish narrows first, then compares the result with the narrowest width. Width is pinned only after it
+        // crosses below that floor; it never narrows below half a step, so it never passes zero.
+        AngularWidth -= WidthStep;
+        if (AngularWidth < NarrowestWidth)
         {
-            AngularWidth = 512;
+            AngularWidth = NarrowestWidth;
             _movement.BeginFallingAfterRainbowBeam();
             BeamActive = false;
             requests.StopEarthquake();

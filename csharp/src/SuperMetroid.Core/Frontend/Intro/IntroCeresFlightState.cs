@@ -79,7 +79,7 @@ internal sealed class IntroCeresFlightState
             "Ceres approach requires installed cinematic artwork.");
         Artwork = content;
 
-        // Setup loads the floor's front view and the sprite characters; the scene shows the front view's installed floor (#1467).
+        // Setup loads the floor's front view and the actors' artwork; the scene shows the front view's installed floor (#1467).
         objects = new ScreenSprites();
         Backdrop = content.Backdrop;
         // The loads above are invisible: the screen stays black until the music queue drains.

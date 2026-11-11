@@ -76,11 +76,11 @@ internal static class IntroEggMotion
     /// <summary>Six signed 16.16 shell-fragment horizontal velocities.</summary>
     /// <remarks>
     /// Issues #625 and #976: the original data
-    /// match all six high-word-first velocity pairs:
-    /// FFFF:4000, 0000:4000, FFFF:8000, FFFF:2000, 0000:8000,
-    /// 0000:2000. The fragment motion indexes them by the immutable fragment number
-    /// 0..5, scaled by four bytes; the caller adds the fraction before the
-    /// signed whole word and carries across. The directions and fractional
+    /// match all six velocities, in pixels per frame:
+    /// -0.75, 0.25, -0.5, -0.875, 0.5
+    /// and 0.125. The fragment motion indexes them by the immutable fragment number
+    /// 0..5; the caller adds the subpixels before the
+    /// signed whole pixels and carries across. The directions and fractional
     /// speeds vary irregularly by shell piece, so retain the six authored
     /// launch velocities. Unknown indices throw rather than read adjacent data.
     /// </remarks>
@@ -89,11 +89,11 @@ internal static class IntroEggMotion
     /// <summary>Five authored horizontal slime records; four actors are normally spawned.</summary>
     /// <remarks>
     /// Issues #625 and #978: the original data
-    /// match all five high-word-first signed 16.16 pairs:
-    /// FFFF:0000, FFFF:8000, 0001:0000, 0000:8000, FFFF:8000.
-    /// The slime motion indexes by the actor timer's low byte with a four-byte
-    /// stride; the retail spawn path creates indices 0..3, while index 4 is
-    /// the fifth physical table entry. The first four form opposing full-
+    /// match all five signed 16.16 speeds, in pixels per frame:
+    /// -1, -0.5, 1, 0.5, -0.5.
+    /// The slime motion indexes them by the actor timer's count within its
+    /// 256-frame cycle; the retail spawn path creates indices 0..3, while index 4 is
+    /// the fifth authored entry. The first four form opposing full-
     /// and half-pixel speeds, but the fifth repeats -0.5. Retain the five
     /// explicit launch choices rather than hide this authored extra entry
     /// behind a four-item symmetry rule. Unknown indices throw.

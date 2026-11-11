@@ -66,7 +66,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>The intro's projectile sheet, which the flashbacks' projectiles, bombs and trails draw from.</summary>
     private ProjectileSheets? projectileSheets;
 
-    /// <summary>The session's random-number word, which the demo Samus's animation draws from.</summary>
+    /// <summary>The session's random number generator, which the demo Samus's animation draws from.</summary>
     public required SharedRandom Random { get; init; }
 
     /// <summary>The session's unauthored Speed Booster cadence, bound into the flashback Samus.</summary>
@@ -1008,7 +1008,7 @@ level, samus, frameCounter);
         if (transitionAccepted)
             samus.CommitPoseHistory();
 
-        // The intro-demo handler runs the ordinary Samus palette handler even in intro-demo state.
+        // The intro demo runs Samus's ordinary colouring even in intro-demo state.
         // This supplies the alternating hurt colors and eventual suit-palette restoration;
         // invincibility flicker remains independently enforced by Samus.Draw.
         SamusHurtFlashPalette.Update(flashbackSamusColours, samus, demoInput);
@@ -1160,8 +1160,6 @@ level, samus, frameCounter);
         {
             // The persistent caret begins at (8,24), moves to (8,248) during illustrated
             // crossfades, and is restored when the next narration page starts.
-            // The sprite character base matches where the intro's sprite
-            // artwork is loaded.
             IntroSprites(CinematicSpriteFamily.IntroCaret).Draw(
                 caretPose, objectSprites, Objects.Caret.ToSpritePosition(),
                 IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects));

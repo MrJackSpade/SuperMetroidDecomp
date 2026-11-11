@@ -78,7 +78,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// glyph colours (#1512), which the copyright then shows over its drawn colours.
     /// </summary>
     internal bool CopyrightRestored { get; private set; }
-    /// <summary>The floor's pan position, whose whole words are interpreted as signed pixels.</summary>
+    /// <summary>The floor's pan position, whose whole pixels are read as signed.</summary>
     private FixedPosition<FloorPixels> panPosition;
     /// <summary>The floor's zoom in 256ths of a floor pixel per screen pixel, animated from the close-up scene to the floor's own size.</summary>
     internal int Zoom { get; private set; }

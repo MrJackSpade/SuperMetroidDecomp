@@ -28,7 +28,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     /// <summary>The menu screen the options menu draws: its artwork, tilemaps, palette and sprite entries.</summary>
     internal readonly MenuScreen screen;
     /// <summary>Holds the heading and animated selection missile for rendering.</summary>
-    /// <summary>Derives newly pressed buttons from the raw held controller word.</summary>
+    /// <summary>Derives newly pressed buttons from the held controller buttons.</summary>
     private readonly ControllerInputState controller = new();
     /// <summary>The installed menu art, bound when the game is bound to its installed content.</summary>
     private AreaMapPresentation? mapPresentation;
@@ -100,7 +100,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     /// <summary>Gets whether the Japanese-language options pages are selected.</summary>
     public bool JapaneseText { get; private set; }
 
-    /// <summary>The seven live controller words committed when the controller page exits.</summary>
+    /// <summary>The seven live button assignments committed when the controller page exits.</summary>
     public ControllerBindings ControllerBindings { get; private set; }
 
     /// <summary>The automatic item-cancel option, toggled by special-settings row zero.</summary>
@@ -118,7 +118,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     /// <summary>Gets whether the completed cancel fade requested the file-select menu.</summary>
     public bool FileSelectRequested { get; private set; }
 
-    /// <summary>Advances one options-menu update using the raw held controller word.</summary>
+    /// <summary>Advances one options-menu update using the held controller buttons.</summary>
     public void Step(ControllerButton controllerInput)
     {
         controller.Latch(controllerInput);

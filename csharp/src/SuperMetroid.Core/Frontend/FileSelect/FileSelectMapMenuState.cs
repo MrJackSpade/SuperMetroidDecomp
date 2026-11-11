@@ -59,9 +59,9 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
 
     /// <summary>Initializes existing-save map entry from the saved Zebes area/station, exploration, boss, map-station, and used-station data without loading a gameplay room.</summary>
     /// <param name="audio">Owner receiving menu confirmation, scroll, palette-loop, and transition sound requests.</param>
-    /// <param name="random">The session's random-number word, which the saved progress the map reads shares with the rest of the session.</param>
+    /// <param name="random">The session's random number generator, which the saved progress the map reads shares with the rest of the session.</param>
     /// <param name="slot">Selected save slot; its area must be one of the six Zebes identities and its station supplies the compiled load/scroll anchor.</param>
-    /// <param name="initialHeldInput">Controller-button word already held on entry, latched to prevent a held confirmation button becoming a fresh navigation press.</param>
+    /// <param name="initialHeldInput">Controller buttons already held on entry, latched to prevent a held confirmation button becoming a fresh navigation press.</param>
     /// <param name="mapPresentation">Required installed map artwork/layout catalog.</param>
     /// <param name="spriteSheets">Required installed sprite sheets the map's sprites draw from, rebound with the other artwork.</param>
     /// <exception cref="ArgumentOutOfRangeException">The save area is outside Zebes; Ceres bypasses this menu.</exception>

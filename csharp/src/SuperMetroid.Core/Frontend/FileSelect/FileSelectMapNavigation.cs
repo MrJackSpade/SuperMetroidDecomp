@@ -11,7 +11,7 @@ public sealed class FileSelectMapNavigation
 {
     /// <summary>Saved area index retained while area-map directions are suppressed in normal mode.</summary>
     private readonly int area;
-    /// <summary>Previous controller word used to detect new confirm and cancel edges.</summary>
+    /// <summary>The buttons held on the previous update, used to detect new confirm and cancel presses.</summary>
     private ControllerButton previousInput;
     /// <summary>The installed label positions, when bound.</summary>
     private SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelPositions? labels;
@@ -46,7 +46,7 @@ public sealed class FileSelectMapNavigation
     /// </summary>
     public void Step(ControllerButton heldInput)
     {
-        // Same edge rule as ControllerInputState.NewlyPressedButtons, over the controller word.
+        // Same edge rule as ControllerInputState.NewlyPressedButtons, over the held buttons.
         ControllerButton pressed = heldInput & ~previousInput;
         previousInput = heldInput;
         bool cancel = (pressed & ControllerButton.B) != ControllerButton.None;

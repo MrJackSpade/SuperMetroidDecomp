@@ -89,7 +89,7 @@ public sealed class SuperMetroidGame
     /// <param name="saves">The saves the session owns.</param>
     /// <param name="assists">The assists the session plays under, or <see langword="null"/> for the unassisted game.</param>
     /// <param name="hostServices">The compatibility services and display policy; replay verification supplies recorded evidence here.</param>
-    /// <param name="random">The session's random-number word, which the frontend and every gameplay runtime share.</param>
+    /// <param name="random">The session's random number generator, which the frontend and every gameplay runtime share.</param>
     internal SuperMetroidGame(
         SaveSlotStore saves,
         GameplayAssists? assists,

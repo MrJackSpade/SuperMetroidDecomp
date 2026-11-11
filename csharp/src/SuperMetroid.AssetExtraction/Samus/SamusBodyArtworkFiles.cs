@@ -201,8 +201,7 @@ public static class SamusBodyArtworkFiles
         SamusAtmosphericSourceArtwork atmosphere = SamusAtmosphericArtworkFiles.Load(directory);
         InstalledSamusDeathPalettes deathPalettes = SamusDeathPaletteArtworkFiles.Load(directory);
         SamusDeathTileAtlas deathTiles = SamusDeathTileArtworkFiles.Load(directory);
-        // Cover coordinates the stock rules derive from the body's compositions are stored only where they differ.
-        SamusArmCannonSourceArtwork armCannon = SamusArmCannonArtworkFiles.Load(directory).WithBodyGeometry(spritemaps);
+        SamusArmCannonSourceArtwork armCannon = SamusArmCannonArtworkFiles.Load(directory);
         return SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = manifest.TopSetStarts, BottomSetStarts = manifest.BottomSetStarts, PoseFirstFrames = manifest.PoseFirstFrames, Placements = manifest.Placements, Frames = manifest.Frames, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathPalettes, DeathTilesContentIdentity = deathTiles.ContentIdentity, ArmCannon = armCannon }, top, bottom);
     }
 

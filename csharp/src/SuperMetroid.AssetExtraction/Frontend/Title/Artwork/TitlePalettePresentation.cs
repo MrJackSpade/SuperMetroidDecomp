@@ -15,12 +15,12 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
 {
     /// <summary>The selected initial colours: the background colours, then the sprite colours, in the cartridge's order.</summary>
     internal readonly ImmutableArray<RgbColor> colours;
-    /// <summary>Ambient samples retained only when they differ from the calculated paint.</summary>
+    /// <summary>Every installed ambient-program colour.</summary>
     internal readonly Dictionary<PaletteFxColorKey, RgbColor> animatedColors;
 
-    /// <summary>Retains the selected initial colours, ambient edits, and independent skip-only inks.</summary>
+    /// <summary>Holds the installed initial colours, every installed ambient colour and the skip-only inks.</summary>
     /// <param name="colours">The selected initial colours in the cartridge's order, which the import pipeline decoded.</param>
-    /// <param name="animatedColors">The selected ambient-program colours the import found the shared calculation does not produce.</param>
+    /// <param name="animatedColors">Every installed ambient-program colour.</param>
     /// <param name="skipCopyrightWhite">The selected skip-only white.</param>
     /// <param name="skipCopyrightRed">The selected skip-only red.</param>
     internal TitlePalettePresentation(
@@ -51,8 +51,7 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
     /// <inheritdoc />
     /// <param name="key">A color the tube-light or display program writes.</param>
     /// <param name="color">Selected colour when found, otherwise black.</param>
-    /// <returns>True when the key identifies an authored or matching calculated ambient color; false for other records.</returns>
+    /// <returns>True when the key identifies an installed ambient colour; false for other records.</returns>
     public bool TryReadColor(PaletteFxColorKey key, out RgbColor color) =>
-        animatedColors.TryGetValue(key, out color) ||
-        TitleAmbientColors.TryCalculate(key, colours, animatedColors, out color);
+        animatedColors.TryGetValue(key, out color);
 }

@@ -11,12 +11,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// </remarks>
 public sealed class SamusAtmosphericSourceArtwork : InstalledSamusAtmosphericArtwork
 {
-    /// <summary>Edited type-one footstep appearances by animation-frame ordinal.</summary>
-    internal readonly Dictionary<int, SpritePart> typeOne = new();
-    /// <summary>Edited lava/dust appearances shared by types four, six, and seven.</summary>
-    internal readonly Dictionary<int, SpritePart> sharedTypeFour = new();
-
-    /// <summary>Captures selected four-frame appearance lists, retaining independent differences from calculated stock without retaining caller arrays.</summary>
+    /// <summary>Holds both installed four-frame appearance lists whole, without retaining caller arrays.</summary>
     /// <param name="typeOne">Four type-one footstep appearances in animation-frame order, corresponding to $90:8C0F.</param>
     /// <param name="sharedTypeFour">Four shared lava/dust appearances for types 4, 6, and 7, corresponding to $90:8C17.</param>
     /// <exception cref="ArgumentNullException">Either input array is null.</exception>
@@ -28,15 +23,8 @@ public sealed class SamusAtmosphericSourceArtwork : InstalledSamusAtmosphericArt
         if (typeOne.Length != SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount ||
             sharedTypeFour.Length != SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount)
             throw new InvalidDataException("Samus atmospheric small-OBJ lists must each contain four frames.");
-        for (int frame = 0; frame < typeOne.Length; frame++)
-        {
-            if (typeOne[frame] != SamusAtmosphericAttributes.Attributes(true, frame))
-                this.typeOne.Add(frame, typeOne[frame]);
-            if (sharedTypeFour[frame] != SamusAtmosphericAttributes.Attributes(false, frame))
-                this.sharedTypeFour.Add(frame, sharedTypeFour[frame]);
-        }
-        TypeOne = [.. Enumerable.Range(0, SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount).Select(frame => Resolve(true, frame))];
-        SharedTypeFour = [.. Enumerable.Range(0, SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount).Select(frame => Resolve(false, frame))];
+        TypeOne = [.. typeOne];
+        SharedTypeFour = [.. sharedTypeFour];
     }
 
     /// <summary>SHA-256 of both selected atmospheric appearance lists.</summary>
@@ -68,14 +56,7 @@ public sealed class SamusAtmosphericSourceArtwork : InstalledSamusAtmosphericArt
             attributes = default;
             return false;
         }
-        attributes = Resolve(type == 1, frame);
+        attributes = (type == 1 ? TypeOne : SharedTypeFour)[frame];
         return true;
-    }
-
-    /// <summary>Uses a supplied edit when present, otherwise calculates the stock appearance.</summary>
-    private SpritePart Resolve(bool footstep, int frame)
-    {
-        Dictionary<int, SpritePart> edits = footstep ? typeOne : sharedTypeFour;
-        return edits.ContainsKey(frame) ? edits[frame] : SamusAtmosphericAttributes.Attributes(footstep, frame);
     }
 }

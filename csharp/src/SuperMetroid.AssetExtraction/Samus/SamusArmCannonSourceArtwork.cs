@@ -37,54 +37,26 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
     private const int FrameDependentHeaderBytes = 4;
     /// <summary>The bytes of one animation frame's displacement: signed X, then signed Y.</summary>
     private const int DisplacementBytes = 2;
-    /// <summary>Pose descriptor offsets that differ from the stock pose table.</summary>
-    internal readonly Dictionary<SamusPoseId, int> poseDescriptors = new();
-    /// <summary>Descriptor bytes retained when an edit or independent value cannot be derived.</summary>
-    internal readonly Dictionary<int, byte> drawingData = new();
-    /// <summary>Per-direction cover appearances that differ from the stock orientation rules.</summary>
-    internal readonly Dictionary<int, SpritePart> attributes = new();
-    /// <summary>Per-direction opening cover tiles that differ from stock lists.</summary>
-    internal readonly Dictionary<int, int> openingTiles = new();
+    /// <summary>Where each pose's drawing descriptor begins within the drawing data, as installed.</summary>
+    private readonly Dictionary<SamusPoseId, int> poseDescriptors;
+    /// <summary>The installed drawing window: every descriptor's direction, mode and displacement bytes.</summary>
+    private readonly byte[] drawingData;
+    /// <summary>Each native aim direction's installed cover appearance.</summary>
+    private readonly SpritePart[] attributes;
+    /// <summary>Each native aim direction's installed cover tile for opening frames one through three.</summary>
+    private readonly int[][] openingTiles;
     /// <summary>Installed indexed PNG characters for the twelve nonclosed cover tiles.</summary>
     internal readonly RoomCharacterAtlas tiles;
-    /// <summary>Optional body compositions used to derive cover attachment coordinates.</summary>
-    private readonly SamusSpritemapSources? bodyGeometry;
 
-    /// <summary>Separates authored edits from native descriptor, placement, and tile-selection rules.</summary>
+    /// <summary>Holds the complete installed descriptors, drawing data, cover appearances, cover tiles and characters.</summary>
     private SamusArmCannonSourceArtwork(IReadOnlyDictionary<SamusPoseId, int> poseDescriptors, byte[] drawingData,
-        SpritePart[] attributes, int[][] coverTiles, RoomCharacterAtlas tiles,
-        SamusSpritemapSources? bodyGeometry = null)
+        SpritePart[] attributes, int[][] coverTiles, RoomCharacterAtlas tiles)
         : base(Placements(poseDescriptors, drawingData))
     {
-        this.bodyGeometry = bodyGeometry;
-        foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses)
-            if (poseDescriptors[pose] != SamusArmCannonArtworkFormat.StockPoseDescriptor(pose))
-                this.poseDescriptors.Add(pose, poseDescriptors[pose]);
-        for (int index = 0; index < drawingData.Length; index++)
-        {
-            bool derived = SamusArmCannonArtworkFormat.TryStockDrawingByte(index, out int calculated);
-            if (!derived && SamusArmCannonArtworkFormat.TryStockCoordinateSource(index, out int source))
-            {
-                calculated = drawingData[source];
-                derived = true;
-            }
-            if (!derived && SamusArmCannonArtworkFormat.TryStockReflectedXSource(index, out source))
-            {
-                calculated = SamusArmCannonArtworkFormat.ReflectCoverX(drawingData[source]);
-                derived = true;
-            }
-            if (!derived && bodyGeometry is not null)
-                derived = SamusArmCannonPlacements.TryCoordinate(bodyGeometry, index, out calculated);
-            if (!derived || drawingData[index] != calculated) this.drawingData.Add(index, drawingData[index]);
-        }
-        for (int direction = 0; direction < attributes.Length; direction++)
-        {
-            if (attributes[direction] != SamusArmCannonArtworkFormat.StockCoverAppearance(SamusProjectileDirectionCodec.FromAimIndex(direction)))
-                this.attributes.Add(direction, attributes[direction]);
-            for (int frame = 1; frame <= OpeningFrames; frame++)
-                if (coverTiles[direction][frame - 1] != SamusArmCannonArtworkFormat.StockCoverTile(SamusProjectileDirectionCodec.FromAimIndex(direction), frame))
-                    this.openingTiles.Add(direction * OpeningFrames + frame - 1, coverTiles[direction][frame - 1]);
-        }
+        this.poseDescriptors = poseDescriptors.ToDictionary();
+        this.drawingData = [.. drawingData];
+        this.attributes = [.. attributes];
+        openingTiles = [.. coverTiles.Select(row => row.ToArray())];
         this.tiles = tiles;
     }
 
@@ -117,15 +89,6 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
             return placement;
         }
     }
-
-    /// <summary>Rebinds cover coordinates to installed Samus body compositions while preserving selected edits.</summary>
-    internal SamusArmCannonSourceArtwork WithBodyGeometry(SamusSpritemapSources body) => new(
-        SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose, PoseDescriptor),
-        Enumerable.Range(0, SamusArmCannonArtworkFormat.DrawingDataByteCount).Select(ReadDrawingByte).ToArray(),
-        Enumerable.Range(0, SamusProjectileDirectionCodec.Count).Select(CoverAppearance).ToArray(),
-        Enumerable.Range(0, SamusProjectileDirectionCodec.Count).Select(direction =>
-            Enumerable.Range(1, OpeningFrames).Select(frame => OpeningTile(direction, frame)).ToArray()).ToArray(),
-        tiles, Ensure.NotNull(body));
 
     /// <summary>SHA-256 of selected cannon placement, cover appearances, tile selectors and characters.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("samus-arm-cannon-v4", content =>
@@ -198,11 +161,11 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
         return json;
     }
 
-    /// <summary>Gets where <paramref name="pose"/>'s drawing descriptor begins within the drawing data, using an independent supplied edit or the stock pose-table mapping.</summary>
+    /// <summary>Gets where <paramref name="pose"/>'s installed drawing descriptor begins within the drawing data.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The pose has no record in the pose tables.</exception>
     public int PoseDescriptor(SamusPoseId pose) =>
         poseDescriptors.TryGetValue(pose, out int selected) ? selected
-            : SamusArmCannonArtworkFormat.StockPoseDescriptor(pose);
+            : throw new ArgumentOutOfRangeException(nameof(pose));
 
     /// <summary>Requires <paramref name="poseDescriptors"/> to hold a descriptor for exactly the poses with records.</summary>
     /// <exception cref="InvalidDataException">A pose with a record has no descriptor, or a pose without one has.</exception>
@@ -212,31 +175,17 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
             throw new InvalidDataException("Arm-cannon placements must cover exactly the poses with records.");
     }
 
-    /// <summary>Resolves the installed descriptor byte <paramref name="offset"/> bytes into the drawing data, preferring edits over stock selector/mode bytes and derived body-relative or reflected coordinate bytes.</summary>
+    /// <summary>The installed descriptor byte <paramref name="offset"/> bytes into the drawing data.</summary>
     /// <param name="offset">Byte offset into the drawing data; coordinate bytes are signed pixel offsets.</param>
-    public byte ReadDrawingByte(int offset)
-    {
-        if ((uint)offset >= SamusArmCannonArtworkFormat.DrawingDataByteCount)
-            throw new InvalidDataException(
-                $"Arm-cannon drawing byte {offset} is not installed.");
-        if (drawingData.ContainsKey(offset)) return drawingData[offset];
-        if (SamusArmCannonArtworkFormat.TryStockDrawingByte(offset, out int calculated)) return (byte)calculated;
-        if (SamusArmCannonArtworkFormat.TryStockCoordinateSource(offset, out int source))
-            return ReadDrawingByte(source);
-        if (SamusArmCannonArtworkFormat.TryStockReflectedXSource(offset, out source))
-            return SamusArmCannonArtworkFormat.ReflectCoverX(ReadDrawingByte(source));
-        if (bodyGeometry is not null && SamusArmCannonPlacements.TryCoordinate(bodyGeometry, offset, out int coordinate))
-            return (byte)coordinate;
-        throw new InvalidDataException("Arm-cannon coordinate basis is incomplete.");
-    }
+    /// <exception cref="InvalidDataException">The offset lies outside the installed drawing window.</exception>
+    public byte ReadDrawingByte(int offset) => (uint)offset < (uint)drawingData.Length
+        ? drawingData[offset]
+        : throw new InvalidDataException($"Arm-cannon drawing byte {offset} is not installed.");
 
-    /// <summary>Gets the cover's character, palette, priority, and mirroring for native direction 0–9; supplied appearances override the stock $90:C791 table.</summary>
-    public SpritePart CoverAppearance(int direction)
-    {
-        if ((uint)direction >= SamusProjectileDirectionCodec.Count) throw new ArgumentOutOfRangeException(nameof(direction));
-        return attributes.ContainsKey(direction) ? attributes[direction]
-            : SamusArmCannonArtworkFormat.StockCoverAppearance(SamusProjectileDirectionCodec.FromAimIndex(direction));
-    }
+    /// <summary>Gets the installed cover's character, palette, priority, and mirroring for native direction 0–9.</summary>
+    public SpritePart CoverAppearance(int direction) => (uint)direction < (uint)attributes.Length
+        ? attributes[direction]
+        : throw new ArgumentOutOfRangeException(nameof(direction));
 
     /// <summary>The installed cover tile native direction 0–9 shows at cover frame 0–3; the closed frame 0 shows none.</summary>
     public int? CoverTileIndex(int direction, int frame)
@@ -249,21 +198,19 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
     }
 
     /// <summary>The installed cover tile <paramref name="direction"/> shows at opening frame 1–3.</summary>
-    private int OpeningTile(int direction, int frame) =>
-        openingTiles.TryGetValue(direction * OpeningFrames + frame - 1, out int supplied) ? supplied
-            : SamusArmCannonArtworkFormat.StockCoverTile(SamusProjectileDirectionCodec.FromAimIndex(direction), frame);
+    private int OpeningTile(int direction, int frame) => openingTiles[direction][frame - 1];
 
     /// <summary>The cover character for native direction 0-9 and opening frame 1-3, as owned artwork.</summary>
     public SpriteArtwork CoverTile(int direction, int frame)
     {
         int index = CoverTileIndex(direction, frame) ??
             throw new InvalidDataException($"Arm-cannon direction {direction} frame {frame} names no installed cover tile.");
-        return coverTiles.GetOrAdd(index, key => new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.SamusArmCannonCover, key),
+        return coverCharacters.GetOrAdd(index, key => new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.SamusArmCannonCover, key),
             tiles.Characters.Span.Slice(key * SamusArmCannonArtworkFormat.CoverTileByteCount, SamusArmCannonArtworkFormat.CoverTileByteCount)));
     }
 
     /// <summary>Cover characters already built, by installed tile index.</summary>
-    private readonly System.Collections.Concurrent.ConcurrentDictionary<int, SpriteArtwork> coverTiles = new();
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<int, SpriteArtwork> coverCharacters = new();
 
     /// <summary>Rejects an authored drawing value outside one unsigned byte.</summary>
     private static byte RequireByte(int value, string name) => (uint)value <= byte.MaxValue

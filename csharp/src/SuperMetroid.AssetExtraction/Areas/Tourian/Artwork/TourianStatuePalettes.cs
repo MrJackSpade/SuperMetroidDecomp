@@ -50,30 +50,18 @@ public sealed class TourianStatuePalettes
     /// <summary>Grey colour <paramref name="color"/>, 0–7, which a released statue takes.</summary>
     public RgbColor GreyColor(int color) => greyColors.Read(color);
 
-    /// <summary>One independent installed domain: stock colors calculate; arbitrary supplied words own sparse overrides.</summary>
+    /// <summary>One installed band of colours, held whole as the player may have edited them.</summary>
     internal sealed class PaletteBand
     {
-        /// <summary>Calculated stock paint family used when a color has no supplied override.</summary>
-        private readonly TourianStatuePaintBand band;
-        /// <summary>Number of indexed colors in this band's palette geometry.</summary>
-        private readonly int count;
-        /// <summary>Only supplied colors that differ from the calculated stock band.</summary>
-        internal readonly Dictionary<PaintColour, RgbColor> edits;
-        /// <summary>Keeps a band's geometry and the supplied colors that differ from its stock paint.</summary>
-        /// <param name="band">The calculated stock paint family.</param>
-        /// <param name="count">The band's colour count.</param>
-        /// <param name="edits">The supplied colours the import found differing from the stock paint.</param>
-        internal PaletteBand(TourianStatuePaintBand band, int count, Dictionary<PaintColour, RgbColor> edits)
-        {
-            this.band = band;
-            this.count = count;
-            this.edits = edits;
-        }
-        /// <summary>Resolves an edited color or calculates its stock paint after validating the index.</summary>
-        internal RgbColor Read(int color)
-        {
-            if ((uint)color >= count) throw new ArgumentOutOfRangeException(nameof(color));
-            return edits.TryGetValue(new PaintColour(0, color), out RgbColor edited) ? edited : TourianStatuePaint.Color(band, color);
-        }
+        /// <summary>Every installed colour of the band, in palette order.</summary>
+        private readonly RgbColor[] colors;
+        /// <summary>Keeps the band's complete installed colours.</summary>
+        /// <param name="colors">The band's installed colours, in palette order.</param>
+        internal PaletteBand(RgbColor[] colors) => this.colors = [.. colors];
+        /// <summary>Installed colour <paramref name="color"/> of the band.</summary>
+        /// <exception cref="ArgumentOutOfRangeException">The band has no such colour.</exception>
+        internal RgbColor Read(int color) => (uint)color < (uint)colors.Length
+            ? colors[color]
+            : throw new ArgumentOutOfRangeException(nameof(color));
     }
 }

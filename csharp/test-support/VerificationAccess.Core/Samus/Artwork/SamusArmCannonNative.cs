@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Samus.Artwork;
 
@@ -27,15 +26,10 @@ internal static class SamusArmCannonNative
             : (ushort)0;
     }
 
-    /// <summary>Native views of the arm cannon's stock tables.</summary>
+    /// <summary>Native views of the arm cannon's installed tile files.</summary>
     extension(SamusArmCannonArtworkFormat)
     {
         /// <summary>The bank-$9A source of each installed cover tile.</summary>
         internal static ArmCannonTileSources.TileSourceSequence TileSourcePointers => ArmCannonTileSources.CoverTileDmaSources;
-
-        /// <summary>The bank-$9A source of the stock cover tile <paramref name="direction"/> shows at <paramref name="frame"/>, or zero for the closed cover.</summary>
-        internal static ushort StockTileSource(SamusProjectileDirection direction, int frame) => frame == 0
-            ? (ushort)0
-            : ArmCannonTileSources.CoverTileDmaSources[SamusArmCannonArtworkFormat.StockCoverTile(direction, frame)];
     }
 }

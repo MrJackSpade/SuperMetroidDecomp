@@ -24,8 +24,6 @@ internal static class InterfacePresentationContractDefinitions
              new("csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFx/PaletteFxHeatProgramDefinition.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFx/PaletteFxColorFrames.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Title/Artwork/TitlePalettePresentation.cs"),
-             new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Title/Artwork/TitleAmbientColors.cs"),
-             new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Title/Artwork/TitleAmbientColorDefinitions.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Title/Artwork/TitleSheetInks.cs")]),
         new("SuperMetroid.Core.Frontend.Intro.Artwork.IIntroCinematicSpritePresentation", "cinematic-interface-complete-owned-frame-domains", ["Draw"],
             [new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IIntroCinematicSpritePresentation.cs"),
@@ -41,8 +39,6 @@ internal static class InterfacePresentationContractDefinitions
              new("csharp/src/SuperMetroid.Core/Map/Artwork/AreaMapPresentationAsset.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Map/AreaMapStockRules.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Areas/Escape/EscapeTimerCharacters.cs"),
-             new("csharp/src/SuperMetroid.AssetExtraction/Areas/Escape/EscapeTimerGlyphDefinitions.cs"),
-             new("csharp/src/SuperMetroid.AssetExtraction/Areas/Escape/EscapeTimerGlyphs.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Artwork/IInstalledArtworkContent.cs")]),        new("SuperMetroid.Core.Map.IAreaMapSource", "area-map-source-single-catalog", ["Get"],
             [new("csharp/src/SuperMetroid.Core/Map/IAreaMapSource.cs"),
              new("csharp/src/SuperMetroid.Core/Gameplay/IGameplayPresentationContent.cs"),
@@ -51,8 +47,6 @@ internal static class InterfacePresentationContractDefinitions
              new("csharp/src/SuperMetroid.Core/Map/Artwork/AreaMapPresentationAsset.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Map/AreaMapStockRules.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Areas/Escape/EscapeTimerCharacters.cs"),
-             new("csharp/src/SuperMetroid.AssetExtraction/Areas/Escape/EscapeTimerGlyphDefinitions.cs"),
-             new("csharp/src/SuperMetroid.AssetExtraction/Areas/Escape/EscapeTimerGlyphs.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Artwork/IInstalledArtworkContent.cs")]),    ];
 
     /// <summary>Locates a reviewed production asset source file by its catalog type name.</summary>

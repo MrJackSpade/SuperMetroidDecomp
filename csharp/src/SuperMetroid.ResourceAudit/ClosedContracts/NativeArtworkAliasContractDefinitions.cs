@@ -8,8 +8,6 @@ internal static class NativeArtworkAliasContractDefinitions
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerCharacters", "native-EscapeTimerTileAtlas-dma-aliases", ["TryResolve"],
-            [new("csharp/src/SuperMetroid.AssetExtraction/Areas/Escape/EscapeTimerCharacters.cs"),
-             new("csharp/src/SuperMetroid.AssetExtraction/Areas/Escape/EscapeTimerGlyphDefinitions.cs"),
-             new("csharp/src/SuperMetroid.AssetExtraction/Areas/Escape/EscapeTimerGlyphs.cs")]),
+            [new("csharp/src/SuperMetroid.AssetExtraction/Areas/Escape/EscapeTimerCharacters.cs")]),
     ];
 }

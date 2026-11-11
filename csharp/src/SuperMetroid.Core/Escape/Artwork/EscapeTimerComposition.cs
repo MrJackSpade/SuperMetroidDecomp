@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Escape.Artwork;
 
 /// <summary>
 /// Names the escape timer's parts (<see cref="EscapeTimerPresentationDefinitions"/>): the glyph that draws a decimal
-/// value, each glyph's sheet frame, and each anchor's stock position.
+/// value and each glyph's sheet frame.
 /// </summary>
 public static class EscapeTimerComposition
 {
@@ -13,8 +13,4 @@ public static class EscapeTimerComposition
 
     /// <summary>The sheet frame name of a glyph: Label, or Digit.0 through Digit.9.</summary>
     public static string FrameName(EscapeTimerGlyph glyph) => Ensure.Listed(EscapeTimerPresentationDefinitions.FrameNames, glyph);
-
-    /// <summary>Three two-digit groups separated by one cell, centered across eight cells.</summary>
-    internal static Offset16<SpritePixels> DefaultAnchor(EscapeTimerAnchor anchor) =>
-        Ensure.Listed(EscapeTimerPresentationDefinitions.DefaultAnchors, anchor);
 }

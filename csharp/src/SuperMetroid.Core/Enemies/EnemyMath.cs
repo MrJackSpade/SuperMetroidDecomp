@@ -92,11 +92,11 @@ internal static class EnemyMath
 
     /// <summary>Computes the short cosine multiplication.</summary>
     internal static int ReadEightBitCosineProduct(TrigonometryAngle angle, int radius) =>
-        ReadEightBitSineProduct(angle.TurnedBySteps(TrigonometryAngle.QuarterTurn.RawValue), radius);
+        ReadEightBitSineProduct(angle.TurnedBy(TrigonometryAngle.QuarterTurn), radius);
 
     /// <summary>Computes the short negative sine multiplication.</summary>
     internal static int ReadEightBitNegativeSineProduct(TrigonometryAngle angle, int radius) =>
-        ReadEightBitSineProduct(angle.TurnedBySteps(TrigonometryAngle.HalfTurn.RawValue), radius);
+        ReadEightBitSineProduct(angle.TurnedBy(TrigonometryAngle.HalfTurn), radius);
 
     /// <summary>
     /// The point on a circle at a trigonometry angle: the cosine product as X and the negative-sine
@@ -127,13 +127,13 @@ internal static class EnemyMath
     internal static SignedSixteenSixteen ReadEightBitCosineFixedProduct(
         TrigonometryAngle angle,
         int radius) =>
-        ReadEightBitSineFixedProduct(angle.TurnedBySteps(TrigonometryAngle.QuarterTurn.RawValue), radius);
+        ReadEightBitSineFixedProduct(angle.TurnedBy(TrigonometryAngle.QuarterTurn), radius);
 
     /// <summary>Rotates the fixed sine multiplication by a half turn to obtain negative sine.</summary>
     internal static SignedSixteenSixteen ReadEightBitNegativeSineFixedProduct(
         TrigonometryAngle angle,
         int radius) =>
-        ReadEightBitSineFixedProduct(angle.TurnedBySteps(TrigonometryAngle.HalfTurn.RawValue), radius);
+        ReadEightBitSineFixedProduct(angle.TurnedBy(TrigonometryAngle.HalfTurn), radius);
 
     /// <summary>
     /// Computes one half of the shared sine/cosine velocity product.
@@ -177,11 +177,11 @@ internal static class EnemyMath
     internal static UnsignedSixteenSixteen AbsoluteSineSpeed(TrigonometryAngle angle, int magnitude) =>
         UnsignedSixteenSixteen.FromRaw(unchecked((uint)ReadAbsoluteSineProduct(angle, magnitude)));
 
-    /// <summary>Whether a table angle's cosine component is negative: the tests bit 7 of the angle plus a quarter turn.</summary>
-    internal static bool CosineIsNegative(TrigonometryAngle angle) => angle.TurnedBySteps(TrigonometryAngle.QuarterTurn.RawValue).RawValue >= TrigonometryAngle.HalfTurn.RawValue;
+    /// <summary>Whether a table angle's cosine component is negative: the angle a quarter turn on lies in the turn's second half.</summary>
+    internal static bool CosineIsNegative(TrigonometryAngle angle) => angle.TurnedBy(TrigonometryAngle.QuarterTurn).IsInSecondHalf;
 
-    /// <summary>Whether a table angle's sine component is negative: the tests bit 7 of the angle plus a half turn.</summary>
-    internal static bool SineIsNegative(TrigonometryAngle angle) => angle.TurnedBySteps(TrigonometryAngle.HalfTurn.RawValue).RawValue >= TrigonometryAngle.HalfTurn.RawValue;
+    /// <summary>Whether a table angle's sine component is negative: the angle a half turn on lies in the turn's second half.</summary>
+    internal static bool SineIsNegative(TrigonometryAngle angle) => angle.TurnedBy(TrigonometryAngle.HalfTurn).IsInSecondHalf;
 
     /// <summary>Multiplies a signed sine-table sample by speed with the game's fixed-point rounding.</summary>
     internal static SignedEightEight MultiplySineSample(int speed, TrigonometryAngle angle) =>

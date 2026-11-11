@@ -181,7 +181,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         // adding 128 selects the exact opposite direction for behavior six.
         TrigonometryAngle heading = EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ToTableAngle();
-        state.FaceCustomHeading(heading.TurnedBySteps(relativeHeading == SbugHeading.Away ? TrigonometryAngle.HalfTurn.RawValue : 0).ToAngle());
+        state.FaceCustomHeading((relativeHeading == SbugHeading.Away ? heading.TurnedBy(TrigonometryAngle.HalfTurn) : heading).ToAngle());
         RecalculateSbugCustomDirection(slot, state);
         state.Function = relativeHeading == SbugHeading.Away
             ? SbugEnemyFunction.MoveAwayFromSamus

@@ -27,14 +27,14 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
     private readonly Dictionary<GameOptionsScreen, BackgroundTile[]> pages;
     /// <summary>The common backdrop page.</summary>
     private readonly BackgroundTile[] background;
-    /// <summary>Edited controller-button glyphs, keyed by button; a button absent here draws its native glyph.</summary>
+    /// <summary>The installed controller-button glyphs, keyed by every assignable button.</summary>
     internal readonly Dictionary<ControllerButton, BackgroundTile[]> controllerLabels;
-    /// <summary>Edited controller-label anchors by action, or null for the native destinations.</summary>
-    internal readonly Position16<CharacterCells>[]? controllerLabelAnchors;
-    /// <summary>Edited primary-language highlight regions, or null for the native regions.</summary>
-    internal readonly GameOptionsLanguageRegionDocument[]? languageRegions;
-    /// <summary>Edited special-setting visuals, or null for the native cells.</summary>
-    internal readonly Dictionary<GameOptionsToggle, GameOptionsToggleVisualDocument>? specialToggles;
+    /// <summary>The installed controller-label anchors, one per action.</summary>
+    internal readonly Position16<CharacterCells>[] controllerLabelAnchors;
+    /// <summary>The installed primary-language highlight regions.</summary>
+    private readonly GameOptionsLanguageRegionDocument[] languageRegions;
+    /// <summary>The installed special-setting choice cells, keyed by toggle.</summary>
+    private readonly Dictionary<GameOptionsToggle, GameOptionsToggleVisualDocument> specialToggles;
 
     /// <summary>Uppercase SHA-256 digest of the loaded JSON bytes, identifying selected artwork and layout including their encoding.</summary>
     public string ContentIdentity { get; }
@@ -42,7 +42,7 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
     /// <summary>OBJ palette index 0-7 the missile cursor and menu-heading compositions are composed in.</summary>
     public int CursorPalette { get; }
 
-    /// <summary>Retains the compiled presentation, only the visual edits that depart from stock geometry, and its compositions.</summary>
+    /// <summary>Retains the compiled presentation, its complete installed geometry, and its compositions.</summary>
     private GameOptionsSourcePresentation(GameOptionsPresentationDocument document, GameOptionsPages pages,
         GameOptionsSprites sprites, string contentIdentity)
         : base(new GameOptionsPlacements
@@ -59,21 +59,11 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
         CursorPalette = document.CursorPalette;
         this.pages = pages.Pages;
         background = pages.Background;
-        controllerLabels = pages.ControllerLabels.Where(pair => pair.Value.Where((tile, cell) =>
-            tile != GameOptionsPageCells.ControllerLabelTile(pair.Key, cell)).Any())
-            .ToDictionary(pair => pair.Key, pair => pair.Value);
-        controllerLabelAnchors = document.ControllerLabelAnchors.Where((point, index) =>
-            point != GameOptionsPageCells.ControllerAnchor(index)).Any() ? document.ControllerLabelAnchors : null;
-        languageRegions = document.LanguageRegions.Where((region, index) =>
-            region.HighlightWhenJapanese != GameOptionsPageCells.LanguagePaletteRegion(index).HighlightWhenJapanese ||
-            !region.Cells.SequenceEqual(GameOptionsPageCells.LanguageCells(index))).Any()
-            ? document.LanguageRegions : null;
-        Dictionary<GameOptionsToggle, GameOptionsToggleVisualDocument> toggles = GameOptionsPresentationFormat.Toggles.ToDictionary(
+        controllerLabels = pages.ControllerLabels;
+        controllerLabelAnchors = [.. document.ControllerLabelAnchors];
+        languageRegions = [.. document.LanguageRegions];
+        specialToggles = GameOptionsPresentationFormat.Toggles.ToDictionary(
             toggle => toggle, toggle => document.SpecialToggles[GameOptionsNames.ToggleName(toggle)]);
-        specialToggles = toggles.Any(pair =>
-            !pair.Value.EnabledCells.SequenceEqual(GameOptionsPageCells.ToggleCells(pair.Key, GameOptionsToggleState.Enabled)) ||
-            !pair.Value.DisabledCells.SequenceEqual(GameOptionsPageCells.ToggleCells(pair.Key, GameOptionsToggleState.Disabled)))
-            ? toggles : null;
         SelectedPalette = document.SelectedPalette;
         UnselectedPalette = document.UnselectedPalette;
         headingSprites = sprites.Headings;
@@ -96,12 +86,10 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
     }
 
     /// <summary>The primary-page cells of language region <paramref name="index"/>.</summary>
-    internal IReadOnlyCollection<int> LanguageRegionCells(int index) =>
-        languageRegions is null ? [.. GameOptionsPageCells.LanguageCells(index)] : languageRegions[index].Cells;
+    internal IReadOnlyCollection<int> LanguageRegionCells(int index) => languageRegions[index].Cells;
 
     /// <summary>Whether language region <paramref name="index"/> takes the selected palette while the text is Japanese.</summary>
-    private bool HighlightsWhenJapanese(int index) =>
-        languageRegions?[index].HighlightWhenJapanese ?? GameOptionsPageCells.LanguagePaletteRegion(index).HighlightWhenJapanese;
+    private bool HighlightsWhenJapanese(int index) => languageRegions[index].HighlightWhenJapanese;
 
     /// <summary>Writes the selected button glyph into one controller action's two-row label area.</summary>
     internal void ApplyControllerLabel(Span<BackgroundTile> page, int action, int button)
@@ -109,15 +97,15 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
         if ((uint)action >= GameOptionsDefinitions.Rows.ControllerActionCount)
             throw new ArgumentOutOfRangeException(nameof(action));
         ControllerButton label = GameOptionsNames.ControllerLabelButton(button);
-        controllerLabels.TryGetValue(label, out BackgroundTile[]? cells);
+        BackgroundTile[] cells = controllerLabels[label];
         foreach (GameOptionsLabelCell cell in ControllerLabelCells(action))
-            page[cell.PageCell] = cells is not null ? cells[cell.GlyphCell] : GameOptionsPageCells.ControllerLabelTile(label, cell.GlyphCell);
+            page[cell.PageCell] = cells[cell.GlyphCell];
     }
 
     /// <summary>Each page cell of controller action <paramref name="action"/>'s label, with its place in the label's glyph.</summary>
     private IEnumerable<GameOptionsLabelCell> ControllerLabelCells(int action)
     {
-        Position16<CharacterCells> anchor = controllerLabelAnchors?[action] ?? GameOptionsPageCells.ControllerAnchor(action);
+        Position16<CharacterCells> anchor = controllerLabelAnchors[action];
         for (int row = 0; row < GameOptionsPageDefinitions.ControllerLabelHeight; row++)
         for (int column = 0; column < GameOptionsPageDefinitions.ControllerLabelWidth; column++)
             yield return new GameOptionsLabelCell((anchor.Y + row) * GameOptionsPageDefinitions.MenuTilemapWidth + anchor.X + column,
@@ -132,9 +120,8 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
     }
 
     /// <summary>The page cells of <paramref name="name"/>'s <paramref name="state"/> choice.</summary>
-    private int[] ToggleChoiceCells(GameOptionsToggle name, GameOptionsToggleState state) => specialToggles is null
-        ? [.. GameOptionsPageCells.ToggleCells(name, state)]
-        : state == GameOptionsToggleState.Enabled ? specialToggles[name].EnabledCells : specialToggles[name].DisabledCells;
+    private int[] ToggleChoiceCells(GameOptionsToggle name, GameOptionsToggleState state) =>
+        state == GameOptionsToggleState.Enabled ? specialToggles[name].EnabledCells : specialToggles[name].DisabledCells;
 
     /// <summary>Changes only the colour variant of selected tilemap cells, preserving their artwork and mirroring.</summary>
     private static void ApplyPalette(Span<BackgroundTile> page, IEnumerable<int> cells, int palette)
@@ -196,7 +183,7 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
 
     /// <summary>Reads a complete options-menu JSON document and compiles validated pages, controller labels, highlights, and sprite layouts.</summary>
     /// <param name="source">Readable stream consumed from its current position to the end and left open.</param>
-    /// <returns>A presentation owning independently parsed layout and compiled artwork; stock-matching values are reconstructed from definitions.</returns>
+    /// <returns>A presentation owning its complete installed layout and compiled artwork.</returns>
     /// <exception cref="InvalidDataException">The JSON, version, required identities, cells, anchors, palette selectors, or cursor duration are invalid.</exception>
     public static GameOptionsSourcePresentation Load(Stream source)
     {

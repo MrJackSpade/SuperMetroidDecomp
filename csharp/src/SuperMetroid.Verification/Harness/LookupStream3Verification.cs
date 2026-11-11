@@ -572,17 +572,11 @@ internal static class LookupStream3Verification
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
         var stock = ReadDocument();
         var loaded = Load(stock);
-        foreach (var (field, geometry) in new VerifyStream3OptionsGeometryCase[]
-        {
-            new VerifyStream3OptionsGeometryCase("controllerLabelAnchors", loaded.controllerLabelAnchors), new VerifyStream3OptionsGeometryCase("languageRegions", loaded.languageRegions),
-            new VerifyStream3OptionsGeometryCase("specialToggles", loaded.specialToggles),
-        })
-            AssertTrue(geometry is null, "stock options geometry calculates " + field);
         for (int action = 0; action < 7; action++)
         {
             ushort offset = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x82f639 + action * 2));
             AssertEqual(new Position16<CharacterCells>(checked((ushort)(offset / 2 % 32)), checked((ushort)(offset / 2 / 32))),
-                GameOptionsPageCells.ControllerAnchor(action), "native options label anchor");
+                loaded.controllerLabelAnchors[action], "native options label anchor");
         }
         foreach ((GameOptionsPage page, int address, int count) in new[]
         {
@@ -593,12 +587,10 @@ internal static class LookupStream3Verification
             for (int row = 0; row < count; row++)
                 AssertEqual(new Position16<SpritePixels>(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + row * 4)), CartridgeImportSource.Require(rom).ReadCartridgeWord((address + row * 4 + 2))),
                     loaded.CursorPosition(page, row), "native options cursor anchor");
-        var stockLabels = loaded.controllerLabels;
-        AssertEqual(0, stockLabels.Count, "options stock button glyphs retain no tilemap rows");
         for (int button = 0; button < 7; button++)
         for (int cell = 0; cell < 6; cell++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x82f659 + button * 12 + cell * 2)),
-                BackgroundTileWords.ToWord(GameOptionsPageCells.ControllerLabelTile(GameOptionsNames.ControllerLabelButton(button), cell)),
+                BackgroundTileWords.ToWord(loaded.controllerLabels[GameOptionsNames.ControllerLabelButton(button)][cell]),
                 "native options glyph composition preserves each tile and flip");
         Confirm(stock, loaded);
 

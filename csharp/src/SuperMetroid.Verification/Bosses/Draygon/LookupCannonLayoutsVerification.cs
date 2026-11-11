@@ -16,31 +16,24 @@ internal static class LookupCannonLayoutsVerification
         new(0xa0ed, "left-shield-a"), new(0xa101, "left-shield-b"), new(0xa165, "left-damaged-a"), new(0xa179, "left-damaged-b"),
         new(0xa18d, "left-damaged-c"), new(0xa1a1, "left-damaged-d")];
 
-    /// <summary>Checks which draws are the cannon's, each frame's runs and continuations against the cartridge, and the shape bounds.</summary>
+    /// <summary>Checks which draws are the cannon's, each frame's runs and continuations against the cartridge, and that each shape covers its frame's four cells only.</summary>
     internal static void VerifyCannonLayoutGeometry(SuperMetroidAddressSpace rom)
     {
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             bool owned = Frames.Any(frame => frame.Pointer == raw);
-            AssertEqual(owned, DraygonCannonDraws.TryDescribe(NativeObjectDraws.At<DraygonCannonDraw>(raw), out var shape), "Cannon layout shape domain");
-            if (!owned) AssertEqual(default(DraygonCannonDraws.Draw), shape, "Cannon layout missing shape");
+            AssertEqual(owned, DraygonCannonDraws.TryDescribe(NativeObjectDraws.At<DraygonCannonDraw>(raw), out RoomBlockShape? shape), "Cannon layout shape domain");
+            if (!owned) AssertTrue(shape is null, "Cannon layout missing shape");
         }
         AssertLayoutsAsNative(rom, RoomObjectDraygonCannonVisualFiles.Family, Frames, collision: false);
         foreach (LookupEscapeGateStockFrame frame in Frames)
         {
-            DraygonCannonDraws.TryDescribe(NativeObjectDraws.At<DraygonCannonDraw>(frame.Pointer), out var shape);
-            foreach (int invalid in new[] { int.MinValue, -1, shape.RunCount, int.MaxValue })
-            {
-                AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockCount(invalid), "Cannon layout run bounds");
-                AssertThrows<ArgumentOutOfRangeException>(() => shape.Start(invalid), "Cannon layout start bounds");
-                AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(invalid, 0), "Cannon layout collision run bounds");
-            }
-            for (int run = 0; run < shape.RunCount; run++)
-            {
-                int selectedRun = run;
-                foreach (int invalid in new[] { int.MinValue, -1, shape.BlockCount(run), int.MaxValue })
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(selectedRun, invalid), "Cannon layout cell bounds");
-            }
+            if (!DraygonCannonDraws.TryDescribe(NativeObjectDraws.At<DraygonCannonDraw>(frame.Pointer), out RoomBlockShape? shape))
+                throw new InvalidOperationException($"Cannon frame {frame.Id} has no shape.");
+            RoomBlockShape described = shape;
+            AssertEqual(4, described.Cells.Count, "Cannon shape covers its 2x2 frame");
+            foreach (Offset16<RoomBlocks> outside in new Offset16<RoomBlocks>[] { new(0, -1), new(2, 0), new(-2, 0), new(0, 2) })
+                AssertThrows<ArgumentOutOfRangeException>(() => described.CollisionAt(outside), "Cannon shape covers only its cells");
         }
     }
 

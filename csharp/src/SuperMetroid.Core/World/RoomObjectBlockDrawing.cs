@@ -311,13 +311,10 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
                     DrawImageCell(level, draw, origin, hand, bombTorizoHand.Start(run) + new Offset16<RoomBlocks>(cell, 0), bombTorizoHand.CollisionAt(run, cell));
             return;
         }
-        if (DraygonCannonDraws.TryDescribe(draw, out var draygonCannon))
+        if (DraygonCannonDraws.TryDescribe(draw, out RoomBlockShape? draygonCannon))
         {
-            RoomObjectFrameImage cannon = Installed(_visuals.RoomObjectDraygonCannonVisuals, "Draygon cannon").Images
-                .Image(RoomObjectDraw.FrameOf<DraygonCannonDraw>(draw, "Draygon cannon"));
-            for (int run = 0; run < draygonCannon.RunCount; run++)
-                for (int cell = 0; cell < draygonCannon.BlockCount(run); cell++)
-                    DrawImageCell(level, draw, origin, cannon, draygonCannon.Start(run) + new Offset16<RoomBlocks>(cell, 0), draygonCannon.CollisionAt(run, cell));
+            DrawShape(level, draw, origin, Installed(_visuals.RoomObjectDraygonCannonVisuals, "Draygon cannon").Images
+                .Image(RoomObjectDraw.FrameOf<DraygonCannonDraw>(draw, "Draygon cannon")), draygonCannon);
             return;
         }
         if (ChozoStatueDraws.TryDescribe(draw, out var chozoStatue))
@@ -377,6 +374,18 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         }
 
         RoomObjectLevelWrites.DrawTerrain(level, block, terrain);
+    }
+
+    /// <summary>
+    /// Draws a frame's block <paramref name="shape"/> at the object's <paramref name="origin"/>, cell by cell: each cell
+    /// collides as the shape says and shows what the frame's installed <paramref name="image"/> shows there. No two cells
+    /// share a block, so the order they are written in is unobservable.
+    /// </summary>
+    private static void DrawShape(RoomLevelData level, RoomObjectDraw draw, Position16<RoomBlocks> origin, RoomObjectFrameImage image,
+        RoomBlockShape shape)
+    {
+        foreach (RoomBlockShapeCell cell in shape.Cells)
+            DrawImageCell(level, draw, origin, image, cell.Cell, cell.Collision);
     }
 
     /// <summary>

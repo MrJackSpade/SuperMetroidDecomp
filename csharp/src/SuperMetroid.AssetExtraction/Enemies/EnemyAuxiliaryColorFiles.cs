@@ -47,7 +47,7 @@ public static class EnemyAuxiliaryColorFiles
 
     /// <summary>Loads all four named palette families at the supported version, validating each definition's row/color counts and RGB5 channels 0..31 while rejecting duplicate or unknown properties; compiles owned rows independently of cartridge storage.</summary>
     /// <param name="source">UTF-8 JSON stream containing enum-named palette families; integer enum identities are not accepted.</param>
-    /// <returns>The immutable auxiliary-color catalog, retaining supplied rows when they differ from calculated stock relationships.</returns>
+    /// <returns>The immutable auxiliary-color catalog, keeping every installed row as installed.</returns>
     public static EnemyAuxiliaryColorCatalog Read(Stream source)
     {
         Ensure.NotNull(source);

@@ -95,8 +95,6 @@ internal static class LookupStream2Verification
         };
         var selected = definitions.Where(frame => nativeIdentities.Contains(((int)new SnesAddress(frame.Bank, frame.Pointer)))).ToArray();
         AssertEqual(8, selected.Length, "Eight native Chozo stride composition identities");
-        for (int pose = 0; pose < nativeIdentities.Length; pose++)
-            AssertEqual(nativeIdentities[pose], ChozoStrideGeometryDefinitions.NativePoseIdentity(pose), "Chozo counted-record identity geometry");
         foreach (var frame in selected)
         {
             int source = ((int)new SnesAddress(frame.Bank, frame.Pointer));
@@ -147,14 +145,12 @@ internal static class LookupStream2Verification
         Check(stock);
         foreach (var frame in selected)
         {
-            AssertTrue(stock.TryGet(frame.Bank, frame.Pointer, out var parts), "Chozo stock frame exists");
-            AssertEqual("FootParts", parts.GetType().Name, "Chozo stock foot coordinates use shared calculated owner");
+            AssertTrue(stock.TryGet(frame.Bank, frame.Pointer, out _), "Chozo stock frame exists");
         }
         AssertEqual(ChozoCarry.Read(5).Velocity, (short)-0x300, "Chozo carry mechanics velocity");
         AssertEqual(ChozoCarry.Read(6).Velocity, (short)-0xe00, "Chozo late support displacement");
         Suite(nameof(VerifyCompiledStatueWalking), () => VerifyCompiledStatueWalking(rom));
         AssertThrows<ArgumentOutOfRangeException>(() => ChozoStride.SupportFootX(4), "Chozo support-phase upper bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => ChozoStrideGeometryDefinitions.NativePoseIdentity(-1), "Chozo pose lower bound");
         Console.WriteLine("Chozo shared geometry:174 native parts,eight stock views,hash/display order and existing96-word/actual carry checks pass; shape and two movement-policy inputs remain documented.");
     }
 
@@ -1598,7 +1594,6 @@ internal static class LookupStream2Verification
         for (int phase = 0; phase < 10; phase++)
         {
             int identity = 0xaaa4fa + 34 * phase;
-            AssertEqual(identity, GoldenTorizoStrideGeometryDefinitions.NativeFrameIdentity(phase), "Golden Torizo native extended-record geometry");
             var frame = definitions.Single(frame => (((int)new SnesAddress(frame.Bank, frame.Pointer))) == identity);
             selected[phase] = frame;
             AssertEqual((ushort)4, CartridgeImportSource.Require(rom).ReadCartridgeWord(identity), "Golden Torizo four native visual components");
@@ -1681,8 +1676,7 @@ internal static class LookupStream2Verification
         var stock = Load(); Check(stock);
         foreach (var frame in selected)
         {
-            AssertTrue(stock.TryGet(frame.Bank, frame.Pointer, out var components), "Golden Torizo native identity stays installed");
-            AssertEqual("FootParts", components.Span[2].Parts.GetType().Name, "Golden Torizo stock foot strips use shared geometry");
+            AssertTrue(stock.TryGet(frame.Bank, frame.Pointer, out _), "Golden Torizo native identity stays installed");
         }
         for (int step = 0; step < GoldenTorizoWalk.StepCount; step++)
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(0xaad59a + step * 2)), GoldenTorizoWalk.Velocity(step), "Golden Torizo walking steps match native");

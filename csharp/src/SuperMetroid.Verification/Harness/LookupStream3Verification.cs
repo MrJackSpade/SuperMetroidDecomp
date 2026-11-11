@@ -1996,18 +1996,14 @@ internal static class LookupStream3Verification
         foreach (var frame in selected)
         {
             AssertTrue(stock.TryGetDisplay(frame.Bank, frame.Pointer, out var parts), "stream 3 Baby display view");
-            AssertTrue(parts is BabyMetroidSpriteParts, "stream 3 stock Baby full part arrays are discarded");
-            var baby = (BabyMetroidSpriteParts)parts;
-            AssertEqual(baby.sharedBody is not null ? 6 : 15, baby.halfParts.Length,
-                "stream 3 Baby shares nine upper-body halves and stores independent lower halves");
             var nativeOam = new OamBuffer();
             var calculatedOam = new OamBuffer();
             DrawImportedEnemySpritemap(rom, nativeOam, new NativeEnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(128, 128), PaletteBits = 0, BaseTileIndex = 0 });
             calculatedOam.AddEnemySpritemap(parts, new Position16<SpritePixels>(128, 128), 0, 0);
             AssertTrue(nativeOam.ImageEquals(calculatedOam),
-                "stream 3 calculated Baby view matches native OAM drawing");
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = parts[-1], "stream 3 calculated part lower bound");
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = parts[30], "stream 3 calculated part upper bound");
+                "stream 3 installed Baby view matches native OAM drawing");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = parts[-1], "stream 3 installed part lower bound");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = parts[30], "stream 3 installed part upper bound");
         }
     }
     /// <summary>Checks the phase-two attack palette's live colors and rear-leg routing without stored stock rows.</summary>

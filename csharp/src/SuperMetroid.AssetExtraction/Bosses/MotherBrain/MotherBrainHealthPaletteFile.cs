@@ -14,7 +14,7 @@ public static class MotherBrainHealthPaletteFile
     /// <summary>Installed resource filename loaded with area-map presentation assets for Mother Brain's body/brain and rear-leg damage colors.</summary>
     public const string FileName = "mother-brain-health-palette.json";
 
-    /// <summary>Compiles installed RGB5 health-state artwork, retaining supplied edits independently of the native shade ramps and red-tint calculations.</summary>
+    /// <summary>Reads the installed RGB5 health-state artwork, keeping every colour as installed.</summary>
     /// <param name="json">UTF-8 JSON input consumed from its current position to the end; the stream remains open.</param>
     /// <returns>Compiled body and rear-leg palette state independent of the source document's mutable arrays.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>

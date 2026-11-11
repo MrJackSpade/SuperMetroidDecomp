@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <summary>Reads and writes the installed Magdollite palette cycle document.</summary>
 public static class MagdollitePaletteCycleFile
 {
-    /// <summary>Validates and compiles the four RGB5 glow rows, preserving independent edits rather than requiring all later rows to rotate the first.</summary>
+    /// <summary>Validates the four installed RGB5 glow rows and keeps them as installed.</summary>
     /// <param name="json">UTF-8 JSON source consumed from its current position and left open.</param>
     /// <returns>Compiled palette-cycle colors detached from the mutable document arrays.</returns>
     /// <exception cref="ArgumentNullException">The source stream is null.</exception>

@@ -27,7 +27,8 @@ internal static class MagdolliteShadeContentVerification
         RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetLists.DrawnUnder.First(candidate =>
             RoomEnemyGraphicsSetLists.MembersOf(candidate).Records.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.Magdollite));
         int row = new GraphicsSetRows(RoomEnemyGraphicsSetLists.MembersOf(set), EnemyGraphicsSetPaletteRowDefinitions.Rows).RowOf(EnemyDefinitionId.Magdollite);
-        SpriteImage image = InstalledFixtures.EnemySheets.For(set, EnemyDefinitionId.Magdollite).Image;
+        // The sheet composed in-process, which knows the palette index each pixel was composed as (#1633).
+        SpriteImage image = EnemySheetFixtures.ComposedSheet(set, EnemyDefinitionId.Magdollite);
         int first = row * LoadedSetColours.RowColours;
         // The sheet's own colours, laid out by the palette index each was composed as (#1544); a colour of the row none of
         // its pixels shows is not one of its colours, and nothing shows it.

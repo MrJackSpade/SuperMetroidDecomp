@@ -22,6 +22,33 @@ internal static class EnemySheetFixtures
     /// <summary>The installation's stock artwork the import composes enemy sheets from, loaded once per process.</summary>
     internal static EnemySheetInputs Inputs => inputs.Value;
 
+    /// <summary>
+    /// The sheet of <paramref name="enemy"/> as graphics set <paramref name="set"/> draws it, composed in-process by the
+    /// import's composer from the installation's stock artwork and installed through the sheet conversion (#1633), so a check
+    /// comparing it with the cartridge knows where each of its pixels was composed from, which no installed picture holds.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The set does not draw the enemy in a sheet of its own.</exception>
+    internal static SpriteImage ComposedSheet(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy)
+    {
+        ArgumentNullException.ThrowIfNull(set);
+        EnemySheetSource source = EnemySheetComposer.Sources(Inputs, set).Enemies.Single(sheet => sheet.Enemy == enemy);
+        ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(source.Sources, 0, 0);
+        return SpriteSheetFileConstants.Load(sheet.Manifest, $"{enemy}-{set.Name}", sheet.Size, sheet.Pixels, sheet.PaletteIndices).Image;
+    }
+
+    /// <summary>
+    /// The sheet of <paramref name="owner"/>'s spawned objects as graphics set <paramref name="set"/> draws them, composed
+    /// in-process as <see cref="ComposedSheet"/> composes an enemy's.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The set holds no spawned-object sheet of the owner.</exception>
+    internal static SpriteSheet ComposedSpawnedSheet(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner)
+    {
+        ArgumentNullException.ThrowIfNull(set);
+        SpawnedObjectSheetSource source = EnemySheetComposer.Sources(Inputs, set).Spawned.Single(sheet => sheet.Plan.Owner == owner);
+        ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(source.Sources, 0, 0);
+        return SpriteSheetFileConstants.Load(sheet.Manifest, $"Spawned-{owner}-{set.Name}", sheet.Size, sheet.Pixels, sheet.PaletteIndices);
+    }
+
     /// <summary>Sheets already composed, by enemy artwork.</summary>
     private static readonly ConditionalWeakTable<EnemyTileSourceArtwork, ComposedOnDemand> composed = new();
 

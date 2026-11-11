@@ -136,46 +136,49 @@ internal static class EnemyMath
         ReadEightBitSineFixedProduct(angle.TurnedBy(TrigonometryAngle.HalfTurn), radius);
 
     /// <summary>
-    /// Computes one half of the shared sine/cosine velocity product.
-    /// It reads an unsigned quarter-circle sample of 0 through 65535, multiplies it
-    /// by an unsigned magnitude of 0 through 65535, and returns the complete 16.16 product. Callers
-    /// supply either a quarter turn (absolute cosine) or a half turn (absolute sine) as the angle offset.
-    /// Keeping sample generation deterministic avoids host floating-point rounding and makes the raw
-    /// velocities directly comparable with the game's multiplication result.
+    /// The share of a speed of <paramref name="wholePixels"/> whole pixels per update that <paramref name="angle"/>'s
+    /// unsigned half-wave sample gives, regardless of direction: the sample, 0 through 65535 in 65536ths of the whole
+    /// speed (its peak of 65535 standing for all of it), times the speed, in pixels per update with the fraction in
+    /// 65536ths. The speeds are whole pixels: a Draygon goop's is two, a Multiviola's its spawn speed. Keeping sample
+    /// generation deterministic avoids host floating-point rounding, so each speed is exactly the game's product.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="wholePixels"/> is negative.</exception>
+    /// <exception cref="OverflowException">The product does not fit a 16.16 speed.</exception>
+    internal static UnsignedSixteenSixteen UnsignedSineSpeed(TrigonometryAngle angle, int wholePixels) =>
+        UnsignedSixteenSixteen.ShareOfWholePixels(wholePixels, Trigonometry.UnsignedHalfWave(angle.HalfWaveIndex));
+
+    /// <summary>
+    /// <see cref="UnsignedSineSpeed"/> of the angle turned on by <paramref name="angleOffset"/> table steps, as the whole
+    /// speed's 32 bits in an integer: kept for the boss movers that read the product as one (Botwoon's head, Draygon's
+    /// projectiles and Spore Spawn's swing) until they take the typed speed.
     /// </summary>
     internal static int ReadUnsignedSineMagnitudeProduct(
         TrigonometryAngle angle,
         int magnitude,
-        int angleOffset)
-    {
-        int tableIndex = angle.TurnedBySteps(angleOffset).HalfWaveIndex;
-        int sample = Trigonometry.UnsignedHalfWave(tableIndex);
-        // A product that would not fit the multiplication's 32-bit result fails instead of wrapping.
-        uint product = checked((uint)sample * (uint)Ensure.AtLeastZero(magnitude));
-        return unchecked((int)product);
-    }
+        int angleOffset) =>
+        unchecked((int)UnsignedSineSpeed(angle.TurnedBySteps(angleOffset), magnitude).RawValue);
 
-    /// <summary>The absolute cosine half of the angle-to-vector routine: the sample a quarter turn ahead.</summary>
+    /// <summary>The absolute cosine half of the angle-to-vector routine as an integer, for Botwoon's head: the sample a quarter turn ahead.</summary>
     internal static int ReadAbsoluteCosineProduct(TrigonometryAngle angle, int magnitude) =>
-        ReadUnsignedSineMagnitudeProduct(angle, magnitude, TrigonometryAngle.QuarterTurn.RawValue);
+        unchecked((int)AbsoluteCosineSpeed(angle, magnitude).RawValue);
 
-    /// <summary>The absolute sine half of the angle-to-vector routine: the sample a half turn ahead.</summary>
+    /// <summary>The absolute sine half of the angle-to-vector routine as an integer, for Botwoon's head: the sample a half turn ahead.</summary>
     internal static int ReadAbsoluteSineProduct(TrigonometryAngle angle, int magnitude) =>
-        ReadUnsignedSineMagnitudeProduct(angle, magnitude, TrigonometryAngle.HalfTurn.RawValue);
+        unchecked((int)AbsoluteSineSpeed(angle, magnitude).RawValue);
 
     /// <summary>
-    /// The horizontal part of a speed of <paramref name="magnitude"/> 256ths of a pixel along <paramref name="angle"/>,
-    /// regardless of direction: the absolute cosine product as an unsigned 16.16 speed.
+    /// The horizontal part of a speed of <paramref name="wholePixels"/> whole pixels per update along
+    /// <paramref name="angle"/>, regardless of direction: <see cref="UnsignedSineSpeed"/> a quarter turn ahead.
     /// </summary>
-    internal static UnsignedSixteenSixteen AbsoluteCosineSpeed(TrigonometryAngle angle, int magnitude) =>
-        UnsignedSixteenSixteen.FromRaw(unchecked((uint)ReadAbsoluteCosineProduct(angle, magnitude)));
+    internal static UnsignedSixteenSixteen AbsoluteCosineSpeed(TrigonometryAngle angle, int wholePixels) =>
+        UnsignedSineSpeed(angle.TurnedBy(TrigonometryAngle.QuarterTurn), wholePixels);
 
     /// <summary>
-    /// The vertical part of a speed of <paramref name="magnitude"/> 256ths of a pixel along <paramref name="angle"/>,
-    /// regardless of direction: the absolute sine product as an unsigned 16.16 speed.
+    /// The vertical part of a speed of <paramref name="wholePixels"/> whole pixels per update along
+    /// <paramref name="angle"/>, regardless of direction: <see cref="UnsignedSineSpeed"/> a half turn ahead.
     /// </summary>
-    internal static UnsignedSixteenSixteen AbsoluteSineSpeed(TrigonometryAngle angle, int magnitude) =>
-        UnsignedSixteenSixteen.FromRaw(unchecked((uint)ReadAbsoluteSineProduct(angle, magnitude)));
+    internal static UnsignedSixteenSixteen AbsoluteSineSpeed(TrigonometryAngle angle, int wholePixels) =>
+        UnsignedSineSpeed(angle.TurnedBy(TrigonometryAngle.HalfTurn), wholePixels);
 
     /// <summary>Whether a table angle's cosine component is negative: the angle a quarter turn on lies in the turn's second half.</summary>
     internal static bool CosineIsNegative(TrigonometryAngle angle) => angle.TurnedBy(TrigonometryAngle.QuarterTurn).IsInSecondHalf;

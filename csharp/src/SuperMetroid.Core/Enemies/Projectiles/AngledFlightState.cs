@@ -22,7 +22,7 @@ internal sealed class AngledFlightState(TrigonometryAngle heading, UnsignedSixte
 
     /// <summary>Splits <paramref name="speed"/> along <paramref name="heading"/> by the shared sine table.</summary>
     /// <param name="heading">The direction the projectile flies in.</param>
-    /// <param name="speed">The speed, 0 through 65535 in 1/256 pixel per update.</param>
+    /// <param name="speed">The speed in whole pixels per update, zero or more.</param>
     internal static AngledFlightState Launch(TrigonometryAngle heading, int speed) => new(
         heading,
         EnemyMath.AbsoluteCosineSpeed(heading, speed),

@@ -42,7 +42,7 @@ public sealed class SpriteImage
 
     /// <summary>
     /// Checks one image's decoded pixels and maps against its size and finds its distinct colour keys, in the order its
-    /// pixels first show them, the backdrop's last where no pixel shows it.
+    /// visible pixels first show them, the backdrop's last where no visible pixel shows it; clear pixels are not keyed.
     /// </summary>
     /// <exception cref="ArgumentException">A length does not match the image's size, or a recolour region is negative.</exception>
     private DecodedImage Decoded(SpriteImagePixels decoded)
@@ -60,8 +60,12 @@ public sealed class SpriteImage
             Ensure.LengthEqual(blending, pixels);
         var places = new Dictionary<ColourKey, int>();
         var keys = ImmutableArray.CreateBuilder<ColourKey>();
+        // A clear pixel is never keyed: no shade recolours it, and a layer drawn opaque shows its stored colour.
         for (int pixel = 0; pixel < pixels; pixel++)
-            Add(KeyAt(decoded, pixel), places, keys);
+        {
+            if (decoded.Pixels[pixel].A != 0)
+                Add(KeyAt(decoded, pixel), places, keys);
+        }
         if (Backdrop is { } backdrop)
             Add(backdrop, places, keys);
         return new DecodedImage(decoded, keys.ToImmutable(), places);
@@ -106,8 +110,9 @@ public sealed class SpriteImage
     public ReadOnlySpan<bool> Blending => content.Value.Source.Blending;
 
     /// <summary>
-    /// The image's distinct colour keys: each colour its pixels hold with its recolour region, in the order its pixels first
-    /// show them, then the backdrop's where no pixel holds it. A shading shows one colour for each (<see cref="PictureShading.KeyColours(SpriteImage)"/>).
+    /// The image's distinct colour keys: each colour its visible pixels hold with its recolour region, in the order its pixels
+    /// first show them, then the backdrop's where no visible pixel holds it. Clear pixels hold no key. A shading shows one
+    /// colour for each (<see cref="PictureShading.KeyColours(SpriteImage)"/>).
     /// </summary>
     public ImmutableArray<ColourKey> ColourKeys => content.Value.Keys;
 

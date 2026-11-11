@@ -92,7 +92,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         var state = new ShitroidEnemyState(slot)
         {
-            Cursor = AnimationProgramCursor<ShitroidProgram>.Start(ShitroidProgram.Normal),
+            Playback = ShitroidAnimations.Starting(ShitroidProgram.Normal),
             Function = ShitroidAiFunction.WaitForCamera,
             Velocity = default,
             PaletteDelay = 10,
@@ -744,7 +744,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts <paramref name="program"/> with both instruction timers reset.</summary>
     private void SetShitroidProgram(RoomEnemySlot slot, ShitroidProgram program)
     {
-        RequireShitroidState(slot).Cursor = AnimationProgramCursor<ShitroidProgram>.Start(program);
+        RequireShitroidState(slot).Playback = ShitroidAnimations.Starting(program);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
@@ -799,43 +799,29 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs the Shitroid's program where the enemy instruction interpreter would: the frame expires on the update its
-    /// timer would, and a newly shown frame raises the new-frame flag.
+    /// Plays the Shitroid's animation where the enemy instruction interpreter would: the frame expires on the update its
+    /// timer would, and a newly shown frame raises the new-frame flag. Its animations only cycle.
     /// </summary>
     internal void AdvanceShitroidAnimation(RoomEnemySlot slot)
     {
         ShitroidEnemyState state = RequireShitroidState(slot);
-        CountdownStep frameHold = slot.FrameHold.Decrement();
-        slot.FrameHold = frameHold.Remaining;
-        if (!frameHold.IsZero)
-        {
-            slot.NewInstructionFrame = false;
+        if (!EnemyProgramAnimation.Expire(slot))
             return;
-        }
-
-        AnimationProgramCursor<ShitroidProgram> cursor = state.Cursor;
-        WrappingCountdown counter = slot.Timer;
-        AnimationProgramAdvance<BabyMetroidFrame> advance = ShitroidAnimations.Programs.Advance(ref cursor, ref counter,
-            (cue, continuation) => ApplyShitroidCue(cue));
-        slot.Timer = counter;
-        state.Cursor = cursor;
-        if (advance is not AnimationProgramAdvance<BabyMetroidFrame>.Show shown)
-            throw new InvalidOperationException($"The Shitroid's programs have no {advance} step.");
-        slot.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
-        slot.Frame = BabyMetroidVisualDefinitions.ShownFrames.Of(shown.Frame);
-        slot.NewInstructionFrame = true;
+        AnimationPlayback<ShitroidProgram> playback = state.Playback;
+        EnemyProgramAnimation.Play(slot, ShitroidAnimations.Segments, ref playback, BabyMetroidVisualDefinitions.ShownFrames.Of, ApplyShitroidCue);
+        state.Playback = playback;
     }
 
-    /// <summary>Carries out one cue of a Shitroid program.</summary>
-    /// <returns>The remorse program when the cry does not sound; otherwise null.</returns>
-    private ShitroidProgram? ApplyShitroidCue(ShitroidCue cue)
+    /// <summary>Carries out one event of a Shitroid animation.</summary>
+    /// <returns>The remorse animation from its start when the cry does not sound; otherwise null.</returns>
+    private AnimationContinuation<ShitroidProgram>? ApplyShitroidCue(ShitroidCue cue)
     {
         switch (cue)
         {
             case ShitroidCue.MaybeRemorseCry:
                 // The cue samples the existing random word; it does not generate a new one.
                 if (BossRandomRolls.InLowerHalf(_room.Random.Read()))
-                    return ShitroidProgram.Remorse;
+                    return new(ShitroidAnimations.StartingAt[ShitroidProgram.Remorse], AnimationPlace.StartOfAnimation);
                 RequestShitroidSound(ShitroidSoundDefinitions.RemorseCry);
                 return null;
             default:

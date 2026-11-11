@@ -10,9 +10,9 @@ internal static class ShitroidVisualDefinitions
     /// <summary>Three Tourian baby Metroid drain and remorse compositions at $A9:F9A8..FAD8.</summary>
     internal const int FrameCount = 3;
 
-    /// <summary>The spritemaps the typed Shitroid programs show, in program order.</summary>
+    /// <summary>The spritemaps the typed Shitroid segments show, in segment order.</summary>
     internal static ushort[] Spritemaps() => [.. Enum.GetValues<ShitroidProgram>()
-        .SelectMany(program => ShitroidAnimations.Programs.Steps(program))
-        .OfType<AnimationProgramStep<ShitroidProgram, BabyMetroidFrame, ShitroidCue>.ShowStep>()
-        .Select(step => BabyMetroidVisualToolingDefinitions.Spritemap(step.Frame.Index))];
+        .SelectMany(program => ShitroidAnimations.Segments.Beats(program))
+        .OfType<AnimationBeat<BabyMetroidFrame, ShitroidCue>.Frame>()
+        .Select(beat => BabyMetroidVisualToolingDefinitions.Spritemap(beat.Shown.Index))];
 }

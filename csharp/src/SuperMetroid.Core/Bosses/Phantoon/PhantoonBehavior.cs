@@ -130,7 +130,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         part.FrameHold = WrappingCountdown.Start(1);
         part.Timer = WrappingCountdown.Start(0);
         part.Shading = state.Body.Shading;
-        state.PartProgram(part) = AnimationProgramCursor<PhantoonPartProgram>.Start(program);
+        state.PartPlayback(part) = PhantoonEnemyState.Starting(program);
     }
 
     /// <summary>
@@ -327,16 +327,16 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EnemyProgramAnimation.Expire(part))
             return;
         PhantoonEnemyState state = Combat.RequirePhantoonState(part);
-        AnimationProgramCursor<PhantoonPartProgram> cursor = state.PartProgram(part);
-        // Writing the cursor back after the cues lets the program's own sleep overwrite a cue's install on this
-        // part, as the Sleep does. Phantoon's part lists load no loop counter.
-        EnemyProgramAnimation.Run(part, PhantoonAnimations.Programs, ref cursor, PhantoonPartFrameSpritemaps.ShownFrames.Of,
-            (cue, continuation) =>
+        AnimationPlayback<PhantoonPartProgram> playback = state.PartPlayback(part);
+        // Writing the playback back after the events lets the animation's own hold overwrite an event's install on
+        // this part, as the Sleep does. Phantoon's part animations count no plays.
+        EnemyProgramAnimation.Play(part, PhantoonAnimations.Segments, ref playback, PhantoonPartFrameSpritemaps.ShownFrames.Of,
+            cue =>
             {
                 ApplyPhantoonPartCue(part, cue);
                 return null;
             });
-        state.PartProgram(part) = cursor;
+        state.PartPlayback(part) = playback;
     }
 
     /// <summary>Carries out one cue of a Phantoon part program.</summary>

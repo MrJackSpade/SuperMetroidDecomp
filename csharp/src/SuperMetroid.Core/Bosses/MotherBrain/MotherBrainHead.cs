@@ -227,39 +227,50 @@ internal sealed class MotherBrainHead
     /// </summary>
     internal MotherBrainHeadFrame? AdvanceMotherBrainBrain(MotherBrainEnemyState state, SamusState? samus)
     {
-        if (state.BrainCursor is not { } cursor)
+        if (state.BrainPlayback is not { } playback)
             return null;
-        var programs = MotherBrainAnimations.Head;
-        AnimationProgramStep<MotherBrainHeadProgram, MotherBrainHeadFrame, MotherBrainHeadCue> step = programs.Steps(cursor.Program)[cursor.Position];
+        AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue> beat = RestingBeat(playback);
         if (_frameContext.TimeIsFrozen)
         {
-            return step is AnimationProgramStep<MotherBrainHeadProgram, MotherBrainHeadFrame, MotherBrainHeadCue>.ShowStep frozen ? frozen.Frame : throw new InvalidOperationException(
-                $"Mother Brain's frozen brain rests on {step} step {cursor.Position} of {cursor.Program}, not a frame.");
+            return beat is AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue>.Frame frozen ? frozen.Shown : throw new InvalidOperationException(
+                $"Mother Brain's frozen brain rests on {beat} at {playback.Place} of its animation, not a frame.");
         }
 
-        if (step is AnimationProgramStep<MotherBrainHeadProgram, MotherBrainHeadFrame, MotherBrainHeadCue>.ShowStep show)
+        Animation<MotherBrainHeadProgram> animation = playback.Animation;
+        AnimationPlace place = playback.Place;
+        if (beat is AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue>.Frame show)
         {
             if (state.BrainFrameTimer <= show.Duration)
             {
                 state.BrainFrameTimer++;
-                return show.Frame;
+                return show.Shown;
             }
-            cursor = cursor with { Position = cursor.Position + 1 };
+            place = place with { Beat = place.Beat + 1 };
         }
 
-        WrappingCountdown unusedCounter = default;
-        AnimationProgramAdvance<MotherBrainHeadFrame> advance = programs.Advance(ref cursor, ref unusedCounter,
-            (cue, continuation) => ApplyMotherBrainHeadCue(state, samus, cue));
-        if (advance is not AnimationProgramAdvance<MotherBrainHeadFrame>.Show shown)
-            throw new InvalidOperationException($"Mother Brain's brain programs have no {advance} step.");
-        // The program position rests on the frame it shows, so the cursor steps back onto it.
-        state.BrainCursor = cursor with { Position = cursor.Position - 1 };
+        // No brain animation counts its plays, so nothing reads or writes this counter.
+        WrappingCountdown uncounted = default;
+        AnimationShown<MotherBrainHeadProgram, MotherBrainHeadFrame> advance = MotherBrainAnimations.HeadSegments.PlayToNextFrame(
+            ref animation, ref place, ref uncounted, cue => ApplyMotherBrainHeadCue(state, samus, cue) is { } program
+                ? new AnimationContinuation<MotherBrainHeadProgram>(MotherBrainAnimations.HeadStartingWith(program), AnimationPlace.StartOfAnimation)
+                : null);
+        if (advance is not AnimationShown<MotherBrainHeadProgram, MotherBrainHeadFrame>.Frame shown)
+            throw new InvalidOperationException($"Mother Brain's brain animations have no {advance} beat.");
+        // The place rests on the frame it shows, so it steps back onto it.
+        state.BrainPlayback = new(animation, place with { Beat = place.Beat - 1 });
         state.BrainFrameTimer = 1;
-        return shown.Frame;
+        return shown.Shown;
     }
 
-    /// <summary>Carries out one cue of a brain program.</summary>
-    /// <returns>The program a random hold or drool cue redirects to; otherwise null.</returns>
+    /// <summary>The beat <paramref name="playback"/>'s place rests on: its playing phase's next beat.</summary>
+    private static AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue> RestingBeat(AnimationPlayback<MotherBrainHeadProgram> playback)
+    {
+        AnimationPhase<MotherBrainHeadProgram> phase = playback.Animation.Phases[playback.Place.Phase];
+        return MotherBrainAnimations.HeadSegments.Beats(phase.Segment)[phase.FirstBeat + playback.Place.Beat];
+    }
+
+    /// <summary>Carries out one event of a brain animation.</summary>
+    /// <returns>The program whose animation a random hold or drool event continues at; otherwise null.</returns>
     /// <remarks>
     /// The brain program advances in her brain's draw, after the enemy update has collected the frame's legacy
     /// sound slots, so its sounds go straight to the enemy audio queue at their limits (#1391).

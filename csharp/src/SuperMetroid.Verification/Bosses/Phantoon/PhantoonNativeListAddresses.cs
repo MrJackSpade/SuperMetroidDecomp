@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Bosses.Phantoon;
+using SuperMetroid.TestSupport.MovieReplay;
 
 namespace SuperMetroid.Verification.Bosses.Phantoon;
 
@@ -15,27 +16,27 @@ internal static class PhantoonNativeListAddresses
     internal const ushort CallFunctionInY = 0x808a;
 
     /// <summary>Each typed part program's native entry point in bank $A7, in authored order.</summary>
-    internal static readonly PartEntryValue2[] PartEntries =
+    internal static readonly NativeProgramEntry<PhantoonPartProgram>[] PartEntries =
     [
-        new PartEntryValue2(PhantoonPartProgram.InvulnerableBody, 0xcc41),
-        new PartEntryValue2(PhantoonPartProgram.FullHitboxBody, 0xcc47),
-        new PartEntryValue2(PhantoonPartProgram.EyeHitboxBody, 0xcc4d),
-        new PartEntryValue2(PhantoonPartProgram.EyeOpen, 0xcc53),
-        new PartEntryValue2(PhantoonPartProgram.EyeClosed, 0xcc7b),
-        new PartEntryValue2(PhantoonPartProgram.EyeCloseAndPickNewPattern, 0xcc81),
-        new PartEntryValue2(PhantoonPartProgram.EyeClose, 0xcc91),
-        new PartEntryValue2(PhantoonPartProgram.EyeballCentered, 0xcc9d),
-        new PartEntryValue2(PhantoonPartProgram.EyeLookingUp, 0xcca7),
-        new PartEntryValue2(PhantoonPartProgram.EyeLookingUpRight, 0xccad),
-        new PartEntryValue2(PhantoonPartProgram.EyeLookingRight, 0xccb3),
-        new PartEntryValue2(PhantoonPartProgram.EyeLookingDownRight, 0xccb9),
-        new PartEntryValue2(PhantoonPartProgram.EyeLookingDown, 0xccbf),
-        new PartEntryValue2(PhantoonPartProgram.EyeLookingDownLeft, 0xccc5),
-        new PartEntryValue2(PhantoonPartProgram.EyeLookingLeft, 0xcccb),
-        new PartEntryValue2(PhantoonPartProgram.EyeLookingUpLeft, 0xccd1),
-        new PartEntryValue2(PhantoonPartProgram.Tentacles, 0xccd7),
-        new PartEntryValue2(PhantoonPartProgram.MouthSpawnFlame, 0xcceb),
-        new PartEntryValue2(PhantoonPartProgram.MouthInitial, 0xccf7),
+        new(PhantoonPartProgram.InvulnerableBody, 0xcc41),
+        new(PhantoonPartProgram.FullHitboxBody, 0xcc47),
+        new(PhantoonPartProgram.EyeHitboxBody, 0xcc4d),
+        new(PhantoonPartProgram.EyeOpen, 0xcc53),
+        new(PhantoonPartProgram.EyeClosed, 0xcc7b),
+        new(PhantoonPartProgram.EyeCloseAndPickNewPattern, 0xcc81),
+        new(PhantoonPartProgram.EyeClose, 0xcc91),
+        new(PhantoonPartProgram.EyeballCentered, 0xcc9d),
+        new(PhantoonPartProgram.EyeLookingUp, 0xcca7),
+        new(PhantoonPartProgram.EyeLookingUpRight, 0xccad),
+        new(PhantoonPartProgram.EyeLookingRight, 0xccb3),
+        new(PhantoonPartProgram.EyeLookingDownRight, 0xccb9),
+        new(PhantoonPartProgram.EyeLookingDown, 0xccbf),
+        new(PhantoonPartProgram.EyeLookingDownLeft, 0xccc5),
+        new(PhantoonPartProgram.EyeLookingLeft, 0xcccb),
+        new(PhantoonPartProgram.EyeLookingUpLeft, 0xccd1),
+        new(PhantoonPartProgram.Tentacles, 0xccd7),
+        new(PhantoonPartProgram.MouthSpawnFlame, 0xcceb),
+        new(PhantoonPartProgram.MouthInitial, 0xccf7),
     ];
 
     /// <summary>The bank-$A7 routines Phantoon's part lists call and the cue each must become.</summary>
@@ -46,10 +47,6 @@ internal static class PhantoonNativeListAddresses
         [0xd076] = PhantoonPartCue.PickNewPattern,
         [0xcf5e] = PhantoonPartCue.SpawnCasualFlame,
     };
-
-    /// <summary>The part program whose native list starts at <paramref name="address"/>, if one does.</summary>
-    internal static PhantoonPartProgram? PartProgramAt(ushort address) =>
-        PartEntries.Where(item => item.Entry == address).Select(item => (PhantoonPartProgram?)item.Program).SingleOrDefault();
 
     /// <summary>The native entry point of <paramref name="program"/>.</summary>
     internal static ushort PartEntry(PhantoonPartProgram program) => PartEntries.Single(item => item.Program == program).Entry;

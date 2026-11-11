@@ -1,37 +1,44 @@
 using SuperMetroid.Core.Programs;
-using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.Bosses.MotherBrain.MotherBrainTurretPose, SuperMetroid.Core.Bosses.MotherBrain.MotherBrainTurretFrame, SuperMetroid.Core.Bosses.MotherBrain.MotherBrainTurretCue>;
+using Beat = SuperMetroid.Core.Programs.AnimationBeat<SuperMetroid.Core.Bosses.MotherBrain.MotherBrainTurretFrame, SuperMetroid.Core.Bosses.MotherBrain.MotherBrainTurretCue>;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The turrets' and bullets' typed programs (#641).</summary>
+/// <summary>The turrets' and bullets' typed animations (#641, #1600).</summary>
 internal static class MotherBrainTurretAnimations
 {
     /// <summary>Frames in the impact smoke.</summary>
     internal const int ImpactPhaseCount = 5;
 
-    /// <summary>
-    /// Every turret program: each turret and bullet pose shows for one update and sleeps; the impact smoke takes palette
-    /// zero, stops flying, shows four eight-update puffs and a 32-update fade, then deletes itself.
-    /// </summary>
-    internal static AnimationProgramSet<MotherBrainTurretPose, MotherBrainTurretFrame, MotherBrainTurretCue> Programs { get; } = new(
-        new[] { MotherBrainTurretProgram.TurretPose, MotherBrainTurretProgram.BulletPose }
-            .SelectMany(program => Enum.GetValues<MotherBrainTurretDirection>().Select(direction => new MotherBrainTurretPose(program, direction)))
-            .Select(pose => KeyValuePair.Create(pose, StillPose(pose)))
-            .Append(KeyValuePair.Create(MotherBrainTurretPose.BulletImpact, BulletImpact()))
-            .ToDictionary());
-
-    /// <summary>Shows the pose for one update and sleeps.</summary>
-    private static Step[] StillPose(MotherBrainTurretPose pose) =>
-        [Step.Show(new(pose.Program, MotherBrainTurretDefinitions.Ring.PositionOf(pose.Direction)), 1), Step.Hold];
-
-    /// <summary>The impact smoke's steps.</summary>
-    private static Step[] BulletImpact() =>
+    /// <summary>Every turret segment: each turret and bullet pose by direction, and the impact smoke.</summary>
+    private static readonly MotherBrainTurretPose[] Poses =
     [
-        Step.Publish(MotherBrainTurretCue.DrawFromSharedSheet),
-        Step.Publish(MotherBrainTurretCue.ClearFrameBehavior),
+        .. new[] { MotherBrainTurretProgram.TurretPose, MotherBrainTurretProgram.BulletPose }
+            .SelectMany(program => Enum.GetValues<MotherBrainTurretDirection>().Select(direction => new MotherBrainTurretPose(program, direction))),
+        MotherBrainTurretPose.BulletImpact,
+    ];
+
+    /// <summary>
+    /// Every turret segment: each turret and bullet pose shows for one update; the impact smoke takes palette zero, stops
+    /// flying, shows four eight-update puffs and a 32-update fade, then deletes itself.
+    /// </summary>
+    internal static AnimationSegments<MotherBrainTurretPose, MotherBrainTurretFrame, MotherBrainTurretCue> Segments { get; } = new(
+        Poses.ToDictionary(pose => pose, pose => pose == MotherBrainTurretPose.BulletImpact ? BulletImpact() : StillPose(pose)), Poses);
+
+    /// <summary>Each segment's animation, played once: a pose then sleeps on its frame, and the deleted smoke rests.</summary>
+    internal static IReadOnlyDictionary<MotherBrainTurretPose, Animation<MotherBrainTurretPose>> StartingAt { get; } =
+        Poses.ToDictionary(pose => pose, pose => new Animation<MotherBrainTurretPose>([new(pose, 0, Segments.Beats(pose).Count, 1)], AnimationEnd.Holds));
+
+    /// <summary>Shows the pose for one update.</summary>
+    private static Beat[] StillPose(MotherBrainTurretPose pose) =>
+        [new Beat.Frame(new(pose.Program, MotherBrainTurretDefinitions.Ring.PositionOf(pose.Direction)), 1)];
+
+    /// <summary>The impact smoke's beats.</summary>
+    private static Beat[] BulletImpact() =>
+    [
+        new Beat.Event(MotherBrainTurretCue.DrawFromSharedSheet),
+        new Beat.Event(MotherBrainTurretCue.ClearFrameBehavior),
         .. Enumerable.Range(0, ImpactPhaseCount).Select(phase =>
-            Step.Show(new(MotherBrainTurretProgram.BulletImpact, phase), phase == ImpactPhaseCount - 1 ? 32 : 8)),
-        Step.Publish(MotherBrainTurretCue.Delete),
-        Step.Hold,
+            new Beat.Frame(new(MotherBrainTurretProgram.BulletImpact, phase), phase == ImpactPhaseCount - 1 ? 32 : 8)),
+        new Beat.Event(MotherBrainTurretCue.Delete),
     ];
 }

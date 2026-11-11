@@ -3,15 +3,22 @@ using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The falling tubes' typed programs (#641), in place of their lists, six bytes a piece.</summary>
+/// <summary>The falling tubes' typed animations (#641, #1600), in place of their lists, six bytes a piece.</summary>
 internal static class MotherBrainTubeAnimations
 {
-    /// <summary>Every piece's program: its pose for one update, then the script's sleep keeps it.</summary>
-    internal static AnimationProgramSet<MotherBrainTubePiece, MotherBrainTubeFrame, NoAnimationCue> Programs { get; } = new(
-        Enum.GetValues<MotherBrainTubePiece>().ToDictionary(piece => piece, piece =>
-            new[]
-            {
-                AnimationProgramStep<MotherBrainTubePiece, MotherBrainTubeFrame, NoAnimationCue>.Show(new MotherBrainTubeFrame(MotherBrainFallingTubePopulationDefinitions.Pieces.PositionOf(piece)), 1),
-                AnimationProgramStep<MotherBrainTubePiece, MotherBrainTubeFrame, NoAnimationCue>.Hold,
-            }));
+    /// <summary>Every piece's segment: its pose for one update.</summary>
+    internal static AnimationSegments<MotherBrainTubePiece, MotherBrainTubeFrame, NoAnimationCue> Segments { get; } = new(
+        Enum.GetValues<MotherBrainTubePiece>().ToDictionary(piece => piece, piece => new AnimationBeat<MotherBrainTubeFrame, NoAnimationCue>[]
+        {
+            new AnimationBeat<MotherBrainTubeFrame, NoAnimationCue>.Frame(new MotherBrainTubeFrame(MotherBrainFallingTubePopulationDefinitions.Pieces.PositionOf(piece)), 1),
+        }));
+
+    /// <summary>Each piece's animation: its pose, which the script's sleep then keeps.</summary>
+    internal static IReadOnlyDictionary<MotherBrainTubePiece, Animation<MotherBrainTubePiece>> StartingAt { get; } =
+        Enum.GetValues<MotherBrainTubePiece>().ToDictionary(piece => piece,
+            piece => new Animation<MotherBrainTubePiece>([new(piece, 0, 1, 1)], AnimationEnd.Holds));
+
+    /// <summary>The animation of <paramref name="piece"/>, before its first play.</summary>
+    internal static AnimationPlayback<MotherBrainTubePiece> Starting(MotherBrainTubePiece piece) =>
+        new(StartingAt[piece], AnimationPlace.StartOfAnimation);
 }

@@ -13,6 +13,7 @@ namespace SuperMetroid.Verification.Bosses.Botwoon;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Programs;
 
 /// <summary>
 /// #641: Botwoon's typed animations against the retail cartridge. A minimal reader walks the
@@ -137,7 +138,7 @@ internal static class BotwoonAnimationsVerification
         for (ushort selector = 0; selector < 64; selector += 2)
         {
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord((BotwoonSegmentListTable + selector));
-            _ = BotwoonAnimations.SegmentPrograms.Steps(BotwoonSegmentSelectorCodec.Program(selector));
+            _ = BotwoonAnimations.ProjectileSegments.Beats(BotwoonSegmentSelectorCodec.Program(selector));
             AssertTrue(native != 0, $"Botwoon segment selector ${selector:X2} has a native list");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => BotwoonSegmentSelectorCodec.Program(1), "odd Botwoon segment selector");
@@ -226,8 +227,7 @@ internal static class BotwoonAnimationsVerification
         HashSet<ushort> drawn)
     {
         (RoomEnemySystem enemies, RoomEnemySlot head, BotwoonEnemyState state) = NewBotwoonHead();
-        state.HeadProgram = program;
-        state.HeadAnimationPosition = 0;
+        state.HeadPlayback = new(BotwoonAnimations.HeadStartingWith(program), AnimationPlace.StartOfAnimation);
         head.FrameHold = WrappingCountdown.Start(1);
         CompareBotwoonHead(rom, nativeList, enemies, head, state, label, drawn);
     }

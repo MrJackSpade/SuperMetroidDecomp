@@ -46,92 +46,36 @@ internal static class PhantoonAnimationsVerification
         return enemies;
     }
 
-    /// <summary>The program a Phantoon part is running.</summary>
+    /// <summary>The program a Phantoon part is playing.</summary>
     internal static PhantoonPartProgram PartProgram(RoomEnemySystem enemies, RoomEnemySlot part) =>
-        RequireState(enemies).PartProgram(part).Program;
+        RequireState(enemies).PlayingProgram(part);
 
     /// <summary>The system's Phantoon state.</summary>
     private static PhantoonEnemyState RequireState(RoomEnemySystem enemies) =>
         enemies.PhantoonBehavior.Combat.Phantoon ?? throw new InvalidOperationException("Verification requires Phantoon's state.");
 
     /// <summary>
-    /// Every part program's typed steps equal its native list, and the eye-opening and mouth programs run their
-    /// callbacks through the production interpreter as the native lists do.
+    /// Every part segment's beats equal its native list and every part animation the lists' control flow, and the
+    /// eye-opening and mouth animations raise their events through the production runner as the native lists do.
     /// </summary>
     internal static void VerifyPhantoonPartAnimations(SuperMetroidAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
-        AssertEqual(Enum.GetValues<PhantoonPartProgram>().Length, PartEntries.Length, "every typed Phantoon part program has a native entry");
-        for (int index = 0; index < PartEntries.Length; index++)
-            AssertEqual((PhantoonPartProgram)index, PartEntries[index].Program, "the Phantoon part programs are declared in authored order");
         AssertTrue(PartEntriesAscend, "native Phantoon part entries ascend");
 
-        int stepCount = 0;
-        foreach ((PhantoonPartProgram program, ushort entry) in PartEntries)
-            stepCount += CompareProgram(cartridge, program, entry);
+        int stepCount = NativeEnemyAnimationOracle.CompareAll(cartridge, PartBankNumber, PartEntries, PhantoonAnimations.Segments,
+            PhantoonAnimations.StartingAt, PhantoonPartFrameSpritemapsConstants.Spritemap,
+            new NativeEnemyCueRules<PhantoonPartCue>(word => word == CallFunctionInY ? 1 : null, (word, operands, cue, at) =>
+            {
+                AssertTrue(PartCallbacks.TryGetValue(operands[0], out PhantoonPartCue native), $"{at}: native routine ${operands[0]:X4} is known");
+                AssertEqual(native, cue, $"{at}: event");
+            }));
         for (int ordinal = 0; ordinal < 8; ordinal++)
             AssertEqual(PhantoonPartProgram.EyeLookingUp + ordinal, PhantoonAnimationsConstants.Gaze(ordinal), $"gaze {ordinal} selects its program");
 
         VerifyEyeOpening();
         VerifyMouthFlame();
-        Console.WriteLine($"  Phantoon part programs: {PartEntries.Length} programs and {stepCount} steps match bank $A7; eye-opening and mouth callbacks run as the native lists do.");
-    }
-
-    /// <summary>Compares one typed part program with its native list and returns its typed step count.</summary>
-    private static int CompareProgram(IImportCartridgeSource cartridge, PhantoonPartProgram program, ushort entry)
-    {
-        var steps = PhantoonAnimations.Programs.Steps(program);
-        ushort cursor = entry;
-        int index = 0;
-        for (int command = 0; command < 64; command++)
-        {
-            string at = $"Phantoon {program} step {index}";
-            if (cursor != entry && PartProgramAt(cursor) is { } next)
-            {
-                var fallInto = AssertIs<AnimationProgramStep<PhantoonPartProgram, PhantoonPartFrame, PhantoonPartCue>.FallIntoStep>(steps[index], $"{at}: runs on into the next authored program");
-                AssertEqual(next, fallInto.Target, $"{at}: fall-through target");
-                AssertEqual(steps.Count, index + 1, $"{at}: fall-through ends the program");
-                return steps.Count;
-            }
-            int address = (PartBankNumber << 16) | cursor;
-            ushort word = cartridge.ReadCartridgeWord(address);
-            ushort operand = cartridge.ReadCartridgeWord(address + 2);
-            switch (NativeEnemyListDefinitions.Classify(word))
-            {
-                case NativeEnemyListDefinitions.WordKind.Frame:
-                    var show = AssertIs<AnimationProgramStep<PhantoonPartProgram, PhantoonPartFrame, PhantoonPartCue>.ShowStep>(steps[index], $"{at}: frame");
-                    AssertEqual(word, show.Duration, $"{at}: duration");
-                    AssertEqual(operand, PhantoonPartFrameSpritemapsConstants.Spritemap(show.Frame), $"{at}: spritemap");
-                    cursor = unchecked((ushort)(cursor + 4));
-                    index++;
-                    continue;
-                case NativeEnemyListDefinitions.WordKind.GoTo:
-                    var goTo = AssertIs<AnimationProgramStep<PhantoonPartProgram, PhantoonPartFrame, PhantoonPartCue>.GoToStep>(steps[index], $"{at}: goto");
-                    AssertEqual(PartProgramAt(operand), goTo.Target, $"{at}: goto target");
-                    AssertEqual(steps.Count, index + 1, $"{at}: goto ends the program");
-                    return steps.Count;
-                case NativeEnemyListDefinitions.WordKind.Sleep:
-                    AssertTrue(steps[index] is AnimationProgramStep<PhantoonPartProgram, PhantoonPartFrame, PhantoonPartCue>.HoldStep, $"{at}: sleep");
-                    AssertEqual(steps.Count, index + 1, $"{at}: sleep ends the program");
-                    return steps.Count;
-                case NativeEnemyListDefinitions.WordKind.Callback:
-                    AssertEqual(CallFunctionInY, word, $"{at}: Phantoon's callbacks use the common call-function command");
-                    AssertTrue(PartCallbacks.TryGetValue(operand, out PhantoonPartCue cue), $"{at}: native routine ${operand:X4} is known");
-                    var cueStep = AssertIs<AnimationProgramStep<PhantoonPartProgram, PhantoonPartFrame, PhantoonPartCue>.CueStep>(steps[index], $"{at}: callback");
-                    AssertEqual(cue, cueStep.Cue, $"{at}: cue");
-                    cursor = unchecked((ushort)(cursor + 4));
-                    index++;
-                    continue;
-                case NativeEnemyListDefinitions.WordKind.Stop:
-                case NativeEnemyListDefinitions.WordKind.SetCounter:
-                case NativeEnemyListDefinitions.WordKind.RepeatWhileCounting:
-                case NativeEnemyListDefinitions.WordKind.Wait:
-                    throw new InvalidDataException($"{at}: Phantoon's part lists use no stops, counters or waits.");
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(NativeEnemyListDefinitions.WordKind)}.");
-            }
-        }
-        throw new InvalidDataException($"Phantoon {program} ran past its native list.");
+        Console.WriteLine($"  Phantoon part animations: {PartEntries.Length} segments and {stepCount} beats match bank $A7; eye-opening and mouth callbacks run as the native lists do.");
     }
 
     /// <summary>Runs one part update, optionally expiring the current frame first.</summary>
@@ -151,7 +95,7 @@ internal static class PhantoonAnimationsVerification
         RoomEnemySystem enemies = CreatePhantoonSystem();
         PhantoonEnemyState state = RequireState(enemies);
         RoomEnemySlot eye = state.Eye;
-        state.PartProgram(eye) = AnimationProgramCursor<PhantoonPartProgram>.Start(PhantoonPartProgram.EyeOpen);
+        state.PartPlayback(eye) = PhantoonEnemyState.Starting(PhantoonPartProgram.EyeOpen);
         eye.FrameHold = WrappingCountdown.Start(1);
         for (int frame = 0; frame < 3; frame++)
         {
@@ -173,7 +117,7 @@ internal static class PhantoonAnimationsVerification
         RoomEnemySystem enemies = CreatePhantoonSystem();
         PhantoonEnemyState state = RequireState(enemies);
         RoomEnemySlot mouth = state.Mouth;
-        state.PartProgram(mouth) = AnimationProgramCursor<PhantoonPartProgram>.Start(PhantoonPartProgram.MouthSpawnFlame);
+        state.PartPlayback(mouth) = PhantoonEnemyState.Starting(PhantoonPartProgram.MouthSpawnFlame);
         Pass(mouth, forceExpiry: true);
         Pass(mouth, forceExpiry: true);
         AssertEqual(0, ActiveFlames(enemies), "the mouth opens before it spawns");
@@ -259,7 +203,8 @@ internal static class PhantoonAnimationsVerification
 
     /// <summary>Requires <paramref name="flame"/> to run <paramref name="program"/> from its start.</summary>
     private static void AssertStarted(EnemyProjectile flame, PhantoonFlameProgram program, string label) =>
-        AssertTrue(flame.Animation is PhantoonFlameAnimation started && started.Cursor == AnimationProgramCursor<PhantoonFlameProgram>.Start(program),
+        AssertTrue(flame.Animation is PhantoonFlameAnimation started
+                && started.Playback == new AnimationPlayback<PhantoonFlameProgram>(PhantoonFlameAnimations.StartingWith(program), AnimationPlace.StartOfAnimation),
             $"the {label} starts the {program} program");
 
     /// <summary>The pre-Phantoon room projectile's blank hold and deletion match $86:A3AA update by update.</summary>

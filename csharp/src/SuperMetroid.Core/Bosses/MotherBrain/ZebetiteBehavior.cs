@@ -118,7 +118,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         ZebetiteGenerationDefinition definition = Zebetites.Generation(generation);
         state.GenerationFlags = definition.GenerationFlags;
         slot.Radius = slot.Radius.WithY(definition.YRadius);
-        state.Cursor = AnimationProgramCursor<ZebetiteProgram>.Start(definition.Program);
+        state.Playback = ZebetiteAnimations.Starting(definition.Program);
         slot.Position = slot.Position.WithWholeX(definition.XPosition);
         slot.Position = slot.Position.WithWholeY(Zebetites.YPosition(definition, state.IsSecondaryHalf));
     }
@@ -215,7 +215,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         ZebetiteEnemyState state)
     {
-        state.Cursor = AnimationProgramCursor<ZebetiteProgram>.Start(ZebetiteAnimations.HealthProgram(
+        state.Playback = ZebetiteAnimations.Starting(ZebetiteAnimations.HealthProgram(
             linkedPair: (state.GenerationFlags & ZebetiteGenerationFlags.LinkedPair) != ZebetiteGenerationFlags.None,
             slot.Health));
         slot.FrameHold = WrappingCountdown.Start(1);
@@ -287,33 +287,13 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void AdvanceZebetiteAnimation(RoomEnemySlot slot)
     {
         ZebetiteEnemyState state = slot.RequireSpeciesState<ZebetiteEnemyState>();
-        CountdownStep frameHold = slot.FrameHold.Decrement();
-        slot.FrameHold = frameHold.Remaining;
-        if (!frameHold.IsZero)
-        {
-            slot.NewInstructionFrame = false;
+        if (!EnemyProgramAnimation.Expire(slot))
             return;
-        }
-
-        AnimationProgramCursor<ZebetiteProgram> cursor = state.Cursor;
-        WrappingCountdown counter = slot.Timer;
-        AnimationProgramAdvance<ZebetiteFrame> advance = ZebetiteAnimations.Programs.Advance(ref cursor, ref counter,
-            (cue, continuation) => throw new InvalidOperationException($"Zebetite programs publish no cue {cue}."));
-        slot.Timer = counter;
-        state.Cursor = cursor;
-        switch (advance)
-        {
-            case AnimationProgramAdvance<ZebetiteFrame>.Show shown:
-                slot.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
-                slot.Frame = ZebetiteVisualDefinitions.ShownFrames.Of(shown.Frame);
-                slot.NewInstructionFrame = true;
-                return;
-            case AnimationProgramAdvance<ZebetiteFrame>.Hold:
-                // The script's sleep: the timer wraps from zero and the pose stays.
-                return;
-            default:
-                throw new InvalidOperationException($"Zebetite programs have no {advance} step.");
-        }
+        // A held pose is the script's sleep: the timer wraps from zero and the pose stays.
+        AnimationPlayback<ZebetiteProgram> playback = state.Playback;
+        EnemyProgramAnimation.Play(slot, ZebetiteAnimations.Segments, ref playback, ZebetiteVisualDefinitions.ShownFrames.Of,
+            cue => throw new InvalidOperationException($"Zebetite animations raise no event {cue}."));
+        state.Playback = playback;
     }
 
     /// <summary>Registers bombs to share the Zebetite shot tail without generic death handling.</summary>

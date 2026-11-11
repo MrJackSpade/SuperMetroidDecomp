@@ -4,7 +4,7 @@ using P = SuperMetroid.Core.Bosses.Phantoon.PhantoonFlameProgram;
 
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>Phantoon's typed flame programs (#641), in place of their lists.</summary>
+/// <summary>Phantoon's typed flame animations (#641, #1600), in place of their lists.</summary>
 internal static class PhantoonFlameAnimations
 {
     /// <summary>Poses in the idle, bouncing and starting loops.</summary>
@@ -22,87 +22,88 @@ internal static class PhantoonFlameAnimations
     private const int PoseDuration = 5;
     /// <summary>The rain flame's impact dwell.</summary>
     private const int RainImpactDuration = 8;
-    /// <summary>How many times each falling phase repeats its two poses.</summary>
+    /// <summary>How many times each falling phase plays its two poses.</summary>
     private const int FallingRepeatCount = 4;
 
-    /// <summary>Every flame program.</summary>
-    internal static AnimationProgramSet<PhantoonFlameProgram, PhantoonFlameFrame, PhantoonFlameCue> Programs { get; } = new(
-        new Dictionary<PhantoonFlameProgram, AnimationProgramStep<PhantoonFlameProgram, PhantoonFlameFrame, PhantoonFlameCue>[]>
+    /// <summary>
+    /// Every flame segment. The three falling starts show nothing of their own: each only loads the loop counter for the
+    /// falling phase it runs on into.
+    /// </summary>
+    internal static AnimationSegments<PhantoonFlameProgram, PhantoonFlameFrame, PhantoonFlameCue> Segments { get; } = new(
+        new Dictionary<PhantoonFlameProgram, AnimationBeat<PhantoonFlameFrame, PhantoonFlameCue>[]>
     {
-        [P.DestroyableIdle] = Loop(F.DestroyableIdle, P.DestroyableIdle),
-        [P.CasualHitGround] = [Show(new(F.CasualHitGround, 0), 1), Hold],
-        [P.CasualBouncing] = Loop(F.CasualBouncing, P.CasualBouncing),
-        [P.CasualResting] =
-        [
-            .. Poses(F.CasualResting, RestingPoseCount),
-            FallInto(P.Dying),
-        ],
+        [P.DestroyableIdle] = Poses(F.DestroyableIdle, LoopPoseCount),
+        [P.CasualHitGround] = [Show(new(F.CasualHitGround, 0), 1)],
+        [P.CasualBouncing] = Poses(F.CasualBouncing, LoopPoseCount),
+        [P.CasualResting] = Poses(F.CasualResting, RestingPoseCount),
         [P.Dying] =
         [
             .. Poses(F.Dying, DyingPoseCount),
             Cue(PhantoonFlameCue.Delete),
-            Hold,
         ],
-        [P.RainImpact] = [Show(new(F.RainImpact, 0), RainImpactDuration), GoTo(P.Dying)],
-        [P.CasualFalling0] = [SetCounter(FallingRepeatCount), FallInto(P.CasualFalling0Loop)],
-        [P.CasualFalling0Loop] = FallingPhase(0, P.CasualFalling0Loop, FallInto(P.CasualFalling1)),
-        [P.CasualFalling1] = [SetCounter(FallingRepeatCount), FallInto(P.CasualFalling1Loop)],
-        [P.CasualFalling1Loop] = FallingPhase(1, P.CasualFalling1Loop, FallInto(P.CasualFalling2)),
-        [P.CasualFalling2] = [SetCounter(FallingRepeatCount), FallInto(P.CasualFalling2Loop)],
-        [P.CasualFalling2Loop] = FallingPhase(2, P.CasualFalling2Loop, GoTo(P.CasualFalling0)),
-        [P.StartingFlame] = Loop(F.StartingFlame, P.StartingFlame),
-        [P.Delete] = [Cue(PhantoonFlameCue.Delete), Hold],
+        [P.RainImpact] = [Show(new(F.RainImpact, 0), RainImpactDuration)],
+        [P.CasualFalling0] = [],
+        [P.CasualFalling0Loop] = FallingPhase(0),
+        [P.CasualFalling1] = [],
+        [P.CasualFalling1Loop] = FallingPhase(1),
+        [P.CasualFalling2] = [],
+        [P.CasualFalling2Loop] = FallingPhase(2),
+        [P.StartingFlame] = Poses(F.StartingFlame, LoopPoseCount),
+        [P.Delete] = [Cue(PhantoonFlameCue.Delete)],
         [P.DestroyableShot] =
         [
             .. Poses(F.DestroyableShot, ShotPoseCount),
             Cue(PhantoonFlameCue.SpawnDrop),
             Cue(PhantoonFlameCue.Delete),
-            Hold,
         ],
     });
 
-    /// <summary>A three-pose loop that restarts <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<PhantoonFlameProgram, PhantoonFlameFrame, PhantoonFlameCue>[] Loop(F kind, P program) =>
-        [.. Poses(kind, LoopPoseCount), GoTo(program)];
+    /// <summary>
+    /// The animation that starts at each segment an owner can start: the loops cycle for good, a resting or impacting
+    /// flame runs on into dying, and a falling flame plays each falling phase's poses four times, the three phases in turn
+    /// for good. The falling phases' own runs are counted bodies and start no animation.
+    /// </summary>
+    internal static IReadOnlyDictionary<PhantoonFlameProgram, Animation<PhantoonFlameProgram>> StartingAt { get; } = new Dictionary<PhantoonFlameProgram, Animation<PhantoonFlameProgram>>
+    {
+        [P.DestroyableIdle] = new([Whole(P.DestroyableIdle)], AnimationEnd.LoopsFrom(0)),
+        [P.CasualHitGround] = new([Whole(P.CasualHitGround)], AnimationEnd.Holds),
+        [P.CasualBouncing] = new([Whole(P.CasualBouncing)], AnimationEnd.LoopsFrom(0)),
+        [P.CasualResting] = new([Whole(P.CasualResting), Whole(P.Dying)], AnimationEnd.Holds),
+        [P.Dying] = new([Whole(P.Dying)], AnimationEnd.Holds),
+        [P.RainImpact] = new([Whole(P.RainImpact), Whole(P.Dying)], AnimationEnd.Holds),
+        [P.CasualFalling0] = new([Falling(P.CasualFalling0Loop), Falling(P.CasualFalling1Loop), Falling(P.CasualFalling2Loop)], AnimationEnd.LoopsFrom(0)),
+        [P.CasualFalling1] = new([Falling(P.CasualFalling1Loop), Falling(P.CasualFalling2Loop), Falling(P.CasualFalling0Loop)], AnimationEnd.LoopsFrom(0)),
+        [P.CasualFalling2] = new([Falling(P.CasualFalling2Loop), Falling(P.CasualFalling0Loop), Falling(P.CasualFalling1Loop)], AnimationEnd.LoopsFrom(0)),
+        [P.StartingFlame] = new([Whole(P.StartingFlame)], AnimationEnd.LoopsFrom(0)),
+        [P.Delete] = new([Whole(P.Delete)], AnimationEnd.Holds),
+        [P.DestroyableShot] = new([Whole(P.DestroyableShot)], AnimationEnd.Holds),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<PhantoonFlameProgram> StartingWith(PhantoonFlameProgram segment) => StartingAt[segment];
+
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<PhantoonFlameProgram> Whole(PhantoonFlameProgram segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
+
+    /// <summary>A falling phase's two poses, played four times on the flame's loop counter.</summary>
+    private static AnimationPhase<PhantoonFlameProgram> Falling(PhantoonFlameProgram loop) => new(loop, 0, FallingPoseCount, FallingRepeatCount);
 
     /// <summary>The <paramref name="count"/> poses of <paramref name="kind"/>, each lasting the flame dwell.</summary>
-    private static IEnumerable<AnimationProgramStep<PhantoonFlameProgram, PhantoonFlameFrame, PhantoonFlameCue>> Poses(F kind, int count) =>
-        Enumerable.Range(0, count).Select(phase => Show(new(kind, phase), PoseDuration));
+    private static AnimationBeat<PhantoonFlameFrame, PhantoonFlameCue>[] Poses(F kind, int count) =>
+        [.. Enumerable.Range(0, count).Select(phase => Show(new(kind, phase), PoseDuration))];
 
-    /// <summary>
-    /// One falling phase: two one-update poses, repeated while the loop counter counts down, then
-    /// <paramref name="next"/>.
-    /// </summary>
-    private static AnimationProgramStep<PhantoonFlameProgram, PhantoonFlameFrame, PhantoonFlameCue>[] FallingPhase(
-        int phase, P loop, AnimationProgramStep<PhantoonFlameProgram, PhantoonFlameFrame, PhantoonFlameCue> next) =>
+    /// <summary>One falling phase's two one-update poses.</summary>
+    private static AnimationBeat<PhantoonFlameFrame, PhantoonFlameCue>[] FallingPhase(int phase) =>
     [
         Show(new(F.CasualFalling, phase * FallingPoseCount), 1),
         Show(new(F.CasualFalling, phase * FallingPoseCount + 1), 1),
-        AnimationProgramStep<PhantoonFlameProgram, PhantoonFlameFrame, PhantoonFlameCue>.RepeatWhileCounting(loop),
-        next,
     ];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> passes.</summary>
-    private static AnimationProgramStep<PhantoonFlameProgram, PhantoonFlameFrame, PhantoonFlameCue> Show(PhantoonFlameFrame frame, int duration) =>
-        AnimationProgramStep<PhantoonFlameProgram, PhantoonFlameFrame, PhantoonFlameCue>.Show(frame, duration);
+    private static AnimationBeat<PhantoonFlameFrame, PhantoonFlameCue> Show(PhantoonFlameFrame frame, int duration) =>
+        new AnimationBeat<PhantoonFlameFrame, PhantoonFlameCue>.Frame(frame, duration);
 
-    /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<PhantoonFlameProgram, PhantoonFlameFrame, PhantoonFlameCue> Cue(PhantoonFlameCue cue) =>
-        AnimationProgramStep<PhantoonFlameProgram, PhantoonFlameFrame, PhantoonFlameCue>.Publish(cue);
-
-    /// <summary>Loads the loop counter with <paramref name="count"/>.</summary>
-    private static AnimationProgramStep<PhantoonFlameProgram, PhantoonFlameFrame, PhantoonFlameCue> SetCounter(int count) =>
-        AnimationProgramStep<PhantoonFlameProgram, PhantoonFlameFrame, PhantoonFlameCue>.SetCounter(count);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<PhantoonFlameProgram, PhantoonFlameFrame, PhantoonFlameCue> GoTo(P program) =>
-        AnimationProgramStep<PhantoonFlameProgram, PhantoonFlameFrame, PhantoonFlameCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<PhantoonFlameProgram, PhantoonFlameFrame, PhantoonFlameCue> FallInto(P program) =>
-        AnimationProgramStep<PhantoonFlameProgram, PhantoonFlameFrame, PhantoonFlameCue>.FallInto(program);
-
-    /// <summary>Holds the last frame, as the script's sleep and deletion do.</summary>
-    private static AnimationProgramStep<PhantoonFlameProgram, PhantoonFlameFrame, PhantoonFlameCue> Hold =>
-        AnimationProgramStep<PhantoonFlameProgram, PhantoonFlameFrame, PhantoonFlameCue>.Hold;
+    /// <summary>Raises <paramref name="cue"/>.</summary>
+    private static AnimationBeat<PhantoonFlameFrame, PhantoonFlameCue> Cue(PhantoonFlameCue cue) =>
+        new AnimationBeat<PhantoonFlameFrame, PhantoonFlameCue>.Event(cue);
 }

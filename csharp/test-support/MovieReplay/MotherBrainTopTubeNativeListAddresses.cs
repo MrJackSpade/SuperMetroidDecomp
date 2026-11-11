@@ -25,7 +25,7 @@ internal static class MotherBrainTopTubeNativeListAddresses
         word => null,
         (word, operands, cue, at) => throw new InvalidDataException($"{at}: the ceiling-tube lists use no family commands."));
 
-    /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, MotherBrainTopTubeAnimations.Programs,
+    /// <summary>The family's typed segments and animations beside their native lists.</summary>
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, MotherBrainTopTubeAnimations.Segments, MotherBrainTopTubeAnimations.StartingAt,
         frame => EnemyProjectileProgramFrameSources.Operand(MotherBrainTopTubeFrameDefinitions.ShownProjectileFrames[frame]), Rules);
 }

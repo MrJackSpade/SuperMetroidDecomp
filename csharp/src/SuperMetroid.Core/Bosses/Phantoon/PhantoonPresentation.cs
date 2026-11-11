@@ -78,6 +78,6 @@ internal sealed class PhantoonPresentation
         PhantoonPartProgram program)
     {
         slot.FrameHold = WrappingCountdown.Start(1);
-        state.PartProgram(slot) = AnimationProgramCursor<PhantoonPartProgram>.Start(program);
+        state.PartPlayback(slot) = PhantoonEnemyState.Starting(program);
     }
 }

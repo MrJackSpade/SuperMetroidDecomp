@@ -5,12 +5,12 @@ using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Mother Brain's typed body and brain programs (#641).</summary>
+/// <summary>Mother Brain's typed body and brain animations (#641, #1600).</summary>
 internal static class MotherBrainAnimations
 {
-    /// <summary>Every body program.</summary>
-    internal static AnimationProgramSet<B, MotherBrainBodyFrame, MotherBrainBodyCue> Body { get; } = new(
-        new Dictionary<B, AnimationProgramStep<B, MotherBrainBodyFrame, MotherBrainBodyCue>[]>
+    /// <summary>Every body segment.</summary>
+    internal static AnimationSegments<B, MotherBrainBodyFrame, MotherBrainBodyCue> BodySegments { get; } = new(
+        new Dictionary<B, AnimationBeat<MotherBrainBodyFrame, MotherBrainBodyCue>[]>
     {
         [B.WalkForwardReallyFast] = WalkForward(2),
         [B.WalkForwardFast] = WalkForward(4),
@@ -34,10 +34,9 @@ internal static class MotherBrainAnimations
             BodyCue(new MotherBrainBodyCue.MoveWithScrollBias(-12, -2)),
             BodyShow(MotherBrainBodyFrame.Standing, 8),
             Pose(MotherBrainBodyPose.Standing),
-            BodyHold,
         ],
-        [B.StandAfterCrouchSlow] = [.. StandUp(16), BodyHold],
-        [B.StandAfterCrouchFast] = [.. StandUp(8), BodyHold],
+        [B.StandAfterCrouchSlow] = [.. StandUp(16)],
+        [B.StandAfterCrouchFast] = [.. StandUp(8)],
         [B.StandAfterLeaning] =
         [
             Pose(MotherBrainBodyPose.CrouchingTransition),
@@ -45,7 +44,6 @@ internal static class MotherBrainAnimations
             BodyCue(new MotherBrainBodyCue.MoveWithScrollBias(-12, -2)),
             BodyShow(MotherBrainBodyFrame.Standing, 8),
             Pose(MotherBrainBodyPose.Standing),
-            BodyHold,
         ],
         [B.LeanDown] =
         [
@@ -54,26 +52,30 @@ internal static class MotherBrainAnimations
             BodyCue(new MotherBrainBodyCue.MoveWithScrollBias(12, 4)),
             Pose(MotherBrainBodyPose.LeaningDown),
             BodyShow(MotherBrainBodyFrame.LeaningDown, 8),
-            BodyHold,
         ],
         [B.Crouched] =
         [
             Pose(MotherBrainBodyPose.Crouched),
             BodyShow(MotherBrainBodyFrame.Crouched, 8),
-            BodyHold,
         ],
-        [B.CrouchSlow] = [.. Crouch(8, 8), BodyHold],
-        [B.CrouchFast] = [.. Crouch(2, 2), BodyHold],
+        [B.CrouchSlow] = [.. Crouch(8, 8)],
+        [B.CrouchFast] = [.. Crouch(2, 2)],
         [B.HandBeam] = HandBeam(),
         [B.InitialDummy] =
         [
             BodyShow(MotherBrainBodyFrame.InitialDummy, 0),
-            BodyHold,
         ],
     });
 
+    /// <summary>Each body program's animation: its segment played once, then held as the script's sleep holds it.</summary>
+    internal static IReadOnlyDictionary<B, Animation<B>> BodyStartingAt { get; } =
+        Enum.GetValues<B>().ToDictionary(program => program, program => new Animation<B>([Whole(program)], AnimationEnd.Holds));
+
+    /// <summary>The body animation that starts at <paramref name="program"/>.</summary>
+    internal static Animation<B> BodyStartingWith(B program) => BodyStartingAt[program];
+
     /// <summary>A forward walk whose frames last <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<B, MotherBrainBodyFrame, MotherBrainBodyCue>[] WalkForward(int duration) =>
+    private static AnimationBeat<MotherBrainBodyFrame, MotherBrainBodyCue>[] WalkForward(int duration) =>
     [
         Pose(MotherBrainBodyPose.Walking),
         BodyShow(MotherBrainBodyFrame.Standing, duration),
@@ -94,11 +96,10 @@ internal static class MotherBrainAnimations
         BodyCue(new MotherBrainBodyCue.StepAndMove(new(-1, 2))),
         Pose(MotherBrainBodyPose.Standing),
         BodyShow(MotherBrainBodyFrame.Walking(7), duration),
-        BodyHold,
     ];
 
     /// <summary>A backward walk whose frames last <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<B, MotherBrainBodyFrame, MotherBrainBodyCue>[] WalkBackward(int duration) =>
+    private static AnimationBeat<MotherBrainBodyFrame, MotherBrainBodyCue>[] WalkBackward(int duration) =>
     [
         Pose(MotherBrainBodyPose.Walking),
         BodyShow(MotherBrainBodyFrame.Walking(7), duration),
@@ -119,11 +120,10 @@ internal static class MotherBrainAnimations
         BodyCue(new MotherBrainBodyCue.StepAndMove(new(-1, 2))),
         Pose(MotherBrainBodyPose.Standing),
         BodyShow(MotherBrainBodyFrame.Standing, duration),
-        BodyHold,
     ];
 
     /// <summary>Lowers the body into the crouch; the lean and uncrouch frames last the given updates.</summary>
-    private static AnimationProgramStep<B, MotherBrainBodyFrame, MotherBrainBodyCue>[] Crouch(int lean, int uncrouch) =>
+    private static AnimationBeat<MotherBrainBodyFrame, MotherBrainBodyCue>[] Crouch(int lean, int uncrouch) =>
     [
         Pose(MotherBrainBodyPose.CrouchingTransition),
         BodyShow(MotherBrainBodyFrame.Standing, 8),
@@ -137,7 +137,7 @@ internal static class MotherBrainAnimations
     ];
 
     /// <summary>Raises the body from the crouch to standing, each frame lasting <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<B, MotherBrainBodyFrame, MotherBrainBodyCue>[] StandUp(int duration) =>
+    private static AnimationBeat<MotherBrainBodyFrame, MotherBrainBodyCue>[] StandUp(int duration) =>
     [
         Pose(MotherBrainBodyPose.CrouchingTransition),
         BodyShow(MotherBrainBodyFrame.Crouched, duration),
@@ -154,9 +154,9 @@ internal static class MotherBrainAnimations
     /// The red hand beam: the arm rises, eight charge particles alternate between the particle and the energy
     /// spark at the hand, the beam fires, and the body holds the standing pose before the next phase.
     /// </summary>
-    private static AnimationProgramStep<B, MotherBrainBodyFrame, MotherBrainBodyCue>[] HandBeam()
+    private static AnimationBeat<MotherBrainBodyFrame, MotherBrainBodyCue>[] HandBeam()
     {
-        var steps = new List<AnimationProgramStep<B, MotherBrainBodyFrame, MotherBrainBodyCue>>
+        var steps = new List<AnimationBeat<MotherBrainBodyFrame, MotherBrainBodyCue>>
         {
             Pose(MotherBrainBodyPose.DeathBeam),
             BodyShow(MotherBrainBodyFrame.Standing, 1),
@@ -179,47 +179,41 @@ internal static class MotherBrainAnimations
             BodyShow(MotherBrainBodyFrame.Standing, 240),
             BodyCue(MotherBrainBodyCue.AdvanceHandBeamPhase),
             Pose(MotherBrainBodyPose.Standing),
-            BodyHold,
         ]);
         return [.. steps];
     }
 
     /// <summary>Shows a body frame.</summary>
-    private static AnimationProgramStep<B, MotherBrainBodyFrame, MotherBrainBodyCue> BodyShow(MotherBrainBodyFrame frame, int duration) =>
-        AnimationProgramStep<B, MotherBrainBodyFrame, MotherBrainBodyCue>.Show(frame, duration);
+    private static AnimationBeat<MotherBrainBodyFrame, MotherBrainBodyCue> BodyShow(MotherBrainBodyFrame frame, int duration) =>
+        new AnimationBeat<MotherBrainBodyFrame, MotherBrainBodyCue>.Frame(frame, duration);
 
-    /// <summary>Publishes a body cue.</summary>
-    private static AnimationProgramStep<B, MotherBrainBodyFrame, MotherBrainBodyCue> BodyCue(MotherBrainBodyCue cue) =>
-        AnimationProgramStep<B, MotherBrainBodyFrame, MotherBrainBodyCue>.Publish(cue);
+    /// <summary>Raises a body event.</summary>
+    private static AnimationBeat<MotherBrainBodyFrame, MotherBrainBodyCue> BodyCue(MotherBrainBodyCue cue) =>
+        new AnimationBeat<MotherBrainBodyFrame, MotherBrainBodyCue>.Event(cue);
 
-    /// <summary>Publishes a body pose.</summary>
-    private static AnimationProgramStep<B, MotherBrainBodyFrame, MotherBrainBodyCue> Pose(MotherBrainBodyPose pose) =>
+    /// <summary>Raises a body pose.</summary>
+    private static AnimationBeat<MotherBrainBodyFrame, MotherBrainBodyCue> Pose(MotherBrainBodyPose pose) =>
         BodyCue(new MotherBrainBodyCue.SetPose(pose));
 
-    /// <summary>The script's sleep that ends a body program.</summary>
-    private static AnimationProgramStep<B, MotherBrainBodyFrame, MotherBrainBodyCue> BodyHold =>
-        AnimationProgramStep<B, MotherBrainBodyFrame, MotherBrainBodyCue>.Hold;
-
-    /// <summary>Every brain program.</summary>
-    internal static AnimationProgramSet<H, MotherBrainHeadFrame, MotherBrainHeadCue> Head { get; } = new(
-        new Dictionary<H, AnimationProgramStep<H, MotherBrainHeadFrame, MotherBrainHeadCue>[]>
+    /// <summary>Every brain segment.</summary>
+    internal static AnimationSegments<H, MotherBrainHeadFrame, MotherBrainHeadCue> HeadSegments { get; } = new(
+        new Dictionary<H, AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue>[]>
     {
-        [H.StretchingPhase2] = [.. Stretch(2, 3, 4, MotherBrainStretchKind.Attack), FallInto(H.StretchingPhase2Loop)],
-        [H.StretchingPhase2Loop] = [Show(2, 1), GoTo(H.StretchingPhase2Loop)],
-        [H.StretchingPhase3] = [.. Stretch(8, 9, 10, MotherBrainStretchKind.Attack), FallInto(H.StretchingPhase3Loop)],
-        [H.StretchingPhase3Loop] = [Show(8, 1), GoTo(H.StretchingPhase3Loop)],
-        [H.HyperBeamRecoil] = [.. Stretch(8, 9, 10, MotherBrainStretchKind.HyperBeamRecoil), FallInto(H.HyperBeamRecoilLoop)],
-        [H.HyperBeamRecoilLoop] = [Show(8, 1), GoTo(H.HyperBeamRecoilLoop)],
-        [H.Initial] = [Show(0, 4), GoTo(H.Initial)],
-        [H.Decapitated] = [Show(8, 8), Show(7, 4), FallInto(H.DecapitatedLoop)],
-        [H.DecapitatedLoop] = [Show(6, 4), GoTo(H.DecapitatedLoop)],
+        [H.StretchingPhase2] = [.. Stretch(2, 3, 4, MotherBrainStretchKind.Attack)],
+        [H.StretchingPhase2Loop] = [Show(2, 1)],
+        [H.StretchingPhase3] = [.. Stretch(8, 9, 10, MotherBrainStretchKind.Attack)],
+        [H.StretchingPhase3Loop] = [Show(8, 1)],
+        [H.HyperBeamRecoil] = [.. Stretch(8, 9, 10, MotherBrainStretchKind.HyperBeamRecoil)],
+        [H.HyperBeamRecoilLoop] = [Show(8, 1)],
+        [H.Initial] = [Show(0, 4)],
+        [H.Decapitated] = [Show(8, 8), Show(7, 4)],
+        [H.DecapitatedLoop] = [Show(6, 4)],
         [H.DyingDrool] =
         [
             Cue(MotherBrainHeadCueKind.ShakeBrain),
             Show(8, 4),
             Show(9, 4),
             HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.Roar)),
-            FallInto(H.DyingDroolBurst),
         ],
         [H.DyingDroolBurst] =
         [
@@ -231,34 +225,30 @@ internal static class MotherBrainAnimations
             Cue(MotherBrainHeadCueKind.SpawnDrool),
             Show(10, 2),
             Cue(MotherBrainHeadCueKind.SpawnDrool),
-            FallInto(H.DyingDroolLoop),
         ],
         [H.DyingDroolLoop] =
         [
             Show(10, 2),
             Cue(MotherBrainHeadCueKind.MaybeDroolAgain),
-            GoTo(H.DyingDroolLoop),
         ],
-        [H.FiringRainbowBeam] = [Show(2, 1), GoTo(H.FiringRainbowBeam)],
-        [H.NeutralPhase2] = [Show(0, 4), Show(1, 4), Show(2, 8), Show(1, 4), Show(0, 4), Show(1, 4), FallInto(H.NeutralPhase2Hold)],
+        [H.FiringRainbowBeam] = [Show(2, 1)],
+        [H.NeutralPhase2] = [Show(0, 4), Show(1, 4), Show(2, 8), Show(1, 4), Show(0, 4), Show(1, 4)],
         [H.NeutralPhase2Hold] =
         [
             Show(2, 8),
             Cue(MotherBrainHeadCueKind.MaybeHoldNeutralPhase2),
             Show(1, 4),
-            GoTo(H.NeutralPhase2),
         ],
-        [H.NeutralPhase3] = [Show(6, 4), Show(7, 4), Show(8, 8), Show(7, 4), Show(6, 4), Show(7, 4), FallInto(H.NeutralPhase3Hold)],
+        [H.NeutralPhase3] = [Show(6, 4), Show(7, 4), Show(8, 8), Show(7, 4), Show(6, 4), Show(7, 4)],
         [H.NeutralPhase3Hold] =
         [
             Show(8, 8),
             Show(7, 8),
             Cue(MotherBrainHeadCueKind.MaybeHoldNeutralPhase3),
             Show(6, 4),
-            GoTo(H.NeutralPhase3),
         ],
-        [H.Corpse] = [Show(6, 2), Show(7, 2), Show(8, 64), Show(11, 64), FallInto(H.CorpseLoop)],
-        [H.CorpseLoop] = [Show(12, 2), GoTo(H.CorpseLoop)],
+        [H.Corpse] = [Show(6, 2), Show(7, 2), Show(8, 64), Show(11, 64)],
+        [H.CorpseLoop] = [Show(12, 2)],
         [H.FourOnionRingsPhase2] = OnionRingsPhase2(rings: 4),
         [H.TwoOnionRingsPhase2] = OnionRingsPhase2(rings: 2),
         [H.AttackingBabyMetroid] =
@@ -266,14 +256,12 @@ internal static class MotherBrainAnimations
             Cue(MotherBrainHeadCueKind.CountBabyMetroidAttack),
             Cue(MotherBrainHeadCueKind.DisableNeckMovement),
             Cue(MotherBrainHeadCueKind.AimOnionRingsAtBabyMetroid),
-            GoTo(H.FourOnionRingsPhase3),
         ],
         [H.AttackingSamusFourOnionRingsPhase3] =
         [
             Cue(MotherBrainHeadCueKind.ResetBabyMetroidAttacks),
             Cue(MotherBrainHeadCueKind.DisableNeckMovement),
             Cue(MotherBrainHeadCueKind.AimOnionRingsAtSamus),
-            FallInto(H.FourOnionRingsPhase3),
         ],
         [H.FourOnionRingsPhase3] =
         [
@@ -293,10 +281,9 @@ internal static class MotherBrainAnimations
             Show(9, 4),
             Show(8, 16),
             Cue(MotherBrainHeadCueKind.EnableNeckMovement),
-            GoTo(H.NeutralPhase3),
         ],
-        [H.BombPhase2] = Bomb(firstHeadFrame: 0, afterburns: 7, neutral: H.NeutralPhase2),
-        [H.BombPhase3] = Bomb(firstHeadFrame: 6, afterburns: 1, neutral: H.NeutralPhase3),
+        [H.BombPhase2] = Bomb(firstHeadFrame: 0, afterburns: 7),
+        [H.BombPhase3] = Bomb(firstHeadFrame: 6, afterburns: 1),
         [H.Laser] =
         [
             Show(1, 16),
@@ -304,7 +291,6 @@ internal static class MotherBrainAnimations
             Cue(MotherBrainHeadCueKind.SpawnLaser),
             Show(2, 32),
             Cue(MotherBrainHeadCueKind.EnableNeckMovement),
-            GoTo(H.NeutralPhase2),
         ],
         [H.ChargingRainbowBeam] =
         [
@@ -312,24 +298,62 @@ internal static class MotherBrainAnimations
             Show(2, 4),
             Show(1, 4),
             Show(0, 2),
-            FallInto(H.ChargingRainbowBeamLoop),
         ],
         [H.ChargingRainbowBeamLoop] =
         [
             Cue(MotherBrainHeadCueKind.SpawnRainbowBeamChargeParticle),
             Show(0, 30),
-            GoTo(H.ChargingRainbowBeamLoop),
         ],
     });
+
+    /// <summary>
+    /// The brain animation that starts at each brain program: each plays on through the programs its list runs on into or
+    /// continues at, looping from the first one it reaches again.
+    /// </summary>
+    internal static IReadOnlyDictionary<H, Animation<H>> HeadStartingAt { get; } = new Dictionary<H, Animation<H>>
+    {
+        [H.StretchingPhase2] = Looping(1, H.StretchingPhase2, H.StretchingPhase2Loop),
+        [H.StretchingPhase2Loop] = Looping(0, H.StretchingPhase2Loop),
+        [H.StretchingPhase3] = Looping(1, H.StretchingPhase3, H.StretchingPhase3Loop),
+        [H.StretchingPhase3Loop] = Looping(0, H.StretchingPhase3Loop),
+        [H.HyperBeamRecoil] = Looping(1, H.HyperBeamRecoil, H.HyperBeamRecoilLoop),
+        [H.HyperBeamRecoilLoop] = Looping(0, H.HyperBeamRecoilLoop),
+        [H.Initial] = Looping(0, H.Initial),
+        [H.Decapitated] = Looping(1, H.Decapitated, H.DecapitatedLoop),
+        [H.DecapitatedLoop] = Looping(0, H.DecapitatedLoop),
+        [H.DyingDrool] = Looping(2, H.DyingDrool, H.DyingDroolBurst, H.DyingDroolLoop),
+        [H.DyingDroolBurst] = Looping(1, H.DyingDroolBurst, H.DyingDroolLoop),
+        [H.DyingDroolLoop] = Looping(0, H.DyingDroolLoop),
+        [H.FiringRainbowBeam] = Looping(0, H.FiringRainbowBeam),
+        [H.NeutralPhase2] = Looping(0, H.NeutralPhase2, H.NeutralPhase2Hold),
+        [H.NeutralPhase2Hold] = Looping(0, H.NeutralPhase2Hold, H.NeutralPhase2),
+        [H.NeutralPhase3] = Looping(0, H.NeutralPhase3, H.NeutralPhase3Hold),
+        [H.NeutralPhase3Hold] = Looping(0, H.NeutralPhase3Hold, H.NeutralPhase3),
+        [H.Corpse] = Looping(1, H.Corpse, H.CorpseLoop),
+        [H.CorpseLoop] = Looping(0, H.CorpseLoop),
+        [H.FourOnionRingsPhase2] = Looping(1, H.FourOnionRingsPhase2, H.NeutralPhase2, H.NeutralPhase2Hold),
+        [H.TwoOnionRingsPhase2] = Looping(1, H.TwoOnionRingsPhase2, H.NeutralPhase2, H.NeutralPhase2Hold),
+        [H.AttackingBabyMetroid] = Looping(2, H.AttackingBabyMetroid, H.FourOnionRingsPhase3, H.NeutralPhase3, H.NeutralPhase3Hold),
+        [H.AttackingSamusFourOnionRingsPhase3] = Looping(2, H.AttackingSamusFourOnionRingsPhase3, H.FourOnionRingsPhase3, H.NeutralPhase3, H.NeutralPhase3Hold),
+        [H.FourOnionRingsPhase3] = Looping(1, H.FourOnionRingsPhase3, H.NeutralPhase3, H.NeutralPhase3Hold),
+        [H.BombPhase2] = Looping(1, H.BombPhase2, H.NeutralPhase2, H.NeutralPhase2Hold),
+        [H.BombPhase3] = Looping(1, H.BombPhase3, H.NeutralPhase3, H.NeutralPhase3Hold),
+        [H.Laser] = Looping(1, H.Laser, H.NeutralPhase2, H.NeutralPhase2Hold),
+        [H.ChargingRainbowBeam] = Looping(1, H.ChargingRainbowBeam, H.ChargingRainbowBeamLoop),
+        [H.ChargingRainbowBeamLoop] = Looping(0, H.ChargingRainbowBeamLoop),
+    };
+
+    /// <summary>The brain animation that starts at <paramref name="program"/>.</summary>
+    internal static Animation<H> HeadStartingWith(H program) => HeadStartingAt[program];
 
     /// <summary>
     /// The neck stretch and the Hyper Beam recoil: the brain shakes, the mouth opens through
     /// <paramref name="open"/>, <paramref name="wide"/> and <paramref name="widest"/>, breathing a big purple cloud
     /// with the stretch cry, and drools while stretching.
     /// </summary>
-    private static AnimationProgramStep<H, MotherBrainHeadFrame, MotherBrainHeadCue>[] Stretch(int open, int wide, int widest, MotherBrainStretchKind kind)
+    private static AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue>[] Stretch(int open, int wide, int widest, MotherBrainStretchKind kind)
     {
-        var steps = new List<AnimationProgramStep<H, MotherBrainHeadFrame, MotherBrainHeadCue>>
+        var steps = new List<AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue>>
         {
             Cue(MotherBrainHeadCueKind.ShakeBrain),
             Show(open, 2),
@@ -349,9 +373,9 @@ internal static class MotherBrainAnimations
     }
 
     /// <summary>A phase-two onion-ring volley of <paramref name="rings"/> rings aimed at Samus.</summary>
-    private static AnimationProgramStep<H, MotherBrainHeadFrame, MotherBrainHeadCue>[] OnionRingsPhase2(int rings)
+    private static AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue>[] OnionRingsPhase2(int rings)
     {
-        var steps = new List<AnimationProgramStep<H, MotherBrainHeadFrame, MotherBrainHeadCue>>
+        var steps = new List<AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue>>
         {
             Cue(MotherBrainHeadCueKind.DisableNeckMovement),
             Show(2, 4),
@@ -371,13 +395,12 @@ internal static class MotherBrainAnimations
             Show(3, 4),
             Show(2, 16),
             Cue(MotherBrainHeadCueKind.EnableNeckMovement),
-            GoTo(H.NeutralPhase2),
         ]);
         return [.. steps];
     }
 
     /// <summary>A bomb lob: phase two lobs a seven-afterburn bomb, phase three a one-afterburn bomb.</summary>
-    private static AnimationProgramStep<H, MotherBrainHeadFrame, MotherBrainHeadCue>[] Bomb(int firstHeadFrame, int afterburns, H neutral)
+    private static AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue>[] Bomb(int firstHeadFrame, int afterburns)
     {
         // Phase three uses the damaged head (frames 6 to 10) where phase two uses the whole one (0 to 4).
         int head = firstHeadFrame;
@@ -397,27 +420,27 @@ internal static class MotherBrainAnimations
             Show(head + 3, 4),
             Show(head + 2, 16),
             Cue(MotherBrainHeadCueKind.EnableNeckMovement),
-            GoTo(neutral),
         ];
     }
 
     /// <summary>Shows brain frame <paramref name="index"/> of the composition catalog.</summary>
-    private static AnimationProgramStep<H, MotherBrainHeadFrame, MotherBrainHeadCue> Show(int index, int duration) =>
-        AnimationProgramStep<H, MotherBrainHeadFrame, MotherBrainHeadCue>.Show(new MotherBrainHeadFrame(index), duration);
+    private static AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue> Show(int index, int duration) =>
+        new AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue>.Frame(new MotherBrainHeadFrame(index), duration);
 
-    /// <summary>Publishes a brain cue without operands.</summary>
-    private static AnimationProgramStep<H, MotherBrainHeadFrame, MotherBrainHeadCue> Cue(MotherBrainHeadCueKind kind) =>
+    /// <summary>Raises a brain event without operands.</summary>
+    private static AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue> Cue(MotherBrainHeadCueKind kind) =>
         HeadCue(MotherBrainHeadCue.Of(kind));
 
-    /// <summary>Publishes a brain cue.</summary>
-    private static AnimationProgramStep<H, MotherBrainHeadFrame, MotherBrainHeadCue> HeadCue(MotherBrainHeadCue cue) =>
-        AnimationProgramStep<H, MotherBrainHeadFrame, MotherBrainHeadCue>.Publish(cue);
+    /// <summary>Raises a brain event.</summary>
+    private static AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue> HeadCue(MotherBrainHeadCue cue) =>
+        new AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue>.Event(cue);
 
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<H, MotherBrainHeadFrame, MotherBrainHeadCue> GoTo(H program) =>
-        AnimationProgramStep<H, MotherBrainHeadFrame, MotherBrainHeadCue>.GoTo(program);
+    /// <summary>One play of every beat of body segment <paramref name="program"/>.</summary>
+    private static AnimationPhase<B> Whole(B program) => new(program, 0, BodySegments.Beats(program).Count, 1);
 
-    /// <summary>Runs on into <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<H, MotherBrainHeadFrame, MotherBrainHeadCue> FallInto(H program) =>
-        AnimationProgramStep<H, MotherBrainHeadFrame, MotherBrainHeadCue>.FallInto(program);
+    /// <summary>One play of every beat of brain segment <paramref name="program"/>.</summary>
+    private static AnimationPhase<H> Whole(H program) => new(program, 0, HeadSegments.Beats(program).Count, 1);
+
+    /// <summary>An animation of <paramref name="segments"/>, each played once in turn, that loops from phase <paramref name="loopsFrom"/>.</summary>
+    private static Animation<H> Looping(int loopsFrom, params H[] segments) => new([.. segments.Select(segment => Whole(segment))], AnimationEnd.LoopsFrom(loopsFrom));
 }

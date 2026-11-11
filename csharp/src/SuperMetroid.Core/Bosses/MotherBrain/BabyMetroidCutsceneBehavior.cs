@@ -99,7 +99,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         state.BabyMetroidSlot = slot;
         state.BabyMetroid = baby;
         state.BabyAppliedProgram = baby.Program;
-        state.BabyCursor = AnimationProgramCursor<MotherBrainBabyProgram>.Start(baby.Program);
+        state.BabyPlayback = MotherBrainBabyAnimations.Starting(baby.Program);
 
         CopyBabyMetroidActorToPhysicalSlot(slot, baby, _motherBrainEncounter.Colours);
         slot.FrameHold = WrappingCountdown.Start(baby.FrameHold);
@@ -258,46 +258,26 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs the Baby's program where the enemy instruction interpreter would: the frame expires on the update its
-    /// timer would, and a newly shown frame raises the new-frame flag.
+    /// Plays the Baby's animation where the enemy instruction interpreter would: the frame expires on the update its
+    /// timer would, and a newly shown frame raises the new-frame flag. A held pose is the script's sleep: the timer
+    /// wraps from zero and the last frame stays.
     /// </summary>
     internal void AdvanceBabyMetroidCutsceneAnimation(RoomEnemySlot slot)
     {
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidDataException(
-            "The cutscene Baby's program ran without Mother Brain's encounter state.");
-        CountdownStep frameHold = slot.FrameHold.Decrement();
-        slot.FrameHold = frameHold.Remaining;
-        if (!frameHold.IsZero)
-        {
-            slot.NewInstructionFrame = false;
+            "The cutscene Baby's animation ran without Mother Brain's encounter state.");
+        if (!EnemyProgramAnimation.Expire(slot))
             return;
-        }
-
-        AnimationProgramCursor<MotherBrainBabyProgram> cursor = state.BabyCursor;
-        WrappingCountdown counter = slot.Timer;
-        AnimationProgramAdvance<BabyMetroidFrame> advance = MotherBrainBabyAnimations.Programs.Advance(ref cursor, ref counter,
-            (cue, continuation) => throw new InvalidOperationException($"The cutscene Baby's programs publish no cue {cue}."));
-        slot.Timer = counter;
-        state.BabyCursor = cursor;
-        switch (advance)
-        {
-            case AnimationProgramAdvance<BabyMetroidFrame>.Show shown:
-                slot.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
-                slot.Frame = BabyMetroidVisualDefinitions.ShownFrames.Of(shown.Frame);
-                slot.NewInstructionFrame = true;
-                return;
-            case AnimationProgramAdvance<BabyMetroidFrame>.Hold:
-                // The script's sleep: the timer wraps from zero and the last frame stays.
-                return;
-            default:
-                throw new InvalidOperationException($"The cutscene Baby's programs have no {advance} step.");
-        }
+        AnimationPlayback<MotherBrainBabyProgram> playback = state.BabyPlayback;
+        EnemyProgramAnimation.Play(slot, MotherBrainBabyAnimations.Segments, ref playback, BabyMetroidVisualDefinitions.ShownFrames.Of,
+            cue => throw new InvalidOperationException($"The cutscene Baby's animations raise no event {cue}."));
+        state.BabyPlayback = playback;
     }
 
     /// <summary>Restarts the Baby's slot on <paramref name="program"/>, as the set-list helper does.</summary>
     private static void SetBabyMetroidCutsceneProgram(MotherBrainEnemyState state, RoomEnemySlot slot, MotherBrainBabyProgram program)
     {
-        state.BabyCursor = AnimationProgramCursor<MotherBrainBabyProgram>.Start(program);
+        state.BabyPlayback = MotherBrainBabyAnimations.Starting(program);
         state.BabyAppliedProgram = program;
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);

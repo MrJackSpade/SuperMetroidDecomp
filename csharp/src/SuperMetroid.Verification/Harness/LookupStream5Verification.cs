@@ -283,7 +283,7 @@ internal static class LookupStream5Verification
                 }
             }
             AssertEqual(PhantoonAiFunction.NoOperation, state.BodyState.Function, "Selected duration stops moving phase");
-            AssertEqual(PhantoonPartProgram.EyeOpen, state.PartProgram(eye).Program, "Expiration starts exact eye-opening program");
+            AssertEqual(PhantoonPartProgram.EyeOpen, state.PlayingProgram(eye), "Expiration starts exact eye-opening program");
             AssertEqual((ushort)1, eye.FrameHold.RawValue, "Eye-opening program executes on next instruction step");
             AssertEqual(false, state.BodyState.FlameRainRequested, "Opening clears flame-rain trigger");
             AssertEqual(1, state.MouthState.CasualFlameHold, "Casual hold still advances on every movement call");
@@ -404,8 +404,8 @@ internal static class LookupStream5Verification
             else
             {
                 AssertEqual(PhantoonAiFunction.NoOperation, state.BodyState.Function, "Unhit expiration hands off to eye close");
-                AssertEqual(PhantoonPartProgram.InvulnerableBody, state.PartProgram(body).Program, "Native invulnerable body handoff");
-                AssertEqual(PhantoonPartProgram.EyeCloseAndPickNewPattern, state.PartProgram(eye).Program, "Native close/reselect eye handoff");
+                AssertEqual(PhantoonPartProgram.InvulnerableBody, state.PlayingProgram(body), "Native invulnerable body handoff");
+                AssertEqual(PhantoonPartProgram.EyeCloseAndPickNewPattern, state.PlayingProgram(eye), "Native close/reselect eye handoff");
                 AssertTrue(body.Contact.HasAny(EnemyContact.IgnoresSamus), "Expiration removes open-eye collision");
                 AssertEqual(true, state.BodyState.FlameRainRequested, "Unhit expiration requests next rain branch");
             }
@@ -1329,7 +1329,7 @@ internal static class LookupStream5Verification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(eyeBody.Position.X.Whole + x)), unchecked((ushort)(eyeBody.Position.Y.Whole + y)))),
             });
             AssertEqual(PhantoonEyeGaze.EyeProgram(direction),
-                eyeState.PartProgram(trackingEye).Program,
+                eyeState.PlayingProgram(trackingEye),
                 $"production Phantoon eye direction {direction}");
         }
         AssertThrows<InvalidDataException>(

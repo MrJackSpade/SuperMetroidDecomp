@@ -6,21 +6,21 @@ using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
-/// <summary>#641: the Rinkas' typed programs, each matched step by step to its native bank-$A2 list.</summary>
+/// <summary>#641, #1600: the Rinkas' typed animations, each segment matched beat by beat to its native bank-$A2 list.</summary>
 internal static class RinkaAnimationsVerification
 {
-    /// <summary>Every program matches its native list.</summary>
+    /// <summary>Every segment matches its native list and every animation the lists' control flow.</summary>
     internal static void VerifyRinkaAnimations(SuperMetroidAddressSpace rom)
     {
-        int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, RinkaAnimations.Programs,
-            RinkaFrameToolingDefinitions.Spritemap,
-            word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
-            (word, operands, cue, at) =>
-            {
-                var instruction = Instructions[word];
-                AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
-                AssertEqual(0, operands.Length, $"{at}: operands");
-            });
-        Console.WriteLine($"  Rinka programs: {Entries.Length} programs ({steps} steps) match bank $A2.");
+        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, RinkaAnimations.Segments,
+            RinkaAnimations.StartingAt, RinkaFrameToolingDefinitions.Spritemap,
+            new NativeEnemyCueRules<RinkaCue>(word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
+                (word, operands, cue, at) =>
+                {
+                    var instruction = Instructions[word];
+                    AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
+                    AssertEqual(0, operands.Length, $"{at}: operands");
+                }));
+        Console.WriteLine($"  Rinka animations: {Entries.Length} segments ({beats} beats) match bank $A2.");
     }
 }

@@ -10,16 +10,15 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 internal static class RinkaAnimations
 {
-    /// <summary>Every program.</summary>
-    internal static AnimationProgramSet<RinkaProgram, RinkaFrame, RinkaCue> Programs { get; } = new(
-        new Dictionary<RinkaProgram, AnimationProgramStep<RinkaProgram, RinkaFrame, RinkaCue>[]>
+    /// <summary>Every segment's beats.</summary>
+    internal static AnimationSegments<RinkaProgram, RinkaFrame, RinkaCue> Segments { get; } = new(
+        new Dictionary<RinkaProgram, AnimationBeat<RinkaFrame, RinkaCue>[]>
     {
         [P.Ordinary] =
         [
             Cue(new(K.Hide)),
             Show(0, 64),
             Cue(new(K.Fire)),
-            FallInto(P.OrdinaryLoop),
         ],
         [P.OrdinaryLoop] =
         [
@@ -31,14 +30,12 @@ internal static class RinkaAnimations
             Show(3, 6),
             Show(2, 7),
             Show(1, 8),
-            GoTo(P.OrdinaryLoop),
         ],
         [P.Special] =
         [
             Cue(new(K.HideAndProcessOffScreen)),
             Show(0, 64),
             Cue(new(K.Fire)),
-            FallInto(P.SpecialLoop),
         ],
         [P.SpecialLoop] =
         [
@@ -50,20 +47,24 @@ internal static class RinkaAnimations
             Show(3, 6),
             Show(2, 7),
             Show(1, 8),
-            GoTo(P.SpecialLoop),
         ],
     });
 
+    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    internal static IReadOnlyDictionary<RinkaProgram, Animation<RinkaProgram>> StartingAt { get; } = new Dictionary<RinkaProgram, Animation<RinkaProgram>>
+    {
+        [P.Ordinary] = new([new(P.Ordinary, 0, 3, 1), new(P.OrdinaryLoop, 0, 8, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.OrdinaryLoop] = new([new(P.OrdinaryLoop, 0, 8, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Special] = new([new(P.Special, 0, 3, 1), new(P.SpecialLoop, 0, 8, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.SpecialLoop] = new([new(P.SpecialLoop, 0, 8, 1)], AnimationEnd.LoopsFrom(0)),
+    };
+
+    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<RinkaProgram> StartingWith(RinkaProgram segment) => StartingAt[segment];
+
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<RinkaProgram, RinkaFrame, RinkaCue> Show(int pose, int duration) => AnimationProgramStep<RinkaProgram, RinkaFrame, RinkaCue>.Show(new(pose), duration);
+    private static AnimationBeat<RinkaFrame, RinkaCue> Show(int pose, int duration) => new AnimationBeat<RinkaFrame, RinkaCue>.Frame(new(pose), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationProgramStep<RinkaProgram, RinkaFrame, RinkaCue> Cue(RinkaCue cue) => AnimationProgramStep<RinkaProgram, RinkaFrame, RinkaCue>.Publish(cue);
-
-    /// <summary>Continues at <paramref name="program"/>.</summary>
-    private static AnimationProgramStep<RinkaProgram, RinkaFrame, RinkaCue> GoTo(RinkaProgram program) => AnimationProgramStep<RinkaProgram, RinkaFrame, RinkaCue>.GoTo(program);
-
-    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
-    private static AnimationProgramStep<RinkaProgram, RinkaFrame, RinkaCue> FallInto(RinkaProgram program) => AnimationProgramStep<RinkaProgram, RinkaFrame, RinkaCue>.FallInto(program);
-
+    private static AnimationBeat<RinkaFrame, RinkaCue> Cue(RinkaCue cue) => new AnimationBeat<RinkaFrame, RinkaCue>.Event(cue);
 }

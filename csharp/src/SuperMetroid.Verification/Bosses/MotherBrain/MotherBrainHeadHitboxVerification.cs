@@ -29,7 +29,8 @@ internal static class MotherBrainHeadHitboxVerification
         MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         RoomEnemySlot head = state.Head;
-        AssertEqual(AnimationProgramCursor<MotherBrainHeadProgram>.Start(MotherBrainHeadProgram.Initial), state.BrainCursor,
+        AssertEqual(new AnimationPlayback<MotherBrainHeadProgram>(MotherBrainAnimations.HeadStartingWith(MotherBrainHeadProgram.Initial), AnimationPlace.StartOf(0)),
+            state.BrainPlayback,
             "the brain program starts at InstList_MotherBrainHead_Initial");
 
         EnemyInstructionInterpreter.RunsAnimationScript(head, null, null, Position16<RoomPixels>.Zero, 0);

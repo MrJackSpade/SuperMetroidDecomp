@@ -1,6 +1,4 @@
 using SuperMetroid.Core.Programs;
-using HeadStep = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.Bosses.Botwoon.BotwoonHeadProgram, SuperMetroid.Core.Bosses.Botwoon.BotwoonHeadFrame, SuperMetroid.Core.Bosses.Botwoon.BotwoonHeadCue>;
-using SegmentStep = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.Bosses.Botwoon.BotwoonSegmentProgram, SuperMetroid.Core.Bosses.Botwoon.BotwoonProjectileFrame, SuperMetroid.Core.Programs.NoAnimationCue>;
 
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
@@ -31,23 +29,55 @@ internal static class BotwoonAnimations
     /// <summary>Duration of each of the spit's five cycling frames.</summary>
     private const int SpitFrameDuration = 3;
 
-    /// <summary>Every head program: moving and spitting by facing, plus the hidden head.</summary>
-    internal static AnimationProgramSet<BotwoonHeadProgram, BotwoonHeadFrame, BotwoonHeadCue> HeadPrograms { get; } = new(
-        Enum.GetValues<BotwoonFacing>().SelectMany(facing => new[]
+    /// <summary>Every head animation's segment: moving and spitting by facing, plus the hidden head.</summary>
+    private static readonly BotwoonHeadProgram[] HeadProgramKeys =
+    [
+        .. Enum.GetValues<BotwoonFacing>().SelectMany(facing => new[]
         {
-            KeyValuePair.Create(new BotwoonHeadProgram(BotwoonHeadProgramKind.Moving, facing), MovingHead(facing)),
-            KeyValuePair.Create(new BotwoonHeadProgram(BotwoonHeadProgramKind.Spitting, facing), SpittingHead(facing)),
-        }).Append(KeyValuePair.Create(BotwoonHeadProgram.Hidden, HiddenHead())).ToDictionary());
+            new BotwoonHeadProgram(BotwoonHeadProgramKind.Moving, facing),
+            new BotwoonHeadProgram(BotwoonHeadProgramKind.Spitting, facing),
+        }),
+        BotwoonHeadProgram.Hidden,
+    ];
 
-    /// <summary>Every projectile program: body cycles and stationary tail caps by facing, the hidden body/tail, and the spit.</summary>
-    internal static AnimationProgramSet<BotwoonSegmentProgram, BotwoonProjectileFrame, NoAnimationCue> SegmentPrograms { get; } = new(
-        Enum.GetValues<BotwoonFacing>().SelectMany(facing => new[]
+    /// <summary>Every projectile animation's segment: body cycles and stationary tail caps by facing, the hidden body/tail, and the spit.</summary>
+    private static readonly BotwoonSegmentProgram[] SegmentProgramKeys =
+    [
+        .. Enum.GetValues<BotwoonFacing>().SelectMany(facing => new[]
         {
-            KeyValuePair.Create(new BotwoonSegmentProgram(BotwoonSegmentProgramKind.Body, facing), BodyLink(facing)),
-            KeyValuePair.Create(new BotwoonSegmentProgram(BotwoonSegmentProgramKind.Tail, facing),
-                StillSegment(new(BotwoonProjectileFrameKind.Tail, facing, 0))),
-        }).Append(KeyValuePair.Create(BotwoonSegmentProgram.Hidden, StillSegment(new(BotwoonProjectileFrameKind.Hidden, BotwoonFacing.Up, 0))))
-            .Append(KeyValuePair.Create(BotwoonSegmentProgram.Spit, SpitCycle())).ToDictionary());
+            new BotwoonSegmentProgram(BotwoonSegmentProgramKind.Body, facing),
+            new BotwoonSegmentProgram(BotwoonSegmentProgramKind.Tail, facing),
+        }),
+        BotwoonSegmentProgram.Hidden,
+        BotwoonSegmentProgram.Spit,
+    ];
+
+    /// <summary>The head's segments: each head program's beats.</summary>
+    internal static AnimationSegments<BotwoonHeadProgram, BotwoonHeadFrame, BotwoonHeadCue> HeadSegments { get; } = new(
+        HeadProgramKeys.ToDictionary(program => program, HeadBeats), HeadProgramKeys);
+
+    /// <summary>The head animation that starts at each head program: it plays the program's beats once and holds its last frame.</summary>
+    internal static IReadOnlyDictionary<BotwoonHeadProgram, Animation<BotwoonHeadProgram>> HeadStartingAt { get; } =
+        HeadProgramKeys.ToDictionary(program => program, program => new Animation<BotwoonHeadProgram>(
+            [new(program, 0, HeadSegments.Beats(program).Count, 1)], AnimationEnd.Holds));
+
+    /// <summary>The segments a body segment or spit plays: each segment program's beats.</summary>
+    internal static AnimationSegments<BotwoonSegmentProgram, BotwoonProjectileFrame, NoAnimationCue> ProjectileSegments { get; } = new(
+        SegmentProgramKeys.ToDictionary(program => program, ProjectileBeats), SegmentProgramKeys);
+
+    /// <summary>
+    /// The projectile animation that starts at each segment program: a body link and the spit cycle their frames for good,
+    /// and a tail cap or hidden segment shows its one frame and holds it.
+    /// </summary>
+    internal static IReadOnlyDictionary<BotwoonSegmentProgram, Animation<BotwoonSegmentProgram>> ProjectileStartingAt { get; } =
+        SegmentProgramKeys.ToDictionary(program => program, program => new Animation<BotwoonSegmentProgram>(
+            [new(program, 0, ProjectileSegments.Beats(program).Count, 1)], ProjectileEnd(program.Kind)));
+
+    /// <summary>The head animation that starts at <paramref name="program"/>.</summary>
+    internal static Animation<BotwoonHeadProgram> HeadStartingWith(BotwoonHeadProgram program) => HeadStartingAt[program];
+
+    /// <summary>The projectile animation that starts at <paramref name="program"/>.</summary>
+    internal static Animation<BotwoonSegmentProgram> ProjectileStartingWith(BotwoonSegmentProgram program) => ProjectileStartingAt[program];
 
     /// <summary>The facing of angle octant <paramref name="octant"/>, zero (up) through seven, clockwise.</summary>
     internal static BotwoonFacing FacingOfOctant(int octant) =>
@@ -67,45 +97,77 @@ internal static class BotwoonAnimations
         _ => throw new ArgumentOutOfRangeException(nameof(facing), facing, "Undefined Botwoon facing."),
     };
 
-    /// <summary>The invisible head frame followed by a permanent hold while Botwoon is inside a wall.</summary>
-    private static HeadStep[] HiddenHead() => [HeadStep.Show(BotwoonHeadFrame.Hidden, 1), HeadStep.Hold];
+    /// <summary>How a segment program's animation ends: a body link and the spit cycle, a tail cap or hidden segment holds.</summary>
+    private static AnimationEnd ProjectileEnd(BotwoonSegmentProgramKind kind) => kind switch
+    {
+        BotwoonSegmentProgramKind.Body or BotwoonSegmentProgramKind.Spit => AnimationEnd.LoopsFrom(0),
+        BotwoonSegmentProgramKind.Tail or BotwoonSegmentProgramKind.Hidden => AnimationEnd.Holds,
+        _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Undefined Botwoon segment program kind."),
+    };
 
-    /// <summary>Publishes a facing-radius update before showing and holding the closed mouth.</summary>
-    private static HeadStep[] MovingHead(BotwoonFacing facing) =>
+    /// <summary>The beats of head program <paramref name="program"/>.</summary>
+    private static AnimationBeat<BotwoonHeadFrame, BotwoonHeadCue>[] HeadBeats(BotwoonHeadProgram program) => program.Kind switch
+    {
+        BotwoonHeadProgramKind.Hidden => HiddenHead(),
+        BotwoonHeadProgramKind.Moving => MovingHead(program.Facing),
+        BotwoonHeadProgramKind.Spitting => SpittingHead(program.Facing),
+        _ => throw new ArgumentOutOfRangeException(nameof(program), program, "Undefined Botwoon head program."),
+    };
+
+    /// <summary>The beats of segment program <paramref name="program"/>.</summary>
+    private static AnimationBeat<BotwoonProjectileFrame, NoAnimationCue>[] ProjectileBeats(BotwoonSegmentProgram program) => program.Kind switch
+    {
+        BotwoonSegmentProgramKind.Body => BodyLink(program.Facing),
+        BotwoonSegmentProgramKind.Tail => [SegmentFrame(new(BotwoonProjectileFrameKind.Tail, program.Facing, 0), 1)],
+        BotwoonSegmentProgramKind.Hidden => [SegmentFrame(new(BotwoonProjectileFrameKind.Hidden, BotwoonFacing.Up, 0), 1)],
+        BotwoonSegmentProgramKind.Spit => SpitCycle(),
+        _ => throw new ArgumentOutOfRangeException(nameof(program), program, "Undefined Botwoon segment program."),
+    };
+
+    /// <summary>The invisible head frame, held while Botwoon is inside a wall.</summary>
+    private static AnimationBeat<BotwoonHeadFrame, BotwoonHeadCue>[] HiddenHead() => [HeadFrame(BotwoonHeadFrame.Hidden, 1)];
+
+    /// <summary>Raises a facing-radius update before showing the closed mouth, which is held.</summary>
+    private static AnimationBeat<BotwoonHeadFrame, BotwoonHeadCue>[] MovingHead(BotwoonFacing facing) =>
     [
-        HeadStep.Publish(BotwoonHeadCue.ApplyFacingRadius),
-        HeadStep.Show(BotwoonHeadFrame.Closed(facing), 1),
-        HeadStep.Hold,
+        HeadEvent(BotwoonHeadCue.ApplyFacingRadius),
+        HeadFrame(BotwoonHeadFrame.Closed(facing), 1),
     ];
 
-    /// <summary>Holds aim, publishes radius/sound/volley cues, then opens the mouth with a longer leftward hold.</summary>
-    private static HeadStep[] SpittingHead(BotwoonFacing facing) =>
+    /// <summary>Holds aim, raises radius/sound/volley events, then opens the mouth with a longer leftward hold, which is held.</summary>
+    private static AnimationBeat<BotwoonHeadFrame, BotwoonHeadCue>[] SpittingHead(BotwoonFacing facing) =>
     [
-        HeadStep.Show(BotwoonHeadFrame.Closed(facing), MouthClosedBeforeSpit),
-        HeadStep.Publish(BotwoonHeadCue.ApplyFacingRadius),
-        HeadStep.Publish(BotwoonHeadCue.QueueSpitSound),
-        HeadStep.Publish(BotwoonHeadCue.ReachSpitFrame),
+        HeadFrame(BotwoonHeadFrame.Closed(facing), MouthClosedBeforeSpit),
+        HeadEvent(BotwoonHeadCue.ApplyFacingRadius),
+        HeadEvent(BotwoonHeadCue.QueueSpitSound),
+        HeadEvent(BotwoonHeadCue.ReachSpitFrame),
         // The original game holds the open mouth longer only when spitting left (25 frames, the rest 16).
-        HeadStep.Show(BotwoonHeadFrame.Open(facing), facing == BotwoonFacing.Left ? MouthOpenAfterSpitLeft : MouthOpenAfterSpit),
-        HeadStep.Hold,
+        HeadFrame(BotwoonHeadFrame.Open(facing), facing == BotwoonFacing.Left ? MouthOpenAfterSpitLeft : MouthOpenAfterSpit),
     ];
 
-    /// <summary>Cycles four facing-specific body-link pictures at eight updates apiece.</summary>
-    private static SegmentStep[] BodyLink(BotwoonFacing facing) =>
+    /// <summary>Four facing-specific body-link pictures at eight updates apiece, which cycle.</summary>
+    private static AnimationBeat<BotwoonProjectileFrame, NoAnimationCue>[] BodyLink(BotwoonFacing facing) =>
     [
         .. Enumerable.Range(0, BodyPhaseCount).Select(phase =>
-            SegmentStep.Show(new(BotwoonProjectileFrameKind.Body, facing, phase), BodyFrameDuration)),
-        SegmentStep.GoTo(new(BotwoonSegmentProgramKind.Body, facing)),
+            SegmentFrame(new(BotwoonProjectileFrameKind.Body, facing, phase), BodyFrameDuration)),
     ];
-
-    /// <summary>Shows one tail or hidden frame and holds it without advancing.</summary>
-    private static SegmentStep[] StillSegment(BotwoonProjectileFrame frame) => [SegmentStep.Show(frame, 1), SegmentStep.Hold];
 
     /// <summary>The spit's five cycling frames.</summary>
-    private static SegmentStep[] SpitCycle() =>
+    private static AnimationBeat<BotwoonProjectileFrame, NoAnimationCue>[] SpitCycle() =>
     [
         .. Enumerable.Range(0, SpitPhaseCount).Select(phase =>
-            SegmentStep.Show(new(BotwoonProjectileFrameKind.Spit, BotwoonFacing.Up, phase), SpitFrameDuration)),
-        SegmentStep.GoTo(BotwoonSegmentProgram.Spit),
+            SegmentFrame(new(BotwoonProjectileFrameKind.Spit, BotwoonFacing.Up, phase), SpitFrameDuration)),
     ];
+
+    /// <summary>Shows head frame <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<BotwoonHeadFrame, BotwoonHeadCue> HeadFrame(BotwoonHeadFrame frame, int duration) =>
+        new AnimationBeat<BotwoonHeadFrame, BotwoonHeadCue>.Frame(frame, duration);
+
+    /// <summary>Raises head event <paramref name="cue"/>.</summary>
+    private static AnimationBeat<BotwoonHeadFrame, BotwoonHeadCue> HeadEvent(BotwoonHeadCue cue) =>
+        new AnimationBeat<BotwoonHeadFrame, BotwoonHeadCue>.Event(cue);
+
+    /// <summary>Shows projectile frame <paramref name="frame"/> for <paramref name="duration"/> passes.</summary>
+    private static AnimationBeat<BotwoonProjectileFrame, NoAnimationCue> SegmentFrame(BotwoonProjectileFrame frame, int duration) =>
+        new AnimationBeat<BotwoonProjectileFrame, NoAnimationCue>.Frame(frame, duration);
 }

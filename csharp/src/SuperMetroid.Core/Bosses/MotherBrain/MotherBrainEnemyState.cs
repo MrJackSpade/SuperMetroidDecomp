@@ -74,11 +74,11 @@ public sealed class MotherBrainEnemyState
     internal MotherBrainColours Colours { get; } = new();
 
     /// <summary>
-    /// The brain's own program (#641), separate from the head enemy's dummy program: the cursor rests on the frame
-    /// being shown. Null means the brain is not live
-    /// and not drawn. Only the program setter and the draw-time runner write it.
+    /// The brain's own animation (#641, #1600), separate from the head enemy's dummy animation: its place rests on the
+    /// frame being shown, which its next beat is. Null means the brain is not live and not drawn. Only the program
+    /// setter and the draw-time runner write it.
     /// </summary>
-    internal AnimationProgramCursor<MotherBrainHeadProgram>? BrainCursor { get; set; }
+    internal AnimationPlayback<MotherBrainHeadProgram>? BrainPlayback { get; set; }
 
     /// <summary>
     /// How long the brain's frame has shown. It counts draws up from one
@@ -87,13 +87,13 @@ public sealed class MotherBrainEnemyState
     /// </summary>
     public int BrainFrameTimer { get; internal set; }
 
-    /// <summary>Where the body enemy's program resumes (#641).</summary>
-    internal AnimationProgramCursor<MotherBrainBodyProgram> BodyCursor { get; set; } =
-        AnimationProgramCursor<MotherBrainBodyProgram>.Start(MotherBrainBodyProgram.InitialDummy);
+    /// <summary>The body enemy's animation and where it stands (#641, #1600).</summary>
+    internal AnimationPlayback<MotherBrainBodyProgram> BodyPlayback { get; set; } =
+        new(MotherBrainAnimations.BodyStartingWith(MotherBrainBodyProgram.InitialDummy), AnimationPlace.StartOfAnimation);
 
-    /// <summary>Where the head enemy's program resumes; it keeps the initial dummy for life.</summary>
-    internal AnimationProgramCursor<MotherBrainBodyProgram> HeadSlotCursor { get; set; } =
-        AnimationProgramCursor<MotherBrainBodyProgram>.Start(MotherBrainBodyProgram.InitialDummy);
+    /// <summary>The head enemy's animation and where it stands; it keeps the initial dummy for life.</summary>
+    internal AnimationPlayback<MotherBrainBodyProgram> HeadSlotPlayback { get; set; } =
+        new(MotherBrainAnimations.BodyStartingWith(MotherBrainBodyProgram.InitialDummy), AnimationPlace.StartOfAnimation);
 
     /// <summary>Earthquake timer copied into the head-shake word after the glass event.</summary>
     public int BrainMainShakeTimer { get; internal set; }
@@ -295,8 +295,8 @@ public sealed class MotherBrainEnemyState
     /// </summary>
     internal MotherBrainBabyProgram BabyAppliedProgram { get; set; }
 
-    /// <summary>Where the cutscene Baby's slot program resumes (#641).</summary>
-    internal AnimationProgramCursor<MotherBrainBabyProgram> BabyCursor { get; set; }
+    /// <summary>The cutscene Baby's slot animation and where it stands (#641, #1600).</summary>
+    internal AnimationPlayback<MotherBrainBabyProgram> BabyPlayback { get; set; } = MotherBrainBabyAnimations.Starting(default);
 
     /// <summary>
     /// Shared cry counter incremented by onion-ring collision and consumed by the

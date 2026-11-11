@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
@@ -70,10 +71,11 @@ public sealed class BotwoonEnemyState
     public int PathStep { get; internal set; }
     /// <summary>Which way <see cref="PathIndex"/> is walked: a backward walk takes the steps in reverse order, each reversed.</summary>
     public BotwoonPathTraversal PathTraversal { get; internal set; }
-    /// <summary>The head animation the AI last installed; reinstalling the same program does not restart it.</summary>
-    internal BotwoonHeadProgram HeadProgram { get; set; } = BotwoonHeadProgram.Hidden;
-    /// <summary>The next step of the head animation's timeline.</summary>
-    internal int HeadAnimationPosition { get; set; }
+    /// <summary>The head animation the AI last installed and where it stands; reinstalling the same program does not restart it.</summary>
+    internal AnimationPlayback<BotwoonHeadProgram> HeadPlayback { get; set; } =
+        new(BotwoonAnimations.HeadStartingWith(BotwoonHeadProgram.Hidden), AnimationPlace.StartOfAnimation);
+    /// <summary>The head program the AI last installed: the segment its animation's one phase plays.</summary>
+    internal BotwoonHeadProgram HeadProgram => HeadPlayback.Animation.Phases[HeadPlayback.Place.Phase].Segment;
     /// <summary>The shading his head and body show: the last health band shown, or his own colours before any (#1512).</summary>
     internal PictureShading BodyShading => BotwoonHealthBands.LastBandShown(HealthBandsPassed) is { } band
         ? PictureShading.Shaded(BotwoonShades.Health(band))

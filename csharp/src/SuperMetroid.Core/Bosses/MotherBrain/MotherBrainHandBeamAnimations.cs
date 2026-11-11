@@ -1,9 +1,9 @@
 using SuperMetroid.Core.Programs;
-using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHandBeamProgram, SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHandBeamFrame, SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHandBeamCue>;
+using Beat = SuperMetroid.Core.Programs.AnimationBeat<SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHandBeamFrame, SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHandBeamCue>;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The red hand beam's typed program (#641).</summary>
+/// <summary>The red hand beam's typed animation (#641, #1600).</summary>
 internal static class MotherBrainHandBeamAnimations
 {
     /// <summary>Stages the beam runs before deleting itself.</summary>
@@ -11,25 +11,32 @@ internal static class MotherBrainHandBeamAnimations
 
     /// <summary>
     /// Three stages, each spawning the next beam after its first frame and fading over seven frames held 3, 3, 2, 2,
-    /// 1, 1 and 1 updates, then the deletion. The charging beam and every fired beam run it.
+    /// 1, 1 and 1 updates, then the deletion. The charging beam and every fired beam play it.
     /// </summary>
-    internal static AnimationProgramSet<MotherBrainHandBeamProgram, MotherBrainHandBeamFrame, MotherBrainHandBeamCue> Programs { get; } = new(
-        new Dictionary<MotherBrainHandBeamProgram, Step[]>
+    internal static AnimationSegments<MotherBrainHandBeamProgram, MotherBrainHandBeamFrame, MotherBrainHandBeamCue> Segments { get; } = new(
+        new Dictionary<MotherBrainHandBeamProgram, Beat[]>
         {
             [MotherBrainHandBeamProgram.Beam] =
             [
                 .. Enumerable.Range(0, StageCount).SelectMany(Stage),
-                Step.Publish(MotherBrainHandBeamCue.Delete),
-                Step.Hold,
+                new Beat.Event(MotherBrainHandBeamCue.Delete),
             ],
         });
 
-    /// <summary>The steps of stage <paramref name="stage"/>.</summary>
-    private static IEnumerable<Step> Stage(int stage)
+    /// <summary>The beam's animation: its stages and deletion, played once; the deleted beam then rests.</summary>
+    internal static IReadOnlyDictionary<MotherBrainHandBeamProgram, Animation<MotherBrainHandBeamProgram>> StartingAt { get; } =
+        new Dictionary<MotherBrainHandBeamProgram, Animation<MotherBrainHandBeamProgram>>
+        {
+            [MotherBrainHandBeamProgram.Beam] = new(
+                [new(MotherBrainHandBeamProgram.Beam, 0, Segments.Beats(MotherBrainHandBeamProgram.Beam).Count, 1)], AnimationEnd.Holds),
+        };
+
+    /// <summary>The beats of stage <paramref name="stage"/>.</summary>
+    private static IEnumerable<Beat> Stage(int stage)
     {
-        yield return Step.Show(new(stage, 0), 3);
-        yield return Step.Publish(MotherBrainHandBeamCue.SpawnNextBeam);
+        yield return new Beat.Frame(new(stage, 0), 3);
+        yield return new Beat.Event(MotherBrainHandBeamCue.SpawnNextBeam);
         foreach ((int phase, int duration) in new[] { new MotherBrainHandBeamFrameHold(1, 3), new MotherBrainHandBeamFrameHold(2, 2), new MotherBrainHandBeamFrameHold(3, 2), new MotherBrainHandBeamFrameHold(4, 1), new MotherBrainHandBeamFrameHold(5, 1), new MotherBrainHandBeamFrameHold(6, 1) })
-            yield return Step.Show(new(stage, phase), duration);
+            yield return new Beat.Frame(new(stage, phase), duration);
     }
 }

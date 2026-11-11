@@ -28,7 +28,8 @@ internal sealed class MotherBrainEncounterAccess
     /// <summary>Restarts the brain on <paramref name="program"/>.</summary>
     internal static void SetMotherBrainBrainProgram(MotherBrainEnemyState state, MotherBrainHeadProgram program)
     {
-        state.BrainCursor = AnimationProgramCursor<MotherBrainHeadProgram>.Start(program);
+        // The brain's place rests on its next beat: the program's first, entered at once.
+        state.BrainPlayback = new(MotherBrainAnimations.HeadStartingWith(program), AnimationPlace.StartOf(0));
         state.BrainFrameTimer = 1;
     }
 
@@ -61,7 +62,7 @@ internal sealed class MotherBrainEncounterAccess
     /// <summary>Restarts the body enemy on <paramref name="program"/> with its initial timer.</summary>
     internal static void SetMotherBrainBodyProgram(MotherBrainEnemyState state, MotherBrainBodyProgram program)
     {
-        state.BodyCursor = AnimationProgramCursor<MotherBrainBodyProgram>.Start(program);
+        state.BodyPlayback = new(MotherBrainAnimations.BodyStartingWith(program), AnimationPlace.StartOfAnimation);
         state.Body.FrameHold = WrappingCountdown.Start(1);
         state.Body.Timer = WrappingCountdown.Start(0);
     }

@@ -26,7 +26,7 @@ internal static class ZebetiteVisualToolingDefinitions
     };
     /// <summary>The spritemaps the typed health programs show, in program order.</summary>
     internal static ushort[] Spritemaps() => [.. Enum.GetValues<ZebetiteProgram>()
-        .SelectMany(program => ZebetiteAnimations.Programs.Steps(program))
-        .OfType<AnimationProgramStep<ZebetiteProgram, ZebetiteFrame, NoAnimationCue>.ShowStep>()
-        .Select(step => ZebetiteVisualToolingDefinitions.Spritemap(step.Frame.Index))];
+        .SelectMany(program => ZebetiteAnimations.Segments.Beats(program))
+        .OfType<AnimationBeat<ZebetiteFrame, NoAnimationCue>.Frame>()
+        .Select(beat => ZebetiteVisualToolingDefinitions.Spritemap(beat.Shown.Index))];
 }

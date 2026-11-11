@@ -5,16 +5,16 @@ using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>A Botwoon body segment's or spit's typed animation.</summary>
-internal sealed class BotwoonProjectileAnimation : EnemyProjectileProgramAnimation<BotwoonSegmentProgram, BotwoonProjectileFrame, NoAnimationCue>
+internal sealed class BotwoonProjectileAnimation : EnemyProjectileTypedAnimation<BotwoonSegmentProgram, BotwoonProjectileFrame, NoAnimationCue>
 {
-    /// <summary>Starts <paramref name="program"/>.</summary>
+    /// <summary>Starts the animation of <paramref name="program"/>.</summary>
     private BotwoonProjectileAnimation(BotwoonSegmentProgram program)
-        : base(program)
+        : base(BotwoonAnimations.ProjectileStartingWith(program))
     {
     }
 
     /// <summary>The segment program shown, or null for a spit.</summary>
-    internal BotwoonSegmentProgram? Segment => Cursor.Program == BotwoonSegmentProgram.Spit ? null : Cursor.Program;
+    internal BotwoonSegmentProgram? Segment => PlayingSegment == BotwoonSegmentProgram.Spit ? null : PlayingSegment;
 
     /// <summary>A spit's cycling animation.</summary>
     internal static BotwoonProjectileAnimation Spit() => new(BotwoonSegmentProgram.Spit);
@@ -26,7 +26,7 @@ internal sealed class BotwoonProjectileAnimation : EnemyProjectileProgramAnimati
             : new(program);
 
     /// <summary>
-    /// Switches a segment to <paramref name="program"/> from its first frame. An unchanged program keeps
+    /// Switches a segment to <paramref name="program"/>'s animation from its first frame. An unchanged program keeps
     /// running, as the original game only reinstalls a list that differs from the one it installed.
     /// </summary>
     /// <returns>Whether the program changed.</returns>
@@ -38,13 +38,17 @@ internal sealed class BotwoonProjectileAnimation : EnemyProjectileProgramAnimati
             throw new ArgumentOutOfRangeException(nameof(program), program, "A body segment does not run the spit program.");
         if (segment == program)
             return false;
-        Cursor = AnimationProgramCursor<BotwoonSegmentProgram>.Start(program);
+        Playback = new(BotwoonAnimations.ProjectileStartingWith(program), AnimationPlace.StartOfAnimation);
         return true;
     }
 
     /// <inheritdoc/>
-    private protected override AnimationProgramSet<BotwoonSegmentProgram, BotwoonProjectileFrame, NoAnimationCue> Programs =>
-        BotwoonAnimations.SegmentPrograms;
+    private protected override AnimationSegments<BotwoonSegmentProgram, BotwoonProjectileFrame, NoAnimationCue> Segments =>
+        BotwoonAnimations.ProjectileSegments;
+
+    /// <inheritdoc/>
+    private protected override IReadOnlyDictionary<BotwoonSegmentProgram, Animation<BotwoonSegmentProgram>> StartingAt =>
+        BotwoonAnimations.ProjectileStartingAt;
 
     /// <inheritdoc/>
     private protected override EnemyProjectileFrameId Present(BotwoonProjectileFrame frame) =>

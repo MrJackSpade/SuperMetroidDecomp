@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.TestSupport.Assertions;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Projectiles;

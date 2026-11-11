@@ -50,34 +50,6 @@ internal static class EnemyProgramAnimation
             (cue, continuation) => publish(cue, continuation) is { } program ? AnimationProgramCursor<TProgram>.Start(program) : null);
     }
 
-    /// <summary>
-    /// One typed-animation step of a species whose state holds its program cursor: when the slot's frame has expired,
-    /// runs the program the state's cursor names and stores the cursor back.
-    /// </summary>
-    /// <param name="slot">The enemy.</param>
-    /// <param name="programs">The species' program set.</param>
-    /// <param name="frame">The installed frame a program frame shows.</param>
-    /// <param name="read">Reads the species state's program cursor.</param>
-    /// <param name="write">Stores the cursor back on the species state.</param>
-    internal static void Advance<TState, TProgram, TFrame>(
-        RoomEnemySlot slot,
-        AnimationProgramSet<TProgram, TFrame, NoAnimationCue> programs,
-        Func<TFrame, EnemyFrameId> frame,
-        Func<TState, AnimationProgramCursor<TProgram>> read,
-        Action<TState, AnimationProgramCursor<TProgram>> write)
-        where TState : class
-        where TProgram : struct, Enum
-        where TFrame : struct
-    {
-        Ensure.NotNull(slot);
-        if (!Expire(slot))
-            return;
-        TState state = slot.RequireSpeciesState<TState>();
-        AnimationProgramCursor<TProgram> cursor = read(state);
-        Run(slot, programs, ref cursor, frame);
-        write(state, cursor);
-    }
-
     /// <summary>Like the cue-free step, for a program set whose cues <paramref name="publish"/> carries out against the state.</summary>
     /// <param name="slot">The enemy.</param>
     /// <param name="programs">The species' program set.</param>
@@ -207,17 +179,6 @@ internal static class EnemyProgramAnimation
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
-
-    /// <summary>Runs a program set whose lists publish no cues, after the slot's frame expired.</summary>
-    internal static void Run<TProgram, TFrame>(
-        RoomEnemySlot slot,
-        AnimationProgramSet<TProgram, TFrame, NoAnimationCue> programs,
-        ref AnimationProgramCursor<TProgram> cursor,
-        Func<TFrame, EnemyFrameId> frame)
-        where TProgram : struct, Enum
-        where TFrame : struct =>
-        Run(slot, programs, ref cursor, frame,
-            static (cue, _) => throw new InvalidOperationException($"A cue-free program published {cue}."));
 
     /// <summary>
     /// Like <see cref="Run{TProgram, TFrame, TCue}"/>, but a cue may resume anywhere: <paramref name="publish"/> returns the cursor the program

@@ -138,6 +138,10 @@ internal static class SporeSpawnAnimations
     private static AnimationBeat<SporeSpawnFrame, SporeSpawnCue> Cue(SporeSpawnCue cue) =>
         new AnimationBeat<SporeSpawnFrame, SporeSpawnCue>.Event(cue);
 
+    /// <summary>Pauses on the shown frame for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<SporeSpawnFrame, SporeSpawnCue> Wait(int duration) =>
+        new AnimationBeat<SporeSpawnFrame, SporeSpawnCue>.Pause(duration);
+
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<SporeSpawnFrame, SporeSpawnCue> Show(SporeSpawnFrame frame, int duration) =>
         new AnimationBeat<SporeSpawnFrame, SporeSpawnCue>.Frame(frame, duration);

@@ -61,7 +61,7 @@ internal sealed class IntroDiscoverySprite
     /// The segment the actor's animation rests in, by the lists' layout: resting after the last frame of a list that runs
     /// on into the next, it already stands in the next (<see cref="CinematicSpriteAnimations.Layout"/>).
     /// </summary>
-    internal CinematicSpriteProgram CurrentProgram => AnimationListLayout.ResidentSegment(CinematicSpriteAnimations.Layout, CinematicSpriteAnimations.StartingAt, Playback);
+    internal CinematicSpriteProgram CurrentProgram => AnimationListContinuation.ResidentSegment(CinematicSpriteAnimations.Layout, CinematicSpriteAnimations.StartingAt, Playback);
 
     /// <summary>
     /// The count the animation's counted phases repeat by: a counted phase loads it as it starts and each of its plays

@@ -2,7 +2,6 @@ using SuperMetroid.TestSupport.Assertions;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Compatibility;
 
 namespace SuperMetroid.TestSupport.MovieReplay;
 
@@ -232,7 +231,6 @@ internal static class NativeEnemyAnimationOracle
         where TSegment : struct, Enum
     {
         var phases = new List<AnimationPhase<TSegment>>();
-        bool counted = false;
         var entered = new Dictionary<TSegment, int> { [start] = 0 };
         TSegment segment = start;
         int runStart = 0, plays = firstPlays;

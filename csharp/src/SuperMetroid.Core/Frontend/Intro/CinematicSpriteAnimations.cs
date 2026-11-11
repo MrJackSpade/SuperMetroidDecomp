@@ -845,7 +845,7 @@ internal static class CinematicSpriteAnimations
     /// so a sprite resting after its last frame already stands in the next.
     /// </summary>
     internal static Compatibility.LaidOutProgramContinuation<CinematicSpriteProgram, AnimationBeat<CinematicSpritePose, CinematicSpriteCue>> Layout { get; } =
-        Gameplay.AnimationListLayout.RunningOn(Segments, RunOnIntoNext);
+        Gameplay.AnimationListContinuation.RunningOn(Segments, RunOnIntoNext);
 
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<CinematicSpritePose, CinematicSpriteCue> Show(int pose, int duration) => new AnimationBeat<CinematicSpritePose, CinematicSpriteCue>.Frame(new(pose), duration);

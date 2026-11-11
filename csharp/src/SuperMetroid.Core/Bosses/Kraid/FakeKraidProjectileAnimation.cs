@@ -29,7 +29,7 @@ internal sealed class FakeKraidProjectileAnimation(FakeKraidProjectilePose pose)
         }));
 
     /// <summary>Each pose's animation: its segment once, then a hold, as the script's sleep does.</summary>
-    private static IReadOnlyDictionary<FakeKraidProjectilePose, Animation<FakeKraidProjectilePose>> PoseAnimations { get; } =
+    private static Dictionary<FakeKraidProjectilePose, Animation<FakeKraidProjectilePose>> PoseAnimations { get; } =
         Enum.GetValues<FakeKraidProjectilePose>().ToDictionary(pose => pose,
             pose => new Animation<FakeKraidProjectilePose>([new(pose, 0, 1, 1)], AnimationEnd.Holds));
 

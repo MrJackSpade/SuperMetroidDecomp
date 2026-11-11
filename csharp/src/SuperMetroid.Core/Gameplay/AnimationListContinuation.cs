@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Gameplay;
@@ -8,9 +7,9 @@ namespace SuperMetroid.Core.Gameplay;
 /// animation stands in. A list that runs on into the list authored after it, directly after its last beat, continues
 /// into that list as a frame read past its end does (<see cref="LaidOutProgramContinuation{TProgram, TStep}"/>): the
 /// next list starts that many beats later, so a play resting after the last beat already stands at the next list's
-/// entry, as the original game's script pointer then does, and belongs to the next segment.
+/// entry, as the original game's script position then does, and belongs to the next segment.
 /// </summary>
-internal static class AnimationListLayout
+internal static class AnimationListContinuation
 {
     /// <summary>
     /// The continuation in which each of <paramref name="runOnIntoNext"/> runs on into the segment declared after it,
@@ -45,7 +44,7 @@ internal static class AnimationListLayout
     /// <summary>
     /// The segment <paramref name="playback"/> rests in: its phase's segment, or, resting after the last beat of a list
     /// that runs on into the next, that next segment. Before its first play, or in an animation of no phase, it rests in the
-    /// segment it starts at, among <paramref name="startingAt"/>, as the original game's pointer then rests at that list's
+    /// segment it starts at, among <paramref name="startingAt"/>, as the original game's script then rests at that list's
     /// entry.
     /// </summary>
     /// <exception cref="ArgumentException">The playback's segment is not in <paramref name="layout"/>.</exception>

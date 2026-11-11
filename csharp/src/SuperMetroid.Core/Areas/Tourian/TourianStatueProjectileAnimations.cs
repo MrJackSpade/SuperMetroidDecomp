@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies.Projectiles;
 using K = SuperMetroid.Core.Areas.Tourian.TourianStatueProjectileCueKind;
 using P = SuperMetroid.Core.Areas.Tourian.TourianStatueProjectileProgram;

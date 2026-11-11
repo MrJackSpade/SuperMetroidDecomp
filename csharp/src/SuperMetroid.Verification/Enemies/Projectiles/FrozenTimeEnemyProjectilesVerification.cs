@@ -33,13 +33,13 @@ internal static class FrozenTimeEnemyProjectilesVerification
             .Single(p => p.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion);
         runtime.StepFrame(0);
         var program = (EnemyDeathProjectileAnimation)(explosion.Animation ?? throw new InvalidOperationException("The explosion plays a program."));
-        var cursor = program.Cursor;
+        var playback = program.Playback;
         ushort timer = explosion.FrameHold.RawValue;
 
         runtime.Freeze.GameplayTimeFrozen = true;
         runtime.StepFrame(0);
 
-        AssertTrue(program.Cursor != cursor || explosion.FrameHold.RawValue != timer,
+        AssertTrue(program.Playback != playback || explosion.FrameHold.RawValue != timer,
             "the explosion's instructions advance while time is frozen");
         Console.WriteLine("  Frozen-time enemy projectiles: instructions keep running under a reserve-refill freeze.");
     }

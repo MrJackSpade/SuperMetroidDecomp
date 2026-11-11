@@ -58,13 +58,13 @@ internal static class SporeSpawnAnimationsVerification
             BodyListEntries, SporeSpawnAnimations.Segments, SporeSpawnFrameDefinitionsConstants.Spritemap,
             new NativeEnemyCueRules<SporeSpawnCue>(
                 word => BodyInstructions.TryGetValue(word, out var instruction) ? instruction.Operands : null,
-                (word, operands, cue, at) => CompareBodyCue(cartridge, word, operands, cue, at)));
+                (word, operands, cue, at) => CompareBodyCue(word, operands, cue, at)));
         NativeEnemyAnimationOracle.CompareAnimations(lists, SporeSpawnAnimations.StartingAt);
         return lists;
     }
 
     /// <summary>Compares one native body instruction's operands with the cue it became.</summary>
-    private static void CompareBodyCue(IImportCartridgeSource cartridge, ushort word, ushort[] operands, SporeSpawnCue cue, string at)
+    private static void CompareBodyCue(ushort word, ushort[] operands, SporeSpawnCue cue, string at)
     {
         BodyInstructions[word].Cue.Check(cue, at);
         switch (cue)

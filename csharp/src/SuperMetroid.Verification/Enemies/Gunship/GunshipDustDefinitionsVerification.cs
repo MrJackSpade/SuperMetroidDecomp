@@ -45,7 +45,7 @@ internal static class GunshipDustDefinitionsVerification
                 AssertEqual(unchecked((ushort)(samus.Position.X.Whole + dx)), slot.Position.X.Whole, "Actual dust signed X placement and wrap");
                 AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + Word(0x86a2c5))), slot.Position.Y.Whole, "Actual dust Y placement and wrap");
                 AssertTrue(slot.Animation is GunshipDustAnimation started &&
-                    started.Cursor == AnimationProgramCursor<GunshipDustProgram>.Start(definition.Program), "Actual dust program selection");
+                    started.Playback == new AnimationPlayback<GunshipDustProgram>(GunshipDustAnimations.StartingWith(definition.Program), AnimationPlace.StartOfAnimation), "Actual dust program selection");
                 AssertEqual((ushort)1, slot.FrameHold.RawValue, "Dust begins on first program tick");
                 AssertEqual((ushort)0, slot.Position.X.Fraction, "Dust clears stale X fraction");
                 AssertEqual((ushort)0, slot.Position.Y.Fraction, "Dust clears stale Y fraction");

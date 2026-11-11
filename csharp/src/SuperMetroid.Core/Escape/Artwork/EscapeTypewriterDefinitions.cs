@@ -23,12 +23,14 @@ public static class EscapeTypewriterDefinitions
     /// <summary>Chosen English warning wording, retained as lexical content.</summary>
     private const string ZebesEscapeWarning = "ESCAPE IMMEDIATELY!";
 
-    /// <summary>Reviewed five-cell warning-block margin; a chosen text-composition input, not derived from game state.</summary>
-    internal const int FirstColumn = 5;
-    /// <summary>Reviewed first tile row eight; a chosen text-composition input.</summary>
-    internal const int FirstRow = 8;
-    /// <summary>Reviewed two-row leading; preserves the selected one-blank-row warning typography.</summary>
-    internal const int LineRowStep = 2;
+    /// <summary>The warning block's left margin: each line's first glyph shows 40 pixels from the layer's left.</summary>
+    internal const int FirstLeft = 40;
+    /// <summary>The first line's glyphs show 64 pixels from the layer's top.</summary>
+    internal const int FirstTop = 64;
+    /// <summary>From one line's top to the next line's, in pixels: a glyph's height and a glyph-high blank gap.</summary>
+    internal const int LineSpacing = 16;
+    /// <summary>How far right the next character is typed after each character, glyph or space, in pixels: one glyph's width.</summary>
+    public const int GlyphAdvance = 8;
     /// <summary>Reviewed three-line grouping of the approved Ceres wording; selected line breaks are lexical composition.</summary>
     private const int CeresLineCount = 3;
     /// <summary>Reviewed two-line grouping of the approved Zebes wording; selected line breaks are lexical composition.</summary>

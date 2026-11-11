@@ -3,9 +3,9 @@ namespace SuperMetroid.Core.Escape.Artwork;
 /// <summary>Editable escape-warning text and visual line placement.</summary>
 public sealed class EscapeTypewriterPresentation
 {
-    /// <summary>Loaded Ceres warning lines and their tile destinations.</summary>
+    /// <summary>Loaded Ceres warning lines and where each starts.</summary>
     private readonly EscapeTypewriterProgram ceres;
-    /// <summary>Loaded Zebes time-bomb warning lines and their tile destinations.</summary>
+    /// <summary>Loaded Zebes time-bomb warning lines and where each starts.</summary>
     private readonly EscapeTypewriterProgram zebes;
 
     /// <summary>Retains the two programs the import pipeline validated.</summary>

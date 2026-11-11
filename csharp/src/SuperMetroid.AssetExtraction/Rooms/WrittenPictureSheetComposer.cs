@@ -18,27 +18,32 @@ using SuperMetroid.Core.Fx.Artwork;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
-/// Pre-assembles and pre-colours the pictures written over each tileset's rooms (#1392, #1466): each picture a writer writes
-/// over BG1 or BG2 (a Ceres warning page, a typed glyph) or BG3 shows (an effect's page), composed from
-/// the tile words the cartridge would write for it, coloured with the tileset's standard palette over the characters the
-/// room has loaded, and pictured again for each value of the appearance inputs that reach any of its characters, named by
-/// <see cref="AppearancePictureNames"/>; with the inputs each picture depends on. BG3's sheet also pictures each of the
-/// HUD's images as its own frame.
+/// Pre-assembles and pre-colours the pictures shown on each tileset's rooms' display layers (#1392, #1466, #1601): each
+/// picture a writer writes over the room's layers, BG1 or BG2 (a Ceres warning page, a typed glyph), or the effect overlay,
+/// BG3, shows (an effect's page), composed from the tile words the cartridge would write for it, coloured with the
+/// tileset's standard palette over the characters the room has loaded, and pictured again for each value of the appearance
+/// inputs that reach any of its characters, named by <see cref="AppearancePictureNames"/>; with the inputs each picture
+/// depends on. The effect overlay's sheet also pictures each of the HUD's images as its own frame. Every position here is a
+/// pixel of the sheet or of a picture: the tilemap's cells are decoded into pixels where its words are read.
 /// </summary>
 internal static class WrittenPictureSheetComposer
 {
     /// <summary>Tiles across the tilemaps pictures are written into.</summary>
-    private const int SheetTiles = 32;
+    private const int SheetTiles = TilemapScreenGeometry.WidthInTiles;
+
+    /// <summary>The pixels along either side of a tile.</summary>
+    private const int TilePixels = RoomTileCanvas.CharacterPixels;
 
     /// <summary>How the pictures of <paramref name="layer"/> are composed: the effect overlay's from colour sets of four.</summary>
     private static SpriteImageColours ColoursOf(WrittenPictureLayer layer) =>
         layer == WrittenPictureLayer.FxOverlayAndHud ? SpriteImageColours.TwoBppBackground : SpriteImageColours.Background;
 
     /// <summary>
-    /// Tiles across the widest sheet the installation can hold, which pictures are packed into: a BG3 sheet pictures each
-    /// room effect's whole page again for each frame its effects animate, more than a page-wide sheet could hold.
+    /// Pixels across and down the largest sheet the installation can hold, which pictures are packed into: an effect overlay
+    /// sheet pictures each room effect's whole page again for each frame its effects animate, more than a page-wide sheet
+    /// could hold.
     /// </summary>
-    private const int PackedTiles = RgbaPng.MaximumDimension / RoomTileCanvas.CharacterPixels;
+    private const int PackedPixels = RgbaPng.MaximumDimension;
 
     /// <summary>
     /// Composes the sheet of <paramref name="writers"/>' BG1 and BG2 pictures over <paramref name="content"/>, the room as it
@@ -90,7 +95,7 @@ internal static class WrittenPictureSheetComposer
     };
 
     /// <summary>
-    /// Composes the sheet of the BG3 pictures a room of <paramref name="tileset"/> shows: each of the HUD's images as its own
+    /// Composes the sheet of the effect overlay's pictures a room of <paramref name="tileset"/> shows: each of the HUD's images as its own
     /// frame (#1466) and the page of each room effect its rooms run, over the HUD's characters, and again
     /// for each frame its rooms' effects animate over BG3's characters (#1406).
     /// </summary>
@@ -98,7 +103,7 @@ internal static class WrittenPictureSheetComposer
     /// A picture reads a character nothing the room loads is bound over, or a HUD image reads a character an appearance
     /// input can show other artwork at.
     /// </exception>
-    internal static ComposedWrittenPictureSheet ComposeBg3(RoomBlockSheetInputs inputs, TilesetDefinition tileset, RoomBlockUploads.TilesetUploads uploads)
+    internal static ComposedWrittenPictureSheet ComposeOverlay(RoomBlockSheetInputs inputs, TilesetDefinition tileset, RoomBlockUploads.TilesetUploads uploads)
     {
         Ensure.NotNull(inputs);
         Ensure.NotNull(uploads);
@@ -125,10 +130,11 @@ internal static class WrittenPictureSheetComposer
             foreach (HudSheetPlacement placed in hud.Placements.Where(placed => placed.Shelf == shelf).DistinctBy(placed => placed.Cell))
             {
                 HudImageTiles image = placed.Image;
+                Position16<ImagePixels> corner = HudImageSheet.Pixels(placed.Cell);
                 for (int row = 0; row < image.Size.Y; row++)
                 for (int column = 0; column < image.Size.X; column++)
                 {
-                    words.Add(new SubjectWord(new((ushort)(placed.Cell.X + column), (ushort)(placed.Cell.Y + row)),
+                    words.Add(new SubjectWord(corner + new Offset16<ImagePixels>(column * TilePixels, row * TilePixels),
                         new SnesBgTilemapWord(BackgroundTileWords.ToWord(image.Tiles[row * image.Size.X + column]))));
                 }
             }
@@ -138,7 +144,8 @@ internal static class WrittenPictureSheetComposer
 
     /// <summary>The frame of each of <paramref name="hud"/>'s images, within its shelf's part.</summary>
     private static IEnumerable<PartFrame> HudFrames(HudSheetLayout hud) =>
-        hud.Placements.Select(placed => new PartFrame(placed.Image.Image.FrameName, HudShelfName(placed.Shelf), placed.Cell, placed.Image.Size));
+        hud.Placements.Select(placed => new PartFrame(placed.Image.Image.FrameName, HudShelfName(placed.Shelf),
+            HudImageSheet.Pixels(placed.Cell), HudImageSheet.Pixels(placed.Image.Size)));
 
     /// <summary>
     /// Composes <paramref name="layer"/>'s sheet: <paramref name="written"/>'s fixed parts as the room loads them, each of
@@ -194,53 +201,48 @@ internal static class WrittenPictureSheetComposer
         }
 
         // Pictures are packed onto shelves across the sheet, each shelf as tall as its tallest picture.
-        var corners = new Position16<TilemapCells>[pictures.Count];
-        int x = 0, y = 0, shelfRows = 0, widest = 1;
+        var corners = new Position16<ImagePixels>[pictures.Count];
+        int x = 0, y = 0, shelfHeight = 0, widest = TilePixels;
         for (int index = 0; index < pictures.Count; index++)
         {
-            Extent16<TilemapCells> size = pictures[index].Size;
-            if (x + size.X > PackedTiles)
+            Extent16<ImagePixels> size = pictures[index].Size;
+            if (x + size.X > PackedPixels)
             {
-                y += shelfRows;
+                y += shelfHeight;
                 x = 0;
-                shelfRows = 0;
+                shelfHeight = 0;
             }
-            corners[index] = new((ushort)x, (ushort)y);
+            corners[index] = new(x, y);
             x += size.X;
             widest = Math.Max(widest, x);
-            shelfRows = Math.Max(shelfRows, size.Y);
+            shelfHeight = Math.Max(shelfHeight, size.Y);
         }
-        int rows = Math.Max(1, y + shelfRows);
-        if (rows > PackedTiles)
+        int height = Math.Max(TilePixels, y + shelfHeight);
+        if (height > PackedPixels)
             throw new InvalidDataException($"{sheetName}'s pictures need more than one {RgbaPng.MaximumDimension}-pixel sheet.");
-        var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(checked((ushort)(widest * RoomTileCanvas.CharacterPixels)),
-            checked((ushort)(rows * RoomTileCanvas.CharacterPixels))));
+        var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(checked((ushort)widest), checked((ushort)height)));
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
-        var partCorners = new Dictionary<string, Position16<TilemapCells>>(StringComparer.Ordinal);
+        var partCorners = new Dictionary<string, Position16<ImagePixels>>(StringComparer.Ordinal);
         for (int index = 0; index < pictures.Count; index++)
         {
             ShownPicture picture = pictures[index];
-            Position16<TilemapCells> corner = corners[index];
+            Position16<ImagePixels> corner = corners[index];
             foreach (PictureWord word in picture.Words)
                 Paint(corner + word.Offset, word.Word);
             partCorners.Add(picture.Name, corner);
-            frames.Add(picture.Name, Frame(canvas, Corner(corner), new Extent16<ImagePixels>(
-                checked((ushort)(picture.Size.X * RoomTileCanvas.CharacterPixels)), checked((ushort)(picture.Size.Y * RoomTileCanvas.CharacterPixels))), layer));
+            frames.Add(picture.Name, Frame(canvas, corner, picture.Size, layer));
         }
         foreach (PartFrame frame in partFrames)
-        {
-            Position16<TilemapCells> corner = partCorners[frame.Part] + (frame.Cell - Position16<TilemapCells>.Zero);
-            frames.Add(frame.Name, Frame(canvas, HudImageSheet.Pixels(corner), HudImageSheet.Pixels(frame.Size), layer));
-        }
+            frames.Add(frame.Name, Frame(canvas, partCorners[frame.Part] + (frame.Corner - Position16<ImagePixels>.Zero), frame.Size, layer));
         return new ComposedWrittenPictureSheet(layer, tileset, canvas.ToRoomSheet(colours, frames, ColoursOf(layer)), inputsOf);
 
-        // `subject`'s words as they show while `depends` take `values`, named `name`, laid from its top-left written cell;
+        // `subject`'s words as they show while `depends` take `values`, named `name`, laid from its top-left written tile;
         // null where a word's character shows nothing for them.
         ShownPicture? Shown(WrittenSubject subject, string name, ImmutableArray<AppearanceInput> depends, string[] values)
         {
-            int left = subject.Words.Min(word => word.Cell.X), top = subject.Words.Min(word => word.Cell.Y);
-            int right = subject.Words.Max(word => word.Cell.X), bottom = subject.Words.Max(word => word.Cell.Y);
-            var origin = new Position16<TilemapCells>((ushort)left, (ushort)top);
+            int left = subject.Words.Min(word => word.Corner.X), top = subject.Words.Min(word => word.Corner.Y);
+            int right = subject.Words.Max(word => word.Corner.X), bottom = subject.Words.Max(word => word.Corner.Y);
+            var origin = new Position16<ImagePixels>(left, top);
             var words = new List<PictureWord>();
             foreach (SubjectWord written in subject.Words)
             {
@@ -248,15 +250,15 @@ internal static class WrittenPictureSheetComposer
                 if (!RoomAppearanceComposition.TryShowing(new CharacterSpan(options.Set, word.CharacterIndex, 1), depends, values,
                         options.Options, content, out BgArtworkShown shown))
                     return null;
-                words.Add(new PictureWord(written.Cell - origin, new ShownWord(word, shown)));
+                words.Add(new PictureWord(written.Corner - origin, new ShownWord(word, shown)));
             }
-            return new ShownPicture(name, new((ushort)(right - left + 1), (ushort)(bottom - top + 1)), words);
+            return new ShownPicture(name, new(right - left + TilePixels, bottom - top + TilePixels), words);
         }
 
-        void Paint(Position16<TilemapCells> cell, ShownWord word)
+        void Paint(Position16<ImagePixels> corner, ShownWord word)
         {
             ReadOnlySpan<byte> character = bytes[word.Shown.Artwork].Span.Slice(word.Shown.WordOffset * sizeof(ushort), characterWords * sizeof(ushort));
-            int left = cell.X * RoomTileCanvas.CharacterPixels, top = cell.Y * RoomTileCanvas.CharacterPixels;
+            int left = corner.X, top = corner.Y;
             if (layer == WrittenPictureLayer.FxOverlayAndHud)
                 canvas.PaintTwoBppTile(left, top, word.Word, character, colours);
             else
@@ -267,10 +269,6 @@ internal static class WrittenPictureSheetComposer
     /// <summary>VRAM words in one of <paramref name="layer"/>'s characters: BG3's are two-bit, BG1's and BG2's four-bit.</summary>
     private static int CharacterWordsOf(WrittenPictureLayer layer) =>
         (layer == WrittenPictureLayer.FxOverlayAndHud ? BgCharacterSet.Layer3 : BgCharacterSet.Tiles).CharacterBytes() / sizeof(ushort);
-
-    /// <summary>The pixel corner of the tile at <paramref name="cell"/>.</summary>
-    private static Position16<ImagePixels> Corner(Position16<TilemapCells> cell) =>
-        new((ushort)(cell.X * RoomTileCanvas.CharacterPixels), (ushort)(cell.Y * RoomTileCanvas.CharacterPixels));
 
     /// <summary>The frame of <paramref name="rows"/> tile rows from row <paramref name="top"/>, across the sheet.</summary>
     internal static SpriteSheetFrameDocument Frame(RoomTileCanvas canvas, int top, int rows, WrittenPictureLayer layer) =>
@@ -338,30 +336,30 @@ internal static class WrittenPictureSheetComposer
         }
     }
 
-    /// <summary><paramref name="words"/> laid out from the top-left, 32 to a row.</summary>
+    /// <summary><paramref name="words"/> laid out from the top-left, 32 to a row, each tile at its pixel.</summary>
     private static SubjectWord[] Rows(ushort[] words) =>
-        [.. words.Select((word, index) => new SubjectWord(new((ushort)(index % SheetTiles), (ushort)(index / SheetTiles)), new SnesBgTilemapWord(word)))];
+        [.. words.Select((word, index) => new SubjectWord(new(index % SheetTiles * TilePixels, index / SheetTiles * TilePixels), new SnesBgTilemapWord(word)))];
 
-    /// <summary>One tile word a picture writes, at its cell.</summary>
-    /// <param name="Cell">The cell, from the picture's own tilemap origin.</param>
+    /// <summary>One tile word a picture writes, at its tile's top-left pixel.</summary>
+    /// <param name="Corner">The tile's top-left pixel, from the picture's own top-left.</param>
     /// <param name="Word">The tile word.</param>
-    private readonly record struct SubjectWord(Position16<TilemapCells> Cell, SnesBgTilemapWord Word);
+    private readonly record struct SubjectWord(Position16<ImagePixels> Corner, SnesBgTilemapWord Word);
 
     /// <summary>One picture something writes: the name gameplay writes it by and the tile words it is composed from.</summary>
     /// <param name="Name">The name.</param>
-    /// <param name="Words">The words, each at its cell.</param>
+    /// <param name="Words">The words, each at its tile's pixel.</param>
     private sealed record WrittenSubject(string Name, SubjectWord[] Words);
 
     /// <summary>One frame of the sheet: a picture's words as they show for one set of values of its inputs.</summary>
     /// <param name="Name">The frame's name.</param>
-    /// <param name="Size">Its size in tiles.</param>
-    /// <param name="Words">Each word as it shows, at its cell within the frame.</param>
-    private sealed record ShownPicture(string Name, Extent16<TilemapCells> Size, List<PictureWord> Words);
+    /// <param name="Size">Its size in pixels.</param>
+    /// <param name="Words">Each word as it shows, at its tile's pixel within the frame.</param>
+    private sealed record ShownPicture(string Name, Extent16<ImagePixels> Size, List<PictureWord> Words);
 
-    /// <summary>One word of a frame as it shows, at its offset from the frame's top-left cell.</summary>
-    /// <param name="Offset">The offset from the frame's top-left cell.</param>
+    /// <summary>One word of a frame as it shows, at its tile's offset from the frame's top-left pixel.</summary>
+    /// <param name="Offset">The offset of the word's tile from the frame's top-left pixel.</param>
     /// <param name="Word">The word as it shows.</param>
-    private readonly record struct PictureWord(Offset16<TilemapCells> Offset, ShownWord Word);
+    private readonly record struct PictureWord(Offset16<ImagePixels> Offset, ShownWord Word);
 
     /// <summary>What a layer's sheet pictures.</summary>
     /// <param name="Subjects">The pictures gameplay writes, each pictured for every value of the inputs that reach it.</param>
@@ -372,9 +370,9 @@ internal static class WrittenPictureSheetComposer
     /// <summary>A frame cut from within a fixed part (#1466): one of the HUD's images on its shelf.</summary>
     /// <param name="Name">The frame's name.</param>
     /// <param name="Part">The part it is cut from.</param>
-    /// <param name="Cell">Its upper-left cell within the part.</param>
-    /// <param name="Size">Its size in cells.</param>
-    private sealed record PartFrame(string Name, string Part, Position16<TilemapCells> Cell, Extent16<TilemapCells> Size);
+    /// <param name="Corner">Its top-left pixel within the part.</param>
+    /// <param name="Size">Its size in pixels.</param>
+    private sealed record PartFrame(string Name, string Part, Position16<ImagePixels> Corner, Extent16<ImagePixels> Size);
 
     /// <summary>A tile word as it shows over the artwork bound at its character.</summary>
     /// <param name="Word">The tile word.</param>

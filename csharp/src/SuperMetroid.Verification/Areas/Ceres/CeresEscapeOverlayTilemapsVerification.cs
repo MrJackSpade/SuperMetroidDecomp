@@ -75,9 +75,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
         var shownEnemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance,
             services: new SuperMetroid.Verification.Enemies.StandaloneRoomEnemyServices(() => throw new InvalidOperationException("The warning fixture generates no random numbers."))) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
         shownEnemies.CeresRidleyBehavior.Getaway.DrawCeresEmergencyText();
-        Position16<RoomPixels> titleCorner = CeresEscapeWarningPictures.Emergency.Corner;
-        int titleWord = TwoScreenTilemapCells.IndexOf(new Position16<TilemapCells>(titleCorner.X / ScreenGeometry.BackgroundTileSizePixels,
-            titleCorner.Y / ScreenGeometry.BackgroundTileSizePixels));
+        int titleWord = TwoScreenTilemapCells.IndexOf(CeresEscapeWarningPictures.Emergency.Corner);
         AssertEqual(native[titleWord], shownEnemies.RidleyEncounter.CeresWarning.WordsIn(stock.Areas.CeresEscapeOverlayTilemaps)[titleWord],
             "the Ceres title shows its native word over BG1");
         // The getaway writes each page's picture by name (#1466) and holds no installed page of its own to miss.

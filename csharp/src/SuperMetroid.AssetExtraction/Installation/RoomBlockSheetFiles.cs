@@ -37,9 +37,10 @@ public static class RoomBlockSheetFiles
     /// <summary>
     /// The written picture manifest's schema revision: revision 1 names each picture by what is written and the values of
     /// its appearance inputs (#1466); revision 2 no longer pictures the cell the effect area is cleared to (#1514); revision
-    /// 3 names an encounter's look input by the encounter and the look (#1538).
+    /// 3 names an encounter's look input by the encounter and the look (#1538); revision 4 installs the effect overlay's
+    /// sheets as <c>OverlayPictures.</c> (#1601).
     /// </summary>
-    private const int WrittenManifestVersion = 3;
+    private const int WrittenManifestVersion = 4;
 
     /// <summary>The manifest naming each Ceres tileset whose turning floor is installed.</summary>
     public const string FloorManifestFileName = "room-floors.json";
@@ -57,7 +58,7 @@ public static class RoomBlockSheetFiles
         SpriteSheetStore store = SpriteSheetStore.Create(directory, ProvenanceFileName);
         foreach ((TilesetDefinition tileset, RoomBlockAppearances appearances) in composition.BlockAppearances)
             RoomBlockAppearanceFiles.Write(directory, tileset, appearances);
-        ComposedWrittenPictureSheet[] writtenSheets = [.. composition.Written.Values, .. composition.Bg3Pictures.Values];
+        ComposedWrittenPictureSheet[] writtenSheets = [.. composition.Written.Values, .. composition.OverlayPictures.Values];
         store.WriteAll([
             .. composition.BlockSheets.Select(entry => new NamedComposedSheet(RoomBlockSheet.NameOf(entry.Key), entry.Value)),
             .. composition.Backgrounds.Select(entry => new NamedComposedSheet(entry.Key, entry.Value.Sheet)),
@@ -212,7 +213,7 @@ public static class RoomBlockSheetFiles
     private sealed record WrittenManifest(int Version, WrittenSheetDocument[] Sheets);
 
     /// <summary>One written picture sheet.</summary>
-    /// <param name="Layer">The backgrounds the pictures are written over.</param>
+    /// <param name="Layer">The display layer the pictures show on.</param>
     /// <param name="Tileset">The installed name of the tileset whose rooms the pictures are written in.</param>
     /// <param name="Pictures">Each picture the sheet holds and the inputs it depends on.</param>
     private sealed record WrittenSheetDocument(WrittenPictureLayer Layer, string Tileset, WrittenPictureDocument[]? Pictures);

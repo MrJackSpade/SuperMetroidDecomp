@@ -55,7 +55,7 @@ internal static class RoomBlockSheetComposer
                     ? RoomSheetShades.With(WrittenPictureSheetComposer.Compose(inputs, tileset, uploads, uploads.Writers, content),
                         RoomSheetShades.Written(inputs, uploads.Writers))
                     : null,
-                RoomSheetShades.With(WrittenPictureSheetComposer.ComposeBg3(inputs, tileset, uploads), RoomSheetShades.Layer3(inputs, tileset)),
+                RoomSheetShades.With(WrittenPictureSheetComposer.ComposeOverlay(inputs, tileset, uploads), RoomSheetShades.Layer3(inputs, tileset)),
                 MessageBoxSheetComposer.Compose(inputs, tileset),
                 uploads.Ceres ? ShadedSheets.With(RoomFloorSheetComposer.Compose(inputs, tileset), shades) : null);
         });

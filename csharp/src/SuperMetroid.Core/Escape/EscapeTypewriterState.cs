@@ -23,15 +23,15 @@ public sealed class EscapeTypewriterState
     }
 
     /// <summary>
-    /// The cell of the layer the next character is typed over: reset at each line's first character and advanced one cell
-    /// right for both written glyphs and spaces (#1406, #1514).
+    /// The pixel of the layer the next character's top-left corner is typed at: reset to each line's start at its first
+    /// character and advanced right by a glyph's width for both written glyphs and spaces (#1406, #1514, #1601).
     /// </summary>
-    public Position16<TilemapCells> Cell { get; private set; }
+    public Position16<PlanePixels> Corner { get; private set; }
     /// <summary>Countdown reload in <see cref="Step"/> calls: zero, then the two-call character delay once the program starts.</summary>
     public int Delay { get; private set; }
     /// <summary>Calls still to skip before typing another character; a call that decrements it to zero still performs no character work.</summary>
     public int DelayTimer { get; private set; }
-    /// <summary>Total non-space glyphs typed; spaces advance the cell but do not increment this count.</summary>
+    /// <summary>Total non-space glyphs typed; spaces advance the typing position but do not increment this count.</summary>
     public int GlyphsWritten { get; private set; }
     /// <summary>True after an eligible typing call passes the end of all lines; subsequent calls return completion without writing or requesting sound.</summary>
     public bool Completed { get; private set; }
@@ -98,24 +98,24 @@ public sealed class EscapeTypewriterState
                 continue;
             }
             if (ProgramCharacterIndex == 0)
-                Cell = line.Cell;
+                Corner = line.Start;
             glyph = TypeCharacter(line.Text[ProgramCharacterIndex++]);
             return false;
         }
         return Completed = true;
     }
 
-    /// <summary>Types a non-space glyph, requests a click every second glyph, and advances the cell.</summary>
+    /// <summary>Types a non-space glyph, requests a click every second glyph, and advances the typing position by a glyph's width.</summary>
     private EscapeTypewriterGlyph? TypeCharacter(char character)
     {
         EscapeTypewriterGlyph? glyph = null;
         if (EscapeTypewriterGlyph.Types(character))
         {
-            glyph = new(Cell, EscapeTypewriterGlyph.PictureOf(ProgramId, character));
+            glyph = new(Corner, EscapeTypewriterGlyph.PictureOf(ProgramId, character));
             GlyphsWritten++;
             ClickRequested = GlyphsWritten % 2 == 0;
         }
-        Cell += new Offset16<TilemapCells>(1, 0);
+        Corner += new Offset16<PlanePixels>(EscapeTypewriterDefinitions.GlyphAdvance, 0);
         return glyph;
     }
 }

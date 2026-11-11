@@ -170,7 +170,7 @@ internal sealed class MotherBrainRainbowAndDeath
 
     /// <summary>Shows a glyph the Zebes escape typewriter typed over Mother Brain's room background (#1348, #1555).</summary>
     private void WriteZebesTypewriterGlyph(EscapeTypewriterGlyph glyph) =>
-        _motherBrainEncounter.ShowZebesWarning(new WrittenPicture(glyph.Picture, glyph.Cell));
+        _motherBrainEncounter.ShowZebesWarning(new WrittenPicture(glyph.Picture, glyph.Corner));
 
     /// <summary>Runs one body-function call through the shared verified sequence.</summary>
     internal void RunLiveMotherBrainRainbowBeam(

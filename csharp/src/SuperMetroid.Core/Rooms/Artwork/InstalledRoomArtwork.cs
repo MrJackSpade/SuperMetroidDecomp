@@ -7,14 +7,15 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>
 /// The installed pre-coloured room artwork (#1392, #1466): the block sheet of each tileset a room can load with the
-/// appearance inputs its blocks depend on, the image of each library background a room state loads, and the sheets of the
-/// pictures written over the rooms' backgrounds, and the turning floor of each Ceres tileset (#1467).
+/// appearance inputs its blocks depend on, the image of each library background a room state loads, the sheets of the
+/// pictures encounters write over the rooms' layers, the sheets of the effect overlay's pictures (each room effect's page
+/// and the HUD's images), each tileset's message boxes, and the turning floor of each Ceres tileset (#1467).
 /// </summary>
 public sealed class InstalledRoomArtwork
 {
     /// <summary>
     /// Keeps the sheets, each under its own tileset, the background images, each under its own name, and the written
-    /// picture sheets, each under its own tileset.
+    /// picture and effect overlay picture sheets, each under its own tileset.
     /// </summary>
     /// <exception cref="ArgumentException">A sheet is filed under another tileset, or an image under another name.</exception>
     public InstalledRoomArtwork(IReadOnlyDictionary<TilesetDefinition, RoomBlockSheet> sheets,
@@ -66,7 +67,7 @@ public sealed class InstalledRoomArtwork
     /// <summary>The sheets of pictures written over the foreground and the background, by the tileset whose rooms the pictures are written in.</summary>
     public IReadOnlyDictionary<TilesetDefinition, WrittenPictureSheet> Written { get; }
 
-    /// <summary>The sheets of the HUD's and room effects' effect overlay pictures, by the tileset whose colours they show in.</summary>
+    /// <summary>The sheets of the effect overlay's pictures (each room effect's page and the HUD's images), by the tileset whose colours they show in.</summary>
     public IReadOnlyDictionary<TilesetDefinition, WrittenPictureSheet> FxOverlayPictures { get; }
 
     /// <summary>The turning floor of each Ceres tileset.</summary>

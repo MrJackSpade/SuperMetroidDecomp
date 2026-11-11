@@ -4,6 +4,7 @@ using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Escape.Artwork;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Areas.Escape;
 
@@ -15,7 +16,7 @@ public static class EscapeTypewriterExtractor
 
     /// <summary>Imports the Ceres and Zebes escape-warning text and line destinations from their native typewriter streams.</summary>
     /// <param name="bus">Non-null cartridge address space supplying the two warning programs.</param>
-    /// <returns>New UTF-8 JSON bytes containing ordered lines of supported text and the overlay cell each starts at.</returns>
+    /// <returns>New UTF-8 JSON bytes containing ordered lines of supported text and the pixel of the layer each starts at.</returns>
     /// <remarks>The native character-delay header is checked, while typewriter timing, glyph artwork, and audio behavior remain compiled.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
     /// <exception cref="InvalidDataException">A program has an unexpected header or command, unsupported characters, excessive lines, or invalid text placement.</exception>
@@ -83,9 +84,22 @@ public static class EscapeTypewriterExtractor
                         $"Escape typewriter program {id} has unsupported byte ${(byte)character:X2} at ${cursor - 1:X6}.");
                 characters.Add(character);
             }
-            lines.Add(new() { Cell = destination - TilemapWordOf(id), Text = new(characters.ToArray()) });
+            Position16<PlanePixels> start = StartOf(destination - TilemapWordOf(id));
+            lines.Add(new() { X = start.X, Y = start.Y, Text = new(characters.ToArray()) });
         }
         throw new InvalidDataException($"Escape typewriter program {id} exceeded sixteen lines.");
+    }
+
+    /// <summary>
+    /// The pixel of the layer the tilemap cell <paramref name="cell"/> words past the program's tilemap start shows at
+    /// (#1514, #1601): the tilemap counts its eight-pixel cells row by row through the left screen and then through the
+    /// right one.
+    /// </summary>
+    private static Position16<PlanePixels> StartOf(int cell)
+    {
+        int screen = cell / TilemapScreenGeometry.CellCount, within = cell % TilemapScreenGeometry.CellCount;
+        return new((screen * TilemapScreenGeometry.WidthInTiles + within % TilemapScreenGeometry.WidthInTiles) * ScreenGeometry.BackgroundTileSizePixels,
+            within / TilemapScreenGeometry.WidthInTiles * ScreenGeometry.BackgroundTileSizePixels);
     }
 
     /// <summary>

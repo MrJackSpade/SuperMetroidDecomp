@@ -570,12 +570,8 @@ internal static class LookupStream5Verification
         AssertThrows<IndexOutOfRangeException>(() => _ = CeresEscapeOverlayPages.All[5], "Overlay upper bound");
         Console.WriteLine("Ceres source page cases: two character sheets/five overlays preserve exact identities, order, extents, enumeration and range domains.");
 
-        // The room pixel of the top-left corner of foreground word `word`.
-        static Position16<RoomPixels> CornerOfWord(int word)
-        {
-            Position16<TilemapCells> cell = SuperMetroid.Core.Rooms.Backgrounds.TwoScreenTilemapCells.CellAt(word);
-            return new(cell.X * ScreenGeometry.BackgroundTileSizePixels, cell.Y * ScreenGeometry.BackgroundTileSizePixels);
-        }
+        // The foreground pixel of the top-left corner of foreground word `word`.
+        static Position16<PlanePixels> CornerOfWord(int word) => SuperMetroid.Core.Rooms.Backgrounds.TwoScreenTilemapCells.CornerAt(word);
     }
     /// <summary>Checks authored area-map landmark tiles and their native reveal cases.</summary>
     internal static void VerifyLookupStream5MapLandmarkCases(SuperMetroidAddressSpace rom)

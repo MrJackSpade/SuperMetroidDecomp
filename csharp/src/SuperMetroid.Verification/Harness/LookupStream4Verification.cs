@@ -165,11 +165,11 @@ internal static class LookupStream4Verification
         {
             ushort pointer = (ushort)(program.FramePointer(frame) + 2 + index * 2);
             native.Add(pointer, CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8d0000 | pointer)));
-            AssertTrue(stock.TryReadColor(pointer, out RgbColor value), "calculated title ambient color resolves");
+            AssertTrue(stock.TryReadColor(pointer, out RgbColor value), "installed title ambient color resolves");
             AssertEqual(native[pointer], value, "native title ambient color");
         }
         var stored = stock.animatedColors;
-        AssertEqual(0, stored.Count, "all ambient stock colors calculate from independent initial-palette paint");
+        AssertEqual(native.Count, stored.Count, "every ambient colour is held as installed");
         AssertEqual(36, TitlePalettePresentationTooling.ColorPointers.Count, "title color identity count preserved");
         AssertEqual(36, TitlePalettePresentationTooling.ColorPointers.Distinct().Count(), "title color identities enumerate once");
         for (int pointer = 0xc7fa; pointer <= 0xc87a; pointer++)

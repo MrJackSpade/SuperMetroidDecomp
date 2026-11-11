@@ -11,9 +11,9 @@ namespace SuperMetroid.AssetExtraction.Frontend.Title;
 /// <summary>Reads and writes the installed title palette document.</summary>
 public static class TitlePaletteFile
 {
-    /// <summary>Validates initial, ambient-animation and skip-only RGB5 colors and compiles independently owned native palette words.</summary>
+    /// <summary>Validates the initial, ambient-animation and skip-only RGB5 colours and keeps every one as installed.</summary>
     /// <param name="json">UTF-8 JSON read from its current position to the end and left open.</param>
-    /// <returns>An immutable color source; ambient samples are calculated from selected paint only where the calculated output matches the supplied sample, preserving independent edits.</returns>
+    /// <returns>An immutable colour source holding every installed initial and ambient colour.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
     /// <exception cref="InvalidDataException">JSON is invalid or ambiguous, its version or array dimensions are wrong, or a required color is null or has a channel outside 0..31.</exception>
     public static TitlePalettePresentation Read(Stream json)
@@ -91,25 +91,9 @@ public static class TitlePaletteFile
         }
 
         ImmutableArray<RgbColor> screen = [.. colors];
-        DropCalculatedAmbientColors(screen, animatedColors);
         return new TitlePalettePresentation(screen, animatedColors,
             PackColor(document.SkipCopyrightWhite, "skip copyright white"),
             PackColor(document.SkipCopyrightRed, "skip copyright red"));
-    }
-
-    /// <summary>Drops each selected ambient colour the shared ambient calculation already produces from <paramref name="colours"/>.</summary>
-    /// <param name="colours">The selected initial colours in the cartridge's order.</param>
-    /// <param name="animatedColors">Every selected ambient-program colour; calculated ones are removed.</param>
-    private static void DropCalculatedAmbientColors(ImmutableArray<RgbColor> colours, Dictionary<PaletteFxColorKey, RgbColor> animatedColors)
-    {
-        foreach (var program in TitleScreenAmbientPaletteOwners.All)
-        for (int frame = 0; frame < program.FrameCount; frame++)
-        for (int index = 0; index < program.ColorsPerFrame; index++)
-        {
-            PaletteFxColorKey key = program.Color(frame, index);
-            if (TitleAmbientColors.TryCalculate(key, colours, animatedColors, out RgbColor calculated) &&
-                animatedColors[key] == calculated) animatedColors.Remove(key);
-        }
     }
 
     /// <summary>Validates one skip-only RGB5 color before packing its CGRAM word.</summary>

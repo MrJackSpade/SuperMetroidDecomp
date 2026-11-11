@@ -24,8 +24,6 @@ internal static class InterfacePresentationContractDefinitions
              new("csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFx/PaletteFxHeatProgramDefinition.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFx/PaletteFxColorFrames.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Title/Artwork/TitlePalettePresentation.cs"),
-             new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Title/Artwork/TitleAmbientColors.cs"),
-             new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Title/Artwork/TitleAmbientColorDefinitions.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Title/Artwork/TitleSheetInks.cs")]),
         new("SuperMetroid.Core.Frontend.Intro.Artwork.IIntroCinematicSpritePresentation", "cinematic-interface-complete-owned-frame-domains", ["Draw"],
             [new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IIntroCinematicSpritePresentation.cs"),

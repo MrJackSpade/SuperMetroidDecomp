@@ -86,7 +86,12 @@ public sealed record GameInstallation(string Root)
     public string BossAndIntroOverreadDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.BossAndIntroOverreadDirectoryName);
     /// <summary>Loads the validated compatibility services reproducing Kraid's, Crocomire's and the intro egg shell's reads past their data.</summary>
     public SuperMetroid.Core.Compatibility.BossAndIntroOverreadServices LoadBossAndIntroOverreads() => BossAndIntroOverreadFiles.Load(BossAndIntroOverreadDirectory);
-    /// <summary>Installed pre-coloured sprite sheets and their frame manifests, which the player edits in place.</summary>
+    /// <summary>
+    /// The installed picture store (#1635): every picture the sheets show, each written once, on pages the player edits in
+    /// place, an edit changing the picture for every sheet that shows it.
+    /// </summary>
+    public string PictureStoreDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.PictureStoreDirectoryName);
+    /// <summary>Installed sprite sheet manifests, which name where the picture store holds each frame's picture.</summary>
     public string SpriteSheetDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.SpriteSheetDirectoryName);
     /// <summary>Loads every installed sprite sheet.</summary>
     public InstalledSpriteSheets LoadSpriteSheets() => SpriteSheetFiles.Load(SpriteSheetDirectory);

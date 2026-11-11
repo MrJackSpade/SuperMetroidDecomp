@@ -496,14 +496,17 @@ are what those sheets are composed from. Library-background tilemaps and scrolli
 for its place among the seven, `scrolling-sky-page-{0-6}.json`.
 
 Sprites are moving to finished images. A sprite family that has moved is drawn from a pre-coloured
-sheet in `game/sprite-sheets`: an RGBA PNG (`{family}.png`, transparent where alpha is zero) and its
-frame list (`{family}.json`: each frame's rectangle on the sheet, its origin, whether it blends, and the
-shades it is pre-coloured in, each a list of colours shown in place of the sheet's own). A sheet whose pixels
-of one colour recolour differently, or whose pictures blend in some pixels only, also has a map in its own
-folder (`game/recolour-regions`, `game/blend-maps`); see `docs/installed-pictures.md`. A clear pixel keeps
-its colour under alpha zero, so an editor must not rewrite the RGB of transparent pixels. Edit these files
-in place; an
-edited frame list must keep every frame the family draws. The escape countdown (`escape-timer`) is drawn
+sheet in `game/sprite-sheets`: its frame list (`{family}.json`: the sheet's size, each frame's rectangle on the
+sheet, its origin, whether it blends, where the picture store holds its picture, and the shades it is
+pre-coloured in, each a list of colours shown in place of the sheet's own). Every picture any sheet shows is
+written once, to the picture store in `game/pictures`: RGBA PNG pages (`pictures-0000.png`, `pictures-0001.png`
+and so on, transparent where alpha is zero), each frame naming its page and the corner of its picture there,
+and the game assembles each sheet from the pages. A page holding pictures whose pixels of one colour recolour
+differently, or that blend in their pixels, also has a map in its own folder (`game/recolour-regions/pictures`,
+`game/blend-maps/pictures`); see `docs/installed-pictures.md`. A clear pixel keeps its colour under alpha zero,
+so an editor must not rewrite the RGB of transparent pixels. Edit these files in place: an edit to a picture on a
+page changes it for every frame of every sheet that shows it, as the game shows one picture wherever it shows that
+appearance. An edited frame list must keep every frame the family draws. The escape countdown (`escape-timer`) is drawn
 this way, as are Samus's projectiles, bombs, charge flare and trails: one sheet per beam combination
 (`projectiles-power`, `projectiles-plasma-ice-wave` and so on), whose characters and beam colours differ,
 and `intro-projectiles` for the intro's flashbacks, the grapple beam's endpoint and rope (`grapple`), Samus's body (`samus-body`, one full-body frame per drawn body, in
@@ -534,8 +537,8 @@ on. The escape countdown's layout, `escape-timer.json` in `game/maps`, holds onl
 digit spacing.
 
 Room blocks are drawn from pre-coloured block sheets in `game/room-block-sheets`, one for each tileset
-(`{blocks}.{characters}.{palette}`, for example `Norfair.Norfair.HeatedNorfair`), in the same three files as a sprite
-sheet. Each 16x16 picture is one whole block, before the level mirrors it, coloured with the tileset's background
+(`{blocks}.{characters}.{palette}`, for example `Norfair.Norfair.HeatedNorfair`), each a frame list like a sprite
+sheet's, its pictures in the picture store. Each 16x16 picture is one whole block, before the level mirrors it, coloured with the tileset's background
 palette; its name is the block's index among those the room loads (three hex digits) followed, for each run of
 characters the block reads, by the artwork shown there and how far into it the run begins
 (`0A3|common room element characters+0810|...`). `{blocks}.block-characters.json` records, for every block of a block

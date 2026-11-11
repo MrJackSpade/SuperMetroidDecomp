@@ -9,6 +9,11 @@ internal enum InstallerComponentKind
     /// <summary>Reads only the cartridge and its own directory, and no component reads it.</summary>
     Standalone,
 
-    /// <summary>Reads the extraction components' output once all of them are installed; no component reads it.</summary>
+    /// <summary>
+    /// Reads the extraction components' output once all of them are installed; the picture store reads the sheets it composes.
+    /// </summary>
     Composition,
+
+    /// <summary>Writes the picture store from every composition component's sheets once all of them are composed (#1635).</summary>
+    PictureStore,
 }

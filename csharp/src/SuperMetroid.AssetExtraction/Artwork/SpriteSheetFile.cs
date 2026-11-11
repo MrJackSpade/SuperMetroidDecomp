@@ -3,20 +3,20 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
 
-/// <summary>Reads an installed sprite sheet's frame manifest and cuts its frames from the sheet image (#1502, #1633).</summary>
+/// <summary>Reads an installed sprite sheet's frame manifest and cuts its frames from the sheet image (#1502, #1633, #1635).</summary>
 public static class SpriteSheetFile
 {
     /// <summary>
     /// The manifest schema revision this reader reads: 13 marks no pixel as lying in a front tile, a picture of a layer's
     /// tiles being installed as its part behind and its part in front instead (#1634); 14 names no colour by a place: its
     /// shades recolour by colour key, its backdrop is a colour key, each frame says whether it blends, and it says which maps
-    /// the sheet has (#1633).
+    /// the sheet has (#1633); 15 names the size of the sheet's image and where the picture store holds each frame's picture,
+    /// the maps being the store's pages' (#1635).
     /// </summary>
-    public const int Version = 14;
+    public const int Version = 15;
 
     /// <summary>
     /// Camel-case manifest fields; unknown fields are rejected. The import writes manifests with the same settings, unindented:
@@ -31,22 +31,21 @@ public static class SpriteSheetFile
     };
 
     /// <summary>
-    /// Reads a sheet manifest and cuts its frames from a sheet image whose pixels and maps <paramref name="decode"/> produces
-    /// from the manifest when the image is first drawn (#1430).
+    /// Cuts a sheet manifest's frames from the sheet's image, of the manifest's size, whose pixels and maps
+    /// <paramref name="decode"/> produces when the image is first drawn (#1430).
     /// </summary>
-    /// <param name="manifest">The frame list, the shades and the maps the sheet has.</param>
+    /// <param name="document">The sheet's manifest: its image's size, frame list and shades.</param>
     /// <param name="name">The sheet's installed name.</param>
-    /// <param name="size">The image's width and height.</param>
-    /// <param name="decode">Produces the image's pixels and the maps the manifest says it has.</param>
-    /// <exception cref="InvalidDataException">The manifest is malformed, of another revision, or places a frame off the image.</exception>
-    public static SpriteSheet Load(Stream manifest, string name, Extent16<ImagePixels> size, Func<InstalledSheetDocument, SpriteImagePixels> decode)
+    /// <param name="decode">Produces the image's pixels and maps.</param>
+    /// <exception cref="InvalidDataException">The manifest names an empty image, or places a frame off the image.</exception>
+    public static SpriteSheet Load(InstalledSheetDocument document, string name, Func<SpriteImagePixels> decode)
     {
+        Ensure.NotNull(document);
         Ensure.NotNull(decode);
-        InstalledSheetDocument document = ReadDocument(manifest, name);
         SpriteImage image;
         try
         {
-            image = new SpriteImage(name, size, ColoursOf(document), () => decode(document));
+            image = new SpriteImage(name, document.Size, ColoursOf(document), decode);
         }
         catch (ArgumentException error)
         {

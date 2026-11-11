@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -31,14 +32,15 @@ internal static class EnemySheetComposer
     /// <summary>
     /// Every variant of the enemies rooms draw and of their spawned objects (#1599), each distinct sheet once. Each graphics
     /// set rooms draw under is decoded once, as its rooms load it, and every sheet it composes is laid out first; sheets
-    /// whose layouts share an identity paint alike, so each distinct layout is painted and encoded once, in parallel, each
-    /// worker on its own reused canvas (#1490). The spawned-object sheets' common art is then held once (#1513): each
-    /// distinct spawned-object layout keeps the pictures particular to it, and a picture several hold is held on a common
-    /// sheet of its colouring (<see cref="SpawnedObjectSheetSharing"/>). The sheets and variants are then named in set
+    /// whose layouts share an identity paint alike, so each distinct layout is painted and converted as the installation holds
+    /// it once, in parallel, each worker on its own reused canvas (#1490); the picture store writes the pictures (#1635). The
+    /// spawned-object sheets' common art is then held once (#1513): each distinct spawned-object layout keeps the pictures
+    /// particular to it, and a picture several hold is held on a common sheet of its colouring
+    /// (<see cref="SpawnedObjectSheetSharing"/>). The sheets and variants are then named in set
     /// order, the session start's first, whose variants are the standard ones: a sheet or variant the same as an earlier one
     /// takes its name. Each population is then named the variants of the set its rooms draw under.
     /// </summary>
-    internal static EnemySheetComposition Compose(EnemySheetInputs inputs, SheetPictureRegistry pictures)
+    internal static EnemySheetComposition Compose(EnemySheetInputs inputs)
     {
         Ensure.NotNull(inputs);
         var layouts = new List<SpriteSheetLayout>();
@@ -66,13 +68,13 @@ internal static class EnemySheetComposer
                 [.. laid.Sources.Spawned.Select((source, sheet) => new LaidSpawnedSheet(source.Plan, Laid(laid.Spawned[sheet], spawnedLayouts, spawnedLayoutOf),
                     source.LookChanges, source.CorpsePictures, source.Empty))]));
         }
-        var encoded = new EncodedSpriteSheet[layouts.Count];
-        Parallel.For(0, layouts.Count, () => new SpriteSheetEncoder(pictures), (index, _, encoder) =>
+        var installed = new InstalledSheet[layouts.Count];
+        Parallel.For(0, layouts.Count, () => new InstalledSheetPainter(), (index, _, painter) =>
         {
-            encoded[index] = encoder.Encode(layouts[index], $"enemy sheet layout {index}");
-            return encoder;
-        }, encoder => encoder.Dispose());
-        SharedSpawnedSheets shared = SpawnedObjectSheetSharing.Share(spawnedLayouts, pictures);
+            installed[index] = painter.Install(layouts[index]);
+            return painter;
+        }, _ => { });
+        SharedSpawnedSheets shared = SpawnedObjectSheetSharing.Share(spawnedLayouts);
         var names = new SheetNames();
         var variants = new VariantNames<EnemyVariantDocument>(document => JsonSerializer.Serialize(document));
         var spawnedVariants = new VariantNames<SpawnedObjectSheetDocument>(document => JsonSerializer.Serialize(document));
@@ -88,7 +90,7 @@ internal static class EnemySheetComposer
                 string variant = variants.Of(enemy, new EnemyVariantDocument
                 {
                     Enemy = enemy,
-                    Sheet = names.Of(encoded[sheet.Layout], enemy),
+                    Sheet = names.Of(installed[sheet.Layout], enemy),
                     LookChanges = sheet.LookChanges.Count > 0 ? Document(sheet.LookChanges) : null,
                     CorpsePictures = sheet.CorpsePictures.Count > 0 ? Document(sheet.CorpsePictures) : null,
                 }, standard);
@@ -243,14 +245,15 @@ internal static class EnemySheetComposer
     }
 
     /// <summary>
-    /// Names the distinct sheets in the order they are first asked for: a sheet whose files are the same as an earlier
-    /// named sheet's takes its name; otherwise its owner's next ordinal, an enemy's sheets named for the enemy, a
-    /// spawned-object sheet's own pictures for its owner and a common sheet of spawned-object pictures as common (#1513).
+    /// Names the distinct sheets in the order they are first asked for: a sheet whose installed manifest, pixels and maps are
+    /// the same as an earlier named sheet's takes its name; otherwise its owner's next ordinal, an enemy's sheets named for
+    /// the enemy, a spawned-object sheet's own pictures for its owner and a common sheet of spawned-object pictures as common
+    /// (#1513).
     /// </summary>
     private sealed class SheetNames
     {
-        /// <summary>The name each encoded sheet was given.</summary>
-        private readonly Dictionary<EncodedSpriteSheet, string> names = new(ReferenceEqualityComparer.Instance);
+        /// <summary>The name each converted sheet was given.</summary>
+        private readonly Dictionary<InstalledSheet, string> names = new(ReferenceEqualityComparer.Instance);
 
         /// <summary>The name of the sheet with each fingerprint.</summary>
         private readonly Dictionary<string, string> distinct = new(StringComparer.Ordinal);
@@ -259,10 +262,10 @@ internal static class EnemySheetComposer
         private readonly Dictionary<string, int> ordinals = new(StringComparer.Ordinal);
 
         /// <summary>Each distinct sheet by installed name, in the order they were named.</summary>
-        internal Dictionary<string, EncodedSpriteSheet> Sheets { get; } = new(StringComparer.Ordinal);
+        internal Dictionary<string, InstalledSheet> Sheets { get; } = new(StringComparer.Ordinal);
 
         /// <summary>The installed name of <paramref name="sheet"/>, owned by <paramref name="owner"/> when it is new.</summary>
-        internal string Of(EncodedSpriteSheet sheet, string owner)
+        internal string Of(InstalledSheet sheet, string owner)
         {
             if (names.TryGetValue(sheet, out string? known))
                 return known;
@@ -279,11 +282,15 @@ internal static class EnemySheetComposer
             return name;
         }
 
-        /// <summary>A sheet's content hash, which sheets with the same files, maps included, share.</summary>
-        private static string Fingerprint(EncodedSpriteSheet sheet) =>
-            Convert.ToHexString(SHA256.HashData(sheet.Image)) + Convert.ToHexString(SHA256.HashData(sheet.Frames))
-            + "/" + (sheet.RecolourRegions is { } regions ? Convert.ToHexString(SHA256.HashData(regions)) : "none")
-            + "/" + (sheet.BlendMap is { } blending ? Convert.ToHexString(SHA256.HashData(blending)) : "none");
+        /// <summary>A sheet's content hash, which sheets with the same manifest, pixels and maps share.</summary>
+        private static string Fingerprint(InstalledSheet sheet)
+        {
+            SpriteImagePixels pixels = sheet.Pixels;
+            return Convert.ToHexString(SHA256.HashData(SpriteSheetManifestWriter.Write(sheet.Manifest)))
+                + Convert.ToHexString(SHA256.HashData(MemoryMarshal.AsBytes(pixels.Pixels.AsSpan())))
+                + "/" + (pixels.RecolourRegions is { } regions ? Convert.ToHexString(SHA256.HashData(MemoryMarshal.AsBytes(regions.AsSpan()))) : "none")
+                + "/" + (pixels.Blending is { } blending ? Convert.ToHexString(SHA256.HashData(MemoryMarshal.AsBytes(blending.AsSpan()))) : "none");
+        }
     }
 
     /// <summary>

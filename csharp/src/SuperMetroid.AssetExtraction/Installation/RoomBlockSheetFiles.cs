@@ -13,9 +13,10 @@ namespace SuperMetroid.AssetExtraction.Installation;
 
 /// <summary>
 /// Installs the pre-coloured room artwork (#1392, #1466): each tileset's block sheet, the appearance inputs each tileset's
-/// blocks depend on, and each library background's image, each as an image and pictures, with its recolour-region map where it needs one (#1633), the tilemap words
-/// each background pictures with the inputs its changing cells depend on, the written picture sheets with the inputs each
-/// picture depends on, each Ceres tileset's turning floor (#1467), and the provenance of their hashes. A player edits a sheet's or image's installed file in place.
+/// blocks depend on, and each library background's image, each as a sheet manifest whose pictures the installation's picture
+/// store holds (#1635), the tilemap words each background pictures with the inputs its changing cells depend on, the written
+/// picture sheets with the inputs each picture depends on, each Ceres tileset's turning floor (#1467), and the provenance of
+/// their hashes. A player edits a sheet's or image's installed file in place.
 /// </summary>
 public static class RoomBlockSheetFiles
 {
@@ -48,26 +49,19 @@ public static class RoomBlockSheetFiles
     /// <summary>The floor manifest's schema revision: revision 1 names the tilesets whose floors are pictures (#1467).</summary>
     private const int FloorManifestVersion = 1;
 
-    /// <summary>Composes and writes every tileset's block sheet and background image.</summary>
+    /// <summary>
+    /// Composes every tileset's block sheet and background image and writes the manifests of what they picture; the sheets
+    /// are returned for the picture store to write (<see cref="PictureStoreFiles"/>, #1635).
+    /// </summary>
     /// <param name="content">Installed stock content holding the characters, definitions, palettes, tilemaps and uploads the sheets compose from.</param>
-    /// <param name="directory">Destination directory, created if absent.</param>
-    /// <param name="sourceCartridgeSha256">Identity written into the provenance manifest.</param>
-    /// <param name="pictures">The installation's rendered pictures, which refuse a picture rendered twice (#1635).</param>
-    internal static void Extract(string content, string directory, string sourceCartridgeSha256, SheetPictureRegistry pictures)
+    /// <param name="directory">The family's directory, created if absent.</param>
+    internal static InstalledSheetFamily Extract(string content, string directory)
     {
         RoomSheetComposition composition = RoomBlockSheetComposer.Compose(RoomBlockSheetInputs.Load(content));
-        SpriteSheetStore store = SpriteSheetStore.Create(directory, ProvenanceFileName);
+        Directory.CreateDirectory(directory);
         foreach ((TilesetDefinition tileset, RoomBlockAppearances appearances) in composition.BlockAppearances)
             RoomBlockAppearanceFiles.Write(directory, tileset, appearances);
         ComposedWrittenPictureSheet[] writtenSheets = [.. composition.Written.Values, .. composition.OverlayPictures.Values];
-        store.WriteAll([
-            .. composition.BlockSheets.Select(entry => new NamedComposedSheet(RoomBlockSheet.NameOf(entry.Key), entry.Value)),
-            .. composition.Backgrounds.Select(entry => new NamedComposedSheet(entry.Key, entry.Value.Sheet)),
-            .. writtenSheets.Select(written => new NamedComposedSheet(WrittenPictureSheet.NameOf(written.Layer, written.Tileset), written.Sheet)),
-            .. composition.MessageBoxes.Select(entry => new NamedComposedSheet(MessageBoxSheet.NameOf(entry.Key), entry.Value)),
-            .. composition.Floors.Select(entry => new NamedComposedSheet(RoomFloorSheet.NameOf(entry.Key), entry.Value)),
-        ], pictures);
-        store.Finish(sourceCartridgeSha256);
         File.WriteAllBytes(Path.Combine(directory, FloorManifestFileName), JsonSerializer.SerializeToUtf8Bytes(
             new FloorManifest(FloorManifestVersion, [.. composition.Floors.Keys.Select(RoomBlockSheet.NameOf).Order(StringComparer.Ordinal)]),
             JsonOptions));
@@ -80,6 +74,13 @@ public static class RoomBlockSheetFiles
             composition.Backgrounds.ToDictionary(entry => entry.Key, entry => entry.Value.Cells.Select(cell => new CellDocument(cell.Cell, cell.Picture,
                 [.. cell.Inputs.Select(input => input.Token)])).ToArray(), StringComparer.Ordinal));
         File.WriteAllBytes(Path.Combine(directory, BackgroundManifestFileName), JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
+        return InstalledSheetFamily.Install(directory, ProvenanceFileName, [
+            .. composition.BlockSheets.Select(entry => new NamedComposedSheet(RoomBlockSheet.NameOf(entry.Key), entry.Value)),
+            .. composition.Backgrounds.Select(entry => new NamedComposedSheet(entry.Key, entry.Value.Sheet)),
+            .. writtenSheets.Select(written => new NamedComposedSheet(WrittenPictureSheet.NameOf(written.Layer, written.Tileset), written.Sheet)),
+            .. composition.MessageBoxes.Select(entry => new NamedComposedSheet(MessageBoxSheet.NameOf(entry.Key), entry.Value)),
+            .. composition.Floors.Select(entry => new NamedComposedSheet(RoomFloorSheet.NameOf(entry.Key), entry.Value)),
+        ]);
     }
 
     /// <summary>

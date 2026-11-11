@@ -20,7 +20,7 @@ internal static class SpawnedObjectSheetSharing
 {
     /// <summary>The installed sheets <paramref name="layouts"/>, each a distinct laid-out spawned-object sheet, share out to.</summary>
     /// <exception cref="InvalidDataException">A sheet's pictures cannot be cut out, or a sheet does not fit on one image.</exception>
-    internal static SharedSpawnedSheets Share(List<SpriteSheetLayout> layouts, SheetPictureRegistry rendered)
+    internal static SharedSpawnedSheets Share(List<SpriteSheetLayout> layouts)
     {
         Ensure.NotNull(layouts);
         var painted = new PaintedSheet[layouts.Count];
@@ -74,23 +74,23 @@ internal static class SpawnedObjectSheetSharing
             }
         }
         PictureSheetPlan[] plans = [.. common, .. own.OfType<PictureSheetPlan>()];
-        var encoded = new EncodedSpriteSheet[plans.Length];
-        Parallel.For(0, plans.Length, () => new SpriteSheetEncoder(rendered), (index, _, encoder) =>
+        var installed = new InstalledSheet[plans.Length];
+        Parallel.For(0, plans.Length, () => new InstalledSheetPainter(), (index, _, painter) =>
         {
-            encoded[index] = encoder.Encode(plans[index].Layout(), plans[index].Sheet);
-            return encoder;
-        }, encoder => encoder.Dispose());
-        var encodedOf = new Dictionary<PictureSheetPlan, EncodedSpriteSheet>(ReferenceEqualityComparer.Instance);
+            installed[index] = painter.Install(plans[index].Layout());
+            return painter;
+        }, _ => { });
+        var installedOf = new Dictionary<PictureSheetPlan, InstalledSheet>(ReferenceEqualityComparer.Instance);
         for (int index = 0; index < plans.Length; index++)
-            encodedOf.Add(plans[index], encoded[index]);
+            installedOf.Add(plans[index], installed[index]);
         var shares = new SpawnedSheetShare[painted.Length];
         for (int sheet = 0; sheet < painted.Length; sheet++)
         {
-            shares[sheet] = new SpawnedSheetShare(own[sheet] is { } plan ? encodedOf[plan] : null,
+            shares[sheet] = new SpawnedSheetShare(own[sheet] is { } plan ? installedOf[plan] : null,
                 held[sheet].Where(frame => frame.Value.IsCommon)
                     .ToDictionary(frame => frame.Key, frame => frame.Value.CommonSheet, StringComparer.Ordinal));
         }
-        return new SharedSpawnedSheets([.. common.Select(plan => encodedOf[plan])], shares);
+        return new SharedSpawnedSheets([.. common.Select(plan => installedOf[plan])], shares);
     }
 
     /// <summary>One distinct picture the spawned-object sheets hold, and which of them hold it under which frame names.</summary>
@@ -158,7 +158,7 @@ internal static class SpawnedObjectSheetSharing
         /// <summary>Every frame name the pictures are shown as.</summary>
         private readonly HashSet<string> names = new(StringComparer.Ordinal);
 
-        /// <summary>Names the sheet in failures, here and in the installation's rendered pictures (#1635).</summary>
+        /// <summary>Names the sheet in failures.</summary>
         internal string Sheet { get; }
 
         /// <summary>The colouring every picture taken so far agrees on.</summary>

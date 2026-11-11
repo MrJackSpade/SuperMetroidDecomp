@@ -163,11 +163,11 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                 slot.Presence = slot.Presence.With(EnemyPresence.Deleted);
                 return;
             }
-            state.Program = AnimationProgramCursor<RinkaProgram>.Start(RinkaProgram.Special);
+            state.Playback = new(RinkaAnimations.StartingWith(RinkaProgram.Special), AnimationPlace.StartOfAnimation);
         }
         else
         {
-            state.Program = AnimationProgramCursor<RinkaProgram>.Start(RinkaProgram.Ordinary);
+            state.Playback = new(RinkaAnimations.StartingWith(RinkaProgram.Ordinary), AnimationPlace.StartOfAnimation);
         }
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
@@ -301,8 +301,8 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         return true;
     }
 
-    /// <summary>Carries out one cue of the Rinkas' animations: hiding, hiding with off-screen processing, and firing.</summary>
-    private RinkaProgram? ApplyRinkaCue(RoomEnemySlot slot, RinkaEnemyState state, RinkaCue cue)
+    /// <summary>Carries out one event of the Rinkas' animations: hiding, hiding with off-screen processing, and firing.</summary>
+    private static void ApplyRinkaCue(RoomEnemySlot slot, RinkaEnemyState state, RinkaCue cue)
     {
         switch (cue.Kind)
         {
@@ -323,7 +323,6 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
             default:
                 throw new InvalidOperationException($"Undefined {nameof(RinkaCueKind)} {cue.Kind}.");
         }
-        return null;
     }
 
     /// <summary>Releases a special spawn resource and restarts its life unless the room has terminated it.</summary>
@@ -478,9 +477,13 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Rinka's typed animation.</summary>
     internal void AdvanceRinkaTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, RinkaAnimations.Programs, RinkaFrameDefinitions.ShownFrames.Of,
-            static (RinkaEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
-            (state, cue, _) => ApplyRinkaCue(slot, state, cue));
+        EnemyProgramAnimation.Advance(slot, RinkaAnimations.Segments, RinkaFrameDefinitions.ShownFrames.Of,
+            static (RinkaEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            (state, cue) =>
+            {
+                ApplyRinkaCue(slot, state, cue);
+                return null;
+            });
 
     /// <summary>Skips invisible actors and applies the private death lifecycle after power-bomb damage.</summary>
     internal void AddRinkaPowerBombReactions(EnemySharedReactions table)

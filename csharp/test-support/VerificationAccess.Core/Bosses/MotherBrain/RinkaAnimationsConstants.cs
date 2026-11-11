@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Programs;
-using P = SuperMetroid.Core.Bosses.MotherBrain.RinkaProgram;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -9,7 +8,7 @@ internal static class RinkaAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params RinkaProgram[] programs) =>
-        programs.SelectMany(program => RinkaAnimations.Programs.Steps(program))
-            .OfType<AnimationProgramStep<P, RinkaFrame, RinkaCue>.ShowStep>()
-            .Select(step => RinkaFrameToolingDefinitions.Spritemap(step.Frame));
+        programs.SelectMany(program => RinkaAnimations.Segments.Beats(program))
+            .OfType<AnimationBeat<RinkaFrame, RinkaCue>.Frame>()
+            .Select(beat => RinkaFrameToolingDefinitions.Spritemap(beat.Shown));
 }

@@ -10,6 +10,7 @@ using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Frontend.Title;
+using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -39,7 +40,16 @@ public class InstalledAreaMapPresentation : AreaMapPresentation
         IntroFont = Ensure.NotNull(sources.IntroFont);
         EndingFont = Ensure.NotNull(sources.EndingFont);
         TitleGraphics = Ensure.NotNull(sources.TitleGraphics);
+        GameOverSource = Ensure.NotNull(sources.GameOver);
     }
+
+    /// <summary>The game-over page's tiles, compositions and palette selectors, which only the import reads (#1616).</summary>
+    public GameOverSourcePresentation GameOverSource { get; }
+
+    /// <summary>The game-over source presentation the installed presentation <paramref name="maps"/> was read with.</summary>
+    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
+    public static GameOverSourcePresentation GameOverSourceOf(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.GameOverSource
+        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no game-over source presentation.");
 
     /// <summary>The world map's characters, which only the import reads to compose the world-map and menu picture sheets (#1583).</summary>
     public WorldMapCharacters WorldCharacters { get; }

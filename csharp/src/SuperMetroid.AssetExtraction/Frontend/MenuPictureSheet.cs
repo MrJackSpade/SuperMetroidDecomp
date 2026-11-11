@@ -22,7 +22,7 @@ internal static class MenuPictureSheet
     internal static IReadOnlyList<ScreenPictureSubject> Subjects(AreaMapPresentation maps)
     {
         Ensure.NotNull(maps);
-        return [GameOverSourcePresentation.Of(maps.GameOver).PageSubject(), .. GameOptionsSourcePresentation.Of(maps.GameOptions).Subjects(),
+        return [InstalledAreaMapPresentation.GameOverSourceOf(maps).PageSubject(), .. GameOptionsSourcePresentation.Of(maps.GameOptions).Subjects(),
             .. FileSelectSourcePresentation.Of(maps.FileSelect).Subjects()];
     }
 

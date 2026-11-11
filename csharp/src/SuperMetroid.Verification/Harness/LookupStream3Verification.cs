@@ -417,10 +417,10 @@ internal static class LookupStream3Verification
         List<GameOverSpriteDraw> draws =
         [
             .. Enum.GetValues<GameOverBabyFrame>().Select(frame => new GameOverSpriteDraw(GameOverPresentationNames.BabyFrameName(frame),
-                oam => presentation.DrawBaby(oam, GameOverSheet, frame, GameOverBabyPalette.Idle), original.BabyAnchor.X, original.BabyAnchor.Y, presentation.BabyPaletteIndex)),
-            new(GameOverPresentationDefinitions.EggFrame, oam => presentation.DrawEgg(oam, GameOverSheet), original.BabyAnchor.X, original.BabyAnchor.Y, presentation.EggPaletteIndex),
+                oam => presentation.Presentation.DrawBaby(oam, GameOverSheet, frame, GameOverBabyPalette.Idle), original.BabyAnchor.X, original.BabyAnchor.Y, presentation.BabyPaletteIndex)),
+            new(GameOverPresentationDefinitions.EggFrame, oam => presentation.Presentation.DrawEgg(oam, GameOverSheet), original.BabyAnchor.X, original.BabyAnchor.Y, presentation.EggPaletteIndex),
             .. Enumerable.Range(0, GameOverPresentationDefinitions.CursorFrameCount).Select(frame => new GameOverSpriteDraw(
-                GameOverPresentationNames.CursorFrameName(frame), oam => presentation.DrawCursor(oam, GameOverSheet, frame, false),
+                GameOverPresentationNames.CursorFrameName(frame), oam => presentation.Presentation.DrawCursor(oam, GameOverSheet, frame, false),
                 original.CursorX, original.YesCursorY, presentation.CursorPaletteIndex)),
         ];
         foreach (GameOverSpriteDraw draw in draws)

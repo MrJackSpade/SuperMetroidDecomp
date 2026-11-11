@@ -43,7 +43,7 @@ public sealed record GameArtwork : IGameplayArtwork
     /// <inheritdoc/>
     IGameplayPresentationContent? IGameplayArtwork.MapPresentation => MapPresentation;
 
-    /// <summary>Intro, Ceres destruction and Ceres flight artwork.</summary>
+    /// <summary>The opening's and the Ceres scenes' backdrops and actor placements; their pictures are the sprite sheets (#1616).</summary>
     public IntroCinematicArtwork? IntroCinematicArt { get; init; }
 
     /// <summary>Samus body tiles, palettes and death palettes.</summary>

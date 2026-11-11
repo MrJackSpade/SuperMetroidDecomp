@@ -46,11 +46,11 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Carries out one cue of the Yard's animations. Repeating the previous pose resumes at the pose shown just before the
-    /// cue, as the cue steps the program back one pose; every other cue runs on.
+    /// Carries out one cue of the Yard's animations. Repeating the previous pose continues <paramref name="playing"/> at the
+    /// pose shown just before the cue, as the cue steps the animation back one pose; every other cue plays on.
     /// </summary>
-    private AnimationProgramCursor<YardProgram>? ApplyYardCue(
-        RoomEnemySlot slot, YardEnemyState state, YardCue cue, AnimationProgramCursor<YardProgram> continuation)
+    private AnimationContinuation<YardProgram>? ApplyYardCue(
+        RoomEnemySlot slot, YardEnemyState state, YardCue cue, Animation<YardProgram> playing)
     {
         switch (cue)
         {
@@ -71,14 +71,36 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             case YardCue.Command { Kind: YardCueKind.RepeatPreviousPoseUnlessContinuing }:
                 if (state.Behavior != YardBehavior.Hiding && !YardDecisions.RepeatPreviousPose.IsSetIn(_room.Random.Generate()))
                     return null;
-                // The pose record sits immediately before this cue in every authored list.
-                AnimationProgramCursor<YardProgram> previous = continuation with { Position = continuation.Position - 2 };
-                return YardAnimations.Programs.Steps(previous.Program)[previous.Position] is AnimationProgramStep<YardProgram, YardFrame, YardCue>.ShowStep
-                    ? previous
-                    : throw new InvalidDataException($"Yard repeat cue in {previous.Program} does not follow a pose.");
+                return new AnimationContinuation<YardProgram>(playing, PoseBeforeRepeatCue(playing));
             default:
                 throw new InvalidOperationException($"Undefined {nameof(YardCueKind)} {cue}.");
         }
+    }
+
+    /// <summary>
+    /// The place of <paramref name="playing"/> whose next beat is the pose just before its repeat cue: the animation plays
+    /// one phase with that cue, and the pose sits immediately before it in every authored segment.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The animation has no single repeat cue, or the cue does not follow a pose.</exception>
+    private static AnimationPlace PoseBeforeRepeatCue(Animation<YardProgram> playing)
+    {
+        AnimationPlace? found = null;
+        for (int phase = 0; phase < playing.Phases.Count; phase++)
+        {
+            AnimationPhase<YardProgram> run = playing.Phases[phase];
+            IReadOnlyList<AnimationBeat<YardFrame, YardCue>> beats = YardAnimations.Segments.Beats(run.Segment);
+            for (int beat = 0; beat < run.BeatCount; beat++)
+            {
+                if (beats[run.FirstBeat + beat] is not AnimationBeat<YardFrame, YardCue>.Event { Raised: YardCue.Command { Kind: YardCueKind.RepeatPreviousPoseUnlessContinuing } })
+                    continue;
+                if (found is not null)
+                    throw new InvalidDataException($"A Yard animation through {run.Segment} has more than one repeat cue.");
+                if (beat == 0 || beats[run.FirstBeat + beat - 1] is not AnimationBeat<YardFrame, YardCue>.Frame)
+                    throw new InvalidDataException($"Yard repeat cue in {run.Segment} does not follow a pose.");
+                found = new AnimationPlace(phase, beat - 1);
+            }
+        }
+        return found ?? throw new InvalidDataException("A Yard animation raised a repeat cue it does not play.");
     }
 
     /// <summary>Initializes the Yard.</summary>
@@ -104,7 +126,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.FrameHold = WrappingCountdown.Start(1);
 
         YardDirectionDefinition definition = YardDirections.ForDirection(direction);
-        state.Program = AnimationProgramCursor<YardProgram>.Start(definition.CrawlingProgram);
+        state.Playback = new(YardAnimations.StartingWith(definition.CrawlingProgram), AnimationPlace.StartOfAnimation);
         state.BlockSide = definition.BlockSide;
         state.HidingProgram = definition.HidingProgram;
         state.AirborneFacingDirection = definition.AirborneFacingDirection;
@@ -187,7 +209,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             if (state.HidingProgram is { } hiding)
             {
-                state.Program = AnimationProgramCursor<YardProgram>.Start(hiding);
+                state.Playback = new(YardAnimations.StartingWith(hiding), AnimationPlace.StartOfAnimation);
                 slot.Frame = EnemyFrameId.Empty;
                 slot.FrameHold = WrappingCountdown.Start(1);
                 slot.Timer = WrappingCountdown.Start(0);
@@ -361,7 +383,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         YardEnemyState state,
         YardProgram program)
     {
-        state.Program = AnimationProgramCursor<YardProgram>.Start(program);
+        state.Playback = new(YardAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         state.TurnTransitionDisabled = true;
         state.TurnTransitionDisableCounter = 0;
@@ -463,8 +485,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         state.CrawlingVelocity = state.BlockSide == CrawlerSurfaceOrientation.UpsideRight ? landing.ReversedX() : landing;
         slot.Frame = EnemyFrameId.Empty;
         state.MovementFunction = YardMovementFunction.InstructionPending;
-        state.Program = AnimationProgramCursor<YardProgram>.Start(state.HidingProgram ??
-            throw new InvalidDataException("A landing Yard has no hiding animation to resume."));
+        state.Playback = new(YardAnimations.StartingWith(state.HidingProgram ??
+            throw new InvalidDataException("A landing Yard has no hiding animation to resume.")), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
@@ -476,7 +498,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         YardAirborneInstructionDefinition definition =
             YardDirections.ForAirborneFacing(state.AirborneFacingDirection);
-        state.Program = AnimationProgramCursor<YardProgram>.Start(definition.VisibleProgram);
+        state.Playback = new(YardAnimations.StartingWith(definition.VisibleProgram), AnimationPlace.StartOfAnimation);
         state.HidingProgram = definition.HidingProgram;
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
@@ -505,7 +527,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.Direction = YardDirections.ForDirection(state.Direction).OppositeDirection;
         YardDirectionDefinition definition = YardDirections.ForDirection(state.Direction);
-        state.Program = AnimationProgramCursor<YardProgram>.Start(definition.CrawlingProgram);
+        state.Playback = new(YardAnimations.StartingWith(definition.CrawlingProgram), AnimationPlace.StartOfAnimation);
         state.BlockSide = definition.BlockSide;
         state.HidingProgram = definition.HidingProgram;
         state.AirborneFacingDirection = definition.AirborneFacingDirection;
@@ -634,10 +656,12 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EnemyProgramAnimation.Expire(slot))
             return;
         var state = slot.RequireSpeciesState<YardEnemyState>();
-        AnimationProgramCursor<YardProgram> cursor = state.Program;
-        EnemyProgramAnimation.RunTo(slot, YardAnimations.Programs, ref cursor, YardFrameDefinitions.ShownFrames.Of,
-                (cue, continuation) => ApplyYardCue(slot, state, cue, continuation));
-        state.Program = cursor;
+        AnimationPlayback<YardProgram> playback = state.Playback;
+        // Only the repeat cue continues elsewhere, and it continues in the animation already playing.
+        Animation<YardProgram> playing = playback.Animation;
+        EnemyProgramAnimation.Play(slot, YardAnimations.Segments, ref playback, YardFrameDefinitions.ShownFrames.Of,
+            cue => ApplyYardCue(slot, state, cue, playing));
+        state.Playback = playback;
     }
 
     /// <summary>Routes Yard shots through its custom launch branch before common vulnerability damage.</summary>

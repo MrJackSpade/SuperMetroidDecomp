@@ -9,7 +9,7 @@ internal static class YardAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params YardProgram[] programs) =>
-        programs.SelectMany(program => YardAnimations.Programs.Steps(program))
-            .OfType<AnimationProgramStep<P, YardFrame, YardCue>.ShowStep>()
-            .Select(step => YardFrameToolingDefinitions.Spritemap(step.Frame));
+        programs.SelectMany(program => YardAnimations.Segments.Beats(program))
+            .OfType<AnimationBeat<YardFrame, YardCue>.Frame>()
+            .Select(frame => YardFrameToolingDefinitions.Spritemap(frame.Shown));
 }

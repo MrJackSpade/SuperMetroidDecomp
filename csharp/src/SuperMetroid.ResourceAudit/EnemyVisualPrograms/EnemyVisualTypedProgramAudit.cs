@@ -318,7 +318,7 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(WorkRobotAnimations), "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotAnimations.cs");
         RequireSegmentFrames(ShaktoolAnimations.Segments, ShaktoolFrameToolingDefinitions.Spritemap, ShaktoolFrameToolingDefinitions.Bank,
             nameof(ShaktoolAnimations), "csharp/src/SuperMetroid.Core/Enemies/Shaktool/ShaktoolAnimations.cs");
-        RequireTypedFrames(YardAnimations.Programs, YardFrameToolingDefinitions.Spritemap, YardFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(YardAnimations.Segments, YardFrameToolingDefinitions.Spritemap, YardFrameToolingDefinitions.Bank,
             nameof(YardAnimations), "csharp/src/SuperMetroid.Core/Enemies/Yard/YardAnimations.cs");
         RequireTypedFrames(KiHunterAnimations.Programs, KiHunterFrameToolingDefinitions.Spritemap, KiHunterFrameToolingDefinitions.Bank,
             nameof(KiHunterAnimations), "csharp/src/SuperMetroid.Core/Enemies/KiHunters/KiHunterAnimations.cs");

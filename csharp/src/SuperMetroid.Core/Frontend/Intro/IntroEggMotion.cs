@@ -41,10 +41,11 @@ internal static class IntroEggMotion
             throw new ArgumentOutOfRangeException(nameof(frame));
         int prefix = negativeGroups * 7;
         if (frame >= prefix)
-            return Split((frame - prefix) * GravityStep);
+            return GravityStep * (frame - prefix);
+        // Each group of seven frames starts on a whole pixel, then the rest of the group falls back from the next
+        // pixel by an eighth of a pixel a frame.
         int within = frame % 7;
-        int fraction = within == 0 ? 0 : OnePixel - GravityStep - within * GravityStep;
-        return Split((frame / 7 - negativeGroups) * OnePixel + fraction);
+        return SignedSixteenSixteen.FromWholePixels(frame / 7 - negativeGroups) + GravityStep * (within == 0 ? 0 : 7 - within);
     }
 
     /// <summary>

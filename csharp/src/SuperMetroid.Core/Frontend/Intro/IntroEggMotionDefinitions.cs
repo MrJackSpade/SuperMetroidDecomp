@@ -45,11 +45,8 @@ internal static class IntroEggMotionDefinitions
     /// <summary>The screen row a falling shell fragment is deleted at once its position reaches it.</summary>
     internal const int FragmentFloorY = 168;
 
-    /// <summary>The gravity curves' step, an eighth of a pixel per frame in 16.16.</summary>
-    internal const int GravityStep = 8192;
-
-    /// <summary>One whole pixel in 16.16.</summary>
-    internal const int OnePixel = 65536;
+    /// <summary>The gravity curves' step: an eighth of a pixel per frame.</summary>
+    internal static SignedSixteenSixteen GravityStep { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(2);
 
     /// <summary>The values <see cref="IntroEggMotion.SlimeX"/> selects, in index order.</summary>
     internal static readonly SignedSixteenSixteen[] SlimeXVelocities =
@@ -60,7 +57,4 @@ internal static class IntroEggMotionDefinitions
         SignedSixteenSixteen.FromSixteenthsOfPixel(8),
         SignedSixteenSixteen.FromSixteenthsOfPixel(-8),
     ];
-
-    /// <summary>One signed fixed-point step.</summary>
-    internal static SignedSixteenSixteen Split(int value) => SignedSixteenSixteen.FromRaw(value);
 }

@@ -10,5 +10,5 @@ internal readonly record struct CeresFlightActorDefinition(
     Position16<ScreenPixels> Position,
     CeresSpriteColouring Colouring,
     SignedEightEight InitialVelocity,
-    int HorizontalDelta,
+    SignedSixteenSixteen HorizontalDelta,
     bool WrapX);

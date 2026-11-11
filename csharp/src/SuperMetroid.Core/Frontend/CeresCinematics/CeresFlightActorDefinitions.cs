@@ -32,7 +32,7 @@ internal static class CeresFlightActorDefinitions
         Position: new(112, 87),
         Colouring: CeresSpriteColouring.SpaceObjects,
         InitialVelocity: SignedEightEight.FromSignedRaw(-1024),
-        HorizontalDelta: 0,
+        HorizontalDelta: SignedSixteenSixteen.Zero,
         WrapX: false);
 
     /// <summary>The large asteroids of the Ceres explosion.
@@ -40,21 +40,21 @@ internal static class CeresFlightActorDefinitions
     /// its animation is the large-asteroid loop. The destruction scene substitutes its own definition and animation.</summary>
     internal static CeresFlightActorDefinition LargeAsteroids =>
         new(CinematicSpriteFrameBehavior.CeresLargeAsteroids, CinematicSpriteProgram.CeresLargeAsteroid,
-            new(80, 159), CeresSpriteColouring.SpaceObjects, SignedEightEight.Zero, 16384, true);
+            new(80, 159), CeresSpriteColouring.SpaceObjects, SignedEightEight.Zero, SignedSixteenSixteen.FromSixteenthsOfPixel(4), true);
 
     /// <summary>The space station under attack.
     /// Its initializer places it at (116,160) in the station's colours; its callback adds 1/16 pixel, wrapping X past 511;
     /// its animation is the station-under-attack loop.</summary>
     internal static CeresFlightActorDefinition StationUnderAttack =>
         new(CinematicSpriteFrameBehavior.CeresUnderAttack, CinematicSpriteProgram.CeresUnderAttack,
-            new(116, 160), CeresSpriteColouring.Station, SignedEightEight.Zero, 4096, true);
+            new(116, 160), CeresSpriteColouring.Station, SignedEightEight.Zero, SignedSixteenSixteen.FromSixteenthsOfPixel(1), true);
 
     /// <summary>The small asteroids around Ceres.
     /// Its initializer places it at (128,96), palette0800; its callback adds 1/32 pixel with nine-bit X wrap;
     /// its animation is the small-asteroid loop. Both Ceres scenes share this identity.</summary>
     internal static CeresFlightActorDefinition SmallAsteroids =>
         new(CinematicSpriteFrameBehavior.CeresSmallAsteroid, CinematicSpriteProgram.CeresSmallAsteroid,
-            new(128, 96), CeresSpriteColouring.SpaceObjects, SignedEightEight.Zero, 2048, true);
+            new(128, 96), CeresSpriteColouring.SpaceObjects, SignedEightEight.Zero, SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(8), true);
 
     /// <summary>The purple space vortex, parameter1.
     /// Its initializer takes the nonzero branch to (224,87), palette0800, preserving the moving callback;
@@ -74,7 +74,7 @@ internal static class CeresFlightActorDefinitions
         HorizontalDelta = VortexHorizontalDelta,
     };
 
-    /// <summary>The drifting callback's subtraction: signed16.16 movement of -1/8 pixel,
-    /// with borrow into the whole X word and no nine-bit mask.</summary>
-    private const int VortexHorizontalDelta = -8192;
+    /// <summary>The drifting callback's movement: an eighth of a pixel leftward, borrowing into the whole X, with no
+    /// nine-bit wrap.</summary>
+    private static SignedSixteenSixteen VortexHorizontalDelta { get; } = -SignedSixteenSixteen.FromSixteenthsOfPixel(2);
 }

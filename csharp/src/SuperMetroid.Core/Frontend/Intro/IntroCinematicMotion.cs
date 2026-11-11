@@ -4,15 +4,11 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal static class IntroCinematicMotion
 {
     /// <summary>
-    /// Adds a fraction of a pixel alone to one axis: <paramref name="fraction"/>, 0 through 65535 sixty-fifth-thousandths
-    /// of a pixel, carries into the whole pixel and nothing else is added to it.
+    /// Adds only the fraction of <paramref name="delta"/> to one axis: the fraction carries into the whole pixel and
+    /// nothing else is added to it, so a leftward delta, whose fraction is the rest of a pixel, moves the axis right.
     /// </summary>
-    public static FixedCoordinate AddFraction(FixedCoordinate position, int fraction) =>
-        position.MovedBy(SignedSixteenSixteen.FromParts(0, fraction));
-
-    /// <summary>Adds a signed 16.16 delta, in 1/65536 pixel, to one axis.</summary>
-    public static FixedCoordinate AddSignedSixteenSixteen(FixedCoordinate position, int fixedDelta) =>
-        position.MovedBy(SignedSixteenSixteen.FromRaw(fixedDelta));
+    public static FixedCoordinate AddFraction(FixedCoordinate position, SignedSixteenSixteen delta) =>
+        position.MovedBy(SignedSixteenSixteen.FromParts(0, delta.Fraction));
 
     /// <summary>Adds a signed 8.8 velocity to one axis.</summary>
     public static FixedCoordinate AddEightEight(

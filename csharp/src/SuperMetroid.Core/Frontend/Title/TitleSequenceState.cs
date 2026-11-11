@@ -212,22 +212,19 @@ public sealed class TitleSequenceState : IFrontendScreen
                 break;
 
             case TitleSequencePhase.SceneZeroPan:
-                panPosition = panPosition.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(
-                    panPosition.X, -TitleSequenceDefinitions.Scenes.PanVelocity16Point16));
+                panPosition = panPosition.WithX(panPosition.X.MovedBy(-TitleSequenceDefinitions.Scenes.PanVelocity));
                 if (CoordinateAxis.AsSigned(panPosition.X.Whole) < TitleSequenceDefinitions.Scenes.SceneZeroEndX)
                     BeginTextSequence(TitleSequenceDefinitions.TextSequences.Nintendo);
                 break;
 
             case TitleSequencePhase.SceneOnePan:
-                panPosition = panPosition.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(
-                    panPosition.X, -TitleSequenceDefinitions.Scenes.PanVelocity16Point16));
+                panPosition = panPosition.WithX(panPosition.X.MovedBy(-TitleSequenceDefinitions.Scenes.PanVelocity));
                 if (CoordinateAxis.AsSigned(panPosition.X.Whole) < TitleSequenceDefinitions.Scenes.SceneOneEndX)
                     BeginTextSequence(TitleSequenceDefinitions.TextSequences.Presents);
                 break;
 
             case TitleSequencePhase.SceneTwoPan:
-                panPosition = panPosition.WithY(IntroCinematicMotion.AddSignedSixteenSixteen(
-                    panPosition.Y, TitleSequenceDefinitions.Scenes.PanVelocity16Point16));
+                panPosition = panPosition.WithY(panPosition.Y.MovedBy(TitleSequenceDefinitions.Scenes.PanVelocity));
                 if (CoordinateAxis.AsSigned(panPosition.Y.Whole) >= TitleSequenceDefinitions.Scenes.SceneTwoEndY)
                     BeginTextSequence(TitleSequenceDefinitions.TextSequences.MetroidThree);
                 break;

@@ -281,7 +281,7 @@ internal sealed class IntroCeresFlightState
 
         // The rear view drifts left by an eighth of a pixel and grows the rear-of-gunship turning
         // image in two bands: +16 until 3072, then +32 until 8192.
-        background = background.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(background.X, -SixteenSixteen.FromWhole(1) / 8));
+        background = background.WithX(background.X.MovedBy(-SignedSixteenSixteen.FromSixteenthsOfPixel(2)));
         if (zoom < 3072)
             zoom += 16;
         else if (zoom < 8192)
@@ -375,18 +375,18 @@ internal sealed class IntroCeresFlightState
     }
 
     /// <summary>Adds a fractional X delta and wraps the actor within the 512-pixel span.</summary>
-    private static void AddWrappedX(IntroDiscoverySprite actor, int horizontalDelta)
+    private static void AddWrappedX(IntroDiscoverySprite actor, SignedSixteenSixteen horizontalDelta)
     {
         // The wrapping star field adds only the delta's fraction, with nothing in the whole pixel: a leftward delta,
         // whose fraction is the rest of a pixel, carries the actor right instead.
-        FixedCoordinate x = IntroCinematicMotion.AddFraction(actor.Position.X, SignedSixteenSixteen.FromRaw(horizontalDelta).Fraction);
+        FixedCoordinate x = IntroCinematicMotion.AddFraction(actor.Position.X, horizontalDelta);
         actor.Position = actor.Position.WithX(x.WithWhole(CoordinateAxis.Wrap(x.Whole % CeresDestructionSceneDefinitions.WorldWidth)));
     }
 
-    /// <summary>Applies signed 16.16 horizontal motion without the front-star wrap.</summary>
-    private static void AddSignedX(IntroDiscoverySprite actor, int fixedDelta)
+    /// <summary>Applies signed horizontal motion without the front-star wrap.</summary>
+    private static void AddSignedX(IntroDiscoverySprite actor, SignedSixteenSixteen delta)
     {
-        actor.Position = actor.Position.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(actor.Position.X, fixedDelta));
+        actor.Position = actor.Position.WithX(actor.Position.X.MovedBy(delta));
     }
 
     /// <summary>Accelerates the front stars and both turning-floor scroll offsets along the same diagonal.</summary>

@@ -25,7 +25,7 @@ internal static class CeresInitialActorMetadataVerification
             // The spawn operand names the native definition this compiled actor must match.
             VerifyActor(retail, CartridgeImportSource.Require(retail).ReadCartridgeWord(spawnOperands[index]), actor,
                 preservesDefinitionCallback: index != 2, $"initial destruction actor {index}");
-            AssertEqual(0, actor.SlideAcceleration, "destruction actor has no slide acceleration");
+            AssertEqual(SignedEightEight.Zero, actor.SlideAcceleration, "destruction actor has no slide acceleration");
             AssertEqual((ushort)0, actor.SlideFrameBehavior.NativeAddress, "destruction actor has no slide callback");
             AssertEqual(false, actor.CompletesScene, "destruction actor does not own Zebes completion");
         }
@@ -43,7 +43,7 @@ internal static class CeresInitialActorMetadataVerification
         AssertEqual((byte)0xa9, retail.ReadCartridgeByte(0x8bc292), "stationary vortex parameter opcode");
         AssertEqual((ushort)0, CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bc293), "stationary vortex parameter zero");
         AssertEqual((byte)0x60, retail.ReadCartridgeByte(0x8b0000 | vortex.ActiveFrameBehavior.NativeAddress), "stationary vortex RTS");
-        AssertEqual(0, vortex.HorizontalDelta, "stationary vortex has no displacement");
+        AssertEqual(SignedSixteenSixteen.Zero, vortex.HorizontalDelta, "stationary vortex has no displacement");
         AssertEqual(false, vortex.WrapX, "stationary vortex has no wrap operation");
         foreach (int index in new[] { int.MinValue, -1, 3, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(
@@ -76,7 +76,7 @@ internal static class CeresInitialActorMetadataVerification
             AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.YWord), actor.Position.Y, $"{name} Y");
             PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.AttributeWord), CeresSheetInks.SpriteSet(actor.Colouring),
                 $"{name} attributes");
-            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.DeltaWord), unchecked((ushort)actor.HorizontalDelta),
+            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.DeltaWord), actor.HorizontalDelta.Fraction,
                 $"{name} speed");
             AssertEqual((ushort)0x01ff, CartridgeImportSource.Require(source).ReadCartridgeWord(fields.MaskWord), $"{name} wrap mask");
             AssertTrue(actor.WrapX, $"{name} uses 512-pixel wrapping motion");

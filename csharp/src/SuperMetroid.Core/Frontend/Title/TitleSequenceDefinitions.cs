@@ -59,8 +59,8 @@ public static class TitleSequenceDefinitions
         /// <summary>The final zoom: zoom 67 with no background offset.</summary>
         public static readonly TitleFloorSceneDefinition SceneThree =
             new(TitleSequencePhase.SceneThreeZoom, 67, new(0, 0));
-        /// <summary>The pan speed, 1.5 pixels per update in 1/65536 pixels; scenes zero and one pan left, scene two down.</summary>
-        public const int PanVelocity16Point16 = 98304;
+        /// <summary>The pan speed, 1.5 pixels per update; scenes zero and one pan left, scene two down.</summary>
+        public static SignedSixteenSixteen PanVelocity { get; } = SignedSixteenSixteen.FromParts(1, 32768);
         /// <summary>The lower pan's X threshold, -7 pixels; passing it starts the Nintendo card.</summary>
         public const int SceneZeroEndX = -7;
         /// <summary>The upper pan's X threshold, -176 pixels; passing it starts the Presents card.</summary>

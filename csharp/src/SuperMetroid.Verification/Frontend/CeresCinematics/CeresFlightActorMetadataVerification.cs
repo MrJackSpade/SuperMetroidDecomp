@@ -55,7 +55,7 @@ internal static class CeresFlightActorMetadataVerification
                     PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfc0), CeresSheetInks.SpriteSet(actor.Colouring),
                         "rear vortex attributes");
                     AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfcb),
-                        unchecked((ushort)-actor.HorizontalDelta), "rear vortex speed magnitude");
+                        (-actor.HorizontalDelta).Fraction, "rear vortex speed magnitude");
                     AssertTrue(!actor.WrapX, "rear vortex uses signed non-wrapping motion");
                     break;
                 case 4:
@@ -66,7 +66,7 @@ internal static class CeresFlightActorMetadataVerification
                     AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe9d), actor.ActiveFrameBehavior.NativeAddress,
                         "rear stars initializer callback override");
                     AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfcb),
-                        unchecked((ushort)-actor.HorizontalDelta), "rear stars speed magnitude");
+                        (-actor.HorizontalDelta).Fraction, "rear stars speed magnitude");
                     AssertTrue(!actor.WrapX, "rear stars use signed non-wrapping motion");
                     break;
                 default:
@@ -87,7 +87,7 @@ internal static class CeresFlightActorMetadataVerification
         AssertEqual(front.Program, CeresFlightActors.RearViewActor(4).Program, "front/rear program alias");
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((ActorBank | (frontDefinition + 2))),
             front.ActiveFrameBehavior.NativeAddress, "front stars preserve the definition callback");
-        AssertEqual(0, front.HorizontalDelta, "front stars have callback-driven acceleration instead of fixed X velocity");
+        AssertEqual(SignedSixteenSixteen.Zero, front.HorizontalDelta, "front stars have callback-driven acceleration instead of fixed X velocity");
         AssertEqual(false, front.WrapX, "front stars have no nine-bit wrap");
         static void VerifyActor(
             ISnesAddressSpace source,
@@ -110,7 +110,7 @@ internal static class CeresFlightActorMetadataVerification
             AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.YWord), actor.Position.Y, $"{name} Y");
             PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.AttributeWord), CeresSheetInks.SpriteSet(actor.Colouring),
                 $"{name} attributes");
-            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.DeltaWord), unchecked((ushort)actor.HorizontalDelta),
+            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.DeltaWord), actor.HorizontalDelta.Fraction,
                 $"{name} speed");
             AssertEqual((ushort)0x01ff, CartridgeImportSource.Require(source).ReadCartridgeWord(fields.MaskWord), $"{name} wrap mask");
             AssertTrue(actor.WrapX, $"{name} uses 512-pixel wrapping motion");

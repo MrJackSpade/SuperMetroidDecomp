@@ -10,7 +10,7 @@ public enum BeetomEnemyFunction
 {
     /// <summary>Selects the near or distant decision entry from a strict 96-pixel horizontal proximity check.</summary>
     DecideAction = 1,
-    /// <summary>Advances the shared RNG and selects an idle or hop setup, storing the low bit as direction.</summary>
+    /// <summary>Advances the shared RNG and selects an idle or hop setup, facing right when the choice is odd.</summary>
     DecideActionSamusNotInProximity,
     /// <summary>Loads a 32-update timer and enters the stationary countdown on the next gameplay frame.</summary>
     StartIdling,

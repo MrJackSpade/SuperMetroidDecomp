@@ -16,7 +16,7 @@ public static class EnemyQuadraticSpeeds
 
     /// <summary>
     /// Row <paramref name="row"/>: the triangle number in 256ths of a pixel, its fraction widened by
-    /// <see cref="FractionMultiplier"/> with the carry past the fraction dropped, and that speed negated.
+    /// <see cref="FractionMultiplier"/> with the whole pixels the widening adds dropped, and that speed negated.
     /// </summary>
     private static EnemyQuadraticSpeedRow Build(int row)
     {

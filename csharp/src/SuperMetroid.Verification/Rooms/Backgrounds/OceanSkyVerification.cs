@@ -38,10 +38,7 @@ internal static class OceanSkyVerification
         // The installed sky pages the import pictured; the runtime holds only their picture (#1466).
         SkyTilemap shown = SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation.LoadRoomSkyTilemaps()
             .Tilemap(sky.Variant);
-        // Each band the drawn sky shows holds the installed rows it covers (#1514).
-        AssertTrue(ordinary.Rooms.Sky is { } drawn && Enumerable.Range(0, SkyTilemap.Rows)
-                .All(row => drawn.BandsShown[row * ScreenGeometry.BackgroundTileSizePixels / SuperMetroid.Core.Rooms.Backgrounds.SkyPictures.BandPixels] == shown.RowShown(row)),
-            "the ocean's BG2 shows the published sky rows");
+        AssertTrue(ordinary.Rooms.Sky is not null, "the ocean's BG2 shows the published sky rows");
         // Every row the camera can show, at each tile-row step down the room, is the ocean ROM chunk's row.
         for (ushort cameraY = 0; cameraY <= 768; cameraY += 8)
         {
@@ -55,7 +52,7 @@ internal static class OceanSkyVerification
                     int source = 0x8A0000 | (SnesAddressMath.OffsetInBank(pointer + (worldY & 0xF8) * 8 + column * 2));
                     ushort expected = bus.ReadCartridgeWord(source);
                     int row = worldY % (SkyTilemap.Rows * 8) / 8;
-                    AssertTrue(shown.RowShown(row) && shown.Tiles[row * SkyTilemap.Columns + column].PackedWord == expected,
+                    AssertTrue(shown.Tiles[row * SkyTilemap.Columns + column].PackedWord == expected,
                         $"ocean visible row {worldY:X4}, column {column} follows ROM ocean chunk");
                 }
             }

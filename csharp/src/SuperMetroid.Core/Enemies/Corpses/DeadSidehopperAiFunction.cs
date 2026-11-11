@@ -22,6 +22,6 @@ public enum DeadSidehopperAiFunction
     WaitForSamusCollision,
     /// <summary>Increments the retained contact-delay counter to sixteen before starting rotting and rejecting normal interaction.</summary>
     PreRotDelay,
-    /// <summary>Runs the shared staggered pixel-row scheduler and submits the configured tile transfers, including on the completion call.</summary>
+    /// <summary>Runs the shared staggered pixel-row scheduler and shows the rotted rows, including on the completion call.</summary>
     Rotting,
 }

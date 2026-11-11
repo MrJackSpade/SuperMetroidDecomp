@@ -207,7 +207,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.AdvanceY(state.MovingDown ? state.DownVelocity : state.UpVelocity);
 
         // The countdown expires through zero, so zero expires immediately into -1. Every later reset uses the
-        // unshifted high parameter byte, despite initialization's unrelated aliasing bug.
+        // whole authored direction-change period, whatever first half-cycle initialization's aliasing bug chose.
         if (--state.MovementTimer < 0)
         {
             state.MovementTimer = slot.SpawnSettings<EvirSpawnSettings>().DirectionChangePeriod;

@@ -460,7 +460,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Preserve the original laser viewport bug. Its final Y comparison omits
         // the camera's Y, so lasers only request sound while their owner's absolute
-        // top edge is above scanline 224, even when a lower room row is on screen.
+        // top edge is less than 224 pixels from the room's top, even when a lower room row is on screen.
         bool horizontallyVisible =
             CoordinateAxis.AsSigned(robot.Position.X.Whole + robot.Radius.X - camera.X) >= 0 &&
             CoordinateAxis.Difference(robot.Position.X.Whole - robot.Radius.X - 257, camera.X) < 0;

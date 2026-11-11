@@ -12,7 +12,7 @@ internal enum DeadTorizoFunction
     /// <summary>Counts the contact delay before entering the rotting phase.</summary>
     PreRot,
 
-    /// <summary>Advances row rot, sand-line copies, and tile transfer phases.</summary>
+    /// <summary>Advances row rot, sand-line copies, and the phases that show the rotted rows.</summary>
     Rotting,
 
     /// <summary>Leaves the finished corpse slot inert.</summary>

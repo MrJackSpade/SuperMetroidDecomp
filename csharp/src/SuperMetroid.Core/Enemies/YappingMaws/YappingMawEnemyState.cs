@@ -52,7 +52,7 @@ public sealed class YappingMawEnemyState
     /// <summary><see cref="AimAngle"/> in the table convention; rotates the curled link corrections.</summary>
     public RotationAngle CurlAngle { get; internal set; }
 
-    /// <summary>Variable 2F: whether the tongue bends the mirrored way, which it does when the curl angle lies in the turn's second half.</summary>
+    /// <summary>Whether the tongue bends the mirrored way, which it does when the curl angle lies in the turn's second half.</summary>
     public bool MirroredBend { get; internal set; }
 
     /// <summary>
@@ -81,7 +81,7 @@ public sealed class YappingMawEnemyState
     /// </summary>
     internal EnemySpeedSign QuadraticSpeedSign { get; set; }
 
-    /// <summary>Variable E: 64-frame hold after the tongue fully retracts.</summary>
+    /// <summary>64-frame hold after the tongue fully retracts.</summary>
     public int RetractedDelayTimer { get; internal set; }
 
     /// <summary>
@@ -98,7 +98,7 @@ public sealed class YappingMawEnemyState
     internal bool IsWithinActivationDistance(int distance) =>
         CoordinateAxis.Difference(distance, ActivationDistance) < 0;
 
-    /// <summary>Variable 30: the mouth currently owns Samus's input/position.</summary>
+    /// <summary>Whether the mouth currently holds Samus, owning her input and position.</summary>
     public bool HasGrabbedSamus { get; internal set; }
 
     /// <summary>Signed whole room-pixel offset from the moving mouth to captive Samus, selected by aiming/animation cues.</summary>
@@ -108,8 +108,8 @@ public sealed class YappingMawEnemyState
     public YappingMawAim Aim { get; internal set; }
 
     /// <summary>
-    /// Variable 35. Main AI decrements it unconditionally; touch may grab only while
-    /// its sign bit is set. Values 48 and zero therefore form real cooldown states, not bools.
+    /// The grab cooldown. Main AI decrements it unconditionally; touch may grab only while
+    /// it is negative. Values 48 and zero therefore form real cooldown states, not bools.
     /// </summary>
     public WrappingCountdown GrabCooldown { get; internal set; }
 

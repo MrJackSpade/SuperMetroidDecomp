@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
 /// The room-object headers that install coloured and grey doors, and the door each installs (#1414: named by member, replacing
-/// the header range and six-byte stride the room-object headers implied). A header absent here installs no
+/// the header ranges the room-object headers implied). A header absent here installs no
 /// coloured or grey door.
 /// </summary>
 internal static class DoorObjectHeaderDefinitions

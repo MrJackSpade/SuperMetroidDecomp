@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// </summary>
 internal static class GreyDoorCaps
 {
-    /// <summary>One of twenty twelve-byte records.</summary>
+    /// <summary>One of the twenty grey door cap pictures: its facing and its animation frame.</summary>
     internal readonly record struct Draw(ColoredDoorOrientation Orientation, [property: IntegerQuantity("cap animation frame index")] int Frame)
     {
         /// <summary>Left and right caps use a vertical four-cell run.</summary>

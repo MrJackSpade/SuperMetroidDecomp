@@ -15,9 +15,9 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 
 /// <summary>
 /// The frame's room backgrounds packed for Tiles.hlsl at register t3 (#1346): a header of three plane records (layers 1
-/// and 2 and a door's source room), the door window, the foreground overlay, sky, effect overlay and the background overlay offsets; then each plane's
+/// and 2 and a door's source room), the door window, the foreground overlay, effect overlay and the background overlay offsets; then each plane's
 /// blocks (#1403), each plane's picture of each block and the pictures themselves with their sheets' standard
-/// colours (#1392), the foreground and the background overlays' pictures (#1348, #1403), the sky's rows (#1347), the effect overlay's placed picture (#1514),
+/// colours (#1392), the foreground and the background overlays' pictures (#1348, #1403), the effect overlay's placed picture (#1514),
 /// a turning floor (#1349, #1403), a boss body's placed pictures (#1352, #1466, #1514) and the HUD's placed pictures (#1466).
 /// The GPU resolves every room pixel from these and the image texture. Repacked only when the published
 /// planes, their pictures, offsets, door or overlay change.
@@ -35,9 +35,9 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private const int PictureHeaderWords = 3;
     /// <summary>Plane slots: layers 1 and 2 and a door's source room.</summary>
     private const int PlaneSlots = 3;
-    /// <summary>Header words: the plane records, the door window origin, and the offsets of the foreground overlay, the sky rows,
+    /// <summary>Header words: the plane records, the door window origin, and the offsets of the foreground overlay,
     /// the effect overlay, the background overlay and the other tables.</summary>
-    private const int HeaderWords = PlaneSlots * RecordWords + 12;
+    private const int HeaderWords = PlaneSlots * RecordWords + 11;
     /// <summary>Header word of the door window's origin on the destination's foreground.</summary>
     private const int DoorWindowWord = PlaneSlots * RecordWords;
     /// <summary>
@@ -45,14 +45,12 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// words each in the order written, the picture's offset and the foreground pixel its corner lies on, x below y.
     /// </summary>
     private const int OverlayWord = DoorWindowWord + 1;
-    /// <summary>Header word of the sky's bands, one word each, nonzero where a band shows a page, or zero without a sky (#1347, #1403, #1514).</summary>
-    private const int SkyWord = OverlayWord + 1;
     /// <summary>
     /// Header word of what the effect overlay shows (#1403, #1514), or zero where it shows nothing: its picture's offset,
     /// the picture pixel its rectangle's corner shows, the rectangle's size, the overlay pixel the corner lies on and the
     /// size the overlay repeats at, each x below y.
     /// </summary>
-    private const int FxOverlayWord = SkyWord + 1;
+    private const int FxOverlayWord = OverlayWord + 1;
     /// <summary>Words of the effect overlay's record.</summary>
     private const int FxOverlayWords = 5;
     /// <summary>Header word of the pictures written over the background, laid out as <see cref="OverlayWord"/>'s, or zero without any (#1348).</summary>
@@ -259,9 +257,6 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         int fxOverlayOffset = fxOverlay is null ? 0 : words;
         if (fxOverlay is not null)
             words += FxOverlayWords;
-        int skyOffset = sky is null ? 0 : words;
-        if (sky is not null)
-            words += SkyPictures.Bands;
         int floorOffset = turningFloor is null ? 0 : words;
         if (turningFloor is not null)
             words += turningFloor.Pictures.Length;
@@ -354,10 +349,6 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             upload[DoorWindowWord] = D3D11ConstantPacking.Halves(door.WindowOrigin.X, door.WindowOrigin.Y);
         upload[OverlayWord] = (uint)foregroundWrittenOffset;
         PackWritten(upload, writtenOverForeground, foregroundWrittenOffset, pictureWords);
-        upload[SkyWord] = (uint)skyOffset;
-        if (sky is not null)
-            for (int band = 0; band < SkyPictures.Bands; band++)
-                upload[skyOffset + band] = sky.BandsShown[band] ? 1u : 0u;
         upload[WrittenOverBackgroundWord] = (uint)backgroundWrittenOffset;
         PackWritten(upload, writtenOverBackground, backgroundWrittenOffset, pictureWords);
         upload[FloorSheetsWord] = (uint)floorOffset;

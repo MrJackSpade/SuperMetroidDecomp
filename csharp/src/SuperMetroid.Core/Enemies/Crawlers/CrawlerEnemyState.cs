@@ -52,7 +52,7 @@ public sealed class CrawlerEnemyState
     /// <summary>
     /// Count of successive updates whose attachment probe misses the surface, 0 through 4 in play: contact and landing
     /// reset it, and the fourth miss selects falling rather than another outside-corner turn. The
-    /// setter accepts the whole word range so the turn routines' wrapped increment is preserved exactly.
+    /// setter accepts every count to 65535 so the turn routines' wrapped increment is preserved exactly.
     /// </summary>
     public int ConsecutiveTurnCounter
     {

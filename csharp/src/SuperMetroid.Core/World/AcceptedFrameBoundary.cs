@@ -252,11 +252,11 @@ internal sealed class AcceptedFrameBoundary
         // A sky room's background shows the sky's rows, drawn from their image (#1392, #1403), once the room has configured the
         // sky's bands; without them, background shows the room's own background.
         SkyPictures? sky = null;
-        if (scope.ScrollingSky is { HasBands: true } scrollingSky)
+        if (scope.ScrollingSky is { HasBands: true })
         {
             RoomBackgroundImageResolver skyImage = scope.SkyImage
                 ?? throw new InvalidDataException($"{scope.Room.Definition.Name} shows a scrolling sky with no installed sky image.");
-            sky = new SkyPictures(skyImage.Resolve(appearance, RoomBackgroundImagePlacement.Whole(skyImage.Image)), scrollingSky.Variant);
+            sky = new SkyPictures(skyImage.Resolve(appearance, RoomBackgroundImagePlacement.Whole(skyImage.Image)));
         }
         // Where background shows the room's library background, it draws the background's image (#1392): not over a
         // streaming background plane, the sky's rows or a boss body that owns the background.

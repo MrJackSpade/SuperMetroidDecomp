@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Enemies.Zoa;
 public sealed class ZoaEnemyState
 {
     /// <summary>
-    /// Whole-pixel population position captured at initialization and restored when a launch ends offscreen (X) and B
-    /// (Y). Only the whole words are reset: the subpixel fractions accumulated in flight survive.
+    /// Whole-pixel population position captured at initialization and restored when a launch ends offscreen. Only the
+    /// whole pixels are reset: the subpixel fractions accumulated in flight survive.
     /// </summary>
     public Position16<RoomPixels> SpawnPosition { get; internal set; }
 

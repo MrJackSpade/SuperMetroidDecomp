@@ -483,7 +483,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         // The cap compares the first enemy slot's speed, which initialization requires to be Mama's own.
         if (state.Velocity.Y.WholePixels < MamaTurtleMaximumFallingSpeed)
         {
-            // The one-eighth-pixel fraction step carries into the whole word; both are one 16.16 add.
+            // The one-eighth-pixel fraction step carries into the whole pixels; both are one 16.16 add.
             state.Velocity = state.Velocity.WithY(
                 state.Velocity.Y + SignedSixteenSixteen.FromParts(0, 8192));
         }

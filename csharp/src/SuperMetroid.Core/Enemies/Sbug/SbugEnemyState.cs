@@ -22,7 +22,8 @@ public sealed class SbugEnemyState
 
     /// <summary>
     /// The custom movement heading, in standard-mathematics orientation (zero right, a quarter turn up). The game
-    /// adds random turns to a whole word whose high byte nothing steers by; the heading is its low byte. It changes
+    /// adds random turns to a running total of turns; only its part within one revolution steers, and that part is the
+    /// heading. It changes
     /// only through <see cref="FaceCustomHeading"/> and <see cref="TurnCustomHeading"/>.
     /// </summary>
     public RotationAngle CustomHeading { get; private set; }

@@ -117,8 +117,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // The routine restores variable A from its mirror before indirect dispatch.
-        // The speed is restored from its copy before the bounce moves, so an animation
+        // The speed multiplier is restored from its copy before the bounce moves, so an animation
         // command during this frame cannot change the current displacement.
         state.SpeedMultiplier = state.SpeedMultiplierMirror;
         switch (state.BounceMovement)
@@ -166,8 +165,8 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.AdvanceSpeedTableIndex();
         state.Speed = MultiplyBoyonCurveEntry(state);
 
-        // Taking the high byte discards the product's fractional byte. Boyon has no Y subposition
-        // integration here: each frame moves by exactly the product's high byte.
+        // Taking the product's whole pixels discards its fraction. Boyon has no Y subposition
+        // integration here: each frame moves by exactly the product's whole pixels.
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + (EightEight.WholeOf(state.Speed)));
         if (WrappingCounter.IsBehind(state.SpeedTableIndex, state.InitialBounceSpeedTableIndex))
             return;
@@ -193,7 +192,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static int MultiplyBoyonCurveEntry(BoyonEnemyState state) =>
         BoyonBounceCurve.Multiply(state.SpeedTableIndex, state.SpeedMultiplier);
 
-    /// <summary>Whether Samus lies within Boyon's init1 radius of pixel columns of the enemy.</summary>
+    /// <summary>Whether Samus lies within Boyon's authored horizontal reach, in pixel columns, of the enemy.</summary>
     private static bool IsBoyonSamusWithinHorizontalRange(RoomEnemySlot slot, SamusState samus)
     {
         int distance = CoordinateAxis.Distance(samus.Position.X.Whole, slot.Position.X.Whole);

@@ -1,21 +1,19 @@
 using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Owtch;
 
-/// <summary>The state of an Owtch, with its three extended words.</summary>
+/// <summary>The state of an Owtch: its patrol speeds, its patrol state and how deep it is buried.</summary>
 public sealed class OwtchEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<OwtchProgram> Playback { get; set; }
 
     /// <summary>
-    /// The signed 16.16 rightward patrol speed in pixels per update, taken from the shared linear-speed table; the
-    /// record keeps its fraction in variable 0 and its whole pixels in variable 1.
+    /// The signed 16.16 rightward patrol speed in pixels per update, taken from the shared linear-speed table.
     /// </summary>
     public SignedSixteenSixteen RightVelocity { get; internal set; }
 
     /// <summary>
-    /// The signed 16.16 leftward patrol speed in pixels per update, the negative half of the same linear-speed record;
-    /// the record keeps its fraction in variable 2 and its whole pixels in variable 3.
+    /// The signed 16.16 leftward patrol speed in pixels per update, the negative half of the same linear-speed record.
     /// </summary>
     public SignedSixteenSixteen LeftVelocity { get; internal set; }
 

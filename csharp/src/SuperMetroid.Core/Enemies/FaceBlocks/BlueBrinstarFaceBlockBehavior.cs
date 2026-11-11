@@ -104,7 +104,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
             slot.SpawnSettings<FaceBlockSpawnSettings>().TriggerDistance)
             return;
 
-        // Variable B is written after the Y test but before the X test, including on frames
+        // The horizontal distance is recorded after the Y test but before the X test, including on frames
         // that fail horizontal range or side, so a frame that fails the X test still
         // records the vertical distance.
         int horizontalDelta = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole);

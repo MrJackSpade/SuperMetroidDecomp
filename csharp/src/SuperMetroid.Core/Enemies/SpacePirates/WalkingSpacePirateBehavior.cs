@@ -172,8 +172,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             return;
         }
 
-        // The first one-pixel downward move doubles as the grounded test. Carry clear in
-        // the authored means there was no floor, and the move itself is retained as falling.
+        // The first one-pixel downward move doubles as the grounded test. A move that hits
+        // nothing means there was no floor, and the move itself is retained as falling.
         if (!_terrain.MoveEnemyVertically(level, slot, WalkingPirateOnePixelDown))
             return;
 

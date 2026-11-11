@@ -30,8 +30,7 @@ public sealed class SkyTilemap
         Variant = variant;
         for (int row = 0; row < Rows; row++)
         {
-            if (!ScrollingSkyChunks.TryGetPage(variant, row / RowsPerChunk, out int page))
-                continue;
+            int page = ScrollingSkyChunks.PageOf(variant, row / RowsPerChunk);
             RoomSkyTilemaps.Row(pages, page, row % RowsPerChunk).CopyTo(tiles.AsSpan(row * Columns, Columns));
         }
     }
@@ -39,6 +38,6 @@ public sealed class SkyTilemap
     /// <summary>The land or ocean chunk table the rows follow.</summary>
     public ScrollingSkyChunkTable Variant { get; }
 
-    /// <summary>The tiles of every row, row-major; a row whose chunk selects no page (the ocean table's last chunks) holds blank tiles.</summary>
+    /// <summary>The tiles of every row, row-major; every row holds a row of the page its chunk shows.</summary>
     public ReadOnlySpan<BackgroundTile> Tiles => tiles;
 }

@@ -52,13 +52,13 @@ public sealed class BoulderEnemyState
 
     /// <summary>
     /// The window, relative to the boulder, that Samus's displacement must enter to start it. X is the signed pixel
-    /// threshold from parameter two's low byte, positive for rightward activation and negative for leftward
+    /// threshold from its authored trigger reach, positive for rightward activation and negative for leftward
     /// activation.
-    /// Y is the exclusive upper threshold (0 through 255) for Samus's nonnegative Y displacement, taken from the
-    /// population initialization instruction word's low byte.
+    /// Y is the exclusive upper threshold (0 through 255) for Samus's nonnegative Y displacement, its authored trigger
+    /// height.
     /// </summary>
     public Offset16<RoomPixels> TriggerReach { get; internal set; }
-    /// <summary>Extra downward collision reach during rolling, subtracted from the position afterward; only its Y is meaningful. Initially two or five pixels from parameter one's low byte, then zero once the full Y position stops changing.</summary>
+    /// <summary>Extra downward collision reach during rolling, subtracted from the position afterward; only its Y is meaningful. Initially two or five pixels by its authored landing, then zero once the full Y position stops changing.</summary>
     public Offset16<RoomPixels> VerticalCompensation { get; internal set; }
     /// <summary>Saved Y position with its subpixel, compared with the current Y to detect stationary rolling; captured at initialization and on the final bounce, then refreshed after each rolling update.</summary>
     public FixedCoordinate PreviousY { get; internal set; }
@@ -68,6 +68,6 @@ public sealed class BoulderEnemyState
     /// the initial upward offset, which the first fall snaps to before rebounding.
     /// </summary>
     public Position16<RoomPixels> InitialPosition { get; internal set; }
-    /// <summary>True when parameter two's high byte is zero: initialization substitutes a one-pixel upward offset and activation bypasses the falling and bounce sequence.</summary>
+    /// <summary>True when its authored drop is zero: initialization substitutes a one-pixel upward offset and activation bypasses the falling and bounce sequence.</summary>
     public bool StartsRollingWithoutBounce { get; internal set; }
 }

@@ -48,7 +48,7 @@ internal static class GunshipMotionDefinitions
     /// <summary>The escaping ship's 8.8 acceleration per call.</summary>
     internal const int EscapeAcceleration = 64;
 
-    /// <summary>The escaping velocity whose whole byte reaching ten caps it.</summary>
+    /// <summary>The escaping velocity, ten whole pixels per update, whose reaching caps it.</summary>
     internal const int EscapeVelocityCapTrigger = 2560;
 
     /// <summary>The escaping ship's capped 8.8 velocity.</summary>

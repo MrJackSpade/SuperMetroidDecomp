@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
 /// <summary>
-/// The routine Cacatac's main AI runs each frame. Initialization selects one of the first three by the
-/// low byte of parameter one (0 moves left, 1 moves right, 2 stops while an attack animation owns the actor); other
-/// selectors are outside the authored table.
+/// The routine Cacatac's main AI runs each frame. Initialization selects one of the first three by its authored
+/// direction (moving left, moving right, or stopped while an attack animation owns the actor); no other start is
+/// authored.
 /// Its values are arbitrary.
 /// </summary>
 public enum CacatacEnemyFunction

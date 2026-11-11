@@ -212,8 +212,8 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Applies shared signed 8.8 enemy velocity pair. Dead Torizo and Shitroid
-    /// both call the same shared helper; retaining one implementation also makes its
-    /// unusual use of the high byte of the subposition explicit.
+    /// both call the same shared helper; retaining one implementation also makes explicit that
+    /// the step moves the subposition only in 256ths of a pixel.
     /// </summary>
     internal static void MoveWithEightEightVelocity(RoomEnemySlot slot, EightEightVector<RoomPixels> velocity)
     {

@@ -8,7 +8,7 @@ public enum NorfairLavaJumpingEnemyFunction
 {
     /// <summary>The immediately following cosmetic slot copies parent freeze/Y state, is visible only during unfrozen ascent, and deletes itself when parent health is zero.</summary>
     FollowParent = 1,
-    /// <summary>Choose one of four signed 8.8 launch velocities from the current RNG word, enable offscreen processing, and request the enemy-library jump sound.</summary>
+    /// <summary>Choose one of four signed 8.8 launch velocities from the current random number, enable offscreen processing, and request the enemy-library jump sound.</summary>
     BeginJump,
     /// <summary>Integrate Y and add NTSC gravity 56/256 pixel per update squared; unsigned velocity reaching -1024 starts the flip animation while still ascending.</summary>
     RiseBeforeAnimationSwitch,

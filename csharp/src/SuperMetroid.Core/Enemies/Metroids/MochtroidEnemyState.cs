@@ -2,15 +2,14 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>
-/// The state of a Mochtroid, with its three parallel extension-array words, so the attachment clock and 16.16 steering
-/// are easy to inspect.
+/// The state of a Mochtroid: its 16.16 steering, its shake timer and its one-update movement selector.
 /// </summary>
 public sealed class MochtroidEnemyState
 {
     /// <summary>Signed 16.16 velocity in room pixels per update.</summary>
     public FixedVector<RoomPixels> Velocity { get; internal set; }
 
-    /// <summary>Variable E; used only by the shipped-but-unreferenced shake mode.</summary>
+    /// <summary>Shake countdown, used only by the shipped-but-unreferenced shake mode.</summary>
     public int ShakeTimer { get; internal set; }
 
     /// <summary>Gets the one-update movement selector cleared before each main-AI dispatch.</summary>

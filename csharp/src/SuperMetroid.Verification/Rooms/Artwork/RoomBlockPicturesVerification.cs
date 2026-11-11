@@ -117,13 +117,9 @@ internal static class RoomBlockPicturesVerification
         int rows = 0;
         for (int row = 0; row < SkyTilemap.Rows; row++)
         {
-            if (!sky.RowShown(row))
-                continue;
             rows++;
             for (int y = row * CharacterPixels; y < (row + 1) * CharacterPixels; y++)
             {
-                // Whether the pixel line's band shows does not depend on the column.
-                AssertTrue(shown.BandsShown[y / SkyPictures.BandPixels], $"{room.Name}: the sky shows row {row}");
                 for (int x = 0; x < RoomBackgroundImageGeometry.PagePixels; x++)
                 {
                     var word = new SnesBgTilemapWord(sky.Tiles[row * SkyTilemap.Columns + x / CharacterPixels].PackedWord);

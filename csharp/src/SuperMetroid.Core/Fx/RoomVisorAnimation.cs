@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Fx;
 
-/// <summary>Whether a room animates Samus's visor colour (#1545), as the room's FX record says.</summary>
+/// <summary>Whether a room cycles the shade of Samus's visor (#1545), as the room's effects say.</summary>
 /// <remarks>The values are arbitrary.</remarks>
 public enum RoomVisorAnimation
 {

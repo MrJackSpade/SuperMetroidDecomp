@@ -739,10 +739,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Returns the next physical slot, the alias used by every body-to-wing access in
-    /// the Ki-Hunter's behaviour. The matching definition words are authoritative while the pair is being
-    /// initialized. Afterward, however, <c>DetermineWhichEnemiesToProcess</c> clears only a
-    /// deleted wing's definition word; all other words in its 64-byte record remain resident,
-    /// and the game deliberately continues reading or writing them through this alias.
+    /// the Ki-Hunter's behaviour. The matching definitions are authoritative while the pair is being
+    /// initialized. Afterward, however, the processing pass clears only a deleted wing's definition;
+    /// the rest of its state stays, and the game deliberately continues reading or writing it through this alias.
     /// A permanently ground-bound red Ki-Hunter therefore has a live body followed by enemy
     /// definition zero on its second frame. Requiring the definition to remain the wing's changed
     /// valid game behavior into a host exception whenever that body was shot.

@@ -20,7 +20,7 @@ internal sealed class EnemyFrameContext
 
     /// <summary>
     /// Enemy-pass random counter read by AI and projectile routines, 0 through 65535. Its one advance wraps
-    /// from 65535 back to zero, and every reader takes its low bits or copies it whole, so a wider store holds exactly
+    /// from 65535 back to zero, and every reader takes it modulo a power of two or copies it whole, so a wider store holds exactly
     /// the counter the game keeps.
     /// </summary>
     internal int RandomEnemyCounter
@@ -32,7 +32,7 @@ internal sealed class EnemyFrameContext
     /// <summary>
     /// The frame clock's count for the current enemy pass (or the random counter when the pass has none). It is
     /// independent of the enemies' own cycle of 256 updates; standalone audits seed both
-    /// from the same enemy clock. Readers take its low bits.
+    /// from the same enemy clock. Readers take it modulo a power of two.
     /// </summary>
     internal int FrameCounter { get; private set; }
     /// <summary>Live projectile system supplied by the enemy pass to both ordinary and custom enemy-touch callbacks.</summary>

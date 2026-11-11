@@ -365,7 +365,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.VerticalAcceleration += SamusGravity(samus);
         state.Speed += state.VerticalAcceleration;
 
-        // The cap replaces only the whole word, compared by the sign of its word difference; the fraction is kept.
+        // The cap replaces only the whole pixels, compared by the sign of their wrapped difference; the fraction is kept.
         SignedSixteenSixteen speed = state.Speed;
         SignedSixteenSixteen capped = speed.WholePixels >= DachoraShinesparkMaximumWholeSpeed
             ? speed.WithWholePixels(DachoraShinesparkMaximumWholeSpeed)

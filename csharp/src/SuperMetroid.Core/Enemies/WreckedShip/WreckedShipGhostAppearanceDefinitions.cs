@@ -5,10 +5,10 @@ namespace SuperMetroid.Core.Enemies.WreckedShip;
 public static class WreckedShipGhostAppearanceDefinitions
 {
     /// <summary>
-    /// The ghost's sixteen colours, which its materializing fade moves toward (#1544). Colour 0, a blue, is never drawn,
+    /// The ghost's sixteen colours, which its materializing fade moves toward (#1544). The first, a blue, is never drawn,
     /// but the fade moves it with the others, so it takes part in deciding when the fade ends (WreckedShipGhostFade).
-    /// Colours 1..8 are olive paint whose red and green share a categorical level, with a blue seven lower except the
-    /// highlight in colour 1 and the middle tint in colour 6. Colours 9..15 are warm paint: orange, three pure reds, ochre
+    /// The next eight are olive paint whose red and green share a categorical level, with a blue seven lower except the
+    /// highlight, the first of them, and the middle tint, the sixth. The last seven are warm paint: orange, three pure reds, ochre
     /// with its faint blue, and two brown bug shades whose green is three below their red. These are chosen artwork
     /// content, retained as authored; colours no picture draws are still faded toward.
     /// </summary>

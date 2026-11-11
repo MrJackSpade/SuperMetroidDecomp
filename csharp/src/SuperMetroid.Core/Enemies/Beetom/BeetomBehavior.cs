@@ -329,7 +329,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // The ledge probe temporarily moves the center eight pixels ahead, then
-        // performs a real one-pixel downward collision move. Restore only the whole words,
+        // performs a real one-pixel downward collision move. Restore only the whole pixels,
         // preserving collision-produced subposition just as the game does.
         slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole + (direction == HorizontalDirection.Left ? -8 : 8));
         if (!_terrain.MoveEnemyVertically(level, slot, SignedSixteenSixteen.FromWholePixels(1)))

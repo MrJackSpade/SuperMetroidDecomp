@@ -4,9 +4,9 @@ using SuperMetroid.Core.Enemies.Elevator;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// The enemy-side words that outlive each room, as the game keeps them across enemy loading (#1329): the
+/// The enemy-side state that outlives each room, as the game keeps it across enemy loading (#1329): the
 /// elevator journey, the shared fade counter, Ceres's escape progress, the critical-energy drop bias, the language
-/// flag, the random enemy counter, the death quota an empty population keeps, the staging surfaces and how far the
+/// flag, the random enemy counter, the death quota an empty population keeps and how far the
 /// room's encounters have played their artwork; the compatibility services its enemies consult, which it receives when it
 /// is built: the session's unauthored Speed Booster cadence, whose delays Ceres Ridley's getaway leaves behind, the
 /// installation's enemy and boss over-read services and the runtime's rainbow-beam camera checkpoint; and the host's
@@ -69,7 +69,7 @@ public sealed class EnemySession
 
     /// <summary>
     /// Enemy-pass random counter read by AI and projectile routines, 0 through 65535. Its one advance wraps
-    /// from 65535 back to zero, and every reader takes its low bits or copies it whole, so a wider store holds exactly
+    /// from 65535 back to zero, and every reader takes it modulo a power of two or copies it whole, so a wider store holds exactly
     /// the counter the game keeps.
     /// </summary>
     internal int RandomEnemyCounter { get; set; }

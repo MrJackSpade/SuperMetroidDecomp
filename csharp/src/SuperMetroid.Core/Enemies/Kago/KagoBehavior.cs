@@ -49,8 +49,8 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new KagoEnemyState();
         slot.SetSpeciesState(state);
 
-        // Kago's population word already carries the other authored property bits. The
-        // initializer sets only the animation-script property so the common animation interpreter animates the shell.
+        // Kago's placement already authors its other processing properties. The initializer
+        // sets only the animation-script property so the common animation interpreter animates the shell.
         slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);

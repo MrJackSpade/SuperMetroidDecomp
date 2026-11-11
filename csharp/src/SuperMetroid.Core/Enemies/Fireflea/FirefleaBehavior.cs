@@ -68,8 +68,8 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             slot.Position = slot.Position.WithWhole(state.Center + EnemyMath.CircleOffset(state.Angle.ToTrigonometryAngle(), state.Radius));
 
-            // The angle advances by the speed at 256ths of a pixel: the high byte of its fraction under the low byte
-            // of its whole part, the exact signed 8.8 step including negative speeds.
+            // The angle advances by the speed at 256ths of a pixel: its fraction cut to 256ths under its whole part
+            // modulo 256, the exact signed 8.8 step including negative speeds.
             SignedSixteenSixteen speed = state.AngularSpeed;
             state.Angle = state.Angle.AddRaw(EightEight.FromSixteenSixteen(speed.WholePixels, speed.Fraction));
             return;

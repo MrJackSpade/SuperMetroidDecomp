@@ -59,9 +59,9 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         state.FallingSpeed = slot.SpawnSettings<KzanSpawnSettings>().FallSpeed;
         state.InitialFallingSpeed = state.FallingSpeed;
 
-        // init1 packs two unrelated bytes: the high byte is fall distance in pixels and the
-        // low byte is the top wait countdown. A zero countdown deliberately wraps to -1
-        // on its first decrement rather than triggering immediately.
+        // The spawn settings name the fall distance in pixels and the top wait countdown.
+        // A zero countdown deliberately wraps to -1 on its first decrement rather than
+        // triggering immediately.
         var spawn = new Position16<RoomPixels>(0, slot.Position.Y.Whole);
         state.FallingTarget = spawn + new Offset16<RoomPixels>(0, slot.SpawnSettings<KzanSpawnSettings>().FallDistance);
         state.RisingTarget = spawn;

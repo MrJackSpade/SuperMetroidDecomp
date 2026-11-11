@@ -404,7 +404,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Clamps the signed whole word of homing speed to three pixels while retaining in-range fractions.</summary>
+    /// <summary>Clamps the signed whole pixels of homing speed to three while retaining in-range fractions.</summary>
     private static SignedSixteenSixteen ClampMetroidVelocity(SignedSixteenSixteen velocity) => EnemyMath.ClampWholeVelocity(velocity, MetroidMaximumVelocity);
 
     /// <summary>Stores the recoil or homing X speed.</summary>

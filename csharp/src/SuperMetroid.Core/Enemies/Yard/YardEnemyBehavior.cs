@@ -411,8 +411,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, state.AirborneVelocity.X))
             {
-                // The game negates each word separately. This is intentionally one
-                // whole pixel away from a conventional 32-bit negation when low word is 0.
+                // The game negates whole pixels and fraction separately. This is intentionally one
+                // whole pixel away from a conventional negation when the fraction is 0.
                 state.AirborneVelocity = state.AirborneVelocity.WithX(NegatePartsSeparately(state.AirborneVelocity.X));
                 state.BouncedHorizontally = true;
                 _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Yard, YardBounceSound, priority: SoundRequestPriority.Low);
@@ -445,7 +445,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // Gravity always stores the fraction word but stores the whole word only below four.
+        // Gravity always stores the fraction but stores the whole pixels only below four.
         SignedSixteenSixteen fallingVelocity = state.AirborneVelocity.Y;
         SignedSixteenSixteen accelerated = fallingVelocity + SignedSixteenSixteen.FromParts(0, 8192);
         state.AirborneVelocity = state.AirborneVelocity.WithY(CoordinateAxis.Difference(accelerated.UnsignedWholePixels, 4) < 0
@@ -566,7 +566,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Behavior = YardBehavior.BeamLaunched;
         state.MovementFunction = YardMovementFunction.Airborne;
         SetYardAirborneLists(slot, state);
-        // Only the whole words are stored; both fraction words keep their previous values.
+        // Only the whole pixels are stored; both fractions keep their previous values.
         state.AirborneVelocity = state.AirborneVelocity.WithWhole(new Offset16<RoomPixels>(
             SamusPoseMetadata.ReadFacingDirection(samus) == SamusFacingDirection.Left ? -1 : 1,
             -1));

@@ -91,8 +91,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             _ => throw new InvalidOperationException($"Undefined {nameof(ChozoStatueSite)} {site}."),
         };
 
-        // The initializer sets two named properties and the otherwise unnamed high bit. Keep the high bit raw:
-        // no translated caller has proved a stable semantic name for that property yet.
+        // The initializer makes the statue solid to Samus and animates it, on screen or off.
         statue.Contact = statue.Contact.With(EnemyContact.SolidToSamus);
         statue.Processing = statue.Processing.With(EnemyProcessing.AnimationScript | EnemyProcessing.OffScreen);
         statue.Frame = EnemyFrameId.Empty;

@@ -239,7 +239,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
             samus.TakePeriodicDamage(
                 PaletteFxHeatData.SubdamagePerFrame,
                 wholeDamage: 0);
-            if ((frameCounter & 7) == 0 &&
+            if (PaletteFxHeatData.DamageSoundEveryEighthUpdate.IsDue(frameCounter) &&
                 samus.Health > PaletteFxHeatData.DamageSoundEnergyThreshold)
             {
                 soundRequests.Add(new SoundRequest(

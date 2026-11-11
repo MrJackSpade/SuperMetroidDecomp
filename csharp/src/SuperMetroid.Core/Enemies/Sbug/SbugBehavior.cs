@@ -188,12 +188,12 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
             : SbugEnemyFunction.MoveTowardSamus;
     }
 
-    /// <summary>Alternates left and right diagonal legs using bit four of the enemy frame counter.</summary>
+    /// <summary>Alternates left and right diagonal legs on the enemy's own update count.</summary>
     private static void RunSbugZigZag(RoomEnemySlot slot, SbugEnemyState state)
     {
         // The global enemy frame counter divides motion into alternating 16-frame diagonal
         // legs. It is sampled before the scheduler increments it for the current frame.
-        if (slot.FrameCounter / SbugDefinitions.ZigZagLegFrames % 2 == 0)
+        if (!SbugDefinitions.ZigZagSecondLeg.IsSetIn(slot.FrameCounter))
         {
             SetSbugFacing(slot, state, state.LeftFacing);
             AddSbugVelocity(slot, state.LeftXVelocity, state.LeftYVelocity);

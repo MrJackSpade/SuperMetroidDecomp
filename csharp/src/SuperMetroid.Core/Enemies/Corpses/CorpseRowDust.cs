@@ -26,7 +26,7 @@ internal sealed class CorpseRowDust
         projectiles.SpawnRoomGraphicsDustExplosion(
             new(CoordinateAxis.Wrap(slot.Position.X.Whole + CorpseDustSpread(random) - 14), CoordinateAxis.Wrap(slot.Position.Y.Whole + 16)),
             MiscDustAnimation.CorpseDustCloud);
-        if ((randomEnemyCounter & 7) == 0)
+        if (CorpseCadenceDefinitions.DustSoundEveryEighthEnemyPass.IsDue(randomEnemyCounter))
             _audio.RequestSoundAtUpdateEnd(EnemySoundSource.DeadMonsters, EnemySound.LiquidDamage, priority: SoundRequestPriority.Low);
     }
 

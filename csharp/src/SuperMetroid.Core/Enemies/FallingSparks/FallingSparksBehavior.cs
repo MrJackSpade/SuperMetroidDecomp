@@ -96,7 +96,7 @@ internal sealed class FallingSparksBehavior
         AddFallingSparkVerticalVelocity(projectile);
         AddFallingSparkHorizontalVelocity(projectile);
 
-        if ((frameCycle & 3) == 0)
+        if (FallingSparkCadenceDefinitions.TrailEveryFourthUpdate.IsDue(frameCycle))
             SpawnFallingSparkTrail(projectile);
     }
 

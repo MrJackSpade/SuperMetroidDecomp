@@ -538,7 +538,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         RoomEnemySlot bottom = Pieces(top).Bottom;
         RoomEnemySlot pad = Pieces(top).EntrancePad;
         int rumbleFrame = Part(bottom).RumbleFrame;
-        int shake = (rumbleFrame & 1) != 0
+        int shake = GunshipTakeoffDefinitions.RumbleShakesDown.IsSetIn(rumbleFrame)
             ? (rumbleFrame < 64 ? 1 : 2)
             : (rumbleFrame < 64 ? -1 : -2);
         samus.Position += new Offset16<RoomPixels>(0, shake);

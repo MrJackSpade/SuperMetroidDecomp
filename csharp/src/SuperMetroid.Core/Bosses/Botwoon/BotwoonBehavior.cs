@@ -978,7 +978,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         int randomEnemyCounter)
     {
         RoomEnemySlot head = _head ?? throw new InvalidOperationException("Botwoon's body draws once Botwoon is loaded.");
-        segment.Graphics = segment.Graphics.In(head.FlashTimer != 0 && (randomEnemyCounter & 2) != 0
+        segment.Graphics = segment.Graphics.In(head.FlashTimer != 0 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(randomEnemyCounter)
             ? EnemyShades.HurtFlashLook
             : (BotwoonState ?? throw new InvalidOperationException("Botwoon's body draws once Botwoon is loaded.")).BodyShading);
     }

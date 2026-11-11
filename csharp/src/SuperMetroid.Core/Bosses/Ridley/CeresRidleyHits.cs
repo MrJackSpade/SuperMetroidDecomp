@@ -1,4 +1,5 @@
 ﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
@@ -114,8 +115,9 @@ internal sealed class CeresRidleyHits
         RidleyEnemyState state,
         int enemyMainExecutionCounter)
     {
-        state.BodyFlashing = slot.FlashTimer != 0 && (enemyMainExecutionCounter & 2) != 0;
-        state.SpritemapFlashing = slot.FlashTimer > 1 && ((enemyMainExecutionCounter + 1) & 2) != 0;
+        state.BodyFlashing = slot.FlashTimer != 0 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(enemyMainExecutionCounter);
+        // His drawn parts take the phase one pass ahead of his body's colours.
+        state.SpritemapFlashing = slot.FlashTimer > 1 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(enemyMainExecutionCounter + 1);
     }
 
     /// <summary>

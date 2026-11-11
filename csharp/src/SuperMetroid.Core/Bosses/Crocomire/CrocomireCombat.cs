@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -36,7 +37,7 @@ internal sealed class CrocomireCombat
     /// <summary>Ports Crocomire's eight-color body hurt flash.</summary>
     internal void ApplyCrocomireHurtFlash(RoomEnemySlot body)
     {
-        bool white = body.FlashTimer != 0 && (_frameContext.RandomEnemyCounter & 2) != 0;
+        bool white = body.FlashTimer != 0 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(_frameContext.RandomEnemyCounter);
         // His body shows its fight colours or the white flash as the import's shades of them (#1512).
         (_access.Crocomire ?? throw new InvalidOperationException("Crocomire's hurt flash runs once Crocomire is loaded."))
             .Colours.ShowBody(white);

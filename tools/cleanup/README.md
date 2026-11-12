@@ -37,7 +37,7 @@ developer's checkout, with its own `bin`/`obj` and its own `temp\`), `config.jso
 1. **Restore** the solution, **build the reachability audit in Release** and **the repository's analyzer and code fixes`n   in Debug** (`csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes`) through `tools/build.ps1`. The code fixes load the
    repository's analyzer and fixers from the projects' Debug references, so they must be built first.
 2. **Fix and prune, taking turns, until one of each in a row changes nothing:**
-   - **Code fixes:** `dotnet run tools/cleanup/CodeFixRunner.cs -- csharp/SuperMetroid.Full.slnx <summary.json> IDE0004,IDE0005,IDE0032,IDE0044,IDE0076,IDE0077,SME6391`.
+   - **Code fixes:** `dotnet run tools/cleanup/CodeFixRunner.cs -- csharp/SuperMetroid.Full.slnx <summary.json> CS0168,IDE0004,IDE0005,IDE0032,IDE0044,IDE0076,IDE0077,SME6391`.
      `run.ps1` reads the rules from `csharp/.editorconfig`: the `none` lines directly under the comment that names
      this cleanup, less IDE0079 (below). A rule there that `run.ps1` has no commit-message words for, or words for a
      rule not there, fails the run.
@@ -73,8 +73,15 @@ rules with its own configuration, and applies each rule's fixer through its fix-
 findings chosen. `RuleOrder` names where each rule's one fixer comes from: Roslyn's code-style fixers (the same
 fixers `dotnet format style` uses; on a fixture the runner's output for IDE0004, IDE0005, IDE0032, IDE0044, IDE0076
 and IDE0077 is byte-identical to `dotnet format style --diagnostics ... --severity info`), or the repository's own
-fixers in `SuperMetroid.EnsureAnalyzer.CodeFixes` (SME6391: `AdapterChainCodeFixProvider`). A finding its fixer offers
-no fix for fails the run, naming the site.
+fixers in `SuperMetroid.EnsureAnalyzer.CodeFixes` (SME6391: `AdapterChainCodeFixProvider`; CS0168:
+`UnusedVariableCodeFixProvider`). A finding its fixer offers no fix for, or cannot resolve without a choice, fails the
+run, naming the site.
+
+A compiler warning in the group (CS0168) has no analyzer: the compiler reports it while it binds. The runner reads it
+from the compilation's own diagnostics, with the rule enabled in the per-file options like any other, and applies the
+repository's fixer for it. Such a rule is also absent from `WarningsAsErrors` in `csharp/Directory.Build.props`;
+since the compiler computes it during binding anyway, `none` saves the build its reporting, not its analysis. A
+project that compiled when the run started and has compiler errors after a pass fails the run, naming them.
 
 Since the group is at `none`, the runner enables exactly the requested rules, as warnings, in its own analysis: in
 the compilation's per-file diagnostic options (where the `.editorconfig` severity would otherwise win over any

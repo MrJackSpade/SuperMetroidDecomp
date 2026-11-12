@@ -21,6 +21,11 @@
 // turns the rule off for some files (the SME rules outside Core and AssetExtraction) keeps it off there. Every other
 // rule keeps the project's configuration. The caller (tools/cleanup/run.ps1) reads the group from csharp/.editorconfig.
 //
+// A compiler warning in the group (CS0168, ...) has no analyzer: the compiler reports it while it binds. The runner
+// reads it from the compilation's own diagnostics, with the rule enabled in the per-file options as above, and applies
+// the repository's fixer for it. A project that compiled when the run started and has compiler errors after a pass
+// fails the run, naming the errors.
+//
 // IDE0079 (unnecessary suppression) is in the group, but no command-line analyzer reports it (README.md), so the
 // runner refuses to be asked for it rather than report that it found nothing.
 //
@@ -140,10 +145,21 @@ internal enum FixerSource
     Repository,
 }
 
-/// <summary>A rule the runner applies, and where its fixer comes from.</summary>
+/// <summary>What reports a rule's findings.</summary>
+internal enum FindingSource
+{
+    /// <summary>An analyzer the project references, which must support the rule.</summary>
+    Analyzer,
+
+    /// <summary>The compiler itself, while it binds: the findings are read from the compilation's own diagnostics.</summary>
+    Compiler,
+}
+
+/// <summary>A rule the runner applies, what reports it, and where its fixer comes from.</summary>
 /// <param name="Id">The diagnostic id.</param>
+/// <param name="Findings">What reports its findings.</param>
 /// <param name="Fixer">The assembly its one code fix provider is taken from.</param>
-internal sealed record CleanupRule(string Id, FixerSource Fixer);
+internal sealed record CleanupRule(string Id, FindingSource Findings, FixerSource Fixer);
 
 /// <summary>Loads a solution and applies the requested rules' fixes until none remain.</summary>
 internal sealed class SolutionFixer
@@ -159,13 +175,14 @@ internal sealed class SolutionFixer
     /// the other fixes can leave unnecessary.</summary>
     private static readonly CleanupRule[] RuleOrder =
     [
-        new("IDE0076", FixerSource.CodeStyle),
-        new("IDE0077", FixerSource.CodeStyle),
-        new("IDE0004", FixerSource.CodeStyle),
-        new("IDE0032", FixerSource.CodeStyle),
-        new("IDE0044", FixerSource.CodeStyle),
-        new("SME6391", FixerSource.Repository),
-        new("IDE0005", FixerSource.CodeStyle),
+        new("IDE0076", FindingSource.Analyzer, FixerSource.CodeStyle),
+        new("IDE0077", FindingSource.Analyzer, FixerSource.CodeStyle),
+        new("IDE0004", FindingSource.Analyzer, FixerSource.CodeStyle),
+        new("CS0168", FindingSource.Compiler, FixerSource.Repository),
+        new("IDE0032", FindingSource.Analyzer, FixerSource.CodeStyle),
+        new("IDE0044", FindingSource.Analyzer, FixerSource.CodeStyle),
+        new("SME6391", FindingSource.Analyzer, FixerSource.Repository),
+        new("IDE0005", FindingSource.Analyzer, FixerSource.CodeStyle),
     ];
 
     /// <summary>The rule of the automatically fixed group that no command-line analyzer reports (README.md).</summary>
@@ -223,6 +240,7 @@ internal sealed class SolutionFixer
         var analyses = new Dictionary<ProjectId, ProjectAnalysis>();
         var changedSinceAnalysis = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var broken = new SortedSet<string>(StringComparer.Ordinal);
+        var compiledAtStart = new HashSet<ProjectId>();
         int pass = 0;
         while (true)
         {
@@ -231,6 +249,11 @@ internal sealed class SolutionFixer
                 throw new InvalidOperationException($"The fixes did not converge within {MaxPasses} passes.");
             await AnalyzeAsync(solution, analyses, changedSinceAnalysis, pass == 1);
             changedSinceAnalysis.Clear();
+            if (pass == 1)
+                compiledAtStart.UnionWith(analyses.Values.Where(a => a.CompilerErrors.Count == 0).Select(a => a.Project.Id));
+            if (analyses.Values.FirstOrDefault(a => a.CompilerErrors.Count > 0 && compiledAtStart.Contains(a.Project.Id)) is { } brokenByFixes)
+                throw new InvalidOperationException($"The fixes of pass {pass - 1} left {brokenByFixes.Project.Name} with compiler errors:\n" +
+                    string.Join('\n', brokenByFixes.CompilerErrors.Take(20)));
             broken.UnionWith(analyses.Values.Where(a => a.CompilerErrors.Count > 0).Select(a => a.Project.Name));
             if (_dryRun)
             {
@@ -309,7 +332,8 @@ internal sealed class SolutionFixer
         }
     }
 
-    /// <summary>Compiles one project and runs its analyzers for the requested rules, enabled as warnings.</summary>
+    /// <summary>Compiles one project with the requested rules enabled as warnings where their scope allows, and runs
+    /// its analyzers for the requested analyzer rules; the compiler's own rules come with the compilation.</summary>
     private async Task<ProjectAnalysis> AnalyzeProjectAsync(Project project)
     {
         Compilation configured = await project.GetCompilationAsync()
@@ -323,17 +347,23 @@ internal sealed class SolutionFixer
             .WithSyntaxTreeOptionsProvider(new EnabledRuleTreeOptions(treeOptions, scope)));
         var analyzerOptions = new AnalyzerOptions(project.AnalyzerOptions.AdditionalFiles,
             new EnabledRuleConfigOptions(project.AnalyzerOptions.AnalyzerConfigOptionsProvider, scope));
+        var analyzerRules = RuleOrder.Where(rule => rule.Findings == FindingSource.Analyzer && _rules.Contains(rule.Id))
+            .Select(rule => rule.Id).ToHashSet(StringComparer.Ordinal);
         var analyzers = project.AnalyzerReferences
             .SelectMany(reference => reference.GetAnalyzers(project.Language))
-            .Where(analyzer => analyzer.SupportedDiagnostics.Any(descriptor => _rules.Contains(descriptor.Id)))
+            .Where(analyzer => analyzer.SupportedDiagnostics.Any(descriptor => analyzerRules.Contains(descriptor.Id)))
             .ToImmutableArray();
         var supported = analyzers.SelectMany(a => a.SupportedDiagnostics).Select(d => d.Id).ToHashSet(StringComparer.Ordinal);
-        var unsupported = _rules.Where(rule => !supported.Contains(rule)).Order(StringComparer.Ordinal).ToList();
+        var unsupported = analyzerRules.Where(rule => !supported.Contains(rule)).Order(StringComparer.Ordinal).ToList();
         if (unsupported.Count > 0)
             throw new InvalidOperationException(
                 $"{project.Name} references no analyzer for {string.Join(", ", unsupported)}; the code-style analyzers are not loaded, " +
                 "or the repository analyzer is not built in the configuration the workspace opens.");
-        var diagnostics = await compilation.WithAnalyzers(analyzers, analyzerOptions).GetAllDiagnosticsAsync();
+        // The compiler reports its own rules (CS0168, ...) while it binds; with the rule enabled in the per-file options
+        // above, they are among the compilation's diagnostics, which the analyzer run includes.
+        var diagnostics = analyzers.IsEmpty
+            ? compilation.GetDiagnostics()
+            : await compilation.WithAnalyzers(analyzers, analyzerOptions).GetAllDiagnosticsAsync();
         var errors = diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error && d.Id.StartsWith("CS", StringComparison.Ordinal)).ToList();
         var findings = new Dictionary<string, List<Diagnostic>>(StringComparer.OrdinalIgnoreCase);
         var fixable = new Dictionary<string, List<Diagnostic>>(StringComparer.OrdinalIgnoreCase);

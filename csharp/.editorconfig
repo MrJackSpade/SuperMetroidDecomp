@@ -43,7 +43,10 @@ dotnet_diagnostic.SYSLIB1054.severity = error
 # Owner decision (2026-11-11): an existing code fix resolves these without a choice (Roslyn's code-style fixers, or the
 # repository's own in SuperMetroid.EnsureAnalyzer.CodeFixes); the asynchronous cleanup enforces them, each only where
 # the rest of this file applies it (an SME rule only in Core and AssetExtraction). At none the build skips their
-# analyzers, so they cost no build time; tools/cleanup/run.ps1 reads this group from here.
+# analyzers, so they cost no build time; tools/cleanup/run.ps1 reads this group from here. A compiler warning (CS) here
+# is also absent from WarningsAsErrors in Directory.Build.props: the compiler still computes it while binding, so none
+# saves its reporting, and the cleanup fixes it with a repository-built fixer.
+dotnet_diagnostic.CS0168.severity = none
 dotnet_diagnostic.IDE0004.severity = none
 dotnet_diagnostic.IDE0005.severity = none
 dotnet_diagnostic.IDE0032.severity = none

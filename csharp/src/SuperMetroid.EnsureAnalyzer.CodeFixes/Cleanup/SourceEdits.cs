@@ -6,9 +6,9 @@ namespace SuperMetroid.EnsureAnalyzer.CodeFixes.Cleanup;
 /// <summary>
 /// The text changes a cleanup fix makes to one document, applied together. A removed node takes its whole lines when it
 /// stands on lines of its own, with the comments and documentation directly above it; one blank line beside it goes too
-/// where two would otherwise meet, or where one would be left against an opening or closing brace or the end of the file. A node sharing a line
-/// with other code is removed with the spaces after it. Changes that overlap, and removals that would delete a
-/// preprocessor directive, fail.
+/// where two would otherwise meet, or where one would be left against an opening or closing brace or the end of the
+/// file. A node sharing a line with other code is removed with the spaces after it. Changes that overlap, and removals
+/// that would delete a preprocessor directive, fail.
 /// </summary>
 internal sealed class SourceEdits
 {

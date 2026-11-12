@@ -37,10 +37,13 @@
 // about a file's unnecessary usings, only the usings every project reports are removed; other disagreeing findings
 // are left and counted as kept.
 //
-// A fix may change several files (a field and its property in different parts of a partial type). It is accepted only
-// when every file it changes belongs to an analyzed project that compiles, and when no other fix in the same pass has
-// touched one of those files; a file touched in this pass waits for the next. Every project compiling a file of such a
-// fix must still compile after it, or the run fails naming the fix.
+// A fix may change several files (a field and its property in different parts of a partial type), and may add,
+// rename or delete files (SME6400, SME6401, SME6360). It is accepted only when every file it changes belongs to an
+// analyzed project that compiles, and when no other fix in the same pass has touched one of those files; a file touched
+// in this pass waits for the next. Every project compiling a file of such a fix must still compile after it, or the run
+// fails naming the fix. An added file joins every project that compiles the file its finding is in; when the files are
+// written, the explicit source lists (.projitems and <Compile Include> items) follow the files created and deleted
+// (ProjectLists).
 //
 // Fixes cascade (a removed cast can leave a using unnecessary), so the analysis repeats until a pass finds nothing to
 // apply. Each pass applies one rule per file, because the other findings' spans are stale once a file changes. The
@@ -109,7 +112,7 @@ internal static class CodeFixRun
 /// <param name="Fixed">Sites fixed per rule; for unused usings, the using directives removed.</param>
 /// <param name="Kept">Findings per rule left unapplied: in files compiled by several projects that do not all report
 /// them, or whose fix changes a file that a project with compiler errors compiles.</param>
-/// <param name="ChangedFiles">Repository-relative paths of the files written.</param>
+/// <param name="ChangedFiles">Repository-relative paths of the files written, created or deleted, project lists included.</param>
 /// <param name="ProjectsWithCompilerErrors">Projects whose findings were not used because they do not compile.</param>
 internal sealed record CleanupSummary(
     int Passes,
@@ -178,8 +181,9 @@ internal sealed class SolutionFixer
     /// <summary>The file name of the repository's code fix assembly.</summary>
     private const string RepositoryFixes = "SuperMetroid.EnsureAnalyzer.CodeFixes.dll";
 
-    /// <summary>The order rules are applied in within a file: suppressions first, then code, then the usings that
-    /// the other fixes can leave unnecessary.</summary>
+    /// <summary>The order rules are applied in within a file: suppressions first, then the file layout (merged parts,
+    /// one type per file, the file's name), then code (casts, unreachable and dead code, then the rewrites of what is
+    /// left), then the usings that the other fixes can leave unnecessary.</summary>
     private static readonly CleanupRule[] RuleOrder =
     [
         new("IDE0076", FindingSource.Analyzer, FixerSource.CodeStyle),
@@ -340,8 +344,9 @@ internal sealed class SolutionFixer
     }
 
     /// <summary>Analyzes every project on the first pass, then only the projects that compile a changed file. The
-    /// fixes never change what another project can see (they remove usings, casts and suppressions, or make a private
-    /// field read-only), so a project with no changed file keeps its findings.</summary>
+    /// fixes never change what another project can see (they change a file's own code, private members, or the files
+    /// of one type, and an added file joins every project compiling its origin), so a project with no changed file
+    /// keeps its findings.</summary>
     private async Task AnalyzeAsync(Solution solution, Dictionary<ProjectId, ProjectAnalysis> analyses, HashSet<string> changed, bool all)
     {
         foreach (Project project in solution.Projects.OrderBy(p => p.Name, StringComparer.Ordinal))

@@ -44,8 +44,8 @@ internal static class Writes
             case ISimpleAssignmentOperation assignment when assignment.Target.Syntax == expression:
                 if (assignment.Parent is IExpressionStatementOperation statement)
                 {
-                    if (statement.Syntax is ExpressionStatementSyntax line && SideEffects.IsFree(assignment.Value))
-                        RemoveStatement(edits, line);
+                    if (statement.Syntax is ExpressionStatementSyntax written && SideEffects.IsFree(assignment.Value))
+                        RemoveStatement(edits, written);
                     else
                         edits.Replace(expression.Span, "_");
                     return;

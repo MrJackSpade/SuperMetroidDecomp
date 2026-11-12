@@ -34,7 +34,8 @@ developer's checkout, with its own `bin`/`obj` and its own `temp\`), `config.jso
 
 ### The run
 
-1. **Restore** the solution, **build the reachability audit in Release** and **the repository's analyzer and code fixes`n   in Debug** (`csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes`) through `tools/build.ps1`. The code fixes load the
+1. **Restore** the solution, **build the reachability audit in Release** and **the repository's analyzer and code fixes
+   in Debug** (`csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes`) through `tools/build.ps1`. The code fixes load the
    repository's analyzer and fixers from the projects' Debug references, so they must be built first.
 2. **Fix and prune, taking turns, until one of each in a row changes nothing:**
    - **Code fixes:** `dotnet run tools/cleanup/CodeFixRunner.cs -- csharp/SuperMetroid.Full.slnx <summary.json> CA1823,CS0162,CS0168,CS0169,CS0219,CS0414,IDE0004,IDE0005,IDE0032,IDE0044,IDE0051,IDE0052,IDE0059,IDE0076,IDE0077,IDE0079,IDE0330,SME6360,SME6391,SME6400,SME6401`.
@@ -70,30 +71,70 @@ prompts are disabled (`GCM_INTERACTIVE=never`), so a missing credential fails th
 
 `CodeFixRunner.cs` loads every project into one MSBuildWorkspace, runs each project's own analyzers for the requested
 rules with its own configuration, and applies each rule's fixer through its fix-all provider, given exactly the
-findings chosen. `RuleOrder` names where each rule's one fixer comes from: Roslyn's code-style fixers (the same
-fixers `dotnet format style` uses; on a fixture the runner's output for IDE0004, IDE0005, IDE0032, IDE0044, IDE0076
-and IDE0077 is byte-identical to `dotnet format style --diagnostics ... --severity info`), or the repository's own
-fixers in `SuperMetroid.EnsureAnalyzer.CodeFixes` (SME6391: `AdapterChainCodeFixProvider`; CS0168:
-`UnusedVariableCodeFixProvider`). A finding its fixer offers no fix for, or cannot resolve without a choice, fails the
-run, naming the site.
+findings chosen. `RuleOrder` says what reports each rule and where its one fixer comes from:
 
-A compiler warning in the group (CS0168) has no analyzer: the compiler reports it while it binds. The runner reads it
-from the compilation's own diagnostics, with the rule enabled in the per-file options like any other, and applies the
-repository's fixer for it. Such a rule is also absent from `WarningsAsErrors` in `csharp/Directory.Build.props`;
-since the compiler computes it during binding anyway, `none` saves the build its reporting, not its analysis. A
-project that compiled when the run started and has compiler errors after a pass fails the run, naming them.
+| Rule | Reported by | Fixer |
+| --- | --- | --- |
+| IDE0076, IDE0077 | code-style analyzer | Roslyn code-style |
+| IDE0079 | the runner (below) | `UnnecessarySuppressionCodeFixProvider` |
+| SME6360 | `PartialSplitAnalyzer` | `PartialMergeCodeFixProvider` |
+| SME6400 | `OneTypePerFileAnalyzer` | `OneTypePerFileCodeFixProvider` |
+| SME6401 | `TypeFileNameAnalyzer` | `TypeFileNameCodeFixProvider` |
+| IDE0004 | code-style analyzer | Roslyn code-style |
+| CS0162 | the compiler | `UnreachableCodeCodeFixProvider` |
+| IDE0059 | code-style analyzer | Roslyn code-style (`csharp_style_unused_value_assignment_preference = discard_variable`) |
+| CS0219 | the compiler | `UnreadLocalCodeFixProvider` |
+| CS0168 | the compiler | `UnusedVariableCodeFixProvider` |
+| CA1823, IDE0051 | NetAnalyzers, code-style analyzer | `UnusedMemberCodeFixProvider` |
+| CS0169 | the compiler | `UnusedMemberCodeFixProvider` |
+| IDE0052 | code-style analyzer | `WriteOnlyMemberCodeFixProvider` |
+| CS0414 | the compiler | `WriteOnlyMemberCodeFixProvider` |
+| IDE0330, IDE0032, IDE0044 | code-style analyzer | Roslyn code-style |
+| SME6391 | `SpanAdapterAnalyzer` | `AdapterChainCodeFixProvider` |
+| IDE0005 | code-style analyzer | Roslyn code-style |
+
+The order is the order the rules are applied in within a file: suppressions, then the file's layout, then code, then
+the usings the other fixes leave unnecessary. Roslyn's code-style fixers are the ones `dotnet format style` uses; on a
+fixture the runner's output for IDE0004, IDE0005, IDE0032, IDE0044, IDE0076 and IDE0077 is byte-identical to
+`dotnet format style --diagnostics ... --severity info`. The repository's fixers are in
+`SuperMetroid.EnsureAnalyzer.CodeFixes`, which every project references as an analyzer; the runner loads them from the
+projects' Debug references, which `run.ps1` builds first. A fixer resolves every finding without changing behaviour:
+a finding it offers no fix for, or cannot resolve without a choice, fails the run, naming the site, and is never
+skipped. A dead store or initializer whose value could have an effect keeps its evaluation as `_ = value;`.
 
 Since the group is at `none`, the runner enables exactly the requested rules, as warnings, in its own analysis: in
 the compilation's per-file diagnostic options (where the `.editorconfig` severity would otherwise win over any
 compilation-wide setting) and in the analyzer configuration the code-style analyzers read their severity from. It
 enables each rule only where the project's configuration would, were the rule's group line `warning`: it reads the
 project's analyzer configuration files again with that one line changed, so the sections that turn the SME rules off
-outside Core and AssetExtraction keep SME6391 off there. Every other rule keeps the project's configuration, and the
+outside Core and AssetExtraction keep them off there. Every other rule keeps the project's configuration, and the
 build itself never runs these analyzers.
 
+A compiler warning in the group (CS0162, CS0168, CS0169, CS0219, CS0414) has no analyzer: the compiler reports it
+while it binds. The runner reads it from the compilation's own diagnostics, with the rule enabled in the per-file
+options like any other, and applies the repository's fixer for it. Such a rule is also absent from `WarningsAsErrors`
+in `csharp/Directory.Build.props`; since the compiler computes it during binding anyway, `none` saves the build its
+reporting, not its analysis. A project that compiled when the run started and has compiler errors after a pass fails
+the run, naming them.
+
 Roslyn skips an analyzer only when every rule it reports is off. A repository analyzer that reported a moved rule
-beside one that stays an error would still run in every build, so a moved rule gets an analyzer of its own:
-SME6391 is `SpanAdapterAnalyzer`, split from `AdapterChainAnalyzer` (SME6390).
+beside one that stays an error would still run in every build, so a moved rule gets an analyzer of its own: SME6391 is
+`SpanAdapterAnalyzer`, split from `AdapterChainAnalyzer` (SME6390), and SME6360 is `PartialSplitAnalyzer`, split from
+`PartialTypeAnalyzer` (SME6361). Roslyn's own analyzers cannot be split: `CSharpRemoveUnusedValuesDiagnosticAnalyzer`
+reports IDE0059 beside IDE0058 (`silent`), so it still runs in the build.
+
+**IDE0079 (unnecessary suppression) has no command-line analyzer** (only the IDE's suppression analysis reports it),
+so the runner finds its sites itself. When IDE0079 is requested it runs every analyzer of each project, with the whole
+group enabled in its scope and suppressed diagnostics reported (`CompilationWithAnalyzers`,
+`reportSuppressedDiagnostics: true`). A `[SuppressMessage]` or `[UnconditionalSuppressMessage]` (on a member, or at
+assembly level with a target) is needed when it is the attribute that suppressed a diagnostic; a
+`#pragma warning disable` code is needed when a diagnostic of that id, suppressed by no attribute, lies between it
+and its `restore`. Every other suppression of a rule its file enables is unnecessary, and the repository's
+`UnnecessarySuppressionCodeFixProvider` removes it: a pragma loses the unused codes (and its line, and the matching
+restore's, when none is left), an attribute leaves its list (and the list's line when it was alone). A suppression
+without codes, of an unknown rule, of a rule its file does not enable, or in `obj/` is left alone. The analysis sees
+one configuration (Debug), so a suppression whose range or member holds code another configuration compiles (an
+inactive `#if` branch) is kept.
 
 It is a runner rather than `dotnet format` because of shared files. A file compiled into several projects
 (`csharp/test-support` through `.projitems`, or a `<Compile Link>`) is edited only where every project compiling it
@@ -115,9 +156,11 @@ changed file, and the summary lists them all.
 A fix may also add, rename or delete files: SME6400 moves a type into a new file, SME6401 renames a file after its type,
 and SME6360 merges a type's hand-written parts into one and deletes the files it empties. The runner adds a new file to
 every project that compiles the file its finding is in, creates it with that file's byte-order mark (it must not exist
-yet), deletes a removed file, and keeps the explicit source lists in step: in a project file or an imported`n`.projitems`, a single-line `<Compile Include="..."/>` item that names a deleted file goes, one that names a renamed
+yet), deletes a removed file, and keeps the explicit source lists in step: in a project file or an imported
+`.projitems`, a single-line `<Compile Include="..."/>` item that names a deleted file goes, one that names a renamed
 file is retargeted (its `Link` too), and a file created beside a listed one gets a copy of that item right after it. A
-wildcard item already covers a new file in its folder. The summary lists every file written, created or deleted.
+wildcard item already covers a new file in its folder. Git records a renamed file's deletion and creation as a rename.
+The summary lists every file written, created or deleted.
 
 ## Fixtures
 
@@ -137,18 +180,6 @@ that imports `csharp/Directory.Build.props` and names the analyzer and code-fix 
 rule, compares every file (less `bin/`, `obj/` and the two added files) with `expected/`, including which files
 exist, and builds the fixed copy with `tools/build.ps1`. A failed fixture keeps its copy and prints where; the script
 exits nonzero when any fixture fails.
-
-**IDE0079 (unnecessary suppression) has no command-line analyzer** (only the IDE's suppression analysis reports it),
-so the runner finds its sites itself. When IDE0079 is requested it runs every analyzer of each project, with the whole
-group enabled in its scope and suppressed diagnostics reported (`CompilationWithAnalyzers`,
-`reportSuppressedDiagnostics: true`). A `[SuppressMessage]` or `[UnconditionalSuppressMessage]` (on a member, or at
-assembly level with a target) is needed when it is the attribute that suppressed a diagnostic; a`n`#pragma warning disable` code is needed when a diagnostic of that id, suppressed by no attribute, lies between it
-and its `restore`. Every other suppression of a rule its file enables is unnecessary, and the repository's
-`UnnecessarySuppressionCodeFixProvider` removes it: a pragma loses the unused codes (and its line, and the matching
-restore's, when none is left), an attribute leaves its list (and the list's line when it was alone). A suppression
-without codes, of an unknown rule, of a rule its file does not enable, or in `obj/` is left alone. A file compiled
-into several projects is edited only where every project agrees. The analysis sees one configuration (Debug), so a
-suppression whose range or member holds code another configuration compiles (an inactive `#if` branch) is kept.
 
 ## Seeing status
 

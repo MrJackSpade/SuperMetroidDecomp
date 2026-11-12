@@ -6,8 +6,8 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>
 /// An installed image's pixels and maps with its size (#1635): a converted sheet, a picture-store page, or a sheet's image
-/// assembled from the store. The one place a picture's rectangle is copied from one image to another, its colours, recolour
-/// regions and blending together.
+/// assembled from the store. The one place a picture's rectangle is copied from one image to another, its colours alone or
+/// its colours, recolour regions and blending together.
 /// </summary>
 /// <param name="Planes">The pixels, row by row from the top, with the recolour-region and blend maps where the image has them.</param>
 /// <param name="Size">The image's width and height.</param>
@@ -22,6 +22,25 @@ internal readonly record struct InstalledImagePlanes(SpriteImagePixels Planes, E
     /// <exception cref="InvalidOperationException">The rectangle holds a recolour region or blending the target has no map for.</exception>
     internal void CopyTo(FrameRectangle source, InstalledImagePlanes target, Position16<ImagePixels> corner)
     {
+        CopyPixelsTo(source, target, corner);
+        int width = source.Size.X;
+        for (int row = 0; row < source.Size.Y; row++)
+        {
+            int from = ((source.Corner.Y + row) * Size.X) + source.Corner.X;
+            int to = ((corner.Y + row) * target.Size.X) + corner.X;
+            CopyMap(Planes.RecolourRegions, from, target.Planes.RecolourRegions, to, width, "recolour region");
+            CopyMap(Planes.Blending, from, target.Planes.Blending, to, width, "blending");
+        }
+    }
+
+    /// <summary>
+    /// Copies the pixels of <paramref name="source"/>'s rectangle of this image to <paramref name="target"/> with its
+    /// top-left pixel at <paramref name="corner"/>, and none of the maps (#1644): a stored picture is its pixels only, and
+    /// the maps it is shown with are the reference's.
+    /// </summary>
+    /// <exception cref="ArgumentException">A rectangle reaches outside its image.</exception>
+    internal void CopyPixelsTo(FrameRectangle source, InstalledImagePlanes target, Position16<ImagePixels> corner)
+    {
         Ensure.NotNull(Planes);
         Ensure.NotNull(target.Planes);
         var placed = new FrameRectangle(corner, source.Size);
@@ -32,11 +51,8 @@ internal readonly record struct InstalledImagePlanes(SpriteImagePixels Planes, E
         int width = source.Size.X;
         for (int row = 0; row < source.Size.Y; row++)
         {
-            int from = ((source.Corner.Y + row) * Size.X) + source.Corner.X;
-            int to = ((corner.Y + row) * target.Size.X) + corner.X;
-            Planes.Pixels.AsSpan(from, width).CopyTo(target.Planes.Pixels.AsSpan(to, width));
-            CopyMap(Planes.RecolourRegions, from, target.Planes.RecolourRegions, to, width, "recolour region");
-            CopyMap(Planes.Blending, from, target.Planes.Blending, to, width, "blending");
+            Planes.Pixels.AsSpan(((source.Corner.Y + row) * Size.X) + source.Corner.X, width)
+                .CopyTo(target.Planes.Pixels.AsSpan(((corner.Y + row) * target.Size.X) + corner.X, width));
         }
     }
 
@@ -66,13 +82,10 @@ internal readonly record struct InstalledImagePlanes(SpriteImagePixels Planes, E
     /// into it: clear black pixels, recolour region zero and no blending.
     /// </summary>
     internal bool IsClear(FrameRectangle rectangle) =>
-        AllDefault(Planes.Pixels, rectangle) && AllDefault(Planes.RecolourRegions, rectangle) && AllDefault(Planes.Blending, rectangle);
+        ShowsNoPixel(rectangle) && AllDefault(Planes.RecolourRegions, rectangle) && AllDefault(Planes.Blending, rectangle);
 
-    /// <summary>Whether <paramref name="rectangle"/> of this image has a pixel in a recolour region other than zero.</summary>
-    internal bool HasRecolourRegions(FrameRectangle rectangle) => !AllDefault(Planes.RecolourRegions, rectangle);
-
-    /// <summary>Whether <paramref name="rectangle"/> of this image has a pixel the blend map says blends.</summary>
-    internal bool HasBlending(FrameRectangle rectangle) => !AllDefault(Planes.Blending, rectangle);
+    /// <summary>Whether every pixel of <paramref name="rectangle"/> of this image is clear black, whatever its maps hold.</summary>
+    internal bool ShowsNoPixel(FrameRectangle rectangle) => AllDefault(Planes.Pixels, rectangle);
 
     /// <summary>Whether every entry of <paramref name="plane"/> in <paramref name="rectangle"/> is the default; a missing plane is.</summary>
     private bool AllDefault<T>(T[]? plane, FrameRectangle rectangle)

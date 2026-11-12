@@ -59,11 +59,11 @@ internal static class InstalledPictureRulesVerification
         File.WriteAllBytes(Path.Combine(store, PictureStoreFiles.ProvenanceFileName), JsonSerializer.SerializeToUtf8Bytes(
             new PictureStoreProvenance(PictureStoreProvenance.FormatVersion, SupportedCartridge.Sha256,
                 new Dictionary<string, string> { [pageFile] = Convert.ToHexString(SHA256.HashData(page)) },
-                new Dictionary<string, string>(), new Dictionary<string, string>(),
                 new Dictionary<string, StoredPictureDocument>(StringComparer.Ordinal)
                 {
                     [EmptyTag] = new StoredPictureDocument { Page = 0, Corner = default, Size = PageSize },
-                }),
+                },
+                RecolourRegionMaps: null, BlendMaps: null),
             PictureStoreProvenance.JsonOptions));
         InstalledPictureStore pictures = InstalledPictureStore.Open(store);
         var document = new InstalledSheetDocument
@@ -107,11 +107,11 @@ internal static class InstalledPictureRulesVerification
         File.WriteAllBytes(Path.Combine(store, PictureStoreFiles.ProvenanceFileName), JsonSerializer.SerializeToUtf8Bytes(
             new PictureStoreProvenance(PictureStoreProvenance.FormatVersion, SupportedCartridge.Sha256,
                 new Dictionary<string, string> { [pageFile] = Convert.ToHexString(SHA256.HashData(page)) },
-                new Dictionary<string, string>(), new Dictionary<string, string>(),
                 new Dictionary<string, StoredPictureDocument>(StringComparer.Ordinal)
                 {
                     [EmptyTag] = new StoredPictureDocument { Page = 0, Corner = default, Size = PageSize },
-                }),
+                },
+                RecolourRegionMaps: null, BlendMaps: null),
             PictureStoreProvenance.JsonOptions));
         InstalledPictureStore pictures = InstalledPictureStore.Open(store);
         const string unlisted = "P0-0001";

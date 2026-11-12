@@ -8,33 +8,41 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>
-/// Writes an installation's picture store (#1635), the one place pictures are written. Every family's sheets are walked in
-/// one fixed order: the families as given, each family's sheets by ordinal name, each sheet's frame rectangles by corner Y,
-/// then X. The first rectangle showing a picture stores it; every later rectangle showing the same picture
-/// (<see cref="InstalledPictureContent"/>), on any sheet, names that copy. A rectangle that shows nothing at all stores
-/// nothing. The stored pictures are shelf-packed onto pages in that order (<see cref="PicturePageShelves"/>), every picture
-/// admitted to the installation's <see cref="SheetPictureRegistry"/> as its page is written, so a second copy fails the
-/// install. The pages and their maps are encoded in parallel, each into its own files, and the provenance manifest and
-/// each family's sheet manifests are written after them, so the bytes are the same whatever the thread timing.
+/// Writes an installation's picture store (#1635, #1644), the one place pictures are written. Every family's sheets are
+/// walked in one fixed order: the families as given, each family's sheets by ordinal name, each sheet's frame rectangles by
+/// corner Y, then X. The first rectangle showing a picture's pixels stores it; every later rectangle showing the same pixels
+/// (<see cref="InstalledPictureContent"/>), on any sheet, names that copy, whatever recolour regions and blending it shows
+/// them with. Those maps are the rectangle's own (<see cref="PictureMap{T}"/>): each distinct map is stored once, under a
+/// tag of its own, in its own file apart from the pages, and every rectangle names the maps it shows its picture with. A
+/// rectangle that shows nothing at all stores nothing. The stored pictures are shelf-packed onto pages in that order
+/// (<see cref="PicturePageShelves"/>), every picture admitted to the installation's <see cref="SheetPictureRegistry"/> as
+/// its page is written, so a second copy of the same pixels fails the install. The pages are encoded in parallel, each into
+/// its own file, and the map files, the provenance manifest and each family's sheet manifests are written after them, so the
+/// bytes are the same whatever the thread timing.
 /// </summary>
 internal static class PictureStoreWriter
 {
+    /// <summary>The first letter of every recolour-region map's tag.</summary>
+    private const string RecolourRegionMapTag = "R";
+
+    /// <summary>The first letter of every blend map's tag.</summary>
+    private const string BlendMapTag = "B";
+
     /// <summary>Writes the store of <paramref name="families"/> under <paramref name="content"/>, then each family's sheet manifests.</summary>
     /// <param name="content">The content directory the store and the families' directories lie in.</param>
     /// <param name="families">The families, in the order their pictures are written.</param>
     /// <param name="sourceCartridgeSha256">Identity written into every provenance manifest.</param>
     /// <exception cref="ArgumentException">A family's directory does not lie directly under the content directory, or two families share one.</exception>
     /// <exception cref="InvalidDataException">
-    /// A sheet is installed twice under one name, a frame leaves its sheet, a picture does not fit a page, or a picture is
-    /// written twice.
+    /// A sheet is installed twice under one name, a frame leaves its sheet or shows maps but no pixel, a picture does not fit
+    /// a page, or a picture or a map is written twice.
     /// </exception>
     internal static void Write(string content, IReadOnlyList<InstalledSheetFamily> families, string sourceCartridgeSha256)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(content);
         Ensure.NotNull(families);
         string root = Path.TrimEndingDirectorySeparator(Path.GetFullPath(content));
-        var stored = new List<StoredPicture>();
-        var storedOf = new Dictionary<InstalledPictureContent, StoredPicture>();
+        var store = new StoreContents();
         var placed = new List<SheetPictures>();
         var familyNames = new HashSet<string>(StringComparer.Ordinal);
         foreach (InstalledSheetFamily family in families)
@@ -50,9 +58,10 @@ internal static class PictureStoreWriter
             {
                 if (!sheetNames.Add(sheet.Name))
                     throw new InvalidDataException($"Sheet family {family.DirectoryName} installs two sheets named {sheet.Name}.");
-                placed.Add(new SheetPictures(family, sheet, Store(family, sheet, stored, storedOf)));
+                placed.Add(new SheetPictures(family, sheet, Store(family, sheet, store)));
             }
         }
+        List<StoredPicture> stored = store.Pictures;
         var shelves = new PicturePageShelves(stored.Count == 0 ? 0 : stored.Max(picture => picture.Content.Rectangle.Size.X));
         foreach (StoredPicture picture in stored)
         {
@@ -68,23 +77,24 @@ internal static class PictureStoreWriter
             picture.Tag = $"P{picture.Page}-{place:D4}";
         }
         IReadOnlyList<Extent16<ImagePixels>> pages = shelves.Pages;
-        WritePages(root, pages, stored, sourceCartridgeSha256);
+        WriteStore(root, pages, store, sourceCartridgeSha256);
         foreach (InstalledSheetFamily family in families)
             WriteManifests(family, [.. placed.Where(sheet => ReferenceEquals(sheet.Family, family))], sourceCartridgeSha256);
     }
 
     /// <summary>
-    /// Finds where the store holds the picture of each of <paramref name="sheet"/>'s frame rectangles, storing each picture
-    /// no earlier rectangle showed; a rectangle that shows nothing has none.
+    /// Finds where the store holds the picture of each of <paramref name="sheet"/>'s frame rectangles and the maps the
+    /// rectangle shows it with, storing each picture and each map no earlier rectangle showed; a rectangle that shows nothing
+    /// has none.
     /// </summary>
-    /// <returns>Each rectangle showing a picture, with the stored copy it names.</returns>
-    /// <exception cref="InvalidDataException">A frame leaves the sheet.</exception>
-    private static Dictionary<FrameRectangle, StoredPicture> Store(InstalledSheetFamily family, NamedInstalledSheet sheet,
-        List<StoredPicture> stored, Dictionary<InstalledPictureContent, StoredPicture> storedOf)
+    /// <returns>Each rectangle showing a picture, with the stored copy and the maps it names.</returns>
+    /// <exception cref="InvalidDataException">A frame leaves the sheet, or shows a recolour region or blending but no pixel.</exception>
+    private static Dictionary<FrameRectangle, ShownPicture> Store(InstalledSheetFamily family, NamedInstalledSheet sheet, StoreContents store)
     {
         InstalledSheet installed = Ensure.NotNull(sheet.Sheet);
         InstalledImagePlanes image = installed.Image;
-        var shownAt = new Dictionary<FrameRectangle, StoredPicture>();
+        string sheetName = $"{family.DirectoryName}/{sheet.Name}";
+        var shownAt = new Dictionary<FrameRectangle, ShownPicture>();
         foreach (IGrouping<FrameRectangle, string> rectangle in installed.Manifest.Frames
             .GroupBy(frame => new FrameRectangle(frame.Value.Corner, frame.Value.Size), frame => frame.Key)
             .Where(rectangle => !rectangle.Key.IsEmpty)
@@ -98,94 +108,85 @@ internal static class PictureStoreWriter
             }
             catch (InvalidDataException error)
             {
-                throw new InvalidDataException($"Sheet {family.DirectoryName}/{sheet.Name}: {error.Message}", error);
+                throw new InvalidDataException($"Sheet {sheetName}: {error.Message}", error);
             }
+            string frames = string.Join(", ", rectangle.Order(StringComparer.Ordinal));
             if (picture.IsClear)
-                continue;
-            if (!storedOf.TryGetValue(picture, out StoredPicture? copy))
             {
-                copy = new StoredPicture(picture, $"{family.DirectoryName}/{sheet.Name}", string.Join(", ", rectangle.Order(StringComparer.Ordinal)));
-                storedOf.Add(picture, copy);
-                stored.Add(copy);
+                // A rectangle of clear black pixels shows nothing: the import keys no clear pixel, so it has no maps either.
+                if (!image.IsClear(rectangle.Key))
+                    throw new InvalidDataException(
+                        $"Sheet {sheetName} frame(s) [{frames}] at {rectangle.Key} show no pixel but a recolour region or blending.");
+                continue;
             }
-            shownAt.Add(rectangle.Key, copy);
+            if (!store.PictureOf.TryGetValue(picture, out StoredPicture? copy))
+            {
+                copy = new StoredPicture(picture, sheetName, frames);
+                store.PictureOf.Add(picture, copy);
+                store.Pictures.Add(copy);
+            }
+            shownAt.Add(rectangle.Key, new ShownPicture(copy, store.RecolourRegionMaps.Named(picture.RecolourRegions),
+                store.BlendMaps.Named(picture.Blending)));
         }
         return shownAt;
     }
 
     /// <summary>
-    /// Writes every page of <paramref name="pictures"/> into the store under <paramref name="root"/>, with the maps the
-    /// pages need, and the store's provenance manifest; each picture is admitted to the installation's registry first.
+    /// Writes every page of the store's pictures under <paramref name="root"/>, each picture admitted to the installation's
+    /// registry first, then each kind of map the pictures are shown with, and the store's provenance manifest.
     /// </summary>
-    /// <exception cref="InvalidDataException">A picture is written twice.</exception>
-    private static void WritePages(string root, IReadOnlyList<Extent16<ImagePixels>> pages, List<StoredPicture> pictures, string sourceCartridgeSha256)
+    /// <exception cref="InvalidDataException">A picture or a map is written twice.</exception>
+    private static void WriteStore(string root, IReadOnlyList<Extent16<ImagePixels>> pages, StoreContents store, string sourceCartridgeSha256)
     {
         var registry = new SheetPictureRegistry();
         var onPage = new List<StoredPicture>[pages.Count];
         for (int page = 0; page < pages.Count; page++)
             onPage[page] = [];
-        foreach (StoredPicture picture in pictures)
+        foreach (StoredPicture picture in store.Pictures)
         {
             registry.Admit(picture.Content, picture.Sheet, picture.Frames);
             onPage[picture.Page].Add(picture);
         }
         string directory = Path.Combine(root, PictureStoreFiles.DirectoryName);
         Directory.CreateDirectory(directory);
-        var written = new WrittenPage[pages.Count];
+        var written = new string[pages.Count];
         // PNG compression is the slow part; each worker reuses one encoder's buffers for every page it encodes, and each
-        // page goes to its own files, so the files are the same as writing the pages one by one.
+        // page goes to its own file, so the files are the same as writing the pages one by one.
         Parallel.For(0, pages.Count, () => new RgbaPngBuffers(), (page, _, png) =>
         {
-            written[page] = WritePage(root, page, pages[page], onPage[page], png);
+            written[page] = WritePage(directory, page, pages[page], onPage[page], png);
             return png;
         }, png => png.Dispose());
         var pageHashes = new Dictionary<string, string>(StringComparer.Ordinal);
-        var regionHashes = new Dictionary<string, string>(StringComparer.Ordinal);
-        var blendHashes = new Dictionary<string, string>(StringComparer.Ordinal);
         for (int page = 0; page < pages.Count; page++)
-        {
-            pageHashes.Add(PictureStoreFiles.PageFile(page), written[page].Page);
-            if (written[page].RecolourRegions is { } regions)
-                regionHashes.Add(PictureStoreFiles.RecolourRegionFile(page), regions);
-            if (written[page].Blending is { } blending)
-                blendHashes.Add(PictureStoreFiles.BlendMapFileName(page), blending);
-        }
-        Dictionary<string, StoredPictureDocument> tagged = pictures.ToDictionary(picture => picture.Tag,
+            pageHashes.Add(PictureStoreFiles.PageFile(page), written[page]);
+        StoredMapsDocument? regions = store.RecolourRegionMaps.Write(PictureStoreFiles.RecolourRegionMapsFile(root), RecolourRegionMapFile.Encode);
+        StoredMapsDocument? blending = store.BlendMaps.Write(PictureStoreFiles.BlendMapsFile(root), BlendMapFile.Encode);
+        Dictionary<string, StoredPictureDocument> tagged = store.Pictures.ToDictionary(picture => picture.Tag,
             picture => new StoredPictureDocument { Page = picture.Page, Corner = picture.Corner, Size = picture.Content.Rectangle.Size },
             StringComparer.Ordinal);
         File.WriteAllBytes(Path.Combine(directory, PictureStoreFiles.ProvenanceFileName), JsonSerializer.SerializeToUtf8Bytes(
-            new PictureStoreProvenance(PictureStoreProvenance.FormatVersion, sourceCartridgeSha256, pageHashes, regionHashes, blendHashes, tagged),
+            new PictureStoreProvenance(PictureStoreProvenance.FormatVersion, sourceCartridgeSha256, pageHashes, tagged, regions, blending),
             PictureStoreProvenance.JsonOptions));
     }
 
     /// <summary>
-    /// Writes page <paramref name="page"/> of <paramref name="size"/> pixels holding <paramref name="pictures"/>, cleared
-    /// elsewhere: its image, and its recolour-region map or blend map where a picture on it needs one.
+    /// Writes page <paramref name="page"/> of <paramref name="size"/> pixels holding the pixels of <paramref name="pictures"/>,
+    /// clear black elsewhere, into the store's <paramref name="directory"/>.
     /// </summary>
-    /// <returns>The hashes of the files written.</returns>
-    private static WrittenPage WritePage(string root, int page, Extent16<ImagePixels> size, List<StoredPicture> pictures, RgbaPngBuffers png)
+    /// <returns>The page file's hash.</returns>
+    private static string WritePage(string directory, int page, Extent16<ImagePixels> size, List<StoredPicture> pictures, RgbaPngBuffers png)
     {
-        int area = size.X * size.Y;
-        bool regions = pictures.Any(picture => picture.Content.HasRecolourRegions);
-        bool blending = pictures.Any(picture => picture.Content.HasBlending);
-        var planes = new InstalledImagePlanes(new SpriteImagePixels(new RgbaPixel[area], regions ? new int[area] : null,
-            blending ? new bool[area] : null), size);
+        var planes = new InstalledImagePlanes(new SpriteImagePixels(new RgbaPixel[size.X * size.Y], RecolourRegions: null, Blending: null), size);
         foreach (StoredPicture picture in pictures)
-            picture.Content.CopyTo(planes, picture.Corner);
-        string pageHash = WriteFile(Path.Combine(root, PictureStoreFiles.DirectoryName), PictureStoreFiles.PageFile(page),
-            RgbaPng.Encode(size, planes.Planes.Pixels, png));
-        string? regionHash = planes.Planes.RecolourRegions is { } map
-            ? WriteFile(PictureStoreFiles.RecolourRegionDirectory(root), PictureStoreFiles.RecolourRegionFile(page), RecolourRegionMapFile.Encode(size, map))
-            : null;
-        string? blendHash = planes.Planes.Blending is { } blends
-            ? WriteFile(PictureStoreFiles.BlendMapDirectory(root), PictureStoreFiles.BlendMapFileName(page), BlendMapFile.Encode(size, blends))
-            : null;
-        return new WrittenPage(pageHash, regionHash, blendHash);
+            picture.Content.CopyPixelsTo(planes, picture.Corner);
+        return WriteFile(Path.Combine(directory, PictureStoreFiles.PageFile(page)), RgbaPng.Encode(size, planes.Planes.Pixels, png));
     }
 
     /// <summary>
-    /// Writes each of <paramref name="sheets"/>' manifests, every frame naming where the store holds its picture, and the
-    /// family's provenance manifest; the manifests are serialized in parallel and written in the sheets' order.
+    /// Writes each of <paramref name="sheets"/>' manifests, every frame naming where the store holds its picture and the
+    /// maps it shows it with, and the family's provenance manifest; the manifests are serialized in parallel and written in
+    /// the sheets' order.
     /// </summary>
     private static void WriteManifests(InstalledSheetFamily family, SheetPictures[] sheets, string sourceCartridgeSha256)
     {
@@ -195,26 +196,99 @@ internal static class PictureStoreWriter
             [.. sheets.Select((sheet, index) => KeyValuePair.Create(sheet.Sheet.Name, manifests[index]))], sourceCartridgeSha256);
     }
 
-    /// <summary>The installed manifest of <paramref name="sheet"/>, each frame showing a picture naming the store's copy of it.</summary>
+    /// <summary>
+    /// The installed manifest of <paramref name="sheet"/>, each frame showing a picture naming the store's copy of it and the
+    /// maps it shows it with.
+    /// </summary>
     private static byte[] Manifest(SheetPictures sheet)
     {
         InstalledSheetDocument manifest = sheet.Sheet.Sheet.Manifest;
         Dictionary<string, InstalledSheetFrameDocument> frames = manifest.Frames.ToDictionary(frame => frame.Key,
-            frame => sheet.ShownAt.TryGetValue(new FrameRectangle(frame.Value.Corner, frame.Value.Size), out StoredPicture? picture)
-                ? frame.Value with { Picture = new InstalledPictureReferenceDocument { Tag = picture.Tag, Page = picture.Page, Corner = picture.Corner } }
+            frame => sheet.ShownAt.TryGetValue(new FrameRectangle(frame.Value.Corner, frame.Value.Size), out ShownPicture? shown)
+                ? frame.Value with { Picture = shown.Reference }
                 : frame.Value,
             StringComparer.Ordinal);
         return SpriteSheetManifestWriter.Write(manifest with { Frames = frames });
     }
 
-    /// <summary>Writes a new installed file into <paramref name="folder"/>.</summary>
+    /// <summary>Writes a new installed file at <paramref name="path"/>, creating its folder.</summary>
     /// <returns>The file's SHA-256.</returns>
-    private static string WriteFile(string folder, string name, byte[] bytes)
+    private static string WriteFile(string path, byte[] bytes)
     {
-        Directory.CreateDirectory(folder);
-        using (var file = new FileStream(Path.Combine(folder, name), FileMode.CreateNew, FileAccess.Write))
+        Directory.CreateDirectory(Ensure.NotNull(Path.GetDirectoryName(path)));
+        using (var file = new FileStream(path, FileMode.CreateNew, FileAccess.Write))
             file.Write(bytes);
         return Convert.ToHexString(SHA256.HashData(bytes));
+    }
+
+    /// <summary>What the store holds once every sheet is walked: its pictures and the maps they are shown with.</summary>
+    private sealed class StoreContents
+    {
+        /// <summary>Every stored picture, in write order.</summary>
+        internal List<StoredPicture> Pictures { get; } = [];
+
+        /// <summary>Every stored picture, by its pixels.</summary>
+        internal Dictionary<InstalledPictureContent, StoredPicture> PictureOf { get; } = new();
+
+        /// <summary>Every recolour-region map a picture is shown with.</summary>
+        internal StoredMaps<int> RecolourRegionMaps { get; } = new(RecolourRegionMapTag, "recolour-region");
+
+        /// <summary>Every blend map a picture is shown with.</summary>
+        internal StoredMaps<bool> BlendMaps { get; } = new(BlendMapTag, "blend");
+    }
+
+    /// <summary>
+    /// Every map of one kind the store's pictures are shown with, each once by its values, tagged in the order rectangles
+    /// first show it: the kind's letter and its place, such as <c>R0042</c>.
+    /// </summary>
+    /// <param name="prefix">The kind's letter, the start of every tag.</param>
+    /// <param name="kind">Names the kind in a failure.</param>
+    /// <typeparam name="T">The value each pixel of a map holds.</typeparam>
+    private sealed class StoredMaps<T>(string prefix, string kind)
+        where T : unmanaged, IEquatable<T>
+    {
+        /// <summary>Every map's tag, by its values.</summary>
+        private readonly Dictionary<PictureMap<T>, string> tags = new();
+
+        /// <summary>Every map by its tag, in tag order.</summary>
+        private readonly List<KeyValuePair<string, PictureMap<T>>> maps = [];
+
+        /// <summary>The tag of <paramref name="map"/>, which is stored when no earlier rectangle showed it; null for no map.</summary>
+        internal string? Named(PictureMap<T>? map)
+        {
+            if (map is null)
+                return null;
+            if (tags.TryGetValue(map, out string? tag))
+                return tag;
+            tag = $"{prefix}{maps.Count:D4}";
+            tags.Add(map, tag);
+            maps.Add(KeyValuePair.Create(tag, map));
+            return tag;
+        }
+
+        /// <summary>
+        /// Writes every map at <paramref name="path"/>, as <paramref name="encode"/> encodes them, each admitted once by its
+        /// values first; nothing where no rectangle showed a map of this kind.
+        /// </summary>
+        /// <returns>What the provenance lists of the maps, or null where none is written.</returns>
+        /// <exception cref="InvalidDataException">A map's values are written twice.</exception>
+        internal StoredMapsDocument? Write(string path, Func<List<KeyValuePair<string, PictureMap<T>>>, byte[]> encode)
+        {
+            if (maps.Count == 0)
+                return null;
+            var admitted = new Dictionary<PictureMap<T>, string>();
+            foreach ((string tag, PictureMap<T> map) in maps)
+            {
+                if (!admitted.TryAdd(map, tag))
+                    throw new InvalidDataException(
+                        $"The {kind} maps {admitted[map]} and {tag} hold the same values, and both were written: a map is written once per installation (#1644).");
+            }
+            return new StoredMapsDocument
+            {
+                Sha256 = WriteFile(path, encode(maps)),
+                Maps = maps.ToDictionary(map => map.Key, map => map.Value.Size, StringComparer.Ordinal),
+            };
+        }
     }
 
     /// <summary>One picture the store holds, where it was first shown, and where it lies once packed.</summary>
@@ -242,15 +316,26 @@ internal static class PictureStoreWriter
         internal string Tag { get; set; } = string.Empty;
     }
 
-    /// <summary>One sheet and where the store holds the picture of each of its frame rectangles that shows one.</summary>
+    /// <summary>What one frame rectangle shows: a stored picture, with the maps the rectangle shows it with.</summary>
+    /// <param name="Picture">The stored picture.</param>
+    /// <param name="RecolourRegionMap">The tag of its recolour-region map, or null for none.</param>
+    /// <param name="BlendMap">The tag of its blend map, or null for none.</param>
+    private sealed record ShownPicture(StoredPicture Picture, string? RecolourRegionMap, string? BlendMap)
+    {
+        /// <summary>The reference the rectangle's frames name, once the picture is packed.</summary>
+        internal InstalledPictureReferenceDocument Reference => new()
+        {
+            Tag = Picture.Tag,
+            Page = Picture.Page,
+            Corner = Picture.Corner,
+            RecolourRegionMap = RecolourRegionMap,
+            BlendMap = BlendMap,
+        };
+    }
+
+    /// <summary>One sheet and what each of its frame rectangles that shows a picture shows.</summary>
     /// <param name="Family">The sheet's family.</param>
     /// <param name="Sheet">The sheet.</param>
-    /// <param name="ShownAt">Each frame rectangle showing a picture, with the stored copy it names.</param>
-    private sealed record SheetPictures(InstalledSheetFamily Family, NamedInstalledSheet Sheet, Dictionary<FrameRectangle, StoredPicture> ShownAt);
-
-    /// <summary>The hashes of one page's files.</summary>
-    /// <param name="Page">The page image's.</param>
-    /// <param name="RecolourRegions">Its recolour-region map's, or null where it has none.</param>
-    /// <param name="Blending">Its blend map's, or null where it has none.</param>
-    private sealed record WrittenPage(string Page, string? RecolourRegions, string? Blending);
+    /// <param name="ShownAt">Each frame rectangle showing a picture, with the stored copy and the maps it names.</param>
+    private sealed record SheetPictures(InstalledSheetFamily Family, NamedInstalledSheet Sheet, Dictionary<FrameRectangle, ShownPicture> ShownAt);
 }

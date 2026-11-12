@@ -52,14 +52,15 @@ public static class GameInstallationLayout
     /// <summary>Pre-assembled boss body sheets, one per boss (#1466).</summary>
     public const string BossBodySheetDirectoryName = "boss-body-sheets";
     /// <summary>
-    /// Content child directory for the picture store's recolour-region maps (#1633, #1635), apart from the pictures: its
-    /// <c>pictures</c> folder holds a <c>.regions</c> map for each page holding a picture whose pixels of one colour recolour
-    /// differently.
+    /// Content child directory for the recolour-region maps the picture store's pictures are shown with (#1633, #1644), apart
+    /// from the pictures: <c>pictures.regions</c> holds each map once, by its tag, which the frames showing a picture whose
+    /// pixels of one colour recolour differently name.
     /// </summary>
     public const string RecolourRegionDirectoryName = "recolour-regions";
     /// <summary>
-    /// Content child directory for the picture store's blend maps (#1633, #1635), apart from the pictures: its
-    /// <c>pictures</c> folder holds a <c>.blendmap</c> map for each page holding a picture that blends in its pixels.
+    /// Content child directory for the blend maps the picture store's pictures are shown with (#1633, #1644), apart from the
+    /// pictures: <c>pictures.blendmap</c> holds each map once, by its tag, which the frames showing a picture that blends in
+    /// some of its pixels name.
     /// </summary>
     public const string BlendMapDirectoryName = "blend-maps";
     /// <summary>Content child directory shared by background tilemaps and sky tilemaps.</summary>
@@ -135,7 +136,7 @@ public static class GameInstallationLayout
     /// <summary>Receipt filename within stock content, recording the installation format and source cartridge digest.</summary>
     public const string ReceiptFileName = "installation.json";
     /// <summary>Current installation-receipt version; content whose receipt names another is extracted again before opening.</summary>
-    public const int FormatVersion = 276;
+    public const int FormatVersion = 277;
     /// <summary>Backup of the previously published stock game tree during an atomic install.</summary>
     internal const string PreviousDirectoryName = ".game.previous";
     /// <summary>Prefix for a stock tree being prepared before publication.</summary>

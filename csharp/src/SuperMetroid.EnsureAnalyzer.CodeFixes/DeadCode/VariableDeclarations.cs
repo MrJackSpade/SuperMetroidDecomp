@@ -12,7 +12,7 @@ internal static class VariableDeclarations
 {
     /// <summary>Removes <paramref name="removed"/> from their declarations; <paramref name="diagnostic"/> names the site
     /// of a declaration this cannot edit.</summary>
-    internal static void Remove(SourceEdits edits, IEnumerable<VariableDeclaratorSyntax> removed, Func<SyntaxNode, Diagnostic> diagnostic)
+    internal static void Remove(SourceEdits edits, List<VariableDeclaratorSyntax> removed, Func<SyntaxNode, Diagnostic> diagnostic)
     {
         foreach (var group in removed.GroupBy(declarator => declarator.Parent))
         {

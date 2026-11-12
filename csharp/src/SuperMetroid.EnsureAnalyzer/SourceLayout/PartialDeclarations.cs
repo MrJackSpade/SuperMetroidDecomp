@@ -7,7 +7,7 @@ namespace SuperMetroid.EnsureAnalyzer.SourceLayout;
 /// <summary>A partial type's declarations, and which of them are hand-written rather than generated (#621).</summary>
 public sealed class PartialDeclarations
 {
-    private PartialDeclarations(IReadOnlyList<TypeDeclarationSyntax> all, IReadOnlyList<TypeDeclarationSyntax> handWritten)
+    private PartialDeclarations(List<TypeDeclarationSyntax> all, List<TypeDeclarationSyntax> handWritten)
     {
         All = all;
         HandWritten = handWritten;

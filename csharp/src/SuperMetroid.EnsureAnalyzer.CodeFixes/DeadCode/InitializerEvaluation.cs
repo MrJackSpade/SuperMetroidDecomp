@@ -16,7 +16,7 @@ namespace SuperMetroid.EnsureAnalyzer.CodeFixes.DeadCode;
 internal static class InitializerEvaluation
 {
     /// <summary>Inserts the evaluations of <paramref name="kept"/>.</summary>
-    internal static async Task KeepAsync(SolutionEdits edits, IReadOnlyList<KeptInitializer> kept, Diagnostic site, CancellationToken cancellationToken)
+    internal static async Task KeepAsync(SolutionEdits edits, List<KeptInitializer> kept, Diagnostic site, CancellationToken cancellationToken)
     {
         foreach (var byType in kept.GroupBy(initializer => initializer.Member.ContainingType, SymbolEqualityComparer.Default))
         {

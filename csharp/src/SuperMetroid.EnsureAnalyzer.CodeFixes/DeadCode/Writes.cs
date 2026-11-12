@@ -16,7 +16,7 @@ namespace SuperMetroid.EnsureAnalyzer.CodeFixes.DeadCode;
 internal static class Writes
 {
     /// <summary>Removes the writes at <paramref name="references"/> to <paramref name="symbol"/>.</summary>
-    internal static async Task RemoveAsync(SolutionEdits edits, ISymbol symbol, IEnumerable<ReferenceLocation> references, Diagnostic site,
+    internal static async Task RemoveAsync(SolutionEdits edits, ISymbol symbol, List<ReferenceLocation> references, Diagnostic site,
         CancellationToken cancellationToken)
     {
         foreach (ReferenceLocation reference in references)
@@ -77,7 +77,7 @@ internal static class Writes
     }
 
     /// <summary>Removes a statement from its block, or leaves an empty block where the syntax needs a statement.</summary>
-    internal static void RemoveStatement(SourceEdits edits, StatementSyntax statement)
+    internal static void RemoveStatement(SourceEdits edits, ExpressionStatementSyntax statement)
     {
         if (statement.Parent is GlobalStatementSyntax global)
             edits.Remove(global);

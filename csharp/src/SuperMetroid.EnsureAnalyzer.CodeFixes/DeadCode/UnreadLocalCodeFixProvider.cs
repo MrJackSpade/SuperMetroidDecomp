@@ -44,7 +44,7 @@ public sealed class UnreadLocalCodeFixProvider : DocumentFixProvider
             if (declarator.Initializer is { } initializer && !SideEffects.IsFree(model.GetOperation(initializer.Value, cancellationToken)))
                 throw new CleanupFailure(diagnostic, $"the initializer of '{local.Name}' could have an effect");
             var references = await SymbolFinder.FindReferencesAsync(local, solution, ImmutableHashSet.Create(document), cancellationToken).ConfigureAwait(false);
-            await Writes.RemoveAsync(edits, local, references.SelectMany(found => found.Locations), diagnostic, cancellationToken).ConfigureAwait(false);
+            await Writes.RemoveAsync(edits, local, [.. references.SelectMany(found => found.Locations)], diagnostic, cancellationToken).ConfigureAwait(false);
             declarators.Add(declarator);
             sites[declarator] = diagnostic;
         }

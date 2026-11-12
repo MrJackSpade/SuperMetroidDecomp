@@ -1,4 +1,5 @@
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
 namespace SuperMetroid.EnsureAnalyzer.CodeFixes.Cleanup;
@@ -37,12 +38,12 @@ internal sealed class SourceEdits
     /// <summary>Removes <paramref name="node"/>, with its lines when it stands on lines of its own.</summary>
     internal void Remove(SyntaxNode node) => RemoveRange(node, node);
 
-    /// <summary>Removes <paramref name="node"/> as <see cref="Remove"/> does, but leaves the comments and
-    /// documentation above it, which belong to what follows (an attribute list's member).</summary>
-    internal void RemoveKeepingComments(SyntaxNode node) => RemoveRange(node, node, attached: false);
+    /// <summary>Removes an attribute list as <see cref="Remove"/> removes a node, but leaves the comments and
+    /// documentation above it, which belong to the member it is on.</summary>
+    internal void RemoveKeepingComments(AttributeListSyntax list) => RemoveRange(list, list, attached: false);
 
-    /// <summary>Removes the line of a preprocessor directive.</summary>
-    internal void RemoveDirectiveLine(SyntaxNode directive) =>
+    /// <summary>Removes the line of a <c>#pragma warning</c> directive.</summary>
+    internal void RemoveDirectiveLine(PragmaWarningDirectiveTriviaSyntax directive) =>
         _directiveLines.Add(_text.Lines.GetLineFromPosition(directive.SpanStart).SpanIncludingLineBreak);
 
     /// <summary>Removes <paramref name="first"/> through <paramref name="last"/>, siblings in source order, with the

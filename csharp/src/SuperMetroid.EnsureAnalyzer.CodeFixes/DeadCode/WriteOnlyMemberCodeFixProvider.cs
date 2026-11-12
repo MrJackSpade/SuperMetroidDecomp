@@ -8,8 +8,8 @@ using SuperMetroid.EnsureAnalyzer.CodeFixes.Cleanup;
 namespace SuperMetroid.EnsureAnalyzer.CodeFixes.DeadCode;
 
 /// <summary>
-/// CS0414, a private field assigned but never read, enforced by the asynchronous cleanup (#1659). The field and every
-/// write to it go (<see cref="Writes"/>): a write of a value free of effects is deleted, any other keeps its value as
+/// CS0414, a private field assigned but never read (#1659), and IDE0052, a private field or automatic property written
+/// but never read (#1660), enforced by the asynchronous cleanup. The member and every write to it go (<see cref="Writes"/>): a write of a value free of effects is deleted, any other keeps its value as
 /// <c>_ = value;</c>, and an assignment used as a value is replaced by the value. An initializer that could have an
 /// effect is kept at the start of the type's constructors (<see cref="InitializerEvaluation"/>).
 /// </summary>
@@ -19,8 +19,11 @@ public sealed class WriteOnlyMemberCodeFixProvider : DocumentFixProvider
     /// <summary>The compiler's assigned-but-never-read field warning.</summary>
     public const string FieldId = "CS0414";
 
+    /// <summary>The code-style rule for a private member written but never read.</summary>
+    public const string MemberId = "IDE0052";
+
     /// <inheritdoc />
-    public override ImmutableArray<string> FixableDiagnosticIds => [FieldId];
+    public override ImmutableArray<string> FixableDiagnosticIds => [FieldId, MemberId];
 
     /// <inheritdoc />
     internal override string Title => "Remove the member that is never read";

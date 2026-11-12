@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Verification.Harness;
@@ -58,7 +59,8 @@ internal static class RoomBlockPicturesVerification
         new(() => RoomBlockSheetInputs.Load(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.Directory));
 
     private static readonly Lazy<IReadOnlyDictionary<TilesetDefinition, RoomBlockUploads.TilesetUploads>> TilesetUploads =
-        new(() => RoomBlockUploads.ByTileset(RoomBlockSheetInputs.Load(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.Directory)));
+        new(() => SharedFixtureTiming.Load("Fixture: room block uploads by tileset",
+            () => RoomBlockUploads.ByTileset(RoomBlockSheetInputs.Load(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.Directory))));
 
     /// <summary>
     /// In the Landing Site, whose blocks show its load alone, in the Wasteland, whose spikes animate, in the Morph Ball

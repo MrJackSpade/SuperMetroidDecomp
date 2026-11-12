@@ -122,8 +122,10 @@ The developer runs, before pushing:
 pwsh -File tools/cleanup/pull.ps1
 ```
 
-It fetches and rebases local commits onto the cleanup's commits (`git pull --rebase=merges --autostash origin main`),
-keeping local `--no-ff` merges as merges, then prints the status. A conflict stops the rebase where git reports it.
+It fetches the cleaned branch and, when it holds commits the branch lacks, merges them (`git merge --no-ff -X ours`),
+so main's first-parent history stays the developer's and every conflicting line keeps the developer's side. Cleanup
+output is regenerated, never hand-merged: a line the developer also changed is cleaned again by the next run. It
+refuses to run over uncommitted changes, then prints the status.
 
 If the developer pushes while a run is in progress, the run's push is rejected. The service then discards its commit,
 resets to the new tip and runs again from the top: the cleanup is regenerated, never merged. It does this only when

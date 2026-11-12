@@ -570,6 +570,9 @@ internal static class FullRunSuitesVerification
         // A picture two sheets show is stored once (#1635).
         new(nameof(SuperMetroid.Verification.Assets.PictureStoreSharingVerification.VerifySharedPictureStoredOnce),
             SuperMetroid.Verification.Assets.PictureStoreSharingVerification.VerifySharedPictureStoredOnce),
+        // A stored picture is its pixels only, stored once; the maps it is shown with are its frames' (#1644).
+        new(nameof(SuperMetroid.Verification.Assets.PictureStorePixelIdentityVerification.VerifyStoredPicturesArePixelsOnly),
+            SuperMetroid.Verification.Assets.PictureStorePixelIdentityVerification.VerifyStoredPicturesArePixelsOnly),
         new(nameof(SuperMetroid.Verification.Assets.SheetPictureIdentitiesVerification.VerifyCellPicturesNamedByDomain),
             SuperMetroid.Verification.Assets.SheetPictureIdentitiesVerification.VerifyCellPicturesNamedByDomain),
         new(nameof(SuperMetroid.Verification.Frontend.TypedTextGlyphsVerification.VerifyTypedStepsNotPicturedWhole),

@@ -7,13 +7,10 @@ internal static class ImageSpriteDrawAccess
     extension(ImageSpriteDraw self)
     {
         /// <summary>
-        /// The composed palette index of the image pixel shown at <paramref name="cell"/> (#1544): its colour group's place
-        /// times sixteen plus its colour; zero, the transparent colour, for a transparent pixel or where a rotting corpse's
-        /// rot has cleared the row (#1539). The index is the import's record of a picture a check composed (#1633).
+        /// The image pixel shown at <paramref name="cell"/> (#1633): the sheet's pixel there, or a clear pixel where a rotting
+        /// corpse's rot has cleared the row (#1539).
         /// </summary>
-        public int PaletteIndexAt(Position16<ScreenPixels> cell) => self.SheetIndex(cell) is int index
-            ? SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.ComposedIndexAt(self.Image.Sheet, index)
-            : 0;
+        public RgbaPixel PixelAt(Position16<ScreenPixels> cell) => self.SheetIndex(cell) is int index ? self.Image.Sheet.Pixels[index] : default;
         /// <summary>
         /// Where on the sheet the pixel shown at <paramref name="cell"/> lies, as the renderer samples it: through a rotting
         /// corpse's rows across the whole image, if the draw shows any (#1539); none where the rot has cleared it.

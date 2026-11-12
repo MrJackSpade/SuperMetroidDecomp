@@ -176,10 +176,10 @@ internal static class CorpseRotDrawingVerification
             int? source = authored.PictureRow(placement.Top, y, image.Size.Y);
             for (ushort x = 0; x < image.Size.X; x++)
             {
-                int want = source is int row ? plain.PaletteIndexAt(new Position16<ScreenPixels>(x, checked((ushort)row))) : 0;
-                int got = draw.PaletteIndexAt(new Position16<ScreenPixels>(x, y));
+                RgbaPixel want = source is int row ? plain.PixelAt(new Position16<ScreenPixels>(x, checked((ushort)row))) : default;
+                RgbaPixel got = draw.PixelAt(new Position16<ScreenPixels>(x, y));
                 if (want != got)
-                    throw new InvalidOperationException($"{context}: pixel ({x},{y}) shows palette index {got}, where the corpse's own rot leaves {want}.");
+                    throw new InvalidOperationException($"{context}: pixel ({x},{y}) shows {got}, where the corpse's own rot leaves {want}.");
             }
         }
         string key = context[..context.IndexOf(" after", StringComparison.Ordinal)];

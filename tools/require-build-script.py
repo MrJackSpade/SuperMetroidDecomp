@@ -7,6 +7,19 @@ import re
 import sys
 
 command = json.load(sys.stdin).get("tool_input", {}).get("command", "")
+# A verification run goes through tools/run-verification.ps1, which builds first and runs nothing when the build fails,
+# so no run ever uses a binary older than the source (owner rule, 2026-11-11).
+direct_run = re.search(r"SuperMetroid\.(?:Verification|RenderVerification|DesktopVerification|IntegrationVerification)\.(?:exe|dll)\b", command)
+if direct_run and not re.search(r"tools[\\/]run-verification\.ps1", command):
+    print(json.dumps({"hookSpecificOutput": {
+        "hookEventName": "PreToolUse",
+        "permissionDecision": "deny",
+        "permissionDecisionReason":
+            "Run verification with `pwsh -File tools/run-verification.ps1 <Verification|RenderVerification|"
+            "DesktopVerification|IntegrationVerification> [arguments...]`: it builds first and runs nothing when the build "
+            "fails, so a run never uses a stale binary.",
+    }}))
+    sys.exit(0)
 direct = re.search(r"\bdotnet(?:\.exe)?[\"']?\s+build\b", command)
 through_script = re.search(r"tools[\\/]build\.ps1", command)
 if direct and not through_script:

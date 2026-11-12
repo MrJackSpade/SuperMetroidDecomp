@@ -33,7 +33,6 @@ dotnet_diagnostic.CA1069.severity = error
 dotnet_diagnostic.CA2217.severity = error
 dotnet_diagnostic.CA2248.severity = error
 dotnet_diagnostic.CA1812.severity = error
-dotnet_diagnostic.CA1823.severity = error
 dotnet_diagnostic.CA2211.severity = error
 dotnet_diagnostic.CA2201.severity = error
 dotnet_diagnostic.IDE0078.severity = error
@@ -44,6 +43,7 @@ dotnet_diagnostic.SYSLIB1054.severity = error
 # analyzers, so they cost no build time; tools/cleanup/run.ps1 reads this group from here. A compiler warning (CS) here
 # is also absent from WarningsAsErrors in Directory.Build.props: the compiler still computes it while binding, so none
 # saves its reporting, and the cleanup fixes it with a repository-built fixer.
+dotnet_diagnostic.CA1823.severity = none
 dotnet_diagnostic.CS0162.severity = none
 dotnet_diagnostic.CS0168.severity = none
 dotnet_diagnostic.CS0219.severity = none

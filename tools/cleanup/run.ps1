@@ -28,6 +28,7 @@ $solution = 'csharp/SuperMetroid.Full.slnx'
 # csharp/.editorconfig (Get-FixedRules); a rule there with no words here, or words here for a rule not there, fails
 # the run, so the two never drift apart silently.
 $FixedRuleWords = [ordered]@{
+    CA1823 = 'unused private fields removed'
     CS0162 = 'unreachable code removed'
     CS0168 = 'unused variables removed'
     CS0219 = 'unread constant locals removed'

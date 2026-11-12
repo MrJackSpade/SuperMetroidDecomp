@@ -12,6 +12,9 @@ dotnet_diagnostic.IDE2001.severity = silent
 # IDE2003: Blank line required between block and subsequent statement
 dotnet_diagnostic.IDE2003.severity = silent
 
+# IDE0059: the cleanup's fixer always keeps a dead store's value as a discard (_ = value) instead of choosing (#1664).
+csharp_style_unused_value_assignment_preference = discard_variable
+
 # Project quality gates
 #
 # These diagnostics describe code shapes the project intentionally treats as
@@ -22,9 +25,6 @@ dotnet_diagnostic.CA1822.severity = error
 dotnet_diagnostic.CA1859.severity = error
 dotnet_diagnostic.CA1826.severity = error
 dotnet_diagnostic.IDE0060.severity = error
-dotnet_diagnostic.IDE0059.severity = error
-dotnet_diagnostic.IDE0051.severity = error
-dotnet_diagnostic.IDE0052.severity = error
 dotnet_diagnostic.IDE0010.severity = error
 dotnet_diagnostic.IDE0072.severity = error
 dotnet_diagnostic.CA1508.severity = error
@@ -35,20 +35,37 @@ dotnet_diagnostic.CA1069.severity = error
 dotnet_diagnostic.CA2217.severity = error
 dotnet_diagnostic.CA2248.severity = error
 dotnet_diagnostic.CA1812.severity = error
-dotnet_diagnostic.CA1823.severity = error
 dotnet_diagnostic.CA2211.severity = error
 dotnet_diagnostic.CA2201.severity = error
 dotnet_diagnostic.IDE0078.severity = error
 dotnet_diagnostic.SYSLIB1054.severity = error
-# Owner decision (2026-11-11): Roslyn's own code fixes resolve these without a choice; the asynchronous cleanup enforces them.
-# At none the build skips their analyzers, so they cost no build time; tools/cleanup/run.ps1 reads this group from here.
+# Owner decision (2026-11-11): an existing code fix resolves these without a choice (Roslyn's code-style fixers, or the
+# repository's own in SuperMetroid.EnsureAnalyzer.CodeFixes); the asynchronous cleanup enforces them, each only where
+# the rest of this file applies it (an SME rule only in Core and AssetExtraction). At none the build skips their
+# analyzers, so they cost no build time; tools/cleanup/run.ps1 reads this group from here. A compiler warning (CS) here
+# is also absent from WarningsAsErrors in Directory.Build.props: the compiler still computes it while binding, so none
+# saves its reporting, and the cleanup fixes it with a repository-built fixer.
+dotnet_diagnostic.CA1823.severity = none
+dotnet_diagnostic.CS0162.severity = none
+dotnet_diagnostic.CS0168.severity = none
+dotnet_diagnostic.CS0169.severity = none
+dotnet_diagnostic.CS0219.severity = none
+dotnet_diagnostic.CS0414.severity = none
 dotnet_diagnostic.IDE0004.severity = none
 dotnet_diagnostic.IDE0005.severity = none
 dotnet_diagnostic.IDE0032.severity = none
 dotnet_diagnostic.IDE0044.severity = none
+dotnet_diagnostic.IDE0051.severity = none
+dotnet_diagnostic.IDE0052.severity = none
+dotnet_diagnostic.IDE0059.severity = none
 dotnet_diagnostic.IDE0076.severity = none
 dotnet_diagnostic.IDE0077.severity = none
 dotnet_diagnostic.IDE0079.severity = none
+dotnet_diagnostic.IDE0330.severity = none
+dotnet_diagnostic.SME6360.severity = none
+dotnet_diagnostic.SME6391.severity = none
+dotnet_diagnostic.SME6400.severity = none
+dotnet_diagnostic.SME6401.severity = none
 # #627: a primitive switched over named constants is a closed domain; model it as a type.
 dotnet_diagnostic.SME6270.severity = error
 # #627: closed-domain switches handle every member and fail loudly on undefined values.
@@ -80,8 +97,6 @@ dotnet_diagnostic.SME6283.severity = error
 dotnet_diagnostic.SME6330.severity = error
 dotnet_diagnostic.SME6331.severity = error
 dotnet_diagnostic.SME6332.severity = error
-
-dotnet_diagnostic.IDE0330.severity = error
 
 # #620/#677: reusable argument guards use Ensure; Ensure calls let it capture the value expression.
 dotnet_diagnostic.SME6201.severity = error

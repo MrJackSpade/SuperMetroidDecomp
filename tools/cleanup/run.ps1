@@ -1,7 +1,8 @@
 # One cleanup run on the clone the service has just reset to the remote tip (tools/cleanup/README.md). The service
 # runs the tree's own copy, so the fixes always match the code they clean. Everything it prints goes to the run's log.
 #
-# 1. Restores the solution and builds the reachability audit in Release (the prune runs it without building).
+# 1. Restores the solution, builds the reachability audit in Release (the prune runs it without building) and the
+#    repository's analyzer and code fixes in Debug (CodeFixRunner.cs loads them from the projects' Debug references).
 # 2. Takes turns at the code fixes of the automatically fixed rules (CodeFixRunner.cs, the rules read from
 #    csharp/.editorconfig), the reachability prune of dead code and the architecture audit's prune of stale reviews,
 #    until one of each in a row changes nothing; a tree seen before means the steps cycle, and the run fails.
@@ -27,17 +28,28 @@ $solution = 'csharp/SuperMetroid.Full.slnx'
 # csharp/.editorconfig (Get-FixedRules); a rule there with no words here, or words here for a rule not there, fails
 # the run, so the two never drift apart silently.
 $FixedRuleWords = [ordered]@{
+    CA1823 = 'unused private fields removed'
+    CS0162 = 'unreachable code removed'
+    CS0168 = 'unused variables removed'
+    CS0169 = 'never-used fields removed'
+    CS0219 = 'unread constant locals removed'
+    CS0414 = 'write-only private fields removed'
     IDE0004 = 'redundant casts removed'
     IDE0005 = 'unused usings removed'
     IDE0032 = 'auto-properties used'
     IDE0044 = 'fields made read-only'
+    IDE0051 = 'unused private members removed'
+    IDE0052 = 'unread private members removed'
+    IDE0059 = 'unnecessary value assignments removed'
     IDE0076 = 'invalid suppression targets removed'
     IDE0077 = 'legacy suppression targets updated'
+    IDE0079 = 'unnecessary suppressions removed'
+    IDE0330 = 'locks use System.Threading.Lock'
+    SME6360 = 'partial types merged'
+    SME6391 = 'span adapters before SequenceEqual removed'
+    SME6400 = 'extra top-level types moved to their own files'
+    SME6401 = 'files named after their types'
 }
-
-# The group's rules that no command-line analyzer reports: the code-style package has none for IDE0079 (README.md),
-# so the cleanup cannot find its sites and CodeFixRunner.cs refuses it.
-$NoCommandLineAnalyzer = @('IDE0079')
 
 # The reachability prune's categories, source prefix and destination for dead code tests still use.
 $PruneCategories = 'unreachable-member,unreachable-type,unreferenced-field,unreferenced-enum-member,unreferenced-constant'
@@ -109,7 +121,7 @@ function Save-Result([hashtable]$Outcome) {
 
 function Get-FixedRules {
     # The automatically fixed group: the `dotnet_diagnostic.<rule>.severity = none` lines directly under the comment in
-    # csharp/.editorconfig that names the asynchronous cleanup. Returns the rules a command-line code fix can apply.
+    # csharp/.editorconfig that names the asynchronous cleanup.
     $path = Join-Path $repository 'csharp/.editorconfig'
     $lines = [IO.File]::ReadAllLines($path)
     $comments = @(for ($index = 0; $index -lt $lines.Count; $index++) { if ($lines[$index] -match '^#.*\basynchronous cleanup\b') { $index } })
@@ -123,14 +135,14 @@ function Get-FixedRules {
     }
     if ($group.Count -eq 0) { throw "No 'dotnet_diagnostic.<rule>.severity = none' line follows the asynchronous cleanup's comment in $path." }
     foreach ($rule in $group) {
-        if (-not $FixedRuleWords.Contains($rule) -and $NoCommandLineAnalyzer -notcontains $rule) {
+        if (-not $FixedRuleWords.Contains($rule)) {
             throw "$path puts $rule in the automatically fixed group, but run.ps1 has no commit-message words for it."
         }
     }
-    foreach ($rule in @($FixedRuleWords.Keys) + $NoCommandLineAnalyzer) {
+    foreach ($rule in @($FixedRuleWords.Keys)) {
         if (-not $group.Contains($rule)) { throw "run.ps1 names $rule, which $path does not put in the automatically fixed group." }
     }
-    return @($group | Where-Object { $NoCommandLineAnalyzer -notcontains $_ })
+    return @($group)
 }
 
 try {
@@ -141,10 +153,12 @@ try {
     if ($head -ne $Tip) { throw "The clone is at $head, not at $Tip." }
     if (Invoke-Git @('status', '--porcelain')) { throw 'The clone has local changes before the run.' }
 
-    Write-Step 'restore and the reachability audit''s Release build'
+    Write-Step 'restore, the reachability audit''s Release build and the code fixes'' Debug build'
     Invoke-Checked 'restore' { dotnet restore $solution -v:q }
     $audit = Invoke-Build 'reachability audit Release build' 'reachability-audit-build.log' @('csharp/src/SuperMetroid.ReachabilityAudit', '-c', 'Release')
     if ($audit.Exit -ne 0) { throw "The reachability audit does not build in Release; see $($audit.Log)." }
+    $fixers = Invoke-Build 'repository analyzer and code fixes Debug build' 'code-fixes-build.log' @('csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes')
+    if ($fixers.Exit -ne 0) { throw "The repository analyzer and code fixes do not build in Debug; see $($fixers.Log)." }
 
     $fixedRules = Get-FixedRules
     $codeFixes = [ordered]@{}
@@ -263,7 +277,7 @@ try {
         $fixedPaths | ForEach-Object { $body.Add("  $_") }
     }
     if ($kept.Count -gt 0) {
-        $body.Add('Left in files compiled by several projects that do not all report them: ' +
+        $body.Add('Left in files compiled by several projects that do not all report them, or by a project that does not compile: ' +
             (($kept.GetEnumerator() | ForEach-Object { "$($_.Key) $($_.Value)" }) -join ', '))
     }
     if ($prunedPaths.Count -gt 0) {

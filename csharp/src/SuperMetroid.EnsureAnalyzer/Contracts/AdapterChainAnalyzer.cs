@@ -9,18 +9,15 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// <summary>
 /// #624: conversions whose only purpose is to reach another operation. A parameterless <c>ToArray()</c> that feeds a
 /// LINQ operator copies a sequence the operator could read directly, and a span's <c>ToArray()</c> before a LINQ
-/// operator copies what a <c>ReadOnlySpanQueries</c> query reads in place. A parameterless <c>AsSpan()</c> before an
-/// array's <c>SequenceEqual</c> adapts what C# 14 already binds to the span comparison. A <c>ToArray()</c> stored,
-/// passed, sliced or compared through another overload keeps an ownership purpose and is not reported.
+/// operator copies what a <c>ReadOnlySpanQueries</c> query reads in place. A <c>ToArray()</c> stored, passed, sliced or
+/// compared through another overload keeps an ownership purpose and is not reported. The span adapter before an array's
+/// <c>SequenceEqual</c> (SME6391) is <see cref="SpanAdapterAnalyzer"/>'s.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class AdapterChainAnalyzer : DiagnosticAnalyzer
 {
     /// <summary>A materialization whose only purpose is to reach the operator that follows it.</summary>
     public const string MaterializationId = "SME6390";
-
-    /// <summary>A parameterless <c>AsSpan()</c> whose only purpose is to reach an array's <c>SequenceEqual</c>.</summary>
-    public const string SpanAdapterId = "SME6391";
 
     /// <summary>The span-query type whose members replace a span's <c>ToArray()</c> bridge.</summary>
     public const string SpanQueriesMetadataName = "SuperMetroid.Core.ReadOnlySpanQueries";
@@ -35,16 +32,6 @@ public sealed class AdapterChainAnalyzer : DiagnosticAnalyzer
         isEnabledByDefault: true,
         description: "Call the operator on the source, or the named span query that reads it in place (#624).");
 
-    /// <summary>Reports a span adapter before an array comparison.</summary>
-    private static readonly DiagnosticDescriptor SpanAdapterRule = new(
-        SpanAdapterId,
-        "Span adapter only to reach SequenceEqual",
-        "'{0}.AsSpan()' only adapts the array for SequenceEqual; compare the array directly",
-        "Collections",
-        DiagnosticSeverity.Error,
-        isEnabledByDefault: true,
-        description: "An array binds to the span SequenceEqual directly; the parameterless AsSpan() adds nothing (#624).");
-
     /// <summary>Span queries by the LINQ operator name they replace.</summary>
     private static readonly ImmutableDictionary<string, string> SpanQueryFor = new Dictionary<string, string>
     {
@@ -53,7 +40,7 @@ public sealed class AdapterChainAnalyzer : DiagnosticAnalyzer
     }.ToImmutableDictionary();
 
     /// <inheritdoc />
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [MaterializationRule, SpanAdapterRule];
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [MaterializationRule];
 
     /// <inheritdoc />
     public override void Initialize(AnalysisContext context)
@@ -63,12 +50,12 @@ public sealed class AdapterChainAnalyzer : DiagnosticAnalyzer
         context.RegisterSyntaxNodeAction(Analyze, SyntaxKind.InvocationExpression);
     }
 
-    /// <summary>Classifies one parameterless ToArray()/AsSpan() call by the operator it feeds.</summary>
+    /// <summary>Classifies one parameterless ToArray() call by the operator it feeds.</summary>
     private static void Analyze(SyntaxNodeAnalysisContext context)
     {
         var adapter = (InvocationExpressionSyntax)context.Node;
         if (adapter is not { Expression: MemberAccessExpressionSyntax access, ArgumentList.Arguments.Count: 0 } ||
-            access.Name.Identifier.Text is not ("ToArray" or "AsSpan") ||
+            access.Name.Identifier.Text != "ToArray" ||
             adapter.Parent is not MemberAccessExpressionSyntax { Parent: InvocationExpressionSyntax next } nextAccess ||
             nextAccess.Expression != adapter)
             return;
@@ -78,15 +65,6 @@ public sealed class AdapterChainAnalyzer : DiagnosticAnalyzer
             return;
         string receiver = Shorten(access.Expression.ToString());
         string operatorName = nextAccess.Name.Identifier.Text;
-        if (access.Name.Identifier.Text == "AsSpan")
-        {
-            if (operatorName == "SequenceEqual" && next.ArgumentList.Arguments.Count == 1 &&
-                model.GetTypeInfo(access.Expression, context.CancellationToken).Type is IArrayTypeSymbol)
-            {
-                context.ReportDiagnostic(Diagnostic.Create(SpanAdapterRule, access.Name.GetLocation(), receiver));
-            }
-            return;
-        }
         if (!IsEnumerable(nextMethod) && !IsSpanQuery(nextMethod))
             return;
         string adapterOwner = (adapterMethod.ReducedFrom ?? adapterMethod).ContainingType.ToDisplayString();
@@ -137,5 +115,5 @@ public sealed class AdapterChainAnalyzer : DiagnosticAnalyzer
         queries.GetTypeMembers().Any(block => block.GetMembers(name).Length > 0);
 
     /// <summary>The receiver text for a message, at most 60 characters.</summary>
-    private static string Shorten(string text) => text.Length > 60 ? text.Substring(0, 57) + "..." : text;
+    internal static string Shorten(string text) => text.Length > 60 ? text.Substring(0, 57) + "..." : text;
 }

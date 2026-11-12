@@ -7,7 +7,6 @@ internal static class Program
     private static int Main()
     {
         Console.WriteLine(new Ca1822().Twice(1));
-        Console.WriteLine(new Ide0330().Increment());
         return 0;
     }
 }

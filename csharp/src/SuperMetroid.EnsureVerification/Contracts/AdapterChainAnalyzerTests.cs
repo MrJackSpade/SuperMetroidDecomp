@@ -32,7 +32,7 @@ internal static class AdapterChainAnalyzerTests
         Expect("class C { int[] M(Span<int> s) => s.ToArray().Select(x => x + 1).ToArray(); }");
         Expect("class C { int M(ReadOnlyMemory<int> m) => m.ToArray().Sum(x => x); }", AdapterChainAnalyzer.MaterializationId, "'.Span.Sum'");
         // SME6391: AsSpan() only to reach an array comparison.
-        Expect("class C { bool M(byte[] a, byte[] b) => a.AsSpan().SequenceEqual(b); }", AdapterChainAnalyzer.SpanAdapterId);
+        Expect("class C { bool M(byte[] a, byte[] b) => a.AsSpan().SequenceEqual(b); }", SpanAdapterAnalyzer.SpanAdapterId);
 
         // Retained conversions with a purpose: ownership copies, slicing, interop, deferred results, comparers.
         Expect("class C { int[] M(List<int> a) { int[] copy = a.ToArray(); return copy; } }");
@@ -57,7 +57,7 @@ internal static class AdapterChainAnalyzerTests
     {
         string source = Header + body;
         var compilation = Compile(source);
-        var diagnostics = compilation.WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(new AdapterChainAnalyzer()))
+        var diagnostics = compilation.WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(new AdapterChainAnalyzer(), new SpanAdapterAnalyzer()))
             .GetAnalyzerDiagnosticsAsync().GetAwaiter().GetResult();
         if (id is null)
         {
@@ -84,7 +84,7 @@ internal static class AdapterChainAnalyzerTests
         Document document = project.AddDocument("Case.cs", SourceText.From(Header + body));
         Compilation compilation = document.Project.GetCompilationAsync().GetAwaiter().GetResult() ??
             throw new InvalidOperationException("Adapter fix fixture produced no compilation.");
-        Diagnostic diagnostic = compilation.WithAnalyzers([new AdapterChainAnalyzer()])
+        Diagnostic diagnostic = compilation.WithAnalyzers([new AdapterChainAnalyzer(), new SpanAdapterAnalyzer()])
             .GetAnalyzerDiagnosticsAsync().GetAwaiter().GetResult().Single();
         var actions = new List<CodeAction>();
         new AdapterChainCodeFixProvider().RegisterCodeFixesAsync(

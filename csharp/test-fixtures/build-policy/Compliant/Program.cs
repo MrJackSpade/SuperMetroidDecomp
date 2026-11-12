@@ -8,7 +8,6 @@ internal static class Program
     {
         Console.WriteLine("policy fixture");
         Console.WriteLine(Ca1822.Twice(1));
-        Console.WriteLine(new Ide0330().Increment());
         return 0;
     }
 }

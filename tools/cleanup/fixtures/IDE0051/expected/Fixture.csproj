@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Cleanup fixture (tools/cleanup/check-fixtures.ps1): built beside the repository's csharp/.editorconfig, with a
+       Directory.Build.props that imports csharp/Directory.Build.props and names the repository's code fixes. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Analyzer Include="$(CleanupCodeFixes)" />
+  </ItemGroup>
+</Project>

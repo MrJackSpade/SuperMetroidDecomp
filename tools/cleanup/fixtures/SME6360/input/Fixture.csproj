@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Cleanup fixture (tools/cleanup/check-fixtures.ps1): built beside the repository's csharp/.editorconfig, with a
+       Directory.Build.props that imports csharp/Directory.Build.props and names the repository's analyzer and fixes.
+       Its sources are listed explicitly, in the order the compiler reads them, so a merged part's file leaves the list. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Analyzer Include="$(CleanupAnalyzer)" />
+    <Analyzer Include="$(CleanupCodeFixes)" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Counter.Reading.cs" />
+    <Compile Include="Counter.cs" />
+    <Compile Include="Widget.cs" />
+    <Compile Include="Widget.More.cs" />
+    <Compile Include="Widget.Generated.cs" />
+  </ItemGroup>
+</Project>

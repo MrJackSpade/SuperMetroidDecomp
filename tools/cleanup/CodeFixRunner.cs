@@ -7,23 +7,43 @@
 // way the asynchronous cleanup needs them applied (tools/cleanup/README.md).
 //
 // It loads every project of a .slnx (or one .csproj) into one MSBuildWorkspace, runs each project's own analyzers for
-// the requested rules with the project's own configuration, and applies the fixes of Roslyn's code-style fixers, the
-// same fixers `dotnet format style` uses, from the code-style package the projects reference.
+// the requested rules with the project's own configuration, and applies each rule's fixer from the assembly RuleOrder
+// names: Roslyn's code-style fixers (the same fixers `dotnet format style` uses) from the code-style package the
+// projects reference, or the repository's own fixers from SuperMetroid.EnsureAnalyzer.CodeFixes.dll, which the
+// projects reference as an analyzer and which must be built in the configuration the workspace opens (Debug; run.ps1
+// builds it first).
 //
 // csharp/.editorconfig sets the group to none, so the build skips their analyzers and they cost it no time. The runner
 // therefore enables exactly the requested rules, as warnings, in its own analysis: in the compilation's per-file
 // diagnostic options, where the .editorconfig severity would otherwise win over any compilation-wide setting, and in
-// the analyzer configuration the code-style analyzers read their own severity from. Every other rule keeps the
-// project's configuration. The caller (tools/cleanup/run.ps1) reads the group from csharp/.editorconfig.
+// the analyzer configuration the code-style analyzers read their own severity from. A rule is enabled only where the
+// project's own configuration would enable it if its line in the group said warning instead of none: a section that
+// turns the rule off for some files (the SME rules outside Core and AssetExtraction) keeps it off there. Every other
+// rule keeps the project's configuration. The caller (tools/cleanup/run.ps1) reads the group from csharp/.editorconfig.
 //
-// IDE0079 (unnecessary suppression) is in the group, but no command-line analyzer reports it (README.md), so the
-// runner refuses to be asked for it rather than report that it found nothing.
+// A compiler warning in the group (CS0168, ...) has no analyzer: the compiler reports it while it binds. The runner
+// reads it from the compilation's own diagnostics, with the rule enabled in the per-file options as above, and applies
+// the repository's fixer for it. A project that compiled when the run started and has compiler errors after a pass
+// fails the run, naming the errors.
+//
+// IDE0079 (unnecessary suppression) has no command-line analyzer either. When it is requested, the runner runs every
+// analyzer of each project with the whole cleanup group enabled in its scope and suppressed diagnostics reported, and
+// finds each #pragma warning disable code and [SuppressMessage] that suppressed nothing (UnnecessarySuppressions). Only
+// a suppression of a rule enabled in its file is judged; one of an unknown or disabled rule is left alone.
 //
 // A file compiled into several projects (test-support through .projitems, or a <Compile Link>) is edited only where
 // every project compiling it reports the same finding at the same place, and not at all while any of them has a
 // compiler error, because a semantic model with errors reads needed code as unnecessary. Where the projects disagree
 // about a file's unnecessary usings, only the usings every project reports are removed; other disagreeing findings
 // are left and counted as kept.
+//
+// A fix may change several files (a field and its property in different parts of a partial type), and may add,
+// rename or delete files (SME6400, SME6401, SME6360). It is accepted only when every file it changes belongs to an
+// analyzed project that compiles, and when no other fix in the same pass has touched one of those files; a file touched
+// in this pass waits for the next. Every project compiling a file of such a fix must still compile after it, or the run
+// fails naming the fix. An added file joins every project that compiles the file its finding is in; when the files are
+// written, the explicit source lists (.projitems and <Compile Include> items) follow the files created and deleted
+// (ProjectLists).
 //
 // Fixes cascade (a removed cast can leave a using unnecessary), so the analysis repeats until a pass finds nothing to
 // apply. Each pass applies one rule per file, because the other findings' spans are stale once a file changes. The
@@ -38,6 +58,7 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
@@ -89,8 +110,9 @@ internal static class CodeFixRun
 /// <summary>What one run fixed and left, for the cleanup's log and commit message.</summary>
 /// <param name="Passes">The analysis passes run, the last of which found nothing to apply.</param>
 /// <param name="Fixed">Sites fixed per rule; for unused usings, the using directives removed.</param>
-/// <param name="Kept">Findings per rule left in files compiled by several projects that do not all report them.</param>
-/// <param name="ChangedFiles">Repository-relative paths of the files written.</param>
+/// <param name="Kept">Findings per rule left unapplied: in files compiled by several projects that do not all report
+/// them, or whose fix changes a file that a project with compiler errors compiles.</param>
+/// <param name="ChangedFiles">Repository-relative paths of the files written, created or deleted, project lists included.</param>
 /// <param name="ProjectsWithCompilerErrors">Projects whose findings were not used because they do not compile.</param>
 internal sealed record CleanupSummary(
     int Passes,
@@ -107,6 +129,48 @@ internal sealed record CleanupSummary(
 internal sealed record ProjectAnalysis(Project Project, List<Diagnostic> CompilerErrors, Dictionary<string, List<Diagnostic>> Findings,
     Dictionary<string, List<Diagnostic>> FixerOnly);
 
+/// <summary>One accepted fix: the solution after it and every file it changed.</summary>
+/// <param name="Solution">The solution with the fix applied in every project that compiles a changed file.</param>
+/// <param name="Paths">The full paths of the files the fix changed, added or removed.</param>
+/// <param name="Origins">Each added file's path, with the path of the file whose finding added it.</param>
+internal sealed record FileFix(Solution Solution, List<string> Paths, Dictionary<string, string> Origins);
+
+/// <summary>Whether a computed fix is applied now, left for the next pass, or kept unapplied.</summary>
+/// <param name="Fix">The accepted fix, or null when it is not applied in this pass.</param>
+/// <param name="Kept">Whether the findings are kept (a project compiling a changed file does not compile) rather
+/// than retried in the next pass.</param>
+internal sealed record FixDecision(FileFix? Fix, bool Kept);
+
+/// <summary>The assembly a rule's code fix provider comes from.</summary>
+internal enum FixerSource
+{
+    /// <summary>Roslyn's code-style fixers: an analyzer reference whose file name ends <c>.CodeStyle.Fixes.dll</c>.</summary>
+    CodeStyle,
+
+    /// <summary>The repository's own fixers: the analyzer reference <c>SuperMetroid.EnsureAnalyzer.CodeFixes.dll</c>.</summary>
+    Repository,
+}
+
+/// <summary>What reports a rule's findings.</summary>
+internal enum FindingSource
+{
+    /// <summary>An analyzer the project references, which must support the rule.</summary>
+    Analyzer,
+
+    /// <summary>The compiler itself, while it binds: the findings are read from the compilation's own diagnostics.</summary>
+    Compiler,
+
+    /// <summary>The runner: a suppression that suppressed nothing in a run of every analyzer with suppressed
+    /// diagnostics reported (<see cref="UnnecessarySuppressions"/>).</summary>
+    UnnecessarySuppression,
+}
+
+/// <summary>A rule the runner applies, what reports it, and where its fixer comes from.</summary>
+/// <param name="Id">The diagnostic id.</param>
+/// <param name="Findings">What reports its findings.</param>
+/// <param name="Fixer">The assembly its one code fix provider is taken from.</param>
+internal sealed record CleanupRule(string Id, FindingSource Findings, FixerSource Fixer);
+
 /// <summary>Loads a solution and applies the requested rules' fixes until none remain.</summary>
 internal sealed class SolutionFixer
 {
@@ -114,11 +178,38 @@ internal sealed class SolutionFixer
     /// in a few passes; reaching this many means the fixes are not converging.</summary>
     private const int MaxPasses = 20;
 
-    /// <summary>The order rules are applied in within a file: suppressions first, then code, then the usings that
-    /// the other fixes can leave unnecessary.</summary>
-    private static readonly string[] RuleOrder = ["IDE0076", "IDE0077", "IDE0004", "IDE0032", "IDE0044", "IDE0005"];
+    /// <summary>The file name of the repository's code fix assembly.</summary>
+    private const string RepositoryFixes = "SuperMetroid.EnsureAnalyzer.CodeFixes.dll";
 
-    /// <summary>The rule of the automatically fixed group that no command-line analyzer reports (README.md).</summary>
+    /// <summary>The order rules are applied in within a file: suppressions first, then the file layout (merged parts,
+    /// one type per file, the file's name), then code (casts, unreachable and dead code, then the rewrites of what is
+    /// left), then the usings that the other fixes can leave unnecessary.</summary>
+    private static readonly CleanupRule[] RuleOrder =
+    [
+        new("IDE0076", FindingSource.Analyzer, FixerSource.CodeStyle),
+        new("IDE0077", FindingSource.Analyzer, FixerSource.CodeStyle),
+        new("IDE0079", FindingSource.UnnecessarySuppression, FixerSource.Repository),
+        new("SME6360", FindingSource.Analyzer, FixerSource.Repository),
+        new("SME6400", FindingSource.Analyzer, FixerSource.Repository),
+        new("SME6401", FindingSource.Analyzer, FixerSource.Repository),
+        new("IDE0004", FindingSource.Analyzer, FixerSource.CodeStyle),
+        new("CS0162", FindingSource.Compiler, FixerSource.Repository),
+        new("IDE0059", FindingSource.Analyzer, FixerSource.CodeStyle),
+        new("CS0219", FindingSource.Compiler, FixerSource.Repository),
+        new("CS0168", FindingSource.Compiler, FixerSource.Repository),
+        new("CA1823", FindingSource.Analyzer, FixerSource.Repository),
+        new("IDE0051", FindingSource.Analyzer, FixerSource.Repository),
+        new("CS0169", FindingSource.Compiler, FixerSource.Repository),
+        new("IDE0052", FindingSource.Analyzer, FixerSource.Repository),
+        new("CS0414", FindingSource.Compiler, FixerSource.Repository),
+        new("IDE0330", FindingSource.Analyzer, FixerSource.CodeStyle),
+        new("IDE0032", FindingSource.Analyzer, FixerSource.CodeStyle),
+        new("IDE0044", FindingSource.Analyzer, FixerSource.CodeStyle),
+        new("SME6391", FindingSource.Analyzer, FixerSource.Repository),
+        new("IDE0005", FindingSource.Analyzer, FixerSource.CodeStyle),
+    ];
+
+    /// <summary>The unnecessary-suppression rule, whose findings the runner computes itself.</summary>
     private const string UnnecessarySuppression = "IDE0079";
 
     /// <summary>The unused-using rule, which reports one finding per file covering every unnecessary using.</summary>
@@ -132,7 +223,7 @@ internal sealed class SolutionFixer
     private readonly HashSet<string> _rules;
     private readonly bool _dryRun;
     private readonly string _root;
-    private readonly Dictionary<string, Assembly> _fixerAssemblies = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, List<CodeFixProvider>> _fixerAssemblies = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>Creates a fixer for a solution or project file and the rules to fix.</summary>
     public SolutionFixer(string target, string[] rules, bool dryRun)
@@ -141,11 +232,8 @@ internal sealed class SolutionFixer
         _rules = rules.ToHashSet(StringComparer.Ordinal);
         foreach (string rule in _rules)
         {
-            if (rule == UnnecessarySuppression)
-                throw new ArgumentException($"{rule} has no command-line analyzer: the code-style package reports no unnecessary " +
-                    "suppression outside the IDE, so this runner cannot find its sites (tools/cleanup/README.md).");
-            if (!RuleOrder.Contains(rule))
-                throw new ArgumentException($"{rule} is not one of the rules this runner orders: {string.Join(", ", RuleOrder)}.");
+            if (!RuleOrder.Any(ordered => ordered.Id == rule))
+                throw new ArgumentException($"{rule} is not one of the rules this runner orders: {string.Join(", ", RuleOrder.Select(r => r.Id))}.");
         }
         _dryRun = dryRun;
         _root = FindRepositoryRoot(Path.GetDirectoryName(target) ?? throw new ArgumentException($"{target} has no directory."));
@@ -173,6 +261,8 @@ internal sealed class SolutionFixer
         var analyses = new Dictionary<ProjectId, ProjectAnalysis>();
         var changedSinceAnalysis = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var broken = new SortedSet<string>(StringComparer.Ordinal);
+        var compiledAtStart = new HashSet<ProjectId>();
+        var origins = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         int pass = 0;
         while (true)
         {
@@ -181,6 +271,11 @@ internal sealed class SolutionFixer
                 throw new InvalidOperationException($"The fixes did not converge within {MaxPasses} passes.");
             await AnalyzeAsync(solution, analyses, changedSinceAnalysis, pass == 1);
             changedSinceAnalysis.Clear();
+            if (pass == 1)
+                compiledAtStart.UnionWith(analyses.Values.Where(a => a.CompilerErrors.Count == 0).Select(a => a.Project.Id));
+            if (analyses.Values.FirstOrDefault(a => a.CompilerErrors.Count > 0 && compiledAtStart.Contains(a.Project.Id)) is { } brokenByFixes)
+                throw new InvalidOperationException($"The fixes of pass {pass - 1} left {brokenByFixes.Project.Name} with compiler errors:\n" +
+                    string.Join('\n', brokenByFixes.CompilerErrors.Take(20)));
             broken.UnionWith(analyses.Values.Where(a => a.CompilerErrors.Count > 0).Select(a => a.Project.Name));
             if (_dryRun)
             {
@@ -188,26 +283,30 @@ internal sealed class SolutionFixer
                 return new CleanupSummary(pass, fixedCounts, keptCounts, [], [.. broken]);
             }
             var passKept = new SortedDictionary<string, int>(StringComparer.Ordinal);
+            var touched = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             int applied = 0;
             foreach (string path in analyses.Values.SelectMany(a => a.Findings.Keys).Distinct(StringComparer.OrdinalIgnoreCase)
                          .Order(StringComparer.OrdinalIgnoreCase).ToList())
             {
-                Solution? next = await FixFileAsync(solution, path, analyses, fixedCounts, passKept);
-                if (next is null)
+                if (touched.Contains(path))
                     continue;
-                solution = next;
+                FileFix? fix = await FixFileAsync(solution, path, analyses, fixedCounts, passKept, touched);
+                if (fix is null)
+                    continue;
+                solution = fix.Solution;
                 applied++;
-                changedSinceAnalysis.Add(path);
-                string text = (await solution.GetDocument(solution.GetDocumentIdsWithFilePath(path)[0])!.GetTextAsync()).ToString();
-                string hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(text)));
-                if (!history.TryGetValue(path, out var seen))
+                foreach (var (added, origin) in fix.Origins)
+                    origins[added] = origin;
+                foreach (string changedPath in fix.Paths)
                 {
-                    seen = [Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(
-                        (await original.GetDocument(original.GetDocumentIdsWithFilePath(path)[0])!.GetTextAsync()).ToString())))];
-                    history[path] = seen;
+                    touched.Add(changedPath);
+                    changedSinceAnalysis.Add(changedPath);
+                    string hash = Hash(await TextAtAsync(solution, changedPath));
+                    if (!history.TryGetValue(changedPath, out var seen))
+                        history[changedPath] = seen = [Hash(await TextAtAsync(original, changedPath))];
+                    if (!seen.Add(hash))
+                        throw new InvalidOperationException($"{Relative(changedPath)} returned to an earlier text in pass {pass}: the fixes cycle.");
                 }
-                if (!seen.Add(hash))
-                    throw new InvalidOperationException($"{Relative(path)} returned to an earlier text in pass {pass}: the fixes cycle.");
             }
             Console.WriteLine($"pass {pass}: fixed {applied} files; kept {Format(passKept)}");
             if (applied == 0)
@@ -217,7 +316,7 @@ internal sealed class SolutionFixer
                 break;
             }
         }
-        var changed = await WriteAsync(original, solution);
+        var changed = await WriteAsync(original, solution, origins);
         Console.WriteLine($"fixed {Format(fixedCounts)} in {changed.Count} files after {pass} passes; kept {Format(keptCounts)}"
             + (broken.Count > 0 ? $"; projects with compiler errors: {string.Join(", ", broken)}" : ""));
         return new CleanupSummary(pass, fixedCounts, keptCounts, changed, [.. broken]);
@@ -245,8 +344,9 @@ internal sealed class SolutionFixer
     }
 
     /// <summary>Analyzes every project on the first pass, then only the projects that compile a changed file. The
-    /// fixes never change what another project can see (they remove usings, casts and suppressions, or make a private
-    /// field read-only), so a project with no changed file keeps its findings.</summary>
+    /// fixes never change what another project can see (they change a file's own code, private members, or the files
+    /// of one type, and an added file joins every project compiling its origin), so a project with no changed file
+    /// keeps its findings.</summary>
     private async Task AnalyzeAsync(Solution solution, Dictionary<ProjectId, ProjectAnalysis> analyses, HashSet<string> changed, bool all)
     {
         foreach (Project project in solution.Projects.OrderBy(p => p.Name, StringComparer.Ordinal))
@@ -257,32 +357,57 @@ internal sealed class SolutionFixer
         }
     }
 
-    /// <summary>Compiles one project and runs its analyzers for the requested rules, enabled as warnings.</summary>
+    /// <summary>Compiles one project with the requested rules enabled as warnings where their scope allows, and runs
+    /// its analyzers for the requested analyzer rules; the compiler's own rules come with the compilation. When
+    /// IDE0079 is requested, every analyzer runs, with the whole cleanup group enabled and suppressed diagnostics
+    /// reported, so that a suppression's use can be seen.</summary>
     private async Task<ProjectAnalysis> AnalyzeProjectAsync(Project project)
     {
         Compilation configured = await project.GetCompilationAsync()
             ?? throw new InvalidOperationException($"{project.Name} produced no compilation.");
         SyntaxTreeOptionsProvider treeOptions = configured.Options.SyntaxTreeOptionsProvider
             ?? throw new InvalidOperationException($"{project.Name} has no per-file analyzer configuration; csharp/.editorconfig is not loaded.");
+        bool suppressions = _rules.Contains(UnnecessarySuppression);
+        RuleScope scope = await RuleScope.CreateAsync(project, _rules, wholeGroup: suppressions);
         Compilation compilation = configured.WithOptions(configured.Options
             .WithSpecificDiagnosticOptions(configured.Options.SpecificDiagnosticOptions.SetItems(
-                _rules.Select(rule => KeyValuePair.Create(rule, ReportDiagnostic.Warn))))
-            .WithSyntaxTreeOptionsProvider(new EnabledRuleTreeOptions(treeOptions, _rules)));
+                scope.Rules.Select(rule => KeyValuePair.Create(rule, ReportDiagnostic.Warn))))
+            .WithSyntaxTreeOptionsProvider(new EnabledRuleTreeOptions(treeOptions, scope)));
         var analyzerOptions = new AnalyzerOptions(project.AnalyzerOptions.AdditionalFiles,
-            new EnabledRuleConfigOptions(project.AnalyzerOptions.AnalyzerConfigOptionsProvider, _rules));
-        var analyzers = project.AnalyzerReferences
-            .SelectMany(reference => reference.GetAnalyzers(project.Language))
-            .Where(analyzer => analyzer.SupportedDiagnostics.Any(descriptor => _rules.Contains(descriptor.Id)))
-            .ToImmutableArray();
+            new EnabledRuleConfigOptions(project.AnalyzerOptions.AnalyzerConfigOptionsProvider, scope));
+        var analyzerRules = RuleOrder.Where(rule => rule.Findings == FindingSource.Analyzer && _rules.Contains(rule.Id))
+            .Select(rule => rule.Id).ToHashSet(StringComparer.Ordinal);
+        var loaded = project.AnalyzerReferences.SelectMany(reference => reference.GetAnalyzers(project.Language)).ToImmutableArray();
+        var analyzers = suppressions
+            ? loaded
+            : loaded.Where(analyzer => analyzer.SupportedDiagnostics.Any(descriptor => analyzerRules.Contains(descriptor.Id))).ToImmutableArray();
         var supported = analyzers.SelectMany(a => a.SupportedDiagnostics).Select(d => d.Id).ToHashSet(StringComparer.Ordinal);
-        var unsupported = _rules.Where(rule => !supported.Contains(rule)).Order(StringComparer.Ordinal).ToList();
+        var unsupported = analyzerRules.Where(rule => !supported.Contains(rule)).Order(StringComparer.Ordinal).ToList();
         if (unsupported.Count > 0)
             throw new InvalidOperationException(
-                $"{project.Name} references no analyzer for {string.Join(", ", unsupported)}; the code-style analyzers are not loaded.");
-        var diagnostics = await compilation.WithAnalyzers(analyzers, analyzerOptions).GetAllDiagnosticsAsync();
-        var errors = diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error && d.Id.StartsWith("CS", StringComparison.Ordinal)).ToList();
+                $"{project.Name} references no analyzer for {string.Join(", ", unsupported)}; the code-style analyzers are not loaded, " +
+                "or the repository analyzer is not built in the configuration the workspace opens.");
+        if (suppressions && analyzers.IsEmpty)
+            throw new InvalidOperationException($"{project.Name} references no analyzer, so its suppressions' use cannot be seen.");
+        // The compiler reports its own rules (CS0168, ...) while it binds; with the rule enabled in the per-file options
+        // above, they are among the compilation's diagnostics, which the analyzer run includes.
+        ImmutableArray<Diagnostic> diagnostics;
+        Compilation analyzed = compilation;
+        if (analyzers.IsEmpty)
+        {
+            diagnostics = compilation.GetDiagnostics();
+        }
+        else
+        {
+            var withAnalyzers = compilation.WithAnalyzers(analyzers, new CompilationWithAnalyzersOptions(analyzerOptions,
+                onAnalyzerException: null, concurrentAnalysis: true, logAnalyzerExecutionTime: false, reportSuppressedDiagnostics: suppressions));
+            diagnostics = await withAnalyzers.GetAllDiagnosticsAsync();
+            analyzed = withAnalyzers.Compilation;
+        }
+        var errors = diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error && !d.IsSuppressed && d.Id.StartsWith("CS", StringComparison.Ordinal)).ToList();
         var findings = new Dictionary<string, List<Diagnostic>>(StringComparer.OrdinalIgnoreCase);
         var fixable = new Dictionary<string, List<Diagnostic>>(StringComparer.OrdinalIgnoreCase);
+        var documents = project.Documents.Select(d => d.FilePath).OfType<string>().ToHashSet(StringComparer.OrdinalIgnoreCase);
         foreach (Diagnostic diagnostic in diagnostics)
         {
             bool finding = _rules.Contains(diagnostic.Id) && diagnostic.Severity != DiagnosticSeverity.Hidden;
@@ -290,21 +415,49 @@ internal sealed class SolutionFixer
             if (!finding && !fixerOnly || diagnostic.IsSuppressed || !diagnostic.Location.IsInSource)
                 continue;
             string path = diagnostic.Location.SourceTree!.FilePath;
-            if (project.Documents.All(d => !string.Equals(d.FilePath, path, StringComparison.OrdinalIgnoreCase)))
+            if (!documents.Contains(path))
                 continue;
             var target = finding ? findings : fixable;
             if (!target.TryGetValue(path, out var list))
                 target[path] = list = [];
             list.Add(diagnostic);
         }
+        if (suppressions)
+        {
+            var descriptors = loaded.SelectMany(a => a.SupportedDiagnostics).GroupBy(d => d.Id, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
+            bool IsEnabled(SyntaxTree tree, string id)
+            {
+                string? rule = scope.Rules.FirstOrDefault(r => string.Equals(r, id, StringComparison.OrdinalIgnoreCase));
+                if (rule is not null)
+                    return scope.IsEnabled(tree.FilePath, rule);
+                if (treeOptions.TryGetDiagnosticValue(tree, id, CancellationToken.None, out ReportDiagnostic severity) ||
+                    configured.Options.SpecificDiagnosticOptions.TryGetValue(id, out severity) ||
+                    treeOptions.TryGetGlobalDiagnosticValue(id, CancellationToken.None, out severity))
+                    return severity != ReportDiagnostic.Suppress;
+                if (descriptors.TryGetValue(id, out DiagnosticDescriptor? descriptor))
+                    return descriptor.IsEnabledByDefault;
+                return id.StartsWith("CS", StringComparison.OrdinalIgnoreCase);
+            }
+            foreach (Diagnostic unnecessary in UnnecessarySuppressions.Find(analyzed, diagnostics, IsEnabled))
+            {
+                string path = unnecessary.Location.SourceTree!.FilePath;
+                if (!documents.Contains(path))
+                    continue;
+                if (!findings.TryGetValue(path, out var list))
+                    findings[path] = list = [];
+                list.Add(unnecessary);
+            }
+        }
         Console.WriteLine($"  analyzed {project.Name}: {findings.Values.Sum(l => l.Count)} findings"
             + (errors.Count > 0 ? $", {errors.Count} compiler errors (its files are left alone)" : ""));
         return new ProjectAnalysis(project, errors, findings, fixable);
     }
 
-    /// <summary>Applies one rule's agreed fixes to one file, or returns null when nothing in it may be fixed.</summary>
-    private async Task<Solution?> FixFileAsync(Solution solution, string path, Dictionary<ProjectId, ProjectAnalysis> analyses,
-        SortedDictionary<string, int> fixedCounts, SortedDictionary<string, int> kept)
+    /// <summary>Applies one rule's agreed fixes to one file, or returns null when nothing in it may be fixed in this
+    /// pass: a fix that would change a file another fix of this pass changed waits for the next pass.</summary>
+    private async Task<FileFix?> FixFileAsync(Solution solution, string path, Dictionary<ProjectId, ProjectAnalysis> analyses,
+        SortedDictionary<string, int> fixedCounts, SortedDictionary<string, int> kept, HashSet<string> touched)
     {
         var compilers = solution.GetDocumentIdsWithFilePath(path)
             .Select(id => analyses[id.ProjectId]).OrderBy(a => a.Project.Name, StringComparer.Ordinal).ToList();
@@ -320,20 +473,28 @@ internal sealed class SolutionFixer
         ProjectAnalysis chosen = compilers[0];
         Document document = solution.GetDocument(solution.GetDocumentIdsWithFilePath(path).Single(id => id.ProjectId == chosen.Project.Id))!;
         var own = reported[0];
-        foreach (string rule in RuleOrder)
+        foreach (CleanupRule cleanupRule in RuleOrder)
         {
+            string rule = cleanupRule.Id;
             var diagnostics = own.Where(d => d.Id == rule && agreed.Contains(Key(d))).ToList();
             if (diagnostics.Count > 0)
             {
-                SourceText fixedText = rule == UnusedUsing
-                    ? await ApplyFixAllAsync(document, UnusedUsingFixable, chosen.FixerOnly.GetValueOrDefault(path)
+                Solution changed = rule == UnusedUsing
+                    ? await ApplyFixAllAsync(document, cleanupRule, UnusedUsingFixable, chosen.FixerOnly.GetValueOrDefault(path)
                         ?? throw new InvalidOperationException($"{Relative(path)} reports {UnusedUsing} without {UnusedUsingFixable} in {chosen.Project.Name}."))
-                    : await ApplyFixAllAsync(document, rule, diagnostics);
+                    : await ApplyFixAllAsync(document, cleanupRule, rule, diagnostics);
+                FixDecision decision = await AcceptAsync(solution, changed, document, rule, analyses, touched);
+                if (decision.Fix is not { } fix)
+                {
+                    if (decision.Kept)
+                        Count(kept, diagnostics);
+                    return null;
+                }
                 int count = rule == UnusedUsing
-                    ? CountUsings(await document.GetTextAsync()) - CountUsings(fixedText)
+                    ? CountUsings(await document.GetTextAsync()) - CountUsings(await RequiredTextAsync(fix.Solution, path))
                     : diagnostics.Count;
                 fixedCounts[rule] = fixedCounts.GetValueOrDefault(rule) + count;
-                return WithText(solution, path, fixedText);
+                return fix;
             }
             if (rule == UnusedUsing && compilers.Count > 1)
             {
@@ -344,18 +505,135 @@ internal sealed class SolutionFixer
                     continue;
                 SourceText text = await document.GetTextAsync();
                 fixedCounts[rule] = fixedCounts.GetValueOrDefault(rule) + lines.Count;
-                return WithText(solution, path, RemoveLines(text, lines, path));
+                return new FileFix(WithText(solution, path, RemoveLines(text, lines, path)), [path], new());
             }
         }
         return null;
     }
 
-    /// <summary>Runs the rule's fixer over exactly the given findings of one document and returns the fixed text.</summary>
-    private async Task<SourceText> ApplyFixAllAsync(Document document, string rule, List<Diagnostic> diagnostics)
+    /// <summary>
+    /// Decides whether a fix computed in one project may be applied, and applies it to every project that compiles
+    /// a file it changed. A fix of one file's text is always accepted. A fix of several files, or one that adds or
+    /// removes files, is accepted only when every file it changes or removes, and the file its finding is in, is
+    /// compiled by analyzed projects without compiler errors (otherwise its findings are kept) and when no other fix of
+    /// this pass touched one of its files (otherwise it waits for the next pass); every project compiling one of its
+    /// files must then still compile, or the run fails. An added file joins every project that compiles the finding's
+    /// file; it must not exist yet. A fix that changes anything but source documents fails the run.
+    /// </summary>
+    private async Task<FixDecision> AcceptAsync(Solution solution, Solution changed, Document document, string rule,
+        Dictionary<ProjectId, ProjectAnalysis> analyses, HashSet<string> touched)
     {
-        var providers = FixersFor(document.Project, rule);
+        string source = document.FilePath!;
+        string fix = $"The {rule} fix for {Relative(source)}";
+        var texts = new SortedDictionary<string, SourceText>(StringComparer.OrdinalIgnoreCase);
+        var added = new SortedDictionary<string, Document>(StringComparer.OrdinalIgnoreCase);
+        var removed = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
+        SolutionChanges changes = changed.GetChanges(solution);
+        if (changes.GetAddedProjects().Any() || changes.GetRemovedProjects().Any())
+            throw new InvalidOperationException($"{fix} adds or removes projects.");
+        foreach (ProjectChanges project in changes.GetProjectChanges())
+        {
+            if (project.GetAddedAdditionalDocuments().Any() || project.GetRemovedAdditionalDocuments().Any() ||
+                project.GetChangedAdditionalDocuments().Any() || project.GetAddedMetadataReferences().Any() ||
+                project.GetRemovedMetadataReferences().Any() || project.GetAddedProjectReferences().Any() ||
+                project.GetRemovedProjectReferences().Any())
+                throw new InvalidOperationException($"{fix} changes {project.NewProject.Name} beyond its source files.");
+            foreach (DocumentId id in project.GetChangedDocuments())
+            {
+                Document fixedDocument = changed.GetDocument(id)!;
+                string path = fixedDocument.FilePath
+                    ?? throw new InvalidOperationException($"{fix} changed {fixedDocument.Name}, which has no file.");
+                SourceText text = await fixedDocument.GetTextAsync();
+                if (texts.TryGetValue(path, out SourceText? other) && !other.ContentEquals(text))
+                    throw new InvalidOperationException($"{fix} gave {Relative(path)} two different texts.");
+                texts[path] = text;
+            }
+            foreach (DocumentId id in project.GetAddedDocuments())
+            {
+                Document addedDocument = changed.GetDocument(id)!;
+                string path = addedDocument.FilePath
+                    ?? throw new InvalidOperationException($"{fix} added {addedDocument.Name} without a file.");
+                if (File.Exists(path) || !solution.GetDocumentIdsWithFilePath(path).IsEmpty)
+                    throw new InvalidOperationException($"{fix} adds {Relative(path)}, which exists already.");
+                added[path] = addedDocument;
+            }
+            foreach (DocumentId id in project.GetRemovedDocuments())
+                removed.Add(solution.GetDocument(id)!.FilePath ?? throw new InvalidOperationException($"{fix} removed a document without a file."));
+        }
+        if (texts.Count + added.Count + removed.Count == 0)
+            throw new InvalidOperationException($"{fix} changed nothing.");
+        if (added.Count == 0 && removed.Count == 0 && texts.Count == 1 && texts.ContainsKey(source))
+            return new FixDecision(new FileFix(WithText(solution, source, texts[source]), [source], new()), false);
+
+        var paths = texts.Keys.Concat(added.Keys).Concat(removed).ToList();
+        if (paths.Any(touched.Contains))
+            return new FixDecision(null, false);
+        foreach (string path in texts.Keys.Concat(removed).Append(source))
+        {
+            var ids = solution.GetDocumentIdsWithFilePath(path);
+            if (ids.IsEmpty)
+                throw new InvalidOperationException($"{fix} changed {Relative(path)}, which no project of the solution compiles.");
+            if (ids.Any(id => !analyses.TryGetValue(id.ProjectId, out var analysis) || analysis.CompilerErrors.Count > 0))
+                return new FixDecision(null, true);
+        }
+        var sourceProjects = solution.GetDocumentIdsWithFilePath(source).Select(id => id.ProjectId).ToList();
+        var affected = paths.SelectMany(path => solution.GetDocumentIdsWithFilePath(path)).Select(id => id.ProjectId)
+            .Concat(sourceProjects).ToHashSet();
+        Solution result = solution;
+        foreach (var (path, text) in texts)
+            result = WithText(result, path, text);
+        foreach (var (path, addedDocument) in added)
+        {
+            SourceText text = await addedDocument.GetTextAsync();
+            foreach (ProjectId project in sourceProjects)
+                result = result.AddDocument(DocumentId.CreateNewId(project), Path.GetFileName(path), text, addedDocument.Folders, path);
+        }
+        foreach (string path in removed)
+        {
+            foreach (DocumentId id in result.GetDocumentIdsWithFilePath(path))
+                result = result.RemoveDocument(id);
+        }
+        await RequireCompilesAsync(result, affected, fix);
+        return new FixDecision(new FileFix(result, paths, added.Keys.ToDictionary(path => path, _ => source, StringComparer.OrdinalIgnoreCase)), false);
+    }
+
+    /// <summary>Fails when one of the projects has a compiler error in the given solution.</summary>
+    private static async Task RequireCompilesAsync(Solution solution, IEnumerable<ProjectId> projects, string fix)
+    {
+        foreach (ProjectId id in projects)
+        {
+            Project project = solution.GetProject(id)!;
+            Compilation compilation = await project.GetCompilationAsync()
+                ?? throw new InvalidOperationException($"{project.Name} produced no compilation.");
+            var errors = compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ToList();
+            if (errors.Count > 0)
+                throw new InvalidOperationException($"{fix} leaves {project.Name} with compiler errors:\n" + string.Join('\n', errors.Take(20)));
+        }
+    }
+
+    /// <summary>A file's text in a solution, or null when no project compiles that file.</summary>
+    private static async Task<SourceText?> TextAtAsync(Solution solution, string path)
+    {
+        var ids = solution.GetDocumentIdsWithFilePath(path);
+        return ids.IsEmpty ? null : await solution.GetDocument(ids[0])!.GetTextAsync();
+    }
+
+    /// <summary>A file's text in a solution, which must compile it.</summary>
+    private async Task<SourceText> RequiredTextAsync(Solution solution, string path) =>
+        await TextAtAsync(solution, path) ?? throw new InvalidOperationException($"No project compiles {Relative(path)}.");
+
+    /// <summary>The SHA-256 of a file's text, or a marker for a file no project compiles.</summary>
+    private static string Hash(SourceText? text) =>
+        text is null ? "absent" : Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(text.ToString())));
+
+    /// <summary>Runs the rule's fixer, for the diagnostic id it fixes, over exactly the given findings of one document
+    /// and returns the solution it produces, which may change other documents too.</summary>
+    private async Task<Solution> ApplyFixAllAsync(Document document, CleanupRule cleanupRule, string rule, List<Diagnostic> diagnostics)
+    {
+        var providers = FixersFor(document.Project, cleanupRule.Fixer, rule);
         if (providers.Count != 1)
-            throw new InvalidOperationException($"{rule} has {providers.Count} code fix providers in {document.Project.Name}; expected exactly one.");
+            throw new InvalidOperationException(
+                $"{rule} has {providers.Count} {cleanupRule.Fixer} code fix providers in {document.Project.Name}; expected exactly one.");
         CodeFixProvider provider = providers[0];
         var actions = new List<CodeAction>();
         await provider.RegisterCodeFixesAsync(new CodeFixContext(document, diagnostics[0], (action, _) => actions.Add(action), CancellationToken.None));
@@ -368,55 +646,119 @@ internal sealed class SolutionFixer
         CodeAction action = await fixAll.GetFixAsync(context)
             ?? throw new InvalidOperationException($"{provider.GetType().Name} produced no fix-all action for {Relative(document.FilePath!)}.");
         var operations = await action.GetOperationsAsync(CancellationToken.None);
-        Solution changed = operations.OfType<ApplyChangesOperation>().Single().ChangedSolution;
-        var changedDocuments = changed.GetChanges(document.Project.Solution).GetProjectChanges()
-            .SelectMany(p => p.GetChangedDocuments()).ToList();
-        if (changedDocuments.Count != 1 || changedDocuments[0] != document.Id)
-            throw new InvalidOperationException($"The {rule} fix for {Relative(document.FilePath!)} changed other documents too.");
-        return await changed.GetDocument(document.Id)!.GetTextAsync();
+        return operations.OfType<ApplyChangesOperation>().Single().ChangedSolution;
     }
 
-    /// <summary>The code fix providers for a rule, from the code-style fixer assemblies the project references.</summary>
-    private List<CodeFixProvider> FixersFor(Project project, string rule)
+    /// <summary>The code fix providers for a rule, from the fixer assemblies of the given source that the project
+    /// references.</summary>
+    private List<CodeFixProvider> FixersFor(Project project, FixerSource source, string rule)
     {
         var providers = new List<CodeFixProvider>();
         foreach (string path in project.AnalyzerReferences.Select(r => r.FullPath)
-                     .Where(p => p is not null && Path.GetFileName(p).EndsWith(".CodeStyle.Fixes.dll", StringComparison.OrdinalIgnoreCase))
+                     .Where(p => p is not null && IsFixerAssembly(Path.GetFileName(p), source))
                      .Select(p => p!))
         {
-            if (!_fixerAssemblies.TryGetValue(path, out var assembly))
-                _fixerAssemblies[path] = assembly = Assembly.LoadFrom(path);
-            foreach (Type type in assembly.GetTypes())
-            {
-                if (type.IsAbstract || !typeof(CodeFixProvider).IsAssignableFrom(type)
-                    || type.GetCustomAttribute<ExportCodeFixProviderAttribute>() is not { } export
-                    || !export.Languages.Contains(project.Language)
-                    || type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, Type.EmptyTypes) is not { } constructor)
-                    continue;
-                var provider = (CodeFixProvider)constructor.Invoke(null);
-                if (provider.FixableDiagnosticIds.Contains(rule))
-                    providers.Add(provider);
-            }
+            if (!_fixerAssemblies.TryGetValue(path, out var loaded))
+                _fixerAssemblies[path] = loaded = LoadProviders(path, project.Language);
+            providers.AddRange(loaded.Where(provider => provider.FixableDiagnosticIds.Contains(rule)));
         }
         return providers;
     }
 
-    /// <summary>Writes every file whose text changed, keeping its byte-order mark, and returns their paths.</summary>
-    private async Task<List<string>> WriteAsync(Solution original, Solution solution)
+    /// <summary>Whether an analyzer reference's file name is a fixer assembly of the given source.</summary>
+    private static bool IsFixerAssembly(string fileName, FixerSource source) => source switch
     {
-        var changed = new List<string>();
-        foreach (DocumentId id in solution.GetChanges(original).GetProjectChanges().SelectMany(p => p.GetChangedDocuments()))
+        FixerSource.CodeStyle => fileName.EndsWith(".CodeStyle.Fixes.dll", StringComparison.OrdinalIgnoreCase),
+        FixerSource.Repository => string.Equals(fileName, RepositoryFixes, StringComparison.OrdinalIgnoreCase),
+        _ => throw new ArgumentOutOfRangeException(nameof(source), source, "Unknown fixer source."),
+    };
+
+    /// <summary>Every exported code fix provider for the language in one fixer assembly, constructed once.</summary>
+    private static List<CodeFixProvider> LoadProviders(string path, string language)
+    {
+        var providers = new List<CodeFixProvider>();
+        foreach (Type type in Assembly.LoadFrom(path).GetTypes())
         {
-            string path = solution.GetDocument(id)!.FilePath!;
-            if (changed.Contains(path, StringComparer.OrdinalIgnoreCase))
+            if (type.IsAbstract || !typeof(CodeFixProvider).IsAssignableFrom(type)
+                || type.GetCustomAttribute<ExportCodeFixProviderAttribute>() is not { } export
+                || !export.Languages.Contains(language)
+                || type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, Type.EmptyTypes) is not { } constructor)
                 continue;
-            string text = (await solution.GetDocument(id)!.GetTextAsync()).ToString();
-            bool bom = File.ReadAllBytes(path) is [0xEF, 0xBB, 0xBF, ..];
-            File.WriteAllText(path, text, new UTF8Encoding(bom));
-            changed.Add(path);
+            providers.Add((CodeFixProvider)constructor.Invoke(null));
         }
+        return providers;
+    }
+
+    /// <summary>
+    /// Writes every file whose text changed, keeping its byte-order mark; creates every added file, with the byte-order
+    /// mark of the file it came from; deletes every removed file; and updates the explicit project lists
+    /// (<see cref="ProjectLists"/>). Returns the repository-relative paths of every file written, created or deleted.
+    /// </summary>
+    private async Task<List<string>> WriteAsync(Solution original, Solution solution, Dictionary<string, string> origins)
+    {
+        var paths = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (ProjectChanges project in solution.GetChanges(original).GetProjectChanges())
+        {
+            foreach (DocumentId id in project.GetChangedDocuments().Concat(project.GetAddedDocuments()))
+                paths.Add(solution.GetDocument(id)!.FilePath!);
+            foreach (DocumentId id in project.GetRemovedDocuments())
+                paths.Add(original.GetDocument(id)!.FilePath!);
+        }
+        var writes = new List<(string Path, string Text, bool Bom)>();
+        var created = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        var deleted = new List<string>();
+        foreach (string path in paths)
+        {
+            SourceText? before = await TextAtAsync(original, path);
+            SourceText? after = await TextAtAsync(solution, path);
+            if (after is null)
+            {
+                if (before is not null)
+                    deleted.Add(path);
+                continue;
+            }
+            if (before is not null && before.ContentEquals(after))
+                continue;
+            string bomSource = path;
+            if (before is null)
+            {
+                bomSource = OriginOf(path, origins);
+                created[path] = bomSource;
+            }
+            writes.Add((path, after.ToString(), File.ReadAllBytes(bomSource) is [0xEF, 0xBB, 0xBF, ..]));
+        }
+        foreach (var (path, text, bom) in writes)
+        {
+            if (created.ContainsKey(path))
+            {
+                if (File.Exists(path))
+                    throw new InvalidOperationException($"{Relative(path)} exists already, so the file a fix added cannot be created.");
+                Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+            }
+            File.WriteAllText(path, text, new UTF8Encoding(bom));
+        }
+        foreach (string path in deleted)
+            File.Delete(path);
+        var changed = writes.Select(write => write.Path).Concat(deleted)
+            .Concat(ProjectLists.Update(original, created, deleted, Relative)).ToList();
         changed.Sort(StringComparer.OrdinalIgnoreCase);
         return [.. changed.Select(Relative)];
+    }
+
+    /// <summary>The file of the original solution an added file came from, through any file added before it.</summary>
+    private static string OriginOf(string path, Dictionary<string, string> origins)
+    {
+        string origin = path;
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        while (origins.TryGetValue(origin, out string? from))
+        {
+            if (!seen.Add(origin))
+                throw new InvalidOperationException($"The added files' origins form a cycle at {origin}.");
+            origin = from;
+        }
+        if (origin == path)
+            throw new InvalidOperationException($"{path} was added by no fix.");
+        return origin;
     }
 
     /// <summary>The solution with a file's text replaced in every project that compiles it.</summary>
@@ -512,30 +854,124 @@ internal sealed class SolutionFixer
     }
 }
 
-/// <summary>A compilation's per-file diagnostic options with the requested rules enabled as warnings. The per-file
-/// options carry csharp/.editorconfig's severities and win over the compilation-wide options, so the group's
-/// <c>none</c> is replaced here; every other rule and file reads the project's own configuration.</summary>
-internal sealed class EnabledRuleTreeOptions(SyntaxTreeOptionsProvider configured, IReadOnlySet<string> rules) : SyntaxTreeOptionsProvider
+/// <summary>The asynchronous cleanup's group in an analyzer configuration file: the
+/// <c>dotnet_diagnostic.&lt;rule&gt;.severity = none</c> lines directly under the comment that names the cleanup, read
+/// the same way tools/cleanup/run.ps1 reads it.</summary>
+internal static class CleanupGroup
+{
+    /// <summary>The comment that names the cleanup.</summary>
+    private static readonly Regex Comment = new(@"^#.*\basynchronous cleanup\b", RegexOptions.CultureInvariant);
+
+    /// <summary>One rule of the group.</summary>
+    private static readonly Regex Member = new(@"^dotnet_diagnostic\.(\w+)\.severity = none$", RegexOptions.CultureInvariant);
+
+    /// <summary>The configuration text with each requested rule's group line (every rule's, when
+    /// <paramref name="rules"/> is null) set to warning, adding those rules to <paramref name="grouped"/>; a text
+    /// without the cleanup's comment is returned unchanged.</summary>
+    public static string Enable(string text, IReadOnlySet<string>? rules, HashSet<string> grouped, string path)
+    {
+        string[] lines = text.Split('\n');
+        int comment = -1;
+        for (int index = 0; index < lines.Length; index++)
+        {
+            if (!Comment.IsMatch(lines[index].TrimEnd('\r')))
+                continue;
+            if (comment >= 0)
+                throw new InvalidOperationException($"{path} has two comments naming the asynchronous cleanup.");
+            comment = index;
+        }
+        if (comment < 0)
+            return text;
+        int line = comment;
+        while (line < lines.Length && lines[line].StartsWith('#'))
+            line++;
+        for (; line < lines.Length && Member.Match(lines[line].TrimEnd('\r')) is { Success: true } match; line++)
+        {
+            string rule = match.Groups[1].Value;
+            if (rules is not null && !rules.Contains(rule))
+                continue;
+            grouped.Add(rule);
+            lines[line] = $"dotnet_diagnostic.{rule}.severity = warning" + (lines[line].EndsWith('\r') ? "\r" : "");
+        }
+        return string.Join('\n', lines);
+    }
+}
+
+/// <summary>
+/// Where a project's configuration enables each requested rule once its line in the cleanup's group says warning
+/// instead of none. The project's analyzer configuration files are read again with that one change, so a later section
+/// that turns the rule off for some files (the SME rules outside Core and AssetExtraction) keeps it off there.
+/// </summary>
+internal sealed class RuleScope
+{
+    private readonly AnalyzerConfigSet _configuration;
+    private readonly Dictionary<string, AnalyzerConfigOptionsResult> _byPath = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Creates the scope from the project's configuration.</summary>
+    private RuleScope(AnalyzerConfigSet configuration, IReadOnlySet<string> rules)
+    {
+        _configuration = configuration;
+        Rules = rules;
+    }
+
+    /// <summary>The rules enabled in their scope: the requested ones, or the whole group.</summary>
+    public IReadOnlySet<string> Rules { get; }
+
+    /// <summary>Reads the project's analyzer configuration with the requested rules' group lines enabled, or the whole
+    /// group's when <paramref name="wholeGroup"/> is set. Every requested rule must be in the cleanup's group of one of
+    /// them, or its scope is unknown and the run fails.</summary>
+    public static async Task<RuleScope> CreateAsync(Project project, IReadOnlySet<string> rules, bool wholeGroup)
+    {
+        var configs = new List<AnalyzerConfig>();
+        var grouped = new HashSet<string>(StringComparer.Ordinal);
+        foreach (AnalyzerConfigDocument document in project.AnalyzerConfigDocuments)
+        {
+            string path = document.FilePath
+                ?? throw new InvalidOperationException($"{project.Name} has an analyzer configuration document without a file.");
+            string text = (await document.GetTextAsync()).ToString();
+            configs.Add(AnalyzerConfig.Parse(CleanupGroup.Enable(text, wholeGroup ? null : rules, grouped, path), path));
+        }
+        var outside = rules.Where(rule => !grouped.Contains(rule)).Order(StringComparer.Ordinal).ToList();
+        if (outside.Count > 0)
+            throw new InvalidOperationException($"No analyzer configuration of {project.Name} puts {string.Join(", ", outside)} in the " +
+                "asynchronous cleanup's group, so where the rule applies is unknown.");
+        return new RuleScope(AnalyzerConfigSet.Create(configs), wholeGroup ? grouped : rules);
+    }
+
+    /// <summary>Whether the requested rule is enabled in the file at <paramref name="path"/>.</summary>
+    public bool IsEnabled(string path, string rule)
+    {
+        if (!_byPath.TryGetValue(path, out AnalyzerConfigOptionsResult options))
+            _byPath[path] = options = _configuration.GetOptionsForSourcePath(path);
+        return options.TreeOptions.TryGetValue(rule, out ReportDiagnostic severity) && severity != ReportDiagnostic.Suppress;
+    }
+}
+
+/// <summary>A compilation's per-file diagnostic options with the requested rules enabled as warnings where their scope
+/// allows and off elsewhere. The per-file options carry csharp/.editorconfig's severities and win over the
+/// compilation-wide options, so the group's <c>none</c> is replaced here; every other rule reads the project's own
+/// configuration.</summary>
+internal sealed class EnabledRuleTreeOptions(SyntaxTreeOptionsProvider configured, RuleScope scope) : SyntaxTreeOptionsProvider
 {
     /// <summary>The project's own answer: enabling a rule does not change which files are generated.</summary>
     public override GeneratedKind IsGenerated(SyntaxTree tree, CancellationToken cancellationToken) =>
         configured.IsGenerated(tree, cancellationToken);
 
-    /// <summary>Warning for a requested rule in every file; the project's configuration for any other.</summary>
+    /// <summary>Warning or off for a requested rule, by its scope; the project's configuration for any other.</summary>
     public override bool TryGetDiagnosticValue(SyntaxTree tree, string diagnosticId, CancellationToken cancellationToken, out ReportDiagnostic severity)
     {
-        if (rules.Contains(diagnosticId))
+        if (scope.Rules.Contains(diagnosticId))
         {
-            severity = ReportDiagnostic.Warn;
+            severity = scope.IsEnabled(tree.FilePath, diagnosticId) ? ReportDiagnostic.Warn : ReportDiagnostic.Suppress;
             return true;
         }
         return configured.TryGetDiagnosticValue(tree, diagnosticId, cancellationToken, out severity);
     }
 
-    /// <summary>Warning for a requested rule; the project's global configuration for any other.</summary>
+    /// <summary>Warning for a requested rule, so its analyzer runs; the project's global configuration for any other.</summary>
     public override bool TryGetGlobalDiagnosticValue(string diagnosticId, CancellationToken cancellationToken, out ReportDiagnostic severity)
     {
-        if (rules.Contains(diagnosticId))
+        if (scope.Rules.Contains(diagnosticId))
         {
             severity = ReportDiagnostic.Warn;
             return true;
@@ -544,40 +980,303 @@ internal sealed class EnabledRuleTreeOptions(SyntaxTreeOptionsProvider configure
     }
 }
 
-/// <summary>The analyzer configuration with <c>dotnet_diagnostic.&lt;rule&gt;.severity = warning</c> for each requested
-/// rule. The code-style analyzers read a rule's severity from this configuration to decide whether to analyze at all,
-/// so the compilation's options alone would leave them skipping the group's <c>none</c>.</summary>
-internal sealed class EnabledRuleConfigOptions(AnalyzerConfigOptionsProvider configured, IReadOnlySet<string> rules) : AnalyzerConfigOptionsProvider
+/// <summary>The analyzer configuration with <c>dotnet_diagnostic.&lt;rule&gt;.severity</c> answered for each requested
+/// rule: warning where its scope enables it, none elsewhere. The code-style analyzers read a rule's severity from this
+/// configuration to decide whether to analyze at all, so the compilation's options alone would leave them skipping the
+/// group's <c>none</c>.</summary>
+internal sealed class EnabledRuleConfigOptions(AnalyzerConfigOptionsProvider configured, RuleScope scope) : AnalyzerConfigOptionsProvider
 {
-    /// <summary>The severity keys of the requested rules, compared the way analyzer configuration keys are.</summary>
-    private readonly HashSet<string> _keys = rules.Select(rule => $"dotnet_diagnostic.{rule}.severity").ToHashSet(AnalyzerConfigOptions.KeyComparer);
-
     /// <summary>The project's global options with the requested rules enabled.</summary>
-    public override AnalyzerConfigOptions GlobalOptions => new EnabledRuleConfig(configured.GlobalOptions, _keys);
+    public override AnalyzerConfigOptions GlobalOptions => new EnabledRuleConfig(configured.GlobalOptions, scope, null);
 
-    /// <summary>A file's options with the requested rules enabled.</summary>
-    public override AnalyzerConfigOptions GetOptions(SyntaxTree tree) => new EnabledRuleConfig(configured.GetOptions(tree), _keys);
+    /// <summary>A file's options with the requested rules enabled where their scope allows.</summary>
+    public override AnalyzerConfigOptions GetOptions(SyntaxTree tree) => new EnabledRuleConfig(configured.GetOptions(tree), scope, tree.FilePath);
 
     /// <summary>An additional file's options with the requested rules enabled.</summary>
-    public override AnalyzerConfigOptions GetOptions(AdditionalText textFile) => new EnabledRuleConfig(configured.GetOptions(textFile), _keys);
+    public override AnalyzerConfigOptions GetOptions(AdditionalText textFile) => new EnabledRuleConfig(configured.GetOptions(textFile), scope, null);
 }
 
-/// <summary>One set of analyzer options answering <c>warning</c> for the requested rules' severity keys.</summary>
-internal sealed class EnabledRuleConfig(AnalyzerConfigOptions configured, HashSet<string> keys) : AnalyzerConfigOptions
+/// <summary>One set of analyzer options answering the requested rules' severity keys: warning where the rule's scope
+/// enables it in the file (or always, for options that belong to no source file), none elsewhere.</summary>
+internal sealed class EnabledRuleConfig(AnalyzerConfigOptions configured, RuleScope scope, string? path) : AnalyzerConfigOptions
 {
-    /// <summary>Warning for a requested rule's severity key; the configured value for any other key.</summary>
+    /// <summary>The severity key prefix and suffix around a rule id.</summary>
+    private const string Prefix = "dotnet_diagnostic.", Suffix = ".severity";
+
+    /// <summary>The scope's answer for a requested rule's severity key; the configured value for any other key.</summary>
     public override bool TryGetValue(string key, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out string? value)
     {
-        if (keys.Contains(key))
+        if (RuleOf(key) is { } rule)
         {
-            value = "warning";
+            value = path is null || scope.IsEnabled(path, rule) ? "warning" : "none";
             return true;
         }
         return configured.TryGetValue(key, out value);
     }
 
     /// <summary>The configured keys and the requested rules' severity keys.</summary>
-    public override IEnumerable<string> Keys => configured.Keys.Union(keys, KeyComparer);
+    public override IEnumerable<string> Keys => configured.Keys.Union(scope.Rules.Select(rule => Prefix + rule + Suffix), KeyComparer);
+
+    /// <summary>The requested rule a severity key names, or null for any other key.</summary>
+    private string? RuleOf(string key)
+    {
+        if (key.Length <= Prefix.Length + Suffix.Length || !key.StartsWith(Prefix, StringComparison.OrdinalIgnoreCase) ||
+            !key.EndsWith(Suffix, StringComparison.OrdinalIgnoreCase))
+            return null;
+        string id = key[Prefix.Length..^Suffix.Length];
+        return scope.Rules.FirstOrDefault(rule => string.Equals(rule, id, StringComparison.OrdinalIgnoreCase));
+    }
+}
+
+/// <summary>
+/// Finds the suppressions that suppressed nothing (IDE0079), from a run of every analyzer with suppressed diagnostics
+/// reported. A <c>#pragma warning disable</c> code is needed when a diagnostic of that id that no attribute suppressed
+/// lies between it and the next <c>restore</c> of that code (or the end of the file); a <c>[SuppressMessage]</c> or
+/// <c>[UnconditionalSuppressMessage]</c> is needed when it is the attribute that suppressed a diagnostic. A suppression
+/// without codes, of a rule the file does not enable, in build output, or over code an inactive <c>#if</c> branch leaves
+/// out is left alone. Each finding is at the
+/// suppression's code or attribute; a pragma's finding also locates the matching <c>restore</c> code, when no other
+/// disable of that code comes between them.
+/// </summary>
+internal static class UnnecessarySuppressions
+{
+    /// <summary>The finding's descriptor.</summary>
+    private static readonly DiagnosticDescriptor Rule = new("IDE0079", "Remove unnecessary suppression",
+        "The suppression of {0} suppresses nothing", "Style", DiagnosticSeverity.Warning, isEnabledByDefault: true);
+
+    /// <summary>The attributes that suppress diagnostics.</summary>
+    private static readonly string[] SuppressionAttributes =
+        ["System.Diagnostics.CodeAnalysis.SuppressMessageAttribute", "System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessageAttribute"];
+
+    /// <summary>The unnecessary suppressions in <paramref name="compilation"/>'s source, given every diagnostic it
+    /// reported, suppressed ones included, and which rules each file enables.</summary>
+    public static List<Diagnostic> Find(Compilation compilation, ImmutableArray<Diagnostic> diagnostics, Func<SyntaxTree, string, bool> isEnabled)
+    {
+        var suppressed = diagnostics.Where(d => d.IsSuppressed && d.Location.IsInSource).ToList();
+        var byAttribute = new HashSet<(string, TextSpan)>();
+        var byPragma = new List<Diagnostic>();
+        foreach (Diagnostic diagnostic in suppressed)
+        {
+            if (diagnostic.GetSuppressionInfo(compilation)?.Attribute?.ApplicationSyntaxReference is { } reference)
+                byAttribute.Add((reference.SyntaxTree.FilePath, reference.Span));
+            else
+                byPragma.Add(diagnostic);
+        }
+        var found = new List<Diagnostic>();
+        foreach (SyntaxTree tree in compilation.SyntaxTrees)
+        {
+            if (tree.FilePath.Replace('\\', '/').Contains("/obj/", StringComparison.OrdinalIgnoreCase))
+                continue;
+            SyntaxNode root = tree.GetRoot();
+            FindPragmas(tree, root, byPragma, isEnabled, found);
+            FindAttributes(compilation.GetSemanticModel(tree), root, byAttribute, isEnabled, found);
+        }
+        return found;
+    }
+
+    /// <summary>Adds each disabled code no diagnostic needed.</summary>
+    private static void FindPragmas(SyntaxTree tree, SyntaxNode root, List<Diagnostic> byPragma, Func<SyntaxTree, string, bool> isEnabled, List<Diagnostic> found)
+    {
+        var pragmas = root.DescendantTrivia(descendIntoTrivia: true)
+            .Where(trivia => trivia.IsKind(Microsoft.CodeAnalysis.CSharp.SyntaxKind.PragmaWarningDirectiveTrivia))
+            .Select(trivia => (PragmaWarningDirectiveTriviaSyntax)trivia.GetStructure()!)
+            .OrderBy(pragma => pragma.SpanStart).ToList();
+        for (int index = 0; index < pragmas.Count; index++)
+        {
+            PragmaWarningDirectiveTriviaSyntax disable = pragmas[index];
+            if (!disable.DisableOrRestoreKeyword.IsKind(Microsoft.CodeAnalysis.CSharp.SyntaxKind.DisableKeyword))
+                continue;
+            foreach (ExpressionSyntax code in disable.ErrorCodes)
+            {
+                string id = CodeOf(code);
+                if (!isEnabled(tree, id))
+                    continue;
+                ExpressionSyntax? restoreCode = null;
+                int end = tree.Length;
+                bool reopened = false;
+                for (int later = index + 1; later < pragmas.Count; later++)
+                {
+                    PragmaWarningDirectiveTriviaSyntax next = pragmas[later];
+                    bool names = next.ErrorCodes.Count == 0 || next.ErrorCodes.Any(c => string.Equals(CodeOf(c), id, StringComparison.OrdinalIgnoreCase));
+                    if (!names)
+                        continue;
+                    if (next.DisableOrRestoreKeyword.IsKind(Microsoft.CodeAnalysis.CSharp.SyntaxKind.DisableKeyword))
+                    {
+                        reopened = true;
+                        continue;
+                    }
+                    end = next.SpanStart;
+                    restoreCode = reopened ? null : next.ErrorCodes.FirstOrDefault(c => string.Equals(CodeOf(c), id, StringComparison.OrdinalIgnoreCase));
+                    break;
+                }
+                int start = disable.Span.End;
+                bool needed = HoldsInactiveCode(root, TextSpan.FromBounds(start, end)) || byPragma.Any(d => string.Equals(d.Location.SourceTree?.FilePath, tree.FilePath, StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(d.Id, id, StringComparison.OrdinalIgnoreCase) &&
+                    d.Location.SourceSpan.Start >= start && d.Location.SourceSpan.Start < end);
+                if (needed)
+                    continue;
+                Location[] restore = restoreCode is null ? [] : [restoreCode.GetLocation()];
+                found.Add(Diagnostic.Create(Rule, code.GetLocation(), restore, id));
+            }
+        }
+    }
+
+    /// <summary>Adds each suppression attribute that suppressed no diagnostic.</summary>
+    private static void FindAttributes(SemanticModel model, SyntaxNode root, HashSet<(string, TextSpan)> byAttribute,
+        Func<SyntaxTree, string, bool> isEnabled, List<Diagnostic> found)
+    {
+        foreach (AttributeSyntax attribute in root.DescendantNodes().OfType<AttributeSyntax>())
+        {
+            string name = attribute.Name.ToString();
+            if (!name.Contains("SuppressMessage", StringComparison.Ordinal) ||
+                model.GetSymbolInfo(attribute).Symbol is not IMethodSymbol constructor ||
+                !SuppressionAttributes.Contains(constructor.ContainingType.ToDisplayString()) ||
+                attribute.ArgumentList is not { Arguments.Count: >= 2 } arguments ||
+                model.GetConstantValue(arguments.Arguments[1].Expression).Value is not string checkId)
+                continue;
+            string id = checkId.Split(':')[0].Trim();
+            if (id.Length == 0 || !isEnabled(model.SyntaxTree, id) || byAttribute.Contains((model.SyntaxTree.FilePath, attribute.Span)) ||
+                attribute.Parent?.Parent is MemberDeclarationSyntax member && HoldsInactiveCode(root, member.FullSpan))
+                continue;
+            found.Add(Diagnostic.Create(Rule, attribute.GetLocation(), id));
+        }
+    }
+
+    /// <summary>Whether the span holds code an inactive <c>#if</c> branch leaves out, whose diagnostics this
+    /// configuration cannot see.</summary>
+    private static bool HoldsInactiveCode(SyntaxNode root, TextSpan span) =>
+        root.DescendantTrivia(span).Any(trivia => trivia.IsKind(Microsoft.CodeAnalysis.CSharp.SyntaxKind.DisabledTextTrivia));
+
+    /// <summary>The diagnostic id a pragma code names: an identifier as written, or a number as its compiler warning.</summary>
+    private static string CodeOf(ExpressionSyntax code) => code switch
+    {
+        LiteralExpressionSyntax { Token.Value: int number } => $"CS{number:D4}",
+        _ => code.ToString().Trim(),
+    };
+}
+
+/// <summary>
+/// Keeps the explicit source lists in step with the files the fixes create and delete: a project file's or an imported
+/// <c>.projitems</c> file's single-line <c>&lt;Compile Include="..."/&gt;</c> item that names a file by path (no
+/// wildcard, no property but <c>$(MSBuildThisFileDirectory)</c>). A deleted file's item goes; a file renamed (created
+/// from a file that was deleted) has its item retargeted, <c>Link</c> included; a file created beside one that stays gets
+/// a copy of that file's item right after it. A wildcard item already covers a file created in its folder. A new file
+/// in another folder than its origin fails the run.
+/// </summary>
+internal static class ProjectLists
+{
+    /// <summary>A single-line compile item that names its file.</summary>
+    private static readonly Regex Item = new(@"<Compile\s+Include=""(?<include>[^""]+)""[^>]*/>", RegexOptions.CultureInvariant);
+
+    /// <summary>An import of a shared-source item file.</summary>
+    private static readonly Regex Import = new(@"<Import\s+Project=""(?<project>[^""]+\.projitems)""", RegexOptions.CultureInvariant);
+
+    /// <summary>Updates the lists for <paramref name="created"/> (each with its original file) and
+    /// <paramref name="deleted"/>, and returns the full paths of the list files written.</summary>
+    public static List<string> Update(Solution original, Dictionary<string, string> created, List<string> deleted, Func<string, string> relative)
+    {
+        if (created.Count == 0 && deleted.Count == 0)
+            return [];
+        var gone = new HashSet<string>(deleted, StringComparer.OrdinalIgnoreCase);
+        var renamed = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        var besides = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+        foreach (var (path, origin) in created.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        {
+            if (!string.Equals(Path.GetDirectoryName(path), Path.GetDirectoryName(origin), StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException($"{relative(path)} was created from {relative(origin)} in another folder; its project lists cannot follow.");
+            if (gone.Contains(origin) && !renamed.ContainsKey(origin))
+                renamed[origin] = path;
+            else if (besides.TryGetValue(origin, out var list))
+                list.Add(path);
+            else
+                besides[origin] = [path];
+        }
+        var written = new List<string>();
+        foreach (string file in ListFiles(original))
+        {
+            string text = File.ReadAllText(file);
+            string newline = text.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
+            var output = new List<string>();
+            bool changed = false;
+            foreach (string line in text.Replace("\r\n", "\n").Split('\n'))
+            {
+                Match match = Item.Match(line);
+                string? named = match.Success ? Resolve(file, match.Groups["include"].Value) : null;
+                if (named is null)
+                {
+                    output.Add(line);
+                    continue;
+                }
+                if (renamed.TryGetValue(named, out string? target))
+                {
+                    output.Add(Retarget(line, named, target));
+                    changed = true;
+                    continue;
+                }
+                if (gone.Contains(named))
+                {
+                    changed = true;
+                    continue;
+                }
+                output.Add(line);
+                if (besides.TryGetValue(named, out var siblings))
+                {
+                    output.AddRange(siblings.Select(sibling => Retarget(line, named, sibling)));
+                    changed = true;
+                }
+            }
+            if (!changed)
+                continue;
+            bool bom = File.ReadAllBytes(file) is [0xEF, 0xBB, 0xBF, ..];
+            File.WriteAllText(file, string.Join(newline, output), new UTF8Encoding(bom));
+            written.Add(file);
+        }
+        return written;
+    }
+
+    /// <summary>Every project file of the solution and every <c>.projitems</c> file one of them imports.</summary>
+    private static SortedSet<string> ListFiles(Solution original)
+    {
+        var files = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (Project project in original.Projects)
+        {
+            if (project.FilePath is not { } path)
+                continue;
+            files.Add(path);
+            foreach (Match import in Import.Matches(File.ReadAllText(path)))
+            {
+                if (Resolve(path, import.Groups["project"].Value) is { } imported)
+                    files.Add(imported);
+            }
+        }
+        return files;
+    }
+
+    /// <summary>The full path a list file's item names, or null for a wildcard or a property the list cannot resolve.</summary>
+    private static string? Resolve(string listFile, string include)
+    {
+        string directory = Path.GetDirectoryName(listFile)!;
+        string value = include.Replace("$(MSBuildThisFileDirectory)", directory + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
+        if (value.Contains("$(", StringComparison.Ordinal) || value.IndexOfAny(['*', '?', ';']) >= 0)
+            return null;
+        return Path.GetFullPath(Path.Combine(directory, value.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar)));
+    }
+
+    /// <summary>An item line naming <paramref name="target"/>'s file name where it named <paramref name="named"/>'s,
+    /// in its Include and its Link.</summary>
+    private static string Retarget(string line, string named, string target)
+    {
+        string oldName = Path.GetFileName(named);
+        string newName = Path.GetFileName(target);
+        return Regex.Replace(line, @"(?<attribute>\b(Include|Link)="")(?<path>[^""]*)""", match =>
+        {
+            string value = match.Groups["path"].Value;
+            int cut = Math.Max(value.LastIndexOf('/'), value.LastIndexOf('\\')) + 1;
+            if (!string.Equals(value[cut..], oldName, StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException($"The item '{line.Trim()}' does not end its {match.Groups["attribute"].Value.TrimEnd('=', '"')} with {oldName}.");
+            return match.Groups["attribute"].Value + value[..cut] + newName + "\"";
+        });
+    }
 }
 
 /// <summary>Hands a fix-all exactly the findings chosen for one document, and nothing else.</summary>

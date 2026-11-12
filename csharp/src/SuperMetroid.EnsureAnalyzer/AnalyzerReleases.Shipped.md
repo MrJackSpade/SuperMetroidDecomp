@@ -32,7 +32,7 @@ SME6351 | Design | Warning | FixedPointVocabularyAnalyzer
 SME6352 | Design | Warning | FixedPointVocabularyAnalyzer
 SME6353 | Design | Warning | FixedPointVocabularyAnalyzer
 SME6354 | Design | Warning | UnderscoreMemberAnalyzer
-SME6360 | Architecture | Error | PartialTypeAnalyzer
+SME6360 | Architecture | Error | PartialSplitAnalyzer
 SME6361 | Architecture | Error | PartialTypeAnalyzer
 SME6370 | Documentation | Error | MemberDocumentationAnalyzer
 SME6371 | Architecture | Error | OwnedReflectionAnalyzer
@@ -40,7 +40,7 @@ SME6372 | Architecture | Error | OwnedReflectionAnalyzer
 SME6373 | Architecture | Error | OwnedReflectionAnalyzer
 SME6380 | Nullability | Error | NullForgivingAnalyzer
 SME6390 | Collections | Error | AdapterChainAnalyzer
-SME6391 | Collections | Error | AdapterChainAnalyzer
+SME6391 | Collections | Error | SpanAdapterAnalyzer
 SME6400 | Architecture | Error | OneTypePerFileAnalyzer
 SME6401 | Architecture | Error | TypeFileNameAnalyzer
 SME6402 | Architecture | Error | ModuleLayoutAnalyzer

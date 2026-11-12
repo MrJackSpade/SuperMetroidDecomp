@@ -121,9 +121,10 @@ the directory's content identity covers all three catalogs.
 
 ## Partial types
 
-The build analyzer enforces partial-type rules in every project:
+The analyzer reports two partial-type rules:
 
-- **SME6360**: a type's hand-written code is split across declarations.
+- **SME6360**: a type's hand-written code is split across declarations. The build does not report it: the asynchronous
+  cleanup merges the parts with the code fix after each push (`tools/cleanup/README.md`).
 - **SME6361**: a type is `partial` without a generated declaration.
 
 `partial` is allowed only for a generated boundary: one hand-written declaration plus generated
@@ -153,7 +154,8 @@ The build analyzer reports conversions whose only purpose is to reach another op
   source; on a span or memory, use the `ReadOnlySpanQueries` query that reads it in place (`Any`, `All`, `Count`,
   `First`, `Single`, `Sum`, and the owned-result `SelectToArray`, `WhereToArray`, `ConcatToArray`, `ToDictionary`).
 - **SME6391**: a parameterless `AsSpan()` before an array's `SequenceEqual`; C# 14 binds the array to the span
-  comparison directly.
+  comparison directly. The build does not report it: the asynchronous cleanup removes the adapter with the
+  code fix after each push (`tools/cleanup/README.md`).
 
 A `ToArray()` that is stored, passed, compared through another overload, or that snapshots a reused buffer keeps an
 ownership purpose and is not reported. The code fix removes the adapter where that is unambiguous. Domain transforms
@@ -171,10 +173,12 @@ Repository code, including any generator it adds, is analyzed; only the framewor
 `OneTypePerFileAnalyzer.ThirdPartyGeneratorPrefixes` are exempt. The code fix moves a declaration into a sibling
 file when its usings, namespace, attributes and documentation carry over unambiguously; a file with preprocessor
 directives, statements or file-local types needs manual placement. The analyzer projects and their verifier are
-checked by `SuperMetroid.EnsureVerification`.
+checked by `SuperMetroid.EnsureVerification`. The build does not report SME6400: the asynchronous cleanup applies the code
+fix after each push (`tools/cleanup/README.md`), and a declaration the fix refuses fails the cleanup's run, naming it.
 
 **SME6401** requires the file to be named after that type: `Type.cs`, or `Type.Purpose.cs` for a deliberate partial
-part. Files declaring no type (entry-point statements, assembly attributes) are not named by the rule.
+part. Files declaring no type (entry-point statements, assembly attributes) are not named by the rule. The build does not
+report SME6401: the asynchronous cleanup renames the file with the code fix after each push.
 
 ## Comments belong to declarations
 

@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.CSharp;
 namespace SuperMetroid.EnsureAnalyzer.SourceLayout;
 
 /// <summary>
-/// Recognizes generated source by the compiler's conventions. Shared by <c>PartialTypeAnalyzer</c> and the
+/// Recognizes generated source by the compiler's conventions. Shared by <c>PartialDeclarations</c> and the
 /// architecture audit, which links this file rather than the analyzer.
 /// </summary>
 internal static class GeneratedSource

@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
 

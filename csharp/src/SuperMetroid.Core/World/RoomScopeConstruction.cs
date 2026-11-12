@@ -51,7 +51,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     /// <summary>The scrolling-sky updater, if the room has one.</summary>
     public ScrollingSkyState? ScrollingSky { get; set; }
 
-    /// <summary>The turning floor of a Ceres room.</summary>
+    /// <summary>The turning floor the room shows, or null when it shows none (#1649).</summary>
     public RoomFloor? Floor { get; set; }
 
     /// <summary>The Landing Site entry, if any.</summary>

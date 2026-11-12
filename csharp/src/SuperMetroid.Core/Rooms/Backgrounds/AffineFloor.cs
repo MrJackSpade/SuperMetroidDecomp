@@ -4,10 +4,11 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>
-/// A turning floor's picture (#1403, #1467): the whole floor's pre-coloured image, which the import composes once, and
+/// A turning floor's picture (#1403, #1467, #1649): the floor's pre-coloured image, which the import composes once, and
 /// the pictures of the floor's named states drawn over it, in order. A published affine transform turns and scales it
-/// onto the screen. Each picture drawn over the floor is placed by its frame's origin: drawn at the floor's top-left
-/// corner, so its own top-left lands at the floor point its origin names.
+/// onto the screen. The image and each picture drawn over it are placed by their frame's origin: drawn at the floor's
+/// top-left corner, so their own top-left lands at the floor point the origin names. The image holds the part of the
+/// floor that shows anything, which may be the whole floor; the floor shows nothing beyond it.
 /// </summary>
 public sealed class AffineFloor : IEquatable<AffineFloor>
 {
@@ -15,25 +16,20 @@ public sealed class AffineFloor : IEquatable<AffineFloor>
     public const int SidePixels = 1024;
 
     /// <summary>Holds a floor's image and the pictures drawn over it.</summary>
-    /// <param name="image">The whole floor, <see cref="SidePixels"/> square.</param>
+    /// <param name="image">The part of the floor that shows anything, placed by its origin on the floor.</param>
     /// <param name="drawnOver">The pictures of the floor's states drawn over it, in drawing order; each lies on the floor.</param>
-    /// <exception cref="InvalidDataException">The image is not the whole floor, or a picture leaves the floor.</exception>
+    /// <exception cref="InvalidDataException">The image or a picture leaves the floor.</exception>
     public AffineFloor(SpriteSheetFrame image, ImmutableArray<SpriteSheetFrame> drawnOver = default)
     {
         Image = Ensure.NotNull(image);
-        if (image.Size.X != SidePixels || image.Size.Y != SidePixels)
-            throw new InvalidDataException($"A floor image is {image.Size.X}x{image.Size.Y}, not {SidePixels} square.");
+        RequireOnFloor(image);
         DrawnOver = drawnOver.IsDefault ? [] : drawnOver;
         foreach (SpriteSheetFrame picture in DrawnOver)
-        {
-            if (-picture.Origin.X < 0 || -picture.Origin.Y < 0 || -picture.Origin.X + picture.Size.X > SidePixels ||
-                -picture.Origin.Y + picture.Size.Y > SidePixels)
-                throw new InvalidDataException($"A {picture.Size.X}x{picture.Size.Y} picture placed at ({-picture.Origin.X}, {-picture.Origin.Y}) leaves the floor.");
-        }
+            RequireOnFloor(picture);
         Pictures = [.. new[] { image }.Concat(DrawnOver).Distinct()];
     }
 
-    /// <summary>The whole floor's image.</summary>
+    /// <summary>The floor's image: the part of the floor that shows anything, placed by its origin.</summary>
     public SpriteSheetFrame Image { get; }
 
     /// <summary>The pictures of the floor's states drawn over the image, in drawing order.</summary>
@@ -64,4 +60,13 @@ public sealed class AffineFloor : IEquatable<AffineFloor>
 
     /// <inheritdoc />
     public override int GetHashCode() => HashCode.Combine(Image, DrawnOver.Length);
+
+    /// <summary>Requires <paramref name="picture"/>, placed by its origin, to lie on the floor.</summary>
+    /// <exception cref="InvalidDataException">The picture leaves the floor.</exception>
+    private static void RequireOnFloor(SpriteSheetFrame picture)
+    {
+        if (-picture.Origin.X < 0 || -picture.Origin.Y < 0 || -picture.Origin.X + picture.Size.X > SidePixels ||
+            -picture.Origin.Y + picture.Size.Y > SidePixels)
+            throw new InvalidDataException($"A {picture.Size.X}x{picture.Size.Y} picture placed at ({-picture.Origin.X}, {-picture.Origin.Y}) leaves the floor.");
+    }
 }

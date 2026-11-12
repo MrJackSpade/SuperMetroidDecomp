@@ -884,8 +884,9 @@ internal sealed class RoomLoader
             : null;
 
         // The room's pictures carry its tileset's colours (#1512), so the load colours nothing.
-        // Ceres rooms show their tileset's turning floor, which the door and Ridley then draw over (#1349, #1467).
-        scope.Floor = room.Definition.AreaIndex == AreaId.Ceres ? assets.CreateFloor() : null;
+        // The elevator shaft and Ceres Ridley's arena show their tileset's turning floor, which the shaft's door and Ridley
+        // then draw over (#1349, #1467); every other room shows none (#1649).
+        scope.Floor = assets.CreateFloor();
 
         // Loading the FX header selects the door-specific record, applies its palette
         // blend, chooses the effect page the effect overlay plane shows, and creates the type-owned per-line

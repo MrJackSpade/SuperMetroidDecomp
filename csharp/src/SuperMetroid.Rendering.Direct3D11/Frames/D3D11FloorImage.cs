@@ -7,8 +7,9 @@ using Vortice.DXGI;
 namespace SuperMetroid.Rendering.Direct3D11.Frames;
 
 /// <summary>
-/// The perspective floor's image (#1408, #1467): the whole floor, 1024 pixels square, copied from the floor's installed
-/// image with the pictures of its states laid over it at their places, once whenever the floor changes, so the floor
+/// The perspective floor's image (#1408, #1467, #1649): the whole floor, 1024 pixels square, clear where the floor's
+/// installed image does not reach, with that image and the pictures of its states laid over it at their places, once
+/// whenever the floor changes, so the floor
 /// shader samples one image. Each texel holds the pixel's colour and its key word (<see cref="D3D11ImageAtlas.KeyWord"/>),
 /// with the index of the floor picture it comes from above the key word's marks.
 /// </summary>
@@ -49,7 +50,13 @@ internal sealed class D3D11FloorImage : IDisposable
         // The image holds the pictures' pixels and key words; what each key shows is the colour slots' (#1512, #1633).
         if (floor.SamePictures(shown))
             return;
-        Lay(floor, floor.Image, 0, 0);
+        // The floor beyond its image shows nothing (#1649): every texel starts clear, and the image is laid at its place.
+        for (int texel = 0; texel < Side * Side; texel++)
+        {
+            texels[TexelWords * texel] = 0;
+            texels[TexelWords * texel + 1] = D3D11ImageAtlas.ClearMark;
+        }
+        Lay(floor, floor.Image, -floor.Image.Origin.X, -floor.Image.Origin.Y);
         foreach (SpriteSheetFrame picture in floor.DrawnOver)
             Lay(floor, picture, -picture.Origin.X, -picture.Origin.Y);
         fixed (uint* source = texels)

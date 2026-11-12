@@ -42,11 +42,12 @@ internal static class RoomBlockUploads
             .Select(state => RoomTilesets.Get(state.GraphicsSet)).Distinct()];
 
     /// <summary>
-    /// The tilesets some retail Ceres room state loads, each once in room order: those a turning floor is composed for, and
-    /// the only ones a room shows one in (#1536).
+    /// The tilesets of the retail room states that show a turning floor (<see cref="RoomTurningFloors"/>), each once in room
+    /// order: those a turning floor is composed for, and the only ones a room shows one in (#1536, #1649). A tileset no such
+    /// state loads installs no floor.
     /// </summary>
-    internal static IReadOnlyList<TilesetDefinition> CeresTilesets() =>
-        [.. RetailRoomHeaders.All.Where(room => room.AreaIndex == AreaId.Ceres).SelectMany(RoomStateLists.GetStates)
+    internal static IReadOnlyList<TilesetDefinition> FloorTilesets() =>
+        [.. RetailRoomHeaders.All.SelectMany(RoomStateLists.GetStates).Where(RoomTurningFloors.ShowsOne)
             .Select(state => RoomTilesets.Get(state.GraphicsSet)).Distinct()];
 
     /// <summary>

@@ -476,6 +476,9 @@ internal static class RoomBlockPicturesVerification
         FloorMemory memory = AffineFloorConstants.Split(runtime.ComposedVram());
         byte[] map = memory.Map, pixels = memory.Pixels;
         SpriteImage sheet = shown.Image.Sheet;
+        // The installed image holds the part of the floor that shows anything, placed by its origin (#1649); the floor
+        // beyond it shows nothing.
+        int left = -shown.Image.Origin.X, top = -shown.Image.Origin.Y;
         int checkedPixels = 0;
         for (int y = 0; y < AffineFloor.SidePixels; y++)
         {
@@ -483,11 +486,17 @@ internal static class RoomBlockPicturesVerification
             {
                 int tile = map[y / 8 * (AffineFloor.SidePixels / 8) + x / 8];
                 int expected = pixels[tile * 64 + y % 8 * 8 + x % 8];
-                int at = (shown.Image.Corner.Y + y) * sheet.Size.X + shown.Image.Corner.X + x;
+                checkedPixels++;
+                if (x < left || x >= left + shown.Image.Size.X || y < top || y >= top + shown.Image.Size.Y)
+                {
+                    if (expected != 0)
+                        AssertTrue(false, $"{floor.Name}: floor pixel ({x}, {y}) lies beyond the installed image, where its tile's characters name {expected}");
+                    continue;
+                }
+                int at = (shown.Image.Corner.Y + y - top) * sheet.Size.X + shown.Image.Corner.X + x - left;
                 // The message is built only for a failing pixel.
                 if (!(Painted(sheet, at) == expected && (expected == 0 || sheet.Pixels[at] == StandardOf(sheet, expected).ToRgbaPixel())))
                     AssertTrue(false, $"{floor.Name}: floor pixel ({x}, {y}) paints index {Painted(sheet, at)} where its tile's characters name {expected}");
-                checkedPixels++;
             }
         }
         Console.WriteLine($"Floor pictures: {floor.Name} paints all {checkedPixels} of {room.Name}'s floor pixels as its characters name them.");

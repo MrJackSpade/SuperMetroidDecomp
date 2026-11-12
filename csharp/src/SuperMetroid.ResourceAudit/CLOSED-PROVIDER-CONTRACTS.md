@@ -777,18 +777,19 @@ load. No lookup was excused.
 `room-artwork-complete-retail-selections` covers `InstalledRoomArtwork.Get`, `FloorOf`, `MessageBox`, `FxOverlay`,
 `Background` and `Sky`. A room selects them by the tileset its retail room state's graphics set names
 (`LoadedRoomAssets`), by its library background and the picture door it was entered through, by its scrolling sky's
-variant, and, only in a Ceres room, by its tileset's floor. `RoomBlockSheetFiles.Load` builds the block sheets and
-message boxes for every tileset `RoomBlockUploads.Tilesets` finds in the retail room states, and before it reads any
-sheet it requires, failing with `InvalidDataException`: an effect overlay picture sheet of every such tileset with
-the page of every effect its states run that shows one (`EffectPagesOf`), the turning floor of every Ceres tileset
-(`CeresTilesets`), and every background image a retail state shows (`BackgroundNames`: each library background's
+variant, and, only in a room whose state shows a turning floor (`RoomTurningFloors`, #1649), by its tileset's floor.
+`RoomBlockSheetFiles.Load` builds the block sheets and message boxes for every tileset `RoomBlockUploads.Tilesets`
+finds in the retail room states, and before it reads any sheet it requires, failing with `InvalidDataException`: an
+effect overlay picture sheet of every such tileset with the page of every effect its states run that shows one
+(`EffectPagesOf`), the turning floor of every tileset a retail state that shows one loads (`FloorTilesets`), and
+every background image a retail state shows (`BackgroundNames`: each library background's
 ordinary picture and the picture of each of its picture doors, and each scrolling sky's rows, in the state's
 tileset). `Background` and `Sky` take the typed background, door, sky variant and tileset instead of a name, so no
 free string reaches the lookup; a constant sky variant must be one a retail state's room main reads. The artwork's
 constructor accepts any dictionaries, so a construction outside the reviewed sources revokes the rule.
 
 `room-floor-complete-animation-frames` covers `RoomFloorSheet.Picture`, which takes the floor animation frame. The
-import pictures every `CeresFloorAnimationFrame` value over each Ceres floor, and the sheet's constructor indexes the
+import pictures every `CeresFloorAnimationFrame` value over each installed floor, and the sheet's constructor indexes the
 picture of every value, so loading a floor that lacks one fails. An undefined constant frame remains a finding.
 
 `message-box-complete-shown-forms` covers `MessageBoxSheet.Picture`, which takes the `ShownMessage` form. The form

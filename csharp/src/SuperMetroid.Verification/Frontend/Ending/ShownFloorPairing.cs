@@ -116,14 +116,15 @@ internal sealed class ShownFloorPairing
         floor.Shading ?? throw new InvalidOperationException("A frontend screen's turning floor names its shading.");
 
     /// <summary>
-    /// Lays <paramref name="floor"/>'s pictures as a backend lays them, keeping each floor point's picture and pixel: the
-    /// image over the whole floor, then each picture drawn over it at its origin's place, over those before it. A pixel is
-    /// kept as its colour key's place among its sheet's keys, or, where <paramref name="composedIndices"/> is set, as the
-    /// palette index it was composed as.
+    /// Lays <paramref name="floor"/>'s pictures as a backend lays them, keeping each floor point's picture and pixel: every
+    /// point clear, the image at its origin's place, then each picture drawn over it at its origin's place, over those
+    /// before it. A pixel is kept as its colour key's place among its sheet's keys, or, where
+    /// <paramref name="composedIndices"/> is set, as the palette index it was composed as.
     /// </summary>
     private static void Lay(AffineFloor floor, LaidPixel[] laid, bool composedIndices)
     {
-        Lay(floor, floor.Image, 0, 0, laid, composedIndices);
+        laid.AsSpan().Fill(new LaidPixel(0, -1, true));
+        Lay(floor, floor.Image, -floor.Image.Origin.X, -floor.Image.Origin.Y, laid, composedIndices);
         foreach (SpriteSheetFrame picture in floor.DrawnOver)
             Lay(floor, picture, -picture.Origin.X, -picture.Origin.Y, laid, composedIndices);
     }

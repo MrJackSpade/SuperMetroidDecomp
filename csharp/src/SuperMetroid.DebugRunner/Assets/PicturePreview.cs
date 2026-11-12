@@ -1,4 +1,3 @@
-using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
@@ -9,21 +8,14 @@ namespace SuperMetroid.DebugRunner.Assets;
 /// <summary>
 /// Developer review of an installation's pictures by tag (#1639). <see cref="Write"/> draws every stored picture exactly
 /// once, in the preview of the first sheet showing it (families, then sheets, in the order the store writes them): each
-/// picture upscaled by a whole number, boxed in its own margin and labelled with its tag beneath, packed in rows. A sheet
-/// showing no picture an earlier sheet did not has no preview; the tag lookup names every sheet showing a picture. Transparent pixels show as a checkerboard. <see cref="Describe"/>
-/// prints everything a tag resolves to. Neither writes into the installation; a production load never reads a preview.
+/// picture upscaled by a whole number, boxed in its own margin and labelled with its tag beneath, packed in rows. A stored
+/// picture is its pixels only (#1644), so a picture frames show with different maps is still drawn once. A sheet showing no
+/// picture an earlier sheet did not has no preview; the tag lookup names every sheet showing a picture. Transparent pixels
+/// show as a checkerboard. <see cref="Describe"/> prints everything a tag resolves to, with the maps each frame shows it
+/// with. Neither writes into the installation; a production load never reads a preview.
 /// </summary>
 internal static class PicturePreview
 {
-    /// <summary>The sheet families the store's pictures are shown by, in the order the store writes them.</summary>
-    private static readonly string[] Families =
-    [
-        GameInstallationLayout.SpriteSheetDirectoryName,
-        GameInstallationLayout.RoomBlockSheetDirectoryName,
-        GameInstallationLayout.BossBodySheetDirectoryName,
-        GameInstallationLayout.EnemySheetDirectoryName,
-    ];
-
     /// <summary>The whole-number upscale of every picture and of the tag font.</summary>
     private const int Scale = 2;
 
@@ -64,7 +56,7 @@ internal static class PicturePreview
         int pictures = 0;
         var drawn = new HashSet<string>(StringComparer.Ordinal);
         using var png = new RgbaPngBuffers();
-        foreach ((string family, string sheet, InstalledSheetDocument document) in Sheets(content))
+        foreach ((string family, string sheet, InstalledSheetDocument document) in InstalledSheetManifests.Read(content))
         {
             string[] tags = [.. document.Frames.Values.Where(frame => frame.Picture is not null)
                 .Select(frame => frame.Picture!.Tag).Distinct(StringComparer.Ordinal).Where(drawn.Add).Order(StringComparer.Ordinal)];
@@ -80,7 +72,10 @@ internal static class PicturePreview
         return (sheets, pictures);
     }
 
-    /// <summary>Prints where the store holds the picture tagged <paramref name="tag"/> and every sheet frame showing it.</summary>
+    /// <summary>
+    /// Prints where the store holds the picture tagged <paramref name="tag"/> and every sheet frame showing it, each group of
+    /// frames with the recolour-region and blend maps it shows the picture with (#1644).
+    /// </summary>
     /// <exception cref="InvalidDataException">The store does not list the tag, or the store or a sheet manifest is malformed.</exception>
     internal static void Describe(string content, string tag)
     {
@@ -89,40 +84,24 @@ internal static class PicturePreview
         Console.WriteLine($"{tag}: {PictureStoreFiles.PageFile(picture.Page)} at ({picture.Corner.X}, {picture.Corner.Y}), " +
             $"{picture.Size.X}x{picture.Size.Y}");
         int shown = 0;
-        foreach ((string family, string sheet, InstalledSheetDocument document) in Sheets(content))
+        foreach ((string family, string sheet, InstalledSheetDocument document) in InstalledSheetManifests.Read(content))
         {
-            string[] frames = [.. document.Frames.Where(frame => frame.Value.Picture?.Tag == tag).Select(frame => frame.Key)
-                .Order(StringComparer.Ordinal)];
+            IGrouping<string, string>[] frames = document.Frames.Where(frame => frame.Value.Picture?.Tag == tag)
+                .GroupBy(frame => MapsOf(frame.Value.Picture!), frame => frame.Key, StringComparer.Ordinal)
+                .OrderBy(maps => maps.Key, StringComparer.Ordinal)
+                .ToArray();
             if (frames.Length == 0)
                 continue;
-            Console.WriteLine($"  {family}/{sheet}: {string.Join(", ", frames)}");
+            foreach (IGrouping<string, string> maps in frames)
+                Console.WriteLine($"  {family}/{sheet} ({maps.Key}): {string.Join(", ", maps.Order(StringComparer.Ordinal))}");
             shown++;
         }
         Console.WriteLine($"  shown by {shown} sheet(s)");
     }
 
-    /// <summary>Every installed sheet manifest, by family and sheet name, in family and then name order.</summary>
-    private static IEnumerable<(string Family, string Sheet, InstalledSheetDocument Document)> Sheets(string content)
-    {
-        foreach (string family in Families)
-        {
-            string directory = Path.Combine(content, family);
-            if (!Directory.Exists(directory))
-                throw new DirectoryNotFoundException($"Installation content {content} has no sheet family {family}.");
-            foreach (string path in Directory.EnumerateFiles(directory, "*.json").Order(StringComparer.Ordinal))
-            {
-                string sheet = Path.GetFileNameWithoutExtension(path);
-                using (JsonDocument probe = JsonDocument.Parse(File.ReadAllBytes(path)))
-                {
-                    // A family's directory also holds its provenance and the block sheets' appearance records.
-                    if (!probe.RootElement.TryGetProperty("frames", out _))
-                        continue;
-                }
-                using FileStream stream = File.OpenRead(path);
-                yield return (family, sheet, SpriteSheetFile.ReadDocument(stream, sheet));
-            }
-        }
-    }
+    /// <summary>The maps <paramref name="reference"/> shows its picture with, as the lookup prints them.</summary>
+    private static string MapsOf(InstalledPictureReferenceDocument reference) =>
+        $"recolour regions {reference.RecolourRegionMap ?? "none"}, blending {reference.BlendMap ?? "none"}";
 
     /// <summary>The preview of <paramref name="tags"/>: each picture boxed, with its tag beneath, packed into rows.</summary>
     private static (Extent16<ImagePixels> Size, RgbaPixel[] Pixels) Draw(Store store, string sheet, string[] tags)

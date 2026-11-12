@@ -501,9 +501,10 @@ sheet, its origin, whether it blends, where the picture store holds its picture,
 pre-coloured in, each a list of colours shown in place of the sheet's own). Every picture any sheet shows is
 written once, to the picture store in `game/pictures`: RGBA PNG pages (`pictures-0000.png`, `pictures-0001.png`
 and so on, transparent where alpha is zero), each frame naming its page and the corner of its picture there,
-and the game assembles each sheet from the pages. A page holding pictures whose pixels of one colour recolour
-differently, or that blend in their pixels, also has a map in its own folder (`game/recolour-regions/pictures`,
-`game/blend-maps/pictures`); see `docs/installed-pictures.md`. A clear pixel keeps its colour under alpha zero,
+and the game assembles each sheet from the pages. A stored picture is its pixels only: a frame showing a picture
+whose pixels of one colour recolour differently, or that blends in some of its pixels, also names the map it shows the
+picture with, each map stored once in its own folder (`game/recolour-regions/pictures.regions`,
+`game/blend-maps/pictures.blendmap`); see `docs/installed-pictures.md`. A clear pixel keeps its colour under alpha zero,
 so an editor must not rewrite the RGB of transparent pixels. Edit these files in place: an edit to a picture on a
 page changes it for every frame of every sheet that shows it, as the game shows one picture wherever it shows that
 appearance. An edited frame list must keep every frame the family draws. The escape countdown (`escape-timer`) is drawn

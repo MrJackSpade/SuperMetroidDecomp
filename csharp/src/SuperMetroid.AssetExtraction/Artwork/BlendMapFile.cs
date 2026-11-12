@@ -7,25 +7,45 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>
-/// The installed blend map of a sheet image (#1633), a <c>.blendmap</c> file in <c>game/blend-maps/</c>: which pixels blend
-/// with what lies behind them where the sheet is drawn as sprites (<see cref="SpriteImage.Blending"/>). Only a sprite-drawn
-/// sheet with a picture that blends in some opaque pixels and not others has one. It is JSON:
-/// <c>{ "version": 1, "width": W, "height": H, "rows": [ [start, count, ...], ... ] }</c>, each row from the top listing
-/// its runs of blending pixels from the left, each by its first pixel and its length, in order and apart.
+/// The installed blend maps the picture store's pictures are shown with (#1633, #1644), one <c>.blendmap</c> file in
+/// <c>game/blend-maps/</c> (<see cref="Installation.PictureStoreFiles.BlendMapsFile"/>): each map once, by its tag, saying
+/// which pixels of a picture blend with what lies behind them where its sheet is drawn as sprites
+/// (<see cref="SpriteImage.Blending"/>). A sheet frame naming a picture names the map it shows the picture with, and only a
+/// picture of a sprite-drawn sheet with a frame that blends in some opaque pixels and not others is shown with one. It is
+/// JSON: <c>{ "version": 2, "maps": { "B0000": { "size": { "x": W, "y": H }, "rows": [ [start, count, ...], ... ] } } }</c>,
+/// each map's rows from the top listing its runs of blending pixels from the left, each by its first pixel and its length,
+/// in order and apart.
 /// </summary>
 internal static class BlendMapFile
 {
-    /// <summary>The map format's revision.</summary>
-    internal const int Version = 1;
+    /// <summary>
+    /// The map format's revision: 1 held one page's map; 2 holds every map the pictures are shown with, each once by its tag,
+    /// the size of the picture it is for (#1644).
+    /// </summary>
+    internal const int Version = 2;
 
     /// <summary>The map file's extension.</summary>
     internal const string Extension = ".blendmap";
 
-    /// <summary>Encodes the map of an image of <paramref name="size"/> whose blending pixels <paramref name="blending"/> marks.</summary>
-    /// <exception cref="ArgumentException">The marks are not one per pixel.</exception>
-    internal static byte[] Encode(Extent16<ImagePixels> size, ReadOnlySpan<bool> blending)
+    /// <summary>Encodes <paramref name="maps"/>, each by its tag, in the order given.</summary>
+    /// <exception cref="ArgumentException">A tag is named twice.</exception>
+    internal static byte[] Encode(List<KeyValuePair<string, PictureMap<bool>>> maps)
     {
-        Ensure.LengthEqual(blending, size.X * size.Y);
+        Ensure.NotNull(maps);
+        var documents = new Dictionary<string, MapDocument>(StringComparer.Ordinal);
+        foreach ((string tag, PictureMap<bool> map) in maps)
+        {
+            if (!documents.TryAdd(tag, Encoded(Ensure.NotNull(map))))
+                throw new ArgumentException($"Blend map {tag} is named twice.", nameof(maps));
+        }
+        return JsonSerializer.SerializeToUtf8Bytes(new Document(Version, documents), Options);
+    }
+
+    /// <summary>One map's runs of blending pixels.</summary>
+    private static MapDocument Encoded(PictureMap<bool> map)
+    {
+        Extent16<ImagePixels> size = map.Size;
+        ReadOnlySpan<bool> blending = map.Values;
         var rows = new int[size.Y][];
         var runs = new List<int>();
         for (int y = 0; y < size.Y; y++)
@@ -44,27 +64,40 @@ internal static class BlendMapFile
             }
             rows[y] = [.. runs];
         }
-        return JsonSerializer.SerializeToUtf8Bytes(new Document(Version, size, rows), Options);
+        return new MapDocument(size, rows);
     }
 
-    /// <summary>Which pixels of an image of <paramref name="size"/> blend, as <paramref name="bytes"/>, its map, says.</summary>
+    /// <summary>Every map <paramref name="bytes"/>, the map file, holds, by tag.</summary>
     /// <param name="bytes">The map file.</param>
-    /// <param name="size">The image's width and height.</param>
-    /// <param name="name">Names the map in a failure.</param>
+    /// <param name="name">Names the file in a failure.</param>
     /// <exception cref="InvalidDataException">
-    /// The map is malformed, of another revision or size, or a row's runs leave the image, overlap or are out of order.
+    /// The file is malformed or of another revision, or a map's row is missing or its runs leave the picture, overlap or are
+    /// out of order.
     /// </exception>
-    internal static bool[] Decode(byte[] bytes, Extent16<ImagePixels> size, string name)
+    internal static Dictionary<string, PictureMap<bool>> Decode(byte[] bytes, string name)
     {
-        Document document = JsonAssetDocument.Read<Document>(new MemoryStream(bytes, writable: false), Options, $"blend map {name}");
+        Document document = JsonAssetDocument.Read<Document>(new MemoryStream(bytes, writable: false), Options, $"blend maps {name}");
         if (document.Version != Version)
-            throw new InvalidDataException($"Blend map {name} has revision {document.Version}, not {Version}.");
-        if (document.Size != size || document.Rows is null || document.Rows.Length != size.Y)
-            throw new InvalidDataException($"Blend map {name} is not {size.X}x{size.Y}, the size of its image.");
+            throw new InvalidDataException($"Blend maps {name} have revision {document.Version}, not {Version}.");
+        if (document.Maps is null)
+            throw new InvalidDataException($"Blend maps {name} list no maps.");
+        var maps = new Dictionary<string, PictureMap<bool>>(StringComparer.Ordinal);
+        foreach ((string tag, MapDocument? map) in document.Maps)
+            maps.Add(tag, Decoded($"{name} map {tag}", map ?? throw new InvalidDataException($"Blend maps {name} map {tag} is null.")));
+        return maps;
+    }
+
+    /// <summary>One map's blending pixels.</summary>
+    /// <exception cref="InvalidDataException">A row is missing or its runs leave the picture, overlap or are out of order.</exception>
+    private static PictureMap<bool> Decoded(string name, MapDocument map)
+    {
+        Extent16<ImagePixels> size = map.Size;
+        if (map.Rows is null || map.Rows.Length != size.Y)
+            throw new InvalidDataException($"Blend map {name} does not hold {size.Y} rows, the height of its picture.");
         var blending = new bool[size.X * size.Y];
         for (int y = 0; y < size.Y; y++)
         {
-            int[] runs = document.Rows[y] ?? throw new InvalidDataException($"Blend map {name} has no row {y}.");
+            int[] runs = map.Rows[y] ?? throw new InvalidDataException($"Blend map {name} has no row {y}.");
             if (runs.Length % 2 != 0)
                 throw new InvalidDataException($"Blend map {name} row {y} ends inside a run.");
             int end = 0;
@@ -77,7 +110,7 @@ internal static class BlendMapFile
                 end = start + count;
             }
         }
-        return blending;
+        return new PictureMap<bool>(size, blending);
     }
 
     /// <summary>Camel-case fields; unknown fields are rejected.</summary>
@@ -88,9 +121,13 @@ internal static class BlendMapFile
         WriteIndented = false,
     };
 
-    /// <summary>The map document.</summary>
+    /// <summary>The map file.</summary>
     /// <param name="Version">The format revision.</param>
-    /// <param name="Size">The image's width and height.</param>
+    /// <param name="Maps">Every map, by tag.</param>
+    private sealed record Document(int Version, Dictionary<string, MapDocument> Maps);
+
+    /// <summary>One map.</summary>
+    /// <param name="Size">The width and height of the picture it is for.</param>
     /// <param name="Rows">Each row's runs of blending pixels, first pixel then length.</param>
-    private sealed record Document(int Version, Extent16<ImagePixels> Size, int[][] Rows);
+    private sealed record MapDocument(Extent16<ImagePixels> Size, int[][] Rows);
 }

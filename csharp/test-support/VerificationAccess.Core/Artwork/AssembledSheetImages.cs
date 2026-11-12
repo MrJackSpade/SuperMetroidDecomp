@@ -49,7 +49,8 @@ internal static class AssembledSheetImages
     /// <summary>
     /// Whether every pixel of <paramref name="installed"/> lies in the recolour region it lies in on
     /// <paramref name="assembled"/>. An image without a recolour-region map holds every pixel in region zero: the loader
-    /// gives a sheet a map when a store page it reads has one, which another sheet's picture may be the reason for.
+    /// gives a sheet a map when one of its frames names one (#1644), and the conversion keeps a sheet-wide map whatever its
+    /// frames hold.
     /// </summary>
     internal static bool HoldsRecolourRegions(SpriteImage installed, SpriteImagePixels assembled)
     {

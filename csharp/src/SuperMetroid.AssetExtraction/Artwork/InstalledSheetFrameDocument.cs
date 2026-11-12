@@ -4,7 +4,7 @@ using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
 
-/// <summary>One frame in an installed sprite sheet manifest (#1544, #1633, #1635).</summary>
+/// <summary>One frame in an installed sprite sheet manifest (#1544, #1633, #1635, #1644).</summary>
 public sealed record InstalledSheetFrameDocument
 {
     /// <summary>The frame rectangle's top-left pixel on the sheet.</summary>
@@ -34,8 +34,9 @@ public sealed record InstalledSheetFrameDocument
 
     /// <summary>
     /// Where the installation's picture store holds the frame's picture (#1635): a rectangle of the frame's size on one of
-    /// its pages, which the loader copies into the frame's rectangle. Frames showing one picture, on this sheet or any other,
-    /// name one rectangle. Absent for a frame whose rectangle shows nothing at all, which stays clear.
+    /// its pages, which the loader copies into the frame's rectangle, and the maps the frame shows it with (#1644). Frames
+    /// showing the same pixels, on this sheet or any other, name one rectangle, each with its own maps. Absent for a frame
+    /// whose rectangle shows nothing at all, which stays clear.
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public InstalledPictureReferenceDocument? Picture { get; init; }

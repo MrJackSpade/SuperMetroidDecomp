@@ -5,13 +5,14 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Installation;
 
 /// <summary>
-/// The installation's picture store (#1635), <c>game/pictures/</c>: every picture the sheets show, each written once, on
-/// shelf-packed RGBA pages <c>pictures-NNNN.png</c> numbered from 0000, with a recolour-region map
-/// (<c>game/recolour-regions/pictures/pictures-NNNN.regions</c>) for a page holding a picture whose pixels of one colour
-/// recolour differently, a blend map (<c>game/blend-maps/pictures/pictures-NNNN.blendmap</c>) for a page holding a picture
-/// that blends in its pixels, and a provenance manifest of the pages' and maps' hashes. Each sheet manifest names where the
-/// store holds each frame's picture, and the loader assembles the sheet's image from the pages. A player edits a page in
-/// place, which changes the picture for every frame of every sheet that shows it.
+/// The installation's picture store (#1635, #1644), <c>game/pictures/</c>: every picture the sheets show, each written once
+/// by its pixels, on shelf-packed RGBA pages <c>pictures-NNNN.png</c> numbered from 0000, and a provenance manifest of the
+/// pages' and maps' hashes. A picture's pixels are all it is: the recolour regions and blending it is shown with are maps of
+/// the frame that shows it, each map stored once in its own folder, the recolour-region maps in
+/// <c>game/recolour-regions/pictures.regions</c> and the blend maps in <c>game/blend-maps/pictures.blendmap</c>. Each sheet
+/// manifest names where the store holds each frame's picture and the maps the frame shows it with, and the loader assembles
+/// the sheet's image from the pages and the maps. A player edits a page in place, which changes the picture for every frame
+/// of every sheet that shows it.
 /// </summary>
 public static class PictureStoreFiles
 {
@@ -25,21 +26,19 @@ public static class PictureStoreFiles
     /// <exception cref="ArgumentOutOfRangeException">The page is negative.</exception>
     public static string PageFile(int page) => PageName(page) + ".png";
 
-    /// <summary>The recolour-region map file of page <paramref name="page"/> (<see cref="RecolourRegionMapFile"/>).</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The page is negative.</exception>
-    public static string RecolourRegionFile(int page) => PageName(page) + RecolourRegionMapFile.Extension;
+    /// <summary>
+    /// The file of every recolour-region map the store's pictures are shown with (<see cref="RecolourRegionMapFile"/>), under
+    /// the content directory <paramref name="content"/>.
+    /// </summary>
+    internal static string RecolourRegionMapsFile(string content) =>
+        Path.Combine(content, GameInstallationLayout.RecolourRegionDirectoryName, DirectoryName + RecolourRegionMapFile.Extension);
 
-    /// <summary>The blend map file of page <paramref name="page"/> (<see cref="BlendMapFile"/>).</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The page is negative.</exception>
-    public static string BlendMapFileName(int page) => PageName(page) + BlendMapFile.Extension;
-
-    /// <summary>The directory of the store's recolour-region maps under the content directory <paramref name="content"/>.</summary>
-    internal static string RecolourRegionDirectory(string content) =>
-        Path.Combine(content, GameInstallationLayout.RecolourRegionDirectoryName, DirectoryName);
-
-    /// <summary>The directory of the store's blend maps under the content directory <paramref name="content"/>.</summary>
-    internal static string BlendMapDirectory(string content) =>
-        Path.Combine(content, GameInstallationLayout.BlendMapDirectoryName, DirectoryName);
+    /// <summary>
+    /// The file of every blend map the store's pictures are shown with (<see cref="BlendMapFile"/>), under the content
+    /// directory <paramref name="content"/>.
+    /// </summary>
+    internal static string BlendMapsFile(string content) =>
+        Path.Combine(content, GameInstallationLayout.BlendMapDirectoryName, DirectoryName + BlendMapFile.Extension);
 
     /// <summary>A page's file name without extension.</summary>
     private static string PageName(int page) =>

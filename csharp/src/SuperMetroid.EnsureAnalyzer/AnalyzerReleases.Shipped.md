@@ -32,7 +32,7 @@ SME6351 | Design | Warning | FixedPointVocabularyAnalyzer
 SME6352 | Design | Warning | FixedPointVocabularyAnalyzer
 SME6353 | Design | Warning | FixedPointVocabularyAnalyzer
 SME6354 | Design | Warning | UnderscoreMemberAnalyzer
-SME6360 | Architecture | Error | PartialTypeAnalyzer
+SME6360 | Architecture | Error | PartialSplitAnalyzer
 SME6361 | Architecture | Error | PartialTypeAnalyzer
 SME6370 | Documentation | Error | MemberDocumentationAnalyzer
 SME6371 | Architecture | Error | OwnedReflectionAnalyzer

@@ -45,6 +45,7 @@ $FixedRuleWords = [ordered]@{
     IDE0077 = 'legacy suppression targets updated'
     IDE0079 = 'unnecessary suppressions removed'
     IDE0330 = 'locks use System.Threading.Lock'
+    SME6360 = 'partial types merged'
     SME6391 = 'span adapters before SequenceEqual removed'
     SME6400 = 'extra top-level types moved to their own files'
     SME6401 = 'files named after their types'

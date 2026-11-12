@@ -121,9 +121,10 @@ the directory's content identity covers all three catalogs.
 
 ## Partial types
 
-The build analyzer enforces partial-type rules in every project:
+The analyzer reports two partial-type rules:
 
-- **SME6360**: a type's hand-written code is split across declarations.
+- **SME6360**: a type's hand-written code is split across declarations. The build does not report it: the asynchronous
+  cleanup merges the parts with the code fix after each push (`tools/cleanup/README.md`).
 - **SME6361**: a type is `partial` without a generated declaration.
 
 `partial` is allowed only for a generated boundary: one hand-written declaration plus generated
@@ -176,7 +177,8 @@ checked by `SuperMetroid.EnsureVerification`. The build does not report SME6400:
 fix after each push (`tools/cleanup/README.md`), and a declaration the fix refuses fails the cleanup's run, naming it.
 
 **SME6401** requires the file to be named after that type: `Type.cs`, or `Type.Purpose.cs` for a deliberate partial
-part. Files declaring no type (entry-point statements, assembly attributes) are not named by the rule.
+part. Files declaring no type (entry-point statements, assembly attributes) are not named by the rule. The build does not
+report SME6401: the asynchronous cleanup renames the file with the code fix after each push.
 
 ## Comments belong to declarations
 

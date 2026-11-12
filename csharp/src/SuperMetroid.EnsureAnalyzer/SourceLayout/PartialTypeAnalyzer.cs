@@ -1,7 +1,5 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace SuperMetroid.EnsureAnalyzer.SourceLayout;
@@ -11,26 +9,15 @@ namespace SuperMetroid.EnsureAnalyzer.SourceLayout;
 /// hand-written declaration plus generated declarations, whether a source generator emits them (LibraryImport,
 /// GeneratedRegex, ...) or a checked-in generator does. Generated declarations are recognized structurally, by
 /// the same conventions the compiler uses: an <c>&lt;auto-generated&gt;</c> header comment, or a
-/// <c>.g.cs</c>, <c>.generated.cs</c> or <c>.designer.cs</c> file name.
+/// <c>.g.cs</c>, <c>.generated.cs</c> or <c>.designer.cs</c> file name. This analyzer reports a lone partial
+/// declaration with nothing generated beside it (SME6361); a type split across several hand-written declarations
+/// (SME6360) is <see cref="PartialSplitAnalyzer"/>'s, which the asynchronous cleanup enforces.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class PartialTypeAnalyzer : DiagnosticAnalyzer
 {
-    /// <summary>A type whose hand-written code is split across several partial declarations.</summary>
-    public const string SplitId = "SME6360";
-
     /// <summary>A partial type with no generated declaration to justify the modifier.</summary>
     public const string UngeneratedId = "SME6361";
-
-    /// <summary>Reports each hand-written declaration when a partial type has multiple authored halves.</summary>
-    private static readonly DiagnosticDescriptor SplitRule = new(
-        SplitId,
-        "Hand-written type split across partial declarations",
-        "{0} has {1} hand-written partial declarations; a type is one declaration, with partial only for a generated half",
-        "Architecture",
-        DiagnosticSeverity.Error,
-        isEnabledByDefault: true,
-        description: "Split responsibilities into owned types instead of spreading one type over several files (#621).");
 
     /// <summary>Reports a lone partial declaration with no generated counterpart.</summary>
     private static readonly DiagnosticDescriptor UngeneratedRule = new(
@@ -43,40 +30,26 @@ public sealed class PartialTypeAnalyzer : DiagnosticAnalyzer
         description: "partial is reserved for a type that a source generator or a checked-in generator completes (#621).");
 
     /// <inheritdoc />
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [SplitRule, UngeneratedRule];
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [UngeneratedRule];
 
     /// <inheritdoc />
     public override void Initialize(AnalysisContext context)
     {
-        // Generated declarations are part of every decision, so generated code is analyzed too; diagnostics
-        // are only reported at hand-written declarations.
+        // Generated declarations are part of the decision, so generated code is analyzed too; the diagnostic is only
+        // reported at a hand-written declaration.
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.Analyze);
         context.EnableConcurrentExecution();
         context.RegisterSymbolAction(AnalyzeType, SymbolKind.NamedType);
     }
 
-    /// <summary>Partitions a partial symbol's declarations by generated status before applying the two rules.</summary>
+    /// <summary>Reports a partial type whose only declaration is hand-written.</summary>
     private static void AnalyzeType(SymbolAnalysisContext context)
     {
         var type = (INamedTypeSymbol)context.Symbol;
-        var declarations = type.DeclaringSyntaxReferences
-            .Select(reference => reference.GetSyntax(context.CancellationToken))
-            .OfType<TypeDeclarationSyntax>()
-            .ToList();
-        if (!declarations.Any(declaration => declaration.Modifiers.Any(SyntaxKind.PartialKeyword)))
-            return;
-        var handWritten = declarations.Where(declaration => !GeneratedSource.IsGenerated(declaration.SyntaxTree, context.CancellationToken)).ToList();
-        if (handWritten.Count == 0)
+        if (PartialDeclarations.Of(type, context.CancellationToken) is not { HandWritten.Count: 1 } declarations ||
+            declarations.All.Count != 1)
             return;
         string name = type.ToDisplayString(SymbolDisplayFormat.CSharpShortErrorMessageFormat);
-        if (handWritten.Count > 1)
-        {
-            foreach (TypeDeclarationSyntax declaration in handWritten)
-                context.ReportDiagnostic(Diagnostic.Create(SplitRule, declaration.Identifier.GetLocation(), name, handWritten.Count));
-            return;
-        }
-        if (handWritten.Count == declarations.Count)
-            context.ReportDiagnostic(Diagnostic.Create(UngeneratedRule, handWritten[0].Identifier.GetLocation(), name));
+        context.ReportDiagnostic(Diagnostic.Create(UngeneratedRule, declarations.HandWritten[0].Identifier.GetLocation(), name));
     }
-
 }

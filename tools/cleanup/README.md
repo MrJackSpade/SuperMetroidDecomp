@@ -37,7 +37,7 @@ developer's checkout, with its own `bin`/`obj` and its own `temp\`), `config.jso
 1. **Restore** the solution, **build the reachability audit in Release** and **the repository's analyzer and code fixes`n   in Debug** (`csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes`) through `tools/build.ps1`. The code fixes load the
    repository's analyzer and fixers from the projects' Debug references, so they must be built first.
 2. **Fix and prune, taking turns, until one of each in a row changes nothing:**
-   - **Code fixes:** `dotnet run tools/cleanup/CodeFixRunner.cs -- csharp/SuperMetroid.Full.slnx <summary.json> CA1823,CS0162,CS0168,CS0169,CS0219,CS0414,IDE0004,IDE0005,IDE0032,IDE0044,IDE0051,IDE0052,IDE0059,IDE0076,IDE0077,IDE0079,IDE0330,SME6391,SME6400,SME6401`.
+   - **Code fixes:** `dotnet run tools/cleanup/CodeFixRunner.cs -- csharp/SuperMetroid.Full.slnx <summary.json> CA1823,CS0162,CS0168,CS0169,CS0219,CS0414,IDE0004,IDE0005,IDE0032,IDE0044,IDE0051,IDE0052,IDE0059,IDE0076,IDE0077,IDE0079,IDE0330,SME6360,SME6391,SME6400,SME6401`.
      `run.ps1` reads the rules from `csharp/.editorconfig`: the `none` lines directly under the comment that names
      this cleanup. A rule there that `run.ps1` has no commit-message words for, or words for a
      rule not there, fails the run.
@@ -112,7 +112,8 @@ those files (otherwise it waits for the next pass, since its spans would be stal
 its files must still compile afterwards, or the run fails naming the fix. The cycle and pass checks cover every
 changed file, and the summary lists them all.
 
-A fix may also add, rename or delete files: SME6400 moves a type into a new file. The runner adds a new file to
+A fix may also add, rename or delete files: SME6400 moves a type into a new file, SME6401 renames a file after its type,
+and SME6360 merges a type's hand-written parts into one and deletes the files it empties. The runner adds a new file to
 every project that compiles the file its finding is in, creates it with that file's byte-order mark (it must not exist
 yet), deletes a removed file, and keeps the explicit source lists in step: in a project file or an imported`n`.projitems`, a single-line `<Compile Include="..."/>` item that names a deleted file goes, one that names a renamed
 file is retargeted (its `Link` too), and a file created beside a listed one gets a copy of that item right after it. A

@@ -18,21 +18,21 @@ internal static class PartialTypeAnalyzerTests
 
         // SME6360: hand-written code split across declarations, in one file or several, reported at each.
         Expect([new AnalyzerTestSource("A.cs", "partial class C { void M() { } }"), new AnalyzerTestSource("A.More.cs", "partial class C { void N() { } }")],
-            PartialTypeAnalyzer.SplitId, 2, "C has 2 hand-written partial declarations");
-        Expect([new AnalyzerTestSource("A.cs", "partial class C { } partial class C { }")], PartialTypeAnalyzer.SplitId, 2);
-        Expect([new AnalyzerTestSource("A.cs", "partial struct S { }"), new AnalyzerTestSource("B.cs", "partial struct S { }")], PartialTypeAnalyzer.SplitId, 2);
-        Expect([new AnalyzerTestSource("A.cs", "partial record R { }"), new AnalyzerTestSource("B.cs", "partial record R { }")], PartialTypeAnalyzer.SplitId, 2);
-        Expect([new AnalyzerTestSource("A.cs", "class O { partial class N { } partial class N { } }")], PartialTypeAnalyzer.SplitId, 2, "O.N");
+            PartialSplitAnalyzer.SplitId, 2, "C has 2 hand-written partial declarations");
+        Expect([new AnalyzerTestSource("A.cs", "partial class C { } partial class C { }")], PartialSplitAnalyzer.SplitId, 2);
+        Expect([new AnalyzerTestSource("A.cs", "partial struct S { }"), new AnalyzerTestSource("B.cs", "partial struct S { }")], PartialSplitAnalyzer.SplitId, 2);
+        Expect([new AnalyzerTestSource("A.cs", "partial record R { }"), new AnalyzerTestSource("B.cs", "partial record R { }")], PartialSplitAnalyzer.SplitId, 2);
+        Expect([new AnalyzerTestSource("A.cs", "class O { partial class N { } partial class N { } }")], PartialSplitAnalyzer.SplitId, 2, "O.N");
         // A generated half does not excuse a second hand-written one.
         Expect([new AnalyzerTestSource("A.cs", "partial class C { }"), new AnalyzerTestSource("A.More.cs", "partial class C { }"), new AnalyzerTestSource("A.Generated.cs", "partial class C { }")],
-            PartialTypeAnalyzer.SplitId, 2);
+            PartialSplitAnalyzer.SplitId, 2);
 
         // SME6361: partial with nothing generated to complete it.
         Expect([new AnalyzerTestSource("A.cs", "partial class C { }")], PartialTypeAnalyzer.UngeneratedId, 1, "C is partial but no generated declaration");
         Expect([new AnalyzerTestSource("A.cs", "static partial class C { static void M() { } }")], PartialTypeAnalyzer.UngeneratedId, 1);
         // A comment that merely mentions generation is not the compiler's header convention.
         Expect([new AnalyzerTestSource("A.cs", "partial class C { }"), new AnalyzerTestSource("B.cs", "// Generated from the cartridge.\npartial class C { }")],
-            PartialTypeAnalyzer.SplitId, 2);
+            PartialSplitAnalyzer.SplitId, 2);
 
         // Allowed: one hand-written declaration plus generated ones, recognized by file name or header.
         Expect([new AnalyzerTestSource("Definitions.cs", "partial class C { }"), new AnalyzerTestSource("Definitions.Generated.cs", "partial class C { int X => 1; }")]);
@@ -59,7 +59,7 @@ internal static class PartialTypeAnalyzerTests
         if (errors.Length != 0)
             throw new InvalidOperationException($"Invalid analyzer fixture: {string.Join("; ", errors.Select(e => e.ToString()))}");
         var diagnostics = compilation.WithAnalyzers(ImmutableArray.Create<Microsoft.CodeAnalysis.Diagnostics.DiagnosticAnalyzer>(
-            new PartialTypeAnalyzer())).GetAnalyzerDiagnosticsAsync().GetAwaiter().GetResult();
+            new PartialTypeAnalyzer(), new PartialSplitAnalyzer())).GetAnalyzerDiagnosticsAsync().GetAwaiter().GetResult();
         string described = string.Join(" | ", files.Select(file => $"{file.Path}: {file.Source}"));
         if (id is null)
         {

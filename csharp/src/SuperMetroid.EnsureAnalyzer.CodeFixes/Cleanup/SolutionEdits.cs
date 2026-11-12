@@ -7,6 +7,7 @@ internal sealed class SolutionEdits
 {
     private readonly Solution _solution;
     private readonly Dictionary<DocumentId, SourceEdits> _byDocument = new();
+    private readonly HashSet<DocumentId> _deleted = [];
 
     /// <summary>Starts the edits of <paramref name="solution"/>.</summary>
     internal SolutionEdits(Solution solution) => _solution = solution;
@@ -27,12 +28,21 @@ internal sealed class SolutionEdits
         return edits;
     }
 
-    /// <summary>The solution with every document's edits applied.</summary>
+    /// <summary>Deletes the document holding <paramref name="tree"/>; its edits are not applied.</summary>
+    internal void Delete(SyntaxTree tree) =>
+        _deleted.Add(_solution.GetDocumentId(tree) ?? throw new InvalidOperationException($"{tree.FilePath} is not a document of the solution."));
+
+    /// <summary>The solution with every document's edits applied and the deleted documents removed.</summary>
     internal Solution Apply()
     {
         Solution solution = _solution;
         foreach (KeyValuePair<DocumentId, SourceEdits> entry in _byDocument)
-            solution = solution.WithDocumentText(entry.Key, entry.Value.Apply());
+        {
+            if (!_deleted.Contains(entry.Key))
+                solution = solution.WithDocumentText(entry.Key, entry.Value.Apply());
+        }
+        foreach (DocumentId deleted in _deleted)
+            solution = solution.RemoveDocument(deleted);
         return solution;
     }
 }

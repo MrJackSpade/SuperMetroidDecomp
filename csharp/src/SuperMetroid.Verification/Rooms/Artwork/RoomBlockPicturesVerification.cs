@@ -635,7 +635,7 @@ internal static class RoomBlockPicturesVerification
 
     /// <summary>The installed characters of the animated-tile frames <paramref name="runtime"/>'s room <paramref name="room"/> can show.</summary>
     private static RoomFxAnimatedTileAtlas AnimatedTilesOf(SuperMetroidRuntime runtime, string room) =>
-        InstalledAreaMapPresentation.RoomFxAnimatedTilesOf(runtime.Artwork.MapPresentation
+        ImportAreaMapPresentation.RoomFxAnimatedTilesOf(runtime.Artwork.MapPresentation
             ?? throw new InvalidOperationException($"{room}: the runtime has no installed presentation."));
 
     /// <summary>

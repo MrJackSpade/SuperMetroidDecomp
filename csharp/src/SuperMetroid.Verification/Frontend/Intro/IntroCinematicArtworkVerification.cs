@@ -61,15 +61,15 @@ internal static class IntroCinematicArtworkVerification
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
             Suite(nameof(VerifySamusAnimationDelayDefinitions), () => VerifySamusAnimationDelayDefinitions(bus));
             ImportIntroCinematicArtwork stock = IntroCinematicArtworkFiles.LoadForImport(installation.IntroCinematicDirectory);
-            AssertTrue(IntroCinematicSourceArtwork.Of(stock).BackgroundCharacters.Characters.Span.SequenceEqual(
+            AssertTrue(ImportIntroCinematicArtwork.Imported(stock).BackgroundCharacters.Characters.Span.SequenceEqual(
                     RomDataReader.Decompress(bus, IntroCinematicSourceDefinitions.BackgroundCharacters,
                         maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundByteCount)),
                 "installed intro BG PNG preserves every native tile byte");
-            AssertTrue(IntroCinematicSourceArtwork.Of(stock).IntroObjectCharacters.Characters.Span.SequenceEqual(
+            AssertTrue(ImportIntroCinematicArtwork.Imported(stock).IntroObjectCharacters.Characters.Span.SequenceEqual(
                     RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), IntroCinematicSourceDefinitions.IntroObjectCharacters,
                         IntroCinematicArtworkFormat.IntroObjectByteCount)),
                 "installed fixed intro OBJ PNG preserves every native tile byte");
-            AssertTrue(IntroCinematicSourceArtwork.Of(stock).CinematicObjectCharacters.Characters.Span.SequenceEqual(
+            AssertTrue(ImportIntroCinematicArtwork.Imported(stock).CinematicObjectCharacters.Characters.Span.SequenceEqual(
                     RomDataReader.Decompress(bus, IntroCinematicSourceDefinitions.ObjectCharacters,
                         maximumOutputBytes: IntroCinematicArtworkFormat.CinematicObjectByteCount)),
                 "installed compressed cinematic OBJ PNG preserves every native tile byte");

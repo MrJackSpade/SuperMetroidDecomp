@@ -95,7 +95,7 @@ internal static class EndingPictureSheetComposer
     {
         AreaMapPresentation maps = sources.Maps;
         CreditsPresentation credits = InstalledAreaMapPresentation.StaffCreditsOf(maps);
-        ReadOnlySpan<byte> font = InstalledAreaMapPresentation.EndingFontOf(maps).Characters.Span[..EndingTransferExtentDefinitions.FontCharacterBytes];
+        ReadOnlySpan<byte> font = ImportAreaMapPresentation.EndingFontOf(maps).Characters.Span[..EndingTransferExtentDefinitions.FontCharacterBytes];
         RequireBlank(font);
         var characters = new Characters(RoomTileCanvas.CharacterBytes);
         characters.Load(EndingTextLayerDefinitions.FontFirstCharacter, font);
@@ -150,9 +150,9 @@ internal static class EndingPictureSheetComposer
     /// </summary>
     private static ComposedSpriteSheet ComposePostCredits(ScreenTileSources sources)
     {
-        EndingObjectSourceArtwork objects = sources.EndingObjects;
+        ImportEndingObjectArtwork objects = sources.EndingObjects;
         EndingTextPresentation text = InstalledAreaMapPresentation.EndingTextOf(sources.Maps);
-        ReadOnlySpan<byte> font = InstalledAreaMapPresentation.EndingFontOf(sources.Maps).Characters.Span;
+        ReadOnlySpan<byte> font = ImportAreaMapPresentation.EndingFontOf(sources.Maps).Characters.Span;
         RequireBlank(font);
         // The waiting layer shows the waiting characters; the logo layer, the logo's.
         var waiting = new Characters(RoomTileCanvas.CharacterBytes);
@@ -215,7 +215,7 @@ internal static class EndingPictureSheetComposer
     /// <summary>The wavy Samus transformation's map over its four-colour characters under the post-credits palette.</summary>
     private static ComposedSpriteSheet ComposeWavySamus(ScreenTileSources sources)
     {
-        EndingObjectSourceArtwork objects = sources.EndingObjects;
+        ImportEndingObjectArtwork objects = sources.EndingObjects;
         var characters = new Characters(RoomTileCanvas.TwoBppCharacterBytes);
         characters.Load(0, objects.PostCreditsFragmentA.Characters.Span[..EndingTransferExtentDefinitions.PostCreditsFragmentABytes]);
         var canvas = new RoomTileCanvas(ScreenSize);
@@ -231,7 +231,7 @@ internal static class EndingPictureSheetComposer
     /// <summary>The explosion's four maps over the explosion characters under the explosion palette.</summary>
     private static ComposedSpriteSheet ComposeExplosion(ScreenTileSources sources)
     {
-        EndingObjectSourceArtwork objects = sources.EndingObjects;
+        ImportEndingObjectArtwork objects = sources.EndingObjects;
         var characters = new Characters(RoomTileCanvas.CharacterBytes);
         characters.Load(0, objects.Explosion.Characters.Span[..EndingTransferExtentDefinitions.ExplosionObjectBytes]);
         EndingObjectFragmentId[] maps = Enum.GetValues<EndingObjectFragmentId>();

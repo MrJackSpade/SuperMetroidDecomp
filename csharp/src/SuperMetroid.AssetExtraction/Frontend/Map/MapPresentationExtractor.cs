@@ -38,13 +38,17 @@ public static class MapPresentationExtractor
 
     /// <summary>Creates the complete stock map family in fresh staging, including area maps, reveal masks, character atlases, palettes, labels, markers, sprites, screens, and a provenance/hash manifest.</summary>
     /// <param name="bus">Supported-cartridge address space supplying every native map presentation source.</param>
-    /// <param name="directory">Destination stock directory; generated files use create-new semantics.</param>
+    /// <param name="directory">Destination stock directory; generated files use create-new semantics. The character and tile pages go to its import-data directory (#1636, <see cref="MapPresentationFiles.PageFiles"/>).</param>
     /// <param name="sourceCartridgeSha256">Source identity recorded in the completed map manifest.</param>
     /// <param name="cancellationToken">Cancellation checked before importing each area; later presentation groups are not interrupted by this token.</param>
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256,
         CancellationToken cancellationToken = default)
     {
         Directory.CreateDirectory(directory);
+        string importData = SuperMetroid.AssetExtraction.Installation.ImportDataDirectory.Of(directory);
+        Directory.CreateDirectory(importData);
+        // A page goes to the import data, which the installer deletes before it publishes; a document is installed.
+        string PathOf(string name) => Path.Combine(MapPresentationFiles.PageFiles.Contains(name) ? importData : directory, name);
         var hashes = new Dictionary<string, string>();
         var stationCells = new Dictionary<string, int[]>();
         foreach (AreaId area in Enum.GetValues<AreaId>())
@@ -75,7 +79,7 @@ public static class MapPresentationExtractor
         // palette. This neutral preview palette is not an imported gameplay palette.
         IndexedPng.Write(atlas, atlasSize, tilePixels, SnesGraphics.DiagnosticPalette(MapTileAtlasFormat.ColorCount));
         byte[] atlasBytes = atlas.ToArray();
-        using (var file = new FileStream(Path.Combine(directory, MapTileAtlasFormat.FileName), FileMode.CreateNew, FileAccess.Write))
+        using (var file = new FileStream(PathOf(MapTileAtlasFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(atlasBytes);
         hashes.Add(MapTileAtlasFormat.FileName, Convert.ToHexString(SHA256.HashData(atlasBytes)));
         byte[] pausePixels = SnesGraphics.DecodePlanarTiles(
@@ -84,7 +88,7 @@ public static class MapPresentationExtractor
         using var pauseAtlas = new MemoryStream();
         IndexedPng.Write(pauseAtlas, pauseSize, pausePixels, SnesGraphics.DiagnosticPalette(MapTileAtlasFormat.ColorCount));
         byte[] pauseBytes = pauseAtlas.ToArray();
-        using (var file = new FileStream(Path.Combine(directory, PauseTileAtlasFormat.FileName), FileMode.CreateNew, FileAccess.Write))
+        using (var file = new FileStream(PathOf(PauseTileAtlasFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(pauseBytes);
         hashes.Add(PauseTileAtlasFormat.FileName, Convert.ToHexString(SHA256.HashData(pauseBytes)));
         byte[] hudPixels = SnesGraphics.DecodePlanarTiles(
@@ -93,7 +97,7 @@ public static class MapPresentationExtractor
         using var hudAtlas = new MemoryStream();
         IndexedPng.Write(hudAtlas, hudSize, hudPixels, SnesGraphics.DiagnosticPalette(4));
         byte[] hudBytes = hudAtlas.ToArray();
-        using (var file = new FileStream(Path.Combine(directory, HudTileAtlasFormat.FileName), FileMode.CreateNew, FileAccess.Write))
+        using (var file = new FileStream(PathOf(HudTileAtlasFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(hudBytes);
         hashes.Add(HudTileAtlasFormat.FileName, Convert.ToHexString(SHA256.HashData(hudBytes)));
         byte[] cycleBytes = MapPaletteCycleExtractor.Extract(bus);
@@ -135,13 +139,13 @@ public static class MapPresentationExtractor
         hashes.Add(MapArrowFormat.FileName, Convert.ToHexString(SHA256.HashData(arrowBytes)));
         foreach (var resource in MapScreenExtractor.Extract(bus))
         {
-            using var file = new FileStream(Path.Combine(directory, resource.Key), FileMode.CreateNew, FileAccess.Write);
+            using var file = new FileStream(PathOf(resource.Key), FileMode.CreateNew, FileAccess.Write);
             file.Write(resource.Value);
             hashes.Add(resource.Key, Convert.ToHexString(SHA256.HashData(resource.Value)));
         }
         foreach (var resource in MapSpriteExtractor.Extract(bus))
         {
-            using var file = new FileStream(Path.Combine(directory, resource.Key), FileMode.CreateNew, FileAccess.Write);
+            using var file = new FileStream(PathOf(resource.Key), FileMode.CreateNew, FileAccess.Write);
             file.Write(resource.Value);
             hashes.Add(resource.Key, Convert.ToHexString(SHA256.HashData(resource.Value)));
         }
@@ -178,7 +182,7 @@ public static class MapPresentationExtractor
             file.Write(escapeTimerBytes);
         hashes.Add(EscapeTimerLayoutDefinitions.FileName, Convert.ToHexString(SHA256.HashData(escapeTimerBytes)));
         byte[] escapeTimerTileBytes = EscapeTimerTileAtlasExtractor.Extract(bus);
-        using (var file = new FileStream(Path.Combine(directory, EscapeTimerTileAtlasFormat.FileName), FileMode.CreateNew, FileAccess.Write))
+        using (var file = new FileStream(PathOf(EscapeTimerTileAtlasFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(escapeTimerTileBytes);
         hashes.Add(EscapeTimerTileAtlasFormat.FileName, Convert.ToHexString(SHA256.HashData(escapeTimerTileBytes)));
         byte[] gameplayHudBytes = GameplayHudPresentationExtractor.Extract(bus);
@@ -223,7 +227,7 @@ public static class MapPresentationExtractor
         hashes.Add(IntroNarrationFile.FileName,
             Convert.ToHexString(SHA256.HashData(introNarrationBytes)));
         byte[] introFontBytes = IntroFontAtlasExtractor.Extract(bus);
-        using (var file = new FileStream(Path.Combine(directory, IntroFontCharacters.FileName), FileMode.CreateNew, FileAccess.Write))
+        using (var file = new FileStream(PathOf(IntroFontCharacters.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(introFontBytes);
         hashes.Add(IntroFontCharacters.FileName,
             Convert.ToHexString(SHA256.HashData(introFontBytes)));
@@ -233,7 +237,7 @@ public static class MapPresentationExtractor
         hashes.Add(EndingTextDefinitions.FileName,
             Convert.ToHexString(SHA256.HashData(endingTextBytes)));
         byte[] endingFontBytes = EndingFontAtlasExtractor.Extract(bus);
-        using (var file = new FileStream(Path.Combine(directory, EndingFontAtlasFormat.FileName), FileMode.CreateNew, FileAccess.Write))
+        using (var file = new FileStream(PathOf(EndingFontAtlasFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(endingFontBytes);
         hashes.Add(EndingFontAtlasFormat.FileName,
             Convert.ToHexString(SHA256.HashData(endingFontBytes)));
@@ -252,7 +256,7 @@ public static class MapPresentationExtractor
                  })
         {
             byte[] bytes = titleGraphics[name];
-            using (var file = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
+            using (var file = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
                 file.Write(bytes);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(bytes)));
         }
@@ -296,7 +300,7 @@ public static class MapPresentationExtractor
         hashes.Add(MotherBrainRoomColorFormat.FileName,
             Convert.ToHexString(SHA256.HashData(motherBrainRoomColorBytes)));
         byte[] roomFxAnimatedTileBytes = RoomFxAnimatedTileAtlasExtractor.Extract(bus);
-        using (var file = new FileStream(Path.Combine(directory, RoomFxAnimatedTileAtlasFile.FileName), FileMode.CreateNew, FileAccess.Write))
+        using (var file = new FileStream(PathOf(RoomFxAnimatedTileAtlasFile.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(roomFxAnimatedTileBytes);
         hashes.Add(RoomFxAnimatedTileAtlasFile.FileName,
             Convert.ToHexString(SHA256.HashData(roomFxAnimatedTileBytes)));

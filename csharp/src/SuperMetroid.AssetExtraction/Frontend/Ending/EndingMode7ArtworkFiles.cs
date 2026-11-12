@@ -9,15 +9,19 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
-/// <summary>Installs independently editable ending Mode-7 maps and character PNGs.</summary>
+/// <summary>
+/// Installs independently editable ending Mode-7 maps; their character pages are import data (#1636), which the extraction
+/// writes to the component's import-data directory and only the import reads. The game draws the floors' sheets and reads
+/// neither.
+/// </summary>
 public static class EndingMode7ArtworkFiles
 {
-    /// <summary>Manifest revision covering the three backdrop pairs and reward-icon pair.</summary>
-    private const int ManifestVersion = 2;
+    /// <summary>Manifest revision covering the three backdrop pairs and reward-icon pair; 3 installs no character page (#1636).</summary>
+    private const int ManifestVersion = 3;
 
     /// <summary>Separates the three ending backdrops and reward icon into editable map JSON and indexed character PNGs, and creates their hashed manifest.</summary>
     /// <param name="bus">Cartridge import source for the compressed Mode-7 map and character streams.</param>
-    /// <param name="directory">Destination directory, created if absent; artwork files and manifest must not already exist.</param>
+    /// <param name="directory">Destination directory, created if absent; artwork files and manifest must not already exist. The character pages go to its import-data directory.</param>
     /// <param name="sourceCartridgeSha256">Source identity recorded in the manifest; installation loading requires the supported cartridge identity.</param>
     /// <exception cref="InvalidDataException">A decompressed source is too short or has unexpected dimensions.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory,
@@ -27,6 +31,8 @@ public static class EndingMode7ArtworkFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceCartridgeSha256);
         Directory.CreateDirectory(directory);
+        string importData = SuperMetroid.AssetExtraction.Installation.ImportDataDirectory.Of(directory);
+        Directory.CreateDirectory(importData);
         var hashes = new Dictionary<string, string>(StringComparer.Ordinal);
         foreach (EndingFloorSceneId id in Enum.GetValues<EndingFloorSceneId>())
         {
@@ -64,8 +70,8 @@ public static class EndingMode7ArtworkFiles
             IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(256));
             byte[] mapFile = mapJson.ToArray();
             byte[] pngFile = png.ToArray();
-            Write(EndingFloorArtworkFormat.MapFileName(id), mapFile);
-            Write(EndingFloorArtworkFormat.CharacterFileName(id), pngFile);
+            Write(directory, EndingFloorArtworkFormat.MapFileName(id), mapFile);
+            Write(importData, EndingFloorArtworkFormat.CharacterFileName(id), pngFile);
         }
         byte[] reward = RomDataReader.Decompress(CartridgeImportSource.Require(bus),
             EndingSourceDefinitions.Artwork.PostCreditsFloorCharacters,
@@ -94,30 +100,35 @@ public static class EndingMode7ArtworkFiles
             SnesGraphics.DiagnosticPalette(256));
         byte[] rewardMapFile = rewardJson.ToArray();
         byte[] rewardCharacterFile = rewardPng.ToArray();
-        Write(EndingRewardIconArtworkFormat.MapFileName, rewardMapFile);
-        Write(EndingRewardIconArtworkFormat.CharacterFileName, rewardCharacterFile);
+        Write(directory, EndingRewardIconArtworkFormat.MapFileName, rewardMapFile);
+        Write(importData, EndingRewardIconArtworkFormat.CharacterFileName, rewardCharacterFile);
         using var manifest = new FileStream(Path.Combine(directory,
             EndingFloorArtworkFormat.ManifestFileName), FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest,
             new Manifest(ManifestVersion, sourceCartridgeSha256, hashes), JsonOptions);
 
-        void Write(string name, byte[] bytes)
+        void Write(string destination, string name, byte[] bytes)
         {
-            using (var output = new FileStream(Path.Combine(directory, name),
+            using (var output = new FileStream(Path.Combine(destination, name),
                        FileMode.CreateNew, FileAccess.Write))
                 output.Write(bytes);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(bytes)));
         }
     }
 
-    /// <summary>Checks the manifest's provenance and coverage, then compiles the installed ending map and character files without cartridge access.</summary>
-    /// <param name="directory">Installed directory containing all three backdrop pairs, the reward-icon pair, and their provenance/digest manifest.</param>
+    /// <summary>
+    /// Checks the manifest's provenance and coverage, then compiles the extracted ending maps and the character pages of
+    /// the import data (#1636) without cartridge access.
+    /// </summary>
+    /// <param name="directory">The component's directory, holding the three backdrop maps, the reward-icon map and their provenance/digest manifest.</param>
+    /// <param name="importData">The component's import-data directory, holding the character pages.</param>
     /// <returns>The three-backdrop and reward-icon artwork catalog with owned decoded transfer data.</returns>
     /// <remarks>Backdrop maps are 128x64 tile-index half-maps; the reward icon uses a full 128x128 map, with map and character lanes compiled separately.</remarks>
     /// <exception cref="InvalidDataException">Manifest provenance or coverage, or an installed map/PNG geometry and content is invalid.</exception>
-    public static EndingFloorCharacters Load(string directory)
+    public static EndingFloorCharacters LoadForImport(string directory, string importData)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
+        ArgumentException.ThrowIfNullOrWhiteSpace(importData);
         string manifestPath = Path.Combine(directory,
             EndingFloorArtworkFormat.ManifestFileName);
         Manifest manifest;
@@ -156,8 +167,8 @@ public static class EndingMode7ArtworkFiles
 
         EndingRewardIconArtwork LoadRewardIcon()
         {
-            (string mapPath, byte[] map) = ReadInstalled(EndingRewardIconArtworkFormat.MapFileName);
-            (string pngPath, byte[] png) = ReadInstalled(EndingRewardIconArtworkFormat.CharacterFileName);
+            (string mapPath, byte[] map) = ReadInstalled(directory, EndingRewardIconArtworkFormat.MapFileName);
+            (string pngPath, byte[] png) = ReadInstalled(importData, EndingRewardIconArtworkFormat.CharacterFileName);
             try
             {
                 return EndingRewardIconCharacters.Read(
@@ -173,8 +184,8 @@ public static class EndingMode7ArtworkFiles
 
         EndingFloorSceneArtwork LoadScene(EndingFloorSceneId id)
         {
-            (string mapPath, byte[] map) = ReadInstalled(EndingFloorArtworkFormat.MapFileName(id));
-            (string pngPath, byte[] png) = ReadInstalled(EndingFloorArtworkFormat.CharacterFileName(id));
+            (string mapPath, byte[] map) = ReadInstalled(directory, EndingFloorArtworkFormat.MapFileName(id));
+            (string pngPath, byte[] png) = ReadInstalled(importData, EndingFloorArtworkFormat.CharacterFileName(id));
             try
             {
                 return EndingFloorSceneCharacters.Read(
@@ -188,9 +199,9 @@ public static class EndingMode7ArtworkFiles
             }
         }
 
-        SelectedArtworkFile ReadInstalled(string name)
+        static SelectedArtworkFile ReadInstalled(string source, string name)
         {
-            string installedPath = Path.Combine(directory, name);
+            string installedPath = Path.Combine(source, name);
             return new SelectedArtworkFile(installedPath, File.ReadAllBytes(installedPath));
         }
     }

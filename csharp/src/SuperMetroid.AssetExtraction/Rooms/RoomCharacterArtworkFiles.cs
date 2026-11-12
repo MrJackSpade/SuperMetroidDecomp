@@ -8,19 +8,20 @@ using SuperMetroid.AssetExtraction.Rooms.Artwork;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
-/// Installs the room-character PNGs: the import pipeline's input to the room block sheets, which a player edits instead.
-/// The manifest records native transfer lengths; it does not expose room mechanics.
+/// Extracts the room-character pages: the import pipeline's input to the room block sheets, which a player edits instead.
+/// The pages are import data (#1636), written to the component's import-data directory and never installed; the manifest,
+/// installed, records native transfer lengths and does not expose room mechanics.
 /// </summary>
 public static class RoomCharacterArtworkFiles
 {
-    /// <summary>Stock character manifest filename recording cartridge provenance, PNG hashes, and required native planar transfer lengths.</summary>
+    /// <summary>Stock character manifest filename recording cartridge provenance, page hashes, and required native planar transfer lengths.</summary>
     public const string ManifestFileName = "room-characters.json";
-    /// <summary>Schema revision required by the installed room character manifest.</summary>
-    private const int FormatVersion = 3;
+    /// <summary>Schema revision required by the room character manifest; 4 installs no character page (#1636).</summary>
+    private const int FormatVersion = 4;
 
     /// <summary>Creates stock indexed PNGs for CRE, distinct room graphics-set sources, and Tourian-statue ghost characters, plus their manifest.</summary>
     /// <param name="bus">Non-null cartridge import address space supplying compressed room characters and the raw ghost span.</param>
-    /// <param name="directory">Output directory, created if needed; every PNG and manifest filename must be new.</param>
+    /// <param name="directory">Output directory, created if needed; the manifest filename must be new, and every page goes to its import-data directory under a new filename.</param>
     /// <param name="sourceCartridgeSha256">Nonempty cartridge SHA-256 recorded with each PNG's hash and native byte count.</param>
     /// <remarks>Deduplicates shared sources. PNG palettes are diagnostic, not runtime colors.</remarks>
     /// <exception cref="IOException">An output file already exists or filesystem output fails.</exception>
@@ -30,6 +31,8 @@ public static class RoomCharacterArtworkFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceCartridgeSha256);
         Directory.CreateDirectory(directory);
+        string importData = SuperMetroid.AssetExtraction.Installation.ImportDataDirectory.Of(directory);
+        Directory.CreateDirectory(importData);
 
         IReadOnlyDictionary<string, byte[]> pngs = RoomCharacterAtlasExtractor.Extract(bus);
         RoomTilesetSourceMap tilesets = RoomTilesetSources.Read(CartridgeImportSource.Require(bus));
@@ -44,7 +47,7 @@ public static class RoomCharacterArtworkFiles
                     ? tilesets.Characters[set]
                     : RoomTilesetSourceDefinitions.CreCharacters).Length;
             RoomCharacterAtlasFormat.ValidateTileCount(nativeByteCount);
-            using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
+            using (var output = new FileStream(Path.Combine(importData, name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(png);
             entries.Add(name, new RoomCharacterFileEntry(
                 nativeByteCount, Convert.ToHexString(SHA256.HashData(png))));
@@ -57,10 +60,16 @@ public static class RoomCharacterArtworkFiles
         JsonSerializer.Serialize(stream, manifest, JsonOptions);
     }
 
-    /// <summary>Checks every installed file's hash and decodes every PNG without any ROM access.</summary>
-    public static RoomCharacterAtlases Load(string directory)
+    /// <summary>
+    /// Checks the manifest in <paramref name="directory"/>, then every page's hash, and decodes every page of the import data
+    /// <paramref name="importData"/> (#1636) without any ROM access.
+    /// </summary>
+    /// <param name="directory">The component's directory, holding the manifest.</param>
+    /// <param name="importData">The component's import-data directory, holding the pages.</param>
+    public static RoomCharacterAtlases LoadForImport(string directory, string importData)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
+        ArgumentException.ThrowIfNullOrWhiteSpace(importData);
         string manifestPath = Path.Combine(directory, ManifestFileName);
         RoomCharacterFileManifest manifest;
         try
@@ -88,7 +97,7 @@ public static class RoomCharacterArtworkFiles
         {
             RoomCharacterFileEntry entry = manifest.Entries[name];
             RoomCharacterAtlasFormat.ValidateTileCount(entry.NativeByteCount);
-            string path = Path.Combine(directory, name);
+            string path = Path.Combine(importData, name);
             byte[] png = File.ReadAllBytes(path);
             string hash = Convert.ToHexString(SHA256.HashData(png));
             if (!string.Equals(hash, entry.Sha256, StringComparison.OrdinalIgnoreCase))

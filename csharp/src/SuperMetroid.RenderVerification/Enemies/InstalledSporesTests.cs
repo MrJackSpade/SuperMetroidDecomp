@@ -30,7 +30,7 @@ internal static class InstalledSporesTests
     {
         string maps = Path.Combine(Path.GetFullPath(installationRoot), "game", "maps");
         AreaMapPresentation stock = MapPresentationFiles.Load(maps);
-        CheckArtwork(InstalledAreaMapPresentation.RoomFxAnimatedTilesOf(stock), maps, romPath, nativeArtworkDirectory);
+        CheckArtwork(ImportAreaMapPresentation.RoomFxAnimatedTilesOf(stock), maps, romPath, nativeArtworkDirectory);
         var packets = new List<DisplayPacket>();
         CheckOwners(stock, packets);
         CheckPixels(packets);
@@ -88,7 +88,7 @@ internal static class InstalledSporesTests
                         unchecked((ushort)(camera.Y + (sbyte)(LittleEndianBytes.HighByte(accumulator))))), "Spores lost native signed 8.8 camera anchoring.");
                     int source = AnimatedTileImageSources.OfCursor(mechanics,
                         mechanics.FrameInstructionPointer(tick / 10 % 3));
-                    Require(InstalledAreaMapPresentation.RoomFxAnimatedTilesOf(stock).TryResolve(source, 48, out var expected), "Missing stock spores frame.");
+                    Require(ImportAreaMapPresentation.RoomFxAnimatedTilesOf(stock).TryResolve(source, 48, out var expected), "Missing stock spores frame.");
                     // Animated frames are selected, and the room's BG3 pictures show the selected frame (#1406).
                     ArtworkFrame cadence = AnimatedTileFrames.Frame(AnimatedTileObject.Spores, tick / 10 % 3);
                     Require(baselineFrames.TryShown(AnimatedTileFrames.Of(AnimatedTileObject.Spores), out ArtworkFrame stockShown) && stockShown == cadence,

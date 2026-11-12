@@ -38,9 +38,6 @@ public sealed record SamusBodyArtworkParts
     /// <summary>Editable fatal-damage and death palettes.</summary>
     public required InstalledSamusDeathPalettes DeathPalettes { get; init; }
 
-    /// <summary>Identity of the selected death-explosion characters.</summary>
-    public required string DeathTilesContentIdentity { get; init; }
-
     /// <summary>Where each pose places the arm-cannon cover.</summary>
     public required InstalledSamusArmCannonArtwork ArmCannon { get; init; }
 }

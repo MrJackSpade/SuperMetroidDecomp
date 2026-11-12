@@ -7,15 +7,20 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// <summary>Development-tool loading of <see cref="SamusArmCannonSourceArtwork"/>; never linked by player hosts.</summary>
 internal static class InstalledSamusArmCannonArtworkTooling
 {
-    /// <summary>Combines validated placement JSON with the exact number of indexed cannon tile uploads.</summary>
-    public static SamusArmCannonSourceArtwork Load(Stream json, Stream tilePng)
+    /// <summary>The cover placement of validated placement JSON.</summary>
+    public static SamusArmCannonSourceArtwork Load(Stream json)
     {
         Ensure.NotNull(json);
+        return SamusArmCannonSourceArtwork.FromPlacement(SamusArmCannonSourceArtwork.LoadPlacement(json));
+    }
+
+    /// <summary>Combines validated placement JSON with the exact number of indexed cannon cover characters (#1636).</summary>
+    public static SamusArmCannonCoverCharacters LoadWithCover(Stream json, Stream tilePng)
+    {
         Ensure.NotNull(tilePng);
-        SamusArmCannonSourceArtwork.DescriptorTables placement = SamusArmCannonSourceArtwork.LoadPlacement(json);
         RoomCharacterAtlas tiles = RoomCharacterAtlasPng.Read(tilePng,
             SamusArmCannonArtworkFormat.CoverTileCount *
                 SamusArmCannonArtworkFormat.CoverTileByteCount);
-        return SamusArmCannonSourceArtwork.FromPlacement(placement, tiles);
+        return new SamusArmCannonCoverCharacters(Load(json), tiles);
     }
 }

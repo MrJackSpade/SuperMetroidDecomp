@@ -37,7 +37,11 @@ using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
-/// <summary>Exports every retail room-enemy graphics sheet; the player edits the installed files in place.</summary>
+/// <summary>
+/// Extracts every retail room-enemy graphics sheet (#1636): the characters and tile pages go to the component's import data
+/// (<see cref="SuperMetroid.AssetExtraction.Installation.ImportDataDirectory"/>), which the sheets compose from and the
+/// installer deletes before it publishes; the documents are installed, and the player edits them in place.
+/// </summary>
 public static class EnemyTileArtworkFiles
 {
     /// <summary>Serializer settings shared by the stock enemy-art manifest and its supplemental JSON resources.</summary>
@@ -50,7 +54,7 @@ public static class EnemyTileArtworkFiles
 
     /// <summary>Writes the complete retail enemy-art installation: character sheets, palettes, sprite compositions, and supplemental boss and cutscene resources.</summary>
     /// <param name="bus">Non-null cartridge import address space supplying room-enemy graphics definitions and the associated artwork sources.</param>
-    /// <param name="directory">Stock output directory, created if needed; existing resource and manifest files are overwritten.</param>
+    /// <param name="directory">Stock output directory, created if needed; existing resource and manifest files are overwritten. Its pages go to its import-data directory.</param>
     /// <param name="sourceCartridgeSha256">Nonempty source-cartridge SHA-256 recorded in the manifest alongside each stock resource's hash.</param>
     /// <remarks>Deduplicates ordinary sheets by enemy-definition identity and verifies retail coverage. Indexed PNG colors are diagnostic; RGB5 palettes and visual JSON remain separate.</remarks>
     /// <exception cref="InvalidDataException">Native definitions, coverage, artwork sizes, or palette representation are invalid.</exception>
@@ -60,6 +64,8 @@ public static class EnemyTileArtworkFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceCartridgeSha256);
         Directory.CreateDirectory(directory);
+        string importData = SuperMetroid.AssetExtraction.Installation.ImportDataDirectory.Of(directory);
+        Directory.CreateDirectory(importData);
 
         var entries = new Dictionary<int, EnemyTileFileEntry>();
         foreach (int graphicsSetPointer in RoomStateSources.Pointers
@@ -88,7 +94,7 @@ public static class EnemyTileArtworkFiles
                 IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
                 byte[] encoded = png.ToArray();
 
-                File.WriteAllBytes(Path.Combine(directory, FileName(definitionPointer)), encoded);
+                File.WriteAllBytes(Path.Combine(importData, FileName(definitionPointer)), encoded);
                 byte[] nativeColors = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                     SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.PaletteAddress(bus, definitionPointer),
                     EnemyPaletteSheetFile.ColorCount * sizeof(ushort));
@@ -130,8 +136,8 @@ public static class EnemyTileArtworkFiles
             CrocomireMeltingSources.Tilemap(CrocomireMeltingIllustration.First));
         byte[] secondMeltTilemap = ExtractCrocomireMeltTilemap(bus,
             CrocomireMeltingSources.Tilemap(CrocomireMeltingIllustration.Second));
-        File.WriteAllBytes(Path.Combine(directory, CrocomireMeltingArtworkFormat.FirstFileName), firstMelt);
-        File.WriteAllBytes(Path.Combine(directory, CrocomireMeltingArtworkFormat.SecondFileName), secondMelt);
+        File.WriteAllBytes(Path.Combine(importData, CrocomireMeltingArtworkFormat.FirstFileName), firstMelt);
+        File.WriteAllBytes(Path.Combine(importData, CrocomireMeltingArtworkFormat.SecondFileName), secondMelt);
         File.WriteAllBytes(Path.Combine(directory,
             CrocomireMeltingArtworkFormat.FirstTilemapFileName), firstMeltTilemap);
         File.WriteAllBytes(Path.Combine(directory,
@@ -146,7 +152,7 @@ public static class EnemyTileArtworkFiles
         IndexedPng.Write(skeletonImage, skeletonSize,
             skeletonPixels, SnesGraphics.DiagnosticPalette(16));
         byte[] skeletonPng = skeletonImage.ToArray();
-        File.WriteAllBytes(Path.Combine(directory,
+        File.WriteAllBytes(Path.Combine(importData,
             CrocomireSkeletonCharacterDefinitions.FileName), skeletonPng);
         byte[] spritemapJson = EnemySpritemapFiles.Extract(bus);
         File.WriteAllBytes(Path.Combine(directory, EnemySpritemapDefinitions.FileName),
@@ -162,7 +168,7 @@ public static class EnemyTileArtworkFiles
                  TorizoSwapArtworkDefinitions.All)
         {
             byte[] png = ExtractTorizoInstructionPage(bus, page);
-            File.WriteAllBytes(Path.Combine(directory, page.FileName), png);
+            File.WriteAllBytes(Path.Combine(importData, page.FileName), png);
             torizoInstructionHashes.Add(page.FileName,
                 Convert.ToHexString(SHA256.HashData(png)));
         }
@@ -172,7 +178,7 @@ public static class EnemyTileArtworkFiles
             TileSheetDefinition page = CeresEscapeTileArtworkDefinitions.All[pageIndex];
             byte[] png = IndexedTilePageExtractor.Extract(bus, (int)EscapeSourceDefinitions.CeresEscapePages[pageIndex],
                 page.ByteCount, $"Ceres escape page {page.FileName}");
-            File.WriteAllBytes(Path.Combine(directory, page.FileName), png);
+            File.WriteAllBytes(Path.Combine(importData, page.FileName), png);
             ceresEscapeTileHashes.Add(page.FileName,
                 Convert.ToHexString(SHA256.HashData(png)));
         }
@@ -204,7 +210,7 @@ public static class EnemyTileArtworkFiles
             IndexedPng.Write(image, size, pixels,
                 SnesGraphics.DiagnosticPalette(16));
             byte[] png = image.ToArray();
-            File.WriteAllBytes(Path.Combine(directory,
+            File.WriteAllBytes(Path.Combine(importData,
                 EnemyTileArtworkFormat.GunshipLiftoffFileName(index)), png);
             gunshipLiftoffHashes.Add(index,
                 Convert.ToHexString(SHA256.HashData(png)));
@@ -221,7 +227,7 @@ public static class EnemyTileArtworkFiles
         IndexedPng.Write(corpseStream, corpseSize, corpsePixels,
             SnesGraphics.DiagnosticPalette(16));
         byte[] corpsePng = corpseStream.ToArray();
-        File.WriteAllBytes(Path.Combine(directory, MotherBrainCorpseSheet.FileName),
+        File.WriteAllBytes(Path.Combine(importData, MotherBrainCorpseSheet.FileName),
             corpsePng);
         // The following bank-$B7 pages are a different visual owner: the escape
         // typewriter characters. Keep their file separate from corpse decay.
@@ -235,14 +241,14 @@ public static class EnemyTileArtworkFiles
         IndexedPng.Write(escapeTextStream, escapeTextSize,
             escapeTextPixels, SnesGraphics.DiagnosticPalette(16));
         byte[] escapeTextPng = escapeTextStream.ToArray();
-        File.WriteAllBytes(Path.Combine(directory,
+        File.WriteAllBytes(Path.Combine(importData,
             EscapeTextSheetFormat.FileName), escapeTextPng);
         var motherBrainSpecialHashes = new Dictionary<int, string>();
         foreach (MotherBrainSpecialSpriteSheetDefinition sheet in
                  MotherBrainSpecialSpriteSheetDefinitions.All)
         {
             byte[] png = ExtractMotherBrainSpecialSpritePng(bus, sheet);
-            File.WriteAllBytes(Path.Combine(directory, sheet.FileName), png);
+            File.WriteAllBytes(Path.Combine(importData, sheet.FileName), png);
             motherBrainSpecialHashes.Add(MotherBrainSourceDefinitions.SpecialSprites.Sources[sheet.Sheet],
                 Convert.ToHexString(SHA256.HashData(png)));
         }
@@ -264,12 +270,12 @@ public static class EnemyTileArtworkFiles
             kraidHeadHashes.Add(head.MouthStage, Convert.ToHexString(SHA256.HashData(json)));
         }
         byte[] kraidRoomBackground = ExtractKraidRoomBackground(bus);
-        File.WriteAllBytes(Path.Combine(directory,
+        File.WriteAllBytes(Path.Combine(importData,
             KraidBackgroundArtworkFormat.RoomBackgroundFileName), kraidRoomBackground);
         byte[] kraidColors = ExtractKraidColors(bus);
         File.WriteAllBytes(Path.Combine(directory, KraidColorFormat.FileName), kraidColors);
         (string ceresDoorTilesHash, string ceresDoorColorsHash) =
-            CeresDoorVisualFiles.Extract(bus, directory);
+            CeresDoorVisualFiles.Extract(bus, directory, importData);
         byte[] magdollitePaletteCycle = MagdollitePaletteCycleExtractor.Extract(bus);
         byte[] auxiliaryColors = EnemyAuxiliaryColorFiles.Extract(bus);
         File.WriteAllBytes(Path.Combine(directory, EnemyAuxiliaryColorFormat.FileName), auxiliaryColors);
@@ -365,14 +371,20 @@ public static class EnemyTileArtworkFiles
             JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
     }
 
-    /// <summary>Checks the manifest, then compiles the installed files into the enemy, boss and area catalogs without reading a cartridge.</summary>
-    public static InstalledEnemyArtwork Load(string directory) => Open(directory).LoadAll();
+    /// <summary>
+    /// Checks the manifest, then reads what the game binds from the installed documents (#1636): every frame's display and
+    /// Kraid's colours. It reads no character page; the installation holds none.
+    /// </summary>
+    public static InstalledEnemyArtwork Load(string directory) => EnemyTileArtworkReader.Open(directory).LoadInstalled();
 
     /// <summary>
-    /// Checks the manifest of <paramref name="directory"/> and returns a reader of its components, each of which reads
-    /// only its own files.
+    /// Checks the manifest, then compiles the extracted documents in <paramref name="directory"/> and the characters in its
+    /// import data <paramref name="importData"/> into the enemy, boss and area catalogs the import composes from.
     /// </summary>
-    internal static EnemyTileArtworkReader Open(string directory) => EnemyTileArtworkReader.Open(directory);
+    /// <param name="directory">The component's directory, holding the manifest and the documents.</param>
+    /// <param name="importData">The component's import-data directory, holding the character and tile pages.</param>
+    public static ImportEnemyArtwork LoadForImport(string directory, string importData) =>
+        EnemyTileArtworkReader.Open(directory).LoadForImport(importData);
 
     /// <summary>
     /// SHA-256 of the 122 sorted four-digit bank-$A0 header pointers joined with commas, independently
@@ -382,7 +394,7 @@ public static class EnemyTileArtworkFiles
     private const string RetailDefinitionIdsSha256 =
         "8B665DEC36A4AA649CDF2327E4B7F60197D42B84534CD354347F4581D1442DD1";
 
-    /// <summary>The indexed-PNG file name of <paramref name="definitionId"/>'s tiles, named by its header pointer.</summary>
+    /// <summary>The indexed-PNG import-data file name of <paramref name="definitionId"/>'s tiles, named by its header pointer.</summary>
     internal static string FileName(EnemyDefinitionId definitionId) =>
         $"enemy-{EnemyDefinitionIds.HeaderPointer(definitionId):X4}-tiles.png";
 

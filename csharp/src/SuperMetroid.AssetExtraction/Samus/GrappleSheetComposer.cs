@@ -42,8 +42,7 @@ internal static class GrappleSheetComposer
         Ensure.NotNull(inputs);
         GrappleTileAtlas tiles = inputs.Projectiles.GrappleTiles;
         var frames = new List<SheetFrameSource>();
-        InstalledGrappleSprites sprites = tiles.Sprites
-            ?? throw new InvalidDataException("The grapple sheet is composed from the installed grapple sprites, which were not loaded.");
+        InstalledGrappleSprites sprites = inputs.Projectiles.Presentation.Grapple.Sprites;
         SpritePart endpoint = sprites.Endpoint;
         if (endpoint.Character is >= FirstRopeCharacter and <= LastRopeCharacter)
             throw new InvalidDataException($"The grapple endpoint names rope character ${endpoint.Character:X3}, which its orientation selects.");

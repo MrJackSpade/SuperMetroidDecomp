@@ -8,10 +8,11 @@ using SuperMetroid.AssetExtraction.Rooms.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>
-/// The installed opening cinematic as the import pipeline reads it (#1463): beside the scene artwork the game binds, the
-/// tilemaps, character atlases and sprite compositions the intro, Ceres destruction and Zebes reveal sheets are composed
-/// from (#1467). Its colours are palette documents only the import reads (<see cref="ImportIntroCinematicArtwork"/>); this
-/// read leaves them unread and keeps their backdrops, which the backdrop document names (#1544).
+/// The installed opening cinematic (#1463, #1636): beside the scene artwork the game binds, the tilemaps and sprite
+/// compositions the intro, Ceres destruction and Zebes reveal sheets are composed from (#1467) and named by. Its characters
+/// are import data the installation never holds, and its colours are palette documents only the import reads
+/// (<see cref="ImportIntroCinematicArtwork"/>); this read reads neither and keeps the backdrops the backdrop document names
+/// (#1544).
 /// </summary>
 public class IntroCinematicSourceArtwork : IntroCinematicArtwork
 {
@@ -40,10 +41,7 @@ public class IntroCinematicSourceArtwork : IntroCinematicArtwork
         FinalLine = Ensure.NotNull(parts.FinalLine);
         EyeFrames = Ensure.NotNull(parts.EyeFrames);
         CeresDestructionMaps = Ensure.NotNull(parts.CeresDestructionMaps);
-        ZebesReveal = Ensure.NotNull(parts.ZebesReveal);
-        BackgroundCharacters = Ensure.NotNull(parts.BackgroundCharacters);
-        IntroObjectCharacters = Ensure.NotNull(parts.IntroObjectCharacters);
-        CinematicObjectCharacters = Ensure.NotNull(parts.CinematicObjectCharacters);
+        ZebesRevealMap = Ensure.NotNull(parts.ZebesRevealMap);
         CaretSprites = Ensure.NotNull(parts.CaretSprites);
         MotherBrainSprites = Ensure.NotNull(parts.MotherBrainSprites);
         MotherBrainExplosionSprites = Ensure.NotNull(parts.MotherBrainExplosionSprites);
@@ -84,14 +82,8 @@ public class IntroCinematicSourceArtwork : IntroCinematicArtwork
     public IntroEyeTilemapPresentation EyeFrames { get; }
     /// <summary>The destruction's Mode 7 maps, which the Ceres floor's shots are composed from.</summary>
     public CeresDestructionMaps CeresDestructionMaps { get; }
-    /// <summary>The Zebes reveal's tilemap and characters, which the planet's picture is composed from.</summary>
-    public ZebesRevealArtwork ZebesReveal { get; }
-    /// <summary>BG characters of the illustrated scenes.</summary>
-    public RoomCharacterAtlas BackgroundCharacters { get; }
-    /// <summary>The intro's fixed-bank OBJ characters.</summary>
-    public RoomCharacterAtlas IntroObjectCharacters { get; }
-    /// <summary>The intro's cinematic OBJ characters.</summary>
-    public RoomCharacterAtlas CinematicObjectCharacters { get; }
+    /// <summary>The Zebes reveal's tilemap, which the planet's picture is composed from with the reveal's characters.</summary>
+    public RoomBackgroundTilemapAtlas ZebesRevealMap { get; }
     /// <summary>The one visible caret composition, without its blink timing or position.</summary>
     public IntroCaretSpritePresentation CaretSprites { get; }
     /// <summary>Three editable intro Mother Brain compositions, independent of its program.</summary>
@@ -109,12 +101,12 @@ public class IntroCinematicSourceArtwork : IntroCinematicArtwork
     /// <summary>Station-blast and Zebes-reveal compositions; the approach's are the Ceres flight's.</summary>
     public CeresDestructionSpritePresentation CeresDestructionSprites { get; }
 
-    /// <summary>Identity of the entire selected opening bundle, including the artwork its sheets are composed from.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("IntroCinematicArtworkCatalog", content =>
+    /// <summary>
+    /// Identity of the entire selected opening bundle's installed documents; its characters are import data the
+    /// installation never holds (#1636), which the sheets composed from them carry the identity of.
+    /// </summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("IntroCinematicArtworkCatalog-v2", content =>
     {
-        content.Append("background-characters", BackgroundCharacters.Characters.Span);
-        content.Append("intro-characters", IntroObjectCharacters.Characters.Span);
-        content.Append("cinematic-characters", CinematicObjectCharacters.Characters.Span);
         content.AppendTiles("background-pages", BackgroundPages.Span);
         content.AppendTiles("portrait-map", PortraitTilemap.Span);
         content.AppendTiles("narration-map", InitialNarrationTilemap.Span);
@@ -134,14 +126,13 @@ public class IntroCinematicSourceArtwork : IntroCinematicArtwork
     });
 
     /// <summary>
-    /// Identity of the selected destruction maps, Zebes reveal tilemap and characters, and actor placements: the maps and
-    /// the Zebes reveal's artwork are the import's (#1467), and the destruction's identity still covers them as one catalog.
+    /// Identity of the selected destruction maps, Zebes reveal tilemap and actor placements: the maps and the Zebes reveal's
+    /// tilemap are the import's (#1467), and the destruction's identity still covers them as one catalog.
     /// </summary>
-    private string CeresDestructionIdentity => SelectedPresentationHash.Create("CeresDestructionArtworkCatalog", content =>
+    private string CeresDestructionIdentity => SelectedPresentationHash.Create("CeresDestructionArtworkCatalog-v2", content =>
     {
         content.Append("ceres-maps", CeresDestructionMaps.Views.Span);
-        content.AppendTiles("zebes-map", ZebesReveal.Map.Tiles.Span);
-        content.Append("zebes-characters", ZebesReveal.Characters.Characters.Span);
+        content.AppendTiles("zebes-map", ZebesRevealMap.Tiles.Span);
         content.Append("reveal-actors", Convert.FromHexString(CeresDestruction.RevealActors.ContentIdentity));
         content.Append("destruction-actors", Convert.FromHexString(CeresDestruction.DestructionActors.ContentIdentity));
     });

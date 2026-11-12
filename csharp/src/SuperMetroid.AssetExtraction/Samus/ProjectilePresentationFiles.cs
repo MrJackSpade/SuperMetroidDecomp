@@ -7,13 +7,16 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
-/// <summary>Installs the projectile presentation files with their versioned provenance manifest; the player edits them in place.</summary>
+/// <summary>
+/// Installs the projectile presentation documents with their versioned provenance manifest, which the player edits in place,
+/// and extracts the beam, trail and grapple characters into the component's import data (#1636), which only the import reads.
+/// </summary>
 public static class ProjectilePresentationFiles
 {
     /// <summary>Projectile provenance manifest filename.</summary>
     public const string ManifestFileName = "projectile-manifest.json";
     /// <summary>Current projectile manifest schema version covering all projectile, beam, flare, trail, and Grapple visual assets.</summary>
-    public const int Version = 16;
+    public const int Version = 17;
     /// <summary>Strict manifest JSON encoding with required fields and no unknown properties.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
@@ -23,12 +26,17 @@ public static class ProjectilePresentationFiles
         WriteIndented = true,
     };
 
-    /// <summary>Writes into the installer's unpublished staging directory after ROM validation.</summary>
+    /// <summary>
+    /// Writes into the installer's unpublished staging directory after ROM validation: the documents into
+    /// <paramref name="directory"/>, the character pages into its import-data directory.
+    /// </summary>
     public static void Extract(ISnesAddressSpace validatedBus, string directory)
     {
+        string importData = SuperMetroid.AssetExtraction.Installation.ImportDataDirectory.Of(directory);
         byte[] bytes = ProjectileSpriteExtractor.Extract(validatedBus);
         byte[] frameBindings = ProjectileFrameBindingExtractor.Extract(validatedBus);
         Directory.CreateDirectory(directory);
+        Directory.CreateDirectory(importData);
         File.WriteAllBytes(Path.Combine(directory, ProjectileSpriteDefinitions.FileName), bytes);
         File.WriteAllBytes(Path.Combine(directory, ProjectileFrameBindingFormat.FileName), frameBindings);
         var beams = BeamTileExtractor.Extract(validatedBus);
@@ -45,21 +53,21 @@ public static class ProjectilePresentationFiles
         File.WriteAllBytes(Path.Combine(directory, GrappleSwingFrameExtractor.FileName), grappleSwing);
         File.WriteAllBytes(Path.Combine(directory, GrappleFlarePlacementDefinitions.FileName), grappleFlare);
         File.WriteAllBytes(Path.Combine(directory, GrappleSpriteDefinitions.FileName), grappleSprites);
-        File.WriteAllBytes(Path.Combine(directory, GrappleTileDefinitions.FileName), grappleTiles);
+        File.WriteAllBytes(Path.Combine(importData, GrappleTileDefinitions.FileName), grappleTiles);
         File.WriteAllBytes(Path.Combine(directory, ChargeFlareSpriteExtractor.FileName), flareCompositions);
         File.WriteAllBytes(Path.Combine(directory, ChargeFlarePlacementExtractor.FileName), flarePlacement);
-        File.WriteAllBytes(Path.Combine(directory, ProjectileTrailAtlasDefinitions.FileName), trailTiles);
+        File.WriteAllBytes(Path.Combine(importData, ProjectileTrailAtlasDefinitions.FileName), trailTiles);
         File.WriteAllBytes(Path.Combine(directory, ProjectileTrailVisualDefinitions.FileName), trails);
         File.WriteAllBytes(Path.Combine(directory, BeamPaletteFile.FileName), palettes);
         File.WriteAllBytes(Path.Combine(directory, HyperBeamFxColorFormat.FileName), hyperBeamFxColors);
-        foreach (var file in beams) File.WriteAllBytes(Path.Combine(directory, file.Key), file.Value);
+        foreach (var file in beams) File.WriteAllBytes(Path.Combine(importData, file.Key), file.Value);
         File.WriteAllText(Path.Combine(directory, ManifestFileName), JsonSerializer.Serialize(
             new Manifest(Version, SupportedCartridge.Sha256), Options));
     }
 
     /// <summary>
-    /// Checks the manifest's provenance and loads the installed projectile presentation, as the player may have edited it.
-    /// An invalid file fails loudly with its path.
+    /// Checks the manifest's provenance and loads the installed projectile documents, as the player may have edited them.
+    /// No character page is read (#1636). An invalid file fails loudly with its path.
     /// </summary>
     public static InstalledProjectilePresentation Load(string directory)
     {
@@ -70,41 +78,55 @@ public static class ProjectilePresentationFiles
             $"projectile manifest {manifestPath}");
         if (manifest.Version != Version || manifest.RomSha256 != SupportedCartridge.Sha256)
             throw new InvalidDataException($"Projectile manifest {manifestPath} does not match the supported cartridge/revision.");
+        ProjectileFile composition = Read(ProjectileSpriteDefinitions.FileName);
+        ProjectileFile frameBindings = Read(ProjectileFrameBindingFormat.FileName);
+        ProjectileFile palettes = Read(BeamPaletteFile.FileName);
+        ProjectileFile hyperBeamFxColors = Read(HyperBeamFxColorFormat.FileName);
+        ProjectileFile trails = Read(ProjectileTrailVisualDefinitions.FileName);
+        ProjectileFile flarePlacement = Read(ChargeFlarePlacementExtractor.FileName);
+        ProjectileFile flareCompositions = Read(ChargeFlareSpriteExtractor.FileName);
+        ProjectileFile grappleSprites = Read(GrappleSpriteDefinitions.FileName);
+        ProjectileFile grappleFlare = Read(GrappleFlarePlacementDefinitions.FileName);
+        ProjectileFile grappleSwing = Read(GrappleSwingFrameExtractor.FileName);
+        return new(composition.Compile(InstalledProjectileSprites.Load),
+            Identity(new ProjectilePresentationSourceFiles { Composition = composition, Palettes = palettes, HyperBeamFxColors = hyperBeamFxColors, Trails = trails, FlarePlacement = flarePlacement, FlareCompositions = flareCompositions, GrappleSprites = grappleSprites, GrappleFlare = grappleFlare, GrappleSwing = grappleSwing, FrameBindings = frameBindings }),
+            palettes.Compile(BeamPaletteFile.Read),
+            hyperBeamFxColors.Compile(stream => HyperBeamFxColorFile.Read(stream).ToColours()),
+            trails.Compile(InstalledProjectileTrails.Load),
+            flarePlacement.Compile(ChargeFlarePlacementFile.Load),
+            flareCompositions.Compile(ChargeFlareSprites.Load),
+            new InstalledGrapplePresentation(grappleSprites.Compile(InstalledGrappleSprites.Load),
+                grappleFlare.Compile(ChargeFlarePlacementFile.LoadGrapple), grappleSwing.Compile(GrappleSwingFrameFile.Load)),
+            frameBindings.Compile(ProjectileFrameBindingFile.Load));
+
         ProjectileFile Read(string name)
         {
             string path = Path.Combine(directory, name);
             return new(path, File.ReadAllBytes(path));
         }
-        ProjectileFile composition = Read(ProjectileSpriteDefinitions.FileName);
-        ProjectileFile frameBindings = Read(ProjectileFrameBindingFormat.FileName);
-        var beams = new Dictionary<string, ProjectileFile>();
-        for (int i = 0; i < BeamTileAtlasDefinitions.ArtworkCount; i++)
+    }
+
+    /// <summary>
+    /// Loads the projectile presentation as the import composes from it (#1636): the installed documents in
+    /// <paramref name="directory"/> and the beam, trail and grapple characters in its import data <paramref name="importData"/>.
+    /// An invalid file fails loudly with its path.
+    /// </summary>
+    public static ImportProjectileArtwork LoadForImport(string directory, string importData)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(importData);
+        InstalledProjectilePresentation presentation = Load(directory);
+        ProjectileFile Read(string name)
         {
-            string name = BeamTileAtlasDefinitions.FileName(BeamTileAtlasDefinitions.SelectionAt(i));
-            beams.Add(name, Read(name));
+            string path = Path.Combine(importData, name);
+            return new(path, File.ReadAllBytes(path));
         }
-        ProjectileFile palettes = Read(BeamPaletteFile.FileName);
-        ProjectileFile hyperBeamFxColors = Read(HyperBeamFxColorFormat.FileName);
-        ProjectileFile trails = Read(ProjectileTrailVisualDefinitions.FileName);
-        ProjectileFile trailTiles = Read(ProjectileTrailAtlasDefinitions.FileName);
-        ProjectileFile flarePlacement = Read(ChargeFlarePlacementExtractor.FileName);
-        ProjectileFile flareCompositions = Read(ChargeFlareSpriteExtractor.FileName);
-        ProjectileFile grappleTiles = Read(GrappleTileDefinitions.FileName);
-        ProjectileFile grappleSprites = Read(GrappleSpriteDefinitions.FileName);
-        ProjectileFile grappleFlare = Read(GrappleFlarePlacementDefinitions.FileName);
-        ProjectileFile grappleSwing = Read(GrappleSwingFrameExtractor.FileName);
-        return new(composition.Compile(InstalledProjectileSprites.Load),
-            Identity(new ProjectilePresentationSourceFiles { Composition = composition, Beams = beams, Palettes = palettes, HyperBeamFxColors = hyperBeamFxColors, Trails = trails, TrailTiles = trailTiles, FlarePlacement = flarePlacement, FlareCompositions = flareCompositions, GrappleTiles = grappleTiles, GrappleSprites = grappleSprites, GrappleFlare = grappleFlare, GrappleSwing = grappleSwing, FrameBindings = frameBindings }),
+        return new ImportProjectileArtwork(presentation,
             BeamTileCatalog.FromAtlases(Enumerable.Range(0, BeamTileAtlasDefinitions.ArtworkCount)
-                .Select(index => beams[BeamTileAtlasDefinitions.FileName(BeamTileAtlasDefinitions.SelectionAt(index))].Compile(stream => BeamTileAtlas.Load(stream, BeamTileAtlasDefinitions.SelectionAt(index)))).ToArray(),
-                palettes.Compile(BeamPaletteFile.Read), hyperBeamFxColors.Compile(stream => HyperBeamFxColorFile.Read(stream).ToColours())),
-            trails.Compile(InstalledProjectileTrails.Load),
-            trailTiles.Compile(ProjectileTrailAtlas.Load),
-            flarePlacement.Compile(ChargeFlarePlacementFile.Load),
-            flareCompositions.Compile(ChargeFlareSprites.Load),
-            grappleTiles.Compile(stream => GrappleTileAtlas.Load(stream, grappleSprites.Compile(InstalledGrappleSprites.Load),
-                grappleFlare.Compile(ChargeFlarePlacementFile.LoadGrapple), grappleSwing.Compile(GrappleSwingFrameFile.Load))),
-            frameBindings.Compile(ProjectileFrameBindingFile.Load));
+                .Select(index => Read(BeamTileAtlasDefinitions.FileName(BeamTileAtlasDefinitions.SelectionAt(index)))
+                    .Compile(stream => BeamTileAtlas.Load(stream, BeamTileAtlasDefinitions.SelectionAt(index)))).ToArray(),
+                presentation.BeamPalettes, presentation.HyperBeamFxColors),
+            Read(ProjectileTrailAtlasDefinitions.FileName).Compile(ProjectileTrailAtlas.Load),
+            Read(GrappleTileDefinitions.FileName).Compile(GrappleTileAtlas.Load));
     }
 
     /// <summary>Retains a file's identity through codec admission without hiding the original failure.</summary>
@@ -125,27 +147,24 @@ public static class ProjectilePresentationFiles
 
     /// <summary>Encodes a projectile asset's SHA-256 digest as uppercase hexadecimal.</summary>
     private static string Hash(byte[] bytes) => Convert.ToHexString(SHA256.HashData(bytes));
-    /// <summary>Hashes fixed-size component digests in presentation selection order for the installed assets.</summary>
+    /// <summary>
+    /// Hashes fixed-size component digests in a fixed order for the installed documents: the installation holds no
+    /// character page (#1636), so the identity covers every installed file.
+    /// </summary>
     private static string Identity(ProjectilePresentationSourceFiles files)
     {
-        // Fixed-size component hashes in fixed selection order prevent ambiguous concatenation.
-        string hashes = Hash(files.Composition.Bytes);
-        for (int i = 0; i < BeamTileAtlasDefinitions.ArtworkCount; i++)
-            hashes += Hash(files.Beams[BeamTileAtlasDefinitions.FileName(BeamTileAtlasDefinitions.SelectionAt(i))].Bytes);
-        return Hash(System.Text.Encoding.ASCII.GetBytes(hashes + Hash(files.Palettes.Bytes) + Hash(files.HyperBeamFxColors.Bytes) + Hash(files.Trails.Bytes) + Hash(files.TrailTiles.Bytes) + Hash(files.FlarePlacement.Bytes) + Hash(files.FlareCompositions.Bytes) + Hash(files.GrappleTiles.Bytes) + Hash(files.GrappleSprites.Bytes) + Hash(files.GrappleFlare.Bytes) + Hash(files.GrappleSwing.Bytes) + Hash(files.FrameBindings.Bytes)));
+        // Fixed-size component hashes in a fixed order prevent ambiguous concatenation.
+        return Hash(System.Text.Encoding.ASCII.GetBytes(Hash(files.Composition.Bytes) + Hash(files.Palettes.Bytes) + Hash(files.HyperBeamFxColors.Bytes) + Hash(files.Trails.Bytes) + Hash(files.FlarePlacement.Bytes) + Hash(files.FlareCompositions.Bytes) + Hash(files.GrappleSprites.Bytes) + Hash(files.GrappleFlare.Bytes) + Hash(files.GrappleSwing.Bytes) + Hash(files.FrameBindings.Bytes)));
     }
     /// <summary>Cartridge provenance and expected hashes for every extracted projectile presentation asset.</summary>
     private sealed record Manifest(int Version, string RomSha256);
 
-    /// <summary>The extracted projectile presentation files whose contents form the presentation identity (#633).</summary>
+    /// <summary>The installed projectile presentation documents whose contents form the presentation identity (#633, #1636).</summary>
     [ArchitectureReview("context-bag", "The projectile presentation's source files read for one extraction; every member is file content, not a service.")]
     private sealed record ProjectilePresentationSourceFiles
     {
         /// <summary>Enemy projectile OAM compositions keyed by native frame.</summary>
         public required ProjectileFile Composition { get; init; }
-
-        /// <summary>Beam tile atlases keyed by their selection-specific PNG filenames.</summary>
-        public required Dictionary<string, ProjectileFile> Beams { get; init; }
 
         /// <summary>Beam palette rows for ordinary shot variants.</summary>
         public required ProjectileFile Palettes { get; init; }
@@ -156,17 +175,11 @@ public static class ProjectilePresentationFiles
         /// <summary>Trail frame compositions and visual selections.</summary>
         public required ProjectileFile Trails { get; init; }
 
-        /// <summary>Pixel atlas used by projectile trail compositions.</summary>
-        public required ProjectileFile TrailTiles { get; init; }
-
         /// <summary>Charge-flare placement data relative to Samus's pose.</summary>
         public required ProjectileFile FlarePlacement { get; init; }
 
         /// <summary>Charge-flare OAM compositions.</summary>
         public required ProjectileFile FlareCompositions { get; init; }
-
-        /// <summary>Grapple beam tile atlas used by its sprite compositions.</summary>
-        public required ProjectileFile GrappleTiles { get; init; }
 
         /// <summary>Grapple beam and flare OAM sprite definitions.</summary>
         public required ProjectileFile GrappleSprites { get; init; }

@@ -55,14 +55,17 @@ public sealed class SamusBodyCharacterArtwork
     }
 
     /// <summary>Builds the body catalog from <paramref name="parts"/> naming these characters, and binds the characters to it.</summary>
-    /// <param name="parts">The body's tables and catalogs; its characters' identity is calculated from <paramref name="top"/> and <paramref name="bottom"/>.</param>
+    /// <param name="parts">The body's tables and catalogs.</param>
     /// <param name="top">Upper-body tile definitions grouped by pointer table entry.</param>
     /// <param name="bottom">Lower-body tile definitions grouped by pointer table entry.</param>
     public static SamusBodyCharacterArtwork Create(SamusBodyArtworkParts parts, SamusBodyTileTransfer[][] top, SamusBodyTileTransfer[][] bottom)
     {
         Ensure.NotNull(parts);
-        return new(new SamusBodySources(parts, ContentIdentityOf(parts.TopSetStarts, parts.BottomSetStarts, top, bottom)), top, bottom);
+        return new(new SamusBodySources(parts), top, bottom);
     }
+
+    /// <summary>SHA-256 of each numbered half picture's transfer sizes and characters, in record order (#1636: import data).</summary>
+    public string CharactersContentIdentity => field ??= ContentIdentityOf(Body.Source.TopSetStarts.ToArray(), Body.Source.BottomSetStarts.ToArray(), top, bottom);
 
     /// <summary>SHA-256 of each numbered half picture's transfer sizes and characters, in record order.</summary>
     /// <param name="topStarts">Each upper-body definition group's first record.</param>

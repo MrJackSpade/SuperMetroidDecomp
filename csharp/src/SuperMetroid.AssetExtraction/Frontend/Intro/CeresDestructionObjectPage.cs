@@ -19,9 +19,9 @@ internal static class CeresDestructionObjectPage
         var page = new byte[CeresFlightArtworkFileFormat.ObjectByteCount];
         CeresFlightCharacters.Of(artwork.CeresFlight).ObjectCharacters.Span[..CeresFlightArtworkFileFormat.ObjectByteCount].CopyTo(page);
         // The station's setup loads the standard cinematic sheet over the start of the flight's object characters.
-        IntroCinematicSourceArtwork.Of(artwork).IntroObjectCharacters.Characters.Span[..CeresFlightArtworkFileFormat.SharedObjectCharacterBytes].CopyTo(page);
+        ImportIntroCinematicArtwork.Imported(artwork).IntroObjectCharacters.Characters.Span[..CeresFlightArtworkFileFormat.SharedObjectCharacterBytes].CopyTo(page);
         if (zebesRevealed)
-            IntroCinematicSourceArtwork.Of(artwork).ZebesReveal.Characters.Characters.Span[..ZebesRevealArtworkFormat.CharacterByteCount].CopyTo(page);
+            ImportIntroCinematicArtwork.Imported(artwork).ZebesReveal.Characters.Characters.Span[..ZebesRevealArtworkFormat.CharacterByteCount].CopyTo(page);
         return page;
     }
 

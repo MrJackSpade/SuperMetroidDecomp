@@ -26,7 +26,7 @@ internal static class GameOptionsSheetComposer
     {
         Ensure.NotNull(options);
         Ensure.NotNull(maps);
-        SpriteArtwork page = MapSpriteArtwork.Of(InstalledAreaMapPresentation.SpritesOf(maps)).Page;
+        SpriteArtwork page = MapSpriteArtwork.Of(ImportAreaMapPresentation.SpritesOf(maps)).Page;
         GameOptionsSourcePresentation source = GameOptionsSourcePresentation.Of(options);
         int palette = source.CursorPalette;
         var frames = new List<SheetFrameSource>();

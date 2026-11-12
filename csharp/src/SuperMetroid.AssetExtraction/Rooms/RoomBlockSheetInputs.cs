@@ -35,13 +35,15 @@ internal sealed record RoomBlockSheetInputs(RoomCharacterAtlases Characters, Roo
     internal static RoomBlockSheetInputs Load(string content)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(content);
-        AreaMapPresentation maps = MapPresentationFiles.LoadForImport(Path.Combine(content, GameInstallationLayout.MapDirectoryName));
+        string map = Path.Combine(content, GameInstallationLayout.MapDirectoryName);
+        string roomCharacters = Path.Combine(content, GameInstallationLayout.RoomCharacterDirectoryName);
+        AreaMapPresentation maps = MapPresentationFiles.LoadForImport(map, ImportDataDirectory.Of(map));
         EnemySheetInputs objects = EnemySheetInputs.Load(content);
         return new(
-            RoomCharacterArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomCharacterDirectoryName)),
+            RoomCharacterArtworkFiles.LoadForImport(roomCharacters, ImportDataDirectory.Of(roomCharacters)),
             RoomMetatileArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomMetatileDirectoryName)),
             RoomStaticPaletteArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomPaletteDirectoryName)),
-            InstalledAreaMapPresentation.RoomFxAnimatedTilesOf(maps),
+            ImportAreaMapPresentation.RoomFxAnimatedTilesOf(maps),
             objects.Bosses,
             MapCharacterArtwork.Of(maps).Hud,
             RoomBackgroundTilemapArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomBackgroundTilemapDirectoryName)),

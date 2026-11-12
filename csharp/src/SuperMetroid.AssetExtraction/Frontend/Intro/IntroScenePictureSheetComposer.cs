@@ -28,7 +28,7 @@ internal static class IntroScenePictureSheetComposer
     internal static ComposedSpriteSheet Compose(IntroCinematicArtwork intro)
     {
         Ensure.NotNull(intro);
-        byte[] characters = IntroCinematicSourceArtwork.Of(intro).BackgroundCharacters.Characters.Span[..IntroArtworkExtentDefinitions.BackgroundCharacterBytes].ToArray();
+        byte[] characters = ImportIntroCinematicArtwork.Imported(intro).BackgroundCharacters.Characters.Span[..IntroArtworkExtentDefinitions.BackgroundCharacterBytes].ToArray();
         RgbColor[] colours = [.. ImportIntroCinematicArtwork.Imported(intro).Palette.BackgroundColours];
         int cells = IntroScenePictures.PlaneCells;
         int planeCells = cells * cells;

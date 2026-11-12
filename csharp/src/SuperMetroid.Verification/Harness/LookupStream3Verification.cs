@@ -1237,7 +1237,7 @@ internal static class LookupStream3Verification
 
     /// <summary>The installation's enemy, boss and area artwork with its escape timer, which Mother Brain's pages copy (#1513).</summary>
     private static SuperMetroid.TestSupport.VerificationOracles.EnemyTileTransfers InstalledPageResolver =>
-        new(InstalledFixtures.EnemyArtwork, timer: InstalledAreaMapPresentation.EscapeTimerTilesOf(InstalledFixtures.Maps));
+        new(InstalledFixtures.EnemyArtwork, timer: ImportAreaMapPresentation.EscapeTimerTilesOf(InstalledFixtures.Maps));
 
     /// <summary>Checks corpse row offsets and rot row/page transfer placement against native source and destination words.</summary>
     private static void VerifyStream3CorpseGeometry(ISnesAddressSpace rom)

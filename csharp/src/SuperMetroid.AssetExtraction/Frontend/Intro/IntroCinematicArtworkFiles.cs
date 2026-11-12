@@ -19,15 +19,28 @@ using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
-/// <summary>Installs and loads the opening-scene PNGs and tilemap JSON.</summary>
+/// <summary>
+/// Installs and loads the opening-scene tilemap and composition documents; its character pages are import data (#1636),
+/// which the extraction writes to the component's import-data directory and only the import's read reads.
+/// </summary>
 public static class IntroCinematicArtworkFiles
 {
-    /// <summary>Manifest revision for the complete opening and Ceres artwork resource set.</summary>
-    private const int FormatVersion = 21;
+    /// <summary>
+    /// Manifest revision for the complete opening and Ceres artwork resource set; 22 installs no character page (#1636).
+    /// </summary>
+    private const int FormatVersion = 22;
+
+    /// <summary>The component's character pages (#1636), which the extraction writes to its import-data directory; the manifest lists their hashes.</summary>
+    private static readonly string[] PageFiles =
+    [
+        IntroCinematicArtworkFormat.BackgroundFileName, IntroCinematicArtworkFormat.IntroObjectFileName,
+        IntroCinematicArtworkFormat.CinematicObjectFileName, CeresFlightArtworkFileFormat.FloorFileName,
+        CeresFlightArtworkFileFormat.ObjectFileName, ZebesRevealArtworkFormat.CharacterFileName,
+    ];
 
     /// <summary>Creates the stock opening-cinematic, Ceres-flight, and destruction-scene PNG and JSON resources with their provenance manifest.</summary>
     /// <param name="bus">Non-null cartridge import address space supplying character graphics, tilemaps, palettes, sprites, and scene artwork.</param>
-    /// <param name="directory">Output directory, created if needed; each resource and the manifest require a previously absent filename.</param>
+    /// <param name="directory">Output directory, created if needed; each resource and the manifest require a previously absent filename. The character pages go to its import-data directory.</param>
     /// <param name="sourceCartridgeSha256">Nonempty source-cartridge SHA-256 recorded with the generated stock-resource hashes.</param>
     /// <remarks>Checks native transfer dimensions, eye-frame draw geometry, and palette representation. Scene timing and dispatch remain compiled.</remarks>
     /// <exception cref="InvalidDataException">Native artwork, geometry, or palettes fail validation.</exception>
@@ -38,6 +51,10 @@ public static class IntroCinematicArtworkFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceCartridgeSha256);
         Directory.CreateDirectory(directory);
+        string importData = SuperMetroid.AssetExtraction.Installation.ImportDataDirectory.Of(directory);
+        Directory.CreateDirectory(importData);
+        // A page goes to the import data, which the installer deletes before it publishes; a document is installed.
+        string PathOf(string name) => Path.Combine(PageFiles.Contains(name) ? importData : directory, name);
 
         var hashes = new Dictionary<string, string>();
         WriteSheet(IntroCinematicArtworkFormat.BackgroundFileName,
@@ -82,7 +99,7 @@ public static class IntroCinematicArtworkFiles
         CeresFlightPalette? flight = null;
         foreach ((string name, byte[] file) in CeresFlightArtworkExtractor.Extract(bus))
         {
-            using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
+            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(file);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(file)));
             if (name == CeresFlightPaletteFormat.FileName)
@@ -93,7 +110,7 @@ public static class IntroCinematicArtworkFiles
             flight ?? throw new InvalidDataException("The Ceres flight extraction wrote no palette.")));
         foreach ((string name, byte[] file) in CeresDestructionArtworkExtractor.Extract(bus))
         {
-            using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
+            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(file);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(file)));
         }
@@ -114,7 +131,7 @@ public static class IntroCinematicArtworkFiles
             using var png = new MemoryStream();
             IndexedPng.Write(png, size, indexes, SnesGraphics.DiagnosticPalette(16));
             byte[] encoded = png.ToArray();
-            using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
+            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(encoded);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
         }
@@ -393,18 +410,64 @@ public static class IntroCinematicArtworkFiles
     }
 
     /// <summary>
-    /// Checks the manifest's provenance and coverage, then loads the opening as the game binds it: every installed file
-    /// as installed but the palette documents only the import reads, which are left unread (#1544).
+    /// Checks the manifest's provenance and coverage, then loads the opening as the game binds it: every installed document
+    /// as installed but the palette documents only the import reads, which are left unread (#1544). No character page is
+    /// read (#1636).
     /// </summary>
     public static IntroCinematicSourceArtwork Load(string directory) => new(ReadParts(directory));
 
     /// <summary>
     /// Checks the manifest's provenance and coverage, then loads the opening as the import composes from it: the game's
-    /// artwork with the opening's and the Ceres approach's colours, which only the import pre-colours sheets in (#1544).
+    /// artwork with its characters from the component's import data <paramref name="importData"/> (#1636) and the
+    /// opening's and the Ceres approach's colours, which only the import pre-colours sheets in (#1544).
     /// </summary>
-    public static ImportIntroCinematicArtwork LoadForImport(string directory) => new(ReadParts(directory),
-        ReadColours(directory, IntroCinematicPaletteFile.FileName, "opening palette", IntroCinematicPaletteFile.Read),
-        ReadColours(directory, CeresFlightPaletteFormat.FileName, "Ceres flight palette", CeresFlightPaletteFile.Read));
+    /// <param name="directory">The component's directory, holding the manifest and the documents.</param>
+    /// <param name="importData">The component's import-data directory, holding the character pages.</param>
+    public static ImportIntroCinematicArtwork LoadForImport(string directory, string importData)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(importData);
+        IntroCinematicArtworkParts parts = ReadParts(directory);
+        return new(parts, ReadCharacters(importData, CeresFlightSourceArtwork.Of(parts.CeresFlight)),
+            ReadColours(directory, IntroCinematicPaletteFile.FileName, "opening palette", IntroCinematicPaletteFile.Read),
+            ReadColours(directory, CeresFlightPaletteFormat.FileName, "Ceres flight palette", CeresFlightPaletteFile.Read));
+    }
+
+    /// <summary>The opening's characters from the import's pages in <paramref name="importData"/>, the approach's bound to <paramref name="flight"/>.</summary>
+    /// <exception cref="InvalidDataException">A page does not decode; the error names its file.</exception>
+    private static IntroCinematicCharacters ReadCharacters(string importData, CeresFlightSourceArtwork flight)
+    {
+        string floorPath = Path.Combine(importData, CeresFlightArtworkFileFormat.FloorFileName);
+        string objectPath = Path.Combine(importData, CeresFlightArtworkFileFormat.ObjectFileName);
+        CeresFlightCharacters ceresFlight;
+        try
+        {
+            ceresFlight = CeresFlightCharacters.Read(new MemoryStream(File.ReadAllBytes(floorPath), writable: false),
+                new MemoryStream(File.ReadAllBytes(objectPath), writable: false), flight);
+        }
+        catch (InvalidDataException error)
+        {
+            throw new InvalidDataException($"Invalid Ceres flight characters ({floorPath}, {objectPath}): {error.Message}", error);
+        }
+        return new IntroCinematicCharacters(
+            Sheet(IntroCinematicArtworkFormat.BackgroundFileName, IntroCinematicArtworkFormat.BackgroundByteCount),
+            Sheet(IntroCinematicArtworkFormat.IntroObjectFileName, IntroCinematicArtworkFormat.IntroObjectByteCount),
+            Sheet(IntroCinematicArtworkFormat.CinematicObjectFileName, IntroCinematicArtworkFormat.CinematicObjectByteCount),
+            Sheet(ZebesRevealArtworkFormat.CharacterFileName, ZebesRevealArtworkFormat.CharacterByteCount),
+            ceresFlight);
+
+        RoomCharacterAtlas Sheet(string name, int nativeByteCount)
+        {
+            string path = Path.Combine(importData, name);
+            try
+            {
+                return RoomCharacterAtlasPng.Read(new MemoryStream(File.ReadAllBytes(path), writable: false), nativeByteCount);
+            }
+            catch (InvalidDataException error)
+            {
+                throw new InvalidDataException($"Invalid intro page {path}: {error.Message}", error);
+            }
+        }
+    }
 
     /// <summary>The colours installed as <paramref name="name"/> in <paramref name="directory"/>, read by <paramref name="read"/>.</summary>
     /// <exception cref="InvalidDataException">The document does not decode; the error names its file.</exception>
@@ -446,22 +509,9 @@ public static class IntroCinematicArtworkFiles
             throw new InvalidDataException($"Intro artwork manifest {manifestPath} does not describe this installation.");
 
         IntroBackdrops backdrops = LoadBackdrops();
-        return new IntroCinematicArtworkParts { BackgroundCharacters = LoadSheet(names[0], IntroCinematicArtworkFormat.BackgroundByteCount), IntroObjectCharacters = LoadSheet(names[1], IntroCinematicArtworkFormat.IntroObjectByteCount), CinematicObjectCharacters = LoadSheet(names[2], IntroCinematicArtworkFormat.CinematicObjectByteCount), BackgroundPages = Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount)
+        return new IntroCinematicArtworkParts { BackgroundPages = Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount)
                 .Select(page => LoadPage(IntroCinematicArtworkFormat.BackgroundPageFileName(page)))
-                .ToArray(), PortraitTilemap = LoadPage(IntroCinematicArtworkFormat.PortraitTilemapFileName), InitialNarrationTilemap = LoadPage(IntroCinematicArtworkFormat.InitialNarrationTilemapFileName), FinalLine = LoadFinalLine(), EyeFrames = LoadEyeFrames(), CaretSprites = LoadCaretSprites(), MotherBrainSprites = LoadMotherBrainSprites(), MotherBrainExplosionSprites = LoadMotherBrainExplosionSprites(), RinkaSprites = LoadRinkaSprites(), EggEffectSprites = LoadEggEffectSprites(), DiscoveryActorSprites = LoadDiscoveryActorSprites(), ScientistSprites = LoadScientistSprites(), Backdrop = backdrops.Opening, CeresFlight = LoadCeresFlight(), CeresDestruction = LoadCeresDestruction(), CeresDestructionMaps = LoadCeresDestructionMaps(), ZebesReveal = LoadZebesReveal(), CeresDestructionSprites = LoadCeresDestructionSprites() };
-
-        RoomCharacterAtlas LoadSheet(string name, int nativeByteCount)
-        {
-            (string installedPath, byte[] selected) = ReadInstalled(name);
-            try
-            {
-                return RoomCharacterAtlasPng.Read(new MemoryStream(selected, writable: false), nativeByteCount);
-            }
-            catch (InvalidDataException error)
-            {
-                throw new InvalidDataException($"Invalid intro PNG {installedPath}: {error.Message}", error);
-            }
-        }
+                .ToArray(), PortraitTilemap = LoadPage(IntroCinematicArtworkFormat.PortraitTilemapFileName), InitialNarrationTilemap = LoadPage(IntroCinematicArtworkFormat.InitialNarrationTilemapFileName), FinalLine = LoadFinalLine(), EyeFrames = LoadEyeFrames(), CaretSprites = LoadCaretSprites(), MotherBrainSprites = LoadMotherBrainSprites(), MotherBrainExplosionSprites = LoadMotherBrainExplosionSprites(), RinkaSprites = LoadRinkaSprites(), EggEffectSprites = LoadEggEffectSprites(), DiscoveryActorSprites = LoadDiscoveryActorSprites(), ScientistSprites = LoadScientistSprites(), Backdrop = backdrops.Opening, CeresFlight = LoadCeresFlight(), CeresDestruction = LoadCeresDestruction(), CeresDestructionMaps = LoadCeresDestructionMaps(), ZebesRevealMap = LoadZebesRevealMap(), CeresDestructionSprites = LoadCeresDestructionSprites() };
 
         RoomBackgroundTilemapAtlas LoadPage(string name)
         {
@@ -479,17 +529,13 @@ public static class IntroCinematicArtworkFiles
 
         CeresFlightArtwork LoadCeresFlight()
         {
-            (string mode7Path, byte[] mode7) = ReadInstalled(CeresFlightArtworkFileFormat.FloorFileName);
             (string mapPath, byte[] map) = ReadInstalled(CeresFlightArtworkFileFormat.MapFileName);
-            (string objectPath, byte[] objects) = ReadInstalled(CeresFlightArtworkFileFormat.ObjectFileName);
             (string spritesPath, byte[] sprites) = ReadInstalled(CeresFlightSpriteFormat.FileName);
             (string actorsPath, byte[] actors) = ReadInstalled(CeresFlightActorLayoutFormat.FileName);
             try
             {
-                return CeresFlightCharacters.Read(
-                    new MemoryStream(mode7, writable: false),
+                return CeresFlightSourceArtwork.Read(
                     new MemoryStream(map, writable: false),
-                    new MemoryStream(objects, writable: false),
                     backdrops.CeresFlight,
                     new MemoryStream(sprites, writable: false),
                     new MemoryStream(actors, writable: false));
@@ -497,7 +543,7 @@ public static class IntroCinematicArtworkFiles
             catch (InvalidDataException error)
             {
                 throw new InvalidDataException(
-                    $"Invalid Ceres flight artwork ({mode7Path}, {mapPath}, {objectPath}, {spritesPath}, {actorsPath}): {error.Message}", error);
+                    $"Invalid Ceres flight artwork ({mapPath}, {spritesPath}, {actorsPath}): {error.Message}", error);
             }
         }
 
@@ -677,18 +723,16 @@ public static class IntroCinematicArtworkFiles
             }
         }
 
-        ZebesRevealArtwork LoadZebesReveal()
+        RoomBackgroundTilemapAtlas LoadZebesRevealMap()
         {
             (string mapPath, byte[] map) = ReadInstalled(ZebesRevealArtworkFormat.MapFileName);
-            (string pngPath, byte[] png) = ReadInstalled(ZebesRevealArtworkFormat.CharacterFileName);
             try
             {
-                return ZebesRevealArtwork.Load(new MemoryStream(map, writable: false),
-                    RoomCharacterAtlasPng.Read(new MemoryStream(png, writable: false), ZebesRevealArtworkFormat.CharacterByteCount));
+                return RoomBackgroundTilemapAtlas.Load(new MemoryStream(map, writable: false), ZebesRevealArtworkFormat.MapByteCount);
             }
             catch (InvalidDataException error)
             {
-                throw new InvalidDataException($"Invalid Zebes reveal artwork ({mapPath}, {pngPath}): {error.Message}", error);
+                throw new InvalidDataException($"Invalid Zebes reveal tilemap {mapPath}: {error.Message}", error);
             }
         }
 

@@ -39,10 +39,10 @@ internal static class CeresDestructionArtworkVerification
         byte[] nativeZebesMap = RomDataReader.Decompress(bus,
             CeresCinematicSourceDefinitions.ZebesTilemap,
             maximumOutputBytes: CeresCinematicSourceDefinitions.CompressedTilemapLimit);
-        AssertTrue(IntroCinematicSourceArtwork.Of(stock).ZebesReveal.Map.Bytes.Span.SequenceEqual(
+        AssertTrue(ImportIntroCinematicArtwork.Imported(stock).ZebesReveal.Map.Bytes.Span.SequenceEqual(
                 nativeZebesMap.AsSpan(0, ZebesRevealArtworkFormat.MapByteCount)),
             "installed Zebes reveal JSON preserves every transferred BG word");
-        AssertTrue(IntroCinematicSourceArtwork.Of(stock).ZebesReveal.Characters.Characters.Span.SequenceEqual(
+        AssertTrue(ImportIntroCinematicArtwork.Imported(stock).ZebesReveal.Characters.Characters.Span.SequenceEqual(
                 RomDataReader.Decompress(bus,
                     CeresCinematicSourceDefinitions.ZebesCharacters,
                     maximumOutputBytes: ZebesRevealArtworkFormat.CharacterByteCount)),

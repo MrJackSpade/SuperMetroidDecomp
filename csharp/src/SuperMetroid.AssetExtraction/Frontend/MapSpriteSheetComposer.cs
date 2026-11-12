@@ -21,7 +21,7 @@ internal static class MapSpriteSheetComposer
     private const int SpriteColours = 128;
 
     /// <summary>What the map sprite sheet composes.</summary>
-    internal static SpriteSheetSources Sources(AreaMapPresentation maps) => Sources(InstalledAreaMapPresentation.SpritesOf(Ensure.NotNull(maps)), maps);
+    internal static SpriteSheetSources Sources(AreaMapPresentation maps) => Sources(ImportAreaMapPresentation.SpritesOf(Ensure.NotNull(maps)), maps);
 
     /// <summary>What the map sprite sheet composes from <paramref name="sprites"/>, coloured with the menus of <paramref name="maps"/>.</summary>
     internal static SpriteSheetSources Sources(MapSpriteCompositions sprites, AreaMapPresentation maps)

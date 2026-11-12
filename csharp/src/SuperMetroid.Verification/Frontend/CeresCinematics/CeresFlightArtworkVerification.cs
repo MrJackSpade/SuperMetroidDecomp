@@ -38,7 +38,7 @@ internal static class CeresFlightArtworkVerification
             "installed Ceres OBJ PNG preserves every native character byte");
         byte[] nativeMaps = RomDataReader.Decompress(bus, CeresCinematicSourceDefinitions.CeresTilemaps,
             maximumOutputBytes: 0x1000);
-        AssertTrue(CeresFlightCharacters.Of(stock).FloorMaps.Span.SequenceEqual(nativeMaps.AsSpan(0,
+        AssertTrue(CeresFlightSourceArtwork.Of(stock).FloorMaps.Span.SequenceEqual(nativeMaps.AsSpan(0,
                 CeresFlightArtworkFileFormat.MapCellCount)),
             "installed front/rear Ceres maps preserve every consumed native byte");
         byte[] nativePalette = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),

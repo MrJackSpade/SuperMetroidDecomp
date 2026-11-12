@@ -52,7 +52,7 @@ internal static class TreadmillVisualVerification
             // render places over the room's characters where the cartridge copies it.
             ArtworkAnimation treadmill = AnimatedTileFrames.Of(rightwards
                 ? AnimatedTileObject.WreckedShipTreadmillRightwards : AnimatedTileObject.WreckedShipTreadmillLeftwards);
-            RoomFxAnimatedTileAtlas animatedTiles = InstalledAreaMapPresentation.RoomFxAnimatedTilesOf(runtime.Artwork.MapPresentation
+            RoomFxAnimatedTileAtlas animatedTiles = ImportAreaMapPresentation.RoomFxAnimatedTilesOf(runtime.Artwork.MapPresentation
                 ?? throw new InvalidOperationException("The runtime has no installed presentation."));
             for (int frame = 0; frame < 12; frame++)
             {

@@ -46,7 +46,7 @@ internal static class GenericSpriteArtworkVerification
         // Reference decoding is confined to this diagnostic. The production renderer
         // receives mutable memory only and the installed sprite composition catalog.
         var title = new TitleSequenceState(titleGradientPresentation: maps.TitleGradient,
-            titleBackdrop: maps.TitleBackdrop, spriteSheets: MenuSheetFixtures.WithTitle(InstalledAreaMapPresentation.TitleGraphicsOf(maps)));
+            titleBackdrop: maps.TitleBackdrop, spriteSheets: MenuSheetFixtures.WithTitle(ImportAreaMapPresentation.TitleGraphicsOf(maps)));
         var document = RequiredJson.Deserialize<TitleFloorMapDocument>(File.ReadAllBytes(
             Path.Combine(installation.MapDirectory, TitleGraphicsFormat.FloorMapFile)),
             ArtworkJson.Options);

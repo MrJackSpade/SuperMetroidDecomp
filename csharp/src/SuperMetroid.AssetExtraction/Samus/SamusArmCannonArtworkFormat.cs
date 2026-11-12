@@ -8,7 +8,7 @@ public static class SamusArmCannonArtworkFormat
     /// dimensions. Revision four keys each pose's descriptor by the pose's name rather than its place in the cartridge's
     /// pose table, and installs no descriptor for the records no pose names (#1595).
     /// </summary>
-    public const int Version = 4;
+    public const int Version = 5;
     /// <summary>Installed editable placement, OBJ-attribute, and tile-selector JSON filename, separate from cover pixels and animation mechanics.</summary>
     public const string JsonFileName = "samus-arm-cannon.json";
     /// <summary>Installed indexed PNG filename holding the twelve 8-by-8 cover characters in native source-identity order.</summary>

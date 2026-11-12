@@ -26,17 +26,20 @@ internal sealed record EnemySheetInputs(EnemyTileSourceArtwork Enemies, BossSour
     internal static EnemySheetInputs Load(string content)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(content);
-        InstalledEnemyArtwork installed = EnemyTileArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.EnemyTileDirectoryName));
+        string enemyTiles = Path.Combine(content, GameInstallationLayout.EnemyTileDirectoryName);
+        string standardObjects = Path.Combine(content, GameInstallationLayout.StandardObjectDirectoryName);
+        string maps = Path.Combine(content, GameInstallationLayout.MapDirectoryName);
+        ImportEnemyArtwork installed = EnemyTileArtworkFiles.LoadForImport(enemyTiles, ImportDataDirectory.Of(enemyTiles));
         return new(
             installed.Enemies,
             installed.Bosses,
             installed.Areas,
-            StandardObjectArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.StandardObjectDirectoryName)).Characters,
+            StandardObjectArtworkFiles.LoadForImport(standardObjects, ImportDataDirectory.Of(standardObjects)).Characters,
             GameplayBasePaletteFiles.Load(Path.Combine(content, GameInstallationLayout.GameplayBasePaletteDirectoryName)),
-            LoadEscapeTimer(Path.Combine(content, GameInstallationLayout.MapDirectoryName, EscapeTimerTileAtlasFormat.FileName)))
+            LoadEscapeTimer(Path.Combine(ImportDataDirectory.Of(maps), EscapeTimerTileAtlasFormat.FileName)))
         {
             BeamPalettes = LoadBeamPalettes(Path.Combine(content, GameInstallationLayout.ProjectileDirectoryName, BeamPaletteFile.FileName)),
-            Maps = MapPresentationFiles.LoadForImport(Path.Combine(content, GameInstallationLayout.MapDirectoryName)),
+            Maps = MapPresentationFiles.LoadForImport(maps, ImportDataDirectory.Of(maps)),
         };
     }
 
@@ -69,7 +72,7 @@ internal sealed record EnemySheetInputs(EnemyTileSourceArtwork Enemies, BossSour
         return BeamPaletteFile.Read(json);
     }
 
-    /// <summary>The installed escape timer characters at <paramref name="path"/>.</summary>
+    /// <summary>The escape timer characters the import extracted at <paramref name="path"/>.</summary>
     private static EscapeTimerCharacters LoadEscapeTimer(string path)
     {
         using FileStream png = File.OpenRead(path);

@@ -26,18 +26,21 @@ public static class SamusArmCannonArtworkFiles
 
     /// <summary>Exports each pose's selector by the pose's name, bounded bank-$90 drawing descriptors, ten direction styles/tile lists, and twelve cannon-cover characters.</summary>
     /// <param name="bus">Non-null import-capable cartridge source for cover placement/OBJ attributes and bank-$9A character pixels.</param>
-    /// <param name="directory">Artwork directory, created if absent; existing placement JSON, 96-by-8 indexed PNG, and companion manifest are overwritten.</param>
+    /// <param name="directory">Artwork directory, created if absent; existing placement JSON and companion manifest are overwritten.</param>
+    /// <param name="importData">The import-data directory receiving the 96-by-8 indexed cover page (#1636), which only the import reads.</param>
     /// <param name="sourceCartridgeSha256">Caller-supplied provenance hash recorded verbatim.</param>
     /// <remarks>The sixteen-color PNG palette is diagnostic. Writes are separate and not rolled back if a later write fails.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
     /// <exception cref="ArgumentException">The directory is blank or the address space lacks cartridge import access.</exception>
     /// <exception cref="InvalidDataException">A direction's cartridge tile list uploads a closed-cover tile or names a source that is no installed cover tile.</exception>
     /// <exception cref="IOException">Filesystem output fails.</exception>
-    public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
+    public static void Extract(ISnesAddressSpace bus, string directory, string importData, string sourceCartridgeSha256)
     {
         Ensure.NotNull(bus);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
+        ArgumentException.ThrowIfNullOrWhiteSpace(importData);
         Directory.CreateDirectory(directory);
+        Directory.CreateDirectory(importData);
         // The pose table is read by the cartridge's pose numbers and installed by pose name (#1595).
         Dictionary<SamusPoseId, int> descriptors = SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose,
             pose => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
@@ -86,17 +89,20 @@ public static class SamusArmCannonArtworkFiles
         IndexedPng.Write(pngStream, size, pixels, SnesGraphics.DiagnosticPalette(16));
         byte[] png = pngStream.ToArray();
         byte[] json = SamusArmCannonSourceArtwork.Write(document);
-        File.WriteAllBytes(Path.Combine(directory, SamusArmCannonArtworkFormat.TileFileName), png);
+        File.WriteAllBytes(Path.Combine(importData, SamusArmCannonArtworkFormat.TileFileName), png);
         File.WriteAllBytes(Path.Combine(directory, SamusArmCannonArtworkFormat.JsonFileName), json);
         File.WriteAllBytes(Path.Combine(directory, ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(new Manifest(
                 SamusArmCannonArtworkFormat.Version, sourceCartridgeSha256), JsonOptions));
     }
 
-    /// <summary>Validates the manifest's provenance and loads the installed cannon-cover placement and pixels, as the player may have edited them.</summary>
-    /// <param name="directory">Artwork directory containing the required placement JSON, indexed PNG, and pinned-cartridge manifest.</param>
-    /// <returns>A ROM-independent catalog of owned cover placement/attribute selectors and encoded character pixels.</returns>
-    /// <remarks>Strict placement JSON retains bounded pose/descriptor/direction/source domains, while the PNG supplies twelve four-bit characters.</remarks>
+    /// <summary>
+    /// Validates the manifest's provenance and loads the installed cannon-cover placement, as the player may have edited it.
+    /// No character page is read (#1636).
+    /// </summary>
+    /// <param name="directory">Artwork directory containing the required placement JSON and pinned-cartridge manifest.</param>
+    /// <returns>A ROM-independent catalog of owned cover placement/attribute selectors.</returns>
+    /// <remarks>Strict placement JSON retains bounded pose/descriptor/direction/source domains.</remarks>
     /// <exception cref="InvalidDataException">Manifest compatibility, strict JSON, selectors, or indexed artwork are invalid; admission errors identify the offending filename.</exception>
     /// <exception cref="IOException">A required installed file cannot be read.</exception>
     public static SamusArmCannonSourceArtwork Load(string directory)
@@ -111,18 +117,21 @@ public static class SamusArmCannonArtworkFiles
                 !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
                     StringComparison.OrdinalIgnoreCase))
                 throw new InvalidDataException("Arm-cannon manifest does not match the pinned cartridge.");
-            return Compile(SamusArtworkFile.Read(Path.Combine(directory, SamusArmCannonArtworkFormat.JsonFileName)),
-                SamusArtworkFile.Read(Path.Combine(directory, SamusArmCannonArtworkFormat.TileFileName)));
+            return SamusArmCannonSourceArtwork.FromPlacement(SamusArtworkFile.Read(Path.Combine(directory, SamusArmCannonArtworkFormat.JsonFileName))
+                .Compile(SamusArmCannonSourceArtwork.LoadPlacement));
         }
+    }
 
-        static SamusArmCannonSourceArtwork Compile(SamusArtworkFile json, SamusArtworkFile png)
-        {
-            var placement = json.Compile(SamusArmCannonSourceArtwork.LoadPlacement);
-            var tiles = png.Compile(stream => RoomCharacterAtlasPng.Read(stream,
-                SamusArmCannonArtworkFormat.CoverTileCount *
-                    SamusArmCannonArtworkFormat.CoverTileByteCount));
-            return SamusArmCannonSourceArtwork.FromPlacement(placement, tiles);
-        }
+    /// <summary>Loads the cover characters of <paramref name="cannon"/> from the import's page in <paramref name="importData"/> (#1636).</summary>
+    /// <param name="cannon">The installed cover placement the characters are bound to.</param>
+    /// <param name="importData">The component's import-data directory, holding the 96-by-8 indexed cover page.</param>
+    /// <exception cref="InvalidDataException">The page is invalid; the error names its file.</exception>
+    public static SamusArmCannonCoverCharacters LoadCoverCharacters(SamusArmCannonSourceArtwork cannon, string importData)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(importData);
+        return new SamusArmCannonCoverCharacters(cannon, SamusArtworkFile.Read(Path.Combine(importData, SamusArmCannonArtworkFormat.TileFileName))
+            .Compile(stream => RoomCharacterAtlasPng.Read(stream,
+                SamusArmCannonArtworkFormat.CoverTileCount * SamusArmCannonArtworkFormat.CoverTileByteCount)));
     }
 
     /// <summary>Expected schema, cartridge revision, placement JSON hash, and indexed PNG hash for stock art.</summary>

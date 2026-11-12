@@ -15,12 +15,15 @@ using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
-/// <summary>Extracts ending/reward character PNGs and the waiting-scene BG2 tilemap.</summary>
+/// <summary>
+/// Extracts the ending/reward maps and sprite compositions, and the ending/reward character pages into the component's
+/// import data (#1636), which only the import reads.
+/// </summary>
 public static class EndingObjectArtworkFiles
 {
     /// <summary>Creates ending/reward PNG transports, BG2 map JSON, sprite-composition JSON, and a hashed manifest.</summary>
     /// <param name="bus">Cartridge import source for compressed character/map streams and native cloud, explosion, text, reward, and logo spritemaps.</param>
-    /// <param name="directory">Destination directory, created if absent; artwork files and manifest must not already exist.</param>
+    /// <param name="directory">Destination directory, created if absent; artwork files and manifest must not already exist. The character pages go to its import-data directory.</param>
     /// <param name="sourceCartridgeSha256">Source identity recorded in the manifest; installation loading requires the supported cartridge identity.</param>
     /// <exception cref="InvalidDataException">A native source is too short or a sprite composition is invalid.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory,
@@ -30,6 +33,8 @@ public static class EndingObjectArtworkFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceCartridgeSha256);
         Directory.CreateDirectory(directory);
+        string importData = SuperMetroid.AssetExtraction.Installation.ImportDataDirectory.Of(directory);
+        Directory.CreateDirectory(importData);
         var hashes = new Dictionary<string, string>(StringComparer.Ordinal);
         Export(EndingObjectArtworkFormat.CloudFileName,
             EndingSourceDefinitions.Artwork.EscapeCloudCharacters,
@@ -181,7 +186,7 @@ public static class EndingObjectArtworkFiles
             using var png = new MemoryStream();
             IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
             byte[] file = png.ToArray();
-            using (var output = new FileStream(Path.Combine(directory, name),
+            using (var output = new FileStream(Path.Combine(importData, name),
                        FileMode.CreateNew, FileAccess.Write))
                 output.Write(file);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(file)));
@@ -202,11 +207,52 @@ public static class EndingObjectArtworkFiles
         }
     }
 
-    /// <summary>Checks the manifest's provenance and coverage, then compiles the installed ending artwork and sprite compositions without cartridge access.</summary>
-    /// <param name="directory">Installed directory containing the ending/reward sheets, raw-fragment PNG transports, BG2 maps, sprite JSON, and provenance/digest manifest.</param>
-    /// <returns>The artwork and OAM-composition catalog, retaining fixed transfer sizes while actor instructions, timing, and palette selection remain engine-owned.</returns>
-    /// <exception cref="InvalidDataException">Manifest provenance or coverage, or an installed sheet, map, or sprite composition is invalid.</exception>
-    public static EndingObjectSourceArtwork Load(string directory)
+    /// <summary>
+    /// Checks the manifest's provenance and coverage, then compiles the installed ending maps and sprite compositions
+    /// without cartridge access. No character page is read (#1636).
+    /// </summary>
+    /// <param name="directory">Installed directory containing the BG2 maps, sprite JSON, and provenance/digest manifest.</param>
+    /// <returns>The map and OAM-composition catalog, while actor instructions, timing, and palette selection remain engine-owned.</returns>
+    /// <exception cref="InvalidDataException">Manifest provenance or coverage, or an installed map or sprite composition is invalid.</exception>
+    public static EndingObjectSourceArtwork Load(string directory) => new(ReadParts(directory));
+
+    /// <summary>
+    /// Checks the manifest's provenance and coverage, then compiles the ending's maps and sprite compositions with its
+    /// object characters from the component's import data <paramref name="importData"/> (#1636).
+    /// </summary>
+    /// <param name="directory">The component's directory, holding the maps, sprite JSON and manifest.</param>
+    /// <param name="importData">The component's import-data directory, holding the character pages.</param>
+    /// <exception cref="InvalidDataException">Manifest provenance or coverage, or a page, map or sprite composition is invalid.</exception>
+    public static ImportEndingObjectArtwork LoadForImport(string directory, string importData)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(importData);
+        EndingObjectArtworkParts parts = ReadParts(directory);
+        return new ImportEndingObjectArtwork(parts, new EndingObjectCharacters(
+            LoadSheet(EndingObjectArtworkFormat.CloudFileName, EndingObjectArtworkFormat.CloudByteCount),
+            LoadSheet(EndingObjectArtworkFormat.ExplosionFileName, EndingObjectArtworkFormat.ExplosionByteCount),
+            LoadSheet(EndingObjectArtworkFormat.WaitingSamusFileName, EndingObjectArtworkFormat.RewardByteCount),
+            LoadSheet(EndingObjectArtworkFormat.ShootingScreenFileName, EndingObjectArtworkFormat.RewardByteCount),
+            LoadSheet(EndingObjectArtworkFormat.SuitlessSamusFileName, EndingObjectArtworkFormat.RewardByteCount),
+            LoadSheet(EndingObjectArtworkFormat.PostCreditsFragmentAFileName, EndingObjectArtworkFormat.PostCreditsFragmentAByteCount),
+            LoadSheet(EndingObjectArtworkFormat.PostShotLogoTileFileName, EndingObjectArtworkFormat.PostShotLogoTileByteCount)));
+
+        RoomCharacterAtlas LoadSheet(string name, int expectedBytes)
+        {
+            string path = Path.Combine(importData, name);
+            try
+            {
+                return RoomCharacterAtlasPng.Read(new MemoryStream(File.ReadAllBytes(path), writable: false), expectedBytes);
+            }
+            catch (InvalidDataException error)
+            {
+                throw new InvalidDataException($"Invalid ending OBJ page {path}: {error.Message}", error);
+            }
+        }
+    }
+
+    /// <summary>Checks the manifest's provenance and coverage, then reads the installed maps and sprite compositions.</summary>
+    /// <exception cref="InvalidDataException">Manifest provenance or coverage, or an installed map or sprite composition is invalid.</exception>
+    private static EndingObjectArtworkParts ReadParts(string directory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         string manifestPath = Path.Combine(directory,
@@ -248,20 +294,13 @@ public static class EndingObjectArtworkFiles
             names.Any(name => !manifest.StockSha256.ContainsKey(name)))
             throw new InvalidDataException($"Ending OBJ manifest {manifestPath} does not describe this installation.");
 
-        return new EndingObjectSourceArtwork(new EndingObjectArtworkParts { Clouds = LoadSheet(EndingObjectArtworkFormat.CloudFileName,
-                EndingObjectArtworkFormat.CloudByteCount), Explosion = LoadSheet(EndingObjectArtworkFormat.ExplosionFileName,
-                EndingObjectArtworkFormat.ExplosionByteCount), Fragments = Enumerable.Range(0, EndingObjectArtworkFormat.FragmentCount)
+        return new EndingObjectArtworkParts { Fragments = Enumerable.Range(0, EndingObjectArtworkFormat.FragmentCount)
                 .Select(index => LoadMap(EndingObjectArtworkFormat.FragmentFileName(index),
                     EndingObjectArtworkFormat.FragmentByteCount))
-                .ToArray(), WaitingSamus = LoadSheet(EndingObjectArtworkFormat.WaitingSamusFileName,
-                EndingObjectArtworkFormat.RewardByteCount), ShootingScreen = LoadSheet(EndingObjectArtworkFormat.ShootingScreenFileName,
-                EndingObjectArtworkFormat.RewardByteCount), SuitlessSamus = LoadSheet(EndingObjectArtworkFormat.SuitlessSamusFileName,
-                EndingObjectArtworkFormat.RewardByteCount), WaitingTilemap = LoadMap(EndingObjectArtworkFormat.WaitingTilemapFileName,
-                EndingObjectArtworkFormat.WaitingTilemapByteCount), PostCreditsFragmentA = LoadSheet(EndingObjectArtworkFormat.PostCreditsFragmentAFileName,
-                EndingObjectArtworkFormat.PostCreditsFragmentAByteCount), PostCreditsFragmentB = LoadMap(EndingObjectArtworkFormat.PostCreditsFragmentBFileName,
-                EndingObjectArtworkFormat.PostCreditsFragmentBByteCount), PostShotLogoTiles = LoadSheet(EndingObjectArtworkFormat.PostShotLogoTileFileName,
-                EndingObjectArtworkFormat.PostShotLogoTileByteCount), PostShotLogoMap = LoadMap(EndingObjectArtworkFormat.PostShotLogoMapFileName,
-                EndingObjectArtworkFormat.PostShotLogoMapByteCount), CloudSprites = LoadCloudSprites(), ExplosionSprites = LoadExplosionSprites(), CompletionTextSprites = LoadCompletionTextSprites(), RewardSprites = LoadRewardSprites(), LogoSprites = LoadLogoSprites() });
+                .ToArray(), WaitingTilemap = LoadMap(EndingObjectArtworkFormat.WaitingTilemapFileName,
+                EndingObjectArtworkFormat.WaitingTilemapByteCount), PostCreditsFragmentB = LoadMap(EndingObjectArtworkFormat.PostCreditsFragmentBFileName,
+                EndingObjectArtworkFormat.PostCreditsFragmentBByteCount), PostShotLogoMap = LoadMap(EndingObjectArtworkFormat.PostShotLogoMapFileName,
+                EndingObjectArtworkFormat.PostShotLogoMapByteCount), CloudSprites = LoadCloudSprites(), ExplosionSprites = LoadExplosionSprites(), CompletionTextSprites = LoadCompletionTextSprites(), RewardSprites = LoadRewardSprites(), LogoSprites = LoadLogoSprites() };
 
         EndingCloudSpritePresentation LoadCloudSprites()
         {
@@ -345,21 +384,6 @@ public static class EndingObjectArtworkFiles
             {
                 throw new InvalidDataException(
                     $"Invalid ending logo sprites {installedPath}: {error.Message}", error);
-            }
-        }
-
-        RoomCharacterAtlas LoadSheet(string name, int expectedBytes)
-        {
-            string installedPath = Path.Combine(directory, name);
-            try
-            {
-                return RoomCharacterAtlasPng.Read(new MemoryStream(
-                    File.ReadAllBytes(installedPath),
-                    writable: false), expectedBytes);
-            }
-            catch (InvalidDataException error)
-            {
-                throw new InvalidDataException($"Invalid ending OBJ PNG {installedPath}: {error.Message}", error);
             }
         }
 

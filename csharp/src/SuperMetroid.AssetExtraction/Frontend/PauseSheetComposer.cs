@@ -33,7 +33,7 @@ internal static class PauseSheetComposer
         Ensure.NotNull(selectors);
         Ensure.NotNull(tanks);
         Ensure.NotNull(maps);
-        SpriteArtwork page = MapSpriteArtwork.Of(InstalledAreaMapPresentation.SpritesOf(maps)).Page;
+        SpriteArtwork page = MapSpriteArtwork.Of(ImportAreaMapPresentation.SpritesOf(maps)).Page;
         PauseReserveTankSourcePresentation tankSource = PauseReserveTankSourcePresentation.Of(tanks);
         PauseSelectorSourcePresentation selectorSource = PauseSelectorSourcePresentation.Of(selectors);
         List<SheetFrameSource> frames = [.. selectorSource.FrameNames.Select(frame =>

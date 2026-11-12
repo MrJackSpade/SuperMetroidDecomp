@@ -12,9 +12,9 @@ using SuperMetroid.AssetExtraction.Assets;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
-/// The arm cannon's installed artwork as the import pipeline holds it (#1463): the cartridge's descriptor bytes, cover
-/// appearances and indexed 8×8 cover tiles, from which the overlay sheet is composed and each pose's typed placement is
-/// decoded for gameplay.
+/// The arm cannon's installed artwork (#1463): the cartridge's descriptor bytes, cover appearances and cover tile
+/// selections, from which each pose's typed placement is decoded for gameplay. Its 8×8 cover characters are import data
+/// the installation never holds (<see cref="SamusArmCannonCoverCharacters"/>, #1636), which the overlay sheet is composed from.
 /// </summary>
 public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
 {
@@ -45,19 +45,16 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
     private readonly SpritePart[] attributes;
     /// <summary>Each native aim direction's installed cover tile for opening frames one through three.</summary>
     private readonly int[][] openingTiles;
-    /// <summary>Installed indexed PNG characters for the twelve nonclosed cover tiles.</summary>
-    internal readonly RoomCharacterAtlas tiles;
 
-    /// <summary>Holds the complete installed descriptors, drawing data, cover appearances, cover tiles and characters.</summary>
+    /// <summary>Holds the complete installed descriptors, drawing data, cover appearances and cover tiles.</summary>
     private SamusArmCannonSourceArtwork(IReadOnlyDictionary<SamusPoseId, int> poseDescriptors, byte[] drawingData,
-        SpritePart[] attributes, int[][] coverTiles, RoomCharacterAtlas tiles)
+        SpritePart[] attributes, int[][] coverTiles)
         : base(Placements(poseDescriptors, drawingData))
     {
         this.poseDescriptors = poseDescriptors.ToDictionary();
         this.drawingData = [.. drawingData];
         this.attributes = [.. attributes];
         openingTiles = [.. coverTiles.Select(row => row.ToArray())];
-        this.tiles = tiles;
     }
 
     /// <summary>
@@ -90,8 +87,8 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
         }
     }
 
-    /// <summary>SHA-256 of selected cannon placement, cover appearances, tile selectors and characters.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("samus-arm-cannon-v4", content =>
+    /// <summary>SHA-256 of selected cannon placement, cover appearances and tile selectors; the characters are import data (#1636).</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("samus-arm-cannon-v5", content =>
     {
         foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses) content.Append("pose descriptor", PoseDescriptor(pose));
         Span<byte> selectedDrawing = stackalloc byte[SamusArmCannonArtworkFormat.DrawingDataByteCount];
@@ -103,17 +100,15 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
         for (int direction = 0; direction < SamusProjectileDirectionCodec.Count; direction++)
             for (int frame = 1; frame <= OpeningFrames; frame++)
                 content.Append("cover tile", OpeningTile(direction, frame));
-        content.Append("characters", this.tiles.Characters.Span);
     });
 
-    /// <summary>Validated JSON placement tables before their separately loaded tile PNG is attached.</summary>
-    /// <remarks>Placement and PNG admission remain distinct so installation identifies the failing file.</remarks>
+    /// <summary>Validated JSON placement tables.</summary>
     internal sealed record DescriptorTables(IReadOnlyDictionary<SamusPoseId, int> PoseDescriptors, byte[] DrawingData,
         SpritePart[] Attributes, int[][] CoverTiles);
 
-    /// <summary>Combines validated descriptor tables with the installed indexed tile sheet.</summary>
-    internal static SamusArmCannonSourceArtwork FromPlacement(DescriptorTables placement, RoomCharacterAtlas tiles) =>
-        new(placement.PoseDescriptors, placement.DrawingData, placement.Attributes, placement.CoverTiles, tiles);
+    /// <summary>The artwork of validated descriptor tables.</summary>
+    internal static SamusArmCannonSourceArtwork FromPlacement(DescriptorTables placement) =>
+        new(placement.PoseDescriptors, placement.DrawingData, placement.Attributes, placement.CoverTiles);
 
     /// <summary>Parses arm-cannon JSON and validates descriptor, attribute, and tile-source geometry.</summary>
     internal static DescriptorTables LoadPlacement(Stream json)
@@ -199,18 +194,6 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
 
     /// <summary>The installed cover tile <paramref name="direction"/> shows at opening frame 1–3.</summary>
     private int OpeningTile(int direction, int frame) => openingTiles[direction][frame - 1];
-
-    /// <summary>The cover character for native direction 0-9 and opening frame 1-3, as owned artwork.</summary>
-    public SpriteArtwork CoverTile(int direction, int frame)
-    {
-        int index = CoverTileIndex(direction, frame) ??
-            throw new InvalidDataException($"Arm-cannon direction {direction} frame {frame} names no installed cover tile.");
-        return coverCharacters.GetOrAdd(index, key => new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.SamusArmCannonCover, key),
-            tiles.Characters.Span.Slice(key * SamusArmCannonArtworkFormat.CoverTileByteCount, SamusArmCannonArtworkFormat.CoverTileByteCount)));
-    }
-
-    /// <summary>Cover characters already built, by installed tile index.</summary>
-    private readonly System.Collections.Concurrent.ConcurrentDictionary<int, SpriteArtwork> coverCharacters = new();
 
     /// <summary>Rejects an authored drawing value outside one unsigned byte.</summary>
     private static byte RequireByte(int value, string name) => (uint)value <= byte.MaxValue

@@ -43,7 +43,7 @@ internal static class PictureStoreVisibleBoxVerification
         HashSet<string> wholeSheets = ShownWholeSheets();
         var shownWhole = new HashSet<string>(StringComparer.Ordinal);
         var notWhole = new List<string>();
-        InstalledPictureReferenceDocument? titleFloor = null;
+        var titleFloors = new List<InstalledPictureReferenceDocument>();
         string titleSheet = SpriteSheetDefinitions.FileNames[SpriteSheetId.TitleFloor];
         foreach ((string family, string sheet, InstalledSheetDocument document) in InstalledSheetManifests.Read(content))
         {
@@ -53,7 +53,7 @@ internal static class PictureStoreVisibleBoxVerification
                 if (entry.Picture is not { } picture)
                     continue;
                 if (family == GameInstallationLayout.SpriteSheetDirectoryName && sheet == titleSheet && frame == TitleFloors.FloorFrameName)
-                    titleFloor = picture;
+                    titleFloors.Add(picture);
                 if (!whole)
                     continue;
                 shownWhole.Add(picture.Tag);
@@ -65,8 +65,8 @@ internal static class PictureStoreVisibleBoxVerification
         AssertTrue(notWhole.Count == 0,
             $"{notWhole.Count} turning floors repeated beyond their edges are not stored whole:{Environment.NewLine}{string.Join(Environment.NewLine, notWhole)}");
 
-        InstalledPictureReferenceDocument title = titleFloor
-            ?? throw new InvalidOperationException($"Verification failed: {titleSheet} frame {TitleFloors.FloorFrameName} shows no stored picture.");
+        if (titleFloors is not [InstalledPictureReferenceDocument title])
+            throw new InvalidOperationException($"Verification failed: {titleSheet} frame {TitleFloors.FloorFrameName} shows {titleFloors.Count} stored pictures, not one.");
         AssertEqual(TitleFloorScene, title.Size, $"{titleSheet} frame {TitleFloors.FloorFrameName} is stored as its scene");
         AssertEqual(default(Offset16<ImagePixels>), title.Offset, $"{titleSheet} frame {TitleFloors.FloorFrameName}'s scene lies at its rectangle's top-left pixel");
 

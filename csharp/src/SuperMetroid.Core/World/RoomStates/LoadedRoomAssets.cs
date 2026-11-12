@@ -68,11 +68,12 @@ public sealed class LoadedRoomAssets
     }
 
     /// <summary>
-    /// The perspective floor a Ceres room shows (#1349, #1467): its tileset's installed floor, which the import pictures
-    /// from the tileset's floor map and characters (#1422), with nothing drawn over it yet.
+    /// The turning floor the room's state shows (#1349, #1467, #1649): its tileset's installed floor, which the import
+    /// pictures from the tileset's floor map and characters (#1422), with nothing drawn over it yet; null for a state that
+    /// shows none (<see cref="RoomTurningFloor.None"/>), whose tileset installs none.
     /// </summary>
-    /// <exception cref="InvalidDataException">No floor is installed for the room's tileset.</exception>
-    public RoomFloor CreateFloor() => new(Pictures.FloorOf(Tileset));
+    /// <exception cref="InvalidDataException">The state shows a floor, but none is installed for the room's tileset.</exception>
+    public RoomFloor? CreateFloor() => RoomTurningFloors.ShowsOne(Header.State) ? new RoomFloor(Pictures.FloorOf(Tileset)) : null;
 
     /// <summary>
     /// Builds the room's grid from its installed level, with its own terrain beyond the room for this room's lifetime.

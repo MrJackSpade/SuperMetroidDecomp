@@ -34,6 +34,9 @@ internal static class CeresMode7MapVerification
         FloorMemory memory = AffineFloorConstants.Split(runtime.ComposedVram());
         byte[] map = memory.Map, pixels = memory.Pixels;
         SpriteImage image = first.Image.Sheet;
+        // The installed image holds the part of the floor that shows anything, placed by its origin (#1649); the floor
+        // beyond it shows nothing.
+        int left = -first.Image.Origin.X, top = -first.Image.Origin.Y;
         int mismatches = 0;
         for (int y = 0; y < AffineFloor.SidePixels; y++)
         {
@@ -41,7 +44,11 @@ internal static class CeresMode7MapVerification
             {
                 int tile = map[y / 8 * (AffineFloor.SidePixels / 8) + x / 8];
                 int expected = pixels[tile * 64 + y % 8 * 8 + x % 8];
-                if (InstalledPictureColoursConstants.ComposedIndexAt(image, (first.Image.Corner.Y + y) * image.Size.X + first.Image.Corner.X + x) != expected)
+                bool within = x >= left && x < left + first.Image.Size.X && y >= top && y < top + first.Image.Size.Y;
+                int painted = within
+                    ? InstalledPictureColoursConstants.ComposedIndexAt(image, (first.Image.Corner.Y + y - top) * image.Size.X + first.Image.Corner.X + x - left)
+                    : 0;
+                if (painted != expected)
                     mismatches++;
             }
         }

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// The installed pre-coloured room artwork (#1392, #1466): the block sheet of each tileset a room can load with the
 /// appearance inputs its blocks depend on, the image of each library background a room state loads, the sheets of the
 /// pictures encounters write over the rooms' layers, the sheets of the effect overlay's pictures (each room effect's page
-/// and the HUD's images), each tileset's message boxes, and the turning floor of each Ceres tileset (#1467).
+/// and the HUD's images), each tileset's message boxes, and the turning floor of each tileset whose rooms show one (#1467, #1649).
 /// </summary>
 public sealed class InstalledRoomArtwork
 {
@@ -70,10 +70,10 @@ public sealed class InstalledRoomArtwork
     /// <summary>The sheets of the effect overlay's pictures (each room effect's page and the HUD's images), by the tileset whose colours they show in.</summary>
     public IReadOnlyDictionary<TilesetDefinition, WrittenPictureSheet> FxOverlayPictures { get; }
 
-    /// <summary>The turning floor of each Ceres tileset.</summary>
+    /// <summary>The turning floor of each tileset whose rooms show one; a tileset whose rooms show none has none (#1649).</summary>
     public IReadOnlyDictionary<TilesetDefinition, RoomFloorSheet> Floors { get; }
 
-    /// <summary>The turning floor of Ceres tileset <paramref name="tileset"/>.</summary>
+    /// <summary>The turning floor of <paramref name="tileset"/>, whose rooms show one.</summary>
     /// <exception cref="InvalidDataException">No floor is installed for the tileset.</exception>
     public RoomFloorSheet FloorOf(TilesetDefinition tileset) =>
         Floors.TryGetValue(tileset, out RoomFloorSheet? floor) ? floor : throw new InvalidDataException($"No floor is installed for {tileset}.");

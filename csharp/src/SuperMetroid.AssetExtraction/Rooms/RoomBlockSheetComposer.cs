@@ -44,6 +44,8 @@ internal static class RoomBlockSheetComposer
         // its order stay the same on every install. Every room picture of a tileset is pre-coloured in the shades its rooms'
         // colour effects show (#1512), except the pictures written over its rooms, which show their writers' own (#1544).
         KeyValuePair<TilesetDefinition, RoomBlockUploads.TilesetUploads>[] order = [.. tilesets];
+        // Only the tilesets whose rooms show a turning floor picture one (#1649).
+        HashSet<TilesetDefinition> floored = [.. RoomBlockUploads.FloorTilesets()];
         var composedTilesets = new TilesetPictures[order.Length];
         Parallel.For(0, order.Length, index =>
         {
@@ -61,7 +63,7 @@ internal static class RoomBlockSheetComposer
                     : null,
                 RoomSheetShades.With(WrittenPictureSheetComposer.ComposeOverlay(inputs, tileset, uploads), RoomSheetShades.Layer3(inputs, tileset)),
                 MessageBoxSheetComposer.Compose(inputs, tileset),
-                uploads.Ceres ? ShadedSheets.With(RoomFloorSheetComposer.Compose(inputs, tileset), shades) : null);
+                floored.Contains(tileset) ? ShadedSheets.With(RoomFloorSheetComposer.Compose(inputs, tileset), shades) : null);
         });
         var sheets = new Dictionary<TilesetDefinition, ComposedSpriteSheet>();
         var appearances = new Dictionary<TilesetDefinition, RoomBlockAppearances>();

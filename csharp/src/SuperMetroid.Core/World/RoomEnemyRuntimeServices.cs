@@ -80,7 +80,7 @@ internal sealed class RoomEnemyRuntimeServices(
 
     /// <inheritdoc />
     public void DrawFloor(CeresFloorAnimationFrame frame) =>
-        (room.LoadedScope.Floor ?? throw new InvalidOperationException("Only a Ceres room has a turning floor to draw over."))
+        (room.LoadedScope.Floor ?? throw new InvalidOperationException("Only a room that shows a turning floor has one to draw over."))
             .Draw(frame);
 
     /// <summary>Checks whether a requested Bomb Torizo hand room-object header remains active.</summary>

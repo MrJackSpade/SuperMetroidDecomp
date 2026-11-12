@@ -82,7 +82,7 @@ internal sealed record RoomScope
     /// <summary>The scrolling-sky updater of a scrolling-sky room, or null.</summary>
     public required ScrollingSkyState? ScrollingSky { get; init; }
 
-    /// <summary>The turning floor a Ceres room shows, or null outside Ceres (#1349, #1467).</summary>
+    /// <summary>The turning floor the room shows, or null when it shows none (#1349, #1467, #1649).</summary>
     public required RoomFloor? Floor { get; init; }
 
     /// <summary>Door, header and library-background data of a Landing Site entry, or null.</summary>

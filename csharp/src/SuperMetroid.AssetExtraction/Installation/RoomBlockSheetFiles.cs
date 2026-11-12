@@ -15,7 +15,8 @@ namespace SuperMetroid.AssetExtraction.Installation;
 /// Installs the pre-coloured room artwork (#1392, #1466): each tileset's block sheet, the appearance inputs each tileset's
 /// blocks depend on, and each library background's image, each as a sheet manifest whose pictures the installation's picture
 /// store holds (#1635), the tilemap words each background pictures with the inputs its changing cells depend on, the written
-/// picture sheets with the inputs each picture depends on, each Ceres tileset's turning floor (#1467), and the provenance of
+/// picture sheets with the inputs each picture depends on, the turning floor of each tileset whose rooms show one (#1467,
+/// #1649), and the provenance of
 /// their hashes. A player edits a sheet's or image's installed file in place.
 /// </summary>
 public static class RoomBlockSheetFiles
@@ -43,11 +44,15 @@ public static class RoomBlockSheetFiles
     /// </summary>
     private const int WrittenManifestVersion = 4;
 
-    /// <summary>The manifest naming each Ceres tileset whose turning floor is installed.</summary>
+    /// <summary>The manifest naming each tileset whose turning floor is installed: each whose rooms show one (#1649).</summary>
     public const string FloorManifestFileName = "room-floors.json";
 
-    /// <summary>The floor manifest's schema revision: revision 1 names the tilesets whose floors are pictures (#1467).</summary>
-    private const int FloorManifestVersion = 1;
+    /// <summary>
+    /// The floor manifest's schema revision: revision 1 names the tilesets whose floors are pictures (#1467); revision 2
+    /// names only the tilesets whose rooms show a turning floor, each floor pictured as the part of it that shows anything,
+    /// placed by its origin (#1649).
+    /// </summary>
+    private const int FloorManifestVersion = 2;
 
     /// <summary>
     /// Composes every tileset's block sheet and background image and writes the manifests of what they picture; the sheets
@@ -142,7 +147,7 @@ public static class RoomBlockSheetFiles
     /// Requires the manifests to install the room artwork every retail room state can select (#1536), so that no lookup a
     /// room makes by its tileset, background, sky or effect finds nothing: the block sheet and message boxes of every
     /// tileset are read for each of <paramref name="tilesets"/> itself; this requires an effect overlay picture sheet of each
-    /// of them with the page of every effect its rooms show, the turning floor of every Ceres tileset, and every background
+    /// of them with the page of every effect its rooms show, the turning floor of every tileset whose rooms show one, and every background
     /// image a room state shows.
     /// </summary>
     /// <exception cref="InvalidDataException">A manifest installs none of one of them.</exception>
@@ -172,10 +177,10 @@ public static class RoomBlockSheetFiles
             }
         }
         string[] floorTilesets = floors.Tilesets ?? throw new InvalidDataException($"Floor manifest {floorPath} names no tilesets.");
-        foreach (TilesetDefinition tileset in RoomBlockUploads.CeresTilesets())
+        foreach (TilesetDefinition tileset in RoomBlockUploads.FloorTilesets())
         {
             if (!floorTilesets.Contains(RoomBlockSheet.NameOf(tileset), StringComparer.Ordinal))
-                throw new InvalidDataException($"Floor manifest {floorPath} names no floor of Ceres tileset {RoomBlockSheet.NameOf(tileset)}, whose rooms show one.");
+                throw new InvalidDataException($"Floor manifest {floorPath} names no floor of tileset {RoomBlockSheet.NameOf(tileset)}, whose rooms show one.");
         }
     }
 

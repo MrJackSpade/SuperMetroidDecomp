@@ -19,16 +19,21 @@ public abstract class DocumentFixProvider : CodeFixProvider
     public sealed override FixAllProvider GetFixAllProvider() => new DocumentFixAll(this);
 
     /// <inheritdoc />
-    public sealed override Task RegisterCodeFixesAsync(CodeFixContext context)
+    public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
     {
         foreach (Diagnostic diagnostic in context.Diagnostics)
         {
+            if (!await CanFixAsync(context.Document, diagnostic, context.CancellationToken).ConfigureAwait(false))
+                continue;
             context.RegisterCodeFix(
                 CodeAction.Create(Title, token => FixAsync(context.Document, ImmutableArray.Create(diagnostic), token), equivalenceKey: Title),
                 diagnostic);
         }
-        return Task.CompletedTask;
     }
+
+    /// <summary>Whether the fix is offered for <paramref name="diagnostic"/>: every finding, unless a fix tells the
+    /// shapes it cannot resolve apart cheaply. A finding not offered fails the cleanup's run, naming the site.</summary>
+    internal virtual Task<bool> CanFixAsync(Document document, Diagnostic diagnostic, CancellationToken cancellationToken) => Task.FromResult(true);
 
     /// <summary>The solution with every given finding of <paramref name="document"/> resolved.</summary>
     internal abstract Task<Solution> FixAsync(Document document, ImmutableArray<Diagnostic> diagnostics, CancellationToken cancellationToken);

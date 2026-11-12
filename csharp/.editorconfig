@@ -63,6 +63,7 @@ dotnet_diagnostic.IDE0077.severity = none
 dotnet_diagnostic.IDE0079.severity = none
 dotnet_diagnostic.IDE0330.severity = none
 dotnet_diagnostic.SME6391.severity = none
+dotnet_diagnostic.SME6400.severity = none
 # #627: a primitive switched over named constants is a closed domain; model it as a type.
 dotnet_diagnostic.SME6270.severity = error
 # #627: closed-domain switches handle every member and fail loudly on undefined values.

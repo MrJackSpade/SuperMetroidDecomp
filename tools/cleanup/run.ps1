@@ -46,6 +46,7 @@ $FixedRuleWords = [ordered]@{
     IDE0079 = 'unnecessary suppressions removed'
     IDE0330 = 'locks use System.Threading.Lock'
     SME6391 = 'span adapters before SequenceEqual removed'
+    SME6400 = 'extra top-level types moved to their own files'
 }
 
 # The reachability prune's categories, source prefix and destination for dead code tests still use.

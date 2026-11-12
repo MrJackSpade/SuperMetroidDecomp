@@ -172,7 +172,8 @@ Repository code, including any generator it adds, is analyzed; only the framewor
 `OneTypePerFileAnalyzer.ThirdPartyGeneratorPrefixes` are exempt. The code fix moves a declaration into a sibling
 file when its usings, namespace, attributes and documentation carry over unambiguously; a file with preprocessor
 directives, statements or file-local types needs manual placement. The analyzer projects and their verifier are
-checked by `SuperMetroid.EnsureVerification`.
+checked by `SuperMetroid.EnsureVerification`. The build does not report SME6400: the asynchronous cleanup applies the code
+fix after each push (`tools/cleanup/README.md`), and a declaration the fix refuses fails the cleanup's run, naming it.
 
 **SME6401** requires the file to be named after that type: `Type.cs`, or `Type.Purpose.cs` for a deliberate partial
 part. Files declaring no type (entry-point statements, assembly attributes) are not named by the rule.

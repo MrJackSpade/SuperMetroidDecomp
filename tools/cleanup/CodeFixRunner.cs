@@ -128,8 +128,9 @@ internal sealed record ProjectAnalysis(Project Project, List<Diagnostic> Compile
 
 /// <summary>One accepted fix: the solution after it and every file it changed.</summary>
 /// <param name="Solution">The solution with the fix applied in every project that compiles a changed file.</param>
-/// <param name="Paths">The full paths of the files the fix changed.</param>
-internal sealed record FileFix(Solution Solution, List<string> Paths);
+/// <param name="Paths">The full paths of the files the fix changed, added or removed.</param>
+/// <param name="Origins">Each added file's path, with the path of the file whose finding added it.</param>
+internal sealed record FileFix(Solution Solution, List<string> Paths, Dictionary<string, string> Origins);
 
 /// <summary>Whether a computed fix is applied now, left for the next pass, or kept unapplied.</summary>
 /// <param name="Fix">The accepted fix, or null when it is not applied in this pass.</param>
@@ -184,6 +185,7 @@ internal sealed class SolutionFixer
         new("IDE0076", FindingSource.Analyzer, FixerSource.CodeStyle),
         new("IDE0077", FindingSource.Analyzer, FixerSource.CodeStyle),
         new("IDE0079", FindingSource.UnnecessarySuppression, FixerSource.Repository),
+        new("SME6400", FindingSource.Analyzer, FixerSource.Repository),
         new("IDE0004", FindingSource.Analyzer, FixerSource.CodeStyle),
         new("CS0162", FindingSource.Compiler, FixerSource.Repository),
         new("IDE0059", FindingSource.Analyzer, FixerSource.CodeStyle),
@@ -254,6 +256,7 @@ internal sealed class SolutionFixer
         var changedSinceAnalysis = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var broken = new SortedSet<string>(StringComparer.Ordinal);
         var compiledAtStart = new HashSet<ProjectId>();
+        var origins = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         int pass = 0;
         while (true)
         {
@@ -286,6 +289,8 @@ internal sealed class SolutionFixer
                     continue;
                 solution = fix.Solution;
                 applied++;
+                foreach (var (added, origin) in fix.Origins)
+                    origins[added] = origin;
                 foreach (string changedPath in fix.Paths)
                 {
                     touched.Add(changedPath);
@@ -305,7 +310,7 @@ internal sealed class SolutionFixer
                 break;
             }
         }
-        var changed = await WriteAsync(original, solution);
+        var changed = await WriteAsync(original, solution, origins);
         Console.WriteLine($"fixed {Format(fixedCounts)} in {changed.Count} files after {pass} passes; kept {Format(keptCounts)}"
             + (broken.Count > 0 ? $"; projects with compiler errors: {string.Join(", ", broken)}" : ""));
         return new CleanupSummary(pass, fixedCounts, keptCounts, changed, [.. broken]);
@@ -493,7 +498,7 @@ internal sealed class SolutionFixer
                     continue;
                 SourceText text = await document.GetTextAsync();
                 fixedCounts[rule] = fixedCounts.GetValueOrDefault(rule) + lines.Count;
-                return new FileFix(WithText(solution, path, RemoveLines(text, lines, path)), [path]);
+                return new FileFix(WithText(solution, path, RemoveLines(text, lines, path)), [path], new());
             }
         }
         return null;
@@ -501,57 +506,93 @@ internal sealed class SolutionFixer
 
     /// <summary>
     /// Decides whether a fix computed in one project may be applied, and applies it to every project that compiles
-    /// a file it changed. A fix of one file is always accepted. A fix of several files is accepted only when every file
-    /// it changes is compiled by analyzed projects without compiler errors (otherwise its findings are kept) and when no
-    /// other fix of this pass touched one of them (otherwise it waits for the next pass); every project compiling one
-    /// of its files must then still compile, or the run fails.
+    /// a file it changed. A fix of one file's text is always accepted. A fix of several files, or one that adds or
+    /// removes files, is accepted only when every file it changes or removes, and the file its finding is in, is
+    /// compiled by analyzed projects without compiler errors (otherwise its findings are kept) and when no other fix of
+    /// this pass touched one of its files (otherwise it waits for the next pass); every project compiling one of its
+    /// files must then still compile, or the run fails. An added file joins every project that compiles the finding's
+    /// file; it must not exist yet. A fix that changes anything but source documents fails the run.
     /// </summary>
     private async Task<FixDecision> AcceptAsync(Solution solution, Solution changed, Document document, string rule,
         Dictionary<ProjectId, ProjectAnalysis> analyses, HashSet<string> touched)
     {
         string source = document.FilePath!;
+        string fix = $"The {rule} fix for {Relative(source)}";
         var texts = new SortedDictionary<string, SourceText>(StringComparer.OrdinalIgnoreCase);
-        foreach (ProjectChanges project in changed.GetChanges(solution).GetProjectChanges())
+        var added = new SortedDictionary<string, Document>(StringComparer.OrdinalIgnoreCase);
+        var removed = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
+        SolutionChanges changes = changed.GetChanges(solution);
+        if (changes.GetAddedProjects().Any() || changes.GetRemovedProjects().Any())
+            throw new InvalidOperationException($"{fix} adds or removes projects.");
+        foreach (ProjectChanges project in changes.GetProjectChanges())
         {
-            if (project.GetAddedDocuments().Any() || project.GetRemovedDocuments().Any())
-                throw new InvalidOperationException($"The {rule} fix for {Relative(source)} adds or removes files, which this runner does not apply.");
+            if (project.GetAddedAdditionalDocuments().Any() || project.GetRemovedAdditionalDocuments().Any() ||
+                project.GetChangedAdditionalDocuments().Any() || project.GetAddedMetadataReferences().Any() ||
+                project.GetRemovedMetadataReferences().Any() || project.GetAddedProjectReferences().Any() ||
+                project.GetRemovedProjectReferences().Any())
+                throw new InvalidOperationException($"{fix} changes {project.NewProject.Name} beyond its source files.");
             foreach (DocumentId id in project.GetChangedDocuments())
             {
                 Document fixedDocument = changed.GetDocument(id)!;
                 string path = fixedDocument.FilePath
-                    ?? throw new InvalidOperationException($"The {rule} fix for {Relative(source)} changed {fixedDocument.Name}, which has no file.");
+                    ?? throw new InvalidOperationException($"{fix} changed {fixedDocument.Name}, which has no file.");
                 SourceText text = await fixedDocument.GetTextAsync();
                 if (texts.TryGetValue(path, out SourceText? other) && !other.ContentEquals(text))
-                    throw new InvalidOperationException($"The {rule} fix for {Relative(source)} gave {Relative(path)} two different texts.");
+                    throw new InvalidOperationException($"{fix} gave {Relative(path)} two different texts.");
                 texts[path] = text;
             }
+            foreach (DocumentId id in project.GetAddedDocuments())
+            {
+                Document addedDocument = changed.GetDocument(id)!;
+                string path = addedDocument.FilePath
+                    ?? throw new InvalidOperationException($"{fix} added {addedDocument.Name} without a file.");
+                if (File.Exists(path) || !solution.GetDocumentIdsWithFilePath(path).IsEmpty)
+                    throw new InvalidOperationException($"{fix} adds {Relative(path)}, which exists already.");
+                added[path] = addedDocument;
+            }
+            foreach (DocumentId id in project.GetRemovedDocuments())
+                removed.Add(solution.GetDocument(id)!.FilePath ?? throw new InvalidOperationException($"{fix} removed a document without a file."));
         }
-        if (texts.Count == 0)
-            throw new InvalidOperationException($"The {rule} fix for {Relative(source)} changed nothing.");
-        if (texts.Count == 1 && texts.ContainsKey(source))
-            return new FixDecision(new FileFix(WithText(solution, source, texts[source]), [source]), false);
+        if (texts.Count + added.Count + removed.Count == 0)
+            throw new InvalidOperationException($"{fix} changed nothing.");
+        if (added.Count == 0 && removed.Count == 0 && texts.Count == 1 && texts.ContainsKey(source))
+            return new FixDecision(new FileFix(WithText(solution, source, texts[source]), [source], new()), false);
 
-        if (texts.Keys.Any(touched.Contains))
+        var paths = texts.Keys.Concat(added.Keys).Concat(removed).ToList();
+        if (paths.Any(touched.Contains))
             return new FixDecision(null, false);
-        foreach (string path in texts.Keys)
+        foreach (string path in texts.Keys.Concat(removed).Append(source))
         {
             var ids = solution.GetDocumentIdsWithFilePath(path);
             if (ids.IsEmpty)
-                throw new InvalidOperationException($"The {rule} fix for {Relative(source)} changed {Relative(path)}, which no project of the solution compiles.");
+                throw new InvalidOperationException($"{fix} changed {Relative(path)}, which no project of the solution compiles.");
             if (ids.Any(id => !analyses.TryGetValue(id.ProjectId, out var analysis) || analysis.CompilerErrors.Count > 0))
                 return new FixDecision(null, true);
         }
+        var sourceProjects = solution.GetDocumentIdsWithFilePath(source).Select(id => id.ProjectId).ToList();
+        var affected = paths.SelectMany(path => solution.GetDocumentIdsWithFilePath(path)).Select(id => id.ProjectId)
+            .Concat(sourceProjects).ToHashSet();
         Solution result = solution;
         foreach (var (path, text) in texts)
             result = WithText(result, path, text);
-        await RequireCompilesAsync(result, texts.Keys, $"The {rule} fix for {Relative(source)}");
-        return new FixDecision(new FileFix(result, [.. texts.Keys]), false);
+        foreach (var (path, addedDocument) in added)
+        {
+            SourceText text = await addedDocument.GetTextAsync();
+            foreach (ProjectId project in sourceProjects)
+                result = result.AddDocument(DocumentId.CreateNewId(project), Path.GetFileName(path), text, addedDocument.Folders, path);
+        }
+        foreach (string path in removed)
+        {
+            foreach (DocumentId id in result.GetDocumentIdsWithFilePath(path))
+                result = result.RemoveDocument(id);
+        }
+        await RequireCompilesAsync(result, affected, fix);
+        return new FixDecision(new FileFix(result, paths, added.Keys.ToDictionary(path => path, _ => source, StringComparer.OrdinalIgnoreCase)), false);
     }
 
-    /// <summary>Fails when a project compiling one of the files has a compiler error in the given solution.</summary>
-    private async Task RequireCompilesAsync(Solution solution, IEnumerable<string> paths, string fix)
+    /// <summary>Fails when one of the projects has a compiler error in the given solution.</summary>
+    private static async Task RequireCompilesAsync(Solution solution, IEnumerable<ProjectId> projects, string fix)
     {
-        var projects = paths.SelectMany(path => solution.GetDocumentIdsWithFilePath(path)).Select(id => id.ProjectId).Distinct();
         foreach (ProjectId id in projects)
         {
             Project project = solution.GetProject(id)!;
@@ -641,22 +682,76 @@ internal sealed class SolutionFixer
         return providers;
     }
 
-    /// <summary>Writes every file whose text changed, keeping its byte-order mark, and returns their paths.</summary>
-    private async Task<List<string>> WriteAsync(Solution original, Solution solution)
+    /// <summary>
+    /// Writes every file whose text changed, keeping its byte-order mark; creates every added file, with the byte-order
+    /// mark of the file it came from; deletes every removed file; and updates the explicit project lists
+    /// (<see cref="ProjectLists"/>). Returns the repository-relative paths of every file written, created or deleted.
+    /// </summary>
+    private async Task<List<string>> WriteAsync(Solution original, Solution solution, Dictionary<string, string> origins)
     {
-        var changed = new List<string>();
-        foreach (DocumentId id in solution.GetChanges(original).GetProjectChanges().SelectMany(p => p.GetChangedDocuments()))
+        var paths = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (ProjectChanges project in solution.GetChanges(original).GetProjectChanges())
         {
-            string path = solution.GetDocument(id)!.FilePath!;
-            if (changed.Contains(path, StringComparer.OrdinalIgnoreCase))
-                continue;
-            string text = (await solution.GetDocument(id)!.GetTextAsync()).ToString();
-            bool bom = File.ReadAllBytes(path) is [0xEF, 0xBB, 0xBF, ..];
-            File.WriteAllText(path, text, new UTF8Encoding(bom));
-            changed.Add(path);
+            foreach (DocumentId id in project.GetChangedDocuments().Concat(project.GetAddedDocuments()))
+                paths.Add(solution.GetDocument(id)!.FilePath!);
+            foreach (DocumentId id in project.GetRemovedDocuments())
+                paths.Add(original.GetDocument(id)!.FilePath!);
         }
+        var writes = new List<(string Path, string Text, bool Bom)>();
+        var created = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        var deleted = new List<string>();
+        foreach (string path in paths)
+        {
+            SourceText? before = await TextAtAsync(original, path);
+            SourceText? after = await TextAtAsync(solution, path);
+            if (after is null)
+            {
+                if (before is not null)
+                    deleted.Add(path);
+                continue;
+            }
+            if (before is not null && before.ContentEquals(after))
+                continue;
+            string bomSource = path;
+            if (before is null)
+            {
+                bomSource = OriginOf(path, origins);
+                created[path] = bomSource;
+            }
+            writes.Add((path, after.ToString(), File.ReadAllBytes(bomSource) is [0xEF, 0xBB, 0xBF, ..]));
+        }
+        foreach (var (path, text, bom) in writes)
+        {
+            if (created.ContainsKey(path))
+            {
+                if (File.Exists(path))
+                    throw new InvalidOperationException($"{Relative(path)} exists already, so the file a fix added cannot be created.");
+                Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+            }
+            File.WriteAllText(path, text, new UTF8Encoding(bom));
+        }
+        foreach (string path in deleted)
+            File.Delete(path);
+        var changed = writes.Select(write => write.Path).Concat(deleted)
+            .Concat(ProjectLists.Update(original, created, deleted, Relative)).ToList();
         changed.Sort(StringComparer.OrdinalIgnoreCase);
         return [.. changed.Select(Relative)];
+    }
+
+    /// <summary>The file of the original solution an added file came from, through any file added before it.</summary>
+    private static string OriginOf(string path, Dictionary<string, string> origins)
+    {
+        string origin = path;
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        while (origins.TryGetValue(origin, out string? from))
+        {
+            if (!seen.Add(origin))
+                throw new InvalidOperationException($"The added files' origins form a cycle at {origin}.");
+            origin = from;
+        }
+        if (origin == path)
+            throw new InvalidOperationException($"{path} was added by no fix.");
+        return origin;
     }
 
     /// <summary>The solution with a file's text replaced in every project that compiles it.</summary>
@@ -1051,6 +1146,130 @@ internal static class UnnecessarySuppressions
         LiteralExpressionSyntax { Token.Value: int number } => $"CS{number:D4}",
         _ => code.ToString().Trim(),
     };
+}
+
+/// <summary>
+/// Keeps the explicit source lists in step with the files the fixes create and delete: a project file's or an imported
+/// <c>.projitems</c> file's single-line <c>&lt;Compile Include="..."/&gt;</c> item that names a file by path (no
+/// wildcard, no property but <c>$(MSBuildThisFileDirectory)</c>). A deleted file's item goes; a file renamed (created
+/// from a file that was deleted) has its item retargeted, <c>Link</c> included; a file created beside one that stays gets
+/// a copy of that file's item right after it. A wildcard item already covers a file created in its folder. A new file
+/// in another folder than its origin fails the run.
+/// </summary>
+internal static class ProjectLists
+{
+    /// <summary>A single-line compile item that names its file.</summary>
+    private static readonly Regex Item = new(@"<Compile\s+Include=""(?<include>[^""]+)""[^>]*/>", RegexOptions.CultureInvariant);
+
+    /// <summary>An import of a shared-source item file.</summary>
+    private static readonly Regex Import = new(@"<Import\s+Project=""(?<project>[^""]+\.projitems)""", RegexOptions.CultureInvariant);
+
+    /// <summary>Updates the lists for <paramref name="created"/> (each with its original file) and
+    /// <paramref name="deleted"/>, and returns the full paths of the list files written.</summary>
+    public static List<string> Update(Solution original, Dictionary<string, string> created, List<string> deleted, Func<string, string> relative)
+    {
+        if (created.Count == 0 && deleted.Count == 0)
+            return [];
+        var gone = new HashSet<string>(deleted, StringComparer.OrdinalIgnoreCase);
+        var renamed = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        var besides = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+        foreach (var (path, origin) in created.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        {
+            if (!string.Equals(Path.GetDirectoryName(path), Path.GetDirectoryName(origin), StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException($"{relative(path)} was created from {relative(origin)} in another folder; its project lists cannot follow.");
+            if (gone.Contains(origin) && !renamed.ContainsKey(origin))
+                renamed[origin] = path;
+            else if (besides.TryGetValue(origin, out var list))
+                list.Add(path);
+            else
+                besides[origin] = [path];
+        }
+        var written = new List<string>();
+        foreach (string file in ListFiles(original))
+        {
+            string text = File.ReadAllText(file);
+            string newline = text.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
+            var output = new List<string>();
+            bool changed = false;
+            foreach (string line in text.Replace("\r\n", "\n").Split('\n'))
+            {
+                Match match = Item.Match(line);
+                string? named = match.Success ? Resolve(file, match.Groups["include"].Value) : null;
+                if (named is null)
+                {
+                    output.Add(line);
+                    continue;
+                }
+                if (renamed.TryGetValue(named, out string? target))
+                {
+                    output.Add(Retarget(line, named, target));
+                    changed = true;
+                    continue;
+                }
+                if (gone.Contains(named))
+                {
+                    changed = true;
+                    continue;
+                }
+                output.Add(line);
+                if (besides.TryGetValue(named, out var siblings))
+                {
+                    output.AddRange(siblings.Select(sibling => Retarget(line, named, sibling)));
+                    changed = true;
+                }
+            }
+            if (!changed)
+                continue;
+            bool bom = File.ReadAllBytes(file) is [0xEF, 0xBB, 0xBF, ..];
+            File.WriteAllText(file, string.Join(newline, output), new UTF8Encoding(bom));
+            written.Add(file);
+        }
+        return written;
+    }
+
+    /// <summary>Every project file of the solution and every <c>.projitems</c> file one of them imports.</summary>
+    private static SortedSet<string> ListFiles(Solution original)
+    {
+        var files = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (Project project in original.Projects)
+        {
+            if (project.FilePath is not { } path)
+                continue;
+            files.Add(path);
+            foreach (Match import in Import.Matches(File.ReadAllText(path)))
+            {
+                if (Resolve(path, import.Groups["project"].Value) is { } imported)
+                    files.Add(imported);
+            }
+        }
+        return files;
+    }
+
+    /// <summary>The full path a list file's item names, or null for a wildcard or a property the list cannot resolve.</summary>
+    private static string? Resolve(string listFile, string include)
+    {
+        string directory = Path.GetDirectoryName(listFile)!;
+        string value = include.Replace("$(MSBuildThisFileDirectory)", directory + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
+        if (value.Contains("$(", StringComparison.Ordinal) || value.IndexOfAny(['*', '?', ';']) >= 0)
+            return null;
+        return Path.GetFullPath(Path.Combine(directory, value.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar)));
+    }
+
+    /// <summary>An item line naming <paramref name="target"/>'s file name where it named <paramref name="named"/>'s,
+    /// in its Include and its Link.</summary>
+    private static string Retarget(string line, string named, string target)
+    {
+        string oldName = Path.GetFileName(named);
+        string newName = Path.GetFileName(target);
+        return Regex.Replace(line, @"(?<attribute>\b(Include|Link)="")(?<path>[^""]*)""", match =>
+        {
+            string value = match.Groups["path"].Value;
+            int cut = Math.Max(value.LastIndexOf('/'), value.LastIndexOf('\\')) + 1;
+            if (!string.Equals(value[cut..], oldName, StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException($"The item '{line.Trim()}' does not end its {match.Groups["attribute"].Value.TrimEnd('=', '"')} with {oldName}.");
+            return match.Groups["attribute"].Value + value[..cut] + newName + "\"";
+        });
+    }
 }
 
 /// <summary>Hands a fix-all exactly the findings chosen for one document, and nothing else.</summary>

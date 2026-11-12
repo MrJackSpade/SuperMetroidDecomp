@@ -6,7 +6,7 @@ namespace SuperMetroid.EnsureAnalyzer.CodeFixes.Cleanup;
 /// <summary>
 /// The text changes a cleanup fix makes to one document, applied together. A removed node takes its whole lines when it
 /// stands on lines of its own, with the comments and documentation directly above it; one blank line beside it goes too
-/// where two would otherwise meet, or where one would be left against an opening or closing brace. A node sharing a line
+/// where two would otherwise meet, or where one would be left against an opening or closing brace or the end of the file. A node sharing a line
 /// with other code is removed with the spaces after it. Changes that overlap, and removals that would delete a
 /// preprocessor directive, fail.
 /// </summary>
@@ -132,7 +132,8 @@ internal sealed class SourceEdits
         bool blankBefore = first > 0 && IsBlank(first - 1);
         bool blankAfter = last + 1 < _text.Lines.Count && IsBlank(last + 1) && _text.Lines[last + 1].Start < _text.Length;
         bool openBefore = first == 0 || _text.Lines[first - 1].ToString().TrimEnd().EndsWith("{", StringComparison.Ordinal);
-        bool closeAfter = last + 1 >= _text.Lines.Count || _text.Lines[last + 1].ToString().TrimStart().StartsWith("}", StringComparison.Ordinal);
+        bool closeAfter = last + 1 >= _text.Lines.Count || _text.Lines[last + 1].Start == _text.Length ||
+            _text.Lines[last + 1].ToString().TrimStart().StartsWith("}", StringComparison.Ordinal);
         if (blankBefore && (blankAfter || closeAfter) && _text.Lines[first - 1].Start >= previousEnd)
             return TextSpan.FromBounds(_text.Lines[first - 1].Start, block.End);
         if (blankAfter && openBefore)
@@ -145,7 +146,7 @@ internal sealed class SourceEdits
 
     /// <summary>Where a node's removal starts: the comment or documentation lines directly above it in its leading
     /// trivia, or the node itself.</summary>
-    private int AttachedStart(SyntaxNode node)
+    internal int AttachedStart(SyntaxNode node)
     {
         int start = node.SpanStart;
         int line = _text.Lines.GetLineFromPosition(start).LineNumber;

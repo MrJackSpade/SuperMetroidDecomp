@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Assets;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Bosses.Ridley;
@@ -9,13 +10,14 @@ namespace SuperMetroid.Core.Gameplay;
 internal static class CeresPerspectiveFloors
 {
     /// <summary>
-    /// The elevator shaft's floor: turned by the shaft's tilt at its own size about the shaft's centre, and scrolled with
-    /// the foreground.
+    /// The elevator shaft's floor: turned by the shaft's tilt at its own size about the shaft's centre, scrolled with the
+    /// foreground, and repeating beyond its edges, so a tilted shaft shows the far wall's columns where the floor runs out
+    /// (#1653); Ceres Ridley's getaway floor shows nothing beyond its edges.
     /// </summary>
     /// <param name="shaft">The tilt the shaft's room main last set.</param>
     /// <param name="foregroundScroll">The foreground's scroll in the frame that shows the floor.</param>
     internal static PerspectiveFloor ElevatorShaft(TurningFloorTransform shaft, Position16<RoomPixels> foregroundScroll) => new(
-        new FloorView(shaft.Angle, FloorView.OwnSize, shaft.Center.AsFloorOffset(), foregroundScroll.AsFloorOffset()),
+        new FloorView(shaft.Angle, FloorView.OwnSize, shaft.Center.AsFloorOffset(), foregroundScroll.AsFloorOffset(), FloorOverflowMode.Wrap),
         BelowPerspectiveFloor.Nothing);
 
     /// <summary>The floor Ceres Ridley's getaway flies over, with the room's background below it and the chamber's walls around it (#1545).</summary>

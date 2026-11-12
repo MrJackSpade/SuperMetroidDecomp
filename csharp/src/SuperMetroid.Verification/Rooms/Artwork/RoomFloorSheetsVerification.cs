@@ -1,3 +1,6 @@
+using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -199,6 +202,20 @@ internal static class RoomFloorSheetsVerification
     }
 
     /// <summary>Runs the turning floor checks.</summary>
+    /// <summary>
+    /// The elevator shaft's turning floor repeats beyond its edges, as the cartridge's Mode 7 settings 0 (never written by
+    /// the shaft's door, `$8F:E4E0`) do, so a tilted shaft shows the far wall's columns where the floor runs out; Ceres
+    /// Ridley's getaway floor shows nothing beyond its edges, as its settings `$80` (`$A6:AA54`) do (#1653).
+    /// </summary>
+    internal static void VerifyFloorEdges()
+    {
+        PerspectiveFloor shaft = CeresPerspectiveFloors.ElevatorShaft(new TurningFloorTransform(0.25, default), default);
+        AssertEqual(FloorOverflowMode.Wrap, shaft.Transform.Outside, "the elevator shaft's floor repeats beyond its edges");
+        PerspectiveFloor getaway = CeresPerspectiveFloors.RidleyGetaway(FloorView.Turned(default, 256, default, default), []);
+        AssertEqual(FloorOverflowMode.Transparent, getaway.Transform.Outside, "Ceres Ridley's getaway floor shows nothing beyond its edges");
+        Console.WriteLine("Ceres turning floors: the shaft's repeats beyond its edges; Ridley's getaway floor shows nothing there.");
+    }
+
     [VerificationCommand("--room-floors")]
     internal static int RoomFloorsCommand()
     {
@@ -206,6 +223,7 @@ internal static class RoomFloorSheetsVerification
         Suite(nameof(VerifyFloorPicturesWhatShows), VerifyFloorPicturesWhatShows);
         Suite(nameof(VerifyRoomBindsNoFloorWhereNoneShows), VerifyRoomBindsNoFloorWhereNoneShows);
         Suite(nameof(VerifyRidleyFloorMatchesCartridge), VerifyRidleyFloorMatchesCartridge);
+        Suite(nameof(VerifyFloorEdges), VerifyFloorEdges);
         return 0;
     }
 }

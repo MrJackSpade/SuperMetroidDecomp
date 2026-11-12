@@ -153,7 +153,7 @@ try {
             Write-Output 'no change'
             continue
         }
-        $paths = Get-ChangedPaths $tree $next
+        $paths = @(Get-ChangedPaths $tree $next)
         foreach ($path in $paths) { $null = $(if ($isFix) { $fixedPaths.Add($path) } else { $prunedPaths.Add($path) }) }
         Write-Output "changed $($paths.Count) files"
         if (-not $seen.Add($next)) { throw "Step $step returned the tree to an earlier state ($next): the fixes and the prune undo each other." }

@@ -37,7 +37,7 @@ internal static class RidleyHitFlashVerification
         AssertTrue(colours.SpriteShading(false).Shades.SequenceEqual([RidleyShades.NorfairStart, RidleyShades.NorfairHidden]),
             "Ridley's ordinary draw shows the shades his encounter shows");
 
-        EnemySheetInputs inputs = EnemySheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory);
+        EnemySheetInputs inputs = EnemySheetInputs.Load(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.Directory);
         RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetLists.DrawnUnder.First(candidate =>
             RoomEnemyGraphicsSetLists.MembersOf(candidate).Records.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.Ridley));
         EnemySheetSource source = EnemySheetComposer.Sources(inputs, set).Enemies.Single(sheet => sheet.Enemy == EnemyDefinitionId.Ridley);

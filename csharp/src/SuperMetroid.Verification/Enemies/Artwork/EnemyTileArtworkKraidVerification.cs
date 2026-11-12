@@ -22,7 +22,7 @@ internal static class EnemyTileArtworkKraidVerification
 {
     /// <summary>Matches Kraid's working BG2 map and both shown body pages.</summary>
     internal static void VerifyInstalledKraidBackground(
-        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, InstalledEnemyArtwork stock)
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, ImportEnemyArtwork stock)
     {
         KraidBackgroundArtwork art = stock.Bosses.KraidBackground
             ?? throw new InvalidDataException("Installed enemy artwork lacks Kraid maps.");
@@ -52,7 +52,7 @@ internal static class EnemyTileArtworkKraidVerification
 
     /// <summary>Checks each authored Kraid head frame against the head the cartridge shows.</summary>
     private static void VerifyInstalledKraidHeadFrames(
-        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, InstalledEnemyArtwork stock)
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, ImportEnemyArtwork stock)
     {
         ushort[] pointers = KraidHeadFrameDefinitions.PresentationKeys.Order().ToArray();
         AssertEqual(4, pointers.Length, "four distinct Kraid head art frames");
@@ -79,7 +79,7 @@ internal static class EnemyTileArtworkKraidVerification
 
     /// <summary>Checks the Kraid room-background character upload against the cartridge's VRAM.</summary>
     private static void VerifyInstalledKraidRoomBackground(
-        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, InstalledEnemyArtwork stock)
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, ImportEnemyArtwork stock)
     {
         byte[] native = RomDataReader.ReadFixedBank(rom,
             KraidSourceDefinitions.RoomBackgroundTiles,
@@ -94,7 +94,7 @@ internal static class EnemyTileArtworkKraidVerification
     }
 
     /// <summary>The image a capture shows after the room-background characters bind, using a cartridge-free Kraid owner.</summary>
-    private static SnesVram UploadKraidRoomBackground(InstalledEnemyArtwork artwork)
+    private static SnesVram UploadKraidRoomBackground(ImportEnemyArtwork artwork)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
         var vram = new SnesVram();
@@ -106,7 +106,7 @@ internal static class EnemyTileArtworkKraidVerification
     }
 
     /// <summary>The BG2 tilemap a selected installed head pose shows over his risen body.</summary>
-    private static RunKraidHeadFrameResult RunKraidHeadFrame(InstalledEnemyArtwork artwork, ushort pointer)
+    private static RunKraidHeadFrameResult RunKraidHeadFrame(ImportEnemyArtwork artwork, ushort pointer)
     {
         KraidHeadFrame frame = KraidHeadTilemapFormat.HeadsByMouthStage.Single(candidate => KraidHeadFrameDefinitions.PresentationKey(candidate) == pointer);
         var state = new KraidEnemyState { BodyAppearance = KraidBodyAppearance.BehindSprites, DisplayedHeadFrame = frame };
@@ -115,7 +115,7 @@ internal static class EnemyTileArtworkKraidVerification
     }
 
     /// <summary>Kraid's working map as his installed art composes it, without cartridge reads.</summary>
-    internal static ushort[] BuildKraidWorkingMap(InstalledEnemyArtwork artwork) => KraidBodyFixtures.WorkingMap(artwork.Bosses);
+    internal static ushort[] BuildKraidWorkingMap(ImportEnemyArtwork artwork) => KraidBodyFixtures.WorkingMap(artwork.Bosses);
 
     /// <summary>Runs Kraid's background initializer against installed art without cartridge reads.</summary>
     private static KraidEnemyState InitializeKraidBackground()
@@ -126,7 +126,7 @@ internal static class EnemyTileArtworkKraidVerification
     }
 
     /// <summary>What his body layer shows once Kraid's readied body has risen behind the sprites (#1515).</summary>
-    private static ushort[] ShowKraidVisiblePages(InstalledEnemyArtwork artwork)
+    private static ushort[] ShowKraidVisiblePages(ImportEnemyArtwork artwork)
     {
         KraidEnemyState state = InitializeKraidBackground();
         state.ShowBody();

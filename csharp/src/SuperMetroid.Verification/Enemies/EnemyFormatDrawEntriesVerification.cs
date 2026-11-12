@@ -28,7 +28,7 @@ internal static class EnemyFormatDrawEntriesVerification
     /// <summary>Loads a room graphics set, publishes a constructed population and checks every entry.</summary>
     internal static void VerifyEnemyFormatDrawEntries()
     {
-        InstalledEnemyArtwork artwork = InstalledFixtures.EnemyArtwork;
+        ImportEnemyArtwork artwork = InstalledFixtures.EnemyArtwork;
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
         EnemySpritemapCatalog spritemaps = artwork.Enemies.Spritemaps ?? throw new InvalidOperationException("The installation has no enemy spritemaps.");
         EnemyExtendedFrameCatalog extendedFrames = artwork.Enemies.ExtendedFrames ?? throw new InvalidOperationException("The installation has no extended enemy frames.");

@@ -38,7 +38,7 @@ internal static class EndingLogoVerification
         EndingPaletteSet palettes = InstalledFixtures.EndingColours;
         stage.BindBackdrops(InstalledFixtures.EndingBackdrops);
         IReadOnlyList<SheetShade> installedShades = EndingScreenShades.Screen(palettes, ImportAreaMapPresentation.RoomPaletteFxOf(InstalledFixtures.Maps));
-        var logoSprites = CinematicSheetFixtures.Drawer(RepositoryInstallation.Installation.LoadEndingObjectArt().LogoSprites);
+        var logoSprites = CinematicSheetFixtures.Drawer(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingObjects.LogoSprites);
         var logo = new EndingLogo(stage, () => landings++);
         AssertTrue(screen.Colours.Shading.Shades.SequenceEqual([EndingShades.Loaded(EndingColourLoad.LogoInitial), EndingShades.Flashed(EndingFlash.LogoBackground)]),
             "the logo shows its first sprite colours and its background colours blacked out (#1597: loads lie under flashes)");

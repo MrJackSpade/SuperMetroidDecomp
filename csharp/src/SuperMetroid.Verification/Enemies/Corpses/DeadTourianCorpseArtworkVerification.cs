@@ -20,7 +20,7 @@ namespace SuperMetroid.Verification.Enemies.Corpses;
 internal static class DeadTourianCorpseArtworkVerification
 {
     /// <summary>Compares all corpse initializer variants against native WRAM.</summary>
-    internal static void VerifyInstalledDeadTourianCorpseArtwork(InstalledEnemyArtwork stock)
+    internal static void VerifyInstalledDeadTourianCorpseArtwork(ImportEnemyArtwork stock)
     {
         Suite(nameof(VerifyDeadTourianCorpseVisuals), () => VerifyDeadTourianCorpseVisuals(stock.Enemies));
         // Compare the installed initialization callbacks with independent native
@@ -53,7 +53,7 @@ internal static class DeadTourianCorpseArtworkVerification
             }
         }
 
-        var missing = new InstalledEnemyArtwork(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), new BossSourceArtwork(), new AreaSourceArtwork());
+        var missing = new ImportEnemyArtwork(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), new BossSourceArtwork(), new AreaSourceArtwork());
         AssertThrows<InvalidDataException>(() => InitializeDeadSidehopperArtwork(missing, 0),
             "bound dead-sidehopper art cannot silently fall back to ROM");
 
@@ -138,15 +138,15 @@ internal static class DeadTourianCorpseArtworkVerification
         rom.ReadCartridgeByte(0xb7c000 + sheetOffset);
 
     /// <summary>The Sidehopper corpse of population parameter <paramref name="parameter"/> as the character rot oracle stages it from installed art.</summary>
-    private static CorpseStaging InitializeDeadSidehopperArtwork(InstalledEnemyArtwork artwork, ushort parameter) =>
+    private static CorpseStaging InitializeDeadSidehopperArtwork(ImportEnemyArtwork artwork, ushort parameter) =>
         CorpseStaging.Sidehopper(Atlas(artwork), parameter);
 
     /// <summary>A Zoomer, Ripper or Skree corpse variant as the character rot oracle stages it from installed art.</summary>
-    private static CorpseStaging InitializeDeadTourianCorpseArtwork(InstalledEnemyArtwork artwork, EnemyDefinitionId definition, int variant) =>
+    private static CorpseStaging InitializeDeadTourianCorpseArtwork(ImportEnemyArtwork artwork, EnemyDefinitionId definition, int variant) =>
         CorpseStaging.Tourian(Atlas(artwork), DeadTourianCorpseStagingDefinitions.Variants(DeadTourianBehavior.ProfileForDeadTourianCorpse(definition).Species)[variant]);
 
     /// <summary>The installed corpse sheet, which the character rot oracle stages every Tourian corpse from.</summary>
-    private static ReadOnlySpan<byte> Atlas(InstalledEnemyArtwork artwork) =>
+    private static ReadOnlySpan<byte> Atlas(ImportEnemyArtwork artwork) =>
         artwork.Enemies.TilesOf(CorpseSheets.DeadMonsterSheet) is { Length: CorpseSheets.DeadMonsterSheetByteCount } tiles
             ? tiles.Span : throw new InvalidDataException("Installed Tourian corpse sheet enemy-ed7f-tiles.png has the wrong size.");
 

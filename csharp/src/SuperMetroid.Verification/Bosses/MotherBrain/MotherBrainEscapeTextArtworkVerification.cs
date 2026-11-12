@@ -17,7 +17,7 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 internal static class MotherBrainEscapeTextArtworkVerification
 {
     /// <summary>Compares stock art with the cartridge through the live VRAM transfer.</summary>
-    internal static void VerifyInstalledMotherBrainEscapeTextArtwork(InstalledEnemyArtwork stock)
+    internal static void VerifyInstalledMotherBrainEscapeTextArtwork(ImportEnemyArtwork stock)
     {
         RoomCharacterAtlas artwork = stock.Bosses.MotherBrainEscapeText ??
             throw new InvalidDataException("Extracted Mother Brain escape-text PNG was not bound.");
@@ -59,9 +59,9 @@ internal static class MotherBrainEscapeTextArtworkVerification
 
     /// <summary>Copies all five escape-text pages her escape message's look copies (#1538).</summary>
     private static SnesVram TransferMotherBrainEscapeTextPages(
-        InstalledEnemyArtwork artwork)
+        ImportEnemyArtwork artwork)
     {
-        var resolver = new EnemyTileTransfers(new InstalledEnemyArtwork(artwork.Enemies, artwork.Bosses, InstalledFixtures.AreaArtwork));
+        var resolver = new EnemyTileTransfers(new ImportEnemyArtwork(artwork.Enemies, artwork.Bosses, InstalledFixtures.AreaArtwork));
         int text = EncounterLookUploads.IndexOf(ComposedEncounter.MotherBrain, EncounterLookUploads.MotherBrainEscapeTextLook);
         AssertEqual(EscapeTextSheetFormat.PageCount, EncounterLookUploads.Uploads(ComposedEncounter.MotherBrain, text, resolver).Count,
             "her escape message's look copies every escape-text page");

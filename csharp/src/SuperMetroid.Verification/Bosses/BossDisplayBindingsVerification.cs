@@ -27,7 +27,7 @@ internal static class BossDisplayBindingsVerification
             // Each frame is drawn by the part of the boss that shows it, whose sheet holds its picture.
             var parts = new Dictionary<EnemyDefinitionId, BossDisplayFixture>();
             // One artwork per boss: its parts' fixtures share the body sheets composed from it.
-            InstalledEnemyArtwork artwork = stock.Build();
+            ImportEnemyArtwork artwork = stock.Build();
             foreach (EnemyFrameName frame in family)
             {
                 frames++;

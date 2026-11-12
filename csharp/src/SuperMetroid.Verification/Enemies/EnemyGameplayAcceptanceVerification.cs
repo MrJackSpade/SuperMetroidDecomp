@@ -61,7 +61,7 @@ internal static class EnemyGameplayAcceptanceVerification
     /// <summary>Loads a retail KiHunter body-wing population without cartridge memory and checks its slots, quota and wing placement.</summary>
     private static void VerifyEnemyPopulationPresentationIsolation()
     {
-        InstalledEnemyArtwork stock = InstalledFixtures.EnemyArtwork;
+        ImportEnemyArtwork stock = InstalledFixtures.EnemyArtwork;
 
         // Body/wing adjacency is gameplay-visible: the wing initializer aliases the
         // immediately preceding physical slot. Choose one complete retail pair list,
@@ -94,7 +94,7 @@ internal static class EnemyGameplayAcceptanceVerification
         Console.WriteLine($"Enemy population binding: {population.Records.Length} linked slots at {population.Name} " +
             "initialize with RAM-only memory.");
 
-        LoadResult Load(InstalledEnemyArtwork artwork)
+        LoadResult Load(ImportEnemyArtwork artwork)
         {
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 1)) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };

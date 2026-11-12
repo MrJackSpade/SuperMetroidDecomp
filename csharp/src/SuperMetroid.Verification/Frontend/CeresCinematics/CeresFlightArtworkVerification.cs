@@ -26,16 +26,16 @@ internal static class CeresFlightArtworkVerification
     internal static void VerifyCeresFlightArtwork(GameInstallation installation,
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
-        ImportIntroCinematicArtwork intro = IntroCinematicArtworkFiles.LoadForImport(installation.IntroCinematicDirectory);
+        ImportIntroCinematicArtwork intro = IntroCinematicArtworkFiles.LoadForImport(installation.IntroCinematicDirectory, SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName));
         CeresFlightArtwork stock = intro.CeresFlight;
         AssertTrue(stock.FloorCharacters.Span.SequenceEqual(RomDataReader.Decompress(bus,
                 CeresCinematicSourceDefinitions.FlightFloorCharacters,
                 maximumOutputBytes: CeresFlightArtworkFileFormat.FloorByteCount)),
-            "installed Ceres Mode-7 PNG preserves every native character byte");
+            "extracted Ceres Mode-7 page preserves every native character byte");
         AssertTrue(stock.ObjectCharacters.Span.SequenceEqual(RomDataReader.Decompress(bus,
                 CeresCinematicSourceDefinitions.FlightObjectCharacters,
                 maximumOutputBytes: CeresFlightArtworkFileFormat.ObjectByteCount)),
-            "installed Ceres OBJ PNG preserves every native character byte");
+            "extracted Ceres OBJ page preserves every native character byte");
         byte[] nativeMaps = RomDataReader.Decompress(bus, CeresCinematicSourceDefinitions.CeresTilemaps,
             maximumOutputBytes: 0x1000);
         AssertTrue(CeresFlightSourceArtwork.Of(stock).FloorMaps.Span.SequenceEqual(nativeMaps.AsSpan(0,
@@ -59,9 +59,8 @@ internal static class CeresFlightArtworkVerification
         using var referencePalette = new MemoryStream(referenceFiles[CeresFlightPaletteFormat.FileName]);
         using var referenceSprites = new MemoryStream(referenceFiles[CeresFlightSpriteFormat.FileName]);
         using var referenceActors = new MemoryStream(referenceFiles[CeresFlightActorLayoutFormat.FileName]);
-        CeresFlightCharacters reference = CeresFlightCharacters.Read(
-            referenceCharacters, referenceMaps, referenceObjects, CeresFlightPaletteFile.Read(referencePalette).Backdrop,
-            referenceSprites, referenceActors);
+        CeresFlightCharacters reference = CeresFlightCharacters.Read(referenceCharacters, referenceObjects,
+            CeresFlightSourceArtwork.Read(referenceMaps, CeresFlightPaletteFile.Read(referencePalette).Backdrop, referenceSprites, referenceActors));
         var native = new IntroCeresFlightState(AudioQueues.Standalone(), reference, sheets: CinematicSheetFixtures.WithFlight(reference));
         var installed = new IntroCeresFlightState(AudioQueues.Standalone(), stock, sheets: CinematicSheetFixtures.WithFlight(stock));
         var phases = new HashSet<IntroCeresFlightPhase>();

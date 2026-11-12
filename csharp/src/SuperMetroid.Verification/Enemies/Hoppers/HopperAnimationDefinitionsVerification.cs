@@ -21,7 +21,7 @@ internal static class HopperAnimationDefinitionsVerification
     /// shows its four timed poses and then lets main AI hop again.
     /// </summary>
     internal static void VerifyHopperAnimationDefinitions(
-        SuperMetroidAddressSpace rom, InstalledEnemyArtwork? artwork = null)
+        SuperMetroidAddressSpace rom, ImportEnemyArtwork? artwork = null)
     {
         int[] tables = [0xa3aac2, 0xa3aaca, 0xa3aad2, 0xa3aada];
         for (ushort variant = 0; variant < 4; variant++)
@@ -101,7 +101,7 @@ internal static class HopperAnimationDefinitionsVerification
 
     /// <summary>Checks the Tourian Sidehopper uses the large-Sidehopper landed program and sound.</summary>
     private static void VerifyTourianSidehopperInstructionAlias(
-        InstalledEnemyArtwork? artwork)
+        ImportEnemyArtwork? artwork)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork?.Enemies, BossArtwork = artwork?.Bosses };
         enemies.VerificationServices().SeedRandom = _ => { };

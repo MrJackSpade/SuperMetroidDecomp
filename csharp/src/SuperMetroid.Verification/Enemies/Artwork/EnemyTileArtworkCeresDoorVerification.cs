@@ -18,7 +18,7 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 internal static class EnemyTileArtworkCeresDoorVerification
 {
     /// <summary>Compares native VRAM and CGRAM with the installed door art.</summary>
-    internal static void VerifyInstalledCeresDoorVisuals(ISnesAddressSpace bus, InstalledEnemyArtwork stock)
+    internal static void VerifyInstalledCeresDoorVisuals(ISnesAddressSpace bus, ImportEnemyArtwork stock)
     {
         CeresDoorSourceArtwork door = stock.Areas.CeresDoor
             ?? throw new InvalidDataException("Installed Ceres-door visuals are missing.");

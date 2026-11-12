@@ -60,11 +60,11 @@ internal static class IntroCinematicArtworkVerification
             GameInstallation installation = copy.Installation;
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
             Suite(nameof(VerifySamusAnimationDelayDefinitions), () => VerifySamusAnimationDelayDefinitions(bus));
-            ImportIntroCinematicArtwork stock = IntroCinematicArtworkFiles.LoadForImport(installation.IntroCinematicDirectory);
+            ImportIntroCinematicArtwork stock = IntroCinematicArtworkFiles.LoadForImport(installation.IntroCinematicDirectory, SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName));
             AssertTrue(ImportIntroCinematicArtwork.Imported(stock).BackgroundCharacters.Characters.Span.SequenceEqual(
                     RomDataReader.Decompress(bus, IntroCinematicSourceDefinitions.BackgroundCharacters,
                         maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundByteCount)),
-                "installed intro BG PNG preserves every native tile byte");
+                "extracted intro BG page preserves every native tile byte");
             AssertTrue(ImportIntroCinematicArtwork.Imported(stock).IntroObjectCharacters.Characters.Span.SequenceEqual(
                     RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), IntroCinematicSourceDefinitions.IntroObjectCharacters,
                         IntroCinematicArtworkFormat.IntroObjectByteCount)),
@@ -175,11 +175,11 @@ internal static class IntroCinematicArtworkVerification
                 }))), "opening palette rejects out-of-range RGB5 channels");
             byte[] stockPalette = File.ReadAllBytes(paletteStockPath);
             File.WriteAllBytes(paletteStockPath, [0]);
-            AssertThrows<InvalidDataException>(() => IntroCinematicArtworkFiles.LoadForImport(installation.IntroCinematicDirectory),
+            AssertThrows<InvalidDataException>(() => IntroCinematicArtworkFiles.LoadForImport(installation.IntroCinematicDirectory, SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName)),
                 "opening palette stock corruption fails loudly where the import reads it");
             // Installed content is never repaired in place (#1532): damaged stock fails where it loads, and the check puts the stock bytes back.
             File.WriteAllBytes(paletteStockPath, stockPalette);
-            AssertTrue(IntroPaletteWords(IntroCinematicArtworkFiles.LoadForImport(installation.IntroCinematicDirectory).Palette).AsSpan().SequenceEqual(
+            AssertTrue(IntroPaletteWords(IntroCinematicArtworkFiles.LoadForImport(installation.IntroCinematicDirectory, SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName)).Palette).AsSpan().SequenceEqual(
                     ScreenColourWords.Words(stock.Palette.BackgroundColours.AsSpan(), stock.Palette.SpriteColours.AsSpan())),
                 "the restored stock shows exact cartridge opening palette colors");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -206,13 +206,6 @@ internal static class IntroCinematicArtworkVerification
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "installed opening divider never rereads its cartridge source");
 
-            string backgroundStockPath = Path.Combine(installation.IntroCinematicDirectory,
-                IntroCinematicArtworkFormat.BackgroundFileName);
-            byte[] stockBackground = File.ReadAllBytes(backgroundStockPath);
-            File.Delete(backgroundStockPath);
-            AssertThrows<FileNotFoundException>(() => installation.LoadIntroCinematicArt(),
-                "missing installed cinematic artwork fails where it is read");
-            File.WriteAllBytes(backgroundStockPath, stockBackground);
             string pageStockPath = Path.Combine(installation.IntroCinematicDirectory,
                 IntroCinematicArtworkFormat.BackgroundPageFileName(0));
             byte[] stockPage = File.ReadAllBytes(pageStockPath);
@@ -224,7 +217,7 @@ internal static class IntroCinematicArtworkVerification
                     stock.BackgroundPages.Span),
                 "the restored stock shows all four native cinematic BG pages");
             Console.WriteLine(
-                "Intro art: three indexed PNGs, seven full tilemaps, eye/caret/Mother Brain/explosion/Rinka/egg-effect/discovery/scientist compositions and full RGB5 palette; native parity and strict failures pass.");
+                "Intro art: three extracted character pages, seven full tilemaps, eye/caret/Mother Brain/explosion/Rinka/egg-effect/discovery/scientist compositions and full RGB5 palette; native parity and strict failures pass.");
         }
     }
 

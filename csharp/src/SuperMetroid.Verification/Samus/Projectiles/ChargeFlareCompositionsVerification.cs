@@ -31,7 +31,7 @@ internal static class ChargeFlareCompositionsVerification
         Suite(nameof(VerifyChargeFlareProduction), () => VerifyChargeFlareProduction(bus, body,
             roomAssets, maps));
         Suite(nameof(VerifyGrappleFlarePresentation), () => VerifyGrappleFlarePresentation(bus, body,
-            roomAssets, maps, InstalledFixtures.Projectiles.GrappleTiles));
+            roomAssets, maps, InstalledFixtures.Projectiles.Grapple));
         int cases = 0;
         for (ushort selector = 0; selector < ChargeFlareSpriteSelection.Selectors.Count; selector++)
         {

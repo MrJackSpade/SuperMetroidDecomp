@@ -61,7 +61,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
         /// The graphics set the actor's room draws under, which gives it its tile base and palette before it initializes;
         /// none draws the standard artwork, for an actor that draws from characters at index zero.
         /// </param>
-        internal EnemyAnimationFixture(InstalledEnemyArtwork artwork, RoomEnemyGraphicsSetDefinition? graphicsSet = null)
+        internal EnemyAnimationFixture(ImportEnemyArtwork artwork, RoomEnemyGraphicsSetDefinition? graphicsSet = null)
         {
             const int roomBlocks = 32;
             const int floorRow = FloorY / 16;

@@ -17,7 +17,7 @@ internal static class ChootBehaviorVerification
     /// start the jumping and falling animations, which switch it on. Each shows its frames and holds the last; the update
     /// that reaches the native sleep still reports the held frame as new.
     /// </summary>
-    internal static void VerifyChootBehavior(InstalledEnemyArtwork? artwork = null)
+    internal static void VerifyChootBehavior(ImportEnemyArtwork? artwork = null)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork?.Enemies, BossArtwork = artwork?.Bosses };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];

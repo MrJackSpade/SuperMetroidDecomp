@@ -96,7 +96,7 @@ internal static class EndingObjectArtworkVerification
     /// <summary>Checks ending OBJ sheets, sprite actors, backgrounds, and guarded runtime reads.</summary>
     internal static void VerifyEndingObjectArtwork(GameInstallation installation)
     {
-        EndingObjectSourceArtwork stock = installation.LoadEndingObjectArt();
+        ImportEndingObjectArtwork stock = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingObjects;
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         Suite(nameof(VerifyEndingObjectFragmentMetadata), () => VerifyEndingObjectFragmentMetadata(bus));
         AssertSheet(stock.Clouds, EndingSourceDefinitions.Artwork.EscapeCloudCharacters,

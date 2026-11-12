@@ -31,7 +31,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
     /// <summary>Checks 22 BG2 selectors and native tile writes, the new-frame gate and engine hitboxes.</summary>
     internal static void VerifyInstalledPhantoonBg2Frames(
         SuperMetroidAddressSpace rom, string stockDirectory,
-        InstalledEnemyArtwork stock)
+        ImportEnemyArtwork stock)
     {
         AssertTrue(stock.Bosses.PhantoonBg2Frames is not null,
             "installed enemy art includes Phantoon BG2 frames");
@@ -122,7 +122,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
 
     /// <summary>Compares compiled frame components and three hitbox lists with retail data and the callbacks the installed artwork selects.</summary>
     private static void VerifyPhantoonCollisionDefinitions(
-        SuperMetroidAddressSpace rom, InstalledEnemyArtwork stock)
+        SuperMetroidAddressSpace rom, ImportEnemyArtwork stock)
     {
         var checkedLists = new HashSet<ushort>();
         foreach (EnemyFrameName frame in PhantoonBg2FrameDefinitions.Frames)
@@ -183,7 +183,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
 
     /// <summary>Invokes the production extended-hitbox walker for a selected Phantoon frame and returns its touch or shot reaction.</summary>
     internal static EnemyReaction? FindPhantoonHitboxReaction(
-        InstalledEnemyArtwork? art, ushort pointer, Position16<RoomPixels> target, bool selectShot)
+        ImportEnemyArtwork? art, ushort pointer, Position16<RoomPixels> target, bool selectShot)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art?.Enemies, BossArtwork = art?.Bosses };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
@@ -198,7 +198,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
     }
 
     /// <summary>Draws a Phantoon BG2 frame into fresh VRAM, optionally setting the native new-instruction-frame upload bit.</summary>
-    private static byte[] DrawPhantoonBg2(InstalledEnemyArtwork art,
+    private static byte[] DrawPhantoonBg2(ImportEnemyArtwork art,
         ushort pointer, bool newInstructionFrame)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses };

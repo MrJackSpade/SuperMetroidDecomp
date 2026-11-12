@@ -212,7 +212,7 @@ internal static class EnemyContentIdentityFixtureVerification
             (reverse ? source.Reverse() : source).ToDictionary();
 
         /// <summary>Assembles every installed enemy presentation domain with one optional controlled edit.</summary>
-        public InstalledEnemyArtwork Build(EnemySpritemapCatalog? spritemaps = null,
+        public ImportEnemyArtwork Build(EnemySpritemapCatalog? spritemaps = null,
             EnemyExtendedFrameCatalog? extendedFrames = null,
             EnemyProjectileSpritemapCatalog? projectileSpritemaps = null,
             MotherBrainBodyBg2FrameCatalog? motherBrainBodyBg2Frames = null)
@@ -275,7 +275,7 @@ internal static class EnemyContentIdentityFixtureVerification
                     KeyValuePair.Create(definition.Id, ColorRows("auxiliary-" + definition.Id, definition.FrameCount, definition.ColorCount)))),
             }));
 
-            return new InstalledEnemyArtwork(
+            return new ImportEnemyArtwork(
                 EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes, Spritemaps = spritemaps ?? Oam(), ExtendedFrames = extendedFrames ?? Extended(), GunshipLiftoff = new GunshipLiftoffArtworkCatalog(gunship), ProjectileSpritemaps = projectileSpritemaps ?? Projectiles(), MagdollitePaletteCycle = ColorCatalog(MagdollitePaletteCycleFormat.Version, MagdollitePaletteCycleFile.Read, new EnemyContentIdentityFixtureField("frames", MagdolliteShades.GlowFrames, MagdollitePaletteCycle.AnimatedColorCount)), WorkRobotPaletteCycle = ColorCatalog(WorkRobotPaletteCycleFormat.Version, WorkRobotPaletteCycleFile.Read, new EnemyContentIdentityFixtureField("frames", WorkRobotGlowDefinitions.StepCount, WorkRobotPaletteDefinitions.ColorCount)), ChozoAndTubeColors = ColorCatalog(ChozoAndTubeColorFormat.Version, ChozoAndTubeColorFile.Read,
                     new EnemyContentIdentityFixtureField("tubeCracks", 0, ChozoAndTubeColorDefinitions.ColorCount), new EnemyContentIdentityFixtureField("wreckedShip", 0, ChozoAndTubeColorDefinitions.ColorCount),
                     new EnemyContentIdentityFixtureField("lowerNorfair", 0, ChozoAndTubeColorDefinitions.ColorCount)), DachoraColors = ColorCatalog(DachoraColorFormat.Version, DachoraColorFile.Read, new EnemyContentIdentityFixtureField("normal", 0, DachoraColorFormat.ColorsPerFrame),

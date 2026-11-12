@@ -16,13 +16,20 @@ internal static class InstalledGameBindings
 
     /// <summary>
     /// Every catalog a host binds from <paramref name="installation"/>: the process's shared catalogs for the repository
-    /// installation, otherwise a fresh load.
+    /// installation, otherwise a fresh load. For the repository installation, the map presentation, the opening and the
+    /// ending objects are the import's reads of the same documents, which the game reads alike, with the characters the
+    /// checks compose memory images from: those are import data no installation holds (#1636).
     /// </summary>
     internal static GameArtwork Artwork(GameInstallation installation)
     {
         Ensure.NotNull(installation);
         return ReferenceEquals(installation, RepositoryInstallation.Installation)
-            ? RepositoryInstallation.Artwork
+            ? RepositoryInstallation.Artwork with
+            {
+                MapPresentation = InstalledFixtures.Maps,
+                IntroCinematicArt = InstalledFixtures.IntroArtwork,
+                EndingObjectArt = InstalledFixtures.EndingObjects,
+            }
             : installation.LoadGameArtwork(installation.LoadMaps(), installation.LoadProjectiles(), installation.LoadEnemyTiles());
     }
 }

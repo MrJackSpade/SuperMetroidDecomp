@@ -15,7 +15,7 @@ internal static class EnemyContentIdentityVerification
     internal static void VerifyEnemyContentIdentity()
     {
         var fixture = new EnemyIdentityFixture();
-        InstalledEnemyArtwork stock = fixture.Build();
+        ImportEnemyArtwork stock = fixture.Build();
         string baseline = stock.ContentIdentity;
         AssertEqual(baseline, new EnemyIdentityFixture(reverse: true).Build().ContentIdentity,
             "enemy identity canonicalizes dictionary insertion order");

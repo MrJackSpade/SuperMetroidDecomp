@@ -28,8 +28,11 @@ internal static class InstalledSporesTests
     /// <summary>Loads the installed spores presentation, checks owner state and pixels, then renders each frame on both D3D11 device kinds.</summary>
     internal static void Run(string installationRoot, string romPath, string nativeArtworkDirectory)
     {
-        string maps = Path.Combine(Path.GetFullPath(installationRoot), "game", "maps");
-        AreaMapPresentation stock = MapPresentationFiles.Load(maps);
+        string installedMaps = Path.Combine(Path.GetFullPath(installationRoot), "game", "maps");
+        // The animated tiles' page is import data no installation holds (#1636): the cartridge-derived extraction's is read.
+        string maps = SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(
+            SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName);
+        AreaMapPresentation stock = MapPresentationFiles.LoadForImport(installedMaps, maps);
         CheckArtwork(ImportAreaMapPresentation.RoomFxAnimatedTilesOf(stock), maps, romPath, nativeArtworkDirectory);
         var packets = new List<DisplayPacket>();
         CheckOwners(stock, packets);

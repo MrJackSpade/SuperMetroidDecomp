@@ -80,7 +80,7 @@ internal static class BossSpriteEntriesVerification
     /// <summary>Stage 2: Draygon's look once her opening readies the Evirs copies Evir's installed tiles (#1538).</summary>
     internal static void VerifyBossSpriteEntriesStage2()
     {
-        InstalledEnemyArtwork artwork = InstalledFixtures.EnemyArtwork;
+        ImportEnemyArtwork artwork = InstalledFixtures.EnemyArtwork;
         var resolver = new EnemyTileTransfers(artwork);
         ReadOnlyMemory<byte> evirTiles = artwork.Enemies.TilesOf(EnemyDefinitionId.Evir);
         AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemyTileSetDefinitions.ByteCounts[EnemyDefinitionId.Evir], evirTiles.Length,
@@ -97,7 +97,7 @@ internal static class BossSpriteEntriesVerification
     /// </summary>
     internal static void VerifyBossSpriteEntriesStage3()
     {
-        InstalledEnemyArtwork artwork = InstalledFixtures.EnemyArtwork;
+        ImportEnemyArtwork artwork = InstalledFixtures.EnemyArtwork;
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.RidleyCeres, slot.Definition);

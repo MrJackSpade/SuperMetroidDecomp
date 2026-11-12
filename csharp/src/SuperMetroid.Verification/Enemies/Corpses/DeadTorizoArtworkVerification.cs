@@ -21,7 +21,7 @@ namespace SuperMetroid.Verification.Enemies.Corpses;
 internal static class DeadTorizoArtworkVerification
 {
     /// <summary>Checks installed corpse staging and native OAM.</summary>
-    internal static void VerifyInstalledDeadTorizoArtwork(InstalledEnemyArtwork stock)
+    internal static void VerifyInstalledDeadTorizoArtwork(ImportEnemyArtwork stock)
     {
         Suite(nameof(VerifyDeadTorizoRowUploads), VerifyDeadTorizoRowUploads);
         Suite(nameof(VerifyDeadTorizoStationaryVisual), () => VerifyDeadTorizoStationaryVisual(stock.Enemies));
@@ -50,7 +50,7 @@ internal static class DeadTorizoArtworkVerification
                    nativeCorpse.NextByteOffset == installedCorpse.NextByteOffset,
             "Dead Torizo private corpse hook's installed composition is the native OAM");
 
-        var missing = new InstalledEnemyArtwork(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), new BossSourceArtwork(), new AreaSourceArtwork());
+        var missing = new ImportEnemyArtwork(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), new BossSourceArtwork(), new AreaSourceArtwork());
         AssertThrows<InvalidDataException>(() => StageDeadTorizoArtwork(missing),
             "bound installation missing the dead-Torizo sheet fails instead of reading ROM");
 
@@ -160,10 +160,10 @@ internal static class DeadTorizoArtworkVerification
     }
 
     /// <summary>The corpse as the character rot oracle stages it from installed art.</summary>
-    private static CorpseStaging StageDeadTorizoArtwork(InstalledEnemyArtwork artwork) => CorpseStaging.Torizo(Atlas(artwork));
+    private static CorpseStaging StageDeadTorizoArtwork(ImportEnemyArtwork artwork) => CorpseStaging.Torizo(Atlas(artwork));
 
     /// <summary>The installed dead-Torizo sheet.</summary>
-    private static ReadOnlySpan<byte> Atlas(InstalledEnemyArtwork artwork) =>
+    private static ReadOnlySpan<byte> Atlas(ImportEnemyArtwork artwork) =>
         artwork.Enemies.TilesOf(CorpseSheets.DeadTorizoSheet) is { Length: CorpseSheets.DeadTorizoSheetByteCount } tiles
             ? tiles.Span : throw new InvalidDataException("Installed dead-Torizo sheet enemy-ed3f-tiles.png has the wrong size.");
 
@@ -185,7 +185,7 @@ internal static class DeadTorizoArtworkVerification
     }
 
     /// <summary>The corpse hook's installed composition as OAM, where the hook draws it with the camera at the room's origin.</summary>
-    internal static OamBuffer DrawDeadTorizoHookComposition(InstalledEnemyArtwork artwork)
+    internal static OamBuffer DrawDeadTorizoHookComposition(ImportEnemyArtwork artwork)
     {
         if (artwork.Enemies.Spritemaps?.TryGetDisplay(DeadTorizoArtworkDefinitions.SandHeapFrame, out EnemySpritemapParts hook) != true)
             throw new InvalidDataException("The dead Torizo hook has no installed composition.");

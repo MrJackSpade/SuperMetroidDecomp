@@ -57,8 +57,6 @@ internal static class SamusContentIdentityVerification
         var whiteout = new ushort[SamusPaletteDefinitions.Death.WhiteoutShadeCount];
         var explosion = new ushort[SamusDeathExplosionTimingDefinitions.RecordCount];
         var deathPalettes = new InstalledSamusDeathPalettes(ToColors(suited), ToColors(suitless), ToColors(whiteout), explosion);
-        SamusDeathTileAtlas deathTiles = SamusDeathTileAtlas.Load(Png(SamusDeathTileAtlasFormat.Width,
-            SamusDeathTileAtlasFormat.Height));
         var cannonDocument = new SamusArmCannonArtworkDocument
         {
             Version = SamusArmCannonArtworkFormat.Version,
@@ -69,18 +67,8 @@ internal static class SamusContentIdentityVerification
             CoverTiles = Enumerable.Range(0, SamusProjectileDirectionCodec.Count)
                 .Select(_ => new int[SamusArmCannonArtworkFormat.FramesPerDirection - 1]).ToArray(),
         };
-        int cannonWidth = SamusArmCannonArtworkFormat.CoverTileCount * 8;
         InstalledSamusArmCannonArtwork cannon = InstalledSamusArmCannonArtworkTooling.Load(
-            new MemoryStream(SamusArmCannonSourceArtwork.Write(cannonDocument)),
-            Png(cannonWidth, 8));
-        return SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = topStarts, BottomSetStarts = bottomStarts, PoseFirstFrames = poses, Placements = placements, Frames = frames, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathPalettes, DeathTilesContentIdentity = deathTiles.ContentIdentity, ArmCannon = cannon }, Half(topStarts.Length), Half(bottomStarts.Length));
-
-        static MemoryStream Png(int width, int height)
-        {
-            var stream = new MemoryStream();
-            IndexedPng.Write(stream, new(checked((ushort)width), checked((ushort)height)), new byte[width * height], [new RgbaPixel(0, 0, 0), new RgbaPixel(255, 255, 255)]);
-            stream.Position = 0;
-            return stream;
-        }
+            new MemoryStream(SamusArmCannonSourceArtwork.Write(cannonDocument)));
+        return SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = topStarts, BottomSetStarts = bottomStarts, PoseFirstFrames = poses, Placements = placements, Frames = frames, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathPalettes, ArmCannon = cannon }, Half(topStarts.Length), Half(bottomStarts.Length));
     }
 }

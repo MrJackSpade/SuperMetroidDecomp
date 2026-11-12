@@ -20,7 +20,7 @@ internal static class ProjectileHostBindingVerification
         using (var session = new InstalledGameSession(installation.Root))
         {
             CheckFrameBindings(session.Game.Artwork.ProjectileFrameBindings, projectiles.FrameBindings);
-            CheckGrapple(session.Game.Artwork, projectiles.GrappleTiles);
+            CheckGrapple(session.Game.Artwork, projectiles.Grapple);
             CheckFlare(session.Game.Artwork.ChargeFlarePlacement ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlarePlacement."), projectiles.FlarePlacement);
         }
         Console.WriteLine("PASS installed projectile binding: the host binds the installed frame choices, flare placement and Grapple presentation at startup.");
@@ -45,10 +45,10 @@ internal static class ProjectileHostBindingVerification
     }
 
     /// <summary>Checks the Grapple flare placement and swing choices the host bound.</summary>
-    private static void CheckGrapple(GameArtwork actual, GrappleTileAtlas expected)
+    private static void CheckGrapple(GameArtwork actual, InstalledGrapplePresentation expected)
     {
-        CheckFlare((actual.GrappleFlarePlacement ?? throw new InvalidOperationException("Verification requires actual.GrappleFlarePlacement.")), (expected.FlarePlacement ?? throw new InvalidOperationException("Verification requires expected.FlarePlacement.")));
-        if (actual.GrappleSwingFrames is null || expected.SwingFrames is null) throw new InvalidDataException("Host did not bind Grapple swing frames.");
+        CheckFlare((actual.GrappleFlarePlacement ?? throw new InvalidOperationException("Verification requires actual.GrappleFlarePlacement.")), expected.FlarePlacement);
+        if (actual.GrappleSwingFrames is null) throw new InvalidDataException("Host did not bind Grapple swing frames.");
         for (int angle = 0; angle < 256; angle++)
             if (actual.GrappleSwingFrames.Resolve(new TrigonometryAngle((byte)angle)) != expected.SwingFrames.Resolve(new TrigonometryAngle((byte)angle)))
                 throw new InvalidDataException("Host restored stale Grapple swing frames.");

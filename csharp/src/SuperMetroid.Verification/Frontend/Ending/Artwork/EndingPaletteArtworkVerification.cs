@@ -139,7 +139,7 @@ internal static class EndingPaletteArtworkVerification
         bool rejectAllCartridgeReads = false;
         var guardedBus = NewEndingPaletteSourceReadGuard(
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"),
-            ImportAreaMapPresentation.RoomPaletteFxOf(MapPresentationFiles.LoadForImport(installation.MapDirectory)), () => rejectAllCartridgeReads);
+            ImportAreaMapPresentation.RoomPaletteFxOf(InstalledFixtures.Maps), () => rejectAllCartridgeReads);
         var nativeAudio = AudioQueues.Standalone();
         var installedAudio = AudioQueues.Standalone();
         var nativeState = CreateRetailEndingFixture(nativeAudio, 2, 59);
@@ -147,8 +147,8 @@ internal static class EndingPaletteArtworkVerification
         installedState.InstalledArtwork.BindBackdrops(backdrops);
         installedState.InstalledArtwork.BindSpaceBackdrops(maps.EndingSpaceBackdrops);
         installedState.InstalledArtwork.BindEndingText(maps.EndingText);
-        installedState.Flyaway.BindFlightArtwork(installation.LoadIntroCinematicArt().CeresFlight);
-        installedState.InstalledArtwork.BindFixtureObjectArtwork(installation.LoadEndingObjectArt());
+        installedState.Flyaway.BindFlightArtwork(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.IntroArtwork.CeresFlight);
+        installedState.InstalledArtwork.BindFixtureObjectArtwork(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingObjects);
         // This matches the playable host's installed ending bindings: the production-shaped scene must complete without
         // *any* cartridge read.
         rejectAllCartridgeReads = true;

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Audio;
@@ -445,10 +446,10 @@ internal static class LookupStream1Verification
         var template = CreateSamusIdentityFixture();
         SamusBodyFrameSelection[] Decode(byte[] data) => Enumerable.Range(0, count / 4).Select(index =>
             new SamusBodyFrameSelection(data[index * 4], data[index * 4 + 1], data[index * 4 + 2], data[index * 4 + 3])).ToArray();
-        InstalledSamusBodyArtwork Create(byte[] data) => SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = SamusBodyNative.Records(top), BottomSetStarts = SamusBodyNative.Records(bottom), PoseFirstFrames = SamusBodyNative.Frames(poses), Placements = template.Placements, Frames = Decode(data), Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, DeathTilesContentIdentity = template.DeathTilesContentIdentity, ArmCannon = template.ArmCannon }, upper, lower).Body;
+        InstalledSamusBodyArtwork Create(byte[] data) => SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = SamusBodyNative.Records(top), BottomSetStarts = SamusBodyNative.Records(bottom), PoseFirstFrames = SamusBodyNative.Frames(poses), Placements = template.Placements, Frames = Decode(data), Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, ArmCannon = template.ArmCannon }, upper, lower).Body;
         var stock = Create(native);
         AssertTrue(stock.Frames.SequenceEqual(Decode(native)), "All supplied frame components preserved");
-        AssertEqual(CanonicalBodyHash(template, top, bottom, SamusBodyNative.Frames(poses), Decode(native), upper, lower), stock.ContentIdentity, "Original canonical frame hash");
+        AssertEqual(CanonicalBodyHash(template, top, bottom, SamusBodyNative.Frames(poses), Decode(native)), stock.ContentIdentity, "Original canonical frame hash");
         AssertThrows<InvalidDataException>(() => stock.OriginRise(SamusPoseNumbering.FromNumber(0xfd), 0), "Original pose bound preserved");
         Console.WriteLine($"Body frame basis:{count} native components preserved, canonical hash and pose bound pass.");
     }
@@ -466,9 +467,9 @@ internal static class LookupStream1Verification
         var bottomGroups = Enumerable.Range(0, 11).Select(set => templateCharacters.BottomSet(set).ToArray()).ToArray();
         var frames = Enumerable.Range(0, SamusBodySources.FrameCount)
             .Select(index => new SamusBodyFrameSelection((byte)(index % 13), 0, (byte)(index % 11), 0)).ToArray();
-        InstalledSamusBodyArtwork Create(ushort[] selected) => SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = SamusBodyNative.Records(top), BottomSetStarts = SamusBodyNative.Records(bottom), PoseFirstFrames = SamusBodyNative.Frames(selected), Placements = template.Placements, Frames = frames, Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, DeathTilesContentIdentity = template.DeathTilesContentIdentity, ArmCannon = template.ArmCannon }, topGroups, bottomGroups).Body;
+        InstalledSamusBodyArtwork Create(ushort[] selected) => SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = SamusBodyNative.Records(top), BottomSetStarts = SamusBodyNative.Records(bottom), PoseFirstFrames = SamusBodyNative.Frames(selected), Placements = template.Placements, Frames = frames, Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, ArmCannon = template.ArmCannon }, topGroups, bottomGroups).Body;
         InstalledSamusBodyArtwork stock = Create(native);
-        AssertEqual(CanonicalBodyHash(template, top, bottom, SamusBodyNative.Frames(native), frames, topGroups, bottomGroups), stock.ContentIdentity, "Exact canonical stock pose hash");
+        AssertEqual(CanonicalBodyHash(template, top, bottom, SamusBodyNative.Frames(native), frames), stock.ContentIdentity, "Exact canonical stock pose hash");
         AssertTrue(stock.Frames.SequenceEqual(frames), "Independent frame payload remains intact");
         for (int pose = 0; pose < 253; pose++)
         {
@@ -493,20 +494,9 @@ internal static class LookupStream1Verification
     private static byte LookupStream1BodyPosePointersRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Recreates the content hash from sorted body allocation, pose, frame, and tile data.</summary>
-    private static string CanonicalBodyHash(InstalledSamusBodyArtwork template, ushort[] upper, ushort[] lower, IReadOnlyDictionary<SamusPoseId, int> poseFirstFrames, SamusBodyFrameSelection[] frames, SamusBodyTileTransfer[][] upperGroups, SamusBodyTileTransfer[][] lowerGroups)
+    private static string CanonicalBodyHash(InstalledSamusBodyArtwork template, ushort[] upper, ushort[] lower, IReadOnlyDictionary<SamusPoseId, int> poseFirstFrames, SamusBodyFrameSelection[] frames)
     {
-        string characters = SelectedPresentationHash.Create("samus-body-characters-v1", content =>
-        {
-            var definitions = upper.SelectMany((pointer, set) => upperGroups[set].Select((definition, position) => new LookupStream1Definition(Address:SamusBodyNative.Record(pointer) + position, Definition:definition)))
-                .Concat(lower.SelectMany((pointer, set) => lowerGroups[set].Select((definition, position) => new LookupStream1Definition(Address:SamusBodyNative.Record(pointer) + position, Definition:definition))));
-            foreach (var item in definitions.OrderBy(item => item.Address))
-            {
-                content.Append("definition record", item.Address);
-                content.Append("first transfer size", item.Definition.FirstSize); content.Append("second transfer size", item.Definition.SecondSize);
-                content.Append("characters", item.Definition.Planar.Span);
-            }
-        });
-        return SelectedPresentationHash.Create("samus-body-v5", content =>
+        return SelectedPresentationHash.Create("samus-body-v6", content =>
         {
             foreach (int start in SamusBodyNative.Records(upper)) content.Append("top set start", start);
             foreach (int start in SamusBodyNative.Records(lower)) content.Append("bottom set start", start);
@@ -524,11 +514,9 @@ internal static class LookupStream1Verification
                 content.Append("top set", frame.TopSet); content.Append("top position", frame.TopPosition);
                 content.Append("bottom set", frame.BottomSet); content.Append("bottom position", frame.BottomPosition);
             }
-            content.Append("body characters", Convert.FromHexString(characters));
             content.Append("spritemaps", Convert.FromHexString(template.Spritemaps.ContentIdentity));
             content.Append("atmosphere", Convert.FromHexString(template.Atmosphere.ContentIdentity));
             content.Append("death palettes", Convert.FromHexString(template.DeathPalettes.ContentIdentity));
-            content.Append("death tiles", Convert.FromHexString(template.DeathTilesContentIdentity));
             content.Append("arm cannon", Convert.FromHexString(template.ArmCannon.ContentIdentity));
         });
     }
@@ -550,10 +538,10 @@ internal static class LookupStream1Verification
             var item = physical[order]; int end = order + 1 == physical.Length ? 0xd7d3 : physical[order + 1].Pointer;
             (item.Upper ? topGroups : bottomGroups)[item.Set] = Enumerable.Repeat(sample, (end - item.Pointer) / 7).ToArray();
         }
-        InstalledSamusBodyArtwork Create(ushort[] upper, ushort[] lower, SamusBodyTileTransfer[][] upperGroups, SamusBodyTileTransfer[][] lowerGroups) => SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = SamusBodyNative.Records(upper), BottomSetStarts = SamusBodyNative.Records(lower), PoseFirstFrames = template.PoseFirstFrames.ToDictionary(), Placements = template.Placements, Frames = template.Frames.ToArray(), Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, DeathTilesContentIdentity = template.DeathTilesContentIdentity, ArmCannon = template.ArmCannon }, upperGroups, lowerGroups).Body;
+        InstalledSamusBodyArtwork Create(ushort[] upper, ushort[] lower, SamusBodyTileTransfer[][] upperGroups, SamusBodyTileTransfer[][] lowerGroups) => SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = SamusBodyNative.Records(upper), BottomSetStarts = SamusBodyNative.Records(lower), PoseFirstFrames = template.PoseFirstFrames.ToDictionary(), Placements = template.Placements, Frames = template.Frames.ToArray(), Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, ArmCannon = template.ArmCannon }, upperGroups, lowerGroups).Body;
         // Independent oracle for the pre-conversion canonical serialization order (520c810c4).
         string Canonical(ushort[] upper, ushort[] lower, SamusBodyTileTransfer[][] upperGroups, SamusBodyTileTransfer[][] lowerGroups) =>
-            CanonicalBodyHash(template, upper, lower, template.PoseFirstFrames, template.Frames.ToArray(), upperGroups, lowerGroups);
+            CanonicalBodyHash(template, upper, lower, template.PoseFirstFrames, template.Frames.ToArray());
         InstalledSamusBodyArtwork stock = Create(top, bottom, topGroups, bottomGroups);
         AssertEqual(Canonical(top, bottom, topGroups, bottomGroups), stock.ContentIdentity, "Exact pre-conversion canonical stock hash");
         AssertTrue(stock.TopSetPointers.SequenceEqual(top) && stock.BottomSetPointers.SequenceEqual(bottom), "Stock pointer snapshots match native");
@@ -570,7 +558,7 @@ internal static class LookupStream1Verification
     {
         int[] native = Enumerable.Range(0, 253).Select(pose => (int)unchecked((sbyte)LookupStream1BodyGraphicsOriginsRomByte(rom, 0x91b62d + pose * 8))).ToArray();
         InstalledSamusBodyArtwork template = CreateSamusIdentityFixture();
-        InstalledSamusBodyArtwork stock = new SamusBodySources(new SamusBodyArtworkParts { TopSetStarts = template.TopSetStarts.ToArray(), BottomSetStarts = template.BottomSetStarts.ToArray(), PoseFirstFrames = template.PoseFirstFrames.ToDictionary(), Placements = template.Placements.ToDictionary(pose => pose.Key, pose => pose.Value with { GraphicsYOffset = native[SamusPoseNumbers.Number(pose.Key)] }), Frames = template.Frames.ToArray(), Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, DeathTilesContentIdentity = template.DeathTilesContentIdentity, ArmCannon = template.ArmCannon }, template.BodyCharactersContentIdentity);
+        InstalledSamusBodyArtwork stock = new SamusBodySources(new SamusBodyArtworkParts { TopSetStarts = template.TopSetStarts.ToArray(), BottomSetStarts = template.BottomSetStarts.ToArray(), PoseFirstFrames = template.PoseFirstFrames.ToDictionary(), Placements = template.Placements.ToDictionary(pose => pose.Key, pose => pose.Value with { GraphicsYOffset = native[SamusPoseNumbers.Number(pose.Key)] }), Frames = template.Frames.ToArray(), Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, ArmCannon = template.ArmCannon });
         InstalledSamusBodyArtwork installed = SamusBodyArtworkFiles.Load(RepositoryInstallation.Installation.SamusBodyDirectory);
         for (int pose = 0; pose < 253; pose++)
         {
@@ -590,8 +578,8 @@ internal static class LookupStream1Verification
     /// <summary>Checks the drained crouch's installed frame placements against the native table, and their actual draws.</summary>
     internal static void VerifyLookupStream1DrainedGeometry(ISnesAddressSpace rom)
     {
-        string directory = RepositoryInstallation.Installation.SamusBodyDirectory;
-        SamusBodyCharacterArtwork stockArt = SamusBodyArtworkFiles.LoadCharacters(directory);
+        string directory = CartridgeImportContent.Component(GameInstallationLayout.SamusBodyDirectoryName);
+        SamusBodyCharacterArtwork stockArt = SamusBodyArtworkFiles.LoadCharacters(directory, CartridgeImportContent.ImportData(GameInstallationLayout.SamusBodyDirectoryName));
         InstalledSamusBodyArtwork stock = stockArt.Body;
         int[] native = Enumerable.Range(0, 32).Select(index => (int)unchecked((sbyte)LookupStream1DrainedGeometryRomByte(rom, 0x908def + index))).ToArray();
         foreach (SamusPoseId pose in new[] { SamusPoseId.DrainedCrouchingRightPose, SamusPoseId.DrainedCrouchingLeftPose })
@@ -630,8 +618,8 @@ internal static class LookupStream1Verification
     /// <summary>Checks morph-transition posture offsets through actual draws.</summary>
     internal static void VerifyLookupStream1PostureGeometry(ISnesAddressSpace rom)
     {
-        string directory = RepositoryInstallation.Installation.SamusBodyDirectory;
-        SamusBodyCharacterArtwork stockArt = SamusBodyArtworkFiles.LoadCharacters(directory);
+        string directory = CartridgeImportContent.Component(GameInstallationLayout.SamusBodyDirectoryName);
+        SamusBodyCharacterArtwork stockArt = SamusBodyArtworkFiles.LoadCharacters(directory, CartridgeImportContent.ImportData(GameInstallationLayout.SamusBodyDirectoryName));
         sbyte[] native = Enumerable.Range(0, 24).Select(index => unchecked((sbyte)LookupStream1PostureGeometryRomByte(rom, 0x908d80 + index))).ToArray();
         foreach (SamusPoseId pose in new[]
         {
@@ -802,15 +790,13 @@ internal static class LookupStream1Verification
     {
         string directory = RepositoryInstallation.Installation.SamusBodyDirectory;
         byte[] json = File.ReadAllBytes(Path.Combine(directory, SamusArmCannonArtworkFormat.JsonFileName));
-        byte[] png = File.ReadAllBytes(Path.Combine(directory, SamusArmCannonArtworkFormat.TileFileName));
         var document = RequiredJson.Deserialize<SamusArmCannonArtworkDocument>(json,
             new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        var tiles = RoomCharacterAtlasPng.Read(new MemoryStream(png), SamusArmCannonArtworkFormat.TileSourcePointers.Count * 32);
         SamusArmCannonSourceArtwork Load(SamusArmCannonArtworkDocument value) => SamusArmCannonSourceArtwork.FromPlacement(
-            SamusArmCannonSourceArtwork.LoadPlacement(new MemoryStream(SamusArmCannonSourceArtwork.Write(value))), tiles);
+            SamusArmCannonSourceArtwork.LoadPlacement(new MemoryStream(SamusArmCannonSourceArtwork.Write(value))));
         var stock = Load(document);
         ushort Native(int pose) => LittleEndianBytes.Word(LookupStream1CannonPosesRomByte(rom, 0x90C7DF + pose * 2), LookupStream1CannonPosesRomByte(rom, 0x90C7E0 + pose * 2));
-        string Identity(SamusArmCannonArtworkDocument value) => SelectedPresentationHash.Create("samus-arm-cannon-v4", hash =>
+        string Identity(SamusArmCannonArtworkDocument value) => SelectedPresentationHash.Create("samus-arm-cannon-v5", hash =>
         {
             foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses) hash.Append("pose descriptor", value.PoseDescriptors[pose]);
             hash.Append("drawing data", value.DrawingData.Select(item => (byte)item).ToArray());
@@ -819,7 +805,6 @@ internal static class LookupStream1Verification
                     appearance.Palette ?? 0, appearance.Priority, appearance.FlipX, appearance.FlipY));
             foreach (int[] direction in value.CoverTiles)
                 foreach (int tile in direction) hash.Append("cover tile", tile);
-            hash.Append("characters", tiles.Characters.Span);
         });
         AssertEqual(253, SamusBodySources.PoseCount, "cannon original 506-byte pointer extent");
         AssertEqual(Identity(document), stock.ContentIdentity, "cannon canonical native identity unchanged");
@@ -1411,10 +1396,10 @@ internal static class LookupStream1Verification
             AssertThrows<ArgumentOutOfRangeException>(() => _ = sources[invalid], "Calculated cannon source index bounds preserve array contract");
         string directory = RepositoryInstallation.Installation.SamusBodyDirectory;
         byte[] json = File.ReadAllBytes(Path.Combine(directory, SamusArmCannonArtworkFormat.JsonFileName));
-        byte[] png = File.ReadAllBytes(Path.Combine(directory, SamusArmCannonArtworkFormat.TileFileName));
-        var stock = InstalledSamusArmCannonArtworkTooling.Load(new MemoryStream(json), new MemoryStream(png));
-        byte[] nativePlanar = expected.SelectMany(pointer => Enumerable.Range(0, 32).Select(offset => LookupStream1ArmCannonTileSourcesRomByte(rom, (0x9a0000 | pointer) + offset))).ToArray();
-        AssertEqual(ReferenceIdentity(json, nativePlanar), stock.ContentIdentity, "Calculated cannon selectors preserve canonical native content identity");
+        byte[] png = File.ReadAllBytes(Path.Combine(CartridgeImportContent.ImportData(GameInstallationLayout.SamusBodyDirectoryName), SamusArmCannonArtworkFormat.TileFileName));
+        SamusArmCannonCoverCharacters cover = InstalledSamusArmCannonArtworkTooling.LoadWithCover(new MemoryStream(json), new MemoryStream(png));
+        SamusArmCannonSourceArtwork stock = cover.Cannon;
+        AssertEqual(ReferenceIdentity(json), stock.ContentIdentity, "Calculated cannon selectors preserve canonical native content identity");
         Suite(nameof(VerifySelectors), () => VerifySelectors(stock));
         foreach (int invalid in new[] { int.MinValue, -1, 10, int.MaxValue })
         {
@@ -1423,10 +1408,10 @@ internal static class LookupStream1Verification
         }
         foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.TileSource(0, invalid), "Cannon cover frame bounds remain exact");
-        Verify(stock);
-        AssertTrue(!stock.TryResolveTile(0x9b0000 | expected[0], 32, out _), "Cannon transfer retains native bank boundary");
-        AssertTrue(!stock.TryResolveTile(0x9a0000 | expected[0], 31, out _), "Cannon transfer retains native byte-count boundary");
-        AssertTrue(!stock.TryResolveTile((0x9a0000 | expected[0]) + 1, 32, out _), "Cannon transfer rejects interior source address");
+        Verify(cover);
+        AssertTrue(!cover.TryResolveTile(0x9b0000 | expected[0], 32, out _), "Cannon transfer retains native bank boundary");
+        AssertTrue(!cover.TryResolveTile(0x9a0000 | expected[0], 31, out _), "Cannon transfer retains native byte-count boundary");
+        AssertTrue(!cover.TryResolveTile((0x9a0000 | expected[0]) + 1, 32, out _), "Cannon transfer rejects interior source address");
 
         void VerifySelectors(SamusArmCannonSourceArtwork catalog)
         {
@@ -1441,11 +1426,11 @@ internal static class LookupStream1Verification
             }
         }
 
-        static string ReferenceIdentity(byte[] jsonBytes, byte[] planar)
+        static string ReferenceIdentity(byte[] jsonBytes)
         {
             using var document = System.Text.Json.JsonDocument.Parse(jsonBytes);
             var root = document.RootElement;
-            return SelectedPresentationHash.Create("samus-arm-cannon-v4", content =>
+            return SelectedPresentationHash.Create("samus-arm-cannon-v5", content =>
             {
                 System.Text.Json.JsonElement descriptors = root.GetProperty("poseDescriptors");
                 foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses) content.Append("pose descriptor", descriptors.GetProperty(pose.ToString()).GetInt32());
@@ -1461,10 +1446,9 @@ internal static class LookupStream1Verification
                 }
                 foreach (var direction in root.GetProperty("coverTiles").EnumerateArray())
                     foreach (var tile in direction.EnumerateArray()) content.Append("cover tile", tile.GetInt32());
-                content.Append("characters", planar);
             });
         }
-        void Verify(SamusArmCannonSourceArtwork catalog)
+        void Verify(SamusArmCannonCoverCharacters catalog)
         {
             for (int index = 0; index < expected.Length; index++)
             {
@@ -1504,12 +1488,10 @@ internal static class LookupStream1Verification
     {
         string directory = RepositoryInstallation.Installation.SamusBodyDirectory;
         byte[] json = File.ReadAllBytes(Path.Combine(directory, SamusArmCannonArtworkFormat.JsonFileName));
-        byte[] png = File.ReadAllBytes(Path.Combine(directory, SamusArmCannonArtworkFormat.TileFileName));
         var document = RequiredJson.Deserialize<SamusArmCannonArtworkDocument>(json,
             new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        var tiles = RoomCharacterAtlasPng.Read(new MemoryStream(png), SamusArmCannonArtworkFormat.TileSourcePointers.Count * 32);
         SamusArmCannonSourceArtwork Load(SamusArmCannonArtworkDocument value) => SamusArmCannonSourceArtwork.FromPlacement(
-            SamusArmCannonSourceArtwork.LoadPlacement(new MemoryStream(SamusArmCannonSourceArtwork.Write(value))), tiles);
+            SamusArmCannonSourceArtwork.LoadPlacement(new MemoryStream(SamusArmCannonSourceArtwork.Write(value))));
         var stock = Load(document);
         const int start = 0xC9D9, count = 608;
         for (int index = 0; index < count; index++)
@@ -1882,12 +1864,10 @@ internal static class LookupStream1Verification
         string directory = RepositoryInstallation.Installation.SamusBodyDirectory;
         InstalledSamusBodyArtwork body = SamusBodyArtworkFiles.Load(directory);
         byte[] json = File.ReadAllBytes(Path.Combine(directory, SamusArmCannonArtworkFormat.JsonFileName));
-        byte[] png = File.ReadAllBytes(Path.Combine(directory, SamusArmCannonArtworkFormat.TileFileName));
         var document = RequiredJson.Deserialize<SamusArmCannonArtworkDocument>(json,
             new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        var tiles = RoomCharacterAtlasPng.Read(new MemoryStream(png), SamusArmCannonArtworkFormat.TileSourcePointers.Count * 32);
         SamusArmCannonSourceArtwork Load(SamusArmCannonArtworkDocument value) => SamusArmCannonSourceArtwork.FromPlacement(
-            SamusArmCannonSourceArtwork.LoadPlacement(new MemoryStream(SamusArmCannonSourceArtwork.Write(value))), tiles);
+            SamusArmCannonSourceArtwork.LoadPlacement(new MemoryStream(SamusArmCannonSourceArtwork.Write(value))));
         var stock = body.ArmCannon.Source;
         AssertEqual(Load(document).ContentIdentity, stock.ContentIdentity, "Body binding preserves canonical cannon identity");
         for (int index = 0; index < document.DrawingData.Length; index++)
@@ -2009,8 +1989,8 @@ internal static class LookupStream1Verification
     /// <summary>Checks the installed body tile pixels against the cartridge and the canonical stock hash.</summary>
     internal static void VerifyLookupStream1BodyPixels(ISnesAddressSpace rom)
     {
-        string directory = RepositoryInstallation.Installation.SamusBodyDirectory;
-        var bodyArt = SamusBodyArtworkFiles.LoadCharacters(directory);
+        string directory = CartridgeImportContent.Component(GameInstallationLayout.SamusBodyDirectoryName);
+        var bodyArt = SamusBodyArtworkFiles.LoadCharacters(directory, CartridgeImportContent.ImportData(GameInstallationLayout.SamusBodyDirectoryName));
         var body = bodyArt.Body;
         var top = Enumerable.Range(0, 13).Select(set => bodyArt.TopSet(set).ToArray()).ToArray();
         var bottom = Enumerable.Range(0, 11).Select(set => bodyArt.BottomSet(set).ToArray()).ToArray();
@@ -2032,7 +2012,7 @@ internal static class LookupStream1Verification
             }
         }
         AssertEqual(130464, bytes, "Complete native body planar domain");
-        AssertEqual(CanonicalBodyHash(body, body.TopSetPointers.ToArray(), body.BottomSetPointers.ToArray(), body.PoseFirstFrames, body.Frames.ToArray(), top, bottom), body.ContentIdentity, "Original native body hash");
+        AssertEqual(CanonicalBodyHash(body, body.TopSetPointers.ToArray(), body.BottomSetPointers.ToArray(), body.PoseFirstFrames, body.Frames.ToArray()), body.ContentIdentity, "Original native body hash");
         Console.WriteLine($"Body pixels: {bytes} installed native bytes and the canonical hash pass.");
     }
 
@@ -2049,8 +2029,8 @@ internal static class LookupStream1Verification
     /// <summary>Checks body tile DMA definitions and actual native-sized VRAM transfer output.</summary>
     internal static void VerifyLookupStream1BodyTransfers(ISnesAddressSpace rom)
     {
-        string directory = RepositoryInstallation.Installation.SamusBodyDirectory;
-        var bodyArt = SamusBodyArtworkFiles.LoadCharacters(directory);
+        string directory = CartridgeImportContent.Component(GameInstallationLayout.SamusBodyDirectoryName);
+        var bodyArt = SamusBodyArtworkFiles.LoadCharacters(directory, CartridgeImportContent.ImportData(GameInstallationLayout.SamusBodyDirectoryName));
         var body = bodyArt.Body;
         ushort Word(int address) => LittleEndianBytes.Word(LookupStream1BodyTransfersRomByte(rom, address), LookupStream1BodyTransfersRomByte(rom, address + 1));
         var top = Enumerable.Range(0, 13).Select(set => bodyArt.TopSet(set).ToArray()).ToArray();
@@ -2075,7 +2055,7 @@ internal static class LookupStream1Verification
             }
         }
         AssertEqual(435, records, "Complete original metadata domain");
-        AssertEqual(CanonicalBodyHash(body, body.TopSetPointers.ToArray(), body.BottomSetPointers.ToArray(), body.PoseFirstFrames, body.Frames.ToArray(), top, bottom),
+        AssertEqual(CanonicalBodyHash(body, body.TopSetPointers.ToArray(), body.BottomSetPointers.ToArray(), body.PoseFirstFrames, body.Frames.ToArray()),
             body.ContentIdentity, "Exact canonical stock metadata hash");
         // These exact native selectors include the known physical cross-group windows.
         var guard = NewCartridgeReadGuard(rom);

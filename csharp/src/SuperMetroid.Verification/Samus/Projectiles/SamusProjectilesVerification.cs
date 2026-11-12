@@ -120,7 +120,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     // Samus's colours name shades (#1512); the import resolves them from the fixture's tables.
     var projSources = InstalledFixtures.SamusShadeSources with { BeamPalettes = beamPalettes, Charge = fixtureChargeColors, Suits = fixtureSuitColors };
     ReadOnlySpan<byte> beamPage = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, beamArtwork,
-        InstalledFixtures.Projectiles.TrailTiles)
+        InstalledFixtures.ImportProjectiles.TrailTiles)
         .For(SuperMetroid.Core.Progression.SamusBeamFlags.None).Characters;
     int beamFirstByte = ProjectileObjectPageDefinitions.BeamFirstCharacter * SpriteArtwork.CharacterByteCount;
     AssertEqual(0x5a, beamPage[beamFirstByte],

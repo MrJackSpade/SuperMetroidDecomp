@@ -27,11 +27,11 @@ internal static class InstalledSheetCompositions
 
     /// <summary>The sprite sheets' composer over the installation's stock content.</summary>
     private static readonly Lazy<SpriteSheetSourceCatalog> SpriteSheets = new(() =>
-        new SpriteSheetSourceCatalog(RepositoryInstallation.Installation.ContentDirectory, EndingPaletteImport.Read(Cartridge.Value)));
+        new SpriteSheetSourceCatalog(CartridgeImportContent.Directory, EndingPaletteImport.Read(Cartridge.Value)));
 
     /// <summary>Each boss body sheet, composed by its installed name.</summary>
     private static readonly Lazy<Dictionary<string, ComposedSpriteSheet>> BossBodies = new(() => SharedFixtureTiming.Load("Fixture: boss body sheet compositions",
-        () => BossBodySheetComposer.Compose(RoomBlockSheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory))
+        () => BossBodySheetComposer.Compose(RoomBlockSheetInputs.Load(CartridgeImportContent.Directory))
             .ToDictionary(sheet => BossBodySheetComposer.SheetNameOf(sheet.Owner), sheet => sheet.Sheet, StringComparer.Ordinal)));
 
     /// <summary>Each room sheet (blocks, backgrounds, written and effect pictures, message boxes, floors), composed by its installed name.</summary>
@@ -40,7 +40,7 @@ internal static class InstalledSheetCompositions
     /// <summary>Every room sheet the installation holds, composed in-process by its installed name.</summary>
     private static Dictionary<string, ComposedSpriteSheet> ComposeRooms()
     {
-        RoomSheetComposition composition = RoomBlockSheetComposer.Compose(RoomBlockSheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory));
+        RoomSheetComposition composition = RoomBlockSheetComposer.Compose(RoomBlockSheetInputs.Load(CartridgeImportContent.Directory));
         var sheets = new Dictionary<string, ComposedSpriteSheet>(StringComparer.Ordinal);
         foreach ((TilesetDefinition tileset, ComposedSpriteSheet sheet) in composition.BlockSheets)
             sheets.Add(RoomBlockSheet.NameOf(tileset), sheet);

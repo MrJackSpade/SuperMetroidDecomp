@@ -179,7 +179,7 @@ internal static class MapPresentationVerification
         private readonly InstalledRoomObjectElevatorPlatformVisuals elevatorPlatform;
 
         /// <summary>Enemy character and sprite art bound alongside room art.</summary>
-        public InstalledEnemyArtwork EnemyTiles { get; }
+        public ImportEnemyArtwork EnemyTiles { get; }
         /// <summary>Samus body art bound before gameplay drawing begins.</summary>
         public InstalledSamusBodyArtwork SamusBody { get; }
 
@@ -338,7 +338,7 @@ internal static class MapPresentationVerification
             AreaMapPresentation game = MapPresentationFiles.Load(stock);
             AssertEqual(original.ContentIdentity, game.ContentIdentity, "the game's read reads no colour document only the import reads");
             AssertTrue(game is not ImportAreaMapPresentation, "the game's read holds none of the import's colours");
-            AssertThrows<FileNotFoundException>(() => MapPresentationFiles.LoadForImport(stock), "the import's read requires its colour documents");
+            AssertThrows<FileNotFoundException>(() => MapPresentationFiles.LoadForImport(stock, SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName)), "the import's read requires its colour documents");
         }
         finally
         {
@@ -416,9 +416,7 @@ internal static class MapPresentationVerification
         Suite(nameof(VerifyGameplayMessageNoticeAssets), () => VerifyGameplayMessageNoticeAssets(bus, stock));
         Suite(nameof(VerifyEscapeTypewriterAssets), () => VerifyEscapeTypewriterAssets(bus, stock));
         Suite(nameof(VerifyIntroNarrationAssets), () => VerifyIntroNarrationAssets(bus, stock));
-        Suite(nameof(VerifyIntroFontAssets), () => VerifyIntroFontAssets(bus, stock));
         Suite(nameof(VerifyEndingTextAssets), () => VerifyEndingTextAssets(bus, stock));
-        Suite(nameof(VerifyEndingFontAssets), () => VerifyEndingFontAssets(bus, stock));
         // Stronger than composing individual range guards: no bus read or write
         // is permitted anywhere in this complete installed saved-map lifecycle.
         Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(original, verifyCapturedRendering: true));

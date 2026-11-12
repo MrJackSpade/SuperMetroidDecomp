@@ -19,7 +19,7 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
     /// </summary>
     internal static void VerifyInstalledSporeSpawnSelectorPrograms(
         SuperMetroidAddressSpace rom,
-        InstalledEnemyArtwork stock)
+        ImportEnemyArtwork stock)
     {
         AssertTrue(stock.Enemies.Spritemaps is not null && stock.Enemies.ExtendedFrames is not null,
             "installed Spore Spawn comparison has complete enemy art");

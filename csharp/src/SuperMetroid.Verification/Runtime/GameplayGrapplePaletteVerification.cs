@@ -42,7 +42,7 @@ internal static class GameplayGrapplePaletteVerification
         var level = Harness.VerificationHelpersVerification.CreateRoom(new Extent16<RoomBlocks>(32, 16), words, new RoomBlockBehavior[512]);
         runtime.Room.Adopt(scope with { LevelData = level });
         var samus = runtime.Player.IntroducedSamus;
-        var palettes = projectiles.BeamTiles.Palettes ?? throw new InvalidDataException("Missing beam palettes.");
+        var palettes = projectiles.BeamPalettes;
         // Grapple firing names the Ice beam's shade and the flare's (#1512); the import resolves both.
         var sources = InstalledFixtures.SamusShadeSources with { BeamPalettes = palettes };
         foreach (ushort beam in new ushort[] { 0, 4 })

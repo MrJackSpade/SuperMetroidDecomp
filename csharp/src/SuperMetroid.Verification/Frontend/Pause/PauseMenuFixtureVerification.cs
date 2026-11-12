@@ -58,7 +58,8 @@ internal static class PauseMenuFixtureVerification
         foreach (string name in new[] { "Indicator.Frame0", "Indicator.Frame1", "Indicator.Frame2" })
             sprites.Frames[name] = [singlePart];
         using var spriteJson = Json(sprites);
-        using var spritePng = File.OpenRead(Path.Combine(installation.MapDirectory, MapSpriteFormat.PngFile));
+        // The map sprites' page is import data no installation holds: the cartridge-derived extraction's (#1636).
+        using var spritePng = File.OpenRead(Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName), MapSpriteFormat.PngFile));
         var selectors = Document<PauseSelectorDocument>(PauseSelectorFormat.FileName);
         selectors.Anchors[PauseSelectorAnchors.Anchor(PauseEquipmentCategory.Suits, 2)] = new(0x90, 0x70);
         selectors.Anchors[PauseSelectorAnchors.Anchor(PauseEquipmentCategory.Suits, 3)] = new(0xa0, 0x80);
@@ -100,18 +101,20 @@ internal static class PauseMenuFixtureVerification
             CeresRidleyGetawayBoostDelays = stock.CeresRidleyGetawayBoostDelays,
         };
         // The screens and the HUD are pictured from the constructed ROM's characters (#1466).
-        return new ImportAreaMapPresentation(parts, new InstalledPresentationSources(new MapCharacterArtwork(
-            new MapTileCharacters(Read(MapSourceDefinitions.Artwork.MapCharacters, MapTileAtlasFormat.ByteCount)), new HudTileAtlas(hud),
-            new MapTileCharacters(Read(MapSourceDefinitions.Artwork.PauseInterfaceCharacters, PauseTileAtlasFormat.ByteCount))),
+        return new ImportAreaMapPresentation(parts, new InstalledPresentationSources(
             GameplayMessageArtwork.Of(stock), InstalledAreaMapPresentation.RoomFxPagesOf(stock), InstalledAreaMapPresentation.StaffCreditsOf(stock),
             InstalledAreaMapPresentation.EndingTextOf(stock), InstalledAreaMapPresentation.ScreensOf(stock),
             new PauseScreenArtwork(backdrops, InstalledAreaMapPresentation.PauseOf(stock).Wireframes,
                 InstalledAreaMapPresentation.PauseOf(stock).EquipmentBase, InstalledAreaMapPresentation.PauseOf(stock).EquipmentLabels,
-                InstalledAreaMapPresentation.PauseOf(stock).ReserveUi), MapSpriteArtwork.Read(spriteJson, spritePng),
-            InstalledAreaMapPresentation.HighlightColoursOf(stock), ImportAreaMapPresentation.EscapeTimerTilesOf(stock),
-            ImportAreaMapPresentation.RoomFxAnimatedTilesOf(stock), ImportAreaMapPresentation.WorldCharactersOf(stock),
-            ImportAreaMapPresentation.IntroFontOf(stock), ImportAreaMapPresentation.EndingFontOf(stock),
-            ImportAreaMapPresentation.TitleGraphicsOf(stock)),
+                InstalledAreaMapPresentation.PauseOf(stock).ReserveUi),
+            InstalledAreaMapPresentation.HighlightColoursOf(stock)),
+            new ImportPresentationCharacters(new MapCharacterArtwork(
+                new MapTileCharacters(Read(MapSourceDefinitions.Artwork.MapCharacters, MapTileAtlasFormat.ByteCount)), new HudTileAtlas(hud),
+                new MapTileCharacters(Read(MapSourceDefinitions.Artwork.PauseInterfaceCharacters, PauseTileAtlasFormat.ByteCount))),
+                MapSpriteArtwork.Read(spriteJson, spritePng), ImportAreaMapPresentation.EscapeTimerTilesOf(stock),
+                ImportAreaMapPresentation.RoomFxAnimatedTilesOf(stock), ImportAreaMapPresentation.WorldCharactersOf(stock),
+                ImportAreaMapPresentation.IntroFontOf(stock), ImportAreaMapPresentation.EndingFontOf(stock),
+                ImportAreaMapPresentation.TitleGraphicsOf(stock)),
             new ImportPresentationColours(ImportAreaMapPresentation.SamusColoursOf(stock), ImportAreaMapPresentation.TitlePaletteOf(stock),
                 palettes, ImportAreaMapPresentation.CeresRidleyColorsOf(stock), ImportAreaMapPresentation.CeresRidleyFloorColorsOf(stock),
                 ImportAreaMapPresentation.MotherBrainHealthPaletteOf(stock), ImportAreaMapPresentation.MotherBrainRoomColorsOf(stock),

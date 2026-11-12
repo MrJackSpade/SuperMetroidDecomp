@@ -28,7 +28,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
 
     /// <summary>Compares 432 native RGB5 words and checks production shades and fade targets without source reads.</summary>
     internal static void VerifyInstalledSporeSpawnColors(
-        ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
+        ISnesAddressSpace rom, string stockDirectory, ImportEnemyArtwork stock)
     {
         SporeSpawnColorCatalog native = stock.Bosses.SporeSpawnColors ??
             throw new InvalidDataException("Installed enemy art has no Spore Spawn colors.");

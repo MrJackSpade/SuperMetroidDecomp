@@ -59,35 +59,35 @@ internal static class EnemySpritemapArtworkVerification
 {
     /// <summary>Runs the Alcoon in a real room with the installed artwork.</summary>
     private static void VerifyInstalledAlcoonInstructionFrames(
-        SuperMetroidAddressSpace rom, InstalledEnemyArtwork stock)
+        SuperMetroidAddressSpace rom, ImportEnemyArtwork stock)
     {
         Suite(nameof(VerifyAlcoonInstructionProgramDefinitions), () => VerifyAlcoonInstructionProgramDefinitions(rom, stock));
     }
 
     /// <summary>Runs the Beetom programs with the installed artwork.</summary>
     private static void VerifyInstalledBeetomInstructionFrames(
-        SuperMetroidAddressSpace rom, InstalledEnemyArtwork stock)
+        SuperMetroidAddressSpace rom, ImportEnemyArtwork stock)
     {
         Suite(nameof(VerifyBeetomInstructionProgramDefinitions), () => VerifyBeetomInstructionProgramDefinitions(rom, stock));
     }
 
     /// <summary>Runs the hopper family's typed animations with the installed stock artwork.</summary>
     private static void VerifyInstalledHopperInstructionFrames(
-        SuperMetroidAddressSpace rom, InstalledEnemyArtwork stock)
+        SuperMetroidAddressSpace rom, ImportEnemyArtwork stock)
     {
         Suite(nameof(VerifyHopperAnimationDefinitions), () => VerifyHopperAnimationDefinitions(rom, stock));
     }
 
     /// <summary>Runs Choot's idle, jumping and falling animations with the installed stock artwork.</summary>
     private static void VerifyInstalledChootInstructionFrames(
-        InstalledEnemyArtwork stock)
+        ImportEnemyArtwork stock)
     {
         Suite(nameof(ChootBehaviorVerification.VerifyChootBehavior), () => ChootBehaviorVerification.VerifyChootBehavior(stock));
     }
 
     /// <summary>Checks Bull frame selectors and exercises normal and immune-shot programs without cartridge visual reads.</summary>
     private static void VerifyInstalledBullInstructionFrames(
-        InstalledEnemyArtwork stock)
+        ImportEnemyArtwork stock)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
         RoomEnemySlot bull = enemies.SlotTable.Slots[0];
@@ -114,14 +114,14 @@ internal static class EnemySpritemapArtworkVerification
 
     /// <summary>Runs Puyo's grounded and airborne programs with the installed stock artwork.</summary>
     private static void VerifyInstalledPuyoInstructionFrames(
-        InstalledEnemyArtwork stock) =>
+        ImportEnemyArtwork stock) =>
         Suite(nameof(PuyoInstructionProgramDefinitionsVerification.VerifyPuyoInstructionProgramDefinitions),
             () => PuyoInstructionProgramDefinitionsVerification.VerifyPuyoInstructionProgramDefinitions(stock));
 
     /// <summary>Compares installed enemy compositions and rendering with the cartridge's OAM definitions.</summary>
     internal static void VerifyInstalledEnemySpritemaps(
         SuperMetroidAddressSpace rom,
-        InstalledEnemyArtwork stock)
+        ImportEnemyArtwork stock)
     {
         AssertTrue(stock.Enemies.Spritemaps is not null,
             "installed enemy catalog contains named OAM compositions");
@@ -500,7 +500,7 @@ internal static class EnemySpritemapArtworkVerification
                     && entry.Key is not (EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.RidleyExplosion))
                 .Select(entry => (EnemyDefinitionId?)entry.Key).Order().FirstOrDefault();
 
-        static OamBuffer DrawEnemy(InstalledEnemyArtwork art,
+        static OamBuffer DrawEnemy(ImportEnemyArtwork art,
             ISnesAddressSpace guard, ushort pointer, EnemyDefinitionId definition,
             Action<RoomEnemySlot, RoomEnemySystem>? inspect = null, byte? spritemapBank = null)
         {
@@ -631,7 +631,7 @@ internal static class EnemySpritemapArtworkVerification
 
     /// <summary>Checks Mother Brain's private draw hook against native head frames and above-screen culling.</summary>
     private static void VerifyInstalledMotherBrainDrawHook(
-        SuperMetroidAddressSpace rom, InstalledEnemyArtwork stock)
+        SuperMetroidAddressSpace rom, ImportEnemyArtwork stock)
     {
         // Mother Brain's room's graphics set, which gives the tile base and colours it loads her head with.
         RoomEnemyGraphicsSetDefinition headSet = SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.MotherBrainHead);
@@ -662,7 +662,7 @@ internal static class EnemySpritemapArtworkVerification
 
     /// <summary>Draws one Mother Brain world frame through the installed private renderer under a cartridge-read guard.</summary>
     private static OamBuffer DrawInstalledMotherBrainFrame(
-        InstalledEnemyArtwork art, ushort pointer,
+        ImportEnemyArtwork art, ushort pointer,
         Position16<RoomPixels> world)
     {
         var oam = new OamBuffer();
@@ -672,7 +672,7 @@ internal static class EnemySpritemapArtworkVerification
 
     /// <summary>Publishes one Mother Brain world frame through the installed private renderer, under a camera at (256, 16).</summary>
     private static void PublishInstalledMotherBrainFrame(
-        InstalledEnemyArtwork art, ushort pointer,
+        ImportEnemyArtwork art, ushort pointer,
         Position16<RoomPixels> world, SpriteFrameBuffer sprites)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses };

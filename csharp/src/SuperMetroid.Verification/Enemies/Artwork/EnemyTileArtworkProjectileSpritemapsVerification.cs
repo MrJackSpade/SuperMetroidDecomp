@@ -99,7 +99,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
 
     /// <summary>Checks imported projectile maps and representative animated effects against cartridge OAM at ordinary and wrapped screen coordinates.</summary>
     internal static void VerifyInstalledEnemyProjectileSpritemaps(
-        ISnesAddressSpace bus, string directory, InstalledEnemyArtwork stock)
+        ISnesAddressSpace bus, string directory, ImportEnemyArtwork stock)
     {
         EnemyProjectileSpritemapCatalog installed = stock.Enemies.ProjectileSpritemaps
             ?? throw new InvalidDataException("Installed enemy-projectile compositions are missing.");
@@ -415,7 +415,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             $"{EnemyProjectilePresentationFrameSets.All.Length} catalogued timed/flicker frames " +
             "match native OAM; installed draws and incomplete-document rejection pass.");
 
-        void VerifySharedProgramVisuals(InstalledEnemyArtwork artwork)
+        void VerifySharedProgramVisuals(ImportEnemyArtwork artwork)
         {
             ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> frames =
                 EnemyProjectilePresentationFrameSets.All;
@@ -473,7 +473,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             }
         }
 
-        void VerifyBurstVisuals(InstalledEnemyArtwork artwork)
+        void VerifyBurstVisuals(ImportEnemyArtwork artwork)
         {
             foreach (ushort program in new[]
                      {
@@ -498,7 +498,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         // composition, not the installed catalog or production draw callback.
         // The cartridge's draw of a program frame under the graphics word its spawn writes: the shared sheet's for an object
         // any room spawns, else its spawner's own sheet's in the set that loads it, with the row its loaded colours select.
-        static OamBuffer DrawReferenceProgramFrame(InstalledEnemyArtwork artwork, ushort operand, ISnesAddressSpace source,
+        static OamBuffer DrawReferenceProgramFrame(ImportEnemyArtwork artwork, ushort operand, ISnesAddressSpace source,
             RoomEnemyProjectileKind _ = RoomEnemyProjectileKind.MiscDustExplosion)
         {
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
@@ -529,7 +529,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             return oam;
         }
 
-        static OamBuffer DrawBurst(InstalledEnemyArtwork artwork, ushort program,
+        static OamBuffer DrawBurst(ImportEnemyArtwork artwork, ushort program,
             ISnesAddressSpace source)
         {
             EnemyDefinitionId spawner = BurstSpawner(program);
@@ -563,7 +563,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 ? EnemyDefinitionId.Skree : EnemyDefinitionId.Metaree;
 
         // The particles draw from the sheets a set loading their spawner composes from this artwork.
-        static RoomEnemySystem BurstSystem(InstalledEnemyArtwork artwork, EnemyDefinitionId spawner)
+        static RoomEnemySystem BurstSystem(ImportEnemyArtwork artwork, EnemyDefinitionId spawner)
         {
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
             SpawnedObjectFixtures.LoadSetDrawing(enemies, spawner);
@@ -655,7 +655,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 : EnemyShades.InProjectileLook;
 
         // The spawner's set loaded, its artwork sequences at a step where the frame is drawn.
-        static RoomEnemySystem SpawnerSystem(InstalledEnemyArtwork artwork, EnemyDefinitionId spawner, EnemyProjectileFrameId frame)
+        static RoomEnemySystem SpawnerSystem(ImportEnemyArtwork artwork, EnemyDefinitionId spawner, EnemyProjectileFrameId frame)
         {
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
             SpawnedObjectFixtures.LoadSetDrawing(enemies, spawner);
@@ -677,12 +677,12 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             return oam;
         }
 
-        static OamBuffer DrawSharedFrame(InstalledEnemyArtwork artwork,
+        static OamBuffer DrawSharedFrame(ImportEnemyArtwork artwork,
             ushort operand, ISnesAddressSpace source) =>
             DrawProgramFrame(artwork, operand, source,
                 RoomEnemyProjectileKind.MiscDustExplosion);
 
-        static OamBuffer DrawProgramFrame(InstalledEnemyArtwork artwork,
+        static OamBuffer DrawProgramFrame(ImportEnemyArtwork artwork,
             ushort operand, ISnesAddressSpace source, RoomEnemyProjectileKind kind)
         {
             // Typed programs (#641) present their frames by key.
@@ -692,7 +692,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 : throw new InvalidOperationException($"Projectile {kind} plays no typed program.");
         }
 
-        static OamBuffer DrawPresentedFrame(InstalledEnemyArtwork artwork,
+        static OamBuffer DrawPresentedFrame(ImportEnemyArtwork artwork,
             ushort presentationKey, ISnesAddressSpace source, RoomEnemyProjectileKind kind)
         {
             RoomEnemySystem enemies = PresentedSystem(artwork, presentationKey, kind);
@@ -703,7 +703,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         }
 
         // A room whose first projectile shows the program frame the key installs, drawn from the sheets of a set spawning it.
-        static RoomEnemySystem PresentedSystem(InstalledEnemyArtwork artwork, ushort presentationKey, RoomEnemyProjectileKind kind)
+        static RoomEnemySystem PresentedSystem(ImportEnemyArtwork artwork, ushort presentationKey, RoomEnemyProjectileKind kind)
         {
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
             EnemyProjectile slot = enemies.Projectiles.EnemyProjectiles[0];
@@ -720,12 +720,12 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
 
         // Whether the installed draw of a program frame stands for the native OAM: the same image, or the OAM of another
         // composition the frame's shared picture stands for (#1513).
-        static bool InstalledStandsFor(OamBuffer native, OamBuffer installed, InstalledEnemyArtwork artwork, ushort operand,
+        static bool InstalledStandsFor(OamBuffer native, OamBuffer installed, ImportEnemyArtwork artwork, ushort operand,
             RoomEnemyProjectileKind kind) =>
             native.NextByteOffset == installed.NextByteOffset &&
             (native.ImageEquals(installed) || SharedPictureStandsFor(PresentedSystem(artwork, operand, kind), native));
 
-        static OamBuffer DrawNoobTubeShard(InstalledEnemyArtwork artwork,
+        static OamBuffer DrawNoobTubeShard(ImportEnemyArtwork artwork,
             ISnesAddressSpace source)
         {
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };

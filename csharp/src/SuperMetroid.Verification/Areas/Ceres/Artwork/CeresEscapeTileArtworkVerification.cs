@@ -22,7 +22,7 @@ namespace SuperMetroid.Verification.Areas.Ceres.Artwork;
 internal static class CeresEscapeTileArtworkVerification
 {
     /// <summary>Compares native transfer bytes and the installed pages without cartridge reads.</summary>
-    internal static void VerifyCeresEscapeTileArtwork(ISnesAddressSpace rom, InstalledEnemyArtwork stock)
+    internal static void VerifyCeresEscapeTileArtwork(ISnesAddressSpace rom, ImportEnemyArtwork stock)
     {
         AssertTrue(stock.Areas.CeresEscapeTiles is not null,
             "installed Ceres escape warning and door PNGs exist");
@@ -108,7 +108,7 @@ internal static class CeresEscapeTileArtworkVerification
 
         // The pictures of the warning pages are composed from the installed characters; composing them without those
         // characters fails rather than falling back to cartridge bytes.
-        var missing = new EnemyTileTransfers(new InstalledEnemyArtwork(stock.Enemies, stock.Bosses, new AreaSourceArtwork()), timer: timer);
+        var missing = new EnemyTileTransfers(new ImportEnemyArtwork(stock.Enemies, stock.Bosses, new AreaSourceArtwork()), timer: timer);
         AssertThrows<InvalidDataException>(() => EncounterLookUploads.Steps(ComposedEncounter.CeresEscape, missing),
             "Ceres warning pictures reject missing installed character artwork");
         Console.WriteLine(

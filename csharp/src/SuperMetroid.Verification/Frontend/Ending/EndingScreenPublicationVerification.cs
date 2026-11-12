@@ -33,7 +33,7 @@ internal static class EndingScreenPublicationVerification
             byte[] shownVram = ending.ShownVram();
             EndingCreditsState restored = RoundTrip(ending);
             restored.Flyaway.BindFlightArtwork(InstalledFixtures.IntroArtwork.CeresFlight);
-            restored.InstalledArtwork.BindFixtureObjectArtwork(RepositoryInstallation.Installation.LoadEndingObjectArt());
+            restored.InstalledArtwork.BindFixtureObjectArtwork(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingObjects);
             restored.InstalledArtwork.BindBackdrops(InstalledFixtures.EndingBackdrops);
             restored.InstalledArtwork.BindSpaceBackdrops(InstalledFixtures.Maps.EndingSpaceBackdrops);
             restored.InstalledArtwork.BindEndingText(InstalledFixtures.Maps.EndingText);

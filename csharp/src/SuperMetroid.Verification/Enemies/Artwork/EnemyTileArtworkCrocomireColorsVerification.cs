@@ -29,7 +29,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
 
     /// <summary>Checks five color transfers, hurt whiteout, death-phase palette use, and out-of-range channel rejection.</summary>
     internal static void VerifyInstalledCrocomireColors(
-        ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
+        ISnesAddressSpace rom, string stockDirectory, ImportEnemyArtwork stock)
     {
         CrocomireColorCatalog native = stock.Bosses.CrocomireColors ??
             throw new InvalidDataException("Installed enemy art has no Crocomire colors.");

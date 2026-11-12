@@ -61,7 +61,7 @@ internal static class EnemyExtendedFrameArtworkVerification
     /// <summary>Compares installed Pirate and boss extended frames to native OAM.</summary>
     internal static void VerifyInstalledEnemyExtendedFrames(
         SuperMetroidAddressSpace rom,
-        InstalledEnemyArtwork stock)
+        ImportEnemyArtwork stock)
     {
         AssertTrue(stock.Enemies.ExtendedFrames is not null,
             "installed enemy catalog contains extended visual compositions");
@@ -250,7 +250,7 @@ internal static class EnemyExtendedFrameArtworkVerification
     }
 
     /// <summary>Draws a bank-$B2 installed frame through the production enemy-layer path for OAM comparison.</summary>
-    private static OamBuffer DrawExtended(InstalledEnemyArtwork art,
+    private static OamBuffer DrawExtended(ImportEnemyArtwork art,
         ushort pointer, Position16<RoomPixels> position,
         Action<RoomEnemySlot, RoomEnemySystem>? inspect = null)
     {
@@ -259,7 +259,7 @@ internal static class EnemyExtendedFrameArtworkVerification
     }
 
     /// <summary>Installs a chosen extended frame on a fixture enemy and captures the production layer draw for its bank.</summary>
-    internal static OamBuffer DrawExtendedForBank(InstalledEnemyArtwork? art,
+    internal static OamBuffer DrawExtendedForBank(ImportEnemyArtwork? art,
         byte bank, ushort pointer, Position16<RoomPixels> position,
         Action<RoomEnemySlot, RoomEnemySystem>? inspect = null)
     {

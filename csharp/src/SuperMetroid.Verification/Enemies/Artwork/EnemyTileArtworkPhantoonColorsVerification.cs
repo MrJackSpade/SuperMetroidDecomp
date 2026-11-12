@@ -26,7 +26,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
     /// <summary>Checks installed colors through boss fade and hurt handlers,
     /// with native source reads forbidden and malformed documents rejected.</summary>
     internal static void VerifyInstalledPhantoonColors(
-        ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
+        ISnesAddressSpace rom, string stockDirectory, ImportEnemyArtwork stock)
     {
         PhantoonColorCatalog native = stock.Bosses.PhantoonColors ??
             throw new InvalidDataException("Installed enemy art has no Phantoon colors.");

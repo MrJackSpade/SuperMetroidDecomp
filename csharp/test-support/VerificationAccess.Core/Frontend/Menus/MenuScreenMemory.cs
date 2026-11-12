@@ -24,7 +24,7 @@ internal static class MenuScreenMemory
     /// </summary>
     [WholeImageFixture("the menu's character image")]
     internal static byte[] Characters(AreaMapPresentation maps) =>
-        (byte[])composedCharacters.GetValue(InstalledAreaMapPresentation.WorldCharactersOf(maps), ComposeCharacters).Clone();
+        (byte[])composedCharacters.GetValue(ImportAreaMapPresentation.WorldCharactersOf(maps), ComposeCharacters).Clone();
 
     /// <summary>
     /// Composes the character image a menu showing <paramref name="worldCharacters"/> holds: its world characters with the
@@ -38,7 +38,7 @@ internal static class MenuScreenMemory
         // The menu's map characters and sprite page are installed artwork, the same for every menu screen (#1463, #1466).
         MapCharacterArtwork.Of(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps).Map
             .LoadTo(new VramRegion(image, MenuVramLayout.MapCharacters));
-        InstalledAreaMapPresentation.SpritesOf(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps)
+        ImportAreaMapPresentation.SpritesOf(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps)
             .LoadArtworkTo(new VramRegion(image, MenuVramLayout.ObjectCharacters));
         return image.CaptureImage();
     }

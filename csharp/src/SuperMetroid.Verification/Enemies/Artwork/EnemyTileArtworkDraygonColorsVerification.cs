@@ -28,7 +28,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
 
     /// <summary>Compares 105 RGB5 words with ROM and checks production Draygon color writes under a source-read guard.</summary>
     internal static void VerifyInstalledDraygonColors(
-        ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
+        ISnesAddressSpace rom, string stockDirectory, ImportEnemyArtwork stock)
     {
         DraygonColorCatalog native = stock.Bosses.DraygonColors ??
             throw new InvalidDataException("Installed enemy art has no Draygon colors.");

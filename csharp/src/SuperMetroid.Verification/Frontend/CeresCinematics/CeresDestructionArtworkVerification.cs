@@ -28,7 +28,9 @@ internal static class CeresDestructionArtworkVerification
     internal static void VerifyCeresDestructionArtwork(GameInstallation installation,
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
-        IntroCinematicArtwork stock = installation.LoadIntroCinematicArt();
+        // The Zebes reveal's characters are import data no installation holds: the cartridge-derived extraction's (#1636).
+        ArgumentNullException.ThrowIfNull(installation);
+        IntroCinematicArtwork stock = InstalledFixtures.IntroArtwork;
         byte[] nativeMaps = RomDataReader.Decompress(bus,
             CeresCinematicSourceDefinitions.CeresTilemaps,
             maximumOutputBytes: CeresCinematicSourceDefinitions.CompressedTilemapLimit);
@@ -46,7 +48,7 @@ internal static class CeresDestructionArtworkVerification
                 RomDataReader.Decompress(bus,
                     CeresCinematicSourceDefinitions.ZebesCharacters,
                     maximumOutputBytes: ZebesRevealArtworkFormat.CharacterByteCount)),
-            "installed Zebes reveal PNG preserves every transferred character byte");
+            "extracted Zebes reveal characters preserve every transferred character byte");
 
         foreach (CeresDestructionSpriteFrameDefinition frame in
             CeresDestructionSpriteFrameDefinitions.Frames)

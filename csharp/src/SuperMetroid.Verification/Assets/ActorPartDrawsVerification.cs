@@ -45,7 +45,7 @@ internal static class ActorPartDrawsVerification
     /// </summary>
     internal static void VerifyEnemyPartDraws()
     {
-        InstalledEnemyArtwork artwork = InstalledFixtures.EnemyArtwork;
+        ImportEnemyArtwork artwork = InstalledFixtures.EnemyArtwork;
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance)
             { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
         EnemyExtendedFrameCatalog compositions = artwork.Enemies.ExtendedFrames

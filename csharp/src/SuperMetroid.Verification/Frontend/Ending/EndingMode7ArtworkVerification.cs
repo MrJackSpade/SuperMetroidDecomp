@@ -23,7 +23,7 @@ internal static class EndingMode7ArtworkVerification
     internal static void VerifyEndingMode7Artwork(GameInstallation installation)
     {
         var nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        EndingFloorCharacters stock = installation.LoadEndingMode7Art();
+        EndingFloorCharacters stock = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingFloors;
         foreach (EndingFloorSceneId id in Enum.GetValues<EndingFloorSceneId>())
         {
             (int characterSource, int packedSource) = EndingArtworkSources.Floor(id);

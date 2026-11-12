@@ -19,7 +19,7 @@ internal static class BossBodySheetFixtures
 {
     /// <summary>The installation's stock inputs the sheets compose over.</summary>
     private static readonly Lazy<RoomBlockSheetInputs> inputs = new(() => SharedFixtureTiming.Load("Fixture: boss body sheet inputs",
-        () => RoomBlockSheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory)));
+        () => RoomBlockSheetInputs.Load(CartridgeImportContent.Directory)));
 
     /// <summary>Sheets already composed, by the fixture's boss and then its artwork.</summary>
     private static readonly Dictionary<BossBodyOwner, ConditionalWeakTable<BossSourceArtwork, BossBodyArtworkFixture>> composed =

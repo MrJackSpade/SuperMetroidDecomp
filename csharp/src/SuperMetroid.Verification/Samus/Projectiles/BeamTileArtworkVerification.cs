@@ -51,7 +51,7 @@ internal static class BeamTileArtworkVerification
             AssertTrue(legacyVram.ImageEquals(native), "Legacy beam source resolves exact native pixels without ROM DMA");
             // The page the selection binds shows the native beam characters at their DMA destination.
             var pages = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, catalog,
-                InstalledFixtures.Projectiles.TrailTiles);
+                InstalledFixtures.ImportProjectiles.TrailTiles);
             AssertTrue(pages.For(SamusEquipmentWordCodec.FromBeamWord(selection)).Characters.Slice(ProjectileObjectPageDefinitions.BeamFirstCharacter * SpriteArtwork.CharacterByteCount,
                     BeamTileAtlasDefinitions.ByteCount).SequenceEqual(native.Bytes.Slice(ObjCharacterNativeWords.Of(ProjectileObjectPageDefinitions.BeamFirstCharacter) * 2, BeamTileAtlasDefinitions.ByteCount)),
                 "The bound projectile page shows the native beam characters");

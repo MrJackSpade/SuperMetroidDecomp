@@ -77,9 +77,9 @@ internal static class MotherBrainBodyPresentationVerification
 
         // She draws from sheets composed over the installed enemy artwork, so the fixture starts from it and replaces only
         // the extended frames and body BG2 frames it authors (#1459), as #1446's boss fixture does.
-        InstalledEnemyArtwork Build(EnemyExtendedFrameDocument oam, EnemyBg2FrameDocument? bg2)
+        ImportEnemyArtwork Build(EnemyExtendedFrameDocument oam, EnemyBg2FrameDocument? bg2)
         {
-            EnemyTileSourceArtwork tiles = SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation.LoadEnemyTiles().Enemies;
+            EnemyTileSourceArtwork tiles = SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.FreshEnemyArtwork().Enemies;
             tiles.ExtendedFrames = EnemyExtendedFrameDocuments.Load(author.Json(oam));
             return new(tiles,
                 new BossSourceArtwork { MotherBrainBodyBg2Frames = bg2 is null ? null : MotherBrainBodyBg2FrameCatalog.Load(author.Json(bg2)) },
@@ -205,7 +205,7 @@ internal static class MotherBrainBodyPresentationVerification
         }
         Console.WriteLine($"PASS stock import: 17 Mother Brain roots, {limbs} OAM limbs/{sprites} sprites, " +
             $"16 BG2 frames/{runs} ordered runs/{tiles} tile words. Production runtime receives no cartridge source.");
-        InstalledEnemyArtwork installed = InstalledFixtures.EnemyArtwork;
+        ImportEnemyArtwork installed = InstalledFixtures.EnemyArtwork;
         AssertEqual(bg2.ContentIdentity, (installed.Bosses.MotherBrainBodyBg2Frames ?? throw new InvalidOperationException("Verification requires installed.MotherBrainBodyBg2Frames.")).ContentIdentity,
             "manifest loads the exact imported Mother Brain body catalog");
         AssertEqual(oam.ContentIdentity, (installed.Enemies.ExtendedFrames ?? throw new InvalidOperationException("Verification requires installed.ExtendedFrames.")).ContentIdentity,

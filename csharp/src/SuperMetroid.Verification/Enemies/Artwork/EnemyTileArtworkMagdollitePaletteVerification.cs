@@ -24,7 +24,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
     /// Compares installed RGB5 colors with the cartridge, then exercises the room's lava glow.
     /// </summary>
     internal static void VerifyInstalledMagdollitePaletteCycle(
-        ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
+        ISnesAddressSpace rom, string stockDirectory, ImportEnemyArtwork stock)
     {
         MagdollitePaletteCycle native = stock.Enemies.MagdollitePaletteCycle ??
             throw new InvalidDataException("Installed enemy art has no Magdollite palette cycle.");

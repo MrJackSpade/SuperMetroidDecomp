@@ -40,7 +40,7 @@ internal static class InvalidBeamGraphicsVerification
             AssertEqual(native, chainsaw.Colours[color],
                 $"Chainsaw palette colour {color} is the open-bus byte and Samus_Animate's instruction bytes as CGRAM keeps them");
         }
-        var artwork = InstalledFixtures.Projectiles.BeamTiles;
+        var artwork = InstalledFixtures.ImportProjectiles.BeamTiles;
         AssertTrue(artwork.TryResolve(ChainsawBeamGraphicsDefinitionsConstants.TileSource, 256, out var legacyTiles),
             "restored native Chainsaw DMA resolves through installed artwork");
         AssertTrue(legacyTiles.Span.SequenceEqual(artwork.Resolve(InstalledArtworkId.BeamChainsawTiles).Span),
@@ -67,7 +67,7 @@ internal static class InvalidBeamGraphicsVerification
             RgbColor[] chainsawBeams = samusColours.ShownBeams(InstalledFixtures.SamusShadeSources);
             // The page Chainsaw's equipped word binds shows the bytes its native DMA reads.
             var pages = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, artwork,
-                InstalledFixtures.Projectiles.TrailTiles);
+                InstalledFixtures.ImportProjectiles.TrailTiles);
             ReadOnlySpan<byte> page = pages.For(SamusBeamFlags.Wave | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma).Characters;
             int first = ProjectileObjectPageDefinitions.BeamFirstCharacter * SpriteArtwork.CharacterByteCount;
             for (int offset = 0; offset < 256; offset++)

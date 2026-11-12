@@ -25,7 +25,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
 {
     /// <summary>Compares all initial and reveal colors and guarded production updates, and rejects out-of-range channels.</summary>
     internal static void VerifyInstalledNorfairRidleyColors(ISnesAddressSpace bus,
-        string stockDirectory, InstalledEnemyArtwork stock)
+        string stockDirectory, ImportEnemyArtwork stock)
     {
         if (stock.Bosses.NorfairRidleyColors is null)
             throw new InvalidDataException("Installed enemy artwork lacks Norfair Ridley colors.");
@@ -135,7 +135,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
 
         // Initializes the production Norfair Ridley actor with selected artwork and seeded CGRAM.
         static EnemyTileArtworkNorfairRidleyColorsCreateResult Create(
-            ISnesAddressSpace source, InstalledEnemyArtwork artwork)
+            ISnesAddressSpace source, ImportEnemyArtwork artwork)
         {
             var enemy = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
             enemy.VerificationServices().IsAreaBossDefeated = () => false;
@@ -151,7 +151,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
 
         // The colours the production encounter shows over the seeded CGRAM image: the import's shades of the installed
         // colours, laid as its AI laid them (#1512).
-        static SnesCgram Shown(RidleyEnemyState state, InstalledEnemyArtwork artwork)
+        static SnesCgram Shown(RidleyEnemyState state, ImportEnemyArtwork artwork)
         {
             NorfairRidleyColorCatalog colours = artwork.Bosses.NorfairRidleyColors
                 ?? throw new InvalidOperationException("Norfair Ridley's fixture installs his colours.");

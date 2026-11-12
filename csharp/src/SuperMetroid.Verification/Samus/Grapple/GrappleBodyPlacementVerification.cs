@@ -24,7 +24,7 @@ internal static class GrappleBodyPlacementVerification
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             var g = samus.Grapple;
-            g.SwingFrames = installed ? InstalledFixtures.Projectiles.GrappleTiles.SwingFrames : stock;
+            g.SwingFrames = installed ? InstalledFixtures.Projectiles.Grapple.SwingFrames : stock;
             samus.Pose = left ? SamusPoseId.GrappleSwingLeftPose : SamusPoseId.GrappleSwingRightPose;
             g.Anchor = g.Anchor.WithX((ushort)raw); g.Anchor = g.Anchor.WithY(unchecked((ushort)~raw));
             g.RopeLength = (ushort)(raw & 127);

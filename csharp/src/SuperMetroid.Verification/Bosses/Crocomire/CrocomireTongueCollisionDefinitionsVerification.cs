@@ -15,7 +15,7 @@ using SuperMetroid.Core.World;
 internal static class CrocomireTongueCollisionDefinitionsVerification
 {
     /// <summary>Checks that every typed tongue frame has installed art, with all cartridge reads denied.</summary>
-    internal static void VerifyInstalledCrocomireTongueVisualSelectors(InstalledEnemyArtwork stock)
+    internal static void VerifyInstalledCrocomireTongueVisualSelectors(ImportEnemyArtwork stock)
     {
         var denied = NewCrocomireTongueNoReadBus();
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };

@@ -69,7 +69,7 @@ internal static class MenuSheetFixtures
     internal static SpriteSheet MapSprites(MapSpriteCompositions catalog)
     {
         ArgumentNullException.ThrowIfNull(catalog);
-        return ReferenceEquals(catalog, InstalledAreaMapPresentation.SpritesOf(InstalledFixtures.Maps))
+        return ReferenceEquals(catalog, ImportAreaMapPresentation.SpritesOf(InstalledFixtures.Maps))
             ? InstalledFixtures.SpriteSheets.Get(SpriteSheetId.MapSprites)
             : mapSprites.GetValue(catalog, key => Load(SpriteSheetId.MapSprites, MapSpriteSheetComposer.Sources(key, InstalledFixtures.Maps),
                 $"catalog-{RuntimeHelpers.GetHashCode(key):X8}"));
@@ -113,7 +113,7 @@ internal static class MenuSheetFixtures
     internal static InstalledSpriteSheets WithTitle(TitleGraphicsCharacters graphics)
     {
         ArgumentNullException.ThrowIfNull(graphics);
-        return ReferenceEquals(graphics, InstalledAreaMapPresentation.TitleGraphicsOf(InstalledFixtures.Maps)) || ShowsStockTitle(graphics) ? InstalledFixtures.SpriteSheets
+        return ReferenceEquals(graphics, ImportAreaMapPresentation.TitleGraphicsOf(InstalledFixtures.Maps)) || ShowsStockTitle(graphics) ? InstalledFixtures.SpriteSheets
             : titles.GetValue(graphics, ComposedTitle);
     }
 
@@ -160,7 +160,7 @@ internal static class MenuSheetFixtures
     /// whose sheets are the installed sheets.
     /// </summary>
     private static bool ShowsStockTitle(TitleGraphicsCharacters graphics) =>
-        SameTitleContent(graphics, InstalledAreaMapPresentation.TitleGraphicsOf(InstalledFixtures.Maps));
+        SameTitleContent(graphics, ImportAreaMapPresentation.TitleGraphicsOf(InstalledFixtures.Maps));
 
     /// <summary>
     /// Whether two title graphics hold the same content: the floor map, the floor, object and Baby characters, and every
@@ -184,7 +184,7 @@ internal static class MenuSheetFixtures
         return ReferenceEquals(palette, ImportAreaMapPresentation.TitlePaletteOf(InstalledFixtures.Maps)) ? InstalledFixtures.SpriteSheets
             : titlePalettes.GetValue(palette, key =>
             {
-                TitleGraphicsCharacters graphics = InstalledAreaMapPresentation.TitleGraphicsOf(InstalledFixtures.Maps);
+                TitleGraphicsCharacters graphics = ImportAreaMapPresentation.TitleGraphicsOf(InstalledFixtures.Maps);
                 var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(id => id, InstalledFixtures.SpriteSheets.Get);
                 sheets[SpriteSheetId.Title] = Load(SpriteSheetId.Title, TitleSheetComposer.Sources(graphics, key),
                     $"title-palette-{RuntimeHelpers.GetHashCode(key):X8}");

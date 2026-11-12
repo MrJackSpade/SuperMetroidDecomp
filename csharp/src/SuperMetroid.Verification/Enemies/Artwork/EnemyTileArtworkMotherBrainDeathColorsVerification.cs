@@ -30,7 +30,7 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
 
     /// <summary>Compares all fade selectors and RGB5 words and checks live body and corpse destinations.</summary>
     internal static void VerifyInstalledMotherBrainDeathColors(
-        ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
+        ISnesAddressSpace rom, string stockDirectory, ImportEnemyArtwork stock)
     {
         MotherBrainDeathColorCatalog native = stock.Bosses.MotherBrainDeathColors ??
             throw new InvalidDataException("Installed enemy art has no Mother Brain death colors.");

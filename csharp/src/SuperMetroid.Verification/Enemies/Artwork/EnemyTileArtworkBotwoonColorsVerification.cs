@@ -24,7 +24,7 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
 
     /// <summary>Compares 128 stock colors with the ROM and checks installed colors flow through live health-band updates.</summary>
     internal static void VerifyInstalledBotwoonColors(
-        ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
+        ISnesAddressSpace rom, string stockDirectory, ImportEnemyArtwork stock)
     {
         BotwoonColorCatalog native = stock.Bosses.BotwoonColors ??
             throw new InvalidDataException("Installed enemy art has no Botwoon colors.");

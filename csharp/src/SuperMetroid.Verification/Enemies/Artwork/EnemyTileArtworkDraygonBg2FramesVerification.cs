@@ -33,7 +33,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
     /// <summary>Compares 34 installed frames and 102 ordered tilemap writes with ROM, then checks guarded rendering.</summary>
     internal static void VerifyInstalledDraygonBg2Frames(
         SuperMetroidAddressSpace rom, string stockDirectory,
-        InstalledEnemyArtwork stock)
+        ImportEnemyArtwork stock)
     {
         AssertTrue(stock.Bosses.DraygonBg2Frames is not null,
             "installed enemy art includes Draygon BG2 frames");
@@ -203,7 +203,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
     }
 
     /// <summary>Draws one selected Draygon frame through the enemy layer producer and captures its resulting VRAM bytes.</summary>
-    private static byte[] DrawDraygonBg2(InstalledEnemyArtwork art,
+    private static byte[] DrawDraygonBg2(ImportEnemyArtwork art,
         ushort pointer, bool newInstructionFrame)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses };

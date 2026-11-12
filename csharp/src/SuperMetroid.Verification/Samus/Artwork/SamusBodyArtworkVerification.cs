@@ -432,9 +432,9 @@ internal static class SamusBodyArtworkVerification
         foreach (ushort pointer in SamusArmCannonArtworkFormat.TileSourcePointers)
         {
             int source = SamusSourceDefinitions.CharacterDataBank.Value | pointer;
-            AssertTrue(armCannon.TryResolveTile(source,
+            AssertTrue(InstalledFixtures.SamusArmCannonCover.TryResolveTile(source,
                 SamusArmCannonArtworkFormat.CoverTileByteCount, out var tile),
-                $"arm-cannon character ${source:X6} installed");
+                $"arm-cannon character ${source:X6} extracted");
             for (int offset = 0; offset < tile.Length; offset++)
                 AssertEqual(bus.ReadCartridgeByte(source + offset), tile.Span[offset],
                     $"arm-cannon character ${source:X6} byte {offset:X2}");

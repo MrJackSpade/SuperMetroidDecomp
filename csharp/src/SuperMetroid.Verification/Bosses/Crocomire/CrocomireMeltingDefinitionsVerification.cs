@@ -156,7 +156,7 @@ internal static class CrocomireMeltingDefinitionsVerification
     }
 
     /// <summary>The characters of <paramref name="pass"/>'s installed melt image, which the extraction pictures its bands from.</summary>
-    internal static byte[] VerifyInstalledCrocomireMeltingPass(InstalledEnemyArtwork artwork, CrocomireMeltingIllustration pass)
+    internal static byte[] VerifyInstalledCrocomireMeltingPass(ImportEnemyArtwork artwork, CrocomireMeltingIllustration pass)
     {
         CrocomireMeltingArtwork melt = Ensure.NotNull(artwork).Bosses.CrocomireMelting
             ?? throw new InvalidOperationException("Installed boss artwork has no Crocomire melt images.");
@@ -168,7 +168,7 @@ internal static class CrocomireMeltingDefinitionsVerification
 
     /// <summary>Loads one installed BG2 melt tilemap and compares the words his shown body shows with native words (#1515).</summary>
     internal static ushort[] VerifyInstalledCrocomireMeltingTilemap(
-        SuperMetroidAddressSpace rom, InstalledEnemyArtwork artwork,
+        SuperMetroidAddressSpace rom, ImportEnemyArtwork artwork,
         CrocomireMeltingIllustration source, CrocomireBodyProgram bodyProgram, bool compareRom = true)
     {
         int sourceAddress = CrocomireMeltingSources.Tilemap(source);

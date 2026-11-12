@@ -30,8 +30,7 @@ internal static class GunshipInstalledCompositionsVerification
     {
         var imported = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath(romPath));
         string directory = new GameInstallation(Path.GetFullPath(installationRoot)).EnemyTileDirectory;
-        InstalledEnemyArtwork stock = EnemyTileArtworkFiles.Load(directory);
-        EnemySpritemapCatalog compositions = (stock.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps."));
+        EnemySpritemapCatalog compositions = EnemyTileArtworkReader.Open(directory).Spritemaps();
         NativeEnemySpritemapDefinition[] shipFrames = GunshipVisualDefinitions.Frames();
         AssertEqual(GunshipVisualDefinitions.FrameCount, shipFrames.Length,
             "#1154 gunship exports its two hull and eleven pad compositions");
@@ -53,7 +52,7 @@ internal static class GunshipInstalledCompositionsVerification
     /// destruction handoff. Retain the actual initialized gameplay/HUD owner,
     /// as the reported escape-to-Landing-Site transition does. No replay is needed.
     /// </summary>
-    internal static void VerifyGunshipLandingCompositions(GameInstallation installation, InstalledEnemyArtwork? enemyArtwork = null)
+    internal static void VerifyGunshipLandingCompositions(GameInstallation installation, ImportEnemyArtwork? enemyArtwork = null)
     {
         // The repository's installation binds the process's shared catalogs; a fresh load would be the check's own cost.
         var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();

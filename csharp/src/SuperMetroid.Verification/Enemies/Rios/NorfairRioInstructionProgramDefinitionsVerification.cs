@@ -87,7 +87,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
     /// <summary>Seeds a Geruta-backed Norfair Rio actor with an instruction entry and optional installed artwork.</summary>
     internal static NewNorfairRioInstructionSystemResult NewNorfairRioInstructionSystem(
             NorfairRioProgram entry,
-            InstalledEnemyArtwork? art = null)
+            ImportEnemyArtwork? art = null)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art?.Enemies, BossArtwork = art?.Bosses };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];

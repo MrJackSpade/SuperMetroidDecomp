@@ -17,7 +17,7 @@ internal static class EnemySheetFixtures
 {
     /// <summary>The installation's stock artwork, whose enemies a fixture's replace.</summary>
     private static readonly Lazy<EnemySheetInputs> inputs = new(() => SharedFixtureTiming.Load("Fixture: enemy sheet inputs",
-        () => EnemySheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory)));
+        () => EnemySheetInputs.Load(CartridgeImportContent.Directory)));
 
     /// <summary>The installation's stock artwork the import composes enemy sheets from, loaded once per process.</summary>
     internal static EnemySheetInputs Inputs => inputs.Value;

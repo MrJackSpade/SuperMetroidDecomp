@@ -18,7 +18,7 @@ internal static class CeresSteamCollisionDefinitionsVerification
 {
     /// <summary>Runs all four directional instruction cycles and checks their selected frames exist in installed art.</summary>
     internal static void VerifyInstalledCeresSteamInstructionFrames(
-        InstalledEnemyArtwork stock)
+        ImportEnemyArtwork stock)
     {
         int selected = 0;
         foreach (CeresSteamVariant variant in new[]

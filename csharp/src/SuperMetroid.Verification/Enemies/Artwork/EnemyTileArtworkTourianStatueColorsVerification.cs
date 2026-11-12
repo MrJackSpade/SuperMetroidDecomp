@@ -31,7 +31,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
 {
     /// <summary>Checks entrance, eye, and grey-room palette writes and out-of-range channel rejection.</summary>
     internal static void VerifyInstalledTourianStatueColors(ISnesAddressSpace bus,
-        string stockDirectory, InstalledEnemyArtwork stock)
+        string stockDirectory, ImportEnemyArtwork stock)
     {
         TourianStatuePalettes colors = stock.Areas.TourianStatueColors ??
             throw new InvalidDataException("Installed enemy artwork lacks Tourian statue colors.");
@@ -176,7 +176,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         ushort ReadReferenceWord(int address) =>
             LittleEndianBytes.Word(CpuBusRegionRead.Read(bus, address), CpuBusRegionRead.Read(bus, address + 1));
 
-        static RoomEnemySystem CreateEnemy(InstalledEnemyArtwork artwork) =>
+        static RoomEnemySystem CreateEnemy(ImportEnemyArtwork artwork) =>
             new(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance)
             {
                 TileArtwork = artwork.Enemies,
@@ -192,7 +192,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         }
 
         static SuperMetroidRuntime CreateGreyRoom(
-            ISnesAddressSpace source, InstalledEnemyArtwork artwork)
+            ISnesAddressSpace source, ImportEnemyArtwork artwork)
         {
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             runtime.EnemySession.FrameDisplays = artwork.Enemies.FrameDisplays;

@@ -77,7 +77,7 @@ internal static class CrocomireBodyVisualsVerification
     /// <summary>Compares installed OAM and VRAM output for every body frame with visual ROM reads denied.</summary>
     internal static void VerifyInstalledCrocomireBodyVisuals(
         SuperMetroidAddressSpace rom,
-        InstalledEnemyArtwork stock)
+        ImportEnemyArtwork stock)
     {
         AssertTrue(stock.Enemies.ExtendedFrames is not null && stock.Bosses.CrocomireBg2Frames is not null,
             "installed Crocomire body has both OAM and BG2 presentations");
@@ -172,7 +172,7 @@ internal static class CrocomireBodyVisualsVerification
                     NativeSpriteGraphicsWords.PaletteBits(indexesRow), checked((ushort)tileBase)),
                 ReadReferenceExtendedBg2Vram(rom, 0xa4, pointer, newFrame));
         // Draw one compiled Crocomire frame through production enemy presentation into fresh OAM and VRAM buffers.
-        static DrawNativeResult Draw(InstalledEnemyArtwork art,
+        static DrawNativeResult Draw(ImportEnemyArtwork art,
             ISnesAddressSpace bus, ushort pointer, bool newFrame)
         {
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses };

@@ -38,8 +38,9 @@ internal static class GenericSpriteArtworkVerification
     {
         GameInstallation installation = RepositoryInstallation.Installation;
         var reference = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
-        AreaMapPresentation maps = installation.LoadMaps();
-        IntroCinematicArtwork introArtwork = installation.LoadIntroCinematicArt();
+        // The title's and the intro's characters are import data no installation holds: the cartridge-derived extraction's (#1636).
+        AreaMapPresentation maps = InstalledFixtures.Maps;
+        IntroCinematicArtwork introArtwork = InstalledFixtures.IntroArtwork;
         InstalledProjectilePresentation projectiles = installation.LoadProjectiles();
         InstalledSamusBodyArtwork body = installation.LoadSamusBodyArt();
 

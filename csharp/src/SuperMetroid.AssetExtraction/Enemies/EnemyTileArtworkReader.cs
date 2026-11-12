@@ -547,7 +547,7 @@ internal sealed class EnemyTileArtworkReader
 
     /// <summary>Mother Brain's corpse characters.</summary>
     /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
-    internal RoomCharacterAtlas MotherBrainCorpse(string importData)
+    internal static RoomCharacterAtlas MotherBrainCorpse(string importData)
     {
         try
         {
@@ -567,7 +567,7 @@ internal sealed class EnemyTileArtworkReader
 
     /// <summary>Mother Brain's escape-text characters.</summary>
     /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
-    internal RoomCharacterAtlas MotherBrainEscapeText(string importData)
+    internal static RoomCharacterAtlas MotherBrainEscapeText(string importData)
     {
         try
         {

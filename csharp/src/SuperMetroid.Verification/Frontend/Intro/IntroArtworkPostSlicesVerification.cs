@@ -38,8 +38,8 @@ internal static class IntroArtworkPostSlicesVerification
     internal static void VerifyEndingArtwork()
     {
         GameInstallation installation = RepositoryInstallation.Installation;
-        Suite(nameof(VerifyEndingFlyawayArtwork), () => VerifyEndingFlyawayArtwork(installation));
-        Suite(nameof(VerifyEndingMode7Artwork), () => VerifyEndingMode7Artwork(installation));
+        Suite(nameof(VerifyEndingFlyawayArtwork), () => VerifyEndingFlyawayArtwork());
+        Suite(nameof(VerifyEndingMode7Artwork), () => VerifyEndingMode7Artwork());
         Suite(nameof(VerifyEndingObjectArtwork), () => VerifyEndingObjectArtwork(installation));
         Suite(nameof(VerifyEndingPaletteArtwork), () => VerifyEndingPaletteArtwork(installation));
     }

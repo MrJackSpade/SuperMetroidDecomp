@@ -16,7 +16,7 @@ internal static class EndingFlyawayArtworkVerification
     /// Compares every update of the explosion's sixteen-update hold, after which the flyaway floor is loaded once, without
     /// cartridge art rereads (#1513: the floor is a picture loaded once, not sixteen transfers).
     /// </summary>
-    internal static void VerifyEndingFlyawayArtwork(GameInstallation installation)
+    internal static void VerifyEndingFlyawayArtwork()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
         var installedBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);

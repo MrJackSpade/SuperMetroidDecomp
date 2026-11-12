@@ -17,7 +17,7 @@ namespace SuperMetroid.Verification.Frontend.Ending.Artwork;
 internal static class EndingRewardIconArtworkVerification
 {
     /// <summary>Compares retail pixels and VRAM through the reward jump and the icon's reveal.</summary>
-    internal static void VerifyEndingRewardIconArtwork(GameInstallation installation)
+    internal static void VerifyEndingRewardIconArtwork()
     {
         EndingFloorCharacters stock = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingFloors;
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");

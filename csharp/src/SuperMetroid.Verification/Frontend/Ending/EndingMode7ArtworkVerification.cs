@@ -20,7 +20,7 @@ namespace SuperMetroid.Verification.Frontend.Ending;
 internal static class EndingMode7ArtworkVerification
 {
     /// <summary>Checks three installed scenes against decompressed cartridge data and rendered output, and the reward icon.</summary>
-    internal static void VerifyEndingMode7Artwork(GameInstallation installation)
+    internal static void VerifyEndingMode7Artwork()
     {
         var nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         EndingFloorCharacters stock = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingFloors;
@@ -82,7 +82,7 @@ internal static class EndingMode7ArtworkVerification
         AssertEqual(0, guardedBus.ForbiddenReadAttempts,
             "installed ending Mode-7 scenes never read their six visual ROM sources");
 
-        Suite(nameof(VerifyEndingRewardIconArtwork), () => VerifyEndingRewardIconArtwork(installation));
+        Suite(nameof(VerifyEndingRewardIconArtwork), () => VerifyEndingRewardIconArtwork());
         Console.WriteLine("Ending Mode-7 art: three native scenes plus the reward icon and guarded runtime pass.");
     }
 

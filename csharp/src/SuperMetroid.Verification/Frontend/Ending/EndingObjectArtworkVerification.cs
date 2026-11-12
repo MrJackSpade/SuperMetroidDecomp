@@ -234,7 +234,7 @@ internal static class EndingObjectArtworkVerification
         Suite(nameof(VerifyEndingCompletionTextSpritesRejectMissingFrame), () => VerifyEndingCompletionTextSpritesRejectMissingFrame(installation));
         Suite(nameof(VerifyEndingRewardSpritesRejectMissingFrame), () => VerifyEndingRewardSpritesRejectMissingFrame(installation));
         Suite(nameof(VerifyEndingLogoSpritesRejectMissingFrame), () => VerifyEndingLogoSpritesRejectMissingFrame(installation));
-        Suite(nameof(VerifyPostCreditsCharacterArtwork), () => VerifyPostCreditsCharacterArtwork(installation));
+        Suite(nameof(VerifyPostCreditsCharacterArtwork), () => VerifyPostCreditsCharacterArtwork());
         Console.WriteLine("Ending/credits art: compiled cloud, explosion, completion-text, reward and logo actors, twelve native sheets and two BG maps, codec rejections and guarded runtime pass.");
 
         void AssertSheet(RoomCharacterAtlas sheet, int source, int bytes, string name)

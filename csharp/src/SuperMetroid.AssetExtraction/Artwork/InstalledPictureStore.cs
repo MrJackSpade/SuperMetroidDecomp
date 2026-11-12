@@ -41,6 +41,8 @@ internal sealed class InstalledPictureStore
             throw new InvalidDataException($"Picture store provenance {provenancePath} does not describe this installation.");
         string content = Path.GetDirectoryName(directory)
             ?? throw new ArgumentException($"Picture store directory {directory} has no installation above it.", nameof(directory));
+        // The store's pages are the installation's only pictures (#1636): a picture file anywhere else rejects the installation.
+        InstalledPictureFiles.RequireOnlyStorePictures(content);
         var regionFiles = new HashSet<string>(manifest.RecolourRegionSha256.Keys, StringComparer.Ordinal);
         var blendFiles = new HashSet<string>(manifest.BlendMapSha256.Keys, StringComparer.Ordinal);
         pages = new InstalledPage[manifest.PageSha256.Count];
@@ -113,12 +115,17 @@ internal sealed class InstalledPictureStore
     }
 
     /// <summary>
-    /// The image of the sheet <paramref name="document"/> describes, which <see cref="RequireHolds"/> accepted: clear, every
-    /// pixel black, in region zero and not blending, but where each frame's rectangle holds the store's copy of its picture.
-    /// It has a recolour-region or blend map only where a page it reads has one.
+    /// The image of the sheet <paramref name="sheet"/> whose manifest is <paramref name="document"/>, which
+    /// <see cref="RequireHolds"/> accepted: clear, every pixel black, in region zero and not blending, but where each frame's
+    /// rectangle holds the store's copy of its picture. It has a recolour-region or blend map only where a page it reads has
+    /// one. Each stored picture a frame names must show something (#1636): a picture with no visible pixel and no kept
+    /// colour is never installed, so a frame naming one is rejected, checked on the pages the image is assembled from.
     /// </summary>
-    /// <exception cref="InvalidDataException">A page or map it reads is malformed, or a page changed size since the store was opened.</exception>
-    internal SpriteImagePixels Assemble(InstalledSheetDocument document)
+    /// <exception cref="InvalidDataException">
+    /// A page or map it reads is malformed, a page changed size since the store was opened, or a frame names a stored picture
+    /// that shows nothing.
+    /// </exception>
+    internal SpriteImagePixels Assemble(string sheet, InstalledSheetDocument document)
     {
         Ensure.NotNull(document);
         KeyValuePair<FrameRectangle, InstalledPictureReferenceDocument>[] shown = [.. document.Frames.Values
@@ -131,9 +138,21 @@ internal sealed class InstalledPictureStore
         var image = new InstalledImagePlanes(new SpriteImagePixels(new RgbaPixel[area], regions ? new int[area] : null,
             blending ? new bool[area] : null), document.Size);
         foreach ((FrameRectangle rectangle, InstalledPictureReferenceDocument picture) in shown)
-            pages[picture.Page].Image.CopyTo(new FrameRectangle(picture.Corner, rectangle.Size), image, rectangle.Corner);
+        {
+            var stored = new FrameRectangle(picture.Corner, rectangle.Size);
+            InstalledImagePlanes page = pages[picture.Page].Image;
+            if (page.IsClear(stored))
+                throw new InvalidDataException($"Sprite sheet {sheet} frame {string.Join(", ", FramesAt(document, rectangle))} names rectangle {stored} of "
+                    + $"picture-store page {PictureStoreFiles.PageFile(picture.Page)}, which shows nothing: an installed picture shows something.");
+            page.CopyTo(stored, image, rectangle.Corner);
+        }
         return image.Planes;
     }
+
+    /// <summary>The names of <paramref name="document"/>'s frames that lie at <paramref name="rectangle"/>, in name order.</summary>
+    private static IEnumerable<string> FramesAt(InstalledSheetDocument document, FrameRectangle rectangle) =>
+        document.Frames.Where(frame => new FrameRectangle(frame.Value.Corner, frame.Value.Size) == rectangle)
+            .Select(frame => frame.Key).Order(StringComparer.Ordinal);
 
     /// <summary>One page of the store: its files, its size, and its pixels and maps, decoded when first read.</summary>
     private sealed class InstalledPage

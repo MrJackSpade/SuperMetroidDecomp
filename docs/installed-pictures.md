@@ -60,6 +60,12 @@ but at least 1024 pixels, and at most 8192 pixels tall. Everything on a page out
 The game assembles each sheet's image from the store when the sheet is first drawn. The image is the size its manifest
 names. It starts clear: every pixel `(0, 0, 0, 0)`, in region 0 and not blending. Each frame's picture is then copied from
 its page into the frame's own rectangle. A frame naming a page the store lacks, or a rectangle off its page, fails to load.
+A frame naming a stored picture that shows nothing (every pixel clear black, in region 0 and not blending) fails to load
+too, naming the frame: an installed picture always shows something (#1636).
+
+The store's pages are the installation's only picture files. When the store is opened, a `.png` anywhere under `game/`
+outside `game/pictures/` (a character or tile page, an ink map, anything else) rejects the installation, and the
+rejection names every such file.
 
 ## The picture
 
@@ -110,12 +116,12 @@ Every other sheet's clear pixels are black and keep no colour of their own.
 
 ## The manifest
 
-The manifest (`<sheet>.json`, revision 15) is camel-case JSON. Unknown fields are rejected. Every colour is written as
+The manifest (`<sheet>.json`, revision 16) is camel-case JSON. Unknown fields are rejected. Every colour is written as
 `#rrggbb`: two lowercase hexadecimal digits per 8-bit channel.
 
 ```json
 {
-  "version": 15,
+  "version": 16,
   "size": { "x": 64, "y": 24 },
   "backdrop": { "colour": "#000000", "region": 0 },
   "shades": {
@@ -154,7 +160,10 @@ The fields are:
   - Only sheets drawn as sprites carry blending. These are the sheets of Samus, projectiles, enemies, the escape timer and
     every screen's sprites. A room, background, HUD, boss body or screen picture takes its blending from the layer that
     draws it.
-- `blank`: the frames that show nothing, which the store holds no picture for.
+- `blank`: the frames that show nothing, which the store holds no picture for. A picture of a room's or a screen's tiles
+  is installed as its part behind (under its own name) and its part in front (under its name followed by `^front`); a
+  part that shows nothing is not installed at all, neither as a frame nor in `blank`, and the game draws nothing there.
+  Only such a picture neither part of which shows anything is listed in `blank`, under its own name (#1636).
 
 ### Colour keys and shades
 

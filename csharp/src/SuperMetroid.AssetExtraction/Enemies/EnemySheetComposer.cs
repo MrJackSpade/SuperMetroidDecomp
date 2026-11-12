@@ -248,7 +248,10 @@ internal static class EnemySheetComposer
     /// Names the distinct sheets in the order they are first asked for: a sheet whose installed manifest, pixels and maps are
     /// the same as an earlier named sheet's takes its name; otherwise its owner's next ordinal, an enemy's sheets named for
     /// the enemy, a spawned-object sheet's own pictures for its owner and a common sheet of spawned-object pictures as common
-    /// (#1513).
+    /// (#1513). This is what makes variants the player cannot tell apart one sheet (#1643), for any enemy: graphics sets that
+    /// load an enemy into different palette rows compose it different sheets, but the installation holds only its pictures,
+    /// frame list and the looks its draws show, so where those are the same the sheets are installed once, every set's
+    /// variant names that one sheet, and the variants, then spelled alike, are one variant every placement draws in.
     /// </summary>
     private sealed class SheetNames
     {
@@ -365,7 +368,7 @@ internal static class EnemySheetComposer
             yield return new EnemySheetSource(enemy, new SpriteSheetSources(frames, colours,
                 ObjectSelectionCodec.GameplaySizes, paletteBits,
                 Shades: [.. loaded.Shades.OwnRow(enemy, paletteBits), .. fixedShades],
-                RowShades: [.. loaded.Shades.Shared(), .. rowShades], Blank: [.. blank.Order(StringComparer.Ordinal)]), changes, corpses);
+                RowShades: [.. loaded.Shades.SharedSelectedBy(enemy), .. rowShades], Blank: [.. blank.Order(StringComparer.Ordinal)]), changes, corpses);
         }
     }
 

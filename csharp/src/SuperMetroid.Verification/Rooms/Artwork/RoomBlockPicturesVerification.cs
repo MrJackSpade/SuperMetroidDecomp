@@ -448,6 +448,8 @@ internal static class RoomBlockPicturesVerification
                 continue;
             }
             int firstWord = FxOverlayPlaneConstants.EffectPageFirstRow * FxOverlayPlaneConstants.Columns;
+            // The page picture is one period across of what the plane shows, repeated at its width (#1675).
+            int pageWidth = (shownPage.Size ?? throw new InvalidOperationException($"{room.Name}: its effect page installs neither part.")).X;
             for (int index = firstWord; index < FxOverlayPlaneConstants.Columns * FxOverlayPlaneConstants.Rows; index++)
             {
                 int cellX = (index - firstWord) % FxOverlayPlaneConstants.Columns * CharacterPixels;
@@ -463,7 +465,7 @@ internal static class RoomBlockPicturesVerification
                     int address = pixelRow * 2;
                     int colour = (bytes[address] >> bit & 1) | (bytes[address + 1] >> bit & 1) << 1;
                     int expected = word.PaletteIndex * 4 + colour;
-                    var at = new Position16<ImagePixels>(cellX + x, cellY + y);
+                    var at = new Position16<ImagePixels>((cellX + x) % pageWidth, cellY + y);
                     // The message names the character's picture, which costs a lookup, so it is built only for a failing pixel.
                     if (!PaintsTwoBitInPart(shownPage, at, expected, word.PaletteIndex * 4, word.HasPriority))
                     {

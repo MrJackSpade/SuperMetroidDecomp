@@ -75,7 +75,7 @@ internal static class IntroDiscoveryActorSpriteArtworkVerification
         (stockState.CurrentBabyDiscovery ?? throw new InvalidOperationException("Verification requires discovery.")).Step(0, 1);
         _ = stockState.RenderArtwork();
         AssertEqual(0, guarded.ForbiddenReadAttempts,
-            "production discovery actors never reread twenty native spritemaps");
+            "production discovery actors never reread nineteen native spritemaps");
 
         document.Frames.Remove("egg-intact");
         AssertThrows<InvalidDataException>(() =>

@@ -21,11 +21,11 @@ public sealed class IntroDiscoveryActorSpritePresentation : ICinematicSpriteFram
     /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
     public string ContentIdentity => CinematicSpriteArtwork.ContentIdentity(nameof(IntroDiscoveryActorSpritePresentation), frames);
 
-    /// <summary>Retains the compiled twenty-frame selection after JSON validation.</summary>
+    /// <summary>Retains the compiled nineteen-frame selection after JSON validation.</summary>
     private IntroDiscoveryActorSpritePresentation(Dictionary<CinematicSpritePose, SpriteComposition> frames) =>
         this.frames = frames;
 
-    /// <summary>Loads and validates all sixteen egg/remnant and four baby visual frames.</summary>
+    /// <summary>Loads and validates all sixteen egg/remnant and three confused-baby visual frames.</summary>
     /// <param name="json">The caller-owned stream containing the editable sprite document.</param>
     /// <returns>The compiled presentation keyed by native bank-$8C spritemap identities.</returns>
     /// <exception cref="InvalidDataException">The JSON, version, frame set, or sprite parts are invalid.</exception>
@@ -38,7 +38,7 @@ public sealed class IntroDiscoveryActorSpritePresentation : ICinematicSpriteFram
             IntroDiscoveryActorSpriteDefinitions.Frames;
         if (document.Version != IntroDiscoveryActorSpriteFormat.Version ||
             document.Frames is null || document.Frames.Count != definitions.Count)
-            throw new InvalidDataException("Intro discovery actors require twenty named visual frames.");
+            throw new InvalidDataException("Intro discovery actors require nineteen named visual frames.");
         var frames = new Dictionary<CinematicSpritePose, SpriteComposition>();
         foreach (CinematicSpriteFrameDefinition definition in definitions)
         {
@@ -52,7 +52,7 @@ public sealed class IntroDiscoveryActorSpritePresentation : ICinematicSpriteFram
 
     /// <summary>Writes an editable SR388 discovery-actor sprite document as JSON.</summary>
     /// <param name="json">The caller-owned destination stream.</param>
-    /// <param name="document">The twenty-frame sprite document to serialize.</param>
+    /// <param name="document">The nineteen-frame sprite document to serialize.</param>
     public static void Write(Stream json, IntroDiscoveryActorSpriteDocument document)
     {
         Ensure.NotNull(json);

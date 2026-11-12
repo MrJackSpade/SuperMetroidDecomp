@@ -93,7 +93,7 @@ public class IntroCinematicSourceArtwork : IntroCinematicArtwork
     public IntroRinkaSpritePresentation RinkaSprites { get; }
     /// <summary>Eleven editable SR388 egg-shell and slime compositions.</summary>
     public IntroEggEffectSpritePresentation EggEffectSprites { get; }
-    /// <summary>Twenty editable SR388 egg and confused-baby actor compositions.</summary>
+    /// <summary>Nineteen editable SR388 egg and confused-baby actor compositions.</summary>
     public IntroDiscoveryActorSpritePresentation DiscoveryActorSprites { get; }
     /// <summary>Ten editable delivery/examination baby-Metroid compositions.</summary>
     public IntroScientistSpritePresentation ScientistSprites { get; }

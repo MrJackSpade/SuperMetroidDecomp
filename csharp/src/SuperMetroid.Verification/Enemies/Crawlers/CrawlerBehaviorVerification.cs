@@ -19,7 +19,7 @@ internal static class CrawlerBehaviorVerification
     /// installs the movement function (vertical crawling on the side walls, horizontal on floors and ceilings, with the
     /// orange Zoomer's own functions) and its poses then loop on time. Every pose has installed artwork when supplied.
     /// </summary>
-    internal static void VerifyCrawlerBehavior(InstalledEnemyArtwork? artwork = null)
+    internal static void VerifyCrawlerBehavior(ImportEnemyArtwork? artwork = null)
     {
         CrawlerBehaviorFamily[] families =
         [

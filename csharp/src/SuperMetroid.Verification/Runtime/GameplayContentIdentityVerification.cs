@@ -11,7 +11,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
-/// <summary>Checks canonical hashes for shared sprite pixels and X-ray visuals.</summary>
+/// <summary>Checks canonical hashes for X-ray visuals; the standard OBJ characters are import data no identity covers (#1636).</summary>
 internal static class GameplayContentIdentityVerification
 {
     /// <summary>The fixture's first room overlay.</summary>
@@ -29,7 +29,6 @@ internal static class GameplayContentIdentityVerification
             AssertEqual(digest, reordered[component], component + " canonical record order");
         foreach ((string edit, string component) in new[]
         {
-            new VerifyGameplayContentIdentityCase("sprite-pixel", GameInstallationLayout.StandardObjectDirectoryName),
             new VerifyGameplayContentIdentityCase("xray-top-left", GameInstallationLayout.XrayRevealVisualDirectoryName),
             new VerifyGameplayContentIdentityCase("xray-top-right", GameInstallationLayout.XrayRevealVisualDirectoryName),
             new VerifyGameplayContentIdentityCase("xray-bottom-left", GameInstallationLayout.XrayRevealVisualDirectoryName),
@@ -54,12 +53,7 @@ internal static class GameplayContentIdentityVerification
             AssertTrue(before.GetCompatibilityWarnings(after.ToSnapshot(), "test").Single()
                 .Contains(component, StringComparison.Ordinal), edit + " gives a specific compatibility warning");
         }
-
-        // Fingerprint decoded selections, not cosmetic file formatting: a tile sheet contributes palette indices.
-        AssertEqual(baseline[GameInstallationLayout.StandardObjectDirectoryName],
-            CreateGameplayIdentityFixture("png-colors")[GameInstallationLayout.StandardObjectDirectoryName],
-            "PNG display colors do not change decoded tile indices");
-        Console.WriteLine("  Shared gameplay content: sprite pixels, all X-ray operands, the extension exit, items, " +
+        Console.WriteLine("  Shared gameplay content: all X-ray operands, the extension exit, items, " +
             "room overlay positions/order, canonical records and host warnings pass without a ROM.");
     }
 
@@ -67,14 +61,6 @@ internal static class GameplayContentIdentityVerification
     private static IReadOnlyDictionary<string, string> CreateGameplayIdentityFixture(
         string? edit = null, bool reverse = false)
     {
-        using var png = new MemoryStream();
-        var pixels = new byte[64];
-        if (edit == "sprite-pixel") pixels[^1] = 1;
-        IndexedPng.Write(png, new(8, 8), pixels, [new RgbaPixel(0, 0, 0),
-            edit == "png-colors" ? new RgbaPixel(255, 0, 0) : new RgbaPixel(255, 255, 255)]);
-        png.Position = 0;
-        RoomCharacterAtlas sprites = RoomCharacterAtlasPng.Read(png, RoomCharacterAtlasFormat.BytesPerTile);
-
         // Every drawable rule shows four distinct blocks; one square rule's block is edited.
         var entries = new List<XrayRevealVisualDefinition>();
         bool editedOperands = false;
@@ -110,7 +96,7 @@ internal static class GameplayContentIdentityVerification
         var overlays = InstalledXrayOverlays.FromOverlaysForVerification(items, reverse ? rooms.Reverse() : rooms);
         var xray = new InstalledXrayReveals(reverse ? entries.AsEnumerable().Reverse() : entries, overlays,
             edit == "xray-extension-exit" ? XrayRevealTableWords.BlankMetatile - 1 : XrayRevealTableWords.BlankMetatile);
-        return GameplayPresentationIdentity.Create(sprites, xray);
+        return GameplayPresentationIdentity.Create(xray);
     }
 
     /// <summary>Runs the shared gameplay content identity checks.</summary>

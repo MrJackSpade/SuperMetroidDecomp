@@ -1188,7 +1188,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         AssertEqual(finalBackground ? CeresSelfDestructPhase.HoldingTitle : CeresSelfDestructPhase.ReadyingBackgrounds, state.CeresSelfDestructPhase, "Ceres background/hold phase handoff");
     }
     var escapeResolver = new SuperMetroid.TestSupport.VerificationOracles.EnemyTileTransfers(InstalledFixtures.EnemyArtwork,
-        timer: SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentation.EscapeTimerTilesOf(InstalledFixtures.Maps));
+        timer: SuperMetroid.AssetExtraction.Frontend.Map.ImportAreaMapPresentation.EscapeTimerTilesOf(InstalledFixtures.Maps));
     IReadOnlyList<EncounterArtworkUpload> warningPages = EncounterLookUploads.Uploads(SuperMetroid.AssetExtraction.Enemies.ComposedEncounter.CeresEscape,
         EncounterLookUploads.IndexOf(SuperMetroid.AssetExtraction.Enemies.ComposedEncounter.CeresEscape, CeresEscapeReadyingDefinitions.WarningLook.Name), escapeResolver);
     AssertEqual(spriteTransfers.Count, warningPages.Count, "the warning look copies one page a native sprite transfer");

@@ -50,7 +50,7 @@ internal static class FrontendFloorSheetComposer
     private static readonly FrozenDictionary<SpriteSheetId, Func<ScreenTileSources, ComposedSpriteSheet>> Composers =
         new Dictionary<SpriteSheetId, Func<ScreenTileSources, ComposedSpriteSheet>>
         {
-            [SpriteSheetId.TitleFloor] = sources => Title(InstalledAreaMapPresentation.TitleGraphicsOf(sources.Maps), ImportAreaMapPresentation.TitlePaletteOf(sources.Maps)),
+            [SpriteSheetId.TitleFloor] = sources => Title(ImportAreaMapPresentation.TitleGraphicsOf(sources.Maps), ImportAreaMapPresentation.TitlePaletteOf(sources.Maps)),
             [SpriteSheetId.CeresFloor] = sources => Ceres(sources.Intro, ImportAreaMapPresentation.RoomPaletteFxOf(sources.Maps)),
             [SpriteSheetId.EndingEscapeAFloor] = sources => EndingShaded(EndingScene(sources, EndingFloorSceneId.EscapeA, EndingPaletteId.Escape), sources,
                 EndingFloorShot.EscapeA),
@@ -166,12 +166,12 @@ internal static class FrontendFloorSheetComposer
         ReadOnlySpan<byte> characters = CeresFlightCharacters.Of(flight).FloorCharacters.Span;
         if (characters.Length < CeresFlightArtworkFileFormat.FloorByteCount)
             throw new InvalidDataException("The Ceres flight's Mode 7 characters are shorter than the scenes load.");
-        if (CeresFlightCharacters.Of(flight).FloorMaps.Length + destruction.Views.Length < CeresFloorShotDefinitions.MapCells)
+        if (CeresFlightSourceArtwork.Of(flight).FloorMaps.Length + destruction.Views.Length < CeresFloorShotDefinitions.MapCells)
             throw new InvalidDataException("The Ceres cinematics' floor views are shorter than the scenes load.");
         var views = new byte[CeresFloorShotDefinitions.MapCells];
-        CeresFlightCharacters.Of(flight).FloorMaps.Span.CopyTo(views);
-        destruction.Views.Span[..(CeresFloorShotDefinitions.MapCells - CeresFlightCharacters.Of(flight).FloorMaps.Length)]
-            .CopyTo(views.AsSpan(CeresFlightCharacters.Of(flight).FloorMaps.Length));
+        CeresFlightSourceArtwork.Of(flight).FloorMaps.Span.CopyTo(views);
+        destruction.Views.Span[..(CeresFloorShotDefinitions.MapCells - CeresFlightSourceArtwork.Of(flight).FloorMaps.Length)]
+            .CopyTo(views.AsSpan(CeresFlightSourceArtwork.Of(flight).FloorMaps.Length));
         byte[] pixels = characters[..CeresFlightArtworkFileFormat.FloorByteCount].ToArray();
         byte[] station = Blank();
         views.AsSpan(CeresFloorShotDefinitions.StationStart, CeresFloorShotDefinitions.StationCells).CopyTo(station);
@@ -252,11 +252,11 @@ internal static class FrontendFloorSheetComposer
     private static ComposedSpriteSheet Flyaway(CeresFlightArtwork flight, EndingPaletteSet palettes)
     {
         ReadOnlySpan<byte> characters = CeresFlightCharacters.Of(Ensure.NotNull(flight)).FloorCharacters.Span;
-        if (characters.Length < EndingArtworkExtentDefinitions.FloorBytes || CeresFlightCharacters.Of(flight).FloorMaps.Length < EndingArtworkExtentDefinitions.FlyawayMapDataBytes)
+        if (characters.Length < EndingArtworkExtentDefinitions.FloorBytes || CeresFlightSourceArtwork.Of(flight).FloorMaps.Length < EndingArtworkExtentDefinitions.FlyawayMapDataBytes)
             throw new InvalidDataException("The flight's floor is shorter than the flyaway loads.");
         var cells = new byte[FloorSheetComposer.CellCount];
         cells.AsSpan().Fill(EndingArtworkExtentDefinitions.FlyawayBlankTile);
-        CeresFlightCharacters.Of(flight).FloorMaps.Span[..EndingArtworkExtentDefinitions.FlyawayMapDataBytes].CopyTo(cells);
+        CeresFlightSourceArtwork.Of(flight).FloorMaps.Span[..EndingArtworkExtentDefinitions.FlyawayMapDataBytes].CopyTo(cells);
         return FloorSheetComposer.Compose(
             [FloorSheetComposer.Whole(EndingFloorDefinitions.FrameName, cells, characters[..EndingArtworkExtentDefinitions.FloorBytes])],
             ScreenPaletteColours.EndingColours(palettes, EndingPaletteId.Escape));

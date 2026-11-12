@@ -19,7 +19,7 @@ internal static class TorizoSwapArtworkVerification
 {
     /// <summary>Matches all Torizo transfer descriptors and bytes to cartridge data, then checks malformed artwork rejection.</summary>
     internal static void VerifyTorizoSwapArtwork(
-        ISnesAddressSpace rom, InstalledEnemyArtwork stock)
+        ISnesAddressSpace rom, ImportEnemyArtwork stock)
     {
         AssertEqual(52, TorizoArtworkSwapDefinitions.All.Length,
             "all bank-AA Torizo $814B transfer descriptors are catalogued");
@@ -124,7 +124,7 @@ internal static class TorizoSwapArtworkVerification
         swap.Look(TorizoArtworkSwapDefinitions.GoldenSequence.Contains(swap) ? EncounterArtwork.GoldenTorizo : EncounterArtwork.BombTorizo);
 
     /// <summary>The one copy Torizo look <paramref name="look"/> makes, resolved against <paramref name="stock"/>.</summary>
-    private static EncounterArtworkUpload UploadOf(EncounterLook look, InstalledEnemyArtwork stock)
+    private static EncounterArtworkUpload UploadOf(EncounterLook look, ImportEnemyArtwork stock)
     {
         ComposedEncounter torizo = look.Encounter == EncounterArtwork.GoldenTorizo ? ComposedEncounter.GoldenTorizo : ComposedEncounter.BombTorizo;
         return EncounterLookUploads.Uploads(torizo, EncounterLookUploads.IndexOf(torizo, look.Name), new EnemyTileTransfers(stock)).Single();

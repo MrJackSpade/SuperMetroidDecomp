@@ -5,39 +5,28 @@ using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
-/// <summary>The installed grapple characters, with the grapple sprite, flare and swing catalogs; the grapple sheet is composed from them.</summary>
+/// <summary>
+/// The grapple's characters, which only the import reads (#1636): the grapple sheet is composed from them. Its sprite,
+/// flare and swing documents are the installed grapple presentation (<see cref="InstalledGrapplePresentation"/>).
+/// </summary>
 public sealed class GrappleTileAtlas : IInstalledArtworkContent
 {
     /// <summary>
-    /// The installed grapple characters as encoded 4-bpp bytes, as installed (#1596): the four endpoint characters, then
-    /// the horizontal, diagonal and vertical rope orientations' four characters each.
+    /// The grapple characters as encoded 4-bpp bytes (#1596): the four endpoint characters, then the horizontal, diagonal
+    /// and vertical rope orientations' four characters each.
     /// </summary>
     private readonly byte[] tiles;
 
-    /// <summary>Gets the optional installed Grapple endpoint and beam sprite compositions.</summary>
-    public InstalledGrappleSprites? Sprites { get; }
+    /// <summary>Keeps every grapple character.</summary>
+    private GrappleTileAtlas(byte[] tiles) => this.tiles = tiles;
 
-    /// <summary>Gets the optional installed standing and running Grapple flare offsets.</summary>
-    public ChargeFlarePlacements? FlarePlacement { get; }
-
-    /// <summary>Gets the optional installed angle-to-displayed-frame mapping for Samus's swing pose.</summary>
-    public InstalledGrappleSwingFrames? SwingFrames { get; }
-    /// <summary>Keeps every installed grapple character and the associated visual catalogs.</summary>
-    private GrappleTileAtlas(byte[] tiles, InstalledGrappleSprites? sprites, ChargeFlarePlacements? flarePlacement, InstalledGrappleSwingFrames? swingFrames)
-    {
-        Sprites = sprites; FlarePlacement = flarePlacement; SwingFrames = swingFrames;
-        this.tiles = tiles;
-    }
-    /// <summary>Compiles the 128-by-8 indexed Grapple PNG into sixteen row-major SNES 4-bpp characters.</summary>
-    /// <param name="png">The caller-owned indexed PNG stream; pixel indices must fit the 4-bpp domain.</param>
-    /// <param name="sprites">Optional installed Grapple sprite compositions.</param>
-    /// <param name="flarePlacement">Optional installed Grapple flare placement catalog.</param>
-    /// <param name="swingFrames">Optional installed swing-frame selection catalog.</param>
-    /// <returns>The immutable tile atlas and its associated optional visual assets.</returns>
-    public static GrappleTileAtlas Load(Stream png, InstalledGrappleSprites? sprites = null, ChargeFlarePlacements? flarePlacement = null, InstalledGrappleSwingFrames? swingFrames = null)
+    /// <summary>Compiles the 128-by-8 indexed Grapple page into sixteen row-major SNES 4-bpp characters.</summary>
+    /// <param name="png">The caller-owned indexed page stream; pixel indices must fit the 4-bpp domain.</param>
+    /// <returns>The immutable tile atlas.</returns>
+    public static GrappleTileAtlas Load(Stream png)
     {
         var image = IndexedPng.Read(png, new(GrappleTileDefinitions.Width, GrappleTileDefinitions.Height));
-        return new(SnesPlanarTileEncoder.Encode(image.Pixels, image.Size, 4), sprites, flarePlacement, swingFrames);
+        return new(SnesPlanarTileEncoder.Encode(image.Pixels, image.Size, 4));
     }
     /// <summary>Resolves one endpoint character or four-character rope-orientation transfer.</summary>
     /// <param name="asset">One of the seven Grapple-owned VRAM asset identities.</param>

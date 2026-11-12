@@ -16,7 +16,7 @@ internal static class KraidInstalledPresentationVerification
     {
         Suite(nameof(VerifyKraidWorkingMapTail), () => VerifyKraidWorkingMapTail());
         var source = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        InstalledEnemyArtwork stock = InstalledFixtures.EnemyArtwork;
+        ImportEnemyArtwork stock = InstalledFixtures.EnemyArtwork;
         Suite(nameof(VerifyInstalledKraidBackground), () => VerifyInstalledKraidBackground(source, stock));
         Suite(nameof(VerifyKraidInstalledControlOracle), () => VerifyKraidInstalledControlOracle(source));
         Console.WriteLine("PASS installed Kraid maps, head frames, room characters and HUD restoration.");

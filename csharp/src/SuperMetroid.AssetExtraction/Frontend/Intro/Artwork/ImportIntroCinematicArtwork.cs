@@ -1,28 +1,49 @@
 using SuperMetroid.AssetExtraction.Areas.Ceres;
+using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.AssetExtraction.Rooms.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>
-/// The installed opening cinematic as the import reads it (#1544): its source artwork with the colours only the import
-/// pre-colours the opening's, the Ceres scenes' and the ending flyaway's sheets in. The game never reads these colours;
-/// its own read of the opening (<see cref="IntroCinematicArtworkFiles.Load"/>) leaves their documents unread.
+/// The opening cinematic as the import reads it (#1544, #1636): its installed documents with its characters, from the
+/// component's import data, and the colours only the import pre-colours the opening's, the Ceres scenes' and the ending
+/// flyaway's sheets in. The game reads neither; its own read of the opening (<see cref="IntroCinematicArtworkFiles.Load"/>)
+/// reads no character page and leaves the colour documents unread.
 /// </summary>
 public sealed class ImportIntroCinematicArtwork : IntroCinematicSourceArtwork
 {
-    /// <summary>Takes the opening's source artwork parts and the colours only the import reads.</summary>
-    /// <param name="parts">The opening's scene artwork, character atlases and sprite compositions.</param>
+    /// <summary>Takes the opening's installed documents, its characters and the colours only the import reads.</summary>
+    /// <param name="parts">The opening's scene artwork, tilemaps and sprite compositions.</param>
+    /// <param name="characters">The opening's characters; their Ceres approach takes the documents' place.</param>
     /// <param name="palette">The opening narration's colours.</param>
     /// <param name="flightPalette">The Ceres approach's colours.</param>
-    /// <exception cref="ArgumentNullException">A part or a palette is null.</exception>
-    /// <exception cref="InvalidDataException">The scene pages, portrait or narration tilemaps are malformed.</exception>
-    public ImportIntroCinematicArtwork(IntroCinematicArtworkParts parts, IntroCinematicPalette palette, CeresFlightPalette flightPalette)
-        : base(parts)
+    /// <exception cref="ArgumentNullException">A part, the characters or a palette is null.</exception>
+    /// <exception cref="InvalidDataException">The scene pages, portrait, narration or Zebes tilemaps, or the reveal's characters, are malformed.</exception>
+    public ImportIntroCinematicArtwork(IntroCinematicArtworkParts parts, IntroCinematicCharacters characters, IntroCinematicPalette palette,
+        CeresFlightPalette flightPalette)
+        : base(Ensure.NotNull(parts) with { CeresFlight = Ensure.NotNull(characters).CeresFlight })
     {
+        BackgroundCharacters = Ensure.NotNull(characters.BackgroundCharacters);
+        IntroObjectCharacters = Ensure.NotNull(characters.IntroObjectCharacters);
+        CinematicObjectCharacters = Ensure.NotNull(characters.CinematicObjectCharacters);
+        ZebesReveal = ZebesRevealArtwork.Of(ZebesRevealMap, characters.ZebesRevealCharacters);
         Palette = Ensure.NotNull(palette);
         FlightPalette = Ensure.NotNull(flightPalette);
     }
+
+    /// <summary>BG characters of the illustrated scenes.</summary>
+    public RoomCharacterAtlas BackgroundCharacters { get; }
+
+    /// <summary>The intro's fixed-bank OBJ characters.</summary>
+    public RoomCharacterAtlas IntroObjectCharacters { get; }
+
+    /// <summary>The intro's cinematic OBJ characters.</summary>
+    public RoomCharacterAtlas CinematicObjectCharacters { get; }
+
+    /// <summary>The Zebes reveal's tilemap and characters, which the planet's picture is composed from.</summary>
+    public ZebesRevealArtwork ZebesReveal { get; }
 
     /// <summary>The opening narration's selected colours, which the import pre-colours the opening's sheets in (#1512).</summary>
     public IntroCinematicPalette Palette { get; }

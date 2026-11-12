@@ -16,9 +16,9 @@ internal static class InstalledArtworkBundleIdentity
     /// <summary>The installed content identity of the Ceres flight artwork.</summary>
     extension(CeresFlightArtwork artwork)
     {
-        /// <summary>The identity the import pipeline computed for <paramref name="artwork"/>, which it read as a <see cref="CeresFlightCharacters"/>.</summary>
+        /// <summary>The identity the import pipeline computed for <paramref name="artwork"/>, which it read as a <see cref="CeresFlightSourceArtwork"/>.</summary>
         /// <exception cref="InvalidDataException">The Ceres flight artwork was not read from installed artwork.</exception>
-        public string ContentIdentity => artwork is CeresFlightCharacters installed ? installed.ContentIdentity
+        public string ContentIdentity => artwork is CeresFlightSourceArtwork installed ? installed.ContentIdentity
             : throw new InvalidDataException("The Ceres flight artwork was not read from installed artwork.");
     }
 

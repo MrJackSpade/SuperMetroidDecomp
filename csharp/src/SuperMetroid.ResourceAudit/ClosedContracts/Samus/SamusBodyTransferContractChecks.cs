@@ -76,8 +76,6 @@ internal static class SamusBodyTransferContractChecks
         var deathColors = new InstalledSamusDeathPalettes(
             Enumerable.Range(0, InstalledSamusDeathPalettes.SuitCount).Select(_ => Rows()).ToArray(), Rows(),
             new RgbColor[SamusPaletteDefinitions.Death.WhiteoutShadeCount], new ushort[SamusDeathExplosionTimingDefinitions.RecordCount]);
-        using var deathPng = Png(new(SamusDeathTileAtlasFormat.Width, SamusDeathTileAtlasFormat.Height));
-        SamusDeathTileAtlas deathTiles = SamusDeathTileAtlas.Load(deathPng);
         var cannonDocument = new SamusArmCannonArtworkDocument {
             Version = SamusArmCannonArtworkFormat.Version,
             PoseDescriptors = EveryRecordedPose(0),
@@ -87,10 +85,9 @@ internal static class SamusBodyTransferContractChecks
             CoverTiles = Enumerable.Range(0, SamusProjectileDirectionCodec.Count).Select(_ =>
                 new int[SamusArmCannonArtworkFormat.FramesPerDirection - 1]).ToArray() };
         using var cannonJson = new MemoryStream(SamusArmCannonSourceArtwork.Write(cannonDocument));
-        using var cannonPng = Png(new(SamusArmCannonArtworkFormat.CoverTileCount * 8, 8));
-        InstalledSamusArmCannonArtwork cannon = InstalledSamusArmCannonArtworkTooling.Load(cannonJson, cannonPng);
+        InstalledSamusArmCannonArtwork cannon = InstalledSamusArmCannonArtworkTooling.Load(cannonJson);
         SamusBodyFrameSelection[] frames = selectors ?? new SamusBodyFrameSelection[SamusBodySources.FrameCount];
-        return SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = starts[..SamusBodySources.TopSetCount], BottomSetStarts = starts[SamusBodySources.TopSetCount..], PoseFirstFrames = EveryRecordedPose(0), Placements = SamusBodyPlacementDecoding.Decode(new int[SamusBodySources.PoseCount], new int[SamusBodyPlacementSourceDefinitions.LandingByteCount], new int[SamusBodyPlacementSourceDefinitions.PostureByteCount], new int[SamusBodyPlacementSourceDefinitions.DrainedByteCount]), Frames = frames, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathColors, DeathTilesContentIdentity = deathTiles.ContentIdentity, ArmCannon = cannon },
+        return SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = starts[..SamusBodySources.TopSetCount], BottomSetStarts = starts[SamusBodySources.TopSetCount..], PoseFirstFrames = EveryRecordedPose(0), Placements = SamusBodyPlacementDecoding.Decode(new int[SamusBodySources.PoseCount], new int[SamusBodyPlacementSourceDefinitions.LandingByteCount], new int[SamusBodyPlacementSourceDefinitions.PostureByteCount], new int[SamusBodyPlacementSourceDefinitions.DrainedByteCount]), Frames = frames, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathColors, ArmCannon = cannon },
             groups[..SamusBodySources.TopSetCount], groups[SamusBodySources.TopSetCount..]);
     }
 
@@ -132,15 +129,6 @@ internal static class SamusBodyTransferContractChecks
         var extra = CSharpSyntaxTree.ParseText("namespace SuperMetroid.Core.Samus.Artwork; public abstract partial class InstalledSamusBodyArtwork { }",
             path: "fixture-unreviewed-body-partial.cs");
         Require(Inspect(Compile(trees.Append(extra)), true).UnresolvedCount == 2, "unreviewed private-state access revokes frame-placement closure");
-    }
-
-    /// <summary>Creates a transparent indexed PNG stream for synthetic body artwork dependencies.</summary>
-    private static MemoryStream Png(Extent16<ImagePixels> size)
-    {
-        var stream = new MemoryStream();
-        IndexedPng.Write(stream, size, new byte[size.Area], [new RgbaPixel(0, 0, 0)]);
-        stream.Position = 0;
-        return stream;
     }
 
     /// <summary>Reports a failed transfer-contract assertion with its specific reason.</summary>

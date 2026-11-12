@@ -19,7 +19,7 @@ namespace SuperMetroid.Verification.Enemies.SpacePirates;
 internal static class NinjaSpacePiratePaletteArtworkVerification
 {
     /// <summary>Compares the installed gold wall shade with the cartridge and checks the ninja's initial placement and animation.</summary>
-    internal static void VerifyInstalledNinjaSpacePiratePalette(ISnesAddressSpace bus, InstalledEnemyArtwork stock)
+    internal static void VerifyInstalledNinjaSpacePiratePalette(ISnesAddressSpace bus, ImportEnemyArtwork stock)
     {
         AssertEqual(NinjaSpacePiratePaletteDefinitions.SharedGoldPirateSource,
             SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.PaletteAddress(bus, EnemyDefinitionId.PirateGoldWall),
@@ -48,7 +48,7 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
         Console.WriteLine("Ninja Pirate palette: the gold wall shade matches the native gold-Pirate colours; placement and animation pass.");
 
         // The gold wall shade the import pre-colours the first ninja its graphics sets place in, from artwork's enemy colours.
-        static SpriteSheetShadeDocument GoldWallShade(InstalledEnemyArtwork artwork)
+        static SpriteSheetShadeDocument GoldWallShade(ImportEnemyArtwork artwork)
         {
             EnemySheetInputs inputs = EnemySheetFixtures.Inputs with { Enemies = artwork.Enemies };
             RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetLists.DrawnUnder.First(candidate =>
@@ -64,7 +64,7 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
             or EnemyDefinitionId.PirateSilverNinja;
 
         static InitializeResult Initialize(
-            InstalledEnemyArtwork artwork)
+            ImportEnemyArtwork artwork)
         {
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];

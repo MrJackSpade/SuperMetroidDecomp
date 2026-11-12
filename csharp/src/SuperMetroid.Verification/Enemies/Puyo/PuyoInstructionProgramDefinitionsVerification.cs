@@ -19,7 +19,7 @@ internal static class PuyoInstructionProgramDefinitionsVerification
     /// The real initializer starts the fast grounded loop; each grounded loop runs on time and each airborne program
     /// shows its pose once and holds. With installed artwork supplied, every pose has an installed composition.
     /// </summary>
-    internal static void VerifyPuyoInstructionProgramDefinitions(InstalledEnemyArtwork? artwork = null)
+    internal static void VerifyPuyoInstructionProgramDefinitions(ImportEnemyArtwork? artwork = null)
     {
         (RoomEnemySystem enemies, RoomEnemySlot slot, PuyoEnemyState state) = Create(artwork);
         AssertEqual(new AnimationPlayback<PuyoProgram>(PuyoAnimations.StartingWith(PuyoProgram.GroundedFast), AnimationPlace.StartOfAnimation), state.Playback, "Puyo starts on its fast grounded loop");
@@ -44,7 +44,7 @@ internal static class PuyoInstructionProgramDefinitionsVerification
     }
 
     /// <summary>A Puyo after its real initializer.</summary>
-    private static PuyoInstructionProgramDefinitionsCreateResult Create(InstalledEnemyArtwork? artwork)
+    private static PuyoInstructionProgramDefinitionsCreateResult Create(ImportEnemyArtwork? artwork)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork?.Enemies, BossArtwork = artwork?.Bosses };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];

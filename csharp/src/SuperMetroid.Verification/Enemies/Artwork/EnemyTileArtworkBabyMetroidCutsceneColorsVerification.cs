@@ -25,7 +25,7 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
 
     /// <summary>Compares native colors and selectors, the live palette loads, and strict document failures.</summary>
     internal static void VerifyInstalledBabyMetroidCutsceneColors(
-        ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
+        ISnesAddressSpace rom, string stockDirectory, ImportEnemyArtwork stock)
     {
         BabyMetroidCutsceneColorCatalog native = stock.Bosses.BabyMetroidCutsceneColors ??
             throw new InvalidDataException("Installed enemy art has no cutscene Baby colors.");

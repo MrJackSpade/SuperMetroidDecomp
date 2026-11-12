@@ -93,9 +93,9 @@ internal static class EndingContentIdentityVerification
         var edits = new List<EndingContentIdentityEdit>();
         foreach (string edit in new[]
         {
-            "clouds", "explosion", "waiting", "shooting", "suitless", "fragment-0", "fragment-1",
-            "fragment-2", "fragment-3", "fragment-order", "post-fragment-a", "post-fragment-b",
-            "logo-tiles", "logo-map", "cloud-sprites", "explosion-sprites", "text-sprites",
+            "fragment-0", "fragment-1",
+            "fragment-2", "fragment-3", "fragment-order", "post-fragment-b",
+            "logo-map", "cloud-sprites", "explosion-sprites", "text-sprites",
             "reward-sprites", "logo-sprites", "part-x", "part-y", "part-column", "part-row",
             "part-size", "part-priority", "part-palette", "part-flip-x", "part-flip-y",
             "part-order", "part-count", "map-column", "map-row", "map-palette", "map-priority",
@@ -119,7 +119,7 @@ internal static class EndingContentIdentityVerification
             AssertTrue(before.GetCompatibilityWarnings(after.ToSnapshot(), "test").Single()
                 .Contains(component, StringComparison.Ordinal), edit + " reports its specific domain");
         }
-        foreach (string cosmeticEdit in new[] { "json-indent", "png-colors" })
+        foreach (string cosmeticEdit in new[] { "json-indent" })
         foreach ((string component, string digest) in baseline)
             AssertEqual(digest, CreateEndingIdentityFixture(cosmeticEdit)[component],
                 cosmeticEdit + " preserves decoded " + component);
@@ -136,7 +136,7 @@ internal static class EndingContentIdentityVerification
             AssertTrue(!MetadataShape.DeclaresField(type, "<ContentIdentity>k__BackingField",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
                 type.Name + " adds no serialized derived-identity field");
-        Console.WriteLine($"  Ending content: {edits.Count} independent character/map/composition/backdrop edits, " +
+        Console.WriteLine($"  Ending content: {edits.Count} independent map/composition/backdrop edits, " +
             "ordered transfers and parts, canonical frames, encoding invariance and host warnings pass without a ROM.");
     }
 
@@ -147,20 +147,6 @@ internal static class EndingContentIdentityVerification
         MemoryStream Json(object document) => new(JsonSerializer.SerializeToUtf8Bytes(document,
             (edit == "json-indent" ? CamelCaseIndentedJson : CamelCaseJson)));
 
-        RoomCharacterAtlas Characters(string name, int bytes, int seed = 0)
-        {
-            int tiles = bytes / RoomCharacterAtlasFormat.BytesPerTile;
-            int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tiles);
-            int rows = (tiles + columns - 1) / columns;
-            var pixels = new byte[columns * rows * 64];
-            pixels[0] = (byte)seed;
-            if (edit == name) pixels[^1] = 1;
-            using var png = new MemoryStream();
-            IndexedPng.Write(png, new(checked((ushort)(columns * 8)), checked((ushort)(rows * 8))), pixels, Enumerable.Range(0, 16)
-                .Select(index => new RgbaPixel((byte)(edit == "png-colors" ? 255 - index : index), 0, 0)).ToArray());
-            png.Position = 0;
-            return RoomCharacterAtlasPng.Read(png, bytes);
-        }
 
         RoomBackgroundTilemapAtlas Map(string name, int seed = 0)
         {
@@ -233,7 +219,7 @@ internal static class EndingContentIdentityVerification
         var fragments = Enumerable.Range(0, EndingObjectArtworkFormat.FragmentCount)
             .Select(index => Map("fragment-" + index, index)).ToArray();
         if (edit == "fragment-order") Array.Reverse(fragments);
-        var objects = new EndingObjectSourceArtwork(new EndingObjectArtworkParts { Clouds = Characters("clouds", EndingObjectArtworkFormat.CloudByteCount), Explosion = Characters("explosion", EndingObjectArtworkFormat.ExplosionByteCount), Fragments = fragments, WaitingSamus = Characters("waiting", EndingObjectArtworkFormat.RewardByteCount), ShootingScreen = Characters("shooting", EndingObjectArtworkFormat.RewardByteCount), SuitlessSamus = Characters("suitless", EndingObjectArtworkFormat.RewardByteCount), WaitingTilemap = Map("waiting-map"), PostCreditsFragmentA = Characters("post-fragment-a", EndingObjectArtworkFormat.PostCreditsFragmentAByteCount), PostCreditsFragmentB = Map("post-fragment-b"), PostShotLogoTiles = Characters("logo-tiles", EndingObjectArtworkFormat.PostShotLogoTileByteCount), PostShotLogoMap = Map("logo-map"), CloudSprites = EndingCloudSpritePresentation.Load(Sprites("cloud", EndingCloudSpriteDefinitions.Frames.Select(frame => frame.Name))), ExplosionSprites = EndingExplosionSpritePresentation.Load(Sprites("explosion", EndingExplosionSpriteDefinitions.Frames.Select(frame => frame.Name))), CompletionTextSprites = EndingCompletionTextSpritePresentation.Load(Sprites("text", EndingCompletionTextSpriteDefinitions.Frames.Select(frame => frame.Name))), RewardSprites = EndingRewardSpritePresentation.Load(Sprites("reward", EndingRewardSpriteDefinitions.Frames.Select(frame => frame.Name))), LogoSprites = EndingLogoSpritePresentation.Load(Sprites("logo", EndingLogoSpriteDefinitions.Frames.Select(frame => frame.Name))) });
+        var objects = new EndingObjectSourceArtwork(new EndingObjectArtworkParts { Fragments = fragments, WaitingTilemap = Map("waiting-map"), PostCreditsFragmentB = Map("post-fragment-b"), PostShotLogoMap = Map("logo-map"), CloudSprites = EndingCloudSpritePresentation.Load(Sprites("cloud", EndingCloudSpriteDefinitions.Frames.Select(frame => frame.Name))), ExplosionSprites = EndingExplosionSpritePresentation.Load(Sprites("explosion", EndingExplosionSpriteDefinitions.Frames.Select(frame => frame.Name))), CompletionTextSprites = EndingCompletionTextSpritePresentation.Load(Sprites("text", EndingCompletionTextSpriteDefinitions.Frames.Select(frame => frame.Name))), RewardSprites = EndingRewardSpritePresentation.Load(Sprites("reward", EndingRewardSpriteDefinitions.Frames.Select(frame => frame.Name))), LogoSprites = EndingLogoSpritePresentation.Load(Sprites("logo", EndingLogoSpriteDefinitions.Frames.Select(frame => frame.Name))) });
 
         RgbColor[] backdrops = [.. BackdropScenes.Select((scene, index) => new FadeLevelColour(index + 1, edit == "backdrop-" + scene ? 1 : 0, 0).ToColour())];
         if (edit == "backdrop-order")

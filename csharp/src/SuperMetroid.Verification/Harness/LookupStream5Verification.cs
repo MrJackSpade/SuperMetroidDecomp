@@ -91,8 +91,7 @@ internal static class LookupStream5Verification
         var oracle = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SuperMetroid.AssetExtraction.Cartridge.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Melt tilemap source revision");
-        InstalledEnemyArtwork catalog = SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkFiles.Load(
-            RepositoryInstallation.Installation.EnemyTileDirectory);
+        ImportEnemyArtwork catalog = InstalledFixtures.EnemyArtwork;
         CrocomireMeltingArtwork art = (catalog.Bosses.CrocomireMelting ?? throw new InvalidOperationException("Verification requires catalog.CrocomireMelting."));
         var native = new ushort[2][];
         for (int phase = 0; phase < 2; phase++)
@@ -1603,13 +1602,13 @@ internal static class LookupStream5Verification
             "Ceres palette serializes every colour of both owners");
         IReadOnlyDictionary<string, byte[]> files = SuperMetroid.AssetExtraction.Areas.Ceres.CeresFlightArtworkExtractor.Extract(rom);
         var catalog = CeresFlightCharacters.Read(Open(CeresFlightArtworkFileFormat.FloorFileName),
-            Open(CeresFlightArtworkFileFormat.MapFileName), Open(CeresFlightArtworkFileFormat.ObjectFileName),
-            stock.Backdrop, Open(CeresFlightSpriteFormat.FileName), Open(CeresFlightActorLayoutFormat.FileName));
-        string expectedHash = SelectedPresentationHash.Create("CeresFlightArtworkCatalog", content =>
+            Open(CeresFlightArtworkFileFormat.ObjectFileName),
+            CeresFlightSourceArtwork.Read(Open(CeresFlightArtworkFileFormat.MapFileName), stock.Backdrop,
+                Open(CeresFlightSpriteFormat.FileName), Open(CeresFlightActorLayoutFormat.FileName)));
+        // The identity covers the installed documents; the characters are import data (#1636).
+        string expectedHash = SelectedPresentationHash.Create("CeresFlightArtworkCatalog-v2", content =>
         {
-            content.Append("mode7-characters", catalog.FloorCharacters.Span);
             content.Append("mode7-maps", catalog.FloorMaps.Span);
-            content.Append("object-characters", catalog.ObjectCharacters.Span);
             content.AppendColors("backdrop", [stock.Backdrop]);
             content.Append("sprites", Convert.FromHexString(catalog.Sprites.ContentIdentity));
             content.Append("actors", Convert.FromHexString(catalog.Actors.ContentIdentity));

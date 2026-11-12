@@ -27,7 +27,7 @@ internal static class GrappleSpriteArtworkVerification
                 catalog.Segment(i), "Extracted segment attributes match timed native record");
         // The installed grapple sheet composes each frame from the installed appearances, which match the cartridge above:
         // the endpoint as one small OBJ centred on its origin, and each rope segment likewise, with the rope direction's flips ORed into its own.
-        SpriteSheetSources composed = GrappleSheetComposer.Sources(SamusSheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory));
+        SpriteSheetSources composed = GrappleSheetComposer.Sources(SamusSheetInputs.Load(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.Directory));
         Dictionary<string, SpriteFrame> frames = composed.Frames.ToDictionary(frame => frame.Name, frame => frame.Frame, StringComparer.Ordinal);
         int cases = 0;
         for (int point = 0; point < GrappleSheetComposer.EndpointFrameCount; point++, cases++)

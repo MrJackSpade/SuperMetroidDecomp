@@ -27,8 +27,8 @@ internal sealed class ScreenTileSources(Func<AreaMapPresentation> maps, Func<Int
     /// <summary>The ending's palettes, once read.</summary>
     private readonly Lazy<EndingPaletteSet> endingPalettes = new(endingPalettes);
 
-    /// <summary>The ending's object artwork, with the character atlases its sheets are composed from.</summary>
-    internal EndingObjectSourceArtwork EndingObjects => EndingObjectSourceArtwork.Of(endingObjects.Value);
+    /// <summary>The ending's object artwork as the import read it, with the character atlases its sheets are composed from (#1636).</summary>
+    internal ImportEndingObjectArtwork EndingObjects => ImportEndingObjectArtwork.Imported(endingObjects.Value);
 
     /// <summary>The ending's palettes.</summary>
     internal EndingPaletteSet EndingPalettes => endingPalettes.Value;

@@ -32,14 +32,8 @@ internal static class InstalledSamusBodyArtworkAccess
         /// <summary>Where each pose places the body, as the installation holds it: its art origin and its frames' own placements (#1517).</summary>
         internal IReadOnlyDictionary<SamusPoseId, SamusBodyPosePlacement> Placements => self.Source.Placements;
 
-        /// <summary>The identity of the death-explosion characters the import pipeline installed with the body.</summary>
-        internal string DeathTilesContentIdentity => self.Source.DeathTilesContentIdentity;
-
         /// <summary>The death colours the import pre-colours her death shades from (#1512).</summary>
         internal InstalledSamusDeathPalettes DeathPalettes => self.Source.DeathPalettes;
-
-        /// <summary>The identity of the body characters the import pipeline composed the body's sheets from.</summary>
-        internal string BodyCharactersContentIdentity => self.Source.BodyCharactersContentIdentity;
 
         /// <summary>The frame selector <paramref name="animationFrame"/> places after <paramref name="pose"/>'s first.</summary>
         /// <exception cref="InvalidDataException">The pose has no record, or the selector is outside the table.</exception>

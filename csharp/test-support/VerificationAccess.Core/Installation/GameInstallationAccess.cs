@@ -15,13 +15,6 @@ internal static class GameInstallationAccess
         public string RoomMetatileDirectory => Path.Combine(self.ContentDirectory, GameInstallationLayout.RoomMetatileDirectoryName);
 
         /// <summary>
-        /// Loads the validated stock room character atlases: the import pipeline's input to the rooms' pictures, which no
-        /// host binds (#1466); a player edits the rooms' composed sheets instead.
-        /// </summary>
-        public RoomCharacterAtlases LoadRoomCharacters() =>
-            RoomCharacterArtworkFiles.Load(self.RoomCharacterDirectory);
-
-        /// <summary>
         /// Loads the installed room background tilemaps: the import pipeline's input to the room backgrounds' images, which
         /// no host binds (#1466).
         /// </summary>
@@ -34,7 +27,7 @@ internal static class GameInstallationAccess
         /// </summary>
         public RoomSkyTilemaps LoadRoomSkyTilemaps() =>
             RoomSkyTilemapArtworkFiles.Load(self.RoomBackgroundTilemapDirectory);
-        /// <summary>Stock room character-tile atlases and their source manifests.</summary>
+        /// <summary>The room characters' provenance manifest; the characters are import data no installation holds (#1636).</summary>
         public string RoomCharacterDirectory => Path.Combine(self.ContentDirectory, GameInstallationLayout.RoomCharacterDirectoryName);
         /// <summary>Stock background tilemaps, including sky tilemaps, under the replaceable content tree.</summary>
         public string RoomBackgroundTilemapDirectory => Path.Combine(self.ContentDirectory, GameInstallationLayout.RoomBackgroundTilemapDirectoryName);

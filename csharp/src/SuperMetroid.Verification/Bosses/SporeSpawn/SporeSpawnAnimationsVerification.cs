@@ -166,11 +166,11 @@ internal static class SporeSpawnAnimationsVerification
     internal static RunSporeSpawnProgramResult RunSporeSpawnProgram(
         SporeSpawnBodyProgram program,
         int frames,
-        InstalledEnemyArtwork? artwork = null,
+        ImportEnemyArtwork? artwork = null,
         Action<RoomEnemySystem, RoomEnemySlot>? afterFrame = null)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        InstalledEnemyArtwork bound = artwork ?? InstalledFixtures.EnemyArtwork;
+        ImportEnemyArtwork bound = artwork ?? InstalledFixtures.EnemyArtwork;
         enemies.TileArtwork = bound.Enemies;
         enemies.BossArtwork = bound.Bosses;
         RoomEnemySlot body = enemies.SlotTable.Slots[0];

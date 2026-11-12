@@ -27,7 +27,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
 {
     /// <summary>Compares every stock color with ROM, checks guarded production writes, and rejects out-of-range channels.</summary>
     internal static void VerifyInstalledKraidColors(
-        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, string directory, InstalledEnemyArtwork stock)
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, string directory, ImportEnemyArtwork stock)
     {
         Suite(nameof(VerifyKraidPaletteSourceAddresses), () => VerifyKraidPaletteSourceAddresses(rom));
         Suite(nameof(VerifyKraidPaletteSourceLengths), () => VerifyKraidPaletteSourceLengths());
@@ -92,7 +92,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
     /// state, as the cartridge's colour memory keeps it; his death fade then starts from his colours instead of failing
     /// on the room's (#1532).
     /// </summary>
-    private static void VerifyKraidBackdropSurvivesReinitialization(InstalledEnemyArtwork artwork)
+    private static void VerifyKraidBackdropSurvivesReinitialization(ImportEnemyArtwork artwork)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
         enemies.KraidBehavior.Access.Kraid = new KraidEnemyState();
@@ -117,7 +117,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
     /// gradual colour change fades the backdrop's colour memory from whatever it holds (#1532). Each step's shade the import
     /// makes is the room's colours after the cartridge's steps toward black, and the fade ends on black.
     /// </summary>
-    private static void VerifyKraidDeathFadeFromRoomColours(InstalledEnemyArtwork artwork)
+    private static void VerifyKraidDeathFadeFromRoomColours(ImportEnemyArtwork artwork)
     {
         KraidBackdropFixture fixture = NewKraidBackdropFixture(artwork);
         RgbColor[] expected = (RgbColor[])fixture.Room.Clone();
@@ -134,7 +134,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
     /// his colours, each step showing what the cartridge's gradual colour change computes, and ends on them. His defeated
     /// room, which shows his colours at once, takes the same fade back.
     /// </summary>
-    private static void VerifyKraidFadeBackFromKraidColours(InstalledEnemyArtwork artwork)
+    private static void VerifyKraidFadeBackFromKraidColours(ImportEnemyArtwork artwork)
     {
         KraidBackdropFixture fixture = NewKraidBackdropFixture(artwork);
         RgbColor[] expected = (RgbColor[])fixture.Room.Clone();
@@ -163,7 +163,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
     /// step and continues its counter, each step showing those colours after the cartridge's gradual colour change toward
     /// black, and ends on black.
     /// </summary>
-    private static void VerifyKraidDeathFadeDuringGrowthFade(InstalledEnemyArtwork artwork)
+    private static void VerifyKraidDeathFadeDuringGrowthFade(ImportEnemyArtwork artwork)
     {
         KraidBackdropFixture fixture = NewKraidBackdropFixture(artwork);
         RgbColor[] expected = (RgbColor[])fixture.Room.Clone();
@@ -182,7 +182,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
     /// value, each step showing what the cartridge's gradual colour change computes at the values taken, and it completes
     /// when the counter passes the last moving value without a step there, keeping its colours partway.
     /// </summary>
-    private static void VerifyKraidFadeBackDuringDoorFade(InstalledEnemyArtwork artwork)
+    private static void VerifyKraidFadeBackDuringDoorFade(ImportEnemyArtwork artwork)
     {
         const int denominator = KraidBackgroundDefinitions.BackdropFadeLastStep - 1;
         const int lastAlone = 6;
@@ -225,7 +225,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
     private const int KraidBackdropFirstInk = 96;
 
     /// <summary>Loads Kraid into a fresh room and makes the import's backdrop shades for a room whose fifth colour group holds distinct colours.</summary>
-    private static KraidBackdropFixture NewKraidBackdropFixture(InstalledEnemyArtwork artwork)
+    private static KraidBackdropFixture NewKraidBackdropFixture(ImportEnemyArtwork artwork)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
         enemies.KraidBehavior.Access.Kraid = new KraidEnemyState();
@@ -351,7 +351,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
     /// ink lies past the 128 background colours.
     /// </summary>
     private static RgbColor[] CaptureKraidPaletteConsumer(
-        InstalledEnemyArtwork artwork,
+        ImportEnemyArtwork artwork,
         KraidPaletteConsumer consumer)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };

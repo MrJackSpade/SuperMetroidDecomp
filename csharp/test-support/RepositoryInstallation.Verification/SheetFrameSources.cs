@@ -250,7 +250,7 @@ internal static class SheetFrameSources
 
     /// <summary>The inputs every graphics set's sheets are composed from.</summary>
     private static readonly Lazy<SuperMetroid.AssetExtraction.Enemies.EnemySheetInputs> enemySheetInputs = new(() =>
-        SuperMetroid.AssetExtraction.Enemies.EnemySheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory));
+        SuperMetroid.AssetExtraction.Enemies.EnemySheetInputs.Load(CartridgeImportContent.Directory));
 
     /// <summary>Each graphics set whose sheets' frames are registered, once.</summary>
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, Lazy<bool>> enemySources = new();
@@ -272,7 +272,7 @@ internal static class SheetFrameSources
     private static System.Collections.Concurrent.ConcurrentDictionary<FrameKey, FrameSource> Build()
     {
         var result = new System.Collections.Concurrent.ConcurrentDictionary<FrameKey, FrameSource>();
-        var catalog = new SpriteSheetSourceCatalog(RepositoryInstallation.Installation.ContentDirectory, InstalledFixtures.EndingColours);
+        var catalog = new SpriteSheetSourceCatalog(CartridgeImportContent.Directory, InstalledFixtures.EndingColours);
         // Only sheets composed from sprite parts have frames to pair; the picture, page and floor sheets are painted directly.
         foreach (SpriteSheetId id in SpriteSheetDefinitions.Sheets.Where(SpriteSheetSourceCatalogConstants.ComposesFromSpriteParts))
         {

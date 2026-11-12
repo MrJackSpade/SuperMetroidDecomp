@@ -484,8 +484,11 @@ internal static void VerifySamusArmCannon()
     // Direction two's cover keeps its installed appearance, the retail $281F: tile $1F, palette four, priority two.
     document.Required("coverTiles")[2] = new System.Text.Json.Nodes.JsonArray(0, 1, 2);
     using var placement = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString()));
-    using var tiles = File.OpenRead(Path.Combine(directory, SamusArmCannonArtworkFormat.TileFileName));
-    var artwork = InstalledSamusArmCannonArtworkTooling.Load(placement, tiles);
+    // The cover characters are import data no installation holds (#1636): the cartridge-derived extraction's are bound.
+    using var tiles = File.OpenRead(Path.Combine(CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.SamusBodyDirectoryName),
+        SamusArmCannonArtworkFormat.TileFileName));
+    SamusArmCannonCoverCharacters coverCharacters = InstalledSamusArmCannonArtworkTooling.LoadWithCover(placement, tiles);
+    SamusArmCannonSourceArtwork artwork = coverCharacters.Cannon;
     var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
     {
         Pose = SamusPoseId.FacingRightNormalPose,
@@ -561,7 +564,7 @@ internal static void VerifySamusArmCannon()
     AssertEqual(new SpriteArtworkId(SpriteArtworkKind.SamusArmCannonCover,
             SamusArmCannonArtworkFormat.TileSourcePointers.IndexOf(0x9e00)), coverTile.Id,
         "pose record selects direction two, whose frame three binds the third cover tile");
-    AssertTrue(artwork.TryResolveTile(0x9a9e00, SpriteArtwork.CharacterByteCount, out ReadOnlyMemory<byte> nativeCover) &&
+    AssertTrue(coverCharacters.TryResolveTile(0x9a9e00, SpriteArtwork.CharacterByteCount, out ReadOnlyMemory<byte> nativeCover) &&
             coverTile.Characters.SequenceEqual(nativeCover.Span),
         "the bound cover character is the installed tile the native $9A:9E00 upload names");
 

@@ -74,7 +74,7 @@ internal static class CinematicScreenPublicationVerification
         AssertEqual(IntroCeresFlightPhase.FlyingTowardCeres, flight.Phase, "the flight reaches its rear view");
         FramePaint rear = flight.CaptureRenderSnapshot().Paint;
         byte[] rearVram = flight.ShownVram();
-        ReadOnlySpan<byte> maps = CeresFlightCharacters.Of(InstalledFixtures.IntroArtwork.CeresFlight).FloorMaps.Span;
+        ReadOnlySpan<byte> maps = CeresFlightSourceArtwork.Of(InstalledFixtures.IntroArtwork.CeresFlight).FloorMaps.Span;
         for (int cell = 0; cell < CeresFlightArtworkFileFormat.MapCellsPerView; cell++)
             AssertEqual(maps[CeresFlightArtworkFileFormat.MapCellsPerView + cell], rearVram[cell * 2], $"rear view shows rear map cell {cell}");
         var restoredFlight = RoundTrip(flight);

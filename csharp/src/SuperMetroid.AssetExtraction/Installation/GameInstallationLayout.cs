@@ -126,10 +126,16 @@ public static class GameInstallationLayout
     public const string RoomObjectSetupBlockDirectoryName = "room-plm-setup-blocks";
     /// <summary>Content child directory for X-ray reveal metatile selections.</summary>
     public const string XrayRevealVisualDirectoryName = "xray-reveals";
+    /// <summary>
+    /// Staging child directory holding the import's character and tile pages (#1636), one child per component that
+    /// decodes them (<see cref="ImportDataDirectory.Of"/>): the composition components compose the installed pictures from
+    /// them, and the installer deletes the directory before it publishes, so an installation never holds it.
+    /// </summary>
+    public const string ImportDataDirectoryName = "import-data";
     /// <summary>Receipt filename within stock content, recording the installation format and source cartridge digest.</summary>
     public const string ReceiptFileName = "installation.json";
     /// <summary>Current installation-receipt version; content whose receipt names another is extracted again before opening.</summary>
-    public const int FormatVersion = 266;
+    public const int FormatVersion = 267;
     /// <summary>Backup of the previously published stock game tree during an atomic install.</summary>
     internal const string PreviousDirectoryName = ".game.previous";
     /// <summary>Prefix for a stock tree being prepared before publication.</summary>

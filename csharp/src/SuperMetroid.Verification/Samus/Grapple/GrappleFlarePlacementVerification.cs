@@ -61,7 +61,7 @@ internal static class GrappleFlarePlacementVerification
         {
             SamusPoseId pose = authored.Pose;
             var native = Seed(stock);
-            var selected = Seed(InstalledFixtures.Projectiles.GrappleTiles.FlarePlacement);
+            var selected = Seed(InstalledFixtures.Projectiles.Grapple.FlarePlacement);
             SamusGrappleMovement.BeginFiring(native);
             SamusGrappleMovement.BeginFiring(selected);
             Compare();
@@ -93,7 +93,7 @@ internal static class GrappleFlarePlacementVerification
             // installed content; a content list of their own would walk all installed content again (#1532).
             void Compare()
             {
-                ChargeFlarePlacements installed = InstalledFixtures.Projectiles.GrappleTiles.FlarePlacement
+                ChargeFlarePlacements installed = InstalledFixtures.Projectiles.Grapple.FlarePlacement
                     ?? throw new InvalidOperationException("The installation places the grapple flare.");
                 AssertTrue(ReferenceEquals(stock, native.Grapple.FlarePlacement) && ReferenceEquals(installed, selected.Grapple.FlarePlacement),
                     "Each Samus keeps the flare placement it was bound to");

@@ -21,7 +21,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
 {
     /// <summary>Compares transfer sources, destinations, and bytes with the installed frames.</summary>
     internal static void VerifyInstalledGunshipLiftoffArtwork(
-        SuperMetroidAddressSpace bus, InstalledEnemyArtwork stock)
+        SuperMetroidAddressSpace bus, ImportEnemyArtwork stock)
     {
         GunshipLiftoffArtworkCatalog installed = stock.Enemies.GunshipLiftoff ??
             throw new InvalidDataException("Installed enemy art omitted gunship takeoff frames.");
@@ -73,7 +73,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
             "Gunship takeoff art: five compiled pages, installed PNG parity, " +
             "live page uploads pass.");
 
-        static SpriteArtworkPlacements ShowAllTakeoffPages(InstalledEnemyArtwork art, IInstalledArtworkContent resolver)
+        static SpriteArtworkPlacements ShowAllTakeoffPages(ImportEnemyArtwork art, IInstalledArtworkContent resolver)
         {
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()) { TileArtwork = art.Enemies, BossArtwork = art.Bosses };
             RoomEnemySlot top = enemies.SlotTable.Slots[0];

@@ -129,10 +129,10 @@ internal static class CinematicSheetFixtures
                 sheets[SpriteSheetId.ZebesRevealSprites] = Load(IntroSpriteSheetComposer.ZebesRevealSources(key), $"zebes-reveal-fixture-{RuntimeHelpers.GetHashCode(key):X8}");
                 // The cinematics' background tiles are pre-coloured from the intro's characters and palettes (#1392).
                 var tileSources = new ScreenTileSources(() => InstalledFixtures.Maps, () => key,
-                    RepositoryInstallation.Installation.LoadEndingObjectArt, () => InstalledFixtures.EndingColours,
-                    RepositoryInstallation.Installation.LoadEndingMode7Art);
+                    () => InstalledFixtures.EndingObjects, () => InstalledFixtures.EndingColours,
+                    () => InstalledFixtures.EndingFloors);
                 sheets[SpriteSheetId.IntroNarrationPictures] = LoadTiles(SpriteSheetId.IntroNarrationPictures,
-                    IntroNarrationPictureSheetComposer.Compose(key, InstalledAreaMapPresentation.IntroFontOf(InstalledFixtures.Maps)), $"intro-{RuntimeHelpers.GetHashCode(key):X8}");
+                    IntroNarrationPictureSheetComposer.Compose(key, ImportAreaMapPresentation.IntroFontOf(InstalledFixtures.Maps)), $"intro-{RuntimeHelpers.GetHashCode(key):X8}");
                 sheets[SpriteSheetId.IntroScenePictures] = LoadTiles(SpriteSheetId.IntroScenePictures,
                     IntroScenePictureSheetComposer.Compose(key), $"intro-{RuntimeHelpers.GetHashCode(key):X8}");
                 sheets[SpriteSheetId.CeresCinematicPictures] = LoadTiles(SpriteSheetId.CeresCinematicPictures,

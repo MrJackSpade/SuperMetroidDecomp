@@ -29,7 +29,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
     /// exactly the installed Beetom frames, with optional installed artwork; the program oracle matches bank $A8.
     /// </summary>
     internal static void VerifyBeetomInstructionProgramDefinitions(
-        SuperMetroidAddressSpace rom, InstalledEnemyArtwork? artwork = null)
+        SuperMetroidAddressSpace rom, ImportEnemyArtwork? artwork = null)
     {
         Suite(nameof(VerifyBeetomNativeMaps), () => VerifyBeetomNativeMaps(rom));
         Suite(nameof(VerifyBeetomDistantActionMapping), () => VerifyBeetomDistantActionMapping(rom));

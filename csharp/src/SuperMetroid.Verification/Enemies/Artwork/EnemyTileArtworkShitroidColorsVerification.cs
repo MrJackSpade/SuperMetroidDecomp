@@ -27,7 +27,7 @@ internal static class EnemyTileArtworkShitroidColorsVerification
 
     /// <summary>Exercises installed colors through live CGRAM consumers while preserving native timer selection and forbidding source reads.</summary>
     internal static void VerifyInstalledShitroidColors(
-        ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
+        ISnesAddressSpace rom, string stockDirectory, ImportEnemyArtwork stock)
     {
         ShitroidColorCatalog native = stock.Bosses.ShitroidColors ??
             throw new InvalidDataException("Installed enemy art has no Shitroid colors.");

@@ -15,18 +15,16 @@ public static class InstalledArtworkIdentity
 {
     /// <summary>Fingerprints an already loaded set; nothing is read here. Every catalog must be bound.</summary>
     /// <param name="artwork">The bound artwork set.</param>
-    /// <param name="enemies">The installed enemy directory the set's enemy and boss artwork was bound from, whose area artwork only the import reads (#1512).</param>
-    /// <param name="standardObjects">The installed standard object characters, which only the import reads (#1484).</param>
+    /// <param name="enemies">The installed enemy directory the set's enemy frames and Kraid's colours were bound from.</param>
     /// <remarks>
     /// The tilesets' colours and the starting and common sprite colours are palette documents only the import reads, to
-    /// pre-colour the sheets the game shows (#1544); the sheets' identities stand for them, and no host loads them.
+    /// pre-colour the sheets the game shows (#1544), and the character pages are import data the installation never holds
+    /// (#1636); the sheets' identities stand for them, and no host loads them.
     /// </remarks>
-    public static IEnumerable<KeyValuePair<string, string>> Create(GameArtwork artwork, InstalledEnemyArtwork enemies,
-        RoomCharacterAtlas standardObjects)
+    public static IEnumerable<KeyValuePair<string, string>> Create(GameArtwork artwork, InstalledEnemyArtwork enemies)
     {
         Ensure.NotNull(artwork);
         Ensure.NotNull(enemies);
-        Ensure.NotNull(standardObjects);
         return RoomPresentationIdentity.Create(Require(artwork.RoomVisualLayouts))
             .Append(KeyValuePair.Create(GameInstallationLayout.SamusBodyDirectoryName, Require(artwork.SamusBodyArt).ContentIdentity))
             .Concat(RoomObjectPresentationIdentity.Create(new RoomObjectVisualCatalogSet
@@ -60,7 +58,7 @@ public static class InstalledArtworkIdentity
                 RevealAndWall = Require(artwork.RoomObjectRevealAndWallVisuals),
                 SetupBlocks = Require(artwork.RoomObjectSetupBlocks),
             }))
-            .Concat(GameplayPresentationIdentity.Create(standardObjects, Require(artwork.XrayRevealVisuals)))
+            .Concat(GameplayPresentationIdentity.Create(Require(artwork.XrayRevealVisuals)))
             .Concat(EndingPresentationIdentity.Create(Require(artwork.EndingObjectArt), Require(artwork.EndingBackdrops)))
             .Append(KeyValuePair.Create(GameInstallationLayout.IntroCinematicDirectoryName, Require(artwork.IntroCinematicArt).ContentIdentity))
             .Append(KeyValuePair.Create(GameInstallationLayout.SpriteSheetDirectoryName, Require(artwork.SpriteSheets).ContentIdentity))

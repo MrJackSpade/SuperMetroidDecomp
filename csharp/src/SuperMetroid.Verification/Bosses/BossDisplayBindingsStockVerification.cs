@@ -41,7 +41,7 @@ internal static class BossDisplayBindingsStockVerification
     internal static void VerifyBossDisplayStock()
     {
         var source = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        InstalledEnemyArtwork installed = InstalledFixtures.EnemyArtwork;
+        ImportEnemyArtwork installed = InstalledFixtures.EnemyArtwork;
         int frames = 0, parts = 0, runs = 0, tiles = 0;
         var nativeLists = new HashSet<int>();
         foreach ((EnemyDefinitionId definition, EnemyFrameName[] family) in BossDisplayDocuments.Families())
@@ -92,7 +92,7 @@ internal static class BossDisplayBindingsStockVerification
     }
 
     /// <summary>Resolves one Crocomire, Phantoon, or Draygon frame's installed BG2 writes.</summary>
-    private static ReadOnlyMemory<EnemyBg2TilemapWrite> StockBossWrites(InstalledEnemyArtwork catalog, EnemyFrameName frame)
+    private static ReadOnlyMemory<EnemyBg2TilemapWrite> StockBossWrites(ImportEnemyArtwork catalog, EnemyFrameName frame)
     {
         ReadOnlyMemory<EnemyBg2TilemapWrite> writes;
         bool exists = frame.Bank switch

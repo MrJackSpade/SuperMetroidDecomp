@@ -24,7 +24,7 @@ internal static class RidleySupplementalArtworkVerification
 
     /// <summary>Compares all wing phases and tail directions with native selectors and rendered OAM.</summary>
     internal static void VerifyInstalledRidleySupplementalArtwork(
-        SuperMetroidAddressSpace rom, InstalledEnemyArtwork stock)
+        SuperMetroidAddressSpace rom, ImportEnemyArtwork stock)
     {
         AssertEqual(20, RidleySupplementalVisualDefinitionsConstants.WingPointerCount,
             "Ridley wing table retains twenty animation selections");
@@ -74,7 +74,7 @@ internal static class RidleySupplementalArtworkVerification
 
     /// <summary>Constructs a Ridley state and draws its installed wing or articulated-tail supplement.</summary>
     internal static OamBuffer DrawInstalledRidleySupplement(
-        InstalledEnemyArtwork artwork, RidleyFacing facing, ushort wingFrame, int? tailDirection)
+        ImportEnemyArtwork artwork, RidleyFacing facing, ushort wingFrame, int? tailDirection)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];

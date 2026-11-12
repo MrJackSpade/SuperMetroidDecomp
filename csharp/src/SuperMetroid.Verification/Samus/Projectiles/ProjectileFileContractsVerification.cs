@@ -3,6 +3,8 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
@@ -16,11 +18,13 @@ internal static class ProjectileFileContractsVerification
     /// </summary>
     internal static void VerifyProjectileFileContracts(GameInstallation installed)
     {
-        string directory = installed.ProjectileDirectory;
+        Ensure.NotNull(installed);
+        // The beam pages are import data no installation holds (#1636): the cartridge-derived extraction's are assembled.
+        string directory = CartridgeImportContent.ImportData(GameInstallationLayout.ProjectileDirectoryName);
         var expectedBeams = BeamTileCatalog.Load(Enumerable.Range(0, BeamTileAtlasDefinitions.ArtworkCount).Select(BeamTileAtlasDefinitions.SelectionAt)
             .ToDictionary(BeamTileAtlasDefinitions.FileName, index => File.ReadAllBytes(
                 Path.Combine(directory, BeamTileAtlasDefinitions.FileName(index)))));
-        var compiledBeams = ProjectilePresentationFiles.Load(directory).BeamTiles;
+        var compiledBeams = InstalledFixtures.ImportProjectiles.BeamTiles;
         for (int selection = 0; selection < BeamTileAtlasDefinitions.SelectionCount; selection++)
             AssertTrue(compiledBeams.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombinationTableOrder.FromTableIndex(selection))).Span.SequenceEqual(
                 expectedBeams.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombinationTableOrder.FromTableIndex(selection))).Span),
@@ -36,7 +40,7 @@ internal static class ProjectileFileContractsVerification
             expectedBeams.Resolve(BeamTileCatalog.AssetFor(0)).Span), "beam assembler owns the input array");
         AssertThrows<ArgumentException>(() => BeamTileCatalog.FromAtlases([], compiledBeams.Palettes,
             compiledBeams.HyperBeamFxColors), "beam assembler rejects an incomplete selection set");
-        Console.WriteLine("PASS projectile file contracts: installed beam PNGs assemble into the loaded beam catalog.");
+        Console.WriteLine("PASS projectile file contracts: the extracted beam pages assemble into the loaded beam catalog.");
     }
 
     /// <summary>Runs the projectile resource contract check against the current installation.</summary>

@@ -86,10 +86,10 @@ internal static class EnemyTileArtworkVerification
         /// <summary>The installation's enemy-tile directory.</summary>
         private readonly string directory = RepositoryInstallation.Installation.EnemyTileDirectory;
         /// <summary>The installation's enemy artwork.</summary>
-        private readonly InstalledEnemyArtwork stock = InstalledFixtures.EnemyArtwork;
+        private readonly ImportEnemyArtwork stock = InstalledFixtures.EnemyArtwork;
 
         /// <summary>Supplies the cartridge, stock enemy-tile directory and stock catalog.</summary>
-        internal void Deconstruct(out CartridgeImportAddressSpace bus, out string directory, out InstalledEnemyArtwork stock)
+        internal void Deconstruct(out CartridgeImportAddressSpace bus, out string directory, out ImportEnemyArtwork stock)
         {
             bus = this.bus;
             directory = this.directory;
@@ -187,12 +187,14 @@ internal static class EnemyTileArtworkVerification
             return;
         }
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        string directory = RepositoryInstallation.Installation.EnemyTileDirectory;
+        // The enemy characters are import data no installation holds (#1636): the extraction's are read from the
+        // cartridge-derived extraction and compared with the cartridge.
+        string importData = CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.EnemyTileDirectoryName);
         {
-            InstalledEnemyArtwork stock = EnemyTileArtworkFiles.Load(directory);
-            string[] files = Directory.GetFiles(directory, "enemy-????-tiles.png");
+            ImportEnemyArtwork stock = InstalledFixtures.EnemyArtwork;
+            string[] files = Directory.GetFiles(importData, "enemy-????-tiles.png");
             AssertEqual(EnemyTileArtworkFormat.RetailDefinitionCount, files.Length,
-                "one indexed PNG per distinct retail enemy graphics definition");
+                "one indexed page per distinct retail enemy graphics definition");
             _ = VerifyInstalledCrocomireMeltingTilemap(
                 bus, stock, CrocomireMeltingIllustration.First,
                 CrocomireBodyProgram.MeltingOneTopRow);
@@ -213,11 +215,11 @@ internal static class EnemyTileArtworkVerification
                 int byteCount = SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileSet(bus, pointer).ByteCount;
                 byte[] native = ReadNativeEnemyTiles(bus, pointer, byteCount);
                 AssertTrue(stock.Enemies.TilesOf(pointer).Span.SequenceEqual(native),
-                    $"enemy {pointer}'s installed tiles hold the cartridge tiles its header names");
+                    $"enemy {pointer}'s extracted tiles hold the cartridge tiles its header names");
                 var vram = new SnesVram();
                 stock.Enemies.LoadTo(pointer, byteCount, new VramRegion(vram, PpuMemoryLayout.Vram), 0);
                 AssertTrue(vram.Bytes[..byteCount].SequenceEqual(native),
-                    $"enemy {pointer} PNG preserves every native tile byte");
+                    $"enemy {pointer} page preserves every native tile byte");
                 // The installed palette the import colours the enemy's sheets in (#1512) is the cartridge's, colour for colour.
                 ReadOnlySpan<RgbColor> installedColours = stock.Enemies.PaletteOf(pointer).Colours;
                 int paletteAddress = SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.PaletteAddress(bus, pointer);

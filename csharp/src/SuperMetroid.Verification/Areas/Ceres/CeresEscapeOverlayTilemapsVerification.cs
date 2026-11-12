@@ -18,7 +18,7 @@ namespace SuperMetroid.Verification.Areas.Ceres;
 internal static class CeresEscapeOverlayTilemapsVerification
 {
     /// <summary>Compares five native overlays and the title the getaway shows over BG1.</summary>
-    internal static void VerifyCeresEscapeOverlayTilemaps(ISnesAddressSpace rom, InstalledEnemyArtwork stock)
+    internal static void VerifyCeresEscapeOverlayTilemaps(ISnesAddressSpace rom, ImportEnemyArtwork stock)
     {
         CeresEscapeOverlays stockOverlay =
             stock.Areas.CeresEscapeOverlayTilemaps ?? throw new InvalidOperationException(

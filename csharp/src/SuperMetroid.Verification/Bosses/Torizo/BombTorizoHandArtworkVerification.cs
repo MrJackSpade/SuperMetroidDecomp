@@ -14,7 +14,7 @@ internal static class BombTorizoHandArtworkVerification
     internal static void VerifyBombTorizoHandArtwork()
     {
         var importer = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        InstalledEnemyArtwork stock = InstalledFixtures.EnemyArtwork;
+        ImportEnemyArtwork stock = InstalledFixtures.EnemyArtwork;
         TorizoTileSheet page = TorizoSwapArtworkDefinitions.ChozoDebris;
         AssertTrue(new EnemyTileTransfers(stock).TryResolve(page.SourceAddress, page.ByteCount, out ReadOnlyMemory<byte> bytes),
             "installed Chozo debris page exists");

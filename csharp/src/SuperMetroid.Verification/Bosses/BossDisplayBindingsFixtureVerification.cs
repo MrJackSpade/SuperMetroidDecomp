@@ -59,7 +59,7 @@ internal static class BossDisplayBindingsFixtureVerification
         private readonly Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ControllerButton> instructions;
 
         /// <summary>Installs one centered boss actor in <paramref name="slot"/> and enqueues it for the production draw path.</summary>
-        internal BossDisplayFixture(EnemyDefinitionId definition, InstalledEnemyArtwork artwork, int slot = 0)
+        internal BossDisplayFixture(EnemyDefinitionId definition, ImportEnemyArtwork artwork, int slot = 0)
         {
             _slot = slot;
             Enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance)

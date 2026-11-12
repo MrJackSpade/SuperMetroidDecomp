@@ -35,7 +35,7 @@ internal static class PoseProjectileOriginVerification
         InstalledSamusBodyArtwork template = CreateSamusIdentityFixture();
         // The graphics-Y byte only enters as a signed offset, so one artwork fixture per signed
         // byte class covers it.
-        var artwork = SignedByteClasses.Select(art => new SamusBodySources(new SamusBodyArtworkParts { TopSetStarts = template.TopSetStarts.ToArray(), BottomSetStarts = template.BottomSetStarts.ToArray(), PoseFirstFrames = template.PoseFirstFrames.ToDictionary(), Placements = template.Placements.ToDictionary(pose => pose.Key, pose => pose.Value with { GraphicsYOffset = unchecked((sbyte)art) }), Frames = template.Frames.ToArray(), Spritemaps = template.Source.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, DeathTilesContentIdentity = template.DeathTilesContentIdentity, ArmCannon = template.ArmCannon }, template.BodyCharactersContentIdentity)).ToArray();
+        var artwork = SignedByteClasses.Select(art => new SamusBodySources(new SamusBodyArtworkParts { TopSetStarts = template.TopSetStarts.ToArray(), BottomSetStarts = template.BottomSetStarts.ToArray(), PoseFirstFrames = template.PoseFirstFrames.ToDictionary(), Placements = template.Placements.ToDictionary(pose => pose.Key, pose => pose.Value with { GraphicsYOffset = unchecked((sbyte)art) }), Frames = template.Frames.ToArray(), Spritemaps = template.Source.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, ArmCannon = template.ArmCannon })).ToArray();
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         {
             if (!SamusPoseNumbering.NamesPose(pose)) continue;

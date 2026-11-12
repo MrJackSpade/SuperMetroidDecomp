@@ -20,7 +20,7 @@ internal static class IntroScreenMemory
     [WholeImageFixture("the intro's character image")]
     internal static byte[] Characters(IntroCinematicArtwork artwork, IntroFontCharacters installedFont, bool japaneseGlyphsBlanked)
     {
-        IntroCinematicSourceArtwork sources = IntroCinematicSourceArtwork.Of(artwork);
+        ImportIntroCinematicArtwork sources = ImportIntroCinematicArtwork.Imported(artwork);
         ReadOnlySpan<byte> font = Ensure.NotNull(installedFont).Characters.Span;
         var vram = new SnesVram();
         var intro = new IntroVram(vram);
@@ -52,7 +52,7 @@ internal static class IntroScreenMemory
     {
         IntroCinematicArtwork artwork = intro.CharacterArtwork ?? throw new InvalidOperationException(
             "Opening cinematic rendering requires installed artwork.");
-        IntroFontCharacters font = InstalledAreaMapPresentation.IntroFontOf(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps);
+        IntroFontCharacters font = ImportAreaMapPresentation.IntroFontOf(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps);
         return Compose(Characters(artwork, font, intro.CurrentObjects is not null), PortraitTiles(artwork, intro.CurrentObjects?.EyeFrame),
             NarrationTiles(intro.narrationText, intro.CurrentObjects is null, artwork));
     }

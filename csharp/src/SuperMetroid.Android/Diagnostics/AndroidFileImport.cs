@@ -23,8 +23,7 @@ internal static class AndroidFileImport
             clips,
             maps,
             projectiles,
-            SuperMetroid.AssetExtraction.Installation.InstalledArtworkIdentity.Create(artwork, enemyArtwork,
-                installation.LoadStandardObjects()));
+            SuperMetroid.AssetExtraction.Installation.InstalledArtworkIdentity.Create(artwork, enemyArtwork));
         var content = new SuperMetroid.Diagnostics.Sessions.InstalledSessionContent(artwork, clips);
         return ImportStateCore(
             root,

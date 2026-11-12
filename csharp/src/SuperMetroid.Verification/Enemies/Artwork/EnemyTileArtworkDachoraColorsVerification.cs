@@ -24,7 +24,7 @@ internal static class EnemyTileArtworkDachoraColorsVerification
 
     /// <summary>Exercises installed RGB5 colors through live CGRAM updates while preserving phase and next-frame selection.</summary>
     internal static void VerifyInstalledDachoraColors(
-        ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
+        ISnesAddressSpace rom, string stockDirectory, ImportEnemyArtwork stock)
     {
         DachoraColorCatalog native = stock.Enemies.DachoraColors ??
             throw new InvalidDataException("Installed enemy art has no Dachora colors.");

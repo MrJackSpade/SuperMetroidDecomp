@@ -150,19 +150,6 @@ internal static class IntroNarrationPresentationVerification
             "Opening-narration catalog: deterministic stock passes.");
     }
 
-    /// <summary>Checks that the installed opening font is the deterministic cartridge extraction.</summary>
-    internal static void VerifyIntroFontAssets(
-        ISnesAddressSpace bus,
-        string stockDirectory)
-    {
-        byte[] deterministic = SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(bus);
-        AssertTrue(deterministic.SequenceEqual(File.ReadAllBytes(
-            Path.Combine(stockDirectory, IntroFontCharacters.FileName))),
-            "installed opening font is the deterministic cartridge extraction");
-        Console.WriteLine(
-            "Opening-font catalog: deterministic stock passes.");
-    }
-
     /// <summary>Rejects cartridge text reads from the English narration's bank-$8C source ranges.</summary>
     private static CartridgeReadGuard NewIntroNarrationGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(

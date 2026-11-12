@@ -73,7 +73,7 @@ internal static class EndingShootingStarsTests
         var installed = RepositoryInstallation.Installation;
         var maps = installed.LoadMaps();
         var scene = new EndingCreditsState(AudioQueues.Standalone(), new EndingCreditsSetup { GameTimeHours = 2, GameTimeMinutes = 0 });
-        scene.InstalledArtwork.BindFixtureObjectArtwork(installed.LoadEndingObjectArt());
+        scene.InstalledArtwork.BindFixtureObjectArtwork(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingObjects);
         scene.InstalledArtwork.BindBackdrops(installed.LoadEndingBackdrops());
         scene.InstalledArtwork.BindSpaceBackdrops(maps.EndingSpaceBackdrops);
         scene.InstalledArtwork.BindEndingText(maps.EndingText);

@@ -73,7 +73,7 @@ internal static class BossDisplayBindingsResourcesVerification
     }
 
     /// <summary>Phantoon's tentacles in their own slot beside the body, starting their program on a one-update timer.</summary>
-    private static BossDisplayFixture NewTentacleFixture(InstalledEnemyArtwork artwork)
+    private static BossDisplayFixture NewTentacleFixture(ImportEnemyArtwork artwork)
     {
         var fixture = new BossDisplayFixture(EnemyDefinitionId.PhantoonTentacles, artwork, slot: 2);
         RoomEnemySlot body = fixture.Enemies.SlotTable.Slots[0];

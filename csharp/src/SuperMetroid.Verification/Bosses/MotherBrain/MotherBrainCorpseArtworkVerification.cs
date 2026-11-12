@@ -33,7 +33,7 @@ internal static class MotherBrainCorpseArtworkVerification
             MotherBrainCorpseSheet.ByteCount);
 
     /// <summary>Compares six installed VRAM pages and corpse staging with native bytes.</summary>
-    internal static void VerifyInstalledMotherBrainCorpseArtwork(InstalledEnemyArtwork stock)
+    internal static void VerifyInstalledMotherBrainCorpseArtwork(ImportEnemyArtwork stock)
     {
         RoomCharacterAtlas artwork = stock.Bosses.MotherBrainCorpse ??
             throw new InvalidDataException("Extracted Mother Brain corpse PNG was not bound.");
@@ -80,7 +80,7 @@ internal static class MotherBrainCorpseArtworkVerification
 
     /// <summary>Copies every corpse page her corpse's look copies and returns the sprite characters they show (#1538).</summary>
     private static byte[] TransferMotherBrainCorpsePages(
-        InstalledEnemyArtwork artwork)
+        ImportEnemyArtwork artwork)
     {
         int corpse = EncounterLookUploads.IndexOf(ComposedEncounter.MotherBrain, EncounterLookUploads.MotherBrainCorpseLook);
         AssertEqual(MotherBrainCorpseArtworkDefinitions.RowCount,

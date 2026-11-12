@@ -305,13 +305,13 @@ internal static class SpacetimeBeamVerification
     private static void VerifySpacetimeBeamGraphics()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        var artwork = InstalledFixtures.Projectiles.BeamTiles;
+        var artwork = InstalledFixtures.ImportProjectiles.BeamTiles;
         byte[] nativeTiles = ReadRetailSpacetimeGraphicsOracle(bus);
         AssertTrue(artwork.TryResolve(SpacetimeBeamGraphicsDefinitionsConstants.TileSource, 256, out _),
             "legacy SpaceTime graphics queue resolves through installed artwork");
         // The page SpaceTime's equipped word binds shows the bytes its native DMA reads.
         var pages = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, artwork,
-            InstalledFixtures.Projectiles.TrailTiles);
+            InstalledFixtures.ImportProjectiles.TrailTiles);
         ReadOnlySpan<byte> page = pages.For(SamusBeamFlags.Charge | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma).Characters;
         int first = ProjectileObjectPageDefinitions.BeamFirstCharacter * SpriteArtwork.CharacterByteCount;
         for (int i = 0; i < 256; i++) AssertEqual(nativeTiles[i], page[first + i], "SpaceTime native tile bytes");

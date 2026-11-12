@@ -38,31 +38,20 @@ internal static class RoomCharacterInstallationVerification
                 EnemyTileArtworkFormat.ManifestFileName)),
             "enemy-tile stock manifest is installed");
         AssertEqual(EnemyTileArtworkFormat.RetailDefinitionCount,
-            Directory.GetFiles(installed.EnemyTileDirectory, "enemy-????-tiles.png").Length,
-            "full installer publishes all retail enemy sheets");
-        AssertEqual(EnemyTileArtworkFormat.RetailDefinitionCount,
             Directory.GetFiles(installed.EnemyTileDirectory, "enemy-????-colors.json").Length,
             "full installer publishes all retail enemy palettes");
         _ = installed.LoadEnemyTiles();
-        RoomCharacterAtlases stock = installed.LoadRoomCharacters();
-        LoadedRoomAssets native = LoadFixtureRoomAssets(landing);
-        LoadedRoomAssets installedRoom = LoadFixtureRoomAssets(landing);
-        ReadOnlyMemory<byte> nativeCharacters = native.TilesetCharactersIn(FixtureRoomCharacters);
-        AssertTrue(stock.Cre.Characters.Span.SequenceEqual(FixtureRoomCharacters.Cre.Characters.Span) &&
-            installedRoom.TilesetCharactersIn(stock).Span.SequenceEqual(nativeCharacters.Span),
-            "installed stock room PNGs retain Landing Site character bytes");
-
-        // Room characters are the import's input (#1466): rooms show pre-composed pictures, which a player edits in the
+        // Room characters are the import's input (#1466) and import data no installation holds (#1636): they are read
+        // from the cartridge-derived extraction, and rooms show pre-composed pictures, which a player edits in the
         // installed block sheets.
-        int source = native.Tileset.CharacterAddress;
-        AssertTrue(stock.GetAt(source).Characters.Span.SequenceEqual(nativeCharacters.Span),
-            "the installed Landing Site character sheet holds the native characters");
+        RoomCharacterAtlases stock = FixtureRoomCharacters;
+        LoadedRoomAssets native = LoadFixtureRoomAssets(landing);
 
         int ghostSource = RoomBackgroundSourceDefinitions.TourianStatueGhostCharacters;
         byte[] nativeGhost = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             ghostSource, LibraryBackgroundStagingDefinitions.TourianStatueGhostByteCount);
         AssertTrue(stock.GetAt(ghostSource).Characters.Span.SequenceEqual(nativeGhost),
-            "installed statue-ghost PNG preserves every native character byte");
+            "the extracted statue-ghost characters preserve every native character byte");
         // The cartridge's library background transfers, scanned once for the statue ghost's and Ceres's.
         IReadOnlyList<LibraryBackgroundNativeOperand> libraryTransfers = LibraryBackgroundSourceInventory.Scan(bus);
         LibraryBackgroundNativeOperand ghostTransfer = libraryTransfers
@@ -168,7 +157,7 @@ internal static class RoomCharacterInstallationVerification
         AssertTrue(BackgroundTileWordBytes.Of(stockSky.Page(skyPage, landingSky.ByteCount / sizeof(ushort)).Span).AsSpan().SequenceEqual(nativeSky),
             "installed scrolling-sky page retains native door-selected bytes");
 
-        Console.WriteLine("  Room artwork installation: PNG, statue ghost, RGB5, block, BG and sky stock import verified.");
+        Console.WriteLine("  Room artwork installation: statue ghost, RGB5, block, BG and sky stock import verified.");
     }
 
     /// <summary>

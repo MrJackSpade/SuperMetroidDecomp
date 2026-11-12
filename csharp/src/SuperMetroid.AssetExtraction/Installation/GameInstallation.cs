@@ -94,10 +94,11 @@ public sealed record GameInstallation(string Root)
     public string EnemySheetDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EnemySheetDirectoryName);
     /// <summary>Loads every installed enemy sheet.</summary>
     public InstalledEnemySheets LoadEnemySheets() => EnemySheetFiles.Load(EnemySheetDirectory);
-    /// <summary>Installed indexed common gameplay OBJ sheet and its source manifest, which the player edits in place.</summary>
+    /// <summary>
+    /// Installed provenance manifest of the common gameplay OBJ characters, which are import data the installation never
+    /// holds (#1636).
+    /// </summary>
     public string StandardObjectDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.StandardObjectDirectoryName);
-    /// <summary>Validates and loads the installed common OBJ sheet for the shared character transfer.</summary>
-    public RoomCharacterAtlas LoadStandardObjects() => StandardObjectArtworkFiles.Load(StandardObjectDirectory);
     /// <summary>Installed projectile artwork and presentation selectors, which the player edits in place.</summary>
     public string ProjectileDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.ProjectileDirectoryName);
     /// <summary>Installed Samus body PNGs and visual selectors, which the player edits in place.</summary>
@@ -284,9 +285,9 @@ public sealed record GameInstallation(string Root)
         XrayRevealVisualFiles.Load(XrayRevealVisualDirectory);
     /// <summary>Loads the validated installed projectile presentation.</summary>
     public InstalledProjectilePresentation LoadProjectiles() => ProjectilePresentationFiles.Load(ProjectileDirectory);
-    /// <summary>Installed enemy, boss and area artwork, which the player edits in place.</summary>
+    /// <summary>Installed enemy, boss and area documents, which the player edits in place.</summary>
     public string EnemyTileDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EnemyTileDirectoryName);
-    /// <summary>Loads the validated installed enemy, boss and area artwork.</summary>
+    /// <summary>Loads what the game binds of the installed enemy documents: every frame's display and Kraid's colours (#1636).</summary>
     public InstalledEnemyArtwork LoadEnemyTiles() => EnemyTileArtworkFiles.Load(EnemyTileDirectory);
 
     /// <summary>Loads the installed maps, exploration masks and menu presentation without a cartridge address space.</summary>
@@ -343,17 +344,16 @@ public sealed record GameInstallation(string Root)
             XrayRevealVisuals = LoadXrayRevealVisuals(),
             ProjectileFrameBindings = projectiles.FrameBindings,
 
-            KraidEyes = enemies.Bosses.KraidColors?.Eyes(),
+            KraidEyes = enemies.KraidColors.Eyes(),
             ChargeFlarePlacement = projectiles.FlarePlacement,
-            GrappleFlarePlacement = projectiles.GrappleTiles.FlarePlacement,
-            GrappleSwingFrames = projectiles.GrappleTiles.SwingFrames,
+            GrappleFlarePlacement = projectiles.Grapple.FlarePlacement,
+            GrappleSwingFrames = projectiles.Grapple.SwingFrames,
             SamusOverreads = LoadSamusOverreads(),
             EnemyOverreads = LoadEnemyOverreads(),
             BossAndIntroOverreads = LoadBossAndIntroOverreads(),
             SpriteSheets = LoadSpriteSheets(),
             EnemySheets = LoadEnemySheets(),
-            EnemyFrameDisplays = enemies.Enemies.FrameDisplays ?? throw new InvalidDataException(
-                "The installed enemy artwork holds no enemy frames."),
+            EnemyFrameDisplays = enemies.FrameDisplays,
             BossBodySheets = LoadBossBodySheets(),
         };
     }

@@ -26,7 +26,7 @@ internal static class RoomArtworkRenderParityVerification
         GameInstallation installation, CartridgeImportAddressSpace bus)
     {
         // The installed artwork is loaded once and bound by each installed-art runtime, which only reads it.
-        RoomCharacterAtlases installedCharacters = installation.LoadRoomCharacters();
+        RoomCharacterAtlases installedCharacters = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.RoomCharacters;
         InstalledRoomArtwork installedBlockSheets = installation.LoadRoomBlockSheets();
         foreach ((string name, RoomHeaderDefinition expectedRoom, bool useRealLandingDoor) in new[]
         {

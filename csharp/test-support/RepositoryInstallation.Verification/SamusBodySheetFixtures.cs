@@ -21,26 +21,36 @@ internal static class SamusBodySheetFixtures
         [SpriteSheetId.SamusBody, SpriteSheetId.SamusOverlays, SpriteSheetId.SamusAtmosphere,
             SpriteSheetId.SamusDeath];
 
-    /// <summary>The installation's stock artwork, which a fixture's body replaces.</summary>
+    /// <summary>
+    /// The stock artwork, which a fixture's body replaces, read from the cartridge-derived extraction: its characters are
+    /// import data no installation holds (#1636).
+    /// </summary>
     private static readonly Lazy<SamusSheetInputs> inputs = new(() => SharedFixtureTiming.Load("Fixture: Samus sheet inputs",
-        () => SamusSheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory)));
+        () => SamusSheetInputs.Load(CartridgeImportContent.Directory)));
 
     /// <summary>The installation's stock artwork and the colour tables Samus's sheets are pre-coloured from.</summary>
     internal static SamusSheetInputs Inputs => inputs.Value;
 
     /// <summary>
-    /// Sheets already composed, by the body's content identity. Every table, character, spritemap, atmosphere, death and
-    /// arm-cannon catalog the body sheets are composed from enters that identity, so the bodies a fixture rebuilds with the
-    /// same content compose their sheets once.
+    /// Sheets already composed, by the body's content identity and its characters' identity. Every table, spritemap,
+    /// atmosphere, death and arm-cannon catalog the body sheets are composed from enters the first, and the characters the
+    /// second, so the bodies a fixture rebuilds with the same content compose their sheets once.
     /// </summary>
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, Lazy<InstalledSpriteSheets>> composed =
         new(StringComparer.Ordinal);
 
-    /// <summary>The characters each fixture body shows, registered or bound from the installation's.</summary>
+    /// <summary>The characters each fixture body shows, registered or bound from the stock characters.</summary>
     private static readonly ConditionalWeakTable<InstalledSamusBodyArtwork, SamusBodyCharacterArtwork> characters = new();
 
-    /// <summary>Registered characters by their identity, which other fixture bodies naming the same characters bind.</summary>
-    private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, SamusBodyCharacterArtwork> registeredByIdentity = new(StringComparer.Ordinal);
+    /// <summary>
+    /// Registered characters by the definition-group starts they fill, which other fixture bodies built over the same groups
+    /// bind: a body holds no characters (#1636), so a body rebuilt from a registered fixture's tables shows its characters.
+    /// </summary>
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, SamusBodyCharacterArtwork> registeredByGroups = new(StringComparer.Ordinal);
+
+    /// <summary>The key of the definition-group starts <paramref name="body"/>'s frames select within.</summary>
+    private static string GroupsOf(InstalledSamusBodyArtwork body) =>
+        $"{string.Join(',', body.TopSetStarts.ToArray())}/{string.Join(',', body.BottomSetStarts.ToArray())}";
 
     /// <summary>Atmosphere sheets already composed, by the spritemaps' and then the atmospheric attributes' content identities.</summary>
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, Lazy<InstalledSpriteSheets>> atmospheres =
@@ -61,10 +71,12 @@ internal static class SamusBodySheetFixtures
     internal static InstalledSpriteSheets For(InstalledSamusBodyArtwork body)
     {
         ArgumentNullException.ThrowIfNull(body);
-        string identity = body.ContentIdentity;
-        return identity == inputs.Value.SamusBody.Body.ContentIdentity ? InstalledFixtures.SpriteSheets
+        SamusBodyCharacterArtwork shown = CharactersOf(body);
+        string identity = $"{body.ContentIdentity}-{shown.CharactersContentIdentity}";
+        SamusBodyCharacterArtwork stock = inputs.Value.SamusBody;
+        return identity == $"{stock.Body.ContentIdentity}-{stock.CharactersContentIdentity}" ? InstalledFixtures.SpriteSheets
             : composed.GetOrAdd(identity, key => new(() => Compose(InstalledFixtures.SpriteSheets,
-                inputs.Value with { SamusBody = CharactersOf(body) }, BodySheets, body.ArmCannon, $"fixture-{key}"))).Value;
+                inputs.Value with { SamusBody = shown }, BodySheets, body.ArmCannon, $"fixture-{key}"))).Value;
     }
 
     /// <summary>Registers a fixture body's own characters, which its sheets compose from; returns the body.</summary>
@@ -72,22 +84,21 @@ internal static class SamusBodySheetFixtures
     {
         ArgumentNullException.ThrowIfNull(artwork);
         characters.AddOrUpdate(artwork.Body, artwork);
-        registeredByIdentity[artwork.Body.BodyCharactersContentIdentity] = artwork;
+        registeredByGroups[GroupsOf(artwork.Body)] = artwork;
         return artwork.Body;
     }
 
     /// <summary>
-    /// The characters <paramref name="body"/> shows: those registered for it, or the registered or installed characters it
-    /// names, bound to its frames.
+    /// The characters <paramref name="body"/> shows: those registered for it, or those registered for a body over the same
+    /// definition groups, or else the stock characters, bound to its frames. A body holds no characters (#1636), so one
+    /// that shows characters of its own registers them.
     /// </summary>
     internal static SamusBodyCharacterArtwork CharactersOf(InstalledSamusBodyArtwork body)
     {
         if (characters.TryGetValue(body, out SamusBodyCharacterArtwork? registered))
             return registered;
-        SamusBodyCharacterArtwork stock = registeredByIdentity.TryGetValue(body.BodyCharactersContentIdentity, out SamusBodyCharacterArtwork? named)
+        SamusBodyCharacterArtwork stock = registeredByGroups.TryGetValue(GroupsOf(body), out SamusBodyCharacterArtwork? named)
             ? named : inputs.Value.SamusBody;
-        if (body.BodyCharactersContentIdentity != stock.Body.BodyCharactersContentIdentity)
-            throw new InvalidOperationException("A fixture body with its own characters registers them before composing its sheets.");
         return characters.GetValue(body, key => new SamusBodyCharacterArtwork(key,
             [.. Enumerable.Range(0, SamusBodySources.TopSetCount).Select(set => stock.TopSet(set).ToArray())],
             [.. Enumerable.Range(0, SamusBodySources.BottomSetCount).Select(set => stock.BottomSet(set).ToArray())]));
@@ -100,7 +111,7 @@ internal static class SamusBodySheetFixtures
         ArgumentNullException.ThrowIfNull(cannon);
         if (cannon.ContentIdentity == body.ArmCannon.ContentIdentity)
             return For(body);
-        return cannons.GetOrAdd($"{body.ContentIdentity}-{cannon.ContentIdentity}", key => new(() => Compose(For(body),
+        return cannons.GetOrAdd($"{body.ContentIdentity}-{CharactersOf(body).CharactersContentIdentity}-{cannon.ContentIdentity}", key => new(() => Compose(For(body),
             inputs.Value with { SamusBody = CharactersOf(body) }, [SpriteSheetId.SamusOverlays], cannon, $"fixture-{key}"))).Value;
     }
 
@@ -172,7 +183,10 @@ internal static class SamusBodySheetFixtures
         System.Threading.Tasks.Parallel.For(0, replaced.Length, index =>
         {
             SpriteSheetId id = replaced[index];
-            composedSources[index] = id == SpriteSheetId.SamusOverlays ? SamusOverlaySheetComposer.Sources(fixture, cannon.Source)
+            // A fixture's cannon places the stock cover characters, which the cartridge-derived extraction holds (#1636).
+            composedSources[index] = id == SpriteSheetId.SamusOverlays
+                ? SamusOverlaySheetComposer.Sources(fixture, SamusArmCannonArtworkFiles.LoadCoverCharacters(cannon.Source,
+                    CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.SamusBodyDirectoryName)))
                 : SamusSheetSources.For(fixture, id);
             var layout = new SpriteSheetLayout(composedSources[index], 0, 0);
             composedSheets[index] = paintedLayouts.GetOrAdd($"{id}-{layout.Identity}", _ => new(() =>

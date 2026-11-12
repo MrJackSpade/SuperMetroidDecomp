@@ -6,8 +6,9 @@ using SuperMetroid.AssetExtraction.Rooms.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>
-/// The opening cinematic as the import pipeline reads it (#633, #1463): the scene artwork the game binds, with the
-/// tilemaps, character atlases and sprite compositions its sheets are composed from (#1467).
+/// The opening cinematic's installed documents (#633, #1463, #1636): the scene artwork the game binds, with the tilemaps and
+/// sprite compositions its sheets are composed from (#1467) and named by. Its characters are import data the installation
+/// never holds (<see cref="IntroCinematicCharacters"/>).
 /// </summary>
 [ArchitectureReview("context-bag", "The opening cinematic's decoded artwork documents the import composes its sheets from; every member is immutable artwork data, not a service.")]
 public sealed record IntroCinematicArtworkParts : IntroCinematicSceneParts
@@ -30,17 +31,8 @@ public sealed record IntroCinematicArtworkParts : IntroCinematicSceneParts
     /// <summary>The destruction's Mode 7 maps, which the Ceres floor's shots are composed from.</summary>
     public required CeresDestructionMaps CeresDestructionMaps { get; init; }
 
-    /// <summary>The Zebes reveal's tilemap and characters, which the planet's picture is composed from.</summary>
-    public required ZebesRevealArtwork ZebesReveal { get; init; }
-
-    /// <summary>Palette-indexed BG characters of the illustrated scenes.</summary>
-    public required RoomCharacterAtlas BackgroundCharacters { get; init; }
-
-    /// <summary>The intro's fixed-bank OBJ characters.</summary>
-    public required RoomCharacterAtlas IntroObjectCharacters { get; init; }
-
-    /// <summary>The intro's cinematic OBJ characters.</summary>
-    public required RoomCharacterAtlas CinematicObjectCharacters { get; init; }
+    /// <summary>The Zebes reveal's tilemap, which the planet's picture is composed from with the reveal's characters.</summary>
+    public required RoomBackgroundTilemapAtlas ZebesRevealMap { get; init; }
 
     /// <summary>Visible narration caret compositions, independent of positioning and blink timing.</summary>
     public required IntroCaretSpritePresentation CaretSprites { get; init; }

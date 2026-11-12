@@ -50,11 +50,11 @@ internal static class BossDisplayBindingsDocumentsVerification
         }
 
         /// <summary>Loads fixture documents into an artwork catalog, optionally omitting one BG2 family.</summary>
-        internal InstalledEnemyArtwork Build(bool extended = true, byte? omitBg2Bank = null)
+        internal ImportEnemyArtwork Build(bool extended = true, byte? omitBg2Bank = null)
         {
             // Bosses draw from sheets composed over the installed enemy artwork, so the fixture starts from it and
             // replaces only the extended frames it authors (#1446).
-            EnemyTileSourceArtwork tiles = SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation.LoadEnemyTiles().Enemies;
+            EnemyTileSourceArtwork tiles = SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.FreshEnemyArtwork().Enemies;
             tiles.ExtendedFrames = extended ? EnemyExtendedFrameDocuments.Load(json.Json(Oam)) : null;
             return new(tiles,
                 new BossSourceArtwork { CrocomireBg2Frames = omitBg2Bank == CrocomireBg2FrameDefinitionsConstants.Bank ? null : CrocomireBg2FrameCatalog.Load(json.Json(Crocomire)), PhantoonBg2Frames = omitBg2Bank == PhantoonBg2FrameDefinitionsConstants.Bank ? null : PhantoonBg2FrameCatalog.Load(json.Json(Phantoon)), DraygonBg2Frames = omitBg2Bank == DraygonBg2FrameToolingDefinitions.Bank ? null : DraygonBg2FrameCatalog.Load(json.Json(Draygon)) },

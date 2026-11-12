@@ -55,9 +55,8 @@ internal static class EnemyDefinitionBoundaryVerification
         Suite(nameof(VerifyCorpseMetadataDefinitions), () => VerifyCorpseMetadataDefinitions(source));
         Suite(nameof(VerifyCrocomirePowerBombReactionDefinitions), () => VerifyCrocomirePowerBombReactionDefinitions(source));
         Suite(nameof(VerifyEnemyAuxiliaryColors), () => VerifyEnemyAuxiliaryColors(source));
-        // The repository installation is the complete installation of the same ROM every fixture shares; extracting a
-        // private one here repeated the whole import on every run (#1430).
-        InstalledEnemyArtwork artwork = SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation.LoadEnemyTiles();
+        // The enemy artwork every fixture shares, as the import reads it from the cartridge-derived extraction (#1430, #1636).
+        ImportEnemyArtwork artwork = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtwork;
         AssertTrue(artwork.Enemies.AuxiliaryColors is not null, "complete installation supplies auxiliary palettes");
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         int drawCases = 0;

@@ -16,11 +16,11 @@ internal static class InstalledArtworkBindingVerification
     /// argument is false, the intro cinematic artwork is left as the game has it.
     /// </summary>
     internal static Action<SuperMetroidGame, bool> BindInstalledArtwork(GameInstallation installation,
-        InstalledEnemyArtwork? enemyArtwork = null) =>
+        ImportEnemyArtwork? enemyArtwork = null) =>
         BindInstalledArtwork(InstalledGameBindings.Artwork(installation), enemyArtwork);
 
     /// <summary>Binds <paramref name="installed"/>, with <paramref name="enemyArtwork"/>'s enemy and boss artwork when given.</summary>
-    internal static Action<SuperMetroidGame, bool> BindInstalledArtwork(GameArtwork installed, InstalledEnemyArtwork? enemyArtwork)
+    internal static Action<SuperMetroidGame, bool> BindInstalledArtwork(GameArtwork installed, ImportEnemyArtwork? enemyArtwork)
     {
         GameArtwork artwork = installed;
         if (enemyArtwork is not null)

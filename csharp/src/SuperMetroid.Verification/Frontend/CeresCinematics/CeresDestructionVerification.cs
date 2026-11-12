@@ -80,7 +80,7 @@ internal static void VerifyCeresDestructionCinematic()
                 .SelectToArray(value => (int)value)).ToArray(),
         });
     // The fixture composes its sheets as the import does, from the import's read, which alone reads the colours (#1544).
-    var artwork = IntroCinematicArtworkFiles.LoadForImport(introDirectory);
+    var artwork = IntroCinematicArtworkFiles.LoadForImport(introDirectory, SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName));
     var presentation = RetailPresentationFixture();
     var state = new CeresDestructionCinematicState(fixedColors: presentation.PowerBombFixedColors, artwork: artwork,
         spriteSheets: CinematicSheetFixtures.WithIntro(artwork));

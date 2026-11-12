@@ -18,29 +18,34 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// The installed stock artwork Samus's projectile, grapple, body and overlay sheets compose from (#1392), loaded once for
 /// all of them, with the colour tables every one of her sheets is pre-coloured from (#1512).
 /// </summary>
-/// <param name="Projectiles">Compositions, beam, trail and grapple characters, beam palettes and trail and grapple appearances.</param>
+/// <param name="Projectiles">Compositions, beam palettes, trail and grapple appearances, and the beam, trail and grapple characters.</param>
 /// <param name="StandardObjects">The standard OBJ sheet as a page.</param>
 /// <param name="Palettes">The starting and common sprite colours a room load copies.</param>
 /// <param name="Intro">The intro's characters and palette.</param>
 /// <param name="SamusBody">Samus's body characters, bound to the body's frame selections and spritemaps.</param>
 /// <param name="DeathTiles">The characters of Samus's suit explosion.</param>
+/// <param name="ArmCannonCover">The arm cannon's cover characters, bound to its installed placement.</param>
 /// <param name="ShadeSources">The colour tables her shades are pre-coloured from.</param>
 /// <param name="AnimationContinuation">What an animation frame past a pose's program reads, which decides the frames her body can show.</param>
-internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projectiles, SpriteArtwork StandardObjects,
+internal sealed record SamusSheetInputs(ImportProjectileArtwork Projectiles, SpriteArtwork StandardObjects,
     GameplayBasePalette Palettes, IntroCinematicArtwork Intro, SamusBodyCharacterArtwork SamusBody,
-    SamusDeathTileAtlas DeathTiles, SamusShadeSources ShadeSources, LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> AnimationContinuation)
+    SamusDeathTileAtlas DeathTiles, SamusArmCannonCoverCharacters ArmCannonCover, SamusShadeSources ShadeSources,
+    LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> AnimationContinuation)
 {
     /// <summary>Loads the stock artwork and colour tables from installed content.</summary>
     internal static SamusSheetInputs Load(string content)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(content);
         string samusBody = Path.Combine(content, GameInstallationLayout.SamusBodyDirectoryName);
+        string samusBodyImportData = ImportDataDirectory.Of(samusBody);
         string map = Path.Combine(content, GameInstallationLayout.MapDirectoryName);
-        InstalledProjectilePresentation projectiles = ProjectilePresentationFiles.Load(Path.Combine(content, GameInstallationLayout.ProjectileDirectoryName));
+        string projectileDirectory = Path.Combine(content, GameInstallationLayout.ProjectileDirectoryName);
+        ImportProjectileArtwork projectiles = ProjectilePresentationFiles.LoadForImport(projectileDirectory, ImportDataDirectory.Of(projectileDirectory));
         GameplayBasePalette palettes = GameplayBasePaletteFiles.Load(Path.Combine(content, GameInstallationLayout.GameplayBasePaletteDirectoryName));
-        ImportIntroCinematicArtwork intro = IntroCinematicArtworkFiles.LoadForImport(Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName));
+        string introDirectory = Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName);
+        ImportIntroCinematicArtwork intro = IntroCinematicArtworkFiles.LoadForImport(introDirectory, ImportDataDirectory.Of(introDirectory));
         // Her colour tables are the ones the map presentation was read with, edits included.
-        AreaMapPresentation maps = MapPresentationFiles.LoadForImport(map);
+        AreaMapPresentation maps = MapPresentationFiles.LoadForImport(map, ImportDataDirectory.Of(map));
         SamusMapColourTables tables = ImportAreaMapPresentation.SamusColoursOf(maps);
         string overreads = Path.Combine(content, GameInstallationLayout.SamusOverreadDirectoryName);
         SamusOverrunColours overruns = SamusOverreadFiles.LoadColours(overreads);
@@ -55,27 +60,32 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
             overruns.SpeedBooster,
             tables.Hurt,
             tables.Visor,
-            projectiles.BeamTiles.Palettes ?? throw new InvalidDataException("Samus's sheets require the installed beam palettes."),
+            projectiles.Presentation.BeamPalettes,
             overruns.Chainsaw,
             tables.CrystalFlash,
-            projectiles.BeamTiles.HyperBeamFxColors ?? throw new InvalidDataException("Samus's sheets require the installed Hyper Beam colours."),
+            projectiles.Presentation.HyperBeamFxColors,
             SamusDeathPaletteArtworkFiles.Load(samusBody),
             ImportAreaMapPresentation.RoomPaletteFxOf(maps));
+        SamusBodyCharacterArtwork body = SamusBodyArtworkFiles.LoadCharacters(samusBody, samusBodyImportData);
         return new(
             projectiles,
             LoadStandardObjects(content),
             palettes,
             intro,
-            SamusBodyArtworkFiles.LoadCharacters(samusBody),
-            SamusDeathTileArtworkFiles.Load(samusBody),
+            body,
+            SamusDeathTileArtworkFiles.LoadForImport(samusBody, samusBodyImportData),
+            SamusArmCannonArtworkFiles.LoadCoverCharacters(body.Body.ArmCannon.Source, samusBodyImportData),
             sources,
             SamusOverreadFiles.LoadAnimationContinuation(overreads));
     }
 
-    /// <summary>The standard OBJ sheet installed under <paramref name="content"/>, as a page.</summary>
-    internal static SpriteArtwork LoadStandardObjects(string content) =>
-        ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.StandardObjects),
-            StandardObjectArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.StandardObjectDirectoryName)).Characters.Span);
+    /// <summary>The standard OBJ sheet extracted under <paramref name="content"/>, as a page, from its import data (#1636).</summary>
+    internal static SpriteArtwork LoadStandardObjects(string content)
+    {
+        string standardObjects = Path.Combine(content, GameInstallationLayout.StandardObjectDirectoryName);
+        return ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.StandardObjects),
+            StandardObjectArtworkFiles.LoadForImport(standardObjects, ImportDataDirectory.Of(standardObjects)).Characters.Span);
+    }
 
     /// <summary>The shades every one of Samus's sheets is pre-coloured in (#1512), computed once.</summary>
     internal IReadOnlyList<SheetShade> Shades => field ??= ShadeSources.Shades();

@@ -1,3 +1,9 @@
+using SuperMetroid.AssetExtraction.Areas.Escape;
+using SuperMetroid.AssetExtraction.Frontend.Ending;
+using SuperMetroid.AssetExtraction.Frontend.Intro;
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Title;
+using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
@@ -10,16 +16,27 @@ using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>
-/// The installed map presentation as the import reads it (#1544): the game's presentation with the colours only the import
-/// pre-colours sheets and pictures from. The game never reads these colours; its own read of the map presentation
-/// (<see cref="MapPresentationFiles.Load"/>) leaves their documents unread.
+/// The map presentation as the import reads it (#1544, #1636): the game's presentation with the characters, from the
+/// component's import data, and the colours only the import pre-colours sheets and pictures from. The game reads neither;
+/// its own read of the map presentation (<see cref="MapPresentationFiles.Load"/>) reads no character page and leaves the
+/// colour documents unread.
 /// </summary>
 public sealed class ImportAreaMapPresentation : InstalledAreaMapPresentation
 {
-    /// <summary>Takes the game's presentation parts, the source artwork and the colours only the import reads.</summary>
-    internal ImportAreaMapPresentation(AreaMapPresentationParts parts, InstalledPresentationSources sources, ImportPresentationColours colours)
+    /// <summary>Takes the game's presentation parts, the installed documents, the characters and the colours only the import reads.</summary>
+    internal ImportAreaMapPresentation(AreaMapPresentationParts parts, InstalledPresentationSources sources, ImportPresentationCharacters characters,
+        ImportPresentationColours colours)
         : base(parts, sources)
     {
+        Ensure.NotNull(characters);
+        Characters = Ensure.NotNull(characters.Characters);
+        Sprites = Ensure.NotNull(characters.Sprites);
+        EscapeTimerTiles = Ensure.NotNull(characters.EscapeTimerTiles);
+        RoomFxAnimatedTiles = Ensure.NotNull(characters.RoomFxAnimatedTiles);
+        WorldCharacters = Ensure.NotNull(characters.WorldCharacters);
+        IntroFont = Ensure.NotNull(characters.IntroFont);
+        EndingFont = Ensure.NotNull(characters.EndingFont);
+        TitleGraphics = Ensure.NotNull(characters.TitleGraphics);
         Ensure.NotNull(colours);
         SamusColours = Ensure.NotNull(colours.SamusColours);
         TitlePalette = Ensure.NotNull(colours.TitlePalette);
@@ -31,6 +48,56 @@ public sealed class ImportAreaMapPresentation : InstalledAreaMapPresentation
         RoomFxPaletteBlends = Ensure.NotNull(colours.RoomFxPaletteBlends);
         RoomPaletteFx = Ensure.NotNull(colours.RoomPaletteFx);
     }
+
+    /// <summary>The characters the map screens, the pause interface and the HUD are pictured from.</summary>
+    public MapCharacterArtwork Characters { get; }
+
+    /// <summary>The map and menu sprites; the game draws them from the map sprite sheet, which the import composes from these (#1463).</summary>
+    public MapSpriteCompositions Sprites { get; }
+
+    /// <summary>The map and menu sprites the import's map presentation <paramref name="maps"/> was read with.</summary>
+    /// <exception cref="InvalidOperationException">The presentation was not read for the import.</exception>
+    public static MapSpriteCompositions SpritesOf(AreaMapPresentation maps) => Imported(maps, "map sprites").Sprites;
+
+    /// <summary>The escape timer's characters, which the import composes the escape encounters' sheets from (#1513).</summary>
+    public EscapeTimerCharacters EscapeTimerTiles { get; }
+
+    /// <summary>
+    /// The animated tiles' characters, which the import composes room sheets and the Tourian statues' pictures from (#1527).
+    /// </summary>
+    public RoomFxAnimatedTileAtlas RoomFxAnimatedTiles { get; }
+
+    /// <summary>The animated tiles' characters the import's map presentation <paramref name="maps"/> was read with.</summary>
+    /// <exception cref="InvalidOperationException">The presentation was not read for the import.</exception>
+    public static RoomFxAnimatedTileAtlas RoomFxAnimatedTilesOf(IGameplayPresentationContent maps) => Imported(maps, "animated tiles").RoomFxAnimatedTiles;
+
+    /// <summary>The world map's characters, which the import composes the world-map and menu picture sheets from (#1583).</summary>
+    public WorldMapCharacters WorldCharacters { get; }
+
+    /// <summary>The world-map characters the import's map presentation <paramref name="maps"/> was read with.</summary>
+    /// <exception cref="InvalidOperationException">The presentation was not read for the import.</exception>
+    public static WorldMapCharacters WorldCharactersOf(AreaMapPresentation maps) => Imported(maps, "world-map characters").WorldCharacters;
+
+    /// <summary>The opening narration's font, which the import composes the narration pictures from (#1583).</summary>
+    public IntroFontCharacters IntroFont { get; }
+
+    /// <summary>The opening font the import's map presentation <paramref name="maps"/> was read with.</summary>
+    /// <exception cref="InvalidOperationException">The presentation was not read for the import.</exception>
+    public static IntroFontCharacters IntroFontOf(AreaMapPresentation maps) => Imported(maps, "opening font").IntroFont;
+
+    /// <summary>The ending's font, which the import composes the ending's text and explosion pictures from (#1583).</summary>
+    public EndingFontCharacters EndingFont { get; }
+
+    /// <summary>The ending font the import's map presentation <paramref name="maps"/> was read with.</summary>
+    /// <exception cref="InvalidOperationException">The presentation was not read for the import.</exception>
+    public static EndingFontCharacters EndingFontOf(AreaMapPresentation maps) => Imported(maps, "ending font").EndingFont;
+
+    /// <summary>The title's characters and compositions, which the import composes the title sheets from (#1583).</summary>
+    public TitleGraphicsCharacters TitleGraphics { get; }
+
+    /// <summary>The title graphics the import's map presentation <paramref name="maps"/> was read with.</summary>
+    /// <exception cref="InvalidOperationException">The presentation was not read for the import.</exception>
+    public static TitleGraphicsCharacters TitleGraphicsOf(AreaMapPresentation maps) => Imported(maps, "title graphics").TitleGraphics;
 
     /// <summary>
     /// The palette-effect colours, which the import pre-colours the sheets each palette-effect record shows from (#1512,
@@ -104,9 +171,9 @@ public sealed class ImportAreaMapPresentation : InstalledAreaMapPresentation
 
     /// <summary><paramref name="maps"/> as the import read it.</summary>
     /// <param name="maps">The map presentation an import step was handed.</param>
-    /// <param name="colours">The colours the step asked for, for the failure's message.</param>
+    /// <param name="colours">The colours or characters the step asked for, for the failure's message.</param>
     /// <exception cref="InvalidOperationException">The presentation was not read for the import.</exception>
-    private static ImportAreaMapPresentation Imported(IGameplayPresentationContent maps, string colours) =>
+    internal static ImportAreaMapPresentation Imported(IGameplayPresentationContent maps, string colours) =>
         Ensure.NotNull(maps) as ImportAreaMapPresentation
         ?? throw new InvalidOperationException($"The map presentation was not read for the import, so it has no {colours}.");
 }

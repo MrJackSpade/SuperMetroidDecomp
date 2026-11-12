@@ -460,10 +460,13 @@ internal static class EnemySheetComposer
         return table;
     }
 
-    /// <summary>The names of the frames an enemy's sheets hold, in composition order.</summary>
-    internal static IEnumerable<string> FrameNames(EnemyTileSourceArtwork enemies, EnemyDefinitionId enemy) =>
+    /// <summary>
+    /// The names of the frames an enemy's sheets hold, in composition order, from the installed enemy compositions
+    /// <paramref name="spritemaps"/> and extended frames <paramref name="extended"/>: no character is read (#1636).
+    /// </summary>
+    internal static IEnumerable<string> FrameNames(EnemySpritemapCatalog spritemaps, EnemyExtendedFrameCatalog extended, EnemyDefinitionId enemy) =>
         EnemyDefinitionFrameDefinitions.Frames.TryGetValue(enemy, out IReadOnlyList<EnemyFrameId>? shown)
-            ? Composed(enemies, shown).Select(frame => frame.Name) : [];
+            ? Composed(spritemaps, extended, shown).Select(frame => frame.Name) : [];
 
     /// <summary>
     /// Each shown frame's pictures over the set's characters, every frame one whole picture: an extended frame's pieces
@@ -481,10 +484,13 @@ internal static class EnemySheetComposer
     /// extended frame as its pieces in drawing order. A frame no installed composition shows, and an extended frame with
     /// no sprite piece, draw nothing to compose.
     /// </summary>
-    private static IEnumerable<ComposedFrame> Composed(EnemyTileSourceArtwork enemies, IReadOnlyList<EnemyFrameId> shown)
+    private static IEnumerable<ComposedFrame> Composed(EnemyTileSourceArtwork enemies, IReadOnlyList<EnemyFrameId> shown) =>
+        Composed(enemies.Spritemaps ?? throw new InvalidDataException("Enemy sheets require the installed enemy compositions."),
+            enemies.ExtendedFrames ?? throw new InvalidDataException("Enemy sheets require the installed extended frames."), shown);
+
+    /// <summary>Each shown frame's composition by sheet frame name, from the enemy compositions and extended frames.</summary>
+    private static IEnumerable<ComposedFrame> Composed(EnemySpritemapCatalog spritemaps, EnemyExtendedFrameCatalog extended, IReadOnlyList<EnemyFrameId> shown)
     {
-        EnemySpritemapCatalog spritemaps = enemies.Spritemaps ?? throw new InvalidDataException("Enemy sheets require the installed enemy compositions.");
-        EnemyExtendedFrameCatalog extended = enemies.ExtendedFrames ?? throw new InvalidDataException("Enemy sheets require the installed extended frames.");
         foreach (EnemyFrameId frame in shown)
         {
             if (spritemaps.TryGetDisplay(frame, out EnemySpritemapParts parts))

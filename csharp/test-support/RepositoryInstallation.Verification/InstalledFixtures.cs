@@ -67,46 +67,70 @@ internal static class InstalledFixtures
 
     /// <summary>
     /// Lazy stock room character catalog, which extraction composes the block sheets from and verification composes VRAM
-    /// images of rooms from (#1466); gameplay reads none.
+    /// images of rooms from (#1466); gameplay reads none. The characters are import data no installation holds, so they
+    /// are read from the cartridge-derived extraction (#1636).
     /// </summary>
-    private static readonly Lazy<RoomCharacterAtlases> roomCharacters = Shared<RoomCharacterAtlases>("room characters", () => RepositoryInstallation.Installation.LoadRoomCharacters());
+    private static readonly Lazy<RoomCharacterAtlases> roomCharacters = Shared<RoomCharacterAtlases>("room characters", () =>
+        RoomCharacterArtworkFiles.LoadForImport(CartridgeImportContent.Component(GameInstallationLayout.RoomCharacterDirectoryName),
+            CartridgeImportContent.ImportData(GameInstallationLayout.RoomCharacterDirectoryName)));
 
     /// <summary>Lazy stock block compositions, which extraction composes the block sheets from (#1431).</summary>
     private static readonly Lazy<RoomMetatileCatalog> blockCompositions = Shared<RoomMetatileCatalog>("block compositions", () =>
         RoomMetatileArtworkFiles.Load(RepositoryInstallation.Installation.RoomMetatileDirectory));
 
     /// <summary>
-    /// Lazy map and shared presentation resources, as the import reads them (#1544): the game's presentation with the
-    /// colours the fixture sheets are pre-coloured from. Its identity is the game's read's.
+    /// Lazy map and shared presentation resources, as the import reads them (#1544, #1636): the game's presentation with the
+    /// characters and colours the fixture sheets are composed from, from the cartridge-derived extraction, whose
+    /// characters no installation holds. Its identity is the game's read's.
     /// </summary>
     private static readonly Lazy<AreaMapPresentation> maps = Shared<AreaMapPresentation>("maps", () =>
-        SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationFiles.LoadForImport(RepositoryInstallation.Installation.MapDirectory));
+        SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationFiles.LoadForImport(CartridgeImportContent.Component(GameInstallationLayout.MapDirectoryName),
+            CartridgeImportContent.ImportData(GameInstallationLayout.MapDirectoryName)));
 
-    /// <summary>Lazy installed enemy tile and sprite artwork.</summary>
-    private static readonly Lazy<InstalledEnemyArtwork> enemyArtwork = Shared<InstalledEnemyArtwork>("enemy artwork", () => RepositoryInstallation.Installation.LoadEnemyTiles());
+    /// <summary>Lazy enemy, boss and area artwork as the import reads it, characters included, from the cartridge-derived extraction (#1636).</summary>
+    private static readonly Lazy<ImportEnemyArtwork> enemyArtwork = Shared<ImportEnemyArtwork>("enemy artwork", () =>
+        EnemyTileArtworkFiles.LoadForImport(CartridgeImportContent.Component(GameInstallationLayout.EnemyTileDirectoryName),
+            CartridgeImportContent.ImportData(GameInstallationLayout.EnemyTileDirectoryName)));
 
-    /// <summary>Lazy projectile art, bindings, and tiles.</summary>
+    /// <summary>Lazy installed projectile documents and bindings, as the game reads them.</summary>
     private static readonly Lazy<InstalledProjectilePresentation> projectiles = Shared<InstalledProjectilePresentation>("projectiles", () => RepositoryInstallation.Installation.LoadProjectiles());
+
+    /// <summary>Lazy projectile artwork as the import reads it, beam, trail and grapple characters included, from the cartridge-derived extraction (#1636).</summary>
+    private static readonly Lazy<ImportProjectileArtwork> importProjectiles = Shared<ImportProjectileArtwork>("projectile characters", () =>
+        ProjectilePresentationFiles.LoadForImport(CartridgeImportContent.Component(GameInstallationLayout.ProjectileDirectoryName),
+            CartridgeImportContent.ImportData(GameInstallationLayout.ProjectileDirectoryName)));
 
     /// <summary>Lazy Samus body and arm-cannon artwork.</summary>
     private static readonly Lazy<InstalledSamusBodyArtwork> samusBody = Shared<InstalledSamusBodyArtwork>("Samus body", () => RepositoryInstallation.Installation.LoadSamusBodyArt());
 
-    /// <summary>Lazy intro and Ceres-flight cinematic artwork.</summary>
-    private static readonly Lazy<IntroCinematicArtwork> introArtwork = Shared<IntroCinematicArtwork>("intro artwork", () => SuperMetroid.AssetExtraction.Frontend.Intro.IntroCinematicArtworkFiles.LoadForImport(RepositoryInstallation.Installation.IntroCinematicDirectory));
+    /// <summary>Lazy intro and Ceres-flight cinematic artwork as the import reads it, characters included, from the cartridge-derived extraction (#1636).</summary>
+    private static readonly Lazy<IntroCinematicArtwork> introArtwork = Shared<IntroCinematicArtwork>("intro artwork", () =>
+        SuperMetroid.AssetExtraction.Frontend.Intro.IntroCinematicArtworkFiles.LoadForImport(
+            CartridgeImportContent.Component(GameInstallationLayout.IntroCinematicDirectoryName),
+            CartridgeImportContent.ImportData(GameInstallationLayout.IntroCinematicDirectoryName)));
 
     /// <summary>
-    /// The installed ending Mode 7 floors, loaded once for the checks that compare the cartridge's floor loads (#1532); the
-    /// game draws the floors' sheets and never loads them (#1555).
+    /// The ending Mode 7 floors as the import reads them, from the cartridge-derived extraction (#1636), loaded once for the
+    /// checks that compare the cartridge's floor loads (#1532); the game draws the floors' sheets and never loads them (#1555).
     /// </summary>
     private static readonly Lazy<SuperMetroid.AssetExtraction.Frontend.Ending.EndingFloorCharacters> endingFloors =
-        Shared<SuperMetroid.AssetExtraction.Frontend.Ending.EndingFloorCharacters>("ending floors", () => RepositoryInstallation.Installation.LoadEndingMode7Art());
+        Shared<SuperMetroid.AssetExtraction.Frontend.Ending.EndingFloorCharacters>("ending floors", () =>
+            SuperMetroid.AssetExtraction.Frontend.Ending.EndingMode7ArtworkFiles.LoadForImport(
+                CartridgeImportContent.Component(GameInstallationLayout.EndingMode7DirectoryName),
+                CartridgeImportContent.ImportData(GameInstallationLayout.EndingMode7DirectoryName)));
 
-    /// <summary>The installed ending Mode 7 floors the cartridge's floor loads are compared with.</summary>
+    /// <summary>The ending Mode 7 floors the cartridge's floor loads are compared with.</summary>
     internal static SuperMetroid.AssetExtraction.Frontend.Ending.EndingFloorCharacters EndingFloors => endingFloors.Value;
 
-    /// <summary>The installed ending object artwork, loaded once for every ending fixture (#1532).</summary>
-    private static readonly Lazy<SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectSourceArtwork> endingObjects =
-        Shared<SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectSourceArtwork>("ending objects", () => RepositoryInstallation.Installation.LoadEndingObjectArt());
+    /// <summary>The ending object artwork as the import reads it, characters included, loaded once for every ending fixture (#1532, #1636).</summary>
+    private static readonly Lazy<SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.ImportEndingObjectArtwork> endingObjects =
+        Shared<SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.ImportEndingObjectArtwork>("ending objects", () =>
+            SuperMetroid.AssetExtraction.Frontend.Ending.EndingObjectArtworkFiles.LoadForImport(
+                CartridgeImportContent.Component(GameInstallationLayout.EndingObjectDirectoryName),
+                CartridgeImportContent.ImportData(GameInstallationLayout.EndingObjectDirectoryName)));
+
+    /// <summary>The ending object artwork as the import reads it, characters included.</summary>
+    internal static SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.ImportEndingObjectArtwork EndingObjects => endingObjects.Value;
 
     /// <summary>The installed ending scene backdrops, loaded once for every ending fixture (#1532, #1544).</summary>
     private static readonly Lazy<SuperMetroid.Core.Frontend.Ending.Artwork.EndingBackdrops> endingBackdrops =
@@ -157,11 +181,11 @@ internal static class InstalledFixtures
     /// <summary>The installation's stock map and presentation catalog, loaded once per process.</summary>
     internal static AreaMapPresentation Maps => maps.Value;
 
-    /// <summary>The installation's stock enemy artwork, loaded once per process.</summary>
+    /// <summary>The stock enemy artwork as the import reads it, loaded once per process from the cartridge-derived extraction (#1636).</summary>
     internal static EnemyTileSourceArtwork EnemyTiles => enemyArtwork.Value.Enemies;
 
-    /// <summary>The installation's stock enemy, boss and area artwork, loaded once per process.</summary>
-    internal static InstalledEnemyArtwork EnemyArtwork => enemyArtwork.Value;
+    /// <summary>The stock enemy, boss and area artwork as the import reads it, loaded once per process from the cartridge-derived extraction (#1636).</summary>
+    internal static ImportEnemyArtwork EnemyArtwork => enemyArtwork.Value;
 
     /// <summary>The installation's complete game artwork as the game binds it, loaded once per process and only read.</summary>
     private static readonly Lazy<SuperMetroid.Core.Frontend.GameArtwork> gameArtwork =
@@ -183,8 +207,11 @@ internal static class InstalledFixtures
     /// <summary>The installation's stock area artwork, loaded once per process with the enemy artwork.</summary>
     internal static AreaSourceArtwork AreaArtwork => enemyArtwork.Value.Areas;
 
-    /// <summary>The installation's projectile artwork and frame bindings, loaded once per process.</summary>
+    /// <summary>The installation's projectile documents and frame bindings, loaded once per process.</summary>
     internal static InstalledProjectilePresentation Projectiles => projectiles.Value;
+
+    /// <summary>The projectile artwork as the import reads it, beam, trail and grapple characters included, loaded once per process (#1636).</summary>
+    internal static ImportProjectileArtwork ImportProjectiles => importProjectiles.Value;
 
     /// <summary>Projectile draw artwork showing the installed gameplay projectile sheets, each draw its own beams' (#1586).</summary>
     internal static ProjectileDrawArtwork ProjectileArtwork() => new(ProjectileSheets.Gameplay(SpriteSheets));
@@ -229,11 +256,14 @@ internal static class InstalledFixtures
     private static readonly Lazy<SuperMetroid.Core.Enemies.BossBodies.BossBodySheets> bossBodySheets =
         Shared<SuperMetroid.Core.Enemies.BossBodies.BossBodySheets>("boss body sheets", () => RepositoryInstallation.Installation.LoadBossBodySheets());
 
-    /// <summary>The installation's standard OBJ sheet, loaded once per process.</summary>
+    /// <summary>The standard OBJ sheet, loaded once per process from the cartridge-derived extraction, as no installation holds it (#1636).</summary>
     internal static SuperMetroid.AssetExtraction.Rooms.Artwork.RoomCharacterAtlas StandardObjects => standardObjects.Value;
     /// <summary>Backing loader for <see cref="StandardObjects"/>.</summary>
     private static readonly Lazy<SuperMetroid.AssetExtraction.Rooms.Artwork.RoomCharacterAtlas> standardObjects =
-        Shared<SuperMetroid.AssetExtraction.Rooms.Artwork.RoomCharacterAtlas>("standard objects", () => RepositoryInstallation.Installation.LoadStandardObjects());
+        Shared<SuperMetroid.AssetExtraction.Rooms.Artwork.RoomCharacterAtlas>("standard objects", () =>
+            SuperMetroid.AssetExtraction.StandardObjectArtworkFiles.LoadForImport(
+                CartridgeImportContent.Component(GameInstallationLayout.StandardObjectDirectoryName),
+                CartridgeImportContent.ImportData(GameInstallationLayout.StandardObjectDirectoryName)));
 
     /// <summary>
     /// Binds the sprite sheets a runtime's projectiles draw from; their beam colours are shades pre-coloured on the sheets
@@ -265,6 +295,9 @@ internal static class InstalledFixtures
     internal static SamusBombProjectileSystem CreateBombSystem() =>
         new() { FrameBindings = Projectiles.FrameBindings, PowerBombExplosion = { PresentationColors = Maps.PowerBombFixedColors } };
 
+    /// <summary>The arm cannon's cover characters, from the cartridge-derived extraction, as no installation holds them (#1636).</summary>
+    internal static SamusArmCannonCoverCharacters SamusArmCannonCover => SamusBodySheetFixtures.Inputs.ArmCannonCover;
+
     /// <summary>The installed colour tables Samus's sheets are pre-coloured from (#1512), which checks resolve her shades with.</summary>
     internal static SuperMetroid.AssetExtraction.Samus.SamusShadeSources SamusShadeSources => SamusBodySheetFixtures.Inputs.ShadeSources;
 
@@ -274,8 +307,8 @@ internal static class InstalledFixtures
         samus.Presentation.BindArtwork(SamusBody);
         samus.Presentation.BindSheets(SpriteSheets);
         samus.ArmCannon.Artwork = SamusBody.ArmCannon;
-        samus.Grapple.FlarePlacement = Projectiles.GrappleTiles.FlarePlacement;
-        samus.Grapple.SwingFrames = Projectiles.GrappleTiles.SwingFrames;
+        samus.Grapple.FlarePlacement = Projectiles.Grapple.FlarePlacement;
+        samus.Grapple.SwingFrames = Projectiles.Grapple.SwingFrames;
         return samus;
     }
 
@@ -327,7 +360,7 @@ internal static class InstalledFixtures
         TitleGraphicsCharacters? titleGraphicsPresentation = null) =>
         new(audio, titleGradientPresentation ?? Maps.TitleGradient,
             titleBackdrop ?? Maps.TitleBackdrop,
-            MenuSheetFixtures.WithTitle(titleGraphicsPresentation ?? InstalledAreaMapPresentation.TitleGraphicsOf(Maps)));
+            MenuSheetFixtures.WithTitle(titleGraphicsPresentation ?? ImportAreaMapPresentation.TitleGraphicsOf(Maps)));
 
     /// <summary>Creates a pause menu while retaining the supplied state and installed map presentation.</summary>
     internal static PauseMenuState CreatePause(PauseMenuEntry entry) =>
@@ -388,12 +421,12 @@ internal static class InstalledFixtures
             bossAndIntroOverreads.IsValueCreated, roomAssets.IsValueCreated, roomCharacters.IsValueCreated,
             blockCompositions.IsValueCreated, maps.IsValueCreated, enemyArtwork.IsValueCreated, projectiles.IsValueCreated,
             samusBody.IsValueCreated, introArtwork.IsValueCreated, enemySheets.IsValueCreated, spriteSheets.IsValueCreated,
-            standardObjects.IsValueCreated, bossBodySheets.IsValueCreated,
+            standardObjects.IsValueCreated, bossBodySheets.IsValueCreated, importProjectiles.IsValueCreated,
         }.Count(loaded => loaded);
 
     /// <summary>The bound content, gathered once so every graph names it by the same paths.</summary>
     private static readonly Lazy<object[]> boundContent = new(() =>
         [RepositoryInstallation.ArtworkLoader, samusOverreads, enemyOverreads, bossAndIntroOverreads, roomAssets,
             roomCharacters, blockCompositions, maps, enemyArtwork, projectiles, samusBody, introArtwork, enemySheets, spriteSheets,
-            standardObjects, bossBodySheets]);
+            standardObjects, bossBodySheets, importProjectiles]);
 }

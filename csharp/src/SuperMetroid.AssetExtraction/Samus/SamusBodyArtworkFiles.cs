@@ -28,9 +28,11 @@ public static class SamusBodyArtworkFiles
     /// (#1517). Revision ten installs with the body sheet that pictures the glitch balls, their knockbacks, the
     /// Draygon-held ball and its stand-up, which the Baby's Hyper Beam freeze and rainbow stop can install (#1535).
     /// Revision eleven keys each pose's frame list and half-table bases by the pose's name rather than its place in the
-    /// cartridge's pose tables, and installs none for the records no pose names (#1595).
+    /// cartridge's pose tables, and installs none for the records no pose names (#1595). Revision twelve installs no
+    /// character page: the body halves, the arm cannon's cover tiles and the death explosion's characters are import
+    /// data (#1636).
     /// </summary>
-    private const int FormatVersion = 11;
+    private const int FormatVersion = 12;
     /// <summary>Each split-DMA definition occupies eight 8x8 tiles across its PNG row.</summary>
     private const int TileWidth = 64;
     /// <summary>Two tile rows reserve sixteen graphics tiles for one DMA definition.</summary>
@@ -48,7 +50,7 @@ public static class SamusBodyArtworkFiles
 
     /// <summary>Writes Samus's upper/lower body PNG sets and visual selector JSON, together with linked atmospheric, death, and arm-cannon artwork.</summary>
     /// <param name="bus">Non-null cartridge address space supplying native body DMA definitions, pose/frame tables, spritemaps, offsets, and linked artwork.</param>
-    /// <param name="directory">Stock output directory, created if needed; body PNGs and body JSON are overwritten, while linked extractors retain their own file-creation policies.</param>
+    /// <param name="directory">Stock output directory, created if needed; body JSON is overwritten and the body pages go to its import-data directory (#1636), while linked extractors retain their own file-creation policies.</param>
     /// <param name="sourceCartridgeSha256">Source cartridge SHA-256 recorded in body and linked manifests; installed loading requires the supported revision.</param>
     /// <remarks>Each DMA definition uses a zero-padded 64x16 four-bit character slot. Gameplay and animation-delay bytes are not exported.</remarks>
     /// <exception cref="InvalidDataException">Native DMA bounds, sizes, spritemaps, or linked cartridge sources are invalid.</exception>
@@ -57,6 +59,8 @@ public static class SamusBodyArtworkFiles
         Ensure.NotNull(bus);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         Directory.CreateDirectory(directory);
+        string importData = SuperMetroid.AssetExtraction.Installation.ImportDataDirectory.Of(directory);
+        Directory.CreateDirectory(importData);
         ushort[] topPointers = ReadPointers(bus,
             SamusSourceDefinitions.TopDefinitionListPointers.Value,
             SamusBodySources.TopSetCount);
@@ -86,8 +90,8 @@ public static class SamusBodyArtworkFiles
 
         ushort[] allPointers = topPointers.Concat(bottomPointers).OrderBy(value => value).ToArray();
         var hashes = new Dictionary<string, string>(StringComparer.Ordinal);
-        DefinitionEntry[][] top = ExtractHalf(bus, directory, topPointers, allPointers, true, hashes);
-        DefinitionEntry[][] bottom = ExtractHalf(bus, directory, bottomPointers, allPointers, false, hashes);
+        DefinitionEntry[][] top = ExtractHalf(bus, importData, topPointers, allPointers, true, hashes);
+        DefinitionEntry[][] bottom = ExtractHalf(bus, importData, bottomPointers, allPointers, false, hashes);
         Dictionary<SamusPoseId, int> spritemapTopBases = ByPose(ReadPointers(bus,
             SamusSourceDefinitions.SpritemapTopBases.Value, SamusBodySources.PoseCount));
         Dictionary<SamusPoseId, int> spritemapBottomBases = ByPose(ReadPointers(bus,
@@ -114,36 +118,54 @@ public static class SamusBodyArtworkFiles
             spritemapEntries, spritemaps, hashes);
         SamusAtmosphericArtworkFiles.Extract(bus, directory, sourceCartridgeSha256);
         SamusDeathPaletteArtworkFiles.Extract(bus, directory, sourceCartridgeSha256);
-        SamusDeathTileArtworkFiles.Extract(bus, directory, sourceCartridgeSha256);
-        SamusArmCannonArtworkFiles.Extract(bus, directory, sourceCartridgeSha256);
+        SamusDeathTileArtworkFiles.Extract(bus, directory, importData, sourceCartridgeSha256);
+        SamusArmCannonArtworkFiles.Extract(bus, directory, importData, sourceCartridgeSha256);
         File.WriteAllBytes(Path.Combine(directory, ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
     }
 
-    /// <summary>Validates and compiles the installed Samus body catalog, as the player may have edited it: body JSON, PNGs, and linked artwork.</summary>
-    /// <param name="directory">Directory containing supported-revision body metadata, PNG sets, and all linked Samus artwork.</param>
-    /// <returns>A cartridge-free catalog of visual pose/frame mappings, spritemaps, offsets, linked artwork and the installed characters' identity.</returns>
-    /// <remarks>Transfer sizes and references are validated, and unused PNG-slot tiles must stay zero.</remarks>
-    /// <exception cref="InvalidDataException">Metadata, sizes, PNG padding, or linked artwork are invalid; diagnostics retain the offending filename.</exception>
-    public static InstalledSamusBodyArtwork Load(string directory) => LoadCharacters(directory).Body;
-
-    /// <summary>Validates and compiles the installed Samus body and its characters, from which the body sheets are composed.</summary>
-    /// <param name="directory">Directory containing supported-revision body metadata, PNG sets, and all linked Samus artwork.</param>
-    /// <returns>The installed split-DMA characters, bound to the installed body catalog.</returns>
-    /// <exception cref="InvalidDataException">Metadata, sizes, PNG padding, or linked artwork are invalid; diagnostics retain the offending filename.</exception>
-    public static SamusBodyCharacterArtwork LoadCharacters(string directory)
+    /// <summary>
+    /// Validates and compiles the installed Samus body catalog, as the player may have edited it: body JSON and linked
+    /// documents. No character page is read (#1636).
+    /// </summary>
+    /// <param name="directory">Directory containing supported-revision body metadata and all linked Samus documents.</param>
+    /// <returns>A cartridge-free catalog of visual pose/frame mappings, spritemaps, offsets and linked artwork.</returns>
+    /// <exception cref="InvalidDataException">Metadata or linked artwork are invalid; diagnostics retain the offending filename.</exception>
+    public static SamusBodySources Load(string directory)
     {
         SamusArtworkFile manifestFile = SamusArtworkFile.Read(Path.Combine(directory, ManifestFileName));
         Manifest manifest = manifestFile.Json<Manifest>(JsonOptions);
         return manifestFile.WithContext(() =>
         {
             ValidateManifest(manifest);
-            return BuildCatalog(directory, manifest);
+            return new SamusBodySources(Parts(directory, manifest));
         });
     }
 
-    /// <summary>Exports each upper or lower DMA set as a padded PNG and records its native source sizes.</summary>
-    private static DefinitionEntry[][] ExtractHalf(ISnesAddressSpace bus, string directory,
+    /// <summary>
+    /// Validates and compiles the Samus body and its characters, from which the body sheets are composed: the documents in
+    /// <paramref name="directory"/> and the body pages in its import data <paramref name="importData"/> (#1636).
+    /// </summary>
+    /// <param name="directory">Directory containing supported-revision body metadata and all linked Samus documents.</param>
+    /// <param name="importData">The component's import-data directory, holding the body pages.</param>
+    /// <returns>The split-DMA characters, bound to the body catalog.</returns>
+    /// <remarks>Transfer sizes and references are validated, and unused page-slot tiles must stay zero.</remarks>
+    /// <exception cref="InvalidDataException">Metadata, sizes, page padding, or linked artwork are invalid; diagnostics retain the offending filename.</exception>
+    public static SamusBodyCharacterArtwork LoadCharacters(string directory, string importData)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(importData);
+        SamusArtworkFile manifestFile = SamusArtworkFile.Read(Path.Combine(directory, ManifestFileName));
+        Manifest manifest = manifestFile.Json<Manifest>(JsonOptions);
+        return manifestFile.WithContext(() =>
+        {
+            ValidateManifest(manifest);
+            return SamusBodyCharacterArtwork.Create(Parts(directory, manifest),
+                LoadHalf(importData, manifest, true), LoadHalf(importData, manifest, false));
+        });
+    }
+
+    /// <summary>Exports each upper or lower DMA set as a padded page into <paramref name="importData"/> and records its native source sizes.</summary>
+    private static DefinitionEntry[][] ExtractHalf(ISnesAddressSpace bus, string importData,
         ushort[] pointers, ushort[] sortedPointers, bool upperHalf,
         Dictionary<string, string> hashes)
     {
@@ -182,17 +204,15 @@ public static class SamusBodyArtworkFiles
             IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
             string name = FileName(upperHalf, set);
             byte[] bytes = png.ToArray();
-            File.WriteAllBytes(Path.Combine(directory, name), bytes);
+            File.WriteAllBytes(Path.Combine(importData, name), bytes);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(bytes)));
         }
         return sets;
     }
 
-    /// <summary>Combines the installed body halves with spritemaps and all linked Samus artwork catalogs.</summary>
-    private static SamusBodyCharacterArtwork BuildCatalog(string directory, Manifest manifest)
+    /// <summary>The body's tables with its spritemaps and all linked Samus document catalogs.</summary>
+    private static SamusBodyArtworkParts Parts(string directory, Manifest manifest)
     {
-        SamusBodyTileTransfer[][] top = LoadHalf(directory, manifest, true);
-        SamusBodyTileTransfer[][] bottom = LoadHalf(directory, manifest, false);
         var spritemaps = new SamusSpritemapSources(manifest.SpritemapTopBases,
             manifest.SpritemapBottomBases,
             [.. manifest.SpritemapEntries.Select(entry => entry is { } ordinal ? new SamusSpritemapId(ordinal) : (SamusSpritemapId?)null)],
@@ -200,13 +220,12 @@ public static class SamusBodyArtworkFiles
                 [.. parts.Select(part => part.ToSpritePart(SpriteArtwork.CharactersPerRow))]))]);
         SamusAtmosphericSourceArtwork atmosphere = SamusAtmosphericArtworkFiles.Load(directory);
         InstalledSamusDeathPalettes deathPalettes = SamusDeathPaletteArtworkFiles.Load(directory);
-        SamusDeathTileAtlas deathTiles = SamusDeathTileArtworkFiles.Load(directory);
         SamusArmCannonSourceArtwork armCannon = SamusArmCannonArtworkFiles.Load(directory);
-        return SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = manifest.TopSetStarts, BottomSetStarts = manifest.BottomSetStarts, PoseFirstFrames = manifest.PoseFirstFrames, Placements = manifest.Placements, Frames = manifest.Frames, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathPalettes, DeathTilesContentIdentity = deathTiles.ContentIdentity, ArmCannon = armCannon }, top, bottom);
+        return new SamusBodyArtworkParts { TopSetStarts = manifest.TopSetStarts, BottomSetStarts = manifest.BottomSetStarts, PoseFirstFrames = manifest.PoseFirstFrames, Placements = manifest.Placements, Frames = manifest.Frames, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathPalettes, ArmCannon = armCannon };
     }
 
-    /// <summary>Re-encodes the installed PNG sets into native planar bytes and rejects painted padding tiles.</summary>
-    private static SamusBodyTileTransfer[][] LoadHalf(string directory, Manifest manifest, bool upperHalf)
+    /// <summary>Re-encodes the page sets in <paramref name="importData"/> into native planar bytes and rejects painted padding tiles.</summary>
+    private static SamusBodyTileTransfer[][] LoadHalf(string importData, Manifest manifest, bool upperHalf)
     {
         DefinitionEntry[][] metadata = upperHalf ? manifest.Top : manifest.Bottom;
         var result = new SamusBodyTileTransfer[metadata.Length][];
@@ -222,7 +241,7 @@ public static class SamusBodyArtworkFiles
                     entry.FirstSize + entry.SecondSize > SamusBodyCharacterArtwork.BytesPerDefinitionSlot ||
                     (entry.FirstSize + entry.SecondSize) % 32 != 0)
                     throw new InvalidDataException($"Samus body definition {name} has invalid sizes.");
-            SamusArtworkFile selected = SamusArtworkFile.Read(Path.Combine(directory, name));
+            SamusArtworkFile selected = SamusArtworkFile.Read(Path.Combine(importData, name));
             int height = checked(metadata[set].Length * DefinitionHeight);
             result[set] = selected.Compile(stream => DecodeSet(stream));
 
@@ -312,7 +331,7 @@ public static class SamusBodyArtworkFiles
         return parts;
     }
 
-    /// <summary>Names the editable upper or lower body PNG by native set index.</summary>
+    /// <summary>Names the upper or lower body page by native set index.</summary>
     private static string FileName(bool upperHalf, int set) =>
         $"{(upperHalf ? "top" : "bottom")}-{set:X2}.png";
 

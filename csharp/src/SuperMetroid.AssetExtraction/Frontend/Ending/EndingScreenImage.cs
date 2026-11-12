@@ -55,7 +55,7 @@ internal static class EndingScreenImage
     /// <summary>The waiting, shooting and reward characters with the post-credits map fragments.</summary>
     private static void ExecuteCreditsCharacterArt(EndingVram ending, EndingTransferArtwork artwork)
     {
-        EndingObjectSourceArtwork objects = Objects(artwork);
+        ImportEndingObjectArtwork objects = Objects(artwork);
         ReadOnlySpan<byte> waiting = objects.WaitingSamus.Characters.Span;
         ending.WaitingCharacters.Load(waiting[..EndingTransferExtentDefinitions.WaitingCharacterBytes]);
         ending.PostCreditsObjects.Load(objects.ShootingScreen.Characters.Span[..EndingTransferExtentDefinitions.ShootingCharacterBytes]);
@@ -87,8 +87,8 @@ internal static class EndingScreenImage
     internal static byte[] MapBytes(RoomBackgroundTilemapAtlas map) => BackgroundTileWords.ToBytes(map.Tiles.Span);
 
     /// <summary>The bound OBJ artwork as the import pipeline read it, with its character atlases and maps.</summary>
-    private static EndingObjectSourceArtwork Objects(EndingTransferArtwork artwork) =>
-        EndingObjectSourceArtwork.Of(artwork.Objects ?? throw new InvalidOperationException("Ending objects require installed artwork."));
+    private static ImportEndingObjectArtwork Objects(EndingTransferArtwork artwork) =>
+        ImportEndingObjectArtwork.Imported(artwork.Objects ?? throw new InvalidOperationException("Ending objects require installed artwork."));
 
     /// <summary>The bound ending font.</summary>
     private static EndingFontCharacters Font(EndingTransferArtwork artwork) =>

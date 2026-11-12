@@ -39,22 +39,19 @@ public sealed class SamusBodySources : InstalledSamusBodyArtwork
 
     /// <summary>Validates the body's native tables and resolves the half pictures each pose frame shows.</summary>
     /// <param name="parts">Samus's body tables, offsets and dependent artwork catalogs.</param>
-    /// <param name="bodyCharactersContentIdentity">Identity of the body characters the frames select, composed into the body sheets at installation.</param>
     /// <exception cref="InvalidDataException">A table has an invalid length, a selector component is out of range, or a pose's frame list is outside the selectors.</exception>
-    public SamusBodySources(SamusBodyArtworkParts parts, string bodyCharactersContentIdentity)
-        : this(parts, bodyCharactersContentIdentity, Installed(Ensure.NotNull(parts)))
+    public SamusBodySources(SamusBodyArtworkParts parts)
+        : this(parts, Installed(Ensure.NotNull(parts)))
     {
     }
 
     /// <summary>Binds the frames <paramref name="installed"/> resolved from <paramref name="parts"/>.</summary>
-    private SamusBodySources(SamusBodyArtworkParts parts, string bodyCharactersContentIdentity, InstalledFrames installed)
+    private SamusBodySources(SamusBodyArtworkParts parts, InstalledFrames installed)
         : base(Content(parts, installed))
     {
         posePictures = installed.Pictures;
         Spritemaps = Ensure.NotNull(parts.Spritemaps);
         DeathPalettes = Ensure.NotNull(parts.DeathPalettes);
-        DeathTilesContentIdentity = Ensure.NotNull(parts.DeathTilesContentIdentity);
-        BodyCharactersContentIdentity = Ensure.NotNull(bodyCharactersContentIdentity);
         topSetStarts = (int[])parts.TopSetStarts.Clone();
         bottomSetStarts = (int[])parts.BottomSetStarts.Clone();
         poseFirstFrames = parts.PoseFirstFrames.ToDictionary();
@@ -64,9 +61,6 @@ public sealed class SamusBodySources : InstalledSamusBodyArtwork
 
     /// <summary>The compositions each pose half shows, which the import composes the whole body pictures from.</summary>
     public SamusSpritemapSources Spritemaps { get; }
-
-    /// <summary>Identity of the selected death-explosion characters, whose pre-coloured sheet is installed separately.</summary>
-    public string DeathTilesContentIdentity { get; }
 
     /// <summary>
     /// The half pictures <paramref name="pose"/>'s <paramref name="animationFrame"/> selects, when the pose has a record and
@@ -88,14 +82,14 @@ public sealed class SamusBodySources : InstalledSamusBodyArtwork
     /// </summary>
     public InstalledSamusDeathPalettes DeathPalettes { get; }
 
-    /// <summary>Identity of the selected body characters, whose pre-coloured sheets are installed separately.</summary>
-    public string BodyCharactersContentIdentity { get; }
-
     /// <summary>Where each pose with a record places the body: its art origin and, where they differ, each frame's own placement.</summary>
     public IReadOnlyDictionary<SamusPoseId, SamusBodyPosePlacement> Placements { get; }
 
-    /// <summary>SHA-256 of all visual selectors, the body characters' identity and bundled Samus presentation catalogs.</summary>
-    public string ContentIdentity => field ??= SelectedPresentationHash.Create("samus-body-v5", content =>
+    /// <summary>
+    /// SHA-256 of all visual selectors and bundled Samus presentation catalogs. The body and death-explosion characters are
+    /// import data the installation never holds (#1636); the sheets composed from them carry their identity.
+    /// </summary>
+    public string ContentIdentity => field ??= SelectedPresentationHash.Create("samus-body-v6", content =>
     {
         foreach (int start in TopSetStarts) content.Append("top set start", start);
         foreach (int start in BottomSetStarts) content.Append("bottom set start", start);
@@ -108,11 +102,9 @@ public sealed class SamusBodySources : InstalledSamusBodyArtwork
             content.Append("bottom set", frame.BottomSet);
             content.Append("bottom position", frame.BottomPosition);
         }
-        content.Append("body characters", Convert.FromHexString(BodyCharactersContentIdentity));
         content.Append("spritemaps", Convert.FromHexString(Spritemaps.ContentIdentity));
         content.Append("atmosphere", Convert.FromHexString(Atmosphere.ContentIdentity));
         content.Append("death palettes", Convert.FromHexString(DeathPalettes.ContentIdentity));
-        content.Append("death tiles", Convert.FromHexString(DeathTilesContentIdentity));
         content.Append("arm cannon", Convert.FromHexString(ArmCannon.ContentIdentity));
     });
 

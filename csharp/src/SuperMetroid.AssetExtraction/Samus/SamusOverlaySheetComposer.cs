@@ -22,23 +22,24 @@ internal static class SamusOverlaySheetComposer
                 .Select(frame => SamusOverlaySheetDefinitions.ArmCannonFrame(direction, frame)));
 
     /// <summary>What the overlay sheet composes with the body's arm cannon.</summary>
-    internal static SpriteSheetSources Sources(SamusSheetInputs inputs) => Sources(inputs, Ensure.NotNull(inputs).SamusBody.Body.ArmCannon.Source);
+    internal static SpriteSheetSources Sources(SamusSheetInputs inputs) => Sources(inputs, Ensure.NotNull(inputs).ArmCannonCover);
 
-    /// <summary>What the overlay sheet composes with <paramref name="cannon"/>.</summary>
-    internal static SpriteSheetSources Sources(SamusSheetInputs inputs, SamusArmCannonSourceArtwork cannon)
+    /// <summary>What the overlay sheet composes with the cover characters <paramref name="cover"/> (#1636).</summary>
+    internal static SpriteSheetSources Sources(SamusSheetInputs inputs, SamusArmCannonCoverCharacters cover)
     {
         Ensure.NotNull(inputs);
-        Ensure.NotNull(cannon);
+        Ensure.NotNull(cover);
+        SamusArmCannonSourceArtwork cannon = cover.Cannon;
         var frames = new List<SheetFrameSource>();
         foreach (SamusProjectileDirection direction in SamusProjectileDirectionCodec.InAimOrder)
         {
             // `$90:C7DF` uploads the frame's cover to the character the direction's attributes name.
             int row = direction.ToAimIndex();
-            SpritePart cover = cannon.CoverAppearance(row);
+            SpritePart appearance = cannon.CoverAppearance(row);
             for (int frame = FirstCoverFrame; frame <= LastCoverFrame; frame++)
             {
                 frames.Add(new(SamusOverlaySheetDefinitions.ArmCannonFrame(direction, frame),
-                    SpritePartFrames.SmallObject(cover, cover.Character), cannon.CoverTile(row, frame)));
+                    SpritePartFrames.SmallObject(appearance, appearance.Character), cover.CoverTile(row, frame)));
             }
         }
         return new SpriteSheetSources(frames, inputs.SuitedColours(), ObjectSelectionCodec.GameplaySizes, Shades: inputs.Shades);

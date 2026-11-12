@@ -32,7 +32,7 @@ internal static class DmaArtworkBoundaryVerification
         Suite(nameof(VerifyQueuedVramAssets), () => VerifyQueuedVramAssets());
         GameInstallation installation = RepositoryInstallation.Installation;
         var reference = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
-        InstalledEnemyArtwork art = installation.LoadEnemyTiles();
+        ImportEnemyArtwork art = InstalledFixtures.EnemyArtwork;
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses };
         var background = new SnesVram();

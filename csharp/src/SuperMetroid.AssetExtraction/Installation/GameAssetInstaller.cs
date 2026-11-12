@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Artwork;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Audio;
@@ -124,6 +125,9 @@ public static class GameAssetInstaller
         {
             File.WriteAllBytes(Path.Combine(staging, GameInstallationLayout.RomFileName), rom);
             InstallComponents(rom, staging, cancellationToken, progress);
+            // The character and tile pages are the import's own data (#1636): every component that composes from them has
+            // finished, so they are deleted before the receipt is written and nothing published holds them.
+            Directory.Delete(Path.Combine(staging, GameInstallationLayout.ImportDataDirectoryName), recursive: true);
             // The receipt names the format and source the content was extracted for, which decides whether later opens
             // reuse it.
             File.WriteAllText(Path.Combine(staging, GameInstallationLayout.ReceiptFileName),
@@ -192,6 +196,25 @@ public static class GameAssetInstaller
         Task After(Task preceding, InstallerComponentKind kind) => preceding.ContinueWith(done => done.IsCompletedSuccessfully
             ? Task.WhenAll(Components.Where(component => component.Kind == kind).Select(Start))
             : Task.CompletedTask, CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.Default).Unwrap();
+    }
+
+    /// <summary>
+    /// Extracts every extraction component from <paramref name="rom"/> into <paramref name="content"/>, all at once, with
+    /// their character and tile pages under its import-data directory (#1636), and nothing else: no audio, no sheets and no
+    /// picture store. Checks that compose pictures again read their characters from this cartridge-derived extraction,
+    /// never from a published installation, which holds none.
+    /// </summary>
+    /// <param name="rom">The validated cartridge image.</param>
+    /// <param name="content">The empty directory the components' directories are extracted into.</param>
+    /// <exception cref="AggregateException">A component failed; each failure is one of its inner exceptions.</exception>
+    internal static void ExtractImportSources(byte[] rom, string content)
+    {
+        Ensure.NotNull(rom);
+        ArgumentException.ThrowIfNullOrWhiteSpace(content);
+        Directory.CreateDirectory(content);
+        var families = new InstalledSheetFamilies();
+        Parallel.ForEach(Components.Where(component => component.Kind == InstallerComponentKind.Extraction),
+            component => InstallComponent(rom, content, component, families, CancellationToken.None, progress: null));
     }
 
     /// <summary>Extracts each step of <paramref name="component"/> into its directory under <paramref name="staging"/>.</summary>

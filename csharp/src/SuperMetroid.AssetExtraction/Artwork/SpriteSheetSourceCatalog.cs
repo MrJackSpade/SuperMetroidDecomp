@@ -50,10 +50,15 @@ internal sealed class SpriteSheetSourceCatalog
         ArgumentException.ThrowIfNullOrWhiteSpace(content);
         endingPalettes = Ensure.NotNull(endingColours);
         samus = new(() => SamusSheetInputs.Load(content));
-        maps = new(() => MapPresentationFiles.LoadForImport(Path.Combine(content, GameInstallationLayout.MapDirectoryName)));
-        intro = new(() => IntroCinematicArtworkFiles.LoadForImport(Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName)));
-        ending = new(() => EndingObjectArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.EndingObjectDirectoryName)));
-        endingMode7 = new(() => EndingMode7ArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.EndingMode7DirectoryName)));
+        // Each family composes from the documents extracted under content and the pages in their import data (#1636).
+        string map = Path.Combine(content, GameInstallationLayout.MapDirectoryName);
+        string introDirectory = Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName);
+        string endingDirectory = Path.Combine(content, GameInstallationLayout.EndingObjectDirectoryName);
+        string endingMode7Directory = Path.Combine(content, GameInstallationLayout.EndingMode7DirectoryName);
+        maps = new(() => MapPresentationFiles.LoadForImport(map, ImportDataDirectory.Of(map)));
+        intro = new(() => IntroCinematicArtworkFiles.LoadForImport(introDirectory, ImportDataDirectory.Of(introDirectory)));
+        ending = new(() => EndingObjectArtworkFiles.LoadForImport(endingDirectory, ImportDataDirectory.Of(endingDirectory)));
+        endingMode7 = new(() => EndingMode7ArtworkFiles.LoadForImport(endingMode7Directory, ImportDataDirectory.Of(endingMode7Directory)));
     }
 
     /// <summary>The OBJ palette row and priority of parts that choose neither, as the families' draws leave them.</summary>
@@ -72,7 +77,7 @@ internal sealed class SpriteSheetSourceCatalog
         : EndingPictureSheetComposer.Sheets.Contains(sheet) ? EndingPictureSheetComposer.Compose(sheet, ScreenTiles())
         : sheet == SpriteSheetId.CeresCinematicPictures ? CeresCinematicPictureSheetComposer.Compose(intro.Value)
         : sheet == SpriteSheetId.IntroScenePictures ? IntroScenePictureSheetComposer.Compose(intro.Value)
-        : sheet == SpriteSheetId.IntroNarrationPictures ? IntroNarrationPictureSheetComposer.Compose(intro.Value, InstalledAreaMapPresentation.IntroFontOf(maps.Value))
+        : sheet == SpriteSheetId.IntroNarrationPictures ? IntroNarrationPictureSheetComposer.Compose(intro.Value, ImportAreaMapPresentation.IntroFontOf(maps.Value))
         : SpriteSheetComposer.Compose(For(sheet), DefaultPalette, DefaultPriority);
 
     /// <summary>The stock artwork the screen tile sheets compose from.</summary>
@@ -102,7 +107,7 @@ internal sealed class SpriteSheetSourceCatalog
         SpriteSheetId.EndingCloudSprites or SpriteSheetId.EndingExplosionSprites or
             SpriteSheetId.EndingSuitedRewardSprites or SpriteSheetId.EndingSuitlessRewardSprites or
             SpriteSheetId.EndingShootingSprites =>
-            EndingSpriteSheetComposer.Sources(sheet, ending.Value, endingPalettes, InstalledAreaMapPresentation.EndingFontOf(maps.Value), ImportAreaMapPresentation.RoomPaletteFxOf(maps.Value)),
+            EndingSpriteSheetComposer.Sources(sheet, ending.Value, endingPalettes, ImportAreaMapPresentation.EndingFontOf(maps.Value), ImportAreaMapPresentation.RoomPaletteFxOf(maps.Value)),
         SpriteSheetId.Grapple or SpriteSheetId.SamusBody or
             SpriteSheetId.SamusOverlays or SpriteSheetId.SamusAtmosphere or SpriteSheetId.SamusDeath or
             SpriteSheetId.IntroProjectiles or SpriteSheetId.ProjectilesPower or SpriteSheetId.ProjectilesWave or

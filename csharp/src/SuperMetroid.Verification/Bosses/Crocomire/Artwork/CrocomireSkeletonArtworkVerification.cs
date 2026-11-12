@@ -19,7 +19,7 @@ internal static class CrocomireSkeletonArtworkVerification
 {
     /// <summary>Exercises six installed uploads with cartridge reads forbidden.</summary>
     internal static void VerifyCrocomireSkeletonArtwork(
-        ISnesAddressSpace rom, InstalledEnemyArtwork stock)
+        ISnesAddressSpace rom, ImportEnemyArtwork stock)
     {
         CrocomireSkeletonArtwork artwork = stock.Bosses.CrocomireSkeleton ??
             throw new InvalidDataException("Installed enemy art omitted Crocomire skeleton tiles.");
@@ -83,7 +83,7 @@ internal static class CrocomireSkeletonArtworkVerification
         Console.WriteLine("Crocomire skeleton art: six native transfers, OBJ character parity, " +
             "guarded installed upload pass.");
 
-        static RunInstalledResult RunInstalled(InstalledEnemyArtwork art)
+        static RunInstalledResult RunInstalled(ImportEnemyArtwork art)
         {
             // The skeleton look shows on the last update of the baring, and an update after it bares nothing more (#1538).
             var system = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses };

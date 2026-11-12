@@ -21,7 +21,7 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 internal static class MotherBrainSpecialSpriteArtworkVerification
 {
     /// <summary>Compares installed legs, Baby, attack and exploded-door sheets with native records and guarded VRAM uploads.</summary>
-    internal static void VerifyInstalledMotherBrainSpecialSpriteArtwork(InstalledEnemyArtwork stock)
+    internal static void VerifyInstalledMotherBrainSpecialSpriteArtwork(ImportEnemyArtwork stock)
     {
         MotherBrainSpecialSpriteArtworkCatalog installed =
             stock.Bosses.MotherBrainSpecialSprites ?? throw new InvalidDataException(
@@ -90,10 +90,10 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
     /// completes on the list's last record, as the cartridge's list ends there (#1538).
     /// </summary>
     private static void VerifyMotherBrainLegLoadPages(
-        InstalledEnemyArtwork stock, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom)
+        ImportEnemyArtwork stock, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
-        var resolver = new EnemyTileTransfers(new InstalledEnemyArtwork(stock.Enemies, stock.Bosses, InstalledFixtures.AreaArtwork));
+        var resolver = new EnemyTileTransfers(new ImportEnemyArtwork(stock.Enemies, stock.Bosses, InstalledFixtures.AreaArtwork));
         EncounterArtworkUpload[] standing = [.. new[] { EncounterLookUploads.MotherBrainLegsLook, EncounterLookUploads.MotherBrainAttackLook }
             .SelectMany(look => EncounterLookUploads.Uploads(ComposedEncounter.MotherBrain, EncounterLookUploads.IndexOf(ComposedEncounter.MotherBrain, look), resolver))];
         AssertEqual(MotherBrainReadyingDefinitions.StandingBodyDuration, standing.Length, "her rise readies her standing body one update a page her looks copy");
@@ -141,7 +141,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
 
     /// <summary>Copies both escape-timer digit pages her escape timer's look copies and compares the characters with the cartridge's pages.</summary>
     private static void VerifyMotherBrainEscapeTimerPages(
-        InstalledEnemyArtwork stock, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom)
+        ImportEnemyArtwork stock, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom)
     {
         EscapeTimerCharacters timer = EscapeTimerCharacters.Read(new MemoryStream(EscapeTimerTileAtlasExtractor.Extract(rom)));
         var resolver = new EnemyTileTransfers(stock, timer: timer);
@@ -188,9 +188,9 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
     }
     /// <summary>Copies every page of <paramref name="sheet"/> her first look that copies it copies, through the installed artwork (#1538).</summary>
     private static SnesVram ShowMotherBrainSpecialPages(
-        InstalledEnemyArtwork artwork, MotherBrainSpecialSpriteSheetDefinition sheet)
+        ImportEnemyArtwork artwork, MotherBrainSpecialSpriteSheetDefinition sheet)
     {
-        var resolver = new EnemyTileTransfers(new InstalledEnemyArtwork(artwork.Enemies, artwork.Bosses, InstalledFixtures.AreaArtwork));
+        var resolver = new EnemyTileTransfers(new ImportEnemyArtwork(artwork.Enemies, artwork.Bosses, InstalledFixtures.AreaArtwork));
         string look = sheet.Sheet switch
         {
             MotherBrainSpriteSheet.Legs => EncounterLookUploads.MotherBrainLegsLook,

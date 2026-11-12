@@ -27,9 +27,11 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
-/// An installation's enemy-art files, read one component at a time from an installed directory whose manifest has been
-/// checked. Each component is read from its own installed files, as the player may have edited them, so the whole catalog
-/// (<see cref="LoadAll"/>) is its components read in turn, and a reader of one component reads only that component's files.
+/// An enemy-art directory's files, read one component at a time from a directory whose manifest has been checked. Each
+/// component is read from its own files, as the player may have edited them, so the import's whole catalog
+/// (<see cref="LoadForImport"/>) is its components read in turn, with their characters from the component's import data
+/// (#1636), and a reader of one component reads only that component's files. The game's read (<see cref="LoadInstalled"/>)
+/// reads only the documents it binds.
 /// </summary>
 internal sealed class EnemyTileArtworkReader
 {
@@ -136,13 +138,32 @@ internal sealed class EnemyTileArtworkReader
         return new EnemyTileArtworkReader(manifest, directory);
     }
 
-    /// <summary>Reads every component and compiles the enemy, boss and area catalogs without reading a cartridge.</summary>
-    /// <exception cref="InvalidDataException">An installed file is invalid.</exception>
-    internal InstalledEnemyArtwork LoadAll()
+    /// <summary>
+    /// Reads what the game binds from the installed documents: every enemy frame's display, from both frame documents, and
+    /// Kraid's colours. No character page is read (#1636).
+    /// </summary>
+    /// <exception cref="InvalidDataException">An installed document is invalid.</exception>
+    internal InstalledEnemyArtwork LoadInstalled() =>
+        new(InstalledEnemyFrameDisplays.Of(Spritemaps(), ExtendedFrames()), KraidColors(),
+            SelectedPresentationHash.Create("enemy-directory-v2", content =>
+            {
+                // Every installed document, framed by name in name order: the directory holds no character page (#1636).
+                foreach (string path in Directory.EnumerateFiles(directory).Order(StringComparer.Ordinal))
+                    content.Append(Path.GetFileName(path), File.ReadAllBytes(path));
+            }));
+
+    /// <summary>
+    /// Reads every component and compiles the enemy, boss and area catalogs without reading a cartridge, the characters
+    /// from <paramref name="importData"/>.
+    /// </summary>
+    /// <param name="importData">The component's import-data directory, holding its character and tile pages.</param>
+    /// <exception cref="InvalidDataException">A file is invalid.</exception>
+    internal ImportEnemyArtwork LoadForImport(string importData)
     {
-        EnemyTileArtworkParts enemySheets = EnemySheets();
-        CrocomireMeltingArtwork crocomire = CrocomireMelting();
-        CrocomireSkeletonArtwork skeleton = CrocomireSkeleton();
+        ArgumentException.ThrowIfNullOrWhiteSpace(importData);
+        EnemyTileArtworkParts enemySheets = EnemySheets(importData);
+        CrocomireMeltingArtwork crocomire = CrocomireMelting(importData);
+        CrocomireSkeletonArtwork skeleton = CrocomireSkeleton(importData);
         EnemySpritemapCatalog spritemaps = Spritemaps();
         EnemyProjectileSpritemapCatalog projectileSpritemaps = ProjectileSpritemaps();
         EnemyExtendedFrameCatalog extendedFrames = ExtendedFrames();
@@ -150,16 +171,16 @@ internal sealed class EnemyTileArtworkReader
         DraygonBg2FrameCatalog draygonBg2Frames = DraygonBg2Frames();
         CrocomireBg2FrameCatalog crocomireBg2Frames = CrocomireBg2Frames();
         MotherBrainBodyBg2FrameCatalog motherBrainBodyBg2Frames = MotherBrainBodyBg2Frames();
-        GunshipLiftoffArtworkCatalog gunshipLiftoff = GunshipLiftoff();
-        TorizoSwapArtwork torizoInstructionVram = TorizoSwaps();
-        CeresEscapeTileArtwork ceresEscapeTiles = CeresEscapeTiles();
+        GunshipLiftoffArtworkCatalog gunshipLiftoff = GunshipLiftoff(importData);
+        TorizoSwapArtwork torizoInstructionVram = TorizoSwaps(importData);
+        CeresEscapeTileArtwork ceresEscapeTiles = CeresEscapeTiles(importData);
         CeresEscapeOverlays ceresEscapeOverlay = CeresEscapeOverlayTilemaps();
-        RoomCharacterAtlas motherBrainCorpse = MotherBrainCorpse();
-        RoomCharacterAtlas motherBrainEscapeText = MotherBrainEscapeText();
-        MotherBrainSpecialSpriteArtworkCatalog motherBrainSpecialSprites = MotherBrainSpecialSprites();
-        KraidBackgroundArtwork kraidBackground = KraidBackground();
+        RoomCharacterAtlas motherBrainCorpse = MotherBrainCorpse(importData);
+        RoomCharacterAtlas motherBrainEscapeText = MotherBrainEscapeText(importData);
+        MotherBrainSpecialSpriteArtworkCatalog motherBrainSpecialSprites = MotherBrainSpecialSprites(importData);
+        KraidBackgroundArtwork kraidBackground = KraidBackground(importData);
         KraidColorCatalog kraidColors = KraidColors();
-        CeresDoorSourceArtwork ceresDoor = CeresDoor();
+        CeresDoorSourceArtwork ceresDoor = CeresDoor(importData);
         MagdollitePaletteCycle magdollitePaletteCycle = MagdollitePaletteCycle();
         WorkRobotPaletteCycle workRobotPaletteCycle = WorkRobotPaletteCycle();
         CrocomireColorCatalog crocomireColors = CrocomireColors();
@@ -176,7 +197,7 @@ internal sealed class EnemyTileArtworkReader
         NorfairRidleyColorCatalog norfairRidleyColors = NorfairRidleyColors();
         TourianStatuePalettes tourianStatueColors = TourianStatueColors();
         EnemyAuxiliaryColorCatalog auxiliaryColors = AuxiliaryColors();
-        return new InstalledEnemyArtwork(
+        return new ImportEnemyArtwork(
             EnemyTileSourceArtwork.FromInstalledArtwork(enemySheets with
             {
                 Spritemaps = spritemaps, ExtendedFrames = extendedFrames,
@@ -206,11 +227,11 @@ internal sealed class EnemyTileArtworkReader
     }
 
     /// <summary>
-    /// Every retail enemy's characters and colours, read from its character PNG and colour document, each stock file
-    /// checked against its manifest hash: the parts of the enemy catalog that hold no frames or colour cycles.
+    /// Every retail enemy's characters and colours, read from its character page in <paramref name="importData"/> and its
+    /// colour document: the parts of the enemy catalog that hold no frames or colour cycles.
     /// </summary>
-    /// <exception cref="InvalidDataException">An installed file is invalid.</exception>
-    internal EnemyTileArtworkParts EnemySheets()
+    /// <exception cref="InvalidDataException">A file is invalid.</exception>
+    internal EnemyTileArtworkParts EnemySheets(string importData)
     {
         var sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>();
         var palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>();
@@ -221,7 +242,7 @@ internal sealed class EnemyTileArtworkReader
                 throw new InvalidDataException(
                     $"Enemy ${manifestKey:X4} manifest tile size differs from retail.");
             RoomCharacterAtlasFormat.ValidateTileCount(entry.NativeByteCount);
-            string tilePath = Path.Combine(directory, EnemyTileArtworkFiles.FileName(definitionPointer));
+            string tilePath = Path.Combine(importData, EnemyTileArtworkFiles.FileName(definitionPointer));
             try
             {
                 sheets.Add(definitionPointer, RoomCharacterAtlasPng.Read(
@@ -247,10 +268,10 @@ internal sealed class EnemyTileArtworkReader
 
     /// <summary>Crocomire's two melt images and their tilemaps.</summary>
     /// <exception cref="InvalidDataException">An installed file is invalid.</exception>
-    internal CrocomireMeltingArtwork CrocomireMelting()
+    internal CrocomireMeltingArtwork CrocomireMelting(string importData)
     {
-        byte[] first = Read(CrocomireMeltingArtworkFormat.FirstFileName);
-        byte[] second = Read(CrocomireMeltingArtworkFormat.SecondFileName);
+        byte[] first = ReadPage(importData, CrocomireMeltingArtworkFormat.FirstFileName);
+        byte[] second = ReadPage(importData, CrocomireMeltingArtworkFormat.SecondFileName);
         byte[] firstTilemap = Read(
             CrocomireMeltingArtworkFormat.FirstTilemapFileName);
         byte[] secondTilemap = Read(
@@ -272,9 +293,9 @@ internal sealed class EnemyTileArtworkReader
 
     /// <summary>Crocomire's skeleton characters.</summary>
     /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
-    internal CrocomireSkeletonArtwork CrocomireSkeleton()
+    internal CrocomireSkeletonArtwork CrocomireSkeleton(string importData)
     {
-        byte[] skeletonPng = Read(
+        byte[] skeletonPng = ReadPage(importData,
             CrocomireSkeletonCharacterDefinitions.FileName);
         try
         {
@@ -291,12 +312,16 @@ internal sealed class EnemyTileArtworkReader
 
     /// <summary>The enemies' compositions.</summary>
     /// <exception cref="InvalidDataException">A composition is invalid.</exception>
-    internal EnemySpritemapCatalog Spritemaps()
+    internal EnemySpritemapCatalog Spritemaps() => Spritemaps(Read(EnemySpritemapDefinitions.FileName));
+
+    /// <summary>The enemies' compositions, from the document's <paramref name="installed"/> bytes.</summary>
+    /// <exception cref="InvalidDataException">A composition is invalid.</exception>
+    private EnemySpritemapCatalog Spritemaps(byte[] installed)
     {
         try
         {
             return EnemyFrameCartridgeLookup.RequireSameBankDisplayBindings(EnemySpritemapDocuments.Load(
-                new MemoryStream(Read(EnemySpritemapDefinitions.FileName), writable: false)));
+                new MemoryStream(installed, writable: false)));
         }
         catch (InvalidDataException error)
         {
@@ -324,12 +349,15 @@ internal sealed class EnemyTileArtworkReader
 
     /// <summary>The enemies' extended frames.</summary>
     /// <exception cref="InvalidDataException">A frame is invalid.</exception>
-    internal EnemyExtendedFrameCatalog ExtendedFrames()
+    internal EnemyExtendedFrameCatalog ExtendedFrames() => ExtendedFrames(Read(EnemyExtendedFrameDefinitions.FileName));
+
+    /// <summary>The enemies' extended frames, from the document's <paramref name="installed"/> bytes.</summary>
+    /// <exception cref="InvalidDataException">A frame is invalid.</exception>
+    private EnemyExtendedFrameCatalog ExtendedFrames(byte[] installed)
     {
         try
         {
-            return EnemyExtendedFrameDocuments.Load(new MemoryStream(
-                Read(EnemyExtendedFrameDefinitions.FileName), writable: false));
+            return EnemyExtendedFrameDocuments.Load(new MemoryStream(installed, writable: false));
         }
         catch (InvalidDataException error)
         {
@@ -412,7 +440,7 @@ internal sealed class EnemyTileArtworkReader
 
     /// <summary>The gunship's takeoff frames.</summary>
     /// <exception cref="InvalidDataException">The manifest omits a frame, or an installed file is invalid.</exception>
-    internal GunshipLiftoffArtworkCatalog GunshipLiftoff()
+    internal GunshipLiftoffArtworkCatalog GunshipLiftoff(string importData)
     {
         var gunshipFrames = new RoomCharacterAtlas[
             GunshipLiftoffTransferDefinitions.Frames.Length];
@@ -423,7 +451,7 @@ internal sealed class EnemyTileArtworkReader
                 throw new InvalidDataException(
                     $"Enemy tile manifest omits gunship takeoff frame {index}.");
             string fileName = EnemyTileArtworkFormat.GunshipLiftoffFileName(index);
-            byte[] selected = Read(fileName);
+            byte[] selected = ReadPage(importData, fileName);
             try
             {
                 gunshipFrames[index] = RoomCharacterAtlasPng.Read(
@@ -441,7 +469,7 @@ internal sealed class EnemyTileArtworkReader
 
     /// <summary>The Torizos' instruction tile pages.</summary>
     /// <exception cref="InvalidDataException">The manifest omits a page, or an installed file is invalid.</exception>
-    internal TorizoSwapArtwork TorizoSwaps()
+    internal TorizoSwapArtwork TorizoSwaps(string importData)
     {
         var torizoPages = new RoomCharacterAtlas[
             TorizoSwapArtworkDefinitions.All.Length];
@@ -453,7 +481,7 @@ internal sealed class EnemyTileArtworkReader
                     out string? expectedHash) || string.IsNullOrWhiteSpace(expectedHash))
                 throw new InvalidDataException(
                     $"Enemy tile manifest omits Torizo page {page.FileName}.");
-            byte[] selected = Read(page.FileName);
+            byte[] selected = ReadPage(importData, page.FileName);
             try
             {
                 torizoPages[index] = RoomCharacterAtlasPng.Read(
@@ -471,7 +499,7 @@ internal sealed class EnemyTileArtworkReader
 
     /// <summary>The Ceres escape's tile pages.</summary>
     /// <exception cref="InvalidDataException">The manifest omits a page, or an installed file is invalid.</exception>
-    internal CeresEscapeTileArtwork CeresEscapeTiles()
+    internal CeresEscapeTileArtwork CeresEscapeTiles(string importData)
     {
         var ceresEscapePages = new RoomCharacterAtlas[
             CeresEscapeTileArtworkDefinitions.All.Length];
@@ -483,7 +511,7 @@ internal sealed class EnemyTileArtworkReader
                     out string? expectedHash) || string.IsNullOrWhiteSpace(expectedHash))
                 throw new InvalidDataException(
                     $"Enemy tile manifest omits Ceres escape page {page.FileName}.");
-            byte[] selected = Read(page.FileName);
+            byte[] selected = ReadPage(importData, page.FileName);
             try
             {
                 ceresEscapePages[index] = RoomCharacterAtlasPng.Read(
@@ -519,11 +547,11 @@ internal sealed class EnemyTileArtworkReader
 
     /// <summary>Mother Brain's corpse characters.</summary>
     /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
-    internal RoomCharacterAtlas MotherBrainCorpse()
+    internal RoomCharacterAtlas MotherBrainCorpse(string importData)
     {
         try
         {
-            byte[] selected = Read(
+            byte[] selected = ReadPage(importData,
                 MotherBrainCorpseSheet.FileName);
             return RoomCharacterAtlasPng.Read(
                 new MemoryStream(selected, writable: false),
@@ -539,11 +567,11 @@ internal sealed class EnemyTileArtworkReader
 
     /// <summary>Mother Brain's escape-text characters.</summary>
     /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
-    internal RoomCharacterAtlas MotherBrainEscapeText()
+    internal RoomCharacterAtlas MotherBrainEscapeText(string importData)
     {
         try
         {
-            byte[] selected = Read(
+            byte[] selected = ReadPage(importData,
                 EscapeTextSheetFormat.FileName);
             return RoomCharacterAtlasPng.Read(
                 new MemoryStream(selected, writable: false),
@@ -559,7 +587,7 @@ internal sealed class EnemyTileArtworkReader
 
     /// <summary>Mother Brain's special sprite sheets.</summary>
     /// <exception cref="InvalidDataException">The manifest omits a sheet, or an installed file is invalid.</exception>
-    internal MotherBrainSpecialSpriteArtworkCatalog MotherBrainSpecialSprites()
+    internal MotherBrainSpecialSpriteArtworkCatalog MotherBrainSpecialSprites(string importData)
     {
         var motherBrainSpecialSheets = new Dictionary<MotherBrainSpriteSheet, RoomCharacterAtlas>();
         foreach (MotherBrainSpecialSpriteSheetDefinition sheet in
@@ -572,7 +600,7 @@ internal sealed class EnemyTileArtworkReader
                     $"Enemy tile manifest omits {sheet.FileName}.");
             try
             {
-                byte[] selected = Read(sheet.FileName);
+                byte[] selected = ReadPage(importData, sheet.FileName);
                 motherBrainSpecialSheets.Add(sheet.Sheet,
                     RoomCharacterAtlasPng.Read(
                         new MemoryStream(selected, writable: false), sheet.ByteCount));
@@ -590,7 +618,7 @@ internal sealed class EnemyTileArtworkReader
 
     /// <summary>Kraid's BG2 pages, heads and room background.</summary>
     /// <exception cref="InvalidDataException">An installed file is invalid.</exception>
-    internal KraidBackgroundArtwork KraidBackground()
+    internal KraidBackgroundArtwork KraidBackground(string importData)
     {
         RoomBackgroundTilemapAtlas upperKraid = LoadKraidTilemap(
             KraidBackgroundArtworkFormat.UpperFileName);
@@ -613,7 +641,7 @@ internal sealed class EnemyTileArtworkReader
             }
         }
         string roomBackgroundName = KraidBackgroundArtworkFormat.RoomBackgroundFileName;
-        byte[] roomBackgroundPng = Read(
+        byte[] roomBackgroundPng = ReadPage(importData,
             roomBackgroundName);
         RoomCharacterAtlas roomBackground;
         try
@@ -632,12 +660,15 @@ internal sealed class EnemyTileArtworkReader
 
     /// <summary>Kraid's colours.</summary>
     /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
-    internal KraidColorCatalog KraidColors()
+    internal KraidColorCatalog KraidColors() => KraidColors(Read(KraidColorFormat.FileName));
+
+    /// <summary>Kraid's colours, from the document's <paramref name="installed"/> bytes.</summary>
+    /// <exception cref="InvalidDataException">The document is invalid.</exception>
+    private static KraidColorCatalog KraidColors(byte[] installed)
     {
         try
         {
-            byte[] selected = Read(KraidColorFormat.FileName);
-            return KraidColorFile.Read(new MemoryStream(selected, writable: false));
+            return KraidColorFile.Read(new MemoryStream(installed, writable: false));
         }
         catch (InvalidDataException error)
         {
@@ -648,12 +679,12 @@ internal sealed class EnemyTileArtworkReader
 
     /// <summary>The Ceres door's characters and colours.</summary>
     /// <exception cref="InvalidDataException">An installed file is invalid.</exception>
-    internal CeresDoorSourceArtwork CeresDoor()
+    internal CeresDoorSourceArtwork CeresDoor(string importData)
     {
         try
         {
             return CeresDoorVisualFiles.Load(
-                Read(CeresDoorVisualFormat.TilesFileName),
+                ReadPage(importData, CeresDoorVisualFormat.TilesFileName),
                 Read(CeresDoorVisualFormat.ColorsFileName));
         }
         catch (InvalidDataException error)
@@ -796,4 +827,7 @@ internal sealed class EnemyTileArtworkReader
 
     /// <summary>The installed <paramref name="fileName"/>, as the installation holds it.</summary>
     private byte[] Read(string fileName) => File.ReadAllBytes(Path.Combine(directory, fileName));
+
+    /// <summary>The character or tile page <paramref name="fileName"/> of the import data <paramref name="importData"/> (#1636).</summary>
+    private static byte[] ReadPage(string importData, string fileName) => File.ReadAllBytes(Path.Combine(importData, fileName));
 }

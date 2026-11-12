@@ -55,10 +55,10 @@ internal static class RoomBlockPicturesVerification
     /// </summary>
     /// <summary>The installation's room block sheet inputs, which the boss rooms' characters are read from.</summary>
     private static readonly Lazy<RoomBlockSheetInputs> BossRoomInputs =
-        new(() => RoomBlockSheetInputs.Load(SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation.ContentDirectory));
+        new(() => RoomBlockSheetInputs.Load(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.Directory));
 
     private static readonly Lazy<IReadOnlyDictionary<TilesetDefinition, RoomBlockUploads.TilesetUploads>> TilesetUploads =
-        new(() => RoomBlockUploads.ByTileset(RoomBlockSheetInputs.Load(SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation.ContentDirectory)));
+        new(() => RoomBlockUploads.ByTileset(RoomBlockSheetInputs.Load(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.Directory)));
 
     /// <summary>
     /// In the Landing Site, whose blocks show its load alone, in the Wasteland, whose spikes animate, in the Morph Ball
@@ -635,8 +635,9 @@ internal static class RoomBlockPicturesVerification
 
     /// <summary>The installed characters of the animated-tile frames <paramref name="runtime"/>'s room <paramref name="room"/> can show.</summary>
     private static RoomFxAnimatedTileAtlas AnimatedTilesOf(SuperMetroidRuntime runtime, string room) =>
-        InstalledAreaMapPresentation.RoomFxAnimatedTilesOf(runtime.Artwork.MapPresentation
-            ?? throw new InvalidOperationException($"{room}: the runtime has no installed presentation."));
+        runtime.Artwork.MapPresentation is null ? throw new InvalidOperationException($"{room}: the runtime has no installed presentation.")
+            // The animated tiles' characters are import data no installation holds: the cartridge-derived extraction's (#1636).
+            : ImportAreaMapPresentation.RoomFxAnimatedTilesOf(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps);
 
     /// <summary>
     /// Asserts each picture the displayed BG1 resolves by block identity and appearance (#1431, #1466) paints, pixel for

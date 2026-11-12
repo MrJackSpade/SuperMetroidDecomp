@@ -63,7 +63,8 @@ internal static class ProjectileSheetComposer
     internal static SpriteSheetSources Sources(SamusSheetInputs inputs, SpriteSheetId sheet)
     {
         Ensure.NotNull(inputs);
-        InstalledProjectilePresentation projectiles = inputs.Projectiles;
+        ImportProjectileArtwork artwork = inputs.Projectiles;
+        InstalledProjectilePresentation projectiles = artwork.Presentation;
         RgbColor[] colours;
         SpriteArtwork basePage;
         SamusBeamCombination beams;
@@ -81,7 +82,7 @@ internal static class ProjectileSheetComposer
             beams = Combination(sheet);
             colours = inputs.WithBeams(inputs.RoomLoadSpriteColours(), beams);
         }
-        SpriteArtwork page = new ProjectileObjectPages(basePage, projectiles.BeamTiles, projectiles.TrailTiles).For(beams);
+        SpriteArtwork page = new ProjectileObjectPages(basePage, artwork.BeamTiles, artwork.TrailTiles).For(beams);
 
         var frames = new List<SheetFrameSource>();
         var blank = new List<string>();

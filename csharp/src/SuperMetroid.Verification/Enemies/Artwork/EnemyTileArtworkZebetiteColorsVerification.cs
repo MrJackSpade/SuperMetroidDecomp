@@ -28,7 +28,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
 
     /// <summary>Compares live pulse frames with cartridge colors, then checks the engine gates and malformed asset rejection.</summary>
     internal static void VerifyInstalledZebetiteColors(ISnesAddressSpace bus,
-        string stockDirectory, InstalledEnemyArtwork stock)
+        string stockDirectory, ImportEnemyArtwork stock)
     {
         if (stock.Bosses.ZebetiteColors is null)
             throw new InvalidDataException("Installed enemy artwork lacks Zebetite pulse colors.");
@@ -77,7 +77,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         Console.WriteLine("  Zebetite colors: 16 native RGB5 words, sixteen live pulse calls, full CGRAM, ROM guard, gates and channel rejection pass.");
 
         static RoomEnemySystem Create(
-            ISnesAddressSpace source, InstalledEnemyArtwork artwork)
+            ISnesAddressSpace source, ImportEnemyArtwork artwork)
         {
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
             RoomEnemySlot primarySlot = enemies.SlotTable.Slots[0];
@@ -88,11 +88,11 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         }
 
         // The import's shade of pulse frame <frame> among <artwork>'s Zebetite shades (#1512).
-        static SheetShade Pulse(InstalledEnemyArtwork artwork, int frame) =>
+        static SheetShade Pulse(ImportEnemyArtwork artwork, int frame) =>
             MotherBrainSheetShades.Zebetites(artwork.Bosses).Single(shade => shade.Shade == ZebetiteShades.Pulse(frame));
 
         // The colours the Zebetites show over the seeded colours: the pulse frame last shown, as the import pre-coloured it.
-        static SnesCgram Shown(RoomEnemySystem enemies, InstalledEnemyArtwork artwork)
+        static SnesCgram Shown(RoomEnemySystem enemies, ImportEnemyArtwork artwork)
         {
             SnesCgram cgram = SeedColors();
             if (enemies.ZebetiteBehavior.PulseShown is int frame)

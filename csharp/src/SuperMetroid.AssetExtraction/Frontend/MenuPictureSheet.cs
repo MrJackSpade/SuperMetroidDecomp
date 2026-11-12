@@ -32,7 +32,7 @@ internal static class MenuPictureSheet
         Ensure.NotNull(maps);
         int mapBytes = MapScreenDefinitions.MapTileCount * RoomTileCanvas.CharacterBytes;
         return new ScreenCharacters(TileInkDepth.SixteenColours)
-            .Place(MenuTileSetDefinitions.WorldForegroundFirstTile, InstalledAreaMapPresentation.WorldCharactersOf(maps).ForegroundCharacters())
+            .Place(MenuTileSetDefinitions.WorldForegroundFirstTile, ImportAreaMapPresentation.WorldCharactersOf(maps).ForegroundCharacters())
             .Place(MenuTileSetDefinitions.MenuMapFirstTile, MapCharacterArtwork.Of(maps).Map.Characters[..mapBytes].ToArray());
     }
 

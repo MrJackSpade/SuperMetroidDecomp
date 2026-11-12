@@ -50,7 +50,7 @@ internal static class EndingPostShotVerification
             SuperMetroid.AssetExtraction.Frontend.Ending.EndingFontAtlasExtractor.Extract(bus), writable: false);
         EndingFontCharacters fontAtlas = EndingFontCharacters.Read(fontPng);
         var shot = new EndingPostShot();
-        EndingObjectArtwork objects = RepositoryInstallation.Installation.LoadEndingObjectArt();
+        EndingObjectArtwork objects = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingObjects;
         byte[] tiles = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), 0x99e089, 0x8000);
         byte[] map = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), 0x99ecc4, 0x8000);
         for (int frame = 1; frame <= 216; frame++)

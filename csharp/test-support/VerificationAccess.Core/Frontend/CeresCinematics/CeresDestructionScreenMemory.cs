@@ -32,8 +32,8 @@ internal static class CeresDestructionScreenMemory
         var mode7 = new Mode7Vram(vram);
         var ceres = new CeresVram(vram);
         var views = new byte[CeresFloorShotDefinitions.MapCells];
-        CeresFlightCharacters.Of(artwork.CeresFlight).FloorMaps.Span.CopyTo(views);
-        IntroCinematicSourceArtwork.Of(artwork).CeresDestructionMaps.Views.Span[..(views.Length - CeresFlightCharacters.Of(artwork.CeresFlight).FloorMaps.Length)].CopyTo(views.AsSpan(CeresFlightCharacters.Of(artwork.CeresFlight).FloorMaps.Length));
+        CeresFlightSourceArtwork.Of(artwork.CeresFlight).FloorMaps.Span.CopyTo(views);
+        IntroCinematicSourceArtwork.Of(artwork).CeresDestructionMaps.Views.Span[..(views.Length - CeresFlightSourceArtwork.Of(artwork.CeresFlight).FloorMaps.Length)].CopyTo(views.AsSpan(CeresFlightSourceArtwork.Of(artwork.CeresFlight).FloorMaps.Length));
         if (floor is not null || clearedWithSamusAboard)
         {
             mode7.LoadCharacters(artwork.CeresFlight.FloorCharacters.Span[..CeresFlightArtworkFileFormat.FloorByteCount]);
@@ -51,7 +51,7 @@ internal static class CeresDestructionScreenMemory
             ceres.ObjectCharacters.Load(CeresDestructionObjectPage.Characters(artwork, zebesRevealed));
         }
         if (zebesRevealed)
-            ceres.ZebesTilemap.Load(IntroCinematicSourceArtwork.Of(artwork).ZebesReveal.Map.Bytes.Span[..ZebesRevealArtworkFormat.MapByteCount]);
+            ceres.ZebesTilemap.Load(ImportIntroCinematicArtwork.Imported(artwork).ZebesReveal.Map.Bytes.Span[..ZebesRevealArtworkFormat.MapByteCount]);
         return vram.CaptureImage();
     }
 

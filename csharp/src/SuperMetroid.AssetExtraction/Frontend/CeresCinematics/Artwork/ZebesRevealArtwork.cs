@@ -5,8 +5,8 @@ using SuperMetroid.AssetExtraction.Rooms.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>
-/// The Zebes reveal's editable tilemap and characters (#1467), which the import pictures the planet from; the game draws
-/// that installed picture and reads neither.
+/// The Zebes reveal's tilemap and characters (#1467), which the import pictures the planet from; the game draws that
+/// installed picture and reads neither. The characters are import data the installation never holds (#1636).
 /// </summary>
 public sealed class ZebesRevealArtwork
 {
@@ -29,9 +29,17 @@ public sealed class ZebesRevealArtwork
     public static ZebesRevealArtwork Load(Stream mapJson, RoomCharacterAtlas characters)
     {
         Ensure.NotNull(mapJson);
+        return Of(RoomBackgroundTilemapAtlas.Load(mapJson, ZebesRevealArtworkFormat.MapByteCount), characters);
+    }
+
+    /// <summary>The Zebes reveal of the installed tilemap <paramref name="map"/> and the import's <paramref name="characters"/>.</summary>
+    /// <exception cref="InvalidDataException">The characters are not $4000 bytes.</exception>
+    public static ZebesRevealArtwork Of(RoomBackgroundTilemapAtlas map, RoomCharacterAtlas characters)
+    {
+        Ensure.NotNull(map);
         Ensure.NotNull(characters);
         if (characters.Characters.Length != ZebesRevealArtworkFormat.CharacterByteCount)
             throw new InvalidDataException($"Zebes reveal characters hold {characters.Characters.Length} bytes; expected {ZebesRevealArtworkFormat.CharacterByteCount}.");
-        return new ZebesRevealArtwork(RoomBackgroundTilemapAtlas.Load(mapJson, ZebesRevealArtworkFormat.MapByteCount), characters);
+        return new ZebesRevealArtwork(map, characters);
     }
 }

@@ -28,7 +28,7 @@ internal static class EndingRewardGestureVerification
         Suite(nameof(VerifyEndingLogo), () => VerifyEndingLogo(bus));
         Suite(nameof(VerifyEndingCloudMotion), () => VerifyEndingCloudMotion());
         var uploadBus = NewEndingRewardUploadDefinitionReadGuard(bus);
-        EndingFloorCharacters rewardArtwork = RepositoryInstallation.Installation.LoadEndingMode7Art();
+        EndingFloorCharacters rewardArtwork = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingFloors;
         byte[] expectedGraphics = RomDataReader.Decompress(bus,
             EndingSourceDefinitions.Artwork.PostCreditsFloorCharacters,
             EndingSourceDefinitions.Artwork.DecompressionLimit);
@@ -57,7 +57,7 @@ internal static class EndingRewardGestureVerification
             () => SuperMetroid.AssetExtraction.Frontend.Ending.EndingVramDestinationsConstants.RewardChunkWordOf(-1),
             "reward icon destination rejects a negative transfer");
         var rewardBus = NewEndingRewardDefinitionReadGuard(bus);
-        var rewardSprites = CinematicSheetFixtures.Drawer(RepositoryInstallation.Installation.LoadEndingObjectArt().RewardSprites);
+        var rewardSprites = CinematicSheetFixtures.Drawer(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingObjects.RewardSprites);
         foreach (EndingReward reward in Enum.GetValues<EndingReward>())
         {
             var gesture = new EndingRewardGesture(reward);

@@ -1,7 +1,4 @@
-﻿using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Rooms.Artwork;
-
-namespace SuperMetroid.AssetExtraction.Enemies;
+﻿namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Verification access to <see cref="GunshipLiftoffArtworkCatalog"/> members production does not use.</summary>
 internal static class GunshipLiftoffArtworkCatalogAccess

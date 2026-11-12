@@ -1,7 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.AssetExtraction.Artwork;
-
-namespace SuperMetroid.AssetExtraction.Enemies;
+﻿namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Verification access to <see cref="EnemyProjectileSpritemapCatalog"/> members production does not use.</summary>
 internal static class EnemyProjectileSpritemapCatalogAccess

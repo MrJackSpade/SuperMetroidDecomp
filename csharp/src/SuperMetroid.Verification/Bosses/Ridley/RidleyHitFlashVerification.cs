@@ -6,7 +6,6 @@ using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Drawing;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Bosses.Ridley;

@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
-using SuperMetroid.Core;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;

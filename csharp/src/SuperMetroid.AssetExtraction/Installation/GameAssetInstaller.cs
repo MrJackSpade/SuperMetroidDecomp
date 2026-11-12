@@ -1,4 +1,3 @@
-using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Artwork;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Audio;

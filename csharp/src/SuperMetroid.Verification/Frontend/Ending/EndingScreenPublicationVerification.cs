@@ -3,7 +3,6 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Diagnostics.SaveStates;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

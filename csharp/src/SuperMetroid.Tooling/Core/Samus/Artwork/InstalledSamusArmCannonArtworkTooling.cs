@@ -1,6 +1,4 @@
-using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 namespace SuperMetroid.Core.Samus.Artwork;
 

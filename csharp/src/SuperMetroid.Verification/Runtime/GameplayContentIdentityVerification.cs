@@ -1,15 +1,12 @@
 using SuperMetroid.Core.Samus.Abilities.Artwork;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Rooms.Xray;
 using SuperMetroid.AssetExtraction.Installation;
 namespace SuperMetroid.Verification.Runtime;
+
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 /// <summary>Checks canonical hashes for X-ray visuals; the standard OBJ characters are import data no identity covers (#1636).</summary>
 internal static class GameplayContentIdentityVerification

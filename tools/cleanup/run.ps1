@@ -29,6 +29,7 @@ $solution = 'csharp/SuperMetroid.Full.slnx'
 $FixedRuleWords = [ordered]@{
     IDE0004 = 'redundant casts removed'
     IDE0005 = 'unused usings removed'
+    IDE0032 = 'auto-properties used'
     IDE0044 = 'fields made read-only'
     IDE0076 = 'invalid suppression targets removed'
     IDE0077 = 'legacy suppression targets updated'

@@ -116,7 +116,7 @@ internal sealed class SolutionFixer
 
     /// <summary>The order rules are applied in within a file: suppressions first, then code, then the usings that
     /// the other fixes can leave unnecessary.</summary>
-    private static readonly string[] RuleOrder = ["IDE0076", "IDE0077", "IDE0004", "IDE0044", "IDE0005"];
+    private static readonly string[] RuleOrder = ["IDE0076", "IDE0077", "IDE0004", "IDE0032", "IDE0044", "IDE0005"];
 
     /// <summary>The rule of the automatically fixed group that no command-line analyzer reports (README.md).</summary>
     private const string UnnecessarySuppression = "IDE0079";

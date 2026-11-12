@@ -36,7 +36,7 @@ developer's checkout, with its own `bin`/`obj` and its own `temp\`), `config.jso
 
 1. **Restore** the solution and **build the reachability audit in Release** through `tools/build.ps1`.
 2. **Fix and prune, taking turns, until one of each in a row changes nothing:**
-   - **Code fixes:** `dotnet run tools/cleanup/CodeFixRunner.cs -- csharp/SuperMetroid.Full.slnx <summary.json> IDE0004,IDE0005,IDE0044,IDE0076,IDE0077`.
+   - **Code fixes:** `dotnet run tools/cleanup/CodeFixRunner.cs -- csharp/SuperMetroid.Full.slnx <summary.json> IDE0004,IDE0005,IDE0032,IDE0044,IDE0076,IDE0077`.
      `run.ps1` reads the rules from `csharp/.editorconfig`: the `none` lines directly under the comment that names
      this cleanup, less IDE0079 (below). A rule there that `run.ps1` has no commit-message words for, or words for a
      rule not there, fails the run.
@@ -70,7 +70,7 @@ prompts are disabled (`GCM_INTERACTIVE=never`), so a missing credential fails th
 `CodeFixRunner.cs` loads every project into one MSBuildWorkspace, runs each project's own code-style analyzers with
 its own configuration, and applies Roslyn's code-style fixers (the same fixers `dotnet format style` uses) through
 their fix-all providers, given exactly the findings chosen. On a fixture it produces byte-identical output to
-`dotnet format style --diagnostics IDE0004 IDE0005 IDE0044 IDE0076 IDE0077 --severity info`.
+`dotnet format style --diagnostics IDE0004 IDE0005 IDE0032 IDE0044 IDE0076 IDE0077 --severity info`.
 
 Since the group is at `none`, the runner enables exactly the requested rules, as warnings, in its own analysis: in
 the compilation's per-file diagnostic options (where the `.editorconfig` severity would otherwise win over any

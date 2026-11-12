@@ -24,7 +24,6 @@ dotnet_diagnostic.CA1512.severity = error
 dotnet_diagnostic.CA1822.severity = error
 dotnet_diagnostic.CA1859.severity = error
 dotnet_diagnostic.CA1826.severity = error
-dotnet_diagnostic.IDE0032.severity = error
 dotnet_diagnostic.IDE0060.severity = error
 dotnet_diagnostic.IDE0059.severity = error
 dotnet_diagnostic.IDE0051.severity = error
@@ -48,6 +47,7 @@ dotnet_diagnostic.SYSLIB1054.severity = error
 # At none the build skips their analyzers, so they cost no build time; tools/cleanup/run.ps1 reads this group from here.
 dotnet_diagnostic.IDE0004.severity = none
 dotnet_diagnostic.IDE0005.severity = none
+dotnet_diagnostic.IDE0032.severity = none
 dotnet_diagnostic.IDE0044.severity = none
 dotnet_diagnostic.IDE0076.severity = none
 dotnet_diagnostic.IDE0077.severity = none

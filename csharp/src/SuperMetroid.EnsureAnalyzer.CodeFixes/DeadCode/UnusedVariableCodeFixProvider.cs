@@ -55,7 +55,7 @@ public sealed class UnusedVariableCodeFixProvider : DocumentFixProvider
                     throw new CleanupFailure(diagnostic, $"the variable is declared by a {identifier.Parent?.Kind()}");
             }
         }
-        LocalDeclarations.Remove(edits, declarators, node => sites[node]);
+        VariableDeclarations.Remove(edits, declarators, node => sites[node]);
         return document.WithText(edits.Apply()).Project.Solution;
     }
 }

@@ -1,15 +1,16 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Text;
 using SuperMetroid.EnsureAnalyzer.CodeFixes.Cleanup;
 
 namespace SuperMetroid.EnsureAnalyzer.CodeFixes.DeadCode;
 
-/// <summary>Removes variables from local declarations: the whole statement when none is left, or the removed
-/// declarators from the declaration's list.</summary>
-internal static class LocalDeclarations
+/// <summary>Removes variables from their declarations (locals, <c>for</c> initializers, fields and field-like events):
+/// the whole declaration when none is left, or the removed declarators from the declaration's list.</summary>
+internal static class VariableDeclarations
 {
-    /// <summary>Removes <paramref name="removed"/>, declarators of local or <c>for</c> declarations, from their
-    /// declarations; <paramref name="diagnostic"/> names the site of a declaration this cannot edit.</summary>
+    /// <summary>Removes <paramref name="removed"/> from their declarations; <paramref name="diagnostic"/> names the site
+    /// of a declaration this cannot edit.</summary>
     internal static void Remove(SourceEdits edits, IEnumerable<VariableDeclaratorSyntax> removed, Func<SyntaxNode, Diagnostic> diagnostic)
     {
         foreach (var group in removed.GroupBy(declarator => declarator.Parent))
@@ -20,7 +21,7 @@ internal static class LocalDeclarations
             var kept = declaration.Variables.Where(variable => !gone.Contains(variable)).ToList();
             if (kept.Count > 0)
             {
-                var list = Microsoft.CodeAnalysis.Text.TextSpan.FromBounds(declaration.Variables[0].SpanStart, declaration.Variables[declaration.Variables.Count - 1].Span.End);
+                var list = TextSpan.FromBounds(declaration.Variables[0].SpanStart, declaration.Variables[declaration.Variables.Count - 1].Span.End);
                 edits.Replace(list, string.Join(", ", kept.Select(variable => variable.ToString())));
                 continue;
             }
@@ -28,6 +29,9 @@ internal static class LocalDeclarations
             {
                 case LocalDeclarationStatementSyntax statement:
                     edits.Remove(statement);
+                    break;
+                case BaseFieldDeclarationSyntax field:
+                    edits.Remove(field);
                     break;
                 case ForStatementSyntax:
                     edits.Replace(declaration.Span, string.Empty);

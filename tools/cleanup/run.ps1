@@ -29,6 +29,7 @@ $solution = 'csharp/SuperMetroid.Full.slnx'
 # the run, so the two never drift apart silently.
 $FixedRuleWords = [ordered]@{
     CS0168 = 'unused variables removed'
+    CS0219 = 'unread constant locals removed'
     IDE0004 = 'redundant casts removed'
     IDE0005 = 'unused usings removed'
     IDE0032 = 'auto-properties used'

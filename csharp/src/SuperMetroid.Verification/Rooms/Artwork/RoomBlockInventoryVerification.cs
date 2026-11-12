@@ -69,6 +69,12 @@ internal static class RoomBlockInventoryVerification
         InventoriedRoomState ceres = holder with { Area = AreaId.Ceres };
         AssertTrue(RoomBlockInventory.Of([ceres], writers).Shown(holding).SetEquals([PlacedBlock]),
             "a Ceres room's inventory holds only what its level places, as nothing writes blocks there");
+
+        // The elevator shaft's screen is its turning floor alone, so a state running its room main shows none of the blocks
+        // its level places (#1647), though its tileset is still inventoried.
+        InventoriedRoomState shaft = ceres with { MainCallback = RoomMainCallback.CeresElevatorShaft };
+        AssertTrue(RoomBlockInventory.Of([shaft], writers).Shown(holding).Count == 0,
+            "a state showing the elevator shaft's floor shows none of its level's blocks");
         Console.WriteLine("Room block inventory: a writer's blocks count for the room states whose installed data holds its start, and for no other.");
     }
 

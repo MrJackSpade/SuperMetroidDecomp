@@ -19,6 +19,13 @@ public sealed class RoomBlockPictureTable
         this.pictures = Ensure.NotNull(pictures);
     }
 
+    /// <summary>
+    /// The table of a room whose frame draws none of its level's blocks: the Ceres elevator shaft, whose screen is its turning
+    /// floor (#1647). No block has a picture.
+    /// </summary>
+    /// <param name="sheet">The tileset's sheet.</param>
+    internal static RoomBlockPictureTable NoneDrawn(RoomBlockSheet sheet) => new(sheet, new LayeredPicture?[CollectibleCellPictures.End]);
+
     /// <summary>The tileset's sheet the pictures come from.</summary>
     public RoomBlockSheet Sheet { get; }
 

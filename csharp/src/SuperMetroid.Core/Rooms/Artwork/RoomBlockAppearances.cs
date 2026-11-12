@@ -33,9 +33,12 @@ public sealed class RoomBlockAppearances
     /// Each block's inputs over the sprites' artwork, by block index, empty for a block no room shows; or null where no room
     /// of the tileset shows that artwork.
     /// </param>
-    /// <param name="shownBlocks">The blocks some room of the tileset shows, which alone have pictures.</param>
+    /// <param name="shownBlocks">
+    /// The blocks some room of the tileset shows, which alone have pictures; none for a tileset whose rooms show only their
+    /// turning floor, the Ceres elevator shaft's (#1647).
+    /// </param>
     /// <exception cref="InvalidDataException">
-    /// The tileset has no blocks or shows none, the two artworks describe different blocks, a shown block lies outside them,
+    /// The tileset has no blocks, the two artworks describe different blocks, a shown block lies outside them,
     /// or a block no room shows depends on an input.
     /// </exception>
     public RoomBlockAppearances(IReadOnlyList<ImmutableArray<AppearanceInput>> tileset, IReadOnlyList<ImmutableArray<AppearanceInput>>? sprites,
@@ -56,8 +59,6 @@ public sealed class RoomBlockAppearances
                 throw new InvalidDataException($"A tileset's block appearances show block {block}, not among its {shown.Length} blocks.");
             shown[block] = true;
         }
-        if (!shown.Contains(true))
-            throw new InvalidDataException("A tileset's block appearances show no block.");
         for (int block = 0; block < shown.Length; block++)
         {
             if (!shown[block] && (!this.tileset[block].IsEmpty || this.sprites?[block].IsEmpty == false))

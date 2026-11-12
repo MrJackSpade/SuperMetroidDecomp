@@ -15,12 +15,18 @@ public static class RoomTurningFloors
     public static RoomTurningFloor Of(RoomStateSettings state)
     {
         Ensure.NotNull(state);
-        if (state.MainCallback == RoomMainCallback.CeresElevatorShaft)
+        if (ShowsShaftFloor(state.MainCallback))
             return RoomTurningFloor.ElevatorShaft;
         // Only the Ceres Ridley fight's population starts his retreat, and with it the getaway's floor.
         return ReferenceEquals(state.EnemyPopulation, RoomEnemyPopulationDefinitions.CeresRidleyDefault)
             ? RoomTurningFloor.RidleyGetaway : RoomTurningFloor.None;
     }
+
+    /// <summary>
+    /// Whether a state running <paramref name="main"/> shows the elevator shaft's floor. Such a state draws none of its level's
+    /// blocks: the shaft's screen is its turning floor alone (#1647).
+    /// </summary>
+    public static bool ShowsShaftFloor(RoomMainCallback main) => main == RoomMainCallback.CeresElevatorShaft;
 
     /// <summary>Whether <paramref name="state"/> shows a turning floor.</summary>
     public static bool ShowsOne(RoomStateSettings state) => Of(state) != RoomTurningFloor.None;

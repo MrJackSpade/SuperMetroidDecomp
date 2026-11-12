@@ -53,6 +53,9 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
     /// <summary>Whether the state's room lies in Ceres, whose rooms load no common room elements and place no room objects.</summary>
     internal bool InCeres => Area == AreaId.Ceres;
 
+    /// <summary>Whether the state draws its level's blocks: every state but the Ceres elevator shaft's, whose screen is its Mode 7 floor (#1647).</summary>
+    internal bool DrawsLevel => !RoomTurningFloors.ShowsShaftFloor(MainCallback);
+
     /// <summary>Whether a block of the state's terrain collides as <paramref name="collision"/> and selects <paramref name="reaction"/>.</summary>
     internal bool Holds(RoomCollisionType collision, BlockReaction reaction) => Terrain.Contains(new(collision, reaction));
 

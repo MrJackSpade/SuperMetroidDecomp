@@ -62,6 +62,9 @@ internal sealed class RoomBlockInventory
             Ensure.NotNull(state);
             if (!shown.TryGetValue(state.Tileset, out SortedSet<int>? blocks))
                 shown.Add(state.Tileset, blocks = []);
+            // A state whose screen is the Mode 7 floor shows none of its level's blocks (#1647).
+            if (!state.DrawsLevel)
+                continue;
             blocks.UnionWith(state.Placed);
             if (state.InCeres)
                 continue;

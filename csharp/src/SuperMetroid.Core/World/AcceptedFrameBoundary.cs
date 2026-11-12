@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Assets;
@@ -246,9 +247,12 @@ internal sealed class AcceptedFrameBoundary
         // the Ceres Ridley arena, the looks shown on the sprites' artwork (#1466).
         var appearance = new RoomAppearanceView(scope.Appearance, scope.ArtworkFrames, _enemySession.Looks);
         // The planes the latch shows are the level data's, which nothing changes before this frame boundary's pictures resolve.
-        RoomBlockPictureTable pictures = scope.BlockPictures.Resolve(scope.LevelData.ForegroundPlane,
-            rooms.Background is null ? null : scope.LevelData.BackgroundPlane, rooms.BlockArtwork, appearance,
-            reveal?.Blocks.OfType<RevealedBlock>().Select(block => block.Definition) ?? []);
+        // The elevator shaft's screen is its turning floor alone: it draws none of its level's blocks (#1647).
+        RoomBlockPictureTable pictures = RoomTurningFloors.ShowsShaftFloor(scope.Room.State.MainCallback)
+            ? RoomBlockPictureTable.NoneDrawn(scope.Assets.BlockSheet)
+            : scope.BlockPictures.Resolve(scope.LevelData.ForegroundPlane,
+                rooms.Background is null ? null : scope.LevelData.BackgroundPlane, rooms.BlockArtwork, appearance,
+                reveal?.Blocks.OfType<RevealedBlock>().Select(block => block.Definition) ?? []);
         // A sky room's background shows the sky's rows, drawn from their image (#1392, #1403), once the room has configured the
         // sky's bands; without them, background shows the room's own background.
         SkyPictures? sky = null;

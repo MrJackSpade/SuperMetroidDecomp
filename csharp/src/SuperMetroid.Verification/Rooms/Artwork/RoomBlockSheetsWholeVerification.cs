@@ -45,9 +45,13 @@ internal static class RoomBlockSheetsWholeVerification
                 if (!sheet.Inputs.Shows(block))
                     continue;
                 blocks++;
-                ImmutableArray<AppearanceInput> inputs = sheet.Inputs.Of(block, RoomBlockArtwork.Tileset);
-                foreach (AppearanceInput input in inputs.Where(input => input is not (AnimationAppearance or KraidBackdropAppearance or EncounterLookAppearance)))
-                    failures.Add($"{name}: block {Hex(block)} depends on {input.Token}, which shows no artwork over a room's blocks");
+                // Each artwork the tileset's rooms show their blocks over has its own pictures of them (#1648).
+                foreach (RoomBlockArtwork artwork in Enum.GetValues<RoomBlockArtwork>().Where(sheet.Inputs.ShowsOver))
+                {
+                    ImmutableArray<AppearanceInput> inputs = sheet.Inputs.Of(block, artwork);
+                    foreach (AppearanceInput input in inputs.Where(input => input is not (AnimationAppearance or KraidBackdropAppearance or EncounterLookAppearance)))
+                        failures.Add($"{name}: block {Hex(block)} depends on {input.Token} over {artwork}, which shows no artwork over a room's blocks");
+                }
             }
             foreach (CollectiblePicture collectible in Enum.GetValues<InWorldCollectibleKind>().Where(CollectibleObjects.ShowsOwnPicture)
                 .SelectMany(kind => Enumerable.Range(0, CollectiblePicture.Frames).Select(frame => new CollectiblePicture(kind, frame))))

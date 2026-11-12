@@ -12,10 +12,12 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// Pre-assembles and pre-colours each tileset's room blocks (#1392, #1431, #1466, #1513): every block its rooms show, as the
-/// import's inventory of them finds (#1636, <see cref="RoomBlockInventory"/>), and no other block its rooms load, once
-/// from its own tiles and again for each value each appearance input that shows other artwork over the characters it
-/// reads can take (an animation's frame, Kraid's backdrop, an encounter's look), and each frame of each collectible the
-/// tileset's rooms place that shows its own picture, pictured from the collectible's own graphics alone (#1538). No block
+/// import's inventory of them finds (#1636, <see cref="RoomBlockInventory"/>), and no other block its rooms load, over
+/// each artwork its rooms show their blocks over and no other (the tileset's own, or the sprites' in Ceres Ridley's arena,
+/// #1648), once as that artwork leaves the characters it reads and again for each value each appearance input that shows
+/// other artwork over them can take (an animation's frame, Kraid's backdrop, an encounter's look), and each frame of each
+/// collectible the tileset's rooms place that shows its own picture, pictured from the collectible's own graphics alone
+/// (#1538). No block
 /// is pictured over a collectible's graphics. Each picture is coloured with the tileset's standard background palette and
 /// named by <see cref="RoomBlockPictureNames"/> from the block's index and the inputs' values, or from the collectible's
 /// kind and frame; with the inputs each block depends on, which the room reads to choose among them. Each block, cell and
@@ -164,9 +166,9 @@ internal static class RoomBlockSheetComposer
         RgbColor[] colours = RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette));
 
         var pictures = new Dictionary<string, Picture>(StringComparer.Ordinal);
-        // Only the blocks some room of the tileset shows are pictured, over each artwork its rooms show them over; every other
-        // block it loads has no picture and depends on nothing (#1636).
-        ImmutableArray<AppearanceInput>[] tilesetInputs = NoInputs(blocks.Characters.Count);
+        // Only the blocks some room of the tileset shows are pictured, over each artwork its rooms show them over and no other
+        // (#1648); every other block it loads has no picture and depends on nothing (#1636).
+        ImmutableArray<AppearanceInput>[]? tilesetInputs = uploads.ShowsTilesetArtwork ? NoInputs(blocks.Characters.Count) : null;
         ImmutableArray<AppearanceInput>[]? spriteInputs = objectPage is null ? null : NoInputs(blocks.Characters.Count);
         foreach (int block in shownBlocks.Order())
         {
@@ -174,7 +176,8 @@ internal static class RoomBlockSheetComposer
                 throw new InvalidDataException(
                     $"A room of tileset {RoomBlockSheet.NameOf(tileset)} shows block {block}, past the {blocks.Characters.Count} blocks its rooms load.");
             BackgroundTile[] tiles = blocks.TilesOf(block).ToArray();
-            tilesetInputs[block] = AddBlock(block, RoomBlockArtwork.Tileset, blocks.Characters.RunsOf(block), tiles, options, loaded);
+            if (tilesetInputs is not null)
+                tilesetInputs[block] = AddBlock(block, RoomBlockArtwork.Tileset, blocks.Characters.RunsOf(block), tiles, options, loaded);
             if (spriteInputs is not null)
                 spriteInputs[block] = AddBlock(block, RoomBlockArtwork.Sprites, blocks.Characters.RunsOf(block), tiles, looks, objectPage);
         }

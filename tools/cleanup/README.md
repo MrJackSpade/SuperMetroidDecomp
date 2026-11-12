@@ -37,9 +37,9 @@ developer's checkout, with its own `bin`/`obj` and its own `temp\`), `config.jso
 1. **Restore** the solution, **build the reachability audit in Release** and **the repository's analyzer and code fixes`n   in Debug** (`csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes`) through `tools/build.ps1`. The code fixes load the
    repository's analyzer and fixers from the projects' Debug references, so they must be built first.
 2. **Fix and prune, taking turns, until one of each in a row changes nothing:**
-   - **Code fixes:** `dotnet run tools/cleanup/CodeFixRunner.cs -- csharp/SuperMetroid.Full.slnx <summary.json> CS0168,IDE0004,IDE0005,IDE0032,IDE0044,IDE0076,IDE0077,SME6391`.
+   - **Code fixes:** `dotnet run tools/cleanup/CodeFixRunner.cs -- csharp/SuperMetroid.Full.slnx <summary.json> CS0168,IDE0004,IDE0005,IDE0032,IDE0044,IDE0076,IDE0077,IDE0079,SME6391`.
      `run.ps1` reads the rules from `csharp/.editorconfig`: the `none` lines directly under the comment that names
-     this cleanup, less IDE0079 (below). A rule there that `run.ps1` has no commit-message words for, or words for a
+     this cleanup. A rule there that `run.ps1` has no commit-message words for, or words for a
      rule not there, fails the run.
    - **Dead code:** `dotnet run --project csharp/src/SuperMetroid.ReachabilityAudit -c Release --no-build -- --solution csharp/SuperMetroid.Full.slnx --prune-keeping-verification-used unreachable-member,unreachable-type,unreferenced-field,unreferenced-enum-member,unreferenced-constant --path-prefix csharp/src --to csharp/test-support/VerificationAccess.Core --retired-fields <run>\retired-fields-<step>.txt`.
      It deletes dead code tests do not use and moves what they still use into test-support; the next code-fix step
@@ -131,12 +131,17 @@ rule, compares every file (less `bin/`, `obj/` and the two added files) with `ex
 exist, and builds the fixed copy with `tools/build.ps1`. A failed fixture keeps its copy and prints where; the script
 exits nonzero when any fixture fails.
 
-**IDE0079 (unnecessary suppression) is in the automatically fixed group but nothing at the command line can apply
-it.** The code-style package the build and `dotnet format` load has no analyzer that reports it (only the IDE's
-suppression analysis does), so neither `dotnet format style` nor `dotnet format analyzers` changes an unnecessary
-`#pragma` or `[SuppressMessage]`, and the runner refuses to be asked for it, failing with that reason. `run.ps1`
-leaves IDE0079 out of the rules it reads from `csharp/.editorconfig`. At `none` it costs the build nothing, and an
-unnecessary suppression stays until someone removes it by hand.
+**IDE0079 (unnecessary suppression) has no command-line analyzer** (only the IDE's suppression analysis reports it),
+so the runner finds its sites itself. When IDE0079 is requested it runs every analyzer of each project, with the whole
+group enabled in its scope and suppressed diagnostics reported (`CompilationWithAnalyzers`,
+`reportSuppressedDiagnostics: true`). A `[SuppressMessage]` or `[UnconditionalSuppressMessage]` (on a member, or at
+assembly level with a target) is needed when it is the attribute that suppressed a diagnostic; a`n`#pragma warning disable` code is needed when a diagnostic of that id, suppressed by no attribute, lies between it
+and its `restore`. Every other suppression of a rule its file enables is unnecessary, and the repository's
+`UnnecessarySuppressionCodeFixProvider` removes it: a pragma loses the unused codes (and its line, and the matching
+restore's, when none is left), an attribute leaves its list (and the list's line when it was alone). A suppression
+without codes, of an unknown rule, of a rule its file does not enable, or in `obj/` is left alone. A file compiled
+into several projects is edited only where every project agrees. The analysis sees one configuration (Debug), so a
+suppression whose range or member holds code another configuration compiles (an inactive `#if` branch) is kept.
 
 ## Seeing status
 

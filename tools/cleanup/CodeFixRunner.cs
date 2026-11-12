@@ -26,8 +26,10 @@
 // the repository's fixer for it. A project that compiled when the run started and has compiler errors after a pass
 // fails the run, naming the errors.
 //
-// IDE0079 (unnecessary suppression) is in the group, but no command-line analyzer reports it (README.md), so the
-// runner refuses to be asked for it rather than report that it found nothing.
+// IDE0079 (unnecessary suppression) has no command-line analyzer either. When it is requested, the runner runs every
+// analyzer of each project with the whole cleanup group enabled in its scope and suppressed diagnostics reported, and
+// finds each #pragma warning disable code and [SuppressMessage] that suppressed nothing (UnnecessarySuppressions). Only
+// a suppression of a rule enabled in its file is judged; one of an unknown or disabled rule is left alone.
 //
 // A file compiled into several projects (test-support through .projitems, or a <Compile Link>) is edited only where
 // every project compiling it reports the same finding at the same place, and not at all while any of them has a
@@ -153,6 +155,10 @@ internal enum FindingSource
 
     /// <summary>The compiler itself, while it binds: the findings are read from the compilation's own diagnostics.</summary>
     Compiler,
+
+    /// <summary>The runner: a suppression that suppressed nothing in a run of every analyzer with suppressed
+    /// diagnostics reported (<see cref="UnnecessarySuppressions"/>).</summary>
+    UnnecessarySuppression,
 }
 
 /// <summary>A rule the runner applies, what reports it, and where its fixer comes from.</summary>
@@ -177,6 +183,7 @@ internal sealed class SolutionFixer
     [
         new("IDE0076", FindingSource.Analyzer, FixerSource.CodeStyle),
         new("IDE0077", FindingSource.Analyzer, FixerSource.CodeStyle),
+        new("IDE0079", FindingSource.UnnecessarySuppression, FixerSource.Repository),
         new("IDE0004", FindingSource.Analyzer, FixerSource.CodeStyle),
         new("CS0168", FindingSource.Compiler, FixerSource.Repository),
         new("IDE0032", FindingSource.Analyzer, FixerSource.CodeStyle),
@@ -185,7 +192,7 @@ internal sealed class SolutionFixer
         new("IDE0005", FindingSource.Analyzer, FixerSource.CodeStyle),
     ];
 
-    /// <summary>The rule of the automatically fixed group that no command-line analyzer reports (README.md).</summary>
+    /// <summary>The unnecessary-suppression rule, whose findings the runner computes itself.</summary>
     private const string UnnecessarySuppression = "IDE0079";
 
     /// <summary>The unused-using rule, which reports one finding per file covering every unnecessary using.</summary>
@@ -208,9 +215,6 @@ internal sealed class SolutionFixer
         _rules = rules.ToHashSet(StringComparer.Ordinal);
         foreach (string rule in _rules)
         {
-            if (rule == UnnecessarySuppression)
-                throw new ArgumentException($"{rule} has no command-line analyzer: the code-style package reports no unnecessary " +
-                    "suppression outside the IDE, so this runner cannot find its sites (tools/cleanup/README.md).");
             if (!RuleOrder.Any(ordered => ordered.Id == rule))
                 throw new ArgumentException($"{rule} is not one of the rules this runner orders: {string.Join(", ", RuleOrder.Select(r => r.Id))}.");
         }
@@ -333,40 +337,56 @@ internal sealed class SolutionFixer
     }
 
     /// <summary>Compiles one project with the requested rules enabled as warnings where their scope allows, and runs
-    /// its analyzers for the requested analyzer rules; the compiler's own rules come with the compilation.</summary>
+    /// its analyzers for the requested analyzer rules; the compiler's own rules come with the compilation. When
+    /// IDE0079 is requested, every analyzer runs, with the whole cleanup group enabled and suppressed diagnostics
+    /// reported, so that a suppression's use can be seen.</summary>
     private async Task<ProjectAnalysis> AnalyzeProjectAsync(Project project)
     {
         Compilation configured = await project.GetCompilationAsync()
             ?? throw new InvalidOperationException($"{project.Name} produced no compilation.");
         SyntaxTreeOptionsProvider treeOptions = configured.Options.SyntaxTreeOptionsProvider
             ?? throw new InvalidOperationException($"{project.Name} has no per-file analyzer configuration; csharp/.editorconfig is not loaded.");
-        RuleScope scope = await RuleScope.CreateAsync(project, _rules);
+        bool suppressions = _rules.Contains(UnnecessarySuppression);
+        RuleScope scope = await RuleScope.CreateAsync(project, _rules, wholeGroup: suppressions);
         Compilation compilation = configured.WithOptions(configured.Options
             .WithSpecificDiagnosticOptions(configured.Options.SpecificDiagnosticOptions.SetItems(
-                _rules.Select(rule => KeyValuePair.Create(rule, ReportDiagnostic.Warn))))
+                scope.Rules.Select(rule => KeyValuePair.Create(rule, ReportDiagnostic.Warn))))
             .WithSyntaxTreeOptionsProvider(new EnabledRuleTreeOptions(treeOptions, scope)));
         var analyzerOptions = new AnalyzerOptions(project.AnalyzerOptions.AdditionalFiles,
             new EnabledRuleConfigOptions(project.AnalyzerOptions.AnalyzerConfigOptionsProvider, scope));
         var analyzerRules = RuleOrder.Where(rule => rule.Findings == FindingSource.Analyzer && _rules.Contains(rule.Id))
             .Select(rule => rule.Id).ToHashSet(StringComparer.Ordinal);
-        var analyzers = project.AnalyzerReferences
-            .SelectMany(reference => reference.GetAnalyzers(project.Language))
-            .Where(analyzer => analyzer.SupportedDiagnostics.Any(descriptor => analyzerRules.Contains(descriptor.Id)))
-            .ToImmutableArray();
+        var loaded = project.AnalyzerReferences.SelectMany(reference => reference.GetAnalyzers(project.Language)).ToImmutableArray();
+        var analyzers = suppressions
+            ? loaded
+            : loaded.Where(analyzer => analyzer.SupportedDiagnostics.Any(descriptor => analyzerRules.Contains(descriptor.Id))).ToImmutableArray();
         var supported = analyzers.SelectMany(a => a.SupportedDiagnostics).Select(d => d.Id).ToHashSet(StringComparer.Ordinal);
         var unsupported = analyzerRules.Where(rule => !supported.Contains(rule)).Order(StringComparer.Ordinal).ToList();
         if (unsupported.Count > 0)
             throw new InvalidOperationException(
                 $"{project.Name} references no analyzer for {string.Join(", ", unsupported)}; the code-style analyzers are not loaded, " +
                 "or the repository analyzer is not built in the configuration the workspace opens.");
+        if (suppressions && analyzers.IsEmpty)
+            throw new InvalidOperationException($"{project.Name} references no analyzer, so its suppressions' use cannot be seen.");
         // The compiler reports its own rules (CS0168, ...) while it binds; with the rule enabled in the per-file options
         // above, they are among the compilation's diagnostics, which the analyzer run includes.
-        var diagnostics = analyzers.IsEmpty
-            ? compilation.GetDiagnostics()
-            : await compilation.WithAnalyzers(analyzers, analyzerOptions).GetAllDiagnosticsAsync();
-        var errors = diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error && d.Id.StartsWith("CS", StringComparison.Ordinal)).ToList();
+        ImmutableArray<Diagnostic> diagnostics;
+        Compilation analyzed = compilation;
+        if (analyzers.IsEmpty)
+        {
+            diagnostics = compilation.GetDiagnostics();
+        }
+        else
+        {
+            var withAnalyzers = compilation.WithAnalyzers(analyzers, new CompilationWithAnalyzersOptions(analyzerOptions,
+                onAnalyzerException: null, concurrentAnalysis: true, logAnalyzerExecutionTime: false, reportSuppressedDiagnostics: suppressions));
+            diagnostics = await withAnalyzers.GetAllDiagnosticsAsync();
+            analyzed = withAnalyzers.Compilation;
+        }
+        var errors = diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error && !d.IsSuppressed && d.Id.StartsWith("CS", StringComparison.Ordinal)).ToList();
         var findings = new Dictionary<string, List<Diagnostic>>(StringComparer.OrdinalIgnoreCase);
         var fixable = new Dictionary<string, List<Diagnostic>>(StringComparer.OrdinalIgnoreCase);
+        var documents = project.Documents.Select(d => d.FilePath).OfType<string>().ToHashSet(StringComparer.OrdinalIgnoreCase);
         foreach (Diagnostic diagnostic in diagnostics)
         {
             bool finding = _rules.Contains(diagnostic.Id) && diagnostic.Severity != DiagnosticSeverity.Hidden;
@@ -374,12 +394,39 @@ internal sealed class SolutionFixer
             if (!finding && !fixerOnly || diagnostic.IsSuppressed || !diagnostic.Location.IsInSource)
                 continue;
             string path = diagnostic.Location.SourceTree!.FilePath;
-            if (project.Documents.All(d => !string.Equals(d.FilePath, path, StringComparison.OrdinalIgnoreCase)))
+            if (!documents.Contains(path))
                 continue;
             var target = finding ? findings : fixable;
             if (!target.TryGetValue(path, out var list))
                 target[path] = list = [];
             list.Add(diagnostic);
+        }
+        if (suppressions)
+        {
+            var descriptors = loaded.SelectMany(a => a.SupportedDiagnostics).GroupBy(d => d.Id, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
+            bool IsEnabled(SyntaxTree tree, string id)
+            {
+                string? rule = scope.Rules.FirstOrDefault(r => string.Equals(r, id, StringComparison.OrdinalIgnoreCase));
+                if (rule is not null)
+                    return scope.IsEnabled(tree.FilePath, rule);
+                if (treeOptions.TryGetDiagnosticValue(tree, id, CancellationToken.None, out ReportDiagnostic severity) ||
+                    configured.Options.SpecificDiagnosticOptions.TryGetValue(id, out severity) ||
+                    treeOptions.TryGetGlobalDiagnosticValue(id, CancellationToken.None, out severity))
+                    return severity != ReportDiagnostic.Suppress;
+                if (descriptors.TryGetValue(id, out DiagnosticDescriptor? descriptor))
+                    return descriptor.IsEnabledByDefault;
+                return id.StartsWith("CS", StringComparison.OrdinalIgnoreCase);
+            }
+            foreach (Diagnostic unnecessary in UnnecessarySuppressions.Find(analyzed, diagnostics, IsEnabled))
+            {
+                string path = unnecessary.Location.SourceTree!.FilePath;
+                if (!documents.Contains(path))
+                    continue;
+                if (!findings.TryGetValue(path, out var list))
+                    findings[path] = list = [];
+                list.Add(unnecessary);
+            }
         }
         Console.WriteLine($"  analyzed {project.Name}: {findings.Values.Sum(l => l.Count)} findings"
             + (errors.Count > 0 ? $", {errors.Count} compiler errors (its files are left alone)" : ""));
@@ -707,9 +754,10 @@ internal static class CleanupGroup
     /// <summary>One rule of the group.</summary>
     private static readonly Regex Member = new(@"^dotnet_diagnostic\.(\w+)\.severity = none$", RegexOptions.CultureInvariant);
 
-    /// <summary>The configuration text with each requested rule's group line set to warning, adding those rules to
-    /// <paramref name="grouped"/>; a text without the cleanup's comment is returned unchanged.</summary>
-    public static string Enable(string text, IReadOnlySet<string> rules, HashSet<string> grouped, string path)
+    /// <summary>The configuration text with each requested rule's group line (every rule's, when
+    /// <paramref name="rules"/> is null) set to warning, adding those rules to <paramref name="grouped"/>; a text
+    /// without the cleanup's comment is returned unchanged.</summary>
+    public static string Enable(string text, IReadOnlySet<string>? rules, HashSet<string> grouped, string path)
     {
         string[] lines = text.Split('\n');
         int comment = -1;
@@ -729,7 +777,7 @@ internal static class CleanupGroup
         for (; line < lines.Length && Member.Match(lines[line].TrimEnd('\r')) is { Success: true } match; line++)
         {
             string rule = match.Groups[1].Value;
-            if (!rules.Contains(rule))
+            if (rules is not null && !rules.Contains(rule))
                 continue;
             grouped.Add(rule);
             lines[line] = $"dotnet_diagnostic.{rule}.severity = warning" + (lines[line].EndsWith('\r') ? "\r" : "");
@@ -755,12 +803,13 @@ internal sealed class RuleScope
         Rules = rules;
     }
 
-    /// <summary>The requested rules.</summary>
+    /// <summary>The rules enabled in their scope: the requested ones, or the whole group.</summary>
     public IReadOnlySet<string> Rules { get; }
 
-    /// <summary>Reads the project's analyzer configuration with the requested rules' group lines enabled. Every
-    /// requested rule must be in the cleanup's group of one of them, or its scope is unknown and the run fails.</summary>
-    public static async Task<RuleScope> CreateAsync(Project project, IReadOnlySet<string> rules)
+    /// <summary>Reads the project's analyzer configuration with the requested rules' group lines enabled, or the whole
+    /// group's when <paramref name="wholeGroup"/> is set. Every requested rule must be in the cleanup's group of one of
+    /// them, or its scope is unknown and the run fails.</summary>
+    public static async Task<RuleScope> CreateAsync(Project project, IReadOnlySet<string> rules, bool wholeGroup)
     {
         var configs = new List<AnalyzerConfig>();
         var grouped = new HashSet<string>(StringComparer.Ordinal);
@@ -769,13 +818,13 @@ internal sealed class RuleScope
             string path = document.FilePath
                 ?? throw new InvalidOperationException($"{project.Name} has an analyzer configuration document without a file.");
             string text = (await document.GetTextAsync()).ToString();
-            configs.Add(AnalyzerConfig.Parse(CleanupGroup.Enable(text, rules, grouped, path), path));
+            configs.Add(AnalyzerConfig.Parse(CleanupGroup.Enable(text, wholeGroup ? null : rules, grouped, path), path));
         }
         var outside = rules.Where(rule => !grouped.Contains(rule)).Order(StringComparer.Ordinal).ToList();
         if (outside.Count > 0)
             throw new InvalidOperationException($"No analyzer configuration of {project.Name} puts {string.Join(", ", outside)} in the " +
                 "asynchronous cleanup's group, so where the rule applies is unknown.");
-        return new RuleScope(AnalyzerConfigSet.Create(configs), rules);
+        return new RuleScope(AnalyzerConfigSet.Create(configs), wholeGroup ? grouped : rules);
     }
 
     /// <summary>Whether the requested rule is enabled in the file at <paramref name="path"/>.</summary>
@@ -866,6 +915,133 @@ internal sealed class EnabledRuleConfig(AnalyzerConfigOptions configured, RuleSc
         string id = key[Prefix.Length..^Suffix.Length];
         return scope.Rules.FirstOrDefault(rule => string.Equals(rule, id, StringComparison.OrdinalIgnoreCase));
     }
+}
+
+/// <summary>
+/// Finds the suppressions that suppressed nothing (IDE0079), from a run of every analyzer with suppressed diagnostics
+/// reported. A <c>#pragma warning disable</c> code is needed when a diagnostic of that id that no attribute suppressed
+/// lies between it and the next <c>restore</c> of that code (or the end of the file); a <c>[SuppressMessage]</c> or
+/// <c>[UnconditionalSuppressMessage]</c> is needed when it is the attribute that suppressed a diagnostic. A suppression
+/// without codes, of a rule the file does not enable, in build output, or over code an inactive <c>#if</c> branch leaves
+/// out is left alone. Each finding is at the
+/// suppression's code or attribute; a pragma's finding also locates the matching <c>restore</c> code, when no other
+/// disable of that code comes between them.
+/// </summary>
+internal static class UnnecessarySuppressions
+{
+    /// <summary>The finding's descriptor.</summary>
+    private static readonly DiagnosticDescriptor Rule = new("IDE0079", "Remove unnecessary suppression",
+        "The suppression of {0} suppresses nothing", "Style", DiagnosticSeverity.Warning, isEnabledByDefault: true);
+
+    /// <summary>The attributes that suppress diagnostics.</summary>
+    private static readonly string[] SuppressionAttributes =
+        ["System.Diagnostics.CodeAnalysis.SuppressMessageAttribute", "System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessageAttribute"];
+
+    /// <summary>The unnecessary suppressions in <paramref name="compilation"/>'s source, given every diagnostic it
+    /// reported, suppressed ones included, and which rules each file enables.</summary>
+    public static List<Diagnostic> Find(Compilation compilation, ImmutableArray<Diagnostic> diagnostics, Func<SyntaxTree, string, bool> isEnabled)
+    {
+        var suppressed = diagnostics.Where(d => d.IsSuppressed && d.Location.IsInSource).ToList();
+        var byAttribute = new HashSet<(string, TextSpan)>();
+        var byPragma = new List<Diagnostic>();
+        foreach (Diagnostic diagnostic in suppressed)
+        {
+            if (diagnostic.GetSuppressionInfo(compilation)?.Attribute?.ApplicationSyntaxReference is { } reference)
+                byAttribute.Add((reference.SyntaxTree.FilePath, reference.Span));
+            else
+                byPragma.Add(diagnostic);
+        }
+        var found = new List<Diagnostic>();
+        foreach (SyntaxTree tree in compilation.SyntaxTrees)
+        {
+            if (tree.FilePath.Replace('\\', '/').Contains("/obj/", StringComparison.OrdinalIgnoreCase))
+                continue;
+            SyntaxNode root = tree.GetRoot();
+            FindPragmas(tree, root, byPragma, isEnabled, found);
+            FindAttributes(compilation.GetSemanticModel(tree), root, byAttribute, isEnabled, found);
+        }
+        return found;
+    }
+
+    /// <summary>Adds each disabled code no diagnostic needed.</summary>
+    private static void FindPragmas(SyntaxTree tree, SyntaxNode root, List<Diagnostic> byPragma, Func<SyntaxTree, string, bool> isEnabled, List<Diagnostic> found)
+    {
+        var pragmas = root.DescendantTrivia(descendIntoTrivia: true)
+            .Where(trivia => trivia.IsKind(Microsoft.CodeAnalysis.CSharp.SyntaxKind.PragmaWarningDirectiveTrivia))
+            .Select(trivia => (PragmaWarningDirectiveTriviaSyntax)trivia.GetStructure()!)
+            .OrderBy(pragma => pragma.SpanStart).ToList();
+        for (int index = 0; index < pragmas.Count; index++)
+        {
+            PragmaWarningDirectiveTriviaSyntax disable = pragmas[index];
+            if (!disable.DisableOrRestoreKeyword.IsKind(Microsoft.CodeAnalysis.CSharp.SyntaxKind.DisableKeyword))
+                continue;
+            foreach (ExpressionSyntax code in disable.ErrorCodes)
+            {
+                string id = CodeOf(code);
+                if (!isEnabled(tree, id))
+                    continue;
+                ExpressionSyntax? restoreCode = null;
+                int end = tree.Length;
+                bool reopened = false;
+                for (int later = index + 1; later < pragmas.Count; later++)
+                {
+                    PragmaWarningDirectiveTriviaSyntax next = pragmas[later];
+                    bool names = next.ErrorCodes.Count == 0 || next.ErrorCodes.Any(c => string.Equals(CodeOf(c), id, StringComparison.OrdinalIgnoreCase));
+                    if (!names)
+                        continue;
+                    if (next.DisableOrRestoreKeyword.IsKind(Microsoft.CodeAnalysis.CSharp.SyntaxKind.DisableKeyword))
+                    {
+                        reopened = true;
+                        continue;
+                    }
+                    end = next.SpanStart;
+                    restoreCode = reopened ? null : next.ErrorCodes.FirstOrDefault(c => string.Equals(CodeOf(c), id, StringComparison.OrdinalIgnoreCase));
+                    break;
+                }
+                int start = disable.Span.End;
+                bool needed = HoldsInactiveCode(root, TextSpan.FromBounds(start, end)) || byPragma.Any(d => string.Equals(d.Location.SourceTree?.FilePath, tree.FilePath, StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(d.Id, id, StringComparison.OrdinalIgnoreCase) &&
+                    d.Location.SourceSpan.Start >= start && d.Location.SourceSpan.Start < end);
+                if (needed)
+                    continue;
+                Location[] restore = restoreCode is null ? [] : [restoreCode.GetLocation()];
+                found.Add(Diagnostic.Create(Rule, code.GetLocation(), restore, id));
+            }
+        }
+    }
+
+    /// <summary>Adds each suppression attribute that suppressed no diagnostic.</summary>
+    private static void FindAttributes(SemanticModel model, SyntaxNode root, HashSet<(string, TextSpan)> byAttribute,
+        Func<SyntaxTree, string, bool> isEnabled, List<Diagnostic> found)
+    {
+        foreach (AttributeSyntax attribute in root.DescendantNodes().OfType<AttributeSyntax>())
+        {
+            string name = attribute.Name.ToString();
+            if (!name.Contains("SuppressMessage", StringComparison.Ordinal) ||
+                model.GetSymbolInfo(attribute).Symbol is not IMethodSymbol constructor ||
+                !SuppressionAttributes.Contains(constructor.ContainingType.ToDisplayString()) ||
+                attribute.ArgumentList is not { Arguments.Count: >= 2 } arguments ||
+                model.GetConstantValue(arguments.Arguments[1].Expression).Value is not string checkId)
+                continue;
+            string id = checkId.Split(':')[0].Trim();
+            if (id.Length == 0 || !isEnabled(model.SyntaxTree, id) || byAttribute.Contains((model.SyntaxTree.FilePath, attribute.Span)) ||
+                attribute.Parent?.Parent is MemberDeclarationSyntax member && HoldsInactiveCode(root, member.FullSpan))
+                continue;
+            found.Add(Diagnostic.Create(Rule, attribute.GetLocation(), id));
+        }
+    }
+
+    /// <summary>Whether the span holds code an inactive <c>#if</c> branch leaves out, whose diagnostics this
+    /// configuration cannot see.</summary>
+    private static bool HoldsInactiveCode(SyntaxNode root, TextSpan span) =>
+        root.DescendantTrivia(span).Any(trivia => trivia.IsKind(Microsoft.CodeAnalysis.CSharp.SyntaxKind.DisabledTextTrivia));
+
+    /// <summary>The diagnostic id a pragma code names: an identifier as written, or a number as its compiler warning.</summary>
+    private static string CodeOf(ExpressionSyntax code) => code switch
+    {
+        LiteralExpressionSyntax { Token.Value: int number } => $"CS{number:D4}",
+        _ => code.ToString().Trim(),
+    };
 }
 
 /// <summary>Hands a fix-all exactly the findings chosen for one document, and nothing else.</summary>

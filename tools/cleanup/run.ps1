@@ -35,12 +35,9 @@ $FixedRuleWords = [ordered]@{
     IDE0044 = 'fields made read-only'
     IDE0076 = 'invalid suppression targets removed'
     IDE0077 = 'legacy suppression targets updated'
+    IDE0079 = 'unnecessary suppressions removed'
     SME6391 = 'span adapters before SequenceEqual removed'
 }
-
-# The group's rules that no command-line analyzer reports: the code-style package has none for IDE0079 (README.md),
-# so the cleanup cannot find its sites and CodeFixRunner.cs refuses it.
-$NoCommandLineAnalyzer = @('IDE0079')
 
 # The reachability prune's categories, source prefix and destination for dead code tests still use.
 $PruneCategories = 'unreachable-member,unreachable-type,unreferenced-field,unreferenced-enum-member,unreferenced-constant'
@@ -112,7 +109,7 @@ function Save-Result([hashtable]$Outcome) {
 
 function Get-FixedRules {
     # The automatically fixed group: the `dotnet_diagnostic.<rule>.severity = none` lines directly under the comment in
-    # csharp/.editorconfig that names the asynchronous cleanup. Returns the rules a command-line code fix can apply.
+    # csharp/.editorconfig that names the asynchronous cleanup.
     $path = Join-Path $repository 'csharp/.editorconfig'
     $lines = [IO.File]::ReadAllLines($path)
     $comments = @(for ($index = 0; $index -lt $lines.Count; $index++) { if ($lines[$index] -match '^#.*\basynchronous cleanup\b') { $index } })
@@ -126,14 +123,14 @@ function Get-FixedRules {
     }
     if ($group.Count -eq 0) { throw "No 'dotnet_diagnostic.<rule>.severity = none' line follows the asynchronous cleanup's comment in $path." }
     foreach ($rule in $group) {
-        if (-not $FixedRuleWords.Contains($rule) -and $NoCommandLineAnalyzer -notcontains $rule) {
+        if (-not $FixedRuleWords.Contains($rule)) {
             throw "$path puts $rule in the automatically fixed group, but run.ps1 has no commit-message words for it."
         }
     }
-    foreach ($rule in @($FixedRuleWords.Keys) + $NoCommandLineAnalyzer) {
+    foreach ($rule in @($FixedRuleWords.Keys)) {
         if (-not $group.Contains($rule)) { throw "run.ps1 names $rule, which $path does not put in the automatically fixed group." }
     }
-    return @($group | Where-Object { $NoCommandLineAnalyzer -notcontains $_ })
+    return @($group)
 }
 
 try {

@@ -16,6 +16,7 @@ internal sealed class SourceEdits
     private readonly string _path;
     private readonly List<TextChange> _changes = [];
     private readonly List<TextSpan> _removals = [];
+    private readonly List<TextSpan> _directiveLines = [];
 
     /// <summary>Starts the edits of the document holding <paramref name="text"/> at <paramref name="path"/>.</summary>
     internal SourceEdits(SourceText text, string path)
@@ -36,10 +37,19 @@ internal sealed class SourceEdits
     /// <summary>Removes <paramref name="node"/>, with its lines when it stands on lines of its own.</summary>
     internal void Remove(SyntaxNode node) => RemoveRange(node, node);
 
-    /// <summary>Removes <paramref name="first"/> through <paramref name="last"/>, siblings in source order.</summary>
-    internal void RemoveRange(SyntaxNode first, SyntaxNode last)
+    /// <summary>Removes <paramref name="node"/> as <see cref="Remove"/> does, but leaves the comments and
+    /// documentation above it, which belong to what follows (an attribute list's member).</summary>
+    internal void RemoveKeepingComments(SyntaxNode node) => RemoveRange(node, node, attached: false);
+
+    /// <summary>Removes the line of a preprocessor directive.</summary>
+    internal void RemoveDirectiveLine(SyntaxNode directive) =>
+        _directiveLines.Add(_text.Lines.GetLineFromPosition(directive.SpanStart).SpanIncludingLineBreak);
+
+    /// <summary>Removes <paramref name="first"/> through <paramref name="last"/>, siblings in source order, with the
+    /// comments directly above <paramref name="first"/> unless <paramref name="attached"/> is false.</summary>
+    internal void RemoveRange(SyntaxNode first, SyntaxNode last, bool attached = true)
     {
-        int start = AttachedStart(first);
+        int start = attached ? AttachedStart(first) : first.SpanStart;
         int end = last.Span.End;
         TextLine startLine = _text.Lines.GetLineFromPosition(start);
         TextLine endLine = _text.Lines.GetLineFromPosition(end);
@@ -90,7 +100,7 @@ internal sealed class SourceEdits
     private List<TextSpan> Blocks()
     {
         var merged = new List<TextSpan>();
-        foreach (TextSpan removal in _removals.OrderBy(span => span.Start))
+        foreach (TextSpan removal in _removals.Concat(_directiveLines).OrderBy(span => span.Start))
         {
             if (merged.Count > 0 && removal.Start <= merged[merged.Count - 1].End)
                 merged[merged.Count - 1] = TextSpan.FromBounds(merged[merged.Count - 1].Start, Math.Max(merged[merged.Count - 1].End, removal.End));

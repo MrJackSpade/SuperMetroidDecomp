@@ -875,10 +875,7 @@ internal sealed class RoomLoader
         // The sky's banded horizontal motion belongs to the separately spawned sky effect, which the room's FX or
         // setup callback starts, not to the room's main callback.
         RoomFxRecordDefinition? selectedFx = room.State.Fx?.Select(door);
-        bool skyHasBands =
-            selectedFx?.Type == RoomFxType.ScrollingSky ||
-            room.State.SetupCallback is RoomSetupCallback.ScrollingSkyLand or
-                RoomSetupCallback.ScrollingSkyOcean or RoomSetupCallback.ShakeScreenAndCallScrollingSkyLandDuringEscape;
+        bool skyHasBands = ScrollingSkyState.SpawnsBands(selectedFx?.Type, room.State.SetupCallback);
         scope.ScrollingSky = ScrollingSkyState.IsScrollingSkyRoomMain(room.State.MainCallback)
             ? new ScrollingSkyState(ScrollingSkyState.VariantOf(room.State.MainCallback), skyHasBands)
             : null;

@@ -50,22 +50,27 @@ internal static class RoomBlockUploads
         [.. RetailRoomHeaders.All.SelectMany(RoomStateLists.GetStates).Where(RoomTurningFloors.ShowsOne)
             .Select(state => RoomTilesets.Get(state.GraphicsSet)).Distinct()];
 
+    /// <summary>The installed name of every background image some retail room state shows, each once (#1536), as <see cref="BackgroundNamesOf"/> names them.</summary>
+    internal static IReadOnlyList<string> BackgroundNames() => BackgroundNamesOf(RetailRoomHeaders.All.SelectMany(RoomStateLists.GetStates));
+
     /// <summary>
-    /// The installed name of every background image some retail room state shows, each once (#1536): in the state's
-    /// tileset, its library background's ordinary picture and the picture of each door that shows its own, and its scrolling
-    /// sky's rows. These are the only images a room selects: it shows its background's picture for the door it was entered
-    /// through when that door is one of the background's picture doors, otherwise the ordinary one.
+    /// The installed name of every background image one of <paramref name="states"/> shows, each once (#1536): in the
+    /// state's tileset, the ordinary picture of a library background the player sees as its own picture and the picture of
+    /// each door that shows its own (#1649), and its scrolling sky's rows. These are the only images a room selects: it shows
+    /// its background's picture for the door it was entered through when that door is one of the background's picture
+    /// doors, otherwise the ordinary one.
     /// </summary>
-    internal static IReadOnlyList<string> BackgroundNames()
+    /// <exception cref="InvalidDataException">A state's background is seen otherwise where nothing else draws what is seen.</exception>
+    internal static IReadOnlyList<string> BackgroundNamesOf(IEnumerable<RoomStateSettings> states)
     {
         var names = new List<string>();
-        foreach (RoomStateSettings state in RetailRoomHeaders.All.SelectMany(RoomStateLists.GetStates))
+        foreach (RoomStateSettings state in Ensure.NotNull(states))
         {
             TilesetDefinition tileset = RoomTilesets.Get(state.GraphicsSet);
-            if (state.Background is { } background)
+            if (PicturedLibraryBackgrounds.TryProgramOf(state, out LibraryBackgroundProgram? library))
             {
-                DoorDefinition?[] doors = [null, .. background.PictureDoors];
-                names.AddRange(doors.Select(door => RoomBackgroundImage.NameOf(background, door, tileset)));
+                DoorDefinition?[] doors = [.. DoorVariants(library)];
+                names.AddRange(doors.Select(door => RoomBackgroundImage.NameOf(library.Background, door, tileset)));
             }
             if (ScrollingSkyState.IsScrollingSkyRoomMain(state.MainCallback))
                 names.Add(RoomBackgroundImage.SkyNameOf(ScrollingSkyState.VariantOf(state.MainCallback), tileset));
@@ -109,7 +114,6 @@ internal static class RoomBlockUploads
                     foreach (AnimatedCharacterPlacement frame in CrocomireMeltBandFrames(inputs))
                         uploads.AddAnimated(frame);
                 }
-                LibraryBackgroundProgram? library = state.Background is { } background ? LibraryBackgroundPrograms.Of(background) : null;
                 RoomBlockArtwork blockArtwork = RoomScope.BlockArtworkOf(new SelectedRoom(room, state));
                 BgCharacterUpload[] loadedObjects = [];
                 AppearanceOption[] encounterLooks = [];
@@ -119,7 +123,8 @@ internal static class RoomBlockUploads
                     encounterLooks = [.. EncounterLookOptions(inputs, state)];
                     uploads.AddObjectPage(loadedObjects, encounterLooks);
                 }
-                if (library is not null)
+                // Only a library background the player sees as its own picture is pictured (#1649).
+                if (PicturedLibraryBackgrounds.TryProgramOf(state, out LibraryBackgroundProgram? library))
                 {
                     foreach (DoorDefinition? door in DoorVariants(library))
                         uploads.AddBackground(Replay(inputs, room, tileset, library, door));
@@ -350,17 +355,16 @@ internal static class RoomBlockUploads
     }
 
     /// <summary>
-    /// What a boss's body is shown over in <paramref name="state"/> of <paramref name="room"/> (#1466): what the room loads
-    /// and its library background leaves, what the room binds after loading, and the frames its animations paint over its
-    /// tile characters, Crocomire's melt bands among them in his room.
+    /// What a boss's body is shown over in <paramref name="state"/> (#1466): what the room loads (its library background
+    /// writes the layer's map, never its characters), what the room binds after loading, and the frames its animations paint
+    /// over its tile characters, Crocomire's melt bands among them in his room.
     /// </summary>
-    internal static BossRoomCharacters ShownUnderBoss(RoomBlockSheetInputs inputs, RoomHeaderDefinition room, RoomStateSettings state)
+    internal static BossRoomCharacters ShownUnderBoss(RoomBlockSheetInputs inputs, RoomStateSettings state)
     {
         Ensure.NotNull(inputs);
+        Ensure.NotNull(state);
         TilesetDefinition tileset = RoomTilesets.Get(state.GraphicsSet);
-        LibraryBackgroundProgram? library = state.Background is { } background ? LibraryBackgroundPrograms.Of(background) : null;
-        BgArtworkBindings content = library is not null
-            ? Replay(inputs, room, tileset, library, DoorVariants(library).First()).Content : Loaded(inputs, tileset);
+        BgArtworkBindings content = Loaded(inputs, tileset);
         AnimatedCharacterPlacement[] animated = [.. AnimatedFrames(inputs, state).Where(frame => frame.Set == BgCharacterSet.Tiles),
             .. state.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == EnemyDefinitionId.Crocomire)
                 ? CrocomireMeltBandFrames(inputs) : []];

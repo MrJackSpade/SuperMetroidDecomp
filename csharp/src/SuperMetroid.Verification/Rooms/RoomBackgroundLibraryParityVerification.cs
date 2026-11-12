@@ -139,10 +139,10 @@ internal static class RoomBackgroundLibraryParityVerification
     {
         const ushort listPointer = 0xf000;
 
-        var partialSky = new LibraryBackgroundProgram(new LibraryBackground("partial sky page", []),
-            [new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.Sky(0), LibraryBackgroundDestination.BackgroundFirstPage, 2, null)]);
+        LibraryBackgroundInstruction[] partialSky =
+            [new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.Sky(0), LibraryBackgroundDestination.BackgroundFirstPage, 2, null)];
         AssertThrows<InvalidDataException>(
-            () => LibraryBackgroundReplay.Execute(new SnesVram(), partialSky, FixtureRoomHeaders.UnmatchedDoor, new LibraryBackgroundArtwork { TilemapArt = backgrounds, SkyArt = skies, HudArt = hud, CharacterArt = characters }),
+            () => LibraryBackgroundReplay.Execute(new SnesVram(), "partial sky page", partialSky, FixtureRoomHeaders.UnmatchedDoor, new LibraryBackgroundArtwork { TilemapArt = backgrounds, SkyArt = skies, HudArt = hud, CharacterArt = characters }),
             "installed art rejects a partial sky page");
         const int unownedRomSource = 0x8a8000;
         TestAddressSpace bus = CreateSingleTransferBackgroundCartridge(listPointer, unownedRomSource, 2);
@@ -156,7 +156,8 @@ internal static class RoomBackgroundLibraryParityVerification
         TestAddressSpace stagedBus = CreateStagedWorkRamBackgroundCartridge(listPointer);
         byte[] stagedBg2 = [0x12, 0x34];
         var stagedVram = new SnesVram();
-        LibraryBackgroundReplay.Execute(stagedVram, LibraryBackgroundProgramImporter.Read(stagedBus, listPointer), FixtureRoomHeaders.UnmatchedDoor, new LibraryBackgroundArtwork { TilemapArt = backgrounds, SkyArt = skies, HudArt = hud, CharacterArt = characters }, stagedBg2);
+        ImportedLibraryBackgroundList staged = LibraryBackgroundProgramImporter.Read(stagedBus, listPointer);
+        LibraryBackgroundReplay.Execute(stagedVram, staged.Name, staged.Instructions, FixtureRoomHeaders.UnmatchedDoor, new LibraryBackgroundArtwork { TilemapArt = backgrounds, SkyArt = skies, HudArt = hud, CharacterArt = characters }, stagedBg2);
         AssertEqual((byte)0x12, stagedVram.ReadByte(0x9000),
             "installed-art binding retains the staged enemy BG2 transfer low byte");
         AssertEqual((byte)0x34, stagedVram.ReadByte(0x9001),

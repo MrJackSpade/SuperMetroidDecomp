@@ -25,15 +25,29 @@ internal static class LibraryBackgroundReplay
     /// installed artwork owns.
     /// </exception>
     internal static void Execute(SnesVram vram, LibraryBackgroundProgram program,
+        DoorDefinition activeDoor, LibraryBackgroundArtwork artwork, ReadOnlyMemory<byte> enemyBg2Staging = default) =>
+        Execute(vram, Ensure.NotNull(program).Name, program.Instructions, activeDoor, artwork, enemyBg2Staging);
+
+    /// <summary>
+    /// Replays the command list <paramref name="instructions"/>, named <paramref name="list"/> in diagnostics, as
+    /// <see cref="Execute(SnesVram, LibraryBackgroundProgram, DoorDefinition, LibraryBackgroundArtwork, ReadOnlyMemory{byte})"/>
+    /// replays a background's program: a list decoded for comparison builds no background of its own.
+    /// </summary>
+    /// <exception cref="InvalidDataException">
+    /// The list holds a command the interpreter does not accept, a zero-length transfer, or a transfer from ROM that no
+    /// installed artwork owns.
+    /// </exception>
+    internal static void Execute(SnesVram vram, string list, IReadOnlyList<LibraryBackgroundInstruction> instructions,
         DoorDefinition activeDoor, LibraryBackgroundArtwork artwork, ReadOnlyMemory<byte> enemyBg2Staging = default)
     {
         Ensure.NotNull(vram);
-        Ensure.NotNull(program);
+        ArgumentException.ThrowIfNullOrEmpty(list);
+        Ensure.NotNull(instructions);
         Ensure.NotNull(artwork);
         if (enemyBg2Staging.Length > LibraryBackgroundStagingDefinitions.EnemyBg2StagingByteCount)
             throw new ArgumentOutOfRangeException(nameof(enemyBg2Staging), enemyBg2Staging.Length, "The enemy BG2 staging is 4 KiB.");
         var staging = new Staging(enemyBg2Staging);
-        foreach (LibraryBackgroundInstruction instruction in program.Instructions)
+        foreach (LibraryBackgroundInstruction instruction in instructions)
         {
             switch (instruction.Command)
             {
@@ -43,7 +57,7 @@ internal static class LibraryBackgroundReplay
                     break;
                 case LibraryBackgroundCommand.Decompress:
                     if (instruction.Destination != LibraryBackgroundDestination.TilemapStaging || instruction.Source is not LibraryBackgroundSource.CompressedTilemap compressed)
-                        throw new InvalidDataException($"A decompression in list {program.Name} stages {instruction.Source} at {instruction.Destination}.");
+                        throw new InvalidDataException($"A decompression in list {list} stages {instruction.Source} at {instruction.Destination}.");
                     staging.WriteDecompressed(LibraryBackgroundStagingDefinitions.TilemapStagingBankOffset, BackgroundTileWords.ToBytes((artwork.TilemapArt ?? throw new InvalidOperationException(
                         "Library-background decompression requires installed tilemaps.")).Get(compressed.Tilemap).Tiles.Span),
                         instruction.Source);
@@ -67,7 +81,7 @@ internal static class LibraryBackgroundReplay
                     break;
                 default:
                     throw new InvalidDataException(
-                        $"Unknown compiled library-background command {instruction.Command} in list {program.Name}.");
+                        $"Unknown compiled library-background command {instruction.Command} in list {list}.");
             }
         }
     }

@@ -121,11 +121,9 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
         ArtworkFrames = ArtworkFrames,
         Appearance = Appearance,
         BlockPictures = new RoomBlockPictureResolver(Assets.BlockSheet),
-        BackgroundImage = Room.State.Background is { } background
-            ? new RoomBackgroundImageResolver(
-                Assets.Pictures.Background(background, background.PictureDoor(Door), Assets.Tileset),
-                Assets.BlockSheet)
-            : null,
+        // Only a library background the player sees as its own picture has one installed (#1649).
+        BackgroundImage = RoomLibraryBackgroundPicture.Of(Room.State.Background, background => new RoomBackgroundImageResolver(
+            Assets.Pictures.Background(background, background.PictureDoor(Door), Assets.Tileset), Assets.BlockSheet)),
         BackgroundWrittenPictures = Assets.Pictures.Written.TryGetValue(Assets.Tileset, out WrittenPictureSheet? written) ? new WrittenPictureResolver(written) : null,
         ForegroundWrittenPictures = written is null ? null : new WrittenPictureResolver(written),
         FxOverlayPictures = new WrittenPictureResolver(Assets.Pictures.FxOverlay(Assets.Tileset)),

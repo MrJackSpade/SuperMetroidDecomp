@@ -5,9 +5,10 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// The command list that builds one library background (#1466); the terminator is implicit in the command count. Only the
-/// import pipeline runs it, once, and installs the picture it leaves under the background's name.
+/// import pipeline runs it, once, and installs the picture it leaves under the background's name, where the player sees
+/// the background as its own picture (<see cref="PicturedLibraryBackgrounds"/>, #1649).
 /// </summary>
-/// <param name="background">The background the list builds, or a fixture's stand-in for one.</param>
+/// <param name="background">The background the list builds.</param>
 /// <param name="instructions">Ordered nonterminating commands. Wrapped without copying, so the caller must not modify the array after construction.</param>
 public sealed class LibraryBackgroundProgram(
     LibraryBackground background, LibraryBackgroundInstruction[] instructions)

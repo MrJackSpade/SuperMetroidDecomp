@@ -782,9 +782,11 @@ variant, and, only in a room whose state shows a turning floor (`RoomTurningFloo
 finds in the retail room states, and before it reads any sheet it requires, failing with `InvalidDataException`: an
 effect overlay picture sheet of every such tileset with the page of every effect its states run that shows one
 (`EffectPagesOf`), the turning floor of every tileset a retail state that shows one loads (`FloorTilesets`), and
-every background image a retail state shows (`BackgroundNames`: each library background's
-ordinary picture and the picture of each of its picture doors, and each scrolling sky's rows, in the state's
-tileset). `Background` and `Sky` take the typed background, door, sky variant and tileset instead of a name, so no
+every background image a retail state shows (`BackgroundNames`: the ordinary picture of each library background the
+player sees as its own picture and the picture of each of its picture doors, and each scrolling sky's rows, in the
+state's tileset). A room selects `Background` only for a background whose `LibraryBackgroundView` is `Picture`
+(`RoomLibraryBackgroundPicture.Of`, #1649); a boss room's, a sky room's or a cleared background has no image and none
+is looked up. `Background` and `Sky` take the typed background, door, sky variant and tileset instead of a name, so no
 free string reaches the lookup; a constant sky variant must be one a retail state's room main reads. The artwork's
 constructor accepts any dictionaries, so a construction outside the reviewed sources revokes the rule.
 

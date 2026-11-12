@@ -96,6 +96,21 @@ internal static class RoomBlockPicturesVerification
     /// <summary>Checks the Statues room's background image, which rebinds, as <see cref="VerifyParlorBackgroundImage"/> checks the Parlor's.</summary>
     internal static void VerifyStatuesBackgroundImage() => CheckBackground(RoomHeaderDefinitions.Statues, expectRebound: true);
 
+    /// <summary>
+    /// Phantoon's room, whose library background copies the boss's own layer (#1649), binds no background picture as it
+    /// loads, and its first frame draws none: the background shows only what the boss's body draws.
+    /// </summary>
+    internal static void VerifyPhantoonRoomDrawsNoBackgroundImage()
+    {
+        SuperMetroidRuntime runtime = LoadRoom(RoomHeaderDefinitions.Phantoon);
+        runtime.StepFrame(0);
+        AssertEqual<RoomLibraryBackgroundPicture>(new RoomLibraryBackgroundPicture.ShownOtherwise(LibraryBackgroundView.BossBody),
+            RoomScopeOf(runtime).BackgroundImage, "Phantoon's room binds no background picture");
+        RoomBackgrounds rooms = runtime.Display.Latched.Rooms ?? throw new InvalidOperationException("Phantoon's room shows no room backgrounds.");
+        AssertTrue(rooms.BackgroundImage is null, "Phantoon's room draws no background picture");
+        Console.WriteLine("Room background images: Phantoon's room binds and draws no background picture.");
+    }
+
     /// <summary>Checks the Landing Site's sky image (<see cref="CheckSky"/>).</summary>
     internal static void VerifyLandingSiteSkyImage() => CheckSky(RoomHeaderDefinitions.LandingSite);
 
@@ -345,7 +360,7 @@ internal static class RoomBlockPicturesVerification
         byte[] loaded = runtime.ComposedVram();
         // A frame pictured under a room animation's frames (Crocomire's melt states, #1513) shows those frames' characters
         // where they paint, as the body painter composes it, and the room's load elsewhere.
-        IReadOnlyList<AnimatedCharacterPlacement> animated = RoomBlockUploads.ShownUnderBoss(BossRoomInputs.Value, room,
+        IReadOnlyList<AnimatedCharacterPlacement> animated = RoomBlockUploads.ShownUnderBoss(BossRoomInputs.Value,
             RoomStateLists.GetStates(room).First(state => !state.EnemyPopulation.Records.IsEmpty)).Animated;
         int frames = 0;
         foreach (BossBodyFrameSource frame in BossBodySheetComposer.Frames(bosses, owner))
@@ -536,8 +551,8 @@ internal static class RoomBlockPicturesVerification
         ReadOnlySpan<byte> vram = runtime.ComposedVram();
         // The room's load selects the image by name (#1406); its tilemap words are the pages the library list builds, as
         // the import pipeline replays them (#1466).
-        string name = (runtime.Room.Scope?.BackgroundImage
-            ?? throw new InvalidOperationException($"{where}: the room selects no library background image.")).Image.Name;
+        string name = (runtime.Room.Scope?.BackgroundImage as RoomLibraryBackgroundPicture.Drawn
+            ?? throw new InvalidOperationException($"{where}: the room selects no library background image.")).Image.Image.Name;
         ushort[] words = UploadsOf(runtime).Backgrounds.Single(background => background.Name == name).Words;
         // A 32x64 map lays the two pages out one above the other, as the image does. Each tile's character is read once
         // for the eight rows of eight pixels it paints.
@@ -745,6 +760,7 @@ internal static class RoomBlockPicturesVerification
         Suite(nameof(VerifyParlorBackgroundImage), VerifyParlorBackgroundImage);
         Suite(nameof(VerifyCrateriaPowerBombsBackgroundImage), VerifyCrateriaPowerBombsBackgroundImage);
         Suite(nameof(VerifyStatuesBackgroundImage), VerifyStatuesBackgroundImage);
+        Suite(nameof(VerifyPhantoonRoomDrawsNoBackgroundImage), VerifyPhantoonRoomDrawsNoBackgroundImage);
         Suite(nameof(VerifyLandingSiteSkyImage), VerifyLandingSiteSkyImage);
         Suite(nameof(VerifyTileWordPictures), VerifyTileWordPictures);
         Suite(nameof(VerifyBg3Pictures), VerifyBg3Pictures);

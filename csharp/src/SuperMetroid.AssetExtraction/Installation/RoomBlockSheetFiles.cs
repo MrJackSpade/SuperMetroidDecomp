@@ -29,9 +29,10 @@ public static class RoomBlockSheetFiles
 
     /// <summary>
     /// The background manifest's schema revision: revision 2 records each image's changing cells (#1466); revision 3 no
-    /// longer pictures a cell over a collectible's graphics (#1513).
+    /// longer pictures a cell over a collectible's graphics (#1513); revision 4 installs only the library backgrounds the
+    /// player sees as their own pictures, none of the boss rooms', the sky rooms' or the cleared ones (#1649).
     /// </summary>
-    private const int BackgroundManifestVersion = 3;
+    private const int BackgroundManifestVersion = 4;
 
     /// <summary>The manifest naming each written picture sheet and the inputs each of its pictures depends on.</summary>
     public const string WrittenManifestFileName = "written-pictures.json";
@@ -148,7 +149,8 @@ public static class RoomBlockSheetFiles
     /// room makes by its tileset, background, sky or effect finds nothing: the block sheet and message boxes of every
     /// tileset are read for each of <paramref name="tilesets"/> itself; this requires an effect overlay picture sheet of each
     /// of them with the page of every effect its rooms show, the turning floor of every tileset whose rooms show one, and every background
-    /// image a room state shows.
+    /// image a room state shows (<see cref="RoomBlockUploads.BackgroundNames"/>: none of a library background the player sees
+    /// as something else, #1649).
     /// </summary>
     /// <exception cref="InvalidDataException">A manifest installs none of one of them.</exception>
     private static void RequireRetailSelections(string directory, IReadOnlyList<TilesetDefinition> tilesets, BackgroundManifest backgrounds,

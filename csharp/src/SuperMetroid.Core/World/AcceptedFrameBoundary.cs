@@ -258,10 +258,12 @@ internal sealed class AcceptedFrameBoundary
                 ?? throw new InvalidDataException($"{scope.Room.Definition.Name} shows a scrolling sky with no installed sky image.");
             sky = new SkyPictures(skyImage.Resolve(appearance, RoomBackgroundImagePlacement.Whole(skyImage.Image)));
         }
-        // Where background shows the room's library background, it draws the background's image (#1392): not over a
-        // streaming background plane, the sky's rows or a boss body that owns the background.
+        // Where background shows the room's library background as its own picture, it draws the background's image (#1392,
+        // #1649): not over a streaming background plane, the sky's rows or a boss body that owns the background. A library
+        // background the player sees as something else draws no picture.
         RoomBackgroundImagePlane? image = null;
-        if (rooms.Background is null && sky is null && latched.Bosses.Body is null && scope.BackgroundImage is { } background)
+        if (rooms.Background is null && sky is null && latched.Bosses.Body is null
+            && scope.BackgroundImage is RoomLibraryBackgroundPicture.Drawn { Image: var background })
         {
             // The Tourian entrance's statues descend through a background whose halves lie one above the other; every other
             // room shows its library background's halves side by side.

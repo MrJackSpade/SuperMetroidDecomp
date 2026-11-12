@@ -42,11 +42,6 @@ internal sealed class IntroCinematicObjectSystem
     /// <summary>The persistent text-caret sprite object, running its typed program (#641); <see cref="Caret"/> places it.</summary>
     private readonly IntroDiscoverySprite caretSprite = new(default, IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects), CinematicSpriteProgram.IntroTextCaret);
     /// <summary>
-    /// The Japanese text's next-page arrow (#1655), which each of pages one to five spawns with Japanese text as its text
-    /// ends; null while none shows.
-    /// </summary>
-    private IntroDiscoverySprite? nextPageArrow;
-    /// <summary>
     /// Whether the press that turns the page has been accepted since the arrow's last update: the page-turn setup starts
     /// the cross-fade, and the arrow deletes itself at its next update, in the same frame.
     /// </summary>
@@ -93,7 +88,7 @@ internal sealed class IntroCinematicObjectSystem
     internal CinematicSpritePose? CaretPose => caretSprite.Pose;
 
     /// <summary>The Japanese text's next-page arrow while it shows (#1655); null with English text and between input waits.</summary>
-    internal IntroDiscoverySprite? NextPageArrow => nextPageArrow;
+    internal IntroDiscoverySprite? NextPageArrow { get; private set; }
 
     /// <summary>
     /// Records that a page's input wait accepted the press that turns the page (#1655). The page-turn setup starts the
@@ -369,9 +364,9 @@ internal sealed class IntroCinematicObjectSystem
     /// </summary>
     private void SpawnNextPageArrow()
     {
-        if (nextPageArrow is not null)
+        if (NextPageArrow is not null)
             throw new InvalidOperationException("The narration spawned a next-page arrow while one was still showing.");
-        nextPageArrow = new IntroDiscoverySprite(
+        NextPageArrow = new IntroDiscoverySprite(
             new(IntroCinematicDefinitions.ObjectSystem.NextPageArrowX, IntroCinematicDefinitions.ObjectSystem.NextPageArrowY),
             IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects), CinematicSpriteProgram.IntroNextPageArrow);
     }
@@ -385,14 +380,14 @@ internal sealed class IntroCinematicObjectSystem
     {
         bool turned = pageTurnAccepted;
         pageTurnAccepted = false;
-        if (nextPageArrow is not { } arrow)
+        if (NextPageArrow is not { } arrow)
             return;
         if (subtitles.HoldFirstCounted)
             arrow.Start(CinematicSpriteProgram.IntroNextPageArrowDelayed);
         if (turned)
         {
             arrow.Delete();
-            nextPageArrow = null;
+            NextPageArrow = null;
             return;
         }
         arrow.Step();

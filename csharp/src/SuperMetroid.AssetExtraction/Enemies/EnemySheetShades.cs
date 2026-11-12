@@ -58,27 +58,69 @@ internal sealed class EnemySheetShades
     /// <summary>The colours the set's load leaves.</summary>
     private readonly LoadedSetColours colours;
 
+    /// <summary>The placements the rooms drawing under the set place each enemy with, by enemy.</summary>
+    private readonly IReadOnlyDictionary<EnemyDefinitionId, IReadOnlySet<EnemySpawnSettings>> placements;
+
     /// <summary>
     /// Each enemy's effects by shade, built once: a sheet's frame colourings look up one shade at a time, and building
     /// an enemy's effects composes every one of its shades (the Torizos' run to thousands of fades).
     /// </summary>
     private readonly System.Collections.Concurrent.ConcurrentDictionary<EnemyDefinitionId, Lazy<Dictionary<PictureShade, SheetShade>>> effects = new();
 
-    /// <summary>Builds the shades of a set whose load leaves <paramref name="colours"/>.</summary>
-    internal EnemySheetShades(EnemySheetInputs inputs, LoadedSetColours colours)
+    /// <summary>
+    /// Builds the shades of a set whose load leaves <paramref name="colours"/> and whose rooms place each enemy with the
+    /// <paramref name="placements"/> named for it.
+    /// </summary>
+    internal EnemySheetShades(EnemySheetInputs inputs, LoadedSetColours colours,
+        IReadOnlyDictionary<EnemyDefinitionId, IReadOnlySet<EnemySpawnSettings>> placements)
     {
         this.inputs = Ensure.NotNull(inputs);
         this.colours = Ensure.NotNull(colours);
+        this.placements = Ensure.NotNull(placements);
+    }
+
+    /// <summary>
+    /// The shades laid before <paramref name="enemy"/>'s frames first show under the set, in laying order: those its
+    /// encounter lays (<see cref="EnemyFirstShownColourDefinitions.Shades"/>), or those its initialization lays for the
+    /// placement the set's rooms place it with (<see cref="EnemyFirstShownColourDefinitions.ByPlacement"/>, #1642); none for
+    /// an enemy that shows the colours the set's load leaves.
+    /// </summary>
+    /// <exception cref="InvalidDataException">
+    /// The enemy is catalogued both by enemy and by placement, or the set's rooms place it so that its frames would first
+    /// show in two colourings: with two placements the catalogue colours apart, or with one it colours and one it does not.
+    /// Its sheet under the set holds one picture per frame.
+    /// </exception>
+    private PictureShade[] FirstShownShades(EnemyDefinitionId enemy)
+    {
+        IReadOnlySet<EnemySpawnSettings> placed = placements.TryGetValue(enemy, out IReadOnlySet<EnemySpawnSettings>? settings) ? settings
+            : new HashSet<EnemySpawnSettings>();
+        PictureShade[][] byPlacement = [.. placed.Where(EnemyFirstShownColourDefinitions.ByPlacement.ContainsKey)
+            .Select(placement => EnemyFirstShownColourDefinitions.ByPlacement[placement])];
+        if (EnemyFirstShownColourDefinitions.Shades.TryGetValue(enemy, out PictureShade[]? laid))
+        {
+            return byPlacement.Length == 0 ? laid
+                : throw new InvalidDataException($"{enemy}'s first colouring is catalogued both by enemy and by placement.");
+        }
+        if (byPlacement.Length == 0)
+            return [];
+        if (byPlacement.Length != placed.Count || byPlacement.Any(shades => !shades.SequenceEqual(byPlacement[0])))
+        {
+            throw new InvalidDataException(
+                $"The rooms of one graphics set place {enemy} as {string.Join(", ", placed)}, which first show it in different colourings; its sheet holds one picture per frame.");
+        }
+        return byPlacement[0];
     }
 
     /// <summary>
     /// The sprite colours a sheet drawing <paramref name="enemies"/> is coloured in (#1513): the set's colours with what
-    /// the shades <see cref="EnemyFirstShownColourDefinitions.Shades"/> names for each enemy whose encounter sets colours
-    /// in code leave in the rows they write, the colours the room holds there when its frames, and the objects drawn in
-    /// those rows, first show. The shades are an enemy's own effects or its fixed ones, laid in order, so a later one wins.
+    /// the shades each enemy whose encounter or initialization sets colours in code lays before it first shows
+    /// (<see cref="FirstShownShades"/>) leave in the rows they write, the colours the room holds there when its frames,
+    /// and the objects drawn in those rows, first show. The shades are an enemy's own effects or its fixed ones, laid in
+    /// order, so a later one wins.
     /// </summary>
     /// <exception cref="InvalidDataException">
-    /// An enemy's effects lack a shade the catalogue names, or two enemies would leave one colour two colourings.
+    /// An enemy's effects lack a shade the catalogue names, an enemy's first colouring is not one (see
+    /// <see cref="FirstShownShades"/>), or two enemies would leave one colour two colourings.
     /// </exception>
     internal RgbColor[] FirstShownColours(IEnumerable<EnemyDefinitionId> enemies)
     {
@@ -88,7 +130,8 @@ internal sealed class EnemySheetShades
         var recolouredBy = new Dictionary<int, EnemyDefinitionId>();
         foreach (EnemyDefinitionId enemy in enemies.Distinct())
         {
-            if (!EnemyFirstShownColourDefinitions.Shades.TryGetValue(enemy, out PictureShade[]? laid))
+            PictureShade[] laid = FirstShownShades(enemy);
+            if (laid.Length == 0)
                 continue;
             var left = new Dictionary<int, RgbColor>();
             foreach (PictureShade name in laid)
@@ -114,7 +157,7 @@ internal sealed class EnemySheetShades
     /// <paramref name="sheetColours"/> with each of <paramref name="frames"/> coloured in the colouring it is drawn in
     /// (#1513): a frame whose family <see cref="FrameColouringDefinitions"/> names a colouring in that one; any other
     /// frame an enemy spawns onto a set's shared sheet with the room's graphics, which <paramref name="sharedSpawners"/>
-    /// names, in each such spawner's <see cref="EnemyFirstShownColourDefinitions"/> colouring. A colouring's shades are
+    /// names, in each such spawner's first colouring under the set (<see cref="FirstShownShades"/>). A colouring's shades are
     /// laid over only the rows the frame's parts ink, its parts' own rows with <paramref name="paletteBits"/> ORed in, so
     /// two spawners whose colourings differ in rows their objects never ink colour one sheet. A frame neither names keeps
     /// the sheet's colours.
@@ -143,7 +186,8 @@ internal sealed class EnemySheetShades
             {
                 foreach (EnemyDefinitionId spawner in sharedSpawners.SpawnersOf(pictures.Name))
                 {
-                    if (EnemyFirstShownColourDefinitions.Shades.TryGetValue(spawner, out PictureShade[]? firstShown))
+                    PictureShade[] firstShown = FirstShownShades(spawner);
+                    if (firstShown.Length > 0)
                         Lay([.. firstShown.Select(name => EffectOf(spawner, name))], rows, $"frame {pictures.Name} as {spawner} first shows it");
                 }
             }

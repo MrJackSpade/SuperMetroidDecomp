@@ -383,7 +383,26 @@ internal static class EnemySheetComposer
         LoadedSetColours colours = LoadedSetColours.Of(inputs, members);
         EnemyDefinitionId[] drawn = DrawnUnder(set, layout);
         return new LoadedGraphicsSet(layout, new SetCharacters(Table(inputs, layout), Encounters(inputs, members), RottingCorpseCells.Of(drawn)),
-            colours, new EnemySheetShades(inputs, colours), drawn);
+            colours, new EnemySheetShades(inputs, colours, Placements(set)), drawn);
+    }
+
+    /// <summary>
+    /// The placements the rooms drawing under graphics set <paramref name="set"/> place each enemy with, by enemy: an enemy
+    /// whose initialization chooses its colours by its placement first shows in the colours its placements choose (#1642).
+    /// </summary>
+    private static Dictionary<EnemyDefinitionId, IReadOnlySet<EnemySpawnSettings>> Placements(RoomEnemyGraphicsSetDefinition set)
+    {
+        var placements = new Dictionary<EnemyDefinitionId, HashSet<EnemySpawnSettings>>();
+        foreach (RoomStateSettings state in StatesOf(set))
+        {
+            foreach (RoomEnemyPopulationRecord record in state.EnemyPopulation.Records.Span)
+            {
+                if (!placements.TryGetValue(record.DefinitionId, out HashSet<EnemySpawnSettings>? placed))
+                    placements.Add(record.DefinitionId, placed = []);
+                placed.Add(record.SpawnSettings);
+            }
+        }
+        return placements.ToDictionary(entry => entry.Key, entry => (IReadOnlySet<EnemySpawnSettings>)entry.Value);
     }
 
     /// <summary>

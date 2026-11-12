@@ -42,6 +42,7 @@ public class IntroCinematicSourceArtwork : IntroCinematicArtwork
         CeresDestructionMaps = Ensure.NotNull(parts.CeresDestructionMaps);
         ZebesRevealMap = Ensure.NotNull(parts.ZebesRevealMap);
         CaretSprites = Ensure.NotNull(parts.CaretSprites);
+        NextPageArrowSprites = Ensure.NotNull(parts.NextPageArrowSprites);
         MotherBrainSprites = Ensure.NotNull(parts.MotherBrainSprites);
         MotherBrainExplosionSprites = Ensure.NotNull(parts.MotherBrainExplosionSprites);
         RinkaSprites = Ensure.NotNull(parts.RinkaSprites);
@@ -85,6 +86,8 @@ public class IntroCinematicSourceArtwork : IntroCinematicArtwork
     public RoomBackgroundTilemapAtlas ZebesRevealMap { get; }
     /// <summary>The one visible caret composition, without its blink timing or position.</summary>
     public IntroCaretSpritePresentation CaretSprites { get; }
+    /// <summary>The Japanese text's three next-page arrow compositions, without their cadence or position (#1655).</summary>
+    public IntroNextPageArrowSpritePresentation NextPageArrowSprites { get; }
     /// <summary>Three editable intro Mother Brain compositions, independent of its program.</summary>
     public IntroMotherBrainSpritePresentation MotherBrainSprites { get; }
     /// <summary>Twelve editable fourth-hit explosion compositions, independent of actor timing.</summary>
@@ -112,6 +115,7 @@ public class IntroCinematicSourceArtwork : IntroCinematicArtwork
         content.AppendTiles("final-line", FinalLine.Tiles.Span);
         content.Append("eye-frames", Convert.FromHexString(EyeFrames.ContentIdentity));
         content.Append("caret-sprites", Convert.FromHexString(CaretSprites.ContentIdentity));
+        content.Append("next-page-arrow-sprites", Convert.FromHexString(NextPageArrowSprites.ContentIdentity));
         content.Append("mother-brain-sprites", Convert.FromHexString(MotherBrainSprites.ContentIdentity));
         content.Append("mother-brain-explosion-sprites", Convert.FromHexString(MotherBrainExplosionSprites.ContentIdentity));
         content.Append("rinka-sprites", Convert.FromHexString(RinkaSprites.ContentIdentity));

@@ -33,7 +33,7 @@ internal static class CinematicSheetColouringsVerification
 
     /// <summary>
     /// The colouring the opening draws each of its families' poses in: the discovery's egg, baby, egg effects and Rinkas in
-    /// the discovery actors', the laboratory babies and the narration caret in the cross-fade objects', Mother Brain in hers
+    /// the discovery actors', the laboratory babies, the narration caret and the Japanese text's next-page arrow in the cross-fade objects', Mother Brain in hers
     /// and her explosions in theirs (<c>IntroCinematicState</c>'s draws, the baby definitions and the explosion system).
     /// </summary>
     private static readonly Dictionary<CinematicSpriteFamily, IntroSpriteColouring> IntroFamilies = new()
@@ -45,6 +45,7 @@ internal static class CinematicSheetColouringsVerification
         [CinematicSpriteFamily.IntroMotherBrain] = IntroSpriteColouring.MotherBrain,
         [CinematicSpriteFamily.IntroMotherBrainExplosion] = IntroSpriteColouring.Explosions,
         [CinematicSpriteFamily.IntroCaret] = IntroSpriteColouring.CrossFadeObjects,
+        [CinematicSpriteFamily.IntroNextPageArrow] = IntroSpriteColouring.CrossFadeObjects,
     };
 
     /// <summary>Fails, naming each Ceres sheet frame no actor of its scene draws.</summary>

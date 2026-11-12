@@ -10,8 +10,8 @@ internal static class IntroFamilyColourings
 {
     /// <summary>
     /// Each family's colouring: the discovery's egg and baby, its egg effects and its Rinkas in the discovery actors'; the
-    /// laboratory's delivered and examined baby and the narration caret in the cross-fade objects'; the flashback's Mother
-    /// Brain in hers; her explosions in theirs.
+    /// laboratory's delivered and examined baby, the narration caret and the Japanese text's next-page arrow in the
+    /// cross-fade objects'; the flashback's Mother Brain in hers; her explosions in theirs.
     /// </summary>
     private static readonly Dictionary<CinematicSpriteFamily, IntroSpriteColouring> Colourings = new()
     {
@@ -22,6 +22,7 @@ internal static class IntroFamilyColourings
         [CinematicSpriteFamily.IntroMotherBrain] = IntroSpriteColouring.MotherBrain,
         [CinematicSpriteFamily.IntroMotherBrainExplosion] = IntroSpriteColouring.Explosions,
         [CinematicSpriteFamily.IntroCaret] = IntroSpriteColouring.CrossFadeObjects,
+        [CinematicSpriteFamily.IntroNextPageArrow] = IntroSpriteColouring.CrossFadeObjects,
     };
 
     /// <summary>The colouring the opening draws <paramref name="family"/> in.</summary>

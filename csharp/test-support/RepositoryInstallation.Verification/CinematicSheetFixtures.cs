@@ -176,7 +176,7 @@ internal static class CinematicSheetFixtures
         IntroCinematicArtwork intro = InstalledFixtures.IntroArtwork;
         if (frames.Family is CinematicSpriteFamily.IntroDiscoveryActor or CinematicSpriteFamily.IntroEggEffect or CinematicSpriteFamily.IntroRinka
             or CinematicSpriteFamily.IntroScientist or CinematicSpriteFamily.IntroMotherBrain or CinematicSpriteFamily.IntroMotherBrainExplosion
-            or CinematicSpriteFamily.IntroCaret)
+            or CinematicSpriteFamily.IntroCaret or CinematicSpriteFamily.IntroNextPageArrow)
         {
             return IntroSpriteSheetComposer.Sources([frames], intro);
         }

@@ -271,6 +271,11 @@ OAM composition. Its blink alternates this one frame with no sprite; the three
 nearby ROM spritemaps are not caret frames. Sprite offsets, tile regions,
 priority, flips, and an optional fixed palette are editable. A null palette
 inherits the caret's live color. Position and blink durations remain code.
+`intro-next-page-arrow-sprites.json` contains the three OAM compositions of the
+next-page arrow the narration shows below the text at each page's input wait
+when Japanese text is selected. Sprite offsets, tile regions, priority, flips,
+and an optional fixed palette are editable; its position, frame durations, and
+the pause while a second subtitle holds the page remain code.
 `intro-mother-brain-sprites.json` contains the three nine-part Mother Brain
 frames used in the opening flashback. Their OAM offsets, tile references,
 priority, flips, and optional palette are editable; missile damage, hitboxes,

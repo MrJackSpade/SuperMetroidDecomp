@@ -27,7 +27,7 @@ internal static class IntroSpriteSheetComposer
         return
         [
             sources.DiscoveryActorSprites, sources.EggEffectSprites, sources.RinkaSprites, sources.ScientistSprites,
-            sources.MotherBrainSprites, sources.MotherBrainExplosionSprites, sources.CaretSprites,
+            sources.MotherBrainSprites, sources.MotherBrainExplosionSprites, sources.CaretSprites, sources.NextPageArrowSprites,
         ];
     }
 

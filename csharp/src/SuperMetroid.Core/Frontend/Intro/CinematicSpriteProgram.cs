@@ -35,9 +35,9 @@ internal enum CinematicSpriteProgram
     IntroTextCaret,
     /// <summary>The intro text caret blinking.</summary>
     IntroTextCaretBlink,
-    /// <summary>The Japanese text's next-page arrow, which no family of the intro draws (#1654).</summary>
+    /// <summary>The Japanese text's next-page arrow's loop, which the arrow starts on at each page's input wait (#1655).</summary>
     IntroNextPageArrow,
-    /// <summary>The Japanese text's next-page arrow after its hidden delay.</summary>
+    /// <summary>The Japanese text's next-page arrow hidden while a second subtitle holds the input wait, then its loop.</summary>
     IntroNextPageArrowDelayed,
     /// <summary>The confused Baby Metroid.</summary>
     ConfusedBabyMetroid,

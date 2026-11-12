@@ -33,7 +33,7 @@ internal static class IntroContentIdentityVerification
         {
             "page-0", "page-1", "page-2", "page-3",
             "page-order", "portrait", "narration-map", "divider", "eye-0", "eye-1", "eye-2", "eye-3",
-            "caret-sprites", "mother-brain-sprites", "mb-explosion-sprites", "rinka-sprites", "egg-sprites",
+            "caret-sprites", "next-page-arrow-sprites", "mother-brain-sprites", "mb-explosion-sprites", "rinka-sprites", "egg-sprites",
             "discovery-sprites", "scientist-sprites", "opening-backdrop",
             "flight-front-map", "flight-rear-map", "flight-backdrop", "flight-sprites",
             "destruction-map-0", "destruction-map-1", "destruction-map-2", "destruction-map-order",
@@ -69,7 +69,7 @@ internal static class IntroContentIdentityVerification
             typeof(IntroCinematicArtwork), typeof(IntroCinematicSourceArtwork), typeof(IntroEyeTilemapPresentation),
             typeof(CeresFlightArtwork), typeof(CeresDestructionArtwork),
             typeof(CeresFlightActorPlacements), typeof(CeresDestructionActorPlacements), typeof(CeresRevealActorPlacements),
-            typeof(IntroCaretSpritePresentation), typeof(IntroMotherBrainSpritePresentation),
+            typeof(IntroCaretSpritePresentation), typeof(IntroNextPageArrowSpritePresentation), typeof(IntroMotherBrainSpritePresentation),
             typeof(IntroMotherBrainExplosionSpritePresentation), typeof(IntroRinkaSpritePresentation),
             typeof(IntroEggEffectSpritePresentation), typeof(IntroDiscoveryActorSpritePresentation),
             typeof(IntroScientistSpritePresentation), typeof(CeresFlightSpritePresentation), typeof(CeresDestructionSpritePresentation),
@@ -196,7 +196,7 @@ internal static class IntroContentIdentityVerification
                 {
                     Id = IntroEyeTilemapFormat.FrameId(index), Cells = Cells("eye-" + index, IntroEyeTilemapFormat.CellsPerFrame),
                 }).ToArray(),
-            })), CaretSprites = IntroCaretSpritePresentation.Load(Sprites("caret", IntroCaretSpriteDefinitions.Frames.Select(frame => frame.Name), IntroCaretSpriteVersion.Current.Revision)), MotherBrainSprites = IntroMotherBrainSpritePresentation.Load(Sprites("mother-brain", IntroMotherBrainSpriteDefinitions.Frames.Select(frame => frame.Name))), MotherBrainExplosionSprites = IntroMotherBrainExplosionSpritePresentation.Load(Sprites("mb-explosion", IntroMotherBrainExplosionSpriteDefinitions.Frames.Select(frame => frame.Name))), RinkaSprites = IntroRinkaSpritePresentation.Load(Sprites("rinka", IntroRinkaSpriteDefinitions.Frames.Select(frame => frame.Name))), EggEffectSprites = IntroEggEffectSpritePresentation.Load(Sprites("egg", IntroEggEffectSpriteDefinitions.Frames.Select(frame => frame.Name))), DiscoveryActorSprites = IntroDiscoveryActorSpritePresentation.Load(Sprites("discovery", IntroDiscoveryActorSpriteDefinitions.Frames.Select(frame => frame.Name))), ScientistSprites = IntroScientistSpritePresentation.Load(Sprites("scientist", IntroScientistSpriteDefinitions.Frames.Select(frame => frame.Name))), Backdrop = Backdrop("opening-backdrop"), CeresFlight = flight, CeresDestruction = destruction, CeresDestructionMaps = destructionMaps, ZebesRevealMap = zebesRevealMap, CeresDestructionSprites = CeresDestructionSpritePresentation.Load(Sprites("destruction", CeresDestructionSpriteFrameDefinitions.Frames.Select(frame => frame.Name))) });
+            })), CaretSprites = IntroCaretSpritePresentation.Load(Sprites("caret", IntroCaretSpriteDefinitions.Frames.Select(frame => frame.Name), IntroCaretSpriteVersion.Current.Revision)), NextPageArrowSprites = IntroNextPageArrowSpritePresentation.Load(Sprites("next-page-arrow", IntroNextPageArrowSpriteDefinitions.Frames.Select(frame => frame.Name), IntroNextPageArrowSpriteFormat.Version)), MotherBrainSprites = IntroMotherBrainSpritePresentation.Load(Sprites("mother-brain", IntroMotherBrainSpriteDefinitions.Frames.Select(frame => frame.Name))), MotherBrainExplosionSprites = IntroMotherBrainExplosionSpritePresentation.Load(Sprites("mb-explosion", IntroMotherBrainExplosionSpriteDefinitions.Frames.Select(frame => frame.Name))), RinkaSprites = IntroRinkaSpritePresentation.Load(Sprites("rinka", IntroRinkaSpriteDefinitions.Frames.Select(frame => frame.Name))), EggEffectSprites = IntroEggEffectSpritePresentation.Load(Sprites("egg", IntroEggEffectSpriteDefinitions.Frames.Select(frame => frame.Name))), DiscoveryActorSprites = IntroDiscoveryActorSpritePresentation.Load(Sprites("discovery", IntroDiscoveryActorSpriteDefinitions.Frames.Select(frame => frame.Name), IntroDiscoveryActorSpriteFormat.Version)), ScientistSprites = IntroScientistSpritePresentation.Load(Sprites("scientist", IntroScientistSpriteDefinitions.Frames.Select(frame => frame.Name), IntroScientistSpriteFormat.Version)), Backdrop = Backdrop("opening-backdrop"), CeresFlight = flight, CeresDestruction = destruction, CeresDestructionMaps = destructionMaps, ZebesRevealMap = zebesRevealMap, CeresDestructionSprites = CeresDestructionSpritePresentation.Load(Sprites("destruction", CeresDestructionSpriteFrameDefinitions.Frames.Select(frame => frame.Name))) });
     }
 
     /// <summary>Runs selected-content identity checks for opening and Ceres assets.</summary>

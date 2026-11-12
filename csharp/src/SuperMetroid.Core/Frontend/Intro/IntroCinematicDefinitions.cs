@@ -65,5 +65,9 @@ public static class IntroCinematicDefinitions
         public const int CharacterPixelSize = 8;
         /// <summary>Pixels from a character's origin to its baseline.</summary>
         public const int CharacterBaselineOffset = 8;
+        /// <summary>The Japanese text's next-page arrow's column, in pixels from the screen's left: the screen's middle (#1655).</summary>
+        public const int NextPageArrowX = 128;
+        /// <summary>The Japanese text's next-page arrow's row, in pixels from the screen's top: below the page's text (#1655).</summary>
+        public const int NextPageArrowY = 216;
     }
 }

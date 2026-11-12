@@ -36,6 +36,9 @@ public sealed record IntroCinematicArtworkParts : IntroCinematicSceneParts
     /// <summary>Visible narration caret compositions, independent of positioning and blink timing.</summary>
     public required IntroCaretSpritePresentation CaretSprites { get; init; }
 
+    /// <summary>The Japanese text's next-page arrow compositions, independent of its position and cadence (#1655).</summary>
+    public required IntroNextPageArrowSpritePresentation NextPageArrowSprites { get; init; }
+
     /// <summary>Intro Mother Brain actor compositions.</summary>
     public required IntroMotherBrainSpritePresentation MotherBrainSprites { get; init; }
 

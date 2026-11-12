@@ -583,8 +583,10 @@ public sealed class IntroCinematicState : IFrontendScreen
     internal void SetupMotherBrainFlashback()
     {
         // The shared scene setup moves the persistent narration caret to Y=248.
-        // It remains alive and will be restored by the next text-page setup.
+        // It remains alive and will be restored by the next text-page setup. Starting the cross-fade turns the page,
+        // which deletes the Japanese text's next-page arrow.
         Objects.PlaceCaretOffScreen();
+        Objects.AcceptPageTurn();
 
         // The discovery setup shows the Mother Brain room page. Its 32x32 visual map was already
         // loaded by the initial artwork decompression; the room's block data below is gameplay
@@ -685,6 +687,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     internal void SetupBabyDiscoveryCrossfade()
     {
         Objects.PlaceCaretOffScreen();
+        Objects.AcceptPageTurn();
 
         // The discovery setup shows the second authored room page, declares a
         // 32x16 collision room, carries Samus into new egg/baby/demo owners, and reuses the same
@@ -752,6 +755,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // Scientist crossfades use the sibling setup, which performs
         // the same off-screen caret move before changing the visible layer configuration.
         Objects.PlaceCaretOffScreen();
+        Objects.AcceptPageTurn();
 
         // The delivery setup shows the laboratory page, starts it 32 pixels right with vertical scroll eight,
         // seeds the intro crossfade counter, and spawns the delivered baby before configuring the
@@ -829,6 +833,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     private void SetupBabyMetroidExamination()
     {
         Objects.PlaceCaretOffScreen();
+        Objects.AcceptPageTurn();
 
         // The examination setup shows the examination page, starts the page at Y=-24, and spawns the examined baby.
         // Its setup is otherwise the same two-counter scientist crossfade as delivery.
@@ -859,9 +864,11 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Seeds the final narration page's timer, preserving the English/Japanese dispatch difference.</summary>
     private void SetupPageSix()
     {
-        // Page five's setup seeds the intro crossfade counter. English falls straight through into
-        // page six; Japanese text selects page six as the next dispatch's cinematic function.
+        // Page five's setup seeds the intro crossfade counter, which turns the page and deletes the Japanese text's
+        // next-page arrow. English falls straight through into page six; Japanese text selects page six as the next
+        // dispatch's cinematic function.
         introCrossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Crossfade.InitialCounter);
+        Objects.AcceptPageTurn();
         if (subtitles.Enabled)
             Phase = IntroCinematicPhase.StartPageSix;
         else
@@ -1150,7 +1157,7 @@ level, samus, frameCounter);
         return sprites;
     }
 
-    /// <summary>Collects the persistent caret and illustrated-page cinematic objects in display order.</summary>
+    /// <summary>Collects the persistent caret, the Japanese text's next-page arrow and illustrated-page cinematic objects in display order.</summary>
     internal SpriteFrameBuffer PrepareIllustratedPageSprites()
     {
         var sprites = new SpriteFrameBuffer();
@@ -1165,6 +1172,8 @@ level, samus, frameCounter);
                 caretPose, objectSprites, Objects.Caret.ToSpritePosition(),
                 IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects));
         }
+        // The Japanese text's next-page arrow is drawn after the caret, whose object comes first (#1655).
+        Objects.NextPageArrow?.Draw(objectSprites, installedArt: IntroSprites(CinematicSpriteFamily.IntroNextPageArrow));
         objectSprites.FinishFrame();
         foreach (SpriteDraw draw in objectSprites.Draws)
             sprites.Add(draw);

@@ -197,7 +197,10 @@ the `ushort` is already there, the hex is already there, the address switch is a
 
 So each design decision, once made, is written down as a Roslyn analyzer in `SuperMetroid.EnsureAnalyzer`, runs
 at **error** severity in every maintained project, and fails the build. The rules are the migration made
-executable. `csharp/.editorconfig` and the analyzer sources are the authoritative list; the families are:
+executable. The one exception is the owner's (2026-11-11): rules whose every finding an existing fixer resolves with
+no choice and no change of behaviour are grouped in `csharp/.editorconfig` below error, and the asynchronous cleanup
+(`tools/cleanup/`) fixes them and pushes the fixes after each commit. `csharp/.editorconfig` and the analyzer sources
+are the authoritative list; the families are:
 
 | Family | Enforces |
 | --- | --- |
@@ -243,7 +246,8 @@ Therefore:
   site is intrinsic or a false positive. Nothing else resolves it.
 - Never: a baseline file, a per-file count, a "may only shrink" list, an accepted-fingerprint file, an
   allow-list kept as a hook, a tool that regenerates allowances, an assembly- or namespace-wide suppression, a
-  `<Pending>` justification, `NoWarn`, `WarningsNotAsErrors`, a severity below error, a change to a rule's scope,
+  `<Pending>` justification, `NoWarn`, `WarningsNotAsErrors`, a severity below error (outside the owner's
+  automatically fixed group), a change to a rule's scope,
   or a change to a rule's exemption lists (catalog suffixes, owner attributes) to make a site pass.
 - A new or tightened rule ships at full severity with every existing site fixed or justified in the same work.
 - A ticket whose rule still has findings is not done. If the findings are too many for the change in hand, the
@@ -314,7 +318,8 @@ incomplete.
 Count with the census (`tools/sme-census`, see `docs/analyzer-cleanup.md` for the invocation) and work from its
 output. A project is clean when the census says so, not when the build passes.
 
-**Never touch the enforcement to clear a finding.** The analyzer sources, `.editorconfig` severities,
+**Never touch the enforcement to clear a finding.** Only the owner moves a rule into the automatically fixed group.
+The analyzer sources, `.editorconfig` severities,
 `Directory.Build.targets`, `module-map.json`, the catalog-suffix list in the encoding scanner, and the set of
 boundary and owner attributes are not cleanup surfaces. A genuine analyzer bug (a false positive the rule's own
 documentation says should not fire) is fixed in the analyzer **with a verification case in

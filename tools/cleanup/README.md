@@ -108,6 +108,12 @@ start, request and outcome.
 
 A failed tip is not retried: the next push (a new tip) runs again, and a later successful run clears the failure.
 
+A network step is retried before it fails the run (owner ruling, 2026-11-12). That covers every fetch and the push,
+when a transient network or system failure stops them: a dropped connection, or a DNS thread that failed to start.
+Each such step is tried up to 4 times in all, the first attempt and three retries, with a 30-second pause before each
+retry (`Invoke-NetworkGit` in `common.ps1`). Each failed attempt is logged with git's output. A rejected push is an
+outcome, not a failure, and is never retried (see below).
+
 ## Conflicts with the developer
 
 The developer runs, before pushing:

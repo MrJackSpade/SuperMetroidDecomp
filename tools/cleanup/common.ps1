@@ -8,6 +8,30 @@ $script:NoDialogsErrorMode = [uint32]0x8003
 # tools/cleanup in the tree it cleans.
 $script:InstalledScripts = @('common.ps1', 'notify.ps1', 'trigger.ps1', 'service.ps1')
 
+# A network step (a fetch or a push) is tried this many times in all before the run fails and notifies: the first
+# attempt and three retries (owner ruling, 2026-11-12: a transient network or system failure, such as a DNS thread that
+# failed to start, is retried at least three times per push).
+$script:NetworkAttempts = 4
+
+# The pause before each retry of a network step, so a transient failure can clear. It only waits; it never stops a step.
+$script:NetworkRetryPauseSeconds = 30
+
+function Invoke-NetworkGit([string]$Repository, [string[]]$Arguments, [scriptblock]$IsDefinitive) {
+    # Runs a network git command in $Repository, retrying a failure until $NetworkAttempts attempts have been made. A
+    # failed attempt whose output $IsDefinitive accepts (a rejected push) is an outcome, returned at once. Every failed
+    # attempt is written to the host stream with git's output. Returns the last attempt's exit code, output and number.
+    for ($attempt = 1; ; $attempt++) {
+        $output = @(& git -C $Repository @Arguments 2>&1 | ForEach-Object { "$_" })
+        $exit = $LASTEXITCODE
+        $definitive = $exit -ne 0 -and $null -ne $IsDefinitive -and [bool](& $IsDefinitive $output)
+        if ($exit -eq 0 -or $definitive -or $attempt -ge $script:NetworkAttempts) {
+            return [pscustomobject]@{ Exit = $exit; Output = $output; Attempt = $attempt }
+        }
+        Write-Host "git $($Arguments -join ' ') failed (exit $exit), attempt $attempt of $($script:NetworkAttempts); retrying in $($script:NetworkRetryPauseSeconds) s: $($output -join ' | ')"
+        Start-Sleep -Seconds $script:NetworkRetryPauseSeconds
+    }
+}
+
 function Disable-ErrorDialogs {
     # Installs the Windows no-dialog process policy; every process this one starts inherits it. Emitted directly
     # rather than compiled with Add-Type, so the git hook that starts the cleanup stays fast.

@@ -289,16 +289,21 @@ try {
     Write-Output "committed $commit`: $subject"
 
     Write-Step "push to $Remote $Branch"
-    $push = & git -C $repository push --porcelain $Remote "HEAD:refs/heads/$Branch" 2>&1 | ForEach-Object { "$_" }
-    $exit = $LASTEXITCODE
+    # A rejection is an outcome, never retried; any other failure is retried (Invoke-NetworkGit) before the run fails.
+    $rejectedPattern = "^!\s+HEAD:refs/heads/$([regex]::Escape($Branch))\s+\[rejected\] \((fetch first|non-fast-forward)\)"
+    $pushed = Invoke-NetworkGit $repository @('push', '--porcelain', $Remote, "HEAD:refs/heads/$Branch") {
+        param($Lines) @($Lines | Where-Object { $_ -match $rejectedPattern }).Count -eq 1
+    }.GetNewClosure()
+    $push = $pushed.Output
+    $exit = $pushed.Exit
     $push | ForEach-Object { Write-Output $_ }
-    Write-Output "--- push exit $exit"
+    Write-Output "--- push exit $exit after $($pushed.Attempt) attempt(s)"
     if ($exit -eq 0) {
         Save-Result @{ result = 'pushed'; tip = $Tip; commit = $commit; message = $subject }
         exit 0
     }
     # A stale tip is reported as rejected with "fetch first" or "non-fast-forward"; anything else is a failure.
-    $rejection = @($push | Where-Object { $_ -match "^!\s+HEAD:refs/heads/$([regex]::Escape($Branch))\s+\[rejected\] \((fetch first|non-fast-forward)\)" })
+    $rejection = @($push | Where-Object { $_ -match $rejectedPattern })
     if ($rejection.Count -eq 1) {
         Save-Result @{ result = 'rejected'; tip = $Tip; commit = $commit; message = $rejection[0] }
         exit 0

@@ -24,6 +24,16 @@ function Invoke-Git([string[]]$Arguments) {
     return (($output | ForEach-Object { "$_" }) -join "`n").Trim()
 }
 
+function Invoke-Fetch($Config) {
+    # Fetches the cleaned branch into the clone, retrying a failed fetch (Invoke-NetworkGit); fails after the last attempt.
+    $fetched = Invoke-NetworkGit $paths.Repository @('fetch', '--quiet', '--no-tags', $Config.remote,
+        "+refs/heads/$($Config.branch):refs/remotes/$($Config.remote)/$($Config.branch)") $null
+    if ($fetched.Exit -ne 0) {
+        throw "git fetch of $($Config.remote)/$($Config.branch) failed on all $($fetched.Attempt) attempts (exit $($fetched.Exit)): $($fetched.Output -join "`n")"
+    }
+    if ($fetched.Attempt -gt 1) { Write-LogLine $paths.ServiceLog "fetch succeeded on attempt $($fetched.Attempt)" }
+}
+
 function Read-ServiceState {
     # What the service remembers between runs: requests taken, and the last tips found clean and found failing.
     if (-not (Test-Path -LiteralPath $paths.State)) {
@@ -49,8 +59,7 @@ function Assert-InstalledScriptsCurrent([string]$Tip) {
 
 function Invoke-CleanupRun($Config, $State) {
     # One run on the current remote tip. Returns already-clean, already-failed, nothing, pushed, rejected or failed.
-    $null = Invoke-Git @('fetch', '--quiet', '--no-tags', $Config.remote,
-        "+refs/heads/$($Config.branch):refs/remotes/$($Config.remote)/$($Config.branch)")
+    Invoke-Fetch $Config
     $tip = Invoke-Git @('rev-parse', "$($Config.remote)/$($Config.branch)")
     if ($tip -eq $State.lastCleanTip) {
         Write-LogLine $paths.ServiceLog "tip $tip is already clean"
@@ -108,8 +117,7 @@ function Invoke-CleanupRun($Config, $State) {
         }
         'rejected' {
             # Only a developer push that landed during the run may restart it; any other rejection is a failure.
-            $null = Invoke-Git @('fetch', '--quiet', '--no-tags', $Config.remote,
-                "+refs/heads/$($Config.branch):refs/remotes/$($Config.remote)/$($Config.branch)")
+            Invoke-Fetch $Config
             $moved = Invoke-Git @('rev-parse', "$($Config.remote)/$($Config.branch)")
             if ($moved -eq $tip) { throw "The push of $($outcome.commit) was rejected, but $($Config.branch) is still at ${tip}: $($outcome.message)" }
             Write-LogLine $paths.ServiceLog "push rejected: $($Config.branch) moved from $tip to $moved during the run; discarding $($outcome.commit)"

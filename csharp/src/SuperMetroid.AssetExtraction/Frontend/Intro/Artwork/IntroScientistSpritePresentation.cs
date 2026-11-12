@@ -21,11 +21,11 @@ public sealed class IntroScientistSpritePresentation : ICinematicSpriteFrames
     /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
     public string ContentIdentity => CinematicSpriteArtwork.ContentIdentity(nameof(IntroScientistSpritePresentation), frames);
 
-    /// <summary>Retains the ten validated frames after JSON compilation.</summary>
+    /// <summary>Retains the six validated frames after JSON compilation.</summary>
     private IntroScientistSpritePresentation(Dictionary<CinematicSpritePose, SpriteComposition> frames) =>
         this.frames = frames;
 
-    /// <summary>Loads and validates all ten baby-Metroid visual frames for the scientist scenes.</summary>
+    /// <summary>Loads and validates all six baby-Metroid visual frames for the scientist scenes.</summary>
     /// <param name="json">The caller-owned stream containing the editable sprite document.</param>
     /// <returns>The compiled presentation keyed by native bank-$8C spritemap identities.</returns>
     /// <exception cref="InvalidDataException">The JSON, version, frame set, or sprite parts are invalid.</exception>
@@ -38,7 +38,7 @@ public sealed class IntroScientistSpritePresentation : ICinematicSpriteFrames
             IntroScientistSpriteDefinitions.Frames;
         if (document.Version != IntroScientistSpriteFormat.Version ||
             document.Frames is null || document.Frames.Count != definitions.Count)
-            throw new InvalidDataException("Intro scientist scenes require ten named visual frames.");
+            throw new InvalidDataException("Intro scientist scenes require six named visual frames.");
         var frames = new Dictionary<CinematicSpritePose, SpriteComposition>();
         foreach (CinematicSpriteFrameDefinition definition in definitions)
         {
@@ -53,7 +53,7 @@ public sealed class IntroScientistSpritePresentation : ICinematicSpriteFrames
 
     /// <summary>Writes an editable scientist-scene baby sprite document as JSON.</summary>
     /// <param name="json">The caller-owned destination stream.</param>
-    /// <param name="document">The ten-frame sprite document to serialize.</param>
+    /// <param name="document">The six-frame sprite document to serialize.</param>
     public static void Write(Stream json, IntroScientistSpriteDocument document)
     {
         Ensure.NotNull(json);

@@ -35,10 +35,10 @@ internal enum CinematicSpriteProgram
     IntroTextCaret,
     /// <summary>The intro text caret blinking.</summary>
     IntroTextCaretBlink,
-    /// <summary>The scientist cutscene's arrow.</summary>
-    IntroScientistArrow,
-    /// <summary>The scientist cutscene's arrow after its delay.</summary>
-    IntroScientistArrowDelayed,
+    /// <summary>The Japanese text's next-page arrow, which no family of the intro draws (#1654).</summary>
+    IntroNextPageArrow,
+    /// <summary>The Japanese text's next-page arrow after its hidden delay.</summary>
+    IntroNextPageArrowDelayed,
     /// <summary>The confused Baby Metroid.</summary>
     ConfusedBabyMetroid,
     /// <summary>The destruction scene's large asteroid.</summary>

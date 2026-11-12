@@ -22,7 +22,7 @@ namespace SuperMetroid.Verification.Frontend.Intro;
 /// <summary>Checks installed scientist and delivered-Baby sprites in intro scenes against native OAM.</summary>
 internal static class IntroScientistSpriteArtworkVerification
 {
-    /// <summary>Compares ten frames and the live examination actor with native OAM, and checks missing-frame rejection.</summary>
+    /// <summary>Compares six frames and the live examination actor with native OAM, and checks missing-frame rejection.</summary>
     internal static void VerifyIntroScientistSpriteArtwork(SuperMetroidAddressSpace bus,
         IntroCinematicArtwork stock, GameInstallation installation)
     {
@@ -75,7 +75,7 @@ internal static class IntroScientistSpriteArtworkVerification
         AssertTrue(installedExamination.ImageEquals(nativeExamination),
             "installed examination actor preserves live native OAM");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
-            "production scientist scenes never reread ten native spritemaps");
+            "production scientist scenes never reread six native spritemaps");
 
         document.Frames.Remove("delivered-baby-1");
         AssertThrows<InvalidDataException>(() =>

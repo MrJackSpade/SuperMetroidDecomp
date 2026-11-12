@@ -95,7 +95,7 @@ public class IntroCinematicSourceArtwork : IntroCinematicArtwork
     public IntroEggEffectSpritePresentation EggEffectSprites { get; }
     /// <summary>Nineteen editable SR388 egg and confused-baby actor compositions.</summary>
     public IntroDiscoveryActorSpritePresentation DiscoveryActorSprites { get; }
-    /// <summary>Ten editable delivery/examination baby-Metroid compositions.</summary>
+    /// <summary>Six editable delivery/examination baby-Metroid compositions.</summary>
     public IntroScientistSpritePresentation ScientistSprites { get; }
     /// <summary>Station-blast and Zebes-reveal compositions; the approach's are the Ceres flight's.</summary>
     public CeresDestructionSpritePresentation CeresDestructionSprites { get; }

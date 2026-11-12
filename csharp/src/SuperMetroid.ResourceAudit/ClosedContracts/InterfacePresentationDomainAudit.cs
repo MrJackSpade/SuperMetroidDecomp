@@ -52,6 +52,7 @@ internal static class InterfacePresentationDomainAudit
             IntroEggEffectSpriteDefinitions.Frames.Any(frame => frame.Pose.Index == pose) ||
             IntroRinkaSpriteDefinitions.Frames.Any(frame => frame.Pose.Index == pose) ||
             IntroScientistSpriteDefinitions.Frames.Any(frame => frame.Pose.Index == pose) ||
+            IntroCaretSpriteDefinitions.Frames.Any(frame => frame.Pose.Index == pose) ||
             CeresFlightSpriteDefinitions.Frames.Any(frame => frame.Pose.Index == pose) ||
             CeresDestructionSpriteDefinitions.Poses.Any(candidate => candidate.Index == pose) ||
             EndingCloudSpriteDefinitions.Frames.Any(frame => frame.Pose.Index == pose) ||

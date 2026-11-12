@@ -118,14 +118,14 @@ internal static class CinematicSpriteAnimations
             Show(25, 5),
             Show(26, 5),
         ],
-        [P.IntroScientistArrow] =
+        [P.IntroNextPageArrow] =
         [
             Show(27, 10),
             Show(28, 10),
             Show(29, 10),
             Show(28, 10),
         ],
-        [P.IntroScientistArrowDelayed] =
+        [P.IntroNextPageArrowDelayed] =
         [
             Show(26, 60),
         ],
@@ -718,8 +718,8 @@ internal static class CinematicSpriteAnimations
         [P.BabyMetroidExamined] = new([new(P.BabyMetroidExamined, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.IntroTextCaret] = new([new(P.IntroTextCaret, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
         [P.IntroTextCaretBlink] = new([new(P.IntroTextCaretBlink, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.IntroScientistArrow] = new([new(P.IntroScientistArrow, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.IntroScientistArrowDelayed] = new([new(P.IntroScientistArrowDelayed, 0, 1, 1), new(P.IntroScientistArrow, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.IntroNextPageArrow] = new([new(P.IntroNextPageArrow, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.IntroNextPageArrowDelayed] = new([new(P.IntroNextPageArrowDelayed, 0, 1, 1), new(P.IntroNextPageArrow, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
         [P.ConfusedBabyMetroid] = new([new(P.ConfusedBabyMetroid, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.CeresDestructionLargeAsteroid] = new([new(P.CeresDestructionLargeAsteroid, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
         [P.CeresUnderAttack] = new([new(P.CeresUnderAttack, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),

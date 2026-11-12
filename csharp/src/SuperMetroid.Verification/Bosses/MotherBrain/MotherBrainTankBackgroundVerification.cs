@@ -58,7 +58,7 @@ internal static class MotherBrainTankBackgroundVerification
         AssertTrue(RoomShowsPipeBackground(), "The body frame leaves the room's library background as loaded");
         Console.WriteLine("Mother Brain tank background: real room pipes retained, native staging clear and later body upload passed.");
         return 0;
-        bool RoomShowsPipeBackground() => runtime.Room.Scope is { BackgroundImage: { } shown } scope
+        bool RoomShowsPipeBackground() => runtime.Room.Scope is { BackgroundImage: RoomLibraryBackgroundPicture.Drawn { Image: { } shown } } scope
             && scope.Room.State.Background == LibraryBackgroundProgramDefinitions.Get(0xe48a).Background
             && shown.Image.Name == RoomBackgroundImage.NameOf(LibraryBackgroundProgramDefinitions.Get(0xe48a).Background, null, scope.Assets.Tileset);
     }

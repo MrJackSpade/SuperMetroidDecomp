@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.World.RoomStates;
@@ -18,12 +18,7 @@ public static class RoomTurningFloors
         Ensure.NotNull(state);
         if (state.MainCallback == RoomMainCallback.CeresElevatorShaft)
             return RoomTurningFloor.ElevatorShaft;
-        foreach (RoomEnemyPopulationRecord record in state.EnemyPopulation.Records.Span)
-        {
-            if (record.DefinitionId == EnemyDefinitionId.RidleyCeres)
-                return RoomTurningFloor.RidleyGetaway;
-        }
-        return RoomTurningFloor.None;
+        return CeresGetawayRooms.HoldsRidley(state) ? RoomTurningFloor.RidleyGetaway : RoomTurningFloor.None;
     }
 
     /// <summary>Whether <paramref name="state"/> shows a turning floor.</summary>

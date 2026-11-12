@@ -162114,6 +162114,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Verification.Rooms.Artwork.RoomBackgroundPeriodVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Rooms/Artwork/RoomBackgroundPeriodVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Rooms.Artwork.RoomBlockInventoryVerification",
       "kind": "static class",
       "scope": "test",

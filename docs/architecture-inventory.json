@@ -28295,6 +28295,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Rooms.StraddledShotReactions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/StraddledShotReactions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Rooms.StraddledTerrainDocument",
       "kind": "record",
       "scope": "product",
@@ -167845,6 +167858,32 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Verification.Samus.Projectiles.WaveCeilingStraddleVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Samus/Projectiles/WaveCeilingStraddleVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Samus.Projectiles.WaveCeilingStraddleVerification.Scan",
+      "kind": "record",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Samus/Projectiles/WaveCeilingStraddleVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Verification.Samus.Projectiles.WrapShotEnemiesVerification",
